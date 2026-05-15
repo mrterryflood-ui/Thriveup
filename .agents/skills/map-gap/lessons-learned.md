@@ -1,5 +1,19 @@
 # MAP-GAP Lessons Learned
 
+## P-L14 — Read memory before claiming "we don't have X" (May 15, 2026)
+
+**Trigger.** Mid-Centene-draft, when the question "who are the local partners?" came up, I answered as if TCAF had no external partners. The user pushed back. The list was already in `docs/active-commitments.md` (line 275: "Network roster — Wichita / Sedgwick County circle") with the four KS partners + the Austin AEI pipeline. I had to be told the file I was supposed to be running on existed.
+
+**Cost.** Eroded user trust mid-task. Re-do of the partner section on the concept paper. The user had to do my memory job for me.
+
+**Root cause.** Treating the question "do we have partners?" as a *capability question* (what do I know offhand) instead of a *retrieval question* (what's in the memory file). Memory files exist precisely because main-agent context can't hold everything.
+
+**Rule.** Before answering "we don't have X" / "no external Y" / "nothing on record for Z" — `rg -i "<topic>" docs/active-commitments.md replit.md .agents/skills/map-gap/lessons-learned.md` first. If memory says we have it, we have it; surface what memory says, then ask the user to confirm/correct. If memory is silent, *then* answer "nothing on record" and propose adding it.
+
+**Companion to P-L13** (don't act on "user wants Y" without verifying) — together: *neither invent nor deny.* Memory is the ground truth; verify with user before acting on contested entries; never assume absence without searching.
+
+---
+
 ## P-L11 — Status-change sweeps must be exhaustive (May 14, 2026)
 When a foundational entity-status fact changes (e.g., 501(c)(3) "pending" → "determined", SAM "Submitted" → "Active", CAGE "pending" → assigned), a single-file update is never enough. The stale claim propagates across:
 - Public-facing copy (donor pages, landing footers, about pages, non-discrimination, transparency matrix, sidebar)

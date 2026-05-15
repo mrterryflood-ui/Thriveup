@@ -15,10 +15,11 @@
 | 1b | | BH Program Coordinator — 0.50 FTE | $80,000 × 0.50 | $40,000 |
 | 1c | | Evaluation Lead (RPLICE/CFIR-RE-AIM) — 0.20 FTE | $90,000 × 0.20 | $18,000 |
 | 1d | | Fringe (partial payroll taxes only; full benefits package not yet in place) | $73,000 × 2.74% | $2,000 |
-| **2** | **Subaward / Community Partner Stipends** | | | **$30,000** |
-| 2a | | Sankofa Network — Community Health Worker stipends (Black maternal + men's health outreach) | 4 CHWs × $5,000 | $20,000 |
-| 2b | | M2C — Veteran peer navigator stipends (post-separation crisis-window outreach) | 2 navigators × $4,000 | $8,000 |
-| 2c | | Faith-community delivery partner stipends (Travis County congregational referral pathways) | 2 congregations × $1,000 | $2,000 |
+| **2** | **Community Partner Stipends & Compliance Contract** | | | **$30,000** |
+| 2a | | **Sistahs Can We Talk Inc.** (KS 501(c)(3)) — Community Health Worker stipends, BIPOC women's-health + Black maternal + men's-health outreach in Wichita | 4 CHWs × $5,000 | $20,000 |
+| 2b | | M2C — Veteran peer navigator stipends (McConnell AFB + KS Army National Guard post-separation outreach) | 2 navigators × $4,000 | $8,000 |
+| 2c | | **Iasis Christian Center** — faith-community delivery site stipend (screening events, space, transport coordination; spouse-relationship COI disclosed in concept paper) | 1 congregation × $1,000 | $1,000 |
+| 2d | | **Hargrave Innovative Solutions** — contract management + compliance reporting (Eric Hargrave, Wichita) | Fixed-fee | $1,000 |
 | **3** | **Platform Operations** | | | **$20,000** |
 | 3a | | SafeReport HITL clinician review hours | 200 hrs × $75/hr | $15,000 |
 | 3b | | FHIR + CDS Hooks interop maintenance + EHR test harness | Annual cost | $3,000 |
@@ -32,7 +33,7 @@
 | 5b | | Interpretation services beyond Talk Your Talk in-platform capacity | Reserve fund | $750 |
 | 5c | | Printed materials in non-digital languages | Annual cost | $500 |
 | **6** | **Indirect Costs** | | | **$5,000** |
-| 6a | | Indirect rate — 10% (modest by intent; not federally negotiated) | $50,000 indirect base × 10% | $5,000 |
+| 6a | | Indirect — flat elected charge (≈3.4% of total direct costs; well below 10% de minimis) | Elected flat amount | $5,000 |
 | | | | | |
 | | | **TOTAL** | | **$150,000** |
 

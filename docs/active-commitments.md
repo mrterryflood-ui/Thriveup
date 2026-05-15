@@ -33,6 +33,32 @@
 
 ---
 
+## Centene Foundation BH Concept — KANSAS PIVOT (May 15, 2026)
+
+**User directive (May 15):** Pivot pilot location from Travis County, TX → **Sedgwick County, KS (Wichita)** because the warm clinical partners are KS-based. Funder fit strengthens, not weakens: **Centene operates Sunflower Health Plan**, the largest KanCare managed-care organization in Kansas. Verified live (sunflowerhealthplan.com → Centene parent).
+
+**Files pivoted (all in `docs/grants/centene-foundation-2026/`):**
+- `01-concept-paper.md` — geography, exec summary, problem statement, cohort table, partner section, COI section, sustainability, why-fits-Centene
+- `02-budget.md` — section 2 (subaward/community partner stipends) restructured: 2a Sistahs CWT CHWs ($20K), 2b M2C veteran navigators ($8K), 2c Iasis delivery site ($1K), 2d HIS compliance ($1K). Math still totals $30K subaward / $150K grand total.
+- `03-budget-narrative.md` — mirrored. Added Iasis COI paragraph. Added McConnell AFB + KS Army National Guard veteran cohort grounding. Wichita Transit replaces Capital Metro. Kansas ED-cost math replaces Texas.
+
+**Partner roster on this submission (final):**
+1. **Sistahs Can We Talk Inc.** — KS 501(c)(3) since 2015, Dr. J. Michelle Vann Founder & President, 29th & Grove Wichita, women's-health + cohort lead, **Sedgwick County Mental Health Advisory Board seat** (real KS BH credibility we could not manufacture)
+2. **Love Clinic & Med Spa** — Dr. Chela Love, DNP, FNP, bilingual primary care, clinical referral partner
+3. **Iasis Christian Center** — faith-community delivery site for screening events. **COI disclosed on face of application:** Pastor William Vann (Sr Pastor of Iasis) is spouse of Dr. J. Michelle Vann (Sistahs CWT). Stipend goes to Iasis as 501(c)(3), not to leadership personally. Vann household therefore touches two separately-stewarded line items (2a + 2c).
+4. **Hargrave Innovative Solutions** — Eric Hargrave, Wichita; fixed-fee compliance/reporting
+5. **Vanntastic Solutions LLC** — **EXPLICITLY EXCLUDED** from any role; for-profit, COI
+
+**Iron rules maintained:** EIN 41-3618503 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM ACTIVE · President not CEO · Institutional email only · Anika Amie NOT a TCAF principal · No Meredith on this submission · 0 prior federal awards disclosed plainly · Fringe 2.74% (payroll taxes only, honest) · 10% indirect.
+
+**Bonus framing:** Centene Foundation HQ Saint Louis MO is geographically closer to Wichita than to most coastal grantee concentrations — added as "geographic-of-interest, not a substantive argument."
+
+**Congruence audit after pivot:** 223 PASS · 0 WARN · 0 FAIL.
+
+**Status:** Draft ready for user sign-off → submission to Centene Foundation by 2026-05-31.
+
+---
+
 ## Centene Foundation BH Concept (DRAFTED May 15, 2026 — ready for sign-off)
 
 **Files (all in `docs/grants/centene-foundation-2026/`):**
@@ -59,7 +85,7 @@
 - ✅ Iron rules clean: "President" not "CEO"; no Meredith; St. David's "actively evaluating"; national-platform-Texas-piloted; institutional emails only; EIN 41-3618503 in all 3 files; no Anika Amie; no Abundant Life hedge.
 - ✅ Capability honesty: TYT 89+18=107; SafeReport FHIR+CDS Hooks+HITL+0 PHI; WPH validated screening; all platform claims trace to ecosystem-catalog.md and replit.md.
 - ✅ Tabbara disclosure: "no prior federal awards" stated explicitly.
-- ✅ Centene fit: Superior HealthPlan named; BH + health equity priorities cited.
+- ✅ Centene fit: ~~Superior HealthPlan named~~ **(superseded May 15, 2026 — see KS pivot section above; concept now names Sunflower Health Plan / KanCare as the Centene Kansas MCO)**; BH + health equity priorities cited.
 - ✅ COI section present.
 - ✅ Targets consistent across docs (1,500 residents · 400 crisis events · 250 CDS sessions · 200 veteran · 500 SDOH).
 - **FIXED:** Fringe math inconsistency. Was "$73,000 × 5.3% = $2,000" (impossible — 5.3% of $73K is $3,869). Corrected to "$73,000 × 2.74% = $2,000 (partial payroll taxes only; full benefits package not yet in place)". Honest framing matches narrative explanation in `03-budget-narrative.md:1d`.

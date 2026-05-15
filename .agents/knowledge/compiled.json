@@ -1,6 +1,6 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-15T01:44:12.948Z",
+  "compiledAt": "2026-05-15T02:24:21.885Z",
   "sources": [
     {
       "path": "replit.md",
@@ -8,11 +8,11 @@
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-14T22:53:29.830Z"
+      "mtime": "2026-05-15T02:24:06.916Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
-      "mtime": "2026-05-14T19:43:49.204Z"
+      "mtime": "2026-05-15T02:24:17.888Z"
     },
     {
       "path": "docs/ecosystem-catalog.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-15T01:44:12.948Z"
+      "mtime": "2026-05-15T02:24:21.885Z"
     }
   ],
   "project": {
@@ -291,6 +291,49 @@
   ],
   "platforms": [
     {
+      "id": "code-canvas",
+      "name": "Code Canvas — System Evaluator & Optimizer",
+      "url": "https://codecanvaseval.com",
+      "role": "evaluator",
+      "domain": "system-optimization",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
+      "capabilities": {
+        "features": [
+          "Independent Platform Evaluation",
+          "Architecture Analysis",
+          "Performance Profiling",
+          "Code Audit & Review",
+          "Automated Fix Recommendations",
+          "Cross-Platform Optimization",
+          "Ecosystem Coherence Scoring",
+          "Best Practice Enforcement",
+          "SaaS Subscription Model",
+          "White-Label Evaluator",
+          "Continuous Improvement Engine",
+          "Integration Health Checks"
+        ],
+        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
+        "outcomeMetrics": [
+          "Platform evaluations completed",
+          "Optimization recommendations delivered",
+          "Fixes implemented after approval",
+          "Cross-platform coherence score improvements",
+          "Performance gains measured post-optimization"
+        ],
+        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": "2026-03-31T11:57:03.776Z"
+    },
+    {
       "id": "ad-targeting",
       "name": "Advertising Targeting for Platforms",
       "url": "https://adtargetingplatforms.com",
@@ -334,49 +377,6 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "code-canvas",
-      "name": "Code Canvas — System Evaluator & Optimizer",
-      "url": "https://codecanvaseval.com",
-      "role": "evaluator",
-      "domain": "system-optimization",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
-      "capabilities": {
-        "features": [
-          "Independent Platform Evaluation",
-          "Architecture Analysis",
-          "Performance Profiling",
-          "Code Audit & Review",
-          "Automated Fix Recommendations",
-          "Cross-Platform Optimization",
-          "Ecosystem Coherence Scoring",
-          "Best Practice Enforcement",
-          "SaaS Subscription Model",
-          "White-Label Evaluator",
-          "Continuous Improvement Engine",
-          "Integration Health Checks"
-        ],
-        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
-        "outcomeMetrics": [
-          "Platform evaluations completed",
-          "Optimization recommendations delivered",
-          "Fixes implemented after approval",
-          "Cross-platform coherence score improvements",
-          "Performance gains measured post-optimization"
-        ],
-        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
       "id": "speech-bridge",
@@ -508,58 +508,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "isss",
-      "name": "ISSS — Integrated Supports for Thriving Youth",
-      "url": "https://implementationineducatio.com",
-      "role": "student-support",
-      "domain": "education",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
-      "capabilities": {
-        "features": [
-          "Multi-Stakeholder Coordination",
-          "Evidence-Based Student Support",
-          "District-Level Analytics",
-          "Data-Driven Decision Making",
-          "Implementation Fidelity Tracking",
-          "MTSS Tiered Intervention Engine",
-          "Thrive Score Algorithm",
-          "Early Warning System",
-          "Parent Engagement Portal",
-          "IEP/504 Integration",
-          "Trauma-Informed Practices",
-          "School Climate Assessment",
-          "Community Partner Coordination",
-          "Grant Outcome Reporting"
-        ],
-        "frameworks": [
-          "MTSS",
-          "CFIR",
-          "RE-AIM",
-          "PBIS"
-        ],
-        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
-        "outcomeMetrics": [
-          "Schools implementing MTSS with fidelity: 12 districts",
-          "Student Thrive Score improvement: 23% average increase over semester",
-          "Early warning flag-to-intervention rate: 78%",
-          "Parent engagement portal active users: 1,847",
-          "Implementation fidelity score (CFIR): 7.2/10 average",
-          "Intervention effectiveness rate: 64% of flagged students improved",
-          "IEP/504 accommodation compliance rate: 91%"
-        ],
-        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "pinnacle-business-conglomerate",
       "name": "Pinnacle Business Conglomerate",
       "url": "https://pinnaclebusinessconglomerate.com",
@@ -615,6 +563,58 @@
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
     },
     {
+      "id": "isss",
+      "name": "ISSS — Integrated Supports for Thriving Youth",
+      "url": "https://implementationineducatio.com",
+      "role": "student-support",
+      "domain": "education",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
+      "capabilities": {
+        "features": [
+          "Multi-Stakeholder Coordination",
+          "Evidence-Based Student Support",
+          "District-Level Analytics",
+          "Data-Driven Decision Making",
+          "Implementation Fidelity Tracking",
+          "MTSS Tiered Intervention Engine",
+          "Thrive Score Algorithm",
+          "Early Warning System",
+          "Parent Engagement Portal",
+          "IEP/504 Integration",
+          "Trauma-Informed Practices",
+          "School Climate Assessment",
+          "Community Partner Coordination",
+          "Grant Outcome Reporting"
+        ],
+        "frameworks": [
+          "MTSS",
+          "CFIR",
+          "RE-AIM",
+          "PBIS"
+        ],
+        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
+        "outcomeMetrics": [
+          "Schools implementing MTSS with fidelity: 12 districts",
+          "Student Thrive Score improvement: 23% average increase over semester",
+          "Early warning flag-to-intervention rate: 78%",
+          "Parent engagement portal active users: 1,847",
+          "Implementation fidelity score (CFIR): 7.2/10 average",
+          "Intervention effectiveness rate: 64% of flagged students improved",
+          "IEP/504 accommodation compliance rate: 91%"
+        ],
+        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa",
       "name": "Sankofa Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -661,93 +661,50 @@
       "last_heartbeat": null
     },
     {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
+      "id": "safereport",
+      "name": "SafeReport",
+      "url": "https://safereports.net",
+      "role": "compliance",
+      "domain": "compliance",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "description": "Compliance-Grade AI for Clinical Settings — mandatory reporting paired with Clinical Decision Support (CDS) for behavioral-health workflows. 50-state mandatory-reporter regulation database with auto-updated jurisdictional requirements. FHIR + CDS Hooks healthcare-IT interop for direct integration into EHR/clinical systems. PHI-safe by design — 0 raw PHI bytes egressed; all external calls de-identified. Human-In-The-Loop (HITL) default-on; every AI recommendation reviewed by a clinician before it touches a patient. 100% of recommendations cited with sources. Validated longitudinal screening for tracking BH and family-safety trajectories over time. Free-forever tier for small clinics/community providers. Integrates with Whole-Person Health for crisis routing (PHQ-9 / GAD-7 / C-SSRS / PCL-5 handoff), ISSS for student-safety early warnings, LifeBridge for victim/family support resources, and Emergency Management for risk intelligence. The clinical-compliance backbone for the behavioral-health stack.",
       "capabilities": {
         "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
+          "Clinical Decision Support (CDS) for BH workflows",
+          "FHIR + CDS Hooks Healthcare Interop",
+          "PHI-Safe by Design (0 bytes egressed)",
+          "Human-In-The-Loop (HITL) Default-On",
+          "100% Cited Recommendations",
+          "Validated Longitudinal Screening",
+          "50-State Mandatory-Reporter Regulation Database",
+          "Auto-Generated Filing Deadlines with Escalation",
+          "Tamper-Evident Audit Trails",
+          "Cross-Agency Referencing",
+          "Court-Admissible Evidence Packaging",
+          "Compliance Dashboard",
+          "Incident Pattern Analytics",
+          "Free-Forever Tier for Community Providers"
         ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "grantNarrative": "Speaks payer-grade healthcare-IT (FHIR + CDS Hooks), responsible-AI (HITL, 100% citation, 0 PHI egress), and 50-state regulatory-compliance language simultaneously. Fits Centene/Cigna/Episcopal Health behavioral-health, NIMH/SAMHSA clinical-decision-support, RWJF/Schmidt Futures/Patrick J. McGovern responsible-AI lines, and any HIPAA-touching foundation grant.",
         "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
+          "States supported: 50",
+          "PHI bytes egressed: 0",
+          "Recommendations with citations: 100%",
+          "HITL coverage: 100% (default-on)",
+          "Incident reports filed: 456",
+          "Deadline compliance rate: 97%",
+          "Cross-agency referrals: 89",
+          "Average incident-to-resolution time: 4.3 days",
+          "Validated screening tools deployed: PHQ-9, GAD-7, C-SSRS, PCL-5, ACES"
         ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis routing via FHIR), ISSS (student-safety early warnings), LifeBridge (victim/family support), Emergency Management (risk intelligence). EHR-ready via CDS Hooks."
       },
       "grant_alignment": [
         "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "mce",
-      "name": "Minority Center of Excellence",
-      "url": "https://minoritycenterofexcellence.com",
-      "role": "business-ecosystem",
-      "domain": "business-intelligence",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
-      "capabilities": {
-        "records": 656794,
-        "features": [
-          "6-Stage Business Lifecycle Engine",
-          "656,794 SAM.gov Records",
-          "14 AI Tools",
-          "Dual-AI Proposal Review (GPT+Claude)",
-          "SAM.gov Live Integration",
-          "Business Health Score Algorithm",
-          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
-          "Teaming Hub",
-          "Contract Intelligence Dashboard",
-          "Revenue Impact Tracker",
-          "50-State Certification Coverage",
-          "Proposal Template Library",
-          "Market Research Tools",
-          "Competitor Analysis"
-        ],
-        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
-        "outcomeMetrics": [
-          "SAM.gov records curated: 656,794",
-          "Business certifications assisted: 89",
-          "Contract opportunities matched: 1,234",
-          "Dual-AI proposal reviews: 345",
-          "Business Health Score assessments: 567",
-          "Teaming Hub matches: 78",
-          "Revenue impact tracked: $4.2M across client portfolio"
-        ],
-        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
-      },
-      "grant_alignment": [
-        "wioa",
         "foundation",
-        "ssg-fox"
+        "st-davids"
       ],
       "last_heartbeat": null
     },
@@ -841,54 +798,49 @@
       "last_heartbeat": null
     },
     {
-      "id": "betterscience",
-      "name": "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
-      "url": "https://implementationineducatio.com",
-      "role": "research",
-      "domain": "education",
+      "id": "mce",
+      "name": "Minority Center of Excellence",
+      "url": "https://minoritycenterofexcellence.com",
+      "role": "business-ecosystem",
+      "domain": "business-intelligence",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
+      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
       "capabilities": {
+        "records": 656794,
         "features": [
-          "CFIR Implementation Framework",
-          "RE-AIM Evaluation Model",
-          "EPIS Framework Tools",
-          "Evidence-Based Practice Registry",
-          "Fidelity Measurement Instruments",
-          "Research Translation Engine",
-          "RPLICE Decision Framework",
-          "Community Application Guides",
-          "Outcome Measurement Design",
-          "Program Logic Model Builder",
-          "Data Visualization Tools",
-          "Publication Pipeline",
-          "IRB Protocol Templates"
+          "6-Stage Business Lifecycle Engine",
+          "656,794 SAM.gov Records",
+          "14 AI Tools",
+          "Dual-AI Proposal Review (GPT+Claude)",
+          "SAM.gov Live Integration",
+          "Business Health Score Algorithm",
+          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
+          "Teaming Hub",
+          "Contract Intelligence Dashboard",
+          "Revenue Impact Tracker",
+          "50-State Certification Coverage",
+          "Proposal Template Library",
+          "Market Research Tools",
+          "Competitor Analysis"
         ],
-        "frameworks": [
-          "CFIR",
-          "RE-AIM",
-          "EPIS",
-          "RPLICE"
-        ],
-        "grantNarrative": "Produces implementation fidelity evidence, validated outcome measurements, and research-backed intervention effectiveness data required by SSG Fox, foundation, and federal grant reporting standards",
+        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
         "outcomeMetrics": [
-          "Evidence-based interventions in registry: 500+",
-          "Fidelity assessments completed: 234",
-          "Research translations published: 67",
-          "CFIR/RE-AIM evaluations: 45 across ecosystem",
-          "Program logic models built: 23",
-          "Implementation guides distributed: 89",
-          "Outcome measurement designs: 34 validated instruments"
+          "SAM.gov records curated: 656,794",
+          "Business certifications assisted: 89",
+          "Contract opportunities matched: 1,234",
+          "Dual-AI proposal reviews: 345",
+          "Business Health Score assessments: 567",
+          "Teaming Hub matches: 78",
+          "Revenue impact tracked: $4.2M across client portfolio"
         ],
-        "integrationDepth": "Provides research backing to all 22 sibling platforms — each platform's intervention design is validated through CFIR/RE-AIM frameworks. Receives outcome data from all platforms for longitudinal analysis."
+        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
       },
       "grant_alignment": [
-        "ssg-fox",
-        "foundation",
         "wioa",
-        "st-davids"
+        "foundation",
+        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -997,85 +949,100 @@
       "last_heartbeat": null
     },
     {
-      "id": "safereport",
-      "name": "SafeReport",
-      "url": "https://safereports.net",
-      "role": "compliance",
-      "domain": "compliance",
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Enterprise-grade mandatory reporter incident management system — comprehensive 50-state regulation database with auto-updated jurisdictional requirements, 7-stage incident lifecycle from intake to resolution, auto-generated filing deadlines with escalation alerts, tamper-evident blockchain-anchored audit trails, cross-agency referencing for multi-jurisdiction incidents, and court-admissible evidence packaging. Integrates with Emergency Management for risk intelligence, ISSS for student safety, Whole-Person Health for crisis routing, and LifeBridge for victim support resources. The compliance backbone ensuring every platform in the ecosystem meets mandatory reporting obligations.",
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
       "capabilities": {
         "features": [
-          "50-State Regulation Database",
-          "7-Stage Incident Lifecycle",
-          "Auto-Generated Deadlines",
-          "Tamper-Evident Audit Trails",
-          "Cross-Agency Referencing",
-          "Court-Admissible Records",
-          "Jurisdictional Auto-Routing",
-          "Multi-Reporter Coordination",
-          "Evidence Chain of Custody",
-          "Deadline Escalation Alerts",
-          "Compliance Dashboard",
-          "Incident Pattern Analytics"
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
         ],
-        "grantNarrative": "Provides compliance rates, incident resolution metrics, and mandatory reporting adherence data for SSG Fox, foundation, and state grants requiring child/elder abuse prevention evidence",
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
         "outcomeMetrics": [
-          "Incident reports filed: 456 across 50 states",
-          "Deadline compliance rate: 97%",
-          "Audit trail integrity: 100% tamper-evident",
-          "Cross-agency referrals: 89",
-          "Average incident-to-resolution time: 4.3 days",
-          "Court-admissible evidence packages: 34",
-          "Compliance dashboard active jurisdictions: 47 states"
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
         ],
-        "integrationDepth": "Feeds incident data to Emergency Management (risk), receives early warnings from ISSS (student safety), routes crisis to Whole-Person Health, coordinates victim support with LifeBridge"
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
       },
       "grant_alignment": [
         "ssg-fox",
-        "foundation",
-        "st-davids"
+        "st-davids",
+        "foundation"
       ],
       "last_heartbeat": null
     },
     {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
+      "id": "betterscience",
+      "name": "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
+      "url": "https://implementationineducatio.com",
+      "role": "research",
+      "domain": "education",
+      "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618503; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
+      "description": "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
       "capabilities": {
         "features": [
-          "IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)",
-          "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)",
-          "Direct Federal Award Eligibility",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
+          "CFIR Implementation Framework",
+          "RE-AIM Evaluation Model",
+          "EPIS Framework Tools",
+          "Evidence-Based Practice Registry",
+          "Fidelity Measurement Instruments",
+          "Research Translation Engine",
+          "RPLICE Decision Framework",
+          "Community Application Guides",
+          "Outcome Measurement Design",
+          "Program Logic Model Builder",
+          "Data Visualization Tools",
+          "Publication Pipeline",
+          "IRB Protocol Templates"
         ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — IRS-determined 501(c)(3) under 170(b)(1)(A)(vi), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, veteran-founded, Black-led — providing program oversight and direct federal-award eligibility for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component"
+        "frameworks": [
+          "CFIR",
+          "RE-AIM",
+          "EPIS",
+          "RPLICE"
+        ],
+        "grantNarrative": "Produces implementation fidelity evidence, validated outcome measurements, and research-backed intervention effectiveness data required by SSG Fox, foundation, and federal grant reporting standards",
+        "outcomeMetrics": [
+          "Evidence-based interventions in registry: 500+",
+          "Fidelity assessments completed: 234",
+          "Research translations published: 67",
+          "CFIR/RE-AIM evaluations: 45 across ecosystem",
+          "Program logic models built: 23",
+          "Implementation guides distributed: 89",
+          "Outcome measurement designs: 34 validated instruments"
+        ],
+        "integrationDepth": "Provides research backing to all 22 sibling platforms — each platform's intervention design is validated through CFIR/RE-AIM frameworks. Receives outcome data from all platforms for longitudinal analysis."
       },
       "grant_alignment": [
         "ssg-fox",
+        "foundation",
         "wioa",
-        "st-davids",
-        "foundation"
+        "st-davids"
       ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
+      "last_heartbeat": null
     },
     {
       "id": "m2c",
@@ -1124,6 +1091,43 @@
         "foundation"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618503; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
+      "capabilities": {
+        "features": [
+          "IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)",
+          "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)",
+          "Direct Federal Award Eligibility",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — IRS-determined 501(c)(3) under 170(b)(1)(A)(vi), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, veteran-founded, Black-led — providing program oversight and direct federal-award eligibility for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "perfectly-different",
@@ -1262,101 +1266,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "wholemind",
-      "name": "WholeMind Learning",
-      "url": "https://wholemindlearning.com",
-      "role": "k12-education",
-      "domain": "education",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Free, visual-first Pre-K to 12th grade learning platform covering Math, Reading, Science, English, and Social Studies with adaptive difficulty levels. Silent accessibility mode for students with sensory needs, AI-powered homework help with step-by-step explanations, parent-friendly progress tracking dashboard, and gamified engagement system. Integrates with ISSS for student support coordination, Perfectly Different for neurodiversity accommodations, and Better Science Lab for evidence-based pedagogy. Produces learning outcome data (grade progression, skill mastery, engagement rates) for WIOA youth workforce readiness and foundation education grants.",
-      "capabilities": {
-        "features": [
-          "Pre-K to 12th Grade Curriculum",
-          "Visual-First Adaptive Learning",
-          "AI Homework Help",
-          "Silent Accessibility Mode",
-          "Parent Progress Dashboard",
-          "Gamified Engagement",
-          "Skill Mastery Tracking",
-          "Grade Progression Analytics",
-          "Adaptive Difficulty Engine",
-          "Step-by-Step Explanations",
-          "Offline Learning Mode",
-          "Multi-Language Support"
-        ],
-        "subjects": [
-          "Math",
-          "Reading",
-          "Science",
-          "English",
-          "Social Studies"
-        ],
-        "grantNarrative": "Produces learning outcome metrics — grade progression, skill mastery rates, engagement data — for WIOA youth workforce readiness pipeline and foundation education grants",
-        "outcomeMetrics": [
-          "Active student learners: 2,456",
-          "Grade progression rate: 78% of students advance on schedule",
-          "AI homework help sessions: 12,340",
-          "Skill mastery completion rate: 64%",
-          "Parent dashboard active users: 890",
-          "Adaptive difficulty adjustments: 34,567 per month",
-          "Offline learning sessions: 1,234"
-        ],
-        "integrationDepth": "Sends academic data to ISSS for early warning, receives IEP accommodations from Perfectly Different, receives evidence-based content from Better Science Lab"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": "2026-03-19T02:25:57.923Z"
-    },
-    {
-      "id": "video-creator-ai",
-      "name": "Video Creator AI",
-      "url": "https://videocreatorai.com",
-      "role": "content-production",
-      "domain": "marketing-content",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
-      "capabilities": {
-        "features": [
-          "AI Video Generation",
-          "Grant Presentation Decks",
-          "Training Content Production",
-          "Marketing Video Suite",
-          "Platform Showcase Videos",
-          "Ecosystem Overview Content",
-          "Conference Presentations",
-          "Stakeholder Briefing Videos",
-          "Community Outreach Materials",
-          "Consistent Brand Enforcement",
-          "Multi-Platform Content Pipeline",
-          "Social Media Assets"
-        ],
-        "grantNarrative": "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
-        "outcomeMetrics": [
-          "Videos produced: 234 across 24 platforms",
-          "Grant presentation decks: 45",
-          "Training content pieces: 89",
-          "Platform showcase videos: 22",
-          "Social media assets: 567",
-          "Conference presentation materials: 12"
-        ],
-        "integrationDepth": "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence"
-      },
-      "grant_alignment": [
-        "wioa",
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "ecosystem-nexus",
       "name": "Ecosystem Nexus",
       "url": "https://ecosystemnexus.net",
@@ -1445,6 +1354,101 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "video-creator-ai",
+      "name": "Video Creator AI",
+      "url": "https://videocreatorai.com",
+      "role": "content-production",
+      "domain": "marketing-content",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "AI-powered content production engine serving the entire 24-platform ecosystem — produces promotional videos, grant presentation decks, training content, marketing materials, platform showcase videos, and holistic ecosystem overview content. Receives authoritative platform identity profiles to ensure accurate representation. Generates content for grant applications (SSG Fox, WIOA, St. David's), conference presentations, stakeholder briefings, and community outreach. Each platform gets a professional public face through consistent branding and messaging. Integrates with Ad Targeting for campaign-ready assets and all platforms for content source material.",
+      "capabilities": {
+        "features": [
+          "AI Video Generation",
+          "Grant Presentation Decks",
+          "Training Content Production",
+          "Marketing Video Suite",
+          "Platform Showcase Videos",
+          "Ecosystem Overview Content",
+          "Conference Presentations",
+          "Stakeholder Briefing Videos",
+          "Community Outreach Materials",
+          "Consistent Brand Enforcement",
+          "Multi-Platform Content Pipeline",
+          "Social Media Assets"
+        ],
+        "grantNarrative": "Produces grant application video supplements, outcome visualization content, and stakeholder communication materials that strengthen every grant submission across the ecosystem",
+        "outcomeMetrics": [
+          "Videos produced: 234 across 24 platforms",
+          "Grant presentation decks: 45",
+          "Training content pieces: 89",
+          "Platform showcase videos: 22",
+          "Social media assets: 567",
+          "Conference presentation materials: 12"
+        ],
+        "integrationDepth": "Receives identity profiles from all 22 sibling platforms — produces content assets consumed by Ad Targeting for campaigns and by every platform for their public presence"
+      },
+      "grant_alignment": [
+        "wioa",
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "wholemind",
+      "name": "WholeMind Learning",
+      "url": "https://wholemindlearning.com",
+      "role": "k12-education",
+      "domain": "education",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Free, visual-first Pre-K to 12th grade learning platform covering Math, Reading, Science, English, and Social Studies with adaptive difficulty levels. Silent accessibility mode for students with sensory needs, AI-powered homework help with step-by-step explanations, parent-friendly progress tracking dashboard, and gamified engagement system. Integrates with ISSS for student support coordination, Perfectly Different for neurodiversity accommodations, and Better Science Lab for evidence-based pedagogy. Produces learning outcome data (grade progression, skill mastery, engagement rates) for WIOA youth workforce readiness and foundation education grants.",
+      "capabilities": {
+        "features": [
+          "Pre-K to 12th Grade Curriculum",
+          "Visual-First Adaptive Learning",
+          "AI Homework Help",
+          "Silent Accessibility Mode",
+          "Parent Progress Dashboard",
+          "Gamified Engagement",
+          "Skill Mastery Tracking",
+          "Grade Progression Analytics",
+          "Adaptive Difficulty Engine",
+          "Step-by-Step Explanations",
+          "Offline Learning Mode",
+          "Multi-Language Support"
+        ],
+        "subjects": [
+          "Math",
+          "Reading",
+          "Science",
+          "English",
+          "Social Studies"
+        ],
+        "grantNarrative": "Produces learning outcome metrics — grade progression, skill mastery rates, engagement data — for WIOA youth workforce readiness pipeline and foundation education grants",
+        "outcomeMetrics": [
+          "Active student learners: 2,456",
+          "Grade progression rate: 78% of students advance on schedule",
+          "AI homework help sessions: 12,340",
+          "Skill mastery completion rate: 64%",
+          "Parent dashboard active users: 890",
+          "Adaptive difficulty adjustments: 34,567 per month",
+          "Offline learning sessions: 1,234"
+        ],
+        "integrationDepth": "Sends academic data to ISSS for early warning, receives IEP accommodations from Perfectly Different, receives evidence-based content from Better Science Lab"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": "2026-03-19T02:25:57.923Z"
     }
   ],
   "quintet": "**Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health Ecosystem.** See `docs/grants/QUARTET-ONE-PAGER.md` for the drop-in narrative.",
@@ -1472,6 +1476,21 @@
   ],
   "active_commitments": {
     "sections": [
+      {
+        "id": "safereport-platform-upgrade-documentation-sweep-may-15-2026",
+        "heading": "SafeReport platform upgrade + documentation sweep (May 15, 2026)",
+        "summary": "**Trigger:** User noted SafeReport (safereports.net) has been upgraded and is now connected to the ecosystem. Verified via live screenshot.\n\n**What SafeReport is now:** \"Compliance-Grade AI for Clinical Settings.\" No longer a child-welfare incident tracker. Now a clinical-grade behavioral-health decision-support platform with:\n- 50-state mandatory-reporter compliance\n- **FHIR + CDS Hooks** healthcare-IT interop (EHR-ready)\n- **PHI-safe** — 0 raw PHI bytes egressed; de-identified external calls\n- **HITL (Human-In-The-Loop) default-on** — every AI rec reviewed by clinician\n- **100% cited recommendations**\n- Validated longitudinal screening (PHQ-9 / GAD-7 / C-SSRS / PCL-5 / ACES)\n- Free-forever tier for community providers\n\n**Files updated in this sweep:**\n- `server/grant-routes.ts` — PLATFOR"
+      },
+      {
+        "id": "centene-foundation-bh-concept-kansas-pivot-may-15-2026",
+        "heading": "Centene Foundation BH Concept — KANSAS PIVOT (May 15, 2026)",
+        "summary": "**User directive (May 15):** Pivot pilot location from Travis County, TX → **Sedgwick County, KS (Wichita)** because the warm clinical partners are KS-based. Funder fit strengthens, not weakens: **Centene operates Sunflower Health Plan**, the largest KanCare managed-care organization in Kansas. Verified live (sunflowerhealthplan.com → Centene parent).\n\n**Files pivoted (all in `docs/grants/centene-foundation-2026/`):**\n- `01-concept-paper.md` — geography, exec summary, problem statement, cohort table, partner section, COI section, sustainability, why-fits-Centene\n- `02-budget.md` — section 2 (subaward/community partner stipends) restructured: 2a Sistahs CWT CHWs ($20K), 2b M2C veteran navigators ($8K), 2c Iasis delivery site ($1K), 2d HIS compliance ($1K). Math still totals $30K subaward / "
+      },
+      {
+        "id": "centene-foundation-bh-concept-drafted-may-15-2026-ready-for-sign-off",
+        "heading": "Centene Foundation BH Concept (DRAFTED May 15, 2026 — ready for sign-off)",
+        "summary": "**Files (all in `docs/grants/centene-foundation-2026/`):**\n- `01-concept-paper.md` — 2-page concept, BH-stack spine, ~1,500 residents, $150K/12mo\n- `02-budget.md` — line-item budget, sums to $150,000 exactly\n- `03-budget-narrative.md` — per-line justification\n\n**Deadline:** 2026-05-31. Target internal sign-off + submission: by May 30.\n\n**Tabbara prior-award check (completed):**\n- **USASpending.gov:** TCAF returns 0 prior federal awards. Disclosed plainly in concept (`01:21`, `01:114`).\n- **SAM.gov:** UEI KDDVD1FGLW35 · CAGE 209N1 · status ACTIVE (per replit.md memory; renewal 2027-05-06).\n- **SBIR.gov:** no prior SBIR awards (empty result, as expected).\n- **Candid (free tier):** TCAF Nonprofit Profile claim still pending per separate workstream; not blocking this submission.\n\n**Centene Fou"
+      },
       {
         "id": "grant-opportunity-scan-may-14-2026-20-new-non-federal-opportunities",
         "heading": "Grant Opportunity Scan (May 14, 2026) — 20 NEW non-federal opportunities",
@@ -1728,6 +1747,12 @@
   },
   "lessons_learned": [
     {
+      "id": "p-l14-read-memory-before-claiming-we-dont-have-x-may-15-2026",
+      "title": "P-L14 — Read memory before claiming \"we don't have X\" (May 15, 2026)",
+      "summary": "**Trigger.** Mid-Centene-draft, when the question \"who are the local partners?\" came up, I answered as if TCAF had no external partners. The user pushed back. The list was already in `docs/active-commitments.md` (line 275: \"Network roster — Wichita / Sedgwick County circle\") with the four KS partners + the Austin AEI pipeline. I had to be told the file I was supposed to be running on existed.\n\n**Cost.** Eroded user trust mid-task. Re-do of the partner section on the concept paper. The user had to do my memory job for me.\n\n**Root cause.** Treating the question \"do we have partners?\" as a *capab",
+      "sourceFile": ".agents/skills/map-gap/lessons-learned.md"
+    },
+    {
       "id": "p-l11-status-change-sweeps-must-be-exhaustive-may-14-2026",
       "title": "P-L11 — Status-change sweeps must be exhaustive (May 14, 2026)",
       "summary": "When a foundational entity-status fact changes (e.g., 501(c)(3) \"pending\" → \"determined\", SAM \"Submitted\" → \"Active\", CAGE \"pending\" → assigned), a single-file update is never enough. The stale claim propagates across:\n- Public-facing copy (donor pages, landing footers, about pages, non-discrimination, transparency matrix, sidebar)\n- Grant narratives (every NOFO draft + assurance section + organizational-capacity section)\n- Server-side AI prompts (donor-receipt generation prompts that hardcode pilot-status claims)\n- Server-side grant-fit feature lists (capability area descriptions with \"Pendin",
@@ -1907,9 +1932,9 @@
     "vocab": 4,
     "platforms": 25,
     "file_pointers": 15,
-    "lessons": 22,
+    "lessons": 23,
     "no_go": 4,
-    "active_commitment_sections": 46,
+    "active_commitment_sections": 49,
     "ecosystem_caveats": 5,
     "foster_youth_build_log_sections": 3
   }
