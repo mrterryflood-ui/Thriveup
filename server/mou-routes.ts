@@ -1,20 +1,21 @@
 // NSF 26-508 Hub: MOU partner pipeline + Discoveries confirmation + Federation status.
 
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { db } from "./storage";
 import { hubMous, nationwideDiscoveries, insertHubMouSchema } from "@shared/schema";
 import { eq, and, desc } from "drizzle-orm";
 import { getJurisdiction } from "@shared/nationwide/jurisdictions";
+import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
 
 export function registerMouRoutes(app: Express): void {
   // ---- MOU pipeline ----
-  app.get("/api/nsf/mous/:stateCode", async (req, res) => {
+  app.get("/api/nsf/mous/:stateCode", isAuthenticated, async (req, res) => {
     const code = (req.params.stateCode || "").toUpperCase();
     const rows = await db.select().from(hubMous).where(eq(hubMous.hubStateCode, code)).orderBy(hubMous.partnerOrg);
     res.json({ stateCode: code, mous: rows });
   });
 
-  app.post("/api/nsf/mous", async (req, res) => {
+  app.post("/api/nsf/mous", isAuthenticated, async (req, res) => {
     try {
       const body = { ...req.body, hubStateCode: String(req.body?.hubStateCode || "").toUpperCase() };
       if (!getJurisdiction(body.hubStateCode)) return res.status(400).json({ error: "Unknown jurisdiction" });
@@ -26,7 +27,7 @@ export function registerMouRoutes(app: Express): void {
     }
   });
 
-  app.patch("/api/nsf/mous/:id", async (req, res) => {
+  app.patch("/api/nsf/mous/:id", isAuthenticated, async (req, res) => {
     try {
       const id = req.params.id;
       const allowed: Record<string, true> = { partnerOrg: true, partnerRole: true, contactName: true, contactEmail: true, contactPhone: true, status: true, notes: true };
@@ -40,13 +41,13 @@ export function registerMouRoutes(app: Express): void {
     }
   });
 
-  app.delete("/api/nsf/mous/:id", async (req, res) => {
+  app.delete("/api/nsf/mous/:id", isAuthenticated, async (req, res) => {
     await db.delete(hubMous).where(eq(hubMous.id, req.params.id));
     res.json({ ok: true });
   });
 
   // ---- Discoveries (Perplexity findings) confirmation ----
-  app.get("/api/nsf/discoveries/:stateCode", async (req, res) => {
+  app.get("/api/nsf/discoveries/:stateCode", isAuthenticated, async (req, res) => {
     const code = (req.params.stateCode || "").toUpperCase();
     const status = req.query.status ? String(req.query.status) : undefined;
     const where = status
@@ -56,15 +57,17 @@ export function registerMouRoutes(app: Express): void {
     res.json({ stateCode: code, count: rows.length, discoveries: rows });
   });
 
-  app.patch("/api/nsf/discoveries/:id", async (req, res) => {
+  app.patch("/api/nsf/discoveries/:id", isAuthenticated, async (req, res) => {
     try {
       const id = req.params.id;
       const status = String(req.body?.status || "");
       if (!["pending", "confirmed", "dismissed"].includes(status)) {
         return res.status(400).json({ error: "status must be pending|confirmed|dismissed" });
       }
+      const user = (req as any).user;
+      const reviewedBy: string = user?.claims?.name ?? user?.claims?.sub ?? user?.id ?? "authenticated-user";
       const [row] = await db.update(nationwideDiscoveries)
-        .set({ status, reviewedBy: req.body?.reviewedBy ?? "hub-admin", reviewedAt: new Date() })
+        .set({ status, reviewedBy, reviewedAt: new Date() })
         .where(eq(nationwideDiscoveries.id, id))
         .returning();
       if (!row) return res.status(404).json({ error: "not found" });
