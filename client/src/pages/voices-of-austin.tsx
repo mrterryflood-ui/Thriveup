@@ -52,10 +52,10 @@ const RESOURCE_CONNECTIONS = [
   { need: "Health Screening", platform: "Whole-Person Health", route: "PHQ-9, GAD-7, C-SSRS", icon: Stethoscope },
   { need: "Mental Health", platform: "Sankofa Health Network", route: "Culturally responsive care", icon: Brain },
   { need: "Maternal Health", platform: "Black Maternal Health", route: "Perinatal support", icon: Baby },
-  { need: "Medication Help", platform: "PillScheduler", route: "Adherence tracking", icon: Heart },
+  { need: "Medication Help", platform: "HerHealth Network", route: "Adherence + chronic disease navigation", icon: Heart },
   { need: "Youth Services", platform: "ISSS", route: "School-based wraparound", icon: Star },
   { need: "Veteran Support", platform: "Collaborative Advocate", route: "VOSB services", icon: Shield },
-  { need: "Learning", platform: "WholeMind Learning", route: "Adaptive education", icon: GraduationCap },
+  { need: "Learning", platform: "Talk Your Talk", route: "Communication access (89 spoken + 18 sign)", icon: GraduationCap },
 ];
 
 const IMPACT_METRICS = {
@@ -282,10 +282,10 @@ export default function VoicesOfAustinPage() {
         workforce: ["Mission Transition", "MCE"],
         health: ["Whole-Person Health", "Sankofa Health"],
         veteran: ["Collaborative Advocate", "Mission Transition"],
-        education: ["WholeMind Learning", "ThriveUp Academy"],
+        education: ["Talk Your Talk", "ThriveUp Academy"],
         financial: ["MCE", "ThriveUp Academy"],
         community: ["LifeBridge", "ISSS"],
-        youth: ["ISSS", "Perfectly Different", "WholeMind Learning"],
+        youth: ["ISSS", "Perfectly Different", "Talk Your Talk"],
       };
       return apiRequest("POST", "/api/community-stories", {
         ...data,
@@ -341,7 +341,7 @@ export default function VoicesOfAustinPage() {
             Every Story Connects to Action
           </h1>
           <p className="text-xl text-orange-100 mb-3">
-            Share your housing journey, career story, health experience, or community voice — and get connected to real resources through ThriveUp's 24-platform ecosystem.
+            Share your housing journey, career story, health experience, or community voice — and get connected to real resources through ThriveUp's 15-service-platform ecosystem.
           </p>
           <p className="text-lg text-orange-200 mb-6">
             Bridging the gap between information and access.
@@ -350,7 +350,7 @@ export default function VoicesOfAustinPage() {
             <Badge variant="secondary" className="text-sm px-3 py-1"><Mic className="h-3.5 w-3.5 mr-1" /> Share Stories</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><MapPin className="h-3.5 w-3.5 mr-1" /> Hyper-Local</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><ArrowRight className="h-3.5 w-3.5 mr-1" /> Story → Resources</Badge>
-            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms</Badge>
+            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 15 Service Platforms</Badge>
           </div>
         </div>
       </div>
@@ -613,7 +613,7 @@ export default function VoicesOfAustinPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Story → Resource Connections</h2>
             <p className="text-muted-foreground mb-6">
-              Every story type automatically connects you to the right platform in our 24-platform ecosystem.
+              Every story type automatically connects you to the right platform in our 15-service-platform ecosystem.
               No cold referrals — warm handoffs with confirmation tracking.
             </p>
           </div>
@@ -752,7 +752,7 @@ export default function VoicesOfAustinPage() {
                 </div>
                 <h4 className="font-semibold mb-1">AI Video Production</h4>
                 <p className="text-sm text-muted-foreground mb-3">
-                  Video Creator AI transforms stories into professional content for funders and stakeholders.
+                  TCAF Studio transforms stories into professional content for funders and stakeholders.
                 </p>
                 <Button variant="outline" size="sm" onClick={() => window.location.href = "/ai-tools/video-creator"} data-testid="button-video-creator">
                   Video Creator <ArrowRight className="h-3.5 w-3.5 ml-1" />

@@ -83,7 +83,7 @@ function TitleSlide({ isFullscreen }: SlideProps) {
           ThriveUp Academy
         </h1>
         <p className="text-white/80 mt-[2vh] max-w-[60vw] leading-relaxed" style={{ fontSize: "2vw" }}>
-          20-Platform Workforce Development & Community Enablement Ecosystem
+          15 Service Platform Workforce Development & Community Enablement Ecosystem
         </p>
         <div className="mt-[5vh] flex items-center gap-[2vw]">
           <div className="px-[2vw] py-[1vh] rounded-full bg-white/15 backdrop-blur-sm text-white/90" style={{ fontSize: "1.4vw" }}>
@@ -771,14 +771,17 @@ function EcosystemSlide({ isFullscreen }: SlideProps) {
     { name: "ISSS", desc: "Whole-child implementation" },
     { name: "Sankofa Health", desc: "Community health gateway" },
     { name: "MCE", desc: "Minority business lifecycle" },
-    { name: "WholeMind Learning", desc: "Pre-K to 12th education" },
+    { name: "Talk Your Talk", desc: "Communication access (89 spoken + 18 sign)" },
     { name: "Perfectly Different", desc: "Neurodiversity support" },
-    { name: "SafeReport", desc: "Mandatory reporter mgmt" },
-    { name: "M2C Transition", desc: "Military-to-civilian" },
+    { name: "SafeReport", desc: "Mandatory reporter mgmt + screening" },
+    { name: "Mission Transition", desc: "Military-to-civilian (M2C)" },
     { name: "LifeBridge", desc: "Virtual 211 & CHW hub" },
     { name: "Better Science Lab", desc: "Implementation science" },
     { name: "SafeCogniCare", desc: "Cognitive safety" },
-    { name: "PillScheduler", desc: "Medication management" },
+    { name: "HerHealth Network", desc: "Holistic women's health" },
+    { name: "Whole-Person Health", desc: "Behavioral health & crisis" },
+    { name: "Civic Signal", desc: "Civic engagement infrastructure" },
+    { name: "Black Maternal Health Network", desc: "Perinatal navigation" },
   ];
   return (
     <div className="relative w-full h-full overflow-hidden bg-[#1a1215]" data-testid="slide-ecosystem">
@@ -788,7 +791,7 @@ function EcosystemSlide({ isFullscreen }: SlideProps) {
       <div className="relative z-10 flex flex-col justify-center h-full px-[6vw]">
         <div className="flex items-center justify-between mb-[3vh]">
           <div>
-            <p className="text-[#c9a0a0] font-semibold uppercase tracking-widest mb-[1vh]" style={{ fontSize: "1.3vw" }}>20-Platform Ecosystem</p>
+            <p className="text-[#c9a0a0] font-semibold uppercase tracking-widest mb-[1vh]" style={{ fontSize: "1.3vw" }}>15 Service Platforms</p>
             <h2 className="text-white font-bold tracking-tight" style={{ fontSize: "3.2vw" }}>Integrated technology portfolio</h2>
           </div>
           <Link href="/ecosystem" className="flex items-center gap-[0.5vw] text-[#c9a0a0] hover:text-white transition-colors" style={{ fontSize: "1.3vw" }}>
@@ -880,7 +883,7 @@ const SLIDES = [
   { component: WholeChildSlide, title: "Whole-Child Support", speakerNotes: "Beyond academics, we provide whole-child support including the ThriveUp Academy six-domain scoring engine with early warning systems, financial literacy through stock market simulation, a nationwide community resource finder covering 55 U.S. jurisdictions, and STAAR test preparation aligned to Texas standards." },
   { component: ResourceFinderSlide, title: "Resource Finder", speakerNotes: "Our Community Resource Finder connects families to local support services including healthcare, food assistance, housing, education, and employment across all 50 states plus DC, Puerto Rico, U.S. Virgin Islands, Guam, and American Samoa. It uses real-time GIS data from CDC, FBI, and ATSDR sources." },
   { component: AudienceSlide, title: "Who We Serve", speakerNotes: "We serve multiple stakeholders. Participants of all ages get AI and digital literacy training, career exploration and placement, reentry case management, and workforce development. Community partners get service delivery tracking, referral workflows, volunteer coordination, and collective impact reporting. Funders and grant makers get grant-aligned outcome reports, impact dashboards, CSV exports, and API integration." },
-  { component: EcosystemSlide, title: "20-Platform Ecosystem", speakerNotes: "The Collaborative Advocate operates a 20-platform technology ecosystem with 16 fully integrated platforms. This includes ThriveUp Academy as the central hub, ISSS for whole-child implementation, Sankofa Health Network for community health, MCE for minority business development, WholeMind Learning for K-12 education, and specialized platforms for veterans, neurodiversity, mandatory reporting, cognitive safety, and medication management. All platforms share data through a unified cross-platform API with 100% IP ownership." },
+  { component: EcosystemSlide, title: "15 Service Platforms", speakerNotes: "The Collaborative Advocate operates 15 public-facing service platforms as an integrated technology ecosystem. This includes ThriveUp Academy as the central workforce hub, ISSS for whole-child implementation, Sankofa Health Network for community health, MCE for minority business development, Talk Your Talk for communication access across 89 spoken + 18 sign languages, and specialized platforms for veterans (Mission Transition / M2C), neurodiversity (Perfectly Different), mandatory reporting & longitudinal screening (SafeReport), cognitive safety (SafeCogniCare), women's health (HerHealth Network), perinatal care (Black Maternal Health Network), housing navigation (LifeBridge), civic engagement (Civic Signal), and implementation-science evaluation (RPLICE / Better Science Lab). All platforms share data through a unified cross-platform API with 100% IP ownership." },
   { component: DifferentiatorsSlide, title: "What Makes Us Different", speakerNotes: "Four things differentiate us. First, tools are earned through mastery, not purchased. Second, our AI has safety-first design with age-appropriate guardrails. Third, we provide real impact data, not projections. Fourth, we are community-embedded with nationwide resource support and early warning systems." },
   { component: AccessibilitySlide, title: "Accessibility", speakerNotes: "Accessibility is not an afterthought. We have over 2,415 test identifiers, 95+ accessibility labels, WCAG 2.1 AA compliance, dyslexia-friendly fonts, large text mode, high contrast, reduced motion support, English and Spanish, low-bandwidth mode, and full mobile responsiveness." },
   { component: ComplianceSlide, title: "Security & Compliance", speakerNotes: "We are COPPA compliant with parental consent and data retention policies, FERPA aligned with student data protection and role-based access control, secure OIDC authentication, and rate-limited AI interactions. All API routes have comprehensive error handling." },

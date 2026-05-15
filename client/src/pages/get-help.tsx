@@ -93,7 +93,6 @@ const SERVICE_CATEGORIES: ServiceCategory[] = [
       { name: "Whole-Person Health", description: "Health screenings (PHQ-9, GAD-7), safety planning, and resource routing", internalLink: "/ecosystem", platform: "Whole-Person Health" },
       { name: "Sankofa Health Network", description: "Cultural health equity — addressing health disparities in communities of color", internalLink: "/ecosystem", platform: "Sankofa" },
       { name: "Black Maternal Health", description: "Prenatal, postpartum, and maternal care pathways for women of color", internalLink: "/ecosystem", platform: "Sankofa Maternal" },
-      { name: "Autoimmune Center of Excellence", description: "Chronic autoimmune disease support, research, and specialized care pathways", internalLink: "/ecosystem", platform: "Autoimmune Thrive" },
       { name: "HRSA Health Center Finder", description: "Find federally qualified health centers — sliding scale, no one turned away", externalLink: "https://findahealthcenter.hrsa.gov/" },
       { name: "Healthy Texas Women", description: "Family planning, preventive care, and birth control for eligible Texas women", externalLink: "https://healthytexaswomen.org/" },
     ],
@@ -126,7 +125,6 @@ const SERVICE_CATEGORIES: ServiceCategory[] = [
     id: "education", label: "Education & Literacy", icon: GraduationCap, color: "text-violet-600", bgColor: "bg-violet-50 dark:bg-violet-950/20",
     description: "K-12 support, adult education, GED, college, Head Start, literacy, and special education",
     services: [
-      { name: "WholeMind Learning", description: "K-12 neuroscience-based education and social-emotional learning", internalLink: "/ecosystem", platform: "WholeMind" },
       { name: "ISSS Student Support", description: "K-12 student support, MTSS compliance, and progressive learning models", internalLink: "/ecosystem", platform: "ISSS" },
       { name: "Perfectly Different", description: "Neurodiversity support — Autism, ADHD, IEP/504 assistance, sensory-friendly resources", internalLink: "/ecosystem", platform: "Perfectly Different" },
       { name: "FAFSA Application", description: "Free Application for Federal Student Aid — college financial aid", externalLink: "https://studentaid.gov/h/apply-for-aid/fafsa" },
@@ -150,7 +148,6 @@ const SERVICE_CATEGORIES: ServiceCategory[] = [
     description: "Senior services, disability resources, long-term care, cognitive health, medication management",
     services: [
       { name: "SafeCogniCare", description: "Cognitive health for TBI and dementia — memory aids, caregiver support, conduct scoring", internalLink: "/ecosystem", platform: "SafeCogniCare" },
-      { name: "PillScheduler / MedLog", description: "Medication adherence tracking, caregiver alerts, and refill management", internalLink: "/ecosystem", platform: "PillScheduler" },
       { name: "Perfectly Different", description: "Neurodiversity support — Autism, ADHD, IEP/504 assistance", internalLink: "/ecosystem", platform: "Perfectly Different" },
       { name: "SSI/SSDI Screener", description: "Check eligibility for Supplemental Security Income and Social Security Disability", internalLink: "/benefits-screener", platform: "Benefits Intel" },
       { name: "Eldercare Locator", description: "Connect to local Area Agency on Aging for senior services", externalLink: "https://eldercare.acl.gov/" },

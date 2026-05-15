@@ -35,8 +35,8 @@ const ECOSYSTEM_PLATFORMS: EcosystemPlatform[] = [
   { id: "m2c", name: "M2C Transition", shortName: "M2C", icon: Shield, color: "text-slate-600", role: "Military-to-civilian career translation and veteran services" },
   { id: "safereport", name: "SafeReport", shortName: "SafeReport", icon: Shield, color: "text-orange-600", role: "Incident reporting, safety tracking, anonymous reporting" },
   { id: "perfectly-different", name: "Perfectly Different", shortName: "Perf. Different", icon: Brain, color: "text-purple-600", role: "Neurodiversity-affirming platform, mental health risk factor support" },
-  { id: "wholemind", name: "WholeMind Learning", shortName: "WholeMind", icon: BookOpen, color: "text-teal-600", role: "Visual-first K-12 academic platform, protective factor strengthening" },
-  { id: "pillscheduler", name: "PillScheduler", shortName: "PillScheduler", icon: Clock, color: "text-cyan-600", role: "Medication management, adherence reminders, health compliance" },
+  { id: "wholemind", name: "Talk Your Talk", shortName: "Talk Your Talk", icon: BookOpen, color: "text-teal-600", role: "Communication access — 89 spoken + 18 sign languages across literacy, learning, and intake" },
+  { id: "pillscheduler", name: "HerHealth Network", shortName: "HerHealth", icon: Clock, color: "text-cyan-600", role: "Holistic Black feminine health hub — preventive care, chronic disease navigation, medication adherence support" },
   { id: "safecognicare", name: "SafeCogniCare", shortName: "SafeCogni", icon: Brain, color: "text-indigo-600", role: "Cognitive safety monitoring, elder care, cognitive assessment" },
   { id: "betterscience", name: "Better Science Lab", shortName: "Better Science", icon: Microscope, color: "text-sky-600", role: "Research infrastructure, independent evaluation, evidence registry" },
   { id: "isss", name: "ISSS", shortName: "ISSS", icon: ClipboardCheck, color: "text-lime-600", role: "School implementation tools, MTSS compliance, SEL curriculum" },
@@ -136,7 +136,7 @@ const LIFECYCLE_STAGES: StageConfig[] = [
     keyActions: [
       "Run MAP-GAP gap analysis in Program Designer against selected grant requirements",
       "Define SALP fidelity indicators for every program component through RPLICE",
-      "Design curriculum pathways pulling from WholeMind, Perfectly Different, Sankofa as appropriate",
+      "Design curriculum pathways pulling from Talk Your Talk, Perfectly Different, Sankofa as appropriate",
       "Build logic model connecting activities to outputs to outcomes",
       "Generate grant narrative using cross-platform capability documentation",
     ],
@@ -718,7 +718,7 @@ function EcosystemOverview() {
             },
             {
               action: "We Build",
-              description: "WholeMind delivers academic curriculum. Sankofa provides health content. Perfectly Different ensures inclusion. M2C handles veteran pathways. PillScheduler manages medication. SafeCogniCare monitors cognition.",
+              description: "Talk Your Talk delivers communication-access curriculum across 89 spoken + 18 sign languages. Sankofa provides culturally-responsive health content. Perfectly Different ensures inclusion. M2C handles veteran pathways. HerHealth Network supports women's health and medication adherence. SafeCogniCare monitors cognition.",
               platforms: ["wholemind", "sankofa", "perfectly-different", "m2c", "pillscheduler", "safecognicare"],
               icon: Wrench,
             },
@@ -765,7 +765,7 @@ export default function ProgramLifecyclePage() {
           <TrainingGuideButton moduleId="program-lifecycle" />
         </div>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
-          MAP-GAP-driven lifecycle management across the 24-platform ecosystem. Every stage shows which platforms contribute what — no silos, no black boxes.
+          MAP-GAP-driven lifecycle management across the 15-service-platform ecosystem. Every stage shows which platforms contribute what — no silos, no black boxes.
         </p>
       </div>
 

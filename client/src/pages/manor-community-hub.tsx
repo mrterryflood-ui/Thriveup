@@ -76,11 +76,11 @@ const MANOR_NEEDS_ASSESSMENT = [
       "Diabetes prevalence 14.2% — 40% above state average",
       "Maternal health desert — zero OB/GYN within city limits",
     ],
-    platforms: ["Whole-Person Health", "Sankofa Health", "Black Maternal Health", "PillScheduler"],
+    platforms: ["Whole-Person Health", "Sankofa Health", "Black Maternal Health", "HerHealth Network"],
     solutions: [
       "Telehealth bridge — PHQ-9, GAD-7 screenings via platform, warm handoff to providers",
       "Community Health Worker deployment — culturally responsive, bilingual",
-      "Medication adherence program — PillScheduler for chronic disease management",
+      "Medication adherence program — HerHealth Network coordination for chronic disease management",
       "Maternal health mobile unit coordination — prenatal, postpartum support",
     ],
   },
@@ -94,7 +94,7 @@ const MANOR_NEEDS_ASSESSMENT = [
       "No dedicated youth mental health resources in schools",
       "College-going rate declining — 52% to 47% over 3 years",
     ],
-    platforms: ["ISSS", "WholeMind Learning", "Perfectly Different", "ThriveUp Academy"],
+    platforms: ["ISSS", "Talk Your Talk", "Perfectly Different", "ThriveUp Academy"],
     solutions: [
       "School-based wraparound services — ISSS model deployment in Manor ISD",
       "After-school STEM + career exploration — aligned with I-35 workforce needs",
@@ -112,7 +112,7 @@ const MANOR_NEEDS_ASSESSMENT = [
       "City using ESRI for 3rd Spaces mapping — opportunity for data integration",
       "Limited digital government services — most require in-person Austin trips",
     ],
-    platforms: ["Emergency Management", "Ecosystem Nexus", "Video Creator AI"],
+    platforms: ["SafeReport", "Civic Signal", "Talk Your Talk"],
     solutions: [
       "Digital inclusion initiative — partner with city on broadband expansion",
       "Community tech hub — computer access, digital literacy training",
@@ -150,9 +150,9 @@ const ECOSYSTEM_FOR_MANOR = [
   { platform: "MCE", role: "Business development", manorFocus: "Manor small business accelerator, SBA certifications", icon: Building2, color: "bg-purple-500" },
   { platform: "Whole-Person Health", role: "Health screenings", manorFocus: "Telehealth bridge for health desert, PHQ-9/GAD-7", icon: Stethoscope, color: "bg-rose-500" },
   { platform: "ISSS", role: "School wraparound", manorFocus: "Manor ISD deployment, after-school programs", icon: School, color: "bg-indigo-500" },
-  { platform: "WholeMind Learning", role: "Adaptive education", manorFocus: "STAAR prep, college readiness, career exploration", icon: GraduationCap, color: "bg-violet-500" },
+  { platform: "Talk Your Talk", role: "Communication access", manorFocus: "Bilingual literacy + 89 spoken / 18 sign languages — STAAR prep, college readiness, career exploration", icon: GraduationCap, color: "bg-violet-500" },
   { platform: "Sankofa Health", role: "Culturally responsive care", manorFocus: "Bilingual health content for 52% Hispanic community", icon: Heart, color: "bg-pink-500" },
-  { platform: "Video Creator AI", role: "Content production", manorFocus: "Manor community stories → Roku channel content", icon: Play, color: "bg-amber-500" },
+  { platform: "Civic Signal", role: "Civic engagement", manorFocus: "Manor community stories → public-comment infrastructure", icon: Play, color: "bg-amber-500" },
   { platform: "RPLICE", role: "Quality & research", manorFocus: "Outcome tracking, grant compliance, evidence base", icon: Brain, color: "bg-slate-500" },
   { platform: "Voices of Austin", role: "Community storytelling", manorFocus: "Manor-specific story collection and needs intelligence", icon: Mic, color: "bg-orange-500" },
 ];
@@ -177,7 +177,7 @@ export default function ManorCommunityHubPage() {
     <div className="max-w-7xl mx-auto p-6 space-y-10" data-testid="manor-community-hub-page">
       <PageHeader
         title="Built for Manor"
-        description="Right tools. Right community. Right time. 24 platforms adapted for Manor's unique context."
+        description="Right tools. Right community. Right time. 15 service platforms adapted for Manor's unique context."
         actions={
           <div className="flex gap-2 flex-wrap">
             <TrainingGuideButton moduleId="manor-community-hub" />
@@ -215,7 +215,7 @@ export default function ManorCommunityHubPage() {
           </p>
           <div className="flex flex-wrap gap-3">
             <Badge variant="secondary" className="text-sm px-3 py-1"><Users className="h-3.5 w-3.5 mr-1" /> 16,300+ Residents</Badge>
-            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms</Badge>
+            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 15 Service Platforms</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><Wifi className="h-3.5 w-3.5 mr-1" /> ESRI Compatible</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><HandHeart className="h-3.5 w-3.5 mr-1" /> Community-Driven</Badge>
           </div>
@@ -334,7 +334,7 @@ export default function ManorCommunityHubPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Ecosystem Adapted for Manor</h2>
             <p className="text-muted-foreground mb-6">
-              Same 24-platform infrastructure — customized for Manor's demographics, geography, and needs.
+              Same 15-service-platform infrastructure — customized for Manor's demographics, geography, and needs.
               Every platform has a Manor-specific deployment strategy.
             </p>
           </div>
@@ -457,7 +457,7 @@ export default function ManorCommunityHubPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Regional Network</h2>
             <p className="text-muted-foreground mb-6">
-              Manor doesn't operate in isolation. Three regional hubs share the same 24-platform ecosystem —
+              Manor doesn't operate in isolation. Three regional hubs share the same 15-service-platform ecosystem —
               what strengthens one community strengthens all three.
             </p>
           </div>
@@ -524,7 +524,7 @@ export default function ManorCommunityHubPage() {
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-4">
-                All three regions share the same 24-platform ecosystem. This isn't redundancy — it's scale.
+                All three regions share the same 15-service-platform ecosystem. This isn't redundancy — it's scale.
                 A workforce training program that works in Manor also works in Pflugerville. Health screenings
                 validated in Austin deploy identically in Manor. The evidence base grows with every region.
               </p>

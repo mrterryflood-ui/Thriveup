@@ -134,16 +134,13 @@ const ECOSYSTEM_PLATFORMS = [
   { name: "Black Maternal Health", inPerson: true, virtual: true, mobile: true, kiosk: false, category: "Maternal Health" },
   { name: "Sankofa Feminine Health", inPerson: true, virtual: true, mobile: true, kiosk: false, category: "Women's Health" },
   { name: "Sankofa Men's Health", inPerson: true, virtual: true, mobile: true, kiosk: false, category: "Men's Health" },
-  { name: "PillScheduler", inPerson: false, virtual: true, mobile: true, kiosk: true, category: "Medication Management" },
   { name: "SafeCogniCare", inPerson: true, virtual: true, mobile: false, kiosk: false, category: "Cognitive Health" },
   { name: "ISSS", inPerson: true, virtual: true, mobile: false, kiosk: false, category: "School Wraparound" },
-  { name: "WholeMind Learning", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Adaptive Learning" },
   { name: "Perfectly Different", inPerson: true, virtual: true, mobile: false, kiosk: false, category: "Neurodivergent Support" },
   { name: "BetterScience Lab", inPerson: false, virtual: true, mobile: false, kiosk: false, category: "Research & Data" },
   { name: "SafeReport", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Incident Reporting" },
-  { name: "Emergency Management", inPerson: false, virtual: true, mobile: false, kiosk: false, category: "Crisis Response" },
-  { name: "Video Creator AI", inPerson: false, virtual: true, mobile: false, kiosk: false, category: "Content Production" },
-  { name: "M2C Transition", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Benefits & Navigation" },
+  { name: "Talk Your Talk", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Communication Access" },
+  { name: "Mission Transition (M2C)", inPerson: true, virtual: true, mobile: true, kiosk: true, category: "Benefits & Navigation" },
 ];
 
 const SPACE_TYPE_SERVICE_SUPPORT: Record<SpaceType, string[]> = {
@@ -272,7 +269,7 @@ const ACTIVATION_STEPS = [
       "Wi-Fi network configured for public and staff use",
       "Devices procured (tablets, laptops, kiosk station)",
       "Telehealth equipment set up (camera, screen, privacy booth)",
-      "PillScheduler kiosk installed (if medication management offered)",
+      "Medication-management kiosk installed (if offered through partner pharmacy or clinic)",
       "Digital signage configured for service information",
       "IT support plan established",
       "Data security and HIPAA compliance verified",

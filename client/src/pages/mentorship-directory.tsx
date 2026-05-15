@@ -436,7 +436,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     programs: ["Free Business Counseling", "Business Plan Development", "Financing Guidance", "Women Entrepreneurs Conference", "HR & Operations Mentoring"],
     badges: ["SBA Backed", "50+ Mentors", "Free", "Business Plans"],
     impact: "One client secured a 5-year barbering contract at a military base serving 10,000 soldiers.",
-    ecosystemConnection: "Pinnacle Business Conglomerate pipeline. Minority Center of Excellence. TWC entrepreneurship track.",
+    ecosystemConnection: "Mission Transition career pipeline. Minority Center of Excellence. TWC entrepreneurship track.",
   },
   {
     id: "ati",
@@ -453,7 +453,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "Founded in 1989, ATI is the longest active technology incubator in the United States. Empowers university and community entrepreneurs through customized approaches to commercialize breakthrough innovations. Diversity and inclusion programs mentor minority founders.",
     programs: ["Startup Acceleration", "Technology Commercialization", "Minority Founder Mentoring", "Student Pitch Events"],
     badges: ["UT Austin", "Longest Active US Incubator", "Since 1989", "Tech Startups"],
-    ecosystemConnection: "Pinnacle Business Conglomerate tech pipeline. Better Science Lab/RPLICE research commercialization.",
+    ecosystemConnection: "ThriveUp Academy tech pathways. Better Science Lab/RPLICE research commercialization.",
   },
   {
     id: "creative-action",
@@ -470,7 +470,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "Largest arts education organization in Central Texas. 800+ weekly programming hours across six school districts, reaching 20,000+ youth annually. Young artists ages 14-18 can get paid to make visual art, theatre, or film. 75% of youth served are from low-income communities.",
     programs: ["Arts-Based Youth Development", "Teen Paid Programs (14-18)", "In-School Programs", "After-School Programs", "Social Justice Education"],
     badges: ["Largest in Central TX", "20,000+ Youth", "Paid Teen Programs", "75% Low-Income"],
-    ecosystemConnection: "ISSS after-school programming. Video Creator AI content pipeline.",
+    ecosystemConnection: "ISSS after-school programming. Civic Signal community storytelling pipeline.",
   },
   {
     id: "bgcaa",
@@ -505,7 +505,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "Since 1949, empowering adults with intellectual and developmental disabilities. Serves 1,000+ individuals annually across 17 counties. Art and education programs emphasize self-determination, social skills, and employment readiness. Campuses in Austin, Hutto, and Leander.",
     programs: ["Employment Services", "Art & Education Program", "Caregiver Resources", "Volunteer Mentorship", "Self-Determination Training"],
     badges: ["Since 1949", "1,000+ Served", "17 Counties", "IDD Focus"],
-    ecosystemConnection: "Perfectly Different neurodiversity pipeline. LifeBridge disability navigation. PillScheduler medication management.",
+    ecosystemConnection: "Perfectly Different neurodiversity pipeline. LifeBridge disability navigation. HerHealth Network medication adherence support.",
   },
   {
     id: "age-central-tx",
@@ -522,7 +522,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "35+ years improving lives of older adults and caregivers. Support groups for general caregiving (in-person, South Austin), dementia caregiving (virtual), and early-stage memory loss. Adult day health care, caregiver education, and intergenerational programs.",
     programs: ["Caregiver Support Groups", "Adult Day Health Care", "Dementia Caregiving Support", "Caregiver Education", "Intergenerational Programs"],
     badges: ["35+ Years", "Caregiver Support", "Dementia Focus", "South Austin"],
-    ecosystemConnection: "SafeCogniCare cognitive health. PillScheduler medication management. LifeBridge senior navigation.",
+    ecosystemConnection: "SafeCogniCare cognitive health. HerHealth Network medication adherence support. LifeBridge senior navigation.",
   },
   {
     id: "latinitas",
@@ -969,7 +969,7 @@ export default function MentorshipDirectoryPage() {
           <CardContent className="pt-6">
             <h3 className="font-semibold text-lg mb-2" data-testid="text-ecosystem-note-title">How ThriveUp Connects You</h3>
             <p className="text-sm text-muted-foreground mb-3">
-              ThriveUp Academy does not run these mentorship programs. We are the connective tissue — our 24-platform ecosystem routes you to the right program based on your zip code, needs, and goals. When you engage with any of our platforms (LifeBridge, Whole-Person Health, ISSS, TheHealthyBlkMan, etc.), we identify mentorship needs and connect you directly to these community partners.
+              ThriveUp Academy does not run these mentorship programs. We are the connective tissue — our 15-service-platform ecosystem routes you to the right program based on your zip code, needs, and goals. When you engage with any of our platforms (LifeBridge, Whole-Person Health, ISSS, TheHealthyBlkMan, etc.), we identify mentorship needs and connect you directly to these community partners.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
               <div className="flex items-start gap-2">

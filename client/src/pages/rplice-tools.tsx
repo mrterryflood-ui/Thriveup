@@ -1630,7 +1630,7 @@ function AICommunityAnalysis() {
                 <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
                   <CheckCircle2 className="h-3 w-3 mr-1" /> Ecosystem Connected
                   <InfoBubble title="Ecosystem Connection">
-                    <p>RPLICE / Better Science Lab is connected to the ThriveUp Academy ecosystem as the <strong>Research Quality Gate</strong>. This means RPLICE validates the scientific rigor of all analyses and interventions across the 24-platform ecosystem.</p>
+                    <p>RPLICE / Better Science Lab is connected to the ThriveUp Academy ecosystem as the <strong>Research Quality Gate</strong>. This means RPLICE validates the scientific rigor of all analyses and interventions across the 15-service-platform ecosystem.</p>
                     <p>Status: <strong className="text-green-600">Connected and Active</strong></p>
                   </InfoBubble>
                 </Badge>

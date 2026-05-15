@@ -69,7 +69,7 @@ export default function EcosystemOrchestrationPage() {
           <h1 className="text-3xl font-bold" data-testid="text-page-title">Ecosystem Orchestration</h1>
         </div>
         <p className="text-muted-foreground max-w-3xl">
-          Read-only co-manager view of the 24-platform ecosystem: each platform's role, domain, data flows,
+          Read-only co-manager view of the 15-service-platform ecosystem: each platform's role, domain, data flows,
           grant alignment, and the triads that coordinate them. For live operations and health, see the
           internal Ops Center.
         </p>

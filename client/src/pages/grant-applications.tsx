@@ -252,7 +252,7 @@ const PACKAGES: Pkg[] = [
     notes: [
       "ONE proposal per institution — TCAF is the lead applicant for the AI hub (not Abundant Life).",
       "Round 1 awards 10 hubs nationally. If we miss June 16 LOI, next chance is Round 2 LOI Dec 15, 2026.",
-      "Texas angle: leverage RPLICE v2 + 24-platform AI ecosystem as the unique national-scale asset.",
+      "Texas angle: leverage RPLICE v2 + 15-service-platform AI ecosystem as the unique national-scale asset.",
     ],
   },
   {

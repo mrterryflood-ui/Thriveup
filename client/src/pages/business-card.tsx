@@ -138,7 +138,7 @@ function BusinessCardBack({ data, theme }: { data: CardData; theme: string }) {
 
   const platforms = [
     "ThriveUp Academy", "Sankofa Health", "LifeBridge",
-    "WholeMind Learning", "SafeCogniCare", "Mission Transition"
+    "Talk Your Talk", "SafeCogniCare", "Mission Transition"
   ];
 
   return (
@@ -152,7 +152,7 @@ function BusinessCardBack({ data, theme }: { data: CardData; theme: string }) {
         <div className="mb-3">
           <h3 className={`text-base font-bold ${t.text}`}>The Collaborative Advocate Foundation</h3>
           <p className={`text-[9px] uppercase tracking-[0.2em] mt-1 ${t.subtext}`}>
-            24-Platform Community Ecosystem
+            15 Service Platform Community Ecosystem
           </p>
         </div>
 

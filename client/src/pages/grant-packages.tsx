@@ -239,7 +239,7 @@ SERVICE AREA: Central Texas (Travis, Williamson, Hays, Bastrop, Caldwell countie
         tasks: [
           { id: "wc1", task: "Identify target Local Workforce Development Board (LWDB)", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "Your primary target is Workforce Solutions Capital Area (wfsca.org) which serves Travis County. You could also apply to Workforce Solutions Rural Capital Area for Williamson, Hays, Bastrop, Caldwell counties. Contact the Youth Program Manager at your target LWDB to discuss funding availability and local priorities before writing." },
           { id: "wc2", task: "Review state WIOA plan and local area priorities", owner: "Dr. Flood + AI", status: "pending", dueDate: "TBD", guidance: "Texas Workforce Commission publishes the state WIOA plan at twc.texas.gov. Your LWDB also publishes a Local Plan with specific priority sectors, performance targets, and youth service strategies. Align your proposal to BOTH. The AI can analyze these documents if you share them.", aiCanHelp: true, aiAction: "Analyze state/local WIOA plan alignment" },
-          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 24 platforms map directly — e.g., ThriveUp Academy = tutoring, WholeMind = comprehensive guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
+          { id: "wc3", task: "Map platform capabilities to all 14 WIOA youth elements", owner: "AI", status: "pending", dueDate: "TBD", guidance: "WIOA requires all 14 youth program elements. ThriveUp's 15 service platforms map directly — e.g., ThriveUp Academy = tutoring, Talk Your Talk = comprehensive communication-access guidance, SafeReport = safe environment, MCE = entrepreneurial skills. The AI can generate a complete platform-to-element mapping matrix.", aiCanHelp: true, aiAction: "Generate 14-element platform mapping" },
           { id: "wc4", task: "Identify 3-5 employer partners for work-based learning", owner: "Dr. Flood", status: "pending", dueDate: "TBD", guidance: "WIOA requires 20% of funds on Work Experience. Target Austin-area employers in growth sectors: Healthcare (Ascension Seton, St. David's, CommUnityCare), IT (Dell, Indeed), Manufacturing (Samsung, Tesla Gigafactory), Logistics (H-E-B, Amazon). Reach out to HR/workforce development contacts. You need signed commitment letters." },
           { id: "wc5", task: "Gather local labor market data for target occupations", owner: "AI", status: "pending", dueDate: "TBD", guidance: "Pull Austin MSA data from BLS, Texas Workforce Commission, and EMSI/Lightcast. Key data points: youth unemployment rate (16-24), in-demand occupations, median wages by sector, credential gaps, OSY population estimates for Travis County (~18,000). The AI can compile this into a data brief.", aiCanHelp: true, aiAction: "Compile Austin labor market data brief" },
         ],
@@ -492,7 +492,7 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
         "Emphasize the entrepreneurship pathway (MCE) — most applicants only offer job placement",
         "Show AI tools as equity multipliers, not replacement for human connection",
         "Include participant voice and stories (anonymized) in the narrative",
-        "Demonstrate how the 24-platform ecosystem creates a safety net, not just a program",
+        "Demonstrate how the 15-service-platform ecosystem creates a safety net, not just a program",
       ],
       commonPitfalls: [
         "Treating workforce development as only 'get a job' — Foundation Grant wants economic empowerment",
@@ -688,7 +688,7 @@ Target: [NUMBER] participants placed in employment at or above 150% FPL within 9
 IV. SERVICE DELIVERY INFRASTRUCTURE
 
 TECHNOLOGY ECOSYSTEM:
-Our 24-platform ACOS (Advanced Community Operating System) provides integrated digital infrastructure that no single-program organization can match:
+Our 15-service-platform ACOS (Advanced Community Operating System) provides integrated digital infrastructure that no single-program organization can match:
 - LifeBridge: Benefits navigation, enrollment tracking, referral management
 - ThriveUp Academy: Workforce training, learning management, career pathways
 - RPLICE (Better Science Lab): Implementation science validation engine — provides CFIR 2.0 assessments, RE-AIM outcome scoring, implementation fidelity tracking, and Three Realities diagnostic tools. This is our evidence-based quality assurance backbone — every program component is validated against implementation science frameworks, not just activity metrics.
@@ -1057,7 +1057,7 @@ Body: Brief intro of TCAF, description of Pathways to Stability, what you're ask
 
 I. ORGANIZATION OVERVIEW
 
-The Collaborative Advocate Foundation (TCAF) is a veteran-founded, Black-led 501(c)(3) nonprofit organization headquartered in Pflugerville, Texas. Founded by Dr. Terry Flood, TCAF operates a 24-platform technology ecosystem designed to address systemic barriers facing marginalized communities through integrated, data-driven service delivery.
+The Collaborative Advocate Foundation (TCAF) is a veteran-founded, Black-led 501(c)(3) nonprofit organization headquartered in Pflugerville, Texas. Founded by Dr. Terry Flood, TCAF operates a 15-service-platform technology ecosystem designed to address systemic barriers facing marginalized communities through integrated, data-driven service delivery.
 
 Mission: To empower thriving communities through advocacy, technology, and evidence-based programs that address the interconnected challenges of economic stability, health equity, workforce development, and community safety.
 
@@ -1089,7 +1089,7 @@ Board Composition Notes: [Describe diversity of board, community representation,
 
 IV. TECHNOLOGY INFRASTRUCTURE
 
-TCAF operates a 24-platform Advanced Community Operating System (ACOS) providing integrated digital services:
+TCAF operates a 15-service-platform Advanced Community Operating System (ACOS) providing integrated digital services:
 
 Relevant Platforms for This Grant:
 - LifeBridge: Benefits navigation, enrollment tracking, referral management — directly supports Track 1
@@ -1212,7 +1212,7 @@ OUTER SETTING: 4.0/5.0
 → ACTION: Add Bastrop/Caldwell county needs. Address policy adaptability.
 
 INNER SETTING: 3.5/5.0 — WEAKEST DOMAIN
-✓ 24-platform technology infrastructure
+✓ 15-service-platform technology infrastructure
 ✓ Veteran-founded, Black-led matches equity priorities
 ✗ FAIL: No board list, financial statements, or prior results
 ✗ FAIL: Only Dr. Flood named — signals solo operation
@@ -1858,7 +1858,7 @@ Description: [2-3 sentences] | Relevance: [How it relates]
 Reference: [NAME, TITLE, PHONE, EMAIL]
 
 IF LIMITED FORMAL CONTRACT HISTORY:
-The CMS platform itself IS past performance — document the development effort, timeline, technical scope as a case study. Also include: consulting engagements, pro-bono government/nonprofit work, ThriveUp Academy platform (24-platform ACOS ecosystem), academic/research work. Frame honestly — evaluators respect transparency over fabricated experience.`,
+The CMS platform itself IS past performance — document the development effort, timeline, technical scope as a case study. Also include: consulting engagements, pro-bono government/nonprofit work, ThriveUp Academy platform (15-service-platform ACOS ecosystem), academic/research work. Frame honestly — evaluators respect transparency over fabricated experience.`,
         reviewNotes: "Weak references lose more bids than weak tech. Notify references before submission.", lastUpdated: "", assignee: "Dr. Flood",
         pageLimit: "3-5 pages", wordCount: "1,000-2,000 words",
       },
@@ -2462,7 +2462,7 @@ EXPECTED CONTRIBUTIONS:
 - Open documentation of anti-hallucination guardrails and bias audit protocols
 
 ORGANIZATIONAL QUALIFICATIONS:
-Dr. Terry Flood holds a Doctorate in Health Administration, MS in Implementation Science, MA in Psychology, MSHRM, MBA, MSCJ, and Public Policy credentials. U.S. Army Veteran with two Bronze Stars. The 24-platform ACOS ecosystem (thrivingcommunitiesforall.com) demonstrates operational technology infrastructure, not theoretical proposals. RPLICE is live at bettersciencelab.com with 167 database tables and 223+ pages of implementation science tooling.`,
+Dr. Terry Flood holds a Doctorate in Health Administration, MS in Implementation Science, MA in Psychology, MSHRM, MBA, MSCJ, and Public Policy credentials. U.S. Army Veteran with two Bronze Stars. The 15-service-platform ACOS ecosystem (thrivingcommunitiesforall.com) demonstrates operational technology infrastructure, not theoretical proposals. RPLICE is live at bettersciencelab.com with 167 database tables and 223+ pages of implementation science tooling.`,
         reviewNotes: "PRIORITY — April 13 deadline. Strong draft. Dr. Flood: add specific pilot program details and MEASURE partnership confirmation.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood + AI", pageLimit: "10 pages", wordCount: "3,000-4,000 words" },
       { id: "bb-budget", name: "Budget & Justification", description: "$50K allocation across research activities, technology, personnel, and dissemination", icon: DollarSign, status: "draft" as ApprovalStatus,
         content: `BUDGET — BB COLLECTIVE RESEARCH GRANT ($50,000)
@@ -2513,7 +2513,7 @@ Military Service: U.S. Army Veteran — Bronze Star (x2)
 Frameworks Developed: MAP-GAP (continuous improvement), SALP (monitoring), Three Realities (community voice), MG-PATR (replication)
 
 TECHNOLOGY INFRASTRUCTURE:
-- 24-platform ACOS ecosystem — all live and operational (see appendix for URLs)
+- 15-service-platform ACOS ecosystem — all live and operational (see appendix for URLs)
 - RPLICE implementation science engine: 167 database tables, 223+ pages, CFIR 2.0 + RE-AIM + EPIS operationalized
 - 4-Engine AI + RAG Architecture: GPT-5, Claude Sonnet, Scholarly Research RAG (PubMed, Semantic Scholar, CrossRef, Europe PMC, medRxiv, bioRxiv), Ecosystem RAG
 - Anti-hallucination guardrails with APA citations on every AI output
@@ -2618,11 +2618,11 @@ RPLICE is not a proposal — it is a live system that has already conducted CFIR
 PURPOSE: Invest in nonprofit partners building career pathways for nonclinical youth mental health providers — peer mentors, community health workers, navigators, and educators. 2-year grants.
 PRIORITIES: (1) Expand culturally responsive nonclinical support, (2) Strengthen workforce pipeline for undervalued mental health roles, (3) Elevate youth voices and equity strategies, (4) Build legitimacy for nonclinical roles in mental health ecosystem.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
-WHY WE FIT: ThriveUp Academy provides the workforce training infrastructure. RPLICE tracks whether training programs produce competent nonclinical providers. WholeMind Learning addresses K-12 mental health. Sankofa Health provides culturally responsive screening. Three Realities ensures youth voice drives program design.
+WHY WE FIT: ThriveUp Academy provides the workforce training infrastructure. RPLICE tracks whether training programs produce competent nonclinical providers. Perfectly Different addresses K-12 mental health and neurodiversity supports. Sankofa Health provides culturally responsive screening. Three Realities ensures youth voice drives program design.
 LOI DEADLINE: April 10, 2026.`,
     essentials: [
       { label: "Nonclinical Workforce Focus", detail: "Must build career pathways for peer mentors, CHWs, navigators, educators — not licensed clinicians. ThriveUp Academy trains exactly these roles.", critical: true },
-      { label: "Youth Mental Health", detail: "Programs must serve youth mental health — WholeMind Learning + Sankofa Health screening tools are direct alignment", critical: true },
+      { label: "Youth Mental Health", detail: "Programs must serve youth mental health — Perfectly Different + Sankofa Health + SafeReport screening tools are direct alignment", critical: true },
       { label: "LOI Due April 10", detail: "Letter of Intent due April 10, 2026 — URGENT. Must be submitted within 11 days.", critical: true },
       { label: "$250K-$500K, 2-Year", detail: "Substantial multi-year funding — request $400K+ with full ecosystem justification" },
       { label: "Culturally Responsive", detail: "Must demonstrate culturally responsive approaches — Three Realities + Sankofa methodology are direct proof" },
@@ -2632,7 +2632,7 @@ LOI DEADLINE: April 10, 2026.`,
       "ThriveUp Academy already trains nonclinical mental health workforce roles — not building from scratch",
       "RPLICE tracks whether training produces competent providers using AI-powered fidelity monitoring",
       "Sankofa Health has PHQ-9/GAD-7 screening built in — culturally responsive mental health tools operational",
-      "WholeMind Learning addresses K-12 mental health — school-based pathway for nonclinical support",
+      "Perfectly Different addresses K-12 mental health and neurodiversity — school-based pathway for nonclinical support",
       "4-engine AI + RAG architecture generates evidence-based curriculum recommendations from 6 scholarly databases",
       "Three Realities ensures youth voice shapes every program component — not an afterthought",
     ],
@@ -2676,10 +2676,10 @@ THE PROBLEM:
 Texas ranks 51st nationally in mental health workforce per capita. In Central Texas, the shortage is acute for nonclinical roles — the peer mentors, community health workers, and navigators who serve as the first point of contact for youth in crisis. These roles are undervalued, underpaid, and lack structured career pathways. Young people from marginalized communities who WANT to help their peers have no clear path from lived experience to professional credential.
 
 OUR APPROACH:
-Using our 24-platform ACOS ecosystem, we provide:
+Using our 15-service-platform ACOS ecosystem, we provide:
 1. TRAINING: ThriveUp Academy (thrivingcommunitiesforall.com) delivers workforce training with AI-powered career pathway mapping, competency-based progression, and industry-recognized credential tracks for CHW, peer specialist, and navigator roles.
 2. CLINICAL TOOLS: Sankofa Health (yourhealthbirthright.net) provides culturally responsive PHQ-9/GAD-7 screening tools that nonclinical providers learn to administer — giving them real clinical support technology from Day 1.
-3. SCHOOL INTEGRATION: WholeMind Learning provides K-12 mental health support tools that connect school-based nonclinical staff to the broader care ecosystem.
+3. SCHOOL INTEGRATION: Perfectly Different and ISSS provide K-12 mental health and wraparound support tools that connect school-based nonclinical staff to the broader care ecosystem.
 4. QUALITY ASSURANCE: RPLICE (bettersciencelab.com) tracks whether our training program produces competent providers using AI-powered implementation fidelity monitoring. Our 4-engine RAG architecture (GPT-5, Claude, 6 scholarly databases, ecosystem context) validates training effectiveness against published evidence — with anti-hallucination guardrails and APA citations on every assessment.
 5. COMMUNITY VOICE: Three Realities methodology ensures youth voice drives every program design decision. We ask young people what they experience (Lived Reality), map what institutions intend to deliver (Institutional Reality), and design interventions that bridge the gap (Gap Reality).
 
@@ -2775,7 +2775,7 @@ Personnel ($110,000) | Technology ($25,000) | Training ($30,000) | Community ($1
 
 TOTAL: $400,000
 
-NOTE: Platform infrastructure costs are minimal because the 24-platform ecosystem is already built. Grant funds go to people, training, and community engagement — not software development.`,
+NOTE: Platform infrastructure costs are minimal because the 15-service-platform ecosystem is already built. Grant funds go to people, training, and community engagement — not software development.`,
         reviewNotes: "Dr. Flood: confirm salary allocations and certification fee estimates.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "800-1,200 words" },
       { id: "rif-outcomes", name: "Outcomes Framework", description: "Measurable outcomes tracked via RPLICE", icon: BarChart3, status: "draft" as ApprovalStatus,
         content: `OUTCOMES FRAMEWORK — RARE IMPACT FUND
@@ -2865,7 +2865,7 @@ All outcomes assessed through RPLICE's 4-engine AI + RAG architecture. Scholarly
     ],
     winStrategy: {
       differentiators: [
-        "24-platform ecosystem already serves nonclinical mental health workforce — not proposing, operating",
+        "15-service-platform ecosystem already serves nonclinical mental health workforce — not proposing, operating",
         "RPLICE AI tracks whether training produces competent providers — implementation fidelity, not just completion rates",
         "Sankofa Health screening tools give trainees real clinical technology from Day 1",
         "Three Realities ensures youth voice drives every design decision",
@@ -2921,7 +2921,7 @@ DEADLINE: May 31, 2026.`,
       "Sankofa Health delivers culturally responsive health tools for Black and Brown communities",
       "RPLICE tracks behavioral health intervention fidelity using AI + RAG architecture",
       "4-engine AI generates treatment recommendations grounded in 6 scholarly databases — with citations",
-      "PillScheduler supports medication adherence — critical for behavioral health outcomes",
+      "HerHealth Network supports medication adherence and chronic-disease navigation — critical for behavioral health outcomes",
       "SafeCogniCare addresses cognitive health needs often co-occurring with behavioral health conditions",
     ],
     serviceArea: {
@@ -2965,14 +2965,14 @@ We deploy an AI-powered behavioral health ecosystem that reaches community membe
 
 3. CARE COORDINATION: LifeBridge (lifetransitionsaid.org) connects individuals to wraparound services — housing, food, transportation — because behavioral health cannot improve when basic needs are unmet.
 
-4. MEDICATION SUPPORT: PillScheduler (pillscheduler.net) provides medication adherence tools for psychiatric medications — reminders, interaction warnings, refill tracking.
+4. MEDICATION SUPPORT: HerHealth Network (herhealthnetwork.com) coordinates medication adherence support for psychiatric and chronic-disease regimens — reminders, interaction guidance, refill tracking, warm handoffs to clinical partners.
 
 5. IMPLEMENTATION FIDELITY: RPLICE (bettersciencelab.com) tracks whether behavioral health interventions are delivered as designed using CFIR 2.0 and RE-AIM frameworks. The MAP-GAP cycle ensures continuous improvement — not annual reports.
 
 6. COMMUNITY VOICE: Three Realities methodology ensures the Lived Reality of community members drives service design. We don't assume what communities need — we ask, listen, map the gaps, and build solutions that bridge them.
 
 ORGANIZATIONAL QUALIFICATIONS:
-Dr. Terry Flood (DHA, MS Implementation Science, MA Psychology, U.S. Army Veteran — Bronze Star x2) leads with implementation science expertise. The 24-platform ACOS ecosystem is live and operational. RPLICE has conducted real assessments with results persisted in our 167-table database.
+Dr. Terry Flood (DHA, MS Implementation Science, MA Psychology, U.S. Army Veteran — Bronze Star x2) leads with implementation science expertise. The 15-service-platform ACOS ecosystem is live and operational. RPLICE has conducted real assessments with results persisted in our 167-table database.
 
 AFFILIATED ENTITIES:
 - Collaboration & Implementation Professionals LLC (EIN 41-4996540) — VOSB, government contracting
@@ -2993,7 +2993,7 @@ TECHNOLOGY & AI OPERATIONS ($60,000 — 15%):
 - RPLICE AI engine operations (4-engine RAG pipeline for behavioral health assessments): $25,000
 - Whole-Person Health platform operations (PHQ-9/GAD-7 screening infrastructure): $15,000
 - Sankofa Health culturally responsive tool maintenance: $10,000
-- PillScheduler medication adherence integration: $5,000
+- HerHealth Network medication adherence integration: $5,000
 - Data security & HIPAA compliance infrastructure: $5,000
 
 COMMUNITY ENGAGEMENT ($60,000 — 15%):
@@ -3016,7 +3016,7 @@ INDIRECT COSTS ($20,000 — 5%):
 
 TOTAL: $400,000
 
-NOTE: The 24-platform technology infrastructure is already built and operational. Technology line items cover marginal operating costs (API usage, hosting, maintenance) — not development. This means 80%+ of grant funds go directly to people and community services.`,
+NOTE: The 15-service-platform technology infrastructure is already built and operational. Technology line items cover marginal operating costs (API usage, hosting, maintenance) — not development. This means 80%+ of grant funds go directly to people and community services.`,
         reviewNotes: "Dr. Flood: confirm salary rates and verify HIPAA compliance cost estimates.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "3 pages", wordCount: "800-1,200 words" },
       { id: "cen-outcomes", name: "Outcomes & Evaluation", description: "Behavioral health screening rates, treatment connection, fidelity scores via RPLICE", icon: BarChart3, status: "draft" as ApprovalStatus,
         content: `OUTCOMES & EVALUATION — CENTENE FOUNDATION BEHAVIORAL HEALTH GRANT
@@ -3071,10 +3071,10 @@ Military Service: U.S. Army Veteran — Bronze Star (x2)
 Relevance: Implementation science expertise ensures behavioral health programs are delivered with fidelity. Health administration doctorate provides healthcare systems knowledge. Psychology background informs clinical understanding of behavioral health needs.
 
 TECHNOLOGY INFRASTRUCTURE:
-The 24-platform ACOS ecosystem includes multiple behavioral health-specific tools:
+The 15-service-platform ACOS ecosystem includes multiple behavioral health-specific tools:
 - Whole-Person Health (mentalwellnesssupport.net): PHQ-9, GAD-7, Columbia Suicide Severity screening — live
 - Sankofa Health (yourhealthbirthright.net): Culturally responsive health tools for Black and Brown communities — live
-- PillScheduler (pillscheduler.net): Medication adherence for psychiatric medications — live
+- HerHealth Network (herhealthnetwork.com): Medication adherence and chronic-disease navigation — live
 - SafeCogniCare (safecognicare.com): Cognitive health assessment — live
 - Black Men's Health Hub (blackmenshealthhub.com): Health equity focus — live
 - RPLICE (bettersciencelab.com): AI-powered implementation fidelity tracking — live
@@ -3110,7 +3110,7 @@ Alignment: Our behavioral health services improve outcomes for Sendero members �
 Status: To be established — strategic connection for proposal strength.
 
 PARTNERSHIP 4: AISD / MANOR ISD / PFISD
-Role: School-based behavioral health integration. WholeMind Learning provides K-12 mental health tools.
+Role: School-based behavioral health integration. Perfectly Different and ISSS provide K-12 mental health and wraparound tools.
 Alignment: School counselors and behavioral health staff use our tools to identify at-risk youth and connect them to community services.
 Status: Partnership letters to be requested.`,
         reviewNotes: "Dr. Flood: secure partnership letters from Integral Care and CommUnityCare before May 31 deadline.", lastUpdated: "March 30, 2026", assignee: "Dr. Flood", pageLimit: "No limit", wordCount: "300-500 words each" },
@@ -3204,7 +3204,7 @@ Status: Partnership letters to be requested.`,
     referenceLabel: "Austin FC Dream Starter Application",
     grantKnowledge: `Austin FC Dream Starter Competition — $100,000.
 PURPOSE: 6th annual business competition inviting Austin entrepreneurs from underrepresented groups to compete for $100K in Dream Starter funds. Presented by Q2. Winner announced May 28, 2026.
-ALIGNMENT: TCAF is veteran-founded, Black-led, Austin-based — precisely the underrepresented entrepreneur profile. MCE (Minority Center of Excellence) demonstrates business infrastructure. The 24-platform ACOS ecosystem shows scalable technology business.
+ALIGNMENT: TCAF is veteran-founded, Black-led, Austin-based — precisely the underrepresented entrepreneur profile. MCE (Minority Center of Excellence) demonstrates business infrastructure. The 15-service-platform ACOS ecosystem shows scalable technology business.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, or Collaboration & Implementation Professionals LLC (EIN 41-4996540).
 APPLICATION: Via Typeform at austinfc.typeform.com/to/bYJOT3j9.
 DEADLINE: April 13, 2026 at 11:59 PM.`,
@@ -3216,7 +3216,7 @@ DEADLINE: April 13, 2026 at 11:59 PM.`,
       { label: "Winner May 28", detail: "Winner announced May 28, 2026" },
     ],
     competitiveEdge: [
-      "24-platform live technology ecosystem — this is not a concept, it's operational",
+      "15-service-platform live technology ecosystem — this is not a concept, it's operational",
       "Veteran-founded, Black-led — authentic underrepresented entrepreneur, not performative",
       "MCE (Minority Center of Excellence) already supports minority business ecosystem",
       "Revenue model through government contracts (Central Health CMS) + grants + consulting",
@@ -3245,7 +3245,7 @@ LOCATION: 17912 Stefano Drive, Pflugerville, TX 78660
 EMAIL: president@thecollaborativeadvocate.org
 
 BUSINESS DESCRIPTION:
-We build AI-powered technology that bridges the gap between research and practice — so what works in studies actually works in communities. Our 24-platform ACOS (Advanced Community Operating System) ecosystem spans healthcare, education, workforce development, criminal justice, housing, and safety.
+We build AI-powered technology that bridges the gap between research and practice — so what works in studies actually works in communities. Our 15-service-platform ACOS (Advanced Community Operating System) ecosystem spans healthcare, education, workforce development, criminal justice, housing, and safety.
 
 At the core is RPLICE — an implementation science engine powered by a 4-engine AI + RAG architecture (GPT-5, Claude Sonnet, 6 scholarly databases, platform-aware context). RPLICE tracks whether community programs are delivered as designed using CFIR 2.0 and RE-AIM frameworks, with anti-hallucination guardrails ensuring every AI recommendation is grounded in peer-reviewed evidence.
 
@@ -3325,7 +3325,7 @@ IMPACT:
         "Austin-area business serving local community",
       ],
       scoringTips: [
-        "Lead with the 24-platform ecosystem — judges can visit the live sites",
+        "Lead with the 15-service-platform ecosystem — judges can visit the live sites",
         "Show the $3.6M grant pipeline — this is a real business, not a side project",
         "Connect to Austin FC's equity pillar — your mission IS equity",
       ],
@@ -3402,7 +3402,7 @@ SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501
     competitiveEdge: [
       "Justice Command Center with tract-level crime migration data — most applicants don't have live analytics",
       "Dr. Flood's 'crime migrates with gentrification' framework backed by Census tract data from Buffalo, Wilmington, Austin",
-      "24-platform ecosystem provides wraparound services (health, education, workforce) that BJA values in reentry programs",
+      "15-service-platform ecosystem provides wraparound services (health, education, workforce) that BJA values in reentry programs",
       "Veteran-founded, Black-led organization — DOJ Priority 1 areas include serving communities of color",
       "Implementation science approach (CFIR 2.0, RE-AIM) provides the evidence framework DOJ reviewers want to see",
       "Existing workforce pathways (CHW, career explorer, credential tracking) serve as immediate employment pipelines for reentry population",
@@ -3478,7 +3478,7 @@ SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501
       differentiators: [
         "Justice Command Center with live tract-level crime migration data — no other applicant has this",
         "Implementation science framework (CFIR 2.0, RE-AIM) matches BJA's evidence-based requirements",
-        "24-platform ecosystem provides wraparound services (health, education, workforce) in one integrated system",
+        "15-service-platform ecosystem provides wraparound services (health, education, workforce) in one integrated system",
         "Veteran-founded, Black-led organization serving communities most impacted by mass incarceration",
         "Dr. Flood's research: 'crime migrates with gentrification' — original scholarly insight backed by Census data",
         "Built-in fidelity monitoring via RPLICE — can demonstrate program quality assurance from Day 1",
@@ -3495,7 +3495,7 @@ SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501
         "Lead with tract-level data showing where returning citizens concentrate — reviewers rarely see this precision",
         "Cite specific recidivism reduction targets with methodology for measurement",
         "Name every partner with specific roles — don't be vague about collaboration",
-        "Show how the 24-platform ecosystem addresses BJA's preference for comprehensive wraparound services",
+        "Show how the 15-service-platform ecosystem addresses BJA's preference for comprehensive wraparound services",
         "Reference Dr. Flood's military service background — DOJ values veteran leadership",
         "Include a logic model connecting activities → outputs → short-term outcomes → long-term recidivism reduction",
       ],
@@ -3531,7 +3531,7 @@ ALSO AVAILABLE: Community Impact Grants — smaller grants aligned to CRA requir
 NOT ELIGIBLE: Political advocacy, for-profit orgs, municipalities, membership orgs, ticketed events.
 APPLICATION REQUIREMENTS: Financial statements, board member list, organization chart. Impact Statement required at conclusion of grant year.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3), 17912 Stefano Drive, Pflugerville, TX 78660.
-WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501(c)(3) with 3+ years, serving low-to-moderate-income communities in Austin service area. We hit TWO of their three categories. 24-platform technology ecosystem demonstrates innovation and scale that most local nonprofits can't match.`,
+WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501(c)(3) with 3+ years, serving low-to-moderate-income communities in Austin service area. We hit TWO of their three categories. 15-service-platform technology ecosystem demonstrates innovation and scale that most local nonprofits can't match.`,
     essentials: [
       { label: "Two Category Fit", detail: "TCAF qualifies for Veterans & First Responders ($100K) AND Education & Workforce Development ($50K) — can potentially apply for both", critical: true },
       { label: "Austin Service Area", detail: "Pflugerville/Austin is within Texas Capital's service area — home court advantage", critical: true },
@@ -3544,7 +3544,7 @@ WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501
     competitiveEdge: [
       "Veteran-founded AND workforce development — hits TWO of three focus categories",
       "Based in Austin — Texas Capital service area with local community presence",
-      "24-platform technology ecosystem shows innovation that stands out from traditional nonprofits",
+      "15-service-platform technology ecosystem shows innovation that stands out from traditional nonprofits",
       "Census tract data proves LMI community service — not just claiming it, showing it",
       "Dr. Flood's U.S. Army service combined with 7-discipline academic foundation",
       "Existing platform with measurable outcomes — not a startup or concept",
@@ -3611,7 +3611,7 @@ WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501
         "Veteran-founded — qualifies for the $100K Veterans & First Responders category",
         "Workforce development platform — also qualifies for $50K Education & Workforce category",
         "Local Austin presence — Texas Capital Foundation values local community connection",
-        "24-platform technology ecosystem — stands out from traditional nonprofits",
+        "15-service-platform technology ecosystem — stands out from traditional nonprofits",
         "Census tract data proves LMI community service with precision",
         "Black-led organization serving communities of color — equity focus",
       ],
@@ -3656,7 +3656,7 @@ WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501
 STATUS: 2025-2026 cycle is CLOSED/IN PROGRESS. 2027-2028 RFP expected to be released in 2026.
 FOCUS AREAS: Access to care, health literacy, food security/nutrition, behavioral health, social determinants of health (SDoH). Must drive transformative, measurable changes in health equity.
 APPROACH: Strategic, collaborative grants — they want multi-organization partnerships, not solo programs. Community-driven solutions with data-driven approaches.
-WHY WE FIT: Sankofa Health (culturally responsive screening), PillScheduler (medication adherence), WholeMind Learning (mental health), AutoImmune Thrive (chronic disease), Speech Bridge (communication access). 7 health-focused platforms across the ecosystem. CHW workforce pipeline directly addresses access to care in underserved communities.
+WHY WE FIT: Sankofa Health (culturally responsive screening), HerHealth Network (medication adherence + chronic disease navigation), Perfectly Different (mental health + neurodiversity), Whole-Person Health (behavioral health), Talk Your Talk (communication access — 89 spoken + 18 sign languages). 7+ health-focused platforms across the ecosystem. CHW workforce pipeline directly addresses access to care in underserved communities.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
 WATCH LIST: Sign up for email notifications at texashealth.org/community-health/community-impact to be notified when 2027-2028 RFP drops.`,
     essentials: [
@@ -3668,7 +3668,7 @@ WATCH LIST: Sign up for email notifications at texashealth.org/community-health/
       { label: "CHW Pipeline", detail: "Your CHW workforce pipeline addresses their access-to-care priority — trained CHWs expand healthcare reach in underserved communities" },
     ],
     competitiveEdge: [
-      "7 health-focused platforms in the ecosystem — Sankofa, PillScheduler, WholeMind, AutoImmune Thrive, Speech Bridge, and more",
+      "7+ health-focused platforms in the ecosystem — Sankofa, HerHealth Network, Whole-Person Health, Perfectly Different, Talk Your Talk, SafeCogniCare, Black Maternal Health Network, and more",
       "CHW workforce pipeline directly addresses healthcare access gaps — train and deploy CHWs in underserved communities",
       "Census tract health disparity data provides the evidence base Texas Health values",
       "Implementation science framework ensures program fidelity and measurable outcomes",
@@ -3726,7 +3726,7 @@ WATCH LIST: Sign up for email notifications at texashealth.org/community-health/
       { id: "txhr-pe2", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current." },
       { id: "txhr-pe3", category: "Partnerships", item: "Health system collaborative partners identified", status: "action-needed" as const, notes: "Need FQHC, hospital, or LMHA partner", guidance: "Texas Health wants collaborative applications. Identify and approach partners NOW, before the RFP drops." },
       { id: "txhr-pe4", category: "Data", item: "Health disparity data compiled for Central Texas", status: "pending" as const, notes: "", guidance: "Census tract health data for Travis County — the foundation expects data-driven applications." },
-      { id: "txhr-pe5", category: "Technology", item: "Health platform demos ready", status: "verified" as const, notes: "Sankofa, PillScheduler, WholeMind, AutoImmune Thrive all operational", guidance: "All health platforms are live and can be demoed to Texas Health reviewers if needed." },
+      { id: "txhr-pe5", category: "Technology", item: "Health platform demos ready", status: "verified" as const, notes: "Sankofa Health, HerHealth Network, Whole-Person Health, SafeCogniCare, Black Maternal Health Network all operational", guidance: "All health platforms are live and can be demoed to Texas Health reviewers if needed." },
     ],
     winStrategy: {
       differentiators: [

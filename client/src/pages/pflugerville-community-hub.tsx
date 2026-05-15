@@ -82,11 +82,11 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
       "No community-based maternal health services despite 1,100+ annual births",
       "Substance use support services virtually nonexistent within city limits",
     ],
-    platforms: ["Whole-Person Health", "Sankofa Health", "Black Maternal Health", "PillScheduler", "SafeCogniCare"],
+    platforms: ["Whole-Person Health", "Sankofa Health", "Black Maternal Health", "HerHealth Network", "SafeCogniCare"],
     solutions: [
       "Telehealth bridge — immediate PHQ-9, GAD-7, C-SSRS access via platform",
       "Community Health Worker program — bilingual, culturally responsive outreach",
-      "Senior wellness initiative — cognitive screening (SafeCogniCare), medication management (PillScheduler)",
+      "Senior wellness initiative — cognitive screening (SafeCogniCare), medication adherence support",
       "Maternal health mobile services — prenatal, postpartum, doula coordination",
       "Substance use navigation — warm handoff to Central TX treatment providers",
     ],
@@ -102,7 +102,7 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
       "Limited career & technical education alignment with regional employer needs",
       "Neurodivergent support services gap — families travel to Austin for evaluations",
     ],
-    platforms: ["ISSS", "WholeMind Learning", "Perfectly Different", "ThriveUp Academy"],
+    platforms: ["ISSS", "ThriveUp Academy", "Perfectly Different", "Talk Your Talk"],
     solutions: [
       "ISSS wraparound model in PfISD — school-based social services coordination",
       "Expanded after-school STEM + trades — aligned with Samsung/Tesla/construction pipeline",
@@ -122,11 +122,11 @@ const PFLUGERVILLE_NEEDS_ASSESSMENT = [
       "Digital divide persists in eastern Pflugerville neighborhoods",
       "Parks & recreation strong but lacking integrated social service programming",
     ],
-    platforms: ["Ecosystem Nexus", "Emergency Management", "Video Creator AI", "Collaborative Advocate"],
+    platforms: ["Civic Signal", "SafeReport", "Talk Your Talk", "Collaborative Advocate"],
     solutions: [
       "Digital Community Hub — ThriveUp as virtual multi-service center for Pflugerville",
       "Veteran Services Portal — Collaborative Advocate as dedicated veteran support",
-      "Community Organization Connector — Ecosystem Nexus coordinates fragmented services",
+      "Community Organization Connector — Civic Signal coordinates fragmented services",
       "Content-to-engagement pipeline — Pflugerville stories on Roku/podcast channels",
       "Public transit advocacy — data-driven case for CapMetro route expansion",
     ],
@@ -165,9 +165,9 @@ const ECOSYSTEM_FOR_PFLUGERVILLE = [
   { platform: "Whole-Person Health", role: "Health bridge", focus: "Telehealth for health desert, mental health waitlist reduction", icon: Stethoscope, color: "bg-rose-500" },
   { platform: "ISSS", role: "School wraparound", focus: "PfISD deployment, 28,000 student reach, after-school expansion", icon: School, color: "bg-indigo-500" },
   { platform: "Collaborative Advocate", role: "Veteran services", focus: "6,800+ Pflugerville veterans, VOSB contracts, transition support", icon: Shield, color: "bg-slate-500" },
-  { platform: "WholeMind Learning", role: "Adaptive education", focus: "Dual credit with ACC, career exploration, STAAR prep", icon: GraduationCap, color: "bg-violet-500" },
+  { platform: "Talk Your Talk", role: "Communication access", focus: "89 spoken + 18 sign languages — dual credit with ACC, career exploration, STAAR prep", icon: GraduationCap, color: "bg-violet-500" },
   { platform: "Perfectly Different", role: "Neurodivergent support", focus: "Local evaluations, family resources, school accommodations", icon: Brain, color: "bg-pink-500" },
-  { platform: "Video Creator AI", role: "Content production", focus: "Pflugerville stories → Roku CTV, community engagement content", icon: Play, color: "bg-amber-500" },
+  { platform: "Civic Signal", role: "Civic engagement", focus: "Pflugerville stories → public-comment infrastructure, community engagement content", icon: Play, color: "bg-amber-500" },
   { platform: "Voices of Austin", role: "Community voice", focus: "Pflugerville-specific story collection, needs intelligence", icon: Mic, color: "bg-orange-500" },
 ];
 
@@ -239,7 +239,7 @@ export default function PflugervilleCommunityHubPage() {
           <div className="flex flex-wrap gap-3">
             <Badge variant="secondary" className="text-sm px-3 py-1"><Users className="h-3.5 w-3.5 mr-1" /> 76,500+ Residents</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><Landmark className="h-3.5 w-3.5 mr-1" /> CDBG Entitlement City</Badge>
-            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms</Badge>
+            <Badge variant="secondary" className="text-sm px-3 py-1"><Globe className="h-3.5 w-3.5 mr-1" /> 15 Service Platforms</Badge>
             <Badge variant="secondary" className="text-sm px-3 py-1"><Construction className="h-3.5 w-3.5 mr-1" /> Samsung + Tesla Corridor</Badge>
           </div>
         </div>
@@ -405,7 +405,7 @@ export default function PflugervilleCommunityHubPage() {
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {[
                   { title: "Day 1: Housing Navigator", desc: "LifeBridge resource finder with Pflugerville-specific housing data, utility assistance, tenant rights", icon: Home },
-                  { title: "Day 1: Health Bridge", desc: "Telehealth screening (PHQ-9, GAD-7), provider matching, medication management via PillScheduler", icon: Stethoscope },
+                  { title: "Day 1: Health Bridge", desc: "Telehealth screening (PHQ-9, GAD-7), provider matching, medication-adherence support", icon: Stethoscope },
                   { title: "Day 1: Career Pathway", desc: "Resume builder, job matching for Samsung/Tesla/construction, PCDC grant access for training", icon: Briefcase },
                   { title: "Week 1: School Enrollment", desc: "PfISD navigator, after-school program waitlist management, ISSS wraparound activation", icon: School },
                   { title: "Week 1: Financial Tools", desc: "Credit building pathway, utility budgeting, emergency fund setup via MCE", icon: DollarSign },
@@ -426,7 +426,7 @@ export default function PflugervilleCommunityHubPage() {
           <div>
             <h2 className="text-2xl font-bold mb-2">Ecosystem Adapted for Pflugerville</h2>
             <p className="text-muted-foreground mb-6">
-              Same 24-platform infrastructure — customized for Pflugerville's unique position as a CDBG entitlement city
+              Same 15-service-platform infrastructure — customized for Pflugerville's unique position as a CDBG entitlement city
               with major development catalysts (Samsung, Tesla, Branchview).
             </p>
           </div>

@@ -36,7 +36,7 @@ export default function OpenInnovationLabPage() {
           <Item title="Methodology development" desc="Documents, versions, and releases the proprietary methodologies (RPLICE, MAP-GAP, SALP, MG-PATR, ACOS, Three Realities) under open methodology terms so that other community-based organizations can adopt and adapt them." />
           <Item title="AI-augmented service delivery research" desc="Designs and tests AI-augmented patterns for case-management, screening, navigation, and outcome measurement — always with human-in-the-loop and HIPAA-aware boundaries." />
           <Item title="Evidence translation" desc="Translates published peer-reviewed research into community-deployable program protocols using the RPLICE protocol — preserving fidelity to the underlying evidence while adapting for community context." />
-          <Item title="Cross-platform exchange" desc="Operates the bilateral exchange engine across our 24-platform ecosystem so that lessons learned in one program inform improvements in another." />
+          <Item title="Cross-platform exchange" desc="Operates the bilateral exchange engine across our 15-service-platform ecosystem so that lessons learned in one program inform improvements in another." />
         </CardContent>
       </Card>
 
@@ -81,7 +81,7 @@ export default function OpenInnovationLabPage() {
             encouraged to adopt, adapt, and extend them — with attribution to TCAF.
           </p>
           <p className="text-xs text-muted-foreground italic">
-            Software code in our 24-platform ecosystem is owned by TCAF and licensed selectively.
+            Software code in our 15-service-platform ecosystem is owned by TCAF and licensed selectively.
             Methodology documentation (RPLICE, MAP-GAP, SALP, MG-PATR, ACOS, Three Realities) is
             open. The Hub Adoption Kit is the documented implementation-ready package for
             replicating the model in another jurisdiction.

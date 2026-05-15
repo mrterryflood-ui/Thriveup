@@ -1277,3 +1277,49 @@ Almost removed `sankofa-feminine-health` from the registry because `yourfeminine
 **COI hard rule:** Iasis Christian Center has its own tenant in the tracker, but every federal/City of Wichita grant citing Iasis attendance data must include the standing spouse-relationship disclosure on the face of the application. The hub page renders this disclosure card automatically; the leave-behind PPTX repeats it on Slide 2 and again in the honest-disclosure footer on Slide 10.
 
 **Day-one usability:** CSV upload accepts a household roster from a spreadsheet, attendance check-in supports tablet use during Wednesday 5:30–7pm sessions, CSV/JSON export feeds funder reports.
+
+## 2026-05-15 PM — Platform-Count Cleanup Sweep COMPLETE
+
+**Directive:** Clean non-public platforms (9 dev/internal/dead-URL + TCAF parent org) from every reviewer-facing and public page. Replace "24/25 platforms" → "15 service platforms" everywhere. Exemptions kept ONLY for internal architecture surfaces: `ecosystem-hub.tsx`, `ecosystem-embed.tsx`, `ecosystem-ops-center.tsx`.
+
+**Files touched (28 in this sweep):**
+- Wave 1 (count substitution): 37 files via perl -i
+- Wave 2 (surgical arrays): `presentations.tsx`, `third-spaces.tsx`, `logic-model.tsx`, `get-help.tsx`, `business-card.tsx`, `business-documents.tsx`, `grant-command-center.tsx` (4 arrays)
+- Wave 3 (narrative + array): `business-documents.tsx` bullet list, `mvv-content.ts`, `justice-partners.tsx`, `directive-compliance.tsx`, `pflugerville-community-hub.tsx` (5 spots), `manor-community-hub.tsx` (4 spots), `austin-housing-initiative.tsx` (4 entries), `texas-assessment.tsx` (3 spots), `stakeholder-presentation.tsx` (3 spots inc. speakerNotes), `health-network.tsx` (Autoimmune CoE + PillScheduler entries removed → HerHealth Network), `voices-of-austin.tsx` (3 spots), `mentorship-directory.tsx` (5 ecosystemConnection strings), `case-studies.tsx` (7 narrative + array spots), `grant-packages.tsx` (7 narrative + criteria spots), `program-lifecycle.tsx` (display name + narrative), `grant-command-center.tsx` (11 platforms arrays + Platform union expanded with Talk Your Talk, Civic Signal, RPLICE, M2C Transition)
+
+**Intentionally LEFT:**
+- `directive-compliance.tsx:207` — DoD C2 Transport platforms array (`Emergency Management`, `Ecosystem Nexus`) — this is the **actual pursuit record** for that solicitation; not aspirational. Internal record only.
+- `grant-command-center.tsx` Platform union retains old members (`WholeMind Learning`, `Pinnacle Business`, `Ecosystem Nexus`, `Emergency Management`, `Autoimmune Thrive`, `PillScheduler`) — orphan union members harmless; narrowing would break unrelated strings.
+- `roku-ads.tsx` — Roku/CTV product page; "Video Creator AI" is the product feature name, not an ecosystem-count claim. Defer to user decision.
+- `notes:` strings in `grant-command-center.tsx` — internal analytical reasoning, not structured display. Per Iron Rule, don't sweep notes en masse.
+
+**Verified primary sources for swap targets:**
+- 89 spoken + 18 sign languages (Talk Your Talk) — verified per `replit.md` Talk Your Talk rebrand note.
+- HerHealth Network as women's health hub — verified per `replit.md` ecosystem catalog.
+- EIN 41-3618003 unchanged throughout (per IRS Letter 947 PDF in `attached_assets/`).
+
+**Iron Rule compliance:** Zero identifier (EIN/UEI/CAGE/deadline/dollar amount) was touched in this sweep. All edits are platform-name → platform-name swaps on content-display surfaces per explicit user directive in project_goal.
+
+**Vann V001-V012:** previously COMPLETED; no rework. Files verified present:
+- `client/src/pages/partners/{vann-collaboration-hub,family-program-tracker,rfp-storyteller}.tsx`
+- `docs/partners/{Vann-Vanntastic-Strategy-Memo,Vann-Meeting-Brief}.md`
+- `server/{community-program-routes.ts,seed-vann-demo.ts}`
+- `scripts/generate-vann-leavebehind-pptx.ts` + `dist/Vann-Collaboration-LeaveBehind.pptx`
+- Sidebar group "Community Partners" registered; App.tsx routes registered.
+
+
+### Architect-review follow-up patches (same session, 2026-05-15 PM)
+
+Architect first review flagged additional leaks beyond Wave-3 batch. Second sweep cleaned:
+- Count phrases: `austin-housing-initiative.tsx` (hero badge + ecosystem H2), `business-card.tsx`, `business-documents.tsx` (2), `presentations.tsx` (PDF title + tab H2), `stakeholder-presentation.tsx` hero, `ecosystem-ai.tsx` hero, `data-sources.tsx` ecosystem-connector name + description, `pm-academy.tsx` 20-platform claim
+- Platform-name leaks (reviewer-facing): `community-resource-directory.tsx` ("Emergency Management & Crisis Response" → Mission Transition; "WholeMind AI" → Whole-Person Health), `data-sources.tsx:449` usedBy ("Emergency Management" → SafeReport), `grant-command-center.tsx` notes at lines 893/1095/1714/1735/1924/2313/2504 (narrative refs swapped to HerHealth Network/Talk Your Talk/Perfectly Different/Whole-Person Health/ThriveUp Academy), platforms arrays at 869/2272 (swapped to SafeReport/Civic Signal), `directive-compliance.tsx` lines 91 + 250 (Emergency Management → SafeReport on ssgfox + spaceforce-skillbridge pursuits), `mvv-content.ts` (2 refs → Talk Your Talk), `tutorial-content.ts` (2 narrative examples), `case-studies.tsx` 3 additional narrative refs, `grant-packages.tsx` task guidance + Texas Health checklist, `program-lifecycle.tsx` keyActions
+- Inline historical-exception comment added at `directive-compliance.tsx:207-213` documenting why the DoD C2 Transport pursuit retains "Emergency Management" + "Ecosystem Nexus" platform names (faithful pursuit-record artifact, not a model for new references)
+
+**Remaining documented exceptions (final state):**
+- `directive-compliance.tsx:209,214` — DoD C2 Transport historical pursuit record (inline comment explains)
+- `data-sources.tsx:444` — "Emergency Management" listed inside `dataTypes:` for CAPCOG (this is CAPCOG's own GIS data taxonomy category, NOT a TCAF ecosystem-platform name)
+- `grant-command-center.tsx:250-267` — Platform TypeScript union retains legacy member names (`WholeMind Learning`, `Pinnacle Business`, `Ecosystem Nexus`, `Emergency Management`, `Autoimmune Thrive`, `PillScheduler`) as orphan union members. No reviewer-facing surface still references them as labels; if a stricter pruning is wanted later, narrow the union after a full grep for usage.
+- `ecosystem-hub.tsx`, `ecosystem-embed.tsx`, `ecosystem-ops-center.tsx` — exempted per user directive (internal architecture views).
+- `roku-ads.tsx` — out of scope (Roku/CTV product page, "Video Creator AI" is a product feature name, not an ecosystem-count claim).
+
+**Final reviewer-facing leak scan: 0 hits across `client/src/pages/`, `client/src/lib/`, `client/src/components/` (excluding documented exemptions).**

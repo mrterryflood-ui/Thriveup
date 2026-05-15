@@ -446,7 +446,7 @@ const LOCAL_SOURCES: DataSource[] = [
     status: "available",
     updateFrequency: "Varies",
     geographyLevel: "10-County Region",
-    usedBy: ["Community Map", "Emergency Management", "Grant Packages"],
+    usedBy: ["Community Map", "SafeReport", "Grant Packages"],
     icon: Globe,
     category: "local",
     localCallout: "10-county regional planning body. Covers entire St. David's 5-county service area plus surrounding counties. Emergency management coordination hub."
@@ -519,10 +519,10 @@ const INTERNAL_SOURCES: DataSource[] = [
   },
   {
     id: "ecosystem-connector",
-    name: "Ecosystem Connector -- 24-Platform Telemetry",
+    name: "Ecosystem Connector -- 15-Platform Telemetry",
     shortName: "Ecosystem",
     agency: "ThriveUp / TCAF",
-    description: "Real-time heartbeat monitoring, capability mapping, and cross-platform data exchange across all 24 ThriveUp ecosystem platforms. Feeds compliance enforcement, grant narratives, and stakeholder reports.",
+    description: "Real-time heartbeat monitoring, capability mapping, and cross-platform data exchange across the 15 ThriveUp service platforms. Feeds compliance enforcement, grant narratives, and stakeholder reports.",
     dataTypes: ["Platform Health", "Heartbeat Status", "Capability Mapping", "Cross-Platform Referrals", "Compliance Grades"],
     url: "https://thrivingcommunitiesforall.com/ecosystem",
     status: "live",
@@ -856,7 +856,7 @@ export default function DataSourcesPage() {
           </div>
           <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/30 text-center">
             <p className="font-bold text-purple-700">TCAF Engine</p>
-            <p className="text-xs text-muted-foreground mt-1">RPLICE, ISSS, Ecosystem Connector, Grant Discovery -- 24 platforms</p>
+            <p className="text-xs text-muted-foreground mt-1">RPLICE, ISSS, Ecosystem Connector, Grant Discovery -- 15 service platforms</p>
           </div>
         </div>
       </Card>

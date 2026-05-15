@@ -1,5 +1,5 @@
 export const MISSION_STATEMENT =
-  "We are equity-focused and equality and access driven. We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind. The Collaborative Advocate Foundation transforms communities by listening first, measuring always, and building technology that reflects real feelings and real experiences. Our 24-platform ecosystem — powered by seven academic disciplines and our MAP-GAP framework — ensures that every person has a pathway: veterans transitioning to civilian life through M2C, individuals experiencing homelessness navigating stability through LifeBridge, immigrants accessing resources regardless of documentation status through Speech Bridge, formerly incarcerated individuals rebuilding through our reentry pipeline, and every community member who has been left behind by systems not designed for them.";
+  "We are equity-focused and equality and access driven. We are problem solvers using collaborative accountability and transparency that is data-led and intentional — to make good programs better and leave no one behind. The Collaborative Advocate Foundation transforms communities by listening first, measuring always, and building technology that reflects real feelings and real experiences. Our 15-service-platform ecosystem — powered by seven academic disciplines and our MAP-GAP framework — ensures that every person has a pathway: veterans transitioning to civilian life through M2C, individuals experiencing homelessness navigating stability through LifeBridge, immigrants accessing resources regardless of documentation status through Speech Bridge, formerly incarcerated individuals rebuilding through our reentry pipeline, and every community member who has been left behind by systems not designed for them.";
 
 export const VISION_STATEMENT =
   "A nation where no one is invisible. Where every community — regardless of zip code, documentation status, housing situation, or history — has access to a holistic, comprehensive system that listens before it builds, measures what matters, holds itself accountable with transparency, and never stops improving. Where veterans have a real transition path, not just a thank-you. Where people experiencing homelessness are counted and served, not stepped over. Where immigrants can access resources in their language without fear. Where education is the number one protective factor and data tells the truth that county averages hide.";
@@ -156,13 +156,13 @@ export const PROGRAM_SHOWCASES = [
     problemDesc: "High suspension rates, low graduation rates, ACEs prevalence, unaddressed SDOH driving youth into the justice system.",
     grants: ["CDC/ONDCP Drug-Free Communities", "DOE Title I/IV", "DOJ Second Chance Act", "SAMHSA"],
     interventions: [
-      { discipline: "Implementation Science", action: "SEL curriculum through ISSS, MTSS compliance, academic support via WholeMind" },
+      { discipline: "Implementation Science", action: "SEL curriculum through ISSS, MTSS compliance, communication-access support via Talk Your Talk" },
       { discipline: "Criminal Justice", action: "Diversion programs through SafeReport, restorative justice, reentry support via ThriveUp" },
       { discipline: "HR Management", action: "Workforce pathways for older youth through ThriveUp and MCE, career exposure" },
       { discipline: "I-O Psychology", action: "Behavioral nudges for students, staff motivation systems, mentor engagement design" },
     ],
     stakeholders: ["Schools", "Community Mentors", "Law Enforcement", "Employers", "Parents", "CHWs"],
-    platforms: ["ThriveUp Academy", "ISSS", "SafeReport", "LifeBridge", "WholeMind", "Sankofa Health"],
+    platforms: ["ThriveUp Academy", "ISSS", "SafeReport", "LifeBridge", "Talk Your Talk", "Sankofa Health"],
     outcomes: "Reduced suspensions, increased graduation rates, youth diverted from justice system, families connected to SDOH resources, sustainable community ownership.",
   },
   {
@@ -196,7 +196,7 @@ export const PROGRAM_SHOWCASES = [
       { discipline: "I-O Psychology", action: "Community resilience programming, combating learned helplessness, sustaining engagement" },
     ],
     stakeholders: ["Regional Health Systems", "Community Colleges", "Employers", "Recovery Courts", "CHWs", "Faith Communities"],
-    platforms: ["ThriveUp Academy", "Sankofa Health", "LifeBridge", "MCE", "PillScheduler"],
+    platforms: ["ThriveUp Academy", "Sankofa Health", "LifeBridge", "MCE", "HerHealth Network"],
     outcomes: "Economic diversification, reduced substance use, new career pathways, healthcare access expansion — proving the ecosystem is truly agnostic to setting and problem.",
   },
 ] as const;

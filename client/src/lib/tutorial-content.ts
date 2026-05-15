@@ -31,18 +31,18 @@ export const SECTION_TUTORIALS: Record<string, TutorialDef> = {
     description: "Monitor all 24 ThriveUp platforms in real time — health status, data flows, compliance grades, and coordination.",
     accentColor: "cyan",
     steps: [
-      { title: "Check the health dashboard", description: "The platform grid shows real-time status for all 24 platforms. Green = online, red = offline, yellow = degraded. The hub pinger checks every 10 minutes.", tip: "Platforms that were sleeping get 'woken up' automatically by the pinger." },
+      { title: "Check the health dashboard", description: "The platform grid shows real-time status for all 15 service platforms. Green = online, red = offline, yellow = degraded. The hub pinger checks every 10 minutes.", tip: "Platforms that were sleeping get 'woken up' automatically by the pinger." },
       { title: "Review platform triads", description: "Platforms are organized into functional triads (Health Core, Education & Youth, Safety & Accessibility, etc.). Each triad has a lead platform responsible for coordination.", tip: "Click any platform card to see its full capability profile and data flow connections." },
       { title: "Check compliance grades", description: "Each platform receives a letter grade (A-F) based on directive acknowledgment. The hub has 89 active directives covering identity, integration, and grant alignment." },
       { title: "Monitor data flows", description: "The ecosystem map shows which platforms send and receive data from each other. Look for bottlenecks or disconnected platforms." },
     ],
     examples: [
-      { title: "Grant Reviewer Verification", scenario: "A St. David's Foundation reviewer asks 'How do your platforms actually work together?' You open the Ecosystem Hub and show all 24 platforms online with real-time health checks, organized into 8 functional triads with bidirectional data flows.", outcome: "The reviewer sees live proof that this isn't a slide deck — it's a functioning ecosystem with verifiable health metrics and integration depth." },
-      { title: "Platform Outage Response", scenario: "Emergency Management shows 'offline' status. You check the health logs and see it went down 30 minutes ago. The pinger automatically tried the .replit.app fallback URL and woke it up on the next cycle.", outcome: "The platform returns to 'online' status within 10 minutes without any manual intervention. The incident is logged for compliance reporting." },
+      { title: "Grant Reviewer Verification", scenario: "A St. David's Foundation reviewer asks 'How do your platforms actually work together?' You open the Ecosystem Hub and show all 15 service platforms online with real-time health checks, organized into 8 functional triads with bidirectional data flows.", outcome: "The reviewer sees live proof that this isn't a slide deck — it's a functioning ecosystem with verifiable health metrics and integration depth." },
+      { title: "Platform Outage Response", scenario: "SafeReport shows 'offline' status. You check the health logs and see it went down 30 minutes ago. The pinger automatically tried the .replit.app fallback URL and woke it up on the next cycle.", outcome: "The platform returns to 'online' status within 10 minutes without any manual intervention. The incident is logged for compliance reporting." },
     ],
     tips: [
       "The Ecosystem Hub is your strongest proof point for grant applications — it shows real, live infrastructure, not just plans.",
-      "Use the 'Wake All' function before a demo to ensure all 24 platforms are responsive.",
+      "Use the 'Wake All' function before a demo to ensure all 15 service platforms are responsive.",
       "Each platform's grant alignment tags tell you exactly which grant narratives it supports.",
     ],
   },
@@ -131,7 +131,7 @@ export const SECTION_TUTORIALS: Record<string, TutorialDef> = {
     ],
     examples: [
       { title: "CHW Certification Program — Travis County", scenario: "You design a 12-week Community Health Worker certification program targeting 30 participants in East Austin. The engine calculates: 48 contact hours per participant, 3 CHW instructors needed, $4,200 per-participant cost, and maps the curriculum to Texas DSHS CHW competencies.", outcome: "A fully designed program with budget, staffing, curriculum, and evaluation plan — ready to submit as part of a WIOA or St. David's grant application." },
-      { title: "Youth Workforce Development — Summer Program", scenario: "You need a 6-week summer workforce program for 50 youth ages 16-24 in Pflugerville. The engine templates include WIOA youth elements (tutoring, work experience, leadership), calculates per-participant costs, and assigns platforms: WholeMind (academic), Panther Village (engagement), Workforce Dashboard (tracking).", outcome: "A WIOA-compliant youth program design with all 14 required youth elements addressed, dosage calculations, and a logic model showing inputs → activities → outputs → outcomes." },
+      { title: "Youth Workforce Development — Summer Program", scenario: "You need a 6-week summer workforce program for 50 youth ages 16-24 in Pflugerville. The engine templates include WIOA youth elements (tutoring, work experience, leadership), calculates per-participant costs, and assigns platforms: ThriveUp Academy (academic), Civic Signal (engagement), Workforce Dashboard (tracking).", outcome: "A WIOA-compliant youth program design with all 14 required youth elements addressed, dosage calculations, and a logic model showing inputs → activities → outputs → outcomes." },
     ],
     tips: [
       "Every program designed here automatically generates a logic model — save yourself hours of manual work.",
@@ -196,7 +196,7 @@ export const SECTION_TUTORIALS: Record<string, TutorialDef> = {
       { title: "Present or export", description: "Present directly from the browser or export as PDF. The live version updates in real-time if platform data changes." },
     ],
     examples: [
-      { title: "St. David's Foundation Meeting", scenario: "You're meeting with Christina Thompson at St. David's. The presentation emphasizes: Travis County health disparities (Census data), 24-platform ecosystem (live health status), CHW deployment model (staffing plan), and health equity outcomes (platform metrics).", outcome: "A 15-slide deck where every data point is live — when the reviewer asks 'Are these real numbers?' you can click through to the actual platform dashboards." },
+      { title: "St. David's Foundation Meeting", scenario: "You're meeting with Christina Thompson at St. David's. The presentation emphasizes: Travis County health disparities (Census data), 15-service-platform ecosystem (live health status), CHW deployment model (staffing plan), and health equity outcomes (platform metrics).", outcome: "A 15-slide deck where every data point is live — when the reviewer asks 'Are these real numbers?' you can click through to the actual platform dashboards." },
       { title: "WIOA Board Presentation", scenario: "You're presenting to the local workforce board. The deck focuses on: youth employment outcomes, training completion rates, employer partner count, credential attainment, and follow-up employment at 6 and 12 months.", outcome: "A workforce-focused presentation that speaks the board's language — WIOA performance indicators, common measures, and cost-per-participant calculations." },
     ],
     tips: [
@@ -253,7 +253,7 @@ export const SECTION_TUTORIALS: Record<string, TutorialDef> = {
   "ops-center": {
     sectionName: "ops-center",
     headline: "How to Use the Operations Center",
-    description: "Real-time operational monitoring of all 24 platforms, enforcement cycles, heartbeat tracking, and system-wide coordination.",
+    description: "Real-time operational monitoring of all 15 service platforms, enforcement cycles, heartbeat tracking, and system-wide coordination.",
     accentColor: "rose",
     steps: [
       { title: "Monitor system health", description: "The ops center shows every platform's status, last heartbeat time, response latency, and any active alerts. Green across the board means the ecosystem is fully operational." },
@@ -262,7 +262,7 @@ export const SECTION_TUTORIALS: Record<string, TutorialDef> = {
       { title: "Trigger manual operations", description: "Use the manual controls to force a ping cycle, re-send directives, or generate an ad-hoc compliance report." },
     ],
     examples: [
-      { title: "Pre-Demo Health Check", scenario: "Before a funder meeting, you open the Ops Center to verify all 24 platforms are online. You see 22 online, 2 degraded. You trigger a manual wake cycle and both degraded platforms come back to full health within 2 minutes.", outcome: "When the funder asks for a live demo, every single platform responds — proving the ecosystem is real and operational, not vaporware." },
+      { title: "Pre-Demo Health Check", scenario: "Before a funder meeting, you open the Ops Center to verify all 15 service platforms are online. You see 22 online, 2 degraded. You trigger a manual wake cycle and both degraded platforms come back to full health within 2 minutes.", outcome: "When the funder asks for a live demo, every single platform responds — proving the ecosystem is real and operational, not vaporware." },
       { title: "Weekly Compliance Report", scenario: "You generate the weekly report card: Hub is Grade A (100%), 5 platforms are Grade B (80%+), 12 are Grade C (50%+), 6 are Grade F (not started). You identify the F-grade platforms and send them specific remediation instructions.", outcome: "A documented compliance improvement trajectory — from 1 compliant platform to 18 over 6 weeks — showing continuous quality improvement for grant reporting." },
     ],
     tips: [

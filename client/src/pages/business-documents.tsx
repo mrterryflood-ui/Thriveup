@@ -80,7 +80,7 @@ const ENTITIES: BusinessEntity[] = [
 Executive Summary
 
 ORGANIZATION OVERVIEW
-The Collaborative Advocate Foundation is a 501(c)(3) nonprofit organization headquartered in Austin, Texas. Founded by Dr. Terry Flood, a veteran and community advocate, the organization is veteran-founded and Black-led, delivering workforce development, community health, veteran transition services, and youth education through an innovative 24-platform technology ecosystem.
+The Collaborative Advocate Foundation is a 501(c)(3) nonprofit organization headquartered in Austin, Texas. Founded by Dr. Terry Flood, a veteran and community advocate, the organization is veteran-founded and Black-led, delivering workforce development, community health, veteran transition services, and youth education through an innovative 15-service-platform technology ecosystem.
 
 EIN: 41-3618003
 Address: 17912 Stefano Drive, Pflugerville, TX 78660
@@ -94,34 +94,28 @@ To empower underserved communities through AI-powered workforce development, cul
 VISION
 A future where every community member — regardless of background, circumstance, or ZIP code — has access to the tools, training, and support needed to thrive economically, physically, and socially.
 
-THE ACOS ECOSYSTEM (24 Platforms)
-The Collaborative Advocate Foundation operates through a unique Adaptive Capability Orchestration System (ACOS) — 24 interdependent platforms working as a unified ecosystem:
+THE ACOS ECOSYSTEM (15 Service Platforms)
+The Collaborative Advocate Foundation operates 15 interdependent service platforms working as a unified Adaptive Capability Orchestration System (ACOS):
 
 • ThriveUp Academy — AI-powered workforce development (central hub)
 • Mission Transition (M2C) — Military-to-civilian career pipelines
-• Emergency Management — Risk intelligence and community safety
 • Whole-Person Health — Behavioral health and crisis support
-• SafeReport — Mandatory reporter incident management
+• SafeReport — Compliance-grade clinical-setting AI / mandatory reporting
 • ISSS — Integrated Supports for Thriving Youth
 • Sankofa Health Network — Black maternal, feminine, and men's health
+• HerHealth Network — Holistic Black feminine health hub
+• Black Men's Health Hub — Black men's preventive and chronic care
+• Black Maternal Health Network — Perinatal navigation
 • Minority Center of Excellence — 656K+ SAM.gov contractor records
-• Better Science Lab — Implementation science (CFIR/RE-AIM)
+• RPLICE / Better Science Lab — Implementation science (CFIR/RE-AIM)
 • LifeBridge — Virtual 211 resource navigation
 • Perfectly Different — Neurodiversity support
-• WholeMind Learning — Pre-K to 12th grade education
-• PillScheduler — Medication management
 • SafeCogniCare — Cognitive safety assessment
-• Ecosystem Nexus — Cross-platform coordination
-• Pinnacle Business Conglomerate — Contractor enablement
-• LexiBridge — Dialect-aware communication
-• Autoimmune Center of Excellence — Chronic disease management
-• Video Creator AI — Content production
-• Ad Targeting — Community outreach
-• Code Canvas — System evaluation
-• The Collaborative Advocate — Organizational backbone
+• Talk Your Talk — Communication access (89 spoken + 18 sign languages)
+• Civic Signal — Civic engagement and public-comment infrastructure
 
 KEY DIFFERENTIATORS
-1. Interdependent Architecture: All 24 platforms share data, referrals, and outcomes — no siloed services
+1. Interdependent Architecture: All 15 service platforms share data, referrals, and outcomes — no siloed services
 2. Evidence-Based: CFIR and RE-AIM frameworks built into every platform via Better Science Lab
 3. Culturally Responsive: Designed by and for the communities served
 4. Veteran-Founded: Lived experience informing program design
@@ -153,7 +147,7 @@ CORE COMPETENCIES
 ✓ Returning Citizen Reentry Support
 ✓ Community Health Worker (CHW) Training
 ✓ Evidence-Based Program Implementation (CFIR/RE-AIM)
-✓ 24-Platform Technology Ecosystem Management
+✓ 15 Service Platform Technology Ecosystem Management
 
 ORGANIZATION DATA
 Legal Name: The Collaborative Advocate Foundation
@@ -167,7 +161,7 @@ Email: president@thecollaborativeadvocate.org
 Website: thrivingcommunitiesforall.com
 
 DIFFERENTIATORS
-• Only ecosystem with 24 interdependent platforms serving workforce, health, education, and veteran needs simultaneously
+• Only ecosystem with 15 interdependent service platforms serving workforce, health, education, and veteran needs simultaneously
 • Veteran-founded, Black-led organization with lived-experience credibility
 • AI-enhanced service delivery across all program areas
 • SAM.gov registered with active federal contracting eligibility
@@ -177,7 +171,7 @@ DIFFERENTIATORS
 PAST PERFORMANCE
 • 29+ workforce curriculum modules across 22 subjects
 • 50+ career pathways with credential alignment
-• 24 platforms operational with real-time health monitoring
+• 15 service platforms operational with real-time health monitoring
 • 221+ grant opportunities tracked in discovery engine
 • Community Health Worker training pipeline established
 • Military-to-civilian transition program active
@@ -206,7 +200,7 @@ Cash App: $MRTDFLOOD | PayPal: paypal.me/CollaborativeAdvocate` },
 Organizational Profile
 
 WHO WE ARE
-The Collaborative Advocate Foundation is a 501(c)(3) nonprofit, veteran-founded and Black-led, headquartered in Pflugerville, Texas. Founded by Dr. Terry Flood, we operate a 24-platform Adaptive Capability Orchestration System (ACOS) delivering integrated workforce development, health equity, veteran transition, and youth education services.
+The Collaborative Advocate Foundation is a 501(c)(3) nonprofit, veteran-founded and Black-led, headquartered in Pflugerville, Texas. Founded by Dr. Terry Flood, we operate a 15-service-platform Adaptive Capability Orchestration System (ACOS) delivering integrated workforce development, health equity, veteran transition, and youth education services.
 
 WHAT WE DO
 • Train and credential the workforce of tomorrow through AI-powered curriculum
@@ -217,10 +211,10 @@ WHAT WE DO
 • Enable minority and veteran-owned businesses through contracting support
 
 HOW WE'RE DIFFERENT
-Our 24 platforms don't operate in silos — they share data, route referrals, and produce unified outcome metrics. When a veteran enters Mission Transition, their health needs route to Whole-Person Health, their family's education needs connect to WholeMind Learning, and their business aspirations link to Minority Center of Excellence. One entry point, full-spectrum support.
+Our 15 service platforms don't operate in silos — they share data, route referrals, and produce unified outcome metrics. When a veteran enters Mission Transition, their health needs route to Whole-Person Health, their family's education needs connect to ISSS and Perfectly Different, and their business aspirations link to Minority Center of Excellence. One entry point, full-spectrum support.
 
 BY THE NUMBERS
-• 24 Active Technology Platforms
+• 15 Active Service Platforms
 • 29+ Workforce Curriculum Modules
 • 50+ Career Pathways
 • 22 Academic Subjects
@@ -354,7 +348,7 @@ TARGET CLIENTS
 • Corporate social responsibility programs
 
 COMPETITIVE ADVANTAGES
-• Proven 24-platform ecosystem demonstrating scalable architecture
+• Proven 15-service-platform ecosystem demonstrating scalable architecture
 • Evidence-based methodologies (CFIR, RE-AIM) integrated into all engagements
 • Veteran-founded with lived-experience perspective
 • AI-enhanced consulting accelerating client outcomes
@@ -389,7 +383,7 @@ Email: president@thecollaborativeadvocate.org
 
 DIFFERENTIATORS
 • Implementation science expertise with field-tested CFIR and RE-AIM deployment
-• Proven 24-platform technology ecosystem as reference architecture
+• Proven 15-service-platform technology ecosystem as reference architecture
 • MAP-GAP continuous quality improvement methodology (proprietary)
 • RPLICE Decision Framework for evidence-based consulting decisions
 • Veteran-founded firm with government contracting understanding

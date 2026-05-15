@@ -30,7 +30,7 @@ const LOGIC_MODEL_COLUMNS = [
     icon: Users,
     items: [
       { label: "Federal/state grant funding (WIOA, OJJDP, SAMHSA)", dataKey: null },
-      { label: "ThriveUp technology platform (24-platform ACOS)", dataKey: null },
+      { label: "ThriveUp technology platform (15-service-platform ACOS)", dataKey: null },
       { label: "Enrolled participants", dataKey: "totalParticipants" },
       { label: "Trained staff, case managers, navigators", dataKey: null },
       { label: "Community partner network (20+ agencies)", dataKey: null },
@@ -395,7 +395,7 @@ export default function LogicModelPage() {
 
       <Card className="p-5" data-testid="card-ecosystem-integration">
         <h2 className="font-semibold text-lg mb-1">Ecosystem Integration Points</h2>
-        <p className="text-sm text-muted-foreground mb-4">How the 24-platform ACOS architecture supports logic model outcomes</p>
+        <p className="text-sm text-muted-foreground mb-4">How the 15-service-platform ACOS architecture supports logic model outcomes</p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="space-y-2">
             <h3 className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4 text-blue-600" /> Workforce Platforms</h3>
@@ -405,13 +405,13 @@ export default function LogicModelPage() {
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4 text-emerald-600" /> Health Platforms</h3>
-            {["Whole Person Health (behavioral health)", "Sankofa (health equity)", "PillScheduler (medication)", "SafeCogniCare (cognitive safety)"].map((p) => (
+            {["Whole-Person Health (behavioral health)", "Sankofa Health Network (health equity)", "HerHealth Network (women's health)", "SafeCogniCare (cognitive safety)"].map((p) => (
               <div key={p} className="text-xs p-2 bg-muted rounded">{p}</div>
             ))}
           </div>
           <div className="space-y-2">
             <h3 className="text-sm font-medium flex items-center gap-2"><Zap className="h-4 w-4 text-violet-600" /> Support Platforms</h3>
-            {["LifeBridge (community resources)", "SafeReport (mandatory reporting)", "Emergency Management (crisis response)", "Better Science Lab (evaluation)"].map((p) => (
+            {["LifeBridge (community resources)", "SafeReport (mandatory reporting)", "Talk Your Talk (communication access)", "Better Science Lab (evaluation)"].map((p) => (
               <div key={p} className="text-xs p-2 bg-muted rounded">{p}</div>
             ))}
           </div>

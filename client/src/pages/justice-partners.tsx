@@ -578,8 +578,8 @@ export default function JusticePartnersPage() {
                 { platform: "Whole-Person Health", service: "PHQ-9/GAD-7 screening, behavioral health referrals" },
                 { platform: "Sankofa Health", service: "Culturally responsive care, community healing" },
                 { platform: "ISSS", service: "School-based wraparound, IEP coordination" },
-                { platform: "WholeMind Learning", service: "Adaptive learning, special education support" },
-                { platform: "PillScheduler", service: "Medication adherence tracking for behavioral health" },
+                { platform: "Perfectly Different", service: "Neurodiversity support — IEP/504 navigation, special education advocacy" },
+                { platform: "SafeReport", service: "Mandatory-reporter incident management, longitudinal screening (PHQ-9/GAD-7/C-SSRS)" },
               ].map(p => (
                 <div key={p.platform} className="flex items-start gap-2 p-3 rounded-lg border">
                   <ArrowRight className="h-4 w-4 text-primary mt-0.5 shrink-0" />

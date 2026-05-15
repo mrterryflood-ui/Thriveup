@@ -29,28 +29,19 @@ const ENTITIES = [
 const PLATFORMS = [
   { name: "ThriveUp Academy", domain: "Youth & Education", color: "bg-violet-500" },
   { name: "ISSS", domain: "School Wraparound", color: "bg-blue-500" },
-  { name: "WholeMind Learning", domain: "Adaptive Learning", color: "bg-indigo-500" },
   { name: "Perfectly Different", domain: "Neurodivergent Support", color: "bg-pink-500" },
   { name: "LifeBridge", domain: "Housing Transitions", color: "bg-emerald-500" },
-  { name: "M2C Transition", domain: "Benefits & Community", color: "bg-teal-500" },
   { name: "Mission Transition", domain: "Military-to-Civilian", color: "bg-slate-500" },
   { name: "MCE", domain: "Minority Business Dev", color: "bg-amber-500" },
-  { name: "Collaborative Advocate", domain: "VOSB Consulting", color: "bg-orange-500" },
   { name: "Whole-Person Health", domain: "Clinical Screenings", color: "bg-rose-500" },
   { name: "Sankofa Health", domain: "Culturally Responsive Health", color: "bg-red-500" },
   { name: "Black Maternal Health", domain: "Perinatal Care", color: "bg-fuchsia-500" },
-  { name: "Sankofa Feminine Health", domain: "Women's Health", color: "bg-purple-500" },
-  { name: "Sankofa Men's Health", domain: "Men's Health", color: "bg-cyan-500" },
+  { name: "HerHealth Network", domain: "Women's Health", color: "bg-purple-500" },
+  { name: "Black Men's Health Hub", domain: "Men's Health", color: "bg-cyan-500" },
   { name: "SafeCogniCare", domain: "Cognitive Health / TBI", color: "bg-sky-500" },
-  { name: "PillScheduler", domain: "Medication Adherence", color: "bg-lime-500" },
   { name: "SafeReport", domain: "Community Safety", color: "bg-yellow-500" },
-  { name: "Emergency Management", domain: "Crisis Response", color: "bg-gray-500" },
   { name: "RPLICE / Better Science", domain: "Research Validation", color: "bg-blue-600" },
-  { name: "Video Creator AI", domain: "Content Production", color: "bg-violet-600" },
-  { name: "Pinnacle Business", domain: "Business Development", color: "bg-orange-600" },
-  { name: "LexiBridge", domain: "Legal Navigation", color: "bg-slate-600" },
-  { name: "Code Canvas", domain: "Digital Skills Training", color: "bg-indigo-600" },
-  { name: "Ecosystem Nexus", domain: "Cross-Platform Integration", color: "bg-teal-600" },
+  { name: "Talk Your Talk", domain: "Communication Access (89 spoken + 18 sign)", color: "bg-slate-600" },
 ];
 
 const REGIONAL_HUBS = [
@@ -80,7 +71,7 @@ const REGIONAL_HUBS = [
     ],
     partners: ["Manor ISD", "Manor Economic Development", "Travis County Health", "Local Employers"],
     funding: ["WIOA Title I ($200-500K)", "DFC Grant ($625K)", "Foundation Grants"],
-    platforms: ["ThriveUp Academy", "ISSS", "WholeMind", "Sankofa Health", "SafeReport"],
+    platforms: ["ThriveUp Academy", "ISSS", "Perfectly Different", "Sankofa Health", "SafeReport"],
   },
   {
     name: "Pflugerville Hub",
@@ -94,7 +85,7 @@ const REGIONAL_HUBS = [
     ],
     partners: ["PfISD", "Pflugerville CDC", "Health Alliance for Austin Musicians", "Local Businesses"],
     funding: ["PCDC Community Grant ($150K+)", "Foundation Grants", "Corporate Partnerships"],
-    platforms: ["ThriveUp Academy", "Perfectly Different", "PillScheduler", "Video Creator AI"],
+    platforms: ["ThriveUp Academy", "Perfectly Different", "ISSS", "SafeCogniCare"],
   },
 ];
 
@@ -217,7 +208,7 @@ const CFIR_DOMAINS = [
     maxScore: 5,
     items: [
       "Evidence strength: 4 doctoral disciplines provide rigorous theoretical foundation",
-      "Relative advantage: 24-platform ecosystem vs. siloed single-program approaches",
+      "Relative advantage: 15-service-platform ecosystem vs. siloed single-program approaches",
       "Adaptability: Three Realities framework ensures community-specific customization",
       "Complexity: MAP-GAP CQI reduces implementation complexity through structured cycles",
     ],
@@ -238,8 +229,8 @@ const CFIR_DOMAINS = [
     score: 3.8,
     maxScore: 5,
     items: [
-      "Structural characteristics: Technology infrastructure supports all 24 platforms",
-      "Networks & communications: Ecosystem Nexus provides cross-platform data sharing",
+      "Structural characteristics: Technology infrastructure supports all 15 service platforms",
+      "Networks & communications: cross-platform data sharing across the service-platform stack",
       "Culture: Veteran-founded, minority-led, community-ownership philosophy",
       "Implementation climate: Strong leadership commitment, dedicated staffing plan",
     ],
@@ -271,7 +262,7 @@ const CFIR_DOMAINS = [
 const REAIM_SCORES = [
   { dimension: "Reach", score: 85, description: "3 regional hubs covering Austin/Manor/Pflugerville triangle, 30M+ Texas population potential" },
   { dimension: "Effectiveness", score: 78, description: "SALP fidelity indicators, SMART goals, real-time outcome dashboards across all platforms" },
-  { dimension: "Adoption", score: 82, description: "24 platforms operational, coalition partnerships across 12 sectors, employer engagement" },
+  { dimension: "Adoption", score: 82, description: "15 service platforms operational, coalition partnerships across 12 sectors, employer engagement" },
   { dimension: "Implementation", score: 88, description: "MAP-GAP CQI cycle, CFIR-guided deployment, Three Realities adaptation framework" },
   { dimension: "Maintenance", score: 75, description: "MG-PATR replication protocol, continuous quality improvement, community ownership model" },
 ];
@@ -311,10 +302,10 @@ const PARTNERSHIP_VALUE = {
   whatWeOffer: [
     { tool: "MAP-GAP Framework", benefit: "Any partner can run structured improvement cycles on their own programs — no license, no fee, just better outcomes", icon: RefreshCw },
     { tool: "RPLICE Validation Tools", benefit: "CFIR assessments, RE-AIM scoring, Fidelity Checklists, and Three Realities diagnostics available to partners for self-evaluation", icon: Microscope },
-    { tool: "CARE Model Integration", benefit: "Connect your community assessments directly to evidence-based response pathways across 24 platforms", icon: Heart },
+    { tool: "CARE Model Integration", benefit: "Connect your community assessments directly to evidence-based response pathways across 15 service platforms", icon: Heart },
     { tool: "Warm Handoff Network", benefit: "Bi-directional referral system with confirmation tracking — your clients get connected, not lost", icon: Handshake },
     { tool: "Shared Outcomes Dashboard", benefit: "Joint metric tracking so partners can show collective impact to funders, not just individual outputs", icon: BarChart3 },
-    { tool: "Technology Infrastructure", benefit: "24 platforms covering health, housing, workforce, education, and safety — available as a backbone for partner programs", icon: Globe },
+    { tool: "Technology Infrastructure", benefit: "15 service platforms covering health, housing, workforce, education, and safety — available as a backbone for partner programs", icon: Globe },
   ],
   whatWeLookFor: [
     "Community trust and established relationships we haven't built yet",
@@ -464,7 +455,7 @@ function generatePDF(section: string) {
     }
     case "ecosystem": {
       doc.setFontSize(22);
-      doc.text("24-Platform Ecosystem Overview", margin, y);
+      doc.text("15 Service Platform Ecosystem Overview", margin, y);
       y += 14;
       doc.setFontSize(10);
       PLATFORMS.forEach((p, i) => {
@@ -742,7 +733,7 @@ export default function PresentationsPage() {
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <SectionCard
           title="Executive Summary"
-          description="One-page overview: 3 entities, 24 platforms, 3 hubs, 7 grants, Dr. Flood's methodologies"
+          description="One-page overview: 3 entities, 15 service platforms, 3 hubs, 7 grants, Dr. Flood's methodologies"
           icon={FileText}
           section="executive"
           color="bg-violet-600"
@@ -763,7 +754,7 @@ export default function PresentationsPage() {
         />
         <SectionCard
           title="Ecosystem Overview"
-          description="All 24 platforms, their domains, and interconnections"
+          description="All 15 service platforms, their domains, and interconnections"
           icon={Globe}
           section="ecosystem"
           color="bg-blue-600"
@@ -855,7 +846,7 @@ export default function PresentationsPage() {
             <div className="relative z-10 max-w-4xl">
               <h1 className="text-3xl md:text-4xl font-bold mb-4">ThriveUp Academy</h1>
               <p className="text-lg text-blue-100 mb-4">
-                A veteran-founded, minority-led 24-platform ecosystem built to make communities stronger — not just our programs, 
+                A veteran-founded, minority-led 15-service-platform ecosystem built to make communities stronger — not just our programs, 
                 but every partner we work with. Our tools, methodologies, and frameworks are designed to be shared, adapted, and 
                 deployed by coalitions who believe we're always better together.
               </p>
@@ -1240,7 +1231,7 @@ export default function PresentationsPage() {
         <TabsContent value="ecosystem" className="mt-6 space-y-8" data-testid="content-ecosystem">
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <h2 className="text-2xl font-bold mb-1">24-Platform Ecosystem</h2>
+              <h2 className="text-2xl font-bold mb-1">15 Service Platform Ecosystem</h2>
               <p className="text-muted-foreground">Every tool is built to strengthen partners, not just serve our own programs</p>
             </div>
             <Button variant="outline" size="sm" onClick={() => generatePDF("ecosystem")} data-testid="button-download-ecosystem-inline">
@@ -1276,7 +1267,7 @@ export default function PresentationsPage() {
                   <ul className="space-y-2">
                     <li className="text-xs text-muted-foreground flex items-start gap-2">
                       <ArrowRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />
-                      <span>Single entry point across all 24 platforms — data follows the person</span>
+                      <span>Single entry point across all 15 service platforms — data follows the person</span>
                     </li>
                     <li className="text-xs text-muted-foreground flex items-start gap-2">
                       <ArrowRight className="h-3 w-3 text-primary mt-0.5 shrink-0" />
@@ -1706,7 +1697,7 @@ export default function PresentationsPage() {
             </CardHeader>
             <CardContent className="pt-6">
               <p className="text-sm text-muted-foreground mb-6">
-                Every platform in the 24-platform ecosystem operates as an autonomous agent with its own capability registry, domain expertise, and communication channels. All exchanges require 50+ character reasoning explaining WHY this platform, WHY now, and expected outcome.
+                Every platform in the 15-service-platform ecosystem operates as an autonomous agent with its own capability registry, domain expertise, and communication channels. All exchanges require 50+ character reasoning explaining WHY this platform, WHY now, and expected outcome.
               </p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="space-y-3">

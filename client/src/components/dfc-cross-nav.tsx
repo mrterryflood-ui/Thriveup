@@ -27,7 +27,7 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Benefits Screener", description: "9-program screening tool for field use", href: "/benefits-screener", icon: ClipboardCheck },
     { title: "SDOH Impact Chain", description: "Visualize the poverty → crime chain across 5 counties", href: "/sdoh-chain", icon: Link2 },
     { title: "Community Map", description: "GIS tract-level enrollment gaps and barriers", href: "/community-map", icon: MapPin },
-    { title: "Ecosystem Hub", description: "24-platform ecosystem command center", href: "/ecosystem", icon: Network },
+    { title: "Ecosystem Hub", description: "15-service-platform ecosystem command center", href: "/ecosystem", icon: Network },
     { title: "Grant Hub", description: "Full grant management and narrative builder", href: "/grants", icon: Target },
     { title: "SDOH Explorer", description: "Public, replicable SDOH analysis for any US county", href: "/sdoh-explorer", icon: Search },
   ],
@@ -36,7 +36,7 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "SDOH Impact Chain", description: "Poverty → education → benefits → crime chain with data", href: "/sdoh-chain", icon: Link2 },
     { title: "Benefits Screener", description: "9-program screener feeding real enrollment data", href: "/benefits-screener", icon: ClipboardCheck },
     { title: "Community Map", description: "GIS view of tract-level gaps and barriers", href: "/community-map", icon: MapPin },
-    { title: "Ecosystem Hub", description: "24-platform command center", href: "/ecosystem", icon: Network },
+    { title: "Ecosystem Hub", description: "15-service-platform command center", href: "/ecosystem", icon: Network },
     { title: "SDOH Explorer", description: "Public, replicable analysis — share with anyone", href: "/sdoh-explorer", icon: Search },
   ],
   "benefits-screener": [
@@ -72,7 +72,7 @@ const NAV_MAP: Record<string, CrossNavItem[]> = {
     { title: "Resource Finder", description: "Search resources by state and category", href: "/resources", icon: Search },
     { title: "Community Resource Directory", description: "National organizations with local chapters", href: "/resource-directory", icon: Users },
     { title: "SDOH Explorer", description: "Live Census data for any US county cluster", href: "/sdoh-explorer", icon: Search },
-    { title: "Ecosystem Hub", description: "24-platform command center", href: "/ecosystem", icon: Network },
+    { title: "Ecosystem Hub", description: "15-service-platform command center", href: "/ecosystem", icon: Network },
     { title: "Community Map", description: "GIS view of enrollment gaps by census tract", href: "/community-map", icon: MapPin },
   ],
   "prevention-strategies": [

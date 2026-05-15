@@ -108,7 +108,7 @@ export default function ResearchMethodologyPage() {
             <MethodCard
               acronym="ACOS"
               full="Adaptive Capability Orchestration System"
-              desc="The system architecture pattern underlying our 24-platform ecosystem. Anchored in the dynamic capabilities literature (Teece, Pisano, & Shuen, 1997) and microservice/event-driven architecture patterns."
+              desc="The system architecture pattern underlying our 15-service-platform ecosystem. Anchored in the dynamic capabilities literature (Teece, Pisano, & Shuen, 1997) and microservice/event-driven architecture patterns."
             />
             <MethodCard
               acronym="Three Realities Diagnostic"

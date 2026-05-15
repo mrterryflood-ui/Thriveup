@@ -373,7 +373,7 @@ const TRACKS: Track[] = [
           "Strategic alignment: does this project support our mission?",
           "Resource allocation across multiple projects",
           "Benefits realization: measuring whether we achieved the strategic goal",
-          "The ThriveUp ecosystem as a portfolio: 24 platforms, one mission",
+          "The ThriveUp ecosystem as a portfolio: 15 service platforms, one mission",
         ],
         duration: "7 days",
         project: "Create a portfolio view of ThriveUp's ecosystem platforms, prioritize 5 for strategic investment, and defend your rationale",
@@ -397,7 +397,7 @@ const TRACKS: Track[] = [
     careerPaths: ["Senior Project Manager", "Program Director", "Portfolio Manager", "PM Consultant", "Chief Operations Officer"],
     platformConnections: [
       "Capstone in: RPLICE + MCE — manage a full program cycle with real stakeholders",
-      "Portfolio view: Ecosystem Hub — see all 24 platforms as a managed portfolio",
+      "Portfolio view: Ecosystem Hub — see all 15 service platforms as a managed portfolio",
       "Process improvement: Apply DMAIC to any platform's operational workflow",
       "Leadership: Coach a peer through the PM Essentials track as part of your capstone",
     ],
@@ -1060,7 +1060,7 @@ export default function PMAcademyPage() {
                   evidence-based community work. MCE brings the same rigor to contract and business management, 
                   ensuring even non-certified users can manage federal contracts with fidelity — because the platform 
                   guides every step. The Ecosystem Hub ties it together, because the ecosystem itself is a portfolio 
-                  of 20 interdependent platforms that need program management to function as one.
+                  of 15 interdependent service platforms that need program management to function as one.
                 </p>
               </CardContent>
             </Card>

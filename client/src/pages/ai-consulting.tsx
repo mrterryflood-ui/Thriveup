@@ -88,7 +88,7 @@ const whyUs = [
   {
     icon: CheckCircle2,
     title: "We Ship, Not Sell",
-    description: "While Microsoft publishes guidelines and Databricks sells tutorials, we've built and operate a 24-platform AI ecosystem. Our consulting comes from doing, not theorizing.",
+    description: "While Microsoft publishes guidelines and Databricks sells tutorials, we've built and operate a 15-service-platform AI ecosystem. Our consulting comes from doing, not theorizing.",
   },
   {
     icon: Layers,
@@ -183,7 +183,7 @@ export default function AIConsultingPage() {
             Organizations are investing heavily in AI. But they struggle with strategy, implementation, and transformation.
           </p>
           <p className="text-lg text-indigo-300 max-w-3xl mb-8">
-            We don't sell blueprints — we've built and operate a 24-platform AI ecosystem. Our consulting comes from implementation, not theory.
+            We don't sell blueprints — we've built and operate a 15-service-platform AI ecosystem. Our consulting comes from implementation, not theory.
           </p>
           <div className="flex flex-wrap gap-3">
             <Link href="/contact">
@@ -324,7 +324,7 @@ export default function AIConsultingPage() {
             {[
               { company: "Microsoft Azure", sells: "AI Center of Excellence guidelines (e-book)", weDeliver: "A live AI CoE with 4 providers, collaborative intelligence, RAG, and governance" },
               { company: "Databricks", sells: "Compact Guide to RAG (tutorial)", weDeliver: "Production RAG with 75 knowledge chunks, live intelligence, and real-time ecosystem data" },
-              { company: "dbt Labs", sells: "Why AI needs governed data (O'Reilly report)", weDeliver: "193 governed database tables, 24 platform fidelity grading, directive enforcement" },
+              { company: "dbt Labs", sells: "Why AI needs governed data (O'Reilly report)", weDeliver: "193 governed database tables, 15 service platform fidelity grading, directive enforcement" },
               { company: "Red Hat", sells: "Operationalizing LLMs on Kubernetes (book)", weDeliver: "301 production API endpoints, zero-downtime AI, 4-provider failover, live users" },
             ].map((comp, i) => (
               <Card key={i} className="p-5 hover:shadow-lg transition-shadow" data-testid={`card-comparison-${i}`}>
@@ -374,7 +374,7 @@ export default function AIConsultingPage() {
 
         <div className="text-center text-sm text-muted-foreground pb-8" data-testid="text-consulting-footer">
           <p>The Collaborative Advocate is a Veteran-Owned Small Business (VOSB) and the umbrella organization for the ThriveUp ecosystem.</p>
-          <p className="mt-1">AI consulting services are led by the President of TCAF — a U.S. Army Retired veteran, doctoral-level implementation scientist, and architect of the 24-platform Autonomous Community Operating System.</p>
+          <p className="mt-1">AI consulting services are led by the President of TCAF — a U.S. Army Retired veteran, doctoral-level implementation scientist, and architect of the 15-service-platform Autonomous Community Operating System.</p>
         </div>
       </div>
     </div>

@@ -43,7 +43,7 @@ const ECOSYSTEM_PLATFORMS = [
       { name: "Mission Transition", role: "Career planning, identity transition", impact: "Military-to-civilian workforce" },
       { name: "MCE", role: "Minority business development, certifications", impact: "Job seekers → business owners" },
       { name: "Collaborative Advocate", role: "VOSB service delivery, consulting", impact: "Federal contracting pipeline" },
-      { name: "Ecosystem Nexus", role: "Cross-platform coordination", impact: "Workforce tracking & outcomes" },
+      { name: "ThriveUp Academy", role: "Cross-platform coordination & workforce hub", impact: "Workforce tracking & outcomes" },
     ],
   },
   {
@@ -54,7 +54,7 @@ const ECOSYSTEM_PLATFORMS = [
       { name: "Sankofa Health Network", role: "Culturally responsive health content", impact: "Addresses racial health disparities" },
       { name: "Black Maternal Health Network", role: "Perinatal & postpartum care", impact: "3x mortality rate crisis" },
       { name: "SafeCogniCare", role: "Cognitive health, TBI assessment", impact: "Veteran-specific care pathways" },
-      { name: "PillScheduler", role: "Medication management & adherence", impact: "Prevents $300B annual waste" },
+      { name: "HerHealth Network", role: "Holistic women's health & medication adherence", impact: "Prevents $300B annual non-adherence waste" },
     ],
   },
   {
@@ -62,7 +62,7 @@ const ECOSYSTEM_PLATFORMS = [
     color: "from-violet-500 to-violet-700",
     platforms: [
       { name: "ISSS", role: "School-based wraparound services", impact: "934 homeless youth need this" },
-      { name: "WholeMind Learning", role: "Adaptive learning, SEL development", impact: "Living-wage career pathways" },
+      { name: "Talk Your Talk", role: "Communication access (89 spoken + 18 sign), SEL development", impact: "Living-wage career pathways" },
       { name: "Perfectly Different", role: "Neurodivergent support", impact: "1 in 5 children supported" },
     ],
   },
@@ -70,9 +70,9 @@ const ECOSYSTEM_PLATFORMS = [
     category: "Safety & Research",
     color: "from-slate-500 to-slate-700",
     platforms: [
-      { name: "Emergency Management", role: "Crisis response & data protection", impact: "Protects all platform data" },
+      { name: "SafeReport", role: "Crisis response, mandatory reporting & longitudinal screening", impact: "PHQ-9/GAD-7/C-SSRS/PCL-5/ACES at scale" },
       { name: "RPLICE / Better Science Lab", role: "Research validation, CFIR/RE-AIM", impact: "Evidence base that wins grants" },
-      { name: "Video Creator AI", role: "AI video production & Roku ads", impact: "Every platform gets a public face" },
+      { name: "Civic Signal", role: "Civic engagement & public-comment infrastructure", impact: "Every platform gets a public voice" },
     ],
   },
 ];
@@ -81,7 +81,7 @@ const ST_DAVIDS_ALIGNMENT = [
   { priority: "Pathways to Economic Stability for Healthcare Workforce", pool: "$10.1M", platforms: "Mission Transition + MCE + Collaborative Advocate", icon: Briefcase },
   { priority: "Culturally Responsive Mental Health", pool: "$4.2M", platforms: "Sankofa Network + Whole-Person Health", icon: Heart },
   { priority: "Healthy Births, Healthy Communities", pool: "$7.3M", platforms: "Black Maternal Health Network + Sankofa Feminine Health", icon: Baby },
-  { priority: "Community-Driven Change", pool: "$9.1M", platforms: "All 24 platforms engage communities in decision-making", icon: Users },
+  { priority: "Community-Driven Change", pool: "$9.1M", platforms: "All 15 service platforms engage communities in decision-making", icon: Users },
   { priority: "Housing + Health", pool: "$10M+", platforms: "LifeBridge + M2C + Workforce platforms", icon: Home },
   { priority: "Safety Net Clinics", pool: "Core", platforms: "Whole-Person Health screenings for uninsured", icon: Stethoscope },
 ];
@@ -133,7 +133,7 @@ export default function AustinHousingInitiativePage() {
     <div className="max-w-7xl mx-auto p-6 space-y-10" data-testid="austin-housing-initiative-page">
       <PageHeader
         title="Built for Austin"
-        description="24-platform ecosystem addressing Austin's housing, workforce, and health equity crisis"
+        description="15-service-platform ecosystem addressing Austin's housing, workforce, and health equity crisis"
         actions={
           <div className="flex gap-2 flex-wrap">
             <TrainingGuideButton moduleId="austin-housing-initiative" />
@@ -157,7 +157,7 @@ export default function AustinHousingInitiativePage() {
         </div>
         <div className="relative z-10 max-w-4xl">
           <Badge className="bg-white/20 text-white border-white/30 mb-4" data-testid="badge-ecosystem">
-            20-Platform AI Ecosystem
+            15 Service Platform AI Ecosystem
           </Badge>
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
             We Bring Solutions to Anyone
@@ -194,7 +194,7 @@ export default function AustinHousingInitiativePage() {
             <AlertTriangle className="h-3.5 w-3.5 mr-1" /> The Crisis
           </TabsTrigger>
           <TabsTrigger value="ecosystem" className="text-xs md:text-sm" data-testid="tab-ecosystem">
-            <Globe className="h-3.5 w-3.5 mr-1" /> 24 Platforms
+            <Globe className="h-3.5 w-3.5 mr-1" /> 15 Service Platforms
           </TabsTrigger>
           <TabsTrigger value="alignment" className="text-xs md:text-sm" data-testid="tab-alignment">
             <Target className="h-3.5 w-3.5 mr-1" /> Funder Fit
@@ -326,7 +326,7 @@ export default function AustinHousingInitiativePage() {
 
         <TabsContent value="ecosystem" className="mt-6 space-y-8" data-testid="content-ecosystem">
           <div>
-            <h2 className="text-2xl font-bold mb-2">The 20-Platform Ecosystem</h2>
+            <h2 className="text-2xl font-bold mb-2">The 15 Service Platform Ecosystem</h2>
             <p className="text-muted-foreground mb-6">
               One connected ecosystem. One entry point. Comprehensive wraparound support. No dead ends. Always a safety net.
             </p>
@@ -352,7 +352,7 @@ export default function AustinHousingInitiativePage() {
                     <CheckCircle2 className="h-4 w-4" /> ThriveUp's Answer
                   </h3>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> 24 platforms sharing real-time data</li>
+                    <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> 15 service platforms sharing real-time data</li>
                     <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> One entry point, data follows the person</li>
                     <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> Warm handoff with confirmation tracking</li>
                     <li className="flex items-start gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 mt-0.5 flex-shrink-0" /> AI-powered real-time fidelity dashboard</li>
@@ -462,12 +462,12 @@ export default function AustinHousingInitiativePage() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {[
-                  { num: "1", text: "24 platforms for the price of one grant — no other applicant brings this breadth" },
+                  { num: "1", text: "15 service platforms for the price of one grant — no other applicant brings this breadth" },
                   { num: "2", text: "AI-powered — we scale without proportional cost increase" },
                   { num: "3", text: "Real-time data — funders see outcomes as they happen, not in annual reports" },
                   { num: "4", text: "RPLICE quality gate — every claim is evidence-based, every metric validated" },
                   { num: "5", text: "Veteran-founded, minority-led — we ARE the population we serve" },
-                  { num: "6", text: "Already built. Already running. 24 platforms heartbeating right now." },
+                  { num: "6", text: "Already built. Already running. 15 service platforms heartbeating right now." },
                 ].map((item) => (
                   <div key={item.num} className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
                     <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold flex-shrink-0">
@@ -578,7 +578,7 @@ export default function AustinHousingInitiativePage() {
                     <span className="font-bold text-lg">$500K</span>
                   </div>
                   <ul className="space-y-2 text-sm text-muted-foreground">
-                    <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Deploy all 24 platforms across Central Texas</li>
+                    <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Deploy all 15 service platforms across Central Texas</li>
                     <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Establish healthcare workforce pathways</li>
                     <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Launch Pflugerville pilot program</li>
                     <li className="flex items-start gap-2"><ChevronRight className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" /> Integrate with existing safety net providers</li>
@@ -633,7 +633,7 @@ export default function AustinHousingInitiativePage() {
 
           <div className="text-center p-8 rounded-2xl bg-gradient-to-r from-blue-900 to-purple-900 text-white" data-testid="closing-statement">
             <h3 className="text-2xl font-bold mb-2">This isn't a proposal to build something.</h3>
-            <p className="text-xl text-blue-200 mb-4">It's built. It's running. 24 platforms heartbeating right now.</p>
+            <p className="text-xl text-blue-200 mb-4">It's built. It's running. 15 service platforms heartbeating right now.</p>
             <div className="flex justify-center gap-3 flex-wrap">
               <Badge className="bg-white/20 border-white/30 text-white">ThriveUp Academy | 501(c)(3)</Badge>
               <Badge className="bg-white/20 border-white/30 text-white">Dr. Terry Flood, President</Badge>

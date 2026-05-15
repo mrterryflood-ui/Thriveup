@@ -147,7 +147,7 @@ PHONE SCRIPT — INITIAL CALL
 
 I'm reaching out because we're applying to St. David's Foundation's We All Benefit 2.0 grant — it's focused on economic stability through public benefits enrollment, financial coaching, and workforce development for Central Texas.
 
-We've built a 24-platform technology ecosystem that includes LifeBridge for benefits navigation and Speech Bridge for multilingual access. We're not trying to replace what you do — we want to give you infrastructure that makes what you already do stronger. Shared data, coordinated referrals, tract-level community intelligence that goes deeper than county averages.
+We've built a 15-service-platform technology ecosystem that includes LifeBridge for benefits navigation and Speech Bridge for multilingual access. We're not trying to replace what you do — we want to give you infrastructure that makes what you already do stronger. Shared data, coordinated referrals, tract-level community intelligence that goes deeper than county averages.
 
 I'd like to talk about two possibilities:
 
@@ -287,7 +287,7 @@ DR. TERRY FLOOD, DHA — Founder & Chief Executive Officer
 • MS in Implementation Science
 • U.S. Army Veteran — Bronze Star x2
 • 20+ years in workforce development, organizational change management, criminal justice, HR management, and Industrial-Organizational Psychology
-• Designed and built the 24-platform MAP-GAP ecosystem
+• Designed and built the 15-service-platform MAP-GAP ecosystem
 • Experience: Military leadership, community program design, implementation science research, curriculum development, technology platform architecture
 • Role in this program: Executive oversight, program design, community engagement, funder relationships, strategic direction
 
@@ -330,7 +330,7 @@ ORGANIZATIONAL CAPACITY STATEMENT
 
 "The Collaborative Advocate Foundation demonstrates organizational capacity through:
 
-TECHNOLOGY INFRASTRUCTURE: A fully operational 24-platform ecosystem that has been designed, built, and deployed — not proposed. LifeBridge is live. Speech Bridge is live. ThriveUp Academy has 55 career pathways and 60+ deep lessons. RPLICE provides real-time implementation fidelity tracking. This is not a startup requesting funding to build something — this is an operating system requesting funding to deploy existing infrastructure to serve Central Texas communities.
+TECHNOLOGY INFRASTRUCTURE: A fully operational 15-service-platform ecosystem that has been designed, built, and deployed — not proposed. LifeBridge is live. Speech Bridge is live. ThriveUp Academy has 55 career pathways and 60+ deep lessons. RPLICE provides real-time implementation fidelity tracking. This is not a startup requesting funding to build something — this is an operating system requesting funding to deploy existing infrastructure to serve Central Texas communities.
 
 LEADERSHIP: Dr. Terry Flood brings a rare combination of military discipline, academic rigor (DHA, MS Implementation Science), and lived understanding of the communities we serve. As a veteran and Black leader, Dr. Flood doesn't study these communities from the outside — he lives in them, builds for them, and is accountable to them.
 
@@ -676,7 +676,7 @@ My name is the President of The Collaborative Advocate Foundation, a veteran-fou
 
 I'm writing to inquire about the timeline for the 2026 cycle of the "We All Benefit 2.0: Building Economic Stability" grant program. We are actively preparing our Letter of Intent and want to ensure we're aligned with your schedule.
 
-We serve Central Texas communities through a 24-platform technology ecosystem focused on economic stability — including benefits navigation (LifeBridge), multilingual access (Speech Bridge), workforce development (ThriveUp Academy), and financial coaching. Our work is equity-focused and data-led, and we specifically measure impact for populations that most organizations don't count — individuals experiencing homelessness, immigrants regardless of documentation status, veterans transitioning to civilian life, and formerly incarcerated individuals rebuilding stability.
+We serve Central Texas communities through a 15-service-platform technology ecosystem focused on economic stability — including benefits navigation (LifeBridge), multilingual access (Speech Bridge), workforce development (ThriveUp Academy), and financial coaching. Our work is equity-focused and data-led, and we specifically measure impact for populations that most organizations don't count — individuals experiencing homelessness, immigrants regardless of documentation status, veterans transitioning to civilian life, and formerly incarcerated individuals rebuilding stability.
 
 Two questions:
 1. When does the 2026 LOI submission window open?

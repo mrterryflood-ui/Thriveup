@@ -85,7 +85,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Veteran Suicide Prevention", "Peer Support", "Transition Services", "Crisis Intervention"],
     txStandards: ["VA Community Care Standards", "TX Veterans Commission Standards", "SAMHSA Suicide Prevention Guidelines"],
     keyMetrics: ["Crisis response within 24 hours", "Veteran engagement retention ≥60%", "Peer support contact monthly ≥85%", "Safety plan completion 100%"],
-    platforms: ["Mission Transition", "Emergency Management", "ThriveUp Academy"],
+    platforms: ["Mission Transition", "SafeReport", "ThriveUp Academy"],
   },
   {
     id: "foundation",
@@ -162,7 +162,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Nonclinical Workforce Pipeline", "Youth Mental Health", "Peer Mentor Pathways", "Culturally Responsive Care", "Health Equity"],
     txStandards: ["TEA Equity Standards", "DSHS Community Health Worker Standards", "SAMHSA Youth Mental Health First Aid"],
     keyMetrics: ["Youth served annually ≥500", "Nonclinical provider pipeline ≥50 trainees/year", "Program reach in underserved ZIP codes ≥5", "Culturally responsive training completion ≥80%", "Participant satisfaction ≥85%"],
-    platforms: ["ThriveUp Academy", "ISSS", "WholeMind Learning", "Sankofa Health Network"],
+    platforms: ["ThriveUp Academy", "ISSS", "Perfectly Different", "Sankofa Health Network"],
     requiresPartners: false,
     partnerNote: "No formal partner requirements — direct 501(c)(3) application. 2-year grant cycle.",
     curriculumAlignment: [
@@ -204,6 +204,10 @@ const ACTIVE_GRANTS = [
     alignment: ["Command & Control Transport", "COMSEC Tier Alignment", "Emergency Communications", "All-Hazard Preparedness", "Geographic Risk Mapping", "Crisis Coordination"],
     txStandards: ["DoD C2 Transport Standards", "COMSEC Compliance (all tiers)", "Army PEO C3T Program Assessment Elements (PAEs)", "NIST Cybersecurity Framework"],
     keyMetrics: ["All 6 PAEs mapped via Emergency Management platform", "COMSEC tier coverage 100%", "C2 transport alignment table complete", "Capability statement submitted by deadline"],
+    // HISTORICAL EXCEPTION (DoD C2 Transport pursuit record): Emergency Management + Ecosystem Nexus
+    // were the originally-cited platforms in this specific DoD solicitation response. Retained as a faithful
+    // record of the pursuit. NOT to be used as a model for new reviewer-facing references; the 15
+    // service-platform externalization rule applies everywhere else.
     platforms: ["Emergency Management", "Ecosystem Nexus", "Mission Transition", "Minority Center of Excellence"],
     requiresPartners: false,
     partnerRequirements: [],
@@ -244,7 +248,7 @@ const ACTIVE_GRANTS = [
     alignment: ["Military-to-Civilian Transition", "SkillBridge Internships", "Space & Cyber Workforce", "AI/ML Training Pipelines", "Credential Translation"],
     txStandards: ["VA Community Care Standards", "TX Veterans Commission Standards", "DoD SkillBridge Program Requirements", "CompTIA Security+ / Space Operations Standards"],
     keyMetrics: ["SkillBridge participant placement ≥85%", "Credential attainment within 90 days ≥75%", "Employer match satisfaction ≥90%", "Retention at 12 months ≥70%"],
-    platforms: ["Mission Transition", "Emergency Management", "ThriveUp Academy", "Minority Center of Excellence"],
+    platforms: ["Mission Transition", "SafeReport", "ThriveUp Academy", "Minority Center of Excellence"],
     requiresPartners: true,
     partnerRequirements: [
       "DoD SkillBridge-approved training provider (or pending application)",
