@@ -83,8 +83,21 @@ The Fox application narrative + supporting one-pagers live on the **M2C / Missio
 Headlines:
 - Up to $750,000 per Priority 2 (new applicant) org · $112M FY27 pool · one-year award starting 2026-09-30
 - Submission via eGMS (NOT Grants.gov directly) — confirm ID.me + eGMS access before 2026-04-13 app open (already open as of this verification)
-- TCAF strengths: Dr. Flood (Army Retiree) · M2C platform · C-SSRS already in WPH+SafeReport · McConnell AFB+KS Guard pipeline · SDOH via LifeBridge · 0 PHI compliance posture via SafeReport
-- Gap list (must close by 2026-06-12): named veteran-org LOSs (VFW/Legion/McConnell TAP/KS Guard family-readiness/KCVA/Wichita Vet Center/**Robert J. Dole VAMC** as clinical-linkage anchor); Sedgwick County Veterans Crisis Line call density verified citation; outcome tracking commitment mirroring VA's 91.8%-risk-reduction benchmark
+- **GEOGRAPHY (verified from one-pager 2026-05-15): Pflugerville–Manor–East Austin corridor, Travis & Williamson counties TX.** Earlier session memory incorrectly said Wichita/McConnell AFB/KS Guard — that was wrong, corrected here. M2C anchors on TCAF's Pflugerville HQ (17912 Stefano Dr.). Manor health-desert framing (0 hospitals, 1 clinic / ~20K residents, 30–60-min VA commute, 78% commute-out for work) is the geographic-priority hook.
+- TCAF strengths: Dr. Flood (Army Retiree) · M2C platform · C-SSRS in evaluation flow · SDOH via LifeBridge · 0 PHI compliance posture via SafeReport · MAP-GAP × CFIR · Dartmouth MSIS capstone independent review · "bad paper/OTH-discharge" target population
+- Right partner list (Central TX): **Central Texas VA Health Care System (Olin E. Teague VAMC, Temple)** + **Austin VA Outpatient Clinic** for clinical linkage; **Texas Military Department / Camp Mabry** for Guard analog; **Travis County Veterans Service Office**; **Austin Vet Center (RCS)**; **VFW/American Legion posts in Travis-Williamson**.
+- Right-sized ask: **$400K–$600K (12 months)** — below $750K ceiling, calibrated for Priority 2 new-applicant scoring.
+- 12-month outcome targets (in one-pager): 250 reached · 75 first-time VA enrollments · 120 Stanley-Brown safety plans · 60 988/VCL warm hand-offs (72-hr follow-up) · 400 peer-support sessions · 180 family members engaged.
+
+**🚨 BLOCKERS found in 2026-05-15 evaluation of vetmissiontransition.com submission pages:**
+1. **EIN typo `41-3618003` in TWO public places** (`/ssg-fox-program` hero subhead + `/ssg-fox-onepager` applicant line). Correct is **41-3618503** per IRS Letter 947. SAM.gov mismatch on submission = invalid application. Fix BEFORE submission.
+2. **`/evidence/tcaf` Live Evidence Dashboard is empty** ("This organization's evidence dashboard is not available.") while the one-pager Evaluation paragraph publicly cites it as the place where monthly de-identified outcomes will publish. Either populate (org profile + pre-award baseline + post-award timeline) or remove the URL from the public materials.
+3. **Hero "91.8% — our model"** reads as if M2C achieves it; reword to attribute to FY25 SSG Fox grantee aggregate.
+4. **"ThriveUp 20-platform veteran services ecosystem (Grade A — 97% compliance)"** is triple-wrong: 15 not 20, not all veteran, unverified grade. Reword to "15 public-facing service platforms; M2C is the veteran-services anchor."
+5. **"Mission is exclusively veteran/military-family support"** overstates TCAF mission (six domains per IRS 1023). Reword to "M2C is TCAF's veteran-services program."
+6. **C-SSRS missing from Services flow** (it's in Evaluation only). NOFO requires it as the screening tool — must appear in intake workflow description.
+7. **Manor health-desert claim** needs primary-source footnote (HRSA HPSA / ACS / Travis County HHS).
+8. **Hero title rendering** ("Veteran Suicide Prevention Program") washed-out against dark gradient — accessibility/contrast fix.
 - Do NOT include: Iasis (youth ministry, not veteran), Sistahs CWT (women's health, not veteran-focused; Dr. Vann's MH Advisory Board seat can surface in governance narrative only with her permission), Vanntastic LLC (for-profit, ineligible always)
 
 DB cleanup performed: Fox duplicate-row issue (one curated row fit 85 + one Grants.gov thin scrape fit 59) merged into single row fit 92, status 'pursuing'. Centene Spring 2026 stale row marked status 'discontinued_invitation_only' fit 0. **Platform bug logged:** Grants.gov auto-scraper produces thin rows that score below curated records for the same opportunity; dedup + enrichment between scraped and curated rows is broken. Lesson: never trust a scraped fit_score alone — check for a duplicate curated row first.
