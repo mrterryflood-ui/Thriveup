@@ -15,7 +15,7 @@
 
 **Subject:** TCAF + ISS LLC — Bios + Logo for June 13 Black-Owned Business Spotlight
 
-Good morning,
+Hi Tammy,
 
 Thank you again for including me. Below are short bios for both the for-profit and the nonprofit — please use whichever works best for the flyer and table signage, or both. Logos are attached.
 
