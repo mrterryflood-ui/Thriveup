@@ -151,7 +151,7 @@ function ImpactNumbers() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
             { value: "6", label: "Service Domains" },
-            { value: "24", label: "Connected Platforms" },
+            { value: "15", label: "Service Platforms" },
             { value: "4", label: "AI Engines" },
             { value: "20", label: "TEKS Standards Covered" },
           ].map((stat) => (
@@ -405,7 +405,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     color: "from-gray-500 to-slate-600",
     platforms: [
       { name: "Ecosystem Nexus", url: "https://ecosystemnexus.net", desc: "Central coordination hub — cross-platform visibility, real-time health monitoring, directive enforcement, co-captain failover", icon: Network },
-      { name: "Video Creator AI", url: "https://videocreatorai.com", desc: "AI content production — grant presentations, training content, platform showcase videos, marketing materials for all 24 platforms", icon: Video },
+      { name: "Video Creator AI", url: "https://videocreatorai.com", desc: "AI content production — grant presentations, training content, platform showcase videos, marketing materials across the ecosystem", icon: Video },
       { name: "Advertising Targeting for Platforms", url: "https://adtargetingplatforms.com", desc: "Data-driven outreach to reach underserved populations with relevant services and grant-funded programs", icon: Megaphone },
       { name: "Code Canvas — System Evaluator", url: "https://codecanvaseval.com", desc: "Independent evaluation engine — code audits, architecture analysis, performance profiling, ecosystem coherence scoring", icon: Cpu },
     ],
@@ -722,14 +722,14 @@ export default function LandingPage() {
             <Link href="/coverage" className="text-primary hover:underline" data-testid="link-hero-coverage">
               Texas is our first deployment
             </Link>
-            {" "}— launching in Travis, Williamson, Hays, Bastrop, and Caldwell counties through the St. David's pilot.
+            {" "}— launching in Travis, Williamson, Hays, Bastrop, and Caldwell counties through a regional health-equity pilot.
             Veteran-founded. Black-led. Built by people who've been where you are.
           </p>
           <p className="text-sm font-medium text-foreground/80 max-w-xl mx-auto px-2 mb-4" data-testid="text-hero-philosophy">
             Holistic. Agile. Agnostic. We meet every community where they are — through intentional collaboration, honest communication, and building together.
           </p>
           <p className="text-xs text-muted-foreground/60 max-w-2xl mx-auto px-2 leading-relaxed" data-testid="text-hero-identity">
-            ThriveUp is the community infrastructure platform — the operating system that empowers communities to coordinate workforce training, health equity, education, and case management across 6 domains, 24 platforms, and 4-engine AI.
+            ThriveUp is the community infrastructure platform — the operating system that empowers communities to coordinate workforce training, health equity, education, and case management across 6 domains, 15 service platforms, and 4-engine AI.
           </p>
         </div>
       </section>

@@ -1,13 +1,21 @@
 # Congruence Audit Report
-**Run at:** 2026-05-15T02:26:02.651Z
+**Run at:** 2026-05-15T11:38:08.693Z
 **Manifest version:** 2 (last updated 2026-05-14)
 **Audience:** Jim Currier (HUD FYI National Implementation Leader) — Austin meeting prep
 
 ## Summary
-- **PASS:** 223 / 223
+- **PASS:** 221 / 223
 - **WARN:** 0
-- **FAIL:** 0
-- **Verdict:** ✅ CONGRUENT
+- **FAIL:** 2
+- **Verdict:** ❌ RESIDUAL GAPS — DO NOT BRIEF
+
+## ❌ Failures (must fix before briefing)
+- **EXT-LB** — 
+  - URL: `https://lifetransitionsaid.org/`
+  - Expected HTTP 200, got 500
+- **EXT-LB-RES** — 
+  - URL: `https://lifetransitionsaid.org/resources`
+  - Expected HTTP 200, got 500
 
 ## All claims by ID
 ### ✅ FY-001 — Foster Youth Aging Out hub exists with Marcus narrative anchor
@@ -335,8 +343,8 @@ URL: `/partners/rfp-storyteller`
 - ✓ text-sample-narrative — test-id present (source: client/src/pages/partners/rfp-storyteller.tsx)
 
 ## External URLs
-- ✅ **EXT-LB** `https://lifetransitionsaid.org/` — HTTP 200, keywords present
-- ✅ **EXT-LB-RES** `https://lifetransitionsaid.org/resources` — HTTP 200, keywords present
+- ❌ **EXT-LB** `https://lifetransitionsaid.org/` — Expected HTTP 200, got 500
+- ❌ **EXT-LB-RES** `https://lifetransitionsaid.org/resources` — Expected HTTP 200, got 500
 - ✅ **EXT-TYT** `https://talkyourtalk.net/` — HTTP 200, keywords present
 - ✅ **EXT-WPH** `https://mentalwellnesssupport.net/` — HTTP 200, keywords present
 

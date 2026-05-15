@@ -520,7 +520,7 @@ export function AppSidebar() {
             7. Criminal Justice & Reentry
             8. Partnerships & Coalitions
             Plus: AI Literacy, Where We Operate, About */}
-        <NavSection label="Texas (St. David's Pilot)" items={texasPilotItems} location={location} />
+        <NavSection label="Central Texas Pilot" items={texasPilotItems} location={location} />
         <NavSection label="Youth Aging Out of Foster Care" items={fosterYouthItems} location={location} />
         {demoPartnersOn && (
           <NavSection label="Community Partners" items={communityPartnersItems} location={location} />
