@@ -1408,3 +1408,11 @@ Architect first review flagged additional leaks beyond Wave-3 batch. Second swee
 3. **Interplay with existing gotcha (replit.md):** `ECOSYSTEM_PLATFORMS hardcoded array overwrites DB on startup` — the new key rotation runs at startup too, AFTER the platform array sync. Verify on next deploy that the rotation is working (apiKey field changes on rows whose old key was leaked) and platformId stability is preserved (no row deletions caused by rotation).
 
 **Snyk API & Web tie-in:** with auth boundaries now tightened at code level, running DAST against the deployed surface (next on the security task list) becomes much more meaningful — it'll catch any boundary gaps the SAST/manual reviews missed.
+
+### 2026-05-15 — Post-merge timeout raised 20s → 60s
+
+Task #33 merge succeeded but post-merge setup soft-failed: db:push completed cleanly ("Changes applied") but total runtime hit 27s, exceeding the 20s default timeout. Raised via `setPostMergeConfig({ timeoutMs: 60000 })`.
+
+**Why 60s, not higher:** historical merges (#30-#32) ran 13-18s, #33 was 27s. 60s gives 2x headroom over the slowest observed run without masking real hangs. If a future merge runs >45s consistently, investigate db:push performance (schema bloat or migration drift) before raising further.
+
+**Files affected:** `.replit` `[postMerge]` section (managed by setPostMergeConfig, not directly editable by agent tools).

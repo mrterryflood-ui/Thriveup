@@ -48,4 +48,4 @@ SUPPORT_PORTAL_URL = "https://student-support-portal--mrterryflood.replit.app"
 
 [postMerge]
 path = "scripts/post-merge.sh"
-timeoutMs = 20000
+timeoutMs = 60000
