@@ -70,7 +70,17 @@
 
 ## SSG Fox Suicide Prevention Grant — TCAF is applying (verified May 15, 2026)
 
-User confirmed TCAF is **already applying** for SSG Fox FY27 (deadline 2026-06-12 at 4:59 PM ET). Verified intel and full funder brief at `docs/grants/ssg-fox-fy27/00-funder-brief.md`. Headlines:
+User confirmed TCAF is **already applying** for SSG Fox FY27 (deadline 2026-06-12 at 4:59 PM ET). Verified intel and full funder brief at `docs/grants/ssg-fox-fy27/00-funder-brief.md`.
+
+**🟢 Live submission assets — vetmissiontransition.com (HTTP 200 verified 2026-05-15):**
+- Full Application Narrative: https://vetmissiontransition.com/ssg-fox-program
+- Reviewer One-Pager (print/PDF ready): https://vetmissiontransition.com/ssg-fox-onepager
+- Platform Overview One-Pager: https://vetmissiontransition.com/platform-onepager
+- Live Evidence Dashboard (TCAF): https://vetmissiontransition.com/evidence/tcaf
+
+The Fox application narrative + supporting one-pagers live on the **M2C / Mission Transition platform** (`vetmissiontransition.com`), NOT in this ThriveUp Academy codebase. Do not rebuild Fox pages here. Treat vetmissiontransition.com as the single source of truth for what is being submitted; link to it from this app rather than duplicating content.
+
+Headlines:
 - Up to $750,000 per Priority 2 (new applicant) org · $112M FY27 pool · one-year award starting 2026-09-30
 - Submission via eGMS (NOT Grants.gov directly) — confirm ID.me + eGMS access before 2026-04-13 app open (already open as of this verification)
 - TCAF strengths: Dr. Flood (Army Retiree) · M2C platform · C-SSRS already in WPH+SafeReport · McConnell AFB+KS Guard pipeline · SDOH via LifeBridge · 0 PHI compliance posture via SafeReport

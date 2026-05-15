@@ -2,6 +2,17 @@
 
 > **Verified May 15, 2026 from primary sources.** Re-verify before drafting the application; cross-check against the NOFO PDF directly. Iron rule: never conjecture, always verify.
 
+## 🟢 LIVE SUBMISSION ASSETS — vetmissiontransition.com (verified HTTP 200, 2026-05-15)
+
+These are the actual submission-ready pages. Application narrative and supporting one-pagers live on the M2C / Mission Transition platform (`vetmissiontransition.com`), NOT in the ThriveUp Academy app. Do not rebuild these here — link to them and keep them as the single source of truth for what is being submitted.
+
+| Asset | URL |
+|---|---|
+| Full Application Narrative | https://vetmissiontransition.com/ssg-fox-program |
+| Reviewer One-Pager (print/PDF ready) | https://vetmissiontransition.com/ssg-fox-onepager |
+| Platform Overview One-Pager | https://vetmissiontransition.com/platform-onepager |
+| Live Evidence Dashboard (TCAF) | https://vetmissiontransition.com/evidence/tcaf |
+
 ## Identification
 - **Program:** Staff Sergeant Parker Gordon Fox Suicide Prevention Grant Program (SSG Fox SPGP)
 - **Funder:** U.S. Department of Veterans Affairs (VA) — Office of Mental Health and Suicide Prevention
