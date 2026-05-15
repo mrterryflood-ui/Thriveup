@@ -267,6 +267,42 @@ User confirmed May 12, 2026: **does NOT know "Anika Amie."** This name was embed
 
 ---
 
+## Dr. Flood's Other Entities — Registry (added May 15, 2026 PM)
+
+> **Why this exists:** Dr. Flood owns a for-profit alongside TCAF specifically to pursue opportunities nonprofits don't qualify for (SBIR, STTR, GSA Schedule, sole-source for-profit set-asides, certain DoD prime contracts, etc.). Recording all identifiers here so the grant discovery engine can route correctly without guessing. **Iron-rule applied:** every identifier below is sourced from a primary document (SAM.gov screenshot or LegalZoom IRS-synced business profile), cited inline.
+
+### Integrated Services and Solutions LLC ("ISS LLC")
+> **Sources:** `attached_assets/IMG_7579_1778846848024.png` (SAM.gov mobile, 06:59) + `attached_assets/IMG_7580_1778848013609.png` (LegalZoom business profile, last synced 2026-04-17). User confirmed 2026-05-15 PM that "everything is accurate with the IRS and the state of Texas."
+
+| Field | Value | Source |
+|---|---|---|
+| Legal name | **Integrated Services and Solutions LLC** | SAM.gov |
+| Entity type | LLC (Texas) | LegalZoom |
+| Federal EIN | **`87-2795417`** | LegalZoom (IRS-synced) |
+| TX State ID (SOS file #) | **0804240615** | LegalZoom |
+| Formation date | **Sep 21, 2021** | LegalZoom |
+| Industry classification (as filed) | "Food Truck" — *historical only; entity pivoted and rebranded to consulting; classification not updated in LegalZoom's system. User confirms IRS + TX records reflect the consulting/services activity. No action required.* | LegalZoom |
+| SAM.gov UEI | **C7YDV3P8EHL7** | SAM.gov |
+| SAM CAGE/NCAGE | **9VKK3** | SAM.gov |
+| SAM status | **Active Registration** | SAM.gov |
+| SAM expiration / renewal | **2027-03-30** — set reminder for ~2027-02-15 | SAM.gov |
+| SAM purpose | "All Awards" (financial assistance + contracts) | SAM.gov |
+| DBA | blank — default to legal name on federal forms | SAM.gov |
+| Physical address | 17912 Stefano Dr, Pflugerville, TX 78660-7020 (same as TCAF) | SAM.gov + LegalZoom |
+| Registered agent | United States Corporation Co. (or similar — see screenshot), 10601 Clarence Dr Suite 250, Frisco, TX 75033 | LegalZoom |
+
+**Routing rule for grant discovery engine (user directive 2026-05-15):** When an opportunity surfaces that nonprofits can't apply for (SBIR/STTR, GSA Schedule, for-profit set-asides, etc.), route to **ISS LLC primary**, but **flag for review** if a joint-venture with TCAF would make strategic sense (e.g., TCAF as community partner / ISS as prime). Never auto-submit either entity without user approval.
+
+**🔔 SURFACE TO USER on/after 2027-02-15:** "ISS LLC's SAM.gov registration renews on 2027-03-30."
+
+### M&T Consulting Solutions LLC
+- Co-owned with a business partner.
+- **User directive 2026-05-15:** "no need to worry about it right now."
+- Captured here so future sessions know it exists and DON'T confuse it with ISS LLC. **Do NOT route opportunities to M&T** without explicit user instruction — Dr. Flood doesn't have unilateral authority over a co-owned entity.
+- No identifiers, EIN, UEI, or SAM status recorded yet. When user introduces it for active use, capture full identifier set from primary sources before any propagation.
+
+---
+
 ## Dr. Flood — Federal Grant & Compliance Credentials (added May 12, 2026 from PDF)
 
 > **Source:** `attached_assets/All_certs_including_Grants_(1)_1778719050629.pdf`. Use these in NIH biosketch "Other Experience and Professional Memberships," NSF SciENcv, COR/PI qualification statements, and SDVOSB/CAGE narrative justification.
