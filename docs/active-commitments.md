@@ -1,5 +1,38 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## SafeReport platform upgrade + documentation sweep (May 15, 2026)
+
+**Trigger:** User noted SafeReport (safereports.net) has been upgraded and is now connected to the ecosystem. Verified via live screenshot.
+
+**What SafeReport is now:** "Compliance-Grade AI for Clinical Settings." No longer a child-welfare incident tracker. Now a clinical-grade behavioral-health decision-support platform with:
+- 50-state mandatory-reporter compliance
+- **FHIR + CDS Hooks** healthcare-IT interop (EHR-ready)
+- **PHI-safe** — 0 raw PHI bytes egressed; de-identified external calls
+- **HITL (Human-In-The-Loop) default-on** — every AI rec reviewed by clinician
+- **100% cited recommendations**
+- Validated longitudinal screening (PHQ-9 / GAD-7 / C-SSRS / PCL-5 / ACES)
+- Free-forever tier for community providers
+
+**Files updated in this sweep:**
+- `server/grant-routes.ts` — PLATFORM_CAPABILITIES (BH area now includes SafeReport CDS + TYT + CHW + Sankofa; Child & Family Safety adds trauma-informed + kinship; Community Resources adds SDOH + CHW + benefits enrollment + trauma-informed keywords). PLATFORM_DIRECTORY (SafeReport + LifeBridge expanded). **TIER1_KEYWORDS** added: `clinical decision support`+12 · `cds hooks`+12 · `fhir`+10 · `interoperability`+8 · `phi-safe`+10 · `hipaa-compliant`+8 · `human-in-the-loop`+12 · `hitl`+8 · `longitudinal screening`+10 · `validated screening`+8 · `evidence-based screening`+8 · `50-state`+6 · `compliance-grade ai`+12.
+- `server/ecosystem-connector.ts` — SafeReport row (lines ~855–873) rewritten to lead with CDS + healthcare interop.
+- `docs/ecosystem-catalog.md` — SafeReport row updated; grant alignment expanded to Centene, Cigna, Episcopal Health, NIMH/SAMHSA, RWJF/Schmidt/McGovern (responsible AI).
+- `replit.md` — added SafeReport upgrade note inside Ecosystem section.
+
+**Immediate measurable lift:** On the startup re-scoring pass after the edits, `GrantDiscovery` re-scored **12 of 648 existing grants** with the new keywords (`[GrantDiscovery] Re-scored 12 grants (636 unchanged of 648 total)`). The algorithm picked up the new framing automatically — score lift on those 12 opps is real and live in the DB.
+
+**Why this matters for the Centene draft:** SafeReport is now a **co-lead** in the BH narrative alongside Whole-Person Health, not a support player. Centene Foundation is a Medicaid managed-care funder; FHIR + CDS Hooks + PHI-safe + HITL is the exact language their compliance team understands. M2C added to the BH stack to cover the veteran cohort (Dr. Flood Army Retiree credibility).
+
+**Architect review:** 0 findings. Math integrity verified (TIER1 cap +35 still holds; no duplicate keys; no individual keyword exceeds +12). Capability honesty verified (every new claim matches safereports.net homepage). Iron rules intact.
+
+**Congruence audit:** 223 PASS · 0 WARN · 0 FAIL. Agent knowledge recompiled.
+
+**Pre-existing TS errors unrelated to this sweep:** `string | string[]` from `req.params` in `server/routes.ts` and `server/rplice-tools.ts` (matches lesson **P-L10** — destructure breaks Drizzle `eq()`; fix is `String(req.params.x)`). Logged for future cleanup but does not block runtime — server boots clean, all 25 platforms ONLINE.
+
+**Next:** Centene concept draft (May 31 deadline) using the upgraded BH stack as the spine: WPH + SafeReport (CDS) + TYT (LEP crisis routing) + Sankofa (cultural) + M2C (veterans) + LifeBridge (SDOH/CHW) + RPLICE (eval). Tabbara prior-award checklist first.
+
+---
+
 ## Grant Opportunity Scan (May 14, 2026) — 20 NEW non-federal opportunities
 
 Full brief: **`docs/grants/Grant-Opportunity-Scan-2026-05-14.md`**. Sliced 5 each across Local (Greater Austin) · State (Texas) · Public Foundations · Private Foundations. Pulled from `grant_opportunities` (648 rows, 208 high-fit) minus the 29 already in `proposal_pipeline`.

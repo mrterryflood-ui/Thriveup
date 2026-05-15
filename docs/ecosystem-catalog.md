@@ -41,7 +41,7 @@
 ## Compliance / Operations / Marketing / System (7 platforms)
 | ID | Name | URL | What it does | Grants | Status |
 |---|---|---|---|---|---|
-| `safereport` | SafeReport | safereports.net | Mandatory-reporter incident management: 50-state reg DB, 7-stage lifecycle, blockchain-anchored audit trails, court-admissible evidence. | SSG Fox, Foundation, St. David's | ✅ |
+| `safereport` | SafeReport | safereports.net | **Compliance-Grade AI for Clinical Settings.** Mandatory reporting + Clinical Decision Support (CDS) for behavioral-health workflows. 50-state reg DB, FHIR + CDS Hooks healthcare interop, 0 PHI bytes egressed, HITL default-on, 100% cited recommendations, validated longitudinal screening, free-forever tier. | Centene, Cigna, Episcopal Health, SSG Fox, NIMH/SAMHSA, RWJF/Schmidt/McGovern (responsible AI) | ✅ |
 | `emergency-mgmt` | Emergency Management | emergency-mgmt.replit.app | Risk intelligence: geographic risk maps, multi-factor safety analytics, ingests SafeReport/WPH/LifeBridge data for predictive safety models. | SSG Fox, Foundation, St. David's | 🚧 (404) |
 | `ecosystem-nexus` | Ecosystem Nexus | ecosystemnexus.net | Cross-platform health monitoring, directive enforcement, triad team-of-teams coordination, bilateral exchange protocols. | All | ❌ |
 | `code-canvas` | Code Canvas — System Evaluator | codecanvaseval.com | Independent code/architecture/perf audits across the ecosystem; QA backbone. | All | ❌ |
