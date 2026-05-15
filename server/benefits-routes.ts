@@ -3040,7 +3040,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.get("/api/benefits/applications", async (req, res) => {
+  app.get("/api/benefits/applications", requireAuth, async (req, res) => {
     try {
       const { county, benefit, status, source } = req.query as Record<string, string>;
       const conditions: any[] = [];
@@ -3059,7 +3059,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.post("/api/benefits/applications", async (req, res) => {
+  app.post("/api/benefits/applications", requireAuth, async (req, res) => {
     try {
       const parsed = insertBenefitsApplicationSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -3107,7 +3107,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     res.json({ zip: req.params.zip, ...r });
   });
 
-  app.patch("/api/benefits/applications/:id", async (req, res) => {
+  app.patch("/api/benefits/applications/:id", requireAuth, async (req, res) => {
     try {
       const id = req.params.id;
       const updates: any = { ...req.body, updatedAt: new Date() };
@@ -3122,7 +3122,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
     }
   });
 
-  app.get("/api/benefits/wab2/dashboard", async (_req, res) => {
+  app.get("/api/benefits/wab2/dashboard", requireAuth, async (_req, res) => {
     try {
       const apps = await db.select().from(benefitsApplications).where(eq(benefitsApplications.source, "wab2"));
       const Y1_TARGETS = { SNAP: 200, Medicaid: 150, CHIP: 0, EITC: 100, WIC: 50, Other: 50 };
