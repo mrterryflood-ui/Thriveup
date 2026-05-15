@@ -1,3 +1,25 @@
+# 🚨 PARKED — NO 2026 CYCLE — primary-source verified 2026-05-15
+
+**Status:** AWAITING ANNOUNCEMENT. The St. Davids 2024 Community Driven Change program has **NOT been re-launched in 2026** as of 2026-05-15 (verified via web search of stdavidsfoundation.org funding opportunities page). The only 2026 open call from St. Davids was We All Benefit 2.0 (WAB2), whose LOI we lost on 2026-05-15.
+
+**Do NOT submit this package as-is.** No portal is open. Any submission would be unsolicited and counter-productive.
+
+**This draft is retained as scaffolding** — strategic positioning, partner identification, ~460-word LOI body, and budget concept are reusable when/if a 2026 or 2027 cycle is announced.
+
+**Known issues to fix BEFORE submission when a cycle opens:**
+- Line 8: contact email `mr.terryflood@gmail.com` → must be `terryflood@thrivingcommunitiesforall.com`
+- Line 11: funding range "$75K-$250K (individual) / Up to $1,000,000 (collaborative)" — verify against the live 2026/2027 call when it opens
+- Line 38, 221: "24-platform ecosystem" → **15 service platforms** (per replit.md externally-facing count rule)
+- Line 54: "Speech Bridge" → **Talk Your Talk** (89 spoken + 18 sign = 107 total)
+- Missing federal IDs in cover block: add EIN 41-3618003, UEI KDDVD1FGLW35, CAGE 209N1, SAM ACTIVE
+- Line 226: TCAF annual budget vs. $250K threshold — verify with Dr. Flood; address explicitly in submission
+- Word limit (line 12) is estimated, not verified — confirm against live RFP when call opens
+- "23 grants $9.1M / 91% POC-led / 300+ LOIs → 114 invited → 23 funded" 2024 stats — re-verify against live data before citing
+
+**Tracking action:** Subscribe to St. Davids funding-opportunity page alerts. Re-check stdavidsfoundation.org/how-we-work/grantmaking/funding-opportunities monthly. When a CLC-equivalent cycle is announced, return here.
+
+---
+
 # St. David's Foundation — Catalyzing Community-Led Change
 ## Complete LOI Strategy Package
 

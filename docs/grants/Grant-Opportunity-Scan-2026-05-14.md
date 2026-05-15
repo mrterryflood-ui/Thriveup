@@ -188,7 +188,8 @@ The score comes from `computeFitScore()` in `server/grant-routes.ts:176`. It's a
 - **Collaborators (already in ecosystem):** **WPH** (Lead — youth MH) · **ISSS** (Support — family-school) · **Perfectly Different** (Support — IEP/504 youth) · **Vann Collaboration Hub** (Iasis Christian Center Wed youth program 12+ Joshua Generation / ≤11 Academy of Excellence — **this is the live data substrate**) · **RPLICE** (Validate). External: **Austin ISD, KIPP Austin Public Schools, Communities In Schools of Central Texas**.
 - **How to raise the score:** Already at 100. Focus on the **family-school partnership** narrative — Iasis youth program → school referrals → WPH crisis routing is the exact arc Cigna funded last cycle.
 
-### F2 · Centene Foundation — Behavioral Health Community Grants (Spring 2026)
+### F2 · Centene Foundation — Behavioral Health Community Grants (Spring 2026) ⛔ DEAD — INVITATION-ONLY 2026
+- **STATUS UPDATE 2026-05-15:** Centene Foundation moved to invitation-only in 2026 (verified via centene.com). Open call does not exist. Path in is via local Centene plan (Sunflower KS / Superior TX) nominations. Drafts at `docs/grants/centene-foundation-2026/` marked SUPERSEDED. Do not submit; do not cite as live opportunity.
 - **Funder / range:** Centene Foundation · Varies
 - **Found via:** `manual` source · **URL:** https://centenefoundation.org
 - **⏰ Deadline: 2026-05-31** (Spring cycle Mar 1–May 31; Fall cycle Sep 1–Nov 30)

@@ -1,3 +1,12 @@
+# ⛔ SUPERSEDED — DO NOT SUBMIT — 2026-05-15
+
+**Status:** DEAD DRAFT. Centene Foundation moved to **invitation-only in 2026** (verified May 15, 2026 via centene.com / Centene Foundation grants page).
+**Open application process discontinued.** Path in is now via local Centene health plan (Sunflower Health Plan for KS, Superior HealthPlan for TX) → those plans nominate orgs to the Foundation for invitation.
+**Do not edit, submit, or cite this draft.** Retained for archival reference only.
+**Replacement strategy:** Build relationship with Sunflower Health Plan (KS) and/or Superior HealthPlan (TX) community-affairs teams to position for future invitation. Tracked in `docs/active-commitments.md` (Centene section).
+
+---
+
 # Concept Paper — Centene Foundation Behavioral Health Community Grants (Spring 2026)
 
 **Applicant:** The Collaborative Advocate Foundation Inc. (DBA TCAF)

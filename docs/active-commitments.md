@@ -1340,3 +1340,35 @@ Architect first review flagged additional leaks beyond Wave-3 batch. Second swee
 2. Pivot effort to Community-Led Change (CLC) LOI — already drafted in pipeline.
 3. Update GivingData applicant profile to institutional email.
 4. Subscribe to St. David's funding opportunity page alerts.
+
+### 2026-05-15 — Centene Foundation status RECONCILED (Iron Rule cleanup)
+
+**Conflict resolved:** replit.md (verified May 15 from centene.com) said Centene Foundation moved to invitation-only in 2026; but `docs/active-commitments.md` Kansas-pivot section + `docs/grants/centene-foundation-2026/*` + Grant-Opportunity-Scan F2 still treated it as a live open call with 2026-05-31 deadline. **Re-verified live today via web search of centene.com / Centene Foundation grants page** — confirmed invitation-only model is in effect for 2026, open application process discontinued. Eligible orgs are nominated by local Centene health plans (Sunflower Health Plan for KS, Superior HealthPlan for TX).
+
+**Actions taken:**
+- `docs/grants/centene-foundation-2026/01-concept-paper.md`, `02-budget.md`, `03-budget-narrative.md` — prepended SUPERSEDED banner. Drafts are now archive-only.
+- `docs/grants/Grant-Opportunity-Scan-2026-05-14.md` F2 entry — marked DEAD with status update.
+- Prior KS-pivot section in this file (lines ~36-58, ~62-149, line ~163) — superseded by this entry; do not act on those instructions.
+
+**Replacement strategy (relationship pathway, not draft):**
+- KS: build community-affairs relationship with **Sunflower Health Plan** (largest KanCare MCO, Centene-owned) — position for future Centene Foundation invitation.
+- TX: build community-affairs relationship with **Superior HealthPlan** (Centene's TX Medicaid plan).
+- Track outreach in a new "Centene Plan Relationships" subsection once contacts are identified. No further drafting against the Foundation directly until an invitation arrives.
+
+**Iron Rule lesson logged:** the May 15 verification in replit.md was correct, but downstream files (drafts + scan + active-commitments) were not swept. Going forward, when memory records a "funder closed/moved to invitation-only" event, immediately deprecate ALL downstream drafts, opportunity-scan entries, and pipeline rows in the same turn — don't leave stale drafts that the next agent (or me, three weeks later) treats as live.
+
+### 2026-05-15 — St. David's CLC pivot PARKED (primary-source-verified non-existence of 2026 cycle)
+
+**Finding:** Re-pasted top-5 post-WAB2 recommendation called for pivoting to St. David's Community-Led Change (CLC) LOI. **Primary-source check via stdavidsfoundation.org today shows no 2026 CLC cycle has been announced.** WAB2 was the only 2026 St. David's open call so far. The CLC LOI Package at `docs/grants/St-Davids-Community-Led-Change-LOI-Package.md` was built on 2024 pattern with a projected "May 2026 expected" open date — that projection is now wrong.
+
+**Action taken:** Prepended PARKED banner to CLC package with the full primary-source rationale, the known content fixes needed (institutional email, platform-count 24→15, Speech Bridge→Talk Your Talk, missing federal IDs, 2024 stats re-verification) so the draft can be revived quickly when a cycle is announced.
+
+**New strategic pivot order for St. David's relationship:**
+1. **Subscribe to funding-opportunity alerts** — stdavidsfoundation.org/how-we-work/grantmaking/funding-opportunities. Becomes a recurring monthly check.
+2. **Send the WAB2 feedback-request email** (draft on file at `docs/grants/submitted/StDavids-WAB2-Feedback-Request-DRAFT.md`) — keeps the door open for the next call regardless of which program it is.
+3. **Update GivingData profile** (checklist on file) — makes us instantly ready when any St. David's call opens.
+4. **Do NOT submit CLC package as-is.** Unsolicited submission against a closed program is counter-productive.
+
+**Iron Rule lesson logged:** "draft package exists with a 'pattern-based projected deadline'" is NOT the same as "live opportunity." Any future grant pipeline status of "loi_drafted" must be checked against a live primary source for cycle status before being treated as actionable. The replit.md gotcha at line 81 already lists CLC and Community Health Grants as future St. David's targets — those references are still strategically accurate (these ARE the historical St. David's program lines we want to pursue), but the pipeline status of any individual CLC draft must reflect "awaiting cycle announcement," not "ready to submit."
+
+**Replacement priority for this session (post-Centene-dead, post-CLC-parked):** Cigna Foundation Youth Mental Health 2026 (was #3 in the top-5 list; now becomes the next active drafting pursuit). Direct fit with the live Vann Family Program Tracker. Next-cycle expected June 2026 per the Grant Opportunity Scan F1 entry, but that needs same-day primary-source verification before we draft.
