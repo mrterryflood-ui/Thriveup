@@ -1323,3 +1323,20 @@ Architect first review flagged additional leaks beyond Wave-3 batch. Second swee
 - `roku-ads.tsx` — out of scope (Roku/CTV product page, "Video Creator AI" is a product feature name, not an ecosystem-count claim).
 
 **Final reviewer-facing leak scan: 0 hits across `client/src/pages/`, `client/src/lib/`, `client/src/components/` (excluding documented exemptions).**
+
+### 2026-05-15 — St. David's WAB2 LOI DECLINED (primary source on file)
+
+**Decision letter received via GivingData, May 15, 2026.** Signed by Regan Gruber Moffitt, J.D., VP of Community Investments. Project title as submitted: "TCAF Benefits Enrollment Collaborative: Closing the Central Texas Safety-Net Gap." LOI will NOT advance. Stated reason: "overwhelming response and a competitive review process."
+
+- Primary source archived: `docs/grants/submitted/StDavids-WAB2-LOI-Decision-2026-05-15.md`
+- WAB2 LOI status: **DECLINED 2026-05-15** (was: submitted 2026-04-27 via GivingData)
+- Funder framing UNCHANGED: still "actively evaluating St. David's as a funder" — decline does not close the door; $100M+/yr Travis County health-equity foundation, multiple open calls per year.
+- Verified contact added: Regan Gruber Moffitt, J.D., VP of Community Investments; follow-up channel `questions@stdavidsfoundation.org`.
+- **Watch-out flagged:** decision letter addressed to `mr.terryflood@gmail.com` (personal Gmail), not `terryflood@thrivingcommunitiesforall.com`. Per "institutional emails only" gotcha, the WAB2 LOI was submitted with the wrong contact email. Update GivingData profile to institutional email before next St. David's submission.
+- **Iron Rule maintained:** no claim of "in review" or "actively under consideration" anywhere in pipeline going forward for WAB2 — it is closed. Other St. David's lines (CLC, Community Health Grants) remain in pipeline as separately-evaluated calls.
+
+**Recommended next moves (NOT auto-executed — require user go):**
+1. Reply to `questions@stdavidsfoundation.org` within 10 business days requesting specific reviewer feedback.
+2. Pivot effort to Community-Led Change (CLC) LOI — already drafted in pipeline.
+3. Update GivingData applicant profile to institutional email.
+4. Subscribe to St. David's funding opportunity page alerts.

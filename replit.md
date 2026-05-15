@@ -78,7 +78,7 @@ An AI-powered national community infrastructure platform that connects individua
 - **"President" not "CEO"** for Dr. Flood in public-facing copy; "CEO" is for-profit only.
 - **Institutional emails only:** `terryflood@thrivingcommunitiesforall.com` (Dr. Flood, all proposals); `msisnett@thrivingcommunitiesforall.com` (Meredith, non-City work only). No personal Gmail in public copy or proposals.
 - **🚨 Meredith Sisnett & City of Austin:** City of Austin employee. NEVER list on any City grant/proposal/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff/contact/co-lead/board/partner. Non-City (federal/state/foundation/private) only. When in doubt, leave her out and ask user.
-- **St. David's Foundation:** always "actively evaluating," never "awarded."
+- **St. David's Foundation:** always "actively evaluating," never "awarded." **WAB2 LOI DECLINED 2026-05-15** (Regan Gruber Moffitt, J.D., VP Community Investments — letter archived at `docs/grants/submitted/StDavids-WAB2-LOI-Decision-2026-05-15.md`). Funder remains a target via CLC + Community Health Grants cycles; do NOT cite St. David's as "in review" or "under consideration" anywhere in pipeline going forward.
 - **Funder names on public pages:** avoid; describe the program category instead.
 - **FIPS labels:** never expose to users — use "State Census Code" / "County Census Code".
 - **"Texas-only" framing:** use "national platform, Texas-piloted" instead.
