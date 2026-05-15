@@ -358,16 +358,13 @@ const ECOSYSTEM_PLATFORMS_DATA = [
       { name: "Holistic Black Feminine Health Hub", url: "https://yourfeminineneeds.com", desc: "Reproductive health, preventive screening, hormonal wellness, cervical/breast cancer awareness, culturally responsive provider matching", icon: Heart },
       { name: "Black Maternal Health Network", url: "https://yourhealthbirthright.net", desc: "Prenatal/postnatal care navigation, certified doula matching, maternal mental health screening — addressing the 3x mortality gap", icon: Baby },
       { name: "Black Men's Health Hub", url: "https://thehealthyblkman.com", desc: "Prostate cancer screening, cardiovascular risk assessment, mental health stigma reduction, peer mentoring for Black men", icon: User },
-      { name: "Autoimmune Center of Excellence", url: "https://autoimmunethrive.com", desc: "Daily symptom tracking, flare analysis, 80+ condition database, AI health companion — built by a founder with autoimmune disease", icon: Activity },
       { name: "SafeCogniCare", url: "https://safecognicare.com", desc: "TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, care coordination", icon: Brain },
-      { name: "PillScheduler", url: "https://pillscheduler.net", desc: "Medication management with drug interaction warnings, adaptive scheduling, refill alerts, cognitive-capacity-aware interface", icon: Pill },
     ],
   },
   {
     domain: "Education & Youth",
     color: "from-amber-500 to-orange-600",
     platforms: [
-      { name: "WholeMind Learning", url: "https://wholemindlearning.com", desc: "Free Pre-K to 12th grade learning — Math, Reading, Science, English, Social Studies with AI homework help and silent accessibility", icon: GraduationCap },
       { name: "ISSS — Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", desc: "MTSS engine with Thrive Scores, early warning indicators, multi-stakeholder coordination for student support at scale", icon: School },
       { name: "Perfectly Different", url: "https://neurodifferentassistant.app", desc: "Neurodiversity-affirming support for autism, ADHD, AuDHD — IEP/504 plan builder, executive function coaching, sensory tools", icon: Sparkles },
       { name: "Better Science Lab / RPLICE", url: "https://bettersciencelab.com", desc: "Implementation science engine — CFIR, RE-AIM, EPIS frameworks, evidence-based practice registry, research translation tools", icon: Microscope },
@@ -379,8 +376,6 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     platforms: [
       { name: "Mission Transition (M2C)", url: "https://vetmissiontransition.com", desc: "Military-to-civilian transition — MOS translation, benefits navigation, identity support, targeting the first 12-month risk window", icon: Shield },
       { name: "Minority Center of Excellence", url: "https://minoritycenterofexcellence.com", desc: "656,794 SAM.gov records, 14 AI tools, dual-AI proposal review, certification wizard for 8(a)/HUBZone/WOSB/SDVOSB", icon: Building2 },
-      { name: "Pinnacle Business Conglomerate", url: "https://pinnaclebusinessconglomerate.com", desc: "Contractor enablement — business diagnostics, bid strategy, teaming, dual-AI proposal development, serving NAMC Austin & USHCC", icon: Briefcase },
-      { name: "The Collaborative Advocate", url: "https://thrivingcommunitiesforall.com", desc: "IRS-determined 501(c)(3), SAM.gov Active (UEI KDDVD1FGLW35, CAGE 209N1), veteran-founded, Black-led — the organizational backbone for grant execution across the ecosystem", icon: HandshakeIcon },
     ],
   },
   {
@@ -388,8 +383,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     color: "from-emerald-500 to-teal-600",
     platforms: [
       { name: "SafeReport", url: "https://safereports.net", desc: "50-state mandatory reporter system — 7-stage incident lifecycle, tamper-evident audit trails, court-admissible evidence packaging", icon: Shield },
-      { name: "Emergency Management", url: "https://emergency-mgmt.replit.app", desc: "Geographic risk mapping, multi-factor threat assessment, community resilience scoring, predictive safety modeling", icon: Siren },
-      { name: "LexiBridge (Speech Bridge)", url: "https://lexibridge.net", desc: "Dialect-aware communication — AAVE, Spanglish, 12+ dialects, real-time speech-to-text, multi-language translation", icon: MessageSquare },
+      { name: "Talk Your Talk", url: "https://talkyourtalk.net", desc: "Dialect- and sign-aware communication — 89 spoken languages, 18 sign languages, real-time speech-to-text, culturally responsive translation", icon: MessageSquare },
     ],
   },
   {
@@ -398,16 +392,6 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     platforms: [
       { name: "LifeBridge", url: "https://lifetransitionsaid.org", desc: "Virtual 211 — 24/7 resource navigation for housing, food, healthcare, crisis support, 20,670+ resources, life event guides", icon: Heart },
       { name: "ThriveUp Academy", url: "https://thriveupacademy.com", desc: "The anchor platform — AI-powered workforce readiness curriculum, career pathways, 4-engine AI, community infrastructure", icon: GraduationCap },
-    ],
-  },
-  {
-    domain: "Operations & Content",
-    color: "from-gray-500 to-slate-600",
-    platforms: [
-      { name: "Ecosystem Nexus", url: "https://ecosystemnexus.net", desc: "Central coordination hub — cross-platform visibility, real-time health monitoring, directive enforcement, co-captain failover", icon: Network },
-      { name: "Video Creator AI", url: "https://videocreatorai.com", desc: "AI content production — grant presentations, training content, platform showcase videos, marketing materials across the ecosystem", icon: Video },
-      { name: "Advertising Targeting for Platforms", url: "https://adtargetingplatforms.com", desc: "Data-driven outreach to reach underserved populations with relevant services and grant-funded programs", icon: Megaphone },
-      { name: "Code Canvas — System Evaluator", url: "https://codecanvaseval.com", desc: "Independent evaluation engine — code audits, architecture analysis, performance profiling, ecosystem coherence scoring", icon: Cpu },
     ],
   },
 ];
@@ -521,7 +505,7 @@ function DeepDiveSection() {
               <Badge variant="secondary" className="mb-3">
                 <Layers className="mr-1 h-3 w-3" /> The Full Ecosystem
               </Badge>
-              <h2 className="text-2xl font-bold mb-2">24 Platforms, One Living System</h2>
+              <h2 className="text-2xl font-bold mb-2">15 Service Platforms, One Living System</h2>
               <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
                 Holistic by design. Agile by necessity. Agnostic by principle. We build through intentional collaboration, transparent communication, and the conviction that every community already has what it takes — they just need the infrastructure to prove it.
               </p>
