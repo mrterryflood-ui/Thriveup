@@ -120,17 +120,55 @@ function PathwayCard({ pathway }: { pathway: typeof PATHWAYS[0] }) {
 
 function TrustBar() {
   return (
-    <div className="py-6 px-4 text-center" data-testid="section-trust-bar">
+    <section className="py-8 px-4 sm:py-10 sm:px-6 bg-gradient-to-b from-card to-background border-y" data-testid="section-trust-bar">
       <div className="max-w-5xl mx-auto">
-        <p className="text-sm text-muted-foreground mb-3">
-          <strong>The Collaborative Advocate Foundation</strong> (EIN 41-3618003) is a 501(c)(3) nonprofit, veteran-founded and Black-led, headquartered in Pflugerville, TX. Led by Dr. Terry Flood, DHA/DBA.
-        </p>
-        <div className="flex flex-wrap items-center justify-center gap-3">
+        <div className="text-center mb-5">
+          <Badge variant="secondary" className="mb-3" data-testid="badge-trust-eyebrow">
+            <Shield className="mr-1 h-3 w-3" /> IRS-Determined 501(c)(3) Public Charity
+          </Badge>
+          <h2 className="text-xl sm:text-2xl font-bold mb-2" data-testid="text-trust-heading">
+            The Collaborative Advocate Foundation
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-2" data-testid="text-trust-summary">
+            A veteran-founded, Black-led 501(c)(3) public charity headquartered in Pflugerville, Texas. Led by Dr. Terry Flood, DHA/DBA, President.
+            Contributions are <strong>tax-deductible</strong> under IRS §170 to the fullest extent of the law.
+          </p>
+          <p className="text-xs text-muted-foreground/70 max-w-2xl mx-auto">
+            IRS Determination Letter 947 · Effective January 14, 2026 · Public charity under §170(b)(1)(A)(vi) · Form 990 series filer · Fiscal year ends December 31.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto" data-testid="grid-trust-credentials">
+          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-ein">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">EIN</p>
+            <p className="text-sm font-mono font-semibold">41-3618003</p>
+          </div>
+          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-uei">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">SAM.gov UEI</p>
+            <p className="text-sm font-mono font-semibold">KDDVD1FGLW35</p>
+          </div>
+          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-cage">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">CAGE Code</p>
+            <p className="text-sm font-mono font-semibold">209N1</p>
+          </div>
+          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-sam-status">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">SAM.gov Status</p>
+            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Active</p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-501c3">
-            <Shield className="mr-1 h-3 w-3" /> 501(c)(3) Nonprofit
+            <Shield className="mr-1 h-3 w-3" /> 501(c)(3) Determined
+          </Badge>
+          <Badge variant="outline" className="text-xs" data-testid="badge-trust-deductible">
+            <CheckCircle2 className="mr-1 h-3 w-3" /> Tax-Deductible
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-vosb">
-            <Shield className="mr-1 h-3 w-3" /> Veteran-Owned
+            <Shield className="mr-1 h-3 w-3" /> Veteran-Founded
+          </Badge>
+          <Badge variant="outline" className="text-xs" data-testid="badge-trust-sam-active">
+            <CheckCircle2 className="mr-1 h-3 w-3" /> Federal Award Eligible
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-wcag">
             <Shield className="mr-1 h-3 w-3" /> WCAG 2.1 AA
@@ -139,8 +177,31 @@ function TrustBar() {
             <Shield className="mr-1 h-3 w-3" /> COPPA Compliant
           </Badge>
         </div>
+
+        <p className="text-[11px] text-center text-muted-foreground/60 mt-4 max-w-2xl mx-auto">
+          Verify our status directly: search EIN 41-3618003 on the{" "}
+          <a
+            href="https://apps.irs.gov/app/eos/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-foreground"
+            data-testid="link-irs-eos"
+          >
+            IRS Tax Exempt Organization Search
+          </a>
+          {" "}· UEI KDDVD1FGLW35 on{" "}
+          <a
+            href="https://sam.gov/entity-information"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline hover:text-foreground"
+            data-testid="link-sam-gov"
+          >
+            SAM.gov
+          </a>.
+        </p>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -718,7 +779,9 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <section className="px-4 pb-4 sm:px-6" data-testid="section-marcus-story">
+      <TrustBar />
+
+      <section className="px-4 pb-4 sm:px-6 pt-8" data-testid="section-marcus-story">
         <div className="max-w-3xl mx-auto">
           <Link
             href="/resident-journey"
@@ -786,7 +849,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <TrustBar />
       <ImpactNumbers />
       <CommunitiesWeServe />
       <WhatWeDeliver />
