@@ -142,7 +142,7 @@ export default function AIToolsWorkspacePage() {
       logJourneyEvent({
         eventType: "ai_tool_used",
         eventDomain: "ai_training",
-        eventTitle: `Used AI tool: ${currentTool?.toolName || toolKey}`,
+        eventTitle: `Used AI tool: ${currentTool?.name || toolKey}`,
         eventPayload: { toolKey, toolId: currentTool?.id, mode: isAdult ? "adult" : "youth" },
         sourcePage: "AI Tools Workspace",
       });

@@ -48,13 +48,13 @@ export function registerCollaborationRoutes(app: Express) {
 
   app.get("/api/collaboration/partners/:id", async (req, res) => {
     try {
-      const [partner] = await db.select().from(communityPartners).where(eq(communityPartners.id, req.params.id));
+      const [partner] = await db.select().from(communityPartners).where(eq(communityPartners.id, req.params.id as string));
       if (!partner) return res.status(404).json({ error: "Partner not found" });
-      const referrals = await db.select().from(partnerReferrals).where(eq(partnerReferrals.partnerId, req.params.id)).orderBy(desc(partnerReferrals.createdAt));
-      const engagements = await db.select().from(partnerEngagements).where(eq(partnerEngagements.partnerId, req.params.id)).orderBy(desc(partnerEngagements.createdAt));
-      const outcomes = await db.select().from(sharedOutcomes).where(eq(sharedOutcomes.partnerId, req.params.id));
-      const handoffs = await db.select().from(externalWarmHandoffs).where(eq(externalWarmHandoffs.partnerId, req.params.id)).orderBy(desc(externalWarmHandoffs.createdAt));
-      const mous = await db.select().from(mouDocuments).where(eq(mouDocuments.partnerId, req.params.id));
+      const referrals = await db.select().from(partnerReferrals).where(eq(partnerReferrals.partnerId, req.params.id as string)).orderBy(desc(partnerReferrals.createdAt));
+      const engagements = await db.select().from(partnerEngagements).where(eq(partnerEngagements.partnerId, req.params.id as string)).orderBy(desc(partnerEngagements.createdAt));
+      const outcomes = await db.select().from(sharedOutcomes).where(eq(sharedOutcomes.partnerId, req.params.id as string));
+      const handoffs = await db.select().from(externalWarmHandoffs).where(eq(externalWarmHandoffs.partnerId, req.params.id as string)).orderBy(desc(externalWarmHandoffs.createdAt));
+      const mous = await db.select().from(mouDocuments).where(eq(mouDocuments.partnerId, req.params.id as string));
       res.json({ partner, referrals, engagements, outcomes, handoffs, mous });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
@@ -75,7 +75,7 @@ export function registerCollaborationRoutes(app: Express) {
     try {
       const [partner] = await db.update(communityPartners)
         .set({ ...req.body, updatedAt: new Date() })
-        .where(eq(communityPartners.id, req.params.id))
+        .where(eq(communityPartners.id, req.params.id as string))
         .returning();
       res.json(partner);
     } catch (e: any) {
@@ -110,7 +110,7 @@ export function registerCollaborationRoutes(app: Express) {
       }
       const [request] = await db.update(partnershipRequests)
         .set(updates)
-        .where(eq(partnershipRequests.id, req.params.id))
+        .where(eq(partnershipRequests.id, req.params.id as string))
         .returning();
       res.json(request);
     } catch (e: any) {
@@ -120,7 +120,7 @@ export function registerCollaborationRoutes(app: Express) {
 
   app.post("/api/collaboration/partnership-requests/:id/convert", requireAuth, async (req, res) => {
     try {
-      const [request] = await db.select().from(partnershipRequests).where(eq(partnershipRequests.id, req.params.id));
+      const [request] = await db.select().from(partnershipRequests).where(eq(partnershipRequests.id, req.params.id as string));
       if (!request) return res.status(404).json({ error: "Request not found" });
       const [partner] = await db.insert(communityPartners).values({
         name: request.organizationName,
@@ -138,7 +138,7 @@ export function registerCollaborationRoutes(app: Express) {
       }).returning();
       await db.update(partnershipRequests)
         .set({ status: "onboarded", convertedPartnerId: partner.id })
-        .where(eq(partnershipRequests.id, req.params.id));
+        .where(eq(partnershipRequests.id, req.params.id as string));
       res.json(partner);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
@@ -174,7 +174,7 @@ export function registerCollaborationRoutes(app: Express) {
     try {
       const [outcome] = await db.update(sharedOutcomes)
         .set({ ...req.body, lastReportedAt: new Date() })
-        .where(eq(sharedOutcomes.id, req.params.id))
+        .where(eq(sharedOutcomes.id, req.params.id as string))
         .returning();
       res.json(outcome);
     } catch (e: any) {
@@ -218,7 +218,7 @@ export function registerCollaborationRoutes(app: Express) {
       if (req.body.status === "completed") updates.completedAt = new Date();
       const [handoff] = await db.update(externalWarmHandoffs)
         .set(updates)
-        .where(eq(externalWarmHandoffs.id, req.params.id))
+        .where(eq(externalWarmHandoffs.id, req.params.id as string))
         .returning();
       res.json(handoff);
     } catch (e: any) {

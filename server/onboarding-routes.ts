@@ -238,7 +238,7 @@ export function registerOnboardingRoutes(app: Express) {
 
   app.get("/api/onboarding/templates/:id", async (req: Request, res: Response) => {
     try {
-      const template = await storage.getOnboardingTemplate(req.params.id);
+      const template = await storage.getOnboardingTemplate(req.params.id as string);
       if (!template) return res.status(404).json({ error: "Template not found" });
       const phases = await storage.getOnboardingPhases(template.id);
       const milestones = await storage.getOnboardingMilestones(template.id);
@@ -251,7 +251,7 @@ export function registerOnboardingRoutes(app: Express) {
   app.get("/api/onboarding/templates/population/:population", async (req: Request, res: Response) => {
     try {
       const templates = await storage.getOnboardingTemplates();
-      const filtered = templates.filter(t => t.population === req.params.population);
+      const filtered = templates.filter(t => t.population === req.params.population as string);
       if (filtered.length === 0) return res.status(404).json({ error: "No template found for population" });
       const template = filtered[0];
       const phases = await storage.getOnboardingPhases(template.id);
@@ -301,7 +301,7 @@ export function registerOnboardingRoutes(app: Express) {
 
   app.get("/api/onboarding/journeys/:id", async (req: Request, res: Response) => {
     try {
-      const journey = await storage.getOnboardingJourney(req.params.id);
+      const journey = await storage.getOnboardingJourney(req.params.id as string);
       if (!journey) return res.status(404).json({ error: "Journey not found" });
       const template = await storage.getOnboardingTemplate(journey.templateId);
       const phases = template ? await storage.getOnboardingPhases(template.id) : [];
@@ -316,7 +316,7 @@ export function registerOnboardingRoutes(app: Express) {
 
   app.get("/api/onboarding/journeys/participant/:participantId", async (req: Request, res: Response) => {
     try {
-      const journey = await storage.getOnboardingJourneyByParticipant(req.params.participantId);
+      const journey = await storage.getOnboardingJourneyByParticipant(req.params.participantId as string);
       if (!journey) return res.status(404).json({ error: "No journey found" });
       const template = await storage.getOnboardingTemplate(journey.templateId);
       const phases = template ? await storage.getOnboardingPhases(template.id) : [];
@@ -330,7 +330,7 @@ export function registerOnboardingRoutes(app: Express) {
 
   app.post("/api/onboarding/journeys/:journeyId/milestones/:milestoneId/complete", requireAuth, async (req: Request, res: Response) => {
     try {
-      const { journeyId, milestoneId } = req.params;
+      const { journeyId, milestoneId } = req.params as Record<string, string>;
       const { completedBy, completedByName, notes } = req.body;
 
       const journey = await storage.getOnboardingJourney(journeyId);
@@ -400,7 +400,7 @@ export function registerOnboardingRoutes(app: Express) {
 
   app.post("/api/onboarding/journeys/:journeyId/baseline-snapshot", requireAuth, async (req: Request, res: Response) => {
     try {
-      const { journeyId } = req.params;
+      const { journeyId } = req.params as Record<string, string>;
       const journey = await storage.getOnboardingJourney(journeyId);
       if (!journey) return res.status(404).json({ error: "Journey not found" });
 
@@ -498,7 +498,7 @@ export function registerOnboardingRoutes(app: Express) {
 
   app.patch("/api/onboarding/journeys/:id", requireAuth, async (req: Request, res: Response) => {
     try {
-      const journey = await storage.getOnboardingJourney(req.params.id);
+      const journey = await storage.getOnboardingJourney(req.params.id as string);
       if (!journey) return res.status(404).json({ error: "Journey not found" });
       const allowedFields = ["status", "currentPhaseWeek", "notes"] as const;
       const sanitized: Record<string, any> = {};
@@ -506,7 +506,7 @@ export function registerOnboardingRoutes(app: Express) {
         if (key in req.body) sanitized[key] = req.body[key];
       }
       if (Object.keys(sanitized).length === 0) return res.status(400).json({ error: "No valid fields to update" });
-      const updated = await storage.updateOnboardingJourney(req.params.id, sanitized);
+      const updated = await storage.updateOnboardingJourney(req.params.id as string, sanitized);
       res.json(updated);
     } catch (error: any) {
       res.status(500).json({ error: error.message });

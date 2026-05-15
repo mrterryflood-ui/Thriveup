@@ -1574,11 +1574,13 @@ export function registerEcosystemConnectorRoutes(app: Express) {
             await db.insert(ecosystemDirectiveAcks).values({
               directiveId: directive.id,
               platformId,
-              platformName: platDef?.name || platformId,
               status: "completed",
-              whatWasDone: `Implemented: ${directive.title} — integrated into ${platDef?.name || platformId} platform operations, verified alignment with ecosystem standards, updated data flows and governance protocols accordingly.`,
-              evidenceUrl: platDef?.url || "",
               acknowledgedAt: new Date(),
+              responseData: {
+                platformName: platDef?.name || platformId,
+                whatWasDone: `Implemented: ${directive.title} — integrated into ${platDef?.name || platformId} platform operations, verified alignment with ecosystem standards, updated data flows and governance protocols accordingly.`,
+                evidenceUrl: platDef?.url || "",
+              },
             });
             newAcksCreated++;
           }
@@ -2167,8 +2169,8 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
   app.get("/api/ecosystem/enforcement-status", requireAdminAuth, async (_req, res) => {
     try {
       const trackerData = Array.from(escalationTracker.entries()).map(([id, record]) => ({
-        platformId: id,
         ...record,
+        platformId: id,
       }));
 
       res.json({
@@ -2236,7 +2238,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
   app.get("/api/ecosystem/triads/:triadId", requireEcosystemAuth, async (req, res) => {
     try {
-      const triad = ECOSYSTEM_TRIADS.find(t => t.id === req.params.triadId);
+      const triad = ECOSYSTEM_TRIADS.find(t => t.id === req.params.triadId as string);
       if (!triad) {
         return res.status(404).json({ error: "Triad not found", availableTriads: ECOSYSTEM_TRIADS.map(t => ({ id: t.id, name: t.name })) });
       }
@@ -2772,7 +2774,14 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         issuedBy: `co-captain:${coCaptain.coCaptainId}`,
       };
 
-      await db.insert(ecosystemDirectives).values(directiveRecord);
+      await db.insert(ecosystemDirectives).values({
+        id: directiveRecord.id,
+        title: directiveRecord.title,
+        content: directiveRecord.content,
+        directiveType: directiveRecord.directiveType,
+        status: directiveRecord.status,
+        targetPlatformIds: targets.map(p => p.id),
+      });
 
       let delivered = 0;
       for (const platform of targets) {
@@ -2781,7 +2790,6 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           directiveId,
           platformId: platform.id,
           status: "delivered",
-          deliveredAt: new Date(),
         });
         delivered++;
       }
@@ -3488,7 +3496,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
   app.get("/api/ecosystem/shadow/collaborate/status/:insightId", requireShadowAuth, async (req, res) => {
     try {
-      const insight = collaborationInsights.find(i => i.id === req.params.insightId);
+      const insight = collaborationInsights.find(i => i.id === req.params.insightId as string);
       if (!insight) {
         return res.status(404).json({ error: "Insight not found" });
       }
@@ -3551,7 +3559,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
 
   app.post("/api/ecosystem/shadow/collaborate/review/:insightId", requireAdminAuth, requireAuth, async (req, res) => {
     try {
-      const insight = collaborationInsights.find(i => i.id === req.params.insightId);
+      const insight = collaborationInsights.find(i => i.id === req.params.insightId as string);
       if (!insight) {
         return res.status(404).json({ error: "Insight not found" });
       }
@@ -3831,7 +3839,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         grantAlignment: p.grantAlignment ?? [],
         sends: p.dataFlowConfig?.sends ?? [],
         receives: p.dataFlowConfig?.receives ?? [],
-        featureCount: Array.isArray((p.capabilities as any)?.features) ? (p.capabilities as any).features.length : 0,
+        featureCount: Array.isArray((p.capabilities as { features?: string[] } | null)?.features) ? (p.capabilities as { features?: string[] }).features!.length : 0,
       }));
       const triads = ECOSYSTEM_TRIADS.map(t => ({
         id: t.id,
@@ -4061,7 +4069,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           console.log(`[Self-Heal] ✓ Exchange health check passed — ${update.recentChanges.length} changes, ${update.lessonsShared.length} lessons, ${update.questionsForPartner.length} questions`);
         }
 
-        console.log(`[Collaboration] Exchange update compiled: ${update.id} — ${(update.ecosystemHealth as any).online}/${(update.ecosystemHealth as any).totalPlatforms} online`);
+        console.log(`[Collaboration] Exchange update compiled: ${update.id} — ${(update.ecosystemHealth as { online?: number; totalPlatforms?: number }).online}/${(update.ecosystemHealth as { online?: number; totalPlatforms?: number }).totalPlatforms} online`);
 
         await db.insert(ecosystemEvents).values({
           sourcePlatformId: "hub",
@@ -4189,10 +4197,10 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
     }
   });
 
-  app.get("/api/ecosystem/shadow/exchange/history", requireShadowAuth, async (_req, res) => {
+  app.get("/api/ecosystem/shadow/exchange/history", requireShadowAuth, async (req, res) => {
     try {
-      const shadowKey = req.headers["x-shadow-key"] as string;
-
+      const callerKey = req.headers["x-shadow-key"] as string;
+      const callerExchanges = inboundExchanges.filter(e => e.from === callerKey);
       res.json({
         schedule: "Every 8 hours (3x daily)",
         thriveUpExchanges: exchangeLog.slice(-10).map(e => ({
@@ -4202,7 +4210,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
           recentChanges: e.recentChanges.length,
           lessonsShared: e.lessonsShared.length,
         })),
-        yourExchanges: inboundExchanges.filter(e => e.from === shadowKey).slice(-10).map(e => ({
+        yourExchanges: callerExchanges.slice(-10).map(e => ({
           id: e.id,
           timestamp: e.timestamp,
           healthSnapshot: e.ecosystemHealth,
@@ -4211,7 +4219,7 @@ ${nonCompliant.length > 0 ? `<h3 style="color:#c0392b;">Non-Compliant Platforms 
         })),
         totalExchanges: {
           fromThriveUp: exchangeLog.length,
-          fromYou: inboundExchanges.filter(e => e.from === shadowKey).length,
+          fromYou: callerExchanges.length,
         },
       });
     } catch (error) {
@@ -5000,7 +5008,7 @@ if (typeof module !== "undefined") {
 
   app.get("/api/ecosystem/health-history/:platformId", requireAdminAuth, async (req, res) => {
     try {
-      const { platformId } = req.params;
+      const { platformId } = req.params as Record<string, string>;
       const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
       const logs = await db.select().from(ecosystemHealthLogs)
         .where(and(
@@ -5639,7 +5647,7 @@ if (typeof module !== "undefined") {
                 })
                 .where(eq(ecosystemDirectiveAcks.id, existingAck.id));
 
-              const directive = allDirectives.find(d => d.id === work.directiveId);
+              const [directive] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, work.directiveId as string));
               await processCompletedWorkFlow(platform, directive, work, qualityResult);
             }
           }
@@ -6547,7 +6555,7 @@ if (typeof module !== "undefined") {
                 id: ep.id,
                 name: ep.name,
                 description: ep.description,
-                features: ep.features,
+                features: (ep as { features?: string[] }).features,
                 role: ep.role,
                 domain: ep.domain,
                 url: ep.url,
@@ -7244,7 +7252,7 @@ if (typeof module !== "undefined") {
         },
         directives: {
           total: directives.length,
-          items: directives.map(d => ({ id: d.id, title: d.title, priority: d.priority, status: d.status, createdAt: d.createdAt })),
+          items: directives.map(d => ({ id: d.id, title: d.title, priority: (d as { priority?: string }).priority, status: d.status, createdAt: d.createdAt })),
           acknowledgments: directiveAcks.map(a => ({ directiveId: a.directiveId, platformId: a.platformId, status: a.status, acknowledgedAt: a.acknowledgedAt })),
         },
         recentEvents: recentEvents.map(e => ({ id: e.id, sourcePlatformId: e.sourcePlatformId, eventData: e.eventData, status: e.status, createdAt: e.createdAt })),
@@ -7319,7 +7327,7 @@ if (typeof module !== "undefined") {
 
   app.post("/api/sitesync/fixes/:id/approve", requireAdminAuth, async (req, res) => {
     try {
-      const fixId = parseInt(req.params.id);
+      const fixId = parseInt(req.params.id as string);
       const userId = (req as any).session?.passport?.user || (req as any).user?.id;
 
       const [fix] = await db.select().from(inboundFixes).where(eq(inboundFixes.id, fixId));
@@ -7345,7 +7353,7 @@ if (typeof module !== "undefined") {
 
   app.post("/api/sitesync/fixes/:id/reject", requireAdminAuth, async (req, res) => {
     try {
-      const fixId = parseInt(req.params.id);
+      const fixId = parseInt(req.params.id as string);
       const userId = (req as any).session?.passport?.user || (req as any).user?.id;
 
       const [updated] = await db.update(inboundFixes)
@@ -7676,7 +7684,7 @@ if (typeof module !== "undefined") {
 
   app.get("/api/ecosystem/directives/repository/:platformId", requireEcosystemAuth, async (req, res) => {
     try {
-      const { platformId } = req.params;
+      const { platformId } = req.params as Record<string, string>;
       const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
       if (!platform) {
         return res.status(404).json({ error: "Platform not found" });
@@ -7811,7 +7819,7 @@ if (typeof module !== "undefined") {
 
   app.get("/api/ecosystem/directives/:directiveId", requireAdminAuth, async (req, res) => {
     try {
-      const { directiveId } = req.params;
+      const { directiveId } = req.params as Record<string, string>;
       const [directive] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, directiveId));
       if (!directive) return res.status(404).json({ error: "Directive not found" });
 
@@ -7839,7 +7847,7 @@ if (typeof module !== "undefined") {
 
   app.post("/api/ecosystem/directives/:directiveId/acknowledge", requireEcosystemAuth, async (req, res) => {
     try {
-      const { directiveId } = req.params;
+      const { directiveId } = req.params as Record<string, string>;
       const apiKey = req.headers["x-ecosystem-key"] as string;
       const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
       if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
@@ -7868,7 +7876,7 @@ if (typeof module !== "undefined") {
 
   app.patch("/api/ecosystem/directives/:directiveId", requireAdminAuth, requireAuth, async (req, res) => {
     try {
-      const { directiveId } = req.params;
+      const { directiveId } = req.params as Record<string, string>;
       const { status } = req.body;
       if (!["active", "expired", "revoked"].includes(status)) {
         return res.status(400).json({ error: "Status must be active, expired, or revoked" });
@@ -7882,7 +7890,7 @@ if (typeof module !== "undefined") {
 
   app.get("/api/ecosystem/integration-snippet/:platformId", requireAdminAuth, async (req, res) => {
     try {
-      const { platformId } = req.params;
+      const { platformId } = req.params as Record<string, string>;
       const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
       if (!platform) {
         return res.status(404).json({ error: "Platform not found" });
@@ -8497,8 +8505,8 @@ if (typeof module !== "undefined") {
           name: platform.name,
           role: platform.role,
           description: platform.description,
-          dataYouSend: (platform.dataFlowConfig as any)?.sends || [],
-          dataYouReceive: (platform.dataFlowConfig as any)?.receives || [],
+          dataYouSend: (platform.dataFlowConfig as { sends?: string[]; receives?: string[] } | null)?.sends || [],
+          dataYouReceive: (platform.dataFlowConfig as { sends?: string[]; receives?: string[] } | null)?.receives || [],
           grantsYouSupport: (platform.grantAlignment as string[]) || [],
         },
       });
@@ -8569,7 +8577,7 @@ if (typeof module !== "undefined") {
 
   app.get("/api/ecosystem/platform-directives/:platformId", requireEcosystemAuth, async (req, res) => {
     try {
-      const { platformId } = req.params;
+      const { platformId } = req.params as Record<string, string>;
       const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
       if (!platform) {
         return res.status(404).json({ error: "Platform not found" });
@@ -9425,7 +9433,7 @@ if (typeof module !== "undefined") {
           id: ep.id,
           name: ep.name,
           description: ep.description,
-          features: ep.features,
+          features: (ep as { features?: string[] }).features,
           role: ep.role,
           domain: ep.domain,
           url: ep.url,
@@ -9875,7 +9883,7 @@ if (typeof module !== "undefined") {
 
     const platforms = await db.select().from(ecosystemPlatforms);
     const offlineCount = platforms.filter(p => p.healthStatus === "offline" || !p.healthStatus).length;
-    const neverPinged = platforms.filter(p => !p.lastPingAt).length;
+    const neverPinged = platforms.filter(p => !p.lastHeartbeat).length;
     if (offlineCount > 3) gaps.push(`DEGRADED: ${offlineCount} platforms offline — exceeds acceptable threshold of 3`);
     else healthy.push(`Platform availability OK (${platforms.length - offlineCount}/${platforms.length} reachable)`);
     if (neverPinged > 5) gaps.push(`BLIND-SPOT: ${neverPinged} platforms have never been pinged — pinger may not be reaching them`);

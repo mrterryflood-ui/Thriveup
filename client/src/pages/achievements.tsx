@@ -84,7 +84,7 @@ export default function AchievementsPage() {
 
   if (!data || (data.allBadges.length === 0 && data.earnedBadges.length === 0)) return (
     <div className="p-6 max-w-3xl mx-auto">
-      <PageHeader title="Achievements" subtitle="Your badges, credentials, and milestones" />
+      <PageHeader title="Achievements" description="Your badges, credentials, and milestones" />
       <Card className="p-8 text-center mt-6" data-testid="card-empty-achievements">
         <div className="mx-auto mb-6 h-20 w-20 rounded-full bg-primary/10 flex items-center justify-center">
           <Shield className="h-10 w-10 text-primary" />

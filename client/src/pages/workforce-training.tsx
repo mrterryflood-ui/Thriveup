@@ -78,7 +78,7 @@ export default function WorkforceTrainingPage() {
     onSuccess: (enrollment: any) => {
       queryClient.invalidateQueries({ queryKey: ["/api/workforce/enrollments"] });
       toast({ title: "Enrolled!", description: "You've been enrolled in this training program." });
-      const programName = selectedProgram?.programName || "training program";
+      const programName = selectedProgram?.name || "training program";
       setSelectedProgram(null);
       logJourneyEvent({
         eventType: "training_enrolled",

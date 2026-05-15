@@ -54,7 +54,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.get("/api/programs/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const [program] = await db.select().from(programs).where(eq(programs.id, id));
       if (!program) return res.status(404).json({ error: "Program not found" });
       const milestones = await db.select().from(programMilestones).where(eq(programMilestones.programId, id)).orderBy(programMilestones.dueDate);
@@ -68,7 +68,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.patch("/api/programs/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const allowedFields = ["title", "description", "objectives", "stakeholders", "timeline", "successCriteria", "methodology", "status", "setupData", "platformIds", "grantIds", "targetPopulation", "geographicFocus"];
       const updates: any = { updatedAt: new Date() };
       for (const key of allowedFields) {
@@ -84,7 +84,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.get("/api/programs/:id/milestones", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const milestones = await db.select().from(programMilestones).where(eq(programMilestones.programId, id)).orderBy(programMilestones.dueDate);
       res.json(milestones);
     } catch (e: any) {
@@ -94,7 +94,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.post("/api/programs/:id/milestones", requireAuth, async (req, res) => {
     try {
-      const programId = parseInt(req.params.id);
+      const programId = parseInt(req.params.id as string);
       const parsed = insertProgramMilestoneSchema.parse({ ...req.body, programId });
       const [milestone] = await db.insert(programMilestones).values(parsed).returning();
       await db.insert(programUpdates).values({
@@ -111,8 +111,8 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.patch("/api/programs/:id/milestones/:milestoneId", requireAuth, async (req, res) => {
     try {
-      const milestoneId = parseInt(req.params.milestoneId);
-      const programId = parseInt(req.params.id);
+      const milestoneId = parseInt(req.params.milestoneId as string);
+      const programId = parseInt(req.params.id as string);
       const milestoneAllowed = ["title", "description", "phase", "dueDate", "completedDate", "status", "assignee", "evidenceUrl", "deliverables", "dependencies", "notes"];
       const updates: any = { updatedAt: new Date() };
       for (const key of milestoneAllowed) {
@@ -139,7 +139,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.get("/api/programs/:id/risks", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const risks = await db.select().from(programRisks).where(eq(programRisks.programId, id)).orderBy(desc(programRisks.createdAt));
       res.json(risks);
     } catch (e: any) {
@@ -149,7 +149,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.post("/api/programs/:id/risks", requireAuth, async (req, res) => {
     try {
-      const programId = parseInt(req.params.id);
+      const programId = parseInt(req.params.id as string);
       const parsed = insertProgramRiskSchema.parse({ ...req.body, programId });
       const [risk] = await db.insert(programRisks).values(parsed).returning();
       await db.insert(programUpdates).values({
@@ -166,8 +166,8 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.patch("/api/programs/:id/risks/:riskId", requireAuth, async (req, res) => {
     try {
-      const riskId = parseInt(req.params.riskId);
-      const programId = parseInt(req.params.id);
+      const riskId = parseInt(req.params.riskId as string);
+      const programId = parseInt(req.params.id as string);
       const riskAllowed = ["title", "description", "likelihood", "impact", "mitigation", "owner", "status"];
       const updates: any = {};
       for (const key of riskAllowed) {
@@ -191,7 +191,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.get("/api/programs/:id/updates", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const filter = req.query.type as string | undefined;
       let query = db.select().from(programUpdates).where(eq(programUpdates.programId, id)).orderBy(desc(programUpdates.createdAt));
       const allUpdates = await query;
@@ -204,7 +204,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.post("/api/programs/:id/updates", requireAuth, async (req, res) => {
     try {
-      const programId = parseInt(req.params.id);
+      const programId = parseInt(req.params.id as string);
       const parsed = insertProgramUpdateSchema.parse({ ...req.body, programId });
       const [update] = await db.insert(programUpdates).values(parsed).returning();
       res.json(update);
@@ -215,7 +215,7 @@ export function registerProgramEngineRoutes(app: Express) {
 
   app.get("/api/programs/:id/health", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const [program] = await db.select().from(programs).where(eq(programs.id, id));
       if (!program) return res.status(404).json({ error: "Program not found" });
       const milestones = await db.select().from(programMilestones).where(eq(programMilestones.programId, id));

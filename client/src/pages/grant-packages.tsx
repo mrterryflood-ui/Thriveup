@@ -120,6 +120,7 @@ interface PhaseTask {
   guidance?: string;
   aiCanHelp?: boolean;
   aiAction?: string;
+  resources?: Array<{ label: string; url: string }>;
 }
 
 interface ChecklistItem {
@@ -133,8 +134,10 @@ interface ChecklistItem {
 }
 
 interface WinStrategy {
+  keyMessage?: string;
   differentiators: string[];
   reviewerPriorities: string[];
+  reviewerTips?: string[];
   scoringTips: string[];
   commonPitfalls: string[];
 }

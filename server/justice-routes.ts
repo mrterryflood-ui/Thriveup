@@ -200,7 +200,7 @@ export function registerJusticeRoutes(app: Express) {
     try {
       const parsed = referralUpdateSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid update data", details: parsed.error.flatten().fieldErrors });
-      const [updated] = await db.update(justiceReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(justiceReferrals.id, req.params.id)).returning();
+      const [updated] = await db.update(justiceReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(justiceReferrals.id, req.params.id as string)).returning();
       res.json(updated);
     } catch (error) { res.status(500).json({ error: "Failed to update referral" }); }
   });
@@ -227,7 +227,7 @@ export function registerJusticeRoutes(app: Express) {
       if (!parsed.success) return res.status(400).json({ error: "Invalid update data" }); 
       const updateData: Record<string, unknown> = { ...parsed.data };
       if (parsed.data.completedDate) updateData.completedDate = new Date(parsed.data.completedDate);
-      const [updated] = await db.update(supervisionCompliance).set(updateData).where(eq(supervisionCompliance.id, req.params.id)).returning();
+      const [updated] = await db.update(supervisionCompliance).set(updateData).where(eq(supervisionCompliance.id, req.params.id as string)).returning();
       res.json(updated);
     } catch (error) { res.status(500).json({ error: "Failed to update compliance" }); }
   });
@@ -396,7 +396,7 @@ export function registerJusticeRoutes(app: Express) {
 
   app.patch("/api/justice/cycle-breaking-sessions/:id", requireAuth, async (req, res) => {
     try {
-      const [updated] = await db.update(cycleBreakingSessions).set({ ...req.body, updatedAt: new Date() }).where(eq(cycleBreakingSessions.id, req.params.id)).returning();
+      const [updated] = await db.update(cycleBreakingSessions).set({ ...req.body, updatedAt: new Date() }).where(eq(cycleBreakingSessions.id, req.params.id as string)).returning();
       res.json(updated);
     } catch (error) { res.status(500).json({ error: "Failed to update session" }); }
   });
@@ -647,7 +647,7 @@ Provide a JSON assessment with:
   // Uses Census ACS crime-related variables + UCR proxy data
   app.get("/api/justice/live/crime/:state", async (req, res) => {
     try {
-      const stateAbbr = req.params.state.toUpperCase();
+      const stateAbbr = (req.params.state as string).toUpperCase();
       const STATE_FIPS: Record<string, string> = {
         AL:"01",AK:"02",AZ:"04",AR:"05",CA:"06",CO:"08",CT:"09",DE:"10",FL:"12",GA:"13",
         HI:"15",ID:"16",IL:"17",IN:"18",IA:"19",KS:"20",KY:"21",LA:"22",ME:"23",MD:"24",
@@ -815,7 +815,7 @@ Provide a JSON assessment with:
   // Multi-year Census comparison to detect displacement, rent spikes, demographic shifts
   app.get("/api/justice/live/gentrification/:stateFips/:countyFips", async (req, res) => {
     try {
-      const { stateFips, countyFips } = req.params;
+      const { stateFips, countyFips } = req.params as Record<string, string>;
       const years = [2015, 2017, 2019, 2022];
       const vars = "NAME,B19013_001E,B25064_001E,B25077_001E,B01003_001E,B17001_002E,B17001_001E,B15003_022E,B15003_001E,B02001_003E,B02001_001E,B03003_003E,B03003_001E";
 
@@ -1009,7 +1009,7 @@ Provide a JSON assessment with:
   // Neighborhood → School → Outcomes pipeline
   app.get("/api/justice/live/school-data/:state", async (req, res) => {
     try {
-      const stateAbbr = req.params.state.toUpperCase();
+      const stateAbbr = (req.params.state as string).toUpperCase();
       const district = req.query.district as string | undefined;
       const city = req.query.city as string | undefined;
 
@@ -1050,8 +1050,8 @@ Provide a JSON assessment with:
   // ── Neighborhood-level Census tracts for a county ──
   app.get("/api/justice/live/neighborhoods/:state/:county", async (req, res) => {
     try {
-      const stateFips = req.params.state;
-      const countyFips = req.params.county;
+      const stateFips = req.params.state as string;
+      const countyFips = req.params.county as string;
       const vars = "NAME,B01003_001E,B19013_001E,B17001_002E,B17001_001E,B23025_005E,B23025_002E,B15003_017E,B15003_022E,B25064_001E,B01001_003E,B01001_004E,B01001_005E,B01001_006E,B01001_027E,B01001_028E,B01001_029E,B01001_030E,B02001_003E,B02001_002E,B03003_003E";
       const data = await apiFetch(
         `https://api.census.gov/data/2022/acs/acs5?get=${vars}&for=tract:*&in=state:${stateFips}+county:${countyFips}`, 15000
@@ -1155,7 +1155,7 @@ Create a comprehensive DATA STORY in JSON format:
   // Granularity: national → state → county → tract (neighborhood-level)
   app.get("/api/justice/live/demographics/:state", async (req, res) => {
     try {
-      const stateFips = req.params.state;
+      const stateFips = req.params.state as string;
       const countyFips = req.query.county as string | undefined;
       const tractFips = req.query.tract as string | undefined;
       const variables = "NAME,B01003_001E,B19013_001E,B17001_002E,B17001_001E,B23025_005E,B23025_002E,B15003_017E,B15003_022E,B25077_001E,B25064_001E,B27001_005E,B27001_008E";
@@ -1210,7 +1210,7 @@ Create a comprehensive DATA STORY in JSON format:
   // State + metro area employment, wages, unemployment
   app.get("/api/justice/live/employment/:state", async (req, res) => {
     try {
-      const stateFips = req.params.state;
+      const stateFips = req.params.state as string;
       const seriesIds = [
         `LASST${stateFips}0000000000003`,  // state unemployment rate
         `LASST${stateFips}0000000000004`,  // state unemployment count
@@ -1242,7 +1242,7 @@ Create a comprehensive DATA STORY in JSON format:
   // ── NCES School/Education Data (proxy for district-level) ──
   app.get("/api/justice/live/schools/:state", async (req, res) => {
     try {
-      const stateFips = req.params.state;
+      const stateFips = req.params.state as string;
       const [districts, schoolCount] = await Promise.allSettled([
         apiFetch(`https://educationdata.urban.org/api/v1/schools/ccd/directory/${stateFips.length === 2 ? "2022" : "2022"}/?fips=${stateFips}&limit=100`),
         apiFetch(`https://educationdata.urban.org/api/v1/school-districts/ccd/directory/2022/?fips=${stateFips}&limit=50`),
@@ -1262,7 +1262,7 @@ Create a comprehensive DATA STORY in JSON format:
   // ── HUD Fair Market Rents (housing affordability by county/ZIP) ──
   app.get("/api/justice/live/housing/:state", async (req, res) => {
     try {
-      const stateAbbr = req.params.state.toUpperCase();
+      const stateAbbr = (req.params.state as string).toUpperCase();
       const year = req.query.year || "2024";
       const countyFips = req.query.county as string | undefined;
       let url = `https://www.huduser.gov/hudapi/public/fmr/statedata/${stateAbbr}?year=${year}`;
@@ -1291,7 +1291,7 @@ Create a comprehensive DATA STORY in JSON format:
   // ── SAMHSA Treatment Locator ──
   app.get("/api/justice/live/treatment/:state", async (req, res) => {
     try {
-      const stateAbbr = req.params.state.toUpperCase();
+      const stateAbbr = (req.params.state as string).toUpperCase();
       const city = req.query.city as string | undefined;
       const zip = req.query.zip as string | undefined;
       let searchParam = `sState=${stateAbbr}`;
@@ -1319,7 +1319,7 @@ Create a comprehensive DATA STORY in JSON format:
   // ── 211 / Community Resources by ZIP ──
   app.get("/api/justice/live/resources/:zip", async (req, res) => {
     try {
-      const zip = req.params.zip;
+      const zip = req.params.zip as string;
       const category = req.query.category as string || "all";
       const searchUrl211 = `https://www.211.org/get-help/zip/${zip}`;
       const searchUrlFindHelp = `https://www.findhelp.org/?postal=${zip}`;
@@ -1361,7 +1361,7 @@ Create a comprehensive DATA STORY in JSON format:
   // ── OpenStates Legislative Tracking (state bills) ──
   app.get("/api/justice/live/legislation/:state", async (req, res) => {
     try {
-      const stateAbbr = req.params.state.toLowerCase();
+      const stateAbbr = (req.params.state as string).toLowerCase();
       const openStatesKey = process.env.OPENSTATES_API_KEY;
       if (openStatesKey) {
         const query = `{ jurisdiction(name: "${stateAbbr}") { name legislativeSessions { identifier name startDate endDate } } }`;
@@ -1597,7 +1597,7 @@ Create a comprehensive DATA STORY in JSON format:
   // ── State-Specific Legal Guides (expungement, rights) ──
   app.get("/api/justice/live/legal-guide/:state", async (req, res) => {
     try {
-      const stateAbbr = req.params.state.toUpperCase();
+      const stateAbbr = (req.params.state as string).toUpperCase();
       const ragContext = getJusticeRAGContext("expungement legal rights reentry policy " + stateAbbr);
       const prompt = `You are the Justice Command Center legal guide AI. Provide a comprehensive, ACCURATE legal guide for ${stateAbbr}. This must be factual — do not make up laws.
 

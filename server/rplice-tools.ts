@@ -249,7 +249,7 @@ export function registerRpliceToolsRoutes(app: Express) {
 
   app.post("/api/rplice/quality-reviews/:id/resolve", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const { status } = req.body;
       const [row] = await db.update(rpliceAssessments)
         .set({ status: status || "complete", updatedAt: new Date() })
@@ -923,7 +923,7 @@ Be specific. Use the actual data. Apply Dr. Flood's principle: education is the 
 
   app.patch("/api/rplice/baseline/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const { targets, timelineMonths, status } = req.body;
       const updates: any = { updatedAt: new Date() };
       if (targets !== undefined) updates.targets = targets;
@@ -1053,7 +1053,7 @@ Generate 4-6 milestones per phase. Make them specific to the region's data. Use 
 
   app.patch("/api/rplice/action-plan/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const { phases, status } = req.body;
       const updates: any = { updatedAt: new Date() };
       if (phases !== undefined) updates.phases = phases;

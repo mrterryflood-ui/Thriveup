@@ -753,7 +753,7 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
     if (!lastCrossEvaluation) {
       return res.status(404).json({ error: "No cross-evaluation available" });
     }
-    const { platformId } = req.params;
+    const { platformId } = req.params as Record<string, string>;
     const summary = lastCrossEvaluation.executiveSummaries.find(s => s.platformId === platformId);
     const evaluationsReceived = lastCrossEvaluation.peerEvaluations.filter(e => e.targetId === platformId);
     const evaluationsGiven = lastCrossEvaluation.peerEvaluations.filter(e => e.evaluatorId === platformId);

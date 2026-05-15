@@ -80,7 +80,7 @@ function crud<T extends { id: any }>(app: Express, base: string, table: any, sch
   });
   app.get(`${base}/:id`, requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [row] = await db.select().from(table).where(eq((table as any).id, req.params.id));
+      const [row] = await db.select().from(table).where(eq((table as any).id, req.params.id as string));
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json(row);
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
@@ -89,7 +89,7 @@ function crud<T extends { id: any }>(app: Express, base: string, table: any, sch
     try {
       const parsed = schema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
-      const [row] = await db.insert(table).values(parsed.data).returning();
+      const [row] = await (db.insert(table).values(parsed.data).returning() as Promise<Record<string, unknown>[]>);
       if (eventName) emitRpliceEvent(eventName, { id: row.id, summary: parsed.data }).catch(() => {});
       res.json(row);
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed to create" }); }
@@ -98,14 +98,14 @@ function crud<T extends { id: any }>(app: Express, base: string, table: any, sch
     try {
       const update = { ...req.body };
       delete update.id; delete update.createdAt;
-      const [row] = await db.update(table).set(update).where(eq((table as any).id, req.params.id)).returning();
+      const [row] = await db.update(table).set(update).where(eq((table as any).id, req.params.id as string)).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json(row);
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed to update" }); }
   });
   app.delete(`${base}/:id`, requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [row] = await db.delete(table).where(eq((table as any).id, req.params.id)).returning();
+      const [row] = await (db.delete(table).where(eq((table as any).id, req.params.id as string)).returning() as Promise<Record<string, unknown>[]>);
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json({ success: true });
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed to delete" }); }
@@ -212,7 +212,7 @@ export function registerCoalitionRoutes(app: Express) {
   app.patch("/api/coalition/outcome-reports/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const update = { ...req.body }; delete update.id; delete update.createdAt;
-      const [row] = await db.update(outcomeReportsNrrc).set(update).where(eq(outcomeReportsNrrc.id, req.params.id)).returning();
+      const [row] = await db.update(outcomeReportsNrrc).set(update).where(eq(outcomeReportsNrrc.id, req.params.id as string)).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json(row);
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }
@@ -220,7 +220,7 @@ export function registerCoalitionRoutes(app: Express) {
 
   app.delete("/api/coalition/outcome-reports/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [row] = await db.delete(outcomeReportsNrrc).where(eq(outcomeReportsNrrc.id, req.params.id)).returning();
+      const [row] = await db.delete(outcomeReportsNrrc).where(eq(outcomeReportsNrrc.id, req.params.id as string)).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       res.json({ success: true });
     } catch (e) { console.error(e); res.status(500).json({ error: "Failed" }); }

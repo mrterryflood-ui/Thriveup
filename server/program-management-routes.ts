@@ -45,7 +45,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/projects/:id", requireAuth, async (req, res) => {
     try {
-      const [project] = await db.update(grantProjects).set(req.body).where(eq(grantProjects.id, req.params.id)).returning();
+      const [project] = await db.update(grantProjects).set(req.body).where(eq(grantProjects.id, req.params.id as string)).returning();
       res.json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to update project" });
@@ -54,7 +54,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/projects/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(grantProjects).where(eq(grantProjects.id, req.params.id));
+      await db.delete(grantProjects).where(eq(grantProjects.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete project" });
@@ -63,7 +63,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.get("/api/program-management/projects/:projectId/staffing", requireAuth, async (req, res) => {
     try {
-      const items = await db.select().from(staffingPlans).where(eq(staffingPlans.grantProjectId, req.params.projectId));
+      const items = await db.select().from(staffingPlans).where(eq(staffingPlans.grantProjectId, req.params.projectId as string));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch staffing plans" });
@@ -82,7 +82,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/staffing/:id", requireAuth, async (req, res) => {
     try {
-      const [item] = await db.update(staffingPlans).set(req.body).where(eq(staffingPlans.id, req.params.id)).returning();
+      const [item] = await db.update(staffingPlans).set(req.body).where(eq(staffingPlans.id, req.params.id as string)).returning();
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to update staffing plan" });
@@ -91,7 +91,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/staffing/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(staffingPlans).where(eq(staffingPlans.id, req.params.id));
+      await db.delete(staffingPlans).where(eq(staffingPlans.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete staffing plan" });
@@ -100,7 +100,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.get("/api/program-management/projects/:projectId/facilities", requireAuth, async (req, res) => {
     try {
-      const items = await db.select().from(facilityPlans).where(eq(facilityPlans.grantProjectId, req.params.projectId));
+      const items = await db.select().from(facilityPlans).where(eq(facilityPlans.grantProjectId, req.params.projectId as string));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch facility plans" });
@@ -119,7 +119,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/facilities/:id", requireAuth, async (req, res) => {
     try {
-      const [item] = await db.update(facilityPlans).set(req.body).where(eq(facilityPlans.id, req.params.id)).returning();
+      const [item] = await db.update(facilityPlans).set(req.body).where(eq(facilityPlans.id, req.params.id as string)).returning();
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to update facility plan" });
@@ -128,7 +128,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/facilities/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(facilityPlans).where(eq(facilityPlans.id, req.params.id));
+      await db.delete(facilityPlans).where(eq(facilityPlans.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete facility plan" });
@@ -137,7 +137,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.get("/api/program-management/projects/:projectId/schedules", requireAuth, async (req, res) => {
     try {
-      const items = await db.select().from(programSchedules).where(eq(programSchedules.grantProjectId, req.params.projectId));
+      const items = await db.select().from(programSchedules).where(eq(programSchedules.grantProjectId, req.params.projectId as string));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch schedules" });
@@ -156,7 +156,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/schedules/:id", requireAuth, async (req, res) => {
     try {
-      const [item] = await db.update(programSchedules).set(req.body).where(eq(programSchedules.id, req.params.id)).returning();
+      const [item] = await db.update(programSchedules).set(req.body).where(eq(programSchedules.id, req.params.id as string)).returning();
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to update schedule" });
@@ -165,7 +165,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/schedules/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(programSchedules).where(eq(programSchedules.id, req.params.id));
+      await db.delete(programSchedules).where(eq(programSchedules.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete schedule" });
@@ -174,7 +174,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.get("/api/program-management/projects/:projectId/in-kind", requireAuth, async (req, res) => {
     try {
-      const items = await db.select().from(inKindContributions).where(eq(inKindContributions.grantProjectId, req.params.projectId));
+      const items = await db.select().from(inKindContributions).where(eq(inKindContributions.grantProjectId, req.params.projectId as string));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch in-kind contributions" });
@@ -193,7 +193,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/in-kind/:id", requireAuth, async (req, res) => {
     try {
-      const [item] = await db.update(inKindContributions).set(req.body).where(eq(inKindContributions.id, req.params.id)).returning();
+      const [item] = await db.update(inKindContributions).set(req.body).where(eq(inKindContributions.id, req.params.id as string)).returning();
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to update in-kind contribution" });
@@ -202,7 +202,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/in-kind/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(inKindContributions).where(eq(inKindContributions.id, req.params.id));
+      await db.delete(inKindContributions).where(eq(inKindContributions.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete in-kind contribution" });
@@ -211,7 +211,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.get("/api/program-management/projects/:projectId/compliance", requireAuth, async (req, res) => {
     try {
-      const items = await db.select().from(complianceCalendar).where(eq(complianceCalendar.grantProjectId, req.params.projectId));
+      const items = await db.select().from(complianceCalendar).where(eq(complianceCalendar.grantProjectId, req.params.projectId as string));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch compliance items" });
@@ -230,7 +230,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/compliance/:id", requireAuth, async (req, res) => {
     try {
-      const [item] = await db.update(complianceCalendar).set(req.body).where(eq(complianceCalendar.id, req.params.id)).returning();
+      const [item] = await db.update(complianceCalendar).set(req.body).where(eq(complianceCalendar.id, req.params.id as string)).returning();
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to update compliance item" });
@@ -239,7 +239,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/compliance/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(complianceCalendar).where(eq(complianceCalendar.id, req.params.id));
+      await db.delete(complianceCalendar).where(eq(complianceCalendar.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete compliance item" });
@@ -248,7 +248,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.get("/api/program-management/projects/:projectId/sustainability", requireAuth, async (req, res) => {
     try {
-      const items = await db.select().from(sustainabilityPlans).where(eq(sustainabilityPlans.grantProjectId, req.params.projectId));
+      const items = await db.select().from(sustainabilityPlans).where(eq(sustainabilityPlans.grantProjectId, req.params.projectId as string));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch sustainability plans" });
@@ -267,7 +267,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/sustainability/:id", requireAuth, async (req, res) => {
     try {
-      const [item] = await db.update(sustainabilityPlans).set(req.body).where(eq(sustainabilityPlans.id, req.params.id)).returning();
+      const [item] = await db.update(sustainabilityPlans).set(req.body).where(eq(sustainabilityPlans.id, req.params.id as string)).returning();
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to update sustainability plan" });
@@ -276,7 +276,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/sustainability/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(sustainabilityPlans).where(eq(sustainabilityPlans.id, req.params.id));
+      await db.delete(sustainabilityPlans).where(eq(sustainabilityPlans.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete sustainability plan" });
@@ -285,7 +285,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.get("/api/program-management/projects/:projectId/agencies", requireAuth, async (req, res) => {
     try {
-      const items = await db.select().from(adjacentAgencies).where(eq(adjacentAgencies.grantProjectId, req.params.projectId));
+      const items = await db.select().from(adjacentAgencies).where(eq(adjacentAgencies.grantProjectId, req.params.projectId as string));
       res.json(items);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch agencies" });
@@ -304,7 +304,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.patch("/api/program-management/agencies/:id", requireAuth, async (req, res) => {
     try {
-      const [item] = await db.update(adjacentAgencies).set(req.body).where(eq(adjacentAgencies.id, req.params.id)).returning();
+      const [item] = await db.update(adjacentAgencies).set(req.body).where(eq(adjacentAgencies.id, req.params.id as string)).returning();
       res.json(item);
     } catch (error) {
       res.status(500).json({ error: "Failed to update agency" });
@@ -313,7 +313,7 @@ export function registerProgramManagementRoutes(app: Express) {
 
   app.delete("/api/program-management/agencies/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(adjacentAgencies).where(eq(adjacentAgencies.id, req.params.id));
+      await db.delete(adjacentAgencies).where(eq(adjacentAgencies.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete agency" });

@@ -74,7 +74,7 @@ export function registerAgentKnowledgeRoutes(app: Express) {
     if (!(await requireAuthedAgent(req, res))) return;
     const result = loadCompiled();
     if (!result.ok) return res.status(503).json({ error: result.error });
-    const key = req.params.key;
+    const key = req.params.key as string;
     if (!(key in result.data)) {
       return res.status(404).json({
         error: `Unknown topic: ${key}`,

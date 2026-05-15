@@ -146,8 +146,21 @@ const DATA_LAYERS = [
   { id: "sentencing", label: "Sentencing Disparities", color: "#f97316", icon: Gavel },
 ];
 
+interface CommandStats {
+  totalReferrals?: number;
+  juvenileCases?: number;
+  courtServices?: number;
+  selPrograms?: number;
+  preventionPrograms?: number;
+  activeStakeholders?: number;
+  neighborhoodsMonitored?: number;
+  activeAlerts?: number;
+  reentryPlans?: number;
+  cycleBreakingSessions?: number;
+}
+
 function CommandDashboard() {
-  const { data: stats, isLoading } = useQuery({ queryKey: ["/api/justice/command-center/stats"] });
+  const { data: stats, isLoading } = useQuery<CommandStats>({ queryKey: ["/api/justice/command-center/stats"] });
 
   const statCards = [
     { label: "Active Referrals", value: stats?.totalReferrals || 0, icon: FileText, color: "text-blue-400" },

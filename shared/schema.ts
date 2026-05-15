@@ -1083,6 +1083,8 @@ export const announcements = pgTable("announcements", {
   title: text("title").notNull(),
   content: text("content").notNull(),
   category: text("category").notNull().default("general"),
+  audience: text("audience").default("all"),
+  priority: varchar("priority", { length: 20 }).default("normal"),
   createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
   createdByName: text("created_by_name").notNull(),
   pinned: boolean("pinned").notNull().default(false),
@@ -5050,3 +5052,25 @@ export type ProgramAttendance = typeof programAttendance.$inferSelect;
 export const insertHouseholdServiceReceivedSchema = createInsertSchema(householdServicesReceived).omit({ id: true, recordedAt: true });
 export type InsertHouseholdServiceReceived = z.infer<typeof insertHouseholdServiceReceivedSchema>;
 export type HouseholdServiceReceived = typeof householdServicesReceived.$inferSelect;
+
+export const chatConversations = pgTable("chat_conversations", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull().default("New Chat"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const chatMessages = pgTable("chat_messages", {
+  id: serial("id").primaryKey(),
+  conversationId: integer("conversation_id").notNull().references(() => chatConversations.id, { onDelete: "cascade" }),
+  role: varchar("role", { length: 32 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertChatConversationSchema = createInsertSchema(chatConversations).omit({ id: true, createdAt: true });
+export type InsertChatConversation = z.infer<typeof insertChatConversationSchema>;
+export type ChatConversation = typeof chatConversations.$inferSelect;
+
+export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({ id: true, createdAt: true });
+export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
+export type ChatMessage = typeof chatMessages.$inferSelect;

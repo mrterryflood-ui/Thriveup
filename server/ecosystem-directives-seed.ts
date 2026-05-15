@@ -1014,6 +1014,7 @@ Your evidence URLs must return 200. Dead links are flagged as FAILED.
 ACKNOWLEDGE with: A list of every product currently visible in your sidebar, and what's missing that you're building.`,
   },
   {
+    key: "mandatory-integrate-rag-ai",
     title: "MANDATORY: Integrate ThriveUp RAG AI Into Your Platform",
     directiveType: "protocol_update",
     targetFilter: "all",
@@ -1070,6 +1071,7 @@ All platforms must have RAG AI integrated within 14 days of receiving this direc
 ACKNOWLEDGE with: Confirmation that you've integrated the RAG AI, the URL or screenshot showing where users can access it, and the date it went live.`,
   },
   {
+    key: "fidelity-score-report-card",
     title: "FIDELITY SCORE IS YOUR REPORT CARD — Understand Your Grade",
     directiveType: "protocol_update",
     targetFilter: "all",
@@ -1134,6 +1136,7 @@ This is not a suggestion. Your fidelity grade is a direct reflection of your pla
 ACKNOWLEDGE with: Your current understanding of your fidelity grade, what directives you have outstanding, and your plan to reach Grade A within 30 days.`,
   },
   {
+    key: "pinnacle-complete-integration-playbook",
     title: "PINNACLE BUSINESS CONGLOMERATE: Complete Ecosystem Integration Playbook",
     directiveType: "protocol_update",
     targetFilter: ["pinnacle-business-conglomerate"],
@@ -1458,6 +1461,7 @@ TOOLS AVAILABLE (via ecosystem API):
 ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrated the RAG AI, configured MAP-GAP diagnostics in your onboarding flow, set up the AI failsafe cascade, and are using consistent ecosystem messaging. Include your current fidelity grade and a plan to reach Grade A within 14 days.`,
   },
   {
+    key: "collaborative-advocate-integration-playbook",
     title: "THE COLLABORATIVE ADVOCATE: Complete Ecosystem Integration Playbook",
     directiveType: "protocol_update",
     targetFilter: ["collaborative-advocate"],
@@ -1637,6 +1641,7 @@ Tools available at hub: /rplice-tools, /cqi, /program-engine
 ACKNOWLEDGE with: Confirmation that you have implemented the heartbeat, integrated the RAG AI, configured MAP-GAP in your client flow, set up the AI failsafe cascade, and are using consistent ecosystem messaging. Include your current fidelity grade and plan to reach Grade A within 14 days.`,
   },
   {
+    key: "all-platforms-program-execution-engine",
     title: "ALL PLATFORMS: Build Your Own Program Execution Engine with Fidelity Tracking",
     directiveType: "protocol_update",
     targetFilter: "all",
@@ -1854,6 +1859,7 @@ This feeds into your fidelity grade and grant reporting.
 ACKNOWLEDGE with: Confirmation that you have built the Program Execution Engine with all 4 tables, the setup wizard, health score computation, fidelity tracking with evidence URLs, and hub API integration for teaching points. Include a screenshot or evidence URL of your program dashboard.`,
   },
   {
+    key: "mce-pinnacle-bluewave-contractor-pipeline",
     title: "MCE + PINNACLE + BLUE WAVE: Cross-Platform Minority Contractor Pipeline Integration",
     directiveType: "protocol_update",
     targetFilter: ["pinnacle-business-conglomerate", "mce", "collaborative-advocate"],

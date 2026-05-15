@@ -39,7 +39,7 @@ interface GrantAIResult {
 }
 
 function getParamId(req: Request): string {
-  const id = req.params.id;
+  const id = req.params.id as string;
   return Array.isArray(id) ? id[0] : String(id);
 }
 
@@ -1784,7 +1784,7 @@ Respond in this exact JSON format (no markdown, just JSON):
   app.patch("/api/grant-reminders/:id", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.id || (req as any).userId;
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       const updates: Record<string, unknown> = {};
       if (req.body.status != null) updates.status = req.body.status;
       if (req.body.title != null) updates.title = req.body.title;
@@ -1804,7 +1804,7 @@ Respond in this exact JSON format (no markdown, just JSON):
   app.delete("/api/grant-reminders/:id", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.id || (req as any).userId;
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       await db.delete(grantReminders).where(and(eq(grantReminders.id, id), eq(grantReminders.userId, userId)));
       res.json({ success: true });
     } catch (error) {
@@ -1842,7 +1842,7 @@ Respond in this exact JSON format (no markdown, just JSON):
   app.patch("/api/grant-checklist/:id", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.id || (req as any).userId;
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       const updates: Record<string, unknown> = {};
       if (req.body.status != null) updates.status = req.body.status;
       if (req.body.notes != null) updates.notes = req.body.notes;
@@ -1861,7 +1861,7 @@ Respond in this exact JSON format (no markdown, just JSON):
   app.delete("/api/grant-checklist/:id", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.id || (req as any).userId;
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       await db.delete(grantChecklistItems).where(and(eq(grantChecklistItems.id, id), eq(grantChecklistItems.userId, userId)));
       res.json({ success: true });
     } catch (error) {
@@ -1873,7 +1873,7 @@ Respond in this exact JSON format (no markdown, just JSON):
   app.get("/api/grants/section-drafts/:grantId", requireAuth, async (req, res) => {
     try {
       const userId = (req as any).user?.id;
-      const { grantId } = req.params;
+      const { grantId } = req.params as Record<string, string>;
       const drafts = await db
         .select()
         .from(grantSectionDrafts)
@@ -3028,7 +3028,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
   app.post("/api/esign/sign/:id", requireAuth, async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       const { signatureData, signerName } = req.body;
 
       if (!signatureData) {
@@ -3067,7 +3067,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
   app.post("/api/esign/revoke/:id", requireAuth, async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       const [updated] = await db.update(documentSignatures)
         .set({ status: "revoked" })
         .where(eq(documentSignatures.id, id))
@@ -3085,7 +3085,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
   app.get("/api/esign/verify/:id", async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       const [doc] = await db.select().from(documentSignatures).where(eq(documentSignatures.id, id));
       if (!doc) {
         return res.status(404).json({ error: "Document not found" });
@@ -5361,9 +5361,10 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
 
       let compRowIdx = 0;
       for (const [req, section, status, response] of complianceRows) {
+        doc.fontSize(7);
         const estHeight = Math.max(
-          doc.heightOfString(req, { width: colWidths[0] - 8, fontSize: 7 }),
-          doc.heightOfString(response, { width: colWidths[3] - 8, fontSize: 7 }),
+          doc.heightOfString(req, { width: colWidths[0] - 8 }),
+          doc.heightOfString(response, { width: colWidths[3] - 8 }),
           16
         ) + 8;
         checkPage(estHeight + 4);
@@ -6483,7 +6484,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
 
   // PATCH prior-awards research for a proposal (Tabbara discipline)
   app.patch("/api/proposal-pipeline/:id/prior-awards", requireAuth, async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { id } = req.params as Record<string, string>;
     try {
       const { priorAwardsResearchSchema } = await import("@shared/schema");
       const parsed = priorAwardsResearchSchema.safeParse(req.body);
@@ -6547,7 +6548,7 @@ RESPONSE SIZE: ${scale.pageTarget}. The document${scale.documentDriven ? " speci
   });
 
   app.get("/api/proposal-pipeline/:id/framework", async (req: Request, res: Response) => {
-    const { id } = req.params;
+    const { id } = req.params as Record<string, string>;
     const docMap: Record<string, string> = {
       "nsf-stem-k12": "docs/grants/NSF-STEM-K12-Proposal-Framework.md",
       "nsf-ate": "docs/grants/NSF-ATE-Proposal-Framework.md",

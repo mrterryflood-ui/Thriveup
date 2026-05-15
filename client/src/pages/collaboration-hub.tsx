@@ -116,7 +116,7 @@ function PartnerDirectory() {
         </div>
       )}
 
-      {selectedPartner && partnerDetail && (
+      {selectedPartner && !!partnerDetail && (
         <Dialog open={!!selectedPartner} onOpenChange={() => setSelectedPartner(null)}>
           <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>

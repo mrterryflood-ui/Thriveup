@@ -94,7 +94,7 @@ export function registerMetricsRoutes(app: Express) {
 
   app.get("/api/metrics/trends/:category", requireAuth, async (req, res) => {
     try {
-      const { category } = req.params;
+      const { category } = req.params as Record<string, string>;
       const stored = await db.select().from(platformMetrics)
         .where(eq(platformMetrics.metricCategory, category))
         .orderBy(desc(platformMetrics.calculatedAt));

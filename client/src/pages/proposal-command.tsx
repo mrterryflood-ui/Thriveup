@@ -880,7 +880,7 @@ export default function ProposalCommandPage() {
                       <Badge key={i} variant="outline" className="text-xs border-amber-400" data-testid={`badge-unknown-${i}`}>{u}</Badge>
                     ))}
                   </div>
-                  <Button variant="link" size="sm" className="mt-2 p-0 h-auto text-amber-600" onClick={() => setActiveTab("refine")}>
+                  <Button variant="ghost" size="sm" className="mt-2 p-0 h-auto text-amber-600" onClick={() => setActiveTab("refine")}>
                     Go to Refine tab to fill these in <ChevronRight className="h-3 w-3 ml-1" />
                   </Button>
                 </CardContent>

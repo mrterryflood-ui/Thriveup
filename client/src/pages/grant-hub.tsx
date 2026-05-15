@@ -757,7 +757,7 @@ export default function GrantHubPage() {
                           </div>
                         ) : null;
                       })()}
-                      {(grant as Record<string, unknown>).teamOfTeams && Array.isArray((grant as Record<string, unknown>).teamOfTeams) && (
+                      {!!(grant as Record<string, unknown>).teamOfTeams && Array.isArray((grant as Record<string, unknown>).teamOfTeams) && (
                         <div className="mt-3 border-t pt-2" data-testid={`team-of-teams-${grant.id}`}>
                           <p className="text-xs font-semibold text-muted-foreground mb-1.5 flex items-center gap-1">
                             <Users className="h-3 w-3" /> Ecosystem Team-of-Teams

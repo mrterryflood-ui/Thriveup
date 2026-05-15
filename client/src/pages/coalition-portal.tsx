@@ -52,9 +52,72 @@ function ExpandableCard({ id, title, subtitle, badges, icon: Icon, iconColor, ch
   );
 }
 
+interface InsightResponse {
+  insight: string;
+  dataSnapshot?: { tractCount?: number };
+}
+
+interface ExecSummaryResponse {
+  summary: string;
+  generatedAt: string;
+  dataSnapshot?: { totalEligible?: number; tracts?: number };
+}
+
+interface DashboardOverview {
+  totalGap?: number;
+  totalTracts?: number;
+  totalEligible?: number;
+  totalEnrolled?: number;
+  totalPartners?: number;
+  gapRate?: number;
+}
+
+interface CountyEntry {
+  name: string;
+  fips: string;
+  [key: string]: unknown;
+}
+
+interface PartnerRoleEntry {
+  county: string;
+  role: string;
+  description: string;
+  ein?: string;
+  [key: string]: unknown;
+}
+
+interface CoalitionLead {
+  name?: string;
+  role?: string;
+  description?: string;
+  ein?: string;
+}
+
+interface PartnerTier {
+  tier: string;
+  description: string;
+  current: number;
+  target: number;
+}
+
+interface DataMethodology {
+  source?: string;
+  variables?: string[];
+  tractLevel?: string;
+  methodology?: string;
+}
+
+interface CoalitionDashboard {
+  overview?: DashboardOverview;
+  counties?: CountyEntry[];
+  partnerRolesNeeded?: PartnerRoleEntry[];
+  coalitionStructure?: { lead?: CoalitionLead; partnerTiers?: PartnerTier[] };
+  dataMethodology?: DataMethodology;
+}
+
 function AIInsightPanel({ countyFips, countyName }: { countyFips: string; countyName: string }) {
   const [question, setQuestion] = useState("");
-  const insightMutation = useMutation({
+  const insightMutation = useMutation<InsightResponse, Error, string | undefined>({
     mutationFn: async (q?: string) => {
       const res = await apiRequest("POST", "/api/benefits/coalition/ai-insight", { countyFips, question: q || undefined });
       return res.json();
@@ -97,7 +160,7 @@ function AIInsightPanel({ countyFips, countyName }: { countyFips: string; county
       {insightMutation.isPending && (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-white/50 dark:bg-background/50">
           <Loader2 className="h-4 w-4 animate-spin text-purple-600" />
-          <span className="text-sm text-muted-foreground">Analyzing {countyName} data across {insightMutation.data?.dataSnapshot?.tractCount || 'all'} Census tracts...</span>
+          <span className="text-sm text-muted-foreground">Analyzing {countyName} data across all Census tracts...</span>
         </div>
       )}
       {insightMutation.data?.insight && (
@@ -117,9 +180,9 @@ export default function CoalitionPortalPage() {
     contactEmail: "", contactPhone: "", servicesOffered: "", notes: "",
   });
 
-  const { data: dashboard, isLoading } = useQuery<any>({ queryKey: ["/api/benefits/coalition/dashboard"] });
+  const { data: dashboard, isLoading } = useQuery<CoalitionDashboard>({ queryKey: ["/api/benefits/coalition/dashboard"] });
 
-  const execSummaryMutation = useMutation({
+  const execSummaryMutation = useMutation<ExecSummaryResponse>({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/benefits/coalition/ai-exec-summary", {});
       return res.json();

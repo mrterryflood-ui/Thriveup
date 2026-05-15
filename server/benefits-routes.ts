@@ -1399,7 +1399,7 @@ Generate a JSON object with these fields:
         const rows = allData.filter(r => r.countyFips === c.fips);
         const totalEligible = rows.reduce((s, r) => s + (r.eligiblePopulation || 0), 0);
         const totalEnrolled = rows.reduce((s, r) => s + (r.enrolledPopulation || 0), 0);
-        const tractCount = new Set(rows.map(r => r.tractFips).filter(Boolean)).size;
+        const tractCount = new Set(rows.map(r => r.tractId).filter(Boolean)).size;
         return { name: c.name, eligible: totalEligible, enrolled: totalEnrolled, gap: totalEligible - totalEnrolled, tracts: tractCount, strategy: c.strategy };
       });
       const totalEligible = countyStats.reduce((s, c) => s + c.eligible, 0);
@@ -1523,7 +1523,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       const totalEligible = allData.reduce((s, r) => s + (r.eligiblePopulation || 0), 0);
       const totalEnrolled = allData.reduce((s, r) => s + (r.enrolledPopulation || 0), 0);
       const totalGap = totalEligible - totalEnrolled;
-      const totalTracts = new Set(allData.map(r => r.tractFips).filter(Boolean)).size || 501;
+      const totalTracts = new Set(allData.map(r => r.tractId).filter(Boolean)).size || 501;
       const partners = await db.select().from(benefitsPartners);
       const partnerCount = partners.length || 18;
 

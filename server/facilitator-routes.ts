@@ -30,7 +30,7 @@ export function registerFacilitatorRoutes(app: Express) {
 
   app.get("/api/facilitators/:id", requireAuth, async (req, res) => {
     try {
-      const [profile] = await db.select().from(facilitatorProfiles).where(eq(facilitatorProfiles.id, req.params.id));
+      const [profile] = await db.select().from(facilitatorProfiles).where(eq(facilitatorProfiles.id, req.params.id as string));
       if (!profile) return res.status(404).json({ error: "Not found" });
       res.json(profile);
     } catch (error) {
@@ -50,7 +50,7 @@ export function registerFacilitatorRoutes(app: Express) {
 
   app.patch("/api/facilitators/:id", requireAuth, async (req, res) => {
     try {
-      const [profile] = await db.update(facilitatorProfiles).set(req.body).where(eq(facilitatorProfiles.id, req.params.id)).returning();
+      const [profile] = await db.update(facilitatorProfiles).set(req.body).where(eq(facilitatorProfiles.id, req.params.id as string)).returning();
       res.json(profile);
     } catch (error) {
       res.status(500).json({ error: "Failed to update facilitator" });
@@ -59,7 +59,7 @@ export function registerFacilitatorRoutes(app: Express) {
 
   app.delete("/api/facilitators/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(facilitatorProfiles).where(eq(facilitatorProfiles.id, req.params.id));
+      await db.delete(facilitatorProfiles).where(eq(facilitatorProfiles.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete facilitator" });
@@ -117,7 +117,7 @@ export function registerFacilitatorRoutes(app: Express) {
 
   app.patch("/api/session-plans/:id", requireAuth, async (req, res) => {
     try {
-      const [plan] = await db.update(sessionPlans).set(req.body).where(eq(sessionPlans.id, req.params.id)).returning();
+      const [plan] = await db.update(sessionPlans).set(req.body).where(eq(sessionPlans.id, req.params.id as string)).returning();
       res.json(plan);
     } catch (error) {
       res.status(500).json({ error: "Failed to update session plan" });
@@ -126,7 +126,7 @@ export function registerFacilitatorRoutes(app: Express) {
 
   app.delete("/api/session-plans/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(sessionPlans).where(eq(sessionPlans.id, req.params.id));
+      await db.delete(sessionPlans).where(eq(sessionPlans.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete session plan" });
@@ -189,7 +189,7 @@ Respond in JSON format with these fields:
 
   app.patch("/api/delivery-logs/:id", requireAuth, async (req, res) => {
     try {
-      const [log] = await db.update(curriculumDeliveryLogs).set(req.body).where(eq(curriculumDeliveryLogs.id, req.params.id)).returning();
+      const [log] = await db.update(curriculumDeliveryLogs).set(req.body).where(eq(curriculumDeliveryLogs.id, req.params.id as string)).returning();
       res.json(log);
     } catch (error) {
       res.status(500).json({ error: "Failed to update delivery log" });
@@ -225,7 +225,7 @@ Respond in JSON format with these fields:
   app.get("/api/facilitator-certifications/:facilitatorId", requireAuth, async (req, res) => {
     try {
       const certs = await db.select().from(facilitatorCertifications)
-        .where(eq(facilitatorCertifications.facilitatorId, req.params.facilitatorId))
+        .where(eq(facilitatorCertifications.facilitatorId, req.params.facilitatorId as string))
         .orderBy(desc(facilitatorCertifications.createdAt));
       res.json(certs);
     } catch (error) {
@@ -245,7 +245,7 @@ Respond in JSON format with these fields:
 
   app.patch("/api/facilitator-certifications/:id", requireAuth, async (req, res) => {
     try {
-      const [cert] = await db.update(facilitatorCertifications).set(req.body).where(eq(facilitatorCertifications.id, req.params.id)).returning();
+      const [cert] = await db.update(facilitatorCertifications).set(req.body).where(eq(facilitatorCertifications.id, req.params.id as string)).returning();
       res.json(cert);
     } catch (error) {
       res.status(500).json({ error: "Failed to update certification" });
@@ -254,7 +254,7 @@ Respond in JSON format with these fields:
 
   app.delete("/api/facilitator-certifications/:id", requireAuth, async (req, res) => {
     try {
-      await db.delete(facilitatorCertifications).where(eq(facilitatorCertifications.id, req.params.id));
+      await db.delete(facilitatorCertifications).where(eq(facilitatorCertifications.id, req.params.id as string));
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete certification" });

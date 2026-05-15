@@ -228,6 +228,7 @@ type GrantStatus =
   | "identified"
   | "researching"
   | "tracking"
+  | "drafting"
   | "loi_drafting"
   | "loi_submitted"
   | "proposal_drafting"
@@ -264,7 +265,10 @@ type Platform =
   | "PillScheduler"
   | "RPLICE"
   | "M2C Transition"
-  | "Multiple";
+  | "Multiple"
+  | "M&T Consulting"
+  | "CIP LLC"
+  | "ISS LLC";
 
 interface GrantEntry {
   id: string;
@@ -295,6 +299,7 @@ const STATUS_CONFIG: Record<GrantStatus, { label: string; color: string; icon: a
   identified: { label: "Identified", color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200", icon: Target },
   researching: { label: "Researching", color: "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200", icon: Search },
   tracking: { label: "Tracking", color: "bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200", icon: Bell },
+  drafting: { label: "Drafting", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200", icon: FileText },
   loi_drafting: { label: "LOI Drafting", color: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200", icon: FileText },
   loi_submitted: { label: "LOI Submitted", color: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200", icon: Send },
   proposal_drafting: { label: "Proposal Drafting", color: "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200", icon: FileText },
@@ -2573,7 +2578,7 @@ const INITIAL_GRANTS: GrantEntry[] = [
     deadline: "May 20, 2026, 11:59 PM ET",
     deadlineDate: new Date("2026-05-20"),
     status: "identified",
-    platforms: ["TCAF", "Perfectly Different", "LexiBridge", "SafeCogniCare", "ThriveUp Academy"],
+    platforms: ["TCAF", "Perfectly Different", "Talk Your Talk", "SafeCogniCare", "ThriveUp Academy"],
     category: "foundation",
     documents: [
       { name: "Application Draft", path: "/docs/grants/Borealis-DIF-x-Tech-2026-Application-Draft.md" },

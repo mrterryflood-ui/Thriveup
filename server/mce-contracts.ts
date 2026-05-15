@@ -32,7 +32,7 @@ export function registerMceContractRoutes(app: Express) {
 
   app.patch("/api/mce/contracts/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const [updated] = await db.update(mceContracts).set({ ...req.body, updatedAt: new Date() }).where(eq(mceContracts.id, id)).returning();
       if (!updated) return res.status(404).json({ error: "Not found" });
       res.json(updated);
@@ -43,7 +43,7 @@ export function registerMceContractRoutes(app: Express) {
 
   app.get("/api/mce/contracts/:id/deliverables", async (req, res) => {
     try {
-      const contractId = parseInt(req.params.id);
+      const contractId = parseInt(req.params.id as string);
       const deliverables = await db.select().from(mceContractDeliverables).where(eq(mceContractDeliverables.contractId, contractId)).orderBy(desc(mceContractDeliverables.createdAt));
       res.json(deliverables);
     } catch (e: any) {
@@ -53,7 +53,7 @@ export function registerMceContractRoutes(app: Express) {
 
   app.post("/api/mce/contracts/:id/deliverables", requireAuth, async (req, res) => {
     try {
-      const contractId = parseInt(req.params.id);
+      const contractId = parseInt(req.params.id as string);
       const parsed = insertMceContractDeliverableSchema.parse({ ...req.body, contractId });
       const [deliverable] = await db.insert(mceContractDeliverables).values(parsed).returning();
       res.json(deliverable);
@@ -64,7 +64,7 @@ export function registerMceContractRoutes(app: Express) {
 
   app.patch("/api/mce/deliverables/:id", requireAuth, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const [updated] = await db.update(mceContractDeliverables).set({ ...req.body, updatedAt: new Date() }).where(eq(mceContractDeliverables.id, id)).returning();
       if (!updated) return res.status(404).json({ error: "Not found" });
       res.json(updated);

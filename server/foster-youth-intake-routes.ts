@@ -97,8 +97,8 @@ function rateLimit(name: string, max: number, windowMs: number) {
     }
     // Per-intake ceiling — pinned to the URL :id, so spoofing IP doesn't help.
     const perIntake = PER_INTAKE_LIMITS[name];
-    if (perIntake && req.params.id) {
-      const piResult = consume(`intake:${name}:${req.params.id}`, perIntake.max, perIntake.windowMs);
+    if (perIntake && req.params.id as string) {
+      const piResult = consume(`intake:${name}:${req.params.id as string}`, perIntake.max, perIntake.windowMs);
       if (!piResult.allowed) {
         res.setHeader("Retry-After", String(piResult.retryAfterSec));
         return res.status(429).json({ error: `Per-intake limit reached for ${name}. Try again in ${piResult.retryAfterSec}s.` });
@@ -349,12 +349,12 @@ export function registerFosterYouthIntakeRoutes(app: Express): void {
   // Update an existing intake. Requires capability token OR privileged role.
   app.patch("/api/foster-youth/intake/:id", async (req, res) => {
     try {
-      const auth = await authorizeIntake(req, req.params.id);
+      const auth = await authorizeIntake(req, req.params.id as string);
       if (!auth) return res.status(403).json({ error: "Forbidden" });
       const fields = pickIntakeFields((req.body ?? {}) as Record<string, unknown>);
       const [row] = await db.update(fosterYouthIntakes)
         .set({ ...fields, updatedAt: new Date() })
-        .where(eq(fosterYouthIntakes.id, req.params.id))
+        .where(eq(fosterYouthIntakes.id, req.params.id as string))
         .returning();
       await logEvent({
         sessionId: row.sessionId ?? undefined,
@@ -374,7 +374,7 @@ export function registerFosterYouthIntakeRoutes(app: Express): void {
   // Read an intake. Privileged role OR matching capability token.
   app.get("/api/foster-youth/intake/:id", async (req, res) => {
     try {
-      const auth = await authorizeIntake(req, req.params.id);
+      const auth = await authorizeIntake(req, req.params.id as string);
       if (!auth) return res.status(403).json({ error: "Forbidden" });
       const docs = await db.select().from(fosterYouthIntakeDocuments).where(eq(fosterYouthIntakeDocuments.intakeId, auth.intake.id));
       const { accessToken: _t, ...safe } = auth.intake as FosterYouthIntake & { accessToken?: string };
@@ -391,7 +391,7 @@ export function registerFosterYouthIntakeRoutes(app: Express): void {
     rateLimit("upload-url", 30, 10 * 60 * 1000), // 30 signed URLs / 10 min / IP
     async (req, res) => {
       try {
-        const auth = await authorizeIntake(req, req.params.id);
+        const auth = await authorizeIntake(req, req.params.id as string);
         if (!auth) return res.status(403).json({ error: "Forbidden" });
         const { filename, contentType, size, docType } = (req.body ?? {}) as {
           filename?: string; contentType?: string; size?: number; docType?: string;
@@ -423,7 +423,7 @@ export function registerFosterYouthIntakeRoutes(app: Express): void {
   // Register a successfully uploaded document. Token-gated.
   app.post("/api/foster-youth/intake/:id/document", async (req, res) => {
     try {
-      const auth = await authorizeIntake(req, req.params.id);
+      const auth = await authorizeIntake(req, req.params.id as string);
       if (!auth) return res.status(403).json({ error: "Forbidden" });
       const { docType, filename, contentType, size, objectPath, extractedText } = (req.body ?? {}) as Record<string, unknown>;
       if (typeof docType !== "string" || typeof filename !== "string" || typeof objectPath !== "string") {
@@ -467,7 +467,7 @@ export function registerFosterYouthIntakeRoutes(app: Express): void {
     rateLimit("analyze", 5, 10 * 60 * 1000), // 5 analyses / 10 min / IP for non-privileged
     async (req, res) => {
       try {
-        const auth = await authorizeIntake(req, req.params.id);
+        const auth = await authorizeIntake(req, req.params.id as string);
         if (!auth) return res.status(403).json({ error: "Forbidden" });
         const docs = await db.select().from(fosterYouthIntakeDocuments).where(eq(fosterYouthIntakeDocuments.intakeId, auth.intake.id));
         const docTexts = docs.map((d) => ({ docType: d.docType, filename: d.filename, text: d.extractedText }));

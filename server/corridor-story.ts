@@ -855,7 +855,7 @@ export function registerCorridorRoutes(app: Express) {
 
   app.delete("/api/corridor/evidence/:id", async (req: Request, res: Response) => {
     try {
-      await db.delete(communityEvidence).where(eq(communityEvidence.id, req.params.id));
+      await db.delete(communityEvidence).where(eq(communityEvidence.id, req.params.id as string));
       res.json({ ok: true });
     } catch (err: any) {
       res.status(500).json({ error: err.message });

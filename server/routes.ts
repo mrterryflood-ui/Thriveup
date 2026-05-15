@@ -111,7 +111,6 @@ import { registerNeighborhoodRoutes } from "./neighborhood-routes";
 import { registerCorridorRoutes } from "./corridor-story";
 import { registerNetworkRoutes } from "./network-routes";
 import { registerStandardsRoutes } from "./standards-routes";
-import { registerCoalitionRoutes } from "./coalition-routes";
 import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
@@ -779,6 +778,7 @@ export async function registerRoutes(
   app.get("/api/resume-builder", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
       const data = resumeStore.get(userId);
       res.json(data || { resumeData: null });
     } catch (error) {
@@ -790,6 +790,7 @@ export async function registerRoutes(
   app.post("/api/resume-builder", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ error: "Authentication required" });
       const { resumeData } = req.body;
       resumeStore.set(userId, { resumeData, updatedAt: new Date().toISOString() });
       res.json({ success: true, message: "Resume saved" });
@@ -3637,7 +3638,7 @@ export async function registerRoutes(
 
   app.get("/api/community-map/search/:stateCode", async (req, res) => {
     try {
-      const stateCode = req.params.stateCode.toUpperCase();
+      const stateCode = (req.params.stateCode as string).toUpperCase();
       if (!stateCode || stateCode.length !== 2) {
         return res.status(400).json({ error: "Valid 2-letter state code required" });
       }
@@ -3659,7 +3660,7 @@ export async function registerRoutes(
 
   app.get("/api/community-map/context/:geographyKey", async (req, res) => {
     try {
-      const context = await getContextForGeography(db, req.params.geographyKey);
+      const context = await getContextForGeography(db, req.params.geographyKey as string);
       if (!context) return res.status(404).json({ error: "Geography not found" });
       const narrative = generateCommunityNarrative(context);
       res.json({ ...context, narrative });
@@ -3682,7 +3683,7 @@ export async function registerRoutes(
 
   app.get("/api/community-map/resources/:stateCode", async (req, res) => {
     try {
-      const stateCode = req.params.stateCode.toUpperCase();
+      const stateCode = (req.params.stateCode as string).toUpperCase();
       const resources = searchResources({ stateCode, categories: [] });
       const categories = getResourceCategories();
       res.json({ resources: resources.slice(0, 50), categories });
@@ -4057,8 +4058,8 @@ export async function registerRoutes(
 
   app.patch("/api/announcements/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const { title, content, priority, audience } = req.body;
-      const updated = await db.update(announcementsTable).set({ title, content, priority, audience }).where(eq(announcementsTable.id, req.params.id as string)).returning();
+      const { title, content, audience, priority } = req.body;
+      const updated = await db.update(announcementsTable).set({ title, content, audience, priority }).where(eq(announcementsTable.id, req.params.id as string)).returning();
       if (!updated.length) return res.status(404).json({ error: "Announcement not found" });
       res.json(updated[0]);
     } catch (error) { res.status(500).json({ error: "Failed to update announcement" }); }
@@ -4626,7 +4627,7 @@ Then include a ## Roku & CTV Distribution section with:
 
   app.patch("/api/community-stories/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const { id } = req.params;
+      const { id } = req.params as Record<string, string>;
       const { status } = req.body;
       if (!status || !["pending", "approved", "rejected"].includes(status)) {
         return res.status(400).json({ error: "Invalid status. Must be pending, approved, or rejected." });
@@ -5161,7 +5162,7 @@ Key guidelines:
 
   app.get("/api/health/assessments/:id", async (req, res) => {
     try {
-      const assessment = await getHealthAssessment(req.params.id);
+      const assessment = await getHealthAssessment(req.params.id as string);
       if (!assessment) return res.status(404).json({ error: "Assessment not found" });
       res.json(assessment);
     } catch (error) {
@@ -5282,7 +5283,7 @@ Key guidelines:
 
   app.get("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
     try {
-      const cycle = await storage.getCqiCycle(req.params.id);
+      const cycle = await storage.getCqiCycle(req.params.id as string);
       if (!cycle) return res.status(404).json({ error: "Cycle not found" });
       res.json(cycle);
     } catch (error) {
@@ -5312,7 +5313,7 @@ Key guidelines:
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid cycle data", details: parsed.error.flatten() });
       }
-      const cycle = await storage.updateCqiCycle(req.params.id, parsed.data);
+      const cycle = await storage.updateCqiCycle(req.params.id as string, parsed.data);
       res.json(cycle);
     } catch (error) {
       res.status(500).json({ error: "Failed to update cycle" });
@@ -5321,7 +5322,7 @@ Key guidelines:
 
   app.delete("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteCqiCycle(req.params.id);
+      await storage.deleteCqiCycle(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete cycle" });
@@ -5330,7 +5331,7 @@ Key guidelines:
 
   app.get("/api/cqi/cycles/:cycleId/gaps", requireAuth, async (req, res) => {
     try {
-      const gaps = await storage.getCqiGaps(req.params.cycleId);
+      const gaps = await storage.getCqiGaps(req.params.cycleId as string);
       res.json(gaps);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch gaps" });
@@ -5356,7 +5357,7 @@ Key guidelines:
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid gap data", details: parsed.error.flatten() });
       }
-      const gap = await storage.updateCqiGap(req.params.id, parsed.data);
+      const gap = await storage.updateCqiGap(req.params.id as string, parsed.data);
       res.json(gap);
     } catch (error) {
       res.status(500).json({ error: "Failed to update gap" });
@@ -5365,7 +5366,7 @@ Key guidelines:
 
   app.delete("/api/cqi/gaps/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteCqiGap(req.params.id);
+      await storage.deleteCqiGap(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete gap" });
@@ -5374,7 +5375,7 @@ Key guidelines:
 
   app.get("/api/cqi/cycles/:cycleId/interventions", requireAuth, async (req, res) => {
     try {
-      const interventions = await storage.getCqiInterventions(req.params.cycleId);
+      const interventions = await storage.getCqiInterventions(req.params.cycleId as string);
       res.json(interventions);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch interventions" });
@@ -5400,7 +5401,7 @@ Key guidelines:
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid intervention data", details: parsed.error.flatten() });
       }
-      const intervention = await storage.updateCqiIntervention(req.params.id, parsed.data);
+      const intervention = await storage.updateCqiIntervention(req.params.id as string, parsed.data);
       res.json(intervention);
     } catch (error) {
       res.status(500).json({ error: "Failed to update intervention" });
@@ -5409,7 +5410,7 @@ Key guidelines:
 
   app.delete("/api/cqi/interventions/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteCqiIntervention(req.params.id);
+      await storage.deleteCqiIntervention(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete intervention" });
@@ -5445,7 +5446,7 @@ Key guidelines:
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid fidelity definition data", details: parsed.error.flatten() });
       }
-      const def = await storage.updateCqiFidelityDefinition(req.params.id, parsed.data);
+      const def = await storage.updateCqiFidelityDefinition(req.params.id as string, parsed.data);
       res.json(def);
     } catch (error) {
       res.status(500).json({ error: "Failed to update fidelity definition" });
@@ -5454,7 +5455,7 @@ Key guidelines:
 
   app.delete("/api/cqi/fidelity-definitions/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteCqiFidelityDefinition(req.params.id);
+      await storage.deleteCqiFidelityDefinition(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete fidelity definition" });
@@ -5463,7 +5464,7 @@ Key guidelines:
 
   app.get("/api/cqi/fidelity-observations/:definitionId", requireAuth, async (req, res) => {
     try {
-      const observations = await storage.getCqiFidelityObservations(req.params.definitionId);
+      const observations = await storage.getCqiFidelityObservations(req.params.definitionId as string);
       res.json(observations);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch fidelity observations" });
@@ -5489,7 +5490,7 @@ Key guidelines:
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid fidelity observation data", details: parsed.error.flatten() });
       }
-      const obs = await storage.updateCqiFidelityObservation(req.params.id, parsed.data);
+      const obs = await storage.updateCqiFidelityObservation(req.params.id as string, parsed.data);
       res.json(obs);
     } catch (error) {
       res.status(500).json({ error: "Failed to update fidelity observation" });
@@ -5498,7 +5499,7 @@ Key guidelines:
 
   app.delete("/api/cqi/fidelity-observations/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteCqiFidelityObservation(req.params.id);
+      await storage.deleteCqiFidelityObservation(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete fidelity observation" });
@@ -5507,7 +5508,7 @@ Key guidelines:
 
   app.get("/api/cqi/cycles/:cycleId/phases", requireAuth, async (req, res) => {
     try {
-      const phases = await storage.getCqiCyclePhases(req.params.cycleId);
+      const phases = await storage.getCqiCyclePhases(req.params.cycleId as string);
       res.json(phases);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch cycle phases" });
@@ -5533,7 +5534,7 @@ Key guidelines:
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid cycle phase data", details: parsed.error.flatten() });
       }
-      const phase = await storage.updateCqiCyclePhase(req.params.id, parsed.data);
+      const phase = await storage.updateCqiCyclePhase(req.params.id as string, parsed.data);
       res.json(phase);
     } catch (error) {
       res.status(500).json({ error: "Failed to update cycle phase" });
@@ -5542,7 +5543,7 @@ Key guidelines:
 
   app.get("/api/cqi/cycles/:cycleId/outcomes", requireAuth, async (req, res) => {
     try {
-      const outcomes = await storage.getCqiOutcomes(req.params.cycleId);
+      const outcomes = await storage.getCqiOutcomes(req.params.cycleId as string);
       res.json(outcomes);
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch outcomes" });
@@ -5568,7 +5569,7 @@ Key guidelines:
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid outcome data", details: parsed.error.flatten() });
       }
-      const outcome = await storage.updateCqiOutcome(req.params.id, parsed.data);
+      const outcome = await storage.updateCqiOutcome(req.params.id as string, parsed.data);
       res.json(outcome);
     } catch (error) {
       res.status(500).json({ error: "Failed to update outcome" });
@@ -5577,7 +5578,7 @@ Key guidelines:
 
   app.delete("/api/cqi/outcomes/:id", requireAuth, async (req, res) => {
     try {
-      await storage.deleteCqiOutcome(req.params.id);
+      await storage.deleteCqiOutcome(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete outcome" });
@@ -5586,17 +5587,17 @@ Key guidelines:
 
   app.get("/api/cqi/report/:cycleId", requireAuth, async (req, res) => {
     try {
-      const cycle = await storage.getCqiCycle(req.params.cycleId);
+      const cycle = await storage.getCqiCycle(req.params.cycleId as string);
       if (!cycle) return res.status(404).json({ error: "Cycle not found" });
-      const gaps = await storage.getCqiGaps(req.params.cycleId);
-      const interventions = await storage.getCqiInterventions(req.params.cycleId);
-      const outcomes = await storage.getCqiOutcomes(req.params.cycleId);
-      const fidelityDefs = await storage.getCqiFidelityDefinitions(req.params.cycleId);
+      const gaps = await storage.getCqiGaps(req.params.cycleId as string);
+      const interventions = await storage.getCqiInterventions(req.params.cycleId as string);
+      const outcomes = await storage.getCqiOutcomes(req.params.cycleId as string);
+      const fidelityDefs = await storage.getCqiFidelityDefinitions(req.params.cycleId as string);
       const fidelityData: Record<string, CqiFidelityObservation[]> = {};
       for (const def of fidelityDefs) {
         fidelityData[def.id] = await storage.getCqiFidelityObservations(def.id);
       }
-      const phaseHistory = await storage.getCqiCyclePhases(req.params.cycleId);
+      const phaseHistory = await storage.getCqiCyclePhases(req.params.cycleId as string);
       res.json({ cycle, gaps, interventions, outcomes, fidelityDefinitions: fidelityDefs, fidelityObservations: fidelityData, phaseHistory });
     } catch (error) {
       res.status(500).json({ error: "Failed to generate report" });
@@ -5615,7 +5616,7 @@ Key guidelines:
 
   app.get("/api/program-designs/:id", requireAuth, async (req, res) => {
     try {
-      const design = await storage.getProgramDesign(req.params.id);
+      const design = await storage.getProgramDesign(req.params.id as string);
       if (!design) return res.status(404).json({ error: "Program design not found" });
       const userId = getUserId(req)!;
       if (!design.userId || design.userId !== userId) return res.status(403).json({ error: "Access denied" });
@@ -5639,11 +5640,11 @@ Key guidelines:
   app.patch("/api/program-designs/:id", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const existing = await storage.getProgramDesign(req.params.id);
+      const existing = await storage.getProgramDesign(req.params.id as string);
       if (!existing) return res.status(404).json({ error: "Program design not found" });
       if (!existing.userId || existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
       const { userId: _discard, ...safeBody } = req.body;
-      const design = await storage.updateProgramDesign(req.params.id, safeBody);
+      const design = await storage.updateProgramDesign(req.params.id as string, safeBody);
       res.json(design);
     } catch (error) {
       res.status(500).json({ error: "Failed to update program design" });
@@ -5653,10 +5654,10 @@ Key guidelines:
   app.delete("/api/program-designs/:id", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const existing = await storage.getProgramDesign(req.params.id);
+      const existing = await storage.getProgramDesign(req.params.id as string);
       if (!existing) return res.status(404).json({ error: "Program design not found" });
       if (!existing.userId || existing.userId !== userId) return res.status(403).json({ error: "Access denied" });
-      await storage.deleteProgramDesign(req.params.id);
+      await storage.deleteProgramDesign(req.params.id as string);
       res.json({ success: true });
     } catch (error) {
       res.status(500).json({ error: "Failed to delete program design" });
