@@ -47,19 +47,25 @@ terryflood@thrivingcommunitiesforall.com
 
 ---
 
-## Items to confirm BEFORE sending
+## Confirmations (2026-05-15)
 
-1. **Logos:** which logo files to attach? Need primary + secondary if both bios are used. (TCAF logo location? ISS LLC logo exists?)
-2. **Title for ISS LLC:** "Founder" used above — confirm Dr. Flood prefers Founder, Owner, or Principal.
-3. **Veteran-owned language:** confirms with Dr. Flood that "Army Retiree" framing is what he uses publicly (used in SSG Fox prep).
-4. **Email visibility:** the contact wrote from `cheatum2242@gmail.com` (personal Gmail). Reply from institutional `terryflood@thrivingcommunitiesforall.com` per replit.md rule. Confirm Dr. Flood is OK with that even though the inbound was personal.
-5. **TCAF inclusion:** event was pitched as "Black-owned BUSINESSES" but the follow-up explicitly said "name of your business AND nonprofit." Both included — confirm that's the read.
-6. **Iron Rule check — what's NOT in this bio (because not primary-source verified):**
-   - No revenue figures
-   - No client counts or contract values
-   - No headcount
-   - No specific federal contracts (SAM.gov is registered ≠ awarded contracts)
-   - No claim of "minority-owned business certification" beyond Black-owned descriptor — if Dr. Flood holds MBE/DBE/HUB cert, add it; if not, leave out.
+1. ✅ **Logos generated:** `attached_assets/logos/iss-llc-logo.png` + `attached_assets/logos/tcaf-logo.png` — attach both to the outbound email.
+2. ✅ **ISS LLC title:** Founder.
+3. ✅ **Veteran-owned framing:** "Army Retiree" approved.
+4. ✅ **Reply from institutional email:** `terryflood@thrivingcommunitiesforall.com`.
+5. ✅ **Both entities included.**
+6. ✅ **No MBE/DBE/HUB certifications currently held** — bio stays as "Black-owned, veteran-owned" descriptor only. (When/if a cert is obtained, update the boilerplate.)
+
+## Iron-Rule check — what was deliberately left OUT
+
+- No revenue figures · no client counts · no contract values · no headcount.
+- No specific federal awards (SAM.gov registered ≠ awarded). "Registered for federal contracting through SAM.gov" is verified.
+- No website link for ISS LLC — the prior GoDaddy site is offline; rebuild planned in Replit but not live yet. Bio does not reference a website to avoid sending traffic to a 404.
+
+## Outstanding (separate work, not blocking the 5/22 send)
+
+- **Rebuild ISS LLC website** (your call — flagged for future session). Once live, add URL to the bio boilerplate and to the email signature.
+- A simple landing page on `integratedservicessolutions.com` (or whatever domain you reclaim) with the same bio + a contact form is enough for the June 13 table to feel complete. Not required for the bio submission itself.
 
 ## Logistics to handle separately
 
