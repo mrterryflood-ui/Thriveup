@@ -33,6 +33,63 @@
 
 ---
 
+## Centene Foundation BH Concept (DRAFTED May 15, 2026 — ready for sign-off)
+
+**Files (all in `docs/grants/centene-foundation-2026/`):**
+- `01-concept-paper.md` — 2-page concept, BH-stack spine, ~1,500 residents, $150K/12mo
+- `02-budget.md` — line-item budget, sums to $150,000 exactly
+- `03-budget-narrative.md` — per-line justification
+
+**Deadline:** 2026-05-31. Target internal sign-off + submission: by May 30.
+
+**Tabbara prior-award check (completed):**
+- **USASpending.gov:** TCAF returns 0 prior federal awards. Disclosed plainly in concept (`01:21`, `01:114`).
+- **SAM.gov:** UEI KDDVD1FGLW35 · CAGE 209N1 · status ACTIVE (per replit.md memory; renewal 2027-05-06).
+- **SBIR.gov:** no prior SBIR awards (empty result, as expected).
+- **Candid (free tier):** TCAF Nonprofit Profile claim still pending per separate workstream; not blocking this submission.
+
+**Centene Foundation funder profile (ProPublica Nonprofit Explorer, EIN 20-1298192):**
+- Saint Louis, MO · 501(c)(3) since 09/2004 · NTEE T20 (private grantmaking)
+- Grants paid: $30.3M (2024) · $35.2M (2023) · $29.0M (2022) · $37.2M (2021)
+- Net assets: $221M (2024)
+- Typical individual grant range (inferred): $50K–$250K. **Our $150K ask sits in the sweet spot.**
+- Tax period ends May annually — they make grant decisions on a roughly seasonal cycle aligned with their FY.
+
+**Architect review findings + fixes applied:**
+- ✅ Iron rules clean: "President" not "CEO"; no Meredith; St. David's "actively evaluating"; national-platform-Texas-piloted; institutional emails only; EIN 41-3618503 in all 3 files; no Anika Amie; no Abundant Life hedge.
+- ✅ Capability honesty: TYT 89+18=107; SafeReport FHIR+CDS Hooks+HITL+0 PHI; WPH validated screening; all platform claims trace to ecosystem-catalog.md and replit.md.
+- ✅ Tabbara disclosure: "no prior federal awards" stated explicitly.
+- ✅ Centene fit: Superior HealthPlan named; BH + health equity priorities cited.
+- ✅ COI section present.
+- ✅ Targets consistent across docs (1,500 residents · 400 crisis events · 250 CDS sessions · 200 veteran · 500 SDOH).
+- **FIXED:** Fringe math inconsistency. Was "$73,000 × 5.3% = $2,000" (impossible — 5.3% of $73K is $3,869). Corrected to "$73,000 × 2.74% = $2,000 (partial payroll taxes only; full benefits package not yet in place)". Honest framing matches narrative explanation in `03-budget-narrative.md:1d`.
+- **FIXED:** FTE allocation inconsistency between concept paper and budget. Concept said "0.5 BH coord + 0.25 evaluation"; budget said "0.50 + 0.20". Reconciled both to budget-side numbers (0.15 Flood / 0.50 coordinator / 0.20 evaluation). Total still $75K personnel.
+- ❌ Architect false-positive: claimed EIN typo `41-3618003` in budget+narrative — verified, all three files actually use `41-3618503`. No change needed.
+
+**Budget at a glance:**
+| Category | $ | % |
+|---|---|---|
+| Personnel + Fringe | $75,000 | 50.0% |
+| Subaward / Partner Stipends | $30,000 | 20.0% |
+| Platform Operations (SafeReport HITL clinician review the centerpiece) | $20,000 | 13.3% |
+| Evaluation (RPLICE / CFIR / RE-AIM) | $15,000 | 10.0% |
+| Direct Participant Support | $5,000 | 3.3% |
+| Indirect (modest 10%) | $5,000 | 3.3% |
+| **Total** | **$150,000** | |
+
+**Per-resident cost: $100.** Compare to ED BH visit $1,200–$2,400 or inpatient psych day $7,100. Cost-offset arithmetic is clean.
+
+**Open items before submission:**
+1. User sign-off on draft.
+2. Board resolution authorizing the application (if Centene requires — confirm in their submission portal).
+3. Most recent Form 990 — TCAF is newly determined (eff. 01/14/2026), so first 990 not yet filed. Disclose plainly: "First Form 990 due for tax year 2026, calendar accounting period ending 12/31/2026, filing due 05/15/2027 absent extension."
+4. Letter of support — recommend 1 from a Travis County faith partner already in the seeded ecosystem, 1 from a Sankofa CHW affiliate, 1 from M2C veteran peer (if user can secure within window).
+5. Final congruence audit + recompile after sign-off changes.
+
+**Live algorithm lift confirmation (separate from this draft):** Post-SafeReport-sweep startup re-scoring touched 12 of 648 grants. Those scores are now live in `grant_opportunities`. Centene Foundation row in the DB (if present from prior scans) will reflect the new keywords next discovery cycle.
+
+---
+
 ## Grant Opportunity Scan (May 14, 2026) — 20 NEW non-federal opportunities
 
 Full brief: **`docs/grants/Grant-Opportunity-Scan-2026-05-14.md`**. Sliced 5 each across Local (Greater Austin) · State (Texas) · Public Foundations · Private Foundations. Pulled from `grant_opportunities` (648 rows, 208 high-fit) minus the 29 already in `proposal_pipeline`.

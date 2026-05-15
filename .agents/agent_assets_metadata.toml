@@ -444,3 +444,21 @@ id = "WUlfGhZJXaUDMctEQ3WQK"
 uri = "file://docs/grants/Foster-Youth-Executive-Briefing.md"
 type = "text"
 title = "Foster Youth Executive Briefing (5–10 pages)"
+
+[[outputs]]
+id = "xOO7z1DybMwpKa3CZZV-l"
+uri = "file://docs/grants/centene-foundation-2026/01-concept-paper.md"
+type = "text"
+title = "Centene Concept Paper (2-page)"
+
+[[outputs]]
+id = "uXtQibah8G3Ux6RgopQJ0"
+uri = "file://docs/grants/centene-foundation-2026/02-budget.md"
+type = "text"
+title = "Centene Budget"
+
+[[outputs]]
+id = "KZS-oWqKiBoENMkARJrLu"
+uri = "file://docs/grants/centene-foundation-2026/03-budget-narrative.md"
+type = "text"
+title = "Centene Budget Narrative"
