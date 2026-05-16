@@ -1489,3 +1489,35 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 **Decision point:** Awaiting user go/no-go on entering pipeline. June 3 = cycle re-opens · July 29 = LOI deadline · 8-week window.
 
 **Source on disk for re-reading:** funder page already cached in conversation; PDF guidelines at https://wtgrantfoundation.org/wp-content/uploads/2025/11/2026-Application-Guide-Research-Grants-on-RI.pdf — pull on day of LOI drafting, not before, to avoid relying on stale memory.
+
+## ThriveUp Trade Sims — Phase A foundation (May 16, 2026)
+
+**Status:** Phase A COMPLETE. DB schema live, solver passing 9/9 unit tests, all 7 backend endpoints smoke-tested green, architect findings closed.
+
+**What was built:**
+- **Schema (6 tables) — `shared/schema.ts:5085+`:** `trade_sims_trades`, `trade_sims_lessons`, `trade_sims_lesson_progress`, `trade_sims_sandbox_projects`, `trade_sims_ai_tutor_sessions`, `trade_sims_credential_pathways`. Two `db:push` rounds: first applied tables, second applied unique indexes — `uq_trade_sims_lessons_trade_slug`, `uq_trade_sims_lessons_trade_day`, plus two **partial** unique indexes on progress: `uq_trade_sims_progress_user_lesson` WHERE user_id IS NOT NULL · `uq_trade_sims_progress_anon_lesson` WHERE anon_session_id IS NOT NULL. The partial uniques are what make idempotent progress upserts safe — three concurrent POSTs of the same `(anon, lesson)` now collapse to one row.
+- **DC circuit solver — `client/src/lib/trade-sims/electrical/circuit-solver.ts`:** Modified Nodal Analysis with Gaussian elimination + partial pivoting, pure TS, zero deps. Handles resistor / voltage-source / current-source / capacitor-as-open / inductor-as-short (DC steady-state). 9/9 unit tests: Ohm's Law, series, parallel, voltage divider, KVL/KCL sanity, singular-matrix detection.
+- **Component library — `client/src/lib/trade-sims/electrical/component-defs.ts`:** 12 components (battery, resistor, wire, switch, LED, capacitor, inductor, NPN/PNP transistor, AND/OR/NOT gate). `placedToSolverElements()` maps placed components to the solver's linear DC elements; transistors + gates return `[]` because the solver doesn't model nonlinear/digital behavior (see engineMode below).
+- **15-day Electrical curriculum — `shared/data/trade-sims/electrical-lessons.ts`:** Day 1 Ohm's Law → Day 15 Capstone. Each lesson has concept blurb, guided steps, solo challenge, sandbox starter, credential-pathway hook, and now an explicit `engineMode: "linear-dc" | "concept-only"` field. **Linear-dc days (solver runs): 1, 2, 4, 5, 6, 14, 15.** **Concept-only days (solver does NOT run): 3, 7, 8, 9, 10, 11, 12, 13.** Phase B's lesson player MUST honor this — running the solver on a transistor lesson would silently produce wrong numbers.
+- **Backend routes — `server/trade-sims-routes.ts`, registered at `server/routes.ts:122, 461`:** `GET /api/trade-sims/trades` · `GET /lessons/:tradeSlug` · `GET /lessons/:tradeSlug/:lessonSlug` · `POST /progress` · `GET /progress/:tradeSlug` · `POST /sandbox-projects` · `GET /sandbox-projects` · `POST /ai-tutor/hint` (stub-phase-a, real 4-engine call lands in T008) · `POST /admin/seed-electrical`. Rate-limited per `foster-youth-intake` pattern (per-IP + global bucket, privileged users skip). Open access — `x-anon-session` header for browser-scoped progress (NOT a security token).
+
+**Architect Phase A review (FAIL → PASS):**
+- Solver/lesson mismatch (transistors + gates not actually simulated) → **fixed** via `engineMode` field; concept-only days are explicit walkthroughs, not silent wrong-answer sims.
+- Duplicate progress rows under concurrency → **fixed** via the two partial unique indexes; verified with 3 concurrent POSTs collapsing to 1 row.
+- Stale `lessonId` / `tradeId` returning 500 → **fixed** via pre-validation; now return 400 with explicit error messages.
+- Silent attribution loss in tutor → **fixed** by returning `resolvedLessonId` + optional `warning` in the response so the client can detect when a stale id was logged with null attribution.
+- Payload size abuse → **fixed** with 64KB `canvasState` cap on both sandbox-save and tutor; express body-parser also catches at request level.
+
+**Out-of-scope but logged for Phase D:** Day 7–10 (NPN/PNP/gates/microcontroller) will graduate to a richer engine (transistor as nonlinear element, gates as boolean-net). For Phase A–C they stay concept-only.
+
+**Endpoint contract for Phase B canvas to consume:**
+- `GET /api/trade-sims/lessons/:tradeSlug/:lessonSlug` returns `{ trade, lesson }` where `lesson.concept.engineMode` tells the player whether to mount the solver.
+- `POST /api/trade-sims/progress` requires `x-anon-session` (8–64 char `[A-Za-z0-9_-]`) OR an authenticated session. Stale `lessonId` → 400. Duplicate writes update in place via the partial unique index, `attemptCount` increments.
+- `POST /api/trade-sims/ai-tutor/hint` returns `{ response, modelUsed, resolvedLessonId, warning? }`. Always check `resolvedLessonId` if you passed one — `null` means the lesson reference was dropped.
+- `POST /api/trade-sims/sandbox-projects` enforces `canvasState ≤ 64 KB` and validates `tradeId` exists. Anon sandboxes are scoped to `x-anon-session` and not retrievable cross-browser.
+
+**Trade-#2 replication path:** the schema is trade-agnostic (`tradeSlug` scopes everything). To add plumbing: (1) author `shared/data/trade-sims/plumbing-lessons.ts` with the same `LessonContent` shape, (2) build `client/src/lib/trade-sims/plumbing/flow-solver.ts` (Hardy-Cross method for pipe flow), (3) add a `placedToFlowElements()` mapping, (4) seed the trade via `/admin/seed-plumbing`. No backend route changes needed — the existing endpoints serve any trade. **Risk surfaced:** engineMode is currently typed as `"linear-dc" | "concept-only"` — when plumbing lands this becomes `"linear-dc" | "concept-only" | "flow-network"`. Treat as a union extension, not a rewrite.
+
+**Files:** see "important_files" in session memory; full list at `.local/session_plan.md`.
+
+**Phase B (next) — UI:** T005 canvas (SVG, snap-grid, drag-drop, live-sim animation) · T007 lesson-player (5-loop tabs, autosave progress) · T009 landing page (free-and-open hero, 15-card grid, OG tags). Phase C is AI tutor 4-engine wiring + sidebar + public launch.

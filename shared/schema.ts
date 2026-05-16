@@ -5074,3 +5074,126 @@ export type ChatConversation = typeof chatConversations.$inferSelect;
 export const insertChatMessageSchema = createInsertSchema(chatMessages).omit({ id: true, createdAt: true });
 export type InsertChatMessage = z.infer<typeof insertChatMessageSchema>;
 export type ChatMessage = typeof chatMessages.$inferSelect;
+
+// =====================================================================
+// ThriveUp Trade Sims — gamified skilled-trades learning
+// Phase A foundation (May 2026). First trade: Electrical.
+// Engine designed for trade-2..N replication (plumbing, HVAC, welding,
+// auto-mechanic) with swappable physics modules.
+// =====================================================================
+
+export const tradeSimsTrades = pgTable("trade_sims_trades", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 64 }).notNull().unique(),
+  name: text("name").notNull(),
+  tagline: text("tagline"),
+  description: text("description"),
+  iconKey: varchar("icon_key", { length: 64 }),
+  displayOrder: integer("display_order").default(0).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const tradeSimsLessons = pgTable("trade_sims_lessons", {
+  id: serial("id").primaryKey(),
+  tradeId: integer("trade_id").notNull().references(() => tradeSimsTrades.id, { onDelete: "cascade" }),
+  dayNumber: integer("day_number").notNull(),
+  slug: varchar("slug", { length: 64 }).notNull(),
+  title: text("title").notNull(),
+  shortDescription: text("short_description"),
+  concept: jsonb("concept").notNull(),
+  guidedSteps: jsonb("guided_steps").notNull(),
+  soloChallenge: jsonb("solo_challenge").notNull(),
+  sandboxStarter: jsonb("sandbox_starter"),
+  credentialPathway: text("credential_pathway"),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("uq_trade_sims_lessons_trade_slug").on(t.tradeId, t.slug),
+  uniqueIndex("uq_trade_sims_lessons_trade_day").on(t.tradeId, t.dayNumber),
+]);
+
+export const tradeSimsLessonProgress = pgTable("trade_sims_lesson_progress", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  anonSessionId: varchar("anon_session_id", { length: 64 }),
+  lessonId: integer("lesson_id").notNull().references(() => tradeSimsLessons.id, { onDelete: "cascade" }),
+  status: varchar("status", { length: 32 }).default("not_started").notNull(),
+  conceptCompleted: boolean("concept_completed").default(false).notNull(),
+  guidedScore: integer("guided_score"),
+  soloScore: integer("solo_score"),
+  soloTimeMs: integer("solo_time_ms"),
+  sandboxScore: integer("sandbox_score"),
+  debriefCompleted: boolean("debrief_completed").default(false).notNull(),
+  attemptCount: integer("attempt_count").default(0).notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  // Partial unique indexes — exactly one of (userId, anonSessionId) is set per row.
+  // Prevents duplicate progress rows under concurrent writes.
+  uniqueIndex("uq_trade_sims_progress_user_lesson")
+    .on(t.userId, t.lessonId)
+    .where(sql`user_id IS NOT NULL`),
+  uniqueIndex("uq_trade_sims_progress_anon_lesson")
+    .on(t.anonSessionId, t.lessonId)
+    .where(sql`anon_session_id IS NOT NULL`),
+]);
+
+export const tradeSimsSandboxProjects = pgTable("trade_sims_sandbox_projects", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  anonSessionId: varchar("anon_session_id", { length: 64 }),
+  tradeId: integer("trade_id").notNull().references(() => tradeSimsTrades.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  canvasState: jsonb("canvas_state").notNull(),
+  isPublic: boolean("is_public").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const tradeSimsAiTutorSessions = pgTable("trade_sims_ai_tutor_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  anonSessionId: varchar("anon_session_id", { length: 64 }),
+  lessonId: integer("lesson_id").references(() => tradeSimsLessons.id, { onDelete: "set null" }),
+  mode: varchar("mode", { length: 32 }).notNull(),
+  promptContext: jsonb("prompt_context"),
+  responseText: text("response_text").notNull(),
+  modelUsed: varchar("model_used", { length: 64 }),
+  language: varchar("language", { length: 8 }).default("en"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const tradeSimsCredentialPathways = pgTable("trade_sims_credential_pathways", {
+  id: serial("id").primaryKey(),
+  tradeId: integer("trade_id").notNull().references(() => tradeSimsTrades.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  provider: text("provider"),
+  url: text("url"),
+  description: text("description"),
+  displayOrder: integer("display_order").default(0).notNull(),
+  active: boolean("active").default(true).notNull(),
+});
+
+export const insertTradeSimsTradeSchema = createInsertSchema(tradeSimsTrades).omit({ id: true, createdAt: true });
+export type InsertTradeSimsTrade = z.infer<typeof insertTradeSimsTradeSchema>;
+export type TradeSimsTrade = typeof tradeSimsTrades.$inferSelect;
+
+export const insertTradeSimsLessonSchema = createInsertSchema(tradeSimsLessons).omit({ id: true, createdAt: true });
+export type InsertTradeSimsLesson = z.infer<typeof insertTradeSimsLessonSchema>;
+export type TradeSimsLesson = typeof tradeSimsLessons.$inferSelect;
+
+export const insertTradeSimsLessonProgressSchema = createInsertSchema(tradeSimsLessonProgress).omit({ id: true, updatedAt: true });
+export type InsertTradeSimsLessonProgress = z.infer<typeof insertTradeSimsLessonProgressSchema>;
+export type TradeSimsLessonProgress = typeof tradeSimsLessonProgress.$inferSelect;
+
+export const insertTradeSimsSandboxProjectSchema = createInsertSchema(tradeSimsSandboxProjects).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertTradeSimsSandboxProject = z.infer<typeof insertTradeSimsSandboxProjectSchema>;
+export type TradeSimsSandboxProject = typeof tradeSimsSandboxProjects.$inferSelect;
+
+export const insertTradeSimsAiTutorSessionSchema = createInsertSchema(tradeSimsAiTutorSessions).omit({ id: true, createdAt: true });
+export type InsertTradeSimsAiTutorSession = z.infer<typeof insertTradeSimsAiTutorSessionSchema>;
+export type TradeSimsAiTutorSession = typeof tradeSimsAiTutorSessions.$inferSelect;
+
+export const insertTradeSimsCredentialPathwaySchema = createInsertSchema(tradeSimsCredentialPathways).omit({ id: true });
+export type InsertTradeSimsCredentialPathway = z.infer<typeof insertTradeSimsCredentialPathwaySchema>;
+export type TradeSimsCredentialPathway = typeof tradeSimsCredentialPathways.$inferSelect;

@@ -116,6 +116,7 @@ import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
 import { registerCommunityProgramRoutes } from "./community-program-routes";
+import { registerTradeSimsRoutes } from "./trade-sims-routes";
 import { seedVannDemo } from "./seed-vann-demo";
 
 const AI_TOOLS = [
@@ -454,6 +455,7 @@ export async function registerRoutes(
   registerFosterYouthIntakeRoutes(app);
   registerFosterYouthAgencyRoutes(app);
   registerCommunityProgramRoutes(app);
+  registerTradeSimsRoutes(app);
   // Idempotent demo seed for the Vann collaboration kit. Safe to call on every boot.
   seedVannDemo()
     .then((r) => { if (!r.skipped) console.log("[seed] Vann demo seeded:", r.orgs.join(", ")); })
