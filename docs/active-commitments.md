@@ -1456,3 +1456,37 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 **6. (None — screenshots 3 and 4 are the same signal viewed twice)**
 
 **Cross-cutting:** Jennifer Carinci, Ed.D., PMP (Carinci Consulting) appears to be a grant-strategy practitioner posting funder opportunities — worth tracking as an intel source but NOT auto-citing her posts as funder-verified. Always confirm at the funder's own site.
+
+### 2026-05-15 PM — William T. Grant Foundation: VERIFIED via primary source
+
+**Source:** wtgrantfoundation.org/funding/research-grants-on-reducing-inequality (fetched 2026-05-15)
+
+**Verified facts:**
+- Deadline: **July 29, 2026, 3:00 PM ET** ✅
+- Award: **$100K–$600K over 2-3 years, including up to 15% indirect** ✅
+- Scope: programs/policies/practices reducing inequality in academic, social, behavioral, or economic outcomes of youth ages 5-25, US, along dimensions of race, ethnicity, economic standing, sexual/gender minority status, language minority, or immigrant origin ✅
+- Current status: **CLOSED** (cycle re-opens **June 3, 2026** for July 29 LOI deadline — 8-week window)
+- Eligibility: 501(c)(3) tax-exempt orgs — TCAF qualifies (EIN 41-3618003)
+- 2026 rule change: **one LOI per PI per cycle** across both Major + Officers' awards
+
+**🚨 Critical correction to image-based intel:** This grant funds **RESEARCH ONLY**, NOT program implementation. Funder's own page (verbatim): "the Foundation does not support non-research activities such as program implementation and operational costs." TCAF cannot apply for ThriveUp Academy program funding here — only for a research STUDY of ThriveUp Academy (or Foster Youth platform) as the intervention being evaluated.
+
+**Funded study types:**
+1. Descriptive — describe/explore/explain how a program reduces inequality
+2. Intervention — causal evidence (RCT preferred at high end of budget; cluster-randomized for school/program settings)
+
+**NOT funded:** physical-health-only studies · studies on causes/extent/consequences of inequality (only reduction strategies) · scholarships · operating costs · endowments
+
+**Fit verdict for TCAF:**
+- Solo TCAF LOI = high risk of internal-staff screen-out (no research PI track record)
+- TCAF as community/practice partner with university PI = strong, realistic path
+- Best intervention candidates: ThriveUp Academy (cleaner RCT potential) OR Foster Youth Aging Out platform (paired with FosteringtheFuture.gov landscape)
+
+**Candidate research-partner institutions (NOT yet contacted, NOT verified for interest):**
+- UT Austin — Steve Hicks School of Social Work, Population Research Center
+- Texas State — School of Social Work
+- Chapin Hall at U Chicago — deepest foster-youth research bench nationally
+
+**Decision point:** Hold pending user decision whether to pursue partnership path. NOT entering pipeline until a willing university PI is identified.
+
+**Source on disk for re-reading:** funder page already cached in conversation; PDF guidelines at https://wtgrantfoundation.org/wp-content/uploads/2025/11/2026-Application-Guide-Research-Grants-on-RI.pdf — pull on day of LOI drafting, not before, to avoid relying on stale memory.
