@@ -1477,16 +1477,15 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 
 **NOT funded:** physical-health-only studies · studies on causes/extent/consequences of inequality (only reduction strategies) · scholarships · operating costs · endowments
 
-**Fit verdict for TCAF:**
-- Solo TCAF LOI = high risk of internal-staff screen-out (no research PI track record)
-- TCAF as community/practice partner with university PI = strong, realistic path
-- Best intervention candidates: ThriveUp Academy (cleaner RCT potential) OR Foster Youth Aging Out platform (paired with FosteringtheFuture.gov landscape)
+**Fit verdict for TCAF — CORRECTED 2026-05-15 evening after user pushback:**
+- **Dr. Flood IS the research-trained PI.** DHA + DBA + MS I/O Psych + MS Implementation Science in-progress at **Dartmouth Geisel School of Medicine** + Public Health Social Scientist at VA (8+ yrs) + federal grants management/COR certified + Stanford-certified AI in Healthcare. WT Grant defers PI qualification to applying org; TCAF qualifies him.
+- **Institutional research anchor already in hand:** Dartmouth Geisel (via Dr. Flood's MSIS program network).
+- **Coalition partners already named on prior NSF submissions:** Prof. Laura Franco (Austin Community College), Eric Hargrave (Fountain of Life Ministries). See `docs/grants/TCAF-Coalition-Partner-Presentation.md` and `docs/grants/NSF-TechAccess-LOI-Draft.md` lines 14-30 for canonical bio + partner roster.
+- **Path: collaborative LOI** with Dr. Flood as PI, Dartmouth Geisel faculty as methodology Co-PI/consultant, ACC + coalition partners as senior personnel / practice partners.
+- **Intervention candidates** (study target, not funded activity): ThriveUp Academy (cleaner cluster-randomized potential at cohort level) and/or Foster Youth Aging Out platform (paired against FosteringtheFuture.gov landscape).
 
-**Candidate research-partner institutions (NOT yet contacted, NOT verified for interest):**
-- UT Austin — Steve Hicks School of Social Work, Population Research Center
-- Texas State — School of Social Work
-- Chapin Hall at U Chicago — deepest foster-youth research bench nationally
+**Prior agent failure logged (don't repeat):** Original entry above claimed "Solo TCAF LOI = high risk of screen-out (no research PI track record)" and listed UT-Austin / Texas State / Chapin Hall as institutions "to find." That was scarcity conjecture — Dr. Flood's credentials and the Dartmouth + ACC ties were already in memory. New Iron-Rule extension added to `replit.md` gotchas: "SCARCITY CONJECTURE IS THE SAME FAILURE."
 
-**Decision point:** Hold pending user decision whether to pursue partnership path. NOT entering pipeline until a willing university PI is identified.
+**Decision point:** Awaiting user go/no-go on entering pipeline. June 3 = cycle re-opens · July 29 = LOI deadline · 8-week window.
 
 **Source on disk for re-reading:** funder page already cached in conversation; PDF guidelines at https://wtgrantfoundation.org/wp-content/uploads/2025/11/2026-Application-Guide-Research-Grants-on-RI.pdf — pull on day of LOI drafting, not before, to avoid relying on stale memory.
