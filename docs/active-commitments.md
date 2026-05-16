@@ -1416,3 +1416,43 @@ Task #33 merge succeeded but post-merge setup soft-failed: db:push completed cle
 **Why 60s, not higher:** historical merges (#30-#32) ran 13-18s, #33 was 27s. 60s gives 2x headroom over the slowest observed run without masking real hangs. If a future merge runs >45s consistently, investigate db:push performance (schema bloat or migration drift) before raising further.
 
 **Files affected:** `.replit` `[postMerge]` section (managed by setPostMergeConfig, not directly editable by agent tools).
+
+### 2026-05-15 PM — LinkedIn intel batch (6 signals)
+
+User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is verified against primary funder source; logged as signals only, NOT pipeline entries.
+
+**1. 🚨 St. David's Foundation — "Catalyzing Community-Led Change" — opens May 27, 2026**
+- Source: St. David's Foundation LinkedIn (5,538 followers); URL https://lnkd.in/gPkAUS-u (not yet followed)
+- "Application opens May 27, 2026"
+- Purpose (verbatim): "Investing in communities with the greatest health needs so they can set their own priorities and shape the practices, policies, and systems that impact their health"
+- **NEEDS VERIFICATION before pipeline action:** Is "Catalyzing Community-Led Change" (CCLC) the same program as the prior "Community Leadership Catalysts" (CLC) cycle we parked on May 15? Names rhyme but are not identical — must read May 27 RFP and compare to our May 15 WAB2-decline letter before deciding to enter.
+- Decision logic if confirmed same: WAB2 was declined 12 days before this RFP opens. Re-entering immediately reads as not-listening to decline-letter feedback. Recommend reading first, then deciding by ~June 3.
+
+**2. William T. Grant Foundation — Major Research Grants on Reducing Inequality**
+- Source: Jennifer Carinci, Ed.D., PMP (Carinci Consulting) reshared by Michigan Integrative Wellness
+- **Deadline (per image): July 29, 2026, 3:00 PM ET** — ~10 weeks
+- **Award (per image): $100,000–$600,000 over 2-3 years**
+- Scope: research on programs/policies/practices reducing inequality in youth outcomes (ages 5-25) in US
+- **NEEDS VERIFICATION on wtgrantfoundation.org:** eligibility (does it require academic PI?), LOI vs full proposal, current cycle status
+- Fit angle: foster-youth + ThriveUp + opportunity-youth all sit in 5-25 inequality space; partnership with a university research center is the likely path
+
+**3. GM Corporate Giving**
+- Source: Spur & Sprout consultancy LinkedIn (intermediary, not GM)
+- Priorities: STEAM education · road safety · workforce development · community impact
+- No deadline visible
+- **NEEDS VERIFICATION on gm.com/giving** before pipeline entry
+
+**4. FosteringtheFuture.gov (Think of Us) — competitive landscape, NOT an opportunity**
+- Launching Fall 2026 · federal (ACF + HHS + Office of FLOTUS)
+- AI tool to help foster youth find resources + build personalized action plan
+- Direct overlap with TCAF's Foster Youth Aging Out work
+- **Strategic action:** before next foster-youth grant submission, codify differentiation. Working hypothesis: FosteringtheFuture = national directory + plan-builder; TCAF = local service delivery + benefits enrollment + real caseworker/provider workflows ("what happens after you find the resource"). Validate before applying anywhere foster-youth-coded.
+
+**5. Jim Currier, MSW (Director of Youth Housing & Employment, Think of Us)**
+- HUD homelessness reform / Foster Youth to Independence (FYI) policy post
+- Pure thought-leadership signal — validates housing-continuum framing we already use
+- **Action:** Dr. Flood LinkedIn connect — Currier is at the federal foster-youth-housing center of gravity
+
+**6. (None — screenshots 3 and 4 are the same signal viewed twice)**
+
+**Cross-cutting:** Jennifer Carinci, Ed.D., PMP (Carinci Consulting) appears to be a grant-strategy practitioner posting funder opportunities — worth tracking as an intel source but NOT auto-citing her posts as funder-verified. Always confirm at the funder's own site.
