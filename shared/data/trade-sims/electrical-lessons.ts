@@ -42,17 +42,10 @@ export type LessonSandboxStarter = {
   prompt: string;
 };
 
-/**
- * Tells the lesson player which simulation engine to expect.
- *  - "linear-dc": the MNA solver in `circuit-solver.ts` will run; guided checks
- *    that mention current/voltage are honored.
- *  - "concept-only": the solver is NOT run. Lessons in this mode are walkthroughs
- *    (AC theory, transistor behavior, gates, code, safety, schematic reading,
- *     power-system structure). Phase A's solver does not model nonlinear or
- *    digital behavior, so the player must skip "run the sim" checks here.
- *    Day 7–10 will graduate to a richer engine in Phase D.
- */
-export type LessonEngineMode = "linear-dc" | "concept-only";
+// Re-export from the shared trade-sims types so existing imports keep working.
+// New trades (plumbing, HVAC, welding, auto) import directly from `./types`.
+export type { LessonEngineMode } from "./types";
+import type { LessonEngineMode } from "./types";
 
 export interface ElectricalLessonContent {
   dayNumber: number;
