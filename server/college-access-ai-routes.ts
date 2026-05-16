@@ -6,6 +6,40 @@ function getUserId(req: Request): string | undefined {
   return u?.claims?.sub || u?.id;
 }
 
+// Per-IP rate limiter for public AI advisor endpoints.
+// These routes fan out into multiple paid model calls per request, so the
+// limit is intentionally stricter than the translation endpoint (10/min vs 30/min).
+// IP is read from req.ip — Express resolves this via the trusted reverse proxy
+// (trust proxy = 1 set in replitAuth.ts) so the value cannot be forged by a
+// caller-supplied X-Forwarded-For header.
+const AI_ADVISOR_RATE_LIMIT = 10; // requests per minute per IP
+const aiAdvisorLimits = new Map<string, { count: number; resetAt: number }>();
+
+// Purge expired entries every 5 minutes to bound memory growth under
+// high-IP churn (e.g., scanning traffic with rotating addresses).
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of aiAdvisorLimits) {
+    if (entry.resetAt < now) aiAdvisorLimits.delete(key);
+  }
+}, 5 * 60_000).unref();
+
+function checkAIAdvisorRateLimit(req: Request, route: string): boolean {
+  const ip = req.ip || req.socket?.remoteAddress || "unknown";
+  const now = Date.now();
+  const entry = aiAdvisorLimits.get(ip);
+  if (!entry || entry.resetAt < now) {
+    aiAdvisorLimits.set(ip, { count: 1, resetAt: now + 60_000 });
+    return true;
+  }
+  if (entry.count >= AI_ADVISOR_RATE_LIMIT) {
+    console.warn(`[AI Advisor] 429 rate-limit hit — route=${route} ip=${ip}`);
+    return false;
+  }
+  entry.count++;
+  return true;
+}
+
 const FAFSA_SYSTEM_PROMPT = `You are the ThriveUp Academy FAFSA AI Advisor — an expert financial aid counselor integrated into a 24-platform workforce development ecosystem. You specialize in:
 - FAFSA application guidance and troubleshooting
 - Federal, state, and institutional financial aid programs
@@ -58,6 +92,9 @@ export function registerCollegeAccessAIRoutes(app: Express) {
 
   app.post("/api/fafsa/ai-advisor", async (req: Request, res: Response) => {
     try {
+      if (!checkAIAdvisorRateLimit(req, "/api/fafsa/ai-advisor")) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
       const { question, studentProfile } = req.body;
       if (!question || typeof question !== "string") {
         return res.status(400).json({ error: "A 'question' field is required" });
@@ -112,6 +149,9 @@ export function registerCollegeAccessAIRoutes(app: Express) {
 
   app.post("/api/apprenticeship/ai-coach", async (req: Request, res: Response) => {
     try {
+      if (!checkAIAdvisorRateLimit(req, "/api/apprenticeship/ai-coach")) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
       const { question, skills, targetOccupation, currentRole } = req.body;
       if (!question || typeof question !== "string") {
         return res.status(400).json({ error: "A 'question' field is required" });
@@ -159,6 +199,9 @@ export function registerCollegeAccessAIRoutes(app: Express) {
 
   app.post("/api/opportunity-youth/ai-analyst", async (req: Request, res: Response) => {
     try {
+      if (!checkAIAdvisorRateLimit(req, "/api/opportunity-youth/ai-analyst")) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
       const { question, barrierProfile, demographics, county } = req.body;
       if (!question || typeof question !== "string") {
         return res.status(400).json({ error: "A 'question' field is required" });
@@ -211,6 +254,9 @@ export function registerCollegeAccessAIRoutes(app: Express) {
 
   app.post("/api/transition/ai-advisor", async (req: Request, res: Response) => {
     try {
+      if (!checkAIAdvisorRateLimit(req, "/api/transition/ai-advisor")) {
+        return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+      }
       const { question, studentProfile } = req.body;
       if (!question || typeof question !== "string") {
         return res.status(400).json({ error: "A 'question' field is required" });

@@ -35,6 +35,16 @@ const RATE_LIMIT_PER_MIN = 30;
 const MAX_TEXTS_PER_REQ = 100;
 const MAX_CHARS_PER_REQ = 20000;
 const rateLimits = new Map<string, { count: number; resetAt: number }>();
+
+// Purge expired entries every 5 minutes to bound memory growth under high-IP
+// churn (e.g., scanning traffic with rotating addresses).
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of rateLimits) {
+    if (entry.resetAt < now) rateLimits.delete(key);
+  }
+}, 5 * 60_000).unref();
+
 function checkRateLimit(ip: string): boolean {
   const now = Date.now();
   const entry = rateLimits.get(ip);
@@ -62,7 +72,11 @@ function setCached(target: string, text: string, translation: string) {
 export function registerTranslateRoutes(app: Express) {
   app.post("/api/translate", async (req: Request, res: Response) => {
     try {
-      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.ip || req.socket.remoteAddress || "unknown";
+      // Use req.ip — Express populates this from X-Forwarded-For only when
+      // `trust proxy` is set (replitAuth.ts sets it to 1), so it reflects the
+      // real client address via the trusted reverse proxy rather than a
+      // caller-supplied header value that could be forged.
+      const ip = req.ip || req.socket.remoteAddress || "unknown";
       if (!checkRateLimit(ip)) {
         return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
       }
