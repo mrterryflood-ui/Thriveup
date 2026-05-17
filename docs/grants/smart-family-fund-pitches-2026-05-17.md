@@ -1,15 +1,52 @@
 # Smart Family Fund — Side-by-Side Pitches
 
-**Funder:** The Smart Family Fund (smartfamilyfund.org/introduce-yourself)
+**Funder:** The Smart Family Fund (smartfamilyfund.org/introduce-yourself) · EIN 81-2297831 · Lisle, IL · private foundation, ~$17M assets, ~$1.5M/yr giving, ~32 awards/yr, median first grant $25K, ceiling $100K, rolling.
 **Format:** One-page elevator pitch via "Send Us a Pitch" portal
 **Range:** $25K–$100K first-time grants, rolling
 **Applicant:** The Collaborative Advocate Foundation (TCAF) · EIN 41-3618003 · 501(c)(3) determined 01/14/2026 · Public charity 170(b)(1)(A)(vi)
+
+**The three brothers (read this before drafting):**
+- **Roland M. Smart** (Mill Valley CA) — co-founder/CEO of **TheraHive** (DBT/CBT psychoeducational platform). Ex-Oracle VP, ex-Pantheon, ex-Product School CMO. **"Digital+"** thesis: structured online learning + small-group human interaction. Most likely "this resonates with me" reader.
+- **D. Archibald "Archie" Smart** (Washington DC) — Managing Director at **FTI Consulting**, comms/digital strategist, lobbying-registered. **🚨 Board member of Horizons Greater Washington — explains the Horizons National grantee.** This is a relationship-driven funder, not pure cold-pitch.
+- **Jesse Safir** (NYC) — owner of **ABG Print**, operations/manufacturing background. Reads for execution credibility.
+
+**Portfolio thesis (verified from their success-stories page):**
+1. Civic tech + data systems for public-good (Recidiviz, VotingWorks)
+2. Workforce equity training at scale (**Per Scholas — Trade Sims's closest analog**)
+3. K-12 education equity (Horizons National)
+
 **Quiet differentiator (both pitches):** Implementation science is built into every TCAF platform — CFIR for context, RE-AIM for outcomes, RPLICE for spread. Most early-stage nonprofits learn this language years in. We started with it.
 **Iron Rule:** every quantitative claim below is primary-source verified. No deadlines, no dollar amounts in pitch text, no funder names cited.
 
+**TODO before submit:** manually pull the FY2024 990-PF PDF from ProPublica `projects.propublica.org/nonprofits/organizations/812297831` (Aug 25 2025 filing) to verify full ~32-grantee list — looking for any TX-based grantee, any apprenticeship/CTE grantee, or current grantee we could warm-intro through.
+
 ---
 
-## Pitch A — ThriveUp Trade Sims (recommended primary)
+## Pitch A-PORTAL — Tightened to ~310 words (USE THIS for the portal)
+
+> **Trade Sims: Per Scholas's mission, delivered Digital+.**
+>
+> A young man named Marcus aged out of foster care in Texas last year. He's smart, motivated, and could be earning $28/hr installing HVAC inside 18 months — except the local community college runs day classes in English, the OEM bootcamp wants a tuition deposit, and the apprenticeship paperwork assumes he already knows what apprenticeship means. The trades pipeline is rebuilding America, and it's losing exactly the people it should be lifting.
+>
+> **The Collaborative Advocate Foundation (TCAF)** — a 501(c)(3) determined in January 2026 — built **ThriveUp Trade Sims** to fix this. Five trades are live today (electrical, plumbing, HVAC, welding, automotive) — 75 lessons running on real physics engines. Every lesson uses the same five-loop pattern: concept → guided practice → solo challenge → sandbox → AI debrief. A four-engine AI tutor (Gemini, Claude, GPT, DeepSeek) gives hints without giving answers, in any of 10 languages. At 80% completion the platform routes the learner to a vetted credential prep surface — OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1.
+>
+> **Why we're different.** Per Scholas proved tuition-free workforce training can scale. TheraHive proved Digital+ — structured online learning plus human cohort — beats either alone. Trade Sims combines both for the trades: free, open, multilingual, credential-routed. Every design decision is made against an implementation-science checklist (CFIR for context, RE-AIM for outcomes, RPLICE for replication). Most early-stage nonprofits learn this language years in. We started with it.
+>
+> **What angel funding unlocks.** Outcomes instrumentation across our 200-learner July 2026 pilot (Pflugerville ISD signed, Austin Community College in outreach, Mission Transition routing veterans), credential-test pass-rate tracking, and the evidence base we'll use to compete for Promise Neighborhoods and DOL Strengthening Community Colleges Round 7.
+>
+> Dr. Terry Flood Sr., President · terryflood@thrivingcommunitiesforall.com · EIN 41-3618003 · thrivingcommunitiesforall.com
+
+**Calibration notes (DO NOT submit, internal only):**
+- Per Scholas analog named explicitly — portfolio pattern match.
+- "Digital+" is Roland Smart's TheraHive language verbatim. He will hear it.
+- Story-led opening (Marcus) — Archie Smart (FTI Consulting MD, comms strategist) reads pitches like narrative.
+- Execution evidence (75 lessons, PFISD signed, 10 languages) — Jesse Safir's filter.
+- Implementation science = one paragraph, quiet. Not preached.
+- No funder names cited. No dollar asks. No deadlines.
+
+---
+
+## Pitch A-FULL — Long-form (for reference / follow-up package)
 
 **The problem.** America needs ~3.2M new skilled-trades workers this decade. The pipelines that exist — community colleges, registered apprenticeships, OEM bootcamps — assume English fluency, daytime availability, and a learner who already knows the trade exists. They lose the people who would benefit most: foster-youth alumni, justice-involved adults, returning veterans, immigrant workers, monolingual Spanish speakers, and rural learners without a shop teacher.
 
