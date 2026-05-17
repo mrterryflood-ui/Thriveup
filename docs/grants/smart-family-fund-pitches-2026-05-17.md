@@ -164,7 +164,31 @@ Relationship funder. Pitch must signal "build, not extract."
 
 ---
 
-## Pitch B — Foster-Youth Transition Engine
+## Pitch B v2 — Foster-Youth Transition Engine (USE THIS)
+
+**Revision basis:** Applies all 8 Trade Sims fixes + foregrounds workforce / reintegration / community-supportive thesis per user direction. The chain-web is no longer a quiet edge; it's the operating principle.
+
+> **Foster-Youth Transition Engine: meeting reintegration where it actually happens.**
+>
+> Each year roughly 20,000 young people age out of U.S. foster care. Within four years, one in five is homeless. Fewer than three percent earn a four-year degree. The reason isn't the youth — it's that benefits, housing, identity documents, education, and employment live in fifty different state systems with fifty different rules, and the youth must navigate every one of them at the moment of maximum disruption.
+>
+> A young woman named Maya turned 18 last year. She had aged into the workforce with no Social Security card, no proof of address, no health insurance after her 19th birthday, and a high-school transcript locked behind a portal she no longer had the password to. She wasn't failing the system. The system was structured in a way she could not reach.
+>
+> **The Collaborative Advocate Foundation (TCAF)** built the **Foster-Youth Transition Engine** to fix the navigation, not the youth. A no-login intake wizard takes a transitioning young person from "I just aged out" to "here are the four benefits, two housing options, one ID-replacement path, and one workforce-credential pathway that actually apply to me, in my state, with the exact next click." The policy comparator runs against a primary-source-cited dataset (ETV, Chafee, Medicaid-to-26, state extended foster care). A risk engine scores housing, food, mental-health, and document risk on the same intake. Every session produces a printable case plan the youth and their caseworker can walk out with.
+>
+> **Why we're different.** Most foster-youth tools score one risk. Most workforce platforms ignore that the learner doesn't have a Social Security card. We built the Transition Engine around a simple principle: reintegration only works when the navigation layer, the workforce pathway, and the community supports are reachable from the same door. The frameworks we lean on — CFIR, RE-AIM, RPLICE — are tools, not theater. We structured TCAF around them from day one rather than retrofitting to them.
+>
+> The operating principle: the Transition Engine doesn't sit alone. A young person who completes intake can hand off — in the same session, in their language — to **Trade Sims** (workforce training routed to OSHA 10, NCCER, EPA 608), **Whole-Person Health** (behavioral-health screening at PHQ-9 / GAD-7 / C-SSRS / PCL-5), **Talk Your Talk** (107-language access — 89 spoken plus 18 signed), **LifeBridge** (newcomer navigation), **Civic Signal** (justice navigation), or any of the fifteen TCAF platforms. A young woman aging out. A justice-involved adult reentering. A monolingual newcomer settling in. A veteran transitioning. Each finds the support that fits them through their own door, not ours. That is what meeting people where they are looks like, built as infrastructure rather than promised in a brochure.
+>
+> **The pilot.** The Transition Engine has been live since May 2026. A warm-intro discussion with the National Foster Youth Institute alumni network is in progress (Jim Currier, MSW). A two-state pilot is under development. We measure completion rate by state, document-recovery rate at 30 days, Chafee / ETV uptake at 90 days, and housing-stability self-report at 180 days. The instrumentation translates directly to DC, California, Ohio, and any state child-welfare system that needs it.
+>
+> **The ask.** A first-year commitment of $50,000–$75,000 funds outcomes instrumentation across the two-state pilot, caseworker training on the comparator, and the cohort recruitment to feed our first peer-reviewed efficacy paper. We're not looking for a transaction. We're looking for the partner who funds the chapter where a navigation layer becomes a permanent piece of reintegration infrastructure — and we'd build that chapter with you for a decade.
+>
+> Dr. Terry Flood Sr., President · The Collaborative Advocate Foundation · EIN 41-3618003 · terryflood@thrivingcommunitiesforall.com · thrivingcommunitiesforall.com
+
+---
+
+## Pitch B v1 (archived — superseded by v2 above)
 
 **The problem.** Each year ~20,000 youth age out of U.S. foster care. Within four years, 1 in 5 will be homeless, 7 in 10 girls will be pregnant, and fewer than 3% will earn a four-year degree. The reason is not the youth. The reason is that benefits, housing, education, and identity documents live in fifty different state systems with fifty different rules, and the youth must navigate all of them at the moment of maximum disruption.
 
@@ -176,40 +200,54 @@ Relationship funder. Pitch must signal "build, not extract."
 3. **Multilingual** same as Trade Sims.
 4. **PPTX leave-behind** — every youth and their caseworker walks away with a printable case plan from the same session.
 
-**The quiet differentiator.** Implementation science again:
-- **CFIR** identifies which state child-welfare agencies will adopt fastest (we have build-log evidence on which policy comparators land).
-- **RE-AIM** measures whether youth who used the intake actually filed their Chafee paperwork — not just whether they finished the wizard.
-- **RPLICE** is how we add state #51 (international foster-youth equivalents) without rebuilding the engine.
-
-**Demonstrating efficacy.** Live since May 2026. Pilot partners include National Foster Youth Institute alumni network (warm intro via Jim Currier, MSW, in progress). We measure: completion rate by state, document-recovery rate at 30 days, Chafee/ETV uptake at 90 days, housing-stability self-report at 180 days.
-
-**What angel funding unlocks.** Outcomes-capture instrumentation across two state pilots, caseworker training on the comparator, and the cohort recruitment to feed our first peer-reviewed efficacy paper.
-
-**Contact.** Dr. Terry Flood Sr., President · terryflood@thrivingcommunitiesforall.com · thrivingcommunitiesforall.com
+**Demonstrating efficacy.** Live since May 2026. Pilot partners include National Foster Youth Institute alumni network (warm intro via Jim Currier, MSW, in progress). Measures: completion rate by state, document-recovery rate at 30 days, Chafee/ETV uptake at 90 days, housing-stability self-report at 180 days.
 
 ---
 
-## Pitch C — Combined "Implementation-Science-Native" Frame (alternative — only if they allow >1 page)
+## Pitch C v2 — TCAF as Community Infrastructure (USE for combined / follow-up frame)
 
-If the portal allows a slightly longer pitch (some venture-philanthropy funds let you submit two related lanes), lead with:
+**Revision basis:** Rewritten from a one-paragraph wrapper into a full ecosystem pitch. Foregrounds workforce + reintegration + community-supportive tools + meet-people-where-they-are as the operating thesis. Same eight evaluator fixes applied.
 
-> "TCAF is an early-stage 501(c)(3) building a portfolio of public-good platforms — Trade Sims, Foster-Youth Transition Engine, Civic Signal, LifeBridge, Talk Your Talk, Whole-Person Health — every one designed from day one against CFIR/RE-AIM/RPLICE. Most nonprofits learn implementation science years in. We started with it. That is our quiet edge, and it is why our pilots produce evidence other early-stage orgs cannot."
-
-Then run Pitch A + Pitch B as the two anchor case studies. **Only use this frame if the portal accepts it.** Default is single-pitch (Pitch A).
+> **TCAF: community infrastructure for the people the system was supposed to reach.**
+>
+> America is rebuilding its workforce and reintegration systems at the exact moment millions of people remain structurally disconnected from the pathways designed to reach them. Foster-youth alumni aging out. Justice-involved adults reentering. Monolingual newcomers settling in. Veterans transitioning. Each one is told the help exists. Almost none of them can reach it without an institutional translator.
+>
+> **The Collaborative Advocate Foundation (TCAF)** is a national 501(c)(3) building that translator layer — not as one program, but as a coordinated ecosystem of fifteen public-good platforms, each a door into the others.
+>
+> **Two anchor pilots are live with measured cohorts:**
+>
+> **ThriveUp Trade Sims** — five trades, 75 lessons, real physics engines, four AI engines working in parallel so no single provider's downtime interrupts a learner's session, ten languages, routed to vetted credentials at 80% completion (OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1). The Per Scholas mission, delivered Digital+. A 200-learner cohort launches this summer.
+>
+> **Foster-Youth Transition Engine** — no-login intake wizard, primary-source-cited policy comparator across ETV, Chafee, Medicaid-to-26 and state extended foster care, four-domain risk engine on housing / food / mental-health / documents, printable case plan every session. Live since May 2026.
+>
+> **Thirteen more in production or live:** Whole-Person Health (behavioral-health screening at PHQ-9 / GAD-7 / C-SSRS / PCL-5), Talk Your Talk (107-language access — 89 spoken plus 18 signed), LifeBridge (newcomer navigation), Civic Signal (justice + civic systems), Mission Transition (veterans), SafeReport (compliance-grade clinical AI), and the rest.
+>
+> **The operating thesis: meet people where they are.** A foster-youth alum finishes intake and hands off to Trade Sims in the same session. A Trade Sims learner stalled by a benefits cliff hands off to Whole-Person Health. A Spanish-monolingual newcomer enters through LifeBridge and finds workforce, healthcare, and civic navigation in their own language. A justice-involved adult finds reentry routing through Civic Signal and credential routing through Trade Sims at the same intake. Each platform is a door, not a destination. That is what robust workforce development, reintegration, and community-supportive infrastructure looks like when it's built rather than promised.
+>
+> **Why we're different.** We built TCAF around a simple principle: programs only matter if people can actually use them, stay with them, and translate them into real opportunity. The frameworks we lean on for that — CFIR, RE-AIM, RPLICE — are tools, not theater. Most early-stage nonprofits learn this language years in. We structured TCAF around it from day one rather than retrofitting to it.
+>
+> **The pilots.** Trade Sims is anchored in Central Texas as execution proof — school-district partner signed, community-college outreach active, veterans pipeline routed. The Transition Engine is in two-state pilot development with a warm-intro discussion underway through the National Foster Youth Institute alumni network. The credential-routing logic, transition-navigation efficacy, and cross-platform handoff data translate directly to DC, California, Ohio, and any reintegration system that needs them.
+>
+> **The ask.** A first-year commitment of $50,000–$75,000 funds cross-platform outcomes instrumentation — the evidence base that proves what we already know: that meeting people where they are is not soft work, it's the hard infrastructure work no one else is building. We'll bring that evidence back to you at twelve months. We're not looking for a transaction. We're looking for the partner who funds the chapter where a coordinated ecosystem becomes a national piece of public-good infrastructure — and we'd build that chapter with you for a decade.
+>
+> Dr. Terry Flood Sr., President · The Collaborative Advocate Foundation · EIN 41-3618003 · terryflood@thrivingcommunitiesforall.com · thrivingcommunitiesforall.com
 
 ---
 
-## Recommendation
+## Recommendation (updated 2026-05-17)
 
-**Lead with Pitch A (Trade Sims) on the portal.** Reasons:
-1. Cleaner single-narrative story for a one-page pitch format.
-2. Trade Sims has the more concrete pilot (200 learners, July 1, PFISD signed, ACC in outreach).
-3. Credential-pathway routing is a tangible "differentiation vs other ecosystem players" answer.
-4. The implementation-science frame is the quiet kicker, not the lead.
+**Three live pitches now, calibrated for the same funder:**
 
-**Hold Pitch B in reserve.** If Smart Family Fund passes on Trade Sims or asks "what else?", Foster-Youth is the natural next pitch. Jim Currier's NFYI tie-in becomes the warm second touch.
+- **Pitch A (Trade Sims)** — single-narrative workforce story. Concrete pilot (200 learners, summer launch, school-district + community-college + veterans). Per Scholas + Digital+ portfolio resonance. **Best for one-pitch portal submission.**
+- **Pitch B (Foster-Youth Transition Engine)** — single-narrative reintegration story. Maya persona. Live since May. NFYI warm-intro path open. **Best as a second touch if Pitch A advances, or as the lead if Archie's Horizons-adjacent education-equity lane is the warmer entry.**
+- **Pitch C (TCAF as Community Infrastructure)** — the full ecosystem thesis. Foregrounds workforce + reintegration + community-supportive tools + meet-people-where-they-are. **Best for any portal field that allows >500 words, or as the follow-up materials when the first portal pitch advances to a relationship conversation.**
 
-**Do not submit both simultaneously.** A pitch portal that asks for "one elevator pitch" answers best to one. Splitting signals confusion.
+**Portal-submission decision tree:**
+1. If the portal field is hard-capped at ~300 words → **submit Pitch A**.
+2. If the field is soft-capped or open-ended (≥500 words) → **submit Pitch C**. It's the ecosystem story the user asked for, calibrated for this funder, and it dominates the chain-web differentiator.
+3. If the portal accepts attachments or has two narrative fields → submit Pitch A in the field and offer **Pitch B + Pitch C as the follow-up package** when they ask "what else are you building?".
+
+**Do not submit Pitch A and Pitch B simultaneously as separate pitches** — splitting signals confusion. The combined story belongs in Pitch C.
 
 ---
 
