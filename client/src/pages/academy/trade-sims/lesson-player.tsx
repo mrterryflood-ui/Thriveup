@@ -16,6 +16,8 @@ import {
 import { CircuitCanvas } from "@/components/trade-sims/electrical/circuit-canvas";
 import { PlumbingCanvas } from "@/components/trade-sims/plumbing/plumbing-canvas";
 import { AutoCanvas } from "@/components/trade-sims/automotive/auto-canvas";
+import { WeldingCanvas } from "@/components/trade-sims/welding/welding-canvas";
+import { HvacCanvas } from "@/components/trade-sims/hvac/hvac-canvas";
 import { useToast } from "@/hooks/use-toast";
 import {
   gradeBackflow,
@@ -71,6 +73,23 @@ function renderEngineCanvas(
       />
     );
   }
+  if (engineMode === "heat-input") {
+    // Welding: heat-input engine. Canvas computes live as inputs change, so
+    // any non-error solve counts as "ran the sim."
+    return (
+      <WeldingCanvas
+        onChange={(s) => { if (s.lastSolve) onRun(); }}
+      />
+    );
+  }
+  if (engineMode === "thermal-airflow") {
+    // HVAC: thermal-airflow engine. Same live-solve pattern.
+    return (
+      <HvacCanvas
+        onChange={(s) => { if (s.lastSolve) onRun(); }}
+      />
+    );
+  }
   return null;
 }
 
@@ -103,7 +122,53 @@ function BackflowGradeBadge({ grade }: { grade: BackflowGrade }) {
 // Derived from renderEngineCanvas — keep these in sync. Any engine listed here
 // will (a) mount its canvas via renderEngineCanvas and (b) require the learner
 // to actually run the sim before Mark Complete unlocks.
-const ENGINES_WITH_CANVAS = new Set(["linear-dc", "pipe-network"]);
+const ENGINES_WITH_CANVAS = new Set(["linear-dc", "pipe-network", "heat-input", "thermal-airflow"]);
+
+// Learner-facing label for an engine mode. The raw mode names (linear-dc,
+// thermal-airflow, heat-input, pipe-network, concept-only) are developer
+// jargon and must NOT leak into the public UI. See trade-sims audit P1 #3.
+const ENGINE_LABEL: Record<string, string> = {
+  "linear-dc": "Interactive sim",
+  "pipe-network": "Interactive sim",
+  "heat-input": "Calculator + sim",
+  "thermal-airflow": "Calculator + sim",
+  "concept-only": "Read + reflect",
+};
+function engineLabelFor(mode: string): string {
+  return ENGINE_LABEL[mode] ?? "Lesson";
+}
+
+// Mark-complete reflection gate (words, not chars) for no-canvas lessons.
+// 40 words ~= 2-3 sentences = a thoughtful one-liner, not a race-click.
+const REFLECTION_MIN_WORDS = 40;
+function countWords(s: string): number {
+  return s.trim().split(/\s+/).filter(Boolean).length;
+}
+
+// Single line of the pre-completion checklist. Kept tiny + presentational —
+// real gating lives in `canMarkComplete`.
+function CheckItem({
+  done,
+  label,
+  testId,
+  muted,
+}: {
+  done: boolean;
+  label: string;
+  testId: string;
+  muted?: boolean;
+}) {
+  return (
+    <div className="flex items-center gap-2 text-sm" data-testid={testId}>
+      {done ? (
+        <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0" />
+      ) : (
+        <XCircle className={`h-4 w-4 shrink-0 ${muted ? "opacity-40" : "text-muted-foreground"}`} />
+      )}
+      <span className={done ? "" : muted ? "opacity-60" : "text-muted-foreground"}>{label}</span>
+    </div>
+  );
+}
 // Self-check: assert renderEngineCanvas knows every engine in the Set.
 if (typeof window !== "undefined" && import.meta.env.DEV) {
   for (const e of ENGINES_WITH_CANVAS) {
@@ -173,6 +238,10 @@ export default function LessonPlayerPage() {
   const [hint, setHint] = useState<string | null>(null);
   const [debrief, setDebrief] = useState<string | null>(null);
   const [debriefNote, setDebriefNote] = useState("");
+  // Reflection captured on the Solo tab. For no-canvas lessons this is the
+  // primary engagement gate (≥ REFLECTION_MIN_WORDS). On canvas lessons it
+  // remains optional but is still encouraged.
+  const [soloReflection, setSoloReflection] = useState("");
   const [startedAt] = useState(() => Date.now());
   // Real engagement tracking — gates "Mark complete" so a user can't just click
   // Concept → Debrief and claim 100%. Honesty-in-claims requirement.
@@ -340,25 +409,33 @@ export default function LessonPlayerPage() {
     });
   }, [tab]);
 
-  // Honest completion gating: for linear-dc lessons require the learner has
-  // (a) visited concept + guided + solo + sandbox tabs AND (b) actually run
-  // the canvas at least once. For non-interactive engines (concept-only etc.)
-  // require only that all 4 pre-debrief tabs have been visited.
+  // Honest completion gating. Three signals:
+  //   (1) Tabs visited: concept + guided + solo + sandbox all opened.
+  //   (2) Engagement: either ran the sim (canvas lessons) OR wrote a
+  //       ≥40-word reflection in Solo (no-canvas lessons). Either path
+  //       proves the learner did more than tab-click.
+  //   (3) Always allow optional reflection on canvas lessons but don't
+  //       require it.
   const requiresRun = ENGINES_WITH_CANVAS.has(engineMode);
-  const canMarkComplete =
+  const tabsAllVisited =
     tabsVisited.has("concept") &&
     tabsVisited.has("guided") &&
     tabsVisited.has("solo") &&
-    tabsVisited.has("sandbox") &&
-    (!requiresRun || hasRunSim);
+    tabsVisited.has("sandbox");
+  const reflectionWords = countWords(soloReflection);
+  const reflectionOk = reflectionWords >= REFLECTION_MIN_WORDS;
+  const engagementOk = requiresRun ? hasRunSim : reflectionOk;
+  const canMarkComplete = tabsAllVisited && engagementOk;
 
   const handleComplete = () => {
     if (!canMarkComplete) {
       toast({
         title: "Not yet",
-        description: requiresRun && !hasRunSim
-          ? "Run the sim at least once on the canvas before marking complete."
-          : "Visit all four tabs (Concept, Guided, Solo, Sandbox) before marking complete.",
+        description: !tabsAllVisited
+          ? "Visit all four tabs (Concept, Guided, Solo, Sandbox) before marking complete."
+          : requiresRun
+            ? "Run the sim at least once on the canvas before marking complete."
+            : `Write a short reflection in Solo first — at least ${REFLECTION_MIN_WORDS} words (you have ${reflectionWords}).`,
         variant: "destructive",
       });
       return;
@@ -403,7 +480,9 @@ export default function LessonPlayerPage() {
       <div className="space-y-1">
         <div className="flex items-center gap-2">
           <Badge variant="outline">Day {lesson.dayNumber}</Badge>
-          <Badge variant="secondary">{engineMode}</Badge>
+          <Badge variant="secondary" data-testid="badge-engine-label" title={`engine: ${engineMode}`}>
+            {engineLabelFor(engineMode)}
+          </Badge>
         </div>
         <h1 className="text-2xl font-bold" data-testid="text-lesson-title">{lesson.title}</h1>
         <p className="text-muted-foreground">{lesson.shortDescription}</p>
@@ -563,6 +642,30 @@ export default function LessonPlayerPage() {
                       </Alert>
                     );
                   })()}
+                  <div className="space-y-1">
+                    <h3 className="font-semibold">Your reflection</h3>
+                    <p className="text-xs text-muted-foreground">
+                      {requiresRun
+                        ? `Optional. A short note (2-3 sentences) helps the AI tutor debrief you.`
+                        : `Required for this lesson — at least ${REFLECTION_MIN_WORDS} words. What did you actually figure out?`}
+                    </p>
+                    <Textarea
+                      value={soloReflection}
+                      onChange={(e) => setSoloReflection(e.target.value)}
+                      placeholder="What did you try? What surprised you? What's still unclear?"
+                      rows={4}
+                      data-testid="textarea-solo-reflection"
+                    />
+                    <p className="text-xs text-muted-foreground" data-testid="text-reflection-wordcount">
+                      {reflectionWords} {reflectionWords === 1 ? "word" : "words"}
+                      {!requiresRun && reflectionWords < REFLECTION_MIN_WORDS && (
+                        <span> · need {REFLECTION_MIN_WORDS - reflectionWords} more</span>
+                      )}
+                      {!requiresRun && reflectionOk && (
+                        <span className="text-green-600 dark:text-green-400"> · ready</span>
+                      )}
+                    </p>
+                  </div>
                   <div className="flex gap-2 pt-2">
                     <Button
                       variant="outline"
@@ -658,6 +761,36 @@ export default function LessonPlayerPage() {
                   data-testid="textarea-debrief-note"
                 />
               </div>
+              {/* Always-visible 3-item checklist so the learner knows what's
+                  still required to unlock Mark Complete. No silent disabled
+                  state. See trade-sims audit P1 #1. */}
+              <div className="rounded border p-3 space-y-1" data-testid="checklist-complete">
+                <h3 className="text-sm font-semibold mb-1">Before you finish</h3>
+                <CheckItem
+                  done={tabsAllVisited}
+                  label="Visited Concept, Guided, Solo, and Sandbox tabs"
+                  testId="check-tabs"
+                />
+                {requiresRun ? (
+                  <CheckItem
+                    done={hasRunSim}
+                    label="Ran the interactive simulator at least once"
+                    testId="check-ran-sim"
+                  />
+                ) : (
+                  <CheckItem
+                    done={reflectionOk}
+                    label={`Wrote a ≥${REFLECTION_MIN_WORDS}-word reflection in Solo (${reflectionWords} so far)`}
+                    testId="check-reflection"
+                  />
+                )}
+                <CheckItem
+                  done={canMarkComplete}
+                  label="Ready to mark complete"
+                  testId="check-ready"
+                  muted
+                />
+              </div>
               <div className="flex flex-wrap gap-2 pt-2">
                 <Button
                   variant="outline"
@@ -676,13 +809,6 @@ export default function LessonPlayerPage() {
                   {saveProgress.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Save className="h-4 w-4 mr-1" />}
                   Mark complete & save progress
                 </Button>
-                {!canMarkComplete && (
-                  <p className="text-xs text-muted-foreground w-full">
-                    {requiresRun && !hasRunSim
-                      ? "Run the sim on the canvas at least once to unlock completion."
-                      : "Visit Concept, Guided, Solo, and Sandbox before completing."}
-                  </p>
-                )}
                 {nextLesson && (
                   <Button
                     variant="outline"

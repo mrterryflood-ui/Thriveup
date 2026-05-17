@@ -1641,3 +1641,24 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 
 **Follow-up status:** existing `proposeFollowUpTasks` slot used for "Make check valves truly one-way" (task #44 line). Cannot propose new follow-ups this turn; will surface the next session-plan as a recommendation in chat instead.
 
+
+---
+
+## 2026-05-17 PM — Trade Sims Phase D wrap
+
+**Audit P1 items closed:**
+1. Engine-mode jargon in UI → `ENGINE_LABEL` map in `lesson-player.tsx`. Badge now shows "Interactive sim" / "Calculator + sim" / "Read + reflect".
+2. Mark-Complete loophole → tightened gate: canvas lessons require `hasRunSim`, concept-only lessons require ≥40-word reflection in Solo (new `soloReflection` state + Textarea + live word counter). Always-visible 3-item checklist in Debrief.
+3. Missing canvases — Welding (heat-input, 8 lessons) and HVAC (thermal-airflow, 11 lessons) now have working sim components. Welding via subagent; HVAC written by main after Iron-Rule verifying `ThermalSolveResult` field names against `thermal-solver.ts` (subagent had guessed; names happened to match but I verified before writing).
+
+**Canvas coverage:** 26/75 → 45/75 (60%).
+
+**Still open:** the 30 concept-only lesson days (sandbox shows "Phase B+" placeholder for plumbing/welding/auto/HVAC days 1-3 + 8-10, electrical days 12 & 14). Not a regression — pre-existing.
+
+**Files touched:**
+- NEW `client/src/components/trade-sims/welding/welding-canvas.tsx` (405 lines)
+- NEW `client/src/components/trade-sims/hvac/hvac-canvas.tsx` (380 lines, written by main after solver-shape verification)
+- EDIT `client/src/pages/academy/trade-sims/lesson-player.tsx` (added soloReflection state, ENGINE_LABEL map, CheckItem component, reflection Textarea in Solo, 3-item checklist in Debrief, new engine branches in renderEngineCanvas, expanded ENGINES_WITH_CANVAS set)
+- EDIT `replit.md` (canvas-coverage status line updated)
+
+**Typecheck:** clean (no new errors; 6 pre-existing P-L10 errors in `server/mou-routes.ts` unchanged).
