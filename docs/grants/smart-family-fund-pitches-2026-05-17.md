@@ -180,7 +180,7 @@ Relationship funder. Pitch must signal "build, not extract."
 >
 > The operating principle: the Transition Engine doesn't sit alone. A young person who completes intake can hand off — in the same session, in their language — to **Trade Sims** (workforce training routed to OSHA 10, NCCER, EPA 608), **Whole-Person Health** (behavioral-health screening at PHQ-9 / GAD-7 / C-SSRS / PCL-5), **Talk Your Talk** (107-language access — 89 spoken plus 18 signed), **LifeBridge** (newcomer navigation), **Civic Signal** (justice navigation), or any of the fifteen TCAF platforms. A young woman aging out. A justice-involved adult reentering. A monolingual newcomer settling in. A veteran transitioning. Each finds the support that fits them through their own door, not ours. That is what meeting people where they are looks like, built as infrastructure rather than promised in a brochure.
 >
-> **The pilot.** The Transition Engine has been live since May 2026. A warm-intro discussion with the National Foster Youth Institute alumni network is in progress (Jim Currier, MSW). A two-state pilot is under development. We measure completion rate by state, document-recovery rate at 30 days, Chafee / ETV uptake at 90 days, and housing-stability self-report at 180 days. The instrumentation translates directly to DC, California, Ohio, and any state child-welfare system that needs it.
+> **The pilot.** The Transition Engine has been live since May 2026. A warm-intro discussion with the National Foster Youth Institute alumni network is in progress. A two-state pilot is under development. We measure completion rate by state, document-recovery rate at 30 days, Chafee / ETV uptake at 90 days, and housing-stability self-report at 180 days. The instrumentation translates directly to DC, California, Ohio, and any state child-welfare system that needs it.
 >
 > **The ask.** A first-year commitment of $50,000–$75,000 funds outcomes instrumentation across the two-state pilot, caseworker training on the comparator, and the cohort recruitment to feed our first peer-reviewed efficacy paper. We're not looking for a transaction. We're looking for the partner who funds the chapter where a navigation layer becomes a permanent piece of reintegration infrastructure — and we'd build that chapter with you for a decade.
 >
@@ -214,11 +214,11 @@ Relationship funder. Pitch must signal "build, not extract."
 >
 > **The Collaborative Advocate Foundation (TCAF)** is a national 501(c)(3) building that translator layer — not as one program, but as a coordinated ecosystem of fifteen public-good platforms, each a door into the others.
 >
-> **Two anchor pilots are live with measured cohorts:**
+> **Two anchor pilots at different stages of deployment give the portfolio both near-term learning and infrastructure proof:**
 >
-> **ThriveUp Trade Sims** — five trades, 75 lessons, real physics engines, four AI engines working in parallel so no single provider's downtime interrupts a learner's session, ten languages, routed to vetted credentials at 80% completion (OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1). The Per Scholas mission, delivered Digital+. A 200-learner cohort launches this summer.
+> **ThriveUp Trade Sims** *(cohort-launching stage)* — five trades, 75 lessons, real physics engines, four AI engines working in parallel so no single provider's downtime interrupts a learner's session, ten languages, routed to vetted credentials at 80% completion (OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1). The Per Scholas mission, delivered Digital+. A 200-learner cohort launches this summer.
 >
-> **Foster-Youth Transition Engine** — no-login intake wizard, primary-source-cited policy comparator across ETV, Chafee, Medicaid-to-26 and state extended foster care, four-domain risk engine on housing / food / mental-health / documents, printable case plan every session. Live since May 2026.
+> **Foster-Youth Transition Engine** *(infrastructure stage)* — no-login intake guide, primary-source-cited policy comparator across ETV, Chafee, Medicaid-to-26 and state extended foster care, four-domain risk engine on housing / food / mental-health / documents, printable case plan every session. Live since May 2026, two-state pilot in development. The system is in production; the cohort is the next milestone.
 >
 > **Thirteen more in production or live:** Whole-Person Health (behavioral-health screening at PHQ-9 / GAD-7 / C-SSRS / PCL-5), Talk Your Talk (107-language access — 89 spoken plus 18 signed), LifeBridge (newcomer navigation), Civic Signal (justice + civic systems), Mission Transition (veterans), SafeReport (compliance-grade clinical AI), and the rest.
 >
@@ -243,11 +243,20 @@ Relationship funder. Pitch must signal "build, not extract."
 - **Pitch C (TCAF as Community Infrastructure)** — the full ecosystem thesis. Foregrounds workforce + reintegration + community-supportive tools + meet-people-where-they-are. **Best for any portal field that allows >500 words, or as the follow-up materials when the first portal pitch advances to a relationship conversation.**
 
 **Portal-submission decision tree:**
-1. If the portal field is hard-capped at ~300 words → **submit Pitch A**.
-2. If the field is soft-capped or open-ended (≥500 words) → **submit Pitch C**. It's the ecosystem story the user asked for, calibrated for this funder, and it dominates the chain-web differentiator.
-3. If the portal accepts attachments or has two narrative fields → submit Pitch A in the field and offer **Pitch B + Pitch C as the follow-up package** when they ask "what else are you building?".
+1. **Cold portal submission, hard-capped ~300 words** → submit **Pitch A**.
+2. **Cold portal submission, soft-capped or open-ended (≥500 words)** → submit **Pitch C**. It's the ecosystem story the user asked for, calibrated for this funder, and it dominates the chain-web differentiator.
+3. **Cold portal submission, two narrative fields or attachments allowed** → submit Pitch A in the field and offer **Pitch B + Pitch C as the follow-up package** when they ask "what else are you building?".
+4. **🎯 Warm intro via Archie's education-equity / Horizons-adjacent channel** → lead with **Pitch B** (foster-youth reintegration is closer to that lane than workforce-first), follow with **Pitch C** as the institutional thesis, hold **Pitch A** as credential / proof-of-execution. *Rationale: Archie's portfolio is youth + ed equity, not trades; B is the natural first-touch in that lane.*
+5. **Warm intro via Roland's TheraHive / Digital+ lane** → lead with **Pitch A** (Digital+ language is Roland's), follow with **Pitch C**.
+6. **Warm intro via Jesse's operations / execution-credibility lane** → lead with **Pitch A** (concrete pilot + signed school district reads cleanest), follow with **Pitch C**.
 
 **Do not submit Pitch A and Pitch B simultaneously as separate pitches** — splitting signals confusion. The combined story belongs in Pitch C.
+
+---
+
+## Diligence-stage caution (log for follow-up materials)
+
+Strong evaluator note: as the pitches get tighter, a new risk emerges — **reviewer disbelief from scale density**. Fifteen platforms reads ambitious for an early-stage 501(c)(3); the pitches imply phasing reasonably but diligence conversations will require it explicitly. **Follow-up materials (one-pager, deck, full proposal) must lead with:** phased implementation roadmap · modularity / shared infrastructure layer · pilot prioritization sequencing · reusable architecture · explicit "interconnected but not simultaneously dependent on full completion" framing. The ecosystem story sells the vision; the modularity story sells the credibility.
 
 ---
 

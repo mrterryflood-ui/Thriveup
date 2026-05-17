@@ -1,5 +1,39 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## Smart Family Fund — pitch package send-ready (May 17, 2026)
+
+**Funder:** The Smart Family Fund (smartfamilyfund.org/introduce-yourself) · EIN 81-2297831 · Lisle IL · private foundation · FY24 assets $41.9M · ~$1.5M/yr giving · 30 grantees in 2024 · range $10K-$250K · median first grant $25K · sweet spot $50K · rolling.
+
+**Three brothers (board/giving committee):** Roland M. Smart (Mill Valley CA, TheraHive CEO, "Digital+" thesis), D. Archibald "Archie" Smart (DC, FTI Consulting MD, **Horizons Greater Washington board** — relationship lane), Jesse Safir (NYC, ABG Print, execution-credibility filter).
+
+**Six killer findings (verified 2026-05-17 from 990-PF on file):**
+1. **Workforce/CTE already in portfolio** — Career Technical Education Solutions (Marietta OH) $70K ongoing.
+2. **Zero TX grantees** → reframe TCAF as national platform, not Texas-piloted.
+3. **$1.94M mandatory 2025 deployment** (Part XI line 6f) — they will give more in 2025 than 2024.
+4. **Archie's Horizons board seat** explains the $125K DC ed-cluster (Horizons Greater Washington + Horizons National + Maret School same 3000 Cathedral Ave NW building). Relationship funder.
+5. **Realistic ask: $50K–$75K first-time grant** — sweet spot is $50K, ceiling $100K, $250K reserved for portfolio-thesis civic-tech (Recidiviz, VotingWorks).
+6. **~43% recurring grantees** — pitch must signal "build, not extract."
+
+**Three pitches all send-ready** (`docs/grants/smart-family-fund-pitches-2026-05-17.md`):
+- **Pitch A v2** — Trade Sims, single-narrative workforce, ~445 words, two evaluator passes 9/10+. Cleared all 8 evaluator fixes + the "drop 501(c)(3) determined Jan 2026 from contact block" required fix + "surface→pathway" register swap.
+- **Pitch B v2** — Foster-Youth Transition Engine ("meeting reintegration where it actually happens"), Maya persona parallel to Marcus, ~545 words, two evaluator passes 9/10+. Cleared "drop Jim Currier name from parenthetical" required fix (institution = NFYI alumni network, drop person name; name-drop is exposure if reader doesn't know him, premature claim if they do).
+- **Pitch C v2** — TCAF as Community Infrastructure (ecosystem thesis, "each platform is a door, not a destination"), ~545 words, two evaluator passes 10/10 narrative + 10/10 thesis fit. Cleared "frame the pilot-stage asymmetry deliberately" required fix — Trade Sims tagged *(cohort-launching stage)*, Transition Engine tagged *(infrastructure stage)*.
+
+**Submission decision tree** (lives in pitch doc, 6 branches):
+- Cold portal ~300 words → A · Cold ≥500 → C · Cold w/ attachments → A + (B+C follow-up).
+- **Warm via Archie/Horizons-adjacent ed-equity → lead B**, follow C, hold A as credential. (B is closer to his lane than workforce-first A.)
+- Warm via Roland/TheraHive Digital+ lane → lead A, follow C.
+- Warm via Jesse/operations lane → lead A, follow C.
+- Never submit A+B as separate pitches (signals confusion; combined story belongs in C).
+
+**🚨 Diligence-stage caution (log for follow-up materials):** Strongest evaluator note across both reads — fifteen-platform ecosystem creates **scale-density disbelief risk** at diligence stage. Pitches imply phasing reasonably, but diligence conversations will require explicit articulation. Follow-up materials (one-pager, deck, full proposal) MUST lead with: phased implementation roadmap · modularity / shared infrastructure layer · pilot prioritization sequencing · reusable architecture · explicit "interconnected but not simultaneously dependent on full completion" framing. **The ecosystem story sells the vision; the modularity story sells the credibility.**
+
+**Iron Rule status:** Clean across all three pitches. Zero funder names cited. Zero unverified dollar amounts or deadlines in pitch bodies. $50-75K ask is our own decision calibrated to verified killer-finding #5. All stats traceable to AFCARS / Midwest Study / NYTD federal sources, the 990-PF on file, or build logs.
+
+**Pre-submit checklist (still open):** Confirm TCAF Candid profile updated (Silver+ seal) · re-verify PFISD signed status · re-verify ACC outreach status · re-verify 200-by-July-1 cohort number is still live · strip any funder name we don't have written consent to cite.
+
+---
+
 ## ThriveUp Trade Sims — Trades #2-5 expansion (May 17, 2026)
 
 **Trigger:** User authorized expediting trades #2-5 (plumbing/HVAC/welding/automotive) after electrical (Trade #1, Phase A) shipped. Task-agent queue had concurrency limit of ~1-2 simultaneous; user frustrated with latency ("This test building takes forever… If you are free, you can start helping with some task too"). Main agent built 3 of 4 directly while task agents worked on the 4th.
