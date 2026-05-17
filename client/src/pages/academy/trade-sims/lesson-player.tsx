@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { CircuitCanvas } from "@/components/trade-sims/electrical/circuit-canvas";
 import { PlumbingCanvas } from "@/components/trade-sims/plumbing/plumbing-canvas";
+import { AutoCanvas } from "@/components/trade-sims/automotive/auto-canvas";
 import { useToast } from "@/hooks/use-toast";
 import {
   gradeBackflow,
@@ -38,8 +39,20 @@ function renderEngineCanvas(
     components: PlacedPlumbingComponent[];
     lastSolve: FlowSolveResult | null;
   }) => void,
+  tradeSlug?: string,
 ) {
   if (engineMode === "linear-dc") {
+    // Automotive lessons reuse the linear-dc solver but ship their own canvas
+    // so learners can watch terminal voltage sag on the battery/alternator
+    // while toggling fuses, starters, and internal resistance.
+    if (tradeSlug === "automotive") {
+      return (
+        <AutoCanvas
+          initialComponents={initialComponents ?? []}
+          onChange={(s) => { if (s.lastSolve) onRun(); }}
+        />
+      );
+    }
     return (
       <CircuitCanvas
         initialComponents={initialComponents ?? []}
@@ -483,6 +496,7 @@ export default function LessonPlayerPage() {
                     lesson.sandboxStarter?.initialComponents,
                     () => setHasRunSim(true),
                     setPlumbingFor("guided"),
+                    tradeSlug,
                   )}
                 </div>
               ) : (
@@ -522,7 +536,7 @@ export default function LessonPlayerPage() {
                     <p className="text-sm text-muted-foreground">{lesson.soloChallenge.successCriteria}</p>
                   </div>
                   {ENGINES_WITH_CANVAS.has(engineMode) &&
-                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"))}
+                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug)}
                   {lesson.soloChallenge.backflowRubric && engineMode === "pipe-network" && (() => {
                     const g = gradeBackflow(
                       lesson.soloChallenge.backflowRubric,
@@ -593,6 +607,7 @@ export default function LessonPlayerPage() {
                   lesson.sandboxStarter?.initialComponents,
                   () => setHasRunSim(true),
                   setPlumbingFor("sandbox"),
+                  tradeSlug,
                 )
               ) : (
                 <Alert>
