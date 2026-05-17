@@ -236,7 +236,7 @@ export default function LessonPlayerPage() {
       toast({
         title: "Not yet",
         description: requiresRun && !hasRunSim
-          ? "Run the circuit at least once on the canvas before marking complete."
+          ? "Run the sim at least once on the canvas before marking complete."
           : "Visit all four tabs (Concept, Guided, Solo, Sandbox) before marking complete.",
         variant: "destructive",
       });
@@ -498,7 +498,7 @@ export default function LessonPlayerPage() {
                 {!canMarkComplete && (
                   <p className="text-xs text-muted-foreground w-full">
                     {requiresRun && !hasRunSim
-                      ? "Run the circuit on the canvas at least once to unlock completion."
+                      ? "Run the sim on the canvas at least once to unlock completion."
                       : "Visit Concept, Guided, Solo, and Sandbox before completing."}
                   </p>
                 )}
