@@ -108,6 +108,7 @@ export default function LessonPlayerPage() {
 
   const [tab, setTab] = useState<PlayerTab>("concept");
   const [hint, setHint] = useState<string | null>(null);
+  const [debrief, setDebrief] = useState<string | null>(null);
   const [debriefNote, setDebriefNote] = useState("");
   const [startedAt] = useState(() => Date.now());
   // Real engagement tracking — gates "Mark complete" so a user can't just click
@@ -173,7 +174,7 @@ export default function LessonPlayerPage() {
     },
   });
 
-  // Hint mutation.
+  // Hint mutation (Solo tab).
   const askHint = useMutation({
     mutationFn: async () => {
       if (!lesson) return null;
@@ -185,6 +186,7 @@ export default function LessonPlayerPage() {
         },
         body: JSON.stringify({
           lessonId: lesson.id,
+          mode: "hint",
           question: "I'm stuck on the current step — give me a nudge without giving away the answer.",
           canvasState: { tab },
         }),
@@ -193,10 +195,39 @@ export default function LessonPlayerPage() {
       return res.json();
     },
     onSuccess: (d: any) => {
-      setHint(d?.hint ?? d?.message ?? "Try checking the wiring between the source and the load.");
+      setHint(d?.response ?? d?.hint ?? d?.message ?? "Try checking the wiring between the source and the load.");
     },
     onError: () => {
       setHint("Tutor is offline right now. Re-read the concept blurb and try the next step.");
+    },
+  });
+
+  // Debrief mutation (Debrief tab) — calls the same endpoint with mode=debrief
+  // and ensemble-consensus on the server. Passes the learner's notes so the
+  // summary actually reflects what they wrote.
+  const askDebrief = useMutation({
+    mutationFn: async () => {
+      if (!lesson) return null;
+      const res = await fetch("/api/trade-sims/ai-tutor/hint", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-anon-session": anonSessionId(),
+        },
+        body: JSON.stringify({
+          lessonId: lesson.id,
+          mode: "debrief",
+          canvasState: { tab, notes: debriefNote },
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+    onSuccess: (d: any) => {
+      setDebrief(d?.response ?? "Lesson wrapped. Try the next day to keep momentum.");
+    },
+    onError: () => {
+      setDebrief("Tutor is offline right now — your notes are saved locally; you can continue without a summary.");
     },
   });
 
@@ -488,6 +519,15 @@ export default function LessonPlayerPage() {
               </div>
               <div className="flex flex-wrap gap-2 pt-2">
                 <Button
+                  variant="outline"
+                  onClick={() => askDebrief.mutate()}
+                  disabled={askDebrief.isPending}
+                  data-testid="button-ask-debrief"
+                >
+                  {askDebrief.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <Lightbulb className="h-4 w-4 mr-1" />}
+                  Ask tutor for debrief
+                </Button>
+                <Button
                   onClick={handleComplete}
                   disabled={saveProgress.isPending || !canMarkComplete}
                   data-testid="button-mark-complete"
@@ -512,6 +552,12 @@ export default function LessonPlayerPage() {
                   </Button>
                 )}
               </div>
+              {debrief && (
+                <Alert data-testid="alert-debrief">
+                  <AlertTitle>Tutor debrief</AlertTitle>
+                  <AlertDescription className="whitespace-pre-wrap">{debrief}</AlertDescription>
+                </Alert>
+              )}
             </CardContent>
           </Card>
         </TabsContent>

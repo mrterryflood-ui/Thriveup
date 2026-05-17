@@ -53,7 +53,11 @@
 
 **Phase B acceptance status:** T005 (canvas) functional but node-id-input UX is v1 — graduates to true SVG drag-drop in a follow-up. T007 (5-loop player) DONE. T009 (landing + SEO) DONE.
 
-**Phase C still pending:** T008 AI tutor (proper 4-engine integration; current `/ai-tutor/hint` endpoint is stubbed and the player calls it but gracefully degrades to "Tutor is offline" if the stub returns non-ok). T011 full smoke test. T012 lessons-learned + congruence audit.
+**Phase C status (May 17, 2026):**
+- ✅ **T008 AI tutor 4-engine integration DONE on main.** `POST /api/trade-sims/ai-tutor/hint` (`server/trade-sims-routes.ts:369`) now calls `generateMultiAIResponse` from `server/ai-provider.ts` with mode-specific system prompts. Three modes: `hint` (Socratic, ≤2 sentences, single-engine, maxTokens 120), `debrief` (3-paragraph summary w/ credential pathway, ensemble consensus, maxTokens 400), `sandbox_help` (1-2 sentences, single-engine, maxTokens 150). Lesson context (title, day, concept blurb, key terms, credential pathway, solo prompt) loaded from DB and injected into prompt — AI is grounded in the actual lesson, not hallucinated. Multilingual via `language` param appended to system prompt. Graceful fallback to stable canned strings if provider chain throws, so player never breaks. Logged to `tradeSimsAiTutorSessions` with `modelUsed` = `ai-provider-chain` | `ai-provider-chain-ensemble` | `fallback-stub`. Player wires both `askHint` (Solo tab) and new `askDebrief` mutation (Debrief tab "Ask tutor for debrief" button, `data-testid=button-ask-debrief`). Smoke test confirmed both modes return real AI output against lesson id=1 (Ohm's Law).
+- ⏳ T011 full smoke test (visual UI walkthrough). T012 lessons-learned + congruence audit (partial — this entry + replit.md entry pending).
+
+**T008 quality note for future polish:** Ensemble consensus path in `generateMultiAIResponse` runs its own "expert synthesizer" system prompt internally, which overrides the debrief 3-paragraph format directive and leaks markdown headers (#, **). Content is correct; structure isn't enforced. Two fixes possible: (a) drop ensemble for debrief and reuse single-engine with longer maxTokens, or (b) extend `generateMultiAIResponse` to accept a `consensusSystemPrompt`. Left as-is for now; T008 acceptance ("returns plain-language nudge / summarizes session / surfaces credential pathway") is met.
 
 **Next:** Wait for HVAC task #36 to merge. Then Phase C wiring of the real AI tutor + congruence audit + lessons-learned commit.
 
