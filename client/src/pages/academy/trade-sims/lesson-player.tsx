@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useRoute, useLocation } from "wouter";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { anonSessionId } from "@/lib/trade-sims/anon-session";
@@ -9,10 +9,21 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronLeft, ChevronRight, BookOpen, Target, Beaker, Lightbulb, GraduationCap, Save, Loader2 } from "lucide-react";
+import {
+  ChevronLeft, ChevronRight, BookOpen, Target, Beaker, Lightbulb,
+  GraduationCap, Save, Loader2, CheckCircle2, XCircle,
+} from "lucide-react";
 import { CircuitCanvas } from "@/components/trade-sims/electrical/circuit-canvas";
 import { PlumbingCanvas } from "@/components/trade-sims/plumbing/plumbing-canvas";
 import { useToast } from "@/hooks/use-toast";
+import {
+  gradeBackflow,
+  backflowDebriefLine,
+  type BackflowRubric,
+  type BackflowGrade,
+} from "@/lib/trade-sims/plumbing/backflow-rubric";
+import type { FlowSolveResult } from "@/lib/trade-sims/plumbing/flow-solver";
+import type { PlacedPlumbingComponent } from "@/lib/trade-sims/plumbing/component-defs";
 
 /**
  * Render the right sim canvas for a given engineMode, or null if that engine
@@ -23,6 +34,10 @@ function renderEngineCanvas(
   engineMode: string,
   initialComponents: Array<{ kind: string; props?: Record<string, number | boolean | string> }> | undefined,
   onRun: () => void,
+  onPlumbingState?: (s: {
+    components: PlacedPlumbingComponent[];
+    lastSolve: FlowSolveResult | null;
+  }) => void,
 ) {
   if (engineMode === "linear-dc") {
     return (
@@ -36,11 +51,40 @@ function renderEngineCanvas(
     return (
       <PlumbingCanvas
         initialComponents={initialComponents ?? []}
-        onChange={(s) => { if (s.lastSolve) onRun(); }}
+        onChange={(s) => {
+          if (s.lastSolve) onRun();
+          onPlumbingState?.(s);
+        }}
       />
     );
   }
   return null;
+}
+
+/**
+ * Tiny pass/fail badge for a backflow-rubric step. Pulled out of the JSX
+ * to keep the guided-steps render readable.
+ */
+function BackflowGradeBadge({ grade }: { grade: BackflowGrade }) {
+  if (grade.status === "pending") {
+    return (
+      <Badge variant="outline" data-testid="badge-backflow-pending">
+        Run the sim to grade
+      </Badge>
+    );
+  }
+  if (grade.status === "pass") {
+    return (
+      <Badge className="bg-green-600 hover:bg-green-600" data-testid="badge-backflow-pass">
+        <CheckCircle2 className="h-3 w-3 mr-1" /> PASS
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="destructive" data-testid="badge-backflow-fail">
+      <XCircle className="h-3 w-3 mr-1" /> Not yet
+    </Badge>
+  );
 }
 
 // Derived from renderEngineCanvas — keep these in sync. Any engine listed here
@@ -75,11 +119,17 @@ interface LessonRow {
     keyTerms?: Array<{ term: string; definition: string }>;
     diagramKey?: string;
   } | null;
-  guidedSteps: Array<{ instruction: string; hint: string; checkDescription: string }> | null;
+  guidedSteps: Array<{
+    instruction: string;
+    hint: string;
+    checkDescription: string;
+    backflowRubric?: BackflowRubric;
+  }> | null;
   soloChallenge: {
     prompt: string;
     successCriteria: string;
     scoringRubric?: { correctness: number; time: number; componentCount: number };
+    backflowRubric?: BackflowRubric;
   } | null;
   sandboxStarter: {
     prompt: string;
@@ -115,6 +165,33 @@ export default function LessonPlayerPage() {
   // Concept → Debrief and claim 100%. Honesty-in-claims requirement.
   const [tabsVisited, setTabsVisited] = useState<Set<PlayerTab>>(new Set(["concept"]));
   const [hasRunSim, setHasRunSim] = useState(false);
+  // Latest plumbing canvas state, scoped PER TAB. Guided / Solo / Sandbox
+  // each mount their own PlumbingCanvas instance, so we must not let a
+  // Guided solve bleed into the Solo rubric (and vice-versa) — that would
+  // grade the learner on work they did somewhere else.
+  type PlumbingTabState = {
+    components: PlacedPlumbingComponent[];
+    lastSolve: FlowSolveResult | null;
+  };
+  const EMPTY_PLUMBING: PlumbingTabState = { components: [], lastSolve: null };
+  const [plumbingByTab, setPlumbingByTab] = useState<Record<PlayerTab, PlumbingTabState>>({
+    concept: EMPTY_PLUMBING,
+    guided: EMPTY_PLUMBING,
+    solo: EMPTY_PLUMBING,
+    sandbox: EMPTY_PLUMBING,
+    debrief: EMPTY_PLUMBING,
+  });
+  const setPlumbingFor = useCallback(
+    (t: PlayerTab) => (s: PlumbingTabState) =>
+      setPlumbingByTab((prev) => ({ ...prev, [t]: s })),
+    [],
+  );
+  const guidedPlumbing = plumbingByTab.guided;
+  const soloPlumbing = plumbingByTab.solo;
+  // Debrief: prefer the Solo result (it's the graded one); fall back to
+  // Guided so the learner still gets a "what the solver caught" summary if
+  // they never finished Solo.
+  const debriefPlumbing = soloPlumbing.lastSolve ? soloPlumbing : guidedPlumbing;
   const initialProgressFired = useRef(false);
 
   const { data: lessonData, isLoading } = useQuery<{ trade: TradeRow; lesson: LessonRow }>({
@@ -375,18 +452,29 @@ export default function LessonPlayerPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {(lesson.guidedSteps ?? []).map((step, i) => (
-                <div key={i} className="border-l-4 border-primary pl-4 py-2" data-testid={`block-step-${i}`}>
-                  <div className="flex items-start gap-2">
-                    <Badge className="mt-0.5">{i + 1}</Badge>
-                    <div className="flex-1">
-                      <div className="font-semibold">{step.instruction}</div>
-                      <div className="text-sm text-muted-foreground mt-1">Hint: {step.hint}</div>
-                      <div className="text-xs text-muted-foreground/80 mt-1">Check: {step.checkDescription}</div>
+              {(lesson.guidedSteps ?? []).map((step, i) => {
+                const grade = step.backflowRubric && engineMode === "pipe-network"
+                  ? gradeBackflow(step.backflowRubric, guidedPlumbing.lastSolve, guidedPlumbing.components)
+                  : null;
+                return (
+                  <div key={i} className="border-l-4 border-primary pl-4 py-2" data-testid={`block-step-${i}`}>
+                    <div className="flex items-start gap-2">
+                      <Badge className="mt-0.5">{i + 1}</Badge>
+                      <div className="flex-1">
+                        <div className="font-semibold">{step.instruction}</div>
+                        <div className="text-sm text-muted-foreground mt-1">Hint: {step.hint}</div>
+                        <div className="text-xs text-muted-foreground/80 mt-1">Check: {step.checkDescription}</div>
+                        {grade && (
+                          <div className="mt-2 flex items-start gap-2" data-testid={`grade-step-${i}`}>
+                            <BackflowGradeBadge grade={grade} />
+                            <p className="text-xs text-muted-foreground flex-1">{grade.message}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
               {ENGINES_WITH_CANVAS.has(engineMode) ? (
                 <div className="pt-4 border-t">
                   <h3 className="font-semibold mb-2">Build it on the canvas</h3>
@@ -394,6 +482,7 @@ export default function LessonPlayerPage() {
                     engineMode,
                     lesson.sandboxStarter?.initialComponents,
                     () => setHasRunSim(true),
+                    setPlumbingFor("guided"),
                   )}
                 </div>
               ) : (
@@ -433,7 +522,33 @@ export default function LessonPlayerPage() {
                     <p className="text-sm text-muted-foreground">{lesson.soloChallenge.successCriteria}</p>
                   </div>
                   {ENGINES_WITH_CANVAS.has(engineMode) &&
-                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true))}
+                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"))}
+                  {lesson.soloChallenge.backflowRubric && engineMode === "pipe-network" && (() => {
+                    const g = gradeBackflow(
+                      lesson.soloChallenge.backflowRubric,
+                      soloPlumbing.lastSolve,
+                      soloPlumbing.components,
+                    );
+                    return (
+                      <Alert
+                        variant={g.status === "fail" ? "destructive" : "default"}
+                        data-testid="alert-solo-grade"
+                      >
+                        <AlertTitle className="flex items-center gap-2">
+                          <BackflowGradeBadge grade={g} />
+                          <span>Solo grade</span>
+                        </AlertTitle>
+                        <AlertDescription>
+                          {g.message}
+                          {g.status !== "pending" && (
+                            <span className="block text-xs mt-1 opacity-80">
+                              Check valves closed in last run: {g.closedCount}.
+                            </span>
+                          )}
+                        </AlertDescription>
+                      </Alert>
+                    );
+                  })()}
                   <div className="flex gap-2 pt-2">
                     <Button
                       variant="outline"
@@ -477,6 +592,7 @@ export default function LessonPlayerPage() {
                   engineMode,
                   lesson.sandboxStarter?.initialComponents,
                   () => setHasRunSim(true),
+                  setPlumbingFor("sandbox"),
                 )
               ) : (
                 <Alert>
@@ -507,6 +623,16 @@ export default function LessonPlayerPage() {
                 <h3 className="font-semibold mb-1">Credential pathway</h3>
                 <p className="text-sm" data-testid="text-credential-pathway">{lesson.credentialPathway}</p>
               </div>
+              {engineMode === "pipe-network" && (() => {
+                const line = backflowDebriefLine(debriefPlumbing.lastSolve, debriefPlumbing.components);
+                if (!line) return null;
+                return (
+                  <Alert data-testid="alert-backflow-debrief">
+                    <AlertTitle>What the solver caught</AlertTitle>
+                    <AlertDescription>{line}</AlertDescription>
+                  </Alert>
+                );
+              })()}
               <div>
                 <h3 className="font-semibold mb-1">Your notes</h3>
                 <Textarea

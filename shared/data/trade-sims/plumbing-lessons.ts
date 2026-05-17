@@ -18,10 +18,23 @@ export type PlumbingLessonConcept = {
   diagramKey?: string;
 };
 
+/**
+ * Pass/fail rubric that grades a learner's plumbing network based on the
+ * `closedOneWays` signal from the flow solver. Attach to a guided step or
+ * solo challenge to turn the existing red-badge backflow signal into actual
+ * pedagogy. See `client/src/lib/trade-sims/plumbing/backflow-rubric.ts`.
+ */
+export type PlumbingBackflowRubric = {
+  mode: "must-close" | "must-not-close" | "must-have-check-valve";
+  passMessage: string;
+  failMessage: string;
+};
+
 export type PlumbingLessonGuidedStep = {
   instruction: string;
   hint: string;
   checkDescription: string;
+  backflowRubric?: PlumbingBackflowRubric;
 };
 
 export type PlumbingLessonSoloChallenge = {
@@ -32,6 +45,7 @@ export type PlumbingLessonSoloChallenge = {
     time: number;
     componentCount: number;
   };
+  backflowRubric?: PlumbingBackflowRubric;
 };
 
 export type PlumbingLessonSandboxStarter = {
@@ -322,25 +336,40 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build: Tank (40 m) → Check Valve → Pipe → second Tank (0 m).",
-        hint: "Standard one-way installation.",
-        checkDescription: "tank + check valve + pipe + tank",
+        instruction: "Build: Tank (40 m) → Check Valve → Pipe → second Tank (0 m). Run the sim. Expected: forward flow, no check valve closed.",
+        hint: "Standard one-way installation. The check valve should sit idle on the forward run.",
+        checkDescription: "tank + check valve + pipe + tank; no closed one-ways",
+        backflowRubric: {
+          mode: "must-not-close",
+          passMessage: "Forward run: pressure pushes the right direction and the check valve stays open. That's the everyday case — the valve is doing nothing yet, and that's correct.",
+          failMessage: "Your check valve closed on a forward run. That usually means the source tank is lower than the sink — re-check the head values before swapping them in the next step.",
+        },
       },
       {
-        instruction: "Run — flow goes the intended direction. Now swap the two tank heads (set source to 0 m, sink to 40 m).",
-        hint: "This simulates the supply briefly losing pressure.",
-        checkDescription: "tank heads swapped",
+        instruction: "Now swap the two tank heads (set source to 0 m, sink to 40 m) and run again. The check valve must now do its job.",
+        hint: "This simulates the supply briefly losing pressure while a downstream tank is still full.",
+        checkDescription: "tank heads swapped; at least one check valve closed",
+        backflowRubric: {
+          mode: "must-close",
+          passMessage: "Backflow event caught. The solver forced the check valve closed — in the real world that's the moment the valve seats and protects the clean supply.",
+          failMessage: "Swap the source and sink tank heads (source = 0 m, sink = 40 m) and run the sim. The check valve should be forced closed; if it isn't, the network isn't producing a reverse-pressure scenario yet.",
+        },
       },
       {
-        instruction: "Real check valves prevent reverse flow entirely. v1 models them as high-restriction; note the very low backward flow.",
-        hint: "The post-solve player flags any negative flow through a check valve as a code violation.",
-        checkDescription: "backward flow detected and flagged",
+        instruction: "Read the red badge: the player lists every check valve the solver had to close. That list is the same signal a real backflow-prevention assembly test report records.",
+        hint: "Closed-one-ways is the auditable trail. Zero closures on a backflow event = the supply was contaminated.",
+        checkDescription: "learner reads the closedOneWays badge",
       },
     ],
     soloChallenge: {
-      prompt: "An irrigation system feeds from the same supply as the house. The irrigation injector sometimes adds fertilizer. What backflow device is required?",
-      successCriteria: "Identify: reduced-pressure zone assembly (RPZ). Air gap acceptable for low-hazard; RPZ required for high-hazard chemical injection.",
+      prompt: "Build a network that proves backflow protection works: a high downstream tank, a check valve, a pipe, and a low upstream tank. Run it and force the solver to close the check valve. PASS = at least one check valve is closed in the result.",
+      successCriteria: "PASS when the solver's closedOneWays list contains at least one check valve — i.e. your design actually triggered backflow and your check valve actually caught it. Bonus: write one sentence about why an RPZ would be required instead of a check valve for an irrigation system with a fertilizer injector.",
       scoringRubric: { correctness: 1, time: 0, componentCount: 0 },
+      backflowRubric: {
+        mode: "must-close",
+        passMessage: "Solo PASS. Your network created a reverse-pressure scenario and your check valve closed to prevent it. That's what every backflow-prevention assembly test is verifying in the field.",
+        failMessage: "Solo not yet passing. Build a layout where the downstream tank head is higher than the source tank head, put a check valve in between, and run the sim. The solver will flag the closed check valve in its red badge.",
+      },
     },
     sandboxStarter: {
       initialComponents: [
