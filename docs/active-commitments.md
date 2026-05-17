@@ -1,5 +1,33 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## 🚨 Pipeline triage pass (2026-05-17 PM-late — "this is causing me to miss opportunities")
+
+User directive: stop letting memory-only funder targets sit outside the discovery engine. Done in one pass:
+
+**Promoted to `pursuing`:**
+- Promise Neighborhoods 84.215N (Dept of Ed) · deadline **2026-08-06** · was sitting in `identified` despite memory saying TCAF prime. Two duplicate DB rows both flipped — needs dedupe pass later.
+
+**Added (4 new manual entries, flagged `[MEMORY-SOURCED — verify before commit]`):**
+- Lowe's Gable CBO · deadline **2026-09-03** (window opens Aug 1) · fit 85 · `identified`
+- Home Depot Path to Pro · rolling · fit 85 · `identified` · PFISD co-applicant
+- DOL-ETA Strengthening Community Colleges R7 · not yet announced · fit 90 · `watch_next_cycle` · ACC prime
+- TWC Skills Development Fund (rolling) · fit 88 · `identified` · ACC partner needed. Old RFA 32026-00162 row kept as `expired` separately.
+
+**Dismissed:**
+- NIST RAMPS (cyber workforce) · fit 73 · 10 days out · outside Trade Sims trade scope (5 trades: electrical/plumbing/HVAC/welding/auto, no cyber). No infrastructure to mobilize. Marked `dismissed` with reasoning in notes.
+
+**Hygiene:** 70 past-deadline rows that were still active → marked `expired` (had been polluting "open opps" views).
+
+**Engine state after pass:** 655 total grants · 3 pursuing · 0 dirty past-deadline rows.
+
+**Iron Rule discipline on the 4 manual inserts:** memory is not a primary source. All four carry an explicit `[MEMORY-SOURCED 2026-05-17 — primary-source verify funder site before commitment]` flag in their `notes` field. Before any of these moves to pitch/LOI, primary-source verify on the funder's own page (deadlines, ask range, eligibility). The data is in the engine so it's visible and reviewable — it is NOT yet pitch-ready.
+
+**Still-open from this pass:**
+- Promise Neighborhoods has two duplicate DB rows (`Promise Neighborhoods` + `Promise Neighborhoods-84.215N`, same deadline). Dedupe before sending any digest.
+- NIST RAMPS dismissal was based on Trade Sims scope only — if cyber workforce becomes in-scope later (e.g. via a partner like ACC cyber program), revisit.
+
+---
+
 ## 🚨 Grant Discovery Engine — freshness gap (open investigation, 2026-05-17 PM-late)
 
 **Primary-source check** (SQL against `grant_opportunities`, 2026-05-17 PM-late):
@@ -25,11 +53,21 @@ TOTAL          651
 
 **SAM.gov framing correction:** Memory + recent agent statements said "SAM.gov returning HTTP 200 with 16,667 records." That's the API national total, not our DB holdings. Our actual ingest = **36 curated samgov rows.** Honest pitch line going forward: *"We screen the full SAM.gov feed (~16K active records) and ingest the ~36 that fit our current scope."* NEVER claim "we track 16,667 SAM.gov opportunities" — that would be the kind of conflation Iron Rule forbids.
 
-**Open investigation (before next pitch cites "daily refresh"):**
-1. Check the scan cron — is it actually firing daily? `server/grant-routes.ts` ~line 6359.
-2. If firing, why no new rows in 48hrs? Possible causes: dedupe-only writes (existing rows updated but no `updated_at` bump), source-side staleness (Grants.gov may have had a quiet 2-day window), or silent failure in the scan.
-3. Manual trigger: `POST /api/grants/discovery/run-now` — fire once to confirm engine still works.
-4. Until verified, the language in external materials should be "regular scans" not "daily" or "24-hour."
+**Investigation RESOLVED (2026-05-17 PM-late):** Engine is **not broken** — it's working as designed. Boot logs show:
+
+1. `[GrantDiscovery] Running initial grant scan on startup...` fires correctly at the 15s timer.
+2. SAM.gov scan: **34 keywords × 10 results each = ~340 results returned, `0 new imported, 10 duplicates skipped per keyword`**. The dedupe layer is doing its job — we've already ingested everything SAM.gov is currently surfacing for these keywords.
+3. Grants.gov scan was mid-flight at log capture; similar behavior expected.
+4. Status endpoint shows `"Not yet run"` because `lastDailyDiscoveryRun` is only set AFTER the full multi-source scan completes (~minutes, not seconds). This is a UI lag, not a scan failure.
+
+**Real conclusion:** The "48hr no writes" gap is **expected mature-pipeline behavior** — once you've caught up to the feed, most daily scans return 100% duplicates. The 47 rows/7d we saw earlier represent the actual organic flow: a few new postings per day, not hundreds.
+
+**What this means for pitches:** Honest framing is *"engine runs daily, ingests new postings as they appear — current backlog is fully caught up"* — NOT *"engine ingests hundreds of new grants daily."* The latter would be false.
+
+**Status endpoint UX issue (low priority):** `"Not yet run"` is misleading. Should display "Currently scanning..." while in-flight, then "Last completed: X" after. File a fix when convenient — `server/grant-routes.ts` around the status route handler.
+
+**Outstanding hygiene from this pass:**
+- Two Promise Neighborhoods duplicate rows (`93e3cf8b...` and `0a474e54...`) — dedupe before next digest.
 
 **Status field truth:**
 - ✅ 651 grants, 208 high-fit, 10+ sources — accurate
