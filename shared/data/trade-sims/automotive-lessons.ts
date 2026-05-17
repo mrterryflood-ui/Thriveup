@@ -141,9 +141,10 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
       ],
     },
     guidedSteps: [
-      { instruction: "Build a battery + fuse + starter motor circuit, with chassis ground returning the loop.", hint: "Use a 200 A fuse so it doesn't immediately blow.", checkDescription: "car_battery + fuse(200A, not blown) + starter_motor + ground_point wired in a complete loop" },
-      { instruction: "Run the sim. Note the starter current and battery+ voltage.", hint: "Expect ~250 A current, ~12.5 V at battery+ (small drop across the tiny fuse resistance).", checkDescription: "starter current between 200 A and 300 A" },
-      { instruction: "Mark the fuse as BLOWN. Re-run.", hint: "Open circuit — starter current should go to zero.", checkDescription: "starter current = 0 A when fuse blown" },
+      { instruction: "Build a battery + fuse + starter motor circuit, with chassis ground returning the loop. Leave the battery at its healthy defaults (12.6 V, internalResistance 0.02 Ω).", hint: "Use a 200 A fuse so it doesn't immediately blow.", checkDescription: "car_battery(voltage 12.6, internalResistance 0.02) + fuse(200A, not blown) + starter_motor + ground_point wired in a complete loop" },
+      { instruction: "Mark the fuse as BLOWN and run the sim. With no current flowing, terminal voltage at battery+ should sit at the battery's open-circuit value.", hint: "No load means I × R_internal = 0 — the terminal reads the full open-circuit voltage.", checkDescription: "with fuse blown, terminal voltage at battery+ ≈ 12.6 V (within 0.1 V) and starter current = 0 A" },
+      { instruction: "Un-blow the fuse and re-run. Watch terminal voltage at battery+ sag the moment the starter starts cranking.", hint: "V_terminal = V_open − I × R_internal. With ~180 A through a 0.02 Ω internal R, the terminal sags about 3-4 V from open-circuit.", checkDescription: "with healthy battery cranking, starter current is 150-250 A and terminal voltage at battery+ sags to ~8-10 V (clearly below open-circuit 12.6 V, well above the 9.6 V cranking floor)" },
+      { instruction: "Edit the battery's internalResistance to 0.10 Ω (a tired, aging battery) and re-run.", hint: "Higher internal R fights the starter draw harder. Hand-calc: I = 12.6 / (0.10 + 0.05) = 84 A, V_terminal = 12.6 − 84 × 0.10 ≈ 4.2 V.", checkDescription: "with internalResistance raised to 0.10 Ω, terminal voltage at battery+ drops below 10 V (target ~4-5 V), and starter current collapses below 100 A — the diagnostic signature of a weak battery" },
     ],
     soloChallenge: {
       prompt: "A car cranks slowly. You suspect either a weak battery or a corroded starter cable. Build a model that shows ~150 A starter current (instead of 250 A). Identify which component you adjusted.",

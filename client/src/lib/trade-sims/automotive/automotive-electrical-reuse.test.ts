@@ -349,6 +349,128 @@ function check(name: string, ok: boolean, details = ""): void {
 }
 
 // -----------------------------------------------------------------------------
+// Test 7 — Day 3 acceptance: terminal voltage sag at a HEALTHY 12.6 V battery
+// with ELEVATED internal resistance must match the hand-calc
+//     V_terminal = V_open − I × R_internal
+// across two contrasting cases:
+//   (a) Healthy:   V=12.6, R_int=0.02, R_starter=0.05
+//                  I = 12.6 / (0.02 + 0.05 + 1e-6) ≈ 180 A
+//                  V_terminal = 12.6 − 180 × 0.02 = 9.0 V  (sags, but >= 9.6 floor only marginally)
+//   (b) Aging:     V=12.6, R_int=0.10, R_starter=0.05
+//                  I = 12.6 / (0.10 + 0.05 + 1e-6) ≈ 84 A
+//                  V_terminal = 12.6 − 84 × 0.10 = 4.2 V   (well below the 10 V threshold)
+//
+// Both cases are stamped through the adapter with an AdapterContext so the
+// hidden internal-node path is exercised end-to-end — this is what the Day 3
+// guided steps lean on.
+// -----------------------------------------------------------------------------
+function runSagCase(
+  label: string,
+  vOpen: number,
+  rInt: number,
+  rStarter: number,
+): { I: number; vTerminal: number } | null {
+  const startNodes = 3; // 0 = ground, 1 = battery+, 2 = between fuse and starter
+  const alloc = makeAllocator(startNodes);
+
+  const battery: PlacedAutoComponent = {
+    id: "BAT",
+    kind: "car_battery",
+    terminalNodes: { pos: 1, neg: 0 },
+    props: { voltage: vOpen, internalResistance: rInt },
+  };
+  const fuse: PlacedAutoComponent = {
+    id: "F1",
+    kind: "fuse",
+    terminalNodes: { a: 1, b: 2 },
+    props: { ratedAmps: 200, blown: false },
+  };
+  const starter: PlacedAutoComponent = {
+    id: "STR",
+    kind: "starter_motor",
+    terminalNodes: { pos: 2, neg: 0 },
+    props: { resistance: rStarter },
+  };
+
+  const elements: CircuitElement[] = [
+    ...placedToSolverElements(battery, alloc.ctx),
+    ...placedToSolverElements(fuse, alloc.ctx),
+    ...placedToSolverElements(starter, alloc.ctx),
+  ];
+
+  const result = solveCircuit({ nodeCount: alloc.count(), elements });
+  if (!result.ok) {
+    check(`Test 7 [${label}]: solves`, false, result.error);
+    return null;
+  }
+  check(`Test 7 [${label}]: solves`, true);
+  return {
+    I: Math.abs(result.resistorCurrents["STR"]),
+    vTerminal: result.nodeVoltages[1],
+  };
+}
+
+{
+  // (a) Healthy battery — terminal sags moderately, current ~180 A.
+  const healthy = runSagCase("healthy 12.6V/0.02Ω", 12.6, 0.02, 0.05);
+  if (healthy) {
+    const I_expected = 12.6 / (0.02 + 0.05 + 1e-6);
+    const V_expected = 12.6 - I_expected * 0.02;
+    check(
+      "Test 7 [healthy]: starter current matches hand-calc (~180 A)",
+      approxEq(healthy.I, I_expected, 0.05),
+      `got ${healthy.I.toFixed(2)} A, expected ${I_expected.toFixed(2)} A`,
+    );
+    check(
+      "Test 7 [healthy]: terminal V matches 12.6 − I × R_internal (~9.0 V)",
+      approxEq(healthy.vTerminal, V_expected, 0.05),
+      `got ${healthy.vTerminal.toFixed(3)} V, expected ${V_expected.toFixed(3)} V`,
+    );
+    check(
+      "Test 7 [healthy]: cranking current is in the 150-250 A band",
+      healthy.I > 150 && healthy.I < 250,
+      `got ${healthy.I.toFixed(2)} A`,
+    );
+  }
+
+  // (b) Aging battery — terminal sags BELOW 10 V, current collapses below 100 A.
+  const aging = runSagCase("aging 12.6V/0.10Ω", 12.6, 0.10, 0.05);
+  if (aging) {
+    const I_expected = 12.6 / (0.10 + 0.05 + 1e-6);
+    const V_expected = 12.6 - I_expected * 0.10;
+    check(
+      "Test 7 [aging]: starter current matches hand-calc (~84 A)",
+      approxEq(aging.I, I_expected, 0.05),
+      `got ${aging.I.toFixed(2)} A, expected ${I_expected.toFixed(2)} A`,
+    );
+    check(
+      "Test 7 [aging]: terminal V matches 12.6 − I × R_internal (~4.2 V)",
+      approxEq(aging.vTerminal, V_expected, 0.05),
+      `got ${aging.vTerminal.toFixed(3)} V, expected ${V_expected.toFixed(3)} V`,
+    );
+    check(
+      "Test 7 [aging]: terminal voltage drops below the 10 V diagnostic threshold",
+      aging.vTerminal < 10,
+      `got ${aging.vTerminal.toFixed(3)} V`,
+    );
+    check(
+      "Test 7 [aging]: cranking current collapses below 100 A",
+      aging.I < 100,
+      `got ${aging.I.toFixed(2)} A`,
+    );
+  }
+
+  // (c) Aging must sag MORE than healthy — the teaching contrast.
+  if (healthy && aging) {
+    check(
+      "Test 7 [contrast]: aging terminal V is lower than healthy terminal V",
+      aging.vTerminal < healthy.vTerminal,
+      `healthy=${healthy.vTerminal.toFixed(2)} V, aging=${aging.vTerminal.toFixed(2)} V`,
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
 // Summary.
 // -----------------------------------------------------------------------------
 console.log(`\n  ${pass} passed, ${fail} failed`);
