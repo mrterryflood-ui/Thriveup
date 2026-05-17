@@ -2,7 +2,7 @@
 
 Stale-but-permanent reference material moved out of `replit.md` to keep the active memory lean. **Nothing here is deleted** — it is preserved here in full so future sessions can recover the full record if needed. `replit.md` retains one-line pointers back to entries here.
 
-Last updated: 2026-05-15 PM.
+Last updated: 2026-05-17 PM-late.
 
 ---
 
@@ -175,3 +175,70 @@ Full entity registry: `docs/active-commitments.md` "Dr. Flood's Other Entities �
 **Renewal cadence:** annual. Failure to renew = loss of federal-award eligibility — set calendar reminder for 2027-04-01 to begin renewal cycle ~30 days before expiry.
 
 Live in `docs/active-commitments.md` "TCAF SAM.gov + Federal Registration Identifiers" section.
+
+---
+
+## A12. Trade Sims — full implementation detail (May 17, 2026)
+
+**Top-line for `replit.md`:** 5 trades × 15 lessons = 75 in DB. Canvas coverage **75/75 (100%)** as of 2026-05-17. Player at `client/src/pages/academy/trade-sims/lesson-player.tsx`. Backend `server/trade-sims-routes.ts` + 6 tables. AI tutor at `POST /api/trade-sims/ai-tutor/hint`. Audit doc → `docs/grants/trade-sims-audit-2026-05-17.md`.
+
+**Schema (6 tables):** `tradeSimsTrades` · `tradeSimsLessons` · `tradeSimsLessonProgress` · `tradeSimsSandboxProjects` · `tradeSimsAiTutorSessions` · plus user-scoping joins.
+
+**Mark Complete gate:**
+- Canvas lessons (any with a sim engine): must run sim at least once before Mark Complete is enabled.
+- Concept-only lessons (30 of 75): need ≥40-word Solo reflection before Mark Complete is enabled.
+
+**LocalStorage persistence:** Reflection text + sandbox journal entries keyed by `lesson.id`. Survives anon → login transition. Server progress write happens at Mark Complete, not per-keystroke.
+
+**Engine badge labels (learner-facing, never raw):**
+- Canvas + physics → "Interactive sim"
+- Calculator + light sim → "Calculator + sim"
+- Concept-only → "Read + reflect"
+
+**AI tutor prompt structure:**
+- Lesson context injected automatically (trade, day number, concept, current canvas state)
+- Mode-specific system prompts: Socratic-hint (nudge, no answer-giving) vs ensemble-debrief (summarize session, suggest next level, surface credential pathway)
+- Multilingual via existing `POST /api/translate` route
+- Graceful fallback to single-engine if 4-engine synthesis times out
+
+**Sandbox starter prompts:** Every concept-only lesson now shows its `sandboxStarter.prompt` + persisted journal Textarea. The "Phase B+ placeholder" pattern is fully retired as of 2026-05-17 PM-late.
+
+---
+
+## A13. Trade Sims — credentials + apprenticeships + funder sequencing (May 17, 2026)
+
+**Top-line for `replit.md`:** Cert page `/academy/trade-sims/:tradeSlug/certify`. Test prep gated at 80% lesson completion. Server `server/trade-sims-cert-routes.ts` (`registerTradeSimsCertRoutes`). Funder sequencing in `docs/grants/trade-sims-funder-sequencing-2026-05-17.md`. M2 partner one-pager in `docs/grants/trade-sims-m2-one-pager.md`.
+
+**Static data files (no new DB tables):**
+- `shared/data/trade-sims/certifications.ts` — 3 industry credentials per trade (OSHA 10, NCCER L1, state apprentice reg, AWS SENSE, AWS D1.1, ASE G1, EPA 609, EPA 608 Universal, NATE RTW)
+- `shared/data/trade-sims/apprenticeships.ts` — 2-3 registered apprenticeship pathways per trade (IBEW/NECA, UA, ABC, Iron Workers, SMART, OEM tech programs, TDLR, TSBPE)
+- `shared/data/trade-sims/cert-practice-banks.ts` — ~35 practice questions across 10 certs, explicit "study questions only" disclaimer
+
+**Universal locators:** apprenticeship.gov · TWC · WorkInTexas (linked from every cert detail page)
+
+**Gating logic:** Test prep page only renders practice content when `tradeSimsLessonProgress.status === "completed"` for ≥80% of that trade's lessons. Works for both userId-scoped and anon-scoped progress.
+
+**Iron Rule framing:** No quoted fees anywhere in product UI. Every credential card links to the sponsoring body (OSHA, NCCER, AWS, ASE, EPA, NATE, etc.) for the authoritative fee/eligibility info. Funder one-pager stays scope-only; live deadlines/amounts live in the dated sequencing doc.
+
+**Top-3 funder targets (verified 2026-05-17 PM-very-late):**
+1. **Lowe's Gable CBO** — window **Aug 1 → Sep 3, 2026** (HARD DATES)
+2. **TWC Skills Development Fund** — rolling, needs TX CC partner (= ACC, Dr. Flood leading outreach)
+3. **Home Depot Path to Pro** — rolling, needs brick-and-mortar co-applicant (= PFISD, already agreed to partner; additional partners welcome but PFISD is locked)
+
+**Closed/paused/invitation-only:**
+- TWC JET FY26 closed
+- USDOL HVRP PY26 closed; next PY27 ~early 2027 (Dr. Flood to pursue M2 signed sub-agreement before then)
+- USDOL ABA + H-1B no active NOFA
+- Siemens/Schultz invitation-only
+
+**Federal pipeline scan 2026-05-17:**
+- SAM.gov returned zero relevant opps for this scope (SAM = contracts, not grants)
+- Real federal plays: **(a)** TCAF prime on Promise Neighborhoods ED-GRANT-26-054 (closes **08/06/2026**), **(b)** ACC prime on DOL-ETA Strengthening Community Colleges Round 7 when it announces — Round 6 FOA-ETA-26-40 closes 05/20/2026 too tight, **(c)** sub-awardee role under TWC/TEA on state-formula pots (DOL-OESE-34043 CPE state-only, SAEF4 formula, WIOA Youth formula)
+- Full Tier 1/2/3 table in `docs/grants/trade-sims-funder-sequencing-2026-05-17.md`
+
+**Confirmed partner moves (2026-05-17 PM-very-late):**
+- **TX CC partner = Austin Community College (ACC)** — Dr. Flood to lead outreach
+- **Physical-site partner for Path to Pro / K-12 angle = Pflugerville ISD (PFISD)**, already agreed to partner
+- **M2 signed sub-agreement** — Dr. Flood to pursue before HVRP PY27
+- **SAM.gov API key rotation** completed (env `SAM_GOV_API_KEY`, used in `server/grant-routes.ts`); verified returning HTTP 200 with 16,667 records
+- **Pilot cohort target = 200 learners by July 1, 2026** to feed Tier 2 discovery calls
