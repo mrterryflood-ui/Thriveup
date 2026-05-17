@@ -101,7 +101,7 @@ Relationship funder. Pitch must signal "build, not extract."
 >
 > A young man named Marcus aged out of foster care last year. He's smart, motivated, and could be earning $28/hr installing HVAC inside 18 months — except the community college runs day classes in English, the OEM bootcamp wants a tuition deposit, and the apprenticeship paperwork assumes he already knows what apprenticeship means.
 >
-> **The Collaborative Advocate Foundation (TCAF)** built **ThriveUp Trade Sims** to close that gap. Five trades are live today (electrical, plumbing, HVAC, welding, automotive) — 75 lessons running on real physics engines. Every lesson uses the same five-loop pattern: concept → guided practice → solo challenge → sandbox → AI debrief. Four AI engines (Gemini, Claude, GPT, DeepSeek) work in parallel so no single provider's downtime interrupts a learner's session, with hints in any of 10 languages. At 80% completion the platform routes the learner to a vetted credential prep surface — OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1.
+> **The Collaborative Advocate Foundation (TCAF)** built **ThriveUp Trade Sims** to close that gap. Five trades are live today (electrical, plumbing, HVAC, welding, automotive) — 75 lessons running on real physics engines. Every lesson uses the same five-loop pattern: concept → guided practice → solo challenge → sandbox → AI debrief. Four AI engines (Gemini, Claude, GPT, DeepSeek) work in parallel so no single provider's downtime interrupts a learner's session, with hints in any of 10 languages. At 80% completion the platform routes the learner to a vetted credential prep pathway — OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1.
 >
 > **Why we're different.** Per Scholas proved tuition-free workforce training can scale. TheraHive proved Digital+ — structured online learning plus human cohort — beats either alone. Trade Sims combines both for the trades: free, open, multilingual, credential-routed. We built it around a simple principle: programs only matter if people can actually use them, stay with them, and translate them into real opportunity. The frameworks we lean on for that — CFIR, RE-AIM, RPLICE — are tools, not theater. Most early-stage nonprofits learn this language years in. We structured TCAF around it from day one rather than retrofitting to it.
 >
@@ -111,7 +111,7 @@ Relationship funder. Pitch must signal "build, not extract."
 >
 > **The ask.** A first-year commitment of $50,000–$75,000 funds outcomes instrumentation across the pilot — credential-test pass-rate tracking and the evidence base we'll bring back to you at twelve months. We're not looking for a transaction. We're looking for the partner who funds the chapter where a new 501(c)(3) becomes a national piece of public-good infrastructure — and we'd build that chapter with you for a decade.
 >
-> Dr. Terry Flood Sr., President · The Collaborative Advocate Foundation · 501(c)(3) determined January 2026 · EIN 41-3618003 · terryflood@thrivingcommunitiesforall.com · thrivingcommunitiesforall.com
+> Dr. Terry Flood Sr., President · The Collaborative Advocate Foundation · EIN 41-3618003 · terryflood@thrivingcommunitiesforall.com · thrivingcommunitiesforall.com
 
 ---
 

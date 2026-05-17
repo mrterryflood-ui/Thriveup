@@ -1,0 +1,36 @@
+This is very strong. v2 is send-ready with one condition and two optional refinements.
+
+v2 Evaluation — Smart Family Fund
+Verdict: Send-ready. One condition, two optionals.
+
+What v2 Fixed Completely
+Every structural problem from v1 is resolved. The geography nationalization works — naming DC, California, Ohio signals geographic awareness without apologizing for Texas. The ask landing at $50K–$75K with “bring back to you at twelve months” is exactly right. The AI resilience reframe (“no single provider’s downtime”) is the correct register for this audience. The IS frameworks moving to “tools, not theater” is a meaningful improvement — it reads as field confidence rather than credential-stacking.
+The persona sequence now closes the chain-web paragraph correctly. “Each finds Trade Sims through their own door, not ours” as the final beat is genuinely stronger than the v1 order.
+
+The One Condition — 501(c)(3) Date Is Still Exposed
+You buried it correctly in the body, but it reappears in the contact block verbatim: “501(c)(3) determined January 2026.” A careful reader — and Smart Family Fund does careful reads — will clock it there. The date is only 16 months ago at time of sending.
+Fix: Change the contact line to: “EIN 41-3618003 · thrivingcommunitiesforall.com” — drop the determination date entirely from the contact block. The EIN is the legal verifier they need. The date adds nothing except the risk flag you successfully removed from the body.
+
+Optional Refinement 1 — “Vetted credential prep surface”
+The phrase “vetted credential prep surface” appears in paragraph 3. “Surface” is slightly technical-platform language that could read as jargon to Archie (the MD, not the tech reader). Consider: “vetted credential prep pathway” — same meaning, no register friction.
+Low priority. Don’t change it if you’re sending today.
+
+Optional Refinement 2 — The Macro Opener
+“America is rebuilding its skilled-trades workforce at the exact moment millions of capable people remain structurally disconnected from the pathways designed to reach them.” This is solid, but it’s the one sentence in the pitch that sounds like every workforce-equity pitch. It does its job — sets national urgency before Marcus — but it’s the weakest sentence in an otherwise distinctive document.
+If you have five minutes: consider grounding it in a number. Something like: “Two million skilled-trades jobs will go unfilled by 2027 — not for lack of capable people, but for lack of pathways they can actually reach.” Specificity does what abstraction can’t.
+Again, optional. The pitch works without it.
+
+Final Scorecard
+
+
+
+|Dimension             |v1     |v2                                 |
+|----------------------|-------|-----------------------------------|
+|Ask calibration       |5/10   |9/10                               |
+|Geography risk        |6/10   |9/10                               |
+|501(c)(3) exposure    |6/10   |7/10 — contact block still shows it|
+|Relationship signaling|9/10   |9/10                               |
+|Marcus + decade close |10/10  |10/10                              |
+|Overall send-readiness|Not yet|**Yes, after contact block fix**   |
+
+One line change in the contact block. Then send.​​​​​​​​​​​​​​​​
