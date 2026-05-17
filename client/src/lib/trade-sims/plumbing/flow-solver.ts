@@ -12,7 +12,10 @@
  *     h_f = K * Q * |Q|     where    K = 8 * f * L / (pi^2 * g * D^5)
  *
  * Optional pump elements add a constant head boost along a pipe; optional
- * valve restrictions add to K. Closed valves remove the pipe.
+ * valve restrictions add to K. Closed valves remove the pipe. One-way pipes
+ * (check valves) are handled with an outer active-set loop: if a one-way
+ * pipe shows reverse flow, close it and re-solve; if a closed one-way pipe
+ * shows forward driving head, reopen it.
  *
  * All errors surface as `{ ok: false, error: string }` — no throws — so the
  * lesson player can render them inline.
@@ -32,6 +35,13 @@ export interface Pipe {
   pumpHead?: number; // m of head added in the from->to direction
   valveClosed?: boolean;
   valveKAdd?: number; // additional K added by a restricting valve
+  /**
+   * If true, this pipe blocks reverse flow. Models a check valve.
+   * When the solver finds the pipe would carry negative flow (to->from),
+   * it is treated as closed for the next pass. When closed but driving
+   * head reappears in the forward (from->to) direction, it reopens.
+   */
+  oneWay?: boolean;
 }
 
 export interface Junction {
@@ -53,6 +63,12 @@ export interface FlowSolveResult {
   flows: Record<string, number>; // pipe id -> flow (m^3/s), positive = from->to
   iterations: number;
   residual: number; // max |mass-balance error| at any free junction (m^3/s)
+  /**
+   * Ids of one-way pipes that the active-set loop forced closed because
+   * the network was trying to push flow through them backwards. Useful for
+   * UI to highlight "this check valve prevented backflow."
+   */
+  closedOneWays: string[];
 }
 
 export interface FlowSolveError {
@@ -102,8 +118,8 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
     }
   }
   const pIds = new Set<string>();
-  // Active pipes: exclude closed valves and degenerate pipes.
-  const active: Pipe[] = [];
+  // Active pipes: exclude user-closed valves and degenerate pipes.
+  const userOpen: Pipe[] = [];
   for (const p of pipes) {
     if (pIds.has(p.id)) return { ok: false, error: `Duplicate pipe id: ${p.id}` };
     pIds.add(p.id);
@@ -116,7 +132,7 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
       return { ok: false, error: `Pipe ${p.id} has non-positive friction factor.` };
     }
     if (p.valveClosed) continue;
-    active.push(p);
+    userOpen.push(p);
   }
 
   const fixedHeadMap = new Map<string, number>();
@@ -132,7 +148,77 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
     };
   }
 
-  // --- 2. Reachability: every free junction must reach a fixed-head one ----
+  // --- 2. Active-set outer loop for one-way (check valve) pipes ----------
+  // `forcedClosed` is the set of one-way pipe ids the active-set logic has
+  // decided to close to prevent reverse flow. Inner solve runs with
+  // `userOpen - forcedClosed`. After each inner solve, we check whether the
+  // active set is consistent: any open one-way pipe with negative flow gets
+  // closed; any closed one-way pipe with forward driving head gets reopened.
+  const FLOW_NEG_TOL = Math.max(tol, 1e-10); // m^3/s — reverse flow threshold
+  const ONEWAY_REOPEN_TOL = 1e-6; // m — forward head threshold to reopen
+  const MAX_ACTIVE_SET_PASSES = 20;
+  const forcedClosed = new Set<string>();
+
+  let result: FlowSolveResult | FlowSolveError | null = null;
+  let pass = 0;
+  for (; pass < MAX_ACTIVE_SET_PASSES; pass++) {
+    const active = userOpen.filter((p) => !forcedClosed.has(p.id));
+    result = solveInner(active, junctions, fixedHeadMap, demandMap, maxIter, tol);
+    if (!result.ok) return result;
+
+    // Fill zero flow for any pipe we excluded so the result is complete.
+    for (const p of pipes) {
+      if (!(p.id in result.flows)) result.flows[p.id] = 0;
+    }
+
+    // Decide whether the active set changed.
+    let changed = false;
+    for (const p of userOpen) {
+      if (!p.oneWay) continue;
+      if (forcedClosed.has(p.id)) {
+        // Closed: would it reopen? Need forward driving head.
+        const hf = result.heads[p.from];
+        const ht = result.heads[p.to];
+        if (hf === undefined || ht === undefined) continue;
+        const dH = hf + (p.pumpHead ?? 0) - ht;
+        if (dH > ONEWAY_REOPEN_TOL) {
+          forcedClosed.delete(p.id);
+          changed = true;
+        }
+      } else {
+        // Open: is it carrying reverse flow?
+        const q = result.flows[p.id] ?? 0;
+        if (q < -FLOW_NEG_TOL) {
+          forcedClosed.add(p.id);
+          changed = true;
+        }
+      }
+    }
+    if (!changed) {
+      result.closedOneWays = [...forcedClosed];
+      return result;
+    }
+  }
+  return {
+    ok: false,
+    error: `One-way pipe active-set did not stabilize after ${MAX_ACTIVE_SET_PASSES} passes — check-valve placement may be cyclic or inconsistent.`,
+  };
+}
+
+/**
+ * Inner solver: given a pre-filtered active pipe set (user-open AND not
+ * forced-closed by the active-set loop), compute heads and flows. Same
+ * Newton-Raphson on junction heads as the original implementation.
+ */
+function solveInner(
+  active: Pipe[],
+  junctions: Junction[],
+  fixedHeadMap: Map<string, number>,
+  demandMap: Map<string, number>,
+  maxIter: number,
+  tol: number,
+): FlowSolveResult | FlowSolveError {
+  // --- Reachability: every free junction must reach a fixed-head one -----
   const adj = new Map<string, string[]>();
   for (const j of junctions) adj.set(j.id, []);
   for (const p of active) {
@@ -154,12 +240,12 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
     if (!reached.has(j.id)) {
       return {
         ok: false,
-        error: `Junction ${j.id} is not connected to any fixed-head boundary — network is over-constrained or disconnected.`,
+        error: `Junction ${j.id} is not connected to any fixed-head boundary — network is over-constrained or disconnected. (A check valve may be installed in the wrong direction, blocking the only supply path.)`,
       };
     }
   }
 
-  // --- 3. Index free (non-fixed-head) junctions ----------------------------
+  // --- Index free (non-fixed-head) junctions ----------------------------
   const free: string[] = [];
   const freeIdx = new Map<string, number>();
   for (const j of junctions) {
@@ -187,15 +273,12 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
 
   // Flow on pipe from->to given current heads. Uses smoothed |Q|-linearization
   // near zero to keep the Jacobian non-singular.
-  // dH := H_from + pumpHead - H_to.  h_f = K * Q * |Q|  =>  Q = sign(dH) sqrt(|dH|/K)
-  // Derivative dQ/dH_from = 1/(2 K |Q|) (linearized).  We use a smoothing term.
   const Q_EPS = 1e-12;
   const pipeFlow = (p: Pipe, hf: number, ht: number): { q: number; dqdh: number } => {
     const k = K.get(p.id)!;
     const dH = hf + (p.pumpHead ?? 0) - ht;
     const aDH = Math.abs(dH);
     const q = Math.sign(dH) * Math.sqrt(aDH / k);
-    // dQ/d(dH) = 1/(2 sqrt(k * |dH|)) ; smoothed by Q_EPS in denominator.
     const dqdh = 1 / (2 * Math.sqrt(k * Math.max(aDH, Q_EPS)));
     return { q, dqdh };
   };
@@ -207,28 +290,19 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
       const { q } = pipeFlow(p, fixedHeadMap.get(p.from)!, fixedHeadMap.get(p.to)!);
       flows[p.id] = q;
     }
-    // Closed/missing pipes report zero.
-    for (const p of pipes) if (!(p.id in flows)) flows[p.id] = 0;
     const heads: Record<string, number> = {};
     for (const j of junctions) heads[j.id] = fixedHeadMap.get(j.id)!;
-    return { ok: true, heads, flows, iterations: 0, residual: 0 };
+    return { ok: true, heads, flows, iterations: 0, residual: 0, closedOneWays: [] };
   }
 
-  // Adjacency: for each free junction, the pipes touching it.
-  const incident = new Map<string, Pipe[]>();
-  for (const id of free) incident.set(id, []);
-  for (const p of active) {
-    if (freeIdx.has(p.from)) incident.get(p.from)!.push(p);
-    if (freeIdx.has(p.to)) incident.get(p.to)!.push(p);
-  }
+  // Adjacency by free junction (kept for parity with original; unused below).
+  void adj;
 
-  // --- 4. Newton-Raphson loop ---------------------------------------------
+  // --- Newton-Raphson loop ----------------------------------------------
   let lastResidual = Infinity;
   let iter = 0;
   for (; iter < maxIter; iter++) {
-    // Residual F_i = sum(Q into junction i) - demand_i
     const F = new Array<number>(n).fill(0);
-    // Jacobian J (n x n)
     const J: number[][] = Array.from({ length: n }, () => new Array<number>(n).fill(0));
 
     for (let i = 0; i < n; i++) {
@@ -239,19 +313,17 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
       const hf = headOf(p.from);
       const ht = headOf(p.to);
       const { q, dqdh } = pipeFlow(p, hf, ht);
-      // Q flows from->to. Into "from" = -q ; Into "to" = +q.
       const fi = freeIdx.get(p.from);
       const ti = freeIdx.get(p.to);
       if (fi !== undefined) F[fi] += -q;
       if (ti !== undefined) F[ti] += +q;
-      // dQ/dH_from = +dqdh, dQ/dH_to = -dqdh
       if (fi !== undefined) {
-        J[fi][fi] += -dqdh; // d(-q)/dH_from
-        if (ti !== undefined) J[fi][ti] += +dqdh; // d(-q)/dH_to
+        J[fi][fi] += -dqdh;
+        if (ti !== undefined) J[fi][ti] += +dqdh;
       }
       if (ti !== undefined) {
-        J[ti][ti] += -dqdh; // d(+q)/dH_to = -dqdh
-        if (fi !== undefined) J[ti][fi] += +dqdh; // d(+q)/dH_from = +dqdh
+        J[ti][ti] += -dqdh;
+        if (fi !== undefined) J[ti][fi] += +dqdh;
       }
     }
 
@@ -259,7 +331,6 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
     lastResidual = maxRes;
     if (maxRes < tol) break;
 
-    // Solve J * dH = -F  via Gaussian elimination with partial pivoting.
     const A: number[][] = J.map((row, i) => [...row, -F[i]]);
     for (let i = 0; i < n; i++) {
       let piv = i;
@@ -293,7 +364,6 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
       for (let c = i + 1; c < n; c++) s -= A[i][c] * dH[c];
       dH[i] = s / A[i][i];
     }
-    // Damped Newton step to keep convergence stable near zero-flow.
     const DAMP = 0.7;
     for (let i = 0; i < n; i++) H[i] += DAMP * dH[i];
   }
@@ -305,7 +375,6 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
     };
   }
 
-  // --- 5. Pack results -----------------------------------------------------
   const heads: Record<string, number> = {};
   for (const j of junctions) heads[j.id] = headOf(j.id);
   const flows: Record<string, number> = {};
@@ -313,9 +382,8 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
     const { q } = pipeFlow(p, headOf(p.from), headOf(p.to));
     flows[p.id] = q;
   }
-  for (const p of pipes) if (!(p.id in flows)) flows[p.id] = 0;
 
-  return { ok: true, heads, flows, iterations: iter, residual: lastResidual };
+  return { ok: true, heads, flows, iterations: iter, residual: lastResidual, closedOneWays: [] };
 }
 
 /** Convenience: head loss across a pipe at a given flow (m). */

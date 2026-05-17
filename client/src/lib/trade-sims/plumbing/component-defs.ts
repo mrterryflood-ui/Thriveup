@@ -349,9 +349,10 @@ export function placedToSolverElements(
         break;
       }
       case "check_valve": {
-        // V1 model: treat as a small-restriction open pipe. True one-way
-        // semantics require a sign check on flow which lives in the player's
-        // post-solve validation pass.
+        // True one-way model (Task #41): solver's active-set loop closes the
+        // pipe whenever reverse flow is attempted, and reopens it when
+        // forward driving head returns. A small valveKAdd represents the
+        // mechanical restriction of the check-valve mechanism itself.
         pipes.push({
           id: c.id,
           from: c.terminalNodes.in,
@@ -359,7 +360,8 @@ export function placedToSolverElements(
           length: 0.1,
           diameter: 0.019,
           frictionFactor: 0.022,
-          valveKAdd: 100,
+          valveKAdd: 5,
+          oneWay: true,
         });
         ensureJunction(c.terminalNodes.in);
         ensureJunction(c.terminalNodes.out);

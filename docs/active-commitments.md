@@ -70,6 +70,14 @@
 
 **Follow-up still open:** Task #41 (check-valve one-way enforcement) is the natural next step but is already on the backlog — not creating a duplicate. SVG drag-drop for both canvases remains a v2 enhancement.
 
+**Check valves are now truly one-way (Task #41, May 17, 2026):** Replaced the v1 high-K-restriction model with a proper **active-set Newton-Raphson outer loop**. Solver now exposes `oneWay?: boolean` on `Pipe`; the outer loop closes any one-way pipe that resolves to reverse flow (q < -tol) and reopens any closed one-way pipe whose driving head returns forward (dH > 1e-6 m). Caps at 20 outer passes. `FlowSolveResult` now carries `closedOneWays: string[]` so the UI can highlight which check valves activated.
+- `component-defs.ts` check_valve now emits `{oneWay: true, valveKAdd: 5}` instead of the old `valveKAdd: 100` hack. The 5 represents real mechanical restriction; the one-way blocking is now solver-enforced, not a post-hoc validation pass.
+- 5 new tests in `flow-solver.test.ts` covering (13) reverse-installed valve blocks all flow, (14) correctly-oriented valve passes flow with no false closure, (15) parallel reverse-valve closes but the open parallel branch keeps flowing, (16) correct valve stays open under steady forward pressure with mass balance preserved, (17) Day 6 contract — no oneWay pipe ever reports negative flow. **All 17 tests pass.**
+- Canvas now surfaces closure: `closedOneWays` ids render a destructive-variant `🛑 backflow blocked` badge instead of "no flow," and the explanatory footer calls out the count with actionable guidance ("check valve installed in wrong direction or no forward driving head — fix orientation or add pressure"). Honest disclosure intact.
+- Reachability errors after closure now include the hint "(A check valve may be installed in the wrong direction, blocking the only supply path)."
+
+**Day 6 (Backflow Prevention) lesson contract now holds end-to-end:** any negative flow through a check valve is impossible in the solver, not just flagged afterward. The post-solve validation workaround mentioned in the original component-def comment is removed.
+
 ---
 
 ## SafeReport platform upgrade + documentation sweep (May 15, 2026)

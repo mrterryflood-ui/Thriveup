@@ -263,5 +263,105 @@ test("12. rejects negative fixedHead (pressure boundary must be >= 0)", () => {
   assert(/negative pressure boundary/i.test(r.error), `error should mention negative pressure boundary, got: ${r.error}`);
 });
 
+// 13. One-way check valve blocks reverse flow
+test("13. one-way check valve installed in wrong direction blocks all flow (no backflow allowed)", () => {
+  // A=50m, B=30m. Without the check valve, water flows A->B.
+  // Install a check valve oriented B->A (i.e., it would only allow B->A flow).
+  // The natural pressure gradient drives water A->B, but the check valve
+  // sits in series and blocks that direction. Result: zero flow everywhere.
+  const r = solveFlow({
+    pipes: [
+      { id: "p1", from: "A", to: "M", length: 50, diameter: 0.1, frictionFactor: 0.02 },
+      // Check valve oriented B->M (reverse of needed direction)
+      { id: "cv", from: "B", to: "M", length: 0.1, diameter: 0.019, frictionFactor: 0.022, oneWay: true, valveKAdd: 5 },
+    ],
+    junctions: [{ id: "A", fixedHead: 50 }, { id: "M" }, { id: "B", fixedHead: 30 }],
+  });
+  assert(r.ok, `expected ok, got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  // The check valve must be forced closed (it would have to flow M->B, which it forbids).
+  assert(r.closedOneWays.includes("cv"), `check valve cv should be force-closed, got ${JSON.stringify(r.closedOneWays)}`);
+  assert(Math.abs(r.flows.cv) < 1e-10, `closed check valve flow must be 0, got ${r.flows.cv}`);
+  // And p1 should also have zero flow because M has no outlet.
+  assert(Math.abs(r.flows.p1) < 1e-6, `p1 should have ~0 flow with no outlet from M, got ${r.flows.p1}`);
+});
+
+// 14. One-way check valve allows forward flow (no false closure)
+test("14. one-way check valve allows forward flow unchanged", () => {
+  // A=50m, B=30m. Check valve oriented A->B (correct direction).
+  // Should pass flow forward, closedOneWays must be empty.
+  const r = solveFlow({
+    pipes: [
+      { id: "p1", from: "A", to: "M", length: 50, diameter: 0.1, frictionFactor: 0.02 },
+      { id: "cv", from: "M", to: "B", length: 0.1, diameter: 0.019, frictionFactor: 0.022, oneWay: true, valveKAdd: 5 },
+    ],
+    junctions: [{ id: "A", fixedHead: 50 }, { id: "M" }, { id: "B", fixedHead: 30 }],
+  });
+  assert(r.ok, `expected ok, got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  assert(r.closedOneWays.length === 0, `no check valves should be closed, got ${JSON.stringify(r.closedOneWays)}`);
+  assert(r.flows.cv > 0, `check valve cv should carry forward flow, got ${r.flows.cv}`);
+  assert(r.flows.p1 > 0, `p1 should carry forward flow, got ${r.flows.p1}`);
+});
+
+// 15. Parallel-path check valve blocks the reverse branch only
+test("15. parallel check valve closes its branch but the open parallel branch keeps flowing", () => {
+  // Two parallel paths from A (high) to B (low):
+  //   Path 1: A -> p1 -> B   (open pipe)
+  //   Path 2: A -> cv -> B   (check valve installed in REVERSE, B->A direction)
+  // Water naturally wants to flow A->B on both. The reverse check valve on
+  // path 2 closes; path 1 carries all the flow.
+  const r = solveFlow({
+    pipes: [
+      { id: "p1", from: "A", to: "B", length: 100, diameter: 0.1, frictionFactor: 0.02 },
+      { id: "cv", from: "B", to: "A", length: 0.1, diameter: 0.05, frictionFactor: 0.022, oneWay: true, valveKAdd: 5 },
+    ],
+    junctions: [{ id: "A", fixedHead: 50 }, { id: "B", fixedHead: 30 }],
+  });
+  assert(r.ok, `expected ok, got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  assert(r.closedOneWays.includes("cv"), `reversed check valve must be force-closed`);
+  assert(Math.abs(r.flows.cv) < 1e-10, `closed check valve flow must be exactly 0, got ${r.flows.cv}`);
+  assert(r.flows.p1 > 0, `open parallel path must carry forward flow, got ${r.flows.p1}`);
+});
+
+// 16. Check valve oriented correctly with parallel reverse-pressure pipe
+test("16. correctly-oriented check valve stays open under steady forward pressure", () => {
+  // A high, M middle (free), B low. Two paths from A to M:
+  //   p1: A -> M
+  //   cv: A -> M (check valve correctly oriented; should stay open)
+  // Then p2: M -> B as the only outlet.
+  const r = solveFlow({
+    pipes: [
+      { id: "p1", from: "A", to: "M", length: 50, diameter: 0.08, frictionFactor: 0.02 },
+      { id: "cv", from: "A", to: "M", length: 0.1, diameter: 0.05, frictionFactor: 0.022, oneWay: true, valveKAdd: 5 },
+      { id: "p2", from: "M", to: "B", length: 50, diameter: 0.1, frictionFactor: 0.02 },
+    ],
+    junctions: [{ id: "A", fixedHead: 60 }, { id: "M" }, { id: "B", fixedHead: 30 }],
+  });
+  assert(r.ok, `expected ok, got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  assert(r.closedOneWays.length === 0, `no check valves should be closed, got ${JSON.stringify(r.closedOneWays)}`);
+  assert(r.flows.cv > 0, `correctly-oriented check valve must stay open, got ${r.flows.cv}`);
+  // Mass balance at M: flow in from p1 + cv == flow out via p2
+  const balance = r.flows.p1 + r.flows.cv - r.flows.p2;
+  assert(approx(balance, 0, 1e-6), `junction M mass balance ${balance} != 0`);
+});
+
+// 17. Check valve guarantees no negative flow (the Day 6 contract)
+test("17. no one-way pipe ever reports negative flow in the result (Day 6 contract)", () => {
+  // Reverse-installed check valve. Must end with flow = 0 (closed), never < 0.
+  const r = solveFlow({
+    pipes: [
+      { id: "p1", from: "A", to: "B", length: 100, diameter: 0.1, frictionFactor: 0.02 },
+      { id: "cv", from: "B", to: "A", length: 0.1, diameter: 0.05, frictionFactor: 0.022, oneWay: true, valveKAdd: 5 },
+    ],
+    junctions: [{ id: "A", fixedHead: 50 }, { id: "B", fixedHead: 30 }],
+  });
+  assert(r.ok, `expected ok, got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  assert(r.flows.cv >= -1e-10, `Day 6 contract violated: check valve has reverse flow ${r.flows.cv}`);
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

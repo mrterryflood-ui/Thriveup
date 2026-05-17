@@ -345,11 +345,14 @@ export function PlumbingCanvas({ initialComponents, onChange, compact = false }:
                   const def = PLUMBING_COMPONENT_DEFS[c.kind];
                   const q = result.flows[c.id];
                   if (q === undefined) return null;
-                  const direction = Math.abs(q) < 1e-12
-                    ? "no flow"
-                    : q > 0
-                      ? "→ forward"
-                      : "← reverse";
+                  const closed = result.closedOneWays?.includes(c.id) ?? false;
+                  const direction = closed
+                    ? "🛑 backflow blocked"
+                    : Math.abs(q) < 1e-12
+                      ? "no flow"
+                      : q > 0
+                        ? "→ forward"
+                        : "← reverse";
                   const loss = headLossPerPipe[c.id];
                   return (
                     <div
@@ -360,8 +363,10 @@ export function PlumbingCanvas({ initialComponents, onChange, compact = false }:
                       <Badge variant="secondary">{def.label}</Badge>
                       <span>{c.id.slice(0, 6)}</span>
                       <span>{fmtFlow(Math.abs(q))}</span>
-                      <Badge variant={Math.abs(q) < 1e-12 ? "outline" : "default"}>{direction}</Badge>
-                      {loss !== undefined && Math.abs(loss) > 1e-6 && (
+                      <Badge variant={closed ? "destructive" : Math.abs(q) < 1e-12 ? "outline" : "default"}>
+                        {direction}
+                      </Badge>
+                      {loss !== undefined && Math.abs(loss) > 1e-6 && !closed && (
                         <span className="text-muted-foreground">
                           Δh = {loss.toFixed(3)} m
                         </span>
@@ -373,7 +378,17 @@ export function PlumbingCanvas({ initialComponents, onChange, compact = false }:
             </div>
             <div className="text-xs text-muted-foreground">
               Positive flow = direction defined by the component (pipe a→b, pump in→out, check_valve in→out).
-              Negative flow on a check valve in a real install would close it — flag and re-run as a follow-up exercise.
+              {result.closedOneWays && result.closedOneWays.length > 0 && (
+                <>
+                  {" "}
+                  <strong className="text-destructive">
+                    {result.closedOneWays.length} check valve{result.closedOneWays.length === 1 ? "" : "s"} closed
+                    to prevent backflow.
+                  </strong>{" "}
+                  This usually means the valve is installed in the wrong direction or the network has no forward
+                  driving head — fix orientation or add pressure.
+                </>
+              )}
             </div>
           </CardContent>
         </Card>
