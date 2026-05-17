@@ -240,35 +240,60 @@ export interface PlacedAutoComponent {
 }
 
 /**
+ * Optional adapter context — lets callers compile multiple components at
+ * once while reserving hidden nodes for source internal resistance. Without
+ * a context, the adapter falls back to ideal-source stamping for a single
+ * source, which is fine for one-source circuits but will produce a singular
+ * MNA system if two sources (e.g. battery + running alternator) sit in
+ * parallel. Pass an `allocNode()` plus the current `nodeCount` to get safe
+ * stamping for any number of paralleled sources.
+ */
+export interface AdapterContext {
+  /** Returns the next free node id and increments the caller's counter. */
+  allocNode: () => number;
+}
+
+function stampSourceWithInternalR(
+  id: string,
+  posNode: number,
+  negNode: number,
+  voltage: number,
+  rInt: number,
+  ctx: AdapterContext | undefined,
+): CircuitElement[] {
+  if (rInt <= 0) {
+    return [{ id, kind: "vsource", nodes: [posNode, negNode], voltage }];
+  }
+  if (!ctx) {
+    // No allocator — fall back to ideal source. Safe for single-source
+    // circuits; callers with multiple paralleled sources MUST pass ctx.
+    return [{ id, kind: "vsource", nodes: [posNode, negNode], voltage }];
+  }
+  const hidden = ctx.allocNode();
+  return [
+    { id: `${id}_src`, kind: "vsource", nodes: [hidden, negNode], voltage },
+    { id: `${id}_rint`, kind: "resistor", nodes: [posNode, hidden], resistance: rInt },
+  ];
+}
+
+/**
  * Adapter — translate a placed automotive component into electrical-solver
  * elements. Diagnostic-ish components return [] (the player handles them
- * outside the solver). Battery + alternator INCLUDE their internal/source
- * resistance as a separate resistor element where applicable so cranking
- * voltage sag is observable.
+ * outside the solver). When an `AdapterContext` is supplied, battery and
+ * running alternator are stamped as (ideal source + series internal R)
+ * using a freshly-allocated hidden node so multiple sources can be wired
+ * in parallel without producing a singular MNA system.
  */
-export function placedToSolverElements(comp: PlacedAutoComponent): CircuitElement[] {
+export function placedToSolverElements(
+  comp: PlacedAutoComponent,
+  ctx?: AdapterContext,
+): CircuitElement[] {
   const { id, kind, terminalNodes, props } = comp;
   switch (kind) {
     case "car_battery": {
-      // Ideal source in series with internal resistance. We expose only the
-      // source here — callers that want sag should model the internal R as a
-      // separate resistor wired between the battery's pos node and the load.
-      // For v1 simplicity we lump it as a tiny resistor on the output.
       const v = Number(props.voltage ?? 12.6);
       const rInt = Number(props.internalResistance ?? 0.02);
-      const internalNode = -1; // placeholder; the canvas layer will inject a node when it sees rInt > 0
-      if (rInt <= 0 || internalNode < 0) {
-        return [{ id, kind: "vsource", nodes: [terminalNodes.pos, terminalNodes.neg], voltage: v }];
-      }
-      // If the canvas pre-allocated an internal node (via prop `internalNode`), use it.
-      const allocated = Number((props as { internalNode?: number }).internalNode ?? -1);
-      if (allocated >= 0) {
-        return [
-          { id: `${id}_src`, kind: "vsource", nodes: [allocated, terminalNodes.neg], voltage: v },
-          { id: `${id}_rint`, kind: "resistor", nodes: [terminalNodes.pos, allocated], resistance: rInt },
-        ];
-      }
-      return [{ id, kind: "vsource", nodes: [terminalNodes.pos, terminalNodes.neg], voltage: v }];
+      return stampSourceWithInternalR(id, terminalNodes.pos, terminalNodes.neg, v, rInt, ctx);
     }
     case "starter_motor": {
       const r = Number(props.resistance ?? 0.05);
@@ -278,7 +303,10 @@ export function placedToSolverElements(comp: PlacedAutoComponent): CircuitElemen
       const running = Boolean(props.running);
       if (!running) return [];
       const v = Number(props.voltage ?? 14.2);
-      return [{ id, kind: "vsource", nodes: [terminalNodes.pos, terminalNodes.neg], voltage: v }];
+      // Real alternators have ~0.05-0.15 Ω source resistance — let callers
+      // override via `sourceResistance` prop; default 0.1 Ω.
+      const rSrc = Number(props.sourceResistance ?? 0.1);
+      return stampSourceWithInternalR(id, terminalNodes.pos, terminalNodes.neg, v, rSrc, ctx);
     }
     case "fuse": {
       const blown = Boolean(props.blown);

@@ -7,7 +7,20 @@
  */
 
 import { solveCircuit, type CircuitElement } from "../electrical/circuit-solver";
-import { placedToSolverElements, type PlacedAutoComponent } from "./component-defs";
+import {
+  placedToSolverElements,
+  type AdapterContext,
+  type PlacedAutoComponent,
+} from "./component-defs";
+
+/** Build an allocator that hands out fresh node ids and tracks the high-water mark. */
+function makeAllocator(initialCount: number): { ctx: AdapterContext; count: () => number } {
+  let next = initialCount;
+  return {
+    ctx: { allocNode: () => next++ },
+    count: () => next,
+  };
+}
 
 let pass = 0;
 let fail = 0;
@@ -208,6 +221,131 @@ function check(name: string, ok: boolean, details = ""): void {
     "Test 4: battery alone contributes 1 vsource",
     elements.filter((e) => e.kind === "vsource").length === 1,
   );
+}
+
+// -----------------------------------------------------------------------------
+// Test 5 — Starter-circuit-with-dead-battery (REQUIRED acceptance case).
+//
+// A severely depleted lead-acid battery shows two symptoms: (a) lowered
+// open-circuit voltage (down from 12.6 V to ~8 V), and (b) elevated
+// internal resistance (up from ~0.02 Ω to ~0.5 Ω as plates sulfate). With
+// the starter still drawing through its ~0.05 Ω, the current collapses
+// from ~252 A (healthy) to:
+//
+//   I = V_oc / (R_internal + R_starter) = 8 / (0.5 + 0.05) ≈ 14.5 A
+//
+// That's ~5% of the cranking current a healthy battery delivers — far too
+// little to spin the engine. This case exercises the adapter's internal-R
+// path via `AdapterContext`.
+// -----------------------------------------------------------------------------
+{
+  const startNodes = 3; // ground=0, battery+=1, between fuse and starter=2
+  const alloc = makeAllocator(startNodes);
+
+  const deadBattery: PlacedAutoComponent = {
+    id: "BAT",
+    kind: "car_battery",
+    terminalNodes: { pos: 1, neg: 0 },
+    props: { voltage: 8.0, internalResistance: 0.5 },
+  };
+  const fuse: PlacedAutoComponent = {
+    id: "F1",
+    kind: "fuse",
+    terminalNodes: { a: 1, b: 2 },
+    props: { ratedAmps: 200, blown: false },
+  };
+  const starter: PlacedAutoComponent = {
+    id: "STR",
+    kind: "starter_motor",
+    terminalNodes: { pos: 2, neg: 0 },
+    props: { resistance: 0.05 },
+  };
+
+  const elements: CircuitElement[] = [
+    ...placedToSolverElements(deadBattery, alloc.ctx),
+    ...placedToSolverElements(fuse, alloc.ctx),
+    ...placedToSolverElements(starter, alloc.ctx),
+  ];
+
+  const result = solveCircuit({ nodeCount: alloc.count(), elements });
+  if (!result.ok) {
+    check("Test 5: dead-battery starter solves through adapter", false, result.error);
+  } else {
+    check("Test 5: solver returns ok with dead battery", true);
+    const expectedI = 8.0 / (0.5 + 0.05 + 1e-6); // ≈ 14.545 A
+    const starterCurrent = Math.abs(result.resistorCurrents["STR"]);
+    check(
+      "Test 5: starter current collapses to ~14.5 A (very low)",
+      approxEq(starterCurrent, expectedI, 0.05),
+      `got ${starterCurrent}, expected ~${expectedI.toFixed(2)}`,
+    );
+    check(
+      "Test 5: dead-battery current is < 10% of healthy cranking (252 A)",
+      starterCurrent < 25,
+      `got ${starterCurrent} A`,
+    );
+    // Terminal voltage at battery+ should sag dramatically from 8.0 V
+    // open-circuit down to I × R_starter ≈ 0.73 V at the post-fuse node.
+    const terminalV = result.nodeVoltages[1];
+    check(
+      "Test 5: battery terminal V sags below 1 V under cranking load",
+      terminalV < 1.0 && terminalV > 0,
+      `got ${terminalV}`,
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Test 6 — Battery + running alternator in parallel, both stamped via the
+// ADAPTER (not hand-built elements). This is the Day 2 charging-system
+// scenario. Without per-source internal resistance the MNA system would
+// be singular (two ideal voltage sources between the same pair of nodes);
+// the adapter must allocate hidden nodes via `AdapterContext` to make it
+// solvable.
+// -----------------------------------------------------------------------------
+{
+  const startNodes = 2; // 0 = ground, 1 = common bus (battery+, alternator+, load+)
+  const alloc = makeAllocator(startNodes);
+
+  const battery: PlacedAutoComponent = {
+    id: "BAT",
+    kind: "car_battery",
+    terminalNodes: { pos: 1, neg: 0 },
+    props: { voltage: 12.6, internalResistance: 0.02 },
+  };
+  const alternator: PlacedAutoComponent = {
+    id: "ALT",
+    kind: "alternator",
+    terminalNodes: { pos: 1, neg: 0 },
+    props: { voltage: 14.2, running: true, sourceResistance: 0.1 },
+  };
+
+  // Use a generic resistor element as the load (1 Ω, e.g. headlights bank).
+  const loadElem: CircuitElement = {
+    id: "LOAD",
+    kind: "resistor",
+    nodes: [1, 0],
+    resistance: 1.0,
+  };
+
+  const elements: CircuitElement[] = [
+    ...placedToSolverElements(battery, alloc.ctx),
+    ...placedToSolverElements(alternator, alloc.ctx),
+    loadElem,
+  ];
+
+  const result = solveCircuit({ nodeCount: alloc.count(), elements });
+  if (!result.ok) {
+    check("Test 6: adapter-stamped battery + alternator parallel solves", false, result.error);
+  } else {
+    check("Test 6: adapter handles paralleled sources without singular MNA", true);
+    const busV = result.nodeVoltages[1];
+    check(
+      "Test 6: bus voltage sits between battery (12.6) and alternator (14.2)",
+      busV > 12.6 && busV < 14.2,
+      `got bus=${busV}`,
+    );
+  }
 }
 
 // -----------------------------------------------------------------------------
