@@ -57,6 +57,19 @@
 
 **Next:** Wait for HVAC task #36 to merge. Then Phase C wiring of the real AI tutor + congruence audit + lessons-learned commit.
 
+**Plumbing canvas shipped (Task #39, May 17, 2026):** HVAC #36 merged + post-merge db:push succeeded. Built `client/src/components/trade-sims/plumbing/plumbing-canvas.tsx` mirroring the electrical pattern but adapted to the Hardy-Cross flow solver:
+- **Node IDs are strings** (not numbers) because `solveFlow` uses string junction IDs — text input per terminal, "same label = same junction".
+- **Unit-honest output:** heads displayed as `m · psi · ft` (uses 1 m head ≈ 1.42233 psi, 3.28084 ft); flows as `m³/s · gpm` (15850.323 gpm/m³s). Solver stays SI internally; learner sees both because US plumbers think in psi+gpm.
+- **Result card shows per-junction head, per-element flow (with direction → forward / ← reverse / no flow), and per-pipe head loss `Δh` computed via `pipeHeadLoss()`.**
+- **Iteration + residual surfaced** as a small badge so the learner can see when the solver converged (Hardy-Cross Newton-Raphson, max 50 iter, tol 1e-8).
+- **Check-valve disclosure:** v1 model treats check_valve as a high-K restriction; the result card calls this out explicitly ("Negative flow on a check valve in a real install would close it — flag and re-run"). Honest disclosure per Iron Rule. True one-way semantics deferred to Task #41 already in the backlog.
+
+**Player wiring:** added `renderEngineCanvas(engineMode, initialComponents, onRun)` helper + `ENGINES_WITH_CANVAS = new Set(["linear-dc","pipe-network"])`. Replaced 3 places that branched on `engineMode === "linear-dc"` with the Set check + helper. The honest-completion gate (`hasRunSim` must flip before Mark Complete unlocks) now fires for plumbing same as electrical. HVAC's `thermal-airflow` engine and the `concept-only` lessons stay on the "simulator coming soon" alert until their canvas ships.
+
+**Verified:** Day 1 `/academy/trade-sims/plumbing/water-pressure-flow` loads 200, badge shows `pipe-network`, concept blurb renders, 5 tabs render. Zero new TS errors (6 baseline P-L10 errors in benefits/mou routes unchanged). All 4 plumbing canvas-engine lessons (Day 1 pressure, Day 2 sizing, Day 3 fixtures, Day 4 supply lines) now have the real solver UI; rest are `concept-only` and stay on the alert pattern correctly.
+
+**Follow-up still open:** Task #41 (check-valve one-way enforcement) is the natural next step but is already on the backlog — not creating a duplicate. SVG drag-drop for both canvases remains a v2 enhancement.
+
 ---
 
 ## SafeReport platform upgrade + documentation sweep (May 15, 2026)

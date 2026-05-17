@@ -11,7 +11,51 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import { ChevronLeft, ChevronRight, BookOpen, Target, Beaker, Lightbulb, GraduationCap, Save, Loader2 } from "lucide-react";
 import { CircuitCanvas } from "@/components/trade-sims/electrical/circuit-canvas";
+import { PlumbingCanvas } from "@/components/trade-sims/plumbing/plumbing-canvas";
 import { useToast } from "@/hooks/use-toast";
+
+/**
+ * Render the right sim canvas for a given engineMode, or null if that engine
+ * doesn't have a learner-facing canvas yet. The `onRun` callback fires once
+ * the learner has actually executed a solve — used to gate "Mark complete".
+ */
+function renderEngineCanvas(
+  engineMode: string,
+  initialComponents: Array<{ kind: string; props?: Record<string, number | boolean | string> }> | undefined,
+  onRun: () => void,
+) {
+  if (engineMode === "linear-dc") {
+    return (
+      <CircuitCanvas
+        initialComponents={initialComponents ?? []}
+        onChange={(s) => { if (s.lastSolve) onRun(); }}
+      />
+    );
+  }
+  if (engineMode === "pipe-network") {
+    return (
+      <PlumbingCanvas
+        initialComponents={initialComponents ?? []}
+        onChange={(s) => { if (s.lastSolve) onRun(); }}
+      />
+    );
+  }
+  return null;
+}
+
+// Derived from renderEngineCanvas — keep these in sync. Any engine listed here
+// will (a) mount its canvas via renderEngineCanvas and (b) require the learner
+// to actually run the sim before Mark Complete unlocks.
+const ENGINES_WITH_CANVAS = new Set(["linear-dc", "pipe-network"]);
+// Self-check: assert renderEngineCanvas knows every engine in the Set.
+if (typeof window !== "undefined" && import.meta.env.DEV) {
+  for (const e of ENGINES_WITH_CANVAS) {
+    if (renderEngineCanvas(e, [], () => {}) === null) {
+      // eslint-disable-next-line no-console
+      console.warn(`[trade-sims] engine "${e}" is in ENGINES_WITH_CANVAS but renderEngineCanvas returned null`);
+    }
+  }
+}
 
 interface TradeRow {
   id: number;
@@ -179,7 +223,7 @@ export default function LessonPlayerPage() {
   // (a) visited concept + guided + solo + sandbox tabs AND (b) actually run
   // the canvas at least once. For non-interactive engines (concept-only etc.)
   // require only that all 4 pre-debrief tabs have been visited.
-  const requiresRun = engineMode === "linear-dc";
+  const requiresRun = ENGINES_WITH_CANVAS.has(engineMode);
   const canMarkComplete =
     tabsVisited.has("concept") &&
     tabsVisited.has("guided") &&
@@ -312,16 +356,16 @@ export default function LessonPlayerPage() {
                   </div>
                 </div>
               ))}
-              {engineMode === "linear-dc" && (
+              {ENGINES_WITH_CANVAS.has(engineMode) ? (
                 <div className="pt-4 border-t">
                   <h3 className="font-semibold mb-2">Build it on the canvas</h3>
-                  <CircuitCanvas
-                    initialComponents={lesson.sandboxStarter?.initialComponents ?? []}
-                    onChange={(s) => { if (s.lastSolve) setHasRunSim(true); }}
-                  />
+                  {renderEngineCanvas(
+                    engineMode,
+                    lesson.sandboxStarter?.initialComponents,
+                    () => setHasRunSim(true),
+                  )}
                 </div>
-              )}
-              {engineMode !== "linear-dc" && (
+              ) : (
                 <Alert>
                   <AlertTitle>{engineMode} simulator coming soon</AlertTitle>
                   <AlertDescription>
@@ -357,9 +401,8 @@ export default function LessonPlayerPage() {
                     <h3 className="font-semibold">Success criteria</h3>
                     <p className="text-sm text-muted-foreground">{lesson.soloChallenge.successCriteria}</p>
                   </div>
-                  {engineMode === "linear-dc" && (
-                    <CircuitCanvas onChange={(s) => { if (s.lastSolve) setHasRunSim(true); }} />
-                  )}
+                  {ENGINES_WITH_CANVAS.has(engineMode) &&
+                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true))}
                   <div className="flex gap-2 pt-2">
                     <Button
                       variant="outline"
@@ -398,13 +441,13 @@ export default function LessonPlayerPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {engineMode === "linear-dc" && (
-                <CircuitCanvas
-                  initialComponents={lesson.sandboxStarter?.initialComponents ?? []}
-                  onChange={(s) => { if (s.lastSolve) setHasRunSim(true); }}
-                />
-              )}
-              {engineMode !== "linear-dc" && (
+              {ENGINES_WITH_CANVAS.has(engineMode) ? (
+                renderEngineCanvas(
+                  engineMode,
+                  lesson.sandboxStarter?.initialComponents,
+                  () => setHasRunSim(true),
+                )
+              ) : (
                 <Alert>
                   <AlertTitle>Sandbox available in Phase B+</AlertTitle>
                   <AlertDescription>
