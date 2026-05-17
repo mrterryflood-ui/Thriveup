@@ -154,7 +154,11 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
   // `userOpen - forcedClosed`. After each inner solve, we check whether the
   // active set is consistent: any open one-way pipe with negative flow gets
   // closed; any closed one-way pipe with forward driving head gets reopened.
-  const FLOW_NEG_TOL = Math.max(tol, 1e-10); // m^3/s — reverse flow threshold
+  // Reverse-flow closure threshold is decoupled from the caller-supplied
+  // solver tolerance: even with a loose `tol`, any nonzero negative flow
+  // through a one-way pipe must trigger closure (the Day 6 "no backflow ever"
+  // contract). 1e-12 m^3/s ≈ 1.6e-8 gpm — well below any meaningful leak.
+  const FLOW_NEG_TOL = 1e-12;
   const ONEWAY_REOPEN_TOL = 1e-6; // m — forward head threshold to reopen
   const MAX_ACTIVE_SET_PASSES = 20;
   const forcedClosed = new Set<string>();
