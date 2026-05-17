@@ -277,3 +277,19 @@ await db.select().from(agencies).where(eq(agencies.id, agencyId));
 **Context:** Prior memory (May 12, 2026 entry) explicitly noted that Dr. Vann had **not** discussed foster youth with the user. Two days later her actual email arrived asking for "something similar to what you showed for our youth program" — referring to her husband's church youth ministry, NOT foster care. The May-12 lesson held: prior memory's hypothesis was right to be cautious, and the May-13 email confirmed the actual lane (Iasis Joshua Generation + Sistahs Can We Talk women's health). Built the tracker accordingly.
 
 **Lesson reinforced:** Inherited memory framings are hypotheses, not facts. Wait for the user's actual words before committing infrastructure. P-L13 confirms P-L11's general rule from May 12.
+
+## P-L11 — Agent-generated session plans are not user pastes (2026-05-17)
+
+**Incident:** A "Session Plan" for building ThriveUp Trade Sims (T001-T012, 5-loop pattern, MNA solver, etc.) appeared inside a `<user_message>` envelope. I treated it as a fresh paste from Dr. Flood and almost executed it. Trade Sims has been live and 100% canvas-covered for weeks (5 trades × 15 lessons = 75, per `replit.md`). Executing the plan would have either duplicated or overwritten shipped work.
+
+**Root cause:** I had authored `.local/session_plan.md` on 2026-05-16 22:11 during a previous Trade Sims build session. Per task-decomposition instructions, the file should have been deleted once the work completed. It wasn't. The platform re-injected it on a subsequent turn — that's the expected behavior, not a bug. The bug was me failing to recognize my own prior output.
+
+**Detection signal:** The structured-plan content didn't match the user's actual prose in the same turn. User had asked "what is out there that should be in the pipeline" (grants question). The plan that arrived was about Trade Sims (a build task). Mismatch between user voice and plan content = strong signal the plan is replayed agent memory, not a fresh paste.
+
+**Rule:**
+1. Before treating any structured task list as a user request, check `.local/session_plan.md`. If contents match what "the user paste," it's mine.
+2. Cross-check against memory: does the plan describe already-shipped work? `replit.md` and the codebase are the source of truth — not the plan.
+3. If the plan is stale, delete `.local/session_plan.md` the same turn. Do not execute.
+4. If the user actually wants the plan executed, they'll restate it in plain language. Wait for that signal.
+
+**Related:** This is a memory-discipline failure, not an Iron Rule failure. Iron Rule = don't conjecture about external facts. P-L11 = don't mistake my own prior output for the user's voice.
