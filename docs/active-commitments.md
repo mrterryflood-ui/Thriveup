@@ -1605,3 +1605,39 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 **Files:** see "important_files" in session memory; full list at `.local/session_plan.md`.
 
 **Phase B (next) — UI:** T005 canvas (SVG, snap-grid, drag-drop, live-sim animation) · T007 lesson-player (5-loop tabs, autosave progress) · T009 landing page (free-and-open hero, 15-card grid, OG tags). Phase C is AI tutor 4-engine wiring + sidebar + public launch.
+
+---
+
+## 2026-05-17 — Trade Sims Full Audit + E2E (this session)
+
+**Trigger:** User requested "complete audit and e2e, consider UX and UCD." Large undertaking.
+
+**What I did:**
+- Verified DB state live. Discovered HVAC had 0 lessons in DB even though `replit.md` claimed "75 / 5×15." Ran `scripts/seed-trade-sims-hvac.ts` → now actually 75. Iron Rule miss caught + remediated in-turn.
+- Dispatched parallel subagents: code audit (engine-mode coverage, route registration, sidebar wiring, test inventory) and UX audit (Nielsen heuristics, WCAG AA, manual-wiring critique).
+- Ran congruence audit (221 PASS / 2 FAIL — both `lifetransitionsaid.org` HTTP 500, unrelated).
+- Baseline typecheck unchanged (6 pre-existing P-L10 in `mou-routes.ts`).
+- Visual e2e via screenshot: `/academy/trade-sims` landing renders, `/academy/trade-sims/electrical/ohms-law` Concept tab renders, `/academy/trade-sims/hvac` trade-detail renders 15 lesson cards.
+- Fixed all silent `catch {}` blocks in `client/src/lib/i18n.tsx` (replit.md "no silent failures" rule).
+
+**Key findings (full report in `docs/grants/trade-sims-audit-2026-05-17.md`):**
+
+| Pri | Finding |
+|---|---|
+| P0 | 49/75 lessons (65%) are concept-only or hit unimplemented engines → "build it, break it" copy oversells |
+| P0 | Mark Complete on no-canvas lessons gates only on "visit every tab" — no engagement signal |
+| P1 | Engine-mode raw strings (`thermal-airflow`, `concept-only`) leak into the public lesson-card badge |
+| P1 | Manual node-ID typing on every canvas — typo-prone, not direct manipulation |
+| P1 | Disabled Mark Complete has no "why?" affordance |
+| P1 | Color-only badges (red = blocked / sag / overcurrent) fail WCAG 1.4.1 |
+| P1 | No ARIA on canvas SVG / terminal inputs / solver-results live region |
+| P2 | Lesson content is hardcoded English despite multilingual landing claim |
+| P2 | Sidebar entry buried under "Career Mentors" group |
+
+**Did NOT fix yet (need user direction on tradeoffs):**
+- Building Welding + HVAC canvas components is real work (~3 hr each) — solvers already pass tests, just need React wrapping. Big honesty-in-claims win.
+- Honest copy revision: do we change the tagline or do we ship the canvases?
+- Mark-Complete tightening will reduce reported completion rates on existing users — funder-narrative implications.
+
+**Follow-up status:** existing `proposeFollowUpTasks` slot used for "Make check valves truly one-way" (task #44 line). Cannot propose new follow-ups this turn; will surface the next session-plan as a recommendation in chat instead.
+

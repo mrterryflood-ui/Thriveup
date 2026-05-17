@@ -24,28 +24,44 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     try {
       const stored = localStorage.getItem(LANG_KEY);
       if (stored && VALID_LANGS.has(stored)) return stored as Language;
-    } catch {}
+    } catch (err) {
+      console.warn("[i18n] localStorage read failed (LANG_KEY)", err);
+    }
     return "en";
   });
 
   const [aiTranslate, setAiTranslateState] = useState<boolean>(() => {
-    try { return localStorage.getItem(AI_KEY) === "true"; } catch { return false; }
+    try { return localStorage.getItem(AI_KEY) === "true"; }
+    catch (err) {
+      console.warn("[i18n] localStorage read failed (AI_KEY)", err);
+      return false;
+    }
   });
 
   const [aiCache, setAiCache] = useState<Record<string, Record<string, string>>>(() => {
     try {
       const stored = localStorage.getItem(CACHE_KEY);
       return stored ? JSON.parse(stored) : {};
-    } catch { return {}; }
+    } catch (err) {
+      console.warn("[i18n] localStorage read failed (CACHE_KEY)", err);
+      return {};
+    }
   });
 
   const [isTranslating, setIsTranslating] = useState(false);
   const inFlight = useRef<Set<string>>(new Set());
 
-  useEffect(() => { try { localStorage.setItem(LANG_KEY, language); } catch {} }, [language]);
-  useEffect(() => { try { localStorage.setItem(AI_KEY, aiTranslate ? "true" : "false"); } catch {} }, [aiTranslate]);
   useEffect(() => {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(aiCache)); } catch {}
+    try { localStorage.setItem(LANG_KEY, language); }
+    catch (err) { console.warn("[i18n] localStorage write failed (LANG_KEY)", err); }
+  }, [language]);
+  useEffect(() => {
+    try { localStorage.setItem(AI_KEY, aiTranslate ? "true" : "false"); }
+    catch (err) { console.warn("[i18n] localStorage write failed (AI_KEY)", err); }
+  }, [aiTranslate]);
+  useEffect(() => {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(aiCache)); }
+    catch (err) { console.warn("[i18n] localStorage write failed (CACHE_KEY)", err); }
   }, [aiCache]);
 
   // Set RTL on <html> for Arabic
