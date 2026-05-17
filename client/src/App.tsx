@@ -38,6 +38,9 @@ const CertificatesPage = lazy(() => import("@/pages/certificates").then(m => ({ 
 const CertificateViewPage = lazy(() => import("@/pages/certificates").then(m => ({ default: m.CertificateViewPage })));
 const SocialMediaLiteracyPage = lazy(() => import("@/pages/social-media-literacy"));
 const AcademyHubPage = lazy(() => import("@/pages/academy/hub"));
+const TradeSimsLandingPage = lazy(() => import("@/pages/academy/trade-sims/index"));
+const TradeSimsTradeDetailPage = lazy(() => import("@/pages/academy/trade-sims/trade-detail"));
+const TradeSimsLessonPlayerPage = lazy(() => import("@/pages/academy/trade-sims/lesson-player"));
 const AcademyVillagePage = lazy(() => import("@/pages/academy/village"));
 const AcademyAvatarPage = lazy(() => import("@/pages/academy/avatar"));
 const AcademyStocksPage = lazy(() => import("@/pages/academy/stocks"));
@@ -282,6 +285,9 @@ function AppRouter() {
       <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
       <Route path="/academy" component={AcademyVillagePage} />
       <Route path="/academy/hub" component={AcademyHubPage} />
+      <Route path="/academy/trade-sims" component={TradeSimsLandingPage} />
+      <Route path="/academy/trade-sims/:tradeSlug/:lessonSlug" component={TradeSimsLessonPlayerPage} />
+      <Route path="/academy/trade-sims/:tradeSlug" component={TradeSimsTradeDetailPage} />
       <Route path="/academy/avatar" component={AcademyAvatarPage} />
       <Route path="/academy/stocks" component={AcademyStocksPage} />
       <Route path="/academy/wallet" component={AcademyWalletPage} />

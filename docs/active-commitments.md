@@ -37,7 +37,25 @@
 
 **Iron-rule sanity check:** Credential pathway hooks reference only real programs (NCCER, ASE A1-A9 + L1 + G1, EPA Section 609, ACC certificates, AWS CW/CWI, IUOE Local 132, Tulsa Welding School, Ironworkers Local 482 Austin, ASME Section IX). No invented partnerships. ACC and Ironworkers Local 482 are correct geography (Travis County pilot per replit.md SSG-Fox note). No "we have an MOU with X" language anywhere.
 
-**Next:** Wait for HVAC task #36 to merge. Then Phase B (canvas UI + lesson player + landing page). Memory + congruence audit at end of Phase B.
+**Phase B shipped same session (May 17, 2026):** User said "Yes" to start Phase B while HVAC #36 still merging. Built the UI surface on main:
+- `client/src/pages/academy/trade-sims/index.tsx` — public landing, hero + trade cards + 5-loop explainer, login optional, OG title/desc.
+- `client/src/pages/academy/trade-sims/trade-detail.tsx` — 15-lesson grid per trade, fetches anonymous progress, shows Best % when set.
+- `client/src/pages/academy/trade-sims/lesson-player.tsx` — 5-tab player (Concept / Guided / Solo / Sandbox / Debrief), switches simulator on `concept.engineMode`. For `linear-dc` embeds the canvas; other engines (pipe-network, heat-input, thermal-airflow, concept-only) show an inline notice until their dedicated canvas ships.
+- `client/src/components/trade-sims/electrical/circuit-canvas.tsx` — interactive electrical builder: palette grouped by category, place components, edit props, assign each terminal to a node id, Run calls MNA solver, displays node voltages + resistor currents + LED lit/unlit. No SVG drag-drop in v1 — node-id-as-number is the wire mechanism. Functional but graduates to true SVG drag-drop in a follow-up.
+- `client/src/lib/trade-sims/anon-session.ts` — shared anon-session id helper, used by player + trade detail.
+- App.tsx routes: `/academy/trade-sims` · `/academy/trade-sims/:tradeSlug` · `/academy/trade-sims/:tradeSlug/:lessonSlug` (player route registered BEFORE detail route so the deeper match wins under wouter).
+- Sidebar entry: "Trade Sims" added to `careerMentorsItems` next to Life Lessons, lucide `Zap`.
+
+**Bugs found + fixed in same session via architect review:**
+1. **Schema mismatch (was 400 on every page load):** initial client sent `bestScore` + `lastStepCompleted` which don't exist on `trade_sims_lesson_progress`. Real fields: `status`, `conceptCompleted`, `guidedScore`, `soloScore`, `soloTimeMs`, `sandboxScore`, `debriefCompleted`, `attemptCount`. Rewrote `saveProgress` mutation payload to match.
+2. **Scoring integrity / Iron Rule honesty:** original implementation let a user click Concept → Debrief → Mark Complete in 5 sec and claim 100%. Fixed by gating completion on (a) visiting all 4 pre-debrief tabs AND (b) for `linear-dc` lessons, actually running the canvas at least once. `Mark complete` button disabled with explicit reason text until both conditions met. `tabsVisited` is a `Set<PlayerTab>`; `hasRunSim` flips when canvas `onChange` fires with `lastSolve`.
+3. **useEffect re-fire on remount:** added `initialProgressFired` `useRef` so the auto "in_progress" save fires once per lesson load, never twice.
+
+**Phase B acceptance status:** T005 (canvas) functional but node-id-input UX is v1 — graduates to true SVG drag-drop in a follow-up. T007 (5-loop player) DONE. T009 (landing + SEO) DONE.
+
+**Phase C still pending:** T008 AI tutor (proper 4-engine integration; current `/ai-tutor/hint` endpoint is stubbed and the player calls it but gracefully degrades to "Tutor is offline" if the stub returns non-ok). T011 full smoke test. T012 lessons-learned + congruence audit.
+
+**Next:** Wait for HVAC task #36 to merge. Then Phase C wiring of the real AI tutor + congruence audit + lessons-learned commit.
 
 ---
 
