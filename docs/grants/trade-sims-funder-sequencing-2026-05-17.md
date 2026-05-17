@@ -113,6 +113,47 @@ Everything else in Tier 1 is either closed for this cycle, invitation-only, or i
 
 ---
 
+## Federal pipeline — Grants.gov scan 2026-05-17
+
+Verified live against `api.grants.gov` on 2026-05-17. SAM.gov produced zero relevant grant opportunities for this scope (SAM is contracts + entity reg; real federal grant pipeline lives on Grants.gov).
+
+### Tier 1 — TCAF or ACC/PFISD can play a real role
+
+| Number | Title | Agency | Closes | Role for us |
+|---|---|---|---|---|
+| **FOA-ETA-26-40** | Strengthening Community Colleges Training Grants (Round 6) | DOL-ETA | 05/20/2026 | **ACC-as-prime, single best-fit federal grant.** Too tight for this round; target **Round 7** (anticipated late 2026 / early 2027). Justifies the ACC outreach happening NOW. |
+| **ED-GRANT-26-054** | Promise Neighborhoods 84.215N | ED | 08/06/2026 | **TCAF-eligible as prime.** Place-based cradle-to-career; Trade Sims = workforce-readiness pillar. Large lift, real shot. |
+| **RFA-OH-24-001** | National Center for Construction Safety and Health Research and Translation | HHS-CDC NIOSH | 12/01/2026 | Sub-awardee / OSHA-content research-translation partner. Pairs with our OSHA 10 routing. |
+
+### Tier 2 — state-only or formula, sub-awardee plays via TEA/TWC/ACC
+
+| Number | Title | Closes | Note |
+|---|---|---|---|
+| DOL-OESE-34043 | Career Pathways Exploration 84.424J | 06/09/2026 | **State agencies only**, one app per state. TEA or TWC sub-awardee play. $9M ceiling, $44M total. |
+| ETA-TEGL-08-25 | State Apprenticeship Expansion Formula R4 (SAEF4) | 05/26/2026 | Formula to states. TWC sub-awardee. |
+| ETA-TEGL-10-25-YOUTH / OA | WIOA PY26 youth + consolidated | 05/29/2026 | Formula to states. TWC sub-awardee. |
+| FOA-ETA-26-20-IA / IY | WIOA Indian and Native American / Youth | 05/22/2026 | Tribal entities only. Not us. |
+| DOL-OESE-34066 | Teacher Quality Partnership (TQP) | 06/23/2026 | IHE-only. PFISD partners with TX IHE. |
+| DOL-OESE-33914 | Supporting Effective Educator Development 84.423A | 06/01/2026 | National educator-prep nonprofits. Tight. |
+| ED-GRANTS-051326-001 | OSERS-OSEP Apprenticeships 84.325J | 07/13/2026 | IHE prime only. Content-partner at best. |
+
+### Tier 3 — adjacent, track for future cycles
+
+- NSF 26-508 TechAccess: AI-Ready America (07/16/2026) — multilingual AI angle, needs CC/IHE prime
+- NSF PD-26-1341 Professional Formation of Engineers — IHE only
+- DOC-NIST 2026-NIST-RAMPS-01 Cybersecurity Workforce (05/28/2026) — off-thesis unless we add cyber
+
+### Hard truth
+
+Federal skilled-trades pipeline is dominated by state-formula passthroughs. Our realistic federal plays are:
+1. **Sub-awardee** under TWC / TEA / ACC for the state-routed pots.
+2. **Prime** on Promise Neighborhoods (cradle-to-career, place-based).
+3. **Prime** as ACC for SCC Training Grants Round 7 when it lands.
+
+Lowe's Gable CBO remains the cleanest near-term ask.
+
+---
+
 ## What this document is not
 
 - Not a substitute for re-pulling each funder page on the day of drafting.
