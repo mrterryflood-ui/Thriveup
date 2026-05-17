@@ -91,7 +91,31 @@ Relationship funder. Pitch must signal "build, not extract."
 
 ---
 
-## Pitch A-PORTAL — Tightened to ~310 words (USE THIS for the portal)
+## Pitch A-PORTAL v2 — Post-evaluation revision (USE THIS)
+
+**Revision basis:** Two independent evaluations 2026-05-17. Eight fixes applied: (1) "why now" macro opener; (2) geography nationalized — TX as lab, named DC/CA/OH explicitly; (3) ask anchored $50-75K with "bring back at 12 months"; (4) "determined Jan 2026" moved to contact block + reframed as intentional design; (5) AI tutor reframed as resilience architecture not feature-stack; (6) personas moved to end of chain-web paragraph (let them close); (7) IS framing led by human principle, acronyms backloaded as "tools not theater"; (8) secondary-ed bridge added for Archie/Horizons lane.
+
+> **Trade Sims: Per Scholas's mission, delivered Digital+.**
+>
+> America is rebuilding its skilled-trades workforce at the exact moment millions of capable people remain structurally disconnected from the pathways designed to reach them.
+>
+> A young man named Marcus aged out of foster care last year. He's smart, motivated, and could be earning $28/hr installing HVAC inside 18 months — except the community college runs day classes in English, the OEM bootcamp wants a tuition deposit, and the apprenticeship paperwork assumes he already knows what apprenticeship means.
+>
+> **The Collaborative Advocate Foundation (TCAF)** built **ThriveUp Trade Sims** to close that gap. Five trades are live today (electrical, plumbing, HVAC, welding, automotive) — 75 lessons running on real physics engines. Every lesson uses the same five-loop pattern: concept → guided practice → solo challenge → sandbox → AI debrief. Four AI engines (Gemini, Claude, GPT, DeepSeek) work in parallel so no single provider's downtime interrupts a learner's session, with hints in any of 10 languages. At 80% completion the platform routes the learner to a vetted credential prep surface — OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1.
+>
+> **Why we're different.** Per Scholas proved tuition-free workforce training can scale. TheraHive proved Digital+ — structured online learning plus human cohort — beats either alone. Trade Sims combines both for the trades: free, open, multilingual, credential-routed. We built it around a simple principle: programs only matter if people can actually use them, stay with them, and translate them into real opportunity. The frameworks we lean on for that — CFIR, RE-AIM, RPLICE — are tools, not theater. Most early-stage nonprofits learn this language years in. We structured TCAF around it from day one rather than retrofitting to it.
+>
+> The quiet edge: Trade Sims doesn't sit alone. It's one of fifteen TCAF platforms — foster-youth transition, behavioral health, language access, justice navigation, civic signals — and any of them can hand a learner to Trade Sims at the exact moment a trade becomes the right next step. Surgical delivery to whoever is ready, wherever they already are. A foster-youth alum aging out. A behavioral-health client stabilizing. A Spanish-monolingual newcomer settling in. Each finds Trade Sims through their own door, not ours.
+>
+> **The pilot.** Our 200-learner cohort launches this summer, anchored in Central Texas as execution proof — school-district partner signed, community-college outreach active, veterans pipeline routed. The credential-routing logic, AI-tutor efficacy, and cohort-completion data translate directly to DC, California, Ohio, and any workforce pipeline that needs them. For the school-district learners — many still in secondary ed — Trade Sims functions as a CTE-integrated exploration layer, not a post-secondary detour.
+>
+> **The ask.** A first-year commitment of $50,000–$75,000 funds outcomes instrumentation across the pilot — credential-test pass-rate tracking and the evidence base we'll bring back to you at twelve months. We're not looking for a transaction. We're looking for the partner who funds the chapter where a new 501(c)(3) becomes a national piece of public-good infrastructure — and we'd build that chapter with you for a decade.
+>
+> Dr. Terry Flood Sr., President · The Collaborative Advocate Foundation · 501(c)(3) determined January 2026 · EIN 41-3618003 · terryflood@thrivingcommunitiesforall.com · thrivingcommunitiesforall.com
+
+---
+
+## Pitch A-PORTAL v1 (archived — superseded by v2 above)
 
 > **Trade Sims: Per Scholas's mission, delivered Digital+.**
 >
