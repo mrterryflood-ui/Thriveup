@@ -1,5 +1,46 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## ThriveUp Trade Sims — Trades #2-5 expansion (May 17, 2026)
+
+**Trigger:** User authorized expediting trades #2-5 (plumbing/HVAC/welding/automotive) after electrical (Trade #1, Phase A) shipped. Task-agent queue had concurrency limit of ~1-2 simultaneous; user frustrated with latency ("This test building takes forever… If you are free, you can start helping with some task too"). Main agent built 3 of 4 directly while task agents worked on the 4th.
+
+**Live in DB right now (4 trades, 15 lessons each = 60 lessons):**
+- id=1 **Electrical** (displayOrder 1) — Phase A original. MNA solver, 12 components, electrical-lessons.ts.
+- id=2 **Automotive** (displayOrder 5) — built on main 2026-05-17. Reuses electrical MNA solver via `client/src/lib/trade-sims/automotive/component-defs.ts` adapter. 12 components (6 linear-dc: car_battery, starter_motor, alternator, fuse, ground_point, ignition_coil; 6 concept-only: ecu_pcm, maf_sensor, o2_sensor, coolant_temp_sensor, spark_plug, obd2_port). 10/10 integration tests pass (`automotive-electrical-reuse.test.ts`). Seeded via `scripts/seed-trade-sims-automotive.ts`.
+- id=3 **Welding** (displayOrder 4) — built on main 2026-05-17. New evaluator at `client/src/lib/trade-sims/welding/heat-input-evaluator.ts` (computeHeatInput, predictPenetration, requiredFilletLegMm per AWS D1.1 §5.7, evaluateWeldVsSpec). 12 components (4 consumables, 1 gas, 1 base metal, 3 geometry, 2 bead, 1 symbol, 1 position). 16/16 tests pass. Seeded via `scripts/seed-trade-sims-welding.ts`.
+- id=4 **Plumbing** (displayOrder 2) — task #35 task-agent built; files merged but seed never ran. Main agent ran `scripts/seed-trade-sims-plumbing.ts` 2026-05-17 to bring it live. Hardy-Cross solver 11/11 tests passing per merge report.
+
+**Still pending: HVAC** — task #36 IN_PROGRESS in task-agent queue. Expected engine mode "thermal-airflow." Do NOT duplicate on main — let the task agent finish to avoid merge collision.
+
+**Pattern locked for any future trade:** 4 files + 1 seed:
+1. `client/src/lib/trade-sims/<trade>/<engine>.ts` — physics/evaluator (pure functions, no UI deps)
+2. `client/src/lib/trade-sims/<trade>/<engine>.test.ts` — self-running with `npx tsx`, ≥10 tests, returns process.exit(1) on fail
+3. `client/src/lib/trade-sims/<trade>/component-defs.ts` — 12 components + `placedToEvaluator()` or `placedToSolverElements()` adapter
+4. `shared/data/trade-sims/<trade>-lessons.ts` — 15 days, `TRADE_META` + `LESSONS` exports, schema matches electrical exactly
+5. `scripts/seed-trade-sims-<trade>.ts` — idempotent select-then-update-or-insert, mirror plumbing seed shape
+
+**Schema unchanged.** Routes unchanged. The lesson player (Phase B, still pending) will switch on `concept.engineMode` to pick which engine renders.
+
+**LessonEngineMode union now:** "linear-dc" | "concept-only" | "pipe-network" | "thermal-airflow" | "heat-input". Coordinating file `shared/data/trade-sims/types.ts`.
+
+**Typecheck baseline:** 6 pre-existing errors (none in trade-sims). Welding + automotive add zero new errors. Tests: 26 new tests across welding (16) + automotive (10) all pass.
+
+**Welding evaluator engineering notes (for future reviewers):**
+- Heat input formula: HI = η · V · I / v (J/mm) with v in mm/s. η: SMAW 0.80, GMAW 0.75, FCAW 0.85, GTAW 0.70.
+- Penetration: rough empirical correlation `k · √(HI / t_base) · jointFactor · 3.0`. Classifications: burnthrough if pen > 1.25·t_base, incomplete if pen < 0.5·t_base, else adequate. NOT a finite-element model — pedagogical only.
+- Fillet leg minimums: AWS D1.1 Table 5.7 — 3/5/6/8 mm at thickness breaks 6/13/19 mm.
+- Parameter envelopes per process are lesson-level rough; tighter envelopes belong in WPS docs not learning sims.
+
+**Automotive engineering notes:**
+- Battery internal resistance is modeled but only takes effect if the canvas pre-allocates an `internalNode` prop. For lesson v1, the lumped 0.02 Ω is ignored and battery acts as ideal source. Lesson 3 (starter sag) will need the canvas layer to inject this node.
+- Alternator with `running: false` returns `[]` to the solver — does not stamp a 0 V source (which would short the battery). This matters: if alternator stamped 0 V it would parallel the battery to ground.
+
+**Iron-rule sanity check:** Credential pathway hooks reference only real programs (NCCER, ASE A1-A9 + L1 + G1, EPA Section 609, ACC certificates, AWS CW/CWI, IUOE Local 132, Tulsa Welding School, Ironworkers Local 482 Austin, ASME Section IX). No invented partnerships. ACC and Ironworkers Local 482 are correct geography (Travis County pilot per replit.md SSG-Fox note). No "we have an MOU with X" language anywhere.
+
+**Next:** Wait for HVAC task #36 to merge. Then Phase B (canvas UI + lesson player + landing page). Memory + congruence audit at end of Phase B.
+
+---
+
 ## SafeReport platform upgrade + documentation sweep (May 15, 2026)
 
 **Trigger:** User noted SafeReport (safereports.net) has been upgraded and is now connected to the ecosystem. Verified via live screenshot.
