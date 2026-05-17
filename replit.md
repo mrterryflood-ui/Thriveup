@@ -16,10 +16,11 @@ An AI-powered national community infrastructure platform that connects individua
 - **i18n:** EN+ES human-translated; 8 more (VI, ZH, AR, KO, FR, TL, HI, MY) via opt-in AI translation (gpt-4o-mini, batched, localStorage-cached). `useLanguage()` from `@/lib/i18n`; `<LanguageSelector />` from `@/components/language-selector`. Endpoint `POST /api/translate` (`server/translate-routes.ts`). RTL auto for Arabic.
 
 ## Where things live
-- **Pages:** `client/src/pages/` (192 files inc. `academy/` and `foster-youth/`)
+- **Pages:** `client/src/pages/` (**211 files** as of 2026-05-17; was 192 in stale memory)
 - **Frontend routes:** `client/src/App.tsx` (206 wouter routes) · **Sidebar:** `client/src/components/app-sidebar.tsx`
-- **Backend routes:** `server/` (main `routes.ts` + 35+ specific files)
-- **Schema:** `shared/schema.ts` (249 Drizzle tables) · **Auth:** `client/src/components/require-auth.tsx`, `useAuth()`
+- **Backend routes:** `server/` (main `routes.ts` + **84 total files** as of 2026-05-17; was "35+" in stale memory)
+- **Schema:** `shared/schema.ts` (**271 Drizzle tables** as of 2026-05-17; was 249 in stale memory) · **Auth:** `client/src/components/require-auth.tsx`, `useAuth()`
+- **🚨 Capabilities inventory (resurfaced 2026-05-17):** `docs/grants/tcaf-capabilities-inventory-2026-05-17.md` — authoritative reference for every future pitch. Pitches were running 30-50% under what's actually built. 13 sections covering: codebase scale (271/211/84), 4 named physics engines (MNA / Hardy-Cross / AWS D1.1 §5.7 / thermal-airflow), 86-chunk RAG, dialect-aware translation (AAVE/Spanglish), 39 CFIR constructs operationalized in `research-hub.tsx`, justice stack (RNR/CBI/NRRC, 11 tables, 3,482-line command center), 648 grants tracked with tier-weighted AI scoring, 45-table Academy live economic engine (wallets/stocks/portfolios/GAM-ready merit), FHIR+CDS-Hooks compliance layer, two-entity capability strategy (TCAF + ISS LLC both SAM-active). Read this before drafting any pitch / one-pager / deck / diligence material.
 - **Theme:** `client/src/index.css` · **Truth-in-claims:** `client/src/components/partnership-status.tsx`
 - **Grant strategy:** `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`, `CDMRP-FY2026-Master-Grant-Strategy.md`
 - **Quintet one-pager (drop-in for narratives):** `docs/grants/QUARTET-ONE-PAGER.md` — Talk Your Talk (89 spoken + 18 sign + 6 learning surfaces) as substrate; Civic Signal + LifeBridge + ThriveUp as service surfaces; Whole-Person Health (mentalwellnesssupport.net) as behavioral-health safety floor. TYT crisis events route INTO WPH.

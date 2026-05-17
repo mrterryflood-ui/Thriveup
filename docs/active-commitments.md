@@ -1,5 +1,41 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## 🚨 Capabilities Inventory resurfaced (2026-05-17 PM-late)
+
+**Trigger:** Dr. Flood: *"I think you forget how robust and capable our platform and ecosystem are. I feel like you under sale and underestimate us continuously."*
+
+**He was right.** Memory had stale numbers (249 tables / 192 pages / 35+ files) — primary-source verified actual: **271 tables · 211 pages · 84 server files**. Pitches were running 30-50% under what's shipped.
+
+**Authoritative reference:** `docs/grants/tcaf-capabilities-inventory-2026-05-17.md` — 13-section inventory covering codebase scale, 4 named physics engines, 86-chunk RAG, dialect-aware translation, 39 CFIR constructs operationalized, justice stack (RNR/CBI/NRRC), 648-grant intelligence engine, Academy live economic engine, FHIR/CDS-Hooks compliance, two-entity capability strategy.
+
+**Read this doc before drafting any future pitch / one-pager / deck / diligence material.**
+
+**Top resurfaced items that should appear in future materials:**
+1. **Four named physics engines** (not "real physics" generically): MNA (electrical/auto), Hardy-Cross Newton-Raphson (plumbing), AWS D1.1 §5.7 heat-input (welding), thermal-airflow (HVAC).
+2. **86-chunk RAG grounded in our active-commitment docs** — not a generic wrapper.
+3. **Dialect-aware translation** (AAVE, Spanglish system prompts) — not just multilingual, culturally-nuanced.
+4. **39 CFIR constructs operationalized** in `research-hub.tsx` + scoring rubrics in `standards-routes.ts` mapping TCAF capabilities to NRRC and CFIR 2.0 fidelity benchmarks. Implementation science is **built, not pitched**.
+5. **Justice stack underrepresented**: RNR (Risk-Need-Responsivity), CBI (Cognitive Behavioral Intervention), recidivism baselines, family visitations, NRRC outcome reports. `justice-command-center.tsx` = 3,482 lines.
+6. **Grant intelligence engine**: 648 grants tracked, tier-weighted keyword scoring with explicit point values, 24-hour auto-scan across SAM.gov / Grants.gov / USASpending.gov / Candid / curated foundation sources. Funders care that we can find them again.
+7. **Academy live economic engine** (45 tables): wallets, stocks, portfolios, competitions, merch fulfillment, GAM-ready Panther Power merit scoring, branching scenarios, full behavioral audit trail.
+8. **FHIR + CDS Hooks** clinical compliance — SafeReport rebrand as "Compliance-Grade AI for Clinical Settings" (0-PHI-egress, HITL-default-on, longitudinal PHQ-9/GAD-7/C-SSRS/PCL-5/ACES).
+9. **Two-entity capability strategy** — TCAF non-profit (SAM active, 501c3 determined) + ISS LLC for-profit (SAM active, SBIR/STTR/GSA-eligible). Operational sophistication signal.
+10. **Versioned career pathways** (`planRevisions` table) — most workforce platforms overwrite, we version.
+
+**Stop-doing list for future pitches:**
+- ❌ "Real physics engines" generically → ✅ name MNA / Hardy-Cross / AWS D1.1 / thermal-airflow
+- ❌ "Implementation science is built in" → ✅ "39 CFIR constructs in research-hub.tsx, scoring rubrics in standards-routes.ts"
+- ❌ "We use AI" → ✅ "4-engine collaborative synthesis with RAG grounded in our own commitments, dialect-aware translation, Socratic-vs-ensemble tutor modes, AI risk engine, AI fit-scoring"
+- ❌ "Justice navigation" → ✅ name RNR + CBI + NRRC explicitly when funder is justice-adjacent
+- ❌ "We track grants" → ✅ "648 grants tracked across 5 federal/state/foundation sources with tier-weighted AI fit scoring"
+
+**Next applications:**
+- SFF diligence-stage follow-up package (summer parallel work) — lead with this inventory
+- Any next cold-portal pitch — pick 3-5 capabilities matching that funder's thesis
+- Trade Sims funder one-pagers — surface 4 physics engines + AI tutor modes + credential routing
+
+---
+
 ## Smart Family Fund — ✅ PITCH C SUBMITTED 2026-05-17 12:13 PM CT
 
 **Status:** Pitch C v2 submitted via portal smartfamilyfund.org/introduce-yourself. Confirmation screen captured (`attached_assets/image_1779038012829.png`): "Thank you for your submission. We'll review and be in touch if there is a potential fit."
