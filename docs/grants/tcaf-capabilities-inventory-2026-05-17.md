@@ -17,7 +17,7 @@
 | AI engines in collaborative synthesis | **4** (Gemini, Claude, GPT-4o-mini, DeepSeek R1) | `server/ai-provider.ts` |
 | RAG knowledge chunks | **86** | `server/rag-engine.ts` |
 | Public-facing platforms | **15** of 25 DB rows | `docs/ecosystem-catalog.md` |
-| Grants tracked | **648** | grant discovery engine log |
+| Grants tracked | **651** | grant discovery engine log |
 | Languages (Trade Sims AI tutor) | **10** (EN, ES, VI, ZH, AR, KO, FR, TL, HI, MY) | `client/src/lib/i18n` |
 | Talk Your Talk language coverage | **89 spoken + 18 signed = 107 total** | replit.md gotcha |
 | Federal entity registrations active | TCAF UEI `KDDVD1FGLW35` + CAGE `209N1`; ISS LLC UEI `C7YDV3P8EHL7` + CAGE `9VKK3` | SAM.gov, primary-verified |
@@ -118,7 +118,7 @@ Most early-stage orgs name-drop CFIR/RE-AIM. We instantiated them:
 
 ## 7. Grant Intelligence Engine — sophisticated funder-discovery layer
 
-- **648 grants tracked** (and growing — 24-hour auto-scan)
+- **651 grants tracked** (primary-source DB count 2026-05-17; engine scans regularly — "24-hour" cadence claim under investigation per `docs/active-commitments.md` after 48hr write-freshness gap surfaced)
 - Sources: SAM.gov (16,667 records confirmed active 2026-05-17), Grants.gov (~45 new/wk), USASpending.gov, curated state/foundation/corporate
 - **Tier-weighted keyword scoring**: explicit point values (Tier1 like "PHI-safe" +10, "HITL" +12)
 - AI fit-analysis layered on top of keyword score
@@ -225,7 +225,7 @@ That's **27,059 lines** in 10 pages. Most early-stage orgs don't have this much 
 - Cite the 86-chunk RAG, dialect-aware translation, Socratic-vs-ensemble tutor modes
 - Cite 39 CFIR constructs operationalized in code (not just named)
 - Surface the justice stack explicitly (RNR + CBI + NRRC reports)
-- Surface the grant intelligence engine (648 grants, tier-weighted scoring, AI fit analysis) — funders care that we can find them
+- Surface the grant intelligence engine (651 grants, tier-weighted scoring, AI fit analysis) — funders care that we can find them
 - Surface the two-entity capability strategy — operational sophistication signal
 
 **For future cold-portal pitches (other funders):**
@@ -238,7 +238,7 @@ That's **27,059 lines** in 10 pages. Most early-stage orgs don't have this much 
 - Stop saying "implementation science is built in." Cite "39 CFIR constructs in `research-hub.tsx`, scoring rubrics in `standards-routes.ts`."
 - Stop calling RAG generic. It's grounded in our active-commitment docs.
 - Stop hiding the justice stack behind "justice navigation." Name RNR + CBI + NRRC.
-- Stop saying "we track grants." Say "648 grants tracked across SAM.gov, Grants.gov, USASpending.gov, Candid, and curated foundation sources with tier-weighted AI fit scoring."
+- Stop saying "we track grants." Say "651 grants tracked across SAM.gov, Grants.gov, USASpending.gov, Candid, and curated foundation sources with tier-weighted AI fit scoring."
 
 ---
 
@@ -246,7 +246,8 @@ That's **27,059 lines** in 10 pages. Most early-stage orgs don't have this much 
 
 - ✅ Codebase counts (271/211/84) from primary-source `grep` and `find` 2026-05-17.
 - ✅ 86 RAG chunks, 4 engines, 5 trades × 15 lessons, 4 physics engines — from explorer audit citing file paths.
-- ✅ 648 grants — from grant discovery engine log.
+- ✅ 651 grants — primary-source SQL count against `grant_opportunities` table 2026-05-17 (memory's "648" was off by 3). Source breakdown verified: grants.gov 369, usaspending 198, samgov 36, manual 12, state/local 18, other federal 8, foundation/corporate 4, misc 6.
+- ⚠️ "24-hour auto-scan" claim is UNVERIFIED — last DB write 2026-05-15 19:46, ~48hr stale. Investigation queued in active-commitments.
 - ✅ Federal IDs (UEI/CAGE/EIN) — from previously primary-source-verified records in replit.md and memory-archive.
 - ⚠️ Test counts (16, 17, 10) from active-commitments build log; re-verify before quoting externally.
 - ⚠️ "27,059 lines in 10 pages" arithmetic — accurate sum of the explorer's line counts; not a primary-source metric, more of an illustrative aggregate.

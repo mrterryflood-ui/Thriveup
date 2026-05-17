@@ -1,5 +1,44 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
+## 🚨 Grant Discovery Engine — freshness gap (open investigation, 2026-05-17 PM-late)
+
+**Primary-source check** (SQL against `grant_opportunities`, 2026-05-17 PM-late):
+- **651 total grants** (memory said 648 — close, off by 3)
+- **208 with fit≥70 / 186 fit≥80 / 160 fit≥90**
+- 30d ingest = **458 rows**; 7d = **47 rows** — engine has been ingesting
+- **BUT last `created_at` / `updated_at` = 2026-05-15 19:46** — ~48hrs stale despite memory's "24-hour auto-scan" claim
+
+**Source breakdown (verified):**
+```
+grants.gov     369  (57%)
+usaspending    198  (30%)
+samgov          36  (5.5%)
+manual          12
+state/local     18  (tx_statewide 8, state_texas 5, city_austin 5)
+other federal    8  (DOD/SAMHSA/DOJ/FEMA/SBA/VA)
+foundation       3
+corporate        1
+others           6
+─────
+TOTAL          651
+```
+
+**SAM.gov framing correction:** Memory + recent agent statements said "SAM.gov returning HTTP 200 with 16,667 records." That's the API national total, not our DB holdings. Our actual ingest = **36 curated samgov rows.** Honest pitch line going forward: *"We screen the full SAM.gov feed (~16K active records) and ingest the ~36 that fit our current scope."* NEVER claim "we track 16,667 SAM.gov opportunities" — that would be the kind of conflation Iron Rule forbids.
+
+**Open investigation (before next pitch cites "daily refresh"):**
+1. Check the scan cron — is it actually firing daily? `server/grant-routes.ts` ~line 6359.
+2. If firing, why no new rows in 48hrs? Possible causes: dedupe-only writes (existing rows updated but no `updated_at` bump), source-side staleness (Grants.gov may have had a quiet 2-day window), or silent failure in the scan.
+3. Manual trigger: `POST /api/grants/discovery/run-now` — fire once to confirm engine still works.
+4. Until verified, the language in external materials should be "regular scans" not "daily" or "24-hour."
+
+**Status field truth:**
+- ✅ 651 grants, 208 high-fit, 10+ sources — accurate
+- ✅ Tier-weighted fit-scoring + AI semantic analysis — accurate (engine code present)
+- ⚠️ "24-hour auto-scan" — UNVERIFIED, do not quote until investigation closes
+- ⚠️ "16,667 SAM.gov" — was being used incorrectly, framing corrected above
+
+---
+
 ## 🚨 Capabilities Inventory resurfaced (2026-05-17 PM-late)
 
 **Trigger:** Dr. Flood: *"I think you forget how robust and capable our platform and ecosystem are. I feel like you under sale and underestimate us continuously."*
