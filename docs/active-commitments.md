@@ -32,6 +32,16 @@
 
 **Pre-submit checklist (still open):** Confirm TCAF Candid profile updated (Silver+ seal) · re-verify PFISD signed status · re-verify ACC outreach status · re-verify 200-by-July-1 cohort number is still live · strip any funder name we don't have written consent to cite.
 
+**🚨 Portal cycle intel (verified 2026-05-17 from portal copy at smartfamilyfund.org/introduce-yourself):** Applications reviewed on a **12-month rolling basis September through August**. **Grant decisions and funding made ONCE per year, generally in November.** Submission now (May 2026) lands in the **November 2026 decision pool** with ~6-month silence as normal — don't read absence of news as rejection. Optimal cold-submission timing for future cycles = early September (lands fresh near decision time). Portal also explicitly states: "if you've already received a grant from us please do NOT apply here. You can email your contact regarding additional proposals" — confirms first-time cold path is the right channel for us.
+
+**Field-fill for the portal** (single DESCRIPTION field, no word cap shown):
+- First/Last: Terry / Flood Sr. · Email: terryflood@thrivingcommunitiesforall.com
+- Org: The Collaborative Advocate Foundation · Website: https://thrivingcommunitiesforall.com
+- City/State: Pflugerville / Texas
+- DESCRIPTION = Pitch C v2 verbatim.
+
+**Parallel summer work (between submission and Nov 2026 decision):** Warm-intro outreach through Archie's Horizons-adjacent / DC ed-equity lane (Pitch B becomes lead doc if that channel opens) OR Roland's TheraHive Digital+ lane (Pitch A becomes lead doc if that channel opens). Goal: by November, "TCAF" should be a name the giving committee has heard from more than just the cold portal pile.
+
 ---
 
 ## ThriveUp Trade Sims — Trades #2-5 expansion (May 17, 2026)
