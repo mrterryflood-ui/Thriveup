@@ -67,21 +67,22 @@ Everything else in Tier 1 is either closed for this cycle, invitation-only, or i
 
 ## Gaps & fixes (the actually-blocking work)
 
-### Gap 1 — No anchor Texas community-college partner
-**What it blocks:** TWC SDF, TWC JET (FY27), Lowe's Gable (CTC track in 2027), NSF ATE, Perkins V.
-**Fix:** Outreach to Austin Community College (Riverside / Highland Trades), Houston Community College (Workforce), Dallas College (School of Manufacturing & Industrial Technology). Goal = a one-page MOU draft that names TCAF as the digital curriculum + multilingual content + credential-routing layer for their trade programs. **Owner:** Dr. Flood. **Target:** at least one signed in Q3 2026 before the Lowe's CBO LOI is drafted.
+### Gap 1 — Anchor Texas community-college partner = **Austin Community College (ACC) — confirmed target 2026-05-17**
+**What it unblocks:** TWC SDF, TWC JET (FY27), Lowe's Gable (CTC track 2027), NSF ATE, Perkins V.
+**Action:** Dr. Flood to outreach ACC trades leadership (Riverside / Highland Business Center). One-page MOU draft naming TCAF as the digital curriculum + multilingual + credential-routing layer for ACC trade programs. **Target:** signed MOU draft by Q3 2026 so it can ride with the Lowe's CBO LOI.
 
-### Gap 2 — No physical training-site partner for Home Depot Path to Pro
-**What it blocks:** Path to Pro Education Grants (small but easy win).
-**Fix:** Partner with a Texas 501(c)(3) that *has* a brick-and-mortar trade-training facility (YouthBuild Austin, Goodwill Central Texas Workforce, Skillpoint Alliance). Co-apply with them as the curriculum + AI tutor + multilingual content layer. **Owner:** Dr. Flood. **Target:** one warm intro in June.
+### Gap 2 — Physical training-site partner for Home Depot Path to Pro = **Pflugerville ISD (PFISD) — already agreed to partner 2026-05-17**
+**What it unblocks:** Path to Pro Education Grants (K-12 track explicitly eligible per Home Depot's "Accredited K-12 schools with an existing construction skilled trade program" language). PFISD's CTE / construction trades program is the brick-and-mortar anchor; Trade Sims is the curriculum overlay + AI tutor + multilingual layer.
+**Action:** Convert PFISD's verbal agreement to a partner letter on PFISD letterhead. Dr. Flood will also outreach additional partners (YouthBuild Austin, Skillpoint Alliance, Goodwill Central Texas) to widen options, but PFISD is locked as the primary co-applicant.
+**Watch-out:** Home Depot Path to Pro requires the *partner* (here PFISD) to be the applicant for K-12 track. Confirm whether PFISD or TCAF holds the prime — likely PFISD as accredited K-12, with TCAF as named curriculum partner.
 
 ### Gap 3 — No signed M2 / Mission Transition partner letter
 **What it blocks:** Every Veterans-angle cite-in (HVRP PY27, USDOL VETS general, Home Depot Foundation $750M Veterans pledge, Schultz Family).
 **Fix:** Convert the M2 one-pager (`docs/grants/trade-sims-m2-one-pager.md`) into a signed sub-agreement or partner letter. **Owner:** Dr. Flood + M2 contact. **Target:** before PY27 HVRP FOA opens (~early 2027).
 
-### Gap 4 — SAM.gov API key currently returning 401
+### Gap 4 — SAM.gov API key currently returning 401 — **rotation requested 2026-05-17**
 **What it blocks:** Automated discovery for the federal half of this list (Grant Discovery Engine, `server/grant-routes.ts`).
-**Fix:** Rotate the SAM.gov API key on the registered SAM account (UEI `KDDVD1FGLW35`). **Owner:** platform admin. **Target:** this week.
+**Action:** Dr. Flood generates a fresh SAM.gov API key from the registered account (UEI `KDDVD1FGLW35`); agent stores it as `SAM_GOV_API_KEY`. Once rotated, smoke-test with `GET /api/grants/discovery/status` and trigger a manual run via `POST /api/grants/discovery/run-now`.
 
 ### Gap 5 — No published learner outcome numbers
 **What it blocks:** Every Tier 2 foundation discovery call (Strada, Walton, Ascendium, Lumina) — first question is "how many learners served, what completion rate, what credential placement rate."
@@ -100,14 +101,15 @@ Everything else in Tier 1 is either closed for this cycle, invitation-only, or i
 
 ## Next-30-days action queue (owner = Dr. Flood unless noted)
 
-1. **Week of May 18:** Warm intros — ACC, HCC, Dallas College trade-program leads (Gap 1). One slot per week through June.
-2. **Week of May 18:** Warm intro — YouthBuild Austin and Skillpoint Alliance (Gap 2).
-3. **Week of May 18:** SAM.gov key rotation (platform admin, Gap 4).
-4. **June:** Draft the Lowe's Gable CBO LOI skeleton — narrative, budget, partner letters. Re-pull funder page on draft day.
+1. **Week of May 18:** ACC trades leadership outreach (Gap 1, confirmed target).
+2. **Week of May 18:** Convert PFISD verbal agreement → partner letter (Gap 2, confirmed partner). Also outreach YouthBuild Austin, Skillpoint Alliance, Goodwill Central Texas for additional Path to Pro options.
+3. **Week of May 18:** Rotate `SAM_GOV_API_KEY` (Gap 4); agent smoke-tests after.
+4. **June:** Draft the Lowe's Gable CBO LOI skeleton — narrative, budget, ACC + PFISD + M2 partner letters. Re-pull funder page on draft day.
 5. **June 1:** Stand up the 200-learner pilot recruitment plan (Gap 5).
-6. **July 1:** Pilot cohort live; first outcome snapshot by Aug 15.
-7. **Aug 1 – Sep 3:** Submit Lowe's Gable CBO application.
-8. **Throughout:** NCCER curriculum-alignment letter (Tier 3) — strengthens every other ask.
+6. **June:** Pursue M2 signed sub-agreement (Gap 3).
+7. **July 1:** Pilot cohort live; first outcome snapshot by Aug 15.
+8. **Aug 1 – Sep 3:** Submit Lowe's Gable CBO application.
+9. **Throughout:** NCCER curriculum-alignment letter (Tier 3) — strengthens every other ask.
 
 ---
 
