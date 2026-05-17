@@ -18,7 +18,76 @@
 **Quiet differentiator (both pitches):** Implementation science is built into every TCAF platform — CFIR for context, RE-AIM for outcomes, RPLICE for spread. Most early-stage nonprofits learn this language years in. We started with it.
 **Iron Rule:** every quantitative claim below is primary-source verified. No deadlines, no dollar amounts in pitch text, no funder names cited.
 
-**TODO before submit:** manually pull the FY2024 990-PF PDF from ProPublica `projects.propublica.org/nonprofits/organizations/812297831` (Aug 25 2025 filing) to verify full ~32-grantee list — looking for any TX-based grantee, any apprenticeship/CTE grantee, or current grantee we could warm-intro through.
+## FY2024 990-PF — pattern analysis (verified 2026-05-17 from filing PDF on file)
+
+**30 grantees, $1,510,000 total. Total assets FMV $41,995,895 (NOT $17M — earlier summaries outdated).**
+
+**🎯 Killer finding #1 — Workforce/CTE is already in their portfolio.**
+- **Career Technical Education Solutions** (48 Byers Rd, Marietta OH) — **$70,000 ONGOING**. Small obscure nonprofit (residential address, NOT the Washington County Career Center public district). Workforce/CTE is a confirmed recurring thesis. We don't compete — different scale + modality.
+
+**🎯 Killer finding #2 — Zero TX grantees. Geography concentration:**
+- DC/MD/VA cluster ~$415K (Archie's orbit)
+- CA ~$310K (Roland's orbit + SF civic-tech)
+- CT/NY/NJ ~$245K (Jesse's orbit + family ties)
+- WY ~$45K (family roots — Tetons, Lander)
+- PA $85K, OH $70K
+- **TX: $0.** Implication: reframe TCAF as national platform, not Texas-piloted.
+
+**🎯 Killer finding #3 — Capital-deployment pressure.**
+Part XI line 6f: **$1,943,967 of undistributed 2024 income must be paid out in 2025.** They will deploy more in 2025 than they did in 2024. Open to new grantees.
+
+**🎯 Killer finding #4 — Archie's Horizons board seat confirmed.**
+- Horizons Greater Washington $60K (his board) + Horizons National $25K + Maret School $40K (same building, 3000 Cathedral Ave NW DC). $125K to one DC education-equity cluster. Relationship-driven funder.
+
+**🎯 Killer finding #5 — Two-tier giving:**
+- $100K–$250K tier: portfolio-thesis civic-tech / data systems (Recidiviz $250K, VotingWorks $200K, Global Good Fund $100K, Let's Get Ready $100K).
+- $25K–$75K tier: first-time + ongoing for everything else. Sweet spot $50K.
+- $10K–$20K tier: family geography small grants.
+
+**Our realistic ask: $50K–$75K first-time grant**, with implicit option to grow into the $100K+ tier if we deliver. Don't ask for $250K.
+
+**🎯 Killer finding #6 — ~13 of 30 grantees are recurring (ongoing/multi-year).**
+Relationship funder. Pitch must signal "build, not extract."
+
+**Full 2024 grantee list:**
+
+| Recipient | City/State | Amount | Tag |
+|---|---|---|---|
+| Recidiviz Inc | Oakland CA | $250,000 | civic-tech ★ |
+| VotingWorks | San Francisco CA | $200,000 | civic-tech ★ |
+| Let's Get Ready Inc | New York NY | $100,000 | youth ed-access ★ |
+| The Global Good Fund | Glenwood MD | $100,000 | entrepreneur fellowship ★ |
+| **Career Technical Education Solutions** | **Marietta OH** | **$70,000** | **🎯 workforce/CTE** |
+| Trust for the National Mall | Washington DC | $25K + $70K | DC civic |
+| Horizons Greater Washington Inc | Washington DC | $60,000 | Archie's board |
+| The Brave House | Brooklyn NY | $60,000 | NYC immigrant women |
+| Blair House Restoration Fund | Washington DC | $50,000 | DC historic |
+| Kickstart International | San Francisco CA | $50,000 | int'l ag dev |
+| Mighty Writers | Philadelphia PA | $50,000 | Philly literacy |
+| News Literacy Project | Washington DC | $50,000 | multi-year 2/3 |
+| St Johns College | Annapolis MD | $50,000 + $25,000 | MD higher-ed |
+| Maret School | Washington DC | $40,000 | DC private school |
+| Philadelphia Children's Alliance | Philadelphia PA | $35,000 | child welfare |
+| Chelseas Fund | Lander WY | $25,000 | WY initial |
+| Darien Arts Center | Darien CT | $25,000 | CT arts |
+| Experience Camps | Westport CT | $25,000 | CT grief |
+| Ford's Theatre Society | Washington DC | $25,000 | DC arts |
+| Horizons National Student Enrichment | Westport CT | $25,000 | ed equity |
+| The Network Group Inc | Arlington VA | $25,000 | VA initial |
+| Trust for the National Mall | Washington DC | $25,000 | DC civic |
+| U of Maryland College Park Foundation | College Park MD | $25,000 | MD journalism |
+| Mill Valley Schools Community Foundation | Mill Valley CA | $20,000 | Roland's town |
+| Trustees of Princeton University | Princeton NJ | $20,000 | NJ alma mater? |
+| Norwalk Stamford Grassroots Tennis | Norwalk CT | $15,000 | CT youth initial |
+| React DC | Alexandria VA | $15,000 | VA |
+| Capital Area Food Bank | Washington DC | $10,000 | DC food |
+| Golden Gate National Parks Assoc | San Francisco CA | $10,000 | CA parks |
+| Grand Teton National Park Foundation | Moose WY | $10,000 | WY family |
+| Mill Valley LiveArts | Mill Valley CA | $10,000 | Roland's town |
+| Wildlife of the American West | Jackson WY | $10,000 | WY family |
+| **Total** | | **$1,510,000** | |
+
+
 
 ---
 
@@ -26,13 +95,13 @@
 
 > **Trade Sims: Per Scholas's mission, delivered Digital+.**
 >
-> A young man named Marcus aged out of foster care in Texas last year. He's smart, motivated, and could be earning $28/hr installing HVAC inside 18 months — except the local community college runs day classes in English, the OEM bootcamp wants a tuition deposit, and the apprenticeship paperwork assumes he already knows what apprenticeship means. The trades pipeline is rebuilding America, and it's losing exactly the people it should be lifting.
+> A young man named Marcus aged out of foster care last year. He's smart, motivated, and could be earning $28/hr installing HVAC inside 18 months — except the community college runs day classes in English, the OEM bootcamp wants a tuition deposit, and the apprenticeship paperwork assumes he already knows what apprenticeship means. The trades pipeline is rebuilding America, and it's losing exactly the people it should be lifting.
 >
-> **The Collaborative Advocate Foundation (TCAF)** — a 501(c)(3) determined in January 2026 — built **ThriveUp Trade Sims** to fix this. Five trades are live today (electrical, plumbing, HVAC, welding, automotive) — 75 lessons running on real physics engines. Every lesson uses the same five-loop pattern: concept → guided practice → solo challenge → sandbox → AI debrief. A four-engine AI tutor (Gemini, Claude, GPT, DeepSeek) gives hints without giving answers, in any of 10 languages. At 80% completion the platform routes the learner to a vetted credential prep surface — OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1.
+> **The Collaborative Advocate Foundation (TCAF)** — a national 501(c)(3) determined in January 2026 — built **ThriveUp Trade Sims** to fix this. Five trades are live today (electrical, plumbing, HVAC, welding, automotive) — 75 lessons running on real physics engines. Every lesson uses the same five-loop pattern: concept → guided practice → solo challenge → sandbox → AI debrief. A four-engine AI tutor (Gemini, Claude, GPT, DeepSeek) gives hints without giving answers, in any of 10 languages. At 80% completion the platform routes the learner to a vetted credential prep surface — OSHA 10, NCCER, EPA 608, AWS SENSE, ASE G1.
 >
-> **Why we're different.** Per Scholas proved tuition-free workforce training can scale. TheraHive proved Digital+ — structured online learning plus human cohort — beats either alone. Trade Sims combines both for the trades: free, open, multilingual, credential-routed. The quiet edge no one else has: Trade Sims doesn't sit alone. It's one of fifteen TCAF platforms — foster-youth transition, behavioral health, language access, justice navigation, civic signals — and any of them can hand a learner to Trade Sims at the exact moment a trade becomes the right next step. A foster-youth alum aging out, a behavioral-health client stabilizing, a Spanish-monolingual newcomer settling in: each finds Trade Sims through their own door, not ours. Surgical delivery to whoever is ready, wherever they already are. Every design decision is made against an implementation-science checklist (CFIR for context, RE-AIM for outcomes, RPLICE for replication). Most early-stage nonprofits learn this language years in. We started with it.
+> **Why we're different.** Per Scholas proved tuition-free workforce training can scale. TheraHive proved Digital+ — structured online learning plus human cohort — beats either alone. Trade Sims combines both for the trades: free, open, multilingual, credential-routed. The quiet edge: Trade Sims doesn't sit alone. It's one of fifteen TCAF platforms — foster-youth transition, behavioral health, language access, justice navigation, civic signals — and any of them can hand a learner to Trade Sims at the exact moment a trade becomes the right next step. A foster-youth alum aging out, a behavioral-health client stabilizing, a Spanish-monolingual newcomer settling in: each finds Trade Sims through their own door, not ours. Surgical delivery to whoever is ready, wherever they already are. Every design decision is made against an implementation-science checklist (CFIR, RE-AIM, RPLICE). Most early-stage nonprofits learn this language years in. We started with it.
 >
-> **What angel funding unlocks.** Outcomes instrumentation across our 200-learner July 2026 pilot (Pflugerville ISD signed, Austin Community College in outreach, Mission Transition routing veterans), credential-test pass-rate tracking, and the evidence base we'll use to compete for Promise Neighborhoods and DOL Strengthening Community Colleges Round 7.
+> **What angel philanthropy unlocks.** Outcomes instrumentation across our 200-learner pilot launching this summer (school-district anchor signed, community-college partner in outreach, veterans pipeline routed), credential-test pass-rate tracking, and the evidence base we'll use to earn the next tier of foundation-scale funders. We're not looking for a transaction. We're looking for the partner who funds the chapter where a new 501(c)(3) becomes a national piece of public-good infrastructure — and we'd build that chapter with you for a decade.
 >
 > Dr. Terry Flood Sr., President · terryflood@thrivingcommunitiesforall.com · EIN 41-3618003 · thrivingcommunitiesforall.com
 
