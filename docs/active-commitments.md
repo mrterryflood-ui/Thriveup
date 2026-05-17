@@ -1662,3 +1662,27 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 - EDIT `replit.md` (canvas-coverage status line updated)
 
 **Typecheck:** clean (no new errors; 6 pre-existing P-L10 errors in `server/mou-routes.ts` unchanged).
+
+---
+
+## 2026-05-17 PM-LATE — Memory move + open-work closeout
+
+**Open work closed:**
+1. Concept-only Sandbox no longer shows "Phase B+ coming soon." Every lesson surfaces its existing `sandboxStarter.prompt` + a journal Textarea. Canvas coverage effectively **75/75 (100%)** — 45 interactive canvases + 30 prompt-with-journal pages.
+2. `soloReflection` + `sandboxJournal` now persist to `localStorage` keyed by `trade-sims:reflection:<lessonId>` / `trade-sims:journal:<lessonId>`. Refresh / accidental navigation no longer wipes drafts. Wrapped in try/catch for private-mode / quota-exceeded.
+
+**Memory move (replit.md trim):**
+- 5 bulky bullets moved into `docs/memory-archive.md` as sections A7-A11:
+  - A7 = Trade Sims full build history
+  - A8 = SSG Fox FY27 context
+  - A9 = Iron Rule full doctrine + cost-of-failure log
+  - A10 = Two-entity strategy + Dr. Flood entity registry
+  - A11 = SAM.gov activation narrative
+- `replit.md` line count is the same (99) but the long lines are dramatically shorter; the file now reads in ~5 minutes instead of ~15 and each bullet has a pointer to its archive section.
+
+**Files touched:**
+- EDIT `client/src/pages/academy/trade-sims/lesson-player.tsx` — new `sandboxJournal` state, 3 localStorage useEffects (hydrate-on-lesson-load + persist-reflection + persist-journal, all placed after `lesson` declaration), new Sandbox fallback UI with prompt + Textarea + live word count.
+- EDIT `replit.md` — slimmed 5 bullets.
+- APPEND `docs/memory-archive.md` — A7–A11.
+
+**Typecheck:** 0 new errors. 6 pre-existing P-L10 errors in `server/mou-routes.ts` unchanged.

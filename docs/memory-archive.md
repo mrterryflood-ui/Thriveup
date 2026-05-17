@@ -93,3 +93,85 @@ These remain referenced in `.agents/skills/map-gap/lessons-learned.md` and are k
   const PptxGenJS = require("pptxgenjs");
   ```
 - **P-L10 — `req.params` typed `string | string[]`.** Destructuring breaks Drizzle `eq()` overload. Always coerce: `const agencyId = String(req.params.agencyId);`.
+
+---
+
+## A7. ThriveUp Trade Sims — full build history (May 2026)
+**Top-line for the agent (the version that stays in `replit.md`):** 5-trade × 15-lesson skilled-trades sim engine. Canvas coverage 45/75 (60%) after the 2026-05-17 PM Phase D wrap.
+
+**Trades + engines:**
+- Electrical → `linear-dc` (Modified Nodal Analysis solver) → `CircuitCanvas` — 15/15 lessons with canvas.
+- Plumbing → `pipe-network` (Hardy-Cross) → `PlumbingCanvas` — 11/15 lessons with canvas; backflow rubric grading.
+- Welding → `heat-input` (computeHeatInput + predictPenetration + evaluateWeldVsSpec, AWS D1.1/D1.2/D1.6) → `WeldingCanvas` (added 2026-05-17 PM) — 8/15 lessons with canvas.
+- Automotive → `linear-dc` re-use → `AutoCanvas` — 15/15 lessons with canvas (battery sag UX).
+- HVAC → `thermal-airflow` (`solveThermal` — sensible+latent loads, sizing balance, comfort verdict) → `HvacCanvas` (added 2026-05-17 PM) — 11/15 lessons with canvas.
+
+**Pattern locked at 4 files + 1 seed per new trade:** engine solver (`client/src/lib/trade-sims/<trade>/<solver>.ts`), tests (`*.test.ts`), component-defs (`component-defs.ts`), lesson data (`shared/data/trade-sims/<trade>-lessons.ts`), seed script (`scripts/seed-trade-sims-<trade>.ts`).
+
+**Player gating (tightened 2026-05-17 PM, no-existing-users so no migration concern):**
+- Canvas lesson Mark Complete = tabs visited + ran sim once.
+- Concept-only lesson Mark Complete = tabs visited + ≥40-word reflection in Solo.
+- Always-visible 3-item checklist in Debrief (no silent disabled state).
+- Engine-mode badge maps to learner-facing labels: linear-dc / pipe-network → "Interactive sim"; heat-input / thermal-airflow → "Calculator + sim"; concept-only → "Read + reflect". Raw mode names never leak.
+- `soloReflection` and `sandboxJournal` persisted to localStorage keyed by `lesson.id` (`trade-sims:reflection:<id>` / `trade-sims:journal:<id>`) so refresh doesn't wipe drafts.
+
+**Concept-only Sandbox (closed 2026-05-17 PM-late):** The "Sandbox available in Phase B+" placeholder is removed. Every concept-only lesson now surfaces its existing `sandboxStarter.prompt` + a persisted journal Textarea. Counts as Sandbox engagement.
+
+**AI tutor (T008):** `POST /api/trade-sims/ai-tutor/hint` → `generateMultiAIResponse` with mode-specific prompts (hint=Socratic single-engine, debrief=ensemble consensus + credential pathway, sandbox_help=short nudge). Lesson context loaded from DB and injected so AI is grounded, not hallucinated. Multilingual via `language` param. Graceful fallback if all providers fail — player never breaks.
+
+**Files of record:**
+- Player: `client/src/pages/academy/trade-sims/lesson-player.tsx` (routes `/academy/trade-sims/:tradeSlug/:lessonSlug`).
+- Backend: `server/trade-sims-routes.ts` + 6 tables in `shared/schema.ts` (tradeSimsTrades / Lessons / LessonProgress / SandboxProjects / AiTutorSessions).
+- Audit: `docs/grants/trade-sims-audit-2026-05-17.md`.
+- Build log (this session): `docs/active-commitments.md` "2026-05-17 PM — Trade Sims Phase D wrap" section.
+
+## A8. SSG Fox FY27 submission — full context (May 15, 2026)
+**Top-line for `replit.md`:** TCAF is applying for SSG Fox FY27 (deadline 2026-06-12 4:59 PM ET). Submission assets live on **vetmissiontransition.com** (M2C platform), NOT this ThriveUp Academy codebase. Do not rebuild Fox pages here. Year 1 = Central TX only (Pflugerville–Manor–East Austin, Travis/Williamson). Ask: $400K–$600K. EIN on live site is correct (41-3618003). Brief: `docs/grants/ssg-fox-fy27/00-funder-brief.md`.
+
+**Pages on M2C:** Full Application Narrative `/ssg-fox-program` · Reviewer One-Pager `/ssg-fox-onepager` · Platform Overview One-Pager `/platform-onepager` · Live Evidence Dashboard `/evidence/tcaf`.
+
+**Geography rationale:** Sedgwick County KS deferred to Year 2 renewal scaling pathway. Priority 2 new applicant stays focused, doesn't overreach.
+
+**Blocker status (as of 2026-05-15 PM):** empty evidence dashboard now wired, 91.8% framing fixed, ecosystem-count inflation on platform-onepager still outstanding. Live list in `docs/active-commitments.md`.
+
+**EIN history:** Live site has `41-3618003` — that is correct, matches IRS+SAM+Swyft. Memory previously claimed `503` was correct — that was the agent's error, swept and reverted 2026-05-15 PM across 72 files. See A4 for the full incident.
+
+## A9. Iron Rule — full doctrine + extensions + costs of failure (May 15, 2026)
+**Top-line for `replit.md`:** Never conjecture. Always verify against a primary source. Memory is not a primary source. No mass find-replace based on memory. Identifiers (EIN, UEI, CAGE, deadlines, dollar amounts) get treated like crypto — immutable lookups, paste verbatim from primary doc on the same turn. `attached_assets/` is read-first. Conflicting sources = hard stop, surface to user, do not reconcile silently.
+
+**Bidirectionality (added evening 2026-05-15):** Iron Rule applies in BOTH directions. Conjecturing "we lack X" (research PI, partner, credential, capacity) without searching memory first is the same failure mode as conjecturing "we have X" without verifying. Before claiming TCAF or Dr. Flood lacks something for any grant: (a) `rg` memory for credentials, partners, prior submissions, coalition lists; (b) read the canonical bio at `docs/grants/NSF-TechAccess-LOI-Draft.md` lines 14-22; (c) check `docs/grants/TCAF-Coalition-Partner-Presentation.md` for named partners.
+
+**Cost-of-failure log (do not delete — these are why the rule exists):**
+- **2026-05-12, EIN typo.** May 12 EIN sweep (003→503) cited "IRS Letter 947" as the source without ever opening the IRS PDFs in `attached_assets/`. PDFs said 003 all along. Result: 72 files in this codebase carried a wrong EIN for 3 days, and the agent told the user the live submission site had a typo when the typo was the agent's.
+- **2026-05-15 AM, Centene.** Centene Foundation May 31, 2026 deadline carried forward as fact from a stale intelligence file. Verified May 15 from centene.com — Centene Foundation moved to invitation-only in 2026, open-cycle does not exist.
+- **2026-05-15 PM, WT Grant scarcity.** Claimed WT Grant would require a university PI when (1) Dr. Flood IS the research-trained PI (DHA + DBA + MS I/O Psych + MS Implementation Science in-progress at Dartmouth Geisel + VA Public Health Social Scientist + federal grants management certified), (2) the Dartmouth institutional tie was already in memory, (3) ACC was already a named coalition partner via Prof. Laura Franco. User correction (verbatim): "The audacity for you to pretend that I am not a research trained pi and that I have not given you a list of qualified pi's is insulting."
+
+**Operational sub-rules:**
+- Subagent answers that cite our own internal drafts as "verification" are circular and must be rejected.
+- Any sweep touching ≥3 files for an identifier requires: (a) open the cited primary source on the current turn, (b) paste the relevant quote into reasoning, (c) get explicit user "go" before executing.
+
+## A10. Two-entity strategy + Dr. Flood entity registry (May 15, 2026 PM)
+**Top-line for `replit.md`:** Dr. Flood owns ISS LLC alongside TCAF for opportunities nonprofits can't apply for (SBIR/STTR, GSA Schedule, for-profit set-asides). Routing rule: for-profit-only opportunities → ISS LLC primary, flag for joint-venture-with-TCAF review. Never auto-submit. M&T Consulting is out-of-scope unless user says otherwise.
+
+**Integrated Services and Solutions LLC ("ISS LLC")** — primary-source verified from SAM.gov + LegalZoom screenshots:
+- EIN: `87-2795417`
+- TX SOS: `0804240615`
+- Formed: 2021-09-21
+- SAM UEI: `C7YDV3P8EHL7`
+- CAGE: `9VKK3`
+- SAM Active, expires 2027-03-30
+- Same Pflugerville address as TCAF
+- DBA: blank
+
+**M&T Consulting Solutions LLC** — partner-co-owned, OUT-OF-SCOPE per user directive. Do NOT route opportunities there without explicit instruction. Identifiers TBD until user provides.
+
+Full entity registry: `docs/active-commitments.md` "Dr. Flood's Other Entities — Registry" section.
+
+## A11. SAM.gov + federal registration — narrative (May 14, 2026)
+**Top-line for `replit.md`:** TCAF SAM.gov status ACTIVE since 2026-05-14, UEI **KDDVD1FGLW35**, CAGE **209N1**, renewal due **2027-05-06** (calendar reminder 2027-04-01). Full ZIP+4 78660-7020. DBA blank → default to legal name "The Collaborative Advocate Foundation" on federal forms.
+
+**Activation event:** SAM.gov donotreply email on 05/14/2026 confirmed ACTIVE status; CAGE Code 209N1 auto-assigned by DLA CAGE Program at activation. Eligibility to receive federal awards is now live.
+
+**Renewal cadence:** annual. Failure to renew = loss of federal-award eligibility — set calendar reminder for 2027-04-01 to begin renewal cycle ~30 days before expiry.
+
+Live in `docs/active-commitments.md` "TCAF SAM.gov + Federal Registration Identifiers" section.

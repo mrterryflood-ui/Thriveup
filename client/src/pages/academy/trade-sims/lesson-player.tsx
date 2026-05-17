@@ -240,8 +240,11 @@ export default function LessonPlayerPage() {
   const [debriefNote, setDebriefNote] = useState("");
   // Reflection captured on the Solo tab. For no-canvas lessons this is the
   // primary engagement gate (≥ REFLECTION_MIN_WORDS). On canvas lessons it
-  // remains optional but is still encouraged.
+  // remains optional but is still encouraged. Persisted to localStorage
+  // per-lesson so a refresh / accidental navigation doesn't wipe it.
   const [soloReflection, setSoloReflection] = useState("");
+  // Open journal entry from the Sandbox tab. Same persistence pattern.
+  const [sandboxJournal, setSandboxJournal] = useState("");
   const [startedAt] = useState(() => Date.now());
   // Real engagement tracking — gates "Mark complete" so a user can't just click
   // Concept → Debrief and claim 100%. Honesty-in-claims requirement.
@@ -287,6 +290,30 @@ export default function LessonPlayerPage() {
   });
 
   const lesson = lessonData?.lesson;
+
+  // localStorage hydration for soloReflection + sandboxJournal, keyed by
+  // lesson.id once the lesson loads. Quiet no-op on SSR / private mode.
+  useEffect(() => {
+    if (typeof window === "undefined" || !lesson?.id) return;
+    try {
+      const r = window.localStorage.getItem(`trade-sims:reflection:${lesson.id}`);
+      if (r !== null) setSoloReflection(r);
+      const j = window.localStorage.getItem(`trade-sims:journal:${lesson.id}`);
+      if (j !== null) setSandboxJournal(j);
+    } catch {
+      // localStorage may be disabled; silently fall back to in-memory state.
+    }
+    // Intentionally only re-hydrate when a new lesson loads.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lesson?.id]);
+  useEffect(() => {
+    if (typeof window === "undefined" || !lesson?.id) return;
+    try { window.localStorage.setItem(`trade-sims:reflection:${lesson.id}`, soloReflection); } catch { /* quota / private mode — ignore */ }
+  }, [soloReflection, lesson?.id]);
+  useEffect(() => {
+    if (typeof window === "undefined" || !lesson?.id) return;
+    try { window.localStorage.setItem(`trade-sims:journal:${lesson.id}`, sandboxJournal); } catch { /* quota / private mode — ignore */ }
+  }, [sandboxJournal, lesson?.id]);
   const trade = lessonData?.trade;
   const engineMode = lesson?.concept?.engineMode ?? "concept-only";
   const allLessons = tradeData?.lessons ?? [];
@@ -713,12 +740,33 @@ export default function LessonPlayerPage() {
                   tradeSlug,
                 )
               ) : (
-                <Alert>
-                  <AlertTitle>Sandbox available in Phase B+</AlertTitle>
-                  <AlertDescription>
-                    Open-ended sandbox for the {engineMode} engine ships alongside its dedicated canvas.
-                  </AlertDescription>
-                </Alert>
+                // No interactive canvas for this engine — but the lesson author
+                // wrote a real sandbox prompt. Surface it and give the learner
+                // a journal to plan/explore in writing. Counts as engagement.
+                <div className="space-y-3">
+                  <Alert>
+                    <AlertTitle>Sandbox prompt</AlertTitle>
+                    <AlertDescription>
+                      {lesson.sandboxStarter?.prompt ?? "Free play. Plan something you would actually build, even without the canvas yet."}
+                    </AlertDescription>
+                  </Alert>
+                  <div className="space-y-1">
+                    <h3 className="text-sm font-semibold">Your sandbox journal</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Sketch your plan in words: what would you build, what's the first move, what could go wrong? Saved automatically as you type.
+                    </p>
+                    <Textarea
+                      value={sandboxJournal}
+                      onChange={(e) => setSandboxJournal(e.target.value)}
+                      placeholder="If I had the tools in front of me right now, I would start by…"
+                      rows={5}
+                      data-testid="textarea-sandbox-journal"
+                    />
+                    <p className="text-xs text-muted-foreground" data-testid="text-sandbox-wordcount">
+                      {countWords(sandboxJournal)} words
+                    </p>
+                  </div>
+                </div>
               )}
               <div className="pt-2">
                 <Button onClick={() => setTab("debrief")} data-testid="button-next-debrief">
