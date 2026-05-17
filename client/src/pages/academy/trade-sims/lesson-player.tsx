@@ -866,6 +866,13 @@ export default function LessonPlayerPage() {
                     Next lesson: Day {nextLesson.dayNumber} {nextLesson.title} <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 )}
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(`/academy/trade-sims/${tradeSlug}/certify`)}
+                  data-testid="button-credentials"
+                >
+                  Credentials & apprenticeships <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
               </div>
               {debrief && (
                 <Alert data-testid="alert-debrief">
