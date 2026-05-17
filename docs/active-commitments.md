@@ -7,6 +7,37 @@ User directive: stop letting memory-only funder targets sit outside the discover
 **Promoted to `pursuing`:**
 - Promise Neighborhoods 84.215N (Dept of Ed) · deadline **2026-08-06** · was sitting in `identified` despite memory saying TCAF prime. Two duplicate DB rows both flipped — needs dedupe pass later.
 
+### Promise Neighborhoods FY26 — PRIMARY-SOURCE VERIFIED 2026-05-17 PM-late
+
+**Source:** Federal Register doc **2026-09927**, published **2026-05-18** ("Notice Announcing Promise Neighborhoods Program Competition"), https://www.federalregister.gov/documents/2026/05/18/2026-09927 + PDF https://www.govinfo.gov/content/pkg/FR-2026-05-18/pdf/2026-09927.pdf
+
+**Iron Rule self-correction:** My earlier claim that TCAF "almost certainly doesn't qualify" as prime was **overconfident**. The actual statutory eligibility (ESEA Section 4622) is more open than I'd asserted. Don't repeat that error.
+
+**Confirmed facts:**
+- ✅ **Deadline:** 11:59:59 PM ET August 6, 2026 (Grants.gov APPLY)
+- ✅ **CFDA:** 84.215N
+- ✅ **Administering agency:** HHS/ACF on behalf of ED (unusual — note for proposal cover)
+- ✅ **Contact:** Rich Wilson, (202) 453-6709, PromiseNeighborhoods@ed.gov
+- ✅ **TCAF is eligible as prime** under Section 4622(c): "one or more nonprofit entities working in formal partnership with not less than one of: (i) a high-need LEA, (ii) an IHE, (iii) the office of a chief elected official of a unit of local government, (iv) an Indian Tribe or Tribal organization." Nothing in the NIA requires X years of 990s, single audit, or NICRA as a statutory bar — those may surface administratively in the full FOA but are not in the eligibility text.
+
+**The real question:** Do we have a **formal partnership commitment letter** from one of {LEA / IHE / local elected official's office / Tribal entity} that we can attach? That is the gating question, not entity age.
+
+**Three absolute priorities (must pick exactly one — competition has separate slates):**
+1. Non-Rural and Non-Tribal Communities
+2. Rural Communities
+3. Tribal Communities
+
+**Competitive preference priorities** (extra points):
+- Promoting Evidence-Based Literacy
+- Meaningful Learning Opportunities — High-Quality Interventions or Accelerated Learning Supports + Supporting Families
+- Meaningful Learning Opportunities — **Career Connected Learning** ← Trade Sims fit
+
+**Not yet verified (gaps in NIA, deferred to full FOA):**
+- Award range (FR did not state $; ED.gov page is JS-rendered and didn't surface it; pull via grants.gov detail page 362347 or contact Rich Wilson)
+- Match / cost-share requirement
+- Project period length (historically 5 years)
+- Planning vs Implementation tiers if applicable this cycle
+
 **Added (4 new manual entries, flagged `[MEMORY-SOURCED — verify before commit]`):**
 - Lowe's Gable CBO · deadline **2026-09-03** (window opens Aug 1) · fit 85 · `identified`
 - Home Depot Path to Pro · rolling · fit 85 · `identified` · PFISD co-applicant
