@@ -1,6 +1,22 @@
 # Active Commitments — TCAF / ThriveUp Academy
 
-## Smart Family Fund — pitch package send-ready (May 17, 2026)
+## Smart Family Fund — ✅ PITCH C SUBMITTED 2026-05-17 12:13 PM CT
+
+**Status:** Pitch C v2 submitted via portal smartfamilyfund.org/introduce-yourself. Confirmation screen captured (`attached_assets/image_1779038012829.png`): "Thank you for your submission. We'll review and be in touch if there is a potential fit."
+
+**Next milestone:** November 2026 decision window. No action until then unless a warm-intro channel opens or they reach out earlier. Plan for ~6 months of silence — that's the cycle, not a signal.
+
+**Summer parallel work (now → Nov 2026):**
+1. Open warm-intro outreach through Archie's Horizons-adjacent / DC ed-equity lane (Pitch B becomes lead doc) OR Roland's TheraHive Digital+ lane (Pitch A becomes lead doc). Goal: by Nov 2026, "TCAF" is a name the giving committee has heard from more than just the cold portal pile.
+2. Build out diligence-stage follow-up materials per scale-density caution: phased implementation roadmap, modularity, sequencing, "interconnected but not simultaneously dependent on full completion" framing.
+3. Confirm Candid Silver+ seal (their giving committee may verify org legitimacy via Candid).
+4. Re-verify by November: PFISD signed status, ACC outreach status, 200-by-July-1 cohort delivered, any new platform launches that strengthen the chain-web story.
+
+**If they respond before November** (unusual but possible — Archie sometimes pulls files mid-cycle for portfolio-fit conversations): default response = thank, confirm receipt, offer to send Pitch B + Pitch C as the follow-up package, and ask if they'd like a 20-min intro call with Dr. Flood.
+
+---
+
+## Smart Family Fund — pitch package archived as submitted (May 17, 2026)
 
 **Funder:** The Smart Family Fund (smartfamilyfund.org/introduce-yourself) · EIN 81-2297831 · Lisle IL · private foundation · FY24 assets $41.9M · ~$1.5M/yr giving · 30 grantees in 2024 · range $10K-$250K · median first grant $25K · sweet spot $50K · rolling.
 
