@@ -2021,3 +2021,37 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 - Congruence audit: 223 PASS / 0 WARN / 0 FAIL.
 
 **Weekly edit cadence:** `SHIP_TARGETS_THIS_WEEK` and `FUNDER_DECISIONS_PENDING` arrays in `client/src/pages/this-week.tsx` should be hand-edited each Monday before any external briefing.
+
+## 2026-05-18 (PM) — Kevin Packer (InvesTech) post-call reconciliation
+
+**Call:** Mon 2026-05-18 10:30 AM CT, 30 min Zoom. Materials delivered: one-pager, tech architecture overview, opportunities-currently-tracking (all 3 as PDF + MD in `docs/partners/investech/`).
+
+**Kevin's 3:44 PM follow-up note adopted into pipeline:**
+- ✅ Two-entity discipline confirmed: TCAF for federal/foundation, ISS LLC for SBIR/STTR + for-profit set-asides. Every opportunity now labeled by submitting entity.
+- ✅ Four-lane operating model: Shield (ISS LLC), HerHealth (ISS LLC SBIR / TCAF federal+foundation), BetterScience (ISS LLC SBIR / TCAF federal+foundation), Thriving Communities (TCAF only).
+- ✅ PCORI Broad Pragmatic Studies removed (requires RCT, conflicts with our preference).
+
+**Added to active pipeline (Section B):**
+- NIH PAR-25-144 — D&I Research R01 clinical-trial optional · deadlines 2026-06-05 + 2026-10-05 · BetterScience lane → TCAF. Strongest single fit Kevin surfaced. **De-conflict with NIH R03 PA-25-302 (2026-06-16) before drafting.**
+- Episcopal Health Foundation Cycle 2 · LOI portal opens 2026-06-23 · Thriving Communities → TCAF. **Verify Travis County coverage in Diocese of Texas before drafting.**
+
+**Added to watching (Section C):**
+- St. David's Foundation — Catalyzing Community-Led Change (CCLC) · opens 2026-05-27. **TACTICAL HOLD** — 12 days after WAB2 decline reads as not having processed feedback. Plan: send WAB2 feedback request first, re-evaluate next cycle.
+
+**Gap-scan funders to dig (priority ordered, Section F):**
+1. Justice & Reentry foundations (Arnold Ventures, Just Trust, Joyce, Open Phil CJ, Ford US, Kellogg) — HIGHEST EV. Our RNR/CBI/NRRC stack is the strongest differentiator on this platform that hasn't been pitched to foundations.
+2. DOL apprenticeship intermediaries (ABA, Strengthening Comm Colleges, REO, Workforce Pathways for Youth, ETA Sector Partnership) — Trade Sims fit.
+3. HRSA/SAMHSA BH (HRSA Reentry Care Coord, BHWET, Project AWARE, GLS, RCORP) — Talk Your Talk + SafeReport.
+4. AI-orchestration foundations (Schmidt Sciences, McGovern, Knight, Mozilla, Ballmer).
+5. NSF SBIR via ISS LLC — HOLD, NSF not currently accepting Project Pitches.
+
+**Out of scope for THIS site (Section H):**
+- All 5 Shield DOD R1/R2 topics — ISS LLC counter-UAS, separate codebase.
+- HerHealth NIH SBIR Omnibus (opens 2026-06-01, deadline 2026-09-08) — HerHealth product codebase (`NETWORK_SECRET_HERHEALTH`).
+- "NASA/Oak Ridge tech transfer licenses" + "CBS feature" past-performance claims — **NOT verified in this site's records.** Iron Rule: primary-source verify in HerHealth product memory before anchoring a federal proposal.
+- SMARTS opportunity — no record on this site; briefed separately.
+
+**Next session ("tomorrow we right"):** drafting begins on the green-lit items. Recommended starting order:
+1. NIH PAR-25-144 ↔ PA-25-302 topic-map decision (June 5 is the closer deadline).
+2. Centene BH concept (May 31).
+3. Episcopal Health Cycle 2 Diocese-of-Texas-coverage verification.
