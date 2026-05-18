@@ -2055,3 +2055,18 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 1. NIH PAR-25-144 ↔ PA-25-302 topic-map decision (June 5 is the closer deadline).
 2. Centene BH concept (May 31).
 3. Episcopal Health Cycle 2 Diocese-of-Texas-coverage verification.
+
+## 2026-05-18 (late PM) — INF-2026-0180 reviewed & passed
+
+City of Houston Health Department / Community Reentry Network Program (CRNP) Housing Support Services. DOJ-BJA federal pass-through, ~$90K (40 participants × $2,250 + admin fee %), Net 30 cost reimbursement, term through 2027-09-30.
+
+**Passed for 3 independent hard blockers:**
+1. Required minimum 3 years past performance providing housing support to justice-impacted population. TCAF 501(c)(3) determined 01/14/2026 (~4 months as a determined nonprofit). Cannot truthfully claim under Iron Rule.
+2. Vendor must operate within Houston/Harris County. TCAF is Pflugerville (Travis County). Hire Houston First preference further favors local CB/LB businesses.
+3. Wrong product shape: this is a check-writing vendor procurement (rent, deposits, utilities, furniture, delivery) on cost-reimbursement Net 30. We are a platform/coordination shop, not a rent-payer with the working-capital position to front housing assistance.
+
+**Iron Rule flag:** the zip I received did not contain a submission deadline — that lived on the Houston procurement portal page, not in the SOW or terms docs. User confirmed bid was due ~3 hours from review window; declined.
+
+Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Section D.
+
+**Adjacent lane (not pursued):** a Houston-based reentry housing nonprofit that wins this contract could subcontract our Justice + reentry coordination stack (RNR/CBI/NRRC, service-log automation, MBK Redirect integration) as their back-office. Not initiated; user can re-open if a target nonprofit surfaces.

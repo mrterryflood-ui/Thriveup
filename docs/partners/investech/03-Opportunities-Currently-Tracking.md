@@ -55,6 +55,7 @@ This is the live pipeline as of Monday, May 18, 2026, **updated after Kevin Pack
 | **VA GPD FY2027 (PDO + Service Center)** | Deadline (2026-02-18) already past. Demoted to FY2028 prep track |
 | **SBA Manufacturing in America — Empower to Grow (E2G)** | $50M pool, ~30 days to deadline, reviewed and declined as prime. Possible sub-recipient role only |
 | **PCORI Broad Pragmatic Studies (removed by Kevin 2026-05-18)** | Requires an RCT, conflicts with TCAF's preference for less clinical-trial work |
+| **INF-2026-0180 — City of Houston Health Dept / CRNP Housing Support Services (passed 2026-05-18)** | DOJ-BJA pass-through, ~$90K (40 participants × $2,250). 3 independent blockers: (1) requires 3 years past performance providing housing support to justice-impacted population — TCAF 501(c)(3) determined 01/14/2026; (2) vendor must operate within Houston/Harris County — TCAF is Travis County; (3) cost-reimbursement check-writing model for rent/deposits/utilities, not a platform procurement. Bid was due ~3 hrs from review window. |
 
 ---
 
