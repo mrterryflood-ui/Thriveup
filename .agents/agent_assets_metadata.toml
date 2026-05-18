@@ -485,3 +485,21 @@ id = "KZS-oWqKiBoENMkARJrLu"
 uri = "file://docs/grants/centene-foundation-2026/03-budget-narrative.md"
 type = "text"
 title = "Centene Budget Narrative"
+
+[[outputs]]
+id = "aHikhkH14QzUME6W4_AbD"
+uri = "file://docs/partners/investech/01-ThriveUp-One-Pager-Kevin-Packer.pdf"
+type = "pdf"
+title = "01 — ThriveUp One-Pager (Kevin Packer)"
+
+[[outputs]]
+id = "mUAOufyuq8XfPgs5HvomA"
+uri = "file://docs/partners/investech/02-Technical-Architecture-Overview.pdf"
+type = "pdf"
+title = "02 — Technical Architecture Overview"
+
+[[outputs]]
+id = "eSiujwF4frh_4b_RSc8QL"
+uri = "file://docs/partners/investech/03-Opportunities-Currently-Tracking.pdf"
+type = "pdf"
+title = "03 — Opportunities Currently Tracking"
