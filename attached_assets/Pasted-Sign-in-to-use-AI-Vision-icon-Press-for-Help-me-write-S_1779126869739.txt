@@ -1,0 +1,110 @@
+Sign in to use AI Vision
+
+
+icon
+Press / for Help me write
+
+Skip to content
+Using Gmail with screen readers
+5 of 19,522
+Funding shortlist following our call
+Inbox
+
+Kevin Packer <kevin@investech-consulting.com>
+12:17 PM (36 minutes ago)
+to me
+
+Hi Terry,
+
+As promised on our call, here is the shortlist of federal and foundation funding opportunities across your four tracks. I included only items that are currently open or have a confirmed opening date.
+
+Two quick clarifications before going deeper:
+
+You mentioned a window closing around May 28. The DOD topics that fit best actually close June 3, and the next batch opens May 27 and closes June 24. Can you confirm which topic you were referencing?
+
+The Women's Health App: which entity holds it, ISSL or Collaborative Advocate Foundation? The answer changes most of the funding paths. If it sits in ISSL but CAF would apply, the IP needs formal assignment first.
+
+DOD counter-UAS (Track 1)
+
+Close June 3, 2026:
+
+1. DAF26BZ01-DV001 Homeland Convoy Counter Drone Operations. Air Force. Closest match to your TAK/ATAC integration thesis applied to convoy protection. Solicitation explicitly rejects closed, fully proprietary architectures.
+
+2. OSW26BZ01-DV001 Establishing Ad-Hoc Distributed Network Across Heterogeneous RF Systems. OSD. Calls for coordination and synchronization across service components and platforms. Direct hit on your synthesis layer language.
+
+3. DON26BZ01-NV023 Risk-Aware Regenerative AI Multimodal Visual-Tactical. Navy. Cross-domain situational awareness with AI-assisted course of action. Maps to deliberate targeting decision support. Navy client, so a Navy end user would strengthen the proposal.
+
+Submission portal for all three: https://www.dodsbirsttr.mil/topics-app/
+
+Open May 27, close June 24, 2026:
+
+4. OSW26BZ02-DV003 Generative AI for Secure Workflow Automation. OSD. Adjacent to your synthesis thesis.
+
+5. OSW26BZ02-DV004 Game-Theoretic AI for Course of Action Generation and Wargaming. OSD. COA generation is core to deliberate targeting, strong conceptual fit with your 131A background.
+
+Implementation Science research tool (Track 2)
+
+Open now:
+
+6. NIH PAR-25-144 Dissemination and Implementation Research in Health, R01. Next deadlines June 5 and October 5, 2026. Budget not capped. Expires January 8, 2028. Companion R21 (PAR-25-143) and R03 (PAR-25-233) are more accessible mechanisms with lower budget ceilings.
+https://grants.nih.gov/grants/guide/pa-files/PAR-25-144.html
+
+Opening June 1, deadline September 8, 2026:
+
+7. NIH SBIR/STTR Omnibus FY26. NOFO will post to Grants.gov before applications open. NIMHD or AHRQ are likely co-funders for the implementation science tool.
+https://seed.nih.gov/small-business-funding/find-funding/sbir-sttr-funding-opportunities
+
+Collaborative Advocate Foundation nonprofit (Track 3)
+
+Opening May 27, 2026:
+
+8. St. David's Foundation - Catalyzing Community-Led Change. 501(c)(3) required (CAF qualifies). Must operate in Bastrop, Caldwell, Hays, Travis, or Williamson counties. Annual operating budget minimum $150,000. Track record of resident organizing required, which may be a gap given CAF is new. Civic health framing aligns with Thriving Communities for All. Informational webinar May 28 at 11am CST.
+https://stdavidsfoundation.org/how-we-work/grantmaking/funding-opportunities/
+
+Opening June 23, 2026:
+
+9. Episcopal Health Foundation Cycle 2 LOI. 501(c)(3) required. Must operate within the 81-county Diocese of Texas service area. Travis County coverage needs verification, since Austin may fall under the Diocese of West Texas instead. Focus areas include maternal health, health equity, and non-medical drivers of health.
+https://www.episcopalhealth.org/grantmaking/
+
+Women's Health App (Track 4)
+
+Open now:
+
+10. PCORI Broad Pragmatic Studies Cycle 2 2026. Deadline September 1, 2026. Awards up to $12M direct costs over up to 5 years. Requires a randomized controlled trial comparing your tool against standard of care for women's health navigation. Would need an academic partner for methodology. Stretch fit that requires reframing the work as a CER study, not a tool deployment.
+https://www.pcori.org/funding-opportunities/announcement/broad-pragmatic-studies-pcori-funding-announcement-cycle-2-2026
+
+Opening June 1, deadline September 8, 2026:
+
+11. NIH SBIR/STTR Omnibus FY26 (same Omnibus as Track 2). NIMHD or ORWH are likely co-funders for a minority women's health digital tool. Strongest near-term option if the app sits in ISSL. Your NASA and Oak Ridge tech transfer licenses are useful past performance signals, and the CBS feature is a credibility hook for the commercialization narrative.
+
+A few items I have not yet researched and want your steer on before spending time:
+- Texas Women's Foundation
+- Methodist Healthcare Ministries of South Texas
+- Austin Community Foundation Women's Fund
+
+Questions for you:
+
+1. Am I on the right track across these four lanes, or is one of them dead and should be dropped?
+
+2. Which opportunities do you want to pursue?
+
+3. Anything I should add or take off based on conversations you have already had with prospects?
+
+Let me know what to prioritize and I will put together the next layer of detail on the items you want to pursue.
+
+Kevin Packer, MSc
+Phone: +1 321 285 7373
+Email: kevin@investech-consulting.com
+Book time with me: https://calendly.com/kevin-fcbu/30min
+
+
+
+Kevin Packer (kevin@investech-consulting.com)
+
+
+
+Dr. Terry Flood
+US ARMY RETIREE
+DHA, EdD, MSIOP, MSW(c),MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I
+254-319-8460
+
