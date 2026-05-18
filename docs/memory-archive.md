@@ -242,3 +242,55 @@ Live in `docs/active-commitments.md` "TCAF SAM.gov + Federal Registration Identi
 - **M2 signed sub-agreement** — Dr. Flood to pursue before HVRP PY27
 - **SAM.gov API key rotation** completed (env `SAM_GOV_API_KEY`, used in `server/grant-routes.ts`); verified returning HTTP 200 with 16,667 records
 - **Pilot cohort target = 200 learners by July 1, 2026** to feed Tier 2 discovery calls
+
+---
+
+## A14. Community Voice — full build detail (Phases 1-4, 2026-05-17/18)
+
+**Status:** All four phases shipped, code-review approved. Active short-form pointer in `replit.md`.
+
+- **Routes:** `/voice` (list + start-a-project CTA for authed users) · `/voice/new` (4-step wizard, any authed user, rate 5/hr) · `/voice/:slug` (map + drop-pin) · `/voice/:slug/story` (public #DATA storytelling — anonymized verbatims, chain arrows, thank-you CTA) · `/voice/:slug/insights` (admin-only — gpt-4o-mini clustering with rule-based fallback, sentiment bar, platform badges, JSON export, sync-to-story) · `/voice/:slug/admin` (admin moderation + safety-routing review + settings).
+- **Backend:** `server/voice-routes.ts` (~800 lines) + 6 tables (Phase 1: `communityVoiceProjects`, `communityVoicePins`, `communityVoiceComments`, `communityVoiceReactions`; Phase 2-4: `communityVoiceInsights`, `communityVoiceRouting`).
+- **Security primitives:** Capability-token P-L08 pattern (`x-voice-token` HEADER ONLY — no query fallback, `timingSafeEqual`) · socket-only IP rate limits (no XFF trust) · regex crisis-detection routes silently to WPH + LifeBridge when `project.crisisRoutingEnabled` · strict-admin gate (`isAdminish` returns true only for `role==="admin"`) · `publicizePin` strips `accessToken`, `ipHash`, `authorEmail` on every public surface · hidden-project guard on `/projects/:slug`, `/pins`, `/insights/latest`, `/chain`.
+- **Deterministic platform-routing map (PLATFORM_ROUTING):** safety-concern → WPH + LifeBridge · mental-health → WPH + SafeCogniCare · food-access → LifeBridge + Sankofa · housing/transportation → LifeBridge · workforce-training → Trade Sims + M2C · youth-services → ISSS + Foster Youth · veteran-services → M2C · gap-need → LifeBridge + Civic Signal · story/service-working → narrative only.
+- **AI clustering:** gpt-4o-mini, JSON-mode, temp 0.4, 200-pin context cap, 280-char body trim. Returns 3-7 themes with title/summary/sentiment/memberPinIds/recommendedPlatforms/confidence. Rule-based fallback groups by category if AI fails. Rate-limited 10 gens/10min per admin.
+- **Publish gate:** Public sees insights only after admin clicks Sync-to-Story (`syncedToStoryAt IS NOT NULL`). Owner controls the publish moment.
+- **Pilot:** `pflugerville-holistic-services` (Pflugerville Holistic Services & Assistance, center 30.4394/-97.62, 12 categories, access=public, crisis-routing ON).
+- **Phase 5 backlog:** photo uploads via object storage (presigned URLs, same pattern as foster-youth), iframe-embeddable widget (`?embed=1`), chain-web force-graph viz, email/hybrid access enforcement on POST /pins, EN-mirror translation of non-EN pin bodies for AI cluster.
+- **Build log:** `docs/active-commitments.md` top section.
+
+---
+
+## A15. Trade Sims — Credentials + Apprenticeships (full detail, 2026-05-17)
+
+- **Page:** `/academy/trade-sims/:tradeSlug/certify`. Test prep gated at 80% lesson completion.
+- **Server:** `server/trade-sims-cert-routes.ts`.
+- **Static data:** `shared/data/trade-sims/{certifications,apprenticeships,cert-practice-banks}.ts`.
+- **Iron Rule:** no quoted fees, every cert links to sponsor.
+- **Top-3 funder targets:** Lowe's Gable CBO (window **Aug 1 → Sep 3, 2026**) · TWC Skills Development Fund (rolling, needs ACC) · Home Depot Path to Pro (rolling, PFISD locked as physical-site co-applicant).
+- **Federal pipeline:** TCAF prime on Promise Neighborhoods ED-GRANT-26-054 (closes **08/06/2026**); ACC prime on DOL-ETA Strengthening Community Colleges Round 7 when it announces.
+- **Pilot cohort target:** 200 learners by July 1, 2026.
+- **Live sequencing doc:** `docs/grants/trade-sims-funder-sequencing-2026-05-17.md`.
+- **M2 partner one-pager:** `docs/grants/trade-sims-m2-one-pager.md`.
+
+---
+
+## A16. Smart Family Fund — Pitch C submission (2026-05-17)
+
+- ✅ **PITCH C SUBMITTED 2026-05-17 12:13 PM CT** via smartfamilyfund.org/introduce-yourself.
+- **Confirmation:** `attached_assets/image_1779038012829.png`.
+- **Decision window:** November 2026. Plan ~6 months silence as normal cycle.
+- **Three pitches archived:** `docs/grants/smart-family-fund-pitches-2026-05-17.md` (A=Trade Sims, B=Foster-Youth, C=Ecosystem **SUBMITTED**).
+- **Summer parallel work:** warm-intro outreach (Archie/Horizons or Roland/TheraHive lanes) + diligence-stage follow-up materials addressing scale-density caution.
+- **Current status:** `docs/active-commitments.md` top section.
+
+---
+
+## A17. Two-entity registry — full IDs (verified 2026-05-15)
+
+- **ISS LLC** (Integrated Services and Solutions LLC) — Dr. Flood's for-profit. Used for opportunities nonprofits can't apply for (SBIR/STTR, GSA Schedule, for-profit set-asides).
+  - EIN **`87-2795417`** · TX SOS **`0804240615`** · SAM UEI **`C7YDV3P8EHL7`** · CAGE **`9VKK3`** · SAM Active, expires **2027-03-30**.
+- **Routing:** for-profit-only → ISS LLC primary, flag for joint-venture-with-TCAF review, never auto-submit.
+- **M&T Consulting Solutions LLC** = partner-co-owned, OUT-OF-SCOPE unless user explicitly says otherwise.
+- **TCAF SAM activation narrative:** UEI `KDDVD1FGLW35` · CAGE `209N1` · renewal due 2027-05-06 (calendar 2027-04-01) · ZIP+4 78660-7020 · DBA blank → use legal name "The Collaborative Advocate Foundation" on federal forms.
+
