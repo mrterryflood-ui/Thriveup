@@ -1,3 +1,29 @@
+# Community Voice — Phases 2-4 SHIPPED (2026-05-18 sprint)
+
+**What's now live end-to-end (input → insight → impact → story):**
+
+- **Wizard `/voice/new`** — 4-step launch flow (Name → Map location → Categories → Access/Safety). Any TCAF-authenticated user can launch a project; admin still owns moderation. Rate-limited 5 projects/hr/user. Endpoint: `POST /api/voice/projects/wizard`. Slug uniqueness returns 409 with friendly copy. publiclyVisible defaults TRUE so owners get a shareable link immediately.
+
+- **AI insights dashboard `/voice/:slug/insights`** (admin-gated) — `POST /api/voice/projects/:slug/insights/generate` runs OpenAI gpt-4o-mini cluster (3-7 specific themes, JSON-mode, temperature 0.4, 200-pin context cap, 280-char body trim). Rule-based fallback groups by category if AI fails. Each theme returns title/summary/sentiment/memberPinIds/recommendedPlatforms (derived deterministically from member-pin categories)/confidence. Dashboard shows: 4 stat cards (voices/themes/safety-net-routed/model+date), sentiment bar (positive/mixed/neutral/negative), theme grid with platform badges, stakeholder breakdown. Export JSON + Sync-to-Story buttons. Rate-limited 10 gens/10min.
+
+- **Public #DATA story page `/voice/:slug/story`** — hero with voice count, themes section pulls anonymized 3 verbatims per theme + ecosystem-chain arrows (Theme → Platform A → Platform B), gentle drop-pin CTA back to map. Public only sees insights where `syncedToStoryAt IS NOT NULL` — owner controls the publish moment. Thanking copy throughout ("Thank you to every neighbor who shared their voice. This page is yours.").
+
+- **Admin workspace `/voice/:slug/admin`** (admin-gated) — 3 tabs: Pin moderation (archive/restore/anon-toggle per pin), Safety routing (read-only crisis-routed list with target+timestamp), Settings (name/desc/access/status/publiclyVisible/crisis toggle).
+
+- **Chain web `GET /api/voice/projects/:slug/chain`** — returns pins + per-pin routings + platformLabels + platformMap. Public; respects publiclyVisible. Backs storytelling pages and (future) chain-viz.
+
+- **Deterministic platform routing map (PLATFORM_ROUTING in server/voice-routes.ts):** safety-concern→WPH+LifeBridge · mental-health→WPH+SafeCogniCare · food-access→LifeBridge+Sankofa · housing/transportation→LifeBridge · workforce-training→Trade Sims+M2C · youth-services→ISSS+Foster Youth · veteran-services→M2C · gap-need→LifeBridge+Civic Signal · story/service-working→narrative only.
+
+- **Schema additions:** `community_voice_insights` + `community_voice_routing` (2 new tables, total = 6 voice tables · `npm run db:push` applied 2026-05-18).
+
+- **Navigation tabs on `/voice/:slug`:** Story (public), Insights + Admin (admin-only, conditional render via useAuth role).
+
+- **CTA on `/voice` for authed users:** "Listening to a community of your own? Start a project →" → wizard.
+
+- **Verified:** projects=1, chain=200 (2 pins, 0 routings), latest=null (correctly hides unsynced), unauth wizard→401, unauth insights/generate→401, hidden-project guard intact. Zero new TS errors in voice code (mou-routes/benefits-routes errors are pre-existing P-L10).
+
+- **Phase 5 backlog:** photo uploads via object storage (presigned URLs, same pattern as foster-youth), iframe-embeddable widget (`?embed=1` to hide app shell), chain-web visualization (force-directed graph of pins↔platforms), email-mode/hybrid-mode access enforcement (currently access mode is stored but POST /pins is always open — needs gate when access_mode != 'public'), translation hook on pin body (English mirror for AI cluster).
+
 
 ## 2026-05-17 PM — Community Voice (Open Point / Social Point analog) — Phase 1 SHIPPED
 

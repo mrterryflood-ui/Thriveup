@@ -113,6 +113,10 @@ const WorkforceDashboardPage = lazy(() => import("@/pages/workforce-dashboard"))
 const CommunityMapPage = lazy(() => import("@/pages/community-map"));
 const VoiceIndexPage = lazy(() => import("@/pages/voice/index"));
 const VoiceProjectPage = lazy(() => import("@/pages/voice/project"));
+const VoiceWizardPage = lazy(() => import("@/pages/voice/wizard"));
+const VoiceInsightsPage = lazy(() => import("@/pages/voice/insights"));
+const VoiceStoryPage = lazy(() => import("@/pages/voice/story"));
+const VoiceAdminPage = lazy(() => import("@/pages/voice/admin"));
 const IntakeWizardPage = lazy(() => import("@/pages/intake-wizard"));
 const ServiceDeliveryPage = lazy(() => import("@/pages/service-delivery"));
 const HealthWellnessPage = lazy(() => import("@/pages/health-wellness"));
@@ -368,6 +372,22 @@ function AppRouter() {
       <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />
       <Route path="/voice" component={VoiceIndexPage} />
+      <Route path="/voice/new">
+        <RequireAuth reason="Sign in to launch a Community Voice project for the community you serve.">
+          <VoiceWizardPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/voice/:slug/story" component={VoiceStoryPage} />
+      <Route path="/voice/:slug/insights">
+        <RequireAuth adminOnly reason="The Insights workspace clusters resident voice into AI themes and routes them to the TCAF ecosystem. Restricted to TCAF admins.">
+          <VoiceInsightsPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/voice/:slug/admin">
+        <RequireAuth adminOnly reason="The Voice admin workspace lets you moderate pins, review safety routings, and adjust settings. Restricted to TCAF admins.">
+          <VoiceAdminPage />
+        </RequireAuth>
+      </Route>
       <Route path="/voice/:slug" component={VoiceProjectPage} />
       <Route path="/intake" component={IntakeWizardPage} />
       <Route path="/services" component={ServiceDeliveryPage} />

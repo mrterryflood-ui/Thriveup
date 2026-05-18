@@ -10,13 +10,47 @@ import {
   communityVoicePins,
   communityVoiceReactions,
   communityVoiceComments,
+  communityVoiceInsights,
+  communityVoiceRouting,
   insertCommunityVoiceProjectSchema,
   type CommunityVoicePin,
   type CommunityVoiceProject,
 } from "@shared/schema";
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql, inArray } from "drizzle-orm";
 import { randomUUID, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { z } from "zod";
+import OpenAI from "openai";
+
+const openai = process.env.OPENAI_API_KEY ? new OpenAI() : null;
+
+// Deterministic category → ecosystem-platform routing map.
+// Used both for AI theme recommendations and the chain-web visualization.
+const PLATFORM_ROUTING: Record<string, string[]> = {
+  "safety-concern": ["whole-person-health", "lifebridge"],
+  "mental-health": ["whole-person-health", "safe-cogni-care"],
+  "food-access": ["lifebridge", "sankofa-health-network"],
+  "housing": ["lifebridge"],
+  "transportation": ["lifebridge"],
+  "workforce-training": ["trade-sims", "mission-transition"],
+  "youth-services": ["isss", "foster-youth"],
+  "veteran-services": ["mission-transition"],
+  "assistance-request": ["lifebridge"],
+  "gap-need": ["lifebridge", "civic-signal"],
+  "service-working": [],
+  "story": [],
+};
+
+const PLATFORM_LABELS: Record<string, string> = {
+  "whole-person-health": "Whole-Person Health",
+  "lifebridge": "LifeBridge",
+  "safe-cogni-care": "SafeCogniCare",
+  "sankofa-health-network": "Sankofa Health Network",
+  "trade-sims": "Trade Sims (ThriveUp Academy)",
+  "mission-transition": "Mission Transition (M2C)",
+  "isss": "ISSS",
+  "foster-youth": "Foster Youth Wizard",
+  "civic-signal": "Civic Signal",
+};
 
 // ────────────────────────────────────────────────────────────────────────────
 // Auth helpers (same shape as foster-youth-intake-routes)
@@ -32,8 +66,12 @@ function getUserId(req: Request): string | undefined {
   return u?.claims?.sub || u?.id;
 }
 function isAdminish(req: Request): boolean {
+  // Strict admin only for Community Voice admin surfaces. The UI gates these
+  // behind <RequireAuth adminOnly>, so the backend must enforce the same
+  // boundary — case_manager / staff must not be able to mutate voice projects,
+  // generate paid AI insights, or publish to the public story page directly.
   const u = getUser(req);
-  return !!u && (u.role === "admin" || u.role === "case_manager" || u.role === "staff");
+  return !!u && u.role === "admin";
 }
 function requireAdmin(req: Request, res: Response, next: NextFunction) {
   if (!getUser(req)) return res.status(401).json({ error: "Unauthorized" });
@@ -500,6 +538,247 @@ export function registerVoiceRoutes(app: Express) {
     } catch (err) {
       console.error("[voice] admin update pin failed:", err);
       res.status(500).json({ error: "Failed to update pin" });
+    }
+  });
+
+  // ── Wizard-friendly project creation (any authenticated user can launch a project) ──
+  app.post("/api/voice/projects/wizard", (req, res, next) => {
+    if (!getUserId(req)) return res.status(401).json({ error: "Sign in to start a project." });
+    next();
+  }, rateLimit({ keyPrefix: "voice-wizard", max: 5, windowMs: 60 * 60_000 }), async (req, res) => {
+    try {
+      const parsed = insertCommunityVoiceProjectSchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Please fill in every step before launching.", details: parsed.error.flatten() });
+      // Wizard always starts with publiclyVisible=true so the owner can share their project link immediately.
+      // Admin can still moderate via the admin endpoints.
+      const [row] = await db.insert(communityVoiceProjects).values({
+        ...parsed.data,
+        publiclyVisible: parsed.data.publiclyVisible ?? true,
+        status: parsed.data.status ?? "active",
+        createdBy: getUserId(req) ?? null,
+      } as typeof communityVoiceProjects.$inferInsert).returning();
+      res.json({ project: row });
+    } catch (err: unknown) {
+      const code = (err as { code?: string } | null)?.code;
+      if (code === "23505") {
+        return res.status(409).json({ error: "A project with that short link already exists. Pick a different one." });
+      }
+      console.error("[voice] wizard create project failed:", err);
+      res.status(500).json({ error: "Couldn't launch your project. Please try again." });
+    }
+  });
+
+  // ── Insights generation (admin only — runs paid AI calls) ──
+  app.post("/api/voice/projects/:slug/insights/generate", requireAdmin, rateLimit({ keyPrefix: "voice-insights-gen", max: 10, windowMs: 10 * 60_000 }), async (req, res) => {
+    try {
+      const project = await getProjectBySlug(String(req.params.slug));
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      const pins = await db.select().from(communityVoicePins)
+        .where(and(eq(communityVoicePins.projectId, project.id), eq(communityVoicePins.status, "published")))
+        .orderBy(desc(communityVoicePins.createdAt))
+        .limit(500);
+      if (pins.length === 0) return res.status(400).json({ error: "No pins yet. Drop a few first." });
+
+      // Sentiment timeline (per day)
+      const timelineMap: Record<string, { positive: number; neutral: number; negative: number; mixed: number; crisis: number }> = {};
+      for (const p of pins) {
+        const d = new Date(p.createdAt as unknown as string).toISOString().slice(0, 10);
+        timelineMap[d] ||= { positive: 0, neutral: 0, negative: 0, mixed: 0, crisis: 0 };
+        const k = (p.sentiment ?? "neutral") as keyof (typeof timelineMap)[string];
+        timelineMap[d][k] = (timelineMap[d][k] ?? 0) + 1;
+        if (p.crisisFlag) timelineMap[d].crisis += 1;
+      }
+      const sentimentTimeline = Object.entries(timelineMap).sort(([a], [b]) => a.localeCompare(b)).map(([date, c]) => ({ date, ...c }));
+
+      // Stakeholder breakdown
+      const stakeholder: Record<string, number> = {};
+      for (const p of pins) stakeholder[p.authorType] = (stakeholder[p.authorType] ?? 0) + 1;
+
+      // AI cluster
+      let themes: Array<{ title: string; summary: string; sentiment: string; memberPinIds: string[]; recommendedPlatforms: string[]; confidence: number }> = [];
+      let modelUsed = "fallback-rule-based";
+      if (openai) {
+        const corpus = pins.slice(0, 200).map((p, i) =>
+          `[${i}] cat=${p.category} sent=${p.sentiment ?? "neutral"} crisis=${p.crisisFlag ? "Y" : "N"} body=${JSON.stringify((p.body ?? "").slice(0, 280))}`
+        ).join("\n");
+        const prompt = `You are a community-engagement analyst for a nonprofit. Cluster these resident voice pins into 3–7 SPECIFIC, ACTIONABLE themes. Each theme summary should be 1–2 sentences in plain language a community organizer would read out loud. Output JSON: { "themes": [{ "title": "...", "summary": "...", "sentiment": "positive|negative|mixed|neutral", "memberIndexes": [0,3,7], "confidence": 0.0-1.0 }] }. Be honest. Prefer specificity over generic categories.\n\nPINS:\n${corpus}`;
+        try {
+          const resp = await openai.chat.completions.create({
+            model: "gpt-4o-mini",
+            response_format: { type: "json_object" },
+            messages: [{ role: "user", content: prompt }],
+            temperature: 0.4,
+          });
+          const raw = resp.choices[0]?.message?.content ?? "{}";
+          const parsed = JSON.parse(raw) as { themes?: Array<{ title?: string; summary?: string; sentiment?: string; memberIndexes?: number[]; confidence?: number }> };
+          if (Array.isArray(parsed.themes)) {
+            themes = parsed.themes.map((t) => {
+              const memberPinIds = (t.memberIndexes ?? []).filter((i) => Number.isInteger(i) && i >= 0 && i < pins.length).map((i) => pins[i].id);
+              const recs = new Set<string>();
+              for (const id of memberPinIds) {
+                const pin = pins.find((p) => p.id === id);
+                if (pin) for (const plat of PLATFORM_ROUTING[pin.category] ?? []) recs.add(plat);
+              }
+              return {
+                title: String(t.title ?? "Theme").slice(0, 120),
+                summary: String(t.summary ?? "").slice(0, 600),
+                sentiment: (t.sentiment ?? "neutral"),
+                memberPinIds,
+                recommendedPlatforms: Array.from(recs),
+                confidence: Math.min(1, Math.max(0, Number(t.confidence) || 0.7)),
+              };
+            }).filter((t) => t.memberPinIds.length > 0);
+            if (themes.length > 0) modelUsed = "gpt-4o-mini";
+          }
+        } catch (e) {
+          console.error("[voice-insights] OpenAI cluster failed — using rule-based fallback:", e);
+        }
+      }
+      if (themes.length === 0) {
+        const byCat: Record<string, typeof pins> = {};
+        for (const p of pins) (byCat[p.category] ||= []).push(p);
+        themes = Object.entries(byCat).map(([cat, group]) => {
+          const neg = group.filter((g) => g.sentiment === "negative").length;
+          const pos = group.filter((g) => g.sentiment === "positive").length;
+          const sentiment = neg > group.length / 2 ? "negative" : pos > group.length / 2 ? "positive" : "mixed";
+          const crisisCount = group.filter((g) => g.crisisFlag).length;
+          const label = cat.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+          return {
+            title: label,
+            summary: `${group.length} ${group.length === 1 ? "voice" : "voices"} in ${label}.${crisisCount > 0 ? ` ${crisisCount} routed to safety net.` : ""}`,
+            sentiment,
+            memberPinIds: group.map((g) => g.id),
+            recommendedPlatforms: PLATFORM_ROUTING[cat] ?? [],
+            confidence: 0.6,
+          };
+        }).sort((a, b) => b.memberPinIds.length - a.memberPinIds.length);
+      }
+
+      const [row] = await db.insert(communityVoiceInsights).values({
+        projectId: project.id,
+        generatedBy: getUserId(req) ?? null,
+        pinCount: pins.length,
+        themes,
+        sentimentTimeline,
+        stakeholderBreakdown: stakeholder,
+        modelUsed,
+      } as typeof communityVoiceInsights.$inferInsert).returning();
+      res.json({ insight: row });
+    } catch (err) {
+      console.error("[voice] generate insights failed:", err);
+      res.status(500).json({ error: "Failed to generate insights" });
+    }
+  });
+
+  // Get latest insight — admin sees any, public sees only synced ones (for the Story page).
+  app.get("/api/voice/projects/:slug/insights/latest", async (req, res) => {
+    try {
+      const project = await getProjectBySlug(String(req.params.slug));
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      const admin = isAdminish(req);
+      // Mirror the hidden-project guard from /projects/:slug — anonymous callers
+      // must not learn anything about non-public projects even if they know the slug.
+      if (!project.publiclyVisible && !getUserId(req)) {
+        return res.status(404).json({ error: "Project not found" });
+      }
+      const baseCond = admin
+        ? eq(communityVoiceInsights.projectId, project.id)
+        : and(eq(communityVoiceInsights.projectId, project.id), sql`${communityVoiceInsights.syncedToStoryAt} IS NOT NULL`);
+      const [row] = await db.select().from(communityVoiceInsights)
+        .where(baseCond as ReturnType<typeof eq>)
+        .orderBy(desc(communityVoiceInsights.generatedAt))
+        .limit(1);
+      res.json({ insight: row ?? null });
+    } catch (err) {
+      console.error("[voice] get latest insight failed:", err);
+      res.status(500).json({ error: "Failed to load insight" });
+    }
+  });
+
+  // Sync an insight to the public Story page.
+  app.post("/api/voice/insights/:id/sync", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+      const [row] = await db.update(communityVoiceInsights)
+        .set({ syncedToStoryAt: new Date() })
+        .where(eq(communityVoiceInsights.id, id))
+        .returning();
+      if (!row) return res.status(404).json({ error: "Insight not found" });
+      res.json({ insight: row });
+    } catch (err) {
+      console.error("[voice] sync insight failed:", err);
+      res.status(500).json({ error: "Failed to sync insight" });
+    }
+  });
+
+  // ── Chain web — pin-to-platform routing ──
+  app.post("/api/voice/pins/:id/route", requireAdmin, async (req, res) => {
+    try {
+      const id = String(req.params.id);
+      const { targetPlatform, status = "queued", outcome } = (req.body ?? {}) as { targetPlatform?: string; status?: string; outcome?: string };
+      if (!targetPlatform) return res.status(400).json({ error: "targetPlatform required" });
+      if (!PLATFORM_LABELS[targetPlatform]) return res.status(400).json({ error: "Unknown platform" });
+      const [row] = await db.insert(communityVoiceRouting).values({
+        pinId: id,
+        targetPlatform,
+        status,
+        outcome: outcome ?? null,
+        recordedBy: getUserId(req) ?? null,
+      } as typeof communityVoiceRouting.$inferInsert).returning();
+      res.json({ routing: row });
+    } catch (err) {
+      console.error("[voice] route pin failed:", err);
+      res.status(500).json({ error: "Failed to route pin" });
+    }
+  });
+
+  app.patch("/api/voice/routing/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+      const allowed = ["status", "outcome"] as const;
+      const patch: Record<string, unknown> = {};
+      for (const k of allowed) if (k in (req.body ?? {})) patch[k] = (req.body as Record<string, unknown>)[k];
+      if (typeof patch.outcome === "string" && patch.outcome.length > 0) (patch as { outcomeRecordedAt: Date }).outcomeRecordedAt = new Date();
+      const [row] = await db.update(communityVoiceRouting)
+        .set(patch as Partial<typeof communityVoiceRouting.$inferInsert>)
+        .where(eq(communityVoiceRouting.id, id))
+        .returning();
+      if (!row) return res.status(404).json({ error: "Routing not found" });
+      res.json({ routing: row });
+    } catch (err) {
+      console.error("[voice] update routing failed:", err);
+      res.status(500).json({ error: "Failed to update routing" });
+    }
+  });
+
+  // Chain web data — pins + routings + platform labels. Public; respects publiclyVisible.
+  app.get("/api/voice/projects/:slug/chain", async (req, res) => {
+    try {
+      const project = await getProjectBySlug(String(req.params.slug));
+      if (!project) return res.status(404).json({ error: "Project not found" });
+      if (!project.publiclyVisible && !getUserId(req)) return res.status(404).json({ error: "Project not found" });
+      const pins = await db.select().from(communityVoicePins)
+        .where(and(eq(communityVoicePins.projectId, project.id), eq(communityVoicePins.status, "published")))
+        .orderBy(desc(communityVoicePins.createdAt))
+        .limit(500);
+      const routings = pins.length === 0 ? [] : await db.select().from(communityVoiceRouting)
+        .where(inArray(communityVoiceRouting.pinId, pins.map((p) => p.id)))
+        .limit(2000);
+      const byPin: Record<string, typeof routings> = {};
+      for (const r of routings) (byPin[r.pinId] ||= []).push(r);
+      res.json({
+        // Use the same sanitizer as the public pin list — strips accessToken,
+        // ipHash, AND authorEmail so the public chain endpoint never leaks PII.
+        pins: pins.map(publicizePin),
+        routings: byPin,
+        platformLabels: PLATFORM_LABELS,
+        platformMap: PLATFORM_ROUTING,
+      });
+    } catch (err) {
+      console.error("[voice] get chain failed:", err);
+      res.status(500).json({ error: "Failed to load chain" });
     }
   });
 

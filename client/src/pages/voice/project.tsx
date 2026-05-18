@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
-import { useParams } from "wouter";
+import { Link, useParams } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { Card, CardContent } from "@/components/ui/card";
@@ -18,6 +19,7 @@ import { PageHeader } from "@/components/page-header";
 import { useToast } from "@/hooks/use-toast";
 import {
   MapPin, MessageCircle, ThumbsUp, AlertTriangle, Send, Loader2, ShieldCheck, Languages,
+  BookOpen, Brain, Settings,
 } from "lucide-react";
 import type { CommunityVoiceProject, CommunityVoicePin } from "@shared/schema";
 
@@ -58,6 +60,8 @@ function RecenterOnce({ center, zoom }: { center: [number, number]; zoom: number
 export default function VoiceProjectPage() {
   const params = useParams<{ slug: string }>();
   const slug = params?.slug ?? "";
+  const { user } = useAuth();
+  const isAdmin = (user as { role?: string } | null)?.role === "admin";
   const { toast } = useToast();
 
   // Local capability tokens for pins this browser created.
@@ -165,6 +169,22 @@ export default function VoiceProjectPage() {
           </Badge>
         )}
         <Badge variant="outline" className="gap-1"><Languages className="h-3 w-3" /> 89 languages supported</Badge>
+      </div>
+
+      <div className="flex flex-wrap gap-2 mb-5">
+        <Link href={`/voice/${slug}/story`} data-testid="nav-story">
+          <Button variant="outline" size="sm"><BookOpen className="h-4 w-4 mr-1" />Story</Button>
+        </Link>
+        {isAdmin && (
+          <>
+            <Link href={`/voice/${slug}/insights`} data-testid="nav-insights">
+              <Button variant="outline" size="sm"><Brain className="h-4 w-4 mr-1" />Insights</Button>
+            </Link>
+            <Link href={`/voice/${slug}/admin`} data-testid="nav-admin">
+              <Button variant="outline" size="sm"><Settings className="h-4 w-4 mr-1" />Admin</Button>
+            </Link>
+          </>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "map" | "list")}>

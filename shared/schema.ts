@@ -5297,3 +5297,45 @@ export const insertCommunityVoiceCommentSchema = createInsertSchema(communityVoi
 });
 export type InsertCommunityVoiceComment = z.infer<typeof insertCommunityVoiceCommentSchema>;
 export type CommunityVoiceComment = typeof communityVoiceComments.$inferSelect;
+
+// === Community Voice Phase 2/3 — AI insights + chain-web routing ===
+export const communityVoiceInsights = pgTable("community_voice_insights", {
+  id: serial("id").primaryKey(),
+  projectId: integer("project_id").notNull().references(() => communityVoiceProjects.id, { onDelete: "cascade" }),
+  generatedAt: timestamp("generated_at").defaultNow().notNull(),
+  generatedBy: varchar("generated_by", { length: 64 }),
+  pinCount: integer("pin_count").notNull(),
+  themes: jsonb("themes").notNull(),
+  sentimentTimeline: jsonb("sentiment_timeline"),
+  stakeholderBreakdown: jsonb("stakeholder_breakdown"),
+  modelUsed: varchar("model_used", { length: 64 }),
+  syncedToStoryAt: timestamp("synced_to_story_at"),
+}, (t) => [
+  index("idx_voice_insights_project").on(t.projectId),
+]);
+
+export const communityVoiceRouting = pgTable("community_voice_routing", {
+  id: serial("id").primaryKey(),
+  pinId: varchar("pin_id", { length: 36 }).notNull().references(() => communityVoicePins.id, { onDelete: "cascade" }),
+  targetPlatform: varchar("target_platform", { length: 64 }).notNull(),
+  routedAt: timestamp("routed_at").defaultNow().notNull(),
+  status: varchar("status", { length: 16 }).default("queued").notNull(),
+  outcome: text("outcome"),
+  outcomeRecordedAt: timestamp("outcome_recorded_at"),
+  recordedBy: varchar("recorded_by", { length: 64 }),
+}, (t) => [
+  index("idx_voice_routing_pin").on(t.pinId),
+  index("idx_voice_routing_target").on(t.targetPlatform),
+]);
+
+export const insertCommunityVoiceInsightSchema = createInsertSchema(communityVoiceInsights).omit({
+  id: true, generatedAt: true,
+});
+export type InsertCommunityVoiceInsight = z.infer<typeof insertCommunityVoiceInsightSchema>;
+export type CommunityVoiceInsight = typeof communityVoiceInsights.$inferSelect;
+
+export const insertCommunityVoiceRoutingSchema = createInsertSchema(communityVoiceRouting).omit({
+  id: true, routedAt: true,
+});
+export type InsertCommunityVoiceRouting = z.infer<typeof insertCommunityVoiceRoutingSchema>;
+export type CommunityVoiceRouting = typeof communityVoiceRouting.$inferSelect;

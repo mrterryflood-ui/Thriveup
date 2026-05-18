@@ -2,9 +2,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
-import { MapPin, MessageCircle, ArrowRight, ShieldCheck, Globe } from "lucide-react";
+import { MapPin, MessageCircle, ArrowRight, ShieldCheck, Globe, Rocket } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 import type { CommunityVoiceProject } from "@shared/schema";
 
 interface ProjectsResponse {
@@ -15,7 +17,7 @@ export default function VoiceIndexPage() {
   const { data, isLoading } = useQuery<ProjectsResponse>({
     queryKey: ["/api/voice/projects"],
   });
-
+  const { isAuthenticated } = useAuth();
   const projects = data?.projects ?? [];
 
   return (
@@ -29,6 +31,16 @@ export default function VoiceIndexPage() {
           { label: "Voice" },
         ]}
       />
+
+      {isAuthenticated && (
+        <div className="mb-6 rounded-lg border bg-primary/5 p-4 flex flex-wrap items-center justify-between gap-3" data-testid="cta-start-project">
+          <div>
+            <p className="font-medium text-sm">Listening to a community of your own?</p>
+            <p className="text-xs text-muted-foreground">Launch a project in 4 steps — name, location, what you're listening for, safety net. Free, multilingual, ecosystem-connected.</p>
+          </div>
+          <Link href="/voice/new"><Button data-testid="button-start-project"><Rocket className="h-4 w-4 mr-1" />Start a project</Button></Link>
+        </div>
+      )}
 
       <div className="mb-6 grid grid-cols-1 md:grid-cols-3 gap-3">
         <Card className="bg-emerald-50 dark:bg-emerald-950/30 border-emerald-200 dark:border-emerald-900">
