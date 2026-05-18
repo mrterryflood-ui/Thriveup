@@ -2003,3 +2003,21 @@ User-forwarded LinkedIn screenshots. Iron-Rule applies — nothing below is veri
 - APPEND `docs/memory-archive.md` — A7–A11.
 
 **Typecheck:** 0 new errors. 6 pre-existing P-L10 errors in `server/mou-routes.ts` unchanged.
+
+## 2026-05-18 session — Monday Brief + Trade Sim #6 ship
+
+**Shipped this turn:**
+- Trade Sim #6 (Software Engineering) seeded into DB as trade id=6 with 15 concept-only lessons. Files:
+  - `shared/data/trade-sims/software-engineering-lessons.ts` (SOFTWARE_ENGINEERING_TRADE_META + SOFTWARE_ENGINEERING_LESSONS)
+  - `scripts/seed-trade-sims-software-engineering.ts` (idempotent standalone seed)
+  - `client/src/pages/academy/trade-sims/index.tsx` (Code icon registered)
+  - `shared/data/trade-sims/certifications.ts` (6 SE certs appended: GitHub Foundations, CompTIA ITF+, AWS CCP, AZ-900, (ISC)² CC, LFCA)
+  - `shared/data/trade-sims/apprenticeships.ts` (5 SE pathways appended: Apprenti, Microsoft LEAP, Multiverse, Year Up, AWS re/Start)
+  - `shared/data/trade-sims/cert-practice-banks.ts` (3 SE banks appended: GitHub Foundations, AWS CCP, ISC² CC — 3 questions each)
+- Monday Brief page at `/this-week`:
+  - `client/src/pages/this-week.tsx`
+  - Wired into `client/src/App.tsx` (lazy import + route)
+  - Sidebar entry added to `grantEngineItems` in `client/src/components/app-sidebar.tsx`
+- Congruence audit: 223 PASS / 0 WARN / 0 FAIL.
+
+**Weekly edit cadence:** `SHIP_TARGETS_THIS_WEEK` and `FUNDER_DECISIONS_PENDING` arrays in `client/src/pages/this-week.tsx` should be hand-edited each Monday before any external briefing.

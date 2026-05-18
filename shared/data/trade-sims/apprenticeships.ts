@@ -280,6 +280,103 @@ export const TRADE_SIMS_APPRENTICESHIPS: TradeApprenticeshipCatalog[] = [
       },
     ],
   },
+  {
+    tradeSlug: "software-engineering",
+    introCopy:
+      "Tech apprenticeships are newer than the building-trades apprenticeships but have been formalized at federal level since 2016. Pathways pair classroom + on-the-job training; the strongest finish with a permanent role at the sponsoring employer. Iron Rule: cohort cycles, fees (most are free to the apprentice), and partner-employer rosters change quarterly — confirm on the sponsor site before applying.",
+    pathways: [
+      {
+        slug: "apprenti-tech-apprenticeship",
+        name: "Apprenti Registered Apprenticeship",
+        sponsor: "Apprenti (Washington Technology Industry Association — USDOL-registered national sponsor)",
+        scope:
+          "USDOL-registered national tech apprenticeship in software development, cloud, cybersecurity, data analytics, and IT support. Pairs apprentices with sponsoring employers in 40+ states.",
+        typicalLength: "12 months (full-time paid OJT) following 1,000-2,000 hours of classroom prep depending on track",
+        earningStructure:
+          "Paid by sponsoring employer at competitive entry-engineer wages from day one. Tuition for classroom prep is typically employer-sponsored.",
+        entrySteps: [
+          "Take the Apprenti aptitude test (free, online)",
+          "Pass behavioral and skills screening",
+          "Match with a sponsoring employer in your region",
+          "Complete classroom training, then begin 12-month paid OJT",
+        ],
+        locatorUrl: "https://apprenticareers.org/",
+        programInfoUrl: "https://apprenti.us/",
+        notes:
+          "Strong track record placing veterans, women, BIPOC candidates, and career-changers. No degree required. Operates in TX (Austin/Dallas/Houston), CA, WA, NY, and many other markets.",
+      },
+      {
+        slug: "microsoft-leap",
+        name: "Microsoft LEAP Apprenticeship",
+        sponsor: "Microsoft",
+        scope:
+          "16-week paid apprenticeship that places non-traditional candidates (career-changers, self-taught, bootcamp grads, veterans) into engineering, program management, and data science roles at Microsoft and partner companies.",
+        typicalLength: "16 weeks (paid)",
+        earningStructure:
+          "Salaried apprentice rate for the 16 weeks; conversion to full-time offer for strong performers.",
+        entrySteps: [
+          "Apply during an open cohort window (multiple per year)",
+          "Pass coding and behavioral interviews",
+          "Complete 4 weeks of bootcamp + 12 weeks of project work on a real Microsoft team",
+        ],
+        locatorUrl: "https://leap.microsoft.com/",
+        notes:
+          "Highly selective. Strong outcomes for self-taught engineers without a CS degree. Cohorts published on the sponsor site.",
+      },
+      {
+        slug: "multiverse-apprenticeship",
+        name: "Multiverse Apprenticeship",
+        sponsor: "Multiverse (operates as a USDOL-registered apprenticeship sponsor in the US)",
+        scope:
+          "Apprenticeships in software engineering, data, cybersecurity, and digital marketing — placed with employer partners (Fortune 500 and mid-market).",
+        typicalLength: "12-18 months depending on track",
+        earningStructure:
+          "Paid by sponsoring employer from day one; Multiverse coaches deliver the structured learning curriculum at no cost to the apprentice.",
+        entrySteps: [
+          "Apply via the Multiverse career portal",
+          "Pass aptitude and behavioral screening",
+          "Match with an employer partner",
+        ],
+        locatorUrl: "https://www.multiverse.io/en-US/apprenticeships",
+        notes: "Focuses on candidates without four-year degrees. Strong UK presence; growing US footprint.",
+      },
+      {
+        slug: "year-up-united",
+        name: "Year Up United Workforce Training",
+        sponsor: "Year Up United (national workforce-training nonprofit)",
+        scope:
+          "Year-long program for young adults (18-29) without a 4-year degree: 6 months of training in IT, software, cybersecurity, or business, followed by a 6-month paid corporate internship. Not a registered apprenticeship in the USDOL sense but the country's largest near-equivalent for tech career-changers.",
+        typicalLength: "12 months (6 months training + 6 months paid internship)",
+        earningStructure:
+          "Weekly stipend during training; intern-level salary during 6-month corporate placement. Free to the participant.",
+        entrySteps: [
+          "Apply via the Year Up career portal for your region",
+          "Pass interview and assessment",
+          "Complete 6-month classroom phase, then matched to a corporate partner internship",
+        ],
+        locatorUrl: "https://www.yearup.org/",
+        notes:
+          "Operates in 14+ US metros including Austin/Dallas/Houston (Texas). Strong outcomes (~70%+ employed or in school within 4 months of completion per published outcomes reports).",
+      },
+      {
+        slug: "aws-restart",
+        name: "AWS re/Start Workforce Training",
+        sponsor: "Amazon Web Services (partnered with local nonprofits and community colleges)",
+        scope:
+          "12-week full-time cloud-career training for unemployed and underemployed individuals with limited prior tech experience. Prepares learners for AWS Cloud Practitioner and entry-level cloud roles.",
+        typicalLength: "12 weeks full-time",
+        earningStructure: "Free to participants; some delivery partners offer a stipend.",
+        entrySteps: [
+          "Find an AWS re/Start delivery partner near you via the locator URL",
+          "Apply via the partner's intake process",
+          "Complete the 12-week curriculum + employer-connection programming",
+        ],
+        locatorUrl: "https://aws.amazon.com/training/restart/",
+        notes:
+          "Delivered through local nonprofits and community colleges. TCAF's Trade Sims pilot is a natural feeder lane into AWS re/Start partner sites.",
+      },
+    ],
+  },
 ];
 
 /** Locator URLs that apply to every trade — show alongside trade-specific options. */

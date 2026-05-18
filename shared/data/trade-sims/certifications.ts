@@ -361,6 +361,143 @@ export const TRADE_SIMS_CERTIFICATIONS: TradeCertCatalog[] = [
       },
     ],
   },
+  {
+    tradeSlug: "software-engineering",
+    introCopy:
+      "Software credentials stack from foundations → cloud or security → specialty. None of these certs alone make you an engineer — the capstone project from Day 15 paired with one of these is what hiring managers and apprenticeship sponsors actually evaluate. Iron Rule: confirm exam fees, voucher availability (often free via DoD SkillBridge, GitHub Education, AWS re/Start, Microsoft LEAP), and scheduling on the sponsor's site before paying anything.",
+    certifications: [
+      {
+        slug: "github-foundations",
+        name: "GitHub Foundations",
+        sponsor: "GitHub (Microsoft)",
+        level: "entry",
+        whatItProves:
+          "Working knowledge of Git, GitHub workflows, collaboration patterns, and basic project management on GitHub — the lingua franca of modern software work.",
+        examDomains: [
+          "Introduction to Git and GitHub",
+          "Working with repositories, branches, commits, and pull requests",
+          "Collaboration features (issues, discussions, code review, Actions)",
+          "GitHub project management and security basics",
+        ],
+        unlocks: [
+          "Entry to most software apprenticeship and bootcamp tracks",
+          "Stackable into GitHub Advanced Security and GitHub Actions certifications",
+        ],
+        sponsorUrl: "https://resources.github.com/learn/certifications/",
+        eligibility: "Open to anyone. No prerequisites.",
+        hasPerformanceTest: false,
+      },
+      {
+        slug: "comptia-itf-plus",
+        name: "CompTIA IT Fundamentals+ (ITF+)",
+        sponsor: "CompTIA",
+        level: "entry",
+        whatItProves:
+          "Pre-career awareness of IT concepts, infrastructure, applications, software development, database fundamentals, and security — designed for people deciding whether tech is right for them.",
+        examDomains: [
+          "IT concepts and terminology",
+          "Infrastructure",
+          "Applications and software",
+          "Software development concepts",
+          "Database fundamentals",
+          "Security",
+        ],
+        unlocks: [
+          "Recognized stepping-stone toward CompTIA A+, Network+, Security+",
+          "Accepted as evidence of readiness by several tech apprenticeship sponsors",
+        ],
+        sponsorUrl: "https://www.comptia.org/certifications/it-fundamentals",
+        eligibility: "Open to anyone — designed for newcomers to IT.",
+        hasPerformanceTest: false,
+      },
+      {
+        slug: "aws-cloud-practitioner",
+        name: "AWS Certified Cloud Practitioner (CLF-C02)",
+        sponsor: "Amazon Web Services",
+        level: "entry",
+        whatItProves:
+          "Foundational understanding of AWS cloud, core services, security, architecture, pricing, and support — the most widely-recognized entry cloud credential in industry.",
+        examDomains: [
+          "Cloud concepts",
+          "Security and compliance",
+          "Cloud technology and services",
+          "Billing, pricing, and support",
+        ],
+        unlocks: [
+          "Stepping-stone to AWS Certified Solutions Architect Associate and AWS Certified Developer Associate",
+          "Accepted as proof of cloud literacy by tech apprenticeships and employers",
+        ],
+        sponsorUrl: "https://aws.amazon.com/certification/certified-cloud-practitioner/",
+        eligibility: "Recommended (not required): 6 months of AWS exposure.",
+        hasPerformanceTest: false,
+      },
+      {
+        slug: "microsoft-az-900",
+        name: "Microsoft Azure Fundamentals (AZ-900)",
+        sponsor: "Microsoft",
+        level: "entry",
+        whatItProves:
+          "Foundational understanding of Azure cloud services, core architectural components, pricing, governance, and security.",
+        examDomains: [
+          "Describe cloud concepts",
+          "Describe Azure architecture and services",
+          "Describe Azure management and governance",
+        ],
+        unlocks: [
+          "Foundational credential for Azure Administrator (AZ-104), Developer (AZ-204), and Solutions Architect tracks",
+          "Often paired with AZ-104 for entry-level Azure roles",
+        ],
+        sponsorUrl: "https://learn.microsoft.com/credentials/certifications/azure-fundamentals/",
+        eligibility: "Open to anyone. No prerequisites.",
+        hasPerformanceTest: false,
+      },
+      {
+        slug: "isc2-cc",
+        name: "(ISC)² Certified in Cybersecurity (CC)",
+        sponsor: "(ISC)²",
+        level: "safety",
+        whatItProves:
+          "Entry-level cybersecurity competency: security principles, business continuity, access controls, network security, and security operations.",
+        examDomains: [
+          "Security principles",
+          "Business continuity, disaster recovery, and incident response",
+          "Access controls concepts",
+          "Network security",
+          "Security operations",
+        ],
+        unlocks: [
+          "Stepping-stone into (ISC)² SSCP and CISSP tracks",
+          "Recognized DoD 8140-aligned baseline credential for many federal entry roles",
+        ],
+        sponsorUrl: "https://www.isc2.org/Certifications/CC",
+        eligibility:
+          "Open to anyone. (ISC)²'s 'One Million Certified in Cybersecurity' initiative has historically waived the first-attempt exam fee for self-paced candidates — verify current eligibility on the sponsor site before paying.",
+        hasPerformanceTest: false,
+      },
+      {
+        slug: "linux-foundation-lfca",
+        name: "Linux Foundation Certified IT Associate (LFCA)",
+        sponsor: "The Linux Foundation",
+        level: "entry",
+        whatItProves:
+          "Pre-professional understanding of Linux, cloud, DevOps, security, and supporting infrastructure used across modern open-source software organizations.",
+        examDomains: [
+          "Linux fundamentals",
+          "System administration basics",
+          "Cloud computing fundamentals",
+          "Security fundamentals",
+          "DevOps fundamentals",
+          "Supporting applications and developers",
+        ],
+        unlocks: [
+          "Stepping-stone to Linux Foundation Certified System Administrator (LFCS) and Certified Kubernetes Administrator (CKA)",
+        ],
+        sponsorUrl: "https://training.linuxfoundation.org/certification/certified-it-associate/",
+        eligibility: "Open to anyone. No prerequisites.",
+        hasPerformanceTest: false,
+      },
+    ],
+  },
 ];
 
 /** Look up a trade's cert catalog by slug. Returns undefined if the trade isn't seeded. */

@@ -1,14 +1,14 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-18T02:15:06.075Z",
+  "compiledAt": "2026-05-18T14:29:52.367Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-18T02:15:01.826Z"
+      "mtime": "2026-05-18T14:29:39.666Z"
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-18T01:39:38.678Z"
+      "mtime": "2026-05-18T14:29:48.201Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-18T02:15:06.075Z"
+      "mtime": "2026-05-18T14:29:52.367Z"
     }
   ],
   "project": {
@@ -85,7 +85,7 @@
     },
     {
       "label": "🎮 Trade Sims (live)",
-      "detail": "5 trades × 15 lessons = 75; canvas 75/75. Player `client/src/pages/academy/trade-sims/lesson-player.tsx`. Backend `server/trade-sims-routes.ts` + 6 tables. AI tutor `POST /api/trade-sims/ai-tutor/hint`. Detail → `docs/memory-archive.md#A12`."
+      "detail": "6 trades × 15 lessons = 90 (electrical · plumbing · HVAC · welding · automotive · **software-engineering added 2026-05-18**). Player `client/src/pages/academy/trade-sims/lesson-player.tsx`. Backend `server/trade-sims-routes.ts` + 6 tables. AI tutor `POST /api/trade-sims/ai-tutor/hint`. SE trade pitch: \"anybody can vibe code, but you have to know how the system works to make vibecoding work.\" Each trade seed is standalone: `scripts/seed-trade-sims-{slug}.ts`. Detail → `docs/memory-archive.md#A12`."
     },
     {
       "label": "🎓 Trade Sims Credentials + Apprenticeships (live 2026-05-17)",
@@ -98,6 +98,10 @@
     {
       "label": "general",
       "detail": "**\"This Week\" digest** (`/grant-command-center` → This Week tab): `GET /api/grants/this-week?days=7&minFit=0`, `GET /api/grants/digest/preview?days=7`, `POST /api/grants/digest/send` (admin, manual; auto-cron NOT enabled)."
+    },
+    {
+      "label": "📅 Monday Brief (live 2026-05-18)",
+      "detail": "Standalone page at `/this-week` (`client/src/pages/this-week.tsx`, sidebar entry under Grant Engine). Surfaces 4 strategic dimensions + targets + goals, curated ship targets for the week, grants closing in 14 days (live from `/api/grants/this-week?days=14`), and declared funder decisions pending. Edit `SHIP_TARGETS_THIS_WEEK` + `FUNDER_DECISIONS_PENDING` weekly. One URL for any briefing prep."
     },
     {
       "label": "Compiled Agent Knowledge Layer",
@@ -387,49 +391,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "code-canvas",
-      "name": "Code Canvas — System Evaluator & Optimizer",
-      "url": "https://codecanvaseval.com",
-      "role": "evaluator",
-      "domain": "system-optimization",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
-      "capabilities": {
-        "features": [
-          "Independent Platform Evaluation",
-          "Architecture Analysis",
-          "Performance Profiling",
-          "Code Audit & Review",
-          "Automated Fix Recommendations",
-          "Cross-Platform Optimization",
-          "Ecosystem Coherence Scoring",
-          "Best Practice Enforcement",
-          "SaaS Subscription Model",
-          "White-Label Evaluator",
-          "Continuous Improvement Engine",
-          "Integration Health Checks"
-        ],
-        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
-        "outcomeMetrics": [
-          "Platform evaluations completed",
-          "Optimization recommendations delivered",
-          "Fixes implemented after approval",
-          "Cross-platform coherence score improvements",
-          "Performance gains measured post-optimization"
-        ],
-        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": "2026-03-31T11:57:03.776Z"
-    },
-    {
       "id": "ad-targeting",
       "name": "Advertising Targeting for Platforms",
       "url": "https://adtargetingplatforms.com",
@@ -475,45 +436,47 @@
       "last_heartbeat": null
     },
     {
-      "id": "sankofa-feminine-health",
-      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
-      "url": "https://herhealthmatters2.com",
-      "role": "feminine-health",
-      "domain": "health-equity",
+      "id": "code-canvas",
+      "name": "Code Canvas — System Evaluator & Optimizer",
+      "url": "https://codecanvaseval.com",
+      "role": "evaluator",
+      "domain": "system-optimization",
       "status": "active",
       "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+      "public_visible": false,
+      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
       "capabilities": {
         "features": [
-          "Reproductive Health Education",
-          "Preventive Screening Scheduler",
-          "Hormonal Wellness Tracker",
-          "Cervical Cancer Awareness",
-          "Breast Cancer Screening Navigation",
-          "Menopause Management",
-          "Community Support Groups",
-          "Culturally Responsive Provider Matching",
-          "Pregnancy Pathway Routing",
-          "Health Literacy Resources",
-          "Telehealth Coordination"
+          "Independent Platform Evaluation",
+          "Architecture Analysis",
+          "Performance Profiling",
+          "Code Audit & Review",
+          "Automated Fix Recommendations",
+          "Cross-Platform Optimization",
+          "Ecosystem Coherence Scoring",
+          "Best Practice Enforcement",
+          "SaaS Subscription Model",
+          "White-Label Evaluator",
+          "Continuous Improvement Engine",
+          "Integration Health Checks"
         ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
+        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
         "outcomeMetrics": [
-          "Preventive screening completions: 312 (cervical + breast)",
-          "Provider match success rate: 82%",
-          "Reproductive health education sessions: 445",
-          "Pregnancy pathway routing completions: 89",
-          "Community support group active participants: 156"
+          "Platform evaluations completed",
+          "Optimization recommendations delivered",
+          "Fixes implemented after approval",
+          "Cross-platform coherence score improvements",
+          "Performance gains measured post-optimization"
         ],
-        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
+        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
       },
       "grant_alignment": [
+        "wioa",
+        "foundation",
         "st-davids",
-        "foundation"
+        "ssg-fox"
       ],
-      "last_heartbeat": null
+      "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
       "id": "sankofa-maternal-health",
@@ -556,6 +519,47 @@
         "st-davids",
         "foundation",
         "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "sankofa-feminine-health",
+      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
+      "url": "https://herhealthmatters2.com",
+      "role": "feminine-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+      "capabilities": {
+        "features": [
+          "Reproductive Health Education",
+          "Preventive Screening Scheduler",
+          "Hormonal Wellness Tracker",
+          "Cervical Cancer Awareness",
+          "Breast Cancer Screening Navigation",
+          "Menopause Management",
+          "Community Support Groups",
+          "Culturally Responsive Provider Matching",
+          "Pregnancy Pathway Routing",
+          "Health Literacy Resources",
+          "Telehealth Coordination"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
+        "outcomeMetrics": [
+          "Preventive screening completions: 312 (cervical + breast)",
+          "Provider match success rate: 82%",
+          "Reproductive health education sessions: 445",
+          "Pregnancy pathway routing completions: 89",
+          "Community support group active participants: 156"
+        ],
+        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -1066,6 +1070,52 @@
       "last_heartbeat": "2026-03-19T21:03:20.478Z"
     },
     {
+      "id": "lifebridge",
+      "name": "LifeBridge",
+      "url": "https://lifetransitionsaid.org",
+      "role": "resource-hub",
+      "domain": "community-workforce",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
+      "capabilities": {
+        "features": [
+          "24/7 Resource Navigation",
+          "Housing Assistance",
+          "Food Access Programs",
+          "Healthcare Connections",
+          "Mental Health Resources",
+          "Substance Abuse Support",
+          "Domestic Violence Support",
+          "Crisis Support & Routing",
+          "Life Event Guides",
+          "Coping Strategy Library",
+          "Peer Story Platform",
+          "Social Determinant Scoring",
+          "7-Domain Needs Assessment",
+          "Community Health Worker Dispatch",
+          "Resource Gap Analysis"
+        ],
+        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
+        "outcomeMetrics": [
+          "Resource navigations completed: 3,456",
+          "Social determinant screenings: 1,890",
+          "Crisis support diversions: 234 (diverted from emergency)",
+          "Life event guide completions: 567",
+          "Community health worker dispatches: 178",
+          "7-domain needs assessments: 890",
+          "Resource gap analyses: 45 geographic areas"
+        ],
+        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "whole-person-health",
       "name": "Whole-Person Health Ecosystem",
       "url": "https://mentalwellnesssupport.net",
@@ -1180,52 +1230,6 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
-    },
-    {
-      "id": "lifebridge",
-      "name": "LifeBridge",
-      "url": "https://lifetransitionsaid.org",
-      "role": "resource-hub",
-      "domain": "community-workforce",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
-      "capabilities": {
-        "features": [
-          "24/7 Resource Navigation",
-          "Housing Assistance",
-          "Food Access Programs",
-          "Healthcare Connections",
-          "Mental Health Resources",
-          "Substance Abuse Support",
-          "Domestic Violence Support",
-          "Crisis Support & Routing",
-          "Life Event Guides",
-          "Coping Strategy Library",
-          "Peer Story Platform",
-          "Social Determinant Scoring",
-          "7-Domain Needs Assessment",
-          "Community Health Worker Dispatch",
-          "Resource Gap Analysis"
-        ],
-        "grantNarrative": "Produces social determinant outcome data, resource utilization metrics, crisis diversion rates, and community health worker coordination evidence for St. David's, SSG Fox, and foundation reporting",
-        "outcomeMetrics": [
-          "Resource navigations completed: 3,456",
-          "Social determinant screenings: 1,890",
-          "Crisis support diversions: 234 (diverted from emergency)",
-          "Life event guide completions: 567",
-          "Community health worker dispatches: 178",
-          "7-domain needs assessments: 890",
-          "Resource gap analyses: 45 geographic areas"
-        ],
-        "integrationDepth": "Routes social determinant data to all health platforms, receives crisis events from Whole-Person Health, coordinates with M2C for veteran life events, feeds ISSS for family support"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
     },
     {
       "id": "collaborative-advocate",
@@ -1792,6 +1796,11 @@
         "id": "2026-05-17-pm-late-memory-move-open-work-closeout",
         "heading": "2026-05-17 PM-LATE — Memory move + open-work closeout",
         "summary": "**Open work closed:**\n1. Concept-only Sandbox no longer shows \"Phase B+ coming soon.\" Every lesson surfaces its existing `sandboxStarter.prompt` + a journal Textarea. Canvas coverage effectively **75/75 (100%)** — 45 interactive canvases + 30 prompt-with-journal pages.\n2. `soloReflection` + `sandboxJournal` now persist to `localStorage` keyed by `trade-sims:reflection:<lessonId>` / `trade-sims:journal:<lessonId>`. Refresh / accidental navigation no longer wipes drafts. Wrapped in try/catch for private-mode / quota-exceeded.\n\n**Memory move (replit.md trim):**\n- 5 bulky bullets moved into `docs/memory-archive.md` as sections A7-A11:\n  - A7 = Trade Sims full build history\n  - A8 = SSG Fox FY27 context\n  - A9 = Iron Rule full doctrine + cost-of-failure log\n  - A10 = Two-entity strategy + Dr. F"
+      },
+      {
+        "id": "2026-05-18-session-monday-brief-trade-sim-6-ship",
+        "heading": "2026-05-18 session — Monday Brief + Trade Sim #6 ship",
+        "summary": "**Shipped this turn:**\n- Trade Sim #6 (Software Engineering) seeded into DB as trade id=6 with 15 concept-only lessons. Files:\n  - `shared/data/trade-sims/software-engineering-lessons.ts` (SOFTWARE_ENGINEERING_TRADE_META + SOFTWARE_ENGINEERING_LESSONS)\n  - `scripts/seed-trade-sims-software-engineering.ts` (idempotent standalone seed)\n  - `client/src/pages/academy/trade-sims/index.tsx` (Code icon registered)\n  - `shared/data/trade-sims/certifications.ts` (6 SE certs appended: GitHub Foundations, CompTIA ITF+, AWS CCP, AZ-900, (ISC)² CC, LFCA)\n  - `shared/data/trade-sims/apprenticeships.ts` (5 SE pathways appended: Apprenti, Microsoft LEAP, Multiverse, Year Up, AWS re/Start)\n  - `shared/data/trade-sims/cert-practice-banks.ts` (3 SE banks appended: GitHub Foundations, AWS CCP, ISC² CC — 3 que"
       }
     ],
     "no_go_list": [
@@ -2021,10 +2030,10 @@
     "gotchas": 25,
     "vocab": 4,
     "platforms": 25,
-    "file_pointers": 16,
+    "file_pointers": 17,
     "lessons": 26,
     "no_go": 4,
-    "active_commitment_sections": 63,
+    "active_commitment_sections": 64,
     "ecosystem_caveats": 5,
     "foster_youth_build_log_sections": 3
   }

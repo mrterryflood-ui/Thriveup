@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Zap, Wrench, Wind, Flame, Car, BookOpen, Sparkles, Globe, GraduationCap } from "lucide-react";
+import { Zap, Wrench, Wind, Flame, Car, Code, BookOpen, Sparkles, Globe, GraduationCap } from "lucide-react";
 import { useEffect } from "react";
 
 interface TradeRow {
@@ -23,6 +23,7 @@ const ICONS: Record<string, typeof Zap> = {
   hvac: Wind,
   welding: Flame,
   automotive: Car,
+  "software-engineering": Code,
 };
 
 export default function TradeSimsLandingPage() {
@@ -34,7 +35,7 @@ export default function TradeSimsLandingPage() {
     document.title = "ThriveUp Trade Sims — Free game-based skilled-trades learning";
     const desc = document.querySelector('meta[name="description"]');
     const content =
-      "Free, open-access game-based simulators for skilled trades: electrical, plumbing, HVAC, welding, automotive. Five-loop pedagogy with built-in AI tutor and credential pathways.";
+      "Free, open-access game-based simulators for skilled trades: electrical, plumbing, HVAC, welding, automotive, and software engineering. Five-loop pedagogy with built-in AI tutor and credential pathways.";
     if (desc) desc.setAttribute("content", content);
   }, []);
 

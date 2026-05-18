@@ -499,6 +499,147 @@ export const CERT_PRACTICE_BANKS: CertPracticeBank[] = [
       },
     ],
   },
+  {
+    tradeSlug: "software-engineering",
+    certSlug: "github-foundations",
+    intro:
+      "GitHub Foundations covers Git mechanics, GitHub collaboration features, and basic project + security hygiene. Focus on branching/merging, pull requests, and where secrets and protected branches live.",
+    questions: [
+      {
+        id: "gh-foundations-01",
+        stem: "Which Git command creates a new branch AND switches to it in one step?",
+        options: [
+          "git branch new-feature",
+          "git checkout new-feature",
+          "git checkout -b new-feature",
+          "git switch new-feature",
+        ],
+        correctIndex: 2,
+        rationale:
+          "`git checkout -b <name>` creates the branch and checks it out. The modern equivalent `git switch -c <name>` works the same way. `git branch <name>` only creates without switching.",
+      },
+      {
+        id: "gh-foundations-02",
+        stem: "A pull request is BEST described as:",
+        options: [
+          "A request to download a file from a remote repository",
+          "A proposed merge of one branch into another, opened for review",
+          "A request to revert a commit",
+          "A command to delete a remote branch",
+        ],
+        correctIndex: 1,
+        rationale:
+          "Pull requests propose merging one branch into another (typically a feature branch into main) and open the change for code review, discussion, and CI checks before merge.",
+      },
+      {
+        id: "gh-foundations-03",
+        stem: "Which file at the root of a repository configures protected secrets used by GitHub Actions?",
+        options: [
+          ".github/secrets.yml",
+          "package.json",
+          "Repository Settings → Secrets and variables → Actions (not a file)",
+          ".env",
+        ],
+        correctIndex: 2,
+        rationale:
+          "GitHub Actions secrets are managed through the repository UI, not a file. Committing secrets to any file in the repo is an antipattern — even `.env` should be gitignored and never pushed.",
+      },
+    ],
+  },
+  {
+    tradeSlug: "software-engineering",
+    certSlug: "aws-cloud-practitioner",
+    intro:
+      "AWS CCP (CLF-C02) covers cloud concepts, AWS core services, security/compliance, and pricing/billing. Memorize the Shared Responsibility Model boundary and the major service categories.",
+    questions: [
+      {
+        id: "aws-ccp-01",
+        stem: "Which AWS service is BEST suited for serving static website content (HTML/CSS/JS) at low cost and high scale?",
+        options: [
+          "Amazon EC2",
+          "Amazon S3 (with optional CloudFront)",
+          "AWS Lambda",
+          "Amazon RDS",
+        ],
+        correctIndex: 1,
+        rationale:
+          "S3 buckets configured for static website hosting (often fronted by CloudFront for global edge caching) are the AWS-recommended pattern for static sites — far cheaper and simpler than provisioning EC2 instances.",
+      },
+      {
+        id: "aws-ccp-02",
+        stem: "The AWS Shared Responsibility Model places which of the following on the CUSTOMER side?",
+        options: [
+          "Physical security of the data center",
+          "Patching the underlying EC2 hypervisor",
+          "Patching the operating system on an EC2 instance you launched",
+          "Replacing failed disks in S3",
+        ],
+        correctIndex: 2,
+        rationale:
+          "AWS handles 'security OF the cloud' (physical security, host OS, hypervisor, storage hardware). The customer handles 'security IN the cloud' — guest OS patching, network ACLs, IAM, application code, and customer data.",
+      },
+      {
+        id: "aws-ccp-03",
+        stem: "Which pricing concept BEST describes paying less by committing to a 1- or 3-year usage term?",
+        options: [
+          "Spot Instances",
+          "On-Demand pricing",
+          "Reserved Instances / Savings Plans",
+          "Free Tier",
+        ],
+        correctIndex: 2,
+        rationale:
+          "Reserved Instances and Savings Plans give significant discounts (up to ~72%) in exchange for a 1- or 3-year usage commitment. Spot is cheaper still but interruptible. On-Demand is full price; Free Tier has fixed annual limits.",
+      },
+    ],
+  },
+  {
+    tradeSlug: "software-engineering",
+    certSlug: "isc2-cc",
+    intro:
+      "(ISC)² CC covers security principles, business continuity, access controls, network security, and security operations. Lean on the textbook IR lifecycle and least-privilege language.",
+    questions: [
+      {
+        id: "cc-01",
+        stem: "Which principle requires that a user be granted ONLY the access rights needed to perform their job and nothing more?",
+        options: [
+          "Defense in depth",
+          "Principle of least privilege",
+          "Separation of duties",
+          "Need-to-know",
+        ],
+        correctIndex: 1,
+        rationale:
+          "Principle of least privilege limits each identity to the minimum access required. Need-to-know is similar but focused on information rather than system access; separation of duties splits authority across multiple people.",
+      },
+      {
+        id: "cc-02",
+        stem: "An attacker tricks a user into clicking a malicious link in an email that appears to come from their bank. This is BEST described as:",
+        options: [
+          "Brute-force attack",
+          "Phishing (social engineering)",
+          "SQL injection",
+          "Denial of service",
+        ],
+        correctIndex: 1,
+        rationale:
+          "Phishing is a social-engineering attack that exploits trust to harvest credentials or deliver malware. Brute force attacks credential strength; SQLi targets databases; DoS exhausts resources.",
+      },
+      {
+        id: "cc-03",
+        stem: "In incident response, which phase comes IMMEDIATELY after 'detection'?",
+        options: [
+          "Recovery",
+          "Containment",
+          "Lessons learned",
+          "Preparation",
+        ],
+        correctIndex: 1,
+        rationale:
+          "Standard IR lifecycle: Preparation → Detection → Containment → Eradication → Recovery → Lessons Learned. Containing the incident immediately after detecting it limits further damage before eradication and recovery begin.",
+      },
+    ],
+  },
 ];
 
 /** Find the practice bank for a given cert. Returns undefined if none seeded yet. */

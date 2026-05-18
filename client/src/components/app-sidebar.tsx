@@ -155,6 +155,7 @@ const programMgmtItems: NavItem[] = [
 ];
 
 const grantEngineItems: NavItem[] = [
+  { title: "This Week (Monday Brief)", url: "/this-week", icon: Calendar },
   { title: "Live Grant Opportunities", url: "/grants", icon: Target },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
