@@ -38,6 +38,36 @@ User directive: stop letting memory-only funder targets sit outside the discover
 - Project period length (historically 5 years)
 - Planning vs Implementation tiers if applicable this cycle
 
+### SSG Fox FY27 — PRIMARY-SOURCE VERIFIED 2026-05-17 PM-late
+
+**Source:** grants.gov fetchOpportunity API, opportunityId **361498**
+
+**Confirmed facts:**
+- ✅ **Opportunity Number:** VA-FOX-SP-FY2027 (matches memory)
+- ✅ **CFDA:** 64.055
+- ✅ **Posted:** 03/13/2026 · **Closes:** 06/12/2026 (matches memory: 4:59 PM ET)
+- ✅ **Award range:** $100,000 floor – **$750,000 ceiling** per opportunity. Memory's $400K–$600K ask sits comfortably mid-range.
+- ✅ **Cost Sharing/Matching:** **NOT required** (`costSharing: False` in API)
+- ✅ **Eligibility:** "Unrestricted" (open to any entity type, subject to NOFO clarification) — TCAF as 501(c)(3) qualifies
+- ✅ **Authority:** 38 CFR Part 78
+- ✅ **Contact:** Michelle B Kuntz, Reporting Coordinator (VA-OMHSP, Office of Suicide Prevention)
+- ✅ **EO citation in NOFO:** EO 14296 "Keeping Promises to Veterans and Establishing a National Center for Warrior Independence" — cite this in narrative for alignment signal
+- ✅ **Program scope confirmed:** non-clinical suicide prevention services to Veterans + ADSMs + families; case management, peer support, linkage to VA care/benefits, emergency clinical services, faith-based/innovative approaches
+- ✅ **TCAF is fully qualified to pursue.** No statutory barrier.
+
+**Reminder per replit.md gotcha:** SSG Fox lives on `vetmissiontransition.com`, not this codebase. Do not rebuild Fox pages here. Brief: `docs/grants/ssg-fox-fy27/00-funder-brief.md`.
+
+### NSF 26-508 (TechAccess: AI-Ready America) — PRIMARY-SOURCE VERIFIED 2026-05-17 PM-late
+
+**Source:** grants.gov search2 API, opportunityId **361664** (opportunity number 26-508)
+
+**Confirmed facts:**
+- ✅ **Opportunity Number:** 26-508 (matches memory)
+- ✅ **Title:** TechAccess: AI-Ready America
+- ✅ **Posted:** 03/25/2026 · **Closes:** 07/16/2026
+- ❗ **Eligibility / award $ / LOI requirement / partner restrictions NOT verified** — the canonical NSF program page at `nsf.gov/funding/opportunities/...` returned 404 on three URL variants. Need to pull the actual NSF solicitation PDF (linked from the grants.gov detail page 361664) before claiming TCAF eligibility. NSF solicitations typically restrict by entity type (IHE, non-profit research org, sometimes state/local govts) — and many AI/NSF programs require LOI 30–60 days before full proposal. **DO NOT promote in pipeline until solicitation PDF verified.**
+- ⏳ **Action:** Pull the solicitation document from grants.gov opportunity 361664 (likely a PDF synopsis attachment) or from NSF directly once URL is found. Estimated effort: 10 min.
+
 **Added (4 new manual entries, flagged `[MEMORY-SOURCED — verify before commit]`):**
 - Lowe's Gable CBO · deadline **2026-09-03** (window opens Aug 1) · fit 85 · `identified`
 - Home Depot Path to Pro · rolling · fit 85 · `identified` · PFISD co-applicant
