@@ -5197,3 +5197,103 @@ export type TradeSimsAiTutorSession = typeof tradeSimsAiTutorSessions.$inferSele
 export const insertTradeSimsCredentialPathwaySchema = createInsertSchema(tradeSimsCredentialPathways).omit({ id: true });
 export type InsertTradeSimsCredentialPathway = z.infer<typeof insertTradeSimsCredentialPathwaySchema>;
 export type TradeSimsCredentialPathway = typeof tradeSimsCredentialPathways.$inferSelect;
+
+// === Community Voice (Open Point / Social Point analog) — 2026-05-17 ===
+// Map-pin community input → AI-clustered insights → ecosystem-chain routing → #DATA storytelling.
+// Capability-token pattern (P-L08) for public no-auth pin creation.
+export const communityVoiceProjects = pgTable("community_voice_projects", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 64 }).notNull().unique(),
+  name: text("name").notNull(),
+  description: text("description"),
+  leadPlatformId: varchar("lead_platform_id", { length: 64 }),
+  centerLat: real("center_lat").notNull(),
+  centerLng: real("center_lng").notNull(),
+  defaultZoom: integer("default_zoom").default(12).notNull(),
+  geoBounds: jsonb("geo_bounds"),
+  // public = no-login pin creation; email = email-verify required; hybrid = comments/reactions public, pins require email.
+  accessMode: varchar("access_mode", { length: 16 }).default("public").notNull(),
+  crisisRoutingEnabled: boolean("crisis_routing_enabled").default(true).notNull(),
+  pinCategories: text("pin_categories").array(),
+  status: varchar("status", { length: 16 }).default("active").notNull(),
+  publiclyVisible: boolean("publicly_visible").default(true).notNull(),
+  createdBy: varchar("created_by", { length: 64 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const communityVoicePins = pgTable("community_voice_pins", {
+  id: varchar("id", { length: 36 }).primaryKey(),
+  projectId: integer("project_id").notNull().references(() => communityVoiceProjects.id, { onDelete: "cascade" }),
+  accessToken: varchar("access_token", { length: 64 }).notNull(),
+  lat: real("lat").notNull(),
+  lng: real("lng").notNull(),
+  category: varchar("category", { length: 48 }).notNull(),
+  body: text("body").notNull(),
+  originalLanguage: varchar("original_language", { length: 8 }).default("en").notNull(),
+  englishMirror: text("english_mirror"),
+  photoUrls: text("photo_urls").array(),
+  authorType: varchar("author_type", { length: 24 }).default("resident").notNull(),
+  authorEmail: varchar("author_email", { length: 256 }),
+  authorName: varchar("author_name", { length: 128 }),
+  anonymized: boolean("anonymized").default(true).notNull(),
+  sentiment: varchar("sentiment", { length: 16 }),
+  crisisFlag: boolean("crisis_flag").default(false).notNull(),
+  crisisRoutedTo: varchar("crisis_routed_to", { length: 64 }),
+  status: varchar("status", { length: 16 }).default("published").notNull(),
+  ipHash: varchar("ip_hash", { length: 64 }),
+  upvotes: integer("upvotes").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_voice_pins_project").on(t.projectId),
+  index("idx_voice_pins_status").on(t.status),
+]);
+
+export const communityVoiceReactions = pgTable("community_voice_reactions", {
+  id: serial("id").primaryKey(),
+  pinId: varchar("pin_id", { length: 36 }).notNull().references(() => communityVoicePins.id, { onDelete: "cascade" }),
+  reactionType: varchar("reaction_type", { length: 16 }).notNull(),
+  authorHash: varchar("author_hash", { length: 64 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("uq_voice_reaction_pin_author_type").on(t.pinId, t.authorHash, t.reactionType),
+]);
+
+export const communityVoiceComments = pgTable("community_voice_comments", {
+  id: serial("id").primaryKey(),
+  pinId: varchar("pin_id", { length: 36 }).notNull().references(() => communityVoicePins.id, { onDelete: "cascade" }),
+  body: text("body").notNull(),
+  authorType: varchar("author_type", { length: 24 }).default("resident").notNull(),
+  authorName: varchar("author_name", { length: 128 }),
+  anonymized: boolean("anonymized").default(true).notNull(),
+  crisisFlag: boolean("crisis_flag").default(false).notNull(),
+  status: varchar("status", { length: 16 }).default("published").notNull(),
+  ipHash: varchar("ip_hash", { length: 64 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertCommunityVoiceProjectSchema = createInsertSchema(communityVoiceProjects).omit({
+  id: true, createdAt: true, updatedAt: true,
+});
+export type InsertCommunityVoiceProject = z.infer<typeof insertCommunityVoiceProjectSchema>;
+export type CommunityVoiceProject = typeof communityVoiceProjects.$inferSelect;
+
+export const insertCommunityVoicePinSchema = createInsertSchema(communityVoicePins).omit({
+  id: true, accessToken: true, createdAt: true, updatedAt: true, upvotes: true, ipHash: true,
+  sentiment: true, crisisFlag: true, crisisRoutedTo: true, englishMirror: true, status: true,
+});
+export type InsertCommunityVoicePin = z.infer<typeof insertCommunityVoicePinSchema>;
+export type CommunityVoicePin = typeof communityVoicePins.$inferSelect;
+
+export const insertCommunityVoiceReactionSchema = createInsertSchema(communityVoiceReactions).omit({
+  id: true, createdAt: true,
+});
+export type InsertCommunityVoiceReaction = z.infer<typeof insertCommunityVoiceReactionSchema>;
+export type CommunityVoiceReaction = typeof communityVoiceReactions.$inferSelect;
+
+export const insertCommunityVoiceCommentSchema = createInsertSchema(communityVoiceComments).omit({
+  id: true, createdAt: true, ipHash: true, crisisFlag: true, status: true,
+});
+export type InsertCommunityVoiceComment = z.infer<typeof insertCommunityVoiceCommentSchema>;
+export type CommunityVoiceComment = typeof communityVoiceComments.$inferSelect;

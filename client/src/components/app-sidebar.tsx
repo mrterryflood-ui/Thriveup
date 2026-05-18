@@ -54,6 +54,7 @@ const communityIntelItems: NavItem[] = [
   { title: "Case Manager View", url: "/case-manager", icon: Shield },
   { title: "Resource Finder", url: "/resources", icon: MapPin },
   { title: "Community Map", url: "/community-map", icon: Map },
+  { title: "Community Voice", url: "/voice", icon: MessageCircle },
   { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
   { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
   { title: "Community", url: "/community", icon: Globe },

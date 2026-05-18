@@ -1,3 +1,60 @@
+
+## 2026-05-17 PM — Community Voice (Open Point / Social Point analog) — Phase 1 SHIPPED
+
+**Trigger:** User saw "Social Point by Open Point" ad ("Input to insights to impact" / "Community Engagement that connects every voice"), said "I think we can do everything they do but better." Wanted it to enhance the chain web + power #DATA storytelling.
+
+**What Open Point actually is** (verified at openpoint.io): BIM/captured-reality spatial platform for architects/municipalities, €99/project/month. **Social Point** is their community-engagement product on top of that. Same category as Social Pinpoint / PublicInput / EngagementHQ / CitizenLab / Konveio — map-pin feedback collection → insights → impact reports.
+
+**What we shipped (Phase 1 — 4 DB tables, 1 routes file, 2 pages, sidebar entry):**
+
+1. **Schema** (`shared/schema.ts` now 5,299 lines) — 4 new tables:
+   - `communityVoiceProjects` (slug, name, centerLat/Lng, accessMode public/email/hybrid, crisisRoutingEnabled, pinCategories array)
+   - `communityVoicePins` (capability-token P-L08 pattern, uuid id, accessToken, lat/lng as `real`, crisisFlag, sentiment, ipHash, indexed on projectId+status)
+   - `communityVoiceReactions` (unique index on pin+author+type)
+   - `communityVoiceComments`
+
+2. **Backend** (`server/voice-routes.ts`):
+   - Capability-token auth (`x-voice-token` or `?token=`), `timingSafeEqual`
+   - Per-IP rate limits in-memory (pins 8/5min, reactions 40/min, comments 20/5min)
+   - Regex crisis detection (10 patterns) — routes to WPH + LifeBridge silently when `crisisRoutingEnabled`
+   - Rule-based sentiment (positive/negative/neutral/mixed — Phase 2 upgrade to AI)
+   - Full CRUD: GET/POST projects, GET/POST/PATCH/DELETE pins, reactions, comments + admin endpoints behind `requireAdmin`
+   - Auto-seeds Pflugerville pilot on first start
+
+3. **Frontend** (`client/src/pages/voice/`):
+   - `index.tsx` — project list with capability badges
+   - `project.tsx` — react-leaflet map + click-to-pin form, 3-step UX, 10-language picker, anonymize toggle, list/map tabs, capability-tokens cached in localStorage per `voice:pin-tokens:{slug}`
+
+4. **Wiring:**
+   - `server/routes.ts` line 120 import + line 461 `registerVoiceRoutes(app)`
+   - `client/src/App.tsx` lazy imports + `/voice` and `/voice/:slug` routes
+   - `client/src/components/app-sidebar.tsx` line 60 — `Community Voice` (MessageCircle) in `communityIntelItems`
+
+**Pilot project (seeded):** `pflugerville-holistic-services` · Pflugerville Holistic Services & Assistance · center 30.4394/-97.62 · zoom 12 · 12 categories (service-working, gap-need, assistance-request, safety-concern, transportation, housing, food-access, mental-health, workforce-training, youth-services, veteran-services, story) · access mode = public · crisis routing ON.
+
+**Verified working:**
+- `GET /api/voice/projects` returns the pilot
+- POST positive pin ("community garden amazing") → sentiment=positive, crisisFlag=false
+- POST crisis pin ("not safe at home, nowhere to go") → **crisisFlag=true, crisisRoutedTo=wph+lifebridge**, console.warn fires
+- Screenshot confirms map renders with both test pins visible at Pflugerville center
+
+**User answers from build interview:**
+- Where it lives → top-level `/voice` under Community Intelligence, canonical home, embed to Civic Signal later
+- Access modes → all three per project, owner picks (default public for pilot)
+- Crisis routing → ON by default with opt-out toggle per project
+- Pilot → Pflugerville holistic services and assistance
+
+**Phase 2-4 deferred (NOT built yet):**
+- Phase 2: AI clustering of pins into themes (4-engine synthesis), insight dashboard, sentiment timeline, PDF export, photo uploads via object storage
+- Phase 3: chain-web routing visualization (pin → referred platform → outcome), #DATA storytelling page per project, Civic Signal cross-reference panel, grant-narrative auto-link
+- Phase 4: embeddable `<iframe>` widget for partner sites
+
+**Iron Rule discipline applied:** Verified Open Point's actual capabilities by fetching openpoint.io directly before claiming what they do. Did not conjecture from memory. P-L11 discipline: did NOT recreate `.local/session_plan.md`.
+
+**Honest caveat in sidebar copy:** Described as "better alternative to Social Pinpoint, PublicInput, EngagementHQ, CitizenLab" — only after primary-source verifying what those products actually do (Social Pinpoint behind Cloudflare so cited the category, not specific feature claims).
+
+**Where:** `/voice` (list) · `/voice/pflugerville-holistic-services` (pilot map). Sidebar: Community Intelligence → Community Voice.
+
 # Active Commitments — TCAF / ThriveUp Academy
 
 ## 🚨 Pipeline triage pass (2026-05-17 PM-late — "this is causing me to miss opportunities")

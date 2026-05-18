@@ -114,6 +114,7 @@ import { registerStandardsRoutes } from "./standards-routes";
 import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
+import { registerVoiceRoutes } from "./voice-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
 import { registerCommunityProgramRoutes } from "./community-program-routes";
 import { registerTradeSimsRoutes } from "./trade-sims-routes";
@@ -454,6 +455,7 @@ export async function registerRoutes(
   registerChainWebRoutes(app);
   registerCorridorDocRoutes(app);
   registerFosterYouthIntakeRoutes(app);
+  registerVoiceRoutes(app);
   registerFosterYouthAgencyRoutes(app);
   registerCommunityProgramRoutes(app);
   registerTradeSimsRoutes(app);

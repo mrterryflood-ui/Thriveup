@@ -111,6 +111,8 @@ const WorkforceTrainingPage = lazy(() => import("@/pages/workforce-training"));
 const WorkforceEmployersPage = lazy(() => import("@/pages/workforce-employers"));
 const WorkforceDashboardPage = lazy(() => import("@/pages/workforce-dashboard"));
 const CommunityMapPage = lazy(() => import("@/pages/community-map"));
+const VoiceIndexPage = lazy(() => import("@/pages/voice/index"));
+const VoiceProjectPage = lazy(() => import("@/pages/voice/project"));
 const IntakeWizardPage = lazy(() => import("@/pages/intake-wizard"));
 const ServiceDeliveryPage = lazy(() => import("@/pages/service-delivery"));
 const HealthWellnessPage = lazy(() => import("@/pages/health-wellness"));
@@ -365,6 +367,8 @@ function AppRouter() {
       <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
       <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />
+      <Route path="/voice" component={VoiceIndexPage} />
+      <Route path="/voice/:slug" component={VoiceProjectPage} />
       <Route path="/intake" component={IntakeWizardPage} />
       <Route path="/services" component={ServiceDeliveryPage} />
       <Route path="/health-wellness" component={HealthWellnessPage} />
