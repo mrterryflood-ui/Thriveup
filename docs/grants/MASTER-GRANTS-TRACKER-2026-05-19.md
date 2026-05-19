@@ -1,7 +1,7 @@
 # TCAF / ThriveUp Academy — Master Grants Tracker
 
 **Generated:** 2026-05-19  
-**Source:** `grant_opportunities` DB (671 total rows) + `docs/grants/` drafts (88 files)  
+**Source:** `grant_opportunities` DB (671 total rows) + `docs/grants/` drafts (89 files)  
 **Purpose:** Single-document inventory of every grant identified, every draft written, with justification for each — built so nothing slips through the cracks when populating an external tracker.
 
 ---
@@ -16,6 +16,8 @@
 6. [Mid-fit identified opportunities (fit 60–79)](#6-mid-fit-identified-fit-6079)
 7. [Marginal-fit identified opportunities (fit 50–59)](#7-marginal-fit-identified-fit-5059)
 8. [Drafts written — complete inventory](#8-drafts-written--complete-inventory)
+8a. [Low-fit & unscored backlog (fit 1–49 + null)](#8a-low-fit-identified-fit-149-and-unscored)
+8b. [Expired (historical reference)](#8b-expired-historical-reference)
 9. [Recent rescore decisions (2026-05-19)](#9-recent-rescore-decisions-2026-05-19)
 10. [Iron Rule gaps — primary-source verification still owed](#10-iron-rule-gaps)
 
@@ -28,7 +30,7 @@
 - **671** grants identified in the DB (source breakdown: grants.gov 376 · usaspending 200 · samgov 39 · manual 16 · tx_statewide 8 · state_texas 6 · city_austin 5 · others 21).
 - **161** at fit ≥ 90, **26** at 80–89, **22** at 70–79, **26** at 60–69, **27** at 50–59 (capability-fit scoring, not award probability).
 - **9** currently engaged: 1 submitted · 3 pursuing · 1 LOI drafting · 2 watch next cycle · 1 superseded · 1 discontinued.
-- **88** draft files in `docs/grants/` (full inventory in section 8).
+- **89** draft files in `docs/grants/` (full inventory in section 8).
 
 ### Status breakdown
 
@@ -158,86 +160,6 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 **177 opportunities.** Each row has full justification stored in DB notes. Fit reflects capability-stack alignment; award probability requires partner letters, prior-award analysis, and submission readiness assessed per pursuit.
 
-### Substance Abuse and Mental Health Services Administration: evidence based programs (CHINLE UNIFIED SCHOOL DISTRICT #24)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM088381_075)
-
----
-
-### National Institutes of Health: community based participatory research (UNIVERSITY OF PITTSBURGH - OF THE COMMONWEALTH SYSTEM OF HIGHER EDUCATION)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_U24LM014070_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: mental health services (DELAWARE DEPARTMENT OF HEALTH AND SOCIAL SERVICES)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087841_075)
-
----
-
-### Centers for Disease Control and Prevention: trauma informed care (HEALTH, NEW JERSEY DEPARTMENT OF)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NH75OT000079_075)
-
----
-
-### Centers for Medicare and Medicaid Services: behavioral health (DEPARTMENT OF SOCIAL SERVICES MISSO)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332090_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: behavioral health (HEALTH CARE SERVICES, CALIFORNIA DEPARTMENT OF)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087926_075)
-
----
-
-### Centers for Medicare and Medicaid Services: behavioral health (NORTH CAROLINA DEPARTMENT OF HEALTH & HUMAN SERVICES)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332042_075)
-
----
-
-### Episcopal Health Foundation — Texas Community Health & Health Equity
-
-- **Agency:** Episcopal Health Foundation (statewide TX, headquartered Houston)
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** tx_statewide · [link](https://www.episcopalhealth.org/grants/)
-
----
-
 ### Centers for Medicare and Medicaid Services: behavioral health (HEALTH SERVICES KENTUCKY CABINET FOR)
 
 - **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
@@ -258,13 +180,13 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 ---
 
-### National Science Foundation: responsible AI (PRAIRIE VIEW A&M UNIVERSITY)
+### Substance Abuse and Mental Health Services Administration: reentry services (ST. JOHN'S COMMUNITY HEALTH)
 
-- **Agency:** National Science Foundation - National Science Foundation
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2401860_049)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI086103_075)
 
 ---
 
@@ -318,16 +240,6 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 ---
 
-### National Science Foundation: responsible AI (CORNELL UNIVERSITY)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2434321_049)
-
----
-
 ### Substance Abuse and Mental Health Services Administration: minority business (HI - TECH CHARITIES)
 
 - **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
@@ -348,203 +260,33 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 ---
 
-### National Science Foundation: responsible AI (GALLAUDET UNIVERSITY)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2440601_049)
-
----
-
-### National Science Foundation: artificial intelligence research (UNIVERSITY OF TEXAS AT AUSTIN)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2323116_049)
-
----
-
-### Health Resources and Services Administration: implementation science (ZERO TO THREE NATIONAL CENTER FOR INFANTS, TODDLERS & FAMILIES)
-
-- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_UK246349_075)
-
----
-
-### National Institutes of Health: community based participatory research (REGENTS OF THE UNIVERSITY OF MICHIGAN)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50HD115356_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: juvenile justice (HEALTH SERVICES KENTUCKY CABINET FOR)
+### Substance Abuse and Mental Health Services Administration: restorative justice (SAGINAW CHIPPEWA INDIAN TRIBE)
 
 - **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM087698_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM088157_075)
 
 ---
 
-### Substance Abuse and Mental Health Services Administration: juvenile justice (PA DEPARTMENT OF HUMAN SERVICES)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM084173_075)
-
----
-
-### Centers for Medicare and Medicaid Services: reentry services (STATE OF NEVADA HEALTH CARE FINANCING & POLICY DIVISION)
+### Centers for Medicare and Medicaid Services: workforce development (STATE OF ALASKA DEPARTMENT OF HEALTH)
 
 - **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2T2CMS331986_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332062_075)
 
 ---
 
-### Employment and Training Administration: reentry services (BROWARD COLLEGE)
+### Episcopal Health Foundation — Texas Community Health & Health Equity
 
-- **Agency:** Department of Labor - Employment and Training Administration
+- **Agency:** Episcopal Health Foundation (statewide TX, headquartered Houston)
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_23A60PE000015_1601)
-
----
-
-### Office of Justice Programs: restorative justice (CITY OF ARLINGTON)
-
-- **Agency:** Department of Justice - Office of Justice Programs
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA23GG05106DGCT_015)
-
----
-
-### Office of Justice Programs: reentry services (CITY OF DULUTH)
-
-- **Agency:** Department of Justice - Office of Justice Programs
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA24GG04520COAP_015)
-
----
-
-### Substance Abuse and Mental Health Services Administration: housing assistance (RESEARCH FOUNDATION FOR MENTAL HYGIENE, INC.)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087825_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: housing assistance (IDAHO DEPARTMENT OF HEALTH & WELFARE)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087767_075)
-
----
-
-### Texas Workforce Commission WIOA Grants
-
-- **Agency:** Texas Workforce Commission (State of Texas)
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** state_texas · [link](https://www.twc.texas.gov/programs/workforce-innovation-opportunity-act)
-
----
-
-### OJJDP Juvenile Justice Programs
-
-- **Agency:** Office of Juvenile Justice and Delinquency Prevention (DOJ)
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** federal_doj · [link](https://ojjdp.ojp.gov/funding)
-
----
-
-### Substance Abuse and Mental Health Services Administration: restorative justice (DOVER, CITY OF)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SP083356_075)
-
----
-
-### Health Resources and Services Administration: restorative justice (ROCKDALE COUNTY OF ADMINISTRATIVE)
-
-- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_CE152276_075)
-
----
-
-### National Science Foundation: artificial intelligence research (TEXAS A & M UNIVERSITY)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2411377_049)
-
----
-
-### National Institute of Standards and Technology: responsible AI (GEORGE WASHINGTON UNIVERSITY (THE))
-
-- **Agency:** Department of Commerce - National Institute of Standards and Technology
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_60NANB22D052_013)
-
----
-
-### National Science Foundation: responsible AI (MEHARRY MEDICAL COLLEGE)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2334391_049)
-
----
-
-### Substance Abuse and Mental Health Services Administration: reentry services (ST. JOHN'S COMMUNITY HEALTH)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI086103_075)
+- **Source:** tx_statewide · [link](https://www.episcopalhealth.org/grants/)
 
 ---
 
@@ -578,103 +320,13 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 ---
 
-### Centers for Disease Control and Prevention: implementation science (EMORY UNIVERSITY)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007422_075)
-
----
-
-### National Institutes of Health: implementation science (UNIVERSITY OF CHICAGO)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50MD017349_075)
-
----
-
-### National Institutes of Health: implementation science (THE TRUSTEES OF COLUMBIA UNIVERSITY IN THE CITY OF NEW YORK)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50MD017341_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: outcomes measurement (HEGIRA HEALTH INC)
+### Substance Abuse and Mental Health Services Administration: evidence based programs (CHINLE UNIFIED SCHOOL DISTRICT #24)
 
 - **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM087056_075)
-
----
-
-### Centers for Disease Control and Prevention: implementation science (CICATELLI ASSOCIATES, INC.)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU65PS923774_075)
-
----
-
-### National Institutes of Health: implementation science (UNIVERSITY OF MASSACHUSETTS MEDICAL SCHOOL)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50MH129701_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: evidence based programs (HEALTH CARE AUTHORITY)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087845_075)
-
----
-
-### National Institutes of Health: evidence based programs (ALBERT EINSTEIN COLLEGE OF MEDICINE)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_UM1TR004400_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: evidence based programs (MINNESOTA DEPARTMENT OF EDUCATION)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM085328_075)
-
----
-
-### Centers for Disease Control and Prevention: evidence based programs (HEALTH AND HUMAN SERVICES, MAINE DEPARTMENT OF)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU17CE010198_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM088381_075)
 
 ---
 
@@ -688,273 +340,33 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 ---
 
-### Centers for Disease Control and Prevention: place based initiatives (FUND FOR PUBLIC HEALTH IN NEW YORK, INC.)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007593_075)
-
----
-
-### Office of Justice Programs: place based initiatives (JUSTICE & PUBLIC SAFETY CABINET)
-
-- **Agency:** Department of Justice - Office of Justice Programs
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA21GG03025GUNP_015)
-
----
-
-### National Science Foundation: artificial intelligence research (SUSTAINABLE HORIZONS INSTITUTE)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2609667_049)
-
----
-
-### National Science Foundation: responsible AI (UNIVERSITY OF CALIFORNIA IRVINE)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2614053_049)
-
----
-
-### Office of Justice Programs: second chance act (PENNSYLVANIA DEPARTMENT OF CORRECTIONS)
-
-- **Agency:** Department of Justice - Office of Justice Programs
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA21GG04020SCAX_015)
-
----
-
-### Health Resources and Services Administration: prisoner reentry (VIRGINIA COMMONWEALTH UNIVERSITY)
-
-- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P1053116_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: two generation (REGENTS OF THE UNIVERSITY OF CALIFORNIA, SAN FRANCISCO, THE)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM085074_075)
-
----
-
-### Centers for Medicare and Medicaid Services: maternal health (DEPARTMENT OF HEALTH HUMAN SERVICES)
+### Centers for Medicare and Medicaid Services: behavioral health (DEPARTMENT OF SOCIAL SERVICES MISSO)
 
 - **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332056_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332090_075)
 
 ---
 
-### Substance Abuse and Mental Health Services Administration: mental health services (ARIZONA HEALTH CARE COST CONTAINMENT SYSTEM)
+### Substance Abuse and Mental Health Services Administration: behavioral health (HEALTH CARE SERVICES, CALIFORNIA DEPARTMENT OF)
 
 - **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087838_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087926_075)
 
 ---
 
-### Substance Abuse and Mental Health Services Administration: disability employment (MOUNTAIN STATE PARENTS CAN)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM089780_075)
-
----
-
-### Administration for Community Living: trauma informed care (THE JEWISH FEDERATIONS OF NORTH AMERICA, INC.)
-
-- **Agency:** Department of Health and Human Services - Administration for Community Living
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90HSSG0002_075)
-
----
-
-### Office of Justice Programs: juvenile justice (BOYS & GIRLS CLUBS OF AMERICA)
-
-- **Agency:** Department of Justice - Office of Justice Programs
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PJDP24GG01661MENT_015)
-
----
-
-### Substance Abuse and Mental Health Services Administration: trauma informed care (OREGON HEALTH AUTHORITY)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79FG001160_075)
-
----
-
-### Centers for Disease Control and Prevention: trauma informed care (PENNSYLVANIA DEPARTMENT OF HEALTH)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU17CE010184_075)
-
----
-
-### National Institute of Food and Agriculture: digital literacy (WEST VIRGINIA UNIVERSITY)
-
-- **Agency:** Department of Agriculture - National Institute of Food and Agriculture
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NI26SLBCXXXXG033_012)
-
----
-
-### Centers for Medicare and Medicaid Services: workforce development (STATE OF ALASKA DEPARTMENT OF HEALTH)
+### Centers for Medicare and Medicaid Services: behavioral health (NORTH CAROLINA DEPARTMENT OF HEALTH & HUMAN SERVICES)
 
 - **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332062_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: restorative justice (SAGINAW CHIPPEWA INDIAN TRIBE)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM088157_075)
-
----
-
-### Centers for Medicare and Medicaid Services: maternal health (LOUISIANA DEPARTMENT OF HEALTH)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332085_075)
-
----
-
-### Centers for Medicare and Medicaid Services: reentry services (STATE OF COLORADO - DEPT OF HEALTH CARE POLICY & FINANCING)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2T2CMS332021_075)
-
----
-
-### Centers for Medicare and Medicaid Services: community health worker (IOWA DEPARTMENT OF HEALTH AND HUMAN SERVICES)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332065_075)
-
----
-
-### Centers for Medicare and Medicaid Services: behavioral health (GEORGIA DEPARTMENT OF COMMUNITY HEALTH)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332046_075)
-
----
-
-### National Institutes of Health: digital literacy (NORTHWESTERN UNIVERSITY)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_U19CA291404_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: trauma informed care (NEVADA DEPARTMENT OF HEALTH AND HUMAN SERVICES)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087835_075)
-
----
-
-### Centers for Disease Control and Prevention: trauma informed care (WAKE COUNTY HUMAN SERVICES)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NE11OE000100_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: trauma informed care (ALLIANT HEALTH SOLUTIONS, INC.)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM087155_075)
-
----
-
-### Substance Abuse and Mental Health Services Administration: trauma informed care (HAWAII STATE DEPARTMENT OF EDUCATION)
-
-- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM086278_075)
-
----
-
-### Administration for Children and Families: trauma informed care (COMPASS CONNECTIONS)
-
-- **Agency:** Department of Health and Human Services - Administration for Children and Families
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90ZV0148_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332042_075)
 
 ---
 
@@ -975,16 +387,6 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 - **Fit score:** 100
 - **Status:** identified
 - **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_X1050291_075)
-
----
-
-### Centers for Medicare and Medicaid Services: behavioral health (KANSAS DEPARTMENT OF HEALTH & ENVIRONMENT)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332072_075)
 
 ---
 
@@ -1088,16 +490,6 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 ---
 
-### Centers for Medicare and Medicaid Services: workforce development (NYS DEPARTMENT OF HEALTH)
-
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332049_075)
-
----
-
 ### Substance Abuse and Mental Health Services Administration: juvenile justice (SOUTH CAROLINA DEPARTMENT OF MENTAL HEALTH)
 
 - **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
@@ -1108,57 +500,23 @@ CLOSED March 12, 2026. Next cycle expected June 2026. TX is priority state. Stro
 
 ---
 
-### Centers for Medicare and Medicaid Services: workforce development (CALIFORNIA DEPARTMENT OF HEALTH CARE ACCESS AND INFORMATION)
+### Office of Justice Programs: restorative justice (CITY OF ARLINGTON)
 
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Agency:** Department of Justice - Office of Justice Programs
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332078_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA23GG05106DGCT_015)
 
 ---
 
-### OpenAI People-First AI Fund
+### Substance Abuse and Mental Health Services Administration: restorative justice (DOVER, CITY OF)
 
-- **Agency:** OpenAI
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
 - **Deadline:** —
 - **Fit score:** 100
 - **Status:** identified
-- **Source:** manual · [link](https://openai.com/blog/people-first-ai-fund)
-
-**Justification / Notes:**
-
-Rolling/open applications. No fixed deadline announced. Directly aligned — TCAF has a RUNNING 4-engine AI system serving communities, not a proposal.
-
----
-
-### National Institutes of Health: social safety net (THE JOHNS HOPKINS UNIVERSITY)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_K01MD020002_075)
-
----
-
-### National Institute of Food and Agriculture: social safety net (TRUSTEES OF TUFTS COLLEGE)
-
-- **Agency:** Department of Agriculture - National Institute of Food and Agriculture
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_20216702334479_012)
-
----
-
-### Health Resources and Services Administration: social safety net (EL SOL NEIGHBORHOOD EDUCATIONAL CENTER)
-
-- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
-- **Deadline:** —
-- **Fit score:** 100
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_T2946686_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SP083356_075)
 
 ---
 
@@ -1242,6 +600,650 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
+### Centers for Disease Control and Prevention: implementation science (EMORY UNIVERSITY)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007422_075)
+
+---
+
+### National Institutes of Health: implementation science (UNIVERSITY OF CHICAGO)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50MD017349_075)
+
+---
+
+### National Institutes of Health: implementation science (THE TRUSTEES OF COLUMBIA UNIVERSITY IN THE CITY OF NEW YORK)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50MD017341_075)
+
+---
+
+### Centers for Disease Control and Prevention: implementation science (CICATELLI ASSOCIATES, INC.)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU65PS923774_075)
+
+---
+
+### National Institutes of Health: implementation science (UNIVERSITY OF MASSACHUSETTS MEDICAL SCHOOL)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50MH129701_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: evidence based programs (HEALTH CARE AUTHORITY)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087845_075)
+
+---
+
+### National Institutes of Health: evidence based programs (ALBERT EINSTEIN COLLEGE OF MEDICINE)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_UM1TR004400_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: evidence based programs (MINNESOTA DEPARTMENT OF EDUCATION)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM085328_075)
+
+---
+
+### Centers for Disease Control and Prevention: evidence based programs (HEALTH AND HUMAN SERVICES, MAINE DEPARTMENT OF)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU17CE010198_075)
+
+---
+
+### Centers for Disease Control and Prevention: place based initiatives (FUND FOR PUBLIC HEALTH IN NEW YORK, INC.)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007593_075)
+
+---
+
+### Office of Justice Programs: place based initiatives (JUSTICE & PUBLIC SAFETY CABINET)
+
+- **Agency:** Department of Justice - Office of Justice Programs
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA21GG03025GUNP_015)
+
+---
+
+### National Science Foundation: artificial intelligence research (SUSTAINABLE HORIZONS INSTITUTE)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2609667_049)
+
+---
+
+### National Science Foundation: artificial intelligence research (TEXAS A & M UNIVERSITY)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2411377_049)
+
+---
+
+### National Institute of Standards and Technology: responsible AI (GEORGE WASHINGTON UNIVERSITY (THE))
+
+- **Agency:** Department of Commerce - National Institute of Standards and Technology
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_60NANB22D052_013)
+
+---
+
+### National Science Foundation: responsible AI (MEHARRY MEDICAL COLLEGE)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2334391_049)
+
+---
+
+### National Science Foundation: responsible AI (UNIVERSITY OF CALIFORNIA IRVINE)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2614053_049)
+
+---
+
+### Health Resources and Services Administration: restorative justice (ROCKDALE COUNTY OF ADMINISTRATIVE)
+
+- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_CE152276_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: outcomes measurement (HEGIRA HEALTH INC)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM087056_075)
+
+---
+
+### Office of Justice Programs: second chance act (PENNSYLVANIA DEPARTMENT OF CORRECTIONS)
+
+- **Agency:** Department of Justice - Office of Justice Programs
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA21GG04020SCAX_015)
+
+---
+
+### Health Resources and Services Administration: prisoner reentry (VIRGINIA COMMONWEALTH UNIVERSITY)
+
+- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P1053116_075)
+
+---
+
+### Health Resources and Services Administration: social safety net (EL SOL NEIGHBORHOOD EDUCATIONAL CENTER)
+
+- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_T2946686_075)
+
+---
+
+### National Institute of Food and Agriculture: social safety net (TRUSTEES OF TUFTS COLLEGE)
+
+- **Agency:** Department of Agriculture - National Institute of Food and Agriculture
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_20216702334479_012)
+
+---
+
+### National Institutes of Health: social safety net (THE JOHNS HOPKINS UNIVERSITY)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_K01MD020002_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: two generation (REGENTS OF THE UNIVERSITY OF CALIFORNIA, SAN FRANCISCO, THE)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM085074_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: workforce development (CALIFORNIA DEPARTMENT OF HEALTH CARE ACCESS AND INFORMATION)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332078_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: workforce development (NYS DEPARTMENT OF HEALTH)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332049_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: behavioral health (KANSAS DEPARTMENT OF HEALTH & ENVIRONMENT)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332072_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: behavioral health (GEORGIA DEPARTMENT OF COMMUNITY HEALTH)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332046_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: community health worker (IOWA DEPARTMENT OF HEALTH AND HUMAN SERVICES)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332065_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: reentry services (STATE OF COLORADO - DEPT OF HEALTH CARE POLICY & FINANCING)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2T2CMS332021_075)
+
+---
+
+### OpenAI People-First AI Fund
+
+- **Agency:** OpenAI
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** manual · [link](https://openai.com/blog/people-first-ai-fund)
+
+**Justification / Notes:**
+
+Rolling/open applications. No fixed deadline announced. Directly aligned — TCAF has a RUNNING 4-engine AI system serving communities, not a proposal.
+
+---
+
+### Substance Abuse and Mental Health Services Administration: mental health services (ARIZONA HEALTH CARE COST CONTAINMENT SYSTEM)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087838_075)
+
+---
+
+### Administration for Community Living: trauma informed care (THE JEWISH FEDERATIONS OF NORTH AMERICA, INC.)
+
+- **Agency:** Department of Health and Human Services - Administration for Community Living
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90HSSG0002_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: maternal health (LOUISIANA DEPARTMENT OF HEALTH)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332085_075)
+
+---
+
+### Office of Justice Programs: juvenile justice (BOYS & GIRLS CLUBS OF AMERICA)
+
+- **Agency:** Department of Justice - Office of Justice Programs
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PJDP24GG01661MENT_015)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: trauma informed care (OREGON HEALTH AUTHORITY)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79FG001160_075)
+
+---
+
+### Centers for Disease Control and Prevention: trauma informed care (PENNSYLVANIA DEPARTMENT OF HEALTH)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU17CE010184_075)
+
+---
+
+### National Institute of Food and Agriculture: digital literacy (WEST VIRGINIA UNIVERSITY)
+
+- **Agency:** Department of Agriculture - National Institute of Food and Agriculture
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NI26SLBCXXXXG033_012)
+
+---
+
+### National Institutes of Health: community based participatory research (UNIVERSITY OF PITTSBURGH - OF THE COMMONWEALTH SYSTEM OF HIGHER EDUCATION)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_U24LM014070_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: reentry services (STATE OF NEVADA HEALTH CARE FINANCING & POLICY DIVISION)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2T2CMS331986_075)
+
+---
+
+### Employment and Training Administration: reentry services (BROWARD COLLEGE)
+
+- **Agency:** Department of Labor - Employment and Training Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_23A60PE000015_1601)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: mental health services (DELAWARE DEPARTMENT OF HEALTH AND SOCIAL SERVICES)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087841_075)
+
+---
+
+### Office of Justice Programs: reentry services (CITY OF DULUTH)
+
+- **Agency:** Department of Justice - Office of Justice Programs
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA24GG04520COAP_015)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: housing assistance (RESEARCH FOUNDATION FOR MENTAL HYGIENE, INC.)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087825_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: housing assistance (IDAHO DEPARTMENT OF HEALTH & WELFARE)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087767_075)
+
+---
+
+### Texas Workforce Commission WIOA Grants
+
+- **Agency:** Texas Workforce Commission (State of Texas)
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** state_texas · [link](https://www.twc.texas.gov/programs/workforce-innovation-opportunity-act)
+
+---
+
+### OJJDP Juvenile Justice Programs
+
+- **Agency:** Office of Juvenile Justice and Delinquency Prevention (DOJ)
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** federal_doj · [link](https://ojjdp.ojp.gov/funding)
+
+---
+
+### Centers for Disease Control and Prevention: trauma informed care (HEALTH, NEW JERSEY DEPARTMENT OF)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NH75OT000079_075)
+
+---
+
+### Centers for Medicare and Medicaid Services: maternal health (DEPARTMENT OF HEALTH HUMAN SERVICES)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332056_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: disability employment (MOUNTAIN STATE PARENTS CAN)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM089780_075)
+
+---
+
+### National Science Foundation: responsible AI (PRAIRIE VIEW A&M UNIVERSITY)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2401860_049)
+
+---
+
+### National Science Foundation: responsible AI (CORNELL UNIVERSITY)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2434321_049)
+
+---
+
+### National Science Foundation: responsible AI (GALLAUDET UNIVERSITY)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2440601_049)
+
+---
+
+### National Science Foundation: artificial intelligence research (UNIVERSITY OF TEXAS AT AUSTIN)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2323116_049)
+
+---
+
+### Health Resources and Services Administration: implementation science (ZERO TO THREE NATIONAL CENTER FOR INFANTS, TODDLERS & FAMILIES)
+
+- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_UK246349_075)
+
+---
+
+### National Institutes of Health: community based participatory research (REGENTS OF THE UNIVERSITY OF MICHIGAN)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_P50HD115356_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: juvenile justice (HEALTH SERVICES KENTUCKY CABINET FOR)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM087698_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: juvenile justice (PA DEPARTMENT OF HUMAN SERVICES)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM084173_075)
+
+---
+
+### National Institutes of Health: digital literacy (NORTHWESTERN UNIVERSITY)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_U19CA291404_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: trauma informed care (NEVADA DEPARTMENT OF HEALTH AND HUMAN SERVICES)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79TI087835_075)
+
+---
+
+### Centers for Disease Control and Prevention: trauma informed care (WAKE COUNTY HUMAN SERVICES)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NE11OE000100_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: trauma informed care (ALLIANT HEALTH SOLUTIONS, INC.)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM087155_075)
+
+---
+
+### Substance Abuse and Mental Health Services Administration: trauma informed care (HAWAII STATE DEPARTMENT OF EDUCATION)
+
+- **Agency:** Department of Health and Human Services - Substance Abuse and Mental Health Services Administration
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM086278_075)
+
+---
+
+### Administration for Children and Families: trauma informed care (COMPASS CONNECTIONS)
+
+- **Agency:** Department of Health and Human Services - Administration for Children and Families
+- **Deadline:** —
+- **Fit score:** 100
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90ZV0148_075)
+
+---
+
 ### Centers for Disease Control and Prevention: juvenile justice (UT STATE DEPT OF HEALTH AND HUMAN SERVICES)
 
 - **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
@@ -1262,16 +1264,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Office of Justice Programs: second chance act (CGA, INC)
-
-- **Agency:** Department of Justice - Office of Justice Programs
-- **Deadline:** —
-- **Fit score:** 98
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA23GG05282SCAX_015)
-
----
-
 ### Texas Veterans Commission — Veterans Mental Health & Fund for Veterans Assistance
 
 - **Agency:** Texas Veterans Commission (State of Texas)
@@ -1288,7 +1280,7 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 - **Deadline:** —
 - **Fit score:** 98
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2536728_049)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2452148_049)
 
 ---
 
@@ -1298,7 +1290,17 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 - **Deadline:** —
 - **Fit score:** 98
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2452148_049)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2536728_049)
+
+---
+
+### Office of Justice Programs: second chance act (CGA, INC)
+
+- **Agency:** Department of Justice - Office of Justice Programs
+- **Deadline:** —
+- **Fit score:** 98
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PBJA23GG05282SCAX_015)
 
 ---
 
@@ -1309,16 +1311,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 - **Fit score:** 98
 - **Status:** identified
 - **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_H79SM090078_075)
-
----
-
-### National Institutes of Health: responsible AI (THE LELAND STANFORD JUNIOR UNIVERSITY)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 96
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R01EY036893_075)
 
 ---
 
@@ -1342,13 +1334,13 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Administration for Community Living: disability employment (RUTGERS, THE STATE UNIVERSITY)
+### National Institutes of Health: responsible AI (THE LELAND STANFORD JUNIOR UNIVERSITY)
 
-- **Agency:** Department of Health and Human Services - Administration for Community Living
+- **Agency:** Department of Health and Human Services - National Institutes of Health
 - **Deadline:** —
-- **Fit score:** 95
+- **Fit score:** 96
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90RTEM0008_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R01EY036893_075)
 
 ---
 
@@ -1362,23 +1354,13 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Office of Justice Programs: youth mentoring (PARTNERS IN ROUTT COUNTY)
+### Administration for Community Living: disability employment (RUTGERS, THE STATE UNIVERSITY)
 
-- **Agency:** Department of Justice - Office of Justice Programs
+- **Agency:** Department of Health and Human Services - Administration for Community Living
 - **Deadline:** —
 - **Fit score:** 95
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PJDP23GG01316MENT_015)
-
----
-
-### Centers for Disease Control and Prevention: evidence based programs (NEBRASKA DEPARTMENT OF HEALTH & HUMAN SERVICES)
-
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
-- **Fit score:** 95
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007100_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90RTEM0008_075)
 
 ---
 
@@ -1392,16 +1374,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Office of Justice Programs: youth mentoring (ORGANIZED VILLAGE OF KAKE)
-
-- **Agency:** Department of Justice - Office of Justice Programs
-- **Deadline:** —
-- **Fit score:** 95
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PJDP25GG01478TRIB_015)
-
----
-
 ### National Institute of Food and Agriculture: digital literacy (PURDUE UNIVERSITY)
 
 - **Agency:** Department of Agriculture - National Institute of Food and Agriculture
@@ -1412,13 +1384,13 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Centers for Disease Control and Prevention: evidence based programs (DEPARTMENT OF PUBLIC HEALTH CONNECTICUT)
+### Centers for Disease Control and Prevention: evidence based programs (NEBRASKA DEPARTMENT OF HEALTH & HUMAN SERVICES)
 
 - **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
 - **Deadline:** —
 - **Fit score:** 95
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007170_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007100_075)
 
 ---
 
@@ -1432,23 +1404,33 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Health Resources and Services Administration: child welfare (DEPARTMENT OF CHILDREN, YOUTH, AND FAMILIES)
+### Office of Justice Programs: youth mentoring (PARTNERS IN ROUTT COUNTY)
 
-- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
+- **Agency:** Department of Justice - Office of Justice Programs
 - **Deadline:** —
-- **Fit score:** 94
+- **Fit score:** 95
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_X1053601_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PJDP23GG01316MENT_015)
 
 ---
 
-### Centers for Medicare and Medicaid Services: reentry services (MICHIGAN DEPARTMENT OF HEALTH AND HUMAN SERVICES)
+### Centers for Disease Control and Prevention: evidence based programs (DEPARTMENT OF PUBLIC HEALTH CONNECTICUT)
 
-- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
 - **Deadline:** —
-- **Fit score:** 94
+- **Fit score:** 95
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2T2CMS332013_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU58DP007170_075)
+
+---
+
+### Office of Justice Programs: youth mentoring (ORGANIZED VILLAGE OF KAKE)
+
+- **Agency:** Department of Justice - Office of Justice Programs
+- **Deadline:** —
+- **Fit score:** 95
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PJDP25GG01478TRIB_015)
 
 ---
 
@@ -1462,33 +1444,23 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Corporation for National and Community Service: youth mentoring (NEW YORK STATE COMMISSION ON NATIONAL & COMMUNITY SERVICE)
-
-- **Agency:** Corporation for National and Community Service - Corporation for National and Community Service
-- **Deadline:** —
-- **Fit score:** 93
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_22ACFNY001_485)
-
----
-
-### Veterans Employment and Training Services: veteran transition (VOCATIONAL REHABILITATION SPECIALISTS INC)
-
-- **Agency:** Department of Labor - Veterans Employment and Training Services
-- **Deadline:** —
-- **Fit score:** 93
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV38350226056_1601)
-
----
-
-### Centers for Medicare and Medicaid Services: maternal health (FLORIDA AGENCY FOR HEALTH CARE ADMINISTRATION)
+### Centers for Medicare and Medicaid Services: reentry services (MICHIGAN DEPARTMENT OF HEALTH AND HUMAN SERVICES)
 
 - **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
 - **Deadline:** —
-- **Fit score:** 93
+- **Fit score:** 94
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332067_075)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2T2CMS332013_075)
+
+---
+
+### Health Resources and Services Administration: child welfare (DEPARTMENT OF CHILDREN, YOUTH, AND FAMILIES)
+
+- **Agency:** Department of Health and Human Services - Health Resources and Services Administration
+- **Deadline:** —
+- **Fit score:** 94
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_X1053601_075)
 
 ---
 
@@ -1512,13 +1484,33 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Veterans Employment and Training Services: veteran transition (FEDCAP INC)
+### Veterans Employment and Training Services: veteran transition (VOCATIONAL REHABILITATION SPECIALISTS INC)
 
 - **Agency:** Department of Labor - Veterans Employment and Training Services
 - **Deadline:** —
-- **Fit score:** 92
+- **Fit score:** 93
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383532260536_1601)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV38350226056_1601)
+
+---
+
+### Corporation for National and Community Service: youth mentoring (NEW YORK STATE COMMISSION ON NATIONAL & COMMUNITY SERVICE)
+
+- **Agency:** Corporation for National and Community Service - Corporation for National and Community Service
+- **Deadline:** —
+- **Fit score:** 93
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_22ACFNY001_485)
+
+---
+
+### Centers for Medicare and Medicaid Services: maternal health (FLORIDA AGENCY FOR HEALTH CARE ADMINISTRATION)
+
+- **Agency:** Department of Health and Human Services - Centers for Medicare and Medicaid Services
+- **Deadline:** —
+- **Fit score:** 93
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332067_075)
 
 ---
 
@@ -1532,13 +1524,13 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Assistant Secretary for Community Planning and Development: housing assistance (CITY OF ATLANTA)
+### Veterans Employment and Training Services: veteran transition (FEDCAP INC)
 
-- **Agency:** Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development
+- **Agency:** Department of Labor - Veterans Employment and Training Services
 - **Deadline:** —
 - **Fit score:** 92
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_GAH25F001_086)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383532260536_1601)
 
 ---
 
@@ -1549,6 +1541,36 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 - **Fit score:** 92
 - **Status:** identified
 - **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_RHTCMS332058_075)
+
+---
+
+### Veterans Employment and Training Services: veteran transition (BLACK VETERANS FOR SOCIAL JUSTICE INC)
+
+- **Agency:** Department of Labor - Veterans Employment and Training Services
+- **Deadline:** —
+- **Fit score:** 92
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383372260536_1601)
+
+---
+
+### Administration for Children and Families: outcomes measurement (CONNECTICUT OFFICE OF EARLY CHILDHOOD)
+
+- **Agency:** Department of Health and Human Services - Administration for Children and Families
+- **Deadline:** —
+- **Fit score:** 92
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90TP0142_075)
+
+---
+
+### Veterans Employment and Training Services: veteran transition (VOLUNTEERS OF AMERICA NORTHERN ROCKIES)
+
+- **Agency:** Department of Labor - Veterans Employment and Training Services
+- **Deadline:** —
+- **Fit score:** 92
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383572260556_1601)
 
 ---
 
@@ -1572,13 +1594,23 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Veterans Employment and Training Services: veteran transition (BLACK VETERANS FOR SOCIAL JUSTICE INC)
+### Veterans Employment and Training Services: veteran transition (AMERICA WORKS OF ILLINOIS, INC.)
 
 - **Agency:** Department of Labor - Veterans Employment and Training Services
 - **Deadline:** —
 - **Fit score:** 92
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383372260536_1601)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383692260536_1601)
+
+---
+
+### Assistant Secretary for Community Planning and Development: housing assistance (CITY OF ATLANTA)
+
+- **Agency:** Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development
+- **Deadline:** —
+- **Fit score:** 92
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_GAH25F001_086)
 
 ---
 
@@ -1602,36 +1634,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Administration for Children and Families: outcomes measurement (CONNECTICUT OFFICE OF EARLY CHILDHOOD)
-
-- **Agency:** Department of Health and Human Services - Administration for Children and Families
-- **Deadline:** —
-- **Fit score:** 92
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_90TP0142_075)
-
----
-
-### Veterans Employment and Training Services: veteran transition (AMERICA WORKS OF ILLINOIS, INC.)
-
-- **Agency:** Department of Labor - Veterans Employment and Training Services
-- **Deadline:** —
-- **Fit score:** 92
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383692260536_1601)
-
----
-
-### Veterans Employment and Training Services: veteran transition (VOLUNTEERS OF AMERICA NORTHERN ROCKIES)
-
-- **Agency:** Department of Labor - Veterans Employment and Training Services
-- **Deadline:** —
-- **Fit score:** 92
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_HV383572260556_1601)
-
----
-
 ### City of Austin — Austin Economic Injury (AEI) / EDD Small Business Grants
 
 - **Agency:** City of Austin Economic Development Department
@@ -1652,6 +1654,16 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
+### National Science Foundation: artificial intelligence research (REGENTS OF THE UNIVERSITY OF MICHIGAN)
+
+- **Agency:** National Science Foundation - National Science Foundation
+- **Deadline:** —
+- **Fit score:** 90
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2541910_049)
+
+---
+
 ### SAMHSA Community Mental Health Grants
 
 - **Agency:** Substance Abuse and Mental Health Services Administration
@@ -1669,16 +1681,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 - **Fit score:** 90
 - **Status:** identified
 - **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_15PNIJ23GK00931NIJB_015)
-
----
-
-### National Science Foundation: artificial intelligence research (REGENTS OF THE UNIVERSITY OF MICHIGAN)
-
-- **Agency:** National Science Foundation - National Science Foundation
-- **Deadline:** —
-- **Fit score:** 90
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2541910_049)
 
 ---
 
@@ -1732,13 +1734,13 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Texas Health and Human Services Commission Grants
+### National Institutes of Health: two generation (THE TRUSTEES OF COLUMBIA UNIVERSITY IN THE CITY OF NEW YORK)
 
-- **Agency:** Texas HHSC (State of Texas)
+- **Agency:** Department of Health and Human Services - National Institutes of Health
 - **Deadline:** —
 - **Fit score:** 84
 - **Status:** identified
-- **Source:** state_texas · [link](https://www.hhs.texas.gov/about/funding-grant-opportunities)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R01HD103669_075)
 
 ---
 
@@ -1752,16 +1754,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### National Institutes of Health: two generation (THE TRUSTEES OF COLUMBIA UNIVERSITY IN THE CITY OF NEW YORK)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 84
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R01HD103669_075)
-
----
-
 ### National Institute of Food and Agriculture: minority business (KENTUCKY STATE UNIVERSITY)
 
 - **Agency:** Department of Agriculture - National Institute of Food and Agriculture
@@ -1772,33 +1764,23 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Under Secretary for Health/Veterans Health Administration: housing assistance (ST. VINCENT DE PAUL CARES, INC.)
+### Texas Health and Human Services Commission Grants
 
-- **Agency:** Department of Veterans Affairs - Under Secretary for Health/Veterans Health Administration
+- **Agency:** Texas HHSC (State of Texas)
 - **Deadline:** —
-- **Fit score:** 83
+- **Fit score:** 84
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2023-FL-099-25_036)
+- **Source:** state_texas · [link](https://www.hhs.texas.gov/about/funding-grant-opportunities)
 
 ---
 
-### Centers for Disease Control and Prevention: social safety net (UNIVERSITY OF NORTH CAROLINA AT CHAPEL HILL)
+### Community-Based Participatory Research to Advance Data and Practice Transformation (ADAPT) for Optimizing Oral Health for All (UG3/UH3 Clinical Trial Optional)
 
-- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
-- **Deadline:** —
+- **Agency:** National Institutes of Health
+- **Deadline:** 2028-11-16
 - **Fit score:** 83
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_K01CE003548_075)
-
----
-
-### Institute of Museum and Library Services: responsible AI (MONTANA STATE UNIVERSITY)
-
-- **Agency:** Institute of Museum and Library Services - Institute of Museum and Library Services
-- **Deadline:** —
-- **Fit score:** 83
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_LG-252307-OLS-22_474)
+- **Source:** grants.gov · [link](https://www.grants.gov/search-results-detail/358864)
 
 ---
 
@@ -1822,63 +1804,33 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### Community-Based Participatory Research to Advance Data and Practice Transformation (ADAPT) for Optimizing Oral Health for All (UG3/UH3 Clinical Trial Optional)
+### Institute of Museum and Library Services: responsible AI (MONTANA STATE UNIVERSITY)
 
-- **Agency:** National Institutes of Health
-- **Deadline:** 2028-11-16
+- **Agency:** Institute of Museum and Library Services - Institute of Museum and Library Services
+- **Deadline:** —
 - **Fit score:** 83
 - **Status:** identified
-- **Source:** grants.gov · [link](https://www.grants.gov/search-results-detail/358864)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_LG-252307-OLS-22_474)
 
 ---
 
-### Centers for Disease Control and Prevention: evidence based programs (RWANDA BIOMEDICAL CENTER)
+### Under Secretary for Health/Veterans Health Administration: housing assistance (ST. VINCENT DE PAUL CARES, INC.)
+
+- **Agency:** Department of Veterans Affairs - Under Secretary for Health/Veterans Health Administration
+- **Deadline:** —
+- **Fit score:** 83
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_2023-FL-099-25_036)
+
+---
+
+### Centers for Disease Control and Prevention: social safety net (UNIVERSITY OF NORTH CAROLINA AT CHAPEL HILL)
 
 - **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
 - **Deadline:** —
-- **Fit score:** 82
+- **Fit score:** 83
 - **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU2GGH002531_075)
-
----
-
-### National Institutes of Health: outcomes measurement (CLEVELAND CLINIC LERNER COLLEGE OF MEDICINE OF CASE WESTERN RESERVE UNIVERSITY)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 82
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R33NS113258_075)
-
----
-
-### National Institutes of Health: digital literacy (UNIVERSITY OF MARYLAND, BALTIMORE)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 82
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_UG4LM013724_075)
-
----
-
-### National Institutes of Health: outcomes measurement (UNIVERSITY OF WASHINGTON)
-
-- **Agency:** Department of Health and Human Services - National Institutes of Health
-- **Deadline:** —
-- **Fit score:** 82
-- **Status:** identified
-- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R01MH125179_075)
-
----
-
-### Navigator Emergency Department Diversion Models for Non-Urgent Mental Health Concerns (R34 Clinical Trial Required)
-
-- **Agency:** National Institutes of Health
-- **Deadline:** 2028-01-07
-- **Fit score:** 82
-- **Status:** identified
-- **Source:** grants.gov · [link](https://www.grants.gov/search-results-detail/357386)
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_K01CE003548_075)
 
 ---
 
@@ -1892,6 +1844,56 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
+### Navigator Emergency Department Diversion Models for Non-Urgent Mental Health Concerns (R34 Clinical Trial Required)
+
+- **Agency:** National Institutes of Health
+- **Deadline:** 2028-01-07
+- **Fit score:** 82
+- **Status:** identified
+- **Source:** grants.gov · [link](https://www.grants.gov/search-results-detail/357386)
+
+---
+
+### Centers for Disease Control and Prevention: evidence based programs (RWANDA BIOMEDICAL CENTER)
+
+- **Agency:** Department of Health and Human Services - Centers for Disease Control and Prevention
+- **Deadline:** —
+- **Fit score:** 82
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_NU2GGH002531_075)
+
+---
+
+### National Institutes of Health: digital literacy (UNIVERSITY OF MARYLAND, BALTIMORE)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 82
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_UG4LM013724_075)
+
+---
+
+### National Institutes of Health: outcomes measurement (CLEVELAND CLINIC LERNER COLLEGE OF MEDICINE OF CASE WESTERN RESERVE UNIVERSITY)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 82
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R33NS113258_075)
+
+---
+
+### National Institutes of Health: outcomes measurement (UNIVERSITY OF WASHINGTON)
+
+- **Agency:** Department of Health and Human Services - National Institutes of Health
+- **Deadline:** —
+- **Fit score:** 82
+- **Status:** identified
+- **Source:** usaspending · [link](https://www.usaspending.gov/award/ASST_NON_R01MH125179_075)
+
+---
+
 ### Hogg Foundation for Mental Health — Statewide Texas Mental Health Funding
 
 - **Agency:** Hogg Foundation for Mental Health (UT Austin / statewide TX)
@@ -1899,6 +1901,16 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 - **Fit score:** 81
 - **Status:** identified
 - **Source:** tx_statewide · [link](https://hogg.utexas.edu/grants)
+
+---
+
+### St. David's Foundation Community Health Grants
+
+- **Agency:** St. David's Foundation (Austin, TX)
+- **Deadline:** —
+- **Fit score:** 80
+- **Status:** identified
+- **Source:** foundation · [link](https://stdavidsfoundation.org/grants/)
 
 ---
 
@@ -1922,16 +1934,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 ---
 
-### St. David's Foundation Community Health Grants
-
-- **Agency:** St. David's Foundation (Austin, TX)
-- **Deadline:** —
-- **Fit score:** 80
-- **Status:** identified
-- **Source:** foundation · [link](https://stdavidsfoundation.org/grants/)
-
----
-
 ## 6. Mid-fit identified (fit 60–79)
 
 **35 opportunities.** Compact format below; full notes available via DB query `SELECT notes FROM grant_opportunities WHERE id=...`.
@@ -1939,28 +1941,28 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 | Title | Agency | Deadline | Fit | Status | URL |
 |---|---|---|---|---|---|
 | Communities Foundation of Texas (CFT) — Statewide TX Community Grants | Communities Foundation of Texas (statewide TX) | — | 79 | identified | [link](https://www.cftexas.org/grants) |
-| ⭐ PRIORITY: U.S. Space Force SkillBridge & DoD Workforce Transition | U.S. Space Force / Department of Defense | — | 77 | identified | [link](https://skillbridge.osd.mil/) |
-| Texas Bar Foundation — Justice, Reentry & Civil Legal Aid Grants | Texas Bar Foundation (statewide TX) | — | 77 | identified | [link](https://www.txbf.org/grants/) |
 | OSERS-OSEP: Expanding Career Pathways and Workforce Readiness of Special Education Teachers and Early Intervention Personnel Through Registered Apprenticeships, Assistance Listing Number (ALN) 84.325J | Department of Education | 2026-07-13 | 77 | identified | [link](https://www.grants.gov/search-results-detail/362373) |
+| Texas Bar Foundation — Justice, Reentry & Civil Legal Aid Grants | Texas Bar Foundation (statewide TX) | — | 77 | identified | [link](https://www.txbf.org/grants/) |
+| ⭐ PRIORITY: U.S. Space Force SkillBridge & DoD Workforce Transition | U.S. Space Force / Department of Defense | — | 77 | identified | [link](https://skillbridge.osd.mil/) |
 | SAMHSA FY2026 NOFO Portfolio — Behavioral Health Grants | SAMHSA | — | 76 | identified | [link](https://www.samhsa.gov/grants) |
 | Department of Energy: workforce development (VALE USA LLC) | Department of Energy - Department of Energy | — | 75 | identified | [link](https://www.usaspending.gov/award/ASST_NON_DECD0000101_089) |
 | Administration for Children and Families: child welfare (MARSELL WELLNESS CENTER) | Department of Health and Human Services - Administration for Children and Families | — | 75 | identified | [link](https://www.usaspending.gov/award/ASST_NON_90ZU0638_075) |
-| NIMH Mental Health Program Grants FY2026 | National Institute of Mental Health (NIH/NIMH) | — | 74 | identified | [link](https://www.nimh.nih.gov/funding) |
 | DoD Cyber Workforce Development Grants | Department of Defense / Cyber Command | — | 74 | identified | [link](https://www.cybercom.mil/) |
-| National Institutes of Health: outcomes measurement (BRIGHAM & WOMENS HOSPITAL INC) | Department of Health and Human Services - National Institutes of Health | — | 74 | identified | [link](https://www.usaspending.gov/award/ASST_NON_R01CA280619_075) |
+| NIMH Mental Health Program Grants FY2026 | National Institute of Mental Health (NIH/NIMH) | — | 74 | identified | [link](https://www.nimh.nih.gov/funding) |
 | Office of Justice Programs: youth mentoring (ONE STEP FURTHER INC) | Department of Justice - Office of Justice Programs | — | 74 | identified | [link](https://www.usaspending.gov/award/ASST_NON_15PBJA23GG00114BRND_015) |
-| National Institutes of Health: outcomes measurement (BRIGHAM & WOMENS HOSPITAL INC) | Department of Health and Human Services - National Institutes of Health | — | 73 | identified | [link](https://www.usaspending.gov/award/ASST_NON_R01CA279175_075) |
-| Substance Abuse and Mental Health Services Administration: reentry services (COMMUNITY PARTNERS IN ACTION, INC.) | Department of Health and Human Services - Substance Abuse and Mental Health Services Administration | — | 73 | identified | [link](https://www.usaspending.gov/award/ASST_NON_H79TI080926_075) |
-| Health Resources and Services Administration: digital literacy (THE HEALTH FEDERATION OF PHILADELPHIA) | Department of Health and Human Services - Health Resources and Services Administration | — | 73 | identified | [link](https://www.usaspending.gov/award/ASST_NON_U8645873_075) |
-| RFP Mart — Public-Sector RFPs (recurring scan target) | RFPMart.com (national aggregator) | — | 73 | identified | [link](https://www.rfpmart.com/) |
+| National Institutes of Health: outcomes measurement (BRIGHAM & WOMENS HOSPITAL INC) | Department of Health and Human Services - National Institutes of Health | — | 74 | identified | [link](https://www.usaspending.gov/award/ASST_NON_R01CA280619_075) |
 | EPSCoR Research Infrastructure Improvement Program: EPSCoR Collaborations for Optimizing Research Ecosystems | U.S. National Science Foundation | 2026-07-21 | 73 | identified | [link](https://www.grants.gov/search-results-detail/357725) |
+| National Institutes of Health: outcomes measurement (BRIGHAM & WOMENS HOSPITAL INC) | Department of Health and Human Services - National Institutes of Health | — | 73 | identified | [link](https://www.usaspending.gov/award/ASST_NON_R01CA279175_075) |
+| Health Resources and Services Administration: digital literacy (THE HEALTH FEDERATION OF PHILADELPHIA) | Department of Health and Human Services - Health Resources and Services Administration | — | 73 | identified | [link](https://www.usaspending.gov/award/ASST_NON_U8645873_075) |
+| Substance Abuse and Mental Health Services Administration: reentry services (COMMUNITY PARTNERS IN ACTION, INC.) | Department of Health and Human Services - Substance Abuse and Mental Health Services Administration | — | 73 | identified | [link](https://www.usaspending.gov/award/ASST_NON_H79TI080926_075) |
+| RFP Mart — Public-Sector RFPs (recurring scan target) | RFPMart.com (national aggregator) | — | 73 | identified | [link](https://www.rfpmart.com/) |
 | Grand Founders Network-to-Capital Program | Grand Founders | — | 71 | identified | [link](https://grandfounders.org/initiatives-network-to-capital) |
 | SBA Minority Business Development Grants | U.S. Small Business Administration | — | 71 | identified | [link](https://www.sba.gov/funding-programs/grants) |
-| Texas Education Agency Community Partnership Grants | Texas Education Agency (State of Texas) | — | 67 | identified | [link](https://tea.texas.gov/about-tea/funding) |
 | Secure Innovation: Advancing Artificial Intelligence, Cybersecurity, and Digital Resilience in Argentina | U.S. Mission to Argentina | 2026-05-31 | 67 | identified | [link](https://www.grants.gov/search-results-detail/361926) |
 | OJJDP FY25 Juvenile Justice System Enhancements | Office of Juvenile Justice Delinquency Prevention  | 2026-06-08 | 67 | identified | [link](https://www.grants.gov/search-results-detail/362102) |
 | NIJ FY25 Research and Evaluation of Artificial Intelligence for Criminal Justice Purposes | National Institute of Justice | 2026-06-15 | 67 | identified | [link](https://www.grants.gov/search-results-detail/362406) |
 | DoW Arthritis Translational Research Award | Dept. of the Army -- USAMRAA | 2026-10-22 | 67 | identified | [link](https://www.grants.gov/search-results-detail/362177) |
+| Texas Education Agency Community Partnership Grants | Texas Education Agency (State of Texas) | — | 67 | identified | [link](https://tea.texas.gov/about-tea/funding) |
 | Adient Foundation Community Grants | Adient Foundation (Corporate) | — | 65 | identified | [link](https://www.adient.com/sustainability/community) |
 | DreamBee Foundation Child Abuse Prevention | DreamBee Foundation | — | 65 | identified | [link](https://dreambeefoundation.org/) |
 | APAF Community Grants — Youth of Color Mental Health | American Psychiatric Association Foundation (APAF) | — | 63 | identified | [link](https://www.apafdn.org) |
@@ -1980,16 +1982,6 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 
 | Title | Agency | Deadline | Fit | Status |
 |---|---|---|---|---|
-| City of Austin — Cultural Arts Funding (Nexus, Elevate, Thrive) | City of Austin Economic Development Department — Cultural Arts Division | — | 59 | identified |
-| Austin Housing Finance Corporation (AHFC) — Community Development Programs | Austin Housing Finance Corporation / City of Austin Housing Department | — | 59 | identified |
-| Assistant Secretary for Community Planning and Development: housing assistance (ILLINOIS HOUSING DEVELOPMENT AUTHORITY) | Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development | — | 59 | identified |
-| Assistant Secretary for Community Planning and Development: housing assistance (NORTH CAROLINA HOUSING FINANCE AGENCY) | Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development | — | 59 | identified |
-| Assistant Secretary for Community Planning and Development: housing assistance (FLORIDA HOUSING FINANCE CORPORATION) | Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development | — | 59 | identified |
-| Minority Business Development Agency: minority business (ONABEN) | Department of Commerce - Minority Business Development Agency | — | 59 | identified |
-| Administration for Children and Families: child welfare (FAMILIES RISING) | Department of Health and Human Services - Administration for Children and Families | — | 59 | identified |
-| Administration for Children and Families: child welfare (RESEARCH FOUNDATION FOR THE STATE UNIVERSITY OF NEW YORK, THE) | Department of Health and Human Services - Administration for Children and Families | — | 59 | identified |
-| Manufacturing Systems Integration | U.S. National Science Foundation | — | 59 | identified |
-| EONS 2018: Appendix E Minority University Research and Education Project (MUREP) for Sustainability and Innovation Collaborative &ndash; (MUSIC)  | National Aeronautics and Space Administration | — | 59 | identified |
 | Building EPSCoR-State/National Laboratory Partnerships | Office of Science | 2026-05-21 | 59 | identified |
 | Alcohol and Other Substance Use Research Education Programs for Health Professionals (R25 Clinical Trial Not Allowed) | National Institutes of Health | 2026-05-25 | 59 | identified |
 | Estimated Fiscal Year 2026 Adult Education and Family Literacy Act State Award Amounts | Office of Career Technical and Adult Education  | 2026-05-26 | 59 | identified |
@@ -2001,13 +1993,23 @@ Rolling/open applications. No fixed deadline announced. Directly aligned — TCA
 | Agriculture and Food Research Initiative Competitive Grants Program Education and Workforce Development | National Institute of Food and Agriculture | 2026-12-31 | 59 | identified |
 | Public Health Crisis Response Cooperative Agreement | Centers for Disease Control - OPHPR | 2027-02-11 | 59 | identified |
 | Effectiveness Trials to Test Mental Health System Interventions (R61/R33 Clinical Trial Required) | National Institutes of Health | 2027-10-15 | 59 | identified |
+| EONS 2018: Appendix E Minority University Research and Education Project (MUREP) for Sustainability and Innovation Collaborative &ndash; (MUSIC)  | National Aeronautics and Space Administration | — | 59 | identified |
+| City of Austin — Cultural Arts Funding (Nexus, Elevate, Thrive) | City of Austin Economic Development Department — Cultural Arts Division | — | 59 | identified |
+| Assistant Secretary for Community Planning and Development: housing assistance (ILLINOIS HOUSING DEVELOPMENT AUTHORITY) | Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development | — | 59 | identified |
+| Assistant Secretary for Community Planning and Development: housing assistance (NORTH CAROLINA HOUSING FINANCE AGENCY) | Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development | — | 59 | identified |
+| Administration for Children and Families: child welfare (FAMILIES RISING) | Department of Health and Human Services - Administration for Children and Families | — | 59 | identified |
+| Administration for Children and Families: child welfare (RESEARCH FOUNDATION FOR THE STATE UNIVERSITY OF NEW YORK, THE) | Department of Health and Human Services - Administration for Children and Families | — | 59 | identified |
+| Manufacturing Systems Integration | U.S. National Science Foundation | — | 59 | identified |
+| Austin Housing Finance Corporation (AHFC) — Community Development Programs | Austin Housing Finance Corporation / City of Austin Housing Department | — | 59 | identified |
+| Assistant Secretary for Community Planning and Development: housing assistance (FLORIDA HOUSING FINANCE CORPORATION) | Department of Housing and Urban Development - Assistant Secretary for Community Planning and Development | — | 59 | identified |
+| Minority Business Development Agency: minority business (ONABEN) | Department of Commerce - Minority Business Development Agency | — | 59 | identified |
 | FEMA Emergency Preparedness Grants | Federal Emergency Management Agency | — | 50 | identified |
 
 ---
 
 ## 8. Drafts written — complete inventory
 
-Every file currently in `docs/grants/` (88 total). Includes narratives, LOIs, budget docs, partner outreach, walkthroughs, strategic memos, capabilities inventories, and the AISD package (passed 2026-05-19, archived for reuse).
+Every file currently in `docs/grants/` (89 total). Includes narratives, LOIs, budget docs, partner outreach, walkthroughs, strategic memos, capabilities inventories, and the AISD package (passed 2026-05-19, archived for reuse).
 
 ### (top-level)
 
@@ -2030,6 +2032,7 @@ Every file currently in `docs/grants/` (88 total). Includes narratives, LOIs, bu
 - `docs/grants/Grant-Opportunity-Scan-2026-05-14.md` _(31.4 KB)_
 - `docs/grants/HerHealth-33-Grant-Opportunities-Prospectus.md` _(25.6 KB)_
 - `docs/grants/HerHealth-Network-Grant-Prospectus.md` _(6.2 KB)_
+- `docs/grants/MASTER-GRANTS-TRACKER-2026-05-19.md` _(91.6 KB)_
 - `docs/grants/NSF-ATE-Proposal-Framework.md` _(30.1 KB)_
 - `docs/grants/NSF-IUSE-EDU-RPLICE-Evaluation.md` _(9.4 KB)_
 - `docs/grants/NSF-Quantum-Education-RPLICE-Evaluation.md` _(11.1 KB)_
@@ -2114,6 +2117,457 @@ Every file currently in `docs/grants/` (88 total). Includes narratives, LOIs, bu
 - `docs/grants/submitted/StDavids-GivingData-Profile-Update-Checklist.md` _(3.2 KB)_
 - `docs/grants/submitted/StDavids-WAB2-Feedback-Request-DRAFT.md` _(3.4 KB)_
 - `docs/grants/submitted/StDavids-WAB2-LOI-Decision-2026-05-15.md` _(4.1 KB)_
+
+---
+
+## 8a. Low-fit identified (fit 1–49) and unscored
+
+**317 opportunities.** Captured by automated grants.gov / SAM.gov / USAspending ingestion. Most are auto-scored 0 because the scorer hasn't been run against them yet — they are not actually irrelevant, they are unreviewed. Treat as the raw backlog to triage when capacity allows.
+
+| Title | Agency | Deadline | Fit | Status | Source |
+|---|---|---|---|---|---|
+| BJA FY25 Justice Reinvestment Initiative: Strengthening State and Local Operations to Reduce Crime and Recidivism | Bureau of Justice Assistance | 2026-06-03 | 49 | identified | grants.gov |
+| TechAccess: AI-Ready America | U.S. National Science Foundation | 2026-07-16 | 49 | identified | grants.gov |
+| National Institutes of Health: two generation (REGENTS OF THE UNIVERSITY OF MICHIGAN) | Department of Health and Human Services - National Institutes of Health | — | 49 | identified | usaspending |
+| National Institutes of Health: two generation (NORTHWESTERN UNIVERSITY) | Department of Health and Human Services - National Institutes of Health | — | 49 | identified | usaspending |
+| FY 2025 Rural Capacity Building for Community Development and Affordable Housing Grants (RCB) | Department of Housing and Urban Development | 2026-07-06 | 47 | identified | grants.gov |
+| Mathematical Foundations of Artificial Intelligence | U.S. National Science Foundation | 2026-10-09 | 47 | identified | grants.gov |
+| Department of Energy: workforce development (CENTURY ALUMINUM CO) | Department of Energy - Department of Energy | — | 47 | identified | usaspending |
+| NIMH Research Education Mentoring Program for HIV Researchers (R25 Clinical Trial Not Allowed) | National Institutes of Health | 2026-05-25 | 43 | identified | grants.gov |
+| Office of Special Education and Rehabilitative Services (OSERS): Rehabilitation Services Administration (RSA): Training of Interpreters for  | Department of Education | 2026-05-26 | 43 | identified | grants.gov |
+| Office of Special Education and Rehabilitative Services (OSERS): Office of Special Education Programs (OSEP): Community Parent Resource Cent | Department of Education | 2026-06-05 | 43 | identified | grants.gov |
+| Office of Special Education and Rehabilitative Services (OSERS): Office of Special Education Programs (OSEP): State Personnel Development Gr | Department of Education | 2026-06-16 | 43 | identified | grants.gov |
+| Office of Special Education and Rehabilitative Services (OSERS): Office of Special Education Programs (OSEP): National Center for Accessible | Department of Education | 2026-06-26 | 43 | identified | grants.gov |
+| Office of Special Education and Rehabilitative Services (OSERS): Office of Special Education Programs (OSEP): Accessible Education Video Pro | Department of Education | 2026-06-26 | 43 | identified | grants.gov |
+| OSERS-OSEP: Personnel Preparation of Special Education, Early Intervention, and Related Services Personnel, Assistance Listing Number (ALN)  | Department of Education | 2026-07-02 | 43 | identified | grants.gov |
+| Lowe's Gable CBO Program — Skilled Trades Pathways | Lowe's Companies, Inc. (Corporate Giving) | 2026-09-03 | 43 | identified | corporate |
+| Unveiling Health and Healthcare Disparities in Non-Communicable and Chronic Diseases in Latin America: Setting the Stage for Better Health O | National Institutes of Health | 2027-01-07 | 43 | identified | grants.gov |
+| Substance Abuse and Mental Health Services Administration: mental health services (FLORIDA DEPARTMENT OF CHILDREN AND FAMILIES) | Department of Health and Human Services - Substance Abuse and Mental Health Serv | — | 43 | identified | usaspending |
+| Substance Abuse and Mental Health Services Administration: mental health services (HEALTH CARE SERVICES, CALIFORNIA DEPARTMENT OF) | Department of Health and Human Services - Substance Abuse and Mental Health Serv | — | 43 | identified | usaspending |
+| Substance Abuse and Mental Health Services Administration: mental health services (HEALTH CARE SERVICES, CALIFORNIA DEPARTMENT OF) | Department of Health and Human Services - Substance Abuse and Mental Health Serv | — | 43 | identified | usaspending |
+| Substance Abuse and Mental Health Services Administration: mental health services (HEALTH & HUMAN SVC COMMN TX) | Department of Health and Human Services - Substance Abuse and Mental Health Serv | — | 43 | identified | usaspending |
+| Substance Abuse and Mental Health Services Administration: mental health services (NEW YORK STATE OFFICE OF MENTAL HEALTH) | Department of Health and Human Services - Substance Abuse and Mental Health Serv | — | 43 | identified | usaspending |
+| Energy Auditor Training Grant Program | U.S. Department of Energy - State and Community Energy Programs | — | 43 | identified | manual |
+| Substance Abuse and Mental Health Services Administration: mental health services (ILLINOIS DEPARTMENT OF HUMAN SERVICE) | Department of Health and Human Services - Substance Abuse and Mental Health Serv | — | 43 | identified | usaspending |
+| Substance Abuse and Mental Health Services Administration: mental health services (PA DEPARTMENT OF HUMAN SERVICES) | Department of Health and Human Services - Substance Abuse and Mental Health Serv | — | 43 | identified | usaspending |
+| Advanced Laboratories for Accelerating the Reach and Impact of Treatments for Youth and Adults with Mental Illness (ALACRITY) Research Cente | National Institutes of Health | 2026-05-18 | 39 | identified | grants.gov |
+| FY 2026 U.S. Leadership in Education, Advanced Manufacturing, and Digital Skills (U.S. LEADS) Program | Bureau Of Educational and Cultural Affairs | 2026-05-18 | 39 | identified | grants.gov |
+| NIJ FY25 Research on the Abuse, Neglect, and Financial Exploitation of Older Adults | National Institute of Justice | 2026-05-19 | 39 | identified | grants.gov |
+| The National September 11 Memorial and Museum and 9/11 Pentagon Memorial Visitor Education Center | Washington Headquarters Services | 2026-05-21 | 39 | identified | grants.gov |
+| NLM Information Resource Grants to Reduce Health Disparities and Promote Health for All (G08 Clinical Trial Not Allowed) | National Institutes of Health | 2026-05-25 | 39 | identified | grants.gov |
+| Developmental AIDS Research Center on Mental Health and HIV/AIDS (P30 Clinical Trial Optional) | National Institutes of Health | 2026-05-25 | 39 | identified | grants.gov |
+| AIDS Research Center on Mental Health and HIV/AIDS (P30 Clinical Trial Optional) | National Institutes of Health | 2026-05-25 | 39 | identified | grants.gov |
+| National Science Foundation Fostering Interdisciplinary Networks to Develop Emergent and Responsive Solutions Foundry | U.S. National Science Foundation | 2026-05-27 | 39 | identified | grants.gov |
+| Building Interdisciplinary Research Careers in Women's Health (BIRCWH) (K12 Clinical Trial Optional) | National Institutes of Health | 2026-05-28 | 39 | identified | grants.gov |
+| Rural Communities Opioid Response Program (RCORP)-Planning | Health Resources and Services Administration | 2026-05-29 | 39 | identified | grants.gov |
+| Cooperative Agreement for Affiliated Partner with the Gulf Coast Cooperative Ecosystem Studies Unit (CESU) | Geological Survey | 2026-05-30 | 39 | identified | grants.gov |
+| U.S.-Argentina English for the Energy Sector &amp; Minerals Workforce Development | U.S. Mission to Argentina | 2026-05-31 | 39 | identified | grants.gov |
+| Strengthening U.S. Studies in Higher Education in Argentina | U.S. Mission to Argentina | 2026-06-01 | 39 | identified | grants.gov |
+| &#8203;&#8203;Maternal and Child Health (MCH) Leadership, Education, and Advancement in Undergraduate Pathways (LEAP) Training Program&#8203 | Health Resources and Services Administration | 2026-06-01 | 39 | identified | grants.gov |
+| Leadership Education in Neurodevelopmental and Other Related Disabilities (LEND) | Health Resources and Services Administration | 2026-06-01 | 39 | identified | grants.gov |
+| Innovation in Behavioral Health (IBH) | Center for Medicare and Medicaid Services | 2026-06-03 | 39 | identified | grants.gov |
+| NIJ FY25 Research and Evaluation on School Safety | National Institute of Justice | 2026-06-03 | 39 | identified | grants.gov |
+| USGS Earthquake Hazards Program External Research Support Announcement for Fiscal Year 2027 | Geological Survey | 2026-06-04 | 39 | identified | grants.gov |
+| NIJ FY25 Research and Evaluation on Human Trafficking | National Institute of Justice | 2026-06-08 | 39 | identified | grants.gov |
+| NIJ FY25 Research and Evaluation on Drugs and Crime: Nexus with Firearms and Violence | National Institute of Justice | 2026-06-08 | 39 | identified | grants.gov |
+| Career Pathways Exploration Grant Program 84.424J | Office of Elementary and Secondary Education | 2026-06-09 | 39 | identified | grants.gov |
+| NIJ FY25 Research and Evaluation on Youth Justice Topics | National Institute of Justice | 2026-06-10 | 39 | identified | grants.gov |
+| Cooperative Agreement for affiliated Partner with the Gulf Coast Cooperative Ecosystem Studies Unit | Geological Survey | 2026-06-12 | 39 | identified | grants.gov |
+| Norman Y. Mineta Japanese American Confinement Education Grants | National Park Service | 2026-06-15 | 39 | identified | grants.gov |
+| Indian Child Welfare Act Title II Grants - Public Safety | Bureau of Indian Affairs | 2026-06-16 | 39 | identified | grants.gov |
+| Enhancing Understanding of and Preparedness for Public Health Threats Through Research in Kenya | Centers for Disease Control and Prevention - ERA | 2026-06-22 | 39 | identified | grants.gov |
+| UNITED STATES DEPARTMENT OF AGRICULTURE MCGOVERN-DOLE INTERNATIONAL FOOD FOR EDUCATION AND CHILD NUTRITION PROGRAM | Foreign Agricultural Service | 2026-06-22 | 39 | identified | grants.gov |
+| Strengthening Strategic Partnerships through Expert Engagement | U.S. Mission to Brazil | 2026-06-22 | 39 | identified | grants.gov |
+| Rural Health and Safety Education Competitive Grants Program | National Institute of Food and Agriculture | 2026-06-23 | 39 | identified | grants.gov |
+| FY 26 Teacher Quality Partnership (TQP) Program Competition | Office of Elementary and Secondary Education | 2026-06-23 | 39 | identified | grants.gov |
+| Evaluation of Muskellunge Management and Stocking Strategies in Iowa | Engineer Research and Development Center | 2026-06-29 | 39 | identified | grants.gov |
+| Office of Elementary and Secondary Education (OESE): Comprehensive Centers Program: National Comprehensive Center on Improving Literacy for  | Department of Education | 2026-06-30 | 39 | identified | grants.gov |
+| U.S.-ROK Strategic Partnership Initiatives | U.S. Mission to South Korea | 2026-06-30 | 39 | identified | grants.gov |
+| Veterans Cemetery Grants | VA National Cemetery Administration | 2026-07-01 | 39 | identified | grants.gov |
+| Willow Creek Reservoir Water Quality Research and Evaluation Studies | Engineer Research and Development Center | 2026-07-09 | 39 | identified | grants.gov |
+| Single Source: HeartShare 2.0: Refining Heart Failure Subtypes and Treatment Targets for Personalized Clinical Trials - Data Translation Cen | National Institutes of Health | 2026-07-09 | 39 | identified | grants.gov |
+| FY 2026 Ocean Technology Transition Program | DOC NOAA - ERA Production | 2026-07-15 | 39 | identified | grants.gov |
+| Faculty Early Career Development Program | U.S. National Science Foundation | 2026-07-22 | 39 | identified | grants.gov |
+| Limited Competition: Building Partnerships and Broadening Perspectives to Advance Ethical, Legal, and Social Implications (ELSI) Research (B | National Institutes of Health | 2026-08-02 | 39 | identified | grants.gov |
+| ECosystem for Leading Innovation in Plasma Science and Engineering | U.S. National Science Foundation | 2026-08-11 | 39 | identified | grants.gov |
+| Cognitive Neuroscience | U.S. National Science Foundation | 2026-08-17 | 39 | identified | grants.gov |
+| DoW Peer Reviewed Medical, Platform Clinical Translation Award | Dept. of the Army -- USAMRAA | 2026-09-22 | 39 | identified | grants.gov |
+| DoW, Ovarian Cancer, Ovarian Cancer Clinical Trial Academy &ndash; Early-Career Investigator Award | Dept. of the Army -- USAMRAA | 2026-10-01 | 39 | identified | grants.gov |
+| DoW, Ovarian Cancer, Ovarian Cancer Academy &ndash; Early-Career Investigator Award | Dept. of the Army -- USAMRAA | 2026-10-01 | 39 | identified | grants.gov |
+| Limited Competition: Small Grant Program for the NCATS Clinical and Translational Science Award (CTSA) Program (R03 Clinical Trial Optional) | National Institutes of Health | 2026-10-19 | 39 | identified | grants.gov |
+| National Center for Construction Safety and Health Research and Translation (U54) | Centers for Disease Control and Prevention - ERA | 2026-12-01 | 39 | identified | grants.gov |
+| Accelerating Solutions to Improve Access and Quality of Empirically-Supported Practices for Youth Mental Health (R01 Clinical Trial Optional | National Institutes of Health | 2027-01-07 | 39 | identified | grants.gov |
+| Title X Family Planning Services Grants | Office of the Assistant Secretary for Health | 2027-01-09 | 39 | identified | grants.gov |
+| Training-based Workforce Development for Advanced Cyberinfrastructure  (CyberTraining) | U.S. National Science Foundation | 2027-01-21 | 39 | identified | grants.gov |
+| Discovery of in vivo Chemical Probes for the Nervous System (R01 Clinical Trial Not Allowed) | National Institutes of Health | 2027-03-05 | 39 | identified | grants.gov |
+| Development and Testing of Novel Interventions to Improve HIV Prevention, Treatment, and Program Implementation for People Who Use Substance | National Institutes of Health | 2027-03-16 | 39 | identified | grants.gov |
+| UNITED STATES MILITARY ACADEMY Broad Agency Announcement | Dept of the Army -- Materiel Command | 2027-03-31 | 39 | identified | grants.gov |
+| Environmental Health Sciences Core Centers Program (P30 Clinical Trials Optional) | National Institutes of Health | 2027-04-20 | 39 | identified | grants.gov |
+| LPS Qubit Collaboratory (LQC) | Dept of the Army -- Materiel Command | 2027-04-30 | 39 | identified | grants.gov |
+| Department of Defense HIV/AIDS Prevention Program | Dept. of the Army -- USAMRAA | 2027-09-18 | 39 | identified | grants.gov |
+| Clinical and Translational Science Award (UM1 Clinical Trial Optional) | National Institutes of Health | 2027-09-28 | 39 | identified | grants.gov |
+| Accelerating the Pace of Substance Use Research Using Existing Data (R21 Clinical Trial Not Allowed) | National Institutes of Health | 2027-12-03 | 39 | identified | grants.gov |
+| Accelerating the Pace of Substance Use Research Using Existing Data (R01 Clinical Trial Not Allowed) | National Institutes of Health | 2027-12-03 | 39 | identified | grants.gov |
+| NPS Cooperative Ecosystems Studies Units (CESU) Master Cooperative Agreements | National Park Service | 2027-12-31 | 39 | identified | grants.gov |
+| Laboratories to Optimize Digital Health (R01 Clinical Trial Required) | National Institutes of Health | 2028-01-07 | 39 | identified | grants.gov |
+| Innovative Mental Health Services Research Not Involving Clinical Trials (R01 Clinical Trials Not Allowed) | National Institutes of Health | 2028-01-07 | 39 | identified | grants.gov |
+| Utilizing Invasive Recording and Stimulating Opportunities in Humans to Advance Neural Circuitry Understanding of Mental Health Disorders (R | National Institutes of Health | 2028-01-07 | 39 | identified | grants.gov |
+| NDEP STEM Open NFO | Washington Headquarters Services | 2028-02-08 | 39 | identified | grants.gov |
+| Occupational Safety and Health Education and Research Centers (T42) | Centers for Disease Control and Prevention - ERA | 2028-10-26 | 39 | identified | grants.gov |
+| Clinical Coordinating Center for Multi-Site Investigator-Initiated Clinical Trials (Collaborative UG3/UH3 Clinical Trial Required) | National Institutes of Health | 2028-11-02 | 39 | identified | grants.gov |
+| Department of Energy: workforce development (WIELAND NORTH AMERICA RECYCLING LLC) | Department of Energy - Department of Energy | — | 39 | identified | usaspending |
+| Inclusive Energy Innovation Prize | U.S. Department of Energy - Office of Economic Impact and Diversity | — | 39 | identified | manual |
+| Communities LEAP (Local Energy Action Program) | U.S. Department of Energy - Office of State and Community Energy Programs | — | 39 | identified | manual |
+| Growing Research Access for Nationally Transformative Economic Development | U.S. National Science Foundation | — | 39 | identified | grants.gov |
+| State Veterans Home Construction Grant Program | Construction of State Home Facilities | — | 39 | identified | grants.gov |
+| Fiscal Year (FY) 2022-2026 Advanced Digital Construction Management Systems (ADCMS) | DOT Federal Highway Administration  | — | 39 | identified | grants.gov |
+| Minority Business Development Agency: minority business (BUSINESS OUTREACH CENTER NETWORK, INC.) | Department of Commerce - Minority Business Development Agency | — | 39 | identified | usaspending |
+| Department of the Army: community resilience (UNIVERSITY OF DELAWARE) | Department of Defense - Department of the Army | — | 39 | identified | usaspending |
+| Minority Business Development Agency: minority business (ARIZONA HISPANIC CHAMBER OF COMMERCE INC) | Department of Commerce - Minority Business Development Agency | — | 39 | identified | usaspending |
+| TWC Skills Development Fund — Rolling | Texas Workforce Commission (State of Texas) | — | 39 | identified | state_texas |
+| Home Depot Path to Pro — Trade Skills Funding | The Home Depot Foundation | — | 39 | identified | corporate |
+| Department of Energy: place based initiatives (IMPACT COMMUNITY ACTION) | Department of Energy - Department of Energy | — | 39 | identified | usaspending |
+| National Oceanic and Atmospheric Administration: community resilience (DEPARTMENT OF PLANNING & NATURAL RESOURCES) | Department of Commerce - National Oceanic and Atmospheric Administration | — | 39 | identified | usaspending |
+| Disability and Rehabilitation Engineering | U.S. National Science Foundation | — | 39 | identified | grants.gov |
+| Engineering of Biomedical Systems | U.S. National Science Foundation | — | 39 | identified | grants.gov |
+| NIST MEP Disaster Assessment Program | National Institute of Standards and Technology | — | 39 | identified | grants.gov |
+| Minority Business Development Agency: minority business (ROCKY MOUNTAIN MINORITY SUPPLIER DEVELOPMENT COUNCIL) | Department of Commerce - Minority Business Development Agency | — | 39 | identified | usaspending |
+| National Telecommunications and Information Administration: digital literacy (COWLITZ INDIAN TRIBE) | Department of Commerce - National Telecommunications and Information Administrat | — | 39 | identified | usaspending |
+| National Oceanic and Atmospheric Administration: community resilience (THE NATURE CONSERVANCY) | Department of Commerce - National Oceanic and Atmospheric Administration | — | 39 | identified | usaspending |
+| BidNet Direct — Texas State & Local RFPs (recurring scan target) | BidNet Direct (national aggregator) | — | 39 | identified | aggregator |
+| Infrastructure Systems and People | U.S. National Science Foundation | — | 39 | identified | grants.gov |
+| Facilities for Atmospheric Research and Education | U.S. National Science Foundation | — | 39 | identified | grants.gov |
+| NOAA Great Lakes Fish Habitat Restoration Partnership Grants | DOC NOAA - ERA Production | — | 39 | identified | grants.gov |
+| Public Diplomacy Grants Program | U.S. Mission to Nicaragua | 2026-05-18 | 0 | identified | grants.gov |
+| NIJ FY25 Graduate Research Fellowship | National Institute of Justice | 2026-05-19 | 0 | identified | grants.gov |
+| Fiscal Year (FY) 2026 AmeriCorps State and National Native Nations Grants | AmeriCorps | 2026-05-20 | 0 | identified | grants.gov |
+| Natural Resource Management - Lane County Youth Services | USACE Portland District | 2026-05-21 | 0 | identified | grants.gov |
+| IFB 39-6000 - Metallic and Non-Metallic Scrap Sale, Qatar | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-22 | 0 | identified | samgov |
+| Sale of Scrap Cardboard Bales | DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.ACC-CTRS.ACC-DTA.W6QK SIAD CONTR OFF | 2026-05-22 | 0 | identified | samgov |
+| IFB 39-6000 - Metallic and Non-Metallic Scrap Sale, Qatar | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-22 | 0 | identified | samgov |
+| IFB 39-6000 - Metallic and Non-Metallic Scrap Sale, Qatar | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-22 | 0 | identified | samgov |
+| RFTP-33-6018-001, Ships | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-23 | 0 | identified | samgov |
+| Non-Ferrous Metal Sale | DEPT OF DEFENSE.DEPT OF THE NAVY.USMC.MARCORP I&L.MARINE CORPS INSTALLATIONS COM | 2026-05-25 | 0 | identified | samgov |
+| Ferrous/NonFerrous Metal Sale | DEPT OF DEFENSE.DEPT OF THE NAVY.USMC.MARCORP I&L.MARINE CORPS INSTALLATIONS COM | 2026-05-25 | 0 | identified | samgov |
+| Deformed Expended Small Arms Casings | DEPT OF DEFENSE.DEPT OF THE ARMY.W8AC MIARNG ELEMENT, JF HQ | 2026-05-26 | 0 | identified | samgov |
+| FY 2026 Mandela Washington Fellowship for Young African Leaders (YALI Fellowship) | Bureau Of Educational and Cultural Affairs | 2026-05-26 | 0 | identified | grants.gov |
+| FY 2026 Sports Visitor Program | Bureau Of Educational and Cultural Affairs | 2026-05-26 | 0 | identified | grants.gov |
+| Comprehensive Housing Counseling (CHC) and the Housing Counseling Training (HCT) NOFO&nbsp;(FY2025) | Department of Housing and Urban Development | 2026-05-26 | 0 | identified | grants.gov |
+| FY 2026 Kennedy-Lugar Youth Exchange and Study (YES) | Bureau Of Educational and Cultural Affairs | 2026-05-26 | 0 | identified | grants.gov |
+| BJA FY25 Rural Law Enforcement Violent Crime Reduction Initiative | Bureau of Justice Assistance | 2026-05-27 | 0 | identified | grants.gov |
+| Scrap Fired Cartridges (Deformed) | DEPT OF DEFENSE.DEPT OF THE NAVY.USMC.MARCORP I&L.MARINE CORPS INSTALLATIONS COM | 2026-05-27 | 0 | identified | samgov |
+| Non-Metallic Scrap, Textiles, IFB 33-6025, Columbus, OH | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-27 | 0 | identified | samgov |
+| IFB 33-6016 DEMILITARIZATION/MUTILATION AS CONDITION OF SALE (DCOS/MCOS) SCRAP SALE, WARNER ROBINS, GA | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-28 | 0 | identified | samgov |
+| USDA-FNS-CN-EAG-FY26 | Food and Nutrition Service | 2026-05-28 | 0 | identified | grants.gov |
+| IFB 33-6019 - Expended Small Arms Cartridge Casings (ESAAC) Sale, Pearl Harbor, HI | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-29 | 0 | identified | samgov |
+| Ruth L. Kirschstein National Research Service Award Institutional Research Training Grant (NRSA) | Health Resources and Services Administration | 2026-05-29 | 0 | identified | grants.gov |
+| Child Care Access Means Parents in School (CCAMPIS) 2026 | Office of Postsecondary Education | 2026-05-29 | 0 | identified | grants.gov |
+| FY 2026 Young Southeast Asian Leaders Initiative (YSEALI) Academic Fellows Program | Bureau Of Educational and Cultural Affairs | 2026-05-29 | 0 | identified | grants.gov |
+| Sale of Scrap- Mixed Metal- Watervliet Arsenal | DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.ACC-CTRS.ACC-DTA.W6QK ACC WVA | 2026-05-30 | 0 | identified | samgov |
+| Tax Counseling for the Elderly (TCE) | Tax Counseling for the Elderly  | 2026-05-31 | 0 | identified | grants.gov |
+| Volunteer Income Tax Assistance (VITA) Matching Grant | Volunteer Income Tax Assistance | 2026-05-31 | 0 | identified | grants.gov |
+| Supporting Effective Educator Development 84.423A | Office of Elementary and Secondary Education | 2026-06-01 | 0 | identified | grants.gov |
+| FY 2026 American Film Showcase | Bureau Of Educational and Cultural Affairs | 2026-06-01 | 0 | identified | grants.gov |
+| Housing Policy Research Grant Notice of Funding Opportunity | Department of Housing and Urban Development | 2026-06-01 | 0 | identified | grants.gov |
+| FY 2026 Global Undergraduate Exchange Program | Bureau Of Educational and Cultural Affairs | 2026-06-02 | 0 | identified | grants.gov |
+| BJA FY25 Invited to Apply &ndash; Prison Rape Elimination Act (PREA) Reallocation Funds Program | Bureau of Justice Assistance | 2026-06-04 | 0 | identified | grants.gov |
+| IFB 33-6028 HM Sale Used Pole Mount Transformers, Selfridge, ANGB, MI | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-04 | 0 | identified | samgov |
+| Climate Program Office FY 2026 - Regional Integrated Sciences and Assessments (RISA) | DOC NOAA - ERA Production | 2026-06-04 | 0 | identified | grants.gov |
+| Local Food Promotion Program Fiscal Year 2026 | Agricultural Marketing Service | 2026-06-05 | 0 | identified | grants.gov |
+| FY 2026 Young Leaders of the Americas Initiative (YLAI) | Bureau Of Educational and Cultural Affairs | 2026-06-05 | 0 | identified | grants.gov |
+| Farmers Market Promotion Program Fiscal Year 2026 | Agricultural Marketing Service | 2026-06-05 | 0 | identified | grants.gov |
+| Innovative Approaches to Literacy 84.215G | Office of Elementary and Secondary Education | 2026-06-07 | 0 | identified | grants.gov |
+| Countering Terrorist Financing Flows In and Through Tajikistan | Bureau of Counterterrorism  | 2026-06-08 | 0 | identified | grants.gov |
+| Countering Terrorist Financing Flows In and Through Tajikistan | Bureau of Counterterrorism  | 2026-06-08 | 0 | identified | grants.gov |
+| Strategic commercial engagement for U.S.&ndash;AU Trade and Investment | U.S. Mission to Ethiopia | 2026-06-08 | 0 | identified | grants.gov |
+| IFB 33-6022, METALLIC AND NONMETALLIC SCRAP SALE, FT BRAGG, NC | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-09 | 0 | identified | samgov |
+| IFB 33-6024 Expended Small Arms Cartridge Casing (ESACC) Sale Tucson, AZ | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-09 | 0 | identified | samgov |
+| Innovative Approaches to Literacy 84.215G | Office of Elementary and Secondary Education | 2026-06-09 | 0 | identified | grants.gov |
+| IFB 33-6024 Expended Small Arms Cartridge Casing (ESACC) Sale Tucson, AZ | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-09 | 0 | identified | samgov |
+| Countering Terrorist Recruitment of Central Asian Foreign Workers | Bureau of Counterterrorism  | 2026-06-09 | 0 | identified | grants.gov |
+| Fiscal Year 2026 Expanding Nutrition Services | Health Resources and Services Administration | 2026-06-09 | 0 | identified | grants.gov |
+| Countering Terrorist Recruitment of Central Asian Foreign Workers | Bureau of Counterterrorism  | 2026-06-09 | 0 | identified | grants.gov |
+| Countering Terrorist Recruitment of Central Asian Foreign Workers | Bureau of Counterterrorism  | 2026-06-09 | 0 | identified | grants.gov |
+| IFB 33-6031 HM Sales, Used pad Mount Transformers, Selfridge ANGB, MI | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-10 | 0 | identified | samgov |
+| CONSORTIUM FOR NUCLEAR FORENSICS | NNSA | 2026-06-10 | 0 | identified | grants.gov |
+| Scrap Sale: DEMILITARIZATION/MUTILATION AS CONDITION OF SALE (DCOS/MCOS) SCRAP RESIDUE IFB 33-6020, Columbus, OH | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-10 | 0 | identified | samgov |
+| Identify and Evaluate Potential Risk Factors for Amyotrophic Lateral Sclerosis (ALS) | Centers for Disease Control and Prevention - ERA | 2026-06-10 | 0 | identified | grants.gov |
+| IFB 33-6031 HM Sales, Used pad Mount Transformers, Selfridge ANGB, MI | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-10 | 0 | identified | samgov |
+| FY 2026 Strengthening Talent, Research, Innovation and Vital Engagement (STRIVE) Program | Bureau Of Educational and Cultural Affairs | 2026-06-10 | 0 | identified | grants.gov |
+| IFB 33-6037 HM Sales, Spent Lead Acid Batteries, Seymour Johnson AFB, NC | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-11 | 0 | identified | samgov |
+| Sale of Scrap Galvanized Steel | DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.ACC-CTRS.ACC-DTA.W6QK SIAD CONTR OFF | 2026-06-12 | 0 | identified | samgov |
+| Sale of Scrap Mixed Metal (Ferrous & Non-Ferrous) | DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.ACC-CTRS.ACC-DTA.W6QK SIAD CONTR OFF | 2026-06-12 | 0 | identified | samgov |
+| UNITED STATES DEPARTMENT OF AGRICULTURE FOOD FOR PEACE, TITLE II PROGRAM | Foreign Agricultural Service | 2026-06-12 | 0 | identified | grants.gov |
+| College Assistance Migrant Program 84.149A | Office of Elementary and Secondary Education | 2026-06-12 | 0 | identified | grants.gov |
+| Sale of Scrap Mixed Metal (Ferrous & Non-Ferrous) | DEPT OF DEFENSE.DEPT OF THE ARMY.AMC.ACC.ACC-CTRS.ACC-DTA.W6QK SIAD CONTR OFF | 2026-06-12 | 0 | identified | samgov |
+| Freedom 250 Poland 2026 | U.S. Mission to Poland | 2026-06-14 | 0 | identified | grants.gov |
+| U.S. Embassy Sofia PDS Annual Program Statement | U.S. Mission to Bulgaria | 2026-06-15 | 0 | identified | grants.gov |
+| Bolivia Law Enforcement and Criminal Justice Sector Support | Bureau of International Narcotics-Law Enforcement | 2026-06-15 | 0 | identified | grants.gov |
+| Novel Approaches to Support Therapeutic Development in Ultra-Rare Cancers | Food and Drug Administration | 2026-06-15 | 0 | identified | grants.gov |
+| Understanding and Promoting Resources and Opportunities for People with Autism and Fragile X and their Families Across the Lifespan | Centers for Disease Control - NCBDDD | 2026-06-15 | 0 | identified | grants.gov |
+| Beginning Farmer and Rancher Development Program | National Institute of Food and Agriculture | 2026-06-16 | 0 | identified | grants.gov |
+| Deformed Expended Small Arms Casings | DEPT OF DEFENSE.DEPT OF THE ARMY.W8AC MIARNG ELEMENT, JF HQ | 2026-06-16 | 0 | identified | samgov |
+| Scrap Mixed Wire | DEPT OF DEFENSE.DEPT OF THE NAVY.USMC.MARCORP I&L.MARINE CORPS INSTALLATIONS COM | 2026-06-17 | 0 | identified | samgov |
+| Scrap Lead Acid Batteries | DEPT OF DEFENSE.DEPT OF THE NAVY.USMC.MARCORP I&L.MARINE CORPS INSTALLATIONS COM | 2026-06-17 | 0 | identified | samgov |
+| IFB 33-6011, HM Sales, Used Oil, Ft. Bragg, NC | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-06-19 | 0 | identified | samgov |
+| FY 2026 Technical Assistance Information to Communities Grants | Pipeline and Hazardous Materials Safety Admin | 2026-06-19 | 0 | identified | grants.gov |
+| Increasing awareness and knowledge of Alpha-gal Syndrome in the United States | Centers for Disease Control - NCEZID | 2026-06-19 | 0 | identified | grants.gov |
+| Grants to Support New Investigators in Conducting Research Related to Preventing Interpersonal Violence and Suicide Among Children and Youth | Centers for Disease Control and Prevention - ERA | 2026-06-22 | 0 | identified | grants.gov |
+| Precision Measurement Grant Program | National Institute of Standards and Technology | 2026-06-22 | 0 | identified | grants.gov |
+| Cooperative Research Agreements Related to the World Trade Center Health Program (U01) | Centers for Disease Control and Prevention - ERA | 2026-06-23 | 0 | identified | grants.gov |
+| BJA FY25 State Criminal Alien Assistance Program (SCAAP) | Bureau of Justice Assistance | 2026-06-23 | 0 | identified | grants.gov |
+| Assistive Technology Program for Farmers with Disabilities | National Institute of Food and Agriculture | 2026-06-23 | 0 | identified | grants.gov |
+| Exploratory/Developmental Grants Related to the World Trade Center Health Program (R21) | Centers for Disease Control and Prevention - ERA | 2026-06-23 | 0 | identified | grants.gov |
+| FY 2027 Fulbright Teacher Exchange Program | Bureau Of Educational and Cultural Affairs | 2026-06-29 | 0 | identified | grants.gov |
+| Fiscal Year (FY) 2023 through FY 2026 Bridge Investment Program, Planning and Bridge Project Grants | DOT Federal Highway Administration  | 2026-06-29 | 0 | identified | grants.gov |
+| FY 2026 Future Leaders Exchange Global (FLEX Global) | Bureau Of Educational and Cultural Affairs | 2026-06-29 | 0 | identified | grants.gov |
+| Young Pacific Leaders Solutions Labs | U.S. Mission to New Zealand | 2026-06-30 | 0 | identified | grants.gov |
+| Rural Business Development Grant Program | Rural Business-Cooperative Service  | 2026-06-30 | 0 | identified | grants.gov |
+| U.S. Embassy in Ouagadougou, Burkina Faso PDS Annual Program Statement | U.S. Mission to Burkina Faso | 2026-07-03 | 0 | identified | grants.gov |
+| Improving Lake Superior outflow regulation and quantifying uncertainty | Engineer Research and Development Center | 2026-07-06 | 0 | identified | grants.gov |
+| FY 2026 TechLeaders: Critical Emerging Technologies Exchange | Bureau Of Educational and Cultural Affairs | 2026-07-06 | 0 | identified | grants.gov |
+| Ready To Learn Programming | Office of Elementary and Secondary Education | 2026-07-08 | 0 | identified | grants.gov |
+| WaterSMART: Applied Science Grants | Bureau of Reclamation | 2026-07-08 | 0 | identified | grants.gov |
+| Tech Innovation Lab | U.S. Mission to Morocco | 2026-07-13 | 0 | identified | grants.gov |
+| Project Rental Assistance Program of Section 811 Supportive Housing for Persons with Disabilities FY 2026 | Department of Housing and Urban Development | 2026-07-13 | 0 | identified | grants.gov |
+| Epidemiology Program for American Indian/Alaska Native Tribes and Urban Indian Communities | Indian Health Service | 2026-07-13 | 0 | identified | grants.gov |
+| Moonshot: Artemis Edition | U.S. Mission to Morocco | 2026-07-13 | 0 | identified | grants.gov |
+| ScaleUp Bolivia | U.S. Mission to Bolivia  | 2026-07-15 | 0 | identified | grants.gov |
+| U.S. Embassy Kuwait PAS Annual Program Statement | U.S. Mission to Kuwait | 2026-07-15 | 0 | identified | grants.gov |
+| Social Psychology | U.S. National Science Foundation | 2026-07-15 | 0 | identified | grants.gov |
+| CyberAICorps Scholarship for Service | U.S. National Science Foundation | 2026-07-21 | 0 | identified | grants.gov |
+| Fiscal Year 2024 &amp; 2025 Building Resilient Infrastructure and Communities (BRIC) | Department of Homeland Security - FEMA | 2026-07-23 | 0 | identified | grants.gov |
+| Developmental Sciences | U.S. National Science Foundation | 2026-07-30 | 0 | identified | grants.gov |
+| Mathematical Sciences Infrastructure Program | U.S. National Science Foundation | 2026-08-04 | 0 | identified | grants.gov |
+| Science of Learning and Augmented Intelligence | U.S. National Science Foundation | 2026-08-05 | 0 | identified | grants.gov |
+| Promise Neighborhoods-84.215N | Office of Elementary and Secondary Education | 2026-08-06 | 0 | pursuing | grants.gov |
+| DoW Peer Reviewed Medical, Lifestyle and Applied Health Research Award | Dept. of the Army -- USAMRAA | 2026-08-06 | 0 | identified | grants.gov |
+| Promise Neighborhoods | Department of Education | 2026-08-06 | 0 | pursuing | grants.gov |
+| DoW Peer Reviewed Medical, Technology/Therapeutic Development Award | Dept. of the Army -- USAMRAA | 2026-08-06 | 0 | identified | grants.gov |
+| Global Infectious Disease Research Training Program (D43 Clinical Trial Optional) | National Institutes of Health | 2026-08-06 | 0 | identified | grants.gov |
+| PD ANNUAL PROGRAM STATEMENT | U.S. Mission to Bolivia  | 2026-08-15 | 0 | identified | grants.gov |
+| Robert Noyce Teacher Scholarship Program | U.S. National Science Foundation | 2026-08-25 | 0 | identified | grants.gov |
+| Methodology, Measurement, and Statistics | U.S. National Science Foundation | 2026-08-27 | 0 | identified | grants.gov |
+| Alcohol Health Services Research (R01 Clinical Trial Optional) | National Institutes of Health | 2026-09-07 | 0 | identified | grants.gov |
+| IUSE/Professional Formation of Engineers:  Revolutionizing Engineering Departments | U.S. National Science Foundation | 2026-09-08 | 0 | identified | grants.gov |
+| U.S. National Science Foundation Research Traineeship (NRT) Program | U.S. National Science Foundation | 2026-09-08 | 0 | identified | grants.gov |
+| Computer and Information Science and Engineering (CISE): Future Computing Research | U.S. National Science Foundation | 2026-09-10 | 0 | identified | grants.gov |
+| DoW Peer Reviewed Medical, Clinical Trial Award | Dept. of the Army -- USAMRAA | 2026-09-22 | 0 | identified | grants.gov |
+| National Institute of General Medical Sciences Predoctoral Basic Biomedical Sciences Research Training Program (T32) | National Institutes of Health | 2026-09-25 | 0 | identified | grants.gov |
+| Postdoctoral Research Fellowships in Biology | U.S. National Science Foundation | 2026-09-29 | 0 | identified | grants.gov |
+| DoW Amyotrophic Lateral Sclerosis Research Program, Clinical Outcomes and Biomarkers Award | Dept. of the Army -- USAMRAA | 2026-09-30 | 0 | identified | grants.gov |
+| F26AS00068 Partners for Fish and Wildlife FY26 | Fish and Wildlife Service | 2026-09-30 | 0 | identified | grants.gov |
+| FY 2024 &ndash; 2026 - Broad Agency Announcement (BAA) Announcement Type: Initial | DOC NOAA - ERA Production | 2026-09-30 | 0 | identified | grants.gov |
+| DoW Amyotrophic Lateral Sclerosis Research Program, Therapeutic Development Award | Dept. of the Army -- USAMRAA | 2026-09-30 | 0 | identified | grants.gov |
+| Announcement of Stand Down Grants | Veterans Employment and Training Service | 2026-09-30 | 0 | identified | grants.gov |
+| DoW Peer Reviewed Cancer, Idea Award | Dept. of the Army -- USAMRAA | 2026-10-05 | 0 | identified | grants.gov |
+| Algebra and Number Theory | U.S. National Science Foundation | 2026-10-09 | 0 | identified | grants.gov |
+| International Research Experiences for Students | U.S. National Science Foundation | 2026-10-26 | 0 | identified | grants.gov |
+| CHIPS Incentives Program &ndash; Facilities for Semiconductor Materials and Manufacturing Equipment | National Institute of Standards and Technology | 2026-11-01 | 0 | identified | grants.gov |
+| NCCIH Natural Product Mid Phase Clinical Trial (R01 Clinical Trial Required) | National Institutes of Health | 2026-11-13 | 0 | identified | grants.gov |
+| NCCIH Natural Product Early Phase Clinical Trial Award (R33 Clinical Trial Required) | National Institutes of Health | 2026-11-13 | 0 | identified | grants.gov |
+| Major Research Instrumentation Program | U.S. National Science Foundation | 2026-11-16 | 0 | identified | grants.gov |
+| Louis Stokes Alliances for Minority Participation | U.S. National Science Foundation | 2026-11-20 | 0 | identified | grants.gov |
+| Centers of Research Excellence in Science and Technology | U.S. National Science Foundation | 2026-12-04 | 0 | identified | grants.gov |
+| The Genesis Mission:  Transforming Science and Energy with AI | Office of Science | 2026-12-17 | 0 | identified | grants.gov |
+| F26AS00084 Aquatic Invasive Species Grants to Great Lakes Tribes - Fiscal Year 2026 Great Lakes Restoration Initiative | Fish and Wildlife Service | 2026-12-31 | 0 | identified | grants.gov |
+| Agriculture and Food Research Initiative Competitive Grants Program Foundational and Applied Science Program | National Institute of Food and Agriculture | 2026-12-31 | 0 | identified | grants.gov |
+| Tribal Colleges Research Grants Program | National Institute of Food and Agriculture | 2026-12-31 | 0 | identified | grants.gov |
+| Intervention Research to Improve Native American Health (R34 Clinical Trial Optional) | National Institutes of Health | 2027-01-07 | 0 | identified | grants.gov |
+| DoW&rsquo;s Energy, Installations, and Environment Innovation Partners Programs | Washington Headquarters Services | 2027-01-08 | 0 | identified | grants.gov |
+| Oceanographic Facilities and Equipment Support | U.S. National Science Foundation | 2027-01-11 | 0 | identified | grants.gov |
+| Cybersecurity Innovation for Cyberinfrastructure | U.S. National Science Foundation | 2027-01-20 | 0 | identified | grants.gov |
+| ROSS Rapid Response Program | Department of Housing and Urban Development | 2027-01-25 | 0 | identified | grants.gov |
+| Tribal Undergraduate to Graduate Research Training and Leadership Experiences (TURTLE) Program (UE5/T34) | National Institutes of Health | 2027-01-25 | 0 | identified | grants.gov |
+| Tribal Undergraduate to Graduate Research Training and Leadership Experiences (TURTLE) Program (UE5/T32) | National Institutes of Health | 2027-01-25 | 0 | identified | grants.gov |
+| Medical Scientist Training Program (MSTP) (T32) | National Institutes of Health | 2027-01-25 | 0 | identified | grants.gov |
+| Diabetes Research Centers (P30 Clinical Trial Optional) | National Institutes of Health | 2027-01-27 | 0 | identified | grants.gov |
+| Mid-scale Research Infrastructure-1 | U.S. National Science Foundation | 2027-02-08 | 0 | identified | grants.gov |
+| NIDA Animal Genomics Program (U01  Clinical Trial Not Allowed) | National Institutes of Health | 2027-02-11 | 0 | identified | grants.gov |
+| Advancing Global Health | Bureau of Global Health Security and Diplomacy | 2027-02-14 | 0 | identified | grants.gov |
+| Advancing Global Health | Bureau of Global Health Security and Diplomacy | 2027-02-14 | 0 | identified | grants.gov |
+| Accelerating Discovery through Partnered Research with All of Us to Analyze Participant Biospecimens (X01 Clinical Trial Not Allowed) | National Institutes of Health | 2027-03-01 | 0 | identified | grants.gov |
+| Pilot Health Services and Economic Research on the Treatment of Drug, Alcohol, and Tobacco Use Disorders (R34 Clinical Trial Optional) | National Institutes of Health | 2027-05-07 | 0 | identified | grants.gov |
+| BRAIN Initiative: Brain Behavior Quantification and Synchronization- Next Generation Sensor Technology Development (U01 Clinical Trial Optio | National Institutes of Health | 2027-06-15 | 0 | identified | grants.gov |
+| Early-Stage Dissemination and Implementation Research in Communication Disorders (R21 Clinical Trial Optional) | National Institutes of Health | 2027-06-17 | 0 | identified | grants.gov |
+| Cutting-Edge Basic Research Awards (CEBRA) (R21 Clinical Trial Optional) | National Institutes of Health | 2027-08-11 | 0 | identified | grants.gov |
+| Leading Edge Acceleration Projects (LEAP) in Health Information Technology | Office of the National Coordinator | 2027-09-30 | 0 | identified | grants.gov |
+| National Cooperative Drug/Device Discovery/Development Groups (NCDDG) for the Treatment of Mental Disorders (U01 Clinical Trial Optional) | National Institutes of Health | 2027-10-25 | 0 | identified | grants.gov |
+| National Cooperative Drug/Device Discovery/Development Groups (NCDDG) for the Treatment of Mental Disorders (U19 Clinical Trial Optional) | National Institutes of Health | 2027-10-25 | 0 | identified | grants.gov |
+| Leveraging Network Infrastructure to Conduct Innovative Research for Women, Children, Pregnant and Lactating Women, and Persons with Disabil | National Institutes of Health | 2027-11-15 | 0 | identified | grants.gov |
+| NIDCR Behavioral and Social Intervention Clinical Trial Planning and Implementation Cooperative Agreement (UG3/UH3 Clinical Trial Required) | National Institutes of Health | 2028-01-06 | 0 | identified | grants.gov |
+| Research Enhancement Award Program (REAP) for Health Professional Schools and Graduate Schools (R15 Clinical Trial Not Allowed) | National Institutes of Health | 2028-01-07 | 0 | identified | grants.gov |
+| Modular R01s in Cancer Control and Population Sciences (R01 Clinical Trial Optional) | National Institutes of Health | 2028-01-07 | 0 | identified | grants.gov |
+| Commercial Fishing Occupational Safety Research Cooperative Agreement (U01) | Centers for Disease Control and Prevention - ERA | 2028-01-31 | 0 | identified | grants.gov |
+| Commercial Fishing Occupational Safety Training Project Grants (T03) | Centers for Disease Control and Prevention - ERA | 2028-01-31 | 0 | identified | grants.gov |
+| Environmental influences on Child Health Outcomes (ECHO) Cohort Data and Biospecimen Access (X01 Clinical Trial Not Allowed) | National Institutes of Health | 2028-03-01 | 0 | identified | grants.gov |
+| Ruth L. Kirschstein National Research Service Award (NRSA) Individual Fellowship for Students at Institutions Without NIH-Funded Institution | National Institutes of Health | 2028-05-07 | 0 | identified | grants.gov |
+| Ruth L. Kirschstein National Research Service Award (NRSA) Individual Fellowship for Students at Institutions with NIH-Funded Institutional  | National Institutes of Health | 2028-05-07 | 0 | identified | grants.gov |
+| Ruth L. Kirschstein National Research Service Award (NRSA) Individual Predoctoral Fellowship (Parent F31) | National Institutes of Health | 2028-05-07 | 0 | identified | grants.gov |
+| Maximizing Investigators' Research Award (MIRA) (R35 - Clinical Trial Optional) | National Institutes of Health | 2028-05-26 | 0 | identified | grants.gov |
+| Defense Security Cooperation University - Research Grants | Washington Headquarters Services | 2028-08-07 | 0 | identified | grants.gov |
+| NIGMS Institutional Biomedical Undergraduate Research Training (BURT) Program (T34) | National Institutes of Health | 2028-09-25 | 0 | identified | grants.gov |
+| Resource-Related Research Projects for Development of Models and Related Materials for Studying Human Health and Diseases (R24 Clinical Tria | National Institutes of Health | 2028-09-28 | 0 | identified | grants.gov |
+| Using Archived Data and Specimen Collections to Advance Maternal and Pediatric HIV/AIDS Research (R21 CT Not Allowed) | National Institutes of Health | 2028-10-20 | 0 | identified | grants.gov |
+| Single-Site Investigator-Initiated Clinical Trials (R61/R33 Clinical Trial Required) | National Institutes of Health | 2028-11-02 | 0 | identified | grants.gov |
+| Maximizing Investigators&rsquo; Research Award (MIRA) for Early Stage Investigators (ESI) | National Institutes of Health | 2029-02-06 | 0 | identified | grants.gov |
+| Research and Development (RAD) Directed Energy (RD) University Assistance Instruments | Air Force -- Research Lab | 2029-07-18 | 0 | identified | grants.gov |
+| Research Initiatives at the Naval Postgraduate School | Naval Supply Systems Command | 2030-01-13 | 0 | identified | grants.gov |
+| University Nuclear Leadership Program&ndash; Scholarship and Fellowship Support | Idaho Field Office | 2030-10-14 | 0 | identified | grants.gov |
+| Notice of Intent:  Program to End Modern Slavery FY 2023 | Office to Monitor-Combat Trafficking in Persons | 2099-01-01 | 0 | identified | grants.gov |
+| Notice of Intent:  Program to End Modern Slavery FY 2022 | Office to Monitor-Combat Trafficking in Persons | 2099-01-01 | 0 | identified | grants.gov |
+| Notice of Intent:  Program to End Modern Slavery FY 2025 | Office to Monitor-Combat Trafficking in Persons | 2099-01-01 | 0 | identified | grants.gov |
+| FY 2025 EDA Public Works and Economic Adjustment Assistance Programs | Economic Development Administration | — | 0 | identified | grants.gov |
+| ANNUAL PROGRAM STATEMENT - PUBLIC AFFAIRS ITALY | U.S. Mission to Italy | — | 0 | identified | grants.gov |
+| Biosensing | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Thermal Transport Processes | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| DOL-ETA Strengthening Community Colleges Training Grants — Round 7 | U.S. Department of Labor — Employment and Training Administration | — | 0 | watch_next_cycle | federal_dol |
+| Measurement Science and Engineering (MSE) Research Grant Programs | National Institute of Standards and Technology | — | 0 | identified | grants.gov |
+| Crosscutting Activities in Materials Research | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| U.S. Embassy Praia Ambassador&rsquo;s Special Self-Help (SSH) Program | U.S. Mission to Cape Verde | — | 0 | identified | grants.gov |
+| Atmosphere Cluster | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Geospace Cluster | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Environmental Sustainability | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Climate Program Office for FY 2012 | Department of Commerce | — | 0 | identified | grants.gov |
+| Mind, Machine and Motor Nexus | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Biophotonics | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| City of Austin — Bid & Solicitation Portal (recurring scan target) | City of Austin Purchasing Office | — | 0 | identified | city_austin |
+| Research Infrastructure in the Social and Behavioral Sciences | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Tactical Behaviors for Autonomous Maneuver | Dept of the Army -- Materiel Command | — | 0 | identified | grants.gov |
+| NSF National Innovation Corps Teams (NSF National I-Corps (TM) Teams) program | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Joint Center of Excellence for Advanced Materials Research | FAA-COE-JAMS | — | 0 | identified | grants.gov |
+| Research in the Formation of Engineers | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Economics | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Infrastructure Capacity for Biological Research | U.S. National Science Foundation | — | 0 | identified | grants.gov |
+| Mission Spain Public Diplomacy 2022 Annual Program Statement | U.S. Mission to Spain | — | 0 | identified | grants.gov |
+| Clean Energy to Communities (C2C) — NREL Technical Assistance | U.S. Department of Energy / NREL | — | 0 | identified | manual |
+| Research Interests of the United States Air Force Academy (formerly USAFA-BAA-2021) | Air Force Academy | — | 0 | identified | grants.gov |
+| (316 rows) | — | — | undefined | undefined | undefined |
+
+---
+
+## 8b. Expired (historical reference)
+
+**116 opportunities** whose deadlines have already passed. Kept in DB so we don't re-ingest duplicates next cycle and so we can study prior-award patterns. Re-check each one's renewal cycle when planning the same calendar window next year.
+
+| Title | Agency | Last Deadline | Fit | Source |
+|---|---|---|---|---|
+| Alumni Engagement Innovation Fund (AEIF) 2026 | U.S. Mission to Micronesia | 2026-05-17 | 0 | grants.gov |
+| Public Diplomacy  Commercial Partnerships and  Entrepreneurship Program | U.S. Mission to Kyrgyzstan | 2026-05-15 | 39 | grants.gov |
+| OJP FY 2026 Special Attorneys Program | Bureau of Justice Assistance | 2026-05-15 | 0 | grants.gov |
+| Community Health Aide Program: Tribal Planning and Implementation (TPI) | Indian Health Service | 2026-05-15 | 0 | grants.gov |
+| Make America Healthy Again &ndash; Enhancing Lifestyle and Evaluating Value-based Approaches Through Evidence | Center for Medicare and Medicaid Services | 2026-05-15 | 0 | grants.gov |
+| Coordinating Agricultural Development &amp; Innovation (CADI) Uzbekistan: U.S. Soy Marketing Promotion | Foreign Agricultural Service | 2026-05-14 | 0 | grants.gov |
+| Coordinating Agricultural Development &amp; Innovation (CADI) Armenia Exchanges: U.S. Food Safety Regulations and Standards Training Program | Foreign Agricultural Service | 2026-05-14 | 0 | grants.gov |
+| Fiscal Year 2026 University Nuclear Research Infrastructure Revitalization | Idaho Field Office | 2026-05-13 | 0 | grants.gov |
+| Scrap Fired Cartridges (Deformed) | DEPT OF DEFENSE.DEPT OF THE NAVY.USMC.MARCORP I&L.MARINE CORPS INSTALLATIONS COM | 2026-05-13 | 39 | samgov |
+| Grants for Adaptive Sports Programs for Disabled Veterans and Disabled Members of the Armed Forces | National Veterans Sports Programs | 2026-05-13 | 43 | grants.gov |
+| Training and Technical Assistance to Improve Water Quality and Enable Small Public Water Systems to Provide Safe Drinking Water | Environmental Protection Agency | 2026-05-13 | 39 | grants.gov |
+| IFB 33-6023 METALLIC AND NON-METALLIC SCRAP SALE, RED RIVER ARMY DEPOT, TEXARKANA,TX | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-13 | 0 | samgov |
+| MN USPFO -New Ulm- Scrap Metal Recycling | DEPT OF DEFENSE.DEPT OF THE ARMY.NATIONAL GUARD BUREAU.JFHQ USPFO MN.USPFO MN PR | 2026-05-13 | 0 | samgov |
+| BJA FY25 Byrne State Crisis Intervention Formula Program | Bureau of Justice Assistance | 2026-05-12 | 39 | grants.gov |
+| NIJ FY25 Research and Evaluation on Violence Against Women | National Institute of Justice | 2026-05-11 | 39 | grants.gov |
+| FY 2026 Young Southeast Asian Leaders Initiative (YSEALI) Academic Fellows Program | Bureau Of Educational and Cultural Affairs | 2026-05-11 | 0 | grants.gov |
+| FY 2026 Study of the U.S. Institutes for Scholars | Bureau Of Educational and Cultural Affairs | 2026-05-11 | 0 | grants.gov |
+| Fueling AI Innovation and Adoption | Bureau of Cyberspace and Digital Policy | 2026-05-11 | 0 | grants.gov |
+| Alumni Engagement Innovation Fund 2026 | U.S. Mission to Indonesia | 2026-05-10 | 0 | grants.gov |
+| Crane Indiana Usable Asphalt Wax Blend 33-6030 | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-05-09 | 0 | samgov |
+| BJA FY25 National Center on Restorative Justice | Bureau of Justice Assistance | 2026-05-08 | 51 | grants.gov |
+| Alumni Engagement Innovation Fund 2026 Call For Proposals | U.S. Mission to Barbados | 2026-05-08 | 0 | grants.gov |
+| Translational Research in Maternal and Pediatric Pharmacology and Therapeutics (R01 Clinical Trial Optional) | National Institutes of Health | 2026-05-07 | 67 | grants.gov |
+| Translational Research in Maternal and Pediatric Pharmacology and Therapeutics (R21 Clinical Trial Optional) | National Institutes of Health | 2026-05-07 | 67 | grants.gov |
+| Roadside Pollinators Program (RPP) FYs 2023 and 2026 | DOT Federal Highway Administration  | 2026-05-07 | 0 | grants.gov |
+| BJA FY25 Invited to Apply &ndash;  Prison Rape Elimination Act Resource Center | Bureau of Justice Assistance | 2026-05-06 | 0 | grants.gov |
+| BJA FY25 Invited to Apply &ndash; Sexual Assault Kit Initiative (SAKI) Training and Technical Assistance (TTA) Program | Bureau of Justice Assistance | 2026-05-06 | 0 | grants.gov |
+| BJA FY25 Invited to Apply - Justice Information Sharing Training and Technical Assistance Program (RISS Support) | Bureau of Justice Assistance | 2026-05-06 | 0 | grants.gov |
+| BJA FY 25 Invited to Apply - Tribal Justice Training and Technical Assistance Program | Bureau of Justice Assistance | 2026-05-06 | 0 | grants.gov |
+| Grants for Transportation in Highly Rural Areas | VHA Member Services-Veterans Transportation  | 2026-05-05 | 0 | grants.gov |
+| Grants for Transportation in Highly Rural Areas | VHA Member Services-Veterans Transportation  | 2026-05-05 | 0 | grants.gov |
+| BJA FY25 Comprehensive Opioid, Stimulant, and Substance Use, Site-Based Program | Bureau of Justice Assistance | 2026-05-04 | 43 | grants.gov |
+| Community Reentry Settings Initiative | National Institute of Corrections | 2026-05-04 | 51 | grants.gov |
+| Housing-Related Hazards and Lead-Based Paint Capital Fund Program | Department of Housing and Urban Development | 2026-05-04 | 39 | grants.gov |
+| BJA FY25 Upholding the Rule of Law and Preventing Wrongful Convictions Program | Bureau of Justice Assistance | 2026-05-04 | 0 | grants.gov |
+| Alumni Engagement Innovation Fund Notice of Funding Opportunity (Latvia) | U.S. Mission to Latvia | 2026-05-04 | 0 | grants.gov |
+| Small Community Air Service Development Program | 69A345 Office of the Under Secretary for Policy | 2026-05-04 | 0 | grants.gov |
+| BJS FY25 National Prison Rape Statistics Program (NPRSP) Assessment | Bureau of Justice Statistics | 2026-05-04 | 0 | grants.gov |
+| BJA FY25 Second Chance Act Community-based Reentry Program | Bureau of Justice Assistance | 2026-05-04 | 96 | grants.gov |
+| OJJDP FY25 National Mentoring Resource Center | Office of Juvenile Justice Delinquency Prevention  | 2026-05-04 | 39 | grants.gov |
+| Alumni Engagement Innovation Fund (AEIF) | U.S. Mission to Belarus | 2026-05-04 | 0 | grants.gov |
+| BJA FY25 Second Chance Act Improving Reentry Education and Employment Outcomes | Bureau of Justice Assistance | 2026-05-04 | 100 | grants.gov |
+| Foundations for Digital Twins as Catalyzers of Biomedical Technological Innovation | U.S. National Science Foundation | 2026-05-04 | 0 | grants.gov |
+| BJA FY25 Residential Substance Abuse Treatment (RSAT) for State Prisoners Training and Technical Assistance Program | Bureau of Justice Assistance | 2026-05-04 | 39 | grants.gov |
+| OJJDP FY25 Family-Based Alternative Justice | Office of Juvenile Justice Delinquency Prevention  | 2026-05-04 | 39 | grants.gov |
+| BJA FY25 Second Chance Act Family-Based Substance Use Disorder Treatment Program | Bureau of Justice Assistance | 2026-05-04 | 100 | grants.gov |
+| 2026 Alumni Engagement Innovation Fund (AEIF 2026) | U.S. Mission to Equatorial Guinea | 2026-05-04 | 0 | grants.gov |
+| Innovative Research in Cancer Nanotechnology (IRCN; R01 Clinical Trial Not Allowed) | National Institutes of Health | 2026-05-04 | 0 | grants.gov |
+| U.S. Embassy Rangoon AEIF 2026 Grants Competition | U.S. Mission to Myanmar | 2026-05-03 | 0 | grants.gov |
+| Alumni Engagement Innovation Fund 2026, Estonia | U.S. Mission to Estonia | 2026-05-01 | 0 | grants.gov |
+| OVC FY26 Invited to Apply Antiterrorism and Emergency Assistance Program for Crime Victim Compensation and/or Assistance &ndash; Winder, GA  | Office for Victims of Crime | 2026-05-01 | 67 | grants.gov |
+| FY 2026 National Security Language Initiative for Youth (NSLI-Y) | Bureau Of Educational and Cultural Affairs | 2026-05-01 | 0 | grants.gov |
+| FY 2026 J. Christopher Stevens Virtual Exchange Initiative   (JCSVEI) Program | Bureau Of Educational and Cultural Affairs | 2026-05-01 | 0 | grants.gov |
+| U.S. Embassy Sofia PDS Alumni Engagement Innovation Fund (AEIF 2026) | U.S. Mission to Bulgaria | 2026-05-01 | 0 | grants.gov |
+| Alumni Engagement Innovation Fund 2026 - Mexico | U.S. Mission to Mexico | 2026-04-30 | 0 | grants.gov |
+| FY26-Supp #1-Northeast Corridor Cooperative Agreement to the National Railroad Passenger Corporation | DOT - Federal Railroad Administration | 2026-04-30 | 0 | grants.gov |
+| FUEL OIL RECLAIM (FOR) SALE RFP # SPE605-26-R-1000 AT PEARL HARBOR, HI | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA ENERGY.DLA ENERGY | 2026-04-30 | 0 | samgov |
+| 2026 Alumni Engagement Innovation Fund (AEIF) | U.S. Mission to Rwanda | 2026-04-30 | 0 | grants.gov |
+| OJJDP FY25 Title II Formula Grants Program Training and Technical Assistance Center | Office of Juvenile Justice Delinquency Prevention  | 2026-04-30 | 0 | grants.gov |
+| OJJDP FY25 Nonparticipating States: Connecticut, Texas, and Wyoming | Office of Juvenile Justice Delinquency Prevention  | 2026-04-30 | 0 | grants.gov |
+| Willamette Valley Project (WVP) 2026 NRM Education and Training of Botanically Sophisticated Restoration Workers | USACE Portland District | 2026-04-30 | 39 | grants.gov |
+| GPO 4 Color Press Surplus Sale | UNITED STATES GOVERNMENT PUBLISHING OFFICE.UNITED STATES GOVERNMENT PUBLISHING O | 2026-04-29 | 0 | samgov |
+| Sale of Recyclable Lead-Acid Batteries | DEPT OF DEFENSE.DEPT OF THE ARMY.NATIONAL GUARD BUREAU.JFHQ USPFO MN.USPFO MN PR | 2026-04-29 | 0 | samgov |
+| Gates Foundation AI for Charitable Giving | Bill & Melinda Gates Foundation | 2026-04-28 | 92 | manual |
+| Capital Improvements for At-Risk/Receivership/Substandard/Troubled PHAs | Department of Housing and Urban Development | 2026-04-28 | 0 | grants.gov |
+| OJJDP FY25 Title II Formula Grants Program | Office of Juvenile Justice Delinquency Prevention  | 2026-04-27 | 0 | grants.gov |
+| BJA FY25 Second Chance Act Pay for Success Initiative | Bureau of Justice Assistance | 2026-04-27 | 69 | grants.gov |
+| BJA FY25 Veterans Treatment Court Program | Bureau of Justice Assistance | 2026-04-27 | 39 | grants.gov |
+| OJJDP FY25 Juvenile Drug Treatment Court Program | Office of Juvenile Justice Delinquency Prevention  | 2026-04-27 | 0 | grants.gov |
+| 33-6021 Crane Indiana Usable Asphalt Wax Blend | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-04-25 | 0 | samgov |
+| Office of Special Education and Rehabilitative Services (OSERS): Rehabilitation Services Administration (RSA): Parent Information and Traini | Department of Education | 2026-04-24 | 43 | grants.gov |
+| NBCUniversal Local Impact Grants 2026 | Comcast NBCUniversal / NBC DFW (KXAS) | 2026-04-24 | 67 | localimpactgrants.com |
+| TWC RFA 32026-00162 — Workforce Readiness Training for CTE Students II | Texas Workforce Commission | 2026-04-23 | 39 | manual |
+| CY 2025 Small Business Development Center Program | Small Business Administration | 2026-04-22 | 39 | grants.gov |
+| 2026 Community Wood Energy and Wood Innovation Program | Forest Service | 2026-04-22 | 0 | grants.gov |
+| Value-Added Producer Grant | Rural Business-Cooperative Service  | 2026-04-22 | 0 | grants.gov |
+| OVC FY26 Invited to Apply Antiterrorism and Emergency Assistance Program for Crime Victim Compensation and/or Assistance - Pennsylvania | Office for Victims of Crime | 2026-04-21 | 67 | grants.gov |
+| 31-6001 Djibouti Trucks | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-04-21 | 0 | samgov |
+| BJA FY25 Edward Byrne Memorial Justice Assistance Grant (JAG) Program &ndash; Local Formula | Bureau of Justice Assistance | 2026-04-21 | 0 | grants.gov |
+| Children Mental Health Initiative (CMHI) FY2026 | SAMHSA | 2026-04-20 | 74 | manual |
+| BJA FY25 Residential Substance Abuse Treatment for State Prisoners &ndash; Formula Grants Program | Bureau of Justice Assistance | 2026-04-20 | 39 | grants.gov |
+| BJA FY25 Public Safety and Mental Health Initiative Training and Technical Assistance | Bureau of Justice Assistance | 2026-04-20 | 39 | grants.gov |
+| Google.org AI for Science | Google.org | 2026-04-17 | 100 | manual |
+| Freedom 250: Kazakhstan Youth Leadership Camp | U.S. Mission to Kazakhstan | 2026-04-17 | 0 | grants.gov |
+| Wildfire Smoke Preparedness in Community Buildings | Environmental Protection Agency | 2026-04-15 | 39 | grants.gov |
+| ⭐ PRIORITY: TWC RFA 32026-00162 — Workforce Readiness Training for CTE Students II | Texas Workforce Commission (State of Texas) | 2026-04-14 | 61 | state_texas |
+| Drug-Free Communities (DFC) Support Program &ndash; COMPETING CONTINUATION (Year 6) | Centers for Disease Control - NCIPC | 2026-04-14 | 0 | grants.gov |
+| Drug-Free Communities (DFC) Support Program &ndash; NEW (Year 1) | Centers for Disease Control - NCIPC | 2026-04-14 | 0 | grants.gov |
+| Advanced Rehabilitation Research Training (ARRT) Program - Health and Function | Administration for Community Living | 2026-04-13 | 0 | grants.gov |
+| Field Initiated Projects Program: Minority-Serving Institutions (MSI) - Development | Administration for Community Living | 2026-04-13 | 0 | grants.gov |
+| Advanced Rehabilitation Research Training (ARRT) Program - Community Living and Participation | Administration for Community Living | 2026-04-13 | 0 | grants.gov |
+| Senior Medicare Patrol State Project Grants - Pennsylvania | Administration for Community Living | 2026-04-13 | 0 | grants.gov |
+| Research on Structural Violence and Community Violence Advancing Health Equity | Black & Brown Collective for Community Solutions to Gun Violence | 2026-04-13 | 59 | thebbcollective.org |
+| Advanced Rehabilitation Research Training (ARRT) Program - Employment | Administration for Community Living | 2026-04-13 | 39 | grants.gov |
+| Field Initiated Projects Program: Minority-Serving Institutions (MSI) -Research | Administration for Community Living | 2026-04-13 | 0 | grants.gov |
+| ⭐ PRIORITY: Rare Impact Fund — Strengthening the Nonclinical Youth Mental Health Workforce | Rare Impact Fund (Selena Gomez, $100M Initiative) | 2026-04-10 | 100 | foundation |
+| ⭐ PRIORITY: TWC RFA 32026-00162 — Skills Development Fund | Texas Workforce Commission (State of Texas) | 2026-04-10 | 65 | state_texas |
+| Rare Impact Fund — Youth Workforce Readiness | Rare Impact Fund | 2026-04-10 | 39 | manual |
+| BJA FY25 Tribal Justice Infrastructure: Physical Plant and Corrections Operations Support Program | Bureau of Justice Assistance | 2026-04-10 | 0 | grants.gov |
+| BJA FY26 Bridging Immigration-Related Deficits Experienced Nationwide Program: District of Columbia Safe Housing Camera Program Invitation t | Bureau of Justice Assistance | 2026-04-09 | 0 | grants.gov |
+| BJA FY25 Edward Byrne Memorial Justice Assistance Grant (JAG) Program &ndash; State Formula | Bureau of Justice Assistance | 2026-04-07 | 0 | grants.gov |
+| ⭐ PRIORITY: PM C2 Transport — Capability Statement Solicitation (Army PEO C3T) | U.S. Army / PEO C3T (Program Executive Office Command, Control & Communications- | 2026-04-03 | 73 | federal_dod |
+| BJA FY25 Smart Reentry Demonstration Program | Bureau of Justice Assistance | 2026-04-01 | 51 | grants.gov |
+| Tribal Colleges and Universities Program | U.S. National Science Foundation | 2026-04-01 | 0 | grants.gov |
+| IFB 33-6003 HM Sales Used Pole Mount Transformers, Selfridge ANGB, MI | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-04-01 | 0 | samgov |
+| IFB 33-6012 HM Sales Used Pad Mount Transformer Sale, Selfridge ANGB, MI | DEPT OF DEFENSE.DEFENSE LOGISTICS AGENCY.DLA DISPOSITION SERVICES.DLA DISPOSITIO | 2026-04-01 | 0 | samgov |
+| Fiscal Year (FY) 2026 AmeriCorps State and National Competitive Grants | AmeriCorps | 2026-03-31 | 0 | grants.gov |
+| Fiscal Year (FY) 2026 National Technical Assistance Programs (NTAP) Cooperative Agreements | Health Resources and Services Administration | 2026-03-31 | 0 | grants.gov |
+| NRL Long Range Broad Agency Announcement (BAA) for Basic and Applied Research | Naval Research Laboratory | 2026-03-31 | 39 | grants.gov |
+| OJJDP FY25 Second Chance Act Addressing the Needs of Incarcerated Parents and Their Minor Children | Office of Juvenile Justice Delinquency Prevention  | 2026-03-30 | 69 | grants.gov |
+| OJJDP FY25 Victims of Child Abuse Act Training and Technical Assistance for Child Abuse Prosecutors | Office of Juvenile Justice Delinquency Prevention  | 2026-03-30 | 39 | grants.gov |
+| BJA FY25 Public Safety and Mental Health Initiative | Bureau of Justice Assistance | 2026-03-30 | 39 | grants.gov |
+| Managing Restrictive Housing Populations Training | National Institute of Corrections | 2026-03-27 | 0 | grants.gov |
+| Veterans Legacy Grants Program | Veterans Legacy Grants Program | 2026-03-27 | 39 | grants.gov |
+| Fiscal Year (FY) 2026 AmeriCorps Seniors RSVP Competition | AmeriCorps | 2026-03-26 | 0 | grants.gov |
+| (115 rows) | — | — | undefined | undefined |
 
 ---
 

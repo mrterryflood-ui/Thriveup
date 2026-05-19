@@ -76,6 +76,8 @@ md += `5. [High-fit identified opportunities (fit ≥ 80)](#5-high-fit-identifie
 md += `6. [Mid-fit identified opportunities (fit 60–79)](#6-mid-fit-identified-fit-6079)\n`;
 md += `7. [Marginal-fit identified opportunities (fit 50–59)](#7-marginal-fit-identified-fit-5059)\n`;
 md += `8. [Drafts written — complete inventory](#8-drafts-written--complete-inventory)\n`;
+md += `8a. [Low-fit & unscored backlog (fit 1–49 + null)](#8a-low-fit-identified-fit-149-and-unscored)\n`;
+md += `8b. [Expired (historical reference)](#8b-expired-historical-reference)\n`;
 md += `9. [Recent rescore decisions (2026-05-19)](#9-recent-rescore-decisions-2026-05-19)\n`;
 md += `10. [Iron Rule gaps — primary-source verification still owed](#10-iron-rule-gaps)\n\n`;
 
@@ -155,6 +157,43 @@ for (const g of Object.keys(groups).sort()) {
   }
   md += `\n`;
 }
+
+// Low-fit (under 50, not expired) + Expired full appendices
+const lowDump = readFileSync("/tmp/grants_low.txt", "utf8").trim().split("\n");
+const lowHeader = lowDump.shift();
+const lowRows = lowDump.map((line) => {
+  const [title, agency, deadline, fit, status, source, url] = line.split("|");
+  return { title, agency, deadline, fit, status, source, url };
+});
+
+const expDump = readFileSync("/tmp/grants_expired.txt", "utf8").trim().split("\n");
+expDump.shift();
+const expRows = expDump.map((line) => {
+  const [title, agency, deadline, fit, source, url] = line.split("|");
+  return { title, agency, deadline, fit, source, url };
+});
+
+md += `---\n\n## 8a. Low-fit identified (fit 1–49) and unscored\n\n`;
+md += `**${lowRows.length} opportunities.** Captured by automated grants.gov / SAM.gov / USAspending ingestion. Most are auto-scored 0 because the scorer hasn't been run against them yet — they are not actually irrelevant, they are unreviewed. Treat as the raw backlog to triage when capacity allows.\n\n`;
+md += `| Title | Agency | Deadline | Fit | Status | Source |\n|---|---|---|---|---|---|\n`;
+for (const r of lowRows) {
+  const title = (r.title || "—").replace(/\|/g, "\\|").slice(0, 140);
+  const agency = (r.agency || "—").replace(/\|/g, "\\|").slice(0, 80);
+  const fit = r.fit === "" ? "—" : r.fit;
+  md += `| ${title} | ${agency} | ${r.deadline || "—"} | ${fit} | ${r.status} | ${r.source} |\n`;
+}
+md += `\n`;
+
+md += `---\n\n## 8b. Expired (historical reference)\n\n`;
+md += `**${expRows.length} opportunities** whose deadlines have already passed. Kept in DB so we don't re-ingest duplicates next cycle and so we can study prior-award patterns. Re-check each one's renewal cycle when planning the same calendar window next year.\n\n`;
+md += `| Title | Agency | Last Deadline | Fit | Source |\n|---|---|---|---|---|\n`;
+for (const r of expRows) {
+  const title = (r.title || "—").replace(/\|/g, "\\|").slice(0, 140);
+  const agency = (r.agency || "—").replace(/\|/g, "\\|").slice(0, 80);
+  const fit = r.fit === "" ? "—" : r.fit;
+  md += `| ${title} | ${agency} | ${r.deadline || "—"} | ${fit} | ${r.source} |\n`;
+}
+md += `\n`;
 
 md += `---\n\n## 9. Recent rescore decisions (2026-05-19)\n\n`;
 md += `Nine ED grants and four DOE additions rescored against actual capability stack. Memory of every shift:\n\n`;
