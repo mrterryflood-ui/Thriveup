@@ -2070,3 +2070,38 @@ City of Houston Health Department / Community Reentry Network Program (CRNP) Hou
 Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Section D.
 
 **Adjacent lane (not pursued):** a Houston-based reentry housing nonprofit that wins this contract could subcontract our Justice + reentry coordination stack (RNR/CBI/NRRC, service-log automation, MBK Redirect integration) as their back-office. Not initiated; user can re-open if a target nonprofit surfaces.
+
+## 2026-05-18 (PM) — AISD 26RFP052 Youth & Family Enrichment Services — bid package drafted
+
+**Deadline:** 2026-05-19 at 2:00 PM CST · **Submission:** Bonfire portal `https://austinisd.bonfirehub.com/portal/`
+**Type:** Vendor-pool / approved-list, Pass/Fail eval, multiple-award, term through 2031-06-30 (5-year approved list).
+**Categories bid:** Enrichment · Family Engagement · College & Career Readiness (skipped Academic Assistance — tutoring excluded per RFP).
+**Package location:** `docs/grants/aisd-26rfp052/` (4 MD + 4 PDF).
+
+**Drafting decisions made:**
+- Bid as TCAF (501(c)(3) determined 01/14/2026), not ISS LLC. AISD is K-12 enrichment, federal/state pass-through funded.
+- d/b/a "ThriveUp Academy" used as program-division name on the response.
+- Sample unit plan drawn from Software Engineering Trade Sims track (3 of 15 lessons) — first unit "How the Computer Hears You" with anchor phrase "anybody can vibe code, you have to know how the system works to make vibecoding work."
+- TEKS crosswalks named explicitly (§126.32, §126.33, §126.7, §127, §111, §112) per RFP Section V.B.3 requirement.
+- LEP framing led with our 89 spoken + 18 sign + 6 learning surfaces against AISD's 28.1% ELL student population.
+- Family Engagement explicitly mapped to all 6 National PTA Standards.
+- Best-practice basis cited: DoEd "What Works" Clearinghouse OST, Harvard Family Research Project, Weikart YPQ, NPTA Standards, CFIR/RE-AIM.
+- Pricing not-to-exceed structure for all 3 categories with Title I priority discount, multi-block discount, multi-campus discount. Sliding scale framework documented.
+- Meredith Sisnett kept off the response (defaulted safe — Austin ISD is a separate entity from City of Austin, but adjacent enough that we did not list her).
+- Insurance confirmed not required at proposal submission; COI required only before any campus work. Required policies: GL $1M/$2M + SAM $100K + Professional $1M + WC at TX statutory + Auto $1M only if transporting (we will not).
+
+**User must complete before 2:00 PM CST tomorrow:**
+1. Phone number in Bid Cert + Proposal Response Form vendor info
+2. Fill 3 references (last 24 months, willing to vouch for Dr. Flood / TCAF / predecessor work)
+3. Sign all 4 PDF forms (Bid Cert, Criminal History, Debarment, EDGAR Addendum)
+4. Submit CIQ online at `https://www.austinisd.org/cp/ciq-online` (electronic only, not PDF)
+5. Upload to Bonfire: Proposal Response Form + Sample Unit Plan as PROPOSAL RESPONSE ATTACHMENTS · 4 signed forms as REQUIRED FORMS
+6. Save submission confirmation email
+
+**Iron Rule notes for this package:**
+- All platform claims (90 lessons, 6 trades, 89+18 languages, 39 CFIR constructs) sourced from this codebase as of 2026-05-18.
+- 3 references will be supplied by user — not invented.
+- No felony disclosure box pre-checked; verified with user before signing.
+- TCAF SAM ACTIVE through 2027-05-06 (UEI KDDVD1FGLW35, CAGE 209N1) — debarment certification has a valid anchor.
+
+Logged in pipeline `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Section B.
