@@ -2083,7 +2083,14 @@ Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Secti
 
 **Smart Family Fund LinkedIn post (Molly Schultz Hafid, IMG attachment):** NOT new — we submitted Pitch C 2026-05-17. Decision window Nov 2026. Post confirms our pitch landed in active intake window.
 
-**Partial Harris/Travis/Walker counties grant (IMG_7718 top, funder name cut off):** Travis County = us. Likely Houston-area family foundation. **Need user to surface funder name before insertion (Iron Rule — no guessing).**
+**Partial Harris/Travis/Walker counties grant (IMG_7718 top, funder name cut off):** ✅ RESOLVED 2026-05-19 PM via follow-up screenshot — funder is **The Powell Foundation**. Inserted at fit 60.
+
+**Second screenshot batch (3 more from same roundup, screenshot IMG image_1779234555596.png):**
+- ✅ **Joe & Jess Crump Foundation — Children with Disabilities & Cancer Research Grants** (deadline 2026-05-31, fit 78) — INSERTED `identified`. **USER-FLAGGED FOR RPLICE ALIGNMENT.** Concept paper drafted at `docs/grants/crump-foundation-2026/01-concept-paper.md`. Two-prong honest framing: TCAF leads Prong A (children with disabilities — Perfectly Different + Talk Your Talk + ThriveUp Academy + LifeBridge + Whole-Person Health, all direct capability); offers Prong B (cancer research) as an RPLICE implementation-partnership lane for a Texas pediatric oncology research team, NOT as a pretend wet-lab cancer-research program. Iron Rule: budget cap and page limit blank until primary-source verified.
+- ✅ **The Powell Foundation — Harris/Travis/Walker Counties Grants** (5/31, fit 60) — INSERTED `identified`. Travis County eligible. Education + human services prongs = ThriveUp Academy + LifeBridge direct fit; arts and conservation not our lane.
+- ❌ **Hancock Whitney — Southeast Texas Grants** (5/31, fit 25) — INSERTED `identified`. Wrong geography (Houston/Beaumont/Golden Triangle). Only pursue with SE-Texas-based partner as lead/named subrecipient.
+
+**🚨 SYSTEM BUG observed 2026-05-19 PM (logged for follow-up):** The auto-discovery cron upserts `fit_score` on duplicate-row matches, overwriting manually set fit scores (Rosendin 80→39, Seawell 60→39, Luse 15→39, etc.). Status field survives correctly (dismissed stayed dismissed). Manually restored scores via SQL UPDATE. Need to find the upsert site (likely in `server/grant-routes.ts` discovery loop) and add a guard so manual scores are sticky — possibly via a `manual_score` flag column, or by only upserting `fit_score` when current value IS NULL. Filed as a follow-up.
 
 **Front-end fixes shipped (server/grant-routes.ts):**
 - `/api/grants/this-week` Upcoming Deadlines: was showing SAM.gov procurement noise ("Metallic Scrap Sale, Qatar") because filter was only on `createdAt` last 7 days. Now queries deadlines in next 60 days at fit ≥ max(50, minFit), excludes expired/dismissed. Limit 15. Verified live: top deadline is now "Building EPSCoR-State/National Laboratory Partnerships."

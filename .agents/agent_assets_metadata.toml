@@ -539,3 +539,9 @@ id = "k8xVPvy3cllE9Yg25iRzv"
 uri = "file://docs/grants/rosendin-foundation-2026/01-concept-paper.md"
 type = "text"
 title = "Rosendin Foundation Concept Paper (DRAFT v0.1)"
+
+[[outputs]]
+id = "rNleO72NFNsUaOKysMI9g"
+uri = "file://docs/grants/crump-foundation-2026/01-concept-paper.md"
+type = "text"
+title = "Joe & Jess Crump Foundation Concept Paper - RPLICE angle (DRAFT v0.1)"
