@@ -4,7 +4,7 @@ import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySc
 import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
-import { eq, desc, sql, gte, lte, and, or, ilike } from "drizzle-orm";
+import { eq, desc, sql, gte, lte, and, or, ilike, notInArray } from "drizzle-orm";
 import { generateAIResponse, streamAIResponse } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
 import PDFDocument from "pdfkit";
@@ -3740,10 +3740,28 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         else lowFit++;
       }
 
-      const upcomingDeadlines = rows
-        .filter(r => r.deadline && new Date(r.deadline).getTime() > Date.now())
-        .sort((a, b) => new Date(a.deadline!).getTime() - new Date(b.deadline!).getTime())
-        .slice(0, 10);
+      // Upcoming deadlines: query independently of the "new in last N days"
+      // window. Show grants with real deadlines in the next 60 days, fit >= 50,
+      // and not expired/dismissed/superseded. Otherwise SAM.gov procurement
+      // noise (e.g. "Metallic Scrap Sale, Qatar") dominates the panel.
+      const sixtyDays = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000);
+      const deadlineFloor = Math.max(50, minFit);
+      const deadlineRows = await db.select().from(grantOpportunities)
+        .where(and(
+          gte(grantOpportunities.deadline, new Date()),
+          lte(grantOpportunities.deadline, sixtyDays),
+          gte(grantOpportunities.fitScore, deadlineFloor),
+          notInArray(grantOpportunities.status, ["expired", "dismissed", "superseded_duplicate", "discontinued_invitation_only"]),
+        ))
+        .orderBy(grantOpportunities.deadline)
+        .limit(15);
+
+      // Persist last-write timestamp so "Last run" survives process restarts.
+      const lastWriteRow = await db.select({ ts: grantOpportunities.createdAt })
+        .from(grantOpportunities)
+        .orderBy(desc(grantOpportunities.createdAt))
+        .limit(1);
+      const lastDbWrite = lastWriteRow[0]?.ts || null;
 
       res.json({
         windowDays: days,
@@ -3751,12 +3769,12 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         totalNew: rows.length,
         bySource: totalsBySource,
         fitDistribution: { high: highFit, medium: mediumFit, low: lowFit },
-        upcomingDeadlines: upcomingDeadlines.map(g => ({
+        upcomingDeadlines: deadlineRows.map(g => ({
           id: g.id, title: g.title, agency: g.agency, deadline: g.deadline,
           fitScore: g.fitScore, sourceUrl: g.sourceUrl,
         })),
         opportunities: rows,
-        lastDiscoveryRun: lastDailyDiscoveryRun?.toISOString() || null,
+        lastDiscoveryRun: lastDailyDiscoveryRun?.toISOString() || (lastDbWrite ? new Date(lastDbWrite).toISOString() : null),
       });
     } catch (error) {
       console.error("Error in GET /api/grants/this-week", error);
