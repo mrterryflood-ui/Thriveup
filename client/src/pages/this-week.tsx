@@ -91,6 +91,13 @@ const FUNDER_DECISIONS_PENDING = [
     silenceWindow: "—",
     note: "WAB2 LOI declined 2026-05-15 (Regan Gruber Moffitt). Still a target via Community Health Grants cycles. Status: 'actively evaluating' — never 'in review' anywhere in pipeline.",
   },
+  {
+    name: "🎯 Federal pursuit selection needed — ED + DOE (rescored 2026-05-19)",
+    submittedDate: "decision-pending",
+    decisionWindow: "user selects this week",
+    silenceWindow: "—",
+    note: "ED rescores: Promise Neighborhoods 84.215N → 88 (Chainweb-perfect, needs LEA partner) · OSERS-OSEP 84.325J → 82 (Trade Sims + Perfectly Different, eligibility caveat) · TEA Community Partnership → 67 · Innovative Approaches to Literacy 84.215G → 62 (Talk Your Talk fit, track-record gap) · AEFLA → 22 (state pass-through) · CAMP 84.149A → 15 · Ready To Learn → 20. DOE adds: Energy Auditor Training → 80 · Inclusive Energy Innovation Prize → 78 · Communities LEAP → 75 · C2C NREL → 70. Action: user picks pursuit set + supplies exact NOFO requirements; agent then writes grant_reminders rows tied to each selected grant_id and surfaces them here every Monday until submitted.",
+  },
 ];
 
 const STRATEGIC_DIMENSIONS = [
