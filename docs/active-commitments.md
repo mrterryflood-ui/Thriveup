@@ -2105,3 +2105,15 @@ Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Secti
 - TCAF SAM ACTIVE through 2027-05-06 (UEI KDDVD1FGLW35, CAGE 209N1) — debarment certification has a valid anchor.
 
 Logged in pipeline `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Section B.
+
+## 2026-05-18 (PM, parked) — SBA combined 7(a)/504 $10M ceiling
+
+User flagged the new SBA rule effective 2026-07-04 doubling the combined 7(a) + 504 ceiling to $10M ($5M each, decoupled balances). Per SBA Administrator Kelly Loeffler announcement, applies to small businesses across all industries.
+
+**Eligibility read:**
+- TCAF (501(c)(3)) — NOT eligible. SBA 7(a) and 504 are for-profit-only per SBA SOP 50 10.
+- ISS LLC (Dr. Flood's for-profit, EIN 87-2795417, UEI C7YDV3P8EHL7, CAGE 9VKK3, SAM Active to 2027-03-30) — likely eligible IF it meets SBA size standard for its NAICS and has a viable use-of-funds story.
+
+**Parked for after AISD ships (2026-05-19 PM):** explore ISS LLC use-of-funds scenarios (working capital line via 7(a); owner-occupied building or major equipment via 504); identify SBA lenders that handle education/tech NAICS codes; confirm SBA size standard for chosen NAICS.
+
+NOT URGENT — rule takes effect 2026-07-04, applications can start then.
