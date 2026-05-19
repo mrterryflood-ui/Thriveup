@@ -2071,7 +2071,13 @@ Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Secti
 
 **Adjacent lane (not pursued):** a Houston-based reentry housing nonprofit that wins this contract could subcontract our Justice + reentry coordination stack (RNR/CBI/NRRC, service-log automation, MBK Redirect integration) as their back-office. Not initiated; user can re-open if a target nonprofit surfaces.
 
-## 2026-05-18 (PM) — AISD 26RFP052 Youth & Family Enrichment Services — bid package drafted
+## 2026-05-19 — AISD 26RFP052 — PASSED (user decision)
+
+**Decision:** User passed on submission 2026-05-19 evening. Package remains archived in `docs/grants/aisd-26rfp052/` (4 MD + 4 PDF) for future AISD cycles. No submission to Bonfire portal.
+**Why parked:** User judgment call on capacity / timing; substantive package was ready (CIQ, references, signatures pending).
+**Carry-forward value:** Software Engineering Trade Sims Unit 1 + 3 lessons with TEKS crosswalks; LEP framing using 89+18+6 against AISD 28.1% ELL; Family Engagement → NPTA 6 Standards crosswalk; best-practice basis (DoEd WWC OST, Harvard Family Research Project, Weikart YPQ, NPTA, CFIR/RE-AIM). All reusable for next AISD cycle or other K-12 enrichment RFPs.
+
+## 2026-05-18 (PM) — AISD 26RFP052 Youth & Family Enrichment Services — bid package drafted (ARCHIVED — see 2026-05-19 pass)
 
 **Deadline:** 2026-05-19 at 2:00 PM CST · **Submission:** Bonfire portal `https://austinisd.bonfirehub.com/portal/`
 **Type:** Vendor-pool / approved-list, Pass/Fail eval, multiple-award, term through 2031-06-30 (5-year approved list).
