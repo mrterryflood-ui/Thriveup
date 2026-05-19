@@ -2071,6 +2071,24 @@ Logged in `docs/partners/investech/03-Opportunities-Currently-Tracking.md` Secti
 
 **Adjacent lane (not pursued):** a Houston-based reentry housing nonprofit that wins this contract could subcontract our Justice + reentry coordination stack (RNR/CBI/NRRC, service-log automation, MBK Redirect integration) as their back-office. Not initiated; user can re-open if a target nonprofit surfaces.
 
+## 2026-05-19 (PM) — OneStar TX funder roundup triaged + Rosendin concept drafted
+
+**6 funders evaluated from user's forwarded OneStar Foundation TX roundup (screenshots IMG_7717-7719):**
+- ✅ **Rosendin Foundation** (deadline 2026-05-31, fit 80) — INSERTED `identified`. Austin + Pflugerville explicitly in eligible cities. Concept paper drafted at `docs/grants/rosendin-foundation-2026/01-concept-paper.md`. Pending primary-source verification at `rosendinfoundation.org` for budget cap, page limit, attachments.
+- 🟡 **Seawell Elam Foundation** (5/22, fit 60) — INSERTED `identified`. Tight 3-day window; only 1 of 3 program prongs (poverty+education) is our lane.
+- 🟡 **Texas Health Resources DFW** (5/29, fit 35) — INSERTED `identified`. Wrong geography; only pursue with DFW partner.
+- ❌ **Mabee Foundation** (6/1, fit 5) — INSERTED `dismissed`. Capital/construction/equipment only.
+- ❌ **Gulf Coast Medical Foundation** (6/1, fit 15) — INSERTED `dismissed`. Wharton/FB/Matagorda geography only.
+- ❌ **W.P. & Bulah Luse Foundation** (6/1, fit 15) — INSERTED `dismissed`. Dallas only.
+
+**Smart Family Fund LinkedIn post (Molly Schultz Hafid, IMG attachment):** NOT new — we submitted Pitch C 2026-05-17. Decision window Nov 2026. Post confirms our pitch landed in active intake window.
+
+**Partial Harris/Travis/Walker counties grant (IMG_7718 top, funder name cut off):** Travis County = us. Likely Houston-area family foundation. **Need user to surface funder name before insertion (Iron Rule — no guessing).**
+
+**Front-end fixes shipped (server/grant-routes.ts):**
+- `/api/grants/this-week` Upcoming Deadlines: was showing SAM.gov procurement noise ("Metallic Scrap Sale, Qatar") because filter was only on `createdAt` last 7 days. Now queries deadlines in next 60 days at fit ≥ max(50, minFit), excludes expired/dismissed. Limit 15. Verified live: top deadline is now "Building EPSCoR-State/National Laboratory Partnerships."
+- `lastDiscoveryRun` was in-memory only ("Not yet run this session" persisted across restarts). Now falls back to `max(grant_opportunities.created_at)`. Verified live: "Last run: 5/19/2026, 11:33:05 PM."
+
 ## 2026-05-19 — AISD 26RFP052 — PASSED (user decision)
 
 **Decision:** User passed on submission 2026-05-19 evening. Package remains archived in `docs/grants/aisd-26rfp052/` (4 MD + 4 PDF) for future AISD cycles. No submission to Bonfire portal.
