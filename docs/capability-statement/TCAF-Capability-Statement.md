@@ -21,7 +21,7 @@ National community-infrastructure platform — piloted in Travis County, Texas
 | **Address** | 17912 Stefano Drive, Pflugerville, TX 78660-7020 |
 | **President** | Terry D. Flood Sr. |
 | **Institutional contact** | terryflood@thrivingcommunitiesforall.com · (254) 319-8460 |
-| **Web** | thrivingcommunitiesforall.com |
+| **Web** | [thrivingcommunitiesforall.com](https://thrivingcommunitiesforall.com) |
 
 ---
 
@@ -48,15 +48,17 @@ We operate fifteen public-facing service platforms on one ecosystem hub. Five ca
 
 | Platform | Layer | What it ships |
 |---|---|---|
-| **Talk Your Talk** | Communication + learning substrate | Dialect-aware multilingual access across **89 spoken + 18 sign languages (107 total)**, register-to-register translation, six learning surfaces, crisis detection routing into Whole-Person Health |
-| **Civic Signal** | Civic intelligence | Live Civic Feed (court items, ordinances, meetings), 10-step Prepare wizard from "I heard about a hearing" to "I am ready to speak" |
-| **LifeBridge** | Safety-net navigation | Virtual community health worker with 2,900+ resources across 5 service lines, including Chafee Act foster-youth navigator and 24/7 crisis bar |
-| **ThriveUp Academy** | Workforce + learning | AI Literacy · FAFSA · Financial · STEM · Apprenticeship · Trade Sims · K-12 AI Mastery · reentry persona learning |
-| **Whole-Person Health Ecosystem** | Behavioral-health safety floor under all four | Validated screenings (PHQ-9, GAD-7, C-SSRS, PCL-5), safety-plan builder, 988 integration, 20,000+ curated resources, no-login access |
+| [**Talk Your Talk**](https://talkyourtalk.net) | Communication + learning substrate | Dialect-aware multilingual access across **89 spoken + 18 sign languages (107 total)**, register-to-register translation, six learning surfaces, crisis detection routing into Whole-Person Health |
+| [**Civic Signal**](https://power2thepeople.net) | Civic intelligence | Live Civic Feed (court items, ordinances, meetings), 10-step Prepare wizard from "I heard about a hearing" to "I am ready to speak" |
+| [**LifeBridge**](https://lifetransitionsaid.org) † | Safety-net navigation | Virtual community health worker with 2,900+ resources across 5 service lines, including Chafee Act foster-youth navigator and 24/7 crisis bar |
+| [**ThriveUp Academy**](https://thrivingcommunitiesforall.com) | Workforce + learning | AI Literacy · FAFSA · Financial · STEM · Apprenticeship · Trade Sims · K-12 AI Mastery · reentry persona learning |
+| [**Whole-Person Health Ecosystem**](https://mentalwellnesssupport.net) | Behavioral-health safety floor under all four | Validated screenings (PHQ-9, GAD-7, C-SSRS, PCL-5), safety-plan builder, 988 integration, 20,000+ curated resources, no-login access |
+
+*† LifeBridge is undergoing a server-side issue as of 2026-05-19 — back-end logic intact; surface restoration in progress.*
 
 ### Specialized surfaces (the other ten)
 
-**Sankofa Health Network** — culturally responsive behavioral-health screening for Black and Brown populations · **Black Maternal Health Network** — maternal health equity stack · **Black Men's Health Hub** — men's health and preventive care · **HerHealth Network** — holistic Black feminine health · **SafeCogniCare** — neurocognitive care and family caregiver support · **Perfectly Different** — neurodiversity-affirming learning, IEP/504 navigation · **Mission Transition (M2C)** — veteran and second-chance workforce transition · **Minority Center of Excellence** — MWBE business development and procurement readiness · **ISSS — Integrated Supports for Thriving Youth** — youth development and IEP/504 wraparound · **RPLICE / BetterScience** — implementation-science research-to-practice translation · **SafeReport** — clinical-grade behavioral-health decision support (see signature tools, below).
+[**Sankofa Health Network**](https://yourhealthbirthright.net) — culturally responsive behavioral-health screening for Black and Brown populations · [**Black Maternal Health Network**](https://yourhealthbirthright.net) — maternal health equity stack · [**Black Men's Health Hub**](https://thehealthyblkman.com) — men's health and preventive care · [**HerHealth Network**](https://herhealthmatters2.com) — holistic Black feminine health · [**SafeCogniCare**](https://safecognicare.com) — neurocognitive care and family caregiver support · [**Perfectly Different**](https://neurodifferentassistant.app) — neurodiversity-affirming learning, IEP/504 navigation · [**Mission Transition (M2C)**](https://vetmissiontransition.com) — veteran and second-chance workforce transition · [**Minority Center of Excellence**](https://minoritycenterofexcellence.com) — MWBE business development and procurement readiness · [**ISSS — Integrated Supports for Thriving Youth**](https://implementationineducatio.com) — youth development and IEP/504 wraparound · [**RPLICE / BetterScience**](https://implementationineducatio.com) — implementation-science research-to-practice translation · [**SafeReport**](https://safereports.net) — clinical-grade behavioral-health decision support (see signature tools, below).
 
 ## Signature tools and programs
 
@@ -64,7 +66,7 @@ We operate fifteen public-facing service platforms on one ecosystem hub. Five ca
 Six trades × fifteen lessons = ninety scenario-based learning modules across **electrical, plumbing, HVAC, welding, automotive, and software engineering**. AI tutor surfaces context-aware hints. Credentialing gate unlocks at 80% lesson completion. Apprenticeship pipeline aligned to Texas Workforce Commission Skills Development Fund, Lowe's Gable CBO, Home Depot Path to Pro, and federal Promise Neighborhoods criteria.
 
 ### SafeReport — clinical-grade behavioral-health decision support
-Compliance-grade clinical decision support running on **FHIR with CDS Hooks interoperability**. Longitudinal validated screening battery: PHQ-9, GAD-7, C-SSRS, PCL-5, ACEs. Architecture: human-in-the-loop default-on, **zero PHI egress**, 100% cited recommendations, 50-state mandatory-reporter coverage. Live at safereports.net.
+Compliance-grade clinical decision support running on **FHIR with CDS Hooks interoperability**. Longitudinal validated screening battery: PHQ-9, GAD-7, C-SSRS, PCL-5, ACEs. Architecture: human-in-the-loop default-on, **zero PHI egress**, 100% cited recommendations, 50-state mandatory-reporter coverage. Live at [safereports.net](https://safereports.net).
 
 ### Justice / Reentry stack
 Risk-Needs-Responsivity (RNR) assessment, Cognitive-Behavioral Intervention (CBI) protocol library, and National Reentry Resource Center (NRRC) alignment for evidence-based reentry programming. Braided with ThriveUp Academy workforce + LifeBridge benefits + Whole-Person Health behavioral floor = wraparound by design.
@@ -112,9 +114,9 @@ Two separately registered entities, clean lanes, no commingling.
 **Terry D. Flood Sr., President**
 The Collaborative Advocate Foundation d/b/a ThriveUp Academy
 17912 Stefano Drive, Pflugerville, TX 78660-7020
-**E** terryflood@thrivingcommunitiesforall.com · **P** (254) 319-8460
-**Web** thrivingcommunitiesforall.com
+**E** [terryflood@thrivingcommunitiesforall.com](mailto:terryflood@thrivingcommunitiesforall.com) · **P** (254) 319-8460
+**Web** [thrivingcommunitiesforall.com](https://thrivingcommunitiesforall.com)
 
 ---
 
-*This Capability Statement is built for federal, state, foundation, corporate, and municipal audiences. Figures verified against the TCAF capabilities inventory dated 2026-05-17. Last updated 2026-05-19.*
+*This Capability Statement is built for federal, state, foundation, corporate, and municipal audiences. Figures verified against the TCAF capabilities inventory dated 2026-05-17. Public service-platform URLs re-probed 2026-05-19; 13 of 14 returning HTTP 200 at probe time (LifeBridge under server-side maintenance as noted). Last updated 2026-05-19.*
