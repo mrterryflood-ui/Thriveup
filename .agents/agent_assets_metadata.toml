@@ -545,3 +545,9 @@ id = "rNleO72NFNsUaOKysMI9g"
 uri = "file://docs/grants/crump-foundation-2026/01-concept-paper.md"
 type = "text"
 title = "Joe & Jess Crump Foundation Concept Paper - RPLICE angle (DRAFT v0.1)"
+
+[[outputs]]
+id = "_EC4aducMv77hgmpn7WsN"
+uri = "file://docs/capability-statement/TCAF-Capability-Statement.md"
+type = "text"
+title = "TCAF Capability Statement (v1.0)"
