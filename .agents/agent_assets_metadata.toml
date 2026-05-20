@@ -24,6 +24,18 @@ uri = "file://attached_assets/generated_images/minimalist_horizontal_wordmark_lo
 type = "image"
 title = "generated_image"
 
+[[generated]]
+id = "6MfLoHLjHlW0fe3ARyvX_"
+uri = "file://client/src/assets/trade-sims/plumbing/day-05-drainage-venting.png"
+type = "image"
+title = "day 5 drainage venting no text"
+
+[[generated]]
+id = "1f4QPlsq0NSvJ65_wWLUz"
+uri = "file://client/src/assets/trade-sims/plumbing/day-06-backflow-prevention.png"
+type = "image"
+title = "day 6 backflow prevention no text"
+
 [[outputs]]
 id = "mLSi3ve8jUxLf3ChTRdbX"
 uri = "file://AI_Mastery_Academy_Stakeholder_Deck.pptx"
