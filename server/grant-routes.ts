@@ -4,7 +4,7 @@ import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySc
 import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
-import { eq, desc, sql, gte, lte, and, or, ilike, notInArray } from "drizzle-orm";
+import { eq, desc, sql, gte, lte, lt, and, or, ilike, notInArray } from "drizzle-orm";
 import { generateAIResponse, streamAIResponse } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
 import PDFDocument from "pdfkit";
@@ -3594,32 +3594,65 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
 
   // Re-score all grants in the database with the current computeFitScore algorithm.
   // Run this after the scoring algorithm changes so historical grants reflect new logic.
-  async function recomputeAllGrantFitScores(): Promise<{ updated: number; unchanged: number; total: number }> {
+  async function recomputeAllGrantFitScores(): Promise<{ updated: number; unchanged: number; skipped: number; total: number }> {
+    // Sticky-score guard (2026-05-19): the keyword-only computeFitScore() under-scores
+    // hand-curated foundation rows whose fit is established via funder geography,
+    // program priorities, or other context the keyword scorer cannot see. Two rules:
+    //   1) Skip rows whose lifecycle status is anything other than 'identified'.
+    //      Once a row is dismissed / pursuing / loi_drafting / submitted / awarded /
+    //      watch_next_cycle / expired, a human decision is on it; keyword recompute
+    //      must not move the score.
+    //   2) For 'identified' rows, NEVER downgrade — only update when the recomputed
+    //      score is strictly higher than the current value. Manual upgrades win;
+    //      algorithm improvements can still surface newly-recognized fit.
     const allGrants = await db.select().from(grantOpportunities);
     let updated = 0;
     let unchanged = 0;
+    let skipped = 0;
     for (const g of allGrants) {
+      // Lifecycle lock: skip anything not explicitly 'identified'. NULL status
+      // is also treated as locked — recompute must not touch legacy rows whose
+      // lifecycle state is unknown.
+      if (g.status !== 'identified') {
+        skipped++;
+        continue;
+      }
       const fit = computeFitScore({
         title: g.title,
         description: g.description,
         focusAreas: g.focusAreas,
         eligibilityCriteria: g.eligibilityCriteria,
       });
-      if (g.fitScore !== fit.score) {
-        await db.update(grantOpportunities)
-          .set({
-            fitScore: fit.score,
-            fitAnalysis: fit.analysis,
-            readinessChecklist: generateReadinessChecklist(fit.matchedAreas),
-          })
-          .where(eq(grantOpportunities.id, g.id));
+      const current = g.fitScore ?? 0;
+      if (fit.score <= current) {
+        unchanged++;
+        continue;
+      }
+      // Atomic, race-safe write: the WHERE clause repeats the two guards
+      // (status still 'identified', current fitScore still lower than the new
+      // score) so that if a human dismissed/upgraded the row between our SELECT
+      // and our UPDATE, this write becomes a no-op rather than clobbering the
+      // human action. Returning rows let us count actual writes.
+      const written = await db.update(grantOpportunities)
+        .set({
+          fitScore: fit.score,
+          fitAnalysis: fit.analysis,
+          readinessChecklist: generateReadinessChecklist(fit.matchedAreas),
+        })
+        .where(and(
+          eq(grantOpportunities.id, g.id),
+          eq(grantOpportunities.status, 'identified'),
+          lt(grantOpportunities.fitScore, fit.score),
+        ))
+        .returning({ id: grantOpportunities.id });
+      if (written.length > 0) {
         updated++;
       } else {
-        unchanged++;
+        unchanged++; // lost the race — human action won
       }
     }
-    console.log(`[GrantDiscovery] Re-scored ${updated} grants (${unchanged} unchanged of ${allGrants.length} total)`);
-    return { updated, unchanged, total: allGrants.length };
+    console.log(`[GrantDiscovery] Re-scored ${updated} grants (${unchanged} unchanged, ${skipped} skipped due to lifecycle status, of ${allGrants.length} total)`);
+    return { updated, unchanged, skipped, total: allGrants.length };
   }
 
   app.get("/api/grants/discovery/status", async (_req, res) => {

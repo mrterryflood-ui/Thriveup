@@ -5,10 +5,19 @@
 **501(c)(3) status:** Determined 01/14/2026 (Letter 947) · Public charity 170(b)(1)(A)(vi)
 **Address:** 17912 Stefano Drive, Pflugerville, TX 78660-7020
 **Primary contact:** Terry D. Flood Sr., President — terryflood@thrivingcommunitiesforall.com
-**Deadline:** 2026-05-31 (per OneStar Foundation TX funder roundup 2026-05-19 — primary source not yet verified at funder site)
-**Drafted:** 2026-05-19 · **Status:** DRAFT — pending primary-source verification of budget cap, page limit, application format, and required attachments at `rosendinfoundation.org`
+**Deadline:** **2026-05-29 (FRIDAY) — VERIFIED at therosendinfoundation.org/grants 2026-05-19.** (OneStar roundup said 5/31; primary source corrects it to 5/29. 10 days from drafting.)
+**Award notification:** September 2026 (Q4 2026 per funder site).
+**Apply portal:** https://grants.therosendinfoundation.org/en
+**Drafted:** 2026-05-19 (v0.1) · **Updated:** 2026-05-19 (v0.2 — primary-source verified) · **Status:** DRAFT
 
-> **⚠️ Iron Rule note for the user:** This concept paper is built from the program description in the OneStar Foundation TX funder roundup forwarded 2026-05-19. Before submission, open `rosendinfoundation.org` directly, confirm (a) request range, (b) page or word limit, (c) eligibility statement, (d) required attachments (990, IRS determination, board list, etc.), and (e) submission portal/format. Adjust this draft accordingly.
+> **✅ Primary-source verification (2026-05-19, Iron Rule):** therosendinfoundation.org/grants. Verified: deadline 5/29; geographic eligibility "within 100 miles of Rosendin & MPS offices/project areas" in 14 states including Texas (Pflugerville + Austin qualify); annual grants > $5,000, emergency grants < $5,000; review by foundation grant-making committee → Board recommendation; notification ~2 weeks after board meeting.
+>
+> **🚨 EXCLUSIONS that constrain how we frame this work (read carefully):**
+> - Rosendin does **NOT** fund "scientific research." This narrative is a **service-delivery program with implementation-science evaluation** — we are not proposing research, we are proposing direct community service measured against established CFIR/RE-AIM frameworks. Language scrub: no "research," no "study," no "investigator." Use "service program," "implementation," "evaluation."
+> - Rosendin does **NOT** fund "activities, programs and/or capital expenditures affiliated with a religious organization." This narrative has zero faith-based framing.
+> - Also excluded: political/lobbying, individual schools, scholarships/individual-aid, organizations that discriminate.
+>
+> **Required attachments (verified):** completed grant application, 501(c)(3) determination letter (✅ TCAF Letter 947), current board members list. Rosendin will independently confirm IRS good standing, state good standing, GuideStar/Candid rating, Charity Navigator rating — recommend confirming each in advance.
 
 ---
 
