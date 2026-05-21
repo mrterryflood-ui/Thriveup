@@ -257,7 +257,7 @@ const campusLifeItems: NavItem[] = [
 const careerMentorsItems: NavItem[] = [
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
   { title: "Trade Sims", url: "/academy/trade-sims", icon: Zap },
-  { title: "Concepts (preview)", url: "/concepts/oil-pumpjack", icon: Sparkles },
+  { title: "Concepts", url: "/concepts", icon: Sparkles },
 ];
 
 const buildCreateItems: NavItem[] = [

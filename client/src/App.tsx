@@ -38,7 +38,15 @@ const CertificatesPage = lazy(() => import("@/pages/certificates").then(m => ({ 
 const CertificateViewPage = lazy(() => import("@/pages/certificates").then(m => ({ default: m.CertificateViewPage })));
 const SocialMediaLiteracyPage = lazy(() => import("@/pages/social-media-literacy"));
 const AcademyHubPage = lazy(() => import("@/pages/academy/hub"));
+const ConceptsHubPage = lazy(() => import("@/pages/concepts/index"));
 const OilPumpjackConceptPage = lazy(() => import("@/pages/concepts/oil-pumpjack"));
+const TransformerConceptPage = lazy(() => import("@/pages/concepts/transformer"));
+const SuspensionBridgeConceptPage = lazy(() => import("@/pages/concepts/suspension-bridge"));
+const LithiumBatteryConceptPage = lazy(() => import("@/pages/concepts/lithium-battery"));
+const AirplaneWingConceptPage = lazy(() => import("@/pages/concepts/airplane-wing"));
+const PublicKeyEncryptionConceptPage = lazy(() => import("@/pages/concepts/public-key-encryption"));
+const WindTurbineConceptPage = lazy(() => import("@/pages/concepts/wind-turbine"));
+const PacemakerConceptPage = lazy(() => import("@/pages/concepts/pacemaker"));
 const TradeSimsLandingPage = lazy(() => import("@/pages/academy/trade-sims/index"));
 const TradeSimsTradeDetailPage = lazy(() => import("@/pages/academy/trade-sims/trade-detail"));
 const TradeSimsLessonPlayerPage = lazy(() => import("@/pages/academy/trade-sims/lesson-player"));
@@ -296,7 +304,15 @@ function AppRouter() {
       <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
       <Route path="/academy" component={AcademyVillagePage} />
       <Route path="/academy/hub" component={AcademyHubPage} />
+      <Route path="/concepts" component={ConceptsHubPage} />
       <Route path="/concepts/oil-pumpjack" component={OilPumpjackConceptPage} />
+      <Route path="/concepts/transformer" component={TransformerConceptPage} />
+      <Route path="/concepts/suspension-bridge" component={SuspensionBridgeConceptPage} />
+      <Route path="/concepts/lithium-battery" component={LithiumBatteryConceptPage} />
+      <Route path="/concepts/airplane-wing" component={AirplaneWingConceptPage} />
+      <Route path="/concepts/public-key-encryption" component={PublicKeyEncryptionConceptPage} />
+      <Route path="/concepts/wind-turbine" component={WindTurbineConceptPage} />
+      <Route path="/concepts/pacemaker" component={PacemakerConceptPage} />
       <Route path="/academy/trade-sims">
         <TradeSimsTrialGate><TradeSimsLandingPage /></TradeSimsTrialGate>
       </Route>
