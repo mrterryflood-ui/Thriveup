@@ -1,14 +1,14 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-19T19:54:24.396Z",
+  "compiledAt": "2026-05-21T09:51:14.111Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-19T19:54:14.059Z"
+      "mtime": "2026-05-21T09:50:59.990Z"
     },
     {
       "path": "docs/active-commitments.md",
-      "mtime": "2026-05-19T12:57:21.767Z"
+      "mtime": "2026-05-20T23:14:27.301Z"
     },
     {
       "path": ".agents/skills/map-gap/lessons-learned.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-19T19:54:24.396Z"
+      "mtime": "2026-05-21T09:51:14.111Z"
     }
   ],
   "project": {
@@ -64,8 +64,8 @@
       "detail": "`.agents/skills/map-gap/lessons-learned.md`"
     },
     {
-      "label": "🔗 Corridor Chainweb (citation-chained evidence pipeline)",
-      "detail": "`server/corridor-chainweb.ts` (593 lines) + `server/corridor-story.ts` (911) + `server/corridor-docs.ts` (457) + `server/resident-journey.ts` (399) + frontend `client/src/pages/corridor-{docs,docs-live,evidence,intelligence}.tsx` + `client/src/pages/resident-journey.tsx` (~4,000 LOC total). **Every fact written to evidence storage cites its primary-source step.** 8-step chain pulls Census ACS (B01003 total pop · B01001B Black pop · B17001B Black poverty · B11003B Black family structure), CDC PLACES (mental health prevalence), ATSDR SVI 2022, FBI Crime Data Explorer. Each step records `methodology: \"CHAIN STEP N · ...\"` and `verifiedBy: \"chainweb:<step_id>\"`. Routes: `POST /api/corridor/chainweb/run`, `GET /api/corridor/chainweb/last`. **This is the machine-checkable Iron-Rule enforcement layer under Community Voice and all community storytelling — the \"Measure equivalent for the entire US\" foundation, automated, primary-source-only, citation-traceable.**"
+      "label": "🔗 Corridor Chainweb",
+      "detail": "citation-chained evidence pipeline (~4,000 LOC). Iron-Rule enforcement layer under Community Voice + all community storytelling. 8-step chain → Census ACS · CDC PLACES · ATSDR SVI · FBI CDE. Every evidence row cites its primary-source step. Routes `POST /api/corridor/chainweb/run`, `GET /api/corridor/chainweb/last`. Full detail → `docs/memory-archive.md#A18`."
     },
     {
       "label": "Active commitments / continuity log",
@@ -77,7 +77,7 @@
     },
     {
       "label": "Vann Collaboration Kit (May 14, 2026)",
-      "detail": "Pages `/partners/vann-hub`, `/partners/family-program-tracker`, `/partners/rfp-storyteller`. Three entities (KEEP STRAIGHT): **Sistahs Can We Talk Inc.** (KS 501(c)(3), Dr. Vann is President), **Iasis Christian Center** (her husband Pastor William Vann's church — COI on every City of Wichita/federal grant), **Vanntastic Solutions LLC** (for-profit, never an applicant). Full detail → `docs/memory-archive.md#A1`."
+      "detail": "Pages `/partners/vann-hub`, `/partners/family-program-tracker`, `/partners/rfp-storyteller`. 3 entities — **Sistahs Can We Talk Inc.** (Dr. Vann's KS 501(c)(3)) · **Iasis Christian Center** (spouse's church — COI on all City of Wichita/federal grants) · **Vanntastic Solutions LLC** (never an applicant). Full detail + entity IDs → `docs/memory-archive.md#A1`."
     },
     {
       "label": "Ecosystem catalog",
@@ -85,15 +85,19 @@
     },
     {
       "label": "📍 Community Voice (Phases 1-4 live 2026-05-18)",
-      "detail": "Map-pin → AI-cluster → ecosystem-route → #DATA story. Routes `/voice`, `/voice/new` (4-step wizard, authed users, 5/hr), `/voice/:slug`, `/voice/:slug/{story,insights,admin}`. Backend `server/voice-routes.ts` + 6 tables. Strict-admin gate, `publicizePin` PII sanitizer, hidden-project guard, deterministic platform routing map (safety→WPH+LifeBridge, workforce→Trade Sims+M2C, etc.). Pilot: `pflugerville-holistic-services`. Full detail → `docs/memory-archive.md#A14`. Phase 5 backlog in archive."
+      "detail": "Map-pin → AI-cluster → ecosystem-route → #DATA story. Routes `/voice`, `/voice/new`, `/voice/:slug{,/story,/insights,/admin}`. Backend `server/voice-routes.ts` + 6 tables. Pilot `pflugerville-holistic-services`. Full detail (routing map, PII sanitizer, Phase 5 backlog) → `docs/memory-archive.md#A14`."
     },
     {
       "label": "🎮 Trade Sims (live)",
-      "detail": "6 trades × 15 lessons = 90 (electrical · plumbing · HVAC · welding · automotive · **software-engineering added 2026-05-18**). Player `client/src/pages/academy/trade-sims/lesson-player.tsx`. Backend `server/trade-sims-routes.ts` + 6 tables. AI tutor `POST /api/trade-sims/ai-tutor/hint`. SE trade pitch: \"anybody can vibe code, but you have to know how the system works to make vibecoding work.\" Each trade seed is standalone: `scripts/seed-trade-sims-{slug}.ts`. Detail → `docs/memory-archive.md#A12`."
+      "detail": "6 trades × 15 lessons = 90 (electrical · plumbing · HVAC · welding · automotive · software-engineering). Player `client/src/pages/academy/trade-sims/lesson-player.tsx`. Backend `server/trade-sims-routes.ts` + 6 tables. AI tutor `POST /api/trade-sims/ai-tutor/hint`. Standalone seed per trade: `scripts/seed-trade-sims-{slug}.ts`. Full detail → `docs/memory-archive.md#A12`."
+    },
+    {
+      "label": "💡 ThriveUp Concepts (v1 live 2026-05-21)",
+      "detail": "Hub `/concepts` + 8 lane cards, every card has a real working physics simulator (not a placeholder). Sidebar entry \"Concepts\" under Career Mentors. Shell `client/src/components/concepts/concept-card-shell.tsx`. Registry `client/src/lib/concepts/registry.ts` (single source of truth). **8 cards:** mechanical=oil pumpjack · electrical=transformer · civil=suspension bridge · chemical=lithium battery · aerospace=airplane wing · software=public-key encryption (real RSA) · energy=wind turbine · biomedical=pacemaker. Transformer cross-links to Electrical Trade Sims. Differentiator: working physics behind every explainer, not just diagrams. Full detail (sim physics, cards, backlog) → `docs/memory-archive.md#A19`."
     },
     {
       "label": "🎓 Trade Sims Credentials + Apprenticeships (live 2026-05-17)",
-      "detail": "Page `/academy/trade-sims/:tradeSlug/certify`, gated at 80% lesson completion. Server `server/trade-sims-cert-routes.ts`. **Top funders:** Lowe's Gable CBO (Aug 1 → Sep 3, 2026), TWC SDF (rolling, needs ACC), Home Depot P2P. **Federal:** Promise Neighborhoods ED-GRANT-26-054 closes 08/06/2026. **Pilot target: 200 learners by July 1, 2026.** Full detail → `docs/memory-archive.md#A15`."
+      "detail": "Page `/academy/trade-sims/:tradeSlug/certify` (gated at 80% completion). Server `server/trade-sims-cert-routes.ts`. **Pilot target: 200 learners by July 1, 2026.** Funders + federal grant alignment → `docs/memory-archive.md#A15`."
     },
     {
       "label": "Grant Discovery Engine",
@@ -265,6 +269,7 @@
     }
   ],
   "user_preferences": [
+    "**🚨 Ethical, emotionally intelligent AI in EVERYTHING.** Persistent operating principle as of 2026-05-21. Lives in `server/ai-provider.ts` as `ETHICAL_EI_PREAMBLE` + `withEthicalPreamble()`. Wired into every code path: `streamAIResponse` (Gemini/Claude/OpenAI/DeepSeek streaming), `generateAIJSON`, `callProviderDirect`, AND `server/collaborative-ai.ts` `callEngine` (4-engine synthesis). Six rules: ETHICS (truth+primary sources) · PRIVACY & DIGNITY (no PII echo) · EMOTIONAL INTELLIGENCE (plain language, acknowledge what's hard, no moralizing, honor dialect) · SAFETY (988/911/DV/Childhelp + warm hand-off, no therapizing) · BIAS & EQUITY (Black/Latino/Indigenous/immigrant/justice-involved/foster/rural/low-income default; don't assume English/citizenship/internet/bank account) · HUMILITY (decision-support, not decision-maker; always a path back to a human). Idempotent so route-level prompts can't double-wrap. When adding a NEW AI call site, route through `ai-provider.ts` — do NOT call OpenAI/Anthropic/Gemini SDKs directly; if you must, import `withEthicalPreamble` and apply it.",
     "Iterative development; explain major changes before implementation.",
     "High-quality, well-tested code; clear, simple language for technical concepts.",
     "Don't change `vite.config.ts`, `drizzle.config.ts`, `package.json` without explicit instruction.",
@@ -483,47 +488,6 @@
       "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
-      "id": "sankofa-feminine-health",
-      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
-      "url": "https://herhealthmatters2.com",
-      "role": "feminine-health",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
-      "capabilities": {
-        "features": [
-          "Reproductive Health Education",
-          "Preventive Screening Scheduler",
-          "Hormonal Wellness Tracker",
-          "Cervical Cancer Awareness",
-          "Breast Cancer Screening Navigation",
-          "Menopause Management",
-          "Community Support Groups",
-          "Culturally Responsive Provider Matching",
-          "Pregnancy Pathway Routing",
-          "Health Literacy Resources",
-          "Telehealth Coordination"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
-        "outcomeMetrics": [
-          "Preventive screening completions: 312 (cervical + breast)",
-          "Provider match success rate: 82%",
-          "Reproductive health education sessions: 445",
-          "Pregnancy pathway routing completions: 89",
-          "Community support group active participants: 156"
-        ],
-        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "sankofa-maternal-health",
       "name": "Black Maternal Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -564,6 +528,47 @@
         "st-davids",
         "foundation",
         "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "sankofa-feminine-health",
+      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
+      "url": "https://herhealthmatters2.com",
+      "role": "feminine-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+      "capabilities": {
+        "features": [
+          "Reproductive Health Education",
+          "Preventive Screening Scheduler",
+          "Hormonal Wellness Tracker",
+          "Cervical Cancer Awareness",
+          "Breast Cancer Screening Navigation",
+          "Menopause Management",
+          "Community Support Groups",
+          "Culturally Responsive Provider Matching",
+          "Pregnancy Pathway Routing",
+          "Health Literacy Resources",
+          "Telehealth Coordination"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
+        "outcomeMetrics": [
+          "Preventive screening completions: 312 (cervical + breast)",
+          "Provider match success rate: 82%",
+          "Reproductive health education sessions: 445",
+          "Pregnancy pathway routing completions: 89",
+          "Community support group active participants: 156"
+        ],
+        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -711,53 +716,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "autoimmune-thrive",
-      "name": "Autoimmune Center of Excellence",
-      "url": "https://autoimmunethrive.com",
-      "role": "chronic-disease-management",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Personal health companion for autoimmune disease management built by a founder with autoimmune disease — delivering authentic, lived-experience-informed longitudinal health outcome data. Daily symptom check-ins with trend analysis, flare tracking with trigger identification, medication management with PillScheduler integration, 80+ autoimmune condition database with evidence-based guides, AI health companion providing personalized coaching, appointment prep with provider communication templates, community support with peer matching, and goal setting with progress visualization. PWA mobile app ensures daily engagement. Produces real longitudinal health outcome data (symptom trends, flare frequency, medication adherence, quality of life scores) that no other platform in the ecosystem can generate — this is the chronic disease data engine.",
-      "capabilities": {
-        "features": [
-          "Daily Symptom Check-ins",
-          "Trend Analysis Dashboard",
-          "Flare Tracking & Trigger ID",
-          "Medication Integration (PillScheduler)",
-          "80+ Condition Database",
-          "AI Health Companion",
-          "Personalized Health Coaching",
-          "Appointment Prep Tools",
-          "Provider Communication Templates",
-          "Community Peer Matching",
-          "Goal Setting & Visualization",
-          "PWA Mobile App",
-          "Longitudinal Outcome Tracking",
-          "Quality of Life Scoring"
-        ],
-        "grantNarrative": "Produces longitudinal chronic disease outcome data — symptom trajectories, flare reduction rates, medication adherence, quality of life improvements — for St. David's chronic disease, foundation health innovation, and WIOA disability workforce grants",
-        "outcomeMetrics": [
-          "Daily symptom check-ins logged: 23,456",
-          "Flare events tracked with trigger analysis: 567",
-          "Medication adherence scores: 345 active users",
-          "Quality of life score improvements: 34% average increase",
-          "Condition database consultations: 1,234",
-          "AI health companion sessions: 4,567",
-          "Longitudinal outcome data points: 89,012"
-        ],
-        "integrationDepth": "Bidirectional with PillScheduler (medication adherence), Whole-Person Health (crisis/screening), SafeCogniCare (cognitive impact of chronic disease), LifeBridge (disability resources), Better Science Lab (evidence-based protocols)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "wioa",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "safereport",
       "name": "SafeReport",
       "url": "https://safereports.net",
@@ -806,44 +764,49 @@
       "last_heartbeat": null
     },
     {
-      "id": "emergency-mgmt",
-      "name": "Emergency Management",
-      "url": "https://emergency-mgmt.replit.app",
-      "role": "risk-intelligence",
-      "domain": "compliance",
+      "id": "autoimmune-thrive",
+      "name": "Autoimmune Center of Excellence",
+      "url": "https://autoimmunethrive.com",
+      "role": "chronic-disease-management",
+      "domain": "health-equity",
       "status": "registered",
       "health_status": "online",
       "public_visible": false,
-      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
+      "description": "Personal health companion for autoimmune disease management built by a founder with autoimmune disease — delivering authentic, lived-experience-informed longitudinal health outcome data. Daily symptom check-ins with trend analysis, flare tracking with trigger identification, medication management with PillScheduler integration, 80+ autoimmune condition database with evidence-based guides, AI health companion providing personalized coaching, appointment prep with provider communication templates, community support with peer matching, and goal setting with progress visualization. PWA mobile app ensures daily engagement. Produces real longitudinal health outcome data (symptom trends, flare frequency, medication adherence, quality of life scores) that no other platform in the ecosystem can generate — this is the chronic disease data engine.",
       "capabilities": {
         "features": [
-          "Geographic Risk Heat Mapping",
-          "Multi-Factor Threat Assessment",
-          "Protective Factor Analysis",
-          "Community Resilience Scoring",
-          "Predictive Safety Modeling",
-          "Real-Time Alert System",
-          "Risk Score API",
-          "Location-Aware Safety Decisions",
-          "Emergency Response Coordination",
-          "Historical Incident Analysis",
-          "Community Safety Dashboard"
+          "Daily Symptom Check-ins",
+          "Trend Analysis Dashboard",
+          "Flare Tracking & Trigger ID",
+          "Medication Integration (PillScheduler)",
+          "80+ Condition Database",
+          "AI Health Companion",
+          "Personalized Health Coaching",
+          "Appointment Prep Tools",
+          "Provider Communication Templates",
+          "Community Peer Matching",
+          "Goal Setting & Visualization",
+          "PWA Mobile App",
+          "Longitudinal Outcome Tracking",
+          "Quality of Life Scoring"
         ],
-        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
+        "grantNarrative": "Produces longitudinal chronic disease outcome data — symptom trajectories, flare reduction rates, medication adherence, quality of life improvements — for St. David's chronic disease, foundation health innovation, and WIOA disability workforce grants",
         "outcomeMetrics": [
-          "Risk assessments generated: 1,234",
-          "Community resilience scores computed: 45 geographic zones",
-          "Predictive safety model accuracy: 72%",
-          "Real-time alerts issued: 89 in last 30 days",
-          "Risk heat maps serving 24 platforms via API",
-          "Emergency coordination events: 23"
+          "Daily symptom check-ins logged: 23,456",
+          "Flare events tracked with trigger analysis: 567",
+          "Medication adherence scores: 345 active users",
+          "Quality of life score improvements: 34% average increase",
+          "Condition database consultations: 1,234",
+          "AI health companion sessions: 4,567",
+          "Longitudinal outcome data points: 89,012"
         ],
-        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
+        "integrationDepth": "Bidirectional with PillScheduler (medication adherence), Whole-Person Health (crisis/screening), SafeCogniCare (cognitive impact of chronic disease), LifeBridge (disability resources), Better Science Lab (evidence-based protocols)"
       },
       "grant_alignment": [
-        "ssg-fox",
+        "st-davids",
         "foundation",
-        "st-davids"
+        "wioa",
+        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -889,6 +852,96 @@
       "grant_alignment": [
         "st-davids",
         "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "emergency-mgmt",
+      "name": "Emergency Management",
+      "url": "https://emergency-mgmt.replit.app",
+      "role": "risk-intelligence",
+      "domain": "compliance",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
+      "capabilities": {
+        "features": [
+          "Geographic Risk Heat Mapping",
+          "Multi-Factor Threat Assessment",
+          "Protective Factor Analysis",
+          "Community Resilience Scoring",
+          "Predictive Safety Modeling",
+          "Real-Time Alert System",
+          "Risk Score API",
+          "Location-Aware Safety Decisions",
+          "Emergency Response Coordination",
+          "Historical Incident Analysis",
+          "Community Safety Dashboard"
+        ],
+        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
+        "outcomeMetrics": [
+          "Risk assessments generated: 1,234",
+          "Community resilience scores computed: 45 geographic zones",
+          "Predictive safety model accuracy: 72%",
+          "Real-time alerts issued: 89 in last 30 days",
+          "Risk heat maps serving 24 platforms via API",
+          "Emergency coordination events: 23"
+        ],
+        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "m2c",
+      "name": "Mission Transition (M2C)",
+      "url": "https://vetmissiontransition.com",
+      "role": "veteran-transition",
+      "domain": "veterans",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Full-spectrum military-to-civilian transition platform covering the complete separation journey. MOS/AFSC career translation to civilian equivalents with salary data, comprehensive benefits navigation (VA healthcare, GI Bill, disability claims, VR&E), housing and financial planning tools, identity transition support addressing the loss-of-purpose crisis, validated skills assessment with employer matching, community connections mapped to veteran density, and military family support for spouses and dependents. Specifically targets the first 12 months post-separation — the highest suicide risk window — with proactive outreach triggers. Integrates with Whole-Person Health for crisis routing (C-SSRS/PCL-5), LifeBridge for social determinant support, MCE for veteran entrepreneurship, and Black Men's Health Hub for veteran health pathways.",
+      "capabilities": {
+        "features": [
+          "Transition Timeline Builder",
+          "MOS/AFSC Translation Engine",
+          "Benefits Navigator (VA/GI Bill/VR&E)",
+          "Housing Planning Tools",
+          "Financial Readiness Assessment",
+          "Community Connection Mapper",
+          "Identity Transition Support",
+          "Military Skills Assessment",
+          "Military Family Support",
+          "Employer Match System",
+          "Proactive Outreach Triggers",
+          "Guard/Reserve Support",
+          "Disability Claims Guidance",
+          "Peer Mentor Network"
+        ],
+        "riskWindow": "First 12 months post-separation — highest suicide risk period",
+        "grantNarrative": "Provides transition milestone completion rates, employment placement data, benefits enrollment metrics, and crisis intervention outcomes for SSG Fox ($750K) and WIOA veteran workforce grants",
+        "outcomeMetrics": [
+          "Transition plans created: 567",
+          "MOS/AFSC translations completed: 1,234",
+          "Benefits enrollment assists: 345",
+          "Employment placement rate: 71%",
+          "Crisis interventions (first 12 months): 89",
+          "Military family support engagements: 234",
+          "Community connection matches: 456"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis/PCL-5), LifeBridge (social determinants), MCE (veteran entrepreneurs), Black Men's Health (veteran health), Pinnacle (veteran-owned business contracting)",
+        "targetPopulation": "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
         "foundation"
       ],
       "last_heartbeat": null
@@ -994,97 +1047,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "m2c",
-      "name": "Mission Transition (M2C)",
-      "url": "https://vetmissiontransition.com",
-      "role": "veteran-transition",
-      "domain": "veterans",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Full-spectrum military-to-civilian transition platform covering the complete separation journey. MOS/AFSC career translation to civilian equivalents with salary data, comprehensive benefits navigation (VA healthcare, GI Bill, disability claims, VR&E), housing and financial planning tools, identity transition support addressing the loss-of-purpose crisis, validated skills assessment with employer matching, community connections mapped to veteran density, and military family support for spouses and dependents. Specifically targets the first 12 months post-separation — the highest suicide risk window — with proactive outreach triggers. Integrates with Whole-Person Health for crisis routing (C-SSRS/PCL-5), LifeBridge for social determinant support, MCE for veteran entrepreneurship, and Black Men's Health Hub for veteran health pathways.",
-      "capabilities": {
-        "features": [
-          "Transition Timeline Builder",
-          "MOS/AFSC Translation Engine",
-          "Benefits Navigator (VA/GI Bill/VR&E)",
-          "Housing Planning Tools",
-          "Financial Readiness Assessment",
-          "Community Connection Mapper",
-          "Identity Transition Support",
-          "Military Skills Assessment",
-          "Military Family Support",
-          "Employer Match System",
-          "Proactive Outreach Triggers",
-          "Guard/Reserve Support",
-          "Disability Claims Guidance",
-          "Peer Mentor Network"
-        ],
-        "riskWindow": "First 12 months post-separation — highest suicide risk period",
-        "grantNarrative": "Provides transition milestone completion rates, employment placement data, benefits enrollment metrics, and crisis intervention outcomes for SSG Fox ($750K) and WIOA veteran workforce grants",
-        "outcomeMetrics": [
-          "Transition plans created: 567",
-          "MOS/AFSC translations completed: 1,234",
-          "Benefits enrollment assists: 345",
-          "Employment placement rate: 71%",
-          "Crisis interventions (first 12 months): 89",
-          "Military family support engagements: 234",
-          "Community connection matches: 456"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis/PCL-5), LifeBridge (social determinants), MCE (veteran entrepreneurs), Black Men's Health (veteran health), Pinnacle (veteran-owned business contracting)",
-        "targetPopulation": "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "sankofa-mens-health",
-      "name": "Black Men's Health Hub",
-      "url": "https://thehealthyblkman.com",
-      "role": "mens-health",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
-      "capabilities": {
-        "features": [
-          "Prostate Cancer Screening Navigation",
-          "Cardiovascular Risk Assessment",
-          "Diabetes Prevention Program",
-          "Mental Health Stigma Reduction",
-          "Substance Use Screening",
-          "Peer Mentor Matching",
-          "Preventive Care Scheduler",
-          "Health Literacy Resources",
-          "Telehealth Coordination",
-          "Community Barbershop Health Events",
-          "Veteran Health Pathway"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents men's health engagement, preventive screening uptake, mental health stigma reduction metrics, and veteran-specific health outcomes for SSG Fox and St. David's reporting",
-        "outcomeMetrics": [
-          "Prostate screening navigations: 145",
-          "Cardiovascular risk assessments completed: 267",
-          "Mental health stigma reduction campaign reach: 3,400",
-          "Peer mentor matches: 89 active pairs",
-          "Preventive care scheduling completions: 178",
-          "Substance use screenings (AUDIT-C): 156"
-        ],
-        "integrationDepth": "Bidirectional with M2C (veteran men), Whole-Person Health (crisis/screening), LifeBridge (social determinants), PillScheduler (medication adherence)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-19T21:03:20.478Z"
-    },
-    {
       "id": "whole-person-health",
       "name": "Whole-Person Health Ecosystem",
       "url": "https://mentalwellnesssupport.net",
@@ -1144,6 +1106,49 @@
         "foundation"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "sankofa-mens-health",
+      "name": "Black Men's Health Hub",
+      "url": "https://thehealthyblkman.com",
+      "role": "mens-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
+      "capabilities": {
+        "features": [
+          "Prostate Cancer Screening Navigation",
+          "Cardiovascular Risk Assessment",
+          "Diabetes Prevention Program",
+          "Mental Health Stigma Reduction",
+          "Substance Use Screening",
+          "Peer Mentor Matching",
+          "Preventive Care Scheduler",
+          "Health Literacy Resources",
+          "Telehealth Coordination",
+          "Community Barbershop Health Events",
+          "Veteran Health Pathway"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents men's health engagement, preventive screening uptake, mental health stigma reduction metrics, and veteran-specific health outcomes for SSG Fox and St. David's reporting",
+        "outcomeMetrics": [
+          "Prostate screening navigations: 145",
+          "Cardiovascular risk assessments completed: 267",
+          "Mental health stigma reduction campaign reach: 3,400",
+          "Peer mentor matches: 89 active pairs",
+          "Preventive care scheduling completions: 178",
+          "Substance use screenings (AUDIT-C): 156"
+        ],
+        "integrationDepth": "Bidirectional with M2C (veteran men), Whole-Person Health (crisis/screening), LifeBridge (social determinants), PillScheduler (medication adherence)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-19T21:03:20.478Z"
     },
     {
       "id": "video-creator-ai",
@@ -1317,50 +1322,6 @@
       "last_heartbeat": "2026-03-22T03:08:34.284Z"
     },
     {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
-      "capabilities": {
-        "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
-        ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
-        "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "civic-signal",
       "name": "Civic Signal",
       "url": "https://power2thepeople.net",
@@ -1405,6 +1366,50 @@
         "knight",
         "mozilla",
         "wioa"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "capabilities": {
+        "features": [
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
+        ],
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "outcomeMetrics": [
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -1817,8 +1822,18 @@
         "summary": "City of Houston Health Department / Community Reentry Network Program (CRNP) Housing Support Services. DOJ-BJA federal pass-through, ~$90K (40 participants × $2,250 + admin fee %), Net 30 cost reimbursement, term through 2027-09-30.\n\n**Passed for 3 independent hard blockers:**\n1. Required minimum 3 years past performance providing housing support to justice-impacted population. TCAF 501(c)(3) determined 01/14/2026 (~4 months as a determined nonprofit). Cannot truthfully claim under Iron Rule.\n2. Vendor must operate within Houston/Harris County. TCAF is Pflugerville (Travis County). Hire Houston First preference further favors local CB/LB businesses.\n3. Wrong product shape: this is a check-writing vendor procurement (rent, deposits, utilities, furniture, delivery) on cost-reimbursement Net "
       },
       {
+        "id": "2026-05-19-pm-onestar-tx-funder-roundup-triaged-rosendin-concept-drafted",
+        "heading": "2026-05-19 (PM) — OneStar TX funder roundup triaged + Rosendin concept drafted",
+        "summary": "**6 funders evaluated from user's forwarded OneStar Foundation TX roundup (screenshots IMG_7717-7719):**\n- ✅ **Rosendin Foundation** (deadline 2026-05-31, fit 80) — INSERTED `identified`. Austin + Pflugerville explicitly in eligible cities. Concept paper drafted at `docs/grants/rosendin-foundation-2026/01-concept-paper.md`. Pending primary-source verification at `rosendinfoundation.org` for budget cap, page limit, attachments.\n- 🟡 **Seawell Elam Foundation** (5/22, fit 60) — INSERTED `identified`. Tight 3-day window; only 1 of 3 program prongs (poverty+education) is our lane.\n- 🟡 **Texas Health Resources DFW** (5/29, fit 35) — INSERTED `identified`. Wrong geography; only pursue with DFW partner.\n- ❌ **Mabee Foundation** (6/1, fit 5) — INSERTED `dismissed`. Capital/construction/equipment "
+      },
+      {
+        "id": "2026-05-19-aisd-26rfp052-passed-user-decision",
+        "heading": "2026-05-19 — AISD 26RFP052 — PASSED (user decision)",
+        "summary": "**Decision:** User passed on submission 2026-05-19 evening. Package remains archived in `docs/grants/aisd-26rfp052/` (4 MD + 4 PDF) for future AISD cycles. No submission to Bonfire portal.\n**Why parked:** User judgment call on capacity / timing; substantive package was ready (CIQ, references, signatures pending).\n**Carry-forward value:** Software Engineering Trade Sims Unit 1 + 3 lessons with TEKS crosswalks; LEP framing using 89+18+6 against AISD 28.1% ELL; Family Engagement → NPTA 6 Standards crosswalk; best-practice basis (DoEd WWC OST, Harvard Family Research Project, Weikart YPQ, NPTA, CFIR/RE-AIM). All reusable for next AISD cycle or other K-12 enrichment RFPs."
+      },
+      {
         "id": "2026-05-18-pm-aisd-26rfp052-youth-family-enrichment-services-bid-package-drafted",
-        "heading": "2026-05-18 (PM) — AISD 26RFP052 Youth & Family Enrichment Services — bid package drafted",
+        "heading": "2026-05-18 (PM) — AISD 26RFP052 Youth & Family Enrichment Services — bid package drafted (ARCHIVED — see 2026-05-19 pass)",
         "summary": "**Deadline:** 2026-05-19 at 2:00 PM CST · **Submission:** Bonfire portal `https://austinisd.bonfirehub.com/portal/`\n**Type:** Vendor-pool / approved-list, Pass/Fail eval, multiple-award, term through 2031-06-30 (5-year approved list).\n**Categories bid:** Enrichment · Family Engagement · College & Career Readiness (skipped Academic Assistance — tutoring excluded per RFP).\n**Package location:** `docs/grants/aisd-26rfp052/` (4 MD + 4 PDF).\n\n**Drafting decisions made:**\n- Bid as TCAF (501(c)(3) determined 01/14/2026), not ISS LLC. AISD is K-12 enrichment, federal/state pass-through funded.\n- d/b/a \"ThriveUp Academy\" used as program-division name on the response.\n- Sample unit plan drawn from Software Engineering Trade Sims track (3 of 15 lessons) — first unit \"How the Computer Hears You\" with "
       },
       {
@@ -2054,10 +2069,10 @@
     "gotchas": 25,
     "vocab": 4,
     "platforms": 25,
-    "file_pointers": 18,
+    "file_pointers": 19,
     "lessons": 26,
     "no_go": 4,
-    "active_commitment_sections": 68,
+    "active_commitment_sections": 70,
     "ecosystem_caveats": 5,
     "foster_youth_build_log_sections": 3
   }

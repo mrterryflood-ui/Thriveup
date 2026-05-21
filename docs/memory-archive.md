@@ -294,3 +294,46 @@ Live in `docs/active-commitments.md` "TCAF SAM.gov + Federal Registration Identi
 - **M&T Consulting Solutions LLC** = partner-co-owned, OUT-OF-SCOPE unless user explicitly says otherwise.
 - **TCAF SAM activation narrative:** UEI `KDDVD1FGLW35` · CAGE `209N1` · renewal due 2027-05-06 (calendar 2027-04-01) · ZIP+4 78660-7020 · DBA blank → use legal name "The Collaborative Advocate Foundation" on federal forms.
 
+
+## A18. Corridor Chainweb — citation-chained evidence pipeline (full detail)
+
+The machine-checkable Iron-Rule enforcement layer under Community Voice and all community storytelling — the "Measure equivalent for the entire US" foundation, automated, primary-source-only, citation-traceable.
+
+- **Files (~4,000 LOC total):** `server/corridor-chainweb.ts` (593) · `server/corridor-story.ts` (911) · `server/corridor-docs.ts` (457) · `server/resident-journey.ts` (399) · frontend `client/src/pages/corridor-{docs,docs-live,evidence,intelligence}.tsx` + `client/src/pages/resident-journey.tsx`.
+- **Guarantee:** every fact written to evidence storage cites its primary-source step.
+- **8-step chain pulls:**
+  - Census ACS — B01003 (total pop) · B01001B (Black pop) · B17001B (Black poverty) · B11003B (Black family structure)
+  - CDC PLACES — mental health prevalence
+  - ATSDR SVI 2022
+  - FBI Crime Data Explorer
+- **Provenance contract:** each step records `methodology: "CHAIN STEP N · ..."` and `verifiedBy: "chainweb:<step_id>"`.
+- **Routes:** `POST /api/corridor/chainweb/run`, `GET /api/corridor/chainweb/last`.
+
+## A19. ThriveUp Concepts v1 — full build detail (May 21, 2026)
+
+Hub + 8 cards, one per engineering lane, every card has a real working physics simulator (not a placeholder).
+
+- **Hub:** `/concepts` with lane filter.
+- **Sidebar:** "Concepts" under Career Mentors.
+- **Shared shell:** `client/src/components/concepts/concept-card-shell.tsx` — lane badge, hook, title, sim slot, 90-sec explainer, related links, meta title/description.
+- **Registry:** `client/src/lib/concepts/registry.ts` (`LANES` + `CONCEPTS`) — single source of truth for hub + sidebar + cross-links.
+
+**The 8 cards:**
+- mechanical → oil pumpjack (four-bar linkage, kinematics-solved)
+- electrical → transformer (V₂=V₁·N₂/N₁, animated flux + current arrows, turns-ratio slider)
+- civil → suspension bridge (drag truck, real cable tension + tower compression in kN, dead+live load)
+- chemical → lithium battery (Li⁺ ions animate between anode/cathode, SoC bar, voltage 3.0–4.2V)
+- aerospace → airplane wing (AoA slider -4° to 25°, streamlines, Cl curve with stall at ~16°)
+- software → public-key encryption (real RSA with p=11/q=13/n=143/e=7/d=103; type any text, see m^e mod n live)
+- energy → wind turbine (P=½ρAv³Cp, cut-in 3 / rated 12 / cut-out 25 m/s, pitch auto-feathers above rated)
+- biomedical → pacemaker (live ECG trace, intrinsic-rate slider, demand-pacing floor — pacer only fires when interval > 60/floor seconds)
+
+**Files:** `client/src/components/concepts/<slug>-sim.tsx` × 8 + `client/src/pages/concepts/<slug>.tsx` × 8 + hub `client/src/pages/concepts/index.tsx`.
+
+**Cross-links:** Transformer card → Electrical Trade Sims (`/academy/trade-sims/electrical`).
+
+**Differentiator vs. SmartyMe/Brilliant:** working physics simulators behind every explainer, not just diagrams.
+
+**Audiences:** curious adults, parents, career-curious teens, tradespeople browsing the next lane, re-entry folks, foster youth, funder leave-behinds.
+
+**Next-version backlog (NOT shipped):** authoring tool, more cards per lane, in-card embedded readings, share/screenshot export.
