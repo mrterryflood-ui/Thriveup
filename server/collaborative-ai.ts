@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { retrieveRelevantChunks, buildLiveIntelligenceContext } from "./rag-engine";
+import { withEthicalPreamble } from "./ai-provider";
 
 type EngineId = "gemini" | "claude" | "openai" | "deepseek-r1";
 
@@ -60,6 +61,10 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
 }
 
 async function callEngine(engine: { id: EngineId; model: string }, prompt: string, systemPrompt: string, maxTokens: number): Promise<EngineResult> {
+  // Persistent ethics/EI principle — every engine in the 4-engine
+  // collaborative synthesis carries the same operating values as the
+  // single-provider path in ai-provider.ts.
+  systemPrompt = withEthicalPreamble(systemPrompt);
   const start = Date.now();
   try {
     let response = "";

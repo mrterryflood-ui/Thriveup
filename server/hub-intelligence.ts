@@ -7,6 +7,7 @@ import { db } from "./storage";
 import { nationwideDiscoveries } from "@shared/schema";
 import { eq, and, gte } from "drizzle-orm";
 import OpenAI from "openai";
+import { withEthicalPreamble } from "./ai-provider";
 import { getJurisdiction } from "@shared/nationwide/jurisdictions";
 
 const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24h
@@ -115,7 +116,7 @@ export async function research(stateCode: string, qt: QueryType, extra?: Record<
     const resp = await client.chat.completions.create({
       model: "perplexity/sonar-pro",
       messages: [
-        { role: "system", content: "You are a research analyst providing factual, citation-backed answers about U.S. state-level programs. Be specific and verifiable. Never invent grants, programs, or organizations. If unsure, say so." },
+        { role: "system", content: withEthicalPreamble("You are a research analyst providing factual, citation-backed answers about U.S. state-level programs. Be specific and verifiable. Never invent grants, programs, or organizations. If unsure, say so.") },
         { role: "user", content: prompt },
       ],
       max_tokens: 800,

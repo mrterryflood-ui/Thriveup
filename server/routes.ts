@@ -51,7 +51,7 @@ import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } fro
 import { evaluateFlags, getActiveFlags, resolveFlag, runEarlyWarningCheck } from "./early-warning";
 import { runFullIngestion, getContextForGeography, searchByState, searchByLocation, generateCommunityNarrative, getStateCoords, getStateName as gisGetStateName } from "./gis-engine";
 import { db } from "./storage";
-import { streamAIResponse, getProviderInfo } from "./ai-provider";
+import { streamAIResponse, getProviderInfo, withEthicalPreamble } from "./ai-provider";
 import { collaborativeStream, collaborativeResponse, collaborativeJSON, getCollaborativeStatus } from "./collaborative-ai";
 import { registerObjectStorageRoutes } from "./replit_integrations/object_storage";
 import { registerCrossPlatformRoutes } from "./cross-platform-api";
@@ -5753,7 +5753,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
         messages: [
           {
             role: "system",
-            content: `You are a mentorship program research assistant. Return ONLY valid JSON — no markdown, no code fences, no explanation. The response must be a JSON array of mentorship program objects with these exact fields: name (string), organization (string), url (string or null), phone (string or null), address (string or null), categories (array of strings from: youth, men, women, stem, veteran, reentry, business, health, fatherhood, disability, arts, faith), agesServed (string or null), cost (string like "Free" or "Varies"), description (string, 2-3 sentences), programs (array of program name strings), badges (array of short descriptive tags). Return 5-15 real, verified programs. Do not invent fake programs.`
+            content: withEthicalPreamble(`You are a mentorship program research assistant. Return ONLY valid JSON — no markdown, no code fences, no explanation. The response must be a JSON array of mentorship program objects with these exact fields: name (string), organization (string), url (string or null), phone (string or null), address (string or null), categories (array of strings from: youth, men, women, stem, veteran, reentry, business, health, fatherhood, disability, arts, faith), agesServed (string or null), cost (string like "Free" or "Varies"), description (string, 2-3 sentences), programs (array of program name strings), badges (array of short descriptive tags). Return 5-15 real, verified programs. Do not invent fake programs.`)
           },
           {
             role: "user",

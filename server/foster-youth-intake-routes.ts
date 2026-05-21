@@ -7,6 +7,7 @@ import {
   type FosterYouthIntake,
 } from "@shared/schema";
 import { and, desc, eq, gte, sql } from "drizzle-orm";
+import { withEthicalPreamble } from "./ai-provider";
 import { randomUUID, randomBytes, timingSafeEqual } from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
@@ -222,7 +223,7 @@ async function runAIAnalysis(intake: FosterYouthIntake, docTexts: Array<{ docTyp
     const resp = await client.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 2400,
-      system: "You are a careful, evidence-based case-planning assistant. Output strict JSON only.",
+      system: withEthicalPreamble("You are a careful, evidence-based case-planning assistant. Output strict JSON only."),
       messages: [{ role: "user", content: prompt }],
     });
     const text = resp.content
@@ -240,7 +241,7 @@ async function runAIAnalysis(intake: FosterYouthIntake, docTexts: Array<{ docTyp
     const resp = await client.chat.completions.create({
       model: "gpt-5-nano",
       messages: [
-        { role: "system", content: "You are a careful, evidence-based case-planning assistant. Output strict JSON only." },
+        { role: "system", content: withEthicalPreamble("You are a careful, evidence-based case-planning assistant. Output strict JSON only.") },
         { role: "user", content: prompt },
       ],
       response_format: { type: "json_object" },
@@ -254,7 +255,7 @@ async function runAIAnalysis(intake: FosterYouthIntake, docTexts: Array<{ docTyp
     const resp = await client.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: "You are a careful, evidence-based case-planning assistant. Output strict JSON only." },
+        { role: "system", content: withEthicalPreamble("You are a careful, evidence-based case-planning assistant. Output strict JSON only.") },
         { role: "user", content: prompt },
       ],
       response_format: { type: "json_object" },

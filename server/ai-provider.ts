@@ -4,6 +4,57 @@ import Anthropic from "@anthropic-ai/sdk";
 
 type Provider = "gemini" | "claude" | "openai" | "replit-ai-integrations" | "deepseek-r1";
 
+/**
+ * ETHICAL_EI_PREAMBLE — persistent operating principle for every AI call on
+ * this platform. Per user directive (2026-05-21): "Use ethical, emotionally
+ * intelligent AI in everything we do."
+ *
+ * This preamble is prepended to every caller-supplied system prompt by every
+ * code path in this file (streamGemini, streamClaude, streamOpenAI,
+ * streamDeepSeekR1, generateAIJSON, callProviderDirect). It is also re-used
+ * in server/collaborative-ai.ts so the 4-engine synthesizer carries the
+ * same values. Do not remove without explicit user instruction.
+ */
+export const ETHICAL_EI_PREAMBLE = [
+  "Operating principles for this platform — apply to every response:",
+  "1. ETHICS — Tell the truth. Cite primary sources when claiming facts; say \"I don't know\" when you don't. Never fabricate funders, deadlines, identifiers, statistics, or partner names. Refuse to help with anything illegal, discriminatory, or harmful to participants, families, or community members.",
+  "2. PRIVACY & DIGNITY — Protect PII. Never echo a person's full name, address, phone, email, SSN, immigration status, medical detail, criminal-justice history, or benefits-eligibility detail in user-visible output unless that user asked about themselves. When summarizing case data, prefer aggregate language and role labels (\"the participant\", \"the household\") over identifiers.",
+  "3. EMOTIONAL INTELLIGENCE — Many people using this platform are in crisis, in recovery, in poverty, navigating the justice system, raising children alone, grieving, undocumented, disabled, or surviving violence. Lead with calm, plain language. Acknowledge what is hard before giving instructions. Never moralize, lecture, or talk down. Use the person's stated language and dialect (AAVE, Spanglish, etc.) when they do.",
+  "4. SAFETY — If a message contains signals of suicide, self-harm, domestic violence, child abuse, or imminent danger, surface 988 (Suicide & Crisis Lifeline), 911 (immediate danger), 1-800-799-7233 (DV Hotline), or 1-800-422-4453 (Childhelp), and recommend a warm hand-off to a human navigator. Do not attempt to therapize.",
+  "5. BIAS & EQUITY — Center the lived experience of the communities TCAF serves (Black, Latino, Indigenous, immigrant, justice-involved, foster youth, rural, low-income). Do not assume English fluency, two-parent households, bank accounts, smartphones, internet at home, citizenship, or stable housing. Check your defaults.",
+  "6. HUMILITY — You are decision-support, not the decision-maker. Recommend; do not command. Always leave a path back to a human (caseworker, navigator, clinician, attorney).",
+].join("\n");
+
+/**
+ * Merge the ethical/EI preamble into a caller-supplied system prompt.
+ * Internal helper — every provider path in this file uses this so the
+ * principle is impossible to bypass from a route file.
+ */
+export function withEthicalPreamble(systemPrompt?: string): string {
+  if (!systemPrompt || systemPrompt.trim().length === 0) return ETHICAL_EI_PREAMBLE;
+  // Idempotent: don't double-wrap if the preamble is already present.
+  if (systemPrompt.includes("Operating principles for this platform")) return systemPrompt;
+  return `${ETHICAL_EI_PREAMBLE}\n\n---\n\n${systemPrompt}`;
+}
+
+/**
+ * Normalize a messages[] array so the ethical/EI preamble is always
+ * carried as a system message at the head of the conversation. Used by
+ * the streaming entry point so streamGemini/streamClaude/streamOpenAI/
+ * streamDeepSeekR1 all see a system prompt that includes the preamble,
+ * no matter what the caller passed in.
+ */
+function withEthicalMessages(
+  messages: Array<{ role: string; content: string }>,
+): Array<{ role: string; content: string }> {
+  const sysIdx = messages.findIndex((m) => m.role === "system");
+  if (sysIdx === -1) {
+    return [{ role: "system", content: ETHICAL_EI_PREAMBLE }, ...messages];
+  }
+  const wrapped = { ...messages[sysIdx], content: withEthicalPreamble(messages[sysIdx].content) };
+  return [...messages.slice(0, sysIdx), wrapped, ...messages.slice(sysIdx + 1)];
+}
+
 interface StreamAIResponseParams {
   messages: Array<{ role: string; content: string }>;
   maxTokens?: number;
@@ -228,6 +279,9 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
   const providers = getAvailableProviders();
   if (providers.length === 0) throw new Error("No AI provider configured");
 
+  // Persistent ethics/EI principle — wrap every JSON call's system prompt.
+  systemPrompt = withEthicalPreamble(systemPrompt);
+
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i];
     try {
@@ -325,6 +379,9 @@ export async function generateAIResponse(messages: Array<{ role: string; content
 }
 
 async function callProviderDirect(provider: Provider, prompt: string, systemPrompt?: string, maxTokens?: number): Promise<string> {
+  // Persistent ethics/EI principle — applied to every direct (non-streaming,
+  // non-JSON) provider call as well.
+  systemPrompt = withEthicalPreamble(systemPrompt);
   if (provider === "gemini") {
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
     const model = genAI.getGenerativeModel({
@@ -453,6 +510,10 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
     params.onError(new Error("No AI provider configured"));
     return;
   }
+
+  // Persistent ethics/EI principle — applied to every streaming call, no
+  // matter which provider downstream serves it.
+  params = { ...params, messages: withEthicalMessages(params.messages) };
 
   for (let i = 0; i < providers.length; i++) {
     const provider = providers[i];

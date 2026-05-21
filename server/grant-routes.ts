@@ -5,7 +5,7 @@ import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, lt, and, or, ilike, notInArray } from "drizzle-orm";
-import { generateAIResponse, streamAIResponse } from "./ai-provider";
+import { generateAIResponse, streamAIResponse, withEthicalPreamble } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
 import PDFDocument from "pdfkit";
 import type { SQL } from "drizzle-orm";
@@ -323,7 +323,7 @@ Return JSON with this exact structure:
 }`;
 
     const response = await generateAIResponse([
-      { role: "system", content: "You are a grant analysis expert. Analyze grants against platform capabilities. Return only valid JSON." },
+      { role: "system", content: withEthicalPreamble("You are a grant analysis expert. Analyze grants against platform capabilities. Return only valid JSON.") },
       { role: "user", content: prompt }
     ], 1500);
 
@@ -1368,7 +1368,7 @@ Platform metrics to incorporate naturally:
 Write in formal grant language, approximately 400-500 words. Use specific data points. Emphasize evidence-based practices and measurable outcomes. Do NOT use markdown formatting — write in plain paragraphs.`;
 
       const response = await generateAIResponse([
-        { role: "system", content: "You are a professional grant writer specializing in federal grants for youth development, workforce development, and social services. Write compelling, data-driven grant narratives." },
+        { role: "system", content: withEthicalPreamble("You are a professional grant writer specializing in federal grants for youth development, workforce development, and social services. Write compelling, data-driven grant narratives.") },
         { role: "user", content: prompt }
       ], 2000);
 
@@ -1437,7 +1437,7 @@ Generate a professional collaboration proposal with these sections:
 Write in professional but warm language. This should read as peers building together, not a supplicant asking for help. Approximately 600-800 words. Do NOT use markdown formatting — write in plain paragraphs with clear section headers.`;
 
       const response = await generateAIResponse([
-        { role: "system", content: "You are a strategic partnership consultant specializing in nonprofit collaborations and community ecosystem development. You write proposals that emphasize mutual value, shared infrastructure, and co-ownership of impact." },
+        { role: "system", content: withEthicalPreamble("You are a strategic partnership consultant specializing in nonprofit collaborations and community ecosystem development. You write proposals that emphasize mutual value, shared infrastructure, and co-ownership of impact.") },
         { role: "user", content: prompt }
       ], 3000);
 
@@ -2075,7 +2075,7 @@ Do NOT repeat content already written. Do NOT add headers or section labels. Con
           console.log(`[grant-refine] Section "${sectionName}": ${currentWords} words refined, target ${refineMinWords}, continuing (attempt ${continuationAttempts})...`);
 
           const continuation = await generateAIResponse([
-            { role: "system", content: systemContent },
+            { role: "system", content: withEthicalPreamble(systemContent) },
             { role: "user", content: `You are continuing a refined grant section. Current output is ${currentWords} words but must be at least ${refineMinWords} words. Write ${remaining} more words continuing seamlessly from where this ends:\n\n---\n${refined.slice(-2000)}\n---\n\nContinue as flowing narrative paragraphs. Do NOT repeat content. Complete every sentence.` },
           ], Math.max(4000, Math.ceil(remaining * 2.0)));
 

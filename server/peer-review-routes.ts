@@ -2,7 +2,7 @@ import type { Express, Request, Response } from "express";
 import { db } from "./storage";
 import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks } from "@shared/schema";
 import { eq, desc, and, gte, sql, count } from "drizzle-orm";
-import { generateAIResponse, generateMultiAIResponse } from "./ai-provider";
+import { generateAIResponse, generateMultiAIResponse, withEthicalPreamble } from "./ai-provider";
 import Anthropic from "@anthropic-ai/sdk";
 
 interface PlatformProfile {
@@ -199,7 +199,7 @@ Respond in this exact JSON format (no markdown, no code fences):
 
     try {
       const response = await generateAIResponse([
-        { role: "system", content: "You are generating a platform self-assessment. Return ONLY valid JSON, no markdown." },
+        { role: "system", content: withEthicalPreamble("You are generating a platform self-assessment. Return ONLY valid JSON, no markdown.") },
         { role: "user", content: prompt },
       ], 800);
 
@@ -279,7 +279,7 @@ Return ONLY valid JSON:
 
     try {
       const response = await generateAIResponse([
-        { role: "system", content: "You are a platform peer reviewer. Return ONLY valid JSON, no markdown." },
+        { role: "system", content: withEthicalPreamble("You are a platform peer reviewer. Return ONLY valid JSON, no markdown.") },
         { role: "user", content: prompt },
       ], 600);
 
@@ -412,7 +412,7 @@ Return ONLY valid JSON:
     const resp = await client.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: maxTokens,
-      system: systemPrompt,
+      system: withEthicalPreamble(systemPrompt),
       messages: [{ role: "user", content: prompt }],
     });
     const block = resp.content[0];
@@ -543,7 +543,7 @@ Be direct, specific, no flattery. This is for a veteran founder who needs the tr
 
     try {
       const bluf = await generateAIResponse([
-        { role: "system", content: "You write executive intelligence briefings. Be direct, specific, actionable." },
+        { role: "system", content: withEthicalPreamble("You write executive intelligence briefings. Be direct, specific, actionable.") },
         { role: "user", content: blufPrompt },
       ], 1000);
 
@@ -554,7 +554,7 @@ Give exactly 3 strategic recommendations in a JSON array of strings. No markdown
       let recommendations = ["Address platform integration gaps", "Increase directive fidelity across ecosystem", "Strengthen grant readiness for upcoming deadlines"];
       try {
         const recResponse = await generateAIResponse([
-          { role: "system", content: "Return ONLY a JSON array of 3 strings. No markdown." },
+          { role: "system", content: withEthicalPreamble("Return ONLY a JSON array of 3 strings. No markdown.") },
           { role: "user", content: strategicPrompt },
         ], 300);
         const cleaned = recResponse.replace(/```json\n?/g, "").replace(/```\n?/g, "").trim();

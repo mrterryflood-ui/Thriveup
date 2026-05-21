@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import OpenAI from "openai";
 import { chatStorage } from "./storage";
+import { ETHICAL_EI_PREAMBLE } from "../../ai-provider";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -80,10 +81,15 @@ export function registerChatRoutes(app: Express): void {
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
-      // Stream response from OpenAI
+      // Stream response from OpenAI — prepend the platform's ethical/EI
+      // operating principle so every conversation in this chat surface
+      // carries the same values as the rest of the platform.
       const stream = await openai.chat.completions.create({
         model: "gpt-5.1",
-        messages: chatMessages,
+        messages: [
+          { role: "system", content: ETHICAL_EI_PREAMBLE },
+          ...chatMessages,
+        ],
         stream: true,
         max_completion_tokens: 2048,
       });
