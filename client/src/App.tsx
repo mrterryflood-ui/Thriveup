@@ -42,6 +42,8 @@ const TradeSimsLandingPage = lazy(() => import("@/pages/academy/trade-sims/index
 const TradeSimsTradeDetailPage = lazy(() => import("@/pages/academy/trade-sims/trade-detail"));
 const TradeSimsLessonPlayerPage = lazy(() => import("@/pages/academy/trade-sims/lesson-player"));
 const TradeSimsCertifyPage = lazy(() => import("@/pages/academy/trade-sims/certify"));
+const TradeSimsSignupsAdminPage = lazy(() => import("@/pages/admin/trade-sims-signups"));
+import { TradeSimsTrialGate } from "@/components/trade-sims-trial-gate";
 const AcademyVillagePage = lazy(() => import("@/pages/academy/village"));
 const AcademyAvatarPage = lazy(() => import("@/pages/academy/avatar"));
 const AcademyStocksPage = lazy(() => import("@/pages/academy/stocks"));
@@ -293,10 +295,19 @@ function AppRouter() {
       <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
       <Route path="/academy" component={AcademyVillagePage} />
       <Route path="/academy/hub" component={AcademyHubPage} />
-      <Route path="/academy/trade-sims" component={TradeSimsLandingPage} />
-      <Route path="/academy/trade-sims/:tradeSlug/certify" component={TradeSimsCertifyPage} />
-      <Route path="/academy/trade-sims/:tradeSlug/:lessonSlug" component={TradeSimsLessonPlayerPage} />
-      <Route path="/academy/trade-sims/:tradeSlug" component={TradeSimsTradeDetailPage} />
+      <Route path="/academy/trade-sims">
+        <TradeSimsTrialGate><TradeSimsLandingPage /></TradeSimsTrialGate>
+      </Route>
+      <Route path="/academy/trade-sims/:tradeSlug/certify">
+        <TradeSimsTrialGate><TradeSimsCertifyPage /></TradeSimsTrialGate>
+      </Route>
+      <Route path="/academy/trade-sims/:tradeSlug/:lessonSlug">
+        <TradeSimsTrialGate><TradeSimsLessonPlayerPage /></TradeSimsTrialGate>
+      </Route>
+      <Route path="/academy/trade-sims/:tradeSlug">
+        <TradeSimsTrialGate><TradeSimsTradeDetailPage /></TradeSimsTrialGate>
+      </Route>
+      <Route path="/admin/trade-sims-signups" component={TradeSimsSignupsAdminPage} />
       <Route path="/academy/avatar" component={AcademyAvatarPage} />
       <Route path="/academy/stocks" component={AcademyStocksPage} />
       <Route path="/academy/wallet" component={AcademyWalletPage} />

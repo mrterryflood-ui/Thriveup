@@ -5186,6 +5186,34 @@ export const insertTradeSimsLessonProgressSchema = createInsertSchema(tradeSimsL
 export type InsertTradeSimsLessonProgress = z.infer<typeof insertTradeSimsLessonProgressSchema>;
 export type TradeSimsLessonProgress = typeof tradeSimsLessonProgress.$inferSelect;
 
+// ---------------------------------------------------------------------------
+// Trade Sims signup audit: every time an authenticated user hits a trade-sims
+// page we upsert here so Dr. Flood can see who is signing up and how much
+// trial time they used before logging in. Surfaced at /admin/trade-sims-signups
+// and in the daily digest email.
+// ---------------------------------------------------------------------------
+export const tradeSimsLogins = pgTable("trade_sims_logins", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id").notNull(),
+  email: varchar("email", { length: 320 }),
+  firstName: varchar("first_name", { length: 200 }),
+  lastName: varchar("last_name", { length: 200 }),
+  firstSeenAt: timestamp("first_seen_at").defaultNow().notNull(),
+  lastSeenAt: timestamp("last_seen_at").defaultNow().notNull(),
+  totalVisits: integer("total_visits").default(1).notNull(),
+  trialMsUsedBeforeLogin: integer("trial_ms_used_before_login"),
+  lastIp: varchar("last_ip", { length: 64 }),
+  lastUserAgent: text("last_user_agent"),
+  lastPath: text("last_path"),
+  notifiedInDigest: boolean("notified_in_digest").default(false).notNull(),
+}, (t) => [
+  uniqueIndex("uq_trade_sims_logins_user").on(t.userId),
+]);
+
+export const insertTradeSimsLoginSchema = createInsertSchema(tradeSimsLogins).omit({ id: true, firstSeenAt: true, lastSeenAt: true });
+export type InsertTradeSimsLogin = z.infer<typeof insertTradeSimsLoginSchema>;
+export type TradeSimsLogin = typeof tradeSimsLogins.$inferSelect;
+
 export const insertTradeSimsSandboxProjectSchema = createInsertSchema(tradeSimsSandboxProjects).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertTradeSimsSandboxProject = z.infer<typeof insertTradeSimsSandboxProjectSchema>;
 export type TradeSimsSandboxProject = typeof tradeSimsSandboxProjects.$inferSelect;

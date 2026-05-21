@@ -276,6 +276,96 @@ export async function sendCrisisEscalation(opts: {
   }
 }
 
+/**
+ * Daily digest of new Trade Sims signups. Sent to Dr. Flood's institutional
+ * inbox. Caller passes the unsent rows; route flips notifiedInDigest=true
+ * only after this returns true.
+ */
+export async function sendTradeSimsDigestEmail(rows: Array<{
+  userId: string;
+  email: string | null;
+  firstName: string | null;
+  lastName: string | null;
+  firstSeenAt: Date | string;
+  lastSeenAt: Date | string;
+  totalVisits: number;
+  trialMsUsedBeforeLogin: number | null;
+  lastPath: string | null;
+}>): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const to = "terryflood@thrivingcommunitiesforall.com";
+
+    const fmtTrial = (ms: number | null) => {
+      if (ms == null) return "—";
+      const sec = Math.round(ms / 1000);
+      return `${Math.floor(sec / 60)}m ${sec % 60}s`;
+    };
+    const fmtDate = (d: Date | string) => {
+      const dt = typeof d === "string" ? new Date(d) : d;
+      return dt.toLocaleString("en-US", { timeZone: "America/Chicago" });
+    };
+
+    const tableRows = rows
+      .map((r) => {
+        const name = `${r.firstName ?? ""} ${r.lastName ?? ""}`.trim() || r.email || r.userId;
+        return `<tr>
+          <td style="padding:6px 10px;border-bottom:1px solid #eee">${name}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #eee">${r.email ?? "—"}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #eee">${fmtDate(r.firstSeenAt)}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #eee">${r.totalVisits}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #eee">${fmtTrial(r.trialMsUsedBeforeLogin)}</td>
+          <td style="padding:6px 10px;border-bottom:1px solid #eee">${r.lastPath ?? "—"}</td>
+        </tr>`;
+      })
+      .join("");
+
+    const subject =
+      rows.length === 0
+        ? `[ThriveUp] Trade Sims daily digest — no new signups`
+        : `[ThriveUp] Trade Sims daily digest — ${rows.length} new signup${rows.length === 1 ? "" : "s"}`;
+
+    const body =
+      rows.length === 0
+        ? `<p>No new Trade Sims signups in the last 24 hours.</p>`
+        : `<p>${rows.length} new Trade Sims signup${rows.length === 1 ? "" : "s"} since the last digest:</p>
+           <table style="border-collapse:collapse;font-family:system-ui,sans-serif;font-size:14px">
+             <thead>
+               <tr style="text-align:left;background:#f5f5f5">
+                 <th style="padding:6px 10px">Name</th>
+                 <th style="padding:6px 10px">Email</th>
+                 <th style="padding:6px 10px">First seen (CT)</th>
+                 <th style="padding:6px 10px">Visits</th>
+                 <th style="padding:6px 10px">Trial used</th>
+                 <th style="padding:6px 10px">Last path</th>
+               </tr>
+             </thead>
+             <tbody>${tableRows}</tbody>
+           </table>`;
+
+    return await safeSend(
+      () =>
+        client.emails.send({
+          from: fromEmail,
+          to,
+          subject,
+          html: `<div style="font-family:system-ui,sans-serif">
+            <h2>Trade Sims daily digest</h2>
+            ${body}
+            <p style="font-size:12px;color:#888;margin-top:24px">
+              Full list at <a href="https://thrivingcommunitiesforall.com/admin/trade-sims-signups">/admin/trade-sims-signups</a>.
+              Sent automatically every 24 hours.
+            </p>
+          </div>`,
+        }),
+      `trade-sims-digest:${rows.length}`,
+    );
+  } catch (err: any) {
+    console.error("[Email] sendTradeSimsDigestEmail failed:", err?.message || err);
+    return false;
+  }
+}
+
 export async function sendWelcomeEmail(email: string, name: string) {
   const { client, fromEmail } = await getResendClient();
   await safeSend(() => client.emails.send({

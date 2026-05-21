@@ -297,6 +297,7 @@ const adminOpsItems: NavItem[] = [
   { title: "St. David's Operator Workspace", url: "/st-davids-wab2", icon: Wrench },
   { title: "Ops Center", url: "/ops-center", icon: Activity },
   { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
+  { title: "Trade Sims Signups", url: "/admin/trade-sims-signups", icon: Users },
   { title: "API Documentation", url: "/api-docs", icon: Globe },
 ];
 

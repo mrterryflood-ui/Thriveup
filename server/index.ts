@@ -109,6 +109,17 @@ app.use((req, res, next) => {
   registerAuthRoutes(app);
   await registerRoutes(httpServer, app);
 
+  // Trade Sims daily digest — fires once every 24 hours. The function itself
+  // is a no-op when there are no new signups.
+  if (process.env.NODE_ENV === "production") {
+    const { sendTradeSimsSignupsDigest } = await import("./trade-sims-trial-routes");
+    setInterval(() => {
+      sendTradeSimsSignupsDigest().catch((err) => {
+        console.error("[trade-sims-digest] interval failed:", err?.message || err);
+      });
+    }, 24 * 60 * 60 * 1000);
+  }
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
