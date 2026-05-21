@@ -1,10 +1,10 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-21T09:51:14.111Z",
+  "compiledAt": "2026-05-21T12:10:16.376Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-21T09:50:59.990Z"
+      "mtime": "2026-05-21T12:10:12.307Z"
     },
     {
       "path": "docs/active-commitments.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-21T09:51:14.111Z"
+      "mtime": "2026-05-21T12:10:16.376Z"
     }
   ],
   "project": {
@@ -269,6 +269,7 @@
     }
   ],
   "user_preferences": [
+    "**🚨 IRON RULE — pull from the system as it exists, every time you respond (2026-05-21).** Before answering anything substantive: read the actual file, run the actual query, check the actual route, open the actual doc this turn. Memory is a hint, not a source. Applies to code claims (\"X file does Y\"), grant facts (amounts/deadlines/IDs), platform state (counts/URLs/health), entity details, deadlines, partner roles — everything. If a claim can be checked against the codebase, the DB, an integration, or `attached_assets/`, check it before stating it. When the system disagrees with memory, the system wins and memory gets updated. Tool-batching is the enforcement mechanism: parallel reads/searches every turn so verification is cheap. Extends the existing \"never conjecture, always verify\" Iron Rule from a grant-doctrine rule into a per-response operating discipline.",
     "**🚨 Ethical, emotionally intelligent AI in EVERYTHING.** Persistent operating principle as of 2026-05-21. Lives in `server/ai-provider.ts` as `ETHICAL_EI_PREAMBLE` + `withEthicalPreamble()`. Wired into every code path: `streamAIResponse` (Gemini/Claude/OpenAI/DeepSeek streaming), `generateAIJSON`, `callProviderDirect`, AND `server/collaborative-ai.ts` `callEngine` (4-engine synthesis). Six rules: ETHICS (truth+primary sources) · PRIVACY & DIGNITY (no PII echo) · EMOTIONAL INTELLIGENCE (plain language, acknowledge what's hard, no moralizing, honor dialect) · SAFETY (988/911/DV/Childhelp + warm hand-off, no therapizing) · BIAS & EQUITY (Black/Latino/Indigenous/immigrant/justice-involved/foster/rural/low-income default; don't assume English/citizenship/internet/bank account) · HUMILITY (decision-support, not decision-maker; always a path back to a human). Idempotent so route-level prompts can't double-wrap. When adding a NEW AI call site, route through `ai-provider.ts` — do NOT call OpenAI/Anthropic/Gemini SDKs directly; if you must, import `withEthicalPreamble` and apply it.",
     "Iterative development; explain major changes before implementation.",
     "High-quality, well-tested code; clear, simple language for technical concepts.",
@@ -488,6 +489,47 @@
       "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
+      "id": "sankofa-feminine-health",
+      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
+      "url": "https://herhealthmatters2.com",
+      "role": "feminine-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+      "capabilities": {
+        "features": [
+          "Reproductive Health Education",
+          "Preventive Screening Scheduler",
+          "Hormonal Wellness Tracker",
+          "Cervical Cancer Awareness",
+          "Breast Cancer Screening Navigation",
+          "Menopause Management",
+          "Community Support Groups",
+          "Culturally Responsive Provider Matching",
+          "Pregnancy Pathway Routing",
+          "Health Literacy Resources",
+          "Telehealth Coordination"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
+        "outcomeMetrics": [
+          "Preventive screening completions: 312 (cervical + breast)",
+          "Provider match success rate: 82%",
+          "Reproductive health education sessions: 445",
+          "Pregnancy pathway routing completions: 89",
+          "Community support group active participants: 156"
+        ],
+        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa-maternal-health",
       "name": "Black Maternal Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -528,47 +570,6 @@
         "st-davids",
         "foundation",
         "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "sankofa-feminine-health",
-      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
-      "url": "https://herhealthmatters2.com",
-      "role": "feminine-health",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
-      "capabilities": {
-        "features": [
-          "Reproductive Health Education",
-          "Preventive Screening Scheduler",
-          "Hormonal Wellness Tracker",
-          "Cervical Cancer Awareness",
-          "Breast Cancer Screening Navigation",
-          "Menopause Management",
-          "Community Support Groups",
-          "Culturally Responsive Provider Matching",
-          "Pregnancy Pathway Routing",
-          "Health Literacy Resources",
-          "Telehealth Coordination"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
-        "outcomeMetrics": [
-          "Preventive screening completions: 312 (cervical + breast)",
-          "Provider match success rate: 82%",
-          "Reproductive health education sessions: 445",
-          "Pregnancy pathway routing completions: 89",
-          "Community support group active participants: 156"
-        ],
-        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -811,52 +812,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "sankofa",
-      "name": "Sankofa Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "health-gateway",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
-      "capabilities": {
-        "features": [
-          "Black Maternal Health Network Coordination",
-          "Mental Health Rights Advocacy",
-          "Breast Cancer Awareness & Screening",
-          "Black Men's Health Programs",
-          "Feminine OB Health Navigation",
-          "Cognitive Safety Protocols",
-          "Pill Management Integration",
-          "Behavioral Health Assessments",
-          "GIS Resource Matching",
-          "Sub-Platform Orchestration",
-          "Health Equity Analytics",
-          "Culturally Responsive Care Navigation",
-          "Population Health Dashboard",
-          "Community Health Worker Coordination"
-        ],
-        "subPlatforms": 5,
-        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
-        "outcomeMetrics": [
-          "Health equity screenings completed: 2,340 across 5 sub-platforms",
-          "GIS resource matches: 1,456 referrals with 71% completion",
-          "Sub-platform coordination events: 890 cross-referrals",
-          "Culturally responsive care navigation sessions: 678",
-          "Population health dashboard active metrics: 34 tracked indicators",
-          "Community health worker dispatches: 234"
-        ],
-        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "emergency-mgmt",
       "name": "Emergency Management",
       "url": "https://emergency-mgmt.replit.app",
@@ -899,49 +854,47 @@
       "last_heartbeat": null
     },
     {
-      "id": "m2c",
-      "name": "Mission Transition (M2C)",
-      "url": "https://vetmissiontransition.com",
-      "role": "veteran-transition",
-      "domain": "veterans",
+      "id": "sankofa",
+      "name": "Sankofa Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "health-gateway",
+      "domain": "health-equity",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Full-spectrum military-to-civilian transition platform covering the complete separation journey. MOS/AFSC career translation to civilian equivalents with salary data, comprehensive benefits navigation (VA healthcare, GI Bill, disability claims, VR&E), housing and financial planning tools, identity transition support addressing the loss-of-purpose crisis, validated skills assessment with employer matching, community connections mapped to veteran density, and military family support for spouses and dependents. Specifically targets the first 12 months post-separation — the highest suicide risk window — with proactive outreach triggers. Integrates with Whole-Person Health for crisis routing (C-SSRS/PCL-5), LifeBridge for social determinant support, MCE for veteran entrepreneurship, and Black Men's Health Hub for veteran health pathways.",
+      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
       "capabilities": {
         "features": [
-          "Transition Timeline Builder",
-          "MOS/AFSC Translation Engine",
-          "Benefits Navigator (VA/GI Bill/VR&E)",
-          "Housing Planning Tools",
-          "Financial Readiness Assessment",
-          "Community Connection Mapper",
-          "Identity Transition Support",
-          "Military Skills Assessment",
-          "Military Family Support",
-          "Employer Match System",
-          "Proactive Outreach Triggers",
-          "Guard/Reserve Support",
-          "Disability Claims Guidance",
-          "Peer Mentor Network"
+          "Black Maternal Health Network Coordination",
+          "Mental Health Rights Advocacy",
+          "Breast Cancer Awareness & Screening",
+          "Black Men's Health Programs",
+          "Feminine OB Health Navigation",
+          "Cognitive Safety Protocols",
+          "Pill Management Integration",
+          "Behavioral Health Assessments",
+          "GIS Resource Matching",
+          "Sub-Platform Orchestration",
+          "Health Equity Analytics",
+          "Culturally Responsive Care Navigation",
+          "Population Health Dashboard",
+          "Community Health Worker Coordination"
         ],
-        "riskWindow": "First 12 months post-separation — highest suicide risk period",
-        "grantNarrative": "Provides transition milestone completion rates, employment placement data, benefits enrollment metrics, and crisis intervention outcomes for SSG Fox ($750K) and WIOA veteran workforce grants",
+        "subPlatforms": 5,
+        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
         "outcomeMetrics": [
-          "Transition plans created: 567",
-          "MOS/AFSC translations completed: 1,234",
-          "Benefits enrollment assists: 345",
-          "Employment placement rate: 71%",
-          "Crisis interventions (first 12 months): 89",
-          "Military family support engagements: 234",
-          "Community connection matches: 456"
+          "Health equity screenings completed: 2,340 across 5 sub-platforms",
+          "GIS resource matches: 1,456 referrals with 71% completion",
+          "Sub-platform coordination events: 890 cross-referrals",
+          "Culturally responsive care navigation sessions: 678",
+          "Population health dashboard active metrics: 34 tracked indicators",
+          "Community health worker dispatches: 234"
         ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis/PCL-5), LifeBridge (social determinants), MCE (veteran entrepreneurs), Black Men's Health (veteran health), Pinnacle (veteran-owned business contracting)",
-        "targetPopulation": "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses"
+        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
       },
       "grant_alignment": [
+        "st-davids",
         "ssg-fox",
-        "wioa",
         "foundation"
       ],
       "last_heartbeat": null
@@ -1047,6 +1000,97 @@
       "last_heartbeat": null
     },
     {
+      "id": "m2c",
+      "name": "Mission Transition (M2C)",
+      "url": "https://vetmissiontransition.com",
+      "role": "veteran-transition",
+      "domain": "veterans",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Full-spectrum military-to-civilian transition platform covering the complete separation journey. MOS/AFSC career translation to civilian equivalents with salary data, comprehensive benefits navigation (VA healthcare, GI Bill, disability claims, VR&E), housing and financial planning tools, identity transition support addressing the loss-of-purpose crisis, validated skills assessment with employer matching, community connections mapped to veteran density, and military family support for spouses and dependents. Specifically targets the first 12 months post-separation — the highest suicide risk window — with proactive outreach triggers. Integrates with Whole-Person Health for crisis routing (C-SSRS/PCL-5), LifeBridge for social determinant support, MCE for veteran entrepreneurship, and Black Men's Health Hub for veteran health pathways.",
+      "capabilities": {
+        "features": [
+          "Transition Timeline Builder",
+          "MOS/AFSC Translation Engine",
+          "Benefits Navigator (VA/GI Bill/VR&E)",
+          "Housing Planning Tools",
+          "Financial Readiness Assessment",
+          "Community Connection Mapper",
+          "Identity Transition Support",
+          "Military Skills Assessment",
+          "Military Family Support",
+          "Employer Match System",
+          "Proactive Outreach Triggers",
+          "Guard/Reserve Support",
+          "Disability Claims Guidance",
+          "Peer Mentor Network"
+        ],
+        "riskWindow": "First 12 months post-separation — highest suicide risk period",
+        "grantNarrative": "Provides transition milestone completion rates, employment placement data, benefits enrollment metrics, and crisis intervention outcomes for SSG Fox ($750K) and WIOA veteran workforce grants",
+        "outcomeMetrics": [
+          "Transition plans created: 567",
+          "MOS/AFSC translations completed: 1,234",
+          "Benefits enrollment assists: 345",
+          "Employment placement rate: 71%",
+          "Crisis interventions (first 12 months): 89",
+          "Military family support engagements: 234",
+          "Community connection matches: 456"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis/PCL-5), LifeBridge (social determinants), MCE (veteran entrepreneurs), Black Men's Health (veteran health), Pinnacle (veteran-owned business contracting)",
+        "targetPopulation": "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "sankofa-mens-health",
+      "name": "Black Men's Health Hub",
+      "url": "https://thehealthyblkman.com",
+      "role": "mens-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
+      "capabilities": {
+        "features": [
+          "Prostate Cancer Screening Navigation",
+          "Cardiovascular Risk Assessment",
+          "Diabetes Prevention Program",
+          "Mental Health Stigma Reduction",
+          "Substance Use Screening",
+          "Peer Mentor Matching",
+          "Preventive Care Scheduler",
+          "Health Literacy Resources",
+          "Telehealth Coordination",
+          "Community Barbershop Health Events",
+          "Veteran Health Pathway"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents men's health engagement, preventive screening uptake, mental health stigma reduction metrics, and veteran-specific health outcomes for SSG Fox and St. David's reporting",
+        "outcomeMetrics": [
+          "Prostate screening navigations: 145",
+          "Cardiovascular risk assessments completed: 267",
+          "Mental health stigma reduction campaign reach: 3,400",
+          "Peer mentor matches: 89 active pairs",
+          "Preventive care scheduling completions: 178",
+          "Substance use screenings (AUDIT-C): 156"
+        ],
+        "integrationDepth": "Bidirectional with M2C (veteran men), Whole-Person Health (crisis/screening), LifeBridge (social determinants), PillScheduler (medication adherence)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-19T21:03:20.478Z"
+    },
+    {
       "id": "whole-person-health",
       "name": "Whole-Person Health Ecosystem",
       "url": "https://mentalwellnesssupport.net",
@@ -1108,49 +1152,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "sankofa-mens-health",
-      "name": "Black Men's Health Hub",
-      "url": "https://thehealthyblkman.com",
-      "role": "mens-health",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
-      "capabilities": {
-        "features": [
-          "Prostate Cancer Screening Navigation",
-          "Cardiovascular Risk Assessment",
-          "Diabetes Prevention Program",
-          "Mental Health Stigma Reduction",
-          "Substance Use Screening",
-          "Peer Mentor Matching",
-          "Preventive Care Scheduler",
-          "Health Literacy Resources",
-          "Telehealth Coordination",
-          "Community Barbershop Health Events",
-          "Veteran Health Pathway"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents men's health engagement, preventive screening uptake, mental health stigma reduction metrics, and veteran-specific health outcomes for SSG Fox and St. David's reporting",
-        "outcomeMetrics": [
-          "Prostate screening navigations: 145",
-          "Cardiovascular risk assessments completed: 267",
-          "Mental health stigma reduction campaign reach: 3,400",
-          "Peer mentor matches: 89 active pairs",
-          "Preventive care scheduling completions: 178",
-          "Substance use screenings (AUDIT-C): 156"
-        ],
-        "integrationDepth": "Bidirectional with M2C (veteran men), Whole-Person Health (crisis/screening), LifeBridge (social determinants), PillScheduler (medication adherence)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-19T21:03:20.478Z"
-    },
-    {
       "id": "video-creator-ai",
       "name": "Video Creator AI",
       "url": "https://videocreatorai.com",
@@ -1195,13 +1196,50 @@
       "last_heartbeat": null
     },
     {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
+      "capabilities": {
+        "features": [
+          "IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)",
+          "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)",
+          "Direct Federal Award Eligibility",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — IRS-determined 501(c)(3) under 170(b)(1)(A)(vi), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, veteran-founded, Black-led — providing program oversight and direct federal-award eligibility for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
+    },
+    {
       "id": "lifebridge",
       "name": "LifeBridge",
       "url": "https://lifetransitionsaid.org",
       "role": "resource-hub",
       "domain": "community-workforce",
       "status": "registered",
-      "health_status": "online",
+      "health_status": "degraded",
       "public_visible": true,
       "description": "Virtual 211 and Community Health Worker coordination hub providing 24/7 resource navigation across housing, food, healthcare, mental health, substance abuse, domestic violence, and crisis support — covering 20,670+ resources. Also addresses non-combat life events that drive veteran suicide (divorce, job loss, retirement, health diagnosis, bereavement, financial crisis) with evidence-based coping strategies and peer storytelling. Social determinant engine scores needs across 7 domains (housing, food, transportation, employment, healthcare, legal, safety) and routes to specific ecosystem platforms. Integrates with every health platform for crisis escalation, M2C for veteran life events, and ISSS for family-level support.",
       "capabilities": {
@@ -1239,43 +1277,6 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
-      "capabilities": {
-        "features": [
-          "IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)",
-          "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)",
-          "Direct Federal Award Eligibility",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
-        ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — IRS-determined 501(c)(3) under 170(b)(1)(A)(vi), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, veteran-founded, Black-led — providing program oversight and direct federal-award eligibility for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "ecosystem-nexus",
@@ -1322,6 +1323,50 @@
       "last_heartbeat": "2026-03-22T03:08:34.284Z"
     },
     {
+      "id": "safecognicare",
+      "name": "SafeCogniCare",
+      "url": "https://safecognicare.com",
+      "role": "cognitive-health",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
+      "capabilities": {
+        "features": [
+          "Cognitive Health Assessments (MoCA/MMSE)",
+          "Trail Making Test Digital",
+          "Early Intervention Alerts",
+          "Safety Protocols",
+          "Care Coordination Dashboard",
+          "Family Support Resources",
+          "Caregiver Burden Assessment",
+          "TBI Screening & Tracking",
+          "Cognitive Decline Monitoring",
+          "Provider Communication Portal",
+          "Medication Complexity Matching",
+          "Emergency Safety Plans"
+        ],
+        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
+        "outcomeMetrics": [
+          "Cognitive assessments completed (MoCA/MMSE): 567",
+          "TBI screenings: 234 (veteran population)",
+          "Early intervention alerts triggered: 89",
+          "Safety protocol activations: 45",
+          "Caregiver burden assessments: 178",
+          "Cognitive decline monitoring: 345 active patients",
+          "Provider communication events: 234"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "civic-signal",
       "name": "Civic Signal",
       "url": "https://power2thepeople.net",
@@ -1366,50 +1411,6 @@
         "knight",
         "mozilla",
         "wioa"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "safecognicare",
-      "name": "SafeCogniCare",
-      "url": "https://safecognicare.com",
-      "role": "cognitive-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Cognitive safety platform specializing in TBI (Traumatic Brain Injury), ADHD, dementia, and peripartum cognitive changes — validated cognitive health assessments (MoCA, MMSE, Trail Making), early intervention tools with automated provider alerts, comprehensive safety protocols for cognitive impairment scenarios, care coordination with family/providers/community resources, and family support resources including caregiver burden assessment. Critical for veteran populations (TBI prevalence) and maternal health (peripartum cognitive changes). Integrates with Whole-Person Health for crisis routing, PillScheduler for medication complexity matching to cognitive capacity, Perfectly Different for neurodevelopmental overlap, and M2C for veteran TBI pathways.",
-      "capabilities": {
-        "features": [
-          "Cognitive Health Assessments (MoCA/MMSE)",
-          "Trail Making Test Digital",
-          "Early Intervention Alerts",
-          "Safety Protocols",
-          "Care Coordination Dashboard",
-          "Family Support Resources",
-          "Caregiver Burden Assessment",
-          "TBI Screening & Tracking",
-          "Cognitive Decline Monitoring",
-          "Provider Communication Portal",
-          "Medication Complexity Matching",
-          "Emergency Safety Plans"
-        ],
-        "grantNarrative": "Provides cognitive screening completion rates, TBI intervention outcomes, caregiver support metrics, and cognitive decline monitoring data for SSG Fox veteran and St. David's health equity grants",
-        "outcomeMetrics": [
-          "Cognitive assessments completed (MoCA/MMSE): 567",
-          "TBI screenings: 234 (veteran population)",
-          "Early intervention alerts triggered: 89",
-          "Safety protocol activations: 45",
-          "Caregiver burden assessments: 178",
-          "Cognitive decline monitoring: 345 active patients",
-          "Provider communication events: 234"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis), PillScheduler (medication complexity), Perfectly Different (neurodevelopmental), M2C (veteran TBI), Maternal Health (peripartum cognition)"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "st-davids",
-        "foundation"
       ],
       "last_heartbeat": null
     },
