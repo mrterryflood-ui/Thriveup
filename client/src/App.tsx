@@ -38,6 +38,7 @@ const CertificatesPage = lazy(() => import("@/pages/certificates").then(m => ({ 
 const CertificateViewPage = lazy(() => import("@/pages/certificates").then(m => ({ default: m.CertificateViewPage })));
 const SocialMediaLiteracyPage = lazy(() => import("@/pages/social-media-literacy"));
 const AcademyHubPage = lazy(() => import("@/pages/academy/hub"));
+const OilPumpjackConceptPage = lazy(() => import("@/pages/concepts/oil-pumpjack"));
 const TradeSimsLandingPage = lazy(() => import("@/pages/academy/trade-sims/index"));
 const TradeSimsTradeDetailPage = lazy(() => import("@/pages/academy/trade-sims/trade-detail"));
 const TradeSimsLessonPlayerPage = lazy(() => import("@/pages/academy/trade-sims/lesson-player"));
@@ -295,6 +296,7 @@ function AppRouter() {
       <Route path="/social-media-literacy" component={SocialMediaLiteracyPage} />
       <Route path="/academy" component={AcademyVillagePage} />
       <Route path="/academy/hub" component={AcademyHubPage} />
+      <Route path="/concepts/oil-pumpjack" component={OilPumpjackConceptPage} />
       <Route path="/academy/trade-sims">
         <TradeSimsTrialGate><TradeSimsLandingPage /></TradeSimsTrialGate>
       </Route>
