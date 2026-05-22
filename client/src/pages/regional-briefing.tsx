@@ -568,8 +568,9 @@ export default function RegionalBriefingPage() {
                 {briefing}
               </pre>
 
-              {/* Follow-up Q&A */}
-              {briefing && !streaming && (
+              {/* Follow-up Q&A — show as soon as there's substantive briefing text,
+                  even if the SSE stream never sent a clean done event. */}
+              {briefing.trim().length > 200 && (
                 <div className="mt-6 pt-4 border-t space-y-3" data-testid="followup-section">
                   <div className="flex items-center gap-2 text-sm font-semibold">
                     <MessageCircleQuestion className="h-4 w-4" />
@@ -640,7 +641,7 @@ export default function RegionalBriefingPage() {
                         size="sm"
                         variant="secondary"
                         onClick={() => askFollowup(qa.prompt, qa.label)}
-                        disabled={followupBusy}
+                        disabled={followupBusy || streaming}
                         data-testid={`button-quick-${qa.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                         className="text-xs h-8"
                       >
@@ -666,7 +667,7 @@ export default function RegionalBriefingPage() {
                     />
                     <Button
                       onClick={() => askFollowup()}
-                      disabled={followupBusy || !followupQ.trim()}
+                      disabled={followupBusy || streaming || !followupQ.trim()}
                       data-testid="button-ask-followup"
                       className="sm:self-start"
                     >
