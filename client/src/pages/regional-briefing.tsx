@@ -98,8 +98,8 @@ export default function RegionalBriefingPage() {
     }
   }
 
-  async function askFollowup() {
-    const q = followupQ.trim();
+  async function askFollowup(overrideQ?: string, displayLabel?: string) {
+    const q = (overrideQ ?? followupQ).trim();
     if (!q) return;
     if (!briefing.trim()) {
       toast({ title: "Run a briefing first", variant: "destructive" });
@@ -112,8 +112,8 @@ export default function RegionalBriefingPage() {
         priorBriefing: briefing,
       });
       const data: { answer: string } = await res.json();
-      setFollowups((prev) => [...prev, { q, a: data.answer }]);
-      setFollowupQ("");
+      setFollowups((prev) => [...prev, { q: displayLabel ?? q, a: data.answer }]);
+      if (!overrideQ) setFollowupQ("");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Follow-up failed";
       toast({ title: "Follow-up failed", description: msg, variant: "destructive" });
@@ -121,6 +121,25 @@ export default function RegionalBriefingPage() {
       setFollowupBusy(false);
     }
   }
+
+  const QUICK_ACTIONS: Array<{ label: string; prompt: string }> = [
+    {
+      label: "So what?",
+      prompt: "Translate the problem analysis in the briefing above into the strategic 'so what' for the audience this briefing was framed for. Give me: (1) 3–5 strategic implications — what does this actually mean they should care about, in plain language; (2) why it matters NOW (timing, leverage points, windows closing); (3) what changes if nothing is done in the next 12 months. Keep it to one screen.",
+    },
+    {
+      label: "Build the implementation project",
+      prompt: "Now translate the briefing above into a concrete IMPLEMENTATION PROJECT we can launch in the next 90 days. Structure your answer exactly like this:\n\n## Project name (proposed)\nA short, plain-language name.\n\n## The bet (one paragraph)\nWhat we're testing, why now, who wins if it works.\n\n## Scope (in / out)\nWhich ZIPs, which population, which problem from the briefing — and what we are explicitly NOT doing in phase 1.\n\n## Lead + convening table\nWho leads (named role + entity from the briefing), who must be at the table (named stakeholders from section 4), who is informed but not at the table.\n\n## 30 / 60 / 90 day milestones\nConcrete, measurable, owned. One bullet per milestone with owner.\n\n## Resources required\nPeople (FTEs / loaned staff / volunteers), money (rough ranges, no invented dollar amounts), data/tools, space.\n\n## Quick wins in week 1–2\n3 things that can happen immediately to build momentum and create proof.\n\n## Risks + how we manage them\n3–5 real risks with a one-line mitigation each.\n\n## Success signal at day 90\nThe ONE thing that, if true at day 90, means this is worth scaling.\n\nGround every choice in the briefing above. Do not invent stakeholders, dollar amounts, or deadlines.",
+    },
+    {
+      label: "Next 5 moves this week",
+      prompt: "Give me the 5 most important moves I personally should make THIS WEEK based on the briefing above. Each move: (a) the action in one sentence, (b) who I'm calling/emailing (named role from section 4), (c) what I'm asking them for, (d) the email/call opener I can copy-paste. Plain, practical, no jargon.",
+    },
+    {
+      label: "Convening agenda",
+      prompt: "Design the agenda for the first convening meeting of the stakeholders identified in the briefing above. Output: (1) who's in the room (named roles), (2) the framing question (one sentence that gets everyone aligned), (3) 4–6 agenda items with time boxes (90-minute meeting), (4) the decision we need to walk out with, (5) what we send people 48 hours in advance to come prepared.",
+    },
+  ];
 
   const workflowsQuery = useQuery<{ workflows: SavedWorkflow[] }>({
     queryKey: ["/api/regional-briefing/workflows"],
@@ -521,11 +540,28 @@ export default function RegionalBriefingPage() {
                     </div>
                   )}
 
+                  {/* Quick-action buttons */}
+                  <div className="flex flex-wrap gap-2" data-testid="quick-actions">
+                    {QUICK_ACTIONS.map((qa) => (
+                      <Button
+                        key={qa.label}
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => askFollowup(qa.prompt, qa.label)}
+                        disabled={followupBusy}
+                        data-testid={`button-quick-${qa.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                        className="text-xs h-8"
+                      >
+                        {qa.label}
+                      </Button>
+                    ))}
+                  </div>
+
                   <div className="flex flex-col sm:flex-row gap-2">
                     <Textarea
                       value={followupQ}
                       onChange={(e) => setFollowupQ(e.target.value)}
-                      placeholder="e.g., Which childcare provider in 78664 has the most capacity? Or: what's the gap in north Wilco for infant care?"
+                      placeholder="…or type your own follow-up — e.g., 'Which 78725 providers have infant slots?', 'Write the United Way pitch in 200 words', 'What's the case for HHSC vs. WIOA funding?'"
                       rows={2}
                       className="text-sm"
                       data-testid="input-followup-question"
@@ -537,7 +573,7 @@ export default function RegionalBriefingPage() {
                       }}
                     />
                     <Button
-                      onClick={askFollowup}
+                      onClick={() => askFollowup()}
                       disabled={followupBusy || !followupQ.trim()}
                       data-testid="button-ask-followup"
                       className="sm:self-start"
@@ -547,7 +583,7 @@ export default function RegionalBriefingPage() {
                     </Button>
                   </div>
                   <p className="text-[11px] text-muted-foreground">
-                    ⌘/Ctrl + Enter to ask. The AI sees the full briefing above, so you can drill into any section ("expand on the McLennan stakeholders," "what about the 78753 ZIP?", "what's missing from the asset map?").
+                    ⌘/Ctrl + Enter to ask. Quick-action buttons run pre-built prompts against this briefing — "So what?" turns the problem into strategic implications, "Build the implementation project" turns it into a 30/60/90-day plan with owners + risks + quick wins.
                   </p>
                 </div>
               )}
