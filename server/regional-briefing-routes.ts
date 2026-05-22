@@ -495,6 +495,245 @@ function buildUserPrompt(contexts: LocationContext[], topic: string, question: s
   ].join("\n");
 }
 
+// ── No-AI structured briefing ────────────────────────────────────────────────
+// Door 2: assembles the briefing markdown directly from DB rows. No LLM call.
+// If the AI provider is down, slow, or off-discipline, this surface still works.
+
+type BriefingScope = "A" | "B" | "C" | "D" | "E";
+
+function parseScope(raw: unknown): BriefingScope {
+  const v = String(raw ?? "").trim().toUpperCase();
+  return v === "B" || v === "C" || v === "D" || v === "E" ? (v as BriefingScope) : "A";
+}
+
+function scopeIncludes(scope: BriefingScope, section: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): boolean {
+  if (section <= 4) return true;
+  if (section === 5) return scope === "C" || scope === "E";
+  if (section === 6) return scope === "D" || scope === "E";
+  return scope === "E"; // 7, 8
+}
+
+// Per-county RPLICE pull. rpliceAssessments are NOT scoped by countyFips in the
+// schema, so we deliberately do NOT render them under per-location headings —
+// rendering them there would be geographic misattribution. They surface
+// network-wide in a separate clearly-labelled section instead.
+async function loadStructuredRpliceForCounty(countyFips: string) {
+  if (!/^\d{5}$/.test(countyFips)) return { plans: [], baselines: [] };
+  const [plans, baselines] = await Promise.all([
+    db
+      .select()
+      .from(rpliceActionPlans)
+      .where(eq(rpliceActionPlans.countyFips, countyFips))
+      .orderBy(sql`${rpliceActionPlans.updatedAt} DESC NULLS LAST`)
+      .limit(5),
+    db
+      .select()
+      .from(outcomeBaselines)
+      .where(eq(outcomeBaselines.countyFips, countyFips))
+      .orderBy(sql`${outcomeBaselines.updatedAt} DESC NULLS LAST`)
+      .limit(5),
+  ]);
+  return { plans, baselines };
+}
+
+async function loadNetworkWideAssessments() {
+  return db
+    .select({
+      id: rpliceAssessments.id,
+      type: rpliceAssessments.assessmentType,
+      programName: rpliceAssessments.programName,
+      score: rpliceAssessments.score,
+      status: rpliceAssessments.status,
+    })
+    .from(rpliceAssessments)
+    .orderBy(sql`${rpliceAssessments.updatedAt} DESC NULLS LAST`)
+    .limit(8);
+}
+
+function buildStructuredBriefing(args: {
+  contexts: LocationContext[];
+  topic: string;
+  scope: BriefingScope;
+  rpliceByCounty: Map<string, Awaited<ReturnType<typeof loadStructuredRpliceForCounty>>>;
+  networkAssessments: Awaited<ReturnType<typeof loadNetworkWideAssessments>>;
+}): string {
+  const { contexts, topic, scope, rpliceByCounty, networkAssessments } = args;
+  const lines: string[] = [];
+  const audienceLabel = contexts.length > 1 ? `${contexts.length} locations` : contexts[0]?.location.label ?? "United States";
+
+  lines.push(`> Source: Data-only briefing (no AI) · Topic: ${topic} · Scope: [${scope}] · Locations: ${audienceLabel} · Generated: ${new Date().toISOString().slice(0, 10)}`);
+  lines.push("");
+  lines.push(`# ${topic} — data-only briefing`);
+  lines.push("");
+  lines.push("> This briefing is assembled directly from the platform database. Every row below came from a real query, not a model. Use it as the trusted backbone; the AI briefing adds narrative on top.");
+  lines.push("");
+
+  // §1 Place
+  if (scopeIncludes(scope, 1)) {
+    lines.push("## 1. Place");
+    for (const c of contexts) {
+      const bits = [c.location.region, c.location.zip ? `ZIP ${c.location.zip}` : null, c.location.countyFips ? `County FIPS ${c.location.countyFips}` : null].filter(Boolean);
+      lines.push(`- **${c.location.label}** — ${bits.join(" · ")}`);
+    }
+    if (!contexts.some((c) => c.location.countyFips)) {
+      lines.push("");
+      lines.push("> _Tip: add a 5-digit county FIPS to each location to unlock RPLICE plans + outcome baselines + Chainweb pulls. ANSI lookup at census.gov/library/reference/code-lists/ansi.html._");
+    }
+    lines.push("");
+  }
+
+  // §2 Data story (county-scoped action plans only — assessments are
+  // network-wide and rendered separately to avoid geographic misattribution)
+  if (scopeIncludes(scope, 2)) {
+    lines.push("## 2. Data story (county-scoped rows on file)");
+    const hasAny = Array.from(rpliceByCounty.values()).some((r) => r.plans.length);
+    if (!hasAny) {
+      lines.push("- No RPLICE action plans recorded for these counties yet.");
+      lines.push("- Run the Chainweb pull from the briefing page to populate Census ACS · CDC PLACES · ATSDR SVI · FBI CDE evidence for each county.");
+      lines.push("- Then come back here and the data story will fill itself in.");
+    } else {
+      for (const c of contexts) {
+        const r = c.location.countyFips ? rpliceByCounty.get(c.location.countyFips) : undefined;
+        if (!r?.plans.length) continue;
+        lines.push(`### ${c.location.label}`);
+        for (const p of r.plans) {
+          lines.push(`- RPLICE plan #${p.id} — **${p.regionName}** (status: ${p.status})`);
+        }
+      }
+    }
+    if (networkAssessments.length) {
+      lines.push("");
+      lines.push("**Network-wide RPLICE assessments (not county-scoped — context only):**");
+      for (const a of networkAssessments) {
+        lines.push(`- [${a.type}] **${a.programName}** — status: ${a.status}${a.score != null ? ` · score ${a.score}` : ""}`);
+      }
+    }
+    lines.push("");
+  }
+
+  // §3 Verifiable data — list primary sources we routinely pull
+  if (scopeIncludes(scope, 3)) {
+    lines.push("## 3. Verifiable data (primary sources)");
+    lines.push("| Source | What it gives you | URL |");
+    lines.push("|---|---|---|");
+    lines.push("| Census ACS 5-year | demographics, income, language, household type | https://data.census.gov |");
+    lines.push("| CDC PLACES | small-area health outcomes (chronic disease, mental health) | https://www.cdc.gov/places |");
+    lines.push("| ATSDR SVI | Social Vulnerability Index by tract | https://www.atsdr.cdc.gov/placeandhealth/svi |");
+    lines.push("| FBI Crime Data Explorer | offense/arrest by agency | https://cde.ucr.cjis.gov |");
+    lines.push("| HHSC Childcare Licensing (TX) | licensed centers + family homes | https://www.hhs.texas.gov/services/safety/child-care |");
+    lines.push("| TEA AEIS (TX schools) | district enrollment, demographics | https://tea.texas.gov |");
+    lines.push("| SAM.gov / Grants.gov | federal funding opportunities | https://sam.gov · https://grants.gov |");
+    lines.push("");
+    lines.push("> _The Chainweb runner on this page chains the first four for any county and writes evidence rows you can audit. No AI in that chain._");
+    lines.push("");
+  }
+
+  // §4 Stakeholder ecosystem (TCAF platforms + a structural reminder of who-touches-whom)
+  if (scopeIncludes(scope, 4)) {
+    lines.push("## 4. Stakeholder ecosystem (TCAF platforms in scope)");
+    const platforms = contexts[0]?.platforms ?? [];
+    if (!platforms.length) {
+      lines.push("- _No public-facing TCAF platforms loaded._");
+    } else {
+      for (const p of platforms) {
+        lines.push(`- **${p.name}** — ${p.role ?? "n/a"}${p.description ? ` · ${p.description}` : ""}${p.url ? ` · [${p.url}](${p.url})` : ""}`);
+      }
+    }
+    lines.push("");
+    lines.push("> _Local stakeholders (county judge, ISD superintendents, FQHC CMOs, LMHA director, faith-network anchors, philanthropy program officers) are NOT auto-named here — that requires verified primary sources. The AI briefing names them with a `[verify]` tag; this data-only door does not invent them._");
+    lines.push("");
+  }
+
+  // §5 Funding — list grants honestly (already deadline-filtered server-side)
+  if (scopeIncludes(scope, 5)) {
+    lines.push("## 5. Funding picture (open grants only)");
+    const allGrants = contexts.flatMap((c) => c.grants.map((g) => ({ ...g, locationLabel: c.location.label })));
+    if (!allGrants.length) {
+      lines.push("- No open grants matched this topic + region in the database.");
+      lines.push("- Try a broader topic phrase, or run the grant discovery scan from the Grant Command Center.");
+    } else {
+      lines.push("| # | Title | Agency | Funding | Deadline | Fit | Location | Link |");
+      lines.push("|---|---|---|---|---|---|---|---|");
+      allGrants.slice(0, 30).forEach((g, i) => {
+        const link = g.source_url ? `[open](${g.source_url})` : "n/a";
+        lines.push(`| ${i + 1} | ${g.title.replace(/\|/g, "\\|")} | ${g.agency ?? "n/a"} | ${g.funding_amount ?? "n/a"} | ${g.deadline ?? "rolling"} | ${g.fit_score ?? "n/a"} | ${g.locationLabel} | ${link} |`);
+      });
+    }
+    lines.push("");
+  }
+
+  // §6 TCAF fit — same platform list reframed as "what TCAF brings"
+  if (scopeIncludes(scope, 6)) {
+    lines.push("## 6. TCAF backbone capabilities");
+    const platforms = contexts[0]?.platforms ?? [];
+    if (!platforms.length) {
+      lines.push("- _No public-facing TCAF platforms loaded._");
+    } else {
+      for (const p of platforms) {
+        lines.push(`- **${p.name}** (${p.role ?? "n/a"}) — ${p.description ?? "no description"}${p.url ? ` · [${p.url}](${p.url})` : ""}`);
+      }
+    }
+    lines.push("");
+  }
+
+  // §7 Implementation plan — existing RPLICE action plans by county
+  if (scopeIncludes(scope, 7)) {
+    lines.push("## 7. Implementation plan (RPLICE action plans on file)");
+    let anyPlan = false;
+    for (const c of contexts) {
+      const r = c.location.countyFips ? rpliceByCounty.get(c.location.countyFips) : undefined;
+      if (!r?.plans.length) continue;
+      anyPlan = true;
+      lines.push(`### ${c.location.label}`);
+      for (const p of r.plans) {
+        lines.push(`- **Plan #${p.id} — ${p.regionName}** (status: ${p.status})`);
+        const phases = Array.isArray(p.phases) ? (p.phases as Array<Record<string, unknown>>) : [];
+        if (phases.length) {
+          for (const ph of phases.slice(0, 6)) {
+            const name = String(ph?.name ?? ph?.title ?? "phase");
+            const owner = ph?.owner ? ` · owner: ${ph.owner}` : "";
+            const window = ph?.window ?? ph?.timeline ?? "";
+            lines.push(`  - ${name}${window ? ` (${window})` : ""}${owner}`);
+          }
+        }
+      }
+    }
+    if (!anyPlan) {
+      lines.push("- No RPLICE action plans on file for these counties.");
+      lines.push("- Create one: open `/rplice-tools` or save an AI-generated plan from a follow-up answer.");
+    }
+    lines.push("");
+  }
+
+  // §8 Outcomes — outcome baselines by county
+  if (scopeIncludes(scope, 8)) {
+    lines.push("## 8. Measurable outcomes (outcome baselines on file)");
+    let anyBase = false;
+    for (const c of contexts) {
+      const r = c.location.countyFips ? rpliceByCounty.get(c.location.countyFips) : undefined;
+      if (!r?.baselines.length) continue;
+      anyBase = true;
+      lines.push(`### ${c.location.label}`);
+      for (const b of r.baselines) {
+        const mCount = b.metrics && typeof b.metrics === "object" ? Object.keys(b.metrics as Record<string, unknown>).length : 0;
+        const tCount = b.targets && typeof b.targets === "object" ? Object.keys(b.targets as Record<string, unknown>).length : 0;
+        lines.push(`- **Baseline #${b.id} — ${b.regionName}** · ${b.timelineMonths ?? 12} months · status: ${b.status} · ${mCount} metric${mCount === 1 ? "" : "s"}, ${tCount} target${tCount === 1 ? "" : "s"}`);
+      }
+    }
+    if (!anyBase) {
+      lines.push("- No outcome baselines on file for these counties.");
+      lines.push("- Create one: open `/rplice-tools` and define metrics + 12-month targets per ZIP.");
+    }
+    lines.push("");
+  }
+
+  lines.push("---");
+  lines.push("");
+  lines.push("_This briefing was assembled in code from your database — no AI was called. If you want narrative depth (data story woven through CFIR/RE-AIM/R&R lens, named stakeholders, audience-framed implications), run the AI briefing on the same locations + topic. Both doors lead to the same data._");
+
+  return lines.join("\n");
+}
+
 // ── Slug helper for saved workflows ──────────────────────────────────────────
 function makeSlug(name: string): string {
   const base = name
@@ -801,6 +1040,60 @@ export function registerRegionalBriefingRoutes(app: Express): void {
       } catch (err) {
         console.error("[regional-briefing] save-action-plan failed:", err);
         res.status(500).json({ error: "Could not save action plan" });
+      }
+    },
+  );
+
+  // ── DOOR 2: structured / no-AI briefing ───────────────────────────────────
+  // Assembles markdown from DB rows only. Used as a single-point-of-failure
+  // backup when the AI provider is down, slow, or off-discipline, AND as the
+  // "trusted backbone" view that funders and auditors can ask for explicitly.
+  app.post(
+    "/api/regional-briefing/structured",
+    requireSignedIn,
+    rateLimit({ keyPrefix: "rb-structured", max: 30, windowMs: 10 * 60_000 }),
+    async (req: Request, res: Response) => {
+      try {
+        // SPOF discipline: door 2 must NEVER call the AI provider. Reject
+        // question-only requests with a clear instruction to Parse first (which
+        // populates explicit locations[] + topic via /extract, the only place
+        // we tolerate AI in this flow). This guarantees /structured stays up
+        // even when the AI stack is down.
+        const rawLocs = Array.isArray(req.body?.locations) ? (req.body.locations as unknown[]) : null;
+        if (!rawLocs || !rawLocs.length) {
+          return res.status(400).json({
+            error: "Structured (no-AI) briefing requires explicit locations[]. Click Parse to populate locations from your question, then try again. (This door never calls the AI.)",
+          });
+        }
+        const resolved = await resolveAsk(req.body ?? {});
+        if ("error" in resolved) return res.status(400).json({ error: resolved.error });
+        const { locations, topic, question } = resolved;
+        const scope = parseScope(req.body?.scope);
+        const contexts = await Promise.all(locations.map((l) => loadLocationContext(l, topic)));
+        const countyFipsList = extractCountyFips(locations);
+        const rpliceByCounty = new Map<string, Awaited<ReturnType<typeof loadStructuredRpliceForCounty>>>();
+        const [, networkAssessments] = await Promise.all([
+          Promise.all(
+            countyFipsList.map(async (f) => {
+              rpliceByCounty.set(f, await loadStructuredRpliceForCounty(f));
+            }),
+          ),
+          loadNetworkWideAssessments(),
+        ]);
+        const briefing = buildStructuredBriefing({ contexts, topic, scope, rpliceByCounty, networkAssessments });
+        res.json({
+          source: "structured",
+          locations,
+          topic,
+          scope,
+          question: question || null,
+          per_location: contexts.map((c) => ({ location: c.location, grant_count: c.grants.length, grants: c.grants })),
+          platforms: contexts[0]?.platforms ?? [],
+          briefing,
+        });
+      } catch (err) {
+        console.error("[regional-briefing] structured failed:", err);
+        res.status(500).json({ error: "Failed to assemble structured briefing" });
       }
     },
   );

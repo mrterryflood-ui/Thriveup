@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Sparkles, Loader2, ExternalLink, Send, Save, X, Plus, MapPin, Bookmark, Trash2, Database, Copy, Check, MessageCircleQuestion,
+  Sparkles, Loader2, ExternalLink, Send, Save, X, Plus, MapPin, Bookmark, Trash2, Database, Copy, Check, MessageCircleQuestion, FileText,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -79,6 +79,11 @@ export default function RegionalBriefingPage() {
 
   // Chainweb runner state
   const [chainwebBusy, setChainwebBusy] = useState(false);
+
+  // Door 2 (no-AI structured briefing) state
+  const [scope, setScope] = useState<"A" | "B" | "C" | "D" | "E">("A");
+  const [structuredBusy, setStructuredBusy] = useState(false);
+  const [briefingSource, setBriefingSource] = useState<"ai" | "structured" | null>(null);
 
   // Copy + follow-up state
   const [copied, setCopied] = useState(false);
@@ -217,6 +222,7 @@ export default function RegionalBriefingPage() {
     }
     setStreaming(true);
     setBriefing("");
+    setBriefingSource("ai");
     setPerLocation([]);
     setPlatforms([]);
 
@@ -359,6 +365,59 @@ export default function RegionalBriefingPage() {
     setLocations((prev) => [...prev, { label: "New location", region: "" }]);
   }
 
+  // DOOR 2 — no-AI structured briefing. Assembled by server in code from DB
+  // rows only. Slower to read, but it never fails because the AI failed.
+  async function runStructured(overrides?: { question?: string; locations?: BriefingLocation[]; topic?: string; scope?: "A" | "B" | "C" | "D" | "E" }) {
+    const q = (overrides?.question ?? question).trim();
+    const locs = overrides?.locations ?? locations;
+    const tpc = overrides?.topic ?? topic;
+    const sc = overrides?.scope ?? scope;
+    if (!q && !locs.length) {
+      toast({ title: "Type a question or add a location first", variant: "destructive" });
+      return;
+    }
+    setStructuredBusy(true);
+    setBriefing("");
+    setBriefingSource("structured");
+    setPerLocation([]);
+    setPlatforms([]);
+    try {
+      const body: Record<string, unknown> = { scope: sc };
+      if (q) body.question = q;
+      if (locs.length) body.locations = locs;
+      if (tpc) body.topic = tpc;
+      const res = await apiRequest("POST", "/api/regional-briefing/structured", body);
+      const data: {
+        briefing: string;
+        locations: BriefingLocation[];
+        topic: string;
+        scope: string;
+        per_location: PerLocation[];
+        platforms: PlatformHit[];
+      } = await res.json();
+      setBriefing(data.briefing);
+      if (data.locations?.length) setLocations(data.locations);
+      if (data.topic) setTopic(data.topic);
+      if (data.per_location) setPerLocation(data.per_location);
+      if (data.platforms) setPlatforms(data.platforms);
+      toast({ title: "Built from data", description: `Scope ${data.scope} · ${data.platforms?.length ?? 0} platforms · no AI was called.` });
+      // Cache to active workflow if any
+      if (activeSlug && data.briefing) {
+        try {
+          await apiRequest("POST", `/api/regional-briefing/workflows/${activeSlug}/cache`, { briefing: data.briefing });
+          queryClient.invalidateQueries({ queryKey: ["/api/regional-briefing/workflows"] });
+        } catch {
+          /* best-effort */
+        }
+      }
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Build from data failed";
+      toast({ title: "Build from data failed", description: msg, variant: "destructive" });
+    } finally {
+      setStructuredBusy(false);
+    }
+  }
+
   async function runChainweb() {
     const countyLocs = locations.filter((l) => l.countyFips && /^\d{5}$/.test(l.countyFips));
     if (!countyLocs.length) {
@@ -435,11 +494,39 @@ export default function RegionalBriefingPage() {
                     {extracting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <MapPin className="h-4 w-4 mr-2" />}
                     Parse
                   </Button>
-                  <Button onClick={() => run()} disabled={streaming} data-testid="button-run-briefing">
+                  <Button onClick={() => run()} disabled={streaming || structuredBusy} data-testid="button-run-briefing">
                     {streaming ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
-                    {streaming ? "Working…" : "Run briefing"}
+                    {streaming ? "Working…" : "Run briefing (AI)"}
                   </Button>
                 </div>
+              </div>
+
+              {/* DOOR 2 — no-AI structured briefing controls */}
+              <div className="border-t pt-3 flex flex-wrap items-center gap-2" data-testid="structured-door-controls">
+                <span className="text-xs font-semibold uppercase text-muted-foreground">Or — build from data only:</span>
+                <select
+                  value={scope}
+                  onChange={(e) => setScope(e.target.value as "A" | "B" | "C" | "D" | "E")}
+                  className="text-xs border rounded px-2 py-1 bg-background"
+                  data-testid="select-scope"
+                >
+                  <option value="A">[A] Situation (§1–4)</option>
+                  <option value="B">[B] Asset map (§1–4)</option>
+                  <option value="C">[C] Funding (+§5)</option>
+                  <option value="D">[D] TCAF fit (+§6)</option>
+                  <option value="E">[E] Full strategy (§1–8)</option>
+                </select>
+                <Button
+                  variant="outline"
+                  onClick={() => runStructured()}
+                  disabled={structuredBusy || streaming}
+                  data-testid="button-run-structured"
+                  size="sm"
+                >
+                  {structuredBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                  Build from data (no AI)
+                </Button>
+                <span className="text-[11px] text-muted-foreground">Second door — same data, no LLM. Use when AI is down, slow, or you need an auditable backbone.</span>
               </div>
 
               {/* Parsed locations editor */}
@@ -539,8 +626,20 @@ export default function RegionalBriefingPage() {
           {/* Briefing output */}
           <Card>
             <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
-              <CardTitle className="text-base">Briefing</CardTitle>
-              {briefing && !streaming && (
+              <CardTitle className="text-base flex items-center gap-2">
+                Briefing
+                {briefingSource === "structured" && (
+                  <Badge variant="outline" className="text-[10px]" data-testid="badge-source-structured">
+                    <Database className="h-3 w-3 mr-1" /> data-only · no AI
+                  </Badge>
+                )}
+                {briefingSource === "ai" && (
+                  <Badge variant="outline" className="text-[10px]" data-testid="badge-source-ai">
+                    <Sparkles className="h-3 w-3 mr-1" /> AI narrative
+                  </Badge>
+                )}
+              </CardTitle>
+              {briefing && !streaming && !structuredBusy && (
                 <Button
                   size="sm"
                   variant="outline"
@@ -772,7 +871,10 @@ export default function RegionalBriefingPage() {
                       Load
                     </Button>
                     <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => { loadWorkflow(wf); setTimeout(() => run({ question: wf.question, locations: wf.locations, topic: wf.topic }), 50); }} data-testid={`button-rerun-${wf.slug}`}>
-                      Re-run
+                      Re-run AI
+                    </Button>
+                    <Button size="sm" variant="outline" className="h-7 text-[10px]" onClick={() => { loadWorkflow(wf); setTimeout(() => runStructured({ question: wf.question, locations: wf.locations, topic: wf.topic, scope }), 50); }} data-testid={`button-replay-data-${wf.slug}`} title="Replay this workflow against fresh DB data — no AI in the loop">
+                      Replay data
                     </Button>
                     <Button size="sm" variant="ghost" className="h-7 px-2" onClick={() => deleteMutation.mutate(wf.slug)} data-testid={`button-delete-${wf.slug}`}>
                       <Trash2 className="h-3 w-3" />
