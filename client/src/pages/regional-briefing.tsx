@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Sparkles, Loader2, ExternalLink, Send, Save, X, Plus, MapPin, Bookmark, Trash2, Database,
+  Sparkles, Loader2, ExternalLink, Send, Save, X, Plus, MapPin, Bookmark, Trash2, Database, Copy, Check, MessageCircleQuestion,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -79,6 +79,48 @@ export default function RegionalBriefingPage() {
 
   // Chainweb runner state
   const [chainwebBusy, setChainwebBusy] = useState(false);
+
+  // Copy + follow-up state
+  const [copied, setCopied] = useState(false);
+  const [followupQ, setFollowupQ] = useState("");
+  const [followupBusy, setFollowupBusy] = useState(false);
+  const [followups, setFollowups] = useState<Array<{ q: string; a: string }>>([]);
+
+  async function copyBriefing() {
+    if (!briefing) return;
+    try {
+      await navigator.clipboard.writeText(briefing);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+      toast({ title: "Copied", description: "Briefing copied to clipboard." });
+    } catch {
+      toast({ title: "Copy failed", description: "Long-press the text to select and copy manually.", variant: "destructive" });
+    }
+  }
+
+  async function askFollowup() {
+    const q = followupQ.trim();
+    if (!q) return;
+    if (!briefing.trim()) {
+      toast({ title: "Run a briefing first", variant: "destructive" });
+      return;
+    }
+    setFollowupBusy(true);
+    try {
+      const res = await apiRequest("POST", "/api/regional-briefing/followup", {
+        question: q,
+        priorBriefing: briefing,
+      });
+      const data: { answer: string } = await res.json();
+      setFollowups((prev) => [...prev, { q, a: data.answer }]);
+      setFollowupQ("");
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Follow-up failed";
+      toast({ title: "Follow-up failed", description: msg, variant: "destructive" });
+    } finally {
+      setFollowupBusy(false);
+    }
+  }
 
   const workflowsQuery = useQuery<{ workflows: SavedWorkflow[] }>({
     queryKey: ["/api/regional-briefing/workflows"],
@@ -428,13 +470,25 @@ export default function RegionalBriefingPage() {
 
           {/* Briefing output */}
           <Card>
-            <CardHeader className="pb-3">
+            <CardHeader className="pb-3 flex flex-row items-center justify-between space-y-0">
               <CardTitle className="text-base">Briefing</CardTitle>
+              {briefing && !streaming && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={copyBriefing}
+                  data-testid="button-copy-briefing"
+                  className="h-8"
+                >
+                  {copied ? <Check className="h-3.5 w-3.5 mr-1.5" /> : <Copy className="h-3.5 w-3.5 mr-1.5" />}
+                  {copied ? "Copied" : "Copy"}
+                </Button>
+              )}
             </CardHeader>
             <CardContent>
               {!briefing && !streaming && (
                 <p className="text-sm text-muted-foreground">
-                  Type your question, optionally hit <em>Parse</em> to review the locations the AI extracted, then <em>Run briefing</em>. The answer streams here with: the data story, verifiable data, stakeholders by ZIP, every matching grant, all TCAF solutions, an implementation plan, measurable outcomes per stakeholder, cross-location comparison (if 2+ locations), and concrete next moves.
+                  Type your question, optionally hit <em>Parse</em> to review the locations the AI extracted, then <em>Run briefing</em>. The answer is scope-aware — ask to "understand the situation" and you get place + data story + stakeholders only; ask for the funding picture, TCAF fit, or a full plan to expand.
                 </p>
               )}
               {streaming && !briefing && (
@@ -442,9 +496,61 @@ export default function RegionalBriefingPage() {
                   <Loader2 className="h-4 w-4 animate-spin" /> Loading per-location grants + platforms, then synthesizing…
                 </div>
               )}
-              <pre className="whitespace-pre-wrap text-sm leading-6 font-sans" data-testid="text-briefing">
+              <pre className="whitespace-pre-wrap text-sm leading-6 font-sans select-text" data-testid="text-briefing">
                 {briefing}
               </pre>
+
+              {/* Follow-up Q&A */}
+              {briefing && !streaming && (
+                <div className="mt-6 pt-4 border-t space-y-3" data-testid="followup-section">
+                  <div className="flex items-center gap-2 text-sm font-semibold">
+                    <MessageCircleQuestion className="h-4 w-4" />
+                    Ask a follow-up about this briefing
+                  </div>
+
+                  {followups.length > 0 && (
+                    <div className="space-y-3">
+                      {followups.map((f, i) => (
+                        <div key={i} className="border-l-2 border-primary/40 pl-3 space-y-1.5" data-testid={`followup-${i}`}>
+                          <div className="text-xs font-medium text-muted-foreground">You asked:</div>
+                          <div className="text-sm font-medium">{f.q}</div>
+                          <div className="text-xs font-medium text-muted-foreground pt-1">Answer:</div>
+                          <pre className="whitespace-pre-wrap text-sm leading-6 font-sans select-text">{f.a}</pre>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex flex-col sm:flex-row gap-2">
+                    <Textarea
+                      value={followupQ}
+                      onChange={(e) => setFollowupQ(e.target.value)}
+                      placeholder="e.g., Which childcare provider in 78664 has the most capacity? Or: what's the gap in north Wilco for infant care?"
+                      rows={2}
+                      className="text-sm"
+                      data-testid="input-followup-question"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
+                          e.preventDefault();
+                          askFollowup();
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={askFollowup}
+                      disabled={followupBusy || !followupQ.trim()}
+                      data-testid="button-ask-followup"
+                      className="sm:self-start"
+                    >
+                      {followupBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+                      Ask
+                    </Button>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground">
+                    ⌘/Ctrl + Enter to ask. The AI sees the full briefing above, so you can drill into any section ("expand on the McLennan stakeholders," "what about the 78753 ZIP?", "what's missing from the asset map?").
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
 

@@ -504,6 +504,53 @@ export function registerRegionalBriefingRoutes(app: Express): void {
     },
   );
 
+  // ── Follow-up question against the just-produced briefing ─────────────────
+  app.post(
+    "/api/regional-briefing/followup",
+    requireSignedIn,
+    rateLimit({ keyPrefix: "rb-followup", max: 20, windowMs: 10 * 60_000 }),
+    async (req: Request, res: Response) => {
+      try {
+        const question = clean(req.body?.question, MAX_LEN);
+        const priorBriefing = clean(req.body?.priorBriefing, 20000);
+        if (!question) return res.status(400).json({ error: "question is required" });
+        if (!priorBriefing) return res.status(400).json({ error: "priorBriefing is required" });
+
+        const sys = [
+          "You are TCAF's Regional Briefing AI in FOLLOW-UP mode. The user already received a full briefing (below). They now have ONE specific question about it.",
+          "",
+          "RULES:",
+          "- Answer ONLY the user's specific question. Do not re-summarize the whole briefing.",
+          "- Ground your answer in the prior briefing first. If they ask about something the briefing covered, quote or reference that section.",
+          "- If the question goes beyond what the briefing covered, say plainly what you'd need to look up next (Census ACS, CDC PLACES, state portal, etc.) and mark unverified claims '[needs primary-source pull]'.",
+          "- Never invent stakeholder names, dollar amounts, deadlines, or stats. If unsure, say so.",
+          "- Plain language. Short. The user is a smart, busy practitioner mid-conversation.",
+          "- 'President' not 'CEO' for Dr. Flood. If City of Austin is involved, remember Meredith Sisnett (City employee) COI flag.",
+        ].join("\n");
+
+        const user = [
+          "=== PRIOR BRIEFING (what you produced earlier) ===",
+          priorBriefing,
+          "",
+          "=== USER'S FOLLOW-UP QUESTION ===",
+          question,
+        ].join("\n");
+
+        const answer = await generateAIResponse(
+          [
+            { role: "system", content: sys },
+            { role: "user", content: user },
+          ],
+          1500,
+        );
+        res.json({ answer });
+      } catch (err) {
+        console.error("[regional-briefing] followup failed:", err);
+        res.status(500).json({ error: "Follow-up failed" });
+      }
+    },
+  );
+
   // ── Saved workflows CRUD ──────────────────────────────────────────────────
   app.get(
     "/api/regional-briefing/workflows",
