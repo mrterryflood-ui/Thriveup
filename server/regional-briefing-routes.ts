@@ -543,7 +543,7 @@ export function registerRegionalBriefingRoutes(app: Express): void {
             },
             { role: "user", content: buildUserPrompt(contexts, topic, question) },
           ],
-          4000,
+          16000,
         );
         res.json({
           locations,
@@ -610,7 +610,7 @@ export function registerRegionalBriefingRoutes(app: Express): void {
             },
             { role: "user", content: buildUserPrompt(contexts, topic, question) },
           ],
-          maxTokens: 4000,
+          maxTokens: 16000,
           onChunk: (content: string) => {
             if (!clientDisconnected) res.write(`data: ${JSON.stringify({ content })}\n\n`);
           },
@@ -686,7 +686,7 @@ export function registerRegionalBriefingRoutes(app: Express): void {
             { role: "system", content: sys },
             { role: "user", content: user },
           ],
-          1500,
+          6000,
         );
         res.json({ answer, rpliceWired: true });
       } catch (err) {
