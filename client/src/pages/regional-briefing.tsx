@@ -181,8 +181,11 @@ export default function RegionalBriefingPage() {
         }
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Briefing failed";
-      toast({ title: "Briefing failed", description: message, variant: "destructive" });
+      const raw = err instanceof Error ? err.message : String(err);
+      const friendly = /load failed|network|fetch/i.test(raw)
+        ? "The connection dropped mid-briefing (server hiccup). Hit Run briefing again — your topic and locations are still here."
+        : raw || "Briefing failed";
+      toast({ title: "Briefing failed", description: friendly, variant: "destructive" });
     } finally {
       setStreaming(false);
     }
