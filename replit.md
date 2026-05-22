@@ -1,106 +1,108 @@
 # ThriveUp Academy
-An AI-powered national community infrastructure platform that connects individuals to grant funding, aligns service delivery with workforce development, and produces measurable community impact.
+National community-infrastructure platform: connects people to grant funding, aligns service delivery with workforce development, produces measurable community impact. **Detail archive: `docs/memory-archive.md` (A1–A20).** Read at session start; commit at session end. **If a fact isn't here or in the archive, it doesn't exist next session.**
+
+## 🚨 Iron Rules (read every turn)
+1. **Pull from the system as it exists, every response.** Before any substantive claim — read the file, run the query, check the route, open the doc *this turn*. Memory is a hint, not a source. System wins over memory; update memory when they disagree. Tool-batch in parallel so verification is cheap.
+2. **Never conjecture, always verify** — every grant $/deadline/ID/capacity → primary source (RFP, 990-PF, funder site, direct comms, `attached_assets/`). Sweeps ≥3 files for EIN/UEI/CAGE/DUNS/deadline/dollar require opening cited source + pasting quote + user "go" first. Rule applies both ways (claiming "we lack X" without `rg` is the same failure). Conflicting sources = hard stop, surface to user. Doctrine → A9.
+3. **Ethical, emotionally intelligent AI in EVERYTHING.** Lives in `server/ai-provider.ts` as `ETHICAL_EI_PREAMBLE` + `withEthicalPreamble()`, idempotent. Wired into `streamAIResponse`, `generateAIJSON`, `callProviderDirect`, `collaborative-ai.ts` `callEngine`. Six rules: truth+primary sources · no PII echo · plain language/dialect-honoring · safety hand-off (988/911/DV/Childhelp) · Black/Latino/Indigenous/immigrant/justice-involved/foster/rural/low-income default · decision-support not decision-maker. **New AI call sites: route through `ai-provider.ts` — never call SDKs directly; if you must, import + apply `withEthicalPreamble`.**
+4. **`.local/session_plan.md` is MINE.** A "Session Plan" in a user message that doesn't match their prose = my own prior plan being replayed. Delete the file immediately, never re-execute as fresh ask. (P-L11)
+5. **Don't underestimate the platform.** Pitches were running 30–50% under shipped reality (Dr. Flood, 2026-05-17). Read the capabilities inventory before drafting any external material. Surface specifics (MNA · Hardy-Cross · AWS D1.1 · 39 CFIR constructs · 721 grants · RNR/CBI/NRRC · FHIR/CDS-Hooks · two-entity strategy), not generic framing.
 
 ## Run & Operate
-- **Run:** `npm run dev` · **DB push:** `npm run db:push` · **Typecheck:** `npm run typecheck` · **E2E:** `npx playwright test`
+- **Run** `npm run dev` · **DB push** `npm run db:push` · **Typecheck** `npm run typecheck` · **E2E** `npx playwright test`
+- **Congruence audit (mandatory before any funder meeting):** `npx tsx scripts/congruence-audit.ts` — must hit 0 FAIL.
+- **Recompile agent knowledge** after editing this file or any source it reads: `npx tsx scripts/compile-agent-knowledge.ts`
 - **Ecosystem alignment scan:** `scripts/ecosystem-alignment-scan.sh`
-- **Congruence audit (every briefing):** `npx tsx scripts/congruence-audit.ts` — must hit 0 FAIL before any funder meeting.
-- **Recompile agent knowledge:** `npx tsx scripts/compile-agent-knowledge.ts` after editing this file or any source it reads.
-- **Env vars:** `NETWORK_SECRET_BIBLESTUDY`, `NETWORK_SECRET_HERHEALTH`, `SENDGRID_API_KEY`, `THRIVEUP_SHARED_SECRET`, `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`
+- **Env vars:** `NETWORK_SECRET_BIBLESTUDY` · `NETWORK_SECRET_HERHEALTH` · `SENDGRID_API_KEY` · `THRIVEUP_SHARED_SECRET` · `TWILIO_ACCOUNT_SID` · `TWILIO_AUTH_TOKEN` · `TWILIO_PHONE_NUMBER`
 
 ## Stack
-- **Frontend:** React, Vite, TypeScript, Tailwind CSS, shadcn/ui, wouter, TanStack Query v5, lucide-react
-- **Backend:** Express.js (Node.js), PostgreSQL (Neon) via Drizzle ORM
-- **Auth:** Replit Auth (OIDC)
-- **AI:** Gemini 2.0 Flash, Claude Haiku 4.5, GPT-4o-mini, Replit AI Integrations GPT-5-nano, OpenRouter (DeepSeek R1)
-- **i18n:** EN+ES human-translated; 8 more (VI, ZH, AR, KO, FR, TL, HI, MY) via opt-in AI translation (gpt-4o-mini, batched, localStorage-cached). `useLanguage()` from `@/lib/i18n`; `<LanguageSelector />` from `@/components/language-selector`. Endpoint `POST /api/translate` (`server/translate-routes.ts`). RTL auto for Arabic. Dialect-aware (AAVE/Spanglish system prompts).
+- **Frontend:** React · Vite · TS · Tailwind · shadcn/ui · wouter · TanStack Query v5 · lucide-react
+- **Backend:** Express · PostgreSQL (Neon) via Drizzle · Replit Auth (OIDC)
+- **AI:** Gemini 2.0 Flash · Claude Haiku 4.5 · GPT-4o-mini · Replit AI GPT-5-nano · OpenRouter (DeepSeek R1) — all auto-wrapped by ETHICAL_EI_PREAMBLE
+- **i18n:** EN+ES human; 8 more (VI/ZH/AR/KO/FR/TL/HI/MY) opt-in AI (gpt-4o-mini, batched, localStorage-cached). `useLanguage()` `@/lib/i18n`, `<LanguageSelector />`. `POST /api/translate` (`server/translate-routes.ts`). RTL auto for Arabic. Dialect-aware (AAVE/Spanglish prompts).
+
+## Codebase scale (verified 2026-05-17)
+271 Drizzle tables (`shared/schema.ts`) · 211 pages (`client/src/pages/`) · 84 server files · 206 wouter routes (`client/src/App.tsx`). Sidebar `client/src/components/app-sidebar.tsx`. Auth `client/src/components/require-auth.tsx` + `useAuth()`. Theme `client/src/index.css`. Truth-in-claims `client/src/components/partnership-status.tsx`.
 
 ## Where things live
-- **Codebase scale (primary-source verified 2026-05-17):** **271 Drizzle tables** in `shared/schema.ts` · **211 page files** in `client/src/pages/` · **84 server files** in `server/`. 206 wouter routes in `client/src/App.tsx`. Sidebar `client/src/components/app-sidebar.tsx`. Auth `client/src/components/require-auth.tsx`, `useAuth()`.
-- **🚨 Capabilities inventory:** `docs/grants/tcaf-capabilities-inventory-2026-05-17.md` — 13 sections (4 physics engines, 86-chunk RAG, 39 CFIR constructs, justice stack, 648-grant engine, 45-table Academy, FHIR+CDS-Hooks, two-entity strategy). **Read before drafting ANY external material.**
-- **Theme:** `client/src/index.css` · **Truth-in-claims:** `client/src/components/partnership-status.tsx`
-- **Grant strategy:** `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md`, `CDMRP-FY2026-Master-Grant-Strategy.md`
-- **Quintet one-pager (drop-in for narratives):** `docs/grants/QUARTET-ONE-PAGER.md` — Talk Your Talk (89 spoken + 18 sign + 6 learning surfaces) as substrate; Civic Signal + LifeBridge + ThriveUp as service surfaces; Whole-Person Health (mentalwellnesssupport.net) as behavioral-health safety floor. TYT crisis events route INTO WPH.
+<!-- 1-liners; detail → archive -->
+
+- **Capabilities inventory:** `docs/grants/tcaf-capabilities-inventory-2026-05-17.md` — 13 sections. **Read before any external material.**
+- **Grant strategy:** `docs/grants/STRATEGIC-INTELLIGENCE-PLAYBOOK.md` · `CDMRP-FY2026-Master-Grant-Strategy.md`
+- **Quintet one-pager (narrative drop-in):** `docs/grants/QUARTET-ONE-PAGER.md` — Talk Your Talk substrate; Civic Signal · LifeBridge · ThriveUp service surfaces; Whole-Person Health behavioral safety floor. TYT crisis events route INTO WPH.
 - **MAP-GAP lessons:** `.agents/skills/map-gap/lessons-learned.md`
-- **🔗 Corridor Chainweb:** citation-chained evidence pipeline (~4,000 LOC). Iron-Rule enforcement layer under Community Voice + all community storytelling. 8-step chain → Census ACS · CDC PLACES · ATSDR SVI · FBI CDE. Every evidence row cites its primary-source step. Routes `POST /api/corridor/chainweb/run`, `GET /api/corridor/chainweb/last`. Full detail → `docs/memory-archive.md#A18`.
-- **Active commitments / continuity log:** `docs/active-commitments.md` — running session memory. Read at session start; update at session end.
-- **Foster-Youth build log (May 11, 2026):** `docs/foster-youth-build-log.md` — intake wizard, state portal, policy comparison, risk engine, congruence audit, leave-behind PPTX. Sidebar group `fosterYouthItems` in `app-sidebar.tsx`.
-- **Vann Collaboration Kit (May 14, 2026):** Pages `/partners/vann-hub`, `/partners/family-program-tracker`, `/partners/rfp-storyteller`. 3 entities — **Sistahs Can We Talk Inc.** (Dr. Vann's KS 501(c)(3)) · **Iasis Christian Center** (spouse's church — COI on all City of Wichita/federal grants) · **Vanntastic Solutions LLC** (never an applicant). Full detail + entity IDs → `docs/memory-archive.md#A1`.
-- **Ecosystem catalog:** `docs/ecosystem-catalog.md` — 25 DB rows; 15 are public-facing service platforms.
-- **📍 Community Voice (Phases 1-4 live 2026-05-18):** Map-pin → AI-cluster → ecosystem-route → #DATA story. Routes `/voice`, `/voice/new`, `/voice/:slug{,/story,/insights,/admin}`. Backend `server/voice-routes.ts` + 6 tables. Pilot `pflugerville-holistic-services`. Full detail (routing map, PII sanitizer, Phase 5 backlog) → `docs/memory-archive.md#A14`.
-- **🎮 Trade Sims (live):** 6 trades × 15 lessons = 90 (electrical · plumbing · HVAC · welding · automotive · software-engineering). Player `client/src/pages/academy/trade-sims/lesson-player.tsx`. Backend `server/trade-sims-routes.ts` + 6 tables. AI tutor `POST /api/trade-sims/ai-tutor/hint`. Standalone seed per trade: `scripts/seed-trade-sims-{slug}.ts`. Full detail → `docs/memory-archive.md#A12`.
-- **💡 ThriveUp Concepts (v1 live 2026-05-21):** Hub `/concepts` + 8 lane cards, every card has a real working physics simulator (not a placeholder). Sidebar entry "Concepts" under Career Mentors. Shell `client/src/components/concepts/concept-card-shell.tsx`. Registry `client/src/lib/concepts/registry.ts` (single source of truth). **8 cards:** mechanical=oil pumpjack · electrical=transformer · civil=suspension bridge · chemical=lithium battery · aerospace=airplane wing · software=public-key encryption (real RSA) · energy=wind turbine · biomedical=pacemaker. Transformer cross-links to Electrical Trade Sims. Differentiator: working physics behind every explainer, not just diagrams. Full detail (sim physics, cards, backlog) → `docs/memory-archive.md#A19`.
-- **🎓 Trade Sims Credentials + Apprenticeships (live 2026-05-17):** Page `/academy/trade-sims/:tradeSlug/certify` (gated at 80% completion). Server `server/trade-sims-cert-routes.ts`. **Pilot target: 200 learners by July 1, 2026.** Funders + federal grant alignment → `docs/memory-archive.md#A15`.
-- **🗺️ Regional Briefing (live 2026-05-22):** Any logged-in user types `{region}` + `{topic}` + question and gets a streamed, primary-source briefing with EVERY matching grant from our pipeline + every relevant TCAF platform + an "ALL solutions" enumeration. Page `/regional-briefing` (sidebar: Community Intelligence). Backend `server/regional-briefing-routes.ts` — `GET /api/regional-briefing/context` (cheap preview, no AI cost) · `POST /api/regional-briefing/query` (JSON) · `POST /api/regional-briefing/stream` (SSE). 5-section output: ground-truth · verifiable-data · matching-grants · ALL-solutions · concrete-next-moves. Pilot brief: `docs/regional-briefings/north-wilco-childcare-infrastructure-2026-05-22.md`; pilot Voice project `/voice/north-wilco-childcare-gaps` (id=2).
-- **Grant Discovery Engine:** `server/grant-routes.ts`. **721 grants (verified 2026-05-22 via live SQL — was 651 in May-17 inventory; pipeline grew):** grants.gov 369 · usaspending 198 · samgov 36 · manual 12 · state/local 18 · other federal 8 · foundation/corporate 4 · misc 6. Fit ≥70/80/90 = 208/186/160. ⚠️ Last DB write 2026-05-15 — auto-scan stale; investigation in `active-commitments.md`. SAM honest framing: screen 16K feed, curate ~36 — never claim "track 16,667." Status `GET /api/grants/discovery/status`; manual `POST /api/grants/discovery/run-now`.
-- **"This Week" digest** (`/grant-command-center` → This Week tab): `GET /api/grants/this-week?days=7&minFit=0`, `GET /api/grants/digest/preview?days=7`, `POST /api/grants/digest/send` (admin, manual; auto-cron NOT enabled).
-- **📅 Monday Brief (live 2026-05-18):** Standalone page at `/this-week` (`client/src/pages/this-week.tsx`, sidebar entry under Grant Engine). Surfaces 4 strategic dimensions + targets + goals, curated ship targets for the week, grants closing in 14 days (live from `/api/grants/this-week?days=14`), and declared funder decisions pending. Edit `SHIP_TARGETS_THIS_WEEK` + `FUNDER_DECISIONS_PENDING` weekly. One URL for any briefing prep.
-- **Compiled Agent Knowledge Layer:** internal-only deterministic memory hook for the agent (end-user RAG `server/rag-engine.ts` is parallel and untouched). Compiler: `scripts/compile-agent-knowledge.ts` → `.agents/knowledge/compiled.json`. Endpoints: `GET /api/agent/knowledge/session-bootstrap` (~3KB) · `/topic/:key` · `/api/agent/knowledge` (full) · `POST /api/agent/knowledge/recompile` (admin).
+- **Active commitments / continuity:** `docs/active-commitments.md` (read start, update end)
+- **Ecosystem catalog:** `docs/ecosystem-catalog.md` (25 DB rows; 15 public-facing)
+- **Compiled Agent Knowledge:** `scripts/compile-agent-knowledge.ts` → `.agents/knowledge/compiled.json`. Endpoints `GET /api/agent/knowledge/session-bootstrap` (~3KB) · `/topic/:key` · `/api/agent/knowledge` · admin `POST /api/agent/knowledge/recompile`. (Internal-only; user-facing RAG `server/rag-engine.ts` is separate, untouched.)
+- **Vann Collaboration Kit:** `/partners/{vann-hub,family-program-tracker,rfp-storyteller}` · entities: Sistahs Can We Talk Inc. (Dr. Vann's KS 501(c)(3)) · Iasis Christian Center (spouse — COI on City of Wichita/federal) · Vanntastic Solutions LLC (never applicant). → A1
+- **Foster-Youth build (2026-05-11):** `docs/foster-youth-build-log.md` — intake wizard, state portal, policy compare, risk engine, congruence audit, PPTX. Sidebar `fosterYouthItems`.
+- **Community Voice (Phases 1–4 live 2026-05-18):** `/voice`, `/voice/new`, `/voice/:slug{,/story,/insights,/admin}` · `server/voice-routes.ts` + 6 tables · pilot `pflugerville-holistic-services`. → A14
+- **Trade Sims:** 6 trades × 15 lessons = 90 · player `client/src/pages/academy/trade-sims/lesson-player.tsx` · `server/trade-sims-routes.ts` + 6 tables · AI tutor `POST /api/trade-sims/ai-tutor/hint` · seeds `scripts/seed-trade-sims-{slug}.ts`. → A12
+- **Trade Sims Credentials + Apprenticeships (2026-05-17):** `/academy/trade-sims/:tradeSlug/certify` (80% gate) · `server/trade-sims-cert-routes.ts` · **pilot 200 learners by 2026-07-01**. → A15
+- **ThriveUp Concepts (v1 live 2026-05-21):** hub `/concepts` + 8 cards each with REAL working physics (pumpjack · transformer · suspension bridge · Li battery · airplane wing · real RSA · wind turbine · pacemaker). Shell `client/src/components/concepts/concept-card-shell.tsx`; registry `client/src/lib/concepts/registry.ts`. Transformer cross-links to Electrical Trade Sims. **Differentiator: physics, not diagrams.** → A19
+- **Regional Briefing v2 (2026-05-22):** `/regional-briefing` — chat input, multi-location compare (≤6), save-as-workflow, stakeholders+outcomes by ZIP. Backend `server/regional-briefing-routes.ts` + `briefing_workflows` table. Endpoints `/extract` · `/stream` · `/query` · `/context` · `/workflows` CRUD. → A20
+- **Corridor Chainweb:** ~4K LOC, 8-step citation chain → Census ACS · CDC PLACES · ATSDR SVI · FBI CDE. Iron-Rule enforcement under Community Voice. Routes `POST /api/corridor/chainweb/run` · `POST /api/corridor/chainweb/run-counties` (anywhere, ≤12 counties; both auth+rate-limited as of 2026-05-22) · `GET /last`. → A18, A20
+- **Grant Discovery Engine:** `server/grant-routes.ts`. **721 grants (verified 2026-05-22 live SQL):** grants.gov 369 · usaspending 198 · samgov 36 · manual 12 · state/local 18 · other federal 8 · foundation/corp 4 · misc 6. Fit ≥70/80/90 = 208/186/160. ⚠️ Last DB write 2026-05-15 — auto-scan stale; see `active-commitments.md`. **SAM honest framing:** screen 16K feed, curate ~36 — never claim "track 16,667." Status `GET /api/grants/discovery/status`; manual `POST /api/grants/discovery/run-now`.
+- **This Week digest:** (`/grant-command-center` This Week tab) `GET /api/grants/this-week?days=7&minFit=0` · `GET /api/grants/digest/preview?days=7` · `POST /api/grants/digest/send` (admin, manual; no cron).
+- **Monday Brief (live 2026-05-18):** `/this-week` (`client/src/pages/this-week.tsx`) — 4 strategic dims + ship targets + grants closing in 14d + decisions pending. Edit `SHIP_TARGETS_THIS_WEEK` + `FUNDER_DECISIONS_PENDING` weekly.
 
 ## Architecture decisions
-- **Collaborative AI:** 4-engine synthesis (Gemini, Claude, GPT-4o-mini, DeepSeek R1) with RAG and implementation-science frameworks (CFIR, RE-AIM, RPLICE).
-- **Grant Systems:** Centralized management with SAM.gov integration, AI semantic analysis, proposal lifecycle. Public program descriptions kept separate from internal funder pursuit details.
-- **Truth-in-Claims primitive:** `<PartnershipStatus>` enforces auditable disclosure of partnership stages + dates across the public site.
-- **Public/Internal gating:** `<RequireAuth>` wrapper protects internal data + funder pipelines.
-- **Jurisdiction-agnostic:** National platform; Travis County TX is implementation template, not a limit.
+- **Collaborative AI:** 4-engine synthesis (Gemini · Claude · GPT-4o-mini · DeepSeek R1) + RAG + implementation science (CFIR · RE-AIM · RPLICE).
+- **Grant Systems:** centralized mgmt, SAM.gov integration, AI semantic analysis, proposal lifecycle. Public program copy ≠ internal funder-pursuit detail.
+- **Truth-in-Claims primitive:** `<PartnershipStatus>` enforces auditable disclosure of partnership stage + dates on public site.
+- **Public/Internal gating:** `<RequireAuth>` wraps internal data + funder pipelines.
+- **Jurisdiction-agnostic:** national platform; Travis County TX = template, not limit.
 
 ## Product
-- 6 domains: Criminal Justice, Health Equity, Behavioral Health, Workforce & Business, Education & Learning, Community & Advocacy
-- ThriveUp Academy (AI Literacy, Workforce, Financial, STEM, FAFSA, apprenticeship)
-- Grant management (**651 tracked** as of 2026-05-17, command center, AI drafting, tier-weighted AI fit-scoring)
-- Justice & reentry (RNR/CBI/NRRC stack) · Behavioral & whole-person health (FHIR/CDS-Hooks) · SDOH/Vulnerability/Census tools · Donor outcome receipts
-- Ecosystem hub: 15 public-facing service platforms + internal/dev rows = 25 in DB
+6 domains: Criminal Justice · Health Equity · Behavioral Health · Workforce & Business · Education & Learning · Community & Advocacy. ThriveUp Academy (AI Literacy · Workforce · Financial · STEM · FAFSA · apprenticeship). Grant mgmt (**721 tracked 2026-05-22**, command center, AI drafting, tier-weighted AI fit-scoring). Justice/reentry (RNR/CBI/NRRC) · Behavioral & whole-person health (FHIR/CDS-Hooks) · SDOH/Vulnerability/Census tools · Donor outcome receipts. **15 public-facing platforms** (use externally; 25 in DB internally).
 
-## Ecosystem (full catalog: `docs/ecosystem-catalog.md`)
-- **Use "15 service platforms operated by TCAF" externally — not 25.** "25" is internal architecture only.
+## Ecosystem (full: `docs/ecosystem-catalog.md`)
+- **External count = 15, never 25.**
 - **The 15:** Whole-Person Health · Talk Your Talk · Sankofa Network · Black Maternal Health · Black Men's Health Hub · HerHealth Network · SafeCogniCare · Perfectly Different · LifeBridge · Mission Transition (M2C) · Minority Center of Excellence · ISSS · RPLICE/BetterScience · SafeReport · Civic Signal.
-- **SafeReport (live at safereports.net):** "Compliance-Grade AI for Clinical Settings" — CDS/FHIR/CDS Hooks/0-PHI-egress/HITL-default-on/longitudinal screening (PHQ-9/GAD-7/C-SSRS/PCL-5/ACES). Belongs in BH stack. Detail → `docs/memory-archive.md#A3`.
-- **Quintet to lead with in narratives:** Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health.
-- **Top caveats:** TYT row's URL self-overwrites to `lexibridge.net` on every heartbeat (real fix in TYT workspace) · 10 of 25 DB rows aren't public-facing services (1 TCAF parent + 9 dev/internal/dead-URL) · Some URLs shared (`implementationineducatio.com` hosts both `isss` and `betterscience`) · Re-probe before linking; check ALL aliases.
+- **Quintet to lead with:** Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health.
+- **SafeReport** (safereports.net) — Compliance-Grade AI for Clinical Settings · CDS/FHIR/CDS Hooks · 0-PHI-egress · HITL-default-on · PHQ-9/GAD-7/C-SSRS/PCL-5/ACES. BH stack. → A3
+- **Caveats:** TYT row URL self-overwrites to `lexibridge.net` on every heartbeat (real fix in TYT workspace) · 10/25 DB rows aren't public services · some URLs shared (`implementationineducatio.com` hosts isss + betterscience) · re-probe before linking, check ALL aliases.
 
 ## User preferences
-- **🚨 IRON RULE — pull from the system as it exists, every time you respond (2026-05-21).** Before answering anything substantive: read the actual file, run the actual query, check the actual route, open the actual doc this turn. Memory is a hint, not a source. Applies to code claims ("X file does Y"), grant facts (amounts/deadlines/IDs), platform state (counts/URLs/health), entity details, deadlines, partner roles — everything. If a claim can be checked against the codebase, the DB, an integration, or `attached_assets/`, check it before stating it. When the system disagrees with memory, the system wins and memory gets updated. Tool-batching is the enforcement mechanism: parallel reads/searches every turn so verification is cheap. Extends the existing "never conjecture, always verify" Iron Rule from a grant-doctrine rule into a per-response operating discipline.
-- **🚨 Ethical, emotionally intelligent AI in EVERYTHING.** Persistent operating principle as of 2026-05-21. Lives in `server/ai-provider.ts` as `ETHICAL_EI_PREAMBLE` + `withEthicalPreamble()`. Wired into every code path: `streamAIResponse` (Gemini/Claude/OpenAI/DeepSeek streaming), `generateAIJSON`, `callProviderDirect`, AND `server/collaborative-ai.ts` `callEngine` (4-engine synthesis). Six rules: ETHICS (truth+primary sources) · PRIVACY & DIGNITY (no PII echo) · EMOTIONAL INTELLIGENCE (plain language, acknowledge what's hard, no moralizing, honor dialect) · SAFETY (988/911/DV/Childhelp + warm hand-off, no therapizing) · BIAS & EQUITY (Black/Latino/Indigenous/immigrant/justice-involved/foster/rural/low-income default; don't assume English/citizenship/internet/bank account) · HUMILITY (decision-support, not decision-maker; always a path back to a human). Idempotent so route-level prompts can't double-wrap. When adding a NEW AI call site, route through `ai-provider.ts` — do NOT call OpenAI/Anthropic/Gemini SDKs directly; if you must, import `withEthicalPreamble` and apply it.
-- Iterative development; explain major changes before implementation.
-- High-quality, well-tested code; clear, simple language for technical concepts.
-- Don't change `vite.config.ts`, `drizzle.config.ts`, `package.json` without explicit instruction.
-- Always work in parallel using subagents; don't stop to chat when there's more work to do; keep building.
-- Speak plainly, not in jargon. Use President not CEO. Honest disclosure always.
+- **Title:** President, not CEO, for Dr. Flood (for-profit only uses CEO).
+- **Institutional emails only:** `terryflood@thrivingcommunitiesforall.com` (Dr. Flood, all proposals) · `msisnett@thrivingcommunitiesforall.com` (Meredith, non-City only). No personal Gmail in copy or proposals.
+- Iterative development; explain major changes before implementation; clear, simple language for technical concepts.
+- Work in parallel using subagents; don't stop to chat when there's more work; keep building.
+- Speak plainly, not in jargon. Honest disclosure always.
 - Every change commits to this memory file. No silent failures.
-- Memory continuity is non-negotiable: every session ENDS with a memory commit; every session BEGINS by reading this file. If a fact, person, deadline, partner, lesson, or commitment is not here, it does not exist next session.
-- **Don't underestimate the platform.** Pitches were running 30-50% under shipped reality (Dr. Flood callout 2026-05-17). Default to the capabilities inventory before drafting any external material. Surface specifics (MNA, Hardy-Cross, AWS D1.1, 39 CFIR constructs, 648 grants, RNR/CBI/NRRC, FHIR/CDS-Hooks, two-entity strategy), not generic framing.
-- **🚨 SSG Fox FY27 lives on `vetmissiontransition.com`, NOT this codebase.** Deadline 2026-06-12 4:59 PM ET · Year 1 = Central TX only · ask $400K–$600K · EIN on live site is `41-3618003` (correct). Do not rebuild Fox pages here. Brief: `docs/grants/ssg-fox-fy27/00-funder-brief.md`. Full context → `docs/memory-archive.md#A8`.
-- **🚨 `.local/session_plan.md` is MINE, not user pastes.** If a "Session Plan" appears in a user message but the user prose doesn't match, it's my own prior plan being replayed. Behavior: delete the file immediately, never re-execute as fresh ask. Lesson P-L11.
-- **🚨 IRON RULE — never conjecture, always verify.** Every grant amount, deadline, funder policy, identifier, capacity claim → primary source (funder site, RFP, 990-PF, direct comms, or `attached_assets/` opened this turn). Memory is NOT primary. Sweeps ≥3 files for EIN/UEI/CAGE/DUNS/deadline/dollar require opening cited source + pasting quote + explicit user "go" first. Rule applies both ways (conjecturing "we lack X" without `rg` = same failure). Conflicting sources = hard stop, surface to user. Full doctrine → `docs/memory-archive.md#A9`.
+- Don't change `vite.config.ts`, `drizzle.config.ts`, `package.json` without explicit instruction.
+
+## TCAF entity facts (verified 2026-05-15 — A4)
+Legal **The Collaborative Advocate Foundation** · **EIN 41-3618003** · name control **THEC** · **501(c)(3) DETERMINED** (Letter 947) · public charity **170(b)(1)(A)(vi)** · effective 2026-01-14 · FY ends Dec 31 · IRS Mrs. Hurst ID 1793423, 877-829-5500 · **17912 Stefano Drive, Pflugerville, TX 78660-7020** c/o Terry D Flood Sr.
+**SAM/federal IDs (SAM ACTIVE — A11):** UEI **KDDVD1FGLW35** · CAGE **209N1** · renewal **2027-05-06**. Use legal name on federal forms; leave DBA blank.
+
+## Two-entity strategy (A10, A17)
+- **TCAF:** (501(c)(3) above) primary applicant for all non-profit/foundation/federal-grant work.
+- **ISS LLC:** (Dr. Flood's for-profit) SBIR/STTR/GSA/for-profit set-asides only. EIN **87-2795417** · UEI **C7YDV3P8EHL7** · CAGE **9VKK3** · SAM Active to 2027-03-30. For-profit-only → ISS LLC primary; flag JV-with-TCAF review; never auto-submit.
+- **M&T Consulting Solutions:** OUT-OF-SCOPE.
 
 ## Gotchas
 <!-- Load-bearing — read every session. -->
 
-- **"President" not "CEO"** for Dr. Flood in public-facing copy; "CEO" is for-profit only.
-- **Institutional emails only:** `terryflood@thrivingcommunitiesforall.com` (Dr. Flood, all proposals); `msisnett@thrivingcommunitiesforall.com` (Meredith, non-City work only). No personal Gmail in public copy or proposals.
-- **🚨 Meredith Sisnett & City of Austin:** City of Austin employee. NEVER list on any City grant/proposal/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff/contact/co-lead/board/partner. Non-City (federal/state/foundation/private) only. When in doubt, leave her out and ask user.
-- **🚨 Smart Family Fund — ✅ PITCH C SUBMITTED 2026-05-17.** Decision window **November 2026** (plan 6mo silence). Pitches archive: `docs/grants/smart-family-fund-pitches-2026-05-17.md`. Full detail → `docs/memory-archive.md#A16`.
-- **St. David's Foundation:** always "actively evaluating," never "awarded." **WAB2 LOI DECLINED 2026-05-15** (Regan Gruber Moffitt, J.D., VP Community Investments — `docs/grants/submitted/StDavids-WAB2-LOI-Decision-2026-05-15.md`). Still a target via CLC + Community Health Grants cycles; do NOT cite as "in review" anywhere in pipeline.
-- **Funder names on public pages:** avoid; describe the program category instead.
-- **FIPS labels:** never expose to users — use "State Census Code" / "County Census Code".
+- **🚨 Meredith Sisnett & City of Austin:** City employee. NEVER list on any City of Austin grant/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff/contact/co-lead/board/partner. Non-City only (federal/state/foundation/private). When in doubt, leave her out and ask.
+- **🚨 SSG Fox FY27 lives on `vetmissiontransition.com`, NOT this codebase.** Deadline 2026-06-12 4:59 PM ET · Year-1 Central TX only · ask $400K–$600K · EIN 41-3618003 on live site (correct). Do NOT rebuild Fox pages here. Brief `docs/grants/ssg-fox-fy27/00-funder-brief.md`. → A8
+- **🚨 Smart Family Fund — PITCH C SUBMITTED 2026-05-17.** Decision window Nov 2026 (plan 6mo silence). `docs/grants/smart-family-fund-pitches-2026-05-17.md`. → A16
+- **St. David's Foundation:** always "actively evaluating," never "awarded." **WAB2 LOI DECLINED 2026-05-15** (Regan Gruber Moffitt, JD, VP Community Investments). Still target via CLC + Community Health Grants; do NOT cite as "in review" anywhere.
+- **🚨 Anika Amie ≠ TCAF principal.** Name was in inherited RWJF draft + playbook + RAG as "Founder/ED." User does not know this person. Quarantined; attribution stripped. **Rule:** before treating any inherited grant draft as TCAF voice, `rg -i "founder|executive director|project director|principal investigator|applicant name"` and verify every named person. → A2
+- **🚨 Dr. Vann lane:** Her ask = youth+family attendance/services tracker for Iasis youth + Sistahs women's-health programs. Stay in confirmed lane (wellness coaching, behavioral engagement, women's mindset). She has **NEVER** discussed foster youth — don't assume. Iasis side = spouse COI on City of Wichita/federal. General rule: when memory says "user X expressed interest in Y," verify with user before acting. → A1
+- **🚨 Candid (free tier):** Priority: claim TCAF Nonprofit Profile under EIN 41-3618003 (Silver+ seal). No API on free tier → manual RFP Bulletin only. Workflow in `docs/active-commitments.md` "Candid (free tier)".
+- **Funder names on public pages:** avoid; describe the program category.
+- **FIPS labels:** never expose to users — say "State Census Code" / "County Census Code".
 - **"Texas-only" framing:** use "national platform, Texas-piloted" instead.
-- **Silent catch blocks:** prohibited; all server route errors must be handled and reported.
+- **Talk Your Talk rebrand:** old LexiBridge/Speech Bridge → Talk Your Talk (`talkyourtalk.net`). Counts: **89 spoken + 18 sign = 107**. Use 89/18/107 in proposals.
+- **🚨 ECOSYSTEM_PLATFORMS array overwrites DB on every startup:** (`server/ecosystem-connector.ts:658`) Auto-sync UPDATEs name/url/role/domain/description/capabilities/dataFlowConfig/grantAlignment + DELETEs DB rows not in array. `publicVisible` survives. Edit BOTH when adding/renaming.
+- **TYT connector self-registration:** announces as "LexiBridge / `lexibridge.net`" — overwrites hub row name+URL on every heartbeat. Description + grant_alignment survive. Real fix in TYT workspace.
+- **Hub pinger false-positive:** marks platforms "online" even when DNS fails or heartbeat >7d stale. Logged in `active-commitments.md`. `curl HTTP 000` = unbound custom domain, not necessarily down — check `ecosystem_platforms.health_status`.
+- **🚨 Public no-auth wizards must use capability tokens, not client-supplied IDs.** Server generates id + per-row `accessToken`, returns once, requires `x-intake-token` on every later request. Otherwise IDOR + cost runaway. Pattern: `server/foster-youth-intake-routes.ts` (`authorizeIntake` + `tokensMatch` w/ `timingSafeEqual`). Pair with per-IP rate limits on AI/upload. (P-L08)
+- **Silent catch blocks: prohibited.** All server route errors must be handled and reported.
 - **Conditional `useEffect`:** prohibited (React hooks rule).
 - **Hardcoded grant arrays:** `/api/proposal-pipeline` must read from the `proposal_pipeline` DB table, never hardcoded.
-- **🚨 Public no-auth wizards must use capability tokens, not client-supplied IDs.** Server generates id + per-row `accessToken`, returns token once, requires it on every later request as `x-intake-token`. Otherwise IDOR + cost-runaway. Pattern: `server/foster-youth-intake-routes.ts` (`authorizeIntake` + `tokensMatch` w/ `timingSafeEqual`). Pair with per-IP rate limits on AI/upload endpoints. Lesson P-L08.
-- **`curl HTTP 000`** = unbound custom domain, not necessarily down. Check `ecosystem_platforms.health_status`.
-- **Hub pinger false-positive:** marks platforms "online" even when DNS fails or heartbeat >7d stale. Logged in `docs/active-commitments.md`.
-- **TYT connector self-registration:** announces as "LexiBridge / `lexibridge.net`" — overwrites hub row name+URL on every heartbeat. Description + grant_alignment survive. Real fix in TYT workspace.
-- **🚨 ECOSYSTEM_PLATFORMS array overwrites the DB on every startup** (`server/ecosystem-connector.ts:658`). Auto-sync UPDATEs name/url/role/domain/description/capabilities/dataFlowConfig/grantAlignment + DELETEs DB rows not in array. `publicVisible` survives. Edit BOTH when adding/renaming.
-- **Talk Your Talk rebrand:** old LexiBridge / Speech Bridge → **Talk Your Talk** (`talkyourtalk.net`). Verified count: **89 spoken + 18 sign = 107 total**. Use 89/18/107 in all proposals.
-- **🚨 Public-vs-total platform count:** DB has 25 rows; only 15 are public-facing service platforms. Use "15" externally.
-- **🚨 Engineering gotchas P-L09 (pptxgenjs default-export under tsx-ESM needs `createRequire`) & P-L10 (`req.params` typed `string|string[]`, coerce with `String()` before Drizzle `eq()`)** — full code in `docs/memory-archive.md#A6` and `.agents/skills/map-gap/lessons-learned.md`.
-- **🚨 Dr. Vann lane:** Her ask was a youth+family attendance/services tracker for Iasis youth program + Sistahs women's-health programs. Stay in her confirmed lane (wellness coaching, behavioral engagement, women's mindset); she has **NEVER** discussed foster youth with the user — don't assume. Iasis side = spouse-relationship COI on every City of Wichita/federal grant. Detail in `docs/memory-archive.md#A1`. General rule: when memory says "user X expressed interest in Y," verify with user before acting.
-- **🚨 Anika Amie ≠ TCAF principal:** Name was in inherited RWJF draft + playbook + RAG as "TCAF Founder/ED." User does not know this person. Quarantined; attribution stripped. **Rule:** before treating ANY inherited grant draft as TCAF voice, `rg -i "founder|executive director|project director|principal investigator|applicant name"` and verify every named person. Detail → `docs/memory-archive.md#A2`.
-- **🚨 Candid (free tier):** Use candid.org free tier. Priority: claim TCAF Nonprofit Profile under EIN 41-3618003 (Silver+ seal). No API on free tier → manual RFP Bulletin only. Full workflow in `docs/active-commitments.md` "Candid (free tier)" section.
-- **🚨 TCAF federal IDs (SAM ACTIVE):** UEI **`KDDVD1FGLW35`** · CAGE **`209N1`** · renewal **2027-05-06**. ZIP+4 78660-7020. Use legal name "The Collaborative Advocate Foundation" on federal forms (DBA blank). Narrative → `docs/memory-archive.md#A11`.
-- **🚨 Two-entity strategy.** **ISS LLC** = Dr. Flood's for-profit (SBIR/STTR/GSA/for-profit set-asides only). EIN `87-2795417` · UEI `C7YDV3P8EHL7` · CAGE `9VKK3` · SAM Active to 2027-03-30. For-profit-only → ISS LLC primary, flag JV-with-TCAF review, never auto-submit. **M&T Consulting Solutions** = OUT-OF-SCOPE. Full registry → `docs/memory-archive.md#A17`.
-- **🚨 TCAF entity facts (verified 2026-05-15):** Legal **The Collaborative Advocate Foundation** · **EIN `41-3618003`** · Name control **THEC** · **501(c)(3) DETERMINED** (Letter 947) · Public charity **170(b)(1)(A)(vi)** · Effective 01/14/2026 · FY ends Dec 31 · IRS Mrs. Hurst ID 1793423, 877-829-5500 · 17912 Stefano Drive, Pflugerville, TX 78660-7020 c/o Terry D Flood Sr. Incident history → `docs/memory-archive.md#A4`.
+- **Engineering gotchas P-L09 & P-L10:** pptxgenjs default-export under tsx-ESM needs `createRequire`; `req.params` typed `string|string[]` so coerce with `String()` before Drizzle `eq()`. Full code → A6 + `.agents/skills/map-gap/lessons-learned.md`.
 
-## Pointers (third-party docs)
-Replit AI Integrations (`javascript_openai_ai_integrations`, `_anthropic_`, `_openrouter_`) · Replit Auth (`log_in_with_replit`) · Drizzle ORM · Tailwind/shadcn · TanStack Query v5 · Wouter · SAM.gov API · Playwright · Implementation Science (RPLICE, CFIR/RE-AIM, MAP-GAP) · **Tabbara prior-award checklist** (SAM.gov, USASpending.gov, sbir.gov, etc.) — **mandatory for ALL grants regardless of size.** Reference template: `docs/grants/AEI-Funder-Intelligence.md`. See playbook lesson #19.
+## Pointers (third-party)
+Replit AI Integrations (`javascript_openai_ai_integrations`, `_anthropic_`, `_openrouter_`) · Replit Auth (`log_in_with_replit`) · Drizzle ORM · Tailwind/shadcn · TanStack Query v5 · Wouter · SAM.gov API · Playwright · Implementation Science (RPLICE · CFIR/RE-AIM · MAP-GAP) · **Tabbara prior-award checklist** (SAM.gov, USASpending.gov, sbir.gov, etc.) — **mandatory for ALL grants regardless of size.** Template `docs/grants/AEI-Funder-Intelligence.md`. (Playbook lesson #19.)

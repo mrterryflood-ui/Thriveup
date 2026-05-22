@@ -337,3 +337,29 @@ Hub + 8 cards, one per engineering lane, every card has a real working physics s
 **Audiences:** curious adults, parents, career-curious teens, tradespeople browsing the next lane, re-entry folks, foster youth, funder leave-behinds.
 
 **Next-version backlog (NOT shipped):** authoring tool, more cards per lane, in-card embedded readings, share/screenshot export.
+
+## A20. Regional Briefing v2 — multi-location compare + save-as-workflow + Chainweb-anywhere (2026-05-22)
+
+**Surface:** `/regional-briefing` (sidebar Community Intelligence). One chat-style textarea. AI parses → `{locations[≤6], topic}`. *Parse* exposes an editable chip list (region · ZIP · 5-digit county FIPS). *Run briefing* streams a 10-section answer.
+
+**Output sections (system prompt enforces all 10):** 1. data story · 2. verifiable data (Census ACS · CDC PLACES · ATSDR SVI · FBI CDE — say HAVE vs needs-pull) · 3. **stakeholders by ZIP** (named: county judge, ISDs, MHMR/LMHA, FQHCs, hospital, faith, workforce, justice, philanthropy) · 4. matching grants (every one in context) · 5. ALL TCAF solutions (enumerate every relevant platform) · 6. **implementation plan by ZIP** · 7. **measurable outcomes per stakeholder per ZIP** (table) · 8. cross-location comparison table (only when 2+ locations) · 9. concrete next moves · 10. Iron Rule reminders.
+
+**Backend (`server/regional-briefing-routes.ts`):**
+- `POST /api/regional-briefing/extract` — parse question → `{locations, topic}` (cheap, no full briefing).
+- `POST /api/regional-briefing/stream` — SSE. Context event first (locations + per_location grants + platforms), then content chunks, then `{done:true}`.
+- `POST /api/regional-briefing/query` — non-streaming JSON variant.
+- `GET /api/regional-briefing/context` — preview matches, no AI cost.
+- Saved-workflow CRUD: `GET /workflows` · `POST /workflows` · `GET /workflows/:slug` · `POST /workflows/:slug/cache` · `DELETE /workflows/:slug`. All scoped `createdBy = uid` (no IDOR).
+- All endpoints auth-gated + per-IP rate-limited.
+
+**Per-location context loader:** dedup tokens from region + topic + zip, OR-LIKE on `grant_opportunities.title` + `description`, ordered by fit DESC then deadline ASC, limited 20 per location. Platforms loaded once (global, `publicVisible=TRUE`).
+
+**Schema:** `briefing_workflows` (id · slug UNIQUE · name · question · `locations` jsonb `[{label,region,zip?,countyFips?,metroId?}]` · topic · lastBriefing · lastRunAt · createdBy · timestamps). Index on `createdBy`. Pushed to DB 2026-05-22.
+
+**Chainweb-anywhere:** `POST /api/corridor/chainweb/run-counties` body `{counties:[{countyFips, metroId?}]}`. `runChainWeb()` already took a `counties` param — endpoint just exposes it. Filters to 5-digit FIPS, caps 12 counties, hardens `metroId` to `[A-Za-z0-9_-]{≤32}`. Both `/run` and `/run-counties` now gated: `requireSignedIn` + rate limit (3/15m and 6/15m). Logs triggering uid. (Pre-2026-05-22 the `/run` endpoint was unauthenticated — gated as part of this build per code-review finding.)
+
+**Frontend (`client/src/pages/regional-briefing.tsx`):** chat textarea + Parse + Run + editable locations + Save-as-workflow dialog + saved-workflows sidebar (Load / Re-run / Delete) + Run-Chainweb button (uses FIPS from rows). Streams answer, then best-effort caches `lastBriefing` to active workflow.
+
+**Pilot artifacts (Round-1, single-location):** `docs/regional-briefings/north-wilco-childcare-infrastructure-2026-05-22.md`; Voice project `/voice/north-wilco-childcare-gaps` (id=2).
+
+**Lesson:** when refactoring an existing engine to be input-driven (Chainweb counties param), check whether the new HTTP entrypoint inherits the same auth posture as the old one. Here the old `/run` was unauthenticated — adding `/run-counties` without auth would have doubled an existing hole. Always gate the new sibling AND backfill the old one.
