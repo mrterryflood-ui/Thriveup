@@ -383,3 +383,22 @@ Hub + 8 cards, one per engineering lane, every card has a real working physics s
 **Hallucination guardrails preserved + tightened:** never invent stakeholder names — write "the [role] (verify current officeholder)" when unsure. All prior rules retained (Dr. Flood = President, terryflood@…, Meredith COI flag on any City-of-Austin pass-through).
 
 **No backend/DB changes.** Same endpoints, same context loader, same rate limits. Just a richer system prompt → richer output for the same token cost on the input side (output will be longer; user can shorten with a follow-up if needed).
+
+### A20 addendum 2 — Scope-aware briefing (2026-05-22 EVE)
+
+**Trigger:** Dr. Flood — "I'm not looking for answers about grants right now. Can it allow me to choose the scope based on my input? I am just trying to understand the situation. They can have options to add that additional analysis, but what I want is what I want." Previous version always produced all 11 sections regardless of question.
+
+**`buildSystemPrompt` rewritten again** to add a SCOPE CONTROL preamble + 5-scope menu the AI picks from based on intent:
+- **[A] Situation understanding (DEFAULT)** — triggers: "tell me about", "what's happening", "help me understand", "preparing for a meeting with X", "paint the picture" → §1-4 only (place / data story / verifiable data / stakeholders). Stops there.
+- **[B] Asset / ecosystem map** — triggers: "what's already there", "who's serving this community", "map the assets", "landscape" → §1-4 + an "Assets in the region" section that pulls ALL public/nonprofit/philanthropic/faith/business-anchor/coalition assets in the area (county/ISD/MHMR/FQHC/hospital district/workforce board/library system/health dept · food banks/shelters/reentry/refugee/DV/youth/faith anchors/immigrant-serving/disability · community foundations/corporate giving/healthcare anchor community-benefit · CoC/BH consortia/education collective-impact/food-systems coalitions). **Explicitly NOT TCAF-only.** `[verify]` mark on uncertain names.
+- **[C] Funding picture** — triggers: "what grants", "who funds this", "show me the money" → §1-4 + §5.
+- **[D] TCAF fit** — triggers: "how would TCAF help", "where do we plug in" → §1-4 + §6, with honest "what's already covered well" framing.
+- **[E] Full strategy** — triggers: "build me a plan", "full briefing", "I need to pitch this", "give me everything" → all sections.
+
+**Audience-lens rule:** if the user names a third-party audience (United Way, foundation, city, coalition), frame the WHOLE briefing through THAT audience's lens — do not center TCAF unless explicitly asked.
+
+**End-of-output offer:** always close with a one-liner offering the other scopes the user didn't pick ("Want me to add the funding picture, the asset map, or a sequenced plan? Just ask.") so they can expand without re-typing the setup.
+
+**Stay-in-scope explicitly framed as the job, not a fallback:** "Producing extra sections the user didn't ask for is a failure, not a bonus."
+
+No backend/DB/endpoint changes; pure prompt rewrite. Same context loader, same rate limits.
