@@ -1,10 +1,10 @@
 {
   "version": "1.1.0",
-  "compiledAt": "2026-05-22T17:41:58.069Z",
+  "compiledAt": "2026-05-22T17:53:07.496Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-22T17:41:49.933Z"
+      "mtime": "2026-05-22T17:53:00.799Z"
     },
     {
       "path": "docs/active-commitments.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-22T17:41:58.069Z"
+      "mtime": "2026-05-22T17:53:07.496Z"
     }
   ],
   "project": {
@@ -92,7 +92,7 @@
     },
     {
       "label": "Regional Briefing v2 (2026-05-22)",
-      "detail": "`/regional-briefing` — chat input, multi-location compare (≤6), save-as-workflow, stakeholders+outcomes by ZIP. Backend `server/regional-briefing-routes.ts` + `briefing_workflows` table. Endpoints `/extract` · `/stream` · `/query` · `/context` · `/workflows` CRUD. → A20"
+      "detail": "`/regional-briefing` — chat input, multi-location compare (≤6), save-as-workflow, stakeholders+outcomes by ZIP. **Prompt upgraded 2026-05-22 PM** to woven-narrative depth: 11 sections led by \"The place (setting)\" + civic-anatomy stakeholder map + threads-between-sections rule + systems-not-stats comparison mode. Backend `server/regional-briefing-routes.ts` + `briefing_workflows` table. Endpoints `/extract` · `/stream` · `/query` · `/context` · `/workflows` CRUD. → A20"
     },
     {
       "label": "Corridor Chainweb",
@@ -311,49 +311,6 @@
       "last_heartbeat": "2026-03-19T02:25:57.923Z"
     },
     {
-      "id": "code-canvas",
-      "name": "Code Canvas — System Evaluator & Optimizer",
-      "url": "https://codecanvaseval.com",
-      "role": "evaluator",
-      "domain": "system-optimization",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
-      "capabilities": {
-        "features": [
-          "Independent Platform Evaluation",
-          "Architecture Analysis",
-          "Performance Profiling",
-          "Code Audit & Review",
-          "Automated Fix Recommendations",
-          "Cross-Platform Optimization",
-          "Ecosystem Coherence Scoring",
-          "Best Practice Enforcement",
-          "SaaS Subscription Model",
-          "White-Label Evaluator",
-          "Continuous Improvement Engine",
-          "Integration Health Checks"
-        ],
-        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
-        "outcomeMetrics": [
-          "Platform evaluations completed",
-          "Optimization recommendations delivered",
-          "Fixes implemented after approval",
-          "Cross-platform coherence score improvements",
-          "Performance gains measured post-optimization"
-        ],
-        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": "2026-03-31T11:57:03.776Z"
-    },
-    {
       "id": "perfectly-different",
       "name": "Perfectly Different",
       "url": "https://neurodifferentassistant.app",
@@ -440,6 +397,49 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "code-canvas",
+      "name": "Code Canvas — System Evaluator & Optimizer",
+      "url": "https://codecanvaseval.com",
+      "role": "evaluator",
+      "domain": "system-optimization",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
+      "capabilities": {
+        "features": [
+          "Independent Platform Evaluation",
+          "Architecture Analysis",
+          "Performance Profiling",
+          "Code Audit & Review",
+          "Automated Fix Recommendations",
+          "Cross-Platform Optimization",
+          "Ecosystem Coherence Scoring",
+          "Best Practice Enforcement",
+          "SaaS Subscription Model",
+          "White-Label Evaluator",
+          "Continuous Improvement Engine",
+          "Integration Health Checks"
+        ],
+        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
+        "outcomeMetrics": [
+          "Platform evaluations completed",
+          "Optimization recommendations delivered",
+          "Fixes implemented after approval",
+          "Cross-platform coherence score improvements",
+          "Performance gains measured post-optimization"
+        ],
+        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
       "id": "sankofa-maternal-health",
@@ -765,48 +765,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "emergency-mgmt",
-      "name": "Emergency Management",
-      "url": "https://emergency-mgmt.replit.app",
-      "role": "risk-intelligence",
-      "domain": "compliance",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
-      "capabilities": {
-        "features": [
-          "Geographic Risk Heat Mapping",
-          "Multi-Factor Threat Assessment",
-          "Protective Factor Analysis",
-          "Community Resilience Scoring",
-          "Predictive Safety Modeling",
-          "Real-Time Alert System",
-          "Risk Score API",
-          "Location-Aware Safety Decisions",
-          "Emergency Response Coordination",
-          "Historical Incident Analysis",
-          "Community Safety Dashboard"
-        ],
-        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
-        "outcomeMetrics": [
-          "Risk assessments generated: 1,234",
-          "Community resilience scores computed: 45 geographic zones",
-          "Predictive safety model accuracy: 72%",
-          "Real-time alerts issued: 89 in last 30 days",
-          "Risk heat maps serving 24 platforms via API",
-          "Emergency coordination events: 23"
-        ],
-        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "sankofa",
       "name": "Sankofa Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -853,47 +811,44 @@
       "last_heartbeat": null
     },
     {
-      "id": "pillscheduler",
-      "name": "PillScheduler",
-      "url": "https://pillscheduler.net",
-      "role": "medication-management",
-      "domain": "health-equity",
+      "id": "emergency-mgmt",
+      "name": "Emergency Management",
+      "url": "https://emergency-mgmt.replit.app",
+      "role": "risk-intelligence",
+      "domain": "compliance",
       "status": "registered",
       "health_status": "online",
       "public_visible": false,
-      "description": "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
+      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
       "capabilities": {
         "features": [
-          "Intelligent Pill Reminders",
-          "Adaptive Scheduling",
-          "Dosage Tracking",
-          "Missed-Dose Protocols",
-          "FDA Drug Interaction Database",
-          "Real-Time Interaction Warnings",
-          "Care Team Coordination",
-          "Automated Refill Alerts",
-          "Pharmacy Integration",
-          "Medication Adherence Scoring",
-          "Intervention Triggers",
-          "Cognitive-Capacity-Aware Interface",
-          "Medication History Timeline",
-          "Provider Communication"
+          "Geographic Risk Heat Mapping",
+          "Multi-Factor Threat Assessment",
+          "Protective Factor Analysis",
+          "Community Resilience Scoring",
+          "Predictive Safety Modeling",
+          "Real-Time Alert System",
+          "Risk Score API",
+          "Location-Aware Safety Decisions",
+          "Emergency Response Coordination",
+          "Historical Incident Analysis",
+          "Community Safety Dashboard"
         ],
-        "grantNarrative": "Produces medication adherence rates, interaction prevention metrics, refill compliance data, and care coordination outcomes for SSG Fox veteran health and St. David's chronic disease grants",
+        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
         "outcomeMetrics": [
-          "Medication reminders sent: 12,345",
-          "Drug interaction warnings: 234",
-          "Refill alerts: 567",
-          "Adherence score tracking: 345 active users",
-          "Missed-dose protocol activations: 89",
-          "Care team coordination events: 45"
+          "Risk assessments generated: 1,234",
+          "Community resilience scores computed: 45 geographic zones",
+          "Predictive safety model accuracy: 72%",
+          "Real-time alerts issued: 89 in last 30 days",
+          "Risk heat maps serving 24 platforms via API",
+          "Emergency coordination events: 23"
         ],
-        "integrationDepth": "Bidirectional with Autoimmune (disease-specific), SafeCogniCare (cognitive capacity), Whole-Person Health (crisis), Maternal Health (prenatal vitamins), Men's Health (chronic medications)"
+        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
       },
       "grant_alignment": [
         "ssg-fox",
-        "st-davids",
-        "foundation"
+        "foundation",
+        "st-davids"
       ],
       "last_heartbeat": null
     },
@@ -996,6 +951,51 @@
       "grant_alignment": [
         "ssg-fox",
         "wioa",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "pillscheduler",
+      "name": "PillScheduler",
+      "url": "https://pillscheduler.net",
+      "role": "medication-management",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
+      "capabilities": {
+        "features": [
+          "Intelligent Pill Reminders",
+          "Adaptive Scheduling",
+          "Dosage Tracking",
+          "Missed-Dose Protocols",
+          "FDA Drug Interaction Database",
+          "Real-Time Interaction Warnings",
+          "Care Team Coordination",
+          "Automated Refill Alerts",
+          "Pharmacy Integration",
+          "Medication Adherence Scoring",
+          "Intervention Triggers",
+          "Cognitive-Capacity-Aware Interface",
+          "Medication History Timeline",
+          "Provider Communication"
+        ],
+        "grantNarrative": "Produces medication adherence rates, interaction prevention metrics, refill compliance data, and care coordination outcomes for SSG Fox veteran health and St. David's chronic disease grants",
+        "outcomeMetrics": [
+          "Medication reminders sent: 12,345",
+          "Drug interaction warnings: 234",
+          "Refill alerts: 567",
+          "Adherence score tracking: 345 active users",
+          "Missed-dose protocol activations: 89",
+          "Care team coordination events: 45"
+        ],
+        "integrationDepth": "Bidirectional with Autoimmune (disease-specific), SafeCogniCare (cognitive capacity), Whole-Person Health (crisis), Maternal Health (prenatal vitamins), Men's Health (chronic medications)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
         "foundation"
       ],
       "last_heartbeat": null

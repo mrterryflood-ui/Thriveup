@@ -363,3 +363,23 @@ Hub + 8 cards, one per engineering lane, every card has a real working physics s
 **Pilot artifacts (Round-1, single-location):** `docs/regional-briefings/north-wilco-childcare-infrastructure-2026-05-22.md`; Voice project `/voice/north-wilco-childcare-gaps` (id=2).
 
 **Lesson:** when refactoring an existing engine to be input-driven (Chainweb counties param), check whether the new HTTP entrypoint inherits the same auth posture as the old one. Here the old `/run` was unauthenticated — adding `/run-counties` without auth would have doubled an existing hole. Always gate the new sibling AND backfill the old one.
+
+### A20 addendum — Briefing prompt upgrade to woven-narrative (2026-05-22 PM)
+
+**Trigger:** Dr. Flood feedback — the v2 output read as a section dump, not a deep data story. He wanted the depth of an in-chat tri-county comparison (Williamson · Travis · McLennan) where the briefing actually *understood the place*.
+
+**`buildSystemPrompt` rewritten in `server/regional-briefing-routes.ts`** (function still at the same name; multi flag unchanged). Key shifts:
+
+1. **New section 1 — "The place (the setting)":** 2–4 paragraphs per location establishing geography, economy, demographic shift (last 10–20y), civic structure (county judge form, ISD count, LMHA, hospital district), and the 1–2 historical decisions that still shape today (annexation, refinery siting, ISD splits, base closures, immigration waves). Every later section reads through this lens.
+2. **New "THE BAR" preamble** before the section list — four ground rules: (a) treat the location as a living system, (b) every stat must connect to people-institution-cause-consequence or it doesn't belong, (c) name the hidden drivers (annexation, redlining, ISD boundaries, LMHA catchment, oil/gas legacy, refugee corridors, jail trends, FQHC service-area maps), (d) show threads — section 4's stakeholder must reappear in section 7's plan and section 8's outcome table.
+3. **Stakeholder ecosystem (section 4)** is now a *map of who-touches-whom*, not a list. County judge → commissioners court → ISD supts → MHMR/LMHA director → FQHC CMOs → hospital district CEO → workforce board → DA + sheriff + PD/PO → faith anchors → philanthropy POs → grassroots conveners. Each gets a one-line note on what they actually control + what they're known to care about right now. `[verify]` mark required when not 95% sure.
+4. **Grants (section 5)** must be *situated* — every grant tied to a ZIP, a stakeholder, and a problem from section 2 (not just listed).
+5. **TCAF solutions (section 6)** mapped to threads, including honest "this one isn't a clean fit here" calls.
+6. **Implementation plan (section 7)** — each step names owner + stakeholder convening + TCAF capability + funding source + 30/60/90-day milestone. Threads visible.
+7. **Outcomes (section 8)** — full table: stakeholder | ZIP | committed outcome | metric | timeframe | evidence source. Every stakeholder named in section 4 must appear here or be explicitly out-of-scope.
+8. **Comparison mode (section 9, multi only)** is now a SYSTEMS comparison — same demographic shift but different civic capacity, same grant fit but different political risk. Dimensions × locations: demographic engine · economic base · civic capacity · funding receptivity · political risk · best-fit grant · TCAF lead capability.
+9. **Closing rule** explicit: "If a stat in section 2 doesn't reappear as a stakeholder action in section 4, a grant target in section 5, a TCAF activation in section 6, a plan step in section 7, and a measured outcome in section 8 — you haven't done the job."
+
+**Hallucination guardrails preserved + tightened:** never invent stakeholder names — write "the [role] (verify current officeholder)" when unsure. All prior rules retained (Dr. Flood = President, terryflood@…, Meredith COI flag on any City-of-Austin pass-through).
+
+**No backend/DB changes.** Same endpoints, same context loader, same rate limits. Just a richer system prompt → richer output for the same token cost on the input side (output will be longer; user can shorten with a follow-up if needed).
