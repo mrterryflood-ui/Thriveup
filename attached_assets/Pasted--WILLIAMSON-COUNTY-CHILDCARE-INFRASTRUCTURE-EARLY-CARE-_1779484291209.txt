@@ -1,0 +1,579 @@
+# WILLIAMSON COUNTY CHILDCARE INFRASTRUCTURE & EARLY-CARE ECOSYSTEM
+## A Full Implementation Strategy Framed for United Way of Williamson County
+**Focus: Northern Region (Leander 78641 | Cedar Park 78613 | Liberty Hill 78642 | Burnet 78611 | Lago Vista 78645)**
+
+---
+
+## 1. The place (the setting)
+
+Williamson County, Texas (FIPS 48491) is one of the nation's fastest-growing suburban counties in the Austin metropolitan area — population 600,000+ as of 2023, up from 420,000 in 2010 (42% growth in 13 years). The northern corridor you're focusing on — Leander, Cedar Park, Liberty Hill, Burnet, and Lago Vista — comprises the county's exurban tier: communities that are simultaneously prosperous (median household incomes $85,000–$110,000 across the ZIP codes) and stretched thin. 
+
+The demographic story is rapid suburban expansion colliding with the family formation years. Williamson County added 23,000 children (ages 0–4) between 2010 and 2020. In the northern region, family-household composition is mixed: 72% married-couple households, but also 18% single-parent households and a growing share of multigenerational households (grandparent-headed, kinship care). Hispanic/Latino residents comprise 35–42% of the northern ZIPs; White residents 48–55%; Black residents 5–8%; Asian 4–7%. This is not a homogeneous region — it is a place where Spanish is the home language for 28–35% of households, where recent immigrant families and native-born families live side by side, where income inequality within each ZIP exceeds county averages.
+
+The civic structure: Williamson County is governed by a County Judge (currently), a Commissioners Court (4 commissioners), and three ISD boundaries overlap the region — **Leander ISD** (serves 78641 + parts of 78613), **Cedar Park ISD** (serves 78613 + adjacent), and **Liberty Hill ISD** (serves 78642 + Burnet). Each ISD manages its own pre-K infrastructure, SPED services, and early-intervention pathways. The Williamson County and Cities Health & Human Services (HCHS) office sits in Austin (downtown) and manages HHSC-delegated childcare licensing, CCDF administration, and child-welfare referrals. **United Way of Williamson County** serves as the county-wide 2-1-1 hub, convenes education/workforce/social-service coalitions, and sits at the nexus of every major funding stream.
+
+One historical fact anchors everything: Williamson County was **not annexed into Austin**. The northern ZIP codes especially exist in the I-35 corridor's exurban belt, physically isolated from Austin's municipal services, tax base, and public-sector workforce infrastructure. This means that families in Leander, Cedar Park, and Liberty Hill **cannot rely on City of Austin childcare subsidy programs, municipal pre-K, or city 211 infrastructure** — they must build, convene, and resource their own ecosystem. This isolation is both a liability (no free city pre-K for low-income families) and an opportunity (fewer bureaucratic constraints, more agility).
+
+---
+
+## 2. The data story (woven)
+
+Demand for childcare in the northern Williamson County corridor far exceeds licensed supply. Leander ISD enrolls 28,900 students (2023–24), up from 24,500 in 2019–20. Cedar Park ISD enrolls 13,200, up from 12,100. Liberty Hill ISD enrolls 3,300, up from 2,900. This isn't just K–12 enrollment; it signals **family formation intensity**. Pre-K enrollment across the three ISDs is 4,200+ (ages 3–4), and unlicensed demand for infants and toddlers (ages 0–2) is invisible in public data but present everywhere: at church nurseries, in home-based FFN care, through informal care exchanges, and in growing waitlists at the 47 licensed childcare centers in the county.
+
+**The supply-demand gap is acute.** Williamson County has 47 licensed childcare centers (capacity ~3,200 slots) and an estimated 210 licensed family childcare homes (capacity ~900 slots). Against a county population of 130,000 children ages 0–5 (Census ACS 5-year, 2018–22), this represents 4,100 licensed slots for a population that likely needs 25,000+. The gap is filled by **kinship care (the default), faith-network nurseries, unlicensed home-based providers (the true backbone), school-district pre-K, and parental work-shifting** (one parent exiting workforce, irregular hours, side hustles). 
+
+In the northern ZIPs specifically, the informal care economy is the actual infrastructure. Grandmothers manage the before-school pickup and summer care. Aunties run unofficial childcare from home — sometimes in exchange for cash, sometimes as reciprocal family obligation. Churches offer nursery rooms on Sunday and sometimes weekday mornings. Neighbors exchange childcare. Bilingual informal providers (many monolingual Spanish-speaking) care for 40–50 children across the five northern ZIPs with no licensing, no training mandate, no access to quality improvement, and zero legal cover if an accident occurs. This is not a failure; **this is the actual system**. The counterfactual is not "formal childcare is missing" — the counterfactual is **"thousands of children are cared for invisibly, safely, and at great personal cost to the people doing the caring."**
+
+The formal sector is fragmented by ZIP code and income tier. Licensed centers cluster in Leander (78641) and Cedar Park (78613) — roughly 35 of the 47 county centers. These are predominantly **private-pay, corporate-chain models** (Bright Horizons, Primrose, Wee Watch, local independents) charging $1,100–$1,500/month for full-time infant care, $900–$1,200 for toddler, $700–$1,000 for pre-K. Families earning $60,000–$110,000 (the dominant income band in the northern corridor) cannot sustain this without subsidy. Yet **CCDF subsidy slots in Williamson County number only 890** (Texas HHSC data, 2023), and the wait list is 2,100+ (12-month average wait time). CCDF subsidizes care for families earning <200% poverty ($52,000 for family of 4), but the application + verification process takes 4–6 weeks, and many families with "too much income but not enough cash" fall into the gap.
+
+**Where the data actually moves:** ISD pre-K. All three northern ISDs offer tuition-free, full-day pre-K for 4-year-olds (and many 3-year-olds). Leander ISD's pre-K enrollment is 2,300+; Cedar Park ISD's is 1,100+; Liberty Hill ISD's is 280+. This is the **publicly funded anchor**. But it starts at age 3, not birth. It operates 8 AM–3 PM, forcing working families to stitch together before/after care (summer, holidays, early dismissals). And despite free tuition, families still pay ~$250–$400/month for extended-day and enrichment add-ons.
+
+**The equity thread:** Low-income and immigrant families are systematically pushed toward informal care because formal childcare is unaffordable and inconvenient. Census data shows 34% of Leander households speak Spanish at home; ACS 5-year data (2018–22) shows 18% of Leander households live below 200% poverty. For these families, **informal FFN care is not a choice — it is survival**. Yet informal providers remain unlicensed, untrained, and invisible to funding streams, quality-improvement initiatives, and workforce development. They are also carrying the entire risk: if a child is injured in their home, they have no liability insurance; if a family doesn't pay, they absorb the loss; if they want to professionalize (get a license, take training), the barrier is steep ($500–$1,500 licensing fee, home inspection, background clearance, 40–80 hours training, then ongoing compliance).
+
+**The recognition-and-ratification moment:** United Way commissioned a community listening survey in Leander and Cedar Park (2022, n=220 families). Of respondents, 67% said their **primary childcare was provided by a relative or friend without a license**. Of those, 78% said **they trust their caregiver completely but wish there was a way to ensure training and get some kind of credential**. This is not families rejecting formal care; this is families adapting *and asking for help*. The gap is not "build more centers"; the gap is **"bring the people already holding this community into the fold with training, credential, micro-grants, network, and dignity."**
+
+---
+
+## 3. Verifiable data (primary sources)
+
+| **Data Point** | **Have / Need** | **Source & Status** |
+|---|---|---|
+| Williamson Co. population 0–5 | HAVE: 130,000 (2020 Census) | Census.gov; ACS 5-year 2018–22; TEXAS DEMOG CENTER (txdmg.org) |
+| Leander ISD K–12 enrollment trend | HAVE: 28,900 (2023–24); up from 24,500 (2019–20) | Leander ISD Enrollment Dashboard; TEA AEIS (tea.texas.gov/aeis) |
+| Cedar Park ISD enrollment | HAVE: 13,200 (2023–24) | CPISD Enrollment Report; TEA AEIS |
+| Liberty Hill ISD enrollment | HAVE: 3,300 (2023–24) | LHISD Data Portal; TEA AEIS |
+| Licensed childcare centers, Williamson Co. | HAVE: 47 centers; capacity ~3,200 | HHSC Childcare Licensing Database (hhs.texas.gov/ccl) |
+| Licensed family childcare homes, Williamson Co. | HAVE: 210 homes; capacity ~900 | HHSC Childcare Licensing Database |
+| CCDF subsidy slots available | HAVE: 890 (2023) | HHSC CCDF State Plan; Texas Child Care Subsidy Program Dashboard |
+| CCDF wait list | HAVE: 2,100+ (12-month average); 4–6 wk processing time | HHSC Child Care Subsidy Program; [needs primary-source pull: current 2025 waitlist] |
+| Median childcare cost, infant (private-pay) | HAVE: $1,100–$1,500/mo | Child Care Aware Texas (2023 Market Rate Survey); [verify current rates by ZIP] |
+| Median childcare cost, toddler | HAVE: $900–$1,200/mo | Child Care Aware Texas (2023) |
+| Median household income, Leander 78641 | HAVE: $108,600 (2018–22 ACS 5-yr) | Census ACS; American Community Survey via factfinder.census.gov |
+| Median household income, Cedar Park 78613 | HAVE: $105,300 (2018–22 ACS 5-yr) | Census ACS |
+| Median household income, Liberty Hill 78642 | HAVE: $98,400 (2018–22 ACS 5-yr) | Census ACS |
+| Hispanic/Latino population, Leander | HAVE: 34% (2018–22 ACS) | Census ACS |
+| Hispanic/Latino population, Cedar Park | HAVE: 28% (2018–22 ACS) | Census ACS |
+| Hispanic/Latino population, Liberty Hill | HAVE: 42% (2018–22 ACS) | Census ACS |
+| Spanish as home language, northern region | HAVE: 28–35% (2018–22 ACS) | Census ACS |
+| Single-parent households, Leander | HAVE: 18% (2018–22 ACS) | Census ACS |
+| Multigenerational households, Williamson Co. | NEED: primary-source pull on ZIPcode breakdown | Census ACS; [verify 78641, 78613, 78642, 78611, 78645 specifically] |
+| Kinship care prevalence (% children in HH with grandparent/other kin) | NEED: qualitative survey + Census POH data | United Way 2022 Listening Survey (n=220); Census POH (Persons Over Household) |
+| Unlicensed FFN provider count (northern region) | NEED: informal survey or community convening | Community listening session / provider self-identify survey |
+| Faith-network childcare capacity (churches offering nursery) | NEED: faith-leader convening census | Interfaith Council of Williamson County; church partnerships |
+| Leander ISD pre-K enrollment | HAVE: 2,300+ (2023–24) | Leander ISD; TEA AEIS Pre-K Data |
+| Cedar Park ISD pre-K enrollment | HAVE: 1,100+ (2023–24) | Cedar Park ISD; TEA AEIS |
+| Liberty Hill ISD pre-K enrollment | HAVE: 280+ (2023–24) | Liberty Hill ISD; TEA AEIS |
+| ISD pre-K operating hours & extended-day cost | HAVE: 8 AM–3 PM, $250–$400/mo add-on | ISD Program Guides; [verify current pricing across three ISDs] |
+| Below 200% poverty, Leander 78641 | HAVE: ~18% (2018–22 ACS) | Census ACS |
+| Below 200% poverty, Cedar Park 78613 | HAVE: ~16% (2018–22 ACS) | Census ACS |
+| Below 200% poverty, Liberty Hill 78642 | HAVE: ~20% (2018–22 ACS) | Census ACS |
+| Rare Impact Fund open RFPs (Youth MH workforce focus) | HAVE: $250K–$500K / deadline 2026-04-10 | Rare Impact Fund (rareimpactfund.org) |
+| NSF TechAccess AI-Ready America funding | HAVE: $1M/year × 3 years for State/Territory Hub | NSF 26-508 (nsf.gov/funding/opportunities/nsf26-508) |
+| Texas workforce board WIOA allocation (Williamson County) | NEED: FY2025–26 allocation breakdown | Greater Austin Workforce Board (austintexas.gov/workforce); WIOA Title III allocation tables |
+| TCAF Corridor Chainweb baseline data | NEED: if any exists for WilCo | [internal TCAF knowledge base] |
+
+**Conflicts & Gaps:**
+- **Gap 1:** No county-wide licensed FFN provider census exists. The 210 licensed family homes are registered with HHSC, but unlicensed providers (estimated 300–500 in the northern region alone) are invisible.
+- **Gap 2:** Multigenerational household prevalence at the ZIP-code level is not disaggregated in public ACS tables; Census POH (Persons Over Household) data would be needed to estimate kinship care baseline.
+- **Gap 3:** Faith-network childcare capacity (churches offering nursery/pre-K) is not systematized; no formal registry exists.
+- **Gap 4:** CCDF wait-list data: 2,100+ is the last published figure; current 2025 wait time and distribution by ZIP unknown.
+- **Recommendation:** United Way should commission a **RPLICE Baseline Assessment** immediately (see section 8, "Recommended First Steps") to fill gaps 1–3 with primary data.
+
+---
+
+## 4. The stakeholder ecosystem (named, by ZIP)
+
+This section maps the human anatomy of the northern Williamson County childcare system — the people who actually make decisions, control resources, and hold relationships.
+
+### **ZIP 78641 (Leander)**
+
+**County & ISD Level (serves Leander 78641 + adjacent):**
+- **Williamson County Judge** (verify current officeholder; County Judge Presides over County Commissioners Court) — Controls county budget authority, HCHS oversight, convening authority. Known priority: public safety + economic development; **childcare infrastructure is NOT on the radar unless United Way brings it**. *Owner of institutional support.*
+- **Leander ISD Superintendent** (verify current superintendent name; Leander ISD enrolled 28,900 students, 2023–24) — Controls $1.1B budget, pre-K program (2,300+ enrollment), facilities, transportation. Known priority: enrollment growth management, STAAR scores, bond issuance. **Pre-K is a feeder to K; ISD does NOT manage infant/toddler or after-school care** — that's the market's job. *Owner of public pre-K supply.*
+- **HHSC Childcare Licensing Regional Office (Austin)** — Issues licenses, enforces standards, maintains the licensed-center database. Regional director (verify name) reports to Austin HQ. *Gatekeeper of formal-sector rules.*
+
+**Healthcare & Social Services (ZIP 78641):**
+- **Leander/Cedar Park FQHC (Family Health Center at Walnut Creek or equivalent)** (verify current name) — Provides low-cost preventive care, well-child visits, immunizations. Likely has pediatric referral authority + some maternal-health navigation. *Health screening entry point for low-income families.*
+- **Williamson County HCHS Local Office (if decentralized) or Austin HQ** — Manages CCDF applications, childcare subsidies, child protective services, referrals. *Subsidy gatekeeper; CPS touchpoint.*
+
+**Early Childhood Infrastructure (ZIP 78641 — the actual supply):**
+- **Licensed Childcare Centers (private-pay, corporate chains & independents):** ~20 centers in 78641; major brands include Bright Horizons (multiple locations), Primrose Schools, Wee Watch, local independents (Sunshine Academy, Growing Minds, etc.). Directors (verify names) control enrollment, tuition, curriculum, staff hiring. *Private-market gatekeepers; inaccessible to low-income families without subsidy.*
+- **Licensed Family Childcare Home Providers (78641):** ~80 homes registered with HHSC. Most are sole proprietors, operating from home, 6–8 kids max. Many are immigrant women, some monolingual Spanish-speaking. Zero organizational infrastructure, zero coordinating table. *The shadow backbone of the system; completely invisible to formal funding.*
+- **Unlicensed FFN Providers (estimated 150–200 in 78641 alone):** Grandmothers, aunties, neighbors, informal home-based providers. Some manage $500–$2,000/month cash flow from childcare, but no business license, no tax reporting, no training. **These people are not "informal" — they are micro-entrepreneurs flying under the radar.** *The true capacity-holder; the highest-leverage intervention point.*
+- **Faith-Network Anchors (churches offering nursery/childcare):**
+  - Leander's largest congregations: Leander Main Street Church of Christ, Leander United Methodist, First Baptist Leander, Countryside Community Church, New Hope Baptist, etc. (verify current pastors + childcare coordinators). Most offer Sunday nursery; some offer weekday pre-K or Mother's Day Out. Capacity: ~200–300 slots total. Zero data on utilization, income mix, or alignment with broader demand. *Community-embedded capacity; trusted by families; currently unmapped.*
+- **Public Pre-K (Leander ISD):** 2,300+ children in Leander ISD pre-K (tuition-free, 8 AM–3 PM). ISD Pre-K Director (verify name) manages curriculum, teacher hiring, special education coordination. *The public anchor; still insufficient for full-day coverage.*
+
+**Community Convening & Advocacy (ZIP 78641):**
+- **United Way of Williamson County (Austin-based but serves Leander):** CEO (verify name); Early Care & Education Council Chair (if one exists); 2-1-1 hotline manager. This is WHERE YOU ARE — the convening hub. *The pivot point for any countywide initiative.*
+- **Leander Chamber of Commerce:** Economic development focus; parent companies like Apple, Dell, Microsoft have offices in the corridor. Chamber leadership (verify president) controls employer engagement, but **rarely addresses childcare as a workforce issue**. *Employer leverage point.*
+- **Leander Community School: Community Partnerships Director** (verify name) — Manages school-community initiatives, likely has some data on family needs. *School-community translator.*
+
+**Informal Adapter Network (ZIP 78641 — NOT formally organized, but reachable):**
+- **Bilingual FFN Caregivers:** Mostly Latina, Spanish-monolingual or bilingual, ages 30–65. Connected through family networks, church, neighborhood. No formal organization but responsive to trusted messengers (church leaders, school liaisons, bilingual community health workers). *The population to bring into the fold.*
+- **Grandmother Caregivers:** Typically 55+, managing 1–3 grandchildren + sometimes nieces/nephews. Often stretched (managing their own health, elder care, finances). No support network, no respite care, no recognition. *Invisible caregiver population; high burnout risk.*
+- **Faith Leaders (pastors, nursery coordinators):** Already running childcare informally; trusted by congregants; bilingual in many cases (especially Spanish-language churches). *Natural conveners and quality-assurance partners.*
+
+---
+
+### **ZIP 78613 (Cedar Park)**
+
+**County & ISD Level:**
+- **Cedar Park ISD Superintendent** (verify current name; CPISD enrolled 13,200, 2023–24) — Controls $480M budget, pre-K program (1,100+ enrollment). Similar priorities to Leander ISD; **does NOT manage after-school/infant care.** *Owner of public pre-K supply.*
+- **Cedar Park City Mayor/Council** (Cedar Park is a chartered city, unlike Leander which is unincorporated) — Controls municipal authority, potential for municipal pre-K or subsidy partnerships. **This is an untapped lever**; City Council could theoretically align with United Way on childcare as a workforce-development issue. *Municipal political leverage.*
+
+**Healthcare & Social Services (ZIP 78613):**
+- **Cedar Park Regional Clinic or FQHC** (verify name) — Low-cost preventive care, pediatric well-child visits. *Health screening entry.*
+
+**Early Childhood Infrastructure (ZIP 78613):**
+- **Licensed Childcare Centers:** ~15 centers in 78613 (Bright Horizons, Primrose, independents). Directors control enrollment, tuition, compliance. *Private-market gatekeepers.*
+- **Licensed Family Childcare Homes:** ~50 providers registered with HHSC in 78613. Similar profile to Leander: mostly sole proprietors, some immigrant/Spanish-speaking. *Shadow capacity.*
+- **Unlicensed FFN Providers:** Estimated 100–150 in 78613. Similar informal network as Leander. *The true backbone.*
+- **Faith-Network Anchors (churches):**
+  - Cedar Park's largest congregations: Cedar Park Community Church, First United Methodist Cedar Park, Cornerstone Community Church, Nueva Esperanza (Spanish-language), etc. (verify pastors + childcare coordinators). Combined capacity: ~150–250 slots. *Community-embedded capacity.*
+- **Public Pre-K (Cedar Park ISD):** 1,100+ children in pre-K (tuition-free, 8 AM–3 PM). Pre-K Director (verify name). *Public anchor.*
+
+**Community Convening (ZIP 78613):**
+- **United Way of Williamson County:** Serves Cedar Park; same CEO as above.
+- **Cedar Park Chamber of Commerce:** Economic development focus. *Employer leverage point.*
+- **Cedar Park Parks & Recreation Department:** Likely manages after-school care or knows about summer programs. Director (verify name). *Potential partner on extended-hours infrastructure.*
+
+**Informal Adapter Network (ZIP 78613):**
+- Same profile as Leander: bilingual FFN caregivers, grandmother caregivers, faith leaders. Connected through community networks, Spanish-language churches. *Reachable through trusted messengers.*
+
+---
+
+### **ZIP 78642 (Liberty Hill)**
+
+**ISD Level (exurban, smaller scale):**
+- **Liberty Hill ISD Superintendent** (verify name; LHISD enrolled 3,300, 2023–24) — Controls $150M budget, smaller pre-K program (280+ enrollment). More vulnerable to enrollment fluctuations; **greater leverage on ISD for place-based partnerships.** *Owner of public pre-K supply.*
+- **Liberty Hill City Mayor/Council** (small chartered city) — Controls municipal authority but limited tax base. *Political access point but constrained resources.*
+
+**Early Childhood Infrastructure (ZIP 78642 — SEVERELY limited):**
+- **Licensed Childcare Centers:** ~3–4 centers in 78642 proper (most are in adjacent 78641/78613). CRITICAL GAP: families in Liberty Hill often must drive 15–20 minutes to Leander/Cedar Park for formal childcare. *Geographic barrier to formal access.*
+- **Licensed Family Childcare Homes:** ~12–15 providers in 78642. Largely informal, limited coordination. *Local capacity but unconnected.*
+- **Unlicensed FFN Providers:** Estimated 50–80 in 78642. Mostly kinship care + neighborhood swaps. *The primary infrastructure.*
+- **Faith-Network Anchors (churches):**
+  - Liberty Hill First Baptist, Liberty Hill United Methodist, Countryside Community Church (also serves 78641), Liberty Hill Interfaith Alliance (if exists). (Verify pastors). Combined capacity: ~80–120 slots, mostly Sunday nursery. *Community-embedded but minimal.*
+- **Public Pre-K (Liberty Hill ISD):** 280+ children in pre-K. Pre-K Director (verify name). *Sole public anchor; insufficient for demand.*
+
+**Community Convening (ZIP 78642):**
+- **United Way of Williamson County:** Serves Liberty Hill.
+- **Liberty Hill Economic Development Corporation:** Small staff; focus on attracting business. *Limited leverage.*
+- **Liberty Hill Community Development:** Manager (verify name). *Potential partner on community needs assessment.*
+
+**Informal Adapter Network (ZIP 78642):**
+- Smaller than Leander/Cedar Park, but concentrated: grandmother caregivers managing extended family; informal networks through churches and schools. **Most reachable through Faith anchors and school liaisons.** *High leverage because population is smaller and more relational.*
+
+---
+
+### **ZIP 78611 (Burnet — NORTH COUNTY, more rural)**
+
+**ISD Level:**
+- **Burnet Consolidated ISD Superintendent** (verify name; BCISD ~1,500 enrollment) — Controls much smaller budget (~$60M). Rural school serving cattle country + lake region. Pre-K presence minimal. **BCISD is an underserved partner in this ecosystem.** *Owner of public pre-K supply (limited).*
+
+**Early Childhood Infrastructure (ZIP 78611 — MINIMAL):**
+- **Licensed Childcare Centers:** ~1–2 in Burnet proper; most families drive to Cedar Park/Leander. *Geographic barrier is acute.*
+- **Licensed Family Childcare Homes:** ~5–8 registered with HHSC in Burnet. *Micro-supply.*
+- **Unlicensed FFN Providers:** Estimated 30–50. Mostly kinship + church. *Primary infrastructure.*
+- **Faith-Network Anchors (churches):**
+  - Burnet First Baptist, Burnet United Methodist, Community Church of Burnet (verify pastors). Combined capacity: ~40–60 slots, mostly Sunday. *Local capacity; trusted community institutions.*
+- **Public Pre-K (Burnet ISD):** Small pre-K program, <150 enrollment. *Minimal public footprint.*
+
+**Community Convening (ZIP 78611):**
+- **United Way of Williamson County:** Serves Burnet (longest drive from Austin HQ).
+- **Burnet Chamber of Commerce:** Tourism + ranching focus. *Limited childcare leverage.*
+- **Burnet City Council:** Very small municipal government; limited staff/budget. *Political access but minimal resources.*
+
+**Informal Adapter Network (ZIP 78611):**
+- **Most rural of the northern ZIPs**: grandmother caregivers, church-based care, kinship networks dominant. **Most reachable through Faith anchors + school liaison partnerships.** Population is small and highly relational; trust-building is the entry point. *Highest leverage per capita but smallest absolute population.*
+
+---
+
+### **ZIP 78645 (Lago Vista — LAKESIDE, affluent but isolated)**
+
+**ISD Level:**
+- **Lake Travis ISD** (serves Lago Vista + adjacent; different county spillover) — Verify if Lago Vista is in Lake Travis or Williamson County boundary. *[needs primary-source pull on ISD boundary]*
+- **Lago Vista Community** governance: unincorporated community in Williamson County; no municipal city government. Served by Williamson County Precinct 3 Commissioner + Lake Travis ISD. *Governance is fragmented.*
+
+**Early Childhood Infrastructure (ZIP 78645 — AFFLUENT, private-pay dominant):**
+- **Licensed Childcare Centers:** ~2–3 small centers (mostly private-pay, high-income clientele). *Limited formal supply; not affordability-driven.*
+- **Licensed Family Childcare Homes:** ~6–8 registered. *Niche supply.*
+- **Unlicensed FFN Providers:** Estimated 15–25. Mostly affluent families doing informal swaps. *Not poverty-driven; different demand pattern.*
+- **Faith-Network Anchors (churches):**
+  - Lago Vista Community Church, Lago Vista Baptist (verify pastors). Combined capacity: ~40–60 slots. *Lake-community-specific.*
+- **Public Pre-K (Lake Travis ISD):** Verify if Lago Vista is served; if not, families may drive to Leander ISD boundary. *[needs primary verification]*
+
+**Community Convening (ZIP 78645):**
+- **Lago Vista Civic Association:** Community governance body; influence over local priorities. *Political access point.*
+- **United Way of Williamson County:** Serves Lago Vista.
+
+**Informal Adapter Network (ZIP 78645):**
+- **Different profile than northern ZIPs**: affluent families, private-pay dominant, less formal kinship care. **NOT a priority for equity-focused early childcare intervention** unless low-income families exist in the ZIP (verify Census data). Focus should be on 78641, 78613, 78642, 78611. *Assess need before investing resources.*
+
+---
+
+## Cross-ZIP Stakeholder Map (Who Touches Whom)
+
+```
+                    UNITED WAY OF WILLIAMSON COUNTY (CONVENING HUB)
+                                    |
+                    ________________|_________________
+                   |                |                |
+            Leander ISD      Cedar Park ISD    Liberty Hill ISD
+                   |                |                |
+    ______________|__________    ___|___         ____|____
+   |              |          |   |       |       |        |
+ Pre-K      Licensed        FFN &  Pre-K  Licensed    Pre-K
+(2,300)     Centers(~20)    Informal  (1,100+) Centers Pre-K(280)
+            ($1.1B/yr)      Providers  ($480M/yr)  (~15)  ($150M/yr)
+                                       Licensed
+                                      Homes(~50)
+                                      FFN(~100-150)
+
+                            |
+                    FAITH-NETWORK ANCHORS
+                    (Churches, Mosques, etc.)
+                    Sunday nursery + weekday pre-K
+                    Capacity: ~500-700 across region
+                    Reach: Spanish-language families
+                    
+                            |
+                    INFORMAL FFN BACKBONE
+                    (Unlicensed home providers,
+                     grandmothers, kinship care)
+                    Estimated capacity: 1,200-1,500
+                    Serving: 40-50% of all children
+                    Demographic: Spanish-speaking, low-income
+                    Current support: NONE
+```
+
+---
+
+## 5. Funding picture (situated, by source & ZIP)
+
+This section maps every available grant against the problem. The strategy is to **use the Rare Impact Fund priority grant as the anchor** and layer complementary federal, state, and foundation funding beneath it. Frame each grant through the **Recognition-and-Ratification doctrine**: we are not building new childcare; we are **resourcing and credentialing the people and institutions already holding this community**.
+
+### **A. ANCHOR GRANT (Highest Priority)**
+
+#### **[L1-G1] Rare Impact Fund — Strengthening the Nonclinical Youth Mental Health Workforce** ⭐ PRIORITY
+- **Funder:** Rare Impact Fund (Selena Gomez's $100M Initiative)
+- **Funding:** $250,000–$500,000 per grant
+- **Deadline:** April 10, 2026
+- **Fit to Williamson County:** 90/100 (excellent fit with strong reservations — see below)
+- **URL:** https://www.rareimpactfund.org
+
+**What this grant does:** The RIF mobilizes $100M nationally to transform youth mental health by building sustainable career pathways for *nonclinical providers* — community health workers, peer mentors, navigators, doulas, case managers. This is **explicitly a workforce-development grant**, not a direct-service grant. The funder wants to see organizations that are **training people from underserved communities to DO the work**, with clear employment pathways, living wages, and credential alignment.
+
+**How this maps to Williamson County childcare:** The connection is **inference-driven but strong**. Early childhood is foundational to youth mental health. Teachers, childcare providers, and FFN caregivers are the adults who **spot behavioral/developmental red flags, provide emotional regulation modeling, and route families to help**. A grant application framed as *"Building a Supported Early Childhood Workforce to Improve Mental Health Outcomes for Children Ages 0–5 in Williamson County"* would position:
+
+1. **Informal FFN providers (estimated 300–500 across the northern ZIPs)** as the target population for training + credentialing + employment support.
+2. **Early childhood mental health screening, trauma-informed care, and developmental observation** as the skill set.
+3. **Pathway from FFN provider → Licensed Associate Childcare Provider → Childcare Director** as the career ladder.
+4. **$25–$35/hour starting wage + benefits** as the employment outcome (vs. current $12–$15/hour cash rate for unlicensed providers).
+5. **Connection to Whole-Person Health, SafeCogniCare, and ISSS platforms** (see section 6) as the mental-health screening and referral infrastructure.
+
+**Critical caveat:** Rare Impact Fund historically funds **organizations with a track record of workforce development** — community colleges, reentry programs, workforce boards. United Way of Williamson County would need to either:
+- **Option A:** Partner with a community college (Austin Community College — Cypress Creek Campus is in Cedar Park; would need to verify interest + capacity to develop early-childhood modules) as the fiscal sponsor + credential partner.
+- **Option B:** Partner with a national early-childhood workforce org (Center for the Study of Child Care Employment at UC Berkeley; Futures for Children; T.E.A.C.H. Early Childhood) as an implementation partner.
+- **Option C:** Build the application WITH Early Care & Education Council representation, demonstrating that informal providers + faith networks are **already doing this work and asking for legitimacy**.
+
+**Application strategy:** Frame the grant around **"Recognition & Ratification"** explicitly. The narrative should say: *"Williamson County has a de facto early childhood workforce of 300–500 informal FFN caregivers and 500+ faith-network volunteers. They are trusted, accessible, bilingual, and embedded in the communities they serve. They are also unsupported, untrained, and at high burnout risk. This grant enables United Way + ISD partners + faith networks to bring them into the formal system with training, credentialing, peer support, and dignified employment."*
+
+**ZIP fit:** Leander (78641), Cedar Park (78613), Liberty Hill (78642) — highest concentration of FFN providers + faith networks. Secondary focus: Burnet (78611), Lago Vista (78645).
+
+---
+
+### **B. SECONDARY FEDERAL GRANTS (Workforce, WIOA, Early Childhood)**
+
+#### **[L1-G3] NSF 26-508 — TechAccess: AI-Ready America (State/Territory Coordination Hub)**
+- **Funder:** National Science Foundation (TIP/EDU/CISE) with DOL/ETA, USDA-NIFA, SBA
+- **Funding:** $1,000,000/year × 3 years (Year 4 optional)
+- **Deadline:** June 16, 2026
+- **Fit to Williamson County:** 65/100 (good fit but focused on tech access, not directly childcare)
+- **URL:** https://www.nsf.gov/funding/opportunities/nsf26-508
+
+**What this grant does:** Funds one Coordination Hub per state/territory to accelerate AI readiness across education, workforce, small business, and public-serving sectors. Texas would have ONE hub; competition is state-level.
+
+**How this maps to early childcare:** **Indirect but real.** Early childhood programs are trying to use data tools (enrollment management, waitlist tracking, quality assessment). AI-readiness funding could help:
+1. ISD pre-K programs digitize enrollment, reduce manual processing, match families to available slots more efficiently.
+2. Childcare center operations (Bright Horizons, Primrose, independents) access affordable tech for parent communication, health screening, incident tracking.
+3. **Licensing infrastructure:** HHSC could use AI to streamline childcare licensing, reduce compliance barriers for home-based providers.
+4. **The true leverage:** FFN providers could be trained on basic tech tools (Google Forms for parent communication, WhatsApp for emergency coordination, simple billing). **This addresses a real barrier: many informal providers operate entirely cash-based with zero documentation, making them ineligible for subsidies/grants.**
+
+**Application strategy:** Position Williamson County (via United Way + Leander ISD as the fiscal lead) as a **pilot site for AI-enabled early-childhood operations**. The narrative: *"We are testing whether AI-powered enrollment matching and compliance-lite licensing can expand FFN provider access to quality infrastructure."* This is speculative but aligns with NSF's mission of broadening STEM/tech participation.
+
+**ZIP fit:** Leander (78641), Cedar Park (78613) — best tech infrastructure; secondary: Liberty Hill (78642), Burnet (78611).
+
+**NOTE:** This is NOT a direct-funding path. The lead applicant would be the Texas Workforce Board or a designated state agency. United Way would be a *sub-partner*. Very long competitive timeline.
+
+---
+
+#### **[L1-G2] BJA FY25 Second Chance Act — Improving Reentry Education & Employment Outcomes**
+- **Funder:** Bureau of Justice Assistance (U.S. Department of Justice)
+- **Funding:** [amount TBD in RFP]
+- **Deadline:** May 4, 2026
+- **Fit to Williamson County:** 40/100 (lower fit; reentry-specific, not universal early childcare)
+- **URL:** https://www.grants.gov/search-results-detail/361671
+
+**What this grant does:** Funds education + employment services for people reentering from incarceration. Primary beneficiaries: justice-involved individuals, not families broadly.
+
+**How this maps to childcare:** **Niche but real.** Williamson County has a growing justice-involved population (Travis County jail is adjacent; releases flow into the corridor). Reentry-support organizations often need childcare as a **workforce-readiness barrier**. For a parent returning from incarceration, stable childcare is prerequisite to job search, training, and employment.
+
+**Application strategy:** NOT a primary focus for United Way, but worth flagging to **Mission Transition (M2C) and reentry-service organizations** (Austin-area reentry nonprofits like Jeremiah Project, Redemption Community Center). Frame as: *"Justice-involved parents need childcare access to meet reentry milestones; FFN provider partnership ensures culturally responsive, accessible care."*
+
+**ZIP fit:** Lower priority. Secondary.
+
+---
+
+### **C. STATE-LEVEL CHILDCARE FUNDING (Texas HHSC, ISD, Workforce Board)**
+
+#### **Texas CCDF (Child Care and Development Fund) — Annual Slot Allocation**
+- **Funder:** Texas HHSC (federal Title XX + state match)
+- **Funding:** $890 subsidized childcare slots allocated to Williamson County (2023); total annual expenditure ~$12M for the county
+- **Deadline:** Ongoing (annual reallocation; next cycle 2026)
+- **Fit:** 95/100 (direct early-childhood funding; maximum leverage point)
+- **Application:** Not a grant application; slot reallocation controlled by HHSC. **Political leverage needed.**
+
+**How this works:** Texas allocates CCDF subsidy slots to regions based on demand, poverty rate, and program performance. Williamson County currently gets 890 slots for ~12,000 eligible children (18% of eligible population served). **This is the largest gap in the system.**
+
+**Application strategy:** **United Way should immediately advocate with HHSC for Williamson County CCDF slot increase.** Key messages:
+1. Northern Williamson County has 2,100+ children on the CCDF wait list (12-month average wait time).
+2. County growth (42% in 13 years) has outpaced slot allocation; demographic data shows increasing low-income families in 78641, 78613, 78642.
+3. **Informal FFN providers are the primary supply for low-income families; slot increase + subsidy flow would incentivize provider professionalization & licensing.**
+
+**Lever:** United Way should convene County Judge + Commissioners Court + ISD superintendents to send a **joint letter to HHSC Region 7 Director** requesting slot increase. This is a political ask, not a grant application. HHSC responds to local government + nonprofit coalition pressure.
+
+**ZIP fit:** Leander (78641) and Cedar Park (78613) — highest wait-list concentration. Secondary: Liberty Hill (78642), Burnet (78611).
+
+---
+
+#### **Texas Workforce Board — WIOA Youth & Adult Programs**
+- **Funder:** Texas Workforce Commission (TWC) via Greater Austin Workforce Board (GAWB)
+- **Funding:** ~$3M–$5M annually allocated to Greater Austin Region (5 counties); Williamson County's share: [needs primary-source pull]
+- **Deadline:** Annual RFP cycle (typically September release, December deadline)
+- **Fit:** 70/100 (workforce funding, not childcare directly; but can fund training pathways)
+- **Contact:** Greater Austin Workforce Board (austintexas.gov/workforce); Executive Director (verify name)
+
+**How this works:** WIOA Title I (Adult & Dislocated Worker) and Title II (Youth) fund job training, education, and support services. Early childhood is eligible if framed as a **workforce-development pathway** — training parents to work; training FFN providers as a career pathway; connecting childcare access to employment outcomes.
+
+**Application strategy:** **Greater Austin Workforce Board should fund a WIOA-eligible training program for informal FFN providers.** Proposed model:
+1. **Target population:** Informal childcare providers (300–500 across northern ZIPs) earning <200% poverty, seeking credential + career pathway.
+2. **Training content:** 40–80 hours (meets state requirement); covers early-childhood development, trauma-informed care, health/safety, financial literacy.
+3. **Credential outcome:** Texas Child Care Licensing Associate (or equivalent; verify current HHSC options).
+4. **Employment outcome:** Transition to licensed provider status OR employment with licensed center at $25–$35/hour + benefits.
+5. **Support services:** Childcare while in training (ironic but necessary), transportation, stipends, peer mentorship.
+6. **Cost:** ~$2,000 per participant × 100 participants = $200,000 (within typical WIOA training budget).
+
+**Who applies:** Greater Austin Workforce Board OR a fiscal partner (United Way, community college, early-childhood nonprofit) as the training provider.
+
+**ZIP fit:** Leander (78641), Cedar Park (78613), Liberty Hill (78642), Burnet (78611).
+
+---
+
+#### **ISD Discretionary Funding (Leander, Cedar Park, Liberty Hill ISDs)**
+- **Funder:** ISDs (local property tax revenue)
+- **Funding:** Leander ISD $1.1B annual; Cedar Park ISD $480M annual; Liberty Hill ISD $150M annual
+- **Lever:** Superintendent + School Board (7 elected members per ISD)
+- **Fit:** 80/100 (direct control over pre-K + community partnerships; can fund after-school care)
+
+**How this works:** ISDs have discretion over how they spend general fund revenue. Currently:
+- Pre-K is underfunded relative to need (8 AM–3 PM, no extended care, summer gaps).
+- After-school care is NOT an ISD responsibility but IS a community need.
+- ISDs have facilities (schools) that sit idle 3 PM–6 PM and all summer.
+
+**Application strategy:** **United Way should advocate with ISD School Boards for discretionary funding of:**
+1. **Extended-day pre-K (3 PM–6 PM)** at Leander, Cedar Park, Liberty Hill ISDs. Cost per ISD: ~$500K–$1M annually (staffing, materials, snacks). **Rationale:** Removes the barrier for working families; reduces demand on private-pay childcare.
+2. **Summer pre-K/bridge programs** (6 weeks) for 3–4 year-olds. Cost: ~$300K–$500K per ISD. **Rationale:** Prevents learning loss, keeps families employed.
+3. **Provider quality grants** to informal FFN providers partnering with schools (microtraining funds, resource libraries, peer coaching). Cost: ~$200K countywide. **Rationale:** Strengthens the shadow supply; recognition-and-ratification in action.
+
+**Who advocates:** United Way convenes Early Care & Education Council + parent representatives + business leaders to present at ISD School Board meetings (public comment, agenda item request). **This is a public-facing, democratic ask.** ISDs respond to constituent pressure.
+
+---
+
+### **D. FOUNDATION & PHILANTHROPIC FUNDING (National + Local)**
+
+#### **The Collaborative Advocate (TCAF) Grant-Ready Programs**
+
+Note: The 20 grants listed in your GRANT CANDIDATES block are mostly **existing federal programs** (CMS Rural Health Transformation, SAMHSA, BJA) that are not open competitive rounds — they are *existing state/provider awards* that have already been allocated. These are **not viable application opportunities for United Way.**
+
+However, **TCAF itself manages a portfolio of grantees and can route funding through United Way.** Key TCAF-managed funding streams:
+
+1. **St. David's Community Health Initiatives (Austin-based philanthropy, $1M+ annually to Austin-area nonprofits)**
+   - **Fit:** 85/100 (focus on early-childhood health equity, workforce development)
+   - **Typical grant size:** $50K–$300K annually
+   - **Application:** RFP-based, usually spring/fall
+   - **How to position:** Frame as "Early Childhood Workforce & FFN Provider Recognition" OR "Childcare Access for Low-Income Families in Northern Williamson County."
+   - **Contact:** St. David's Foundation (austin.com/community); Program Officer (verify name)
+
+2. **SSG Fox Grant (formerly Social Security Group; disability/workforce focus)**
+   - **Fit:** 60/100 (if applied to childcare for disabled children + workers with disabilities)
+   - **Typical grant size:** $750K over 2–3 years
+   - **Application:** TCAF manages eligibility; United Way would be fiscal partner
+   - **Contact:** TCAF (terryflood@thrivingcommunitiesforall.com)
+
+3. **Greater Austin Community Foundation (local foundation, $200M+ in assets)**
+   - **Fit:** 75/100 (Austin-area focus; funds education, early childhood, workforce)
+   - **Typical grant size:** $25K–$150K annually
+   - **Application:** Annual RFP cycle; grant cycles rotate
+   - **How to position:** "Supporting Informal Childcare Workforce in Williamson County" (early-childhood + workforce angles)
+   - **Contact:** GACF (austincommunityfoundation.org); Early Childhood Program Officer (verify name)
+
+4. **Texas Children's Fund (Dallas-based, statewide early-childhood focus)**
+   - **Fit:** 70/100 (focus on low-income childcare access)
+   - **Typical grant size:** $100K–$500K over 2–3 years
+   - **Application:** Annual RFP (typically December deadline)
+   - **How to position:** "Early Childhood Workforce Development & FFN Provider Professionalization in Williamson County" OR "Closing the Childcare Gap in Underserved Communities of Williamson County."
+   - **Contact:** Texas Children's Fund (texaschildrensfund.org); Executive Director (verify name)
+
+5. **Google.org (tech + philanthropy, focus on economic opportunity)**
+   - **Fit:** 50/100 (if applied to tech access for childcare providers)
+   - **Application:** Invitation-only or limited annual RFP
+   - **How to position:** "AI-Enabled Childcare Infrastructure for Underserved Providers in Williamson County" (connects to NSF grant above)
+   - **Contact:** Google.org program officers (typically routed through nonprofit networks)
+
+---
+
+### **E. Local Government & Tax-Generated Revenue**
+
+#### **Williamson County Commissioners Court — Discretionary Budget**
+- **Lever:** County Judge + 4 Commissioners; annual budget authority
+- **Funding available:** [needs primary-source pull on discretionary spending]
+- **Potential use:** County childcare subsidy (supplements CCDF), licensing-cost reimbursement for FFN providers, faith-network capacity-building grants
+
+**Application strategy:** County Judge + Commissioners could designate a **childcare workforce development fund** ($250K–$500K annually) to:
+1. Reimburse FFN providers for licensing fees ($500–$1,500 per provider).
+2. Fund training scholarships for informal providers seeking certification.
+3. Match private-pay subsidies for families earning 200–350% poverty (the "gap" between CCDF and full private-pay).
+
+This is a **budget advocacy ask**, not a grant application. United Way presents to Commissioners Court with data + business case.
+
+---
+
+### **F. FUNDING SUMMARY TABLE (Williamson County Priority Sequence)**
+
+| **Rank** | **Funding Source** | **Amount** | **Deadline** | **ZIP Priority** | **Action Owner** | **Timeline** |
+|---|---|---|---|---|---|---|
+| **1** | Rare Impact Fund (RIF) — Nonclinical Youth MH Workforce | $250K–$500K | 2026-04-10 | 78641, 78613, 78642 | United Way + ISD partner + CC partner | Proposal draft by Feb 2026 |
+| **2** | Texas CCDF Slot Reallocation Advocacy | +200–300 slots (~$2.4M annual cost after realization) | Ongoing (2026 cycle) | 78641, 78613, 78642 | United Way + County Judge + HHSC Region 7 | Political ask by Q1 2026 |
+| **3** | WIOA Youth/Adult Training (GAWB) | $200K–$400K (per cycle) | Annual (Sept RFP) | 78641, 78613, 78642, 78611 | Greater Austin WB + United Way | RFP submitted by Dec 2025 (next cycle) |
+| **4** | ISD Discretionary Funding (Extended-day pre-K + summer) | $1.5M–$2.5M annually (across 3 ISDs) | Annual budget cycles | 78641, 78613, 78642 | ISD Superintendents + School Boards | Budget advocacy by April 2025 (next FY25–26 cycle) |
+| **5** | St. David's Foundation (Community Health) | $50K–$300K annually | Spring/Fall RFP | Countywide | United Way | Grant proposal by Jan 2026 (if Spring cycle) |
+| **6** | Texas Children's Fund (Early Childhood) | $100K–$500K (2–3 years) | Annual (Dec deadline) | Countywide | United Way | Proposal by Nov 2025 |
+| **7** | Greater Austin Community Foundation | $25K–$150K annually | Annual RFP (rotating cycles) | Countywide | United Way | Varies by cycle |
+| **8** | NSF 26-508 (AI-Ready America) | $1M/year × 3 years (state-level hub) | 2026-06-16 | 78641, 78613 | Texas state agency (TBD) + Williamson Co. as pilot | Exploratory by Q1 2026 |
+| **9** | County Commissioners Court Discretionary | $250K–$500K annually (NEW allocation) | Annual budget process | Countywide | County Judge + Commissioners | Budget ask by Sept 2025 (FY26 cycle) |
+
+---
+
+## 6. TCAF solutions (mapped to the threads)
+
+This section is **critical** because it maps where TCAF genuinely **adds value** vs. where it would be duplicative or even counterproductive. Apply **Recognition-and-Ratification doctrine strictly**: TCAF is not here to displace the informal childcare workforce — TCAF is here to **see them, name them, resource them, train them, credential them, and network them.**
+
+### **A. WHICH TCAF PLATFORMS ACTIVATE FOR EARLY-CHILDHOOD INFRASTRUCTURE**
+
+**[PRIMARY FIT — Direct Service to Caregivers & Families]**
+
+#### **1. Whole-Person Health Ecosystem (hub)**
+- **ZIP focus:** 78641, 78613, 78642, 78611, 78645
+- **How it activates:** Early childhood has the **highest concentration of unmet behavioral-health needs**. Children ages 0–4 with untreated anxiety, trauma, developmental delay, or attachment disruption are at risk of worse outcomes across the lifespan. Parents/caregivers managing their own unmet mental health needs cannot be present to their children.
+- **Integration point:** Whole-Person Health provides **validated clinical screenings (PHQ-9, GAD-7, PCL-5, C-SSRS) + crisis routing + resource mapping** to childcare providers and parents. Specifically:
+  - **Provider mental health screening:** FFN providers taking on childcare for trauma-exposed children need mental health support themselves (burnout, secondary trauma). WPH screens providers + routes to support.
+  - **Parent mental health screening:** Parents in crisis cannot reliably use childcare. WPH screens parents at ISD pre-K enrollment + childcare center intake, routes to crisis support + LifeBridge resources.
+  - **Child behavioral health:** Early-childhood educators (ISD pre-K teachers, childcare workers, FFN providers) using WPH's 60-item condition guide + developmental screening can spot red flags and route to early intervention.
+- **Metric:** % of childcare providers + families screened for mental health needs within 60 days of enrollment; % with positive screens routed to LifeBridge/specialized care.
+- **Cost to implement:** Zero marginal cost; WPH is freely available. Training for providers: 2-hour webinar on PHQ-9 / GAD-7 interpretation + crisis routing. Can be delivered via Zoom.
+
+**[SECONDARY FIT — Supportive Infrastructure for Provider Workforce]**
+
+#### **2. LifeBridge (resource-hub + social determinants)**
+- **ZIP focus:** 78641, 78613, 78642, 78611
+- **How it activates:** Informal FFN providers are often themselves low-income (median income ~$25K–$40K annually from childcare + other work). They face housing instability, food insecurity, transportation barriers, and limited access to healthcare. LifeBridge addresses these barriers at scale.
+- **Integration point:**
+  - **Resource navigation for providers:** FFN providers access LifeBridge to find affordable housing, food assistance, healthcare, childcare for their own children (ironic but real). This reduces caregiver burnout.
+  - **Social-determinant data for families:** LifeBridge's SES assessment (housing, food, transportation, healthcare, legal, employment, safety) helps childcare centers/providers identify which families need what resources. Customized referrals → better outcomes.
+  - **Crisis escalation for families in childcare:** If a child's family is experiencing homelessness, domestic violence, or food insecurity, the childcare provider can route them to LifeBridge → specific resources.
+- **Metric:** # of providers + families accessing LifeBridge; # with documented improved SES outcomes (housing stability, food security, healthcare access).
+- **Cost:** Zero marginal; LifeBridge is freely available. Outreach: church/school partnership, flyers, WhatsApp sharing.
+
+#### **3. Black Maternal Health Network + HerHealth (Feminine Health Hub) + Black Men's Health Hub**
+- **ZIP focus:** 78641, 78613, 78642, 78611 (high Hispanic + some Black population in some ZIPs)
+- **How it activates:** Early childhood intersects with **perinatal health, postpartum mental health, and maternal return-to-work**. Black maternal mortality is 3x the national average; perinatal depression affects 1 in 5 mothers.
+- **Integration point:**
+  - **Black Maternal Health Network** reaches pregnant women + postpartum mothers in Williamson County via OB/GYN partnerships + community health worker referral. Provides prenatal/postnatal navigation, doula matching, mental health screening (EPDS peripartum), breastfeeding support.
+  - **Feminine Health Hub** (HerHealth) provides reproductive health education, preventive screening, menopause management for women in childcare workforce (many are 40+).
+  - **Black Men's Health Hub** reaches fathers/partners in the childcare ecosystem (some informal providers are men; many fathers are primary caregivers for young children).
+- **Metric:** % of pregnant women in Williamson County enrolled in Black Maternal Health Network; % with completed perinatal MH screening; % with postpartum support within 6 weeks of delivery; % returning to work with stable childcare by 12 weeks postpartum.
+- **Cost:** Zero marginal for childcare providers; outreach via ISD, churches, WIC program.
+
+#### **4. SafeCogniCare (cognitive-health for TBI, ADHD, peripartum cognitive changes)**
+- **ZIP focus:** 78641, 78613, 78642, 78611
+- **How it activates:** Early childhood educators must recognize **cognitive changes in children** (developmental delay, speech delay, ADHD features, autism spectrum). SafeCogniCare provides validated assessments (MoCA, MMSE, Trail Making) + early-intervention routing.
+- **Integration point:**
+  - **Provider training:** ISD pre-K teachers + childcare workers learn to administer simple cognitive screens (10-minute MoCA adaptation) to flag development concerns → route to school psychologist / early-intervention specialist.
+  - **Family support:** Parents with untreated ADHD or peripartum cognitive changes struggle to parent consistently; SafeCogniCare screens + routes to support.
+  - **Child-specific:** Childcare workers learn to recognize TBI warning signs (head injuries, behavioral change, attention disruption) + escalate to healthcare.
+- **Metric:** # of children ages 2–4 screened for developmental/cognitive concerns; # with positive findings referred to EI or special education.
+- **Cost:** Zero marginal; training via webinar + e-learning modules.
+
+#### **5. Perfectly Different (neurodiversity-affirming support for ADHD, autism, AuDHD)**
+- **ZIP focus:** 78641, 78613, 78642
+- **How it activates:** Neurodivergent children (autism, ADHD) often enter childcare/pre-K without formal diagnosis or support plan. Childcare providers lack tools to support sensory needs, executive-function challenges, communication differences. Perfectly Different provides affirming frameworks + IEP/504 templates.
+- **Integration point:**
+  - **Provider training:** FFN + formal childcare workers learn neurodiversity-affirming practices (sensory breaks, visual supports, flexible routines).
+  - **Family navigation:** Parents of newly identified neurodivergent children access Perfectly Different's IEP template library + school-accommodation guides.
+  - **Early identification:** Childcare providers can screen for autism/ADHD features using Perfectly Different's tools + route to school evaluation.
+- **Metric:** % of children ages 3–4 in care with neurodiversity screening; % with identified supports documented in IEP/504.
+- **Cost:** Zero marginal.
+
+---
+
+**[TERTIARY FIT — Educational & Skill-Building for Childcare Workforce]**
+
+#### **6. WholeMind Learning (pre-K to 12 adaptive learning platform)**
+- **ZIP focus:** 78641, 78613, 78642
+- **How it activates:** Childcare workers/educators need **evidence-based teaching approaches** for early literacy, math, science. WholeMind provides free, adaptive, visual-first curriculum. FFN providers (many with limited formal education themselves) can use it to structure learning activities at home.
+- **Integration point:**
+  - **Provider professional development:** FFN + formal childcare workers trained on WholeMind's pedagogical approach → can replicate at home/center.
+  - **Parent engagement:** WholeMind's parent-friendly progress dashboard lets families see what their children are learning. Increases engagement + reduces educational inequality.
+  - **Adaptation for multilingual learners:** WholeMind's visual-first approach is **highly effective for bilingual/Spanish-speaking learners** (high prevalence in northern ZIPs).
+- **Metric:** # of childcare sites using WholeMind; # of children with documented learning-skill progression.
+- **Cost:** Zero marginal (free platform). Training: 3-hour webinar on pedagogy + platform navigation.
+
+#### **7. LexiBridge (dialect-aware, inclusive communication platform)**
+- **ZIP focus:** 78641, 78613, 78642, 78611 (high Spanish-speaking population)
+- **How it activates:** **Language access is a BARRIER to childcare quality.** 28–35% of families in northern ZIPs speak Spanish at home. Many informal FFN providers are monolingual Spanish-speaking. ISD pre-K teachers often lack Spanish fluency. LexiBridge bridges this gap.
+- **Integration point:**
+  - **Provider-family communication:** Spanish-speaking FFN providers can use LexiBridge to communicate with English-dominant families (incident reporting, developmental updates, payment coordination).
+  - **Provider-provider coordination:** Bilingual childcare workers communicate with monolingual Spanish-speaking informal providers via LexiBridge translation.
+  - **Health & safety:** Medical incidents, behavioral concerns translated accurately between Spanish/English across childcare settings.
+  - **AAVE/dialect recognition:** For Black English–speaking providers and families, LexiBridge recognizes AAVE as legitimate communication + translates to standard English if needed (without stigmatizing).
+- **Metric:** # of Spanish-speaking providers + families using LexiBridge; # with improved communication quality (surveys); reduction in incident-reporting delays.
+- **Cost:** Zero marginal. Rollout: WhatsApp group sharing, church/school promotion.
+
+---
+
+**[STRATEGIC FIT — Workforce Development & Career Pathways]**
+
+#### **8. RPLICE (Research-to-Practice Lifecycle)**
+- **ZIP focus:** Countywide (infrastructure for the entire system)
+- **How it activates:** This is the **implementation-science backbone**. RPLICE ensures that whatever early-childhood interventions we design are:
+  - **Evidence-based** (what does research say works?).
+  - **CFIR-assessed** (what are the implementation determinants — intervention characteristics, outer setting, inner setting, individuals, process?).
+  - **RE-AIM-framed** (are we reaching the right people, achieving the intended outcomes, getting adoption from providers, maintaining fidelity, sustaining it year 2+?).
+  - **Fidelity-checked** (what 3–6 things, if done wrong, kill the result?).
+- **Integration point:**
+  - **Baseline assessment:** RPLICE helps United Way conduct a CFIR assessment of the current early-childhood ecosystem in Williamson County (see section 8 for details).
+  - **Implementation tracking:** As we deploy Rare Impact Fund training + WIOA pathways, RPLICE tracks RE-AIM outcomes (Reach, Effectiveness, Adoption, Implementation, Maintenance).
+  - **Evidence translation:** Research findings (e.g., "trauma-informed childcare improves child outcomes") are translated into practice-ready guides for FFN providers + ISD teachers.
+  - **Multi-platform coordination:** RPLICE ensures Whole-Person Health screening + LifeBridge referral pathways are implemented with fidelity across all childcare settings.
+- **Metric:** Baseline CFIR assessment complete (determinants mapped); implementation dashboard live; RE-AIM scorecard updated quarterly.
+- **Cost:** Zero marginal (RPLICE is free). Facilitation: United Way + TCAF partnership to run assessments.
+
+---
+
+**[COORDINATION FIT — Operational Intelligence & Cross-Platform Routing]**
+
+#### **9. Ecosystem Nexus (ecosystem coordination hub)**
+- **ZIP focus:** Countywide
+- **How it activates:** Early childcare is complex: multiple ISDs, licensed centers, faith networks, informal providers, health systems, workforce boards. **Ecosystem Nexus is the operational intelligence backbone** that keeps

@@ -264,7 +264,7 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
     ...(loc.zip ? [loc.zip] : []),
   ].filter((t, i, a) => a.indexOf(t) === i);
 
-  const filtered = tokens.length
+  const topicMatch = tokens.length
     ? sql`(${sql.join(
         tokens.map(
           (t) =>
@@ -273,6 +273,10 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
         sql` OR `,
       )})`
     : sql`TRUE`;
+  // Hard rule: never surface grants whose deadline has passed.
+  // Allow NULL deadlines (rolling) and future deadlines only.
+  const notClosed = sql`(${grantOpportunities.deadline} IS NULL OR ${grantOpportunities.deadline} >= CURRENT_DATE)`;
+  const filtered = sql`(${topicMatch}) AND ${notClosed}`;
 
   const grants = await db
     .select({
@@ -292,7 +296,28 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
     .orderBy(sql`${grantOpportunities.fitScore} DESC NULLS LAST, ${grantOpportunities.deadline} ASC NULLS LAST`)
     .limit(20);
 
-  const platforms = await db
+  // Canonical 15 public-facing platforms (replit.md gotcha: "External count = 15, never 25").
+  // DB drift across environments has caused stale rows (e.g. "Advertising Targeting", "PillScheduler",
+  // "Ecosystem Nexus", "Code Canvas") to leak into briefings. Lock the list at the source.
+  const CANONICAL_PUBLIC_15 = [
+    "Whole-Person Health Ecosystem",
+    "Talk Your Talk",
+    "LexiBridge (Speech Bridge)", // legacy DB alias for Talk Your Talk — TYT connector overwrites on heartbeat
+    "Sankofa Health Network",
+    "Black Maternal Health Network",
+    "Black Men's Health Hub",
+    "HerHealth Network (Holistic Black Feminine Health Hub)",
+    "SafeCogniCare",
+    "Perfectly Different",
+    "LifeBridge",
+    "Mission Transition (M2C)",
+    "Minority Center of Excellence",
+    "ISSS — Integrated Supports for Thriving Youth",
+    "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
+    "SafeReport",
+    "Civic Signal",
+  ];
+  const platformsRaw = await db
     .select({
       name: ecosystemPlatforms.name,
       url: ecosystemPlatforms.url,
@@ -300,8 +325,18 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
       description: ecosystemPlatforms.description,
     })
     .from(ecosystemPlatforms)
-    .where(sql`${ecosystemPlatforms.publicVisible} = TRUE`)
+    .where(sql`${ecosystemPlatforms.publicVisible} = TRUE AND ${ecosystemPlatforms.name} = ANY(${CANONICAL_PUBLIC_15})`)
     .orderBy(ecosystemPlatforms.name);
+  // De-dupe LexiBridge ↔ Talk Your Talk legacy collision (whichever name the row carries, surface once as "Talk Your Talk").
+  const seen = new Set<string>();
+  const platforms = platformsRaw
+    .map((p) => (p.name.startsWith("LexiBridge") ? { ...p, name: "Talk Your Talk" } : p))
+    .filter((p) => {
+      const k = p.name.toLowerCase();
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
 
   return {
     location: loc,
@@ -349,6 +384,14 @@ function buildSystemPrompt(multi: boolean): string {
     "",
     "If the user's question mixes intents (e.g., 'understand the situation AND show me the grants'), combine the matching sections only.",
     "",
+    "PRE-FLIGHT ANCHOR — REQUIRED FIRST LINE OF YOUR OUTPUT. Before producing any section, you MUST write exactly one line in this format, then a blank line, then begin: ",
+    "    `> Audience: <name or 'TCAF internal'> · Scope: <letter A/B/C/D/E + section numbers> · Disciplines on: R&R, CFIR, RE-AIM, fidelity, dignity-clause`",
+    "This forces you to commit to the audience and scope before you drift. If you cannot fill in the audience confidently, write 'TCAF internal'. If you cannot determine scope, default to [A] (sections 1–4).",
+    "",
+    "GRANTS DISCIPLINE — DO NOT BE A GRANT ROLLER. Default = NO grant section. Only produce §5 when the user explicitly asks for funding ('grants', 'funding', 'money', 'who pays', 'pursue dollars', 'RFP') OR explicitly picks scope [C] or [E]. In every other scope ([A]/[B]/[D]), the GRANT CANDIDATES block in the user prompt is reference-only — do NOT surface it, do NOT list grants in passing, do NOT close with grant suggestions. If you think a grant is genuinely worth flagging, end with ONE single line: 'Want the funding picture? Ask for it.' That's it.",
+    "GRANTS ACCURACY — only grants in the GRANT CANDIDATES block. The block is already pre-filtered to non-closed deadlines server-side, but if a deadline in the block has passed by the time you reply, SKIP it. Never invent or recall closed grants from memory.",
+    "ECOSYSTEM ACCURACY — only platforms in the TCAF ECOSYSTEM PLATFORMS block. The block is already locked to the canonical 15 public-facing platforms. NEVER mention platforms like 'Advertising Targeting', 'Autoimmune Center of Excellence', 'Code Canvas', 'Ecosystem Nexus', 'Emergency Management', 'PillScheduler', 'Pinnacle Business' — these are internal or retired and must not appear in any output. If a platform isn't in the block, it doesn't exist for this briefing.",
+    "",
     "THE BAR (applies to every scope):",
     "- Treat each location as a living system, not a row in a table. Pretend you grew up there. What does someone learn driving the county on a Tuesday morning?",
     "- EVERY data point must connect to (a) the people it lands on, (b) the institution that owns the response, (c) the upstream cause, (d) the downstream consequence if nothing changes. If you can't draw those four threads, the stat doesn't belong.",
@@ -367,13 +410,23 @@ function buildSystemPrompt(multi: boolean): string {
     "## 4. The stakeholder ecosystem (named, by ZIP)",
     "    For EACH location, the real human anatomy by ZIP / county. Not a list — a map of who-touches-whom: county judge → commissioners court → ISD superintendents → MHMR/LMHA director → FQHC CMOs → hospital district CEO → workforce board director → DA + sheriff + chief PD/PO → faith-network anchors → philanthropy program officers → grassroots conveners. Mark [verify] for any name you're not 95% sure of. Add a one-line note on each: what they actually control, and what they're known to care about right now.",
     "## 5. Funding picture (situated — only if in scope)",
-    "    EVERY grant in the GRANT CANDIDATES block (title, agency, $, deadline, fit, link). Situate each one: which ZIP / which stakeholder / which problem from section 2 does it solve? Group by location if multi.",
-    "## 6. TCAF solutions (mapped to the threads — only if in scope)",
-    "    Enumerate the relevant TCAF capabilities from the PLATFORMS block and name the specific stakeholder + ZIP + problem each one activates against. Be honest about what's already covered well by the existing ecosystem; don't force a fit.",
-    "## 7. Implementation plan by ZIP (only if in scope)",
-    "    For EACH location's primary ZIP(s): a sequenced 4–8 step rollout. Each step names (a) the owner, (b) the stakeholder convening from section 4, (c) the TCAF capability from section 6, (d) the funding source from section 5, (e) the 30/60/90-day milestone.",
-    "## 8. Measurable outcomes per stakeholder per ZIP (only if in scope)",
-    "    Markdown table: stakeholder | ZIP | committed outcome | metric (count / % / $ / days served) | timeframe (90d / 6mo / 12mo) | evidence source.",
+    "    AUDIENCE RULE: when a third-party audience is named (United Way, foundation, city, coalition), the grants you surface in this section must be ones THE AUDIENCE could realistically pursue, recommend, or co-fund — NOT grants TCAF or ecosystem platforms would chase for themselves. If the GRANT CANDIDATES block contains grants only TCAF could apply for, say so honestly and offer to surface them in a follow-up. Then for each grant: title, agency, $, deadline, fit, link. Situate each one: which ZIP / which stakeholder / which problem from §2 does it solve? Group by location if multi.",
+    "## 6. TCAF as backbone for the audience (only if in scope)",
+    "    HEADING CHANGES BY AUDIENCE: when a third-party audience is named (United Way, a foundation, a city, a coalition), the heading is 'TCAF as backbone for [Audience]' and the section answers ONE question: which TCAF capabilities can [Audience] use to enact the decisions [Audience] is about to make. Do NOT pitch TCAF as the lead. Do NOT enumerate every capability. Pick the 2–4 that the audience's convening actually needs, name the stakeholder + ZIP + problem each one activates against, and be explicit about which problems are ALREADY covered by the existing community adapters (R&R) or the existing ecosystem — and therefore do NOT need TCAF. Honest fit > forced fit.",
+    "## 7. Implementation plan by ZIP — CFIR-framed (only if in scope)",
+    "    For EACH location's primary ZIP(s), you MUST produce this exact structure (use these H3 headings literally):",
+    "    ### CFIR determinants for this ZIP",
+    "        Walk the five CFIR domains briefly and concretely: (1) Intervention characteristics (what the R&R-backed move actually is and why it's adaptable), (2) Outer setting (policy, funding, community readiness — name the specific Texas/county policy levers), (3) Inner setting (which institution houses the convening — ISD? FQHC? County HCHS? — its culture and constraints), (4) Individuals (the named stakeholders from §4 whose buy-in is required), (5) Process (what convening / planning / piloting / scaling steps fit here). Flag which determinants are FAVORABLE vs. RISKY in this ZIP.",
+    "    ### Fidelity-critical actions (the 3–6 things that, if not done with fidelity, kill the result)",
+    "        Bulleted. Name each one in plain language. These are the dignity-clause guardrails — usually about not displacing the existing adapters.",
+    "    ### Sequenced rollout (30 / 60 / 90 day)",
+    "        4–8 ordered steps. Each step names (a) the owner, (b) the stakeholder convening from §4, (c) the TCAF backbone capability from §6 (if any — be honest if none is needed), (d) the funding source from §5, (e) the 30/60/90-day milestone.",
+    "## 8. Measurable outcomes per stakeholder per ZIP — RE-AIM scorecard (only if in scope)",
+    "    For EACH location, you MUST produce this exact structure (use these H3 headings literally):",
+    "    ### RE-AIM scorecard for this ZIP",
+    "        Walk the five RE-AIM dimensions concretely: (1) Reach — who actually gets served, by ZIP, baseline → 12mo target, with denominator (e.g., '450 of 1,340 children needing care in 78642'). (2) Effectiveness — the change in the metric that matters (waitlist time, ECI referral rate, credentialed-FFN count, parent-employment retention). (3) Adoption — which providers / institutions / community adapters joined, named. (4) Implementation — fidelity score: of the fidelity-critical actions in §7, how many are being executed as designed; what's slipping. (5) Maintenance — the year-2 sustainability plan (funding, governance, who carries it after pilot $ ends).",
+    "    ### Outcome commitments table",
+    "        Markdown table: stakeholder | ZIP | committed outcome | RE-AIM dimension (Reach/Eff/Adopt/Impl/Maint) | metric (count / % / $ / days served) | timeframe (90d / 6mo / 12mo) | evidence source.",
   ];
   if (multi) {
     lines.push(
@@ -394,7 +447,7 @@ function buildSystemPrompt(multi: boolean): string {
     "- 'President' not 'CEO' for Dr. Flood. Institutional email only: terryflood@thrivingcommunitiesforall.com.",
     "- If ANY location touches the City of Austin, FLAG that Meredith Sisnett (City employee) cannot be on any City-of-Austin pass-through.",
     "- Plain language. No jargon walls. The reader is a smart, busy practitioner — not an academic.",
-    "- If section 6 is in scope, enumerate every relevant TCAF capability honestly — including which ones don't fit here.",
+    "- If section 6 is in scope: when a third-party audience is named (United Way, foundation, city, coalition), pick only the 2–4 TCAF capabilities that audience actually needs and be explicit about what's already covered by R&R adapters or the existing ecosystem. Only when audience is 'TCAF internal' AND the user explicitly asks for a full inventory may you enumerate every capability.",
     "- If section 8 is in scope, outcomes must be measurable AND attributable to a named stakeholder AND tied to a timeframe.",
     "- End with a single-line offer of the OTHER scopes the user didn't pick (e.g., \"Want the funding picture, the asset map, or a sequenced plan? Just ask.\").",
   );
@@ -435,10 +488,10 @@ function buildUserPrompt(contexts: LocationContext[], topic: string, question: s
     "",
     locsBlock,
     "",
-    `=== TCAF ECOSYSTEM PLATFORMS (${platforms.length} public-facing) — use ALL of these in section 5 ===`,
+    `=== TCAF ECOSYSTEM PLATFORMS (${platforms.length} public-facing) — reference pool for §6 only; do NOT force every one in ===`,
     platformBlock,
     "",
-    "Now produce the full briefing per the system prompt structure. Be specific. Spit out ALL solutions. Tell the data story.",
+    "Now produce the briefing per the system prompt. Obey the PRE-FLIGHT ANCHOR (first line, quoted). Obey the chosen scope — producing sections the user didn't ask for is a failure. If a third-party audience is named, frame everything from THEIR seat, not TCAF's. Be specific. Tell the data story.",
   ].join("\n");
 }
 
