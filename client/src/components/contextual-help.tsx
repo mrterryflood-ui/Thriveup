@@ -474,7 +474,7 @@ export function ContextualHelpButton() {
       <button
         onClick={() => { setIsMinimized(false); setIsOpen(true); }}
         data-testid="contextual-help-restore"
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105 print:hidden"
+        className="fixed bottom-24 right-6 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-105 print:hidden"
       >
         <HelpCircle className="h-4 w-4" />
         <span className="text-sm font-medium">Help: {help.pageName}</span>
@@ -488,7 +488,7 @@ export function ContextualHelpButton() {
         id="contextual-help-trigger"
         onClick={() => setIsOpen(!isOpen)}
         data-testid="contextual-help-trigger"
-        className="fixed bottom-6 right-6 z-50 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center print:hidden"
+        className="fixed bottom-24 right-6 z-50 h-12 w-12 rounded-full bg-primary text-primary-foreground shadow-lg hover:shadow-xl transition-all hover:scale-110 flex items-center justify-center print:hidden"
         title={`Help: ${help.pageName}`}
       >
         {isOpen ? <X className="h-5 w-5" /> : <HelpCircle className="h-5 w-5" />}
@@ -498,7 +498,7 @@ export function ContextualHelpButton() {
         <div
           ref={panelRef}
           data-testid="contextual-help-panel"
-          className="fixed bottom-20 right-6 z-50 w-[360px] max-h-[70vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden print:hidden animate-in slide-in-from-bottom-4 duration-200"
+          className="fixed bottom-40 right-6 z-50 w-[calc(100vw-3rem)] sm:w-[360px] max-h-[70vh] bg-background border border-border rounded-xl shadow-2xl flex flex-col overflow-hidden print:hidden animate-in slide-in-from-bottom-4 duration-200"
         >
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary/5">
             <div className="flex items-center gap-2">
