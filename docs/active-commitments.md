@@ -2160,3 +2160,49 @@ User flagged the new SBA rule effective 2026-07-04 doubling the combined 7(a) + 
 **Parked for after AISD ships (2026-05-19 PM):** explore ISS LLC use-of-funds scenarios (working capital line via 7(a); owner-occupied building or major equipment via 504); identify SBA lenders that handle education/tech NAICS codes; confirm SBA size standard for chosen NAICS.
 
 NOT URGENT — rule takes effect 2026-07-04, applications can start then.
+
+## 2026-05-22 — SAFE Alliance (safeaustin.org) outreach thread OPENED
+
+User said "SAFE Austin" → after disambiguation chose: add as tracked partner / outreach target.
+
+**Files created this turn:**
+- `docs/partners/SAFE-Alliance-Intel-Brief.md` — full primary-source intel (EIN 74-2320657, 3 program pillars, 18 programs, 6 TCAF intersection points, COI/handling rules, open follow-ups)
+- `docs/partners/SAFE-Alliance-Intro-Email-DRAFT.md` — two-version intro (long + cool/short) for Dr. Flood sign-off + pre-send checklist + reply playbook
+
+**Primary-source verifications this turn (Iron Rule applied):**
+- Legal name **The SAFE Alliance** (merger of Austin Children's Shelter + SafePlace) — per safeaustin.org/about-us/
+- **EIN 74-2320657** — per their own About Us page (corrected from initial wrong guess 743038013 which ProPublica returned 404 on)
+- 501(c)(3) confirmed · Candid Gold Transparency 2026 (footer badge)
+- Mailing P.O. Box 19454, Austin TX 78760
+- 24hr SAFEline 512-267-SAFE (7233) · Text SAFE to 737-888-7233 · Admin 512-369-5900
+- 3 program pillars: Face-to-Face & Digital Support · Prevention & Education · Advocacy
+- Programs incl. Eloise House (SANE/forensic), Planet SAFE (supervised visitation), Deaf SHARE, CARES (trafficking), Expect Respect (schools), SAFE Futures (CPS families), Fatherhood
+
+**Known-unknowns (must close before send):**
+- Current CEO/Executive Director name + email — `/about-us/leadership/` and `/about-us/staff-leadership/` both 404'd on fetch; names visible on /about-us/ Our Team carousel without titles (Coni Huntsman Stogner, Kitt Krejci, Melinda Cantu MSSW, Wendie Abramson LMSW, Yvette Mendoza Rouen, Movetia Salter, Liz Owen-Schmitt). Action: LinkedIn search or call admin 512-369-5900 before personalizing intro.
+- 990 / annual budget — ProPublica search for "safe alliance austin" returned 0 nonprofits on first pass (their indexing likely lags); try IRS Tax Exempt Org Search directly with EIN 74-2320657.
+
+**COI flagged in brief:**
+- 🚨 **Meredith Sisnett must NOT be on any SAFE thread.** SAFE holds City of Austin contracts (APH, ECHO, Public Health). Meredith = City employee. TCAF-side contact = Dr. Flood only. terryflood@thrivingcommunitiesforall.com.
+
+**TCAF intersection points (6) the intro leads with:**
+A. SafeReport longitudinal screening (PHQ-9/GAD-7/C-SSRS/PCL-5/ACES) → SAFE Futures + Counseling clinical workflow
+B. Talk Your Talk (89 spoken + 18 sign-language) → Deaf SHARE language parity (the lead hook in the intro)
+C. LifeBridge + Civic Signal → benefits navigation after survivor leaves shelter
+D. RNR/CBI/NRRC → DV survivor pathways through justice system
+E. Foster-youth wizard → SAFE Futures CPS-involved families
+F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMHSA, HRSA)
+
+**Existing reference to SAFE already in our codebase:**
+- `client/src/pages/mentorship-directory.tsx:340` — "SAFE Alliance — Fatherhood Program" entry already surfaced. The intro mentions this so SAFE sees we already serve their work.
+
+**NOT done (intentional):**
+- Did NOT add SAFE to `ecosystem_platforms` DB. They are a *partner target*, not a TCAF-operated surface — auto-sync from `server/ecosystem-connector.ts:658` would overwrite their public-facing data.
+- Did NOT open a grants pipeline row. Wait until first call confirms appetite.
+
+**Next actions (user-side):**
+1. Close the recipient known-unknown (LinkedIn or admin call) — without this, can't personalize the To: line.
+2. Pick draft V1 (long, ~240 words) vs V2 (cool/short).
+3. Sign off + send from terryflood@thrivingcommunitiesforall.com.
+4. If reply, follow playbook in intro draft file (Section "If they reply…").
+5. After send, recompile agent knowledge so this thread is in compiled memory.
