@@ -563,3 +563,9 @@ id = "_EC4aducMv77hgmpn7WsN"
 uri = "file://docs/capability-statement/TCAF-Capability-Statement.md"
 type = "text"
 title = "TCAF Capability Statement (v1.1 — live links)"
+
+[[outputs]]
+id = "hVyh7gjLU3NjsuXfim4va"
+uri = "file://docs/regional-briefings/north-wilco-childcare-infrastructure-2026-05-22.md"
+type = "text"
+title = "North Wilco Childcare Infrastructure — Regional Briefing (2026-05-22)"
