@@ -5367,3 +5367,34 @@ export const insertCommunityVoiceRoutingSchema = createInsertSchema(communityVoi
 });
 export type InsertCommunityVoiceRouting = z.infer<typeof insertCommunityVoiceRoutingSchema>;
 export type CommunityVoiceRouting = typeof communityVoiceRouting.$inferSelect;
+
+// ── Regional Briefing: saved, reusable, multi-location workflows ──
+export const briefingWorkflows = pgTable("briefing_workflows", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 96 }).notNull().unique(),
+  name: varchar("name", { length: 200 }).notNull(),
+  question: text("question").notNull(),
+  // jsonb: [{ label: "Round Rock TX 78664", region: "Round Rock TX", zip: "78664", countyFips?: "48491", metroId?: "..." }, ...]
+  locations: jsonb("locations").$type<Array<{
+    label: string;
+    region: string;
+    zip?: string;
+    countyFips?: string;
+    metroId?: string;
+  }>>().notNull(),
+  topic: varchar("topic", { length: 200 }).notNull(),
+  // Optional cached last answer for instant reload
+  lastBriefing: text("last_briefing"),
+  lastRunAt: timestamp("last_run_at"),
+  createdBy: varchar("created_by", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_briefing_workflows_created_by").on(t.createdBy),
+]);
+
+export const insertBriefingWorkflowSchema = createInsertSchema(briefingWorkflows).omit({
+  id: true, createdAt: true, updatedAt: true, lastBriefing: true, lastRunAt: true,
+});
+export type InsertBriefingWorkflow = z.infer<typeof insertBriefingWorkflowSchema>;
+export type BriefingWorkflow = typeof briefingWorkflows.$inferSelect;

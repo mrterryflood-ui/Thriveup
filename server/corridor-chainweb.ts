@@ -11,10 +11,40 @@
  *
  * Adding a new public data source = add one entry to CHAIN_STEPS.
  * ============================================================================ */
-import type { Express, Request, Response } from "express";
+import type { Express, NextFunction, Request, Response } from "express";
+import { createHash } from "node:crypto";
 import { db } from "./storage";
 import { CORRIDOR } from "./corridor-story";
 import { upsertEvidence, getStateFips } from "./gis-engine";
+
+// ── Auth + rate-limit for the Chainweb endpoints (paid + DB-mutating) ───────
+function cwGetUserId(req: Request): string | undefined {
+  const u = (req as unknown as { user?: { claims?: { sub?: string }; id?: string } }).user;
+  return u?.claims?.sub || u?.id;
+}
+function cwRequireSignedIn(req: Request, res: Response, next: NextFunction) {
+  if (!cwGetUserId(req)) return res.status(401).json({ error: "Sign in to run Chainweb." });
+  return next();
+}
+const cwRateBucket = new Map<string, { count: number; resetAt: number }>();
+function cwRateLimit(opts: { keyPrefix: string; max: number; windowMs: number }) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const raw = req.socket.remoteAddress || "0.0.0.0";
+    const ipHash = createHash("sha256").update(raw).digest("hex").slice(0, 32);
+    const key = `${opts.keyPrefix}:${ipHash}`;
+    const now = Date.now();
+    const entry = cwRateBucket.get(key);
+    if (!entry || entry.resetAt < now) {
+      cwRateBucket.set(key, { count: 1, resetAt: now + opts.windowMs });
+      return next();
+    }
+    if (entry.count >= opts.max) {
+      return res.status(429).json({ error: "Rate limit exceeded. Try again shortly." });
+    }
+    entry.count += 1;
+    return next();
+  };
+}
 
 const CENSUS_ACS = "https://api.census.gov/data/2022/acs/acs5";
 const CDC_PLACES = "https://data.cdc.gov/resource/swc5-untb.json";
@@ -568,14 +598,52 @@ export async function runChainWeb(
  * Routes
  * ---------------------------------------------------------------------------- */
 export function registerChainWebRoutes(app: Express) {
-  app.post("/api/corridor/chainweb/run", async (_req: Request, res: Response) => {
-    try {
-      const report = await runChainWeb();
-      res.json({ ok: true, report });
-    } catch (err: any) {
-      res.status(500).json({ error: err.message });
-    }
-  });
+  app.post(
+    "/api/corridor/chainweb/run",
+    cwRequireSignedIn,
+    cwRateLimit({ keyPrefix: "cw-run", max: 3, windowMs: 15 * 60_000 }),
+    async (req: Request, res: Response) => {
+      try {
+        console.log(`[chainweb] /run triggered by uid=${cwGetUserId(req)}`);
+        const report = await runChainWeb();
+        res.json({ ok: true, report });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    },
+  );
+
+  // Chainweb-anywhere: same pipeline, arbitrary counties.
+  // Body: { counties: [{ countyFips: "48491", metroId?: "wilco" }] }
+  app.post(
+    "/api/corridor/chainweb/run-counties",
+    cwRequireSignedIn,
+    cwRateLimit({ keyPrefix: "cw-run-counties", max: 6, windowMs: 15 * 60_000 }),
+    async (req: Request, res: Response) => {
+      try {
+        const raw = Array.isArray(req.body?.counties) ? req.body.counties : [];
+        const counties = raw
+          .map((c: unknown) => {
+            const r = (c ?? {}) as Record<string, unknown>;
+            const countyFips = String(r.countyFips ?? "").trim();
+            // Hardened: alphanumeric + dash/underscore only, max 32 chars
+            const rawMetro = String(r.metroId ?? "").trim().slice(0, 32).replace(/[^A-Za-z0-9_-]/g, "");
+            const metroId = rawMetro || `cty-${countyFips}`;
+            return { countyFips, metroId };
+          })
+          .filter((c: { countyFips: string }) => /^\d{5}$/.test(c.countyFips))
+          .slice(0, 12);
+        if (!counties.length) {
+          return res.status(400).json({ error: "Provide counties: [{ countyFips: '48491', metroId?: 'wilco' }]" });
+        }
+        console.log(`[chainweb] /run-counties triggered by uid=${cwGetUserId(req)} counties=${counties.length}`);
+        const report = await runChainWeb(counties);
+        res.json({ ok: true, report });
+      } catch (err: any) {
+        res.status(500).json({ error: err.message });
+      }
+    },
+  );
 
   app.get("/api/corridor/chainweb/last", (_req: Request, res: Response) => {
     if (!LAST_RUN) return res.json({ ok: false, report: null, note: "No chain-web run yet." });
