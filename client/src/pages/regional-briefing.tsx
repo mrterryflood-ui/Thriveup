@@ -118,7 +118,14 @@ export default function RegionalBriefingPage() {
       if (!overrideQ) setFollowupQ("");
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Follow-up failed";
-      toast({ title: "Follow-up failed", description: msg, variant: "destructive" });
+      const isAuth = /401|sign in|unauthorized/i.test(msg);
+      toast({
+        title: isAuth ? "Please sign in again" : "Follow-up failed",
+        description: isAuth
+          ? "Your session expired. Refresh the page and sign back in — your briefing is still on screen."
+          : msg,
+        variant: "destructive",
+      });
     } finally {
       setFollowupBusy(false);
     }
@@ -278,10 +285,17 @@ export default function RegionalBriefingPage() {
       }
     } catch (err) {
       const raw = err instanceof Error ? err.message : String(err);
-      const friendly = /load failed|network|fetch/i.test(raw)
+      const isAuth = /401|sign in|unauthorized/i.test(raw);
+      const friendly = isAuth
+        ? "Your session expired. Refresh the page and sign back in — your topic and locations are still here."
+        : /load failed|network|fetch/i.test(raw)
         ? "The connection dropped mid-briefing (server hiccup). Hit Run briefing again — your topic and locations are still here."
         : raw || "Briefing failed";
-      toast({ title: "Briefing failed", description: friendly, variant: "destructive" });
+      toast({
+        title: isAuth ? "Please sign in again" : "Briefing failed",
+        description: friendly,
+        variant: "destructive",
+      });
     } finally {
       setStreaming(false);
     }
