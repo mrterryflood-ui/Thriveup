@@ -15,7 +15,7 @@ import { createHash } from "node:crypto";
 import { sql } from "drizzle-orm";
 import { db } from "./storage";
 import { grantOpportunities, ecosystemPlatforms } from "@shared/schema";
-import { streamAIResponse, generateAIResponse } from "./ai-provider";
+import { streamAIResponse, generateAIResponse, generateAIJSON } from "./ai-provider";
 
 const MAX_LEN = 2000;
 
@@ -54,6 +54,30 @@ function rateLimit(opts: { keyPrefix: string; max: number; windowMs: number }) {
 function clean(s: unknown, max = MAX_LEN): string {
   if (typeof s !== "string") return "";
   return s.trim().slice(0, max);
+}
+
+// Extract {region, topic} from a free-form question. Cheap one-shot, JSON-only.
+async function extractRegionTopic(question: string): Promise<{ region: string; topic: string }> {
+  const sys = [
+    "You extract two short strings from a user question for a regional briefing tool.",
+    "Return STRICT JSON: {\"region\":\"...\",\"topic\":\"...\"}.",
+    "- region = the place the user is asking about (city / county / region / state / ZIP / 'the country'). Keep it short.",
+    "- topic = the issue / sector / theme they want briefed (e.g., 'childcare infrastructure', 'behavioral health access', 'reentry housing').",
+    "- If the user didn't name a region, return region='United States'.",
+    "- If the user didn't name a topic, return topic='community well-being'.",
+    "- Never invent specifics. Never add extra fields. JSON only.",
+  ].join("\n");
+  try {
+    const out = await generateAIJSON<{ region?: string; topic?: string }>(
+      `User question: ${question}\n\nReturn JSON only.`,
+      sys,
+    );
+    const region = clean(out?.region, 200) || "United States";
+    const topic = clean(out?.topic, 200) || "community well-being";
+    return { region, topic };
+  } catch {
+    return { region: "United States", topic: "community well-being" };
+  }
 }
 
 function tokensFrom(s: string): string[] {
@@ -234,11 +258,14 @@ export function registerRegionalBriefingRoutes(app: Express): void {
 
   app.post("/api/regional-briefing/query", requireSignedIn, rateLimit({ keyPrefix: "rb-query", max: 8, windowMs: 10 * 60_000 }), async (req: Request, res: Response) => {
     try {
-      const region = clean(req.body?.region, 200);
-      const topic = clean(req.body?.topic, 200);
+      let region = clean(req.body?.region, 200);
+      let topic = clean(req.body?.topic, 200);
       const question = clean(req.body?.question, MAX_LEN);
       if (!region || !topic) {
-        return res.status(400).json({ error: "region and topic are required" });
+        if (!question) return res.status(400).json({ error: "Ask me a question (or pass region + topic)." });
+        const extracted = await extractRegionTopic(question);
+        region = region || extracted.region;
+        topic = topic || extracted.topic;
       }
       const ctx = await loadContext(region, topic);
       const answer = await generateAIResponse(
@@ -266,11 +293,16 @@ export function registerRegionalBriefingRoutes(app: Express): void {
 
   app.post("/api/regional-briefing/stream", requireSignedIn, rateLimit({ keyPrefix: "rb-stream", max: 8, windowMs: 10 * 60_000 }), async (req: Request, res: Response) => {
     try {
-      const region = clean(req.body?.region, 200);
-      const topic = clean(req.body?.topic, 200);
+      let region = clean(req.body?.region, 200);
+      let topic = clean(req.body?.topic, 200);
       const question = clean(req.body?.question, MAX_LEN);
       if (!region || !topic) {
-        return res.status(400).json({ error: "region and topic are required" });
+        if (!question) {
+          return res.status(400).json({ error: "Ask me a question (or pass region + topic)." });
+        }
+        const extracted = await extractRegionTopic(question);
+        region = region || extracted.region;
+        topic = topic || extracted.topic;
       }
       const ctx = await loadContext(region, topic);
 
@@ -283,7 +315,7 @@ export function registerRegionalBriefingRoutes(app: Express): void {
         clientDisconnected = true;
       });
 
-      // Send context first so the UI can render the grant + platform list immediately.
+      // Send context first so the UI can render extracted region/topic + grants + platforms immediately.
       res.write(
         `data: ${JSON.stringify({
           context: {

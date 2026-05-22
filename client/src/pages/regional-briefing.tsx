@@ -1,11 +1,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { PageHeader } from "@/components/page-header";
-import { Sparkles, MapPin, FileSearch, Loader2, ExternalLink } from "lucide-react";
+import { Sparkles, Loader2, ExternalLink, Send } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
 interface GrantHit {
@@ -27,57 +26,31 @@ interface PlatformHit {
   description: string | null;
 }
 
-const PRESETS: Array<{ label: string; region: string; topic: string; question: string }> = [
-  {
-    label: "N. Wilco childcare infrastructure",
-    region: "North Williamson County, Texas (Round Rock, Hutto, Leander, Cedar Park, Liberty Hill, Taylor, Georgetown)",
-    topic: "childcare infrastructure",
-    question: "Tell me every issue, every matching grant, and every TCAF capability we can deploy.",
-  },
-  {
-    label: "Greater Austin behavioral health",
-    region: "Greater Austin region (Travis + Williamson + Hays + Bastrop + Caldwell counties)",
-    topic: "behavioral health access for low-income and BIPOC residents",
-    question: "Tell me the gaps and every TCAF + grant solution we can stack on them.",
-  },
-  {
-    label: "Pflugerville holistic services",
-    region: "Pflugerville, TX",
-    topic: "holistic services for under-resourced families",
-    question: "Where are services missing and what can we deploy now?",
-  },
-];
-
 export default function RegionalBriefingPage() {
-  const [region, setRegion] = useState(PRESETS[0].region);
-  const [topic, setTopic] = useState(PRESETS[0].topic);
-  const [question, setQuestion] = useState(PRESETS[0].question);
+  const [question, setQuestion] = useState("");
   const [streaming, setStreaming] = useState(false);
   const [briefing, setBriefing] = useState("");
+  const [extracted, setExtracted] = useState<{ region: string; topic: string } | null>(null);
   const [grants, setGrants] = useState<GrantHit[]>([]);
   const [platforms, setPlatforms] = useState<PlatformHit[]>([]);
   const { toast } = useToast();
 
-  function applyPreset(p: (typeof PRESETS)[number]) {
-    setRegion(p.region);
-    setTopic(p.topic);
-    setQuestion(p.question);
-  }
-
   async function run() {
-    if (!region.trim() || !topic.trim()) {
-      toast({ title: "Region and topic are required", variant: "destructive" });
+    const q = question.trim();
+    if (!q) {
+      toast({ title: "Type a question first", variant: "destructive" });
       return;
     }
     setStreaming(true);
     setBriefing("");
+    setExtracted(null);
     setGrants([]);
     setPlatforms([]);
     try {
       const res = await fetch("/api/regional-briefing/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ region, topic, question }),
+        body: JSON.stringify({ question: q }),
       });
       if (!res.ok || !res.body) {
         const err = await res.json().catch(() => ({ error: "Request failed" }));
@@ -95,19 +68,25 @@ export default function RegionalBriefingPage() {
         for (const p of parts) {
           const line = p.trim();
           if (!line.startsWith("data:")) continue;
-          let payload: { context?: { grants?: GrantHit[]; platforms?: PlatformHit[] }; content?: string; error?: string; done?: boolean } | null = null;
+          let payload: {
+            context?: { region?: string; topic?: string; grants?: GrantHit[]; platforms?: PlatformHit[] };
+            content?: string;
+            error?: string;
+            done?: boolean;
+          } | null = null;
           try {
             payload = JSON.parse(line.slice(5).trim());
           } catch {
-            // non-JSON keep-alive line — skip
             continue;
           }
           if (!payload) continue;
-          // Surface server-streamed errors out of the parse try/catch so they reach the user.
           if (payload.error) throw new Error(payload.error);
           if (payload.context) {
             setGrants(payload.context.grants ?? []);
             setPlatforms(payload.context.platforms ?? []);
+            if (payload.context.region && payload.context.topic) {
+              setExtracted({ region: payload.context.region, topic: payload.context.topic });
+            }
           }
           if (typeof payload.content === "string") {
             setBriefing((prev) => prev + (payload!.content ?? ""));
@@ -122,11 +101,18 @@ export default function RegionalBriefingPage() {
     }
   }
 
+  function onKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
+    if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+      e.preventDefault();
+      void run();
+    }
+  }
+
   return (
     <div className="container mx-auto px-4 py-6 max-w-5xl" data-testid="page-regional-briefing">
       <PageHeader
         title="Regional Briefing"
-        description="Type a region and a topic. We pull every matching grant from our pipeline, every relevant TCAF platform, and stream back a primary-source briefing with ALL the solutions."
+        description="Ask anything about any region + topic. The AI figures out the region + topic from your question, pulls every matching grant from our pipeline, every relevant TCAF platform, and streams back a primary-source briefing with ALL the solutions."
         breadcrumbs={[
           { label: "Home", href: "/" },
           { label: "Community Intelligence" },
@@ -137,58 +123,32 @@ export default function RegionalBriefingPage() {
       <Card className="mb-6">
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <Sparkles className="h-4 w-4" /> Ask the briefing
+            <Sparkles className="h-4 w-4" /> Ask the AI
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            {PRESETS.map((p) => (
-              <Button
-                key={p.label}
-                size="sm"
-                variant="outline"
-                onClick={() => applyPreset(p)}
-                data-testid={`button-preset-${p.label.toLowerCase().replace(/\s+/g, "-")}`}
-              >
-                {p.label}
-              </Button>
-            ))}
-          </div>
-
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Region</label>
-            <Input
-              value={region}
-              onChange={(e) => setRegion(e.target.value)}
-              placeholder="e.g., North Williamson County (Round Rock, Hutto, Leander…)"
-              data-testid="input-region"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Topic</label>
-            <Input
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g., childcare infrastructure"
-              data-testid="input-topic"
-            />
-          </div>
-          <div>
-            <label className="text-xs font-medium text-muted-foreground">Your question (optional)</label>
-            <Textarea
-              rows={3}
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Tell me the issues and give me every solution we can deploy."
-              data-testid="input-question"
-            />
-          </div>
-          <div className="flex gap-2">
+        <CardContent className="space-y-3">
+          <Textarea
+            rows={4}
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            onKeyDown={onKeyDown}
+            placeholder='e.g., "Tell me the issues with childcare infrastructure in North Williamson County and every TCAF solution we can deploy."'
+            data-testid="input-question"
+            className="text-base"
+          />
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <p className="text-xs text-muted-foreground">⌘/Ctrl + Enter to run</p>
             <Button onClick={run} disabled={streaming} data-testid="button-run-briefing">
-              {streaming ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileSearch className="h-4 w-4 mr-2" />}
-              {streaming ? "Pulling…" : "Run briefing"}
+              {streaming ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Send className="h-4 w-4 mr-2" />}
+              {streaming ? "Working…" : "Run briefing"}
             </Button>
           </div>
+          {extracted && (
+            <div className="flex flex-wrap gap-2 pt-2 border-t">
+              <Badge variant="outline" data-testid="badge-extracted-region">Region: {extracted.region}</Badge>
+              <Badge variant="outline" data-testid="badge-extracted-topic">Topic: {extracted.topic}</Badge>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -199,11 +159,11 @@ export default function RegionalBriefingPage() {
           </CardHeader>
           <CardContent>
             {!briefing && !streaming && (
-              <p className="text-sm text-muted-foreground">Run the briefing — output will stream here with sections for what's happening, verifiable data, matching grants, and all solutions.</p>
+              <p className="text-sm text-muted-foreground">Type your question above. The answer will stream here with sections for what's happening, verifiable data, matching grants, and all solutions.</p>
             )}
             {streaming && !briefing && (
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Loading grants + platforms, then synthesizing…
+                <Loader2 className="h-4 w-4 animate-spin" /> Figuring out region + topic, pulling grants + platforms, then synthesizing…
               </div>
             )}
             <pre className="whitespace-pre-wrap text-sm leading-6 font-sans" data-testid="text-briefing">
@@ -215,9 +175,7 @@ export default function RegionalBriefingPage() {
         <div className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-sm flex items-center gap-2">
-                <MapPin className="h-4 w-4" /> Matching grants ({grants.length})
-              </CardTitle>
+              <CardTitle className="text-sm">Matching grants ({grants.length})</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3 max-h-[420px] overflow-y-auto">
               {grants.length === 0 && <p className="text-xs text-muted-foreground">None yet.</p>}
