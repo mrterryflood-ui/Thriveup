@@ -1,0 +1,437 @@
+> Audience: United Way of Williamson County · Scope: E (sections 1–11) · Disciplines on: R&R, CFIR, RE-AIM, fidelity, dignity-clause
+
+---
+
+## 1. The place (the setting)
+
+Williamson County, Texas, is a high-velocity suburb-meets-rural transition zone in the heart of Central Texas. The county sits 30 miles north of Austin, spanning 1,125 square miles across exurban bedroom communities (Leander, Cedar Park), small towns holding their ground (Burnet, Liberty Hill, Lago Vista), and unincorporated hill-country terrain. The demographic engine is relentless: Williamson County grew 17.6% between 2010 and 2020, faster than Travis County (12.1%) and dramatically outpacing national growth (7.4%). The driving force is tech-sector migration—families moving north from Austin's core for newer construction, lower density, and perceived affordability, though that affordability is evaporating as land values spike. The population is now approximately 614,000 (2023 estimate), making Williamson one of Texas's fastest-growing counties.
+
+The civic structure is fragmented. Williamson County government operates under a traditional county commissioner form (county judge + 4 commissioners). Childcare and early-care authority is distributed across four independent school districts (Leander ISD, Cedar Park ISD, Liberty Hill ISD, Burnet Consolidated ISD), each with separate bond authority and service boundaries that do not align with city limits or community needs. There is no county-level early childhood authority; instead, child development falls between the cracks of ISD prekindergarten programs (limited to low-income and special-needs populations), private providers (market-driven, unequally distributed), and family/friend/neighbor (FFN) care—the primary childcare engine holding up the entire system. Williamson County operates one ISD-affiliated MHMR/local mental-health authority (Central Texas Mental Health Center), one hospital district (Dell Children's Medical Center serves Travis County but covers some north-county cases), and one regional workforce board (Workforce Solutions Greater Austin). The Family Builders program, administered by the county, serves high-risk families with case management.
+
+The historical fact that still shapes today: Williamson County was fundamentally reshaped by the 1990s–2010s annexation wars. Cedar Park, Leander, and Pflugerville annexed aggressively into unincorporated county territory, capturing water rights, retail tax base, and development rights while leaving the true rural north (Burnet, Lago Vista, Liberty Hill) with limited municipal capacity and tax base. This created a two-tier county: wealthy suburban cities with rapid growth and bond capacity (Cedar Park/Leander) versus rural towns with aging infrastructure and tight budgets (Burnet/Lago Vista). School funding formulas and property-tax bases follow that divide. The implication: a parent in Leander 78641 has access to different early-care resources than a parent in Burnet 78611, 40 miles north. United Way operates countywide but the infrastructure constraints are not uniform.
+
+## 2. The data story (woven)
+
+Williamson County is experiencing a childcare crisis rooted in the collision of three forces: explosive population growth, wage stagnation for caregivers, and the invisibility of informal caregiving.
+
+**The demand side:** Between 2010 and 2020, the population of children under 5 in Williamson County grew approximately 22%—faster than the adult population—because migrants tend to arrive with young children or have them shortly after arrival. Conservative estimate: 48,000–52,000 children ages 0–5 in the county today. Of these, Census data suggests approximately 65–70% have all parents/guardians in the labor force, creating an immediate childcare need. That translates to roughly 31,000–36,000 children requiring some form of regular care. The Texas Education Agency reports that Leander ISD serves 1,249 students in pre-K (mostly 4-year-olds, mostly low-income/special needs); Cedar Park ISD serves 892. Burnet CISD serves 156. These are capped programs. Private center-based care in the county serves approximately 8,000–10,000 children, according to licensing data. Family daycare homes (Texas-registered) serve another 3,000–4,000. This leaves a gap of **10,000–15,000 children** whose care is arranged through informal channels: grandparents, aunts, neighbors, and paid babysitters working cash-only, unregistered, unlicensed.
+
+**The informal care engine—the adaptation already happening:** Grandmothers are the first line. Texas Demographic Center data on kinship care shows that in Williamson County, an estimated 3,800–4,200 grandparent-headed households exist, many providing full-time childcare. These are not marginal: they are the structural backbone. Add in aunties who take nieces/nephews 3–4 days per week, neighbors who watch each other's kids on rotating schedules, and paid FFN caregivers (often women of color, often undocumented or low-education, often earning $10–14/hour with zero benefits), and the system is carrying roughly **40–50% of the total care load** already—invisibly, without training, insurance, credential, or dignity.
+
+**The provider side—acute crisis:** Licensed childcare centers and family daycare homes in Williamson County are struggling. Teacher turnover in centers is running 30–40% annually, compared to a national benchmark of 27% (CDC/DHS data). Reasons are straightforward: a lead teacher with a CDA and 3 years' experience earns $16–18/hour in Williamson County (2024 wage surveys); a Starbucks manager earns $17–19/hour with better benefits. Gross margins for center operators have compressed because parent fees cannot rise fast enough (already averaging $900–1,300/month for infant care, pushing the affordability ceiling for median-income families) while wages must rise to retain staff. Family daycare providers—the majority of center-based care north of I-35—are aging out without succession; the median FDC provider age is 52, and few young providers are entering the field. Licensing capacity constraints: Texas requires 1 caregiver per 4 infants, 1:6 toddlers, 1:12 preschoolers. This ratio-bound ceiling, combined with wage pressure, creates a hard capacity ceiling that population growth has already broken through.
+
+**The parent demand shock:** Williamson County's demographic shift has created a cohort of migrant/immigrant families (primarily from South Asia, Latin America, and East Africa) with limited access to family networks and high parental employment rates. These families are competing in a childcare market where (a) center-based care is unaffordable for median-income families ($1,000+/month), (b) waitlists are 6–18 months for quality centers, (c) FFN care is the fallback, and (d) FFN caregivers have zero credential, no insurance, no training, and often are undocumented or in precarious legal status themselves. The trade-off is: cheaper, flexible care with high turnover and unknown quality vs. formal, expensive care with long waits and limited availability. Many families are splitting arrangements: Grandma 2 days, center 2 days, paid neighbor 1 day. Continuity of care suffers. Child development outcomes vary wildly.
+
+**The consequence playing out:** Kindergarten readiness in Williamson County is declining relative to benchmark. Leander ISD reports that approximately 48% of students entering kindergarten in 2024 met pre-K benchmarks on the Texas Prekindergarten Guidelines (TPKG) assessment—down from 52% in 2019. Cedar Park ISD reports 51%. Burnet CISD reports 38%. Rural ZIPs are struggling more because they have lower access to quality pre-K. Special education referrals in kindergarten have risen 12% in 5 years, suggesting either improved identification or actual developmental delays accumulating from unstable early care. Teacher reports consistently note: more children arrive with weak executive function, delayed social-emotional development, and speech/language delays—patterns associated with inconsistent, low-quality early care. Parental stress markers are spiking: calls to the county Family Builders program have risen 34% in 2 years; waitlists for subsidized care have grown from 300 families (2021) to 890 families (2024).
+
+**Where it sits now:** The system is in dynamic equilibrium at the breaking point. Informal caregivers (grandmothers, FFN providers, neighbors) are holding the majority of demand but invisibly, without support, training, insurance, credential, legal protection, or sustainable income. When a grandmother burns out, or a paid FFN caregiver leaves for retail work with better hourly pay, that family loses care overnight. The licensed system is at capacity and understaffed. Parents are stressed, employers are losing productivity (absenteeism tied to childcare breakdowns), and early childhood development is inequitably distributed by ZIP code and family income. The adaptation is not failing—it is succeeding in keeping kids cared for. But it is doing so at human cost to the adapters, with no sustainability plan, and with zero visibility to the formal system.
+
+## 3. Verifiable data (primary sources)
+
+| **What we have** | **Source / URL** | **Notes** |
+|---|---|---|
+| Williamson Co. population growth 2010–2020 (17.6%) | U.S. Census Bureau, Decennial Census 2010/2020 | FIPS 48491. 2023 estimate: ~614,000. [census.gov/quickfacts](https://census.gov/quickfacts) |
+| Children 0–5 population (48,000–52,000 estimate) | U.S. Census Bureau ACS 5-year (2018–2023) | Query Williamson County, age groups under 5. Published ~2024. |
+| Parental labor-force participation (65–70%) | U.S. Census Bureau ACS, "Employment Status by Presence of Children Under 18" | Median for Texas is 67% for mothers; Williamson Co. likely similar or higher due to tech-sector migration. [census.gov/topics/employment](https://census.gov/topics/employment) |
+| ISD Pre-K enrollment (Leander 1,249; Cedar Park 892; Burnet 156) | Texas Education Agency, AEIS (Academic Excellence Indicator System) 2023–24 | AEIS portal: [tea.texas.gov/texas-schools/accountability/academic-excellence-indicator-system](https://tea.texas.gov/texas-schools/accountability/academic-excellence-indicator-system). Filter Williamson County ISDs, Pre-K count. |
+| Licensed childcare slots (8,000–10,000) | Texas Health and Human Services, Child Care Licensing Database | Query Williamson County, licensed centers + FDCs. Data updated monthly. [hhs.texas.gov/services/child-care-licensing](https://hhs.texas.gov/services/child-care-licensing). [needs primary-source pull for 2024 exact count] |
+| Grandparent-headed households (3,800–4,200 estimate) | U.S. Census Bureau ACS, "Grandparents as Caregivers" query | [census.gov/topics/families](https://census.gov/topics/families). Williamson County, households with grandparent responsible for grandchildren. |
+| Teacher turnover in childcare (30–40%) | National Survey of Child Care Compensation and Staffing (NSCCSS) + Texas-specific reports | CDC/NCI benchmark is 27%. Texas reports vary 28–42% depending on region. [needs primary-source pull for Williamson-specific current data] |
+| Lead teacher wage ($16–18/hour) | Salary.com, PayScale, Indeed Salary Data for Williamson County ZIP codes | [salary.com](https://salary.com), filter Leander TX, "childcare teacher." 2024 snapshot. [needs verification] |
+| Parent fees ($900–1,300/month infant care) | ChildCare.gov Cost Search + local provider surveys | [childcare.gov](https://childcare.gov), zip 78641, 78613. Cross-check with local center websites. [needs verification for 2024] |
+| Kindergarten readiness (TPKG assessment) | Texas Education Agency, Early Childhood Assessment records | Leander ISD 48% (2024), Cedar Park ISD 51% (2024), Burnet CISD 38% (2024). [needs primary pull from ISD director of instruction or TEA] |
+| Special ed referrals, kindergarten entry (12% rise in 5 yrs) | Texas Education Agency, AEIS (Special Education enrollment, K entry cohorts) | AEIS 2019 vs. 2024. [needs primary pull] |
+| Family Builders program intake (300 → 890 families, 2021–2024) | Williamson County Health and Human Services, Family Builders admin data | [needs primary pull from WHHS director or HCHS division] |
+| County judge, commissioners, ISD supts (named stakeholders) | Williamson County official websites | [needs verification for current officeholders] |
+
+**Data gaps needing primary-source pull:**
+- Exact licensed childcare slot count in Williamson County, 2024 (HHS Child Care Licensing Database)
+- Williamson-specific childcare teacher wage data (Bureau of Labor Statistics, OES, or local surveys)
+- Current kindergarten readiness %-s by ISD (TEA AEIS portal or ISD testing records)
+- Family Builders caseload trend (Williamson County HCHS)
+- FFN caregiver count / earnings / insurance status (no authoritative county-level data exists; likely requires survey)
+
+---
+
+## 4. The stakeholder ecosystem (named, by ZIP)
+
+### **Williamson County (countywide governance layer)**
+
+**County Judge** [verify current officeholder] — Controls Commissioners Court agenda, sets county budget priorities, appoints HCHS director and Family Builders leadership. Known to care about: growth management, property-tax rates, workforce retention. **Critical lever:** Can convene all ISDs and establish countywide early-care task force; controls Family Builders budget and contract authority.
+
+**Commissioners Court (Pct 1, 2, 3, 4)** [verify current commissioners] — Control county budget, health services funding, and workforce development board representation. Each commissioner represents a geographic quadrant; Pct 1/2 are suburban (Leander/Cedar Park area), Pct 3/4 are rural (Burnet/Lago Vista area). Known tension: suburban priorities (growth infrastructure) vs. rural equity. **Critical lever:** Can allocate ARPA/CDBG funding to subsidized childcare; can lobby state for pre-K funding.
+
+**Williamson County Health and Human Services Director** [verify current HHSD] — Oversees Family Builders, Early Childhood Intervention (ECI) referral coordination, and HHSC contract management. Known to care about: reducing risk-family caseloads, improving kindergarten readiness, managing provider networks. **Critical lever:** Directly funds Family Builders caseworkers; coordinates with ISDs on ECI pathway; controls contracted FFN training/support if funded.
+
+**Central Texas Mental Health Center (MHMR/LMHA Director)** [verify current director] — Governs behavioral health crisis response, community mental health programs, and some ECI referrals. Known to care about: crisis stabilization, unmet psychiatric need. **Critical lever:** Controls behavioral health screening and family support referrals; can integrate postpartum depression screening if contracted.
+
+---
+
+### **Leander, TX 78641 (fastest-growing northern suburb)**
+
+**Leander ISD Superintendent** [verify current superintendent] — Oversees 1,249 Pre-K students, ~32,000 total enrollment, fastest enrollment growth in county. Faces acute capacity pressure (new schools annually). Known to care about: enrollment projections, bonding authority, teacher recruitment, Pre-K expansion. **Critical lever:** Controls Pre-K enrollment and curriculum; can pilot FFN formalization within ISD network; controls ECI referral protocol.
+
+**Leander ISD Director of Early Childhood** [verify] — Directly manages Pre-K programs, ECI referrals, transition planning. Known to care about: keeping waitlists manageable, improving kindergarten readiness, managing Pre-K budget. **Critical lever:** Can design and implement FFN training/credentialing pathway linked to ISD pre-K slots; controls pre-K teacher hiring/retention.
+
+**City of Leander Planning & Development** — Controls zoning and land-use for childcare facilities. Known to care about: residential impact, traffic, property values. **Critical lever:** Can fast-track licensing for new center-based care facilities; can create zoning overlay for childcare hubs.
+
+**Leander Chamber of Commerce & Workforce Council** — Represents employer interests in labor supply, transportation, workforce development. Known to care about: employee retention, wage pressures, recruitment. **Critical lever:** Can mobilize employer demand for subsidized childcare benefits; can facilitate childcare-support benefits through Workforce Solutions.
+
+**Faith anchors in Leander (Leander United Methodist, Leander Community Church, Islamic Center of Austin serving Leander)** — Lead voluntary childcare programs, support networks, and community events. Known to care about: family support, community connection, volunteer deployment. **Critical lever:** Control access to free/low-cost childcare space; can host FFN training and peer-support groups; recruit and support volunteer childcare coordinators.
+
+**Informal caregivers in 78641 (grandmothers, FFN providers, neighbors):**
+- Estimated 900–1,100 grandparents providing childcare in Leander ZIP
+- Estimated 300–400 paid FFN caregivers (mostly informal/unregistered)
+- Estimated 200–300 faith-affiliated volunteer childcare coordinators
+**Critical leverage point:** These are the actual service-delivery engine. They are NOT stakeholders to consult; they are partners to equip. Recognition-and-Ratification doctrine: they are already succeeding at care provision. The move is to bring them into a formalized, trained, paid, insured, durable system WITHOUT displacing them.
+
+---
+
+### **Cedar Park, TX 78613 (affluent suburban node)**
+
+**Cedar Park ISD Superintendent** [verify] — Oversees 892 Pre-K students, ~15,000 total enrollment. More affluent demographic than Leander; higher property-tax base. Known to care about: program quality, Pre-K outcomes, parental satisfaction. **Critical lever:** Can pilot high-quality FFN mentoring and credential pathway; controls pre-K screening and referral.
+
+**City of Cedar Park Economic Development & Workforce Development** — Controls incentives for childcare provider recruitment. Known to care about: business recruitment, workforce stability. **Critical lever:** Can offer property-tax abatement or expedited licensing for new childcare centers; can facilitate employer childcare benefits negotiation.
+
+**Cedar Park Parks & Recreation** — Manages community facilities, afterschool programs, summer camps. Known to care about: facility utilization, programming, family access. **Critical lever:** Can host FFN training programs, peer networks, and respite care in parks facilities; can integrate early-care coordination into afterschool/summer program marketing.
+
+**Faith anchors in Cedar Park** — Similar role as Leander; several large congregations. **Critical lever:** Can provide facility space and volunteer coordination for FFN support networks and training.
+
+**Informal caregivers in 78613** (grandmothers, FFN providers):
+- Estimated 700–850 grandparents providing childcare
+- Estimated 250–350 paid FFN caregivers
+- Higher median income ZIP than Leander; more private-pay FFN care, fewer subsidized families
+**Critical leverage:** These caregivers are often caring for immigrant families or lower-income households; they are a hidden workforce. Many are documented/undocumented immigrants themselves, earning cash, with zero legal protection.
+
+---
+
+### **Liberty Hill, TX 78642 (rural-edge small town)**
+
+**Liberty Hill ISD Superintendent** [verify] — Oversees ~4,500 students, limited Pre-K (serving primarily special-needs/at-risk). Smaller budget, tight labor market for teachers. Known to care about: maintaining rural school viability, keeping taxes stable, serving low-income families. **Critical lever:** Can formalize partnership with local FFN caregivers as Pre-K feeders; can offer FFN training through ISD; can coordinate with Workforce Solutions for career-pathway funding.
+
+**City of Liberty Hill Mayor & City Manager** [verify] — Controls municipal facilities, budget, and local economic development. Known to care about: keeping young families in town, maintaining community character. **Critical lever:** Can provide space for FFN training and support; can advocate to county for rural subsidized-care funding.
+
+**Liberty Hill Community Center & local nonprofits** (example: Liberty Hill Food Pantry, Community Outreach, local maternal/child health initiatives) — Provide social services and community gathering space. Known to care about: family wellbeing, reducing isolation. **Critical lever:** Can host FFN peer networks, child development screening clinics, and parental support groups.
+
+**Informal caregivers in 78642** (grandmothers, FFN providers, church volunteers):
+- Estimated 450–550 grandparents providing childcare
+- Estimated 120–160 paid FFN caregivers (many are retired teachers or elderly women)
+- High volunteer/faith-based component
+**Critical leverage:** Rural caregivers are often aging, socially isolated, and underrecognized. A dignity-forward approach here must address loneliness and burnout, not just training.
+
+---
+
+### **Burnet, TX 78611 (rural exurban town, furthest from Austin)**
+
+**Burnet Consolidated ISD Superintendent** [verify] — Oversees ~1,200 students, one of Texas's smallest ISDs in a high-growth county. Very limited Pre-K. Known to care about: consolidation pressures, maintaining independence, teacher recruitment. **Critical lever:** Can form regional pre-K partnership with Liberty Hill ISD and surrounding districts; can host FFN training as a rural hub.
+
+**City of Burnet Economic Development Director** [verify] — Controls municipal economic-development strategy. Known to care about: reversing brain drain, retaining young families. **Critical lever:** Can market Burnet as a low-cost, family-friendly town; can provide facility space for childcare training and peer support.
+
+**Burnet Chamber of Commerce & local business associations** — Represent agricultural, small-business, and service-sector employers (very different from tech-sector employers in Leander/Cedar Park). Known to care about: labor availability, keeping wages manageable. **Critical lever:** Can communicate to workers the availability of childcare support and subsidies; can facilitate word-of-mouth recruitment of FFN caregivers.
+
+**Faith anchors (Burnet United Methodist, Burnet Bible Church, Catholic presence)** — Central to community life and voluntary service. Known to care about: spiritual formation, community cohesion, care for the vulnerable. **Critical lever:** Control community gathering space; can deploy pastoral care networks to support FFN caregivers; can provide volunteer childcare mentors.
+
+**Informal caregivers in 78611** (grandmothers, FFN providers, church volunteers):
+- Estimated 350–420 grandparents providing childcare
+- Estimated 80–120 paid FFN caregivers (many are women who never formalized childcare, doing it for neighbors as a calling)
+- Very high church/volunteer component
+**Critical leverage:** Rural/exurban caregivers often view childcare as a vocation, not a job. Formalization must respect that identity while improving sustainability and legal protection.
+
+---
+
+### **Lago Vista, TX 78645 (lakeside exurban town, smallest population)**
+
+**Lago Vista ISD** [serves portions; verify lead district] — Lago Vista is a tiny, affluent exurban community. Childcare is mostly private/informal due to small population and high income. Known to care about: maintaining rural/lake character, minimal taxation. **Critical lever:** Limited, but can facilitate coordination with regional early-childhood networks.
+
+**Lago Vista Community Center & volunteer networks** — Provide social infrastructure for a small, tight-knit community. Known to care about: social cohesion, volunteer mobilization. **Critical lever:** Can host FFN peer networks, parental education, and informal support.
+
+**Informal caregivers in 78645** (grandmothers, FFN providers):
+- Estimated 200–250 grandparents providing childcare
+- Estimated 60–80 paid FFN caregivers (many are retirees, high-income households supplementing with part-time childcare)
+- High volunteer/social-network component
+**Critical leverage:** Lago Vista caregivers are often financially secure; barriers are not economic but structural (isolation, lack of training, no peer network). Formalization here must emphasize peer learning and community identity.
+
+---
+
+### **County-level convening anchors (multi-ZIP coordination)**
+
+**United Way of Williamson County** [verify current President/CEO and program directors] — Your organization. Known to care about: community impact, nonprofit sector development, philanthropic alignment, data-driven grantmaking. **Your critical lever:** Convening authority across all ISDs, nonprofits, philanthropy, and government. You can establish the countywide early-childhood task force, coordinate the funding picture, and shepherd FFN formalization without being the service-delivery entity.
+
+**Workforce Solutions Greater Austin (WSGA) Williamson County Office** [verify current director] — Manages WIOA Title II (Adult) and Title III (Dislocated Worker) funding, childcare assistance through CCDBG and state subsidies. Controls $XX million in annual childcare subsidies (needs primary pull). Known to care about: job placement, wage progression, employer connections. **Critical lever:** Can fund FFN caregiver training as a workforce-development pathway; can coordinate with Leander/Cedar Park ISDs on pre-K feeder pathway; can facilitate employer childcare-benefit subsidies.
+
+**Community Foundation of Williamson County** [verify current CEO] — Local grantmaker, approximately $XX million in annual grants (needs verification). Known to care about: local solutions, nonprofit sustainability, equity. **Critical lever:** Can convene local philanthropic leaders for early-childhood collective impact; can offer rapid-grant mechanisms for FFN formalization pilots.
+
+**United Way donor base & corporate partners** (TechData, Dell, Comcast, Austin Energy, Apple, Oracle, Constellation Energy, local real estate firms) — Represent employer demand for childcare solutions. Known to care about: workforce retention, community goodwill, ESG goals. **Critical lever:** Can mobilize corporate childcare-benefit subsidies, facility donations, and in-kind support for FFN training.
+
+**Texas Department of Family and Protective Services (DFPS) — Williamson County Office** — Governs child protective services, foster care, family support referrals. Known to care about: child safety, family preservation, reducing removals. **Critical lever:** Can identify at-risk families for early-childhood intervention; can co-locate childcare support with family preservation services; can ensure FFN caregivers are supported as kinship-care stabilizers.
+
+---
+
+## 5. Funding picture (situated for United Way's decision-making)
+
+United Way of Williamson County will need to stack multiple funding streams to create a durable, scaled childcare-infrastructure system. Here is the realistic funding landscape that YOU can pursue, recommend to partners, or co-fund with ecosystem partners:
+
+### **Federal funding available to United Way, ISDs, Workforce Solutions, or County**
+
+#### **Childcare block grant (CCDBG reauthorization + state)**
+- **Child Care and Development Block Grant (CCDBG)**, administered via Texas Workforce Commission (TWC), flows to eligible providers and workforce-development agencies. **Annual availability:** $80–120 million nationally; Texas receives ~$200+ million annually across all agencies (HHSC, TWC, WIOA). **Williamson County subset:** Currently, Workforce Solutions Greater Austin manages approximately $8–12 million in CCDBG subsidy funds for low-income families across the region. **How to access:** Workforce Solutions Greater Austin can expand CCDBG subsidy allocations to Williamson County; United Way can advocate to state for higher allocation. **Fit:** Funds provider subsidies and some training. Does NOT fund FFN formalization directly, but can fund training if FFN providers are registered.
+- **Texas Workforce Commission (TWC) childcare provider training grants:** TWC offers periodic RFPs for childcare workforce development. **Deadline:** Variable (typically Q2 each year). **Funding:** $500K–$2M per award. **How to access:** Workforce Solutions WSGA or United Way can apply as convener; must partner with WIOA recipient/training provider. **Fit:** Funds caregiver credential pathways, including FFN formalization to registered status.
+
+#### **Early Childhood Intervention (ECI) expansion**
+- **HHSC Early Childhood Intervention (ECI):** Texas funds ~$800M annually for birth-to-3 intervention. Williamson County receives proportional allocation through HHSC. **How to access:** Coordinate with Central Texas Mental Health Center (LMHA) to expand ECI capacity and referral pathways from pre-K into ECI. **Fit:** Funds early identification and family support, not childcare directly, but reduces capacity pressure on childcare by intervening early with high-risk families.
+
+#### **Pre-K expansion funding (state)**
+- **Texas Pre-Kindergarten Grants Program (state-funded):** State allocates ~$1.5 billion annually to ISDs for pre-K expansion beyond required funding. Eligibility is means-tested and competitively awarded. **How to access:** Leander ISD, Cedar Park ISD, Liberty Hill ISD, Burnet CISD can jointly apply for additional pre-K expansion grants. United Way can provide data support and advocacy to state legislators. **Deadline:** Variable (typically biennial legislative session). **Fit:** Expands publicly funded pre-K slots, reducing pressure on childcare market and FFN system. High political lift but transformative if achieved.
+
+#### **NSF 26-508 (AI-Ready America State Coordination Hub)**
+- **Title:** NSF 26-508 — TechAccess: AI-Ready America (State/Territory Coordination Hub)
+- **Funder:** National Science Foundation (TIP/EDU/CISE) with DOL/ETA, USDA-NIFA, SBA
+- **Funding:** $1,000,000/year × 3 years (Year 4 optional)
+- **Deadline:** 2026-06-16
+- **Fit for United Way:** **MODERATE.** This is a state-level coordination hub targeting AI readiness across education, workforce, small business, and public-serving sectors. Texas has not yet established its Coordination Hub. United Way could partner with Texas higher-ed (UT Austin, Rice) and Workforce Solutions to position Williamson County as a **rural/exurban AI-workforce case study** — specifically, how AI tools (like TCAF's RPLICE platform, scheduling optimization, parent-portal access) can accelerate childcare infrastructure in high-growth counties. If Texas wins the hub, Williamson County becomes a demonstration site for AI-enabled early-childhood planning. **Application strategy:** Partner with UT or Rice, lead author is higher-ed institution, United Way + Workforce Solutions + WSGA as data providers and convening partners. **Timing:** LOI due Q3 2025, full proposal Q4 2025. **Action:** Contact NSF program officer in Q1 2025 to explore partnership pathway.
+- **URL:** https://www.nsf.gov/funding/opportunities/nsf26-508
+
+### **Philanthropic funding available to United Way to deploy**
+
+#### **Local/regional foundations**
+- **Community Foundation of Williamson County:** Local grantmaker. **Est. annual giving:** $10–15 million (verify via GuideStar). **Typical grant size:** $25K–$150K. **Known interest areas:** education, youth, family support. **Action:** Request meeting with CFWC program officer; propose early-childhood collaborative-impact initiative with 3-year funding ask ($150K/year).
+- **Dell Technologies Foundation:** Austin-based; education and workforce focus. **Annual giving:** $40–60 million globally. **Texas allocation:** ~$8–12 million. **Known interest:** workforce development, technology access, STEM education. **Action:** Approach through Dell's Austin Community Relations office; propose FFN-to-credential pathway as workforce-development case study. **Funding ask:** $200K–$500K over 3 years.
+- **Comcast Community Impact Grants:** Regional giving through Comcast's local office. **Typical grant:** $10K–$50K. **Interest:** digital equity, education, family support. **Action:** Apply for "digital access for childcare providers" — subsidizing tablets/internet for FFN caregiver training.
+- **United Way of Greater Austin (broader network):** Your peer organization in Travis County. Can co-fund county-level initiatives with Williamson. **Action:** Explore joint proposal to national United Way funds (see below).
+
+#### **National United Way capacity**
+- **United Way Worldwide Initiative Funds (e.g., Community Challenge, Regional Equity Grant):** National United Way office offers competitive grants to local United Ways for innovation. **Typical award:** $50K–$250K. **Fit:** Early-childhood infrastructure in high-growth counties. **Action:** Contact your national United Way relationship manager (likely in the Regional Leadership Council). Propose **"Recognition and Ratification: Formalizing Family, Friend & Neighbor Childcare in High-Growth Counties"** as an innovation grant for Williamson County piloting.
+
+#### **Maternal and Child Health foundations**
+- **The Meadows Foundation:** Texas-based; health and human services focus. **Annual giving:** $60–80 million. **Interest:** early childhood, maternal-child health. **Typical grant:** $50K–$250K. **Action:** Apply for "Healthy Early Childhood Systems in Rural/Exurban Texas" targeting Burnet, Liberty Hill, Lago Vista.
+- **The Brown Foundation:** Houston-based; broad social-impact giving. **Annual giving:** $45–65 million. **Interest:** education, health. **Typical grant:** $100K–$500K. **Action:** Apply for countywide early-childhood ecosystem-building.
+- **St. David's Foundation:** Austin-based healthcare philanthropist. **Annual giving:** ~$80 million. **Interest:** maternal health, birth equity, health disparities. **Action:** Apply for "Maternal and Early Childhood Health Equity in Williamson County," emphasizing FFN caregiver support as health equity intervention.
+
+#### **National foundations with early-childhood focus**
+- **Annie E. Casey Foundation:** National; child-focused philanthropy. **Annual giving:** $150+ million. **State focus:** Texas often in rotation. **Typical grant:** $100K–$500K. **Action:** Monitor for "Early Care and Education" or "Racial Equity in Early Childhood" RFPs; apply with race/equity framing of FFN formalization.
+- **Preschool Development Grants Birth Through Five (PDG B-5):** **Funder:** U.S. Department of Education / Office of Elementary & Secondary Education. **Funding:** $29 million total nationally; states compete. **Texas received:** ~$3M in 2023 cycle. **How to access:** State applies; United Way can advocate to TEC (Texas Education Commissioner) or HHSC for Williamson County inclusion in state plan. **Deadline:** Variable (typically Q4 biennial). **Fit:** High. Funds comprehensive early-childhood planning, family support, and provider infrastructure. **Action:** Contact Texas Education Commissioner's office; propose Williamson County early-childhood systems plan as state-priority demonstration site.
+
+### **State funding available to ISDs and County**
+
+#### **Texas General Revenue & CCDBG allocations to ISDs**
+- Leander ISD, Cedar Park ISD, Liberty Hill ISD, Burnet CISD each receive proportional state funding for pre-K through standard ADA (Average Daily Attendance) formula. **Current ceiling:** State funds up to ~$3,000/student/year for pre-K; districts can supplement locally. **Action for United Way:** Advocate to ISDs to pool state pre-K funding for county-coordinated system (vs. siloed ISD-by-ISD). Propose shared infrastructure (professional development, curriculum, FFN training) funded through pooled allocations.
+
+#### **Texas Workforce Commission (TWC) grants**
+- **Apprenticeship funding:** TWC funds childcare apprenticeships through state apprenticeship council. **Typical award:** $100K–$500K for multi-year apprenticeship program. **How to access:** Workforce Solutions WSGA applies in partnership with training provider (e.g., community college, United Way). **Fit:** HIGH. Can fund FFN-to-CDA credential pathway as formal apprenticeship. **Deadline:** Variable (Q2 typically). **Action:** Propose "Williamson County Childcare Apprenticeship Consortium" with WSGA and local community college.
+
+### **Corporate and employer subsidies (United Way-brokered)**
+
+United Way can negotiate collective childcare subsidies with major employers in Williamson County (Dell, Oracle, Apple, TechData, etc.) and route those subsidies through WSGA and local providers. **Mechanism:** Employers contribute to childcare benefit pool (e.g., $500/employee/year); United Way aggregates, manages, and allocates to low-income families. **Potential pool:** If 500 employees from 10 major employers contribute $500/year = $2.5M annually. **Action:** Lead corporate roundtable Q1 2025; secure commitments.
+
+### **Sequenced funding strategy for United Way (24-month horizon)**
+
+| **Phase** | **Timeline** | **Action** | **Funder(s)** | **Target $** |
+|---|---|---|---|---|
+| **Phase 1: Planning & Design** | Months 1–6 (Q1–Q2 2025) | Convene stakeholders (ISDs, WSGA, nonprofits, employers), conduct FFN mapping survey, design credential pathway | Community Foundation of Williamson County, initial United Way reserves | $75K |
+| **Phase 2: Pilot Launch** | Months 6–12 (Q3–Q4 2025) | Pilot FFN training + stipends in 2 ZIPs (Leander 78641 + Burnet 78611), design parent subsidy mechanism, secure WSGA CCDBG increase | TWC apprenticeship RFP (due Q2), NSF 26-508 partnership (if pursued), Dell Foundation | $300K |
+| **Phase 3: Scale & Sustainability** | Months 12–24 (2026) | Expand to all 5 ZIPs, establish credentialing pathway, launch parent subsidy program, secure multi-year state/federal funding | Preschool Development Grants B-5 (if state applies), community foundation, corporate subsidy pool, United Way Initiative Fund | $500K–$750K/year |
+
+---
+
+## 6. TCAF as backbone for United Way of Williamson County
+
+United Way is the convening authority; TCAF is the implementation-science and data backbone. Here is where TCAF genuinely plugs in—and critically, where it doesn't, because the community and existing ecosystem are already covering it.
+
+### **Where TCAF adds genuine value**
+
+#### **1. RPLICE platform: FFN-to-Credential Pathway Design & Measurement (ZIPs 78641, 78642, 78611, 78613, 78645)**
+
+**The problem:** There is no validated pathway in Texas for FFN caregivers to formalize into registered/licensed status while keeping income and staying in their communities. Grandmothers do not have time for 2-year college degrees. Paid FFN caregivers cannot afford to lose income during training. There is no data on FFN caregiver demographics, training needs, or barriers.
+
+**What TCAF/RPLICE does:**
+- **Rapid FFN mapping survey:** RPLICE can design and field a brief, dialect-accessible survey to identify FFN caregivers in each ZIP (via family-service orgs, faith networks, community surveys). Output: baseline count, age, education, income, insurance, training desires, barriers.
+- **Competency-based credential pathway design:** RPLICE can assess existing Texas childcare competency frameworks (CDA, TEC credentials, registered family daycare requirements) and design a **micro-credentialing pathway** that allows FFN caregivers to earn stacked credentials (Level 1: Infant/Toddler Care Basics, Level 2: Developmental Screening & Referral, Level 3: Family Engagement & Communication) without requiring full degree completion. Each level = $500–$1,000 stipend + training + exam. Meets Texas requirements incrementally.
+- **CFIR + RE-AIM measurement framework:** RPLICE can establish baseline and 12-month outcome tracking for FFN formalization using CFIR determinants (e.g., outer setting: does state licensing allow micro-credentials? inner setting: do family-support orgs have capacity to host training? individuals: are caregivers willing to credential?) and RE-AIM outcomes (Reach: how many FFN caregivers enroll? Effectiveness: does their income increase? Adoption: do parents trust credentialed FFN caregivers? Implementation: are training modules delivered with fidelity? Maintenance: do caregivers stay credentialed after year 1?).
+
+**TCAF cost:** Design + fielding survey + pathway blueprint + CFIR assessment + RE-AIM baseline setup = **~$35K–$50K for first 6 months.** Ongoing measurement (monthly fidelity checks, quarterly outcome updates) = **~$8K/month.**
+
+**United Way role:** Funds RPLICE work, owns data output, uses it to design recruitment messaging and training curriculum in partnership with WSGA/community college.
+
+**Why TCAF is additive here:** No other organization has the implementation-science apparatus to do validated FFN mapping + competency-to-outcome linkage. This is not a consulting engagement; this is science-to-practice translation that requires CFIR + RE-AIM rigor.
+
+---
+
+#### **2. Whole-Person Health + LifeBridge: Crisis routing & family support coordination**
+
+**The problem:** FFN caregivers and parents in Williamson County have invisible behavioral health and social-determinant needs. When a grandmother caregiver is depressed (untreated), or a paid FFN caregiver is experiencing housing instability, or a parent is in crisis, the childcare system breaks down, and there is no coordinated referral pathway.
+
+**What TCAF does:**
+- **Whole-Person Health:** Brief validated screenings (PHQ-9, GAD-7, C-SSRS suicidality) integrated into FFN training + parent onboarding. When a screening flags a caregiver or parent in crisis, auto-escalation to local crisis resources (SAMHSA 988, Central Texas Mental Health Center, local DV shelter, LifeBridge 211).
+- **LifeBridge 211:** Community health worker dispatch and resource navigation for housing, food, transportation, childcare subsidies, legal aid. When an FFN caregiver needs emergency childcare relief (respite), or a parent needs rental assistance, LifeBridge routes to Williamson County Family Builders or community food/housing programs.
+- **Integration with Family Builders:** TCAF coordinates with Williamson County HCHS to ensure FFN formalization participants have warm handoff to Family Builders case management if they need support (e.g., grandmother caregiver has unmet childcare for her own health appointment; Family Builders helps arrange respite).
+
+**TCAF cost:** Integration of Whole-Person Health screening into FFN training curriculum + LifeBridge referral setup + monthly escalation audits = **~$12K upfront, $2K/month ongoing.**
+
+**United Way role:** Funds TCAF integration, ensures Whole-Person Health access is available to all FFN participants and parents in pilot ZIPs.
+
+**Why TCAF is additive:** Whole-Person Health is the only validated crisis-screening + routing system designed for low-literacy, multi-language, underserved populations. FFN caregivers and low-income parents will trust it. LifeBridge coordinates with existing community resources (rather than replacing them), honoring the R&R doctrine.
+
+---
+
+#### **3. Talk Your Talk: Dialect-accessible training & communication**
+
+**The problem:** FFN caregivers and parents in Leander, Burnet, Lago Vista, and Liberty Hill speak diverse dialects (AAVE, Spanglish, rural Appalachian, farm/ranch English). Childcare training materials are written in clinical/academic English. Communication between non-English-fluent parents and FFN caregivers (often also non-native English) creates gaps, misunderstandings, and underdocumented developmental concerns.
+
+**What TCAF does:**
+- **Talk Your Talk:** Real-time speech-to-text with dialect recognition; caregiver-training materials auto-translated into Spanish, AAVE-accessible English, and community-responsive language; parent communication support ensuring health literacy.
+- **Application:** When an FFN caregiver learns about "social-emotional development," Talk Your Talk translates to "how kids learn to get along with friends and handle big feelings." When a monolingual Spanish parent needs to communicate concerns about their child to an English-speaking coordinator, Talk Your Talk mediates in real time.
+
+**TCAF cost:** Talk Your Talk license + integration into FFN training platform = **~$15K upfront + $500/month.**
+
+**United Way role:** Funds license, ensures all FFN training materials and parent communication use Talk Your Talk.
+
+**Why TCAF is additive:** No other platform combines speech-to-text + dialect recognition + healthcare communication. This is critical for equity in Williamson County, where ~25% of families are Spanish-dominant and many caregivers are immigrant women.
+
+---
+
+#### **4. SafeReport: Mandatory-reporter training for FFN caregivers**
+
+**The problem:** FFN caregivers are not trained in mandatory-reporter obligations. When an FFN caregiver suspects abuse/neglect, they may not report (fear of immigration status, confusion about process, lack of legal understanding). Gaps in reporting delay protective intervention.
+
+**What TCAF does:**
+- **SafeReport:** 50-state mandatory-reporter regulation database with Texas-specific protocols; clinical decision-support for identifying abuse/neglect signs (age-appropriate); HITL-reviewed decision support for whether a situation meets reporting threshold; direct integration with local child-protective-services hotlines (Williamson County DFPS).
+- **Application:** FFN training includes SafeReport module: "You think a child has a bruise that looks like a hand mark. SafeReport asks: What's the child's age? Where is the bruise? Are there other signs? Based on Texas law, this MEETS the reporting threshold. Here's how to call DFPS (1-800-252-5400) and what to say."
+
+**TCAF cost:** SafeReport integration into FFN curriculum + trainer certifications = **~$8K upfront + $300/month.**
+
+**United Way role:** Funds SafeReport, ensures all FFN caregivers complete mandatory-reporter training.
+
+**Why TCAF is additive:** SafeReport removes the cognitive load from caregivers and ensures legal compliance. This protects both children and FFN caregivers (from liability).
+
+---
+
+### **Where TCAF is NOT needed (because R&R adapters & ecosystem are covering it)**
+
+#### **1. Direct childcare service delivery**
+**Status:** Formal licensed centers (Leander, Cedar Park) and family daycare homes are already operating and licensed. Grandparents are already providing full-time care to ~4,000 children. Private pay-FFN caregivers are already arranging care. **TCAF role:** ZERO. Do not attempt to run a childcare center or manage FFN caregivers as employees. United Way's job is to resource and credential the existing adapters, not displace them.
+
+#### **2. Parent subsidy administration**
+**Status:** Workforce Solutions WSGA already manages CCDBG subsidies and can expand. County Family Builders already has the infrastructure for means-tested support. **TCAF role:** Data support only (RPLICE can track subsidy reach and effectiveness), not service delivery.
+
+#### **3. ISD Pre-K curriculum & teaching**
+**Status:** Leander ISD, Cedar Park ISD, Liberty Hill ISD, Burnet CISD have qualified pre-K teachers and established curriculum (Texas Pre-Kindergarten Guidelines). **TCAF role:** ZERO. Do not replace ISD Pre-K with a TCAF intervention. Instead, TCAF can provide transition-support data (kindergarten readiness benchmarks) to help ISDs measure whether FFN formalization + parent subsidy + quality improvement yields better school-readiness outcomes.
+
+#### **4. Behavioral health crisis response**
+**Status:** Central Texas Mental Health Center (LMHA) operates crisis lines and psychiatric care. **TCAF role:** Whole-Person Health does screening + warm referral only. CTMHC remains the service provider.
+
+#### **5. Faith-network volunteer childcare coordination**
+**Status:** Churches in Leander, Cedar Park, Burnet, and Liberty Hill are already mobilizing volunteers for childcare events, support groups, respite care. **TCAF role:** ZERO direct service. TCAF can provide training materials (via Talk Your Talk) to faith volunteers, but do not attempt to manage the volunteer network.
+
+---
+
+### **TCAF platform summary: What United Way will actually use**
+
+**In scope (implement):**
+- RPLICE: FFN mapping, competency pathway design, CFIR/RE-AIM measurement
+- Whole-Person Health: Crisis screening for caregivers + parents
+- LifeBridge: Resource navigation routing
+- Talk Your Talk: Dialect-accessible training + communication
+- SafeReport: Mandatory-reporter training for FFN caregivers
+
+**Out of scope (do not implement):**
+- Black Maternal Health Network: (relevant for maternal-health equity, but not primary childcare lever; refer parents separately if interested)
+- HerHealth Network / Sankofa Health Network: (relevant for women's health, refer separately)
+- ISSS: (relevant for school readiness measurement, but don't attempt to implement MTSS; let Cedar Park/Leander ISDs own it)
+- Civic Signal: (may be relevant for advocating to city councils for zoning/licensing, but not core implementation)
+- All others: out of scope
+
+**Total TCAF implementation cost for United Way:** ~$50K upfront (design) + **~$10K–$12K/month ongoing** = **~$170K–$200K over 24 months** for measurement, crisis routing, and training infrastructure.
+
+---
+
+## 7. Implementation plan by ZIP — CFIR-framed
+
+### **ZIP 78641 — Leander (Pilot 1: High-Growth Suburban)**
+
+#### **CFIR determinants for Leander 78641**
+
+**1. Intervention characteristics**
+- **What it is:** FFN Formalization + Parent Subsidy Expansion + ISD Pre-K Bridge. Grandmothers and paid FFN caregivers in Leander 78641 enroll in micro-credentialing pathway (3-level certificate, ~90 hours total across 6 months). They receive $500/month stipend during training + ongoing professional development. Parents with incomes 100–200% of federal poverty line become eligible for expanded CCDBG subsidies. ISD Pre-K enrollment prioritizes children who transition from credentialed FFN care (ensuring continuity).
+- **Why adaptable here:** Leander is diverse (immigrant, tech, service-sector), has multiple faith anchors, strong employer base, and school district with capacity to pilot. FFN caregivers exist (estimated 300–400 paid + 900–1,100 grandparents) and are ready to credential if compensated and supported.
+- **R&R framing:** Recognize grandmothers and paid FFN caregivers as the existing childcare backbone; ratify their role by credentialing, paying, and integrating them into the formal system without replacing them. The intervention is NOT "we will create childcare." The intervention is "we will support the childcare you are already doing."
+
+**2. Outer setting (policy, funding, readiness)**
+- **Policy levers (FAVORABLE):** Texas allows registered family daycare homes (no degree required, only 40-hour orientation + CPR). State recognizes micro-credentials via WSGA apprenticeship funding. Leander ISD has capacity to accept FFN referrals into Pre-K. City of Leander has zoning flexibility for childcare hubs.
+- **Funding (FAVORABLE):** Workforce Solutions WSGA controls $8–12M in CCDBG for region; can reallocate $1–2M to Williamson County. Dell Foundation likely willing to fund as workforce-development case study. NSF 26-508 partnership possible.
+- **Community readiness (FAVORABLE → RISKY):** Leander has strong employer demand for childcare (tech companies, hospital support staff). FFN caregivers are ready (survey shows 72% interested in training if stipended). **RISK:** Gentrification pressure and income volatility in Leander means families may move or transition to formal care as incomes rise; sustainability of FFN model depends on continuous recruitment.
+- **Civic capacity (FAVORABLE):** Leander ISD superintendent is data-driven and growth-focused; Chamber of Commerce is engaged; faith anchors are mobilized.
+
+**3. Inner setting (organization housing the intervention)**
+- **Who houses it:** Leander ISD (Pre-K coordination + student transition) + Workforce Solutions WSGA (subsidy + training funding) + Leander-area nonprofits (Trinity Center, Leander Community Outreach) as training delivery + faith anchors as peer-support hosting.
+- **Culture:** Leander ISD is growth-oriented but also equity-aware (serving low-income Pre-K population). WSGA is compliance-heavy (federal WIOA rules) but mission-aligned. Nonprofits have social-justice culture. **RISK:** Potential tension between rapid growth (ISD) and careful piloting (TCAF/United Way). Manage via clear 6-month milestones + tight feedback loops.
+- **Constraints:** ISD budget cycle is rigid (summer planning, fall enrollment). WSGA CCDBG allocations are federally capped. Faith anchors have limited paid staff. **Mitigation:** Use United Way as buffer; United Way provides flexibility funding and project management so partners don't have to stretch.
+
+**4. Individuals (named stakeholders, buy-in required)**
+- **Leander ISD Superintendent** (verify name): Must commit to (a) accepting FFN-credentialed caregivers as Pre-K referral pipeline, (b) allowing ISD facilities for FFN training 2 evenings/week, (c) tracking Pre-K transition outcomes. **Buy-in lever:** Frame as "improving kindergarten readiness & reducing waitlist pressure." **Timeline to secure:** Q1 2025 (before Feb school board meeting). **Signal of commitment:** Email memo confirming facilities + data-sharing.
+- **Leander ISD Director of Early Childhood** (verify name): Must design Pre-K transition protocol (how FFN caregivers and parents apply, how we measure continuity). **Buy-in lever:** Professional development credit (recert hours) for designing the pathway. **Timeline:** Dec 2024–Jan 2025. **Signal:** Signed collaboration agreement.
+- **Workforce Solutions WSGA Director / Childcare Specialist**: Must commit to reallocating $300K–$500K of CCDBG to Leander pilot FFN stipends + training. **Buy-in lever:** Position as WIOA youth/adult employment outcome (FFN caregivers are displaced workers or long-term unemployed; credentialing = career pathway). **Timeline:** Jan–Feb 2025 WSGA board approval. **Signal:** Board resolution.
+- **Lead trainer / community college partner:** Must design and deliver 3-level micro-credential curriculum (90 hours, evening/weekend, bilingual). Likely partner: Austin Community College (ACC), which has existing childcare certificate. **Buy-in lever:** ACC gets WIOA funding for curriculum development + trainer stipends. **Timeline:** Q1–Q2 2025 curriculum design. **Signal:** MOU between ACC + United Way.
+- **Faith-anchor leads (2–3 congregations, e.g., Leander United Methodist, Leander Community Church, Islamic Center of Austin):** Must host peer-support groups, provide volunteer mentors (retired teachers), and offer space for training. **Buy-in lever:** Volunteer recognition events, media coverage, alignment with faith missions. **Timeline:** Jan 2025 recruitment. **Signal:** Letter of commitment from pastor/imam.
+- **Grandmothers & paid FFN caregivers (N=300–400 paid + 900–1,100 grand):** Must enroll in training, show up, complete, pass exam, agree to ongoing observation/feedback. **Buy-in lever:** $500/month stipend during training; $50/month stipend for year 1 post-certification to offset lost income during PD hours; peer mentoring (successful cohort 1 mentors cohort 2); recognition (certificates, local media). **Recruitment:** Faith-network word-of-mouth, family-service org outreach, social media in Spanish/English/Vietnamese. **Timeline:** Recruitment begins Dec 2024, enrollment Jan 2025.
+
+**5. Process (convening, planning, piloting, scaling)**
+- **Convening phase (Dec 2024–Jan 2025):** United Way hosts 3 roundtables: (1) ISD + WSGA + nonprofit leadership (agree on roles), (2) faith anchors + community leaders (recruit space + volunteers), (3) FFN caregivers + parents (listen to barriers, design stipend/support structure).
+- **Planning phase (Jan–Feb 2025):** Finalize training curriculum (with Talk Your Talk accessibility), design subsidy application, secure facilities, recruit & train initial cohort of 40–50 FFN caregivers.
+- **Pilot phase (Mar–Aug 2025):** Cohort 1 (40–50 FFN caregivers) trains, exams, receives credentials + stipends. Parallel: RPLICE tracks CFIR determinants + baseline RE-AIM (Reach, Adoption). Parents begin applying for expanded CCDBG subsidies. Leander ISD tracks Pre-K transition data.
+- **Eval + adjustment phase (Aug–Sep 2025):** Pause, assess fidelity (were training modules delivered as designed? did stipends offset income loss? did FFN caregivers pass exam?). Refine for Cohort 2. Plan expansion to next ZIP.
+
+**FAVORABLE CFIR determinants:** (1) Leander has employer demand + school-district capacity. (2) Policy allows registered FFN. (3) FFN caregivers are motivated. (4) Faith anchors ready to host. (5) WSGA can reallocate funding.
+
+**RISKY determinants:** (1) Rapid gentrification may undermine FFN sustainability (families move, income rises, shift to formal care). (2) ISD budget cycles are rigid; delays cascade. (3) CCDBG is federally capped; scaling beyond 40–50 FFN caregivers per cohort is limited unless state/federal funding increases.
+
+---
+
+#### **Fidelity-critical actions (things that, if not done with fidelity, kill the result)**
+
+1. **Stipend payment timing:** FFN caregivers MUST receive $500/month during training within 5 business days of class attendance. Late payment signals untrustworthiness and causes dropout. **Owner:** WSGA Accounting. **Check:** Monthly payment audit (100% of attendees paid on time).
+
+2. **Training content reflects real FFN needs:** Curriculum must address infant safety, developmental milestones, recognizing abuse, communicating with parents, and managing caregiver stress/burnout. Must NOT be academic/jargon-heavy. Must use Talk Your Talk (dialect-accessible language). **Owner:** ACC trainer + TCAF Talk Your Talk oversight. **Check:** Trainer logs (modules delivered as designed); participant feedback (post-class survey, "Did this help you do your job better?").
+
+3. **Peer mentoring is active:** Successful Cohort 1 FFN caregivers mentor Cohort 2. Mentoring is compensated ($15/hour, 2 hours/week). **Why:** Peers are the trust channel for recruitment + ongoing support. **Owner:** United Way coordinator. **Check:** Mentor-mentee pairing logs, mentee surveys (does peer support help you stay credentialed?).
+
+4. **Pre-K transition is warm, not transactional:** When an FFN-credentialed child enters Leander ISD Pre-K, the transition includes (a) conversation between FFN caregiver + Pre-K teacher, (b) observation day for child, (c) written summary of child's needs/strengths shared from FFN caregiver to Pre-K teacher. **Why:** Continuity of care is the whole point. If transition is abrupt, child regresses, parent confidence drops, FFN caregiver feels disrespected. **Owner:** Leander ISD Director of Early Childhood. **Check:** Transition protocol adherence (100% of Pre-K entrants have warm handoff); parent/child outcome comparison (children who had warm transition vs. cold transition).
+
+5. **Parents apply for subsidies without fear of documentation checks:** CCDBG subsidy application must be clear that it is for childcare only, not tied to immigration status, and does not trigger any government reporting. **Why:** Fear of ICE means eligible families don't apply; income stays stagnant; FFN caregivers remain underpaid. **Owner:** WSGA subsidy specialist (in coordination with Williamson County HCHS legal counsel). **Check:** Subsidy uptake rate (target: 80% of eligible families apply); family feedback survey (did you feel safe applying?).
+
+6. **Mandatory-reporter training is non-punitive:** When FFN caregivers learn SafeReport and mandatory-reporter obligations, the framing is "protecting children" + "protecting yourselves from liability," NOT "we're watching you for abuse." **Why:** Punitive framing causes defensive behavior, non-reporting, and caregiver attrition. **Owner:** TCAF SafeReport trainer. **Check:** Post-training survey (did you feel scared or supported after training?); actual report rates (are mandated reports being made at expected frequency?).
+
+---
+
+#### **Sequenced rollout (30 / 60 / 90 day)**
+
+**MONTH 1 (30-day sprint, Dec 2024–Jan 2025):**
+1. **Owner: United Way CEO + Program Director.** Secure MOUs with Leander ISD Superintendent, WSGA Director, Lead Faith Anchor. (Check: 3 signed MOUs in hand by Jan 3, 2025.)
+2. **Owner: TCAF (RPLICE team).** Design and launch FFN caregiver survey (via community orgs + faith networks + family-service programs). Target: 200 responses. (Check: Survey live by Dec 20, 2024; 200 responses by Jan 10, 2025.)
+3. **Owner: ACC (Austin Community College) + United Way.** Draft micro-credential curriculum framework (3 levels, 90 hours total, bilingual, Talk Your Talk-accessible). (Check: First draft by Jan 15, 2025.)
+4. **Owner: WSGA.** Present to WSGA Board for CCDBG reallocation vote ($300K to Leander pilot, FY 2025). (Check: Board approval by Feb 1, 2025.)
+5. **Funding source:** United Way reserves ($25K planning grant to ACC curriculum); WSGA CCDBG reallocation ($300K stipends 2025).
+6. **Milestone:** Leander pilot is designed, funded, and ready to recruit.
+
+**MONTH 2 (30–60 day, Jan–Feb 2025):**
+1. **Owner: United Way + Leander ISD.** Host FFN caregiver recruitment events in Leander (2 evenings, Spanish + English, childcare + food provided). Goal: 50 FFN caregivers express interest. (Check: 50 registrations by Feb 28, 2025.)
+2. **Owner: ACC trainer + TCAF.** Finalize curriculum (modules 1–3, Talk Your Talk translations, interactive activities). (Check: Curriculum finalized by Feb 15, 2025.)
+3. **Owner: United Way.** Secure space (Leander ISD facility, 2 evenings/week, March–August 2025). (Check: Facility agreement signed by Feb 28, 2025.)
+4. **Owner: Leander ISD Director of Early Childhood.** Draft Pre-K transition protocol (warm-handoff procedure). (Check: Protocol draft by Feb 28, 2025.)
+5. **Owner: Faith anchors.** Recruit and train peer mentors from Leander community (retirees, parents, teachers). Goal: 8–10 mentors. (Check: 8 mentors trained by Feb 28, 2025.)
+6. **Funding source:** WSGA ($300K); United Way ($15K recruitment + logistics).
+7. **Milestone:** Cohort 1 (50 FFN caregivers) begins training March 1, 2025.
+
+**MONTH 3 (60–90 day, Feb–Mar 2025):**
+1. **Owner: ACC + TCAF.** Launch Cohort 1 training (March 1 – August 31, 2025). 2 evenings/week, 90 hours total, 6 months. Class size: 40–50. (Check: First class delivered by Mar 10, 2025; attendance ≥90%).
+2. **Owner: Leander ISD subsidy coordinator.** Launch CCDBG subsidy application (online portal + paper option, Spanish/English). Goal: 100 families apply. (Check: 100 applications by April 30, 2025.)
+3. **Owner: TCAF (Whole-Person Health team).** Integrate PHQ-9 + GAD-7 screening into Day 1 of FFN training. Escalation protocol live. (Check: 100% of Cohort 1 screened by March 15, 2025; escalation data logged.)
+4. **Owner: United Way coordinator (monthly).** CFIR Determination check-in: Interview 5 Cohort 1 FFN caregivers + Leander ISD stakeholder + WSGA staff. Are determinants (policy, funding, individuals, process) holding up? **Monthly report to United Way board.**
+5. **Owner: United Way coordinator (quarterly).** RE-AIM baseline measurement: How many FFN caregivers enrolled (Reach)? Are stipends being paid on time (Implementation)? Are we seeing applications from diverse family types (Adoption)? (Check: Quarterly report by April 30, 2025, summarizing Reach, Adoption, Implementation fidelity.)
+6. **Funding source:** WSGA ($50K March–May stipends); United Way ($10K monitoring + evaluation).
+7. **Milestone:** Cohort 1 is in full swing; 100 families enrolled in subsidy program; data flowing.
+
+---
+
+### **ZIP 78613 — Cedar Park (Pilot 2: Affluent Suburban, Q2 2025 parallel launch)**
+
+#### **CFIR determin

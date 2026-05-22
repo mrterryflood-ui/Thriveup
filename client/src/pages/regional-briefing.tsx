@@ -84,6 +84,11 @@ export default function RegionalBriefingPage() {
   const [scope, setScope] = useState<"A" | "B" | "C" | "D" | "E">("A");
   const [structuredBusy, setStructuredBusy] = useState(false);
   const [briefingSource, setBriefingSource] = useState<"ai" | "structured" | null>(null);
+  // Opt-in flags: funding (§5) + TCAF fit (§6) are OFF by default. The briefing
+  // is community + audience first. You turn these on when you actually need them.
+  const [includeFunding, setIncludeFunding] = useState(false);
+  const [includeTcaf, setIncludeTcaf] = useState(false);
+  const [audience, setAudience] = useState("");
 
   // Copy + follow-up state
   const [copied, setCopied] = useState(false);
@@ -367,11 +372,14 @@ export default function RegionalBriefingPage() {
 
   // DOOR 2 — no-AI structured briefing. Assembled by server in code from DB
   // rows only. Slower to read, but it never fails because the AI failed.
-  async function runStructured(overrides?: { question?: string; locations?: BriefingLocation[]; topic?: string; scope?: "A" | "B" | "C" | "D" | "E" }) {
+  async function runStructured(overrides?: { question?: string; locations?: BriefingLocation[]; topic?: string; scope?: "A" | "B" | "C" | "D" | "E"; includeFunding?: boolean; includeTcaf?: boolean; audience?: string }) {
     const q = (overrides?.question ?? question).trim();
     const locs = overrides?.locations ?? locations;
     const tpc = overrides?.topic ?? topic;
     const sc = overrides?.scope ?? scope;
+    const inclF = overrides?.includeFunding ?? includeFunding;
+    const inclT = overrides?.includeTcaf ?? includeTcaf;
+    const aud = (overrides?.audience ?? audience).trim();
     if (!q && !locs.length) {
       toast({ title: "Type a question or add a location first", variant: "destructive" });
       return;
@@ -382,10 +390,11 @@ export default function RegionalBriefingPage() {
     setPerLocation([]);
     setPlatforms([]);
     try {
-      const body: Record<string, unknown> = { scope: sc };
+      const body: Record<string, unknown> = { scope: sc, includeFunding: inclF, includeTcaf: inclT };
       if (q) body.question = q;
       if (locs.length) body.locations = locs;
       if (tpc) body.topic = tpc;
+      if (aud) body.audience = aud;
       const res = await apiRequest("POST", "/api/regional-briefing/structured", body);
       const data: {
         briefing: string;
@@ -502,31 +511,65 @@ export default function RegionalBriefingPage() {
               </div>
 
               {/* DOOR 2 — no-AI structured briefing controls */}
-              <div className="border-t pt-3 flex flex-wrap items-center gap-2" data-testid="structured-door-controls">
-                <span className="text-xs font-semibold uppercase text-muted-foreground">Or — build from data only:</span>
-                <select
-                  value={scope}
-                  onChange={(e) => setScope(e.target.value as "A" | "B" | "C" | "D" | "E")}
-                  className="text-xs border rounded px-2 py-1 bg-background"
-                  data-testid="select-scope"
-                >
-                  <option value="A">[A] Situation (§1–4)</option>
-                  <option value="B">[B] Asset map (§1–4)</option>
-                  <option value="C">[C] Funding (+§5)</option>
-                  <option value="D">[D] TCAF fit (+§6)</option>
-                  <option value="E">[E] Full strategy (§1–8)</option>
-                </select>
-                <Button
-                  variant="outline"
-                  onClick={() => runStructured()}
-                  disabled={structuredBusy || streaming}
-                  data-testid="button-run-structured"
-                  size="sm"
-                >
-                  {structuredBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
-                  Build from data (no AI)
-                </Button>
-                <span className="text-[11px] text-muted-foreground">Second door — same data, no LLM. Use when AI is down, slow, or you need an auditable backbone.</span>
+              <div className="border-t pt-3 space-y-2" data-testid="structured-door-controls">
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-xs font-semibold uppercase text-muted-foreground">Or — build from data only:</span>
+                  <select
+                    value={scope}
+                    onChange={(e) => setScope(e.target.value as "A" | "B" | "C" | "D" | "E")}
+                    className="text-xs border rounded px-2 py-1 bg-background"
+                    data-testid="select-scope"
+                  >
+                    <option value="A">[A] Situation — §1–4 (default)</option>
+                    <option value="B">[B] Asset map — §1–4</option>
+                    <option value="E">[E] Full analysis — §1–4 + §7 CFIR + §8 RE-AIM</option>
+                    <option value="C">[C] Funding-only — §1–4 + §5</option>
+                    <option value="D">[D] TCAF-fit-only — §1–4 + §6</option>
+                  </select>
+                  <Button
+                    variant="outline"
+                    onClick={() => runStructured()}
+                    disabled={structuredBusy || streaming}
+                    data-testid="button-run-structured"
+                    size="sm"
+                  >
+                    {structuredBusy ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+                    Build from data (no AI)
+                  </Button>
+                </div>
+                <div className="flex flex-wrap items-center gap-3 text-xs">
+                  <label className="flex items-center gap-1.5 cursor-pointer" data-testid="toggle-include-funding">
+                    <input
+                      type="checkbox"
+                      checked={includeFunding}
+                      onChange={(e) => setIncludeFunding(e.target.checked)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <span>Add funding (§5 grants)</span>
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer" data-testid="toggle-include-tcaf">
+                    <input
+                      type="checkbox"
+                      checked={includeTcaf}
+                      onChange={(e) => setIncludeTcaf(e.target.checked)}
+                      className="h-3.5 w-3.5"
+                    />
+                    <span>Add TCAF fit (§6)</span>
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-muted-foreground">Audience:</span>
+                    <Input
+                      value={audience}
+                      onChange={(e) => setAudience(e.target.value)}
+                      placeholder="e.g. United Way of Williamson County"
+                      className="h-7 text-xs w-64"
+                      data-testid="input-audience"
+                    />
+                  </div>
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Default = community-and-audience first. Funding (§5) and TCAF fit (§6) are OFF until you turn them on. The briefing is here to inform the audience, not pitch them.
+                </p>
               </div>
 
               {/* Parsed locations editor */}

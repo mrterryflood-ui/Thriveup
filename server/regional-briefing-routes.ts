@@ -358,12 +358,17 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
 
 function buildSystemPrompt(multi: boolean): string {
   const lines = [
-    "You are TCAF's Regional Briefing AI. You write a DEEP, INTERCONNECTED data story — the kind of briefing where, when someone finishes reading, they actually understand the PLACE: its geography, history, economy, demographic shifts, civic anatomy, and the live forces pressing on it right now. Not a section dump. A woven narrative.",
+    "You are a Regional Briefing AI built INSIDE TCAF, but the briefing is NOT a TCAF pitch. You write a DEEP, INTERCONNECTED data story — the kind of briefing where, when someone finishes reading, they actually understand the PLACE: its geography, history, economy, demographic shifts, civic anatomy, and the live forces pressing on it right now. Not a section dump. A woven narrative. Service to the community + the named audience comes first; TCAF appears only when the user has explicitly invited it in.",
+    "",
+    "🚨 PARTNER-AUDIENCE RULE (READ THIS FIRST, EVERY TIME).",
+    "When the audience is anyone other than 'TCAF internal' — a partner organization, a coalition, a funder, a city, an ISD, a hospital, an FQHC, a community group — TCAF is a GUEST. The audience is the lead. The briefing's job is to make THE AUDIENCE smarter about the community and the implementation logic, so THE AUDIENCE can act. This is not a fundraising tool. This is not a capability menu. Do NOT close with 'here's what TCAF can offer.' Do NOT pivot to grants. Do NOT enumerate the platform list. If a partner has offered TCAF a seat at their table, they don't need to be sold to — they need to be informed.",
+    "",
+    "Default posture: 'You (the audience) lead. Here is what your community is already doing. Here is what your levers are. Here is how to act with fidelity. We're here if you want help on a specific thing — ask.'",
     "",
     "🎯 SCOPE CONTROL — READ THE USER'S QUESTION FIRST.",
     "The user controls what they get. Your job is to give them ONLY what they asked for. Do not append grants, TCAF solutions, implementation plans, or outcomes unless they explicitly asked for them. More is NOT better — staying in scope is the job.",
     "",
-    "Read the USER QUESTION carefully and pick a scope. When in doubt, pick the smallest scope that honestly answers the question and offer the larger scopes at the end as a one-line menu (e.g., \"Want me to add the funding picture, the asset/solution map, or a sequenced plan? Just ask.\"). If the user names a third-party audience (United Way, a foundation, a city, a coalition), frame the WHOLE briefing through THAT audience's lens — do not center TCAF unless they tell you to.",
+    "Read the USER QUESTION carefully and pick a scope. When in doubt, pick the smallest scope that honestly answers the question and offer the larger scopes at the end as a one-line menu (e.g., \"Want me to go deeper on the implementation logic (CFIR), the outcomes scorecard (RE-AIM), or the asset map? Just ask.\"). Notice that the default offer-line should NOT mention funding or TCAF capabilities — those are only on the menu if the user invited them. If the user names a third-party audience (United Way, a foundation, a city, a coalition), frame the WHOLE briefing through THAT audience's lens — do not center TCAF unless they tell you to.",
     "",
     "SCOPE MENU — produce ONLY the sections that match the user's intent:",
     "",
@@ -376,11 +381,13 @@ function buildSystemPrompt(multi: boolean): string {
     "[C] FUNDING PICTURE (when user says 'what grants', 'who funds this', 'show me the money', 'funding picture')",
     "    → Produce sections 1, 2, 3, 4, plus section 5 (grants). Do NOT add TCAF solutions or plan unless asked.",
     "",
-    "[D] TCAF FIT (when user explicitly says 'how would TCAF help', 'what can we offer', 'where do we plug in', or names a TCAF platform)",
-    "    → Produce sections 1, 2, 3, 4, plus section 6 (TCAF solutions). Be honest about what already exists in the ecosystem and where TCAF is genuinely additive vs. duplicative.",
+    "[D] TCAF FIT (ONLY when user EXPLICITLY says 'how would TCAF help', 'what can we offer', 'where do we plug in', 'show me TCAF capabilities', or names a TCAF platform by name). Do NOT pick [D] just because the audience is a potential funder or partner — those are still [A] until the user explicitly invites TCAF in.",
+    "    → Produce sections 1, 2, 3, 4, plus section 6 (TCAF as a possible contributor — NOT a pitch). Be honest about what already exists in the ecosystem and where TCAF is genuinely additive vs. duplicative. The audience is in charge; TCAF is on offer only as a contributor.",
     "",
-    "[E] FULL STRATEGY (when user says 'build me a plan', 'full briefing', 'I need to pitch this', 'give me everything', 'implementation', 'what should we do')",
-    "    → Produce all sections 1–8 (+9 if multi, +10, +11).",
+    "[E] FULL ANALYSIS (when user says 'build me a plan', 'full briefing', 'implementation plan', 'what should we do', 'how do we execute', 'CFIR / RE-AIM', 'the whole thing')",
+    "    → Produce sections 1, 2, 3, 4, 7 (CFIR implementation), 8 (RE-AIM outcomes). §7 and §8 are MANDATORY in [E] — if you skip them, you've failed the scope.",
+    "    → DO NOT include §5 (funding) unless the user ALSO explicitly asked for funding. DO NOT include §6 (TCAF) unless the user ALSO explicitly asked 'how does TCAF fit' or named TCAF capabilities. A partner asking for a 'full plan' is asking for the PLAN, not a TCAF brochure or a grant list.",
+    "    → If the user explicitly mixed intents (e.g., 'full plan AND show me the grants', 'full plan AND how TCAF plugs in'), THEN add §5 and/or §6 accordingly.",
     "",
     "If the user's question mixes intents (e.g., 'understand the situation AND show me the grants'), combine the matching sections only.",
     "",
@@ -411,9 +418,10 @@ function buildSystemPrompt(multi: boolean): string {
     "    For EACH location, the real human anatomy by ZIP / county. Not a list — a map of who-touches-whom: county judge → commissioners court → ISD superintendents → MHMR/LMHA director → FQHC CMOs → hospital district CEO → workforce board director → DA + sheriff + chief PD/PO → faith-network anchors → philanthropy program officers → grassroots conveners. Mark [verify] for any name you're not 95% sure of. Add a one-line note on each: what they actually control, and what they're known to care about right now.",
     "## 5. Funding picture (situated — only if in scope)",
     "    AUDIENCE RULE: when a third-party audience is named (United Way, foundation, city, coalition), the grants you surface in this section must be ones THE AUDIENCE could realistically pursue, recommend, or co-fund — NOT grants TCAF or ecosystem platforms would chase for themselves. If the GRANT CANDIDATES block contains grants only TCAF could apply for, say so honestly and offer to surface them in a follow-up. Then for each grant: title, agency, $, deadline, fit, link. Situate each one: which ZIP / which stakeholder / which problem from §2 does it solve? Group by location if multi.",
-    "## 6. TCAF as backbone for the audience (only if in scope)",
-    "    HEADING CHANGES BY AUDIENCE: when a third-party audience is named (United Way, a foundation, a city, a coalition), the heading is 'TCAF as backbone for [Audience]' and the section answers ONE question: which TCAF capabilities can [Audience] use to enact the decisions [Audience] is about to make. Do NOT pitch TCAF as the lead. Do NOT enumerate every capability. Pick the 2–4 that the audience's convening actually needs, name the stakeholder + ZIP + problem each one activates against, and be explicit about which problems are ALREADY covered by the existing community adapters (R&R) or the existing ecosystem — and therefore do NOT need TCAF. Honest fit > forced fit.",
-    "## 7. Implementation plan by ZIP — CFIR-framed (only if in scope)",
+    "## 6. TCAF as a possible contributor (ONLY if user explicitly invited — default = OMIT this section entirely)",
+    "    DEFAULT FOR THIRD-PARTY AUDIENCES = DO NOT WRITE THIS SECTION. The audience did not ask for a TCAF pitch. If they wanted one, they would have said 'how can TCAF plug in' or 'where do we fit'. Without that explicit invitation, SKIP §6 even in scope [E].",
+    "    IF (and only if) the user explicitly invited TCAF capabilities: heading is 'TCAF as a possible contributor for [Audience]'. Answer ONE question: which 1–3 TCAF capabilities (not all 15) would [Audience] genuinely benefit from for ONE specific decision they're making. Be explicit about what's ALREADY covered by community adapters (R&R) or existing ecosystem assets — and therefore does NOT need TCAF. Lead with what they don't need from us. Close with: 'If any of these are useful, here's who to talk to. If not, no offense taken — the work belongs to the community.'",
+    "## 7. Implementation plan by ZIP — CFIR-framed (MANDATORY in scope [E] — if you skip §7 in scope [E] you have failed)",
     "    For EACH location's primary ZIP(s), you MUST produce this exact structure (use these H3 headings literally):",
     "    ### CFIR determinants for this ZIP",
     "        Walk the five CFIR domains briefly and concretely: (1) Intervention characteristics (what the R&R-backed move actually is and why it's adaptable), (2) Outer setting (policy, funding, community readiness — name the specific Texas/county policy levers), (3) Inner setting (which institution houses the convening — ISD? FQHC? County HCHS? — its culture and constraints), (4) Individuals (the named stakeholders from §4 whose buy-in is required), (5) Process (what convening / planning / piloting / scaling steps fit here). Flag which determinants are FAVORABLE vs. RISKY in this ZIP.",
@@ -421,7 +429,7 @@ function buildSystemPrompt(multi: boolean): string {
     "        Bulleted. Name each one in plain language. These are the dignity-clause guardrails — usually about not displacing the existing adapters.",
     "    ### Sequenced rollout (30 / 60 / 90 day)",
     "        4–8 ordered steps. Each step names (a) the owner, (b) the stakeholder convening from §4, (c) the TCAF backbone capability from §6 (if any — be honest if none is needed), (d) the funding source from §5, (e) the 30/60/90-day milestone.",
-    "## 8. Measurable outcomes per stakeholder per ZIP — RE-AIM scorecard (only if in scope)",
+    "## 8. Measurable outcomes per stakeholder per ZIP — RE-AIM scorecard (MANDATORY in scope [E] — if you skip §8 in scope [E] you have failed)",
     "    For EACH location, you MUST produce this exact structure (use these H3 headings literally):",
     "    ### RE-AIM scorecard for this ZIP",
     "        Walk the five RE-AIM dimensions concretely: (1) Reach — who actually gets served, by ZIP, baseline → 12mo target, with denominator (e.g., '450 of 1,340 children needing care in 78642'). (2) Effectiveness — the change in the metric that matters (waitlist time, ECI referral rate, credentialed-FFN count, parent-employment retention). (3) Adoption — which providers / institutions / community adapters joined, named. (4) Implementation — fidelity score: of the fidelity-critical actions in §7, how many are being executed as designed; what's slipping. (5) Maintenance — the year-2 sustainability plan (funding, governance, who carries it after pilot $ ends).",
@@ -449,12 +457,22 @@ function buildSystemPrompt(multi: boolean): string {
     "- Plain language. No jargon walls. The reader is a smart, busy practitioner — not an academic.",
     "- If section 6 is in scope: when a third-party audience is named (United Way, foundation, city, coalition), pick only the 2–4 TCAF capabilities that audience actually needs and be explicit about what's already covered by R&R adapters or the existing ecosystem. Only when audience is 'TCAF internal' AND the user explicitly asks for a full inventory may you enumerate every capability.",
     "- If section 8 is in scope, outcomes must be measurable AND attributable to a named stakeholder AND tied to a timeframe.",
-    "- End with a single-line offer of the OTHER scopes the user didn't pick (e.g., \"Want the funding picture, the asset map, or a sequenced plan? Just ask.\").",
+    "- End with a single-line offer of the OTHER scopes the user didn't pick, BUT phrase it audience-first, not TCAF-first. Default: \"Want me to go deeper on the implementation logic (CFIR), the outcomes scorecard (RE-AIM), or map the wider ecosystem of who's already doing this work? Just ask.\" Only mention funding or TCAF capabilities in the close-line if the user has already invited them.",
+    "- RECOGNITION-AND-RATIFICATION CLOSE: when the audience is a partner (anyone other than 'TCAF internal'), end the briefing with one short paragraph asking 'what is this community already doing that you (the audience) could ratify and resource?' This is the dignity-clause reflex. It is not a pitch. It hands the action back to the audience.",
   );
   return lines.join("\n");
 }
 
-function blockForLocation(ctx: LocationContext, idx: number): string {
+function blockForLocation(ctx: LocationContext, idx: number, includeGrants: boolean): string {
+  const header = [
+    `=== LOCATION ${idx}: ${ctx.location.label} ===`,
+    `  Region: ${ctx.location.region}${ctx.location.zip ? `  ZIP: ${ctx.location.zip}` : ""}${ctx.location.countyFips ? `  CountyFIPS: ${ctx.location.countyFips}` : ""}`,
+  ];
+  if (!includeGrants) {
+    // Funding not invited — withhold grant rows entirely so the model can't
+    // pivot the briefing into a funding pitch.
+    return [...header, `  GRANT CANDIDATES: withheld (funding not in scope for this question).`].join("\n");
+  }
   const g = ctx.grants.length
     ? ctx.grants
         .map(
@@ -463,35 +481,62 @@ function blockForLocation(ctx: LocationContext, idx: number): string {
         )
         .join("\n")
     : "  (no matching grants — note this honestly)";
-  return [
-    `=== LOCATION ${idx}: ${ctx.location.label} ===`,
-    `  Region: ${ctx.location.region}${ctx.location.zip ? `  ZIP: ${ctx.location.zip}` : ""}${ctx.location.countyFips ? `  CountyFIPS: ${ctx.location.countyFips}` : ""}`,
-    `  GRANT CANDIDATES (${ctx.grants.length}):`,
-    g,
-  ].join("\n");
+  return [...header, `  GRANT CANDIDATES (${ctx.grants.length}):`, g].join("\n");
+}
+
+// Lightweight intent heuristics. These gate whether we even SHOW the model the
+// grants block or the TCAF platforms block. If the user hasn't invited funding
+// or TCAF, we don't even let the model see those rows — that's the only way to
+// stop it from sneaking them back in.
+function hasFundingIntent(q: string): boolean {
+  return /\b(grant|grants|funding|funder|funders|rfp|rfa|nofo|money|dollar|\$|pursue dollars|who pays|who funds|fundraising|capital)\b/i.test(q);
+}
+function hasTcafIntent(q: string): boolean {
+  return /\b(tcaf|how (does|would|can) (we|tcaf|the platform) (help|plug|fit|contribute)|where do we (plug|fit)|what can we offer|our capabilities|our platforms|backbone capabilities)\b/i.test(q);
 }
 
 function buildUserPrompt(contexts: LocationContext[], topic: string, question: string): string {
-  // Platforms are global (TCAF capabilities are the same regardless of location) so render once.
   const platforms = contexts[0]?.platforms ?? [];
-  const platformBlock = platforms.length
-    ? platforms.map((p) => `- ${p.name} (${p.role ?? "n/a"}) — ${p.description ?? "n/a"} — ${p.url ?? "n/a"}`).join("\n")
-    : "(no public-visible platforms loaded)";
+  const wantsFunding = hasFundingIntent(question);
+  const wantsTcaf = hasTcafIntent(question);
 
-  const locsBlock = contexts.map((c, i) => blockForLocation(c, i + 1)).join("\n\n");
+  // GRANT CANDIDATES block: only injected when the user signaled funding intent.
+  // Otherwise the model literally cannot list grants — no source rows to draw from.
+  const locsBlock = contexts.map((c, i) => blockForLocation(c, i + 1, wantsFunding)).join("\n\n");
   const labels = contexts.map((c) => c.location.label).join(" | ");
+
+  // TCAF PLATFORMS block: only injected when the user invited TCAF in.
+  // Otherwise the platforms are invisible to the model, and §6 cannot be written.
+  const tcafBlock = wantsTcaf
+    ? [
+        `=== TCAF ECOSYSTEM PLATFORMS (${platforms.length} public-facing) — the user has explicitly asked about TCAF fit; pick the 1–3 most relevant only ===`,
+        platforms.length
+          ? platforms.map((p) => `- ${p.name} (${p.role ?? "n/a"}) — ${p.description ?? "n/a"} — ${p.url ?? "n/a"}`).join("\n")
+          : "(no public-visible platforms loaded)",
+        "",
+      ].join("\n")
+    : "=== TCAF ECOSYSTEM PLATFORMS: NOT INJECTED — the user did not invite TCAF. §6 is OUT OF SCOPE. Do NOT write §6, do NOT enumerate capabilities, do NOT close with what TCAF can offer. ===";
+
+  const fundingNote = wantsFunding
+    ? `=== FUNDING INTENT: DETECTED — §5 may be written if scope allows. Grants are listed per-location above. ===`
+    : `=== FUNDING INTENT: NOT DETECTED — §5 is OUT OF SCOPE. The grant rows have NOT been injected. Do NOT list grants, do NOT name funders, do NOT close with funding suggestions. If the user wants funding they will ask. ===`;
+
+  // Default fallback question used to be a TCAF/grant sales pitch. Replaced with
+  // a community-and-audience-first ask so the model defaults to service, not selling.
+  const defaultQuestion = "Brief me on this place — geography, demographics, civic anatomy, the live forces pressing on the community right now, who's already doing the work, and what the named audience would need to understand to act with fidelity.";
 
   return [
     `TOPIC: ${topic}`,
     `LOCATIONS (${contexts.length}): ${labels}`,
-    `USER QUESTION: ${question || "Tell me the data story, the stakeholders by ZIP, every grant, every TCAF capability, the implementation plan, and the measurable outcomes I should commit to."}`,
+    `USER QUESTION: ${question || defaultQuestion}`,
     "",
     locsBlock,
     "",
-    `=== TCAF ECOSYSTEM PLATFORMS (${platforms.length} public-facing) — reference pool for §6 only; do NOT force every one in ===`,
-    platformBlock,
+    fundingNote,
     "",
-    "Now produce the briefing per the system prompt. Obey the PRE-FLIGHT ANCHOR (first line, quoted). Obey the chosen scope — producing sections the user didn't ask for is a failure. If a third-party audience is named, frame everything from THEIR seat, not TCAF's. Be specific. Tell the data story.",
+    tcafBlock,
+    "",
+    "Now produce the briefing per the system prompt. Obey the PRE-FLIGHT ANCHOR (first line, quoted). Obey the PARTNER-AUDIENCE RULE — if the audience is anyone other than 'TCAF internal', you are a guest at their table, not a salesperson. Obey the chosen scope — producing sections the user didn't ask for is a failure. Be specific. Tell the data story. Serve the community first.",
   ].join("\n");
 }
 
@@ -506,10 +551,20 @@ function parseScope(raw: unknown): BriefingScope {
   return v === "B" || v === "C" || v === "D" || v === "E" ? (v as BriefingScope) : "A";
 }
 
-function scopeIncludes(scope: BriefingScope, section: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8): boolean {
+// Scope rules for the structured door. Mirrors the AI-door philosophy:
+//   §5 funding ONLY when scope = C (or user-flagged includeFunding).
+//   §6 TCAF   ONLY when scope = D (or user-flagged includeTcaf).
+//   §7/§8 (CFIR/RE-AIM) come with scope E. Scope E intentionally does NOT
+//   include §5 or §6 — a partner asking for the "full plan" is asking for the
+//   plan, not a TCAF brochure or a grant list.
+function scopeIncludes(
+  scope: BriefingScope,
+  section: 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8,
+  flags?: { includeFunding?: boolean; includeTcaf?: boolean },
+): boolean {
   if (section <= 4) return true;
-  if (section === 5) return scope === "C" || scope === "E";
-  if (section === 6) return scope === "D" || scope === "E";
+  if (section === 5) return scope === "C" || !!flags?.includeFunding;
+  if (section === 6) return scope === "D" || !!flags?.includeTcaf;
   return scope === "E"; // 7, 8
 }
 
@@ -556,8 +611,12 @@ function buildStructuredBriefing(args: {
   scope: BriefingScope;
   rpliceByCounty: Map<string, Awaited<ReturnType<typeof loadStructuredRpliceForCounty>>>;
   networkAssessments: Awaited<ReturnType<typeof loadNetworkWideAssessments>>;
+  includeFunding?: boolean;
+  includeTcaf?: boolean;
+  audience?: string | null;
 }): string {
-  const { contexts, topic, scope, rpliceByCounty, networkAssessments } = args;
+  const { contexts, topic, scope, rpliceByCounty, networkAssessments, includeFunding, includeTcaf, audience } = args;
+  const flags = { includeFunding, includeTcaf };
   const lines: string[] = [];
   const audienceLabel = contexts.length > 1 ? `${contexts.length} locations` : contexts[0]?.location.label ?? "United States";
 
@@ -628,24 +687,28 @@ function buildStructuredBriefing(args: {
     lines.push("");
   }
 
-  // §4 Stakeholder ecosystem (TCAF platforms + a structural reminder of who-touches-whom)
-  if (scopeIncludes(scope, 4)) {
-    lines.push("## 4. Stakeholder ecosystem (TCAF platforms in scope)");
-    const platforms = contexts[0]?.platforms ?? [];
-    if (!platforms.length) {
-      lines.push("- _No public-facing TCAF platforms loaded._");
-    } else {
-      for (const p of platforms) {
-        lines.push(`- **${p.name}** — ${p.role ?? "n/a"}${p.description ? ` · ${p.description}` : ""}${p.url ? ` · [${p.url}](${p.url})` : ""}`);
-      }
-    }
+  // §4 Stakeholder ecosystem. The data-only door cannot name local stakeholders
+  // without inventing them, so it is HONEST about that gap. TCAF platforms are
+  // NOT stakeholders for the audience — they live under §6 when invited.
+  if (scopeIncludes(scope, 4, flags)) {
+    lines.push("## 4. Stakeholder ecosystem (named, by ZIP)");
+    lines.push("> _This data-only door does NOT auto-name local stakeholders. Naming the county judge, commissioners court, ISD superintendents, LMHA/MHMR director, FQHC CMOs, hospital district CEO, workforce-board director, DA, sheriff, faith-network anchors, and philanthropy program officers requires verified primary sources for each county. Run the AI briefing on the same locations + topic to get the named map with [verify] tags, or open the county official websites to fill the table below by hand._");
     lines.push("");
-    lines.push("> _Local stakeholders (county judge, ISD superintendents, FQHC CMOs, LMHA director, faith-network anchors, philanthropy program officers) are NOT auto-named here — that requires verified primary sources. The AI briefing names them with a `[verify]` tag; this data-only door does not invent them._");
+    lines.push("| ZIP / County | Role | Who currently holds it | What they control | What they care about |");
+    lines.push("|---|---|---|---|---|");
+    for (const c of contexts) {
+      const where = c.location.zip ? `ZIP ${c.location.zip}` : c.location.region;
+      lines.push(`| ${where} | County Judge | _verify_ | Commissioners Court agenda · county budget · HHS appointments | growth · property tax · workforce |`);
+      lines.push(`| ${where} | ISD Superintendent(s) | _verify_ | Pre-K enrollment · ECI referrals · bond authority | enrollment growth · teacher recruitment |`);
+      lines.push(`| ${where} | LMHA / MHMR Director | _verify_ | crisis response · behavioral-health screening · family-support referrals | unmet psychiatric need · crisis stabilization |`);
+      lines.push(`| ${where} | FQHC CMO(s) | _verify_ | primary care access · sliding-scale fees · behavioral integration | uninsured load · panel size · workforce |`);
+      lines.push(`| ${where} | Philanthropy program officers | _verify_ | grant priorities · convening power · co-funding | measurable community outcomes |`);
+    }
     lines.push("");
   }
 
   // §5 Funding — list grants honestly (already deadline-filtered server-side)
-  if (scopeIncludes(scope, 5)) {
+  if (scopeIncludes(scope, 5, flags)) {
     lines.push("## 5. Funding picture (open grants only)");
     const allGrants = contexts.flatMap((c) => c.grants.map((g) => ({ ...g, locationLabel: c.location.label })));
     if (!allGrants.length) {
@@ -662,22 +725,31 @@ function buildStructuredBriefing(args: {
     lines.push("");
   }
 
-  // §6 TCAF fit — same platform list reframed as "what TCAF brings"
-  if (scopeIncludes(scope, 6)) {
-    lines.push("## 6. TCAF backbone capabilities");
+  // §6 TCAF fit — ONLY when explicitly invited. The audience leads; TCAF
+  // contributes only if asked. We don't lead with what we sell.
+  if (scopeIncludes(scope, 6, flags)) {
+    const who = audience ? audience : "the audience";
+    lines.push(`## 6. TCAF as a possible contributor for ${who}`);
+    lines.push("> _You did not need a pitch — you asked where TCAF could plug in. Here is the honest answer. The lead is yours; we contribute only where you say it helps. Anything you can already do through your existing partners, you should — that's the dignity-clause default._");
+    lines.push("");
     const platforms = contexts[0]?.platforms ?? [];
     if (!platforms.length) {
       lines.push("- _No public-facing TCAF platforms loaded._");
     } else {
+      lines.push("| Platform | What it does | When you'd call us | When you'd skip us |");
+      lines.push("|---|---|---|---|");
       for (const p of platforms) {
-        lines.push(`- **${p.name}** (${p.role ?? "n/a"}) — ${p.description ?? "no description"}${p.url ? ` · [${p.url}](${p.url})` : ""}`);
+        const desc = (p.description ?? "—").replace(/\|/g, "\\|");
+        lines.push(`| **${p.name}** | ${desc} | _you tell us_ | _if your existing partner already covers it_ |`);
       }
     }
+    lines.push("");
+    lines.push("_If any of these are useful, here's who to talk to: Dr. Terry Flood, President — terryflood@thrivingcommunitiesforall.com. If none are, no offense taken — the work belongs to the community._");
     lines.push("");
   }
 
   // §7 Implementation plan — existing RPLICE action plans by county
-  if (scopeIncludes(scope, 7)) {
+  if (scopeIncludes(scope, 7, flags)) {
     lines.push("## 7. Implementation plan (RPLICE action plans on file)");
     let anyPlan = false;
     for (const c of contexts) {
@@ -706,7 +778,7 @@ function buildStructuredBriefing(args: {
   }
 
   // §8 Outcomes — outcome baselines by county
-  if (scopeIncludes(scope, 8)) {
+  if (scopeIncludes(scope, 8, flags)) {
     lines.push("## 8. Measurable outcomes (outcome baselines on file)");
     let anyBase = false;
     for (const c of contexts) {
@@ -1069,6 +1141,9 @@ export function registerRegionalBriefingRoutes(app: Express): void {
         if ("error" in resolved) return res.status(400).json({ error: resolved.error });
         const { locations, topic, question } = resolved;
         const scope = parseScope(req.body?.scope);
+        const includeFunding = req.body?.includeFunding === true;
+        const includeTcaf = req.body?.includeTcaf === true;
+        const audience = typeof req.body?.audience === "string" && req.body.audience.trim() ? String(req.body.audience).trim() : null;
         const contexts = await Promise.all(locations.map((l) => loadLocationContext(l, topic)));
         const countyFipsList = extractCountyFips(locations);
         const rpliceByCounty = new Map<string, Awaited<ReturnType<typeof loadStructuredRpliceForCounty>>>();
@@ -1080,12 +1155,15 @@ export function registerRegionalBriefingRoutes(app: Express): void {
           ),
           loadNetworkWideAssessments(),
         ]);
-        const briefing = buildStructuredBriefing({ contexts, topic, scope, rpliceByCounty, networkAssessments });
+        const briefing = buildStructuredBriefing({ contexts, topic, scope, rpliceByCounty, networkAssessments, includeFunding, includeTcaf, audience });
         res.json({
           source: "structured",
           locations,
           topic,
           scope,
+          includeFunding,
+          includeTcaf,
+          audience,
           question: question || null,
           per_location: contexts.map((c) => ({ location: c.location, grant_count: c.grants.length, grants: c.grants })),
           platforms: contexts[0]?.platforms ?? [],
