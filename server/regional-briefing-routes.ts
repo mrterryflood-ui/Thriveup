@@ -18,7 +18,7 @@
  */
 import type { Express, Request, Response, NextFunction } from "express";
 import { createHash, randomBytes } from "node:crypto";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "./storage";
 import {
   briefingWorkflows,
@@ -96,7 +96,7 @@ async function loadRpliceContextBlock(countyFipsList: string[]): Promise<string>
               status: rpliceActionPlans.status,
             })
             .from(rpliceActionPlans)
-            .where(sql`${rpliceActionPlans.countyFips} = ANY(${countyFipsList})`)
+            .where(inArray(rpliceActionPlans.countyFips, countyFipsList))
             .orderBy(sql`${rpliceActionPlans.updatedAt} DESC NULLS LAST`)
             .limit(8)
         : Promise.resolve([] as Array<{ id: number; regionName: string; countyFips: string; status: string }>),
@@ -110,7 +110,7 @@ async function loadRpliceContextBlock(countyFipsList: string[]): Promise<string>
               status: outcomeBaselines.status,
             })
             .from(outcomeBaselines)
-            .where(sql`${outcomeBaselines.countyFips} = ANY(${countyFipsList})`)
+            .where(inArray(outcomeBaselines.countyFips, countyFipsList))
             .limit(8)
         : Promise.resolve([] as Array<{ id: number; regionName: string; countyFips: string; timelineMonths: number | null; status: string }>),
     ]);
@@ -325,7 +325,7 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
       description: ecosystemPlatforms.description,
     })
     .from(ecosystemPlatforms)
-    .where(sql`${ecosystemPlatforms.publicVisible} = TRUE AND ${ecosystemPlatforms.name} = ANY(${CANONICAL_PUBLIC_15})`)
+    .where(and(eq(ecosystemPlatforms.publicVisible, true), inArray(ecosystemPlatforms.name, CANONICAL_PUBLIC_15)))
     .orderBy(ecosystemPlatforms.name);
   // De-dupe LexiBridge ↔ Talk Your Talk legacy collision (whichever name the row carries, surface once as "Talk Your Talk").
   const seen = new Set<string>();
