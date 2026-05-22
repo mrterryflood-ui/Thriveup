@@ -61,6 +61,12 @@ interface StreamAIResponseParams {
   onChunk: (content: string) => void;
   onDone: () => void;
   onError: (error: Error) => void;
+  // When true, attach Anthropic's server-side web_search tool so Claude can
+  // look up live facts (officeholders, current grant deadlines, primary
+  // sources). Silently ignored by providers that don't support it; logged
+  // when Claude is skipped so callers know retrieval didn't actually happen.
+  enableWebSearch?: boolean;
+  webSearchMaxUses?: number;
 }
 
 let geminiQuotaExhaustedUntil = 0;
@@ -189,18 +195,34 @@ async function streamClaude(params: StreamAIResponseParams): Promise<void> {
     chatMessages.unshift({ role: "user", content: chatMessages.length > 0 ? "Continue the conversation." : "Hello" });
   }
 
+  const webSearchTool = params.enableWebSearch
+    ? [{ type: "web_search_20250305", name: "web_search", max_uses: params.webSearchMaxUses ?? 8 }]
+    : undefined;
+
   const stream = client.messages.stream({
     model: "claude-haiku-4-5",
     max_tokens: params.maxTokens || 8192,
     ...(systemPrompt ? { system: systemPrompt } : {}),
     messages: chatMessages,
+    ...(webSearchTool ? { tools: webSearchTool as any } : {}),
   });
 
   for await (const event of stream) {
-    if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-      const text = event.delta.text;
-      if (text) {
-        params.onChunk(text);
+    if (event.type === "content_block_delta") {
+      const delta: any = event.delta;
+      if (delta.type === "text_delta" && delta.text) {
+        params.onChunk(delta.text);
+      } else if (delta.type === "citations_delta" && delta.citation) {
+        // Surface citations inline so the markdown the user sees actually
+        // carries the URL Claude consulted. Only emit a markdown link when
+        // we have a real URL — document_title and similar metadata would
+        // produce broken/malformed links and weaken the "primary-source-
+        // cited" guarantee §4 makes.
+        const c: any = delta.citation;
+        const url: string | undefined = c.url || c.source_url;
+        if (typeof url === "string" && /^https?:\/\//i.test(url)) {
+          params.onChunk(` [↗](${url})`);
+        }
       }
     }
   }
@@ -365,12 +387,18 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
   throw new Error("All AI providers failed");
 }
 
-export async function generateAIResponse(messages: Array<{ role: string; content: string }>, maxTokens?: number): Promise<string> {
+export async function generateAIResponse(
+  messages: Array<{ role: string; content: string }>,
+  maxTokens?: number,
+  options?: { enableWebSearch?: boolean; webSearchMaxUses?: number },
+): Promise<string> {
   return new Promise((resolve, reject) => {
     let result = "";
     streamAIResponse({
       messages,
       maxTokens: maxTokens || 2000,
+      enableWebSearch: options?.enableWebSearch,
+      webSearchMaxUses: options?.webSearchMaxUses,
       onChunk: (content: string) => { result += content; },
       onDone: () => resolve(result),
       onError: (error: Error) => reject(error),
@@ -531,12 +559,15 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
       };
 
       if (provider === "gemini") {
+        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but Gemini path has no web_search wired — answer will rely on training-cutoff knowledge.");
         await streamGemini(wrappedParams);
       } else if (provider === "claude") {
         await streamClaude(wrappedParams);
       } else if (provider === "deepseek-r1") {
+        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but DeepSeek path has no web_search wired — answer will rely on training-cutoff knowledge.");
         await streamDeepSeekR1(wrappedParams);
       } else {
+        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but OpenAI-family path has no web_search wired — answer will rely on training-cutoff knowledge.");
         await streamOpenAI(wrappedParams, provider);
       }
 

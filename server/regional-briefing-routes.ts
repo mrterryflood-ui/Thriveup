@@ -356,7 +356,7 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
   };
 }
 
-function buildSystemPrompt(multi: boolean): string {
+function buildSystemPrompt(multi: boolean, webSearchEnabled: boolean = false): string {
   const lines = [
     "You are a Regional Briefing AI built INSIDE TCAF, but the briefing is NOT a TCAF pitch. You write a DEEP, INTERCONNECTED data story — the kind of briefing where, when someone finishes reading, they actually understand the PLACE: its geography, history, economy, demographic shifts, civic anatomy, and the live forces pressing on it right now. Not a section dump. A woven narrative. Service to the community + the named audience comes first; TCAF appears only when the user has explicitly invited it in.",
     "",
@@ -415,7 +415,10 @@ function buildSystemPrompt(multi: boolean): string {
     "## 3. Verifiable data (primary sources)",
     "    Two-column treatment: what numbers you HAVE in this context vs. what needs a primary-source pull (Census ACS, CDC PLACES, ATSDR SVI, FBI CDE, TEA AEIS, HHSC, state portals, TCAF Corridor Chainweb). Cite source name + URL when possible. Flag conflicts.",
     "## 4. The stakeholder ecosystem (named, by ZIP)",
-    "    For EACH location, the real human anatomy by ZIP / county. Not a list — a map of who-touches-whom: county judge → commissioners court → ISD superintendents → MHMR/LMHA director → FQHC CMOs → hospital district CEO → workforce board director → DA + sheriff + chief PD/PO → faith-network anchors → philanthropy program officers → grassroots conveners. Mark [verify] for any name you're not 95% sure of. Add a one-line note on each: what they actually control, and what they're known to care about right now.",
+    "    For EACH location, the real human anatomy by ZIP / county. Not a list — a map of who-touches-whom: county judge → commissioners court → ISD superintendents → MHMR/LMHA director → FQHC CMOs → hospital district CEO → workforce board director → DA + sheriff + chief PD/PO → faith-network anchors → philanthropy program officers → grassroots conveners. Add a one-line note on each: what they actually control, and what they're known to care about right now.",
+    webSearchEnabled
+      ? "    🔎 WEB-RETRIEVAL RULE FOR §4 (the web_search tool IS attached on this call). You MUST use web_search to look up the current officeholder for each named role from authoritative sources (the official county / city / ISD / agency / hospital-district / FQHC / workforce-board / community-foundation website, the Texas Secretary of State, the relevant state agency). When you have a verified name from a primary source, write it inline followed by the source URL in markdown — e.g., 'County Judge: Steven Snell (Williamson County, [wilcotx.gov](https://www.wilcotx.gov/...))'. Do NOT emit '[verify current officeholder]' placeholders. Do NOT guess. If web_search comes back empty or only finds non-authoritative sources for a role, write 'role: not resolved — pull from <best official URL you can name>' and move on. Citing a primary URL is the deliverable; an unsourced name is worse than no name."
+      : "    ⚠️ WEB-RETRIEVAL RULE FOR §4 (web_search is NOT attached on this call). Do not pretend to have looked anyone up. For each named role, either (a) name an officeholder you are confident about from training-cutoff knowledge AND include 'verify against <official URL>' so the reader knows to confirm, or (b) write 'role: name not in scope without live retrieval — pull from <best official URL>'. Do NOT bare-assert a name without a verify pointer. The user should re-run this briefing on the streaming endpoint for cited names.",
     "## 5. Funding picture (situated — only if in scope)",
     "    AUDIENCE RULE: when a third-party audience is named (United Way, foundation, city, coalition), the grants you surface in this section must be ones THE AUDIENCE could realistically pursue, recommend, or co-fund — NOT grants TCAF or ecosystem platforms would chase for themselves. If the GRANT CANDIDATES block contains grants only TCAF could apply for, say so honestly and offer to surface them in a follow-up. Then for each grant: title, agency, $, deadline, fit, link. Situate each one: which ZIP / which stakeholder / which problem from §2 does it solve? Group by location if multi.",
     "## 6. TCAF as a possible contributor (ONLY if user explicitly invited — default = OMIT this section entirely)",
@@ -451,7 +454,9 @@ function buildSystemPrompt(multi: boolean): string {
     "RULES (non-negotiable, every scope):",
     "- STAY IN SCOPE. Producing extra sections the user didn't ask for is a failure, not a bonus.",
     "- Never invent grant titles, funder names, dollar amounts, deadlines, IDs, or stats. Use only the GRANT CANDIDATES + PLATFORMS blocks plus widely-known public facts. When unsure, mark '[needs primary-source pull]'.",
-    "- Never invent stakeholder names. If you don't know the current county judge / superintendent / LMHA director, write 'the [role] (verify current officeholder)'.",
+    webSearchEnabled
+      ? "- Never invent stakeholder names. The web_search tool is your verification path — use it on §4 and on any other section where a current officeholder, current deadline, current dollar amount, or current contact is being named. If web_search cannot return an authoritative primary source, write 'not resolved — pull from <best official URL>' rather than guessing. Unsourced names are a hard failure."
+      : "- Never invent stakeholder names. With no live web retrieval on this call, any name MUST be accompanied by a 'verify against <official URL>' pointer. Unsourced bare-asserted names are a hard failure.",
     "- 'President' not 'CEO' for Dr. Flood. Institutional email only: terryflood@thrivingcommunitiesforall.com.",
     "- If ANY location touches the City of Austin, FLAG that Meredith Sisnett (City employee) cannot be on any City-of-Austin pass-through.",
     "- Plain language. No jargon walls. The reader is a smart, busy practitioner — not an academic.",
@@ -692,7 +697,7 @@ function buildStructuredBriefing(args: {
   // NOT stakeholders for the audience — they live under §6 when invited.
   if (scopeIncludes(scope, 4, flags)) {
     lines.push("## 4. Stakeholder ecosystem (named, by ZIP)");
-    lines.push("> _This data-only door does NOT auto-name local stakeholders. Naming the county judge, commissioners court, ISD superintendents, LMHA/MHMR director, FQHC CMOs, hospital district CEO, workforce-board director, DA, sheriff, faith-network anchors, and philanthropy program officers requires verified primary sources for each county. Run the AI briefing on the same locations + topic to get the named map with [verify] tags, or open the county official websites to fill the table below by hand._");
+    lines.push("> _This data-only door does NOT auto-name local stakeholders. **Use the AI briefing door (same locations + topic) — it is wired to Anthropic web_search and will return verified, primary-source-cited names for the county judge, commissioners court, ISD superintendents, LMHA/MHMR director, FQHC CMOs, hospital district CEO, workforce-board director, DA, sheriff, faith-network anchors, and philanthropy program officers.** The skeleton table below is here only so the data door still parses without AI — you are NOT expected to fill it in by hand._");
     lines.push("");
     lines.push("| ZIP / County | Role | Who currently holds it | What they control | What they care about |");
     lines.push("|---|---|---|---|---|");
@@ -904,11 +909,12 @@ export function registerRegionalBriefingRoutes(app: Express): void {
           [
             {
               role: "system",
-              content: wrapWithRpliceLayer(buildSystemPrompt(locations.length > 1), rpliceBlock),
+              content: wrapWithRpliceLayer(buildSystemPrompt(locations.length > 1, true), rpliceBlock),
             },
             { role: "user", content: buildUserPrompt(contexts, topic, question) },
           ],
           16000,
+          { enableWebSearch: true, webSearchMaxUses: 12 },
         );
         res.json({
           locations,
@@ -971,11 +977,17 @@ export function registerRegionalBriefingRoutes(app: Express): void {
           messages: [
             {
               role: "system",
-              content: wrapWithRpliceLayer(buildSystemPrompt(locations.length > 1), rpliceBlock),
+              content: wrapWithRpliceLayer(buildSystemPrompt(locations.length > 1, true), rpliceBlock),
             },
             { role: "user", content: buildUserPrompt(contexts, topic, question) },
           ],
           maxTokens: 16000,
+          // Live web retrieval is required for §4 named stakeholders and for
+          // verifying any current officeholder / deadline / contact named
+          // elsewhere. This makes the AI door the source-of-truth path for
+          // cited facts, so the user never has to fill in §4 by hand.
+          enableWebSearch: true,
+          webSearchMaxUses: 12,
           onChunk: (content: string) => {
             if (!clientDisconnected) res.write(`data: ${JSON.stringify({ content })}\n\n`);
           },
