@@ -84,7 +84,8 @@ export default function RegionalBriefingPage() {
   const [copied, setCopied] = useState(false);
   const [followupQ, setFollowupQ] = useState("");
   const [followupBusy, setFollowupBusy] = useState(false);
-  const [followups, setFollowups] = useState<Array<{ q: string; a: string }>>([]);
+  const [followups, setFollowups] = useState<Array<{ q: string; a: string; savedPlanId?: number }>>([]);
+  const [savingPlanIdx, setSavingPlanIdx] = useState<number | null>(null);
 
   async function copyBriefing() {
     if (!briefing) return;
@@ -110,8 +111,9 @@ export default function RegionalBriefingPage() {
       const res = await apiRequest("POST", "/api/regional-briefing/followup", {
         question: q,
         priorBriefing: briefing,
+        locations, // gives backend the county FIPS list so it can pull RPLICE context
       });
-      const data: { answer: string } = await res.json();
+      const data: { answer: string; rpliceWired?: boolean } = await res.json();
       setFollowups((prev) => [...prev, { q: displayLabel ?? q, a: data.answer }]);
       if (!overrideQ) setFollowupQ("");
     } catch (err) {
@@ -119,6 +121,39 @@ export default function RegionalBriefingPage() {
       toast({ title: "Follow-up failed", description: msg, variant: "destructive" });
     } finally {
       setFollowupBusy(false);
+    }
+  }
+
+  async function saveAsActionPlan(idx: number) {
+    const f = followups[idx];
+    if (!f) return;
+    if (locations.length === 0 || !locations.some((l) => l.countyFips)) {
+      toast({
+        title: "Need a county to save",
+        description: "Add or parse a location with a county FIPS before saving as a RPLICE action plan.",
+        variant: "destructive",
+      });
+      return;
+    }
+    setSavingPlanIdx(idx);
+    try {
+      const res = await apiRequest("POST", "/api/regional-briefing/save-action-plan", {
+        planText: f.a,
+        sourceQuestion: f.q,
+        topic,
+        locations,
+      });
+      const data: { id: number; regionName: string; countyFips: string; viewUrl: string; message: string } = await res.json();
+      setFollowups((prev) => prev.map((x, i) => (i === idx ? { ...x, savedPlanId: data.id } : x)));
+      toast({
+        title: `Saved as RPLICE action plan #${data.id}`,
+        description: data.message,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Save failed";
+      toast({ title: "Save failed", description: msg, variant: "destructive" });
+    } finally {
+      setSavingPlanIdx(null);
     }
   }
 
@@ -535,6 +570,49 @@ export default function RegionalBriefingPage() {
                           <div className="text-sm font-medium">{f.q}</div>
                           <div className="text-xs font-medium text-muted-foreground pt-1">Answer:</div>
                           <pre className="whitespace-pre-wrap text-sm leading-6 font-sans select-text">{f.a}</pre>
+                          <div className="flex flex-wrap gap-2 pt-1">
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-7 text-[11px]"
+                              onClick={() => {
+                                navigator.clipboard.writeText(f.a).then(
+                                  () => toast({ title: "Answer copied" }),
+                                  () => toast({ title: "Copy failed — long-press to select", variant: "destructive" }),
+                                );
+                              }}
+                              data-testid={`button-copy-followup-${i}`}
+                            >
+                              <Copy className="h-3 w-3 mr-1" /> Copy answer
+                            </Button>
+                            {f.savedPlanId ? (
+                              <a
+                                href="/rplice-tools"
+                                className="text-[11px] inline-flex items-center gap-1 px-2 py-1 rounded border border-primary/40 bg-primary/5 hover:bg-primary/10"
+                                data-testid={`link-saved-plan-${i}`}
+                              >
+                                <Check className="h-3 w-3" /> Saved as RPLICE plan #{f.savedPlanId} — open in /rplice-tools
+                                <ExternalLink className="h-3 w-3" />
+                              </a>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-[11px]"
+                                onClick={() => saveAsActionPlan(i)}
+                                disabled={savingPlanIdx === i || locations.length === 0}
+                                data-testid={`button-save-plan-${i}`}
+                                title={locations.length === 0 ? "Parse a location first to enable saving" : "Save this answer as a tracked RPLICE action plan"}
+                              >
+                                {savingPlanIdx === i ? (
+                                  <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                                ) : (
+                                  <Database className="h-3 w-3 mr-1" />
+                                )}
+                                Save as RPLICE action plan
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>

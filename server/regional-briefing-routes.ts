@@ -20,7 +20,14 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createHash, randomBytes } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "./storage";
-import { briefingWorkflows, ecosystemPlatforms, grantOpportunities } from "@shared/schema";
+import {
+  briefingWorkflows,
+  ecosystemPlatforms,
+  grantOpportunities,
+  rpliceAssessments,
+  rpliceActionPlans,
+  outcomeBaselines,
+} from "@shared/schema";
 import { generateAIJSON, generateAIResponse, streamAIResponse } from "./ai-provider";
 
 const MAX_LEN = 2000;
@@ -505,6 +512,9 @@ export function registerRegionalBriefingRoutes(app: Express): void {
   );
 
   // ── Follow-up question against the just-produced briefing ─────────────────
+  // Now ALSO pulls RPLICE assessments + action plans + outcome baselines tied
+  // to the briefing's counties, so the AI sees the implementation-science
+  // scaffolding (CFIR / RE-AIM / fidelity / prior plans) — not just grants.
   app.post(
     "/api/regional-briefing/followup",
     requireSignedIn,
@@ -516,13 +526,103 @@ export function registerRegionalBriefingRoutes(app: Express): void {
         if (!question) return res.status(400).json({ error: "question is required" });
         if (!priorBriefing) return res.status(400).json({ error: "priorBriefing is required" });
 
+        // Optional locations: used to scope RPLICE context to relevant counties
+        const inputLocations: BriefingLocation[] = Array.isArray(req.body?.locations)
+          ? (req.body.locations as BriefingLocation[]).slice(0, MAX_LOCATIONS)
+          : [];
+        const countyFipsList = inputLocations
+          .map((l) => l?.countyFips)
+          .filter((f): f is string => typeof f === "string" && /^\d{5}$/.test(f));
+        const regionNames = inputLocations
+          .map((l) => l?.region || l?.label)
+          .filter((r): r is string => typeof r === "string" && r.length > 0);
+
+        // Pull RPLICE context (best-effort; never block the follow-up if it fails)
+        let rpliceContextBlock = "";
+        try {
+          const [recentAssessments, relevantPlans, relevantBaselines] = await Promise.all([
+            db
+              .select({
+                id: rpliceAssessments.id,
+                type: rpliceAssessments.assessmentType,
+                programName: rpliceAssessments.programName,
+                score: rpliceAssessments.score,
+                status: rpliceAssessments.status,
+                updatedAt: rpliceAssessments.updatedAt,
+              })
+              .from(rpliceAssessments)
+              .orderBy(sql`${rpliceAssessments.updatedAt} DESC NULLS LAST`)
+              .limit(8),
+            countyFipsList.length > 0
+              ? db
+                  .select({
+                    id: rpliceActionPlans.id,
+                    regionName: rpliceActionPlans.regionName,
+                    countyFips: rpliceActionPlans.countyFips,
+                    status: rpliceActionPlans.status,
+                    updatedAt: rpliceActionPlans.updatedAt,
+                  })
+                  .from(rpliceActionPlans)
+                  .where(sql`${rpliceActionPlans.countyFips} = ANY(${countyFipsList})`)
+                  .orderBy(sql`${rpliceActionPlans.updatedAt} DESC NULLS LAST`)
+                  .limit(8)
+              : Promise.resolve([] as Array<{ id: number; regionName: string; countyFips: string; status: string; updatedAt: Date | null }>),
+            countyFipsList.length > 0
+              ? db
+                  .select({
+                    id: outcomeBaselines.id,
+                    regionName: outcomeBaselines.regionName,
+                    countyFips: outcomeBaselines.countyFips,
+                    timelineMonths: outcomeBaselines.timelineMonths,
+                    status: outcomeBaselines.status,
+                  })
+                  .from(outcomeBaselines)
+                  .where(sql`${outcomeBaselines.countyFips} = ANY(${countyFipsList})`)
+                  .limit(8)
+              : Promise.resolve([] as Array<{ id: number; regionName: string; countyFips: string; timelineMonths: number | null; status: string }>),
+          ]);
+
+          const lines: string[] = [];
+          if (recentAssessments.length > 0) {
+            lines.push("Recent RPLICE assessments (network-wide, most recent first):");
+            for (const a of recentAssessments) {
+              lines.push(
+                `- [${a.type}] ${a.programName} — status=${a.status}${a.score != null ? `, score=${a.score}` : ""}`,
+              );
+            }
+          }
+          if (relevantPlans.length > 0) {
+            lines.push("");
+            lines.push("Existing RPLICE action plans in this region (do NOT duplicate; build on or supersede):");
+            for (const p of relevantPlans) {
+              lines.push(`- #${p.id} ${p.regionName} (FIPS ${p.countyFips}) — status=${p.status}`);
+            }
+          }
+          if (relevantBaselines.length > 0) {
+            lines.push("");
+            lines.push("Outcome baselines already tracked in this region:");
+            for (const b of relevantBaselines) {
+              lines.push(`- #${b.id} ${b.regionName} (FIPS ${b.countyFips}) — ${b.timelineMonths ?? 12}mo timeline, status=${b.status}`);
+            }
+          }
+          if (lines.length === 0) {
+            lines.push("No RPLICE assessments, action plans, or outcome baselines found for these counties yet.");
+            lines.push("If the user asks for an implementation plan, propose creating: (1) a CFIR assessment, (2) a RE-AIM scorecard, and (3) an outcome-baseline row — and note these can be saved via /rplice-tools.");
+          }
+          rpliceContextBlock = lines.join("\n");
+        } catch (rpliceErr) {
+          console.warn("[regional-briefing] RPLICE context fetch failed (continuing without):", rpliceErr);
+          rpliceContextBlock = "RPLICE context unavailable for this request.";
+        }
+
         const sys = [
           "You are TCAF's Regional Briefing AI in FOLLOW-UP mode. The user already received a full briefing (below). They now have ONE specific question about it.",
           "",
           "RULES:",
           "- Answer ONLY the user's specific question. Do not re-summarize the whole briefing.",
           "- Ground your answer in the prior briefing first. If they ask about something the briefing covered, quote or reference that section.",
-          "- If the question goes beyond what the briefing covered, say plainly what you'd need to look up next (Census ACS, CDC PLACES, state portal, etc.) and mark unverified claims '[needs primary-source pull]'.",
+          "- If the question is about implementation, sequencing, fidelity, or measurement, USE the RPLICE context below — CFIR for determinants, RE-AIM for outcomes (Reach / Effectiveness / Adoption / Implementation / Maintenance), fidelity checklists for delivery quality, and named existing action plans so we build on them rather than duplicating.",
+          "- If the question goes beyond what the briefing or RPLICE context covered, say plainly what you'd need to look up next (Census ACS, CDC PLACES, state portal, etc.) and mark unverified claims '[needs primary-source pull]'.",
           "- Never invent stakeholder names, dollar amounts, deadlines, or stats. If unsure, say so.",
           "- Plain language. Short. The user is a smart, busy practitioner mid-conversation.",
           "- 'President' not 'CEO' for Dr. Flood. If City of Austin is involved, remember Meredith Sisnett (City employee) COI flag.",
@@ -531,6 +631,10 @@ export function registerRegionalBriefingRoutes(app: Express): void {
         const user = [
           "=== PRIOR BRIEFING (what you produced earlier) ===",
           priorBriefing,
+          "",
+          "=== RPLICE CONTEXT (implementation-science scaffolding for these counties) ===",
+          rpliceContextBlock,
+          regionNames.length > 0 ? `\nRegions in scope: ${regionNames.join(", ")}` : "",
           "",
           "=== USER'S FOLLOW-UP QUESTION ===",
           question,
@@ -543,10 +647,65 @@ export function registerRegionalBriefingRoutes(app: Express): void {
           ],
           1500,
         );
-        res.json({ answer });
+        res.json({ answer, rpliceWired: true });
       } catch (err) {
         console.error("[regional-briefing] followup failed:", err);
         res.status(500).json({ error: "Follow-up failed" });
+      }
+    },
+  );
+
+  // ── Save a follow-up answer as a tracked RPLICE action plan ───────────────
+  app.post(
+    "/api/regional-briefing/save-action-plan",
+    requireSignedIn,
+    rateLimit({ keyPrefix: "rb-save-plan", max: 30, windowMs: 10 * 60_000 }),
+    async (req: Request, res: Response) => {
+      try {
+        const planText = clean(req.body?.planText, 20000);
+        const sourceQuestion = clean(req.body?.sourceQuestion, MAX_LEN);
+        const topic = clean(req.body?.topic, 200);
+        const locations: BriefingLocation[] = Array.isArray(req.body?.locations)
+          ? (req.body.locations as BriefingLocation[]).slice(0, MAX_LOCATIONS)
+          : [];
+        if (!planText) return res.status(400).json({ error: "planText is required" });
+        if (locations.length === 0) {
+          return res.status(400).json({ error: "At least one location with regionName + countyFips is required" });
+        }
+
+        const primary = locations.find((l) => l?.countyFips && /^\d{5}$/.test(l.countyFips)) || locations[0];
+        const countyFips = primary?.countyFips && /^\d{5}$/.test(primary.countyFips) ? primary.countyFips : "00000";
+        const stateFips = countyFips.slice(0, 2);
+        const regionName = primary?.region || primary?.label || "Unspecified region";
+
+        const [row] = await db
+          .insert(rpliceActionPlans)
+          .values({
+            regionName,
+            stateFips,
+            countyFips,
+            analysisData: {
+              source: "regional-briefing-followup",
+              sourceQuestion,
+              topic,
+              locations,
+              createdBy: getUserId(req),
+            },
+            phases: { planText, generatedAt: new Date().toISOString() },
+            status: "draft",
+          })
+          .returning({ id: rpliceActionPlans.id });
+
+        res.json({
+          id: row.id,
+          regionName,
+          countyFips,
+          viewUrl: "/rplice-tools",
+          message: `Saved as RPLICE action plan #${row.id} for ${regionName} (FIPS ${countyFips}). Open /rplice-tools to manage phases, fidelity checks, and RE-AIM scoring.`,
+        });
+      } catch (err) {
+        console.error("[regional-briefing] save-action-plan failed:", err);
+        res.status(500).json({ error: "Could not save action plan" });
       }
     },
   );
