@@ -2206,3 +2206,36 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 3. Sign off + send from terryflood@thrivingcommunitiesforall.com.
 4. If reply, follow playbook in intro draft file (Section "If they reply…").
 5. After send, recompile agent knowledge so this thread is in compiled memory.
+
+---
+
+## 2026-05-22 — Regional Briefing surface (live) + N. Wilco childcare package
+
+**Shipped this turn (commit-ready):**
+
+1. **Backend** — `server/regional-briefing-routes.ts` (registered in `server/routes.ts:461`):
+   - `GET  /api/regional-briefing/context?region=&topic=` — preview (free, no AI cost)
+   - `POST /api/regional-briefing/query` — non-streaming briefing
+   - `POST /api/regional-briefing/stream` — SSE streaming briefing
+   - Pulls matching grants from `grant_opportunities` (token-OR LIKE on title + description), pulls `ecosystem_platforms WHERE public_visible=TRUE`, synthesizes via `streamAIResponse`/`generateAIResponse` (ethical-EI preamble auto-applied).
+   - System prompt forces 5-section output: ground-truth · verifiable-data · matching-grants · ALL-solutions · concrete-next-moves.
+
+2. **Frontend** — `client/src/pages/regional-briefing.tsx` at `/regional-briefing` (sidebar: Community Intelligence → "Regional Briefing", Sparkles icon). 3 presets, region/topic/question inputs, streams briefing + renders grants list + platforms list. App.tsx route added at line 312.
+
+3. **Voice project seed** — `scripts/seed-voice-project-north-wilco-childcare.ts` (idempotent). Project created: `id=2`, `slug=north-wilco-childcare-gaps`, live at `/voice/north-wilco-childcare-gaps`. Center (30.5083, -97.6789) = N. Wilco midpoint. Focus areas: childcare-infrastructure, early-childhood, workforce-access, shift-workers, infant-care, subsidy-deserts.
+
+4. **Briefing artifact** — `docs/regional-briefings/north-wilco-childcare-infrastructure-2026-05-22.md`. Primary-source-cited (no fabricated numbers), 6 sections, calls out CCAMPIS 2026-05-29 deadline (7-day urgency), lists 8 federal awards as sub-recipient targets, enumerates 12 TCAF capabilities (sections A-L) as the "ALL solutions" pass.
+
+**Live counts (verified this turn via SQL):**
+- `grant_opportunities` total = **721** (replit.md still says 651 — STALE, needs update in next memory pass)
+- Childcare/early-childhood grants = 13 title-matched + 14 description-matched
+- N. Wilco geo-named grants = **1** (ZERO TO THREE national, not local) → pipeline gap confirmed
+- Public-visible ecosystem platforms returned by new endpoint = 16
+
+**Iron-rule reminder (don't forget):**
+- The briefing's §2 (Census/CDC/SVI table) contains LABELS not VALUES. Must run Chainweb against FIPS `48491` and paste verified rows before any external use.
+- The "TX Workforce Commission CCS Provider Capacity Grant" type opportunity is missing from our pipeline — add it next.
+- CCAMPIS 2026 deadline is **2026-05-29** — 7 days from this brief. Go/no-go decision needed with a campus partner (ACC Round Rock is the obvious anchor).
+
+**Engineering notes (for future similar work):**
+- `server/storage.ts` exports `db` — use `import { db } from "./storage"` from inside `server/`, and `from "../server/storage"` from inside `scripts/`. There is NO `server/db.ts` file. (First seed attempt failed on `../server/db`; corrected to `../server/storage`.)

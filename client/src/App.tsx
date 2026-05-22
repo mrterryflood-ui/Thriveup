@@ -123,6 +123,7 @@ const WorkforceEmployersPage = lazy(() => import("@/pages/workforce-employers"))
 const WorkforceDashboardPage = lazy(() => import("@/pages/workforce-dashboard"));
 const CommunityMapPage = lazy(() => import("@/pages/community-map"));
 const VoiceIndexPage = lazy(() => import("@/pages/voice/index"));
+const RegionalBriefingPage = lazy(() => import("@/pages/regional-briefing"));
 const VoiceProjectPage = lazy(() => import("@/pages/voice/project"));
 const VoiceWizardPage = lazy(() => import("@/pages/voice/wizard"));
 const VoiceInsightsPage = lazy(() => import("@/pages/voice/insights"));
@@ -305,6 +306,11 @@ function AppRouter() {
       <Route path="/academy" component={AcademyVillagePage} />
       <Route path="/academy/hub" component={AcademyHubPage} />
       <Route path="/concepts" component={ConceptsHubPage} />
+      <Route path="/regional-briefing">
+        <RequireAuth reason="The Regional Briefing pulls grants from our pipeline and runs paid AI to synthesize the answer. Sign in to use it.">
+          <RegionalBriefingPage />
+        </RequireAuth>
+      </Route>
       <Route path="/concepts/oil-pumpjack" component={OilPumpjackConceptPage} />
       <Route path="/concepts/transformer" component={TransformerConceptPage} />
       <Route path="/concepts/suspension-bridge" component={SuspensionBridgeConceptPage} />

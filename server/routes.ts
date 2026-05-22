@@ -112,6 +112,7 @@ import { registerCorridorRoutes } from "./corridor-story";
 import { registerNetworkRoutes } from "./network-routes";
 import { registerStandardsRoutes } from "./standards-routes";
 import { registerChainWebRoutes } from "./corridor-chainweb";
+import { registerRegionalBriefingRoutes } from "./regional-briefing-routes";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerVoiceRoutes } from "./voice-routes";
@@ -454,6 +455,7 @@ export async function registerRoutes(
   registerStandardsRoutes(app);
   registerCoalitionRoutes(app);
   registerChainWebRoutes(app);
+  registerRegionalBriefingRoutes(app);
   registerCorridorDocRoutes(app);
   registerFosterYouthIntakeRoutes(app);
   registerVoiceRoutes(app);
