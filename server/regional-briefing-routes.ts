@@ -73,7 +73,7 @@ function clean(s: unknown, max = MAX_LEN): string {
 // Pulls recent CFIR/RE-AIM/fidelity assessments network-wide + action plans
 // and outcome baselines scoped to the briefing's county FIPS. Best-effort:
 // failures fall back to a one-line marker so the briefing is never blocked.
-async function loadRpliceContextBlock(countyFipsList: string[]): Promise<string> {
+export async function loadRpliceContextBlock(countyFipsList: string[]): Promise<string> {
   try {
     const [recentAssessments, relevantPlans, relevantBaselines] = await Promise.all([
       db
@@ -148,7 +148,7 @@ async function loadRpliceContextBlock(countyFipsList: string[]): Promise<string>
 }
 
 // Extracts valid 5-digit county FIPS from a locations array.
-function extractCountyFips(locs: Array<{ countyFips?: string }>): string[] {
+export function extractCountyFips(locs: Array<{ countyFips?: string }>): string[] {
   return locs
     .map((l) => l?.countyFips)
     .filter((f): f is string => typeof f === "string" && /^\d{5}$/.test(f));
@@ -156,7 +156,7 @@ function extractCountyFips(locs: Array<{ countyFips?: string }>): string[] {
 
 // Wraps the base system prompt with an RPLICE / implementation-science layer
 // so every briefing — not just follow-ups — is implementation-science-grounded.
-function wrapWithRpliceLayer(baseSystemPrompt: string, rpliceContextBlock: string): string {
+export function wrapWithRpliceLayer(baseSystemPrompt: string, rpliceContextBlock: string): string {
   return [
     baseSystemPrompt,
     "",
@@ -257,7 +257,7 @@ function tokensFrom(s: string): string[] {
     .filter((t) => t.length >= 3);
 }
 
-async function loadLocationContext(loc: BriefingLocation, topic: string): Promise<LocationContext> {
+export async function loadLocationContext(loc: BriefingLocation, topic: string): Promise<LocationContext> {
   const tokens = [
     ...tokensFrom(loc.region),
     ...tokensFrom(topic),
@@ -356,7 +356,7 @@ async function loadLocationContext(loc: BriefingLocation, topic: string): Promis
   };
 }
 
-function buildSystemPrompt(multi: boolean, webSearchEnabled: boolean = false): string {
+export function buildSystemPrompt(multi: boolean, webSearchEnabled: boolean = false): string {
   const lines = [
     "You are a Regional Briefing AI built INSIDE TCAF, but the briefing is NOT a TCAF pitch. You write a DEEP, INTERCONNECTED data story — the kind of briefing where, when someone finishes reading, they actually understand the PLACE: its geography, history, economy, demographic shifts, civic anatomy, and the live forces pressing on it right now. Not a section dump. A woven narrative. Service to the community + the named audience comes first; TCAF appears only when the user has explicitly invited it in.",
     "",
@@ -500,7 +500,7 @@ function hasTcafIntent(q: string): boolean {
   return /\b(tcaf|how (does|would|can) (we|tcaf|the platform) (help|plug|fit|contribute)|where do we (plug|fit)|what can we offer|our capabilities|our platforms|backbone capabilities)\b/i.test(q);
 }
 
-function buildUserPrompt(contexts: LocationContext[], topic: string, question: string): string {
+export function buildUserPrompt(contexts: LocationContext[], topic: string, question: string): string {
   const platforms = contexts[0]?.platforms ?? [];
   const wantsFunding = hasFundingIntent(question);
   const wantsTcaf = hasTcafIntent(question);
