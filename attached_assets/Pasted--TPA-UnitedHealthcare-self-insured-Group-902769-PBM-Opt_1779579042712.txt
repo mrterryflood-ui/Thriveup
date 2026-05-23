@@ -1,0 +1,448 @@
+| TPA | UnitedHealthcare (self-insured Group #902769) |
+| PBM | OptumRx |
+| Broker of record | IMA |
+| Current wellness platform | Rally (via UHC) |
+| Incumbent weight-management vendor | None |
+| Required service delivery | Virtual only |
+
+## 4.2 The GLP-1 utilization picture
+
+The single most operationally significant disclosure in Addendum #2 is the GLP-1 utilization data. We interpret it as follows:
+
+**(a) Current GLP-1 spend is substantial and unmanaged.** At the conservative RAND 2023 figure of $13,800 per unmanaged GLP-1 patient per year, the 373 current GLP-1 members represent approximately $5.15 million in annual pharmacy cost to the County's medical plan. This spend is occurring with no clinical oversight beyond standard PBM prior authorization.
+
+**(b) The ~47% twelve-month non-continuation rate is the diagnostic signal.** 705 members used a GLP-1 in the past twelve months, but only 373 are on therapy today — a 332-member differential, or approximately 47% non-continuation. We use "non-continuation" rather than pure "discontinuation" because the County figure may include planned course completions, approved-but-never-filled prior authorizations, within-class therapy switches, and members recently started who are still in titration. Even with those qualifications, the figure sits squarely within the published unmanaged-GLP-1 range of 30–50% twelve-month non-continuation (Gleason et al., JAMA Network Open 2024; AHIP real-world adherence analysis 2023), and the underlying drivers are well-established: side effects (nausea, fatigue) without titration support, absence of behavioral coaching, and no clinical follow-up.
+
+**(c) The capture opportunity is concrete and addressable.** RAND's 2023 conservative figure for the cost differential between unmanaged and managed GLP-1 therapy is $5,600 per patient per year ($13,800 − $8,200). Applied to the 373 current GLP-1 members, the modeled Year-1 capture opportunity is approximately **$2.09 million** (373 × $5,600). Migrating the cohort to a managed protocol does not require a single new prescription or any change to OptumRx's formulary — it requires only that the existing 373 members receive structured clinical oversight, titration support, side-effect management, and behavioral coaching. We label this a "capture opportunity" rather than a "guaranteed saving" because realization depends on member uptake; we convert it into a contractual commitment through the at-risk pricing structure described in Section 8.5.
+
+## 4.3 Current gap analysis
+
+The Addendum disclosed: *"Current cost containment is tied to prior authorization program with PBM."* The County has identified this as insufficient and has stated its preference for *"a broader support-focused program centered around outcomes, health coaching participation, and sustainable lifestyle changes."*
+
+We share the County's diagnosis. Prior authorization gates approval at the moment of prescription but does not address:
+- Side-effect management during titration (the primary driver of unmanaged-GLP-1 non-continuation)
+- Behavioral coaching to support sustained dietary and activity changes
+- Lifestyle accountability and engagement over 12–24 months
+- Coordination across members' broader care team (PCP, OB-GYN, mental health, etc.)
+- Outcome measurement and reporting to the County
+
+Vitality is designed to fill exactly this gap, while preserving OptumRx's PBM role and UnitedHealthcare's TPA role.
+
+## 4.4 What the County asked for, in the County's own language
+
+| County requirement (Addendum #2) | Vitality response section |
+|---|---|
+| "Recommend and design a comprehensive solution" | Section 5 (Program Design) |
+| "A broader support-focused program centered around outcomes" | Section 5.4 (Behavioral Engagement) + 5.6 (GLP-1 Managed Protocol) |
+| "Integration is preferred, if available. TPA = UHC, PBM = OptumRx" | Section 6 (Technology Platform) |
+| "Continued member engagement, proper use of GLP-1s, and cost savings" | Section 9 (Reporting and KPIs) + Section 8 (ROI) |
+| "Virtual support only" | Section 5 (Program Design) and Section 6.1 (PWA Architecture) |
+| "18 and over" | Section 5 (adult-only clinical pathway) |
+| "Either model is acceptable" (in-house prescriber OR NBHWC coach with member's prescriber) | Section 5.6 (dual-pathway design) |
+| "Network access = integration with existing medical plan ecosystem" | Section 6 (Technology Platform) |
+
+---
+
+# Section 5 — Program Design: Vitality Comprehensive Weight Management
+
+## 5.1 Program philosophy
+
+Vitality is built on five principles:
+
+1. **Member-centric, not vendor-centric.** Every design decision starts from the member's job-to-be-done.
+2. **Evidence-based.** Every clinical recommendation cites the underlying study (DPP, STEP, LOOK AHEAD, RAND, NIH).
+3. **Integration-first.** We coexist with the County's existing UHC, OptumRx, and Rally relationships. We do not replace them.
+4. **Support-focused.** We meet the County's stated preference: coaching and clinical wraparound, not compliance enforcement.
+5. **Outcomes over activity.** Every dashboard leads with the three KPIs the County named.
+
+## 5.2 Member journey — the 5-phase clinical protocol
+
+Every Vitality member moves through five phases. Each phase has defined entry and exit criteria, a clinical owner, and a measurable outcome.
+
+| Phase | Duration | Owner | Outcome |
+|---|---|---|---|
+| 1. Onboarding | 1–2 weeks | Vitality coaching | Identity verified, employer eligibility confirmed, consent collected, baseline survey complete |
+| 2. Clinical baseline | 2–4 weeks | Dr. Love (Clinical) | Medical baseline, BMI, A1C, blood pressure, comorbidity inventory, pathway assignment |
+| 3. Intensive intervention | 12–26 weeks | Dr. Love + Dr. Vann | Pathway-specific intervention (lifestyle, GLP-1, surgical-coordinated); weekly coaching cadence; biweekly clinical check |
+| 4. Maintenance | 26–52 weeks | Dr. Vann (Behavioral) | Reduced cadence (biweekly to monthly); habit consolidation; outcome stabilization |
+| 5. Graduation | Ongoing | Self-directed with quarterly check-in | Member graduates to alumni program with quarterly touchpoints; clinical and engagement data continue to feed reporting for the savings carryover model |
+
+## 5.3 Three clinical pathways
+
+Members are assigned to one of three pathways during Phase 2 (Clinical baseline), based on Dr. Love's clinical assessment, member preference, and clinical guideline match.
+
+**Pathway A — Lifestyle Intervention** (estimated 72% of enrolled members)
+- Evidence base: NIH/DPP Trial (58% reduction in type 2 diabetes progression at 5–10% weight loss)
+- Components: structured nutrition coaching, activity tracking, behavioral group sessions led by Dr. Vann, weekly check-ins
+- Clinical cadence: quarterly Dr. Love review
+- Cost component: lifestyle baseline ($3,200/member/year all-in)
+
+**Pathway B — GLP-1 Managed Care** (estimated 20% of enrolled members)
+- Evidence base: STEP-1, STEP-2, STEP-3 trials (15–17% body weight reduction at 68 weeks)
+- Components: GLP-1 prescription, structured titration, side-effect management, monthly clinical visits, weekly coaching, OptumRx fill-history reconciliation
+- Clinical cadence: monthly Dr. Love visit during titration; quarterly during maintenance
+- Member can elect: in-program prescribing (Dr. Love) OR coaching-only support with member's existing prescriber (per Addendum #2 confirmation that either model is acceptable)
+
+**Pathway C — Surgical-Coordinated** (estimated 8% of enrolled members)
+- Evidence base: LOOK AHEAD Trial (sustained 7–8% loss at 4 years with intensive lifestyle); bariatric surgery outcomes literature
+- Components: pre-surgical clinical evaluation, post-surgical lifestyle support, coordination with member's chosen surgical center, long-term behavioral coaching
+- Clinical cadence: aligned with surgical center protocol; Vitality provides wrap-around support
+
+## 5.4 Behavioral engagement model
+
+Dr. Vann's behavioral engagement model is the engine that sustains member engagement — the County's #1 KPI.
+
+- **Weekly check-in cadence** during Phase 3 (intensive intervention), via the Vitality PWA, with structured prompts and a coaching response within 24 hours.
+- **Biweekly group sessions** during Phase 3 and Phase 4, virtual cohort format, 8–12 members per cohort, facilitated by Dr. Vann or a licensed coach under her supervision.
+- **Family and youth programming extensions** for members with dependents — addressing the household environment that drives sustainable weight management.
+- **Automated escalation** for any member who does not check in for 14 days, routed to a human coach for outreach.
+- **Engagement scoring** for the dashboard, surfaced to the County in quarterly reports.
+
+## 5.5 VITA AI persistent-memory advisor
+
+VITA is Vitality's AI coaching assistant, embedded in the member portal and the employer dashboard. VITA is differentiated from generic AI chatbots by three properties:
+
+1. **Persistent memory.** Every member conversation is stored. VITA resumes context on every new session — there is no "starting over." A returning member sees a "Resuming — X prior exchanges" badge on their portal.
+2. **Live clinical context.** VITA receives the member's current weight, BMI, GLP-1 status, active care plan phase, recent weight trend, and achieved milestones with every message. Responses are anchored to the member's real situation, not generic content.
+3. **Evidence-cited responses.** VITA's clinical answers cite specific studies (DPP, STEP, LOOK AHEAD, RAND). This is a deliberate design choice for an RFP-evaluator audience as well as for clinical defensibility.
+
+VITA operates in two modes: a warm, Dr. Love–voiced member mode, and an analytical, ROI-focused employer mode for the County dashboard. Both modes share the same persistent-memory architecture.
+
+## 5.6 The GLP-1 managed-care protocol — the headline differentiator
+
+This is the operational answer to the $2.09M Year-1 modeled capture opportunity. The protocol has six components:
+
+1. **Initial clinical evaluation by Dr. Love** for every member entering Pathway B. Establishes baseline metrics, comorbidities, contraindications, and titration plan.
+2. **Structured titration over 12–16 weeks** with proactive side-effect management. Members are contacted on day 3, day 7, day 14, and weekly thereafter during titration to surface and address side effects before they cause discontinuation. This is the single most important intervention against the GLP-1 non-continuation pattern visible in the County's 705-to-373 cohort transition.
+3. **OptumRx fill-history reconciliation.** Vitality receives weekly fill-history feeds from OptumRx and reconciles them against expected fills. Members who miss a fill receive coaching outreach within 48 hours.
+4. **Behavioral coaching from Dr. Vann's team** throughout titration and maintenance. Members on GLP-1 receive structured nutrition support, activity coaching, and sleep/stress modules — the lifestyle scaffolding that makes the medication work.
+5. **Coordination with member's existing prescriber** (if the member chooses to remain with their PCP rather than have Dr. Love prescribe). Vitality acts as the supporting coaching and reporting layer; the member's PCP retains prescribing authority. Per Addendum #2, the County has confirmed this model is acceptable.
+6. **Monthly clinical visits during titration; quarterly thereafter.** Dr. Love (or a credentialed clinician on her team) maintains direct medical oversight throughout the member's GLP-1 course.
+
+The protocol directly targets the non-continuation pattern visible in the County's 705-to-373 cohort transition. Vitality commits to a measurable performance threshold tied to this protocol: **≥30% of the County's current 373-member GLP-1 cohort retained in active managed-protocol participation at month 12** (a conservative target relative to published managed-GLP-1 retention rates of 55–70%). At-risk pricing tied to this threshold is described in Section 8.5, converting the modeled capture opportunity into a contractual commitment.
+
+---
+
+# Section 6 — Network Access: Integration with the County Medical Plan Ecosystem
+
+*In response to Criterion II's requirement that the program demonstrate the ability to integrate and coordinate with the County's existing medical plan ecosystem (UnitedHealthcare TPA, OptumRx PBM, Rally member-engagement platform, and County HRIS / identity systems), as clarified in Addendum #2.*
+
+## 6.1 PWA architecture
+
+The Vitality member experience is delivered as a Progressive Web Application (PWA). This means:
+
+- **No app-store install required.** Members access the program from any modern web browser on any device — phone, tablet, laptop, desktop. The PWA supports add-to-home-screen on iOS and Android for native-app-style access without the friction of an app-store flow.
+- **Offline capability.** Members can log weight, complete daily check-ins, and review coaching materials offline; data syncs when connectivity returns.
+- **Push notifications** on Android and modern iOS, for coaching prompts, medication reminders, and weekly check-in nudges.
+- **Accessibility:** Design conformance to WCAG 2.1 AA and Section 508; screen-reader support, keyboard navigation, and high-contrast mode in the current member portal. A third-party WCAG 2.1 AA conformance audit will be commissioned during Weeks 4–8 of the 90-day implementation and the audit report delivered to County IT prior to County-wide go-live.
+
+The platform stack is React 19 + TypeScript on the front end, Express 5 on the API server, PostgreSQL with Drizzle ORM for the database, and a Claude AI (Anthropic) integration for the VITA assistant. All software is built and maintained by Dr. Flood's team at The COLLABORATIVE Advocate Foundation.
+
+## 6.2 Integration with UnitedHealthcare (TPA)
+
+UnitedHealthcare is Sedgwick County's TPA on the self-insured plan (Group #902769). Vitality is designed to integrate with UHC across three surfaces during the 90-day implementation; none of these integrations are live in the demonstration platform today. The three planned surfaces are:
+
+- **Eligibility feed:** SFTP or API-based daily roster sync from UHC's eligibility files. Will establish the eligible adult population (4,213 per Addendum #2) and support automated enrollment validation.
+- **Claims data feed:** Monthly de-identified claims extract under BAA, to be used for outcome measurement (claims-cost trend, hospital and ER utilization for the at-risk cohort).
+- **FHIR R4 read access** (if available from UHC's API gateway): will support real-time member clinical context for VITA and Dr. Love's clinical team.
+
+Integration timeline: stand-up within 30–45 days of contract execution, dependent on UHC IT scheduling. See Section 7.4 for the full demo-vs-implementation maturity matrix.
+
+## 6.3 Integration with OptumRx (PBM)
+
+OptumRx is Sedgwick County's PBM. Vitality is designed to integrate across two surfaces during the 90-day implementation; neither integration is live in the demonstration platform today. The two planned surfaces are:
+
+- **GLP-1 authorization status feed:** read-only access to OptumRx prior-authorization decisions for members enrolled in Vitality. Will allow Dr. Love's clinical team to know which members have current GLP-1 authorization without manually contacting members.
+- **Fill-history feed:** weekly extract of GLP-1 fill events for enrolled members. Will drive the fill-reconciliation process described in Section 5.6.
+
+We will not request prescribing authority within OptumRx, will not modify the formulary, and will not change any prior-authorization rules. Vitality's role is observational and coordinative.
+
+Integration timeline: stand-up within 30–45 days of contract execution. See Section 7.4 for the full demo-vs-implementation maturity matrix.
+
+## 6.4 Coexistence with Rally
+
+Rally is the County's current member-engagement platform, provided through UHC. Vitality will coexist with Rally rather than replace it. The Rally hand-off integration is not live in the demonstration platform today; it will be jointly configured with UHC's Rally team during Implementation Weeks 3–6. Our integration model:
+
+- **Single-sign-on hand-off.** Members will be able to launch Vitality from Rally with a one-click SSO flow (Azure AD / SAML 2.0).
+- **Engagement data exchange.** Vitality engagement metrics (check-ins, coaching touchpoints) will be exported to Rally to roll up into the County's broader wellness dashboard.
+- **No duplication of general-wellness content.** Rally remains the source of truth for general wellness (gym reimbursement, biometric screenings, mental health). Vitality is the source of truth for weight management and GLP-1 utilization specifically.
+
+## 6.5 Single sign-on and identity
+
+Vitality supports the following SSO and identity providers:
+
+- Microsoft Entra ID / Azure AD (SAML 2.0 and OIDC) — recommended for the County's environment
+- Okta (SAML 2.0 and OIDC)
+- Google Workspace (OIDC)
+- City/County LDAP (legacy support)
+- Multi-factor authentication enforced for all administrative and clinical users
+- Self-service password reset for members; SSO bypass for members who prefer email/password
+
+## 6.6 Security, HIPAA, and data governance
+
+- **HIPAA compliance** at the technical, administrative, and physical levels. Business Associate Agreement will be executed at contract award.
+- **Encryption** at rest (AES-256) and in transit (TLS 1.3).
+- **Role-based access control.** Clinical roles (Dr. Love and her team), coaching roles (Dr. Vann and her team), administrative roles, and County reviewer roles each have defined access scopes.
+- **Audit logging** of every clinical data access, retained for 7 years per HIPAA.
+- **Data residency** in U.S.-based cloud infrastructure with SOC 2 Type II certification.
+- **42 CFR Part 2 readiness** if the County identifies any substance-use-disorder data flows that require it.
+- **De-identification** for all aggregate reports to the County (HIPAA Safe Harbor or Expert Determination method, depending on cohort size).
+- **Member access and portability rights** under HIPAA: members can export their full Vitality record at any time.
+
+**[Evidence — Criterion II]:** Five named integration surfaces with the County's medical plan ecosystem (UHC eligibility + claims + FHIR R4 · OptumRx prior-auth + fill-history · Rally SSO + engagement export · Azure AD / Entra SSO · CSV/API export to County BI tooling). Defined integration timelines (UHC 30–45 days · OptumRx 30–45 days · SSO 7–21 days). HIPAA Business Associate Agreement executed at award. No displacement of any incumbent vendor.
+
+## 6.7 Customer Service and Member Experience — Response to Criterion III
+
+*In response to Criterion III's requirement that the program demonstrate Customer Service and Member Experience.*
+
+The Vitality member experience is designed around named service touchpoints with measurable response standards:
+
+**Onboarding (first 14 days).** Members complete a 5-step wizard (identity → health baseline → goals → pathway → consent). Each step takes under 3 minutes; full enrollment is under 15. Every member receives a coaching touch with Dr. Vann's team within 72 hours of completing the wizard. Every member entering Pathway B (GLP-1) receives a clinical evaluation visit with Dr. Love or a credentialed clinician on her team within 7 days.
+
+**Daily engagement.** The VITA AI persistent-memory advisor is available 24/7 and remembers every prior conversation. Members ask clinical, logistical, behavioral, and motivational questions in plain language. VITA cites Dr. Love's clinical guidance for medical questions and routes to a human coach or clinician whenever a question exceeds its scope.
+
+**Weekly cadence.** Every member receives at least one structured coaching touchpoint per week (group session, 1:1 check-in, or asynchronous coach review). Weekly check-ins capture weight, mood, side effects (if on GLP-1), and progress against personal goals.
+
+**Live human support — named service standards.**
+
+| Channel | Service Standard |
+|---|---|
+| Secure message to coach | Response within 1 business hour during business hours; same-business-day after hours |
+| Video appointment booking | Confirmed booking within 48 hours |
+| Phone callback | Member-initiated; scheduled same business day |
+| Clinical question (routed to Dr. Love's team) | Clinical response within 1 business day |
+| Urgent clinical issue | Triage within 1 hour; escalation to PCP / ER instructions provided immediately |
+| Concern, complaint, or feature request | Acknowledged within 1 business day; substantive response within 5 business days |
+
+**Member satisfaction measurement.** Net Promoter Score (NPS) collection is deployed in Week 6 of the 90-day implementation and runs continuously thereafter. Each enrolled member is surveyed at day 30, day 90, and quarterly. Results are reported to the County in every monthly operational dashboard starting with the first dashboard delivered after the first member cohort crosses day 30, without filtering or selection.
+
+**Accessibility and inclusion.** The PWA is designed to WCAG 2.1 AA standards; a third-party conformance audit is delivered during implementation Weeks 4–8 prior to County-wide go-live. Member-facing content is written at a 7th-grade reading level. A Spanish-language member interface and bilingual coach roster will be deployed by end of implementation Week 6, in time for the first enrolled cohort to access Spanish-language coaching from day one of go-live. Reasonable accommodations are supported from day one (extended sessions, assistive-technology compatibility, audio formats) via Dr. Vann's coaching team.
+
+**Member privacy.** Individual health data is never shared with the County employer. Only de-identified aggregate data is reported. This distinction is stated to members at enrollment and at every screen where health data is collected.
+
+**Member voice.** A monthly summary of member feedback themes is provided to the County in the operational dashboard, with anonymized verbatim where members have consented.
+
+**[Evidence — Criterion III]:** Six defined service touchpoints with named response standards (1-business-hour coach message · 48-hour appointment booking · same-business-day callback · 1-business-day clinical response · 1-business-day complaint acknowledgment · 5-business-day complaint resolution). NPS measurement (deployed implementation Week 6) at day 30, day 90, and quarterly. WCAG 2.1 AA design conformance with third-party audit delivered implementation Weeks 4–8. Spanish-language member support (deployed implementation Week 6). Monthly member-feedback reporting to County. Distinct individual-vs-aggregate privacy notice at every health-data collection point. See Section 7.4 (Platform Maturity Status) for the full demo-vs-implementation capability matrix.
+
+---
+
+# Section 7 — Implementation Plan
+
+## 7.1 90-day stand-up timeline
+
+| Week | Workstream | Milestone |
+|---|---|---|
+| 1–2 | Contracting | Contract execution, BAA execution, kickoff meeting with County procurement, HR, and Risk Management |
+| 1–3 | Technical | UHC eligibility-feed connection initiated, OptumRx fill-history feed initiated, SSO configuration with County IT |
+| 2–4 | Clinical | Dr. Love finalizes program clinical protocols, GLP-1 titration playbook, side-effect management algorithms |
+| 3–5 | Coaching | Dr. Vann finalizes coaching curriculum, weekly cadence templates, group-session structure |
+| 4–6 | Platform | Vitality PWA tenanted for Sedgwick County; County branding applied; SSO live in test environment |
+| 5–7 | Compliance | HIPAA risk assessment complete; security review with County IT |
+| 6–9 | Launch readiness | UAT with a 10-member County pilot cohort; integration end-to-end validation |
+| 9–10 | Communication | Member-facing communication plan executed (email, intranet, printed materials in County offices) |
+| 10–12 | Soft launch | Open enrollment begins; first 100 members onboarded; daily standups with County |
+| 13 | Full launch | Program at full operational capacity |
+
+## 7.2 Risk register
+
+| Risk | Mitigation |
+|---|---|
+| UHC eligibility-feed delay | Manual roster upload as bridge; standard UHC integration is well-precedented |
+| OptumRx feed delay | Member self-report of GLP-1 status as bridge; manual reconciliation until automated feed live |
+| Low initial enrollment | Targeted communication plan; incentive structure in coordination with County HR |
+| Member skepticism of new program | Dr. Love's local Wichita presence; testimonials from Phase 1 cohort; transparent reporting on outcomes |
+| County turnover during contract | Single-point-of-contact through HIS Prime; documented runbooks; quarterly executive briefings to ensure continuity across personnel changes |
+
+## 7.3 Assistance requested from County staff
+
+Per the RFP's required-content provision that vendors describe assistance sought from County staff, the Vitality team requests the following coordination from designated County personnel during the 90-day implementation:
+
+| From | Assistance requested | When |
+|---|---|---|
+| County HR | Employee roster sign-off; communication-plan review; coordination of all-employee enrollment communications; benefits-portal placement | Weeks 1–10 |
+| County Risk Management | Business Associate Agreement execution; contract execution; insurance certificate review; KORA coordination | Weeks 1–3 |
+| County IT | SSO (Azure AD / Entra) configuration; security review of Vitality platform; firewall / DNS allowance for SFTP and API endpoints | Weeks 1–6 |
+| County Finance | AP setup for HIS Prime; payment-terms confirmation; invoice-routing setup | Weeks 1–3 |
+| UnitedHealthcare integration sponsor (County contact at UHC) | Authorization for eligibility-feed connection and de-identified claims extract under BAA | Weeks 2–6 |
+| OptumRx integration sponsor (County contact at OptumRx) | Authorization for prior-auth status read and weekly fill-history feed under BAA | Weeks 2–6 |
+| Rally / UHC wellness-platform contact | SSO hand-off configuration; engagement-data exchange agreement | Weeks 3–6 |
+| County executive sponsor (County Manager or designee) | Single named executive sponsor for escalation and quarterly briefings | Throughout |
+
+The Vitality team estimates approximately **15–25 hours of cumulative County staff time across the 90-day implementation**, concentrated in Weeks 1–6 and tapering thereafter. After go-live, ongoing County staff time is expected to be **2–4 hours per month** for operational dashboard review, plus the quarterly executive briefing.
+
+---
+
+## 7.4 Platform Maturity Status — Demo vs. Implementation Deliverables
+
+In the interest of full transparency, this section maps every capability referenced in this proposal against its status in the live demonstration platform (employeehealth.replit.app) versus what is delivered during the 90-day implementation. The County should expect every "Implementation Week X" item below to be production-live by the corresponding week of the implementation timeline in Section 7.1, in advance of County-wide member go-live.
+
+| Capability | Status in live demo (today) | Delivered by | Notes |
+|---|---|---|---|
+| Member portal (weight, milestones, care plan) | **Live** | Day 1 | Working against seeded demo member; County-tenanted data on Week 4 |
+| 5-step member onboarding wizard | **Live** | Day 1 | Working end-to-end |
+| Employer command center (KPIs, ROI, GLP-1 pipeline, alerts, engagement) | **Live** | Day 1 | Real endpoints; verified |
+| VITA AI coaching (member mode) — persistent memory, member context, evidence citations | **Live** | Day 1 | Anthropic Claude via Replit AI Integrations; conversations persisted in Postgres |
+| VITA AI advisor (employer mode) | **Live** | Day 1 | Same persistence model |
+| Document RAG (Knowledge Vault) — PDF/DOCX/TXT/CSV/MD upload, parsing, RAG injection | **Live** | Day 1 | Used by VITA on every message |
+| County Explorer — nationwide benchmarks | **Live (seeded)** | Day 1 | 10 counties seeded; expanded to all 3,143 US counties on Implementation Week 8 via CDC PLACES bulk load |
+| Counterfactual ROI engine (Y1 0.56x · Y3 1.01x · Y5 1.32x conservative model) | **Live** | Day 1 | Single source of truth in API; matches proposal |
+| FHIR R4 export per member | **Live** | Day 1 | `/api/export/fhir/:memberId`; verified 8.3 KB Bundle response |
+| CSV analytics export | **Live** | Day 1 | `/api/export/analytics`; verified |
+| **PDF dashboard snapshot export** | Not in demo | **Implementation Week 6** | Generated server-side from the live dashboard; included in monthly cadence per §9.2 |
+| **CDC BRFSS / PLACES live API hook** (auto-refresh on annual data release) | Not in demo — seeded data only | **Implementation Week 6** | Annual auto-refresh; demo uses CDC PLACES 2023 figures with explicit data-vintage labeling |
+| **SSO — Microsoft Entra ID / Azure AD (SAML 2.0 and OIDC)** | Not in demo | **Configuration Weeks 1–3; live cutover Weeks 4–6 (test environment) per §7.1** | County IT joint configuration; 7–21 day configuration window followed by validation in test environment before County-wide cutover |
+| **SSO — Okta, Google Workspace, City/County LDAP** | Not in demo | **On request during implementation** | Same 7–21 day configuration window per IdP |
+| **NPS measurement (day-30 / day-90 / quarterly)** | Not in demo | **Implementation Week 6** | Surveys go live in time for first enrolled cohort to receive day-30 survey before first monthly dashboard |
+| **Spanish-language member interface** | Not in demo (English only) | **Implementation Week 6** | i18n framework + Spanish translation of all member-facing strings; bilingual coach roster |
+| **WCAG 2.1 AA third-party conformance audit** | Design conformance in demo | **Implementation Weeks 4–8** | Independent audit; report delivered to County IT |
+| **UHC eligibility SFTP / API feed (Group #902769)** | Not in demo | **Implementation Weeks 1–6** | 30–45 day integration timeline per §6.6; County IT and UHC joint configuration |
+| **OptumRx fill-history weekly feed** | Not in demo | **Implementation Weeks 1–6** | 30–45 day integration timeline per §6.6; missed-fill 48-hour coaching outreach goes live with the feed |
+| **Rally SSO hand-off and engagement-data exchange** | Not in demo | **Implementation Weeks 3–6** | Joint configuration with UHC's Rally team |
+| **HRIS roster sync (Workday, ADP)** | Not in demo | **On request during implementation** | Both supported via standard connector; configured per County's actual HRIS |
+| **Power BI / Tableau dashboard embed** | Not in demo | **On request during implementation** | Standard iframe embed token; configured per County's BI tenant |
+
+**Operational service commitments (not platform features — these are what HIS Prime and the operating team commit to do, beginning at member go-live):**
+
+| Commitment | Section reference |
+|---|---|
+| 1-business-hour secure-message coach response, 48-hour appointment confirmation, same-business-day callback, 1-business-day clinical response, 1-business-day complaint acknowledgment, 5-business-day complaint resolution | §6.7 |
+| Weekly check-in cadence during Phase 3 with coaching response within 24 hours | §3.3 |
+| Quarterly UHC eligibility reconciliation (5-business-day discrepancy resolution) | §9.4 |
+| Consolidated monthly invoicing through HIS Prime, Net 30 | §9.4 |
+| 7-year billing-record retention | §9.4 |
+| Annual outcomes report to the Board of County Commissioners | §9.2 |
+| BAA execution at contract award | §11.1 |
+| 5-business-day conflict-of-interest disclosure | §11.3 |
+
+The County is invited to verify any "Live" capability above directly against the demonstration platform at employeehealth.replit.app, and to request a live walkthrough of any item before the evaluation committee's recommendation.
+
+---
+
+# Section 8 — Pricing Model and Return on Investment
+
+## 8.1 PEPM (per-employee-per-month) pricing structure
+
+Vitality offers a blended PEPM pricing model that scales with the County's enrolled member count and the actual mix of clinical pathways used. The blended PEPM range is **$476–$525 per enrolled member per month**, depending on the GLP-1 mix.
+
+The pricing is constructed bottoms-up from operational cost components:
+
+| Component | $/member/month |
+|---|---|
+| Coaching (Dr. Vann's team + VITA AI) | $55 |
+| Platform & analytics (CAF technology infrastructure) | $45 |
+| Administration, compliance, and BAA management (HIS) | $30 |
+| Clinical oversight (Dr. Love, blended across pathways) | $45 lifestyle / $130 GLP-1 / $75 surgical |
+| GLP-1 medication (at negotiated specialty rate, when applicable) | $930 for the 20% on the GLP-1 pathway |
+| Operator margin (20%) | Variable |
+
+At a representative 20% GLP-1 mix, the blended all-in PEPM is approximately **$476**. At a 30% GLP-1 mix, it rises to approximately **$525**.
+
+## 8.2 Lifestyle pathway baseline cost
+
+For members on Pathway A (Lifestyle), the all-in annual cost is **$3,200 per member per year** ($267/month). This includes coaching, platform, administration, and clinical oversight, but excludes medication (none required on this pathway).
+
+## 8.3 Year-1 program cost at target enrollment
+
+At our target enrollment of **534 members** (35% of the 1,525 modeled at-risk adult population), the Year-1 program cost at the lifestyle baseline is **$1,708,800**.
+
+This figure is conservative — it assumes all enrollees are on the lifestyle pathway. At the realistic ~20% GLP-1 mix, the actual Year-1 cost is approximately **$2.55M–$2.80M** (the higher figure reflects the GLP-1 medication cost that is otherwise being absorbed by the pharmacy plan today).
+
+## 8.4 Return on Investment — the headline economic case
+
+### 8.4.1 The GLP-1 capture
+
+The single largest ROI driver is the migration of the County's existing 373 GLP-1 members from unmanaged to managed therapy.
+
+- Current spend: 373 × $13,800 = **$5,147,400 per year** (RAND 2023 unmanaged figure)
+- Managed spend: 373 × $8,200 = **$3,058,600 per year** (RAND 2023 managed figure)
+- **Modeled Year-1 capture opportunity: $2,088,800**
+
+This is not a hypothetical population; it is the County's actual current cohort, disclosed in Addendum #2.
+
+### 8.4.2 Lifestyle and clinical savings
+
+Modeling the broader at-risk population at 35% enrollment (534 members), 68% clinical threshold achievement (NIH/DPP), and per-success savings of $2,639 ($1,861 medical from CDC/CMS 2023 + $778 productivity from RAND, 2.73 days × $285/day):
+
+- Successful members: 534 × 68% = 363
+- Annual medical savings: 363 × $1,861 = **$675,543**
+- Annual productivity savings: 363 × $778 = **$282,414**
+- **Subtotal: $957,957 per year**
+
+### 8.4.3 Total Year-1 economic opportunity
+
+- GLP-1 capture: $2,088,800
+- Lifestyle + clinical: $957,957
+- **Total: $3,046,757 per year**
+
+Against a Year-1 program cost of $1,708,800 (lifestyle baseline) or up to ~$2.80M (with realistic GLP-1 mix), the County's net Year-1 benefit is **$240K–$1.34M** in Year 1, and grows through Years 2–5 with graduate-savings carryover.
+
+### 8.4.4 Multi-year ROI projection
+
+Using a conservative graduate-savings carryover model (85% YoY retention of savings from members who hit clinical threshold, capped at a 3-year carry tail per DPP follow-up data):
+
+| Year | Cumulative ROI ratio |
+|---|---|
+| Year 1 | 0.56x |
+| Year 3 | 1.01x (break-even) |
+| Year 5 | 1.32x |
+
+The headline industry benchmark (Harvard meta-analysis 2010: $3.27 return per $1 invested in workplace wellness) is the upper bound — we deliberately under-promise relative to that benchmark.
+
+## 8.5 Base price and optional at-risk performance overlay (separated for Criterion V scoring)
+
+**The scored base price for Criterion V is the blended PEPM in Section 8.1: $476–$525 per enrolled member per month, depending on GLP-1 mix (lifestyle baseline $267 PEPM).** That figure is the number reflected on the Response Form (Appendix F) and is the figure the County's cost-evaluation formula will compare against other bidders' base pricing.
+
+**The at-risk performance overlay described below is a separate, optional contract structure offered above and beyond the base price. It is not part of the base PEPM and does not change the price the County is asked to score under Criterion V.** The County may elect, decline, or modify this overlay at contract negotiation; the base price stands regardless. We separate it deliberately so a competitor with a lower headline number cannot leverage our at-risk commitment against us on cost scoring.
+
+**Optional at-risk performance overlay (offered above base price, negotiable at contract):**
+
+- **15% of total billed PEPM held at risk** in a quarterly performance withhold under a separate at-risk addendum to the contract. Released on attainment of all three County-named KPIs:
+  1. **Engagement threshold:** ≥75% of enrolled members maintain weekly check-in activity at the end of each quarter
+  2. **GLP-1 utilization threshold:** **≥30% of the County's current 373-member GLP-1 cohort retained in active Vitality managed protocol at month 12** (conservative against the 55–70% published managed-GLP-1 retention range)
+  3. **Cost savings threshold:** Year-1 medical-cost trend for the enrolled cohort outperforms a matched no-program baseline (carrier-validated by UHC at Year 1 reconciliation)
+
+- **Performance bonus (above base PEPM) for outperformance:** if Vitality retains ≥50% of the 373-cohort in managed protocol at month 12 (representing ~$2.50M+ in captured spend differential), the County pays an outperformance bonus of 5% of base PEPM.
+
+- **Failure-to-perform clause:** if Vitality misses any one threshold by more than 25% of target in two consecutive quarters, the County may terminate without cause and the 15% withhold is permanently forfeited.
+
+This overlay converts the $2.09M modeled capture opportunity into a contractual commitment, aligns vendor incentives with the County's three named KPIs, and protects the County's downside — without altering the base price scored under Criterion V. The specific percentages, thresholds, and reconciliation methodology are negotiable at contract.
+
+---
+
+# Section 9 — Administrative Services: Reporting, Billing, and Claims Coordination
+
+*In response to Criterion IV's requirement that the program demonstrate Administrative Services, including Claims Processing, Reporting, Billing, and related administrative capabilities.*
+
+## 9.1 KPI alignment with County priorities — the three KPIs named in Addendum #2
+
+Vitality's reporting framework is structured around the three KPIs the County named in Addendum #2, in this order:
+
+**KPI 1 — Continued member engagement**
+- 30/60/90-day active rate
+- Weekly check-in completion rate
+- Coaching touchpoint volume per member per month
+- Time-to-disengagement (days from last activity)
+- Cohort retention curves
+
+**KPI 2 — Proper use of GLP-1 medications**
+- Twelve-month adherence rate on GLP-1 pathway
+- Titration completion rate
+- Side-effect-driven discontinuation rate (vs. unmanaged baseline)
+- Fill-reconciliation gap rate
+- Clinical-visit attendance rate
+
+**KPI 3 — Cost savings**
+- Year-over-year medical cost trend for enrolled cohort vs. matched no-program cohort
+- GLP-1 PMPY (per member per year) for enrolled vs. unenrolled GLP-1 users
+- Productivity savings estimate (RAND model)
+- Cumulative program ROI ratio
+
+## 9.2 Reporting cadence
+
+| Audience | Cadence | Format |
+|---|---|---|
+| County Risk Management and HR | Monthly | Live web link to the employer dashboard, plus a monthly PDF snapshot (PDF export deployed in implementation Week 6) |
+| County executive (County Manager, Finance) | Quarterly | Executive summary with KPI trend, financial summary, action items |
+| Board of County Commiss **...**
+
+_This response is too long to display in full._
