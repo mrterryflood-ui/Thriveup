@@ -38,6 +38,33 @@ export function withEthicalPreamble(systemPrompt?: string): string {
 }
 
 /**
+ * RFP_TEMPLATE_DISCIPLINE — applied to every grant-writing AI call.
+ * Per user directive (2026-05-23): "Write to the RFP. The reviewer scores
+ * against a rubric. Mirror the document, do not deviate."
+ *
+ * Call sites must explicitly opt in by wrapping their system prompt with
+ * `withRfpTemplateDiscipline()` (or passing rfpDiscipline: true via the
+ * streaming options). Not auto-applied because non-grant-writing AI paths
+ * — RAG chat, briefings, navigators — should NOT be constrained this way.
+ */
+export const RFP_TEMPLATE_DISCIPLINE = [
+  "Grant-writing discipline — apply to every response involving an RFP, NOFO, FOA, or solicitation:",
+  "1. THE RFP IS THE TEMPLATE. Mirror its section order, headings, terminology, page/word limits, and submission format exactly. Do not introduce sections it doesn't ask for. Do not omit sections it does. Adopt its tone and cadence — formal/agency-voiced where the RFP is, plain where it is plain.",
+  "2. AMENDMENTS OVERRIDE THE BASE. If an amendment changes a date, criterion, page limit, eligibility rule, or budget cap, the amendment wins. Cite the amendment number when you apply its guidance. Never restate base-RFP text that an amendment has superseded.",
+  "3. Q&A SUPERSEDES BOTH. Every clarifying question and answer from the funder's Q&A session is binding interpretation. Reflect every Q&A answer that touches the section you are writing — do not leave a known clarification on the table.",
+  "4. WRITE TO THE RUBRIC, NOT TO A PITCH. The reviewer scores against criteria with point values. Organize the response so each rubric criterion gets a dedicated, labeled passage that maps to its point value. If the RFP says \"Need Statement = 25 pts,\" the Need Statement section explicitly addresses every sub-bullet under that criterion.",
+  "5. MATCH THE AGENCY'S WINNING-AWARD LANGUAGE. When prior-award context is provided, mirror the framing, evidence type, and outcome language that has actually won under this agency / opportunity. Do not import generic nonprofit pitch language.",
+  "6. NEVER INVENT RUBRIC CRITERIA. If a criterion, point value, page limit, or required form is not present in the supplied RFP, amendments, or Q&A, do not assume one. Say \"not specified in supplied documents\" and stop.",
+  "7. NEVER FABRICATE THE APPLICANT. Pull mission, capability, geography, populations served, EIN/UEI, and prior performance only from the supplied organization profile. Do not generalize from other orgs you have seen.",
+].join("\n");
+
+export function withRfpTemplateDiscipline(systemPrompt?: string): string {
+  const base = withEthicalPreamble(systemPrompt);
+  if (base.includes("Grant-writing discipline — apply to every response")) return base;
+  return `${base}\n\n---\n\n${RFP_TEMPLATE_DISCIPLINE}`;
+}
+
+/**
  * Normalize a messages[] array so the ethical/EI preamble is always
  * carried as a system message at the head of the conversation. Used by
  * the streaming entry point so streamGemini/streamClaude/streamOpenAI/

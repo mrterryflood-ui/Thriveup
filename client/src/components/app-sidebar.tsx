@@ -158,6 +158,9 @@ const programMgmtItems: NavItem[] = [
 const grantEngineItems: NavItem[] = [
   { title: "This Week (Monday Brief)", url: "/this-week", icon: Calendar },
   { title: "Live Grant Opportunities", url: "/grants", icon: Target },
+  { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy },
+  { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
+  { title: "RFP-Driven Writer", url: "/grant-narrative", icon: FileText },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },

@@ -5398,3 +5398,125 @@ export const insertBriefingWorkflowSchema = createInsertSchema(briefingWorkflows
 });
 export type InsertBriefingWorkflow = z.infer<typeof insertBriefingWorkflowSchema>;
 export type BriefingWorkflow = typeof briefingWorkflows.$inferSelect;
+
+// ============================================================================
+// MULTI-TENANT GRANT DISCOVERY (Task #54)
+// One organization per signed-in user; per-org grant scoring, tracking, and
+// RFP document layering. TCAF's internal pipeline stays untouched on
+// grantOpportunities.fitScore — these tables hold every OTHER org's view.
+// ============================================================================
+
+export const organizations = pgTable("organizations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  name: varchar("name", { length: 500 }).notNull(),
+  ein: varchar("ein", { length: 32 }),
+  missionText: text("mission_text"),
+  capabilityStatementUrl: varchar("capability_statement_url", { length: 1000 }),
+  capabilityStatementText: text("capability_statement_text"),
+  focusAreas: text("focus_areas").array().notNull().default(sql`'{}'::text[]`),
+  populationsServed: text("populations_served").array().notNull().default(sql`'{}'::text[]`),
+  state: varchar("state", { length: 2 }),
+  counties: text("counties").array().notNull().default(sql`'{}'::text[]`),
+  budgetRange: varchar("budget_range", { length: 50 }),
+  is501c3: boolean("is_501c3").notNull().default(false),
+  isTcafOrg: boolean("is_tcaf_org").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_orgs_user").on(t.userId),
+]);
+
+export const insertOrganizationSchema = createInsertSchema(organizations).omit({
+  id: true, createdAt: true, updatedAt: true, isTcafOrg: true,
+});
+export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
+export type Organization = typeof organizations.$inferSelect;
+
+export const grantOrgScores = pgTable("grant_org_scores", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantId: varchar("grant_id", { length: 100 }).notNull(),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  fitScore: integer("fit_score").notNull(),
+  reasoning: text("reasoning"),
+  scoredAt: timestamp("scored_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_grant_org_unique").on(t.grantId, t.orgId),
+  index("idx_grant_org_org").on(t.orgId),
+]);
+
+export const insertGrantOrgScoreSchema = createInsertSchema(grantOrgScores).omit({ id: true, scoredAt: true });
+export type InsertGrantOrgScore = z.infer<typeof insertGrantOrgScoreSchema>;
+export type GrantOrgScore = typeof grantOrgScores.$inferSelect;
+
+export const grantOrgTracking = pgTable("grant_org_tracking", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantId: varchar("grant_id", { length: 100 }).notNull(),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  // status: tracking | applied | won | lost | withdrawn | dismissed
+  status: varchar("status", { length: 32 }).notNull().default("tracking"),
+  notes: text("notes"),
+  appliedAt: timestamp("applied_at"),
+  decidedAt: timestamp("decided_at"),
+  awardAmount: integer("award_amount"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_tracking_unique").on(t.grantId, t.orgId),
+  index("idx_tracking_org_status").on(t.orgId, t.status),
+]);
+
+export const insertGrantOrgTrackingSchema = createInsertSchema(grantOrgTracking).omit({
+  id: true, createdAt: true, updatedAt: true,
+});
+export type InsertGrantOrgTracking = z.infer<typeof insertGrantOrgTrackingSchema>;
+export type GrantOrgTracking = typeof grantOrgTracking.$inferSelect;
+
+// RFP documents: base RFP + amendments + Q&A transcripts.
+// Precedence at draft time: qa > amendment > base.
+export const rfpDocuments = pgTable("rfp_documents", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }), // nullable — user may upload before linking to a grant
+  kind: varchar("kind", { length: 16 }).notNull(), // base | amendment | qa
+  title: varchar("title", { length: 500 }).notNull(),
+  fileUrl: varchar("file_url", { length: 1000 }),
+  parsedText: text("parsed_text").notNull(),
+  version: integer("version").notNull().default(1),
+  supersedesId: varchar("supersedes_id", { length: 100 }),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_rfp_docs_org_grant").on(t.orgId, t.grantId),
+]);
+
+export const insertRfpDocumentSchema = createInsertSchema(rfpDocuments).omit({ id: true, uploadedAt: true });
+export type InsertRfpDocument = z.infer<typeof insertRfpDocumentSchema>;
+export type RfpDocument = typeof rfpDocuments.$inferSelect;
+
+// Cached RFP rubric extraction. JSON shape:
+// { sections: [{ name, pointValue, requirements[], tone?, headingPattern? }], pageLimits, format, ... }
+export const rfpRubrics = pgTable("rfp_rubrics", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  documentId: varchar("document_id", { length: 100 }).notNull(),
+  rubric: jsonb("rubric").notNull(),
+  extractedAt: timestamp("extracted_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_rubric_doc").on(t.documentId),
+]);
+
+export type RfpRubric = typeof rfpRubrics.$inferSelect;
+
+// Agency intelligence cache: prior-award patterns by agency.
+export const agencyIntelligence = pgTable("agency_intelligence", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  agencyName: varchar("agency_name", { length: 500 }).notNull(),
+  cfda: varchar("cfda", { length: 50 }),
+  opportunityNumber: varchar("opportunity_number", { length: 100 }),
+  // intel JSON: { typicalAwardSize, typicalDuration, recentWinners: [...], whatTheyFund, languagePatterns: [...] }
+  intel: jsonb("intel").notNull(),
+  refreshedAt: timestamp("refreshed_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_agency_intel_unique").on(t.agencyName, t.cfda, t.opportunityNumber),
+]);
+
+export type AgencyIntelligence = typeof agencyIntelligence.$inferSelect;

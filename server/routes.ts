@@ -114,6 +114,8 @@ import { registerStandardsRoutes } from "./standards-routes";
 import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerRegionalBriefingRoutes } from "./regional-briefing-routes";
 import { registerCorridorDocRoutes } from "./corridor-docs";
+import { registerOrgProfileRoutes } from "./org-profile-routes";
+import { registerGrantNarrativeRoutes } from "./grant-narrative-routes";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerVoiceRoutes } from "./voice-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
@@ -122,6 +124,7 @@ import { registerTradeSimsRoutes } from "./trade-sims-routes";
 import { registerTradeSimsCertRoutes } from "./trade-sims-cert-routes";
 import { registerTradeSimsTrialRoutes } from "./trade-sims-trial-routes";
 import { seedVannDemo } from "./seed-vann-demo";
+import { seedTcafAdmins } from "./seed-tcaf-admins";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -410,6 +413,8 @@ export async function registerRoutes(
   registerObjectStorageRoutes(app);
   registerCrossPlatformRoutes(app);
   registerGrantRoutes(app);
+  registerOrgProfileRoutes(app);
+  registerGrantNarrativeRoutes(app);
   registerAgentKnowledgeRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");
   registerLoiRoutes(app);
@@ -468,6 +473,7 @@ export async function registerRoutes(
   seedVannDemo()
     .then((r) => { if (!r.skipped) console.log("[seed] Vann demo seeded:", r.orgs.join(", ")); })
     .catch((e) => { console.error("[seed] Vann demo failed:", e); });
+  seedTcafAdmins().catch((e) => console.error("[seed] TCAF admins failed:", e));
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
 
   app.get("/api/ai-provider", (_req, res) => {

@@ -38,6 +38,15 @@ interface GrantAIResult {
   fitScore: number;
 }
 
+const US_STATE_NAMES: Record<string, string> = {
+  AL: "Alabama", AK: "Alaska", AZ: "Arizona", AR: "Arkansas", CA: "California", CO: "Colorado", CT: "Connecticut", DE: "Delaware", FL: "Florida", GA: "Georgia",
+  HI: "Hawaii", ID: "Idaho", IL: "Illinois", IN: "Indiana", IA: "Iowa", KS: "Kansas", KY: "Kentucky", LA: "Louisiana", ME: "Maine", MD: "Maryland",
+  MA: "Massachusetts", MI: "Michigan", MN: "Minnesota", MS: "Mississippi", MO: "Missouri", MT: "Montana", NE: "Nebraska", NV: "Nevada", NH: "New Hampshire", NJ: "New Jersey",
+  NM: "New Mexico", NY: "New York", NC: "North Carolina", ND: "North Dakota", OH: "Ohio", OK: "Oklahoma", OR: "Oregon", PA: "Pennsylvania", RI: "Rhode Island", SC: "South Carolina",
+  SD: "South Dakota", TN: "Tennessee", TX: "Texas", UT: "Utah", VT: "Vermont", VA: "Virginia", WA: "Washington", WV: "West Virginia", WI: "Wisconsin", WY: "Wyoming", DC: "District of Columbia",
+};
+function stateName(abbr: string): string { return US_STATE_NAMES[abbr.toUpperCase()] || abbr; }
+
 function getParamId(req: Request): string {
   const id = req.params.id as string;
   return Array.isArray(id) ? id[0] : String(id);
@@ -640,35 +649,77 @@ function grantToCSVRow(g: GrantOpportunity): string {
 export function registerGrantRoutes(app: Express) {
   app.get("/api/grants", async (req, res) => {
     try {
-      const { category, minFit, status, search } = req.query;
-      let query = db.select().from(grantOpportunities);
+      const { category, minFit, status, search, state, geography, scope } = req.query;
       const conditions: SQL[] = [];
       if (category && typeof category === "string") conditions.push(eq(grantOpportunities.category, category));
       if (status && typeof status === "string") conditions.push(eq(grantOpportunities.status, status));
-      if (minFit && typeof minFit === "string") conditions.push(gte(grantOpportunities.fitScore, parseInt(minFit)));
 
-      let grants;
-      if (conditions.length > 0) {
-        grants = await db.select().from(grantOpportunities).where(and(...conditions)).orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt));
-      } else {
-        grants = await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt));
-      }
+      let grants = conditions.length > 0
+        ? await db.select().from(grantOpportunities).where(and(...conditions)).orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt))
+        : await db.select().from(grantOpportunities).orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt));
 
       if (search && typeof search === "string") {
         const s = search.toLowerCase();
-        grants = grants.filter(g =>
-          g.title.toLowerCase().includes(s) ||
-          (g.description || "").toLowerCase().includes(s) ||
-          (g.agency || "").toLowerCase().includes(s)
-        );
+        grants = grants.filter(g => g.title.toLowerCase().includes(s) || (g.description || "").toLowerCase().includes(s) || (g.agency || "").toLowerCase().includes(s));
       }
 
-      const enrichedGrants = grants.map(g => ({
-        ...g,
-        teamOfTeams: assignTeamOfTeams(g),
-      }));
+      // Geography filter: keep grants that mention this state OR are explicitly national/multi-state.
+      if (state && typeof state === "string") {
+        const stKey = state.toUpperCase();
+        grants = grants.filter(g => {
+          const hay = `${g.title} ${g.description ?? ""} ${g.eligibilityCriteria ?? ""} ${(g.focusAreas ?? []).join(" ")}`.toLowerCase();
+          const isNational = /national|nationwide|all states|fifty states/i.test(hay);
+          return isNational || hay.includes(stKey.toLowerCase()) || hay.includes(stateName(stKey).toLowerCase());
+        });
+      }
+      if (geography && typeof geography === "string") {
+        const g0 = geography.toLowerCase();
+        grants = grants.filter(g => {
+          const hay = `${g.title} ${g.description ?? ""} ${g.eligibilityCriteria ?? ""}`.toLowerCase();
+          return hay.includes(g0);
+        });
+      }
 
-      res.json(enrichedGrants);
+      // Tenant scoring: if caller has an org and scope=org (or scope omitted), apply per-org fit.
+      const callerUserId = (req as unknown as { user?: { claims?: { sub?: string }; id?: string } }).user;
+      const userId = callerUserId?.claims?.sub || callerUserId?.id;
+      let perOrgScores: Map<string, { fitScore: number; reasoning: string }> | null = null;
+      let callerOrgId: string | null = null;
+      if (userId && scope !== "tcaf") {
+        try {
+          const { organizations } = await import("@shared/schema");
+          const [org] = await db.select().from(organizations).where(eq(organizations.userId, userId));
+          if (org) {
+            callerOrgId = org.id;
+            const { scoreGrantsForOrgBatch } = await import("./org-scoring");
+            perOrgScores = await scoreGrantsForOrgBatch(grants.map(g => g.id), org.id);
+          }
+        } catch (e) {
+          console.error("[grants] per-org scoring failed; falling back to default:", e);
+        }
+      }
+
+      let enriched = grants.map(g => {
+        const orgScore = perOrgScores?.get(g.id);
+        return {
+          ...g,
+          teamOfTeams: assignTeamOfTeams(g),
+          orgFitScore: orgScore?.fitScore ?? null,
+          orgFitReasoning: orgScore?.reasoning ?? null,
+          scoredForOrgId: callerOrgId,
+        };
+      });
+
+      if (minFit && typeof minFit === "string") {
+        const min = parseInt(minFit);
+        enriched = enriched.filter(g => (callerOrgId ? (g.orgFitScore ?? 0) : (g.fitScore ?? 0)) >= min);
+      }
+      // Re-sort by org fit when scoped.
+      if (callerOrgId) {
+        enriched.sort((a, b) => (b.orgFitScore ?? -1) - (a.orgFitScore ?? -1));
+      }
+
+      res.json(enriched);
     } catch (error) {
       console.error("Failed to fetch grants:", error);
       res.status(500).json({ error: "Failed to fetch grants" });

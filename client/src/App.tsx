@@ -144,6 +144,10 @@ const CohortOnboardingPage = lazy(() => import("@/pages/cohort-onboarding"));
 const MapGapCqiPage = lazy(() => import("@/pages/map-gap-cqi"));
 const LogicModelPage = lazy(() => import("@/pages/logic-model"));
 const GrantNarrativePage = lazy(() => import("@/pages/grant-narrative"));
+const RfpWriterPage = lazy(() => import("@/pages/rfp-writer"));
+const OrgOnboardingPage = lazy(() => import("@/pages/org-onboarding"));
+const OrgSettingsPage = lazy(() => import("@/pages/org-settings"));
+const MyGrantsPage = lazy(() => import("@/pages/my-grants"));
 const AdvisoryBoardPage = lazy(() => import("@/pages/advisory-board"));
 const StaffingPlanPage = lazy(() => import("@/pages/staffing-plan"));
 const EcosystemHubPage = lazy(() => import("@/pages/ecosystem-hub"));
@@ -440,7 +444,27 @@ function AppRouter() {
       <Route path="/cohort-onboarding" component={CohortOnboardingPage} />
       <Route path="/cqi" component={MapGapCqiPage} />
       <Route path="/logic-model" component={LogicModelPage} />
-      <Route path="/grant-narrative" component={GrantNarrativePage} />
+      <Route path="/grant-narrative">
+        <RequireAuth reason="Sign in to use the RFP-driven grant writer.">
+          <RfpWriterPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/grant-narrative-legacy" component={GrantNarrativePage} />
+      <Route path="/onboarding/org">
+        <RequireAuth reason="Sign in to create your organization profile.">
+          <OrgOnboardingPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/settings/organization">
+        <RequireAuth reason="Sign in to manage your organization profile.">
+          <OrgSettingsPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/my-grants">
+        <RequireAuth reason="Sign in to track grants and your win rate.">
+          <MyGrantsPage />
+        </RequireAuth>
+      </Route>
       <Route path="/advisory-board" component={AdvisoryBoardPage} />
       <Route path="/staffing-plan" component={StaffingPlanPage} />
       <Route path="/ecosystem" component={EcosystemConnectorPage} />
