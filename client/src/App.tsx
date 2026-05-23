@@ -149,6 +149,7 @@ const OrgOnboardingPage = lazy(() => import("@/pages/org-onboarding"));
 const OrgSettingsPage = lazy(() => import("@/pages/org-settings"));
 const MyGrantsPage = lazy(() => import("@/pages/my-grants"));
 const WonProposalsPage = lazy(() => import("@/pages/won-proposals"));
+const ConglomerateTeamPage = lazy(() => import("@/pages/conglomerate-team"));
 const AdvisoryBoardPage = lazy(() => import("@/pages/advisory-board"));
 const StaffingPlanPage = lazy(() => import("@/pages/staffing-plan"));
 const EcosystemHubPage = lazy(() => import("@/pages/ecosystem-hub"));
@@ -469,6 +470,16 @@ function AppRouter() {
       <Route path="/won-proposals">
         <RequireAuth reason="Sign in to manage your winning-proposals library.">
           <WonProposalsPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/teaming-network">
+        <RequireAuth reason="Sign in to view the internal teaming network, partner roster, and per-RFP rubric mapping.">
+          <ConglomerateTeamPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/conglomerate">
+        <RequireAuth reason="Sign in to view the internal teaming network, partner roster, and per-RFP rubric mapping.">
+          <ConglomerateTeamPage />
         </RequireAuth>
       </Route>
       <Route path="/advisory-board" component={AdvisoryBoardPage} />

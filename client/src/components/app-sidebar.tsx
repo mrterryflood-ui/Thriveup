@@ -160,6 +160,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Live Grant Opportunities", url: "/grants", icon: Target },
   { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy },
   { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy },
+  { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users },
   { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
   { title: "RFP-Driven Writer", url: "/grant-narrative", icon: FileText },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
