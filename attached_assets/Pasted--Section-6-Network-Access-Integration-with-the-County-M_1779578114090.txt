@@ -1,0 +1,160 @@
+---
+
+# Section 6 — Network Access: Integration with the County Medical Plan Ecosystem
+
+*In response to Criterion II's requirement that the program demonstrate the ability to integrate and coordinate with the County's existing medical plan ecosystem (UnitedHealthcare TPA, OptumRx PBM, Rally member-engagement platform, and County HRIS / identity systems), as clarified in Addendum #2.*
+
+## 6.1 PWA architecture
+
+The Vitality member experience is delivered as a Progressive Web Application (PWA). This means:
+
+- **No app-store install required.** Members access the program from any modern web browser on any device — phone, tablet, laptop, desktop. The PWA supports add-to-home-screen on iOS and Android for native-app-style access without the friction of an app-store flow.
+- **Offline capability.** Members can log weight, complete daily check-ins, and review coaching materials offline; data syncs when connectivity returns.
+- **Push notifications** on Android and modern iOS, for coaching prompts, medication reminders, and weekly check-in nudges.
+- **Accessibility:** Design conformance to WCAG 2.1 AA and Section 508; screen-reader support, keyboard navigation, and high-contrast mode in the current member portal. A third-party WCAG 2.1 AA conformance audit will be commissioned during Weeks 4–8 of the 90-day implementation and the audit report delivered to County IT prior to County-wide go-live.
+
+The platform stack is React 19 + TypeScript on the front end, Express 5 on the API server, PostgreSQL with Drizzle ORM for the database, and a Claude AI (Anthropic) integration for the VITA assistant. All software is built and maintained by Dr. Flood's team at The COLLABORATIVE Advocate Foundation.
+
+## 6.2 Integration with UnitedHealthcare (TPA)
+
+UnitedHealthcare is Sedgwick County's TPA on the self-insured plan (Group #902769). Vitality integrates with UHC across three surfaces:
+
+- **Eligibility feed:** SFTP or API-based daily roster sync from UHC's eligibility files. Establishes the eligible adult population (4,213 per Addendum #2) and supports automated enrollment validation.
+- **Claims data feed:** Monthly de-identified claims extract under BAA, used for outcome measurement (claims-cost trend, hospital and ER utilization for the at-risk cohort).
+- **FHIR R4 read access** (if available from UHC's API gateway): supports real-time member clinical context for VITA and Dr. Love's clinical team.
+
+Integration timeline: 30–45 days from contract execution, dependent on UHC IT scheduling.
+
+## 6.3 Integration with OptumRx (PBM)
+
+OptumRx is Sedgwick County's PBM. Vitality integrates across two surfaces:
+
+- **GLP-1 authorization status feed:** read-only access to OptumRx prior-authorization decisions for members enrolled in Vitality. This allows Dr. Love's clinical team to know which members have current GLP-1 authorization without manually contacting members.
+- **Fill-history feed:** weekly extract of GLP-1 fill events for enrolled members. Drives the fill-reconciliation process described in Section 5.6.
+
+We do not request prescribing authority within OptumRx, do not modify the formulary, and do not change any prior-authorization rules. Vitality's role is observational and coordinative.
+
+Integration timeline: 30–45 days from contract execution.
+
+## 6.4 Coexistence with Rally
+
+Rally is the County's current member-engagement platform, provided through UHC. Vitality coexists with Rally rather than replacing it. Our integration model:
+
+- **Single-sign-on hand-off.** Members can launch Vitality from Rally with a one-click SSO flow (Azure AD / SAML 2.0).
+- **Engagement data exchange.** Vitality engagement metrics (check-ins, coaching touchpoints) can be exported to Rally to roll up into the County's broader wellness dashboard.
+- **No duplication of general-wellness content.** Rally remains the source of truth for general wellness (gym reimbursement, biometric screenings, mental health). Vitality is the source of truth for weight management and GLP-1 utilization specifically.
+
+## 6.5 Single sign-on and identity
+
+Vitality supports the following SSO and identity providers:
+
+- Microsoft Entra ID / Azure AD (SAML 2.0 and OIDC) — recommended for the County's environment
+- Okta (SAML 2.0 and OIDC)
+- Google Workspace (OIDC)
+- City/County LDAP (legacy support)
+- Multi-factor authentication enforced for all administrative and clinical users
+- Self-service password reset for members; SSO bypass for members who prefer email/password
+
+## 6.6 Security, HIPAA, and data governance
+
+- **HIPAA compliance** at the technical, administrative, and physical levels. Business Associate Agreement will be executed at contract award.
+- **Encryption** at rest (AES-256) and in transit (TLS 1.3).
+- **Role-based access control.** Clinical roles (Dr. Love and her team), coaching roles (Dr. Vann and her team), administrative roles, and County reviewer roles each have defined access scopes.
+- **Audit logging** of every clinical data access, retained for 7 years per HIPAA.
+- **Data residency** in U.S.-based cloud infrastructure with SOC 2 Type II certification.
+- **42 CFR Part 2 readiness** if the County identifies any substance-use-disorder data flows that require it.
+- **De-identification** for all aggregate reports to the County (HIPAA Safe Harbor or Expert Determination method, depending on cohort size).
+- **Member access and portability rights** under HIPAA: members can export their full Vitality record at any time.
+
+**[Evidence — Criterion II]:** Five named integration surfaces with the County's medical plan ecosystem (UHC eligibility + claims + FHIR R4 · OptumRx prior-auth + fill-history · Rally SSO + engagement export · Azure AD / Entra SSO · CSV/API export to County BI tooling). Defined integration timelines (UHC 30–45 days · OptumRx 30–45 days · SSO 7–21 days). HIPAA Business Associate Agreement executed at award. No displacement of any incumbent vendor.
+
+## 6.7 Customer Service and Member Experience — Response to Criterion III
+
+*In response to Criterion III's requirement that the program demonstrate Customer Service and Member Experience.*
+
+The Vitality member experience is designed around named service touchpoints with measurable response standards:
+
+**Onboarding (first 14 days).** Members complete a 5-step wizard (identity → health baseline → goals → pathway → consent). Each step takes under 3 minutes; full enrollment is under 15. Every member receives a coaching touch with Dr. Vann's team within 72 hours of completing the wizard. Every member entering Pathway B (GLP-1) receives a clinical evaluation visit with Dr. Love or a credentialed clinician on her team within 7 days.
+
+**Daily engagement.** The VITA AI persistent-memory advisor is available 24/7 and remembers every prior conversation. Members ask clinical, logistical, behavioral, and motivational questions in plain language. VITA cites Dr. Love's clinical guidance for medical questions and routes to a human coach or clinician whenever a question exceeds its scope.
+
+**Weekly cadence.** Every member receives at least one structured coaching touchpoint per week (group session, 1:1 check-in, or asynchronous coach review). Weekly check-ins capture weight, mood, side effects (if on GLP-1), and progress against personal goals.
+
+**Live human support — named service standards.**
+
+| Channel | Service Standard |
+|---|---|
+| Secure message to coach | Response within 1 business hour during business hours; same-business-day after hours |
+| Video appointment booking | Confirmed booking within 48 hours |
+| Phone callback | Member-initiated; scheduled same business day |
+| Clinical question (routed to Dr. Love's team) | Clinical response within 1 business day |
+| Urgent clinical issue | Triage within 1 hour; escalation to PCP / ER instructions provided immediately |
+| Concern, complaint, or feature request | Acknowledged within 1 business day; substantive response within 5 business days |
+
+**Member satisfaction measurement.** Net Promoter Score (NPS) collection is deployed in Week 6 of the 90-day implementation and runs continuously thereafter. Each enrolled member is surveyed at day 30, day 90, and quarterly. Results are reported to the County in every monthly operational dashboard starting with the first dashboard delivered after the first member cohort crosses day 30, without filtering or selection.
+
+**Accessibility and inclusion.** The PWA is designed to WCAG 2.1 AA standards; a third-party conformance audit is delivered during implementation Weeks 4–8 prior to County-wide go-live. Member-facing content is written at a 7th-grade reading level. A Spanish-language member interface and bilingual coach roster will be deployed by end of implementation Week 6, in time for the first enrolled cohort to access Spanish-language coaching from day one of go-live. Reasonable accommodations are supported from day one (extended sessions, assistive-technology compatibility, audio formats) via Dr. Vann's coaching team.
+
+**Member privacy.** Individual health data is never shared with the County employer. Only de-identified aggregate data is reported. This distinction is stated to members at enrollment and at every screen where health data is collected.
+
+**Member voice.** A monthly summary of member feedback themes is provided to the County in the operational dashboard, with anonymized verbatim where members have consented.
+
+**[Evidence — Criterion III]:** Six defined service touchpoints with named response standards (1-business-hour coach message · 48-hour appointment booking · same-business-day callback · 1-business-day clinical response · 1-business-day complaint acknowledgment · 5-business-day complaint resolution). NPS measurement (deployed implementation Week 6) at day 30, day 90, and quarterly. WCAG 2.1 AA design conformance with third-party audit delivered implementation Weeks 4–8. Spanish-language member support (deployed implementation Week 6). Monthly member-feedback reporting to County. Distinct individual-vs-aggregate privacy notice at every health-data collection point. See Section 7.4 (Platform Maturity Status) for the full demo-vs-implementation capability matrix.
+
+---
+
+# Section 7 — Implementation Plan
+
+## 7.1 90-day stand-up timeline
+
+| Week | Workstream | Milestone |
+|---|---|---|
+| 1–2 | Contracting | Contract execution, BAA execution, kickoff meeting with County procurement, HR, and Risk Management |
+| 1–3 | Technical | UHC eligibility-feed connection initiated, OptumRx fill-history feed initiated, SSO configuration with County IT |
+| 2–4 | Clinical | Dr. Love finalizes program clinical protocols, GLP-1 titration playbook, side-effect management algorithms |
+| 3–5 | Coaching | Dr. Vann finalizes coaching curriculum, weekly cadence templates, group-session structure |
+| 4–6 | Platform | Vitality PWA tenanted for Sedgwick County; County branding applied; SSO live in test environment |
+| 5–7 | Compliance | HIPAA risk assessment complete; security review with County IT |
+| 6–9 | Launch readiness | UAT with a 10-member County pilot cohort; integration end-to-end validation |
+| 9–10 | Communication | Member-facing communication plan executed (email, intranet, printed materials in County offices) |
+| 10–12 | Soft launch | Open enrollment begins; first 100 members onboarded; daily standups with County |
+| 13 | Full launch | Program at full operational capacity |
+
+## 7.2 Risk register
+
+| Risk | Mitigation |
+|---|---|
+| UHC eligibility-feed delay | Manual roster upload as bridge; standard UHC integration is well-precedented |
+| OptumRx feed delay | Member self-report of GLP-1 status as bridge; manual reconciliation until automated feed live |
+| Low initial enrollment | Targeted communication plan; incentive structure in coordination with County HR |
+| Member skepticism of new program | Dr. Love's local Wichita presence; testimonials from Phase 1 cohort; transparent reporting on outcomes |
+| County turnover during contract | Single-point-of-contact through HIS Prime; documented runbooks; quarterly executive briefings to ensure continuity across personnel changes |
+
+## 7.3 Assistance requested from County staff
+
+Per the RFP's required-content provision that vendors describe assistance sought from County staff, the Vitality team requests the following coordination from designated County personnel during the 90-day implementation:
+
+| From | Assistance requested | When |
+|---|---|---|
+| County HR | Employee roster sign-off; communication-plan review; coordination of all-employee enrollment communications; benefits-portal placement | Weeks 1–10 |
+| County Risk Management | Business Associate Agreement execution; contract execution; insurance certificate review; KORA coordination | Weeks 1–3 |
+| County IT | SSO (Azure AD / Entra) configuration; security review of Vitality platform; firewall / DNS allowance for SFTP and API endpoints | Weeks 1–6 |
+| County Finance | AP setup for HIS Prime; payment-terms confirmation; invoice-routing setup | Weeks 1–3 |
+| UnitedHealthcare integration sponsor (County contact at UHC) | Authorization for eligibility-feed connection and de-identified claims extract under BAA | Weeks 2–6 |
+| OptumRx integration sponsor (County contact at OptumRx) | Authorization for prior-auth status read and weekly fill-history feed under BAA | Weeks 2–6 |
+| Rally / UHC wellness-platform contact | SSO hand-off configuration; engagement-data exchange agreement | Weeks 3–6 |
+| County executive sponsor (County Manager or designee) | Single named executive sponsor for escalation and quarterly briefings | Throughout |
+
+The Vitality team estimates approximately **15–25 hours of cumulative County staff time across the 90-day implementation**, concentrated in Weeks 1–6 and tapering thereafter. After go-live, ongoing County staff time is expected to be **2–4 hours per month** for operational dashboard review, plus the quarterly executive briefing.
+
+---
+
+## 7.4 Platform Maturity Status — Demo vs. Implementation Deliverables
+
+In the interest of full transparency, this section maps every capability referenced in this proposal against its status in the live demonstration platform (employeehealth.replit.app) versus what is delivered during the 90-day implementation. The County should expect every "Implementation Week X" item below to be production-live by the corresponding week of the implementation timeline in Section 7.1, in advance of County-wide member go-live.
+
+| Capability | Status in live demo (today) | Delivered by | Notes |
+|---|---|---|---|
+| Member portal (weight, milestones, care plan) | **Live** | Day 1 | Wo **...**
+
+_This response is too long to display in full._

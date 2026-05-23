@@ -1,0 +1,205 @@
+# VITALITY WEIGHT MANAGEMENT PROGRAM
+
+## Proposal in Response to Sedgwick County RFP #26-0028
+## Employee Ancillary Benefits — Weight Loss / Weight Management Program
+
+---
+
+**Submitted to:**
+Tammy Culley, Purchasing Agent
+Sedgwick County Purchasing Department
+100 N. Broadway, Suite 610
+Wichita, KS 67202
+purchasing@sedgwick.gov
+
+**Submitted by (Prime Contractor):**
+Eric Hargrave, CEO
+Hargrave Innovative Solutions (HIS)
+ericd@hisolution.org · 601-238-4186
+
+**In partnership with:**
+Love Clinic MedSpa · Vanntastic Solutions · The COLLABORATIVE Advocate Foundation
+
+**Date of submission:** June 2, 2026
+**Submission deadline acknowledged:** 1:45 PM CDT, June 2, 2026
+
+**Addenda acknowledged:**
+- Addendum #1 (as issued) — signed acknowledgment in Appendix C
+- **Addendum #2 (issued May 22, 2026 by Tammy Culley, Purchasing Agent)** — signed acknowledgment in Appendix C
+
+---
+
+## TABLE OF CONTENTS
+
+1. Cover Letter
+2. Executive Summary
+3. Team and Organizational Qualifications
+4. Understanding of the County's Needs
+5. Program Design — Vitality Comprehensive Weight Management
+6. Technology Platform
+7. Implementation Plan
+8. Pricing Model and Return on Investment
+9. Reporting and Performance Metrics
+10. References and Past Performance
+11. Compliance, Insurance, and Certifications
+12. Appendices
+
+---
+
+# Section 1 — Cover Letter
+
+**To:** Ms. Tammy Culley, Purchasing Agent, Sedgwick County
+
+Dear Ms. Culley,
+
+On behalf of Hargrave Innovative Solutions and our three named subcontractors — Love Clinic MedSpa, Vanntastic Solutions, and The COLLABORATIVE Advocate Foundation — I am pleased to submit our proposal in response to RFP #26-0028, Employee Ancillary Benefits — Weight Loss / Weight Management Program.
+
+We acknowledge receipt of Addendum #1 and Addendum #2 (issued May 22, 2026), and signed acknowledgments are included in Appendix C of this proposal.
+
+Our team is local. Three of our four partners are based in Wichita; the fourth is a U.S. Army retiree with deep public-sector implementation experience. We understand Sedgwick County not as a logo on a contract but as our neighbors, our friends, and our families. Several of our partners' family members are on the County medical plan today.
+
+We have read Addendum #2 carefully. The County's disclosure that 373 members are currently on GLP-1 therapy — with 705 members having used a GLP-1 in just the past twelve months — tells us that the County is already absorbing a significant pharmacy-cost burden, and the ~47% twelve-month non-continuation rate (consistent with published unmanaged-GLP-1 patterns of 30–50%) tells us that prior authorization alone is not converting that spend into sustained outcomes. Our proposal is designed around capturing that gap.
+
+We believe this proposal represents the best value available to Sedgwick County under RFP #26-0028:
+
+- We are the only respondent with a fully integrated four-partner structure that combines prescribing clinical capability (Dr. Chela Love, DNP), wellness coaching and behavioral engagement (Dr. J. Michelle Vann), digital platform and engagement systems (Dr. Terry D. Flood, DHA, EdD), and disciplined prime-contractor government compliance (Hargrave Innovative Solutions).
+- Our proposed program model targets a modeled Year-1 capture opportunity of approximately $2.09 million within the County's current 373-member GLP-1 cohort, addressable through migration from unmanaged to managed-protocol therapy, while also serving the broader 1,525 at-risk adult population with evidence-based lifestyle and clinical pathways.
+- Our technology platform is purpose-built to integrate with — not replace — UnitedHealthcare (TPA), OptumRx (PBM), and Rally (current wellness platform). We coordinate; we do not displace.
+- We are HIPAA-compliant, prepared to execute the County's standard Business Associate Agreement at award, and willing to discuss at-risk performance-based pricing tied to engagement, GLP-1 utilization, and cost savings — the three KPIs the County named in the Addendum.
+
+All communication regarding this proposal will route through me as the Prime Contractor's authorized representative. I am personally accountable for our team's performance under any awarded contract.
+
+Thank you for your consideration. We look forward to the opportunity to serve Sedgwick County.
+
+Respectfully submitted,
+
+\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_
+
+**Eric Hargrave, CEO**
+Hargrave Innovative Solutions (Prime Contractor)
+ericd@hisolution.org · 601-238-4186
+
+---
+
+# Section 2 — Executive Summary
+
+## 2.1 The three-sentence thesis
+
+Sedgwick County is already spending approximately $5.15M per year on unmanaged GLP-1 medications for 373 employees and dependents, with a ~47% twelve-month non-continuation rate — consistent with published unmanaged-GLP-1 patterns of 30–50% — that demonstrates prior authorization alone is not working. Vitality's integrated clinical-plus-coaching managed-care protocol represents a **modeled Year-1 capture opportunity of approximately $2.09M** against that current spend, addressable through migration from unmanaged to managed-protocol therapy and nearly funding the entire program; we also serve the broader 1,525 at-risk adult population with evidence-based lifestyle and clinical pathways. We build with, not against, UnitedHealthcare, OptumRx, and Rally; we displace no existing vendor; and we are the only respondent purpose-built for the four-partner program design model the County asked for.
+
+## 2.2 What Vitality is
+
+Vitality is a comprehensive, virtual-only weight management program designed for self-insured public-sector employers. The program combines:
+
+- **Three evidence-based clinical pathways** (Lifestyle, GLP-1-Managed, and Surgical-Coordinated), each anchored in published evidence (NIH/DPP, STEP Trials, LOOK AHEAD, RAND).
+- **A 5-phase member journey** (onboarding, baseline, intensive intervention, maintenance, graduation) overseen by Dr. Chela Love, DNP and her clinical team at Love Clinic MedSpa.
+- **A behavioral coaching engine** led by Dr. J. Michelle Vann, with weekly check-ins, lifestyle accountability, and family/youth program extensions.
+- **A digital Progressive Web App platform** (no app-store install required) built and operated by Dr. Terry D. Flood's team at The COLLABORATIVE Advocate Foundation, with FHIR/HL7 integration, persistent-memory AI coaching, and HIPAA-grade security.
+- **Prime contractor administration** by Hargrave Innovative Solutions, providing government contract management, compliance oversight, reporting coordination, and single-point accountability.
+
+## 2.3 Why Vitality wins on the County's three named KPIs
+
+The County named three KPIs in Addendum #2, in this order:
+
+1. **Member engagement** — Vitality's VITA AI persistent-memory advisor remembers every prior conversation with each member and resumes context across sessions. Combined with Dr. Vann's weekly behavioral cadence, the program is designed to sustain engagement over 12–24 months, not just at signup.
+2. **Proper use of GLP-1s** — Dr. Love's structured titration protocol, OptumRx fill-history reconciliation, and side-effect management directly address the non-continuation pattern visible in the County's 705 → 373 cohort data.
+3. **Cost savings** — modeled Year-1 economic opportunity of approximately $3.05M (the $2.09M GLP-1 capture plus $675K medical and $282K productivity savings) against a $1.71M Year-1 program cost.
+
+## 2.4 Why Vitality wins on the County's procurement preferences
+
+| County preference (from Addendum #2 and RFP) | Vitality alignment |
+|---|---|
+| Comprehensive solution, not administration | Four-partner integrated team designs the program end-to-end |
+| Support-focused, not compliance-focused | Coaching-plus-clinical wraparound; no PBM-style claim denial |
+| Virtual delivery only | PWA-native platform; no onsite costs |
+| Adults 18+ | Adult-only clinical scope; simplified pathway |
+| Integration with existing UHC / OptumRx / Rally | Coexistence architecture; FHIR/HL7-ready |
+| Either prescribing or coaching clinical model acceptable | Vitality offers both inside a single program |
+| KPI focus: engagement, GLP-1 use, cost savings | Native dashboard and quarterly report structure aligned to these three metrics |
+
+---
+
+# Section 3 — Team and Organizational Qualifications
+
+Vitality is delivered by a four-partner team. Three of four partners are headquartered in Wichita; the fourth is a U.S. Army retiree with extensive federal and public-sector implementation experience. The team is purpose-built for the integrated clinical-plus-coaching-plus-platform model the County asked for.
+
+## 3.1 Prime Contractor — Hargrave Innovative Solutions (HIS)
+
+**Principal:** Eric Hargrave, CEO — ericd@hisolution.org · 601-238-4186
+
+**Role under this contract:** Prime contractor with single-point accountability to Sedgwick County. Responsibilities include government contract management, compliance oversight, reporting coordination, administrative support, financial management, subcontractor coordination, performance management, and BAA execution.
+
+**Relevant experience:** Health-tech platform delivery and multi-vendor IT consulting. Active prime contractor with public-sector engagements. References available upon request.
+
+## 3.2 Clinical Lead — Love Clinic MedSpa
+
+**Principal:** Dr. Chela Love, DNP — chelalove@loveclinicmedspa.com · 316-669-4770
+
+**Location:** 214 S Rock Rd, Suite 101, Wichita, KS 67207 · www.loveclinicmedspa.com
+
+**Role under this contract:** Medical oversight, GLP-1 protocol design and supervision, prescribing authority for in-program GLP-1 management pathway, clinical governance, member medical care.
+
+**Relevant experience:** Active clinical practice in Wichita with substantial GLP-1 patient panel. Active Kansas DNP licensure. References available from current patient panel and referring providers, subject to HIPAA authorization.
+
+## 3.3 Wellness Lead — Vanntastic Solutions
+
+**Principal:** Dr. J. Michelle Vann, Dcc, ThD, MS — 316-350-2601 · www.jmichellevann.com
+
+**Role under this contract:** Wellness coaching, behavioral engagement, lifestyle accountability, weekly member check-in cadence, family and youth programming extensions for members with dependents.
+
+**Relevant experience:** Recognized public speaker (TEDx). Substantive work in youth and family wellness programming and community-based health initiatives in the Wichita area. Active speaker and content creator on lifestyle accountability and behavioral health.
+
+## 3.4 Platform and Data Lead — The COLLABORATIVE Advocate Foundation
+
+**Principal:** Dr. Terry D. Flood, DHA, EdD — **President, The COLLABORATIVE Advocate Foundation** — 254-319-8460
+
+**Role under this contract:** Digital platform and app development, participant engagement systems, reporting and analytics, healthcare data architecture, FHIR/HL7 integration, security and HIPAA technical controls.
+
+**Credentials:** DHA (Doctor of Health Administration), EdD (Doctor of Education); PMP-eligible (project management).
+
+**Relevant experience:** U.S. Army retiree with extensive public-sector implementation background. Holds active U.S. government Secret-level clearance (current status verified by HIS prior to submission). Specialization in healthcare data standards (FHIR, HL7), population health analytics, and federal-grade systems implementation.
+
+## 3.5 Subcontracting structure
+
+Hargrave Innovative Solutions is the sole Prime Contractor. Love Clinic MedSpa, Vanntastic Solutions, and The COLLABORATIVE Advocate Foundation are named subcontractors. All four partners have agreed to the team structure and have authorized this proposal. The County contracts only with HIS; HIS holds three back-to-back subcontract agreements that flow down all material terms (including HIPAA / BAA, insurance, performance standards, and termination provisions) from the County contract.
+
+This structure provides the County with:
+- A single point of contact (Eric Hargrave) for all contractual, performance, and escalation matters
+- Single-source billing and accounts payable
+- Disciplined compliance management through HIS's prime-contractor administrative function
+- Clear delineation of clinical responsibility (Dr. Love), wellness responsibility (Dr. Vann), and technology responsibility (Dr. Flood)
+
+---
+
+# Section 4 — Understanding of the County's Needs
+
+## 4.1 Population baseline (from Addendum #2)
+
+The County disclosed the following figures in Addendum #2 (issued May 22, 2026). Vitality has structured the entire proposal around these numbers as authoritative.
+
+| Metric | Value |
+|---|---|
+| Total members enrolled on County medical plans (all ages) | 5,871 |
+| Eligible adult population (employee + dependents age 18+) | 4,213 |
+| Female share of population | 53% |
+| Currently on GLP-1 medication | 373 (6.3% of enrolled, 8.9% of adults) |
+| Used GLP-1 in past 12 months | 705 (12.0% of enrolled, 16.7% of adults) |
+| BMI ≥ 30 count | Unavailable from carrier |
+| CDC PLACES county obesity prevalence | 36.2% |
+| Modeled at-risk adult population | ~1,525 (4,213 × 36.2%) |
+| TPA | UnitedHealthcare (self-insured Group #902769) |
+| PBM | OptumRx |
+| Broker of record | IMA |
+| Current wellness platform | Rally (via UHC) |
+| Incumbent weight-management vendor | None |
+| Required service delivery | Virtual only |
+
+## 4.2 The GLP-1 utilization picture
+
+The single most operationally significant disclosure in Addendum #2 is the GLP-1 utilization data. We interpret it as follows:
+
+**(a) Current GLP-1 spend is substantial and unmanaged.** At the conservative RAND 2023 figure of $13,800 per unmanaged GLP-1 patient per year, the 373 current GLP-1 members represent approximately $5.15 million in annual pharmacy cost to the County's medical plan. This spend is occurring with no clinical oversight beyond standard PBM prior authorization.
+
+**(b) The ~47% twelve-month non-continuation rate is the diagnostic signal.** 705 members used a GLP-1 in the past twelve months, but only 373 are on therapy today — a 332-member differential, or approximately 47% non-continuation. We use "non-continuation" rather than pure "discontinuation" because the County figure may include planned course completions, approved-but-never-filled prior authorizations, within-class therapy switches, and members recently started who are still in titration. Even with those qualifications, the figure sits squarely within the published unmanaged-GLP-1 range of 30–50% twelve-month non-continuation (Gleason et al., JAMA Network Open 2024; AHIP real-world adherence analysis 2023), and the underlying drivers are well-established: side effects (nausea, fatigue) without titration support, absence of behavioral coaching, and no clinical follow-up.
+
+**(c) The capture opportunity is concrete and addressable.** RAND's 2023 conservative figure for the cost differential between unmanaged and managed GLP-1 therapy is $5,600 per patient per year ($13,800 − $8
