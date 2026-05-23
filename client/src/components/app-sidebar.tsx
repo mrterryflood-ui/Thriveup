@@ -163,6 +163,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users },
   { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
   { title: "RFP-Driven Writer", url: "/grant-narrative", icon: FileText },
+  { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },

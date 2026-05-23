@@ -16,6 +16,57 @@ import { extractComplianceMatrix, saveComplianceMatrix, loadComplianceMatrix, pr
 import { loadRfpDocumentStack } from "./rfp-rubric";
 
 export function registerRfpFidelityRoutes(app: Express) {
+  // Hub index: every grant this org has uploaded at least one RFP doc for.
+  // Used by /rfp-fidelity (the picker page) so users can land in the engine
+  // from the sidebar without already knowing a grantId.
+  app.get("/api/me/rfp-fidelity/grants", requireAuth, requireOrg, async (req: Request, res: Response) => {
+    const org = getCallerOrg(req)!;
+    try {
+      const docs = await db.select({ id: rfpDocuments.id, grantId: rfpDocuments.grantId, kind: rfpDocuments.kind, title: rfpDocuments.title, uploadedAt: rfpDocuments.uploadedAt })
+        .from(rfpDocuments).where(eq(rfpDocuments.orgId, org.id));
+      const byGrant = new Map<string, { grantId: string; docCounts: { base: number; amendment: number; qa: number }; docTitle: string | null; lastUploadedAt: Date | null }>();
+      for (const d of docs) {
+        if (!d.grantId) continue;
+        const cur = byGrant.get(d.grantId) ?? { grantId: d.grantId, docCounts: { base: 0, amendment: 0, qa: 0 }, docTitle: null, lastUploadedAt: null };
+        if (d.kind === "base") { cur.docCounts.base++; cur.docTitle = cur.docTitle ?? d.title; }
+        else if (d.kind === "amendment") cur.docCounts.amendment++;
+        else if (d.kind === "qa") cur.docCounts.qa++;
+        if (!cur.lastUploadedAt || (d.uploadedAt && d.uploadedAt > cur.lastUploadedAt)) cur.lastUploadedAt = d.uploadedAt;
+        byGrant.set(d.grantId, cur);
+      }
+      const grantIds = Array.from(byGrant.keys());
+      const grants = grantIds.length > 0
+        ? await db.select({ id: grantOpportunities.id, title: grantOpportunities.title, agency: grantOpportunities.agency, deadline: grantOpportunities.deadline }).from(grantOpportunities)
+        : [];
+      const grantMap = new Map(grants.map(g => [g.id, g]));
+      const matrixCounts = grantIds.length > 0
+        ? await db.select({ grantId: complianceMatrixItems.grantId, sectionType: complianceMatrixItems.sectionType, status: complianceMatrixItems.status }).from(complianceMatrixItems).where(eq(complianceMatrixItems.orgId, org.id))
+        : [];
+      const countMap = new Map<string, { total: number; L: number; M: number; gaps: number }>();
+      for (const m of matrixCounts) {
+        const c = countMap.get(m.grantId) ?? { total: 0, L: 0, M: 0, gaps: 0 };
+        c.total++;
+        if (m.sectionType === "L") c.L++;
+        if (m.sectionType === "M") c.M++;
+        if (m.status === "gap" || m.status === "open") c.gaps++;
+        countMap.set(m.grantId, c);
+      }
+      const rows = Array.from(byGrant.values()).map(r => ({
+        grantId: r.grantId,
+        title: grantMap.get(r.grantId)?.title ?? r.docTitle ?? `Grant ${r.grantId.slice(0, 8)}…`,
+        agency: grantMap.get(r.grantId)?.agency ?? null,
+        deadline: grantMap.get(r.grantId)?.deadline ?? null,
+        docCounts: r.docCounts,
+        matrixCounts: countMap.get(r.grantId) ?? { total: 0, L: 0, M: 0, gaps: 0 },
+        lastUploadedAt: r.lastUploadedAt,
+      })).sort((a, b) => (b.lastUploadedAt?.getTime() ?? 0) - (a.lastUploadedAt?.getTime() ?? 0));
+      res.json({ grants: rows });
+    } catch (err) {
+      console.error("[rfp-fidelity] grants index failed:", err);
+      res.status(500).json({ error: err instanceof Error ? err.message : "Failed" });
+    }
+  });
+
   app.post("/api/me/rfp-fidelity/:grantId/extract", requireAuth, requireOrg, rateLimitAi({ perMinute: 2, perHour: 12 }), async (req: Request, res: Response) => {
     const org = getCallerOrg(req)!;
     const grantId = String(req.params.grantId);

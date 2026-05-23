@@ -444,3 +444,56 @@ Audience-lens framing (United Way / foundation / city) overrides TCAF-centering.
 3. **Saved-workflow replay** — both "Re-run AI" and "Replay data" buttons per saved workflow.
 
 Drizzle uses `inArray()` not `sql ANY()` (avoid crash that took /stream offline 2026-05-22 22:28 UTC).
+
+---
+
+## A23 — RFP Fidelity Engine (full build detail, 2026-05-23)
+
+**Status:** Built, shipped, live in sidebar (`RFP Fidelity Engine` → `/rfp-fidelity`). One-line pointer in `replit.md`; reach for this entry when modifying the engine itself.
+
+**Doctrine (also in `docs/grants/RFP-FIDELITY-DOCTRINE.md` + Iron Rule #5):** Every proposal is written **to the reviewers/scorers, not to end users**. The RFP and its rubric/instructions are their requirements document — we mirror it back in their language, in their order, against their scoring weights. Reality is fixed; framing is ours. Section L (instructions/format/page/font/attachments) noncompliance = rejection BEFORE Section M (evaluation) is scored — treat L as a pre-flight gate. Source precedence: Q&A > Amendment > Base RFP > Pre-bid notes. Hybrid workaround posture: only propose workarounds for real gaps; if we're a clean fit, no workaround is forced.
+
+**Schema:** `compliance_matrix_items` (orgId, grantId, documentId, reqNumber, rfpSection, sectionType `L|M|C|other`, requirementVerbatim, requirementType `shall|must|will|should|may|informational`, scoringWeight, sourceKind, evidenceRef, workaroundProposed, answeringSectionName, status `open|covered|workaround|gap`, confidence 0–100). Insert schema + types exported.
+
+**Engine (`server/rfp-fidelity-engine.ts`):**
+- `extractComplianceMatrix({ base, amendments, qa, meetingNotes })` — AI extractor, returns verbatim shall/must items tagged L/M/C with precedence Q&A>amend>base.
+- `saveComplianceMatrix({ orgId, grantId, documentId, items })` — preserves manually-edited rows by reqNumber.
+- `loadComplianceMatrix(orgId, grantId)`.
+- `buildComplianceMatrixBlock(items)` — formatted L/M/C prompt block w/ the "In response to [reqNumber]…" + `[Evidence: …]` + `{{ACTION REQUIRED}}` pattern + Section L checklist.
+- `proposeWorkaround({ item, orgCapabilitiesSummary, rfpAllowsTeaming })` — hybrid: short-circuits clean fits (evidence on file + confidence ≥70 + status≠gap).
+- `runFidelityAudit(items, draftSectionNames)` — counts mandatory shall/must items, classifies covered / withWorkaround / gaps, separates `sectionLNoncompliance` as pre-rejection risk.
+- `buildExtractorInputFromStack(stack, meetingNotes)` — adapts the existing RFP doc stack loader.
+
+**Routes (`server/rfp-fidelity-routes.ts`, all auth+org gated):**
+- `GET  /api/me/rfp-fidelity/grants` — hub index, returns every grant this org has docs for w/ matrix counts (powers the picker page)
+- `POST /api/me/rfp-fidelity/:grantId/extract` — body: `{ meetingNotes? }`, rate-limited
+- `GET  /api/me/rfp-fidelity/:grantId`
+- `GET  /api/me/rfp-fidelity/:grantId/audit?draftSections=A||B||C`
+- `PATCH /api/me/rfp-fidelity/items/:itemId` — allowed fields: evidenceRef, workaroundProposed, answeringSectionName, status, confidence, requirementVerbatim, rfpSection, sectionType, requirementType, scoringWeight
+- `POST /api/me/rfp-fidelity/items/:itemId/workaround` — body: `{ rfpAllowsTeaming?, orgCapabilitiesSummary? }`
+- `DELETE /api/me/rfp-fidelity/items/:itemId`
+- `GET  /api/me/rfp-fidelity/:grantId/grant-meta` — tenant-scoped via rfp_documents ownership (architect IDOR fix)
+
+Registered in `server/routes.ts` (import + `registerRfpFidelityRoutes(app)` after activeBids).
+
+**Drafter wiring (the bridge — same matrix powers both the audit and the AI writer):**
+- `server/rfp-rubric.ts` `generateDraftFromRubric` accepts `complianceMatrix?: ComplianceMatrixItem[]`; injects `buildComplianceMatrixBlock(...)` into the user prompt; system prompt enforces the verbatim mirroring posture, the `[Evidence: …]` trace tag, and `{{ACTION REQUIRED}}` for gaps; Section L surfaces in `complianceNotes` as a numbered submission checklist.
+- `server/grant-narrative-routes.ts` POST `/api/me/grant-narratives/generate` loads matrix by grantId, passes to drafter, returns `complianceMatrixUsed: { total, L, M, C }` in response.
+
+**UI:**
+- `/rfp-fidelity` → `client/src/pages/rfp-fidelity-index.tsx` — picker / hub. Lists every grant this org has uploaded RFP docs for, with doc counts + matrix status badges + gap counts. Empty state points back to the RFP-Driven Writer for first upload.
+- `/grants/:grantId/compliance` → `client/src/pages/rfp-fidelity-page.tsx` — extract button, per-row inline edits (evidenceRef, answering section, workaround, status, confidence), AI workaround button per row, final audit panel.
+- Sidebar: `grantEngineItems` → "RFP Fidelity Engine" with `ShieldCheck` icon, right after RFP-Driven Writer.
+
+**RAG / agent-knowledge:**
+- `docs/grants/RFP-FIDELITY-DOCTRINE.md` is the canonical doctrine doc.
+- `scripts/compile-agent-knowledge.ts` bumped to v1.2.0, injects an `rfp_fidelity_doctrine` block (summary, pipeline, L vs M, source precedence, workaround posture, drafter pattern, code map, full doctrine text) so any agent loading `/api/agent/knowledge` sees it without re-grepping.
+
+**End-to-end lifecycle (for human use):**
+1. Upload base RFP + amendments + Q&A via the RFP-Driven Writer (`POST /api/me/rfp-documents`, kind=base|amendment|qa, grantId=...).
+2. Open `/rfp-fidelity`, pick the grant, click **Extract / Re-extract Matrix** (paste pre-bid meeting notes if you have them — Q&A precedence).
+3. Walk each row: fill `evidenceRef` (where in our system we prove this), `answeringSectionName` (which draft section will address it), set `status` (covered | workaround | gap), set `confidence`. For real gaps with no evidence, click **AI propose workaround (hybrid)**.
+4. Generate the draft via the RFP-Driven Writer — the same matrix is now the AI's spine. Response includes `complianceMatrixUsed` counts.
+5. Run **Final Fidelity Audit** with your draft section names. Must return `ok: true` and `sectionLNoncompliance: []` before submission.
+
+**Verification at build time:** `npm run db:push` ✓ · `npm run build` ✓ · architect code review APPROVED after one IDOR fix on `grant-meta` (now requires the org to have ≥1 rfp_document for the grant before returning grant metadata).
