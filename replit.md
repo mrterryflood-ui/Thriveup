@@ -77,6 +77,15 @@ National community-infrastructure platform: connects people to grant funding, al
 Legal **The Collaborative Advocate Foundation** · **EIN 41-3618003** · name control **THEC** · **501(c)(3) DETERMINED** (Letter 947) · public charity **170(b)(1)(A)(vi)** · effective 2026-01-14 · FY ends Dec 31 · IRS Mrs. Hurst ID 1793423, 877-829-5500 · **17912 Stefano Drive, Pflugerville, TX 78660-7020** c/o Terry D Flood Sr.
 **SAM/federal IDs (SAM ACTIVE — A11):** UEI **KDDVD1FGLW35** · CAGE **209N1** · renewal **2027-05-06**. Use legal name on federal forms; leave DBA blank.
 
+## Partners & Teaming (load-bearing — verified 2026-05-23)
+**The standing four-person team** (used for Sedgwick County Employee Ancillary Benefits RFP — Weight Loss/Weight Management, due 2026-06-02; reusable across future joint bids):
+- **Dr. Terry D. Flood Sr.** — TCAF President. Lane: digital platform, reporting, participant engagement, AI/data infrastructure.
+- **Dr. J. Michelle Vann** — Sistahs Can We Talk Inc. (KS 501(c)(3)) + Vanntastic Solutions LLC (for-profit coaching, never the applicant). Lane: wellness coaching, behavioral engagement, women's mindset. **Spouse COI (Iasis Christian Center) on City of Wichita/federal — never list Iasis without disclosure.** → A1
+- **Dr. Chela Love, DNP, FNP** — Founder & Clinical Lead, **Love Clinic & Med Spa**, Wichita KS. Lane: bilingual primary-care clinical delivery, GLP-1 medication oversight, clinical referral.
+- **Eric Hargrave** — Founder, **Hargrave Innovative Solutions (HIS)**. Lane: government contract management, compliance oversight, reporting coordination, administrative support. Initiated Sedgwick County outreach (May 12, 2026). **Long-term contracting/compliance partner — not just one RFP.**
+
+Full partner detail (entity types, EINs when on file, scope notes, history) lives in `docs/active-commitments.md` — search "Eric Hargrave" / "Love Clinic" / "Vann". Always also read that file when teaming on an RFP.
+
 ## Two-entity strategy (A10, A17)
 - **TCAF:** (501(c)(3) above) primary applicant for all non-profit/foundation/federal-grant work.
 - **ISS LLC:** (Dr. Flood's for-profit) SBIR/STTR/GSA/for-profit set-asides only. EIN **87-2795417** · UEI **C7YDV3P8EHL7** · CAGE **9VKK3** · SAM Active to 2027-03-30. For-profit-only → ISS LLC primary; flag JV-with-TCAF review; never auto-submit.
