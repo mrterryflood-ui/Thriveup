@@ -575,3 +575,9 @@ id = "obtFzQQo93BIbMtTS5w76"
 uri = "file://docs/his-leave-behind-walkthrough.md"
 type = "text"
 title = "ThriveUp / TCAF — HIS Leave-Behind Walkthrough"
+
+[[outputs]]
+id = "D51VBoqXzUCEPsAdOYyNC"
+uri = "file://docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v2.md"
+type = "text"
+title = "Sedgwick RFP #26-0028 — Vitality Weight Management Proposal v2 (rubric-mirrored, Section L compliant)"
