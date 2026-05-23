@@ -1,10 +1,46 @@
-import { Link } from "wouter";
+import { useEffect } from "react";
+import { Link, useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowRight, LogIn, Building2, Upload, Trophy, ShieldCheck, Users } from "lucide-react";
+import { ArrowRight, LogIn, Building2, Upload, Trophy, ShieldCheck, Users, CheckCircle2 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 export default function PartnersJoinPage() {
+  const { isAuthenticated, isLoading } = useAuth();
+  const [, setLocation] = useLocation();
+
+  // If they're already signed in, skip the sign-in walkthrough entirely.
+  // No org yet → straight to onboarding. Has org → straight to doc library.
+  const { data: orgData, isLoading: orgLoading } = useQuery<{ organization: { id: string } | null }>({
+    queryKey: ["/api/me/organization"],
+    enabled: isAuthenticated,
+  });
+
+  useEffect(() => {
+    if (!isAuthenticated || isLoading || orgLoading) return;
+    if (orgData?.organization) {
+      setLocation("/settings/documents");
+    } else {
+      setLocation("/onboarding/org");
+    }
+  }, [isAuthenticated, isLoading, orgLoading, orgData, setLocation]);
+
+  if (isAuthenticated && (isLoading || orgLoading)) {
+    return (
+      <div className="container max-w-3xl mx-auto p-6 py-16 space-y-4 text-center" data-testid="partners-join-routing">
+        <div className="mx-auto h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center">
+          <CheckCircle2 className="h-5 w-5 text-primary animate-pulse" />
+        </div>
+        <h2 className="text-xl font-semibold">You're already signed in — taking you to the right place…</h2>
+        <p className="text-sm text-muted-foreground">
+          Routing to your organization profile or document library.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="container max-w-5xl mx-auto p-6 space-y-8" data-testid="partners-join-page">
       <div className="text-center space-y-3 py-6">

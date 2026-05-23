@@ -155,14 +155,20 @@ const programMgmtItems: NavItem[] = [
   { title: "Proposal Command", url: "/proposal-command", icon: Zap },
 ];
 
+// My Organization — surfaced as its own top-level group for any logged-in user
+// (org owner OR partner). Hoisted out of grantEngineItems so partners don't
+// have to scroll through 30+ grant tools to find their own profile + docs.
+const myOrgItems: NavItem[] = [
+  { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
+  { title: "Document Library", url: "/settings/documents", icon: FileText },
+];
+
 const grantEngineItems: NavItem[] = [
   { title: "This Week (Monday Brief)", url: "/this-week", icon: Calendar },
   { title: "Live Grant Opportunities", url: "/grants", icon: Target },
   { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy },
   { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy },
   { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users },
-  { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
-  { title: "Document Library", url: "/settings/documents", icon: FileText },
   { title: "RFP-Driven Writer", url: "/grant-narrative", icon: FileText },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck },
   { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart },
@@ -540,6 +546,9 @@ export function AppSidebar() {
           <NavSection label="Community Partners" items={communityPartnersItems} location={location} />
         )}
         <NavSection label="Programs" items={programsItems} location={location} />
+        {isAuthenticated && (
+          <NavSection label="My Organization" items={myOrgItems} location={location} />
+        )}
         {isAuthenticated && (
           <NavSection label="Grant Engine (internal)" items={grantEngineItems} location={location} />
         )}
