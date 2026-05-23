@@ -78,7 +78,11 @@ Legal **The Collaborative Advocate Foundation** · **EIN 41-3618003** · name co
 **SAM/federal IDs (SAM ACTIVE — A11):** UEI **KDDVD1FGLW35** · CAGE **209N1** · renewal **2027-05-06**. Use legal name on federal forms; leave DBA blank.
 
 ## Partners & Teaming (load-bearing — verified 2026-05-23)
-**The standing four-person team** (used for Sedgwick County Employee Ancillary Benefits RFP — Weight Loss/Weight Management, due 2026-06-02; reusable across future joint bids):
+**🚨 Doctrine: teaming is per-proposal, based on lane fit. There is NO standing default team — never assume Flood + Vann + Love + Hargrave team on every bid.** Confirmed teaming per active RFP:
+- **Sedgwick County Employee Ancillary Benefits (Weight Loss/Weight Mgmt, due 2026-06-02):** Flood (TCAF, platform/reporting) + Vann (Vanntastic, coaching) + Love (Love Clinic, clinical/GLP-1) + Hargrave (HIS, compliance/admin).
+- **Lake Worth ISD RFP 2026-0400-26 (K-12 PD/Services/Materials, due 2026-06-04):** **TCAF (Flood) prime + HIS (Hargrave) compliance/contract-admin sub. ONLY these two.** Vann and Love are NOT on this bid.
+
+**Partner roster** (use only when their lane aligns with the specific RFP):
 - **Dr. Terry D. Flood Sr.** — TCAF President. Lane: digital platform, reporting, participant engagement, AI/data infrastructure.
 - **Dr. J. Michelle Vann** — Sistahs Can We Talk Inc. (KS 501(c)(3)) + Vanntastic Solutions LLC (for-profit coaching, never the applicant). Lane: wellness coaching, behavioral engagement, women's mindset. **Spouse COI (Iasis Christian Center) on City of Wichita/federal — never list Iasis without disclosure.** → A1
 - **Dr. Chela Love, DNP, FNP** — Founder & Clinical Lead, **Love Clinic & Med Spa**, Wichita KS. Lane: bilingual primary-care clinical delivery, GLP-1 medication oversight, clinical referral.
