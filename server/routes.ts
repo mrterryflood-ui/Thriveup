@@ -126,6 +126,7 @@ import { registerTradeSimsTrialRoutes } from "./trade-sims-trial-routes";
 import { seedVannDemo } from "./seed-vann-demo";
 import { seedTcafAdmins } from "./seed-tcaf-admins";
 import { registerWonProposalsRoutes } from "./won-proposals-routes";
+import { registerActiveBidsRoutes } from "./active-bids-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -417,6 +418,7 @@ export async function registerRoutes(
   registerOrgProfileRoutes(app);
   registerGrantNarrativeRoutes(app);
   registerWonProposalsRoutes(app);
+  registerActiveBidsRoutes(app);
   registerAgentKnowledgeRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");
   registerLoiRoutes(app);

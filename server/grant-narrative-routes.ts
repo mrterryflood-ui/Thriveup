@@ -1,12 +1,13 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
-import { rfpDocuments, rfpRubrics, grantOpportunities, insertRfpDocumentSchema } from "@shared/schema";
+import { rfpDocuments, rfpRubrics, grantOpportunities, insertRfpDocumentSchema, activeBids } from "@shared/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { requireAuth, requireOrg, getCallerOrg, rateLimitAi } from "./tenant-middleware";
 import { extractRubric, getOrExtractRubric, loadRfpDocumentStack, generateDraftFromRubric, scoreDraftAgainstRubric, type GeneratedDraft } from "./rfp-rubric";
 import { getAgencyIntel } from "./agency-intelligence";
 import { getFoundationIntel, classifyFunder } from "./foundation-intelligence";
 import { loadRelevantWonProposals } from "./won-proposals";
+import type { ActiveBid } from "@shared/active-bids";
 
 export function registerGrantNarrativeRoutes(app: Express) {
   // Upload an RFP doc (base / amendment / qa). Caller provides parsed text (PDF parsing client-side or via separate ingest).
@@ -129,6 +130,31 @@ export function registerGrantNarrativeRoutes(app: Express) {
         });
       } catch (e) { console.error("[grant-narrative] won proposals lookup failed (non-fatal):", e); }
 
+      // Internal team cadence: if an active_bids row exists for this grant,
+      // its per-criterion strategy (team confidence, response cadence, evidence
+      // pointers, named team lanes) gets injected into the AI prompt so the
+      // tracking dashboard + writer engine share one source of truth.
+      let internalStrategy: ActiveBid | null = null;
+      try {
+        if (grantId) {
+          const [bidRow] = await db.select().from(activeBids).where(eq(activeBids.grantId, grantId));
+          if (bidRow) {
+            internalStrategy = {
+              rfpId: bidRow.rfpId,
+              grantId: bidRow.grantId,
+              title: bidRow.title,
+              funder: bidRow.funder,
+              deadline: bidRow.deadline,
+              deadlineIso: bidRow.deadlineIso.toISOString(),
+              teamIds: bidRow.teamIds,
+              notes: bidRow.notes,
+              submission: bidRow.submission,
+              rubric: (bidRow.rubric as ActiveBid["rubric"]) ?? [],
+            };
+          }
+        }
+      } catch (e) { console.error("[grant-narrative] active-bids lookup failed (non-fatal):", e); }
+
       const draft = await generateDraftFromRubric({
         rubric,
         org: org as any,
@@ -137,11 +163,13 @@ export function registerGrantNarrativeRoutes(app: Express) {
         foundationIntel,
         wonProposals,
         docStack,
+        internalStrategy,
       });
 
       res.json({
         draft, rubric, agencyIntel, foundationIntel,
         priorWinsUsed: wonProposals.map(w => ({ id: w.id, funderName: w.funderName, projectTitle: w.projectTitle, dollarAmount: w.dollarAmount })),
+        internalStrategyUsed: internalStrategy ? { rfpId: internalStrategy.rfpId, funder: internalStrategy.funder, criteriaCount: internalStrategy.rubric.length } : null,
       });
     } catch (err) {
       console.error("[grant-narrative] generation failed:", err);

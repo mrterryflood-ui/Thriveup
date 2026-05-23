@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Users, Building2, Stethoscope, FileCheck2, GraduationCap, HeartHandshake, AlertTriangle, CheckCircle2, ExternalLink, Calendar, Target, Trophy } from "lucide-react";
 import { Link } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { ACTIVE_BIDS_SEED, rescoreBid as rescore, daysUntil, fitColor, type ActiveBid, type ActiveBidRubricLine as RubricLine } from "@shared/active-bids";
 
 type Partner = {
   id: string;
@@ -93,45 +95,10 @@ const PARTNERS: Partner[] = [
   },
 ];
 
-type RubricLine = {
-  criterion: string;
-  weight: number;
-  ourResponse: string;
-  evidence?: string;
-  confidence: number; // 0..1 honest self-rating of how strongly we satisfy this criterion
-};
-
-type ActiveBid = {
-  rfpId: string;
-  title: string;
-  funder: string;
-  deadline: string;
-  deadlineIso: string; // for sorting + countdown
-  teamIds: string[];
-  notes: string;
-  rubric: RubricLine[];
-  submission: string;
-};
-
-function rescore(bid: ActiveBid): { points: number; max: number; pct: number } {
-  const scored = bid.rubric.filter(r => r.weight > 0);
-  const points = scored.reduce((s, r) => s + r.weight * r.confidence, 0);
-  const max = scored.reduce((s, r) => s + r.weight, 0);
-  return { points: Math.round(points * 10) / 10, max, pct: max ? Math.round((points / max) * 100) : 0 };
-}
-
-function daysUntil(iso: string): number {
-  const d = new Date(iso).getTime();
-  return Math.ceil((d - Date.now()) / (1000 * 60 * 60 * 24));
-}
-
-function fitColor(pct: number): "default" | "secondary" | "destructive" {
-  if (pct >= 80) return "default";
-  if (pct >= 65) return "secondary";
-  return "destructive";
-}
-
-const ACTIVE_BIDS: ActiveBid[] = [
+// Types + helpers + seed all live in shared/active-bids.ts. The seed below is
+// kept only as a render fallback when the /api/active-bids query is loading or
+// the table is empty — the DB is the source of truth.
+const ACTIVE_BIDS_FALLBACK: ActiveBid[] = [
   {
     rfpId: "lwisd-2026-0400-26",
     title: "Professional Development, Assessment, Consultant, Training, Services & Materials",
@@ -207,6 +174,13 @@ const UNITED_WAY_PITCH = [
 ];
 
 export default function ConglomerateTeamPage() {
+  // DB is the source of truth shared with the AI writer engine. Fall back to
+  // the bundled fallback seed so the dashboard never renders blank during the
+  // first paint.
+  const { data: bidsResp } = useQuery<{ bids: ActiveBid[] }>({ queryKey: ["/api/active-bids"] });
+  const ACTIVE_BIDS: ActiveBid[] = (bidsResp?.bids && bidsResp.bids.length > 0)
+    ? bidsResp.bids.map(b => ({ ...b, deadlineIso: typeof b.deadlineIso === "string" ? b.deadlineIso : new Date(b.deadlineIso as unknown as string | number | Date).toISOString() }))
+    : ACTIVE_BIDS_FALLBACK;
   return (
     <div className="container max-w-6xl mx-auto py-10 px-4 space-y-8">
       <div>

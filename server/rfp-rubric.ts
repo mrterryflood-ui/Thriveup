@@ -6,6 +6,7 @@ import type { AgencyIntel } from "./agency-intelligence";
 import type { FoundationIntel } from "./foundation-intelligence";
 import { buildWonProposalsBlock } from "./won-proposals";
 import type { WonProposal } from "@shared/schema";
+import type { ActiveBid, ActiveBidRubricLine } from "@shared/active-bids";
 
 export type RubricSection = {
   name: string;
@@ -155,6 +156,33 @@ function buildAgencyIntelBlock(intel: AgencyIntel | null): string {
 export type DraftSection = { sectionName: string; pointValue?: number; body: string };
 export type GeneratedDraft = { sections: DraftSection[]; complianceNotes: string };
 
+// Format an active_bids row as a prompt block the AI engine uses to set
+// per-criterion cadence. This is the bridge between the tracking dashboard
+// (where we self-rate confidence per criterion + name the team lane that
+// covers it) and the writer engine (which needs to know "this is the cadence,
+// these are the evidence pointers, this is the partner lane on this section").
+export function buildInternalStrategyBlock(bid: ActiveBid): string {
+  const lines: string[] = [
+    `RFP ID: ${bid.rfpId}`,
+    `Funder: ${bid.funder}`,
+    `Named team (lanes confirmed for THIS bid only — no standing default team): ${bid.teamIds.join(", ")}`,
+    `Notes: ${bid.notes}`,
+    `Submission requirements: ${bid.submission}`,
+    ``,
+    `Per-criterion strategy (mirror this cadence — match the criterion name verbatim, lead with the response, cite the evidence tab):`,
+  ];
+  for (const r of bid.rubric as ActiveBidRubricLine[]) {
+    const pts = r.weight > 0 ? `${r.weight} pts` : "informational";
+    const conf = r.weight > 0 ? ` · team confidence ${Math.round(r.confidence * 100)}%` : "";
+    lines.push(`  • ${r.criterion} (${pts}${conf})`);
+    lines.push(`      Response cadence: ${r.ourResponse}`);
+    if (r.evidence) lines.push(`      Evidence pointer: ${r.evidence}`);
+  }
+  lines.push(``);
+  lines.push(`Rule: every section of your draft must map to one of these criteria. Use the exact criterion names from this list as section headings (or as close as the RFP's heading style allows). Lead each section with the response cadence above and weave in the named evidence. If a criterion has team confidence below 70%, surface the gap honestly — do not inflate.`);
+  return lines.join("\n");
+}
+
 export async function generateDraftFromRubric(params: {
   rubric: ExtractedRubric;
   org: Organization;
@@ -163,8 +191,9 @@ export async function generateDraftFromRubric(params: {
   foundationIntel?: FoundationIntel | null;
   wonProposals?: WonProposal[];
   docStack: { base: RfpDocument | null; amendments: RfpDocument[]; qa: RfpDocument[] };
+  internalStrategy?: ActiveBid | null;
 }): Promise<GeneratedDraft> {
-  const { rubric, org, grant, agencyIntel, foundationIntel, wonProposals, docStack } = params;
+  const { rubric, org, grant, agencyIntel, foundationIntel, wonProposals, docStack, internalStrategy } = params;
   const sectionList = rubric.sections.map((s, i) => `${i + 1}. ${s.headingPattern || s.name}${s.pointValue ? ` (${s.pointValue} pts)` : ""}\n   Requirements: ${s.requirements.join("; ") || "(see RFP)"}\n   Tone: ${s.toneNotes ?? "match RFP voice"}`).join("\n\n");
   const wins = wonProposals ?? [];
   const sys = withRfpTemplateDiscipline(`You are writing a grant proposal section-by-section against the supplied rubric. Return strict JSON: {"sections": [{"sectionName": "...", "pointValue": <number|null>, "body": "<the actual proposal text for this section, mirroring the RFP's tone, terminology, and heading style>"}], "complianceNotes": "short note on what compliance items still need user action (forms, signatures, attachments)"}.
@@ -192,6 +221,10 @@ If PRIOR WINNING PROPOSALS are provided, study the voice, framing, and evidence 
     ``,
     `=== PRIOR WINNING PROPOSALS BY THIS ORGANIZATION (match their voice) ===`,
     buildWonProposalsBlock(wins),
+    ``,
+    internalStrategy
+      ? `=== INTERNAL TEAM CADENCE (per-criterion strategy from the tracking dashboard — mirror this) ===\n${buildInternalStrategyBlock(internalStrategy)}`
+      : `=== INTERNAL TEAM CADENCE ===\n(no active_bids row for this RFP; falling back to rubric-only structure)`,
     ``,
     `=== SOURCE DOCUMENTS (precedence: Q&A > Amendment > Base) ===`,
     buildContextStack(docStack),
