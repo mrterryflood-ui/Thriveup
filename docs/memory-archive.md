@@ -402,3 +402,45 @@ Hub + 8 cards, one per engineering lane, every card has a real working physics s
 **Stay-in-scope explicitly framed as the job, not a fallback:** "Producing extra sections the user didn't ask for is a failure, not a bonus."
 
 No backend/DB/endpoint changes; pure prompt rewrite. Same context loader, same rate limits.
+
+---
+
+## A21 — Recognition-and-Ratification Doctrine (R&R, Flood 2026-05-22)
+
+`docs/recognition-and-ratification-doctrine.md` — TCAF operating lens encoded into every regional briefing.
+
+Three novel claims vs. the 8 nearest strands (Positive Deviance · Harm Reduction · ABCD · CHW/task-shifting · Rogers reinvention · FRAME-IS · Lipsky · Practice-Based Evidence):
+
+1. Mechanism lives at the **BRIEFING layer**, not the intervention layer.
+2. **Dignity clause** = hard non-displacement constraint.
+3. **Counterfactual claim** = R&R is the only path that moves the dependent variable, because displacing existing adaptation is fighting a current.
+
+Wired into `buildSystemPrompt()` in `server/regional-briefing-routes.ts`. Cite this doc on June 3 capstone Q&A.
+
+---
+
+## A22 — Regional Briefing v2 prompt + architecture (2026-05-22)
+
+**Scope-aware prompt (5 scopes):**
+- [A] Situation — §1-4 default
+- [B] Asset map — §1-4 + ecosystem assets, NOT TCAF-only
+- [C] Funding — adds §5
+- [D] TCAF fit — adds §6
+- [E] Full strategy — all sections
+
+Audience-lens framing (United Way / foundation / city) overrides TCAF-centering. Stay-in-scope is the job. "Producing extra sections the user didn't ask for is a failure, not a bonus."
+
+**Discipline hardening (NIGHT pass):**
+- §7 requires literal H3s `### CFIR determinants` + `### Fidelity-critical actions` + `### Sequenced rollout`
+- §8 requires `### RE-AIM scorecard` + `### Outcome commitments table`
+- Pre-flight anchor line REQUIRED first line: `> Audience: X · Scope: Y · Disciplines on: R&R, CFIR, RE-AIM, fidelity, dignity-clause`
+- No-grant-roller default (only [C]/[E] or explicit funding ask surfaces §5)
+- Closed grants filtered server-side (`deadline IS NULL OR >= CURRENT_DATE`)
+- Platforms locked to canonical 15 allowlist in code (stops "25 in scope" drift + stale rows like Advertising Targeting / PillScheduler / Ecosystem Nexus from entering AI context)
+
+**Three-door architecture (LATE-NIGHT, single-point-of-failure fix):** AI is no longer the only path.
+1. AI chat = `/stream`
+2. **No-AI structured = `POST /structured`** — same `{locations, topic, scope}` body; deterministic markdown from DB rows via `loadLocationContext` + `loadStructuredRpliceForCounty`; honest disclosure ("no RPLICE plans on file" instead of inventing them); badge "data-only · no AI" on briefing card; scope dropdown + "Build from data" button in same Ask card.
+3. **Saved-workflow replay** — both "Re-run AI" and "Replay data" buttons per saved workflow.
+
+Drizzle uses `inArray()` not `sql ANY()` (avoid crash that took /stream offline 2026-05-22 22:28 UTC).

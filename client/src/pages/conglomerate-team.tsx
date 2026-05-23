@@ -2,7 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Users, Building2, Stethoscope, FileCheck2, GraduationCap, HeartHandshake, AlertTriangle, CheckCircle2, ExternalLink, Calendar, Target } from "lucide-react";
+import { Users, Building2, Stethoscope, FileCheck2, GraduationCap, HeartHandshake, AlertTriangle, CheckCircle2, ExternalLink, Calendar, Target, Trophy } from "lucide-react";
 import { Link } from "wouter";
 
 type Partner = {
@@ -98,6 +98,7 @@ type RubricLine = {
   weight: number;
   ourResponse: string;
   evidence?: string;
+  confidence: number; // 0..1 honest self-rating of how strongly we satisfy this criterion
 };
 
 type ActiveBid = {
@@ -105,11 +106,30 @@ type ActiveBid = {
   title: string;
   funder: string;
   deadline: string;
+  deadlineIso: string; // for sorting + countdown
   teamIds: string[];
   notes: string;
   rubric: RubricLine[];
   submission: string;
 };
+
+function rescore(bid: ActiveBid): { points: number; max: number; pct: number } {
+  const scored = bid.rubric.filter(r => r.weight > 0);
+  const points = scored.reduce((s, r) => s + r.weight * r.confidence, 0);
+  const max = scored.reduce((s, r) => s + r.weight, 0);
+  return { points: Math.round(points * 10) / 10, max, pct: max ? Math.round((points / max) * 100) : 0 };
+}
+
+function daysUntil(iso: string): number {
+  const d = new Date(iso).getTime();
+  return Math.ceil((d - Date.now()) / (1000 * 60 * 60 * 24));
+}
+
+function fitColor(pct: number): "default" | "secondary" | "destructive" {
+  if (pct >= 80) return "default";
+  if (pct >= 65) return "secondary";
+  return "destructive";
+}
 
 const ACTIVE_BIDS: ActiveBid[] = [
   {
@@ -117,19 +137,20 @@ const ACTIVE_BIDS: ActiveBid[] = [
     title: "Professional Development, Assessment, Consultant, Training, Services & Materials",
     funder: "Lake Worth ISD (TX, 4A, ~3,200 students)",
     deadline: "June 4, 2026 at 2:00 PM CT",
+    deadlineIso: "2026-06-04T14:00:00-05:00",
     teamIds: ["flood-tcaf", "hargrave-his"],
     notes: "K-12 multi-award vendor pool (5-year term). TCAF prime + HIS compliance sub. Hand-delivered or courier only — no email.",
     submission: "Sealed envelope, hand-delivered or courier, marked with company name + RFP number, to 6805 Telephone Rd, Lake Worth TX 76135. Sign every page of Standard Attributes/Certs/T&C packet.",
     rubric: [
-      { criterion: "Purchase price", weight: 30, ourResponse: "Tiered, transparent unit pricing per service line. Volume discounts at 25/50/100-seat thresholds. No per-student SaaS markup — flat campus license model.", evidence: "Pricing sheet in Tab 4, lines mapped to LWISD service categories." },
-      { criterion: "Reputation of vendor / vendor's goods or services", weight: 15, ourResponse: "TCAF: 501(c)(3) DETERMINED · 271 production data tables · 211 live pages · 721-grant intelligence engine. Cited national platform with TX pilot.", evidence: "Capability statement, IRS Letter 947, SAM ACTIVE (UEI KDDVD1FGLW35), platform screenshots." },
-      { criterion: "Quality of vendor's goods or services", weight: 15, ourResponse: "Implementation-science scaffolding (CFIR · RE-AIM · RPLICE). 90 trade-sim lessons, 39 CFIR constructs, AWS D1.1 alignment, FHIR/CDS-Hooks rigor.", evidence: "Quality narrative Tab 5; demo URLs gated behind district credentials." },
-      { criterion: "Extent goods/services meet district needs", weight: 20, ourResponse: "Section-by-section crosswalk to LWISD's stated service categories: PD, assessment, consulting, training, services, materials. AI literacy + CTE/trades + FAFSA + bilingual family engagement (Talk Your Talk, 107 languages) all in-scope.", evidence: "Needs-fit crosswalk Tab 6 — left column = LWISD's scope language verbatim, right column = TCAF deliverable." },
-      { criterion: "Past relationship between district and vendor", weight: 5, ourResponse: "No prior LWISD relationship — disclosed honestly. Mitigation: 3 TX district references (in pursuit), HIS compliance lead as named contract administrator de-risks first engagement.", evidence: "Reference letters Tab 7; HIS bio + sample compliance plan Tab 8." },
-      { criterion: "Long-term cost to district", weight: 10, ourResponse: "5-year TCO model: no per-seat creep, no licensed-curriculum renewal trap. Platform-hosted = district owns data + access at term end.", evidence: "5-year TCO worksheet Tab 4b." },
-      { criterion: "Any other relevant factor specifically listed", weight: 5, ourResponse: "Cybersecurity (SOC-2-aligned controls, 0-PHI-egress on health surfaces), data sovereignty, multilingual accessibility, post-contract data export.", evidence: "Tab 9 — security + accessibility + transition-out plan." },
-      { criterion: "HUB status (informational, 0 pts scored)", weight: 0, ourResponse: "Not HUB-certified at submission; certification path noted.", evidence: "N/A" },
-      { criterion: "TX-based (informational, 0 pts scored)", weight: 0, ourResponse: "TCAF principal office: Pflugerville, TX 78660 (Travis County).", evidence: "IRS Letter 947 address; SAM record." },
+      { criterion: "Purchase price", weight: 30, confidence: 0.90, ourResponse: "Tiered, transparent unit pricing per service line. Volume discounts at 25/50/100-seat thresholds. No per-student SaaS markup — flat campus license model.", evidence: "Pricing sheet in Tab 4, lines mapped to LWISD service categories." },
+      { criterion: "Reputation of vendor / vendor's goods or services", weight: 15, confidence: 0.70, ourResponse: "TCAF: 501(c)(3) DETERMINED · 271 production data tables · 211 live pages · 721-grant intelligence engine. Cited national platform with TX pilot.", evidence: "Capability statement, IRS Letter 947, SAM ACTIVE (UEI KDDVD1FGLW35), platform screenshots." },
+      { criterion: "Quality of vendor's goods or services", weight: 15, confidence: 0.95, ourResponse: "Implementation-science scaffolding (CFIR · RE-AIM · RPLICE). 90 trade-sim lessons, 39 CFIR constructs, AWS D1.1 alignment, FHIR/CDS-Hooks rigor.", evidence: "Quality narrative Tab 5; demo URLs gated behind district credentials." },
+      { criterion: "Extent goods/services meet district needs", weight: 20, confidence: 0.85, ourResponse: "Section-by-section crosswalk to LWISD's stated service categories: PD, assessment, consulting, training, services, materials. AI literacy + CTE/trades + FAFSA + bilingual family engagement (Talk Your Talk, 107 languages) all in-scope.", evidence: "Needs-fit crosswalk Tab 6 — LWISD scope language verbatim → TCAF deliverable." },
+      { criterion: "Past relationship between district and vendor", weight: 5, confidence: 0.20, ourResponse: "No prior LWISD relationship — disclosed honestly. Mitigation: 3 TX district references (in pursuit), HIS compliance lead as named contract administrator de-risks first engagement.", evidence: "Reference letters Tab 7; HIS bio + sample compliance plan Tab 8." },
+      { criterion: "Long-term cost to district", weight: 10, confidence: 0.90, ourResponse: "5-year TCO model: no per-seat creep, no licensed-curriculum renewal trap. Platform-hosted = district owns data + access at term end.", evidence: "5-year TCO worksheet Tab 4b." },
+      { criterion: "Any other relevant factor specifically listed", weight: 5, confidence: 0.85, ourResponse: "Cybersecurity (SOC-2-aligned controls, 0-PHI-egress on health surfaces), data sovereignty, multilingual accessibility, post-contract data export.", evidence: "Tab 9 — security + accessibility + transition-out plan." },
+      { criterion: "HUB status (informational, 0 pts scored)", weight: 0, confidence: 0, ourResponse: "Not HUB-certified at submission; certification path noted.", evidence: "N/A" },
+      { criterion: "TX-based (informational, 0 pts scored)", weight: 0, confidence: 1, ourResponse: "TCAF principal office: Pflugerville, TX 78660 (Travis County).", evidence: "IRS Letter 947 address; SAM record." },
     ],
   },
   {
@@ -137,16 +158,17 @@ const ACTIVE_BIDS: ActiveBid[] = [
     title: "Employee Ancillary Benefits — Weight Loss / Weight Management",
     funder: "Sedgwick County, KS",
     deadline: "June 2, 2026",
+    deadlineIso: "2026-06-02T17:00:00-05:00",
     teamIds: ["flood-tcaf", "vann", "love-clinic", "hargrave-his"],
     notes: "Population-health outcomes, measurable ROI, behavioral engagement, GLP-1 oversight, reporting analytics.",
     submission: "Per Sedgwick County procurement instructions (verify exact channel + sealed-bid requirements before submission).",
     rubric: [
-      { criterion: "Clinical capability + GLP-1 oversight", weight: 25, ourResponse: "Love Clinic (Dr. Chela Love, DNP/FNP) — bilingual primary care + GLP-1 medication oversight. Named clinical lead.", evidence: "Love Clinic capability statement + DNP credential + state license." },
-      { criterion: "Behavioral engagement + coaching", weight: 20, ourResponse: "Vanntastic (Dr. J. Michelle Vann) — wellness coaching, mindset, BIPOC women's health programming.", evidence: "Vanntastic coaching curriculum + author bio." },
-      { criterion: "Reporting + outcomes platform", weight: 20, ourResponse: "TCAF platform: participant engagement tracking, outcome receipts, RPLICE scaffolding, donor/employer reporting, FHIR-aware data layer.", evidence: "Platform demo + sample employer dashboard." },
-      { criterion: "Compliance + contract administration", weight: 15, ourResponse: "HIS (Eric Hargrave) — named compliance lead, 2 CFR Part 200, sub administration, audit-ready documentation.", evidence: "HIS capability statement + sample compliance plan." },
-      { criterion: "Price + long-term value", weight: 15, ourResponse: "Per-enrollee pricing with outcome-tied success fees. Multi-year TCO favorable vs. fragmented vendor stack.", evidence: "Pricing sheet + TCO worksheet." },
-      { criterion: "Other relevant", weight: 5, ourResponse: "Bilingual delivery, data sovereignty, ethical-AI guardrails (no PHI egress; HITL default-on).", evidence: "Security + ethics addendum." },
+      { criterion: "Clinical capability + GLP-1 oversight", weight: 25, confidence: 0.90, ourResponse: "Love Clinic (Dr. Chela Love, DNP/FNP) — bilingual primary care + GLP-1 medication oversight. Named clinical lead.", evidence: "Love Clinic capability statement + DNP credential + state license." },
+      { criterion: "Behavioral engagement + coaching", weight: 20, confidence: 0.85, ourResponse: "Vanntastic (Dr. J. Michelle Vann) — wellness coaching, mindset, BIPOC women's health programming.", evidence: "Vanntastic coaching curriculum + author bio." },
+      { criterion: "Reporting + outcomes platform", weight: 20, confidence: 0.90, ourResponse: "TCAF platform: participant engagement tracking, outcome receipts, RPLICE scaffolding, donor/employer reporting, FHIR-aware data layer.", evidence: "Platform demo + sample employer dashboard." },
+      { criterion: "Compliance + contract administration", weight: 15, confidence: 0.85, ourResponse: "HIS (Eric Hargrave) — named compliance lead, 2 CFR Part 200, sub administration, audit-ready documentation.", evidence: "HIS capability statement + sample compliance plan." },
+      { criterion: "Price + long-term value", weight: 15, confidence: 0.70, ourResponse: "Per-enrollee pricing with outcome-tied success fees. Multi-year TCO favorable vs. fragmented vendor stack.", evidence: "Pricing sheet + TCO worksheet." },
+      { criterion: "Other relevant", weight: 5, confidence: 0.80, ourResponse: "Bilingual delivery, data sovereignty, ethical-AI guardrails (no PHI egress; HITL default-on).", evidence: "Security + ethics addendum." },
     ],
   },
 ];
@@ -201,10 +223,76 @@ export default function ConglomerateTeamPage() {
         <CardHeader className="flex flex-row items-center gap-3 space-y-0">
           <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400" />
           <div>
-            <CardTitle className="text-base">Doctrine: per-proposal teaming</CardTitle>
-            <CardDescription>No standing default team. Partner inclusion is decided RFP-by-RFP, based on whether their lane materially advances scoring on that specific bid.</CardDescription>
+            <CardTitle className="text-base">Doctrine: per-proposal teaming + rubric-first writing</CardTitle>
+            <CardDescription>No standing default team — partners are named RFP-by-RFP based on lane fit. Every response section maps to a scoring criterion in the funder's rubric. We write to reviewers, not end users.</CardDescription>
           </div>
         </CardHeader>
+      </Card>
+
+      <Card className="border-primary/40">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Calendar className="w-5 h-5 text-primary" />Tracking dashboard — sorted by deadline</CardTitle>
+          <CardDescription>Honest self-rescore against each funder's rubric (sum of weight × confidence). Not marketing inflation.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm border-collapse" data-testid="table-tracking">
+              <thead>
+                <tr className="text-left text-xs text-muted-foreground border-b">
+                  <th className="py-1.5 pr-2 font-medium">Funder / RFP</th>
+                  <th className="py-1.5 px-2 font-medium w-28">Deadline</th>
+                  <th className="py-1.5 px-2 font-medium w-20 text-center">Days left</th>
+                  <th className="py-1.5 px-2 font-medium w-32 text-center">Rubric fit</th>
+                  <th className="py-1.5 pl-2 font-medium w-44">Team</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[...ACTIVE_BIDS].sort((a, b) => new Date(a.deadlineIso).getTime() - new Date(b.deadlineIso).getTime()).map(bid => {
+                  const score = rescore(bid);
+                  const days = daysUntil(bid.deadlineIso);
+                  const team = bid.teamIds.map(id => PARTNERS.find(p => p.id === id)?.name.split(" ").slice(0, 2).join(" ")).filter(Boolean);
+                  return (
+                    <tr key={bid.rfpId} className="border-b last:border-b-0 align-top hover:bg-muted/30" data-testid={`tracking-${bid.rfpId}`}>
+                      <td className="py-2 pr-2">
+                        <a href={`#bid-${bid.rfpId}`} className="font-medium hover:underline">{bid.funder}</a>
+                        <div className="text-xs text-muted-foreground">{bid.title.length > 70 ? bid.title.slice(0, 70) + "…" : bid.title}</div>
+                      </td>
+                      <td className="py-2 px-2 text-xs">{bid.deadline}</td>
+                      <td className="py-2 px-2 text-center">
+                        <Badge variant={days <= 14 ? "destructive" : days <= 30 ? "secondary" : "outline"} data-testid={`days-${bid.rfpId}`}>{days}d</Badge>
+                      </td>
+                      <td className="py-2 px-2 text-center">
+                        <Badge variant={fitColor(score.pct)} data-testid={`fit-${bid.rfpId}`}>{score.pct}% · {score.points}/{score.max}</Badge>
+                      </td>
+                      <td className="py-2 pl-2 text-xs text-muted-foreground">{team.join(" · ")}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="border-blue-300 dark:border-blue-700">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />Scan for new bids</CardTitle>
+          <CardDescription>The grant-discovery engine pulls from Grants.gov · SAM.gov · USASpending · curated state/local/foundation. 721 grants currently tracked.</CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button variant="default" asChild data-testid="button-scan-grants">
+            <Link href="/grants"><Target className="w-4 h-4 mr-1" />Browse all opportunities</Link>
+          </Button>
+          <Button variant="outline" asChild data-testid="button-this-week">
+            <Link href="/this-week"><Calendar className="w-4 h-4 mr-1" />This Week (Monday brief)</Link>
+          </Button>
+          <Button variant="outline" asChild data-testid="button-my-grants">
+            <Link href="/my-grants"><Trophy className="w-4 h-4 mr-1" />My Grants & Win Rate</Link>
+          </Button>
+          <Button variant="ghost" size="sm" asChild data-testid="button-rfp-writer">
+            <Link href="/grant-narrative">Open RFP-driven writer →</Link>
+          </Button>
+        </CardContent>
       </Card>
 
       <Card>
@@ -215,14 +303,18 @@ export default function ConglomerateTeamPage() {
         <CardContent className="space-y-4">
           {ACTIVE_BIDS.map(bid => {
             const team = bid.teamIds.map(id => PARTNERS.find(p => p.id === id)!).filter(Boolean);
+            const score = rescore(bid);
             return (
-              <div key={bid.rfpId} className="border rounded-lg p-4" data-testid={`bid-${bid.rfpId}`}>
+              <div key={bid.rfpId} id={`bid-${bid.rfpId}`} className="border rounded-lg p-4 scroll-mt-20" data-testid={`bid-${bid.rfpId}`}>
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <h3 className="font-semibold">{bid.title}</h3>
                     <p className="text-sm text-muted-foreground mt-0.5">{bid.funder}</p>
                   </div>
-                  <Badge variant="destructive" className="shrink-0"><Calendar className="w-3 h-3 mr-1" />{bid.deadline}</Badge>
+                  <div className="flex flex-col items-end gap-1 shrink-0">
+                    <Badge variant="destructive"><Calendar className="w-3 h-3 mr-1" />{bid.deadline}</Badge>
+                    <Badge variant={fitColor(score.pct)} className="text-xs">Rubric fit: {score.pct}% · {score.points}/{score.max}</Badge>
+                  </div>
                 </div>
                 <p className="text-sm mt-2">{bid.notes}</p>
                 <div className="mt-3">
@@ -246,6 +338,7 @@ export default function ConglomerateTeamPage() {
                         <tr className="text-left text-xs text-muted-foreground border-b">
                           <th className="py-1.5 pr-2 font-medium">Scoring criterion</th>
                           <th className="py-1.5 px-2 font-medium w-14 text-center">Pts</th>
+                          <th className="py-1.5 px-2 font-medium w-20 text-center">Self-rate</th>
                           <th className="py-1.5 px-2 font-medium">Our response (reviewer-facing)</th>
                           <th className="py-1.5 pl-2 font-medium">Evidence / tab</th>
                         </tr>
@@ -257,6 +350,13 @@ export default function ConglomerateTeamPage() {
                             <td className="py-2 px-2 text-center">
                               <Badge variant={r.weight >= 20 ? "default" : r.weight >= 10 ? "secondary" : "outline"} className="text-xs">{r.weight}</Badge>
                             </td>
+                            <td className="py-2 px-2 text-center">
+                              {r.weight > 0 ? (
+                                <Badge variant={r.confidence >= 0.8 ? "default" : r.confidence >= 0.6 ? "secondary" : "destructive"} className="text-xs">{Math.round(r.confidence * 100)}%</Badge>
+                              ) : (
+                                <span className="text-xs text-muted-foreground">—</span>
+                              )}
+                            </td>
                             <td className="py-2 px-2 text-muted-foreground">{r.ourResponse}</td>
                             <td className="py-2 pl-2 text-xs text-muted-foreground italic">{r.evidence ?? "—"}</td>
                           </tr>
@@ -265,7 +365,8 @@ export default function ConglomerateTeamPage() {
                       <tfoot>
                         <tr className="border-t">
                           <td className="py-1.5 pr-2 text-xs text-muted-foreground font-medium">Total scored</td>
-                          <td className="py-1.5 px-2 text-center"><Badge>{bid.rubric.reduce((s, r) => s + r.weight, 0)}</Badge></td>
+                          <td className="py-1.5 px-2 text-center"><Badge>{score.max}</Badge></td>
+                          <td className="py-1.5 px-2 text-center"><Badge variant={fitColor(score.pct)}>{score.pct}%</Badge></td>
                           <td colSpan={2} className="py-1.5 pl-2 text-xs text-muted-foreground italic">{bid.submission}</td>
                         </tr>
                       </tfoot>
