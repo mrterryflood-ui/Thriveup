@@ -5,6 +5,8 @@ import { and, desc, eq } from "drizzle-orm";
 import { requireAuth, requireOrg, getCallerOrg, rateLimitAi } from "./tenant-middleware";
 import { extractRubric, getOrExtractRubric, loadRfpDocumentStack, generateDraftFromRubric, scoreDraftAgainstRubric, type GeneratedDraft } from "./rfp-rubric";
 import { getAgencyIntel } from "./agency-intelligence";
+import { getFoundationIntel, classifyFunder } from "./foundation-intelligence";
+import { loadRelevantWonProposals } from "./won-proposals";
 
 export function registerGrantNarrativeRoutes(app: Express) {
   // Upload an RFP doc (base / amendment / qa). Caller provides parsed text (PDF parsing client-side or via separate ingest).
@@ -101,21 +103,46 @@ export function registerGrantNarrativeRoutes(app: Express) {
       const docStack = await loadRfpDocumentStack(org.id, grantId ?? doc.grantId);
       const [grant] = grantId ? await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, grantId)) : [null];
 
+      const funderType = classifyFunder(grant ?? null);
       let agencyIntel = null;
+      let foundationIntel = null;
       if (grant?.agency) {
-        try { agencyIntel = await getAgencyIntel(grant.agency, null, null); }
-        catch (e) { console.error("[grant-narrative] agency intel failed (non-fatal):", e); }
+        try {
+          if (funderType === "foundation") {
+            foundationIntel = await getFoundationIntel(grant.agency, null);
+          } else {
+            agencyIntel = await getAgencyIntel(grant.agency, grant.cfda ?? null, null);
+          }
+        } catch (e) { console.error("[grant-narrative] funder intel failed (non-fatal):", e); }
       }
+
+      // Self-learning: pull this org's most relevant prior winning proposals.
+      let wonProposals: any[] = [];
+      try {
+        const amount = grant?.estimatedFunding ?? grant?.awardCeiling ?? null;
+        wonProposals = await loadRelevantWonProposals({
+          orgId: org.id,
+          funderName: grant?.agency ?? null,
+          funderType,
+          targetAmount: amount,
+          limit: 3,
+        });
+      } catch (e) { console.error("[grant-narrative] won proposals lookup failed (non-fatal):", e); }
 
       const draft = await generateDraftFromRubric({
         rubric,
         org: org as any,
         grant: grant ?? null,
         agencyIntel,
+        foundationIntel,
+        wonProposals,
         docStack,
       });
 
-      res.json({ draft, rubric, agencyIntel });
+      res.json({
+        draft, rubric, agencyIntel, foundationIntel,
+        priorWinsUsed: wonProposals.map(w => ({ id: w.id, funderName: w.funderName, projectTitle: w.projectTitle, dollarAmount: w.dollarAmount })),
+      });
     } catch (err) {
       console.error("[grant-narrative] generation failed:", err);
       res.status(500).json({ error: err instanceof Error ? err.message : "Generation failed" });

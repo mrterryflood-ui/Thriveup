@@ -105,6 +105,9 @@ export default function MyGrantsPage() {
                       <div className="flex flex-col gap-2 items-end">
                         {grant.sourceUrl && <a href={grant.sourceUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline flex items-center gap-1"><ExternalLink className="w-3 h-3" />Source</a>}
                         <Link href={`/grant-narrative?grantId=${grant.id}`}><Button size="sm" variant="outline" data-testid={`button-write-${grant.id}`}>Write draft</Button></Link>
+                        {tracking.status === "awarded" && (
+                          <Link href="/won-proposals"><Button size="sm" variant="secondary" data-testid={`button-save-winning-${grant.id}`}><Trophy className="w-3 h-3 mr-1" />Save winning draft</Button></Link>
+                        )}
                         <Button size="sm" variant="ghost" onClick={() => untrack.mutate(grant.id)} data-testid={`button-remove-${grant.id}`}><Trash2 className="w-3 h-3" /></Button>
                       </div>
                     </div>

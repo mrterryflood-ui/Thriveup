@@ -1,6 +1,7 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
-import { organizations, grantOrgTracking, grantOpportunities, insertOrganizationSchema, insertGrantOrgTrackingSchema } from "@shared/schema";
+import { organizations, grantOrgTracking, grantOpportunities, wonProposals, insertOrganizationSchema, insertGrantOrgTrackingSchema } from "@shared/schema";
+import { classifyFunder } from "./foundation-intelligence";
 import { and, desc, eq } from "drizzle-orm";
 import { requireAuth, getUserId, loadCallerOrg, requireOrg, getCallerOrg } from "./tenant-middleware";
 import { invalidateOrgScores } from "./org-scoring";
@@ -71,6 +72,35 @@ export function registerOrgProfileRoutes(app: Express) {
       const [row] = await db.update(grantOrgTracking).set({ ...updatable, updatedAt: new Date() })
         .where(and(eq(grantOrgTracking.orgId, org.id), eq(grantOrgTracking.grantId, grantId))).returning();
       if (!row) return res.status(404).json({ error: "Not tracking this grant" });
+
+      // Self-learning hook: when status flips to "awarded", auto-create a
+      // winning-proposal stub (without draft text — the user fills that in
+      // from the /my-grants or /won-proposals page).
+      if (row.status === "awarded") {
+        try {
+          const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, grantId));
+          if (grant) {
+            const existing = await db.select({ id: wonProposals.id }).from(wonProposals)
+              .where(and(eq(wonProposals.orgId, org.id), eq(wonProposals.grantId, grantId)));
+            if (existing.length === 0) {
+              await db.insert(wonProposals).values({
+                orgId: org.id,
+                grantId,
+                funderName: grant.agency ?? "Unknown funder",
+                funderType: classifyFunder(grant),
+                dollarAmount: row.awardAmount ?? null,
+                projectTitle: grant.title,
+                draftText: "[Paste your winning proposal text here — the AI will use it to mirror your voice on future drafts to this funder.]",
+                awardedAt: row.decidedAt ?? new Date(),
+                tags: [],
+              });
+            }
+          }
+        } catch (e) {
+          console.error("[org-profile] auto-create won-proposal stub failed (non-fatal):", e);
+        }
+      }
+
       res.json({ tracking: row });
     } catch (err) {
       console.error("[org-profile] tracking update failed:", err);

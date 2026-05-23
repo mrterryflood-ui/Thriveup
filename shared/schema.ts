@@ -5520,3 +5520,44 @@ export const agencyIntelligence = pgTable("agency_intelligence", {
 ]);
 
 export type AgencyIntelligence = typeof agencyIntelligence.$inferSelect;
+
+// Self-learning loop: when an org marks a grant "awarded", they can save the
+// winning draft. Future drafts for the same funder (or similar funders/dollar
+// tiers) retrieve up to 3 of these and inject them as "this is how we win."
+export const wonProposals = pgTable("won_proposals", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }),
+  funderName: varchar("funder_name", { length: 500 }).notNull(),
+  funderType: varchar("funder_type", { length: 32 }).notNull().default("government"), // government | foundation | corporate | state | local
+  dollarAmount: integer("dollar_amount"),
+  projectTitle: varchar("project_title", { length: 500 }),
+  draftText: text("draft_text").notNull(),
+  sections: jsonb("sections"), // optional structured sections for finer retrieval
+  tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
+  awardedAt: timestamp("awarded_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_won_proposals_org").on(t.orgId),
+  index("idx_won_proposals_funder").on(t.orgId, t.funderName),
+]);
+
+export const insertWonProposalSchema = createInsertSchema(wonProposals).omit({ id: true, createdAt: true });
+export type InsertWonProposal = z.infer<typeof insertWonProposalSchema>;
+export type WonProposal = typeof wonProposals.$inferSelect;
+
+// Foundation 990-PF cache. Keyed by EIN when known, else by normalized name.
+// `intel` JSON shape mirrors AgencyIntel: typicalGrantSize, recentRecipients,
+// whatTheyFund, languagePatterns, plus 990-PF specifics (totalAssets,
+// totalGrantsPaid, fiscalYear).
+export const foundationIntelligence = pgTable("foundation_intelligence", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  funderName: varchar("funder_name", { length: 500 }).notNull(),
+  ein: varchar("ein", { length: 32 }),
+  intel: jsonb("intel").notNull(),
+  refreshedAt: timestamp("refreshed_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_foundation_intel_unique").on(t.funderName),
+]);
+
+export type FoundationIntelligence = typeof foundationIntelligence.$inferSelect;

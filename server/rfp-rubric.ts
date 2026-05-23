@@ -3,6 +3,9 @@ import { rfpDocuments, rfpRubrics, organizations, grantOpportunities, type Organ
 import { and, eq, desc } from "drizzle-orm";
 import { generateAIJSON, generateAIResponse, withRfpTemplateDiscipline } from "./ai-provider";
 import type { AgencyIntel } from "./agency-intelligence";
+import type { FoundationIntel } from "./foundation-intelligence";
+import { buildWonProposalsBlock } from "./won-proposals";
+import type { WonProposal } from "@shared/schema";
 
 export type RubricSection = {
   name: string;
@@ -123,6 +126,20 @@ function buildOrgBlock(org: Organization): string {
   ].filter(Boolean).join("\n");
 }
 
+function buildFoundationIntelBlock(intel: FoundationIntel | null): string {
+  if (!intel) return "(no foundation intelligence available)";
+  return [
+    `Foundation: ${intel.funderName}${intel.ein ? ` (EIN ${intel.ein})` : ""}`,
+    `Most recent 990 on file: FY ${intel.recentFiscalYear ?? "unknown"}${intel.totalGrantsPaid ? ` · total grants paid that year ≈ $${(intel.totalGrantsPaid / 1_000_000).toFixed(2)}M` : ""}`,
+    `Typical grant size: ${intel.typicalGrantSize ?? "unknown"}`,
+    `What this foundation funds: ${intel.whatTheyFund}`,
+    `Documented funding priorities:\n  ${(intel.fundingPriorities ?? []).map(p => `• ${p}`).join("\n  ") || "(none extracted)"}`,
+    `Winning-language patterns to mirror:\n  ${(intel.languagePatterns ?? []).map(p => `• ${p}`).join("\n  ") || "(none extracted)"}`,
+    `Geographic focus: ${intel.geographicFocus ?? "unknown"}`,
+    `Source: ${intel.source}`,
+  ].join("\n");
+}
+
 function buildAgencyIntelBlock(intel: AgencyIntel | null): string {
   if (!intel) return "(no agency intelligence available)";
   const winners = intel.recentWinners.slice(0, 8).map(w => `  • ${w.recipient}${w.amount ? ` ($${w.amount.toLocaleString()})` : ""}${w.year ? ` [${w.year}]` : ""}${w.project ? ` — ${w.project.slice(0, 120)}` : ""}`).join("\n");
@@ -143,13 +160,18 @@ export async function generateDraftFromRubric(params: {
   org: Organization;
   grant: GrantOpportunity | null;
   agencyIntel: AgencyIntel | null;
+  foundationIntel?: FoundationIntel | null;
+  wonProposals?: WonProposal[];
   docStack: { base: RfpDocument | null; amendments: RfpDocument[]; qa: RfpDocument[] };
 }): Promise<GeneratedDraft> {
-  const { rubric, org, grant, agencyIntel, docStack } = params;
+  const { rubric, org, grant, agencyIntel, foundationIntel, wonProposals, docStack } = params;
   const sectionList = rubric.sections.map((s, i) => `${i + 1}. ${s.headingPattern || s.name}${s.pointValue ? ` (${s.pointValue} pts)` : ""}\n   Requirements: ${s.requirements.join("; ") || "(see RFP)"}\n   Tone: ${s.toneNotes ?? "match RFP voice"}`).join("\n\n");
+  const wins = wonProposals ?? [];
   const sys = withRfpTemplateDiscipline(`You are writing a grant proposal section-by-section against the supplied rubric. Return strict JSON: {"sections": [{"sectionName": "...", "pointValue": <number|null>, "body": "<the actual proposal text for this section, mirroring the RFP's tone, terminology, and heading style>"}], "complianceNotes": "short note on what compliance items still need user action (forms, signatures, attachments)"}.
 
-Mirror the RFP's section names, heading patterns, terminology, and tone. Honor page/word limits. Use ONLY the supplied organization profile for applicant facts. Apply amendments and Q&A clarifications wherever they touch a section.`);
+Mirror the RFP's section names, heading patterns, terminology, and tone. Honor page/word limits. Use ONLY the supplied organization profile for applicant facts. Apply amendments and Q&A clarifications wherever they touch a section.
+
+If PRIOR WINNING PROPOSALS are provided, study the voice, framing, and evidence patterns this organization actually uses when they win — match THAT voice (their cadence, signature phrases, the way they cite outcomes) while still mirroring the new RFP's structure. Never copy winning text verbatim — adapt the voice to the new requirements.`);
 
   const userPrompt = [
     `=== RUBRIC TO WRITE TO ===`,
@@ -166,8 +188,10 @@ Mirror the RFP's section names, heading patterns, terminology, and tone. Honor p
     buildOrgBlock(org),
     ``,
     grant ? `=== GRANT METADATA ===\nTitle: ${grant.title}\nAgency: ${grant.agency ?? "unknown"}\nAmount: ${grant.fundingAmount ?? "unspecified"}\nDeadline: ${grant.deadline?.toISOString().slice(0, 10) ?? "rolling"}\n` : "",
-    `=== AGENCY INTELLIGENCE (mirror winning language) ===`,
-    buildAgencyIntelBlock(agencyIntel),
+    foundationIntel ? `=== FOUNDATION INTELLIGENCE (mirror winning language) ===\n${buildFoundationIntelBlock(foundationIntel)}` : `=== AGENCY INTELLIGENCE (mirror winning language) ===\n${buildAgencyIntelBlock(agencyIntel)}`,
+    ``,
+    `=== PRIOR WINNING PROPOSALS BY THIS ORGANIZATION (match their voice) ===`,
+    buildWonProposalsBlock(wins),
     ``,
     `=== SOURCE DOCUMENTS (precedence: Q&A > Amendment > Base) ===`,
     buildContextStack(docStack),
