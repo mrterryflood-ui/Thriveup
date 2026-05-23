@@ -8,6 +8,9 @@ import { Download, ExternalLink, Calendar, Building2, Users, AlertTriangle, Chec
 import strategicMd from "../../../docs/grants/sedgwick-rfp-26-0028/strategic-analysis.md?raw";
 import proposalMd from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal.md?raw";
 import checklistMd from "../../../docs/grants/sedgwick-rfp-26-0028/pre-submission-checklist.md?raw";
+import crosswalkMd from "../../../docs/grants/sedgwick-rfp-26-0028/compliance-crosswalk.md?raw";
+import baseRfpMd from "../../../docs/grants/sedgwick-rfp-26-0028/base-rfp.md?raw";
+import addendum2Md from "../../../docs/grants/sedgwick-rfp-26-0028/addendum-2.md?raw";
 import strategicDocxUrl from "@assets/RFP-26-0028-Addendum2-Strategic-Analysis_1779560701300.docx?url";
 import proposalDocxUrl from "@assets/RFP-26-0028-Vitality-Proposal_1779560701306.docx?url";
 
@@ -90,13 +93,46 @@ export default function SedgwickVitalityProposalPage() {
         </AlertDescription>
       </Alert>
 
-      <Tabs defaultValue="strategic" className="space-y-4">
+      <Tabs defaultValue="crosswalk" className="space-y-4">
         <TabsList>
-          <TabsTrigger value="strategic" data-testid="tab-strategic">Strategic Analysis (Addendum #2)</TabsTrigger>
+          <TabsTrigger value="crosswalk" data-testid="tab-crosswalk">Compliance Crosswalk (L+M)</TabsTrigger>
+          <TabsTrigger value="rfp" data-testid="tab-rfp">Base RFP</TabsTrigger>
+          <TabsTrigger value="add2" data-testid="tab-add2">Addendum #2</TabsTrigger>
+          <TabsTrigger value="strategic" data-testid="tab-strategic">Strategic Analysis</TabsTrigger>
           <TabsTrigger value="proposal" data-testid="tab-proposal">Full Vitality Proposal</TabsTrigger>
           <TabsTrigger value="checklist" data-testid="tab-checklist">Pre-Submission Checklist</TabsTrigger>
           <TabsTrigger value="critique" data-testid="tab-critique">Honest Critique</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="crosswalk">
+          <Card>
+            <CardHeader>
+              <CardTitle>Section L + Section M Compliance Crosswalk</CardTitle>
+              <CardDescription>Hand-extracted from the base RFP + Addendum #2 against the current Vitality draft. Status: ✅ covered · ⚠️ partial · ❌ gap. Section L is a pre-flight gate.</CardDescription>
+            </CardHeader>
+            <CardContent><MarkdownRender source={crosswalkMd} /></CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="rfp">
+          <Card>
+            <CardHeader>
+              <CardTitle>Base RFP #26-0028 (Tammy Culley, April 27, 2026)</CardTitle>
+              <CardDescription>Full text extracted from the County's solicitation document.</CardDescription>
+            </CardHeader>
+            <CardContent><MarkdownRender source={baseRfpMd} /></CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="add2">
+          <Card>
+            <CardHeader>
+              <CardTitle>Addendum #2 (May 22, 2026)</CardTitle>
+              <CardDescription>Q&A clarifications + deadline shift to June 2, 2026 1:45 pm CDT. Source precedence: Q&A &gt; Amendment &gt; Base.</CardDescription>
+            </CardHeader>
+            <CardContent><MarkdownRender source={addendum2Md} /></CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="strategic">
           <Card>
