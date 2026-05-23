@@ -1,5 +1,40 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { ObjectStorageService, ObjectNotFoundError } from "./objectStorage";
+
+// Per-user + per-IP rate limit on signed-upload-URL minting.
+// In-memory, resets on process restart — acceptable floor against abuse / cost runaway.
+const uploadBuckets = new Map<string, { count: number; resetAt: number }>();
+const UPLOAD_RATE_MAX = 60;                  // 60 signed URLs
+const UPLOAD_RATE_WINDOW_MS = 60 * 60 * 1000; // per hour, per key
+
+function consumeUpload(key: string): { allowed: boolean; retryAfter: number } {
+  const now = Date.now();
+  const b = uploadBuckets.get(key);
+  if (!b || b.resetAt < now) {
+    uploadBuckets.set(key, { count: 1, resetAt: now + UPLOAD_RATE_WINDOW_MS });
+    return { allowed: true, retryAfter: 0 };
+  }
+  if (b.count >= UPLOAD_RATE_MAX) {
+    return { allowed: false, retryAfter: Math.ceil((b.resetAt - now) / 1000) };
+  }
+  b.count += 1;
+  return { allowed: true, retryAfter: 0 };
+}
+
+function requireAuthForUpload(req: Request, res: Response, next: NextFunction) {
+  const u = (req as any).user;
+  const uid = u?.claims?.sub || u?.id;
+  if (!uid) return res.status(401).json({ error: "Sign in to upload files." });
+  const ip = req.ip || req.socket?.remoteAddress || "unknown";
+  for (const key of [`uid:${uid}`, `ip:${ip}`]) {
+    const r = consumeUpload(key);
+    if (!r.allowed) {
+      res.setHeader("Retry-After", String(r.retryAfter));
+      return res.status(429).json({ error: `Upload-URL rate limit reached. Try again in ${r.retryAfter}s.` });
+    }
+  }
+  return next();
+}
 
 /**
  * Register object storage routes for file uploads.
@@ -35,7 +70,7 @@ export function registerObjectStorageRoutes(app: Express): void {
    * IMPORTANT: The client should NOT send the file to this endpoint.
    * Send JSON metadata only, then upload the file directly to uploadURL.
    */
-  app.post("/api/uploads/request-url", async (req, res) => {
+  app.post("/api/uploads/request-url", requireAuthForUpload, async (req, res) => {
     try {
       const { name, size, contentType } = req.body;
 

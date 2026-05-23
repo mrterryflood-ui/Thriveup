@@ -44,7 +44,9 @@ export function RequireAuth({ children, reason, adminOnly }: RequireAuthProps) {
             </p>
             <div className="flex flex-wrap justify-center gap-2 pt-2">
               <Button asChild data-testid="button-auth-login">
-                <a href="/api/login"><LogIn className="mr-2 h-4 w-4" /> Sign in</a>
+                <a href={`/api/login?returnTo=${encodeURIComponent(
+                  typeof window !== "undefined" ? (window.location.pathname + window.location.search) : "/"
+                )}`}><LogIn className="mr-2 h-4 w-4" /> Sign in</a>
               </Button>
               <Button asChild variant="outline" data-testid="button-auth-home">
                 <a href="/">Return to public site</a>

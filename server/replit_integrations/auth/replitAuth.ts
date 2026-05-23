@@ -102,7 +102,22 @@ export async function setupAuth(app: Express) {
   passport.serializeUser((user: Express.User, cb) => cb(null, user));
   passport.deserializeUser((user: Express.User, cb) => cb(null, user));
 
+  // Only accept relative same-origin paths. Reject protocol-relative ("//evil"),
+  // backslash tricks ("/\\evil"), absolute URLs, and anything that isn't a path.
+  // Defense against open-redirect via crafted returnTo on /api/login.
+  const safeReturnTo = (raw: unknown): string | null => {
+    if (typeof raw !== "string") return null;
+    if (raw.length === 0 || raw.length > 512) return null;
+    if (!raw.startsWith("/")) return null;
+    if (raw.startsWith("//") || raw.startsWith("/\\")) return null;
+    return raw;
+  };
+
   app.get("/api/login", (req, res, next) => {
+    const rt = safeReturnTo(req.query.returnTo);
+    if (rt) {
+      (req.session as any).returnTo = rt;
+    }
     ensureStrategy(req.hostname);
     passport.authenticate(`replitauth:${req.hostname}`, {
       prompt: "login consent",
@@ -122,7 +137,9 @@ export async function setupAuth(app: Express) {
           console.error("[Auth] Login session error:", loginErr.message);
           return res.redirect("/?auth_error=session_failed");
         }
-        return res.redirect("/");
+        const stored = safeReturnTo((req.session as any)?.returnTo);
+        if ((req.session as any)?.returnTo) delete (req.session as any).returnTo;
+        return res.redirect(stored || "/");
       });
     })(req, res, next);
   });
