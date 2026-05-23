@@ -152,8 +152,9 @@ export default function WorkforceDashboardPage() {
     promoted: false, satisfactionRating: "", notes: "",
   });
 
-  const { data: dashboard, isLoading } = useQuery<DashboardData>({
+  const { data: dashboard, isLoading, error: dashboardError } = useQuery<DashboardData>({
     queryKey: ["/api/workforce/dashboard"],
+    retry: false,
   });
 
   const { data: placements } = useQuery<JobPlacement[]>({
@@ -272,6 +273,36 @@ export default function WorkforceDashboardPage() {
           {Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-24" />)}
         </div>
         <Skeleton className="h-64 w-full" />
+      </div>
+    );
+  }
+
+  if (dashboardError) {
+    const msg = (dashboardError as Error).message || "";
+    const isAdminGate = msg.includes("401") || msg.includes("403") || /unauthor|forbidden/i.test(msg);
+    return (
+      <div className="p-6 max-w-3xl mx-auto" data-testid="section-workforce-dashboard-error">
+        <Card className="p-6 border-amber-200 dark:border-amber-800/50 bg-amber-50/40 dark:bg-amber-900/10">
+          <h2 className="font-semibold text-base mb-2 flex items-center gap-2">
+            <Shield className="h-5 w-5 text-amber-600" /> {isAdminGate ? "Admin access required" : "Workforce dashboard unavailable"}
+          </h2>
+          <p className="text-sm text-muted-foreground mb-4">
+            {isAdminGate
+              ? "The Workforce Pipeline Dashboard reads aggregate placement, retention, and readiness data across all participants. Only authenticated admin staff can view it. Sign in as admin to load the dashboard."
+              : `We couldn't load the dashboard data. (${msg || "Unknown error"})`}
+          </p>
+          <div className="flex gap-2 flex-wrap">
+            <Button asChild variant="outline" size="sm" data-testid="link-workforce-assessment">
+              <Link href="/workforce-assessment">Workforce Assessment</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" data-testid="link-workforce-training">
+              <Link href="/workforce-training">Workforce Training</Link>
+            </Button>
+            <Button asChild variant="outline" size="sm" data-testid="link-workforce-employers">
+              <Link href="/workforce-employers">Employer Connections</Link>
+            </Button>
+          </div>
+        </Card>
       </div>
     );
   }

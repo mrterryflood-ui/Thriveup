@@ -548,6 +548,7 @@ export function AppSidebar() {
         <NavSection label="Research & Methodology" items={researchItems} location={location} />
         <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
         <NavSection label="Workforce & Economic" items={workforceSolutionsItems} location={location} />
+        <NavSection label="Career, Trades & Mentors" items={careerMentorsItems} location={location} />
         <NavSection label="Criminal Justice & Reentry" items={justiceReentryItems} location={location} />
         <NavSection label="Partnerships & Coalitions" items={partnershipItems} location={location} />
         <NavSection label="Where We Operate" items={whereWeOperateItems} location={location} />

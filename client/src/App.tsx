@@ -407,7 +407,11 @@ function AppRouter() {
       <Route path="/workforce-assessment" component={WorkforceAssessmentPage} />
       <Route path="/workforce-training" component={WorkforceTrainingPage} />
       <Route path="/workforce-employers" component={WorkforceEmployersPage} />
-      <Route path="/workforce-dashboard" component={WorkforceDashboardPage} />
+      <Route path="/workforce-dashboard">
+        <RequireAuth reason="The Workforce Pipeline Dashboard pulls placement, retention, and readiness data from the internal workforce pipeline. Sign in (admin) to view it.">
+          <WorkforceDashboardPage />
+        </RequireAuth>
+      </Route>
       <Route path="/workforce-readiness" component={WorkforceReadinessPage} />
       <Route path="/business-card" component={BusinessCardPage} />
       <Route path="/grant-command-center" component={GrantCommandCenterPage} />
