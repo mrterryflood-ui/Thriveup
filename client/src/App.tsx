@@ -147,6 +147,7 @@ const GrantNarrativePage = lazy(() => import("@/pages/grant-narrative"));
 const RfpWriterPage = lazy(() => import("@/pages/rfp-writer"));
 const OrgOnboardingPage = lazy(() => import("@/pages/org-onboarding"));
 const OrgSettingsPage = lazy(() => import("@/pages/org-settings"));
+const OrgDocumentsLibraryPage = lazy(() => import("@/pages/org-documents-library"));
 const MyGrantsPage = lazy(() => import("@/pages/my-grants"));
 const WonProposalsPage = lazy(() => import("@/pages/won-proposals"));
 const ConglomerateTeamPage = lazy(() => import("@/pages/conglomerate-team"));
@@ -482,6 +483,11 @@ function AppRouter() {
       <Route path="/settings/organization">
         <RequireAuth reason="Sign in to manage your organization profile.">
           <OrgSettingsPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/settings/documents">
+        <RequireAuth reason="Sign in to manage your document library.">
+          <OrgDocumentsLibraryPage />
         </RequireAuth>
       </Route>
       <Route path="/my-grants">

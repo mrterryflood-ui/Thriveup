@@ -18,9 +18,11 @@ import {
   Search, Plus, Target, CheckCircle2, Clock, AlertTriangle,
   Download, BarChart3, FileText, Trash2, ExternalLink,
   RefreshCw, Bell, Brain, TrendingUp, Calendar, Filter,
-  ChevronDown, ChevronUp, Zap, Shield, BookOpen, Heart, Users, ArrowRight
+  ChevronDown, ChevronUp, Zap, Shield, BookOpen, Heart, Users, ArrowRight, Trophy
 } from "lucide-react";
 import type { GrantOpportunity } from "@shared/schema";
+
+type TrackedRow = { tracking: { grantId: string; status: string }; grant: { id: string } };
 
 interface ReportMetric {
   label: string;
@@ -343,6 +345,40 @@ export default function GrantHubPage() {
     sources: string[];
   }
   const { data: discoveryStatus } = useQuery<DiscoveryStatus>({ queryKey: ["/api/grants/discovery/status"] });
+
+  const { data: trackedData } = useQuery<{ tracked: TrackedRow[] }>({ queryKey: ["/api/me/grants/tracked"] });
+  const trackedMap = new Map<string, string>();
+  (trackedData?.tracked ?? []).forEach(r => trackedMap.set(r.tracking.grantId, r.tracking.status));
+
+  const pursueMutation = useMutation({
+    mutationFn: async (grantId: string) => {
+      const res = await apiRequest("POST", `/api/me/grants/${grantId}/track`, { status: "pursuing" });
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/me/grants/tracked"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/me/grants/win-rate"] });
+      toast({ title: "Grant of record", description: "Added to My Grants. Open the tracker to set status or write a draft." });
+    },
+    onError: (e: Error) => {
+      const msg = (e.message || "").toLowerCase();
+      if (msg.includes("401") || msg.includes("unauthor")) {
+        toast({ title: "Sign in required", description: "Sign in to mark a grant of record.", variant: "destructive" });
+      } else if (msg.includes("403") || msg.includes("organization") || msg.includes("requireorg")) {
+        toast({ title: "Organization profile required", description: "Create your org profile first (Settings → Organization).", variant: "destructive" });
+      } else {
+        toast({ title: "Couldn't track grant", description: e.message, variant: "destructive" });
+      }
+    },
+  });
+
+  const untrackMutation = useMutation({
+    mutationFn: async (grantId: string) => apiRequest("DELETE", `/api/me/grants/${grantId}/track`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/me/grants/tracked"] });
+      toast({ title: "Removed from My Grants" });
+    },
+  });
 
   const scanNowMutation = useMutation({
     mutationFn: async () => {
@@ -802,6 +838,32 @@ export default function GrantHubPage() {
                         Compare
                       </label>
                       <GrantDetailDialog grant={grant} />
+                      {trackedMap.has(grant.id) ? (
+                        <Button
+                          variant="secondary"
+                          size="sm"
+                          className="bg-emerald-100 text-emerald-900 hover:bg-emerald-200 dark:bg-emerald-900/40 dark:text-emerald-200"
+                          onClick={() => untrackMutation.mutate(grant.id)}
+                          disabled={untrackMutation.isPending}
+                          data-testid={`button-untrack-${grant.id}`}
+                          title={`Tracking as: ${trackedMap.get(grant.id)}`}
+                        >
+                          <Trophy className="h-3.5 w-3.5 mr-1" />
+                          Tracking
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => pursueMutation.mutate(grant.id)}
+                          disabled={pursueMutation.isPending}
+                          data-testid={`button-pursue-${grant.id}`}
+                          title="Add to My Grants as grant of record"
+                        >
+                          <Target className="h-3.5 w-3.5 mr-1" />
+                          Pursue
+                        </Button>
+                      )}
                       {grant.sourceUrl && (
                         <a href={grant.sourceUrl} target="_blank" rel="noopener noreferrer">
                           <Button variant="outline" size="icon" data-testid={`button-grant-link-${grant.id}`}>

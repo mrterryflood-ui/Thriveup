@@ -22,6 +22,8 @@ type Org = {
   missionText?: string | null; capabilityStatementText?: string | null;
   focusAreas?: string[]; populationsServed?: string[];
   state?: string | null; counties?: string[]; budgetRange?: string | null; websiteUrl?: string | null;
+  naicsCodes?: string[]; pscCodes?: string[];
+  uei?: string | null; cageCode?: string | null; samStatus?: string | null;
 };
 
 export default function OrgSettingsPage() {
@@ -30,11 +32,15 @@ export default function OrgSettingsPage() {
   const { data, isLoading } = useQuery<{ organization: Org | null }>({ queryKey: ["/api/me/organization"] });
   const [form, setForm] = useState<Org | null>(null);
   const [countiesInput, setCountiesInput] = useState("");
+  const [naicsInput, setNaicsInput] = useState("");
+  const [pscInput, setPscInput] = useState("");
 
   useEffect(() => {
     if (data?.organization && !form) {
       setForm(data.organization);
       setCountiesInput((data.organization.counties ?? []).join(", "));
+      setNaicsInput((data.organization.naicsCodes ?? []).join(", "));
+      setPscInput((data.organization.pscCodes ?? []).join(", "));
     }
   }, [data, form]);
 
@@ -45,7 +51,12 @@ export default function OrgSettingsPage() {
   const update = useMutation({
     mutationFn: async () => {
       if (!form) return;
-      const payload = { ...form, counties: countiesInput.split(",").map(s => s.trim()).filter(Boolean) };
+      const payload = {
+        ...form,
+        counties: countiesInput.split(",").map(s => s.trim()).filter(Boolean),
+        naicsCodes: naicsInput.split(/[,\s]+/).map(s => s.trim()).filter(s => /^\d{2,6}$/.test(s)),
+        pscCodes: pscInput.split(/[,\s]+/).map(s => s.trim().toUpperCase()).filter(s => /^[A-Z0-9]{2,5}$/.test(s)),
+      };
       const res = await apiRequest("PATCH", "/api/me/organization", payload);
       return res.json();
     },
@@ -133,6 +144,70 @@ export default function OrgSettingsPage() {
               <SelectTrigger data-testid="select-budget"><SelectValue placeholder="Choose range…" /></SelectTrigger>
               <SelectContent>{BUDGET_RANGES.map(b => <SelectItem key={b} value={b}>{b}</SelectItem>)}</SelectContent>
             </Select>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Document library</CardTitle>
+          <CardDescription>
+            Upload capability statements, 501(c)(3) letters, W-9s, insurance certificates, past-performance writeups, and credentials
+            for every affiliated entity (HIS, Love Clinic, Vanntastic, Sistahs CWT, TCAF, etc.). One library, reusable across every proposal.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button variant="outline" onClick={() => setLocation("/settings/documents")} data-testid="button-open-documents">
+            Open document library →
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Federal contracting identifiers</CardTitle>
+          <CardDescription>
+            Used by the Grant Discovery Engine to filter set-asides, SAM.gov contract vehicles, and prior-award lookups.
+            NAICS = 6-digit industry codes (e.g., 541611 — Admin Management Consulting). PSC = 2–5 character Product/Service codes (e.g., R408 — Program Management).
+            Codes are normalized on save — separate with commas or spaces.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="space-y-2"><Label>UEI</Label><Input data-testid="input-uei" value={form.uei ?? ""} placeholder="12-char SAM UEI" onChange={e => setForm({...form, uei: e.target.value.trim().toUpperCase()})} /></div>
+            <div className="space-y-2"><Label>CAGE Code</Label><Input data-testid="input-cage" value={form.cageCode ?? ""} placeholder="5-char CAGE" onChange={e => setForm({...form, cageCode: e.target.value.trim().toUpperCase()})} /></div>
+            <div className="space-y-2">
+              <Label>SAM.gov status</Label>
+              <Select value={form.samStatus ?? ""} onValueChange={v => setForm({...form, samStatus: v})}>
+                <SelectTrigger data-testid="select-sam-status"><SelectValue placeholder="Choose…" /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="active">Active</SelectItem>
+                  <SelectItem value="expired">Expired</SelectItem>
+                  <SelectItem value="pending">Pending</SelectItem>
+                  <SelectItem value="not_registered">Not registered</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label>NAICS codes</Label>
+            <Input data-testid="input-naics" value={naicsInput} placeholder="e.g., 541611, 541612, 624190" onChange={e => setNaicsInput(e.target.value)} />
+            <p className="text-xs text-muted-foreground">Comma or space-separated. 2–6 digit numeric codes only — anything else is filtered on save.</p>
+            {(form.naicsCodes ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1 pt-1">
+                {(form.naicsCodes ?? []).map(c => <Badge key={c} variant="secondary" data-testid={`badge-naics-${c}`}>{c}</Badge>)}
+              </div>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label>PSC / Product-Service codes</Label>
+            <Input data-testid="input-psc" value={pscInput} placeholder="e.g., R408, R499, R701" onChange={e => setPscInput(e.target.value)} />
+            <p className="text-xs text-muted-foreground">Comma or space-separated. 2–5 alphanumeric chars (auto-uppercased).</p>
+            {(form.pscCodes ?? []).length > 0 && (
+              <div className="flex flex-wrap gap-1 pt-1">
+                {(form.pscCodes ?? []).map(c => <Badge key={c} variant="secondary" data-testid={`badge-psc-${c}`}>{c}</Badge>)}
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

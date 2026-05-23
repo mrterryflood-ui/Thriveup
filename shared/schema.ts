@@ -5421,6 +5421,11 @@ export const organizations = pgTable("organizations", {
   budgetRange: varchar("budget_range", { length: 50 }),
   is501c3: boolean("is_501c3").notNull().default(false),
   isTcafOrg: boolean("is_tcaf_org").notNull().default(false),
+  naicsCodes: text("naics_codes").array().notNull().default(sql`'{}'::text[]`),
+  pscCodes: text("psc_codes").array().notNull().default(sql`'{}'::text[]`),
+  uei: varchar("uei", { length: 32 }),
+  cageCode: varchar("cage_code", { length: 16 }),
+  samStatus: varchar("sam_status", { length: 32 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [
@@ -5471,6 +5476,30 @@ export const insertGrantOrgTrackingSchema = createInsertSchema(grantOrgTracking)
 });
 export type InsertGrantOrgTracking = z.infer<typeof insertGrantOrgTrackingSchema>;
 export type GrantOrgTracking = typeof grantOrgTracking.$inferSelect;
+
+// Org document library: capability statements, 501c3 letters, W-9s, insurance certs,
+// past-performance writeups, audited financials, resumes/bios — tagged by the affiliated
+// entity (e.g., HIS, Love Clinic, Vanntastic, Sistahs CWT, TCAF) the doc belongs to.
+// Lets a primary org maintain a single library for itself + all teaming partners.
+export const orgDocuments = pgTable("org_documents", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  affiliateName: varchar("affiliate_name", { length: 200 }).notNull(),
+  kind: varchar("kind", { length: 40 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull(),
+  fileUrl: varchar("file_url", { length: 1000 }).notNull(),
+  fileName: varchar("file_name", { length: 500 }),
+  fileSize: integer("file_size"),
+  contentType: varchar("content_type", { length: 100 }),
+  notes: text("notes"),
+  uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_org_docs_org_affiliate").on(t.orgId, t.affiliateName),
+]);
+
+export const insertOrgDocumentSchema = createInsertSchema(orgDocuments).omit({ id: true, uploadedAt: true });
+export type InsertOrgDocument = z.infer<typeof insertOrgDocumentSchema>;
+export type OrgDocument = typeof orgDocuments.$inferSelect;
 
 // RFP documents: base RFP + amendments + Q&A transcripts.
 // Precedence at draft time: qa > amendment > base.

@@ -115,6 +115,7 @@ import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerRegionalBriefingRoutes } from "./regional-briefing-routes";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerOrgProfileRoutes } from "./org-profile-routes";
+import { registerOrgDocumentsRoutes } from "./org-documents-routes";
 import { registerGrantNarrativeRoutes } from "./grant-narrative-routes";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerVoiceRoutes } from "./voice-routes";
@@ -417,6 +418,7 @@ export async function registerRoutes(
   registerCrossPlatformRoutes(app);
   registerGrantRoutes(app);
   registerOrgProfileRoutes(app);
+  registerOrgDocumentsRoutes(app);
   registerGrantNarrativeRoutes(app);
   registerWonProposalsRoutes(app);
   registerActiveBidsRoutes(app);

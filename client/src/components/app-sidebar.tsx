@@ -162,6 +162,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy },
   { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users },
   { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
+  { title: "Document Library", url: "/settings/documents", icon: FileText },
   { title: "RFP-Driven Writer", url: "/grant-narrative", icon: FileText },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck },
   { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart },
