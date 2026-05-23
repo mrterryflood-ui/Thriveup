@@ -6,7 +6,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Download, ExternalLink, Calendar, Building2, Users, AlertTriangle, CheckCircle2 } from "lucide-react";
 import strategicMd from "../../../docs/grants/sedgwick-rfp-26-0028/strategic-analysis.md?raw";
-import proposalMd from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal.md?raw";
+import proposalMd from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v2.md?raw";
+import proposalV1Md from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal.md?raw";
 import checklistMd from "../../../docs/grants/sedgwick-rfp-26-0028/pre-submission-checklist.md?raw";
 import crosswalkMd from "../../../docs/grants/sedgwick-rfp-26-0028/compliance-crosswalk.md?raw";
 import baseRfpMd from "../../../docs/grants/sedgwick-rfp-26-0028/base-rfp.md?raw";
@@ -99,7 +100,8 @@ export default function SedgwickVitalityProposalPage() {
           <TabsTrigger value="rfp" data-testid="tab-rfp">Base RFP</TabsTrigger>
           <TabsTrigger value="add2" data-testid="tab-add2">Addendum #2</TabsTrigger>
           <TabsTrigger value="strategic" data-testid="tab-strategic">Strategic Analysis</TabsTrigger>
-          <TabsTrigger value="proposal" data-testid="tab-proposal">Full Vitality Proposal</TabsTrigger>
+          <TabsTrigger value="proposal" data-testid="tab-proposal">Proposal v2 (rubric-mirrored)</TabsTrigger>
+          <TabsTrigger value="proposalv1" data-testid="tab-proposal-v1">Proposal v1 (archive)</TabsTrigger>
           <TabsTrigger value="checklist" data-testid="tab-checklist">Pre-Submission Checklist</TabsTrigger>
           <TabsTrigger value="critique" data-testid="tab-critique">Honest Critique</TabsTrigger>
         </TabsList>
@@ -147,10 +149,20 @@ export default function SedgwickVitalityProposalPage() {
         <TabsContent value="proposal">
           <Card>
             <CardHeader>
-              <CardTitle>Vitality Weight Management Program — Proposal</CardTitle>
-              <CardDescription>Submitted to Tammy Culley, Sedgwick County Purchasing · Date of submission: June 2, 2026</CardDescription>
+              <CardTitle>Vitality Weight Management Program — Proposal v2 (rubric-mirrored, Section L compliant)</CardTitle>
+              <CardDescription>Section L gated · Section M rubric-mirrored verbatim · at-risk kicker structured OUTSIDE Criterion V base · {`{{ACTION REQUIRED}}`} markers where team data still needed. Submitted to Tammy Culley, Sedgwick County Purchasing · June 2, 2026.</CardDescription>
             </CardHeader>
             <CardContent><MarkdownRender source={proposalMd} /></CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="proposalv1">
+          <Card>
+            <CardHeader>
+              <CardTitle>Vitality Proposal — v1 (archived)</CardTitle>
+              <CardDescription>The original team-authored draft. Preserved for traceability. v2 is the version intended for submission.</CardDescription>
+            </CardHeader>
+            <CardContent><MarkdownRender source={proposalV1Md} /></CardContent>
           </Card>
         </TabsContent>
 

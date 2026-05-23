@@ -1,0 +1,77 @@
+All five peer-review fixes are in. Here's what changed and what's still outstanding:
+
+Changes applied to both documents
+#	Fix	Where it landed
+1	"47% attrition" softened to "~47% twelve-month non-continuation rate, consistent with published unmanaged-GLP-1 patterns of 30–50%" with citations (Gleason et al., JAMA Network Open 2024; AHIP 2023). Added the "why we say non-continuation, not discontinuation" qualification (planned course completions, unfilled PAs, within-class switches, recent starters in titration).	Cover letter · Exec summary · §4.2(b) · §5.6 · Appendix A · Strategic Analysis §1 & §2
+2	"$2.09M savings" relabeled to "modeled Year-1 capture opportunity" throughout. Added explicit hedge: "we label this a capture opportunity rather than a guaranteed saving because realization depends on member uptake."	Exec summary · §2.3 KPI #3 · §4.2(c) · §5.6 intro · §8.4.1 · Appendix A · Strategic Analysis §1
+3	§8.5 expanded with measurable threshold and full at-risk pricing structure — 15% PEPM at risk · three named KPI thresholds · ≥30% of 373-cohort retained at month 12 as the GLP-1 threshold · 5% outperformance bonus at ≥50% retention · failure-to-perform termination clause. Converts the model into a contract.	§8.5 (full rewrite); §5.6 closing now points to §8.5
+4	Dr. Flood's title fixed: "President, The COLLABORATIVE Advocate Foundation" added to §3.4 principal line and §10 references table. (Eric Hargrave is correctly CEO of HIS — reviewer wasn't flagging him.)	§3.4 · §10
+5	Dr. Flood's credential string trimmed from DHA, EdD, MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I → DHA (Doctor of Health Administration), EdD (Doctor of Education); PMP-eligible. Secret clearance reworded as "(current status verified by HIS prior to submission)" so it's defensible without re-asserting it as fact in the live document.	§3.4 · §10
+Still requires verification from your team before submission (Iron Rule #2)
+These were flagged by the reviewer and I've softened the language in the doc, but the underlying facts still need confirmation:
+
+ Dr. Flood's active Secret clearance — Dr. Flood to confirm current status; HIS to retain documentation on file
+ Dr. Love's Kansas DNP licensure — license number and good-standing date (will go on Response Form / Appendix)
+ Dr. Vann's TEDx URL — actual URL of the talk for either footnote or appendix
+Out of scope here
+"Run the Fidelity Engine on this RFP before submission" / /rfp-fidelity — that's the reviewer's separate tool. Not something I can invoke from this environment. If you want me to do a manual pre-flight against the RFP's Section L (acknowledgments, format, attachments), say the word and I'll do it line-by-line against the original RFP text.
+Both revised .docx files are presented above. Math unchanged. KPI order unchanged. Posture sharpened.
+
+
+Checkpoint made
+23 minutes ago
+
+Worked for 3 minutes
+So do you think we are competitive
+
+15 minutes ago
+
+Show less
+
+Evaluating proposal requirement compliance (26 seconds)
+Honest answer: yes — meaningfully competitive, but only if you close the gaps in the checklist and only on three of the five evaluation criteria. Here's the unvarnished assessment.
+
+The scoring framework
+The RFP gives 100 points across five 20-point criteria. Lowest cost wins Criterion V by formula (lowest_cost / your_cost × 20), so it's largely outside your control. The other four are won on substance.
+
+Criterion (20 pts each)	Where you stand today	Where you can land with gaps closed	Why
+I. Meeting requirements	10–12 / 20	18–19 / 20	Today: missing Response Form, references, COI disclosure, KORA log → risk of being deemed non-responsive. Closed: full compliance, every checkbox.
+II. Network Access (integration)	14–16 / 20	18–19 / 20	Integration-first posture with UHC/OptumRx/Rally is genuinely strong — most pure-tech vendors pitch displacement. Just needs the section relabeled to match the rubric word.
+III. Customer Service & Member Experience	14–16 / 20	17–18 / 20	Persistent-memory AI advisor, dual prescribing model, weekly behavioral cadence, local clinical presence. Add a labeled section and you're at the top of the field.
+IV. Administrative Services	11–13 / 20	16–18 / 20	Currently covered in fragments across §6, §9, §11. Needs a labeled, consolidated section to match the rubric exactly.
+V. Overall cost	8–12 / 20	8–12 / 20	$476–$525 PEPM puts you mid-to-high. Pure-tech competitors (Wondr, Omada) bid $50–250. You will not win this category. The at-risk pricing in §8.5 is the only lever that partially closes the gap.
+Total	~57–69 / 100	~77–86 / 100	A winning bid in a competitive field typically lands 80–90.
+What you likely beat
+Pure-tech low-cost vendors (Wondr Health, Omada, Virgin Pulse) — they win Criterion V; you win Criteria II, III, IV. The County's Addendum #2 explicitly said they want "full program (clinical care, lifestyle management)" — that language disqualifies the cheap purely-digital bids from being a serious threat on substance.
+Single-discipline vendors (Noom Med, Calibrate, Found) — they have GLP-1 prescribing but no integrated coaching layer, no PCP-coordination model, and no local presence.
+Generic national wellness vendors without a prescribing clinician on the team.
+What likely beats you
+A nationally branded vendor with prior public-sector county references at scale, priced near yours, that also offers integration. If a Wondr or Omada partnered with a clinical group and undercut your price by 25%+, that's the real threat.
+An incumbent-adjacent bid from UHC/Optum themselves — they could pitch "we already have your roster and pharmacy data" and price aggressively. Unlikely but possible.
+Any vendor with three strong Kansas or Plains-region county references. You have local presence; they may have proven scale. Evaluators weigh "have you done this for a county like ours."
+The three things that most move your score
+Close the Section A items in the checklist. Without references, the filled Response Form, the conflict disclosure, the insurance letter, and the KORA log, you risk being deemed non-responsive — which is a zero, not a low score. This is binary, and it's the single highest-leverage move available.
+
+Get even one strong public-sector reference. Eric or any partner having delivered a public-sector engagement (city, county, school district, state, federal — any tier) at any size with a real contact who will answer the phone is worth more than any prose. If no one has a true county-level reference, a substantive municipal, school district, federal, or large self-insured employer reference still carries weight.
+
+Keep the at-risk pricing in §8.5. It is the only credible answer to a competitor underbidding you on Criterion V. It signals confidence, and value-based public procurement increasingly rewards skin-in-the-game structures. Pulling it would be a meaningful loss.
+
+Things you genuinely lead the field on
+The four-partner integrated structure (clinical + wellness + platform + prime) is unusual and matches what the County asked for verbatim in Addendum #2.
+The $2.09M capture frame, anchored to the County's own disclosed numbers, is a tighter price-anchor than any generic ROI pitch your competitors will run.
+The dual prescribing model (Dr. Love OR member's PCP) is real differentiation. Pure-tech vendors can't do the former; clinical-only vendors won't do the latter.
+The "build with, don't displace Rally/UHC/OptumRx" posture defuses the largest procurement-killer in any vendor-against-incumbent fight.
+Local presence with three of four partners in Wichita. In a county-level RFP, "your neighbors" is non-trivially valuable in the room when evaluators are reading.
+The candid bottom line
+If you submit today, the proposal has a real chance of being deemed non-responsive on Criterion I, and that ends it regardless of substance. If you close the gaps in the checklist, you walk in as a serious top-three contender with a defensible path to win on Criteria II, III, and IV — accepting that Criterion V will go to someone cheaper. In a 100-point race, winning four of five categories is enough.
+
+Probability assessment, with checklist closed: 35–45% likelihood of award in a competitive field. That's a real number — not a longshot, not a lock. Worth the effort.
+
+The thesis is correct, the math is correct, the posture is correct. The work between now and June 2 is execution, not invention.
+
+
+Pasted-2-Did-we-write-it-to-the-rubric-Partially-The-crosswalk_1779562411870.txt
+3 minutes ago
+
+Planning proposal revision strategy (39 seconds)
+Excellent — this is a much sharper rubric-mirroring critique. The single most important catch is the Criterion V tactical point: the at-risk kicker must sit OUTSIDE the base scored price. I had that wrong. Let me execute everything I can without your data right now.
