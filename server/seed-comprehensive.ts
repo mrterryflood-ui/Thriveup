@@ -1,4 +1,12 @@
 import { db } from "./storage";
+import { and, eq } from "drizzle-orm";
+import { tradeSimsTrades, tradeSimsLessons } from "@shared/schema";
+import { ELECTRICAL_TRADE_META, ELECTRICAL_LESSONS } from "@shared/data/trade-sims/electrical-lessons";
+import { PLUMBING_TRADE_META, PLUMBING_LESSONS } from "@shared/data/trade-sims/plumbing-lessons";
+import { HVAC_TRADE_META, HVAC_LESSONS } from "@shared/data/trade-sims/hvac-lessons";
+import { WELDING_TRADE_META, WELDING_LESSONS } from "@shared/data/trade-sims/welding-lessons";
+import { AUTOMOTIVE_TRADE_META, AUTOMOTIVE_LESSONS } from "@shared/data/trade-sims/automotive-lessons";
+import { SOFTWARE_ENGINEERING_TRADE_META, SOFTWARE_ENGINEERING_LESSONS } from "@shared/data/trade-sims/software-engineering-lessons";
 import {
   academyMerchItems,
   participantProfiles,
@@ -31,6 +39,74 @@ import {
   outcomeTracking,
 } from "@shared/schema";
 
+// ---------------------------------------------------------------------------
+// Trade Sims — idempotent boot-time seed for all 6 trades (electrical,
+// plumbing, HVAC, welding, automotive, software-engineering). Mirrors the
+// admin/seed-electrical endpoint and the standalone scripts/seed-trade-sims-*
+// files. Runs on every startup so a freshly deployed production DB picks up
+// the 6 trades + 90 lessons automatically with no admin step required.
+// ---------------------------------------------------------------------------
+async function upsertTrade(meta: { slug: string; name: string; tagline: string; description: string; iconKey: string; displayOrder: number }, lessons: ReadonlyArray<any>): Promise<void> {
+  const [existing] = await db.select().from(tradeSimsTrades).where(eq(tradeSimsTrades.slug, meta.slug)).limit(1);
+  let tradeId: number;
+  if (existing) {
+    const [updated] = await db.update(tradeSimsTrades).set({
+      name: meta.name, tagline: meta.tagline, description: meta.description,
+      iconKey: meta.iconKey, displayOrder: meta.displayOrder, active: true,
+    }).where(eq(tradeSimsTrades.id, existing.id)).returning();
+    tradeId = updated.id;
+  } else {
+    const [inserted] = await db.insert(tradeSimsTrades).values({
+      slug: meta.slug, name: meta.name, tagline: meta.tagline,
+      description: meta.description, iconKey: meta.iconKey,
+      displayOrder: meta.displayOrder, active: true,
+    }).returning();
+    tradeId = inserted.id;
+  }
+  for (const lesson of lessons) {
+    const [existingLesson] = await db.select().from(tradeSimsLessons)
+      .where(and(eq(tradeSimsLessons.tradeId, tradeId), eq(tradeSimsLessons.slug, lesson.slug))).limit(1);
+    const values = {
+      tradeId,
+      dayNumber: lesson.dayNumber,
+      slug: lesson.slug,
+      title: lesson.title,
+      shortDescription: lesson.shortDescription,
+      concept: lesson.concept as unknown,
+      guidedSteps: lesson.guidedSteps as unknown,
+      soloChallenge: lesson.soloChallenge as unknown,
+      sandboxStarter: lesson.sandboxStarter as unknown,
+      credentialPathway: lesson.credentialPathway,
+      active: true,
+    };
+    if (existingLesson) {
+      await db.update(tradeSimsLessons).set(values).where(eq(tradeSimsLessons.id, existingLesson.id));
+    } else {
+      await db.insert(tradeSimsLessons).values(values);
+    }
+  }
+}
+
+async function seedTradeSimsAll(): Promise<void> {
+  try {
+    // Fast path: if all 6 trades already exist, skip the upsert work.
+    const existing = await db.select({ slug: tradeSimsTrades.slug }).from(tradeSimsTrades);
+    const have = new Set(existing.map(r => r.slug));
+    const needed = ["electrical","plumbing","hvac","welding","automotive","software-engineering"];
+    if (needed.every(s => have.has(s))) return;
+
+    await upsertTrade(ELECTRICAL_TRADE_META as any, ELECTRICAL_LESSONS);
+    await upsertTrade(PLUMBING_TRADE_META as any, PLUMBING_LESSONS);
+    await upsertTrade(HVAC_TRADE_META as any, HVAC_LESSONS);
+    await upsertTrade(WELDING_TRADE_META as any, WELDING_LESSONS);
+    await upsertTrade(AUTOMOTIVE_TRADE_META as any, AUTOMOTIVE_LESSONS);
+    await upsertTrade(SOFTWARE_ENGINEERING_TRADE_META as any, SOFTWARE_ENGINEERING_LESSONS);
+    console.log("[Seed] Trade Sims: 6 trades + lessons upserted");
+  } catch (err) {
+    console.error("[Seed] Trade Sims seed failed:", err);
+  }
+}
+
 export async function seedComprehensive(): Promise<void> {
   try {
     await seedMerchItems();
@@ -44,6 +120,7 @@ export async function seedComprehensive(): Promise<void> {
     await seedFacilitatorData();
     await seedNsfTechAccessOpportunity();
     await seedTexasHubMous();
+    await seedTradeSimsAll();
     console.log("[Seed] Comprehensive seed completed");
   } catch (err) {
     console.error("[Seed] Comprehensive seed error:", err);
