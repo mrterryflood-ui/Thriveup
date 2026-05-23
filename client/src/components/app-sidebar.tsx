@@ -164,6 +164,7 @@ const grantEngineItems: NavItem[] = [
   { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
   { title: "RFP-Driven Writer", url: "/grant-narrative", icon: FileText },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck },
+  { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
   { title: "Grant Packages", url: "/grant-packages", icon: Package },
   { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },
