@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useLocation } from "wouter";
+import { Link as LinkIcon } from "lucide-react";
 import { TrainingGuideButton } from "@/components/training-guide";
 import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import { useQuery, useMutation } from "@tanstack/react-query";
@@ -304,6 +306,67 @@ function GrantDetailDialog({ grant }: { grant: GrantOpportunity }) {
   );
 }
 
+function PasteRfpUrlCard() {
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+  const [url, setUrl] = useState("");
+  const ingest = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/grants/ingest-from-url", { url });
+      return res.json() as Promise<{ grantId: string; title: string; warning: string | null; next: { rfpFidelity: string; rfpWriter: string; myGrants: string } }>;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ["/api/grants"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/me/grants/tracked"] });
+      toast({
+        title: data.warning ? "Saved — partial parse" : `Ingested "${data.title}"`,
+        description: data.warning || "Opening the RFP Fidelity Engine so you can run the compliance matrix.",
+      });
+      setUrl("");
+      setLocation(data.next.rfpFidelity);
+    },
+    onError: (e: Error) => {
+      const msg = e.message || "Could not ingest that URL.";
+      if (msg.includes("401")) {
+        toast({ title: "Sign in to ingest a URL", variant: "destructive" });
+      } else {
+        toast({ title: "Ingest failed", description: msg, variant: "destructive" });
+      }
+    },
+  });
+  return (
+    <Card className="p-4 border-l-4 border-l-primary bg-primary/5" data-testid="card-paste-rfp-url">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-end">
+        <div className="flex-1 space-y-1">
+          <label className="text-sm font-semibold flex items-center gap-2"><LinkIcon className="h-4 w-4" /> Paste an RFP URL</label>
+          <p className="text-xs text-muted-foreground">
+            Drop in any grants.gov, SAM.gov, foundation, or state portal URL. We'll fetch it, extract the text,
+            track it on your pipeline, and open the RFP Fidelity Engine so you can run the compliance matrix and
+            draft against the rubric — no copy-paste needed.
+          </p>
+          <Input
+            type="url"
+            placeholder="https://www.grants.gov/search-results-detail/..."
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => { if (e.key === "Enter" && url.trim() && !ingest.isPending) ingest.mutate(); }}
+            disabled={ingest.isPending}
+            data-testid="input-paste-rfp-url"
+          />
+        </div>
+        <Button
+          onClick={() => ingest.mutate()}
+          disabled={!url.trim() || ingest.isPending}
+          data-testid="button-paste-rfp-url-submit"
+          className="shrink-0"
+        >
+          {ingest.isPending ? <><RefreshCw className="mr-2 h-4 w-4 animate-spin" />Ingesting…</> : <><ArrowRight className="mr-2 h-4 w-4" />Ingest &amp; draft</>}
+        </Button>
+      </div>
+    </Card>
+  );
+}
+
 export default function GrantHubPage() {
   const { toast } = useToast();
   type TabId = "grants" | "calendar" | "compare" | "alerts" | "reports";
@@ -497,6 +560,8 @@ export default function GrantHubPage() {
           </Button>
         </div>
       </div>
+
+      <PasteRfpUrlCard />
 
       {discoveryStatus && (
         <Card className="p-4 border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20" data-testid="card-discovery-status">

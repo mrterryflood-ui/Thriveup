@@ -1,5 +1,8 @@
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
+import { lookup as dnsLookup } from "dns/promises";
+import { isIP } from "net";
+import { convert as htmlToText } from "html-to-text";
 import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts, documentSignatures, insertDocumentSignatureSchema, proposalPipeline } from "@shared/schema";
 import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
@@ -757,6 +760,187 @@ export function registerGrantRoutes(app: Express) {
       console.error("Failed to create grant:", error);
       res.status(500).json({ error: "Failed to create grant" });
     }
+  });
+
+  // ---------------------------------------------------------------------------
+  // POST /api/grants/ingest-from-url
+  // Paste-an-RFP-URL flow. Fetches the URL server-side, extracts text (HTML →
+  // html-to-text; PDF → URL only with a warning the user should paste text),
+  // creates a manual grant_opportunities row, auto-tracks it for the caller,
+  // and returns { grantId } so the UI can jump straight into the drafter.
+  //
+  // Security: SSRF-guarded (blocks private/loopback/link-local resolutions),
+  // 10 s timeout, 5 MB response cap, auth required, simple per-user rate limit.
+  // ---------------------------------------------------------------------------
+  const ingestBuckets = new Map<string, { count: number; resetAt: number }>();
+  function consumeIngest(uid: string): { allowed: boolean; retryAfter: number } {
+    const now = Date.now();
+    const b = ingestBuckets.get(uid);
+    const windowMs = 60 * 60 * 1000;
+    const max = 30;
+    if (!b || b.resetAt < now) {
+      ingestBuckets.set(uid, { count: 1, resetAt: now + windowMs });
+      return { allowed: true, retryAfter: 0 };
+    }
+    if (b.count >= max) return { allowed: false, retryAfter: Math.ceil((b.resetAt - now) / 1000) };
+    b.count += 1;
+    return { allowed: true, retryAfter: 0 };
+  }
+
+  function isPrivateIp(ip: string): boolean {
+    const v = isIP(ip);
+    if (v === 0) return true; // unparseable → treat as unsafe
+    if (v === 4) {
+      const [a, b] = ip.split(".").map(Number);
+      if (a === 10) return true;
+      if (a === 127) return true;
+      if (a === 169 && b === 254) return true;
+      if (a === 172 && b >= 16 && b <= 31) return true;
+      if (a === 192 && b === 168) return true;
+      if (a === 0) return true;
+      if (a >= 224) return true; // multicast / reserved
+      return false;
+    }
+    // v === 6: block loopback, link-local, unique-local, multicast, mapped
+    const low = ip.toLowerCase();
+    if (low === "::1" || low === "::") return true;
+    if (low.startsWith("fe80:") || low.startsWith("fc") || low.startsWith("fd")) return true;
+    if (low.startsWith("ff")) return true;
+    if (low.startsWith("::ffff:")) {
+      const v4 = low.slice("::ffff:".length);
+      return isPrivateIp(v4);
+    }
+    return false;
+  }
+
+  app.post("/api/grants/ingest-from-url", requireAuth, async (req, res) => {
+    const uid = (req as any).user?.claims?.sub || (req as any).user?.id;
+    if (!uid) return res.status(401).json({ error: "Sign in to ingest a URL." });
+    const r = consumeIngest(uid);
+    if (!r.allowed) {
+      res.setHeader("Retry-After", String(r.retryAfter));
+      return res.status(429).json({ error: `Ingest rate limit reached. Try again in ${r.retryAfter}s.` });
+    }
+
+    const rawUrl = typeof req.body?.url === "string" ? req.body.url.trim() : "";
+    let parsedUrl: URL;
+    try {
+      parsedUrl = new URL(rawUrl);
+    } catch {
+      return res.status(400).json({ error: "Provide a valid http(s) URL." });
+    }
+    if (parsedUrl.protocol !== "http:" && parsedUrl.protocol !== "https:") {
+      return res.status(400).json({ error: "Only http:// and https:// URLs are accepted." });
+    }
+
+    try {
+      const resolved = await dnsLookup(parsedUrl.hostname, { all: true });
+      if (!resolved.length || resolved.some(a => isPrivateIp(a.address))) {
+        return res.status(400).json({ error: "URL resolves to a non-public address and was blocked." });
+      }
+    } catch {
+      return res.status(400).json({ error: "Could not resolve the URL host." });
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10_000);
+    let response: Response;
+    try {
+      response = await fetch(parsedUrl.toString(), {
+        redirect: "follow",
+        signal: controller.signal,
+        headers: { "User-Agent": "ThriveUp-RFP-Ingest/1.0" },
+      });
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      return res.status(502).json({ error: `Failed to fetch URL: ${err?.name === "AbortError" ? "timeout" : err?.message || "network error"}` });
+    }
+    clearTimeout(timeoutId);
+
+    if (!response.ok) {
+      return res.status(502).json({ error: `Source responded ${response.status} ${response.statusText}.` });
+    }
+
+    const contentType = (response.headers.get("content-type") || "").toLowerCase();
+    const arrayBuf = await response.arrayBuffer();
+    if (arrayBuf.byteLength > 5 * 1024 * 1024) {
+      return res.status(413).json({ error: "Source document exceeds 5 MB. Download it and paste the text instead." });
+    }
+
+    let extractedText = "";
+    let extractedTitle = "";
+    let warning: string | null = null;
+
+    if (contentType.includes("text/html") || contentType.includes("application/xhtml")) {
+      const html = Buffer.from(arrayBuf).toString("utf8");
+      const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+      extractedTitle = (titleMatch?.[1] || "").trim();
+      extractedText = htmlToText(html, {
+        wordwrap: false,
+        selectors: [
+          { selector: "a", options: { ignoreHref: true } },
+          { selector: "img", format: "skip" },
+          { selector: "nav", format: "skip" },
+          { selector: "footer", format: "skip" },
+          { selector: "script", format: "skip" },
+          { selector: "style", format: "skip" },
+        ],
+      });
+    } else if (contentType.includes("text/plain")) {
+      extractedText = Buffer.from(arrayBuf).toString("utf8");
+    } else if (contentType.includes("application/pdf")) {
+      warning = "PDF detected — saved the URL, but you'll need to paste the RFP text into the Document Library or RFP Writer for AI drafting.";
+    } else {
+      warning = `Unsupported content type (${contentType || "unknown"}) — saved the URL, paste the RFP text manually for drafting.`;
+    }
+
+    const truncatedText = extractedText.slice(0, 20_000);
+    const fallbackTitle = extractedTitle || parsedUrl.pathname.split("/").filter(Boolean).pop() || parsedUrl.hostname;
+    const finalTitle = (fallbackTitle || "Pasted RFP").slice(0, 280);
+
+    let grant;
+    try {
+      [grant] = await db.insert(grantOpportunities).values({
+        title: finalTitle,
+        agency: parsedUrl.hostname,
+        description: truncatedText ? truncatedText.slice(0, 5_000) : `Ingested from ${parsedUrl.toString()}. Paste the RFP text for AI drafting.`,
+        sourceUrl: parsedUrl.toString(),
+        grantType: "manual_url",
+        focusAreas: [],
+        source: "manual",
+        category: "other",
+        status: "researching",
+      }).returning();
+    } catch (e: any) {
+      console.error("ingest-from-url insert failed:", e?.message || e);
+      return res.status(500).json({ error: "Could not save the ingested grant." });
+    }
+
+    // Best-effort auto-track for the caller so it lands on /my-grants.
+    try {
+      const trackRow = await db.execute(sql`
+        INSERT INTO user_pursued_grants (user_id, grant_id, stage, created_at)
+        VALUES (${uid}, ${grant.id}, 'researching', NOW())
+        ON CONFLICT (user_id, grant_id) DO NOTHING
+      `);
+      void trackRow;
+    } catch (e: any) {
+      // Non-fatal — table may not exist in all envs; user can still click Pursue on /grants.
+      console.warn("auto-track on ingest skipped:", e?.message || e);
+    }
+
+    return res.json({
+      grantId: grant.id,
+      title: grant.title,
+      sourceUrl: grant.sourceUrl,
+      extractedChars: truncatedText.length,
+      warning,
+      next: {
+        rfpFidelity: `/grants/${grant.id}/compliance`,
+        rfpWriter: `/rfp-writer?grantId=${grant.id}`,
+        myGrants: `/my-grants`,
+      },
+    });
   });
 
   app.get("/api/grants/stats", async (_req, res) => {
