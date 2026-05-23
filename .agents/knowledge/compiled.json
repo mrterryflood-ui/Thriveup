@@ -1,10 +1,10 @@
 {
-  "version": "1.1.0",
-  "compiledAt": "2026-05-22T20:57:51.057Z",
+  "version": "1.2.0",
+  "compiledAt": "2026-05-23T17:00:20.449Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-22T20:57:35.934Z"
+      "mtime": "2026-05-23T13:58:11.655Z"
     },
     {
       "path": "docs/active-commitments.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-22T20:57:51.057Z"
+      "mtime": "2026-05-23T17:00:20.449Z"
     }
   ],
   "project": {
@@ -63,6 +63,10 @@
       "detail": "`docs/ecosystem-catalog.md` (25 DB rows; 15 public-facing)"
     },
     {
+      "label": "Active bids (per-RFP rubric + teaming, DB-backed 2026-05-23)",
+      "detail": "`shared/active-bids.ts` (types + helpers + `ACTIVE_BIDS_SEED` fallback) · `active_bids` table (`shared/schema.ts`, jsonb rubric, unique `rfpId`, FK to `grantOpportunities.id`) · `server/active-bids-routes.ts` (auth-gated GET/POST/PATCH/DELETE/seed; auto-seeds on first boot from the file seed) · client `/teaming-network` (`conglomerate-team.tsx`) fetches via TanStack Query with seed fallback. **Writer wiring:** `server/grant-narrative-routes.ts` POST `/api/me/grant-narratives/generate` looks up an `active_bids` row by `grantId` and passes it to `generateDraftFromRubric(..., internalStrategy)`. `server/rfp-rubric.ts` `buildInternalStrategyBlock()` injects \"INTERNAL TEAM CADENCE\" block: per-criterion response cadence + evidence pointer + team confidence + named team lanes — enforcing the rubric-first doctrine end-to-end (Iron Rule #5). Tracking dashboard + AI writer share one source of truth."
+    },
+    {
       "label": "Compiled Agent Knowledge",
       "detail": "`scripts/compile-agent-knowledge.ts` → `.agents/knowledge/compiled.json`. Endpoints `GET /api/agent/knowledge/session-bootstrap` (~3KB) · `/topic/:key` · `/api/agent/knowledge` · admin `POST /api/agent/knowledge/recompile`. (Internal-only; user-facing RAG `server/rag-engine.ts` is separate, untouched.)"
     },
@@ -89,18 +93,6 @@
     {
       "label": "ThriveUp Concepts (v1 live 2026-05-21)",
       "detail": "hub `/concepts` + 8 cards each with REAL working physics (pumpjack · transformer · suspension bridge · Li battery · airplane wing · real RSA · wind turbine · pacemaker). Shell `client/src/components/concepts/concept-card-shell.tsx`; registry `client/src/lib/concepts/registry.ts`. Transformer cross-links to Electrical Trade Sims. **Differentiator: physics, not diagrams.** → A19"
-    },
-    {
-      "label": "Recognition-and-Ratification Doctrine (R&R, Flood 2026-05-22)",
-      "detail": "`docs/recognition-and-ratification-doctrine.md` — TCAF operating lens encoded into every regional briefing. Three novel claims vs. the 8 nearest strands (Positive Deviance · Harm Reduction · ABCD · CHW/task-shifting · Rogers reinvention · FRAME-IS · Lipsky · Practice-Based Evidence): (1) mechanism lives at the BRIEFING layer, not the intervention layer; (2) dignity clause = hard non-displacement constraint; (3) counterfactual claim = R&R is the only path that moves the dependent variable, because displacing existing adaptation is fighting a current. Wired into `buildSystemPrompt()` in `server/regional-briefing-routes.ts`. Cite this doc on June 3 capstone Q&A."
-    },
-    {
-      "label": "Regional Briefing v2 (2026-05-22)",
-      "detail": "`/regional-briefing` — chat input, multi-location compare (≤6), save-as-workflow, stakeholders+outcomes by ZIP. **Prompt upgraded 2026-05-22 PM** to woven-narrative depth + **scope-aware 2026-05-22 EVE**: 5 scopes [A]Situation (§1-4 default) · [B]Asset map (§1-4 + ecosystem assets, NOT TCAF-only) · [C]Funding (+§5) · [D]TCAF fit (+§6) · [E]Full strategy (all). Audience-lens framing (United Way / foundation / city) overrides TCAF-centering. Stay-in-scope is the job. Backend `server/regional-briefing-routes.ts` + `briefing_workflows` table. Endpoints `/extract` · `/stream` · `/query` · `/context` · `/workflows` CRUD. → A20"
-    },
-    {
-      "label": "Corridor Chainweb",
-      "detail": "~4K LOC, 8-step citation chain → Census ACS · CDC PLACES · ATSDR SVI · FBI CDE. Iron-Rule enforcement under Community Voice. Routes `POST /api/corridor/chainweb/run` · `POST /api/corridor/chainweb/run-counties` (anywhere, ≤12 counties; both auth+rate-limited as of 2026-05-22) · `GET /last`. → A18, A20"
     },
     {
       "label": "Grant Discovery Engine",
@@ -325,6 +317,51 @@
       "last_heartbeat": null
     },
     {
+      "id": "pillscheduler",
+      "name": "PillScheduler",
+      "url": "https://pillscheduler.net",
+      "role": "medication-management",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
+      "capabilities": {
+        "features": [
+          "Intelligent Pill Reminders",
+          "Adaptive Scheduling",
+          "Dosage Tracking",
+          "Missed-Dose Protocols",
+          "FDA Drug Interaction Database",
+          "Real-Time Interaction Warnings",
+          "Care Team Coordination",
+          "Automated Refill Alerts",
+          "Pharmacy Integration",
+          "Medication Adherence Scoring",
+          "Intervention Triggers",
+          "Cognitive-Capacity-Aware Interface",
+          "Medication History Timeline",
+          "Provider Communication"
+        ],
+        "grantNarrative": "Produces medication adherence rates, interaction prevention metrics, refill compliance data, and care coordination outcomes for SSG Fox veteran health and St. David's chronic disease grants",
+        "outcomeMetrics": [
+          "Medication reminders sent: 12,345",
+          "Drug interaction warnings: 234",
+          "Refill alerts: 567",
+          "Adherence score tracking: 345 active users",
+          "Missed-dose protocol activations: 89",
+          "Care team coordination events: 45"
+        ],
+        "integrationDepth": "Bidirectional with Autoimmune (disease-specific), SafeCogniCare (cognitive capacity), Whole-Person Health (crisis), Maternal Health (prenatal vitamins), Men's Health (chronic medications)"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "wholemind",
       "name": "WholeMind Learning",
       "url": "https://wholemindlearning.com",
@@ -507,6 +544,50 @@
       "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
+      "id": "speech-bridge",
+      "name": "LexiBridge (Speech Bridge)",
+      "url": "https://lexibridge.net",
+      "role": "communication-accessibility",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
+      "capabilities": {
+        "features": [
+          "Dialect Recognition (12+ Dialects)",
+          "AAVE Linguistic Support",
+          "Real-Time Speech-to-Text",
+          "Hearing Accessibility Tools",
+          "Multi-Language Translation",
+          "Culturally Responsive Provider Training",
+          "Patient Communication Support",
+          "Health Literacy Adaptation",
+          "Clinical Terminology Simplification",
+          "Community Language Tools",
+          "Provider Communication Coaching",
+          "Accessibility Compliance Engine"
+        ],
+        "grantNarrative": "Provides language accessibility metrics, communication barrier reduction data, health literacy improvement outcomes, and cultural responsiveness evidence for St. David's health equity, SSG Fox veteran, and WIOA workforce accessibility grants",
+        "outcomeMetrics": [
+          "Dialect recognitions processed: 4,567",
+          "Multi-language translations: 2,345",
+          "Health literacy adaptations: 890",
+          "Provider communication coaching sessions: 67",
+          "Accessibility compliance checks: 234",
+          "Patient communication support events: 456"
+        ],
+        "integrationDepth": "Accessibility layer for all 22 sibling platforms — ensures clinical communications, educational content, and business tools are accessible regardless of language or dialect"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "wioa",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:23.128Z"
+    },
+    {
       "id": "sankofa-feminine-health",
       "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
       "url": "https://herhealthmatters2.com",
@@ -590,50 +671,6 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "speech-bridge",
-      "name": "LexiBridge (Speech Bridge)",
-      "url": "https://lexibridge.net",
-      "role": "communication-accessibility",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
-      "capabilities": {
-        "features": [
-          "Dialect Recognition (12+ Dialects)",
-          "AAVE Linguistic Support",
-          "Real-Time Speech-to-Text",
-          "Hearing Accessibility Tools",
-          "Multi-Language Translation",
-          "Culturally Responsive Provider Training",
-          "Patient Communication Support",
-          "Health Literacy Adaptation",
-          "Clinical Terminology Simplification",
-          "Community Language Tools",
-          "Provider Communication Coaching",
-          "Accessibility Compliance Engine"
-        ],
-        "grantNarrative": "Provides language accessibility metrics, communication barrier reduction data, health literacy improvement outcomes, and cultural responsiveness evidence for St. David's health equity, SSG Fox veteran, and WIOA workforce accessibility grants",
-        "outcomeMetrics": [
-          "Dialect recognitions processed: 4,567",
-          "Multi-language translations: 2,345",
-          "Health literacy adaptations: 890",
-          "Provider communication coaching sessions: 67",
-          "Accessibility compliance checks: 234",
-          "Patient communication support events: 456"
-        ],
-        "integrationDepth": "Accessibility layer for all 22 sibling platforms — ensures clinical communications, educational content, and business tools are accessible regardless of language or dialect"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "wioa",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
       "id": "isss",
@@ -830,52 +867,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "sankofa",
-      "name": "Sankofa Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "health-gateway",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
-      "capabilities": {
-        "features": [
-          "Black Maternal Health Network Coordination",
-          "Mental Health Rights Advocacy",
-          "Breast Cancer Awareness & Screening",
-          "Black Men's Health Programs",
-          "Feminine OB Health Navigation",
-          "Cognitive Safety Protocols",
-          "Pill Management Integration",
-          "Behavioral Health Assessments",
-          "GIS Resource Matching",
-          "Sub-Platform Orchestration",
-          "Health Equity Analytics",
-          "Culturally Responsive Care Navigation",
-          "Population Health Dashboard",
-          "Community Health Worker Coordination"
-        ],
-        "subPlatforms": 5,
-        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
-        "outcomeMetrics": [
-          "Health equity screenings completed: 2,340 across 5 sub-platforms",
-          "GIS resource matches: 1,456 referrals with 71% completion",
-          "Sub-platform coordination events: 890 cross-referrals",
-          "Culturally responsive care navigation sessions: 678",
-          "Population health dashboard active metrics: 34 tracked indicators",
-          "Community health worker dispatches: 234"
-        ],
-        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "ssg-fox",
-        "foundation"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "emergency-mgmt",
       "name": "Emergency Management",
       "url": "https://emergency-mgmt.replit.app",
@@ -918,46 +909,47 @@
       "last_heartbeat": null
     },
     {
-      "id": "pillscheduler",
-      "name": "PillScheduler",
-      "url": "https://pillscheduler.net",
-      "role": "medication-management",
+      "id": "sankofa",
+      "name": "Sankofa Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "health-gateway",
       "domain": "health-equity",
       "status": "registered",
       "health_status": "online",
-      "public_visible": false,
-      "description": "Comprehensive medication management platform for individuals managing complex multi-drug regimens — intelligent pill reminders with adaptive scheduling, dosage tracking with missed-dose protocols, FDA drug interaction database with real-time warnings, care team coordination for medication changes, automated refill alerts with pharmacy integration, medication adherence scoring with intervention triggers, and cognitive-capacity-aware interface that adapts complexity based on SafeCogniCare assessment data. Critical for chronic disease populations (autoimmune, cardiovascular, mental health), elderly patients, and veterans on VA prescriptions. Integrates with Autoimmune Center of Excellence for disease-specific medication protocols, SafeCogniCare for cognitive capacity matching, and Whole-Person Health for crisis routing on dangerous interactions.",
+      "public_visible": true,
+      "description": "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
       "capabilities": {
         "features": [
-          "Intelligent Pill Reminders",
-          "Adaptive Scheduling",
-          "Dosage Tracking",
-          "Missed-Dose Protocols",
-          "FDA Drug Interaction Database",
-          "Real-Time Interaction Warnings",
-          "Care Team Coordination",
-          "Automated Refill Alerts",
-          "Pharmacy Integration",
-          "Medication Adherence Scoring",
-          "Intervention Triggers",
-          "Cognitive-Capacity-Aware Interface",
-          "Medication History Timeline",
-          "Provider Communication"
+          "Black Maternal Health Network Coordination",
+          "Mental Health Rights Advocacy",
+          "Breast Cancer Awareness & Screening",
+          "Black Men's Health Programs",
+          "Feminine OB Health Navigation",
+          "Cognitive Safety Protocols",
+          "Pill Management Integration",
+          "Behavioral Health Assessments",
+          "GIS Resource Matching",
+          "Sub-Platform Orchestration",
+          "Health Equity Analytics",
+          "Culturally Responsive Care Navigation",
+          "Population Health Dashboard",
+          "Community Health Worker Coordination"
         ],
-        "grantNarrative": "Produces medication adherence rates, interaction prevention metrics, refill compliance data, and care coordination outcomes for SSG Fox veteran health and St. David's chronic disease grants",
+        "subPlatforms": 5,
+        "grantNarrative": "Provides health equity outcome metrics, population-specific engagement data, and culturally responsive care delivery evidence for St. David's and SSG Fox reporting",
         "outcomeMetrics": [
-          "Medication reminders sent: 12,345",
-          "Drug interaction warnings: 234",
-          "Refill alerts: 567",
-          "Adherence score tracking: 345 active users",
-          "Missed-dose protocol activations: 89",
-          "Care team coordination events: 45"
+          "Health equity screenings completed: 2,340 across 5 sub-platforms",
+          "GIS resource matches: 1,456 referrals with 71% completion",
+          "Sub-platform coordination events: 890 cross-referrals",
+          "Culturally responsive care navigation sessions: 678",
+          "Population health dashboard active metrics: 34 tracked indicators",
+          "Community health worker dispatches: 234"
         ],
-        "integrationDepth": "Bidirectional with Autoimmune (disease-specific), SafeCogniCare (cognitive capacity), Whole-Person Health (crisis), Maternal Health (prenatal vitamins), Men's Health (chronic medications)"
+        "integrationDepth": "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments"
       },
       "grant_alignment": [
-        "ssg-fox",
         "st-davids",
+        "ssg-fox",
         "foundation"
       ],
       "last_heartbeat": null
@@ -2033,11 +2025,35 @@
       "After ecosystem_platforms DB changes (platform add/remove, URL change)."
     ]
   },
+  "rfp_fidelity_doctrine": {
+    "summary": "RFP Fidelity Doctrine: write TO the reviewer/scorer in THEIR language, in THEIR order, against THEIR scoring criteria. Reality is fixed; framing is ours.",
+    "pipeline": [
+      "1. Upload base RFP + amendments + Q&A via POST /api/me/rfp-documents.",
+      "2. Extract compliance matrix: POST /api/me/rfp-fidelity/:grantId/extract (every shall/must/will/should/may, tagged L/M/C).",
+      "3. Review at /grants/:grantId/compliance: set evidenceRef, answeringSectionName, status, confidence per item. AI-propose workaround for gaps.",
+      "4. Generate draft: POST /api/me/grant-narratives/generate — drafter spine = matrix (not just rubric).",
+      "5. Final audit: GET /api/me/rfp-fidelity/:grantId/audit — must return ok:true and sectionLNoncompliance:[] before submit."
+    ],
+    "section_L_vs_M": "Section L (instructions/format/page/font/attachments) noncompliance = rejection BEFORE Section M (evaluation) is scored. Treat L as a pre-flight gate.",
+    "source_precedence": "Q&A > Amendment > Base RFP > Pre-bid meeting notes.",
+    "workaround_posture": "Hybrid: only propose workarounds for real gaps (no evidence or confidence < 70). If RFP is silent on teaming/subs, flag 'requires verification.' If no realistic workaround, disclose honestly.",
+    "drafter_pattern": "Each Section M paragraph opens: 'In response to [reqNumber]'s requirement that [verbatim shall/must clause], TCAF...' and ends: '[Evidence: <evidenceRef>]'. Gaps get appended {{ACTION REQUIRED: ...}}.",
+    "code": {
+      "schema": "shared/schema.ts → complianceMatrixItems",
+      "engine": "server/rfp-fidelity-engine.ts",
+      "routes": "server/rfp-fidelity-routes.ts (/api/me/rfp-fidelity/...)",
+      "drafter": "server/rfp-rubric.ts → generateDraftFromRubric(complianceMatrix)",
+      "narrative": "server/grant-narrative-routes.ts → POST /api/me/grant-narratives/generate (returns complianceMatrixUsed)",
+      "ui": "/grants/:grantId/compliance → client/src/pages/rfp-fidelity-page.tsx",
+      "doctrine_doc": "docs/grants/RFP-FIDELITY-DOCTRINE.md"
+    },
+    "full_text": "# RFP Fidelity Doctrine\n\nThe contracting officer / program officer / review panel is the customer. The RFP and its instructions/rubric are their requirements document. The job of a proposal is to answer those requirements **in their language, in their order, against their scoring criteria, with verifiable fidelity** — not to describe who we are and hope the evaluator connects the dots.\n\nWe describe ourselves only in service of demonstrating that we meet what they asked for. Performance for the end user comes after we win the contract.\n\n## Reality is fixed. Framing is ours.\n\nWe never distort facts. We use the RFP's structure, language, and weightings as the spine, then position our actual capabilities as evidence against each scoring factor.\n\n- Where we genuinely meet a requirement → say so confidently using the RFP's own vocabulary.\n- Where we do not → name a real workaround (teaming sub, MOU, phased delivery, key personnel hire, CPA-attested financials, letter of credit/bonding partner, etc.) or flag it as `{{ACTION REQUIRED}}`.\n\n## Section L vs Section M\n\n- **Section L (Instructions to Offerors)** = page count, font, margins, attachments, signatures, submission channel. **Noncompliance gets a proposal rejected BEFORE Section M is scored.** Treat L as a pre-flight gate.\n- **Section M (Evaluation Factors)** = the scored criteria. Every shall/must here gets a paragraph response that opens with the RFP's own factor language and ends with an inline `[Evidence: ...]` tag so the reviewer can trace claim → requirement → score.\n\n## Source precedence\n\nQ&A > Amendment > Base RFP > Pre-bid meeting notes. The extractor accepts all of them as a combined input — every clarification the funder gives us becomes a locked requirement.\n\n## The four pieces\n\n1. **Compliance Matrix extractor** — pulls every shall / must / will / should / may / page limit / font / margin / attachment requirement verbatim. Tags each as L / M / C / other. Persists to `compliance_matrix_items`.\n2. **Rubric-aware section generator** — drafter mirrors the matrix back factor-by-factor. Opens each paragraph with the RFP's own factor language: *\"In response to [reqNumber]'s requirement that [verbatim shall/must clause], TCAF…\"* Ends with `[Evidence: ...]`.\n3. **Hybrid workaround engine** — only proposes workarounds where there's an actual gap. If we're a clean fit (evidence on file + confidence ≥ 70), no workaround is forced. If the RFP is silent on teaming/subs, the proposed workaround carries a \"requires verification that this is permissible\" flag.\n4. **Fidelity audit** — final pass. Every shall/must must map to an answering section OR a workaround. Section L gaps are surfaced separately as pre-rejection risk.\n\n## Code locations\n\n- Schema: `compliance_matrix_items` in `shared/schema.ts`\n- Engine: `server/rfp-fidelity-engine.ts` (`extractComplianceMatrix`, `proposeWorkaround`, `runFidelityAudit`, `buildComplianceMatrixBlock`)\n- Routes: `server/rfp-fidelity-routes.ts` (`/api/me/rfp-fidelity/...`)\n- Drafter wiring: `server/rfp-rubric.ts` `generateDraftFromRubric` (accepts `complianceMatrix`)\n- Narrative wiring: `server/grant-narrative-routes.ts` `/api/me/grant-narratives/generate` (loads matrix by grantId, passes to drafter, returns `complianceMatrixUsed`)\n- UI: `/grants/:grantId/compliance` → `client/src/pages/rfp-fidelity-page.tsx`\n\n## End-to-end lifecycle\n\n1. Upload base RFP → `POST /api/me/rfp-documents` (kind=base, grantId=...)\n2. Upload amendments + Q&A as they arrive → same endpoint, kind=amendment | qa\n3. Extract matrix → `POST /api/me/rfp-fidelity/:grantId/extract` (optional `meetingNotes` in body)\n4. Review matrix at `/grants/:grantId/compliance`. Per item, fill evidenceRef, answeringSectionName, set status (covered | workaround | gap), set confidence. AI-propose workaround for gaps with `POST /api/me/rfp-fidelity/items/:itemId/workaround`.\n5. Generate draft → `POST /api/me/grant-narratives/generate` — drafter spine is now the matrix, not just the rubric.\n6. Final audit → `GET /api/me/rfp-fidelity/:grantId/audit?draftSections=A||B||C`. Must return `ok: true` and `sectionLNoncompliance: []` before submit.\n\n## Anti-patterns (do not do these)\n\n- Describing TCAF without mapping each claim back to a numbered requirement.\n- Inventing capabilities to cover a gap. (Use a workaround or `{{ACTION REQUIRED}}` instead.)\n- Assuming Section L compliance is automatic.\n- Ignoring an amendment or Q&A because \"the base RFP already said something close.\"\n- Writing to the end user (the program beneficiary). The reader is the reviewer/scorer.\n"
+  },
   "counts": {
     "gotchas": 19,
     "vocab": 4,
     "platforms": 25,
-    "file_pointers": 19,
+    "file_pointers": 17,
     "lessons": 26,
     "no_go": 4,
     "active_commitment_sections": 72,

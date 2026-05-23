@@ -1,6 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
-import { rfpDocuments, rfpRubrics, grantOpportunities, insertRfpDocumentSchema, activeBids } from "@shared/schema";
+import { rfpDocuments, rfpRubrics, grantOpportunities, insertRfpDocumentSchema, activeBids, complianceMatrixItems } from "@shared/schema";
 import { and, desc, eq } from "drizzle-orm";
 import { requireAuth, requireOrg, getCallerOrg, rateLimitAi } from "./tenant-middleware";
 import { extractRubric, getOrExtractRubric, loadRfpDocumentStack, generateDraftFromRubric, scoreDraftAgainstRubric, type GeneratedDraft } from "./rfp-rubric";
@@ -155,6 +155,17 @@ export function registerGrantNarrativeRoutes(app: Express) {
         }
       } catch (e) { console.error("[grant-narrative] active-bids lookup failed (non-fatal):", e); }
 
+      // RFP Fidelity Engine: compliance matrix (verbatim shall/must items per
+      // Section L/M/C). Drafter uses this as its spine to mirror the RFP back
+      // factor-by-factor. Falls back gracefully if matrix has not been
+      // extracted yet for this grant.
+      let complianceMatrix: any[] = [];
+      try {
+        if (grantId) {
+          complianceMatrix = await db.select().from(complianceMatrixItems).where(and(eq(complianceMatrixItems.orgId, org.id), eq(complianceMatrixItems.grantId, grantId)));
+        }
+      } catch (e) { console.error("[grant-narrative] compliance matrix lookup failed (non-fatal):", e); }
+
       const draft = await generateDraftFromRubric({
         rubric,
         org: org as any,
@@ -164,12 +175,14 @@ export function registerGrantNarrativeRoutes(app: Express) {
         wonProposals,
         docStack,
         internalStrategy,
+        complianceMatrix,
       });
 
       res.json({
         draft, rubric, agencyIntel, foundationIntel,
         priorWinsUsed: wonProposals.map(w => ({ id: w.id, funderName: w.funderName, projectTitle: w.projectTitle, dollarAmount: w.dollarAmount })),
         internalStrategyUsed: internalStrategy ? { rfpId: internalStrategy.rfpId, funder: internalStrategy.funder, criteriaCount: internalStrategy.rubric.length } : null,
+        complianceMatrixUsed: complianceMatrix.length > 0 ? { total: complianceMatrix.length, L: complianceMatrix.filter((i: any) => i.sectionType === "L").length, M: complianceMatrix.filter((i: any) => i.sectionType === "M").length, C: complianceMatrix.filter((i: any) => i.sectionType === "C").length } : null,
       });
     } catch (err) {
       console.error("[grant-narrative] generation failed:", err);

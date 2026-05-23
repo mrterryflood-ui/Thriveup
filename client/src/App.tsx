@@ -221,6 +221,7 @@ const NeighborhoodLookupPage = lazy(() => import("@/pages/neighborhood-lookup"))
 const WorkforceReadinessPage = lazy(() => import("@/pages/workforce-readiness"));
 const BusinessCardPage = lazy(() => import("@/pages/business-card"));
 const GrantCommandCenterPage = lazy(() => import("@/pages/grant-command-center"));
+const RfpFidelityPage = lazy(() => import("@/pages/rfp-fidelity-page"));
 const ThisWeekPage = lazy(() => import("@/pages/this-week"));
 const NsfTechAccessHubPage = lazy(() => import("@/pages/nsf-techaccess-hub"));
 const StDavidsWAB2WorkspacePage = lazy(() => import("@/pages/st-davids-wab2-workspace"));
@@ -408,6 +409,11 @@ function AppRouter() {
       <Route path="/workforce-readiness" component={WorkforceReadinessPage} />
       <Route path="/business-card" component={BusinessCardPage} />
       <Route path="/grant-command-center" component={GrantCommandCenterPage} />
+      <Route path="/grants/:grantId/compliance">
+        <RequireAuth reason="Sign in to use the RFP Fidelity Engine — compliance matrix, hybrid workaround proposer, and final fidelity audit.">
+          <RfpFidelityPage />
+        </RequireAuth>
+      </Route>
       <Route path="/this-week" component={ThisWeekPage} />
       <Route path="/nsf-techaccess-hub" component={NsfTechAccessHubPage} />
       <Route path="/st-davids-wab2" component={StDavidsWAB2WorkspacePage} />

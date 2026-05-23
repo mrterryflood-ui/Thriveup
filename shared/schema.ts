@@ -5591,3 +5591,41 @@ export const activeBids = pgTable("active_bids", {
 export const insertActiveBidSchema = createInsertSchema(activeBids).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertActiveBid = z.infer<typeof insertActiveBidSchema>;
 export type ActiveBidRow = typeof activeBids.$inferSelect;
+
+// === RFP FIDELITY ENGINE ===
+// Compliance Matrix Items: every "shall / must / will / should / may" requirement
+// extracted verbatim from the RFP + amendments + Q&A, with answering paragraph
+// trace and optional workaround. The drafter mirrors this matrix back at the
+// reviewer factor-by-factor. The audit pass at the end refuses to mark
+// "submit-ready" until every shall/must has an answering paragraph (covered
+// OR with a stated workaround). Section L items (instructions to offerors) and
+// Section M items (evaluation factors) are tagged separately because Section L
+// noncompliance gets a proposal rejected BEFORE Section M is scored.
+export const complianceMatrixItems = pgTable("compliance_matrix_items", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }), // nullable until linked
+  documentId: varchar("document_id", { length: 100 }), // which RFP doc this came from (base | amendment | qa)
+  reqNumber: varchar("req_number", { length: 32 }).notNull(), // e.g. "L.3.2-a" or "M-4-3"
+  rfpSection: varchar("rfp_section", { length: 200 }).notNull(), // e.g. "Section L.3.2 — Past Performance"
+  sectionType: varchar("section_type", { length: 16 }).notNull().default("M"), // L (instructions/format) | M (evaluation) | C (work statement) | other
+  requirementVerbatim: text("requirement_verbatim").notNull(), // exact RFP language
+  requirementType: varchar("requirement_type", { length: 16 }).notNull(), // shall | must | will | should | may | informational
+  scoringWeight: integer("scoring_weight"), // points for this item if scored, else null
+  sourceKind: varchar("source_kind", { length: 16 }).notNull().default("base"), // base | amendment | qa | meeting-notes
+  evidenceRef: text("evidence_ref").notNull().default(""), // pointer to our supporting evidence
+  workaroundProposed: text("workaround_proposed").notNull().default(""), // hybrid: empty when we're a clean fit
+  answeringSectionName: varchar("answering_section_name", { length: 500 }).notNull().default(""), // which draft section answers this
+  status: varchar("status", { length: 16 }).notNull().default("open"), // open | covered | workaround | gap
+  confidence: integer("confidence").notNull().default(0), // 0-100, honest self-rating
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_compliance_matrix_grant").on(t.orgId, t.grantId),
+  index("idx_compliance_matrix_status").on(t.grantId, t.status),
+  index("idx_compliance_matrix_section_type").on(t.grantId, t.sectionType),
+]);
+
+export const insertComplianceMatrixItemSchema = createInsertSchema(complianceMatrixItems).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertComplianceMatrixItem = z.infer<typeof insertComplianceMatrixItemSchema>;
+export type ComplianceMatrixItem = typeof complianceMatrixItems.$inferSelect;

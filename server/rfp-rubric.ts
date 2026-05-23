@@ -7,6 +7,8 @@ import type { FoundationIntel } from "./foundation-intelligence";
 import { buildWonProposalsBlock } from "./won-proposals";
 import type { WonProposal } from "@shared/schema";
 import type { ActiveBid, ActiveBidRubricLine } from "@shared/active-bids";
+import type { ComplianceMatrixItem } from "@shared/schema";
+import { buildComplianceMatrixBlock } from "./rfp-fidelity-engine";
 
 export type RubricSection = {
   name: string;
@@ -192,15 +194,27 @@ export async function generateDraftFromRubric(params: {
   wonProposals?: WonProposal[];
   docStack: { base: RfpDocument | null; amendments: RfpDocument[]; qa: RfpDocument[] };
   internalStrategy?: ActiveBid | null;
+  complianceMatrix?: ComplianceMatrixItem[] | null;
 }): Promise<GeneratedDraft> {
-  const { rubric, org, grant, agencyIntel, foundationIntel, wonProposals, docStack, internalStrategy } = params;
+  const { rubric, org, grant, agencyIntel, foundationIntel, wonProposals, docStack, internalStrategy, complianceMatrix } = params;
   const sectionList = rubric.sections.map((s, i) => `${i + 1}. ${s.headingPattern || s.name}${s.pointValue ? ` (${s.pointValue} pts)` : ""}\n   Requirements: ${s.requirements.join("; ") || "(see RFP)"}\n   Tone: ${s.toneNotes ?? "match RFP voice"}`).join("\n\n");
   const wins = wonProposals ?? [];
-  const sys = withRfpTemplateDiscipline(`You are writing a grant proposal section-by-section against the supplied rubric. Return strict JSON: {"sections": [{"sectionName": "...", "pointValue": <number|null>, "body": "<the actual proposal text for this section, mirroring the RFP's tone, terminology, and heading style>"}], "complianceNotes": "short note on what compliance items still need user action (forms, signatures, attachments)"}.
+  const sys = withRfpTemplateDiscipline(`You are writing a grant proposal section-by-section against the supplied rubric AND compliance matrix. Return strict JSON: {"sections": [{"sectionName": "...", "pointValue": <number|null>, "body": "<the actual proposal text for this section, mirroring the RFP's tone, terminology, and heading style>"}], "complianceNotes": "short note on what compliance items still need user action (forms, signatures, attachments)"}.
 
-Mirror the RFP's section names, heading patterns, terminology, and tone. Honor page/word limits. Use ONLY the supplied organization profile for applicant facts. Apply amendments and Q&A clarifications wherever they touch a section.
+WRITING POSTURE — non-negotiable:
+- The contracting officer / program officer / review panel is the reader. The RFP is their requirements document. Write TO them, in THEIR language, in THEIR order, against THEIR scoring weights.
+- Reality is fixed: never invent facts about the organization. Use ONLY the supplied organization profile, prior winning proposals, and the active-bid internal strategy as evidence.
+- Framing, ordering, alignment are ours to control: mirror the RFP's section names, heading patterns, terminology, and tone. Honor page/word limits. Apply amendments and Q&A clarifications.
 
-If PRIOR WINNING PROPOSALS are provided, study the voice, framing, and evidence patterns this organization actually uses when they win — match THAT voice (their cadence, signature phrases, the way they cite outcomes) while still mirroring the new RFP's structure. Never copy winning text verbatim — adapt the voice to the new requirements.`);
+IF A COMPLIANCE MATRIX IS PROVIDED (read it as your spine):
+- Every Section M (evaluation) requirement gets a paragraph response that opens with the RFP's own factor language.
+  Pattern: "In response to [reqNumber]'s requirement that [verbatim shall/must clause], [TCAF answer using org evidence]."
+- End each paragraph with an inline trace tag: [Evidence: <evidenceRef from the matrix>]. Reviewers trace claim → requirement → score this way.
+- For items with a Workaround note, write the response AS IF the workaround is in place AND append {{ACTION REQUIRED: <workaround>}} at the end of that paragraph.
+- For items with no evidence and no workaround, append {{ACTION REQUIRED: <specifically what is needed>}} — do not fabricate.
+- Section L items (instructions/format/page/font/attachments) are NOT body sections; surface them in "complianceNotes" as a numbered submission checklist.
+
+If PRIOR WINNING PROPOSALS are provided, match the org's voice (their cadence, signature phrases, the way they cite outcomes) while still mirroring the new RFP's structure. Never copy winning text verbatim.`);
 
   const userPrompt = [
     `=== RUBRIC TO WRITE TO ===`,
@@ -225,6 +239,9 @@ If PRIOR WINNING PROPOSALS are provided, study the voice, framing, and evidence 
     internalStrategy
       ? `=== INTERNAL TEAM CADENCE (per-criterion strategy from the tracking dashboard — mirror this) ===\n${buildInternalStrategyBlock(internalStrategy)}`
       : `=== INTERNAL TEAM CADENCE ===\n(no active_bids row for this RFP; falling back to rubric-only structure)`,
+    ``,
+    `=== COMPLIANCE MATRIX (RFP Fidelity Engine — mirror this back factor-by-factor) ===`,
+    buildComplianceMatrixBlock(complianceMatrix ?? []),
     ``,
     `=== SOURCE DOCUMENTS (precedence: Q&A > Amendment > Base) ===`,
     buildContextStack(docStack),

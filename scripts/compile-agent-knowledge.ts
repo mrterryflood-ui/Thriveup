@@ -291,8 +291,34 @@ async function main() {
     ],
   };
 
+  const fidelityDoctrineDoc = safeRead(resolve(ROOT, "docs/grants/RFP-FIDELITY-DOCTRINE.md"));
+  const rfpFidelityDoctrine = {
+    summary: "RFP Fidelity Doctrine: write TO the reviewer/scorer in THEIR language, in THEIR order, against THEIR scoring criteria. Reality is fixed; framing is ours.",
+    pipeline: [
+      "1. Upload base RFP + amendments + Q&A via POST /api/me/rfp-documents.",
+      "2. Extract compliance matrix: POST /api/me/rfp-fidelity/:grantId/extract (every shall/must/will/should/may, tagged L/M/C).",
+      "3. Review at /grants/:grantId/compliance: set evidenceRef, answeringSectionName, status, confidence per item. AI-propose workaround for gaps.",
+      "4. Generate draft: POST /api/me/grant-narratives/generate — drafter spine = matrix (not just rubric).",
+      "5. Final audit: GET /api/me/rfp-fidelity/:grantId/audit — must return ok:true and sectionLNoncompliance:[] before submit.",
+    ],
+    section_L_vs_M: "Section L (instructions/format/page/font/attachments) noncompliance = rejection BEFORE Section M (evaluation) is scored. Treat L as a pre-flight gate.",
+    source_precedence: "Q&A > Amendment > Base RFP > Pre-bid meeting notes.",
+    workaround_posture: "Hybrid: only propose workarounds for real gaps (no evidence or confidence < 70). If RFP is silent on teaming/subs, flag 'requires verification.' If no realistic workaround, disclose honestly.",
+    drafter_pattern: "Each Section M paragraph opens: 'In response to [reqNumber]'s requirement that [verbatim shall/must clause], TCAF...' and ends: '[Evidence: <evidenceRef>]'. Gaps get appended {{ACTION REQUIRED: ...}}.",
+    code: {
+      schema: "shared/schema.ts → complianceMatrixItems",
+      engine: "server/rfp-fidelity-engine.ts",
+      routes: "server/rfp-fidelity-routes.ts (/api/me/rfp-fidelity/...)",
+      drafter: "server/rfp-rubric.ts → generateDraftFromRubric(complianceMatrix)",
+      narrative: "server/grant-narrative-routes.ts → POST /api/me/grant-narratives/generate (returns complianceMatrixUsed)",
+      ui: "/grants/:grantId/compliance → client/src/pages/rfp-fidelity-page.tsx",
+      doctrine_doc: "docs/grants/RFP-FIDELITY-DOCTRINE.md",
+    },
+    full_text: fidelityDoctrineDoc?.content ?? "(doctrine doc not found at docs/grants/RFP-FIDELITY-DOCTRINE.md)",
+  };
+
   const compiled = {
-    version: "1.1.0",
+    version: "1.2.0",
     compiledAt: new Date().toISOString(),
     sources: [
       { path: "replit.md", mtime: replitMd.mtime },
@@ -324,6 +350,7 @@ async function main() {
       sourceFile: s.sourceFile,
     })),
     session_protocol: sessionProtocol,
+    rfp_fidelity_doctrine: rfpFidelityDoctrine,
     counts: {
       gotchas: gotchas.length,
       vocab: vocab.length,
