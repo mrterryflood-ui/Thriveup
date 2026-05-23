@@ -1,0 +1,57 @@
+mode in grant and proposal writing. Let me say it back to you so we're locked in:
+
+The contracting officer / program officer / review panel is the customer. The RFP and its rubric are their requirements document. The job of the proposal is to answer those requirements in their language, in their order, against their scoring criteria, with verifiable fidelity — not to describe who we are and hope the evaluator connects the dots. We describe ourselves only in service of demonstrating that we meet what they asked for. Performance for the end user comes after we win, and we only win if the evaluator can check every box on their score sheet without having to hunt for the evidence.
+
+That's a fundamentally different writing posture than what most of our current drafting layer produces. Here's where the platform is strong on this and where it falls short:
+
+Where we already do this right
+Verified Fact Extraction locks the RFP's exact numbers/dates/names as ground truth
+MAP-GAP Readiness Assessment scores us against the 7 dimensions the evaluator cares about (including a "Scoring Optimization" dimension)
+Dual-AI agency intelligence has Claude red-team for evaluator psychology and hidden requirements
+Where the gap is — and it's real
+The section drafting prompts (both draft-section and draft-all in grant packages, plus parts of the solicitation generator) currently tell the AI to write "a comprehensive, professional, submission-ready draft" grounded in "the applicant's stated mission and capabilities." That's a describe-ourselves frame. It does not say:
+
+Mirror the RFP's exact section headings, scoring factors, and "shall/must/will" requirement language back to the evaluator
+Address each evaluation factor explicitly in the order and weighting the rubric specifies
+Build a compliance matrix — every "shall" / "must" / "will" / "the offeror will" requirement tagged with the proposal paragraph that answers it
+Frame every claim as a response to a requirement ("In response to Section L.3.2's requirement for documented past performance in workforce reentry, TCAF…") rather than as autobiography
+Propose workarounds when we lack something — teaming partner, subcontractor, LOC, MOU, phased delivery, key personnel hire — instead of just flagging the gap with {{ACTION REQUIRED}}
+What I'd build to close this — wants your sign-off before I touch routes
+A new layer called the RFP Fidelity Engine that runs between the readiness assessment and the section drafter. It would:
+
+A. Compliance Matrix extractor — parses the RFP into a structured table:
+
+Req #	RFP Section	Requirement language (verbatim)	Type (shall/should/must)	Scoring weight	Org evidence	Workaround if gap	Proposal paragraph
+B. Rubric-aware section generator — replaces the current drafting prompt with one that:
+
+Receives the compliance matrix as context
+Writes each section to the evaluator, opening paragraphs with the RFP's own factor language
+Includes a small evidence callout per requirement (so a reviewer can trace claim → requirement → score)
+Uses the org profile only as evidence to support requirement responses, not as the narrative spine
+C. Gap-to-workaround engine — when the readiness assessment flags a gap, instead of stopping at {{ACTION REQUIRED}}, it suggests specific workarounds the evaluator will accept: teaming with a qualified prime/sub, an MOU with a named-type partner, a phased approach, a key personnel commitment letter, a CPA-attested financial statement, etc. — and writes the response as if the workaround is in place with a clear {{ACTION REQUIRED: secure MOU with [named partner type] by [date]}} for you to actually execute.
+
+D. Fidelity audit at the end — final pass that walks the compliance matrix and confirms every "shall/must" requirement has a tagged paragraph response. Anything unanswered gets called out before export.
+
+This is a meaningful change to server/routes.ts (new endpoints + revised drafting prompts) and adds one new shared schema table (compliance_matrix_items keyed to a proposal or grant package). Per your preferences I'm flagging it rather than just doing it.
+
+Two questions before I build:
+
+Want me to scope this to grant packages first, the solicitation response generator first, or both at once?
+For the workaround engine — should it be conservative (only suggest workarounds where the RFP explicitly allows teaming/subs) or aggressive (suggest workarounds even where the RFP is silent, with a flag noting it needs your confirmation that it's permissible)?
+Both 2. Hybrid. Call it out when we need more capability or more information. But don't force it if we are a good fit and we don't need more support. Period alignment with the RFP is the key differentiator and that's what we haven't been doing and that may be a reason why we haven't been getting as many wins as we possibly could have. But knowledge is power and so we will do better going forward for everyone.
+3 minutes ago
+Locked in: both modules, hybrid workaround engine. Let me first check why the workflow failed, then build this out.
+Workflow back up. Now let me read the key files I need before building. I'll keep this lean and focused.
+So are alignment and scoring system needs to be based on the RFP. We cannot distort or change reality. But we can't control how we write and describe things and align things.
+2 minutes ago
+Got it — and that's the exact discipline I'll encode. Reality is fixed. Framing, ordering, and alignment are ours to control. We use the RFP's structure, language, and weightings as the spine, then position our actual capabilities — verbatim from the org profile — as evidence against each scoring factor. Where the org genuinely meets a requirement, we say so confidently using the RFP's own vocabulary. Where it doesn't, we either name a real workaround or flag it as ACTION REQUIRED. No fabrication, no inflation, no generic boilerplate — just rigorous alignment of truth to requirement.
+
+Let me build it. First a quick scout to lock the file layout, then I'll execute.
+I have everything I need. Now executing the build. Let me start with the schema, engine module, and storage in parallel.
+Now I'll execute the build. Starting with the schema, engine module, and storage interface additions in parallel.
+Executing the build. Phase 1: schema + engine + storage in parallel.
+Yes, the RFP itself is literally the cheat sheet and the addendum's and meeting notes and everything else helps us to clearly understand and articulate what they are looking for and give it back to them in the same way they delivered it to us. They literally give us the answers to the test. We just have to comply.
+Just now
+Exactly — and I just leveled the engine to handle that explicitly. The extractor will accept base RFP + addenda + Q&A + meeting notes as a combined source so every clarification they give us gets pulled into the compliance matrix as additional locked requirements. They wrote the test; we mirror it back factor-by-factor.
+
+Continuing the build — engine module + storage in parallel.
