@@ -2239,3 +2239,14 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 
 **Engineering notes (for future similar work):**
 - `server/storage.ts` exports `db` — use `import { db } from "./storage"` from inside `server/`, and `from "../server/storage"` from inside `scripts/`. There is NO `server/db.ts` file. (First seed attempt failed on `../server/db`; corrected to `../server/storage`.)
+
+## 2026-05-23 — Sedgwick RFP #26-0028 v2 alignment + EMPLOYEEHEALTH.replit.app fidelity gap
+
+**Vitality v2 alignment pass (committed):** folded Eric's 2026-05-23 inputs into `docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v2.md` — §12.4 COI updated to "None known" + patient/client-relationship caveat for Drs. Love/Vann + Iasis adjacency; §11 references intro now states reference-selection priority (public-sector > self-insured > clinical/community); Appendix F split into F.1 (HIS Prime, filed) + F.2 (subcontractor due-diligence) with 601-area-code Mississippi hint, veteran-owned caveat (Dr. Flood is TCAF sub, not HIS principal), minority-owned "likely Yes confirm"; §9.5 at-risk pricing kept as drafted with new conservative-threshold framing (30% vs. published 55–70% managed-GLP-1 range). 41 `{{ACTION REQUIRED}}` markers remaining — all real gaps the partners need to fill. `pre-submission-checklist.md` rewritten to reflect decisions made.
+
+**🚨 LIVE-SITE FIDELITY GAP — `employeehealth.replit.app` contradicts the proposal:**
+1. **Headline stat "1,757 at-risk employees"** vs. proposal's source-cited **1,525 modeled at-risk** (Appendix B). Two competing numbers for the same audience.
+2. **Headline "3.27x projected ROI"** vs. proposal's **0.56x Y1 / 1.01x Y3 / 1.32x Y5 modeled**. The site is leading with what the proposal explicitly calls "the Harvard 2010 upper bound we deliberately under-promise against." Direct Iron-Rule-#2 violation.
+3. **"proven ROI for employers"** vs. proposal's careful **"modeled net Year-1 benefit."** Site claims proven; proposal says modeled.
+
+36.2% obesity prevalence + Sedgwick framing both match — those are fine. Site is in the EMPLOYEEHEALTH workspace, NOT this codebase — real fix happens there. Decision needed before submission: either (a) bring the live site into proposal-conformance (preferred: change to 1,525 / "up to 1.32x modeled over 5 years per DPP retention" / "modeled ROI"), or (b) accept the gap as a known divergence and add a one-line note to the proposal cover that the public landing page uses a different population denominator. Eric to decide.

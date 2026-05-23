@@ -432,6 +432,8 @@ The Harvard 2010 meta-analysis ($3.27 per $1) is the upper bound; we deliberatel
 - **Outperformance bonus:** an additional **5% PEPM** released if ≥50% of the 373-cohort retained on managed GLP-1 therapy at month 12.
 - **Failure-to-perform termination:** if all three thresholds missed in any contract year, County may terminate for non-performance on 30 days' notice (in addition to the standard 30-day termination-for-convenience right under §Contract Period). This is the converse risk to our upside.
 
+**The 30% retention threshold is deliberately conservative.** Published managed-GLP-1 retention sits in the 55–70% range at twelve months. By committing publicly to 30%, the Vitality team is taking on a threshold materially below what the clinical literature supports for an actively managed protocol — a posture intended to communicate operator confidence in the published evidence base. The team is open to negotiating either the withhold percentage or the threshold during contract finalization at the County's preference.
+
 **Why this structure is the right answer to a competitor underbidding us on Criterion V:** A pure-tech vendor priced at $50–$250 PEPM cannot offer this kicker because their delivery model does not include the clinical and behavioral wraparound that drives the KPIs. The kicker is the value-based answer to a price-based comparison.
 
 ---
@@ -490,7 +492,12 @@ Employer dashboard via County SSO (Azure AD). Authorized County users see: popul
 
 *Per RFP §Required Response Content item 2: "The firm's relevant experience, notably experience working with government agencies." And item 3: "At minimum, three (3) professional references, besides Sedgwick County, with email addresses, telephone numbers, and contact persons where work has been completed within the last three (3) years."*
 
-The Vitality team provides three references per partner (twelve total) to ensure each lane of the program is verifiable. References organized by competency:
+The Vitality team provides three references per partner (twelve total) to ensure each lane of the program is verifiable. References organized by competency.
+
+**Reference-selection priority (RFP rule: work completed within the last three years):**
+1. **Public-sector engagements carry the most weight** with the evaluation committee — at least one named municipal, county, state, or federal client per partner where available.
+2. **Large self-insured employer engagements carry meaningful weight** and substitute well when public-sector references are not available.
+3. **Clinical-practice references (Love Clinic) and community/wellness-program references (Vanntastic) are acceptable as domain references** for those partners and should be paired with at least one strong public-sector or enterprise reference from HIS or TCAF to anchor the team's institutional credibility.
 
 ### 11.1 Prime contractor and government compliance — Hargrave Innovative Solutions
 
@@ -555,9 +562,9 @@ All communication regarding RFP #26-0028 routes exclusively through Sedgwick Cou
 
 The Vitality team affirmatively discloses the following:
 
-- **HIS, Love Clinic MedSpa, Vanntastic Solutions, and TCAF have no personal or financial interest in any properties in the project area.**
-- **No member of the Vitality team has any actual or potential conflict of interest with any member of the Sedgwick County Board of County Commissioners or County staff** known to us at the time of submission.
-- **Adjacent disclosure for completeness:** Dr. J. Michelle Vann's spouse is affiliated with Iasis Christian Center, located in Wichita. Iasis Christian Center is **not** a participant in this proposal and holds no role under any awarded contract. We disclose this proactively under the principle that adjacent affiliations should be visible to the evaluation committee even when not strictly required. Iasis Christian Center has historically engaged with City of Wichita programs (a separate jurisdiction); we note this only for completeness.
+- **None known to the proposing team at the time of this submission.** HIS, Love Clinic MedSpa, Vanntastic Solutions, and TCAF have no personal or financial interest in any properties in the project area, and no actual or potential conflict of interest with any member of the Sedgwick County Board of County Commissioners, the County Manager or their staff, the County's Departments of Human Resources, Risk Management, or Purchasing, or any member of the RFP #26-0028 evaluation committee, known to the team at the time of this submission.
+- **Patient/client-relationship caveat for completeness.** Dr. Chela Love operates an active bilingual primary-care clinical practice in Wichita and may have County employees or dependents as past or current patients of Love Clinic MedSpa. A patient relationship with a County employee is not a procurement conflict under any standard definition. The team nevertheless notes that, if any patient of Dr. Love sits on the Board of County Commissioners, in the County Manager's office, in HR, Risk Management, Purchasing, or on the evaluation committee, that relationship will be disclosed in writing to the County Contract Manager within 5 business days of confirmation. The same standard applies to any active coaching or consulting client of Dr. J. Michelle Vann's organization. {{ACTION REQUIRED: Dr. Love and Dr. Vann to each confirm in writing prior to submission, for retention in the proposal file.}}
+- **Adjacent affiliation, disclosed for completeness.** Dr. J. Michelle Vann's spouse is affiliated with Iasis Christian Center, located in Wichita. Iasis Christian Center is **not** a participant in this proposal and holds no role under any awarded contract. Iasis has historically engaged with City of Wichita programs (a separate jurisdiction from Sedgwick County); we note this only for completeness.
 
 If any matter that could constitute a real or perceived conflict arises during the contract period, HIS Prime will disclose it in writing to the County Contract Manager within 5 business days.
 
@@ -651,28 +658,41 @@ N/A — no privilege claimed.
 
 The undersigned, on behalf of the proposer, certifies that: (1) this offer is made without previous understanding, agreement or connection with any person, firm, or corporation submitting a proposal on the same project; (2) is in all respects fair and without collusion or fraud; (3) the person whose signature appears below is legally empowered to bind the firm in whose name the proposer is entered; (4) they have read the complete Request for Proposal and understand all provisions; (5) if accepted by the county, this proposal is guaranteed as written and amended and will be implemented as stated; (6) mistakes in writing of the submitted proposal will be their responsibility.
 
+**F.1 — HIS Prime (the form filed with the County on the Response Form page)**
+
 | Field | Value |
 |---|---|
 | NAME | Hargrave Innovative Solutions |
-| DBA / SAME | {{ACTION REQUIRED}} |
+| DBA / SAME | {{ACTION REQUIRED: confirm "SAME" or insert DBA}} |
 | CONTACT | Eric Hargrave, CEO |
-| ADDRESS / CITY / STATE / ZIP | {{ACTION REQUIRED}} |
-| PHONE / FAX / HOURS | 601-238-4186 / N/A / {{ACTION REQUIRED}} |
-| STATE OF INCORPORATION or ORGANIZATION | {{ACTION REQUIRED}} |
-| COMPANY WEBSITE / EMAIL | {{ACTION REQUIRED}} / ericd@hisolution.org |
+| ADDRESS / CITY / STATE / ZIP | {{ACTION REQUIRED: full street, city, state, ZIP}} |
+| PHONE / FAX / HOURS | 601-238-4186 / N/A / {{ACTION REQUIRED — typical default: M–F 8:00 AM–5:00 PM CT}} |
+| STATE OF INCORPORATION or ORGANIZATION | {{ACTION REQUIRED: confirm — 601 area code suggests Mississippi; verify}} |
+| COMPANY WEBSITE / EMAIL | {{ACTION REQUIRED: company website}} / ericd@hisolution.org |
 | NUMBER OF LOCATIONS / NUMBER OF PERSONS EMPLOYED | {{ACTION REQUIRED}} |
-| TYPE OF ORGANIZATION | {{ACTION REQUIRED: check one — Public Corp / Private Corp / Sole Prop / Partnership / Other}} |
-| BUSINESS MODEL | {{ACTION REQUIRED: check applicable}} |
-| MINORITY-OWNED? | {{ACTION REQUIRED: check + category if yes}} |
-| WOMAN-OWNED? | {{ACTION REQUIRED: check + category if yes}} |
-| REGISTERED TO DO BUSINESS IN KS? | {{ACTION REQUIRED: Yes / No}} |
-| UEI (UNIQUE ENTITY IDENTIFIER) NO. | {{ACTION REQUIRED: HIS UEI}} |
-| INSURANCE REGISTERED IN KS WITH MINIMUM BEST RATING OF A-VIII | {{ACTION REQUIRED: Yes / No}} |
-| ACKNOWLEDGE RECEIPT OF ADDENDA | **No. 1 dated {{ACTION REQUIRED: Add #1 date}}** ; **No. 2 dated May 22, 2026** ; No. ___ dated ___ |
+| YEAR ESTABLISHED | {{ACTION REQUIRED}} |
+| TYPE OF ORGANIZATION | {{ACTION REQUIRED: check one — Public Corp / Private Corp / Sole Prop / Partnership / LLC / Other}} |
+| BUSINESS MODEL | {{ACTION REQUIRED: Small / Manufacturer / Distributor / Retail / Dealer / Other}} |
+| SMALL BUSINESS | {{ACTION REQUIRED: Yes / No}} |
+| MINORITY-OWNED? | {{ACTION REQUIRED: Yes/No — likely Yes given principal; confirm + category}} |
+| WOMAN-OWNED? | {{ACTION REQUIRED: Yes / No}} |
+| VETERAN-OWNED? | {{ACTION REQUIRED: Yes / No — note: Dr. Flood (US Army retiree) is the TCAF subcontractor principal, not the HIS Prime principal; HIS itself qualifies only if Eric Hargrave is a veteran. Confirm directly.}} |
+| REGISTERED TO DO BUSINESS IN KS? | {{ACTION REQUIRED: Yes / No — if No, must register prior to contract award}} |
+| UEI (UNIQUE ENTITY IDENTIFIER) NO. | {{ACTION REQUIRED: HIS UEI from SAM.gov}} |
+| INSURANCE REGISTERED IN KS WITH MINIMUM BEST RATING OF A-VIII | YES — affirmed (per §12.2; Letter of Insurability in Appendix G) |
+| ACKNOWLEDGE RECEIPT OF ADDENDA | **No. 1 dated {{ACTION REQUIRED: Add #1 issuance date — believed May 4, 2026; confirm against posted addendum}}** ; **No. 2 dated May 22, 2026** |
 | Signature | \_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_\_ |
 | Title | CEO |
 | Print Name | Eric Hargrave |
-| Dated | June 2, 2026 |
+| Dated | June 2, 2026 (or actual signature date) |
+
+**F.2 — Subcontractor information (for back-to-back BAA file; not on the County's Response Form, retained by HIS Prime for due diligence and County audit)**
+
+| Subcontractor | Address on file | Year est. / # employees / business classification / KS-registered / UEI |
+|---|---|---|
+| Love Clinic MedSpa (Dr. Chela Love, DNP) | 214 S Rock Rd, Suite 101, Wichita, KS 67207 | All {{ACTION REQUIRED}} |
+| Vanntastic Solutions LLC (Dr. J. Michelle Vann) | {{ACTION REQUIRED: full mailing address}} | All {{ACTION REQUIRED}} |
+| The COLLABORATIVE Advocate Foundation (Dr. Terry D. Flood, President) | 17912 Stefano Drive, Pflugerville, TX 78660-7020 | Year est. 2026-01-14 (IRS determination); 501(c)(3) public charity §170(b)(1)(A)(vi); EIN 41-3618003; UEI **KDDVD1FGLW35**; CAGE 209N1; SAM Active to 2027-05-06. # employees/volunteers {{ACTION REQUIRED}}; state of registration {{ACTION REQUIRED}}. |
 
 ### Appendix G — Insurance Certificates and Letter of Insurability
 
