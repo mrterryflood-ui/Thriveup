@@ -33,6 +33,7 @@ import {
   Info, BookMarked,
   Mail, Landmark, RefreshCw, Package, PenTool,
   Microscope, Stethoscope, Film, HandHeart, Search, Wrench,
+  Compass,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -45,108 +46,233 @@ interface NavItem {
   title: string;
   url: string;
   icon: LucideIcon;
+  authOnly?: boolean;
 }
 
-const communityIntelItems: NavItem[] = [
-  { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
-  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
-  { title: "Resident Journey (demo)", url: "/resident-journey", icon: Route },
-  { title: "Case Manager View", url: "/case-manager", icon: Shield },
+// =========================================================================
+// IA v2 (2026-05-23) — 7 hubs.
+// Audit found 207 sidebar items across 28 groups (26 rendered simultaneously),
+// with duplicates (My Pathway in 2 places, mentors in 3, grants split across 4
+// groups) and 3 "teaching*" arrays defined but never rendered. This rewrite
+// collapses everything to 7 always-visible hubs + My Organization (auth) +
+// Admin (admin-only, sub-sectioned). Every existing URL is preserved; only
+// the grouping changes. Items marked authOnly:true are hidden when signed out.
+// =========================================================================
+
+// HUB 1 — Get Funded: everything grant-pursuit related.
+const getFundedItems: NavItem[] = [
+  { title: "This Week (Monday Brief)", url: "/this-week", icon: Calendar },
+  { title: "Live Grant Opportunities", url: "/grants", icon: Target },
+  { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy, authOnly: true },
+  { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck, authOnly: true },
+  { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true },
+  { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true },
+  { title: "LOI Writer", url: "/loi-writer", icon: PenLine, authOnly: true },
+  { title: "Grant Packages", url: "/grant-packages", icon: Package, authOnly: true },
+  { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy, authOnly: true },
+  { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users, authOnly: true },
+  { title: "Prior Award Research", url: "/grant-prior-awards", icon: Search, authOnly: true },
+  { title: "Logic Model", url: "/logic-model", icon: Route, authOnly: true },
+  { title: "Staffing Plan", url: "/staffing-plan", icon: Briefcase, authOnly: true },
+  { title: "Stakeholder Deck", url: "/presentations", icon: Presentation, authOnly: true },
+  { title: "E-Sign Center", url: "/esign", icon: PenTool, authOnly: true },
+  { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
+  { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart, authOnly: true },
+  { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart, authOnly: true },
+  { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope, authOnly: true },
+];
+
+// HUB 2 — Serve People: intake, benefits, foster youth, justice/reentry,
+// prevention, health programs. The whole "front door" for participants and
+// case managers.
+const servePeopleItems: NavItem[] = [
   { title: "Resource Finder", url: "/resources", icon: MapPin },
-  { title: "Community Map", url: "/community-map", icon: Map },
-  { title: "Community Voice", url: "/voice", icon: MessageCircle },
-  { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles },
-  { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
-  { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
-  { title: "Community", url: "/community", icon: Globe },
-];
-
-const workforceSolutionsItems: NavItem[] = [
-  { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
-  { title: "Apprenticeship Tracker", url: "/apprenticeship-tracker", icon: Wrench },
-  { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
-  { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
-  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
-  { title: "Trade Sims", url: "/academy/trade-sims", icon: Wrench },
-  { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
-  { title: "Mentorship Directory", url: "/mentorship-directory", icon: Users },
-  { title: "Mentor Network", url: "/academy/mentors", icon: Users },
-  { title: "Find Mentor/Partner", url: "/academy/mentor-finder", icon: Handshake },
-  { title: "My Pathway", url: "/academy/pathway", icon: Route },
-  { title: "Transition Plans", url: "/transition-plans", icon: GraduationCap },
-  { title: "Dream Design", url: "/academy/dreams", icon: Target },
-];
-
-const fosterYouthItems: NavItem[] = [
+  { title: "9-Benefit Screener", url: "/benefits-screener", icon: ClipboardList },
+  { title: "Benefits Command Center", url: "/benefits", icon: HandHeart },
+  { title: "Intake Wizard", url: "/intake", icon: ClipboardCheck },
+  { title: "My Journey", url: "/my-journey", icon: Rocket, authOnly: true },
+  { title: "Service Delivery", url: "/services", icon: Activity, authOnly: true },
+  { title: "Cohort Onboarding", url: "/cohort-onboarding", icon: Users, authOnly: true },
+  { title: "Case Manager View", url: "/case-manager", icon: Shield, authOnly: true },
+  { title: "Resident Journey (demo)", url: "/resident-journey", icon: Route },
+  // Foster Youth
   { title: "Foster Youth Hub", url: "/foster-youth", icon: HandHeart },
   { title: "Aging-Out Toolkit", url: "/foster-youth/toolkit", icon: ClipboardCheck },
-  { title: "Transition Plan", url: "/foster-youth/transition-plan", icon: Route },
+  { title: "Foster Transition Plan", url: "/foster-youth/transition-plan", icon: Route },
   { title: "Wellbeing Check-in", url: "/foster-youth/wellbeing", icon: Heart },
-  { title: "My Rights", url: "/foster-youth/rights", icon: Scale },
+  { title: "My Rights (Foster)", url: "/foster-youth/rights", icon: Scale },
   { title: "State Benefits (50 states)", url: "/foster-youth/benefits", icon: Landmark },
-  { title: "FAFSA & ETV (foster mode)", url: "/fafsa-navigator?audience=foster", icon: GraduationCap },
-  { title: "AI-assisted Intake", url: "/foster-youth/intake", icon: Sparkles },
-  { title: "Cohort Analytics (admin)", url: "/foster-youth/cohort-analytics", icon: BarChart3 },
+  { title: "FAFSA & ETV (foster)", url: "/fafsa-navigator?audience=foster", icon: GraduationCap },
+  { title: "AI-assisted Intake (Foster)", url: "/foster-youth/intake", icon: Sparkles },
   { title: "State-Agency Portal", url: "/foster-youth/state-portal", icon: Building2 },
   { title: "Policy Comparison (50 states)", url: "/foster-youth/policy-comparison", icon: Scale },
-];
-
-const communityPartnersItems: NavItem[] = [
-  { title: "Community Partner Hub", url: "/partners/vann-hub", icon: Handshake },
-  { title: "Family & Program Tracker", url: "/partners/family-program-tracker", icon: Users },
-  { title: "RFP-Match Storyteller", url: "/partners/rfp-storyteller", icon: Sparkles },
-];
-
-function useDemoPartnersFlag(): boolean {
-  const [on, setOn] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem("tcaf_demo_partners") === "1";
-  });
-  useEffect(() => {
-    function sync() {
-      setOn(window.localStorage.getItem("tcaf_demo_partners") === "1");
-    }
-    window.addEventListener("storage", sync);
-    window.addEventListener("tcaf-demo-partners-changed", sync);
-    return () => {
-      window.removeEventListener("storage", sync);
-      window.removeEventListener("tcaf-demo-partners-changed", sync);
-    };
-  }, []);
-  return on;
-}
-
-const justiceReentryItems: NavItem[] = [
-  { title: "Reentry Program (overview)", url: "/reentry-program", icon: Scale },
-  { title: "Reentry Operational Dashboard", url: "/reentry", icon: Scale },
-  { title: "TX Reentry Stipend Pilot", url: "/reentry-stipend-pilot", icon: Landmark },
-  { title: "National Reentry Standards", url: "/reentry/standards", icon: Scale },
-  { title: "Strategic Plan", url: "/reentry/strategic-plan", icon: Scale },
-  { title: "Outcome Reports", url: "/reentry/outcome-reports", icon: Scale },
-  { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
-  { title: "For Justice Partners", url: "/justice-partners", icon: Handshake },
-  { title: "Justice Command Center", url: "/justice-command-center", icon: Shield },
-];
-
-// Programs — new top-level pillar surfacing the Cycle B agency-aligned program pages.
-// Each program page is a focused, evidence-based, plain-English pitch built around a
-// specific federal/foundation funder's reviewer lens.
-const programsItems: NavItem[] = [
+  // Programs (agency-aligned pitches)
   { title: "Veterans Program", url: "/veterans", icon: Shield },
   { title: "Behavioral Health Program", url: "/behavioral-health", icon: Heart },
   { title: "Reentry Program", url: "/reentry-program", icon: Scale },
-  { title: "Research & Methodology", url: "/methodology", icon: Microscope },
-  { title: "Health & Wellness", url: "/health-wellness", icon: Activity },
-  { title: "Prevention", url: "/prevention", icon: ShieldCheck },
+  { title: "Reentry Dashboard", url: "/reentry", icon: Scale, authOnly: true },
+  { title: "TX Reentry Stipend Pilot", url: "/reentry-stipend-pilot", icon: Landmark, authOnly: true },
+  { title: "Reentry Standards", url: "/reentry/standards", icon: Scale },
+  { title: "Reentry Strategic Plan", url: "/reentry/strategic-plan", icon: Scale, authOnly: true },
+  { title: "Reentry Outcome Reports", url: "/reentry/outcome-reports", icon: FileBarChart, authOnly: true },
+  { title: "Justice Partners", url: "/justice-partners", icon: Handshake },
+  { title: "Justice Command Center", url: "/justice-command-center", icon: Shield, authOnly: true },
+  { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
+  // Prevention & Health
+  { title: "Prevention Hub", url: "/prevention", icon: ShieldCheck },
+  { title: "Parent Education", url: "/parent-education", icon: Heart },
+  { title: "Facilitator Hub", url: "/facilitator-hub", icon: ClipboardCheck, authOnly: true },
+  { title: "Health & Wellness Hub", url: "/health-wellness", icon: Activity },
+  { title: "Health Network", url: "/health-network", icon: Heart, authOnly: true },
+  { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope, authOnly: true },
 ];
 
-const partnershipItems: NavItem[] = [
-  { title: "Coalition Dashboard", url: "/coalition", icon: Users },
-  { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2 },
+// HUB 3 — Workforce & Trades: ONE door per concept. Trade Sims lives here
+// (was triple-placed). My Pathway lives here only (was duplicated in Student
+// Portal). Mentor surfaces consolidated into 1 entry + 2 alternates.
+const workforceTradesItems: NavItem[] = [
+  { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
+  { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
+  { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
+  { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
+  { title: "Trade Sims", url: "/academy/trade-sims", icon: Wrench },
+  { title: "Apprenticeship Tracker", url: "/apprenticeship-tracker", icon: Wrench },
+  { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
+  { title: "Find a Mentor / Partner", url: "/academy/mentor-finder", icon: Handshake },
+  { title: "Mentor Network", url: "/academy/mentors", icon: Users },
+  { title: "Mentorship Directory", url: "/mentorship-directory", icon: Users },
+  { title: "My Pathway", url: "/academy/pathway", icon: Route },
+  { title: "Transition Plans", url: "/transition-plans", icon: GraduationCap },
+  { title: "Dream Design", url: "/academy/dreams", icon: Target },
+  { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
+];
+
+// HUB 4 — Academy & Learning: student portal, campus life, AI tools,
+// curriculum, build & create — all under one roof.
+const academyLearningItems: NavItem[] = [
+  { title: "Panther Village", url: "/academy", icon: Rocket },
+  { title: "My Avatar", url: "/academy/avatar", icon: User, authOnly: true },
+  { title: "Panther Power", url: "/academy/power", icon: Zap, authOnly: true },
+  { title: "Daily Check-In", url: "/academy/self-assessment", icon: ClipboardCheck, authOnly: true },
+  { title: "Thrive Dashboard", url: "/academy/thrive", icon: Activity, authOnly: true },
+  { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck, authOnly: true },
+  { title: "My Journal", url: "/academy/journal", icon: PenLine, authOnly: true },
+  { title: "Progress Report", url: "/academy/progress-report", icon: Printer, authOnly: true },
+  { title: "STAAR Test Prep", url: "/academy/staar-prep", icon: GraduationCap },
+  { title: "Concepts", url: "/concepts", icon: Sparkles },
+  { title: "Subjects", url: "/subjects", icon: GraduationCap },
+  { title: "Achievements", url: "/achievements", icon: Award, authOnly: true },
+  { title: "Certificates", url: "/certificates", icon: ScrollText, authOnly: true },
+  { title: "AI Curriculum (Youth)", url: "/curriculum", icon: Brain },
+  { title: "Game Room", url: "/academy/games", icon: Gamepad2 },
+  { title: "Competitions", url: "/academy/competitions", icon: Trophy },
+  { title: "House Points", url: "/academy/houses", icon: Flag, authOnly: true },
+  { title: "Adventures", url: "/academy/scenarios", icon: Map },
+  { title: "Marketplace", url: "/academy/marketplace", icon: Store },
+  { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
+  { title: "My Wallet", url: "/academy/wallet", icon: Wallet, authOnly: true },
+  { title: "Financial Literacy", url: "/academy/financial-literacy", icon: DollarSign },
+  { title: "FAFSA Navigator", url: "/fafsa-navigator", icon: GraduationCap },
+  { title: "Calendar", url: "/academy/calendar", icon: Calendar },
+  { title: "Announcements", url: "/academy/announcements", icon: Megaphone },
+  { title: "Help & FAQ", url: "/academy/help", icon: HelpCircle },
+  { title: "Build Campus", url: "/academy/campus", icon: Building2, authOnly: true },
+  { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag, authOnly: true },
+  { title: "AI Workforce Academy", url: "/ai-workforce", icon: GraduationCap },
+  { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
+  { title: "Spark (AI Companion)", url: "/ai-companion", icon: Sparkles },
+  { title: "Sparky", url: "/sparky", icon: MessageCircle },
+];
+
+// HUB 5 — Partners & Coalitions: every coalition / community / ecosystem
+// surface. The "who are we working with" door.
+const partnersCoalitionsItems: NavItem[] = [
   { title: "Community Partners", url: "/partners", icon: Handshake },
+  { title: "Coalition Dashboard", url: "/coalition", icon: Users },
+  { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2, authOnly: true },
+  { title: "Vann Partner Hub", url: "/partners/vann-hub", icon: Handshake, authOnly: true },
+  { title: "Family & Program Tracker", url: "/partners/family-program-tracker", icon: Users, authOnly: true },
+  { title: "RFP-Match Storyteller", url: "/partners/rfp-storyteller", icon: Sparkles, authOnly: true },
+  { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
+  { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
+  { title: "Ecosystem Orchestration", url: "/ecosystem-orchestration", icon: Activity, authOnly: true },
+  { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain, authOnly: true },
+  { title: "Advisory Board", url: "/advisory-board", icon: Users },
+  { title: "Community", url: "/community", icon: Globe },
+  { title: "Community Voice", url: "/voice", icon: MessageCircle },
+  { title: "Community Map", url: "/community-map", icon: Map },
+  { title: "Open Innovation Lab", url: "/open-innovation-lab", icon: Microscope },
 ];
 
-const programMgmtItems: NavItem[] = [
+// HUB 6 — Where We Operate: TX pilot, hubs, coverage, transparency,
+// neighborhood intel, impact dashboards. The "where this shows up in the
+// real world" door.
+const whereWeOperateItems: NavItem[] = [
+  { title: "Coverage Map", url: "/coverage", icon: Map },
+  { title: "Bring TCAF to Your State", url: "/coverage#request", icon: HandHeart },
+  { title: "St. David's Hub (TX front door)", url: "/st-davids", icon: LayoutDashboard },
+  { title: "Live Network View", url: "/network", icon: BarChart3 },
+  { title: "Operator Workspace", url: "/st-davids-wab2", icon: Wrench, authOnly: true },
+  { title: "Austin Initiative", url: "/austin", icon: MapPin },
+  { title: "Manor Hub", url: "/manor", icon: MapPin },
+  { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
+  { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
+  { title: "Texas Assessment", url: "/texas-assessment", icon: Map, authOnly: true },
+  { title: "Third Spaces", url: "/third-spaces", icon: Building2 },
+  { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
+  { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
+  { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles },
+  { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
+  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
+  { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3, authOnly: true },
+  { title: "Pilot Dashboard", url: "/pilot", icon: Users, authOnly: true },
+  { title: "Dosage Report", url: "/dosage", icon: Activity, authOnly: true },
+  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart, authOnly: true },
+  { title: "SDOH Impact Chain", url: "/sdoh-chain", icon: Link2 },
+  { title: "SDOH Explorer", url: "/sdoh-explorer", icon: Search },
+  { title: "City Comparison", url: "/city-comparison", icon: Scale },
+  { title: "Data Sources", url: "/data-sources", icon: LayoutDashboard, authOnly: true },
+];
+
+// HUB 7 — About & Trust: the public-facing storefront a funder, partner,
+// or community member should be able to scan in under a minute. Research /
+// methodology lives here because it's part of "why we're credible."
+const aboutTrustItems: NavItem[] = [
+  { title: "About / Our Structure", url: "/about", icon: Info },
+  { title: "Pricing & Services", url: "/pricing", icon: DollarSign },
+  { title: "AI Consulting", url: "/ai-consulting", icon: Brain },
+  { title: "Methodology", url: "/methodology", icon: Microscope },
+  { title: "Research Hub", url: "/research-hub", icon: Microscope },
+  { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
+  { title: "RPLICE Toolkit", url: "/rplice-tools", icon: Microscope },
+  { title: "Case Studies", url: "/case-studies", icon: BookOpen },
+  { title: "Peer Review", url: "/peer-review", icon: Users },
+  { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
+  { title: "Contact Us", url: "/contact", icon: Mail },
+  { title: "Non-Discrimination", url: "/non-discrimination", icon: Shield },
+  { title: "Privacy Policy", url: "/privacy", icon: Shield },
+];
+
+// AUTH-ONLY — My Organization. Hoisted out of grant tools so partners
+// don't scroll past 30+ items to find their own org profile.
+const myOrgItems: NavItem[] = [
+  { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
+  { title: "Document Library", url: "/settings/documents", icon: FileText },
+];
+
+// ADMIN-ONLY — sub-sectioned under one Admin parent so it doesn't pollute
+// the main 7-hub navigation. Each inner array is a distinct admin domain.
+const adminOperationsItems: NavItem[] = [
+  { title: "Ops Center", url: "/ops-center", icon: Activity },
+  { title: "Business Plan", url: "/business-plan", icon: Briefcase },
+  { title: "Business Documents", url: "/business-documents", icon: FileText },
+  { title: "Business Card", url: "/business-card", icon: User },
+  { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
+  { title: "Trade Sims Signups", url: "/admin/trade-sims-signups", icon: Users },
+  { title: "API Documentation", url: "/api-docs", icon: Globe },
+];
+
+const adminProgramItems: NavItem[] = [
   { title: "Program Engine", url: "/program-engine", icon: Zap },
   { title: "Program Designer", url: "/program-designer", icon: Target },
   { title: "Program Management", url: "/program-management", icon: Briefcase },
@@ -156,224 +282,34 @@ const programMgmtItems: NavItem[] = [
   { title: "Proposal Command", url: "/proposal-command", icon: Zap },
 ];
 
-// My Organization — surfaced as its own top-level group for any logged-in user
-// (org owner OR partner). Hoisted out of grantEngineItems so partners don't
-// have to scroll through 30+ grant tools to find their own profile + docs.
-const myOrgItems: NavItem[] = [
-  { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
-  { title: "Document Library", url: "/settings/documents", icon: FileText },
-];
-
-const grantEngineItems: NavItem[] = [
-  { title: "This Week (Monday Brief)", url: "/this-week", icon: Calendar },
-  { title: "Live Grant Opportunities", url: "/grants", icon: Target },
-  { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy },
-  { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy },
-  { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users },
-  { title: "RFP-Driven Writer", url: "/grant-narrative", icon: FileText },
-  { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck },
-  { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart },
-  { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck },
-  { title: "Grant Packages", url: "/grant-packages", icon: Package },
-  { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart },
-  { title: "Coalition Portal", url: "/coalition", icon: Globe },
-  { title: "LOI Writer", url: "/loi-writer", icon: FileText },
-  { title: "SDOH Impact Chain", url: "/sdoh-chain", icon: Link2 },
-  { title: "SDOH Explorer (Public)", url: "/sdoh-explorer", icon: Search },
-  { title: "City Comparison", url: "/city-comparison", icon: Scale },
-  { title: "Narrative Builder", url: "/grant-narrative", icon: FileText },
-  { title: "Prior Award Research", url: "/grant-prior-awards", icon: Search },
-  { title: "Ecosystem Orchestration", url: "/ecosystem-orchestration", icon: Activity },
-  { title: "Ecosystem Hub", url: "/ecosystem", icon: Globe },
-  { title: "Ecosystem Story", url: "/ecosystem-story", icon: BookMarked },
-  { title: "Logic Model", url: "/logic-model", icon: Route },
-  { title: "Advisory Board", url: "/advisory-board", icon: Users },
-  { title: "Staffing Plan", url: "/staffing-plan", icon: Briefcase },
-  { title: "Stakeholder Deck", url: "/presentations", icon: Presentation },
-  { title: "E-Sign Center", url: "/esign", icon: PenTool },
-  { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
-  { title: "Ops Center", url: "/ops-center", icon: Activity },
-  { title: "Ecosystem AI", url: "/ecosystem-ai", icon: Brain },
-];
-
-const dataReportingItems: NavItem[] = [
-  { title: "Data Sources", url: "/data-sources", icon: LayoutDashboard },
-  { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3 },
-  { title: "Pilot Dashboard", url: "/pilot", icon: Users },
-  { title: "Dosage Report", url: "/dosage", icon: Activity },
-  { title: "Outcome Reporting", url: "/outcomes", icon: FileBarChart },
-];
-
-const whereWeOperateItems: NavItem[] = [
-  { title: "Coverage Map", url: "/coverage", icon: Map },
-  { title: "Bring TCAF to Your State", url: "/coverage#request", icon: HandHeart },
-];
-
-// Texas is our FIRST county-deployment (St. David's WAB2 pilot region), not the whole product.
-// These items mirror, in order, what the WAB2 LOI v7 (submitted 4/27/2026) promised
-// St. David's Foundation: a 5-county benefits enrollment engine with a single
-// front door, a 9-benefit screener, peer-mirrored Network View, partner
-// coalition, and operator workspace — followed by the implementing neighborhoods.
-const texasPilotItems: NavItem[] = [
-  { title: "St. David's Hub (front door)", url: "/st-davids", icon: LayoutDashboard },
-  { title: "9-Benefit Screener", url: "/benefits-screener", icon: ClipboardList },
-  { title: "Benefits Command Center", url: "/benefits", icon: HandHeart },
-  { title: "Coalition Partners", url: "/coalition", icon: Handshake },
-  { title: "Live Network View", url: "/network", icon: BarChart3 },
-  { title: "Operator Workspace", url: "/st-davids-wab2", icon: Wrench },
-  { title: "Austin Initiative", url: "/austin", icon: MapPin },
-  { title: "Manor Hub", url: "/manor", icon: MapPin },
-  { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
-  { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
-  { title: "Texas Assessment", url: "/texas-assessment", icon: Map },
-  { title: "Third Spaces", url: "/third-spaces", icon: Building2 },
-];
-
-const aiToolsItems: NavItem[] = [
-  { title: "AI Workforce Academy", url: "/ai-workforce", icon: GraduationCap },
-  { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
-  { title: "Spark", url: "/ai-companion", icon: Sparkles },
-  { title: "Sparky", url: "/sparky", icon: MessageCircle },
-  { title: "AI Curriculum (Youth)", url: "/curriculum", icon: Brain },
-  { title: "Subjects", url: "/subjects", icon: GraduationCap },
-  { title: "Achievements", url: "/achievements", icon: Award },
-  { title: "Certificates", url: "/certificates", icon: ScrollText },
+const adminInternalItems: NavItem[] = [
+  { title: "Transparency Matrix", url: "/transparency-matrix", icon: ClipboardCheck },
+  { title: "Stakeholder Engagement Map", url: "/stakeholder-map", icon: Users },
+  { title: "MAP-GAP CQI", url: "/cqi", icon: Target },
+  { title: "Cohort Analytics (Foster)", url: "/foster-youth/cohort-analytics", icon: BarChart3 },
+  { title: "Prevention Strategies", url: "/prevention-strategies", icon: ShieldCheck },
   { title: "Roku & CTV Ads", url: "/roku-ads", icon: Smartphone },
   { title: "Video Pipeline", url: "/video-pipeline", icon: Film },
 ];
 
-const myStudentItems: NavItem[] = [
-  { title: "Panther Village", url: "/academy", icon: Rocket },
-  { title: "My Avatar", url: "/academy/avatar", icon: User },
-  { title: "Panther Power", url: "/academy/power", icon: Zap },
-  { title: "Daily Check-In", url: "/academy/self-assessment", icon: ClipboardCheck },
-  { title: "My Pathway", url: "/academy/pathway", icon: Route },
-  { title: "Thrive Dashboard", url: "/academy/thrive", icon: Activity },
-  { title: "Daily Quests", url: "/academy/quests", icon: CalendarCheck },
-  { title: "My Journal", url: "/academy/journal", icon: PenLine },
-  { title: "Progress Report", url: "/academy/progress-report", icon: Printer },
-  { title: "STAAR Test Prep", url: "/academy/staar-prep", icon: GraduationCap },
+const adminAcademyItems: NavItem[] = [
+  { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
+  { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
+  { title: "Risk Monitor", url: "/academy/risk-monitor", icon: Shield },
+  { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
+  { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
+  { title: "Admin Guide", url: "/academy/admin-tutorial", icon: BookOpen },
 ];
 
-const campusLifeItems: NavItem[] = [
-  { title: "Game Room", url: "/academy/games", icon: Gamepad2 },
-  { title: "Competitions", url: "/academy/competitions", icon: Trophy },
-  { title: "House Points", url: "/academy/houses", icon: Flag },
-  { title: "Adventures", url: "/academy/scenarios", icon: Map },
-  { title: "Marketplace", url: "/academy/marketplace", icon: Store },
-  { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
-  { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
-  { title: "Financial Literacy", url: "/academy/financial-literacy", icon: DollarSign },
-  { title: "FAFSA Navigator", url: "/fafsa-navigator", icon: GraduationCap },
-  { title: "Announcements", url: "/academy/announcements", icon: Megaphone },
-  { title: "Calendar", url: "/academy/calendar", icon: Calendar },
-  { title: "Help & FAQ", url: "/academy/help", icon: HelpCircle },
-];
-
-const careerMentorsItems: NavItem[] = [
-  { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
-  { title: "Trade Sims", url: "/academy/trade-sims", icon: Zap },
-  { title: "Concepts", url: "/concepts", icon: Sparkles },
-];
-
-const buildCreateItems: NavItem[] = [
-  { title: "Build Campus", url: "/academy/campus", icon: Building2 },
-  { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag },
-];
-
-
-// PUBLIC About — the trust surfaces a funder, partner, or community member should see.
-// Operational items (business-plan, business-documents, business-card, etc.) are
-// admin-gated below — they are not part of the public storefront.
-const aboutItems: NavItem[] = [
-  { title: "About / Our Structure", url: "/about", icon: Info },
-  { title: "Open Innovation Lab", url: "/open-innovation-lab", icon: Microscope },
-  { title: "Non-Discrimination", url: "/non-discrimination", icon: Shield },
-  { title: "Pricing & Services", url: "/pricing", icon: DollarSign },
-  { title: "AI Consulting", url: "/ai-consulting", icon: Brain },
-  { title: "Contact Us", url: "/contact", icon: Mail },
-  { title: "Privacy Policy", url: "/privacy", icon: Shield },
-];
-
-// Internal grant-development workspace — only shown to authenticated staff and partners.
-// Pages here also enforce auth at the route level via <RequireAuth>.
-const internalWorkspaceItems: NavItem[] = [
-  { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope },
-  { title: "Grant Packages", url: "/grant-packages", icon: Package },
-  { title: "Transparency Matrix", url: "/transparency-matrix", icon: ClipboardCheck },
-  { title: "Stakeholder Engagement Map", url: "/stakeholder-map", icon: Users },
-];
-
-// Admin-only operational pages. Hidden from public navigation; only surfaced when
-// userRole === "admin". These pages contain internal financials, personal contact
-// templates, and operational workspaces not intended for funder/community view.
-const adminOpsItems: NavItem[] = [
-  { title: "Business Plan", url: "/business-plan", icon: Briefcase },
-  { title: "Business Documents", url: "/business-documents", icon: FileText },
-  { title: "Business Card", url: "/business-card", icon: User },
-  { title: "St. David's Operator Workspace", url: "/st-davids-wab2", icon: Wrench },
-  { title: "Ops Center", url: "/ops-center", icon: Activity },
-  { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
-  { title: "Trade Sims Signups", url: "/admin/trade-sims-signups", icon: Users },
-  { title: "API Documentation", url: "/api-docs", icon: Globe },
-];
-
-const preventionItems: NavItem[] = [
-  { title: "Prevention Hub", url: "/prevention", icon: Shield },
-  { title: "Prevention Strategies", url: "/prevention-strategies", icon: ShieldCheck },
-  { title: "Parent Education", url: "/parent-education", icon: Heart },
-  { title: "Facilitator Hub", url: "/facilitator-hub", icon: ClipboardCheck },
-];
-
-const healthWellnessItems: NavItem[] = [
-  { title: "Health Network", url: "/health-network", icon: Heart },
-  { title: "Health Hub", url: "/health-wellness", icon: Activity },
-  { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope },
-];
-
-const researchItems: NavItem[] = [
-  { title: "MAP-GAP Framework", url: "/mapgap-framework", icon: RefreshCw },
-  { title: "MAP-GAP CQI", url: "/cqi", icon: Target },
-  { title: "RPLICE Toolkit", url: "/rplice-tools", icon: Microscope },
-  { title: "Research Hub", url: "/research-hub", icon: Microscope },
-  { title: "Case Studies", url: "/case-studies", icon: BookOpen },
-  { title: "Peer Review", url: "/peer-review", icon: Users },
-  { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
-];
-
-const caseManagementItems: NavItem[] = [
-  { title: "Intake Wizard", url: "/intake", icon: ClipboardCheck },
-  { title: "My Journey", url: "/my-journey", icon: Rocket },
-  { title: "Cohort Onboarding", url: "/cohort-onboarding", icon: Users },
-  { title: "Service Delivery", url: "/services", icon: Activity },
-];
-
-const teachingPublicItems: NavItem[] = [
-  { title: "Parent Dashboard", url: "/parents", icon: Users },
-  { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
-  { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
-  { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
-];
-
-const teachingTeacherItems: NavItem[] = [
+const adminTeachingItems: NavItem[] = [
   { title: "Classrooms", url: "/classrooms", icon: School },
   { title: "Classroom Wizard", url: "/classrooms/wizard", icon: Wand2 },
   { title: "Teacher Dashboard", url: "/teacher-dashboard", icon: BarChart3 },
   { title: "Attendance", url: "/academy/attendance", icon: ClipboardList },
   { title: "Support Portal", url: "/academy/integration", icon: Link2 },
-  { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
-];
-
-const teachingAdminItems: NavItem[] = [
-  { title: "Admin Dashboard", url: "/academy/admin", icon: BarChart3 },
-  { title: "Grant Discovery", url: "/grants", icon: Target },
-  { title: "Sparky (Staff)", url: "/sparky", icon: MessageCircle },
-  { title: "Admin Guide", url: "/academy/admin-tutorial", icon: BookOpen },
-  { title: "Student Wizards", url: "/academy/student-wizard", icon: Wand2 },
-  { title: "Arthur's Journey", url: "/academy/tutorial", icon: GraduationCap },
-  { title: "Longitudinal Dashboard", url: "/academy/longitudinal", icon: BarChart3 },
-  { title: "Risk Monitor", url: "/academy/risk-monitor", icon: Shield },
-  { title: "API Documentation", url: "/api-docs", icon: Globe },
+  { title: "Parent Dashboard", url: "/parents", icon: Users },
+  { title: "Curriculum Docs", url: "/curriculum-documents", icon: FileText },
+  { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
 ];
 
 const rankIcons: Record<string, typeof Shield> = {
@@ -381,26 +317,50 @@ const rankIcons: Record<string, typeof Shield> = {
 };
 
 function isItemActive(location: string, url: string): boolean {
+  // Strip query for matching but treat URLs with query as exact-only matches.
+  const urlPath = url.split("?")[0];
   if (location === url) return true;
+  if (location === urlPath && !url.includes("?")) return true;
   if (url === "/subjects" && location.startsWith("/subject")) return true;
   if (url === "/curriculum" && location.startsWith("/curriculum/")) return true;
   if (url === "/curriculum-documents" && location.startsWith("/curriculum-documents/")) return true;
   if (url === "/classrooms" && location.startsWith("/classrooms/")) return true;
   if (url === "/certificates" && location.startsWith("/certificates/")) return true;
   if (url === "/implementation" && location.startsWith("/implementation")) return true;
-  if (url !== "/parents" && url !== "/academy" && location.startsWith(url + "/")) return true;
+  if (url === "/foster-youth" && location.startsWith("/foster-youth/")) return true;
+  if (url === "/reentry" && location.startsWith("/reentry/")) return true;
+  if (urlPath !== "/parents" && urlPath !== "/academy" && !url.includes("?") && location.startsWith(urlPath + "/")) return true;
   return false;
+}
+
+function filterAuth(items: NavItem[], isAuthenticated: boolean): NavItem[] {
+  if (isAuthenticated) return items;
+  return items.filter((i) => !i.authOnly);
 }
 
 function groupContainsActive(location: string, items: NavItem[]): boolean {
   return items.some((item) => isItemActive(location, item.url));
 }
 
-function NavSection({ label, items, location }: { label: string; items: NavItem[]; location: string }) {
+function NavSection({
+  label,
+  items,
+  location,
+  icon: Icon,
+  defaultOpen = false,
+}: {
+  label: string;
+  items: NavItem[];
+  location: string;
+  icon?: LucideIcon;
+  defaultOpen?: boolean;
+}) {
   const containsActive = groupContainsActive(location, items);
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const resolvedOpen = isOpen || containsActive;
   const testId = `trigger-sidebar-${label.toLowerCase().replace(/\s+/g, '-')}`;
+
+  if (items.length === 0) return null;
 
   return (
     <SidebarGroup>
@@ -410,8 +370,10 @@ function NavSection({ label, items, location }: { label: string; items: NavItem[
             <SidebarMenuItem>
               <CollapsibleTrigger asChild>
                 <SidebarMenuButton data-testid={testId} aria-label={`${label} section`}>
-                  <span>{label}</span>
-                  <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden="true" />
+                  {Icon && <Icon className="h-4 w-4" aria-hidden="true" />}
+                  <span className="font-semibold">{label}</span>
+                  <span className="ml-auto text-[10px] text-muted-foreground tabular-nums">{items.length}</span>
+                  <ChevronRight className="ml-1 h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden="true" />
                 </SidebarMenuButton>
               </CollapsibleTrigger>
               <CollapsibleContent>
@@ -424,7 +386,7 @@ function NavSection({ label, items, location }: { label: string; items: NavItem[
                           asChild
                           data-active={isActive}
                           className={isActive ? "bg-sidebar-accent" : ""}
-                          data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
+                          data-testid={`link-sidebar-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                         >
                           <Link href={item.url} aria-label={item.title}>
                             <item.icon className="h-4 w-4" aria-hidden="true" />
@@ -444,10 +406,23 @@ function NavSection({ label, items, location }: { label: string; items: NavItem[
   );
 }
 
+// Sidebar search — a tiny client-side filter across every nav item.
+// Solves "I know what I want but can't remember which hub it's in."
+function useSidebarSearch(allItems: NavItem[]) {
+  const [query, setQuery] = useState("");
+  const trimmed = query.trim().toLowerCase();
+  const results = useMemo(() => {
+    if (!trimmed) return [];
+    return allItems
+      .filter((i) => i.title.toLowerCase().includes(trimmed) || i.url.toLowerCase().includes(trimmed))
+      .slice(0, 12);
+  }, [allItems, trimmed]);
+  return { query, setQuery, results };
+}
+
 export function AppSidebar() {
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
-  const demoPartnersOn = useDemoPartnersFlag();
   const { data: progressData } = useQuery<StudentProgress>({
     queryKey: ["/api/progress"],
   });
@@ -468,20 +443,34 @@ export function AppSidebar() {
     ? ((user.firstName?.[0] || "") + (user.lastName?.[0] || "")).toUpperCase() || (user.email?.[0]?.toUpperCase() || "?")
     : "?";
 
-  const visibleTeachingItems = useMemo(() => {
-    const items = [...teachingPublicItems];
-    if (isTeacher) items.push(...teachingTeacherItems);
-    if (isAdmin) items.push(...teachingAdminItems);
+  // Visible items per hub (auth-gated).
+  const hub1 = useMemo(() => filterAuth(getFundedItems, isAuthenticated), [isAuthenticated]);
+  const hub2 = useMemo(() => filterAuth(servePeopleItems, isAuthenticated), [isAuthenticated]);
+  const hub3 = useMemo(() => filterAuth(workforceTradesItems, isAuthenticated), [isAuthenticated]);
+  const hub4 = useMemo(() => filterAuth(academyLearningItems, isAuthenticated), [isAuthenticated]);
+  const hub5 = useMemo(() => filterAuth(partnersCoalitionsItems, isAuthenticated), [isAuthenticated]);
+  const hub6 = useMemo(() => filterAuth(whereWeOperateItems, isAuthenticated), [isAuthenticated]);
+  const hub7 = useMemo(() => filterAuth(aboutTrustItems, isAuthenticated), [isAuthenticated]);
+
+  // Search corpus mirrors what's actually navigable for THIS viewer:
+  // - 7 public hubs (already auth-filtered above)
+  // - My Organization only when signed in
+  // - All Admin sub-sections only when admin (incl. teaching when teacher)
+  const allItems = useMemo(() => {
+    const items: NavItem[] = [...hub1, ...hub2, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7];
+    if (isAuthenticated) items.push(...myOrgItems);
+    if (isAdmin) {
+      items.push(
+        ...adminOperationsItems,
+        ...adminProgramItems,
+        ...adminInternalItems,
+        ...adminAcademyItems,
+      );
+      if (isTeacher) items.push(...adminTeachingItems);
+    }
     return items;
-  }, [isTeacher, isAdmin]);
-
-  const teachingActive = useMemo(() => {
-    return groupContainsActive(location, visibleTeachingItems);
-  }, [location, visibleTeachingItems]);
-
-  const [teachingOpen, setTeachingOpen] = useState(false);
-
-  const resolvedTeachingOpen = teachingOpen || teachingActive;
+  }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, isAuthenticated, isAdmin, isTeacher]);
+  const search = useSidebarSearch(allItems);
 
   return (
     <Sidebar aria-label="Main navigation">
@@ -525,110 +514,71 @@ export function AppSidebar() {
           </SidebarGroup>
         )}
 
-        {/* Top of sidebar — the two highest-frequency surfaces:
-            1. Texas (St. David's Pilot) — the active funded pilot, mirrors the LOI
-            2. Grant Engine — the live federal/foundation/state grant scanner (290+
-               opportunities, scans Grants.gov + SAM.gov + USASpending + state TX
-               + foundations every 24 hours). "Live Grant Opportunities" is the
-               top item inside this group. */}
-        {/* PUBLIC NAVIGATION — 8 focused pillars in priority order:
-            1. Texas Pilot (live funded work)
-            2. Programs (agency-aligned program pitches — Cycle B)
-            3. Grant Engine (live grant scanner)
-            4. Research & Methodology (intellectual merit)
-            5. Community Intelligence (transparency + dashboards)
-            6. Workforce & Economic (employer pipelines)
-            7. Criminal Justice & Reentry
-            8. Partnerships & Coalitions
-            Plus: AI Literacy, Where We Operate, About */}
-        <NavSection label="Central Texas Pilot" items={texasPilotItems} location={location} />
-        <NavSection label="Youth Aging Out of Foster Care" items={fosterYouthItems} location={location} />
-        {demoPartnersOn && (
-          <NavSection label="Community Partners" items={communityPartnersItems} location={location} />
-        )}
-        <NavSection label="Programs" items={programsItems} location={location} />
-        {isAuthenticated && (
-          <NavSection label="My Organization" items={myOrgItems} location={location} />
-        )}
-        {isAuthenticated && (
-          <NavSection label="Grant Engine (internal)" items={grantEngineItems} location={location} />
-        )}
-        {isAuthenticated && (
-          <NavSection label="Internal Workspace" items={internalWorkspaceItems} location={location} />
-        )}
-        <NavSection label="Research & Methodology" items={researchItems} location={location} />
-        <NavSection label="Community Intelligence" items={communityIntelItems} location={location} />
-        <NavSection label="Workforce & Economic" items={workforceSolutionsItems} location={location} />
-        <NavSection label="Career, Trades & Mentors" items={careerMentorsItems} location={location} />
-        <NavSection label="Criminal Justice & Reentry" items={justiceReentryItems} location={location} />
-        <NavSection label="Partnerships & Coalitions" items={partnershipItems} location={location} />
-        <NavSection label="Where We Operate" items={whereWeOperateItems} location={location} />
-        <NavSection label="AI Literacy & Tools" items={aiToolsItems} location={location} />
-        {isAuthenticated && (
-          <>
-            <NavSection label="Student Portal" items={myStudentItems} location={location} />
-            <NavSection label="Campus Life" items={campusLifeItems} location={location} />
-            <NavSection label="Build & Create" items={buildCreateItems} location={location} />
-          </>
-        )}
+        {/* Quick-find search. Solves "I know what I want, can't find the door." */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <div className="px-3 pb-2">
+              <label htmlFor="sidebar-search" className="sr-only">Search navigation</label>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+                <input
+                  id="sidebar-search"
+                  type="search"
+                  placeholder="Find a page…"
+                  value={search.query}
+                  onChange={(e) => search.setQuery(e.target.value)}
+                  className="w-full pl-8 pr-2 py-1.5 text-xs rounded-md border bg-background focus:outline-none focus:ring-2 focus:ring-primary/30"
+                  data-testid="input-sidebar-search"
+                  aria-label="Find a page"
+                />
+              </div>
+              {search.results.length > 0 && (
+                <div className="mt-2 rounded-md border bg-popover shadow-sm overflow-hidden" data-testid="sidebar-search-results">
+                  {search.results.map((item) => (
+                    <Link
+                      key={item.url + item.title}
+                      href={item.url}
+                      onClick={() => search.setQuery("")}
+                      className="flex items-center gap-2 px-2.5 py-1.5 text-xs hover:bg-accent border-b last:border-b-0"
+                      data-testid={`link-search-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                    >
+                      <item.icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
+                      <span className="truncate">{item.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* SEVEN HUBS — the entire site behind exactly seven doors. */}
+        <NavSection label="Get Funded" items={hub1} location={location} icon={Trophy} />
+        <NavSection label="Serve People" items={hub2} location={location} icon={HandHeart} />
+        <NavSection label="Workforce & Trades" items={hub3} location={location} icon={Briefcase} />
+        <NavSection label="Academy & Learning" items={hub4} location={location} icon={GraduationCap} />
+        <NavSection label="Partners & Coalitions" items={hub5} location={location} icon={Handshake} />
+        <NavSection label="Where We Operate" items={hub6} location={location} icon={Compass} />
+        <NavSection label="About & Trust" items={hub7} location={location} icon={Info} />
 
         {isAuthenticated && (
+          <NavSection label="My Organization" items={myOrgItems} location={location} icon={Building2} />
+        )}
+
+        {/* Admin — collapsed under one parent, sub-sectioned within. */}
+        {isAdmin && (
           <SidebarGroup>
+            <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
-              <SidebarMenu>
-                <Collapsible open={resolvedTeachingOpen} onOpenChange={setTeachingOpen} className="group/collapsible">
-                  <SidebarMenuItem>
-                    <CollapsibleTrigger asChild>
-                      <SidebarMenuButton data-testid="link-sidebar-teaching-&-staff" aria-label="Teaching & Staff section">
-                        <Users className="h-4 w-4" aria-hidden="true" />
-                        <span>Teaching & Staff</span>
-                        <ChevronRight className="ml-auto h-4 w-4 transition-transform group-data-[state=open]/collapsible:rotate-90" aria-hidden="true" />
-                      </SidebarMenuButton>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {visibleTeachingItems.map((item) => {
-                          const isActive = isItemActive(location, item.url);
-                          return (
-                            <SidebarMenuSubItem key={item.title}>
-                              <SidebarMenuSubButton
-                                asChild
-                                data-active={isActive}
-                                className={isActive ? "bg-sidebar-accent" : ""}
-                                data-testid={`link-sidebar-${item.title.toLowerCase().replace(/\s/g, '-')}`}
-                              >
-                                <Link href={item.url} aria-label={item.title}>
-                                  <item.icon className="h-4 w-4" aria-hidden="true" />
-                                  <span>{item.title}</span>
-                                </Link>
-                              </SidebarMenuSubButton>
-                            </SidebarMenuSubItem>
-                          );
-                        })}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  </SidebarMenuItem>
-                </Collapsible>
-              </SidebarMenu>
+              <NavSection label="Operations" items={adminOperationsItems} location={location} icon={Activity} />
+              <NavSection label="Programs & Lifecycle" items={adminProgramItems} location={location} icon={Zap} />
+              <NavSection label="Internal Tools" items={adminInternalItems} location={location} icon={ClipboardCheck} />
+              <NavSection label="Academy Admin" items={adminAcademyItems} location={location} icon={School} />
+              {isTeacher && (
+                <NavSection label="Teaching & Staff" items={adminTeachingItems} location={location} icon={Users} />
+              )}
             </SidebarGroupContent>
           </SidebarGroup>
-        )}
-
-        <NavSection label="About & Trust" items={aboutItems} location={location} />
-
-        {/* Admin-only operational sections — surfaced only when userRole === "admin".
-            Includes case management, program management, prevention, health admin,
-            data reporting, and internal business documents that are not part of
-            the public funder-facing storefront. */}
-        {isAdmin && (
-          <>
-            <NavSection label="Admin · Operations" items={adminOpsItems} location={location} />
-            <NavSection label="Admin · Case Management" items={caseManagementItems} location={location} />
-            <NavSection label="Admin · Program Mgmt" items={programMgmtItems} location={location} />
-            <NavSection label="Admin · Prevention" items={preventionItems} location={location} />
-            <NavSection label="Admin · Health Network" items={healthWellnessItems} location={location} />
-            <NavSection label="Admin · Data & Reporting" items={dataReportingItems} location={location} />
-          </>
         )}
 
         {rank && (
@@ -674,31 +624,11 @@ export function AppSidebar() {
                 </Button>
               </a>
               <p className="text-[10px] text-muted-foreground text-center" data-testid="text-login-hint">
-                Use your school email or Google account
+                Sign in to autosave your work across devices
               </p>
             </div>
           )
         )}
-        <Link href="/contact" aria-label="Contact Us">
-          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-contact">
-            <Mail className="mr-2 h-4 w-4" aria-hidden="true" /> Contact Us
-          </Button>
-        </Link>
-        <Link href="/privacy" aria-label="Privacy Policy">
-          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-privacy-policy">
-            <Shield className="mr-2 h-4 w-4" aria-hidden="true" /> Privacy Policy
-          </Button>
-        </Link>
-        <Link href="/non-discrimination" aria-label="Non-Discrimination Statement">
-          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-non-discrimination">
-            <Shield className="mr-2 h-4 w-4" aria-hidden="true" /> Non-Discrimination
-          </Button>
-        </Link>
-        <Link href="/about" aria-label="About TCAF and ALC">
-          <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="link-about-footer">
-            <Heart className="mr-2 h-4 w-4" aria-hidden="true" /> About / Our Structure
-          </Button>
-        </Link>
         <div className="mt-3 pt-2 border-t space-y-1">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
             <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />

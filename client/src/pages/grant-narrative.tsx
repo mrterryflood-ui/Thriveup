@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useAutosave } from "@/hooks/use-autosave";
+import { AutosaveStatusPill } from "@/components/autosave-status";
 import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -124,6 +126,29 @@ export default function GrantNarrativePage() {
   const [customContext, setCustomContext] = useState("");
   const [expandedNarrative, setExpandedNarrative] = useState<number | null>(null);
 
+  // Autosave all generated narratives + selections so a navigate-away
+  // doesn't blow away hours of AI-generated drafting work.
+  const autosave = useAutosave<{
+    selectedGrant: string | null;
+    selectedSection: string;
+    customContext: string;
+    narratives: NarrativeResult[];
+  }>({
+    editorKind: "grant_narrative",
+    // Per-grant scope: each grant has its own draft slot so switching
+    // grants doesn't clobber another grant's narratives. Falls back to
+    // "default" when no grant is selected yet.
+    scopeKey: selectedGrant || "default",
+    value: { selectedGrant, selectedSection, customContext, narratives },
+    onHydrate: (saved) => {
+      if (saved?.selectedGrant) setSelectedGrant(saved.selectedGrant);
+      if (saved?.selectedSection) setSelectedSection(saved.selectedSection);
+      if (saved?.customContext) setCustomContext(saved.customContext);
+      if (Array.isArray(saved?.narratives)) setNarratives(saved.narratives);
+    },
+    shouldSave: (v) => v.narratives.length > 0 || v.customContext.length > 0 || !!v.selectedGrant,
+  });
+
   const { data: platformData, isLoading: metricsLoading } = useQuery<PlatformMetrics>({
     queryKey: ["/api/logic-model/data"],
   });
@@ -190,6 +215,9 @@ export default function GrantNarrativePage() {
         <div>
           <h1 className="text-2xl sm:text-3xl font-bold" data-testid="text-narrative-title">Grant Narrative Builder</h1>
           <p className="text-muted-foreground mt-1">Generate grant-ready narrative sections with real platform data and positioning language</p>
+          <div className="mt-2">
+            <AutosaveStatusPill status={autosave.status} lastSavedAt={autosave.lastSavedAt} />
+          </div>
         </div>
         {narratives.length > 0 && (
           <Button variant="outline" onClick={handleDownloadAll} data-testid="button-download-all">

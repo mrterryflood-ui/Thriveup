@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useAutosave } from "@/hooks/use-autosave";
+import { AutosaveStatusPill } from "@/components/autosave-status";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -66,6 +68,18 @@ export default function LOIWriterPage() {
   const [loiText, setLoiText] = useState("");
   const [loiSettings, setLoiSettings] = useState({ focus: "", tone: "", emphasize: "" });
 
+  // Autosave the whole draft (text + settings) per user, scoped to "default"
+  // since this writer is a single-bucket tool, not per-grant.
+  const autosave = useAutosave<{ loiText: string; loiSettings: { focus: string; tone: string; emphasize: string } }>({
+    editorKind: "loi_writer",
+    value: { loiText, loiSettings },
+    onHydrate: (saved) => {
+      if (saved?.loiText) setLoiText(saved.loiText);
+      if (saved?.loiSettings) setLoiSettings(saved.loiSettings);
+    },
+    shouldSave: (v) => v.loiText.length > 0 || v.loiSettings.focus.length > 0 || v.loiSettings.tone.length > 0 || v.loiSettings.emphasize.length > 0,
+  });
+
   const loiMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/benefits/coalition/ai-loi", loiSettings);
@@ -98,6 +112,9 @@ export default function LOIWriterPage() {
           <p className="text-lg text-muted-foreground max-w-3xl mx-auto">
             AI-powered LOI drafting with real Census data, plus RPLICE/CFIR 2.0/RE-AIM validation scoring.
           </p>
+          <div className="mt-3 flex justify-center">
+            <AutosaveStatusPill status={autosave.status} lastSavedAt={autosave.lastSavedAt} />
+          </div>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

@@ -3595,6 +3595,23 @@ export const insertGrantSectionDraftSchema = createInsertSchema(grantSectionDraf
 export type InsertGrantSectionDraft = z.infer<typeof insertGrantSectionDraftSchema>;
 export type GrantSectionDraft = typeof grantSectionDrafts.$inferSelect;
 
+// editorDrafts: polymorphic autosave store for long-form editors (RFP writer,
+// grant narrative builder, LOI writer, org settings, etc.). One row per
+// (userId, editorKind, scopeKey). Replaces "lose work on navigate" UX with
+// debounced background save. `content` is jsonb so each editor controls its
+// own shape — no schema migration needed when an editor adds a field.
+export const editorDrafts = pgTable("editor_drafts", {
+  id: varchar("id", { length: 200 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: text("user_id").notNull(),
+  editorKind: text("editor_kind").notNull(),
+  scopeKey: text("scope_key").notNull().default("default"),
+  content: jsonb("content").notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => ({
+  userKindScopeUq: uniqueIndex("editor_drafts_user_kind_scope_uq").on(t.userId, t.editorKind, t.scopeKey),
+}));
+export type EditorDraft = typeof editorDrafts.$inferSelect;
+
 export const documentSignatures = pgTable("document_signatures", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id", { length: 255 }).notNull(),

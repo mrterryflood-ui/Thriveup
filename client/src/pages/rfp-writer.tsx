@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAutosave } from "@/hooks/use-autosave";
+import { AutosaveStatusPill } from "@/components/autosave-status";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,6 +48,19 @@ export default function RfpWriterPage() {
   const [agencyIntel, setAgencyIntel] = useState<AgencyIntel | null>(null);
 
   const [uploadForm, setUploadForm] = useState({ title: "", kind: "base" as "base"|"amendment"|"qa", version: 1, parsedText: "", grantId: grantIdParam || "" });
+
+  // Autosave the RFP paste (the biggest "lose-on-navigate" pain): users
+  // paste 50+ pages of RFP text here. Scope per-grant so each RFP has
+  // its own draft slot.
+  const autosave = useAutosave<{ uploadForm: typeof uploadForm }>({
+    editorKind: "rfp_writer",
+    scopeKey: grantIdParam || "default",
+    value: { uploadForm },
+    onHydrate: (saved) => {
+      if (saved?.uploadForm) setUploadForm(saved.uploadForm);
+    },
+    shouldSave: (v) => v.uploadForm.parsedText.length > 0 || v.uploadForm.title.length > 0,
+  });
 
   const upload = useMutation({
     mutationFn: async () => {
@@ -133,7 +148,10 @@ export default function RfpWriterPage() {
   return (
     <div className="container max-w-6xl mx-auto py-10 px-4 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold flex items-center gap-2" data-testid="text-page-title"><FileText className="w-7 h-7" /> RFP-driven grant writer</h1>
+        <div className="flex items-center justify-between flex-wrap gap-3">
+          <h1 className="text-3xl font-bold flex items-center gap-2" data-testid="text-page-title"><FileText className="w-7 h-7" /> RFP-driven grant writer</h1>
+          <AutosaveStatusPill status={autosave.status} lastSavedAt={autosave.lastSavedAt} />
+        </div>
         <p className="text-muted-foreground mt-1">Upload the solicitation. The writer mirrors the RFP's exact sections, tone, and language — and pulls agency intelligence from USASpending so your draft sounds like work the agency actually funds.</p>
         {org && <Badge variant="outline" className="mt-2"><Building2 className="w-3 h-3 mr-1" /> Writing as {org.name}</Badge>}
       </div>

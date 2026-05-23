@@ -25,6 +25,10 @@ National community-infrastructure platform: connects people to grant funding, al
 ## Codebase scale (verified 2026-05-17)
 271 Drizzle tables (`shared/schema.ts`) · 211 pages (`client/src/pages/`) · 84 server files · 206 wouter routes (`client/src/App.tsx`). Sidebar `client/src/components/app-sidebar.tsx`. Auth `client/src/components/require-auth.tsx` + `useAuth()`. Theme `client/src/index.css`. Truth-in-claims `client/src/components/partnership-status.tsx`.
 
+## IA v2 + Autosave (shipped 2026-05-23)
+- **Sidebar collapsed 28 groups → 7 hubs:** Get Funded · Serve People · Workforce & Trades · Academy & Learning · Partners & Coalitions · Where We Operate · About & Trust. Plus My Organization (auth-only) + Admin (admin-only, sub-sectioned: Operations / Programs / Internal / Academy / Teaching). Every URL preserved; mentor/pathway/grants duplicates deduped; dead `teaching*` arrays killed. Item counts on each hub, sidebar search "Find a page…" over all viewer-visible items (admin items included only when admin, my-org only when signed in), `authOnly` flag hides items from public view. File: `client/src/components/app-sidebar.tsx`.
+- **Polymorphic autosave:** new `editor_drafts` table (`shared/schema.ts` — userId+editorKind+scopeKey unique, jsonb content) + `server/editor-drafts-routes.ts` (GET/PUT/DELETE `/api/me/editor-drafts/:kind/:scope`, requireAuth, ALLOWED_KINDS allowlist `[rfp_writer, grant_narrative, loi_writer, org_settings]`, 5MB cap, upsert via `onConflictDoUpdate`). Frontend: `client/src/hooks/use-autosave.ts` (debounced 1500ms PUT, hydrates on mount, re-hydrates when scopeKey changes, status: idle/saving/saved/error/signed-out) + `client/src/components/autosave-status.tsx` pill. Wired into `loi-writer.tsx` (scope=default), `grant-narrative.tsx` (scope=selectedGrant), `rfp-writer.tsx` (scope=grantId).
+
 ## Where things live
 <!-- 1-liners; detail → archive -->
 

@@ -129,6 +129,7 @@ import { seedTcafAdmins } from "./seed-tcaf-admins";
 import { registerWonProposalsRoutes } from "./won-proposals-routes";
 import { registerActiveBidsRoutes } from "./active-bids-routes";
 import { registerRfpFidelityRoutes } from "./rfp-fidelity-routes";
+import { registerEditorDraftsRoutes } from "./editor-drafts-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -423,6 +424,7 @@ export async function registerRoutes(
   registerWonProposalsRoutes(app);
   registerActiveBidsRoutes(app);
   registerRfpFidelityRoutes(app);
+  registerEditorDraftsRoutes(app);
   registerAgentKnowledgeRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");
   registerLoiRoutes(app);
