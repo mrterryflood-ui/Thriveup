@@ -5561,3 +5561,33 @@ export const foundationIntelligence = pgTable("foundation_intelligence", {
 ]);
 
 export type FoundationIntelligence = typeof foundationIntelligence.$inferSelect;
+
+// Per-RFP teaming + rubric strategy. Single source of truth shared by the
+// tracking dashboard (front end) AND the AI writer engine (back end). When
+// the writer drafts against an RFP that matches an active_bids row by
+// rfpId or grantId, the per-criterion strategy + team lanes are injected
+// into the prompt so the AI mirrors our cadence and uses the named evidence.
+export const activeBids = pgTable("active_bids", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  rfpId: varchar("rfp_id", { length: 100 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }),
+  title: varchar("title", { length: 500 }).notNull(),
+  funder: varchar("funder", { length: 500 }).notNull(),
+  deadline: varchar("deadline", { length: 200 }).notNull(),
+  deadlineIso: timestamp("deadline_iso").notNull(),
+  teamIds: text("team_ids").array().notNull().default(sql`'{}'::text[]`),
+  notes: text("notes").notNull().default(""),
+  submission: text("submission").notNull().default(""),
+  rubric: jsonb("rubric").notNull(), // ActiveBidRubricLine[] from shared/active-bids.ts
+  status: varchar("status", { length: 32 }).notNull().default("tracking"), // tracking | drafting | submitted | won | lost | withdrawn
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_active_bids_rfp_unique").on(t.rfpId),
+  index("idx_active_bids_grant").on(t.grantId),
+  index("idx_active_bids_deadline").on(t.deadlineIso),
+]);
+
+export const insertActiveBidSchema = createInsertSchema(activeBids).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertActiveBid = z.infer<typeof insertActiveBidSchema>;
+export type ActiveBidRow = typeof activeBids.$inferSelect;
