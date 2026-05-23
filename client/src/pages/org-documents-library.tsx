@@ -12,7 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UppyFile } from "@uppy/core";
-import { FileText, Trash2, Download, Building2, Upload, Info } from "lucide-react";
+import { FileText, Trash2, Download, Building2, Upload, Info, Link2, Copy } from "lucide-react";
 
 type OrgDoc = {
   id: string;
@@ -180,6 +180,39 @@ export default function OrgDocumentsLibraryPage() {
           when assembling a teaming submission.
         </AlertDescription>
       </Alert>
+
+      <Card className="border-primary/30 bg-primary/5">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-base"><Link2 className="h-4 w-4" /> Partners can do this themselves</CardTitle>
+          <CardDescription className="text-sm">
+            Each affiliated entity (HIS, Love Clinic, Vanntastic, Sistahs CWT, etc.) signs in with their own login,
+            creates their org profile, and manages their own documents. Send them this link — fully hands-off:
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2 flex-wrap">
+            <code className="text-sm bg-background border rounded px-3 py-1.5 font-mono select-all" data-testid="text-partner-link">
+              {typeof window !== "undefined" ? `${window.location.origin}/partners/join` : "/partners/join"}
+            </code>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (typeof navigator !== "undefined" && navigator.clipboard) {
+                  navigator.clipboard.writeText(`${window.location.origin}/partners/join`);
+                  toast({ title: "Link copied", description: "Paste it in email, text, or Slack to your partners." });
+                }
+              }}
+              data-testid="button-copy-partner-link"
+            >
+              <Copy className="h-3.5 w-3.5 mr-1" /> Copy
+            </Button>
+            <a href="/partners/join" target="_blank" rel="noopener noreferrer">
+              <Button variant="ghost" size="sm" data-testid="button-preview-partner-link">Preview →</Button>
+            </a>
+          </div>
+        </CardContent>
+      </Card>
 
       <Card>
         <CardHeader>

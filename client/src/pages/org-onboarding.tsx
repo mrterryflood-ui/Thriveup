@@ -53,8 +53,11 @@ export default function OrgOnboardingPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/me/organization"] });
       queryClient.invalidateQueries({ queryKey: ["/api/grants"] });
-      toast({ title: "Organization profile created", description: "Scoring grants for your mission now…" });
-      setLocation("/grants");
+      toast({
+        title: "Profile created — next, upload your documents",
+        description: "Drop in your capability statement, 501(c)(3) letter, W-9, COI, and past performance. These auto-populate every proposal you team on.",
+      });
+      setLocation("/settings/documents");
     },
     onError: (e: Error) => toast({ title: "Couldn't create profile", description: e.message, variant: "destructive" }),
   });
