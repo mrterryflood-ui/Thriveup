@@ -569,3 +569,9 @@ id = "hVyh7gjLU3NjsuXfim4va"
 uri = "file://docs/regional-briefings/north-wilco-childcare-infrastructure-2026-05-22.md"
 type = "text"
 title = "North Wilco Childcare Infrastructure — Regional Briefing (2026-05-22)"
+
+[[outputs]]
+id = "obtFzQQo93BIbMtTS5w76"
+uri = "file://docs/his-leave-behind-walkthrough.md"
+type = "text"
+title = "ThriveUp / TCAF — HIS Leave-Behind Walkthrough"
