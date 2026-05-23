@@ -263,6 +263,7 @@ const campusLifeItems: NavItem[] = [
   { title: "Stock Market", url: "/academy/stocks", icon: TrendingUp },
   { title: "My Wallet", url: "/academy/wallet", icon: Wallet },
   { title: "Financial Literacy", url: "/academy/financial-literacy", icon: DollarSign },
+  { title: "Trade Sims", url: "/academy/trade-sims", icon: Wrench },
   { title: "FAFSA Navigator", url: "/fafsa-navigator", icon: GraduationCap },
   { title: "Announcements", url: "/academy/announcements", icon: Megaphone },
   { title: "Calendar", url: "/academy/calendar", icon: Calendar },
