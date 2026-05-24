@@ -5675,3 +5675,98 @@ export const complianceMatrixItems = pgTable("compliance_matrix_items", {
 export const insertComplianceMatrixItemSchema = createInsertSchema(complianceMatrixItems).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertComplianceMatrixItem = z.infer<typeof insertComplianceMatrixItemSchema>;
 export type ComplianceMatrixItem = typeof complianceMatrixItems.$inferSelect;
+
+// === INTEGRATION THROUGH INVITATION (ITI) ===
+// Dignity primitive: brings people doing community work in the shadows into the
+// fold — with witness, layered consent, credit, and (optional) stipend +
+// credentialing pathway. Universal across the platform: Voice, Foster-Youth
+// intake, LifeBridge, Justice Hub, Trade Sims, Whole-Person Health, grant
+// proposals. Greater Austin first; replicable nationwide. See Iron Rule #8.
+//
+// Pattern: anti-extraction by default. ALL consent toggles default false.
+// Self-identification — no credential check, no proof asked. Witness loop is
+// always on. Capability-token auth (same as foster-youth intake) so people
+// can come back to their own record without creating an account.
+export const integrationInvitations = pgTable("integration_invitations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  // Capability token — returned ONCE on creation, required in `x-iti-token` header thereafter
+  accessToken: text("access_token").notNull().unique(),
+
+  // Self-identification — they choose what to share
+  displayName: text("display_name"),                       // first name, pseudonym, role — their choice
+  preferredContact: text("preferred_contact"),             // phone, email, WhatsApp, "don't contact me"
+  preferredLanguage: varchar("preferred_language", { length: 16 }).notNull().default("en"),
+
+  // The work they do — THEIR words, not our taxonomy
+  workDescription: text("work_description").notNull(),     // free text
+  workRolesSelfIdentified: text("work_roles_self_identified").array(), // optional tags THEY choose
+  yearsDoingWork: text("years_doing_work"),                // free text: "since my grandbaby was born"
+
+  // Where they're working
+  region: text("region"),                                  // free text — "north Round Rock"
+  zipCode: varchar("zip_code", { length: 12 }),            // optional
+
+  // How they came in (which surface invited them)
+  surface: varchar("surface", { length: 64 }).notNull(),   // 'voice-project' | 'foster-intake' | 'lifebridge' | 'justice-hub' | 'trade-sims' | 'wph' | 'public-site' | 'direct'
+  surfaceContext: text("surface_context"),                 // e.g. voice project slug, intake type
+
+  // Status
+  status: varchar("status", { length: 16 }).notNull().default("invited"), // invited | active | withdrawn
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  lastSeenAt: timestamp("last_seen_at"),
+  withdrawnAt: timestamp("withdrawn_at"),
+}, (t) => [
+  index("idx_iti_surface").on(t.surface),
+  index("idx_iti_status").on(t.status),
+  index("idx_iti_region").on(t.region),
+]);
+
+// Layered consent — each independent, each revocable, ALL default false (anti-extraction)
+export const invitationConsents = pgTable("invitation_consents", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  invitationId: varchar("invitation_id", { length: 100 }).notNull().references(() => integrationInvitations.id, { onDelete: "cascade" }),
+
+  quoteMe: boolean("quote_me").notNull().default(false),               // can we quote your words anywhere
+  aggregateMyData: boolean("aggregate_my_data").notNull().default(false), // can we include you in AI clustering / insights
+  nameMePublicly: boolean("name_me_publicly").notNull().default(false),   // can we credit you by name (default name vs anon)
+  routeMyInfoToService: boolean("route_my_info_to_service").notNull().default(false), // route you to LifeBridge / WPH / etc
+  shareWithFunder: boolean("share_with_funder").notNull().default(false), // can your story be cited in a grant proposal
+  inviteToConvening: boolean("invite_to_convening").notNull().default(false), // invite you to the room when funders meet
+  acceptStipend: boolean("accept_stipend").notNull().default(false),       // would you accept compensation for your time
+  routeToCredentialing: boolean("route_to_credentialing").notNull().default(false), // route you to CHW / daycare license / peer cert / apprenticeship
+
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_iti_consent_invitation").on(t.invitationId),
+]);
+
+// Witness loop audit trail — every time someone is heard, credited, paid, invited
+export const recognitionEvents = pgTable("recognition_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  invitationId: varchar("invitation_id", { length: 100 }).notNull().references(() => integrationInvitations.id, { onDelete: "cascade" }),
+
+  eventType: varchar("event_type", { length: 32 }).notNull(), // 'heard' | 'credited' | 'paid' | 'invited' | 'cited-in-grant' | 'routed-to-service' | 'co-authored' | 'corrected-record' | 'credentialing-referred'
+  description: text("description").notNull(),
+  actorRole: varchar("actor_role", { length: 32 }),           // who did the seeing
+  actorId: varchar("actor_id", { length: 100 }),
+
+  surfaceRef: text("surface_ref"),                            // e.g. voice pin id, grant id, insight id
+  payloadJson: jsonb("payload_json"),
+
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_iti_recog_invitation").on(t.invitationId, t.createdAt),
+  index("idx_iti_recog_type").on(t.eventType),
+]);
+
+export const insertIntegrationInvitationSchema = createInsertSchema(integrationInvitations).omit({ id: true, accessToken: true, createdAt: true, lastSeenAt: true, withdrawnAt: true });
+export type InsertIntegrationInvitation = z.infer<typeof insertIntegrationInvitationSchema>;
+export type IntegrationInvitation = typeof integrationInvitations.$inferSelect;
+
+export const insertInvitationConsentsSchema = createInsertSchema(invitationConsents).omit({ id: true, updatedAt: true });
+export type InsertInvitationConsents = z.infer<typeof insertInvitationConsentsSchema>;
+export type InvitationConsents = typeof invitationConsents.$inferSelect;
+
+export const insertRecognitionEventSchema = createInsertSchema(recognitionEvents).omit({ id: true, createdAt: true });
+export type InsertRecognitionEvent = z.infer<typeof insertRecognitionEventSchema>;
+export type RecognitionEvent = typeof recognitionEvents.$inferSelect;

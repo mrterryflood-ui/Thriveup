@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Link, useParams } from "wouter";
+import { IntegrationInvitation } from "@/components/integration-invitation";
 import { useAuth } from "@/hooks/use-auth";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -186,6 +187,21 @@ export default function VoiceProjectPage() {
           </>
         )}
       </div>
+
+      <IntegrationInvitation
+        surface="voice-project"
+        surfaceContext={slug}
+        prompt={slug === "north-wilco-childcare-gaps"
+          ? "Are you already holding North Williamson County together?"
+          : "Are you doing this work in your community?"}
+        description={slug === "north-wilco-childcare-gaps"
+          ? "If you're watching kids that aren't yours so their parents can work the night shift at Samsung Taylor or Applied Materials Hutto — if you're the abuela, the auntie, the neighbor, the family home daycare with no license but a full house — you ARE the childcare system in North Wilco. We want to hear you on your terms. No license check. No proof asked. You decide what we do with what you share."
+          : undefined}
+        suggestedRoleTags={slug === "north-wilco-childcare-gaps"
+          ? ["informal caregiver", "family home daycare", "abuela / grandmother", "shift-work parent", "bilingual care", "infant care", "extended-hours care", "special-needs care"]
+          : undefined}
+        className="mb-5"
+      />
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "map" | "list")}>
         <TabsList>

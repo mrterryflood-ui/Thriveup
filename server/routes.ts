@@ -101,6 +101,7 @@ import { registerProgramManagementRoutes } from "./program-management-routes";
 import { registerContactRoutes } from "./contact-routes";
 import { registerRpliceToolsRoutes } from "./rplice-tools";
 import { registerMceContractRoutes } from "./mce-contracts";
+import { registerIntegrationInvitationRoutes } from "./integration-invitation-routes";
 import { registerVideoPipelineRoutes } from "./video-pipeline";
 import { registerProgramEngineRoutes } from "./program-engine";
 import { registerPeerReviewRoutes } from "./peer-review-routes";
@@ -458,6 +459,7 @@ export async function registerRoutes(
   registerEcosystemRpliceBridgeRoutes(app);
   registerAgentCommunicationRoutes(app);
   registerMceContractRoutes(app);
+  registerIntegrationInvitationRoutes(app);
   registerVideoPipelineRoutes(app);
   registerProgramEngineRoutes(app);
   registerPeerReviewRoutes(app);
