@@ -139,7 +139,7 @@ Vitality is delivered by a four-partner team. Three of four partners are headqua
 
 **Role under this contract:** Medical oversight, GLP-1 protocol design and supervision, prescribing authority for in-program GLP-1 management pathway, clinical governance, member medical care.
 
-**Relevant experience:** Active clinical practice in Wichita with substantial GLP-1 patient panel. Active Kansas DNP licensure. References available from current patient panel and referring providers, subject to HIPAA authorization.
+**Relevant experience:** Active **bilingual (English/Spanish)** primary-care clinical delivery in Wichita with substantial GLP-1 patient panel. Active Kansas DNP licensure. Bilingual capacity is the source of the Spanish-language clinical coverage referenced in §6.7 and §7.4. References available from current patient panel and referring providers, subject to HIPAA authorization.
 
 ## 3.3 Wellness Lead — Vanntastic Solutions
 
@@ -746,6 +746,8 @@ In the event any actual or potential conflict arises during the procurement or c
 
 The proposing team accepts the contract period as stated in the RFP: a three-year initial term commencing **January 1, 2027 and ending December 31, 2029**, with **two (2) one-year renewal options exercisable at the County's sole discretion**. Pricing as proposed in Section 8 holds for the initial three-year term with a maximum CPI-Medical adjustment of 3.5% per year in Years 2 and 3 (capped). Renewal-year pricing will be negotiated in good faith no later than 120 days before the end of the then-current term.
 
+The proposing team also accepts the **30-day termination-for-convenience** provision available to either party and acknowledges that "funding may cease or be reduced at any time." The team further acknowledges that any awarded contract is subject to annual appropriation by the Board of County Commissioners and that all laws of the State of Kansas, whether substantive or procedural, shall apply to any awarded contract.
+
 ## 11.5 Indemnification
 
 The proposing team accepts the County's standard indemnification provisions. HIS, as Prime Contractor, will indemnify, defend, and hold harmless Sedgwick County, its officials, officers, employees, and agents from and against any and all claims, demands, suits, losses, costs, damages, and expenses (including reasonable attorneys' fees) arising out of or related to (a) the negligent acts or omissions of HIS or any of its subcontractors, (b) any breach of HIPAA or the Business Associate Agreement caused by HIS or any of its subcontractors, (c) any infringement of intellectual property rights by any deliverable provided by HIS or its subcontractors, or (d) any failure by HIS to comply with applicable law in the performance of the contract. Specific limits, carve-outs, and procedural terms are negotiable at contract.
@@ -766,6 +768,16 @@ All communication regarding RFP #26-0028 is directed exclusively through the Sed
 ## 11.8 Kansas Open Records Act (KORA) acknowledgment
 
 The proposing team acknowledges that under the Kansas Open Records Act (KSA 45-215 et seq.), portions and potentially all of this proposal may become public record subject to disclosure. Any material the proposing team considers proprietary, confidential, or otherwise exempt from KORA disclosure is identified in the **KORA Privilege Log in Appendix H**, with specific statutory citation and rationale. The proposing team understands that the County is the ultimate arbiter of KORA disclosure decisions and that any KORA exemption not specifically claimed in the Privilege Log is waived.
+
+## 11.9 Suspension and debarment certification
+
+The proposing team affirms that none of the four partners — Hargrave Innovative Solutions (Prime), Love Clinic MedSpa, Vanntastic Solutions, or The COLLABORATIVE Advocate Foundation — is currently suspended, debarred, proposed for debarment, declared ineligible, or voluntarily excluded from participation in any federal, state, or local government contract or program by any federal, state, or local government agency.
+
+The COLLABORATIVE Advocate Foundation maintains an Active registration in the federal System for Award Management (SAM.gov) with **UEI KDDVD1FGLW35**, **CAGE 209N1**, valid through **May 6, 2027** — independently verifiable at sam.gov against legal entity name "The Collaborative Advocate Foundation."
+
+A current SAM.gov screenshot confirming HIS's active federal-contracting eligibility and debarment-free status is provided in **Appendix G** at submission. The proposing team further affirms it has read the County's posted Proposal Conditions (`proposal-tc_aod.pdf`) and Sample Contract (`sample-contract-kws-13024_aod.pdf`) and takes **no exceptions** to either document.
+
+**[Evidence — Mandatory Firm Qualifications]:** Four-partner team free of suspension/debarment across all four entities; TCAF SAM registration Active to 2027-05-06 (independently verifiable); zero exceptions to County's standard Proposal Conditions and Sample Contract.
 
 ---
 
@@ -984,17 +996,17 @@ The following information is collected and held on file by HIS Prime for each na
 |---|---|
 | Legal entity name | The COLLABORATIVE Advocate Foundation |
 | Principal | Dr. Terry D. Flood, DHA, EdD — President |
-| Mailing address | *{{ACTION REQUIRED}}* |
-| State of registration | *{{ACTION REQUIRED}}* |
+| Mailing address | 17912 Stefano Drive, Pflugerville, TX 78660-7020 |
+| State of registration | Texas |
 | Contact phone | 254-319-8460 |
-| Year established | *{{ACTION REQUIRED}}* |
-| 501(c)(3) status | *{{ACTION REQUIRED}}* (Y/N — if Y, EIN to be provided) |
-| Number of staff / volunteers | *{{ACTION REQUIRED}}* |
-| UEI (SAM.gov) | *{{ACTION REQUIRED}}* |
-| EIN | *{{ACTION REQUIRED}}* |
-| CAGE code (if registered) | *{{ACTION REQUIRED}}* |
-| SAM.gov registration status | *{{ACTION REQUIRED}}* |
-| Dr. Flood Secret-level clearance | *{{ACTION REQUIRED}}* (current status verification on file with HIS prior to submission) |
+| Year established | 2026 (IRS determined as 501(c)(3) effective January 14, 2026, Letter 947) |
+| 501(c)(3) status | **Yes** — public charity under §170(b)(1)(A)(vi); EIN **41-3618003**; IRS name control THEC; FY ends December 31 |
+| Number of staff / volunteers | *{{ACTION REQUIRED — TCAF to confirm current count}}* |
+| UEI (SAM.gov) | **KDDVD1FGLW35** |
+| EIN | **41-3618003** |
+| CAGE code | **209N1** |
+| SAM.gov registration status | **Active** to **May 6, 2027** (independently verifiable at sam.gov under legal entity name) |
+| Dr. Flood Secret-level clearance | Active — current status verification on file with HIS prior to submission |
 
 ## Appendix G — Proof of Insurance
 

@@ -551,3 +551,38 @@ User pasted v3 in chunks; full 1,024-line v3 finally landed at `docs/grants/sedg
 - CPI-Medical 3.5%/yr cap and §8.5 5% outperformance bonus — Eric sign-off.
 
 Numbers ledger (verified consistent v2→v3): 5,871/4,213/373/705/36.2%/1,525/534/$13,800/$8,200/$5,600/$2.09M/$1.71M/$3.05M · 72-20-8 cohort split · 47% non-continuation · 30% target retention · 55-70% engagement · PEPM $476-525 · 15% at-risk OUTSIDE Criterion V base · 3-year Jan 2027 – Dec 2029 + 2 renewals.
+
+---
+
+## A27-UPDATE — Sedgwick v3 STRUCTURAL CORRECTION (2026-05-24, same day)
+
+**Mistake to log and not repeat:** the v3 I first committed had TCAF as author with HIS in a §3.1 "Prime Contractor — HIS" bio block but with TCAF voice throughout (Section 11 compliance language, indemnification, KORA acknowledgment, Authorized Representative). That structure is **wrong**. The user's actual v3 paste (attached_assets/Pasted--VITALITY-WEIGHT-MANAGEMENT-PROGRAM-Proposal-in-Respons_1779587674715.txt, 1,024 lines, May 24 01:54) is **HIS-as-Prime end-to-end**, with TCAF / Love Clinic MedSpa / Vanntastic Solutions as named subcontractors under back-to-back BAA + subcontract agreements flowing down from the County contract.
+
+**Why the mistake happened:** I treated "v3 in chunks" as already-merged content and built drift patches against my reconstruction instead of opening every paste and verifying the structural posture first. Violation of Iron Rule #1 (pull from the system as it exists, every response) and Iron Rule #2 (verify, don't conjecture). Memory-fix: before patching any RFP, `ls -lt attached_assets/Pasted*<grant-keyword>*` and read each paste in full — never trust a reconstructed chunk-merge.
+
+**The real v3 (now at `docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md`, 1,024 lines, 40 ACTION REQUIRED):**
+- **Prime:** Hargrave Innovative Solutions (HIS) · Eric Hargrave, CEO · ericd@hisolution.org · 601-238-4186 · sole authorized representative
+- **Subs:** Love Clinic MedSpa (Dr. Chela Love, DNP, 214 S Rock Rd Suite 101, Wichita KS 67207, 316-669-4770) · Vanntastic Solutions (Dr. J. Michelle Vann, 316-350-2601, www.jmichellevann.com) · The COLLABORATIVE Advocate Foundation (Dr. Terry D. Flood, **President**, 254-319-8460)
+- **Subcontracting structure** (§3.5): County contracts only with HIS; HIS holds three back-to-back subcontract agreements flowing down BAA, insurance, performance, and termination provisions
+- **Response Form** (Appendix F.1): filed in HIS's name only — TCAF / Love / Vanntastic firm data lives in Appendix F.2 (subcontractor due-diligence file, retained by HIS, available to County on request — *not* filed with the proposal)
+- **Compliance owner** (Section 11): HIS executes the County's BAA; HIS provides indemnification; HIS's broker provides the Letter of Insurability; HIS is the KORA disclosure point
+- **Strong COI disclosure** in §11.3: explicit "clinician-patient / coach-client relationship" disclosure for Love + Vann private practices (not a COI under standard procurement definitions, but disclosed for transparency)
+
+**The rejected v3 is preserved at `vitality-proposal-v3-tcaf-prime-REJECTED.md`** for traceability — do not link or surface; reference only when explaining the correction.
+
+**40 ACTION REQUIRED markers in real v3 — all owner-blocked, all Eric or his subs:**
+
+Appendix F.1 (HIS Response Form — Eric must fill before submission, 14 fields):
+- DBA · Mailing address · State of incorporation/formation (601 area code suggests Mississippi — confirm) · Fax · Website · Year established · Number of employees · Number of locations · Hours of operation · Business classification (LLC/S-Corp/C-Corp/Sole Prop/Partnership) · Small business Y/N · Minority-owned Y/N · Woman-owned Y/N · Veteran-owned Y/N (note: Dr. Flood is Army retiree but he is a *subcontractor* principal, not HIS; HIS itself must qualify separately on its own ownership) · Registered to do business in Kansas Y/N (must register before contract award if N) · UEI
+
+Appendix F.2 (subcontractor due-diligence, HIS-collected):
+- **Love Clinic MedSpa:** year established · employees · business classification · KS registration confirmation · KS DNP license number · UEI (if SAM-registered)
+- **Vanntastic Solutions:** Wichita mailing address · contact email · year · employees/coaches · business classification · KS registration · TEDx talk URL referenced in §3.3 · UEI
+- **TCAF:** mailing address · state of registration · year established · 501(c)(3) status confirmation · staff count · UEI · EIN · CAGE · SAM.gov status · Dr. Flood Secret-clearance current-status verification *(TCAF has all of these on file: 17912 Stefano Drive Pflugerville TX 78660-7020 · TX · 501(c)(3) DETERMINED Letter 947 · EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM Active to 2027-05-06 — Eric to copy into his retained F.2 file)*
+
+Appendix E: 12 professional references (3 per partner)
+Appendix G: HIS broker Letter of Insurability + COIs for each sub
+
+**Numbers ledger (verified consistent across real v3):** 5,871 enrolled · 4,213 eligible adults · 53% female · 373 currently on GLP-1 · 705 past-12-mo GLP-1 users · ~47% non-continuation · 36.2% CDC PLACES county obesity · ~1,525 modeled at-risk adults · 534 target enrollment · 72-20-8 pathway split · $13,800 unmanaged · $8,200 managed · $5,600 differential · $5.15M current spend · $2.09M Year-1 capture · $675K medical + $282K productivity · $3.05M total opportunity · $1.71M Year-1 cost · $476-525 blended PEPM · 30% Month-12 GLP-1 retention threshold (vs. 55-70% published) for at-risk pricing.
+
+**Submission-readiness gate:** real v3 cannot drop below 40 ACTION REQUIRED until Eric fills Appendix F.1 (HIS firm data is owner-blocked, not authorable by anyone else). TCAF F.2 data is the *only* part of the 40 that I can pre-fill into Eric's retained file — done by furnishing him the bracketed list above.

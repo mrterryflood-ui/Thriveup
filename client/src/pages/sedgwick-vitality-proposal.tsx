@@ -111,9 +111,9 @@ export default function SedgwickVitalityProposalPage() {
         <TabsContent value="proposalv3">
           <Card>
             <CardHeader>
-              <CardTitle>Vitality Weight Management Program — Proposal v3 (submission version)</CardTitle>
+              <CardTitle>Vitality Weight Management Program — Proposal v3 (submission version, HIS Prime)</CardTitle>
               <CardDescription>
-                v3 (2026-05-24): adds §7.4 Platform Maturity Status table (live-vs-implementation honesty), tightens "[Evidence — Criterion N]" closers on §6 / §6.7 / §9.5, restores 30-day termination-for-convenience acceptance (§11.4), adds §11.9 Suspension &amp; Debarment certification, fills TCAF identifiers in Appendix F.2 (EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM Active to 2027-05-06), and restores Dr. Love's bilingual credential in §3.2 so the Spanish-coverage chain has a source. 40 {`{{ACTION REQUIRED}}`} markers remain — almost entirely HIS firm data (Appendix F.1) plus references (Appendix E) and COIs (Appendix G).
+                v3 (2026-05-24, user-authored): **HIS is the Prime Contractor**; Love Clinic MedSpa, Vanntastic Solutions, and TCAF are named subcontractors under back-to-back agreements that flow down the County's BAA, insurance, and performance terms. Eric Hargrave (ericd@hisolution.org · 601-238-4186) is the single authorized representative; the Sedgwick County Response Form (Appendix F.1) is filed in HIS's name only. The Section 11 compliance block, indemnification, data-ownership, KORA, and contract-period acceptance all sit with HIS as Prime. 40 {`{{ACTION REQUIRED}}`} markers remain — concentrated in Appendix F.1 (HIS firm data: KS registration, UEI, year, employees, business classification, MBE/WBE/VBE) and Appendix F.2 subcontractor due-diligence fields, plus Appendix E (12 references) and Appendix G (Letter of Insurability + COIs). The earlier TCAF-as-author draft has been moved to <code>vitality-proposal-v3-tcaf-prime-REJECTED.md</code> for traceability.
               </CardDescription>
             </CardHeader>
             <CardContent><MarkdownRender source={proposalV3Md} /></CardContent>

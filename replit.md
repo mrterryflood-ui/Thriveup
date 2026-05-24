@@ -44,7 +44,7 @@ National community-infrastructure platform: connects people to grant funding, al
 - **Grant Discovery Engine:** `server/grant-routes.ts`. **721 grants (verified 2026-05-22):** grants.gov 369 · usaspending 198 · samgov 36 · manual 12 · state/local 18 · other federal 8 · foundation/corp 4 · misc 6. Fit ≥70/80/90 = 208/186/160. ⚠️ Last DB write 2026-05-15 — auto-scan stale; see `active-commitments.md`. **SAM honest framing:** screen 16K feed, curate ~36 — never claim "track 16,667."
 - **This Week digest:** (`/grant-command-center` This Week tab) `GET /api/grants/this-week` · admin manual digest send; no cron.
 - **Monday Brief (2026-05-18):** `/this-week` (`client/src/pages/this-week.tsx`) — edit `SHIP_TARGETS_THIS_WEEK` + `FUNDER_DECISIONS_PENDING` weekly.
-- **Sedgwick RFP 26-0028 (Vitality, due 2026-06-02 1:45pm CDT):** `/grants/sedgwick-vitality` — v3 is the submission version. → A27
+- **Sedgwick RFP 26-0028 (Vitality, due 2026-06-02 1:45pm CDT):** `/grants/sedgwick-vitality` — v3 is the submission version. **HIS Prime · TCAF/Love/Vanntastic subs.** → A27 + A27-UPDATE
 
 ## Architecture decisions
 - **Collaborative AI:** 4-engine synthesis (Gemini · Claude · GPT-4o-mini · DeepSeek R1) + RAG + implementation science (CFIR · RE-AIM · RPLICE).
@@ -79,7 +79,7 @@ Legal **The Collaborative Advocate Foundation** · **EIN 41-3618003** · name co
 
 ## Partners & Teaming (verified 2026-05-23 — full roster → A26)
 **🚨 Doctrine: teaming is per-proposal, based on lane fit. NO standing default team — never assume Flood + Vann + Love + Hargrave team on every bid.** Confirmed active teaming:
-- **Sedgwick County RFP 26-0028 (Weight Loss/Mgmt, due 2026-06-02):** Flood (TCAF, platform/reporting) + Vann (Vanntastic, coaching) + Love (Love Clinic, clinical/GLP-1) + Hargrave (HIS, Prime: compliance/admin). → A27
+- **Sedgwick County RFP 26-0028 (Weight Loss/Mgmt, due 2026-06-02):** **HIS (Hargrave) Prime** + TCAF (Flood, platform/reporting sub) + Vanntastic Solutions (Vann, coaching sub) + Love Clinic MedSpa (Love, clinical/GLP-1 sub). County Response Form filed in HIS's name only; back-to-back subcontracts flow down BAA/insurance/performance. → A27 + A27-UPDATE
 - **Lake Worth ISD RFP 2026-0400-26 (K-12 PD/Services, due 2026-06-04):** **TCAF (Flood) prime + HIS (Hargrave) compliance sub. ONLY these two.** Vann and Love are NOT on this bid.
 
 Roster + lane detail + Dr. Vann spouse-COI on Iasis (City of Wichita/federal) + Dr. Love bilingual capacity + Eric Hargrave long-term contracting role → A26. Always also read `docs/active-commitments.md` when teaming on an RFP.
