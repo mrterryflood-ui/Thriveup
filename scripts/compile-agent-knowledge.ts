@@ -33,6 +33,10 @@ const SOURCES = {
   lessonsLearned: resolve(ROOT, ".agents/skills/map-gap/lessons-learned.md"),
   ecosystemCatalog: resolve(ROOT, "docs/ecosystem-catalog.md"),
   fosterYouthBuildLog: resolve(ROOT, "docs/foster-youth-build-log.md"),
+  memoryIndex: resolve(ROOT, "docs/agent-memory/INDEX.md"),
+  memoryCurrent: resolve(ROOT, "docs/agent-memory/CURRENT.md"),
+  topicGotchas: resolve(ROOT, "docs/agent-memory/topics/gotchas.md"),
+  topicArchitecture: resolve(ROOT, "docs/agent-memory/topics/architecture.md"),
 };
 const OUT_PATH = resolve(ROOT, ".agents/knowledge/compiled.json");
 
@@ -170,16 +174,22 @@ async function main() {
     summary: headerMatch ? headerMatch[2].trim() : "",
   };
 
-  // === Gotchas (parsed as structured rules) ===
-  const gotchasSection = findSection(replitSections, "gotchas");
-  const gotchas = gotchasSection
-    ? extractBullets(gotchasSection.body).map(b => ({
-        id: b.key ? slugify(b.key) : slugify(b.value.slice(0, 50)),
-        rule: b.key || "(general)",
-        detail: b.value,
-        severity: /\bnever\b|\b🚨|\bprohibited|\bcritical/i.test(b.raw) ? "critical" : "high",
-      }))
+  // === Gotchas (parsed from docs/agent-memory/topics/gotchas.md — h3 headings) ===
+  // Gotchas moved out of replit.md (2026-05-24) into the agent-memory topic file.
+  const topicGotchasFile = safeRead(SOURCES.topicGotchas);
+  const topicGotchasSections = topicGotchasFile
+    ? parseMarkdownSections(topicGotchasFile.content, "docs/agent-memory/topics/gotchas.md")
     : [];
+  const gotchas = topicGotchasSections
+    .filter(s => s.level === 3) // h3 = one gotcha per heading
+    .map(s => ({
+      id: slugify(s.heading),
+      rule: s.heading,
+      detail: s.body.slice(0, 600),
+      severity: /\bnever\b|🚨|\bprohibited|\bcritical|\bmust\b/i.test(s.heading + " " + s.body)
+        ? "critical"
+        : "high",
+    }));
 
   // === User preferences ===
   const prefsSection = findSection(replitSections, "user-preferences");
@@ -218,13 +228,40 @@ async function main() {
     : {};
 
   // === Where things live (file pointers) ===
-  const wtlSection = findSection(replitSections, "where-things-live");
-  const filePointers = wtlSection
-    ? extractBullets(wtlSection.body).map(b => ({
-        label: b.key || "general",
-        detail: b.value,
-      }))
+  // Pointers moved out of replit.md (2026-05-24) into INDEX.md + topics/architecture.md.
+  const memoryIndexFile = safeRead(SOURCES.memoryIndex);
+  const archFile = safeRead(SOURCES.topicArchitecture);
+  const indexSections = memoryIndexFile
+    ? parseMarkdownSections(memoryIndexFile.content, "docs/agent-memory/INDEX.md")
     : [];
+  const archSections = archFile
+    ? parseMarkdownSections(archFile.content, "docs/agent-memory/topics/architecture.md")
+    : [];
+  const wtlSection = archSections.find(s => /where things live/i.test(s.heading));
+  // Table-row pointer extractor: | Feature | Location |
+  const filePointers: Array<{ label: string; detail: string }> = [];
+  if (wtlSection) {
+    const rowRe = /^\|\s*([^|]+?)\s*\|\s*([^|]+?)\s*\|\s*$/gm;
+    let m: RegExpExecArray | null;
+    while ((m = rowRe.exec(wtlSection.body)) !== null) {
+      const label = m[1].replace(/\*\*/g, "").trim();
+      const detail = m[2].replace(/\*\*/g, "").trim();
+      if (!label || /^-+$/.test(label) || /^Feature$/i.test(label)) continue;
+      filePointers.push({ label, detail });
+    }
+  }
+  // Also pull pointers from INDEX.md "File layout" code block
+  const layoutSection = indexSections.find(s => /file layout/i.test(s.heading));
+  if (layoutSection) {
+    const codeMatch = /```([\s\S]*?)```/.exec(layoutSection.body);
+    if (codeMatch) {
+      const lineRe = /^\s*([\w./-]+\.[a-z]+|[\w/-]+\/)\s+←\s+(.+?)$/gm;
+      let m: RegExpExecArray | null;
+      while ((m = lineRe.exec(codeMatch[1])) !== null) {
+        filePointers.push({ label: m[1].trim(), detail: m[2].trim() });
+      }
+    }
+  }
 
   // === Active commitments — top-level sections ===
   const activeCommitmentSections = acSections
