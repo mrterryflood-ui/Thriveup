@@ -44,7 +44,7 @@ National community-infrastructure platform: connects people to grant funding, al
 - **Grant Discovery Engine:** `server/grant-routes.ts`. **721 grants (verified 2026-05-22):** grants.gov 369 · usaspending 198 · samgov 36 · manual 12 · state/local 18 · other federal 8 · foundation/corp 4 · misc 6. Fit ≥70/80/90 = 208/186/160. ⚠️ Last DB write 2026-05-15 — auto-scan stale; see `active-commitments.md`. **SAM honest framing:** screen 16K feed, curate ~36 — never claim "track 16,667."
 - **This Week digest:** (`/grant-command-center` This Week tab) `GET /api/grants/this-week` · admin manual digest send; no cron.
 - **Monday Brief (2026-05-18):** `/this-week` (`client/src/pages/this-week.tsx`) — edit `SHIP_TARGETS_THIS_WEEK` + `FUNDER_DECISIONS_PENDING` weekly.
-- **Submission Reminders Banner (2026-05-24):** `client/src/components/submission-reminders-banner.tsx` — persistent top-of-screen banner mounted in `App.tsx` sticky header. Shows live countdowns for entries in `SUBMISSIONS_THIS_WEEK`. **No dismiss control** — user explicitly asked to be reminded persistently until told to stop. To stop: remove the `<SubmissionRemindersBanner />` line in `App.tsx` or comment out entries in the array. Currently tracking: Sedgwick 26-0028 (2026-06-02 1:45pm CDT) · Lake Worth ISD 2026-0400-26 (2026-06-04 5pm CDT).
+- **Submission reminders (2026-05-24):** Chat-only by user preference. Do **not** add UI banners, sidebar pings, toasts, or modals for upcoming submissions. Surface countdowns in chat replies until user says to stop.
 - **Sedgwick RFP 26-0028 (Vitality, due 2026-06-02 1:45pm CDT):** `/grants/sedgwick-vitality` — v3 is the submission version. **HIS Prime · TCAF/Love/Vanntastic subs.** → A27 + A27-UPDATE
 
 ## Architecture decisions

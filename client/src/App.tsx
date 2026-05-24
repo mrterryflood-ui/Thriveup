@@ -7,7 +7,6 @@ import { RequireAuth } from "@/components/require-auth";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { SubmissionRemindersBanner } from "@/components/submission-reminders-banner";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -651,16 +650,13 @@ function AppLayout() {
         <AppSidebar />
         <div className="flex flex-col flex-1 min-w-0">
           <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">Skip to main content</a>
-          <div className="sticky top-0 z-50 bg-background">
-            <header className="flex items-center justify-between gap-2 p-2 border-b">
-              <SidebarTrigger data-testid="button-sidebar-toggle" />
-              <div className="flex items-center gap-1">
-                <AccessibilityPanel />
-                <HeaderControls />
-              </div>
-            </header>
-            <SubmissionRemindersBanner />
-          </div>
+          <header className="flex items-center justify-between gap-2 p-2 border-b sticky top-0 z-50 bg-background">
+            <SidebarTrigger data-testid="button-sidebar-toggle" />
+            <div className="flex items-center gap-1">
+              <AccessibilityPanel />
+              <HeaderControls />
+            </div>
+          </header>
           <main id="main-content" className="flex-1 overflow-auto">
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>
