@@ -1,0 +1,343 @@
+Persistent Agent Memory Architecture — Operational Instructions
+
+Purpose
+
+Create a persistent, scalable, low-bloat memory system for Replit agents that preserves continuity, operational lessons learned, architectural knowledge, stakeholder context, and implementation decisions without overloading replit.md.
+
+The system is intentionally designed around disciplined recall, forced continuity, and controlled knowledge promotion.
+
+The cost of repeated reads is accepted intentionally because continuity, accuracy, and adherence to Iron Rules outweigh token efficiency.
+
+⸻
+
+Core Design Principles
+
+1. replit.md is not a memory dump.
+    It is the constitutional layer of the system:
+    * Iron Rules
+    * Enforcement behaviors
+    * Critical operating doctrine
+    * Pointer references only
+2. Memory is distributed, not centralized.
+    Knowledge lives in scoped files grouped by:
+    * sessions
+    * stable topics
+    * active operational context
+    * archives
+3. Every session must leave a trail.
+    If work occurred, memory must be deposited before task completion.
+4. Stable knowledge must be promoted.
+    Session logs are temporary operational history.
+    Long-term recall requires disciplined promotion into topic files.
+5. Nothing is deleted.
+    Resolved or outdated material moves to archive with timestamps and resolution markers.
+6. Recall is forced by ritual.
+    The agent must intentionally reorient itself every turn through mandatory reads.
+
+⸻
+
+File Structure
+
+replit.md
+docs/agent-memory/
+  INDEX.md
+  CURRENT.md
+  sessions/
+    2026-MM-DD.md
+  topics/
+    grants.md
+    partners.md
+    architecture.md
+    ecosystem.md
+    gotchas.md
+    implementation.md
+  archive/
+    A-series.md
+
+⸻
+
+File Responsibilities
+
+replit.md
+
+Maximum target size: 40–60 lines.
+
+Contains:
+
+* Iron Rules
+* startup doctrine
+* enforcement rules
+* memory architecture references
+* mandatory behaviors
+* pointer references to memory system
+
+Never store:
+
+* session facts
+* long project notes
+* historical context
+* stakeholder details
+* implementation logs
+
+replit.md must remain stable, fast, and authoritative.
+
+⸻
+
+INDEX.md
+
+Purpose:
+Operational routing layer.
+
+Contains:
+
+* memory read order
+* active priorities
+* relevant topic mappings
+* recent session references
+* quick recall map
+* current operational focus
+
+Example:
+
+Current Focus:
+- Grant ecosystem
+- SHIELD/ATLAS architecture
+- NSF proposal revisions
+Read Order:
+1. CURRENT.md
+2. sessions/2026-05-24.md
+3. topics/grants.md
+4. topics/architecture.md
+
+The INDEX determines what matters now.
+
+⸻
+
+CURRENT.md
+
+Purpose:
+Compressed active working memory.
+
+Target size:
+100–200 lines maximum.
+
+Contains:
+
+* active operational truths
+* current architecture decisions
+* unresolved blockers
+* active stakeholder realities
+* recent strategic pivots
+* high-value recall items
+
+This file is the “hot memory” layer.
+
+It is periodically refreshed from:
+
+* session logs
+* topic files
+* current operational priorities
+
+This prevents rereading the entire historical system every time while preserving continuity.
+
+⸻
+
+sessions/YYYY-MM-DD.md
+
+Purpose:
+Append-only operational history.
+
+Contains:
+
+* what was worked
+* decisions made
+* implementation attempts
+* failures
+* discoveries
+* lessons learned
+* unresolved issues
+* architectural changes
+
+Rules:
+
+* never overwrite history
+* append only
+* chronological order
+* timestamp significant decisions when appropriate
+
+Session files are evidence trails, not curated summaries.
+
+⸻
+
+topics/*.md
+
+Purpose:
+Stable long-term knowledge repositories.
+
+Examples:
+
+* grants.md
+* partners.md
+* architecture.md
+* ecosystem.md
+* gotchas.md
+
+Contains:
+
+* durable facts
+* recurring implementation patterns
+* persistent stakeholder context
+* architectural standards
+* known constraints
+* recurring operational lessons
+
+Only stable information is promoted here.
+
+If information may change quickly, keep it in sessions or CURRENT.md.
+
+⸻
+
+archive/
+
+Purpose:
+Cold storage.
+
+Used for:
+
+* oversized topic rotation
+* resolved gotchas
+* old session summaries
+* deprecated architecture decisions
+* historical implementation phases
+
+Archive is searchable but excluded from normal recall unless specifically needed.
+
+Nothing is deleted permanently.
+
+⸻
+
+Mandatory Session Start Ritual
+
+The following reads occur before responding or beginning work.
+
+These reads are intentionally mandatory even if they increase cost.
+
+Cost is accepted as the price of continuity, fidelity, and operational alignment.
+
+Required Read Sequence
+
+1. Read replit.md
+2. Read docs/agent-memory/INDEX.md
+3. Read docs/agent-memory/CURRENT.md
+4. Read the last 1–2 relevant session files
+5. Read the relevant topic file(s) for the current task
+
+Reads should be batched in parallel whenever possible.
+
+The system prioritizes disciplined orientation over token minimization.
+
+⸻
+
+Mandatory Session-End Ritual
+
+Before mark_task_complete:
+
+1. Append operational updates to today’s session file
+2. Record:
+    * decisions
+    * new facts
+    * blockers
+    * failures
+    * lessons learned
+    * implementation outcomes
+3. Promote stable knowledge into appropriate topic files
+4. Update CURRENT.md if operational state materially changed
+5. Archive resolved or outdated material if appropriate
+
+Failure to deposit memory is considered operational failure.
+
+⸻
+
+Promotion Rules
+
+Promote information only if it is:
+
+* durable
+* reusable
+* operationally significant
+* likely relevant in future sessions
+
+Do NOT promote:
+
+* temporary debugging details
+* transient experiments
+* rapidly changing notes
+* redundant observations
+
+Promotion discipline matters more than raw capture volume.
+
+⸻
+
+Rotation Rules
+
+When topic files exceed operational readability (~300 lines):
+
+1. Move oldest entries to archive
+2. Leave pointer summaries
+3. Preserve chronology
+4. Maintain searchability
+
+Example:
+
+Older entries archived:
+archive/A-series.md#architecture-2026-q1
+
+⸻
+
+Enforcement Layer
+
+Iron Rule
+
+Add to replit.md:
+
+Session-end requirement:
+Deposit new facts, decisions, implementation changes, and lessons learned into docs/agent-memory/sessions/<today>.md before mark_task_complete.
+Promote stable knowledge into topic files.
+Never expand replit.md with factual memory.
+replit.md is reserved for rules, doctrine, and enforcement only.
+
+⸻
+
+Validation Scripts
+
+memory-health.ts
+
+Runs startup validation checks.
+
+Checks:
+
+* replit.md under 60 lines
+* CURRENT.md under 200 lines
+* today’s session file exists
+* INDEX links valid
+* unresolved gotchas visible
+* topic files not excessively oversized
+* archive references valid
+
+Failures must be loud and visible.
+
+⸻
+
+Operational Philosophy
+
+This architecture is designed around:
+
+* continuity over convenience
+* recall over compression
+* implementation fidelity over token minimization
+* disciplined orientation over improvisation
+* scalable operational memory instead of uncontrolled context growth
+
+The objective is not infinite memory.
+
+The objective is reliable operational cognition.
