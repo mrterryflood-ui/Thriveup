@@ -654,6 +654,26 @@ const eventSchema = z.object({
 
 const ECOSYSTEM_PLATFORMS = [
   {
+    // TCAF / ThriveUp Academy — the orchestrating hub itself. Registered so directives
+    // with targetFilter:"all" actually apply to us too, and so the compliance dashboard
+    // holds the hub to the same standard as external partners.
+    id: "thriveup-hub",
+    name: "ThriveUp Academy (TCAF Hub)",
+    url: "https://thriveupacademy.replit.app",
+    role: "self-hub",
+    domain: "ecosystem-orchestration",
+    description: "TCAF national community-infrastructure platform. The orchestrating hub for the 24-platform ecosystem: grant discovery + funder fit, ecosystem directives + enforcement, bilateral exchange, RAG/AI provider with ethical-EI preamble, RPLICE quality gate, MAP-GAP methodology, regional hubs (Austin/Manor/Pflugerville), and the Integration through Invitation dignity primitive. Owns directive authorship and ack adjudication.",
+    capabilities: {
+      features: ["Grant Discovery (SAM.gov/Grants.gov/USASpending)", "Ecosystem Directives + Enforcement", "Bilateral Exchange Engine", "RAG AI + Ethical-EI Preamble", "RPLICE Quality Gate", "MAP-GAP Methodology", "Integration through Invitation", "Regional Hubs (Austin/Manor/Pflugerville)", "Compliance Matrix + RFP Fidelity Doctrine"],
+      grantNarrative: "Hub-of-hubs that issues directives, tracks ecosystem fidelity, and orchestrates 24 partner platforms in a coordinated adaptive system",
+    },
+    dataFlowConfig: {
+      sends: ["ecosystem_directives", "grant_opportunities", "rag_responses", "regional_hub_state", "iti_invitations", "compliance_scores"],
+      receives: ["platform_heartbeats", "directive_acks", "bilateral_exchanges", "self_audit_signals"],
+    },
+    grantAlignment: ["federal", "foundation", "wioa", "nsf", "hrsa"],
+  },
+  {
     id: "civic-signal",
     name: "Civic Signal",
     url: "https://power2thepeople.net",
@@ -1725,6 +1745,14 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       let error: string | undefined;
       let wokenUp = false;
 
+      // Skip pinging TCAF-self (role="self-hub") — pinging ourselves would create a loop.
+      if (platform.role === "self-hub") {
+        await db.update(ecosystemPlatforms)
+          .set({ healthStatus: "online", lastHealthCheck: new Date(), lastHeartbeat: new Date() })
+          .where(eq(ecosystemPlatforms.id, platform.id));
+        return { id: platform.id, name: platform.name, url: platform.url, status: "online", responseMs: 0, wokenUp: false };
+      }
+
       const wasSleeping = platform.healthStatus === "offline" || platform.healthStatus === "unknown";
 
       const urlsToTry = [platform.url];
@@ -1885,6 +1913,87 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   });
 
   // ===================================================================
+  // PARTNER ONBOARDING PACKET — Per-platform handoff document
+  // Returns api_key, inbound endpoint URLs, and 5 simplest directives
+  // so a partner can get out of Grade F by acknowledging real, scoped work.
+  // ===================================================================
+  app.get("/api/ecosystem/onboarding-packet/:platformId", requireAdminAuth, requireAuth, async (req, res) => {
+    try {
+      const platformId = String(req.params.platformId);
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
+      if (!platform) return res.status(404).json({ error: "Platform not found" });
+      if (platform.role === "self-hub") return res.status(400).json({ error: "Hub-self does not receive an onboarding packet" });
+
+      const hubBaseUrl = `${req.protocol}://${req.get("host")}`;
+
+      // Find directives targeted to this platform that have NOT been completed/acknowledged.
+      const allDirectives = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.status, "active"));
+      const targeted = allDirectives.filter(d => {
+        const ids = Array.isArray(d.targetPlatformIds) ? d.targetPlatformIds : [];
+        return ids.includes(platformId);
+      });
+      const existingAcks = await db.select().from(ecosystemDirectiveAcks).where(eq(ecosystemDirectiveAcks.platformId, platformId));
+      const completedDirectiveIds = new Set(existingAcks.filter(a => a.status === "acknowledged" || a.status === "completed").map(a => a.directiveId));
+      const open = targeted.filter(d => !completedDirectiveIds.has(d.id));
+
+      // Sort by shortest content (easiest to act on first), pick 5.
+      const easiestFirst = [...open].sort((a, b) => (a.content?.length || 0) - (b.content?.length || 0)).slice(0, 5);
+
+      const totalOpen = open.length;
+      const totalTargeted = targeted.length;
+      const completedCount = targeted.length - open.length;
+      const fidelityPct = totalTargeted > 0 ? Math.round((completedCount / totalTargeted) * 100) : 100;
+
+      res.json({
+        platform: {
+          id: platform.id,
+          name: platform.name,
+          role: platform.role,
+          url: platform.url,
+          currentFidelityPct: fidelityPct,
+          totalDirectivesTargeted: totalTargeted,
+          completed: completedCount,
+          open: totalOpen,
+        },
+        authentication: {
+          apiKey: platform.apiKey,
+          headerName: "x-ecosystem-key",
+          note: "Send this header on every inbound request to the hub. Keep it secret — rotate via the hub admin if compromised.",
+        },
+        inboundEndpoints: {
+          heartbeat: `${hubBaseUrl}/api/ecosystem/heartbeat`,
+          acknowledgeDirective: `${hubBaseUrl}/api/ecosystem/directives/:directiveId/acknowledge`,
+          bilateralExchange: `${hubBaseUrl}/api/ecosystem/exchange`,
+          rpliceAssignments: `${hubBaseUrl}/api/ecosystem/rplice/my-assignments`,
+        },
+        fiveEasiestDirectives: easiestFirst.map(d => ({
+          id: d.id,
+          type: d.directiveType,
+          title: d.title,
+          contentPreview: (d.content || "").slice(0, 400),
+          acknowledgePath: `POST ${hubBaseUrl}/api/ecosystem/directives/${d.id}/acknowledge`,
+          requiredBody: {
+            status: "acknowledged",
+            evidenceUrl: "https://your-platform.example/proof-of-work",
+            whatWasDone: "Describe in 1-3 sentences what you actually built/changed/decided",
+            measuredOutcome: "Optional: numeric or before/after evidence",
+          },
+        })),
+        antiPatterns: [
+          "Do NOT send generic 'acknowledged' without evidenceUrl + whatWasDone — the enforcement engine rejects these.",
+          "Do NOT auto-ack on a timer. The system explicitly punishes auto-acknowledgement (see directive 'STOP Auto-Acknowledging Directives').",
+        ],
+        nextStep: totalOpen === 0
+          ? "All directives complete for this platform — you're in good standing."
+          : `Act on the 5 directives above in order. Each one closes a real gap. Expect grade improvement on the next enforcement cycle (6 AM / 6 PM CST).`,
+      });
+    } catch (error: any) {
+      console.error("[Onboarding] Packet generation failed:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ===================================================================
   // DELIVERABLE VERIFICATION TIMER — Periodic evidence URL checking
   // Runs every 30 minutes. Pings all evidence URLs from acknowledged
   // directives and marks them LIVE or FAILED.
@@ -1977,7 +2086,8 @@ export function registerEcosystemConnectorRoutes(app: Express) {
                 .where(eq(ecosystemDirectiveAcks.id, ack.id));
             }
           }
-          console.log(`[Enforcement] ${platform.name} has ${nonCompliantAcks.length} unacknowledged directive(s) — Grade ${grade}. Platforms must acknowledge with evidence, not auto-remediation.`);
+          const platformLabel = platform.role === "self-hub" ? "[TCAF-Self]" : "[External Partner]";
+          console.log(`[Enforcement] ${platformLabel} ${platform.name} has ${nonCompliantAcks.length} unacknowledged directive(s) — Grade ${grade}. Platforms must acknowledge with evidence, not auto-remediation.`);
         }
 
         const isNonCompliant = grade === "D" || grade === "F";
@@ -9923,11 +10033,19 @@ if (typeof module !== "undefined") {
     }
 
     const platforms = await db.select().from(ecosystemPlatforms);
-    const offlineCount = platforms.filter(p => p.healthStatus === "offline" || !p.healthStatus).length;
-    const neverPinged = platforms.filter(p => !p.lastHeartbeat).length;
+    // Exclude TCAF-self (role="self-hub") from outbound reachability counts — it's not an external peer.
+    // Note: role="hub" is used for Whole-Person Health (an external partner with hub-like routing duties).
+    const externalPlatforms = platforms.filter(p => p.role !== "self-hub");
+    const offlineCount = externalPlatforms.filter(p => p.healthStatus === "offline" || !p.healthStatus).length;
+    // Outbound-reach gap: pinger has never successfully reached this platform.
+    const neverReached = externalPlatforms.filter(p => !p.lastHealthCheck).length;
+    // Inbound check-in gap: this platform has never sent a heartbeat TO us (partner-side action).
+    const neverCheckedIn = externalPlatforms.filter(p => !p.lastHeartbeat).length;
     if (offlineCount > 3) gaps.push(`DEGRADED: ${offlineCount} platforms offline — exceeds acceptable threshold of 3`);
-    else healthy.push(`Platform availability OK (${platforms.length - offlineCount}/${platforms.length} reachable)`);
-    if (neverPinged > 5) gaps.push(`BLIND-SPOT: ${neverPinged} platforms have never been pinged — pinger may not be reaching them`);
+    else healthy.push(`Platform availability OK (${externalPlatforms.length - offlineCount}/${externalPlatforms.length} reachable)`);
+    if (neverReached > 5) gaps.push(`BLIND-SPOT: ${neverReached} platforms the hub pinger has never successfully reached`);
+    else healthy.push(`Outbound pinger reached all ${externalPlatforms.length - neverReached}/${externalPlatforms.length} external platforms`);
+    if (neverCheckedIn > 5) gaps.push(`PARTNER-SIDE: ${neverCheckedIn} external platforms have never sent a heartbeat to the hub — they need to wire up the inbound exchange on their side`);
 
     const grantCount = await db.select({ count: sql<number>`count(*)` }).from(grantOpportunities);
     const totalGrants = grantCount[0]?.count || 0;
