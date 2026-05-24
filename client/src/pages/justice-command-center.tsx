@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import SectionTutorial from "@/components/section-tutorial";
+import { IntegrationInvitation } from "@/components/integration-invitation";
 import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -3459,6 +3460,15 @@ export default function JusticeCommandCenter() {
             </button>
           ))}
         </div>
+
+        <IntegrationInvitation
+          surface="justice-hub"
+          surfaceContext={activeTab}
+          prompt="Have you walked someone through the system — and stayed?"
+          description="Reentry peer mentors, court-involved family advocates, AA/NA sponsors, formerly-incarcerated leaders, bail-fund organizers, prison ministry — you ARE the justice infrastructure. No credential required. You set the terms."
+          suggestedRoleTags={["reentry peer mentor", "court-involved family advocate", "AA/NA sponsor", "bail fund organizer", "prison ministry", "lived-experience leader", "youth diversion mentor"]}
+          className="mb-5"
+        />
 
         {activeTab === "command" && <CommandDashboard />}
         {activeTab === "crime-map" && <CrimeMapOverlay />}

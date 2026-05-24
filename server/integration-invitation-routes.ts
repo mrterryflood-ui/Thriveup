@@ -119,7 +119,7 @@ export async function filterByItiConsent<T extends { itiInvitationId?: string | 
 
 const ALLOWED_SURFACES = new Set([
   "voice-project", "foster-intake", "lifebridge", "justice-hub",
-  "trade-sims", "wph", "public-site", "direct",
+  "trade-sims", "wph", "workforce-readiness", "public-site", "direct",
 ]);
 
 const MAX_TEXT = 4000;
@@ -292,7 +292,7 @@ export function registerIntegrationInvitationRoutes(app: Express) {
 
   // --- ADMIN: get full record including consents + recognition history ---
   app.get("/api/iti/admin/invitations/:id", requireAdmin, async (req, res) => {
-    const [invitation] = await db.select().from(integrationInvitations).where(eq(integrationInvitations.id, req.params.id)).limit(1);
+    const [invitation] = await db.select().from(integrationInvitations).where(eq(integrationInvitations.id, req.params.id as string)).limit(1);
     if (!invitation) return res.status(404).json({ error: "Not found" });
     const [consents] = await db.select().from(invitationConsents).where(eq(invitationConsents.invitationId, invitation.id)).limit(1);
     const events = await db.select().from(recognitionEvents).where(eq(recognitionEvents.invitationId, invitation.id)).orderBy(desc(recognitionEvents.createdAt)).limit(200);
@@ -302,7 +302,7 @@ export function registerIntegrationInvitationRoutes(app: Express) {
 
   // --- ADMIN: log a recognition event ("we heard you", "we cited you", "we paid you", "we invited you") ---
   app.post("/api/iti/admin/invitations/:id/recognize", requireAdmin, async (req, res) => {
-    const [invitation] = await db.select().from(integrationInvitations).where(eq(integrationInvitations.id, req.params.id)).limit(1);
+    const [invitation] = await db.select().from(integrationInvitations).where(eq(integrationInvitations.id, req.params.id as string)).limit(1);
     if (!invitation) return res.status(404).json({ error: "Not found" });
     const body = req.body as Record<string, unknown>;
     const eventType = clean(body.eventType, 32);

@@ -5288,11 +5288,13 @@ export const communityVoicePins = pgTable("community_voice_pins", {
   status: varchar("status", { length: 16 }).default("published").notNull(),
   ipHash: varchar("ip_hash", { length: 64 }),
   upvotes: integer("upvotes").default(0).notNull(),
+  itiInvitationId: varchar("iti_invitation_id", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [
   index("idx_voice_pins_project").on(t.projectId),
   index("idx_voice_pins_status").on(t.status),
+  index("idx_voice_pins_iti").on(t.itiInvitationId),
 ]);
 
 export const communityVoiceReactions = pgTable("community_voice_reactions", {
@@ -5770,3 +5772,58 @@ export type InvitationConsents = typeof invitationConsents.$inferSelect;
 export const insertRecognitionEventSchema = createInsertSchema(recognitionEvents).omit({ id: true, createdAt: true });
 export type InsertRecognitionEvent = z.infer<typeof insertRecognitionEventSchema>;
 export type RecognitionEvent = typeof recognitionEvents.$inferSelect;
+
+// === Week 3: Convening rail — named co-authorship workflow ===
+// When an ITI invitee's contribution materially shapes a deliverable
+// (grant section, report, public testimony, working group), they get
+// invited to be NAMED as co-author. They control acceptance + naming
+// (linked to invitation_consents.nameMePublicly + co_author_credit).
+export const conveningInvitations = pgTable("convening_invitations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  invitationId: varchar("invitation_id", { length: 100 }).notNull().references(() => integrationInvitations.id, { onDelete: "cascade" }),
+  conveningType: varchar("convening_type", { length: 32 }).notNull(), // 'grant-coauthor' | 'report-coauthor' | 'working-group' | 'public-testimony' | 'advisory-board'
+  title: text("title").notNull(),
+  contextRef: text("context_ref"), // e.g. grant id, report id
+  proposedRole: text("proposed_role"),
+  proposedStipendCents: integer("proposed_stipend_cents"),
+  status: varchar("status", { length: 16 }).default("invited").notNull(), // 'invited' | 'accepted' | 'declined' | 'completed'
+  inviteeResponse: text("invitee_response"),
+  respondedAt: timestamp("responded_at"),
+  invitedByActorId: varchar("invited_by_actor_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_iti_convening_invitation").on(t.invitationId),
+  index("idx_iti_convening_status").on(t.status),
+]);
+
+// === Week 3: Stipend payouts — real money, tracked + auditable ===
+// Stipend doctrine: pathways must be REAL, not aspirational. Every payout
+// logged with a receipt or external reference (ACH ID, check #, gift-card SKU).
+// Payment itself is manual / out-of-band; this is the ledger.
+export const stipendPayouts = pgTable("stipend_payouts", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  invitationId: varchar("invitation_id", { length: 100 }).notNull().references(() => integrationInvitations.id, { onDelete: "cascade" }),
+  conveningInvitationId: varchar("convening_invitation_id", { length: 100 }).references(() => conveningInvitations.id, { onDelete: "set null" }),
+  amountCents: integer("amount_cents").notNull(),
+  currency: varchar("currency", { length: 8 }).default("USD").notNull(),
+  paymentMethod: varchar("payment_method", { length: 24 }).notNull(), // 'ach' | 'check' | 'gift-card' | 'cash-app' | 'venmo' | 'other'
+  externalRef: varchar("external_ref", { length: 200 }), // ACH trace, check #, gift card SKU
+  rationale: text("rationale").notNull(), // why this payment, what work
+  status: varchar("status", { length: 16 }).default("logged").notNull(), // 'logged' | 'sent' | 'received-confirmed' | 'failed'
+  paidAt: timestamp("paid_at"),
+  loggedByActorId: varchar("logged_by_actor_id", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_iti_stipend_invitation").on(t.invitationId),
+  index("idx_iti_stipend_status").on(t.status),
+]);
+
+export const insertConveningInvitationSchema = createInsertSchema(conveningInvitations).omit({ id: true, createdAt: true, updatedAt: true, respondedAt: true });
+export type InsertConveningInvitation = z.infer<typeof insertConveningInvitationSchema>;
+export type ConveningInvitation = typeof conveningInvitations.$inferSelect;
+
+export const insertStipendPayoutSchema = createInsertSchema(stipendPayouts).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertStipendPayout = z.infer<typeof insertStipendPayoutSchema>;
+export type StipendPayout = typeof stipendPayouts.$inferSelect;

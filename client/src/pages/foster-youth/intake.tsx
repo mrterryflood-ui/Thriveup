@@ -11,6 +11,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, ArrowRight, Sparkles, Upload, CheckCircle2, FileText, Loader2, Save, Phone, ExternalLink } from "lucide-react";
 import { CrisisStrip } from "@/components/foster-youth/crisis-strip";
+import { IntegrationInvitation } from "@/components/integration-invitation";
 import { STATE_ILP } from "@/data/foster-youth/state-ilp";
 import { useToast } from "@/hooks/use-toast";
 
@@ -226,6 +227,13 @@ export default function FosterYouthIntakePage() {
     <div className="min-h-screen bg-background" data-testid="page-foster-youth-intake">
       <CrisisStrip />
       <div className="max-w-4xl mx-auto px-4 py-6">
+        <IntegrationInvitation
+          surface="foster-intake"
+          prompt="Are you already holding a foster youth's life together?"
+          description="Kinship caregivers, former foster youth mentoring younger kids, ILP graduates supporting peers, faith-community aunties and uncles — you're inside this system. No license check. No proof asked. You decide what we do with what you share."
+          suggestedRoleTags={["kinship caregiver", "former foster youth mentor", "ILP peer navigator", "lived-experience mentor", "faith community supporter", "bilingual advocate"]}
+          className="mb-6"
+        />
         <Link href="/foster-youth">
           <Button variant="ghost" size="sm" className="mb-4" data-testid="button-back-hub">
             <ArrowLeft className="mr-2 h-4 w-4" /> Back to Foster Youth Hub

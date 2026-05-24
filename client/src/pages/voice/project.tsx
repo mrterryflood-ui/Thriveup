@@ -3,6 +3,8 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Link, useParams } from "wouter";
 import { IntegrationInvitation } from "@/components/integration-invitation";
+import { HypothesisContest } from "@/components/hypothesis-contest";
+import { SeenWork } from "@/components/seen-work";
 import { useAuth } from "@/hooks/use-auth";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -202,6 +204,18 @@ export default function VoiceProjectPage() {
           : undefined}
         className="mb-5"
       />
+
+      {slug === "north-wilco-childcare-gaps" && (
+        <>
+          <HypothesisContest surface="voice-project" surfaceContext={slug} className="mb-5" />
+          <SeenWork
+            surface="voice-project"
+            title="Already seen here"
+            description="Caregivers in North Williamson County who said it's OK to be named publicly. Witness loop — not extraction."
+            className="mb-5"
+          />
+        </>
+      )}
 
       <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "map" | "list")}>
         <TabsList>

@@ -27,6 +27,7 @@ export type ItiSurface =
   | "justice-hub"
   | "trade-sims"
   | "wph"
+  | "workforce-readiness"
   | "public-site"
   | "direct";
 

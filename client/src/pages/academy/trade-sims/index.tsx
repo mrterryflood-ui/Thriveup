@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Zap, Wrench, Wind, Flame, Car, Code, BookOpen, Sparkles, Globe, GraduationCap } from "lucide-react";
+import { IntegrationInvitation } from "@/components/integration-invitation";
 import { useEffect } from "react";
 
 interface TradeRow {
@@ -41,6 +42,12 @@ export default function TradeSimsLandingPage() {
 
   return (
     <div className="container mx-auto max-w-6xl py-8 px-4 space-y-8">
+      <IntegrationInvitation
+        surface="trade-sims"
+        prompt="Are you already certified — and could you teach this?"
+        description="Working welders, master plumbers, journeyman electricians, ASE techs, line crews — if you've got the card and the years, you could mentor a learner inside these sims. We'll route stipends and credentialing-prep referrals when the fit lines up."
+        suggestedRoleTags={["master welder", "journeyman electrician", "master plumber", "ASE-certified tech", "lineman", "HVAC tech", "skilled trade instructor"]}
+      />
       {/* Hero */}
       <section className="text-center space-y-4">
         <Badge variant="secondary" className="mx-auto" data-testid="badge-hero-free">

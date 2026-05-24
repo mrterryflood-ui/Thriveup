@@ -401,6 +401,10 @@ function AppRouter() {
       <Route path="/api-docs" component={APIDocsPage} />
       <Route path="/grants" component={GrantHubPage} />
       <Route path="/reentry" component={ReentryDashboardPage} />
+      <Route path="/reentry-dashboard" component={ReentryDashboardPage} />
+      <Route path="/intake-wizard" component={IntakeWizardPage} />
+      <Route path="/transparency-dashboard" component={TransparencyDashboardPage} />
+      <Route path="/wab2-enrollment-hub" component={WAB2EnrollmentHubPage} />
       <Route path="/partners" component={CommunityPartnersPage} />
       <Route path="/outcomes" component={OutcomeReportingPage} />
       <Route path="/justice-partners" component={JusticePartnersPage} />

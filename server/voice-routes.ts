@@ -20,6 +20,8 @@ import { and, desc, eq, sql, inArray } from "drizzle-orm";
 import { randomUUID, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { z } from "zod";
 import OpenAI from "openai";
+import { generateAIJSON } from "./ai-provider";
+import { filterByItiConsent } from "./integration-invitation-routes";
 
 const openai = process.env.OPENAI_API_KEY ? new OpenAI() : null;
 
@@ -594,29 +596,29 @@ export function registerVoiceRoutes(app: Express) {
       const stakeholder: Record<string, number> = {};
       for (const p of pins) stakeholder[p.authorType] = (stakeholder[p.authorType] ?? 0) + 1;
 
-      // AI cluster
+      // === ITI anti-extraction gate (Iron Rule #8) ===
+      // Any pin linked to an ITI invitee is FILTERED OUT unless that invitee
+      // has explicitly toggled aggregateMyData=true. Non-ITI-linked pins pass
+      // through unchanged.
+      const pinsForAI = await filterByItiConsent(pins, "aggregateMyData");
+      const itiFilteredOut = pins.length - pinsForAI.length;
+
+      // AI cluster — routed through ai-provider.ts (ETHICAL_EI_PREAMBLE applied)
       let themes: Array<{ title: string; summary: string; sentiment: string; memberPinIds: string[]; recommendedPlatforms: string[]; confidence: number }> = [];
       let modelUsed = "fallback-rule-based";
-      if (openai) {
-        const corpus = pins.slice(0, 200).map((p, i) =>
+      if (pinsForAI.length > 0) {
+        const corpus = pinsForAI.slice(0, 200).map((p, i) =>
           `[${i}] cat=${p.category} sent=${p.sentiment ?? "neutral"} crisis=${p.crisisFlag ? "Y" : "N"} body=${JSON.stringify((p.body ?? "").slice(0, 280))}`
         ).join("\n");
         const prompt = `You are a community-engagement analyst for a nonprofit. Cluster these resident voice pins into 3–7 SPECIFIC, ACTIONABLE themes. Each theme summary should be 1–2 sentences in plain language a community organizer would read out loud. Output JSON: { "themes": [{ "title": "...", "summary": "...", "sentiment": "positive|negative|mixed|neutral", "memberIndexes": [0,3,7], "confidence": 0.0-1.0 }] }. Be honest. Prefer specificity over generic categories.\n\nPINS:\n${corpus}`;
         try {
-          const resp = await openai.chat.completions.create({
-            model: "gpt-4o-mini",
-            response_format: { type: "json_object" },
-            messages: [{ role: "user", content: prompt }],
-            temperature: 0.4,
-          });
-          const raw = resp.choices[0]?.message?.content ?? "{}";
-          const parsed = JSON.parse(raw) as { themes?: Array<{ title?: string; summary?: string; sentiment?: string; memberIndexes?: number[]; confidence?: number }> };
+          const parsed = await generateAIJSON<{ themes?: Array<{ title?: string; summary?: string; sentiment?: string; memberIndexes?: number[]; confidence?: number }> }>(prompt);
           if (Array.isArray(parsed.themes)) {
             themes = parsed.themes.map((t) => {
-              const memberPinIds = (t.memberIndexes ?? []).filter((i) => Number.isInteger(i) && i >= 0 && i < pins.length).map((i) => pins[i].id);
+              const memberPinIds = (t.memberIndexes ?? []).filter((i) => Number.isInteger(i) && i >= 0 && i < pinsForAI.length).map((i) => pinsForAI[i].id);
               const recs = new Set<string>();
               for (const id of memberPinIds) {
-                const pin = pins.find((p) => p.id === id);
+                const pin = pinsForAI.find((p) => p.id === id);
                 if (pin) for (const plat of PLATFORM_ROUTING[pin.category] ?? []) recs.add(plat);
               }
               return {
@@ -628,15 +630,20 @@ export function registerVoiceRoutes(app: Express) {
                 confidence: Math.min(1, Math.max(0, Number(t.confidence) || 0.7)),
               };
             }).filter((t) => t.memberPinIds.length > 0);
-            if (themes.length > 0) modelUsed = "gpt-4o-mini";
+            if (themes.length > 0) modelUsed = "ai-provider";
           }
         } catch (e) {
-          console.error("[voice-insights] OpenAI cluster failed — using rule-based fallback:", e);
+          console.error("[voice-insights] AI cluster failed — using rule-based fallback:", e);
         }
       }
+      if (itiFilteredOut > 0) {
+        console.log(`[voice-insights] ITI anti-extraction gate filtered ${itiFilteredOut}/${pins.length} pins (aggregateMyData=false)`);
+      }
       if (themes.length === 0) {
-        const byCat: Record<string, typeof pins> = {};
-        for (const p of pins) (byCat[p.category] ||= []).push(p);
+        // Iron Rule #8: fallback MUST also use the ITI-filtered set. Never
+        // summarize a non-consenting invitee's pin into themes.
+        const byCat: Record<string, typeof pinsForAI> = {};
+        for (const p of pinsForAI) (byCat[p.category] ||= []).push(p);
         themes = Object.entries(byCat).map(([cat, group]) => {
           const neg = group.filter((g) => g.sentiment === "negative").length;
           const pos = group.filter((g) => g.sentiment === "positive").length;
@@ -657,7 +664,9 @@ export function registerVoiceRoutes(app: Express) {
       const [row] = await db.insert(communityVoiceInsights).values({
         projectId: project.id,
         generatedBy: getUserId(req) ?? null,
-        pinCount: pins.length,
+        // pinCount reflects what was actually summarized after the ITI
+        // anti-extraction gate, not the unfiltered total.
+        pinCount: pinsForAI.length,
         themes,
         sentimentTimeline,
         stakeholderBreakdown: stakeholder,

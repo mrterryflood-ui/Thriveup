@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { PageHeader } from "@/components/page-header";
+import { IntegrationInvitation } from "@/components/integration-invitation";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -143,6 +144,12 @@ export default function WorkforceReadinessPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-indigo-50 via-white to-purple-50 dark:from-gray-950 dark:via-gray-900 dark:to-indigo-950">
       <div className="max-w-6xl mx-auto px-4 py-8 space-y-10">
+        <IntegrationInvitation
+          surface="workforce-readiness"
+          prompt="Are you already teaching the trade without a title?"
+          description="Driveway journeymen, family-shop mechanics, contractor uncles training their nephews, retired electricians coaching neighborhood kids, foremen mentoring undocumented crews — you ARE workforce development. No card required. You decide what becomes visible."
+          suggestedRoleTags={["driveway journeyman", "family-shop mechanic", "informal trade instructor", "retired tradesperson", "bilingual jobsite mentor", "apprentice sponsor", "shop foreman"]}
+        />
         {/* Hero */}
         <div className="text-center space-y-4" data-testid="hero-section">
           <Badge variant="outline" className="text-indigo-600 border-indigo-300 dark:text-indigo-400 dark:border-indigo-700 text-sm px-4 py-1">
@@ -163,7 +170,7 @@ export default function WorkforceReadinessPage() {
               <Smartphone className="w-5 h-5 mr-2" />
               Download ThriveUp & Start
             </Button>
-            <Link href="/ai-curriculum">
+            <Link href="/curriculum">
               <Button size="lg" variant="outline" data-testid="button-view-curriculum">
                 <BookOpen className="w-5 h-5 mr-2" />
                 View Full Curriculum
@@ -326,7 +333,7 @@ export default function WorkforceReadinessPage() {
                         </div>
                       </div>
 
-                      <Link href="/ai-curriculum">
+                      <Link href="/curriculum">
                         <Button variant="outline" size="sm" className={mod.color} data-testid={`button-start-${mod.id}`}>
                           Start Module {i + 1}
                           <ChevronRight className="w-4 h-4 ml-1" />
@@ -449,7 +456,7 @@ export default function WorkforceReadinessPage() {
               <Star className="w-5 h-5 mr-2" />
               Begin Your Journey
             </Button>
-            <Link href="/ai-curriculum">
+            <Link href="/curriculum">
               <Button size="lg" variant="outline" data-testid="button-explore-curriculum">
                 <BookOpen className="w-5 h-5 mr-2" />
                 Explore All Lessons
