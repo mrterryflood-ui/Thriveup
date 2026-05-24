@@ -3109,7 +3109,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
 
   app.patch("/api/benefits/applications/:id", requireAuth, async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = String(req.params.id);
       const updates: any = { ...req.body, updatedAt: new Date() };
       if (updates.status === "submitted" && !updates.submittedAt) updates.submittedAt = new Date();
       if (updates.outcome && !updates.decisionAt) updates.decisionAt = new Date();

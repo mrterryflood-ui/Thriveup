@@ -44,6 +44,7 @@ export function registerRfpFidelityRoutes(app: Express) {
         : [];
       const countMap = new Map<string, { total: number; L: number; M: number; gaps: number }>();
       for (const m of matrixCounts) {
+        if (!m.grantId) continue;
         const c = countMap.get(m.grantId) ?? { total: 0, L: 0, M: 0, gaps: 0 };
         c.total++;
         if (m.sectionType === "L") c.L++;

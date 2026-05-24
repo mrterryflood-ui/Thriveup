@@ -10,7 +10,7 @@ import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
 export function registerMouRoutes(app: Express): void {
   // ---- MOU pipeline ----
   app.get("/api/nsf/mous/:stateCode", isAuthenticated, async (req, res) => {
-    const code = (req.params.stateCode || "").toUpperCase();
+    const code = String(req.params.stateCode || "").toUpperCase();
     const rows = await db.select().from(hubMous).where(eq(hubMous.hubStateCode, code)).orderBy(hubMous.partnerOrg);
     res.json({ stateCode: code, mous: rows });
   });
@@ -29,7 +29,7 @@ export function registerMouRoutes(app: Express): void {
 
   app.patch("/api/nsf/mous/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = String(req.params.id);
       const allowed: Record<string, true> = { partnerOrg: true, partnerRole: true, contactName: true, contactEmail: true, contactPhone: true, status: true, notes: true };
       const updates: Record<string, unknown> = { updatedAt: new Date() };
       for (const k of Object.keys(req.body || {})) if (allowed[k]) updates[k] = req.body[k];
@@ -42,13 +42,13 @@ export function registerMouRoutes(app: Express): void {
   });
 
   app.delete("/api/nsf/mous/:id", isAuthenticated, async (req, res) => {
-    await db.delete(hubMous).where(eq(hubMous.id, req.params.id));
+    await db.delete(hubMous).where(eq(hubMous.id, String(req.params.id)));
     res.json({ ok: true });
   });
 
   // ---- Discoveries (Perplexity findings) confirmation ----
   app.get("/api/nsf/discoveries/:stateCode", isAuthenticated, async (req, res) => {
-    const code = (req.params.stateCode || "").toUpperCase();
+    const code = String(req.params.stateCode || "").toUpperCase();
     const status = req.query.status ? String(req.query.status) : undefined;
     const where = status
       ? and(eq(nationwideDiscoveries.stateCode, code), eq(nationwideDiscoveries.status, status))
@@ -59,7 +59,7 @@ export function registerMouRoutes(app: Express): void {
 
   app.patch("/api/nsf/discoveries/:id", isAuthenticated, async (req, res) => {
     try {
-      const id = req.params.id;
+      const id = String(req.params.id);
       const status = String(req.body?.status || "");
       if (!["pending", "confirmed", "dismissed"].includes(status)) {
         return res.status(400).json({ error: "status must be pending|confirmed|dismissed" });

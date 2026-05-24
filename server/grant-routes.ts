@@ -844,7 +844,7 @@ export function registerGrantRoutes(app: Express) {
 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10_000);
-    let response: Response;
+    let response: globalThis.Response;
     try {
       response = await fetch(parsedUrl.toString(), {
         redirect: "follow",
