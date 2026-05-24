@@ -1913,6 +1913,36 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   });
 
   // ===================================================================
+  // MANUAL CYCLE TRIGGER — Fire self-audit + enforcement on demand
+  // Gated by THRIVEUP_SHARED_SECRET (server-side env) so ops can kick
+  // a cycle without waiting for the 6h / 6AM-6PM cron.
+  // ===================================================================
+  app.post("/api/ecosystem/run-cycles-now", async (req, res) => {
+    const remote = (req.socket.remoteAddress || "").replace("::ffff:", "");
+    const isLocalhost = remote === "127.0.0.1" || remote === "::1" || remote === "localhost";
+    const provided = (req.headers["x-thriveup-secret"] as string) || "";
+    const expected = process.env.THRIVEUP_SHARED_SECRET || "";
+    const secretOk = expected && provided === expected;
+    if (!isLocalhost && !secretOk) {
+      return res.status(401).json({ error: "Must be called from localhost or with valid x-thriveup-secret header." });
+    }
+    try {
+      console.log("[ManualCycle] Triggered by ops — running self-audit + enforcement");
+      const auditResult = await runEcosystemSelfAudit();
+      const enforcementResult = await runComplianceEnforcement();
+      res.json({
+        ok: true,
+        triggeredAt: new Date().toISOString(),
+        selfAudit: auditResult,
+        enforcement: enforcementResult,
+      });
+    } catch (error: any) {
+      console.error("[ManualCycle] Failed:", error);
+      res.status(500).json({ error: error.message });
+    }
+  });
+
+  // ===================================================================
   // PARTNER ONBOARDING PACKET — Per-platform handoff document
   // Returns api_key, inbound endpoint URLs, and 5 simplest directives
   // so a partner can get out of Grade F by acknowledging real, scoped work.
