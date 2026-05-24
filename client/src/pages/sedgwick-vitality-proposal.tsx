@@ -6,6 +6,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Download, ExternalLink, Calendar, Building2, Users, AlertTriangle, CheckCircle2 } from "lucide-react";
 import strategicMd from "../../../docs/grants/sedgwick-rfp-26-0028/strategic-analysis.md?raw";
+import proposalV3Md from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md?raw";
 import proposalMd from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v2.md?raw";
 import proposalV1Md from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal.md?raw";
 import checklistMd from "../../../docs/grants/sedgwick-rfp-26-0028/pre-submission-checklist.md?raw";
@@ -94,17 +95,30 @@ export default function SedgwickVitalityProposalPage() {
         </AlertDescription>
       </Alert>
 
-      <Tabs defaultValue="crosswalk" className="space-y-4">
-        <TabsList>
+      <Tabs defaultValue="proposalv3" className="space-y-4">
+        <TabsList className="flex flex-wrap h-auto">
+          <TabsTrigger value="proposalv3" data-testid="tab-proposal-v3">Proposal v3 (submission)</TabsTrigger>
           <TabsTrigger value="crosswalk" data-testid="tab-crosswalk">Compliance Crosswalk (L+M)</TabsTrigger>
           <TabsTrigger value="rfp" data-testid="tab-rfp">Base RFP</TabsTrigger>
           <TabsTrigger value="add2" data-testid="tab-add2">Addendum #2</TabsTrigger>
           <TabsTrigger value="strategic" data-testid="tab-strategic">Strategic Analysis</TabsTrigger>
-          <TabsTrigger value="proposal" data-testid="tab-proposal">Proposal v2 (rubric-mirrored)</TabsTrigger>
+          <TabsTrigger value="proposal" data-testid="tab-proposal">Proposal v2 (archive)</TabsTrigger>
           <TabsTrigger value="proposalv1" data-testid="tab-proposal-v1">Proposal v1 (archive)</TabsTrigger>
           <TabsTrigger value="checklist" data-testid="tab-checklist">Pre-Submission Checklist</TabsTrigger>
           <TabsTrigger value="critique" data-testid="tab-critique">Honest Critique</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="proposalv3">
+          <Card>
+            <CardHeader>
+              <CardTitle>Vitality Weight Management Program — Proposal v3 (submission version)</CardTitle>
+              <CardDescription>
+                v3 (2026-05-24): adds §7.4 Platform Maturity Status table (live-vs-implementation honesty), tightens "[Evidence — Criterion N]" closers on §6 / §6.7 / §9.5, restores 30-day termination-for-convenience acceptance (§11.4), adds §11.9 Suspension &amp; Debarment certification, fills TCAF identifiers in Appendix F.2 (EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM Active to 2027-05-06), and restores Dr. Love's bilingual credential in §3.2 so the Spanish-coverage chain has a source. 40 {`{{ACTION REQUIRED}}`} markers remain — almost entirely HIS firm data (Appendix F.1) plus references (Appendix E) and COIs (Appendix G).
+              </CardDescription>
+            </CardHeader>
+            <CardContent><MarkdownRender source={proposalV3Md} /></CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="crosswalk">
           <Card>

@@ -497,3 +497,57 @@ Registered in `server/routes.ts` (import + `registerRfpFidelityRoutes(app)` afte
 5. Run **Final Fidelity Audit** with your draft section names. Must return `ok: true` and `sectionLNoncompliance: []` before submission.
 
 **Verification at build time:** `npm run db:push` ✓ · `npm run build` ✓ · architect code review APPROVED after one IDOR fix on `grant-meta` (now requires the org to have ≥1 rfp_document for the grant before returning grant metadata).
+
+---
+
+## A24 — Active Bids system (DB-backed, 2026-05-23)
+
+`shared/active-bids.ts` (types + helpers + `ACTIVE_BIDS_SEED` fallback) · `active_bids` table (`shared/schema.ts`, jsonb rubric, unique `rfpId`, FK to `grantOpportunities.id`) · `server/active-bids-routes.ts` (auth-gated GET/POST/PATCH/DELETE/seed; auto-seeds on first boot from the file seed) · client `/teaming-network` (`conglomerate-team.tsx`) fetches via TanStack Query with seed fallback.
+
+**Writer wiring:** `server/grant-narrative-routes.ts` POST `/api/me/grant-narratives/generate` looks up an `active_bids` row by `grantId` and passes it to `generateDraftFromRubric(..., internalStrategy)`. `server/rfp-rubric.ts` `buildInternalStrategyBlock()` injects "INTERNAL TEAM CADENCE" block: per-criterion response cadence + evidence pointer + team confidence + named team lanes — enforcing the rubric-first doctrine end-to-end (Iron Rule #5). Tracking dashboard + AI writer share one source of truth.
+
+---
+
+## A25 — IA v2 + Autosave (shipped 2026-05-23)
+
+**Sidebar collapsed 28 groups → 7 hubs:** Get Funded · Serve People · Workforce & Trades · Academy & Learning · Partners & Coalitions · Where We Operate · About & Trust. Plus My Organization (auth-only) + Admin (admin-only, sub-sectioned: Operations / Programs / Internal / Academy / Teaching). Every URL preserved; mentor/pathway/grants duplicates deduped; dead `teaching*` arrays killed. Item counts on each hub, sidebar search "Find a page…" over all viewer-visible items (admin items included only when admin, my-org only when signed in), `authOnly` flag hides items from public view. File: `client/src/components/app-sidebar.tsx`.
+
+**Polymorphic autosave:** new `editor_drafts` table (`shared/schema.ts` — userId+editorKind+scopeKey unique, jsonb content) + `server/editor-drafts-routes.ts` (GET/PUT/DELETE `/api/me/editor-drafts/:kind/:scope`, requireAuth, ALLOWED_KINDS allowlist `[rfp_writer, grant_narrative, loi_writer, org_settings]`, 5MB cap, upsert via `onConflictDoUpdate`). Frontend: `client/src/hooks/use-autosave.ts` (debounced 1500ms PUT, hydrates on mount, re-hydrates when scopeKey changes, status: idle/saving/saved/error/signed-out) + `client/src/components/autosave-status.tsx` pill. Wired into `loi-writer.tsx` (scope=default), `grant-narrative.tsx` (scope=selectedGrant), `rfp-writer.tsx` (scope=grantId).
+
+---
+
+## A26 — Partners & Teaming — full roster detail (verified 2026-05-23)
+
+**🚨 Doctrine: teaming is per-proposal, based on lane fit. There is NO standing default team — never assume Flood + Vann + Love + Hargrave team on every bid.**
+
+**Partner roster** (use only when their lane aligns with the specific RFP):
+- **Dr. Terry D. Flood Sr.** — TCAF President. Lane: digital platform, reporting, participant engagement, AI/data infrastructure. Active U.S. government Secret-level clearance.
+- **Dr. J. Michelle Vann** — Sistahs Can We Talk Inc. (KS 501(c)(3)) + Vanntastic Solutions LLC (for-profit coaching, never the applicant). Lane: wellness coaching, behavioral engagement, women's mindset. **Spouse COI (Iasis Christian Center) on City of Wichita/federal — never list Iasis without disclosure.** → A1
+- **Dr. Chela Love, DNP, FNP** — Founder & Clinical Lead, **Love Clinic & Med Spa**, Wichita KS. Lane: **bilingual (English/Spanish)** primary-care clinical delivery, GLP-1 medication oversight, clinical referral. Active KS DNP licensure.
+- **Eric Hargrave** — Founder, **Hargrave Innovative Solutions (HIS)**, Wichita KS HQ. Lane: government contract management, compliance oversight, reporting coordination, administrative support. Initiated Sedgwick County outreach (May 12, 2026). **Long-term contracting/compliance partner — not just one RFP.**
+
+Full partner detail (entity types, EINs when on file, scope notes, history) lives in `docs/active-commitments.md` — search "Eric Hargrave" / "Love Clinic" / "Vann". Always also read that file when teaming on an RFP.
+
+---
+
+## A27 — Sedgwick RFP 26-0028 Vitality proposal v3 (saved 2026-05-24)
+
+User pasted v3 in chunks; full 1,024-line v3 finally landed at `docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md`. Exposed on frontend as the default tab at `/grants/sedgwick-vitality`.
+
+**v2 → v3 wins (kept):** §7.4 Platform Maturity Status table (demo-vs-implementation honesty) · "[Evidence — Criterion N]" closers on §6, §6.7, §9.5 · §4.4 County-language crosswalk · CPI-Medical 3.5%/yr cap (§11.4) · §8.5 outperformance bonus + failure-to-perform forfeiture · §7.3 quantified County burden (15-25 hr implementation, 2-4 hr/month ongoing).
+
+**v2 → v3 drift patches applied 2026-05-24:**
+1. §3.2 — restored "bilingual (English/Spanish)" to Dr. Love's bio; explicit pointer that her capacity sources the Spanish coverage promised in §6.7/§7.4.
+2. §11.4 — added 30-day termination-for-convenience acceptance + annual-appropriation acknowledgment + Kansas-law applicability.
+3. §11.9 (new) — Suspension & Debarment certification for all four partners + TCAF SAM/UEI/CAGE/2027-05-06 expiry + no-exceptions on Proposal Conditions + Sample Contract.
+4. Appendix F.2 TCAF row — filled EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM Active to 2027-05-06 · 501(c)(3) §170(b)(1)(A)(vi) effective 2026-01-14 · TX mailing address · Dr. Flood clearance Active. Was {{ACTION REQUIRED}} in v3 as received — regression from v2 fixed.
+
+**Submission readiness ~95% — remaining open items:**
+- Appendix F.1 — ~14 HIS firm-data fields (legal entity, address, KS registration, UEI, year established, employee count, MBE/WBE/VBE status). **Eric must fill — hard blocker.**
+- Appendix F.2 — Love Clinic + Vanntastic firm fields (year/employees/classification/KS registration); TCAF staff count.
+- Appendix E — 12 professional references (3 per partner).
+- Appendix G — Letter of Insurability + COIs.
+- WCAG third-party audit cost ($8K-25K) — decide whether absorbed into $45 PEPM Platform line or surfaced as Optional Pro Services.
+- CPI-Medical 3.5%/yr cap and §8.5 5% outperformance bonus — Eric sign-off.
+
+Numbers ledger (verified consistent v2→v3): 5,871/4,213/373/705/36.2%/1,525/534/$13,800/$8,200/$5,600/$2.09M/$1.71M/$3.05M · 72-20-8 cohort split · 47% non-continuation · 30% target retention · 55-70% engagement · PEPM $476-525 · 15% at-risk OUTSIDE Criterion V base · 3-year Jan 2027 – Dec 2029 + 2 renewals.
