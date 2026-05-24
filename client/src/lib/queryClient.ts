@@ -3,6 +3,17 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
+    // Cascade-failure guard: any signed-in user without an org profile gets
+    // bounced to the onboarding wizard instead of seeing a silent dead-end.
+    // Every workspace route (RFP Fidelity, My Grants, Documents…) returns
+    // 404 with code:"ORG_REQUIRED" via tenant-middleware.requireOrg. Without
+    // this redirect the page just spins or shows an opaque error toast.
+    if (res.status === 404 && text.includes("ORG_REQUIRED") && typeof window !== "undefined") {
+      const here = window.location.pathname;
+      if (!here.startsWith("/onboarding/org") && !here.startsWith("/api/")) {
+        window.location.assign("/onboarding/org");
+      }
+    }
     throw new Error(`${res.status}: ${text}`);
   }
 }
