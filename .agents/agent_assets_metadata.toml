@@ -587,3 +587,9 @@ id = "BiumQ3ED8SQuE6qqNzgy0"
 uri = "file://docs/partner-onboarding-walkthrough.md"
 type = "text"
 title = "ThriveUp Partner Onboarding Walkthrough"
+
+[[outputs]]
+id = "iFD5Zi1pIOnonVEFKsJjg"
+uri = "file://docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md"
+type = "text"
+title = "Vitality Proposal v3 — Sedgwick RFP #26-0028 (HIS Prime, ready for partner input)"

@@ -44,6 +44,91 @@ Love Clinic MedSpa · Vanntastic Solutions · The COLLABORATIVE Advocate Foundat
 11. Compliance, Insurance, and Certifications
 12. Appendices
 
+
+---
+
+## ⚠️ Pre-submission Action Items — by Owner
+
+This block lists every item still owed before 1:45 PM CDT, June 2, 2026. Marked **OWNER** = who furnishes it. Items appear in the body as `{{ACTION REQUIRED — <owner>}}` so they're machine-findable.
+
+### 🟥 HIS / Eric Hargrave — Prime Contractor (largest block — hard blocker)
+
+These are HIS firm-data fields for **Appendix F.1 (Sedgwick County Response Form, Page 1)** — filed in HIS's name only:
+
+1. DBA (if any) — or write "N/A"
+2. Mailing address (street, city, state, ZIP)
+3. State of incorporation / formation *(area code 601 suggests Mississippi — confirm)*
+4. Fax — or write "N/A"
+5. Website
+6. Year established
+7. Number of employees
+8. Number of locations
+9. Hours of operation *(default M–F 8:00a–5:00p CT unless otherwise specified)*
+10. Business classification (LLC / S-Corp / C-Corp / Sole Proprietorship / Partnership)
+11. Small business — Y / N
+12. Minority-owned business — Y / N *(likely Y given principal — confirm)*
+13. Woman-owned business — Y / N
+14. Veteran-owned business — Y / N *(HIS itself must qualify on its own ownership; Dr. Flood's Army-retiree status applies to TCAF sub row, not HIS Prime)*
+15. Registered to do business in Kansas — Y / N *(if N, HIS must register before contract award)*
+16. UEI (SAM.gov Unique Entity Identifier)
+
+Plus from HIS broker:
+
+17. **Letter of Insurability** (Appendix G) on broker letterhead, covering every line in §11.2 (GL, Auto, Workers' Comp + Employer's, Professional Liability, Umbrella, Cyber)
+18. **3 professional references** (Appendix E) for HIS, scope and dates within the last 3 years
+
+### 🟧 Love Clinic MedSpa / Dr. Chela Love
+
+For **Appendix F.2** (HIS-retained sub due-diligence file):
+
+1. Year established
+2. Number of employees
+3. Business classification (LLC / S-Corp / PLLC / Sole Proprietorship / etc.)
+4. Registered in Kansas — Y / N *(KS clinical practice strongly implies Y; confirm)*
+5. KS DNP license number for Dr. Love *(verifiable on Kansas State Board of Nursing lookup)*
+6. UEI (if registered in SAM.gov; not required for sub)
+7. **Current Certificate of Insurance** for Appendix G
+8. **3 professional references** for Appendix E
+9. Confirm bilingual (English/Spanish) clinical capacity statement in §3.2 is accurate as written
+
+### 🟨 Vanntastic Solutions / Dr. J. Michelle Vann
+
+For **Appendix F.2**:
+
+1. Mailing address (Wichita-area)
+2. Contact email
+3. Year established
+4. Number of employees / coaches
+5. Business classification (LLC / Sole Proprietorship / etc.)
+6. Registered in Kansas — Y / N
+7. **TEDx talk URL** referenced in §3.3 — verify and provide canonical link
+8. UEI (if SAM-registered; not required for sub)
+9. **Current Certificate of Insurance** for Appendix G
+10. **3 professional references** for Appendix E
+
+### 🟩 TCAF / Dr. Terry D. Flood — mostly complete, two small fills
+
+For **Appendix F.2** (HIS-retained sub due-diligence file). Pre-filled values are listed below; only two fields remain:
+
+- Legal name, mailing address (TX), 501(c)(3) status under §170(b)(1)(A)(vi) (Letter 947, effective Jan 14, 2026), EIN 41-3618003, UEI KDDVD1FGLW35, CAGE 209N1, SAM Active to May 6 2027, Secret-level clearance Active → **pre-filled below in Appendix F.2**.
+
+Still owed by Dr. Flood:
+
+1. **Year of TX incorporation** (TCAF entity formation date)
+2. **Number of staff / volunteers** (current head-count snapshot for the F.2 row)
+3. **3 professional references** for Appendix E (TCAF / Dr. Flood public-sector implementations)
+4. **Current Certificate of Insurance** for TCAF for Appendix G
+
+### 📋 Team-wide (Eric coordinates)
+
+- **Appendix C signature** — Eric signs Addendum #1 + Addendum #2 acknowledgments and dates
+- **Final WCAG audit cost decision** — absorb $8K–25K into the $45 PEPM Platform line *(current draft)* or surface as an Optional Pro Services line item
+- **Eric sign-off** on CPI-Medical 3.5%/yr cap (§11.4) and the 5% outperformance bonus + failure-to-perform forfeiture (§8.5)
+
+### Marker count
+
+Body of proposal: 40 → **27 remaining** {`{{ACTION REQUIRED}}`} markers after TCAF fills, all owner-tagged. See per-marker locations by searching the file for `ACTION REQUIRED —`.
+
 ---
 
 # Section 1 — Cover Letter
@@ -913,26 +998,26 @@ The official Sedgwick County Response Form for RFP #26-0028 is completed in the 
 | Field | HIS Response |
 |---|---|
 | Legal firm name | Hargrave Innovative Solutions |
-| DBA (if any) | *{{ACTION REQUIRED}}* |
-| Mailing address (street, city, state, ZIP) | *{{ACTION REQUIRED}}* |
-| State of incorporation / formation | *{{ACTION REQUIRED}}* (Mississippi indicated by 601 area code — confirm) |
+| DBA (if any) | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* |
+| Mailing address (street, city, state, ZIP) | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* |
+| State of incorporation / formation | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (Mississippi indicated by 601 area code — confirm) |
 | Authorized contact name | Eric Hargrave, Chief Executive Officer |
 | Authorized contact email | ericd@hisolution.org |
 | Authorized contact phone | 601-238-4186 |
-| Fax | *{{ACTION REQUIRED}}* (mark "N/A" if none) |
-| Website | *{{ACTION REQUIRED}}* |
-| Year established | *{{ACTION REQUIRED}}* |
-| Number of employees | *{{ACTION REQUIRED}}* |
-| Number of locations | *{{ACTION REQUIRED}}* |
-| Hours of operation | *{{ACTION REQUIRED}}* (typical: M–F 8:00a–5:00p CT unless otherwise specified) |
-| Business classification | *{{ACTION REQUIRED}}* (LLC / S-Corp / C-Corp / Sole Proprietorship / Partnership) |
-| Small business | *{{ACTION REQUIRED}}* (Y/N) |
-| Minority-owned business | *{{ACTION REQUIRED}}* (likely Y given principal — HIS to confirm) |
-| Woman-owned business | *{{ACTION REQUIRED}}* (Y/N) |
-| Veteran-owned business | *{{ACTION REQUIRED}}* (Y/N — Dr. Flood is a US Army retiree but he is a subcontractor principal; HIS itself must qualify separately on its own ownership) |
-| Registered to do business in Kansas | *{{ACTION REQUIRED}}* (Y/N — if N, HIS must register before contract award) |
+| Fax | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (mark "N/A" if none) |
+| Website | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* |
+| Year established | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* |
+| Number of employees | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* |
+| Number of locations | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* |
+| Hours of operation | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (typical: M–F 8:00a–5:00p CT unless otherwise specified) |
+| Business classification | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (LLC / S-Corp / C-Corp / Sole Proprietorship / Partnership) |
+| Small business | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (Y/N) |
+| Minority-owned business | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (likely Y given principal — HIS to confirm) |
+| Woman-owned business | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (Y/N) |
+| Veteran-owned business | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (Y/N — Dr. Flood is a US Army retiree but he is a subcontractor principal; HIS itself must qualify separately on its own ownership) |
+| Registered to do business in Kansas | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* (Y/N — if N, HIS must register before contract award) |
 | Insurance: KS-licensed carrier, AM Best A-VIII minimum | **YES** (per Section 11.2 commitment) |
-| UEI (Unique Entity Identifier from SAM.gov) | *{{ACTION REQUIRED}}* |
+| UEI (Unique Entity Identifier from SAM.gov) | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* |
 | Acknowledgment of Addendum #1 (issued May 4, 2026) | **YES** (checked) |
 | Acknowledgment of Addendum #2 (issued May 22, 2026) | **YES** (checked) |
 | Authorized signature | Eric Hargrave, CEO, HIS (wet or e-signature) |
@@ -954,12 +1039,12 @@ The following information is collected and held on file by HIS Prime for each na
 | Contact email | chelalove@loveclinicmedspa.com |
 | Contact phone | 316-669-4770 |
 | Website | www.loveclinicmedspa.com |
-| Year established | *{{ACTION REQUIRED}}* |
-| Number of employees | *{{ACTION REQUIRED}}* |
-| Business classification | *{{ACTION REQUIRED}}* |
-| Registered in Kansas | *{{ACTION REQUIRED}}* (Y/N — Kansas clinical practice strongly implies Yes; confirm) |
-| KS DNP license number (Dr. Love) | *{{ACTION REQUIRED}}* |
-| UEI (if registered in SAM.gov) | *{{ACTION REQUIRED}}* |
+| Year established | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
+| Number of employees | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
+| Business classification | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
+| Registered in Kansas | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* (Y/N — Kansas clinical practice strongly implies Yes; confirm) |
+| KS DNP license number (Dr. Love) | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
+| UEI (if registered in SAM.gov) | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
 
 **Vanntastic Solutions**
 
@@ -967,16 +1052,16 @@ The following information is collected and held on file by HIS Prime for each na
 |---|---|
 | Legal firm name | Vanntastic Solutions |
 | Principal | Dr. J. Michelle Vann, Dcc, ThD, MS |
-| Mailing address | *{{ACTION REQUIRED}}* (Wichita-area) |
-| Contact email | *{{ACTION REQUIRED}}* |
+| Mailing address | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* (Wichita-area) |
+| Contact email | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
 | Contact phone | 316-350-2601 |
 | Website | www.jmichellevann.com |
-| Year established | *{{ACTION REQUIRED}}* |
-| Number of employees / coaches | *{{ACTION REQUIRED}}* |
-| Business classification | *{{ACTION REQUIRED}}* |
-| Registered in Kansas | *{{ACTION REQUIRED}}* (Y/N) |
-| TEDx talk URL (referenced in §3.3) | *{{ACTION REQUIRED}}* |
-| UEI (if registered in SAM.gov) | *{{ACTION REQUIRED}}* |
+| Year established | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
+| Number of employees / coaches | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
+| Business classification | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
+| Registered in Kansas | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* (Y/N) |
+| TEDx talk URL (referenced in §3.3) | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
+| UEI (if registered in SAM.gov) | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
 
 **The COLLABORATIVE Advocate Foundation (TCAF)**
 
@@ -984,17 +1069,18 @@ The following information is collected and held on file by HIS Prime for each na
 |---|---|
 | Legal entity name | The COLLABORATIVE Advocate Foundation |
 | Principal | Dr. Terry D. Flood, DHA, EdD — President |
-| Mailing address | *{{ACTION REQUIRED}}* |
-| State of registration | *{{ACTION REQUIRED}}* |
+| Mailing address | 17912 Stefano Drive, Pflugerville, TX 78660-7020 c/o Terry D Flood Sr. |
+| State of registration | Texas |
 | Contact phone | 254-319-8460 |
-| Year established | *{{ACTION REQUIRED}}* |
-| 501(c)(3) status | *{{ACTION REQUIRED}}* (Y/N — if Y, EIN to be provided) |
-| Number of staff / volunteers | *{{ACTION REQUIRED}}* |
-| UEI (SAM.gov) | *{{ACTION REQUIRED}}* |
-| EIN | *{{ACTION REQUIRED}}* |
-| CAGE code (if registered) | *{{ACTION REQUIRED}}* |
-| SAM.gov registration status | *{{ACTION REQUIRED}}* |
-| Dr. Flood Secret-level clearance | *{{ACTION REQUIRED}}* (current status verification on file with HIS prior to submission) |
+| Contact email (institutional) | terryflood@thrivingcommunitiesforall.com |
+| Year established | *{{ACTION REQUIRED — TCAF / Dr. Flood}}* (date of TX incorporation) |
+| 501(c)(3) status | **YES — DETERMINED.** IRS Determination Letter 947, effective January 14, 2026; classified as a public charity under IRC §170(b)(1)(A)(vi). Name control THEC. FY ends December 31. |
+| Number of staff / volunteers | *{{ACTION REQUIRED — TCAF / Dr. Flood}}* |
+| UEI (SAM.gov) | KDDVD1FGLW35 |
+| EIN | 41-3618003 |
+| CAGE code | 209N1 |
+| SAM.gov registration status | **ACTIVE** through May 6, 2027 |
+| Dr. Flood Secret-level clearance | **ACTIVE** U.S. government Secret-level clearance (current status verification will be furnished to HIS in writing prior to submission) |
 
 ## Appendix G — Proof of Insurance
 
