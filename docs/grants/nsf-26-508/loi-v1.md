@@ -49,7 +49,7 @@
 5. Texas Manufacturing Assistance Center (TMAC) — advanced-manufacturing partner (NIST MEP-affiliated, hosted by UT Arlington)
 6. Texas A&M AgriLife Extension — USDA-NIFA-aligned rural/agricultural channel
 7. Texas Workforce Commission — public workforce system
-8. American Job Center operators (regions TBD) — public workforce delivery
+8. American Job Center operators — public workforce delivery (specific regional operators to be named at full proposal once confirmed)
 9. Texas Small Business Development Center network — small-business technology-adoption channel
 10. United Way of Greater Austin / United Way of Central Texas — community-coordination backbone
 

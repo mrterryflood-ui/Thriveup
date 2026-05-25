@@ -44,7 +44,7 @@ Dr. Terry D. Flood, DHA — President, TCAF
 5. Texas Manufacturing Assistance Center (TMAC)
 6. Texas A&M AgriLife Extension
 7. Texas Workforce Commission
-8. American Job Center operators (regions TBD)
+8. American Job Center operators
 9. Texas Small Business Development Center network
 10. United Way of Greater Austin / United Way of Central Texas
 
