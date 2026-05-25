@@ -2,13 +2,18 @@
 
 ## A Neuroscience-Informed Cycle-Breaking Intervention for Parents Under 26
 
-**Submitting Entity:** **M&T Consulting Solutions LLC** (for-profit; user-confirmed 2026-05-25 the entity is real). This is on the for-profit/ISS-LLC side of the Flood/Sisnett operating portfolio — NOT TCAF.
-**Platform delivered:** **BirthRight** (yourhealthbirthright.net) — the maternal health platform within the ThriveUp/TCAF ecosystem (user-clarified 2026-05-25: BirthRight is a platform, not its own legal entity).
-**PI:** Dr. Terry D. Flood, DHA (CEO, M&T Consulting Solutions LLC) — user-confirmed 2026-05-25.
-**Principals:** Dr. Flood, CEO · Meredith Sisnett, CGO (per `replit.md` constitutional rule, CEO title is correct on this for-profit side; President is TCAF-only).
-**Tracker home:** `docs/grants/MASTER-GRANTS-TRACKER-ISSLLC.md` (separate from TCAF tracker per user direction 2026-05-25)
-**Tracked added:** 2026-05-25
-**Status:** TRACKING — pre-Solution-Summary phase. Concept paper drafted (see `01-concept-paper.md`); funding lattice mapped across 7 tiers / 27 opportunities (see `02-funding-lattice-7-tiers.md`).
+**Submission structure (user-confirmed 2026-05-25 R8):** **TCAF prime / M&T sub.**
+- **Prime:** The Collaborative Advocate Foundation (TCAF), 501(c)(3), UEI KDDVD1FGLW35, CAGE 209N1, EIN 41-3618003, SAM-active through 2027-05-06. Dr. Flood = **President** (TCAF title; CEO reserved for M&T/ISS-LLC).
+- **Sub-awardee:** M&T Consulting Solutions LLC, UEI NLAWXBLCUW54, CAGE 1NDG6, Pflugerville TX. Operator of the **BirthRight** platform (3,009 providers, Rhonda AI). Dr. Flood = CEO at M&T.
+- **Sub-awardee (in negotiation):** Dell Medical School / UT School of Public Health — academic evaluation partner.
+- **Consultant:** National Center on Shaken Baby Syndrome — clinical-standards fidelity.
+- **POCs:** Tech POC Dr. Flood (terryflood@thrivingcommunitiesforall.com) · Admin POC Meredith Sisnett (msisnett@thrivingcommunitiesforall.com).
+- **Two-entity firewall** preserved per Iron Rule + capabilities-inventory governance: arms-length sub-award, separate cost accounting, no co-mingling.
+
+**Reframe (user-confirmed 2026-05-25 R8, post-actual-SOL ingestion):** Submission is a **novel-technology platform** — PFC-window risk-detection AI + moment-of-stress prophylactic intervention + CPS-linked predictive surrogate — with the "It's No Longer About You" curriculum as ONE downstream deliverable inside the platform. This framing clears the Section 2.1 "traditional education and training" exclusion. Three new-build commitments: parent-cohort risk model, moment-of-stress passive-signal detector, CPS-linkage validation pipeline.
+
+**Tracker home:** `docs/grants/MASTER-GRANTS-TRACKER-ISSLLC.md` (cross-reference; this pursuit is now TCAF-prime so also referenced from main TCAF tracker)
+**Status:** **SOLUTION SUMMARY DRAFT COMPLETE 2026-05-25 R8** — `05-solution-summary.md` rewritten to exact Appendix A 5-section template (Cover + Concept + Innovation/Impact + Proposed Work + Team + BOE), 2,894 body words (within 6-page hard limit at 11pt sans serif), $5.475M Base + $2.15M Option = $7.625M total, 24+12 mo duration. Ready for final user review → submit via https://solutions.arpa-h.gov/Submit-Solution/. No deadline pressure (rolling, closes March 5, 2029).
 
 ---
 

@@ -12,13 +12,28 @@ import { useAuth } from "@/hooks/use-auth";
 // partners-join.tsx). Prior implementation used an allowlist of "safe" paths
 // which silently bounced Eric (and every other signed-in user without an org)
 // off the landing page, dashboard, and every other surface on every click.
+// Verified against client/src/App.tsx route definitions + server requireOrg
+// middleware (rg "requireOrg" server/) on 2026-05-25. Keep this list in sync
+// when adding new org-scoped pages; the queryClient ORG_REQUIRED 404 guard is
+// the backstop if a route is missed here.
 const REQUIRES_ORG_PREFIXES = [
-  "/rfp-writer",
+  "/grant-narrative",
   "/my-grants",
+  "/won-proposals",
+  "/rfp-fidelity",
+  "/proposal-command",
+  "/proposal-pipeline",
   "/settings/organization",
   "/settings/documents",
-  "/proposals",
 ];
+
+// Special-case: /grants/:grantId/compliance requires an org, but the bare
+// /grants hub and other /grants/* viewers do not. Match the compliance suffix.
+function pathRequiresOrg(location: string): boolean {
+  if (REQUIRES_ORG_PREFIXES.some((p) => location.startsWith(p))) return true;
+  if (/^\/grants\/[^/]+\/compliance(\/|$)/.test(location)) return true;
+  return false;
+}
 
 interface OrgQuery {
   organization: { id: string } | null;
@@ -46,8 +61,7 @@ export function OrgRedirectGuard() {
     if (!isSuccess) return;
     if (data?.organization) return;
 
-    const requiresOrg = REQUIRES_ORG_PREFIXES.some((p) => location.startsWith(p));
-    if (!requiresOrg) return;
+    if (!pathRequiresOrg(location)) return;
 
     setLocation("/onboarding/org");
   }, [authLoading, orgLoading, isAuthenticated, isSuccess, data, location, setLocation]);
