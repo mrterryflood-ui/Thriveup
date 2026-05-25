@@ -2,9 +2,11 @@
 
 ## A Neuroscience-Informed Cycle-Breaking Intervention for Parents Under 26
 
-**Submitting Entity:** M&T Strategic Solutions / BirthRight (yourhealthbirthright.net) — NOT TCAF. This is on the for-profit/ISS-LLC side of the Flood/Sisnett operating portfolio. Per `replit.md` constitutional preference, Dr. Flood uses **CEO** title here (President is TCAF-only).
-
-**Principals:** Dr. Terry Flood, CEO · Meredith Sisnett, CGO
+**Submitting Entity:** **M&T Strategic Solutions** (for-profit; user-confirmed 2026-05-25 the entity is real). This is on the for-profit/ISS-LLC side of the Flood/Sisnett operating portfolio — NOT TCAF.
+**Platform delivered:** **BirthRight** (yourhealthbirthright.net) — the maternal health platform within the ThriveUp/TCAF ecosystem (user-clarified 2026-05-25: BirthRight is a platform, not its own legal entity).
+**PI:** Dr. Terry D. Flood, DHA (CEO, M&T Strategic Solutions) — user-confirmed 2026-05-25.
+**Principals:** Dr. Flood, CEO · Meredith Sisnett, CGO (per `replit.md` constitutional rule, CEO title is correct on this for-profit side; President is TCAF-only).
+**Tracker home:** `docs/grants/MASTER-GRANTS-TRACKER-ISSLLC.md` (separate from TCAF tracker per user direction 2026-05-25)
 **Tracked added:** 2026-05-25
 **Status:** TRACKING — pre-Solution-Summary phase. Concept paper drafted (see `01-concept-paper.md`); funding lattice mapped across 7 tiers / 27 opportunities (see `02-funding-lattice-7-tiers.md`).
 
@@ -58,16 +60,19 @@ Primary sources cited in the concept paper Appendix A — verifiable.
 
 ---
 
-## Open verification items (Iron Rule #2 — must close before any Solution Summary submission)
+## Verification ledger (Iron Rule #2)
 
-These are NOT optional. ARPA-H Solution Summaries that misstate entity/eligibility get screened out at intake.
+### Closed by user 2026-05-25
+- ✅ **M&T Strategic Solutions exists as a real entity.** Submitter identity confirmed. (NOTE: "exists as entity" ≠ "SAM.gov registered" — still need to verify SAM/UEI/CAGE before federal submission; see open items below.)
+- ✅ **BirthRight is the maternal health platform within the TCAF/ThriveUp ecosystem.** Not its own legal entity. Operational relationship: M&T Strategic Solutions submits; BirthRight is the platform deliverable; ThriveUp/TCAF ecosystem provides infrastructure context.
+- ✅ **Dr. Flood is PI** on the M&T/BirthRight ARPA-H pursuit. Confirmed.
 
-1. **M&T Strategic Solutions — entity status.** Is it a registered legal entity (TX SOS), and does it have SAM.gov registration / UEI / CAGE? Or is "M&T Strategic Solutions" a working name? Concept paper attributes submission to "M&T Strategic Solutions / BirthRight" — both need entity verification before ARPA-H can contract.
-2. **BirthRight — entity status.** Same questions. Is BirthRight a DBA of M&T Strategic Solutions, an LLC, or a TCAF program? The website yourhealthbirthright.net implies a product but the legal entity behind it determines who signs the OT/SBIR.
-3. **SBIR eligibility for #2 (Topic 1 Women's Health):** SBIR requires (a) small business <500 employees, (b) >50% US-owned and US-located, (c) PI >50% employed by the small business at time of award. Dr. Flood is PI in the concept paper but is also TCAF President. **PI effort allocation needs to be modeled before SBIR submit** — Flood cannot exceed 100% effort across TCAF + BirthRight + M&T + other roles, and must be >50% with the SBIR-submitting entity. This is a hard SBIR rule, not negotiable.
-4. **Cost-share / match obligations.** Many Tier 2 federal programs (CBCAP 20% non-federal, Title IV-B / PSSF 25% state) carry match requirements. Sources of match need to be identified before claims are made about full funding stack.
-5. **Title IV-E Prevention Services Clearinghouse evaluation design.** Listing requires a study meeting Clearinghouse standards (well-supported / supported / promising tiers each have specific evidence requirements). **Engaging a Clearinghouse pre-consultant before evaluation design is locked** is concept paper §11 step 5 — that's correctly flagged; treat it as a prerequisite to any large-N pilot start.
-6. **Concept paper claim audit.** Every statistic in §2-§4 needs to be re-verified against the cited source (NCANDS Child Maltreatment 2022, CDC ACE study, American SPCC, National Children's Alliance) before any of those numbers go into a federally-submitted Solution Summary. Numbers in the concept paper appear consistent with public reporting; verify once formally.
+### Still open — must close before any Solution Summary submission
+1. **M&T Strategic Solutions SAM.gov / UEI / CAGE status.** Entity exists per user, but federal-submission readiness requires active SAM registration. Verify current SAM status, UEI, CAGE code. If not registered, registration takes weeks — schedule accordingly.
+2. **SBIR Topic 1 small-business eligibility (only matters for Tier 1 #2 — the 2026-07-10 Solution Summary).** Three hard SBA rules: (a) M&T <500 employees, (b) >50% US-owned, (c) PI >50% employed by M&T at time of award. Items (a) and (b) are likely yes — formally confirm. Item (c) — Dr. Flood is PI but also TCAF President and holds other portfolio roles; PI-effort allocation must be modeled to confirm >50% with M&T is achievable. If not, drop SBIR (#2) and focus on the three rolling ARPA-H ISOs (#1, #3, #4), which do not carry the >50% rule.
+3. **Cost-share / match obligations on downstream Tier 2.** CBCAP 20% non-federal, Title IV-B/PSSF 25% state. Identify match sources before claiming full funding stack in any future proposal.
+4. **Title IV-E Prevention Services Clearinghouse evaluation design.** Engage Clearinghouse pre-consultant before evaluation design locks (concept paper §11 step 5). Prerequisite for any large-N pilot start that intends Clearinghouse listing.
+5. **Concept paper statistic audit.** Every number in §2-§4 must be re-verified against cited primary sources (NCANDS Child Maltreatment 2022, CDC ACE study, American SPCC, National Children's Alliance) before going into a federally-submitted Solution Summary. Numbers appear consistent with public reporting; verify once formally with quoted passages.
 
 ---
 

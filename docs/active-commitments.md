@@ -2262,9 +2262,14 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 **Second-line target:** ARPA-H 2026 SBIR/STTR Topic 1 Women's Health — Solution Summary due **2026-07-10**, full proposal **2026-09-09** (only if SBIR eligibility verifies)
 **Watch:** ARPA-H Scalable Solutions Office ISO (SOL-24-105) and Resilient Systems Office ISO (SOL-24-103), both rolling
 
-**HARD BLOCKERS (must close before any submission):**
-1. M&T Strategic Solutions entity / SAM.gov / UEI status — UNKNOWN
-2. BirthRight entity status (DBA? LLC? TCAF program?) — UNKNOWN
-3. SBIR PI-effort allocation for Dr. Flood (>50% with submitting entity is required) — UNVERIFIED
+**Tracker home:** `docs/grants/MASTER-GRANTS-TRACKER-ISSLLC.md` (separate from TCAF tracker per user 2026-05-25)
 
-Until items 1-3 close, no Solution Summary submission can responsibly proceed. Tracking the pursuit; not drafting Solution Summary content until entity verification done.
+**CLOSED by user 2026-05-25:**
+- ✅ M&T Strategic Solutions is a real entity (submitter confirmed)
+- ✅ BirthRight is the maternal health platform within the TCAF/ThriveUp ecosystem (not its own legal entity)
+- ✅ Dr. Flood is PI
+
+**STILL OPEN (must close before any submission):**
+1. M&T Strategic Solutions SAM.gov / UEI / CAGE status — entity exists ≠ SAM-registered; verify before federal submission (registration takes weeks if not already done)
+2. SBIR Topic 1 PI-effort: Dr. Flood >50% employed by M&T at time of award (only matters for Tier 1 #2 — the 2026-07-10 SBIR Solution Summary). If <50% achievable, drop SBIR and focus on three rolling ARPA-H ISOs.
+3. Concept-paper statistic audit against primary sources before any number goes into a federal submission.
