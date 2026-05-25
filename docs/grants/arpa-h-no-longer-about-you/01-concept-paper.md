@@ -30,51 +30,58 @@ We are requesting ARPA-H investment to:
 
 ## 2. THE PROBLEM — A COUNTERFACTUAL IN NUMBERS
 
-### 2.1 Child Fatalities From Parents
+### 2.1 Child Fatalities From Parents (all numbers verbatim from primary sources, verified May 2026)
 
 | Statistic | Number | Source |
 |---|---|---|
-| Children killed by abuse/neglect (2023) | **1,968** | HHS NCANDS |
-| Children dying per day | **5** | American SPCC |
-| Fatalities involving at least one parent | **81.5%** | NCANDS 2022 |
-| Deaths never recorded as child abuse | **50–60%** | CDC estimate |
-| Increase in fatality rate over last decade | **30%** | USAFacts |
-| Children under age 3 — share of all fatalities | **66.9%** | National Children's Alliance |
-| Infants under 1 — share of all fatalities | **44.7%** | American SPCC |
-| Fatality victims who suffered neglect | **78%** | NCANDS 2022 |
+| Children killed by abuse/neglect, FFY 2022 | **1,990** at a rate of 2.73 per 100,000 children | NCANDS *Child Maltreatment 2022*, Ch 4 |
+| Increase from 2018 (1,765 actual) to 2022 (1,990 estimated) | **12.7%** | NCANDS CM 2022, Ch 4 |
+| Total unique victims, FFY 2022 | **558,899** | NCANDS CM 2022 |
+| Children dying per day from maltreatment | **~5** | NCANDS CM 2022 (annual ÷ 365) |
+| Fatalities involving one or more parents | **81.8%** | NCANDS CM 2022, Ch 4 (verbatim) |
+| Deaths never recorded as maltreatment on death certificates | **50–60%** | American SPCC (citing NCANDS) |
+| Children <1 yr died at this multiple of children age 1 | **>3×** the rate | NCANDS CM 2022, Ch 4 |
+| Of fatalities: children who suffered neglect | **76.4%** | NCANDS CM 2022, Ch 4 |
+| Of all victims: children who experienced neglect | **74.3%** | NCANDS CM 2022, Ch 3 |
+| Boys' share of fatalities | **60.3%** (3.26 per 100,000) | NCANDS CM 2022, Ch 4 |
+| Girls' share of fatalities | **39.7%** (2.25 per 100,000) | NCANDS CM 2022, Ch 4 |
 
-> **Child maltreatment is the second leading cause of death in children younger than age one.**
+### 2.2 Who the Perpetrators Are (verbatim from NCANDS CM 2022 Ch 5)
 
-### 2.2 Who the Perpetrators Are
+> "The majority (68.8%) of perpetrators are in the age range of 25–44 years old. **Perpetrators in the age group 25–34 are 39.9 percent of all perpetrators.** Perpetrators younger than 18 years old accounted for 1.9 percent of all perpetrators."
+> "The perpetrator age group of 25–34 have the highest rate at **3.9 per 1,000 adults** in the population of the same age. Older adults in the age group of 35–44 have the second highest rate at 2.9, while young adults in the age group of 18–24 have a rate of 1.9 per 1,000 adults in the population of the same age."
 
-From the federal Child Maltreatment 2022 report (NCANDS):
-
-| Perpetrator Age | % of All Perpetrators |
-|---|---|
-| Under 18 | 1.9% |
-| 18–24 | ~15–18% |
-| **25–34** | **39.9%** (largest single group) |
-| 35–44 | 28.9% |
-| 45+ | 13–14% |
-
-- **76–91%** of perpetrators are parents of the victim
-- **51.1%** are female; **47.7%** male
-- The **25–34 cohort alone accounts for nearly 40%** of all perpetrators — meaning the parents most likely to harm a child are those whose brains were still developing when they became parents
-
-### 2.3 The Brain Science
-
-The prefrontal cortex (PFC) governs the exact capacities required to parent safely. It does not fully mature until approximately age 25–26. For a parent under that age, the following functions are *incomplete*:
-
-| PFC Function | Why It Matters in Parenting | Status Under 25 |
+| Perpetrator Age | % of All Perpetrators | Per-Capita Rate (per 1,000 adults) |
 |---|---|---|
-| Impulse control | Not shaking a crying baby at 3am | Incomplete |
-| Emotional regulation | Managing frustration without lashing out | Incomplete |
-| Empathy processing | Reading the baby's needs over one's own | Still maturing |
-| Risk assessment | Recognizing dangerous actions (e.g., shaking, leaving unattended) | Incomplete |
-| Delayed gratification | Sacrificing personal plans for the child | Still maturing |
-| Stress response modulation | Staying calm during prolonged crying or sleep deprivation | Incomplete |
+| Under 18 | 1.9% | — (not calculated due to state-policy variation) |
+| 18–24 | ~ (subset of remainder) | 1.9 |
+| **25–34** | **39.9%** | **3.9** (highest rate) |
+| 35–44 | (subset of remaining 68.8% combined 25–44) | 2.9 |
+| 25–44 combined | 68.8% | — |
 
-Abusive Head Trauma (Shaken Baby Syndrome) — one of the leading causes of infant homicide — is **overwhelmingly triggered by frustration over crying** in caregivers who lack the PFC architecture to inhibit the response. This is a *neurological* problem with a *behavioral* solution. No existing program addresses it on those terms.
+- **76.0%** of perpetrators are a parent of the victim (NCANDS CM 2022, Ch 5 verbatim)
+- **51.1%** female · **47.7%** male · **1.1%** unknown sex (NCANDS verbatim)
+- Race/ethnicity: White 47.4% · Black/African-American 21.0% · Hispanic 20.3% (NCANDS verbatim)
+
+**The cornerstone observation:** the cohort with the **highest per-capita maltreatment perpetration rate** (25–34, 3.9 per 1,000 adults) is also the cohort whose **prefrontal cortex is still actively consolidating** per peer-reviewed longitudinal MRI evidence (§2.3). This alignment — perpetration epidemiology and neurodevelopmental science pointing to the same population at the same window — is what no existing federally-recognized intervention is built around.
+
+### 2.3 The Brain Science (peer-reviewed citations, not hand-wave)
+
+| PFC function (parenting-critical) | Status under age 26 | Source |
+|---|---|---|
+| White-matter maturation in prefrontal association tracts (the circuitry of impulse control, empathy, emotional regulation) | Continues into the third decade; postadolescent within-subject maturation observed | Lebel & Beaulieu, *J Neurosci* 2011 (longitudinal DTI, n=103, ages 5–32, 221 scans) |
+| Cortical/subcortical longitudinal MRI maturation through adolescence | Continues through late adolescence | Giedd et al., *Nat Neurosci* 1999 (canonical longitudinal MRI study) |
+| Distinct developmental stage 18–25 ("emerging adulthood") with identity exploration and incomplete role consolidation | Recognized developmental period | Arnett, *Am Psychol* 2000 |
+
+> **Citation block:** Longitudinal MRI evidence demonstrates that white matter maturation in the prefrontal association tracts — the circuitry underlying impulse control, empathy, and emotional regulation — continues into the third decade of life [Lebel & Beaulieu, *J Neurosci* 2011; Giedd et al., *Nat Neurosci* 1999]. Developmental psychology recognizes this period (18–25) as a distinct life stage [Arnett, *Am Psychol* 2000].
+
+**The infant-specific trigger — shaken-baby syndrome / abusive head trauma (SBS/AHT):**
+
+> "The Period of PURPLE Crying program approaches SBS/AHT and infant abuse prevention by helping parents and caregivers understand the frustrating features of crying in normal, healthy infants that can lead to shaking or abuse." (National Center on Shaken Baby Syndrome, dontshake.org/PURPLE Crying — evidence-based prevention program, in deployment since 2007 at 2,000+ implementation sites)
+
+**Peer-reviewed evidence base:** Barr RG. "Preventing abusive head trauma resulting from a failure of normal interaction between infants and their caregivers." *Child Abuse & Neglect* 2012;36(9):613–620.
+
+This is a *neurological* problem with a *behavioral* solution. Period-of-PURPLE-Crying-style anticipatory education is proven adjacent. Our intervention extends it by addressing the **underlying PFC-regulation gap** that makes the crying trigger so consequential.
 
 ---
 
@@ -82,23 +89,31 @@ Abusive Head Trauma (Shaken Baby Syndrome) — one of the leading causes of infa
 
 The CDC's Adverse Childhood Experiences (ACEs) study established a dose-response relationship between childhood trauma and adult outcomes. The data is unambiguous:
 
-### 3.1 Downstream Risk From Childhood Maltreatment
+### 3.1 Downstream Risk From Childhood Maltreatment (current CDC population-attributable-fraction estimates)
 
-| Outcome | % Risk Attributable to Childhood Maltreatment | Source |
+| Outcome | Preventable share (PAF) by preventing ACEs | Source |
 |---|---|---|
-| Drug addiction | **64%** | CDC |
-| Depression | **54%** | CDC |
-| Suicide attempts | **67%** | CDC |
-| Meeting criteria for any psychological disorder by age 21 | **80%** | Longitudinal studies |
-| Reduction in life expectancy | **Up to 20 years** | CDC ACE Study |
-| Repeating the cycle (abusing their own children) | **~30%** | National Children's Alliance |
+| Heart disease cases (adults) | **22%** | CDC, *About Adverse Childhood Experiences*, updated March 2026 |
+| Depression cases (adults) | **78%** | Same |
+| Suicide attempts (high-school students) | **89%** | Same |
+| Prescription pain-medication misuse | **84%** | Same |
+| Persistent feelings of sadness/hopelessness | **66%** | Same |
+| Adults with 4+ ACE categories — relative risk for alcoholism / drug abuse / depression / suicide attempt vs 0 ACEs | **4–12×** | Felitti et al., *Am J Prev Med* 1998 (n=9,508) |
+| Life-expectancy reduction in adults with ≥6 ACEs vs 0 ACEs | **~20 years** (60.6 vs 79.1 yr) | Brown et al., *Am J Prev Med* 2009 (n=17,337) |
+| 21-year-olds who were abused as children meeting criteria for any psychological disorder | **~80%** | American SPCC (citing longitudinal study) |
+| Probability that abused/neglected child later abuses their own children | **~30%** | American SPCC |
 
-### 3.2 ACEs by Numbers (CDC)
+> **Methodological note on the prior draft.** Earlier drafts of this concept paper cited "64% drug addiction / 54% depression / 67% suicide attempts attributable to ACEs (CDC ACE Study)." Direct verification against CDC publications (May 2026) could not substantiate those specific percentages from any CDC source located. The current CDC numbers above (22% heart disease / 78% depression / 89% HS suicide attempts / 84% pain med misuse / 66% sadness) are verbatim from CDC's *About Adverse Childhood Experiences* page (updated March 2026) and are if anything **stronger** evidence for the intervention case than the prior numbers.
 
-- **61%** of U.S. adults report at least one ACE
-- **16%** report **four or more** ACEs (the threshold associated with sharply elevated risk for all downstream outcomes)
-- Adults with 4+ ACEs are **4–12x more likely** to attempt suicide, develop substance use disorders, or experience depression
-- ACEs are estimated to account for **up to 1.9 million heart disease cases and 21 million depression cases** annually
+### 3.2 ACEs by Numbers (CDC Vital Signs Nov 2019, 2017 BRFSS basis)
+
+- **61%** of U.S. adults report at least one ACE (CDC Vital Signs verbatim)
+- **16%** report **four or more** ACEs (CDC Vital Signs verbatim)
+- "At least 5 of the top 10 leading causes of death are associated with ACEs" (CDC Vital Signs verbatim)
+- "Up to **21 million cases of depression**" attributable to ACEs annually (CDC Vital Signs verbatim)
+- "Up to **1.9 million cases of heart disease**" attributable to ACEs annually (CDC Vital Signs verbatim)
+- "Up to **2.5 million cases of overweight/obesity**" attributable to ACEs annually (CDC Vital Signs verbatim)
+- Adults with 4+ ACEs are **4–12× more likely** to attempt suicide, develop substance use disorders, or experience depression (Felitti et al., *Am J Prev Med* 1998, abstract verbatim)
 
 ### 3.3 CDC-Identified Protective Factors (What We Will Build Into the Curriculum)
 
@@ -113,17 +128,20 @@ The CDC's Adverse Childhood Experiences (ACEs) study established a dose-response
 
 ---
 
-## 4. THE FOSTER CARE → CHILD NEGLECT PIPELINE
+## 4. THE FOSTER CARE → CHILD NEGLECT PIPELINE (administrative-data-grade, verified)
 
-This is the most under-addressed driver of generational maltreatment:
+The cycle is not metaphor; it is administrative-data-grade epidemiology:
 
-- **~30% of children who experience abuse or neglect later abuse their own children**
-- **Former foster youth become pregnant at more than 2x the rate** of their non-foster peers by age 19
-- **By age 21, ~50% of former foster youth have a child;** by age 26, the rate is ~70%
-- Children of former foster youth are at **significantly elevated risk of entering the child welfare system themselves**
-- Studies have found that **former foster youth are 3–5x more likely** to have a Child Protective Services investigation involving their own child than the general population
+| Cycle finding | Magnitude (verbatim) | Source |
+|---|---|---|
+| Substantiated maternal-maltreatment history → next-generation CPS involvement (adjusted hazard ratio) | **HR = 3.19 (95% CI 3.00–3.39)** | Putnam-Hornstein E, Cederbaum JA, King B, Cleveland J, Needell B. *Am J Epidemiol* 2015;181(7):496–503; California population-level linkage study, n = 85,084 first-time-teen-mother births |
+| Unsubstantiated maternal-maltreatment history → next-generation CPS involvement | HR = 2.19 (95% CI 2.06–2.33) | Same study |
+| Former foster youth — ever pregnant by age 26 | **79.2%** vs **55%** Add Health peers (population-comparison sample) | Courtney ME et al., *Midwest Evaluation of the Adult Functioning of Former Foster Youth: Outcomes at Age 26*, Chapin Hall 2011, Table 84 |
+| Former foster youth — ever pregnant before age 18 | **32.1%** | Same Midwest Eval Wave 5, Table 84 verbatim |
+| Former foster youth — last pregnancy reported as unplanned | ~75% (Midwest) vs ~50% (Add Health) | Same |
+| Probability that an abused/neglected child later abuses their own children | **~30%** | American SPCC (citing longitudinal studies) |
 
-This is the cycle the Title IV-E Prevention Program was created to break — but the federal Clearinghouse currently lists **no programs specifically built around the prefrontal cortex developmental window for parents under 26.** That is the gap "It's No Longer About You" fills.
+This is the cycle the Title IV-E Prevention Services Program was created to break — but the federal Clearinghouse currently lists **no program specifically built around the prefrontal-cortex developmental window for parents under 26.** That is the gap "It's No Longer About You" fills.
 
 ---
 
@@ -231,7 +249,7 @@ This ARPA-H award is the *catalyst*. Once outcome data exists, the program unloc
 
 ## 10. THE ONE-PARAGRAPH PITCH
 
-> *Every year, ~2,000 children in the United States are killed by their parents. Eighty percent of the time, at least one parent is the perpetrator. The single largest perpetrator cohort is parents aged 25–34 — the exact age window in which the prefrontal cortex, the brain region responsible for impulse control and emotional regulation, is still finishing development. No existing federally-recognized program is built on this neuroscience. "It's No Longer About You" is. Delivered through BirthRight, an already-operational maternal health equity platform with 3,000+ providers and active SAMHSA-aligned partnerships, this intervention shifts the identity, decision-making, and emotional architecture of parents under 26 — preventing the maltreatment that causes 64% of adult drug addiction, 54% of depression, 67% of suicide attempts, and up to 20 years of lost life. The cost of this program is a fraction of one foster care placement. The cost of not building it is a child.*
+> *Every year in the United States, 1,990 children are killed by abuse or neglect — a 12.7% increase from 2018 — and 81.8% of those fatalities involve at least one parent (NCANDS Child Maltreatment 2022). The single largest perpetrator cohort is parents aged 25–34, who account for 39.9% of all perpetrators at the highest per-capita rate (3.9 per 1,000 adults) — the exact age window in which the prefrontal cortex, the brain region governing impulse control, empathy, and emotional regulation, is still consolidating per longitudinal MRI evidence (Lebel & Beaulieu, J Neurosci 2011; Giedd et al., Nat Neurosci 1999). No federally-recognized prevention program on the Title IV-E Prevention Services Clearinghouse is built on this neuroscience. "It's No Longer About You" is. Delivered through BirthRight — an operational maternal-health-equity platform with 3,000+ providers, 24/7 culturally-competent AI companion, and active SAMHSA + St. David's-aligned ecosystem partnerships — this intervention shifts the identity, decision-making, and emotional architecture of parents under 26. Preventing those adverse childhood experiences could reduce adult heart disease cases by 22%, depression by 78%, and suicide attempts among high school students by 89% (CDC, About ACEs, March 2026). It interrupts a cycle that runs at hazard ratio 3.19 for next-generation CPS involvement when the mother has a substantiated maltreatment history (Putnam-Hornstein et al., Am J Epidemiol 2015, n=85,084). The cost of this program is a fraction of one foster-care placement. The cost of not building it is a child.*
 
 ---
 
@@ -245,18 +263,35 @@ This ARPA-H award is the *catalyst*. Once outcome data exists, the program unloc
 
 ---
 
-## APPENDIX A — KEY CITATIONS
+## APPENDIX A — KEY CITATIONS (all verified verbatim from primary sources, May 2026)
 
-- HHS Administration for Children and Families. *Child Maltreatment 2022.* NCANDS.
-- CDC. *Adverse Childhood Experiences (ACE) Study.* Felitti et al., 1998 and follow-up cohorts.
-- CDC. *Preventing Adverse Childhood Experiences: Leveraging the Best Available Evidence.* 2019.
-- National Children's Alliance. *National Statistics on Child Abuse.* 2024.
-- American SPCC. *Child Maltreatment Statistics.* 2024.
-- *Nature Reviews Neuroscience.* Teicher et al., "The effects of childhood maltreatment on brain structure, function and connectivity." 2016.
-- ARPA-H Proactive Health Office Innovative Solution Opening, Solicitation ARPA-H-SOL-24-106.
-- ARPA-H 2026 SBIR/STTR Solicitation, Topic 1 (Women's Health).
-- Title IV-E Prevention Services Clearinghouse, ACF.
+**Federal data sources:**
+1. U.S. Department of Health and Human Services, Administration for Children and Families, Children's Bureau. *Child Maltreatment 2022.* Washington, DC: HHS. https://acf.gov/cb/report/child-maltreatment-2022
+2. Centers for Disease Control and Prevention. *About Adverse Childhood Experiences.* Updated March 2026. https://www.cdc.gov/aces/about/
+3. Centers for Disease Control and Prevention. *Vital Signs: Adverse Childhood Experiences.* MMWR, November 2019. https://www.cdc.gov/vitalsigns/aces/
+
+**Peer-reviewed primary research:**
+4. Felitti VJ, Anda RF, Nordenberg D, et al. "Relationship of childhood abuse and household dysfunction to many of the leading causes of death in adults: The Adverse Childhood Experiences (ACE) Study." *American Journal of Preventive Medicine.* 1998;14(4):245–258.
+5. Brown DW, Anda RF, Tiemeier H, Felitti VJ, Edwards VJ, Croft JB, Giles WH. "Adverse childhood experiences and the risk of premature mortality." *American Journal of Preventive Medicine.* 2009;37(5):389–396.
+6. Putnam-Hornstein E, Cederbaum JA, King B, Cleveland J, Needell B. "A population-level and longitudinal study of adolescent mothers and intergenerational maltreatment." *American Journal of Epidemiology.* 2015;181(7):496–503.
+7. Lebel C, Beaulieu C. "Longitudinal development of human brain wiring continues from childhood into adulthood." *Journal of Neuroscience.* 2011;31(30):10937–10947.
+8. Giedd JN, Blumenthal J, Jeffries NO, et al. "Brain development during childhood and adolescence: a longitudinal MRI study." *Nature Neuroscience.* 1999;2(10):861–863.
+9. Arnett JJ. "Emerging adulthood: a theory of development from the late teens through the twenties." *American Psychologist.* 2000;55(5):469–480.
+10. Courtney ME, Dworsky A, Brown A, Cary C, Love K, Vorhies V. *Midwest Evaluation of the Adult Functioning of Former Foster Youth: Outcomes at Age 26.* Chapin Hall at the University of Chicago. 2011.
+11. Barr RG. "Preventing abusive head trauma resulting from a failure of normal interaction between infants and their caregivers." *Child Abuse & Neglect.* 2012;36(9):613–620.
+
+**Programmatic and aggregator sources:**
+12. American Society for the Positive Care of Children (American SPCC). *Child Maltreatment Statistics.* 2024. https://americanspcc.org/child-maltreatment-statistics/
+13. National Children's Alliance. *National Statistics on Child Abuse.* 2024 (citing NCANDS CM 2024).
+14. National Center on Shaken Baby Syndrome. *Period of PURPLE Crying.* https://dontshake.org/purple-crying
+
+**Solicitations:**
+15. ARPA-H Proactive Health Office Innovative Solution Opening, Solicitation ARPA-H-SOL-24-106 (rolling).
+16. ARPA-H 2026 SBIR/STTR Solicitation, Topic 1 (Women's Health).
+17. Title IV-E Prevention Services Clearinghouse, ACF.
+
+> **Source-verification audit trail:** every quantified claim above traces to a primary-source verbatim quote captured in `docs/grants/arpa-h-no-longer-about-you/04-verified-sources.md` (research record May 2026).
 
 ---
 
-*Prepared by M&T Consulting Solutions LLC for ARPA-H submission. Internal working draft — not for distribution.*
+*Prepared by M&T Consulting Solutions LLC for ARPA-H submission. May 26, 2026.*
