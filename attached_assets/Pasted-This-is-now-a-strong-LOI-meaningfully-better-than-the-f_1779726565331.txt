@@ -1,0 +1,23 @@
+This is now a strong LOI — meaningfully better than the first draft. Here's the honest read:
+
+**What's fixed and working**
+
+The Navigator description is now concrete and differentiated. "Dialect-aware multilingual access" is a smart Texas-specific detail that signals you understand the state's demographics. The Chainweb pipeline description gives reviewers something real to evaluate technically. Partner roster is now fully named, covers all five priority sectors, and the HBCUs inclusion (Huston-Tillotson) adds equity breadth that aligns with NSF's broader impacts criteria. Pecan Street Inc. is an excellent energy-sector choice — genuinely distinctive. The governance paragraph directly addresses the neutrality question before a reviewer can raise it, which is exactly right.
+
+**Remaining issues, in priority order**
+
+The Strategic Plan description is the weakest paragraph. You describe the *method* (Chainweb + implementation science constructs) but not the *output*. What does the plan actually produce? Who owns it? How does it get updated? NSF reviewers will want to know this plan lives beyond the Hub rather than being an internal TCAF artifact. One sentence on that would close it.
+
+The PI track record framing has a subtle problem. Army Risk and Protective Factors and VA suicide-prevention campaigns are strong evidence of scale, but they're federal contractor roles, not PI/lead-organization roles on competitive grants. NSF reviewers may read this as implementation experience rather than research or hub-leadership experience. Worth one clause acknowledging TCAF's organizational track record in addition to your individual one — even something like the number of organizations currently in the coordination platform or a prior grant TCAF administered.
+
+TMAC as advanced manufacturing partner is good, but unlike Pecan Street, it's not described. A half-sentence on what TMAC uniquely contributes (they're the MEP affiliate for Texas, which is directly relevant) would close that gap.
+
+The Texas Workforce Commission is named but no AJC operators are specified by region. This is minor for an LOI, but if you have even one confirmed regional AJC operator, naming them strengthens the workforce lane considerably.
+
+**One thing to watch**
+
+The Synopsis page limit is one page. This draft is running long — probably 1.2–1.3 pages in standard formatting. You'll need to trim roughly 20% before submission without losing the specificity that makes it strong. The governance paragraph and the PI credential block are the best candidates for compression.
+
+**Bottom line**
+
+This is now an A- LOI. The conceptual positioning is excellent, the partner ecosystem is credible, and the differentiation (Chainweb, Pecan Street, dialect-aware access, IS constructs) is real. The two things that would push it to A are a one-sentence output description for the Strategic Plan and a tighter credential framing that leads with organizational track record. You're in competitive shape for round one.
