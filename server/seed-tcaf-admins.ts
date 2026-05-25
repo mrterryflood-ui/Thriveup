@@ -2,7 +2,13 @@ import { db } from "./storage";
 import { users } from "@shared/schema";
 import { eq, or, sql } from "drizzle-orm";
 
+// Login accounts that should auto-elevate to TCAF admin on every boot.
+// Dr. Flood signs in with his Gmail (mr.terryflood@gmail.com) for everything
+// he does on the platform — that's his real login. The institutional
+// addresses below are kept for proposal copy and future institutional logins;
+// the gmail is what actually matches his current user row.
 const TCAF_ADMIN_EMAILS = [
+  "mr.terryflood@gmail.com",
   "terryflood@thrivingcommunitiesforall.com",
   "msisnett@thrivingcommunitiesforall.com",
   "president@thecollaborativeadvocate.org",
