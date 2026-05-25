@@ -1,0 +1,145 @@
+{
+  "colorScheme": "light",
+  "fonts": [
+    {
+      "family": "Public Sans",
+      "role": "body"
+    },
+    {
+      "family": "Poppins",
+      "role": "heading"
+    },
+    {
+      "family": "Source Sans Pro",
+      "role": "unknown"
+    },
+    {
+      "family": "Roboto",
+      "role": "unknown"
+    }
+  ],
+  "colors": {
+    "primary": "#1954D0",
+    "secondary": "#52DAF2",
+    "accent": "#52DAF2",
+    "background": "#FFFFFF",
+    "textPrimary": "#000334",
+    "link": "#000334"
+  },
+  "typography": {
+    "fontFamilies": {
+      "primary": "Public Sans",
+      "heading": "Poppins"
+    },
+    "fontStacks": {
+      "heading": [
+        "Public Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "body": [
+        "Public Sans",
+        "Arial",
+        "sans-serif"
+      ],
+      "paragraph": [
+        "Public Sans",
+        "Arial",
+        "Helvetica",
+        "sans-serif"
+      ]
+    },
+    "fontSizes": {
+      "h1": "17px",
+      "h2": "32px",
+      "body": "12px"
+    }
+  },
+  "spacing": {
+    "baseUnit": 4,
+    "borderRadius": "4px"
+  },
+  "components": {
+    "input": {
+      "background": "#FFFFFF",
+      "textColor": "#212121",
+      "borderColor": "#CCD5E1",
+      "borderRadius": "6px",
+      "borderRadiusCorners": {
+        "topLeft": "6px",
+        "topRight": "6px",
+        "bottomRight": "6px",
+        "bottomLeft": "6px"
+      },
+      "shadow": "none"
+    },
+    "buttonPrimary": {
+      "background": "#52DAF2",
+      "textColor": "#000334",
+      "borderRadius": "1000px",
+      "borderRadiusCorners": {
+        "topLeft": "1000px",
+        "topRight": "1000px",
+        "bottomRight": "1000px",
+        "bottomLeft": "1000px"
+      },
+      "shadow": "none"
+    }
+  },
+  "images": {
+    "logo": "https://arpa-h.gov/themes/custom/arpatheme/legacy/logos/logo_reverse.svg",
+    "favicon": "https://arpa-h.gov/themes/custom/arpatheme/favicon.ico",
+    "ogImage": "https://arpa-h.gov/sites/default/files/2026-04/ARPA-H_2026v2_1200x600.png",
+    "logoHref": "File saved at: attached_assets/logoHref.html",
+    "logoAlt": "ARPA-H logo"
+  },
+  "__llm_logo_reasoning": {
+    "selectedIndex": 1,
+    "reasoning": "Selected #1 because it is visible, medium-sized, located in the header, and links to the homepage. The alt text 'ARPA-H logo' matches the brand name inferred from the page title and URL.",
+    "confidence": 0.95,
+    "source": "llm"
+  },
+  "__llm_button_reasoning": {
+    "primary": {
+      "index": 0,
+      "text": "Sign me up!",
+      "reasoning": "The button with text 'Sign me up!' has a vibrant blue background (#52DAF2), which is a strong indicator of a primary call-to-action. The color is vibrant and stands out against the page, making it the most likely primary CTA."
+    },
+    "secondary": {
+      "index": -1,
+      "text": "N/A",
+      "reasoning": "There is only one button detected, so no secondary button is available with a different background color."
+    },
+    "confidence": 0.9
+  },
+  "personality": {
+    "tone": "professional",
+    "energy": "medium",
+    "targetAudience": "researchers and innovators in health and technology"
+  },
+  "designSystem": {
+    "framework": "custom",
+    "componentLibrary": ""
+  },
+  "confidence": {
+    "buttons": 0.9,
+    "colors": 0.95,
+    "overall": 0.925
+  },
+  "__llm_metadata": {
+    "logoSelection": {
+      "llmCalled": true,
+      "llmSucceeded": true,
+      "finalSource": "llm",
+      "rawLogoSelection": {
+        "selectedLogoIndex": 1,
+        "selectedLogoReasoning": "Selected #1 because it is visible, medium-sized, located in the header, and links to the homepage. The alt text 'ARPA-H logo' matches the brand name inferred from the page title and URL.",
+        "confidence": 0.95
+      }
+    },
+    "buttonClassification": {
+      "llmCalled": true,
+      "llmSucceeded": true
+    }
+  }
+}
