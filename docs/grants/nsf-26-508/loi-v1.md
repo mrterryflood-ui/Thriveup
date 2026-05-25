@@ -41,32 +41,40 @@
 
 ## Participating Organizations (max 20 per solicitation — TBD by PI from confirmed network)
 
-**Confirmed (this LOI):**
-1. United Way of Greater Austin / United Way of Central Texas — backbone partner, statewide coordination support
-2. The Collaborative Advocate Foundation (TCAF) — lead organization
+**Confirmed for this LOI (per Dr. Flood 2026-05-25 — pending verbal commits from each before submission):**
+1. The Collaborative Advocate Foundation (TCAF) — lead organization
+2. The University of Texas at Austin — R1 academic anchor (AI/CISE depth)
+3. Huston-Tillotson University — Austin HBCU, minority-serving institution partner
+4. Pecan Street Inc. — energy-sector partner (residential energy/water/transportation data research)
+5. Texas Manufacturing Assistance Center (TMAC) — advanced-manufacturing partner (NIST MEP-affiliated, hosted by UT Arlington)
+6. Texas A&M AgriLife Extension — USDA-NIFA-aligned rural/agricultural channel
+7. Texas Workforce Commission — public workforce system
+8. American Job Center operators (regions TBD) — public workforce delivery
+9. Texas Small Business Development Center network — small-business technology-adoption channel
+10. United Way of Greater Austin / United Way of Central Texas — community-coordination backbone
 
-**To be added by PI from confirmed network (target categories per §II Program Description responsibilities + §IV Eligibility):**
-{{ACTION REQUIRED — Dr. Flood: confirm and add up to 18 additional partner organizations from your network. Recommended categories the solicitation explicitly calls for:
-- Academic: Texas R1 with AI/CISE depth (UT Austin, Texas A&M, UH, UTSA, UNT, Rice) + 2-3 community/technical colleges in distinct Texas regions
-- Workforce: Texas Workforce Commission + 2-3 American Job Center operators in distinct regions
-- Technology adoption: Texas A&M AgriLife Extension (Cooperative Extension + USDA-NIFA pipeline) + Texas SBDC network anchor + a regional innovation alliance / technology council
-- Government: Office of the Governor (Economic Development & Tourism / Innovation Office), or a state agency partner with statewide reach
-- Industry: a Texas industry association in a priority sector (energy / advanced manufacturing / healthcare / agriculture)
-- DOL alignment: Veterans Business Outreach Center (VBOC) or DOL AI Workforce Hub regional anchor
-- Community / Cooperative Extension and rural-serving organizations
+**Room for up to 10 more (max 20 per solicitation):**
+{{ACTION REQUIRED — Dr. Flood: add up to 10 additional partners. Suggested gap-fillers based on solicitation §II + peer-review feedback:
+- A second-tier energy partner (TAMEST energy-affiliated member or ERCOT R&D function) — for portfolio depth
+- A Texas health-system or HIE partner — healthcare delivery sector currently light
+- A second MSI (Texas Hispanic-Serving Institution: UTSA, UT El Paso, TAMIU, UTRGV) — strengthens MSI breadth
+- 2-3 community/technical colleges in distinct Texas regions — workforce delivery reach
+- Office of the Governor (Economic Development & Tourism / Innovation Office) — state-government partner
+- Veterans Business Outreach Center (VBOC) — DOL alignment
+- A regional innovation alliance / technology council
 }}
 
 ---
 
 ## Synopsis (1-page limit per solicitation §V.A — used by NSF Program Officer for review-panel selection, not for scoring)
 
-**v3 (2026-05-25) — incorporates peer-review additions: concrete Navigator + Strategic Plan descriptions, named partners (UT Austin, UT Austin Energy Institute, TMAC, Texas A&M AgriLife, TWC/AJC, Texas SBDC, United Way Greater Austin/Central TX), PI prior multi-sector track record (Army RPF, VA suicide prevention), TCAF statewide-reach evidence (Chainweb root-cause + stakeholder mapping), Hub governance neutrality sentence. ~485 words. Source-of-truth attribution: partners + track-record per Dr. Flood 2026-05-25; capability claims per `docs/grants/tcaf-capabilities-inventory-2026-05-17.md`.**
+**v4 (2026-05-25) — adds Huston-Tillotson University (Austin's HBCU) as MSI partner; swaps energy partner from UT Austin Energy Institute to Pecan Street Inc. (resolves UT Austin concentration risk + adds Austin-based energy/water/transportation data research credibility). All v3 peer-review additions retained. ~490 words. Source-of-truth attribution: partners + track-record per Dr. Flood 2026-05-25; capability claims per `docs/grants/tcaf-capabilities-inventory-2026-05-17.md`.**
 
 The Texas Coordination Hub will accelerate AI readiness across Texas — the second-largest state economy in the United States — by serving as a neutral statewide convening backbone connecting K-16 education, workforce, industry, government, agricultural extension, and rural-services partners. The Hub is led by The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) with active SAM.gov registration and an existing production coordination platform serving Texas users across workforce, education, healthcare, and rural-services domains.
 
 The Hub's scope spans all five solicitation responsibilities. The **AI Learning and Resource Navigator** will be a Texas-specific extension of TCAF's grant-intelligence and resource-routing infrastructure — a single statewide-searchable index of AI training programs, deployment-support funding, sector pilots, and free or low-cost AI tools, delivered with dialect-aware multilingual access. The **State AI Readiness Strategic Plan** will be built from TCAF's Chainweb 8-step citation-chained data pipeline joined to participatory community evidence, organized against the 39 implementation-science constructs the platform already operationalizes, producing a plan with both quantitative baseline and surfaced root causes.
 
-Priority sectors for Texas are energy, advanced manufacturing, healthcare delivery, agriculture, and small business. Named partners include **The University of Texas at Austin** as R1 academic anchor with AI and CISE depth; the **UT Austin Energy Institute** as energy-sector partner; the **Texas Manufacturing Assistance Center (TMAC)** as advanced-manufacturing partner; **Texas A&M AgriLife Extension** as USDA-NIFA-aligned rural and agricultural channel; the **Texas Workforce Commission** and American Job Center operators; the **Texas Small Business Development Center** network; and **United Way of Greater Austin / Central Texas** as community-coordination backbone.
+Priority sectors for Texas are energy, advanced manufacturing, healthcare delivery, agriculture, and small business. Named partners include **The University of Texas at Austin** as R1 academic anchor with AI and CISE depth; **Huston-Tillotson University**, Austin's Historically Black College and University, anchoring minority-serving institution participation; **Pecan Street Inc.** as energy-sector partner, contributing one of the nation's most complete residential energy, water, and transportation data research platforms; the **Texas Manufacturing Assistance Center (TMAC)** as advanced-manufacturing partner; **Texas A&M AgriLife Extension** as the USDA-NIFA-aligned rural and agricultural channel; the **Texas Workforce Commission** and American Job Center operators; the **Texas Small Business Development Center** network; and **United Way of Greater Austin / Central Texas** as community-coordination backbone.
 
 TCAF's statewide reach is anchored in a demonstrated ability to identify and map root causes of community issues across education, social determinants of health, and criminal justice domains, and to surface the key institutional stakeholders attached to each, through its Chainweb pipeline operating at state and national scale. PI Dr. Terry D. Flood, DHA, President of TCAF, was lead government contractor on the U.S. Army's Risk and Protective Factors initiative and on U.S. Department of Veterans Affairs suicide-prevention campaigns — both multi-installation, multi-stakeholder federal initiatives at scale. The Hub team adds combined expertise in AI/CISE research, learning sciences, workforce development and Registered Apprenticeship, healthcare interoperability, implementation science, agricultural extension, and community-based statewide coordination.
 
@@ -80,9 +88,9 @@ Hub governance will be vested in a rotating-chair Governance Council drawn from 
 |---|---|---|---|
 | 1 | Confirm TCAF is registered in Research.gov (NSF's submission system, distinct from SAM.gov / Grants.gov) | Dr. Flood | **THIS WEEK — gating** |
 | 2 | If not registered, initiate Research.gov organization registration (typically 1-2 business weeks) | Dr. Flood + TCAF AOR | If needed, by 2026-05-29 |
-| 3 | Confirm United Way of Greater Austin / Central Texas as backbone partner; secure a verbal commitment from senior staff | Dr. Flood | By 2026-05-30 |
-| 4 | Recruit & confirm Senior Personnel (max 4) | Dr. Flood (network) | By 2026-06-06 |
-| 5 | Recruit & confirm Participating Organizations (target 15-20) | Dr. Flood (network) | By 2026-06-10 |
+| 3 | Secure verbal commits from the 8 named non-TCAF partners (UT Austin, Huston-Tillotson, Pecan Street, TMAC, AgriLife, TWC, Texas SBDC, United Way GA/CTX) | Dr. Flood | By 2026-05-30 |
+| 4 | Recruit & confirm Senior Personnel (max 4); strong candidates: UT Austin AI/CISE faculty, Huston-Tillotson administrator/faculty, Pecan Street research lead, TCAF Dr. Flood | Dr. Flood | By 2026-06-06 |
+| 5 | Recruit & confirm any additional Participating Organizations (up to 10 more, total max 20) | Dr. Flood (network) | By 2026-06-10 |
 | 6 | Finalize 1-page Synopsis for Research.gov submission | Dr. Flood + TCAF | By 2026-06-12 |
 | 7 | Submit LOI via Research.gov (NOT grants.gov for collaborative; AOR submission NOT required for LOI) | Dr. Flood | **2026-06-16 by 5:00pm CT** |
 | 8 | Full Proposal Project Description (15 pages, exact 5-section headers) drafting begins | TCAF + partners | Starts 2026-06-09 (parallel) |
