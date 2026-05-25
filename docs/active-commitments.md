@@ -2256,7 +2256,7 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 ## ARPA-H Pursuit — "It's No Longer About You" (added 2026-05-25)
 
 **Pursuit folder:** `docs/grants/arpa-h-no-longer-about-you/`
-**Submitting entity:** M&T Strategic Solutions / BirthRight (NOT TCAF — for-profit/ISS-LLC side; Flood=CEO, Sisnett=CGO)
+**Submitting entity:** M&T Consulting Solutions LLC / BirthRight (NOT TCAF — for-profit/ISS-LLC side; Flood=CEO, Sisnett=CGO)
 
 **Keystone target:** ARPA-H Proactive Health Office ISO (ARPA-H-SOL-24-106, rolling) — Solution Summary within 14 days per concept paper §11
 **Second-line target:** ARPA-H 2026 SBIR/STTR Topic 1 Women's Health — Solution Summary due **2026-07-10**, full proposal **2026-09-09** (only if SBIR eligibility verifies)
@@ -2265,11 +2265,12 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 **Tracker home:** `docs/grants/MASTER-GRANTS-TRACKER-ISSLLC.md` (separate from TCAF tracker per user 2026-05-25)
 
 **CLOSED by user 2026-05-25:**
-- ✅ M&T Strategic Solutions is a real entity (submitter confirmed)
+- ✅ **M&T CONSULTING SOLUTIONS LLC** — SAM.gov Active, UEI `NLAWXBLCUW54`, CAGE `1NDG6`, address 17912 Stefano Dr Pflugerville TX 78660-7020, expires 2027-04-05, Purpose: All Awards (SAM screenshot 2026-05-25). Note name correction: NOT "Strategic", it's "Consulting".
 - ✅ BirthRight is the maternal health platform within the TCAF/ThriveUp ecosystem (not its own legal entity)
 - ✅ Dr. Flood is PI
+- ✅ Both Tier-1 #1 (ARPA-H Proactive Health Office ISO) AND Tier-1 #2 (SBIR Topic 1) stay in active pursuit per user "still doing it. I doubt if I win both"
 
 **STILL OPEN (must close before any submission):**
-1. M&T Strategic Solutions SAM.gov / UEI / CAGE status — entity exists ≠ SAM-registered; verify before federal submission (registration takes weeks if not already done)
-2. SBIR Topic 1 PI-effort: Dr. Flood >50% employed by M&T at time of award (only matters for Tier 1 #2 — the 2026-07-10 SBIR Solution Summary). If <50% achievable, drop SBIR and focus on three rolling ARPA-H ISOs.
-3. Concept-paper statistic audit against primary sources before any number goes into a federal submission.
+1. Concept paper header still says "M&T Strategic Solutions" — correct to "M&T Consulting Solutions LLC" before any submission (trivial fix; flagged so it doesn't slip)
+2. SBIR Topic 1 PI-effort: Dr. Flood >50% employed by M&T at time of award (only matters for Tier 1 #2 — the 2026-07-10 SBIR Solution Summary). If <50% achievable, drop SBIR.
+3. Concept-paper statistic audit against primary sources — **check RPLICE first** per user hint 2026-05-25 (may already have citation data, accelerates audit pass).

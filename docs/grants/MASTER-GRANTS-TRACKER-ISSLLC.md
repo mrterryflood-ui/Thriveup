@@ -1,8 +1,15 @@
-# M&T Strategic Solutions / ISS-LLC — Master Grants Tracker
+# M&T Consulting Solutions LLC / ISS-LLC — Master Grants Tracker
 
 **Generated:** 2026-05-25
 **Purpose:** Single-document inventory for the **for-profit / ISS-LLC side** of the Flood/Sisnett operating portfolio — distinct from TCAF (501(c)(3) nonprofit) tracker at `MASTER-GRANTS-TRACKER-2026-05-19.md`.
-**Entity scope:** M&T Strategic Solutions and any related for-profit small-business vehicles. Platforms delivered through these entities (e.g., BirthRight) are listed under each opportunity but are not themselves submitting entities.
+**Entity scope:** M&T Consulting Solutions LLC and any related for-profit small-business vehicles. Platforms delivered through these entities (e.g., BirthRight) are listed under each opportunity but are not themselves submitting entities.
+
+**Entity record (SAM.gov primary-source verified 2026-05-25):**
+- Legal name: **M&T CONSULTING SOLUTIONS LLC**
+- UEI: **`NLAWXBLCUW54`**
+- CAGE/NCAGE: **`1NDG6`**
+- Address: 17912 Stefano Dr, Pflugerville, TX 78660-7020 USA
+- SAM status: Active · Expires 2027-04-05 · Purpose: All Awards · DBA: (blank)
 **Title convention (per `replit.md` constitutional rule):** Dr. Flood = **CEO** on this side (President is TCAF-only). Sisnett = CGO.
 
 ---
@@ -22,18 +29,19 @@ The TCAF master tracker is sized for 501(c)(3) capability-fit scoring, TCAF UEI/
 - **Deadline:** Rolling (no missed window)
 - **Award vehicle:** Other Transaction (OT)
 - **Award size:** Sized to scope; typically $2M–$25M per award (no fixed cap)
-- **Submitting entity:** M&T Strategic Solutions
+- **Submitting entity:** M&T Consulting Solutions LLC
 - **Platform delivered:** BirthRight (maternal health platform within ThriveUp/TCAF ecosystem)
-- **PI:** Dr. Terry D. Flood, DHA (CEO, M&T Strategic Solutions)
+- **PI:** Dr. Terry D. Flood, DHA (CEO, M&T Consulting Solutions LLC)
 - **Status:** TRACKING — concept paper drafted, Solution Summary refinement pending entity-verification close-out
 - **Pursuit folder:** `docs/grants/arpa-h-no-longer-about-you/`
 
 **Justification:** Neuroscience-informed cycle-breaking intervention for parents under 26 — built on the prefrontal-cortex developmental window thesis that no existing federally-listed program addresses. Primary-source numbers from concept paper §2-3: 5 children killed by abuse/neglect per day, 81.5% by a parent, largest perpetrator cohort is 25-34. Strategic sequencing: ARPA-H pilot data → Title IV-E Prevention Services Clearinghouse listing → IV-E perpetual reimbursement engine. ARPA-H is the keystone; everything downstream is contingent on getting this pilot data.
 
 **Open verification (must close before submission):**
-1. M&T Strategic Solutions SAM.gov registration / UEI / CAGE — confirmed entity exists per user 2026-05-25; SAM-registration status still to verify
-2. PI effort: Dr. Flood >50% employed by M&T Strategic Solutions at time of award (SBIR-style rule does not apply to OT, but ARPA-H still scrutinizes PI commitment — model effort allocation)
-3. Concept-paper statistic re-verification pass against primary sources (NCANDS, CDC ACE, American SPCC, National Children's Alliance) before any federal submission
+1. ✅ CLOSED — M&T SAM.gov registration: Active, UEI NLAWXBLCUW54, CAGE 1NDG6, expires 2027-04-05 (SAM screenshot 2026-05-25)
+2. PI effort: Dr. Flood >50% employed by M&T Consulting Solutions LLC at time of award (SBIR-style rule does not apply to OT, but ARPA-H still scrutinizes PI commitment — model effort allocation)
+3. Concept-paper statistic re-verification pass against primary sources (NCANDS, CDC ACE, American SPCC, National Children's Alliance) before any federal submission — **check RPLICE first per user hint 2026-05-25** (may already have citation data)
+4. Concept paper header says "M&T Strategic Solutions" — correct to "M&T Consulting Solutions LLC" before any submission
 
 ---
 
@@ -45,14 +53,14 @@ The TCAF master tracker is sized for 501(c)(3) capability-fit scoring, TCAF UEI/
 - **Full proposal due:** **2026-09-09**
 - **Award vehicle:** SBIR/STTR
 - **Award size:** Phase I up to $600K · Phase II up to $3.5M
-- **Submitting entity:** M&T Strategic Solutions (must qualify as small business per SBA: <500 employees, >50% US-owned, US-performed work, PI >50% employed by the small business)
+- **Submitting entity:** M&T Consulting Solutions LLC (must qualify as small business per SBA: <500 employees, >50% US-owned, US-performed work, PI >50% employed by the small business)
 - **Platform delivered:** BirthRight
 - **PI:** Dr. Terry D. Flood, DHA — confirmed PI per user 2026-05-25
-- **Status:** TRACKING — pursuit contingent on SBIR eligibility verification
+- **Status:** ACTIVE PURSUIT — user confirmed 2026-05-25 "still doing it. I doubt if I win both" (running #1 keystone + #2 SBIR in parallel; no conflict, different vehicles)
 
 **Open verification (HARD GATES for SBIR):**
-1. M&T Strategic Solutions confirmed <500 employees, >50% US-owned — likely yes, formally confirm
-2. **PI >50% employed by M&T Strategic Solutions at time of award** — this is the gating constraint. Dr. Flood is PI per user confirmation, but the >50% employment threshold needs to be modeled against his other roles (TCAF President, other portfolio commitments). If <50% achievable, SBIR is out and we focus on the three rolling ARPA-H ISOs (which do not carry this rule).
+1. M&T Consulting Solutions LLC confirmed <500 employees, >50% US-owned — likely yes, formally confirm
+2. **PI >50% employed by M&T Consulting Solutions LLC at time of award** — this is the gating constraint. Dr. Flood is PI per user confirmation, but the >50% employment threshold needs to be modeled against his other roles (TCAF President, other portfolio commitments). If <50% achievable, SBIR is out and we focus on the three rolling ARPA-H ISOs (which do not carry this rule).
 3. All work performed in the US
 
 ---
@@ -94,7 +102,7 @@ Full lattice in `docs/grants/arpa-h-no-longer-about-you/02-funding-lattice-7-tie
 
 ## 3. Title discipline
 
-Per `replit.md` constitutional rule: on this for-profit/ISS-LLC side, Dr. Flood is **CEO** (never President). President is reserved for TCAF (501(c)(3)). All proposal copy, signatures, biosketches, capability statements, and external-facing materials submitted under M&T Strategic Solutions / BirthRight MUST use CEO. Cross-contamination of titles between entities is a credibility tell and a real risk for funder confusion.
+Per `replit.md` constitutional rule: on this for-profit/ISS-LLC side, Dr. Flood is **CEO** (never President). President is reserved for TCAF (501(c)(3)). All proposal copy, signatures, biosketches, capability statements, and external-facing materials submitted under M&T Consulting Solutions LLC / BirthRight MUST use CEO. Cross-contamination of titles between entities is a credibility tell and a real risk for funder confusion.
 
 ---
 

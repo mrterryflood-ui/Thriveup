@@ -2,9 +2,9 @@
 
 ## A Neuroscience-Informed Cycle-Breaking Intervention for Parents Under 26
 
-**Submitting Entity:** **M&T Strategic Solutions** (for-profit; user-confirmed 2026-05-25 the entity is real). This is on the for-profit/ISS-LLC side of the Flood/Sisnett operating portfolio — NOT TCAF.
+**Submitting Entity:** **M&T Consulting Solutions LLC** (for-profit; user-confirmed 2026-05-25 the entity is real). This is on the for-profit/ISS-LLC side of the Flood/Sisnett operating portfolio — NOT TCAF.
 **Platform delivered:** **BirthRight** (yourhealthbirthright.net) — the maternal health platform within the ThriveUp/TCAF ecosystem (user-clarified 2026-05-25: BirthRight is a platform, not its own legal entity).
-**PI:** Dr. Terry D. Flood, DHA (CEO, M&T Strategic Solutions) — user-confirmed 2026-05-25.
+**PI:** Dr. Terry D. Flood, DHA (CEO, M&T Consulting Solutions LLC) — user-confirmed 2026-05-25.
 **Principals:** Dr. Flood, CEO · Meredith Sisnett, CGO (per `replit.md` constitutional rule, CEO title is correct on this for-profit side; President is TCAF-only).
 **Tracker home:** `docs/grants/MASTER-GRANTS-TRACKER-ISSLLC.md` (separate from TCAF tracker per user direction 2026-05-25)
 **Tracked added:** 2026-05-25
@@ -63,22 +63,34 @@ Primary sources cited in the concept paper Appendix A — verifiable.
 ## Verification ledger (Iron Rule #2)
 
 ### Closed by user 2026-05-25
-- ✅ **M&T Strategic Solutions exists as a real entity.** Submitter identity confirmed. (NOTE: "exists as entity" ≠ "SAM.gov registered" — still need to verify SAM/UEI/CAGE before federal submission; see open items below.)
-- ✅ **BirthRight is the maternal health platform within the TCAF/ThriveUp ecosystem.** Not its own legal entity. Operational relationship: M&T Strategic Solutions submits; BirthRight is the platform deliverable; ThriveUp/TCAF ecosystem provides infrastructure context.
+
+- ✅ **Submitting entity legal record (SAM.gov primary-source verified, screenshot 2026-05-25):**
+  - **Legal name:** M&T CONSULTING SOLUTIONS LLC *(NOTE: concept paper currently says "M&T Strategic Solutions" — that's wrong. Must be corrected to "M&T Consulting Solutions LLC" before any Solution Summary submission.)*
+  - **UEI:** `NLAWXBLCUW54`
+  - **CAGE/NCAGE:** `1NDG6`
+  - **Physical address:** 17912 Stefano Dr, Pflugerville, TX 78660-7020 USA
+  - **SAM status:** Active Registration
+  - **SAM expiration:** 2027-04-05 (well clear of any 2026 ARPA-H submission window)
+  - **Purpose of Registration:** All Awards
+  - **DBA:** (blank)
+- ✅ **BirthRight is the maternal health platform within the TCAF/ThriveUp ecosystem.** Not its own legal entity. Operational relationship: M&T Consulting Solutions LLC submits; BirthRight is the platform deliverable; ThriveUp/TCAF ecosystem provides infrastructure context.
 - ✅ **Dr. Flood is PI** on the M&T/BirthRight ARPA-H pursuit. Confirmed.
+- ✅ **Both Tier-1 #1 (Proactive Health Office ISO) AND Tier-1 #2 (SBIR Topic 1) stay in active pursuit per user 2026-05-25** ("Still doing it. I doubt if I win both"). Realistic about not winning both — pursuing both anyway. Different vehicles, different review pipelines, no conflict.
 
 ### Still open — must close before any Solution Summary submission
-1. **M&T Strategic Solutions SAM.gov / UEI / CAGE status.** Entity exists per user, but federal-submission readiness requires active SAM registration. Verify current SAM status, UEI, CAGE code. If not registered, registration takes weeks — schedule accordingly.
-2. **SBIR Topic 1 small-business eligibility (only matters for Tier 1 #2 — the 2026-07-10 Solution Summary).** Three hard SBA rules: (a) M&T <500 employees, (b) >50% US-owned, (c) PI >50% employed by M&T at time of award. Items (a) and (b) are likely yes — formally confirm. Item (c) — Dr. Flood is PI but also TCAF President and holds other portfolio roles; PI-effort allocation must be modeled to confirm >50% with M&T is achievable. If not, drop SBIR (#2) and focus on the three rolling ARPA-H ISOs (#1, #3, #4), which do not carry the >50% rule.
-3. **Cost-share / match obligations on downstream Tier 2.** CBCAP 20% non-federal, Title IV-B/PSSF 25% state. Identify match sources before claiming full funding stack in any future proposal.
-4. **Title IV-E Prevention Services Clearinghouse evaluation design.** Engage Clearinghouse pre-consultant before evaluation design locks (concept paper §11 step 5). Prerequisite for any large-N pilot start that intends Clearinghouse listing.
-5. **Concept paper statistic audit.** Every number in §2-§4 must be re-verified against cited primary sources (NCANDS Child Maltreatment 2022, CDC ACE study, American SPCC, National Children's Alliance) before going into a federally-submitted Solution Summary. Numbers appear consistent with public reporting; verify once formally with quoted passages.
+
+1. **Concept paper entity-name correction.** `01-concept-paper.md` header says "M&T Strategic Solutions" — must be corrected to "M&T Consulting Solutions LLC" before any federal submission. Trivial fix; flag here so it doesn't slip.
+2. **SBIR Topic 1 PI-effort modeling (only matters for Tier 1 #2 — the 2026-07-10 Solution Summary).** SBA hard rule: PI >50% employed by M&T at time of award. Dr. Flood is PI (confirmed) but also TCAF President and holds other portfolio roles. Effort allocation must be modeled to confirm >50% with M&T is achievable at award time. If not achievable, SBIR (#2) must be dropped and the three rolling ARPA-H ISOs (#1, #3, #4) absorb the energy. They do not carry the >50% rule.
+3. **M&T small-business confirmation for SBIR Topic 1:** <500 employees, >50% US-owned. SAM Active + Pflugerville TX address are consistent with both; formally confirm at SBIR submission time.
+4. **Cost-share / match obligations on downstream Tier 2.** CBCAP 20% non-federal, Title IV-B/PSSF 25% state. Identify match sources before claiming full funding stack in any future proposal.
+5. **Title IV-E Prevention Services Clearinghouse evaluation design.** Engage Clearinghouse pre-consultant before evaluation design locks (concept paper §11 step 5). Prerequisite for any large-N pilot start that intends Clearinghouse listing.
+6. **Concept paper statistic audit.** Every number in §2-§4 must be re-verified against cited primary sources (NCANDS Child Maltreatment 2022, CDC ACE study, American SPCC, National Children's Alliance) before going into a federally-submitted Solution Summary. User flagged 2026-05-25 that **RPLICE** likely has source/citation data that can accelerate this audit — check RPLICE first before going back to raw federal datasets. (RPLICE references in TCAF ecosystem: `docs/grants/NSF-IUSE-EDU-RPLICE-Evaluation.md`, `docs/grants/NSF-Quantum-Education-RPLICE-Evaluation.md`, plus ecosystem-platform refs.)
 
 ---
 
 ## Immediate next actions (per concept paper §11, refined)
 
-1. **Within 7 days:** Close verification items #1 and #2 (entity legal status for M&T Strategic Solutions and BirthRight). Without this, nothing else proceeds.
+1. **Within 7 days:** Close verification items #1 and #2 (entity legal status for M&T Consulting Solutions LLC and BirthRight). Without this, nothing else proceeds.
 2. **Within 7 days:** Decision on SBIR pursuit (#2 in Tier 1). If PI-effort or US-ownership constraints disqualify, drop SBIR and focus on the three rolling ISOs.
 3. **Within 14 days:** Refine concept paper into formal ARPA-H Solution Summary (3-5 pages per ARPA-H format) for the Proactive Health Office ISO. This is the keystone submission.
 4. **In parallel:** Begin Letters of Support outreach — MHEC Austin, ThriveUp (TCAF), St. David's-funded partners, academic evaluation partner (Dell Med or UT School of Public Health candidates).
