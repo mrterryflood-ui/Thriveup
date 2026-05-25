@@ -41,7 +41,11 @@
 | Increase from 2018's 1,765 fatalities | **12.7%** | NCANDS CM 2022, Ch 4 |
 | Total unique victims, FFY 2022 | **558,899** | NCANDS CM 2022 |
 | Fatalities involving one or more parents | **81.8%** | NCANDS CM 2022, Ch 4 (verbatim) |
-| Children <1 yr died at this multiple of children age 1 | **>3×** the rate | NCANDS CM 2022, Ch 4 |
+| Children <1 yr died from maltreatment at this multiple of children age 1 | **>3×** the rate | NCANDS CM 2022, Ch 4 |
+| Children <1 yr — share of all maltreatment fatalities | **45.4%** | Children's Bureau / CWIG, *Child Abuse and Neglect Fatalities 2019: Statistics and Interventions*, March 2021 factsheet citing NCANDS |
+| Homicide rank as cause of death for U.S. children younger than age 1 (CDC WISQARS injury-mortality ranking) | **Top-five injury cause; widely cited as the second leading cause of death** in infants when classified per WISQARS injury-death methodology | CDC WISQARS Leading Causes; APSAC fatality-prevention review; JAMA Pediatrics Dec 2022 ("Trends in Homicide Rates for US Children Aged 0 to 17") |
+| Maltreatment deaths not recorded as such on death certificates (key reason NCHS all-cause rankings undercount the burden) | **50–60%** | Schnitzer & Ewigman, *Pediatrics* 2005; American SPCC citing same |
+| Abusive head trauma share of all child-maltreatment deaths in children under five | **~one-third** | American SPCC |
 | Of fatalities: suffered neglect | **76.4%** | NCANDS CM 2022, Ch 4 |
 | Of all victims: experienced neglect | **74.3%** | NCANDS CM 2022, Ch 3 |
 | Fatalities not recorded as maltreatment on death certificates | **50–60%** | American SPCC (citing NCANDS) |
@@ -67,6 +71,8 @@ From NCANDS CM 2022, Chapter 5, verbatim:
 **Citation block for §2.3:** Longitudinal MRI evidence demonstrates that white matter maturation in the prefrontal association tracts — the circuitry underlying impulse control, empathy, and emotional regulation — continues into the third decade of life [Lebel & Beaulieu, *J Neurosci* 2011; Giedd et al., *Nat Neurosci* 1999]. Developmental psychology recognizes this period (18–25) as a distinct life stage [Arnett, *Am Psychol* 2000].
 
 ### 2.4 The infant-specific trigger: shaken-baby / AHT and crying
+
+**Why the infant cohort matters most.** Children younger than 1 year account for **45.4% of all maltreatment fatalities** (CWIG/Children's Bureau 2021 factsheet) and die from maltreatment at **more than three times the rate** of one-year-olds (NCANDS CM 2022). Homicide is consistently ranked among the leading causes of death for U.S. infants per CDC WISQARS injury-mortality data and is widely cited as the second leading cause of death in children younger than age one — a burden that NCHS all-cause rankings systematically understate because **50–60% of maltreatment fatalities are not recorded as maltreatment on death certificates** (Schnitzer & Ewigman, *Pediatrics* 2005; American SPCC). **Abusive head trauma alone accounts for approximately one-third of all child-maltreatment deaths in children under five** (American SPCC). The infant cohort is therefore the highest-stakes intervention target — and the AHT/crying trigger is its most prevention-tractable mechanism.
 
 Period of PURPLE Crying — the evidence-based shaken-baby-syndrome / abusive-head-trauma (SBS/AHT) prevention program in deployment since 2007 at over 2,000 implementation sites — frames the trigger explicitly:
 

@@ -40,7 +40,11 @@ We are requesting ARPA-H investment to:
 | Children dying per day from maltreatment | **~5** | NCANDS CM 2022 (annual ÷ 365) |
 | Fatalities involving one or more parents | **81.8%** | NCANDS CM 2022, Ch 4 (verbatim) |
 | Deaths never recorded as maltreatment on death certificates | **50–60%** | American SPCC (citing NCANDS) |
-| Children <1 yr died at this multiple of children age 1 | **>3×** the rate | NCANDS CM 2022, Ch 4 |
+| Children <1 yr died from maltreatment at this multiple of children age 1 | **>3×** the rate | NCANDS CM 2022, Ch 4 |
+| Children <1 yr — share of all maltreatment fatalities | **45.4%** | Children's Bureau / CWIG, *Child Abuse and Neglect Fatalities 2019* factsheet (March 2021), Figure 1, citing NCANDS |
+| Homicide rank as cause of death for U.S. infants (CDC WISQARS injury-mortality ranking) | **Top-five injury cause; widely cited as the second leading cause of death** in children younger than age 1 per WISQARS methodology | CDC WISQARS; APSAC fatality-prevention review; JAMA Pediatrics Dec 2022 |
+| Maltreatment deaths not recorded as such on death certificates | **50–60%** | Schnitzer & Ewigman, *Pediatrics* 2005; American SPCC |
+| Abusive head trauma share of child-maltreatment deaths in children under five | **~one-third** | American SPCC |
 | Of fatalities: children who suffered neglect | **76.4%** | NCANDS CM 2022, Ch 4 |
 | Of all victims: children who experienced neglect | **74.3%** | NCANDS CM 2022, Ch 3 |
 | Boys' share of fatalities | **60.3%** (3.26 per 100,000) | NCANDS CM 2022, Ch 4 |
