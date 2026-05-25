@@ -29,10 +29,10 @@
 
 ## Principal Investigator (point of contact for NSF inquiries — per solicitation §V.A)
 
-**Dr. Terry D. Flood, DHA, EdD** — President, TCAF
+**Dr. Terry D. Flood, DHA** — President, TCAF
 - Email: terryflood@thrivingcommunitiesforall.com
 - Phone: 254-319-8460
-- Credentials relevant to PI role: Doctorate of Health Administration; Doctorate of Education; Data Analysis; Implementation Science; AI Certification; Psychology degree; U.S. Army retiree; active Secret-level U.S. government clearance; CHW-I
+- Credentials relevant to PI role: Doctorate of Health Administration; Data Analysis; Implementation Science; AI Certification; Psychology degree; U.S. Army retiree; active Secret-level U.S. government clearance; CHW-I
 - Lane: platform architecture, workforce + education + healthcare data systems, federal compliance, statewide convening
 
 ## Other Senior Project Personnel (max 4 per solicitation — TBD by PI from confirmed network)
@@ -68,7 +68,7 @@ The Hub's scope spans the full set of Coordination Hub responsibilities describe
 
 The TCAF-led partnership will include statewide academic, workforce, technology-adoption, government, and Cooperative Extension organizations as the solicitation specifies, with United Way of Greater Austin / Central Texas serving as a backbone community-coordination partner. The full partner roster will include a Texas R1 academic anchor with AI and CISE depth, the Texas Workforce Commission and American Job Center operators across multiple regions, the Texas Small Business Development Center network, Texas A&M AgriLife Extension as the USDA-NIFA-aligned rural and agricultural channel, and a regional industry or innovation alliance representing a priority sector.
 
-The Hub team brings combined expertise in artificial intelligence and computer-and-information-science research, learning sciences and STEM education, workforce development and Registered Apprenticeship pathways, healthcare data and standards-based interoperability, implementation science and continuous quality improvement, agricultural extension and rural-services delivery, and community-based statewide coordination. The Principal Investigator is Dr. Terry D. Flood, DHA, EdD, President of TCAF, with credentials spanning data analysis, implementation science, AI certification, psychology, and U.S. Department of Defense-cleared federal-systems experience. Senior Personnel will be drawn from named partner institutions to cover each of the disciplinary domains above.
+The Hub team brings combined expertise in artificial intelligence and computer-and-information-science research, learning sciences and STEM education, workforce development and Registered Apprenticeship pathways, healthcare data and standards-based interoperability, implementation science and continuous quality improvement, agricultural extension and rural-services delivery, and community-based statewide coordination. The Principal Investigator is Dr. Terry D. Flood, DHA, President of TCAF, with credentials spanning data analysis, implementation science, AI certification, psychology, and U.S. Department of Defense-cleared federal-systems experience. Senior Personnel will be drawn from named partner institutions to cover each of the disciplinary domains above.
 
 The Hub's approach grounds national alignment in state-led execution: alignment with the U.S. Department of Labor's AI Literacy Framework, the Workforce Innovation and Opportunity Act, the Strengthening Career and Technical Education for the 21st Century Act (Perkins V), and the Registered Apprenticeship system; alignment with USDA-NIFA Cooperative Extension networks; alignment with U.S. Small Business Administration Small Business Development Center channels; and active collaboration with the National Coordination Lead once established, including participation in Hub convenings, contributions to national best-practice repositories, and shaping the round-one cohort's National Lead engagement model. Performance reporting will conform to the metrics specified in the solicitation and will be delivered in formats consumable by NSF and the National Coordination Lead's national dashboards.
 

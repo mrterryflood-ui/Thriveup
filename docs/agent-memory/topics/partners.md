@@ -17,7 +17,7 @@ TCAF entity facts, two-entity strategy, teaming doctrine, current rosters.
 | IRS contact | Mrs. Hurst, ID 1793423 · 877-829-5500 |
 | Mailing address | **17912 Stefano Drive, Pflugerville, TX 78660-7020** c/o Terry D Flood Sr. |
 | State of registration | Texas |
-| Principal | **Dr. Terry D. Flood, DHA, EdD — President** (never CEO on TCAF work) |
+| Principal | **Dr. Terry D. Flood, DHA — President** (never CEO on TCAF work). **NOT EdD** — user-corrected 2026-05-25; he chose not to pursue the EdD. |
 | Phone | 254-319-8460 |
 | Email | terryflood@thrivingcommunitiesforall.com (institutional, all proposals) |
 | Secret-level clearance | **ACTIVE** (US government) |
@@ -52,7 +52,7 @@ TCAF entity facts, two-entity strategy, teaming doctrine, current rosters.
 
 ### Dr. Terry D. Flood — TCAF
 - Title: **President** (TCAF). CEO only on for-profit/ISS-LLC work
-- Credentials: DHA, EdD, US Army retiree, active Secret-level clearance, CHW-I
+- Credentials: DHA, data analysis, implementation science, AI certification, psychology degree, US Army retiree, active Secret-level clearance, CHW-I. **NOT EdD** (user-corrected 2026-05-25).
 - Lane: platform architecture, healthcare data, FHIR/HL7, federal compliance, reporting
 - Phone: 254-319-8460 · Email: terryflood@thrivingcommunitiesforall.com
 
