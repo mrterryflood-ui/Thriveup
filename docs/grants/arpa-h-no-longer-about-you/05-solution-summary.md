@@ -1,286 +1,217 @@
 # SOLUTION SUMMARY
 
-## "It's No Longer About You": A Prefrontal-Cortex-Window Intervention to Break the Intergenerational Maltreatment Cycle
-
-**Submitting Organization:** M&T Consulting Solutions LLC
-**UEI:** NLAWXBLCUW54 · **CAGE:** 1NDG6 · **SAM Status:** Active
-**Address:** Pflugerville, TX
-**Principal Investigator:** Terry D. Flood, DHA — CEO, M&T Consulting Solutions LLC
-**Co-Investigator:** Meredith Sisnett, MS — Chief Growth Officer
-**Platform:** BirthRight (yourhealthbirthright.net) — operational maternal-health-equity platform with 3,000+ providers
-**Target Solicitation:** ARPA-H Proactive Health Office — SOL-24-106 (rolling)
-**Submission Date:** May 26, 2026
+*Formatting target: 11pt sans serif (Calibri / Arial / Avenir Next Pro Light), 6-page hard limit, citations excluded from the page count per Appendix A. Submit via https://solutions.arpa-h.gov/Submit-Solution/.*
 
 ---
 
-## 1. EXECUTIVE SUMMARY (Heilmeier-style, plain language)
+## Cover Page
 
-**What we are trying to do.** Prevent child-maltreatment fatalities and the lifelong adverse-childhood-experiences (ACE) cascade by intervening with parents during the developmental window when the brain region that governs impulse control, empathy, and emotional regulation — the prefrontal cortex (PFC) — is still consolidating. That window is age 18 through approximately 26 (peer-reviewed neuroscience consensus). The largest single perpetrator cohort of child maltreatment in federal data is the same window: parents age 25–34 account for **39.9% of all U.S. maltreatment perpetrators** with the highest per-capita rate of **3.9 per 1,000 adults** — higher than both younger (18–24: 1.9) and older (35–44: 2.9) cohorts (NCANDS CM 2022, Chapter 5).
+**Innovative Solutions Opening:** ARPA-H Proactive Health Office Innovative Solutions Opening — **ARPA-H-SOL-24-106**, Amendment 03 (October 14, 2025); rolling, closes March 5, 2029.
 
-**How is it done today, and what are the limits.** Existing federally-recognized prevention programs (Title IV-E Prevention Services Clearinghouse) teach *techniques* (positive parenting, attachment) and assume neurologically mature caregivers. None are explicitly designed around the PFC-consolidation window. Period of PURPLE Crying (Barr et al., 2012) and SBS/AHT-prevention curricula address one trigger (crying) but do not re-architect the underlying identity and emotional-regulation infrastructure of under-26 parents.
+**Solution Summary Title:** *PFC-Window: A Population-Scale AI Platform for Detecting and Pre-empting Prefrontal-Cortex-Driven Caregiver Risk Before Child Maltreatment Occurs.*
 
-**What is new in our approach, and why we think it will succeed.** "It's No Longer About You" is the first curriculum and digital intervention built explicitly on the alignment between PFC neuroscience (Lebel & Beaulieu 2011 *J Neurosci*; Giedd et al. 1999 *Nat Neurosci*; Arnett 2000 *Am Psychol*) and maltreatment-perpetration epidemiology (NCANDS CM 2022). It shifts caregiver *identity* — not just behavior — and pairs that shift with explicit PFC-bypass protocols, ACE-cycle awareness, and the structural resource navigation (housing, food, childcare, mental health) that reduces the chronic stressors that drive PFC dysregulation. Delivery is through BirthRight, an already-operational platform — eliminating the build-from-scratch cost ARPA-H would otherwise underwrite.
+**Submitter (Prime):** **The Collaborative Advocate Foundation (TCAF)** — d/b/a ThriveUp Academy
+- **Organization Type:** ☒ Non-profit (IRS 501(c)(3), public charity §170(b)(1)(A)(vi), determined January 14, 2026)
+- **EIN:** 41-3618003 · **UEI:** KDDVD1FGLW35 · **CAGE:** 209N1 · **SAM Status:** Active through 2027-05-06
 
-**Who cares. If we succeed, what difference will it make.** A successful intervention at scale prevents (a) the **1,990 child fatalities/year** from maltreatment (NCANDS CM 2022, 12.7% increase from 2018's 1,765); (b) the downstream ACE-attributable adult disease burden — preventing ACEs could **reduce heart disease cases by 22% and depression by 78% among adults**, and suicide attempts among high school students by **89%** (CDC, *About ACEs*, March 2026 update); (c) the intergenerational cycle that runs at **HR=3.19 (95% CI 3.00–3.39) for substantiated maternal-maltreatment history → next-generation CPS involvement** in California population-level linkage data (Putnam-Hornstein et al., *Am J Epidemiol* 2015, n=85,084 first-time-teen-mother births). Adults with ≥6 ACEs die nearly **20 years earlier on average** (60.6 vs 79.1 years; Brown et al., *Am J Prev Med* 2009).
+**Technical Point of Contact**
+- Name: Terry D. Flood, DHA — *President*, The Collaborative Advocate Foundation
+- Mailing Address: Pflugerville, TX *(full address on file in SAM.gov)*
+- Telephone: *on file*
+- Email: terryflood@thrivingcommunitiesforall.com
 
-**Risks and payoffs.** Risk: standard implementation-science risks (uptake, fidelity, measurement). Payoff: a Title IV-E Prevention Services Clearinghouse-listable intervention unlocks open-ended federal-entitlement reimbursement, turning every state child welfare agency into a distribution partner. The ARPA-H investment is the catalyst; the downstream federal reimbursement is the engine.
+**Administrative Point of Contact**
+- Name: Meredith Sisnett, MS — *Chief Growth Officer*, TCAF
+- Mailing Address: Pflugerville, TX
+- Telephone: *on file*
+- Email: msisnett@thrivingcommunitiesforall.com
 
-**How much it will cost and how long it will take.** Three-year pilot-to-Clearinghouse-submission program; budget envelope $5M–$15M depending on cohort size and evaluation rigor (Section 7).
+**Estimated Project Duration:** 24 months (Base) + 12-month Option = 36 months maximum
 
-**Mid-term and final exam questions.** Mid-term (Year 1): enrollment of 2,000 under-26 parents, ≥60% module completion, pre/post DERS and PSOC effect sizes >0.3. Final (Year 3): CPS-involvement rate in matched-cohort follow-up below population baseline; Title IV-E Clearinghouse Promising-or-Supported designation.
+**Total Basis of Estimate:** **$5,475,000** (24-month Base) · Option: $2,150,000 · Maximum total: $7,625,000
 
----
+**Resource Sharing:** Gov't 100% / Performer 0% (no cost share proposed; TCAF and sub-awardees commit substantial in-kind platform infrastructure separately quantified in §BOE)
 
-## 2. THE PROBLEM — quantified, with primary-source citations
+**Place(s) of Performance:** Pflugerville, TX (TCAF) · Austin/Manor/Pflugerville TX corridor (BirthRight deployment hubs) · Remote (distributed engineering team)
 
-### 2.1 The fatality denominator (federal source)
+### Sub-Awardees and Consultant Team Members
 
-| Statistic | Number | Source (verbatim) |
-|---|---|---|
-| Child fatalities from abuse/neglect, FFY 2022 | **1,990** at a rate of 2.73 per 100,000 children | NCANDS *Child Maltreatment 2022*, Ch 4 |
-| Increase from 2018's 1,765 fatalities | **12.7%** | NCANDS CM 2022, Ch 4 |
-| Total unique victims, FFY 2022 | **558,899** | NCANDS CM 2022 |
-| Fatalities involving one or more parents | **81.8%** | NCANDS CM 2022, Ch 4 (verbatim) |
-| Children <1 yr died from maltreatment at this multiple of children age 1 | **>3×** the rate | NCANDS CM 2022, Ch 4 |
-| Children <1 yr — share of all maltreatment fatalities | **45.4%** | Children's Bureau / CWIG, *Child Abuse and Neglect Fatalities 2019: Statistics and Interventions*, March 2021 factsheet citing NCANDS |
-| Homicide rank as cause of death for U.S. children younger than age 1 (CDC WISQARS injury-mortality ranking) | **Top-five injury cause; widely cited as the second leading cause of death** in infants when classified per WISQARS injury-death methodology | CDC WISQARS Leading Causes; APSAC fatality-prevention review; JAMA Pediatrics Dec 2022 ("Trends in Homicide Rates for US Children Aged 0 to 17") |
-| Maltreatment deaths not recorded as such on death certificates (key reason NCHS all-cause rankings undercount the burden) | **50–60%** | Schnitzer & Ewigman, *Pediatrics* 2005; American SPCC citing same |
-| Abusive head trauma share of all child-maltreatment deaths in children under five | **~one-third** | American SPCC |
-| Of fatalities: suffered neglect | **76.4%** | NCANDS CM 2022, Ch 4 |
-| Of all victims: experienced neglect | **74.3%** | NCANDS CM 2022, Ch 3 |
-| Fatalities not recorded as maltreatment on death certificates | **50–60%** | American SPCC (citing NCANDS) |
-
-### 2.2 The perpetrator cohort (the keystone)
-
-From NCANDS CM 2022, Chapter 5, verbatim:
-
-> "The majority (68.8%) of perpetrators are in the age range of 25–44 years old. **Perpetrators in the age group 25–34 are 39.9 percent of all perpetrators.** Perpetrators younger than 18 years old accounted for 1.9 percent of all perpetrators."
-> "The perpetrator age group of 25–34 have the highest rate at **3.9 per 1,000 adults** in the population of the same age. Older adults in the age group of 35–44 have the second highest rate at 2.9, while young adults in the age group of 18–24 have a rate of 1.9 per 1,000 adults in the population of the same age."
-> "**The majority (76.0%) of perpetrators are a parent of their victim**…"
-
-**This is the cornerstone of the entire program logic.** The cohort with the highest per-capita maltreatment perpetration rate (25–34) is also the cohort whose prefrontal cortex is still actively consolidating per peer-reviewed longitudinal MRI evidence (§2.3). No existing intervention is built on this alignment.
-
-### 2.3 The brain-science alignment (peer-reviewed)
-
-| PFC function (parenting-critical) | Status under age 26 | Source |
-|---|---|---|
-| White-matter maturation in association tracts (the circuitry of impulse control, empathy, emotional regulation) | Continues into the third decade; postadolescent within-subject maturation observed | Lebel & Beaulieu, *J Neurosci* 2011 (longitudinal DTI, n=103, ages 5–32) |
-| Cortical/subcortical longitudinal MRI maturation through adolescence | Continues through late adolescence | Giedd et al., *Nat Neurosci* 1999 (canonical longitudinal MRI study) |
-| Distinct developmental stage 18–25 ("emerging adulthood") with identity exploration and incomplete role consolidation | Recognized developmental period | Arnett, *Am Psychol* 2000 |
-
-**Citation block for §2.3:** Longitudinal MRI evidence demonstrates that white matter maturation in the prefrontal association tracts — the circuitry underlying impulse control, empathy, and emotional regulation — continues into the third decade of life [Lebel & Beaulieu, *J Neurosci* 2011; Giedd et al., *Nat Neurosci* 1999]. Developmental psychology recognizes this period (18–25) as a distinct life stage [Arnett, *Am Psychol* 2000].
-
-### 2.4 The infant-specific trigger: shaken-baby / AHT and crying
-
-**Why the infant cohort matters most.** Children younger than 1 year account for **45.4% of all maltreatment fatalities** (CWIG/Children's Bureau 2021 factsheet) and die from maltreatment at **more than three times the rate** of one-year-olds (NCANDS CM 2022). Homicide is consistently ranked among the leading causes of death for U.S. infants per CDC WISQARS injury-mortality data and is widely cited as the second leading cause of death in children younger than age one — a burden that NCHS all-cause rankings systematically understate because **50–60% of maltreatment fatalities are not recorded as maltreatment on death certificates** (Schnitzer & Ewigman, *Pediatrics* 2005; American SPCC). **Abusive head trauma alone accounts for approximately one-third of all child-maltreatment deaths in children under five** (American SPCC). The infant cohort is therefore the highest-stakes intervention target — and the AHT/crying trigger is its most prevention-tractable mechanism.
-
-Period of PURPLE Crying — the evidence-based shaken-baby-syndrome / abusive-head-trauma (SBS/AHT) prevention program in deployment since 2007 at over 2,000 implementation sites — frames the trigger explicitly:
-
-> "The program approaches SBS/AHT and infant abuse prevention by helping parents and caregivers understand the frustrating features of crying in normal, healthy infants that can lead to shaking or abuse." (National Center on Shaken Baby Syndrome, dontshake.org/PURPLE Crying)
-
-Peer-reviewed evidence base: Barr RG et al. "Preventing abusive head trauma resulting from a failure of normal interaction between infants and their caregivers." *Child Abuse & Neglect* 2012;36(9):613–620 (PMID 23045677). Outcome data: 8-year prevention outcomes published *Child Abuse Negl* 2018 (PMID 30077049). Period-of-PURPLE-Crying-style anticipatory education is a proven adjacent modality; our intervention extends it by addressing the underlying PFC-regulation gap that makes the crying trigger so consequential.
-
-### 2.5 The intergenerational engine
-
-The cycle is not metaphor; it is administrative-data-grade epidemiology:
-
-| Cycle finding | Magnitude | Source |
-|---|---|---|
-| Substantiated maternal-maltreatment history → next-generation CPS involvement (adjusted hazard ratio) | **HR = 3.19 (95% CI 3.00–3.39)** | Putnam-Hornstein et al., *Am J Epidemiol* 2015; California population-level linkage, n=85,084 first-time-teen-mother births |
-| Unsubstantiated maternal-maltreatment history → next-generation CPS involvement | HR = 2.19 (95% CI 2.06–2.33) | Same study |
-| Former foster youth, ever pregnant by age 26 | **79.2%** vs **55%** Add Health peers | Courtney et al., *Midwest Evaluation Outcomes at Age 26*, Chapin Hall 2011 |
-| Former foster youth ever pregnant before age 18 | **32.1%** | Same Midwest Eval Wave 5, Table 84 |
-| Last pregnancy reported as unplanned | ~75% (Midwest) vs ~50% (Add Health) | Same |
-
-### 2.6 The ACE downstream burden
-
-| ACE-attributable adult outcome | CDC current estimate (PAF) | Source |
-|---|---|---|
-| Heart disease cases reducible by preventing ACEs | **22%** | CDC, *About Adverse Childhood Experiences*, updated March 2026 |
-| Depression reducible by preventing ACEs | **78%** | Same |
-| Suicide attempts among HS students reducible | **89%** | Same |
-| Prescription pain-medication misuse reducible | **84%** | Same |
-| Persistent sadness/hopelessness reducible | **66%** | Same |
-| Adults with 4+ ACE categories — relative risk for alcoholism / drug abuse / depression / suicide attempt vs 0 ACEs | **4–12×** | Felitti et al., *Am J Prev Med* 1998 (n=9,508) |
-| Life-expectancy reduction in adults with ≥6 ACEs vs 0 ACEs | **~20 years** (60.6 vs 79.1 yr) | Brown et al., *Am J Prev Med* 2009 (n=17,337) |
-| US adults with ≥1 ACE | **61%** | CDC Vital Signs Nov 2019 (2017 BRFSS) |
-| US adults with ≥4 ACEs | **16%** | Same |
-| Annual depression cases attributable to ACEs (upper-bound) | **Up to 21 million** | Same |
-| Annual heart-disease cases attributable to ACEs (upper-bound) | **Up to 1.9 million** | Same |
-
----
-
-## 3. THE INTERVENTION
-
-### 3.1 Core thesis
-
-A parent under 26 cannot reliably *execute* parenting techniques under stress because the PFC machinery required to do so is still consolidating. What they *can* do is internalize a new **identity framework** ("it's no longer about me") that, paired with explicit emotional-regulation scaffolds and structural-stressor reduction, narrows the gap between immature neurology and the demands of caregiving. The intervention re-architects identity first, then layers technique. This sequencing is novel.
-
-### 3.2 Curriculum architecture (8 modules)
-
-| # | Module | Focus | Delivery |
+| Organization | Technical POC | Type | Role |
 |---|---|---|---|
-| 1 | Identity Shift | "It's no longer about you" — the cognitive reframe | Video + journaling via BirthRight |
-| 2 | Brain Science for Parents | How your brain works, why this is hard, why it's not your fault | Plain-language modules + Rhonda (24/7 culturally-competent AI companion) |
-| 3 | The Crying Protocol | PFC-bypass step-by-step for the high-risk moment (anchors on the Period-of-PURPLE-Crying evidence base) | Interactive simulations |
-| 4 | Sleep & Stress | Why sleep deprivation amplifies risk; structural mitigations | Practical guides + partner module |
-| 5 | Cycle Awareness | Recognizing your own ACEs; naming the inheritance; choosing differently | Trauma-informed self-assessment |
-| 6 | Network Building | Who you call when you cannot cope — the 3am list | Community Threads integration |
-| 7 | Resource Navigation | Food, housing, childcare, mental health — the structural stressor reducers | BirthRight resource directory (3,000+ providers) |
-| 8 | Partner & Family Inclusion | "It's no longer about us" — the dyadic version | Existing Partner Support module |
-
-### 3.3 Delivery platform — BirthRight (already operational)
-
-- **3,009 providers** in the directory (Texas-focused, scaling national)
-- **Rhonda Powers** — 24/7 culturally-competent AI companion (GPT-4o + Claude with web search; routed through `ai-provider.ts` `ETHICAL_EI_PREAMBLE` — six rules including truth+primary sources, plain language/dialect-honoring, safety hand-off, prioritization of Black/Latino/Indigenous/immigrant/justice-involved/foster/rural/low-income users)
-- **PWA-installable, offline-capable, mobile-first**
-- **Full authentication, session continuity, longitudinal data claiming** for outcome tracking
-- **ThriveUp Black Maternal Health Network integration** — Grade A, 100% fidelity, SAMHSA + St. David's grant alignment
-- **Texas Maternal Health Data Center** with regional hubs (Austin, Manor, Pflugerville)
-- **Existing modules** for risk screening, care plans, partner support, postpartum, grief, mental-health screening, warning signs
-
-### 3.4 Integration Through Invitation (ITI) — dignity primitive (institutional commitment)
-
-The intervention will deploy with our `IntegrationInvitation` surface for shadow workers — informal caregivers, peer mentors, promotoras, untitled CHWs, kinship caregivers. **Non-negotiables (constitutional, not optional):** self-identification (no credential check) · 8 layered consents all default OFF (anti-extraction) · witness loop always on · stipend & credentialing pathways real, not aspirational · AI never summarizes a shadow-worker story without explicit `aggregateMyData=true` · no funder citation without `shareWithFunder=true` · no public naming without `nameMePublicly=true`. This is how we make the intervention reach the parents most likely to be missed by traditional system-of-care recruitment.
+| **M&T Consulting Solutions LLC** (UEI NLAWXBLCUW54, CAGE 1NDG6, Pflugerville TX) | Terry D. Flood, DHA — CEO | ☒ For-Profit | Deployment surface (BirthRight platform), 3,009-provider directory, Rhonda AI companion, maternal-health domain expertise |
+| **Academic Evaluation Partner** *(letter of intent in negotiation: Dell Medical School / UT School of Public Health)* | TBD | ☒ Academia | Matched-cohort CPS-linkage evaluation, IRB stewardship, Title IV-E Clearinghouse evaluation-design oversight |
+| **Clinical Standards Consultant** *(NCSBS — National Center on Shaken Baby Syndrome)* | TBD | ☒ Non-profit | Period of PURPLE Crying integration, AHT-prevention fidelity review |
 
 ---
 
-## 4. EVALUATION DESIGN (implementation-science grade)
+## Concept Summary
 
-Evaluation built on implementation-science frameworks operationalized in TCAF's RPLICE engine:
+PFC-Window is a **prophylactic AI platform**, not a curriculum, that detects parents in the prefrontal-cortex consolidation window (≤26 years) at elevated risk for caregiver-perpetrated maltreatment, then delivers culturally- and dialect-honoring just-in-time intervention before harm occurs. It addresses **PHO interest areas 1.i** (prophylactic prevention of harmful outcomes), **2.i and 2.ii** (population-scale methods to inform and to incentivize healthy caregiver behaviors), and **3.i** (novel, robust, and predictive surrogates for long-term health outcomes).
 
-- **CFIR 2.0** (Consolidated Framework for Implementation Research) — 39 constructs across 5 domains for context analysis
-- **RE-AIM** (Reach · Effectiveness · Adoption · Implementation · Maintenance) — outcomes framework
-- **EPIS** (Exploration · Preparation · Implementation · Sustainment) — phase model
-- **MAP-GAP** — TCAF's continuous-improvement scaffolding
+The platform fuses three production technologies already shipped at TCAF/BirthRight — a four-domain SDOH risk engine, validated psychometric instruments (PHQ-9, GAD-7, C-SSRS, PCL-5, ACES), and a 24/7 dialect-preserving AI companion — with three novel components built under this award: a **PFC-window caregiver risk model** trained against perpetration epidemiology; a **moment-of-stress passive-signal detector** for prophylactic intervention; and a **CPS-linked predictive surrogate** validated against administrative outcomes. A curriculum module ("It's No Longer About You") is one downstream deliverable inside the platform — not the platform.
 
-**Outcome targets (3-year):**
-
-| Outcome | Measurement | Year 1 target | Year 3 target |
-|---|---|---|---|
-| Reach | Under-26 parents enrolled | 2,000 | 10,000 |
-| Engagement | Module completion ≥60% | ≥60% | ≥70% |
-| Effectiveness — emotional regulation | DERS pre/post effect size | d ≥ 0.3 | d ≥ 0.5 |
-| Effectiveness — parenting self-efficacy | PSOC pre/post effect size | d ≥ 0.3 | d ≥ 0.5 |
-| Effectiveness — identity shift | Mixed-methods qualitative coding + validated identity-orientation scale | ≥60% report shift | ≥70% report shift |
-| Cycle-interruption proxy | CPS-involvement rate, matched-cohort 12-month follow-up | establish baseline | below matched-cohort baseline |
-| Adoption (sites) | Implementation sites beyond BirthRight | 2 sites | 10 sites |
-| Implementation fidelity | CFIR-anchored fidelity index | ≥80% | ≥90% |
-| Maintenance | Sustained delivery without ARPA-H funding | n/a | ≥1 site at full self-sustainment |
-| Clearinghouse pathway | Title IV-E Prevention Services Clearinghouse submission | Planning + IRB | Promising or Supported designation |
-
-**Title IV-E Prevention Services Clearinghouse pre-consultant engagement** is a Year-1 deliverable to ensure evaluation design meets Clearinghouse standards from Day 1.
+**Why this is in scope and not an "education and training" exclusion (Section 2.1):** This is novel-technology development of a digital-health detection-and-intervention platform with an FHIR + CDS-Hooks interoperable surrogate biomarker as the core scientific deliverable. Educational content delivered through the platform is a downstream artifact, in the same sense that a clinical-decision-support tool is not "education" merely because it surfaces guidance to a clinician.
 
 ---
 
-## 5. WHY ARPA-H — Proactive Health Office fit
+## Innovation and Impact
 
-The Proactive Health Office funds "preventative programs that reduce the likelihood that people become patients." This intervention does so on three temporal horizons simultaneously:
+### Problem and outcomes sought
 
-1. **Immediate prevention** — reducing maltreatment-related ICU admissions, foster-care entries, child fatalities (annual: 1,990 fatalities, 558,899 victims).
-2. **Mid-term prevention** — reducing ACE-attributable adult disease in the next-generation cohort (heart disease 22% PAF, depression 78% PAF — CDC).
-3. **Generational prevention** — interrupting the HR=3.19 intergenerational-CPS cycle (Putnam-Hornstein 2015).
-
-**Why this is ARPA-H — not NIH / HRSA — territory:**
-
-- **Breakthrough-enabling:** Re-architecting *what* the intervention is (PFC-window identity intervention) — not optimizing an existing Clearinghouse program.
-- **High-risk, high-reward:** No existing federally-recognized program is built on the PFC-developmental-window thesis. The thesis itself is the bet.
-- **Highly complex / cross-sector:** Requires neuroscience + maternal health + child welfare + community health worker pathways + AI infrastructure + state child-welfare partnership — exactly the cross-sector multidisciplinary coordination ARPA-H exists to fund.
-
-**Why Other Transaction (OT) authority fits:** Speed-to-pilot matters. BirthRight is operational today; OT contracting lets ARPA-H invest in build-out and pilot deployment without the multi-year R-series timelines that would let the 1,990-annual-fatality count compound while we wait.
-
----
-
-## 6. ORGANIZATIONAL CAPACITY
-
-**M&T Consulting Solutions LLC** (UEI NLAWXBLCUW54, CAGE 1NDG6, SAM Active, Pflugerville TX) is the for-profit small-business entity submitting this Solution Summary. M&T builds and operates BirthRight and serves as the PI's research employer (>50% employment confirmed).
-
-**Allied platform — ThriveUp Academy / TCAF** (national community-infrastructure platform) provides the implementation-science backbone (RPLICE — PubMed/iCite/OpenAlex/Crossref/Springer literature router; CFIR/RE-AIM/EPIS/MAP-GAP framework engine), the Texas-Coordination-Hub geographic distribution model (NSF 26-508 TechAccess LOI pending), and the 721-grant active-pursuit pipeline that has aligned the funding lattice.
-
-**Demonstrated platform capabilities:**
-
-- BirthRight production deployment (yourhealthbirthright.net) with PWA, multi-AI search, 3,009 providers
-- TCAF platform with 39 CFIR constructs operationalized in code (`server/`), CDC PLACES loader, foster-policy-levers loader (six federal levers encoded as statute facts: Fostering Connections Act, FFPSA, FYI, Chafee/ETV, Medicaid-to-26, FYI centralized application), FHIR/CDS-Hooks integration
-- AWS D1.1 hydraulic-model verification (Hardy-Cross / MNA) — institutional rigor on engineering side
-- RPLICE literature-router with documented platform caps (PubMed 50→200, OpenAlex 25→200, Springer 100, Crossref similar)
-- Ethical-EI preamble (`ai-provider.ts ETHICAL_EI_PREAMBLE`) routed through every AI call site — six constitutional rules including primary-source-only, plain-language/dialect-honoring, safety hand-off (988/911/DV/Childhelp), priority-population default
-- Integration Through Invitation surface (`IntegrationInvitation`) for shadow-worker dignity-preserving recruitment with 8 layered default-off consents
-
-**Personnel.** PI Dr. Flood (DHA) is the principal architect of both ThriveUp/TCAF and BirthRight. Co-I Meredith Sisnett (MS) is Chief Growth Officer with operational responsibility for partnerships and ecosystem coordination.
-
----
-
-## 7. BUDGET FRAMEWORK (3-year)
-
-| Category | Year 1 | Year 2 | Year 3 | 3-Year Total (envelope) |
-|---|---|---|---|---|
-| Curriculum development & peer-review evidence base | $$$ | $$ | $ | ~$1.5–2.5M |
-| Platform integration & AI personalization (Rhonda + ITI surfaces) | $$ | $$ | $$ | ~$1.5–2M |
-| Pilot deployment — Texas (Austin / Manor / Pflugerville corridor) | $$ | $$$ | $$$ | ~$2–4M |
-| Evaluation & data infrastructure (CFIR fidelity instrument, matched-cohort linkage, Clearinghouse-grade RCT or QED) | $$ | $$ | $$$ | ~$2–4M |
-| Clearinghouse pre-consultant + submission + dissemination | $ | $ | $$ | ~$0.5–1M |
-| **Total envelope** | — | — | — | **$5–15M** |
-
-Final dollar figures sized to ARPA-H Proactive Health Office norms and negotiated during OT scoping. Phase I/II milestone gates structured to ARPA-H's milestone-payment preference.
-
----
-
-## 8. PARALLEL & FOLLOW-ON FUNDING (the lattice ARPA-H unlocks)
-
-The ARPA-H award is the **catalyst**. Outcome data from the pilot unlocks a $2.27B+ annual federal-prevention reimbursement pool plus $200M+ in adjacent discretionary streams:
-
-- **CBCAP** — $71M FY2026 community-based prevention pool (20% non-federal match)
-- **Title IV-E Prevention** — open-ended federal entitlement once Clearinghouse-listed (the keystone scaling mechanism)
-- **Title IV-B / PSSF** — $689M base + $75M FY2026 increase (25% state match)
-- **Social Services Block Grant (SSBG)** — $1.5B SFY2022 child-welfare expenditures (state pass-through)
-- **SAMHSA NCSACW + discretionary streams** — $100M+ annually
-- **CDC violence-prevention** — $50M+ annually
-- **Philanthropic alignment** — Merck for Mothers (Austin precedent via MHEC), Pritzker Children's Initiative (birth-to-three focus), W.K. Kellogg, Annie E. Casey (foster-alumni focus), Conrad N. Hilton (foster youth), Doris Duke (child well-being)
-- **Texas-specific** — St. David's Foundation, Episcopal Health Foundation, Meadows Foundation, HHSC pass-through
-
-Total addressable downstream pool (conservative floor): **$2.5B+/year**. The ARPA-H investment of $5–15M over three years catalyzes access at orders of magnitude greater scale.
-
----
-
-## 9. TIMELINE & MILESTONES
-
-| Phase | Months | Milestones |
+| Outcome | Magnitude (verbatim primary source) | Source |
 |---|---|---|
-| Phase I — Build & IRB | 0–6 | Curriculum module 1–8 v1 complete · IRB approval · Clearinghouse pre-consultant engaged · matched-cohort linkage MOA with TX HHSC |
-| Phase I — Pilot launch | 6–12 | First 500 under-26 parents enrolled · DERS/PSOC baseline · CFIR fidelity instrument deployed |
-| Phase II — Scale | 12–24 | 2,000 enrollment · pre/post effectiveness analysis · 2 additional implementation sites (outside BirthRight) · matched-cohort 12-month CPS-involvement analysis |
-| Phase III — Outcome & Clearinghouse | 24–36 | 10,000 cumulative enrollment · Title IV-E Clearinghouse submission · sustainability plan deployed · two-paper dissemination (one to *Child Abuse & Neglect*, one to *JAMA Pediatrics* or *Implementation Science*) |
+| U.S. children killed by abuse/neglect, FFY 2022 | **1,990** at 2.73 per 100,000 children | NCANDS *Child Maltreatment 2022*, Ch. 4 |
+| Increase 2018→2022 | **+12.7%** (from 1,765 to 1,990) | Same |
+| Fatalities involving ≥1 parent | **81.8%** | NCANDS CM 2022, Ch. 4 verbatim |
+| Children <1 yr — share of all maltreatment fatalities | **45.4%** | Children's Bureau/CWIG factsheet March 2021, Fig. 1 |
+| Maltreatment deaths not recorded as such on death certificates | **50–60%** undercount | Schnitzer & Ewigman, *Pediatrics* 2005 |
+| Abusive head trauma share of child-maltreatment deaths under five | **~one-third** | American SPCC |
+| Largest perpetrator cohort: parents age **25–34** | **39.9%** of all perpetrators at **3.9 per 1,000 adults** (highest per-capita rate) | NCANDS CM 2022, Ch. 5 verbatim |
+| Substantiated maternal-maltreatment history → next-generation CPS involvement | **adjusted HR = 3.19 (95% CI 3.00–3.39)** | Putnam-Hornstein et al., *Am J Epidemiol* 2015, n=85,084 |
+| ACEs-attributable adult disease (preventable share if ACEs prevented) | Heart disease **22%** · Depression **78%** · HS-student suicide attempts **89%** | CDC *About ACEs*, March 2026 |
+| Life-expectancy reduction, ≥6 ACEs vs 0 ACEs | **~20 years** (60.6 vs 79.1) | Brown et al., *Am J Prev Med* 2009, n=17,337 |
+
+The scientific alignment that makes this novel technology possible: the cohort with the highest per-capita maltreatment perpetration rate (25–34, 3.9/1,000) is precisely the cohort whose prefrontal-cortex white-matter maturation is still consolidating per longitudinal MRI evidence (Lebel & Beaulieu, *J Neurosci* 2011, n=103, 221 scans; Giedd et al., *Nat Neurosci* 1999; Arnett, *Am Psychol* 2000). **No federally-recognized intervention on the Title IV-E Prevention Services Clearinghouse is built around this alignment.** No existing platform fuses validated psychometric instruments + passive moment-of-stress signal detection + dialect-preserving conversational AI + administrative-outcome validation. This is the technology gap PFC-Window fills.
+
+### Comparison to the state of the art
+
+| Capability | State-of-art baseline (2026) | PFC-Window Year 1 target | PFC-Window Year 2–3 target |
+|---|---|---|---|
+| **Population-scale risk detection for the PFC-window caregiver cohort** | None — Title IV-E Clearinghouse lists zero PFC-window programs | Risk model deployed across BirthRight cohort, sensitivity ≥0.75 / specificity ≥0.80 against PHQ-9/GAD-7/ACES composite | CPS-linkage validation, AUC ≥0.78 against substantiated-event outcomes |
+| **Moment-of-stress prophylactic intervention** | Period of PURPLE Crying delivers anticipatory video at one teachable moment (birth) | Real-time conversational + passive-signal escalation in production, 24/7, 10+ language coverage | Demonstrated ≥0.3 effect size on DERS pre/post in matched cohort |
+| **Predictive surrogate validated against CPS administrative outcomes** | None established for this cohort | Matched-cohort design IRB-approved, data-use agreement executed with ≥1 state CPS partner | Predictive surrogate manuscript submitted to *JAMA Pediatrics* or *Pediatrics* |
+| **FHIR + CDS-Hooks interoperable surrogate** | No standardized risk codes for parental PFC-window risk | FHIR profile published; CDS-Hook firing at well-baby and prenatal visits in ≥1 pilot health system | Open-source release; submission to HL7 for inclusion |
+| **Dialect-honoring reach** to disproportionately affected populations | Most digital interventions ship English-only or naive Spanish | AAVE + Spanglish + 8 additional languages (existing TCAF capability extended to parenting-stress context) | Documented engagement parity across English, AAVE, Spanish, Spanglish, Vietnamese, Mandarin cohorts |
+| **Sustainability** | Most ARPA-H–funded interventions stop when the OT ends | Title IV-E Clearinghouse evaluation design locked from Day 1 | Submitted for "Promising" or "Supported" Clearinghouse tier — unlocks open-ended federal reimbursement |
+
+### Why this is potentially disruptive
+
+Existing maltreatment-prevention infrastructure assumes caregivers arrive at parenthood with mature emotional-regulation capacity, then *teaches techniques.* PFC-Window inverts the model: it treats the PFC-consolidation window as a measurable physiological state, builds a predictive surrogate against it, and delivers prophylactic intervention at the moment the surrogate fires. If validated, the surrogate itself — published as an open FHIR profile and CDS-Hook — becomes the standard against which any future under-26 caregiver intervention is measured. That is the disruption: not a better curriculum, a new measurement and intervention substrate.
 
 ---
 
-## 10. KEY CITATIONS (all verified verbatim from primary sources, May 2026)
+## Proposed Work
 
-1. U.S. Department of Health and Human Services, Administration for Children and Families, Children's Bureau. *Child Maltreatment 2022.* https://acf.gov/cb/report/child-maltreatment-2022
-2. Centers for Disease Control and Prevention. *About Adverse Childhood Experiences.* Updated March 2026. https://www.cdc.gov/aces/about/
-3. Centers for Disease Control and Prevention. *Vital Signs: Adverse Childhood Experiences.* MMWR, November 2019. https://www.cdc.gov/vitalsigns/aces/
-4. Felitti VJ, Anda RF, Nordenberg D, et al. "Relationship of childhood abuse and household dysfunction to many of the leading causes of death in adults: The Adverse Childhood Experiences (ACE) Study." *American Journal of Preventive Medicine.* 1998;14(4):245–258.
-5. Brown DW, Anda RF, Tiemeier H, Felitti VJ, Edwards VJ, Croft JB, Giles WH. "Adverse childhood experiences and the risk of premature mortality." *American Journal of Preventive Medicine.* 2009;37(5):389–396.
-6. Putnam-Hornstein E, Cederbaum JA, King B, Cleveland J, Needell B. "A population-level and longitudinal study of adolescent mothers and intergenerational maltreatment." *American Journal of Epidemiology.* 2015;181(7):496–503.
-7. Lebel C, Beaulieu C. "Longitudinal development of human brain wiring continues from childhood into adulthood." *Journal of Neuroscience.* 2011;31(30):10937–10947.
-8. Giedd JN, Blumenthal J, Jeffries NO, et al. "Brain development during childhood and adolescence: a longitudinal MRI study." *Nature Neuroscience.* 1999;2(10):861–863.
-9. Arnett JJ. "Emerging adulthood: a theory of development from the late teens through the twenties." *American Psychologist.* 2000;55(5):469–480.
-10. Courtney ME, Dworsky A, Brown A, Cary C, Love K, Vorhies V. *Midwest Evaluation of the Adult Functioning of Former Foster Youth: Outcomes at Age 26.* Chapin Hall at the University of Chicago. 2011.
-11. Barr RG. "Preventing abusive head trauma resulting from a failure of normal interaction between infants and their caregivers." *Child Abuse & Neglect.* 2012;36(9):613–620.
-12. American Society for the Positive Care of Children (American SPCC). *Child Maltreatment Statistics.* 2024. https://americanspcc.org/child-maltreatment-statistics/
-13. National Children's Alliance. *National Statistics on Child Abuse.* 2024 (citing NCANDS CM 2024).
+### Final deliverables
+
+1. **PFC-Window Risk Model v1.0** — production-deployed parent-cohort risk surrogate, trained on validated psychometric instruments (PHQ-9, GAD-7, C-SSRS, PCL-5, ACES) and SDOH inputs, validated against NCANDS perpetration epidemiology and matched-cohort CPS-linkage outcomes. Open-source under Apache 2.0.
+2. **Moment-of-Stress Intervention Engine** — production-deployed passive-signal + conversational escalation system, HITL-default-on, with clinician-validated escalation protocols and 24/7 Rhonda AI companion as the front-end. Source code, escalation protocols, and clinician-review datasets delivered to the government.
+3. **FHIR + CDS-Hooks Interoperability Profile** — new FHIR profile for PFC-window caregiver risk, CDS-Hook implementation firing at prenatal and well-baby visits in ≥1 pilot health system. Submitted to HL7 for standards inclusion.
+4. **CPS-Linkage Predictive Surrogate Study** — IRB-approved matched-cohort design with ≥1 state CPS data-use agreement, manuscript submitted to a peer-reviewed pediatrics journal by Month 30.
+5. **Title IV-E Prevention Services Clearinghouse Evaluation Package** — evaluation design, fidelity instrumentation, and implementation manual built to Clearinghouse standards from Day 1; submitted for "Promising" or "Supported" tier review.
+6. **"It's No Longer About You" Curriculum Module** — eight modules delivered inside the platform as one downstream intervention artifact (Identity Shift, Brain Science for Parents, Crying Protocol, Sleep & Stress, Cycle Awareness, Network Building, Resource Navigation, Partner & Family Inclusion).
+
+### Key interim milestones
+
+| Month | Milestone |
+|---|---|
+| M03 | Risk-model v0.1 trained on retrospective TCAF/BirthRight + NCANDS aggregate data; FHIR profile draft v0.1 |
+| M06 | Risk-model v1.0 deployed to BirthRight production; PFC-window cohort identified |
+| M09 | Moment-of-stress detector v0.1 in HITL-supervised production |
+| M12 | IRB approval; first state CPS data-use agreement executed; CDS-Hook live in ≥1 pilot health system |
+| M15 | Pre/post DERS + PSOC instrument administration on Year-1 enrollee cohort |
+| M18 | Risk-model v2.0 retrained on platform-derived outcomes |
+| M21 | Matched-cohort CPS-linkage analysis complete |
+| M24 (Base end) | Peer-reviewed manuscript submitted; Clearinghouse evaluation package complete; Option-period decision gate |
+| M36 (Option end) | Clearinghouse submission; HL7 standards submission; final platform handoff |
+
+### Technical approach and theoretical foundation
+
+The platform extends three TCAF production systems (verified in `server/foster-youth-risk.ts`, `server/early-warning.ts`, `server/translate-routes.ts`, and the SafeReport FHIR + CDS-Hooks stack with 0-PHI-egress design) with three new components. The foster-youth four-domain risk engine (housing, food, mental health, documents) and the BirthRight maternal-health stack (3,009 providers, Rhonda 24/7 AI companion, 39 CFIR constructs operationalized in `client/src/pages/research-hub.tsx`) provide the deployment substrate. The novel build is the **parent-cohort risk surrogate** trained against the perpetration epidemiology summarized above plus the longitudinal-MRI neurodevelopmental literature (Lebel & Beaulieu 2011; Giedd et al. 1999), the **moment-of-stress passive-signal layer** (sleep-gap, conversational sentiment, time-of-day, contextual cues; HITL-default-on per the SafeReport pattern), and the **CPS-linked outcome validation** against administrative records.
+
+Adoption challenges to be overcome: (a) state CPS data-use-agreement timelines historically range 9–18 months — mitigated by parallel negotiation with three states from Month 1; (b) IRB approval for a vulnerable-population platform-research design — mitigated by engaging the academic partner's IRB as the single IRB of record before Month 3; (c) the cultural-acceptance risk of being perceived as surveillance rather than support — mitigated by TCAF's *Integration through Invitation* dignity primitive (eight layered consents default OFF, self-identification with no credential check, no funder citation without explicit shareWithFunder consent — documented in `docs/agent-memory/topics/integration-through-invitation.md`).
+
+### Does the approach require new technical developments?
+
+Yes — three: the PFC-window caregiver risk model (no such surrogate exists in the literature), the moment-of-stress detection layer (passive-signal fusion with HITL-supervised conversational AI is not a shipped capability anywhere we have identified), and the CPS-administrative-outcome validation pipeline (no existing predictive surrogate has been validated against CPS substantiated-event linkage at the population scale California's Putnam-Hornstein 2015 work demonstrated is feasible).
+
+### Technical-risk register and mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| State CPS data-use agreement delays past Month 12 | Medium | Schedule slip; surrogate-validation timeline at risk | Parallel negotiation with 3 states; CA, TX, NY as priority targets given prior data-linkage precedent |
+| Risk-model false-positive rate too high → community-trust loss | Medium | Adoption collapse; ethical harm | HITL-default-on; transparent consent flow; minimum-PPV threshold (≥0.65) before any auto-escalation; community advisory board with veto |
+| Predictive surrogate fails to validate against CPS outcomes | Low–Medium | Core scientific deliverable fails | Pre-registered analysis plan; Bayesian secondary analysis; if primary endpoint fails, surrogate is published as null result (still high-value scientific contribution) |
+| Funder-perceived overlap with "traditional education and training" exclusion | Low (with proper framing) | Non-conforming determination | Curriculum framed as downstream artifact; lead deliverable is the risk surrogate and intervention engine; in-scope rationale explicit on Cover Page |
+| AI provider rate-limit / cost runaway from 24/7 conversational load | Low | Budget overrun | Existing TCAF 4-engine failover architecture (Gemini/Claude/GPT-4o-mini/DeepSeek R1, `server/ai-provider.ts`); per-IP rate limiting; capability-token security pattern from foster-youth public-wizard |
+
+### Featured use cases and demonstrations
+
+(1) End-to-end demo: a hypothetical 22-year-old expectant mother enrolls via BirthRight; risk-model fires moderate-risk surrogate; CDS-Hook surfaces during prenatal visit; Rhonda AI companion offers consent-gated PURPLE-Crying anticipatory module + "It's No Longer About You" Identity Shift module; moment-of-stress detector escalates a 2 AM conversational session to HITL-supervised clinician outreach; outcome captured in matched-cohort follow-up. (2) Open-source FHIR profile demonstration at HL7 Connectathon by Month 18. (3) Quarterly community-advisory-board review of false-positive cases with veto authority.
 
 ---
 
-## 11. CONTACT & SUBMISSION
+## Team Organization and Capabilities
 
-**Principal Investigator:** Terry D. Flood, DHA
-**Email (institutional):** terryflood@thrivingcommunitiesforall.com
-**Phone:** [to be provided in submission packet]
-**Organization:** M&T Consulting Solutions LLC, Pflugerville, TX
-**UEI:** NLAWXBLCUW54 | **CAGE:** 1NDG6 | **SAM Status:** Active
+**The Collaborative Advocate Foundation (TCAF) — Prime (lead).** TCAF is a Texas 501(c)(3) public charity (determined January 14, 2026) operating a production digital-health and workforce-development platform comprising **271 database tables, 211 frontend pages, and 84 server-route modules** (primary-source verified May 2026), including a four-engine collaborative AI stack with failover (`server/ai-provider.ts`), an 86-chunk RAG engine grounded in TCAF's own commitment documents, a dialect-aware translation layer preserving AAVE/Spanglish/regional dialects, FHIR + CDS-Hooks with 0-PHI-egress (SafeReport), and 39 CFIR implementation-science constructs operationalized in code. SAM.gov-active through May 2027.
 
-**Solicitation:** ARPA-H Proactive Health Office — SOL-24-106 (rolling Innovative Solution Opening). Solution Summary submitted via the ARPA-H submission portal as required by current SOL-24-106 instructions.
+| Key Personnel | Position / Institution | Skills and experience |
+|---|---|---|
+| **Terry D. Flood, DHA** — *Principal Investigator* | President, TCAF; CEO, M&T Consulting Solutions LLC | Doctor of Health Administration; founder of the TCAF/ThriveUp platform stack; operational lead on the Texas Maternal Health Data Center build-out; will commit >50% effort to this OT |
+| **Meredith Sisnett, MS** — *Co-Investigator / Growth Lead* | Chief Growth Officer, TCAF | Implementation science, partner ecosystem development, SAMHSA + St. David's-aligned partnership development, evaluation oversight |
+| **Lead AI/ML Engineer** (TCAF FTE, to be named) | TCAF | Risk-model development, FHIR/CDS-Hooks integration, HITL escalation protocols |
+| **Academic Evaluation PI** (in negotiation: Dell Med / UT SPH) | Dell Medical School or UT School of Public Health | Matched-cohort study design, CPS-linkage methodology, IRB stewardship, Title IV-E Clearinghouse evaluation-standards expertise |
+
+**M&T Consulting Solutions LLC — Sub-awardee.** Texas LLC (UEI NLAWXBLCUW54, CAGE 1NDG6, SAM-active). Operator of the BirthRight maternal-health-equity platform (3,009 providers in directory, 24/7 Rhonda AI companion, PWA-installable, Austin/Manor/Pflugerville hubs, ThriveUp Black Maternal Health Network integrated, SAMHSA + St. David's-aligned). Provides the deployment surface, maternal-health domain expertise, and provider-network reach. Dr. Flood holds CEO position at M&T with >50% employment confirmed; the TCAF–M&T relationship operates as an arms-length sub-award with documented work-product, IP, and cost separation consistent with TCAF's two-entity firewall posture (TCAF non-profit / for-profit sibling clean separation, per TCAF documented governance).
+
+**Academic Evaluation Partner — Sub-awardee (in negotiation).** Dell Medical School (UT Austin) or UT School of Public Health, finalized within 60 days of selection. Letter of intent to follow with proposal submission.
+
+**Clinical Standards Consultant — National Center on Shaken Baby Syndrome.** Period of PURPLE Crying integration and AHT-prevention fidelity review.
 
 ---
 
-*Prepared by M&T Consulting Solutions LLC for ARPA-H Proactive Health Office submission, May 26, 2026. Every quantified claim above traces to a primary source listed in §10; verbatim source quotes are preserved in the project research record (`docs/grants/arpa-h-no-longer-about-you/04-verified-sources.md`).*
+## Basis of Estimate (BOE)
+
+**Total 24-month Base BOE: $5,475,000.** All figures are ROM-class estimates anchored to TCAF/M&T burdened labor rates, prevailing federal indirect benchmarks (TCAF de minimis 10% in absence of NICRA), and quoted sub-award costs. Final cost proposal will be developed using the Bundle of Attachments Cost Proposal Workbook upon ARPA-H feedback.
+
+| Basis of Estimate (BOE) | Amount (Base, 24-mo) |
+|---|---|
+| **Direct labor** — TCAF (PI Flood 50% FTE, Co-PI Sisnett 30% FTE, Lead AI/ML Engineer 100% FTE, 2 software engineers @ 100% FTE, 1 evaluation analyst 50% FTE, 1 community liaison 50% FTE) | $1,850,000 |
+| **Sub-awards** — M&T Consulting Solutions LLC (BirthRight platform integration, provider-network engagement, Rhonda AI extension) | $725,000 |
+| **Sub-awards** — Academic Evaluation Partner (matched-cohort design, IRB, CPS-linkage analysis, manuscript) | $640,000 |
+| **Sub-awards** — NCSBS Clinical Standards Consultant | $85,000 |
+| **AI/cloud infrastructure** (4-engine collaborative AI usage, RAG hosting, FHIR server, CDS-Hooks endpoint, monitoring) | $410,000 |
+| **State CPS data-use agreement legal + data-stewardship costs** (3 state parallel negotiation) | $235,000 |
+| **Materials, supplies, software licenses** | $95,000 |
+| **Travel** (HL7 Connectathon, ARPA-H program reviews, state-CPS in-person negotiations) | $75,000 |
+| **Community advisory board honoraria + community-engagement stipends** (Integration through Invitation dignity primitive — real stipends for shadow workers, not aspirational) | $185,000 |
+| **Fringe benefits @ 28% on direct labor** | $518,000 |
+| **Indirect costs @ 10% de minimis** | $475,000 |
+| **Profit/Fee** | $0 (non-profit prime; no fee on TCAF direct work) |
+| **Sub-total before contingency** | $5,293,000 |
+| **Management reserve (≤4%)** | $182,000 |
+| **Total Base (24 months)** | **$5,475,000** |
+| Option period (12 mo) — Clearinghouse submission + HL7 standards push + scaled deployment | $2,150,000 |
+| **Total with Option (36 months)** | **$7,625,000** |
+
+**Resource sharing:** Gov't 100% / Performer 0%. TCAF commits substantial in-kind infrastructure (existing 271-table platform, 4-engine AI stack, BirthRight provider network, RAG engine, FHIR/CDS-Hooks code, 39 CFIR constructs) as the foundation on which this OT builds — separately documented in TCAF's capabilities inventory and available on request. No cash cost-share proposed.
+
+---
+
+## Citations *(excluded from 6-page count per Appendix A)*
+
+1. U.S. HHS, Administration for Children and Families, Children's Bureau. *Child Maltreatment 2022.* https://acf.gov/cb/report/child-maltreatment-2022
+2. Children's Bureau / Child Welfare Information Gateway. *Child Abuse and Neglect Fatalities 2019: Statistics and Interventions.* March 2021 factsheet, Figure 1.
+3. Schnitzer PG, Ewigman BG. "Child Deaths Resulting From Inflicted Injuries: Household Risk Factors and Perpetrator Characteristics." *Pediatrics.* 2005;116(5):e687–e693.
+4. CDC. *About Adverse Childhood Experiences.* Updated March 2026. https://www.cdc.gov/aces/about/
+5. CDC. *Vital Signs: Adverse Childhood Experiences.* November 2019.
+6. Felitti VJ, Anda RF, Nordenberg D, et al. *Am J Prev Med.* 1998;14(4):245–258.
+7. Brown DW, Anda RF, Tiemeier H, et al. *Am J Prev Med.* 2009;37(5):389–396.
+8. Putnam-Hornstein E, Cederbaum JA, King B, Cleveland J, Needell B. *Am J Epidemiol.* 2015;181(7):496–503.
+9. Lebel C, Beaulieu C. *J Neurosci.* 2011;31(30):10937–10947.
+10. Giedd JN, Blumenthal J, Jeffries NO, et al. *Nat Neurosci.* 1999;2(10):861–863.
+11. Arnett JJ. *Am Psychol.* 2000;55(5):469–480.
+12. Courtney ME, Dworsky A, Brown A, et al. *Midwest Evaluation of the Adult Functioning of Former Foster Youth: Outcomes at Age 26.* Chapin Hall, 2011.
+13. Barr RG. *Child Abuse & Neglect.* 2012;36(9):613–620.
+14. National Center on Shaken Baby Syndrome. *Period of PURPLE Crying.* https://dontshake.org/purple-crying
+15. American Society for the Positive Care of Children (American SPCC). *Child Maltreatment Statistics.* 2024.
+16. CDC WISQARS Leading Causes of Death. https://wisqars.cdc.gov
+17. ARPA-H Proactive Health Office Innovative Solutions Opening, **ARPA-H-SOL-24-106**, Amendment 03 (October 14, 2025).
+18. Title IV-E Prevention Services Clearinghouse, U.S. ACF. https://preventionservices.acf.hhs.gov
+19. HL7 FHIR R4 and CDS Hooks specifications.
+
+**Source-verification audit trail:** every quantified claim above is traceable to a verbatim primary-source quote captured in `docs/grants/arpa-h-no-longer-about-you/04-verified-sources.md` (research record May 2026).
+
+---
+
+*Prepared by The Collaborative Advocate Foundation (TCAF, prime) with M&T Consulting Solutions LLC (sub-awardee) for ARPA-H Proactive Health Office ISO Solution Summary submission, May 26, 2026.*
