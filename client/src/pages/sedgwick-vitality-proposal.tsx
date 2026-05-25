@@ -1,10 +1,91 @@
 import { useMemo } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
-import { Download, ExternalLink, Calendar, Building2, Users, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { Download, ExternalLink, Calendar, Building2, Users, AlertTriangle, CheckCircle2, Handshake, LogIn } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useCurrentOrgId } from "@/hooks/use-current-org";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
+import type { Organization } from "@shared/schema";
+
+type OrgsResp = {
+  memberships: { organization: Organization; role: string }[];
+  joinable: Organization[];
+};
+
+function SedgwickCollaborateCTA() {
+  const { isAuthenticated } = useAuth();
+  const { setOrgId } = useCurrentOrgId();
+  const { toast } = useToast();
+  const { data, isLoading } = useQuery<OrgsResp>({
+    queryKey: ["/api/me/organizations"],
+    enabled: isAuthenticated,
+  });
+  const join = useMutation({
+    mutationFn: async (orgId: string) => {
+      const res = await apiRequest("POST", `/api/me/organizations/${orgId}/join`);
+      return (await res.json()) as { organization: Organization };
+    },
+    onSuccess: (r) => {
+      toast({ title: "You're in.", description: `Now collaborating in ${r.organization.name}. Sedgwick County Vitality is in your workspace.` });
+      setOrgId(r.organization.id);
+      queryClient.invalidateQueries({ queryKey: ["/api/me/organizations"] });
+    },
+    onError: (e: Error) => toast({ title: "Couldn't join workspace", description: e.message, variant: "destructive" }),
+  });
+
+  if (!isAuthenticated) {
+    return (
+      <Alert className="border-violet-300 bg-violet-50/60 dark:bg-violet-950/30">
+        <Handshake className="h-4 w-4 text-violet-700" />
+        <AlertTitle className="text-violet-900 dark:text-violet-200">Collaborate on this project</AlertTitle>
+        <AlertDescription className="text-violet-900/80 dark:text-violet-200/80">
+          <a href="/api/login" data-testid="link-login-to-collaborate"><Button size="sm" className="mt-2" data-testid="button-login-collaborate"><LogIn className="h-4 w-4 mr-1" /> Sign in to join the workspace</Button></a>
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  if (isLoading || !data) return null;
+  const tcaf = [...data.memberships.map((m) => m.organization), ...data.joinable].find((o) => o.isTcafOrg);
+  if (!tcaf) return null;
+  const alreadyMember = data.memberships.some((m) => m.organization.isTcafOrg);
+
+  if (alreadyMember) {
+    return (
+      <Alert className="border-emerald-300 bg-emerald-50/60 dark:bg-emerald-950/30">
+        <CheckCircle2 className="h-4 w-4 text-emerald-700" />
+        <AlertTitle className="text-emerald-900 dark:text-emerald-200">You're collaborating in this workspace</AlertTitle>
+        <AlertDescription className="text-emerald-900/80 dark:text-emerald-200/80">
+          You can see and edit everything the team sees — RFPs, compliance, proposals — under the <strong>{tcaf.name}</strong> workspace (switch in the sidebar).
+        </AlertDescription>
+      </Alert>
+    );
+  }
+  return (
+    <Alert className="border-violet-300 bg-violet-50/60 dark:bg-violet-950/30">
+      <Handshake className="h-4 w-4 text-violet-700" />
+      <AlertTitle className="text-violet-900 dark:text-violet-200">Working on this project? Join the workspace.</AlertTitle>
+      <AlertDescription className="text-violet-900/80 dark:text-violet-200/80 space-y-2">
+        <div className="text-sm">
+          This is a shared <strong>{tcaf.name}</strong> workspace. Join as a collaborator and you'll see the same data the rest of the team sees — proposal drafts, RFP fidelity matrix, attachments, partners — no separate workflow, no divergence.
+        </div>
+        <Button
+          size="sm"
+          onClick={() => join.mutate(tcaf.id)}
+          disabled={join.isPending}
+          data-testid="button-join-tcaf-workspace"
+          className="bg-violet-700 hover:bg-violet-800 text-white"
+        >
+          <Handshake className="h-4 w-4 mr-1" /> {join.isPending ? "Joining…" : `Join ${tcaf.name} as collaborator`}
+        </Button>
+      </AlertDescription>
+    </Alert>
+  );
+}
 import strategicMd from "../../../docs/grants/sedgwick-rfp-26-0028/strategic-analysis.md?raw";
 import proposalV3Md from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md?raw";
 import proposalMd from "../../../docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v2.md?raw";
@@ -51,6 +132,7 @@ function MarkdownRender({ source }: { source: string }) {
 export default function SedgwickVitalityProposalPage() {
   return (
     <div className="container max-w-6xl mx-auto p-6 space-y-6" data-testid="sedgwick-vitality-page">
+      <SedgwickCollaborateCTA />
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
           <div className="flex items-center gap-2 mb-2">

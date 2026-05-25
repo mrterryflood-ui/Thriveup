@@ -39,6 +39,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
+import { OrgSwitcher } from "@/components/org-switcher";
 import type { StudentProgress, AcademyAvatar } from "@shared/schema";
 import type { LucideIcon } from "lucide-react";
 
@@ -486,6 +487,7 @@ export function AppSidebar() {
             </div>
           </div>
         </Link>
+        <OrgSwitcher isAuthenticated={!!isAuthenticated} />
       </SidebarHeader>
       <SidebarContent>
         {isAuthenticated && user && (

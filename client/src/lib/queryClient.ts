@@ -1,5 +1,19 @@
 import { QueryClient, QueryFunction } from "@tanstack/react-query";
 
+// Multi-org membership: the user selects which workspace they're acting as
+// from the sidebar OrgSwitcher; the selection is persisted in localStorage
+// and sent on every request as x-org-id so server-side loadCallerOrg can
+// resolve the correct org. If no selection (single-org user), the server
+// picks the earliest membership.
+export const CURRENT_ORG_LS_KEY = "thriveup.currentOrgId";
+function currentOrgHeader(): Record<string, string> {
+  if (typeof window === "undefined") return {};
+  try {
+    const v = window.localStorage.getItem(CURRENT_ORG_LS_KEY);
+    return v ? { "x-org-id": v } : {};
+  } catch { return {}; }
+}
+
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
@@ -28,7 +42,10 @@ export async function apiRequest(
 ): Promise<Response> {
   const res = await fetch(url, {
     method,
-    headers: data ? { "Content-Type": "application/json" } : {},
+    headers: {
+      ...(data ? { "Content-Type": "application/json" } : {}),
+      ...currentOrgHeader(),
+    },
     body: data ? JSON.stringify(data) : undefined,
     credentials: "include",
   });
@@ -45,6 +62,7 @@ export const getQueryFn: <T>(options: {
   async ({ queryKey }) => {
     const res = await fetch(queryKey.join("/") as string, {
       credentials: "include",
+      headers: { ...currentOrgHeader() },
     });
 
     if (unauthorizedBehavior === "returnNull" && res.status === 401) {

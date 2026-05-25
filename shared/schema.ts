@@ -5440,6 +5440,11 @@ export const organizations = pgTable("organizations", {
   budgetRange: varchar("budget_range", { length: 50 }),
   is501c3: boolean("is_501c3").notNull().default(false),
   isTcafOrg: boolean("is_tcaf_org").notNull().default(false),
+  // Conglomerate / open-collaboration model. When true, any signed-in user
+  // can self-join this org as a collaborator via POST /api/me/organizations/:id/join
+  // (no invite, no gatekeeping). Set true on TCAF's org at startup; org
+  // owners can flip it on their own settings page.
+  acceptsCollaborators: boolean("accepts_collaborators").notNull().default(false),
   naicsCodes: text("naics_codes").array().notNull().default(sql`'{}'::text[]`),
   pscCodes: text("psc_codes").array().notNull().default(sql`'{}'::text[]`),
   uei: varchar("uei", { length: 32 }),
@@ -5456,6 +5461,28 @@ export const insertOrganizationSchema = createInsertSchema(organizations).omit({
 });
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
 export type Organization = typeof organizations.$inferSelect;
+
+// Multi-user collaboration on a single org workspace. Replaces the implicit
+// "one user = one org" rule from organizations.user_id (which is kept as the
+// org-creator/legacy-owner column for backfill compatibility). A user with
+// memberships in multiple orgs disambiguates per-request via the x-org-id
+// header (see server/tenant-middleware.ts loadCallerOrg).
+export const organizationMembers = pgTable("organization_members", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  role: varchar("role", { length: 32 }).notNull().default("member"), // owner | member
+  invitedByUserId: varchar("invited_by_user_id", { length: 255 }),
+  joinedAt: timestamp("joined_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_org_members_unique").on(t.orgId, t.userId),
+  index("idx_org_members_user").on(t.userId),
+  index("idx_org_members_org").on(t.orgId),
+]);
+export const insertOrganizationMemberSchema = createInsertSchema(organizationMembers).omit({ id: true, joinedAt: true });
+export type InsertOrganizationMember = z.infer<typeof insertOrganizationMemberSchema>;
+export type OrganizationMember = typeof organizationMembers.$inferSelect;
+
 
 export const grantOrgScores = pgTable("grant_org_scores", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),

@@ -128,6 +128,7 @@ import { registerTradeSimsCertRoutes } from "./trade-sims-cert-routes";
 import { registerTradeSimsTrialRoutes } from "./trade-sims-trial-routes";
 import { seedVannDemo } from "./seed-vann-demo";
 import { seedTcafAdmins } from "./seed-tcaf-admins";
+import { seedOrgMemberships } from "./seed-org-memberships";
 import { registerWonProposalsRoutes } from "./won-proposals-routes";
 import { registerActiveBidsRoutes } from "./active-bids-routes";
 import { registerRfpFidelityRoutes } from "./rfp-fidelity-routes";
@@ -488,6 +489,7 @@ export async function registerRoutes(
     .then((r) => { if (!r.skipped) console.log("[seed] Vann demo seeded:", r.orgs.join(", ")); })
     .catch((e) => { console.error("[seed] Vann demo failed:", e); });
   seedTcafAdmins().catch((e) => console.error("[seed] TCAF admins failed:", e));
+  seedOrgMemberships().catch((e) => console.error("[seed] org memberships failed:", e));
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
 
   app.get("/api/ai-provider", (_req, res) => {
