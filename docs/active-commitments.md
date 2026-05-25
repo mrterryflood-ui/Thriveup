@@ -2250,3 +2250,21 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 3. **"proven ROI for employers"** vs. proposal's careful **"modeled net Year-1 benefit."** Site claims proven; proposal says modeled.
 
 36.2% obesity prevalence + Sedgwick framing both match — those are fine. Site is in the EMPLOYEEHEALTH workspace, NOT this codebase — real fix happens there. Decision needed before submission: either (a) bring the live site into proposal-conformance (preferred: change to 1,525 / "up to 1.32x modeled over 5 years per DPP retention" / "modeled ROI"), or (b) accept the gap as a known divergence and add a one-line note to the proposal cover that the public landing page uses a different population denominator. Eric to decide.
+
+---
+
+## ARPA-H Pursuit — "It's No Longer About You" (added 2026-05-25)
+
+**Pursuit folder:** `docs/grants/arpa-h-no-longer-about-you/`
+**Submitting entity:** M&T Strategic Solutions / BirthRight (NOT TCAF — for-profit/ISS-LLC side; Flood=CEO, Sisnett=CGO)
+
+**Keystone target:** ARPA-H Proactive Health Office ISO (ARPA-H-SOL-24-106, rolling) — Solution Summary within 14 days per concept paper §11
+**Second-line target:** ARPA-H 2026 SBIR/STTR Topic 1 Women's Health — Solution Summary due **2026-07-10**, full proposal **2026-09-09** (only if SBIR eligibility verifies)
+**Watch:** ARPA-H Scalable Solutions Office ISO (SOL-24-105) and Resilient Systems Office ISO (SOL-24-103), both rolling
+
+**HARD BLOCKERS (must close before any submission):**
+1. M&T Strategic Solutions entity / SAM.gov / UEI status — UNKNOWN
+2. BirthRight entity status (DBA? LLC? TCAF program?) — UNKNOWN
+3. SBIR PI-effort allocation for Dr. Flood (>50% with submitting entity is required) — UNVERIFIED
+
+Until items 1-3 close, no Solution Summary submission can responsibly proceed. Tracking the pursuit; not drafting Solution Summary content until entity verification done.
