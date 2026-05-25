@@ -35,7 +35,7 @@ The TCAF master tracker is sized for 501(c)(3) capability-fit scoring, TCAF UEI/
 - **Status:** TRACKING — concept paper drafted, Solution Summary refinement pending entity-verification close-out
 - **Pursuit folder:** `docs/grants/arpa-h-no-longer-about-you/`
 
-**Justification:** Neuroscience-informed cycle-breaking intervention for parents under 26 — built on the prefrontal-cortex developmental window thesis that no existing federally-listed program addresses. Primary-source numbers from concept paper §2-3: 5 children killed by abuse/neglect per day, 81.5% by a parent, largest perpetrator cohort is 25-34. Strategic sequencing: ARPA-H pilot data → Title IV-E Prevention Services Clearinghouse listing → IV-E perpetual reimbursement engine. ARPA-H is the keystone; everything downstream is contingent on getting this pilot data.
+**Justification:** Neuroscience-informed cycle-breaking intervention for parents **ages 15–32 (PFC-Window cohort)** — built on the prefrontal-cortex developmental window thesis that no existing federally-listed program addresses. Primary-source numbers from concept paper §2-3: 5 children killed by abuse/neglect per day, 81.8% by a parent (NCANDS CM 2022); highest per-capita perpetrator cohort is 25–34 at 3.9/1,000 adults (NCANDS CM 2022, Ch. 5); intergenerational-transmission HR 3.19 among first-time California teen mothers ages 15–19 with maltreatment history (Putnam-Hornstein et al. 2015, n=85,084); PFC white-matter maturation continues into third decade (Lebel & Beaulieu 2011). Strategic sequencing: ARPA-H pilot data → Title IV-E Prevention Services Clearinghouse listing → IV-E perpetual reimbursement engine. ARPA-H is the keystone; everything downstream is contingent on getting this pilot data.
 
 **Open verification (must close before submission):**
 1. ✅ CLOSED — M&T SAM.gov registration: Active, UEI NLAWXBLCUW54, CAGE 1NDG6, expires 2027-04-05 (SAM screenshot 2026-05-25)
@@ -92,7 +92,7 @@ Full lattice in `docs/grants/arpa-h-no-longer-about-you/02-funding-lattice-7-tie
 | Tier | Approx. annual pool | Representative programs |
 |---|---|---|
 | 2 — Federal prevention | ~$2.27B+ | CBCAP ($71M FY26), Title IV-E Prevention (entitlement, unlocked by Clearinghouse listing), Title IV-B/PSSF ($689M+$75M FY26), SSBG ($1.5B+ states), Chafee |
-| 3 — Mental health/substance use | ~$100M+ | SAMHSA discretionary, NCSACW (parents under 26 + substance use + child welfare triple-intersection) |
+| 3 — Mental health/substance use | ~$100M+ | SAMHSA discretionary, NCSACW (parents ages 15–32 + substance use + child welfare triple-intersection) |
 | 4 — CDC public health research | ~$50M+ | CDC Child Abuse & Neglect Prevention, CDC ACE research |
 | 5 — Philanthropy | ~$20M+ | Merck for Mothers, Pritzker, RWJF, Kellogg, Annie E. Casey, Doris Duke, Conrad Hilton |
 | 6 — Texas-specific | ~$50M+ combined | St. David's, Episcopal Health Foundation, HHSC (state pass-through), Meadows |

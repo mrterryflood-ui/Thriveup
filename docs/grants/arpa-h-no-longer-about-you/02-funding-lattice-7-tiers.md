@@ -53,7 +53,7 @@ Why us: Already adjacent via ThriveUp partnership and St. David's grant ecosyste
 Relevant streams: Parenting at the mental health / substance use intersection (NCSACW co-funded program)
 11. SAMHSA NCSACW (National Center on Substance Abuse and Child Welfare)
 Co-funded by: ACF Children's Bureau + SAMHSA CSAT
-Why us: Parents under 26 + substance use + child welfare — direct triple-intersection fit
+Why us: Parents ages 15–32 (PFC-Window cohort) + substance use + child welfare — direct triple-intersection fit
 TIER 4 — CDC / PUBLIC HEALTH RESEARCH
 12. CDC Child Abuse & Neglect Prevention
 Agency: CDC Division of Violence Prevention
@@ -95,13 +95,13 @@ Why us: Once outcome data exists, R-series grants become accessible
 27. PCORI (Patient-Centered Outcomes Research Institute)
 Why us: Comparative effectiveness research on the curriculum vs. existing parenting programs
 TOTAL ADDRESSABLE FUNDING (CONSERVATIVE FLOOR)
-Tier	Pool Available
-ARPA-H (Tier 1)	$5M–$25M per award
-Federal prevention (Tier 2)	$2.27B+ annually across CBCAP, IV-B, IV-E, SSBG
-SAMHSA (Tier 3)	$100M+ annually in relevant discretionary streams
-CDC (Tier 4)	$50M+ annually in violence prevention
-Philanthropy (Tier 5)	$20M+ annually across listed funders
-Texas-specific (Tier 6)	$50M+ annually combined
+Tier    Pool Available
+ARPA-H (Tier 1) $5M–$25M per award
+Federal prevention (Tier 2)     $2.27B+ annually across CBCAP, IV-B, IV-E, SSBG
+SAMHSA (Tier 3) $100M+ annually in relevant discretionary streams
+CDC (Tier 4)    $50M+ annually in violence prevention
+Philanthropy (Tier 5)   $20M+ annually across listed funders
+Texas-specific (Tier 6) $50M+ annually combined
 Strategic sequencing: ARPA-H funds the build and pilot → outcome data lists you on the IV-E Clearinghouse → IV-E becomes a perpetual federal reimbursement engine → philanthropic funders match for scaling → state agencies become distribution partners.
 
 The ARPA-H award is the keystone. Everything downstream is contingent on getting that pilot data.

@@ -1,6 +1,6 @@
 # ARPA-H Pursuit — "It's No Longer About You"
 
-## A Neuroscience-Informed Cycle-Breaking Intervention for Parents Under 26
+## A Neuroscience-Informed Cycle-Breaking Intervention for Parents Ages 15–32 (PFC-Window Cohort)
 
 **Submission structure (user-confirmed 2026-05-25 R8):** **TCAF prime / M&T sub.**
 - **Prime:** The Collaborative Advocate Foundation (TCAF), 501(c)(3), UEI KDDVD1FGLW35, CAGE 209N1, EIN 41-3618003, SAM-active through 2027-05-06. Dr. Flood = **President** (TCAF title; CEO reserved for M&T/ISS-LLC).
@@ -19,7 +19,7 @@
 
 ## The thesis in one paragraph
 
-Every day in the United States, ~5 children are killed by abuse or neglect. In 81.5% of these fatalities at least one parent is the perpetrator. The single largest perpetrator cohort is **parents 25-34** — the exact age window in which the **prefrontal cortex** (impulse control, emotional regulation, empathy, risk assessment) is still finishing development. No program currently on the federal Title IV-E Prevention Services Clearinghouse is built on this neuroscience. **"It's No Longer About You"** is the first to be designed explicitly around the PFC developmental window for parents under 26, delivered through BirthRight's already-operational platform (3,009 providers, Rhonda AI companion, multi-AI search, PWA-installable, Texas Maternal Health Data Center with Austin/Manor/Pflugerville hubs).
+Every day in the United States, ~5 children are killed by abuse or neglect. In 81.8% of these fatalities at least one parent is the perpetrator (NCANDS *Child Maltreatment 2022*, Ch. 4). The highest per-capita perpetrator cohort is **parents 25–34 (3.9 per 1,000 adults)** — the exact age window in which **prefrontal-cortex white-matter maturation is still consolidating** (Lebel & Beaulieu, *J Neurosci* 2011, longitudinal DTI ages 5–32). At the young end of the window, the cycle compounds: among first-time California teen mothers ages 15–19 with a substantiated own-childhood maltreatment history, the next-generation CPS hazard ratio is **HR = 3.19 (95% CI 3.00–3.39)** (Putnam-Hornstein et al., *Am J Epidemiol* 2015, n=85,084). 79.2% of former foster youth are pregnant by 26, vs. 55% of Add Health peers (Courtney Midwest Wave 5). No program currently on the federal Title IV-E Prevention Services Clearinghouse is built on this neuroscience. **"It's No Longer About You"** is the first intervention designed explicitly around the PFC-consolidation window — operationalized as **ages 15–32** to capture (a) adolescent and emerging-adulthood PFC immaturity, (b) the intergenerational-transmission cohort, and (c) the highest per-capita perpetration cohort — delivered through BirthRight's already-operational platform (3,009 providers, Rhonda AI companion, multi-AI search, PWA-installable, Texas Maternal Health Data Center with Austin/Manor/Pflugerville hubs).
 
 ---
 
@@ -41,7 +41,7 @@ Every day in the United States, ~5 children are killed by abuse or neglect. In 8
 Tracked in `02-funding-lattice-7-tiers.md`. Summary:
 
 - **Tier 2 — Federal prevention pipeline (~$2.27B+ annual):** CBCAP ($71M FY26), Title IV-E (open-ended federal entitlement — unlocked by Clearinghouse listing), Title IV-B / PSSF ($689M base + $75M increase FY26), SSBG ($1.5B+ states), Chafee
-- **Tier 3 — Mental health / substance use (~$100M+ annual):** SAMHSA discretionary, NCSACW (parents under 26 + substance use + child welfare — triple-intersection fit)
+- **Tier 3 — Mental health / substance use (~$100M+ annual):** SAMHSA discretionary, NCSACW (parents ages 15–32 + substance use + child welfare — triple-intersection fit)
 - **Tier 4 — CDC / public health research (~$50M+ annual):** CDC Child Abuse & Neglect Prevention, CDC ACE-focused research
 - **Tier 5 — Philanthropic (~$20M+ annual):** Merck for Mothers (already funded MHEC Austin), Pritzker, RWJF, Kellogg, Annie E. Casey, Doris Duke, Conrad Hilton
 - **Tier 6 — Texas-specific (~$50M+ combined):** St. David's (adjacent funding), Episcopal Health Foundation, HHSC (state pass-through), Meadows

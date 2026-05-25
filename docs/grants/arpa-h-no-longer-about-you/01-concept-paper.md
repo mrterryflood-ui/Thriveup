@@ -17,7 +17,7 @@ Every day in the United States, **five children are killed by abuse or neglect**
 
 Neuroscience now tells us why: **the prefrontal cortex — which governs impulse control, empathy, delayed gratification, and emotional regulation — does not fully mature until approximately age 25–26.** Yet our entire prevention infrastructure assumes parents arrive at parenthood with these capacities already intact.
 
-**"It's No Longer About You"** is the first curriculum and digital intervention built explicitly on this scientific foundation. It is designed to shift the identity, decision-making, and emotional architecture of parents under 26 — from self-centered to child-centered — *before* a crisis occurs.
+**"It's No Longer About You"** is the first curriculum and digital intervention built explicitly on this scientific foundation. It is designed to shift the identity, decision-making, and emotional architecture of parents **ages 15–32 (the PFC-consolidation window)** — from self-centered to child-centered — *before* a crisis occurs. The 15–32 range is not arbitrary: it captures (a) adolescent and emerging-adulthood PFC immaturity per Lebel & Beaulieu 2011 longitudinal DTI evidence that prefrontal association-tract maturation continues into the third decade, (b) the intergenerational-transmission cohort identified by Putnam-Hornstein 2015 (HR 3.19 for next-generation CPS among first-time teen mothers ages 15–19 with maltreatment history), and (c) the highest per-capita perpetration cohort identified by NCANDS *Child Maltreatment 2022* (parents 25–34, 3.9/1,000 adults). Chronological age 15–32 defines the screening universe; eligibility is operationalized through the PFC-consolidation risk model, which fires on validated psychometric and SDOH indicators rather than chronological age alone.
 
 We are requesting ARPA-H investment to:
 1. Finalize the curriculum on a peer-reviewed, evidence-based foundation
@@ -71,7 +71,7 @@ We are requesting ARPA-H investment to:
 
 ### 2.3 The Brain Science (peer-reviewed citations, not hand-wave)
 
-| PFC function (parenting-critical) | Status under age 26 | Source |
+| PFC function (parenting-critical) | Status during ages 15–32 (PFC-consolidation window) | Source |
 |---|---|---|
 | White-matter maturation in prefrontal association tracts (the circuitry of impulse control, empathy, emotional regulation) | Continues into the third decade; postadolescent within-subject maturation observed | Lebel & Beaulieu, *J Neurosci* 2011 (longitudinal DTI, n=103, ages 5–32, 221 scans) |
 | Cortical/subcortical longitudinal MRI maturation through adolescence | Continues through late adolescence | Giedd et al., *Nat Neurosci* 1999 (canonical longitudinal MRI study) |
@@ -145,7 +145,7 @@ The cycle is not metaphor; it is administrative-data-grade epidemiology:
 | Former foster youth — last pregnancy reported as unplanned | ~75% (Midwest) vs ~50% (Add Health) | Same |
 | Probability that an abused/neglected child later abuses their own children | **~30%** | American SPCC (citing longitudinal studies) |
 
-This is the cycle the Title IV-E Prevention Services Program was created to break — but the federal Clearinghouse currently lists **no program specifically built around the prefrontal-cortex developmental window for parents under 26.** That is the gap "It's No Longer About You" fills.
+This is the cycle the Title IV-E Prevention Services Program was created to break — but the federal Clearinghouse currently lists **no program specifically built around the prefrontal-cortex developmental window for parents ages 15–32.** That is the gap "It's No Longer About You" fills.
 
 ---
 
@@ -153,7 +153,7 @@ This is the cycle the Title IV-E Prevention Services Program was created to brea
 
 ### 5.1 Core Premise
 
-Most parenting curricula teach *techniques*. This one re-architects *identity*. The thesis: a parent under 26 cannot reliably perform "parenting techniques" under stress because the PFC machinery to do so is still under construction. What they *can* do is internalize a new identity framework — "It's no longer about me" — that, when paired with explicit emotional regulation skills and structural supports, narrows the gap between immature neurology and the demands of caregiving.
+Most parenting curricula teach *techniques*. This one re-architects *identity*. The thesis: a parent in the PFC-consolidation window (ages 15–32) cannot reliably perform "parenting techniques" under stress because the PFC machinery to do so is still under construction — most acutely at the adolescent end of the window, and still maturing through the late twenties per Lebel & Beaulieu 2011. What they *can* do is internalize a new identity framework — "It's no longer about me" — that, when paired with explicit emotional regulation skills and structural supports, narrows the gap between still-maturing neurology and the demands of caregiving.
 
 ### 5.2 Curriculum Architecture (Draft)
 
@@ -196,7 +196,7 @@ The Proactive Health Office funds "preventative programs that reduce the likelih
 
 ### 6.2 Why This Fits ARPA-H's High-Risk / High-Reward Mandate
 
-ARPA-H funds work that traditional NIH/HRSA grants will not. Conventional child welfare grants fund evidence-based programs already on the Clearinghouse. **No program currently on that Clearinghouse is built on the PFC developmental science for under-26 parents.** This is the kind of conceptual leap ARPA-H exists to fund: a re-architecture of *what* the intervention is, not an optimization of existing approaches.
+ARPA-H funds work that traditional NIH/HRSA grants will not. Conventional child welfare grants fund evidence-based programs already on the Clearinghouse. **No program currently on that Clearinghouse is built on the PFC developmental science for parents ages 15–32.** This is the kind of conceptual leap ARPA-H exists to fund: a re-architecture of *what* the intervention is, not an optimization of existing approaches.
 
 ### 6.3 Why BirthRight Can Execute
 
@@ -214,7 +214,7 @@ ARPA-H typically funds via Other Transactions (OTs), which require demonstrated 
 
 | Metric | Target | Measurement |
 |---|---|---|
-| Parents enrolled (Year 1) | 2,000 under-26 parents | Platform analytics |
+| Parents enrolled (Year 1) | 2,000 parents ages 15–32 (PFC-Window cohort) | Platform analytics |
 | Module completion rate | ≥60% | Platform analytics |
 | Pre/post emotional regulation (DERS scale) | Statistically significant improvement | Validated instrument |
 | Pre/post parenting self-efficacy (PSOC) | Statistically significant improvement | Validated instrument |
@@ -253,7 +253,7 @@ This ARPA-H award is the *catalyst*. Once outcome data exists, the program unloc
 
 ## 10. THE ONE-PARAGRAPH PITCH
 
-> *Every year in the United States, 1,990 children are killed by abuse or neglect — a 12.7% increase from 2018 — and 81.8% of those fatalities involve at least one parent (NCANDS Child Maltreatment 2022). The single largest perpetrator cohort is parents aged 25–34, who account for 39.9% of all perpetrators at the highest per-capita rate (3.9 per 1,000 adults) — the exact age window in which the prefrontal cortex, the brain region governing impulse control, empathy, and emotional regulation, is still consolidating per longitudinal MRI evidence (Lebel & Beaulieu, J Neurosci 2011; Giedd et al., Nat Neurosci 1999). No federally-recognized prevention program on the Title IV-E Prevention Services Clearinghouse is built on this neuroscience. "It's No Longer About You" is. Delivered through BirthRight — an operational maternal-health-equity platform with 3,000+ providers, 24/7 culturally-competent AI companion, and active SAMHSA + St. David's-aligned ecosystem partnerships — this intervention shifts the identity, decision-making, and emotional architecture of parents under 26. Preventing those adverse childhood experiences could reduce adult heart disease cases by 22%, depression by 78%, and suicide attempts among high school students by 89% (CDC, About ACEs, March 2026). It interrupts a cycle that runs at hazard ratio 3.19 for next-generation CPS involvement when the mother has a substantiated maltreatment history (Putnam-Hornstein et al., Am J Epidemiol 2015, n=85,084). The cost of this program is a fraction of one foster-care placement. The cost of not building it is a child.*
+> *Every year in the United States, 1,990 children are killed by abuse or neglect — a 12.7% increase from 2018 — and 81.8% of those fatalities involve at least one parent (NCANDS Child Maltreatment 2022). The single largest perpetrator cohort is parents aged 25–34, who account for 39.9% of all perpetrators at the highest per-capita rate (3.9 per 1,000 adults) — the exact age window in which the prefrontal cortex, the brain region governing impulse control, empathy, and emotional regulation, is still consolidating per longitudinal MRI evidence (Lebel & Beaulieu, J Neurosci 2011; Giedd et al., Nat Neurosci 1999). No federally-recognized prevention program on the Title IV-E Prevention Services Clearinghouse is built on this neuroscience. "It's No Longer About You" is. Delivered through BirthRight — an operational maternal-health-equity platform with 3,000+ providers, 24/7 culturally-competent AI companion, and active SAMHSA + St. David's-aligned ecosystem partnerships — this intervention shifts the identity, decision-making, and emotional architecture of parents ages 15–32 — the full PFC-consolidation window spanning adolescent immaturity, the intergenerational-transmission cohort, and the highest per-capita perpetration cohort. Preventing those adverse childhood experiences could reduce adult heart disease cases by 22%, depression by 78%, and suicide attempts among high school students by 89% (CDC, About ACEs, March 2026). It interrupts a cycle that runs at hazard ratio 3.19 for next-generation CPS involvement when the mother has a substantiated maltreatment history (Putnam-Hornstein et al., Am J Epidemiol 2015, n=85,084). The cost of this program is a fraction of one foster-care placement. The cost of not building it is a child.*
 
 ---
 
