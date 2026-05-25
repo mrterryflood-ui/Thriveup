@@ -3,7 +3,7 @@
 ## "It's No Longer About You"
 ### A Neuroscience-Informed Cycle-Breaking Intervention for Parents Under 26
 
-**Submitted by:** M&T Strategic Solutions / BirthRight (yourhealthbirthright.net)
+**Submitted by:** M&T Consulting Solutions LLC / BirthRight (yourhealthbirthright.net) · UEI NLAWXBLCUW54 · CAGE 1NDG6
 **Principals:** Dr. Terry Flood, CEO | Meredith Sisnett, CGO
 **Target Solicitation (Primary):** Proactive Health Office ISO — ARPA-H-SOL-24-106 (rolling)
 **Target Solicitation (Secondary):** 2026 SBIR/STTR Women's Health — Solution Summary due July 10, 2026
@@ -259,4 +259,4 @@ This ARPA-H award is the *catalyst*. Once outcome data exists, the program unloc
 
 ---
 
-*Prepared by M&T Strategic Solutions for ARPA-H submission. Internal working draft — not for distribution.*
+*Prepared by M&T Consulting Solutions LLC for ARPA-H submission. Internal working draft — not for distribution.*

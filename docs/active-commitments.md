@@ -2270,7 +2270,13 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 - ✅ Dr. Flood is PI
 - ✅ Both Tier-1 #1 (ARPA-H Proactive Health Office ISO) AND Tier-1 #2 (SBIR Topic 1) stay in active pursuit per user "still doing it. I doubt if I win both"
 
-**STILL OPEN (must close before any submission):**
-1. Concept paper header still says "M&T Strategic Solutions" — correct to "M&T Consulting Solutions LLC" before any submission (trivial fix; flagged so it doesn't slip)
-2. SBIR Topic 1 PI-effort: Dr. Flood >50% employed by M&T at time of award (only matters for Tier 1 #2 — the 2026-07-10 SBIR Solution Summary). If <50% achievable, drop SBIR.
-3. Concept-paper statistic audit against primary sources — **check RPLICE first** per user hint 2026-05-25 (may already have citation data, accelerates audit pass).
+**ALSO CLOSED 2026-05-25 (round 3):**
+- ✅ Concept paper header/footer fixed to "M&T Consulting Solutions LLC" + UEI/CAGE added
+- ✅ SBIR Topic 1 PI-effort: user confirmed "Yes I can" — Topic 1 stays in active pursuit for 2026-07-10 SS
+- ✅ RPLICE-first audit pass completed — honest finding: RPLICE doesn't hold the federal-statistic primary sources the concept paper cites (built for implementation-science method, not problem-statement citations). Audit ledger written to `docs/grants/arpa-h-no-longer-about-you/03-statistic-audit.md` — 31 rows, 22 needing primary-source pull, 6 attribution gaps, 3 PAF claims needing methodological precision.
+
+**STILL OPEN (must close before any Solution Summary submission):**
+1. Statistic primary-source pull session per `03-statistic-audit.md` — 2-3 hours focused work with actual PDFs (NCANDS Child Maltreatment 2022/2023, CDC Vital Signs ACE 2019, Brown 2009, Felitti 1998, Courtney Midwest Evaluation, Lebel/Giedd PFC maturation). Recommended approach: pick 8-10 strongest verifiable statistics for Solution Summary §2 rather than reusing all 25+ from concept paper.
+2. M&T small-business formal confirmation at SBIR submit time (<500 employees, >50% US-owned).
+3. Cost-share match sources for downstream Tier 2 federal programs.
+4. Title IV-E Prevention Services Clearinghouse pre-consultant engagement before evaluation design locks.
