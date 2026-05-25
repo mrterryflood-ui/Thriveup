@@ -44,6 +44,17 @@
 
 ---
 
+## Compliance Crosswalk to Section 5.2 Evaluation Criteria
+
+| Section 5.2 Criterion (verbatim, descending importance) | Where addressed in this Solution Summary |
+|---|---|
+| **1. Overall Scientific and Technical Merit** — innovative, feasible, complete; tasks in logical sequence with deliverables clearly defined; major technical risks and mitigations defined and feasible | Concept Summary · Innovation and Impact · Proposed Work (Deliverables, Milestones M03–M36, Technical Approach, New Technical Developments, Risk Register) |
+| **2. Potential Contribution and Relevance to the ARPA-H Mission** — future R&D / commercial / clinical applications; unmet need; transformative + multidisciplinary; IP / open-source structure; commercialization & transition strategy | Innovation and Impact (Disruption paragraph) · Proposed Work (Deliverables 1–5: Apache 2.0 risk model, HL7 standards submission, Title IV-E Clearinghouse package) · *Commercialization & Transition Pathway* (Team section) |
+| **3. Proposer's Capabilities and/or Related Experience** — team expertise/experience; ability to deliver on time/budget; similar efforts including other government or commercial work | Team Organization and Capabilities · *Similar Efforts* mini-section · Sub-awardee / consultant roster |
+| **4. Cost/Price/Budget Assessment** — alignment with technical solution; understanding of resources, schedule, risks, effort; sufficient information for efficient evaluation | Basis of Estimate (line-item BOE table + Resource Sharing posture + explicit response to Section 5.2 NOTE on appropriate risk/seniority) |
+
+---
+
 ## Concept Summary
 
 PFC-Window is a **prophylactic AI platform**, not a curriculum, that detects parents in the prefrontal-cortex consolidation window (≤26 years) at elevated risk for caregiver-perpetrated maltreatment, then delivers culturally- and dialect-honoring just-in-time intervention before harm occurs. It addresses **PHO interest areas 1.i** (prophylactic prevention of harmful outcomes), **2.i and 2.ii** (population-scale methods to inform and to incentivize healthy caregiver behaviors), and **3.i** (novel, robust, and predictive surrogates for long-term health outcomes).
@@ -158,6 +169,20 @@ Yes — three: (a) the PFC-window caregiver risk model (per our May 2026 literat
 
 **Clinical Standards Consultant — National Center on Shaken Baby Syndrome.** Period of PURPLE Crying integration and AHT-prevention fidelity review.
 
+### Similar efforts completed/ongoing (Section 5.2 Criterion 3)
+
+Other government and commercial activities where TCAF/M&T have led or participated, demonstrating delivery within budget and schedule on related work:
+
+- **Texas Maternal Health Data Center** — operational deployment of BirthRight in the Austin / Manor / Pflugerville corridor with 3,009-provider directory, Rhonda 24/7 AI companion, and PWA-installable client (commercial deployment, M&T-led, SAMHSA + St. David's-aligned).
+- **TCAF Foster-Youth Risk Engine and Early-Warning Engine** — production four-domain risk surrogate (housing, food, mental health, documents) operating against validated psychometric instruments (PHQ-9, GAD-7, C-SSRS, PCL-5, ACES); same technical pattern that underlies the proposed PFC-window risk model.
+- **TCAF SafeReport (FHIR + CDS-Hooks, 0-PHI-egress)** — shipped interoperable clinical-decision-support implementation that is the architectural pattern for the proposed CDS-Hook firing at well-baby and prenatal visits.
+- **TCAF four-engine Collaborative AI with failover (`server/ai-provider.ts`)** — production multi-provider AI infrastructure (Gemini, Claude, GPT-4o-mini, DeepSeek R1) with idempotent ethical-AI preamble and HITL-default-on patterns; same infrastructure that will host the moment-of-stress conversational layer.
+- **39 CFIR implementation-science constructs operationalized in code** (research hub) — demonstrating TCAF's track record of translating implementation-science frameworks directly into deployed product, the same capability required for Title IV-E Clearinghouse evaluation-design fidelity.
+
+### Commercialization and transition pathway (Section 5.2 Criterion 2)
+
+The risk model is released under Apache 2.0; the FHIR profile and CDS-Hook are submitted to HL7 for standards inclusion; the curriculum module is open under a CC-BY-NC-SA license. The primary transition vehicle is the **Title IV-E Prevention Services Clearinghouse**: a "Promising" or "Supported" listing converts the OT-funded pilot into an open-ended federal-entitlement reimbursement engine, with every state child welfare agency as a distribution partner — turning the ARPA-H investment into sustained federal payer-side adoption without further appropriation. Secondary transition: integration into existing TCAF and BirthRight production deployments for direct community reach.
+
 ---
 
 ## Basis of Estimate (BOE)
@@ -183,6 +208,8 @@ Yes — three: (a) the PFC-window caregiver risk model (per our May 2026 literat
 | **Total Base (24 months)** | **$5,475,000** |
 | Option period (12 mo) — Clearinghouse submission + HL7 standards push + scaled deployment | $2,150,000 |
 | **Total with Option (36 months)** | **$7,625,000** |
+
+**Response to Section 5.2 NOTE (appropriate risk and seniority).** This BOE deliberately staffs the program with senior technical leadership (PI Flood at DHA, dedicated Lead AI/ML Engineer at 100% FTE, peer-reviewed academic Evaluation PI) and funds the three genuinely novel technical developments (risk model, moment-of-stress detector, CPS-linkage surrogate) rather than proposing a low-risk minimum-uncertainty extension of existing work. The risk register in Proposed Work documents the real technical risks we are choosing to take on; the BOE is sized to retire those risks, not avoid them.
 
 **Resource sharing:** Gov't 100% / Performer 0%. TCAF commits substantial in-kind infrastructure (existing 271-table platform, 4-engine AI stack, BirthRight provider network, RAG engine, FHIR/CDS-Hooks code, 39 CFIR constructs) as the foundation on which this OT builds — separately documented in TCAF's capabilities inventory and available on request. No cash cost-share proposed.
 
