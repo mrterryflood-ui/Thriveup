@@ -3,26 +3,21 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 
-// Paths a signed-in-but-org-less user is allowed to sit on. Everything else
-// (landing, workspace, settings, AI tools…) bounces to /onboarding/org so the
-// user can finish setting up and actually use the platform. Without this, the
-// post-sign-in redirect lands users on `/` with no obvious next step and the
-// queryClient ORG_REQUIRED guard never fires because the landing page makes
-// no /api/me/* calls.
-const SAFE_PREFIXES = [
-  "/onboarding/",
-  "/sign-out",
-  "/api/",
-  "/partners/join",
-  "/join",
-  "/ecosystem/embed",
-  "/ecosystem/lifebridge",
-  "/presentation",
-  "/coverage",
-  "/about",
-  "/contact",
-  "/privacy",
-  "/terms",
+// Routes that genuinely cannot function without an org row. A signed-in user
+// who lands here without an org is bounced to /onboarding/org. Everything
+// else (landing, dashboard, public surfaces, AI tools, ecosystem pages…) is
+// allowed to render — the queryClient ORG_REQUIRED 404 guard is the backstop
+// for any workspace API call that needs an org, and per-route guards exist on
+// the workspace pages themselves (see rfp-writer.tsx, org-settings.tsx,
+// partners-join.tsx). Prior implementation used an allowlist of "safe" paths
+// which silently bounced Eric (and every other signed-in user without an org)
+// off the landing page, dashboard, and every other surface on every click.
+const REQUIRES_ORG_PREFIXES = [
+  "/rfp-writer",
+  "/my-grants",
+  "/settings/organization",
+  "/settings/documents",
+  "/proposals",
 ];
 
 interface OrgQuery {
@@ -51,8 +46,8 @@ export function OrgRedirectGuard() {
     if (!isSuccess) return;
     if (data?.organization) return;
 
-    const onSafePath = SAFE_PREFIXES.some((p) => location.startsWith(p));
-    if (onSafePath) return;
+    const requiresOrg = REQUIRES_ORG_PREFIXES.some((p) => location.startsWith(p));
+    if (!requiresOrg) return;
 
     setLocation("/onboarding/org");
   }, [authLoading, orgLoading, isAuthenticated, isSuccess, data, location, setLocation]);
