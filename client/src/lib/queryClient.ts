@@ -3,17 +3,20 @@ import { QueryClient, QueryFunction } from "@tanstack/react-query";
 async function throwIfResNotOk(res: Response) {
   if (!res.ok) {
     const text = (await res.text()) || res.statusText;
-    // Cascade-failure guard: any signed-in user without an org profile gets
-    // bounced to the onboarding wizard instead of seeing a silent dead-end.
-    // Every workspace route (RFP Fidelity, My Grants, Documents…) returns
-    // 404 with code:"ORG_REQUIRED" via tenant-middleware.requireOrg. Without
-    // this redirect the page just spins or shows an opaque error toast.
-    if (res.status === 404 && text.includes("ORG_REQUIRED") && typeof window !== "undefined") {
-      const here = window.location.pathname;
-      if (!here.startsWith("/onboarding/org") && !here.startsWith("/api/")) {
-        window.location.assign("/onboarding/org");
-      }
-    }
+    // ORG_REQUIRED 404s are an EXPECTED response for signed-in-no-org users
+    // hitting /api/me/* endpoints. Route-level redirects to /onboarding/org
+    // are handled by client/src/components/org-redirect-guard.tsx (soft wouter
+    // navigation, scoped to routes that genuinely require an org). Per-page
+    // queries that incidentally hit a requireOrg endpoint (e.g. /api/grants
+    // page fetching /api/me/grants/tracked) should treat ORG_REQUIRED as
+    // "no data yet" and let the page render. Previously this branch did a
+    // hard window.location.assign() reload, which (a) caused a full-page
+    // flash on every click that touched any /api/me/* endpoint, and (b)
+    // silently bounced users away from public pages whose components happened
+    // to call an org-scoped query without gating on isAuthenticated. The
+    // fix: do NOT redirect from here. Pages that need to gate on org should
+    // pass `enabled: isAuthenticated` to their useQuery calls, and pages that
+    // genuinely require an org are protected by the route-level guard above.
     throw new Error(`${res.status}: ${text}`);
   }
 }

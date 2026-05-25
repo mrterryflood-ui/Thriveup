@@ -16,6 +16,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Search, Plus, Target, CheckCircle2, Clock, AlertTriangle,
   Download, BarChart3, FileText, Trash2, ExternalLink,
@@ -369,6 +370,7 @@ function PasteRfpUrlCard() {
 
 export default function GrantHubPage() {
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
   type TabId = "grants" | "calendar" | "compare" | "alerts" | "reports";
   const [activeTab, setActiveTab] = useState<TabId>("grants");
   const [showForm, setShowForm] = useState(false);
@@ -409,7 +411,14 @@ export default function GrantHubPage() {
   }
   const { data: discoveryStatus } = useQuery<DiscoveryStatus>({ queryKey: ["/api/grants/discovery/status"] });
 
-  const { data: trackedData } = useQuery<{ tracked: TrackedRow[] }>({ queryKey: ["/api/me/grants/tracked"] });
+  // Gate /api/me/* queries on auth state — these endpoints are requireOrg
+  // and will 404 ORG_REQUIRED for signed-in-no-org users. Without gating,
+  // the queryClient used to hard-reload to /onboarding/org on every page
+  // visit (the source of Eric's "every link bounces" experience).
+  const { data: trackedData } = useQuery<{ tracked: TrackedRow[] }>({
+    queryKey: ["/api/me/grants/tracked"],
+    enabled: isAuthenticated,
+  });
   const trackedMap = new Map<string, string>();
   (trackedData?.tracked ?? []).forEach(r => trackedMap.set(r.tracking.grantId, r.tracking.status));
 
