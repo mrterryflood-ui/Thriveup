@@ -233,7 +233,7 @@ export default function SedgwickVitalityProposalPage() {
                   <strong>Dr. Flood's title.</strong> Per user preference: <em>President, not CEO</em>, for Dr. Flood on TCAF (501(c)(3)) work. Cover letter and bio block should read "President, TCAF" — not "CEO" anywhere on this proposal.
                 </li>
                 <li>
-                  <strong>Credential string ("DHA, EdD, MSIOP, MSW(c), MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I").</strong> Stacked credential lists weaken, not strengthen, an executive bio. Recommend trimming to two terminal degrees plus one functional credential: <em>"Dr. Terry D. Flood, DHA, EdD — President, TCAF; CHW-I; healthcare data + FHIR/HL7 architecture lead."</em>
+                  <strong>Credential string ("DHA, MSIOP, MSL, MSCJPP, MSHRM, MSIS(c), BHA, CHW-I").</strong> Stacked credential lists weaken, not strengthen, an executive bio. Recommend trimming to terminal degree plus one functional credential: <em>"Dr. Terry D. Flood, DHA — President, TCAF; CHW-I; healthcare data + FHIR/HL7 architecture lead."</em> (EdD and MSW removed — discontinued per `docs/active-commitments.md` May 12, 2026; user not pursuing.)
                 </li>
                 <li>
                   <strong>Dr. Vann TEDx claim and Dr. Love DNP/KS licensure.</strong> Both are likely true; both should be on file in Appendix C as primary-source confirmations (TEDx talk URL; KS BON licensure lookup screenshot). Iron Rule #2 — don't ship verifiable claims without the source folder.
