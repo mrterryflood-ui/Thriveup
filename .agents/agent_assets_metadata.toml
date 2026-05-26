@@ -617,3 +617,9 @@ id = "PlKXD2iGIk4sROoBwj9xj"
 uri = "file://docs/grants/arpa-h-no-longer-about-you/dist/ARPA-H_SOL-24-106_Solution_Summary_TCAF-MT_2026-05-26.pdf"
 type = "pdf"
 title = "ARPA-H SOL-24-106 Solution Summary — TCAF/M&T (submission-ready)"
+
+[[outputs]]
+id = "FZHrt2yI0RQmZ0AqEWfzC"
+uri = "file://docs/grants/arpa-h-no-longer-about-you/dist/PFCWindowSolutionSummaryTCAF20260526.pdf"
+type = "pdf"
+title = "PFCWindowSolutionSummaryTCAF20260526.pdf — download and upload to ARPA-H portal"
