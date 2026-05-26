@@ -76,7 +76,7 @@ TCAF entity facts, two-entity strategy, teaming doctrine, current rosters.
 - 🚨 **Has NEVER discussed foster youth.** Stay in confirmed lane.
 - 🚨 **Iasis side = spouse COI on City of Wichita / federal bids** (Dr. Vann's spouse works there). Disclose; don't include on those.
 
-## Meredith Sisnett
+## Meredith Sissnet
 
 - 🚨 **City of Austin employee.** **NEVER** list on any City of Austin grant/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff/contact/co-lead/board/partner.
 - Non-City only (federal/state/foundation/private).
@@ -110,7 +110,7 @@ Live at: `/partners/vann-hub` · `/partners/family-program-tracker` · `/partner
 
 Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. Flood at submission time. Recording so I don't re-flag them next session.
 
-**1. Meredith Sisnett — institutional email not yet provisioned.**
+**1. Meredith Sissnet — institutional email not yet provisioned.**
 - Portal entry: `sisnett.meredith@gmail.com`
 - Constitutional rule (`replit.md`): "Institutional emails only... No personal Gmail in copy or proposals."
 - **Override reason:** Meredith's `msisnett@thrivingcommunitiesforall.com` mailbox is not yet provisioned at the IdP. Gmail is acceptable interim for this submission.

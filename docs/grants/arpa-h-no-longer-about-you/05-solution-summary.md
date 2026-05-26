@@ -12,7 +12,7 @@
 
 **Submitter (Prime):** **The Collaborative Advocate Foundation (TCAF)** — d/b/a ThriveUp Academy. ☒ Non-profit (IRS 501(c)(3), public charity, determined January 14, 2026). **EIN** 41-3618003 · **UEI** KDDVD1FGLW35 · **CAGE** 209N1 · **SAM** active through 2027-05-06.
 
-**Technical POC:** Terry D. Flood, DHA — *President*, TCAF; Pflugerville, TX; terryflood@thrivingcommunitiesforall.com · **Administrative POC:** Meredith Sisnett, MS — *Chief Growth Officer*, TCAF; msisnett@thrivingcommunitiesforall.com.
+**Technical POC:** Terry D. Flood, DHA — *President*, TCAF; Pflugerville, TX; terryflood@thrivingcommunitiesforall.com · **Administrative POC:** Meredith Sissnet, MS — *Chief Growth Officer*, TCAF; msisnett@thrivingcommunitiesforall.com.
 
 **Period:** 24-month Base + 12-month Option = 36 months max. **BOE:** **$5,712,000** Base · $2,150,000 Option · **$7,862,000** max. **Resource Sharing:** Gov't 100% / Performer 0% (substantial in-kind platform infrastructure separately quantified). **Places of Performance:** Pflugerville TX · Austin/Manor/Pflugerville TX corridor · Remote distributed team.
 
@@ -44,7 +44,7 @@
 
 ## 3. Team, Capabilities, and Commercialization
 
-**TCAF — Prime.** Texas 501(c)(3) public charity running a production digital-health/workforce platform: **271 DB tables, 211 frontend pages, 84 server-route modules** (verified May 2026); four-engine collaborative AI with failover; 86-chunk RAG; dialect-aware translation; FHIR + CDS-Hooks 0-PHI-egress; 39 CFIR constructs operationalized in code. **Key personnel:** **Terry D. Flood, DHA** — *PI*, President TCAF / CEO M&T, founder of the platform stack, >50% effort; **Meredith Sisnett, MS** — *Co-I*, CGO TCAF, implementation science + SAMHSA / St. David's-aligned partnership; **Lead AI/ML Engineer** (TCAF FTE, TBN); **Academic IS & Evaluation Co-I** (candidate pool below; named at Bundle).
+**TCAF — Prime.** Texas 501(c)(3) public charity running a production digital-health/workforce platform: **271 DB tables, 211 frontend pages, 84 server-route modules** (verified May 2026); four-engine collaborative AI with failover; 86-chunk RAG; dialect-aware translation; FHIR + CDS-Hooks 0-PHI-egress; 39 CFIR constructs operationalized in code. **Key personnel:** **Terry D. Flood, DHA** — *PI*, President TCAF / CEO M&T, founder of the platform stack, >50% effort; **Meredith Sissnet, MS** — *Co-I*, CGO TCAF, implementation science + SAMHSA / St. David's-aligned partnership; **Lead AI/ML Engineer** (TCAF FTE, TBN); **Academic IS & Evaluation Co-I** (candidate pool below; named at Bundle).
 
 **Past-performance, disclosed up front.** TCAF received its federal 501(c)(3) determination January 2026; predecessor capabilities were delivered by the same operational team via **M&T Consulting Solutions LLC** (Texas LLC, UEI NLAWXBLCUW54, CAGE 1NDG6, SAM-active; BirthRight operator; Dr. Flood CEO, >50% employment confirmed; arms-length sub-award with documented work-product/IP/cost separation). DCAA-compliant cost accounting stood up at TCAF in parallel. **On-time delivery evidence:** Texas Maternal Health Data Center / BirthRight (3,009 providers, Rhonda 24/7, dialect-aware); TCAF Foster-Youth Risk Engine (four-domain SDOH surrogate, same pattern as proposed model); TCAF SafeReport FHIR + CDS-Hooks 0-PHI-egress (pattern for proposed CDS-Hook).
 

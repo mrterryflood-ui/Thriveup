@@ -7,7 +7,7 @@
 
 **Submitting entity (prime):** The Collaborative Advocate Foundation (TCAF), Texas 501(c)(3) public charity (determined Jan 14, 2026), SAM.gov-active through May 2027.
 **Sub-awardee:** M&T Consulting Solutions LLC / BirthRight (yourhealthbirthright.net) · UEI NLAWXBLCUW54 · CAGE 1NDG6 · SAM-active.
-**Principals:** Dr. Terry Flood, DHA — President, TCAF (Principal Investigator); also CEO, M&T Consulting Solutions LLC (>50% employment) | Meredith Sisnett, MS — Chief Growth Officer, TCAF (Co-Investigator).
+**Principals:** Dr. Terry Flood, DHA — President, TCAF (Principal Investigator); also CEO, M&T Consulting Solutions LLC (>50% employment) | Meredith Sissnet, MS — Chief Growth Officer, TCAF (Co-Investigator).
 **Target Solicitation (Primary):** Proactive Health Office ISO — ARPA-H-SOL-24-106 (rolling)
 **Target Solicitation (Secondary):** 2026 SBIR/STTR Women's Health — Solution Summary due July 10, 2026
 **Date:** May 2026
@@ -330,7 +330,7 @@ ARPA-H typically funds via Other Transactions (OTs), which require demonstrated 
 - An active ecosystem partner (ThriveUp) with verified compliance heartbeat
 - A relationship with St. David's-funded MHEC Austin (potential pilot cohort)
 - Existing AI infrastructure (OpenAI + Anthropic + RAG) for personalization at scale
-- A founder team (Dr. Terry Flood, MS Meredith Sisnett) with operational experience
+- A founder team (Dr. Terry Flood, MS Meredith Sissnet) with operational experience
 
 ---
 

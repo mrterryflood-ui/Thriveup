@@ -40,7 +40,7 @@ docs/agent-memory/
 | If the task touches… | Open |
 |---|---|
 | Grants / pipeline / fit scores / discovery / submissions / Sedgwick / Lake Worth / NSF / Promise Neighborhoods / SSG Fox | `topics/grants.md` |
-| Partners / teaming / Hargrave / Love / Vann / Sisnett / TCAF identifiers / ISS LLC | `topics/partners.md` |
+| Partners / teaming / Hargrave / Love / Vann / Sissnet / TCAF identifiers / ISS LLC | `topics/partners.md` |
 | Anti-patterns / things-to-avoid / load-bearing rules | `topics/gotchas.md` |
 | Codebase structure / page locations / route patterns / DB tables / stack | `topics/architecture.md` |
 | Ecosystem platforms / TYT / WPH / LifeBridge / SafeReport / Civic Signal | `topics/ecosystem.md` |

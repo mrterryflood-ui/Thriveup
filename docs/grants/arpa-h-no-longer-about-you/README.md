@@ -7,7 +7,7 @@
 - **Sub-awardee:** M&T Consulting Solutions LLC, UEI NLAWXBLCUW54, CAGE 1NDG6, Pflugerville TX. Operator of the **BirthRight** platform (3,009 providers, Rhonda AI). Dr. Flood = CEO at M&T.
 - **Sub-awardee (in negotiation):** Dell Medical School / UT School of Public Health — academic evaluation partner.
 - **Consultant:** National Center on Shaken Baby Syndrome — clinical-standards fidelity.
-- **POCs:** Tech POC Dr. Flood (terryflood@thrivingcommunitiesforall.com) · Admin POC Meredith Sisnett (msisnett@thrivingcommunitiesforall.com).
+- **POCs:** Tech POC Dr. Flood (terryflood@thrivingcommunitiesforall.com) · Admin POC Meredith Sissnet (msisnett@thrivingcommunitiesforall.com).
 - **Two-entity firewall** preserved per Iron Rule + capabilities-inventory governance: arms-length sub-award, separate cost accounting, no co-mingling.
 
 **Reframe (user-confirmed 2026-05-25 R8, post-actual-SOL ingestion):** Submission is a **novel-technology platform** — PFC-window risk-detection AI + moment-of-stress prophylactic intervention + CPS-linked predictive surrogate — with the "It's No Longer About You" curriculum as ONE downstream deliverable inside the platform. This framing clears the Section 2.1 "traditional education and training" exclusion. Three new-build commitments: parent-cohort risk model, moment-of-stress passive-signal detector, CPS-linkage validation pipeline.

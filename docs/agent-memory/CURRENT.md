@@ -21,7 +21,7 @@ Do **not** add `researched` / `identified` / `watch_next_cycle` rows without use
 
 ## 🚨 Live gotchas (active — read every session)
 
-1. **Meredith Sisnett ≠ City of Austin grants.** City employee. Never list on any City of Austin grant/contract. Non-City only.
+1. **Meredith Sissnet ≠ City of Austin grants.** City employee. Never list on any City of Austin grant/contract. Non-City only.
 2. **Anika Amie ≠ TCAF principal.** Name was in inherited RWJF draft; user does not know this person. Verify all named persons in any inherited draft.
 3. **Dr. Vann's lane:** youth+family attendance/services tracker for Iasis youth + Sistahs women's-health. **Never** foster youth. Iasis side = spouse COI on City of Wichita/federal.
 4. **St. David's Foundation:** "actively evaluating" only — never "awarded" or "in review." WAB2 LOI declined 2026-05-15 (Regan Gruber Moffitt).
@@ -54,7 +54,7 @@ Full lane detail + Vann spouse-COI + Love bilingual capacity → `topics/partner
 ## 📐 Operating constraints
 
 - **Title:** President for Dr. Flood (TCAF). CEO only for-profit work.
-- **Emails:** institutional only — no personal Gmail in copy or proposals. Sisnett email = non-City only.
+- **Emails:** institutional only — no personal Gmail in copy or proposals. Sissnet email = non-City only.
 - **Forbidden file changes** without explicit ask: `vite.config.ts`, `drizzle.config.ts`, `package.json`.
 - **No silent catch blocks**, no conditional `useEffect`, no hardcoded grant arrays.
 - **Public no-auth wizards** must use capability tokens, not client-supplied IDs (pattern: `server/foster-youth-intake-routes.ts`).

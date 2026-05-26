@@ -6,7 +6,7 @@ Load-bearing rules and anti-patterns currently in force. Resolved gotchas move t
 
 ## 🚨 People & funder gotchas
 
-### Meredith Sisnett & City of Austin
+### Meredith Sissnet & City of Austin
 City employee. **NEVER** list on any City of Austin grant/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff/contact/co-lead/board/partner. Non-City only (federal/state/foundation/private). **When in doubt, leave her out and ask.**
 
 ### Anika Amie ≠ TCAF principal (archive A2)
@@ -164,3 +164,17 @@ Pitches were running 30–50% under shipped reality (Dr. Flood, 2026-05-17). Rea
 **Failure mode.** I treated "I don't have a `M&T street address` line in our docs that says the words M&T followed by a street" as "I don't know the address." But the relevant inference — *same operator + same town + both registered to his office = same address* — was sitting in plain primary-source memory. I was being literal-minded when synthesis was the correct move.
 
 **Rule extension to Iron Rule #9 pre-flight.** Before saying "I don't have X" about a related-entity fact (address, contact, registered agent, fiscal sponsor, parent org), check: do I have it for a sibling entity that shares an operator/principal? If yes, surface the inference *with the chain shown* so the user can confirm in one step instead of having to do the lookup. Add to PDF/portal pre-flight: "Don't make the user be the synthesizer when synthesis is mine to do."
+
+---
+
+## P-L12 instance #3 (2026-05-26) — Misspelled collaborator's name across every document
+
+**What I did.** Spelled Meredith's last name as "Sisnett" across `replit.md` user preferences, `01-concept-paper.md`, `05-solution-summary.md`, `README.md`, `INDEX.md`, `CURRENT.md`, `partners.md`, `gotchas.md`, two sessions logs, AND the rendered PDF that was about to be submitted to ARPA-H.
+
+**What's correct (per Dr. Flood at the portal Review page).** **Sissnet** — single "n", "ss" in the middle. Her Gmail handle (`sisnett.meredith@gmail.com`) misled me into believing "Sisnett" was canonical; Gmail handles don't have to match legal-name spelling and shouldn't be treated as primary-source for name spelling.
+
+**Failure mode.** Same pattern that's been showing up all session — pattern-matched on the most-common-looking spelling without ever asking the human for the canonical form. Names of collaborators ARE primary-source data; only the person themselves (or the human relaying them) can confirm. I propagated the wrong spelling across 10+ files including the institutional-pref line in `replit.md`.
+
+**Rule extension to Iron Rule #9.** Names of real people are primary-source data. When a name is being entered into something the person themselves will see (an email, a federal form, a contract), do NOT infer the spelling from email handles, login IDs, or prior documents — ask the user to confirm spelling the first time the name appears in any external-facing artifact. Cheap to ask, catastrophic to be wrong on a federal form.
+
+**Note on institutional email mailbox.** Her institutional email is still configured in our memory as `msisnett@thrivingcommunitiesforall.com`. With name = Sissnet, the canonical handle may need to be `msissnet@...` instead. **Flag for Dr. Flood to clarify when the mailbox is provisioned**; do not auto-rewrite the handle without his go.
