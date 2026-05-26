@@ -593,3 +593,21 @@ id = "iFD5Zi1pIOnonVEFKsJjg"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md"
 type = "text"
 title = "Vitality Proposal v3 — Sedgwick RFP #26-0028 (HIS Prime, ready for partner input)"
+
+[[outputs]]
+id = "bUtVIP2r5ynL93ndCdgHZ"
+uri = "file://docs/grants/arpa-h-no-longer-about-you/05-solution-summary.md"
+type = "text"
+title = "ARPA-H SOL-24-106 Solution Summary v2 (TCAF / M&T) — 2026-05-26"
+
+[[outputs]]
+id = "cUF6EzIwlHs5v1iQ8W002"
+uri = "file://docs/grants/arpa-h-no-longer-about-you/01-concept-paper.md"
+type = "text"
+title = "Concept Paper (§5.4–§5.8 Karlin/Shen-mirror rewrite)"
+
+[[outputs]]
+id = "k9_7nOkBK7x5zUCSX4Y05"
+uri = "file://docs/grants/arpa-h-no-longer-about-you/06-reviewer-intelligence.md"
+type = "text"
+title = "Reviewer Intelligence — Shen, Jackson, Karlin"
