@@ -130,6 +130,24 @@ The CDC's Adverse Childhood Experiences (ACEs) study established a dose-response
 | Economic stability | Financial Planning (existing BirthRight module) |
 | Communities that support caregiving | Community Threads (existing) |
 
+### 3.4 Family Structure and Household Composition — Standing Structural Vulnerability
+
+Family structure is among the longest-documented and most robustly replicated structural risk factors for child maltreatment in the federal evidence base. Direct primary-source effect sizes:
+
+| Family-structure risk factor | Magnitude (verbatim) | Source |
+|---|---|---|
+| Children in single-parent households — harm-standard maltreatment rate per 1,000 children | **27.3** (single-parent) vs **15.5** (two-parent) — ~2× elevated | Sedlak et al., *Fourth National Incidence Study of Child Abuse and Neglect (NIS-4)*, HHS/ACF 2010 |
+| Children living with unrelated adults (cohabiting partner present) — fatal injury | **OR 8.0–10.0** | Schnitzer & Ewigman, *Pediatrics* 2005 |
+| Single-parent-no-other-adult households — maltreatment death | **OR ≥ 2.0** | Stiffman et al., *Pediatrics* 2002 |
+| Daughters of single mothers — probability of becoming single mothers themselves | **~2× (OR 2.11)** | Wu & Martinson, *Am Sociol Rev* 1993; McLanahan & Sandefur, *Growing Up With a Single Parent*, Harvard Univ Press 1994 |
+| Adult children of divorced parents — own-divorce relative risk | **+69%** | Amato & DeBoer, *J Marriage Fam* 2001 |
+
+**Methodological precision (for federal reviewers).** Family-structure prevalence in the U.S. has been **stable or slightly declining** since ~2012-2014 (US Census Bureau; Pew Research Center, 2019). The U.S. divorce rate has **declined ~17%** from 2.9 per 1,000 (2018) to 2.4 per 1,000 (2022) per CDC NCHS. Therefore family-structure erosion is **not** the proximate driver of the documented 12.7% post-2018 fatality rise — the Children's Bureau attributes that rise to COVID-19 disruption (mandated-reporter dropoff during school closures, parental isolation), the opioid epidemic (substance use is a factor in ~35% of cases per NCANDS), and acute economic stressors. What family structure provides is the **standing structural vulnerability** that magnifies cohort-level exposure to those acute drivers: the cohorts that absorbed the largest share of the 2018–2022 increase were disproportionately those already at elevated baseline risk through family-structure factors.
+
+**Intergenerational compounding with the PFC-Window thesis.** The intergenerational transmission of single-parent household structure (Wu/Martinson 1993; McLanahan & Sandefur 1994) compounds the parent-cohort risk this platform is built to interrupt. Daughters of single mothers are ~2× more likely to become single mothers themselves, often as young parents within the PFC-Window (ages 15-32) cohort — replicating the structural-vulnerability pattern across generations alongside the maltreatment-history pattern that Putnam-Hornstein et al. 2015 quantified at HR 3.19. Together, these form a single intergenerational risk envelope that the PFC-Window platform is designed to detect and interrupt.
+
+**Implications for the PFC-Window risk model.** Family-structure variables — household composition, presence of an unrelated cohabiting adult, intergenerational single-parent history — will be incorporated as features in the risk model alongside the validated psychometric instruments (PHQ-9, GAD-7, C-SSRS, PCL-5, ACES), SDOH inputs, and the PFC-window age-cohort indicator. Operationalized through self-reported intake plus opt-in administrative linkage, never through inference or surveillance.
+
 ---
 
 ## 4. THE FOSTER CARE → CHILD NEGLECT PIPELINE (administrative-data-grade, verified)
