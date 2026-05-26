@@ -17,16 +17,16 @@ const body = marked.parse(md);
 const title = basename(inputPath, '.md');
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
 <style>
-  @page { size: Letter; margin: 0.75in; }
-  html, body { font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 10.5pt; color: #111; line-height: 1.35; }
+  @page { size: Letter; margin: 1in; }
+  html, body { font-family: "Arial", "Helvetica Neue", -apple-system, sans-serif; font-size: 11pt; color: #111; line-height: 1.25; }
   body { margin: 0; }
-  h1 { font-size: 18pt; margin: 0 0 6pt 0; border-bottom: 1.5pt solid #000; padding-bottom: 4pt; }
-  h2 { font-size: 13pt; margin: 14pt 0 4pt 0; border-bottom: 0.5pt solid #999; padding-bottom: 2pt; }
-  h3 { font-size: 11.5pt; margin: 10pt 0 3pt 0; }
-  h4 { font-size: 10.5pt; margin: 8pt 0 2pt 0; }
-  p { margin: 0 0 6pt 0; text-align: justify; }
-  ul, ol { margin: 0 0 6pt 0; padding-left: 22pt; }
-  li { margin-bottom: 2pt; }
+  h1 { font-size: 15pt; margin: 0 0 5pt 0; border-bottom: 1pt solid #000; padding-bottom: 3pt; }
+  h2 { font-size: 12pt; margin: 9pt 0 3pt 0; border-bottom: 0.5pt solid #999; padding-bottom: 2pt; }
+  h3 { font-size: 11pt; margin: 7pt 0 2pt 0; }
+  h4 { font-size: 10.5pt; margin: 6pt 0 2pt 0; }
+  p { margin: 0 0 4pt 0; text-align: justify; }
+  ul, ol { margin: 0 0 4pt 0; padding-left: 18pt; }
+  li { margin-bottom: 1pt; }
   blockquote { border-left: 2pt solid #888; margin: 4pt 0; padding: 2pt 0 2pt 10pt; color: #333; font-style: italic; }
   code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 9pt; background: #f3f3f3; padding: 0 2pt; border-radius: 2pt; }
   pre { font-size: 9pt; background: #f6f6f6; padding: 6pt; border-radius: 2pt; overflow-x: auto; }
