@@ -28,36 +28,44 @@ Dr. Terry D. Flood, DHA — President, TCAF
 - Email: terryflood@thrivingcommunitiesforall.com
 - Phone: 254-319-8460
 
-## Other Senior Project Personnel (max 4)
+## Other Senior Project Personnel (max 4 — names due to TCAF by 2026-06-06 for 2026-06-16 LOI submit)
 
-1. [TBD — confirm by 2026-06-06]
-2. [TBD — confirm by 2026-06-06]
-3. [TBD — confirm by 2026-06-06]
-4. [TBD — confirm by 2026-06-06]
+1. Senior Personnel #1 — The University of Texas at Austin (AI / CISE faculty lead) — name to be confirmed by 2026-06-06
+2. Senior Personnel #2 — Texas Manufacturing Assistance Center / NIST MEP (manufacturing-extension senior) — name to be confirmed by 2026-06-06
+3. Senior Personnel #3 — Texas A&M AgriLife Extension (statewide Extension senior) — name to be confirmed by 2026-06-06
+4. Senior Personnel #4 — Texas Workforce Commission or Texas SBDC network (workforce-systems senior) — name to be confirmed by 2026-06-06
 
 ## Participating Organizations (max 20)
 
 1. The Collaborative Advocate Foundation (TCAF) — lead organization
-2. The University of Texas at Austin
-3. Huston-Tillotson University
-4. Pecan Street Inc.
-5. Texas Manufacturing Assistance Center (TMAC)
-6. Texas A&M AgriLife Extension
-7. Texas Workforce Commission
-8. American Job Center operators
-9. Texas Small Business Development Center network
-10. United Way of Greater Austin / United Way of Central Texas
+2. The University of Texas at Austin — R1 academic anchor (AI / CISE)
+3. Huston-Tillotson University — Austin HBCU, minority-serving institution
+4. Pecan Street Inc. — residential energy / water / transportation research platform
+5. Texas Manufacturing Assistance Center (TMAC) — NIST Manufacturing Extension Partnership for Texas
+6. Texas A&M AgriLife Extension — USDA-NIFA-aligned rural / agricultural channel
+7. Texas Workforce Commission — public workforce system
+8. American Job Center operators (specific regional operators named at Full Proposal)
+9. Texas Small Business Development Center network — small-business technology-adoption channel
+10. United Way of Greater Austin / United Way of Central Texas — community-coordination backbone
+11. Texas Health Services Authority — statewide health information exchange (healthcare-delivery sector anchor)
+12. The University of Texas at San Antonio (UTSA) — Hispanic-Serving Institution, AI research depth
+13. Austin Community College District — community-college workforce delivery (Central Texas)
+14. El Paso Community College — community-college workforce delivery (West Texas / border)
+15. Houston Community College — community-college workforce delivery (Gulf Coast)
+16. Texas Office of the Governor — Economic Development & Tourism / Innovation Office — state-government partner
+17. Veterans Business Outreach Center (VBOC) — DOL-aligned veteran small-business support
+18. Capital Factory — Texas innovation-alliance / technology-council partner
 
 ---
 
 ## Synopsis
 
-The Texas Coordination Hub will accelerate AI readiness across Texas — the second-largest state economy in the United States — by serving as a neutral statewide convening backbone connecting K-16 education, workforce, industry, government, agricultural extension, and rural-services partners. The Hub is led by The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) with active SAM.gov registration and an existing production coordination platform serving Texas users across workforce, education, healthcare, and rural-services domains.
+The Texas Coordination Hub will accelerate AI readiness across the second-largest state economy in the United States by serving as a neutral statewide convening backbone connecting K-16 education, workforce, industry, government, agricultural extension, and rural-services partners. The Hub is led by The Collaborative Advocate Foundation (TCAF), a Texas-based 501(c)(3) with active SAM.gov registration and an existing production coordination platform.
 
-The Hub addresses all five Hub responsibilities. The **AI Learning and Resource Navigator** will be a Texas-specific extension of TCAF's grant-intelligence and resource-routing infrastructure — a single statewide-searchable index of AI training programs, deployment-support funding, sector pilots, and free or low-cost AI tools, delivered with dialect-aware multilingual access. The **State AI Readiness Strategic Plan** will be built from TCAF's Chainweb 8-step citation-chained data pipeline joined to participatory community evidence and organized against the 39 implementation-science constructs the platform already operationalizes; the output is a public, annually-updated Texas AI Readiness Plan owned by the Hub Governance Council and hosted on a Texas-domain public landing page, with versioned updates fed to NSF and the National Coordination Lead's national dashboards.
+The Hub addresses all five Hub responsibilities. The **AI Learning and Resource Navigator** extends TCAF's grant-intelligence infrastructure into a statewide-searchable index of AI training programs, deployment-support funding, sector pilots, and free or low-cost tools, with dialect-aware multilingual access. The **State AI Readiness Strategic Plan** joins TCAF's Chainweb citation-chained data pipeline to participatory community evidence and is organized against 39 implementation-science constructs the platform operationalizes, producing a public annually-updated plan owned by the Governance Council and versioned to NSF and the National Coordination Lead. **AI Deployment Support** delivers hands-on technical setup, integration, and customization for Texas small businesses, rural cooperatives, and community-based organizations through TMAC's NIST MEP field network, the Texas SBDC channel, and TCAF's deployment infrastructure. **Training and Capacity Building** coordinates micro-credentials, experiential learning, and stackable certifications across Huston-Tillotson, UT Austin, UTSA, the Texas community-college network, and American Job Center operators, anchored by TCAF's Trade Sims workforce-simulation library. **Convening and Coordination** runs through the Governance Council via monthly working sessions, quarterly public convenings, and direct engagement with the National Coordination Lead.
 
-Priority sectors for Texas are energy, advanced manufacturing, healthcare delivery, agriculture, and small business. Named partners include **The University of Texas at Austin** as R1 academic anchor with AI and CISE depth; **Huston-Tillotson University**, Austin's Historically Black College and University, anchoring minority-serving institution participation; **Pecan Street Inc.** contributing one of the nation's most complete residential energy, water, and transportation data research platforms; the **Texas Manufacturing Assistance Center (TMAC)**, the official NIST Manufacturing Extension Partnership center for Texas; **Texas A&M AgriLife Extension** as the USDA-NIFA-aligned rural and agricultural channel; the **Texas Workforce Commission** with American Job Center operators; the **Texas Small Business Development Center** network; and **United Way of Greater Austin / Central Texas** as community-coordination backbone.
+Priority sectors are energy (Pecan Street Inc. residential-systems data), advanced manufacturing (TMAC / NIST MEP), healthcare delivery (Texas Health Services Authority statewide HIE), agriculture (Texas A&M AgriLife Extension), and small business (Texas SBDC, VBOC, Capital Factory). Minority-serving institution depth is anchored by Huston-Tillotson University (HBCU) and UTSA (HSI); regional workforce delivery runs through Austin, El Paso, and Houston Community Colleges and TWC's American Job Center operators; state-government engagement runs through the Texas Office of the Governor's Economic Development & Innovation function.
 
-The Hub is anchored by **United Way of Greater Austin / Central Texas** as backbone partner, bringing decades of federal and state grant-administration experience and statewide community-coordination infrastructure that ensures NSF-grade compliance and fiscal discipline from day one. PI Dr. Terry D. Flood, DHA, was lead government contractor on the U.S. Army's Risk and Protective Factors initiative and on U.S. Department of Veterans Affairs suicide-prevention campaigns — multi-installation initiatives at federal scale. TCAF contributes the production technical platform: Community Voice (a statewide participatory-evidence platform now in production), the Corridor Chainweb citation-chained Census/CDC/SVI/BJS data pipeline, and Trade Sims (90 lessons across six workforce trades), operating at state and national scale to map root causes and institutional stakeholders across education, health, and justice domains.
+**United Way of Greater Austin / Central Texas** serves as backbone partner, bringing decades of federal and state grant-administration experience. Fiscal administration, federal compliance reporting, and subaward management will run through United Way under a formal backbone-organization MOU finalized prior to Full Proposal submission, providing audited 501(c)(3) infrastructure for NSF-grade compliance from day one. PI **Dr. Terry D. Flood, DHA**, has led multi-site federal coordination efforts across U.S. Army and U.S. Department of Veterans Affairs environments — aligning cross-agency stakeholders, implementation workflows, and performance reporting across installations — experience that maps directly to Hub responsibilities. Dr. Flood currently serves as PI for TCAF's competitively-pursued federal portfolio, including a Solution Summary submitted to ARPA-H Proactive Health Office (SOL-24-106) on 2026-05-26 with TCAF as prime. TCAF contributes the production technical platform: Community Voice (participatory-evidence), the Corridor Chainweb citation-chained Census / CDC / SVI / BJS data pipeline, and Trade Sims workforce-simulation lessons.
 
-Hub governance is vested in a rotating-chair Governance Council drawn from named partner institutions with formal conflict-of-interest disclosure on platform-procurement decisions. The approach aligns with the DOL AI Literacy Framework, WIOA, Perkins V, USDA-NIFA Cooperative Extension, and SBA SBDC channels, and commits to active collaboration with the National Coordination Lead through convenings, best-practice contributions, and round-one cohort participation in shaping the engagement model.
+Hub governance is vested in a rotating-chair Governance Council drawn from named partner institutions and a Coalition Advisory Board representing workforce, education, industry, rural, and community stakeholders, with formal conflict-of-interest disclosure and recusal procedures on platform-procurement and subaward decisions. The approach aligns with the DOL AI Literacy Framework, WIOA, Perkins V, USDA-NIFA Cooperative Extension, and SBA SBDC channels, and commits to active collaboration with the National Coordination Lead through convenings, best-practice contributions, and round-one cohort participation.

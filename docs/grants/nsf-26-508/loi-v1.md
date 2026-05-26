@@ -1,6 +1,8 @@
 # NSF 26-508 — TechAccess: AI-Ready America
 ## Letter of Intent — Texas State Coordination Hub (Round 1)
 
+> **⚠ SUPERSEDED 2026-05-26:** This is the v6 working draft. **Canonical version for submission is now `loi-submission-ready.md`** — which incorporates round-3 architect-review fixes: locked Senior Personnel institutional slate (UT Austin / TMAC / AgriLife / TWC-SBDC, names due 6/6), partner roster expanded 10→18 (added Texas Health Services Authority, UTSA, ACC/EPCC/HCC, TX Gov Office, VBOC, Capital Factory), explicit Hub responsibilities #3-#5 in solicitation verbs, PI Army/VA paragraph rewritten as "multi-site federal coordination" framing + ARPA-H SOL-24-106 prime submission as present-tense PI evidence, United Way backbone MOU commitment, Coalition Advisory Board added. Synopsis: 537 words / 4290 chars. See `docs/agent-memory/sessions/2026-05-26.md` Addendum 10 for full change log.
+
 **Submitting Organization:** The Collaborative Advocate Foundation (TCAF) — d/b/a ThriveUp Academy
 **State / Territory:** Texas
 **Round:** 1 (LOI due 2026-06-16 5pm CT · Full Proposal due 2026-07-16 5pm CT)
