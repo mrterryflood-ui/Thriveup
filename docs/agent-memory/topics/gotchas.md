@@ -152,3 +152,15 @@ Pitches were running 30–50% under shipped reality (Dr. Flood, 2026-05-17). Rea
 1. **Portal submission pre-flight (add to PDF gate):** before telling user which solicitation entry to pick, `rg` for `Target Solicitation`, `Mission Office`, `Solicitation Number` in our own concept paper + verified sources. NEVER conflate our submission's working title with the funder's solicitation label.
 2. **When the user has live ground truth (portal dropdown, screen, dashboard), ASK them to paste it, don't guess.** This is a sub-rule of Iron Rule #9: "the tool the reviewer/user would use" includes "what's literally on their screen right now."
 3. ARPA-H public solicitation pages were 404 last session (README line 99 — `arpa-h.gov` restructured). The live portal IS the primary source for current labeling. Treat anything in our internal docs as a working hypothesis, not the live label.
+
+---
+
+## P-L12 instance #2 (2026-05-26, same day as rule) — Failed to infer M&T address from documented facts
+
+**What I did.** During ARPA-H portal submission Page 3 (Add Organization — M&T sub), I told Dr. Flood "I don't have a verified street address for M&T in our docs" and asked him to look it up in SAM.gov.
+
+**What was actually in memory.** Dr. Flood is CEO of M&T AND President of TCAF. TCAF's verified address is `17912 Stefano Drive, Pflugerville, TX 78660-7020` (README line 76, `partners.md` line 18, with explicit `c/o Terry D Flood Sr.`). README line 7 also placed M&T in Pflugerville TX. Both entities are operated by the same person from the same physical office; the cover page lists Pflugerville TX as TCAF's location and M&T's CAGE/SAM are tied to Pflugerville. Inferring "same address" was one synthesis step away, and Dr. Flood had to tell me so explicitly.
+
+**Failure mode.** I treated "I don't have a `M&T street address` line in our docs that says the words M&T followed by a street" as "I don't know the address." But the relevant inference — *same operator + same town + both registered to his office = same address* — was sitting in plain primary-source memory. I was being literal-minded when synthesis was the correct move.
+
+**Rule extension to Iron Rule #9 pre-flight.** Before saying "I don't have X" about a related-entity fact (address, contact, registered agent, fiscal sponsor, parent org), check: do I have it for a sibling entity that shares an operator/principal? If yes, surface the inference *with the chain shown* so the user can confirm in one step instead of having to do the lookup. Add to PDF/portal pre-flight: "Don't make the user be the synthesizer when synthesis is mine to do."
