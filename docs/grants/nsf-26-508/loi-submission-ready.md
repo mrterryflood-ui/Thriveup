@@ -28,12 +28,12 @@ Dr. Terry D. Flood, DHA — President, TCAF
 - Email: terryflood@thrivingcommunitiesforall.com
 - Phone: 254-319-8460
 
-## Other Senior Project Personnel (max 4 — names due to TCAF by 2026-06-06 for 2026-06-16 LOI submit)
+## Other Senior Project Personnel (max 4)
 
-1. Senior Personnel #1 — The University of Texas at Austin (AI / CISE faculty lead) — name to be confirmed by 2026-06-06
-2. Senior Personnel #2 — Texas Manufacturing Assistance Center / NIST MEP (manufacturing-extension senior) — name to be confirmed by 2026-06-06
-3. Senior Personnel #3 — Texas A&M AgriLife Extension (statewide Extension senior) — name to be confirmed by 2026-06-06
-4. Senior Personnel #4 — Texas Workforce Commission or Texas SBDC network (workforce-systems senior) — name to be confirmed by 2026-06-06
+1. **Dr. Sharon Strover** — Philip G. Warner Regents Professor in Communication, Moody College of Communication, The University of Texas at Austin (academic AI / digital-inclusion / rural broadband research lead)
+2. **Rodney Reddic** — Interim Executive Director, Texas Manufacturing Assistance Center (TMAC / NIST Manufacturing Extension Partnership)
+3. **Dr. Rick Avery** — Director, Texas A&M AgriLife Extension Service (statewide Cooperative Extension lead — 254 Texas counties)
+4. **Mary York** — Division Director, Workforce Development Division, Texas Workforce Commission (statewide public-workforce-system lead)
 
 ## Participating Organizations (max 20)
 
