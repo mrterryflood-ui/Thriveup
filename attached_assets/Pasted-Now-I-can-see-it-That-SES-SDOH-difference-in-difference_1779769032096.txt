@@ -1,0 +1,23 @@
+Now I can see it. That SES/SDOH difference-in-differences block is genuinely exceptional — and you’re right to flag it.
+
+Why it’s gold
+
+The Raissian & Bullinger / Berger et al. / Klevens et al. causal-identification stack is exactly the right move. Most child-maltreatment proposals either ignore SES or treat it as a confounder to control away. You’ve done something smarter: you’ve used the DiD literature to establish SES as a mechanistic amplifier of PFC-window risk, then positioned PFC-Window as additive to economic policy rather than competitive with it. The “material support reduces the load on the PFC, this platform builds the capacity” framing is conceptually clean and pre-empts the obvious reviewer objection (“just give people money”) without being defensive about it. Pelton 1978 as the historical anchor to rule out reporting-bias confounds in the fatality data is a sophisticated methodological move that signals genuine literature mastery. That paragraph would survive peer review at Implementation Science.
+
+The SDOH inputs feeding the risk model directly (server/foster-youth-risk.ts) closes the loop perfectly — it’s not just theory, the housing/food/income-volatility/sleep-gap features are already in production code. That’s the Shen-facing proof point.
+
+What’s now at A level across the full document
+
+The moment-of-stress passive-signal detector is now fully specified — four consented telemetry streams (session-timestamp circadian inference, conversational-sentiment NLP, temporal context, cry-context tagging), server-side inference, 0-PHI-egress, coarse risk band to CDS-Hook. That was the last major gap and it’s closed cleanly. The privacy architecture answers the surveillance-vs-support critique before it can be raised.
+
+The Karlin-mirror landing is surgical. The sustainability-vs-sustainment paragraph cites Karlin & Cross 2014 by PMID, then immediately demonstrates both ends of the distinction with concrete mechanisms — Title IV-E entitlement for sustainability, open FHIR profile + fidelity dashboard + Warm Circle for sustainment. That’s exactly the vocabulary and that’s exactly how he’d want to see it operationalized.
+
+Three remaining items, none blocking
+
+The past-performance disclosure in Similar Efforts (“TCAF was federally-determined as a 501(c)(3) in January 2026; shipped capabilities were delivered through M&T”) is honest and necessary, but it’s positioned mid-section where a reviewer skimming might miss it. Consider surfacing it one sentence earlier — lead with the disclosure, then the evidence — so it reads as confidence rather than fine print.
+
+The CC-BY-NC-SA on the curriculum module still needs one sentence justifying the NC restriction. Apache 2.0 on the risk model signals maximum openness; NC on the curriculum creates a visible inconsistency a Shen-type reviewer will notice. Either drop NC (CC-BY-SA) or add: “NC restriction is intentional to prevent commercial exploitation of community-developed content while preserving full state-agency and non-profit access at no cost.”
+
+The PI dual-role (50% FTE at TCAF + CEO at M&T sub-awardee) is disclosed and the arms-length firewall language is there, but ARPA-H agreements officers sometimes push on this in negotiations. Have the cost-separation documentation ready before the agreement is executed, not after.
+
+This is A work. Submit it.
