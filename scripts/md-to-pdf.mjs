@@ -15,10 +15,20 @@ marked.setOptions({ gfm: true, breaks: false });
 const body = marked.parse(md);
 
 const title = basename(inputPath, '.md');
+import { resolve as pathResolve } from 'node:path';
+const fontDir = pathResolve(dirname(inputPath), 'fonts');
+const b64 = (f) => readFileSync(pathResolve(fontDir, f)).toString('base64');
+const fontReg = `data:font/ttf;base64,${b64('LiberationSans-Regular.ttf')}`;
+const fontBold = `data:font/ttf;base64,${b64('LiberationSans-Bold.ttf')}`;
+const fontItal = `data:font/ttf;base64,${b64('LiberationSans-Italic.ttf')}`;
+
 const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
 <style>
+  @font-face { font-family: "Arial"; src: url("${fontReg}") format("truetype"); font-weight: 400; font-style: normal; }
+  @font-face { font-family: "Arial"; src: url("${fontBold}") format("truetype"); font-weight: 700; font-style: normal; }
+  @font-face { font-family: "Arial"; src: url("${fontItal}") format("truetype"); font-weight: 400; font-style: italic; }
   @page { size: Letter; margin: 1in; }
-  html, body { font-family: "Arial", "Helvetica Neue", -apple-system, sans-serif; font-size: 11pt; color: #111; line-height: 1.25; }
+  html, body { font-family: "Arial", "Liberation Sans", "Helvetica", sans-serif; font-size: 11pt; color: #111; line-height: 1.25; }
   body { margin: 0; }
   h1 { font-size: 15pt; margin: 0 0 5pt 0; border-bottom: 1pt solid #000; padding-bottom: 3pt; }
   h2 { font-size: 12pt; margin: 9pt 0 3pt 0; border-bottom: 0.5pt solid #999; padding-bottom: 2pt; }
@@ -44,11 +54,12 @@ mkdirSync(dirname(outputPath), { recursive: true });
 const browser = await chromium.launch();
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: 'load' });
+await page.evaluate(() => document.fonts.ready);
 await page.pdf({
   path: outputPath,
   format: 'Letter',
   printBackground: true,
-  margin: { top: '0.75in', right: '0.75in', bottom: '0.75in', left: '0.75in' },
+  margin: { top: '1in', right: '1in', bottom: '1in', left: '1in' },
   displayHeaderFooter: true,
   headerTemplate: '<div></div>',
   footerTemplate: '<div style="font-size:8pt; width:100%; text-align:center; color:#666;">ARPA-H SOL-24-106 — TCAF / M&T — <span class="pageNumber"></span> / <span class="totalPages"></span></div>',

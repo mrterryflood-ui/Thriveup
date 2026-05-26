@@ -300,3 +300,35 @@ RPLICE was asked to corroborate my audit and responded with three architectural 
 All quotes above are verbatim from sources fetched 2026-05-25 via direct HTTP request, full HTML/PDF capture, and text extraction. No paraphrase. No AI summary. Each quote is followed by the exact source URL. PubMed abstracts are the public-domain text NIH publishes for the cited papers; full text access (where required) is for the writing session, not for citation verification.
 
 Next session, the remaining 6 gaps should be closed (or the corresponding claims cut from the Solution Summary) before any external submission.
+
+---
+
+## ✅ ADDED 2026-05-26 — ARPA-H Universal Mission Office ISO Exclusions (verbatim)
+
+**Source:** ARPA-H "Mission Office ISO — Know Before Applying" guidance page (`arpa-h.gov/explore-funding/submission-resources-and-FAQs/mission-office-iso-know-before-applying`), confirmed via web search 2026-05-26. Applies to ALL ARPA-H Mission Office ISOs, including PHO **ARPA-H-SOL-24-106**.
+
+**Verbatim:**
+
+> "Topics excluded from consideration across all Mission Office ISOs include incremental advances, technology already at the clinical trial stage, **education and training efforts**, and physical infrastructure."
+
+> "Proposals directed toward policy changes, **traditional education and training**, center coordination, formation, or development, and construction are excluded."
+
+> "[A submission to a Mission Office ISO] may be rejected if it's within the scope of an existing program or initiative."
+
+**Universal exclusion list (six items):**
+1. Incremental advances in the current state of the art
+2. Technology already at the clinical trial stage
+3. **Education and training efforts**
+4. Physical infrastructure (construction, facilities)
+5. Policy changes
+6. Center coordination, formation, or development
+
+**PHO-specific reinforcements (SOL-24-106):**
+- Incremental/evolutionary improvements to existing prevention approaches — not in scope
+- Clinical trial funding requests — not in scope
+- Reactive / treatment-after-onset research — not the focus
+- Proposals within scope of an existing ARPA-H Program or Initiative — will be rejected
+
+**Why this matters for our submission:** "Education and training" is a **hard universal disqualifier** — applied at the Solution Summary review stage. Our prior draft listed "Curriculum Module" as Deliverable #6 with a CC-BY-SA-4.0-no-NC rationale specifically about commercial training-delivery vendors; that framing was reviewer-flammable even with §1 disclaimer language. **2026-05-26 fix:** stripped curriculum-as-deliverable; recast as "open intervention-content library" — short prophylactic micro-doses (text/voice/video) the engine retrieves and serves at the moment the risk model fires, packaged as JSON payloads with FHIR-resource references; analogous to CDS-Hooks systems carrying guidance text without being "education." Explicit one-paragraph alignment to all six universal exclusions now lives in §1 of the submission narrative.
+
+**Lesson (deposited to gotchas):** never cite an ARPA-H exclusion clause without a verbatim primary-source quote captured in `04-verified-sources.md`. A paraphrase in `06-reviewer-intelligence.md` ("Section 2.1 traditional education and training exclusion") is NOT verification — it's a downstream inference. Iron Rule #2 applies symmetrically: failing to verify-by-pulling-the-source is as much a failure as conjecturing. User caught this on 2026-05-26. Cost: one extra trim/render cycle. Benefit: defensible submission.
