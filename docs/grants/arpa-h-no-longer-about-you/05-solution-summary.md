@@ -28,7 +28,7 @@
 
 **Estimated Project Duration:** 24 months (Base) + 12-month Option = 36 months maximum
 
-**Total Basis of Estimate:** **$5,475,000** (24-month Base) · Option: $2,150,000 · Maximum total: $7,625,000
+**Total Basis of Estimate:** **$5,712,000** (24-month Base) · Option: $2,150,000 · Maximum total: $7,862,000
 
 **Resource Sharing:** Gov't 100% / Performer 0% (no cost share proposed; TCAF and sub-awardees commit substantial in-kind platform infrastructure separately quantified in §BOE)
 
@@ -132,6 +132,8 @@ The platform extends three TCAF production systems (verified in `server/foster-y
 
 Adoption challenges to be overcome: (a) state CPS data-use-agreement timelines historically range 9–18 months — mitigated by parallel negotiation with three states from Month 1; (b) IRB approval for a vulnerable-population platform-research design — mitigated by engaging the academic partner's IRB as the single IRB of record before Month 3; (c) the cultural-acceptance risk of being perceived as surveillance rather than support — mitigated by TCAF's *Integration through Invitation* dignity primitive (eight layered consents default OFF, self-identification with no credential check, no funder citation without explicit shareWithFunder consent — documented in `docs/agent-memory/topics/integration-through-invitation.md`).
 
+**Implementation-science framing.** The platform is engineered as a **multi-component implementation strategy** (Karlin & Cross, *Am Psychol* 2014; PMID 24001035) using the combined **RE-AIM + CFIR planning framework** (Glasgow et al. 1999; Damschroder et al. 2009/2022; King, Glasgow et al. 2020, PMC7063029) with EPIS phase-model accent (Aarons et al. 2011). Core/adaptable component discipline is built in from Day 1 per the VA evidence-based-psychotherapy dissemination model: core (risk-model thresholds, ≥0.65 PPV gate, DV-exclusion logic, T4 mandated-reporter routing, ethical-EI preamble, witness-loop) is fixed across deployments; peripheral (dialect register, Circle training cadence, stipend mechanics, state-specific CPS preventive partner identity) is locally adaptable and logged to a fidelity dashboard reviewed quarterly by the community advisory board.
+
 ### Does the approach require new technical developments?
 
 Yes — three: (a) the PFC-window caregiver risk model (per our May 2026 literature scan, no validated parent-cohort surrogate built on the alignment of perpetration epidemiology and longitudinal-MRI PFC maturation data has been published; landscape review formally included in the Year-1 work plan); (b) the moment-of-stress detection layer fusing passive signals with HITL-supervised conversational AI (we have not identified a shipped production capability of this kind, but treat this as a working hypothesis to be confirmed by formal landscape scan); and (c) a CPS-administrative-outcome validation pipeline at the scale Putnam-Hornstein et al. (2015) established as feasible for California (n=85,084), extended to a multi-state matched-cohort design.
@@ -148,7 +150,15 @@ Yes — three: (a) the PFC-window caregiver risk model (per our May 2026 literat
 
 ### Featured use cases and demonstrations
 
-(1) End-to-end demo: a hypothetical 22-year-old expectant mother enrolls via BirthRight; risk-model fires moderate-risk surrogate; CDS-Hook surfaces during prenatal visit; Rhonda AI companion offers consent-gated PURPLE-Crying anticipatory module + "It's No Longer About You" Identity Shift module; moment-of-stress detector escalates a 2 AM conversational session to HITL-supervised clinician outreach; outcome captured in matched-cohort follow-up. (2) Open-source FHIR profile demonstration at HL7 Connectathon by Month 18. (3) Quarterly community-advisory-board review of false-positive cases with veto authority.
+(1) End-to-end demo: a hypothetical 22-year-old expectant mother enrolls via BirthRight; completes the Layer 1 competency-acquisition gate (regulation skills, PURPLE-Crying simulation) and designates a parent-defined Warm Circle (3–5 named people) after DV screen; risk-model fires moderate-risk surrogate; CDS-Hook surfaces during prenatal visit; Rhonda AI companion offers consent-gated Identity Shift module; moment-of-stress detector escalates a 2 AM session via the **tiered ladder** — T2 pings 1–2 Circle members (and the parent-opted-in FFPSA-eligible CPS preventive case manager, if designated) with non-diagnostic "be there" language; if unresolved, T3 adds on-call clinician via SafeReport HITL pane; T4 reserved for imminent danger to child with mandatory 988/911/Childhelp/CPS-hotline routing per `ETHICAL_EI_PREAMBLE`. Outcome captured in matched-cohort follow-up and reported along RE-AIM dimensions. (2) Open-source FHIR profile demonstration at HL7 Connectathon by Month 18. (3) Quarterly community-advisory-board review of false-positive Circle pings and clinician escalations with veto authority.
+
+### Activation pathway and Warm Circle protocol (Section 5.2 Criterion 1 — Technical Merit)
+
+Consistent with Karlin & Cross's foundational framework for population-scale EBP dissemination at the VA, the activation pathway is engineered as a multi-component implementation strategy: data-engineering trigger detection, four parallel notification surfaces (in-app, Rhonda 24/7 AI, CDS-Hooks-to-EHR, HITL clinician backstop), and a five-tier escalation ladder (T0 onboarding / T1 self / T2 Circle / T3 Circle + clinician / T4 mandatory 988-911-Childhelp-CPS hotline). The clinician-only HITL backstop is architecturally insufficient for in-the-moment PFC-bypass events; the **Warm Circle** — the parent-designated, DV-screened, competency-credentialed, stipended human reinforcement layer — addresses the implementation gap between clinic-hour-bound availability and the 2 AM crisis. CPS engagement at T0–T3 is parent-opted-in via the FFPSA (P.L. 115-123) preventive-services pathway (Title IV-E reimbursable, relationship-based); CPS contact at T4 follows the same mandated-reporter discipline a clinician would discharge. The Warm Circle is the operationalization of TCAF's Integration through Invitation dignity primitive (Iron Rule #8) and is the workforce-side sustainability layer of the triple-stack (payor-side / workforce-side / platform-side). Real stipends ($50/qualifying response, capped $200/quarter/member) plus portable micro-credentialing differentiates ITI from extraction.
+
+### Dissemination strategy (Section 5.2 Criterion 3 — Capabilities)
+
+Reach is in-kind. The OT does not fund distribution; OT funds the novel scientific deliverables. Population penetration is achieved through existing TCAF/M&T service touchpoints in the Austin/Manor/Pflugerville pilot corridor: BirthRight 3,009-provider directory (M&T, shipped); hospital L&D discharge partnerships with St. David's, Ascension Seton, Baylor Scott & White (M&T existing relationships); TCAF Foster-Youth Risk Engine (shipped, highest-risk subgroup per Courtney Wave 5); TCAF Justice surface for justice-involved parents (shipped); ThriveUp Black Maternal Health Network promotora/doula/peer-mentor channel (Grade A, 100% fidelity, SAMHSA + St. David's-aligned); CDS-Hooks-to-clinic activation at prenatal and well-baby visits (new build, M12); WIC/TANF caseworker referral (TX DSHS partnership); faith communities, barbershops, salons (trusted-messenger model, operational). Post-pilot national scale runs through the Title IV-E Prevention Services Clearinghouse listing — every state child-welfare agency becomes a referral channel with IV-E reimbursement, the open-ended federal-entitlement sustainability vehicle.
 
 ---
 
@@ -187,7 +197,7 @@ The risk model is released under Apache 2.0; the FHIR profile and CDS-Hook are s
 
 ## Basis of Estimate (BOE)
 
-**Total 24-month Base BOE: $5,475,000.** All figures are ROM-class estimates anchored to TCAF/M&T burdened labor rates, prevailing federal indirect benchmarks (TCAF de minimis 10% in absence of NICRA), and quoted sub-award costs. Final cost proposal will be developed using the Bundle of Attachments Cost Proposal Workbook upon ARPA-H feedback.
+**Total 24-month Base BOE: $5,712,000.** All figures are ROM-class estimates anchored to TCAF/M&T burdened labor rates, prevailing federal indirect benchmarks (TCAF de minimis 10% in absence of NICRA), and quoted sub-award costs. Final cost proposal will be developed using the Bundle of Attachments Cost Proposal Workbook upon ARPA-H feedback.
 
 | Basis of Estimate (BOE) | Amount (Base, 24-mo) |
 |---|---|
@@ -199,15 +209,16 @@ The risk model is released under Apache 2.0; the FHIR profile and CDS-Hook are s
 | **State CPS data-use agreement legal + data-stewardship costs** (3 state parallel negotiation) | $235,000 |
 | **Materials, supplies, software licenses** | $95,000 |
 | **Travel** (HL7 Connectathon, ARPA-H program reviews, state-CPS in-person negotiations) | $75,000 |
-| **Community advisory board honoraria + community-engagement stipends** (Integration through Invitation dignity primitive — real stipends for shadow workers, not aspirational) | $185,000 |
+| **Warm Circle competency-based stipends + micro-credentialing infrastructure** (workforce-side sustainability layer; ITI doctrine operationalized; $50/qualifying response capped $200/quarter/member at pilot scale ~2,000 parents) | $300,000 |
+| **Community advisory board honoraria + community-engagement stipends** (false-positive review authority; quarterly fidelity dashboard review) | $85,000 |
 | **Fringe benefits @ 28% on direct labor** | $518,000 |
 | **Indirect costs @ 10% de minimis** | $475,000 |
 | **Profit/Fee** | $0 (non-profit prime; no fee on TCAF direct work) |
-| **Sub-total before contingency** | $5,293,000 |
-| **Management reserve (≤4%)** | $182,000 |
-| **Total Base (24 months)** | **$5,475,000** |
+| **Sub-total before contingency** | $5,493,000 |
+| **Management reserve (≤4%)** | $219,000 |
+| **Total Base (24 months)** | **$5,712,000** |
 | Option period (12 mo) — Clearinghouse submission + HL7 standards push + scaled deployment | $2,150,000 |
-| **Total with Option (36 months)** | **$7,625,000** |
+| **Total with Option (36 months)** | **$7,862,000** |
 
 **Response to Section 5.2 NOTE (appropriate risk and seniority).** This BOE deliberately staffs the program with senior technical leadership (PI Flood at DHA, dedicated Lead AI/ML Engineer at 100% FTE, peer-reviewed academic Evaluation PI) and funds the three genuinely novel technical developments (risk model, moment-of-stress detector, CPS-linkage surrogate) rather than proposing a low-risk minimum-uncertainty extension of existing work. The risk register in Proposed Work documents the real technical risks we are choosing to take on; the BOE is sized to retire those risks, not avoid them.
 

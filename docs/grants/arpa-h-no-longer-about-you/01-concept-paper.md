@@ -199,18 +199,18 @@ BirthRight is already operational and provides the deployment infrastructure ARP
 - **Texas Maternal Health Data Center** with regional hubs (Austin, Manor, Pflugerville)
 - **Existing modules** already covering risk screening, care plans, partner support, postpartum, grief, mental health, and "Know Your Warning Signs"
 
-### 5.4 Activation Pathway (Trigger → Surface → Tier)
+### 5.4 Activation Pathway — Multi-Component Implementation Strategy
 
-**Why this section exists.** Federal reviewers — especially Children's Bureau-adjacent reviewers ARPA-H pulls in — will ask: *when the risk model fires at 2 AM and the parent is in a PFC-bypass moment, what actually happens and who actually shows up?* A clinician-only Human-In-The-Loop (HITL) backstop is insufficient: a clinician hours away on-call cannot stop a parent's hand in the moment. The corrected architecture binds the moment-of-stress detector to a **parent-designated Warm Circle** (proximate humans) with the clinician as backstop and state mandated-reporter channels reserved for imminent danger only. Front-loaded self-regulation skills are a prerequisite gate, not downstream content.
+**Response to Section 5.2 Criterion 1 (Technical Merit) and Criterion 2 (Mission Relevance).** Consistent with Karlin & Cross's foundational framework for population-scale dissemination of evidence-based psychological treatments in the U.S. Department of Veterans Affairs (*Am Psychol* 2014; PMID 24001035), the activation pathway is engineered as a **multi-component implementation strategy** — not a content-delivery channel — comprising (a) data-engineering trigger detection, (b) tiered notification surfaces with task-shifted paraprofessional reinforcement, and (c) instrumented fidelity monitoring along the RE-AIM dimensions (Glasgow, Vogt & Boles, *Am J Public Health* 1999; King, Glasgow et al. 2020, PMC7063029). The detection-to-intervention loop is a deliverable interoperable system instrumented for federal-grade evaluation, not a curriculum.
 
-**Trigger types.**
+**Trigger detection (data-engineering layer).**
 
 | Trigger | Source | Threshold |
 |---|---|---|
-| Standing-risk surrogate | PFC-Window risk model (psychometrics: PHQ-9, GAD-7, C-SSRS, PCL-5, ACES; SDOH; family structure; age cohort) | Continuous score; ≥0.65 PPV gate before any auto-escalation |
+| Standing-risk surrogate | PFC-Window risk model (validated psychometrics: PHQ-9, GAD-7, C-SSRS, PCL-5, ACES; SDOH; family structure; age cohort) | Continuous score; ≥0.65 PPV gate before any auto-escalation |
 | Moment-of-stress detector | Passive signals (sleep gap, conversational sentiment, 2–4 AM cluster, contextual cues) | Real-time threshold tuned in M09–M12; HITL-default-on |
 
-**Activation surfaces (four, fire in parallel).**
+**Activation surfaces (four parallel channels, FHIR-interoperable).**
 
 | # | Surface | Mechanism | Audience |
 |---|---|---|---|
@@ -219,17 +219,17 @@ BirthRight is already operational and provides the deployment infrastructure ARP
 | 3 | Clinical EHR via CDS-Hooks | FHIR + CDS-Hook fires at prenatal / well-baby visit; 0-PHI-egress per TCAF SafeReport pattern | Treating clinician |
 | 4 | HITL clinician backstop | Moment-of-stress escalation routes to on-call clinician via SafeReport pane | Clinician → optional callback |
 
-**Escalation ladder (parent-defined at onboarding, parent-adjustable anytime).**
+**Escalation ladder (parent-defined at onboarding, FFPSA-compliant CPS engagement).**
 
 | Tier | Trigger | Who is notified | CPS engagement model |
 |---|---|---|---|
-| **T0 Pre-event** | Onboarding | Parent designs Circle, completes DV screen, completes Layer 1 SEL gate | Parent **opts in** to CPS preventive case manager as a Circle member — voluntary, FFPSA (P.L. 115-123) preventive-services-eligible, IV-E reimbursable. Relationship-based, not surveillance. |
+| **T0 Pre-event** | Onboarding | Parent designs Warm Circle, completes DV screen, completes Layer 1 competency-acquisition gate | Parent **opts in** to CPS preventive case manager as a Circle member — voluntary, FFPSA (P.L. 115-123) preventive-services-eligible, Title IV-E reimbursable. Relationship-based, not surveillance. |
 | **T1 Low–moderate** | Standing surrogate moderate band | Parent + Rhonda in-app | None (internal) |
-| **T2 Moderate–high** | Sustained signal, ≥0.65 PPV gate met | Parent + Rhonda + 1–2 designated Circle members | CPS preventive case manager pinged ONLY IF parent opted in at T0 — same "be there" ping as any Circle member, no diagnostic info |
-| **T3 High / pre-crisis** | Full criteria + parent has not engaged Rhonda for threshold-window | Full Circle + on-call clinician simultaneously | Same as T2 — CPS preventive worker treated as Circle member, NOT as reporting channel |
-| **T4 Imminent danger to child** | Hard threshold cues (validated screener equivalent) | 988 / 911 / Childhelp / **CPS hotline (state mandated-reporter pathway)** | Mandatory per `ETHICAL_EI_PREAMBLE` rule 4. Platform discharges mandated-reporter duty exactly as a clinician would. Disclosed at intake — no surprises. |
+| **T2 Moderate–high** | Sustained signal, ≥0.65 PPV gate met | Parent + Rhonda + 1–2 designated Circle members | CPS preventive case manager pinged ONLY IF parent opted in at T0 — same "be there" ping as any Circle member, no diagnostic information disclosed |
+| **T3 High / pre-crisis** | Full criteria + parent has not engaged Rhonda for threshold-window | Full Circle + on-call clinician simultaneously | CPS preventive worker treated as Circle member, NOT as reporting channel |
+| **T4 Imminent danger to child** | Hard threshold cues (validated screener equivalent) | 988 / 911 / Childhelp / **CPS hotline (state mandated-reporter pathway)** | Mandatory per `ETHICAL_EI_PREAMBLE` rule 4. Platform discharges mandated-reporter duty exactly as a clinician would. Disclosed at intake in plain language — no surprises. |
 
-**Front-loaded Self-Regulation Gate (Layer 1).** Parents complete a ~2–3 hour practiced sequence — box breathing, 5-4-3-2-1 grounding, named-trigger awareness, "tap out and walk away" script, Crying Protocol simulation — **before** the risk model and Warm Circle activation go live. This is a deliberate friction calibration: the platform refuses to activate detection-and-notification machinery for a parent who hasn't been given the regulation tools first. Onboarding loss at the gate is an acceptable tradeoff against deploying a surveillance shell over an unskilled cohort.
+**Competency-acquisition prerequisite (Layer 1).** Consistent with the VA EBP dissemination model's emphasis on provider/recipient competency as a determinant of implementation fidelity (Karlin & Cross 2014), and analogously applied here to the caregiver as the proximate fidelity actor, the platform refuses to activate downstream detection-and-notification machinery for a parent who has not completed a practiced regulation-competency sequence (~2–3 hours: box breathing, 5-4-3-2-1 grounding, named-trigger awareness, "tap out and walk away" script, PURPLE-Crying simulation). Onboarding attrition at the gate is a deliberate fidelity tradeoff against deploying a detection-and-escalation system over an unequipped cohort — measured and reported as a RE-AIM Reach-vs-Effectiveness boundary condition rather than a leak.
 
 **Non-negotiable guardrails.**
 
@@ -237,65 +237,69 @@ BirthRight is already operational and provides the deployment infrastructure ARP
 - ≥0.65 PPV minimum before any Circle ping or clinician page
 - Parent designates every Circle member at T0 — platform never auto-invites anyone
 - DV screen at intake permanently excludes contacts the parent marks unsafe; no override
-- Circle members see *"they could use you right now"* — never diagnostic info, never child info
-- 0-PHI-egress for CDS-Hooks payload (SafeReport architectural pattern)
+- Circle members see *"they could use you right now"* — never diagnostic information, never child information
+- 0-PHI-egress for CDS-Hooks payload (TCAF SafeReport architectural pattern)
 - Community advisory board with veto power on false-positive cases; quarterly review
 - Mandated-reporter T4 disclosure at intake, in plain language, in the parent's dialect
 
-### 5.5 Warm Circle Protocol (Integration through Invitation operationalized)
+### 5.5 Warm Circle Protocol — Task-Shifted Paraprofessional EBP Extension
 
-The Warm Circle is the doctrinal operationalization of TCAF's Integration through Invitation (ITI) dignity primitive (named by Dr. Flood 2026-05-24; see `docs/agent-memory/topics/integration-through-invitation.md`). Informal caregivers, peer mentors, promotoras, neighbors, faith leaders, godparents, sponsors, and untitled community health workers are brought into the parent's safety net by the parent's invitation — with full consent agency, real stipends, and witness logging.
+**Response to Section 5.2 Criterion 2 (Mission Relevance) and Criterion 3 (Capabilities).** Building on the broader paraprofessional and peer-delivered evidence-based-practice (EBP) literature surrounding the VA dissemination model (Karlin & Cross 2014), the Warm Circle is the **task-shifted human-layer extension** of the regulation-and-de-escalation routine: a structured, competency-credentialed, parent-designated reinforcement layer that addresses the chronic implementation gap between clinic-hour-bound EBP availability and the 2 AM PFC-bypass moment when intervention has to happen. The Circle is also the operationalization of TCAF's Integration through Invitation (ITI) dignity primitive (Iron Rule #8; `docs/agent-memory/topics/integration-through-invitation.md`).
 
-**Designation.** During onboarding the parent designates 3–5 Circle members by name and relationship. Self-identification only — no credential check. Parent can add, remove, or pause any Circle member at any time, with one click.
+**Designation.** During onboarding the parent designates 3–5 Circle members by name and relationship. Self-identification only — no credential check. Parent can add, remove, or pause any Circle member at any time with one click.
 
-**Consent (parent-side AND Circle-side, both default OFF per ITI non-negotiables).** Each invited Circle member receives an ITI-style invitation explaining what they are being asked to do — "show up when she's struggling, no questions, no advice, just presence." They complete their own 8-layered consent matrix, all defaults OFF (anti-extraction): receive pings · respond ≥1 time/quarter · receive de-escalation training · receive stipend · receive micro-credential · be visible to other Circle members · contribute aggregated outcome data (only if parent also consents) · be named publicly in funder material (only if parent also consents).
+**Consent (parent-side AND Circle-side, both default OFF per ITI non-negotiables).** Each invited Circle member receives an ITI-style invitation explaining what they are being asked to do — *"show up when she's struggling, no questions, no advice, just presence."* They complete their own 8-layered consent matrix, all defaults OFF (anti-extraction): receive pings · respond ≥1 time/quarter · receive de-escalation training · receive stipend · receive micro-credential · be visible to other Circle members · contribute aggregated outcome data (only if parent also consents) · be named publicly in funder material (only if parent also consents).
 
-**Micro-training (mandatory before activation).** ~15 minutes: de-escalation 101 · when to drive over · when to just listen · when NOT to bring up the child · when to call 911 · who to call if you don't know what to do · how to take care of yourself afterward. Delivered through Rhonda + short video, available in English, Spanish, AAVE-honoring; can be re-taken anytime.
+**Competency-based micro-training (mandatory).** ~15 minutes structured competency acquisition: de-escalation 101 · when to drive over · when to just listen · when NOT to bring up the child · when to call 911 · who to call if you don't know what to do · how to take care of yourself afterward. Delivered through Rhonda + short video, available in English, Spanish, AAVE-honoring. Competency assessment gates Circle activation; re-takes allowed anytime; refreshers prompted quarterly per the VA EBP training-and-consultation model (Karlin & Cross 2014).
 
-**Stipend pathway (real, not aspirational).** Circle members who respond to ≥N pings per quarter receive a quarterly stipend (target: $50/qualifying response, capped $200/quarter/member) plus a TCAF-issued micro-credential portable to the broader CHW/peer-mentor labor market. This is what differentiates ITI from extraction: the human safety net gets paid, not thanked. Budget impact: ~$300K Base period for stipends + micro-credentialing infrastructure at pilot scale of 2,000 parents.
+**Competency-based stipend pathway (real, not aspirational).** Circle members who respond to ≥N pings per quarter receive a quarterly stipend (target: $50/qualifying response, capped $200/quarter/member) plus a TCAF-issued micro-credential portable to the broader CHW/peer-mentor labor market. This is the doctrinal differentiator between ITI and extraction: the human safety net gets paid, not thanked. Budget impact: ~$300K Base period for stipends + micro-credentialing infrastructure at pilot scale of ~2,000 parents.
 
-**DV-aware safeguards (non-negotiable).** Intake DV screen identifies contacts the parent marks unsafe; those contacts are permanently excluded from notification, no override available, no platform discretion. Geofence/timestamp data is never shared with Circle members. The Circle ping language is non-locational: *"Maria could use a check-in"* — never *"Maria is at home and needs you."*
+**DV-aware safeguards (non-negotiable).** Intake DV screen identifies contacts the parent marks unsafe; those contacts are permanently excluded from notification, no override, no platform discretion. Geofence/timestamp data is never shared with Circle members. Circle ping language is non-locational: *"Maria could use a check-in"* — never *"Maria is at home and needs you."*
 
-**Witness loop (always on).** Every Circle activation is logged: who was pinged, who responded, how long it took, what the parent reported afterward. Parent owns their own log, can export, can request deletion. Aggregated patterns reviewed quarterly by community advisory board for false-positive harm.
+**Witness loop (always on).** Every Circle activation is logged: who was pinged, who responded, response latency, post-event parent report. Parent owns the log, can export, can request deletion. Aggregated patterns reviewed quarterly by community advisory board for false-positive harm.
 
-**Circle-of-last-resort.** For genuinely isolated parents who cannot designate 3 people they trust, onboarding offers peer-mentor pairing through BirthRight network OR a community Circle of trained TCAF peer mentors and promotoras. Layer 1 + Layer 3 (clinician) still apply.
+**Circle-of-last-resort.** For genuinely isolated parents who cannot designate 3 people they trust, onboarding offers peer-mentor pairing through the BirthRight network OR a community Circle of trained TCAF peer mentors and promotoras. Layer 1 + Layer 3 (clinician) still apply.
 
-### 5.6 Distribution & Reach — How This Gets Into Parents' Hands
+### 5.6 Dissemination Strategy — Reach via Existing Delivery Surfaces
 
-Federal reviewers will ask this question first, and grant packages routinely fudge the answer with "community outreach." The honest answer is that **TCAF/M&T have already built the reach infrastructure** in the Austin/Manor/Pflugerville corridor and the ARPA-H OT does not need to fund distribution — it funds the scientific deliverables (PFC-Window risk model, moment-of-stress detector, FHIR profile, CPS-linkage study, Warm Circle protocol, Clearinghouse package). Distribution is the in-kind contribution.
+**Response to Section 5.2 Criterion 3 (Capabilities) — reach is in-kind, not OT-funded.** Consistent with the VA EBP dissemination model (Karlin & Cross 2014), this implementation strategy achieves population penetration through **existing service touchpoints** rather than standalone outreach. The OT does not fund distribution; OT funds the novel scientific deliverables (PFC-Window risk model, moment-of-stress detector, FHIR profile, CPS-linkage study, Warm Circle protocol, Clearinghouse package). The dissemination surfaces below are mapped to TCAF/M&T deployment infrastructure already shipped or under existing M&T commercial relationships in the Austin / Manor / Pflugerville pilot corridor — addressing the RE-AIM Reach dimension as in-kind contribution.
 
 | Channel | Reach mechanism | Status (M = month of OT) |
 |---|---|---|
 | OB/GYN + prenatal clinics | CDS-Hooks fires inside Epic/Cerner during routine visits | New build, pilot health system go-live M12 |
-| Hospital L&D discharge | Hospital partners offer BirthRight enrollment with discharge packet (St. David's, Ascension Seton, Baylor Scott & White in Austin) | **M&T existing relationships** via Texas Maternal Health Data Center |
+| Hospital L&D discharge | Hospital partners offer BirthRight enrollment with discharge packet (St. David's, Ascension Seton, Baylor Scott & White, Austin) | **M&T existing relationships** via Texas Maternal Health Data Center |
 | Pediatric well-baby visits | CDS-Hooks at 2-week, 2-month, 4-month, 6-month visits | New build, M12 |
 | WIC + TANF offices | Caseworker offers BirthRight enrollment at intake | New, TX DSHS partnership in pilot |
-| Foster-youth aging out | TCAF Foster-Youth Risk Engine — same platform, same pipeline | **Already shipped (production)** — highest-risk subgroup (Courtney Wave 5: 79.2% pregnant by 26) |
+| Foster-youth aging out | TCAF Foster-Youth Risk Engine — same platform, same pipeline | **Already shipped (production)** — highest-risk subgroup (Courtney Midwest Wave 5: 79.2% pregnant by 26) |
 | Justice-involved parents | TCAF Justice surface (re-entry, drug courts, family courts; RNR/CBI/NRRC operationalized) | **Already shipped (production)** |
 | BirthRight provider directory | Parents self-enroll via PWA after provider referral | **Already shipped — 3,009 providers** |
 | ThriveUp Black Maternal Health Network | Promotoras, doulas, peer mentors deliver the invitation in-community — trusted messengers, dialect-honoring | **Already shipped — Grade A, 100% fidelity, SAMHSA + St. David's-aligned** |
 | Faith communities, barbershops, salons | Trusted-messenger model already operational in Austin pilot | Existing community partnerships |
 | High schools, GED programs, alternative schools | School-based health centers + counselors for the 15–19 cohort | New, M&T to establish via AISD partnership |
-| Workplace EAP | Employer partnerships for the working-class subgroup that won't engage formal systems | Post-pilot scale-up |
-| **Title IV-E Prevention Services Clearinghouse listing** | Every state CW agency = referral channel with IV-E reimbursement | **Sustainability vehicle**, M30+ |
+| Workplace EAP | Employer partnerships for the working-class subgroup that does not engage formal systems | Post-pilot scale-up |
+| **Title IV-E Prevention Services Clearinghouse listing** | Every state child-welfare agency = referral channel with IV-E reimbursement | **Sustainability vehicle**, M30+ |
 
-### 5.7 Implementation Science Backbone
+### 5.7 Implementation Science Backbone — Fidelity, Adaptation, and Scalability
 
-This is not aspirational framework-naming. TCAF already has **39 CFIR constructs operationalized in code** (`client/src/pages/research-hub.tsx`, per the capabilities inventory referenced in Iron Rule #6) — Title IV-E Clearinghouse-grade implementation infrastructure is shipped, not promised.
+**Response to Section 5.2 Criterion 1 (Technical Merit) — implementation-science discipline.** The evaluation design follows the **combined RE-AIM + CFIR planning framework** (King, Glasgow et al. 2020, PMC7063029) — the same paired-framework model surfaced in the recent applied implementation-planning literature most directly relevant to Mission Office-funded preventive deployments. CFIR governs intervention adaptation and organizational-readiness context; RE-AIM governs evaluation across Reach, Effectiveness, Adoption, Implementation, and Maintenance. EPIS (Aarons, Hurlburt & Horwitz 2011) governs the pilot-to-sustainment phase model. Title IV-E Prevention Services Clearinghouse fidelity criteria are baked into evaluation design from Day 1, not retrofitted at submission.
 
 | Framework | Role | Status |
 |---|---|---|
-| **CFIR** — Consolidated Framework for Implementation Research (Damschroder et al. 2009; updated 2022) | Governs intervention adaptation, organizational readiness, implementation context — answers reviewer concern *"why does this work in Austin and replicate in Cleveland"* | **Already operationalized — 39 constructs in code** |
-| **RE-AIM** (Glasgow, Vogt & Boles, *Am J Public Health* 1999) | Governs evaluation across Reach, Effectiveness, Adoption, Implementation, Maintenance — directly answers distribution + sustainability rubric items | New build under OT — RE-AIM dashboard wired into matched-cohort study |
-| **EPIS** — Exploration, Preparation, Implementation, Sustainment (Aarons, Hurlburt & Horwitz 2011) | Governs the phase model from pilot to scale; Title IV-E Clearinghouse pathway aligns directly with EPIS Sustainment phase | Adopted for the Clearinghouse evaluation package |
-| **Title IV-E Prevention Services Clearinghouse fidelity criteria** | Governs evaluation rigor — built into evaluation design from Day 1, not retrofitted | New build, Deliverable #5 |
+| **RE-AIM** (Glasgow et al. 1999; King et al. 2020) | **Primary evaluation framework** — Reach (§5.6 dissemination), Effectiveness (matched-cohort + DERS/PSOC), Adoption (clinical-system uptake), Implementation (fidelity monitoring), Maintenance (Title IV-E Clearinghouse + IV-E reimbursement) | New dashboard build, wired to matched-cohort study |
+| **CFIR** (Damschroder et al. 2009; updated 2022) | **Primary planning framework** (per King/Glasgow PMC7063029) — intervention adaptation, organizational readiness, implementation context | **39 constructs already operationalized in code** (`client/src/pages/research-hub.tsx`) — evidence of organizational capacity, not framework promise |
+| **EPIS** (Aarons, Hurlburt & Horwitz 2011) | Phase-model accent for the pilot-to-sustainment trajectory | Adopted for the Clearinghouse evaluation package |
+| **Title IV-E Prevention Services Clearinghouse fidelity criteria** | Evaluation rigor baked in from Day 1 | New build, Deliverable #5 |
 
-### 5.8 Sustainability — Triple Stack
+**Fidelity-vs-adaptation discipline (pre-empting the canonical implementation-science critique).** The platform distinguishes **core components** (fixed across deployments) from **peripheral components** (locally adaptable) — the linchpin Karlin & Cross (2014) documented for the VA EBP rollout. **Core:** PFC-Window risk model thresholds, ≥0.65 PPV gate, DV-screen exclusion logic, T4 mandated-reporter routing, ethical-EI preamble, witness-loop logging. **Adaptable:** dialect/language register of Rhonda outputs, Circle-member training cadence and modality, stipend-payment mechanics, opt-in CPS preventive engagement partner identity (varies by state). Adaptations are logged to the fidelity dashboard and reviewed quarterly by the community advisory board; deviations from core trigger a fidelity-restoration protocol.
+
+### 5.8 Sustainability — Triple Stack (Payor-Side / Workforce-Side / Platform-Side)
+
+**Response to Section 5.2 NOTE on sustainment (transition beyond OT period).** Sustainability is engineered as a triple-stack — federal payor-side rails, workforce-side labor-market formation, and platform-side existing operating base — so that no single funding stream gates the post-OT trajectory. The payor-side primary mirrors the VA EBP dissemination lesson (Karlin & Cross 2014) that durable scale requires entitlement reimbursement, not appropriation-dependent grants.
 
 | Layer | Mechanism | Status |
 |---|---|---|
-| **Federal payer-side (primary)** | Title IV-E Prevention Services Clearinghouse listing → IV-E reimbursement for every enrolled family in every state that adopts. **Open-ended federal entitlement** — not appropriation-dependent. | In scope as Deliverable #5; Option-period push |
-| **Workforce-side** | Warm Circle stipends + micro-credentialing operationalizes a CHW/peer-mentor labor market per ITI doctrine (Iron Rule #8). Creates sustained employment infrastructure for the human safety-net layer beyond the OT period. | New build, ~$300K Base period (see BOE update) |
+| **Federal payor-side (primary)** | Title IV-E Prevention Services Clearinghouse listing → IV-E reimbursement for every enrolled family in every state that adopts. **Open-ended federal entitlement** — not appropriation-dependent. Mirrors the VA EBP dissemination lesson that durable scale requires payor-side rails, not appropriation-dependent grants. | In scope as Deliverable #5; Option-period push |
+| **Workforce-side** | Warm Circle stipends + micro-credentialing operationalize a CHW/peer-mentor labor market per ITI doctrine (Iron Rule #8). Creates sustained employment infrastructure for the human safety-net layer beyond the OT period. | New build, ~$300K Base period (see BOE update) |
 | **Platform-side** | Risk model Apache 2.0 · FHIR profile to HL7 · curriculum CC-BY-NC-SA · reach infrastructure already commercial (M&T BirthRight) · TCAF maintains the platform on its existing operating base. OT funds capability development, not operations. | Existing |
 
 ---

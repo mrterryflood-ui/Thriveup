@@ -13,7 +13,7 @@
 **Reframe (user-confirmed 2026-05-25 R8, post-actual-SOL ingestion):** Submission is a **novel-technology platform** — PFC-window risk-detection AI + moment-of-stress prophylactic intervention + CPS-linked predictive surrogate — with the "It's No Longer About You" curriculum as ONE downstream deliverable inside the platform. This framing clears the Section 2.1 "traditional education and training" exclusion. Three new-build commitments: parent-cohort risk model, moment-of-stress passive-signal detector, CPS-linkage validation pipeline.
 
 **Tracker home:** `docs/grants/MASTER-GRANTS-TRACKER-ISSLLC.md` (cross-reference; this pursuit is now TCAF-prime so also referenced from main TCAF tracker)
-**Status:** **SOLUTION SUMMARY DRAFT COMPLETE 2026-05-25 R8** — `05-solution-summary.md` rewritten to exact Appendix A 5-section template (Cover + Concept + Innovation/Impact + Proposed Work + Team + BOE), 2,894 body words (within 6-page hard limit at 11pt sans serif), $5.475M Base + $2.15M Option = $7.625M total, 24+12 mo duration. Ready for final user review → submit via https://solutions.arpa-h.gov/Submit-Solution/. No deadline pressure (rolling, closes March 5, 2029).
+**Status:** **SOLUTION SUMMARY DRAFT COMPLETE 2026-05-25 R8** — `05-solution-summary.md` rewritten to exact Appendix A 5-section template (Cover + Concept + Innovation/Impact + Proposed Work + Team + BOE), 2,894 body words (within 6-page hard limit at 11pt sans serif), $5.712M Base + $2.15M Option = $7.862M total (updated 2026-05-26 to add Warm Circle stipend + micro-credentialing line per Karlin-mirror rewrite), 24+12 mo duration. Ready for final user review → submit via https://solutions.arpa-h.gov/Submit-Solution/. No deadline pressure (rolling, closes March 5, 2029).
 
 ---
 

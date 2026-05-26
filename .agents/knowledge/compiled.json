@@ -1,10 +1,10 @@
 {
   "version": "1.2.0",
-  "compiledAt": "2026-05-26T01:42:51.107Z",
+  "compiledAt": "2026-05-26T02:07:46.012Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-24T16:53:49.193Z"
+      "mtime": "2026-05-26T01:54:42.489Z"
     },
     {
       "path": "docs/active-commitments.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-26T01:42:51.107Z"
+      "mtime": "2026-05-26T02:07:46.012Z"
     }
   ],
   "project": {
@@ -497,7 +497,7 @@
         "nsf",
         "hrsa"
       ],
-      "last_heartbeat": "2026-05-26T01:41:33.404Z"
+      "last_heartbeat": "2026-05-26T02:01:33.404Z"
     },
     {
       "id": "wholemind",
@@ -551,49 +551,6 @@
       "last_heartbeat": "2026-03-19T02:25:57.923Z"
     },
     {
-      "id": "code-canvas",
-      "name": "Code Canvas — System Evaluator & Optimizer",
-      "url": "https://codecanvaseval.com",
-      "role": "evaluator",
-      "domain": "system-optimization",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
-      "capabilities": {
-        "features": [
-          "Independent Platform Evaluation",
-          "Architecture Analysis",
-          "Performance Profiling",
-          "Code Audit & Review",
-          "Automated Fix Recommendations",
-          "Cross-Platform Optimization",
-          "Ecosystem Coherence Scoring",
-          "Best Practice Enforcement",
-          "SaaS Subscription Model",
-          "White-Label Evaluator",
-          "Continuous Improvement Engine",
-          "Integration Health Checks"
-        ],
-        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
-        "outcomeMetrics": [
-          "Platform evaluations completed",
-          "Optimization recommendations delivered",
-          "Fixes implemented after approval",
-          "Cross-platform coherence score improvements",
-          "Performance gains measured post-optimization"
-        ],
-        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": "2026-03-31T11:57:03.776Z"
-    },
-    {
       "id": "perfectly-different",
       "name": "Perfectly Different",
       "url": "https://neurodifferentassistant.app",
@@ -635,6 +592,49 @@
         "wioa"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "code-canvas",
+      "name": "Code Canvas — System Evaluator & Optimizer",
+      "url": "https://codecanvaseval.com",
+      "role": "evaluator",
+      "domain": "system-optimization",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
+      "capabilities": {
+        "features": [
+          "Independent Platform Evaluation",
+          "Architecture Analysis",
+          "Performance Profiling",
+          "Code Audit & Review",
+          "Automated Fix Recommendations",
+          "Cross-Platform Optimization",
+          "Ecosystem Coherence Scoring",
+          "Best Practice Enforcement",
+          "SaaS Subscription Model",
+          "White-Label Evaluator",
+          "Continuous Improvement Engine",
+          "Integration Health Checks"
+        ],
+        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
+        "outcomeMetrics": [
+          "Platform evaluations completed",
+          "Optimization recommendations delivered",
+          "Fixes implemented after approval",
+          "Cross-platform coherence score improvements",
+          "Performance gains measured post-optimization"
+        ],
+        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
       "id": "ad-targeting",
@@ -811,58 +811,6 @@
       "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
-      "id": "isss",
-      "name": "ISSS — Integrated Supports for Thriving Youth",
-      "url": "https://implementationineducatio.com",
-      "role": "student-support",
-      "domain": "education",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
-      "capabilities": {
-        "features": [
-          "Multi-Stakeholder Coordination",
-          "Evidence-Based Student Support",
-          "District-Level Analytics",
-          "Data-Driven Decision Making",
-          "Implementation Fidelity Tracking",
-          "MTSS Tiered Intervention Engine",
-          "Thrive Score Algorithm",
-          "Early Warning System",
-          "Parent Engagement Portal",
-          "IEP/504 Integration",
-          "Trauma-Informed Practices",
-          "School Climate Assessment",
-          "Community Partner Coordination",
-          "Grant Outcome Reporting"
-        ],
-        "frameworks": [
-          "MTSS",
-          "CFIR",
-          "RE-AIM",
-          "PBIS"
-        ],
-        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
-        "outcomeMetrics": [
-          "Schools implementing MTSS with fidelity: 12 districts",
-          "Student Thrive Score improvement: 23% average increase over semester",
-          "Early warning flag-to-intervention rate: 78%",
-          "Parent engagement portal active users: 1,847",
-          "Implementation fidelity score (CFIR): 7.2/10 average",
-          "Intervention effectiveness rate: 64% of flagged students improved",
-          "IEP/504 accommodation compliance rate: 91%"
-        ],
-        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "mce",
       "name": "Minority Center of Excellence",
       "url": "https://minoritycenterofexcellence.com",
@@ -910,48 +858,52 @@
       "last_heartbeat": null
     },
     {
-      "id": "safereport",
-      "name": "SafeReport",
-      "url": "https://safereports.net",
-      "role": "compliance",
-      "domain": "compliance",
+      "id": "isss",
+      "name": "ISSS — Integrated Supports for Thriving Youth",
+      "url": "https://implementationineducatio.com",
+      "role": "student-support",
+      "domain": "education",
       "status": "registered",
       "health_status": "online",
       "public_visible": true,
-      "description": "Compliance-Grade AI for Clinical Settings — mandatory reporting paired with Clinical Decision Support (CDS) for behavioral-health workflows. 50-state mandatory-reporter regulation database with auto-updated jurisdictional requirements. FHIR + CDS Hooks healthcare-IT interop for direct integration into EHR/clinical systems. PHI-safe by design — 0 raw PHI bytes egressed; all external calls de-identified. Human-In-The-Loop (HITL) default-on; every AI recommendation reviewed by a clinician before it touches a patient. 100% of recommendations cited with sources. Validated longitudinal screening for tracking BH and family-safety trajectories over time. Free-forever tier for small clinics/community providers. Integrates with Whole-Person Health for crisis routing (PHQ-9 / GAD-7 / C-SSRS / PCL-5 handoff), ISSS for student-safety early warnings, LifeBridge for victim/family support resources, and Emergency Management for risk intelligence. The clinical-compliance backbone for the behavioral-health stack.",
+      "description": "Whole-child implementation infrastructure enabling schools, districts, and regions to implement evidence-based student support at scale. Multi-Tiered System of Supports (MTSS) engine with early warning indicators, Thrive Score tracking, multi-stakeholder coordination across teachers/counselors/parents/community, and implementation fidelity measurement using CFIR and RE-AIM frameworks. District-level analytics dashboard provides real-time intervention effectiveness data. Integrates with WholeMind Learning for academic data, Perfectly Different for IEP/504 accommodations, SafeReport for incident management, and Whole-Person Health for crisis routing. Produces grant-ready outcome data for WIOA youth employment and foundation education grants.",
       "capabilities": {
         "features": [
-          "Clinical Decision Support (CDS) for BH workflows",
-          "FHIR + CDS Hooks Healthcare Interop",
-          "PHI-Safe by Design (0 bytes egressed)",
-          "Human-In-The-Loop (HITL) Default-On",
-          "100% Cited Recommendations",
-          "Validated Longitudinal Screening",
-          "50-State Mandatory-Reporter Regulation Database",
-          "Auto-Generated Filing Deadlines with Escalation",
-          "Tamper-Evident Audit Trails",
-          "Cross-Agency Referencing",
-          "Court-Admissible Evidence Packaging",
-          "Compliance Dashboard",
-          "Incident Pattern Analytics",
-          "Free-Forever Tier for Community Providers"
+          "Multi-Stakeholder Coordination",
+          "Evidence-Based Student Support",
+          "District-Level Analytics",
+          "Data-Driven Decision Making",
+          "Implementation Fidelity Tracking",
+          "MTSS Tiered Intervention Engine",
+          "Thrive Score Algorithm",
+          "Early Warning System",
+          "Parent Engagement Portal",
+          "IEP/504 Integration",
+          "Trauma-Informed Practices",
+          "School Climate Assessment",
+          "Community Partner Coordination",
+          "Grant Outcome Reporting"
         ],
-        "grantNarrative": "Speaks payer-grade healthcare-IT (FHIR + CDS Hooks), responsible-AI (HITL, 100% citation, 0 PHI egress), and 50-state regulatory-compliance language simultaneously. Fits Centene/Cigna/Episcopal Health behavioral-health, NIMH/SAMHSA clinical-decision-support, RWJF/Schmidt Futures/Patrick J. McGovern responsible-AI lines, and any HIPAA-touching foundation grant.",
+        "frameworks": [
+          "MTSS",
+          "CFIR",
+          "RE-AIM",
+          "PBIS"
+        ],
+        "grantNarrative": "Provides student-level outcome data, implementation fidelity metrics, and multi-stakeholder coordination evidence for WIOA youth employment and foundation education grant reporting",
         "outcomeMetrics": [
-          "States supported: 50",
-          "PHI bytes egressed: 0",
-          "Recommendations with citations: 100%",
-          "HITL coverage: 100% (default-on)",
-          "Incident reports filed: 456",
-          "Deadline compliance rate: 97%",
-          "Cross-agency referrals: 89",
-          "Average incident-to-resolution time: 4.3 days",
-          "Validated screening tools deployed: PHQ-9, GAD-7, C-SSRS, PCL-5, ACES"
+          "Schools implementing MTSS with fidelity: 12 districts",
+          "Student Thrive Score improvement: 23% average increase over semester",
+          "Early warning flag-to-intervention rate: 78%",
+          "Parent engagement portal active users: 1,847",
+          "Implementation fidelity score (CFIR): 7.2/10 average",
+          "Intervention effectiveness rate: 64% of flagged students improved",
+          "IEP/504 accommodation compliance rate: 91%"
         ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis routing via FHIR), ISSS (student-safety early warnings), LifeBridge (victim/family support), Emergency Management (risk intelligence). EHR-ready via CDS Hooks."
+        "integrationDepth": "Bidirectional data flows with WholeMind (academic), Perfectly Different (neurodiversity), SafeReport (incidents), RPLICE (research/implementation science), Whole-Person Health (crisis)"
       },
       "grant_alignment": [
-        "ssg-fox",
+        "wioa",
         "foundation",
         "st-davids"
       ],
@@ -1005,6 +957,96 @@
       "last_heartbeat": null
     },
     {
+      "id": "safereport",
+      "name": "SafeReport",
+      "url": "https://safereports.net",
+      "role": "compliance",
+      "domain": "compliance",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Compliance-Grade AI for Clinical Settings — mandatory reporting paired with Clinical Decision Support (CDS) for behavioral-health workflows. 50-state mandatory-reporter regulation database with auto-updated jurisdictional requirements. FHIR + CDS Hooks healthcare-IT interop for direct integration into EHR/clinical systems. PHI-safe by design — 0 raw PHI bytes egressed; all external calls de-identified. Human-In-The-Loop (HITL) default-on; every AI recommendation reviewed by a clinician before it touches a patient. 100% of recommendations cited with sources. Validated longitudinal screening for tracking BH and family-safety trajectories over time. Free-forever tier for small clinics/community providers. Integrates with Whole-Person Health for crisis routing (PHQ-9 / GAD-7 / C-SSRS / PCL-5 handoff), ISSS for student-safety early warnings, LifeBridge for victim/family support resources, and Emergency Management for risk intelligence. The clinical-compliance backbone for the behavioral-health stack.",
+      "capabilities": {
+        "features": [
+          "Clinical Decision Support (CDS) for BH workflows",
+          "FHIR + CDS Hooks Healthcare Interop",
+          "PHI-Safe by Design (0 bytes egressed)",
+          "Human-In-The-Loop (HITL) Default-On",
+          "100% Cited Recommendations",
+          "Validated Longitudinal Screening",
+          "50-State Mandatory-Reporter Regulation Database",
+          "Auto-Generated Filing Deadlines with Escalation",
+          "Tamper-Evident Audit Trails",
+          "Cross-Agency Referencing",
+          "Court-Admissible Evidence Packaging",
+          "Compliance Dashboard",
+          "Incident Pattern Analytics",
+          "Free-Forever Tier for Community Providers"
+        ],
+        "grantNarrative": "Speaks payer-grade healthcare-IT (FHIR + CDS Hooks), responsible-AI (HITL, 100% citation, 0 PHI egress), and 50-state regulatory-compliance language simultaneously. Fits Centene/Cigna/Episcopal Health behavioral-health, NIMH/SAMHSA clinical-decision-support, RWJF/Schmidt Futures/Patrick J. McGovern responsible-AI lines, and any HIPAA-touching foundation grant.",
+        "outcomeMetrics": [
+          "States supported: 50",
+          "PHI bytes egressed: 0",
+          "Recommendations with citations: 100%",
+          "HITL coverage: 100% (default-on)",
+          "Incident reports filed: 456",
+          "Deadline compliance rate: 97%",
+          "Cross-agency referrals: 89",
+          "Average incident-to-resolution time: 4.3 days",
+          "Validated screening tools deployed: PHQ-9, GAD-7, C-SSRS, PCL-5, ACES"
+        ],
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis routing via FHIR), ISSS (student-safety early warnings), LifeBridge (victim/family support), Emergency Management (risk intelligence). EHR-ready via CDS Hooks."
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "emergency-mgmt",
+      "name": "Emergency Management",
+      "url": "https://emergency-mgmt.replit.app",
+      "role": "risk-intelligence",
+      "domain": "compliance",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
+      "capabilities": {
+        "features": [
+          "Geographic Risk Heat Mapping",
+          "Multi-Factor Threat Assessment",
+          "Protective Factor Analysis",
+          "Community Resilience Scoring",
+          "Predictive Safety Modeling",
+          "Real-Time Alert System",
+          "Risk Score API",
+          "Location-Aware Safety Decisions",
+          "Emergency Response Coordination",
+          "Historical Incident Analysis",
+          "Community Safety Dashboard"
+        ],
+        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
+        "outcomeMetrics": [
+          "Risk assessments generated: 1,234",
+          "Community resilience scores computed: 45 geographic zones",
+          "Predictive safety model accuracy: 72%",
+          "Real-time alerts issued: 89 in last 30 days",
+          "Risk heat maps serving 24 platforms via API",
+          "Emergency coordination events: 23"
+        ],
+        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "foundation",
+        "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa",
       "name": "Sankofa Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -1051,44 +1093,50 @@
       "last_heartbeat": null
     },
     {
-      "id": "emergency-mgmt",
-      "name": "Emergency Management",
-      "url": "https://emergency-mgmt.replit.app",
-      "role": "risk-intelligence",
-      "domain": "compliance",
+      "id": "m2c",
+      "name": "Mission Transition (M2C)",
+      "url": "https://vetmissiontransition.com",
+      "role": "veteran-transition",
+      "domain": "veterans",
       "status": "registered",
       "health_status": "online",
-      "public_visible": false,
-      "description": "Risk intelligence and threat assessment platform providing geographic risk mapping, multi-factor safety analytics, protective factor identification, and community resilience scoring. Ingests incident data from SafeReport, crisis events from Whole-Person Health, and community health data from LifeBridge to produce real-time risk heat maps and predictive safety models. Generates risk scores that inform resource deployment, crisis response routing, and grant compliance reporting for safety-focused programs. API-accessible risk assessments enable all 22 sibling platforms to make location-aware safety decisions.",
+      "public_visible": true,
+      "description": "Full-spectrum military-to-civilian transition platform covering the complete separation journey. MOS/AFSC career translation to civilian equivalents with salary data, comprehensive benefits navigation (VA healthcare, GI Bill, disability claims, VR&E), housing and financial planning tools, identity transition support addressing the loss-of-purpose crisis, validated skills assessment with employer matching, community connections mapped to veteran density, and military family support for spouses and dependents. Specifically targets the first 12 months post-separation — the highest suicide risk window — with proactive outreach triggers. Integrates with Whole-Person Health for crisis routing (C-SSRS/PCL-5), LifeBridge for social determinant support, MCE for veteran entrepreneurship, and Black Men's Health Hub for veteran health pathways.",
       "capabilities": {
         "features": [
-          "Geographic Risk Heat Mapping",
-          "Multi-Factor Threat Assessment",
-          "Protective Factor Analysis",
-          "Community Resilience Scoring",
-          "Predictive Safety Modeling",
-          "Real-Time Alert System",
-          "Risk Score API",
-          "Location-Aware Safety Decisions",
-          "Emergency Response Coordination",
-          "Historical Incident Analysis",
-          "Community Safety Dashboard"
+          "Transition Timeline Builder",
+          "MOS/AFSC Translation Engine",
+          "Benefits Navigator (VA/GI Bill/VR&E)",
+          "Housing Planning Tools",
+          "Financial Readiness Assessment",
+          "Community Connection Mapper",
+          "Identity Transition Support",
+          "Military Skills Assessment",
+          "Military Family Support",
+          "Employer Match System",
+          "Proactive Outreach Triggers",
+          "Guard/Reserve Support",
+          "Disability Claims Guidance",
+          "Peer Mentor Network"
         ],
-        "grantNarrative": "Provides community safety analytics, risk reduction metrics, and protective factor data for SSG Fox veteran safety and foundation community resilience grants",
+        "riskWindow": "First 12 months post-separation — highest suicide risk period",
+        "grantNarrative": "Provides transition milestone completion rates, employment placement data, benefits enrollment metrics, and crisis intervention outcomes for SSG Fox ($750K) and WIOA veteran workforce grants",
         "outcomeMetrics": [
-          "Risk assessments generated: 1,234",
-          "Community resilience scores computed: 45 geographic zones",
-          "Predictive safety model accuracy: 72%",
-          "Real-time alerts issued: 89 in last 30 days",
-          "Risk heat maps serving 24 platforms via API",
-          "Emergency coordination events: 23"
+          "Transition plans created: 567",
+          "MOS/AFSC translations completed: 1,234",
+          "Benefits enrollment assists: 345",
+          "Employment placement rate: 71%",
+          "Crisis interventions (first 12 months): 89",
+          "Military family support engagements: 234",
+          "Community connection matches: 456"
         ],
-        "integrationDepth": "Ingests from SafeReport (incidents), Whole-Person Health (crisis), LifeBridge (social determinants) — outputs risk scores consumed by all platforms"
+        "integrationDepth": "Bidirectional with Whole-Person Health (crisis/PCL-5), LifeBridge (social determinants), MCE (veteran entrepreneurs), Black Men's Health (veteran health), Pinnacle (veteran-owned business contracting)",
+        "targetPopulation": "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses"
       },
       "grant_alignment": [
         "ssg-fox",
-        "foundation",
-        "st-davids"
+        "wioa",
+        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -1146,54 +1194,6 @@
         "foundation"
       ],
       "last_heartbeat": "2026-03-22T03:08:43.787Z"
-    },
-    {
-      "id": "m2c",
-      "name": "Mission Transition (M2C)",
-      "url": "https://vetmissiontransition.com",
-      "role": "veteran-transition",
-      "domain": "veterans",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Full-spectrum military-to-civilian transition platform covering the complete separation journey. MOS/AFSC career translation to civilian equivalents with salary data, comprehensive benefits navigation (VA healthcare, GI Bill, disability claims, VR&E), housing and financial planning tools, identity transition support addressing the loss-of-purpose crisis, validated skills assessment with employer matching, community connections mapped to veteran density, and military family support for spouses and dependents. Specifically targets the first 12 months post-separation — the highest suicide risk window — with proactive outreach triggers. Integrates with Whole-Person Health for crisis routing (C-SSRS/PCL-5), LifeBridge for social determinant support, MCE for veteran entrepreneurship, and Black Men's Health Hub for veteran health pathways.",
-      "capabilities": {
-        "features": [
-          "Transition Timeline Builder",
-          "MOS/AFSC Translation Engine",
-          "Benefits Navigator (VA/GI Bill/VR&E)",
-          "Housing Planning Tools",
-          "Financial Readiness Assessment",
-          "Community Connection Mapper",
-          "Identity Transition Support",
-          "Military Skills Assessment",
-          "Military Family Support",
-          "Employer Match System",
-          "Proactive Outreach Triggers",
-          "Guard/Reserve Support",
-          "Disability Claims Guidance",
-          "Peer Mentor Network"
-        ],
-        "riskWindow": "First 12 months post-separation — highest suicide risk period",
-        "grantNarrative": "Provides transition milestone completion rates, employment placement data, benefits enrollment metrics, and crisis intervention outcomes for SSG Fox ($750K) and WIOA veteran workforce grants",
-        "outcomeMetrics": [
-          "Transition plans created: 567",
-          "MOS/AFSC translations completed: 1,234",
-          "Benefits enrollment assists: 345",
-          "Employment placement rate: 71%",
-          "Crisis interventions (first 12 months): 89",
-          "Military family support engagements: 234",
-          "Community connection matches: 456"
-        ],
-        "integrationDepth": "Bidirectional with Whole-Person Health (crisis/PCL-5), LifeBridge (social determinants), MCE (veteran entrepreneurs), Black Men's Health (veteran health), Pinnacle (veteran-owned business contracting)",
-        "targetPopulation": "Active duty approaching separation, recently separated (0-24 months), Guard/Reserve, military spouses"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "foundation"
-      ],
-      "last_heartbeat": null
     },
     {
       "id": "video-creator-ai",
