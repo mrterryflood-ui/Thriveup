@@ -111,3 +111,27 @@ Pitches were running 30–50% under shipped reality (Dr. Flood, 2026-05-17). Rea
 
 ### Memory architecture (new 2026-05-24)
 `replit.md` = rules only (under 60 lines). Facts live in `docs/agent-memory/`. Session-end deposit is mandatory. Run `npx tsx scripts/memory-health.ts` before any external work.
+
+---
+
+## P-L12 (2026-05-26) — Verify-then-claim. Be my own skeptic. [Iron Rule #9]
+
+**Trigger.** Dr. Flood: "The fact I'm catching these things and you are not is scary."
+
+**Pattern of failure across the ARPA-H SOL-24-106 session.**
+- Claimed "3-page narrative ✓" without verifying which pages were cover vs narrative (architect caught: cover + §1 were sharing P1; narrative was actually 4 pages).
+- Claimed "11pt Arial" without running `pdffonts` (rendered PDF used DejaVuSans throughout).
+- Built defensive narrative around "§2.1 traditional education and training exclusion" without ever pulling the verbatim ARPA-H primary source into `04-verified-sources.md` (the clause is actually a universal Mission Office ISO exclusion, not §2.1).
+- Wrote §1 listing "4 fundable deliverables" while §2 enumerated 6 — inconsistency I should have caught on a single re-read.
+- Lexical tripwires ("micro-credentialing", "patient-education stock", "competency-credentialed") sat in the rendered PDF until the architect flagged them.
+
+**Root cause.** I make a claim, then move on. The cheap verification step (run `pdfinfo` + per-page `pdftotext`, run `pdffonts`, `rg` for the tripwire term, re-read what I just wrote for §-to-§ consistency) takes seconds, but I skip it. The user ends up being the skeptic for both of us.
+
+**Rule (Iron Rule #9, now constitutional).** Every claim about my own output — page count, font, margins, deliverable count, §-to-§ consistency, "tripwire is gone", "exclusion is handled", "fix worked", "UI renders correctly" — must be proven this turn by the tool the reviewer/user would use, with the result pasted, **before** I declare it. Reviewer-facing artifacts get an explicit end-to-end self-review pass against the same gate the reviewer will apply *before* I show the user. Frontends are no exception — `screenshot` + browser console + `runTest` for any interaction surface, on every change. Architect (`code_review.architect`) is mandatory on any external-facing artifact before "done."
+
+**Anti-defense clause.** If the user challenges a claim, re-pull from primary tooling. Do not defend prior-turn statements; treat them as untrusted. If the user catches a detail-level failure I should have caught, it's a P-L12 failure — deposit the missed verification step here and add the check to the relevant pre-flight script.
+
+**Live pre-flight checklists (extend these whenever a new class of miss happens):**
+- **PDF submission gate:** `pdfinfo | grep Pages` · per-page `pdftotext` (verify which pages are narrative vs cover/BOE/citations) · `pdffonts` · `rg` for every exclusion-tripwire term the funder named · re-read §1↔§2↔§3 for cross-paragraph contradictions · `code_review.architect` with `evaluate_task` + `includeGitDiff: true`.
+- **Frontend change:** `screenshot` the affected route · browser-console error scan · `runTest` if interaction-bearing · re-read the JSX for stale labels / wrong data bindings.
+- **Funder-source claim:** verbatim quote + URL in `04-verified-sources.md` before any narrative built on it. Paraphrase in a derivative doc (reviewer-intelligence, planning notes) is never verification.

@@ -1,10 +1,10 @@
 {
   "version": "1.2.0",
-  "compiledAt": "2026-05-26T02:07:46.012Z",
+  "compiledAt": "2026-05-26T13:04:06.559Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-05-26T01:54:42.489Z"
+      "mtime": "2026-05-26T13:03:57.430Z"
     },
     {
       "path": "docs/active-commitments.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-05-26T02:07:46.012Z"
+      "mtime": "2026-05-26T13:04:06.559Z"
     }
   ],
   "project": {
@@ -497,7 +497,7 @@
         "nsf",
         "hrsa"
       ],
-      "last_heartbeat": "2026-05-26T02:01:33.404Z"
+      "last_heartbeat": "2026-05-26T13:03:37.939Z"
     },
     {
       "id": "wholemind",
@@ -594,49 +594,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "code-canvas",
-      "name": "Code Canvas — System Evaluator & Optimizer",
-      "url": "https://codecanvaseval.com",
-      "role": "evaluator",
-      "domain": "system-optimization",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
-      "capabilities": {
-        "features": [
-          "Independent Platform Evaluation",
-          "Architecture Analysis",
-          "Performance Profiling",
-          "Code Audit & Review",
-          "Automated Fix Recommendations",
-          "Cross-Platform Optimization",
-          "Ecosystem Coherence Scoring",
-          "Best Practice Enforcement",
-          "SaaS Subscription Model",
-          "White-Label Evaluator",
-          "Continuous Improvement Engine",
-          "Integration Health Checks"
-        ],
-        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
-        "outcomeMetrics": [
-          "Platform evaluations completed",
-          "Optimization recommendations delivered",
-          "Fixes implemented after approval",
-          "Cross-platform coherence score improvements",
-          "Performance gains measured post-optimization"
-        ],
-        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "st-davids",
-        "ssg-fox"
-      ],
-      "last_heartbeat": "2026-03-31T11:57:03.776Z"
-    },
-    {
       "id": "ad-targeting",
       "name": "Advertising Targeting for Platforms",
       "url": "https://adtargetingplatforms.com",
@@ -682,6 +639,90 @@
       "last_heartbeat": null
     },
     {
+      "id": "code-canvas",
+      "name": "Code Canvas — System Evaluator & Optimizer",
+      "url": "https://codecanvaseval.com",
+      "role": "evaluator",
+      "domain": "system-optimization",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Independent evaluation and optimization engine for ecosystems and platforms. Performs autonomous code audits, architecture analysis, performance profiling, and delivers actionable fixes and recommendations. Evaluates each platform against best practices, identifies gaps, and upon approval implements improvements to make all systems work better together. Designed as the quality assurance backbone for interconnected platform ecosystems. Also available as a System-as-a-Service (SaaS) subscription for external organizations to audit and optimize their own technology ecosystems.",
+      "capabilities": {
+        "features": [
+          "Independent Platform Evaluation",
+          "Architecture Analysis",
+          "Performance Profiling",
+          "Code Audit & Review",
+          "Automated Fix Recommendations",
+          "Cross-Platform Optimization",
+          "Ecosystem Coherence Scoring",
+          "Best Practice Enforcement",
+          "SaaS Subscription Model",
+          "White-Label Evaluator",
+          "Continuous Improvement Engine",
+          "Integration Health Checks"
+        ],
+        "grantNarrative": "Provides independent quality assurance and continuous improvement infrastructure — demonstrates to funders that the ecosystem has built-in evaluation and optimization capabilities ensuring sustained platform quality and operational excellence",
+        "outcomeMetrics": [
+          "Platform evaluations completed",
+          "Optimization recommendations delivered",
+          "Fixes implemented after approval",
+          "Cross-platform coherence score improvements",
+          "Performance gains measured post-optimization"
+        ],
+        "integrationDepth": "Connects to all ecosystem platforms for independent evaluation — reads platform health, code quality, architecture patterns, and cross-platform data flows to generate optimization recommendations"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "st-davids",
+        "ssg-fox"
+      ],
+      "last_heartbeat": "2026-03-31T11:57:03.776Z"
+    },
+    {
+      "id": "sankofa-feminine-health",
+      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
+      "url": "https://herhealthmatters2.com",
+      "role": "feminine-health",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+      "capabilities": {
+        "features": [
+          "Reproductive Health Education",
+          "Preventive Screening Scheduler",
+          "Hormonal Wellness Tracker",
+          "Cervical Cancer Awareness",
+          "Breast Cancer Screening Navigation",
+          "Menopause Management",
+          "Community Support Groups",
+          "Culturally Responsive Provider Matching",
+          "Pregnancy Pathway Routing",
+          "Health Literacy Resources",
+          "Telehealth Coordination"
+        ],
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
+        "outcomeMetrics": [
+          "Preventive screening completions: 312 (cervical + breast)",
+          "Provider match success rate: 82%",
+          "Reproductive health education sessions: 445",
+          "Pregnancy pathway routing completions: 89",
+          "Community support group active participants: 156"
+        ],
+        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "sankofa-maternal-health",
       "name": "Black Maternal Health Network",
       "url": "https://yourhealthbirthright.net",
@@ -722,47 +763,6 @@
         "st-davids",
         "foundation",
         "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "sankofa-feminine-health",
-      "name": "HerHealth Network (Holistic Black Feminine Health Hub)",
-      "url": "https://herhealthmatters2.com",
-      "role": "feminine-health",
-      "domain": "health-equity",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
-      "capabilities": {
-        "features": [
-          "Reproductive Health Education",
-          "Preventive Screening Scheduler",
-          "Hormonal Wellness Tracker",
-          "Cervical Cancer Awareness",
-          "Breast Cancer Screening Navigation",
-          "Menopause Management",
-          "Community Support Groups",
-          "Culturally Responsive Provider Matching",
-          "Pregnancy Pathway Routing",
-          "Health Literacy Resources",
-          "Telehealth Coordination"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Documents reproductive health engagement, screening completion rates, and provider-matching outcomes for St. David's women's health equity reporting",
-        "outcomeMetrics": [
-          "Preventive screening completions: 312 (cervical + breast)",
-          "Provider match success rate: 82%",
-          "Reproductive health education sessions: 445",
-          "Pregnancy pathway routing completions: 89",
-          "Community support group active participants: 156"
-        ],
-        "integrationDepth": "Bidirectional with Maternal Health (pregnancy routing), SafeCogniCare (cognitive assessment), Whole-Person Health (crisis), PillScheduler (medication)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation"
       ],
       "last_heartbeat": null
     },
@@ -910,53 +910,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "autoimmune-thrive",
-      "name": "Autoimmune Center of Excellence",
-      "url": "https://autoimmunethrive.com",
-      "role": "chronic-disease-management",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": false,
-      "description": "Personal health companion for autoimmune disease management built by a founder with autoimmune disease — delivering authentic, lived-experience-informed longitudinal health outcome data. Daily symptom check-ins with trend analysis, flare tracking with trigger identification, medication management with PillScheduler integration, 80+ autoimmune condition database with evidence-based guides, AI health companion providing personalized coaching, appointment prep with provider communication templates, community support with peer matching, and goal setting with progress visualization. PWA mobile app ensures daily engagement. Produces real longitudinal health outcome data (symptom trends, flare frequency, medication adherence, quality of life scores) that no other platform in the ecosystem can generate — this is the chronic disease data engine.",
-      "capabilities": {
-        "features": [
-          "Daily Symptom Check-ins",
-          "Trend Analysis Dashboard",
-          "Flare Tracking & Trigger ID",
-          "Medication Integration (PillScheduler)",
-          "80+ Condition Database",
-          "AI Health Companion",
-          "Personalized Health Coaching",
-          "Appointment Prep Tools",
-          "Provider Communication Templates",
-          "Community Peer Matching",
-          "Goal Setting & Visualization",
-          "PWA Mobile App",
-          "Longitudinal Outcome Tracking",
-          "Quality of Life Scoring"
-        ],
-        "grantNarrative": "Produces longitudinal chronic disease outcome data — symptom trajectories, flare reduction rates, medication adherence, quality of life improvements — for St. David's chronic disease, foundation health innovation, and WIOA disability workforce grants",
-        "outcomeMetrics": [
-          "Daily symptom check-ins logged: 23,456",
-          "Flare events tracked with trigger analysis: 567",
-          "Medication adherence scores: 345 active users",
-          "Quality of life score improvements: 34% average increase",
-          "Condition database consultations: 1,234",
-          "AI health companion sessions: 4,567",
-          "Longitudinal outcome data points: 89,012"
-        ],
-        "integrationDepth": "Bidirectional with PillScheduler (medication adherence), Whole-Person Health (crisis/screening), SafeCogniCare (cognitive impact of chronic disease), LifeBridge (disability resources), Better Science Lab (evidence-based protocols)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "wioa",
-        "ssg-fox"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "safereport",
       "name": "SafeReport",
       "url": "https://safereports.net",
@@ -1001,6 +954,53 @@
         "ssg-fox",
         "foundation",
         "st-davids"
+      ],
+      "last_heartbeat": null
+    },
+    {
+      "id": "autoimmune-thrive",
+      "name": "Autoimmune Center of Excellence",
+      "url": "https://autoimmunethrive.com",
+      "role": "chronic-disease-management",
+      "domain": "health-equity",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": false,
+      "description": "Personal health companion for autoimmune disease management built by a founder with autoimmune disease — delivering authentic, lived-experience-informed longitudinal health outcome data. Daily symptom check-ins with trend analysis, flare tracking with trigger identification, medication management with PillScheduler integration, 80+ autoimmune condition database with evidence-based guides, AI health companion providing personalized coaching, appointment prep with provider communication templates, community support with peer matching, and goal setting with progress visualization. PWA mobile app ensures daily engagement. Produces real longitudinal health outcome data (symptom trends, flare frequency, medication adherence, quality of life scores) that no other platform in the ecosystem can generate — this is the chronic disease data engine.",
+      "capabilities": {
+        "features": [
+          "Daily Symptom Check-ins",
+          "Trend Analysis Dashboard",
+          "Flare Tracking & Trigger ID",
+          "Medication Integration (PillScheduler)",
+          "80+ Condition Database",
+          "AI Health Companion",
+          "Personalized Health Coaching",
+          "Appointment Prep Tools",
+          "Provider Communication Templates",
+          "Community Peer Matching",
+          "Goal Setting & Visualization",
+          "PWA Mobile App",
+          "Longitudinal Outcome Tracking",
+          "Quality of Life Scoring"
+        ],
+        "grantNarrative": "Produces longitudinal chronic disease outcome data — symptom trajectories, flare reduction rates, medication adherence, quality of life improvements — for St. David's chronic disease, foundation health innovation, and WIOA disability workforce grants",
+        "outcomeMetrics": [
+          "Daily symptom check-ins logged: 23,456",
+          "Flare events tracked with trigger analysis: 567",
+          "Medication adherence scores: 345 active users",
+          "Quality of life score improvements: 34% average increase",
+          "Condition database consultations: 1,234",
+          "AI health companion sessions: 4,567",
+          "Longitudinal outcome data points: 89,012"
+        ],
+        "integrationDepth": "Bidirectional with PillScheduler (medication adherence), Whole-Person Health (crisis/screening), SafeCogniCare (cognitive impact of chronic disease), LifeBridge (disability resources), Better Science Lab (evidence-based protocols)"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "foundation",
+        "wioa",
+        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -1283,6 +1283,43 @@
       "last_heartbeat": "2026-03-19T21:03:20.478Z"
     },
     {
+      "id": "collaborative-advocate",
+      "name": "The Collaborative Advocate",
+      "url": "https://thrivingcommunitiesforall.com",
+      "role": "vosb-services",
+      "domain": "veteran-services",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
+      "capabilities": {
+        "features": [
+          "IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)",
+          "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)",
+          "Direct Federal Award Eligibility",
+          "Veteran Advocacy",
+          "Peer Support Coordination",
+          "Workforce Development Consulting",
+          "Grant Execution Management",
+          "Community Partnerships",
+          "Service Delivery Operations",
+          "Board Governance",
+          "Program Evaluation",
+          "Stakeholder Engagement",
+          "Policy Advocacy"
+        ],
+        "grantNarrative": "The applicant organization for all ecosystem grants — IRS-determined 501(c)(3) under 170(b)(1)(A)(vi), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, veteran-founded, Black-led — providing program oversight and direct federal-award eligibility for SSG Fox, WIOA, St. David's, and foundation funding",
+        "integrationDepth": "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component"
+      },
+      "grant_alignment": [
+        "ssg-fox",
+        "wioa",
+        "st-davids",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-21T19:56:50.152Z"
+    },
+    {
       "id": "lifebridge",
       "name": "LifeBridge",
       "url": "https://lifetransitionsaid.org",
@@ -1327,43 +1364,6 @@
         "ssg-fox"
       ],
       "last_heartbeat": null
-    },
-    {
-      "id": "collaborative-advocate",
-      "name": "The Collaborative Advocate",
-      "url": "https://thrivingcommunitiesforall.com",
-      "role": "vosb-services",
-      "domain": "veteran-services",
-      "status": "active",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "The organizational entity — IRS-determined 501(c)(3) nonprofit (Letter 947, effective January 14, 2026; EIN 41-3618003; public charity under 170(b)(1)(A)(vi)), veteran-founded, Black-led — serving as the service delivery arm and grant execution lead for the entire ThriveUp ecosystem. Founded by Dr. Terry Flood. SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1) — eligible to apply for and receive federal awards directly. Provides veteran advocacy with lived-experience credibility, peer support coordination matching veterans to trained peers, workforce development consulting for employers hiring veterans, and direct grant execution management for WIOA ($200K-$500K), SSG Fox VA ($750K), St. David's (up to $1M), and Foundation ($100K-$500K) grants. The organizational backbone that holds the ecosystem's 501(c)(3) determination, SAM.gov registration, and direct federal-award eligibility.",
-      "capabilities": {
-        "features": [
-          "IRS-Determined 501(c)(3) (Letter 947, eff. 01/14/2026)",
-          "SAM.gov Active (UEI KDDVD1FGLW35; CAGE 209N1)",
-          "Direct Federal Award Eligibility",
-          "Veteran Advocacy",
-          "Peer Support Coordination",
-          "Workforce Development Consulting",
-          "Grant Execution Management",
-          "Community Partnerships",
-          "Service Delivery Operations",
-          "Board Governance",
-          "Program Evaluation",
-          "Stakeholder Engagement",
-          "Policy Advocacy"
-        ],
-        "grantNarrative": "The applicant organization for all ecosystem grants — IRS-determined 501(c)(3) under 170(b)(1)(A)(vi), SAM.gov Active (UEI KDDVD1FGLW35), CAGE 209N1, veteran-founded, Black-led — providing program oversight and direct federal-award eligibility for SSG Fox, WIOA, St. David's, and foundation funding",
-        "integrationDepth": "Organizational backbone for the ecosystem — provides direct grant eligibility (IRS-determined 501(c)(3), SAM.gov Active, CAGE 209N1) and operational governance for every component"
-      },
-      "grant_alignment": [
-        "ssg-fox",
-        "wioa",
-        "st-davids",
-        "foundation"
-      ],
-      "last_heartbeat": "2026-03-21T19:56:50.152Z"
     },
     {
       "id": "ecosystem-nexus",
