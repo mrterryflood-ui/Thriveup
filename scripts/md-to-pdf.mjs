@@ -1,165 +1,58 @@
-import PDFDocument from "pdfkit";
-import fs from "fs";
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { dirname, basename } from 'node:path';
+import { marked } from 'marked';
+import { chromium } from 'playwright';
 
-const [, , inPath, outPath] = process.argv;
-if (!inPath || !outPath) {
-  console.error("usage: node scripts/md-to-pdf.mjs <in.md> <out.pdf>");
+const inputPath = process.argv[2];
+const outputPath = process.argv[3];
+if (!inputPath || !outputPath) {
+  console.error('Usage: node md-to-pdf.mjs <input.md> <output.pdf>');
   process.exit(1);
 }
 
-const md = fs.readFileSync(inPath, "utf8");
-const lines = md.split(/\r?\n/);
+const md = readFileSync(inputPath, 'utf8');
+marked.setOptions({ gfm: true, breaks: false });
+const body = marked.parse(md);
 
-const NAVY = "#1F3A5F";
-const ACCENT = "#B8862E";
-const TEXT = "#222222";
-const MUTED = "#555555";
-const RULE = "#CCCCCC";
-const TABLE_HEAD_BG = "#EEF2F7";
+const title = basename(inputPath, '.md');
+const html = `<!doctype html><html><head><meta charset="utf-8"><title>${title}</title>
+<style>
+  @page { size: Letter; margin: 0.75in; }
+  html, body { font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 10.5pt; color: #111; line-height: 1.35; }
+  body { margin: 0; }
+  h1 { font-size: 18pt; margin: 0 0 6pt 0; border-bottom: 1.5pt solid #000; padding-bottom: 4pt; }
+  h2 { font-size: 13pt; margin: 14pt 0 4pt 0; border-bottom: 0.5pt solid #999; padding-bottom: 2pt; }
+  h3 { font-size: 11.5pt; margin: 10pt 0 3pt 0; }
+  h4 { font-size: 10.5pt; margin: 8pt 0 2pt 0; }
+  p { margin: 0 0 6pt 0; text-align: justify; }
+  ul, ol { margin: 0 0 6pt 0; padding-left: 22pt; }
+  li { margin-bottom: 2pt; }
+  blockquote { border-left: 2pt solid #888; margin: 4pt 0; padding: 2pt 0 2pt 10pt; color: #333; font-style: italic; }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 9pt; background: #f3f3f3; padding: 0 2pt; border-radius: 2pt; }
+  pre { font-size: 9pt; background: #f6f6f6; padding: 6pt; border-radius: 2pt; overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; margin: 4pt 0 8pt 0; font-size: 9pt; page-break-inside: avoid; }
+  th, td { border: 0.5pt solid #888; padding: 3pt 5pt; vertical-align: top; text-align: left; }
+  th { background: #ececec; font-weight: 600; }
+  hr { border: 0; border-top: 0.5pt solid #aaa; margin: 10pt 0; }
+  strong { font-weight: 700; }
+  a { color: #003366; text-decoration: none; }
+  h1, h2, h3 { page-break-after: avoid; }
+  tr, li { page-break-inside: avoid; }
+</style></head><body>${body}</body></html>`;
 
-const PAGE_MARGIN = 54;
-const doc = new PDFDocument({ size: "LETTER", margin: PAGE_MARGIN, bufferPages: true, info: { Title: "TCAF Benefits Enrollment Collaborative", Author: "ThriveUp Community Action Foundation (TCAF)" } });
-doc.pipe(fs.createWriteStream(outPath));
-
-const W = doc.page.width - PAGE_MARGIN * 2;
-
-function ensureSpace(needed) {
-  if (doc.y + needed > doc.page.height - PAGE_MARGIN) doc.addPage();
-}
-
-function rule() {
-  ensureSpace(20);
-  doc.moveTo(PAGE_MARGIN, doc.y + 4).lineTo(PAGE_MARGIN + W, doc.y + 4).strokeColor(RULE).lineWidth(0.5).stroke();
-  doc.moveDown(0.6);
-}
-
-function heading(text, level) {
-  const sizes = { 1: 22, 2: 16, 3: 13, 4: 11 };
-  const size = sizes[level] || 12;
-  ensureSpace(size + 18);
-  doc.moveDown(level === 1 ? 0.2 : 0.6);
-  doc.fillColor(NAVY).font("Helvetica-Bold").fontSize(size).text(text, { width: W });
-  doc.moveDown(0.3);
-}
-
-// Render a paragraph that may contain bold (**x**), italic (*x* or _x_), inline link [t](u), inline code `x`
-function inlineRuns(text) {
-  const out = [];
-  let cursor = 0;
-  const re = /(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(_([^_]+)_)|(\[([^\]]+)\]\(([^)]+)\))|(`([^`]+)`)/g;
-  let m;
-  while ((m = re.exec(text)) !== null) {
-    if (m.index > cursor) out.push({ text: text.slice(cursor, m.index) });
-    if (m[2] !== undefined) out.push({ text: m[2], bold: true });
-    else if (m[4] !== undefined) out.push({ text: m[4], italic: true });
-    else if (m[6] !== undefined) out.push({ text: m[6], italic: true });
-    else if (m[8] !== undefined) out.push({ text: m[8], link: m[9] });
-    else if (m[11] !== undefined) out.push({ text: m[11], code: true });
-    cursor = m.index + m[0].length;
-  }
-  if (cursor < text.length) out.push({ text: text.slice(cursor) });
-  if (out.length === 0) out.push({ text });
-  return out;
-}
-
-function paragraph(text, opts = {}) {
-  const runs = inlineRuns(text);
-  ensureSpace(14);
-  doc.fillColor(opts.color || TEXT).fontSize(opts.size || 10.5);
-  runs.forEach((r, i) => {
-    const isLast = i === runs.length - 1;
-    if (r.bold) doc.font("Helvetica-Bold");
-    else if (r.italic) doc.font("Helvetica-Oblique");
-    else if (r.code) doc.font("Courier");
-    else doc.font("Helvetica");
-    if (r.link) {
-      doc.fillColor("#0563C1").text(r.text, { continued: !isLast, link: r.link, underline: true });
-      doc.fillColor(opts.color || TEXT);
-    } else {
-      doc.text(r.text, { continued: !isLast });
-    }
-  });
-  doc.moveDown(0.4);
-}
-
-function bullet(text) {
-  ensureSpace(14);
-  const runs = inlineRuns(text);
-  doc.fillColor(TEXT).font("Helvetica").fontSize(10.5);
-  doc.text("•  ", PAGE_MARGIN + 6, doc.y, { continued: true, width: W - 6 });
-  runs.forEach((r, i) => {
-    const isLast = i === runs.length - 1;
-    if (r.bold) doc.font("Helvetica-Bold");
-    else if (r.italic) doc.font("Helvetica-Oblique");
-    else if (r.code) doc.font("Courier");
-    else doc.font("Helvetica");
-    if (r.link) {
-      doc.fillColor("#0563C1").text(r.text, { continued: !isLast, link: r.link, underline: true });
-      doc.fillColor(TEXT);
-    } else {
-      doc.text(r.text, { continued: !isLast });
-    }
-  });
-  doc.moveDown(0.2);
-}
-
-function renderTable(rows) {
-  const cols = rows[0].length;
-  const colW = W / cols;
-  const rowH = 22;
-  const tableHeight = rowH * rows.length;
-  ensureSpace(tableHeight + 10);
-  let y = doc.y + 4;
-  rows.forEach((cells, ri) => {
-    if (ri === 0) {
-      doc.rect(PAGE_MARGIN, y, W, rowH).fillColor(TABLE_HEAD_BG).fill();
-    }
-    cells.forEach((cell, ci) => {
-      const x = PAGE_MARGIN + ci * colW;
-      doc.lineWidth(0.5).strokeColor(RULE).rect(x, y, colW, rowH).stroke();
-      doc.fillColor(ri === 0 ? NAVY : TEXT)
-         .font(ri === 0 ? "Helvetica-Bold" : "Helvetica")
-         .fontSize(10)
-         .text(cell.trim().replace(/\*\*/g, ""), x + 6, y + 6, { width: colW - 12, height: rowH - 8, ellipsis: false });
-    });
-    y += rowH;
-  });
-  doc.y = y + 6;
-}
-
-let i = 0;
-while (i < lines.length) {
-  const line = lines[i];
-  const trimmed = line.trim();
-
-  if (/^\|.+\|$/.test(trimmed) && i + 1 < lines.length && /^\|[\s:|-]+\|$/.test(lines[i + 1].trim())) {
-    const tableRows = [trimmed.split("|").slice(1, -1)];
-    i += 2;
-    while (i < lines.length && /^\|.+\|$/.test(lines[i].trim())) {
-      tableRows.push(lines[i].trim().split("|").slice(1, -1));
-      i++;
-    }
-    renderTable(tableRows);
-    continue;
-  }
-  if (trimmed === "") { doc.moveDown(0.3); i++; continue; }
-  if (/^---+$/.test(trimmed)) { rule(); i++; continue; }
-  const h = /^(#{1,4})\s+(.+)$/.exec(trimmed);
-  if (h) { heading(h[2], h[1].length); i++; continue; }
-  if (/^[-*]\s+/.test(trimmed)) { bullet(trimmed.replace(/^[-*]\s+/, "")); i++; continue; }
-  paragraph(trimmed);
-  i++;
-}
-
-// Footer on every page
-const range = doc.bufferedPageRange();
-for (let p = range.start; p < range.start + range.count; p++) {
-  doc.switchToPage(p);
-  doc.fontSize(8).fillColor(MUTED).font("Helvetica")
-     .text(`ThriveUp Community Action Foundation (TCAF)  ·  UEI KDDVD1FGLW35  ·  Page ${p + 1} of ${range.count}`,
-       PAGE_MARGIN, doc.page.height - PAGE_MARGIN + 10, { width: W, align: "center", lineBreak: false });
-}
-
-doc.end();
-await new Promise(r => doc.on("end", r));
-console.log(`Wrote ${outPath} (${fs.statSync(outPath).size} bytes)`);
+mkdirSync(dirname(outputPath), { recursive: true });
+const browser = await chromium.launch();
+const page = await browser.newPage();
+await page.setContent(html, { waitUntil: 'load' });
+await page.pdf({
+  path: outputPath,
+  format: 'Letter',
+  printBackground: true,
+  margin: { top: '0.75in', right: '0.75in', bottom: '0.75in', left: '0.75in' },
+  displayHeaderFooter: true,
+  headerTemplate: '<div></div>',
+  footerTemplate: '<div style="font-size:8pt; width:100%; text-align:center; color:#666;">ARPA-H SOL-24-106 — TCAF / M&T — <span class="pageNumber"></span> / <span class="totalPages"></span></div>',
+});
+await browser.close();
+const stats = await import('node:fs').then(f => f.statSync(outputPath));
+console.log(`PDF written: ${outputPath} (${(stats.size/1024).toFixed(1)} KB)`);
