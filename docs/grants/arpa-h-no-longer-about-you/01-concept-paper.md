@@ -3,8 +3,11 @@
 ## "It's No Longer About You"
 ### A Neuroscience-Informed Cycle-Breaking Intervention for Parents Under 26
 
-**Submitted by:** M&T Consulting Solutions LLC / BirthRight (yourhealthbirthright.net) · UEI NLAWXBLCUW54 · CAGE 1NDG6
-**Principals:** Dr. Terry Flood, CEO | Meredith Sisnett, CGO
+**Internal working document — not the submission artifact.** The ARPA-H submission is `05-solution-summary.md`; this concept paper is the long-form source from which the Solution Summary was distilled.
+
+**Submitting entity (prime):** The Collaborative Advocate Foundation (TCAF), Texas 501(c)(3) public charity (determined Jan 14, 2026), SAM.gov-active through May 2027.
+**Sub-awardee:** M&T Consulting Solutions LLC / BirthRight (yourhealthbirthright.net) · UEI NLAWXBLCUW54 · CAGE 1NDG6 · SAM-active.
+**Principals:** Dr. Terry Flood, DHA — President, TCAF (Principal Investigator); also CEO, M&T Consulting Solutions LLC (>50% employment) | Meredith Sisnett, MS — Chief Growth Officer, TCAF (Co-Investigator).
 **Target Solicitation (Primary):** Proactive Health Office ISO — ARPA-H-SOL-24-106 (rolling)
 **Target Solicitation (Secondary):** 2026 SBIR/STTR Women's Health — Solution Summary due July 10, 2026
 **Date:** May 2026
@@ -419,4 +422,4 @@ This ARPA-H award is the *catalyst*. Once outcome data exists, the program unloc
 
 ---
 
-*Prepared by M&T Consulting Solutions LLC for ARPA-H submission. May 26, 2026.*
+*Prepared by The Collaborative Advocate Foundation (TCAF, prime) with M&T Consulting Solutions LLC (sub-awardee). Internal working document; the submission artifact is `05-solution-summary.md`. May 26, 2026.*

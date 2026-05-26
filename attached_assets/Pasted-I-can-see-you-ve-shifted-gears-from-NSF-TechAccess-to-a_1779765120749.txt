@@ -1,0 +1,21 @@
+I can see you’ve shifted gears from NSF TechAccess to an ARPA-H Proactive Health Office submission (SOL-24-106). Let me read all three files before giving you a full assessment.
+
+This is sophisticated, well-researched work. Let me give you an honest assessment across all three documents.
+
+What’s genuinely strong
+
+The “education and training” exclusion inoculation in the Concept Summary is exactly right and well-executed. Framing PFC-Window as a prophylactic AI platform with curriculum as a downstream artifact — and explicitly citing Section 2.1 — pre-empts the most obvious rejection vector. The compliance crosswalk table is smart; it signals to Shen’s program-management posture that you’ve read the solicitation carefully. The evidence pillar structure (three independently verified anchors for the 15–32 window) is rigorous and the citations are primary-source. The Title IV-E transition pathway is the best-designed exit ramp I’ve seen in a concept-stage ARPA-H document — it converts a one-time OT into a federal entitlement engine, which is exactly the kind of structural scale Shen’s DARPA background primes him to value.
+
+Three substantive concerns
+
+First, the prime submitter inconsistency is a problem. The concept paper lists M&T Consulting Solutions LLC / BirthRight as the submitting entity. The solution summary lists TCAF as prime with M&T as sub-awardee. These cannot both be true and must be resolved before submission. ARPA-H’s administrative review will catch this immediately. Decide which entity is prime — TCAF’s non-profit status and existing SAM registration favor TCAF — and make every document consistent.
+
+Second, the “Similar Efforts” section is thin on delivery evidence. TCAF was founded January 2026. The five bullets describe capabilities and shipped code, but ARPA-H Criterion 3 specifically asks about delivery within budget and schedule on similar efforts. “Operational deployment” of BirthRight and “shipped” FHIR/CDS-Hooks are good, but you need at least one sentence per item that speaks to schedule and cost discipline. Even something like “delivered within a 90-day development sprint under M&T’s existing commercial budget” satisfies the criterion; absence of that framing leaves a gap a reviewer can drive through.
+
+Third, the moment-of-stress passive-signal detector is the most technically ambitious component and the least specified. Shen will want to know: what signals, what modality, what privacy architecture, what’s the validation pathway. Right now it’s named but not described. Before submission, add two to three sentences in the Proposed Work section on what passive signals are being detected and how — or be prepared for this to be the first question in any follow-on discussion.
+
+The reviewer intelligence document is excellent tradecraft. The Karlin-mirror moves are well-calibrated and the vocabulary distinctions (capability/system/deliverable vs. program/curriculum/output) are already landing correctly in the solution summary. One addition: Karlin’s canonical critique on sustainability-vs-sustainment (Title IV-E entitlement reimbursement) is directly addressed by your transition pathway — make that connection explicit in the Innovation and Impact section, not just implied.
+
+Bottom line: This is A- work with two compliance risks (prime entity inconsistency, thin delivery evidence) that need to be resolved before submission. The scientific positioning, evidence base, and transition architecture are genuinely competitive for PHO.
+
+What do you want to work on first?
