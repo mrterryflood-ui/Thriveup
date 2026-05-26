@@ -178,3 +178,17 @@ Pitches were running 30–50% under shipped reality (Dr. Flood, 2026-05-17). Rea
 **Rule extension to Iron Rule #9.** Names of real people are primary-source data. When a name is being entered into something the person themselves will see (an email, a federal form, a contract), do NOT infer the spelling from email handles, login IDs, or prior documents — ask the user to confirm spelling the first time the name appears in any external-facing artifact. Cheap to ask, catastrophic to be wrong on a federal form.
 
 **Note on institutional email mailbox.** Her institutional email is still configured in our memory as `msisnett@thrivingcommunitiesforall.com`. With name = Sissnet, the canonical handle may need to be `msissnet@...` instead. **Flag for Dr. Flood to clarify when the mailbox is provisioned**; do not auto-rewrite the handle without his go.
+
+---
+
+## P-L12 instance #4 (2026-05-26) — Asked user for partner verbal commits BEFORE LOI submit
+
+**What I did.** Told Dr. Flood he needed verbal commits from 16 non-TCAF partners by 2026-06-10 — *before* the NSF 26-508 LOI deadline (6/16). Listed it as "what I need from you" priority #2 in the close-out summary. Also flagged United Way backbone-MOU verbal commit as needed "for LOI confidence."
+
+**What's correct.** NSF 26-508 §V.A treats the LOI as **informational** — used by the Program Officer for review-panel selection, not for scoring. **No partner letters, no signed MOUs, no verbal commits are required at LOI stage.** Partner outreach properly begins AFTER invitation to Full Proposal (which would be due 2026-07-16 if TCAF advances). The loi-v1.md doc itself even says this in the "Submission Mechanics" table — step 3 ("Secure verbal commits from 8 named non-TCAF partners") was Dr. Flood's preference, not an NSF requirement, and I didn't make that distinction clear.
+
+**User's catch verbatim:** *"Why would I need verbal commits before I am approved to go all the way through. That would be crazy."*
+
+**Failure mode.** Conflated LOI requirements with Full Proposal requirements. Treated "we will eventually need this" as "we need this now." Did not read the solicitation's specific LOI gate before quoting requirements at the user. This is the EXACT pattern Iron Rule #5 (RFP Fidelity Doctrine, "Section L = pre-flight gate") is supposed to prevent — mirror the rubric, don't invent requirements.
+
+**Rule extension to Iron Rule #9 pre-flight (and reinforcement of Iron Rule #5).** Before telling the user "you need to do X by Y date," verify that X is actually required by the solicitation's specific gate (LOI vs Concept Paper vs Full Proposal vs Award), NOT by what will eventually be required. Cost of over-asking: user spends political capital they didn't need to spend yet, or worse, declines to pursue because the friction looks too high. **Add to grant pre-flight: "For each user ask, cite the solicitation §/page that requires it at THIS stage; if the cite is for a later stage, mark the ask 'optional, helpful for Full Proposal' not 'required.'"**
