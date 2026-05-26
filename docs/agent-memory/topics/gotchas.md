@@ -135,3 +135,20 @@ Pitches were running 30–50% under shipped reality (Dr. Flood, 2026-05-17). Rea
 - **PDF submission gate:** `pdfinfo | grep Pages` · per-page `pdftotext` (verify which pages are narrative vs cover/BOE/citations) · `pdffonts` · `rg` for every exclusion-tripwire term the funder named · re-read §1↔§2↔§3 for cross-paragraph contradictions · `code_review.architect` with `evaluate_task` + `includeGitDiff: true`.
 - **Frontend change:** `screenshot` the affected route · browser-console error scan · `runTest` if interaction-bearing · re-read the JSX for stale labels / wrong data bindings.
 - **Funder-source claim:** verbatim quote + URL in `04-verified-sources.md` before any narrative built on it. Paraphrase in a derivative doc (reviewer-intelligence, planning notes) is never verification.
+
+---
+
+## P-L12 instance #1 (2026-05-26, same turn as rule was written) — Confused submission title with program name
+
+**What I claimed.** Told user to pick "It's No Longer About You" from the ARPA-H portal's solicitation dropdown.
+
+**What's actually true (primary source: `01-concept-paper.md` line 11, README line 30).** "It's No Longer About You" is OUR submission title. The ARPA-H program is the **Proactive Health Office ISO**, solicitation number **ARPA-H-SOL-24-106**, a rolling broad-area opening — not a named program with a marketing title.
+
+**User catch.** "It's no longer about you is a title for the submission not an arpa program. It doesn't start with solicitation numbers they are titles. I'm losing confidence in you."
+
+**Root cause.** I pattern-matched on my own folder name (`arpa-h-no-longer-about-you/`) and treated it as if it were the ARPA-H program label. Iron Rule #9 was written THE SAME TURN this happened. The actual program designation (PHO ISO) is one `rg` away in our own concept paper.
+
+**Fix forward.**
+1. **Portal submission pre-flight (add to PDF gate):** before telling user which solicitation entry to pick, `rg` for `Target Solicitation`, `Mission Office`, `Solicitation Number` in our own concept paper + verified sources. NEVER conflate our submission's working title with the funder's solicitation label.
+2. **When the user has live ground truth (portal dropdown, screen, dashboard), ASK them to paste it, don't guess.** This is a sub-rule of Iron Rule #9: "the tool the reviewer/user would use" includes "what's literally on their screen right now."
+3. ARPA-H public solicitation pages were 404 last session (README line 99 — `arpa-h.gov` restructured). The live portal IS the primary source for current labeling. Treat anything in our internal docs as a working hypothesis, not the live label.
