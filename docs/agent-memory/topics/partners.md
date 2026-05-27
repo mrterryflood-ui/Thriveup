@@ -90,6 +90,20 @@ TCAF entity facts, two-entity strategy, teaming doctrine, current rosters.
 - Website: **www.hisolution.org**
 - Tagline: *"Upholding the golden rule."*
 
+### Cortney Jones, MSW — Change 1 / Grit Growth Global (Austin, TX)
+- Source: LinkedIn profile screenshots from Dr. Flood 2026-05-27 (`attached_assets/IMG_7809_1779853713122.png`, `attached_assets/IMG_7810_1779853713122.png`). Invitation sent 2026-05-27 — connection pending at time of intake.
+- Pronouns: she/her. Austin, Texas. 500+ LinkedIn connections.
+- **Headline:** Speaker | Author of *Angels Brave Leap* | Consultant | Advocate | Founder, **Change 1 & Grit Growth Global**.
+- **Tagline / brand:** *"CHANGE 1 MIND CHANGE 1 LIFE"* · banner: *"Creating a world where children feel Seen, Heard, and Valued!"*
+- **Education:** BSW (2005–2008) and MSW (2010–2013), East Texas A&M University.
+- **Civic / board service:**
+  - **Child Inc. Head Start** — Board Member & **Parent Policy Representative** (lived-experience + policy seat; Child Inc. is the Austin/Travis County Head Start grantee).
+  - **Texas CASA** — Public Policy and Communications/Awareness Committee Member (statewide foster-youth advocacy committee).
+- **Mutual TCAF connections (Flood network):** Sarah, Dr. Zacharias "Zach" + 16 others.
+- **Lane (preliminary, confirm with Cortney):** youth/children mental-health + lived-experience advocacy + public-policy communications. **Strong fit for Wellcome Prize for Mental Health Science with Nature 2026–2027** (anxiety/depression/psychosis in youth) — Head Start parent-policy seat + Texas CASA public-policy committee are real community-leadership credentials Wellcome scores on.
+- 🚨 **Still unknown — must confirm before any external pitch:** (a) 501(c)(3) status of Change 1 and/or Grit Growth Global (or are they consulting/LLC/sole prop?); (b) Cortney's own peer-reviewed publication record beyond *Angels Brave Leap*; (c) 2-year documented collaboration history with TCAF (Wellcome may want this — current TCAF↔Cortney history = 0 days as of 2026-05-27); (d) whether Dr. Zacharias "Zach" mutual is the same Dr. Zach in our network (verify with Flood).
+- **2026-05-27 status:** Cortney info now ON FILE — do NOT claim deficit on her in future turns without first re-checking this entry. (Iron Rule #10 anchor.)
+
 ## Meredith Sissnet
 
 - 🚨 **City of Austin employee.** **NEVER** list on any City of Austin grant/contract (AEI, Cultural Arts, APH, EDD, Public Health, AHFC, etc.) as staff/contact/co-lead/board/partner.
