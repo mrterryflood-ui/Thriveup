@@ -592,7 +592,7 @@ title = "ThriveUp Partner Onboarding Walkthrough"
 id = "iFD5Zi1pIOnonVEFKsJjg"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md"
 type = "text"
-title = "Vitality Proposal v3 — Sedgwick RFP #26-0028 (HIS Prime, ready for partner input)"
+title = "Vitality Proposal v3 — Sedgwick County RFP #26-0028 (Love Clinic Prime, glpwellness.fit)"
 
 [[outputs]]
 id = "bUtVIP2r5ynL93ndCdgHZ"
@@ -623,3 +623,15 @@ id = "FZHrt2yI0RQmZ0AqEWfzC"
 uri = "file://docs/grants/arpa-h-no-longer-about-you/dist/PFCWindowSolutionSummaryTCAF20260526.pdf"
 type = "pdf"
 title = "PFCWindowSolutionSummaryTCAF20260526.pdf — corrected (Sissnet spelling)"
+
+[[outputs]]
+id = "SDZbeAIOJs6rlIGp4ejKZ"
+uri = "file://docs/grants/sedgwick-rfp-26-0028/pre-submission-checklist.md"
+type = "text"
+title = "Pre-Submission Checklist — what's closed, what's still owed"
+
+[[outputs]]
+id = "_XTDfpfYUV_O7yIhxpgr7"
+uri = "file://docs/grants/sedgwick-rfp-26-0028/compliance-crosswalk.md"
+type = "text"
+title = "Compliance Crosswalk — Section L / Section M scoring map"

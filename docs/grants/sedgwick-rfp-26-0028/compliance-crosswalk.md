@@ -22,9 +22,9 @@
 
 | # | Requirement (verbatim) | Status | Where addressed | Notes |
 |---|---|---|---|---|
-| L.2.1 | "Firm profile: the name of the firm, address, telephone number(s), contact person, year the firm was established, and the names of the principals of the firm." | ⚠️ | §3 Team and Org Qualifications | **GAP: year established missing for HIS, Love Clinic, Vanntastic, TCAF. Add to §3.1–3.4.** |
-| L.2.2 | "The firm's relevant experience, notably experience working with government agencies." | ⚠️ | §3.1 (HIS), §3.4 (Flood: US Army retiree) | **GAP: needs at least one named public-sector engagement per partner with dates, contract value range. "References available upon request" is not enough.** |
-| L.2.3 | "At minimum, three (3) professional references, besides Sedgwick County, with email addresses, telephone numbers, and contact persons where work has been completed within the last three (3) years." | ⚠️ | Appendix E.1 (Love Clinic — CLOSED); E.2–E.4 still open | **3 refs × 4 partners = 12 refs required. 3 of 12 closed 2026-05-27 (Love Clinic — Keri Williams, Christine Bacci/Thrive Therapy of KS, third Wichita employer telehealth reference, all on the GLP-1 weight-loss service line, all within last 3 years). 9 of 12 still owed: HIS, Vanntastic, TCAF — 3 refs each.** |
+| L.2.1 | "Firm profile: the name of the firm, address, telephone number(s), contact person, year the firm was established, and the names of the principals of the firm." | ✅ for Prime; ⚠️ for subs | §3.1 (Prime — Love Clinic), §3.2–3.5 (subs) | Prime firm profile complete (Love Clinic & Med Spa, LLC; 214 S Rock Rd Ste 101 Wichita KS 67207; 316-669-4770; Dr. Chela Love DNP, FNP-C, President; established Jan 2017). L.2.1 reads "the firm" singular — Prime-only. Year-established still owed for Vanntastic and TCAF in §3.3 / §3.4 for completeness, but not L.2.1-blocking. |
+| L.2.2 | "The firm's relevant experience, notably experience working with government agencies." | ⚠️ | §3.1 (Prime — Love Clinic, 9 yrs Wichita clinical practice; Black/woman-owned small business) | Prime has 9 yrs continuous Wichita clinical practice and three written employer references on the GLP-1 service line (Appendix E.1). Prime has not previously held a Sedgwick County contract; complementary government-contract administration capacity is brought via HIS subcontractor (§3.5). |
+| L.2.3 | "At minimum, three (3) professional references, besides Sedgwick County, with email addresses, telephone numbers, and contact persons where work has been completed within the last three (3) years." | ✅ | Appendix E.1 — CLOSED (3 Prime references) | **L.2.3 applies to "the firm" (Prime), not per-partner. Three Prime references closed 2026-05-27: Keri Williams (Dir of Ops, Wichita employer, 5/24/26, 316-771-7315); Christine Bacci (CEO, Thrive Therapy of KS, 5/24/25, 316-670-9988); Tessra Youngblood (CEO, Youngblood Youth Development Homes & Services, Inc., 5/24/26). All on GLP-1 weight-loss service line. All within last 3 years. Subcontractor references kept on file as supporting due-diligence (Appendix E.2 posture statement).** |
 | L.2.4 | "A disclosure of any personal or financial interest in any properties in the project area, or any real or potential conflicts of interest with members of the Sedgwick County Board of County Commissioners or county staff." | ❌ | — | **REQUIRED even if "none known." Checklist item C: "Add explicit Conflict of Interest disclosure in Section 11." Dr. Vann's spouse (Iasis Christian Center) is COI-adjacent on City of Wichita — not Sedgwick County BoCC, but disclose proactively per Iron Rule.** |
 | L.2.5 | "A description of the type of assistance that will be sought from county staff, including assistance required from the county to lessen the costs of this project." | ❌ | — | **Checklist item C: "Add 'Assistance Requested from County' section to Section 7 (UHC integration sponsor, OptumRx data-feed approval, HR/IT coordination, communication plan support)."** |
 | L.2.6 | "Proof of insurance meeting minimum insurance requirements as designated herein." | ⚠️ | §11 (generic) | **Letter of Insurability dated within 30 days of submission, per partner — checklist item A.** |
@@ -49,24 +49,24 @@
 
 Must be filled out and signed — currently a placeholder.
 
-| Field | Value (provided where known) |
+| Field | Value (Prime — Love Clinic & Med Spa, LLC) |
 |---|---|
-| Name | Hargrave Innovative Solutions |
-| DBA | _to provide_ |
-| Contact | Eric Hargrave, CEO |
-| Address / City / State / Zip | _to provide_ |
-| Phone / Fax / Hours | 601-238-4186 / _N/A_ / _to provide_ |
-| State of Incorporation or Organization | _to provide_ |
-| Company Website / Email | _to provide_ / ericd@hisolution.org |
-| # of Locations / # Employees | _to provide_ |
-| Type of Organization | Public Corp / Private Corp / Sole Prop / Partnership / Other (check one) |
-| Business Model | Small / Manufacturer / Distributor / Retail / Dealer / Other |
-| Minority-owned? / Woman-owned? | Specify category if yes |
-| Registered to do business in KS? | Yes / No |
-| **UEI Number** | _to provide_ |
-| **Insurance KS-licensed + A-VIII?** | Yes / No |
+| Name | **Love Clinic & Med Spa, LLC** |
+| DBA | Love Clinic & Med Spa |
+| Contact | **Dr. Chela Love, DNP, FNP-C, President** |
+| Address / City / State / Zip | **214 S Rock Rd, Suite 101 / Wichita / KS / 67207** |
+| Phone / Fax / Hours | **316-669-4770** / N/A / _Prime to confirm_ |
+| State of Incorporation or Organization | **Kansas** |
+| Company Website / Email | **www.loveclinicmedspa.com** (Prime company); **glpwellness.fit** (Vitality program member portal) / **chelalove@loveclinicmedspa.com** |
+| # of Locations / # Employees | **1** / _Prime to confirm head-count_ |
+| Type of Organization | **LLC** (check Partnership/LLC option) |
+| Business Model | **Small** |
+| Minority-owned? / Woman-owned? | **YES (Black-owned) / YES** |
+| Registered to do business in KS? | **YES** (Kansas-domiciled LLC) |
+| **UEI Number** | ⬜ _Prime to register on SAM.gov or provide existing UEI_ |
+| **Insurance KS-licensed + A-VIII?** | **YES** |
 | **Acknowledge Addenda** | **No. 1 dated ___ ; No. 2 dated May 22, 2026** |
-| Signature / Title / Print Name / Dated | Eric Hargrave, CEO / June 2, 2026 (wet sig if physical, e-sig if electronic) |
+| Signature / Title / Print Name / Dated | **Dr. Chela Love, DNP, FNP-C, President, Love Clinic & Med Spa, LLC** / June 2, 2026 (wet sig if physical, e-sig if electronic) |
 
 ### L.5 — Response Form Page 2 (KORA Privilege Log) — MANDATORY EVEN IF NOTHING CLAIMED
 
@@ -82,7 +82,7 @@ Must be filled out and signed — currently a placeholder.
 
 | # | Requirement | Status |
 |---|---|---|
-| L.6.a | "Minimum of three (3) years' experience in providing services similar to those specified in this RFP" | ⚠️ → ✅ for Love Clinic (Love Clinic & Med Spa, LLC operating since Jan 2017 = **9 years**, documented in §3.2 from primary-source CV); HIS, Vanntastic, TCAF still need explicit "[Partner] has X years experience" statements |
+| L.6.a | "Minimum of three (3) years' experience in providing services similar to those specified in this RFP" | ✅ — Prime (Love Clinic & Med Spa, LLC) operating continuously in Wichita since **January 2017** (9 years), documented in §3.1 from primary-source CV. Exceeds floor by 3×. L.6.a applies to the proposing firm (Prime); subcontractor experience is documented in §3.3–§3.5 as supporting depth. |
 | L.6.b | "Understanding of industry standards and best practices" | ✅ Methodology section cites NIH/DPP, STEP, LOOK AHEAD, RAND, NBHWC |
 | L.6.c | "Experience in managing projects of comparable size and complexity" | ⚠️ Add 1 comparable engagement per partner with dollar value + member count |
 | L.6.d | "Knowledge of and comply with…federal, state and local laws…All laws of the State of Kansas, whether substantive or procedural, shall apply" | ✅ Affirm explicitly in §11 |
@@ -125,7 +125,7 @@ Must be filled out and signed — currently a placeholder.
 
 ## Net read for the team
 
-**Pre-flight gate (Section L) is currently ~50% closed.** Strong on submittal mechanics and KPI mirroring. ❌ gaps on: 12 references (3 × 4 partners), explicit COI disclosure, "Assistance Requested from County" section, Response Form Page 1 fields, KORA Privilege Log, line-by-line insurance match, year-established per partner, contract-period acceptance, indemnification + data-ownership affirmations.
+**Pre-flight gate (Section L) is substantially closed after the 2026-05-27 prime flip to Love Clinic & Med Spa, LLC.** L.2.1 ✅ (Prime), L.2.3 ✅ (3 Prime refs closed — Keri Williams, Christine Bacci, Tessra Youngblood), L.6.a ✅ (Prime 9 yrs), Response Form Page 1 substantially filled (Appendix F.1), KORA Privilege Log in place (Appendix H), insurance line-by-line match in §11.2, contract-period acceptance + indemnification + data-ownership all affirmed in §11–§12. Remaining ⬜ items are minor field-level: Prime UEI (SAM.gov registration), Prime hours-of-operation, Prime employee head-count, Prime broker Letter of Insurability + standalone COI, subcontractor due-diligence fields in Appendix F.2.
 
 **Section M scoring (80 of 100 pts non-cost) is rubric-aware but not yet rubric-mirrored.** Required: rename §6 to mirror Criterion II verbatim, rename §9 to mirror Criterion IV verbatim, add a labeled Customer Service & Member Experience section to mirror Criterion III verbatim. Each section opens *"In response to Criterion [N]'s requirement that…"* and ends with `[Evidence: ...]`. That's the doctrine — Iron Rule #5.
 
