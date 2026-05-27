@@ -132,6 +132,10 @@ import { seedOrgMemberships } from "./seed-org-memberships";
 import { registerWonProposalsRoutes } from "./won-proposals-routes";
 import { registerActiveBidsRoutes } from "./active-bids-routes";
 import { registerRfpFidelityRoutes } from "./rfp-fidelity-routes";
+import { registerRfpIngestionRoutes } from "./rfp-ingestion-routes";
+import { registerGapClosureRoutes } from "./gap-closure-routes";
+import { registerEvidenceBindingRoutes } from "./evidence-binding-routes";
+import { registerProposalAuthoringRoutes } from "./proposal-authoring-routes";
 import { registerEditorDraftsRoutes } from "./editor-drafts-routes";
 
 const AI_TOOLS = [
@@ -427,6 +431,10 @@ export async function registerRoutes(
   registerWonProposalsRoutes(app);
   registerActiveBidsRoutes(app);
   registerRfpFidelityRoutes(app);
+  registerRfpIngestionRoutes(app);
+  registerGapClosureRoutes(app);
+  registerEvidenceBindingRoutes(app);
+  registerProposalAuthoringRoutes(app);
   registerEditorDraftsRoutes(app);
   registerAgentKnowledgeRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");

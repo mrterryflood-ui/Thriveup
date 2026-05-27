@@ -5705,6 +5705,90 @@ export const insertComplianceMatrixItemSchema = createInsertSchema(complianceMat
 export type InsertComplianceMatrixItem = z.infer<typeof insertComplianceMatrixItemSchema>;
 export type ComplianceMatrixItem = typeof complianceMatrixItems.$inferSelect;
 
+// === PROPOSAL STUDIO v2 — Phase 0 tables (added 2026-05-27) ===
+// Three primitives that close the four real internal-stack gaps (L1 ingestion,
+// L3 gap-closure workflow, L5 inline evidence binding) named in
+// docs/proposal-studio-v2/PLANNING.md. Tenant-scoped via orgId; ready for
+// the contracting-only fork per user directive 2026-05-27 (Option B).
+
+// L1 — RFP ingestion jobs. Each row is one PDF that was uploaded for parsing.
+// Persists the source doc text + the AI-extracted Section L/M items so we have
+// a re-runnable audit trail (Iron Rule #11 verify-then-claim).
+export const rfpIngestionJobs = pgTable("rfp_ingestion_jobs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }),
+  documentKind: varchar("document_kind", { length: 16 }).notNull().default("base"), // base | amendment | qa
+  filename: varchar("filename", { length: 500 }).notNull(),
+  rawText: text("raw_text").notNull(),
+  status: varchar("status", { length: 16 }).notNull().default("uploaded"), // uploaded | parsed | failed
+  itemsExtracted: integer("items_extracted").notNull().default(0),
+  errorMessage: text("error_message"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  parsedAt: timestamp("parsed_at"),
+}, (t) => [
+  index("idx_rfp_ingestion_org").on(t.orgId),
+  index("idx_rfp_ingestion_grant").on(t.grantId),
+]);
+export const insertRfpIngestionJobSchema = createInsertSchema(rfpIngestionJobs).omit({ id: true, createdAt: true, parsedAt: true });
+export type InsertRfpIngestionJob = z.infer<typeof insertRfpIngestionJobSchema>;
+export type RfpIngestionJob = typeof rfpIngestionJobs.$inferSelect;
+
+// L3 — Gap-closure workflow. Replaces the {{ACTION REQUIRED}} string convention
+// with an assignable task surface: owner, deadline, primary-source-verification
+// gate. Iron Rules #2 + #10 enforced in the UI (cannot mark resolved without
+// verification source + verbatim quote).
+export const gapClosureItems = pgTable("gap_closure_items", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }).notNull(),
+  complianceItemId: varchar("compliance_item_id", { length: 100 }), // optional FK to complianceMatrixItems
+  title: varchar("title", { length: 500 }).notNull(), // e.g. "Confirm Change 1 entity status"
+  description: text("description").notNull().default(""),
+  assignedOwner: varchar("assigned_owner", { length: 200 }).notNull().default(""), // "Dr. Flood" | "Cortney" | partner org name
+  assignedEmail: varchar("assigned_email", { length: 300 }),
+  deadline: timestamp("deadline"),
+  status: varchar("status", { length: 16 }).notNull().default("open"), // open | in-progress | resolved | wontfix | escalated
+  verificationSource: text("verification_source").notNull().default(""), // primary-source URL or file path
+  verificationVerbatim: text("verification_verbatim").notNull().default(""), // verbatim quote from source
+  resolvedBy: varchar("resolved_by", { length: 200 }),
+  resolvedAt: timestamp("resolved_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_gap_closure_grant").on(t.orgId, t.grantId),
+  index("idx_gap_closure_status").on(t.grantId, t.status),
+  index("idx_gap_closure_deadline").on(t.deadline),
+]);
+export const insertGapClosureItemSchema = createInsertSchema(gapClosureItems).omit({ id: true, createdAt: true, updatedAt: true, resolvedAt: true });
+export type InsertGapClosureItem = z.infer<typeof insertGapClosureItemSchema>;
+export type GapClosureItem = typeof gapClosureItems.$inferSelect;
+
+// L5 — Inline evidence binding. Every claim in a proposal paragraph cites a
+// primary source (RPLICE id, URL, file path, won-proposal id, partner LOS, etc).
+// Pre-submit gate refuses to export if any paragraph in scope has unbound
+// claims. Iron Rules #2 + #11.
+export const evidenceBindings = pgTable("evidence_bindings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }).notNull(),
+  paragraphRef: varchar("paragraph_ref", { length: 200 }).notNull(), // e.g. "concept-note.md#why-this-clears-gate-e5"
+  claimText: text("claim_text").notNull(), // the exact claim that needs binding
+  sourceKind: varchar("source_kind", { length: 32 }).notNull(), // rplice | url | file | won-proposal | partner-los | primary-doc
+  sourceRef: text("source_ref").notNull(), // RPLICE id / URL / file path / wonProposal.id
+  verbatimQuote: text("verbatim_quote").notNull().default(""), // quote from the source backing the claim
+  inWindow: boolean("in_window").notNull().default(true), // for date-restricted funders (Wellcome ≤5yr); false fails pre-submit gate
+  verifiedBy: varchar("verified_by", { length: 200 }),
+  verifiedAt: timestamp("verified_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_evidence_grant").on(t.orgId, t.grantId),
+  index("idx_evidence_paragraph").on(t.grantId, t.paragraphRef),
+]);
+export const insertEvidenceBindingSchema = createInsertSchema(evidenceBindings).omit({ id: true, createdAt: true, verifiedAt: true });
+export type InsertEvidenceBinding = z.infer<typeof insertEvidenceBindingSchema>;
+export type EvidenceBinding = typeof evidenceBindings.$inferSelect;
+
 // === INTEGRATION THROUGH INVITATION (ITI) ===
 // Dignity primitive: brings people doing community work in the shadows into the
 // fold — with witness, layered consent, credit, and (optional) stipend +
