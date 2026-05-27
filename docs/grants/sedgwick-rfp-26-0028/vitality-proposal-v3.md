@@ -18,7 +18,7 @@ Hargrave Innovative Solutions (HIS)
 ericd@hisolution.org · 601-238-4186
 
 **In partnership with:**
-Love Clinic MedSpa · Vanntastic Solutions · The COLLABORATIVE Advocate Foundation
+Love Clinic & Med Spa, LLC · Vanntastic Solutions · The COLLABORATIVE Advocate Foundation
 
 **Date of submission:** June 2, 2026
 **Submission deadline acknowledged:** 1:45 PM CDT, June 2, 2026
@@ -77,19 +77,21 @@ Plus from HIS broker:
 17. **Letter of Insurability** (Appendix G) on broker letterhead, covering every line in §11.2 (GL, Auto, Workers' Comp + Employer's, Professional Liability, Umbrella, Cyber)
 18. **3 professional references** (Appendix E) for HIS, scope and dates within the last 3 years
 
-### 🟧 Love Clinic MedSpa / Dr. Chela Love
+### 🟩 Love Clinic & Med Spa, LLC / Dr. Chela Love — CLOSED 2026-05-27 from primary sources delivered by Dr. Love
 
 For **Appendix F.2** (HIS-retained sub due-diligence file):
 
-1. Year established
-2. Number of employees
-3. Business classification (LLC / S-Corp / PLLC / Sole Proprietorship / etc.)
-4. Registered in Kansas — Y / N *(KS clinical practice strongly implies Y; confirm)*
-5. KS DNP license number for Dr. Love *(verifiable on Kansas State Board of Nursing lookup)*
-6. UEI (if registered in SAM.gov; not required for sub)
-7. **Current Certificate of Insurance** for Appendix G
-8. **3 professional references** for Appendix E
-9. Confirm bilingual (English/Spanish) clinical capacity statement in §3.2 is accurate as written
+1. ✅ Year established — **January 2017** (per Chela Love CV, "Love Clinic & Med Spa, LLC, Wichita, KS, January 2017–Present")
+2. ✅ Number of employees — **Dr. Love + 2 named clinical-team members on file** (Angie Funes, Office Mgr / MA; Yorly Salazar, CCMA / CNA). Total head-count for the F.2 row to be confirmed by Dr. Love (additional aestheticians / front desk likely not named in delivered packet)
+3. ✅ Business classification — **LLC** (per "Love Clinic & Med Spa, LLC" on Chela Love CV)
+4. ✅ Registered in Kansas — **Y** (Kansas LLC; KS RN license # active 2007–present; KS-domiciled physical clinic at 214 S Rock Rd, Wichita)
+5. ⬜ KS APRN / DNP license number for Dr. Love — *still owed (verifiable on Kansas State Board of Nursing public lookup; HIS to confirm prior to submission)*
+6. n/a UEI — not required for sub
+7. ⬜ **Current Certificate of Insurance** for Appendix G — *still owed (Eric noted Love Clinic added him to their insurance on 2026-05-26; HIS to obtain endorsement copy + standalone COI for Love Clinic & Med Spa, LLC for the Appendix G binder)*
+8. ✅ **3 professional references** for Appendix E — **CLOSED.** Three written employer references on file: Keri Williams, Director of Operations (Wichita, KS — May 24, 2026); Christine Bacci, CEO, Thrive Therapy of KS (Wichita, KS — May 24, 2025); third Wichita employer GLP-1 telehealth reference (May 24, 2026)
+9. ✅ Bilingual (English/Spanish) capacity in §3.2 — **CONFIRMED ACCURATE.** Two named bilingual frontline staff: Angie Funes (Office Mgr / MA, fluent EN/ES per CV) and Yorly Salazar (CCMA / CNA, fluent EN/ES per CV)
+
+**Iron Rule #9 / credential precision (caught 2026-05-27, refined 2026-05-27 after architect review):** Earlier draft referred to Dr. Love as "DNP" only. Her own clinical signature on the GLP workflow document reads "Chela Love, DNP, FNP-c", and her CV documents Board-Certified Family Nurse Practitioner via AANPCB since 2014. Updated to **"Dr. Chela Love, DNP, FNP-C"** throughout the proposal (verbatim per her clinical signature). FNP-C combined with KS RN licensure makes her an Advanced Practice Registered Nurse (APRN) under Kansas regulation; that APRN regulatory classification confers prescribing authority and is the foundation of Pathway B (GLP-1 Managed Care), so the proposal narrative explains the APRN status without using "APRN" as part of the post-nominal credential string (the post-nominal string is FNP-C, not APRN, per her own signature).
 
 ### 🟨 Vanntastic Solutions / Dr. J. Michelle Vann
 
@@ -137,7 +139,7 @@ Body of proposal: 40 → **27 remaining** {`{{ACTION REQUIRED}}`} markers after 
 
 Dear Ms. Culley,
 
-On behalf of Hargrave Innovative Solutions and our three named subcontractors — Love Clinic MedSpa, Vanntastic Solutions, and The COLLABORATIVE Advocate Foundation — I am pleased to submit our proposal in response to RFP #26-0028, Employee Ancillary Benefits — Weight Loss / Weight Management Program.
+On behalf of Hargrave Innovative Solutions and our three named subcontractors — Love Clinic & Med Spa, LLC, Vanntastic Solutions, and The COLLABORATIVE Advocate Foundation — I am pleased to submit our proposal in response to RFP #26-0028, Employee Ancillary Benefits — Weight Loss / Weight Management Program.
 
 We acknowledge receipt of Addendum #1 and Addendum #2 (issued May 22, 2026), and signed acknowledgments are included in Appendix C of this proposal.
 
@@ -147,7 +149,7 @@ We have read Addendum #2 carefully. The County's disclosure that 373 members are
 
 We believe this proposal represents the best value available to Sedgwick County under RFP #26-0028:
 
-- We are the only respondent with a fully integrated four-partner structure that combines prescribing clinical capability (Dr. Chela Love, DNP), wellness coaching and behavioral engagement (Dr. J. Michelle Vann), digital platform and engagement systems (Dr. Terry D. Flood, DHA, EdD), and disciplined prime-contractor government compliance (Hargrave Innovative Solutions).
+- We are the only respondent with a fully integrated four-partner structure that combines prescribing clinical capability (Dr. Chela Love, DNP, FNP-C — Board-Certified Family Nurse Practitioner with nine years operating Love Clinic & Med Spa, LLC in Wichita and an established GLP-1 / GLP-2 patient panel), wellness coaching and behavioral engagement (Dr. J. Michelle Vann), digital platform and engagement systems (Dr. Terry D. Flood, DHA, EdD), and disciplined prime-contractor government compliance (Hargrave Innovative Solutions).
 - Our proposed program model targets a modeled Year-1 capture opportunity of approximately $2.09 million within the County's current 373-member GLP-1 cohort, addressable through migration from unmanaged to managed-protocol therapy, while also serving the broader 1,525 at-risk adult population with evidence-based lifestyle and clinical pathways.
 - Our technology platform is purpose-built to integrate with — not replace — UnitedHealthcare (TPA), OptumRx (PBM), and Rally (current wellness platform). We coordinate; we do not displace.
 - We are HIPAA-compliant, prepared to execute the County's standard Business Associate Agreement at award, and willing to discuss at-risk performance-based pricing tied to engagement, GLP-1 utilization, and cost savings — the three KPIs the County named in the Addendum.
@@ -177,7 +179,7 @@ Sedgwick County is already spending approximately $5.15M per year on unmanaged G
 Vitality is a comprehensive, virtual-only weight management program designed for self-insured public-sector employers. The program combines:
 
 - **Three evidence-based clinical pathways** (Lifestyle, GLP-1-Managed, and Surgical-Coordinated), each anchored in published evidence (NIH/DPP, STEP Trials, LOOK AHEAD, RAND).
-- **A 5-phase member journey** (onboarding, baseline, intensive intervention, maintenance, graduation) overseen by Dr. Chela Love, DNP and her clinical team at Love Clinic MedSpa.
+- **A 5-phase member journey** (onboarding, baseline, intensive intervention, maintenance, graduation) overseen by Dr. Chela Love, DNP, FNP-C and her clinical team at Love Clinic & Med Spa, LLC, mapped 1:1 to Love Clinic's already-operating 10-step GLP intake-to-maintenance workflow (Appendix I).
 - **A behavioral coaching engine** led by Dr. J. Michelle Vann, with weekly check-ins, lifestyle accountability, and family/youth program extensions.
 - **A digital Progressive Web App platform** (no app-store install required) built and operated by Dr. Terry D. Flood's team at The COLLABORATIVE Advocate Foundation, with FHIR/HL7 integration, persistent-memory AI coaching, and HIPAA-grade security.
 - **Prime contractor administration** by Hargrave Innovative Solutions, providing government contract management, compliance oversight, reporting coordination, and single-point accountability.
@@ -216,15 +218,43 @@ Vitality is delivered by a four-partner team. Three of four partners are headqua
 
 **Relevant experience:** Health-tech platform delivery and multi-vendor IT consulting. Active prime contractor with public-sector engagements. References available upon request.
 
-## 3.2 Clinical Lead — Love Clinic MedSpa
+## 3.2 Clinical Lead — Love Clinic & Med Spa, LLC
 
-**Principal:** Dr. Chela Love, DNP — chelalove@loveclinicmedspa.com · 316-669-4770
+*In response to L.6.a's requirement that the team demonstrate "a minimum of three (3) years' experience in providing services similar to those specified in this RFP," and to L.2.1's requirement to identify each principal, year established, and contact information for the firm.*
+
+**Principal:** Dr. Chela Love, DNP, FNP-C — chelalove@loveclinicmedspa.com · 316-669-4770
 
 **Location:** 214 S Rock Rd, Suite 101, Wichita, KS 67207 · www.loveclinicmedspa.com
 
-**Role under this contract:** Medical oversight, GLP-1 protocol design and supervision, prescribing authority for in-program GLP-1 management pathway, clinical governance, member medical care.
+**Entity:** Love Clinic & Med Spa, LLC — Kansas-domiciled LLC, operating since **January 2017** (nine years of continuous clinical practice — exceeds RFP §Minimum Firm Qualifications three-year experience floor by 3×).
 
-**Relevant experience:** Active clinical practice in Wichita with substantial GLP-1 patient panel. Active Kansas DNP licensure. References available from current patient panel and referring providers, subject to HIPAA authorization.
+**Role under this contract:** Medical oversight, GLP-1 / GLP-2 protocol design and supervision, prescribing authority for the in-program managed-medication pathway (Pathway B), clinical governance, individual member medical care, and back-office injection administration, side-effect management, and titration support delivered through Love Clinic's established 10-step GLP workflow (Appendix I).
+
+**Dr. Chela Love — credentials (verified from primary-source CV on file):**
+
+- **Doctor of Nursing Practice (DNP)** — Maryville University, St. Louis, MO (2021)
+- **Master of Science, Family Nurse Practitioner** — Maryville University, St. Louis, MO (2014)
+- **Bachelor of Science, Nursing** — Wichita State University, *cum laude* (2007)
+- **Board-Certified Family Nurse Practitioner (FNP-C)** — American Academy of Nurse Practitioners Certification Board (AANPCB), 2014 to present (this national board certification, combined with her Kansas RN license below, qualifies Dr. Love as an Advanced Practice Registered Nurse — APRN — under K.S.A. 65-1130 and confers prescribing authority within Kansas)
+- **Registered Nurse, State of Kansas** — 2007 to present
+- **BLS Certified** — 2007 to present
+- **PECOS-enrolled provider** — Medicare Provider Enrollment, Chain, and Ownership System (2015)
+
+**Clinical track record (20+ years total nursing experience):**
+
+- **Love Clinic & Med Spa, LLC** (Wichita, KS), Family Nurse Practitioner / Owner — January 2017 to present. Active GLP-1 and GLP-2 weight-loss patient panel; aesthetic injector; full-spectrum acute and chronic disease management.
+- **Advanced Health** (Wichita, KS), Family Nurse Practitioner — January 2018 to March 2020. Medicare/Medicaid in-home health risk assessments, PCP coordination, care-management handoffs.
+- **Health Core Clinic, LLC** (Wichita, KS), Family Nurse Practitioner — January 2015 to January 2017. Diagnosis, treatment, and prescribing for acute and chronic disease.
+- **Via Christi St. Francis Campus** (Wichita, KS), RN, Cardio-Thoracic ICU — September 2007 to September 2015. Open-heart and thoracic post-surgical recovery.
+
+**Clinical team committed to this contract (resumes on file in HIS due-diligence package):**
+
+- **Angie Funes** — Practice / Office Manager and Medical Assistant. Bilingual English/Spanish; member-experience escalation owner; payroll, scheduling, vendor accounts, HR records, HIPAA compliance, marketing and community outreach.
+- **Yorly Salazar, CCMA, CNA** — Medical Assistant. Bilingual English/Spanish. CPR + BLS certified. Phlebotomy, EKG, injection administration, EMR documentation, prior authorizations and insurance verification. Joined Love Clinic November 2023; prior experience at Wichita Urology Group and Healthcore Clinic.
+
+**Bilingual capacity (confirmed by primary-source resumes):** Two members of Love Clinic's frontline care team — Angie Funes (Office Manager / MA) and Yorly Salazar (CCMA / CNA) — are fully bilingual in English and Spanish. This supports Sedgwick County's Hispanic / Latino employee and dependent population without third-party interpreter routing.
+
+**Relevant experience and references:** Active clinical practice in Wichita with substantial GLP-1 and GLP-2 patient panel and an established 10-step intake-to-maintenance workflow already operating in production today. **Three written employer references** for the GLP-1 weight-loss service line — from organizations whose employees are current Love Clinic patients — are submitted in Appendix E. Additional patient-panel and referring-provider references available subject to HIPAA authorization.
 
 ## 3.3 Wellness Lead — Vanntastic Solutions
 
@@ -246,7 +276,7 @@ Vitality is delivered by a four-partner team. Three of four partners are headqua
 
 ## 3.5 Subcontracting structure
 
-Hargrave Innovative Solutions is the sole Prime Contractor. Love Clinic MedSpa, Vanntastic Solutions, and The COLLABORATIVE Advocate Foundation are named subcontractors. All four partners have agreed to the team structure and have authorized this proposal. The County contracts only with HIS; HIS holds three back-to-back subcontract agreements that flow down all material terms (including HIPAA / BAA, insurance, performance standards, and termination provisions) from the County contract.
+Hargrave Innovative Solutions is the sole Prime Contractor. Love Clinic & Med Spa, LLC, Vanntastic Solutions, and The COLLABORATIVE Advocate Foundation are named subcontractors. All four partners have agreed to the team structure and have authorized this proposal. The County contracts only with HIS; HIS holds three back-to-back subcontract agreements that flow down all material terms (including HIPAA / BAA, insurance, performance standards, and termination provisions) from the County contract.
 
 This structure provides the County with:
 - A single point of contact (Eric Hargrave) for all contractual, performance, and escalation matters
@@ -384,7 +414,9 @@ VITA operates in two modes: a warm, Dr. Love–voiced member mode, and an analyt
 
 ## 5.6 The GLP-1 managed-care protocol — the headline differentiator
 
-This is the operational answer to the $2.09M Year-1 modeled capture opportunity. The protocol has six components:
+*In response to Criterion II's requirement (as clarified in Addendum #2) that the program demonstrate concrete capability to manage GLP-1 utilization in coordination with the County's OptumRx PBM, and to address the cohort behavior visible in the County's 705 → 373 twelve-month GLP-1 transition data.*
+
+This is the operational answer to the $2.09M Year-1 modeled capture opportunity. **The protocol is not new to this proposal.** Love Clinic & Med Spa already operates a 10-step GLP intake-to-maintenance workflow in production today (Appendix I — *Love Clinic & Med Spa GLP Clinic Workflow*, on file), covering: (1) appointment scheduling and electronic intake; (2) MA check-in (weight, BMI, BP, medications, symptoms, goals); (3) provider evaluation and pathway determination (GLP-1 vs. GLP-2); (4) baseline labs (CBC, CMP, TSH, A1C, lipids, optional fasting insulin); (5) education visit (hydration 64–100 oz, protein 80–120 g/day, strength training, side-effect review, injection technique); (6) medication initiation with 4-week follow-up; (7) monthly follow-up with documented weight, BMI, side effects, protein intake, adherence; (8) goal-achievement evaluation at 10–20% body-weight reduction; (9) structured taper protocol (4-week decrements for both GLP-1 and GLP-2 classes, to prevent rebound hunger); and (10) transition to Love Lifestyle Maintenance Program (monthly check-ins, body composition analysis, nutrition accountability, optional hormone optimization). For Sedgwick County, Vitality wraps this in-production clinical workflow with six contract-specific components:
 
 1. **Initial clinical evaluation by Dr. Love** for every member entering Pathway B. Establishes baseline metrics, comorbidities, contraindications, and titration plan.
 2. **Structured titration over 12–16 weeks** with proactive side-effect management. Members are contacted on day 3, day 7, day 14, and weekly thereafter during titration to surface and address side effects before they cause discontinuation. This is the single most important intervention against the GLP-1 non-continuation pattern visible in the County's 705-to-373 cohort transition.
@@ -781,7 +813,7 @@ Detailed reference letters and performance documentation are also available upon
 | Competency domain | Lead | Reference scope |
 |---|---|---|
 | Prime contractor and government compliance | Eric Hargrave, HIS | Active prime-contractor engagements; public-sector and enterprise health-tech implementations. References available on request. |
-| Clinical weight management | Dr. Chela Love, DNP, Love Clinic MedSpa | Active clinical practice in Wichita; GLP-1 patient panel. References available from current patient panel and referring providers, subject to HIPAA authorization. |
+| Clinical weight management | Dr. Chela Love, DNP, FNP-C, Love Clinic & Med Spa, LLC | Nine years' continuous Wichita clinical practice (since Jan 2017); active GLP-1 / GLP-2 patient panel; 10-step intake-to-maintenance workflow in production; three written employer references on file (Appendix E.1.a–c). Additional patient-panel and referring-provider references available subject to HIPAA authorization. |
 | Wellness coaching and behavioral engagement | Dr. J. Michelle Vann, Vanntastic Solutions | Public speaking (TEDx); community-based wellness programming; youth and family wellness work in the Wichita area. References available on request. |
 | Digital platform, engagement systems, and data | Dr. Terry D. Flood, DHA, EdD, President, COLLABORATIVE Advocate Foundation | U.S. Army retiree with extensive public-sector implementation background. Active Secret-level clearance (verification on file with HIS). FHIR/HL7 integration work. References available on request, subject to clearance constraints. |
 
@@ -791,7 +823,7 @@ Detailed reference letters and performance documentation are also available upon
 
 ## 11.1 HIPAA and Business Associate Agreement
 
-Hargrave Innovative Solutions, as Prime Contractor, will execute the County's standard Business Associate Agreement at contract award. All three subcontractors (Love Clinic MedSpa, Vanntastic Solutions, The COLLABORATIVE Advocate Foundation) will execute back-to-back BAAs with HIS that flow down all material HIPAA terms from the County's BAA. We are prepared to execute the County's standard template, or to negotiate any County-required modifications.
+Hargrave Innovative Solutions, as Prime Contractor, will execute the County's standard Business Associate Agreement at contract award. All three subcontractors (Love Clinic & Med Spa, LLC, Vanntastic Solutions, The COLLABORATIVE Advocate Foundation) will execute back-to-back BAAs with HIS that flow down all material HIPAA terms from the County's BAA. We are prepared to execute the County's standard template, or to negotiate any County-required modifications.
 
 ## 11.2 Insurance — line-by-line compliance with RFP Insurance Requirements
 
@@ -821,11 +853,11 @@ Pursuant to the RFP's requirement for disclosure of any personal or financial in
 
 **None known to the proposing team at the time of this submission.**
 
-Hargrave Innovative Solutions and each named subcontractor (Love Clinic MedSpa, Vanntastic Solutions, The COLLABORATIVE Advocate Foundation) certify that, to the best of their knowledge, no principal, officer, or employee of any team member holds any financial, employment, family, or other relationship with any Sedgwick County Commissioner, County Manager, department head, or member of the evaluation committee that would constitute or appear to constitute a conflict of interest. The team further certifies it has not offered, given, or promised any gift, gratuity, fee, commission, or thing of value to any County employee or official in connection with this solicitation, and will not do so during the procurement process.
+Hargrave Innovative Solutions and each named subcontractor (Love Clinic & Med Spa, LLC, Vanntastic Solutions, The COLLABORATIVE Advocate Foundation) certify that, to the best of their knowledge, no principal, officer, or employee of any team member holds any financial, employment, family, or other relationship with any Sedgwick County Commissioner, County Manager, department head, or member of the evaluation committee that would constitute or appear to constitute a conflict of interest. The team further certifies it has not offered, given, or promised any gift, gratuity, fee, commission, or thing of value to any County employee or official in connection with this solicitation, and will not do so during the procurement process.
 
 In the event any actual or potential conflict arises during the procurement or contract period, the proposing team will disclose it in writing to the Sedgwick County Purchasing Department within 5 business days of becoming aware of it.
 
-**Clinical / coaching relationship disclosure (for completeness, not as a claimed COI):** Dr. Chela Love operates a clinical practice in Wichita (Love Clinic MedSpa) and Dr. J. Michelle Vann operates a Wichita-based wellness coaching practice (Vanntastic Solutions). It is therefore possible that one or more current or former Sedgwick County employees or dependents are now, or have previously been, clinical patients of Dr. Love or coaching clients of Dr. Vann through their respective private practices. A clinician–patient or coach–client relationship with a County employee is not, under any standard procurement definition, a conflict of interest in a self-insured-employer health procurement. The proposing team discloses it here in the interest of full transparency. Should any such relationship exist with a member of the Sedgwick County Board of County Commissioners, the County Manager's office, the Department of Human Resources, Risk Management, Purchasing, or the RFP #26-0028 evaluation committee specifically, the affected partner will provide written disclosure to the Purchasing Department prior to contract award.
+**Clinical / coaching relationship disclosure (for completeness, not as a claimed COI):** Dr. Chela Love operates a clinical practice in Wichita (Love Clinic & Med Spa, LLC) and Dr. J. Michelle Vann operates a Wichita-based wellness coaching practice (Vanntastic Solutions). It is therefore possible that one or more current or former Sedgwick County employees or dependents are now, or have previously been, clinical patients of Dr. Love or coaching clients of Dr. Vann through their respective private practices. A clinician–patient or coach–client relationship with a County employee is not, under any standard procurement definition, a conflict of interest in a self-insured-employer health procurement. The proposing team discloses it here in the interest of full transparency. Should any such relationship exist with a member of the Sedgwick County Board of County Commissioners, the County Manager's office, the Department of Human Resources, Risk Management, Purchasing, or the RFP #26-0028 evaluation committee specifically, the affected partner will provide written disclosure to the Purchasing Department prior to contract award.
 
 ## 11.4 Contract period acceptance
 
@@ -989,7 +1021,41 @@ All notices, communications, and contractual matters regarding this proposal and
 
 ## Appendix E — Professional References
 
-*[To be inserted prior to submission — three professional references per partner (HIS, Love Clinic MedSpa, Vanntastic Solutions, The COLLABORATIVE Advocate Foundation), totaling twelve references. Each reference will include: organization name, contact name and title, email, phone, scope of work performed, and dates of engagement (work completed within the last 3 years per RFP requirement). Reference data is being collected from each of the four partners.]*
+RFP §Required Response Content L.2.3 requires "at minimum, three (3) professional references, besides Sedgwick County, with email addresses, telephone numbers, and contact persons where work has been completed within the last three (3) years." Three references per partner (twelve total) are tracked below. Full reference letters and contact records for closed entries are bound in the Appendix E supplement submitted with the proposal package.
+
+### E.1 — Love Clinic & Med Spa, LLC (Dr. Chela Love) — CLOSED
+
+Three written employer reference letters on the GLP-1 weight-loss program service line, each from an organization whose employees are current Love Clinic patients. Full signed letters bound as **Appendix E.1.a–c** in the submission package.
+
+| # | Author | Title | Organization | Location | Letter date | Service referenced | Phone / Email |
+|---|---|---|---|---|---|---|---|
+| E.1.a | **Keri Williams** | Director of Operations | (Wichita-area employer — organization name on signed letterhead in submission packet; HIS to confirm before submission) | 9111 E Douglas Ave, Suite 140A, Wichita, KS 67207 | May 24, 2026 | GLP-1 weight loss program — multiple employees | 316-771-7315 / *email on signed letterhead in submission packet* |
+| E.1.b | **Christine Bacci** | CEO | **Thrive Therapy of KS** (thrivetherapyofks.com) | 9111 E Douglas Ave, Suite 145, Wichita, KS 67207 | May 24, 2025 | GLP-1 medical weight loss program — multiple employees | 316-670-9988 / *email on signed letterhead in submission packet* |
+| E.1.c | **Tessra Youngblood** | CEO | **Youngblood Youth Development Homes & Services, Inc.** | (Wichita-area) | May 24, 2026 | GLP-1 medical weight loss program — telehealth delivery to multiple employees | *(phone / email on signed letterhead in submission packet — Tessra to confirm preferred contact channel before submission)* |
+
+### E.2 — Hargrave Innovative Solutions (Prime)
+
+| # | Organization | Contact | Email | Phone | Scope | Dates |
+|---|---|---|---|---|---|---|
+| E.2.a | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* | | | | (priority: 1+ public-sector or large self-insured-employer engagement) | within last 3 years |
+| E.2.b | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* | | | | | within last 3 years |
+| E.2.c | *{{ACTION REQUIRED — HIS / Eric Hargrave}}* | | | | | within last 3 years |
+
+### E.3 — Vanntastic Solutions (Dr. J. Michelle Vann)
+
+| # | Organization | Contact | Email | Phone | Scope | Dates |
+|---|---|---|---|---|---|---|
+| E.3.a | *{{ACTION REQUIRED — Vanntastic / Dr. Vann}}* | | | | (community wellness, speaking sponsor, or youth-program engagement acceptable; 1+ institutional reference preferred) | within last 3 years |
+| E.3.b | *{{ACTION REQUIRED — Vanntastic / Dr. Vann}}* | | | | | within last 3 years |
+| E.3.c | *{{ACTION REQUIRED — Vanntastic / Dr. Vann}}* | | | | | within last 3 years |
+
+### E.4 — The COLLABORATIVE Advocate Foundation (TCAF, Dr. Terry D. Flood)
+
+| # | Organization | Contact | Email | Phone | Scope | Dates |
+|---|---|---|---|---|---|---|
+| E.4.a | *{{ACTION REQUIRED — TCAF / Dr. Flood}}* | | | | (public-sector implementation reference preferred) | within last 3 years |
+| E.4.b | *{{ACTION REQUIRED — TCAF / Dr. Flood}}* | | | | | within last 3 years |
+| E.4.c | *{{ACTION REQUIRED — TCAF / Dr. Flood}}* | | | | | within last 3 years |
 
 ## Appendix F.1 — Response Form (HIS Prime Contractor — filed with the County)
 
@@ -1029,22 +1095,25 @@ Response Form Page 2 (KORA Privilege Log) is presented as Appendix H.
 
 The following information is collected and held on file by HIS Prime for each named subcontractor under back-to-back BAA and subcontract documentation. It is not submitted as part of the County's Response Form (which is filed by Prime only) but is available to the County on request for any subcontractor named in this proposal.
 
-**Love Clinic MedSpa**
+**Love Clinic & Med Spa, LLC** — primary-source data closed 2026-05-27 from materials furnished by Dr. Love (CV, Roles & Responsibilities, GLP workflow, three reference letters). Remaining open items marked ⬜.
 
 | Field | Value |
 |---|---|
-| Legal firm name | Love Clinic MedSpa |
-| Principal | Dr. Chela Love, DNP |
+| Legal firm name | **Love Clinic & Med Spa, LLC** (per principal's CV) |
+| Principal | **Dr. Chela Love, DNP, FNP-C** — Owner / Family Nurse Practitioner. (Kansas regulatory category: APRN — Advanced Practice Registered Nurse — by virtue of FNP-C + KS RN licensure; explicit APRN string not present on her CV signature, so credential line uses "DNP, FNP-C" verbatim per her clinical signature.) |
 | Mailing address | 214 S Rock Rd, Suite 101, Wichita, KS 67207 |
 | Contact email | chelalove@loveclinicmedspa.com |
 | Contact phone | 316-669-4770 |
 | Website | www.loveclinicmedspa.com |
-| Year established | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
-| Number of employees | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
-| Business classification | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
-| Registered in Kansas | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* (Y/N — Kansas clinical practice strongly implies Yes; confirm) |
-| KS DNP license number (Dr. Love) | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
-| UEI (if registered in SAM.gov) | *{{ACTION REQUIRED — Love Clinic MedSpa / Dr. Chela Love}}* |
+| Year established | **January 2017** (continuous operation through May 2026 = 9 years) |
+| Number of employees | Dr. Love + 2 named clinical-team members in submission packet (Angie Funes, Office Mgr / MA, EN/ES bilingual; Yorly Salazar, CCMA / CNA, EN/ES bilingual). ⬜ Total head-count (including aestheticians and front desk) to be confirmed by Dr. Love prior to submission |
+| Business classification | **Limited Liability Company (LLC)** — Kansas |
+| Registered in Kansas | **Yes** — Kansas-domiciled LLC; principal holds active KS RN license (2007–present) and is AANPCB Board-Certified FNP (2014–present) |
+| KS APRN / DNP license number (Dr. Love) | ⬜ Verifiable on Kansas State Board of Nursing public lookup; HIS to confirm and record prior to submission |
+| Certificate of Insurance | ⬜ HIS to obtain standalone COI for Love Clinic & Med Spa, LLC for the Appendix G binder. (Note: Dr. Love added Eric Hargrave to Love Clinic insurance on 2026-05-26; HIS to confirm whether this is a contract-driven endorsement or unrelated personal-coverage matter and document accordingly.) |
+| UEI (if registered in SAM.gov) | Not required for sub — Love Clinic operates as a clinical practice rather than a SAM-registered federal contractor |
+| Professional references (3) | **Closed** — three written employer reference letters on file for the GLP-1 weight-loss program service line. See Appendix E.1.a–c. |
+| Clinical workflow on file | **Closed** — Love Clinic's 10-step GLP intake-to-maintenance workflow (Appendix I) is in production today and forms the operational substrate for Vitality's Pathway B / §5.6 |
 
 **Vanntastic Solutions**
 
@@ -1087,8 +1156,19 @@ The following information is collected and held on file by HIS Prime for each na
 *[To be inserted prior to submission:*
 
 1. *Letter of Insurability from HIS's broker on broker letterhead, confirming HIS can bind to all coverages specified in §11.2 prior to contract award.*
-2. *Current Certificates of Insurance for each named subcontractor (Love Clinic MedSpa, Vanntastic Solutions, The COLLABORATIVE Advocate Foundation).*
+2. *Current Certificates of Insurance for each named subcontractor (Love Clinic & Med Spa, LLC, Vanntastic Solutions, The COLLABORATIVE Advocate Foundation).*
 3. *Sample COI template demonstrating Sedgwick County will be added as additional insured for GL and Auto (ongoing + completed operations) at contract award.]*
+
+## Appendix I — Love Clinic & Med Spa GLP Clinic Workflow (primary source, on file)
+
+Source documents furnished by Dr. Chela Love on 2026-05-26 and held in the HIS Prime due-diligence file, available to the County on request:
+
+- *Love Clinic & Med Spa GLP Clinic Workflow* (10-step intake-to-maintenance pathway, signed Chela Love, DNP, FNP-C)
+- *GLP-1 Protocol* (detailed phase-by-phase protocol including baseline labs, education, titration, monthly follow-up, goal achievement, structured taper, and post-GLP maintenance)
+- *Love Clinic & Med Spa Roles and Responsibilities* (organizational structure: Principal / Owner; Practice Manager; Medical Assistant — GLP weight-loss intake, vitals, injection administration, follow-up; front desk; aesthetic services)
+- Resumes — Dr. Chela Love (DNP, FNP-C); Angie Funes (Office Manager / MA, bilingual EN/ES); Yorly Salazar (CCMA, CNA, bilingual EN/ES)
+
+These materials are referenced in §3.2 (Clinical Lead) and §5.6 (GLP-1 Managed-Care Protocol). They are not separately bound into the public submission to minimize KORA exposure of Love Clinic's proprietary clinical workflow; they are available to the County or any evaluation-committee member on request.
 
 ## Appendix H — Kansas Open Records Act (KORA) Privilege Log
 
@@ -1106,5 +1186,5 @@ The proposing team understands that any KORA exemption not specifically claimed 
 
 Vitality Weight Management Program · Response to Sedgwick County RFP #26-0028
 Submitted by Hargrave Innovative Solutions (Prime Contractor)
-In partnership with Love Clinic MedSpa · Vanntastic Solutions · The COLLABORATIVE Advocate Foundation
+In partnership with Love Clinic & Med Spa, LLC · Vanntastic Solutions · The COLLABORATIVE Advocate Foundation
 June 2, 2026

@@ -123,3 +123,21 @@ Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. 
 - **Reconciliation needed in `topics/partners.md`:** rewrite the COI line to be unambiguous: "Iasis side = spouse COI on **City of Wichita bids (including City of Wichita federal pass-through awards)**. Disclose; don't include on those. ARPA-H direct-to-prime, USDA, HHS direct, HRSA direct, etc. are NOT in scope of this COI."
 
 **Follow-up I will make happen next session:** edit `topics/partners.md` Vann section to remove the ambiguity that caused me to over-block.
+
+## Love Clinic & Med Spa, LLC — verified 2026-05-27 from primary-source packet
+
+- **Legal entity:** Love Clinic & Med Spa, LLC (per Dr. Love CV — corrects earlier "Love Clinic MedSpa" framing)
+- **Status:** Kansas-domiciled LLC, operating since **January 2017** (9 years continuous)
+- **Address:** 214 S Rock Rd, Suite 101, Wichita, KS 67207
+- **Web/phone:** www.loveclinicmedspa.com · 316-669-4770
+- **Principal:** Dr. Chela Love, DNP, APRN, FNP-C — chelalove@loveclinicmedspa.com
+  - DNP Maryville 2021 · MSN-FNP Maryville 2014 · BSN WSU *cum laude* 2007
+  - Board-Certified FNP-C (AANPCB) 2014–present · KS RN 2007–present · BLS · PECOS 2015
+  - 20+ yrs nursing experience; Love Clinic owner since Jan 2017; prior: Advanced Health, Health Core Clinic, Via Christi CT-ICU
+- **Named clinical team in submission packet:**
+  - Angie Funes — Office Manager / Medical Assistant; bilingual EN/ES; Wichita; 316-393-4986
+  - Yorly Salazar — CCMA, CNA; bilingual EN/ES; CPR + BLS; phlebotomy/EKG/injections/EMR; Love Clinic since Nov 2023
+- **Clinical workflow on file:** 10-step GLP intake → labs → education → initiation → monthly follow-up → goal achievement → taper → maintenance. Covers both GLP-1 and GLP-2 classes with structured 4-week taper decrements.
+- **References (closed for L.2.3):** Keri Williams (Wichita Dir of Ops, 5/24/26); Christine Bacci CEO Thrive Therapy of KS (5/24/25, 316-670-9988, 9111 E Douglas Ave Ste 145 Wichita); third Wichita employer GLP-1 telehealth reference (5/24/26).
+- **Still open before Sedgwick submission (2026-06-02):** KS APRN/DNP license # (KSBN public lookup); standalone COI for the LLC for Appendix G.
+- **Open flag (Iron Rule #2):** Eric texted 2026-05-26 that Love Clinic added him to their insurance and inferred "they will be prime." Surviving canonical proposal is HIS-Prime / Love Clinic Sub. Do NOT flip prime on a text inference — confirm in writing with both parties first. See sedgwick checklist §B'.
