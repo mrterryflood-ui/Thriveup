@@ -1139,7 +1139,7 @@ The following information is collected and held on file by the Prime (Love Clini
 | SAM.gov registration status | **ACTIVE** through **May 6, 2027** |
 | Dr. Flood credentials | **DHA** (Doctor of Health Administration); data analysis, implementation science, and psychology graduate training; **CHW-I** (Community Health Worker — Instructor); responsible-AI certification; **PMP-eligible**; **U.S. Army retiree** |
 | Dr. Flood Secret-level clearance | **ACTIVE** U.S. government Secret-level clearance (current status verification will be furnished to the Prime in writing prior to submission) |
-| Date of TX incorporation (year established) | ⬜ TCAF to confirm exact incorporation date for the subcontract execution page (501(c)(3) effective January 14, 2026 establishes operational anchor; incorporation predates determination) |
+| Date established | **January 14, 2026** (IRS EIN 41-3618003 assigned 1/14/2026 3:51 PM; 501(c)(3) determination Letter 947 effective same day; primary-source PDFs on file with the Prime) |
 
 ## Appendix G — Proof of Insurance
 

@@ -635,3 +635,21 @@ id = "_XTDfpfYUV_O7yIhxpgr7"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/compliance-crosswalk.md"
 type = "text"
 title = "Compliance Crosswalk — Section L / Section M scoring map"
+
+[[outputs]]
+id = "gme6GM5CHBKxpzRaIC6ff"
+uri = "file://docs/grants/sedgwick-rfp-26-0028/docx-export/vitality-proposal-v3.docx"
+type = "word_document"
+title = "Vitality Proposal v3 — Sedgwick RFP #26-0028 (Word)"
+
+[[outputs]]
+id = "xIQcoBPwNqjtPeB1VV9MZ"
+uri = "file://docs/grants/sedgwick-rfp-26-0028/docx-export/compliance-crosswalk.docx"
+type = "word_document"
+title = "Compliance Crosswalk — Section L / M scoring map (Word)"
+
+[[outputs]]
+id = "qbbN4HMeEzXxmtvpDzvfy"
+uri = "file://docs/grants/sedgwick-rfp-26-0028/docx-export/pre-submission-checklist.docx"
+type = "word_document"
+title = "Pre-Submission Checklist (Word)"

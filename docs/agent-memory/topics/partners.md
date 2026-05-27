@@ -55,6 +55,11 @@ TCAF entity facts, two-entity strategy, teaming doctrine, current rosters.
 - Credentials: DHA, data analysis, implementation science, AI certification, psychology degree, US Army retiree, active Secret-level clearance, CHW-I. **NOT EdD** (user-corrected 2026-05-25).
 - Lane: platform architecture, healthcare data, FHIR/HL7, federal compliance, reporting
 - Phone: 254-319-8460 · Email: terryflood@thrivingcommunitiesforall.com
+- **TCAF date established = January 14, 2026** (IRS EIN 41-3618003 assigned 1/14/2026 3:51 PM + 501(c)(3) Letter 947 effective same day). Not a placeholder. Primary source: `attached_assets/The_Collaborative_Advocate_EIN_Nonprofit_IRS_*.pdf`.
+- **Flood-affiliated portfolio entities** (do NOT confuse on proposals):
+  - **TCAF (The Collaborative Advocate Foundation)** — TX nonprofit, EIN 41-3618003, UEI KDDVD1FGLW35, CAGE 209N1, 501(c)(3) effective 1/14/2026, 17912 Stefano Dr Pflugerville TX 78660
+  - **ISS LLC (Integrated Services and Solutions LLC)** — for-profit, used for SBIR/STTR/GSA/for-profit set-asides
+  - **M&T Consulting Solutions LLC** — TX LLC formed **3/05/2026** (Filing #806476847, Doc #1564322220002), managing members Terry D Flood Sr + Meredith Sisnett, registered agent Flood, at 17912 Stefano Dr Pflugerville TX 78660, organizer Banessa Alvarez. EIN **41-4952178** (assigned 3/18/2026). Primary source: `attached_assets/MT_Certificate_of_formation_1774568210768.pdf` + `attached_assets/EIN_1774568196501.pdf`. Confirm with user before naming on any proposal.
 
 ### Eric Hargrave — HIS (Hargrave Innovative Solutions)
 - Title: CEO
