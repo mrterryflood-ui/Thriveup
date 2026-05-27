@@ -653,3 +653,9 @@ id = "qbbN4HMeEzXxmtvpDzvfy"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/docx-export/pre-submission-checklist.docx"
 type = "word_document"
 title = "Pre-Submission Checklist (Word)"
+
+[[outputs]]
+id = "EpJ8dVlPUZ9i_WbSRtCKN"
+uri = "file://fork-contracting-app.tar.gz"
+type = "unspecified"
+title = "Contracting fork — drop-in code bundle (76KB tarball)"
