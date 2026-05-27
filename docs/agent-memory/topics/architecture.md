@@ -63,6 +63,24 @@ Stack, codebase scale, where things live, key design decisions.
 ## Architecture decisions
 
 - **Collaborative AI:** 4-engine synthesis (Gemini · Claude · GPT-4o-mini · DeepSeek R1) + RAG + implementation science (CFIR · RE-AIM · RPLICE)
+
+## 🚨 Cross-repo architecture (added 2026-05-27)
+
+**ThriveUp and RPLICE are TWO separate codebases linked by API, not co-located.** This repo (ThriveUp) is what `rg`, `ls`, and `find` can see. **RPLICE is a separate repo** that ThriveUp's filesystem tools CANNOT see directly. When auditing implementation-science / EBI-catalog / treatment-fidelity / measurement-studio claims, those live in the **RPLICE** repo — not here.
+
+**Known RPLICE-side files (per cross-repo receipts from Dr. Flood 2026-05-27, line counts verified by the RPLICE-side AI):**
+- `client/src/lib/applied-examples.ts` (613 lines) — applied EBI examples (header cites Bunger 2016 / Singh 2021 / Proctor 2013; Collaborative Care NOT structured here yet)
+- `shared/is-catalog.ts` (1,848 lines) — Implementation Science catalog (REP/Kilbourne + DAP/Aarons NOT actually present; that was a prior subagent hallucination)
+- `client/src/pages/measurement-studio.tsx` (256 lines)
+- `client/src/pages/mechanism-preservation-registry.tsx` (337 lines — scaffolded, not pure proposal)
+- `client/src/pages/sustainment-capability-tracker.tsx` (258 lines — scaffolded, not pure proposal)
+- `server/validation/womens-health-canon.ts` (365 lines)
+- `server/her-health-bridge-routes.ts` (195 lines)
+- `server/routes.ts`, `server/research-seed-data.ts`, `server/ecosystem-rag-service.ts`, `client/src/pages/adaptation-wizard.tsx` — contain Collaborative Care strings but not a structured citable EBI record
+
+**Iron Rule #10 application for cross-repo claims:** when a claim involves "applied-examples", "is-catalog", "measurement-studio", "mechanism-preservation-registry", "sustainment-capability-tracker", "womens-health-canon", "her-health-bridge", "adaptation-wizard" — these are **RPLICE**, not ThriveUp. `rg` against this repo returning zero is NOT proof of absence; ask Dr. Flood or the RPLICE-side AI for the cross-repo verification, or accept the received receipts.
+
+**Honest framing standard when these RPLICE assets ARE cited in external proposals:** "scaffolded (N lines); instrument validation + field deployment funded by this prize" — stronger than "we will build," weaker than "shipped to production." Don't oversell.
 - **Grant Systems:** centralized mgmt, SAM.gov integration, AI semantic analysis, proposal lifecycle. Public program copy ≠ internal funder-pursuit detail
 - **Truth-in-Claims primitive:** `<PartnershipStatus>` enforces auditable disclosure of partnership stage + dates on public site
 - **Public/Internal gating:** `<RequireAuth>` wraps internal data + funder pipelines
