@@ -98,6 +98,30 @@ Teaming is per-proposal, based on lane fit. **Never** assume Flood + Vann + Love
 
 **Pull from memory before stamping placeholders.** When a proposal needs partner identifying data, `rg <partner-name> docs/agent-memory/ docs/active-commitments.md docs/memory-archive.md` *first*. Lazy `⬜ to confirm` on data we already have is Iron Rule #9 territory and the user will catch it.
 
+## 🔎 Look-first protocol (Iron Rule #10)
+
+**Before any sentence about partner data, file contents, what is/isn't on file, or what's "missing" — run all four searches IN THE SAME TOOL BATCH AS THE RESPONSE, BEFORE TYPING THE CLAIM:**
+
+```bash
+ls attached_assets/ | grep -i <partner>
+rg -li <partner> docs/ attached_assets/
+ls docs/partners/ 2>/dev/null
+# For any PDF/image found, open it. Scanned/image-only PDFs need pdftoppm + read image.
+```
+
+**Specific known assets I have missed before** (open these by default for any Wichita team proposal):
+- `docs/partners/Vann-Meeting-Brief.md` — full Dr. Vann bio, three vehicles, Sedgwick MH Board seat, COI facts
+- `docs/partners/Vann-Vanntastic-Strategy-Memo.md` — strategic context, accurate COI scope (Iasis-specific, NOT City of Wichita)
+- `attached_assets/MT_Certificate_of_formation_*.pdf` — IS M&T Consulting Solutions LLC (Flood + Sisnett), NOT TCAF
+- `attached_assets/The_Collaborative_Advocate_EIN_Nonprofit_IRS_*.pdf` — TCAF EIN 41-3618003, 1/14/2026, establishes date
+- `attached_assets/EIN_1774568196501.pdf` — M&T Consulting EIN 41-4952178 (different entity)
+- `attached_assets/image_*.png` from user — open as image, transcribe signature blocks (Eric Hargrave's email signature gave us www.hisolution.org + tagline "Upholding the golden rule.")
+
+**The phrase "let me look," "let me check," "let me verify," "let me dig," or "I'll search" appearing AFTER an assertion = Iron Rule #10 failure.** Verification batch goes FIRST, claim comes after. If the user has to say "go look, you have that," the rule was broken.
+
+**Disproven COI framings** (do NOT regurgitate from compacted memory — re-check the strategy memo):
+- ❌ "Dr. Vann's spouse works for City of Wichita" — FALSE. Her spouse is Pastor William Vann at Iasis Christian Center. The Iasis COI is only triggered when a grant cites Iasis youth-program data. Sedgwick County weight-loss does NOT cite Iasis data → no COI here.
+
 ### Sedgwick structure (archive A27 + A27-UPDATE)
 HIS Prime (filed in HIS's name only). TCAF / Love / Vanntastic = subcontractors under back-to-back agreements that flow down BAA / insurance / performance.
 

@@ -75,11 +75,20 @@ TCAF entity facts, two-entity strategy, teaming doctrine, current rosters.
 - KS DNP license — verifiable on Kansas State Board of Nursing
 
 ### Dr. J. Michelle Vann — Vanntastic Solutions
-- Phone: 316-350-2601
-- Website: www.jmichellevann.com
-- Lane: coaching sub on Sedgwick. **Confirmed scope = youth+family attendance/services tracker for Iasis youth + Sistahs women's-health programs** (her ask in Vann Collaboration Kit)
+- Phone: 316-350-2601 · Website: www.jmichellevann.com
+- **🚨 CORRECTED 2026-05-27: "Iasis side = spouse COI on City of Wichita" was FALSE.** Her husband is **Pastor William Vann, Senior Pastor of Iasis Christian Center** (a church — NOT the City of Wichita). The Iasis COI is only triggered when a grant cites Iasis youth-attendance / program data; it is NOT a generic City-of-Wichita employment COI. Source of truth: `docs/partners/Vann-Vanntastic-Strategy-Memo.md` lines 114–115. Re-verify the strategy memo before stamping a COI on any Vann proposal.
+- **Three vehicles** (do not collapse): **Vanntastic Solutions** (for-profit LLC, NOT grant-eligible — vendor/coach contracts only); **Sistahs Can We Talk** (her 501(c)(3) since 2015, BIPOC women's health, 29th St N & Grove environmental-justice corridor — KS-side primary grant applicant; partner of Health & Wellness Coalition of Wichita, collaborator with Sedgwick County Health Dept + KDHE); **Iasis Christian Center** (her husband Pastor William Vann's church — programmatic site only, NOT grant applicant). 
+- **Sedgwick County Mental Health Advisory Board** seat (current). HUGE differentiator on Sedgwick proposals — disclose for transparency, confirm the board has no procurement role on the specific RFP.
+- KSUN Radio 95.9 — Saturday host *Spotlight on Business*; TEDx Newman University speaker *"Realigning When Life Gets Busy"*; 20-yr Wichita Public Schools veteran (retired); Adjunct prof Tabor College; former Dual Credit Coord Friends University.
+- Author: *Stop the Merry-Go-Round*, *Help Along the Journey*, *From Supporting Role to Leading Lady*, *Healthy Plates*.
+- BaM Group LLC co-owned with husband (rental mgmt / consulting) — routine personal disclosure on federal grants.
 - 🚨 **Has NEVER discussed foster youth.** Stay in confirmed lane.
-- 🚨 **Iasis side = spouse COI on City of Wichita / federal bids** (Dr. Vann's spouse works there). Disclose; don't include on those.
+- **Treat as a full nonprofit principal with a county-board seat, NOT as a coach.** ~70% understated in prior compacted memory entries.
+
+### Eric Hargrave — HIS (per email signature card, image dated 2026-05-23)
+- Title: **Chief Executive Officer**
+- Website: **www.hisolution.org**
+- Tagline: *"Upholding the golden rule."*
 
 ## Meredith Sissnet
 

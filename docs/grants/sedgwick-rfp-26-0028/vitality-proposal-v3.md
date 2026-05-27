@@ -253,11 +253,20 @@ Vitality is delivered by a four-partner team. Three of four partners are headqua
 
 ## 3.3 Wellness Lead — Vanntastic Solutions
 
-**Principal:** Dr. J. Michelle Vann, Dcc, ThD, MS — Founder & Principal, Vanntastic Solutions (Wichita, KS) — 316-350-2601 · www.jmichellevann.com
+**Principal:** Dr. J. Michelle Vann, ThD, DCC, MS, BS — Founder & Principal, Vanntastic Solutions (Wichita, KS) — 316-350-2601 · www.jmichellevann.com
 
-**Role under this contract:** Wellness coaching, behavioral engagement, lifestyle accountability, weekly member check-in cadence, and family- and youth-programming extensions for members with covered dependents.
+**Role under this contract:** Wellness coaching, behavioral engagement, lifestyle accountability, weekly member check-in cadence, and family-programming extensions for members with covered dependents. Vanntastic Solutions is the contracting vehicle; coaching is delivered by Dr. Vann personally and by Vanntastic-credentialed coaches.
 
-**Relevant experience:** TEDx speaker and recognized voice on lifestyle accountability and behavioral health. Substantive Wichita-area portfolio in youth and family wellness programming and women's-health initiatives (Iasis youth programming; Sistahs women's-health programming). Active content creator and community educator. Bilingual coaching capacity coordinated via the Love Clinic clinical team (Angie Funes / Yorly Salazar) for the Spanish-language member cohort.
+**Relevant experience for this Vitality contract:**
+
+- **Sedgwick County Mental Health Advisory Board** member (current seat). Direct, current, in-room experience with the County's behavioral-health funding and policy environment.
+- **TEDx speaker** — TEDx Newman University, *"Realigning When Life Gets Busy"* — the lived-experience frame of the Vitality behavioral-coaching curriculum.
+- **20-year Wichita Public Schools veteran** (retired), Adjunct Professor at Tabor College Wichita, former Dual Credit Coordinator at Friends University. Behavioral-change pedagogy is her primary professional practice, not an add-on.
+- **KSUN Radio 95.9** Saturday host of *Spotlight on Business* — joint-announcement and member-outreach channel for the County's covered population.
+- **Published author** on lifestyle accountability and behavioral health: *Stop the Merry-Go-Round*, *Help Along the Journey*, *From Supporting Role to Leading Lady*, *Healthy Plates*. *Healthy Plates* in particular maps directly to Vitality's lifestyle-and-nutrition coaching arc.
+- **Affiliated Wichita nonprofit and faith-community footprint** (not contracting on this proposal, but relevant for trusted-messenger reach into the Sedgwick County workforce): Dr. Vann is Founder of **Sistahs Can We Talk** (a Wichita-based 501(c)(3) founded 2015 serving BIPOC women's health in the 29th St N & Grove environmental-justice corridor — partner of the Health & Wellness Coalition of Wichita and longstanding collaborator with the Sedgwick County Health Department and KDHE); she also serves as "First Lady" at Iasis Christian Center (Pastor William Vann's congregation).
+- Wichita-area memberships: WeKan (Women Entrepreneurs of Kansas), Greater Wichita Ministerial League, Urban Young Life.
+- Spanish-language coaching for the Vitality program is coordinated via the Love Clinic clinical team (Angie Funes / Yorly Salazar — both bilingual EN/ES) so Spanish-speaking members are supported clinically and behaviorally without third-party interpreter routing.
 
 ## 3.4 Platform and Data Lead — The COLLABORATIVE Advocate Foundation
 
@@ -1095,12 +1104,14 @@ The following information is collected and held on file by the Prime (Love Clini
 | Field | Value |
 |---|---|
 | Legal firm name | **Hargrave Innovative Solutions** |
-| Principal | **Eric Hargrave, CEO & Founder** |
+| Principal | **Eric Hargrave, Chief Executive Officer** (per HIS company signature card) |
 | Contact email | **ericd@hisolution.org** |
 | Contact phone | **601-238-4186** |
-| Headquarters | **Wichita, KS** (street address to be confirmed by HIS on the back-to-back subcontract execution page; Eric Hargrave operates from Wichita and is a long-term Wichita-area contracting practice) |
-| State of formation | ⬜ HIS to confirm on subcontract signature page (Eric Hargrave is Wichita-based; state of LLC/Corp formation is the one open field) |
-| Business classification | ⬜ HIS to confirm (LLC / Corp); long-term government-contracting practice |
+| Website | **www.hisolution.org** |
+| Firm tagline | *"Upholding the golden rule."* (per HIS company signature card) |
+| Headquarters | **Wichita, KS** (street address to be confirmed by HIS on the back-to-back subcontract execution page) |
+| State of formation | ⬜ HIS to confirm on subcontract signature page |
+| Business classification | ⬜ HIS to confirm (LLC / Corp) |
 | Registered in Kansas to do business | ⬜ HIS to confirm; if N, register prior to contract award |
 | UEI (SAM.gov) | ⬜ HIS to provide |
 | Related-entity disclosure | Eric Hargrave is also affiliated with **Fountain of Life Ministries** (community/faith anchor, named on prior TCAF NSF TechAccess coalition documentation). Disclosed for transparency; no conflict with this contract. |
@@ -1110,17 +1121,18 @@ The following information is collected and held on file by the Prime (Love Clini
 
 | Field | Value |
 |---|---|
-| Legal firm name | **Vanntastic Solutions** |
-| Principal | **Dr. J. Michelle Vann, Dcc, ThD, MS — Founder & Principal** |
+| Legal firm name | **Vanntastic Solutions** (for-profit LLC, contracting vehicle for this proposal) |
+| Principal | **Dr. J. Michelle Vann, ThD, DCC, MS, BS — Founder & Principal** |
 | Headquarters | **Wichita, KS** (street address to be confirmed by Vanntastic on the back-to-back subcontract execution page) |
 | Contact phone | **316-350-2601** |
 | Website | **www.jmichellevann.com** |
-| Business classification | ⬜ Vanntastic to confirm (sole-proprietorship / LLC) on subcontract execution page |
+| Business classification | Limited Liability Company (LLC); Vanntastic to confirm state of formation on subcontract execution page |
 | Registered in Kansas | Wichita-domiciled and operating in Kansas; Vanntastic to confirm registration form on subcontract execution page |
-| Confirmed scope on this contract | Wellness coaching, behavioral engagement, weekly member check-in cadence, and family- and youth-programming extensions (consistent with Vanntastic's confirmed youth-and-family wellness lane). Spanish-language coaching coordinated via Love Clinic bilingual staff (Angie Funes / Yorly Salazar). |
-| Conflict-of-interest disclosure | Dr. Vann's spouse is employed by the City of Wichita; the Prime confirms this contract is with **Sedgwick County** (a separate legal entity from the City of Wichita) and that there is no direct COI to disclose. Captured here for County records under §12.4. |
-| TEDx talk URL (referenced in §3.3) | ⬜ Vanntastic to provide URL on subcontract execution page |
-| UEI (if registered in SAM.gov) | ⬜ Vanntastic to confirm (federal registration not required for this County contract) |
+| Confirmed scope on this contract | Wellness coaching, behavioral engagement, weekly member check-in cadence, and family-programming extensions for members with covered dependents. Spanish-language coaching coordinated via Love Clinic bilingual staff (Angie Funes / Yorly Salazar). |
+| County board service | **Dr. Vann holds a current seat on the Sedgwick County Mental Health Advisory Board.** Disclosed here for transparency; no contract-decision role. The Prime and Dr. Vann affirm that the Mental Health Advisory Board has no procurement, evaluation, or oversight authority over this RFP (#26-0028, employee benefits / weight management — administered by County Purchasing and HR). |
+| Conflict-of-interest disclosure | **None known for this contract.** Dr. Vann is also Founder of *Sistahs Can We Talk* (Wichita-based 501(c)(3), 2015), and her husband Pastor William Vann is Senior Pastor at *Iasis Christian Center*. Neither entity is contracting on this proposal and no Iasis or Sistahs program data is being cited or used in service delivery for Sedgwick County employees and dependents. Dr. Vann and her husband co-own *BaM Group LLC* (rental management / consulting); routine disclosure noted. |
+| TEDx talk reference | TEDx Newman University, *"Realigning When Life Gets Busy"* (Dr. Vann to provide URL on subcontract execution page) |
+| UEI (if registered in SAM.gov) | Federal SAM.gov registration not required for this County contract; Vanntastic to confirm if held |
 
 **The COLLABORATIVE Advocate Foundation (TCAF)**
 
