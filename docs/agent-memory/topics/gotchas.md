@@ -92,6 +92,12 @@ A "Session Plan" in a user message that doesn't match their prose = my own prior
 ### No standing default team
 Teaming is per-proposal, based on lane fit. **Never** assume Flood + Vann + Love + Hargrave team on every bid.
 
+**Dr. Flood credentials = DHA only, NOT EdD.** User-corrected 2026-05-25. Before any external-facing artifact mentioning Dr. Flood, run `rg "EdD" <doc>` — caught twice on Sedgwick #26-0028 (exec summary + capabilities matrix) after the correction. Standard pre-flight gate.
+
+**Eric Hargrave / HIS = Wichita, KS HQ.** The 601 area code is his cell, not his HQ. Do not write "Mississippi-based" or "601 area code suggests Mississippi" in any proposal copy — partners.md is the source of truth. Wichita-based, long-term gov-contracting practice, also affiliated with Fountain of Life Ministries.
+
+**Pull from memory before stamping placeholders.** When a proposal needs partner identifying data, `rg <partner-name> docs/agent-memory/ docs/active-commitments.md docs/memory-archive.md` *first*. Lazy `⬜ to confirm` on data we already have is Iron Rule #9 territory and the user will catch it.
+
 ### Sedgwick structure (archive A27 + A27-UPDATE)
 HIS Prime (filed in HIS's name only). TCAF / Love / Vanntastic = subcontractors under back-to-back agreements that flow down BAA / insurance / performance.
 

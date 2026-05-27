@@ -16,7 +16,7 @@ Love Clinic & Med Spa, LLC is the **Prime Contractor**. Hargrave Innovative Solu
 
 **SUBCONTRACTOR DUE-DILIGENCE (held by the Prime, not part of Response Form; provided to County on request)**
 
- ⬜ HIS — DBA (or "SAME"), full mailing address, state of formation (601 area code suggests Mississippi — confirm), UEI from SAM.gov, year established, business classification (LLC / Corp / etc.), KS-registered (Y/N — if N, register prior to award), standalone COI, one representative public-sector or self-insured-employer reference.
+ ⬜ HIS — Wichita-based; needs full street address, state of LLC/Corp formation, UEI from SAM.gov, year established, business classification (LLC / Corp), KS-registered status (Y/N — if N, register prior to award), standalone COI, and one representative public-sector or self-insured-employer reference, all on the subcontract execution page.
  ⬜ Vanntastic — full mailing address, contact email, year established, business classification, KS-registered (Y/N), TEDx talk URL, UEI if applicable, standalone COI, one representative wellness-programming or speaking-sponsor reference.
  ✅ TCAF — primary fields closed (17912 Stefano Drive, Pflugerville, TX 78660-7020; UEI KDDVD1FGLW35; SAM Active to 2027-05-06; 501(c)(3) determined Jan 14, 2026 effective; EIN 41-3618003; CAGE 209N1). Still ⬜: year established (TX incorporation date), staff/volunteer count, standalone COI, one representative public-sector implementation reference, Dr. Flood Secret-level clearance written verification.
  ⬜ **Conflict of interest** — Eric (2026-05-23) said "NONE KNOWN" across BoCC, County Manager, Risk, HR, Purchasing, evaluation committee, IMA, UHC, OptumRx, Rally. Each partner to confirm in writing prior to submission (now goes to the Prime, not HIS).

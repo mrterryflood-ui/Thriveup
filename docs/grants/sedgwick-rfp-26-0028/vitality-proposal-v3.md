@@ -60,7 +60,7 @@ These are HIS firm-data fields for **Appendix F.1 (Sedgwick County Response Form
 
 1. DBA (if any) — or write "N/A"
 2. Mailing address (street, city, state, ZIP)
-3. State of incorporation / formation *(area code 601 suggests Mississippi — confirm)*
+3. State of LLC/Corp formation *(HIS is Wichita-based — one open field on the subcontract execution page)*
 4. Fax — or write "N/A"
 5. Website
 6. Year established
@@ -152,7 +152,7 @@ We have read Addendum #2 carefully. The County's disclosure that 373 members are
 
 We believe this proposal represents the best value available to Sedgwick County under RFP #26-0028:
 
-- We are the only respondent with a fully integrated four-partner structure that combines prescribing clinical capability (Dr. Chela Love, DNP, FNP-C — Board-Certified Family Nurse Practitioner with nine years operating Love Clinic & Med Spa, LLC in Wichita and an established GLP-1 / GLP-2 patient panel), wellness coaching and behavioral engagement (Dr. J. Michelle Vann), digital platform and engagement systems (Dr. Terry D. Flood, DHA, EdD), and disciplined prime-contractor government compliance (Hargrave Innovative Solutions).
+- We are the only respondent with a fully integrated four-partner structure that combines prescribing clinical capability (Dr. Chela Love, DNP, FNP-C — Board-Certified Family Nurse Practitioner with nine years operating Love Clinic & Med Spa, LLC in Wichita and an established GLP-1 / GLP-2 patient panel), wellness coaching and behavioral engagement (Dr. J. Michelle Vann), digital platform and engagement systems (Dr. Terry D. Flood, DHA, President of The COLLABORATIVE Advocate Foundation — SAM-active, 501(c)(3)-determined, active Secret-level clearance), and disciplined prime-contractor government compliance (Hargrave Innovative Solutions).
 - Our proposed program model targets a modeled Year-1 capture opportunity of approximately $2.09 million within the County's current 373-member GLP-1 cohort, addressable through migration from unmanaged to managed-protocol therapy, while also serving the broader 1,525 at-risk adult population with evidence-based lifestyle and clinical pathways.
 - Our technology platform is purpose-built to integrate with — not replace — UnitedHealthcare (TPA), OptumRx (PBM), and Rally (current wellness platform). We coordinate; we do not displace.
 - We are HIPAA-compliant, prepared to execute the County's standard Business Associate Agreement at award, and willing to discuss at-risk performance-based pricing tied to engagement, GLP-1 utilization, and cost savings — the three KPIs the County named in the Addendum.
@@ -253,29 +253,29 @@ Vitality is delivered by a four-partner team. Three of four partners are headqua
 
 ## 3.3 Wellness Lead — Vanntastic Solutions
 
-**Principal:** Dr. J. Michelle Vann, Dcc, ThD, MS — 316-350-2601 · www.jmichellevann.com
+**Principal:** Dr. J. Michelle Vann, Dcc, ThD, MS — Founder & Principal, Vanntastic Solutions (Wichita, KS) — 316-350-2601 · www.jmichellevann.com
 
-**Role under this contract:** Wellness coaching, behavioral engagement, lifestyle accountability, weekly member check-in cadence, family and youth programming extensions for members with dependents.
+**Role under this contract:** Wellness coaching, behavioral engagement, lifestyle accountability, weekly member check-in cadence, and family- and youth-programming extensions for members with covered dependents.
 
-**Relevant experience:** Recognized public speaker (TEDx). Substantive work in youth and family wellness programming and community-based health initiatives in the Wichita area. Active speaker and content creator on lifestyle accountability and behavioral health.
+**Relevant experience:** TEDx speaker and recognized voice on lifestyle accountability and behavioral health. Substantive Wichita-area portfolio in youth and family wellness programming and women's-health initiatives (Iasis youth programming; Sistahs women's-health programming). Active content creator and community educator. Bilingual coaching capacity coordinated via the Love Clinic clinical team (Angie Funes / Yorly Salazar) for the Spanish-language member cohort.
 
 ## 3.4 Platform and Data Lead — The COLLABORATIVE Advocate Foundation
 
-**Principal:** Dr. Terry D. Flood, DHA, EdD — **President, The COLLABORATIVE Advocate Foundation** — 254-319-8460
+**Principal:** Dr. Terry D. Flood, DHA — **President, The COLLABORATIVE Advocate Foundation (TCAF)** — 254-319-8460 · terryflood@thrivingcommunitiesforall.com
 
-**Role under this contract:** Digital platform and app development, participant engagement systems, reporting and analytics, healthcare data architecture, FHIR/HL7 integration, security and HIPAA technical controls.
+**Role under this contract:** Digital platform and member-app delivery (the Vitality PWA at glpwellness.fit), participant-engagement systems, reporting and analytics, healthcare-data architecture (FHIR/HL7), and the security and HIPAA technical-control surface.
 
-**Credentials:** DHA (Doctor of Health Administration), EdD (Doctor of Education); PMP-eligible (project management).
+**Credentials:** DHA (Doctor of Health Administration); graduate training in data analysis, implementation science, and psychology; CHW-I (Community Health Worker — Instructor); AI / responsible-AI certification; PMP-eligible (project management). U.S. Army retiree.
 
-**Relevant experience:** U.S. Army retiree with extensive public-sector implementation background. Holds active U.S. government Secret-level clearance (current status verified by the Prime prior to submission). Specialization in healthcare data standards (FHIR, HL7), population health analytics, and federal-grade systems implementation.
+**Relevant experience:** Active U.S. government Secret-level clearance (current status to be furnished to the Prime in writing prior to submission). Specialization in healthcare data standards (FHIR, HL7), population-health analytics, implementation-science frameworks (CFIR / RE-AIM / EPIS), and federal-grade systems implementation. TCAF operates with **SAM.gov registration ACTIVE through May 6, 2027** (UEI KDDVD1FGLW35 · CAGE 209N1 · EIN 41-3618003) and holds 501(c)(3) public-charity status under IRC §170(b)(1)(A)(vi) (IRS determination effective January 14, 2026).
 
 ## 3.5 Contract Administration Subcontractor — Hargrave Innovative Solutions (HIS)
 
-**Principal:** Eric Hargrave, CEO — ericd@hisolution.org · 601-238-4186
+**Principal:** Eric Hargrave, CEO & Founder — Hargrave Innovative Solutions (Wichita, KS) — ericd@hisolution.org · 601-238-4186
 
 **Role under this contract:** Subcontractor to the Prime (Love Clinic & Med Spa, LLC) providing government-contract administration, compliance oversight, reporting coordination, administrative support, financial reconciliation, subcontractor management for the Vanntastic and TCAF tiers, and performance-monitoring support to the Prime. HIS does not hold the County contract or the County BAA; HIS supports the Prime's execution of both.
 
-**Relevant experience:** Health-tech platform delivery and multi-vendor IT consulting. Active engagements with public-sector and enterprise health-tech clients. Eric Hargrave brings government-contracting discipline that allows Dr. Love and the Love Clinic clinical team to remain focused on the clinical program while HIS handles the contract-administration overhead.
+**Relevant experience:** Long-standing government-contracting and compliance practice serving public-sector and enterprise health-tech clients. Eric Hargrave initiated the cross-team coordination for this RFP (May 12, 2026 working session with Dr. Love, Dr. Vann, and Dr. Flood) and is a recurring coalition partner with TCAF on federal opportunities (named on TCAF's NSF TechAccess coalition through his Fountain of Life Ministries community-anchor role). HIS's contract-administration discipline allows Dr. Love and the Love Clinic clinical team to remain focused on the clinical program while HIS handles the contract-administration overhead.
 
 ## 3.6 Subcontracting structure
 
@@ -818,7 +818,7 @@ Detailed reference letters and performance documentation are also available upon
 | Contract administration and government compliance | Eric Hargrave, HIS (subcontractor to Prime) | Active prime-contractor engagements; public-sector and enterprise health-tech implementations. References available on request. |
 | Clinical weight management | Dr. Chela Love, DNP, FNP-C, Love Clinic & Med Spa, LLC | Nine years' continuous Wichita clinical practice (since Jan 2017); active GLP-1 / GLP-2 patient panel; 10-step intake-to-maintenance workflow in production; three written employer references on file (Appendix E.1.a–c). Additional patient-panel and referring-provider references available subject to HIPAA authorization. |
 | Wellness coaching and behavioral engagement | Dr. J. Michelle Vann, Vanntastic Solutions | Public speaking (TEDx); community-based wellness programming; youth and family wellness work in the Wichita area. References available on request. |
-| Digital platform, engagement systems, and data | Dr. Terry D. Flood, DHA, EdD, President, COLLABORATIVE Advocate Foundation | U.S. Army retiree with extensive public-sector implementation background. Active Secret-level clearance (verification on file with HIS). FHIR/HL7 integration work. References available on request, subject to clearance constraints. |
+| Digital platform, engagement systems, and data | Dr. Terry D. Flood, DHA, President, The COLLABORATIVE Advocate Foundation (TCAF) | U.S. Army retiree with extensive public-sector implementation background. Active Secret-level clearance (verification on file with the Prime). Specialization in FHIR/HL7 integration, population-health analytics, and implementation-science frameworks (CFIR / RE-AIM / EPIS). CHW-Instructor credential and responsible-AI certification. TCAF SAM.gov ACTIVE through May 6, 2027 (UEI KDDVD1FGLW35 · CAGE 209N1 · EIN 41-3618003); 501(c)(3) public-charity status determined January 14, 2026. References available on request, subject to clearance constraints. |
 
 ---
 
@@ -1094,53 +1094,52 @@ The following information is collected and held on file by the Prime (Love Clini
 
 | Field | Value |
 |---|---|
-| Legal firm name | Hargrave Innovative Solutions |
-| Principal | Eric Hargrave, CEO |
-| Contact email | ericd@hisolution.org |
-| Contact phone | 601-238-4186 |
-| State of formation | ⬜ HIS to confirm (601 area code indicates Mississippi origin) |
-| Mailing address | ⬜ HIS to confirm |
-| Business classification | ⬜ HIS to confirm (LLC / Corp / etc.) |
-| Year established | ⬜ HIS to confirm |
+| Legal firm name | **Hargrave Innovative Solutions** |
+| Principal | **Eric Hargrave, CEO & Founder** |
+| Contact email | **ericd@hisolution.org** |
+| Contact phone | **601-238-4186** |
+| Headquarters | **Wichita, KS** (street address to be confirmed by HIS on the back-to-back subcontract execution page; Eric Hargrave operates from Wichita and is a long-term Wichita-area contracting practice) |
+| State of formation | ⬜ HIS to confirm on subcontract signature page (Eric Hargrave is Wichita-based; state of LLC/Corp formation is the one open field) |
+| Business classification | ⬜ HIS to confirm (LLC / Corp); long-term government-contracting practice |
 | Registered in Kansas to do business | ⬜ HIS to confirm; if N, register prior to contract award |
 | UEI (SAM.gov) | ⬜ HIS to provide |
-| Certificate of Insurance | ⬜ HIS to provide standalone COI for the Appendix G binder; HIS also confirms that Dr. Love added Eric Hargrave to Love Clinic's policy on 2026-05-26 as preparation for this team arrangement |
+| Related-entity disclosure | Eric Hargrave is also affiliated with **Fountain of Life Ministries** (community/faith anchor, named on prior TCAF NSF TechAccess coalition documentation). Disclosed for transparency; no conflict with this contract. |
+| Certificate of Insurance | ⬜ HIS to provide standalone COI for the Appendix G binder. The Prime confirms that Dr. Love added Eric Hargrave to Love Clinic's policy on 2026-05-26 as preparation for this team arrangement, providing day-one coverage continuity while HIS's standalone COI is finalized. |
 
 **Vanntastic Solutions**
 
 | Field | Value |
 |---|---|
-| Legal firm name | Vanntastic Solutions |
-| Principal | Dr. J. Michelle Vann, Dcc, ThD, MS |
-| Mailing address | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* (Wichita-area) |
-| Contact email | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
-| Contact phone | 316-350-2601 |
-| Website | www.jmichellevann.com |
-| Year established | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
-| Number of employees / coaches | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
-| Business classification | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
-| Registered in Kansas | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* (Y/N) |
-| TEDx talk URL (referenced in §3.3) | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
-| UEI (if registered in SAM.gov) | *{{ACTION REQUIRED — Vanntastic Solutions / Dr. J. Michelle Vann}}* |
+| Legal firm name | **Vanntastic Solutions** |
+| Principal | **Dr. J. Michelle Vann, Dcc, ThD, MS — Founder & Principal** |
+| Headquarters | **Wichita, KS** (street address to be confirmed by Vanntastic on the back-to-back subcontract execution page) |
+| Contact phone | **316-350-2601** |
+| Website | **www.jmichellevann.com** |
+| Business classification | ⬜ Vanntastic to confirm (sole-proprietorship / LLC) on subcontract execution page |
+| Registered in Kansas | Wichita-domiciled and operating in Kansas; Vanntastic to confirm registration form on subcontract execution page |
+| Confirmed scope on this contract | Wellness coaching, behavioral engagement, weekly member check-in cadence, and family- and youth-programming extensions (consistent with Vanntastic's confirmed youth-and-family wellness lane). Spanish-language coaching coordinated via Love Clinic bilingual staff (Angie Funes / Yorly Salazar). |
+| Conflict-of-interest disclosure | Dr. Vann's spouse is employed by the City of Wichita; the Prime confirms this contract is with **Sedgwick County** (a separate legal entity from the City of Wichita) and that there is no direct COI to disclose. Captured here for County records under §12.4. |
+| TEDx talk URL (referenced in §3.3) | ⬜ Vanntastic to provide URL on subcontract execution page |
+| UEI (if registered in SAM.gov) | ⬜ Vanntastic to confirm (federal registration not required for this County contract) |
 
 **The COLLABORATIVE Advocate Foundation (TCAF)**
 
 | Field | Value |
 |---|---|
-| Legal entity name | The COLLABORATIVE Advocate Foundation |
-| Principal | Dr. Terry D. Flood, DHA, EdD — President |
-| Mailing address | 17912 Stefano Drive, Pflugerville, TX 78660-7020 c/o Terry D Flood Sr. |
-| State of registration | Texas |
-| Contact phone | 254-319-8460 |
-| Contact email (institutional) | terryflood@thrivingcommunitiesforall.com |
-| Year established | *{{ACTION REQUIRED — TCAF / Dr. Flood}}* (date of TX incorporation) |
-| 501(c)(3) status | **YES — DETERMINED.** IRS Determination Letter 947, effective January 14, 2026; classified as a public charity under IRC §170(b)(1)(A)(vi). Name control THEC. FY ends December 31. |
-| Number of staff / volunteers | *{{ACTION REQUIRED — TCAF / Dr. Flood}}* |
-| UEI (SAM.gov) | KDDVD1FGLW35 |
-| EIN | 41-3618003 |
-| CAGE code | 209N1 |
-| SAM.gov registration status | **ACTIVE** through May 6, 2027 |
+| Legal entity name | **The COLLABORATIVE Advocate Foundation** |
+| Principal | **Dr. Terry D. Flood, DHA — President** |
+| Mailing address | **17912 Stefano Drive, Pflugerville, TX 78660-7020** c/o Terry D Flood Sr. |
+| State of registration | **Texas** |
+| Contact phone | **254-319-8460** |
+| Contact email (institutional) | **terryflood@thrivingcommunitiesforall.com** |
+| 501(c)(3) status | **YES — DETERMINED.** IRS Determination Letter 947, effective **January 14, 2026**; classified as a public charity under **IRC §170(b)(1)(A)(vi)**. Name control THEC. FY ends December 31. |
+| UEI (SAM.gov) | **KDDVD1FGLW35** |
+| EIN | **41-3618003** |
+| CAGE code | **209N1** |
+| SAM.gov registration status | **ACTIVE** through **May 6, 2027** |
+| Dr. Flood credentials | **DHA** (Doctor of Health Administration); data analysis, implementation science, and psychology graduate training; **CHW-I** (Community Health Worker — Instructor); responsible-AI certification; **PMP-eligible**; **U.S. Army retiree** |
 | Dr. Flood Secret-level clearance | **ACTIVE** U.S. government Secret-level clearance (current status verification will be furnished to the Prime in writing prior to submission) |
+| Date of TX incorporation (year established) | ⬜ TCAF to confirm exact incorporation date for the subcontract execution page (501(c)(3) effective January 14, 2026 establishes operational anchor; incorporation predates determination) |
 
 ## Appendix G — Proof of Insurance
 
