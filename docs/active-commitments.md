@@ -2280,3 +2280,10 @@ F. Grant Discovery Engine (651 opps) → joint federal pursuits (OVW, VOCA, SAMH
 2. M&T small-business formal confirmation at SBIR submit time (<500 employees, >50% US-owned).
 3. Cost-share match sources for downstream Tier 2 federal programs.
 4. Title IV-E Prevention Services Clearinghouse pre-consultant engagement before evaluation design locks.
+
+## 2026-05-27 — NSF SBIR Project Pitch window opens June 2, 2026
+- Source: BBCetc alert fwd by Dr. Flood 2026-05-27
+- Solicitations: NSF 26-510 (SBIR) + 26-511 (STTR, instrumentation emphasis)
+- **Pending decision:** does TCAF pursue? If yes, Project Pitch must be drafted/submitted starting Jun 2. Full Proposal due dates: Jul 27 2026 → Nov 4 2026 → Mar 4 2027 → Jul 7 2027.
+- New: Strategic Breakthrough track up to $30M with 1:1 match.
+- Pre-req either way: SAM.gov registration must be active. (TCAF SAM status: VERIFY before pitch.)
