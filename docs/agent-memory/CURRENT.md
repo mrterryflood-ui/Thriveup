@@ -60,6 +60,24 @@ Full lane detail + Vann spouse-COI + Love bilingual capacity → `topics/partner
 - **Public no-auth wizards** must use capability tokens, not client-supplied IDs (pattern: `server/foster-youth-intake-routes.ts`).
 - **AI calls** must route through `server/ai-provider.ts` so the ethical-EI preamble wraps them.
 
+## ⚖️ Federal Acquisition (FAR) — standing doctrine
+
+Full reference: **`docs/agent-memory/topics/federal-acquisition.md`** — read at task start for ANY federal contract or solicitation.
+
+**Critical distinction:** Grants (SSG Fox, SAMHSA, NIH) → 2 CFR 200. Contracts (VA/DoD/HHS service contracts) → FAR. Never conflate.
+
+**TCAF's #1 unlocked advantage — SDVOSB:** Dr. Flood = medically retired, service-connected disability (MS). SBA VetCert SDVOSB application **NOT YET FILED** — file immediately. VA statute requires SDVOSB set-asides first (Veterans First). Sole-source authority up to $5M services once certified.
+
+**Key NAICS for TCAF:** 624190 (primary) · 624229 · 923120 · 611430 · 541611 · 541690 · 541720
+
+**SAM renewal:** TCAF active through **2027-05-06**. ISS LLC active through **2027-03-30**. Set 60-day advance reminders.
+
+**Proposal structure under FAR 15:** Section M = scoring rubric (write to this first). Section L = format instructions. Section C = the requirement. Iron Rule #5 (RFP Fidelity) IS FAR 15 logic — identical discipline applies.
+
+**FAR 31 budget rule:** Every cost must be reasonable + allocable + compliant. Unallowable: entertainment, alcohol, lobbying, fines, charitable contributions, advertising (non-recruitment).
+
+**Service Contract Act:** SCA wage determinations required on most federal service contracts — look up WDOL rate for Travis County TX before pricing any federal service contract.
+
 ## 🧭 Pointers (where things live — 1-liners)
 
 - Run: `npm run dev` · DB: `npm run db:push` · Typecheck: `npm run typecheck` · E2E: `npx playwright test`

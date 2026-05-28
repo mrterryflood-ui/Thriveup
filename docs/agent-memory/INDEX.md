@@ -45,6 +45,7 @@ docs/agent-memory/
 | Codebase structure / page locations / route patterns / DB tables / stack | `topics/architecture.md` |
 | Ecosystem platforms / TYT / WPH / LifeBridge / SafeReport / Civic Signal | `topics/ecosystem.md` |
 | Integration through Invitation (ITI) / shadow workers / consent toggles / witness loop / Iron Rule #8 | `topics/integration-through-invitation.md` |
+| **FAR / federal contracts / SDVOSB / NAICS / cost principles / proposal structure / agency supplements / contract types / small business programs / SAM.gov / VAAR / HHSAR / DFARS** | **`topics/federal-acquisition.md`** |
 | Historical A1–A27 decisions (referenced by number) | `archive/A-series.md` |
 
 ## What goes where (write router)
