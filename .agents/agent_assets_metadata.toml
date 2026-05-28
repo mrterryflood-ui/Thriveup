@@ -659,3 +659,33 @@ id = "EpJ8dVlPUZ9i_WbSRtCKN"
 uri = "file://fork-contracting-app.tar.gz"
 type = "unspecified"
 title = "Contracting fork code bundle (76KB) — click to download"
+
+[[outputs]]
+id = "jKVmIRU0Esrogw2Z0g_sz"
+uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/00-README-and-Submission-Checklist.pdf"
+type = "pdf"
+title = "00 — Submission Checklist + Timeline (Eric, Jamaica, Terry action items)"
+
+[[outputs]]
+id = "FvxklvIaY6fa3I15pfoEb"
+uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/01-Package-Attributes-Q1-Q8.pdf"
+type = "pdf"
+title = "01 — All 8 Q&A Responses (paste into Ion Wave — character-count verified)"
+
+[[outputs]]
+id = "FIktqupxL5W2xaKbpATd1"
+uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/02-Pricing-Schedule-Document8.pdf"
+type = "pdf"
+title = "02 — Pricing Schedule / Document 8 (Terry: confirm rates by Thu EOD)"
+
+[[outputs]]
+id = "kaVITV59QsKtz8_rc3cDZ"
+uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/03-Jamaica-Signature-Forms-Checklist.pdf"
+type = "pdf"
+title = "03 — Jamaica’s Signature Forms Checklist (return to Eric by Thu EOD)"
+
+[[outputs]]
+id = "rW_boIT0GgnM15oNlg3Fc"
+uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/04-Compliance-Matrix.pdf"
+type = "pdf"
+title = "04 — Compliance Matrix (Eric’s pre-submit gate checklist)"
