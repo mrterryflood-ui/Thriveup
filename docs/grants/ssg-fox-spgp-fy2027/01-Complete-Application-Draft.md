@@ -293,15 +293,15 @@ Standalone digital tools without human follow-up fail this population: Owen et a
 
 ## B.3.f — Staffing Plan and Staff-to-Participant Ratio
 
-**Dr. Terry Flood, DHA, Program Director (50% FTE):** Program oversight, VA coordination, compliance, outcome reporting, quality improvement. Supervises all peer navigator activities. Holds final responsibility for participant safety protocols.
+**Dr. Terry Flood, DHA, Program Director (75% FTE):** Program oversight, VA coordination, compliance, outcome reporting, quality improvement, and community partner relations. Supervises all peer navigator activities. Holds final responsibility for participant safety protocols.
 
-**Peer Navigator / Case Manager (1.0 FTE):** Direct participant engagement; C-SSRS and SBQ-R administration; safety planning facilitation; lethal means counseling; warm hand-offs; follow-up contacts.
+**Peer Navigator / Case Manager #1 and #2 (2 × 1.0 FTE):** Two full-time peer navigators serve the enrolled caseload at a hard cap of 20 active participants per navigator — enabling bi-weekly contact for all participants and same-day response for elevated-risk contacts. Each navigator handles direct participant engagement; C-SSRS and SBQ-R administration; safety planning facilitation; lethal means counseling; warm hand-offs; and documented follow-up contacts.
 
 **Program/Outreach Coordinator (1.0 FTE):** Outreach coordination; scheduling; partner communication; data entry and documentation; event logistics.
 
 **Volunteer Peer Supporters** (VFW/AL posts): Supplemental outreach at post events. Not responsible for clinical-adjacent functions.
 
-**Ratio:** 1 peer navigator to 20 active participants. This preserves weekly contact capacity for all active participants and same-day response for elevated-risk contacts.
+**Ratio:** 1 peer navigator to 20 active participants (2 navigators total). This preserves bi-weekly contact capacity across the full caseload and same-day response for elevated-risk contacts.
 
 ---
 
@@ -621,7 +621,7 @@ The linkage architecture converts the 10-minute deliberation window [2] from a c
 
 **Organization:** The Collaborative Advocate Foundation
 **Budget Period:** Per grant agreement (12 months)
-**Total Requested: $283,906**
+**Total Requested: $400,000**
 **Administrative cost method:** De Minimis (15% of MTDC per 2 CFR §200.414)
 
 ---
@@ -630,20 +630,21 @@ The linkage architecture converts the 10-minute deliberation window [2] from a c
 
 | Position Title | # FTE | % FTE | Base Annual Salary | Total Budgeted |
 |---|---|---|---|---|
-| Program Director (Dr. Terry Flood) | 1 | 0.50 | $85,000 | $42,500 |
-| Peer Navigator / Case Manager | 1 | 1.00 | $55,000 | $55,000 |
+| Program Director (Dr. Terry Flood) | 1 | 0.75 | $85,000 | $63,750 |
+| Peer Navigator / Case Manager #1 | 1 | 1.00 | $55,000 | $55,000 |
+| Peer Navigator / Case Manager #2 | 1 | 1.00 | $55,000 | $55,000 |
 | Program / Outreach Coordinator | 1 | 1.00 | $48,000 | $48,000 |
-| **Subtotal Salaries** | | | | **$145,500** |
+| **Subtotal Salaries** | | | | **$221,750** |
 
 **Narrative justifications:**
-- *Program Director:* Dr. Flood provides 50% of his time to program oversight, VA coordination, compliance, outcome reporting, and quality improvement. The remaining 50% is covered by other TCAF organizational funding.
-- *Peer Navigator / Case Manager:* Full-time position responsible for direct participant engagement, C-SSRS and SBQ-R administration, safety planning facilitation, lethal means counseling, warm hand-offs, and follow-up contacts. Caseload capped at 20 active participants.
+- *Program Director:* Dr. Flood provides 75% of his time to program oversight, VA coordination, compliance, outcome reporting, quality improvement, and community partner relations. The remaining 25% is covered by other TCAF organizational funding.
+- *Peer Navigator / Case Manager #1 and #2:* Two full-time peer navigator positions are required to serve 150–200 participants at a caseload cap of 20 active participants per navigator, while maintaining bi-weekly contact standards and same-day response for elevated-risk contacts. Each navigator is responsible for direct participant engagement, C-SSRS and SBQ-R administration, safety planning facilitation, lethal means counseling, warm hand-offs, and follow-up contacts.
 - *Program / Outreach Coordinator:* Full-time position responsible for community outreach, partner scheduling, event logistics, data entry, and documentation compliance.
 
-**Fringe Benefits (25%): $36,375**
+**Fringe Benefits (25%): $55,438**
 *(Includes FICA 7.65%, health insurance, and retirement contributions per TCAF benefit schedule)*
 
-**Subtotal Personnel/Labor: $181,875**
+**Subtotal Personnel/Labor: $277,188**
 
 ---
 
@@ -651,10 +652,10 @@ The linkage architecture converts the 10-minute deliberation window [2] from a c
 
 | Item | Total Budgeted | Narrative |
 |---|---|---|
-| Participant transportation | $12,000 | Bus passes and rideshare vouchers for veterans without transportation to VA appointments, VSO offices, and outreach events. Estimated 200 trips × $60/trip average. |
-| Lethal means safety equipment | $8,000 | Cable locks and gun locks provided to participants during lethal means counseling per VA/DoD guidelines. Estimated 200 units × $40. |
-| Crisis support materials | $5,000 | Safety planning wallet cards, crisis resource guides, emergency contact binders for participants. |
-| **Subtotal** | **$25,000** | |
+| Participant transportation | $14,000 | Bus passes and rideshare vouchers for veterans without transportation to VA appointments, VSO offices, and outreach events. Estimated 280 trips × $50/trip across 2-navigator caseload. |
+| Lethal means safety equipment | $10,000 | Cable locks and gun locks provided to participants during lethal means counseling per VA/DoD guidelines. Estimated 250 units × $40. |
+| Crisis support materials | $6,000 | Safety planning wallet cards, crisis resource guides, emergency contact binders for all enrolled participants. |
+| **Subtotal** | **$30,000** | |
 
 ---
 
@@ -663,27 +664,27 @@ The linkage architecture converts the 10-minute deliberation window [2] from a c
 | Item | Total Budgeted | Narrative |
 |---|---|---|
 | M2C platform hosting and operations | $12,000 | Annual hosting, security, and maintenance for vetmissiontransition.com. |
-| Navigator training (Stanley-Brown, C-SSRS, lethal means, Zero Suicide) | $8,000 | Initial certification training and annual refresher for peer navigators. |
-| Outreach and community materials | $6,000 | Print materials, community event supplies, digital outreach costs. |
-| Technology and software | $6,000 | Data management tools, video conferencing licenses, office software. |
+| Navigator training (Stanley-Brown, C-SSRS, lethal means, Zero Suicide) | $10,000 | Initial certification training and annual refresher for 2 peer navigators plus Program Coordinator. |
+| Outreach and community materials | $7,000 | Print materials, community event supplies, digital outreach costs. |
+| Technology and software | $5,000 | Data management tools, video conferencing licenses, office software. |
 | VA Mandated Travel | $5,000 | Estimated 2 staff × 2 VA-mandated in-person SSG Fox grantee trainings/year. Includes airfare, hotel, per diem. |
-| Office supplies and administrative materials | $3,000 | General program supplies and administrative materials. |
-| **Subtotal Other Non-Personnel** | **$40,000** | |
+| Office and administrative supplies | $1,638 | General program supplies and administrative materials. |
+| **Subtotal Other Non-Personnel** | **$40,638** | |
 
-**Subtotal Direct Program Costs: $246,875**
+**Subtotal Direct Program Costs: $347,826**
 
 ---
 
 ## Administrative Costs (De Minimis 15% of MTDC)
 
-**MTDC: $246,875**
-**Administrative Costs: $37,031**
+**MTDC: $347,826**
+**Administrative Costs (15%): $52,174**
 
 *TCAF does not have a negotiated indirect cost rate agreement and elects the de minimis rate per 2 CFR §200.414(f).*
 
 ---
 
-**GRAND TOTAL GRANT FUNDS REQUESTED: $283,906**
+**GRAND TOTAL GRANT FUNDS REQUESTED: $400,000**
 
 ---
 
