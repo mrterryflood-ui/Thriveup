@@ -689,3 +689,9 @@ id = "rW_boIT0GgnM15oNlg3Fc"
 uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/04-Compliance-Matrix.pdf"
 type = "pdf"
 title = "04 — Compliance Matrix (Eric’s pre-submit gate checklist)"
+
+[[outputs]]
+id = "yYjBBHHI-9Qu1nBXMfHeD"
+uri = "file://docs/grants/ssg-fox-spgp-fy2027/01-Complete-Application-Draft.md"
+type = "text"
+title = "SSG Fox SPGP FY2027 — Complete Application Draft ($400,000)"
