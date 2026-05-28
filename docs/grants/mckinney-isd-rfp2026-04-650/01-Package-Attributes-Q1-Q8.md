@@ -88,11 +88,11 @@ Yes. All services offered in-person are also available in virtual and hybrid for
 
 ---
 
-Virtual training is billed at the same hourly and daily rates as in-person delivery. There is no travel charge, mileage reimbursement, or hotel expense for virtual engagements, which represents a direct cost savings to the District compared to in-person sessions requiring consultant travel from outside the McKinney/Collin County area.
+Virtual workshops are offered at a 10% discount from the equivalent in-person workshop rate. This reflects the elimination of travel time, onsite logistics, and related costs. Hourly consulting rates remain the same for virtual and in-person delivery, as consultant time and preparation are equivalent regardless of format.
 
 For asynchronous module development (custom-recorded content built to District specifications), a one-time content development fee will be quoted separately based on scope and number of modules. Once developed, asynchronous modules may be reused by the District at no additional license fee for the duration of the contract.
 
-Hybrid delivery (simultaneous in-person and virtual facilitation) is billed at the in-person daily rate; no additional charge for the virtual component when delivered concurrently.
+Hybrid delivery (simultaneous in-person and virtual facilitation) is billed at the in-person rate; no additional charge for the virtual component when delivered concurrently. No travel-related costs (mileage, lodging, per diem) are charged for virtual or hybrid engagements unless an onsite component requires consultant travel beyond 50 miles from the McKinney ISD service area.
 
 ---
 
@@ -103,13 +103,11 @@ Hybrid delivery (simultaneous in-person and virtual facilitation) is billed at t
 ---
 
 **Standard hours of availability (Monday–Friday, CST):**
-7:00 AM – 7:00 PM CST, Monday through Friday.
+8:00 AM – 5:00 PM CST, Monday through Friday.
 
-**Before-school sessions:** Available 7:00 AM – 8:30 AM for campus-based professional development during teacher arrival or planning periods.
+**Extended availability:** Training, consulting, speaking engagements, coaching sessions, and planning meetings may be scheduled outside standard business hours — including evenings and weekends — with advance notice and mutual agreement between HIS and McKinney ISD.
 
-**After-school / late afternoon sessions:** Available through 7:00 PM CST to accommodate afterschool professional learning community (PLC) meetings, faculty sessions, and department team training.
-
-**Extended and weekend availability:** Saturday sessions are available by advance request (minimum 5 business days notice) for district-wide professional development days, leadership retreats, or large-scale all-staff training events. Sunday availability is limited and quoted case-by-case.
+**Weekend availability:** Saturday sessions are available by advance request for district-wide professional development days, leadership retreats, or large-scale all-staff training events. Sunday availability is quoted case-by-case.
 
 **Summer and intersession:** Full availability June through August for intensive professional learning institutes, new-teacher induction, curriculum mapping workshops, and leadership development academies.
 
