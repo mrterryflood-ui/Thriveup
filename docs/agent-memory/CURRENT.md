@@ -6,6 +6,16 @@
 
 ---
 
+## 🔔 DATE-TRIGGERED REMINDERS (read every session start — check date)
+
+| Date | Reminder |
+|---|---|
+| **June 4, 2026** | SNAP CPP Focus Group at 2:00 PM CT. Open `sessions/2026-05-28.md` and surface the full SNAP prep brief to Dr. Flood before the session. Pathway: HHSC partnership + USDA-FNS SNAP Innovative Strategies grant. |
+| **March 6, 2027** | SAM.gov renewal 60-day advance warning — TCAF expires May 6, 2027. |
+| **January 30, 2027** | ISS LLC SAM renewal 60-day advance — ISS LLC expires March 30, 2027. |
+
+---
+
 ## 🗓️ Active submissions (chat-only reminders; no UI banners)
 
 **Teaming bids — partners waiting on deliverables:**
