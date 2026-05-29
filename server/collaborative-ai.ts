@@ -52,9 +52,65 @@ const MAPGAP_LENS = `Apply MAP-GAP continuous improvement framework:
 
 let geminiCollabQuotaExhaustedUntil = 0;
 
-// Per-engine timeout: drop any engine that hasn't responded within this window
-// so a single slow model (e.g. a reasoning model) never blocks the whole chat.
-const ENGINE_TIMEOUT_MS = 15_000;
+// Global collection deadline: all engines race together. When this fires,
+// synthesis runs immediately with whoever responded — no single engine can
+// block the others. Claude finishing in 5s doesn't wait for a slow engine
+// to time out at 15s; the deadline simply drops the stragglers and proceeds.
+const ENGINES_GLOBAL_DEADLINE_MS = 12_000;
+
+/**
+ * Start all engines simultaneously. Proceed as soon as all respond OR the
+ * global deadline fires — whichever comes first. Engines that haven't
+ * responded by the deadline are dropped with a logged Timeout error rather
+ * than blocking synthesis.
+ */
+async function collectEngineResults(
+  engines: Array<{ id: EngineId; model: string }>,
+  prompt: string,
+  systemPrompt: string,
+  maxTokens: number
+): Promise<EngineResult[]> {
+  const collected: EngineResult[] = [];
+
+  // Each engine pushes its result into collected as soon as it finishes.
+  const perEnginePromises = engines.map(engine =>
+    callEngine(engine, prompt, systemPrompt, maxTokens)
+      .then(result => { collected.push(result); })
+      .catch(err => {
+        // callEngine already catches internally; this is a belt-and-suspenders guard.
+        collected.push({
+          engine: engine.id,
+          model: engine.model,
+          response: "",
+          responseTimeMs: ENGINES_GLOBAL_DEADLINE_MS,
+          error: err?.message || "Engine threw unexpectedly",
+        });
+      })
+  );
+
+  // Race: finish when all complete, or drop stragglers at the global deadline.
+  await Promise.race([
+    Promise.all(perEnginePromises),
+    new Promise<void>(resolve => setTimeout(resolve, ENGINES_GLOBAL_DEADLINE_MS)),
+  ]);
+
+  // Any engine that hasn't pushed a result yet has been dropped by the deadline.
+  const respondedIds = new Set(collected.map(r => r.engine));
+  for (const engine of engines) {
+    if (!respondedIds.has(engine.id)) {
+      console.error(`[CollabAI] Engine ${engine.id} dropped — did not respond within ${ENGINES_GLOBAL_DEADLINE_MS}ms global deadline`);
+      collected.push({
+        engine: engine.id,
+        model: engine.model,
+        response: "",
+        responseTimeMs: ENGINES_GLOBAL_DEADLINE_MS,
+        error: `Dropped — did not respond within ${ENGINES_GLOBAL_DEADLINE_MS}ms`,
+      });
+    }
+  }
+
+  return collected;
+}
 
 function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   const engines: Array<{ id: EngineId; model: string }> = [];
@@ -66,21 +122,6 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-chat" });
   if (process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
   return engines;
-}
-
-async function callEngineWithTimeout(engine: { id: EngineId; model: string }, prompt: string, systemPrompt: string, maxTokens: number): Promise<EngineResult> {
-  return Promise.race([
-    callEngine(engine, prompt, systemPrompt, maxTokens),
-    new Promise<EngineResult>(resolve =>
-      setTimeout(() => resolve({
-        engine: engine.id,
-        model: engine.model,
-        response: "",
-        responseTimeMs: ENGINE_TIMEOUT_MS,
-        error: `Timeout after ${ENGINE_TIMEOUT_MS}ms`,
-      }), ENGINE_TIMEOUT_MS)
-    ),
-  ]);
 }
 
 async function callEngine(engine: { id: EngineId; model: string }, prompt: string, systemPrompt: string, maxTokens: number): Promise<EngineResult> {
@@ -266,10 +307,7 @@ INSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MA
 
   console.log(`[CollabAI] Launching ${engines.length} engines in parallel (RAG: ${ragChunkCount} chunks, RPLICE: ${includeRPLICE}, MAP-GAP: ${includeMAPGAP})`);
 
-  const enginePromises = engines.map(engine =>
-    callEngineWithTimeout(engine, enrichedPrompt, baseSystem, options?.maxTokens || 3000)
-  );
-  const engineResults = await Promise.all(enginePromises);
+  const engineResults = await collectEngineResults(engines, enrichedPrompt, baseSystem, options?.maxTokens || 3000);
 
   const successfulEngines = engineResults.filter(r => !r.error && r.response.length > 20);
   const failedEngines = engineResults.filter(r => r.error || r.response.length <= 20);
@@ -378,10 +416,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   const totalStart = Date.now();
   console.log(`[CollabAI-Stream] Launching ${engines.length} engines in parallel (RAG: ${ragChunkCount} chunks)`);
 
-  const enginePromises = engines.map(engine =>
-    callEngineWithTimeout(engine, enrichedPrompt, baseSystem, params.maxTokens || 3000)
-  );
-  const engineResults = await Promise.all(enginePromises);
+  const engineResults = await collectEngineResults(engines, enrichedPrompt, baseSystem, params.maxTokens || 3000);
 
   const successfulEngines = engineResults.filter(r => !r.error && r.response.length > 20);
   const failedStreamEngines = engineResults.filter(r => r.error || r.response.length <= 20);
@@ -411,7 +446,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     // All engines failed — fire the smoke alert immediately so Dr. Flood is
     // notified without waiting for the next scheduled probe.
     triggerImmediateSmokeAlert(
-      `collaborativeStream: 0/${engines.length} engines responded after ${ENGINE_TIMEOUT_MS}ms timeout. ` +
+      `collaborativeStream: 0/${engines.length} engines responded within ${ENGINES_GLOBAL_DEADLINE_MS}ms global deadline. ` +
       `Failed: ${engineResults.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`
     );
     params.onError(new Error("All AI engines failed to produce a response. Please try again in a few minutes."));
