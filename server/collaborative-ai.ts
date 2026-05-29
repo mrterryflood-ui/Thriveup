@@ -32,6 +32,10 @@ interface CollaborativeStreamParams {
   onMeta: (meta: { engines: string[]; ragSources: string[]; frameworks: string[] }) => void;
   onDone: (result: CollaborativeResult) => void;
   onError: (error: Error) => void;
+  /** Called when DeepSeek R1 finishes its deep-reasoning pass — AFTER the
+   *  initial synthesis has already been streamed. The SSE connection stays
+   *  open until this resolves (or R1 times out). */
+  onDeepThinking?: (text: string, engineId: string, timeMs: number) => void;
 }
 
 const RPLICE_LENS = `Apply RPLICE implementation science framework:
@@ -52,11 +56,14 @@ const MAPGAP_LENS = `Apply MAP-GAP continuous improvement framework:
 
 let geminiCollabQuotaExhaustedUntil = 0;
 
-// Global collection deadline: all engines race together. When this fires,
-// synthesis runs immediately with whoever responded — no single engine can
-// block the others. Claude finishing in 5s doesn't wait for a slow engine
-// to time out at 15s; the deadline simply drops the stragglers and proceeds.
+// Global collection deadline for FAST engines (Claude, OpenAI, Gemini).
+// Synthesis fires as soon as this deadline hits with whoever responded.
 const ENGINES_GLOBAL_DEADLINE_MS = 12_000;
+
+// DeepSeek R1 runs on its own independent track — deep reasoning takes 30-90s.
+// It does NOT block the initial synthesis. When it finishes, its output flows
+// as a "Deep Thinking Addendum" over the still-open SSE connection.
+const DEEP_THINK_TIMEOUT_MS = 80_000;
 
 /**
  * Start all engines simultaneously. Proceed as soon as all respond OR the
@@ -116,10 +123,11 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   const engines: Array<{ id: EngineId; model: string }> = [];
   if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) engines.push({ id: "claude", model: "claude-haiku-4-5" });
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
-  // deepseek-chat (DeepSeek V3) — fast conversational model (~3-5s). Previously
-  // used deepseek-r1 (reasoning model, 60-90s) which exceeded the deployment
-  // proxy timeout and caused "trouble connecting" errors on every Navigator chat.
-  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-chat" });
+  // DeepSeek R1 — deep reasoning model (30-90s). Runs on its own track via
+  // deepThinkPromise in collaborativeStream; never blocks the 12s fast-engine
+  // synthesis. Its output arrives as a "Deep Thinking" addendum after the
+  // initial response has already streamed to the user.
+  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1" });
   if (process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
   return engines;
 }
@@ -385,7 +393,13 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     return;
   }
 
-  const includeRAG = true;
+  // Separate DeepSeek R1 (deep thinker, 30-90s) from the fast engines
+  // (Claude, OpenAI, Gemini, ~3-8s). R1 starts immediately on its own
+  // track — it will NOT block the initial synthesis.
+  const deepThinkEngine = engines.find(e => e.id === "deepseek-r1");
+  const fastEngines = engines.filter(e => e.id !== "deepseek-r1");
+  const enginesForFastPass = fastEngines.length > 0 ? fastEngines : engines;
+
   let ragSources: string[] = [];
   let ragContext = "";
   let ragChunkCount = 0;
@@ -414,45 +428,69 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   });
 
   const totalStart = Date.now();
-  console.log(`[CollabAI-Stream] Launching ${engines.length} engines in parallel (RAG: ${ragChunkCount} chunks)`);
+  console.log(`[CollabAI-Stream] Phase 1: ${enginesForFastPass.length} fast engine(s) + DeepSeek R1 deep thinker starting (RAG: ${ragChunkCount} chunks)`);
 
-  const engineResults = await collectEngineResults(engines, enrichedPrompt, baseSystem, params.maxTokens || 3000);
+  // Start DeepSeek R1 immediately — it runs independently. We await it
+  // AFTER the initial synthesis has been streamed, so it never delays users.
+  const deepThinkStart = Date.now();
+  const deepThinkPromise: Promise<EngineResult | null> = deepThinkEngine
+    ? Promise.race([
+        callEngine(deepThinkEngine, enrichedPrompt, baseSystem, params.maxTokens || 3000),
+        new Promise<EngineResult>(resolve => setTimeout(() => resolve({
+          engine: deepThinkEngine.id,
+          model: deepThinkEngine.model,
+          response: "",
+          responseTimeMs: DEEP_THINK_TIMEOUT_MS,
+          error: `Deep think timeout after ${DEEP_THINK_TIMEOUT_MS}ms`,
+        }), DEEP_THINK_TIMEOUT_MS))
+      ])
+    : Promise.resolve(null);
 
-  const successfulEngines = engineResults.filter(r => !r.error && r.response.length > 20);
-  const failedStreamEngines = engineResults.filter(r => r.error || r.response.length <= 20);
+  // ── Phase 1: Fast engines → 12s global deadline → initial synthesis ──────
+  const fastResults = await collectEngineResults(enginesForFastPass, enrichedPrompt, baseSystem, params.maxTokens || 3000);
+
+  const successfulEngines = fastResults.filter(r => !r.error && r.response.length > 20);
+  const failedStreamEngines = fastResults.filter(r => r.error || r.response.length <= 20);
   if (failedStreamEngines.length > 0) {
-    console.error(`[CollabAI-Stream] ${failedStreamEngines.length} engine(s) failed: ${failedStreamEngines.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`);
+    console.error(`[CollabAI-Stream] ${failedStreamEngines.length} fast engine(s) failed: ${failedStreamEngines.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`);
   }
-  console.log(`[CollabAI-Stream] ${successfulEngines.length}/${engines.length} engines produced output`);
+  console.log(`[CollabAI-Stream] Phase 1 complete: ${successfulEngines.length}/${enginesForFastPass.length} fast engines in ${Date.now() - totalStart}ms`);
 
   if (successfulEngines.length >= 2) {
-    const synthesisEngine = engines.find(e => e.id === "claude") || engines.find(e => e.id === "openai") || engines[0];
-    const synthesis = await synthesizeResponses(engineResults, params.prompt, ragSources, synthesisEngine);
-
+    const synthesisEngine = enginesForFastPass.find(e => e.id === "claude") || enginesForFastPass.find(e => e.id === "openai") || enginesForFastPass[0];
+    const synthesis = await synthesizeResponses(fastResults, params.prompt, ragSources, synthesisEngine);
     const words = synthesis.split(/(\s+)/);
     for (let i = 0; i < words.length; i += 3) {
-      const chunk = words.slice(i, i + 3).join("");
-      params.onChunk(chunk);
+      params.onChunk(words.slice(i, i + 3).join(""));
       await new Promise(r => setTimeout(r, 10));
     }
   } else if (successfulEngines.length === 1) {
     const words = successfulEngines[0].response.split(/(\s+)/);
     for (let i = 0; i < words.length; i += 3) {
-      const chunk = words.slice(i, i + 3).join("");
-      params.onChunk(chunk);
+      params.onChunk(words.slice(i, i + 3).join(""));
       await new Promise(r => setTimeout(r, 10));
     }
   } else {
-    // All engines failed — fire the smoke alert immediately so Dr. Flood is
-    // notified without waiting for the next scheduled probe.
+    // All fast engines failed — fire the smoke alert immediately.
     triggerImmediateSmokeAlert(
-      `collaborativeStream: 0/${engines.length} engines responded within ${ENGINES_GLOBAL_DEADLINE_MS}ms global deadline. ` +
-      `Failed: ${engineResults.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`
+      `collaborativeStream: 0/${enginesForFastPass.length} fast engines responded within ${ENGINES_GLOBAL_DEADLINE_MS}ms global deadline. ` +
+      `Failed: ${fastResults.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`
     );
     params.onError(new Error("All AI engines failed to produce a response. Please try again in a few minutes."));
     return;
   }
 
+  // ── Phase 2: Await DeepSeek R1 deep thinking (already running) ───────────
+  const r1Result = await deepThinkPromise;
+  if (r1Result && !r1Result.error && r1Result.response.length > 20 && params.onDeepThinking) {
+    const deepThinkTimeMs = Date.now() - deepThinkStart;
+    console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 deep thinking complete in ${deepThinkTimeMs}ms`);
+    params.onDeepThinking(r1Result.response, r1Result.engine, deepThinkTimeMs);
+  } else if (r1Result?.error) {
+    console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 did not produce output — ${r1Result.error}`);
+  }
+
+  const allResults = [...fastResults, ...(r1Result ? [r1Result] : [])];
   const totalTimeMs = Date.now() - totalStart;
   const consensusMethod = successfulEngines.length >= 2
     ? `${successfulEngines.length}-engine parallel synthesis`
@@ -460,11 +498,11 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
       ? `single-engine (${successfulEngines[0].engine})`
       : "none";
 
-  console.log(`[CollabAI-Stream] Complete in ${totalTimeMs}ms — ${consensusMethod}`);
+  console.log(`[CollabAI-Stream] Total complete in ${totalTimeMs}ms — ${consensusMethod}`);
 
   params.onDone({
     synthesis: "",
-    engines: engineResults,
+    engines: allResults,
     ragContext: { chunkCount: ragChunkCount, sources: ragSources, liveData: true },
     frameworks: { rplice: true, mapGap: true },
     consensusMethod,

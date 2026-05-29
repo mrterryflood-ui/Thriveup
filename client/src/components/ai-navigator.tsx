@@ -8,7 +8,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Compass, Send, X, MessageSquarePlus, Trash2, ChevronLeft,
   Loader2, Sparkles, Phone, ExternalLink, AlertTriangle,
-  History, Minimize2, Maximize2, Bot, User,
+  History, Minimize2, Maximize2, Bot, User, Brain, ChevronDown, ChevronUp,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,6 +17,7 @@ interface NavigatorMessage {
   role: "user" | "assistant";
   content: string;
   createdAt?: string;
+  deepThinking?: string;
 }
 
 interface NavigatorConversation {
@@ -114,6 +115,7 @@ export function AINavigator() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
+  const [deepThinkingExpanded, setDeepThinkingExpanded] = useState<Record<number, boolean>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -209,7 +211,14 @@ export function AINavigator() {
                   fullText += parsed.content;
                   setMessages(prev => {
                     const updated = [...prev];
-                    updated[updated.length - 1] = { role: "assistant", content: fullText };
+                    updated[updated.length - 1] = { ...updated[updated.length - 1], role: "assistant", content: fullText };
+                    return updated;
+                  });
+                }
+                if (parsed.deepThinking) {
+                  setMessages(prev => {
+                    const updated = [...prev];
+                    updated[updated.length - 1] = { ...updated[updated.length - 1], deepThinking: parsed.deepThinking };
                     return updated;
                   });
                 }
@@ -431,39 +440,56 @@ export function AINavigator() {
                 </div>
               ) : (
                 messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                    data-testid={`message-${msg.role}-${idx}`}
-                  >
-                    {msg.role === "assistant" && (
-                      <div className="w-7 h-7 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <Bot className="h-4 w-4 text-teal-600 dark:text-teal-400" />
-                      </div>
-                    )}
-                    <div
-                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                        msg.role === "user"
-                          ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-br-md"
-                          : "bg-muted/60 border rounded-bl-md"
-                      }`}
-                    >
-                      {msg.role === "assistant" ? (
-                        <div className="leading-relaxed">
-                          {msg.content ? formatMessageContent(msg.content) : (
-                            <div className="flex items-center gap-2">
-                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                              <span className="text-xs text-muted-foreground">Thinking...</span>
-                            </div>
-                          )}
+                  <div key={idx} data-testid={`message-${msg.role}-${idx}`}>
+                    <div className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                      {msg.role === "assistant" && (
+                        <div className="w-7 h-7 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <Bot className="h-4 w-4 text-teal-600 dark:text-teal-400" />
                         </div>
-                      ) : (
-                        <div className="leading-relaxed">{msg.content}</div>
+                      )}
+                      <div
+                        className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                          msg.role === "user"
+                            ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-br-md"
+                            : "bg-muted/60 border rounded-bl-md"
+                        }`}
+                      >
+                        {msg.role === "assistant" ? (
+                          <div className="leading-relaxed">
+                            {msg.content ? formatMessageContent(msg.content) : (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                <span className="text-xs text-muted-foreground">Thinking...</span>
+                              </div>
+                            )}
+                          </div>
+                        ) : (
+                          <div className="leading-relaxed">{msg.content}</div>
+                        )}
+                      </div>
+                      {msg.role === "user" && (
+                        <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                          <User className="h-4 w-4 text-primary" />
+                        </div>
                       )}
                     </div>
-                    {msg.role === "user" && (
-                      <div className="w-7 h-7 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
-                        <User className="h-4 w-4 text-primary" />
+
+                    {msg.role === "assistant" && msg.deepThinking && (
+                      <div className="ml-9 mt-1.5">
+                        <button
+                          onClick={() => setDeepThinkingExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))}
+                          className="flex items-center gap-1.5 text-xs text-violet-600 dark:text-violet-400 hover:text-violet-800 dark:hover:text-violet-200 transition-colors"
+                          data-testid={`button-deep-thinking-${idx}`}
+                        >
+                          <Brain className="h-3 w-3" />
+                          <span>DeepSeek R1 deep analysis</span>
+                          {deepThinkingExpanded[idx] ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                        </button>
+                        {deepThinkingExpanded[idx] && (
+                          <div className="mt-1.5 p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/30 text-xs text-violet-900 dark:text-violet-100 leading-relaxed">
+                            {formatMessageContent(msg.deepThinking)}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

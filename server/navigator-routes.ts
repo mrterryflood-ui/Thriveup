@@ -480,6 +480,16 @@ export function registerNavigatorRoutes(app: Express) {
         onMeta: (meta) => {
           res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
         },
+        onDeepThinking: (text, engineId, timeMs) => {
+          // Strip DeepSeek R1's internal <think>...</think> tags — send only
+          // the final reasoned answer as the deep thinking addendum.
+          const cleaned = text
+            .replace(/<think>[\s\S]*?<\/think>/gi, "")
+            .trim();
+          if (cleaned.length > 20) {
+            res.write(`data: ${JSON.stringify({ deepThinking: cleaned, deepThinkingEngine: engineId, deepThinkingTimeMs: timeMs })}\n\n`);
+          }
+        },
         onDone: async (result) => {
           try {
             await db.insert(navigatorMessages).values({
