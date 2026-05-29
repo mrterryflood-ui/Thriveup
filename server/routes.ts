@@ -5844,5 +5844,19 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     }
   });
 
+  // AI engine smoke test — run on demand (authenticated) or view the last result.
+  // Returns the cached result from the last scheduled probe instantly, or runs
+  // a fresh probe if ?refresh=true is passed (takes ~10s while engines are pinged).
+  app.get("/api/system/smoke-test", requireAuth, async (req, res) => {
+    try {
+      const { getLastSmokeResult, runSmokeTest } = await import("./ai-smoke-test");
+      const refresh = req.query.refresh === "true";
+      const result = refresh ? await runSmokeTest() : (getLastSmokeResult() ?? await runSmokeTest());
+      res.json(result);
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Smoke test failed" });
+    }
+  });
+
   return httpServer;
 }

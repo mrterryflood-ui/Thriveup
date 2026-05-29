@@ -110,6 +110,14 @@ app.use((req, res, next) => {
   registerAuthRoutes(app);
   await registerRoutes(httpServer, app);
 
+  // AI engine smoke tests — runs every 15 min in production, emails Dr. Flood
+  // when the Navigator is completely down (all engines failing). Also runs once
+  // at startup (after a 15s delay) so we know immediately if anything is broken.
+  if (process.env.NODE_ENV === "production") {
+    const { startAISmokeTests } = await import("./ai-smoke-test");
+    startAISmokeTests();
+  }
+
   // Trade Sims daily digest — fires once every 24 hours. The function itself
   // is a no-op when there are no new signups.
   if (process.env.NODE_ENV === "production") {

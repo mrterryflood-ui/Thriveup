@@ -3,6 +3,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { retrieveRelevantChunks, buildLiveIntelligenceContext } from "./rag-engine";
 import { withEthicalPreamble } from "./ai-provider";
+import { triggerImmediateSmokeAlert } from "./ai-smoke-test";
 
 type EngineId = "gemini" | "claude" | "openai" | "deepseek-r1";
 
@@ -136,7 +137,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
         baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
       });
       const resp = await client.chat.completions.create({
-        model: "deepseek/deepseek-r1",
+        model: engine.model,  // uses whatever model getAvailableEngines() sets (currently deepseek/deepseek-chat)
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt },
@@ -144,6 +145,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
         max_tokens: maxTokens,
       });
       const raw = resp.choices[0]?.message?.content || "";
+      // Strip chain-of-thought <think> blocks — only present in R1 reasoning models, no-op on V3
       response = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
     }
 
@@ -406,7 +408,14 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
       await new Promise(r => setTimeout(r, 10));
     }
   } else {
-    params.onChunk("All collaborative intelligence engines failed to produce output.");
+    // All engines failed — fire the smoke alert immediately so Dr. Flood is
+    // notified without waiting for the next scheduled probe.
+    triggerImmediateSmokeAlert(
+      `collaborativeStream: 0/${engines.length} engines responded after ${ENGINE_TIMEOUT_MS}ms timeout. ` +
+      `Failed: ${engineResults.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`
+    );
+    params.onError(new Error("All AI engines failed to produce a response. Please try again in a few minutes."));
+    return;
   }
 
   const totalTimeMs = Date.now() - totalStart;
