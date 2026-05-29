@@ -88,7 +88,8 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = Date.now() - start;
-    if (path.startsWith("/api")) {
+    const shouldLog = path.startsWith("/api") || res.statusCode >= 400;
+    if (shouldLog) {
       let logLine = `${req.method} ${path} ${res.statusCode} in ${duration}ms`;
       if (capturedJsonResponse) {
         const responseStr = JSON.stringify(capturedJsonResponse);
