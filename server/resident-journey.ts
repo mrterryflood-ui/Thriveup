@@ -9,6 +9,7 @@ import {
   insertResidentJourneyEventSchema,
 } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
+import { generateAIResponse } from "./ai-provider";
 
 const STATE_BENEFIT_RULES: Record<string, {
   stateName: string;
@@ -394,6 +395,239 @@ export function registerResidentJourneyRoutes(app: Express) {
       });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to load risk chain", detail: String(error?.message || error) });
+    }
+  });
+
+  // ── PERSONAL JOURNEY CREATOR ──
+  // Creates a real profile from user-entered circumstances, computes ChainWeb
+  // risk/protective factors from their inputs, seeds recommended interventions.
+  // No auth required — works for any community member who wants to see their own journey.
+  app.post("/api/resident/journey/create-personal", async (req, res) => {
+    try {
+      const {
+        firstName, age, city, state, housingStatus, employmentStatus, educationLevel,
+        justiceInvolved, releaseDate, supervisionStatus, healthNeeds, mentalHealthNeeds,
+        dependents, veteranStatus, substanceUseHistory, familySituation,
+      } = req.body || {};
+
+      const userId = `personal-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+
+      const [profile] = await db.insert(participantProfiles).values({
+        userId,
+        firstName: (firstName || "You").trim(),
+        lastName: "",
+        age: age ? parseInt(String(age)) : null,
+        city: city || null,
+        state: state || "TX",
+        housingStatus: housingStatus || null,
+        employmentStatus: employmentStatus || null,
+        educationLevel: educationLevel || null,
+        justiceInvolved: justiceInvolved === true || justiceInvolved === "true",
+        releaseDate: releaseDate || null,
+        supervisionStatus: supervisionStatus || null,
+        healthNeeds: Array.isArray(healthNeeds) ? healthNeeds : (healthNeeds ? [healthNeeds] : []),
+        mentalHealthNeeds: mentalHealthNeeds || null,
+        dependents: dependents ? parseInt(String(dependents)) : 0,
+        veteranStatus: veteranStatus === true || veteranStatus === "true",
+        substanceUseHistory: substanceUseHistory || null,
+        familySituation: familySituation || null,
+      }).returning();
+
+      // ── ChainWeb individual risk/protective factor computation ──
+      const riskFactors: { factor: string; severity: string; source: string }[] = [];
+      const protectiveFactors: { factor: string; strength: string; source: string }[] = [];
+      const chainwebCitations: { source: string; url: string; relevance: string }[] = [];
+      let riskScore = 0;
+
+      const edu = (educationLevel || "").toLowerCase();
+      if (edu.includes("bachelor") || edu.includes("associate") || edu.includes("college") || edu.includes("some college")) {
+        protectiveFactors.push({ factor: "Post-secondary education attained", strength: "high", source: "ChainWeb: RAND Corporation — education reduces recidivism 43%" });
+        chainwebCitations.push({ source: "RAND Corporation (2013) — Correctional Education Effectiveness", url: "https://www.rand.org/pubs/research_reports/RR266.html", relevance: "College attainment is the strongest educational protective factor" });
+      } else if (edu.includes("high school") || edu.includes("ged") || edu.includes("diploma") || edu.includes("credit")) {
+        protectiveFactors.push({ factor: "High school credential / GED attained", strength: "medium", source: "ChainWeb: National Center for Education Statistics — credential attainment outcomes" });
+      } else if (edu) {
+        riskScore += 15;
+        riskFactors.push({ factor: "No high school credential — key barrier to employment and stability", severity: "high", source: "ChainWeb: BLS — HS dropouts earn 25% less; 4× more likely to become justice-involved" });
+      }
+
+      const emp = (employmentStatus || "").toLowerCase();
+      if (emp.includes("full") || emp.includes("part-time") || emp.includes("self")) {
+        protectiveFactors.push({ factor: "Currently employed — income and structure", strength: "high", source: "ChainWeb: CSG Justice Center — employment = single strongest reentry predictor" });
+        chainwebCitations.push({ source: "Council of State Governments Justice Center", url: "https://csgjusticecenter.org/", relevance: "Employment in first 6 months is the strongest predictor of successful reintegration" });
+      } else if (emp.includes("unemployed") || emp.includes("seeking")) {
+        riskScore += 15;
+        riskFactors.push({ factor: "Currently unemployed — income instability risk", severity: "high", source: "ChainWeb: Urban Institute — unemployment doubles recidivism risk in first year" });
+        chainwebCitations.push({ source: "Urban Institute — Returning Home Study", url: "https://www.urban.org/policy-centers/justice-policy-center/projects/returning-home-study", relevance: "Employment stability is the primary reentry protective factor" });
+      }
+
+      const housing = (housingStatus || "").toLowerCase();
+      if (housing.includes("own") || housing.includes("stable") || housing.includes("permanent")) {
+        protectiveFactors.push({ factor: "Stable permanent housing — foundation for all other outcomes", strength: "high", source: "ChainWeb: HUD — stable housing cuts recidivism risk by 60%" });
+      } else if (housing.includes("transitional") || housing.includes("halfway") || housing.includes("temporary")) {
+        riskScore += 10;
+        riskFactors.push({ factor: "Transitional/temporary housing — stability risk within 90 days", severity: "medium", source: "ChainWeb: HUD CHAS — transitional housing instability increases recidivism risk" });
+        chainwebCitations.push({ source: "HUD — Housing and Reentry", url: "https://www.huduser.gov/", relevance: "Stable permanent housing is prerequisite for successful reintegration" });
+      } else if (housing.includes("homeless") || housing.includes("unstable") || housing.includes("shelter")) {
+        riskScore += 25;
+        riskFactors.push({ factor: "Homelessness or severe housing instability", severity: "critical", source: "ChainWeb: NAEH — homelessness triples recidivism risk" });
+        chainwebCitations.push({ source: "National Alliance to End Homelessness — Housing and Reentry", url: "https://endhomelessness.org/", relevance: "Housing instability is the leading structural cause of recidivism" });
+      }
+
+      if (justiceInvolved === true || justiceInvolved === "true") {
+        riskScore += 10;
+        riskFactors.push({ factor: "Justice system history — base recidivism risk applies", severity: "medium", source: "ChainWeb: Bureau of Justice Statistics — recidivism patterns" });
+        chainwebCitations.push({ source: "Bureau of Justice Statistics — Recidivism of Prisoners Study", url: "https://www.bjs.gov/", relevance: "Justice involvement base-rate data; protective factors can offset" });
+        if (releaseDate) {
+          const days = Math.floor((Date.now() - new Date(releaseDate).getTime()) / 86400000);
+          if (days >= 0 && days < 90) {
+            riskScore += 15;
+            riskFactors.push({ factor: `Released ${days} days ago — first 90 days is the highest-risk window`, severity: "high", source: "ChainWeb: CSG Justice Center — 90-day critical window post-release" });
+          } else if (days >= 90 && days < 365) {
+            riskScore += 5;
+            protectiveFactors.push({ factor: `${days} days since release — past the highest-risk window`, strength: "medium", source: "ChainWeb: Urban Institute — risk decreases after first 90 days with stable services" });
+          }
+        }
+      }
+
+      if (veteranStatus === true || veteranStatus === "true") {
+        protectiveFactors.push({ factor: "Veteran status — priority access to VA housing, healthcare, employment programs", strength: "high", source: "ChainWeb: VA Health Services — Veterans have priority treatment access" });
+        chainwebCitations.push({ source: "U.S. Department of Veterans Affairs — Veterans Justice Outreach", url: "https://www.va.gov/homeless/vjо.asp", relevance: "Veterans receive priority access to housing, mental health, and employment programs" });
+      }
+
+      if (mentalHealthNeeds && !["none", "no", "n/a"].includes(mentalHealthNeeds.toLowerCase())) {
+        riskScore += 10;
+        riskFactors.push({ factor: "Mental health needs identified — support access is critical", severity: "medium", source: "ChainWeb: SAMHSA — untreated mental illness increases recidivism 3-4×" });
+        chainwebCitations.push({ source: "SAMHSA — Behavioral Health and Justice", url: "https://www.samhsa.gov/", relevance: "Mental health treatment access reduces recidivism by 20-40%" });
+      }
+
+      if (substanceUseHistory && !["none", "no", "n/a"].includes((substanceUseHistory || "").toLowerCase())) {
+        riskScore += 12;
+        riskFactors.push({ factor: "Substance use history — recovery support is a priority", severity: "medium", source: "ChainWeb: NIDA — substance use disorder and criminal recidivism" });
+        chainwebCitations.push({ source: "National Institute on Drug Abuse — Drug and Crime Research", url: "https://nida.nih.gov/", relevance: "Addiction treatment reduces criminal activity by 40-60%" });
+      }
+
+      const fam = (familySituation || "").toLowerCase();
+      if (fam.includes("foster") || fam.includes("aged out")) {
+        riskScore += 15;
+        riskFactors.push({ factor: "Foster care history — foster-to-prison pipeline risk", severity: "high", source: "ChainWeb: AECF Kids Count — former foster youth 3× more likely to be incarcerated by 26" });
+        chainwebCitations.push({ source: "Annie E. Casey Foundation — Kids Count on Foster Care Outcomes", url: "https://www.aecf.org/work/child-welfare", relevance: "Foster care experience is a significant ACE and pipeline risk factor" });
+      }
+      if (fam.includes("support") || fam.includes("family") || fam.includes("parent")) {
+        protectiveFactors.push({ factor: "Family support network present", strength: "high", source: "ChainWeb: Urban Institute — family support is the single strongest predictor of successful reentry" });
+      }
+
+      const deps = parseInt(String(dependents || 0));
+      if (deps > 0) {
+        protectiveFactors.push({ factor: `Parenting role (${deps} dependent${deps > 1 ? "s" : ""}) — strong motivation for stability`, strength: "medium", source: "ChainWeb: Urban Institute — parental role as reentry motivation" });
+      }
+
+      riskScore = Math.min(100, Math.max(0, riskScore));
+      const riskLevel = riskScore >= 60 ? "critical" : riskScore >= 40 ? "high" : riskScore >= 20 ? "moderate" : "low";
+
+      const recommendedInterventions: { intervention: string; priority: string; rationale: string }[] = [];
+      if (justiceInvolved) {
+        recommendedInterventions.push({ intervention: "Connect with a peer mentor — returning citizen with similar background and county", priority: "highest", rationale: "Single strongest predictor: stable trusted relationship in first 90 days post-release reduces recidivism more than any other single intervention." });
+      }
+      if (housing.includes("transitional") || housing.includes("homeless") || housing.includes("temporary")) {
+        recommendedInterventions.push({ intervention: "Secure permanent housing before transitional period ends", priority: "highest", rationale: "Housing instability in first 6 months triples reincarceration risk. This is the structural prerequisite for all other stability." });
+      }
+      if (emp.includes("unemployed") || emp.includes("seeking")) {
+        recommendedInterventions.push({ intervention: "Enroll in workforce training with employer connections (30-day gap-to-employment target)", priority: "highest", rationale: "Employment within 90 days of release is the single strongest predictor of successful reintegration." });
+      }
+      if (!edu.includes("college") && !edu.includes("bachelor")) {
+        recommendedInterventions.push({ intervention: "Connect to community college or credential pathway — even 1 year of college shifts outcomes dramatically", priority: "high", rationale: "RAND meta-analysis: in-custody or post-release education reduces recidivism 43%. Each additional year compounds the protective factor." });
+      }
+      if (mentalHealthNeeds && !["none", "no"].includes((mentalHealthNeeds || "").toLowerCase())) {
+        recommendedInterventions.push({ intervention: "Schedule initial mental health assessment with community mental health center", priority: "high", rationale: "Treated mental health conditions reduce recidivism by 20-40%. Untreated, they are among the top 3 drivers of reincarceration." });
+      }
+      if (veteranStatus === true || veteranStatus === "true") {
+        recommendedInterventions.push({ intervention: "Connect with VA Veterans Justice Outreach — priority access to housing, healthcare, employment", priority: "high", rationale: "Veterans have legal priority access to programs that dramatically improve outcomes. Many eligible veterans never connect." });
+      }
+      recommendedInterventions.push({ intervention: "Complete 9-benefit screener to identify all eligible programs", priority: "medium", rationale: "Most people in reentry qualify for 4-8 programs they don't know about. Average value: $10,000-15,000 per year." });
+
+      await db.insert(residentRiskSnapshots).values({
+        participantId: profile.id,
+        riskFactors,
+        protectiveFactors,
+        chainwebCitations,
+        overallRiskScore: riskScore,
+        trendDirection: riskScore < 40 ? "stable" : "needs_attention",
+        recommendedInterventions,
+      });
+
+      const eligibility = recomputeEligibility(state || "TX", {
+        incomeAnnual: emp.includes("full") ? 28000 : 0,
+        householdSize: 1 + deps,
+        hasChildren: deps > 0,
+        isPregnant: false,
+        isDisabled: false,
+      });
+
+      res.json({ ok: true, profileId: profile.id, userId, riskScore, riskLevel, eligibility });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to create personal journey", detail: String(error?.message || error) });
+    }
+  });
+
+  // ── CHAINWEB INDIVIDUAL NARRATIVE ──
+  // Generates an AI-powered personalized narrative for any individual's ChainWeb plan.
+  // Uses the same RAND/Urban Institute/CSG/BJS citation model as the community-level analysis
+  // but applied to the individual's specific risk and protective factor profile.
+  app.post("/api/resident/:id/chainweb-plan", async (req, res) => {
+    try {
+      const id = req.params.id === "demo" ? (await ensureDemoScenario()).id : req.params.id;
+      const [profile] = await db.select().from(participantProfiles).where(eq(participantProfiles.id, id)).limit(1);
+      if (!profile) return res.status(404).json({ error: "Resident not found" });
+      const [snapshot] = await db.select().from(residentRiskSnapshots).where(eq(residentRiskSnapshots.participantId, id)).orderBy(desc(residentRiskSnapshots.snapshotAt)).limit(1);
+
+      const name = profile.firstName === "You" || !profile.firstName ? "this person" : profile.firstName;
+      const prompt = `You are the ChainWeb Individual Planning Engine — built on Dr. Terry Flood's implementation science framework combining RNR (Risk-Need-Responsivity), CFIR, and the RAND/Urban Institute evidence base.
+
+Your job: write a PERSONALIZED, HONEST, ACTIONABLE individual ChainWeb plan for ${name}.
+
+PROFILE:
+- Age: ${profile.age || "unknown"}
+- Location: ${profile.city || ""}, ${profile.state || "TX"}
+- Housing: ${profile.housingStatus || "unknown"}
+- Employment: ${profile.employmentStatus || "unknown"}
+- Education: ${profile.educationLevel || "unknown"}
+- Justice-involved: ${profile.justiceInvolved ? "yes" : "no"}
+- Days since release: ${profile.releaseDate ? Math.floor((Date.now() - new Date(profile.releaseDate).getTime()) / 86400000) : "n/a"}
+- Veteran: ${profile.veteranStatus ? "yes" : "no"}
+- Mental health needs: ${profile.mentalHealthNeeds || "none reported"}
+- Substance use: ${profile.substanceUseHistory || "none reported"}
+- Dependents: ${profile.dependents || 0}
+- Family situation: ${profile.familySituation || "not reported"}
+
+RISK FACTORS: ${JSON.stringify((snapshot?.riskFactors || []).map((r: any) => r.factor))}
+PROTECTIVE FACTORS: ${JSON.stringify((snapshot?.protectiveFactors || []).map((p: any) => p.factor))}
+RISK SCORE: ${snapshot?.overallRiskScore ?? "not computed"}/100
+RECOMMENDED INTERVENTIONS: ${JSON.stringify((snapshot?.recommendedInterventions || []).map((i: any) => i.intervention))}
+
+Write a ChainWeb Individual Plan in JSON:
+{
+  "headline": "One sentence that captures this person's situation and trajectory",
+  "narrative": "2-3 paragraph personal narrative — specific to their profile, NOT generic. Name their actual risk factors, their protective factors as assets, and what the research says about people in exactly their situation. Be direct and compassionate. Use 'you' — speak to them, not about them.",
+  "thirtyDayPlan": [
+    {"day": "Days 1-7", "action": "...", "why": "Research basis in one sentence", "resource": "Specific program or contact"}
+  ],
+  "sixtyDayTargets": ["Specific, measurable outcome by day 60"],
+  "ninetyDayGoals": ["Specific, measurable goal by day 90"],
+  "strengthsToLead": ["How to lead with their protective factors — turn assets into traction"],
+  "systemsToNavigate": ["Key systems they must engage with and how to navigate them"],
+  "oneThingThatChangesEverything": "The single highest-leverage intervention for THIS person specifically, with the evidence behind it"
+}`;
+
+      const aiResponse = await generateAIResponse([{ role: "user", content: prompt }], 2500);
+      let plan;
+      try {
+        const match = aiResponse.match(/\{[\s\S]*\}/);
+        plan = match ? JSON.parse(match[0]) : { narrative: aiResponse };
+      } catch { plan = { narrative: aiResponse }; }
+
+      res.json({ plan, profileId: id, timestamp: new Date().toISOString() });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to generate ChainWeb plan", detail: String(error?.message || error) });
     }
   });
 }

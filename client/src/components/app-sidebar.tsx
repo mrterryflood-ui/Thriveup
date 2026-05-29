@@ -82,20 +82,24 @@ const getFundedItems: NavItem[] = [
   { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope, authOnly: true },
 ];
 
-// HUB 2 — Serve People: intake, benefits, foster youth, justice/reentry,
-// prevention, health programs. The whole "front door" for participants and
-// case managers.
+// HUB 2a — Benefits & Intake: the public front door for any person seeking help.
+// Resident Journey (demo) lives here — primary entry point for the Marcus story
+// and for anyone starting their own personal journey.
 const servePeopleItems: NavItem[] = [
   { title: "Resource Finder", url: "/resources", icon: MapPin },
   { title: "9-Benefit Screener", url: "/benefits-screener", icon: ClipboardList },
   { title: "Benefits Command Center", url: "/benefits", icon: HandHeart },
   { title: "Intake Wizard", url: "/intake", icon: ClipboardCheck },
+  { title: "Resident Journey (demo)", url: "/resident-journey", icon: Route },
+  { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
   { title: "My Journey", url: "/my-journey", icon: Rocket, authOnly: true },
   { title: "Service Delivery", url: "/services", icon: Activity, authOnly: true },
   { title: "Cohort Onboarding", url: "/cohort-onboarding", icon: Users, authOnly: true },
   { title: "Case Manager View", url: "/case-manager", icon: Shield, authOnly: true },
-  { title: "Resident Journey (demo)", url: "/resident-journey", icon: Route },
-  // Foster Youth
+];
+
+// HUB 2b — Foster Youth: dedicated hub for youth aging out of care.
+const fosterYouthItems: NavItem[] = [
   { title: "Foster Youth Hub", url: "/foster-youth", icon: HandHeart },
   { title: "Aging-Out Toolkit", url: "/foster-youth/toolkit", icon: ClipboardCheck },
   { title: "Foster Transition Plan", url: "/foster-youth/transition-plan", icon: Route },
@@ -106,23 +110,28 @@ const servePeopleItems: NavItem[] = [
   { title: "AI-assisted Intake (Foster)", url: "/foster-youth/intake", icon: Sparkles },
   { title: "State-Agency Portal", url: "/foster-youth/state-portal", icon: Building2 },
   { title: "Policy Comparison (50 states)", url: "/foster-youth/policy-comparison", icon: Scale },
-  // Programs (agency-aligned pitches)
-  { title: "Veterans Program", url: "/veterans", icon: Shield },
-  { title: "Behavioral Health Program", url: "/behavioral-health", icon: Heart },
+];
+
+// HUB 2c — Justice & Reentry: reentry, probation/parole, justice system navigation.
+const justiceReentryItems: NavItem[] = [
   { title: "Reentry Program", url: "/reentry-program", icon: Scale },
+  { title: "Reentry Standards", url: "/reentry/standards", icon: Scale },
+  { title: "Justice Partners", url: "/justice-partners", icon: Handshake },
   { title: "Reentry Dashboard", url: "/reentry", icon: Scale, authOnly: true },
   { title: "TX Reentry Stipend Pilot", url: "/reentry-stipend-pilot", icon: Landmark, authOnly: true },
-  { title: "Reentry Standards", url: "/reentry/standards", icon: Scale },
   { title: "Reentry Strategic Plan", url: "/reentry/strategic-plan", icon: Scale, authOnly: true },
   { title: "Reentry Outcome Reports", url: "/reentry/outcome-reports", icon: FileBarChart, authOnly: true },
-  { title: "Justice Partners", url: "/justice-partners", icon: Handshake },
   { title: "Justice Command Center", url: "/justice-command-center", icon: Shield, authOnly: true },
-  { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
-  // Prevention & Health
+];
+
+// HUB 2d — Prevention & Health: behavioral health, prevention, veterans, CHW.
+const preventionHealthItems: NavItem[] = [
+  { title: "Veterans Program", url: "/veterans", icon: Shield },
+  { title: "Behavioral Health Program", url: "/behavioral-health", icon: Heart },
   { title: "Prevention Hub", url: "/prevention", icon: ShieldCheck },
   { title: "Parent Education", url: "/parent-education", icon: Heart },
-  { title: "Facilitator Hub", url: "/facilitator-hub", icon: ClipboardCheck, authOnly: true },
   { title: "Health & Wellness Hub", url: "/health-wellness", icon: Activity },
+  { title: "Facilitator Hub", url: "/facilitator-hub", icon: ClipboardCheck, authOnly: true },
   { title: "Health Network", url: "/health-network", icon: Heart, authOnly: true },
   { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope, authOnly: true },
 ];
@@ -453,6 +462,9 @@ export function AppSidebar() {
   const hubCtx = useMemo(() => filterAuth(ctxHubItems, isAuthenticated), [isAuthenticated]);
   const hub1 = useMemo(() => filterAuth(getFundedItems, isAuthenticated), [isAuthenticated]);
   const hub2 = useMemo(() => filterAuth(servePeopleItems, isAuthenticated), [isAuthenticated]);
+  const hubFoster = useMemo(() => filterAuth(fosterYouthItems, isAuthenticated), [isAuthenticated]);
+  const hubJustice = useMemo(() => filterAuth(justiceReentryItems, isAuthenticated), [isAuthenticated]);
+  const hubPrevHealth = useMemo(() => filterAuth(preventionHealthItems, isAuthenticated), [isAuthenticated]);
   const hub3 = useMemo(() => filterAuth(workforceTradesItems, isAuthenticated), [isAuthenticated]);
   const hub4 = useMemo(() => filterAuth(academyLearningItems, isAuthenticated), [isAuthenticated]);
   const hub5 = useMemo(() => filterAuth(partnersCoalitionsItems, isAuthenticated), [isAuthenticated]);
@@ -464,7 +476,7 @@ export function AppSidebar() {
   // - My Organization only when signed in
   // - All Admin sub-sections only when admin (incl. teaching when teacher)
   const allItems = useMemo(() => {
-    const items: NavItem[] = [...hubCtx, ...hub1, ...hub2, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7];
+    const items: NavItem[] = [...hubCtx, ...hub1, ...hub2, ...hubFoster, ...hubJustice, ...hubPrevHealth, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7];
     if (isAuthenticated) items.push(...myOrgItems);
     if (isAdmin) {
       items.push(
@@ -563,7 +575,10 @@ export function AppSidebar() {
         {/* EIGHT HUBS — seven thematic hubs plus Central Texas geographic front door. */}
         <NavSection label="Central Texas" items={hubCtx} location={location} icon={MapPin} />
         <NavSection label="Get Funded" items={hub1} location={location} icon={Trophy} />
-        <NavSection label="Serve People" items={hub2} location={location} icon={HandHeart} />
+        <NavSection label="Benefits & Intake" items={hub2} location={location} icon={HandHeart} />
+        <NavSection label="Foster Youth" items={hubFoster} location={location} icon={Heart} />
+        <NavSection label="Justice & Reentry" items={hubJustice} location={location} icon={Scale} />
+        <NavSection label="Prevention & Health" items={hubPrevHealth} location={location} icon={ShieldCheck} />
         <NavSection label="Workforce & Trades" items={hub3} location={location} icon={Briefcase} />
         <NavSection label="Academy & Learning" items={hub4} location={location} icon={GraduationCap} />
         <NavSection label="Partners & Coalitions" items={hub5} location={location} icon={Handshake} />
