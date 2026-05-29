@@ -17,7 +17,7 @@ interface Stakeholder {
 
 const STAKEHOLDERS: Stakeholder[] = [
   // Funders
-  { name: "St. David's Foundation", role: "Foundation funder — WAB2 5-county benefits enrollment", category: "funder", stage: "discovery", notes: "WAB2 LOI v7 submitted 4/27/2026; St. David's actively evaluating." },
+  { name: "St. David's Foundation", role: "Foundation funder — health equity, Central Texas", category: "funder", stage: "discovery", notes: "WAB2 LOI v7 submitted 4/27/2026; declined 2026-05-15. Re-engagement possible under Health Equity or next WAB cycle." },
   { name: "Centene Foundation", role: "Foundation funder — behavioral health alignment", category: "funder", stage: "outreach" },
   { name: "VA Office of Mental Health and Suicide Prevention (OMHSP)", role: "Federal funder — SSG Fox Veterans Suicide Prevention Grant", category: "funder", stage: "aspirational", notes: "FY27 application in preparation." },
   { name: "BJA — Bureau of Justice Assistance", role: "Federal funder — Second Chance Act Reentry programs", category: "funder", stage: "aspirational", notes: "FY26 SCA application in preparation." },

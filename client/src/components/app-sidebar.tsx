@@ -78,7 +78,6 @@ const getFundedItems: NavItem[] = [
   { title: "Stakeholder Deck", url: "/presentations", icon: Presentation, authOnly: true },
   { title: "E-Sign Center", url: "/esign", icon: PenTool, authOnly: true },
   { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
-  { title: "St. David's Prep", url: "/stdavids-prep", icon: Heart, authOnly: true },
   { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart, authOnly: true },
   { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope, authOnly: true },
 ];
@@ -205,24 +204,16 @@ const partnersCoalitionsItems: NavItem[] = [
   { title: "Open Innovation Lab", url: "/open-innovation-lab", icon: Microscope },
 ];
 
-// HUB 6 — Where We Operate: TX pilot, hubs, coverage, transparency,
-// neighborhood intel, impact dashboards. The "where this shows up in the
-// real world" door.
+// HUB 6 — Where We Operate: national coverage, transparency, neighborhood
+// intel, impact dashboards. CTX-specific items live in the CTX hub above.
 const whereWeOperateItems: NavItem[] = [
   { title: "Coverage Map", url: "/coverage", icon: Map },
   { title: "Bring TCAF to Your State", url: "/coverage#request", icon: HandHeart },
-  { title: "St. David's Hub (TX front door)", url: "/st-davids", icon: LayoutDashboard },
   { title: "Live Network View", url: "/network", icon: BarChart3 },
-  { title: "Operator Workspace", url: "/st-davids-wab2", icon: Wrench, authOnly: true },
-  { title: "Austin Initiative", url: "/austin", icon: MapPin },
-  { title: "Manor Hub", url: "/manor", icon: MapPin },
-  { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
-  { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
   { title: "Texas Assessment", url: "/texas-assessment", icon: Map, authOnly: true },
   { title: "Third Spaces", url: "/third-spaces", icon: Building2 },
   { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
   { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
-  { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles },
   { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3, authOnly: true },
@@ -252,6 +243,24 @@ const aboutTrustItems: NavItem[] = [
   { title: "Contact Us", url: "/contact", icon: Mail },
   { title: "Non-Discrimination", url: "/non-discrimination", icon: Shield },
   { title: "Privacy Policy", url: "/privacy", icon: Shield },
+];
+
+// HUB CTX — Central Texas: geographic front door for the 5-county CTX pilot.
+// Consolidates all CTX-specific navigation — CTX Benefits Initiative (renamed from
+// St. David's WAB2 after WAB2 grant declined 2026-05-15), community hubs, N. Wilco
+// childcare Voice project, and regional briefing into one door.
+const ctxHubItems: NavItem[] = [
+  { title: "CTX Benefits Initiative", url: "/st-davids", icon: LayoutDashboard },
+  { title: "SNAP Navigator", url: "/benefits-screener", icon: ClipboardList },
+  { title: "Benefits Navigator", url: "/benefits", icon: HandHeart },
+  { title: "N. Wilco Childcare Voice", url: "/voice/north-wilco-childcare-gaps", icon: MessageCircle },
+  { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles },
+  { title: "Austin Initiative", url: "/austin", icon: MapPin },
+  { title: "Manor Hub", url: "/manor", icon: MapPin },
+  { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
+  { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },
+  { title: "CTX Operator Workspace", url: "/st-davids-wab2", icon: Wrench, authOnly: true },
+  { title: "CTX Benefits Initiative Prep", url: "/stdavids-prep", icon: FileText, authOnly: true },
 ];
 
 // AUTH-ONLY — My Organization. Hoisted out of grant tools so partners
@@ -445,6 +454,7 @@ export function AppSidebar() {
     : "?";
 
   // Visible items per hub (auth-gated).
+  const hubCtx = useMemo(() => filterAuth(ctxHubItems, isAuthenticated), [isAuthenticated]);
   const hub1 = useMemo(() => filterAuth(getFundedItems, isAuthenticated), [isAuthenticated]);
   const hub2 = useMemo(() => filterAuth(servePeopleItems, isAuthenticated), [isAuthenticated]);
   const hub3 = useMemo(() => filterAuth(workforceTradesItems, isAuthenticated), [isAuthenticated]);
@@ -454,11 +464,11 @@ export function AppSidebar() {
   const hub7 = useMemo(() => filterAuth(aboutTrustItems, isAuthenticated), [isAuthenticated]);
 
   // Search corpus mirrors what's actually navigable for THIS viewer:
-  // - 7 public hubs (already auth-filtered above)
+  // - CTX hub + 7 public hubs (already auth-filtered above)
   // - My Organization only when signed in
   // - All Admin sub-sections only when admin (incl. teaching when teacher)
   const allItems = useMemo(() => {
-    const items: NavItem[] = [...hub1, ...hub2, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7];
+    const items: NavItem[] = [...hubCtx, ...hub1, ...hub2, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7];
     if (isAuthenticated) items.push(...myOrgItems);
     if (isAdmin) {
       items.push(
@@ -554,7 +564,8 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        {/* SEVEN HUBS — the entire site behind exactly seven doors. */}
+        {/* EIGHT HUBS — seven thematic hubs plus Central Texas geographic front door. */}
+        <NavSection label="Central Texas" items={hubCtx} location={location} icon={MapPin} />
         <NavSection label="Get Funded" items={hub1} location={location} icon={Trophy} />
         <NavSection label="Serve People" items={hub2} location={location} icon={HandHeart} />
         <NavSection label="Workforce & Trades" items={hub3} location={location} icon={Briefcase} />

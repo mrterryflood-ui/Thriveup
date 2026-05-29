@@ -12,11 +12,11 @@ import {
 } from "lucide-react";
 
 // Texas is the FIRST county-deployment, not the whole product. The pilot is a 5-county region
-// in Central Texas funded through the St. David's We All Benefit 2.0 LOI.
+// in Central Texas — Travis, Williamson, Hays, Bastrop, Caldwell — CTX Benefits Initiative.
 const ACTIVE_DEPLOYMENT = {
   state: "TX",
   stateName: "Texas",
-  programName: "St. David's We All Benefit 2.0",
+  programName: "CTX Benefits Initiative",
   status: "Active pilot",
   startDate: "April 2026",
   counties: [
@@ -85,7 +85,7 @@ export default function CoveragePage() {
       <title>Coverage — Where TCAF deploys | ThriveUp Academy</title>
       <meta
         name="description"
-        content="ThriveUp Academy is a nationwide AI operating system for community-based organizations. Deployed today in Central Texas through the St. David's pilot. Available to launch in every U.S. county."
+        content="ThriveUp Academy is a nationwide AI operating system for community-based organizations. Deployed today in Central Texas through the CTX Benefits Initiative 5-county pilot. Available to launch in every U.S. county."
       />
 
       <div className="max-w-5xl mx-auto px-4 py-10 md:py-14">
@@ -99,8 +99,8 @@ export default function CoveragePage() {
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             ThriveUp Academy is the same platform in every U.S. county — wired into local Census data,
-            local benefits, and local partners. Today we're activating Central Texas with the St. David's
-            Foundation. Your county can be next.
+            local benefits, and local partners. Today we're activating Central Texas through the
+            CTX Benefits Initiative. Your county can be next.
           </p>
         </div>
 

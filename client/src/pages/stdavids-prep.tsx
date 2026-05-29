@@ -754,12 +754,12 @@ export default function StDavidsPrep() {
           <div className="flex items-center gap-3 mb-2">
             <Heart className="h-8 w-8 text-red-600" />
             <h1 className="text-3xl font-bold" data-testid="text-stdavids-title">
-              St. David's Foundation — Submission Preparation
+              CTX Benefits Initiative — Field Preparation Docs
             </h1>
           </div>
           <p className="text-muted-foreground text-lg max-w-3xl">
-            Everything you need to complete your St. David's Foundation submissions. 
-            Print any document, send any email, make any call. These are ready to use.
+            Community listening scripts, outreach email templates, and field-ready documents
+            for CTX Benefits Initiative operations. Print any document, send any email, make any call.
           </p>
           <div className="flex flex-wrap gap-2 mt-4">
             <Badge variant="outline" className="text-sm">Up to $250K Individual</Badge>

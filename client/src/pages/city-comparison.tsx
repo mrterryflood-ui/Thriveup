@@ -403,7 +403,7 @@ export default function CityComparisonPage() {
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid grid-cols-4 w-full max-w-2xl mx-auto">
-            <TabsTrigger value="spotlight" data-testid="tab-spotlight"><Star className="h-4 w-4 mr-1.5" /> St. David's Spotlight</TabsTrigger>
+            <TabsTrigger value="spotlight" data-testid="tab-spotlight"><Star className="h-4 w-4 mr-1.5" /> CTX Spotlight</TabsTrigger>
             <TabsTrigger value="cities" data-testid="tab-cities"><MapPin className="h-4 w-4 mr-1.5" /> All Cities</TabsTrigger>
             <TabsTrigger value="compare" data-testid="tab-compare"><Scale className="h-4 w-4 mr-1.5" /> Compare</TabsTrigger>
             <TabsTrigger value="lessons" data-testid="tab-lessons"><BookOpen className="h-4 w-4 mr-1.5" /> Lessons</TabsTrigger>
@@ -419,7 +419,7 @@ export default function CityComparisonPage() {
                         <Star className="h-6 w-6 text-yellow-600" />
                       </div>
                       <div>
-                        <CardTitle>St. David's We All Benefit 2.0 — Austin Metro Proof Case</CardTitle>
+                        <CardTitle>CTX Benefits Initiative — Austin Metro Proof Case</CardTitle>
                         <CardDescription>$35M/3yr · 5 counties · 192,029-person enrollment gap · 60% gap rate</CardDescription>
                       </div>
                     </div>

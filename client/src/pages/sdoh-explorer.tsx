@@ -37,7 +37,7 @@ const USPS_TO_STATE_FIPS: Record<string, string> = Object.fromEntries(
 );
 
 const PRESETS: Array<{ label: string; state: string; counties: string; description: string }> = [
-  { label: "Central Texas (St. David's 5-County)", state: "48", counties: "453,491,209,021,055", description: "Travis, Williamson, Hays, Bastrop, Caldwell — St. David's We All Benefit 2.0 target region" },
+  { label: "Central Texas (5-County Region)", state: "48", counties: "453,491,209,021,055", description: "Travis, Williamson, Hays, Bastrop, and Caldwell counties — CTX Benefits Initiative 5-county pilot region" },
   { label: "Houston Metro", state: "48", counties: "201,157,039,071", description: "Harris, Fort Bend, Brazoria, Chambers counties" },
   { label: "Dallas-Fort Worth", state: "48", counties: "113,439,085,397", description: "Dallas, Tarrant, Collin, Rockwall counties" },
   { label: "San Antonio Metro", state: "48", counties: "029,091,259,187", description: "Bexar, Comal, Kendall, Guadalupe counties" },
@@ -578,7 +578,7 @@ export default function SDOHExplorerPage() {
   const [stateCode, setStateCode] = useState("48");
   const [countyCodes, setCountyCodes] = useState("453,491,209,021,055");
   const [queryParams, setQueryParams] = useState({ state: "48", counties: "453,491,209,021,055" });
-  const [activePreset, setActivePreset] = useState("Central Texas (St. David's 5-County)");
+  const [activePreset, setActivePreset] = useState("Central Texas (5-County Region)");
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["/api/benefits/sdoh-explorer/live", queryParams.state, queryParams.counties],

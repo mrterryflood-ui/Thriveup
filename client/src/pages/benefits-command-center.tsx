@@ -95,7 +95,7 @@ function CommandDashboard() {
             <Globe className="h-16 w-16 mx-auto text-muted-foreground" />
             <h3 className="text-xl font-semibold">Load 5-County Benefits Data</h3>
             <p className="text-muted-foreground max-w-lg mx-auto">
-              Pull enrollment gap data from Census ACS for all 5 St. David's Foundation counties:
+              Pull enrollment gap data from Census ACS for all 5 Central Texas counties:
               Travis, Williamson, Hays, Bastrop, and Caldwell.
             </p>
             <Button size="lg" onClick={() => ingestMutation.mutate()} disabled={ingestMutation.isPending} data-testid="button-ingest-data">
@@ -117,7 +117,7 @@ function CommandDashboard() {
           <div>
             <h3 className="text-sm font-semibold text-blue-700 dark:text-blue-300">TCAF Benefits Intelligence System</h3>
             <p className="text-xs text-muted-foreground mt-1">
-              Covering 5 St. David's Foundation counties. Travis = strengthen existing capacity. Williamson, Hays, Bastrop, Caldwell = build/expand. Both new enrollments AND renewals are tracked. Mixed-status families are explicitly served.
+              Covering 5 Central Texas counties (Travis · Williamson · Hays · Bastrop · Caldwell). Travis = strengthen existing capacity. Williamson, Hays, Bastrop, Caldwell = build/expand. Both new enrollments AND renewals are tracked. Mixed-status families are explicitly served.
             </p>
           </div>
         </div>
@@ -1179,7 +1179,7 @@ function MetricsPanel() {
       <Card>
         <CardHeader>
           <CardTitle className="text-base">3-Year Enrollment Targets</CardTitle>
-          <CardDescription>Aligned with St. David's expected outcomes</CardDescription>
+          <CardDescription>Aligned with CTX Benefits Initiative outcome targets</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
@@ -1237,8 +1237,8 @@ function MetricsPanel() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">St. David's Alignment</CardTitle>
-          <CardDescription>We All Benefit 2.0 evaluation criteria</CardDescription>
+          <CardTitle className="text-base">CTX Benefits Initiative Alignment</CardTitle>
+          <CardDescription>Program evaluation criteria — 5-county region</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">

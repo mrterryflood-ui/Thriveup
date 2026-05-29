@@ -506,10 +506,10 @@ export default function WAB2EnrollmentHubPage() {
         <div className="flex items-start justify-between gap-4 flex-wrap">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight" data-testid="text-hub-title">
-              WAB2 Enrollment Hub
+              CTX Benefits Initiative
             </h1>
             <p className="text-muted-foreground mt-1">
-              Engine — not directory. 5 St. David's areas · 5 Central Texas counties · CHW-driven enrollment with RPLICE intelligence
+              Engine — not directory. 5 priority areas · Travis · Williamson · Hays · Bastrop · Caldwell · CHW-driven enrollment with RPLICE intelligence
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -699,7 +699,7 @@ export default function WAB2EnrollmentHubPage() {
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-base">
                     <Target className="h-4 w-4" />
-                    St. David's 5 Priority Areas — Outcomes
+                    CTX Benefits Initiative — 5 Priority Areas
                   </CardTitle>
                   <CardDescription>The renewal-reporting lens: programs grouped by their Foundation focus area.</CardDescription>
                 </CardHeader>
@@ -730,7 +730,7 @@ export default function WAB2EnrollmentHubPage() {
                       <Award className="h-4 w-4" />
                       Renewal Report Matrix — County × Area × Program × Language
                     </CardTitle>
-                    <CardDescription>The exact format St. David's needs at renewal: "in 90 days we enrolled X residents in Caldwell County in WIC, X in Hays in Medicaid Dental..."</CardDescription>
+                    <CardDescription>Renewal-ready format: "In 90 days we enrolled X residents in Caldwell County in WIC, X in Hays in Medicaid Dental..." — ready for any funder report.</CardDescription>
                   </CardHeader>
                   <CardContent className="overflow-x-auto">
                     <table className="w-full text-xs">
@@ -810,8 +810,8 @@ export default function WAB2EnrollmentHubPage() {
         <TabsContent value="forms" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Programs by St. David's Priority Area · Document Checklists & Application Channels</CardTitle>
-              <CardDescription>Each program is grouped by the Foundation areas it advances. MAP appears for Travis County only.</CardDescription>
+              <CardTitle className="text-base">Programs by CTX Priority Area · Document Checklists & Application Channels</CardTitle>
+              <CardDescription>Each program is grouped by the five CTX priority areas. MAP appears for Travis County only.</CardDescription>
             </CardHeader>
           </Card>
           {AREAS.map(area => {
