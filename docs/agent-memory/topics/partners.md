@@ -157,7 +157,7 @@ Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. 
 **Meeting cadence:** Monthly, second Thursday, 1:00–2:30 PM CT, Microsoft Teams (considering in-person)
 **Convener/organizer:** **Deneece Ferrales, Ph.D.** — Director of Williamson County Initiatives, United Way for Greater Austin · deneece.ferrales@uwatx.org · (512) 225-0378
 **Next session:** Thursday, June 11, 2026, 1:00–2:30 PM CT
-**Context:** Dr. Flood received a forwarded invitation (via Denisse Baldwin). TCAF's N. Williamson County childcare Community Voice platform and ITI framework are directly aligned with this coalition's work.
+**Context:** **Deneece Ferrales personally invited Dr. Flood onto this board to help solve Williamson County's childcare infrastructure problem.** This is not an external partnership to seek — Dr. Flood already has a seat at the table. His role is as a contributing board member, not a visitor or observer. TCAF's N. Williamson County childcare Community Voice platform and ITI framework are the tools he brings to this work.
 
 **Coalition members (from email headers):**
 
@@ -190,9 +190,10 @@ Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. 
 - Group is ~16 people; looking for in-person host (offer noted as relationship-building opportunity)
 
 **TCAF action items:**
-- Email Deneece Ferrales to introduce TCAF and request June 11 invite (do this ASAP)
-- Bring the 5 WilCo childcare hypotheses (infant slots, CCS subsidy deserts, shift workers, special-needs, bilingual) as "current guess — is it true for you?" posture (ITI Posture B)
-- If group still needs in-person host, offer support
+- **No need to request an invite — Dr. Flood is already a board member.** Attend June 11 as a contributor.
+- Come prepared with the 5 WilCo childcare hypotheses (infant slots, CCS subsidy deserts, shift workers, special-needs, bilingual) in Posture B: "our current guess — is it true for you? what did we miss?"
+- If group still needs in-person host, offer support — Dr. Flood is positioned to step up here
+- Identify what the board needs that TCAF can uniquely deliver (data, platform, ITI engagement model, shadow worker outreach)
 
 ---
 
