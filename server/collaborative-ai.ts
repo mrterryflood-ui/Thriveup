@@ -51,13 +51,35 @@ const MAPGAP_LENS = `Apply MAP-GAP continuous improvement framework:
 
 let geminiCollabQuotaExhaustedUntil = 0;
 
+// Per-engine timeout: drop any engine that hasn't responded within this window
+// so a single slow model (e.g. a reasoning model) never blocks the whole chat.
+const ENGINE_TIMEOUT_MS = 15_000;
+
 function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   const engines: Array<{ id: EngineId; model: string }> = [];
   if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) engines.push({ id: "claude", model: "claude-haiku-4-5" });
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
-  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1" });
+  // deepseek-chat (DeepSeek V3) — fast conversational model (~3-5s). Previously
+  // used deepseek-r1 (reasoning model, 60-90s) which exceeded the deployment
+  // proxy timeout and caused "trouble connecting" errors on every Navigator chat.
+  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-chat" });
   if (process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
   return engines;
+}
+
+async function callEngineWithTimeout(engine: { id: EngineId; model: string }, prompt: string, systemPrompt: string, maxTokens: number): Promise<EngineResult> {
+  return Promise.race([
+    callEngine(engine, prompt, systemPrompt, maxTokens),
+    new Promise<EngineResult>(resolve =>
+      setTimeout(() => resolve({
+        engine: engine.id,
+        model: engine.model,
+        response: "",
+        responseTimeMs: ENGINE_TIMEOUT_MS,
+        error: `Timeout after ${ENGINE_TIMEOUT_MS}ms`,
+      }), ENGINE_TIMEOUT_MS)
+    ),
+  ]);
 }
 
 async function callEngine(engine: { id: EngineId; model: string }, prompt: string, systemPrompt: string, maxTokens: number): Promise<EngineResult> {
@@ -136,6 +158,8 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
     if (engine.id === "gemini" && (msg.includes("429") || msg.includes("quota") || msg.includes("Too Many Requests"))) {
       geminiCollabQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
       console.error(`[CollabAI] Gemini quota exhausted — skipping for 30 minutes`);
+    } else {
+      console.error(`[CollabAI] Engine ${engine.id} (${engine.model}) failed: ${msg}`);
     }
     return {
       engine: engine.id,
@@ -241,7 +265,7 @@ INSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MA
   console.log(`[CollabAI] Launching ${engines.length} engines in parallel (RAG: ${ragChunkCount} chunks, RPLICE: ${includeRPLICE}, MAP-GAP: ${includeMAPGAP})`);
 
   const enginePromises = engines.map(engine =>
-    callEngine(engine, enrichedPrompt, baseSystem, options?.maxTokens || 3000)
+    callEngineWithTimeout(engine, enrichedPrompt, baseSystem, options?.maxTokens || 3000)
   );
   const engineResults = await Promise.all(enginePromises);
 
@@ -249,7 +273,7 @@ INSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MA
   const failedEngines = engineResults.filter(r => r.error || r.response.length <= 20);
 
   if (failedEngines.length > 0) {
-    console.log(`[CollabAI] ${failedEngines.length} engine(s) failed: ${failedEngines.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`);
+    console.error(`[CollabAI] ${failedEngines.length} engine(s) failed: ${failedEngines.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`);
   }
   console.log(`[CollabAI] ${successfulEngines.length}/${engines.length} engines produced output`);
 
@@ -353,11 +377,16 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   console.log(`[CollabAI-Stream] Launching ${engines.length} engines in parallel (RAG: ${ragChunkCount} chunks)`);
 
   const enginePromises = engines.map(engine =>
-    callEngine(engine, enrichedPrompt, baseSystem, params.maxTokens || 3000)
+    callEngineWithTimeout(engine, enrichedPrompt, baseSystem, params.maxTokens || 3000)
   );
   const engineResults = await Promise.all(enginePromises);
 
   const successfulEngines = engineResults.filter(r => !r.error && r.response.length > 20);
+  const failedStreamEngines = engineResults.filter(r => r.error || r.response.length <= 20);
+  if (failedStreamEngines.length > 0) {
+    console.error(`[CollabAI-Stream] ${failedStreamEngines.length} engine(s) failed: ${failedStreamEngines.map(e => `${e.engine}(${e.error || "empty"})`).join(", ")}`);
+  }
+  console.log(`[CollabAI-Stream] ${successfulEngines.length}/${engines.length} engines produced output`);
 
   if (successfulEngines.length >= 2) {
     const synthesisEngine = engines.find(e => e.id === "claude") || engines.find(e => e.id === "openai") || engines[0];
