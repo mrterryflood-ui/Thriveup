@@ -695,3 +695,9 @@ id = "yYjBBHHI-9Qu1nBXMfHeD"
 uri = "file://docs/grants/ssg-fox-spgp-fy2027/01-Complete-Application-Draft.md"
 type = "text"
 title = "SSG Fox SPGP FY2027 — Complete Application Draft ($400,000)"
+
+[[outputs]]
+id = "AR_9-tns6_hvM6tRaiJXU"
+uri = "file://docs/grants/TCAF-CAPABILITY-STATEMENT-2026-05-29.md"
+type = "text"
+title = "TCAF Comprehensive Capability Statement — May 29, 2026"
