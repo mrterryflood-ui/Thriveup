@@ -431,13 +431,46 @@ export default function ResidentJourneyPage() {
   }
   if (!journeyQuery.data) {
     return (
-      <div className="p-6 max-w-3xl mx-auto">
-        <Card>
-          <CardContent className="pt-6 text-center">
-            <p className="mb-4">No demo scenario loaded.</p>
-            <Button onClick={() => seedMutation.mutate()} disabled={seedMutation.isPending} data-testid="button-seed-demo">Seed demo</Button>
+      <div className="p-6 max-w-3xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-2"><User className="h-7 w-7" /> Resident Journey</h1>
+          <p className="text-sm text-muted-foreground mt-1">One identity. Every service. Travels with the person — even across state lines.</p>
+        </div>
+        <Card className="border-primary/30 bg-gradient-to-br from-primary/5 via-card to-card">
+          <CardContent className="pt-6">
+            <div className="flex items-start gap-4">
+              <div className="rounded-xl p-3 bg-primary/10 shrink-0">
+                <Sparkles className="h-6 w-6 text-primary" />
+              </div>
+              <div className="space-y-3">
+                <Badge variant="secondary" className="text-xs">The headline story · How we build stronger communities</Badge>
+                <h2 className="text-xl font-bold leading-tight">Meet Marcus. Foster youth. Incarcerated. Now reentering.</h2>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Most systems treat Marcus as seven different cases — a child welfare file, an inmate ID, a probation number, a Medicaid applicant,
+                  a job seeker, a student, a benefits screener. Each office asks him to start over. Here, he is one person with one story.
+                  Every service reads from the same profile and writes back to it. Then Marcus moves from Austin, TX to Wilmington, NC —
+                  and eligibility recomputes automatically. <strong className="text-foreground">Borders aren't real, but laws and policies are. The platform handles the policy layer.</strong>
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  This is a live demo. No account needed. All data is synthetic — Marcus is a fictional composite.
+                </p>
+                <Button
+                  onClick={() => seedMutation.mutate()}
+                  disabled={seedMutation.isPending}
+                  size="lg"
+                  className="gap-2 mt-2"
+                  data-testid="button-seed-demo"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  {seedMutation.isPending ? "Loading Marcus's story…" : "Load Marcus's Journey →"}
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
+        <p className="text-xs text-center text-muted-foreground">
+          After loading, explore: Risk + Protective Factors · Benefits Eligibility · Journey Timeline · Plan a Move to another state
+        </p>
       </div>
     );
   }

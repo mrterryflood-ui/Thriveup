@@ -2416,7 +2416,8 @@ function DataStoryteller() {
       setGeneratedStory(story);
       setActiveView("story");
     } catch (e: any) {
-      setGeneratedStory({ error: e.message });
+      setGeneratedStory({ error: e.message || "Unknown error" });
+      setActiveView("story");
     }
     setStoryLoading(false);
   };
@@ -2867,14 +2868,14 @@ function DataStoryteller() {
                               <td className="text-right py-1.5 px-2 text-slate-300">${area.medianIncome?.toLocaleString()}</td>
                               <td className="py-1.5 px-2">
                                 <div className="flex flex-wrap gap-0.5">
-                                  {area.riskFactors.slice(0, 2).map((rf: string, ri: number) => (
+                                  {(area.riskFactors || []).slice(0, 2).map((rf: string, ri: number) => (
                                     <span key={ri} className="text-[9px] bg-red-900/30 text-red-300 px-1 rounded">{rf.split(":")[0]}</span>
                                   ))}
                                 </div>
                               </td>
                               <td className="py-1.5 px-2">
                                 <div className="flex flex-wrap gap-0.5">
-                                  {area.protectiveFactors.slice(0, 2).map((pf: string, pi: number) => (
+                                  {(area.protectiveFactors || []).slice(0, 2).map((pf: string, pi: number) => (
                                     <span key={pi} className="text-[9px] bg-emerald-900/30 text-emerald-300 px-1 rounded">{pf.split(":")[0]}</span>
                                   ))}
                                 </div>
@@ -3209,8 +3210,18 @@ function DataStoryteller() {
 
           {generatedStory?.error && (
             <Card className="bg-red-900/20 border-red-500/30 p-4">
-              <p className="text-sm text-red-300">Error generating story: {generatedStory.error}</p>
-              <p className="text-xs text-slate-400 mt-1">Try again or adjust your context.</p>
+              <div className="flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-4 h-4 text-red-400" />
+                <h4 className="text-sm font-semibold text-red-300">Story generation failed</h4>
+              </div>
+              {(generatedStory.error.includes("401") || generatedStory.error.toLowerCase().includes("unauthorized")) ? (
+                <div>
+                  <p className="text-xs text-slate-300 mb-3">AI data story generation requires a free account. Sign in to unlock community narratives powered by real gun violence, Census, and SDOH data.</p>
+                  <a href="/api/login" className="inline-flex items-center gap-1 text-xs bg-red-600 hover:bg-red-700 text-white px-3 py-1.5 rounded-md transition-colors">Sign In — It's Free →</a>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-300">{generatedStory.error} — Try again or adjust your context.</p>
+              )}
             </Card>
           )}
         </div>

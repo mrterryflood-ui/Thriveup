@@ -823,6 +823,44 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="px-4 pb-4 sm:px-6" data-testid="section-tradesims-feature">
+        <div className="max-w-3xl mx-auto">
+          <Link
+            href="/academy/trade-sims"
+            className="group block overflow-hidden rounded-xl border-2 border-amber-500/30 bg-gradient-to-br from-amber-500/5 via-card to-card transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] no-underline"
+            data-testid="card-tradesims-feature"
+            aria-label="Try a free trade simulation — electrical, plumbing, HVAC, welding, automotive"
+          >
+            <div className="p-5 sm:p-7">
+              <div className="flex items-start gap-4">
+                <div className="rounded-xl p-3 bg-gradient-to-br from-amber-500 to-orange-600 shrink-0 shadow-md">
+                  <Wrench className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Badge variant="secondary" className="mb-2 text-xs" data-testid="badge-tradesims-feature">
+                    Free workforce simulator · No account needed
+                  </Badge>
+                  <h3 className="font-bold text-lg sm:text-xl mb-2 leading-tight" data-testid="text-tradesims-title">
+                    Can you wire a circuit? Fix a leaking pipe? Try it now — for free.
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed" data-testid="text-tradesims-desc">
+                    Hands-on simulations for electrical, plumbing, HVAC, welding, and automotive — built for CTE students, returning citizens, and anyone exploring a trade career.
+                    No tools. No classroom. No commitment. Try it and see if it clicks.
+                  </p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-r from-amber-500 to-orange-600 text-white text-sm font-medium shadow-sm" data-testid="button-try-tradesims">
+                      Try a Trade Simulation — Free
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <span className="text-xs text-muted-foreground italic">5 trades · Live physics · No signup required</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="px-4 pb-4 sm:px-6" data-testid="section-pathways">
         <div className="max-w-3xl mx-auto">
           <p className="text-center text-sm text-muted-foreground mb-4">What brings you here today?</p>

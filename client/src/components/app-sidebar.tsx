@@ -127,24 +127,21 @@ const servePeopleItems: NavItem[] = [
   { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope, authOnly: true },
 ];
 
-// HUB 3 — Workforce & Trades: ONE door per concept. Trade Sims lives here
-// (was triple-placed). My Pathway lives here only (was duplicated in Student
-// Portal). Mentor surfaces consolidated into 1 entry + 2 alternates.
+// HUB 3 — Workforce & Trades: Trade Sims is #1 (most discoverable entry point).
+// My Pathway lives here only. Mentor entries consolidated to 1 (Mentors & Pathways).
 const workforceTradesItems: NavItem[] = [
-  { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
-  { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
-  { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
+  { title: "Trade Sims (Try Free →)", url: "/academy/trade-sims", icon: Wrench },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
-  { title: "Trade Sims", url: "/academy/trade-sims", icon: Wrench },
-  { title: "Apprenticeship Tracker", url: "/apprenticeship-tracker", icon: Wrench },
-  { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
-  { title: "Find a Mentor / Partner", url: "/academy/mentor-finder", icon: Handshake },
-  { title: "Mentor Network", url: "/academy/mentors", icon: Users },
-  { title: "Mentorship Directory", url: "/mentorship-directory", icon: Users },
   { title: "My Pathway", url: "/academy/pathway", icon: Route },
+  { title: "Apprenticeship Tracker", url: "/apprenticeship-tracker", icon: Wrench },
+  { title: "Mentors & Pathways", url: "/mentorship-directory", icon: Handshake },
+  { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
   { title: "Transition Plans", url: "/transition-plans", icon: GraduationCap },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
+  { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
+  { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
+  { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
 ];
 
 // HUB 4 — Academy & Learning: student portal, campus life, AI tools,
@@ -180,8 +177,7 @@ const academyLearningItems: NavItem[] = [
   { title: "Print Shop", url: "/academy/merch", icon: ShoppingBag, authOnly: true },
   { title: "AI Workforce Academy", url: "/ai-workforce", icon: GraduationCap },
   { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
-  { title: "Spark (AI Companion)", url: "/ai-companion", icon: Sparkles },
-  { title: "Sparky", url: "/sparky", icon: MessageCircle },
+  { title: "Sparky (AI Companion)", url: "/sparky", icon: MessageCircle },
 ];
 
 // HUB 5 — Partners & Coalitions: every coalition / community / ecosystem
