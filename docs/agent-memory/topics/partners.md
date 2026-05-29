@@ -152,6 +152,50 @@ Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. 
 
 **Follow-up I will make happen next session:** edit `topics/partners.md` Vann section to remove the ambiguity that caused me to over-block.
 
+## Williamson County Childcare Infrastructure Partnership Coalition — verified 2026-05-29 from primary-source images
+
+**Meeting cadence:** Monthly, second Thursday, 1:00–2:30 PM CT, Microsoft Teams (considering in-person)
+**Convener/organizer:** **Deneece Ferrales, Ph.D.** — Director of Williamson County Initiatives, United Way for Greater Austin · deneece.ferrales@uwatx.org · (512) 225-0378
+**Next session:** Thursday, June 11, 2026, 1:00–2:30 PM CT
+**Context:** Dr. Flood received a forwarded invitation (via Denisse Baldwin). TCAF's N. Williamson County childcare Community Voice platform and ITI framework are directly aligned with this coalition's work.
+
+**Coalition members (from email headers):**
+
+| Name | Email | Organization |
+|---|---|---|
+| Deneece Ferrales, Ph.D. | deneece.ferrales@uwatx.org | United Way Greater Austin — WilCo Dir. (convener) |
+| Denisse Baldwin | denisse.baldwin@uwatx.org | United Way Greater Austin |
+| Lesly Johnson | lesly.johnson@uwatx.org | United Way Greater Austin |
+| Elizabeth (Liz) McCormick | liz.mccormick@uwatx.org | United Way Greater Austin |
+| Nicole Barucky | nicole.barucky@uwatx.org | United Way Greater Austin |
+| Rob (last name unknown) | rob@georgetownproject.org | The Georgetown Project (TGP) |
+| Kristen Adams | kristen@georgetownproject.org | The Georgetown Project |
+| Alondra Cabrera | alondra@georgetownproject.org | The Georgetown Project |
+| Veronica Jones | veronica@georgetownproject.org | The Georgetown Project |
+| Lexy (last name unknown) | lexy@georgetownproject.org | The Georgetown Project |
+| Dori Yeater | development@owbc-tx.org | OWBC-TX |
+| D. Yeater | dyeater@owbc-tx.org | OWBC-TX |
+| E. Flores | eflores@owbc-tx.org | OWBC-TX |
+| L. Samford | lsamford@owbc-tx.org | OWBC-TX |
+| Marco Cruz | mcruz@owbc-tx.org | OWBC-TX |
+| danstee | danstee@bgctx.org | Boys & Girls Club TX (BGCTX) |
+| kstjulien | kstjulien@bgctx.org | Boys & Girls Club TX (BGCTX) |
+| Gwen Snyder | gwen.snyder@ruralcapital.net | Rural Capital Area Workforce Board |
+| Georgianne Hewett | georgiannehewett@gmail.com | Independent |
+
+**Strategic value:**
+- Gwen Snyder (Rural Capital Area Workforce Board) controls workforce funding/data for 14-county region including WilCo — direct connection to childcare workforce pipeline and Trade Sims
+- Georgetown Project = anchor Georgetown CBO; strong operational partner candidate
+- OWBC-TX = workforce/benefits org; overlaps with LifeBridge target population
+- Group is ~16 people; looking for in-person host (offer noted as relationship-building opportunity)
+
+**TCAF action items:**
+- Email Deneece Ferrales to introduce TCAF and request June 11 invite (do this ASAP)
+- Bring the 5 WilCo childcare hypotheses (infant slots, CCS subsidy deserts, shift workers, special-needs, bilingual) as "current guess — is it true for you?" posture (ITI Posture B)
+- If group still needs in-person host, offer support
+
+---
+
 ## Love Clinic & Med Spa, LLC — verified 2026-05-27 from primary-source packet
 
 - **Legal entity:** Love Clinic & Med Spa, LLC (per Dr. Love CV — corrects earlier "Love Clinic MedSpa" framing)
