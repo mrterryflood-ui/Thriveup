@@ -366,6 +366,76 @@ export async function sendTradeSimsDigestEmail(rows: Array<{
   }
 }
 
+/**
+ * AI Engine Alert — fires when the Navigator is completely down (all engines
+ * failing) or when it recovers. Called by ai-smoke-test.ts.
+ */
+export async function sendAIEngineAlert(opts: {
+  type: "down" | "recovered";
+  result: {
+    timestamp: string;
+    healthyCount: number;
+    totalConfigured: number;
+    engines: Array<{ engine: string; model: string; ok: boolean; latencyMs: number; error?: string }>;
+    durationMs: number;
+  };
+  consecutiveFailures: number;
+}): Promise<void> {
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const isDown = opts.type === "down";
+    const subject = isDown
+      ? `[ALERT] ThriveUp Navigator is DOWN — all AI engines failing (${opts.consecutiveFailures} consecutive failures)`
+      : `[RESOLVED] ThriveUp Navigator recovered — ${opts.result.healthyCount}/${opts.result.totalConfigured} engines healthy`;
+
+    const engineRows = opts.result.engines.map(e => {
+      const color = e.ok ? "#276749" : (e.error?.includes("not set") ? "#718096" : "#c53030");
+      const status = e.ok ? `✓ OK (${e.latencyMs}ms)` : (e.error?.includes("not set") ? "— not configured" : `✗ ${e.error || "failed"}`);
+      return `<tr>
+        <td style="padding:6px 10px;border-bottom:1px solid #eee;font-weight:bold">${e.engine}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #eee;color:#718096;font-size:12px">${e.model}</td>
+        <td style="padding:6px 10px;border-bottom:1px solid #eee;color:${color}">${status}</td>
+      </tr>`;
+    }).join("");
+
+    const headerBg = isDown ? "#dc3545" : "#276749";
+    const headerText = isDown
+      ? `Navigator DOWN — ${opts.consecutiveFailures} consecutive failures`
+      : `Navigator RECOVERED — ${opts.result.healthyCount}/${opts.result.totalConfigured} engines OK`;
+
+    await safeSend(() => client.emails.send({
+      from: fromEmail,
+      to: "terryflood@thrivingcommunitiesforall.com",
+      subject,
+      html: `
+        <div style="max-width:600px;font-family:Arial,sans-serif">
+          <div style="background:${headerBg};color:white;padding:16px;border-radius:6px 6px 0 0">
+            <h2 style="margin:0;font-size:18px">${headerText}</h2>
+            <p style="margin:6px 0 0;font-size:13px;opacity:.9">Detected at ${opts.result.timestamp} · Probe took ${opts.result.durationMs}ms</p>
+          </div>
+          <div style="padding:16px;border:1px solid #ddd;border-top:none;background:white">
+            ${isDown ? `<p style="color:#c53030;font-weight:bold">⚠ Every AI engine is failing. Users on the live site who send a Navigator message will see "I'm sorry, I'm having trouble connecting right now."</p>` : `<p style="color:#276749;font-weight:bold">✓ Navigator is responding normally. Users can chat again.</p>`}
+            <table style="width:100%;border-collapse:collapse;font-size:14px;margin-top:12px">
+              <thead><tr style="background:#f5f5f5">
+                <th style="padding:6px 10px;text-align:left">Engine</th>
+                <th style="padding:6px 10px;text-align:left">Model</th>
+                <th style="padding:6px 10px;text-align:left">Status</th>
+              </tr></thead>
+              <tbody>${engineRows}</tbody>
+            </table>
+            <p style="margin-top:16px;font-size:13px;color:#666">
+              Check deployment logs at <a href="https://thrivingcommunitiesforall.com">thrivingcommunitiesforall.com</a> → Replit dashboard for details.<br/>
+              Next automatic probe runs in 15 minutes.
+            </p>
+          </div>
+        </div>
+      `,
+    } as any), `ai-engine-alert:${opts.type}`);
+  } catch (err: any) {
+    console.error("[Email] sendAIEngineAlert failed:", err?.message || err);
+  }
+}
+
 export async function sendWelcomeEmail(email: string, name: string) {
   const { client, fromEmail } = await getResendClient();
   await safeSend(() => client.emails.send({
