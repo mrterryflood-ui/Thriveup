@@ -11,6 +11,21 @@ import multer from "multer";
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
+// ── DeepSeek R1 background job store ─────────────────────────────────────────
+// The main SSE closes after Phase 1 (~20-25s). DeepSeek R1 continues in the
+// Node.js background and stores its result here. The client polls
+// GET /api/navigator/deep-think/:jobId every 4s to pick it up.
+// Entries expire after 10 minutes to prevent memory leaks.
+const deepThinkResultStore = new Map<string, {
+  text: string; engineId: string; timeMs: number; expiresAt: number;
+}>();
+setInterval(() => {
+  const now = Date.now();
+  for (const [k, v] of deepThinkResultStore.entries()) {
+    if (v.expiresAt < now) deepThinkResultStore.delete(k);
+  }
+}, 5 * 60 * 1000);
+
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
   return user?.claims?.sub;
@@ -538,13 +553,19 @@ export function registerNavigatorRoutes(app: Express) {
           res.write(`: keepalive\n\n`);
         },
         onDeepThinking: (text, engineId, timeMs) => {
-          // Strip DeepSeek R1's internal <think>...</think> tags — send only
-          // the final reasoned answer as the deep thinking addendum.
+          // SSE is already closed when this fires (Phase 2 is background).
+          // Strip <think>...</think> tags then store for client polling.
           const cleaned = text
             .replace(/<think>[\s\S]*?<\/think>/gi, "")
             .trim();
           if (cleaned.length > 20) {
-            res.write(`data: ${JSON.stringify({ deepThinking: cleaned, deepThinkingEngine: engineId, deepThinkingTimeMs: timeMs })}\n\n`);
+            deepThinkResultStore.set(activeConversationId, {
+              text: cleaned,
+              engineId,
+              timeMs,
+              expiresAt: Date.now() + 10 * 60 * 1000,
+            });
+            console.log(`[Navigator] R1 stored for poll — job: ${activeConversationId} (${timeMs}ms)`);
           }
         },
         onDone: async (result) => {
@@ -564,7 +585,8 @@ export function registerNavigatorRoutes(app: Express) {
           } catch (err) {
             console.error("[Navigator] Error saving response:", err);
           }
-          res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
+          // Include deepThinkJobId so the client knows to poll for R1 result
+          res.write(`data: ${JSON.stringify({ done: true, deepThinkJobId: activeConversationId, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
           res.end();
         },
         onError: async (error) => {
@@ -619,6 +641,20 @@ export function registerNavigatorRoutes(app: Express) {
         res.end();
       }
     }
+  });
+
+  // ── DeepSeek R1 polling endpoint ─────────────────────────────────────────
+  // The client polls here every 4s after Phase 1 SSE closes.
+  // Returns {status:"pending"} while R1 is still computing, or
+  // {status:"complete", text, engineId, timeMs} when done (one-time delivery).
+  app.get("/api/navigator/deep-think/:jobId", requireAuth, (req, res) => {
+    const jobId = req.params.jobId as string;
+    const entry = deepThinkResultStore.get(jobId);
+    if (entry && entry.expiresAt > Date.now()) {
+      deepThinkResultStore.delete(jobId); // one-time delivery — consume on read
+      return res.json({ status: "complete", text: entry.text, engineId: entry.engineId, timeMs: entry.timeMs });
+    }
+    res.json({ status: "pending" });
   });
 
   app.get("/api/navigator/conversations", requireAuth, async (req, res) => {

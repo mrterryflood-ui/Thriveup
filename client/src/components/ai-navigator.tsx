@@ -126,6 +126,10 @@ export function AINavigator() {
   const [deepThinkingExpanded, setDeepThinkingExpanded] = useState<Record<number, boolean>>({});
   const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  // R1 background polling state
+  const [deepThinkElapsed, setDeepThinkElapsed] = useState(0);
+  const deepThinkPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const deepThinkTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -279,6 +283,11 @@ export function AINavigator() {
       : "";
     const displayText = messageText + docLabel;
 
+    // Cancel any in-flight R1 poll/timer from a previous message
+    if (deepThinkPollRef.current) { clearInterval(deepThinkPollRef.current); deepThinkPollRef.current = null; }
+    if (deepThinkTimerRef.current) { clearInterval(deepThinkTimerRef.current); deepThinkTimerRef.current = null; }
+    setDeepThinkElapsed(0);
+
     setMessages(prev => [
       ...prev,
       { role: "user", content: displayText },
@@ -390,14 +399,74 @@ export function AINavigator() {
 
               if (parsed.done) {
                 refetchConversations();
-                // Clear pending if R1 timed out without producing output
-                setMessages(prev => {
-                  const updated = [...prev];
-                  if (updated[assistantIdx]) {
-                    updated[assistantIdx] = { ...updated[assistantIdx], deepThinkingPending: false };
-                  }
-                  return updated;
-                });
+                const jobId: string | undefined = parsed.deepThinkJobId;
+                if (jobId) {
+                  // Phase 1 SSE closed — start polling for DeepSeek R1 result.
+                  // Reset any previous poll/timer.
+                  if (deepThinkPollRef.current) clearInterval(deepThinkPollRef.current);
+                  if (deepThinkTimerRef.current) clearInterval(deepThinkTimerRef.current);
+                  setDeepThinkElapsed(0);
+                  let elapsed = 0;
+                  const capturedIdx = assistantIdx;
+
+                  // Elapsed-time counter — updates every second so user sees progress
+                  deepThinkTimerRef.current = setInterval(() => {
+                    elapsed += 1;
+                    setDeepThinkElapsed(elapsed);
+                  }, 1000);
+
+                  // Poll every 4s, give up after 90s
+                  let pollCount = 0;
+                  const MAX_POLLS = 22; // 22 × 4s = 88s
+                  const stopPolling = (clearPending: boolean) => {
+                    if (deepThinkPollRef.current) clearInterval(deepThinkPollRef.current);
+                    if (deepThinkTimerRef.current) clearInterval(deepThinkTimerRef.current);
+                    deepThinkPollRef.current = null;
+                    deepThinkTimerRef.current = null;
+                    setDeepThinkElapsed(0);
+                    if (clearPending) {
+                      setMessages(prev => {
+                        const updated = [...prev];
+                        if (updated[capturedIdx]) {
+                          updated[capturedIdx] = { ...updated[capturedIdx], deepThinkingPending: false };
+                        }
+                        return updated;
+                      });
+                    }
+                  };
+
+                  deepThinkPollRef.current = setInterval(async () => {
+                    pollCount++;
+                    if (pollCount > MAX_POLLS) { stopPolling(true); return; }
+                    try {
+                      const resp = await fetch(`/api/navigator/deep-think/${jobId}`, { credentials: "include" });
+                      const data = await resp.json();
+                      if (data.status === "complete" && data.text) {
+                        stopPolling(false);
+                        setMessages(prev => {
+                          const updated = [...prev];
+                          if (updated[capturedIdx]) {
+                            updated[capturedIdx] = {
+                              ...updated[capturedIdx],
+                              deepThinking: data.text,
+                              deepThinkingPending: false,
+                            };
+                          }
+                          return updated;
+                        });
+                      }
+                    } catch { /* network blip — try again next tick */ }
+                  }, 4000);
+                } else {
+                  // No R1 job — clear pending indicator
+                  setMessages(prev => {
+                    const updated = [...prev];
+                    if (updated[assistantIdx]) {
+                      updated[assistantIdx] = { ...updated[assistantIdx], deepThinkingPending: false };
+                    }
+                    return updated;
+                  });
+                }
               }
             } catch {}
           }
@@ -721,12 +790,24 @@ export function AINavigator() {
                       </div>
                     )}
 
-                    {/* Deep thinking pending indicator */}
+                    {/* Deep thinking pending indicator — shows live elapsed seconds */}
                     {msg.role === "assistant" && msg.deepThinkingPending && (
-                      <div className="ml-9 mt-1.5 flex items-center gap-1.5 text-xs text-violet-600 dark:text-violet-400">
-                        <Brain className="h-3 w-3 animate-pulse" />
-                        <span>DeepSeek R1 is analyzing deeply — this takes ~30–60s</span>
-                        <Loader2 className="h-3 w-3 animate-spin" />
+                      <div className="ml-9 mt-1.5 flex items-center gap-2 text-xs text-violet-600 dark:text-violet-400">
+                        <Brain className="h-3.5 w-3.5 animate-pulse flex-shrink-0" />
+                        <div className="flex flex-col gap-0.5">
+                          <span className="font-medium">
+                            R1 deep analysis{deepThinkElapsed > 0 ? ` — ${deepThinkElapsed}s` : ""}
+                            <span className="animate-pulse">...</span>
+                          </span>
+                          <span className="text-violet-400 dark:text-violet-500 text-[10px]">
+                            {deepThinkElapsed < 20
+                              ? "Starting up DeepSeek R1 reasoning engine"
+                              : deepThinkElapsed < 50
+                              ? "R1 is reasoning through the problem deeply"
+                              : "Almost there — R1 is finishing its analysis"}
+                          </span>
+                        </div>
+                        <Loader2 className="h-3 w-3 animate-spin flex-shrink-0 ml-auto" />
                       </div>
                     )}
 

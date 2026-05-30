@@ -564,44 +564,47 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     return;
   }
 
-  // Signal that the fast-engine synthesis is done — callers can unlock the
-  // input immediately so users can re-prompt while R1 continues in the background.
+  // Signal that Phase 1 is done — unlock input immediately.
   params.onSynthesisComplete?.();
 
-  // ── Phase 2: Await DeepSeek R1 deep thinking (already running) ───────────
-  // Send keepalive pings every 10s so the deployment proxy / mobile browser
-  // does not drop the still-open SSE connection before R1 finishes.
-  const keepAliveInterval = params.onKeepAlive
-    ? setInterval(() => params.onKeepAlive!(), 10_000)
-    : null;
-  const r1Result = await deepThinkPromise;
-  if (keepAliveInterval) clearInterval(keepAliveInterval);
-  if (r1Result && !r1Result.error && r1Result.response.length > 20 && params.onDeepThinking) {
-    const deepThinkTimeMs = Date.now() - deepThinkStart;
-    console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 deep thinking complete in ${deepThinkTimeMs}ms`);
-    params.onDeepThinking(r1Result.response, r1Result.engine, deepThinkTimeMs);
-  } else if (r1Result?.error) {
-    console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 did not produce output — ${r1Result.error}`);
-  }
-
-  const allResults = [...fastResults, ...(r1Result ? [r1Result] : [])];
-  const totalTimeMs = Date.now() - totalStart;
+  // ── Close the SSE NOW — Phase 1 result is fully delivered ────────────────
+  // DeepSeek R1 continues running in the background. The client polls
+  // GET /api/navigator/deep-think/:jobId every 4s so mobile browsers never need
+  // to hold a 70s+ SSE connection open. This eliminates iOS Safari SSE drops.
+  const phase1TimeMs = Date.now() - totalStart;
   const consensusMethod = successfulEngines.length >= 2
     ? `${successfulEngines.length}-engine parallel synthesis`
     : successfulEngines.length === 1
       ? `single-engine (${successfulEngines[0].engine})`
       : "none";
 
-  console.log(`[CollabAI-Stream] Total complete in ${totalTimeMs}ms — ${consensusMethod}`);
+  console.log(`[CollabAI-Stream] Phase 1 delivered in ${phase1TimeMs}ms — ${consensusMethod}. R1 running in background.`);
 
   params.onDone({
     synthesis: "",
-    engines: allResults,
+    engines: fastResults,
     ragContext: { chunkCount: ragChunkCount, sources: ragSources, liveData: true },
     frameworks: { rplice: true, mapGap: true },
     consensusMethod,
-    totalTimeMs,
+    totalTimeMs: phase1TimeMs,
   });
+
+  // ── Phase 2: DeepSeek R1 finishes after SSE closes ───────────────────────
+  // onDeepThinking fires asynchronously. navigator-routes stores the result
+  // in deepThinkResultStore for the client to poll.
+  if (deepThinkEngine && params.onDeepThinking) {
+    deepThinkPromise
+      .then(r1Result => {
+        const deepThinkTimeMs = Date.now() - deepThinkStart;
+        if (r1Result && !r1Result.error && r1Result.response.length > 20) {
+          console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 complete in ${deepThinkTimeMs}ms — storing for poll`);
+          params.onDeepThinking!(r1Result.response, r1Result.engine, deepThinkTimeMs);
+        } else {
+          console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 no output — ${r1Result?.error || "empty"}`);
+        }
+      })
+      .catch(err => console.error(`[CollabAI-Stream] Phase 2 background error: ${err}`));
+  }
 }
 
 export function getCollaborativeStatus(): {
