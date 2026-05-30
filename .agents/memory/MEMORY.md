@@ -1,0 +1,1 @@
+- [Anti-fabrication guardrails](anti-fabrication-guardrails.md) — where guardrails live, what failed, six prohibitions; must be at TOP of every system prompt.

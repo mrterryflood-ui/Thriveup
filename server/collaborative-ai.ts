@@ -376,7 +376,14 @@ export async function collaborativeResponse(
 
 INSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking in your response. Ground every statement in real data. Be specific and actionable.`;
 
-  const baseSystem = options?.systemPrompt || "You are part of the ThriveUp Academy Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, RPLICE implementation science, and MAP-GAP continuous improvement to produce evidence-grounded outputs for a 24-platform workforce development ecosystem.";
+  const COLLAB_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
+1. No fabricated numbers — every metric/percentage/count must come from RAG context, user document, or live data explicitly provided. If absent, say "I don't have that data."
+2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at implementationineducatio.com), never invent other expansions.
+3. No fabricated grades or scores — never generate platform letter grades, fidelity percentages, or ecosystem ratings from general AI knowledge.
+4. No projected outcomes without a cited primary source — omit forecasts entirely if no source exists.
+5. Uncertainty = disclosure, not fabrication — say "I don't have specific data on that" rather than generating plausible-sounding content.
+`;
+  const baseSystem = options?.systemPrompt || (COLLAB_ANTI_FAB + "You are part of the ThriveUp Academy Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, implementation science (CFIR 2.0, RE-AIM, MAP-GAP, RNR), and evidence-grounded synthesis to produce outputs for a 26-platform community-infrastructure ecosystem. Ground every statement in the RAG context provided. Never fabricate facts about ThriveUp's capabilities — use the knowledge base or disclose the gap.");
 
   console.log(`[CollabAI] Launching ${engines.length} engines in parallel (RAG: ${ragChunkCount} chunks, RPLICE: ${includeRPLICE}, MAP-GAP: ${includeMAPGAP})`);
 
@@ -497,7 +504,13 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     ? `${params.prompt}\n\nINSTRUCTIONS: The user has attached document(s). Do NOT restructure, reformat, or restate the document back to them — they wrote it, they know what's in it. Instead: answer their specific question, add new analysis or evidence they don't already have, identify gaps or opportunities they may have missed, or produce the specific output they asked for. If the document already has RPLICE or MAP-GAP sections, do NOT reproduce those sections — build on them or go beyond them. Be conversational, substantive, and genuinely useful. Write in full paragraphs unless a list is specifically better. Do NOT truncate your response.`
     : `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
 
-  const baseSystem = params.systemPrompt || "You are part of the ThriveUp Academy Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, RPLICE implementation science, and MAP-GAP continuous improvement to produce evidence-grounded outputs.";
+  const STREAM_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
+1. No fabricated numbers — every metric/percentage/count must come from RAG context, user document, or live data explicitly provided. If absent, say "I don't have that data."
+2. No fabricated acronym expansions — RPLICE = "Research-to-Practice Lifecycle Implementation & Community Evidence" (sister platform at implementationineducatio.com), never invent other expansions.
+3. No fabricated grades, scores, or projected outcomes without a cited primary source.
+4. Uncertainty = disclosure, not fabrication.
+`;
+  const baseSystem = params.systemPrompt || (STREAM_ANTI_FAB + "You are part of the ThriveUp Academy Collaborative Intelligence System — evidence-grounded synthesis for a 26-platform community-infrastructure ecosystem. Use the RAG context provided. Never fabricate facts.");
 
   params.onMeta({
     engines: engines.map(e => e.id),
