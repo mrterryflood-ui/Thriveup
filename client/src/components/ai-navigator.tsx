@@ -185,16 +185,39 @@ export function AINavigator() {
     }
   }, [toast]);
 
-  const downloadMessage = useCallback((text: string, idx: number) => {
-    const blob = new Blob([text], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `navigator-response-${idx + 1}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const downloadMessage = useCallback(async (text: string, idx: number) => {
+    // Derive a title from the first heading or first line
+    const titleMatch = text.match(/^#+ (.+)/m) || text.match(/^(.{10,60})/m);
+    const title = titleMatch ? titleMatch[1].trim() : `Navigator Response ${idx + 1}`;
+    try {
+      const res = await fetch("/api/navigator/export", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ content: text, title }),
+      });
+      if (!res.ok) throw new Error("export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${title.replace(/[^a-z0-9]/gi, "_").slice(0, 50)}.docx`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      // Fallback to plain text if export endpoint fails
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `navigator-response-${idx + 1}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
   }, []);
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -687,11 +710,11 @@ export function AINavigator() {
                           onClick={() => downloadMessage(msg.content, idx)}
                           className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors px-1.5 py-0.5 rounded hover:bg-muted/50"
                           data-testid={`button-download-${idx}`}
-                          aria-label="Download response"
-                          title="Download as .txt"
+                          aria-label="Download as Word document"
+                          title="Download as Word (.docx)"
                         >
                           <Download className="h-3 w-3" />
-                          <span>Download</span>
+                          <span>Word</span>
                         </button>
                       </div>
                     )}

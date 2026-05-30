@@ -307,7 +307,7 @@ ${engineOutputs}
 Produce a single, synthesized response that is BETTER than any individual engine output. Do not reference engines by name. Speak with one authoritative voice.`;
 
   try {
-    const result = await callEngine(synthesisEngine, synthesisPrompt, "You are an expert synthesizer for the ThriveUp Academy ACOS. Produce cohesive, authoritative outputs.", 4000);
+    const result = await callEngine(synthesisEngine, synthesisPrompt, "You are an expert synthesizer for the ThriveUp Academy ACOS. Produce cohesive, authoritative outputs. Do NOT truncate — always complete every section and produce the full depth of analysis needed.", 8000);
     if (result.response && result.response.length > 20) return result.response;
   } catch {}
 
@@ -480,7 +480,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   }
 
   const enrichedPrompt = params.skipRAG
-    ? `${params.prompt}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\nINSTRUCTIONS: Analyse the supplied document(s) carefully. Apply RPLICE implementation science thinking. Be specific and actionable. Do NOT truncate your response — produce the full output the user requested.`
+    ? `${params.prompt}\n\nINSTRUCTIONS: The user has attached document(s) above. Read them carefully and respond DIRECTLY to what the user is asking. Do not generate a generic strategic report or impose a framework template on your output unless the user explicitly requested that format. Ground every statement in the specific content of the attached document(s) and the user's actual question. If implementation science thinking (RPLICE/MAP-GAP) is genuinely useful, apply it as a thinking lens — not as a section-by-section output structure. Be specific and concrete. Do NOT truncate.`
     : `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
 
   const baseSystem = params.systemPrompt || "You are part of the ThriveUp Academy Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, RPLICE implementation science, and MAP-GAP continuous improvement to produce evidence-grounded outputs.";

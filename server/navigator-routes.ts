@@ -372,6 +372,31 @@ function detectNeeds(message: string): string[] {
 
 const navigatorRateLimit = new Map<string, { count: number; resetAt: number }>();
 
+async function fetchUrlContent(url: string): Promise<string | null> {
+  try {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), 8000);
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ThriveUpNavigator/1.0)" },
+    });
+    clearTimeout(timer);
+    if (!res.ok) return null;
+    const html = await res.text();
+    const text = html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 12000);
+    return text.length > 100 ? text : null;
+  } catch {
+    return null;
+  }
+}
+
 export function registerNavigatorRoutes(app: Express) {
   app.post("/api/navigator/chat", requireAuth, async (req, res) => {
     const userId = getUserId(req)!;
@@ -468,17 +493,33 @@ export function registerNavigatorRoutes(app: Express) {
       }
     }
 
-    msgs.push({ role: "user", content: message });
+    // Fetch any URLs the user pasted so the AI can actually read the articles
+    const urlMatches = message.match(/https?:\/\/[^\s\]]+/g);
+    let augmentedMessage = message;
+    if (urlMatches && urlMatches.length > 0) {
+      const fetchedParts = (await Promise.all(
+        urlMatches.slice(0, 3).map(async (url) => {
+          const content = await fetchUrlContent(url);
+          return content ? `[FETCHED ARTICLE from ${url}]:\n${content}` : null;
+        })
+      )).filter((x): x is string => x !== null);
+      if (fetchedParts.length > 0) {
+        augmentedMessage = `${message}\n\n${fetchedParts.join("\n\n")}`;
+        console.log(`[Navigator] Fetched ${fetchedParts.length} URL(s) for context`);
+      }
+    }
+
+    msgs.push({ role: "user", content: augmentedMessage });
 
     let fullResponse = "";
 
     // Detect whether the user attached documents — if so we skip RAG retrieval
     // (the document IS the relevant context) and route to Claude's 200K window.
-    const hasAttachedDocuments = message.includes("[ATTACHED DOCUMENT:");
+    const hasAttachedDocuments = augmentedMessage.includes("[ATTACHED DOCUMENT:");
 
     try {
       await collaborativeStream({
-        prompt: message,
+        prompt: augmentedMessage,
         systemPrompt: msgs.find(m => m.role === "system")?.content,
         maxTokens: hasAttachedDocuments ? 8000 : 5000,
         skipRAG: hasAttachedDocuments,
@@ -642,6 +683,74 @@ export function registerNavigatorRoutes(app: Express) {
     } catch (error) {
       console.error("[Navigator] Error deleting conversation:", error);
       res.status(500).json({ error: "Failed to delete conversation" });
+    }
+  });
+
+  app.post("/api/navigator/export", requireAuth, async (req, res) => {
+    try {
+      const { content, title = "Navigator Response" } = req.body;
+      if (!content || typeof content !== "string") return res.status(400).json({ error: "content required" });
+
+      const { Document, Paragraph, TextRun, HeadingLevel, Packer, AlignmentType } = await import("docx");
+
+      const children: InstanceType<typeof Paragraph>[] = [];
+
+      // Title block
+      children.push(new Paragraph({
+        children: [new TextRun({ text: "ThriveUp Navigator", bold: true, size: 20, color: "0D9488" })],
+      }));
+      children.push(new Paragraph({
+        children: [new TextRun({ text: title, bold: true, size: 32 })],
+        heading: HeadingLevel.HEADING_1,
+      }));
+      children.push(new Paragraph({
+        children: [new TextRun({ text: `Generated: ${new Date().toLocaleString()}`, size: 18, color: "888888" })],
+      }));
+      children.push(new Paragraph({ text: "" }));
+
+      // Parse markdown lines into docx paragraphs
+      for (const rawLine of content.split("\n")) {
+        const line = rawLine.trimEnd();
+        if (line.startsWith("### ")) {
+          children.push(new Paragraph({ text: line.slice(4), heading: HeadingLevel.HEADING_3 }));
+        } else if (line.startsWith("## ")) {
+          children.push(new Paragraph({ text: line.slice(3), heading: HeadingLevel.HEADING_2 }));
+        } else if (line.startsWith("# ")) {
+          children.push(new Paragraph({ text: line.slice(2), heading: HeadingLevel.HEADING_1 }));
+        } else if (line.startsWith("- ") || line.startsWith("* ")) {
+          // Bullet — strip bold markers inline
+          const bulletText = line.slice(2).replace(/\*\*(.*?)\*\*/g, "$1");
+          children.push(new Paragraph({ text: bulletText, bullet: { level: 0 } }));
+        } else if (/^\d+\.\s/.test(line)) {
+          const numText = line.replace(/^\d+\.\s/, "").replace(/\*\*(.*?)\*\*/g, "$1");
+          children.push(new Paragraph({ text: numText, numbering: { reference: "default-numbering", level: 0 } }));
+        } else if (line === "") {
+          children.push(new Paragraph({ text: "" }));
+        } else {
+          // Inline bold: split on **...** markers
+          const parts = line.split(/\*\*(.*?)\*\*/g);
+          const runs = parts.map((part, i) =>
+            new TextRun(i % 2 === 1 ? { text: part, bold: true } : { text: part })
+          );
+          children.push(new Paragraph({ children: runs }));
+        }
+      }
+
+      const doc = new Document({
+        numbering: {
+          config: [{ reference: "default-numbering", levels: [{ level: 0, format: "decimal", text: "%1.", alignment: AlignmentType.LEFT }] }],
+        },
+        sections: [{ children }],
+      });
+
+      const buffer = await Packer.toBuffer(doc);
+      const slug = title.replace(/[^a-z0-9]/gi, "_").slice(0, 50) || "navigator_response";
+      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
+      res.setHeader("Content-Disposition", `attachment; filename="${slug}.docx"`);
+      res.send(buffer);
+    } catch (err) {
+      console.error("[Navigator] Export error:", err);
+      res.status(500).json({ error: "Export failed" });
     }
   });
 
