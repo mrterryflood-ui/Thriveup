@@ -100,7 +100,7 @@ let geminiQuotaExhaustedUntil = 0;
 
 function getAvailableProviders(): Provider[] {
   const providers: Provider[] = [];
-  if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) providers.push("claude");
+  if (process.env.ANTHROPIC_API_KEY || (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) providers.push("claude");
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
   if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("deepseek-r1");
   if (process.env.OPENAI_API_KEY) providers.push("openai");
@@ -196,10 +196,9 @@ async function streamGemini(params: StreamAIResponseParams): Promise<void> {
 }
 
 async function streamClaude(params: StreamAIResponseParams): Promise<void> {
-  const client = new Anthropic({
-    apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
-    baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-  });
+  const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+  const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+  const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
 
   let systemPrompt: string | undefined;
   const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = [];
@@ -345,10 +344,9 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         const result = await model.generateContent(prompt);
         text = result.response.text();
       } else if (provider === "claude") {
-        const client = new Anthropic({
-          apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
-          baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-        });
+        const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+        const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+        const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
         const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
         chatMsgs.push({ role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` });
         const resp = await client.messages.create({
@@ -447,10 +445,9 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     const result = await model.generateContent(prompt);
     return result.response.text();
   } else if (provider === "claude") {
-    const client = new Anthropic({
-      apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
-      baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-    });
+    const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+    const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+    const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
     const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
     chatMsgs.push({ role: "user", content: prompt });
     const resp = await client.messages.create({

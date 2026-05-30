@@ -132,7 +132,7 @@ async function collectEngineResults(
 
 function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   const engines: Array<{ id: EngineId; model: string }> = [];
-  if (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL) engines.push({ id: "claude", model: "claude-haiku-4-5" });
+  if (process.env.ANTHROPIC_API_KEY || (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) engines.push({ id: "claude", model: "claude-haiku-4-5" });
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
   // DeepSeek R1 — deep reasoning model (30-90s). Runs on its own track via
   // deepThinkPromise in collaborativeStream; never blocks the 12s fast-engine
@@ -163,10 +163,10 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
       response = result.response.text();
 
     } else if (engine.id === "claude") {
-      const client = new Anthropic({
-        apiKey: process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY,
-        baseURL: process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL,
-      });
+      // Prefer direct paid key; fall back to Replit integration proxy
+      const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+      const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+      const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
       const resp = await client.messages.create({
         model: "claude-haiku-4-5",
         max_tokens: maxTokens,
