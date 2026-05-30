@@ -132,14 +132,25 @@ async function collectEngineResults(
 
 function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   const engines: Array<{ id: EngineId; model: string }> = [];
-  if (process.env.ANTHROPIC_API_KEY || (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) engines.push({ id: "claude", model: "claude-haiku-4-5" });
+  const hasOR = !!(process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL);
+
+  // Claude: OpenRouter (preferred — uses user's credits, no proxy latency)
+  //         → direct ANTHROPIC_API_KEY → Replit integration proxy
+  const hasClaudeDirect = !!(process.env.ANTHROPIC_API_KEY || (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL));
+  if (hasOR) engines.push({ id: "claude", model: "anthropic/claude-3-5-haiku" });
+  else if (hasClaudeDirect) engines.push({ id: "claude", model: "claude-haiku-4-5" });
+
+  // OpenAI via Replit integration
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
-  // DeepSeek R1 — deep reasoning model (30-90s). Runs on its own track via
-  // deepThinkPromise in collaborativeStream; never blocks the 12s fast-engine
-  // synthesis. Its output arrives as a "Deep Thinking" addendum after the
-  // initial response has already streamed to the user.
-  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1" });
-  if (process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
+
+  // DeepSeek R1 via OpenRouter — deep reasoning, runs on its own track
+  if (hasOR) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1" });
+
+  // Gemini: OpenRouter (bypasses free-tier quota issues) → direct API key
+  const hasGeminiDirect = !!(process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil);
+  if (hasOR) engines.push({ id: "gemini", model: "google/gemini-2.0-flash-001" });
+  else if (hasGeminiDirect) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
+
   return engines;
 }
 
@@ -153,28 +164,57 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
     let response = "";
 
     if (engine.id === "gemini") {
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.0-flash",
-        systemInstruction: systemPrompt,
-        generationConfig: { maxOutputTokens: maxTokens },
-      });
-      const result = await model.generateContent(prompt);
-      response = result.response.text();
+      if (engine.model.includes("/")) {
+        // Route through OpenRouter (OpenAI-compatible) — uses user's OR credits,
+        // bypasses Google free-tier quota entirely.
+        const orClient = new OpenAI({
+          apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+        });
+        const resp = await orClient.chat.completions.create({
+          model: engine.model,
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }],
+          max_tokens: maxTokens,
+        });
+        response = resp.choices[0]?.message?.content || "";
+      } else {
+        const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
+        const model = genAI.getGenerativeModel({
+          model: "gemini-2.0-flash",
+          systemInstruction: systemPrompt,
+          generationConfig: { maxOutputTokens: maxTokens },
+        });
+        const result = await model.generateContent(prompt);
+        response = result.response.text();
+      }
 
     } else if (engine.id === "claude") {
-      // Prefer direct paid key; fall back to Replit integration proxy
-      const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
-      const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
-      const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
-      const resp = await client.messages.create({
-        model: "claude-haiku-4-5",
-        max_tokens: maxTokens,
-        system: systemPrompt,
-        messages: [{ role: "user", content: prompt }],
-      });
-      const block = resp.content[0];
-      response = block.type === "text" ? block.text : "";
+      if (engine.model.includes("/")) {
+        // Route through OpenRouter — uses user's OR credits, no proxy latency.
+        const orClient = new OpenAI({
+          apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+        });
+        const resp = await orClient.chat.completions.create({
+          model: engine.model,
+          messages: [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }],
+          max_tokens: maxTokens,
+        });
+        response = resp.choices[0]?.message?.content || "";
+      } else {
+        // Direct key or Replit integration proxy fallback
+        const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
+        const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+        const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
+        const resp = await client.messages.create({
+          model: "claude-haiku-4-5",
+          max_tokens: maxTokens,
+          system: systemPrompt,
+          messages: [{ role: "user", content: prompt }],
+        });
+        const block = resp.content[0];
+        response = block.type === "text" ? block.text : "";
+      }
 
     } else if (engine.id === "openai") {
       const client = new OpenAI({

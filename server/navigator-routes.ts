@@ -525,10 +525,28 @@ export function registerNavigatorRoutes(app: Express) {
           res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
           res.end();
         },
-        onError: (error) => {
+        onError: async (error) => {
           console.error("[Navigator] AI error:", error);
-          res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
-          res.end();
+          // All collaborative engines failed — attempt a direct single-provider
+          // fallback (uses whatever single provider is available, typically OpenAI).
+          console.log("[Navigator] Falling back to single-provider stream...");
+          try {
+            await streamAIResponse({
+              messages: msgs,
+              onChunk: (content) => {
+                res.write(`data: ${JSON.stringify({ content })}\n\n`);
+              },
+              onDone: () => {
+                res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
+                res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
+                res.end();
+              },
+            });
+          } catch (fallbackErr) {
+            console.error("[Navigator] Fallback also failed:", fallbackErr);
+            res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+            res.end();
+          }
         },
       });
     } catch (error) {
