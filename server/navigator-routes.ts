@@ -471,11 +471,16 @@ export function registerNavigatorRoutes(app: Express) {
 
     let fullResponse = "";
 
+    // Detect whether the user attached documents — if so we skip RAG retrieval
+    // (the document IS the relevant context) and route to Claude's 200K window.
+    const hasAttachedDocuments = message.includes("[ATTACHED DOCUMENT:");
+
     try {
       await collaborativeStream({
         prompt: message,
         systemPrompt: msgs.find(m => m.role === "system")?.content,
-        maxTokens: 5000,
+        maxTokens: hasAttachedDocuments ? 8000 : 5000,
+        skipRAG: hasAttachedDocuments,
         onChunk: (content) => {
           fullResponse += content;
           res.write(`data: ${JSON.stringify({ content })}\n\n`);

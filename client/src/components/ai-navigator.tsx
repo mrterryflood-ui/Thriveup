@@ -35,6 +35,7 @@ interface AttachedDoc {
   name: string;
   text: string;
   type: "pdf" | "text";
+  originalSize: number; // total chars before slicing
 }
 
 const QUICK_PROMPTS = [
@@ -121,7 +122,7 @@ export function AINavigator() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [deepThinkingExpanded, setDeepThinkingExpanded] = useState<Record<number, boolean>>({});
-  const [attachedDoc, setAttachedDoc] = useState<AttachedDoc | null>(null);
+  const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -168,7 +169,7 @@ export function AINavigator() {
   const startNewConversation = useCallback(() => {
     setMessages([]);
     setActiveConversationId(null);
-    setAttachedDoc(null);
+    setAttachedDocs([]);
     setView("chat");
   }, []);
 
@@ -199,14 +200,22 @@ export function AINavigator() {
     if (!file) return;
     e.target.value = "";
 
-    const MAX_CHARS = 8_000;
+    // 80K chars ≈ 20K tokens — safely within Claude's 200K-token window even
+    // with multiple docs attached. No artificial cap below this.
+    const MAX_CHARS = 80_000;
+
+    const addDoc = (name: string, rawText: string, type: "pdf" | "text") => {
+      const text = rawText.slice(0, MAX_CHARS);
+      setAttachedDocs(prev => {
+        // Avoid duplicates by name
+        if (prev.some(d => d.name === name)) return prev;
+        return [...prev, { name, text, type, originalSize: rawText.length }];
+      });
+    };
 
     if (file.name.match(/\.(txt|md)$/i) || file.type === "text/plain" || file.type === "text/markdown") {
       const reader = new FileReader();
-      reader.onload = (ev) => {
-        const text = (ev.target?.result as string) || "";
-        setAttachedDoc({ name: file.name, text: text.slice(0, MAX_CHARS), type: "text" });
-      };
+      reader.onload = (ev) => addDoc(file.name, (ev.target?.result as string) || "", "text");
       reader.readAsText(file);
       return;
     }
@@ -218,9 +227,9 @@ export function AINavigator() {
         const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData });
         if (!res.ok) throw new Error("Extraction failed");
         const { text, name } = await res.json();
-        setAttachedDoc({ name: name || file.name, text: (text || "").slice(0, MAX_CHARS), type: "pdf" });
+        addDoc(name || file.name, text || "", "pdf");
       } catch {
-        toast({ title: "Could not read PDF", description: "Try saving as a .txt file and uploading that instead.", variant: "destructive" });
+        toast({ title: "Could not read PDF", description: "Try saving as a .txt file instead.", variant: "destructive" });
       }
       return;
     }
@@ -236,13 +245,14 @@ export function AINavigator() {
     // User msg goes at messages.length, assistant placeholder at messages.length + 1.
     const assistantIdx = messages.length + 1;
 
-    const docContext = attachedDoc
-      ? `[ATTACHED DOCUMENT: "${attachedDoc.name}"]\n${attachedDoc.text}`
+    const docContext = attachedDocs.length > 0
+      ? attachedDocs.map(d => `[ATTACHED DOCUMENT: "${d.name}"]\n${d.text}`).join("\n\n---\n\n")
       : "";
     const apiText = docContext ? `${messageText}\n\n${docContext}` : messageText;
-    const displayText = attachedDoc
-      ? `${messageText}\n\n📎 ${attachedDoc.name}`
-      : messageText;
+    const docLabel = attachedDocs.length > 0
+      ? "\n\n" + attachedDocs.map(d => `📎 ${d.name}`).join("  ")
+      : "";
+    const displayText = messageText + docLabel;
 
     setMessages(prev => [
       ...prev,
@@ -250,7 +260,7 @@ export function AINavigator() {
       { role: "assistant", content: "" },
     ]);
     setInput("");
-    setAttachedDoc(null);
+    setAttachedDocs([]);
     setIsStreaming(true);
 
     try {
@@ -366,7 +376,7 @@ export function AINavigator() {
     } finally {
       setIsStreaming(false);
     }
-  }, [input, isStreaming, activeConversationId, messages, attachedDoc, refetchConversations]);
+  }, [input, isStreaming, activeConversationId, messages, attachedDocs, refetchConversations]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -667,21 +677,29 @@ export function AINavigator() {
 
           {/* Input area */}
           <div className="p-3 border-t bg-background">
-            {/* Attached document preview */}
-            {attachedDoc && (
-              <div className="mb-2 flex items-center gap-2 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg text-xs">
-                <FileText className="h-3.5 w-3.5 text-teal-600 flex-shrink-0" />
-                <span className="text-teal-800 dark:text-teal-200 truncate flex-1">
-                  {attachedDoc.name}
-                  <span className="text-teal-500 ml-1">({Math.round(attachedDoc.text.length / 1000)}k chars)</span>
-                </span>
-                <button
-                  onClick={() => setAttachedDoc(null)}
-                  className="text-teal-600 hover:text-teal-900 dark:hover:text-teal-100 transition-colors"
-                  aria-label="Remove attachment"
-                >
-                  <X className="h-3.5 w-3.5" />
-                </button>
+            {/* Attached documents list */}
+            {attachedDocs.length > 0 && (
+              <div className="mb-2 space-y-1">
+                {attachedDocs.map((doc, i) => (
+                  <div key={doc.name} className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg text-xs">
+                    <FileText className="h-3.5 w-3.5 text-teal-600 flex-shrink-0" />
+                    <span className="text-teal-800 dark:text-teal-200 truncate flex-1">
+                      {doc.name}
+                      <span className="text-teal-500 ml-1">
+                        ({doc.originalSize > doc.text.length
+                          ? `${Math.round(doc.text.length / 1000)}k of ${Math.round(doc.originalSize / 1000)}k chars`
+                          : `${Math.round(doc.text.length / 1000)}k chars`})
+                      </span>
+                    </span>
+                    <button
+                      onClick={() => setAttachedDocs(prev => prev.filter((_, idx) => idx !== i))}
+                      className="text-teal-600 hover:text-teal-900 dark:hover:text-teal-100 transition-colors flex-shrink-0"
+                      aria-label={`Remove ${doc.name}`}
+                    >
+                      <X className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -696,16 +714,21 @@ export function AINavigator() {
                 data-testid="input-file-upload"
               />
 
-              {/* Attach button */}
+              {/* Attach button — badge shows count when docs are queued */}
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isStreaming}
-                className="flex-shrink-0 p-2 rounded-xl border hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50"
+                className="relative flex-shrink-0 p-2 rounded-xl border hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50"
                 data-testid="button-attach-document"
                 aria-label="Attach document"
-                title="Attach PDF or text document"
+                title="Attach PDF, .txt, or .md — click multiple times to add more"
               >
                 <Paperclip className="h-4 w-4" />
+                {attachedDocs.length > 0 && (
+                  <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-teal-600 text-[9px] font-bold text-white">
+                    {attachedDocs.length}
+                  </span>
+                )}
               </button>
 
               <Textarea
@@ -713,7 +736,7 @@ export function AINavigator() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Tell me what you need help with..."
+                placeholder={attachedDocs.length > 0 ? "What would you like me to do with these documents?" : "Tell me what you need help with..."}
                 className="min-h-[40px] max-h-[100px] resize-none text-sm rounded-xl"
                 rows={1}
                 disabled={isStreaming}
@@ -722,7 +745,7 @@ export function AINavigator() {
 
               <Button
                 onClick={() => sendMessage()}
-                disabled={(!input.trim() && !attachedDoc) || isStreaming}
+                disabled={(!input.trim() && attachedDocs.length === 0) || isStreaming}
                 size="icon"
                 className="rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 flex-shrink-0"
                 data-testid="button-send-navigator"
@@ -736,7 +759,7 @@ export function AINavigator() {
               </Button>
             </div>
             <p className="text-[10px] text-center text-muted-foreground mt-1.5">
-              Attach PDFs or .txt files · Copy or download any response · Not a substitute for professional advice.
+              Attach multiple PDFs / .txt / .md files · Copy or download any response · Not a substitute for professional advice.
             </p>
           </div>
         </div>

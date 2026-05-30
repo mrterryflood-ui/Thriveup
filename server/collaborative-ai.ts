@@ -28,6 +28,9 @@ interface CollaborativeStreamParams {
   prompt: string;
   systemPrompt?: string;
   maxTokens?: number;
+  /** When true, skip RAG retrieval entirely (e.g. user has already supplied
+   *  document context — RAG would only waste context-window budget). */
+  skipRAG?: boolean;
   onChunk: (content: string) => void;
   onMeta: (meta: { engines: string[]; ragSources: string[]; frameworks: string[] }) => void;
   onDone: (result: CollaborativeResult) => void;
@@ -401,27 +404,40 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   // (Claude, OpenAI, Gemini, ~3-8s). R1 starts immediately on its own
   // track — it will NOT block the initial synthesis.
   const deepThinkEngine = engines.find(e => e.id === "deepseek-r1");
-  const fastEngines = engines.filter(e => e.id !== "deepseek-r1");
-  const enginesForFastPass = fastEngines.length > 0 ? fastEngines : engines;
+  const allFastEngines = engines.filter(e => e.id !== "deepseek-r1");
+
+  // When the user has supplied document context (skipRAG=true), prefer Claude
+  // as the sole fast engine — it has a 200K-token context window and handles
+  // large documents far better than a parallel multi-engine synthesis would.
+  // If Claude isn't available fall back to all fast engines.
+  let enginesForFastPass = allFastEngines.length > 0 ? allFastEngines : engines;
+  if (params.skipRAG) {
+    const claudeEngine = allFastEngines.find(e => e.id === "claude");
+    if (claudeEngine) enginesForFastPass = [claudeEngine];
+  }
 
   let ragSources: string[] = [];
   let ragContext = "";
   let ragChunkCount = 0;
 
-  try {
-    const searchQuery = params.prompt.slice(0, 200);
-    const [chunks, liveContext] = await Promise.all([
-      retrieveRelevantChunks(searchQuery, 8),
-      buildLiveIntelligenceContext(),
-    ]);
-    ragChunkCount = chunks.length;
-    ragSources = chunks.map(c => c.title);
-    ragContext = `\n=== RAG KNOWLEDGE BASE (${chunks.length} relevant chunks) ===\n` +
-      chunks.map((c, i) => `[${i + 1}] ${c.title}: ${c.content}`).join("\n") +
-      `\n\n${liveContext}`;
-  } catch {}
+  if (!params.skipRAG) {
+    try {
+      const searchQuery = params.prompt.slice(0, 200);
+      const [chunks, liveContext] = await Promise.all([
+        retrieveRelevantChunks(searchQuery, 8),
+        buildLiveIntelligenceContext(),
+      ]);
+      ragChunkCount = chunks.length;
+      ragSources = chunks.map(c => c.title);
+      ragContext = `\n=== RAG KNOWLEDGE BASE (${chunks.length} relevant chunks) ===\n` +
+        chunks.map((c, i) => `[${i + 1}] ${c.title}: ${c.content}`).join("\n") +
+        `\n\n${liveContext}`;
+    } catch {}
+  }
 
-  const enrichedPrompt = `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
+  const enrichedPrompt = params.skipRAG
+    ? `${params.prompt}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\nINSTRUCTIONS: Analyse the supplied document(s) carefully. Apply RPLICE implementation science thinking. Be specific and actionable. Do NOT truncate your response — produce the full output the user requested.`
+    : `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
 
   const baseSystem = params.systemPrompt || "You are part of the ThriveUp Academy Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, RPLICE implementation science, and MAP-GAP continuous improvement to produce evidence-grounded outputs.";
 
