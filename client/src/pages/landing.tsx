@@ -826,7 +826,20 @@ const HERO_NODES = [
 ];
 const HERO_STREAM_COLORS = ["#22d3ee", "#f59e0b", "#a78bfa", "#34d399", "#f472b6"];
 
-function HeroBackground() {
+function useIsDark() {
+  const [dark, setDark] = useState(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("dark")
+  );
+  useEffect(() => {
+    const el = document.documentElement;
+    const obs = new MutationObserver(() => setDark(el.classList.contains("dark")));
+    obs.observe(el, { attributes: true, attributeFilter: ["class"] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
+}
+
+function HeroBackground({ isDark }: { isDark: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef(0);
   const blobRef = useRef<HTMLDivElement>(null);
@@ -845,7 +858,7 @@ function HeroBackground() {
       speed: 0.3 + Math.random() * 0.55,
       size: 1 + Math.random() * 1.4,
       color: HERO_STREAM_COLORS[Math.floor(Math.random() * HERO_STREAM_COLORS.length)],
-      alpha: 0.12 + Math.random() * 0.2,
+      alpha: isDark ? (0.12 + Math.random() * 0.2) : (0.22 + Math.random() * 0.28),
       trail: [],
     }));
 
@@ -864,7 +877,6 @@ function HeroBackground() {
       tick++;
       ctx!.clearRect(0, 0, W, H);
 
-      // Upward particle streams
       particles.forEach((p) => {
         p.y -= p.speed;
         if (p.y < -8) { p.y = H + 8; p.x = Math.random() * W; p.trail = []; }
@@ -883,7 +895,6 @@ function HeroBackground() {
         ctx!.globalAlpha = 1;
       });
 
-      // Network node lines + nodes
       nodes.forEach((n) => {
         n.pulse += n.pulseSpeed;
         n.px += n.vx; n.py += n.vy;
@@ -893,38 +904,38 @@ function HeroBackground() {
         n.vx *= 0.97; n.vy *= 0.97;
 
         const dc = Math.sqrt((n.px - cx) ** 2 + (n.py - cy) ** 2);
-        const la = 0.16 * (1 - dc / 430);
+        const lineBase = isDark ? 0.16 : 0.28;
+        const la = lineBase * (1 - dc / 430);
         if (la > 0) {
           const gr = ctx!.createLinearGradient(cx, cy, n.px, n.py);
           gr.addColorStop(0, n.color + "00");
           gr.addColorStop(0.55, n.color + Math.round(la * 255).toString(16).padStart(2, "0"));
-          gr.addColorStop(1, n.color + Math.round(la * 1.5 * 255).toString(16).padStart(2, "0"));
-          ctx!.beginPath(); ctx!.strokeStyle = gr; ctx!.lineWidth = 0.9;
+          gr.addColorStop(1, n.color + Math.round(Math.min(la * 1.5, 1) * 255).toString(16).padStart(2, "0"));
+          ctx!.beginPath(); ctx!.strokeStyle = gr; ctx!.lineWidth = isDark ? 0.9 : 1.1;
           ctx!.moveTo(cx, cy); ctx!.lineTo(n.px, n.py); ctx!.stroke();
           const prog = ((tick * 0.005 + n.angle * 0.01) % 1);
           ctx!.beginPath(); ctx!.arc(cx + (n.px - cx) * prog, cy + (n.py - cy) * prog, 1.5, 0, Math.PI * 2);
-          ctx!.fillStyle = n.color; ctx!.globalAlpha = 0.45; ctx!.fill(); ctx!.globalAlpha = 1;
+          ctx!.fillStyle = n.color; ctx!.globalAlpha = isDark ? 0.45 : 0.65; ctx!.fill(); ctx!.globalAlpha = 1;
         }
 
         const pf = 1 + Math.sin(n.pulse) * 0.11;
         const r = 4.5 * pf;
         const gw = ctx!.createRadialGradient(n.px, n.py, 0, n.px, n.py, r * 3.5);
-        gw.addColorStop(0, n.color + "44"); gw.addColorStop(1, n.color + "00");
+        gw.addColorStop(0, n.color + (isDark ? "44" : "55")); gw.addColorStop(1, n.color + "00");
         ctx!.beginPath(); ctx!.arc(n.px, n.py, r * 3.5, 0, Math.PI * 2); ctx!.fillStyle = gw; ctx!.fill();
         ctx!.beginPath(); ctx!.arc(n.px, n.py, r, 0, Math.PI * 2); ctx!.fillStyle = n.color; ctx!.fill();
         ctx!.font = "9px Inter, system-ui, sans-serif"; ctx!.fillStyle = n.color;
-        ctx!.globalAlpha = 0.65; ctx!.textAlign = "center";
+        ctx!.globalAlpha = isDark ? 0.65 : 0.8; ctx!.textAlign = "center";
         ctx!.fillText(n.label, n.px, n.py + r + 12); ctx!.globalAlpha = 1;
       });
 
-      // Peer links between close nodes
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const a = nodes[i], b = nodes[j];
           const d = Math.sqrt((a.px - b.px) ** 2 + (a.py - b.py) ** 2);
           if (d < 175) {
             ctx!.beginPath(); ctx!.strokeStyle = a.color;
-            ctx!.globalAlpha = (1 - d / 175) * 0.07; ctx!.lineWidth = 0.6;
+            ctx!.globalAlpha = (1 - d / 175) * (isDark ? 0.07 : 0.13); ctx!.lineWidth = 0.6;
             ctx!.moveTo(a.px, a.py); ctx!.lineTo(b.px, b.py); ctx!.stroke(); ctx!.globalAlpha = 1;
           }
         }
@@ -933,7 +944,7 @@ function HeroBackground() {
     }
     draw();
     return () => cancelAnimationFrame(animRef.current);
-  }, []);
+  }, [isDark]);
 
   useEffect(() => {
     let tick = 0;
@@ -948,28 +959,45 @@ function HeroBackground() {
     return () => clearInterval(iv);
   }, []);
 
+  if (isDark) {
+    return (
+      <>
+        <div className="absolute inset-0" style={{ background: "linear-gradient(150deg, #050810 0%, #0a1020 50%, #08060f 100%)" }} />
+        <div ref={blobRef} className="absolute inset-0 pointer-events-none">
+          <div data-hb="1" className="absolute rounded-full" style={{ width: 580, height: 580, top: "-14%", left: "-10%", background: "radial-gradient(circle, rgba(245,158,11,0.17) 0%, transparent 65%)", filter: "blur(72px)" }} />
+          <div data-hb="2" className="absolute rounded-full" style={{ width: 480, height: 480, top: "-5%", right: "-8%", background: "radial-gradient(circle, rgba(244,63,94,0.14) 0%, transparent 65%)", filter: "blur(62px)" }} />
+          <div data-hb="3" className="absolute rounded-full" style={{ width: 460, height: 460, bottom: "-8%", left: "28%", background: "radial-gradient(circle, rgba(139,92,246,0.13) 0%, transparent 65%)", filter: "blur(68px)" }} />
+          <div data-hb="4" className="absolute rounded-full" style={{ width: 340, height: 340, top: "38%", left: "12%", background: "radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 65%)", filter: "blur(55px)" }} />
+        </div>
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px)", backgroundSize: "56px 56px" }} />
+        <canvas ref={canvasRef} width={1440} height={900} className="absolute inset-0 w-full h-full" style={{ opacity: 0.72 }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 65% at 50% 44%, rgba(5,8,16,0.78) 0%, transparent 100%)" }} />
+      </>
+    );
+  }
+
   return (
     <>
-      {/* Dark base */}
-      <div className="absolute inset-0" style={{ background: "linear-gradient(150deg, #050810 0%, #0a1020 50%, #08060f 100%)" }} />
-      {/* Breathing warm blobs */}
+      {/* Light mode base — warm white with violet hint */}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(160deg, #fdf8ff 0%, #ffffff 45%, #f0f7ff 100%)" }} />
+      {/* Light mode warm blobs — visible but soft */}
       <div ref={blobRef} className="absolute inset-0 pointer-events-none">
-        <div data-hb="1" className="absolute rounded-full" style={{ width: 580, height: 580, top: "-14%", left: "-10%", background: "radial-gradient(circle, rgba(245,158,11,0.17) 0%, transparent 65%)", filter: "blur(72px)" }} />
-        <div data-hb="2" className="absolute rounded-full" style={{ width: 480, height: 480, top: "-5%", right: "-8%", background: "radial-gradient(circle, rgba(244,63,94,0.14) 0%, transparent 65%)", filter: "blur(62px)" }} />
-        <div data-hb="3" className="absolute rounded-full" style={{ width: 460, height: 460, bottom: "-8%", left: "28%", background: "radial-gradient(circle, rgba(139,92,246,0.13) 0%, transparent 65%)", filter: "blur(68px)" }} />
-        <div data-hb="4" className="absolute rounded-full" style={{ width: 340, height: 340, top: "38%", left: "12%", background: "radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 65%)", filter: "blur(55px)" }} />
+        <div data-hb="1" className="absolute rounded-full" style={{ width: 560, height: 560, top: "-12%", left: "-8%", background: "radial-gradient(circle, rgba(245,158,11,0.22) 0%, transparent 60%)", filter: "blur(65px)" }} />
+        <div data-hb="2" className="absolute rounded-full" style={{ width: 460, height: 460, top: "-4%", right: "-6%", background: "radial-gradient(circle, rgba(244,63,94,0.18) 0%, transparent 60%)", filter: "blur(58px)" }} />
+        <div data-hb="3" className="absolute rounded-full" style={{ width: 440, height: 440, bottom: "-6%", left: "26%", background: "radial-gradient(circle, rgba(139,92,246,0.16) 0%, transparent 60%)", filter: "blur(62px)" }} />
+        <div data-hb="4" className="absolute rounded-full" style={{ width: 320, height: 320, top: "36%", left: "10%", background: "radial-gradient(circle, rgba(34,211,238,0.12) 0%, transparent 60%)", filter: "blur(50px)" }} />
       </div>
-      {/* Subtle grid */}
-      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px)", backgroundSize: "56px 56px" }} />
-      {/* Animated canvas */}
-      <canvas ref={canvasRef} width={1440} height={900} className="absolute inset-0 w-full h-full" style={{ opacity: 0.72 }} />
-      {/* Center vignette so text reads clean */}
-      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 65% at 50% 44%, rgba(5,8,16,0.78) 0%, transparent 100%)" }} />
+      {/* Grid — dark lines for light bg */}
+      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(0,0,0,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,0,0,0.04) 1px,transparent 1px)", backgroundSize: "56px 56px" }} />
+      {/* Canvas at lower opacity so it doesn't overwhelm the light base */}
+      <canvas ref={canvasRef} width={1440} height={900} className="absolute inset-0 w-full h-full" style={{ opacity: 0.55 }} />
+      {/* Light center vignette — pushes blobs to edges, clears reading zone */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 62% 68% at 50% 44%, rgba(255,255,255,0.88) 0%, transparent 100%)" }} />
     </>
   );
 }
 
-function HeroStatCounter({ target, label, color }: { target: number; label: string; color: string }) {
+function HeroStatCounter({ target, label, color, isDark }: { target: number; label: string; color: string; isDark: boolean }) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     let cur = 0;
@@ -984,7 +1012,7 @@ function HeroStatCounter({ target, label, color }: { target: number; label: stri
   return (
     <div className="text-center">
       <div className="text-2xl sm:text-3xl font-black tabular-nums" style={{ color }}>{val.toLocaleString()}</div>
-      <div className="text-xs mt-0.5" style={{ color: "rgba(248,250,252,0.38)", letterSpacing: "0.04em" }}>{label}</div>
+      <div className="text-xs mt-0.5" style={{ color: isDark ? "rgba(248,250,252,0.45)" : "rgba(15,15,25,0.5)", letterSpacing: "0.04em" }}>{label}</div>
     </div>
   );
 }
@@ -992,6 +1020,7 @@ function HeroStatCounter({ target, label, color }: { target: number; label: stri
 export default function LandingPage() {
   const { toast } = useToast();
   const searchString = useSearch();
+  const isDark = useIsDark();
 
   useEffect(() => {
     const params = new URLSearchParams(searchString);
@@ -1006,6 +1035,16 @@ export default function LandingPage() {
     }
   }, [searchString, toast]);
 
+  // Theme-aware text color helpers
+  const heroText    = isDark ? "rgba(248,250,252,0.92)" : "rgba(15,15,25,0.92)";
+  const heroSub     = isDark ? "rgba(248,250,252,0.72)" : "rgba(15,15,25,0.72)";
+  const heroMuted   = isDark ? "rgba(248,250,252,0.52)" : "rgba(15,15,25,0.56)";
+  const heroFaint   = isDark ? "rgba(248,250,252,0.38)" : "rgba(15,15,25,0.42)";
+  const secondaryBtn = isDark
+    ? { background: "rgba(248,250,252,0.08)", color: "#f8fafc", border: "1px solid rgba(248,250,252,0.2)" }
+    : { background: "rgba(15,15,25,0.06)", color: "#0f0f19", border: "1px solid rgba(15,15,25,0.18)" };
+  const statBorder = isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.1)";
+
   return (
     <div className="min-h-screen" data-testid="landing-page">
       <style>{`
@@ -1017,14 +1056,14 @@ export default function LandingPage() {
       `}</style>
 
       <section className="relative overflow-hidden" style={{ minHeight: "100svh" }} data-testid="section-hero">
-        <HeroBackground />
+        <HeroBackground isDark={isDark} />
 
         {/* Content sits above all background layers */}
         <div className="relative z-10 flex flex-col items-center justify-center px-4 text-center" style={{ minHeight: "100svh", paddingTop: 48, paddingBottom: 56 }}>
 
           {/* Live badge */}
           <div className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full text-xs font-medium"
-            style={{ background: "rgba(245,158,11,0.13)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b", letterSpacing: "0.06em" }}>
+            style={{ background: "rgba(245,158,11,0.13)", border: "1px solid rgba(245,158,11,0.32)", color: "#d97706", letterSpacing: "0.06em" }}>
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#f59e0b" }} />
               <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#f59e0b" }} />
@@ -1034,24 +1073,24 @@ export default function LandingPage() {
 
           {/* Headline */}
           <h1 className="font-black mb-5 tracking-tight leading-tight" data-testid="text-hero-title"
-            style={{ fontSize: "clamp(2.2rem,5.5vw,3.75rem)", color: "#f8fafc", maxWidth: 740, textShadow: "0 2px 40px rgba(5,8,16,0.9)" }}>
+            style={{ fontSize: "clamp(2.2rem,5.5vw,3.75rem)", color: heroText, maxWidth: 740, textShadow: isDark ? "0 2px 40px rgba(5,8,16,0.9)" : "0 1px 24px rgba(255,255,255,0.8)" }}>
             Built from community.
             <br />
-            <span style={{ background: "linear-gradient(90deg,#f59e0b 0%,#f472b6 55%,#a78bfa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+            <span style={{ background: "linear-gradient(90deg,#d97706 0%,#e11d48 55%,#7c3aed 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
               Powered by data.
             </span>
           </h1>
 
           {/* Subtitle */}
-          <p className="mb-3 px-2" data-testid="text-hero-subtitle"
-            style={{ color: "rgba(248,250,252,0.65)", fontSize: "1.05rem", maxWidth: 560, lineHeight: 1.75 }}>
+          <p className="mb-4 px-2" data-testid="text-hero-subtitle"
+            style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 560, lineHeight: 1.75 }}>
             We equip youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered training, verifiable credentials, and the infrastructure to create lasting change from within.
           </p>
 
-          <p className="text-sm mb-2 px-2" data-testid="text-hero-geography"
-            style={{ color: "rgba(248,250,252,0.42)", maxWidth: 520, lineHeight: 1.7 }}>
+          <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
+            style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.7 }}>
             Built to work in any U.S. county.{" "}
-            <Link href="/coverage" className="hover:underline" style={{ color: "#f59e0b" }} data-testid="link-hero-coverage">
+            <Link href="/coverage" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-coverage">
               Texas is our first deployment
             </Link>
             {" "}— Travis, Williamson, Hays, Bastrop, and Caldwell counties.
@@ -1059,12 +1098,12 @@ export default function LandingPage() {
           </p>
 
           <p className="text-xs mb-2 px-2" data-testid="text-hero-philosophy"
-            style={{ color: "rgba(248,250,252,0.32)", maxWidth: 500, lineHeight: 1.7 }}>
+            style={{ color: heroFaint, maxWidth: 500, lineHeight: 1.7 }}>
             Holistic. Agile. Agnostic. We meet every community where they are — through intentional collaboration, honest communication, and building together.
           </p>
 
           <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
-            style={{ color: "rgba(248,250,252,0.25)", maxWidth: 560, lineHeight: 1.65 }}>
+            style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
             ThriveUp is the community infrastructure platform — the operating system that empowers communities to coordinate workforce training, health equity, education, and case management across 6 domains, 15 service platforms, and 4-engine AI.
           </p>
 
@@ -1072,13 +1111,13 @@ export default function LandingPage() {
           <div className="flex flex-wrap gap-4 justify-center mb-10">
             <Link href="/benefits-screener">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ background: "linear-gradient(135deg,#f59e0b,#f472b6)", color: "#050810", boxShadow: "0 0 32px rgba(245,158,11,0.35)", border: "none", cursor: "pointer" }}>
+                style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}>
                 Find What Your Family Qualifies For →
               </button>
             </Link>
             <Link href="/sdoh-explorer">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ background: "rgba(248,250,252,0.07)", color: "#f8fafc", border: "1px solid rgba(248,250,252,0.18)", backdropFilter: "blur(8px)", cursor: "pointer" }}>
+                style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}>
                 See Your Neighborhood's Data
               </button>
             </Link>
@@ -1086,11 +1125,11 @@ export default function LandingPage() {
 
           {/* Live stat strip */}
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 pt-6"
-            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
-            <HeroStatCounter target={721} label="Grants Discovered" color="#f59e0b" />
-            <HeroStatCounter target={26}  label="Platforms Online"  color="#22d3ee" />
-            <HeroStatCounter target={9}   label="Benefits Screened at Once" color="#34d399" />
-            <HeroStatCounter target={50}  label="States Deployable" color="#a78bfa" />
+            style={{ borderTop: `1px solid ${statBorder}` }}>
+            <HeroStatCounter target={721} label="Grants Discovered"       color="#d97706" isDark={isDark} />
+            <HeroStatCounter target={26}  label="Platforms Online"         color="#0891b2" isDark={isDark} />
+            <HeroStatCounter target={9}   label="Benefits Screened at Once" color="#059669" isDark={isDark} />
+            <HeroStatCounter target={50}  label="States Deployable"        color="#7c3aed" isDark={isDark} />
           </div>
         </div>
       </section>
