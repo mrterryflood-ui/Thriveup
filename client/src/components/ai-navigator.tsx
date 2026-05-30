@@ -9,6 +9,7 @@ import {
   Compass, Send, X, MessageSquarePlus, Trash2, ChevronLeft,
   Loader2, Sparkles, Phone, ExternalLink, AlertTriangle,
   History, Minimize2, Maximize2, Bot, User, Brain, ChevronDown, ChevronUp,
+  Paperclip, Copy, Download, Check, FileText,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -18,6 +19,7 @@ interface NavigatorMessage {
   content: string;
   createdAt?: string;
   deepThinking?: string;
+  deepThinkingPending?: boolean;
 }
 
 interface NavigatorConversation {
@@ -27,6 +29,12 @@ interface NavigatorConversation {
   identifiedNeeds?: string[];
   lastMessageAt?: string;
   createdAt?: string;
+}
+
+interface AttachedDoc {
+  name: string;
+  text: string;
+  type: "pdf" | "text";
 }
 
 const QUICK_PROMPTS = [
@@ -52,9 +60,6 @@ const NEED_COLORS: Record<string, string> = {
 };
 
 function formatMessageContent(content: string) {
-  const phoneRegex = /(\d{3}[-.\s]?\d{3}[-.\s]?\d{4}|1[-.\s]?\d{3}[-.\s]?\d{3}[-.\s]?\d{4}|\d{3})/g;
-  const urlRegex = /(https?:\/\/[^\s,)]+)/g;
-
   const parts = content.split(/(\n)/);
   return parts.map((part, i) => {
     if (part === "\n") return <br key={i} />;
@@ -116,8 +121,11 @@ export function AINavigator() {
   const [isStreaming, setIsStreaming] = useState(false);
   const [activeConversationId, setActiveConversationId] = useState<string | null>(null);
   const [deepThinkingExpanded, setDeepThinkingExpanded] = useState<Record<number, boolean>>({});
+  const [attachedDoc, setAttachedDoc] = useState<AttachedDoc | null>(null);
+  const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { data: conversations, refetch: refetchConversations } = useQuery<NavigatorConversation[]>({
     queryKey: ["/api/navigator/conversations"],
@@ -160,34 +168,99 @@ export function AINavigator() {
   const startNewConversation = useCallback(() => {
     setMessages([]);
     setActiveConversationId(null);
+    setAttachedDoc(null);
     setView("chat");
   }, []);
+
+  const copyMessage = useCallback(async (text: string, idx: number) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedIdx(idx);
+      setTimeout(() => setCopiedIdx(null), 2000);
+    } catch {
+      toast({ title: "Could not copy", description: "Please select and copy the text manually.", variant: "destructive" });
+    }
+  }, [toast]);
+
+  const downloadMessage = useCallback((text: string, idx: number) => {
+    const blob = new Blob([text], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `navigator-response-${idx + 1}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }, []);
+
+  const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    e.target.value = "";
+
+    const MAX_CHARS = 24_000;
+
+    if (file.name.match(/\.(txt|md)$/i) || file.type === "text/plain" || file.type === "text/markdown") {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const text = (ev.target?.result as string) || "";
+        setAttachedDoc({ name: file.name, text: text.slice(0, MAX_CHARS), type: "text" });
+      };
+      reader.readAsText(file);
+      return;
+    }
+
+    if (file.name.match(/\.pdf$/i) || file.type === "application/pdf") {
+      const formData = new FormData();
+      formData.append("file", file);
+      try {
+        const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData });
+        if (!res.ok) throw new Error("Extraction failed");
+        const { text, name } = await res.json();
+        setAttachedDoc({ name: name || file.name, text: (text || "").slice(0, MAX_CHARS), type: "pdf" });
+      } catch {
+        toast({ title: "Could not read PDF", description: "Try saving as a .txt file and uploading that instead.", variant: "destructive" });
+      }
+      return;
+    }
+
+    toast({ title: "Unsupported file type", description: "Please upload a .pdf, .txt, or .md file.", variant: "destructive" });
+  }, [toast]);
 
   const sendMessage = useCallback(async (text?: string) => {
     const messageText = text || input.trim();
     if (!messageText || isStreaming) return;
 
-    const userMsg: NavigatorMessage = { role: "user", content: messageText };
-    setMessages(prev => [...prev, userMsg]);
-    setInput("");
-    setIsStreaming(true);
+    // Capture the index of the assistant message we're about to create.
+    // User msg goes at messages.length, assistant placeholder at messages.length + 1.
+    const assistantIdx = messages.length + 1;
 
-    const assistantMsg: NavigatorMessage = { role: "assistant", content: "" };
-    setMessages(prev => [...prev, assistantMsg]);
+    const docContext = attachedDoc
+      ? `[ATTACHED DOCUMENT: "${attachedDoc.name}"]\n${attachedDoc.text}`
+      : "";
+    const apiText = docContext ? `${messageText}\n\n${docContext}` : messageText;
+    const displayText = attachedDoc
+      ? `${messageText}\n\n📎 ${attachedDoc.name}`
+      : messageText;
+
+    setMessages(prev => [
+      ...prev,
+      { role: "user", content: displayText },
+      { role: "assistant", content: "" },
+    ]);
+    setInput("");
+    setAttachedDoc(null);
+    setIsStreaming(true);
 
     try {
       const response = await fetch("/api/navigator/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          message: messageText,
-          conversationId: activeConversationId,
-        }),
+        body: JSON.stringify({ message: apiText, conversationId: activeConversationId }),
       });
 
-      if (!response.ok) {
-        throw new Error("Chat request failed");
-      }
+      if (!response.ok) throw new Error("Chat request failed");
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -198,52 +271,84 @@ export function AINavigator() {
           const { done, value } = await reader.read();
           if (done) break;
           const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
-          for (const line of lines) {
-            if (line.startsWith("data: ")) {
-              const data = line.slice(6);
-              try {
-                const parsed = JSON.parse(data);
-                if (parsed.conversationId && !activeConversationId) {
-                  setActiveConversationId(parsed.conversationId);
-                }
-                if (parsed.content) {
-                  fullText += parsed.content;
-                  setMessages(prev => {
-                    const updated = [...prev];
-                    updated[updated.length - 1] = { ...updated[updated.length - 1], role: "assistant", content: fullText };
-                    return updated;
-                  });
-                }
-                if (parsed.deepThinking) {
-                  setMessages(prev => {
-                    const updated = [...prev];
-                    updated[updated.length - 1] = { ...updated[updated.length - 1], deepThinking: parsed.deepThinking };
-                    return updated;
-                  });
-                }
-                if (parsed.done) {
-                  refetchConversations();
-                }
-              } catch {
+          for (const line of chunk.split("\n")) {
+            if (!line.startsWith("data: ")) continue;
+            try {
+              const parsed = JSON.parse(line.slice(6));
+
+              if (parsed.conversationId && !activeConversationId) {
+                setActiveConversationId(parsed.conversationId);
               }
-            }
+
+              if (parsed.content) {
+                fullText += parsed.content;
+                setMessages(prev => {
+                  const updated = [...prev];
+                  if (updated[assistantIdx]) {
+                    updated[assistantIdx] = { ...updated[assistantIdx], content: fullText };
+                  }
+                  return updated;
+                });
+              }
+
+              if (parsed.synthesisComplete) {
+                // Fast engines done — unlock input so the user can re-prompt
+                // while DeepSeek R1 continues its deep analysis in the background.
+                setIsStreaming(false);
+                setMessages(prev => {
+                  const updated = [...prev];
+                  if (updated[assistantIdx]) {
+                    updated[assistantIdx] = { ...updated[assistantIdx], deepThinkingPending: true };
+                  }
+                  return updated;
+                });
+              }
+
+              if (parsed.deepThinking) {
+                setMessages(prev => {
+                  const updated = [...prev];
+                  if (updated[assistantIdx]) {
+                    updated[assistantIdx] = {
+                      ...updated[assistantIdx],
+                      deepThinking: parsed.deepThinking,
+                      deepThinkingPending: false,
+                    };
+                  }
+                  return updated;
+                });
+              }
+
+              if (parsed.done) {
+                refetchConversations();
+                // Clear pending if R1 timed out without producing output
+                setMessages(prev => {
+                  const updated = [...prev];
+                  if (updated[assistantIdx]) {
+                    updated[assistantIdx] = { ...updated[assistantIdx], deepThinkingPending: false };
+                  }
+                  return updated;
+                });
+              }
+            } catch {}
           }
         }
       }
-    } catch (error) {
+    } catch {
       setMessages(prev => {
         const updated = [...prev];
-        updated[updated.length - 1] = {
-          role: "assistant",
-          content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
-        };
+        if (updated[assistantIdx]) {
+          updated[assistantIdx] = {
+            ...updated[assistantIdx],
+            content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+            deepThinkingPending: false,
+          };
+        }
         return updated;
       });
     } finally {
       setIsStreaming(false);
     }
-  }, [input, isStreaming, activeConversationId, messages, refetchConversations]);
+  }, [input, isStreaming, activeConversationId, messages, attachedDoc, refetchConversations]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -267,13 +372,14 @@ export function AINavigator() {
   }
 
   const panelWidth = isExpanded ? "w-[600px]" : "w-[380px]";
-  const panelHeight = isExpanded ? "h-[80vh]" : "h-[550px]";
+  const panelHeight = isExpanded ? "h-[80vh]" : "h-[560px]";
 
   return (
     <div
       className={`fixed bottom-6 right-6 z-50 ${panelWidth} ${panelHeight} flex flex-col bg-background border rounded-2xl shadow-2xl overflow-hidden transition-all duration-200`}
       data-testid="navigator-panel"
     >
+      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white">
         <div className="flex items-center gap-2">
           <Compass className="h-5 w-5" />
@@ -318,6 +424,7 @@ export function AINavigator() {
         </div>
       </div>
 
+      {/* History view */}
       {view === "history" ? (
         <div className="flex-1 overflow-hidden flex flex-col">
           <div className="px-4 py-2 border-b">
@@ -391,6 +498,8 @@ export function AINavigator() {
           </div>
         </div>
       ) : (
+
+        /* Chat view */
         <div className="flex-1 overflow-hidden flex flex-col">
           <ScrollArea className="flex-1">
             <div className="p-4 space-y-4" role="log" aria-live="polite" aria-label="Navigator conversation">
@@ -441,6 +550,7 @@ export function AINavigator() {
               ) : (
                 messages.map((msg, idx) => (
                   <div key={idx} data-testid={`message-${msg.role}-${idx}`}>
+                    {/* Message bubble row */}
                     <div className={`flex gap-2.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                       {msg.role === "assistant" && (
                         <div className="w-7 h-7 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -464,7 +574,7 @@ export function AINavigator() {
                             )}
                           </div>
                         ) : (
-                          <div className="leading-relaxed">{msg.content}</div>
+                          <div className="leading-relaxed whitespace-pre-wrap">{msg.content}</div>
                         )}
                       </div>
                       {msg.role === "user" && (
@@ -474,6 +584,44 @@ export function AINavigator() {
                       )}
                     </div>
 
+                    {/* Assistant action bar: copy + download */}
+                    {msg.role === "assistant" && msg.content && (
+                      <div className="ml-9 mt-1 flex items-center gap-1">
+                        <button
+                          onClick={() => copyMessage(msg.content, idx)}
+                          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors px-1.5 py-0.5 rounded hover:bg-muted/50"
+                          data-testid={`button-copy-${idx}`}
+                          aria-label="Copy response"
+                          title="Copy"
+                        >
+                          {copiedIdx === idx
+                            ? <Check className="h-3 w-3 text-green-500" />
+                            : <Copy className="h-3 w-3" />}
+                          <span>{copiedIdx === idx ? "Copied!" : "Copy"}</span>
+                        </button>
+                        <button
+                          onClick={() => downloadMessage(msg.content, idx)}
+                          className="flex items-center gap-1 text-[10px] text-muted-foreground hover:text-foreground transition-colors px-1.5 py-0.5 rounded hover:bg-muted/50"
+                          data-testid={`button-download-${idx}`}
+                          aria-label="Download response"
+                          title="Download as .txt"
+                        >
+                          <Download className="h-3 w-3" />
+                          <span>Download</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Deep thinking pending indicator */}
+                    {msg.role === "assistant" && msg.deepThinkingPending && (
+                      <div className="ml-9 mt-1.5 flex items-center gap-1.5 text-xs text-violet-600 dark:text-violet-400">
+                        <Brain className="h-3 w-3 animate-pulse" />
+                        <span>DeepSeek R1 is analyzing deeply — this takes ~30–60s</span>
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      </div>
+                    )}
+
+                    {/* Deep thinking expandable panel */}
                     {msg.role === "assistant" && msg.deepThinking && (
                       <div className="ml-9 mt-1.5">
                         <button
@@ -499,8 +647,49 @@ export function AINavigator() {
             </div>
           </ScrollArea>
 
+          {/* Input area */}
           <div className="p-3 border-t bg-background">
+            {/* Attached document preview */}
+            {attachedDoc && (
+              <div className="mb-2 flex items-center gap-2 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg text-xs">
+                <FileText className="h-3.5 w-3.5 text-teal-600 flex-shrink-0" />
+                <span className="text-teal-800 dark:text-teal-200 truncate flex-1">
+                  {attachedDoc.name}
+                  <span className="text-teal-500 ml-1">({Math.round(attachedDoc.text.length / 1000)}k chars)</span>
+                </span>
+                <button
+                  onClick={() => setAttachedDoc(null)}
+                  className="text-teal-600 hover:text-teal-900 dark:hover:text-teal-100 transition-colors"
+                  aria-label="Remove attachment"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
+
             <div className="flex gap-2">
+              {/* Hidden file input */}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".pdf,.txt,.md,text/plain,text/markdown,application/pdf"
+                className="hidden"
+                onChange={handleFileSelect}
+                data-testid="input-file-upload"
+              />
+
+              {/* Attach button */}
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isStreaming}
+                className="flex-shrink-0 p-2 rounded-xl border hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50"
+                data-testid="button-attach-document"
+                aria-label="Attach document"
+                title="Attach PDF or text document"
+              >
+                <Paperclip className="h-4 w-4" />
+              </button>
+
               <Textarea
                 ref={textareaRef}
                 value={input}
@@ -512,9 +701,10 @@ export function AINavigator() {
                 disabled={isStreaming}
                 data-testid="textarea-navigator-input"
               />
+
               <Button
                 onClick={() => sendMessage()}
-                disabled={!input.trim() || isStreaming}
+                disabled={(!input.trim() && !attachedDoc) || isStreaming}
                 size="icon"
                 className="rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 flex-shrink-0"
                 data-testid="button-send-navigator"
@@ -528,7 +718,7 @@ export function AINavigator() {
               </Button>
             </div>
             <p className="text-[10px] text-center text-muted-foreground mt-1.5">
-              Navigator connects you to real resources. Not a substitute for professional advice.
+              Attach PDFs or .txt files · Copy or download any response · Not a substitute for professional advice.
             </p>
           </div>
         </div>

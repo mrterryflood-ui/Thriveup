@@ -32,6 +32,10 @@ interface CollaborativeStreamParams {
   onMeta: (meta: { engines: string[]; ragSources: string[]; frameworks: string[] }) => void;
   onDone: (result: CollaborativeResult) => void;
   onError: (error: Error) => void;
+  /** Fired immediately after the fast-engine synthesis finishes streaming —
+   *  before DeepSeek R1 completes. Use this to unlock the input so users
+   *  can re-prompt while R1 continues its deep reasoning in the background. */
+  onSynthesisComplete?: () => void;
   /** Called when DeepSeek R1 finishes its deep-reasoning pass — AFTER the
    *  initial synthesis has already been streamed. The SSE connection stays
    *  open until this resolves (or R1 times out). */
@@ -479,6 +483,10 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     params.onError(new Error("All AI engines failed to produce a response. Please try again in a few minutes."));
     return;
   }
+
+  // Signal that the fast-engine synthesis is done — callers can unlock the
+  // input immediately so users can re-prompt while R1 continues in the background.
+  params.onSynthesisComplete?.();
 
   // ── Phase 2: Await DeepSeek R1 deep thinking (already running) ───────────
   const r1Result = await deepThinkPromise;

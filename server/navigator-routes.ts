@@ -6,6 +6,9 @@ import { searchByState, searchByLocation, generateCommunityNarrative } from "./g
 import { searchResources, getResourceCategories } from "./resource-engine";
 import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData } from "@shared/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
+import multer from "multer";
+
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -480,6 +483,9 @@ export function registerNavigatorRoutes(app: Express) {
         onMeta: (meta) => {
           res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
         },
+        onSynthesisComplete: () => {
+          res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
+        },
         onDeepThinking: (text, engineId, timeMs) => {
           // Strip DeepSeek R1's internal <think>...</think> tags — send only
           // the final reasoned answer as the deep thinking addendum.
@@ -589,6 +595,28 @@ export function registerNavigatorRoutes(app: Express) {
     } catch (error) {
       console.error("[Navigator] Error deleting conversation:", error);
       res.status(500).json({ error: "Failed to delete conversation" });
+    }
+  });
+
+  app.post("/api/navigator/extract-text", requireAuth, upload.single("file"), async (req, res) => {
+    try {
+      if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+      const { mimetype, originalname, buffer } = req.file;
+
+      if (mimetype === "text/plain" || mimetype === "text/markdown" || originalname.match(/\.(txt|md)$/i)) {
+        return res.json({ text: buffer.toString("utf8"), name: originalname });
+      }
+
+      if (mimetype === "application/pdf" || originalname.match(/\.pdf$/i)) {
+        const pdfParse = (await import("pdf-parse")).default;
+        const data = await pdfParse(buffer);
+        return res.json({ text: data.text, name: originalname, pages: data.numpages });
+      }
+
+      res.status(415).json({ error: "Unsupported file type. Please upload a PDF or plain text file." });
+    } catch (err) {
+      console.error("[Navigator] Document extraction error:", err);
+      res.status(500).json({ error: "Failed to extract text from document" });
     }
   });
 }
