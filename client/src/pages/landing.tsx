@@ -858,7 +858,7 @@ function HeroBackground({ isDark }: { isDark: boolean }) {
       speed: 0.3 + Math.random() * 0.55,
       size: 1 + Math.random() * 1.4,
       color: HERO_STREAM_COLORS[Math.floor(Math.random() * HERO_STREAM_COLORS.length)],
-      alpha: isDark ? (0.12 + Math.random() * 0.2) : (0.22 + Math.random() * 0.28),
+      alpha: isDark ? (0.35 + Math.random() * 0.3) : (0.22 + Math.random() * 0.28),
       trail: [],
     }));
 
@@ -904,7 +904,7 @@ function HeroBackground({ isDark }: { isDark: boolean }) {
         n.vx *= 0.97; n.vy *= 0.97;
 
         const dc = Math.sqrt((n.px - cx) ** 2 + (n.py - cy) ** 2);
-        const lineBase = isDark ? 0.16 : 0.28;
+        const lineBase = isDark ? 0.38 : 0.28;
         const la = lineBase * (1 - dc / 430);
         if (la > 0) {
           const gr = ctx!.createLinearGradient(cx, cy, n.px, n.py);
@@ -964,14 +964,14 @@ function HeroBackground({ isDark }: { isDark: boolean }) {
       <>
         <div className="absolute inset-0" style={{ background: "linear-gradient(150deg, #050810 0%, #0a1020 50%, #08060f 100%)" }} />
         <div ref={blobRef} className="absolute inset-0 pointer-events-none">
-          <div data-hb="1" className="absolute rounded-full" style={{ width: 580, height: 580, top: "-14%", left: "-10%", background: "radial-gradient(circle, rgba(245,158,11,0.17) 0%, transparent 65%)", filter: "blur(72px)" }} />
-          <div data-hb="2" className="absolute rounded-full" style={{ width: 480, height: 480, top: "-5%", right: "-8%", background: "radial-gradient(circle, rgba(244,63,94,0.14) 0%, transparent 65%)", filter: "blur(62px)" }} />
-          <div data-hb="3" className="absolute rounded-full" style={{ width: 460, height: 460, bottom: "-8%", left: "28%", background: "radial-gradient(circle, rgba(139,92,246,0.13) 0%, transparent 65%)", filter: "blur(68px)" }} />
-          <div data-hb="4" className="absolute rounded-full" style={{ width: 340, height: 340, top: "38%", left: "12%", background: "radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 65%)", filter: "blur(55px)" }} />
+          <div data-hb="1" className="absolute rounded-full" style={{ width: 620, height: 620, top: "-12%", left: "-8%", background: "radial-gradient(circle, rgba(245,158,11,0.45) 0%, transparent 60%)", filter: "blur(40px)" }} />
+          <div data-hb="2" className="absolute rounded-full" style={{ width: 520, height: 520, top: "-4%", right: "-6%", background: "radial-gradient(circle, rgba(244,63,94,0.38) 0%, transparent 60%)", filter: "blur(34px)" }} />
+          <div data-hb="3" className="absolute rounded-full" style={{ width: 500, height: 500, bottom: "-6%", left: "26%", background: "radial-gradient(circle, rgba(139,92,246,0.35) 0%, transparent 60%)", filter: "blur(38px)" }} />
+          <div data-hb="4" className="absolute rounded-full" style={{ width: 380, height: 380, top: "36%", left: "10%", background: "radial-gradient(circle, rgba(34,211,238,0.22) 0%, transparent 60%)", filter: "blur(30px)" }} />
         </div>
-        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px)", backgroundSize: "56px 56px" }} />
-        <canvas ref={canvasRef} width={1440} height={900} className="absolute inset-0 w-full h-full" style={{ opacity: 0.72 }} />
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 65% at 50% 44%, rgba(5,8,16,0.78) 0%, transparent 100%)" }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.03) 1px,transparent 1px)", backgroundSize: "56px 56px" }} />
+        <canvas ref={canvasRef} width={1440} height={900} className="absolute inset-0 w-full h-full" style={{ opacity: 0.9 }} />
+        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 55% 60% at 50% 44%, rgba(5,8,16,0.55) 0%, transparent 100%)" }} />
       </>
     );
   }
@@ -1036,10 +1036,10 @@ export default function LandingPage() {
   }, [searchString, toast]);
 
   // Theme-aware text color helpers
-  const heroText    = isDark ? "rgba(248,250,252,0.92)" : "rgba(15,15,25,0.92)";
-  const heroSub     = isDark ? "rgba(248,250,252,0.72)" : "rgba(15,15,25,0.72)";
-  const heroMuted   = isDark ? "rgba(248,250,252,0.52)" : "rgba(15,15,25,0.56)";
-  const heroFaint   = isDark ? "rgba(248,250,252,0.38)" : "rgba(15,15,25,0.42)";
+  const heroText    = isDark ? "#ffffff"                : "rgba(15,15,25,0.92)";
+  const heroSub     = isDark ? "rgba(248,250,252,0.90)" : "rgba(15,15,25,0.72)";
+  const heroMuted   = isDark ? "rgba(248,250,252,0.75)" : "rgba(15,15,25,0.56)";
+  const heroFaint   = isDark ? "rgba(248,250,252,0.58)" : "rgba(15,15,25,0.42)";
   const secondaryBtn = isDark
     ? { background: "rgba(248,250,252,0.08)", color: "#f8fafc", border: "1px solid rgba(248,250,252,0.2)" }
     : { background: "rgba(15,15,25,0.06)", color: "#0f0f19", border: "1px solid rgba(15,15,25,0.18)" };
