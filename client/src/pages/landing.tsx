@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearch } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
@@ -812,6 +812,183 @@ function StartHere() {
   );
 }
 
+const HERO_NODES = [
+  { label: "Health",   angle: 0,   dist: 320, color: "#34d399" },
+  { label: "Housing",  angle: 36,  dist: 350, color: "#60a5fa" },
+  { label: "Jobs",     angle: 72,  dist: 300, color: "#a78bfa" },
+  { label: "Justice",  angle: 108, dist: 340, color: "#f472b6" },
+  { label: "Youth",    angle: 144, dist: 310, color: "#fb923c" },
+  { label: "Veterans", angle: 180, dist: 330, color: "#38bdf8" },
+  { label: "Families", angle: 216, dist: 300, color: "#34d399" },
+  { label: "Faith",    angle: 252, dist: 350, color: "#f59e0b" },
+  { label: "CHW",      angle: 288, dist: 315, color: "#c084fc" },
+  { label: "Data",     angle: 324, dist: 335, color: "#22d3ee" },
+];
+const HERO_STREAM_COLORS = ["#22d3ee", "#f59e0b", "#a78bfa", "#34d399", "#f472b6"];
+
+function HeroBackground() {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animRef = useRef(0);
+  const blobRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.width, H = canvas.height;
+    const cx = W / 2, cy = H / 2;
+
+    type StreamParticle = { x: number; y: number; speed: number; size: number; color: string; alpha: number; trail: { x: number; y: number }[] };
+    const particles: StreamParticle[] = Array.from({ length: 35 }, () => ({
+      x: Math.random() * W, y: Math.random() * H,
+      speed: 0.3 + Math.random() * 0.55,
+      size: 1 + Math.random() * 1.4,
+      color: HERO_STREAM_COLORS[Math.floor(Math.random() * HERO_STREAM_COLORS.length)],
+      alpha: 0.12 + Math.random() * 0.2,
+      trail: [],
+    }));
+
+    const nodes = HERO_NODES.map((n) => ({
+      ...n,
+      px: cx + Math.cos((n.angle * Math.PI) / 180) * n.dist,
+      py: cy + Math.sin((n.angle * Math.PI) / 180) * n.dist,
+      vx: (Math.random() - 0.5) * 0.2,
+      vy: (Math.random() - 0.5) * 0.2,
+      pulse: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.018 + Math.random() * 0.012,
+    }));
+
+    let tick = 0;
+    function draw() {
+      tick++;
+      ctx!.clearRect(0, 0, W, H);
+
+      // Upward particle streams
+      particles.forEach((p) => {
+        p.y -= p.speed;
+        if (p.y < -8) { p.y = H + 8; p.x = Math.random() * W; p.trail = []; }
+        p.trail.push({ x: p.x, y: p.y });
+        if (p.trail.length > 9) p.trail.shift();
+        if (p.trail.length > 1) {
+          ctx!.beginPath(); ctx!.strokeStyle = p.color; ctx!.lineWidth = p.size * 0.6;
+          p.trail.forEach((pt, i) => {
+            ctx!.globalAlpha = (i / p.trail.length) * p.alpha * 0.45;
+            i === 0 ? ctx!.moveTo(pt.x, pt.y) : ctx!.lineTo(pt.x, pt.y);
+          });
+          ctx!.stroke();
+        }
+        ctx!.beginPath(); ctx!.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx!.fillStyle = p.color; ctx!.globalAlpha = p.alpha; ctx!.fill();
+        ctx!.globalAlpha = 1;
+      });
+
+      // Network node lines + nodes
+      nodes.forEach((n) => {
+        n.pulse += n.pulseSpeed;
+        n.px += n.vx; n.py += n.vy;
+        const tx = cx + Math.cos((n.angle * Math.PI) / 180) * n.dist;
+        const ty = cy + Math.sin((n.angle * Math.PI) / 180) * n.dist;
+        n.vx += (tx - n.px) * 0.003; n.vy += (ty - n.py) * 0.003;
+        n.vx *= 0.97; n.vy *= 0.97;
+
+        const dc = Math.sqrt((n.px - cx) ** 2 + (n.py - cy) ** 2);
+        const la = 0.16 * (1 - dc / 430);
+        if (la > 0) {
+          const gr = ctx!.createLinearGradient(cx, cy, n.px, n.py);
+          gr.addColorStop(0, n.color + "00");
+          gr.addColorStop(0.55, n.color + Math.round(la * 255).toString(16).padStart(2, "0"));
+          gr.addColorStop(1, n.color + Math.round(la * 1.5 * 255).toString(16).padStart(2, "0"));
+          ctx!.beginPath(); ctx!.strokeStyle = gr; ctx!.lineWidth = 0.9;
+          ctx!.moveTo(cx, cy); ctx!.lineTo(n.px, n.py); ctx!.stroke();
+          const prog = ((tick * 0.005 + n.angle * 0.01) % 1);
+          ctx!.beginPath(); ctx!.arc(cx + (n.px - cx) * prog, cy + (n.py - cy) * prog, 1.5, 0, Math.PI * 2);
+          ctx!.fillStyle = n.color; ctx!.globalAlpha = 0.45; ctx!.fill(); ctx!.globalAlpha = 1;
+        }
+
+        const pf = 1 + Math.sin(n.pulse) * 0.11;
+        const r = 4.5 * pf;
+        const gw = ctx!.createRadialGradient(n.px, n.py, 0, n.px, n.py, r * 3.5);
+        gw.addColorStop(0, n.color + "44"); gw.addColorStop(1, n.color + "00");
+        ctx!.beginPath(); ctx!.arc(n.px, n.py, r * 3.5, 0, Math.PI * 2); ctx!.fillStyle = gw; ctx!.fill();
+        ctx!.beginPath(); ctx!.arc(n.px, n.py, r, 0, Math.PI * 2); ctx!.fillStyle = n.color; ctx!.fill();
+        ctx!.font = "9px Inter, system-ui, sans-serif"; ctx!.fillStyle = n.color;
+        ctx!.globalAlpha = 0.65; ctx!.textAlign = "center";
+        ctx!.fillText(n.label, n.px, n.py + r + 12); ctx!.globalAlpha = 1;
+      });
+
+      // Peer links between close nodes
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          const d = Math.sqrt((a.px - b.px) ** 2 + (a.py - b.py) ** 2);
+          if (d < 175) {
+            ctx!.beginPath(); ctx!.strokeStyle = a.color;
+            ctx!.globalAlpha = (1 - d / 175) * 0.07; ctx!.lineWidth = 0.6;
+            ctx!.moveTo(a.px, a.py); ctx!.lineTo(b.px, b.py); ctx!.stroke(); ctx!.globalAlpha = 1;
+          }
+        }
+      }
+      animRef.current = requestAnimationFrame(draw);
+    }
+    draw();
+    return () => cancelAnimationFrame(animRef.current);
+  }, []);
+
+  useEffect(() => {
+    let tick = 0;
+    const iv = setInterval(() => {
+      tick += 0.005;
+      if (!blobRef.current) return;
+      blobRef.current.querySelectorAll<HTMLElement>("[data-hb]").forEach((b, i) => {
+        const ph = tick + i * 1.4;
+        b.style.transform = `translate(${Math.sin(ph * 0.5) * 28}px,${Math.cos(ph * 0.4) * 22}px) scale(${1 + Math.sin(ph * 0.7) * 0.07})`;
+      });
+    }, 16);
+    return () => clearInterval(iv);
+  }, []);
+
+  return (
+    <>
+      {/* Dark base */}
+      <div className="absolute inset-0" style={{ background: "linear-gradient(150deg, #050810 0%, #0a1020 50%, #08060f 100%)" }} />
+      {/* Breathing warm blobs */}
+      <div ref={blobRef} className="absolute inset-0 pointer-events-none">
+        <div data-hb="1" className="absolute rounded-full" style={{ width: 580, height: 580, top: "-14%", left: "-10%", background: "radial-gradient(circle, rgba(245,158,11,0.17) 0%, transparent 65%)", filter: "blur(72px)" }} />
+        <div data-hb="2" className="absolute rounded-full" style={{ width: 480, height: 480, top: "-5%", right: "-8%", background: "radial-gradient(circle, rgba(244,63,94,0.14) 0%, transparent 65%)", filter: "blur(62px)" }} />
+        <div data-hb="3" className="absolute rounded-full" style={{ width: 460, height: 460, bottom: "-8%", left: "28%", background: "radial-gradient(circle, rgba(139,92,246,0.13) 0%, transparent 65%)", filter: "blur(68px)" }} />
+        <div data-hb="4" className="absolute rounded-full" style={{ width: 340, height: 340, top: "38%", left: "12%", background: "radial-gradient(circle, rgba(34,211,238,0.08) 0%, transparent 65%)", filter: "blur(55px)" }} />
+      </div>
+      {/* Subtle grid */}
+      <div className="absolute inset-0 pointer-events-none" style={{ backgroundImage: "linear-gradient(rgba(255,255,255,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.022) 1px,transparent 1px)", backgroundSize: "56px 56px" }} />
+      {/* Animated canvas */}
+      <canvas ref={canvasRef} width={1440} height={900} className="absolute inset-0 w-full h-full" style={{ opacity: 0.72 }} />
+      {/* Center vignette so text reads clean */}
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 65% at 50% 44%, rgba(5,8,16,0.78) 0%, transparent 100%)" }} />
+    </>
+  );
+}
+
+function HeroStatCounter({ target, label, color }: { target: number; label: string; color: string }) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    let cur = 0;
+    const step = target / 90;
+    const t = setInterval(() => {
+      cur = Math.min(cur + step, target);
+      setVal(Math.floor(cur));
+      if (cur >= target) clearInterval(t);
+    }, 18);
+    return () => clearInterval(t);
+  }, [target]);
+  return (
+    <div className="text-center">
+      <div className="text-2xl sm:text-3xl font-black tabular-nums" style={{ color }}>{val.toLocaleString()}</div>
+      <div className="text-xs mt-0.5" style={{ color: "rgba(248,250,252,0.38)", letterSpacing: "0.04em" }}>{label}</div>
+    </div>
+  );
+}
+
 export default function LandingPage() {
   const { toast } = useToast();
   const searchString = useSearch();
@@ -839,34 +1016,82 @@ export default function LandingPage() {
         }
       `}</style>
 
-      <section className="relative overflow-hidden" data-testid="section-hero">
-        <div className="absolute inset-0 bg-gradient-to-b from-violet-50 via-white to-white dark:from-violet-950/30 dark:via-background dark:to-background" />
-        <div className="relative mx-auto max-w-3xl text-center px-4 pt-12 pb-6 sm:pt-16 sm:pb-8 md:pt-20">
-          <div className="inline-flex items-center gap-2 mb-6 px-4 py-2 rounded-full bg-primary/10 border border-primary/20">
-            <Heart className="h-4 w-4 text-primary" />
-            <span className="text-sm font-medium text-primary">The Collaborative Advocate Foundation</span>
+      <section className="relative overflow-hidden" style={{ minHeight: "100svh" }} data-testid="section-hero">
+        <HeroBackground />
+
+        {/* Content sits above all background layers */}
+        <div className="relative z-10 flex flex-col items-center justify-center px-4 text-center" style={{ minHeight: "100svh", paddingTop: 48, paddingBottom: 56 }}>
+
+          {/* Live badge */}
+          <div className="inline-flex items-center gap-2 mb-7 px-4 py-1.5 rounded-full text-xs font-medium"
+            style={{ background: "rgba(245,158,11,0.13)", border: "1px solid rgba(245,158,11,0.3)", color: "#f59e0b", letterSpacing: "0.06em" }}>
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#f59e0b" }} />
+              <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#f59e0b" }} />
+            </span>
+            The Collaborative Advocate Foundation · Austin, TX → Nationwide
           </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 tracking-tight leading-[1.15]" data-testid="text-hero-title">
-            Empowering communities<br />
-            <span className="text-primary">to build their own futures.</span>
+
+          {/* Headline */}
+          <h1 className="font-black mb-5 tracking-tight leading-tight" data-testid="text-hero-title"
+            style={{ fontSize: "clamp(2.2rem,5.5vw,3.75rem)", color: "#f8fafc", maxWidth: 740, textShadow: "0 2px 40px rgba(5,8,16,0.9)" }}>
+            Built from community.
+            <br />
+            <span style={{ background: "linear-gradient(90deg,#f59e0b 0%,#f472b6 55%,#a78bfa 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
+              Powered by data.
+            </span>
           </h1>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-4 px-2 leading-relaxed" data-testid="text-hero-subtitle">
+
+          {/* Subtitle */}
+          <p className="mb-3 px-2" data-testid="text-hero-subtitle"
+            style={{ color: "rgba(248,250,252,0.65)", fontSize: "1.05rem", maxWidth: 560, lineHeight: 1.75 }}>
             We equip youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered training, verifiable credentials, and the infrastructure to create lasting change from within.
           </p>
-          <p className="text-sm text-muted-foreground/70 max-w-xl mx-auto px-2 mb-4" data-testid="text-hero-geography">
+
+          <p className="text-sm mb-2 px-2" data-testid="text-hero-geography"
+            style={{ color: "rgba(248,250,252,0.42)", maxWidth: 520, lineHeight: 1.7 }}>
             Built to work in any U.S. county.{" "}
-            <Link href="/coverage" className="text-primary hover:underline" data-testid="link-hero-coverage">
+            <Link href="/coverage" className="hover:underline" style={{ color: "#f59e0b" }} data-testid="link-hero-coverage">
               Texas is our first deployment
             </Link>
-            {" "}— launching in Travis, Williamson, Hays, Bastrop, and Caldwell counties through a regional health-equity pilot.
+            {" "}— Travis, Williamson, Hays, Bastrop, and Caldwell counties.
             Veteran-founded. Black-led. Built by people who've been where you are.
           </p>
-          <p className="text-sm font-medium text-foreground/80 max-w-xl mx-auto px-2 mb-4" data-testid="text-hero-philosophy">
+
+          <p className="text-xs mb-2 px-2" data-testid="text-hero-philosophy"
+            style={{ color: "rgba(248,250,252,0.32)", maxWidth: 500, lineHeight: 1.7 }}>
             Holistic. Agile. Agnostic. We meet every community where they are — through intentional collaboration, honest communication, and building together.
           </p>
-          <p className="text-xs text-muted-foreground/60 max-w-2xl mx-auto px-2 leading-relaxed" data-testid="text-hero-identity">
+
+          <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
+            style={{ color: "rgba(248,250,252,0.25)", maxWidth: 560, lineHeight: 1.65 }}>
             ThriveUp is the community infrastructure platform — the operating system that empowers communities to coordinate workforce training, health equity, education, and case management across 6 domains, 15 service platforms, and 4-engine AI.
           </p>
+
+          {/* CTAs */}
+          <div className="flex flex-wrap gap-4 justify-center mb-10">
+            <Link href="/benefits-screener">
+              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+                style={{ background: "linear-gradient(135deg,#f59e0b,#f472b6)", color: "#050810", boxShadow: "0 0 32px rgba(245,158,11,0.35)", border: "none", cursor: "pointer" }}>
+                Find What Your Family Qualifies For →
+              </button>
+            </Link>
+            <Link href="/sdoh-explorer">
+              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+                style={{ background: "rgba(248,250,252,0.07)", color: "#f8fafc", border: "1px solid rgba(248,250,252,0.18)", backdropFilter: "blur(8px)", cursor: "pointer" }}>
+                See Your Neighborhood's Data
+              </button>
+            </Link>
+          </div>
+
+          {/* Live stat strip */}
+          <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 pt-6"
+            style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+            <HeroStatCounter target={721} label="Grants Discovered" color="#f59e0b" />
+            <HeroStatCounter target={26}  label="Platforms Online"  color="#22d3ee" />
+            <HeroStatCounter target={9}   label="Benefits Screened at Once" color="#34d399" />
+            <HeroStatCounter target={50}  label="States Deployable" color="#a78bfa" />
+          </div>
         </div>
       </section>
 
