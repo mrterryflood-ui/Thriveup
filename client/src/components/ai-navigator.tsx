@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -114,6 +115,7 @@ function renderInlineContent(text: string) {
 
 export function AINavigator() {
   const { toast } = useToast();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [view, setView] = useState<"chat" | "history">("chat");
@@ -150,7 +152,7 @@ export function AINavigator() {
 
   const loadConversation = useCallback(async (convoId: string) => {
     try {
-      const res = await fetch(`/api/navigator/conversations/${convoId}/messages`);
+      const res = await fetch(`/api/navigator/conversations/${convoId}/messages`, { credentials: "include" });
       if (!res.ok) return;
       const msgs = await res.json();
       setMessages(msgs.map((m: any) => ({
@@ -224,7 +226,7 @@ export function AINavigator() {
       const formData = new FormData();
       formData.append("file", file);
       try {
-        const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData });
+        const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData, credentials: "include" });
         if (!res.ok) throw new Error("Extraction failed");
         const { text, name } = await res.json();
         addDoc(name || file.name, text || "", "pdf");
@@ -267,10 +269,27 @@ export function AINavigator() {
       const response = await fetch("/api/navigator/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ message: apiText, conversationId: activeConversationId }),
       });
 
-      if (!response.ok) throw new Error("Chat request failed");
+      if (response.status === 401) {
+        // Session expired — show a clear sign-in prompt rather than a generic error.
+        setMessages(prev => {
+          const updated = [...prev];
+          if (updated[assistantIdx]) {
+            updated[assistantIdx] = {
+              ...updated[assistantIdx],
+              content: "⚠️ Your session has expired. Please sign in to continue using the Navigator.",
+            };
+          }
+          return updated;
+        });
+        setIsStreaming(false);
+        return;
+      }
+
+      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
@@ -452,8 +471,31 @@ export function AINavigator() {
         </div>
       </div>
 
-      {/* History view */}
-      {view === "history" ? (
+      {/* Sign-in gate — shown when session is expired or user is not logged in */}
+      {!authLoading && !isAuthenticated ? (
+        <div className="flex-1 flex flex-col items-center justify-center gap-4 p-6 text-center">
+          <div className="w-14 h-14 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center">
+            <Compass className="h-7 w-7 text-teal-600 dark:text-teal-400" />
+          </div>
+          <div>
+            <p className="font-semibold text-base">Sign in to use the Navigator</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              The Navigator is available to signed-in users. Your session may have expired.
+            </p>
+          </div>
+          <Button
+            onClick={() => { window.location.href = "/api/login"; }}
+            className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700"
+            data-testid="button-navigator-signin"
+          >
+            Sign In
+          </Button>
+        </div>
+      ) : authLoading ? (
+        <div className="flex-1 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </div>
+      ) : view === "history" ? (
         <div className="flex-1 overflow-hidden flex flex-col">
           <div className="px-4 py-2 border-b">
             <h4 className="font-medium text-sm" data-testid="text-history-title">Conversation History</h4>
