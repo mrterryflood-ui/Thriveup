@@ -143,8 +143,8 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   // OpenAI via Replit integration
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
 
-  // DeepSeek R1 via OpenRouter — deep reasoning, runs on its own track
-  if (hasOR) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1" });
+  // DeepSeek R1 via OpenRouter — distilled 70B is fast enough to finish in <60s
+  if (hasOR) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1-distill-llama-70b" });
 
   // Gemini: OpenRouter (bypasses free-tier quota issues) → direct API key
   const hasGeminiDirect = !!(process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil);

@@ -409,6 +409,15 @@ export function AINavigator() {
                   let elapsed = 0;
                   const capturedIdx = assistantIdx;
 
+                  // *** Show the spinner immediately so user sees R1 is running ***
+                  setMessages(prev => {
+                    const updated = [...prev];
+                    if (updated[capturedIdx]) {
+                      updated[capturedIdx] = { ...updated[capturedIdx], deepThinkingPending: true };
+                    }
+                    return updated;
+                  });
+
                   // Elapsed-time counter — updates every second so user sees progress
                   deepThinkTimerRef.current = setInterval(() => {
                     elapsed += 1;
