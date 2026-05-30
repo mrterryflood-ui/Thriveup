@@ -721,6 +721,97 @@ function DeepDiveSection() {
   );
 }
 
+function StartHere() {
+  const audiences = [
+    {
+      icon: Heart,
+      label: "I need help for my family",
+      sub: "Benefits · housing · healthcare · jobs",
+      href: "/benefits-screener",
+      color: "from-rose-500 to-pink-600",
+      testId: "start-here-help",
+    },
+    {
+      icon: Briefcase,
+      label: "I work with communities",
+      sub: "Nonprofits · social workers · CHWs",
+      href: "/grants",
+      color: "from-violet-500 to-purple-600",
+      testId: "start-here-org",
+    },
+    {
+      icon: GraduationCap,
+      label: "I want to learn a trade or earn credentials",
+      sub: "Youth · workforce · career changers",
+      href: "/academy/careers",
+      color: "from-amber-500 to-orange-600",
+      testId: "start-here-learn",
+    },
+    {
+      icon: Shield,
+      label: "I'm a veteran or returning citizen",
+      sub: "Transition · reentry · benefits navigation",
+      href: "/reentry",
+      color: "from-blue-500 to-indigo-600",
+      testId: "start-here-veteran",
+    },
+    {
+      icon: Building2,
+      label: "I'm a funder or partner considering a relationship",
+      sub: "Funders · government · employers",
+      href: "/business-plan",
+      color: "from-emerald-500 to-teal-600",
+      testId: "start-here-funder",
+    },
+    {
+      icon: Target,
+      label: "I want to understand the research behind this",
+      sub: "Researchers · evaluators · policy leaders",
+      href: "/rplice-tools",
+      color: "from-cyan-500 to-sky-600",
+      testId: "start-here-research",
+    },
+  ];
+
+  return (
+    <section className="py-10 px-4 sm:py-14 sm:px-6 bg-card border-y" data-testid="section-start-here">
+      <div className="max-w-4xl mx-auto">
+        <div className="text-center mb-6">
+          <Badge variant="secondary" className="mb-3">
+            <ArrowRight className="mr-1 h-3 w-3" /> Start Here
+          </Badge>
+          <h2 className="text-xl sm:text-2xl font-bold mb-1" data-testid="text-start-here-heading">
+            Who are you? We'll point you the right direction.
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto">
+            Every path through ThriveUp is different. Pick the one closest to you.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {audiences.map((a) => (
+            <Link key={a.testId} href={a.href}>
+              <Card
+                className="p-4 hover-elevate cursor-pointer border-2 border-transparent hover:border-primary/20 transition-all group h-full"
+                data-testid={`card-${a.testId}`}
+              >
+                <div className="flex items-start gap-3">
+                  <div className={`rounded-md bg-gradient-to-br ${a.color} p-2 shrink-0`}>
+                    <a.icon className="h-4 w-4 text-white" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-semibold leading-snug group-hover:text-primary transition-colors">{a.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{a.sub}</p>
+                  </div>
+                </div>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const { toast } = useToast();
   const searchString = useSearch();
@@ -888,6 +979,7 @@ export default function LandingPage() {
       </section>
 
       <ImpactNumbers />
+      <StartHere />
       <CommunitiesWeServe />
       <WhatWeDeliver />
       <HowItWorks />

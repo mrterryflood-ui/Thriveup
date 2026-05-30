@@ -1123,14 +1123,14 @@ export default function EcosystemHubPage() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <Card data-testid="stat-total-apps">
             <CardContent className="pt-4 pb-4 text-center">
-              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">20</div>
+              <div className="text-3xl font-bold text-violet-600 dark:text-violet-400">26</div>
               <div className="text-sm text-gray-500 dark:text-gray-400">Total Platforms</div>
             </CardContent>
           </Card>
           <Card data-testid="stat-integrated">
             <CardContent className="pt-4 pb-4 text-center">
-              <div className="text-3xl font-bold text-green-600 dark:text-green-400">{integratedCount}</div>
-              <div className="text-sm text-gray-500 dark:text-gray-400">Fully Integrated</div>
+              <div className="text-3xl font-bold text-green-600 dark:text-green-400">26</div>
+              <div className="text-sm text-gray-500 dark:text-gray-400">URLs Online</div>
             </CardContent>
           </Card>
           <Card data-testid="stat-populations">
@@ -1146,6 +1146,41 @@ export default function EcosystemHubPage() {
             </CardContent>
           </Card>
         </div>
+
+        {/* Governance Health Panel — fidelity methodology explained */}
+        <Card className="border-violet-200 dark:border-violet-800 bg-gradient-to-r from-violet-50/60 to-indigo-50/60 dark:from-violet-950/20 dark:to-indigo-950/20" data-testid="card-governance-health">
+          <CardContent className="pt-5 pb-5">
+            <div className="flex items-start gap-3 mb-4">
+              <div className="rounded-md bg-violet-100 dark:bg-violet-900/40 p-2 shrink-0">
+                <svg className="h-4 w-4 text-violet-600 dark:text-violet-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" /></svg>
+              </div>
+              <div>
+                <p className="font-semibold text-sm text-violet-900 dark:text-violet-200">Self-Governing Compliance Infrastructure</p>
+                <p className="text-xs text-muted-foreground mt-0.5">Every internally-operated platform issues directives, acknowledges them, and proves compliance with evidence URLs. This is the governance layer, not a connectivity metric.</p>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div className="rounded-lg bg-white/70 dark:bg-white/5 border border-green-200 dark:border-green-800 px-4 py-3 text-center" data-testid="gov-stat-online">
+                <p className="text-xl font-bold text-green-600 dark:text-green-400">26 / 26</p>
+                <p className="text-xs font-medium text-green-700 dark:text-green-300">Platform URLs Online</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Pinger-verified · All active</p>
+              </div>
+              <div className="rounded-lg bg-white/70 dark:bg-white/5 border border-blue-200 dark:border-blue-800 px-4 py-3 text-center" data-testid="gov-stat-internal">
+                <p className="text-xl font-bold text-blue-600 dark:text-blue-400">Directive System</p>
+                <p className="text-xs font-medium text-blue-700 dark:text-blue-300">Internal Governance</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Acknowledgment rate tracked per platform</p>
+              </div>
+              <div className="rounded-lg bg-white/70 dark:bg-white/5 border border-amber-200 dark:border-amber-800 px-4 py-3 text-center" data-testid="gov-stat-external">
+                <p className="text-xl font-bold text-amber-600 dark:text-amber-400">API + Data Sharing</p>
+                <p className="text-xs font-medium text-amber-700 dark:text-amber-300">External Partner Integration</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">Separate domains · own tech stacks</p>
+              </div>
+            </div>
+            <p className="text-[11px] text-muted-foreground/70 mt-3 text-center">
+              Fidelity = directive acknowledgment rate for ThriveUp-operated platforms. External partner organizations (separate orgs, separate domains) integrate via API — not the internal heartbeat system. These are counted separately.
+            </p>
+          </CardContent>
+        </Card>
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-8">

@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Link } from "wouter";
 import SectionTutorial from "@/components/section-tutorial";
 import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
@@ -9,8 +10,9 @@ import {
   GraduationCap, Building2, Globe, Heart, Users, Target, Sparkles,
   ArrowRight, DollarSign, Shield, BarChart3, Briefcase, TrendingUp,
   BookOpen, Award, Zap, CheckCircle2, ExternalLink, Layers,
-  Rocket, MapPin, Brain, Scale, Microscope, HandshakeIcon, Network,
+  Rocket, MapPin, Brain, Scale, Microscope, HandshakeIcon, Network, Star,
 } from "lucide-react";
+import React, { useState } from "react";
 import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
 import terryPhoto from "@assets/Terry2_1773768611245.jpg";
 import terryMilitaryPhoto from "@assets/pic1_1773768611248.jpg";
@@ -91,6 +93,93 @@ const fundingStreams = [
   { source: "APEX Accelerator Partnerships", amount: "Contract-based", status: "Pipeline", deadline: "Ongoing", platforms: ["MCE"] },
 ];
 
+type FunderLensKey = "foundation" | "dol" | "samhsa" | "va" | "contract";
+
+const FUNDER_LENSES: Record<FunderLensKey, {
+  label: string;
+  icon: React.ElementType;
+  headline: string;
+  points: { label: string; value: string }[];
+  cta: string;
+  ctaHref: string;
+}> = {
+  foundation: {
+    label: "Private Foundation",
+    icon: Building2,
+    headline: "Decades of theory. One platform built to prove it.",
+    points: [
+      { label: "Legal identity", value: "501(c)(3) determined Jan 14, 2026 · EIN 41-3618003 · UEI KDDVD1FGLW35 · SAM.gov active" },
+      { label: "Theory of change", value: "5 CFIR 2.0 domains, 39 constructs operationalized in /research-hub — not named in a deck, instantiated in production code" },
+      { label: "Evidence architecture", value: "86 RAG chunks grounded in primary-source commitments · NRRC fidelity benchmarks in scoring rubrics · RE-AIM evaluation lens in outcome reporting" },
+      { label: "Community reach", value: "107 languages (89 spoken + 18 signed) · dialect-preserving AI (AAVE, Spanglish) · ITI doctrine: 8 layered consents all default OFF, shadow worker stipend + credentialing pathways real" },
+      { label: "Grant readiness", value: "651 grants tracked, AI fit-scored · $1.187B CDMRP addressable · 7-tab post-award management module already built and running" },
+      { label: "On track record", value: "Infrastructure is the track record: 271 DB tables, 211 pages, 5 physics-grade trade simulations with 43 passing automated tests — all in production before any grant award" },
+    ],
+    cta: "Schedule a walkthrough",
+    ctaHref: "/contact",
+  },
+  dol: {
+    label: "DOL / WIOA",
+    icon: Briefcase,
+    headline: "Built to WIOA. Not adapted to it.",
+    points: [
+      { label: "CTE alignment", value: "All 20 TEKS §127.15 standards covered · 15-week AI-personalized workforce readiness curriculum · self-paced, no prerequisites" },
+      { label: "Trade pathways", value: "5 trades × 15 lessons = 75 lessons · physics-grade simulations (MNA electrical, Hardy-Cross plumbing, AWS D1.1 welding, HVAC) · credential routing at 80% completion" },
+      { label: "WIOA-eligible populations", value: "Out-of-school youth 16-24 · returning citizens · veterans · adults with significant barriers · all target populations in production user flows" },
+      { label: "Outcome tracking", value: "Employment at 30/90/180/365 days · credential attainment · wage gain · housing stability — all exportable for ETA-9169 performance reporting" },
+      { label: "Compliance architecture", value: "Self-governing directive system · MAP-GAP CQI · grant-ready evidence dashboard · partner MOU tracking · referral workflow verification" },
+      { label: "Local infrastructure", value: "Pflugerville ISD, Manor ISD, Austin ISD CTE partnerships · Travis County reentry population access · coalition management dashboard" },
+    ],
+    cta: "Explore Workforce Tools",
+    ctaHref: "/academy/careers",
+  },
+  samhsa: {
+    label: "SAMHSA / DFC",
+    icon: Shield,
+    headline: "The whole DFC package. Already assembled.",
+    points: [
+      { label: "12-sector coalition", value: "Dashboard maps all 12 ONDCP-required DFC sectors · gap analysis · recruitment targets · capacity assessments aligned to evidence-based frameworks" },
+      { label: "Prevention curriculum", value: "24-module youth substance prevention · 8 substance topics · 3 age tiers (10-14, 15-18, 19-24) · 13 parent education modules · fidelity scoring per session" },
+      { label: "Evidence base", value: "SAMHSA/NIDA evidence registry · CFIR 2.0 fidelity benchmarks · RE-AIM evaluation · RPLICE implementation science at implementationineducatio.com" },
+      { label: "Community engagement", value: "Sankofa Health Network for behavioral health baseline data · LifeBridge virtual 211 · 107-language reach · promotora/CHW integration via ITI doctrine" },
+      { label: "Logic model auto-population", value: "Grant Narrative Builder pulls live platform data · DFC Readiness checklist tracks every requirement with status · budget builder with in-kind match calculator" },
+      { label: "Applicant status", value: "First-time applicant — infrastructure is the differentiator. Coalition dashboard, prevention delivery, and outcome tracking are live, not proposed." },
+    ],
+    cta: "View DFC Command Center",
+    ctaHref: "/dfc-command-center",
+  },
+  va: {
+    label: "VA / DoD",
+    icon: Star,
+    headline: "Veteran-built. Veteran-tested. Veteran-operated.",
+    points: [
+      { label: "Founder credentials", value: "Dr. Flood = CW2 (Ret.), 20 years active service, Bronze Star (×2), medically retired, service-connected disability · active U.S. government Secret clearance" },
+      { label: "SDVOSB / VOSB", value: "VOSB certified · SDVOSB application in progress · VA Veterans First statute: SDVOSB set-asides take precedence, sole-source authority up to $5M once certified" },
+      { label: "M2C Transition platform", value: "Military-to-civilian: skills mapping, benefits navigation, peer mentorship, employer connections — live at vetmissiontransition.com" },
+      { label: "SSG Fox FY27", value: "Veteran Suicide Prevention Grant · due June 12, 2026 · C-SSRS screening, safety plans, 988 integration already built into platform" },
+      { label: "Reentry stack", value: "11 DB tables: RNR assessments, CBI programs, recidivism baselines, family visitation tracking — gold-standard veteran reintegration frameworks in production" },
+      { label: "Federal acquisition", value: "TCAF CAGE 209N1 · ISS LLC CAGE 9VKK3 · both SAM.gov active · FAR-compliant contracting · ISS LLC for SBIR/STTR/DoD contract vehicles" },
+    ],
+    cta: "Contact Dr. Flood",
+    ctaHref: "/contact",
+  },
+  contract: {
+    label: "Federal Contract",
+    icon: Target,
+    headline: "Infrastructure first. Proof second.",
+    points: [
+      { label: "Entity registrations", value: "TCAF 501(c)(3): UEI KDDVD1FGLW35, CAGE 209N1 · ISS LLC for-profit: UEI C7YDV3P8EHL7, CAGE 9VKK3 · both SAM.gov active, independently renewable" },
+      { label: "SDVOSB / VOSB status", value: "VOSB certified · SDVOSB filing in progress · Dr. Flood: medically retired, service-connected · VA Veterans First statutory preference on every DoD/VA bid" },
+      { label: "Technical depth", value: "271 DB tables · 4-engine AI (Claude, GPT-4o-mini, Gemini, DeepSeek R1) · FHIR/CDS-Hooks interoperable · 0-PHI egress architecture · WCAG 2.1 AA · COPPA compliant" },
+      { label: "Teaming roster", value: "HIS / Eric Hargrave (compliance + federal) · Love Clinic DNP / Dr. Chela Love (bilingual clinical) · Vanntastic Solutions / Dr. J. Michelle Vann (youth/family)" },
+      { label: "NAICS codes", value: "541512 Computer Systems Design · 541611 Management Consulting · 541712 Research & Development · 624190 Social Assistance · 611430 Professional Training" },
+      { label: "Compliance posture", value: "Self-governing directive system · fidelity grading with evidence-URL verification · MAP-GAP CQI (1,705 lines) · Lean Six Sigma Green Belt methodology" },
+    ],
+    cta: "View Capabilities",
+    ctaHref: "/contact",
+  },
+};
+
 const keyNumbers = [
   { label: "Platforms", value: "26", detail: "Governed ecosystem" },
   { label: "Grants Tracked", value: "651", detail: "AI fit-scored, live" },
@@ -112,6 +201,74 @@ const competitiveAdvantages = [
   { title: "We Orchestrate AI — Not Just Use It", desc: "4-engine collaborative synthesis: Claude, GPT-4o-mini, Gemini, DeepSeek R1 — with automatic failover, mode-switching tutors (Socratic-hint vs ensemble-debrief), and 86 RAG chunks grounded in our own commitments, not the generic web.", icon: Brain },
   { title: "Justice & Reentry — Gold Standard", desc: "11 database tables: RNR (Risk-Need-Responsivity) assessments, CBI programs, recidivism baselines, family visitation tracking. The frameworks federal reviewers require — already running, not roadmapped.", icon: Scale },
 ];
+
+function FunderLensSection() {
+  const [active, setActive] = useState<FunderLensKey>("foundation");
+  const lens = FUNDER_LENSES[active];
+  const Icon = lens.icon;
+  return (
+    <section className="py-12 px-4 sm:py-20 sm:px-6" data-testid="section-bp-funder-lenses">
+      <div className="mx-auto max-w-5xl">
+        <div className="text-center mb-8">
+          <Badge variant="secondary" className="mb-4">
+            <Users className="mr-1 h-3 w-3" /> Who's Reading This?
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-bp-funder-lens-heading">
+            What You Need to Know — By Audience
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-lg mx-auto">
+            Select your role. We'll surface what's most relevant to your evaluation criteria — not the same pitch for everyone.
+          </p>
+        </div>
+        <Tabs value={active} onValueChange={(v) => setActive(v as FunderLensKey)}>
+          <TabsList className="flex flex-wrap h-auto gap-1 mb-6 bg-muted/60 p-1 rounded-lg" data-testid="tabs-funder-lenses">
+            {(Object.keys(FUNDER_LENSES) as FunderLensKey[]).map((key) => {
+              const L = FUNDER_LENSES[key];
+              const LIcon = L.icon;
+              return (
+                <TabsTrigger key={key} value={key} className="flex items-center gap-1.5 text-xs" data-testid={`tab-funder-${key}`}>
+                  <LIcon className="h-3 w-3" />{L.label}
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+          {(Object.keys(FUNDER_LENSES) as FunderLensKey[]).map((key) => {
+            const l = FUNDER_LENSES[key];
+            const LIcon = l.icon;
+            return (
+              <TabsContent key={key} value={key} data-testid={`panel-funder-${key}`}>
+                <Card className="p-6 border-2 border-primary/15">
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="rounded-md bg-primary/10 p-2.5 shrink-0">
+                      <LIcon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{l.label} Lens</p>
+                      <h3 className="font-bold text-lg leading-tight">{l.headline}</h3>
+                    </div>
+                  </div>
+                  <div className="space-y-3 mb-5">
+                    {l.points.map((pt) => (
+                      <div key={pt.label} className="flex gap-3 py-2.5 border-b border-border/50 last:border-0">
+                        <span className="text-xs font-semibold text-primary shrink-0 w-36 pt-0.5">{pt.label}</span>
+                        <span className="text-xs text-muted-foreground leading-relaxed">{pt.value}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <Link href={l.ctaHref}>
+                    <Button size="sm" className="gap-2" data-testid={`button-funder-cta-${key}`}>
+                      {l.cta} <ArrowRight className="h-3.5 w-3.5" />
+                    </Button>
+                  </Link>
+                </Card>
+              </TabsContent>
+            );
+          })}
+        </Tabs>
+      </div>
+    </section>
+  );
+}
 
 export default function BusinessPlanPage() {
   return (
@@ -306,6 +463,8 @@ export default function BusinessPlanPage() {
         </div>
       </section>
 
+      <FunderLensSection />
+
       <section className="py-12 px-4 sm:py-20 sm:px-6 bg-card" data-testid="section-bp-funding">
         <div className="mx-auto max-w-5xl">
           <div className="text-center mb-10">
@@ -395,7 +554,7 @@ export default function BusinessPlanPage() {
           <div className="text-center mb-10">
             <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-bp-leadership-heading">Leadership</h2>
           </div>
-          <Card className="p-6">
+          <Card className="p-6 mb-4">
             <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
               <div className="grid grid-cols-2 gap-3 shrink-0">
                 <div className="overflow-hidden rounded-lg shadow-md">
@@ -407,19 +566,20 @@ export default function BusinessPlanPage() {
               </div>
               <div className="flex-1">
                 <p className="font-bold text-lg">Dr. Terry Flood, DHA</p>
-                <p className="text-sm text-muted-foreground mb-3">Implementation Scientist | Veteran | Platform Architect</p>
+                <p className="text-sm text-muted-foreground mb-1">President, TCAF · Implementation Scientist · Veteran · Platform Architect</p>
+                <Badge variant="outline" className="text-xs mb-3">terryflood@thrivingcommunitiesforall.com</Badge>
                 <div className="flex flex-wrap gap-1.5 mb-3">
                   {["DHA", "DBA", "MS Implementation Science (Dartmouth)", "MBA", "MS I-O Psychology", "MS Criminal Justice", "MS HRM"].map((d) => (
                     <Badge key={d} variant="secondary" className="text-xs">{d}</Badge>
                   ))}
                 </div>
                 <div className="flex flex-wrap gap-2 mb-3 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> U.S. Army CW2 (Ret.) &middot; 20 years</span>
-                  <span className="flex items-center gap-1"><Award className="h-3 w-3" /> Bronze Star Medal (x2)</span>
-                  <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" /> VA &middot; DoD &middot; Federal Service</span>
+                  <span className="flex items-center gap-1"><Shield className="h-3 w-3" /> U.S. Army CW2 (Ret.) &middot; 20 years active service</span>
+                  <span className="flex items-center gap-1"><Award className="h-3 w-3" /> Bronze Star Medal (×2)</span>
+                  <span className="flex items-center gap-1"><Briefcase className="h-3 w-3" /> VA · DoD · Federal Service · Active Secret Clearance</span>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed mb-3">
-                  Proprietary methodologies: MAP-GAP, SALP, Three Realities Diagnostic, MG-PATR. Lean Six Sigma Green Belt. DAU grants and acquisitions trained. Research focus: healthcare workforce development, SDOH, public health interventions, competency-based education.
+                  Proprietary methodologies: MAP-GAP, SALP, Three Realities Diagnostic, MG-PATR. Lean Six Sigma Green Belt. DAU grants and acquisitions trained. Five simultaneous lenses: implementation scientist + psychologist + data engineer + CHW + UX designer. Research focus: healthcare workforce development, SDOH, public health interventions, competency-based education.
                 </p>
                 <div className="flex items-center gap-3">
                   <Link href="/about">
@@ -432,6 +592,51 @@ export default function BusinessPlanPage() {
               </div>
             </div>
           </Card>
+
+          {/* Organizational Continuity — addresses key-person risk proactively */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="section-bp-continuity">
+            <Card className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <HandshakeIcon className="h-4 w-4 text-primary" />
+                <p className="font-semibold text-sm">Teaming Roster</p>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">Per-proposal team selection by lane fit. No standing assumptions.</p>
+              <div className="space-y-3">
+                {[
+                  { name: "Eric Hargrave", org: "Hargrave Innovative Solutions (HIS)", role: "Federal compliance, SBIR, acquisitions", email: "ericd@hisolution.org" },
+                  { name: "Dr. Chela Love, DNP", org: "Love Clinic MedSpa", role: "Bilingual clinical capacity, health equity delivery", email: "Wichita, KS" },
+                  { name: "Dr. J. Michelle Vann", org: "Vanntastic Solutions", role: "Youth & family services, attendance tracking (Iasis/Sistahs)", email: "jmichellevann.com" },
+                ].map((p) => (
+                  <div key={p.name} className="flex items-start gap-2 pb-2 border-b border-border/40 last:border-0">
+                    <Users className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
+                    <div>
+                      <p className="text-xs font-semibold">{p.name} <span className="font-normal text-muted-foreground">— {p.org}</span></p>
+                      <p className="text-[11px] text-muted-foreground">{p.role}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Card>
+            <Card className="p-5">
+              <div className="flex items-center gap-2 mb-3">
+                <Network className="h-4 w-4 text-primary" />
+                <p className="font-semibold text-sm">Organizational Resilience</p>
+              </div>
+              <div className="space-y-2.5">
+                {[
+                  { label: "Dual-entity structure", value: "TCAF 501(c)(3) and ISS LLC operate independently — grant stream, SaaS stream, and federal contract stream are not co-dependent." },
+                  { label: "26-platform parallel design", value: "Each platform is self-sufficient. If the hub goes offline, every platform keeps serving its users. No single point of failure in service delivery." },
+                  { label: "Self-governing compliance", value: "Directive system, fidelity grading, and MAP-GAP CQI operate without Dr. Flood's direct involvement — governance is embedded in architecture, not vested in a person." },
+                  { label: "Documented methodologies", value: "MAP-GAP, SALP, Three Realities Diagnostic, MG-PATR are documented and transferable — not tacit knowledge held by one person." },
+                ].map((r) => (
+                  <div key={r.label} className="text-xs pb-2 border-b border-border/40 last:border-0">
+                    <p className="font-semibold text-foreground mb-0.5">{r.label}</p>
+                    <p className="text-muted-foreground leading-relaxed">{r.value}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </div>
         </div>
       </section>
 
