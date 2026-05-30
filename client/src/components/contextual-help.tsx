@@ -365,10 +365,10 @@ const PAGE_HELP: Record<string, PageHelp> = {
   },
   "/ecosystem-hub": {
     pageName: "Ecosystem Hub",
-    summary: "Visual overview of the entire 15-service-platform ACOS ecosystem showing platform connections, health status, and cross-platform coordination.",
+    summary: "Visual overview of the entire 26-platform self-governing ecosystem showing platform connections, governance health, and cross-platform coordination.",
     whoIsThisFor: "Leadership, administrators, and ecosystem managers.",
     quickStart: [
-      { title: "View the ecosystem map", detail: "See all 15 service platforms and how they connect to each other." },
+      { title: "View the ecosystem map", detail: "See all 26 platforms and how they connect to each other." },
       { title: "Check platform health", detail: "Color-coded status indicators show which platforms are online, degraded, or offline." },
       { title: "Explore connections", detail: "Click any platform to see its connections, dependencies, and role in the ecosystem." },
     ],

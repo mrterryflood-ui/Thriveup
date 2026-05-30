@@ -266,7 +266,7 @@ This pipeline is grant-defensible under WIOA (workforce development), Foundation
   },
   {
     source: "strategic-framework", category: "strategy", title: "What ThriveUp Academy Actually Is — System of Systems",
-    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 24 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
+    content: `ThriveUp Academy is NOT a collection of platforms. It is a governed system of systems — a self-governing, closed-loop human services operating system. Most organizations operate at the level of tools (apps, dashboards) or programs (coordinated services). ThriveUp has crossed into the third level: a feedback-driven environment that learns, adapts, and enforces behavior. The system doesn't just deliver services — it governs how services behave, improve, and prove impact. This is rare and unprecedented. The platforms work in parallel, not in series — each is self-sufficient, standing on its own while the hub coordinates. If the hub goes down, all 26 platforms keep doing their jobs. It's not a chain where one broken link stops everything — it's a network where each node is empowered and the connections make the whole greater than the parts.`,
     keywords: ["what is", "different", "unique", "system of systems", "operating system", "why", "special", "describe", "explain", "parallel", "network"],
   },
   {
@@ -282,6 +282,25 @@ FEEDBACK LOOP: Heartbeats → status awareness, Fidelity grades → performance 
     source: "strategic-framework", category: "strategy", title: "Self-Governing Compliance — The Secret Weapon",
     content: `Most systems track activity, maybe report outcomes, rarely verify anything. ThriveUp issues directives, requires proof, rejects weak responses, and grades performance. This is closer to military command-and-control systems, high-reliability organizations (HROs), and regulatory enforcement models. The system solves one of the hardest problems in public systems: "How do we know the work actually happened — and happened well?" Platforms don't just say they did the work — they prove it with evidence URLs that the hub automatically verifies.`,
     keywords: ["self-governing", "compliance", "secret weapon", "accountability", "verification", "hro", "command control"],
+  },
+  {
+    source: "strategic-framework", category: "governance", title: "Ecosystem Fidelity — What It Means and What It Does NOT Mean",
+    content: `FIDELITY METHODOLOGY — READ BEFORE CITING ANY FIDELITY NUMBER:
+
+"Ecosystem fidelity" in ThriveUp = directive acknowledgment rate for INTERNALLY-GOVERNED platforms. It is a governance participation metric, not a connectivity or uptime metric.
+
+WHAT IT MEASURES: Whether internally-operated ThriveUp platforms have read, acknowledged, and acted on directives issued by the hub. A directive is a governance instruction (e.g., "update your intake form to collect X," "implement CFIR construct Y").
+
+WHAT IT DOES NOT MEASURE: Whether platforms are online. All 26 platform URLs are online (pinger-verified). There are zero "disconnected" platforms.
+
+COMMON MISREAD TO AVOID: Do NOT interpret a fidelity percentage below 100% as "X platforms are disconnected." That is factually wrong. A platform can be 100% online (serving users every day) and have a fidelity grade below A because it hasn't yet acknowledged a directive.
+
+EXTERNAL PARTNER PLATFORMS: Organizations with their own domains and technology stacks (e.g., implementationineducatio.com, lifetransitionsaid.org, vetmissiontransition.com) cannot send automated heartbeats to ThriveUp Academy's hub — they are separate organizations. They integrate via API and data-sharing agreements. Their participation is counted separately from internal governance fidelity.
+
+CORRECT FRAMING FOR FUNDERS: "ThriveUp operates a self-governing compliance infrastructure where every internally-operated platform acknowledges directives and proves compliance with evidence URLs. The 44% current directive acknowledgment rate reflects the early-stage governance ramp-up as platforms complete onboarding to the directive system — not any platform being offline."
+
+NEVER say: "17/26 platforms disconnected" or "only 9 platforms connected" — these framings do not exist in ThriveUp's architecture.`,
+    keywords: ["fidelity", "44%", "disconnected", "connected", "heartbeat", "directive", "acknowledgment", "what fidelity means", "platform health", "how many connected", "online"],
   },
   {
     source: "strategic-framework", category: "strategy", title: "Human Services Supply Chain — Work Chaining",
@@ -310,7 +329,7 @@ FEEDBACK LOOP: Heartbeats → status awareness, Fidelity grades → performance 
   },
   {
     source: "strategic-framework", category: "strategy", title: "Elevator Pitch — How to Describe ThriveUp",
-    content: `Don't say: "We built 24 platforms." Say: "We built a self-governing system that ensures services are delivered, verified, and continuously improved across the full human lifecycle — from prevention to recovery." This is a governed system of systems. An Autonomous Community Operating System. It delivers services, monitors itself, grades its own performance, routes work automatically, and generates grant-ready evidence — all in one interconnected architecture. Combined reach: 170,000+ residents across Central Texas. 5 active grants worth up to $3.375M. 24 platforms covering education, workforce, health equity, veteran services, housing, safety, crisis prevention, and contractor/business enablement.`,
+    content: `Don't say: "We built 26 platforms." Say: "We built a self-governing compliance infrastructure that ensures services are delivered, verified, and continuously improved across the full human lifecycle — from prevention to recovery." This is a governed system of systems. An Autonomous Community Operating System. It delivers services, monitors itself, grades its own performance, routes work automatically, and generates grant-ready evidence — all in one interconnected architecture. Combined reach: 170,000+ residents across Central Texas. 26 platforms covering education, workforce, health equity, veteran services, housing, safety, crisis prevention, and contractor/business enablement. 651 grants tracked. 271 database tables. 4 physics-grade trade simulation engines. 39 CFIR 2.0 constructs in production code. 107 languages.`,
     keywords: ["elevator pitch", "describe", "explain", "summary", "what we do", "pitch", "one sentence", "tell me about"],
   },
   {

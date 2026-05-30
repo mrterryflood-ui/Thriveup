@@ -1469,7 +1469,7 @@ export default function EcosystemHubPage() {
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4" data-testid="narrative-coalition-infrastructure">
                   <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-2">Coalition Infrastructure</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 20 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across community sectors spanning health equity, workforce development, education, and veteran services. Our coalition management dashboard tracks sector representation, meeting activity, and capacity assessments aligned to evidence-based frameworks.
+                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 26 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across community sectors spanning health equity, workforce development, education, and veteran services. Our coalition management dashboard tracks sector representation, meeting activity, and capacity assessments aligned to evidence-based frameworks.
                   </p>
                 </div>
 
