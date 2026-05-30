@@ -491,6 +491,10 @@ export function registerNavigatorRoutes(app: Express) {
         onSynthesisComplete: () => {
           res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
         },
+        onKeepAlive: () => {
+          // SSE comment — keeps the proxy / mobile connection alive during R1 wait
+          res.write(`: keepalive\n\n`);
+        },
         onDeepThinking: (text, engineId, timeMs) => {
           // Strip DeepSeek R1's internal <think>...</think> tags — send only
           // the final reasoned answer as the deep thinking addendum.

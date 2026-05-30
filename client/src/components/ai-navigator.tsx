@@ -264,6 +264,7 @@ export function AINavigator() {
     setInput("");
     setAttachedDocs([]);
     setIsStreaming(true);
+    let fullText = "";  // hoisted so the catch block can inspect it
 
     try {
       const response = await fetch("/api/navigator/chat", {
@@ -293,7 +294,6 @@ export function AINavigator() {
 
       const reader = response.body?.getReader();
       const decoder = new TextDecoder();
-      let fullText = "";
 
       if (reader) {
         while (true) {
@@ -381,17 +381,31 @@ export function AINavigator() {
         }
       }
     } catch {
-      setMessages(prev => {
-        const updated = [...prev];
-        if (updated[assistantIdx]) {
-          updated[assistantIdx] = {
-            ...updated[assistantIdx],
-            content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
-            deepThinkingPending: false,
-          };
-        }
-        return updated;
-      });
+      // Only replace content with an error if nothing was streamed yet.
+      // If synthesis already completed (fullText has content), a connection
+      // drop during the Phase-2 R1 wait is benign — don't overwrite good output.
+      if (!fullText) {
+        setMessages(prev => {
+          const updated = [...prev];
+          if (updated[assistantIdx]) {
+            updated[assistantIdx] = {
+              ...updated[assistantIdx],
+              content: "I'm sorry, I'm having trouble connecting right now. Please try again in a moment.",
+              deepThinkingPending: false,
+            };
+          }
+          return updated;
+        });
+      } else {
+        // Connection dropped after synthesis — clear the pending R1 indicator
+        setMessages(prev => {
+          const updated = [...prev];
+          if (updated[assistantIdx]) {
+            updated[assistantIdx] = { ...updated[assistantIdx], deepThinkingPending: false };
+          }
+          return updated;
+        });
+      }
     } finally {
       setIsStreaming(false);
     }

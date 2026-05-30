@@ -43,6 +43,9 @@ interface CollaborativeStreamParams {
    *  initial synthesis has already been streamed. The SSE connection stays
    *  open until this resolves (or R1 times out). */
   onDeepThinking?: (text: string, engineId: string, timeMs: number) => void;
+  /** Called every ~10s during the Phase-2 R1 wait so the caller can send
+   *  SSE keepalive comments and prevent proxy/mobile connection timeouts. */
+  onKeepAlive?: () => void;
 }
 
 const RPLICE_LENS = `Apply RPLICE implementation science framework:
@@ -70,7 +73,8 @@ const ENGINES_GLOBAL_DEADLINE_MS = 12_000;
 // DeepSeek R1 runs on its own independent track — deep reasoning takes 30-90s.
 // It does NOT block the initial synthesis. When it finishes, its output flows
 // as a "Deep Thinking Addendum" over the still-open SSE connection.
-const DEEP_THINK_TIMEOUT_MS = 80_000;
+// 45s keeps us safely inside deployment proxy timeouts (typically 60s).
+const DEEP_THINK_TIMEOUT_MS = 45_000;
 
 /**
  * Start all engines simultaneously. Proceed as soon as all respond OR the
@@ -505,7 +509,13 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   params.onSynthesisComplete?.();
 
   // ── Phase 2: Await DeepSeek R1 deep thinking (already running) ───────────
+  // Send keepalive pings every 10s so the deployment proxy / mobile browser
+  // does not drop the still-open SSE connection before R1 finishes.
+  const keepAliveInterval = params.onKeepAlive
+    ? setInterval(() => params.onKeepAlive!(), 10_000)
+    : null;
   const r1Result = await deepThinkPromise;
+  if (keepAliveInterval) clearInterval(keepAliveInterval);
   if (r1Result && !r1Result.error && r1Result.response.length > 20 && params.onDeepThinking) {
     const deepThinkTimeMs = Date.now() - deepThinkStart;
     console.log(`[CollabAI-Stream] Phase 2: DeepSeek R1 deep thinking complete in ${deepThinkTimeMs}ms`);
