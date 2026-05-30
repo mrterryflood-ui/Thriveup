@@ -187,6 +187,7 @@ const academyLearningItems: NavItem[] = [
   { title: "AI Workforce Academy", url: "/ai-workforce", icon: GraduationCap },
   { title: "AI Creation Studio", url: "/ai-tools", icon: Wand2 },
   { title: "Sparky (AI Companion)", url: "/sparky", icon: MessageCircle },
+  { title: "Navigator (AI)", url: "/navigator", icon: Compass },
 ];
 
 // HUB 5 — Partners & Coalitions: every coalition / community / ecosystem

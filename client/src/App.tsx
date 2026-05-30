@@ -285,6 +285,14 @@ import { ErrorBoundary } from "@/components/error-boundary";
 import { CommandPalette } from "@/components/command-palette";
 import { AINavigator } from "@/components/ai-navigator";
 
+function NavigatorPage() {
+  return (
+    <div className="h-full flex flex-col overflow-hidden">
+      <AINavigator mode="page" />
+    </div>
+  );
+}
+
 function AppRouter() {
   return (
     <Switch>
@@ -628,6 +636,7 @@ function AppRouter() {
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />
       <Route path="/network/members" component={NetworkMembersPage} />
       <Route path="/network" component={NetworkMembersPage} />
+      <Route path="/navigator" component={NavigatorPage} />
       <Route component={NotFound} />
     </Switch>
   );

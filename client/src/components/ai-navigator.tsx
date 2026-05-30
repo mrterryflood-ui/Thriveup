@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
+import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +11,7 @@ import {
   Compass, Send, X, MessageSquarePlus, Trash2, ChevronLeft,
   Loader2, Sparkles, Phone, ExternalLink, AlertTriangle,
   History, Minimize2, Maximize2, Bot, User, Brain, ChevronDown, ChevronUp,
-  Paperclip, Copy, Download, Check, FileText,
+  Paperclip, Copy, Download, Check, FileText, Expand,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -113,10 +114,11 @@ function renderInlineContent(text: string) {
   return <>{parts}</>;
 }
 
-export function AINavigator() {
+export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = {}) {
   const { toast } = useToast();
   const { isAuthenticated, isLoading: authLoading } = useAuth();
-  const [isOpen, setIsOpen] = useState(false);
+  const [, navigate] = useLocation();
+  const [isOpen, setIsOpen] = useState(mode === "page");
   const [isExpanded, setIsExpanded] = useState(false);
   const [view, setView] = useState<"chat" | "history">("chat");
   const [messages, setMessages] = useState<NavigatorMessage[]>([]);
@@ -136,7 +138,7 @@ export function AINavigator() {
 
   const { data: conversations, refetch: refetchConversations } = useQuery<NavigatorConversation[]>({
     queryKey: ["/api/navigator/conversations"],
-    enabled: isOpen,
+    enabled: isOpen || mode === "page",
   });
 
   const deleteConversation = useMutation({
@@ -521,6 +523,266 @@ export function AINavigator() {
     }
   };
 
+  // ── Full-page mode ────────────────────────────────────────────────────────
+  if (mode === "page") {
+    if (authLoading) {
+      return (
+        <div className="flex h-full items-center justify-center">
+          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+        </div>
+      );
+    }
+    if (!isAuthenticated) {
+      return (
+        <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
+          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center">
+            <Compass className="h-8 w-8 text-teal-600 dark:text-teal-400" />
+          </div>
+          <div>
+            <p className="font-semibold text-xl">Sign in to use the Navigator</p>
+            <p className="text-sm text-muted-foreground mt-1">Your session may have expired.</p>
+          </div>
+          <Button onClick={() => { window.location.href = "/api/login"; }} className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700">Sign In</Button>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex h-full overflow-hidden bg-background">
+        {/* Left rail: conversation history — desktop only */}
+        <div className="hidden md:flex w-72 flex-col border-r bg-muted/10 shrink-0">
+          <div className="px-4 py-3 border-b bg-gradient-to-r from-teal-600 to-emerald-600">
+            <p className="font-semibold text-sm text-white">Conversation History</p>
+          </div>
+          <ScrollArea className="flex-1">
+            <div className="p-3 space-y-2">
+              {conversations && conversations.length > 0 ? conversations.map(convo => (
+                <div key={convo.id} className={`p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${activeConversationId === convo.id ? "border-primary bg-primary/5" : ""}`} data-testid={`card-convo-page-${convo.id}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <button className="flex-1 min-w-0 text-left" onClick={() => loadConversation(convo.id)}>
+                      <p className="font-medium text-sm truncate">{convo.title}</p>
+                      {convo.summary && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{convo.summary}</p>}
+                      {convo.identifiedNeeds && convo.identifiedNeeds.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1.5">
+                          {convo.identifiedNeeds.map(need => (
+                            <Badge key={need} variant="secondary" className={`text-[10px] px-1.5 py-0 ${NEED_COLORS[need] || ""}`}>{need}</Badge>
+                          ))}
+                        </div>
+                      )}
+                      <p className="text-[10px] text-muted-foreground mt-1">{convo.lastMessageAt ? new Date(convo.lastMessageAt).toLocaleDateString() : ""}</p>
+                    </button>
+                    <button onClick={() => { deleteConversation.mutate(convo.id); if (activeConversationId === convo.id) startNewConversation(); }} className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors shrink-0" aria-label="Delete conversation">
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )) : (
+                <div className="text-center py-10 text-muted-foreground">
+                  <History className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm">No conversations yet</p>
+                  <p className="text-xs mt-1">Start chatting below</p>
+                </div>
+              )}
+            </div>
+          </ScrollArea>
+          <div className="p-3 border-t">
+            <Button onClick={startNewConversation} className="w-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700" data-testid="button-page-new-convo">
+              <MessageSquarePlus className="h-4 w-4 mr-2" />New Conversation
+            </Button>
+          </div>
+        </div>
+
+        {/* Right: header + chat + input */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-3 bg-gradient-to-r from-teal-600 to-emerald-600 text-white shrink-0">
+            <div className="flex items-center gap-3">
+              <Compass className="h-6 w-6" />
+              <div>
+                <h1 className="font-bold text-base leading-tight">ThriveUp Navigator</h1>
+                <p className="text-[11px] text-teal-100">4-engine parallel analysis · DeepSeek R1 deep thinking</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5">
+              {/* Mobile: history toggle */}
+              <button onClick={() => setView(view === "history" ? "chat" : "history")} className="flex md:hidden items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-colors text-sm" data-testid="button-page-mobile-history">
+                <History className="h-4 w-4" />
+              </button>
+              <button onClick={startNewConversation} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/20 hover:bg-white/30 transition-colors text-sm font-medium" data-testid="button-page-new-chat">
+                <MessageSquarePlus className="h-4 w-4" />
+                <span className="hidden sm:inline">New</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile: history view */}
+          {view === "history" && (
+            <div className="md:hidden flex-1 overflow-hidden flex flex-col">
+              <ScrollArea className="flex-1">
+                <div className="p-3 space-y-2">
+                  {conversations && conversations.length > 0 ? conversations.map(convo => (
+                    <div key={convo.id} className={`p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${activeConversationId === convo.id ? "border-primary bg-primary/5" : ""}`}>
+                      <button className="w-full text-left" onClick={() => { loadConversation(convo.id); setView("chat"); }}>
+                        <p className="font-medium text-sm">{convo.title}</p>
+                        {convo.summary && <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{convo.summary}</p>}
+                      </button>
+                    </div>
+                  )) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <History className="h-10 w-10 mx-auto mb-2 opacity-40" />
+                      <p className="text-sm">No conversations yet</p>
+                    </div>
+                  )}
+                </div>
+              </ScrollArea>
+              <div className="p-3 border-t">
+                <Button onClick={() => { startNewConversation(); setView("chat"); }} className="w-full">Start New</Button>
+              </div>
+            </div>
+          )}
+
+          {/* Chat messages */}
+          {view === "chat" && (
+            <>
+              <ScrollArea className="flex-1">
+                <div className="px-5 py-4 space-y-5 max-w-4xl mx-auto" role="log" aria-live="polite" aria-label="Navigator conversation">
+                  {messages.length === 0 ? (
+                    <div className="space-y-6 py-10">
+                      <div className="text-center">
+                        <div className="w-20 h-20 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center mx-auto mb-4">
+                          <Compass className="h-10 w-10 text-teal-600 dark:text-teal-400" />
+                        </div>
+                        <h2 className="font-bold text-2xl">Hi, I'm the Navigator</h2>
+                        <p className="text-muted-foreground mt-2 max-w-md mx-auto text-sm">Here to help you find resources, connect with services, and think through your next steps — whatever the challenge.</p>
+                      </div>
+                      <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl p-4 max-w-lg mx-auto">
+                        <div className="flex items-start gap-3">
+                          <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
+                          <div className="text-sm text-amber-800 dark:text-amber-200">
+                            <p className="font-medium">If you're in crisis:</p>
+                            <p className="mt-1"><strong>988</strong> Suicide & Crisis Lifeline · <strong>911</strong> for emergencies · Text <strong>HOME</strong> to <strong>741741</strong></p>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-w-xl mx-auto">
+                        {QUICK_PROMPTS.map(prompt => (
+                          <button key={prompt.label} onClick={() => sendMessage(prompt.label)} disabled={isStreaming} className="flex items-center gap-2 p-3 rounded-xl border text-left text-sm hover:bg-muted/50 transition-colors disabled:opacity-50 bg-background" data-testid={`button-page-quick-${prompt.label.replace(/\s+/g, "-").toLowerCase()}`}>
+                            <span className="text-xl">{prompt.icon}</span>
+                            <span>{prompt.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    messages.map((msg, idx) => (
+                      <div key={idx} data-testid={`message-page-${msg.role}-${idx}`}>
+                        <div className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                          {msg.role === "assistant" && (
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center shrink-0 mt-0.5">
+                              <Bot className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                            </div>
+                          )}
+                          <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${msg.role === "user" ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-br-sm" : "bg-muted/60 border rounded-bl-sm"}`}>
+                            {msg.role === "assistant" ? (
+                              <div className="leading-relaxed">
+                                {msg.content ? formatMessageContent(msg.content) : (
+                                  <div className="flex items-center gap-2">
+                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                    <span className="text-muted-foreground">Thinking...</span>
+                                  </div>
+                                )}
+                              </div>
+                            ) : (
+                              <div className="leading-relaxed whitespace-pre-wrap">{msg.content}</div>
+                            )}
+                          </div>
+                          {msg.role === "user" && (
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                              <User className="h-4 w-4 text-primary" />
+                            </div>
+                          )}
+                        </div>
+                        {msg.role === "assistant" && msg.content && (
+                          <div className="ml-11 mt-1.5 flex items-center gap-1">
+                            <button onClick={() => copyMessage(msg.content, idx)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-muted/50" data-testid={`button-page-copy-${idx}`}>
+                              {copiedIdx === idx ? <><Check className="h-3.5 w-3.5 text-green-500" /><span>Copied</span></> : <><Copy className="h-3.5 w-3.5" /><span>Copy</span></>}
+                            </button>
+                            <button onClick={() => downloadMessage(msg.content, idx)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-muted/50" data-testid={`button-page-export-${idx}`}>
+                              <Download className="h-3.5 w-3.5" /><span>Export</span>
+                            </button>
+                          </div>
+                        )}
+                        {msg.role === "assistant" && msg.deepThinkingPending && (
+                          <div className="ml-11 mt-2">
+                            <div className="flex items-center gap-2 text-xs bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg px-3 py-2.5">
+                              <Brain className="h-4 w-4 text-purple-500 animate-pulse shrink-0" />
+                              <span className="font-semibold text-purple-700 dark:text-purple-300">R1 deep analysis — {deepThinkElapsed}s...</span>
+                              <span className="text-muted-foreground hidden sm:inline">
+                                {deepThinkElapsed < 20 ? "Starting up DeepSeek R1 reasoning engine" : deepThinkElapsed < 50 ? "R1 is reasoning through the problem deeply" : "Almost there — R1 is finishing its analysis"}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        {msg.role === "assistant" && msg.deepThinking && (
+                          <div className="ml-11 mt-2">
+                            <button onClick={() => setDeepThinkingExpanded(prev => ({ ...prev, [idx]: !prev[idx] }))} className="flex items-center gap-2 text-xs text-purple-700 dark:text-purple-300 hover:text-purple-900 dark:hover:text-purple-100 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg px-3 py-2 transition-colors w-full text-left" data-testid={`button-page-deep-${idx}`}>
+                              <Brain className="h-3.5 w-3.5 shrink-0" />
+                              <Sparkles className="h-3 w-3 shrink-0" />
+                              <span className="font-medium">DeepSeek R1 deep analysis</span>
+                              <span className="ml-auto">{deepThinkingExpanded[idx] ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}</span>
+                            </button>
+                            {deepThinkingExpanded[idx] && (
+                              <div className="mt-1.5 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 text-sm leading-relaxed">
+                                {formatMessageContent(msg.deepThinking)}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    ))
+                  )}
+                  <div ref={messagesEndRef} />
+                </div>
+              </ScrollArea>
+
+              {/* Input area */}
+              <div className="px-5 py-4 border-t bg-background shrink-0">
+                <div className="max-w-4xl mx-auto">
+                  {attachedDocs.length > 0 && (
+                    <div className="mb-3 space-y-1.5">
+                      {attachedDocs.map((doc, i) => (
+                        <div key={doc.name} className="flex items-center gap-2 px-3 py-2 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg text-sm">
+                          <FileText className="h-4 w-4 text-teal-600 shrink-0" />
+                          <span className="text-teal-800 dark:text-teal-200 truncate flex-1">{doc.name} <span className="text-teal-500 text-xs ml-1">({doc.originalSize > doc.text.length ? `${Math.round(doc.text.length / 1000)}k of ${Math.round(doc.originalSize / 1000)}k chars` : `${Math.round(doc.text.length / 1000)}k chars`})</span></span>
+                          <button onClick={() => setAttachedDocs(prev => prev.filter((_, j) => j !== i))} className="text-teal-600 hover:text-teal-900 dark:hover:text-teal-100 shrink-0"><X className="h-4 w-4" /></button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="flex gap-3">
+                    <input ref={fileInputRef} type="file" accept=".pdf,.txt,.md,text/plain,text/markdown,application/pdf" className="hidden" onChange={handleFileSelect} data-testid="input-file-upload-page" />
+                    <button onClick={() => fileInputRef.current?.click()} disabled={isStreaming} className="relative shrink-0 p-2.5 rounded-xl border hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50" title="Attach PDF, .txt, or .md — click multiple times to add more" data-testid="button-attach-page">
+                      <Paperclip className="h-5 w-5" />
+                      {attachedDocs.length > 0 && <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-teal-600 text-[9px] font-bold text-white">{attachedDocs.length}</span>}
+                    </button>
+                    <Textarea ref={textareaRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder={attachedDocs.length > 0 ? "What would you like me to do with these documents?" : "Ask anything — paste a URL, upload a doc, or type your question... (Ctrl+Enter to send)"} className="min-h-[48px] max-h-[180px] resize-none rounded-xl text-sm" rows={2} disabled={isStreaming} data-testid="textarea-navigator-input-page" />
+                    <Button onClick={() => sendMessage()} disabled={(!input.trim() && attachedDocs.length === 0) || isStreaming} size="icon" className="h-12 w-12 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 shrink-0" data-testid="button-send-page" aria-label="Send message">
+                      {isStreaming ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+                    </Button>
+                  </div>
+                  <p className="text-[11px] text-center text-muted-foreground mt-2">
+                    Attach PDFs · .txt · .md · Paste any URL to fetch content · Ctrl+Enter to send · Not a substitute for professional advice
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // ── Bubble / floating widget mode ─────────────────────────────────────────
   if (!isOpen) {
     return (
       <button
@@ -569,6 +831,16 @@ export function AINavigator() {
           >
             <MessageSquarePlus className="h-4 w-4" />
           </button>
+          <Link
+            href="/navigator"
+            onClick={() => setIsOpen(false)}
+            className="p-1.5 rounded-lg hover:bg-white/20 transition-colors flex items-center"
+            data-testid="button-expand-to-page"
+            aria-label="Open full Navigator page"
+            title="Full page"
+          >
+            <Expand className="h-4 w-4" />
+          </Link>
           <button
             onClick={() => setIsExpanded(!isExpanded)}
             className="p-1.5 rounded-lg hover:bg-white/20 transition-colors"
