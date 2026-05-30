@@ -48,13 +48,13 @@ interface CollaborativeStreamParams {
   onKeepAlive?: () => void;
 }
 
-const RPLICE_LENS = `Apply RPLICE implementation science framework:
-- Reach: Who does this serve? How many people? What populations?
-- Plan: What's the evidence-based approach? What implementation strategy?
-- Launch: What resources, training, infrastructure are needed?
-- Implement: What are the fidelity indicators? Quality measures?
-- Cultivate: How do we sustain, scale, and improve over time?
-- Evaluate: What outcomes do we measure? Using CFIR/RE-AIM frameworks.`;
+const RPLICE_LENS = `Apply implementation science thinking grounded in ThriveUp's actual frameworks:
+- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a sister platform at implementationineducatio.com — NOT a generic acronym. Reference it correctly when relevant.
+- CFIR 2.0 (Consolidated Framework for Implementation Research): 5 domains, 39 constructs — operationalized in ThriveUp's Research Hub (/research-hub), not just named.
+- RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance): evaluation lens built into outcome reporting.
+- MAP-GAP continuous improvement: Measure → Analyze → Plan → Gap → Action → Progress.
+- RNR (Risk-Need-Responsivity): gold-standard criminal justice framework embedded in reentry case management.
+- When analyzing a problem, ask: Who does this reach? What evidence supports the approach? What are the fidelity indicators? How is maintenance and scale planned?`;
 
 const MAPGAP_LENS = `Apply MAP-GAP continuous improvement framework:
 - Measure: What is the current state? What data do we have?

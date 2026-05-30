@@ -538,7 +538,7 @@ The pattern: Every major tech company is selling the IDEA of what ThriveUp has a
 
 INNOVATION VELOCITY:
 - MAP-GAP continuous improvement framework runs systematic audit cycles
-- RPLICE quality gates (Relevance, Precision, Layering, Integration, Completeness, Evidence) ensure improvements don't sacrifice quality for speed
+- RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) — ThriveUp's sister platform at implementationineducatio.com — provides implementation science quality gates ensuring improvements are evidence-grounded
 - 4-provider AI architecture means no single vendor bottleneck — when one provider innovates, the ecosystem absorbs it immediately
 - Collaborative multi-AI intelligence means every major decision gets multiple AI perspectives before implementation
 
