@@ -2,6 +2,7 @@ import type { Express, Request } from "express";
 import { db } from "./storage";
 import { streamAIResponse } from "./ai-provider";
 import { collaborativeStream } from "./collaborative-ai";
+import OpenAI from "openai";
 import { searchByState, searchByLocation, generateCommunityNarrative } from "./gis-engine";
 import { searchResources, getResourceCategories } from "./resource-engine";
 import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData } from "@shared/schema";
@@ -527,21 +528,40 @@ export function registerNavigatorRoutes(app: Express) {
         },
         onError: async (error) => {
           console.error("[Navigator] AI error:", error);
-          // All collaborative engines failed — attempt a direct single-provider
-          // fallback (uses whatever single provider is available, typically OpenAI).
-          console.log("[Navigator] Falling back to single-provider stream...");
+          // All collaborative engines failed — stream directly from OpenRouter
+          // (fast, streaming, no multi-provider waterfall delay).
+          console.log("[Navigator] Falling back to OpenRouter direct stream...");
+          const orKey = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
+          const orBase = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
           try {
-            await streamAIResponse({
-              messages: msgs,
-              onChunk: (content) => {
-                res.write(`data: ${JSON.stringify({ content })}\n\n`);
-              },
-              onDone: () => {
-                res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
-                res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
-                res.end();
-              },
-            });
+            if (orKey && orBase) {
+              const orClient = new OpenAI({ apiKey: orKey, baseURL: orBase });
+              // Use the fastest available model on OR — haiku is ~1-3s TTFT
+              const orStream = await orClient.chat.completions.create({
+                model: "anthropic/claude-3-5-haiku",
+                messages: msgs as any,
+                max_tokens: 2000,
+                stream: true,
+              });
+              for await (const chunk of orStream) {
+                const content = chunk.choices[0]?.delta?.content || "";
+                if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+              }
+              res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
+              res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
+              res.end();
+            } else {
+              // No OR key — last-resort waterfall (slow but better than nothing)
+              await streamAIResponse({
+                messages: msgs,
+                onChunk: (content) => { res.write(`data: ${JSON.stringify({ content })}\n\n`); },
+                onDone: () => {
+                  res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
+                  res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
+                  res.end();
+                },
+              });
+            }
           } catch (fallbackErr) {
             console.error("[Navigator] Fallback also failed:", fallbackErr);
             res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);

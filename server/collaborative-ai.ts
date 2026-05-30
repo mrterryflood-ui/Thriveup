@@ -68,7 +68,7 @@ let geminiCollabQuotaExhaustedUntil = 0;
 
 // Global collection deadline for FAST engines (Claude, OpenAI, Gemini).
 // Synthesis fires as soon as this deadline hits with whoever responded.
-const ENGINES_GLOBAL_DEADLINE_MS = 12_000;
+const ENGINES_GLOBAL_DEADLINE_MS = 25_000;
 
 // DeepSeek R1 runs on its own independent track — deep reasoning takes 30-90s.
 // It does NOT block the initial synthesis. When it finishes, its output flows
@@ -510,8 +510,14 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
       ])
     : Promise.resolve(null);
 
-  // ── Phase 1: Fast engines → 12s global deadline → initial synthesis ──────
+  // ── Phase 1: Fast engines → 25s global deadline → initial synthesis ──────
+  // Send keepalive SSE comments every 8s so mobile Safari / deployment proxies
+  // don't drop the connection while engines are computing.
+  const phase1Keepalive = params.onKeepAlive
+    ? setInterval(() => params.onKeepAlive!(), 8_000)
+    : null;
   const fastResults = await collectEngineResults(enginesForFastPass, enrichedPrompt, baseSystem, params.maxTokens || 3000);
+  if (phase1Keepalive) clearInterval(phase1Keepalive);
 
   const successfulEngines = fastResults.filter(r => !r.error && r.response.length > 20);
   const failedStreamEngines = fastResults.filter(r => r.error || r.response.length <= 20);
