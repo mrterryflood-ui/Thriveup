@@ -2,7 +2,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/ge
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 
-type Provider = "gemini" | "claude" | "openai" | "replit-ai-integrations" | "deepseek-r1";
+type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1";
 
 /**
  * ETHICAL_EI_PREAMBLE — persistent operating principle for every AI call on
@@ -101,6 +101,8 @@ let geminiQuotaExhaustedUntil = 0;
 function getAvailableProviders(): Provider[] {
   const providers: Provider[] = [];
   if (process.env.ANTHROPIC_API_KEY || (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) providers.push("claude");
+  // openrouter-claude: uses OpenRouter to serve Claude — catches direct Anthropic failures
+  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("openrouter-claude");
   if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
   if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("deepseek-r1");
   if (process.env.OPENAI_API_KEY) providers.push("openai");
@@ -121,6 +123,7 @@ function detectProvider(): Provider {
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   gemini: { model: "gemini-2.0-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
+  "openrouter-claude": { model: "anthropic/claude-3.5-haiku", isFree: false },
   openai: { model: "gpt-4o-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
   "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
@@ -311,11 +314,31 @@ async function streamDeepSeekR1(params: StreamAIResponseParams): Promise<void> {
   params.onDone();
 }
 
+async function streamOpenRouterClaude(params: StreamAIResponseParams): Promise<void> {
+  const client = new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+  });
+  const stream = await client.chat.completions.create({
+    model: "anthropic/claude-3.5-haiku",
+    messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
+    stream: true,
+    max_tokens: params.maxTokens || 8192,
+  });
+  for await (const chunk of stream) {
+    const content = chunk.choices[0]?.delta?.content || "";
+    if (content) params.onChunk(content);
+  }
+  params.onDone();
+}
+
 async function tryProvider(provider: Provider, params: StreamAIResponseParams): Promise<void> {
   if (provider === "gemini") {
     await streamGemini(params);
   } else if (provider === "claude") {
     await streamClaude(params);
+  } else if (provider === "openrouter-claude") {
+    await streamOpenRouterClaude(params);
   } else if (provider === "deepseek-r1") {
     await streamDeepSeekR1(params);
   } else {
@@ -357,6 +380,20 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         });
         const block = resp.content[0];
         text = block.type === "text" ? block.text : "{}";
+      } else if (provider === "openrouter-claude") {
+        const client = new OpenAI({
+          apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+          baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+        });
+        const msgs: Array<{ role: "system" | "user"; content: string }> = [];
+        if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+        msgs.push({ role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` });
+        const resp = await client.chat.completions.create({
+          model: "anthropic/claude-3.5-haiku",
+          messages: msgs,
+          max_tokens: 4000,
+        });
+        text = resp.choices[0]?.message?.content || "{}";
       } else if (provider === "deepseek-r1") {
         const client = new OpenAI({
           apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
@@ -458,6 +495,20 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     });
     const block = resp.content[0];
     return block.type === "text" ? block.text : "";
+  } else if (provider === "openrouter-claude") {
+    const client = new OpenAI({
+      apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+      baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+    });
+    const msgs: Array<{ role: "system" | "user"; content: string }> = [];
+    if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
+    msgs.push({ role: "user", content: prompt });
+    const resp = await client.chat.completions.create({
+      model: "anthropic/claude-3.5-haiku",
+      messages: msgs,
+      max_tokens: maxTokens || 8192,
+    });
+    return resp.choices[0]?.message?.content || "";
   } else if (provider === "deepseek-r1") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
