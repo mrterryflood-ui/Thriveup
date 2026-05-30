@@ -74,21 +74,29 @@ async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): P
 
 async function probeGemini(): Promise<EngineProbeResult> {
   const start = Date.now();
-  const key = process.env.GEMINI_API_KEY;
-  if (!key) return { engine: "gemini", model: "gemini-2.0-flash", ok: false, latencyMs: 0, error: "GEMINI_API_KEY not set" };
+  // Use OpenRouter (same path as production) — direct GEMINI_API_KEY is free-tier
+  // and hits quota constantly; OR uses user's paid credits.
+  const orKey = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
+  const orBase = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
+  const model = "google/gemini-2.0-flash-001";
+  if (!orKey || !orBase) return { engine: "gemini", model, ok: false, latencyMs: 0, error: "OpenRouter not configured" };
 
   try {
-    const genAI = new GoogleGenerativeAI(key);
-    const model = genAI.getGenerativeModel({
-      model: "gemini-2.0-flash",
-      generationConfig: { maxOutputTokens: PROBE_MAX_TOKENS },
-    });
-    const result = await withTimeout(model.generateContent(PROBE_PROMPT), PROBE_TIMEOUT_MS, "gemini");
-    const text = result.response.text();
+    const client = new OpenAI({ apiKey: orKey, baseURL: orBase });
+    const resp = await withTimeout(
+      client.chat.completions.create({
+        model,
+        messages: [{ role: "user", content: PROBE_PROMPT }],
+        max_tokens: PROBE_MAX_TOKENS,
+      }),
+      PROBE_TIMEOUT_MS,
+      "gemini-or"
+    );
+    const text = resp.choices[0]?.message?.content || "";
     if (!text || text.trim().length === 0) throw new Error("Empty response");
-    return { engine: "gemini", model: "gemini-2.0-flash", ok: true, latencyMs: Date.now() - start };
+    return { engine: "gemini", model, ok: true, latencyMs: Date.now() - start };
   } catch (err: any) {
-    return { engine: "gemini", model: "gemini-2.0-flash", ok: false, latencyMs: Date.now() - start, error: err.message };
+    return { engine: "gemini", model, ok: false, latencyMs: Date.now() - start, error: err.message };
   }
 }
 

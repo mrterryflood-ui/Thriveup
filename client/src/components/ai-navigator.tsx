@@ -435,7 +435,9 @@ export function AINavigator() {
   }, [input, isStreaming, activeConversationId, messages, attachedDocs, refetchConversations]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
+    // Ctrl/Cmd+Enter sends — plain Enter always creates a new line
+    // This prevents accidental submission mid-thought, especially on mobile.
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
       e.preventDefault();
       sendMessage();
     }
@@ -815,7 +817,7 @@ export function AINavigator() {
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder={attachedDocs.length > 0 ? "What would you like me to do with these documents?" : "Tell me what you need help with..."}
+                placeholder={attachedDocs.length > 0 ? "What would you like me to do with these documents?" : "Tell me what you need help with... (tap Send or Ctrl+Enter)"}
                 className="min-h-[40px] max-h-[100px] resize-none text-sm rounded-xl"
                 rows={1}
                 disabled={isStreaming}

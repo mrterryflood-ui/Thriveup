@@ -74,7 +74,7 @@ const ENGINES_GLOBAL_DEADLINE_MS = 25_000;
 // It does NOT block the initial synthesis. When it finishes, its output flows
 // as a "Deep Thinking Addendum" over the still-open SSE connection.
 // 45s keeps us safely inside deployment proxy timeouts (typically 60s).
-const DEEP_THINK_TIMEOUT_MS = 45_000;
+const DEEP_THINK_TIMEOUT_MS = 70_000;
 
 /**
  * Start all engines simultaneously. Proceed as soon as all respond OR the
@@ -277,7 +277,8 @@ async function synthesizeResponses(
   engineResults: EngineResult[],
   originalPrompt: string,
   ragSources: string[],
-  synthesisEngine: { id: EngineId; model: string }
+  synthesisEngine: { id: EngineId; model: string },
+  skipRAG?: boolean
 ): Promise<string> {
   const validResults = engineResults.filter(r => r.response && r.response.length > 20);
 
@@ -288,6 +289,16 @@ async function synthesizeResponses(
     `=== ENGINE ${i + 1}: ${r.engine.toUpperCase()} (${r.model}) — ${r.responseTimeMs}ms ===\n${r.response}`
   ).join("\n\n");
 
+  // For document queries (skipRAG), do NOT inject framework framing — it causes
+  // the synthesizer to reformat the user's own document into RPLICE/MAP-GAP sections.
+  const frameworkLine = skipRAG
+    ? ""
+    : `\nFrameworks applied: RPLICE (implementation science), MAP-GAP (continuous improvement)`;
+
+  const synthesisInstruction = skipRAG
+    ? `Produce a single, synthesized response that directly answers the user's question about the document. Do NOT restructure, reformat, or restate the document — the user already has it. Pick the most insightful, specific, and helpful content from the engine outputs. Be conversational and substantive. Do NOT truncate.`
+    : `Produce a single, synthesized response that is BETTER than any individual engine output. Do not reference engines by name. Speak with one authoritative voice. Do NOT truncate.`;
+
   const synthesisPrompt = `You are the TCAF Collaborative Intelligence Synthesizer. Multiple AI engines have independently analyzed the same prompt. Your job is to produce a SINGLE superior output that:
 
 1. Captures the BEST insights from each engine
@@ -295,8 +306,7 @@ async function synthesizeResponses(
 3. Ensures nothing important is missed
 4. Produces a cohesive, authoritative response — not a list of "Engine A said X, Engine B said Y"
 
-RAG knowledge sources used: ${ragSources.join(", ") || "none"}
-Frameworks applied: RPLICE (implementation science), MAP-GAP (continuous improvement)
+RAG knowledge sources used: ${ragSources.join(", ") || "none"}${frameworkLine}
 
 ORIGINAL PROMPT:
 ${originalPrompt}
@@ -304,10 +314,14 @@ ${originalPrompt}
 ENGINE OUTPUTS:
 ${engineOutputs}
 
-Produce a single, synthesized response that is BETTER than any individual engine output. Do not reference engines by name. Speak with one authoritative voice.`;
+${synthesisInstruction}`;
+
+  const systemPrompt = skipRAG
+    ? "You are an expert analyst and synthesizer. Produce cohesive, authoritative outputs that directly address the user's question. Do NOT reproduce framework templates. Do NOT truncate."
+    : "You are an expert synthesizer for the ThriveUp Academy ACOS. Produce cohesive, authoritative outputs. Do NOT truncate — always complete every section and produce the full depth of analysis needed.";
 
   try {
-    const result = await callEngine(synthesisEngine, synthesisPrompt, "You are an expert synthesizer for the ThriveUp Academy ACOS. Produce cohesive, authoritative outputs. Do NOT truncate — always complete every section and produce the full depth of analysis needed.", 8000);
+    const result = await callEngine(synthesisEngine, synthesisPrompt, systemPrompt, 8000);
     if (result.response && result.response.length > 20) return result.response;
   } catch {}
 
@@ -480,7 +494,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   }
 
   const enrichedPrompt = params.skipRAG
-    ? `${params.prompt}\n\nINSTRUCTIONS: The user has attached document(s) above. Read them carefully and respond DIRECTLY to what the user is asking. Do not generate a generic strategic report or impose a framework template on your output unless the user explicitly requested that format. Ground every statement in the specific content of the attached document(s) and the user's actual question. If implementation science thinking (RPLICE/MAP-GAP) is genuinely useful, apply it as a thinking lens — not as a section-by-section output structure. Be specific and concrete. Do NOT truncate.`
+    ? `${params.prompt}\n\nINSTRUCTIONS: The user has attached document(s). Do NOT restructure, reformat, or restate the document back to them — they wrote it, they know what's in it. Instead: answer their specific question, add new analysis or evidence they don't already have, identify gaps or opportunities they may have missed, or produce the specific output they asked for. If the document already has RPLICE or MAP-GAP sections, do NOT reproduce those sections — build on them or go beyond them. Be conversational, substantive, and genuinely useful. Write in full paragraphs unless a list is specifically better. Do NOT truncate your response.`
     : `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
 
   const baseSystem = params.systemPrompt || "You are part of the ThriveUp Academy Collaborative Intelligence System — a multi-engine AI that uses RAG knowledge retrieval, RPLICE implementation science, and MAP-GAP continuous improvement to produce evidence-grounded outputs.";
@@ -528,7 +542,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 
   if (successfulEngines.length >= 2) {
     const synthesisEngine = enginesForFastPass.find(e => e.id === "claude") || enginesForFastPass.find(e => e.id === "openai") || enginesForFastPass[0];
-    const synthesis = await synthesizeResponses(fastResults, params.prompt, ragSources, synthesisEngine);
+    const synthesis = await synthesizeResponses(fastResults, params.prompt, ragSources, synthesisEngine, params.skipRAG);
     const words = synthesis.split(/(\s+)/);
     for (let i = 0; i < words.length; i += 3) {
       params.onChunk(words.slice(i, i + 3).join(""));
