@@ -9,7 +9,7 @@ import {
   GraduationCap, Building2, Globe, Heart, Users, Target, Sparkles,
   ArrowRight, DollarSign, Shield, BarChart3, Briefcase, TrendingUp,
   BookOpen, Award, Zap, CheckCircle2, ExternalLink, Layers,
-  Rocket, MapPin, Brain, Scale, Microscope, HandshakeIcon,
+  Rocket, MapPin, Brain, Scale, Microscope, HandshakeIcon, Network,
 } from "lucide-react";
 import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
 import terryPhoto from "@assets/Terry2_1773768611245.jpg";
@@ -71,7 +71,7 @@ const ecosystemPlatforms = [
       "Multi-provider AI architecture design & deployment",
       "RAG knowledge base & governance framework buildout",
       "MAP-GAP continuous improvement consulting",
-      "15-service-platform ecosystem narrative & advocacy",
+      "26-platform ecosystem narrative & advocacy",
       "Grant alignment, compliance automation & evidence by architecture",
       "Implementation science services (CFIR, RE-AIM)",
       "Federal contract execution & VOSB partnerships",
@@ -92,23 +92,25 @@ const fundingStreams = [
 ];
 
 const keyNumbers = [
-  { label: "Platforms", value: "20", detail: "Integrated ecosystem" },
-  { label: "MCE Records", value: "656,794", detail: "Curated business data" },
-  { label: "AI Tools", value: "24+", detail: "Across all platforms" },
-  { label: "Career Pathways", value: "50+", detail: "4+ industries" },
-  { label: "Active Grants", value: "4", detail: "Healthcare + workforce" },
-  { label: "MCE Valuation", value: "$3.5-5M", detail: "SaaS platform" },
+  { label: "Platforms", value: "26", detail: "Governed ecosystem" },
+  { label: "Grants Tracked", value: "651", detail: "AI fit-scored, live" },
+  { label: "MCE Business Records", value: "656,794", detail: "Curated, AI-searchable" },
+  { label: "DB Tables", value: "271", detail: "Production data model" },
+  { label: "Languages", value: "107", detail: "89 spoken + 18 signed" },
+  { label: "CFIR Constructs", value: "39", detail: "Operationalized in code" },
+  { label: "Trade Sim Lessons", value: "75", detail: "5 trades × 15 lessons" },
   { label: "States Deployable", value: "50", detail: "+ DC coverage" },
-  { label: "Languages", value: "2", detail: "English & Spanish" },
 ];
 
 const competitiveAdvantages = [
   { title: "Cradle-to-Contract Pipeline", desc: "No competitor has the integrated path from education through career readiness through business formation through government contracting. ThriveUp trains the person; MCE empowers the business they build.", icon: Rocket },
-  { title: "Dual Revenue Model", desc: "ThriveUp is grant-funded (nonprofit) while MCE is subscription-funded (SaaS). Diversified revenue — neither depends entirely on the other.", icon: DollarSign },
-  { title: "Shared Data Moat", desc: "ThriveUp's community data (employment gaps, health indicators, service availability) combined with MCE's 656,794 business records creates a uniquely powerful dataset for grant applications and impact reporting.", icon: Layers },
-  { title: "VOSB Status", desc: "Veteran-Owned Small Business certification provides competitive advantage for federal contracting and grant applications across both platforms.", icon: Shield },
-  { title: "Implementation Science", desc: "Founded by an Implementation Scientist with DHA + DBA + Dartmouth MS. Proprietary methodologies (MAP-GAP, SALP, Three Realities, MG-PATR) differentiate from competitors.", icon: Microscope },
-  { title: "Grant-Ready Infrastructure", desc: "ThriveUp is explicitly built to meet federal grant criteria — WIOA, DOJ, DOL, OJJDP, HHS — with transparent reporting, outcome tracking, and compliance tools already in place.", icon: Target },
+  { title: "Physics-Grade Trade Simulations", desc: "Five industry-standard simulation engines — MNA (electrical/automotive), Hardy-Cross Newton-Raphson (plumbing), AWS D1.1 heat-input evaluator (welding), thermal-airflow (HVAC). Not gamified exercises. Actual engineering solvers with 43 passing automated tests.", icon: Zap },
+  { title: "Implementation Science in Code", desc: "39 CFIR 2.0 constructs and 5 domains operationalized in the Research Hub — not named in a slide, instantiated in production. NRRC and CFIR 2.0 fidelity benchmarks built into scoring rubrics.", icon: Microscope },
+  { title: "651 Grants Tracked — AI Fit-Scored", desc: "Live grant intelligence across Grants.gov (369), USASpending (198), SAM.gov (36), and curated sources. Every opportunity tier-weighted and AI-scored against organizational capacity — not a generic list.", icon: Target },
+  { title: "107-Language Reach", desc: "89 spoken languages + 18 signed — dialect-preserving, not just machine-translated. Honors AAVE, Spanglish, and regional variants. RTL layout support. Built for the communities that need it most.", icon: Globe },
+  { title: "Dual-Entity Strategy", desc: "TCAF 501(c)(3) (federal award-eligible, UEI KDDVD1FGLW35) + ISS LLC for-profit (UEI C7YDV3P8EHL7, CAGE 9VKK3). Flexible contracting, diversified revenue — grant, SaaS, and federal contract streams independent of each other.", icon: Shield },
+  { title: "We Orchestrate AI — Not Just Use It", desc: "4-engine collaborative synthesis: Claude, GPT-4o-mini, Gemini, DeepSeek R1 — with automatic failover, mode-switching tutors (Socratic-hint vs ensemble-debrief), and 86 RAG chunks grounded in our own commitments, not the generic web.", icon: Brain },
+  { title: "Justice & Reentry — Gold Standard", desc: "11 database tables: RNR (Risk-Need-Responsivity) assessments, CBI programs, recidivism baselines, family visitation tracking. The frameworks federal reviewers require — already running, not roadmapped.", icon: Scale },
 ];
 
 export default function BusinessPlanPage() {

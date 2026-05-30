@@ -211,10 +211,10 @@ function ImpactNumbers() {
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
-            { value: "6", label: "Service Domains" },
-            { value: "15", label: "Service Platforms" },
+            { value: "26", label: "Ecosystem Platforms" },
+            { value: "651", label: "Grants Tracked" },
             { value: "4", label: "AI Engines" },
-            { value: "20", label: "TEKS Standards Covered" },
+            { value: "107", label: "Languages Supported" },
           ].map((stat) => (
             <div key={stat.label} className="py-2" data-testid={`stat-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
               <p className="text-2xl sm:text-3xl font-bold text-primary">{stat.value}</p>

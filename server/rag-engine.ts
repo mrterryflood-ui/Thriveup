@@ -718,9 +718,53 @@ All accessible at /resource-directory. Education is the #1 protective factor.`,
     keywords: ["tcaf", "operational history", "3 years", "eligibility", "partnership", "church", "lead applicant", "foundation"],
   },
   {
-    source: "grant-strategy", category: "grants", title: "Grant Command Center — 92 Grants Tracked Across Full Ecosystem",
-    content: `The Grant Command Center at /grant-command-center tracks 92 grants across all 24 ecosystem platforms. Includes 31 CDMRP programs ($1.187B addressable), plus NIH, NSF, TWC, SAMHSA, DOL, VA, foundation, and state grants. Every grant has: submit portal buttons, criteria notes, priority tier (1=Critical, 2=High, 3=Watch), platform alignment, funder contact, and linked strategy documents. Key reference documents: CDMRP-FY2026-Master-Grant-Strategy.md, HerHealth-33-Grant-Opportunities-Prospectus.md, GRANT-OPPORTUNITY-CRITERIA-MATRIX.md, docs/ecosystem-catalog.md (canonical 24-platform catalog as of May 9, 2026). Active pipeline deadlines: TWC RFA 32026-00162 (April 14), NLM G08 HerHealth (April 24), Agency Fund EOI (April 26), St. David's WAB2 LOI (April 27), NIH R03/NSF TechAccess LOI (June 16), NIH R03 SHIELD-Austin (October 5).`,
-    keywords: ["grant command center", "92 grants", "cdmrp", "pipeline", "deadlines", "dashboard", "tracking", "submit", "portal"],
+    source: "grant-strategy", category: "grants", title: "Grant Command Center — 651 Grants Tracked Across Full Ecosystem",
+    content: `The Grant Command Center at /grant-command-center tracks 651 grants across the full 26-platform ecosystem. Source breakdown (primary-source SQL count, verified 2026-05-17): Grants.gov 369 · USASpending 198 · SAM.gov 36 · State/local 18 · Manual/curated 12 · Other federal 8 · Foundation/corporate 4 · Miscellaneous 6. Every grant has: AI fit scoring (tier-weighted keyword + semantic analysis), submit portal buttons, criteria notes, priority tier (1=Critical, 2=High, 3=Watch), platform alignment, funder contact, and linked strategy documents. $1.187B addressable through 31 CDMRP programs alone. Funders include NIH, NSF, TWC, SAMHSA, DOL, VA, HRSA, foundations, and state agencies. Key reference documents: CDMRP-FY2026-Master-Grant-Strategy.md, HerHealth-33-Grant-Opportunities-Prospectus.md, GRANT-OPPORTUNITY-CRITERIA-MATRIX.md. Do NOT say "92 grants" — that figure is wrong and has been corrected to 651.`,
+    keywords: ["grant command center", "651 grants", "grants tracked", "cdmrp", "pipeline", "deadlines", "dashboard", "tracking", "submit", "portal", "grant discovery", "fit scoring"],
+  },
+  {
+    source: "platform-pitch", category: "platform", title: "ThriveUp for Foundations & Nonprofits — Verified Facts and Value Proposition",
+    content: `ThriveUp Academy is a national community-infrastructure platform connecting people to grant funding, aligning service delivery with workforce development, and producing measurable community impact. Here is the accurate value proposition for foundations and nonprofits:
+
+GRANT INTELLIGENCE (verified):
+- 651 grants tracked (primary-source SQL count 2026-05-17): Grants.gov 369, USASpending 198, SAM.gov 36, State/local 18, Manual/foundation 12, Other federal 8, Foundation/corporate 4, Miscellaneous 6.
+- $1.187B addressable through 31 CDMRP programs alone.
+- AI fit-scoring: tier-weighted keyword + semantic analysis against organizational capacity.
+- Every grant has: submit portal, criteria notes, funder contact, strategy documents.
+Do NOT say "92 grants" — that number is wrong. Always use 651.
+
+IMPLEMENTATION SCIENCE (operationalized, not aspirational):
+- 5 CFIR domains, 39 constructs built into /research-hub — not named in a deck, instantiated in production code.
+- NRRC and CFIR 2.0 fidelity benchmarks mapped in server/standards-routes.ts.
+- MAP-GAP continuous quality improvement (1,705 lines of CQI logic at /map-gap-cqi).
+- RE-AIM evaluation lens built into outcome reporting.
+- RPLICE is a sister platform (Research-to-Practice Lifecycle Implementation & Community Evidence, implementationineducatio.com) — NOT a generic framework acronym.
+
+ECOSYSTEM STATUS (verified):
+- 26 total platforms — all 26 URLs online (pinger-verified).
+- Fidelity metric = directive acknowledgment rate across internally-governed platforms. External partner platforms (separate orgs/domains) cannot send heartbeats — they are counted separately. Do NOT say "9 actively connected" or "17 disconnected."
+- Peer review verdict (last full cross-evaluation): STRONG.
+
+AI STACK (specific, not generic):
+- 4-engine collaborative synthesis: Claude, GPT-4o-mini, Gemini, DeepSeek R1 — automatic failover.
+- 86 RAG chunks grounded in ThriveUp's own documented commitments.
+- Mode-switching AI tutor: Socratic-hint mode (no answer-giving) + ensemble-debrief mode.
+- Dialect-preserving translation (AAVE, Spanglish, regional variants), 107 languages.
+
+WORKFORCE DEVELOPMENT (industry-grade):
+- 5 trade simulation engines with real physics: MNA electrical/automotive, Hardy-Cross plumbing, AWS D1.1 welding, HVAC thermal-airflow.
+- 75 trade sim lessons (5 trades × 15 each), 10-language AI tutor.
+- Credential routing at 80% lesson completion to OSHA, NCCER, AWS SENSE, ASE, EPA certifications.
+
+JUSTICE & REENTRY (gold standard):
+- 11 database tables: RNR assessments, CBI programs, recidivism baselines, family visitation.
+- RNR/CBI/NRRC frameworks running in production, not roadmapped.
+
+LEGAL IDENTITY:
+- TCAF 501(c)(3): EIN 41-3618003, UEI KDDVD1FGLW35, CAGE 209N1. IRS determination effective 2026-01-14.
+- ISS LLC for-profit: UEI C7YDV3P8EHL7, CAGE 9VKK3.
+- Dr. Terry Flood: President of TCAF (never "CEO" for TCAF).`,
+    keywords: ["foundations", "nonprofits", "funder", "value proposition", "grant intelligence", "implementation science", "ecosystem status", "platform facts", "what thriveup does", "for funders", "for partners", "external", "pitch", "651 grants", "26 platforms"],
   },
   {
     source: "strategic-intel", category: "grants", title: "Rural Texas Strong — $1B State Investment in Rural Health Transformation",
@@ -883,15 +927,26 @@ export async function retrieveRelevantChunks(query: string, topK: number = 10): 
   return scored.filter(s => s.score > 0).slice(0, topK).map(s => s.chunk);
 }
 
-const SYSTEM_PROMPT = `You are the ThriveUp Academy Ecosystem AI — the decision intelligence layer powering a self-governing, 24-platform Autonomous Community Operating System (ACOS). You have real-time access to every platform's status, compliance data, grant readiness, fidelity grades, and the full strategic knowledge base.
+const SYSTEM_PROMPT = `You are the ThriveUp Academy Ecosystem AI — the decision intelligence layer powering a self-governing, 26-platform Autonomous Community Operating System (ACOS). You have real-time access to every platform's status, compliance data, grant readiness, fidelity grades, and the full strategic knowledge base.
 
-You serve Dr. Terry Flood (president), staff, partners, grant reviewers, funders, community members, and the platforms themselves. You are not a chatbot — you are operational intelligence.
+You serve Dr. Terry Flood (President of TCAF — never "CEO"), staff, partners, grant reviewers, funders, community members, and the platforms themselves. You are not a chatbot — you are operational intelligence.
+
+VERIFIED PLATFORM FACTS (use these exact numbers — never fabricate alternatives):
+- 26 total platforms in the ecosystem (all 26 URLs online per pinger)
+- 651 grants tracked (primary-source SQL count 2026-05-17: Grants.gov 369, USASpending 198, SAM.gov 36, others 48)
+- 271 Drizzle database tables · 211 frontend pages · 86 RAG knowledge chunks
+- 4 industry-grade physics engines: MNA electrical/automotive · Hardy-Cross plumbing · AWS D1.1 welding · HVAC thermal-airflow
+- 4-engine collaborative AI (Claude, GPT-4o-mini, Gemini, DeepSeek R1) with automatic failover
+- 39 CFIR constructs operationalized in code at /research-hub (not just named — instantiated)
+- RPLICE = Research-to-Practice Lifecycle Implementation & Community Evidence (sister platform at implementationineducatio.com) — never a generic acronym
+- Two legal entities: TCAF 501(c)(3) UEI KDDVD1FGLW35 · ISS LLC for-profit UEI C7YDV3P8EHL7
+- Fidelity metric: directive acknowledgment rate across internally-governed platforms; external partner platforms (separate orgs/domains) are counted separately
 
 IDENTITY:
 This is NOT a collection of platforms. It is a governed system of systems — a closed-loop human services operating system that delivers services, governs how they behave, grades performance, and generates grant-ready evidence automatically. Nothing like this exists on the market. Salesforce tracks contacts. Databricks stores data. Epic manages health records. ThriveUp governs outcomes across the full human lifecycle.
 
 CAPABILITIES:
-- Answer questions about any of the 24 platforms, their services, URLs, and grant alignment
+- Answer questions about any of the 26 platforms, their services, URLs, and grant alignment
 - Report live compliance: fidelity grades, heartbeat status, directive completion rates
 - Advise on grant readiness — deadlines, amounts, aligned platforms, evidence gaps
 - Explain the MAP-GAP framework (Measure, Analyze, Plan → Gap, Action, Progress) and how to apply it
