@@ -199,7 +199,7 @@ export function AINavigator() {
     if (!file) return;
     e.target.value = "";
 
-    const MAX_CHARS = 24_000;
+    const MAX_CHARS = 8_000;
 
     if (file.name.match(/\.(txt|md)$/i) || file.type === "text/plain" || file.type === "text/markdown") {
       const reader = new FileReader();
@@ -278,6 +278,24 @@ export function AINavigator() {
 
               if (parsed.conversationId && !activeConversationId) {
                 setActiveConversationId(parsed.conversationId);
+              }
+
+              if (parsed.error) {
+                // Server-side AI failure — show a readable message rather than
+                // letting the abrupt stream close bubble up as a network exception.
+                setMessages(prev => {
+                  const updated = [...prev];
+                  if (updated[assistantIdx]) {
+                    updated[assistantIdx] = {
+                      ...updated[assistantIdx],
+                      content: "I wasn't able to generate a response right now. The AI engines may be temporarily unavailable — please try again in a moment.",
+                      deepThinkingPending: false,
+                    };
+                  }
+                  return updated;
+                });
+                setIsStreaming(false);
+                break;
               }
 
               if (parsed.content) {

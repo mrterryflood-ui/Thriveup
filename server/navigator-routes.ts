@@ -475,7 +475,7 @@ export function registerNavigatorRoutes(app: Express) {
       await collaborativeStream({
         prompt: message,
         systemPrompt: msgs.find(m => m.role === "system")?.content,
-        maxTokens: 2000,
+        maxTokens: 5000,
         onChunk: (content) => {
           fullResponse += content;
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
