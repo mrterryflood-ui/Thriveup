@@ -1,9 +1,12 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { MessageCircle, Send, Bot, User, Briefcase, BookOpen, Users, Settings, Trash2, Heart, Wand2, ShieldAlert } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { MessageCircle, Send, Bot, User, Briefcase, BookOpen, Users, Settings, Trash2, Heart, Wand2, ShieldAlert, History, Plus, ChevronLeft } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
 import { useLanguage } from "@/lib/i18n";
 import { Link } from "wouter";
@@ -11,6 +14,15 @@ import { Link } from "wouter";
 interface Message {
   role: "user" | "assistant";
   content: string;
+}
+
+interface SparkySessionInfo {
+  id: string;
+  title: string;
+  context: string;
+  language: string;
+  lastMessageAt: string;
+  createdAt: string;
 }
 
 const CONTEXT_OPTIONS = [
@@ -52,6 +64,22 @@ const WELCOME_ES: Message = {
   content: "Hola! Soy Sparky, tu companero en ThriveUp Academy. Ya seas padre, maestro, ciudadano en reintegracion, veterano, profesional en transicion o lider comunitario — estoy aqui para ayudarte con orientacion profesional, recursos laborales, apoyo al aprendizaje y navegacion de la plataforma. Como puedo ayudarte hoy?",
 };
 
+const STORAGE_KEY = "sparky_messages_v1";
+
+function formatRelativeTime(dateStr: string) {
+  const d = new Date(dateStr);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  if (diffMin < 1) return "Just now";
+  if (diffMin < 60) return `${diffMin}m ago`;
+  const diffHr = Math.floor(diffMin / 60);
+  if (diffHr < 24) return `${diffHr}h ago`;
+  const diffDay = Math.floor(diffHr / 24);
+  if (diffDay < 7) return `${diffDay}d ago`;
+  return d.toLocaleDateString();
+}
+
 export default function SparkyCompanionPage() {
   const { language } = useLanguage();
   const { user } = useAuth();
@@ -60,7 +88,19 @@ export default function SparkyCompanionPage() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [context, setContext] = useState("general");
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
+  const [view, setView] = useState<"chat" | "history">("chat");
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const { data: sessions, refetch: refetchSessions } = useQuery<SparkySessionInfo[]>({
+    queryKey: ["/api/sparky/sessions"],
+    enabled: !!user,
+  });
+
+  const deleteSession = useMutation({
+    mutationFn: (id: string) => apiRequest("DELETE", `/api/sparky/sessions/${id}`),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/sparky/sessions"] }),
+  });
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -68,6 +108,53 @@ export default function SparkyCompanionPage() {
 
   useEffect(() => {
     setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
+  }, [language]);
+
+  // Restore from localStorage on mount (non-auth or before DB loads)
+  useEffect(() => {
+    if (!user) {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed);
+        } catch {}
+      }
+    }
+  }, [user]);
+
+  // Auto-resume most recent DB session when sessions load
+  useEffect(() => {
+    if (user && sessions && sessions.length > 0 && !activeSessionId && messages.length <= 1) {
+      loadSession(sessions[0].id);
+    }
+  }, [user, sessions]);
+
+  // Save to localStorage after every exchange (works even if DB isn't available)
+  useEffect(() => {
+    if (messages.length > 1) {
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(messages.slice(-100))); } catch {}
+    }
+  }, [messages]);
+
+  const loadSession = useCallback(async (sessionId: string) => {
+    try {
+      const res = await fetch(`/api/sparky/sessions/${sessionId}/messages`, { credentials: "include" });
+      if (!res.ok) return;
+      const msgs = await res.json();
+      const welcome = language === "es" ? WELCOME_ES : WELCOME_EN;
+      setMessages([welcome, ...msgs.map((m: { role: string; content: string }) => ({ role: m.role as "user" | "assistant", content: m.content }))]);
+      setActiveSessionId(sessionId);
+      setView("chat");
+    } catch (err) {
+      console.error("Failed to load session:", err);
+    }
+  }, [language]);
+
+  const startNewSession = useCallback(() => {
+    setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
+    setActiveSessionId(null);
+    setView("chat");
   }, [language]);
 
   const sendMessage = async (overrideMessage?: string) => {
@@ -90,12 +177,14 @@ export default function SparkyCompanionPage() {
       const response = await fetch("/api/sparky/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({
           message: fullMessage,
           context,
           conversationHistory: history,
           language,
           userName: user?.firstName || undefined,
+          sessionId: activeSessionId,
         }),
       });
 
@@ -120,6 +209,9 @@ export default function SparkyCompanionPage() {
             if (dataStr === "[DONE]") continue;
             try {
               const parsed = JSON.parse(dataStr);
+              if (parsed.sessionId && !activeSessionId) {
+                setActiveSessionId(parsed.sessionId);
+              }
               if (parsed.content) {
                 accumulated += parsed.content;
                 setMessages((prev) => {
@@ -127,6 +219,9 @@ export default function SparkyCompanionPage() {
                   updated[updated.length - 1] = { role: "assistant", content: accumulated };
                   return updated;
                 });
+              }
+              if (parsed.done) {
+                refetchSessions();
               }
             } catch {}
           }
@@ -170,13 +265,15 @@ export default function SparkyCompanionPage() {
 
   const clearChat = () => {
     setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
+    setActiveSessionId(null);
+    try { localStorage.removeItem(STORAGE_KEY); } catch {}
   };
 
   const prompts = QUICK_PROMPTS[language === "es" ? "es" : "en"];
   const selectedContext = CONTEXT_OPTIONS.find(c => c.value === context);
 
-
   useEffect(() => { document.title = "Sparky AI Companion | ThriveUp Academy"; }, []);
+
   return (
     <div className="p-6 max-w-4xl mx-auto">
       <div className="mb-6">
@@ -204,125 +301,236 @@ export default function SparkyCompanionPage() {
               <MessageCircle className="h-4 w-4 text-white" />
             </div>
             <span className="font-semibold">Sparky</span>
-            {selectedContext && (
+            {view === "chat" && selectedContext && (
               <Badge variant="secondary" className="text-xs" data-testid="badge-context">
                 {language === "es" ? selectedContext.labelEs : selectedContext.label}
               </Badge>
             )}
+            {view === "chat" && activeSessionId && (
+              <Badge variant="outline" className="text-xs text-muted-foreground" data-testid="badge-session-saved">
+                {language === "es" ? "Guardado" : "Saved"}
+              </Badge>
+            )}
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <Select value={context} onValueChange={setContext}>
-              <SelectTrigger className="w-[180px]" data-testid="select-context" aria-label={language === "es" ? "Seleccionar contexto" : "Select context"}>
-                <Briefcase className="h-3 w-3 mr-1" />
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {CONTEXT_OPTIONS.map((c) => (
-                  <SelectItem key={c.value} value={c.value} data-testid={`context-${c.value}`}>
-                    <span className="flex items-center gap-1">
-                      <c.icon className="h-3 w-3" />
-                      {language === "es" ? c.labelEs : c.label}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button size="icon" variant="ghost" onClick={clearChat} data-testid="button-clear-sparky-chat" aria-label={language === "es" ? "Limpiar chat" : "Clear chat"}>
-              <Trash2 className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        <div className="flex-1 overflow-auto p-4 space-y-4" data-testid="container-sparky-messages" role="log" aria-label={language === "es" ? "Mensajes del chat" : "Chat messages"} aria-live="polite">
-          {messages.map((msg, i) => (
-            <div
-              key={i}
-              className={`flex items-start gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-              data-testid={`sparky-message-${msg.role}-${i}`}
-            >
-              {msg.role === "assistant" && (
-                <div className="rounded-md p-1.5 shrink-0 mt-0.5" style={{ background: "rgba(128,0,0,0.1)" }}>
-                  <Bot className="h-4 w-4" style={{ color: "#800000" }} />
-                </div>
-              )}
-              <div
-                className={`rounded-md px-3 py-2 max-w-[80%] text-sm whitespace-pre-wrap ${
-                  msg.role === "assistant" ? "bg-primary/10" : "bg-muted"
-                }`}
-              >
-                {msg.content}
-              </div>
-              {msg.role === "user" && (
-                <div className="rounded-md p-1.5 bg-muted shrink-0 mt-0.5">
-                  <User className="h-4 w-4" />
-                </div>
-              )}
-            </div>
-          ))}
-
-          {isLoading && messages[messages.length - 1]?.content === "" && (
-            <div className="flex items-center gap-1 pl-10" aria-label={language === "es" ? "Sparky esta pensando" : "Sparky is thinking"}>
-              <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
-              <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse [animation-delay:0.2s]" />
-              <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse [animation-delay:0.4s]" />
-            </div>
-          )}
-
-          <div ref={messagesEndRef} />
-        </div>
-
-        {messages.length <= 2 && (
-          <div className="px-4 pb-2 flex flex-wrap gap-1.5" data-testid="section-sparky-quick-prompts">
-            {prompts.map((p, i) => (
+            {view === "chat" && (
+              <>
+                <Select value={context} onValueChange={setContext}>
+                  <SelectTrigger className="w-[180px]" data-testid="select-context" aria-label={language === "es" ? "Seleccionar contexto" : "Select context"}>
+                    <Briefcase className="h-3 w-3 mr-1" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CONTEXT_OPTIONS.map((c) => (
+                      <SelectItem key={c.value} value={c.value} data-testid={`context-${c.value}`}>
+                        <span className="flex items-center gap-1">
+                          <c.icon className="h-3 w-3" />
+                          {language === "es" ? c.labelEs : c.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={startNewSession}
+                  data-testid="button-sparky-new-chat"
+                  title={language === "es" ? "Nueva conversacion" : "New conversation"}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={clearChat}
+                  data-testid="button-clear-sparky-chat"
+                  aria-label={language === "es" ? "Limpiar chat" : "Clear chat"}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+            {user && (
               <Button
-                key={i}
-                variant="outline"
-                size="sm"
-                onClick={() => sendMessage(p.prefix)}
-                disabled={isLoading}
-                data-testid={`button-sparky-quick-prompt-${i}`}
+                size="icon"
+                variant={view === "history" ? "secondary" : "ghost"}
+                onClick={() => setView(v => v === "history" ? "chat" : "history")}
+                data-testid="button-sparky-history"
+                title={language === "es" ? "Historial de conversaciones" : "Conversation history"}
               >
-                {p.label}
+                <History className="h-4 w-4" />
               </Button>
-            ))}
-          </div>
-        )}
-
-        <div className="p-3 border-t">
-          <div className="flex items-center gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={language === "es" ? "Preguntale algo a Sparky..." : "Ask Sparky anything..."}
-              disabled={isLoading}
-              className="flex-1 rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
-              data-testid="input-sparky-chat-message"
-              aria-label={language === "es" ? "Escribe tu mensaje" : "Type your message"}
-            />
-            <Button
-              size="icon"
-              onClick={() => sendMessage()}
-              disabled={isLoading || !input.trim()}
-              data-testid="button-sparky-send-message"
-              aria-label={language === "es" ? "Enviar mensaje" : "Send message"}
-            >
-              <Send className="h-4 w-4" />
-            </Button>
-          </div>
-          <div
-            className="mt-2 flex items-start gap-2 rounded-md border bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
-            data-testid="banner-sparky-privacy-disclosure"
-          >
-            <ShieldAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-            <p>
-              {language === "es"
-                ? <>Tu conversacion con Sparky es privada. <strong>Una excepcion:</strong> si dices que vas a hacerte dano o lastimar a alguien, capturamos la conversacion y avisamos a una persona de nuestro equipo de cuidado. Si necesitas hablar ahora, llama o envia un mensaje al <strong>988</strong>, o al <strong>911</strong> si hay peligro inmediato. <Link href="/privacy" className="underline" data-testid="link-sparky-privacy">Politica de privacidad</Link>.</>
-                : <>Your conversation with Sparky is private. <strong>One exception:</strong> if you say you're going to hurt yourself or someone else, we capture the conversation and alert a real person on our care team. If you need to talk right now, call or text <strong>988</strong>, or <strong>911</strong> if you're in immediate danger. <Link href="/privacy" className="underline" data-testid="link-sparky-privacy">Privacy policy</Link>.</>}
-            </p>
+            )}
           </div>
         </div>
+
+        {view === "history" ? (
+          <div className="flex flex-col flex-1 overflow-hidden">
+            <div className="flex items-center gap-2 p-3 border-b">
+              <Button variant="ghost" size="sm" onClick={() => setView("chat")} data-testid="button-sparky-back-to-chat">
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                {language === "es" ? "Volver al chat" : "Back to chat"}
+              </Button>
+              <span className="text-sm font-medium text-muted-foreground">
+                {language === "es" ? "Conversaciones guardadas" : "Saved conversations"}
+              </span>
+            </div>
+            <ScrollArea className="flex-1 p-3">
+              {!sessions || sessions.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center text-muted-foreground">
+                  <History className="h-10 w-10 mb-3 opacity-30" />
+                  <p className="text-sm">
+                    {language === "es"
+                      ? "No hay conversaciones guardadas aun."
+                      : "No saved conversations yet."}
+                  </p>
+                  <p className="text-xs mt-1">
+                    {language === "es"
+                      ? "Tus proximas conversaciones apareceran aqui."
+                      : "Your next conversations will appear here."}
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2" data-testid="list-sparky-sessions">
+                  {sessions.map((session) => (
+                    <div
+                      key={session.id}
+                      className={`group flex items-start justify-between gap-2 rounded-lg border p-3 hover:bg-muted/50 transition-colors cursor-pointer ${session.id === activeSessionId ? "bg-muted border-primary/40" : ""}`}
+                      onClick={() => loadSession(session.id)}
+                      data-testid={`session-item-${session.id}`}
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{session.title}</p>
+                        <div className="flex items-center gap-2 mt-0.5">
+                          <span className="text-xs text-muted-foreground">{formatRelativeTime(session.lastMessageAt)}</span>
+                          {session.context && session.context !== "general" && (
+                            <Badge variant="secondary" className="text-xs py-0 px-1">
+                              {CONTEXT_OPTIONS.find(c => c.value === session.context)?.[language === "es" ? "labelEs" : "label"] || session.context}
+                            </Badge>
+                          )}
+                        </div>
+                      </div>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity shrink-0"
+                        onClick={(e) => { e.stopPropagation(); deleteSession.mutate(session.id); }}
+                        data-testid={`button-delete-session-${session.id}`}
+                        title={language === "es" ? "Eliminar conversacion" : "Delete conversation"}
+                      >
+                        <Trash2 className="h-3.5 w-3.5 text-muted-foreground" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </ScrollArea>
+            <div className="p-3 border-t">
+              <Button
+                className="w-full"
+                onClick={startNewSession}
+                data-testid="button-sparky-new-chat-from-history"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {language === "es" ? "Nueva conversacion" : "New Conversation"}
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="flex-1 overflow-auto p-4 space-y-4" data-testid="container-sparky-messages" role="log" aria-label={language === "es" ? "Mensajes del chat" : "Chat messages"} aria-live="polite">
+              {messages.map((msg, i) => (
+                <div
+                  key={i}
+                  className={`flex items-start gap-2 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                  data-testid={`sparky-message-${msg.role}-${i}`}
+                >
+                  {msg.role === "assistant" && (
+                    <div className="rounded-md p-1.5 shrink-0 mt-0.5" style={{ background: "rgba(128,0,0,0.1)" }}>
+                      <Bot className="h-4 w-4" style={{ color: "#800000" }} />
+                    </div>
+                  )}
+                  <div
+                    className={`rounded-md px-3 py-2 max-w-[80%] text-sm whitespace-pre-wrap ${
+                      msg.role === "assistant" ? "bg-primary/10" : "bg-muted"
+                    }`}
+                  >
+                    {msg.content}
+                  </div>
+                  {msg.role === "user" && (
+                    <div className="rounded-md p-1.5 bg-muted shrink-0 mt-0.5">
+                      <User className="h-4 w-4" />
+                    </div>
+                  )}
+                </div>
+              ))}
+
+              {isLoading && messages[messages.length - 1]?.content === "" && (
+                <div className="flex items-center gap-1 pl-10" aria-label={language === "es" ? "Sparky esta pensando" : "Sparky is thinking"}>
+                  <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse" />
+                  <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse [animation-delay:0.2s]" />
+                  <span className="w-2 h-2 rounded-full bg-primary/60 animate-pulse [animation-delay:0.4s]" />
+                </div>
+              )}
+
+              <div ref={messagesEndRef} />
+            </div>
+
+            {messages.length <= 2 && (
+              <div className="px-4 pb-2 flex flex-wrap gap-1.5" data-testid="section-sparky-quick-prompts">
+                {prompts.map((p, i) => (
+                  <Button
+                    key={i}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => sendMessage(p.prefix)}
+                    disabled={isLoading}
+                    data-testid={`button-sparky-quick-prompt-${i}`}
+                  >
+                    {p.label}
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            <div className="p-3 border-t">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={language === "es" ? "Preguntale algo a Sparky..." : "Ask Sparky anything..."}
+                  disabled={isLoading}
+                  className="flex-1 rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50"
+                  data-testid="input-sparky-chat-message"
+                  aria-label={language === "es" ? "Escribe tu mensaje" : "Type your message"}
+                />
+                <Button
+                  size="icon"
+                  onClick={() => sendMessage()}
+                  disabled={isLoading || !input.trim()}
+                  data-testid="button-sparky-send-message"
+                  aria-label={language === "es" ? "Enviar mensaje" : "Send message"}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+              <div
+                className="mt-2 flex items-start gap-2 rounded-md border bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
+                data-testid="banner-sparky-privacy-disclosure"
+              >
+                <ShieldAlert className="h-3.5 w-3.5 mt-0.5 shrink-0" />
+                <p>
+                  {language === "es"
+                    ? <><strong>Privacidad:</strong> Tu conversacion con Sparky es privada y se guarda en tu cuenta. <strong>Una excepcion:</strong> si dices que vas a hacerte dano o lastimar a alguien, avisamos a nuestro equipo. Llama al <strong>988</strong> o <strong>911</strong> si hay peligro inmediato. <Link href="/privacy" className="underline" data-testid="link-sparky-privacy">Politica</Link>.</>
+                    : <><strong>Privacy:</strong> Your conversation with Sparky is saved to your account. <strong>One exception:</strong> if you say you're going to hurt yourself or someone else, we alert our care team. Call <strong>988</strong> or <strong>911</strong> if in immediate danger. <Link href="/privacy" className="underline" data-testid="link-sparky-privacy">Policy</Link>.</>}
+                </p>
+              </div>
+            </div>
+          </>
+        )}
       </Card>
     </div>
   );

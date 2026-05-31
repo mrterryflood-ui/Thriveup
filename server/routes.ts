@@ -43,6 +43,8 @@ import {
   insertCqiFidelityObservationSchema,
   insertCqiCyclePhaseSchema,
   insertCqiOutcomeSchema,
+  sparkySessions,
+  sparkySessionMessages,
 } from "@shared/schema";
 import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
@@ -1228,7 +1230,8 @@ export async function registerRoutes(
 
   app.post("/api/sparky/chat", requireAuth, async (req, res) => {
     try {
-      const { message, conversationHistory, context, language } = req.body;
+      const { message, conversationHistory, context, language, sessionId } = req.body;
+      const userId = getUserId(req);
 
       if (!message || typeof message !== "string") {
         return res.status(400).json({ error: "Message is required" });
@@ -1262,6 +1265,30 @@ export async function registerRoutes(
         res.write(`data: ${JSON.stringify({ done: true, safety: { triggered: true, severity: crisisCheck.severity } })}\n\n`);
         res.end();
         return;
+      }
+
+      // ── Session persistence ──────────────────────────────────────────────────
+      let activeSessionId: string | null = (typeof sessionId === "string" && sessionId) ? sessionId : null;
+      if (userId) {
+        try {
+          if (activeSessionId) {
+            const [owned] = await db.select().from(sparkySessions)
+              .where(and(eq(sparkySessions.id, activeSessionId), eq(sparkySessions.userId, userId)));
+            if (!owned) activeSessionId = null;
+          }
+          if (!activeSessionId) {
+            const title = message.replace(/[^\w\s]/g, "").trim().split(/\s+/).slice(0, 6).join(" ") || "New Conversation";
+            const [newSession] = await db.insert(sparkySessions).values({
+              userId, title, context: context || "general", language: language || "en",
+            }).returning();
+            activeSessionId = newSession.id;
+          } else {
+            await db.update(sparkySessions).set({ lastMessageAt: new Date() }).where(eq(sparkySessions.id, activeSessionId));
+          }
+          await db.insert(sparkySessionMessages).values({ sessionId: activeSessionId, role: "user", content: message });
+        } catch (dbErr) {
+          console.error("[Sparky] session setup failed:", dbErr);
+        }
       }
 
       const systemPrompt = `You are SPARKY — an AI companion for all adult users at ThriveUp Academy, an AI-powered workforce development and community enablement platform.
@@ -1410,6 +1437,10 @@ export async function registerRoutes(
       res.setHeader("Cache-Control", "no-cache");
       res.setHeader("Connection", "keep-alive");
 
+      if (activeSessionId) {
+        res.write(`data: ${JSON.stringify({ sessionId: activeSessionId })}\n\n`);
+      }
+
       try {
         const msgs: Array<{role: "system" | "user" | "assistant"; content: string}> = [
           { role: "system", content: systemPrompt },
@@ -1426,18 +1457,25 @@ export async function registerRoutes(
 
         msgs.push({ role: "user", content: message });
 
+        let fullResponseText = "";
+        const capturedSessionId = activeSessionId;
         await collaborativeStream({
           prompt: message,
           systemPrompt: systemPrompt,
           maxTokens: 2000,
           onChunk: (content) => {
+            fullResponseText += content;
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
           },
           onMeta: (meta) => {
             res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
           },
           onDone: (result) => {
-            res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
+            if (userId && capturedSessionId && fullResponseText) {
+              db.insert(sparkySessionMessages).values({ sessionId: capturedSessionId, role: "assistant", content: fullResponseText })
+                .catch((err: unknown) => console.error("[Sparky] save assistant msg failed:", err));
+            }
+            res.write(`data: ${JSON.stringify({ done: true, sessionId: capturedSessionId, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
             res.end();
           },
           onError: (error) => {
@@ -1456,6 +1494,53 @@ export async function registerRoutes(
       if (!res.headersSent) {
         res.status(500).json({ error: "Internal server error" });
       }
+    }
+  });
+
+  app.get("/api/sparky/sessions", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const sessions = await db.select().from(sparkySessions)
+        .where(eq(sparkySessions.userId, userId))
+        .orderBy(desc(sparkySessions.lastMessageAt))
+        .limit(50);
+      res.json(sessions);
+    } catch (error) {
+      console.error("Error fetching sparky sessions:", error);
+      res.status(500).json({ error: "Failed to fetch sessions" });
+    }
+  });
+
+  app.get("/api/sparky/sessions/:id/messages", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const { id } = req.params;
+      const [session] = await db.select().from(sparkySessions)
+        .where(and(eq(sparkySessions.id, id), eq(sparkySessions.userId, userId)));
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      const messages = await db.select().from(sparkySessionMessages)
+        .where(eq(sparkySessionMessages.sessionId, id))
+        .orderBy(sparkySessionMessages.createdAt);
+      res.json(messages);
+    } catch (error) {
+      console.error("Error fetching sparky messages:", error);
+      res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+
+  app.delete("/api/sparky/sessions/:id", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const { id } = req.params;
+      const [session] = await db.select().from(sparkySessions)
+        .where(and(eq(sparkySessions.id, id), eq(sparkySessions.userId, userId)));
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      await db.delete(sparkySessionMessages).where(eq(sparkySessionMessages.sessionId, id));
+      await db.delete(sparkySessions).where(eq(sparkySessions.id, id));
+      res.json({ success: true });
+    } catch (error) {
+      console.error("Error deleting sparky session:", error);
+      res.status(500).json({ error: "Failed to delete session" });
     }
   });
 

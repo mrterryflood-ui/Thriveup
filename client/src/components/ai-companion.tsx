@@ -63,6 +63,7 @@ export default function AICompanion({ subject, lessonContext, className, languag
   const [gradeLevel, setGradeLevel] = useState("6-8");
   const [mood, setMood] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const storageKey = `spark_messages_${subject || "general"}_v1`;
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,6 +72,24 @@ export default function AICompanion({ subject, lessonContext, className, languag
   useEffect(() => {
     setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
   }, [language]);
+
+  // Restore conversation from localStorage on mount
+  useEffect(() => {
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed);
+      } catch {}
+    }
+  }, [storageKey]);
+
+  // Save conversation to localStorage after every exchange
+  useEffect(() => {
+    if (messages.length > 1) {
+      try { localStorage.setItem(storageKey, JSON.stringify(messages.slice(-100))); } catch {}
+    }
+  }, [messages, storageKey]);
 
   const sendMessage = async (overrideMessage?: string) => {
     const trimmed = (overrideMessage || input).trim();
@@ -177,6 +196,7 @@ export default function AICompanion({ subject, lessonContext, className, languag
   const clearChat = () => {
     setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
     setMood(null);
+    try { localStorage.removeItem(storageKey); } catch {}
   };
 
   const prompts = QUICK_PROMPTS[language === "es" ? "es" : "en"];

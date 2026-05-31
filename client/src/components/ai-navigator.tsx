@@ -181,6 +181,20 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
     setView("chat");
   }, []);
 
+  // Auto-resume the most recent conversation when the navigator opens
+  useEffect(() => {
+    if (
+      (isOpen || mode === "page") &&
+      isAuthenticated &&
+      conversations &&
+      conversations.length > 0 &&
+      !activeConversationId &&
+      messages.length === 0
+    ) {
+      loadConversation(conversations[0].id);
+    }
+  }, [isOpen, isAuthenticated, conversations, activeConversationId, messages.length, loadConversation, mode]);
+
   const copyMessage = useCallback(async (text: string, idx: number) => {
     try {
       await navigator.clipboard.writeText(text);

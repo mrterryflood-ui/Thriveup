@@ -5938,3 +5938,31 @@ export type ConveningInvitation = typeof conveningInvitations.$inferSelect;
 export const insertStipendPayoutSchema = createInsertSchema(stipendPayouts).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertStipendPayout = z.infer<typeof insertStipendPayoutSchema>;
 export type StipendPayout = typeof stipendPayouts.$inferSelect;
+
+// ==================== SPARKY CHAT SESSIONS ====================
+
+export const sparkySessions = pgTable("sparky_sessions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  title: varchar("title", { length: 500 }).notNull().default("New Conversation"),
+  context: varchar("context", { length: 100 }).default("general"),
+  language: varchar("language", { length: 10 }).default("en"),
+  lastMessageAt: timestamp("last_message_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const sparkySessionMessages = pgTable("sparky_session_messages", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  sessionId: varchar("session_id", { length: 100 }).notNull(),
+  role: varchar("role", { length: 20 }).notNull(),
+  content: text("content").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertSparkySessionSchema = createInsertSchema(sparkySessions).omit({ id: true, createdAt: true, lastMessageAt: true });
+export type InsertSparkySession = z.infer<typeof insertSparkySessionSchema>;
+export type SparkySessionRow = typeof sparkySessions.$inferSelect;
+
+export const insertSparkySessionMessageSchema = createInsertSchema(sparkySessionMessages).omit({ id: true, createdAt: true });
+export type InsertSparkySessionMessage = z.infer<typeof insertSparkySessionMessageSchema>;
+export type SparkySessionMessage = typeof sparkySessionMessages.$inferSelect;
