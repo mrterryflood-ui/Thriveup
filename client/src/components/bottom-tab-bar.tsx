@@ -1,5 +1,5 @@
 import { useLocation, Link } from "wouter";
-import { Home, Heart, Target, Rocket, MoreHorizontal } from "lucide-react";
+import { Home, Heart, Target, Rocket, Network } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -49,11 +49,11 @@ const TABS = [
     ] as string[],
   },
   {
-    label: "More",
-    icon: MoreHorizontal,
-    href: "/hub/more",
+    label: "Connect",
+    icon: Network,
+    href: "/hub/connect",
     prefixes: [
-      "/hub/more", "/workbench", "/partners", "/coalition",
+      "/hub/connect", "/hub/more", "/workbench", "/partners", "/coalition",
       "/ecosystem", "/coverage", "/about", "/community",
       "/network", "/impact", "/transparency", "/sdoh",
       "/city-comparison", "/research-hub", "/methodology",

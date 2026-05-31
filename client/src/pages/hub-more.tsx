@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
 import { useAuth } from "@/hooks/use-auth";
+import { useHubRole } from "@/lib/hub-role";
 
 const CARDS: HubCardDef[] = [
   { icon: LayoutDashboard, title: "CTX Benefits Initiative", subtitle: "Central Texas pilot hub",          href: "/st-davids",              tag: "Central Texas", color: "orange" },
@@ -20,19 +21,19 @@ const CARDS: HubCardDef[] = [
   { icon: MapPin,          title: "Manor Hub",               subtitle: "Manor community hub",              href: "/manor",                  tag: "Central Texas", color: "indigo" },
   { icon: MapPin,          title: "Pflugerville Hub",        subtitle: "Pflugerville community hub",       href: "/pflugerville",           tag: "Central Texas", color: "purple" },
   { icon: Megaphone,       title: "Voices of Austin",        subtitle: "Community storytelling",           href: "/voices-of-austin",       tag: "Central Texas", color: "rose" },
-  { icon: Wrench,          title: "CTX Operator Workspace",  subtitle: "Operator tools & setup",           href: "/st-davids-wab2",         tag: "Central Texas", color: "slate",  authOnly: true },
-  { icon: FileText,        title: "CTX Initiative Prep",     subtitle: "Proposal preparation",             href: "/stdavids-prep",          tag: "Central Texas", color: "orange", authOnly: true },
+  { icon: Wrench,          title: "CTX Operator Workspace",  subtitle: "Operator tools & setup",           href: "/st-davids-wab2",         tag: "Central Texas", color: "slate",  authOnly: true, roles: ["admin", "org"] },
+  { icon: FileText,        title: "CTX Initiative Prep",     subtitle: "Proposal preparation",             href: "/stdavids-prep",          tag: "Central Texas", color: "orange", authOnly: true, roles: ["admin", "grant", "org"] },
 
   { icon: Handshake,       title: "Community Partners",      subtitle: "Partner organizations",            href: "/partners",               tag: "Partners",      color: "indigo" },
   { icon: Users,           title: "Coalition Dashboard",     subtitle: "Coalition health & metrics",       href: "/coalition",              tag: "Partners",      color: "blue" },
-  { icon: Building2,       title: "Collaboration Hub",       subtitle: "Partner workspace",                href: "/collaboration-hub",      tag: "Partners",      color: "slate",  authOnly: true },
-  { icon: Handshake,       title: "Vann Partner Hub",        subtitle: "Dr. Vann partnership tools",       href: "/partners/vann-hub",      tag: "Partners",      color: "teal",   authOnly: true },
-  { icon: Users,           title: "Family & Program Tracker",subtitle: "Track families & programs",        href: "/partners/family-program-tracker", tag: "Partners", color: "emerald", authOnly: true },
-  { icon: Sparkles,        title: "RFP-Match Storyteller",   subtitle: "Align partner stories to RFPs",    href: "/partners/rfp-storyteller",tag: "Partners",     color: "violet", authOnly: true },
+  { icon: Building2,       title: "Collaboration Hub",       subtitle: "Partner workspace",                href: "/collaboration-hub",      tag: "Partners",      color: "slate",  authOnly: true, roles: ["admin", "org", "grant"] },
+  { icon: Handshake,       title: "Vann Partner Hub",        subtitle: "Dr. Vann partnership tools",       href: "/partners/vann-hub",      tag: "Partners",      color: "teal",   authOnly: true, roles: ["admin", "org"] },
+  { icon: Users,           title: "Family & Program Tracker",subtitle: "Track families & programs",        href: "/partners/family-program-tracker", tag: "Partners", color: "emerald", authOnly: true, roles: ["admin", "chw", "org"] },
+  { icon: Sparkles,        title: "RFP-Match Storyteller",   subtitle: "Align partner stories to RFPs",    href: "/partners/rfp-storyteller",tag: "Partners",     color: "violet", authOnly: true, roles: ["admin", "grant", "org"] },
   { icon: Globe,           title: "Ecosystem Hub",           subtitle: "Connected platform ecosystem",     href: "/ecosystem",              tag: "Partners",      color: "blue" },
   { icon: BookMarked,      title: "Ecosystem Story",         subtitle: "Our ecosystem narrative",          href: "/ecosystem-story",        tag: "Partners",      color: "indigo" },
-  { icon: Activity,        title: "Ecosystem Orchestration", subtitle: "Platform-wide coordination",       href: "/ecosystem-orchestration",tag: "Partners",      color: "purple", authOnly: true },
-  { icon: Brain,           title: "Ecosystem AI",            subtitle: "AI-assisted ecosystem tools",      href: "/ecosystem-ai",           tag: "Partners",      color: "violet", authOnly: true },
+  { icon: Activity,        title: "Ecosystem Orchestration", subtitle: "Platform-wide coordination",       href: "/ecosystem-orchestration",tag: "Partners",      color: "purple", authOnly: true, roles: ["admin"] },
+  { icon: Brain,           title: "Ecosystem AI",            subtitle: "AI-assisted ecosystem tools",      href: "/ecosystem-ai",           tag: "Partners",      color: "violet", authOnly: true, roles: ["admin", "org"] },
   { icon: Users,           title: "Advisory Board",          subtitle: "Our advisory board",               href: "/advisory-board",         tag: "Partners",      color: "slate" },
   { icon: Globe,           title: "Community",               subtitle: "ThriveUp community hub",           href: "/community",              tag: "Partners",      color: "cyan" },
   { icon: Map,             title: "Community Map",           subtitle: "Visual community overview",        href: "/community-map",          tag: "Partners",      color: "teal" },
@@ -46,9 +47,9 @@ const CARDS: HubCardDef[] = [
   { icon: Users,           title: "Opportunity Youth",       subtitle: "Youth disconnection data",         href: "/opportunity-youth",      tag: "Impact",        color: "amber" },
   { icon: Activity,        title: "Transparency Dashboard",  subtitle: "Public accountability metrics",    href: "/transparency",           tag: "Impact",        color: "slate" },
   { icon: TrendingUp,      title: "Impact Dashboard",        subtitle: "Community impact metrics",         href: "/impact",                 tag: "Impact",        color: "emerald" },
-  { icon: Users,           title: "Pilot Dashboard",         subtitle: "CTX pilot analytics",              href: "/pilot",                  tag: "Impact",        color: "blue",   authOnly: true },
-  { icon: Activity,        title: "Dosage Report",           subtitle: "Service dosage tracking",          href: "/dosage",                 tag: "Impact",        color: "orange", authOnly: true },
-  { icon: FileText,        title: "Outcome Reporting",       subtitle: "Formal outcome reports",           href: "/outcomes",               tag: "Impact",        color: "slate",  authOnly: true },
+  { icon: Users,           title: "Pilot Dashboard",         subtitle: "CTX pilot analytics",              href: "/pilot",                  tag: "Impact",        color: "blue",   authOnly: true, roles: ["admin", "org"] },
+  { icon: Activity,        title: "Dosage Report",           subtitle: "Service dosage tracking",          href: "/dosage",                 tag: "Impact",        color: "orange", authOnly: true, roles: ["admin", "chw"] },
+  { icon: FileText,        title: "Outcome Reporting",       subtitle: "Formal outcome reports",           href: "/outcomes",               tag: "Impact",        color: "slate",  authOnly: true, roles: ["admin", "grant", "org"] },
   { icon: Link2,           title: "SDOH Impact Chain",       subtitle: "Social determinants pathway",      href: "/sdoh-chain",             tag: "Impact",        color: "violet" },
   { icon: Search,          title: "SDOH Explorer",           subtitle: "Explore SDOH data",                href: "/sdoh-explorer",          tag: "Impact",        color: "indigo" },
   { icon: Scale,           title: "City Comparison",         subtitle: "Compare cities & counties",        href: "/city-comparison",        tag: "Impact",        color: "teal" },
@@ -66,19 +67,25 @@ const CARDS: HubCardDef[] = [
   { icon: Shield,          title: "Non-Discrimination",      subtitle: "Our equity commitment",            href: "/non-discrimination",     tag: "About",         color: "slate" },
   { icon: Shield,          title: "Privacy Policy",          subtitle: "How we protect your data",         href: "/privacy",                tag: "About",         color: "slate" },
   { icon: Rocket,          title: "Workbench",               subtitle: "Assemble your custom workspace",   href: "/workbench",              tag: "About",         color: "purple" },
-  { icon: Settings,        title: "Organization Profile",    subtitle: "Manage your org settings",         href: "/settings/organization",  tag: "About",         color: "slate",  authOnly: true },
+  { icon: Settings,        title: "Organization Profile",    subtitle: "Manage your org settings",         href: "/settings/organization",  tag: "About",         color: "slate",  authOnly: true, roles: ["admin", "org"] },
 ];
 
-export default function HubMorePage() {
+export default function HubConnectPage() {
   const { isAuthenticated } = useAuth();
+  const { role } = useHubRole();
   return (
     <HubShell
-      title="More"
+      title="Connect"
       subtitle="Central Texas · Partners · Impact · About"
-      headerGradient="from-slate-700 via-slate-600 to-slate-800"
+      headerGradient="from-teal-600 via-cyan-600 to-teal-800"
       chips={["All", "Central Texas", "Partners", "Impact", "About"]}
       cards={CARDS}
       isAuthenticated={isAuthenticated}
+      role={role}
+      itiSurface="public-site"
+      itiContext="connect-hub"
+      itiPrompt="Are you doing community work that isn't on paper?"
+      itiRoleTags={["Promotora", "Peer Mentor", "Informal Caregiver", "Neighbor Helper", "Faith Leader"]}
     />
   );
 }

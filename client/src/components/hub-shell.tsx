@@ -3,6 +3,8 @@ import { Link } from "wouter";
 import { type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { type HubRole } from "@/lib/hub-role";
+import { IntegrationInvitation, type ItiSurface } from "@/components/integration-invitation";
 
 export interface HubCardDef {
   icon: LucideIcon;
@@ -14,6 +16,7 @@ export interface HubCardDef {
   color?: string;
   badge?: string;
   authOnly?: boolean;
+  roles?: HubRole[];
 }
 
 const HERO_BG: Record<string, string> = {
@@ -69,16 +72,24 @@ interface HubShellProps {
   chips: string[];
   cards: HubCardDef[];
   isAuthenticated?: boolean;
+  role?: HubRole | null;
+  itiSurface?: ItiSurface;
+  itiPrompt?: string;
+  itiContext?: string;
+  itiRoleTags?: string[];
   extra?: ReactNode;
 }
 
 export function HubShell({
-  title, subtitle, headerGradient, chips, cards, isAuthenticated = false, extra,
+  title, subtitle, headerGradient, chips, cards,
+  isAuthenticated = false, role, itiSurface,
+  itiPrompt, itiContext, itiRoleTags, extra,
 }: HubShellProps) {
   const [activeChip, setActiveChip] = useState(chips[0] ?? "All");
 
   const visible = cards.filter(c => {
     if (c.authOnly && !isAuthenticated) return false;
+    if (c.roles && role && !c.roles.includes(role)) return false;
     if (!activeChip || activeChip === chips[0]) return true;
     return c.tag === activeChip;
   });
@@ -110,7 +121,7 @@ export function HubShell({
         </div>
       </div>
 
-      <div className="px-4 py-4 pb-24 space-y-4">
+      <div className="px-4 py-4 pb-28 space-y-4">
         {heroes.length > 0 && (
           <div className="grid grid-cols-2 gap-3">
             {heroes.map(card => <HeroCard key={card.href} card={card} />)}
@@ -127,6 +138,17 @@ export function HubShell({
             <div className="grid grid-cols-2 gap-2">
               {tools.map(card => <ToolCard key={card.href} card={card} />)}
             </div>
+          </div>
+        )}
+
+        {itiSurface && (
+          <div className="pt-2">
+            <IntegrationInvitation
+              surface={itiSurface}
+              surfaceContext={itiContext}
+              prompt={itiPrompt}
+              suggestedRoleTags={itiRoleTags}
+            />
           </div>
         )}
 

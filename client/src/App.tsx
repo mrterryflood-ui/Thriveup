@@ -651,6 +651,7 @@ function AppRouter() {
       <Route path="/hub/fund" component={HubFundPage} />
       <Route path="/hub/grow" component={HubGrowPage} />
       <Route path="/hub/more" component={HubMorePage} />
+      <Route path="/hub/connect" component={HubMorePage} />
       <Route path="/workbench" component={WorkbenchPage} />
       <Route component={NotFound} />
     </Switch>
