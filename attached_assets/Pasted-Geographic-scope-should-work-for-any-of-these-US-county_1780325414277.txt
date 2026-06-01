@@ -1,0 +1,111 @@
+Geographic scope — should work for any of these:
+
+US county (e.g., county=Burnet, state=TX)
+City/municipality (e.g., city=Wichita, state=KS)
+Zip code
+Census tract
+Congressional district
+Tribal nation/territory
+Multi-county region
+Endpoint 1 — Community Profile:
+GET /api/community/profile?state=TX&county=Burnet
+(or city=, zip=, tract=, district=, tribe= as alternatives)
+
+Return everything you have on:
+
+Who they are
+
+Population size, density, geographic type (urban/suburban/rural/frontier)
+Age, race/ethnicity, language, nativity breakdowns
+Median income, poverty rate, child poverty, senior poverty
+Gini coefficient / inequality index
+Health picture
+
+Uninsured and underinsured rate
+Chronic disease burden (diabetes, hypertension, heart disease, obesity, asthma, cancer)
+Behavioral health: mental illness prevalence, substance use, suicide rate
+Maternal/infant: maternal mortality, infant mortality, low-birthweight rate
+Life expectancy, premature death rate
+HPSA (Health Professional Shortage Area) status
+Nearest emergency room distance / hospital access
+Oral health, vision care gaps
+Economic reality
+
+Unemployment, underemployment, labor force participation
+Top 5 industries and employers
+Wage levels by sector
+SNAP/WIC/Medicaid/CHIP enrollment rates
+Eviction rate, housing cost burden (>30% / >50% income on housing)
+Homeownership rate, vacancy rate
+Business formation rate, minority-owned business count
+Opportunity Zone designation (yes/no)
+Education
+
+HS graduation rate, dropout rate
+3rd-grade reading proficiency, 8th-grade math proficiency
+College-going rate, college completion rate
+Adult literacy rate
+CTE program availability
+Title I school count / percentage
+Digital access: broadband penetration, device access in homes
+Workforce & skills
+
+Skills gap by industry sector
+Credentialing/certification needs
+Returning citizens / justice-involved population data
+Veterans population, veteran unemployment
+Youth NEET rate (Not in Education, Employment, or Training)
+Social determinants
+
+Food desert / food swamp designation
+Transportation: car-free households, transit access
+Childcare desert status, childcare cost burden
+Domestic violence / adverse childhood experiences (ACEs) data
+Disability rate
+Broadband / digital divide
+Special federal designations (these unlock specific grant eligibility)
+
+Promise Zone
+Opportunity Zone
+HUD Choice Neighborhoods
+USDA Rural designation
+Medically Underserved Area (MUA/MUP)
+Indian Health Service catchment area
+Empowerment Zone
+Promise Neighborhood
+CDFI designated distressed community
+Political & civic context
+
+Local government structure (county commission, city council, mayor-council, etc.)
+Recent elections / political composition
+Existing community-based organizations, nonprofits active in the area
+Active federal/state programs already operating here
+Recent disasters or declared emergencies (opens FEMA/CDBG-DR lanes)
+Community narrative
+
+A vivid, data-backed story of this community's strengths, challenges, and aspirations — written at a level that can go directly into a grant proposal
+Endpoint 2 — Matched Funding Opportunities:
+GET /api/community/opportunities?state=TX&county=Burnet
+
+For this community, return every funding program that fits their profile:
+
+Program name and funder (federal agency, foundation, state agency)
+Funding type (grant, contract, loan, tax credit)
+Amount range (floor / ceiling)
+Deadline or cycle
+Why it matches this community specifically (plain-language eligibility reasoning)
+Application URL
+Whether a nonprofit, for-profit, or government entity applies
+Endpoint 3 — Comparative Context:
+GET /api/community/compare?state=TX&county=Burnet
+
+How does this community rank vs.:
+
+State average
+National average
+Peer counties (similar size/geography/demographics)
+Useful for making the "need" case in proposals.
+
+Auth format: API key in header — Authorization: Bearer <key> or X-API-Key: <key> — whichever your system uses.
+
+Once these are live, I'll build a Community Intelligence module directly into GrantPathPro — any user drops in a county name, gets the full profile, matched grants populate the pipeline automatically, and the community narrative feeds directly into proposal writing. Works for every county in every state you partner with.
