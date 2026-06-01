@@ -723,14 +723,14 @@ function DeepDiveSection() {
 
 function DisciplineStrip() {
   const disciplines = [
-    { icon: Briefcase,     label: "Workforce Training" },
-    { icon: Shield,        label: "Inmate Reentry" },
-    { icon: Baby,          label: "Foster Youth" },
-    { icon: Award,         label: "Veterans" },
-    { icon: Stethoscope,   label: "Health Equity" },
-    { icon: CheckCircle2,  label: "Benefits Navigation" },
-    { icon: GraduationCap, label: "Youth Development" },
-    { icon: Activity,      label: "Community Health" },
+    { icon: Briefcase,     label: "Workforce Training",   href: "/workforce-training" },
+    { icon: Shield,        label: "Inmate Reentry",       href: "/reentry-program" },
+    { icon: Baby,          label: "Foster Youth",         href: "/foster-youth" },
+    { icon: Award,         label: "Veterans",             href: "/veterans" },
+    { icon: Stethoscope,   label: "Health Equity",        href: "/sdoh-explorer" },
+    { icon: CheckCircle2,  label: "Benefits Navigation",  href: "/benefits-screener" },
+    { icon: GraduationCap, label: "Youth Development",    href: "/academy" },
+    { icon: Activity,      label: "Community Health",     href: "/health-network" },
   ];
   return (
     <section className="px-4 py-6 sm:px-6 border-b" data-testid="section-discipline-strip">
@@ -740,14 +740,15 @@ function DisciplineStrip() {
         </p>
         <div className="flex flex-wrap justify-center gap-2">
           {disciplines.map((d) => (
-            <span
+            <Link
               key={d.label}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-card text-sm font-medium text-foreground"
+              href={d.href}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-card text-sm font-medium text-foreground hover:bg-primary/5 hover:border-primary/40 transition-colors no-underline"
               data-testid={`chip-discipline-${d.label.toLowerCase().replace(/\s+/g, '-')}`}
             >
               <d.icon className="h-3.5 w-3.5 text-primary shrink-0" />
               {d.label}
-            </span>
+            </Link>
           ))}
         </div>
       </div>
