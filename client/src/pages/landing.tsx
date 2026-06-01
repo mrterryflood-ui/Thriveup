@@ -1126,10 +1126,9 @@ export default function LandingPage() {
           {/* Live stat strip */}
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 pt-6"
             style={{ borderTop: `1px solid ${statBorder}` }}>
-            <HeroStatCounter target={721} label="Funding Opportunities"    color="#d97706" isDark={isDark} />
-            <HeroStatCounter target={26}  label="Platforms Online"         color="#0891b2" isDark={isDark} />
+            <HeroStatCounter target={26}  label="Platforms Online"          color="#0891b2" isDark={isDark} />
             <HeroStatCounter target={9}   label="Benefits Screened at Once" color="#059669" isDark={isDark} />
-            <HeroStatCounter target={50}  label="States Deployable"        color="#7c3aed" isDark={isDark} />
+            <HeroStatCounter target={50}  label="States Deployable"         color="#7c3aed" isDark={isDark} />
           </div>
         </div>
       </section>
