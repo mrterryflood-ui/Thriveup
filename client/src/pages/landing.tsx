@@ -721,6 +721,40 @@ function DeepDiveSection() {
   );
 }
 
+function DisciplineStrip() {
+  const disciplines = [
+    { icon: Briefcase,     label: "Workforce Training" },
+    { icon: Shield,        label: "Inmate Reentry" },
+    { icon: Baby,          label: "Foster Youth" },
+    { icon: Award,         label: "Veterans" },
+    { icon: Stethoscope,   label: "Health Equity" },
+    { icon: CheckCircle2,  label: "Benefits Navigation" },
+    { icon: GraduationCap, label: "Youth Development" },
+    { icon: Activity,      label: "Community Health" },
+  ];
+  return (
+    <section className="px-4 py-6 sm:px-6 border-b" data-testid="section-discipline-strip">
+      <div className="max-w-3xl mx-auto">
+        <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground text-center mb-4">
+          What we do
+        </p>
+        <div className="flex flex-wrap justify-center gap-2">
+          {disciplines.map((d) => (
+            <span
+              key={d.label}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-card text-sm font-medium text-foreground"
+              data-testid={`chip-discipline-${d.label.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              <d.icon className="h-3.5 w-3.5 text-primary shrink-0" />
+              {d.label}
+            </span>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function StartHere() {
   const audiences = [
     {
@@ -1134,6 +1168,7 @@ export default function LandingPage() {
       </section>
 
       <TrustBar />
+      <DisciplineStrip />
 
       <section className="px-4 pb-4 sm:px-6 pt-8" data-testid="section-marcus-story">
         <div className="max-w-3xl mx-auto">
