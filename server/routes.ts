@@ -125,6 +125,7 @@ import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerVoiceRoutes } from "./voice-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
 import { registerCommunityProgramRoutes } from "./community-program-routes";
+import { registerCommunityApiRoutes } from "./community-api-routes";
 import { registerTradeSimsRoutes } from "./trade-sims-routes";
 import { registerTradeSimsCertRoutes } from "./trade-sims-cert-routes";
 import { registerTradeSimsTrialRoutes } from "./trade-sims-trial-routes";
@@ -491,6 +492,7 @@ export async function registerRoutes(
   registerVoiceRoutes(app);
   registerFosterYouthAgencyRoutes(app);
   registerCommunityProgramRoutes(app);
+  registerCommunityApiRoutes(app);
   registerTradeSimsRoutes(app);
   registerTradeSimsCertRoutes(app);
   registerTradeSimsTrialRoutes(app);
