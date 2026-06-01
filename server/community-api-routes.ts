@@ -72,10 +72,9 @@ function requireApiKey(req: Request, res: Response, next: NextFunction) {
       hint: "Pass X-Api-Key: <key>  OR  Authorization: Bearer <key>",
     });
   }
-  // Constant-time compare via hashing
-  const expectedHash = createHash("sha256").update(expectedKey).digest("hex");
-  const providedHash = createHash("sha256").update(provided).digest("hex");
-  if (expectedHash !== providedHash) {
+  const exp = expectedKey.trim();
+  const prov = provided.trim();
+  if (exp !== prov) {
     return res.status(403).json({ error: "Invalid API key." });
   }
   next();
