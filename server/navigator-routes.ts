@@ -519,7 +519,7 @@ export function registerNavigatorRoutes(app: Express) {
       navigatorRateLimit.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
     }
 
-    const { message, conversationId } = req.body;
+    const { message, conversationId, responseMode } = req.body;
 
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "Message is required" });
@@ -527,7 +527,14 @@ export function registerNavigatorRoutes(app: Express) {
 
     const contextData = await assembleContext(req, message);
 
-    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData;
+    // Inject response-depth instructions based on user's selected mode
+    const RESPONSE_MODE_INSTRUCTIONS: Record<string, string> = {
+      brief: `\n\n[RESPONSE MODE: QUICK]\nThe user wants a concise, focused answer. Keep your response to 2-4 short paragraphs. Answer the specific question directly, mention 1-2 key resources with real contact info, and close by offering to go deeper on any aspect. Do not pad. Do not produce headers or sections. Just a warm, direct answer.`,
+      detailed: `\n\n[RESPONSE MODE: DETAILED]\nGive a thorough, empathetic response. Cover the person's situation fully, provide 4-8 specific resources with a sentence explaining why each one fits their situation, link relevant platform tools naturally, and end with clear concrete next steps. This is the standard depth.`,
+      report: `\n\n[RESPONSE MODE: FULL REPORT]\nThe user has specifically requested a comprehensive report. Write a deep, multi-section document — similar to a professional community briefing. Use **bold section headers**. Include ALL of the following sections (adapt names to fit the topic): (1) **Understanding Your Situation** — genuine acknowledgment of their full context and what makes their situation unique; (2) **Immediate Resources** — 6-10 specific organizations/programs with name, phone, website, hours, eligibility, and a sentence on why it fits them specifically; (3) **State & Federal Programs** — what they qualify for, how to apply, what to say when they call; (4) **Your Step-by-Step Action Plan** — numbered concrete steps, in the right order, with who to call first and what to say; (5) **Platform Tools That Apply** — specific ThriveUp pages that directly help, explained; (6) **What to Watch Out For** — common barriers, waitlists, deadlines, documentation they'll need; (7) **Longer-Term Path** — what success looks like 3-6 months out. Write as a woven narrative within each section — not bullet dumps. Aim for 800-2000+ words. This is a real document that should be useful on its own.`,
+    };
+    const modeInstruction = RESPONSE_MODE_INSTRUCTIONS[responseMode] || RESPONSE_MODE_INSTRUCTIONS.detailed;
+    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + modeInstruction;
 
     // Only persist conversations for authenticated users
     let activeConversationId = conversationId || null;
@@ -629,10 +636,12 @@ export function registerNavigatorRoutes(app: Express) {
     const hasAttachedDocuments = augmentedMessage.includes("[ATTACHED DOCUMENT:");
 
     try {
+      const tokensByMode: Record<string, number> = { brief: 1500, detailed: 5000, report: 16000 };
+      const modeTokens = tokensByMode[responseMode] || 5000;
       await collaborativeStream({
         prompt: augmentedMessage,
         systemPrompt: msgs.find(m => m.role === "system")?.content,
-        maxTokens: hasAttachedDocuments ? 8000 : 5000,
+        maxTokens: hasAttachedDocuments ? 8000 : modeTokens,
         skipRAG: hasAttachedDocuments,
         onChunk: (content) => {
           fullResponse += content;

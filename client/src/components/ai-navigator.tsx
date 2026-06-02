@@ -128,6 +128,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   const [deepThinkingExpanded, setDeepThinkingExpanded] = useState<Record<number, boolean>>({});
   const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [responseMode, setResponseMode] = useState<"brief" | "detailed" | "report">("detailed");
   // R1 background polling state
   const [deepThinkElapsed, setDeepThinkElapsed] = useState(0);
   const deepThinkPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -319,7 +320,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ message: apiText, conversationId: activeConversationId }),
+        body: JSON.stringify({ message: apiText, conversationId: activeConversationId, responseMode }),
       });
 
       if (response.status === 401) {
@@ -765,6 +766,24 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                       ))}
                     </div>
                   )}
+                  {/* Response depth selector — page mode */}
+                  <div className="flex items-center gap-1.5 mb-3">
+                    <span className="text-[11px] text-muted-foreground font-medium">Response depth:</span>
+                    {(["brief", "detailed", "report"] as const).map((m) => (
+                      <button
+                        key={m}
+                        onClick={() => setResponseMode(m)}
+                        data-testid={`button-response-mode-${m}`}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-colors ${
+                          responseMode === m
+                            ? "bg-teal-600 text-white border-teal-600"
+                            : "bg-background text-muted-foreground border-border hover:border-teal-400 hover:text-teal-700"
+                        }`}
+                      >
+                        {m === "brief" ? "Quick" : m === "detailed" ? "Detailed" : "Full Report"}
+                      </button>
+                    ))}
+                  </div>
                   <div className="flex gap-3">
                     <input ref={fileInputRef} type="file" accept=".pdf,.txt,.md,text/plain,text/markdown,application/pdf" className="hidden" onChange={handleFileSelect} data-testid="input-file-upload-page" />
                     <button onClick={() => fileInputRef.current?.click()} disabled={isStreaming} className="relative shrink-0 p-2.5 rounded-xl border hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50" title="Attach PDF, .txt, or .md — click multiple times to add more" data-testid="button-attach-page">
@@ -1152,6 +1171,23 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
               </div>
             )}
 
+            {/* Response depth selector — bubble mode */}
+            <div className="flex items-center gap-1 mb-2">
+              {(["brief", "detailed", "report"] as const).map((m) => (
+                <button
+                  key={m}
+                  onClick={() => setResponseMode(m)}
+                  data-testid={`button-response-mode-bubble-${m}`}
+                  className={`flex-1 py-0.5 rounded text-[10px] font-medium border transition-colors ${
+                    responseMode === m
+                      ? "bg-teal-600 text-white border-teal-600"
+                      : "bg-background text-muted-foreground border-border hover:border-teal-400"
+                  }`}
+                >
+                  {m === "brief" ? "Quick" : m === "detailed" ? "Detailed" : "Full Report"}
+                </button>
+              ))}
+            </div>
             <div className="flex gap-2">
               {/* Hidden file input */}
               <input
