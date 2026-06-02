@@ -701,3 +701,9 @@ id = "AR_9-tns6_hvM6tRaiJXU"
 uri = "file://docs/grants/TCAF-CAPABILITY-STATEMENT-2026-05-29.md"
 type = "text"
 title = "TCAF Comprehensive Capability Statement — May 29, 2026"
+
+[[outputs]]
+id = "cBQ0ceZxmCgGwnPfzqyjb"
+uri = "file://attached_assets/TCAF-Deneece-Letter-June2026.pdf"
+type = "pdf"
+title = "TCAF → Deneece Ferrales — June 2026 Response Letter"
