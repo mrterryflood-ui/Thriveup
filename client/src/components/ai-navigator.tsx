@@ -539,28 +539,6 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
 
   // ── Full-page mode ────────────────────────────────────────────────────────
   if (mode === "page") {
-    if (authLoading) {
-      return (
-        <div className="flex h-full items-center justify-center">
-          <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        </div>
-      );
-    }
-    if (!isAuthenticated) {
-      return (
-        <div className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center">
-          <div className="w-16 h-16 rounded-full bg-gradient-to-br from-teal-100 to-emerald-100 dark:from-teal-900 dark:to-emerald-900 flex items-center justify-center">
-            <Compass className="h-8 w-8 text-teal-600 dark:text-teal-400" />
-          </div>
-          <div>
-            <p className="font-semibold text-xl">Sign in to use the Navigator</p>
-            <p className="text-sm text-muted-foreground mt-1">Your session may have expired.</p>
-          </div>
-          <Button onClick={() => { window.location.href = "/api/login"; }} className="bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700">Sign In</Button>
-        </div>
-      );
-    }
-
     return (
       <div className="flex h-full overflow-hidden bg-background">
         {/* Left rail: conversation history — desktop only */}
@@ -570,7 +548,14 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
           </div>
           <ScrollArea className="flex-1">
             <div className="p-3 space-y-2">
-              {conversations && conversations.length > 0 ? conversations.map(convo => (
+              {!isAuthenticated ? (
+                <div className="text-center py-10 px-3 text-muted-foreground">
+                  <History className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                  <p className="text-sm font-medium">Sign in to save conversations</p>
+                  <p className="text-xs mt-1 mb-3">Your chats are private and won't be stored until you sign in.</p>
+                  <Button size="sm" variant="outline" className="w-full text-xs" onClick={() => { window.location.href = "/api/login"; }}>Sign In to Save</Button>
+                </div>
+              ) : conversations && conversations.length > 0 ? conversations.map(convo => (
                 <div key={convo.id} className={`p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${activeConversationId === convo.id ? "border-primary bg-primary/5" : ""}`} data-testid={`card-convo-page-${convo.id}`}>
                   <div className="flex items-start justify-between gap-2">
                     <button className="flex-1 min-w-0 text-left" onClick={() => loadConversation(convo.id)}>
@@ -634,7 +619,14 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
             <div className="md:hidden flex-1 overflow-hidden flex flex-col">
               <ScrollArea className="flex-1">
                 <div className="p-3 space-y-2">
-                  {conversations && conversations.length > 0 ? conversations.map(convo => (
+                  {!isAuthenticated ? (
+                    <div className="text-center py-12 px-3 text-muted-foreground">
+                      <History className="h-10 w-10 mx-auto mb-2 opacity-40" />
+                      <p className="text-sm font-medium">Sign in to save conversations</p>
+                      <p className="text-xs mt-1 mb-3">Chats aren't stored until you sign in.</p>
+                      <Button size="sm" variant="outline" className="text-xs" onClick={() => { window.location.href = "/api/login"; }}>Sign In</Button>
+                    </div>
+                  ) : conversations && conversations.length > 0 ? conversations.map(convo => (
                     <div key={convo.id} className={`p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${activeConversationId === convo.id ? "border-primary bg-primary/5" : ""}`}>
                       <button className="w-full text-left" onClick={() => { loadConversation(convo.id); setView("chat"); }}>
                         <p className="font-medium text-sm">{convo.title}</p>

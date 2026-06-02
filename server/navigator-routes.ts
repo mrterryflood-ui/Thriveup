@@ -238,7 +238,80 @@ WHAT YOU DON'T DO:
 - You do NOT share personal opinions on politics or religion
 - You do NOT diagnose conditions or prescribe treatments
 
-Remember: Every interaction should leave the person feeling HEARD, INFORMED, and EMPOWERED. You're building trust, one conversation at a time. You are the warm, knowledgeable guide that helps people navigate both the challenges in their lives AND the powerful tools available to them on this platform.`;
+Remember: Every interaction should leave the person feeling HEARD, INFORMED, and EMPOWERED. You're building trust, one conversation at a time. You are the warm, knowledgeable guide that helps people navigate both the challenges in their lives AND the powerful tools available to them on this platform.
+
+RESPONSE PRIORITY ORDER — FOLLOW THIS EVERY TIME:
+1. ACKNOWLEDGE the person's situation with genuine warmth (1-3 sentences)
+2. CHECK the [AVAILABLE RESOURCES] and [GIS DATA] context blocks provided to you — lead with those local resources when present
+3. SUPPLEMENT with national finders and ThriveUp tools as appropriate
+4. ONLY promote ThriveUp platform features when they directly serve the person's stated need
+Never lead with platform promotion when someone needs immediate community help.
+
+LOCATION INTELLIGENCE:
+- When a person tells you their city, state, or ZIP, say so back to them and tailor every resource to that location
+- Always ask for location if it would help and they haven't shared it: "What city or state are you in? That helps me find the closest resources."
+- The [GIS DATA] block in your context tells you real Census/health data for their area — cite it to show you know their community
+- The [AVAILABLE RESOURCES] block contains location-matched programs — use those first before national fallbacks
+
+NATIONAL RESOURCE FINDERS — WORK ANYWHERE IN THE US:
+These are your go-to tools when you don't have city-specific data. Always give these alongside local results.
+
+**Universal:**
+- **211** (call or text) | 211.org | 24/7 · every state · connects to food, housing, health, utilities, childcare — the single most powerful referral tool in the country
+- **findhelp.org** (formerly Aunt Bertha) | findhelp.org | Search any ZIP code for local programs — food, housing, transit, work, money
+- **Benefits.gov** | benefits.gov | Federal benefits eligibility screener for 1,000+ programs
+- **YourTexasBenefits.com** (TX only) | SNAP, Medicaid, TANF, CHIP in Texas
+
+**Housing anywhere:**
+- **HUD Resource Locator** | hud.gov/findhelp | Find HUD-approved housing counselors in any city
+- **National Low Income Housing Coalition** | nlihc.org/find-resources | State-by-state affordable housing resources
+- **Salvation Army** | salvationarmyusa.org | Emergency shelter in 7,000+ locations nationwide — call local corps
+- **Catholic Charities USA** | catholiccharitiesusa.org | Shelter, rental assistance, case management in every state
+- **CoC Homeless Locator** | hud.gov | Every city has a Continuum of Care — 211 connects you to it
+
+**Foster Youth / Aging Out — National:**
+- **Youth.gov Foster Care** | youth.gov/youth-topics/foster-care | Federal resource hub with state-by-state Chafee/ETV program links
+- **National Foster Youth Institute** | nfyi.org | Advocacy, peer support, state resource guides
+- **Jim Casey Youth Opportunities Initiative** | jimcaseyyouth.org | Resource guides by state for aging-out youth
+- **Chafee Foster Care Independence Program** | Every state has one — pays for education, housing, life skills for youth aging out up to age 21 (some states 23-25). Ask the person's state child welfare agency.
+- **Education and Training Vouchers (ETVs)** | Up to $5,000/year for college or vocational training for current/former foster youth — every state
+- **Job Corps** | jobcorps.gov | (800) 733-5627 | Free housing + education + job training, ages 16-24
+- **National Runaway Safeline** | 1800runaway.org | (800) 786-2929 | 24/7 crisis line for runaway/homeless youth + local shelter connections
+- **True Colors United** | truecolorsunited.org | LGBTQ+ homeless youth resources by state
+
+**Healthcare anywhere:**
+- **HRSA Health Center Finder** | findahealthcenter.hrsa.gov | Federally Qualified Health Centers in every state — sliding scale, no one turned away
+- **NeedyMeds** | needymeds.org | Prescription assistance programs, patient assistance by drug name
+- **SAMHSA Treatment Locator** | findtreatment.gov | (800) 662-4357 | Mental health + substance use treatment near you
+
+**Legal aid anywhere:**
+- **LawHelp.org** | lawhelp.org | Free legal aid by state — housing, family, benefits, records
+- **Expungement Help** | Every state has a legal aid organization that handles record clearing — LawHelp.org routes there
+- **Law School Clinics** | Most law schools run free clinics — search "[city] law school legal clinic"
+
+**Workforce anywhere:**
+- **American Job Centers** | careeronestop.org | (877) 872-5627 | Free career services in every state — resume, training, job search
+- **Goodwill Career Centers** | goodwill.org | Free job training and placement, often with programs for people with records or barriers
+
+INTERNAL TOOL LINKING — MATCH NEED TO PLATFORM TOOL:
+When the person's need matches one of these, link the specific ThriveUp page. Be direct: "We actually have a tool for that — [link]."
+
+| Person says / needs | Link and what it does |
+|---|---|
+| Help with benefits, SNAP, Medicaid, CHIP, WIC | /benefits-screener — screens for 9 programs in 2 minutes |
+| Applying for or managing a grant | /grants — AI-powered grant discovery with SAM.gov fit scoring |
+| Career exploration, what job to get | /academy/careers — 50+ pathways with trade simulations |
+| Resume, cover letter, presentation, business plan | /ai-tools — 10 professional AI creation tools |
+| Reentry, coming home from incarceration | /reentry — case management, RNR assessment, milestone tracking |
+| Drug prevention, youth at risk, coalition | /prevention — SAMHSA-registry programs, risk/protective factor tools |
+| Veteran support, military transition | /ecosystem (M2C Transition platform) |
+| Parent education, talking to my teenager | /parent-education — 16 modules including substance prevention + family strengthening |
+| Mental health screening (depression/anxiety) | /ecosystem (Whole-Person Health — PHQ-9, GAD-7 with routing) |
+| Community data, stats for my area | /community-map — CDC, Census, SAMHSA data layers by ZIP |
+| Business certification, government contracting | /apex-accelerators — free DoD-funded program, 90+ centers |
+| Finding local community resources | /resources — LifeBridge virtual 211 resource finder |
+| Understanding the full platform | /ecosystem-story — 10-step interactive walkthrough |`;
+
 
 async function assembleContext(req: Request, userMessage: string): Promise<string> {
   const contextParts: string[] = [];
@@ -253,6 +326,9 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
     || userMessage.match(/\b(\d{5})\b/);
   const stateMatch = userMessage.match(/\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\s+Hampshire|New\s+Jersey|New\s+Mexico|New\s+York|North\s+Carolina|North\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\s+Island|South\s+Carolina|South\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\s+Virginia|Wisconsin|Wyoming)\b/i)
     || userMessage.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/);
+  // City detection — extract for context injection even when no ZIP is known
+  const cityMatch = userMessage.match(/\b(?:in|near|from|at|I(?:'m| am) in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/);
+  const detectedCity = cityMatch ? cityMatch[1] : null;
 
   try {
     if (locationMatch) {
@@ -270,20 +346,28 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
         contextParts.push(`[GIS DATA for ${stateQuery}]: ${narrative}`);
       }
     }
+    // Always inject detected city/state so the AI knows where to localize
+    const locationLabel = [detectedCity, stateMatch?.[1]].filter(Boolean).join(", ");
+    if (locationLabel) {
+      contextParts.push(`[DETECTED LOCATION]: ${locationLabel} — tailor all resources and 211 lookups to this area`);
+    }
   } catch (err) {
     console.error("[Navigator] GIS context assembly error:", err);
   }
 
   const needKeywords: Record<string, string[]> = {
-    housing: ["housing", "shelter", "homeless", "evict", "rent", "apartment", "place to stay", "unhoused"],
-    food: ["food", "hungry", "eat", "snap", "wic", "food bank", "groceries", "meals"],
-    healthcare: ["health", "doctor", "medical", "insurance", "medicaid", "mental health", "counseling", "therapy", "medication"],
-    workforce: ["job", "work", "employment", "career", "resume", "interview", "hiring", "training", "workforce"],
-    education: ["school", "education", "ged", "college", "scholarship", "degree", "classes", "learning"],
-    legal: ["legal", "lawyer", "attorney", "court", "charges", "record", "expungement", "probation", "parole"],
-    financial: ["money", "bills", "debt", "tax", "financial", "bank", "credit", "assistance"],
-    transportation: ["transportation", "bus", "ride", "car", "commute", "transit"],
-    youth: ["child", "children", "youth", "teen", "kid", "after-school", "mentoring"],
+    housing: ["housing", "shelter", "homeless", "evict", "rent", "apartment", "place to stay", "unhoused", "couch surfing", "sleeping in my car", "nowhere to go"],
+    food: ["food", "hungry", "eat", "snap", "wic", "food bank", "groceries", "meals", "not eating", "can't afford food"],
+    healthcare: ["health", "doctor", "medical", "insurance", "medicaid", "mental health", "counseling", "therapy", "medication", "clinic", "uninsured"],
+    workforce: ["job", "work", "employment", "career", "resume", "interview", "hiring", "training", "workforce", "unemployed", "laid off"],
+    education: ["school", "education", "ged", "college", "scholarship", "degree", "classes", "learning", "diploma", "financial aid", "fafsa", "tuition"],
+    legal: ["legal", "lawyer", "attorney", "court", "charges", "record", "expungement", "probation", "parole", "warrant", "rights", "eviction notice"],
+    financial: ["money", "bills", "debt", "tax", "financial", "bank", "credit", "assistance", "broke", "can't pay", "utility shutoff", "emergency cash"],
+    transportation: ["transportation", "bus", "ride", "car", "commute", "transit", "no car", "no license"],
+    youth: ["child", "children", "youth", "teen", "kid", "after-school", "mentoring", "juvenile", "minors"],
+    foster: ["foster", "aging out", "age out", "aged out", "former foster", "foster care", "chafee", "independent living", "etv", "transitional living", "group home", "foster youth", "foster child", "foster alumni", "transitional housing youth"],
+    reentry: ["reentry", "re-entry", "coming home", "released", "got out", "prison", "jail", "incarcerated", "parole", "probation", "halfway house", "criminal record", "conviction", "felony", "background check"],
+    immigration: ["immigration", "immigrant", "undocumented", "daca", "visa", "asylum", "refugee", "citizenship", "deported", "naturalization"],
     substance: ["substance", "addiction", "drug", "alcohol", "rehab", "recovery", "sober", "treatment", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "prescription misuse", "overdose", "naloxone"],
     parenting: ["parent", "parenting", "family", "my child", "my kid", "my son", "my daughter", "my teen", "teenager", "adolescent", "co-parent", "custody", "discipline", "monitoring", "curfew", "peer pressure", "talking to my child", "family stress", "family conflict", "reunification", "incarcerated parent"],
     research: ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity", "evaluation framework", "translation", "reaim"],
@@ -304,6 +388,7 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
       housing: "housing", food: "food", healthcare: "healthcare",
       workforce: "workforce", education: "education", legal: "legal",
       financial: "financial", transportation: "transportation", youth: "youth",
+      foster: "youth", reentry: "legal", immigration: "legal",
       substance: "healthcare", parenting: "youth", research: "education", chw: "healthcare",
     };
     const searchCategories = Array.from(new Set(detectedNeeds.map(n => categoryMap[n]).filter(Boolean)));
@@ -348,6 +433,24 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
     } catch (err) {
       console.error("[Navigator] Partners query error:", err);
     }
+  }
+
+  // Foster youth / aging out
+  const fosterKeywords = ["foster", "aging out", "age out", "aged out", "former foster", "foster care", "chafee", "independent living", "etv", "group home", "foster youth", "foster alumni"];
+  if (fosterKeywords.some(kw => lowerMessage.includes(kw))) {
+    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has foster care / aging-out needs. Key resources: (1) findhelp.org + 211 for local transitional housing in their state; (2) Chafee Foster Care Independence Program — every state has one, ask their state child welfare agency; (3) Education & Training Vouchers (ETVs) up to $5,000/year for college or vocational training; (4) Job Corps (jobcorps.gov, 800-733-5627) — free housing + job training ages 16-24; (5) National Foster Youth Institute (nfyi.org) state guides. Internally: /resources (LifeBridge) and /benefits-screener. If workforce/education needs: /academy/careers and /ai-tools.`);
+  }
+
+  // Reentry / justice-involved
+  const reentryKeywords = ["reentry", "re-entry", "coming home", "released", "got out", "prison", "jail", "incarcerated", "halfway house", "criminal record", "felony", "background check", "expungement"];
+  if (reentryKeywords.some(kw => lowerMessage.includes(kw))) {
+    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has reentry / justice-involved needs. Direct them to /reentry on ThriveUp (case management, RNR assessment, milestone tracking, 11 database tables of gold-standard criminal justice frameworks). Also: LawHelp.org for free legal aid on record clearing in their state; American Job Centers (careeronestop.org) for employment with barriers; Goodwill Career Centers nationwide for job training; 211 for local halfway houses and transitional housing.`);
+  }
+
+  // Immigration
+  const immigrationKeywords = ["immigration", "immigrant", "undocumented", "daca", "visa", "asylum", "refugee", "citizenship", "deported"];
+  if (immigrationKeywords.some(kw => lowerMessage.includes(kw))) {
+    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has immigration-related needs. Key resources: LawHelp.org (free immigration legal aid by state); CLINIC (cliniclegal.org) — Catholic Legal Immigration Network; Vera Institute (vera.org) — free immigration legal services; local USCIS Field Office for citizenship; 211 for local immigrant services. Do NOT give legal advice — connect them to a qualified immigration attorney.`);
   }
 
   const substanceKeywords = ["substance", "addiction", "drug", "alcohol", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "overdose", "naloxone", "prescription misuse"];
@@ -466,17 +569,21 @@ async function fetchUrlContent(url: string): Promise<string | null> {
 }
 
 export function registerNavigatorRoutes(app: Express) {
-  app.post("/api/navigator/chat", requireAuth, async (req, res) => {
-    const userId = getUserId(req)!;
+  app.post("/api/navigator/chat", async (req, res) => {
+    const userId = getUserId(req);
+
+    // Rate-limit by userId (authenticated) or IP (anonymous)
+    const rateLimitKey = userId || (req.ip ?? "anon");
     const now = Date.now();
-    const userLimit = navigatorRateLimit.get(userId);
+    const userLimit = navigatorRateLimit.get(rateLimitKey);
+    const maxMsgs = userId ? 20 : 8;
     if (userLimit && now < userLimit.resetAt) {
-      if (userLimit.count >= 20) {
+      if (userLimit.count >= maxMsgs) {
         return res.status(429).json({ error: "Rate limit exceeded. Please wait before sending more messages." });
       }
       userLimit.count++;
     } else {
-      navigatorRateLimit.set(userId, { count: 1, resetAt: now + 60000 });
+      navigatorRateLimit.set(rateLimitKey, { count: 1, resetAt: now + 60000 });
     }
 
     const { message, conversationId } = req.body;
@@ -489,47 +596,50 @@ export function registerNavigatorRoutes(app: Express) {
 
     const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData;
 
-    let activeConversationId = conversationId;
+    // Only persist conversations for authenticated users
+    let activeConversationId = conversationId || null;
 
-    try {
-      if (!activeConversationId) {
-        const [newConvo] = await db.insert(navigatorConversations).values({
-          userId,
-          title: generateConversationTitle(message),
-          identifiedNeeds: detectNeeds(message),
-        }).returning();
-        activeConversationId = newConvo.id;
-      } else {
-        const [owned] = await db.select().from(navigatorConversations)
-          .where(and(
-            eq(navigatorConversations.id, activeConversationId),
-            eq(navigatorConversations.userId, userId)
-          )).limit(1);
-
-        if (!owned) {
-          return res.status(403).json({ error: "Conversation not found or access denied" });
-        }
-
-        const newNeeds = detectNeeds(message);
-        if (newNeeds.length > 0) {
-          const allNeeds = Array.from(new Set([...(owned.identifiedNeeds || []), ...newNeeds]));
-          await db.update(navigatorConversations)
-            .set({ identifiedNeeds: allNeeds, lastMessageAt: new Date() })
-            .where(eq(navigatorConversations.id, activeConversationId));
+    if (userId) {
+      try {
+        if (!activeConversationId) {
+          const [newConvo] = await db.insert(navigatorConversations).values({
+            userId,
+            title: generateConversationTitle(message),
+            identifiedNeeds: detectNeeds(message),
+          }).returning();
+          activeConversationId = newConvo.id;
         } else {
-          await db.update(navigatorConversations)
-            .set({ lastMessageAt: new Date() })
-            .where(eq(navigatorConversations.id, activeConversationId));
-        }
-      }
+          const [owned] = await db.select().from(navigatorConversations)
+            .where(and(
+              eq(navigatorConversations.id, activeConversationId),
+              eq(navigatorConversations.userId, userId)
+            )).limit(1);
 
-      await db.insert(navigatorMessages).values({
-        conversationId: activeConversationId,
-        role: "user",
-        content: message,
-      });
-    } catch (err) {
-      console.error("[Navigator] Error saving message:", err);
+          if (!owned) {
+            return res.status(403).json({ error: "Conversation not found or access denied" });
+          }
+
+          const newNeeds = detectNeeds(message);
+          if (newNeeds.length > 0) {
+            const allNeeds = Array.from(new Set([...(owned.identifiedNeeds || []), ...newNeeds]));
+            await db.update(navigatorConversations)
+              .set({ identifiedNeeds: allNeeds, lastMessageAt: new Date() })
+              .where(eq(navigatorConversations.id, activeConversationId));
+          } else {
+            await db.update(navigatorConversations)
+              .set({ lastMessageAt: new Date() })
+              .where(eq(navigatorConversations.id, activeConversationId));
+          }
+        }
+
+        await db.insert(navigatorMessages).values({
+          conversationId: activeConversationId,
+          role: "user",
+          content: message,
+        });
+      } catch (err) {
+        console.error("[Navigator] Error saving message:", err);
+      }
     }
 
     res.setHeader("Content-Type", "text/event-stream");
