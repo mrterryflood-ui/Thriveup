@@ -206,20 +206,24 @@ function TrustBar() {
 }
 
 function ImpactNumbers() {
+  const stats = [
+    { value: "15", label: "Ecosystem Platforms", href: "/ecosystem" },
+    { value: "651", label: "Grants Tracked", href: "/grants" },
+    { value: "4", label: "AI Engines", href: "/benefits-screener" },
+    { value: "107", label: "Languages Supported", href: "/ecosystem" },
+  ];
   return (
     <section className="py-10 px-4 bg-card" data-testid="section-impact-numbers">
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
-          {[
-            { value: "15", label: "Ecosystem Platforms" },
-            { value: "651", label: "Grants Tracked" },
-            { value: "4", label: "AI Engines" },
-            { value: "107", label: "Languages Supported" },
-          ].map((stat) => (
-            <div key={stat.label} className="py-2" data-testid={`stat-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
-              <p className="text-2xl sm:text-3xl font-bold text-primary">{stat.value}</p>
-              <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
-            </div>
+          {stats.map((stat) => (
+            <Link key={stat.label} href={stat.href}>
+              <div className="py-2 rounded-lg hover:bg-primary/5 transition-colors cursor-pointer group" data-testid={`stat-${stat.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <p className="text-2xl sm:text-3xl font-bold text-primary group-hover:scale-110 transition-transform inline-block">{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+                <p className="text-[10px] text-primary/60 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity">Explore →</p>
+              </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -233,31 +237,43 @@ function CommunitiesWeServe() {
       icon: GraduationCap, title: "CTE Students (Grades 9-12)",
       desc: "Empowered with workforce readiness training aligned to all 20 TEKS §127.15 standards, verifiable digital credentials, and career pathways in healthcare, skilled trades, IT, and business — so they graduate ready to lead.",
       location: "Pflugerville ISD, Manor ISD, Austin ISD",
+      href: "/curriculum",
+      action: "See the Curriculum",
     },
     {
       icon: Briefcase, title: "Out-of-School Youth (16-24)",
       desc: "Equipped with GED pathways, AI-powered career exploration, and employer connections — giving young adults who were written off the tools to write their own story.",
       location: "Austin metro area",
+      href: "/academy/careers",
+      action: "Explore Career Paths",
     },
     {
       icon: Shield, title: "Returning Citizens & Justice-Involved",
       desc: "Empowered to rebuild — with credential recovery, fair-chance employer partnerships, housing navigation, and 365-day retention tracking that proves they belong in the workforce.",
       location: "Travis County & surrounding counties",
+      href: "/reentry",
+      action: "See Reentry Support",
     },
     {
       icon: Award, title: "Veterans & Military Families",
       desc: "Equipped to translate military discipline into civilian careers — with skills mapping, benefits navigation, peer mentorship, and employer connections that honor their service.",
       location: "Central Texas",
+      href: "/veterans",
+      action: "See Veterans Support",
     },
     {
       icon: Heart, title: "Families Navigating Barriers",
       desc: "Empowered to access what they're entitled to — benefits screening across 9 programs in one conversation, plus housing, food, and wraparound support so they can focus on what's next.",
       location: "Any U.S. community",
+      href: "/benefits-screener",
+      action: "Screen for Benefits",
     },
     {
       icon: Building2, title: "Community & Faith-Based Organizations",
       desc: "Equipped with the infrastructure to run real workforce programs — track who you reach, coordinate referrals, report outcomes to funders, and prove the impact your community already knows you're making.",
       location: "Pflugerville, Manor, East Austin",
+      href: "/coalition",
+      action: "Join the Coalition",
     },
   ];
 
@@ -275,19 +291,26 @@ function CommunitiesWeServe() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {populations.map((p) => (
-            <Card key={p.title} className="p-5 flex flex-col" data-testid={`card-population-${p.title.toLowerCase().replace(/\s+/g, '-')}`}>
-              <div className="flex items-start gap-3 mb-3">
-                <div className="rounded-md bg-primary/10 p-2 shrink-0">
-                  <p.icon className="h-4 w-4 text-primary" />
+            <Link key={p.title} href={p.href} className="no-underline group">
+              <Card className="p-5 flex flex-col h-full transition-all duration-200 hover:shadow-md hover:border-primary/30 cursor-pointer" data-testid={`card-population-${p.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                <div className="flex items-start gap-3 mb-3">
+                  <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                    <p.icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">{p.title}</h3>
                 </div>
-                <h3 className="font-semibold text-sm">{p.title}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-3">{p.desc}</p>
-              <div className="flex items-center gap-1.5 text-xs text-primary/70">
-                <MapPin className="h-3 w-3 shrink-0" />
-                <span>{p.location}</span>
-              </div>
-            </Card>
+                <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-3">{p.desc}</p>
+                <div className="flex items-center justify-between mt-auto">
+                  <div className="flex items-center gap-1.5 text-xs text-primary/70">
+                    <MapPin className="h-3 w-3 shrink-0" />
+                    <span>{p.location}</span>
+                  </div>
+                  <span className="text-xs font-medium text-primary flex items-center gap-1 group-hover:gap-2 transition-all">
+                    {p.action} <ArrowRight className="h-3 w-3" />
+                  </span>
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>
@@ -300,18 +323,26 @@ function WhatWeDeliver() {
     {
       icon: GraduationCap, title: "ThriveUp Workforce Readiness Certificate",
       desc: "15-week AI-powered curriculum covering professional presence, workplace rights, safety (OSHA), time management, and work ethic. Mapped to all 20 TEKS §127.15 CTE standards. Completers earn a verifiable digital credential they own forever.",
+      href: "/curriculum",
+      action: "Start Learning Free",
     },
     {
       icon: Building2, title: "Community Empowerment Infrastructure",
       desc: "We don't parachute in and leave. We equip churches, nonprofits, schools, and local organizations with the tools to run their own programs, track their own outcomes, and sustain their own impact. Platform-agnostic. Community-led. Built to last beyond any single grant.",
+      href: "/coalition",
+      action: "Join the Coalition",
     },
     {
       icon: BarChart3, title: "Transparent Outcome Accountability",
       desc: "Employment at 30/90/180/365 days, credential attainment, recidivism reduction, wage gains, and housing stability — all transparent, all verifiable. Communities see their own data. Funders see proof.",
+      href: "/sdoh-explorer",
+      action: "See Community Data",
     },
     {
       icon: Sparkles, title: "AI That Works for the Community",
       desc: "Four AI engines that personalize learning paths, screen for benefits, map community needs, and evaluate what's working — putting the power of data science in the hands of the people it's supposed to help.",
+      href: "/benefits-screener",
+      action: "Try the AI Screener",
     },
   ];
 
@@ -326,15 +357,21 @@ function WhatWeDeliver() {
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {programs.map((pr) => (
-            <Card key={pr.title} className="p-5" data-testid={`card-deliver-${pr.title.toLowerCase().replace(/\s+/g, '-')}`}>
-              <div className="flex items-start gap-3 mb-2">
-                <div className="rounded-md bg-primary/10 p-2 shrink-0">
-                  <pr.icon className="h-4 w-4 text-primary" />
+            <Link key={pr.title} href={pr.href} className="no-underline group">
+              <Card className="p-5 h-full flex flex-col transition-all duration-200 hover:shadow-md hover:border-primary/30 cursor-pointer" data-testid={`card-deliver-${pr.title.toLowerCase().replace(/\s+/g, '-')}`}>
+                <div className="flex items-start gap-3 mb-2">
+                  <div className="rounded-md bg-primary/10 p-2 shrink-0">
+                    <pr.icon className="h-4 w-4 text-primary" />
+                  </div>
+                  <h3 className="font-semibold text-sm group-hover:text-primary transition-colors">{pr.title}</h3>
                 </div>
-                <h3 className="font-semibold text-sm">{pr.title}</h3>
-              </div>
-              <p className="text-sm text-muted-foreground leading-relaxed">{pr.desc}</p>
-            </Card>
+                <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">{pr.desc}</p>
+                <div className="flex items-center gap-1.5 text-sm font-medium text-primary mt-auto">
+                  <span>{pr.action}</span>
+                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>
@@ -381,6 +418,12 @@ function SuccessStories() {
 }
 
 function HowItWorks() {
+  const steps = [
+    { step: 1, title: "Discover & Unlock", desc: "Find out what you qualify for — 9+ benefit programs screened in one conversation. Then choose your path: workforce training, education, career exploration, or the support you need to get stable first.", icon: Search, href: "/benefits-screener", action: "Screen for Benefits" },
+    { step: 2, title: "Learn & Earn Your Credential", desc: "AI-powered workforce readiness curriculum — 15 weeks, self-paced, aligned to Texas CTE standards. You earn a verifiable digital credential that's yours to keep and share with employers.", icon: Target, href: "/curriculum", action: "Start the Curriculum" },
+    { step: 3, title: "Launch & Own Your Future", desc: "Employer matching, interview prep, and placement support. Outcomes tracked at 30, 90, 180, and 365 days — not to check on you, but to prove what you've built.", icon: BarChart3, href: "/academy/careers", action: "Explore Career Paths" },
+  ];
+
   return (
     <section className="py-12 px-4 sm:py-16 sm:px-6" data-testid="section-how-it-works">
       <div className="max-w-5xl mx-auto">
@@ -389,19 +432,21 @@ function HowItWorks() {
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">A holistic path — from discovering what you're entitled to, through earning credentials, to owning your future. At every step, you lead. We build alongside you.</p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {[
-            { step: 1, title: "Discover & Unlock", desc: "Find out what you qualify for — 9+ benefit programs screened in one conversation. Then choose your path: workforce training, education, career exploration, or the support you need to get stable first.", icon: Search },
-            { step: 2, title: "Learn & Earn Your Credential", desc: "AI-powered workforce readiness curriculum — 15 weeks, self-paced, aligned to Texas CTE standards. You earn a verifiable digital credential that's yours to keep and share with employers.", icon: Target },
-            { step: 3, title: "Launch & Own Your Future", desc: "Employer matching, interview prep, and placement support. Outcomes tracked at 30, 90, 180, and 365 days — not to check on you, but to prove what you've built.", icon: BarChart3 },
-          ].map((item) => (
-            <Card key={item.step} className="p-5 text-center" data-testid={`card-step-${item.step}`}>
-              <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                <span className="text-lg font-bold text-primary">{item.step}</span>
-              </div>
-              <item.icon className="h-5 w-5 text-primary mx-auto mb-2" />
-              <h3 className="font-semibold mb-1" data-testid={`text-step-title-${item.step}`}>{item.title}</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">{item.desc}</p>
-            </Card>
+          {steps.map((item) => (
+            <Link key={item.step} href={item.href} className="no-underline group">
+              <Card className="p-5 text-center h-full flex flex-col transition-all duration-200 hover:shadow-md hover:border-primary/30 cursor-pointer" data-testid={`card-step-${item.step}`}>
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
+                  <span className="text-lg font-bold text-primary">{item.step}</span>
+                </div>
+                <item.icon className="h-5 w-5 text-primary mx-auto mb-2" />
+                <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors" data-testid={`text-step-title-${item.step}`}>{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">{item.desc}</p>
+                <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-primary mt-auto">
+                  <span>{item.action}</span>
+                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>
