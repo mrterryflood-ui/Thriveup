@@ -659,6 +659,24 @@ export async function registerRoutes(
     }
   });
 
+  app.get("/api/levels/module-counts", async (_req, res) => {
+    try {
+      const allLevels = await storage.getLevels();
+      const counts: Record<number, number> = {};
+      await Promise.all(
+        allLevels.map(async (level) => {
+          const mods = await storage.getModulesByLevel(level.id);
+          counts[level.id] = mods.length;
+        })
+      );
+      res.setHeader("Cache-Control", "private, max-age=120");
+      res.json(counts);
+    } catch (error) {
+      console.error("Error in GET /api/levels/module-counts", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/levels/:levelId/modules", async (req, res) => {
     try {
       const mods = await storage.getModulesByLevel(parseInt(req.params.levelId as string));

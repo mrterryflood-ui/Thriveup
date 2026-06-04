@@ -22,7 +22,13 @@ export default function CurriculumPage() {
     queryKey: ["/api/levels"],
   });
 
+  const { data: moduleCounts } = useQuery<Record<number, number>>({
+    queryKey: ["/api/levels/module-counts"],
+  });
+
   useEffect(() => { document.title = "AI Curriculum | ThriveUp Academy"; }, []);
+
+  const totalModules = moduleCounts ? Object.values(moduleCounts).reduce((s, c) => s + c, 0) : null;
 
   if (isLoading) {
   return (
@@ -42,7 +48,8 @@ export default function CurriculumPage() {
       <div className="mb-10">
         <h1 className="text-3xl font-bold mb-2" data-testid="text-curriculum-heading">Curriculum</h1>
         <p className="text-muted-foreground">
-          5 progressive mastery levels spanning K-12, each with capstone projects and parent teachbacks.
+          5 progressive mastery levels spanning K–12
+          {totalModules ? ` · ${totalModules} modules total` : ""} — each with capstone projects and parent teachbacks.
         </p>
       </div>
 
@@ -50,6 +57,7 @@ export default function CurriculumPage() {
         {levels?.map((level) => {
           const Icon = levelIcons[(level.id - 1) % 5];
           const colors = LEVEL_COLORS[level.id];
+          const count = moduleCounts?.[level.id];
           return (
             <Link key={level.id} href={`/curriculum/${level.id}`} data-testid={`link-curriculum-level-${level.id}`}>
               <Card className="p-6 hover-elevate cursor-pointer group" data-testid={`card-curriculum-level-${level.id}`}>
@@ -61,6 +69,11 @@ export default function CurriculumPage() {
                     <div className="flex items-center gap-2 mb-1 flex-wrap">
                       <h2 className="text-lg font-semibold">Level {level.id}: {level.title}</h2>
                       <Badge variant="outline" className="text-xs">{level.grades}</Badge>
+                      {count != null && (
+                        <Badge variant="secondary" className="text-xs" data-testid={`badge-module-count-${level.id}`}>
+                          {count} module{count !== 1 ? "s" : ""}
+                        </Badge>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground mb-3">{level.description}</p>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground flex-wrap">

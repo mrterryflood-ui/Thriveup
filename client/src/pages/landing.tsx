@@ -211,7 +211,7 @@ function ImpactNumbers() {
       <div className="max-w-5xl mx-auto">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
           {[
-            { value: "26", label: "Ecosystem Platforms" },
+            { value: "15", label: "Ecosystem Platforms" },
             { value: "651", label: "Grants Tracked" },
             { value: "4", label: "AI Engines" },
             { value: "107", label: "Languages Supported" },
