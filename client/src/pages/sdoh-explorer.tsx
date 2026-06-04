@@ -15,6 +15,7 @@ import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
 import { DFCCrossNav, PillarFlowNav } from "@/components/dfc-cross-nav";
 import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
 import { COUNTIES_BY_STATE } from "@shared/nationwide/counties";
+import { CITIES_BY_STATE } from "@shared/nationwide/cities";
 import {
   Search, Loader2, MapPin, AlertTriangle, ChevronDown,
   BarChart3, GraduationCap, HeartPulse, ShieldAlert,
@@ -72,15 +73,22 @@ function RegionPicker({
   const [search, setSearch] = useState("");
   const usps = STATE_FIPS_TO_USPS[stateCode] || "TX";
   const counties = COUNTIES_BY_STATE[usps] || [];
+  const cities = CITIES_BY_STATE[usps] || [];
+  const stateName = JURISDICTIONS.find(j => j.code === usps)?.name || usps;
+
   const selectedSet = useMemo(
     () => new Set(countyCodes.split(",").map(c => c.trim()).filter(Boolean)),
     [countyCodes]
   );
-  const filtered = useMemo(() => {
-    if (!search.trim()) return counties;
-    const s = search.toLowerCase();
-    return counties.filter(c => c.name.toLowerCase().includes(s));
-  }, [counties, search]);
+
+  const { filteredCounties, filteredCities } = useMemo(() => {
+    const s = search.trim().toLowerCase();
+    if (!s) return { filteredCounties: counties, filteredCities: [] };
+    return {
+      filteredCounties: counties.filter(c => c.name.toLowerCase().includes(s)),
+      filteredCities: cities.filter(c => c.city.toLowerCase().includes(s)),
+    };
+  }, [counties, cities, search]);
 
   const setStateAndReset = (uspsCode: string) => {
     const fips = USPS_TO_STATE_FIPS[uspsCode] || stateCode;
@@ -97,9 +105,12 @@ function RegionPicker({
 
   const clearAll = () => onChange(stateCode, "");
 
-  // Resolve a name for a selected code (for the chip strip).
   const nameFor = (code: string) =>
     counties.find(c => c.countyFips === code)?.name || code;
+
+  const hasCities = filteredCities.length > 0;
+  const hasCounties = filteredCounties.length > 0;
+  const noResults = search.trim() && !hasCities && !hasCounties;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-3 border-t" data-testid="region-picker">
@@ -118,7 +129,8 @@ function RegionPicker({
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground mt-1">
-          {counties.length.toLocaleString()} counties available in {JURISDICTIONS.find(j => j.code === usps)?.name || usps}.
+          {counties.length.toLocaleString()} counties
+          {cities.length > 0 ? ` · ${cities.length} cities` : ""} in {stateName}.
         </p>
       </div>
 
@@ -152,7 +164,7 @@ function RegionPicker({
 
         <Input
           id="county-search"
-          placeholder={`Search counties in ${JURISDICTIONS.find(j => j.code === usps)?.name || usps}…`}
+          placeholder={`Search counties or cities in ${stateName}…`}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           data-testid="input-county-search"
@@ -160,31 +172,96 @@ function RegionPicker({
         />
 
         <div className="border rounded-md mt-2 max-h-[260px] overflow-y-auto divide-y" data-testid="list-counties">
-          {filtered.length === 0 ? (
-            <div className="p-3 text-sm text-muted-foreground">No counties match "{search}".</div>
+          {noResults ? (
+            <div className="p-3 text-sm text-muted-foreground">No counties or cities match "{search}".</div>
           ) : (
-            filtered.slice(0, 200).map(c => {
-              const checked = selectedSet.has(c.countyFips);
-              return (
-                <label
-                  key={c.countyFips}
-                  className="flex items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted/50 cursor-pointer"
-                  data-testid={`row-county-${c.countyFips}`}
-                >
-                  <Checkbox
-                    checked={checked}
-                    onCheckedChange={() => toggleCounty(c.countyFips)}
-                    data-testid={`checkbox-county-${c.countyFips}`}
-                  />
-                  <span className="flex-1">{c.name}</span>
-                </label>
-              );
-            })
-          )}
-          {filtered.length > 200 && (
-            <div className="p-2 text-xs text-muted-foreground text-center">
-              Showing first 200 of {filtered.length}. Refine your search to see more.
-            </div>
+            <>
+              {/* City results — selecting a city auto-selects its county */}
+              {hasCities && (
+                <>
+                  <div className="px-3 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide bg-muted/40 sticky top-0">
+                    Cities
+                  </div>
+                  {filteredCities.map(c => {
+                    const alreadySelected = selectedSet.has(c.countyFips);
+                    return (
+                      <button
+                        key={`city-${c.city}`}
+                        onClick={() => toggleCounty(c.countyFips)}
+                        className="flex items-center gap-2 px-3 py-2 text-sm hover:bg-muted/50 w-full text-left"
+                        data-testid={`row-city-${c.city.toLowerCase().replace(/\s+/g, '-')}`}
+                      >
+                        <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="flex-1 font-medium">{c.city}</span>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          → {c.countyName} Co.
+                        </span>
+                        {alreadySelected && (
+                          <Badge variant="secondary" className="text-[10px] px-1 py-0 shrink-0">✓</Badge>
+                        )}
+                      </button>
+                    );
+                  })}
+                </>
+              )}
+
+              {/* County results */}
+              {hasCounties && (
+                <>
+                  {hasCities && (
+                    <div className="px-3 py-1 text-[11px] font-semibold text-muted-foreground uppercase tracking-wide bg-muted/40 sticky top-0">
+                      Counties
+                    </div>
+                  )}
+                  {filteredCounties.slice(0, 200).map(c => {
+                    const checked = selectedSet.has(c.countyFips);
+                    return (
+                      <label
+                        key={c.countyFips}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted/50 cursor-pointer"
+                        data-testid={`row-county-${c.countyFips}`}
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={() => toggleCounty(c.countyFips)}
+                          data-testid={`checkbox-county-${c.countyFips}`}
+                        />
+                        <span className="flex-1">{c.name}</span>
+                      </label>
+                    );
+                  })}
+                  {filteredCounties.length > 200 && (
+                    <div className="p-2 text-xs text-muted-foreground text-center">
+                      Showing first 200 of {filteredCounties.length}. Refine your search to see more.
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Default (no search): show counties list */}
+              {!search.trim() && counties.slice(0, 200).map(c => {
+                const checked = selectedSet.has(c.countyFips);
+                return (
+                  <label
+                    key={c.countyFips}
+                    className="flex items-center gap-2 px-3 py-1.5 text-sm hover:bg-muted/50 cursor-pointer"
+                    data-testid={`row-county-${c.countyFips}`}
+                  >
+                    <Checkbox
+                      checked={checked}
+                      onCheckedChange={() => toggleCounty(c.countyFips)}
+                      data-testid={`checkbox-county-${c.countyFips}`}
+                    />
+                    <span className="flex-1">{c.name}</span>
+                  </label>
+                );
+              })}
+              {!search.trim() && counties.length > 200 && (
+                <div className="p-2 text-xs text-muted-foreground text-center">
+                  Showing first 200 of {counties.length}. Search to narrow results.
+                </div>
+              )}
+            </>
           )}
         </div>
         {selectedSet.size > 10 && (
