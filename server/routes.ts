@@ -648,17 +648,6 @@ export async function registerRoutes(
     }
   });
 
-  app.get("/api/levels/:levelId", async (req, res) => {
-    try {
-      const level = await storage.getLevel(parseInt(req.params.levelId as string));
-      if (!level) return res.status(404).json({ error: "Level not found" });
-      res.json(level);
-    } catch (error) {
-      console.error("Error in GET /api/levels/:levelId", error);
-      res.status(500).json({ error: "Internal server error" });
-    }
-  });
-
   app.get("/api/levels/module-counts", async (_req, res) => {
     try {
       const allLevels = await storage.getLevels();
@@ -673,6 +662,17 @@ export async function registerRoutes(
       res.json(counts);
     } catch (error) {
       console.error("Error in GET /api/levels/module-counts", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/levels/:levelId", async (req, res) => {
+    try {
+      const level = await storage.getLevel(parseInt(req.params.levelId as string));
+      if (!level) return res.status(404).json({ error: "Level not found" });
+      res.json(level);
+    } catch (error) {
+      console.error("Error in GET /api/levels/:levelId", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
