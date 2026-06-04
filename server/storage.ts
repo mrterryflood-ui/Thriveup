@@ -89,9 +89,48 @@ import pg from "pg";
 
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 10000,
 });
 
+// Neon Postgres auto-suspends after inactivity; the first query after wake-up
+// can fail with XX000 "The endpoint has been disabled". Retry up to 3 times
+// with exponential back-off so callers never see a spurious 500.
+pool.on("error", (err) => {
+  // Swallow idle-client errors — pool handles reconnection automatically.
+  if ((err as any).code !== "XX000") console.error("[DB pool] idle client error:", err.message);
+});
+
+const _poolQuery = pool.query.bind(pool);
+(pool as any).query = async function (...args: unknown[]) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      return await (_poolQuery as (...a: unknown[]) => Promise<unknown>)(...args);
+    } catch (err: any) {
+      const isNeonWakeUp = err?.code === "XX000" || (err?.message ?? "").includes("endpoint has been disabled");
+      if (isNeonWakeUp && attempt < 2) {
+        const delay = 1000 * (attempt + 1);
+        console.warn(`[DB] Neon wake-up XX000, retrying in ${delay}ms (attempt ${attempt + 1}/3)...`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
+};
+
 export const db = drizzle(pool);
+
+// Warm up the connection pool on startup so the first user request never hits
+// the Neon cold-start window.
+(async () => {
+  try {
+    await pool.query("SELECT 1");
+    console.log("[DB] Connection pool warmed up.");
+  } catch {
+    console.warn("[DB] Warm-up query failed — will retry on first user request.");
+  }
+})();
 
 export interface IStorage {
   getUser(userId: string): Promise<{ id: string; role: string } | undefined>;

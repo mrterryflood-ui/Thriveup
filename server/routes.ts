@@ -636,11 +636,14 @@ export async function registerRoutes(
 
   app.get("/api/levels", async (_req, res) => {
     try {
-      res.setHeader("Cache-Control", "public, max-age=3600");
       const allLevels = await storage.getLevels();
+      // Short private cache — avoids hammering DB on rapid re-renders without
+      // caching a transient 500 error response across users.
+      res.setHeader("Cache-Control", "private, max-age=60");
       res.json(allLevels);
     } catch (error) {
       console.error("Error in GET /api/levels", error);
+      res.setHeader("Cache-Control", "no-store");
       res.status(500).json({ error: "Internal server error" });
     }
   });
