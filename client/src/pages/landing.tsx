@@ -1296,6 +1296,44 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="px-4 pb-4 sm:px-6" data-testid="section-ctx-benefits-initiative">
+        <div className="max-w-3xl mx-auto">
+          <Link
+            href="/wab2-enrollment-hub"
+            className="group block overflow-hidden rounded-xl border-2 border-blue-500/30 bg-gradient-to-br from-blue-500/5 via-card to-card transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] no-underline"
+            data-testid="card-ctx-benefits-initiative"
+            aria-label="CTX Benefits Initiative — health benefits enrollment for 5 Central Texas counties"
+          >
+            <div className="p-5 sm:p-7">
+              <div className="flex items-start gap-4">
+                <div className="rounded-xl p-3 bg-gradient-to-br from-blue-500 to-indigo-600 shrink-0 shadow-md">
+                  <Stethoscope className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Badge variant="secondary" className="mb-2 text-xs" data-testid="badge-ctx-initiative">
+                    CTX Benefits Initiative · 5-county Central Texas
+                  </Badge>
+                  <h3 className="font-bold text-lg sm:text-xl mb-2 leading-tight" data-testid="text-ctx-initiative-title">
+                    Health benefits enrollment — powered by a CHW, not a website.
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed" data-testid="text-ctx-initiative-desc">
+                    Travis · Williamson · Hays · Bastrop · Caldwell. Community health workers guide families through Medicaid, CHIP, MAP, and wraparound enrollment in a single session.
+                    Not a directory. Not a screener. An enrollment <em>engine</em> — with real humans, real outcomes, and RPLICE intelligence behind every referral.
+                  </p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-sm font-medium shadow-sm" data-testid="button-ctx-initiative">
+                      Start Enrollment
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <span className="text-xs text-muted-foreground italic">Free · CHW-assisted · No immigration status collected</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="px-4 pb-4 sm:px-6" data-testid="section-pathways">
         <div className="max-w-3xl mx-auto">
           <p className="text-center text-sm text-muted-foreground mb-4">What brings you here today?</p>
