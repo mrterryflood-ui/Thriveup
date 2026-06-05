@@ -501,8 +501,8 @@ export function AppSidebar() {
               <Heart className="h-5 w-5 text-white" aria-hidden="true" />
             </div>
             <div>
-              <p className="font-bold text-sm leading-tight">ThriveUp Academy</p>
-              <p className="text-xs text-muted-foreground leading-tight">The Collaborative Advocate Foundation</p>
+              <p className="font-bold text-sm leading-tight tracking-wide uppercase">ThriveUp</p>
+              <p className="text-[10px] text-muted-foreground leading-tight">a service of The Collaborative Advocate Foundation</p>
             </div>
           </div>
         </Link>
