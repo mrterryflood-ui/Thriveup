@@ -14,7 +14,8 @@ import {
   Map, Microscope, Layers,
   Globe, ExternalLink, Brain, Stethoscope, Baby, User,
   Siren, Eye, Pill, MessageSquare, Activity,
-  Video, Megaphone, Network, Cpu
+  Video, Megaphone, Network, Cpu,
+  Rocket, MessageCircle, Compass, Users
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 
@@ -1215,6 +1216,96 @@ export default function LandingPage() {
 
       <TrustBar />
       <DisciplineStrip />
+
+      {/* ── Platform Hubs + Quick Access ─────────────────────────────── */}
+      <section className="px-4 pt-8 pb-4 sm:px-6" data-testid="section-platform-hubs">
+        <div className="max-w-3xl mx-auto space-y-6">
+
+          {/* 4 gateway tiles */}
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+              Platform Hubs
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {([
+                { label: "Serve People",  desc: "Benefits, Foster Youth, Justice, Health",     href: "/hub/serve",    icon: Heart,   bg: "from-emerald-500 to-teal-600" },
+                { label: "Get Funded",    desc: "Grants, RFP tools, Win-rate analytics",        href: "/hub/fund",    icon: Target,  bg: "from-amber-500 to-orange-600" },
+                { label: "Grow",          desc: "Trade Sims, Workforce, Academy, AI",           href: "/hub/grow",    icon: Rocket,  bg: "from-blue-600 to-indigo-700" },
+                { label: "Connect",       desc: "Partners, Coalition, Impact, About",           href: "/hub/connect", icon: Network, bg: "from-teal-600 to-cyan-700" },
+              ] as const).map(card => {
+                const Icon = card.icon;
+                return (
+                  <Link key={card.href} href={card.href}>
+                    <div
+                      className={`relative rounded-2xl p-4 h-[120px] sm:h-[130px] flex flex-col justify-between cursor-pointer transition-all active:scale-[0.97] hover:scale-[1.02] shadow-sm bg-gradient-to-br ${card.bg}`}
+                      data-testid={`gateway-card-${card.label.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      <Icon className="w-7 h-7 text-white/90" />
+                      <div>
+                        <p className="text-white font-bold text-sm leading-snug">{card.label}</p>
+                        <p className="text-white/65 text-[11px] mt-0.5 leading-snug">{card.desc}</p>
+                      </div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quick Access icons */}
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+              Quick Access
+            </p>
+            <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
+              {([
+                { label: "Sparky AI",    href: "/sparky",        icon: MessageCircle, color: "text-violet-600 bg-violet-100 dark:bg-violet-900/40" },
+                { label: "This Week",    href: "/this-week",     icon: Calendar,      color: "text-amber-600 bg-amber-100 dark:bg-amber-900/40" },
+                { label: "Navigator",    href: "/navigator",     icon: Compass,       color: "text-blue-600 bg-blue-100 dark:bg-blue-900/40" },
+                { label: "Live Grants",  href: "/grants",        icon: Target,        color: "text-orange-600 bg-orange-100 dark:bg-orange-900/40" },
+                { label: "Impact",       href: "/impact",        icon: TrendingUp,    color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40" },
+                { label: "Community",    href: "/community",     icon: Users,         color: "text-rose-600 bg-rose-100 dark:bg-rose-900/40" },
+                { label: "Coverage Map", href: "/coverage",      icon: Map,           color: "text-cyan-600 bg-cyan-100 dark:bg-cyan-900/40" },
+                { label: "Workbench",    href: "/workbench",     icon: Wrench,        color: "text-indigo-600 bg-indigo-100 dark:bg-indigo-900/40" },
+              ] as const).map(tool => {
+                const Icon = tool.icon;
+                return (
+                  <Link key={tool.href} href={tool.href}>
+                    <div
+                      className="flex flex-col items-center gap-2 cursor-pointer w-16 flex-shrink-0"
+                      data-testid={`quick-tool-${tool.label.toLowerCase().replace(/\s+/g, "-")}`}
+                    >
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-sm ${tool.color}`}>
+                        <Icon className="w-5 h-5" />
+                      </div>
+                      <span className="text-[10px] font-semibold text-muted-foreground text-center leading-tight">
+                        {tool.label}
+                      </span>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Live metrics strip */}
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
+            {([
+              { value: "721+",  label: "Grants Tracked",       color: "text-amber-600 dark:text-amber-400"   },
+              { value: "15",    label: "Service Platforms",     color: "text-blue-600 dark:text-blue-400"     },
+              { value: "9",     label: "Benefits Screened",     color: "text-emerald-600 dark:text-emerald-400"},
+              { value: "50",    label: "States Ready",          color: "text-violet-600 dark:text-violet-400" },
+              { value: "107",   label: "Languages Supported",   color: "text-rose-600 dark:text-rose-400"     },
+            ]).map(m => (
+              <div key={m.label} className="bg-card border border-border/60 rounded-xl p-3 text-center" data-testid={`metric-${m.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                <p className={`text-xl font-black ${m.color}`}>{m.value}</p>
+                <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{m.label}</p>
+              </div>
+            ))}
+          </div>
+
+        </div>
+      </section>
 
       <section className="px-4 pb-4 sm:px-6 pt-8" data-testid="section-ctx-benefits-initiative">
         <div className="max-w-3xl mx-auto">

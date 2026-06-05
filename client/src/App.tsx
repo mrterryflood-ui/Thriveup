@@ -704,17 +704,13 @@ function AppLayoutInner() {
   return (
     <SidebarProvider style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
-        {mode === "classic" && <AppSidebar />}
+        <AppSidebar />
         <div className={cn("flex flex-col flex-1 min-w-0", mode === "hub" && "pb-[60px]")}>
           <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">
             Skip to main content
           </a>
           <header className="flex items-center justify-between gap-2 p-2 border-b sticky top-0 z-50 bg-background">
-            {mode === "classic" ? (
-              <SidebarTrigger data-testid="button-sidebar-toggle" />
-            ) : (
-              <span className="font-bold text-sm text-primary pl-1 select-none">ThriveUp</span>
-            )}
+            <SidebarTrigger data-testid="button-sidebar-toggle" />
             <div className="flex items-center gap-1">
               <NavModeToggle />
               <AccessibilityPanel />
