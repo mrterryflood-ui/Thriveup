@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCAF × HIS — Combined Letterhead</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Georgia, "Times New Roman", serif;
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 60px;
+      color: #1a1a1a;
+    }
+
+    /* ── Print controls (screen only) ── */
+    .print-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      width: 100%;
+      max-width: 816px;
+      justify-content: flex-end;
+    }
+    .print-bar button {
+      padding: 8px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: system-ui, sans-serif;
+      font-weight: 600;
+    }
+    .btn-print  { background: #7c3aed; color: #fff; }
+    .btn-print:hover { background: #6d28d9; }
+    .btn-help   { background: #fff; color: #555; border: 1px solid #ccc; }
+
+    /* ── Page ── */
+    .page {
+      background: #ffffff;
+      width: 816px;
+      min-height: 1056px;
+      padding: 52px 60px 60px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.12);
+      position: relative;
+    }
+
+    /* ── Header ── */
+    .letterhead-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 24px;
+      padding-bottom: 28px;
+    }
+
+    .org-block {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      flex: 1;
+    }
+    .org-block.right {
+      flex-direction: row-reverse;
+      text-align: right;
+    }
+
+    .org-logo {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .org-info { flex: 1; }
+
+    .org-name {
+      font-size: 15.5px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: 0.02em;
+      line-height: 1.3;
+      font-family: system-ui, "Helvetica Neue", Arial, sans-serif;
+    }
+    .org-tagline {
+      font-size: 10px;
+      color: #7c3aed;
+      font-style: italic;
+      font-family: system-ui, sans-serif;
+      margin-bottom: 6px;
+      letter-spacing: 0.01em;
+    }
+    .org-block.right .org-tagline { color: #b8860b; }
+
+    .contact-line {
+      font-size: 10.5px;
+      color: #444;
+      line-height: 1.75;
+      font-family: system-ui, "Helvetica Neue", Arial, sans-serif;
+    }
+    .contact-line a { color: #444; text-decoration: none; }
+
+    .status-badges {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      margin-top: 6px;
+    }
+    .org-block.right .status-badges { justify-content: flex-end; }
+
+    .badge {
+      display: inline-block;
+      font-size: 9px;
+      font-family: system-ui, sans-serif;
+      font-weight: 700;
+      padding: 2px 6px;
+      border-radius: 3px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+    .badge-purple { background: #ede9fe; color: #5b21b6; }
+    .badge-gold   { background: #fef9c3; color: #92400e; }
+    .badge-green  { background: #dcfce7; color: #166534; }
+    .badge-slate  { background: #f1f5f9; color: #475569; }
+
+    /* ── Center divider ── */
+    .partnership-center {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 10px;
+      flex-shrink: 0;
+    }
+    .partnership-x {
+      font-size: 22px;
+      font-weight: 800;
+      background: linear-gradient(135deg, #7c3aed, #b8860b);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-family: system-ui, sans-serif;
+      line-height: 1;
+    }
+    .partnership-label {
+      font-size: 7.5px;
+      font-family: system-ui, sans-serif;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #888;
+      margin-top: 3px;
+      white-space: nowrap;
+    }
+
+    /* ── Divider rule ── */
+    .header-rule {
+      border: none;
+      height: 2px;
+      background: linear-gradient(to right, #7c3aed 0%, #d97706 50%, #b8860b 100%);
+      margin-bottom: 32px;
+    }
+
+    /* ── Proposal body ── */
+    .body-section { }
+
+    .proposal-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 6px;
+    }
+    .meta-label {
+      font-size: 9px;
+      font-family: system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #888;
+      font-weight: 700;
+    }
+    .meta-value {
+      font-size: 11px;
+      font-family: system-ui, sans-serif;
+      color: #333;
+    }
+
+    .field-line {
+      border-bottom: 1px solid #ddd;
+      margin-bottom: 22px;
+      padding-bottom: 4px;
+      min-height: 26px;
+      font-size: 13px;
+      font-family: system-ui, sans-serif;
+      color: #aaa;
+      font-style: italic;
+    }
+
+    .section-label {
+      font-size: 9px;
+      font-family: system-ui, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #7c3aed;
+      font-weight: 700;
+      margin-bottom: 6px;
+      border-bottom: 1px solid #ede9fe;
+      padding-bottom: 4px;
+    }
+
+    .body-lines {
+      margin-bottom: 28px;
+    }
+    .body-line {
+      border-bottom: 1px solid #e5e7eb;
+      height: 28px;
+      margin-bottom: 2px;
+    }
+
+    .signature-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 40px;
+      margin-top: 48px;
+    }
+    .sig-block { }
+    .sig-name-line {
+      border-bottom: 1.5px solid #333;
+      height: 36px;
+      margin-bottom: 5px;
+    }
+    .sig-label {
+      font-size: 9.5px;
+      font-family: system-ui, sans-serif;
+      color: #555;
+    }
+    .sig-title {
+      font-size: 9px;
+      color: #888;
+      font-family: system-ui, sans-serif;
+      margin-top: 2px;
+    }
+
+    /* ── Footer ── */
+    .page-footer {
+      position: absolute;
+      bottom: 32px;
+      left: 60px;
+      right: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .footer-left {
+      font-size: 8.5px;
+      font-family: system-ui, sans-serif;
+      color: #999;
+      line-height: 1.6;
+    }
+    .footer-right {
+      font-size: 8.5px;
+      font-family: system-ui, sans-serif;
+      color: #999;
+      text-align: right;
+      line-height: 1.6;
+    }
+    .footer-rule {
+      position: absolute;
+      bottom: 76px;
+      left: 60px;
+      right: 60px;
+      border: none;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* ── Print styles ── */
+    @media print {
+      body { background: white; padding: 0; }
+      .print-bar { display: none; }
+      .page {
+        width: 100%;
+        min-height: 100vh;
+        box-shadow: none;
+        padding: 40px 56px 60px;
+      }
+      @page { size: letter; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="print-bar">
+    <button class="btn-help" onclick="alert('Fill in the date, subject, and body fields, then click Print / Save as PDF. In the print dialog, choose \'Save as PDF\' to create a PDF file.')">? How to use</button>
+    <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
+  </div>
+
+  <div class="page">
+
+    <!-- ══ LETTERHEAD HEADER ══ -->
+    <div class="letterhead-header">
+
+      <!-- TCAF — Left -->
+      <div class="org-block">
+        <img src="/thriveup-logo.png" alt="ThriveUp / TCAF Logo" class="org-logo" />
+        <div class="org-info">
+          <div class="org-name">The Collaborative Advocate Foundation</div>
+          <div class="org-tagline">Built from community. Powered by data.</div>
+          <div class="contact-line">
+            Dr. Terry Flood, President<br />
+            17912 Stefano Drive, Pflugerville, TX 78660<br />
+            (254) 319-8460 &nbsp;·&nbsp; <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a><br />
+            <a href="https://thrivingcommunitiesforall.com">thrivingcommunitiesforall.com</a>
+          </div>
+          <div class="status-badges">
+            <span class="badge badge-purple">501(c)(3)</span>
+            <span class="badge badge-slate">EIN 41-3618003</span>
+            <span class="badge badge-green">SAM.gov Active</span>
+            <span class="badge badge-slate">UEI KDDVD1FGLW35</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Center partnership mark -->
+      <div class="partnership-center">
+        <div class="partnership-x">×</div>
+        <div class="partnership-label">In Partnership</div>
+      </div>
+
+      <!-- HIS — Right -->
+      <div class="org-block right">
+        <img src="/his-logo.png" alt="Hargrave Innovative Solutions Logo" class="org-logo" />
+        <div class="org-info">
+          <div class="org-name">Hargrave Innovative Solutions</div>
+          <div class="org-tagline">"Upholding the golden rule."</div>
+          <div class="contact-line">
+            Eric Hargrave, Chief Executive Officer<br />
+            601-238-4186 &nbsp;·&nbsp; <a href="mailto:ericd@hisolution.org">ericd@hisolution.org</a><br />
+            <a href="https://www.hisolution.org">www.hisolution.org</a>
+          </div>
+          <div class="status-badges">
+            <span class="badge badge-gold">HIS</span>
+            <!-- Add 501(c)(3) / EIN badge once confirmed by Eric -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <hr class="header-rule" />
+
+    <!-- ══ PROPOSAL BODY ══ -->
+    <div class="body-section">
+
+      <div class="proposal-meta" style="margin-bottom: 18px;">
+        <div>
+          <div class="meta-label">Date</div>
+          <div class="field-line" style="width: 220px;"><!-- Date --></div>
+        </div>
+        <div style="text-align: right;">
+          <div class="meta-label">Re: / Subject</div>
+          <div class="field-line" style="width: 340px;"><!-- Subject --></div>
+        </div>
+      </div>
+
+      <div class="meta-label" style="margin-bottom: 4px;">Addressed To</div>
+      <div class="field-line"><!-- Name, Title, Organization --></div>
+
+      <div class="section-label">Proposal / Letter Body</div>
+      <div class="body-lines">
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+        <div class="body-line"></div>
+      </div>
+
+      <!-- Signatures -->
+      <div class="signature-row">
+        <div class="sig-block">
+          <div class="sig-name-line"></div>
+          <div class="sig-label">Dr. Terry Flood</div>
+          <div class="sig-title">President — The Collaborative Advocate Foundation</div>
+        </div>
+        <div class="sig-block">
+          <div class="sig-name-line"></div>
+          <div class="sig-label">Eric Hargrave</div>
+          <div class="sig-title">Chief Executive Officer — Hargrave Innovative Solutions</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══ FOOTER ══ -->
+    <hr class="footer-rule" />
+    <div class="page-footer">
+      <div class="footer-left">
+        The Collaborative Advocate Foundation is a 501(c)(3) public charity (EIN 41-3618003) · IRS determination §170(b)(1)(A)(vi) · SAM.gov UEI KDDVD1FGLW35<br />
+        ThriveUp Academy · Pflugerville, TX · thrivingcommunitiesforall.com
+      </div>
+      <div class="footer-right">
+        Hargrave Innovative Solutions<br />
+        hisolution.org · ericd@hisolution.org
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

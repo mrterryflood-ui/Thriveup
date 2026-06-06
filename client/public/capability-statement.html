@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCAF × HIS — Combined Capability Statement</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #e8e8e8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px 16px 60px;
+      color: #1a1a1a;
+      font-size: 13px;
+    }
+
+    .print-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      width: 100%;
+      max-width: 816px;
+      justify-content: flex-end;
+    }
+    .print-bar button {
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      font-family: inherit;
+    }
+    .btn-print { background: #7c3aed; color: #fff; }
+    .btn-print:hover { background: #6d28d9; }
+    .btn-note  { background: #fff; color: #666; border: 1px solid #ccc; font-size: 11px; }
+
+    /* ── Page ── */
+    .page {
+      background: #ffffff;
+      width: 816px;
+      padding: 44px 56px 52px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.13);
+      margin-bottom: 24px;
+    }
+
+    /* ══ HEADER ══ */
+    .cap-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding-bottom: 20px;
+    }
+    .org-side {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .org-side.right {
+      flex-direction: row-reverse;
+      text-align: right;
+    }
+    .org-logo { width: 58px; height: 58px; object-fit: contain; flex-shrink: 0; }
+    .org-name-sm {
+      font-size: 13px;
+      font-weight: 800;
+      color: #1a1a1a;
+      line-height: 1.2;
+      letter-spacing: 0.01em;
+    }
+    .org-sub {
+      font-size: 9px;
+      color: #888;
+      margin-top: 2px;
+      line-height: 1.5;
+    }
+    .org-sub a { color: #888; text-decoration: none; }
+    .badge-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+    .org-side.right .badge-row { justify-content: flex-end; }
+    .b {
+      font-size: 8px; font-weight: 700; letter-spacing: 0.05em;
+      padding: 2px 5px; border-radius: 3px; text-transform: uppercase;
+    }
+    .b-v  { background: #ede9fe; color: #5b21b6; }
+    .b-g  { background: #dcfce7; color: #166534; }
+    .b-s  { background: #f1f5f9; color: #475569; }
+    .b-au { background: #fef3c7; color: #92400e; }
+    .b-go { background: #fef9c3; color: #78350f; }
+
+    .partnership-mid {
+      text-align: center;
+      flex-shrink: 0;
+      padding: 0 8px;
+    }
+    .x-mark {
+      font-size: 26px; font-weight: 900; line-height: 1;
+      background: linear-gradient(135deg, #7c3aed, #b8860b);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .in-partnership { font-size: 7px; color: #aaa; letter-spacing: 0.12em; text-transform: uppercase; margin-top: 2px; }
+
+    .gradient-rule {
+      border: none; height: 2.5px;
+      background: linear-gradient(to right, #7c3aed 0%, #d97706 50%, #b8860b 100%);
+      margin-bottom: 0;
+    }
+
+    /* ══ TITLE BAND ══ */
+    .title-band {
+      background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 40%, #1d4ed8 100%);
+      margin: 0 -56px;
+      padding: 14px 56px;
+      margin-bottom: 22px;
+    }
+    .title-band h1 {
+      font-size: 17px; font-weight: 800; color: #fff; letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+    .title-band p {
+      font-size: 10px; color: rgba(255,255,255,0.75); margin-top: 3px; letter-spacing: 0.04em;
+    }
+
+    /* ══ SECTION STRUCTURE ══ */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 20px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .full-col { margin-bottom: 20px; }
+
+    .section-head {
+      font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase;
+      color: #7c3aed; border-bottom: 1.5px solid #ede9fe; padding-bottom: 4px; margin-bottom: 10px;
+    }
+    .section-head.gold { color: #92400e; border-color: #fef3c7; }
+    .section-head.teal { color: #0f766e; border-color: #ccfbf1; }
+    .section-head.dark { color: #1e3a5f; border-color: #dbeafe; }
+    .section-head.joint { color: #1a1a1a; border-color: #e5e7eb; }
+
+    .card {
+      background: #f8f7ff; border: 1px solid #e5e0ff; border-radius: 8px; padding: 12px 14px;
+    }
+    .card.gold { background: #fffbeb; border-color: #fde68a; }
+    .card.teal { background: #f0fdfa; border-color: #99f6e4; }
+    .card.dark { background: #eff6ff; border-color: #bfdbfe; }
+    .card.white { background: #fff; border-color: #e5e7eb; }
+
+    .card-title { font-size: 11px; font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
+    .card-sub { font-size: 9px; color: #6b7280; margin-bottom: 7px; font-style: italic; }
+
+    ul.cap-list { padding-left: 0; list-style: none; }
+    ul.cap-list li {
+      font-size: 10px; color: #374151; line-height: 1.6; padding: 2px 0;
+      padding-left: 12px; position: relative;
+    }
+    ul.cap-list li::before { content: "▸"; position: absolute; left: 0; color: #7c3aed; font-size: 8px; top: 3px; }
+    .card.gold ul.cap-list li::before { color: #d97706; }
+    .card.teal ul.cap-list li::before { color: #0f766e; }
+    .card.dark ul.cap-list li::before { color: #1d4ed8; }
+
+    /* Stat grid */
+    .stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin-bottom: 20px; }
+    .stat-box {
+      border-radius: 7px; padding: 10px 8px; text-align: center;
+      border: 1px solid #e5e7eb;
+    }
+    .stat-val { font-size: 18px; font-weight: 900; line-height: 1; }
+    .stat-lbl { font-size: 8px; color: #6b7280; line-height: 1.3; margin-top: 3px; }
+
+    /* Differentiator table */
+    table.diff-table { width: 100%; border-collapse: collapse; font-size: 10px; }
+    table.diff-table th {
+      background: #f3f0ff; color: #5b21b6; font-size: 8.5px; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 6px 10px; text-align: left; border-bottom: 2px solid #c4b5fd;
+    }
+    table.diff-table td {
+      padding: 6px 10px; border-bottom: 1px solid #f3f4f6;
+      vertical-align: top; color: #374151; line-height: 1.5;
+    }
+    table.diff-table tr:hover td { background: #faf9ff; }
+    table.diff-table td:first-child { font-weight: 700; color: #1a1a1a; white-space: nowrap; }
+    table.diff-table td.em { color: #7c3aed; font-weight: 600; }
+
+    /* Footer */
+    .cap-footer {
+      border-top: 1px solid #e5e7eb;
+      padding-top: 14px;
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .footer-org-name { font-size: 10px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; }
+    .footer-contact { font-size: 9px; color: #6b7280; line-height: 1.8; }
+    .footer-contact a { color: #7c3aed; text-decoration: none; }
+    .footer-badges { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 5px; }
+
+    .page-num {
+      text-align: center; font-size: 8.5px; color: #aaa; margin-top: 18px;
+      font-style: italic;
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .print-bar { display: none; }
+      .page { box-shadow: none; width: 100%; padding: 36px 52px 48px; margin-bottom: 0; page-break-after: always; }
+      .page:last-of-type { page-break-after: auto; }
+      .title-band { margin: 0 -52px; padding: 14px 52px; }
+      @page { size: letter; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="print-bar">
+  <button class="btn-note" onclick="alert('Page 1 = Who We Are + Capabilities. Page 2 = Platform Depth + Differentiators. Print both pages together as a 2-page PDF.')">ⓘ 2 pages — print together</button>
+  <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF</button>
+</div>
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 1
+══════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <!-- Header -->
+  <div class="cap-header">
+    <div class="org-side">
+      <img src="/thriveup-logo.png" alt="TCAF Logo" class="org-logo" />
+      <div>
+        <div class="org-name-sm">The Collaborative Advocate Foundation</div>
+        <div class="org-sub">
+          DBA: ThriveUp Academy · Thriving Communities For All<br />
+          17912 Stefano Drive, Pflugerville, TX 78660<br />
+          (254) 319-8460 · <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a><br />
+          <a href="https://thrivingcommunitiesforall.com">thrivingcommunitiesforall.com</a>
+        </div>
+        <div class="badge-row">
+          <span class="b b-v">501(c)(3)</span>
+          <span class="b b-s">EIN 41-3618003</span>
+          <span class="b b-g">SAM Active</span>
+          <span class="b b-s">UEI KDDVD1FGLW35</span>
+          <span class="b b-au">SDVOSB Eligible</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="partnership-mid">
+      <div class="x-mark">×</div>
+      <div class="in-partnership">In Partnership</div>
+    </div>
+
+    <div class="org-side right">
+      <img src="/his-logo.png" alt="HIS Logo" class="org-logo" />
+      <div>
+        <div class="org-name-sm">Hargrave Innovative Solutions</div>
+        <div class="org-sub">
+          "Upholding the golden rule."<br />
+          601-238-4186 · <a href="mailto:ericd@hisolution.org">ericd@hisolution.org</a><br />
+          <a href="https://www.hisolution.org">www.hisolution.org</a>
+        </div>
+        <div class="badge-row">
+          <span class="b b-go">501(c)(3)</span>
+          <span class="b b-s">EIN [pending]</span>
+          <span class="b b-s">Fed. Contracting Exp.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="gradient-rule" />
+
+  <div class="title-band">
+    <h1>Combined Capability Statement</h1>
+    <p>Community Health · Fatherhood &amp; Family Stabilization · Benefits Navigation · Workforce Development · Data Infrastructure · Grant Operations</p>
+  </div>
+
+  <!-- Platform stats -->
+  <div class="stat-grid">
+    <div class="stat-box" style="border-color:#c4b5fd;">
+      <div class="stat-val" style="color:#7c3aed;">721+</div>
+      <div class="stat-lbl">Grants Tracked<br />(Live DB)</div>
+    </div>
+    <div class="stat-box" style="border-color:#99f6e4;">
+      <div class="stat-val" style="color:#0f766e;">15</div>
+      <div class="stat-lbl">Service Platforms<br />Active</div>
+    </div>
+    <div class="stat-box" style="border-color:#fde68a;">
+      <div class="stat-val" style="color:#d97706;">9</div>
+      <div class="stat-lbl">Benefits Screened<br />at Once</div>
+    </div>
+    <div class="stat-box" style="border-color:#bfdbfe;">
+      <div class="stat-val" style="color:#1d4ed8;">5</div>
+      <div class="stat-lbl">Counties Covered<br />(CTX Pilot)</div>
+    </div>
+    <div class="stat-box" style="border-color:#e9d5ff;">
+      <div class="stat-val" style="color:#7c3aed;">107</div>
+      <div class="stat-lbl">Languages &amp;<br />Dialects</div>
+    </div>
+  </div>
+
+  <!-- Who We Are -->
+  <div class="full-col">
+    <div class="section-head joint">Who We Are — The Partnership</div>
+    <div class="card white" style="font-size:10.5px; line-height:1.75; color:#374151;">
+      <strong>The Collaborative Advocate Foundation (TCAF)</strong> and <strong>Hargrave Innovative Solutions (HIS)</strong> are a veteran-founded, Black-led community infrastructure partnership operating at the intersection of fatherhood support, behavioral health, benefits navigation, and workforce development. Together, we bring a rare combination: TCAF's AI-powered data platform covering 15 service domains across Central Texas and HIS's proven federal contracting experience and coalition-building depth in fatherhood and family stabilization programming. Our combined reach spans Travis, Williamson, Hays, Bastrop, and Caldwell counties — with a model designed to replicate nationally. We don't just identify gaps. We build the infrastructure that closes them, measure the results, and show funders exactly what worked.
+    </div>
+  </div>
+
+  <!-- Two-col core capabilities -->
+  <div class="two-col">
+
+    <!-- TCAF -->
+    <div>
+      <div class="section-head">TCAF Core Capabilities</div>
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-title">Benefits Navigation &amp; Enrollment Engine</div>
+        <ul class="cap-list">
+          <li>9-program simultaneous eligibility screener (Medicaid, CHIP, MAP, SNAP, housing, WIC, TANF, childcare, veterans)</li>
+          <li>5-county CTX Benefits Initiative — CHW-guided enrollment, not just a directory</li>
+          <li>Efficacy tracking: fully enrolled vs. document gaps vs. denied — every case logged</li>
+          <li>Registered SNAP benefits educator (Travis County HSC portal)</li>
+          <li>FHIR/CDS Hooks clinical interoperability; 0-PHI-egress design</li>
+        </ul>
+      </div>
+      <div class="card" style="margin-bottom:10px;">
+        <div class="card-title">Community Health &amp; CHW Infrastructure</div>
+        <ul class="cap-list">
+          <li>CHW-I certified leadership (Dr. Flood, Community Health Worker — Instructor)</li>
+          <li>Behavioral health screening: PHQ-9, GAD-7, C-SSRS, PCL-5, ACES</li>
+          <li>Dialect-aware AI translation — AAVE, Spanglish, regional dialects preserved</li>
+          <li>107-language/dialect coverage including 18 signed languages</li>
+          <li>Trusted-messenger model: stipended peer mentors, promotoras, faith leaders</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title">Workforce &amp; Trade Development</div>
+        <ul class="cap-list">
+          <li>5 industry-grade Trade Sims: Electrical (MNA), Automotive, Plumbing (Hardy-Cross), Welding (AWS D1.1), HVAC</li>
+          <li>Credential routing at 80% lesson completion — OSHA 10, NCCER, AWS, ASE, EPA, NATE</li>
+          <li>Apprenticeship pathways: IBEW/NECA, UA, ABC, Iron Workers, SMART, TDLR</li>
+          <li>Career pathway versioning — rare in workforce platforms</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- HIS -->
+    <div>
+      <div class="section-head gold">HIS Core Capabilities</div>
+      <div class="card gold" style="margin-bottom:10px;">
+        <div class="card-title">Fatherhood &amp; Family Stabilization</div>
+        <ul class="cap-list">
+          <li>Coalition convener for Williamson County fatherhood initiatives (Dads Care and partners)</li>
+          <li>Consortium formation — active multi-org collaboration infrastructure</li>
+          <li>Mental health programming specifically for fathers — educational and clinical linkage</li>
+          <li>Family stabilization programming with documented outcomes</li>
+          <li>Community outreach and engagement across faith, civic, and nonprofit sectors</li>
+        </ul>
+      </div>
+      <div class="card gold" style="margin-bottom:10px;">
+        <div class="card-title">Federal Contracting &amp; Program Management</div>
+        <ul class="cap-list">
+          <li>Prime contractor experience — federal and public-sector bids</li>
+          <li>Compliance and administration subcontracting (Lake Worth ISD 2026-0400-26)</li>
+          <li>Long-term federal commercial contracting experience</li>
+          <li>501(c)(3) nonprofit — eligible for foundation, federal, and state grants</li>
+        </ul>
+      </div>
+      <div class="card gold">
+        <div class="card-title">Coalition &amp; Community Infrastructure</div>
+        <ul class="cap-list">
+          <li>Active partnership with United Way of Greater Austin</li>
+          <li>Relationship capital across Williamson County service providers</li>
+          <li>Coalition architecture: identifying gaps, aligning partners, sustaining collaboration</li>
+          <li>"Upholding the golden rule" — dignity-first community engagement model</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Footer p1 -->
+  <div class="page-num">Page 1 of 2 — TCAF × HIS Combined Capability Statement · Confidential · For Partnership and Proposal Use</div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════
+     PAGE 2
+══════════════════════════════════════════════════════ -->
+<div class="page">
+
+  <!-- Repeat mini-header on page 2 -->
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+    <div style="display:flex; align-items:center; gap:8px;">
+      <img src="/thriveup-logo.png" style="height:32px; width:32px; object-fit:contain;" alt="TCAF" />
+      <div style="font-size:11px; font-weight:800; color:#7c3aed;">The Collaborative Advocate Foundation</div>
+    </div>
+    <div style="font-size:10px; color:#999; font-weight:700; letter-spacing:0.08em;">× HARGRAVE INNOVATIVE SOLUTIONS</div>
+    <div style="display:flex; align-items:center; gap:8px;">
+      <div style="font-size:11px; font-weight:800; color:#b8860b; text-align:right;">Hargrave Innovative Solutions</div>
+      <img src="/his-logo.png" style="height:32px; width:32px; object-fit:contain;" alt="HIS" />
+    </div>
+  </div>
+  <hr class="gradient-rule" style="margin-bottom:18px;" />
+
+  <!-- Joint areas -->
+  <div class="full-col">
+    <div class="section-head teal">Joint Focus Areas — Where TCAF + HIS Operate Together</div>
+    <div class="three-col">
+      <div class="card teal">
+        <div class="card-title">Fatherhood Mental Health</div>
+        <ul class="cap-list">
+          <li>Father-centered behavioral health programming</li>
+          <li>PHQ-9 / GAD-7 standardized screening</li>
+          <li>Clinical linkage through SafeReport (FHIR-compliant)</li>
+          <li>Peer mentor + promotora integration</li>
+        </ul>
+      </div>
+      <div class="card teal">
+        <div class="card-title">Health Coverage &amp; SNAP Access</div>
+        <ul class="cap-list">
+          <li>CHW-guided enrollment in one session</li>
+          <li>Efficacy tracking: enrolled / document gap / denied</li>
+          <li>Registered SNAP education provider</li>
+          <li>5-county coverage: Travis · Williamson · Hays · Bastrop · Caldwell</li>
+        </ul>
+      </div>
+      <div class="card teal">
+        <div class="card-title">Coalition Proposal Infrastructure</div>
+        <ul class="cap-list">
+          <li>Shared data platform for multi-org reporting</li>
+          <li>721+ grant intelligence — Episcopal Health Foundation, Catalan CLC, and 186+ at ≥80 fit</li>
+          <li>AI narrative and LOI writer</li>
+          <li>RFP Fidelity Engine for compliance</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform depth -->
+  <div class="full-col">
+    <div class="section-head dark">TCAF Platform Depth — What Backs Every Proposal</div>
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th style="width:26%;">Capability</th>
+          <th>What It Is</th>
+          <th style="width:28%;">Funder-Relevant Frame</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Grant Intelligence Engine</td>
+          <td>721 grants tracked · SAM.gov, Grants.gov, USASpending.gov · 186 grants at ≥80 fit score · tier-weighted AI scoring</td>
+          <td class="em">We can find the funder again next year. Operational maturity most pre-revenue orgs don't have.</td>
+        </tr>
+        <tr>
+          <td>Implementation Science</td>
+          <td>39 CFIR constructs operationalized in code · RE-AIM / EPIS frameworks · MAP-GAP CQI (1,705 lines) · RPLICE scoring engine</td>
+          <td class="em">Frameworks are tools, not theater — we can show the code that proves it.</td>
+        </tr>
+        <tr>
+          <td>Justice &amp; Reentry Stack</td>
+          <td>RNR Assessments · CBI Programs · NRRC outcome reports · Recidivism baselines · Family visitation tracking · 11 DB tables</td>
+          <td class="em">Production-grade reentry system — not a handout. Named in justice-lane proposals explicitly.</td>
+        </tr>
+        <tr>
+          <td>Foster Youth Transition</td>
+          <td>50-state policy comparator with statute citations · ETV/Chafee/Medicaid-to-26 · Multi-agency case management · 4-domain AI risk engine</td>
+          <td class="em">Every state. Every statute. Not a resource list — a navigation engine.</td>
+        </tr>
+        <tr>
+          <td>AI Architecture</td>
+          <td>5-engine collaborative synthesis (failover) · Socratic + ensemble tutor modes · Dialect-aware translation · 86-chunk RAG on our own documented commitments</td>
+          <td class="em">"We don't use AI. We orchestrate it." Grounded in our active commitments, not the web.</td>
+        </tr>
+        <tr>
+          <td>Trade Simulations</td>
+          <td>5 physics engines: MNA (electrical/auto) · Hardy-Cross (plumbing) · AWS D1.1 (welding) · Thermal-airflow (HVAC) · 75 lessons · credential routing</td>
+          <td class="em">Industry-grade physics standards in a browser. Named by standard, not "real simulations."</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Differentiators -->
+  <div class="full-col">
+    <div class="section-head">Combined Differentiators</div>
+    <div class="three-col">
+      <div class="card">
+        <div class="card-title">The Tool Already Exists</div>
+        <div style="font-size:10px; color:#374151; line-height:1.65;">
+          The CTX Benefits Initiative was built <em>before</em> the grant, not as a promise. The 5-county enrollment engine, CHW workflow, efficacy dashboard, and outcome tracking are live — not aspirational. Funders are investing in a proven tool, not a concept.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">The Coalition Already Exists</div>
+        <div style="font-size:10px; color:#374151; line-height:1.65;">
+          TCAF + HIS bring an active United Way partnership, Williamson County fatherhood coalition, board seat on Williamson County Childcare Infrastructure Partnership, and confirmed relationships with Episcopal Health Foundation funders. Not a cold application.
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Two Entities, Full Spectrum</div>
+        <div style="font-size:10px; color:#374151; line-height:1.65;">
+          TCAF (501c3) pursues foundation, federal, and state grants. ISS LLC (for-profit) pursues SBIR/STTR and commercial vehicles. HIS (501c3) anchors federal contracting and program management. Together: the full funding spectrum — foundation through commercial.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Federal credentials -->
+  <div class="full-col">
+    <div class="section-head">Federal Entity Credentials</div>
+    <table class="diff-table">
+      <thead>
+        <tr>
+          <th>Entity</th><th>EIN</th><th>SAM UEI</th><th>CAGE</th><th>SAM Status</th><th>Set-Asides / Eligibility</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>TCAF (501c3 Nonprofit)</td>
+          <td>41-3618003</td>
+          <td>KDDVD1FGLW35</td>
+          <td>209N1</td>
+          <td class="em">Active · Exp. 05/2027</td>
+          <td>Federal grants · Foundation · State · Community</td>
+        </tr>
+        <tr>
+          <td>ISS LLC (For-Profit)</td>
+          <td>87-2795417</td>
+          <td>C7YDV3P8EHL7</td>
+          <td>9VKK3</td>
+          <td class="em">Active · Exp. 03/2027</td>
+          <td>SBIR/STTR · GSA Schedule · For-profit set-asides</td>
+        </tr>
+        <tr>
+          <td>HIS (501c3 Nonprofit)</td>
+          <td>[Pending]</td>
+          <td>[Pending]</td>
+          <td>—</td>
+          <td>—</td>
+          <td>Foundation · Federal · State · Federal Contracting</td>
+        </tr>
+      </tbody>
+    </table>
+    <div style="font-size:8.5px; color:#888; margin-top:6px; font-style:italic;">
+      ★ SDVOSB Certification pending — Dr. Flood is a medically retired U.S. Army veteran (service-connected disability). Once filed, TCAF qualifies for VA set-aside authority up to $5M sole-source under FAR 19.1406 and government-wide SDVOSB preference.
+    </div>
+  </div>
+
+  <!-- Contact footer -->
+  <div class="cap-footer">
+    <div>
+      <div class="footer-org-name">The Collaborative Advocate Foundation (TCAF)</div>
+      <div class="footer-contact">
+        Dr. Terry D. Flood, DHA — President<br />
+        17912 Stefano Drive · Pflugerville, TX 78660-7020<br />
+        (254) 319-8460 · <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a><br />
+        <a href="https://thrivingcommunitiesforall.com">thrivingcommunitiesforall.com</a>
+      </div>
+      <div class="footer-badges">
+        <span class="b b-v">501(c)(3)</span>
+        <span class="b b-s">EIN 41-3618003</span>
+        <span class="b b-g">SAM Active</span>
+        <span class="b b-au">SDVOSB Eligible</span>
+        <span class="b b-s">Veteran-Founded · Black-Led</span>
+      </div>
+    </div>
+    <div>
+      <div class="footer-org-name">Hargrave Innovative Solutions (HIS)</div>
+      <div class="footer-contact">
+        Eric Hargrave — Chief Executive Officer<br />
+        601-238-4186 · <a href="mailto:ericd@hisolution.org">ericd@hisolution.org</a><br />
+        <a href="https://www.hisolution.org">www.hisolution.org</a>
+      </div>
+      <div class="footer-badges">
+        <span class="b b-go">501(c)(3)</span>
+        <span class="b b-s">Federal Contracting Exp.</span>
+        <span class="b b-s">Fatherhood Coalition Lead</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="page-num">Page 2 of 2 — TCAF × HIS Combined Capability Statement · Confidential · For Partnership and Proposal Use · <em>thrivingcommunitiesforall.com</em></div>
+
+</div>
+
+</body>
+</html>
