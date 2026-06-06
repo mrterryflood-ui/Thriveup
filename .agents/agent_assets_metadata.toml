@@ -713,3 +713,15 @@ id = "cBQ0ceZxmCgGwnPfzqyjb"
 uri = "file://attached_assets/TCAF-Deneece-Letter-June2026.pdf"
 type = "pdf"
 title = "TCAF → Deneece Ferrales — June 2026 Response Letter"
+
+[[outputs]]
+id = "LS7f9CGc16dOpavBV0eol"
+uri = "file://docs/generated/TCAF-HIS-Letterhead.pdf"
+type = "pdf"
+title = "TCAF × HIS Combined Letterhead"
+
+[[outputs]]
+id = "pyU3srUuZ3ShfCDxOTkQ_"
+uri = "file://docs/generated/TCAF-HIS-Capability-Statement.pdf"
+type = "pdf"
+title = "TCAF × HIS Combined Capability Statement (2-page)"
