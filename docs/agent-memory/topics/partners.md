@@ -217,12 +217,12 @@ Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. 
 
 ---
 
-## TCAF × HIS Partnership Division of Labor (stated by Dr. Flood, 2026-06-06)
+## TCAF × HIS Partnership Division of Labor (stated by Dr. Flood at United Way/Wilco Fatherhood meeting)
 
 **TCAF:** Builds the apps, training, and measurement infrastructure. Platform + data + evidence.
 **HIS:** Facilitates on the ground and integrates. Relationships + community execution + last-mile delivery.
 
-**Dr. Flood's framing (verbatim):** "we build the apps, and training, and measure, they facilitate on the ground and integrate, we can work interdependently."
+**Dr. Flood's framing (verbatim, from the meeting):** "we build the apps, and training, and measure, they facilitate on the ground and integrate, we can work interdependently."
 
 **Why this matters for proposals:** This is a credible, non-redundant partnership. Use this framing in every joint proposal — it explains why both orgs are necessary and why neither one replaces the other. Funders are tired of single-org proposals claiming to do everything; this model is differentiated because both sides have proof of their half *before* the grant.
 
