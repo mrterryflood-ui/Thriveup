@@ -227,3 +227,11 @@ Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. 
 **Why this matters for proposals:** This is a credible, non-redundant partnership. Use this framing in every joint proposal — it explains why both orgs are necessary and why neither one replaces the other. Funders are tired of single-org proposals claiming to do everything; this model is differentiated because both sides have proof of their half *before* the grant.
 
 **Proposal language template:** "TCAF provides the platform, training infrastructure, and outcome measurement. HIS provides on-the-ground facilitation, community integration, and relationship capital. Together, the coalition closes the gap between what the data shows and what the community experiences."
+
+---
+
+## TCAF × HIS Partnership Tagline (Dr. Flood, 2026-06-06)
+
+**Verbatim:** "2 wings, same bird, one heart, purpose, and direction, various missions."
+
+Use this as the partnership tagline on capability statements, proposal cover pages, and any coalition-facing materials. It captures the non-redundant, complementary structure in a single sentence — TCAF and HIS are not interchangeable; they are structurally distinct halves of one organism.
