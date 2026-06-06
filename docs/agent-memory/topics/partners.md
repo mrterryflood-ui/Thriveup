@@ -214,3 +214,16 @@ Two of my Iron Rule #9 catches on the portal Review page were overridden by Dr. 
 - **References (closed for L.2.3):** Keri Williams (Wichita Dir of Ops, 5/24/26); Christine Bacci CEO Thrive Therapy of KS (5/24/25, 316-670-9988, 9111 E Douglas Ave Ste 145 Wichita); third Wichita employer GLP-1 telehealth reference (5/24/26).
 - **Still open before Sedgwick submission (2026-06-02):** KS APRN/DNP license # (KSBN public lookup); standalone COI for the LLC for Appendix G.
 - **Open flag (Iron Rule #2):** Eric texted 2026-05-26 that Love Clinic added him to their insurance and inferred "they will be prime." Surviving canonical proposal is HIS-Prime / Love Clinic Sub. Do NOT flip prime on a text inference — confirm in writing with both parties first. See sedgwick checklist §B'.
+
+---
+
+## TCAF × HIS Partnership Division of Labor (stated by Dr. Flood, 2026-06-06)
+
+**TCAF:** Builds the apps, training, and measurement infrastructure. Platform + data + evidence.
+**HIS:** Facilitates on the ground and integrates. Relationships + community execution + last-mile delivery.
+
+**Dr. Flood's framing (verbatim):** "we build the apps, and training, and measure, they facilitate on the ground and integrate, we can work interdependently."
+
+**Why this matters for proposals:** This is a credible, non-redundant partnership. Use this framing in every joint proposal — it explains why both orgs are necessary and why neither one replaces the other. Funders are tired of single-org proposals claiming to do everything; this model is differentiated because both sides have proof of their half *before* the grant.
+
+**Proposal language template:** "TCAF provides the platform, training infrastructure, and outcome measurement. HIS provides on-the-ground facilitation, community integration, and relationship capital. Together, the coalition closes the gap between what the data shows and what the community experiences."
