@@ -36,6 +36,12 @@ uri = "file://client/src/assets/trade-sims/plumbing/day-06-backflow-prevention.p
 type = "image"
 title = "day 6 backflow prevention no text"
 
+[[generated]]
+id = "9rj4hGfPY8Bk-_4pF8sUj"
+uri = "file://client/src/assets/thriveup-logo.png"
+type = "image"
+title = "thriveup rising figure logo"
+
 [[outputs]]
 id = "mLSi3ve8jUxLf3ChTRdbX"
 uri = "file://AI_Mastery_Academy_Stakeholder_Deck.pptx"

@@ -37,6 +37,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import thriveupLogo from "@assets/thriveup-logo.png";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
 import { OrgSwitcher } from "@/components/org-switcher";
@@ -497,9 +498,7 @@ export function AppSidebar() {
       <SidebarHeader className="p-4">
         <Link href="/" aria-label="ThriveUp Academy home">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
-            <div className="rounded-md p-1.5 bg-gradient-to-br from-violet-700 to-indigo-800">
-              <Heart className="h-5 w-5 text-white" aria-hidden="true" />
-            </div>
+            <img src={thriveupLogo} alt="ThriveUp logo" className="h-9 w-9 flex-shrink-0" />
             <div>
               <p className="font-bold text-sm leading-tight tracking-wide uppercase">ThriveUp</p>
               <p className="text-[10px] text-muted-foreground leading-tight">a service of The Collaborative Advocate Foundation</p>
