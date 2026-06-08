@@ -9,6 +9,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const docs = [
   { path: "/letterhead.html",           file: "TCAF-HIS-Letterhead.pdf" },
   { path: "/capability-statement.html", file: "TCAF-HIS-Capability-Statement.pdf" },
+  { path: "/legislative-plan.html",     file: "TCAF-Legislative-Meeting-Plan.pdf" },
 ];
 
 (async () => {

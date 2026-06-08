@@ -725,3 +725,9 @@ id = "pyU3srUuZ3ShfCDxOTkQ_"
 uri = "file://docs/generated/TCAF-HIS-Capability-Statement.pdf"
 type = "pdf"
 title = "TCAF × HIS Combined Capability Statement (updated)"
+
+[[outputs]]
+id = "6YvWlzYNDX2m9g2uJG54d"
+uri = "file://docs/generated/TCAF-Legislative-Meeting-Plan.pdf"
+type = "pdf"
+title = "TCAF × Cortney Jones — Legislative Meeting Plan (3-page)"

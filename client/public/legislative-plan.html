@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Legislative Meeting Plan — TCAF × Cortney Jones</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      background: #e8e8e8;
+      display: flex; flex-direction: column; align-items: center;
+      padding: 24px 16px 60px; color: #1a1a1a; font-size: 13px;
+    }
+    .print-bar {
+      display: flex; gap: 10px; margin-bottom: 18px;
+      width: 100%; max-width: 816px; justify-content: flex-end;
+    }
+    .print-bar button {
+      padding: 8px 18px; border: none; border-radius: 6px;
+      cursor: pointer; font-size: 13px; font-weight: 600; font-family: inherit;
+    }
+    .btn-print { background: #1d4ed8; color: #fff; }
+    .btn-print:hover { background: #1e40af; }
+
+    .page {
+      background: #fff; width: 816px; padding: 44px 56px 52px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.13); margin-bottom: 24px;
+    }
+
+    /* Header */
+    .plan-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding-bottom: 18px; gap: 20px;
+    }
+    .header-left h1 {
+      font-size: 20px; font-weight: 900; color: #1d4ed8; letter-spacing: 0.01em;
+    }
+    .header-left .sub {
+      font-size: 10px; color: #888; letter-spacing: 0.1em; text-transform: uppercase;
+      margin-top: 3px;
+    }
+    .header-right { text-align: right; font-size: 9.5px; color: #666; line-height: 1.7; }
+    .header-right strong { color: #1a1a1a; }
+
+    .title-band {
+      background: linear-gradient(135deg, #1d4ed8, #7c3aed);
+      margin: 0 -56px; padding: 14px 56px; margin-bottom: 24px;
+    }
+    .title-band h2 { font-size: 15px; font-weight: 800; color: #fff; }
+    .title-band p { font-size: 10px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+
+    .gradient-rule {
+      border: none; height: 2.5px; margin-bottom: 0;
+      background: linear-gradient(to right, #1d4ed8, #7c3aed, #7c3aed);
+    }
+
+    /* Section layout */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 20px; }
+    .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+    .full { margin-bottom: 20px; }
+
+    .sh {
+      font-size: 8.5px; font-weight: 800; letter-spacing: 0.12em;
+      text-transform: uppercase; padding-bottom: 4px; margin-bottom: 10px;
+      border-bottom: 1.5px solid;
+    }
+    .sh-blue  { color: #1d4ed8; border-color: #bfdbfe; }
+    .sh-purple{ color: #6d28d9; border-color: #c4b5fd; }
+    .sh-teal  { color: #0f766e; border-color: #99f6e4; }
+    .sh-red   { color: #b91c1c; border-color: #fecaca; }
+    .sh-green { color: #166534; border-color: #bbf7d0; }
+    .sh-gold  { color: #92400e; border-color: #fde68a; }
+    .sh-dark  { color: #1e3a5f; border-color: #dbeafe; }
+
+    .card {
+      border-radius: 8px; padding: 12px 14px; border: 1px solid;
+    }
+    .c-blue   { background: #eff6ff; border-color: #bfdbfe; }
+    .c-purple { background: #f5f3ff; border-color: #c4b5fd; }
+    .c-teal   { background: #f0fdfa; border-color: #99f6e4; }
+    .c-red    { background: #fff1f2; border-color: #fecaca; }
+    .c-green  { background: #f0fdf4; border-color: #bbf7d0; }
+    .c-gold   { background: #fffbeb; border-color: #fde68a; }
+    .c-white  { background: #fff;    border-color: #e5e7eb; }
+    .c-dark   { background: #eff6ff; border-color: #93c5fd; }
+    .c-slate  { background: #f8fafc; border-color: #e2e8f0; }
+
+    .ct { font-size: 11px; font-weight: 700; color: #1a1a1a; margin-bottom: 5px; }
+    .cs { font-size: 9px; color: #6b7280; margin-bottom: 7px; font-style: italic; }
+
+    ul.bl { padding-left: 0; list-style: none; }
+    ul.bl li {
+      font-size: 10px; color: #374151; line-height: 1.65; padding: 2px 0 2px 13px;
+      position: relative;
+    }
+    ul.bl li::before { content: "▸"; position: absolute; left: 0; font-size: 8px; top: 4px; }
+    .c-blue   ul.bl li::before { color: #1d4ed8; }
+    .c-purple ul.bl li::before { color: #7c3aed; }
+    .c-teal   ul.bl li::before { color: #0f766e; }
+    .c-red    ul.bl li::before { color: #b91c1c; }
+    .c-green  ul.bl li::before { color: #166534; }
+    .c-gold   ul.bl li::before { color: #d97706; }
+    .c-dark   ul.bl li::before { color: #1d4ed8; }
+    .c-slate  ul.bl li::before { color: #475569; }
+
+    .badge {
+      display: inline-block; font-size: 8px; font-weight: 700;
+      padding: 2px 6px; border-radius: 3px; letter-spacing: 0.04em;
+      text-transform: uppercase; margin-right: 3px; margin-top: 3px;
+    }
+    .bd-blue   { background: #dbeafe; color: #1e40af; }
+    .bd-purple { background: #ede9fe; color: #5b21b6; }
+    .bd-teal   { background: #ccfbf1; color: #0f766e; }
+    .bd-green  { background: #dcfce7; color: #166534; }
+    .bd-red    { background: #fee2e2; color: #991b1b; }
+    .bd-gold   { background: #fef9c3; color: #78350f; }
+    .bd-slate  { background: #f1f5f9; color: #475569; }
+
+    /* Stat grid */
+    .stat-grid { display: grid; grid-template-columns: repeat(6,1fr); gap: 8px; margin-bottom: 20px; }
+    .stat-box { border-radius: 7px; padding: 9px 6px; text-align: center; border: 1px solid #e5e7eb; }
+    .sv { font-size: 17px; font-weight: 900; line-height: 1; }
+    .sl { font-size: 8px; color: #6b7280; line-height: 1.3; margin-top: 2px; }
+
+    /* Table */
+    table.t { width: 100%; border-collapse: collapse; font-size: 10px; margin-bottom: 16px; }
+    table.t th {
+      background: #eff6ff; color: #1e40af; font-size: 8px; font-weight: 800;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 6px 10px; text-align: left; border-bottom: 2px solid #bfdbfe;
+    }
+    table.t td {
+      padding: 6px 10px; border-bottom: 1px solid #f3f4f6;
+      vertical-align: top; color: #374151; line-height: 1.5;
+    }
+    table.t tr:hover td { background: #f8fafc; }
+    table.t td:first-child { font-weight: 700; color: #1a1a1a; }
+    table.t td.hi { color: #1d4ed8; font-weight: 600; }
+
+    /* Testimony box */
+    .testimony {
+      background: #f8fafc; border-left: 4px solid #1d4ed8;
+      padding: 14px 18px; border-radius: 0 8px 8px 0;
+      font-size: 11px; line-height: 1.8; color: #1a1a1a;
+      margin-bottom: 14px; font-style: italic;
+    }
+    .testimony strong { font-style: normal; color: #1d4ed8; }
+
+    /* Checklist */
+    .checklist { list-style: none; padding: 0; }
+    .checklist li {
+      display: flex; align-items: flex-start; gap: 8px;
+      font-size: 10.5px; color: #374151; line-height: 1.6; padding: 4px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .checklist li:last-child { border-bottom: none; }
+    .chk {
+      width: 14px; height: 14px; border: 1.5px solid #93c5fd;
+      border-radius: 3px; flex-shrink: 0; margin-top: 2px;
+      background: #fff;
+    }
+    .chk.done { background: #1d4ed8; border-color: #1d4ed8; }
+
+    /* Footer */
+    .pg-footer {
+      border-top: 1px solid #e5e7eb; padding-top: 12px; margin-top: 20px;
+      display: flex; justify-content: space-between; font-size: 8.5px; color: #aaa;
+    }
+    .pg-num { text-align: center; font-size: 8px; color: #bbb; margin-top: 18px; font-style: italic; }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .print-bar { display: none; }
+      .page { box-shadow: none; width: 100%; padding: 36px 52px 48px; margin-bottom: 0; page-break-after: always; }
+      .page:last-of-type { page-break-after: auto; }
+      .title-band { margin: 0 -52px; padding: 14px 52px; }
+      @page { size: letter; margin: 0; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="print-bar">
+  <button class="btn-print" onclick="window.print()">🖨 Print / Save as PDF (3 pages)</button>
+</div>
+
+<!-- ════════════════════════════════════════
+     PAGE 1 — STRATEGY + PARTNERSHIP
+════════════════════════════════════════ -->
+<div class="page">
+
+  <div class="plan-header">
+    <div class="header-left">
+      <h1>Legislative Meeting Plan</h1>
+      <div class="sub">Foster Youth Housing Vouchers + Navigation Infrastructure · Texas Legislature</div>
+    </div>
+    <div class="header-right">
+      <strong>Dr. Terry D. Flood, DHA</strong> — President, TCAF<br />
+      thrivingcommunitiesforall.com<br />
+      <strong>Cortney Jones, MSW</strong> — Texas CASA Public Policy Committee<br />
+      Change 1 / Grit Growth Global · Austin, TX
+    </div>
+  </div>
+
+  <hr class="gradient-rule" />
+
+  <div class="title-band">
+    <h2>Two Wings, Same Bird — TCAF Builds &amp; Measures. Cortney Advocates &amp; Communicates.</h2>
+    <p>Collaborative strategy: platform data + policy voice + lived-experience testimony = complete legislative package</p>
+  </div>
+
+  <!-- Stats -->
+  <div class="stat-grid">
+    <div class="stat-box" style="border-color:#bfdbfe;">
+      <div class="sv" style="color:#1d4ed8;">25–30%</div>
+      <div class="sl">Foster youth homeless by 21</div>
+    </div>
+    <div class="stat-box" style="border-color:#fecaca;">
+      <div class="sv" style="color:#b91c1c;">$40K</div>
+      <div class="sl">Annual cost per incarcerated individual</div>
+    </div>
+    <div class="stat-box" style="border-color:#bbf7d0;">
+      <div class="sv" style="color:#166534;">$3K</div>
+      <div class="sl">6-month stabilization cost per youth</div>
+    </div>
+    <div class="stat-box" style="border-color:#c4b5fd;">
+      <div class="sv" style="color:#7c3aed;">13×</div>
+      <div class="sl">Cost-avoidance ROI per youth served</div>
+    </div>
+    <div class="stat-box" style="border-color:#fde68a;">
+      <div class="sv" style="color:#d97706;">350</div>
+      <div class="sl">Youth risk-reduced on platform</div>
+    </div>
+    <div class="stat-box" style="border-color:#99f6e4;">
+      <div class="sv" style="color:#0f766e;">20K+</div>
+      <div class="sl">Verified resources in LifeBridge</div>
+    </div>
+  </div>
+
+  <!-- Who brings what -->
+  <div class="two-col">
+    <div>
+      <div class="sh sh-blue">Dr. Terry Flood — What He Brings</div>
+      <div class="card c-blue" style="margin-bottom:10px;">
+        <div class="ct">ThriveUp Academy Platform</div>
+        <div class="cs">thrivingcommunitiesforall.com</div>
+        <ul class="bl">
+          <li>Longitudinal outcome tracking: age 12 → adulthood</li>
+          <li>Real-time risk stratification: 106 youth high→medium; 244 medium→low</li>
+          <li>50-state policy comparator — Chafee, ETV, HUD FYI, Medicaid-to-26</li>
+          <li>Cross-agency case coordination dashboard</li>
+          <li>FHIR/CDS Hooks compliant — connects to health systems</li>
+          <li>Accountability infrastructure legislators can cite in bills</li>
+        </ul>
+      </div>
+      <div class="card c-teal">
+        <div class="ct">LifeBridge — LifeTransitionsAid.org</div>
+        <div class="cs">"Virtual 211" — the navigation layer</div>
+        <ul class="bl">
+          <li>20,670+ verified community resources</li>
+          <li>7-domain SDOH scoring (housing, food, mental health, workforce…)</li>
+          <li>CHW dispatch — human follow-through, not just a link list</li>
+          <li>Bilingual EN/ES, no login required for youth</li>
+          <li>Directly connects to: Section 8/FYI vouchers, ETV, Medicaid, SNAP</li>
+          <li>Eliminates the "resource list with no support" gap legislators hear about</li>
+        </ul>
+      </div>
+    </div>
+
+    <div>
+      <div class="sh sh-purple">Cortney Jones, MSW — What She Brings</div>
+      <div class="card c-purple" style="margin-bottom:10px;">
+        <div class="ct">Texas CASA — Public Policy Committee</div>
+        <div class="cs">Statewide legislative access + child welfare credibility</div>
+        <ul class="bl">
+          <li>Sits on Texas CASA Public Policy and Communications/Awareness Committee</li>
+          <li>Direct relationships with Texas child welfare legislative champions</li>
+          <li>Know the exact legislators who author foster care bills and budget riders</li>
+          <li>CASA credibility = neutral, child-first voice legislators trust</li>
+        </ul>
+      </div>
+      <div class="card c-purple" style="margin-bottom:10px;">
+        <div class="ct">Child Inc. Head Start — Board Member</div>
+        <div class="cs">Early childhood + parent policy seat</div>
+        <ul class="bl">
+          <li>Parent Policy Representative — amplifies parent and youth voice</li>
+          <li>Head Start connects early childhood funding to the housing pipeline</li>
+          <li>Bridges prevention (early childhood) → transition (foster aging out)</li>
+        </ul>
+      </div>
+      <div class="card c-purple">
+        <div class="ct">Communications + Advocacy Voice</div>
+        <div class="cs">"CHANGE 1 MIND CHANGE 1 LIFE"</div>
+        <ul class="bl">
+          <li>MSW-credentialed clinician + lived-experience advocate</li>
+          <li>Youth mental health lens = co-equal with housing in the legislative pitch</li>
+          <li>Public communications training — translates data into human testimony</li>
+          <li>Grit Growth Global: organizational brand for advocacy work</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- The Full Coalition Story -->
+  <div class="full">
+    <div class="sh sh-dark">The Coalition Story — What Legislators Hear</div>
+    <div class="card c-dark" style="font-size:11px; line-height:1.8; color:#1e3a5f;">
+      "<strong>We are not here asking for something new.</strong> We have already built the platform that tracks what happens to foster youth after they leave the system — in real time, across agencies, in 107 languages. We have a navigation system connecting them to every voucher, every benefit, every employer pathway they qualify for. And we have a coalition partner sitting on the Texas CASA Public Policy Committee who knows what your colleagues on this committee have been hearing for years. What we are asking you to fund is the 6-month stabilization window that turns a $3,000 investment into $40,000 in cost avoided — every single time. The data infrastructure already exists. The navigation already exists. What we need is a policy home for both."
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>TCAF × Cortney Jones — Legislative Meeting Plan · Confidential</span>
+    <span>thrivingcommunitiesforall.com · lifetransitionsaid.org</span>
+  </div>
+  <div class="pg-num">Page 1 of 3</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 2 — LEGISLATIVE TARGETS + AGENDA + ASK
+════════════════════════════════════════ -->
+<div class="page">
+
+  <!-- Mini header -->
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div style="font-size:12px; font-weight:800; color:#1d4ed8;">Legislative Meeting Plan — Page 2</div>
+    <div style="font-size:9px; color:#999; font-weight:700; letter-spacing:0.08em;">TCAF × CORTNEY JONES · FOSTER YOUTH HOUSING + NAVIGATION</div>
+  </div>
+  <hr class="gradient-rule" style="margin-bottom:18px;" />
+
+  <!-- Legislative targets -->
+  <div class="full">
+    <div class="sh sh-red">Texas Legislative Targets</div>
+    <table class="t">
+      <thead>
+        <tr>
+          <th style="width:30%;">Committee / Body</th>
+          <th>Why They Matter</th>
+          <th style="width:25%;">Our Entry Point</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Senate Health &amp; Human Services Committee</td>
+          <td>Oversees DFPS, HHSC — the agencies managing foster care and Medicaid. Any foster-youth bill starts here.</td>
+          <td class="hi">Cortney's Texas CASA policy committee relationships</td>
+        </tr>
+        <tr>
+          <td>Senate Finance Committee</td>
+          <td>Appropriations for DFPS, housing assistance, and supportive-services contracts. Budget riders live here.</td>
+          <td class="hi">ROI data — $3K vs $40K cost-avoidance argument</td>
+        </tr>
+        <tr>
+          <td>House Human Services Committee</td>
+          <td>Primary House committee for foster care, CPS, and aging-out programs. Authors enabling legislation.</td>
+          <td class="hi">Cortney's CASA committee + Dr. Flood's platform demo</td>
+        </tr>
+        <tr>
+          <td>House Appropriations Committee</td>
+          <td>Controls state budget. Technology and navigation infrastructure line items require their sign-off.</td>
+          <td class="hi">LifeBridge 20K+ resource network as infrastructure investment</td>
+        </tr>
+        <tr>
+          <td>Texas DFPS Legislative Affairs</td>
+          <td>Agency staff who brief legislators on child welfare policy — can become internal champions.</td>
+          <td class="hi">Cortney's existing DFPS/CASA network</td>
+        </tr>
+        <tr>
+          <td>Congressional delegation (federal FYI/Chafee)</td>
+          <td>HUD Foster Youth to Independence (FYI) is federal — TX delegation shapes annual appropriations and guidance.</td>
+          <td class="hi">Jim Currier FYI connection + TCAF FYI platform readiness</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- The Ask — tiered -->
+  <div class="full">
+    <div class="sh sh-blue">The Three-Tier Ask</div>
+    <div class="three-col">
+      <div class="card c-blue">
+        <div class="ct">Tier 1 — Immediate (This Session)</div>
+        <div class="cs">Budget rider or appropriation</div>
+        <ul class="bl">
+          <li>Fund 6-month stabilization vouchers WITH required wraparound services — not vouchers alone</li>
+          <li>Authorize HHSC to contract with community-based technology navigation providers</li>
+          <li>Mandate data reporting at the county level for aged-out youth outcomes</li>
+        </ul>
+        <div style="margin-top:8px;">
+          <span class="badge bd-blue">~$3K/youth</span>
+          <span class="badge bd-green">13× ROI</span>
+        </div>
+      </div>
+      <div class="card c-teal">
+        <div class="ct">Tier 2 — Short-Term (18 months)</div>
+        <div class="cs">Pilot authorization + MOU framework</div>
+        <ul class="bl">
+          <li>Authorize DFPS/HHSC to pilot LifeBridge + ThriveUp as the statewide virtual-211 for aging-out youth</li>
+          <li>Create a PHA-to-community-partner MOU framework for HUD FYI supportive services</li>
+          <li>Establish 50-county longitudinal outcome tracking using TCAF infrastructure</li>
+        </ul>
+        <div style="margin-top:8px;">
+          <span class="badge bd-teal">Pilot: 5 counties</span>
+          <span class="badge bd-teal">Scale: statewide</span>
+        </div>
+      </div>
+      <div class="card c-purple">
+        <div class="ct">Tier 3 — Long-Term (3–5 years)</div>
+        <div class="cs">Systemic change + federal leverage</div>
+        <ul class="bl">
+          <li>Position Texas as the model state for HUD FYI + Chafee + ETV integrated delivery</li>
+          <li>Use TCAF outcome data to meet Title IV-E Prevention Services Clearinghouse evidence standards</li>
+          <li>$250M over 5 years in projected system cost avoidance — build into state budget projections</li>
+        </ul>
+        <div style="margin-top:8px;">
+          <span class="badge bd-purple">$250M / 5 yr</span>
+          <span class="badge bd-purple">Title IV-E pipeline</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Meeting agenda -->
+  <div class="full">
+    <div class="sh sh-green">Meeting Agenda Template (30–45 minutes)</div>
+    <table class="t">
+      <thead>
+        <tr><th style="width:12%;">Time</th><th style="width:20%;">Speaker</th><th>Content</th><th style="width:22%;">Platform/Material</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Min 0–3</td>
+          <td>Cortney Jones</td>
+          <td><strong>Open: establish credibility.</strong> Texas CASA Public Policy Committee member. This is a child welfare issue, a budget issue, and a public safety issue simultaneously.</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Min 3–6</td>
+          <td>Dr. Flood</td>
+          <td><strong>The platform exists.</strong> "We didn't come to ask for a pilot. We built it. Let me show you 60 seconds of what it does." LifeBridge demo — search any resource, see a real result.</td>
+          <td class="hi">lifetransitionsaid.org live demo</td>
+        </tr>
+        <tr>
+          <td>Min 6–10</td>
+          <td>Dr. Flood</td>
+          <td><strong>The data.</strong> 350 youth risk-reduced on the platform. 106 moved high→medium. 244 moved medium→low. $3K cost. $40K avoidance. The ROI is 13×.</td>
+          <td class="hi">ThriveUp outcomes dashboard</td>
+        </tr>
+        <tr>
+          <td>Min 10–14</td>
+          <td>Cortney Jones</td>
+          <td><strong>The human story.</strong> What your constituents experience vs. what this platform makes possible. CASA voice: "I've sat with these youth. This is what they needed that they didn't have."</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Min 14–18</td>
+          <td>Both</td>
+          <td><strong>The ask.</strong> Present Tier 1 specifically. One ask, stated plainly. "We are asking you to fund 6-month stabilization vouchers WITH services — not vouchers alone."</td>
+          <td class="hi">Leave-behind one-pager</td>
+        </tr>
+        <tr>
+          <td>Min 18–30</td>
+          <td>Both</td>
+          <td><strong>Q&amp;A / conversation.</strong> Let them drive. Cortney handles policy questions. Dr. Flood handles data/platform questions. Do not oversell — listen for the opening.</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pg-footer">
+    <span>TCAF × Cortney Jones — Legislative Meeting Plan · Confidential</span>
+    <span>thrivingcommunitiesforall.com · lifetransitionsaid.org</span>
+  </div>
+  <div class="pg-num">Page 2 of 3</div>
+</div>
+
+
+<!-- ════════════════════════════════════════
+     PAGE 3 — TESTIMONY + LEAVE-BEHIND + CHECKLIST
+════════════════════════════════════════ -->
+<div class="page">
+
+  <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+    <div style="font-size:12px; font-weight:800; color:#1d4ed8;">Legislative Meeting Plan — Page 3</div>
+    <div style="font-size:9px; color:#999; font-weight:700; letter-spacing:0.08em;">TESTIMONY · LEAVE-BEHIND · PRE-MEETING CHECKLIST</div>
+  </div>
+  <hr class="gradient-rule" style="margin-bottom:18px;" />
+
+  <!-- Testimony -->
+  <div class="two-col">
+    <div>
+      <div class="sh sh-blue">30-Second Testimony — Dr. Flood</div>
+      <div class="testimony">
+        "We built a platform that tracks every foster youth from risk identification at age 12 through housing, workforce, and health stability in adulthood — in real time, across agencies. We have already reduced risk for 350 young people on this platform. The math is simple: a <strong>$3,000 six-month investment</strong> prevents a <strong>$40,000 annual incarceration cost</strong>. Texas is already spending the $40,000. We are asking you to spend the $3,000 instead — and measure every dollar."
+      </div>
+      <div class="sh sh-purple" style="margin-top:16px;">30-Second Testimony — Cortney Jones</div>
+      <div class="testimony" style="border-color:#7c3aed;">
+        "I sit on Texas CASA's Public Policy Committee. I've seen what happens when a young person ages out of the foster care system without a housing bridge. They don't disappear — they show up in our emergency rooms, our jails, and our homeless shelters. That is <strong>reactive spending</strong>. What TCAF has built is <strong>predictive spending</strong> — with data that shows it's working. The platform is live. The navigation system is live. What's missing is the policy authorization to fund the 6-month window that makes everything else possible."
+      </div>
+    </div>
+
+    <div>
+      <div class="sh sh-green">Leave-Behind One-Pager — Key Numbers</div>
+      <div class="card c-green">
+        <div class="ct">Foster Youth Housing Vouchers + Navigation: The Case</div>
+        <ul class="bl" style="margin-bottom:10px;">
+          <li><strong>The problem:</strong> 25–30% of foster youth face homelessness by 21. System silos mean vouchers go unused and instability persists.</li>
+          <li><strong>The cost of inaction:</strong> $40K/year per incarcerated individual. 2,000 youth diverted = $8M annual savings. $250M over 5 years.</li>
+          <li><strong>The intervention:</strong> $3,000/youth for 6-month stabilization — housing voucher + navigation + benefits + workforce pathway + real-time case tracking.</li>
+          <li><strong>Platform proof (live):</strong> 350 youth with measurable risk reduction. 0% eviction in tracked voucher programs. 100% workforce/education engagement.</li>
+        </ul>
+        <div style="border-top:1px solid #bbf7d0; padding-top:8px; margin-top:4px;">
+          <div style="font-size:9px; font-weight:700; color:#166534; margin-bottom:4px;">TWO LIVE TOOLS:</div>
+          <div style="font-size:9.5px; color:#374151; line-height:1.7;">
+            📊 <strong>ThriveUp Academy</strong> — thrivingcommunitiesforall.com<br />
+            Longitudinal outcomes · risk stratification · 50-state policy · cross-agency coordination<br /><br />
+            🧭 <strong>LifeBridge</strong> — lifetransitionsaid.org<br />
+            20,670+ resources · CHW-guided navigation · bilingual · HUD FYI + ETV + SNAP direct access
+          </div>
+        </div>
+        <div style="margin-top:10px; border-top:1px solid #bbf7d0; padding-top:8px;">
+          <div style="font-size:9px; font-weight:700; color:#166534; margin-bottom:3px;">THE ASK:</div>
+          <div style="font-size:9.5px; color:#374151; line-height:1.65;">
+            1. Fund 6-month stabilization vouchers WITH required navigation services<br />
+            2. Authorize HHSC to contract community-based technology navigation providers<br />
+            3. Mandate county-level longitudinal outcome reporting for aged-out youth
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pre-meeting checklist -->
+  <div class="full">
+    <div class="sh sh-gold">Pre-Meeting Checklist</div>
+    <div class="two-col" style="margin-bottom:0;">
+      <div>
+        <div style="font-size:9px; font-weight:700; color:#92400e; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.08em;">Before the Meeting</div>
+        <ul class="checklist">
+          <li><div class="chk"></div>Confirm Cortney's 501(c)(3) status for Change 1 / Grit Growth Global (needed before any joint external materials cite her org formally)</li>
+          <li><div class="chk"></div>Identify 2–3 specific Texas legislators via Cortney's CASA network — name, committee assignment, prior foster-care bill authorship</li>
+          <li><div class="chk"></div>Request 30-min meeting through CASA policy committee channel (Cortney's strongest door)</li>
+          <li><div class="chk"></div>Confirm LifeTransitionsAid.org demo works on mobile (legislators will pull it up in the room)</li>
+          <li><div class="chk"></div>Print 3 copies of the leave-behind one-pager</li>
+          <li><div class="chk"></div>Pull the ThriveUp outcomes dashboard screenshot for offline backup</li>
+          <li><div class="chk"></div>Confirm UW of Central Texas consortium support letter (adds weight)</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:9px; font-weight:700; color:#92400e; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.08em;">After the Meeting</div>
+        <ul class="checklist">
+          <li><div class="chk"></div>Send follow-up email within 24 hours — thank, restate the ask, attach one-pager</li>
+          <li><div class="chk"></div>Ask for one specific next step: "Who on your staff handles foster care policy?" or "Can we get 15 minutes with the committee director?"</li>
+          <li><div class="chk"></div>Log the meeting in TCAF's partner tracking system with notes and commitments</li>
+          <li><div class="chk"></div>Brief Deneece Ferrales (UW) on the legislative visit — she may have additional committee connections</li>
+          <li><div class="chk"></div>Draft a policy brief based on the conversation — what resonated, what questions came up</li>
+          <li><div class="chk"></div>File the meeting notes in the June 11 WilCo Coalition brief as coalition momentum evidence</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Platform two-wing reminder -->
+  <div class="card c-slate" style="margin-top:18px; margin-bottom:0;">
+    <div style="display:grid; grid-template-columns:1fr auto 1fr; gap:12px; align-items:center;">
+      <div style="font-size:10px; color:#374151; line-height:1.7;">
+        <strong style="font-size:11px; color:#1d4ed8;">ThriveUp Academy</strong> — builds the accountability infrastructure. Every outcome tracked. Every dollar justified. The data layer that turns vouchers into verifiable ROI.
+      </div>
+      <div style="text-align:center; font-size:20px; font-weight:900; background:linear-gradient(135deg,#1d4ed8,#7c3aed); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;">×</div>
+      <div style="font-size:10px; color:#374151; line-height:1.7; text-align:right;">
+        <strong style="font-size:11px; color:#0f766e;">LifeBridge / LifeTransitionsAid.org</strong> — the navigation layer. 20,670+ resources. A real CHW behind every referral. The tool that makes a voucher usable, not just issuable.
+      </div>
+    </div>
+    <div style="text-align:center; margin-top:10px; font-size:11px; font-style:italic; color:#475569; font-weight:600;">
+      "Two wings, same bird — one heart, purpose, and direction, various missions."
+    </div>
+  </div>
+
+  <div class="pg-footer">
+    <span>Dr. Terry D. Flood · (254) 319-8460 · terryflood@thrivingcommunitiesforall.com · EIN 41-3618003</span>
+    <span>Cortney Jones, MSW · Texas CASA Public Policy Committee · Change 1 / Grit Growth Global</span>
+  </div>
+  <div class="pg-num">Page 3 of 3 — TCAF × Cortney Jones Legislative Meeting Plan</div>
+
+</div>
+
+</body>
+</html>
