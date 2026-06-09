@@ -80,6 +80,7 @@ import { registerGrantRoutes } from "./grant-routes";
 import { registerAgentKnowledgeRoutes } from "./agent-knowledge-routes";
 import { registerReentryRoutes } from "./reentry-routes";
 import { registerPartnerRoutes } from "./partner-routes";
+import { registerPartnerPortalRoutes } from "./partner-portal-routes";
 import { registerOutcomeRoutes } from "./outcome-routes";
 import { registerJusticeRoutes } from "./justice-routes";
 import { registerWorkforceRoutes } from "./workforce-routes";
@@ -446,6 +447,7 @@ export async function registerRoutes(
   registerMouRoutes(app);
   registerReentryRoutes(app);
   registerPartnerRoutes(app);
+  registerPartnerPortalRoutes(app);
   registerOutcomeRoutes(app);
   registerJusticeRoutes(app);
   registerBenefitsRoutes(app);

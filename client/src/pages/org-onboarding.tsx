@@ -57,7 +57,7 @@ export default function OrgOnboardingPage() {
         title: "Profile created — next, upload your documents",
         description: "Drop in your capability statement, 501(c)(3) letter, W-9, COI, and past performance. These auto-populate every proposal you team on.",
       });
-      setLocation("/settings/documents");
+      setLocation("/partner-portal");
     },
     onError: (e: Error) => toast({ title: "Couldn't create profile", description: e.message, variant: "destructive" }),
   });

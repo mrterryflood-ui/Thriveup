@@ -150,6 +150,7 @@ const LogicModelPage = lazy(() => import("@/pages/logic-model"));
 const GrantNarrativePage = lazy(() => import("@/pages/grant-narrative"));
 const RfpWriterPage = lazy(() => import("@/pages/rfp-writer"));
 const OrgOnboardingPage = lazy(() => import("@/pages/org-onboarding"));
+const PartnerPortalPage = lazy(() => import("@/pages/partner-portal"));
 const PartnersJoinPage = lazy(() => import("@/pages/partners-join"));
 const OrgSettingsPage = lazy(() => import("@/pages/org-settings"));
 const OrgDocumentsLibraryPage = lazy(() => import("@/pages/org-documents-library"));
@@ -498,6 +499,11 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/grant-narrative-legacy" component={GrantNarrativePage} />
+      <Route path="/partner-portal">
+        <RequireAuth reason="Sign in to access your community partner portal.">
+          <PartnerPortalPage />
+        </RequireAuth>
+      </Route>
       <Route path="/onboarding/org">
         <RequireAuth reason="Sign in to create your organization profile.">
           <OrgOnboardingPage />
