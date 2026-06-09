@@ -337,7 +337,7 @@ function AppRouter() {
       <Route path="/academy/hub" component={AcademyHubPage} />
       <Route path="/concepts" component={ConceptsHubPage} />
       <Route path="/regional-briefing">
-        <RequireAuth reason="The Regional Briefing pulls grants from our pipeline and runs paid AI to synthesize the answer. Sign in to use it.">
+        <RequireAuth adminOnly reason="The Regional Briefing pulls TCAF's internal grant pipeline and runs paid AI. Restricted to TCAF admins.">
           <RegionalBriefingPage />
         </RequireAuth>
       </Route>
@@ -418,7 +418,11 @@ function AppRouter() {
       <Route path="/get-help" component={GetHelpPage} />
       <Route path="/impact" component={ImpactPage} />
       <Route path="/api-docs" component={APIDocsPage} />
-      <Route path="/grants" component={GrantHubPage} />
+      <Route path="/grants">
+        <RequireAuth adminOnly reason="Your grant pipeline is restricted to TCAF admins.">
+          <GrantHubPage />
+        </RequireAuth>
+      </Route>
       <Route path="/reentry" component={ReentryDashboardPage} />
       <Route path="/reentry-dashboard" component={ReentryDashboardPage} />
       <Route path="/intake-wizard" component={IntakeWizardPage} />
@@ -433,25 +437,29 @@ function AppRouter() {
       <Route path="/workforce-training" component={WorkforceTrainingPage} />
       <Route path="/workforce-employers" component={WorkforceEmployersPage} />
       <Route path="/workforce-dashboard">
-        <RequireAuth reason="The Workforce Pipeline Dashboard pulls placement, retention, and readiness data from the internal workforce pipeline. Sign in (admin) to view it.">
+        <RequireAuth adminOnly reason="The Workforce Pipeline Dashboard contains internal placement and retention data. Restricted to TCAF admins.">
           <WorkforceDashboardPage />
         </RequireAuth>
       </Route>
       <Route path="/workforce-readiness" component={WorkforceReadinessPage} />
       <Route path="/business-card" component={BusinessCardPage} />
-      <Route path="/grant-command-center" component={GrantCommandCenterPage} />
+      <Route path="/grant-command-center">
+        <RequireAuth adminOnly reason="The Grant Command Center is restricted to TCAF admins.">
+          <GrantCommandCenterPage />
+        </RequireAuth>
+      </Route>
       <Route path="/grants/sedgwick-vitality">
-        <RequireAuth reason="Sign in to view the Sedgwick County Vitality proposal package.">
+        <RequireAuth adminOnly reason="This proposal package is restricted to TCAF admins.">
           <SedgwickVitalityProposalPage />
         </RequireAuth>
       </Route>
       <Route path="/rfp-fidelity">
-        <RequireAuth reason="Sign in to use the RFP Fidelity Engine — pick a grant to build its compliance matrix.">
+        <RequireAuth adminOnly reason="The RFP Fidelity Engine is restricted to TCAF admins.">
           <RfpFidelityIndexPage />
         </RequireAuth>
       </Route>
       <Route path="/grants/:grantId/compliance">
-        <RequireAuth reason="Sign in to use the RFP Fidelity Engine — compliance matrix, hybrid workaround proposer, and final fidelity audit.">
+        <RequireAuth adminOnly reason="The RFP compliance workspace is restricted to TCAF admins.">
           <RfpFidelityPage />
         </RequireAuth>
       </Route>
@@ -494,11 +502,15 @@ function AppRouter() {
       <Route path="/cqi" component={MapGapCqiPage} />
       <Route path="/logic-model" component={LogicModelPage} />
       <Route path="/grant-narrative">
-        <RequireAuth reason="Sign in to use the RFP-driven grant writer.">
+        <RequireAuth adminOnly reason="The grant writer is restricted to TCAF admins.">
           <RfpWriterPage />
         </RequireAuth>
       </Route>
-      <Route path="/grant-narrative-legacy" component={GrantNarrativePage} />
+      <Route path="/grant-narrative-legacy">
+        <RequireAuth adminOnly reason="Restricted to TCAF admins.">
+          <GrantNarrativePage />
+        </RequireAuth>
+      </Route>
       <Route path="/partner-portal">
         <RequireAuth reason="Sign in to access your community partner portal.">
           <PartnerPortalPage />
@@ -522,22 +534,22 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/my-grants">
-        <RequireAuth reason="Sign in to track grants and your win rate.">
+        <RequireAuth adminOnly reason="Your personal grant pipeline is restricted to TCAF admins.">
           <MyGrantsPage />
         </RequireAuth>
       </Route>
       <Route path="/won-proposals">
-        <RequireAuth reason="Sign in to manage your winning-proposals library.">
+        <RequireAuth adminOnly reason="Your winning-proposals library is restricted to TCAF admins.">
           <WonProposalsPage />
         </RequireAuth>
       </Route>
       <Route path="/teaming-network">
-        <RequireAuth reason="Sign in to view the internal teaming network, partner roster, and per-RFP rubric mapping.">
+        <RequireAuth adminOnly reason="The internal teaming network is restricted to TCAF admins.">
           <ConglomerateTeamPage />
         </RequireAuth>
       </Route>
       <Route path="/conglomerate">
-        <RequireAuth reason="Sign in to view the internal teaming network, partner roster, and per-RFP rubric mapping.">
+        <RequireAuth adminOnly reason="The internal teaming network is restricted to TCAF admins.">
           <ConglomerateTeamPage />
         </RequireAuth>
       </Route>
@@ -554,7 +566,11 @@ function AppRouter() {
       <Route path="/contact" component={ContactPage} />
       <Route path="/business-plan" component={BusinessPlanPage} />
       <Route path="/business-documents" component={BusinessDocumentsPage} />
-      <Route path="/apex-accelerators" component={ApexAcceleratorsPage} />
+      <Route path="/apex-accelerators">
+        <RequireAuth adminOnly reason="Apex Accelerators workspace is restricted to TCAF admins.">
+          <ApexAcceleratorsPage />
+        </RequireAuth>
+      </Route>
       <Route path="/research-hub" component={ResearchHubPage} />
       <Route path="/chw-dashboard" component={ChwDashboardPage} />
       <Route path="/mapgap-framework" component={MapGapFrameworkPage} />
@@ -564,9 +580,21 @@ function AppRouter() {
       <Route path="/peer-review" component={PeerReviewPage} />
       <Route path="/collaboration-hub" component={CollaborationHubPage} />
       <Route path="/program-lifecycle" component={ProgramLifecyclePage} />
-      <Route path="/grant-packages" component={GrantPackagesPage} />
-      <Route path="/grants/applications" component={GrantApplicationsPage} />
-      <Route path="/grant-prior-awards" component={GrantPriorAwardsPage} />
+      <Route path="/grant-packages">
+        <RequireAuth adminOnly reason="Grant packages are restricted to TCAF admins.">
+          <GrantPackagesPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/grants/applications">
+        <RequireAuth adminOnly reason="Grant applications are restricted to TCAF admins.">
+          <GrantApplicationsPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/grant-prior-awards">
+        <RequireAuth adminOnly reason="Prior awards library is restricted to TCAF admins.">
+          <GrantPriorAwardsPage />
+        </RequireAuth>
+      </Route>
       <Route path="/ecosystem-orchestration" component={EcosystemOrchestrationPage} />
       <Route path="/stdavids-prep" component={StDavidsPrepPage} />
       <Route path="/esign" component={ESignPage} />
@@ -582,11 +610,19 @@ function AppRouter() {
       <Route path="/third-spaces" component={ThirdSpacesPage} />
       <Route path="/ecosystem-ai" component={EcosystemAIPage} />
       <Route path="/ai-consulting" component={AIConsultingPage} />
-      <Route path="/healthcare-grants" component={HealthcareGrantsPage} />
+      <Route path="/healthcare-grants">
+        <RequireAuth adminOnly reason="Healthcare grants workspace is restricted to TCAF admins.">
+          <HealthcareGrantsPage />
+        </RequireAuth>
+      </Route>
       <Route path="/benefits" component={BenefitsCommandCenterPage} />
       <Route path="/benefits-screener" component={BenefitsScreenerPage} />
       <Route path="/coalition" component={CoalitionPortalPage} />
-      <Route path="/loi-writer" component={LOIWriterPage} />
+      <Route path="/loi-writer">
+        <RequireAuth adminOnly reason="The LOI writer is restricted to TCAF admins.">
+          <LOIWriterPage />
+        </RequireAuth>
+      </Route>
       <Route path="/donors" component={DonorsPage} />
       <Route path="/donor-receipt-demo" component={DonorReceiptDemoPage} />
       <Route path="/sdoh-chain" component={SDOHChainPage} />

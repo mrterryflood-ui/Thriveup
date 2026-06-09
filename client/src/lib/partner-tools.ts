@@ -66,16 +66,6 @@ export const TOOL_CATALOG: PartnerTool[] = [
     tags: ["all"],
   },
   {
-    id: "grant-tools",
-    label: "Grant Tools & RFP Engine",
-    description:
-      "AI-assisted grant writing, compliance matrix, RFP fidelity scoring, and a teaming network to find sub and prime partners.",
-    path: "/rfp-fidelity",
-    icon: "FileText",
-    badge: "AI Writing",
-    tags: ["all"],
-  },
-  {
     id: "ai-tools",
     label: "AI Tools Hub",
     description:

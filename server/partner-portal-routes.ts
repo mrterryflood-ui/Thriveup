@@ -69,9 +69,9 @@ export function registerPartnerPortalRoutes(app: Express) {
             id: "teaming",
             label: "Connect to a collaboration",
             description:
-              "Join an existing teaming thread or open a new one to start working alongside TCAF and partner orgs.",
+              "Open the Collaboration Hub to start working alongside TCAF and partner orgs on shared projects.",
             done: teamingConnected,
-            path: "/teaming-network",
+            path: "/collaboration-hub",
           },
           {
             id: "orientation",
