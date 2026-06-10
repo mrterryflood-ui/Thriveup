@@ -258,6 +258,7 @@ const aboutTrustItems: NavItem[] = [
 // childcare Voice project, and regional briefing into one door.
 const ctxHubItems: NavItem[] = [
   { title: "CTX Benefits Initiative", url: "/st-davids", icon: LayoutDashboard },
+  { title: "Corridor Intelligence", url: "/corridor-intelligence", icon: Route },
   { title: "SNAP Navigator", url: "/benefits-screener", icon: ClipboardList },
   { title: "Benefits Navigator", url: "/benefits", icon: HandHeart },
   { title: "N. Wilco Childcare Voice", url: "/voice/north-wilco-childcare-gaps", icon: MessageCircle },
