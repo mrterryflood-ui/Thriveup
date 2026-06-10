@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 
 const DEADLINE = new Date("2026-04-27T17:00:00-05:00");
-const TODAY = new Date("2026-04-16T00:00:00-05:00");
+const TODAY = new Date();
 
 const LOI_DRAFT = `Across Travis, Williamson, Hays, Bastrop, and Caldwell counties, an estimated 192,029 people qualify for public benefits they are not receiving — a 60% enrollment gap. Over $192 million in annual SNAP, Medicaid, CHIP, EITC, and WIC benefits go unclaimed because families face language barriers, transportation gaps, no broadband, and deep system distrust. No single organization can close this gap alone.
 
@@ -201,9 +201,9 @@ export default function StDavidsWAB2WorkspacePage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={daysLeft <= 14 ? "destructive" : "default"} className="text-sm" data-testid="badge-days-left">
+            <Badge variant="secondary" className="text-sm" data-testid="badge-days-left">
               <Calendar className="h-3.5 w-3.5 mr-1" />
-              {daysLeft} days until deadline
+              Deadline passed · Apr 27, 2026
             </Badge>
             <Button size="sm" asChild data-testid="link-enrollment-hub">
               <Link href="/wab2-enrollment">

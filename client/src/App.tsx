@@ -465,7 +465,11 @@ function AppRouter() {
       </Route>
       <Route path="/this-week" component={ThisWeekPage} />
       <Route path="/nsf-techaccess-hub" component={NsfTechAccessHubPage} />
-      <Route path="/st-davids-wab2" component={StDavidsWAB2WorkspacePage} />
+      <Route path="/st-davids-wab2">
+        <RequireAuth adminOnly reason="The St. David's WAB2 LOI workspace is an internal grant proposal tool restricted to TCAF admins.">
+          <StDavidsWAB2WorkspacePage />
+        </RequireAuth>
+      </Route>
       <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
       <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />
@@ -596,7 +600,11 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/ecosystem-orchestration" component={EcosystemOrchestrationPage} />
-      <Route path="/stdavids-prep" component={StDavidsPrepPage} />
+      <Route path="/stdavids-prep">
+        <RequireAuth adminOnly reason="CTX Benefits field preparation documents are internal to TCAF staff.">
+          <StDavidsPrepPage />
+        </RequireAuth>
+      </Route>
       <Route path="/esign" component={ESignPage} />
       <Route path="/esign/:id" component={ESignPage} />
       <Route path="/austin" component={AustinHousingInitiativePage} />

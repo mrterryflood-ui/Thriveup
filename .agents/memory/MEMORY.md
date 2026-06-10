@@ -1,1 +1,2 @@
 - [Anti-fabrication guardrails](anti-fabrication-guardrails.md) — where guardrails live, what failed, six prohibitions; must be at TOP of every system prompt.
+- [RequireAuth + wouter routing pattern](require-auth-routing.md) — Route must WRAP RequireAuth, not the other way around; outer-RequireAuth bleeds to all pages.
