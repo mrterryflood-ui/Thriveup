@@ -363,7 +363,7 @@ const PAGE_HELP: Record<string, PageHelp> = {
       { label: "Program Management", path: "/program-management", why: "Implement improvement plans within active programs." },
     ],
   },
-  "/ecosystem-hub": {
+  "/ecosystem": {
     pageName: "Ecosystem Hub",
     summary: "Visual overview of the entire 26-platform self-governing ecosystem showing platform connections, governance health, and cross-platform coordination.",
     whoIsThisFor: "Leadership, administrators, and ecosystem managers.",

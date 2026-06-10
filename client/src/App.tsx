@@ -1,5 +1,5 @@
 import { useEffect, useRef, lazy, Suspense, useState } from "react";
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { cn } from "@/lib/utils";
 import { NavModeProvider, useNavMode } from "@/lib/nav-mode";
 import { BottomTabBar } from "@/components/bottom-tab-bar";
@@ -695,6 +695,32 @@ function AppRouter() {
       <Route path="/hub/more" component={HubMorePage} />
       <Route path="/hub/connect" component={HubMorePage} />
       <Route path="/workbench" component={WorkbenchPage} />
+      {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
+      <Route path="/coalition-portal"><Redirect to="/coalition" /></Route>
+      <Route path="/benefits-command-center"><Redirect to="/benefits" /></Route>
+      <Route path="/about-leadership"><Redirect to="/about" /></Route>
+      <Route path="/career-pathways"><Redirect to="/academy/careers" /></Route>
+      <Route path="/community-resource-directory"><Redirect to="/resource-directory" /></Route>
+      <Route path="/outcome-reporting"><Redirect to="/outcomes" /></Route>
+      <Route path="/ecosystem-hub"><Redirect to="/ecosystem" /></Route>
+      <Route path="/financial-literacy"><Redirect to="/academy/financial-literacy" /></Route>
+      <Route path="/mentorship"><Redirect to="/mentorship-directory" /></Route>
+      <Route path="/open-innovation"><Redirect to="/open-innovation-lab" /></Route>
+      <Route path="/parent-dashboard"><Redirect to="/parents/dashboard" /></Route>
+      <Route path="/rplice"><Redirect to="/rplice-tools" /></Route>
+      <Route path="/sdoh"><Redirect to="/sdoh-chain" /></Route>
+      <Route path="/sedgwick"><Redirect to="/grants/sedgwick-vitality" /></Route>
+      <Route path="/voices"><Redirect to="/voices-of-austin" /></Route>
+      <Route path="/workforce"><Redirect to="/workforce-assessment" /></Route>
+      <Route path="/advisory"><Redirect to="/advisory-board" /></Route>
+      <Route path="/apprenticeship"><Redirect to="/apprenticeship-tracker" /></Route>
+      <Route path="/mapgap"><Redirect to="/mapgap-framework" /></Route>
+      <Route path="/dfc-command-center"><Redirect to="/ecosystem" /></Route>
+      <Route path="/community-partners"><Redirect to="/partners" /></Route>
+      <Route path="/herhealth"><Redirect to="/health-network" /></Route>
+      <Route path="/safereport"><Redirect to="/resources" /></Route>
+      <Route path="/sankofa"><Redirect to="/health-network" /></Route>
+      <Route path="/civic-signal"><Redirect to="/community-map" /></Route>
       <Route component={NotFound} />
     </Switch>
   );

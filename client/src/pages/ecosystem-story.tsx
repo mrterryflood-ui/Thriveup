@@ -339,7 +339,7 @@ export default function EcosystemStoryPage() {
             { title: "Coalition Portal", desc: "12-sector coalition management", href: "/coalition", icon: Users },
             { title: "Outcome Reporting", desc: "Track outcomes at 30/90/180/365 days", href: "/outcomes", icon: TrendingUp },
             { title: "Case Studies", desc: "Real implementation evidence and metrics", href: "/case-studies", icon: BookOpen },
-            { title: "About & Leadership", desc: "Meet the team behind the ecosystem", href: "/about-leadership", icon: Users },
+            { title: "About & Leadership", desc: "Meet the team behind the ecosystem", href: "/about", icon: Users },
           ].map((item) => (
             <Link key={item.href} href={item.href}>
               <div className="flex items-start gap-3 p-3 rounded-md border hover-elevate cursor-pointer" data-testid={`link-explore-${item.title.toLowerCase().replace(/\s+/g, '-')}`}>

@@ -146,7 +146,7 @@ const FUNDER_LENSES: Record<FunderLensKey, {
       { label: "Applicant status", value: "First-time applicant — infrastructure is the differentiator. Coalition dashboard, prevention delivery, and outcome tracking are live, not proposed." },
     ],
     cta: "View DFC Command Center",
-    ctaHref: "/dfc-command-center",
+    ctaHref: "/ecosystem",
   },
   va: {
     label: "VA / DoD",

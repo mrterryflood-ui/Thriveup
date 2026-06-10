@@ -123,7 +123,7 @@ const MODULES: ModuleData[] = [
 
 const ECOSYSTEM_TOOLS = [
   { name: "AI Mock Interview Lab", desc: "Practice interviews 24/7 with AI coaching", icon: MessageCircle, link: "/ai-tools" },
-  { name: "Career Pathways", desc: "Explore industries and salary data", icon: Target, link: "/career-pathways" },
+  { name: "Career Pathways", desc: "Explore industries and salary data", icon: Target, link: "/academy/careers" },
   { name: "Financial Literacy Hub", desc: "Learn to manage your first paycheck", icon: Lightbulb, link: "/financial-literacy" },
   { name: "Community Resource Directory", desc: "Find free professional resources near you", icon: Users, link: "/resource-directory" },
   { name: "Neighborhood Intelligence", desc: "Understand your local job market", icon: ExternalLink, link: "/neighborhood" },

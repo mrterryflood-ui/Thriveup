@@ -56,13 +56,13 @@ const MODULE_ROUTES: Record<string, string> = {
   "coalition": "/coalition",
   "case-studies": "/case-studies",
   "third-spaces": "/third-spaces",
-  "voices-of-austin": "/voices",
+  "voices-of-austin": "/voices-of-austin",
   "cohort-onboarding": "/cohort-onboarding",
-  "outcome-reporting": "/outcome-reporting",
+  "outcome-reporting": "/outcomes",
   "austin-housing-initiative": "/austin",
   "manor-community-hub": "/manor",
   "pflugerville-community-hub": "/pflugerville",
-  "ecosystem-hub": "/ecosystem-hub",
+  "ecosystem-hub": "/ecosystem",
 };
 
 interface SectionTabProps {

@@ -351,11 +351,11 @@ export default function PartnerPortalPage() {
               </CardHeader>
               <CardContent className="space-y-1">
                 {[
-                  { label: "Join a teaming network", path: "/teaming-network" },
-                  { label: "Explore active grants", path: "/my-grants" },
-                  { label: "LifeBridge resources", path: "/community-resource-directory" },
+                  { label: "Collaboration hub", path: "/collaboration-hub" },
+                  { label: "LifeBridge resources", path: "/resource-directory" },
                   { label: "Community map", path: "/community-map" },
-                  { label: "Partner directory", path: "/community-partners" },
+                  { label: "Partner directory", path: "/partners" },
+                  { label: "Benefits screener", path: "/benefits-screener" },
                 ].map(({ label, path }) => (
                   <Link key={path} href={path}>
                     <a
