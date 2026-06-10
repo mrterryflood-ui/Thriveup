@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
+import { useAuth } from "@/hooks/use-auth";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,7 +19,7 @@ import {
   Home, Stethoscope, Baby, Heart, DollarSign, Users, Shield, Building2,
   ChevronRight, ChevronLeft, CheckCircle2, Circle, Loader2, FileText,
   TrendingUp, MapPin, ClipboardList, RefreshCw, AlertCircle, AlertTriangle, Phone, Mail,
-  Globe, Calendar, Target, Award, ArrowRight,
+  Globe, Calendar, Target, Award, ArrowRight, LogIn, Printer,
 } from "lucide-react";
 import type { BenefitsApplication } from "@shared/schema";
 
@@ -314,7 +315,8 @@ const WIZARD_STEPS = [
 
 export default function WAB2EnrollmentHubPage() {
   const { toast } = useToast();
-  const [tab, setTab] = useState("dashboard");
+  const { isAuthenticated } = useAuth();
+  const [tab, setTab] = useState("wizard");
   const [wizardStep, setWizardStep] = useState(0);
   const [wizardData, setWizardData] = useState<WizardData>(INITIAL_WIZARD);
   const [eligibility, setEligibility] = useState<string[]>([]);
@@ -565,11 +567,11 @@ export default function WAB2EnrollmentHubPage() {
 
       <Tabs value={tab} onValueChange={setTab} className="space-y-4">
         <TabsList className="grid w-full grid-cols-2 md:grid-cols-5" data-testid="tabs-hub">
-          <TabsTrigger value="dashboard" data-testid="tab-dashboard">Outcomes</TabsTrigger>
-          <TabsTrigger value="forms" data-testid="tab-forms">Forms</TabsTrigger>
           <TabsTrigger value="wizard" data-testid="tab-wizard">Enrollment Wizard</TabsTrigger>
-          <TabsTrigger value="tracker" data-testid="tab-tracker">Tracker</TabsTrigger>
+          <TabsTrigger value="forms" data-testid="tab-forms">Benefit Forms</TabsTrigger>
           <TabsTrigger value="counties" data-testid="tab-counties">Counties</TabsTrigger>
+          <TabsTrigger value="tracker" data-testid="tab-tracker">Tracker</TabsTrigger>
+          <TabsTrigger value="dashboard" data-testid="tab-dashboard">Outcomes</TabsTrigger>
         </TabsList>
 
         <TabsContent value="dashboard" className="space-y-4">
@@ -1213,6 +1215,15 @@ export default function WAB2EnrollmentHubPage() {
 
               {wizardStep === 5 && (
                 <div className="space-y-4">
+                  {!isAuthenticated && (
+                    <div className="p-3 rounded-md bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 text-sm space-y-1">
+                      <p className="font-semibold text-blue-800 dark:text-blue-300">Your checklist is ready — no sign-in required to apply</p>
+                      <p className="text-blue-700 dark:text-blue-400 text-xs">
+                        Use "Print My Checklist" below to take your document list to any application site.
+                        Sign in only if you want a CHW to track your progress over time.
+                      </p>
+                    </div>
+                  )}
                   <div>
                     <Label htmlFor="notes">Notes for Navigator</Label>
                     <Textarea
@@ -1266,14 +1277,31 @@ export default function WAB2EnrollmentHubPage() {
                     <ChevronRight className="h-4 w-4 ml-1" />
                   </Button>
                 ) : wizardStep === 5 ? (
-                  <Button
-                    onClick={handleRegisterAll}
-                    disabled={createApp.isPending || !wizardData.consentGiven}
-                    data-testid="button-register"
-                  >
-                    {createApp.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
-                    Register {wizardData.selectedBenefits.length} Application{wizardData.selectedBenefits.length === 1 ? "" : "s"}
-                  </Button>
+                  isAuthenticated ? (
+                    <Button
+                      onClick={handleRegisterAll}
+                      disabled={createApp.isPending || !wizardData.consentGiven}
+                      data-testid="button-register"
+                    >
+                      {createApp.isPending && <Loader2 className="h-4 w-4 mr-1 animate-spin" />}
+                      Register {wizardData.selectedBenefits.length} Application{wizardData.selectedBenefits.length === 1 ? "" : "s"}
+                    </Button>
+                  ) : (
+                    <div className="flex flex-col gap-2 items-end">
+                      <Button onClick={() => window.print()} variant="outline" size="sm" data-testid="button-print-checklist">
+                        <Printer className="h-4 w-4 mr-1" />
+                        Print My Checklist
+                      </Button>
+                      <a
+                        href={`/api/login?returnTo=${encodeURIComponent("/wab2-enrollment")}`}
+                        className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                        data-testid="button-signin-to-save"
+                      >
+                        <LogIn className="h-4 w-4" />
+                        Sign in to save &amp; track progress
+                      </a>
+                    </div>
+                  )
                 ) : (
                   <Button
                     onClick={() => setWizardStep(s => s + 1)}
