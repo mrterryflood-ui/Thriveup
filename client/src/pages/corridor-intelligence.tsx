@@ -262,16 +262,30 @@ export default function CorridorIntelligencePage() {
 
   return (
     <div className="container max-w-7xl py-8 space-y-6">
-      {/* Hero */}
-      <div className="rounded-xl border-2 border-amber-500/40 bg-gradient-to-br from-slate-900 via-slate-800 to-amber-950 p-6 text-white" data-testid="section-hero">
-        <div className="flex items-center gap-2 text-amber-300 text-xs font-semibold uppercase tracking-wider mb-2">
-          <Sparkles className="w-4 h-4" /> Corridor Intelligence · single source of truth
+      {/* Hero — national platform framing */}
+      <div className="rounded-xl border-2 border-primary/30 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-6 text-white" data-testid="section-hero">
+        <div className="flex items-center gap-2 text-sky-300 text-xs font-semibold uppercase tracking-wider mb-3">
+          <Sparkles className="w-4 h-4" /> Implementation &amp; Evaluation Platform · national infrastructure
         </div>
-        <h1 className="text-3xl md:text-4xl font-bold leading-tight" data-testid="text-hero-title">{data.narrative.headline}</h1>
-        <p className="text-sm text-amber-100 mt-2">{data.corridor.name} · synthesized {new Date(data.generatedAt).toLocaleString()}</p>
-        <div className="flex flex-wrap gap-2 mt-4">
+        <h1 className="text-3xl md:text-4xl font-bold leading-tight" data-testid="text-hero-title">
+          Community intelligence — deployable to any U.S. county.
+        </h1>
+        <p className="text-slate-300 mt-3 text-sm md:text-base max-w-3xl">
+          This platform pulls primary-source data (Census, CDC PLACES, BLS, SVI, FBI), chains every fact to its source,
+          generates an implementation brief, and produces a funder-ready evidence package — for any geography in the United States.
+          Two active pilots are running now. More are in queue.
+        </p>
+        <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-400">
+          <span className="bg-white/10 rounded px-2 py-1">39 CFIR constructs</span>
+          <span className="bg-white/10 rounded px-2 py-1">RE-AIM / EPIS evaluation frames</span>
+          <span className="bg-white/10 rounded px-2 py-1">FHIR-interoperable</span>
+          <span className="bg-white/10 rounded px-2 py-1">0-PHI egress</span>
+          <span className="bg-white/10 rounded px-2 py-1">witness-logged &amp; auditable</span>
+          <span className="bg-white/10 rounded px-2 py-1">any U.S. county · FIPS-keyed</span>
+        </div>
+        <div className="flex flex-wrap gap-2 mt-5">
           <Button size="sm" variant="secondary" onClick={() => chainweb.mutate()} disabled={chainweb.isPending} data-testid="button-run-chainweb">
-            <Network className={`w-4 h-4 mr-1 ${chainweb.isPending ? "animate-spin" : ""}`} /> Run chain web (pull & link all)
+            <Network className={`w-4 h-4 mr-1 ${chainweb.isPending ? "animate-spin" : ""}`} /> Run chain web (pull &amp; link all)
           </Button>
           <Button size="sm" variant="secondary" onClick={() => refresh.mutate()} disabled={refresh.isPending} data-testid="button-refresh">
             <RefreshCw className={`w-4 h-4 mr-1 ${refresh.isPending ? "animate-spin" : ""}`} /> Refresh GIS base
@@ -294,9 +308,97 @@ export default function CorridorIntelligencePage() {
         </div>
       </div>
 
-      {/* Story arc */}
+      {/* Active Pilots */}
+      <div data-testid="section-active-pilots">
+        <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Active Deployments</div>
+        <div className="grid md:grid-cols-2 gap-4">
+          {/* Pilot 1 — Williamson County × United Way (featured) */}
+          <div className="rounded-xl border-2 border-sky-500/50 bg-sky-50 dark:bg-sky-950/30 p-5 space-y-3" data-testid="card-pilot-williamson">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-sky-600 dark:text-sky-400 mb-1">Pilot 1 · Featured</div>
+                <h2 className="text-lg font-bold leading-tight">Williamson County × United Way of Greater Austin</h2>
+              </div>
+              <Badge className="bg-sky-600 text-white shrink-0">Active</Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Implementation science + community health worker deployment across Williamson County in partnership
+              with United Way of Greater Austin. Evaluation framework: CFIR/RE-AIM. Focus: workforce readiness,
+              benefits access, and family stabilization for households at 0–200% FPL.
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-white dark:bg-sky-900/30 rounded p-2 border border-sky-200 dark:border-sky-800">
+                <div className="text-muted-foreground">Partner</div>
+                <div className="font-semibold">United Way of Greater Austin</div>
+              </div>
+              <div className="bg-white dark:bg-sky-900/30 rounded p-2 border border-sky-200 dark:border-sky-800">
+                <div className="text-muted-foreground">Geography</div>
+                <div className="font-semibold">Williamson County, TX · FIPS 48491</div>
+              </div>
+              <div className="bg-white dark:bg-sky-900/30 rounded p-2 border border-sky-200 dark:border-sky-800">
+                <div className="text-muted-foreground">Eval Frame</div>
+                <div className="font-semibold">CFIR · RE-AIM · EPIS</div>
+              </div>
+              <div className="bg-white dark:bg-sky-900/30 rounded p-2 border border-sky-200 dark:border-sky-800">
+                <div className="text-muted-foreground">Status</div>
+                <div className="font-semibold text-sky-700 dark:text-sky-300">Implementation phase</div>
+              </div>
+            </div>
+            <div className="flex gap-2 flex-wrap pt-1">
+              <a href="/corridor-intelligence#wilco-data">
+                <Button size="sm" variant="outline" data-testid="button-wilco-data">
+                  <MapPin className="w-3.5 h-3.5 mr-1" /> View county data
+                </Button>
+              </a>
+              <a href="/voice/north-wilco-childcare-gaps">
+                <Button size="sm" variant="outline" data-testid="button-wilco-voice">
+                  <Users className="w-3.5 h-3.5 mr-1" /> N. Wilco Voice project
+                </Button>
+              </a>
+            </div>
+          </div>
+
+          {/* Pilot 2 — I-35 Waco↔Austin */}
+          <div className="rounded-xl border-2 border-amber-500/40 bg-amber-50 dark:bg-amber-950/20 p-5 space-y-3" data-testid="card-pilot-i35">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-amber-600 dark:text-amber-400 mb-1">Pilot 2</div>
+                <h2 className="text-lg font-bold leading-tight">I-35 Corridor: Waco ↔ Austin</h2>
+              </div>
+              <Badge className="bg-amber-600 text-white shrink-0">Active</Badge>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Cross-city evidence alignment showing that Black children along the I-35 corridor face the same
+              opportunity gaps in Waco (McLennan County) and Austin (Travis County) — and that one coordinated
+              platform response can address both simultaneously.
+            </p>
+            <div className="grid grid-cols-2 gap-2 text-xs">
+              <div className="bg-white dark:bg-amber-900/20 rounded p-2 border border-amber-200 dark:border-amber-800">
+                <div className="text-muted-foreground">Cities</div>
+                <div className="font-semibold">Waco + Austin, Texas</div>
+              </div>
+              <div className="bg-white dark:bg-amber-900/20 rounded p-2 border border-amber-200 dark:border-amber-800">
+                <div className="text-muted-foreground">Counties</div>
+                <div className="font-semibold">McLennan · Travis</div>
+              </div>
+              <div className="bg-white dark:bg-amber-900/20 rounded p-2 border border-amber-200 dark:border-amber-800">
+                <div className="text-muted-foreground">Data engine</div>
+                <div className="font-semibold">Live · {new Date(data.generatedAt).toLocaleDateString()}</div>
+              </div>
+              <div className="bg-white dark:bg-amber-900/20 rounded p-2 border border-amber-200 dark:border-amber-800">
+                <div className="text-muted-foreground">Evidence beats</div>
+                <div className="font-semibold">{data.narrative.arc.length} connected</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Story arc — labeled as the I-35 pilot story */}
       <Card data-testid="card-narrative-arc">
-        <CardHeader><CardTitle className="text-lg">The single story · 6 connected beats</CardTitle></CardHeader>
+        <CardHeader><CardTitle className="text-lg">Pilot 2 evidence brief · {data.narrative.arc.length} connected beats</CardTitle>
+          <p className="text-sm text-muted-foreground">{data.narrative.headline}</p>
+        </CardHeader>
         <CardContent>
           <ol className="space-y-3">
             {data.narrative.arc.map((b, i) => (
