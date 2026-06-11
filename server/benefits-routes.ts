@@ -506,13 +506,15 @@ export function registerBenefitsRoutes(app: Express) {
           renewalsAtRisk: totalAtRisk,
           population: countyData[0]?.totalPopulation || 0,
           povertyRate: countyData[0]?.povertyRate || 0,
-          benefitBreakdown: countyData.map(d => ({
-            type: d.benefitType,
-            eligible: d.eligiblePopulation,
-            enrolled: d.enrolledPopulation,
-            rate: d.participationRate,
-            gap: d.participationGap,
-          })),
+          benefitBreakdown: Array.from(
+            new Map(countyData.map(d => [d.benefitType, {
+              type: d.benefitType,
+              eligible: d.eligiblePopulation,
+              enrolled: d.enrolledPopulation,
+              rate: d.participationRate,
+              gap: d.participationGap,
+            }])).values()
+          ),
         };
       }
 

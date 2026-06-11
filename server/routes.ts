@@ -3979,16 +3979,23 @@ export async function registerRoutes(
 
   // ==================== GAME PLATFORM API ====================
 
+  const createGameSchema = z.object({
+    gameType: z.string().min(1).max(100),
+    mode: z.enum(['single_vs_cpu', 'multiplayer', 'practice']).default('single_vs_cpu'),
+    difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+  });
+
   app.post("/api/games", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const { gameType, mode, difficulty } = req.body;
-      if (!gameType || typeof gameType !== 'string') {
-        return res.status(400).json({ error: "gameType is required" });
+      const parsed = createGameSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid request", details: parsed.error.flatten().fieldErrors });
       }
+      const { gameType, mode, difficulty } = parsed.data;
       const session = await storage.createGameSession({
         gameType,
-        mode: mode || 'single_vs_cpu',
+        mode,
         createdBy: userId,
         status: "waiting",
         startedAt: new Date(),
@@ -3999,17 +4006,17 @@ export async function registerRoutes(
         seat: 0,
         isCpu: false,
       });
-      if (req.body.mode === 'single_vs_cpu') {
+      if (mode === 'single_vs_cpu') {
         await storage.addGamePlayer({
           sessionId: session.id,
           userId: null,
           seat: 1,
           isCpu: true,
-          cpuDifficulty: req.body.difficulty || 'intermediate',
+          cpuDifficulty: difficulty || 'intermediate',
         });
         await storage.updateGameSession(session.id, { status: 'in_progress' });
       }
-      const playSession = await storage.startPlaySession(userId, req.body.gameType);
+      const playSession = await storage.startPlaySession(userId, gameType);
       res.json({ session: await storage.getGameSession(session.id), playSessionId: playSession.id });
     } catch (error) {
       console.error("Error in POST /api/games", error);
