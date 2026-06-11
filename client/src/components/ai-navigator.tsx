@@ -248,8 +248,8 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   }, []);
 
   const handleFileSelect = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = Array.from(e.target.files ?? []);
+    if (!files.length) return;
     e.target.value = "";
 
     // 80K chars ≈ 20K tokens — safely within Claude's 200K-token window even
@@ -259,34 +259,40 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
     const addDoc = (name: string, rawText: string, type: "pdf" | "text") => {
       const text = rawText.slice(0, MAX_CHARS);
       setAttachedDocs(prev => {
-        // Avoid duplicates by name
         if (prev.some(d => d.name === name)) return prev;
         return [...prev, { name, text, type, originalSize: rawText.length }];
       });
     };
 
-    if (file.name.match(/\.(txt|md)$/i) || file.type === "text/plain" || file.type === "text/markdown") {
-      const reader = new FileReader();
-      reader.onload = (ev) => addDoc(file.name, (ev.target?.result as string) || "", "text");
-      reader.readAsText(file);
-      return;
-    }
-
-    if (file.name.match(/\.pdf$/i) || file.type === "application/pdf") {
-      const formData = new FormData();
-      formData.append("file", file);
-      try {
-        const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData, credentials: "include" });
-        if (!res.ok) throw new Error("Extraction failed");
-        const { text, name } = await res.json();
-        addDoc(name || file.name, text || "", "pdf");
-      } catch {
-        toast({ title: "Could not read PDF", description: "Try saving as a .txt file instead.", variant: "destructive" });
+    for (const file of files) {
+      if (file.name.match(/\.(txt|md)$/i) || file.type === "text/plain" || file.type === "text/markdown") {
+        await new Promise<void>(resolve => {
+          const reader = new FileReader();
+          reader.onload = (ev) => { addDoc(file.name, (ev.target?.result as string) || "", "text"); resolve(); };
+          reader.readAsText(file);
+        });
+        continue;
       }
-      return;
-    }
 
-    toast({ title: "Unsupported file type", description: "Please upload a .pdf, .txt, or .md file.", variant: "destructive" });
+      if (file.name.match(/\.pdf$/i) || file.type === "application/pdf") {
+        const formData = new FormData();
+        formData.append("file", file);
+        try {
+          const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData, credentials: "include" });
+          if (!res.ok) throw new Error(`Server returned ${res.status}`);
+          const { text, name, warning } = await res.json();
+          addDoc(name || file.name, text || "", "pdf");
+          if (warning) {
+            toast({ title: `${file.name} — limited text`, description: warning, variant: "destructive" });
+          }
+        } catch (err) {
+          toast({ title: `Could not read ${file.name}`, description: "It may be a scanned or protected PDF. Try copy-pasting the text instead.", variant: "destructive" });
+        }
+        continue;
+      }
+
+      toast({ title: "Unsupported file type", description: `${file.name}: please use .pdf, .txt, or .md.`, variant: "destructive" });
+    }
   }, [toast]);
 
   const sendMessage = useCallback(async (text?: string) => {
@@ -791,7 +797,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                     ))}
                   </div>
                   <div className="flex gap-3">
-                    <input ref={fileInputRef} type="file" accept=".pdf,.txt,.md,text/plain,text/markdown,application/pdf" className="hidden" onChange={handleFileSelect} data-testid="input-file-upload-page" />
+                    <input ref={fileInputRef} type="file" multiple accept=".pdf,.txt,.md,text/plain,text/markdown,application/pdf" className="hidden" onChange={handleFileSelect} data-testid="input-file-upload-page" />
                     <button onClick={() => fileInputRef.current?.click()} disabled={isStreaming} className="relative shrink-0 p-2.5 rounded-xl border hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50" title="Attach PDF, .txt, or .md — click multiple times to add more" data-testid="button-attach-page">
                       <Paperclip className="h-5 w-5" />
                       {attachedDocs.length > 0 && <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-teal-600 text-[9px] font-bold text-white">{attachedDocs.length}</span>}
@@ -1199,6 +1205,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
               <input
                 ref={fileInputRef}
                 type="file"
+                multiple
                 accept=".pdf,.txt,.md,text/plain,text/markdown,application/pdf"
                 className="hidden"
                 onChange={handleFileSelect}

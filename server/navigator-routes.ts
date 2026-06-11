@@ -906,8 +906,18 @@ export function registerNavigatorRoutes(app: Express) {
       }
 
       if (mimetype === "application/pdf" || originalname.match(/\.pdf$/i)) {
-        const text = pdfBufferToText(buffer);
-        return res.json({ text, name: originalname });
+        let text = "";
+        let warning: string | undefined;
+        try {
+          text = pdfBufferToText(buffer);
+        } catch (pdfErr) {
+          // pdftotext failed (encrypted, corrupted, or image-only PDF).
+          // Return success with empty text so the client can still attach the doc
+          // and inform the user rather than hard-failing.
+          warning = "PDF text could not be extracted — it may be a scanned image or protected PDF. Try copy-pasting the text instead.";
+          console.warn("[Navigator] pdftotext failed for", originalname, pdfErr instanceof Error ? pdfErr.message : pdfErr);
+        }
+        return res.json({ text, name: originalname, warning });
       }
 
       res.status(415).json({ error: "Unsupported file type. Please upload a PDF or plain text file." });
