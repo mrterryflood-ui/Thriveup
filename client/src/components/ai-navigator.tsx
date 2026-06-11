@@ -136,6 +136,8 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // Prevents auto-resume from immediately reloading the last convo after user clicks New
+  const userStartedNewRef = useRef(false);
 
   const { data: conversations, refetch: refetchConversations } = useQuery<NavigatorConversation[]>({
     queryKey: ["/api/navigator/conversations"],
@@ -162,6 +164,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
       const res = await fetch(`/api/navigator/conversations/${convoId}/messages`, { credentials: "include" });
       if (!res.ok) return;
       const msgs = await res.json();
+      userStartedNewRef.current = false; // resume auto-behaviour after explicit load
       setMessages(msgs.map((m: any) => ({
         id: m.id,
         role: m.role,
@@ -176,14 +179,17 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   }, []);
 
   const startNewConversation = useCallback(() => {
+    userStartedNewRef.current = true;
     setMessages([]);
     setActiveConversationId(null);
     setAttachedDocs([]);
     setView("chat");
   }, []);
 
-  // Auto-resume the most recent conversation when the navigator opens
+  // Auto-resume the most recent conversation when the navigator opens.
+  // Skip if the user explicitly clicked New Conversation.
   useEffect(() => {
+    if (userStartedNewRef.current) return;
     if (
       (isOpen || mode === "page") &&
       isAuthenticated &&
