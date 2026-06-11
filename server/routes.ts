@@ -3538,7 +3538,23 @@ export async function registerRoutes(
 
   app.patch("/api/admin/alumni/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
-      const [updated] = await db.update(alumniProfiles).set(req.body).where(eq(alumniProfiles.id, req.params.id as string)).returning();
+      const allowedFields = z.object({
+        userName: z.string().optional(),
+        graduationYear: z.number().int().optional(),
+        currentRole: z.string().optional(),
+        currentOrganization: z.string().optional(),
+        careerField: z.string().optional(),
+        educationPath: z.string().optional(),
+        bio: z.string().optional(),
+        isAmbassador: z.boolean().optional(),
+        isChampion: z.boolean().optional(),
+        achievements: z.array(z.string()).optional(),
+        willingToMentor: z.boolean().optional(),
+        contactPreference: z.string().optional(),
+      }).strict();
+      const parsed = allowedFields.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid update fields", details: parsed.error.flatten() });
+      const [updated] = await db.update(alumniProfiles).set(parsed.data).where(eq(alumniProfiles.id, req.params.id as string)).returning();
       if (!updated) return res.status(404).json({ error: "Alumni profile not found" });
       res.json(updated);
     } catch (error) {
@@ -5441,7 +5457,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/cqi/cycles", requireAuth, async (req, res) => {
+  app.post("/api/cqi/cycles", requireAuth, requireAdmin, async (req, res) => {
     try {
       const userId = getUserId(req);
       const userName = getUserName(req) || "";
@@ -5457,7 +5473,7 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cqi/cycles/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiCycleSchema.partial().safeParse(req.body);
       if (!parsed.success) {
@@ -5470,7 +5486,7 @@ Key guidelines:
     }
   });
 
-  app.delete("/api/cqi/cycles/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cqi/cycles/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.deleteCqiCycle(req.params.id as string);
       res.json({ success: true });
@@ -5488,7 +5504,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/cqi/gaps", requireAuth, async (req, res) => {
+  app.post("/api/cqi/gaps", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiGapSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -5501,7 +5517,7 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/cqi/gaps/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cqi/gaps/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiGapSchema.partial().safeParse(req.body);
       if (!parsed.success) {
@@ -5514,7 +5530,7 @@ Key guidelines:
     }
   });
 
-  app.delete("/api/cqi/gaps/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cqi/gaps/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.deleteCqiGap(req.params.id as string);
       res.json({ success: true });
@@ -5532,7 +5548,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/cqi/interventions", requireAuth, async (req, res) => {
+  app.post("/api/cqi/interventions", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiInterventionSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -5545,7 +5561,7 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/cqi/interventions/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cqi/interventions/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiInterventionSchema.partial().safeParse(req.body);
       if (!parsed.success) {
@@ -5558,7 +5574,7 @@ Key guidelines:
     }
   });
 
-  app.delete("/api/cqi/interventions/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cqi/interventions/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.deleteCqiIntervention(req.params.id as string);
       res.json({ success: true });
@@ -5577,7 +5593,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/cqi/fidelity-definitions", requireAuth, async (req, res) => {
+  app.post("/api/cqi/fidelity-definitions", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiFidelityDefinitionSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -5590,7 +5606,7 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/cqi/fidelity-definitions/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cqi/fidelity-definitions/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiFidelityDefinitionSchema.partial().safeParse(req.body);
       if (!parsed.success) {
@@ -5603,7 +5619,7 @@ Key guidelines:
     }
   });
 
-  app.delete("/api/cqi/fidelity-definitions/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cqi/fidelity-definitions/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.deleteCqiFidelityDefinition(req.params.id as string);
       res.json({ success: true });
@@ -5621,7 +5637,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/cqi/fidelity-observations", requireAuth, async (req, res) => {
+  app.post("/api/cqi/fidelity-observations", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiFidelityObservationSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -5634,7 +5650,7 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/cqi/fidelity-observations/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cqi/fidelity-observations/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiFidelityObservationSchema.partial().safeParse(req.body);
       if (!parsed.success) {
@@ -5647,7 +5663,7 @@ Key guidelines:
     }
   });
 
-  app.delete("/api/cqi/fidelity-observations/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cqi/fidelity-observations/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.deleteCqiFidelityObservation(req.params.id as string);
       res.json({ success: true });
@@ -5665,7 +5681,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/cqi/cycle-phases", requireAuth, async (req, res) => {
+  app.post("/api/cqi/cycle-phases", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiCyclePhaseSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -5678,7 +5694,7 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/cqi/cycle-phases/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cqi/cycle-phases/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiCyclePhaseSchema.partial().safeParse(req.body);
       if (!parsed.success) {
@@ -5700,7 +5716,7 @@ Key guidelines:
     }
   });
 
-  app.post("/api/cqi/outcomes", requireAuth, async (req, res) => {
+  app.post("/api/cqi/outcomes", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiOutcomeSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -5713,7 +5729,7 @@ Key guidelines:
     }
   });
 
-  app.patch("/api/cqi/outcomes/:id", requireAuth, async (req, res) => {
+  app.patch("/api/cqi/outcomes/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCqiOutcomeSchema.partial().safeParse(req.body);
       if (!parsed.success) {
@@ -5726,7 +5742,7 @@ Key guidelines:
     }
   });
 
-  app.delete("/api/cqi/outcomes/:id", requireAuth, async (req, res) => {
+  app.delete("/api/cqi/outcomes/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       await storage.deleteCqiOutcome(req.params.id as string);
       res.json({ success: true });
@@ -5871,7 +5887,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     }
   });
 
-  app.post("/api/mentorship/search", async (req, res) => {
+  app.post("/api/mentorship/search", requireAuth, async (req, res) => {
     try {
       const { zipCode, category, query } = req.body;
       if (!zipCode || typeof zipCode !== "string" || !/^\d{5}$/.test(zipCode)) {

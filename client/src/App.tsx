@@ -424,10 +424,8 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/reentry" component={ReentryDashboardPage} />
-      <Route path="/reentry-dashboard" component={ReentryDashboardPage} />
       <Route path="/intake-wizard" component={IntakeWizardPage} />
       <Route path="/transparency-dashboard" component={TransparencyDashboardPage} />
-      <Route path="/wab2-enrollment-hub" component={WAB2EnrollmentHubPage} />
       <Route path="/partners" component={CommunityPartnersPage} />
       <Route path="/outcomes" component={OutcomeReportingPage} />
       <Route path="/justice-partners" component={JusticePartnersPage} />
@@ -625,7 +623,7 @@ function AppRouter() {
       </Route>
       <Route path="/benefits" component={BenefitsCommandCenterPage} />
       <Route path="/benefits-screener" component={BenefitsScreenerPage} />
-      <Route path="/coalition" component={CoalitionPortalPage} />
+      <Route path="/coalition-portal" component={CoalitionPortalPage} />
       <Route path="/loi-writer">
         <RequireAuth adminOnly reason="The LOI writer is restricted to TCAF admins.">
           <LOIWriterPage />
@@ -688,12 +686,10 @@ function AppRouter() {
       <Route path="/reentry/outcome-reports" component={OutcomeReportsNrrcPage} />
       <Route path="/resume-builder" component={ResumeBuilderPage} />
       <Route path="/engagement-hub" component={EngagementHubPage} />
-      <Route path="/corridor" component={CorridorIntelligencePage} />
       <Route path="/corridor-intelligence" component={CorridorIntelligencePage} />
       <Route path="/corridor/evidence" component={CorridorEvidencePage} />
       <Route path="/corridor/docs" component={CorridorDocsPage} />
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />
-      <Route path="/network/members" component={NetworkMembersPage} />
       <Route path="/network" component={NetworkMembersPage} />
       <Route path="/navigator" component={NavigatorPage} />
       <Route path="/hub" component={HubHomePage} />
@@ -704,7 +700,10 @@ function AppRouter() {
       <Route path="/hub/connect" component={HubMorePage} />
       <Route path="/workbench" component={WorkbenchPage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
-      <Route path="/coalition-portal"><Redirect to="/coalition" /></Route>
+      <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
+      <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
+      <Route path="/network/members"><Redirect to="/network" /></Route>
+      <Route path="/wab2-enrollment-hub"><Redirect to="/wab2-enrollment" /></Route>
       <Route path="/benefits-command-center"><Redirect to="/benefits" /></Route>
       <Route path="/about-leadership"><Redirect to="/about" /></Route>
       <Route path="/career-pathways"><Redirect to="/academy/careers" /></Route>
