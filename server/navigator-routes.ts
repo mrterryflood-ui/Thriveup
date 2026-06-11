@@ -8,6 +8,7 @@ import { searchResources, getResourceCategories } from "./resource-engine";
 import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData } from "@shared/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
 import multer from "multer";
+import { pdfBufferToText } from "./rfp-ingestion";
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -895,7 +896,7 @@ export function registerNavigatorRoutes(app: Express) {
     }
   });
 
-  app.post("/api/navigator/extract-text", requireAuth, upload.single("file"), async (req, res) => {
+  app.post("/api/navigator/extract-text", upload.single("file"), async (req, res) => {
     try {
       if (!req.file) return res.status(400).json({ error: "No file uploaded" });
       const { mimetype, originalname, buffer } = req.file;
@@ -905,9 +906,8 @@ export function registerNavigatorRoutes(app: Express) {
       }
 
       if (mimetype === "application/pdf" || originalname.match(/\.pdf$/i)) {
-        const pdfParse = (await import("pdf-parse")).default;
-        const data = await pdfParse(buffer);
-        return res.json({ text: data.text, name: originalname, pages: data.numpages });
+        const text = pdfBufferToText(buffer);
+        return res.json({ text, name: originalname });
       }
 
       res.status(415).json({ error: "Unsupported file type. Please upload a PDF or plain text file." });
