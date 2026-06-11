@@ -235,6 +235,7 @@ const ThisWeekPage = lazy(() => import("@/pages/this-week"));
 const NsfTechAccessHubPage = lazy(() => import("@/pages/nsf-techaccess-hub"));
 const StDavidsWAB2WorkspacePage = lazy(() => import("@/pages/st-davids-wab2-workspace"));
 const NorthWilcoChildcareCoalitionPage = lazy(() => import("@/pages/north-wilco-childcare-coalition"));
+const OurApproachPage = lazy(() => import("@/pages/our-approach"));
 const WAB2EnrollmentHubPage = lazy(() => import("@/pages/wab2-enrollment-hub"));
 const DataSourcesPage = lazy(() => import("@/pages/data-sources"));
 const ReentryStipendPilotPage = lazy(() => import("@/pages/reentry-stipend-pilot"));
@@ -470,6 +471,7 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/north-wilco-childcare-coalition" component={NorthWilcoChildcareCoalitionPage} />
+      <Route path="/our-approach" component={OurApproachPage} />
       <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
       <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />

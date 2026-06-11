@@ -664,6 +664,7 @@ export default function NorthWilcoChildcareCoalitionPage() {
           </a>
         </div>
         <div className="flex gap-3">
+          <Link href="/our-approach" className="underline">Our Approach</Link>
           <Link href="/corridor-intelligence" className="underline">County Intelligence</Link>
           <Link href="/benefits" className="underline">Benefits Data</Link>
           <Link href="/impact" className="underline">Impact Dashboard</Link>

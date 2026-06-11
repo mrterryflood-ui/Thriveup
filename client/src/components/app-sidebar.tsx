@@ -33,7 +33,7 @@ import {
   Info, BookMarked,
   Mail, Landmark, RefreshCw, Package, PenTool,
   Microscope, Stethoscope, Film, HandHeart, Search, Wrench,
-  Compass, Baby,
+  Compass, Baby, Layers,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -262,6 +262,7 @@ const ctxHubItems: NavItem[] = [
   { title: "SNAP Navigator", url: "/benefits-screener", icon: ClipboardList },
   { title: "Benefits Navigator", url: "/benefits", icon: HandHeart },
   { title: "N. Wilco Childcare Coalition", url: "/north-wilco-childcare-coalition", icon: Baby },
+  { title: "Our Approach", url: "/our-approach", icon: Layers },
   { title: "N. Wilco Childcare Voice", url: "/voice/north-wilco-childcare-gaps", icon: MessageCircle },
   { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles },
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
