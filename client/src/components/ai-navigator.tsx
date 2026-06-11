@@ -180,15 +180,31 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
 
   const startNewConversation = useCallback(() => {
     userStartedNewRef.current = true;
+    // Persist across hard-refresh within the same browser tab
+    sessionStorage.setItem("navigator_skip_resume", "1");
     setMessages([]);
     setActiveConversationId(null);
     setAttachedDocs([]);
     setView("chat");
   }, []);
 
-  // Auto-resume the most recent conversation when the navigator opens.
-  // Skip if the user explicitly clicked New Conversation.
+  // Once the user has actually started a real conversation, clear the skip flag
+  // so a future hard-refresh auto-resumes their new conversation correctly.
   useEffect(() => {
+    if (activeConversationId) {
+      sessionStorage.removeItem("navigator_skip_resume");
+      userStartedNewRef.current = false;
+    }
+  }, [activeConversationId]);
+
+  // Auto-resume the most recent conversation when the navigator opens.
+  // Skip if the user explicitly clicked New Conversation (or refreshed after doing so).
+  useEffect(() => {
+    const skipFlag = sessionStorage.getItem("navigator_skip_resume") === "1";
+    if (skipFlag) {
+      userStartedNewRef.current = true; // keep ref in sync
+      return;
+    }
     if (userStartedNewRef.current) return;
     if (
       (isOpen || mode === "page") &&
@@ -281,9 +297,17 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
           const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData, credentials: "include" });
           if (!res.ok) throw new Error(`Server returned ${res.status}`);
           const { text, name, warning } = await res.json();
-          addDoc(name || file.name, text || "", "pdf");
-          if (warning) {
-            toast({ title: `${file.name} — limited text`, description: warning, variant: "destructive" });
+          if (!text || text.trim().length === 0) {
+            toast({
+              title: `${file.name} — no text found`,
+              description: "This PDF appears to be scanned or image-based (no selectable text). Copy-paste the content directly into the chat instead.",
+              variant: "destructive",
+            });
+          } else {
+            addDoc(name || file.name, text, "pdf");
+            if (warning) {
+              toast({ title: `${file.name} — partial text only`, description: warning });
+            }
           }
         } catch (err) {
           toast({ title: `Could not read ${file.name}`, description: "It may be a scanned or protected PDF. Try copy-pasting the text instead.", variant: "destructive" });
