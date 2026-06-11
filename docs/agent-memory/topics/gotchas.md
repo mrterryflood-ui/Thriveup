@@ -168,6 +168,28 @@ Pitches were running 30–50% under shipped reality (Dr. Flood, 2026-05-17). Rea
 
 ---
 
+## P-L13 (2026-06-11) — Server endpoint 200 ≠ UI feature working
+
+**Trigger.** Dr. Flood: "Why do you keep half building and not creating functional projects?" after two Navigator bug fixes (PDF extraction, New Conversation hard-refresh) that were declared done without `runTest`.
+
+**Pattern of failure.**
+- Fixed PDF extraction server endpoint → curl returned HTTP 200 with 5997 chars → declared "working" → user still got "Could not read PDF" toast.
+- Fixed `userStartedNewRef` in-memory flag → declared "New Conversation is fixed" → hard-refresh reset the ref → old conversation re-appeared.
+- In both cases the server code was correct. The failure was in the client-side interaction path that only a UI test would have caught.
+- Iron Rule #11 / P-L12 already says `runTest` for interaction-bearing surfaces. I substituted a curl test of the server and stopped there. That is an incomplete proof, not a fix.
+
+**Root cause.** I treat "the API returns 200" as proof that "the feature works." These are different claims. The API is one layer. The UI interaction (file picker, multi-select, sessionStorage flag, toast rendering, state update) is a different layer. A bug can live in either place independently.
+
+**New rule (P-L13, extends P-L12 pre-flight).** For any bug fix that touches an interactive client feature, the proof of done requires BOTH:
+1. Server check: endpoint returns expected status + body (curl or log).
+2. Client check: `runTest` exercises the actual UI interaction in a real browser.
+Neither alone is sufficient. If `runTest` is unavailable, `screenshot` the route AND explicitly state "I have not run a UI interaction test — this is unverified at the browser level."
+
+**Add to Frontend change pre-flight:**
+> After any fix to a client-side interactive feature (file picker, form, modal, hook, sessionStorage/localStorage, state), run `runTest` targeting that exact interaction. Do not substitute an API curl for a UI test. They prove different things.
+
+---
+
 ## P-L12 instance #1 (2026-05-26, same turn as rule was written) — Confused submission title with program name
 
 **What I claimed.** Told user to pick "It's No Longer About You" from the ARPA-H portal's solicitation dropdown.
