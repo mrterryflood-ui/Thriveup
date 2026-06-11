@@ -179,6 +179,46 @@ export default function OurApproachPage() {
 
       <Separator />
 
+      {/* Community voice as source */}
+      <section data-testid="section-community-voice-source">
+        <div className="rounded-xl border-2 border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20 p-6 space-y-4">
+          <div className="flex items-start gap-3">
+            <Mic className="h-6 w-6 text-rose-600 shrink-0 mt-0.5" />
+            <div className="space-y-2">
+              <h2 className="text-xl font-bold text-rose-800 dark:text-rose-300">
+                Community voice is the source — not the input.
+              </h2>
+              <p className="text-sm text-rose-800 dark:text-rose-300 max-w-3xl leading-relaxed">
+                Before any census data is pulled, before any grant is written, before any CHW is deployed —
+                the people living closest to the gap have already described it. They have names for it.
+                They have solutions for it. They are often already running those solutions without a title or a budget.
+                The platform listens to them first, and builds outward from what they say.
+              </p>
+              <p className="text-sm text-rose-800 dark:text-rose-300 max-w-3xl leading-relaxed">
+                This is not consultation. It is not community engagement as a checkbox.
+                It is <strong>co-authorship</strong> — where the grandmother watching four children
+                on the night shift at Samsung is as much the designer of the North Wilco coalition response
+                as any funder or practitioner at the table.
+              </p>
+              <div className="flex gap-3 flex-wrap pt-1">
+                <Button size="sm" className="bg-rose-700 hover:bg-rose-800 text-white" asChild data-testid="button-voice-source">
+                  <Link href="/voice">
+                    <Mic className="h-3.5 w-3.5 mr-1" /> Community Voice projects
+                  </Link>
+                </Button>
+                <Button size="sm" variant="outline" className="border-rose-400 text-rose-800 dark:text-rose-300" asChild data-testid="button-voice-north-wilco">
+                  <Link href="/voice/north-wilco-childcare-gaps">
+                    <Heart className="h-3.5 w-3.5 mr-1" /> N. Wilco Childcare Gaps
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <Separator />
+
       {/* Collaboration spine */}
       <section data-testid="section-collaboration-spine">
         <div className="mb-4">
