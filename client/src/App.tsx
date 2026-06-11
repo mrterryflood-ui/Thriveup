@@ -234,6 +234,7 @@ const SedgwickVitalityProposalPage = lazy(() => import("@/pages/sedgwick-vitalit
 const ThisWeekPage = lazy(() => import("@/pages/this-week"));
 const NsfTechAccessHubPage = lazy(() => import("@/pages/nsf-techaccess-hub"));
 const StDavidsWAB2WorkspacePage = lazy(() => import("@/pages/st-davids-wab2-workspace"));
+const NorthWilcoChildcareCoalitionPage = lazy(() => import("@/pages/north-wilco-childcare-coalition"));
 const WAB2EnrollmentHubPage = lazy(() => import("@/pages/wab2-enrollment-hub"));
 const DataSourcesPage = lazy(() => import("@/pages/data-sources"));
 const ReentryStipendPilotPage = lazy(() => import("@/pages/reentry-stipend-pilot"));
@@ -464,10 +465,11 @@ function AppRouter() {
       <Route path="/this-week" component={ThisWeekPage} />
       <Route path="/nsf-techaccess-hub" component={NsfTechAccessHubPage} />
       <Route path="/st-davids-wab2">
-        <RequireAuth adminOnly reason="The St. David's WAB2 LOI workspace is an internal grant proposal tool restricted to TCAF admins.">
+        <RequireAuth adminOnly reason="The WAB2 Coalition Impact Dashboard is an internal workspace restricted to TCAF admins.">
           <StDavidsWAB2WorkspacePage />
         </RequireAuth>
       </Route>
+      <Route path="/north-wilco-childcare-coalition" component={NorthWilcoChildcareCoalitionPage} />
       <Route path="/wab2-enrollment" component={WAB2EnrollmentHubPage} />
       <Route path="/st-davids" component={WAB2EnrollmentHubPage} />
       <Route path="/community-map" component={CommunityMapPage} />

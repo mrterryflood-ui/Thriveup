@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowRight, Database, RefreshCw, Sparkles, ExternalLink, MapPin, Users, FileText, AlertTriangle, Link2, Shield, ShieldAlert, Lightbulb, Network } from "lucide-react";
+import { ArrowRight, Database, RefreshCw, Sparkles, ExternalLink, MapPin, Users, FileText, AlertTriangle, Link2, Shield, ShieldAlert, Lightbulb, Network, Baby } from "lucide-react";
 
 interface Claim<T = number | string> {
   value: T | null;
@@ -353,6 +353,11 @@ export default function CorridorIntelligencePage() {
               <a href="/voice/north-wilco-childcare-gaps">
                 <Button size="sm" variant="outline" data-testid="button-wilco-voice">
                   <Users className="w-3.5 h-3.5 mr-1" /> N. Wilco Voice project
+                </Button>
+              </a>
+              <a href="/north-wilco-childcare-coalition">
+                <Button size="sm" variant="outline" data-testid="button-wilco-coalition">
+                  <Baby className="w-3.5 h-3.5 mr-1" /> Childcare Coalition Dashboard
                 </Button>
               </a>
             </div>
