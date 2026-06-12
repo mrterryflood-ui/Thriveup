@@ -727,7 +727,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                           )}
                           <div className={`max-w-[80%] rounded-2xl px-4 py-3 text-sm ${msg.role === "user" ? "bg-gradient-to-r from-teal-600 to-emerald-600 text-white rounded-br-sm" : "bg-muted/60 border rounded-bl-sm"}`}>
                             {msg.role === "assistant" ? (
-                              <div className="leading-relaxed">
+                              <div className="leading-relaxed select-text cursor-text">
                                 {msg.content ? formatMessageContent(msg.content) : (
                                   <div className="flex items-center gap-2">
                                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -736,7 +736,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                                 )}
                               </div>
                             ) : (
-                              <div className="leading-relaxed whitespace-pre-wrap">{msg.content}</div>
+                              <div className="leading-relaxed whitespace-pre-wrap select-text cursor-text">{msg.content}</div>
                             )}
                           </div>
                           {msg.role === "user" && (
@@ -775,8 +775,15 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                               <span className="ml-auto">{deepThinkingExpanded[idx] ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}</span>
                             </button>
                             {deepThinkingExpanded[idx] && (
-                              <div className="mt-1.5 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 text-sm leading-relaxed">
+                              <div className="mt-1.5 bg-purple-50 dark:bg-purple-950/20 border border-purple-200 dark:border-purple-800 rounded-lg p-4 text-sm leading-relaxed select-text cursor-text">
                                 {formatMessageContent(msg.deepThinking)}
+                                <button
+                                  onClick={() => copyMessage(msg.deepThinking!, idx + 10000)}
+                                  className="mt-3 flex items-center gap-1 text-xs text-purple-600 dark:text-purple-400 hover:text-purple-900 dark:hover:text-purple-100 transition-colors px-2 py-1 rounded hover:bg-purple-100 dark:hover:bg-purple-900/30"
+                                  data-testid={`button-copy-deep-${idx}`}
+                                >
+                                  {copiedIdx === idx + 10000 ? <><Check className="h-3 w-3 text-green-500" /><span>Copied</span></> : <><Copy className="h-3 w-3" /><span>Copy R1 analysis</span></>}
+                                </button>
                               </div>
                             )}
                           </div>
@@ -1085,7 +1092,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                         }`}
                       >
                         {msg.role === "assistant" ? (
-                          <div className="leading-relaxed">
+                          <div className="leading-relaxed select-text cursor-text">
                             {msg.content ? formatMessageContent(msg.content) : (
                               <div className="flex items-center gap-2">
                                 <Loader2 className="h-3.5 w-3.5 animate-spin" />
@@ -1094,7 +1101,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                             )}
                           </div>
                         ) : (
-                          <div className="leading-relaxed whitespace-pre-wrap">{msg.content}</div>
+                          <div className="leading-relaxed whitespace-pre-wrap select-text cursor-text">{msg.content}</div>
                         )}
                       </div>
                       {msg.role === "user" && (
@@ -1166,8 +1173,15 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                           {deepThinkingExpanded[idx] ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
                         </button>
                         {deepThinkingExpanded[idx] && (
-                          <div className="mt-1.5 p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/30 text-xs text-violet-900 dark:text-violet-100 leading-relaxed">
+                          <div className="mt-1.5 p-3 rounded-xl border border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/30 text-xs text-violet-900 dark:text-violet-100 leading-relaxed select-text cursor-text">
                             {formatMessageContent(msg.deepThinking)}
+                            <button
+                              onClick={() => copyMessage(msg.deepThinking!, idx + 10000)}
+                              className="mt-2 flex items-center gap-1 text-[10px] text-violet-600 dark:text-violet-400 hover:text-violet-900 dark:hover:text-violet-100 transition-colors px-1.5 py-0.5 rounded hover:bg-violet-100 dark:hover:bg-violet-900/30"
+                              data-testid={`button-copy-deep-bubble-${idx}`}
+                            >
+                              {copiedIdx === idx + 10000 ? <><Check className="h-3 w-3 text-green-500" /><span>Copied</span></> : <><Copy className="h-3 w-3" /><span>Copy R1 analysis</span></>}
+                            </button>
                           </div>
                         )}
                       </div>
