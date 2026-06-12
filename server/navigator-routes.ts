@@ -989,16 +989,32 @@ export function registerNavigatorRoutes(app: Express) {
       if (mimetype === "application/pdf" || originalname.match(/\.pdf$/i)) {
         let text = "";
         let ocrUsed = false;
+
+        // Step 1: pdftotext (fast, preserves layout)
         try {
           text = pdfBufferToText(buffer);
         } catch (pdfErr) {
           console.warn("[Navigator] pdftotext failed for", originalname, pdfErr instanceof Error ? pdfErr.message : pdfErr);
         }
 
-        // If pdftotext returned nothing, the PDF is likely scanned — try OCR via Claude vision
+        // Step 2: pdf-parse Node.js fallback (no binary required)
         if (!text || text.trim().length < 50) {
           try {
-            console.log(`[Navigator OCR] pdftotext returned no text for "${originalname}", attempting vision OCR...`);
+            const pdfParse = (await import("pdf-parse")).default;
+            const parsed = await pdfParse(buffer);
+            if (parsed.text && parsed.text.trim().length >= 50) {
+              text = parsed.text;
+              console.log(`[Navigator] pdf-parse extracted ${text.length} chars from "${originalname}"`);
+            }
+          } catch (parseErr) {
+            console.warn("[Navigator] pdf-parse failed for", originalname, parseErr instanceof Error ? parseErr.message : parseErr);
+          }
+        }
+
+        // Step 3: OCR via Claude vision (scanned/image-based PDFs)
+        if (!text || text.trim().length < 50) {
+          try {
+            console.log(`[Navigator OCR] Both pdftotext and pdf-parse returned no text for "${originalname}", attempting vision OCR...`);
             text = await ocrPdfBuffer(buffer, originalname);
             ocrUsed = true;
           } catch (ocrErr) {
