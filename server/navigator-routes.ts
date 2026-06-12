@@ -3,12 +3,93 @@ import { db } from "./storage";
 import { streamAIResponse } from "./ai-provider";
 import { collaborativeStream } from "./collaborative-ai";
 import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import { searchByState, searchByLocation, generateCommunityNarrative } from "./gis-engine";
 import { searchResources, getResourceCategories } from "./resource-engine";
 import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData } from "@shared/schema";
 import { eq, desc, and, like, sql } from "drizzle-orm";
 import multer from "multer";
+import { spawnSync } from "child_process";
+import * as fs from "fs";
+import * as os from "os";
+import * as path from "path";
 import { pdfBufferToText } from "./rfp-ingestion";
+
+/**
+ * OCR a PDF buffer by rendering pages with pdftoppm then sending images to
+ * Claude vision. Used as fallback when pdftotext returns empty (scanned PDFs).
+ * Limits to first MAX_OCR_PAGES pages to bound cost.
+ */
+async function ocrPdfBuffer(buffer: Buffer, filename: string): Promise<string> {
+  const MAX_OCR_PAGES = 10;
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), "navigator-ocr-"));
+  const tmpPdf = path.join(tmpDir, "input.pdf");
+
+  try {
+    fs.writeFileSync(tmpPdf, buffer);
+
+    // Render pages to PNG at 150 DPI (good OCR quality, manageable file size)
+    const render = spawnSync("pdftoppm", [
+      "-png", "-r", "150",
+      "-f", "1", "-l", String(MAX_OCR_PAGES),
+      tmpPdf,
+      path.join(tmpDir, "page"),
+    ], { encoding: "buffer", maxBuffer: 200 * 1024 * 1024 });
+
+    if (render.status !== 0) {
+      throw new Error(`pdftoppm failed: ${render.stderr?.toString()}`);
+    }
+
+    // Collect generated PNG files (sorted)
+    const pngFiles = fs.readdirSync(tmpDir)
+      .filter(f => f.endsWith(".png"))
+      .sort()
+      .map(f => path.join(tmpDir, f));
+
+    if (pngFiles.length === 0) throw new Error("pdftoppm produced no images");
+
+    // Build Claude vision request — one image per page
+    const imageContent: Anthropic.ImageBlockParam[] = pngFiles.map(f => ({
+      type: "image" as const,
+      source: {
+        type: "base64" as const,
+        media_type: "image/png" as const,
+        data: fs.readFileSync(f).toString("base64"),
+      },
+    }));
+
+    // Always use Replit AI Integrations path — ANTHROPIC_API_KEY may have no credits
+    const anthropicKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+    const anthropicBase = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+    const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
+
+    const response = await client.messages.create({
+      model: "claude-haiku-4-5",
+      max_tokens: 8000,
+      messages: [{
+        role: "user",
+        content: [
+          ...imageContent,
+          {
+            type: "text",
+            text: `These are pages from a scanned PDF document named "${filename}". Please transcribe all text exactly as it appears, preserving structure, headings, lists, and tables. Output only the transcribed text with no commentary.`,
+          },
+        ],
+      }],
+    });
+
+    const text = response.content
+      .filter(b => b.type === "text")
+      .map(b => (b as Anthropic.TextBlock).text)
+      .join("\n");
+
+    console.log(`[Navigator OCR] Extracted ${text.length} chars from ${pngFiles.length} page(s) of "${filename}"`);
+    return text;
+  } finally {
+    // Clean up temp files
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
+  }
+}
 
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 
@@ -907,17 +988,26 @@ export function registerNavigatorRoutes(app: Express) {
 
       if (mimetype === "application/pdf" || originalname.match(/\.pdf$/i)) {
         let text = "";
-        let warning: string | undefined;
+        let ocrUsed = false;
         try {
           text = pdfBufferToText(buffer);
         } catch (pdfErr) {
-          // pdftotext failed (encrypted, corrupted, or image-only PDF).
-          // Return success with empty text so the client can still attach the doc
-          // and inform the user rather than hard-failing.
-          warning = "PDF text could not be extracted — it may be a scanned image or protected PDF. Try copy-pasting the text instead.";
           console.warn("[Navigator] pdftotext failed for", originalname, pdfErr instanceof Error ? pdfErr.message : pdfErr);
         }
-        return res.json({ text, name: originalname, warning });
+
+        // If pdftotext returned nothing, the PDF is likely scanned — try OCR via Claude vision
+        if (!text || text.trim().length < 50) {
+          try {
+            console.log(`[Navigator OCR] pdftotext returned no text for "${originalname}", attempting vision OCR...`);
+            text = await ocrPdfBuffer(buffer, originalname);
+            ocrUsed = true;
+          } catch (ocrErr) {
+            console.error("[Navigator OCR] Vision OCR failed for", originalname, ocrErr instanceof Error ? ocrErr.message : ocrErr);
+            text = "";
+          }
+        }
+
+        return res.json({ text, name: originalname, ocrUsed });
       }
 
       res.status(415).json({ error: "Unsupported file type. Please upload a PDF or plain text file." });

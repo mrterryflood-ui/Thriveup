@@ -296,17 +296,17 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
         try {
           const res = await fetch("/api/navigator/extract-text", { method: "POST", body: formData, credentials: "include" });
           if (!res.ok) throw new Error(`Server returned ${res.status}`);
-          const { text, name, warning } = await res.json();
+          const { text, name, ocrUsed } = await res.json();
           if (!text || text.trim().length === 0) {
             toast({
-              title: `${file.name} — no text found`,
-              description: "This PDF appears to be scanned or image-based (no selectable text). Copy-paste the content directly into the chat instead.",
+              title: `${file.name} — could not extract text`,
+              description: "This PDF may be encrypted or an unsupported format. Try copy-pasting the content directly into the chat.",
               variant: "destructive",
             });
           } else {
             addDoc(name || file.name, text, "pdf");
-            if (warning) {
-              toast({ title: `${file.name} — partial text only`, description: warning });
+            if (ocrUsed) {
+              toast({ title: `${file.name} — read via OCR`, description: "Scanned PDF processed with vision AI. Text may have minor errors." });
             }
           }
         } catch (err) {
