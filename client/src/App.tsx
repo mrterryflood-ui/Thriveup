@@ -271,6 +271,15 @@ const HubFundPage = lazy(() => import("@/pages/hub-fund"));
 const HubGrowPage = lazy(() => import("@/pages/hub-grow"));
 const HubMorePage = lazy(() => import("@/pages/hub-more"));
 const WorkbenchPage = lazy(() => import("@/pages/workbench"));
+const SafePassagePage = lazy(() => import("@/pages/safe-passage/index"));
+const SafePassageSafetyPlanningPage = lazy(() => import("@/pages/safe-passage/safety-planning"));
+const SafePassageHousingAssessmentPage = lazy(() => import("@/pages/safe-passage/housing-assessment"));
+const SafePassageBenefitsBridgePage = lazy(() => import("@/pages/safe-passage/benefits-bridge"));
+const SafePassageLegalNavigatorPage = lazy(() => import("@/pages/safe-passage/legal-navigator"));
+const SafePassageEmploymentPathwayPage = lazy(() => import("@/pages/safe-passage/employment-pathway"));
+const SafePassageHousingFinderPage = lazy(() => import("@/pages/safe-passage/housing-finder"));
+const SafePassagePartnerPortalPage = lazy(() => import("@/pages/safe-passage/partner-portal"));
+const SafePassageImpactDashboardPage = lazy(() => import("@/pages/safe-passage/impact-dashboard"));
 
 function PageFallback() {
   return (
@@ -703,6 +712,15 @@ function AppRouter() {
       <Route path="/hub/more" component={HubMorePage} />
       <Route path="/hub/connect" component={HubMorePage} />
       <Route path="/workbench" component={WorkbenchPage} />
+      <Route path="/safe-passage" component={SafePassagePage} />
+      <Route path="/safe-passage/safety-planning" component={SafePassageSafetyPlanningPage} />
+      <Route path="/safe-passage/housing-assessment" component={SafePassageHousingAssessmentPage} />
+      <Route path="/safe-passage/benefits-bridge" component={SafePassageBenefitsBridgePage} />
+      <Route path="/safe-passage/legal-navigator" component={SafePassageLegalNavigatorPage} />
+      <Route path="/safe-passage/employment-pathway" component={SafePassageEmploymentPathwayPage} />
+      <Route path="/safe-passage/housing-finder" component={SafePassageHousingFinderPage} />
+      <Route path="/safe-passage/partner-portal" component={SafePassagePartnerPortalPage} />
+      <Route path="/safe-passage/impact-dashboard" component={SafePassageImpactDashboardPage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
