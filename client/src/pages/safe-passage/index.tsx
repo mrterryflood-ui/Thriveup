@@ -215,6 +215,26 @@ export default function SafePassageLandingPage() {
           )}
         </div>
 
+        {/* Mission statement */}
+        <div className="border border-teal-200 dark:border-teal-800 rounded-xl p-6 bg-teal-50/50 dark:bg-teal-950/20 mb-6">
+          <p className="text-base font-semibold text-slate-900 dark:text-slate-50 mb-2 leading-snug">
+            ThriveUp Academy connects people to the tools they need — to support themselves, their families, and their communities.
+          </p>
+          <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
+            We work across our own platform and alongside partner organizations, because no one thrives alone. When individuals are informed, advocates are equipped, and organizations are linked — the whole community grows stronger. Safe Passage is built on that foundation.
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {["Collaboration", "Advocacy", "Education", "Information", "Communication"].map(pillar => (
+              <span key={pillar} className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-teal-100 dark:bg-teal-900/50 text-teal-800 dark:text-teal-200 border border-teal-200 dark:border-teal-700">
+                {pillar}
+              </span>
+            ))}
+            <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200 dark:border-slate-700 italic">
+              makes us all stronger together
+            </span>
+          </div>
+        </div>
+
         {/* For partners */}
         <div className="bg-slate-900 dark:bg-slate-800 rounded-xl p-6 text-white mb-8">
           <div className="flex items-start gap-4">
