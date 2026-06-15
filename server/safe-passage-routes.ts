@@ -1,5 +1,5 @@
 import type { Express } from "express";
-import { requireAuth } from "./replit_integrations/auth/replitAuth";
+import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
 
 interface HousingListing {
   id: string; partnerOrgId: string; partnerOrgName: string;
@@ -79,7 +79,7 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post("/api/safe-passage/listings", requireAuth, async (req, res) => {
+  app.post("/api/safe-passage/listings", isAuthenticated, async (req, res) => {
     try {
       const org = partnerOrgs.find(o => o.userId === (req as any).user?.id && o.approved);
       if (!org) return res.status(403).json({ error: "Approved partner account required" });
@@ -89,7 +89,7 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.patch("/api/safe-passage/listings/:id", requireAuth, async (req, res) => {
+  app.patch("/api/safe-passage/listings/:id", isAuthenticated, async (req, res) => {
     try {
       const idx = listings.findIndex(l => l.id === req.params.id);
       if (idx === -1) return res.status(404).json({ error: "Not found" });
@@ -98,12 +98,12 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.get("/api/safe-passage/partner/me", requireAuth, async (req, res) => {
+  app.get("/api/safe-passage/partner/me", isAuthenticated, async (req, res) => {
     try { res.json(partnerOrgs.find(o => o.userId === (req as any).user?.id) || null); }
     catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post("/api/safe-passage/partner/register", requireAuth, async (req, res) => {
+  app.post("/api/safe-passage/partner/register", isAuthenticated, async (req, res) => {
     try {
       const existing = partnerOrgs.find(o => o.userId === (req as any).user?.id);
       if (existing) return res.json(existing);
@@ -113,14 +113,14 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.get("/api/safe-passage/vouchers", requireAuth, async (req, res) => {
+  app.get("/api/safe-passage/vouchers", isAuthenticated, async (req, res) => {
     try {
       const org = partnerOrgs.find(o => o.userId === (req as any).user?.id);
       res.json(org ? voucherRequests.filter(v => v.partnerOrgId === org.id) : []);
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post("/api/safe-passage/vouchers", requireAuth, async (req, res) => {
+  app.post("/api/safe-passage/vouchers", isAuthenticated, async (req, res) => {
     try {
       const org = partnerOrgs.find(o => o.userId === (req as any).user?.id && o.approved);
       if (!org) return res.status(403).json({ error: "Approved partner account required" });
@@ -131,7 +131,7 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.patch("/api/safe-passage/vouchers/:id/status", requireAuth, async (req, res) => {
+  app.patch("/api/safe-passage/vouchers/:id/status", isAuthenticated, async (req, res) => {
     try {
       const idx = voucherRequests.findIndex(v => v.id === req.params.id);
       if (idx === -1) return res.status(404).json({ error: "Not found" });
@@ -140,7 +140,7 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.post("/api/safe-passage/partner/log", requireAuth, async (req, res) => {
+  app.post("/api/safe-passage/partner/log", isAuthenticated, async (req, res) => {
     try {
       const org = partnerOrgs.find(o => o.userId === (req as any).user?.id);
       serviceLogs.push({ id: `log-${logId++}`, serviceType: req.body.serviceType, partnerOrgId: org?.id || null, county: req.body.county || org?.county || null, language: req.body.language || null, anonymous: true, timestamp: new Date().toISOString() });
@@ -148,9 +148,9 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.get("/api/safe-passage/admin/partners", requireAuth, async (_req, res) => { res.json(partnerOrgs); });
+  app.get("/api/safe-passage/admin/partners", isAuthenticated, async (_req, res) => { res.json(partnerOrgs); });
 
-  app.patch("/api/safe-passage/admin/partners/:id/approve", requireAuth, async (req, res) => {
+  app.patch("/api/safe-passage/admin/partners/:id/approve", isAuthenticated, async (req, res) => {
     const idx = partnerOrgs.findIndex(o => o.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: "Not found" });
     partnerOrgs[idx].approved = true;
