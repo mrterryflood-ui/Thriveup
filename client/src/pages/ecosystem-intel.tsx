@@ -56,7 +56,7 @@ const NODE_LABELS: Record<string, string> = {
 const NODE_METRICS: Record<string, (n: any) => string> = {
   economic:  n => `${n.povertyRate}% poverty`,
   housing:   n => `${n.severeRentBurdenRate}% severely burdened`,
-  schools:   n => n.totalEnrollment > 0 ? `${n.totalEnrollment.toLocaleString()} enrolled` : "Data loading",
+  schools:   n => n.totalEnrollment > 0 ? `${n.totalEnrollment.toLocaleString()} K-12 enrolled` : "No enrollment data",
   youth:     n => `${n.under18Rate}% under 18`,
   language:  n => `${n.nonEnglishRate}% non-English`,
   health:    n => `${n.uninsuredRate}% uninsured`,
@@ -66,7 +66,11 @@ const NODE_METRICS: Record<string, (n: any) => string> = {
 const NODE_SEVERITY: Record<string, (nodes: any) => "green"|"amber"|"red"> = {
   economic:  n => n.economic.severity,
   housing:   n => n.housing.severity,
-  schools:   n => n.schools.districtPovertyPct > 20 ? "red" : n.schools.districtPovertyPct > 12 ? "amber" : "green",
+  schools:   n => {
+    const pct = n.schools.districtPovertyPct;
+    if (pct === null || pct === undefined) return "amber" as const;
+    return pct > 20 ? "red" as const : pct > 12 ? "amber" as const : "green" as const;
+  },
   youth:     n => n.youth.severity,
   language:  n => n.language.severity,
   health:    n => n.health.severity,
@@ -232,9 +236,18 @@ function NodeDetail({ id, data }: { id: string; data: EcosystemData }) {
     ),
     schools: (
       <div className="space-y-3">
-        <Row label="Total Enrollment (all districts)" value={n.schools.totalEnrollment > 0 ? n.schools.totalEnrollment.toLocaleString() : "See NCES"} />
-        {n.schools.districtPovertyPct !== null && (
-          <Row label="Students in Poverty (SAIPE)" value={`${n.schools.districtPovertyPct?.toFixed(1)}%`} benchmark="National FRL proxy" sev={n.schools.districtPovertyPct > 20 ? "red" : n.schools.districtPovertyPct > 12 ? "amber" : "green"} />
+        <Row
+          label="K-12 Enrollment"
+          value={n.schools.totalEnrollment > 0 ? n.schools.totalEnrollment.toLocaleString() : "Unavailable"}
+          benchmark={n.schools.enrollmentSource || "Census ACS B14001"}
+        />
+        {n.schools.districtPovertyPct !== null && n.schools.districtPovertyPct !== undefined && (
+          <Row
+            label="Students in Poverty (SAIPE)"
+            value={`${n.schools.districtPovertyPct?.toFixed(1)}%`}
+            benchmark="National FRL proxy"
+            sev={n.schools.districtPovertyPct > 20 ? "red" : n.schools.districtPovertyPct > 12 ? "amber" : "green"}
+          />
         )}
         {n.schools.districts.slice(0, 3).map((d: any) => (
           <div key={d.leaid} className="bg-slate-50 dark:bg-slate-900 rounded-lg p-3 text-sm">
@@ -242,10 +255,7 @@ function NodeDetail({ id, data }: { id: string; data: EcosystemData }) {
             <p className="text-slate-500">{d.enrollment?.toLocaleString()} students · {d.county_name}</p>
           </div>
         ))}
-        {n.schools.districts.length === 0 && (
-          <p className="text-sm text-slate-500">Urban Institute school district data not returned — verify via NCES CCD directly.</p>
-        )}
-        <Insight text="School poverty rate (SAIPE) is the best single proxy for counseling and wraparound service demand. Districts above 20% qualify for most federal Title I supplemental program funding." />
+        <Insight text="K-12 enrollment (Census ACS) covers all public and private school students. School poverty rate (SAIPE) is the strongest proxy for counseling and wraparound service demand — districts above 20% qualify for most federal Title I supplemental program funding." />
       </div>
     ),
     demographics: (

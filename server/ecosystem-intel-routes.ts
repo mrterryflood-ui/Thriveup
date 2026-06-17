@@ -39,6 +39,11 @@ const BENCHMARKS = {
   under18Share: 22.0,
 };
 
+// Reverse FIPS → state abbreviation
+const FIPS_TO_ABBR: Record<string, string> = Object.fromEntries(
+  Object.entries(STATE_ABBR_TO_FIPS).map(([abbr, fips]) => [fips, abbr])
+);
+
 // ACS variable definitions
 const ACS_VARS = [
   "B19013_001E",  // median HHI
@@ -73,6 +78,10 @@ const ACS_VARS = [
   "B27010_033E",  // no health insurance 19-64
   "B27010_017E",  // no health insurance under 19
   "B27010_001E",  // total for health insurance
+  "B14001_003E",  // school enrollment — kindergarten
+  "B14001_004E",  // school enrollment — grades 1-4
+  "B14001_005E",  // school enrollment — grades 5-8
+  "B14001_006E",  // school enrollment — grades 9-12
 ].join(",");
 
 function resolveStateFips(stateInput: string): string | null {
@@ -99,13 +108,51 @@ function severity(value: number, benchmark: number, direction: "lower_better" | 
 
 async function fetchCensusCountyList(stateFips: string): Promise<Array<{name: string; fips: string}>> {
   const url = `https://api.census.gov/data/2022/acs/acs5?get=NAME&for=county:*&in=state:${stateFips}&key=${CENSUS_KEY}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
   if (!res.ok) throw new Error(`Census county list failed: ${res.status}`);
   const data = await res.json() as string[][];
   return data.slice(1).map(row => ({
     name: row[0].replace(/, .+$/, "").toLowerCase(),
     fips: row[2]
   }));
+}
+
+// ─── Nationwide county cache ────────────────────────────────────────────────
+// Single Census ACS call returns all ~3,222 US counties at once.
+// Format: [NAME, state_fips, county_fips] — e.g. ["Travis County, Texas", "48", "453"]
+interface CachedCounty { name: string; fips: string; stateFips: string; stateAbbr: string }
+let _countyCache: CachedCounty[] | null = null;
+let _cacheBuildPromise: Promise<CachedCounty[]> | null = null;
+
+async function ensureCountyCache(): Promise<CachedCounty[]> {
+  if (_countyCache) return _countyCache;
+  if (_cacheBuildPromise) return _cacheBuildPromise;
+
+  _cacheBuildPromise = (async () => {
+    try {
+      const url = `https://api.census.gov/data/2022/acs/acs5?get=NAME&for=county:*&key=${CENSUS_KEY}`;
+      const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+      if (!res.ok) throw new Error(`Census all-county fetch failed: ${res.status}`);
+      const rows = await res.json() as string[][];
+      const all: CachedCounty[] = rows.slice(1).map(row => {
+        const stateFips = row[1];
+        const countyFips = row[2];
+        const stateAbbr = FIPS_TO_ABBR[stateFips] || stateFips;
+        // "Travis County, Texas" → "travis county"
+        const rawName = row[0].replace(/, [^,]+$/, "").toLowerCase();
+        return { name: rawName, fips: countyFips, stateFips, stateAbbr };
+      });
+      _countyCache = all;
+      console.log(`[ecosystem-intel] County cache built: ${all.length} counties (single Census call)`);
+      return all;
+    } catch (err: any) {
+      console.error("[ecosystem-intel] County cache build failed:", err.message);
+      _cacheBuildPromise = null; // allow retry on next search
+      return [];
+    }
+  })();
+
+  return _cacheBuildPromise;
 }
 
 async function fetchACSData(stateFips: string, countyFips: string): Promise<Record<string, number>> {
@@ -161,17 +208,32 @@ export function registerEcosystemIntelRoutes(app: Express) {
     if (stateQ && !stateFips) return res.status(400).json({ error: `Unrecognized state: ${stateQ}` });
 
     try {
+      const needle = countyQ.toLowerCase().replace(/\s*county\s*$/i, "").trim();
+
       if (stateFips) {
+        // Fast path: state is known, single Census call
         const counties = await fetchCensusCountyList(stateFips);
-        const needle = countyQ.toLowerCase().replace(/\s*county\s*$/i, "").trim();
         const matches = counties
           .filter(c => c.name.replace(/\s*county\s*$/, "").includes(needle))
           .slice(0, 8)
-          .map(c => ({ name: `${c.name.replace(/\b\w/g, l => l.toUpperCase())}, ${stateQ.toUpperCase()}`, stateFips, countyFips: c.fips }));
+          .map(c => ({
+            name: `${c.name.replace(/\b\w/g, (l: string) => l.toUpperCase())}, ${stateQ.toUpperCase()}`,
+            stateFips,
+            countyFips: c.fips,
+          }));
         return res.json(matches);
       } else {
-        // Search all states — sample a few likely ones
-        return res.json([]);
+        // Nationwide search — build/use in-memory cache of all ~3,200 counties
+        const cache = await ensureCountyCache();
+        const matches = cache
+          .filter(c => c.name.replace(/\s*county\s*$/, "").includes(needle))
+          .slice(0, 10)
+          .map(c => ({
+            name: `${c.name.replace(/\b\w/g, (l: string) => l.toUpperCase())}, ${c.stateAbbr}`,
+            stateFips: c.stateFips,
+            countyFips: c.fips,
+          }));
+        return res.json(matches);
       }
     } catch (e: any) {
       return res.status(500).json({ error: e.message });
@@ -290,7 +352,27 @@ export function registerEcosystemIntelRoutes(app: Express) {
         schools: {
           districts,
           districtPovertyPct,
-          totalEnrollment: districts.reduce((s: number, d: any) => s + (d.enrollment || 0), 0),
+          // B14001: K-12 enrollment from Census ACS — kindergarten + grades 1-4 + 5-8 + 9-12
+          censusK12Enrollment: Math.round(
+            (raw["B14001_003E"] || 0) +
+            (raw["B14001_004E"] || 0) +
+            (raw["B14001_005E"] || 0) +
+            (raw["B14001_006E"] || 0)
+          ),
+          totalEnrollment: (() => {
+            const fromDistricts = districts.reduce((s: number, d: any) => s + (d.enrollment || 0), 0);
+            if (fromDistricts > 0) return fromDistricts;
+            // Fallback: Census ACS school enrollment (K-12)
+            return Math.round(
+              (raw["B14001_003E"] || 0) +
+              (raw["B14001_004E"] || 0) +
+              (raw["B14001_005E"] || 0) +
+              (raw["B14001_006E"] || 0)
+            );
+          })(),
+          enrollmentSource: districts.reduce((s: number, d: any) => s + (d.enrollment || 0), 0) > 0
+            ? "NCES CCD via Urban Institute"
+            : "Census ACS B14001 (K-12 estimate)",
         },
       };
 
