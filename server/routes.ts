@@ -123,6 +123,7 @@ import { registerOrgProfileRoutes } from "./org-profile-routes";
 import { registerOrgDocumentsRoutes } from "./org-documents-routes";
 import { registerGrantNarrativeRoutes } from "./grant-narrative-routes";
 import { registerSafePassageRoutes } from "./safe-passage-routes";
+import { registerEcosystemIntelRoutes } from "./ecosystem-intel-routes";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerVoiceRoutes } from "./voice-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
@@ -485,6 +486,7 @@ export async function registerRoutes(
   registerCollegeAccessAIRoutes(app);
   registerNeighborhoodRoutes(app);
   registerSafePassageRoutes(app);
+  registerEcosystemIntelRoutes(app);
   registerCorridorRoutes(app);
   registerNetworkRoutes(app);
   registerStandardsRoutes(app);

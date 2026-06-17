@@ -271,6 +271,7 @@ const HubFundPage = lazy(() => import("@/pages/hub-fund"));
 const HubGrowPage = lazy(() => import("@/pages/hub-grow"));
 const HubMorePage = lazy(() => import("@/pages/hub-more"));
 const WorkbenchPage = lazy(() => import("@/pages/workbench"));
+const EcosystemIntelPage = lazy(() => import("@/pages/ecosystem-intel"));
 const SafePassagePage = lazy(() => import("@/pages/safe-passage/index"));
 const SafePassageSafetyPlanningPage = lazy(() => import("@/pages/safe-passage/safety-planning"));
 const SafePassageHousingAssessmentPage = lazy(() => import("@/pages/safe-passage/housing-assessment"));
@@ -721,6 +722,7 @@ function AppRouter() {
       <Route path="/safe-passage/housing-finder" component={SafePassageHousingFinderPage} />
       <Route path="/safe-passage/partner-portal" component={SafePassagePartnerPortalPage} />
       <Route path="/safe-passage/impact-dashboard" component={SafePassageImpactDashboardPage} />
+      <Route path="/ecosystem-intel" component={EcosystemIntelPage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
