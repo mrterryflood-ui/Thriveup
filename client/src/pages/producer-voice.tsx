@@ -151,7 +151,7 @@ export default function ProducerVoicePage() {
                     </div>
                     <div>
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Headline (optional)</label>
-                      <Input data-testid="input-headline" placeholder='e.g. "Fertilizer costs up 80% — can't break even"' value={headline} onChange={e => setHeadline(e.target.value)} />
+                      <Input data-testid="input-headline" placeholder={`e.g. "Fertilizer costs up 80% — can't break even"`} value={headline} onChange={e => setHeadline(e.target.value)} />
                     </div>
                     <div>
                       <label className="text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5 block">Your Experience *</label>
