@@ -34,6 +34,7 @@ import {
   Mail, Landmark, RefreshCw, Package, PenTool,
   Microscope, Stethoscope, Film, HandHeart, Search, Wrench,
   Compass, Baby, Layers, Sprout, Bug, FlaskConical, Droplets, HeartHandshake, Mic, Building, Wheat,
+  Wifi, AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -263,6 +264,11 @@ const hubRuralAg: NavItem[] = [
   { title: "Ag Trade Simulations", url: "/ag-trade-sims", icon: FlaskConical },
   { title: "Farmworker ITI", url: "/farmworker-iti", icon: HeartHandshake },
   { title: "Producer Voice", url: "/producer-voice", icon: Mic },
+  { title: "Rural Situational Intel", url: "/rural-alerts", icon: AlertTriangle },
+  { title: "Rural Healthcare Hub", url: "/rural-health", icon: Stethoscope },
+  { title: "Rural Connectivity", url: "/rural-connectivity", icon: Wifi },
+  { title: "Rural Housing Hub", url: "/rural-housing", icon: Home },
+  { title: "Rural Workforce Pipeline", url: "/rural-workforce", icon: GraduationCap },
 ];
 
 // HUB CTX — Central Texas: geographic front door for the 5-county CTX pilot.

@@ -291,6 +291,11 @@ const FsaEligibilityPage = lazy(() => import("@/pages/fsa-eligibility"));
 const AgTradeSimsPage = lazy(() => import("@/pages/ag-trade-sims"));
 const FarmworkerItiPage = lazy(() => import("@/pages/farmworker-iti"));
 const ProducerVoicePage = lazy(() => import("@/pages/producer-voice"));
+const RuralAlertsPage = lazy(() => import("@/pages/rural-alerts"));
+const RuralHealthPage = lazy(() => import("@/pages/rural-health"));
+const RuralConnectivityPage = lazy(() => import("@/pages/rural-connectivity"));
+const RuralHousingPage = lazy(() => import("@/pages/rural-housing"));
+const RuralWorkforcePage = lazy(() => import("@/pages/rural-workforce"));
 
 function PageFallback() {
   return (
@@ -742,6 +747,11 @@ function AppRouter() {
       <Route path="/ag-trade-sims" component={AgTradeSimsPage} />
       <Route path="/farmworker-iti" component={FarmworkerItiPage} />
       <Route path="/producer-voice" component={ProducerVoicePage} />
+      <Route path="/rural-alerts" component={RuralAlertsPage} />
+      <Route path="/rural-health" component={RuralHealthPage} />
+      <Route path="/rural-connectivity" component={RuralConnectivityPage} />
+      <Route path="/rural-housing" component={RuralHousingPage} />
+      <Route path="/rural-workforce" component={RuralWorkforcePage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
