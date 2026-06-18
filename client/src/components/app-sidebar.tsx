@@ -610,12 +610,12 @@ export function AppSidebar() {
         <NavSection label="Foster Youth" items={hubFoster} location={location} icon={Heart} />
         <NavSection label="Justice & Reentry" items={hubJustice} location={location} icon={Scale} />
         <NavSection label="Prevention & Health" items={hubPrevHealth} location={location} icon={ShieldCheck} />
+        <NavSection label="Child Care & Workforce" items={hubChildCare} location={location} icon={Baby} />
         <NavSection label="Workforce & Trades" items={hub3} location={location} icon={Briefcase} />
         <NavSection label="Academy & Learning" items={hub4} location={location} icon={GraduationCap} />
         <NavSection label="Partners & Coalitions" items={hub5} location={location} icon={Handshake} />
         <NavSection label="Where We Operate" items={hub6} location={location} icon={Compass} />
         <NavSection label="About & Trust" items={hub7} location={location} icon={Info} />
-        <NavSection label="Child Care & Workforce" items={hubChildCare} location={location} icon={Baby} />
         <NavSection label="Rural & Agriculture" items={hubRural} location={location} icon={Sprout} />
 
         {isAuthenticated && (

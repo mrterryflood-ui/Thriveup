@@ -731,3 +731,9 @@ id = "6YvWlzYNDX2m9g2uJG54d"
 uri = "file://docs/generated/TCAF-Legislative-Meeting-Plan.pdf"
 type = "pdf"
 title = "TCAF × Cortney Jones — Legislative Meeting Plan (3-page)"
+
+[[outputs]]
+id = "5Vl_JxDPn_U0F4xsWO1Mt"
+uri = "file://attached_assets/TerryFlood_Partnership_Resume_ACCURATE.docx"
+type = "word_document"
+title = "Terry D. Flood — Partnership Resume (Accurate Platform Capabilities)"
