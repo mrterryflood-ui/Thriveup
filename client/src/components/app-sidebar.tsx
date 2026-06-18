@@ -254,6 +254,14 @@ const aboutTrustItems: NavItem[] = [
   { title: "Privacy Policy", url: "/privacy", icon: Shield },
 ];
 
+// HUB 9 — Child Care & Workforce: subsidized child care system, TRS quality, workforce connection.
+const hubChildCareWorkforce: NavItem[] = [
+  { title: "Child Care Overview", url: "/child-care", icon: Baby },
+  { title: "Williamson County Initiative", url: "/child-care-wilco", icon: MapPin },
+  { title: "North Texas Region", url: "/child-care-north-texas", icon: BarChart3 },
+  { title: "Workforce Connection & Policy", url: "/child-care-workforce", icon: TrendingUp },
+];
+
 // HUB 8 — Rural & Agriculture: USDA NIFA Open Data Framework suite.
 const hubRuralAg: NavItem[] = [
   { title: "County Ag Intelligence", url: "/rural-intel", icon: Wheat },
@@ -493,13 +501,15 @@ export function AppSidebar() {
   const hub5 = useMemo(() => filterAuth(partnersCoalitionsItems, isAuthenticated), [isAuthenticated]);
   const hub6 = useMemo(() => filterAuth(whereWeOperateItems, isAuthenticated), [isAuthenticated]);
   const hub7 = useMemo(() => filterAuth(aboutTrustItems, isAuthenticated), [isAuthenticated]);
+  const hubChildCare = useMemo(() => filterAuth(hubChildCareWorkforce, isAuthenticated), [isAuthenticated]);
+  const hubRural = useMemo(() => filterAuth(hubRuralAg, isAuthenticated), [isAuthenticated]);
 
   // Search corpus mirrors what's actually navigable for THIS viewer:
   // - CTX hub + 7 public hubs (already auth-filtered above)
   // - My Organization only when signed in
   // - All Admin sub-sections only when admin (incl. teaching when teacher)
   const allItems = useMemo(() => {
-    const items: NavItem[] = [...hubCtx, ...hub1, ...hub2, ...hubFoster, ...hubJustice, ...hubPrevHealth, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7];
+    const items: NavItem[] = [...hubCtx, ...hub1, ...hub2, ...hubFoster, ...hubJustice, ...hubPrevHealth, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7, ...hubChildCare, ...hubRural];
     if (isAuthenticated) items.push(...myOrgItems);
     if (isAdmin) {
       items.push(
@@ -511,7 +521,7 @@ export function AppSidebar() {
       if (isTeacher) items.push(...adminTeachingItems);
     }
     return items;
-  }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, isAuthenticated, isAdmin, isTeacher]);
+  }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, hubChildCare, hubRural, isAuthenticated, isAdmin, isTeacher]);
   const search = useSidebarSearch(allItems);
 
   return (
@@ -605,7 +615,8 @@ export function AppSidebar() {
         <NavSection label="Partners & Coalitions" items={hub5} location={location} icon={Handshake} />
         <NavSection label="Where We Operate" items={hub6} location={location} icon={Compass} />
         <NavSection label="About & Trust" items={hub7} location={location} icon={Info} />
-        <NavSection label="Rural & Agriculture" items={hubRuralAg} location={location} icon={Sprout} />
+        <NavSection label="Child Care & Workforce" items={hubChildCare} location={location} icon={Baby} />
+        <NavSection label="Rural & Agriculture" items={hubRural} location={location} icon={Sprout} />
 
         {isAuthenticated && (
           <NavSection label="My Organization" items={myOrgItems} location={location} icon={Building2} />

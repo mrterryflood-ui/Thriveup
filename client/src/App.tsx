@@ -282,6 +282,12 @@ const SafePassageHousingFinderPage = lazy(() => import("@/pages/safe-passage/hou
 const SafePassagePartnerPortalPage = lazy(() => import("@/pages/safe-passage/partner-portal"));
 const SafePassageImpactDashboardPage = lazy(() => import("@/pages/safe-passage/impact-dashboard"));
 
+// ─── Child Care & Workforce ────────────────────────────────────────────────────
+const ChildCarePage = lazy(() => import("@/pages/child-care"));
+const ChildCareWilcoPage = lazy(() => import("@/pages/child-care-wilco"));
+const ChildCareNorthTexasPage = lazy(() => import("@/pages/child-care-north-texas"));
+const ChildCareWorkforcePage = lazy(() => import("@/pages/child-care-workforce"));
+
 // ─── Rural & Agricultural Tools (USDA NIFA Open Data Framework) ──────────────
 const RuralIntelPage = lazy(() => import("@/pages/rural-intel"));
 const FarmCooperativePage = lazy(() => import("@/pages/farm-cooperative"));
@@ -738,6 +744,11 @@ function AppRouter() {
       <Route path="/safe-passage/partner-portal" component={SafePassagePartnerPortalPage} />
       <Route path="/safe-passage/impact-dashboard" component={SafePassageImpactDashboardPage} />
       <Route path="/ecosystem-intel" component={EcosystemIntelPage} />
+      {/* ── Child Care & Workforce ── */}
+      <Route path="/child-care" component={ChildCarePage} />
+      <Route path="/child-care-wilco" component={ChildCareWilcoPage} />
+      <Route path="/child-care-north-texas" component={ChildCareNorthTexasPage} />
+      <Route path="/child-care-workforce" component={ChildCareWorkforcePage} />
       {/* ── Rural & Agricultural Tools (USDA NIFA Open Data Framework) ── */}
       <Route path="/rural-intel" component={RuralIntelPage} />
       <Route path="/farm-cooperative" component={FarmCooperativePage} />
