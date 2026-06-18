@@ -15,6 +15,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 import { pdfBufferToText } from "./rfp-ingestion";
+import { getPersonalContext } from "./personal-context";
 
 /**
  * OCR a PDF buffer by rendering pages with pdftoppm then sending images to
@@ -617,7 +618,19 @@ export function registerNavigatorRoutes(app: Express) {
       report: `\n\n[RESPONSE MODE: FULL REPORT]\nThe user has specifically requested a comprehensive report. Write a deep, multi-section document — similar to a professional community briefing. Use **bold section headers**. Include ALL of the following sections (adapt names to fit the topic): (1) **Understanding Your Situation** — genuine acknowledgment of their full context and what makes their situation unique; (2) **Immediate Resources** — 6-10 specific organizations/programs with name, phone, website, hours, eligibility, and a sentence on why it fits them specifically; (3) **State & Federal Programs** — what they qualify for, how to apply, what to say when they call; (4) **Your Step-by-Step Action Plan** — numbered concrete steps, in the right order, with who to call first and what to say; (5) **Platform Tools That Apply** — specific ThriveUp pages that directly help, explained; (6) **What to Watch Out For** — common barriers, waitlists, deadlines, documentation they'll need; (7) **Longer-Term Path** — what success looks like 3-6 months out. Write as a woven narrative within each section — not bullet dumps. Aim for 800-2000+ words. This is a real document that should be useful on its own.`,
     };
     const modeInstruction = RESPONSE_MODE_INSTRUCTIONS[responseMode] || RESPONSE_MODE_INSTRUCTIONS.detailed;
-    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + modeInstruction;
+
+    // Personal RAG — inject user-specific context when authenticated
+    let personalContextBlock = "";
+    if (userId) {
+      try {
+        const personalCtx = await getPersonalContext(userId, message);
+        personalContextBlock = personalCtx.contextBlock;
+      } catch (err) {
+        console.error("[Navigator] Personal context error:", err);
+      }
+    }
+
+    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + personalContextBlock + modeInstruction;
 
     // Only persist conversations for authenticated users
     // Generate a per-request UUID for the DeepSeek R1 poll job.
