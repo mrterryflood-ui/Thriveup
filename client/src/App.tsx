@@ -282,6 +282,16 @@ const SafePassageHousingFinderPage = lazy(() => import("@/pages/safe-passage/hou
 const SafePassagePartnerPortalPage = lazy(() => import("@/pages/safe-passage/partner-portal"));
 const SafePassageImpactDashboardPage = lazy(() => import("@/pages/safe-passage/impact-dashboard"));
 
+// ─── Rural & Agricultural Tools (USDA NIFA Open Data Framework) ──────────────
+const RuralIntelPage = lazy(() => import("@/pages/rural-intel"));
+const FarmCooperativePage = lazy(() => import("@/pages/farm-cooperative"));
+const FarmProfitabilityPage = lazy(() => import("@/pages/farm-profitability"));
+const InvasiveSpeciesPage = lazy(() => import("@/pages/invasive-species"));
+const FsaEligibilityPage = lazy(() => import("@/pages/fsa-eligibility"));
+const AgTradeSimsPage = lazy(() => import("@/pages/ag-trade-sims"));
+const FarmworkerItiPage = lazy(() => import("@/pages/farmworker-iti"));
+const ProducerVoicePage = lazy(() => import("@/pages/producer-voice"));
+
 function PageFallback() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-4">
@@ -723,6 +733,15 @@ function AppRouter() {
       <Route path="/safe-passage/partner-portal" component={SafePassagePartnerPortalPage} />
       <Route path="/safe-passage/impact-dashboard" component={SafePassageImpactDashboardPage} />
       <Route path="/ecosystem-intel" component={EcosystemIntelPage} />
+      {/* ── Rural & Agricultural Tools (USDA NIFA Open Data Framework) ── */}
+      <Route path="/rural-intel" component={RuralIntelPage} />
+      <Route path="/farm-cooperative" component={FarmCooperativePage} />
+      <Route path="/farm-profitability" component={FarmProfitabilityPage} />
+      <Route path="/invasive-species" component={InvasiveSpeciesPage} />
+      <Route path="/fsa-eligibility" component={FsaEligibilityPage} />
+      <Route path="/ag-trade-sims" component={AgTradeSimsPage} />
+      <Route path="/farmworker-iti" component={FarmworkerItiPage} />
+      <Route path="/producer-voice" component={ProducerVoicePage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>

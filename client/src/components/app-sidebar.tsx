@@ -33,7 +33,7 @@ import {
   Info, BookMarked,
   Mail, Landmark, RefreshCw, Package, PenTool,
   Microscope, Stethoscope, Film, HandHeart, Search, Wrench,
-  Compass, Baby, Layers,
+  Compass, Baby, Layers, Sprout, Bug, FlaskConical, Droplets, HeartHandshake, Mic, Building, Wheat,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -251,6 +251,18 @@ const aboutTrustItems: NavItem[] = [
   { title: "Contact Us", url: "/contact", icon: Mail },
   { title: "Non-Discrimination", url: "/non-discrimination", icon: Shield },
   { title: "Privacy Policy", url: "/privacy", icon: Shield },
+];
+
+// HUB 8 — Rural & Agriculture: USDA NIFA Open Data Framework suite.
+const hubRuralAg: NavItem[] = [
+  { title: "County Ag Intelligence", url: "/rural-intel", icon: Wheat },
+  { title: "Farm Cooperative Builder", url: "/farm-cooperative", icon: Users },
+  { title: "Farm Profitability Navigator", url: "/farm-profitability", icon: DollarSign },
+  { title: "Invasive Species Watch", url: "/invasive-species", icon: Bug },
+  { title: "FSA / NRCS Eligibility", url: "/fsa-eligibility", icon: Building },
+  { title: "Ag Trade Simulations", url: "/ag-trade-sims", icon: FlaskConical },
+  { title: "Farmworker ITI", url: "/farmworker-iti", icon: HeartHandshake },
+  { title: "Producer Voice", url: "/producer-voice", icon: Mic },
 ];
 
 // HUB CTX — Central Texas: geographic front door for the 5-county CTX pilot.
@@ -587,6 +599,7 @@ export function AppSidebar() {
         <NavSection label="Partners & Coalitions" items={hub5} location={location} icon={Handshake} />
         <NavSection label="Where We Operate" items={hub6} location={location} icon={Compass} />
         <NavSection label="About & Trust" items={hub7} location={location} icon={Info} />
+        <NavSection label="Rural & Agriculture" items={hubRuralAg} location={location} icon={Sprout} />
 
         {isAuthenticated && (
           <NavSection label="My Organization" items={myOrgItems} location={location} icon={Building2} />

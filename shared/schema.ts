@@ -5966,3 +5966,218 @@ export type SparkySessionRow = typeof sparkySessions.$inferSelect;
 export const insertSparkySessionMessageSchema = createInsertSchema(sparkySessionMessages).omit({ id: true, createdAt: true });
 export type InsertSparkySessionMessage = z.infer<typeof insertSparkySessionMessageSchema>;
 export type SparkySessionMessage = typeof sparkySessionMessages.$inferSelect;
+
+// ==================== RURAL AGRICULTURE & PRODUCER TOOLS ====================
+
+// Producer profile (farm enrollment in data cooperative)
+export const producerProfiles = pgTable("producer_profiles", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }),
+  accessToken: varchar("access_token", { length: 64 }).notNull().unique(),
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }).notNull(),
+  email: varchar("email", { length: 255 }),
+  phoneDigitsOnly: varchar("phone_digits_only", { length: 20 }),
+  farmName: varchar("farm_name", { length: 200 }),
+  farmType: varchar("farm_type", { length: 100 }).notNull(), // row-crop, livestock, mixed, organic, specialty, beginning-farmer
+  totalAcres: real("total_acres"),
+  primaryCommodity: varchar("primary_commodity", { length: 100 }),
+  otherCommodities: text("other_commodities").array().default(sql`'{}'::text[]`),
+  stateFips: varchar("state_fips", { length: 2 }).notNull(),
+  countyFips: varchar("county_fips", { length: 3 }).notNull(),
+  countyName: varchar("county_name", { length: 100 }).notNull(),
+  preferredLanguage: varchar("preferred_language", { length: 10 }).default("en"),
+  workerType: varchar("worker_type", { length: 100 }).default("owner-operator"), // owner-operator, tenant, farmworker, seasonal, h2a, informal
+  isH2aWorker: boolean("is_h2a_worker").default(false),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertProducerProfileSchema = createInsertSchema(producerProfiles).omit({ id: true, enrolledAt: true, updatedAt: true });
+export type InsertProducerProfile = z.infer<typeof insertProducerProfileSchema>;
+export type ProducerProfile = typeof producerProfiles.$inferSelect;
+
+// ITI 8-layer consent for producers
+export const producerDataConsents = pgTable("producer_data_consents", {
+  id: serial("id").primaryKey(),
+  producerId: integer("producer_id").notNull().references(() => producerProfiles.id, { onDelete: "cascade" }),
+  shareSoilData: boolean("share_soil_data").default(false),
+  shareYieldData: boolean("share_yield_data").default(false),
+  shareIncomeData: boolean("share_income_data").default(false),
+  shareWithResearchers: boolean("share_with_researchers").default(false),
+  shareWithUsda: boolean("share_with_usda").default(false),
+  shareWithFunders: boolean("share_with_funders").default(false),
+  allowPublicNaming: boolean("allow_public_naming").default(false),
+  interestedInStipend: boolean("interested_in_stipend").default(false),
+  interestedInCredentials: boolean("interested_in_credentials").default(false),
+  witnessLoopActive: boolean("witness_loop_active").default(true),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertProducerDataConsentSchema = createInsertSchema(producerDataConsents).omit({ id: true, updatedAt: true });
+export type InsertProducerDataConsent = z.infer<typeof insertProducerDataConsentSchema>;
+export type ProducerDataConsent = typeof producerDataConsents.$inferSelect;
+
+// Producer data submissions (soil, yield, input costs)
+export const producerDataSubmissions = pgTable("producer_data_submissions", {
+  id: serial("id").primaryKey(),
+  producerId: integer("producer_id").notNull().references(() => producerProfiles.id, { onDelete: "cascade" }),
+  dataType: varchar("data_type", { length: 50 }).notNull(), // soil, yield, input-cost, market-access, water, labor
+  cropYear: integer("crop_year"),
+  commodity: varchar("commodity", { length: 100 }),
+  acreage: real("acreage"),
+  // Soil data
+  soilPh: real("soil_ph"),
+  organicMatterPct: real("organic_matter_pct"),
+  nitrogenLbsAc: real("nitrogen_lbs_ac"),
+  phosphorusLbsAc: real("phosphorus_lbs_ac"),
+  potassiumLbsAc: real("potassium_lbs_ac"),
+  // Yield data
+  yieldPerAcre: real("yield_per_acre"),
+  yieldUnit: varchar("yield_unit", { length: 30 }),
+  // Input cost data
+  seedCostPerAc: real("seed_cost_per_ac"),
+  fertCostPerAc: real("fert_cost_per_ac"),
+  chemCostPerAc: real("chem_cost_per_ac"),
+  fuelCostPerAc: real("fuel_cost_per_ac"),
+  laborCostPerAc: real("labor_cost_per_ac"),
+  totalInputCostPerAc: real("total_input_cost_per_ac"),
+  // Market / narrative
+  priceReceived: real("price_received"),
+  priceUnit: varchar("price_unit", { length: 30 }),
+  notes: text("notes"),
+  submittedAt: timestamp("submitted_at").defaultNow(),
+});
+export const insertProducerDataSubmissionSchema = createInsertSchema(producerDataSubmissions).omit({ id: true, submittedAt: true });
+export type InsertProducerDataSubmission = z.infer<typeof insertProducerDataSubmissionSchema>;
+export type ProducerDataSubmission = typeof producerDataSubmissions.$inferSelect;
+
+// Invasive species sightings (community-reported)
+export const invasiveSpeciesSightings = pgTable("invasive_species_sightings", {
+  id: serial("id").primaryKey(),
+  reporterToken: varchar("reporter_token", { length: 64 }),
+  reporterUserId: varchar("reporter_user_id", { length: 255 }),
+  speciesCommonName: varchar("species_common_name", { length: 200 }).notNull(),
+  speciesScientificName: varchar("species_scientific_name", { length: 200 }),
+  speciesCategory: varchar("species_category", { length: 50 }).notNull(), // plant, insect, vertebrate, pathogen
+  latitude: real("latitude").notNull(),
+  longitude: real("longitude").notNull(),
+  locationDescription: varchar("location_description", { length: 300 }),
+  stateFips: varchar("state_fips", { length: 2 }),
+  countyFips: varchar("county_fips", { length: 3 }),
+  countyName: varchar("county_name", { length: 100 }),
+  observationDate: timestamp("observation_date").notNull(),
+  acresAffectedEstimate: real("acres_affected_estimate"),
+  severityLevel: varchar("severity_level", { length: 20 }).default("moderate"), // low, moderate, high, critical
+  photoUrl: varchar("photo_url", { length: 500 }),
+  notes: text("notes"),
+  verificationStatus: varchar("verification_status", { length: 30 }).default("unverified"), // unverified, community-verified, extension-verified
+  inatObservationId: varchar("inat_observation_id", { length: 50 }),
+  reportedAt: timestamp("reported_at").defaultNow(),
+});
+export const insertInvasiveSpeciesSightingSchema = createInsertSchema(invasiveSpeciesSightings).omit({ id: true, reportedAt: true });
+export type InsertInvasiveSpeciesSighting = z.infer<typeof insertInvasiveSpeciesSightingSchema>;
+export type InvasiveSpeciesSighting = typeof invasiveSpeciesSightings.$inferSelect;
+
+// Farm profitability snapshots
+export const farmProfitabilitySnapshots = pgTable("farm_profitability_snapshots", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }),
+  sessionToken: varchar("session_token", { length: 64 }),
+  snapshotName: varchar("snapshot_name", { length: 200 }).notNull(),
+  commodity: varchar("commodity", { length: 100 }).notNull(),
+  cropYear: integer("crop_year").notNull(),
+  stateFips: varchar("state_fips", { length: 2 }),
+  countyFips: varchar("county_fips", { length: 3 }),
+  countyName: varchar("county_name", { length: 100 }),
+  acres: real("acres").notNull(),
+  yieldPerAcre: real("yield_per_acre").notNull(),
+  pricePerUnit: real("price_per_unit").notNull(),
+  priceUnit: varchar("price_unit", { length: 30 }),
+  grossRevenueTotal: real("gross_revenue_total"),
+  totalInputCostPerAc: real("total_input_cost_per_ac").notNull(),
+  totalInputCostTotal: real("total_input_cost_total"),
+  netReturnPerAc: real("net_return_per_ac"),
+  netReturnTotal: real("net_return_total"),
+  breakEvenPrice: real("break_even_price"),
+  nassAvgPrice: real("nass_avg_price"),
+  nassAvgYield: real("nass_avg_yield"),
+  fsaArcCoPaymentEstimate: real("fsa_arc_co_payment_estimate"),
+  fsaPlcPaymentEstimate: real("fsa_plc_payment_estimate"),
+  aiInsights: text("ai_insights"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertFarmProfitabilitySnapshotSchema = createInsertSchema(farmProfitabilitySnapshots).omit({ id: true, createdAt: true });
+export type InsertFarmProfitabilitySnapshot = z.infer<typeof insertFarmProfitabilitySnapshotSchema>;
+export type FarmProfitabilitySnapshot = typeof farmProfitabilitySnapshots.$inferSelect;
+
+// Ag trade sim sessions (irrigation, soil, rotation simulations)
+export const agSimSessions = pgTable("ag_sim_sessions", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }),
+  sessionToken: varchar("session_token", { length: 64 }),
+  simType: varchar("sim_type", { length: 50 }).notNull(), // irrigation, soil-amendment, cover-crop-rotation
+  title: varchar("title", { length: 200 }),
+  inputsJson: text("inputs_json").notNull(),
+  resultsJson: text("results_json"),
+  aiRecommendation: text("ai_recommendation"),
+  completedAt: timestamp("completed_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertAgSimSessionSchema = createInsertSchema(agSimSessions).omit({ id: true, createdAt: true });
+export type InsertAgSimSession = z.infer<typeof insertAgSimSessionSchema>;
+export type AgSimSession = typeof agSimSessions.$inferSelect;
+
+// Farmworker ITI enrollments
+export const farmworkerItiEnrollments = pgTable("farmworker_iti_enrollments", {
+  id: serial("id").primaryKey(),
+  accessToken: varchar("access_token", { length: 64 }).notNull().unique(),
+  workerType: varchar("worker_type", { length: 80 }).notNull(), // seasonal, h2a, farmworker, promotora, community-gardener, backyard-grower, informal-food-producer
+  preferredLanguage: varchar("preferred_language", { length: 10 }).default("en"),
+  stateFips: varchar("state_fips", { length: 2 }),
+  countyFips: varchar("county_fips", { length: 3 }),
+  countyName: varchar("county_name", { length: 100 }),
+  // 8-layer consent (all default OFF)
+  consentSnapBenefits: boolean("consent_snap_benefits").default(false),
+  consentWic: boolean("consent_wic").default(false),
+  consentMedicaid: boolean("consent_medicaid").default(false),
+  consentHousing: boolean("consent_housing").default(false),
+  consentLegalAid: boolean("consent_legal_aid").default(false),
+  consentWorkforce: boolean("consent_workforce").default(false),
+  consentStipendPathway: boolean("consent_stipend_pathway").default(false),
+  consentCredentialPathway: boolean("consent_credential_pathway").default(false),
+  witnessLoopActive: boolean("witness_loop_active").default(true),
+  isH2aWorker: boolean("is_h2a_worker").default(false),
+  isDacaRecipient: boolean("is_daca_recipient").default(false),
+  isPermanentResident: boolean("is_permanent_resident").default(false),
+  hasUsWorkAuth: boolean("has_us_work_auth").default(true),
+  benefitsReferralsJson: text("benefits_referrals_json"),
+  enrolledAt: timestamp("enrolled_at").defaultNow(),
+});
+export const insertFarmworkerItiEnrollmentSchema = createInsertSchema(farmworkerItiEnrollments).omit({ id: true, enrolledAt: true });
+export type InsertFarmworkerItiEnrollment = z.infer<typeof insertFarmworkerItiEnrollmentSchema>;
+export type FarmworkerItiEnrollment = typeof farmworkerItiEnrollments.$inferSelect;
+
+// FSA eligibility checks (saved assessments)
+export const fsaEligibilityChecks = pgTable("fsa_eligibility_checks", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }),
+  sessionToken: varchar("session_token", { length: 64 }),
+  stateFips: varchar("state_fips", { length: 2 }),
+  countyFips: varchar("county_fips", { length: 3 }),
+  countyName: varchar("county_name", { length: 100 }),
+  farmType: varchar("farm_type", { length: 100 }),
+  totalAcres: real("total_acres"),
+  primaryCommodity: varchar("primary_commodity", { length: 100 }),
+  hasEqipHistory: boolean("has_eqip_history").default(false),
+  hasCrpHistory: boolean("has_crp_history").default(false),
+  isBeginningFarmer: boolean("is_beginning_farmer").default(false),
+  isSociallyDisadvantaged: boolean("is_socially_disadvantaged").default(false),
+  isVeteranFarmer: boolean("is_veteran_farmer").default(false),
+  grossFarmIncomePriorYr: real("gross_farm_income_prior_yr"),
+  eligibleProgramsJson: text("eligible_programs_json"),
+  estimatedPaymentsJson: text("estimated_payments_json"),
+  aiNarrativeJson: text("ai_narrative_json"),
+  checkedAt: timestamp("checked_at").defaultNow(),
+});
+export const insertFsaEligibilityCheckSchema = createInsertSchema(fsaEligibilityChecks).omit({ id: true, checkedAt: true });
+export type InsertFsaEligibilityCheck = z.infer<typeof insertFsaEligibilityCheckSchema>;
+export type FsaEligibilityCheck = typeof fsaEligibilityChecks.$inferSelect;
