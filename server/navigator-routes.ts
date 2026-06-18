@@ -1,4 +1,5 @@
 import type { Express, Request } from "express";
+import { randomUUID } from "crypto";
 import { db } from "./storage";
 import { streamAIResponse } from "./ai-provider";
 import { collaborativeStream } from "./collaborative-ai";
@@ -619,6 +620,11 @@ export function registerNavigatorRoutes(app: Express) {
     const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + modeInstruction;
 
     // Only persist conversations for authenticated users
+    // Generate a per-request UUID for the DeepSeek R1 poll job.
+    // This is SEPARATE from activeConversationId — anonymous users get no DB
+    // conversation but still need a key so R1 results can be polled.
+    const deepThinkJobId = randomUUID();
+
     let activeConversationId = conversationId || null;
 
     if (userId) {
@@ -725,6 +731,9 @@ export function registerNavigatorRoutes(app: Express) {
         systemPrompt: msgs.find(m => m.role === "system")?.content,
         maxTokens: hasAttachedDocuments ? 8000 : modeTokens,
         skipRAG: hasAttachedDocuments,
+        // Navigator has its own comprehensive system prompt — suppress RPLICE/MAP-GAP
+        // framework injection that causes consulting-speak "MEASURE Phase" output.
+        noFrameworkInjection: !hasAttachedDocuments,
         onChunk: (content) => {
           fullResponse += content;
           res.write(`data: ${JSON.stringify({ content })}\n\n`);
@@ -742,17 +751,19 @@ export function registerNavigatorRoutes(app: Express) {
         onDeepThinking: (text, engineId, timeMs) => {
           // SSE is already closed when this fires (Phase 2 is background).
           // Strip <think>...</think> tags then store for client polling.
+          // Key by deepThinkJobId (not activeConversationId) so anonymous
+          // users (who have no conversationId) still get their R1 results.
           const cleaned = text
             .replace(/<think>[\s\S]*?<\/think>/gi, "")
             .trim();
           if (cleaned.length > 20) {
-            deepThinkResultStore.set(activeConversationId, {
+            deepThinkResultStore.set(deepThinkJobId, {
               text: cleaned,
               engineId,
               timeMs,
               expiresAt: Date.now() + 10 * 60 * 1000,
             });
-            console.log(`[Navigator] R1 stored for poll — job: ${activeConversationId} (${timeMs}ms)`);
+            console.log(`[Navigator] R1 stored for poll — job: ${deepThinkJobId} (${timeMs}ms)`);
           }
         },
         onDone: async (result) => {
@@ -772,8 +783,9 @@ export function registerNavigatorRoutes(app: Express) {
           } catch (err) {
             console.error("[Navigator] Error saving response:", err);
           }
-          // Include deepThinkJobId so the client knows to poll for R1 result
-          res.write(`data: ${JSON.stringify({ done: true, deepThinkJobId: activeConversationId, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
+          // Always send deepThinkJobId (per-request UUID) so both authenticated
+          // and anonymous users can poll for the DeepSeek R1 result.
+          res.write(`data: ${JSON.stringify({ done: true, deepThinkJobId, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
           res.end();
         },
         onError: async (error) => {
@@ -834,7 +846,9 @@ export function registerNavigatorRoutes(app: Express) {
   // The client polls here every 4s after Phase 1 SSE closes.
   // Returns {status:"pending"} while R1 is still computing, or
   // {status:"complete", text, engineId, timeMs} when done (one-time delivery).
-  app.get("/api/navigator/deep-think/:jobId", requireAuth, (req, res) => {
+  // No auth required — jobId is a random UUID per request (128-bit entropy),
+  // and the response contains only AI analysis text, no personal data.
+  app.get("/api/navigator/deep-think/:jobId", (req, res) => {
     const jobId = req.params.jobId as string;
     const entry = deepThinkResultStore.get(jobId);
     if (entry && entry.expiresAt > Date.now()) {

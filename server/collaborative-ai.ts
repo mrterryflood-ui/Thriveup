@@ -31,6 +31,12 @@ interface CollaborativeStreamParams {
   /** When true, skip RAG retrieval entirely (e.g. user has already supplied
    *  document context — RAG would only waste context-window budget). */
   skipRAG?: boolean;
+  /** When true, do NOT inject RPLICE/MAP-GAP framework lenses into the
+   *  enriched prompt. Use for the Navigator, which already has its own
+   *  comprehensive system prompt. Prevents consulting-speak / infomercial
+   *  "MEASURE Phase / ANALYZE Phase" output. RAG context is still injected
+   *  when skipRAG=false. */
+  noFrameworkInjection?: boolean;
   onChunk: (content: string) => void;
   onMeta: (meta: { engines: string[]; ragSources: string[]; frameworks: string[] }) => void;
   onDone: (result: CollaborativeResult) => void;
@@ -278,7 +284,8 @@ async function synthesizeResponses(
   originalPrompt: string,
   ragSources: string[],
   synthesisEngine: { id: EngineId; model: string },
-  skipRAG?: boolean
+  skipRAG?: boolean,
+  noFrameworkInjection?: boolean
 ): Promise<string> {
   const validResults = engineResults.filter(r => r.response && r.response.length > 20);
 
@@ -289,14 +296,17 @@ async function synthesizeResponses(
     `=== ENGINE ${i + 1}: ${r.engine.toUpperCase()} (${r.model}) — ${r.responseTimeMs}ms ===\n${r.response}`
   ).join("\n\n");
 
-  // For document queries (skipRAG), do NOT inject framework framing — it causes
-  // the synthesizer to reformat the user's own document into RPLICE/MAP-GAP sections.
-  const frameworkLine = skipRAG
+  // For document queries (skipRAG) or Navigator calls (noFrameworkInjection),
+  // do NOT inject framework framing — it causes the synthesizer to reformat
+  // responses into RPLICE/MAP-GAP sections nobody asked for.
+  const frameworkLine = (skipRAG || noFrameworkInjection)
     ? ""
     : `\nFrameworks applied: RPLICE (implementation science), MAP-GAP (continuous improvement)`;
 
   const synthesisInstruction = skipRAG
     ? `Produce a single, synthesized response that directly answers the user's question about the document. Do NOT restructure, reformat, or restate the document — the user already has it. Pick the most insightful, specific, and helpful content from the engine outputs. Be conversational and substantive. Do NOT truncate.`
+    : noFrameworkInjection
+    ? `Produce a single, synthesized response that directly and empathetically addresses the person's situation. Choose the most specific, locally-grounded, and actionable content from the engine outputs. Write in a warm, conversational voice — NOT as a framework analysis, NOT using section headers like "MEASURE Phase" or "MAP-GAP Phase." Do NOT use consulting-speak. Do NOT reference engines by name. Do NOT truncate.`
     : `Produce a single, synthesized response that is BETTER than any individual engine output. Do not reference engines by name. Speak with one authoritative voice. Do NOT truncate.`;
 
   const synthesisPrompt = `You are the TCAF Collaborative Intelligence Synthesizer. Multiple AI engines have independently analyzed the same prompt. Your job is to produce a SINGLE superior output that:
@@ -318,6 +328,8 @@ ${synthesisInstruction}`;
 
   const systemPrompt = skipRAG
     ? "You are an expert analyst and synthesizer. Produce cohesive, authoritative outputs that directly address the user's question. Do NOT reproduce framework templates. Do NOT truncate."
+    : noFrameworkInjection
+    ? "You are an expert synthesizer. Your output must feel like a knowledgeable, caring guide speaking directly to a person — not a framework report. Be specific, warm, and actionable. Do NOT use consulting headers. Do NOT truncate."
     : "You are an expert synthesizer for the ThriveUp Academy ACOS. Produce cohesive, authoritative outputs. Do NOT truncate — always complete every section and produce the full depth of analysis needed.";
 
   try {
@@ -502,6 +514,8 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 
   const enrichedPrompt = params.skipRAG
     ? `${params.prompt}\n\nCRITICAL DOCUMENT READING INSTRUCTIONS:\nOne or more documents are attached above inside [ATTACHED DOCUMENT: "..."] blocks. These are EXTERNAL documents the user is asking you to read and work with — they did NOT write them and want YOU to analyze, synthesize, or produce output BASED on the actual content.\n\nYou MUST:\n1. Read the attached document(s) carefully before responding.\n2. Ground EVERY fact, figure, and claim in what the documents actually say. Quote specific numbers, names, dollar amounts, programs, and policy language from the documents.\n3. Answer the user's question using the documents as your primary source. Do NOT substitute generic AI knowledge, internal ThriveUp frameworks, or MAP-GAP boilerplate for document content.\n4. If the user asks you to brief, analyze, build on, or produce output from the documents — do exactly that using the real content in the documents.\n5. Do NOT produce generic framework templates. Do NOT apply RPLICE/MAP-GAP sections unless the documents themselves use that framing. Be specific, substantive, and grounded in the actual document text.\n6. Do NOT truncate. Write full, complete responses.`
+    : params.noFrameworkInjection
+    ? `${params.prompt}${ragContext}\n\nINSTRUCTIONS: Use the RAG knowledge context above if it is relevant to the person's question. Ground every statement in real data. Speak directly to the person's actual situation — be specific, warm, and conversational. Do NOT produce framework headers, "Phase" sections, or generic consulting-speak. Answer as a knowledgeable, empathetic guide.`
     : `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
 
   const STREAM_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
@@ -555,7 +569,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 
   if (successfulEngines.length >= 2) {
     const synthesisEngine = enginesForFastPass.find(e => e.id === "claude") || enginesForFastPass.find(e => e.id === "openai") || enginesForFastPass[0];
-    const synthesis = await synthesizeResponses(fastResults, params.prompt, ragSources, synthesisEngine, params.skipRAG);
+    const synthesis = await synthesizeResponses(fastResults, params.prompt, ragSources, synthesisEngine, params.skipRAG, params.noFrameworkInjection);
     const words = synthesis.split(/(\s+)/);
     for (let i = 0; i < words.length; i += 3) {
       params.onChunk(words.slice(i, i + 3).join(""));

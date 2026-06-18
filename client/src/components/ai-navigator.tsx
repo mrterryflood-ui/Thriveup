@@ -219,11 +219,28 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   }, [isOpen, isAuthenticated, conversations, activeConversationId, messages.length, loadConversation, mode]);
 
   const copyMessage = useCallback(async (text: string, idx: number) => {
+    let copied = false;
+    // Primary: modern Clipboard API (requires secure context / HTTPS)
     try {
       await navigator.clipboard.writeText(text);
+      copied = true;
+    } catch {
+      // Fallback: execCommand for embedded/insecure contexts (HTTP dev, iframes)
+      try {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.cssText = "position:fixed;left:-9999px;top:-9999px;opacity:0";
+        document.body.appendChild(ta);
+        ta.focus();
+        ta.select();
+        copied = document.execCommand("copy");
+        document.body.removeChild(ta);
+      } catch { /* both paths failed */ }
+    }
+    if (copied) {
       setCopiedIdx(idx);
       setTimeout(() => setCopiedIdx(null), 2000);
-    } catch {
+    } else {
       toast({ title: "Could not copy", description: "Please select and copy the text manually.", variant: "destructive" });
     }
   }, [toast]);
