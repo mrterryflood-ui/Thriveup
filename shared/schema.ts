@@ -6181,3 +6181,21 @@ export const fsaEligibilityChecks = pgTable("fsa_eligibility_checks", {
 export const insertFsaEligibilityCheckSchema = createInsertSchema(fsaEligibilityChecks).omit({ id: true, checkedAt: true });
 export type InsertFsaEligibilityCheck = z.infer<typeof insertFsaEligibilityCheckSchema>;
 export type FsaEligibilityCheck = typeof fsaEligibilityChecks.$inferSelect;
+
+// ── Initiatives — AI-generated plans saved as initiative pages ────────────────
+export const initiatives = pgTable("initiatives", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 200 }).notNull().unique(),
+  title: text("title").notNull(),
+  summary: text("summary"),
+  content: text("content").notNull(),
+  category: varchar("category", { length: 60 }).default("initiative"),
+  authorId: varchar("author_id", { length: 255 }),
+  authorName: text("author_name"),
+  isPublic: boolean("is_public").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertInitiativeSchema = createInsertSchema(initiatives).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertInitiative = z.infer<typeof insertInitiativeSchema>;
+export type Initiative = typeof initiatives.$inferSelect;
