@@ -195,6 +195,7 @@ const academyLearningItems: NavItem[] = [
 // HUB 5 — Partners & Coalitions: every coalition / community / ecosystem
 // surface. The "who are we working with" door.
 const partnersCoalitionsItems: NavItem[] = [
+  { title: "My Initiatives", url: "/initiatives", icon: Lightbulb },
   { title: "Community Partners", url: "/partners", icon: Handshake },
   { title: "Coalition Dashboard", url: "/coalition", icon: Users },
   { title: "Collaboration Hub", url: "/collaboration-hub", icon: Building2, authOnly: true },

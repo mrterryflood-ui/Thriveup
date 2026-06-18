@@ -11,7 +11,7 @@ import {
   Compass, Send, X, MessageSquarePlus, Trash2, ChevronLeft,
   Loader2, Sparkles, Phone, ExternalLink, AlertTriangle,
   History, Minimize2, Maximize2, Bot, User, Brain, ChevronDown, ChevronUp,
-  Paperclip, Copy, Download, Check, FileText, Expand,
+  Paperclip, Copy, Download, Check, FileText, Expand, Lightbulb,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
@@ -128,6 +128,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   const [deepThinkingExpanded, setDeepThinkingExpanded] = useState<Record<number, boolean>>({});
   const [attachedDocs, setAttachedDocs] = useState<AttachedDoc[]>([]);
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
+  const [savedIdx, setSavedIdx] = useState<number | null>(null);
   const [responseMode, setResponseMode] = useState<"brief" | "detailed" | "report">("detailed");
   // R1 background polling state
   const [deepThinkElapsed, setDeepThinkElapsed] = useState(0);
@@ -242,6 +243,36 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
       setTimeout(() => setCopiedIdx(null), 2000);
     } else {
       toast({ title: "Could not copy", description: "Please select and copy the text manually.", variant: "destructive" });
+    }
+  }, [toast]);
+
+  const saveAsInitiative = useCallback(async (text: string, idx: number) => {
+    const titleMatch = text.match(/^#+ (.+)/m) || text.match(/^(.{10,60})/m);
+    const title = titleMatch ? titleMatch[1].trim() : `Initiative ${new Date().toLocaleDateString()}`;
+    try {
+      const res = await fetch("/api/initiatives", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ title, content: text, category: "initiative" }),
+      });
+      if (!res.ok) throw new Error("save failed");
+      const created = await res.json();
+      setSavedIdx(idx);
+      setTimeout(() => setSavedIdx(null), 3000);
+      toast({
+        title: "Initiative saved!",
+        description: (
+          <span>
+            View it at{" "}
+            <a href={`/initiatives/${created.slug}`} className="underline font-medium" onClick={() => window.location.href = `/initiatives/${created.slug}`}>
+              My Initiatives
+            </a>
+          </span>
+        ),
+      });
+    } catch {
+      toast({ title: "Sign in to save initiatives", variant: "destructive" });
     }
   }, [toast]);
 
@@ -770,6 +801,13 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                             <button onClick={() => downloadMessage(msg.content, idx)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-muted/50" data-testid={`button-page-export-${idx}`}>
                               <Download className="h-3.5 w-3.5" /><span>Export</span>
                             </button>
+                            {isAuthenticated && (
+                              <button onClick={() => saveAsInitiative(msg.content, idx)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-teal-600 transition-colors px-2 py-1 rounded hover:bg-teal-50 dark:hover:bg-teal-950/30" data-testid={`button-page-save-initiative-${idx}`}>
+                                {savedIdx === idx
+                                  ? <><Check className="h-3.5 w-3.5 text-teal-500" /><span className="text-teal-600">Saved!</span></>
+                                  : <><Lightbulb className="h-3.5 w-3.5" /><span>Save as Initiative</span></>}
+                              </button>
+                            )}
                           </div>
                         )}
                         {msg.role === "assistant" && msg.deepThinkingPending && (

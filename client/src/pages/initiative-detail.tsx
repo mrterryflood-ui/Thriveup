@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Lightbulb, Clock, Share2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import ReactMarkdown from "react-markdown";
 import type { Initiative } from "@shared/schema";
 
 export default function InitiativeDetailPage() {
@@ -102,15 +101,23 @@ export default function InitiativeDetailPage() {
       </div>
 
       {/* Content */}
-      <div className="prose prose-teal prose-sm max-w-none dark:prose-invert
-        prose-headings:font-semibold prose-headings:text-foreground
-        prose-p:text-foreground/90 prose-p:leading-relaxed
-        prose-li:text-foreground/90 prose-strong:text-foreground
-        prose-blockquote:border-teal-500 prose-blockquote:text-muted-foreground
-        prose-code:bg-muted prose-code:px-1 prose-code:rounded prose-code:text-sm"
-        data-testid="text-initiative-content"
-      >
-        <ReactMarkdown>{initiative.content}</ReactMarkdown>
+      <div className="space-y-2 text-sm leading-relaxed" data-testid="text-initiative-content">
+        {initiative.content.split("\n").map((line, i) => {
+          if (line.startsWith("### ")) return <h3 key={i} className="text-base font-semibold text-foreground mt-4 mb-1">{line.slice(4)}</h3>;
+          if (line.startsWith("## ")) return <h2 key={i} className="text-lg font-bold text-foreground mt-6 mb-2">{line.slice(3)}</h2>;
+          if (line.startsWith("# ")) return <h1 key={i} className="text-xl font-bold text-foreground mt-6 mb-2">{line.slice(2)}</h1>;
+          if (line.startsWith("- ") || line.startsWith("* ")) {
+            const text = line.slice(2).replace(/\*\*(.*?)\*\*/g, "$1");
+            return <div key={i} className="flex gap-2 text-foreground/90"><span className="text-teal-600 shrink-0 mt-0.5">•</span><span>{text}</span></div>;
+          }
+          if (line.trim() === "") return <div key={i} className="h-2" />;
+          const parts = line.split(/\*\*(.*?)\*\*/g);
+          return (
+            <p key={i} className="text-foreground/90">
+              {parts.map((p, j) => j % 2 === 1 ? <strong key={j} className="font-semibold text-foreground">{p}</strong> : p)}
+            </p>
+          );
+        })}
       </div>
 
       {/* Footer */}

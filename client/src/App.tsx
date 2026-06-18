@@ -282,6 +282,10 @@ const SafePassageHousingFinderPage = lazy(() => import("@/pages/safe-passage/hou
 const SafePassagePartnerPortalPage = lazy(() => import("@/pages/safe-passage/partner-portal"));
 const SafePassageImpactDashboardPage = lazy(() => import("@/pages/safe-passage/impact-dashboard"));
 
+// ─── Initiatives ──────────────────────────────────────────────────────────────
+const InitiativesPage = lazy(() => import("@/pages/initiatives"));
+const InitiativeDetailPage = lazy(() => import("@/pages/initiative-detail"));
+
 // ─── Child Care & Workforce ────────────────────────────────────────────────────
 const ChildCarePage = lazy(() => import("@/pages/child-care"));
 const ChildCareWilcoPage = lazy(() => import("@/pages/child-care-wilco"));
@@ -744,6 +748,9 @@ function AppRouter() {
       <Route path="/safe-passage/partner-portal" component={SafePassagePartnerPortalPage} />
       <Route path="/safe-passage/impact-dashboard" component={SafePassageImpactDashboardPage} />
       <Route path="/ecosystem-intel" component={EcosystemIntelPage} />
+      {/* ── Initiatives ── */}
+      <Route path="/initiatives" component={InitiativesPage} />
+      <Route path="/initiatives/:slug" component={InitiativeDetailPage} />
       {/* ── Child Care & Workforce ── */}
       <Route path="/child-care" component={ChildCarePage} />
       <Route path="/child-care-wilco" component={ChildCareWilcoPage} />

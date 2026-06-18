@@ -6005,6 +6005,82 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     }
   });
 
+  // ── Initiatives — AI-generated plans saved as shareable pages ──────────────
+  app.get("/api/initiatives", async (req, res) => {
+    try {
+      const { initiatives } = await import("@shared/schema");
+      const { desc } = await import("drizzle-orm");
+      const rows = await db.select().from(initiatives)
+        .where(eq(initiatives.isPublic, true))
+        .orderBy(desc(initiatives.createdAt))
+        .limit(100);
+      res.json(rows);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/initiatives/:slug", async (req, res) => {
+    try {
+      const { initiatives } = await import("@shared/schema");
+      const rows = await db.select().from(initiatives).where(eq(initiatives.slug, req.params.slug)).limit(1);
+      if (!rows.length) return res.status(404).json({ error: "Not found" });
+      res.json(rows[0]);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/initiatives", requireAuth, async (req, res) => {
+    try {
+      const { initiatives, insertInitiativeSchema } = await import("@shared/schema");
+      const user = (req as any).user;
+      const body = insertInitiativeSchema.parse({
+        ...req.body,
+        authorId: user?.id ?? null,
+        authorName: user?.name ?? user?.username ?? null,
+      });
+      // Generate slug from title if not provided
+      if (!body.slug) {
+        const base = (body.title as string)
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, "")
+          .trim()
+          .replace(/\s+/g, "-")
+          .slice(0, 80);
+        const ts = Date.now().toString(36);
+        body.slug = `${base}-${ts}`;
+      }
+      // Auto-extract summary from first non-heading paragraph if not provided
+      if (!body.summary) {
+        const firstParagraph = (body.content as string)
+          .split("\n")
+          .find(l => l.trim() && !l.startsWith("#") && !l.startsWith("-") && !l.startsWith("*"));
+        body.summary = firstParagraph ? firstParagraph.slice(0, 200) : null;
+      }
+      const [created] = await db.insert(initiatives).values(body).returning();
+      res.status(201).json(created);
+    } catch (err: any) {
+      res.status(400).json({ error: err.message });
+    }
+  });
+
+  app.delete("/api/initiatives/:id", requireAuth, async (req, res) => {
+    try {
+      const { initiatives } = await import("@shared/schema");
+      const user = (req as any).user;
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
+      const rows = await db.select().from(initiatives).where(eq(initiatives.id, id)).limit(1);
+      if (!rows.length) return res.status(404).json({ error: "Not found" });
+      if (rows[0].authorId !== user?.id) return res.status(403).json({ error: "Forbidden" });
+      await db.delete(initiatives).where(eq(initiatives.id, id));
+      res.json({ ok: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   // AI engine smoke test — run on demand (authenticated) or view the last result.
   // Returns the cached result from the last scheduled probe instantly, or runs
   // a fresh probe if ?refresh=true is passed (takes ~10s while engines are pinged).
