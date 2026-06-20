@@ -907,6 +907,77 @@ const HERO_NODES = [
 ];
 const HERO_STREAM_COLORS = ["#22d3ee", "#f59e0b", "#a78bfa", "#34d399", "#f472b6"];
 
+function FiveWTeaser() {
+  const points = [
+    {
+      w: "WHO",
+      icon: Users,
+      headline: "The backbone — not a competitor",
+      body: "We are the nonprofit for nonprofits, residents, and communities to thrive. We bring tools, data, and funding knowledge. You bring the mission. We amplify what you already do.",
+    },
+    {
+      w: "HOW",
+      icon: Compass,
+      headline: "IGN — we meet you where you are",
+      body: "Initial Guidance and Navigation: your pace, your readiness, your community. We give you the tools and teach you how to use them. All issues are local — every pathway is tailored.",
+    },
+    {
+      w: "WHY",
+      icon: Heart,
+      headline: "Advocacy + passion → sustainable solutions",
+      body: "\"No one cares how much you know until they know how much you care.\" We deliver and prove impact so communities thrive beyond any single grant or program cycle.",
+    },
+  ];
+
+  return (
+    <section className="py-8 px-4 sm:px-6 bg-card border-b" data-testid="section-five-w-teaser">
+      <div className="max-w-5xl mx-auto">
+        <div className="flex items-center justify-between mb-5 flex-wrap gap-3">
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+              The Collaborative Advocate Foundation
+            </p>
+            <h2 className="text-xl font-bold mt-0.5" data-testid="text-five-w-heading">
+              We are stronger together.
+            </h2>
+          </div>
+          <Link href="/our-approach">
+            <Button variant="outline" size="sm" data-testid="link-our-approach-teaser">
+              How we work <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+            </Button>
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {points.map((p) => {
+            const Icon = p.icon;
+            return (
+              <div
+                key={p.w}
+                className="rounded-xl border bg-background p-4 space-y-2"
+                data-testid={`card-teaser-${p.w.toLowerCase()}`}
+              >
+                <div className="flex items-center gap-2">
+                  <Badge variant="secondary" className="text-[10px] font-bold tracking-wider">{p.w}</Badge>
+                  <Icon className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <div className="font-semibold text-sm leading-snug">{p.headline}</div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{p.body}</p>
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 text-center">
+          <Link href="/our-approach" className="text-xs text-primary hover:underline font-medium" data-testid="link-full-approach">
+            See all 5 W's answered — Who, What, Where, When, Why, and How →
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function useIsDark() {
   const [dark, setDark] = useState(() =>
     typeof document !== "undefined" && document.documentElement.classList.contains("dark")
@@ -1214,6 +1285,7 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <FiveWTeaser />
       <TrustBar />
       <DisciplineStrip />
 
