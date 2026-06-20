@@ -97,7 +97,7 @@ export default function AlignPage() {
           </div>
 
           {/* Framework pills */}
-          <div className="flex flex-wrap gap-2 justify-center">
+          <div className="flex flex-wrap gap-2 justify-center mb-6">
             {FRAMEWORK.map((f) => (
               <div key={f.letter}
                 className="flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 px-3 py-1.5">
@@ -106,6 +106,35 @@ export default function AlignPage() {
               </div>
             ))}
           </div>
+
+          {/* Entry routing */}
+          <div className="flex flex-wrap justify-center gap-2 mb-4">
+            <Link href="/align/my-journey">
+              <button className="flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 transition-colors px-4 py-2 text-xs font-semibold text-white"
+                data-testid="button-align-individual">
+                🙋 I'm an Individual
+              </button>
+            </Link>
+            <Link href="/align/org-assessment">
+              <button className="flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 transition-colors px-4 py-2 text-xs font-semibold text-white"
+                data-testid="button-align-org">
+                🏢 I'm an Organization
+              </button>
+            </Link>
+            <Link href="/align/community">
+              <button className="flex items-center gap-1.5 rounded-full bg-white/10 border border-white/15 hover:bg-white/20 transition-colors px-4 py-2 text-xs font-semibold text-white"
+                data-testid="button-align-funder">
+                📊 I'm a Funder / Evaluator
+              </button>
+            </Link>
+          </div>
+          <Link href="/why-thriveup">
+            <button className="text-[10px] font-semibold text-white/50 hover:text-white/80 transition-colors"
+              style={{ background: "none", border: "none", cursor: "pointer" }}
+              data-testid="button-align-skeptic">
+              Skeptical? Every hard question answered →
+            </button>
+          </Link>
         </div>
       </section>
 

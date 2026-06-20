@@ -1259,7 +1259,7 @@ export default function LandingPage() {
           </p>
 
           {/* CTAs */}
-          <div className="flex flex-wrap gap-4 justify-center mb-10">
+          <div className="flex flex-wrap gap-4 justify-center mb-6">
             <Link href="/benefits-screener">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
                 style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}
@@ -1274,6 +1274,42 @@ export default function LandingPage() {
                 For Nonprofits &amp; Partners →
               </button>
             </Link>
+          </div>
+
+          {/* Who are you? — routing block */}
+          <div className="w-full max-w-xl mx-auto mb-8 rounded-2xl border px-5 py-4"
+            style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", borderColor: isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)", backdropFilter: "blur(8px)" }}
+            data-testid="section-who-are-you">
+            <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-center"
+              style={{ color: heroMuted }}>
+              First time here? Start where you are.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+              {[
+                { label: "I'm an Individual", sub: "Track my ALIGN journey", href: "/align/my-journey", emoji: "🙋" },
+                { label: "I'm an Organization", sub: "Assess our capacity & programs", href: "/align/org-assessment", emoji: "🏢" },
+                { label: "I'm a Funder / Evaluator", sub: "See community data", href: "/align/community", emoji: "📊" },
+              ].map((opt) => (
+                <Link key={opt.label} href={opt.href}>
+                  <button className="w-full rounded-xl border py-3 px-3 text-left transition-all hover:scale-[1.02]"
+                    style={{ background: isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.7)", borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)", cursor: "pointer" }}
+                    data-testid={`button-who-${opt.label.toLowerCase().replace(/[^a-z]+/g,"-")}`}>
+                    <span className="text-base">{opt.emoji}</span>
+                    <p className="text-xs font-bold mt-1" style={{ color: heroText }}>{opt.label}</p>
+                    <p className="text-[10px]" style={{ color: heroMuted }}>{opt.sub}</p>
+                  </button>
+                </Link>
+              ))}
+            </div>
+            <p className="text-center mt-3">
+              <Link href="/why-thriveup">
+                <button className="text-[10px] font-semibold hover:underline"
+                  style={{ color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}
+                  data-testid="button-hero-why">
+                  Skeptical? Every hard question answered here →
+                </button>
+              </Link>
+            </p>
           </div>
 
           {/* Live stat strip */}
