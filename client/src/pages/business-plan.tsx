@@ -112,7 +112,7 @@ const FUNDER_LENSES: Record<FunderLensKey, {
       { label: "Theory of change", value: "5 CFIR 2.0 domains, 39 constructs operationalized in /research-hub — not named in a deck, instantiated in production code" },
       { label: "Evidence architecture", value: "86 RAG chunks grounded in primary-source commitments · NRRC fidelity benchmarks in scoring rubrics · RE-AIM evaluation lens in outcome reporting" },
       { label: "Community reach", value: "107 languages (89 spoken + 18 signed) · dialect-preserving AI (AAVE, Spanglish) · ITI doctrine: 8 layered consents all default OFF, shadow worker stipend + credentialing pathways real" },
-      { label: "Grant readiness", value: "651 grants tracked, AI fit-scored · $1.187B CDMRP addressable · 7-tab post-award management module already built and running" },
+      { label: "Grant readiness", value: "Live funding intelligence engine, AI fit-scored against community partner profiles · $1.187B CDMRP addressable · 7-tab post-award management module already built and running" },
       { label: "On track record", value: "Infrastructure is the track record: 271 DB tables, 211 pages, 5 physics-grade trade simulations with 43 passing automated tests — all in production before any grant award" },
     ],
     cta: "Schedule a walkthrough",
@@ -181,8 +181,8 @@ const FUNDER_LENSES: Record<FunderLensKey, {
 };
 
 const keyNumbers = [
-  { label: "Platforms", value: "26", detail: "Governed ecosystem" },
-  { label: "Grants Tracked", value: "651", detail: "AI fit-scored, live" },
+  { label: "Service Platforms", value: "15", detail: "TCAF-operated" },
+  { label: "Funding Intelligence", value: "Live", detail: "AI fit-scored to partner profiles" },
   { label: "MCE Business Records", value: "656,794", detail: "Curated, AI-searchable" },
   { label: "DB Tables", value: "271", detail: "Production data model" },
   { label: "Languages", value: "107", detail: "89 spoken + 18 signed" },
@@ -195,7 +195,7 @@ const competitiveAdvantages = [
   { title: "Cradle-to-Contract Pipeline", desc: "No competitor has the integrated path from education through career readiness through business formation through government contracting. ThriveUp trains the person; MCE empowers the business they build.", icon: Rocket },
   { title: "Physics-Grade Trade Simulations", desc: "Five industry-standard simulation engines — MNA (electrical/automotive), Hardy-Cross Newton-Raphson (plumbing), AWS D1.1 heat-input evaluator (welding), thermal-airflow (HVAC). Not gamified exercises. Actual engineering solvers with 43 passing automated tests.", icon: Zap },
   { title: "Implementation Science in Code", desc: "39 CFIR 2.0 constructs and 5 domains operationalized in the Research Hub — not named in a slide, instantiated in production. NRRC and CFIR 2.0 fidelity benchmarks built into scoring rubrics.", icon: Microscope },
-  { title: "651 Grants Tracked — AI Fit-Scored", desc: "Live grant intelligence across Grants.gov (369), USASpending (198), SAM.gov (36), and curated sources. Every opportunity tier-weighted and AI-scored against organizational capacity — not a generic list.", icon: Target },
+  { title: "Funding Intelligence Engine — AI Fit-Scored", desc: "Live grant intelligence across Grants.gov, USASpending, SAM.gov, and curated sources. Every opportunity tier-weighted and AI-scored against organizational capacity and community partner profiles — not a generic list.", icon: Target },
   { title: "107-Language Reach", desc: "89 spoken languages + 18 signed — dialect-preserving, not just machine-translated. Honors AAVE, Spanglish, and regional variants. RTL layout support. Built for the communities that need it most.", icon: Globe },
   { title: "Dual-Entity Strategy", desc: "TCAF 501(c)(3) (federal award-eligible, UEI KDDVD1FGLW35) + ISS LLC for-profit (UEI C7YDV3P8EHL7, CAGE 9VKK3). Flexible contracting, diversified revenue — grant, SaaS, and federal contract streams independent of each other.", icon: Shield },
   { title: "We Orchestrate AI — Not Just Use It", desc: "4-engine collaborative synthesis: Claude, GPT-4o-mini, Gemini, DeepSeek R1 — with automatic failover, mode-switching tutors (Socratic-hint vs ensemble-debrief), and 86 RAG chunks grounded in our own commitments, not the generic web.", icon: Brain },

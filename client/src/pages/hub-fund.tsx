@@ -11,7 +11,7 @@ import { useHubRole } from "@/lib/hub-role";
 
 const CARDS: HubCardDef[] = [
   { icon: Calendar,      title: "This Week",              subtitle: "Monday Grant Brief",               href: "/this-week",              tag: "Opportunities", variant: "hero", color: "amber" },
-  { icon: Target,        title: "Live Grant Opportunities",subtitle: "721 grants tracked",              href: "/grants",                 tag: "Opportunities", variant: "hero", color: "orange" },
+  { icon: Target,        title: "Live Grant Opportunities",subtitle: "Funding intelligence for your mission", href: "/grants",            tag: "Opportunities", variant: "hero", color: "orange" },
   { icon: FileText,      title: "RFP / Narrative Writer", subtitle: "AI-powered proposal writing",     href: "/grant-narrative",        tag: "Writing",       variant: "hero", color: "blue",    authOnly: true, roles: ["grant", "admin", "org"] },
   { icon: ShieldCheck,   title: "RFP Fidelity Engine",    subtitle: "Rubric-first compliance check",   href: "/rfp-fidelity",           tag: "Writing",       variant: "hero", color: "indigo",  authOnly: true, roles: ["grant", "admin", "org"] },
 

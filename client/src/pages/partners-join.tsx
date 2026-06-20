@@ -116,7 +116,7 @@ export default function PartnersJoinPage() {
         <CardContent className="grid md:grid-cols-3 gap-4 text-sm">
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-semibold"><Trophy className="h-4 w-4 text-primary" /> Auto-fit to live RFPs</div>
-            <p className="text-muted-foreground">Your profile gets scored against 700+ live grants. You see the ones that actually fit your lane.</p>
+            <p className="text-muted-foreground">Your profile gets scored against live funding opportunities. You see the ones that actually fit your lane.</p>
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2 font-semibold"><Users className="h-4 w-4 text-primary" /> Self-serve teaming</div>

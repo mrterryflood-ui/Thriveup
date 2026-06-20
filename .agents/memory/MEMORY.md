@@ -3,3 +3,4 @@
 - [El Buen Samaritano Collaboration](el-buen-collaboration.md) — active contract conversation with Isaac Pozos; disparity analysis on rental assistance data for Austin City Council advocacy; Dads Care 2 / fatherhood / Chainweb are the differentiated contribution.
 - [Navigator Personal RAG](navigator-personal-rag.md) — personal context injects live DB data when authenticated; audience-aware, never promotional.
 - [TCAF Core Identity & IGN](tcaf-identity.md) — IGN=Initial Guidance & Navigation; multi-disciplinary lenses; 4-stakeholder model; full cycle not just needs assessment; bake into every surface.
+- [Canonical public-facing stats](canonical-stats.md) — no grant numbers ever; 15 service platforms externally; 107 languages; 4 AI engines; 50 states = architecture not deployment.

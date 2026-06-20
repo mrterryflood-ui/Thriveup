@@ -39,7 +39,7 @@ const FIVE_W = [
     color: "amber" as const,
     icon: Activity,
     headline: "Right now. Actively running.",
-    body: "651 grants tracked. 15 platforms live. 107 languages supported. Programs running in Central Texas today. This is not a roadmap or a vision — it is a running system built through intentional collaboration with the communities it serves.",
+    body: "15 platforms live. 107 languages supported. A funding intelligence engine aligning opportunities to the community partners we serve. Programs running in Central Texas today. This is not a roadmap or a vision — it is a running system built through intentional collaboration with the communities it serves.",
   },
   {
     w: "WHY",

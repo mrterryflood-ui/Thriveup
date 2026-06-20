@@ -110,7 +110,7 @@ const STRATEGIC_DIMENSIONS = [
   {
     icon: Target,
     label: "Grant Discovery",
-    target: "651 grants curated · fit ≥90 = 160",
+    target: "Funding intelligence engine · AI fit-scored to partner profiles",
     goal: "Re-investigate the 48hr scanner staleness (last write 2026-05-15). Run This Week digest preview before every funder meeting.",
   },
   {

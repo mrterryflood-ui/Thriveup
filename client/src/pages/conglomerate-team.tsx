@@ -34,7 +34,7 @@ const PARTNERS: Partner[] = [
       "FAFSA + financial literacy modules",
       "90 trade-sim lessons across 6 skilled trades (CTE-ready)",
       "Talk Your Talk: 107-language reach (89 spoken + 18 sign) for ESL / bilingual family engagement",
-      "Grant discovery + RFP-driven writing engine (721 grants tracked)",
+      "Grant discovery + RFP-driven writing engine (live funding intelligence, AI fit-scored to partner profiles)",
       "Community Voice (map-based engagement → AI insights → impact stories)",
       "Workforce + reentry tooling (RNR/CBI/NRRC frameworks)",
     ],
@@ -110,7 +110,7 @@ const ACTIVE_BIDS_FALLBACK: ActiveBid[] = [
     submission: "Sealed envelope, hand-delivered or courier, marked with company name + RFP number, to 6805 Telephone Rd, Lake Worth TX 76135. Sign every page of Standard Attributes/Certs/T&C packet.",
     rubric: [
       { criterion: "Purchase price", weight: 30, confidence: 0.90, ourResponse: "Tiered, transparent unit pricing per service line. Volume discounts at 25/50/100-seat thresholds. No per-student SaaS markup — flat campus license model.", evidence: "Pricing sheet in Tab 4, lines mapped to LWISD service categories." },
-      { criterion: "Reputation of vendor / vendor's goods or services", weight: 15, confidence: 0.70, ourResponse: "TCAF: 501(c)(3) DETERMINED · 271 production data tables · 211 live pages · 721-grant intelligence engine. Cited national platform with TX pilot.", evidence: "Capability statement, IRS Letter 947, SAM ACTIVE (UEI KDDVD1FGLW35), platform screenshots." },
+      { criterion: "Reputation of vendor / vendor's goods or services", weight: 15, confidence: 0.70, ourResponse: "TCAF: 501(c)(3) DETERMINED · 271 production data tables · 211 live pages · live funding intelligence engine. Cited national platform with TX pilot.", evidence: "Capability statement, IRS Letter 947, SAM ACTIVE (UEI KDDVD1FGLW35), platform screenshots." },
       { criterion: "Quality of vendor's goods or services", weight: 15, confidence: 0.95, ourResponse: "Implementation-science scaffolding (CFIR · RE-AIM · RPLICE). 90 trade-sim lessons, 39 CFIR constructs, AWS D1.1 alignment, FHIR/CDS-Hooks rigor.", evidence: "Quality narrative Tab 5; demo URLs gated behind district credentials." },
       { criterion: "Extent goods/services meet district needs", weight: 20, confidence: 0.85, ourResponse: "Section-by-section crosswalk to LWISD's stated service categories: PD, assessment, consulting, training, services, materials. AI literacy + CTE/trades + FAFSA + bilingual family engagement (Talk Your Talk, 107 languages) all in-scope.", evidence: "Needs-fit crosswalk Tab 6 — LWISD scope language verbatim → TCAF deliverable." },
       { criterion: "Past relationship between district and vendor", weight: 5, confidence: 0.20, ourResponse: "No prior LWISD relationship — disclosed honestly. Mitigation: 3 TX district references (in pursuit), HIS compliance lead as named contract administrator de-risks first engagement.", evidence: "Reference letters Tab 7; HIS bio + sample compliance plan Tab 8." },
@@ -251,7 +251,7 @@ export default function ConglomerateTeamPage() {
       <Card className="border-blue-300 dark:border-blue-700">
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Target className="w-5 h-5 text-blue-600 dark:text-blue-400" />Scan for new bids</CardTitle>
-          <CardDescription>The grant-discovery engine pulls from Grants.gov · SAM.gov · USASpending · curated state/local/foundation. 721 grants currently tracked.</CardDescription>
+          <CardDescription>The grant-discovery engine pulls from Grants.gov · SAM.gov · USASpending · curated state/local/foundation — intelligently aligned to the community partners we serve.</CardDescription>
         </CardHeader>
         <CardContent className="flex flex-wrap gap-2">
           <Button variant="default" asChild data-testid="button-scan-grants">
