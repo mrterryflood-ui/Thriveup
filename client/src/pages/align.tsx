@@ -4,9 +4,10 @@ import { Badge } from "@/components/ui/badge";
 import {
   Search, Ear, Puzzle, Compass, Navigation,
   Facebook, Mic2, ArrowRight, Heart,
-  Users, Sparkles, TreePine
+  Users, Sparkles
 } from "lucide-react";
 import { SiInstagram } from "react-icons/si";
+import alignLogo from "@assets/4C3587C9-E0BC-45FD-9E4E-CD435BE825BD_1781974706746.png";
 
 const FRAMEWORK = [
   {
@@ -66,22 +67,24 @@ export default function AlignPage() {
         </div>
 
         <div className="relative max-w-2xl mx-auto">
-          {/* Logo placeholder — will swap when logo is uploaded */}
-          <div className="mb-5 flex justify-center">
-            <div className="flex items-center gap-3">
-              <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-white/10 border border-white/20 shadow-xl">
-                <TreePine className="h-8 w-8 text-emerald-400" />
-              </div>
-              <div className="text-left">
-                <p className="text-3xl font-black tracking-widest text-white">ALIGN</p>
-                <p className="text-[11px] text-white/50 tracking-widest uppercase">A TCAF Initiative</p>
-              </div>
-            </div>
+          {/* Logo */}
+          <div className="mb-4 flex justify-center">
+            <img
+              src={alignLogo}
+              alt="ALIGN — Aligning People with Purpose"
+              className="w-52 h-52 sm:w-64 sm:h-64 object-contain rounded-full bg-white shadow-2xl ring-4 ring-white/20"
+              data-testid="img-align-logo"
+            />
           </div>
 
-          <h1 className="text-xl sm:text-2xl font-bold text-white mb-2" data-testid="text-align-headline">
-            Connect. Grow. Serve. Thrive.
+          <p className="text-[11px] font-bold uppercase tracking-widest text-white/50 mb-2">A TCAF Initiative</p>
+
+          <h1 className="text-xl sm:text-2xl font-bold text-white mb-1" data-testid="text-align-headline">
+            Aligning People with Purpose.
           </h1>
+          <p className="text-white/60 text-xs tracking-widest uppercase mb-4">
+            Empower · Activate · Grow · Uplift · Serve
+          </p>
           <p className="text-white/70 text-sm max-w-lg mx-auto leading-relaxed mb-6">
             Where people, purpose, and community come together. ALIGN helps individuals and
             communities move from awareness to action — grounded in spirit, soul, and body.
@@ -142,23 +145,52 @@ export default function AlignPage() {
         </div>
       </section>
 
-      {/* ── Embedded ALIGN platform ───────────────────────────────────── */}
-      <section className="px-4 py-8 sm:px-6" data-testid="section-align-embed">
+      {/* ── ALIGN Platform CTA ───────────────────────────────────────── */}
+      <section className="px-4 py-8 sm:px-6" data-testid="section-align-cta">
         <div className="max-w-3xl mx-auto">
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground text-center mb-4">
             Begin Your Journey
           </p>
-          <div className="rounded-2xl overflow-hidden border shadow-lg">
-            <iframe
-              src="https://lifetransitionsaid.org/thriveup/align"
-              width="100%"
-              height="950"
-              style={{ border: "none", display: "block" }}
-              title="ALIGN — Thriving Communities for All"
-              loading="lazy"
-              allow="clipboard-write"
-              data-testid="iframe-align"
-            />
+          <div className="rounded-2xl border bg-card overflow-hidden shadow-lg">
+            {/* Brand strip */}
+            <div className="flex flex-col items-center gap-3 px-6 py-8 text-center"
+              style={{ background: "linear-gradient(160deg, #1e1b4b 0%, #1a3a2a 100%)" }}>
+              <img
+                src={alignLogo}
+                alt="ALIGN logo"
+                className="w-28 h-28 object-contain rounded-full bg-white shadow-xl"
+              />
+              <div>
+                <p className="text-white font-black text-lg tracking-widest">ALIGN</p>
+                <p className="text-white/60 text-xs tracking-widest uppercase">Aligning People with Purpose</p>
+              </div>
+            </div>
+            {/* CTA body */}
+            <div className="px-6 py-6 space-y-4 text-center">
+              <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                The full ALIGN platform — intake, assessment, personalized guidance, and community
+                connection — lives at Life Transitions Aid, our partner site. Start your journey there.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <a
+                  href="https://lifetransitionsaid.org/thriveup/align"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  data-testid="link-align-platform">
+                  <Button size="lg" className="gap-2 w-full sm:w-auto">
+                    Open the ALIGN Platform <ArrowRight className="h-4 w-4" />
+                  </Button>
+                </a>
+                <Link href="/benefits-screener">
+                  <Button variant="outline" size="lg" className="gap-2 w-full sm:w-auto" data-testid="button-align-screener">
+                    Start Benefits Assessment
+                  </Button>
+                </Link>
+              </div>
+              <p className="text-[10px] text-muted-foreground">
+                Opens in a new tab · Powered by Life Transitions Aid &amp; TCAF
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -198,7 +230,7 @@ export default function AlignPage() {
               <Users className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
               <span className="text-sm font-semibold text-emerald-800 dark:text-emerald-300">THRIVE</span>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-1">Action and engagement</p>
+            <p className="text-[10px] text-muted-foreground mt-1">Empower · Activate · Grow · Uplift · Serve</p>
           </div>
 
           <div className="text-muted-foreground text-lg mb-4">↓</div>
