@@ -145,53 +145,29 @@ export default function AlignPage() {
         </div>
       </section>
 
-      {/* ── ALIGN Platform CTA ───────────────────────────────────────── */}
-      <section className="px-4 py-8 sm:px-6" data-testid="section-align-cta">
+      {/* ── Embedded ALIGN platform ───────────────────────────────────── */}
+      <section className="px-4 py-8 sm:px-6" data-testid="section-align-embed">
         <div className="max-w-3xl mx-auto">
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground text-center mb-4">
             Begin Your Journey
           </p>
-          <div className="rounded-2xl border bg-card overflow-hidden shadow-lg">
-            {/* Brand strip */}
-            <div className="flex flex-col items-center gap-3 px-6 py-8 text-center"
-              style={{ background: "linear-gradient(160deg, #1e1b4b 0%, #1a3a2a 100%)" }}>
-              <img
-                src={alignLogo}
-                alt="ALIGN logo"
-                className="w-28 h-28 object-contain rounded-full bg-white shadow-xl"
-              />
-              <div>
-                <p className="text-white font-black text-lg tracking-widest">ALIGN</p>
-                <p className="text-white/60 text-xs tracking-widest uppercase">Aligning People with Purpose</p>
-              </div>
-            </div>
-            {/* CTA body */}
-            <div className="px-6 py-6 space-y-4 text-center">
-              <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                The full ALIGN platform — intake, assessment, personalized guidance, and community
-                connection — lives at Life Transitions Aid, our partner site. Start your journey there.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <a
-                  href="https://lifetransitionsaid.org/thriveup/align"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  data-testid="link-align-platform">
-                  <Button size="lg" className="gap-2 w-full sm:w-auto">
-                    Open the ALIGN Platform <ArrowRight className="h-4 w-4" />
-                  </Button>
-                </a>
-                <Link href="/benefits-screener">
-                  <Button variant="outline" size="lg" className="gap-2 w-full sm:w-auto" data-testid="button-align-screener">
-                    Start Benefits Assessment
-                  </Button>
-                </Link>
-              </div>
-              <p className="text-[10px] text-muted-foreground">
-                Opens in a new tab · Powered by Life Transitions Aid &amp; TCAF
-              </p>
-            </div>
+          <div className="rounded-2xl overflow-hidden border shadow-lg">
+            <iframe
+              src="https://lifetransitionsaid.org/thriveup/align"
+              width="100%"
+              height="950"
+              style={{ border: "none", display: "block" }}
+              title="ALIGN — Thriving Communities for All"
+              loading="lazy"
+              allow="clipboard-write"
+              data-testid="iframe-align"
+            />
           </div>
+          <p className="text-[10px] text-muted-foreground text-center mt-2">
+            Powered by Life Transitions Aid &amp; TCAF ·{" "}
+            <a href="https://lifetransitionsaid.org/thriveup/align" target="_blank" rel="noopener noreferrer"
+              className="hover:underline">Open in full page ↗</a>
+          </p>
         </div>
       </section>
 
