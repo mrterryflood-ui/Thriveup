@@ -1236,7 +1236,7 @@ export default function LandingPage() {
           {/* Subtitle */}
           <p className="mb-4 px-2" data-testid="text-hero-subtitle"
             style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 560, lineHeight: 1.75 }}>
-            We equip youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered training, verifiable credentials, and the infrastructure to create lasting change from within.
+            The backbone for nonprofits, residents, funders, and policymakers — not a competitor. We bring the tools, data, and funding knowledge. You bring the mission. Together we turn advocacy and passion into lasting, measurable impact.
           </p>
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
@@ -1251,26 +1251,28 @@ export default function LandingPage() {
 
           <p className="text-xs mb-2 px-2" data-testid="text-hero-philosophy"
             style={{ color: heroFaint, maxWidth: 500, lineHeight: 1.7 }}>
-            Holistic. Agile. Agnostic. We meet every community where they are — through intentional collaboration, honest communication, and building together.
+            "No one cares how much you know until they know how much you care." We meet every community where they are — at their pace, at their readiness level, with real solutions.
           </p>
 
           <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
             style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
-            ThriveUp is the community infrastructure platform — the operating system that empowers communities to coordinate workforce training, health equity, education, and case management across 6 domains, 15 service platforms, and 4-engine AI.
+            TCAF is the community infrastructure platform — 6 service domains, 15 platforms, 4-engine AI, built for any U.S. county. We are stronger together.
           </p>
 
           {/* CTAs */}
           <div className="flex flex-wrap gap-4 justify-center mb-10">
             <Link href="/benefits-screener">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}>
+                style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}
+                data-testid="button-hero-benefits">
                 Find What Your Family Qualifies For →
               </button>
             </Link>
-            <Link href="/sdoh-explorer">
+            <Link href="/our-approach">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}>
-                See Your Neighborhood's Data
+                style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
+                data-testid="button-hero-approach">
+                For Nonprofits &amp; Partners →
               </button>
             </Link>
           </div>
