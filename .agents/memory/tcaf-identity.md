@@ -49,3 +49,19 @@ Every intro, page, and tool must address all four:
 - Data is king — but data must become information to be useful
 - Meet people where they are, at their pace and level of readiness
 - We assist OR are assisted — direction of help depends on the situation
+
+## Writing Mode Architecture (personal-context.ts)
+Five audience modes — detected from message signals, not user role:
+- `tcaf_internal` — Dr. Flood writing FOR TCAF (grants, proposals, strategy)
+- `partner_assist` — TCAF helping a partner org (El Buen, United Way, church...)
+- `partner_user` — partner org staff logged in; their tools/data/IGN first
+- `community_member` — resident/family seeking help; plain language, IGN
+- `neutral` — default
+
+TCAF grant pipeline is ONLY injected in `tcaf_internal` and `neutral` modes.
+Partner assist mode centers the partner's mission — TCAF stays the backbone, not the hero.
+
+## ETHICAL_EI_PREAMBLE (ai-provider.ts)
+Now 8 principles. Principles 7 and 8 are new (added 2026-06-20):
+7. TCAF Identity & IGN Mindset — IGN framework, multi-disciplinary lenses, care before credentials, all issues are local
+8. Writing Mode & Partnership — TCAF is never a threat; adjust voice per context (internal/partner/community)
