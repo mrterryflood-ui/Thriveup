@@ -208,10 +208,10 @@ function TrustBar() {
 
 function ImpactNumbers() {
   const stats = [
-    { value: "15", label: "Ecosystem Platforms", href: "/ecosystem" },
-    { value: "651", label: "Grants Tracked", href: "/grants" },
-    { value: "4", label: "AI Engines", href: "/benefits-screener" },
-    { value: "107", label: "Languages Supported", href: "/ecosystem" },
+    { value: "26",   label: "Ecosystem Platforms", href: "/ecosystem" },
+    { value: "721+", label: "Grants Tracked",      href: "/grants" },
+    { value: "4",    label: "AI Engines",           href: "/benefits-screener" },
+    { value: "107",  label: "Languages Supported",  href: "/ecosystem" },
   ];
   return (
     <section className="py-10 px-4 bg-card" data-testid="section-impact-numbers">
@@ -1280,9 +1280,9 @@ export default function LandingPage() {
           {/* Live stat strip */}
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 pt-6"
             style={{ borderTop: `1px solid ${statBorder}` }}>
-            <HeroStatCounter target={15}  label="Platforms Online"          color="#0891b2" isDark={isDark} />
-            <HeroStatCounter target={9}   label="Benefits Screened at Once" color="#059669" isDark={isDark} />
-            <HeroStatCounter target={50}  label="States Deployable"         color="#7c3aed" isDark={isDark} />
+            <HeroStatCounter target={26}  label="Platforms Online"           color="#0891b2" isDark={isDark} />
+            <HeroStatCounter target={9}   label="Benefit Programs Per Screen" color="#059669" isDark={isDark} />
+            <HeroStatCounter target={50}  label="States — One Architecture"  color="#7c3aed" isDark={isDark} />
           </div>
         </div>
       </section>
@@ -1365,11 +1365,11 @@ export default function LandingPage() {
           {/* Live metrics strip */}
           <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
             {([
-              { value: "721+",  label: "Grants Tracked",       color: "text-amber-600 dark:text-amber-400"   },
-              { value: "15",    label: "Service Platforms",     color: "text-blue-600 dark:text-blue-400"     },
-              { value: "9",     label: "Benefits Screened",     color: "text-emerald-600 dark:text-emerald-400"},
-              { value: "50",    label: "States Ready",          color: "text-violet-600 dark:text-violet-400" },
-              { value: "107",   label: "Languages Supported",   color: "text-rose-600 dark:text-rose-400"     },
+              { value: "721+",  label: "Grants Tracked",           color: "text-amber-600 dark:text-amber-400"   },
+              { value: "26",    label: "Platforms Online",         color: "text-blue-600 dark:text-blue-400"     },
+              { value: "9",     label: "Benefits Per Screen",      color: "text-emerald-600 dark:text-emerald-400"},
+              { value: "50",    label: "States — 1 Architecture",  color: "text-violet-600 dark:text-violet-400" },
+              { value: "107",   label: "Languages Supported",      color: "text-rose-600 dark:text-rose-400"     },
             ]).map(m => (
               <div key={m.label} className="bg-card border border-border/60 rounded-xl p-3 text-center" data-testid={`metric-${m.label.toLowerCase().replace(/\s+/g, "-")}`}>
                 <p className={`text-xl font-black ${m.color}`}>{m.value}</p>
