@@ -2,3 +2,4 @@
 - [RequireAuth + wouter routing pattern](require-auth-routing.md) — Route must WRAP RequireAuth, not the other way around; outer-RequireAuth bleeds to all pages.
 - [El Buen Samaritano Collaboration](el-buen-collaboration.md) — active contract conversation with Isaac Pozos; disparity analysis on rental assistance data for Austin City Council advocacy; Dads Care 2 / fatherhood / Chainweb are the differentiated contribution.
 - [Navigator Personal RAG](navigator-personal-rag.md) — personal context injects live DB data when authenticated; audience-aware, never promotional.
+- [TCAF Core Identity & IGN](tcaf-identity.md) — IGN=Initial Guidance & Navigation; multi-disciplinary lenses; 4-stakeholder model; full cycle not just needs assessment; bake into every surface.
