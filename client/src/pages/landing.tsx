@@ -1363,19 +1363,32 @@ export default function LandingPage() {
           </div>
 
           {/* Live metrics strip */}
-          <div className="grid grid-cols-3 sm:grid-cols-5 gap-3">
-            {([
-              { value: "721+",  label: "Grants Tracked",           color: "text-amber-600 dark:text-amber-400"   },
-              { value: "26",    label: "Platforms Online",         color: "text-blue-600 dark:text-blue-400"     },
-              { value: "9",     label: "Benefits Per Screen",      color: "text-emerald-600 dark:text-emerald-400"},
-              { value: "50",    label: "States — 1 Architecture",  color: "text-violet-600 dark:text-violet-400" },
-              { value: "107",   label: "Languages Supported",      color: "text-rose-600 dark:text-rose-400"     },
-            ]).map(m => (
-              <div key={m.label} className="bg-card border border-border/60 rounded-xl p-3 text-center" data-testid={`metric-${m.label.toLowerCase().replace(/\s+/g, "-")}`}>
-                <p className={`text-xl font-black ${m.color}`}>{m.value}</p>
-                <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{m.label}</p>
+          <div className="space-y-3">
+            {/* Grant intelligence — plain language */}
+            <Link href="/grants">
+              <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-800/40 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-amber-100/60 dark:hover:bg-amber-900/30 transition-colors" data-testid="metric-grant-intelligence">
+                <Target className="h-5 w-5 text-amber-600 dark:text-amber-400 shrink-0" />
+                <div>
+                  <p className="text-xs font-semibold text-amber-800 dark:text-amber-300 leading-snug">Live funding intelligence</p>
+                  <p className="text-[10px] text-amber-700/70 dark:text-amber-400/70 leading-snug mt-0.5">We track funding opportunities nationwide and intelligently align them to the community partners we serve.</p>
+                </div>
               </div>
-            ))}
+            </Link>
+
+            {/* Four number stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {([
+                { value: "26",  label: "Platforms Online",    color: "text-blue-600 dark:text-blue-400"     },
+                { value: "9",   label: "Benefits Per Screen", color: "text-emerald-600 dark:text-emerald-400"},
+                { value: "50",  label: "States — 1 Build",   color: "text-violet-600 dark:text-violet-400" },
+                { value: "107", label: "Languages",           color: "text-rose-600 dark:text-rose-400"     },
+              ]).map(m => (
+                <div key={m.label} className="bg-card border border-border/60 rounded-xl p-3 text-center" data-testid={`metric-${m.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                  <p className={`text-xl font-black ${m.color}`}>{m.value}</p>
+                  <p className="text-[10px] text-muted-foreground leading-tight mt-0.5">{m.label}</p>
+                </div>
+              ))}
+            </div>
           </div>
 
         </div>
