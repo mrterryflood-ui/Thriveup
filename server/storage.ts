@@ -74,6 +74,9 @@ import {
   type OnboardingBaselineSnapshot, type InsertOnboardingBaselineSnapshot,
   programDesigns,
   type ProgramDesign, type InsertProgramDesign,
+  alignOrgProfiles, alignOrgPrograms,
+  type AlignOrgProfile, type InsertAlignOrgProfile,
+  type AlignOrgProgram, type InsertAlignOrgProgram,
   alignProfiles, alignPhaseEvents,
   type AlignProfile, type InsertAlignProfile,
   type AlignPhaseEvent, type InsertAlignPhaseEvent,
@@ -426,6 +429,14 @@ export interface IStorage {
   deleteProgramDesign(id: string): Promise<void>;
 
   seedData(): Promise<void>;
+
+  // ALIGN Org
+  getAlignOrgProfile(submittedBy: string): Promise<AlignOrgProfile | null>;
+  upsertAlignOrgProfile(submittedBy: string, data: Partial<InsertAlignOrgProfile>): Promise<AlignOrgProfile>;
+  getAlignOrgPrograms(orgProfileId: number): Promise<AlignOrgProgram[]>;
+  createAlignOrgProgram(data: InsertAlignOrgProgram): Promise<AlignOrgProgram>;
+  deleteAlignOrgProgram(id: number): Promise<void>;
+  getAlignCommunityOverview(): Promise<{ totalOrgs: number; orgsByPhase: Record<string,number>; coveredPhases: string[]; totalIndividuals: number; individualsByPhase: Record<string,number>; communityScores: Record<string,number> }>;
 
   // ALIGN Journey
   getAlignProfile(userId: string): Promise<AlignProfile | null>;
@@ -1859,6 +1870,70 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProgramDesign(id: string): Promise<void> {
     await db.delete(programDesigns).where(eq(programDesigns.id, id));
+  }
+
+  // ==================== ALIGN ORG ====================
+  async getAlignOrgProfile(submittedBy: string): Promise<AlignOrgProfile | null> {
+    const [profile] = await db.select().from(alignOrgProfiles).where(eq(alignOrgProfiles.submittedBy, submittedBy)).limit(1);
+    return profile ?? null;
+  }
+
+  async upsertAlignOrgProfile(submittedBy: string, data: Partial<InsertAlignOrgProfile>): Promise<AlignOrgProfile> {
+    const existing = await this.getAlignOrgProfile(submittedBy);
+    if (existing) {
+      const [updated] = await db.update(alignOrgProfiles).set({ ...data, updatedAt: new Date() }).where(eq(alignOrgProfiles.submittedBy, submittedBy)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(alignOrgProfiles).values({ submittedBy, currentPhase: "assess", orgName: "My Organization", ...data }).returning();
+    return created;
+  }
+
+  async getAlignOrgPrograms(orgProfileId: number): Promise<AlignOrgProgram[]> {
+    return db.select().from(alignOrgPrograms).where(eq(alignOrgPrograms.orgProfileId, orgProfileId));
+  }
+
+  async createAlignOrgProgram(data: InsertAlignOrgProgram): Promise<AlignOrgProgram> {
+    const [program] = await db.insert(alignOrgPrograms).values(data).returning();
+    return program;
+  }
+
+  async deleteAlignOrgProgram(id: number): Promise<void> {
+    await db.delete(alignOrgPrograms).where(eq(alignOrgPrograms.id, id));
+  }
+
+  async getAlignCommunityOverview() {
+    const orgRows = await db.select({ phase: alignOrgProfiles.currentPhase, mission: alignOrgProfiles.missionScore, culture: alignOrgProfiles.cultureScore, capacity: alignOrgProfiles.capacityScore, coverage: alignOrgProfiles.phaseCoverage }).from(alignOrgProfiles);
+    const indRows = await db.select({ phase: alignProfiles.currentPhase }).from(alignProfiles);
+
+    const orgsByPhase: Record<string,number> = {};
+    const coveredPhasesSet = new Set<string>();
+    let missionTotal = 0, cultureTotal = 0, capacityTotal = 0;
+    for (const row of orgRows) {
+      orgsByPhase[row.phase] = (orgsByPhase[row.phase] ?? 0) + 1;
+      (row.coverage ?? []).forEach((p) => coveredPhasesSet.add(p));
+      missionTotal += row.mission ?? 0;
+      cultureTotal += row.culture ?? 0;
+      capacityTotal += row.capacity ?? 0;
+    }
+    const n = orgRows.length || 1;
+
+    const individualsByPhase: Record<string,number> = {};
+    for (const row of indRows) {
+      individualsByPhase[row.phase] = (individualsByPhase[row.phase] ?? 0) + 1;
+    }
+
+    return {
+      totalOrgs: orgRows.length,
+      orgsByPhase,
+      coveredPhases: Array.from(coveredPhasesSet),
+      totalIndividuals: indRows.length,
+      individualsByPhase,
+      communityScores: {
+        spirit: Math.round(missionTotal / n),
+        soul: Math.round(cultureTotal / n),
+        body: Math.round(capacityTotal / n),
+      },
+    };
   }
 
   // ==================== ALIGN JOURNEY ====================

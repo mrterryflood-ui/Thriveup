@@ -6200,6 +6200,50 @@ export const insertInitiativeSchema = createInsertSchema(initiatives).omit({ id:
 export type InsertInitiative = z.infer<typeof insertInitiativeSchema>;
 export type Initiative = typeof initiatives.$inferSelect;
 
+// ── ALIGN — Organizational & Community Framework ──────────────────────────────
+// Org-level parallel: Mission (Spirit) · Culture (Soul) · Capacity (Body)
+// Phase coverage: which ALIGN phases does this org's work actually serve?
+export const alignOrgProfiles = pgTable("align_org_profiles", {
+  id: serial("id").primaryKey(),
+  orgId: varchar("org_id", { length: 100 }),      // fk to communityPartners.id (nullable for standalone)
+  orgName: text("org_name").notNull(),
+  orgType: varchar("org_type", { length: 100 }),  // nonprofit | faith | school | government | business | coalition
+  submittedBy: varchar("submitted_by", { length: 255 }),
+  currentPhase: varchar("current_phase", { length: 20 }).default("assess").notNull(),
+  missionScore: integer("mission_score").default(0),   // clarity, values alignment, community trust
+  cultureScore: integer("culture_score").default(0),   // staff wellbeing, lived-experience leadership
+  capacityScore: integer("capacity_score").default(0), // funding stability, data systems, operations
+  missionNotes: text("mission_notes"),
+  cultureNotes: text("culture_notes"),
+  capacityNotes: text("capacity_notes"),
+  phaseCoverage: text("phase_coverage").array(),       // which phases org programs actually cover
+  assessStartedAt: timestamp("assess_started_at"),
+  listenEnteredAt: timestamp("listen_entered_at"),
+  integrateEnteredAt: timestamp("integrate_entered_at"),
+  guidePhaseEnteredAt: timestamp("guide_phase_entered_at"),
+  navigateEnteredAt: timestamp("navigate_entered_at"),
+  thriveEnteredAt: timestamp("thrive_entered_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertAlignOrgProfileSchema = createInsertSchema(alignOrgProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAlignOrgProfile = z.infer<typeof insertAlignOrgProfileSchema>;
+export type AlignOrgProfile = typeof alignOrgProfiles.$inferSelect;
+
+export const alignOrgPrograms = pgTable("align_org_programs", {
+  id: serial("id").primaryKey(),
+  orgProfileId: integer("org_profile_id").notNull(),
+  programName: text("program_name").notNull(),
+  programDescription: text("program_description"),
+  alignPhases: text("align_phases").array(),   // which ALIGN phases this program covers
+  participantsServed: integer("participants_served").default(0),
+  isActive: boolean("is_active").default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertAlignOrgProgramSchema = createInsertSchema(alignOrgPrograms).omit({ id: true, createdAt: true });
+export type InsertAlignOrgProgram = z.infer<typeof insertAlignOrgProgramSchema>;
+export type AlignOrgProgram = typeof alignOrgPrograms.$inferSelect;
+
 // ── ALIGN — Holistic Individual Journey Framework ─────────────────────────────
 // Phases: assess → listen → integrate → guide → navigate → thrive
 // Dimensions: Spirit · Soul · Body (each scored 0–100)

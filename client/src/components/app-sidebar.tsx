@@ -197,6 +197,8 @@ const academyLearningItems: NavItem[] = [
 const partnersCoalitionsItems: NavItem[] = [
   { title: "ALIGN — Connect. Grow. Serve. Thrive.", url: "/align", icon: Sparkles },
   { title: "My ALIGN Journey", url: "/align/my-journey", icon: Route },
+  { title: "Org ALIGN Assessment", url: "/align/org-assessment", icon: Building2 },
+  { title: "Community Overview", url: "/align/community", icon: Globe },
   { title: "THRIVE — Empower. Activate. Grow.", url: "/thrive", icon: Star },
   { title: "My Initiatives", url: "/initiatives", icon: Lightbulb },
   { title: "Community Partners", url: "/partners", icon: Handshake },

@@ -6095,6 +6095,40 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     }
   });
 
+  // ── ALIGN Org routes ─────────────────────────────────────────────────────
+  app.get("/api/align/org/profile", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const profile = await storage.getAlignOrgProfile(user.id);
+      res.json(profile ?? null);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/align/org/profile", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const allowed = ["orgName","orgType","orgId","currentPhase","missionScore","cultureScore","capacityScore","missionNotes","cultureNotes","capacityNotes","phaseCoverage"];
+      const data: Record<string, unknown> = {};
+      for (const key of allowed) {
+        if (req.body[key] !== undefined) data[key] = req.body[key];
+      }
+      if (data.currentPhase) {
+        const tsMap: Record<string,string> = { assess:"assessStartedAt", listen:"listenEnteredAt", integrate:"integrateEnteredAt", guide:"guidePhaseEnteredAt", navigate:"navigateEnteredAt", thrive:"thriveEnteredAt" };
+        const tsField = tsMap[data.currentPhase as string];
+        if (tsField) data[tsField] = new Date();
+      }
+      const profile = await storage.upsertAlignOrgProfile(user.id, data as any);
+      res.json(profile);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.get("/api/align/community/overview", async (req, res) => {
+    try {
+      const overview = await storage.getAlignCommunityOverview();
+      res.json(overview);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
   // ── ALIGN Journey routes ──────────────────────────────────────────────────
   app.get("/api/align/profile", requireAuth, async (req, res) => {
     try {
