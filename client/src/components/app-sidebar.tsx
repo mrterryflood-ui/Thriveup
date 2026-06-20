@@ -196,6 +196,7 @@ const academyLearningItems: NavItem[] = [
 // surface. The "who are we working with" door.
 const partnersCoalitionsItems: NavItem[] = [
   { title: "ALIGN — Connect. Grow. Serve. Thrive.", url: "/align", icon: Sparkles },
+  { title: "Why ThriveUp? (Stakeholder Q&A)", url: "/why-thriveup", icon: FileText },
   { title: "My ALIGN Journey", url: "/align/my-journey", icon: Route },
   { title: "Org ALIGN Assessment", url: "/align/org-assessment", icon: Building2 },
   { title: "Community Overview", url: "/align/community", icon: Globe },

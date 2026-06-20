@@ -310,6 +310,7 @@ const AlignPage = lazy(() => import("@/pages/align"));
 const AlignJourneyPage = lazy(() => import("@/pages/align-journey"));
 const AlignOrgAssessmentPage = lazy(() => import("@/pages/align-org-assessment"));
 const AlignCommunityPage = lazy(() => import("@/pages/align-community"));
+const WhyThriveUpPage = lazy(() => import("@/pages/why-thriveup"));
 const ThrivePage = lazy(() => import("@/pages/thrive"));
 
 function PageFallback() {
@@ -780,6 +781,7 @@ function AppRouter() {
       <Route path="/align/my-journey" component={AlignJourneyPage} />
       <Route path="/align/org-assessment" component={AlignOrgAssessmentPage} />
       <Route path="/align/community" component={AlignCommunityPage} />
+      <Route path="/why-thriveup" component={WhyThriveUpPage} />
       <Route path="/thrive" component={ThrivePage} />
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
