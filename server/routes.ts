@@ -6095,5 +6095,56 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     }
   });
 
+  // ── ALIGN Journey routes ──────────────────────────────────────────────────
+  app.get("/api/align/profile", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const profile = await storage.getAlignProfile(user.id);
+      if (!profile) {
+        return res.json({ userId: user.id, currentPhase: "assess", spiritScore: 0, soulScore: 0, bodyScore: 0 });
+      }
+      res.json(profile);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.post("/api/align/profile", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const allowed = ["currentPhase","spiritScore","soulScore","bodyScore","spiritNotes","soulNotes","bodyNotes","guideId","guideName","assessStartedAt","listenEnteredAt","integrateEnteredAt","guidePhaseEnteredAt","navigateEnteredAt","thriveEnteredAt"];
+      const data: Record<string, unknown> = {};
+      for (const key of allowed) {
+        if (req.body[key] !== undefined) data[key] = req.body[key];
+      }
+      // Stamp the phase timestamp when phase changes
+      if (data.currentPhase) {
+        const phaseTimestampMap: Record<string, string> = {
+          assess: "assessStartedAt", listen: "listenEnteredAt", integrate: "integrateEnteredAt",
+          guide: "guidePhaseEnteredAt", navigate: "navigateEnteredAt", thrive: "thriveEnteredAt",
+        };
+        const tsField = phaseTimestampMap[data.currentPhase as string];
+        if (tsField) data[tsField] = new Date();
+        // Log phase event
+        await storage.logAlignPhaseEvent({ userId: user.id, phase: data.currentPhase as string, eventType: "phase_entered" });
+      }
+      const profile = await storage.upsertAlignProfile(user.id, data as any);
+      res.json(profile);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+  app.get("/api/align/events", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const limit = Math.min(parseInt(String(req.query.limit ?? "50")), 200);
+      const events = await storage.getAlignPhaseEvents(user.id, limit);
+      res.json(events);
+    } catch (err: any) {
+      res.status(500).json({ error: err.message });
+    }
+  });
+
   return httpServer;
 }

@@ -74,6 +74,9 @@ import {
   type OnboardingBaselineSnapshot, type InsertOnboardingBaselineSnapshot,
   programDesigns,
   type ProgramDesign, type InsertProgramDesign,
+  alignProfiles, alignPhaseEvents,
+  type AlignProfile, type InsertAlignProfile,
+  type AlignPhaseEvent, type InsertAlignPhaseEvent,
   cqiCycles, cqiGaps, cqiInterventions, cqiFidelityDefinitions, cqiFidelityObservations, cqiOutcomes, cqiCyclePhases,
   type CqiCycle, type InsertCqiCycle,
   type CqiGap, type InsertCqiGap,
@@ -423,6 +426,12 @@ export interface IStorage {
   deleteProgramDesign(id: string): Promise<void>;
 
   seedData(): Promise<void>;
+
+  // ALIGN Journey
+  getAlignProfile(userId: string): Promise<AlignProfile | null>;
+  upsertAlignProfile(userId: string, data: Partial<InsertAlignProfile>): Promise<AlignProfile>;
+  logAlignPhaseEvent(data: InsertAlignPhaseEvent): Promise<AlignPhaseEvent>;
+  getAlignPhaseEvents(userId: string, limit?: number): Promise<AlignPhaseEvent[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -1850,6 +1859,35 @@ export class DatabaseStorage implements IStorage {
 
   async deleteProgramDesign(id: string): Promise<void> {
     await db.delete(programDesigns).where(eq(programDesigns.id, id));
+  }
+
+  // ==================== ALIGN JOURNEY ====================
+  async getAlignProfile(userId: string): Promise<AlignProfile | null> {
+    const { alignProfiles } = await import("@shared/schema");
+    const [profile] = await db.select().from(alignProfiles).where(eq(alignProfiles.userId, userId)).limit(1);
+    return profile ?? null;
+  }
+
+  async upsertAlignProfile(userId: string, data: Partial<InsertAlignProfile>): Promise<AlignProfile> {
+    const { alignProfiles } = await import("@shared/schema");
+    const existing = await this.getAlignProfile(userId);
+    if (existing) {
+      const [updated] = await db.update(alignProfiles).set({ ...data, updatedAt: new Date() }).where(eq(alignProfiles.userId, userId)).returning();
+      return updated;
+    }
+    const [created] = await db.insert(alignProfiles).values({ userId, currentPhase: "assess", ...data }).returning();
+    return created;
+  }
+
+  async logAlignPhaseEvent(data: InsertAlignPhaseEvent): Promise<AlignPhaseEvent> {
+    const { alignPhaseEvents } = await import("@shared/schema");
+    const [event] = await db.insert(alignPhaseEvents).values(data).returning();
+    return event;
+  }
+
+  async getAlignPhaseEvents(userId: string, limit = 50): Promise<AlignPhaseEvent[]> {
+    const { alignPhaseEvents } = await import("@shared/schema");
+    return db.select().from(alignPhaseEvents).where(eq(alignPhaseEvents.userId, userId)).orderBy(desc(alignPhaseEvents.createdAt)).limit(limit);
   }
 }
 

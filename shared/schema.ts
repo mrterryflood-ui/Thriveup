@@ -6199,3 +6199,45 @@ export const initiatives = pgTable("initiatives", {
 export const insertInitiativeSchema = createInsertSchema(initiatives).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertInitiative = z.infer<typeof insertInitiativeSchema>;
 export type Initiative = typeof initiatives.$inferSelect;
+
+// ── ALIGN — Holistic Individual Journey Framework ─────────────────────────────
+// Phases: assess → listen → integrate → guide → navigate → thrive
+// Dimensions: Spirit · Soul · Body (each scored 0–100)
+export const alignProfiles = pgTable("align_profiles", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull().unique(),
+  currentPhase: varchar("current_phase", { length: 20 }).default("assess").notNull(),
+  spiritScore: integer("spirit_score").default(0),
+  soulScore: integer("soul_score").default(0),
+  bodyScore: integer("body_score").default(0),
+  spiritNotes: text("spirit_notes"),
+  soulNotes: text("soul_notes"),
+  bodyNotes: text("body_notes"),
+  guideId: varchar("guide_id", { length: 255 }),
+  guideName: text("guide_name"),
+  assessStartedAt: timestamp("assess_started_at"),
+  listenEnteredAt: timestamp("listen_entered_at"),
+  integrateEnteredAt: timestamp("integrate_entered_at"),
+  guidePhaseEnteredAt: timestamp("guide_phase_entered_at"),
+  navigateEnteredAt: timestamp("navigate_entered_at"),
+  thriveEnteredAt: timestamp("thrive_entered_at"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertAlignProfileSchema = createInsertSchema(alignProfiles).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertAlignProfile = z.infer<typeof insertAlignProfileSchema>;
+export type AlignProfile = typeof alignProfiles.$inferSelect;
+
+export const alignPhaseEvents = pgTable("align_phase_events", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  phase: varchar("phase", { length: 20 }).notNull(),
+  eventType: varchar("event_type", { length: 50 }).notNull(),
+  resourceUrl: text("resource_url"),
+  resourceLabel: text("resource_label"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertAlignPhaseEventSchema = createInsertSchema(alignPhaseEvents).omit({ id: true, createdAt: true });
+export type InsertAlignPhaseEvent = z.infer<typeof insertAlignPhaseEventSchema>;
+export type AlignPhaseEvent = typeof alignPhaseEvents.$inferSelect;

@@ -307,6 +307,8 @@ const RuralConnectivityPage = lazy(() => import("@/pages/rural-connectivity"));
 const RuralHousingPage = lazy(() => import("@/pages/rural-housing"));
 const RuralWorkforcePage = lazy(() => import("@/pages/rural-workforce"));
 const AlignPage = lazy(() => import("@/pages/align"));
+const AlignJourneyPage = lazy(() => import("@/pages/align-journey"));
+const ThrivePage = lazy(() => import("@/pages/thrive"));
 
 function PageFallback() {
   return (
@@ -773,6 +775,8 @@ function AppRouter() {
       <Route path="/rural-workforce" component={RuralWorkforcePage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
       <Route path="/align" component={AlignPage} />
+      <Route path="/align/my-journey" component={AlignJourneyPage} />
+      <Route path="/thrive" component={ThrivePage} />
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
       <Route path="/network/members"><Redirect to="/network" /></Route>
