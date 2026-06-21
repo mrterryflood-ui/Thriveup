@@ -737,3 +737,9 @@ id = "5Vl_JxDPn_U0F4xsWO1Mt"
 uri = "file://attached_assets/TerryFlood_Partnership_Resume_ACCURATE.docx"
 type = "word_document"
 title = "Terry D. Flood — Partnership Resume (Accurate Platform Capabilities)"
+
+[[outputs]]
+id = "TjY3hXhQlnOaTvXcMB6PT"
+uri = "file://attached_assets/LifeTransitions-ALIGN-Prospectus.pdf"
+type = "pdf"
+title = "Life Transitions Aid | ALIGN — Platform Prospectus (Investment & Partnership Ready)"
