@@ -154,10 +154,14 @@ export default function NeighborhoodLookupPage() {
       } else {
         url = `/api/neighborhood/lookup?location=${encodeURIComponent(input)}&name=${encodeURIComponent(neighborhoodName)}`;
       }
-      const res = await fetch(url);
+      const res = await fetch(url, { signal: AbortSignal.timeout(35000) });
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Lookup failed");
+        let errMsg = "Lookup failed";
+        try {
+          const err = await res.json();
+          errMsg = err.error || errMsg;
+        } catch {}
+        throw new Error(errMsg);
       }
       const data = await res.json() as LookupResponse;
       setZipCode(data.profile.zipCode);

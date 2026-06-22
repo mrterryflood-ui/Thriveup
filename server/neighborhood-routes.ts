@@ -34,8 +34,11 @@ const STATE_NAMES: Record<string, string> = {
   'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
 };
 
-async function fetchJson(url: string): Promise<any> {
-  const response = await fetch(url, { headers: { Accept: "application/json" } });
+async function fetchJson(url: string, timeoutMs = 12000): Promise<any> {
+  const response = await fetch(url, {
+    headers: { Accept: "application/json" },
+    signal: AbortSignal.timeout(timeoutMs),
+  });
   if (!response.ok) throw new Error(`HTTP ${response.status}: ${response.statusText}`);
   return response.json();
 }
@@ -611,6 +614,13 @@ function generateScenarioNarrative(original: NeighborhoodProfile, adjusted: Neig
 export function registerNeighborhoodRoutes(app: Express) {
 
   app.get("/api/neighborhood/lookup", async (req, res) => {
+    // Hard deadline: respond within 28s so the browser never sees a naked "failed to fetch"
+    const deadline = setTimeout(() => {
+      if (!res.headersSent) {
+        res.status(504).json({ error: "Census data took too long to respond. Please try again — it usually succeeds on a second attempt." });
+      }
+    }, 28000);
+    const done = () => clearTimeout(deadline);
     try {
       let zipCode = (req.query.zip as string || "").trim();
       const neighborhoodName = (req.query.name as string || "").trim();
@@ -623,6 +633,7 @@ export function registerNeighborhoodRoutes(app: Express) {
           zipCode = resolved.zip;
           resolvedDisplayName = resolved.displayName;
         } else {
+          done();
           return res.status(404).json({
             error: `Could not find a location for "${locationInput}". Try adding a city/state (e.g., "East Austin, TX") or a ZIP code.`,
             suggestion: "You can enter a ZIP code, a neighborhood name with city/state, a street name, or a city name.",
@@ -631,6 +642,7 @@ export function registerNeighborhoodRoutes(app: Express) {
       }
 
       if (!zipCode || !/^\d{5}$/.test(zipCode)) {
+        done();
         return res.status(400).json({
           error: "Please provide a ZIP code or a location (neighborhood, street, or city).",
           suggestion: "Examples: 78702, East Austin TX, MLK Blvd Austin TX, Austin TX",
@@ -639,6 +651,7 @@ export function registerNeighborhoodRoutes(app: Express) {
 
       const geo = await zipToGeography(zipCode);
       if (!geo) {
+        done();
         return res.status(404).json({ error: `Could not find geographic data for ZIP code ${zipCode}. Please verify and try again.` });
       }
 
@@ -652,6 +665,7 @@ export function registerNeighborhoodRoutes(app: Express) {
         }
       }
       if (!data) {
+        done();
         return res.status(404).json({ error: `Census data not available for ZIP ${zipCode}. The Census Bureau may not have data for this area.` });
       }
 
@@ -682,6 +696,7 @@ export function registerNeighborhoodRoutes(app: Express) {
 
       const grants = await matchGrants(profile);
 
+      done();
       res.json({
         profile,
         matchedGrants: grants,
@@ -689,9 +704,15 @@ export function registerNeighborhoodRoutes(app: Express) {
         methodology: "Data sourced from the American Community Survey (ACS) 5-Year Estimates (2018-2022). SVI scores computed using CDC/ATSDR methodology across 16 social vulnerability indicators grouped into 4 themes. Research by Stillwell (2026, under review at Nature) validates that SVI inversely correlates with educational attainment across 3,144 U.S. counties.",
         dataSource: "U.S. Census Bureau American Community Survey, CDC/ATSDR Social Vulnerability Index",
       });
-    } catch (err) {
+    } catch (err: any) {
+      done();
       console.error("Neighborhood lookup error:", err);
-      res.status(500).json({ error: "Failed to retrieve neighborhood data. Please try again." });
+      const isTimeout = err?.name === "TimeoutError" || err?.name === "AbortError" || String(err).includes("timeout");
+      res.status(isTimeout ? 504 : 500).json({
+        error: isTimeout
+          ? "The Census Bureau API is responding slowly right now. Please try again in a moment — it usually succeeds on the second attempt."
+          : "Failed to retrieve neighborhood data. Please try again.",
+      });
     }
   });
 
