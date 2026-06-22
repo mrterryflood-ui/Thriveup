@@ -27,8 +27,6 @@
  * ----------------------------------------------------------------------------
  */
 
-import { db } from "./storage";
-
 // ── In-memory store for incoming Civic Signal lessons (until DB column added) ──
 // Lessons are stored in memory and injected into RAG context.
 // TODO: add civic_signal_lessons table to schema when volume justifies it.
