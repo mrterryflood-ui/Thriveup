@@ -1,48 +1,45 @@
 /**
- * Civic Signal Connector — Bidirectional Flow
+ * Civic Signal Connector — Bidirectional Flow (LIVE)
  * ----------------------------------------------------------------------------
  * ThriveUp ↔ Civic Signal bidirectional data exchange.
  *
- * DIRECTION 1 (Civic Signal → ThriveUp):
- *   Civic Signal pushes policy adaptation lessons via webhook.
+ * INBOUND (Civic Signal → ThriveUp):
  *   POST /api/chainweb/webhook/civic-signal
- *   Lessons stored in memory, injected into Chainweb RAG context.
+ *   Auth: x-ecosystem-key (validated against ecosystem_platforms DB registry)
  *
- * DIRECTION 2 (ThriveUp → Civic Signal):
- *   pushChainwebToCivicSignal() — sends ROI scenario results to their engine.
- *   fetchCivicSignalAdaptations() — pulls policy lessons from their engine.
- *
- * AUTH (outbound — ThriveUp calling Civic Signal):
- *   Header: x-ecosystem-key
- *   Value:  process.env.THRIVEUP_INBOUND_KEY
- *   Base:   process.env.CIVIC_SIGNAL_BASE_URL (https://power2thepeople.net)
- *
- * AUTH (inbound — Civic Signal calling ThriveUp):
- *   Validated against ecosystem_platforms DB (no secret needed; auto from registry)
+ * OUTBOUND (ThriveUp → Civic Signal):
+ *   PUSH: POST https://power2thepeople.net/api/thriveup/ingest
+ *   PULL: GET  https://power2thepeople.net/api/thriveup/lessons
+ *   Auth: x-civic-signal-key: process.env.THRIVEUP_INBOUND_KEY
  * ----------------------------------------------------------------------------
  */
+
+const CIVIC_SIGNAL_BASE_URL = process.env.CIVIC_SIGNAL_BASE_URL || "https://power2thepeople.net";
+const CIVIC_SIGNAL_PUSH_URL = `${CIVIC_SIGNAL_BASE_URL}/api/thriveup/ingest`;
+const CIVIC_SIGNAL_PULL_URL = `${CIVIC_SIGNAL_BASE_URL}/api/thriveup/lessons`;
 
 // ── In-memory store for incoming Civic Signal lessons ─────────────────────
 const incomingLessons: CivicSignalLesson[] = [];
 
 export interface CivicSignalLesson {
   id: string;
-  lesson: string;           // The policy adaptation lesson text
-  topic: string;            // e.g. "pre-k", "housing", "reentry"
-  state: string;            // e.g. "TX", "CA"
-  source: string;           // e.g. "civic_signal_adaptation_engine_v2"
-  confidence: string;       // e.g. "high", "moderate", "low"
-  receivedAt: string;       // ISO timestamp
-  programIds?: string[];    // Optional: maps to EVIDENCE_PROGRAMS ids
-  roiImplication?: string;  // Optional: what this means for ROI calculations
+  lesson: string;
+  topic: string;
+  state: string;
+  source: string;
+  confidence: string;
+  receivedAt: string;
+  programIds?: string[];
+  roiImplication?: string;
 }
 
-// ── Shared outbound config ─────────────────────────────────────────────────
-function getOutboundConfig(): { baseUrl: string; key: string } | null {
-  const baseUrl = process.env.CIVIC_SIGNAL_BASE_URL;
+function outboundHeaders(): Record<string, string> {
   const key = process.env.THRIVEUP_INBOUND_KEY;
-  if (!baseUrl || !key) return null;
-  return { baseUrl, key };
+  if (!key) throw new Error("THRIVEUP_INBOUND_KEY secret not set");
+  return {
+    "Content-Type": "application/json",
+    "x-civic-signal-key": key,
+  };
 }
 
 // ── INBOUND: Receive a lesson pushed FROM Civic Signal ────────────────────
@@ -66,18 +63,17 @@ export async function receiveCivicSignalLesson(
   incomingLessons.push(lesson);
   if (incomingLessons.length > 100) incomingLessons.splice(0, incomingLessons.length - 100);
 
-  console.log(`[CivicSignal] Received lesson: topic=${lesson.topic} state=${lesson.state} confidence=${lesson.confidence}`);
+  console.log(`[CivicSignal] Lesson received: topic=${lesson.topic} state=${lesson.state} confidence=${lesson.confidence}`);
   return { stored: true, lessonId: lesson.id };
 }
 
-// ── Retrieve stored lessons (for RAG injection) ────────────────────────────
+// ── Retrieve stored lessons ────────────────────────────────────────────────
 export function getCivicSignalLessons(opts?: {
   topic?: string;
   state?: string;
   limit?: number;
 }): CivicSignalLesson[] {
   let results = [...incomingLessons];
-
   if (opts?.topic) {
     const t = opts.topic.toLowerCase();
     results = results.filter(l => l.topic.toLowerCase().includes(t));
@@ -86,7 +82,6 @@ export function getCivicSignalLessons(opts?: {
     const s = opts.state.toUpperCase();
     results = results.filter(l => l.state.toUpperCase() === s || l.state === "US");
   }
-
   results.sort((a, b) => new Date(b.receivedAt).getTime() - new Date(a.receivedAt).getTime());
   return results.slice(0, opts?.limit || 10);
 }
@@ -118,54 +113,32 @@ export async function pushChainwebToCivicSignal(payload: {
   counterfactualCost: number;
   keyStatements: Array<{ claim: string; citation: string }>;
 }): Promise<{ pushed: boolean; message: string }> {
-  const cfg = getOutboundConfig();
-  if (!cfg) {
-    console.log("[CivicSignal] Push skipped — CIVIC_SIGNAL_BASE_URL or THRIVEUP_INBOUND_KEY not set.");
-    return { pushed: false, message: "Civic Signal credentials not configured." };
-  }
+  try {
+    const response = await fetch(CIVIC_SIGNAL_PUSH_URL, {
+      method: "POST",
+      headers: outboundHeaders(),
+      body: JSON.stringify({
+        source: "thriveup_chainweb",
+        sourceVersion: "1.0.0",
+        ...payload,
+        sentAt: new Date().toISOString(),
+      }),
+      signal: AbortSignal.timeout(15_000),
+    });
 
-  const endpoints = [
-    `${cfg.baseUrl}/api/ecosystem/receive`,
-    `${cfg.baseUrl}/api/ingest`,
-    `${cfg.baseUrl}/api/roi/ingest`,
-  ];
-
-  for (const endpoint of endpoints) {
-    try {
-      const response = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-ecosystem-key": cfg.key,
-        },
-        body: JSON.stringify({
-          source: "thriveup_chainweb",
-          sourceVersion: "1.0.0",
-          ...payload,
-          sentAt: new Date().toISOString(),
-        }),
-        signal: AbortSignal.timeout(15_000),
-      });
-
-      if (response.ok) {
-        const result = await response.json().catch(() => ({}));
-        console.log(`[CivicSignal] Push succeeded via ${endpoint}:`, result);
-        return { pushed: true, message: `Pushed to Civic Signal via ${endpoint}` };
-      }
-
-      // 404 = wrong endpoint, try next; other errors = real failure
-      if (response.status !== 404) {
-        const text = await response.text().catch(() => "");
-        throw new Error(`HTTP ${response.status}: ${text}`);
-      }
-    } catch (err: any) {
-      if (err.name === "AbortError" || err.message?.includes("HTTP")) throw err;
-      // Network/endpoint error — try next
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(`HTTP ${response.status}: ${text}`);
     }
-  }
 
-  console.error("[CivicSignal] Push failed — no valid endpoint found. Contact Civic Signal for their ingest path.");
-  return { pushed: false, message: "No valid Civic Signal ingest endpoint found. Confirm endpoint path with Civic Signal." };
+    const result = await response.json().catch(() => ({}));
+    console.log("[CivicSignal] Push succeeded:", result);
+    return { pushed: true, message: "ROI scenario pushed to Civic Signal adaptation engine" };
+
+  } catch (err: any) {
+    console.error("[CivicSignal] Push failed:", err.message);
+    return { pushed: false, message: `Push failed: ${err.message}` };
+  }
 }
 
 // ── OUTBOUND: Pull adaptation lessons FROM Civic Signal ───────────────────
@@ -173,51 +146,30 @@ export async function fetchCivicSignalAdaptations(opts: {
   topic: string;
   state?: string;
 }): Promise<{ adaptations: any[]; source: string }> {
-  const cfg = getOutboundConfig();
+  try {
+    const params = new URLSearchParams({ topic: opts.topic });
+    if (opts.state) params.set("state", opts.state);
 
-  if (!cfg) {
+    const response = await fetch(`${CIVIC_SIGNAL_PULL_URL}?${params}`, {
+      headers: outboundHeaders(),
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+    const data = await response.json();
+    console.log("[CivicSignal] Pull succeeded");
+    return {
+      adaptations: data.adaptations || data.lessons || data,
+      source: "civic_signal_live",
+    };
+
+  } catch (err: any) {
+    console.error("[CivicSignal] Pull fell back to cached:", err.message);
     const cached = getCivicSignalLessons({ topic: opts.topic, state: opts.state, limit: 5 });
     return {
       adaptations: cached.map(l => ({ lesson: l.lesson, confidence: l.confidence, receivedAt: l.receivedAt })),
-      source: "civic_signal_cached_webhooks",
+      source: "civic_signal_cached_fallback",
     };
   }
-
-  const params = new URLSearchParams({ topic: opts.topic });
-  if (opts.state) params.set("state", opts.state);
-
-  const endpoints = [
-    `${cfg.baseUrl}/api/ecosystem/lessons`,
-    `${cfg.baseUrl}/api/lessons`,
-    `${cfg.baseUrl}/api/adaptations`,
-  ];
-
-  for (const base of endpoints) {
-    try {
-      const response = await fetch(`${base}?${params}`, {
-        headers: { "x-ecosystem-key": cfg.key },
-        signal: AbortSignal.timeout(15_000),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log(`[CivicSignal] Fetch succeeded via ${base}`);
-        return { adaptations: data.adaptations || data.lessons || data, source: "civic_signal_live" };
-      }
-
-      if (response.status !== 404) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-    } catch (err: any) {
-      if (err.name === "AbortError" || err.message?.includes("HTTP")) break;
-    }
-  }
-
-  // Fallback to cached webhook lessons
-  console.warn("[CivicSignal] Pull fell back to cached lessons.");
-  const cached = getCivicSignalLessons({ topic: opts.topic, state: opts.state, limit: 5 });
-  return {
-    adaptations: cached.map(l => ({ lesson: l.lesson, confidence: l.confidence })),
-    source: "civic_signal_cached_fallback",
-  };
 }
