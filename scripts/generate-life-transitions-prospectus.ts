@@ -471,21 +471,45 @@ h3("Current Operational Status");
 ].forEach(([k,v])=>kv(k,v,95));
 
 hRule(); doc.moveDown(0.4);
-h3("Revenue Model — 5 Diversified Streams");
+h3("Hub Adoption Kit — Subscription Tier Architecture");
+body("The Hub Adoption Kit is TCAF's primary SaaS vehicle. Three tiers serve the full spectrum of community organizations — from emerging nonprofits to regional health systems and county governments. The 65% SaaS / 25% Intelligence Partner / 10% Data Licensing revenue mix below reflects Year 3 steady-state, not Day 1. Early revenue is anchored by the Enterprise tier, which generates $42,000+ ARR per contract and establishes SaaS dominance without requiring high-volume self-service adoption.");
+const tiers=[
+  {tag:"Community Tier",price:"$0 / month",sub:"Emerging Nonprofits & CBOs",color:C.slate,items:["ALIGN org assessment (3 cycles/yr)","Grant screener — top 10 fits/month","Benefits navigator — 9 programs","Community THRIVE Index read-only","TCAF support community access"]},
+  {tag:"Pro Tier",price:"$99 / month",sub:"Established Orgs & Grant Managers",color:C.indigoMid,items:["Unlimited ALIGN org assessments","Full grant intelligence — 721 tracked","AI proposal drafting + RFP fidelity matrix","Trade Sim credential routing (1 trade)","Outcome reporting dashboard","Priority implementation support"]},
+  {tag:"Enterprise",price:"$3,500+ / month",sub:"Health Systems · Counties · Tribal Nations · CDFIs",color:C.ruby,items:["Multi-entity parent-child workspaces","Centralized admin data governance + RBAC","White-label Hub deployment under org branding","Dedicated API access (IGN scoring, grant data)","SAML/OIDC SSO · SOC 2 Type II fast-track","Custom integrations (Epic, Salesforce GovCloud)","5 Enterprise contracts = $210K ARR — exceeds Year 1 $150K target independently"]},
+];
+tiers.forEach(({tag,price,sub,color,items})=>{
+  safe(100);
+  const ty=cy(); const tw=CW/3-8;
+  const tx=tag==="Community Tier"?M.l:tag==="Pro Tier"?M.l+CW/3:M.l+CW*2/3;
+  doc.save().rect(tx,ty,tw,18).fill(color).restore();
+  doc.font(FB).fontSize(8.5).fillColor(C.white).text(tag,tx+6,ty+3,{width:tw-8,lineBreak:false});
+  doc.font(FR).fontSize(7).fillColor("rgba(255,255,255,0.70)").text(price,tx+6,ty+12,{width:tw-8,lineBreak:false});
+  doc.y=ty+22;
+  doc.font(FI).fontSize(7.5).fillColor(color).text(sub,tx+4,doc.y,{width:tw-6});
+  items.forEach(it=>{
+    const iy2=doc.y;
+    doc.save().circle(tx+8,iy2+5,1.8).fill(color).restore();
+    doc.font(FR).fontSize(7.5).fillColor(C.slate).text(it,tx+13,iy2,{width:tw-16,lineGap:1});
+  });
+});
+doc.y+=8;
+
+hRule(); doc.moveDown(0.3);
+h3("Additional Revenue Streams");
 [
-  {n:"1",l:"Federal & Foundation Grants",d:"HHS, DOL, DOJ, HUD, USDA, NSF, VA, DOEd, SAMHSA, HRSA, RWJF, Annie E. Casey, W.K. Kellogg, JPMorgan Chase. Multi-year grants. No single grant >40% of operating revenue by policy."},
-  {n:"2",l:"Hub Adoption Kit — SaaS Licensing",d:"Packaged platform license for counties, states, or regional operators. Recurring SaaS revenue independent of grant cycles. Each Hub brings TCAF's full platform infrastructure to a new region."},
-  {n:"3",l:"Government Service Contracts",d:"Direct service contracts with city, county, and state agencies. Benefits navigation, workforce simulation, community health, SDOH navigation. NAICS 624190 primary. SDVOSB status unlocks VA set-asides."},
-  {n:"4",l:"SBIR / STTR (ISS LLC)",d:"ISS LLC (CAGE 9VKK3) SBIR/STTR-eligible. AI tutoring engine, physics simulation, dialect-aware translation, and rural connectivity tools are viable Phase I/II candidates across NSF, HHS, and DoD."},
-  {n:"5",l:"Research Partnerships",d:"University and think-tank partnerships for evaluation design, data access (ITI-consented), co-publication, and implementation science training. Overhead-eligible on federal research grants."},
+  {n:"A",l:"Federal & Foundation Grants",d:"HHS, DOL, DOJ, HUD, USDA, NSF, VA, DOEd, SAMHSA, HRSA, RWJF, Annie E. Casey, W.K. Kellogg, JPMorgan Chase. Multi-year grants. No single grant >40% of operating revenue by policy."},
+  {n:"B",l:"Government Service Contracts",d:"Direct city/county/state contracts. Benefits navigation, workforce simulation, community health, SDOH navigation. NAICS 624190 primary. SDVOSB status unlocks VA sole-source set-asides."},
+  {n:"C",l:"SBIR / STTR (ISS LLC)",d:"ISS LLC SBIR/STTR-eligible. AI tutoring, physics simulation, dialect-aware translation, and rural connectivity tools are Phase I/II candidates across NSF, HHS, and DoD."},
+  {n:"D",l:"Research Partnerships",d:"University co-publication, ITI-consented data access, implementation science training. Overhead-eligible on federal research grants."},
 ].forEach(({n,l,d})=>{
-  safe(36);
+  safe(30);
   const ry=cy();
   doc.save().rect(M.l,ry,20,20).fill(C.emerald).restore();
   doc.font(FB).fontSize(9).fillColor(C.gold).text(n,M.l+2,ry+5,{width:18,align:"center",lineBreak:false});
   doc.font(FB).fontSize(9).fillColor(C.emerald).text(l,M.l+26,ry,{width:CW-28});
   doc.font(FR).fontSize(8).fillColor(C.slate).text(d,M.l+26,doc.y,{width:CW-28,lineGap:1.5});
-  doc.moveDown(0.5);
+  doc.moveDown(0.45);
 });
 
 safe(80); hRule(); doc.moveDown(0.4);
@@ -507,12 +531,14 @@ h3("Impact Framework");
 });
 
 safe(80); hRule(); doc.moveDown(0.4);
-h3("Validation Strategy");
+h3("Validation Strategy & HITL Compliance Safeguards");
 twoCol([
   {label:"Implementation Science",body:"CFIR 39 constructs + RE-AIM community evaluation + EPIS org readiness. Standards-routes.ts maps capabilities to NRRC and CFIR 2.0 fidelity benchmarks."},
   {label:"Justice Stack",body:"RNR assessments + CBI programs + NRRC outcome reports. Recidivism baselines tracked over time. Gold standard in corrections research."},
   {label:"Clinical Validation",body:"PHQ-9, GAD-7, C-SSRS, PCL-5, ACES in SafeReport. FHIR/CDS-Hooks clinical interoperability. HITL-default-on for all clinical workflows."},
   {label:"Continuous Improvement",body:"MAP-GAP CQI (1,705 lines) identifies ecosystem gaps. Quarterly data review. Phase transition velocity data improves resource recommendations."},
+  {label:"AI Grant Tool — HITL Compliance",body:"All AI-generated proposal content triggers a mandatory human-in-the-loop review step before any final document is exported (.docx, PDF, or submission package). The platform logs the reviewer identity, timestamp, and confirmation action for every export — creating an auditable compliance record. This insulates TCAF and partner organizations from FAR flow-down and regulatory liability in federal submissions. AI generates; humans approve; the log proves it."},
+  {label:"Outcome Resolution Threshold",body:"AI predictive funding intelligence is gated behind a 30% outcome resolution floor — the platform must have tracked enough real win/loss outcomes to make statistically valid correlation claims before activating predictive features. This ensures recommendations are scientifically defensible, not pattern-matched hallucinations."},
 ]);
 
 // ════════════ PAGE 6 — ROADMAP & INVESTMENT ══════════════════════════════
@@ -578,23 +604,66 @@ h3("Risk Management");
 });
 
 safe(110); hRule(); doc.moveDown(0.4);
-h3("Investment Need");
+h3("Seed Round Structure");
 twoCol([
-  {label:"Capital Requested",body:"$2.5M over 24 months — grants, impact investment, and/or government service contract."},
-  {label:"Use of Funds",body:"Technology & integrations 40% · Community outreach & org onboarding 25% · Research & evaluation 20% · Operations & team 15%."},
-  {label:"Expected Outcomes",body:"50+ org assessments · 500+ individual journeys · 5 Hub deployments · 2 peer-reviewed publications · rural tool deployment in 3 states."},
-  {label:"Milestones",body:"Q3 2026 — case study · Q4 2026 — mobile offline · Q1 2027 — first Hub license · Q4 2027 — 5 Hub deployments · Q2 2028 — Title IV-E clearinghouse."},
+  {label:"Target Raise",body:"$750,000 – $1,200,000\nInstrument: SAFE (Simple Agreement for Future Equity) or Priced Seed Equity"},
+  {label:"Current Capitalization",body:"100% Founder-funded to date. Zero external debt. Dr. Flood maintains 100% equity control — optimizing decision velocity through the Founding Cohort launch."},
+  {label:"Capital Efficiency Signal",body:"Fully operational platform — 271 tables, 211 pages, 15 platforms — built with zero external capital. Every dollar of this raise deploys against proven architecture."},
+  {label:"ARR Acceleration Math",body:"5 Enterprise contracts ($3,500/mo each) = $210,000 ARR — exceeds the Year 1 $150K ARR target entirely independent of self-service Pro tier volume. Just 4 contracts = $168K ARR."},
 ]);
+
+safe(120);
+h3("Use of Funds — $1M Baseline");
+// Bar chart style allocation
+const allocations=[
+  {pct:40,label:"Customer Success & Founding Cohort Onboarding",detail:"1 dedicated FTE to manage 10–15 org onboarding. Keeps retention near 100% and feeds real outcome data into the learning loop.",color:C.indigo},
+  {pct:25,label:"Engineering",detail:"1 FTE engineer: SBIR/STTR pursuit module, mobile PWA offline, automated email notifications (Resend), SOC 2 prep.",color:C.emeraldMid},
+  {pct:20,label:"Sales & Channel Development",detail:"Enterprise client acquisition: VA CoE network, SBDC networks, regional CDFI white-label integrations, SDVOSB pipeline.",color:C.gold},
+  {pct:10,label:"Research Partnership & IRB Evaluation",detail:"IRB design and university co-publication track. Keeps predictive metrics scientifically defensible for federal funders.",color:C.violet},
+  {pct:5, label:"Infrastructure & API Operations",detail:"OpenAI GPT-4o, Anthropic Claude, SAM.gov/Grants.gov data syncs, PostgreSQL hosting, CDN.",color:C.teal},
+];
+allocations.forEach(({pct,label,detail,color})=>{
+  safe(30);
+  const ay=cy();
+  const bw=Math.round(CW*(pct/100));
+  doc.save().rect(M.l,ay,bw,12).fill(color).restore();
+  doc.save().rect(M.l+bw,ay,CW-bw,12).fill(C.border).restore();
+  doc.font(FB).fontSize(7.5).fillColor(C.white).text(`${pct}%  ${label}`,M.l+4,ay+2,{width:bw-8,lineBreak:false});
+  doc.font(FR).fontSize(7.5).fillColor(C.muted).text(`$${pct*10}K — ${detail}`,M.l,ay+14,{width:CW,lineGap:1.2});
+  doc.moveDown(0.85);
+});
+
+safe(120); hRule(); doc.moveDown(0.4);
+h3("Milestone Timeline");
+const milestones=[
+  {mo:"Month 3",label:"Founding Cohort Live",detail:"10–15 organizations fully onboarded. ALIGN org assessments baseline. ITI consents active. Real outcome data flowing."},
+  {mo:"Month 6",label:"$50K ARR + SBIR Module",detail:"50+ active Pro users. SBIR/STTR pursuit module shipped. First government service contract signed. Rural PWA beta."},
+  {mo:"Month 9",label:"SOC 2 Type II Engaged",detail:"Audit engagement initiated. SDVOSB VetCert filed. First University research partnership signed. CFIR baseline published."},
+  {mo:"Month 12",label:"$150K ARR Exceeded",detail:"5 Enterprise contracts ($210K ARR). First Hub license. 3 gov contracts. SBIR Phase I submitted. NSF TechAccess submitted."},
+  {mo:"Month 18",label:"$500K ARR + White-Label",detail:"5 Large Business white-label agreements. FedRAMP LI-SaaS readiness assessment complete. 2nd peer-reviewed submission."},
+  {mo:"Month 24",label:"$1.2M ARR + Series A",detail:"Series A readiness. Title IV-E Clearinghouse evaluation submitted. SBIR Phase II awarded. NRRC outcomes published. 50-state Hub ready."},
+];
+milestones.forEach(({mo,label,detail},i)=>{
+  safe(28);
+  const my=cy();
+  const dotX=M.l+30; const lineX=dotX;
+  doc.save().circle(dotX,my+8,5).fill(i===3?C.gold:C.indigoMid).restore();
+  if(i<milestones.length-1) doc.save().rect(dotX-0.5,my+13,1,22).fill(C.border).restore();
+  doc.font(FB).fontSize(8).fillColor(C.indigoMid).text(mo,M.l+44,my+2,{width:60,lineBreak:false});
+  doc.font(FB).fontSize(8.5).fillColor(i===3?C.gold:C.slate).text(label,M.l+44+66,my+2,{width:CW-44-68,lineBreak:false});
+  doc.font(FR).fontSize(7.5).fillColor(C.muted).text(detail,M.l+44+66,my+13,{width:CW-44-68,lineGap:1.2});
+  doc.moveDown(1.4);
+});
 
 safe(100);
 h3("Strategic Ask");
 bullet([
-  "Funding: $2.5M — grants, impact investment, or government service contracts.",
-  "Pilot Participation: Organizations completing ALIGN assessments and sharing outcome data under ITI consent.",
-  "Research Collaboration: University partners for evaluation design, peer-reviewed publication, framework validation.",
-  "USDA Partnership: Rural Development office willing to formally adopt rural tools and farmworker ITI.",
-  "Technology Integration: EHR, HMIS, and referral platform partners for FHIR/CDS-Hooks interoperability.",
-  "SDVOSB Advisory: SBA and VA contacts to accelerate VetCert filing and VA set-aside pipeline.",
+  "Capital: $750K–$1.2M SAFE or Priced Seed — anchored by 5 Enterprise contracts exceeding Year 1 ARR target on contract value alone.",
+  "Pilot Participation: Organizations completing ALIGN assessments and sharing outcome data under ITI consent (feeds the 30% resolution threshold).",
+  "Enterprise Partners: Health systems, CDFIs, tribal nations, county governments — white-label Hub Adoption Kit candidates at $3,500+/month.",
+  "Research Collaboration: University IRB partners for evaluation design, peer-reviewed publication, and framework validation.",
+  "USDA Partnership: Rural Development office willing to formally adopt rural tools and farmworker ITI as official USDA-endorsed resources.",
+  "SDVOSB Advisory: SBA and VA contacts to accelerate VetCert filing and unlock Mission Transition sole-source VA contract pathway.",
 ]);
 
 safe(90);
