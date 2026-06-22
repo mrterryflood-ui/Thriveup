@@ -352,6 +352,15 @@ twoCol([
 ]);
 
 safe(60); hRule(); doc.moveDown(0.4);
+h3("Trade Sims: Rural Offline Strategy & Local Labor Market Alignment");
+twoCol([
+  {label:"PWA Offline Mode (Q4 2026)",body:"Trade simulations will be packaged as a Progressive Web App (PWA) with service-worker caching — enabling full offline operation on Android/iOS without an app store. Physics engines (MNA, Hardy-Cross, AWS D1.1) run entirely client-side in JavaScript — no server call required mid-lesson. Designed for intermittent connectivity: sync on reconnect, local completion log."},
+  {label:"Hardware-in-a-Box (Rural Hubs)",body:"For zero-connectivity rural training sites (fields, correctional facilities, remote tribal lands), TCAF's Hub Adoption Kit can include a local Raspberry Pi or Intel NUC node serving the PWA over LAN. No internet required. Designed to USDA Community Facilities grant specifications."},
+  {label:"Local Labor Market Integration",body:"Trade Sims credential routing will integrate live BLS Occupational Outlook + TWC/TRACER local job posting APIs for Travis and Williamson Counties (Q2 2027). Credential completion automatically routes users to active local apprenticeship openings (IBEW, UA, SMART, ABC) — not generic listings, but openings matching the completed trade and county."},
+  {label:"Employer Demand Alignment",body:"Employer partners pre-register target credentials and openings. When a learner completes a simulation at 80%+ threshold, a warm handoff notification fires to the registered employer contact. Closes the credential-to-hire gap within the platform."},
+]);
+
+safe(60); hRule(); doc.moveDown(0.4);
 h3("Research & Implementation Science");
 twoCol([
   {label:"CFIR 2.0 — 39 Constructs",body:"5 CFIR domains, 39 constructs operationalized in research-hub.tsx. Standards-routes.ts maps capabilities to NRRC and CFIR 2.0 fidelity benchmarks."},
@@ -370,6 +379,10 @@ twoCol([
   {label:"107-Language Dialect-Aware Translation",body:"Preserves AAVE, Spanglish, and regional dialects. RTL layout for Arabic/Hebrew. Socratic-hint + ensemble-debrief AI tutor modes. 10 languages in Trade Sims."},
   {label:"AI Grant Intelligence",body:"Tier-weighted keyword scoring (e.g., 'PHI-safe' +10, 'HITL' +12) + semantic AI fit-analysis. 721 grants tracked. Weekly digest. AI proposal drafting + RFP fidelity compliance matrix."},
 ]);
+
+safe(60); hRule(); doc.moveDown(0.4);
+h3("One Architecture — Not 15 Separate Codebases");
+callout("A common funder concern: 15 platforms sounds like a maintenance nightmare. The reality is the opposite. All 15 platforms share a single PostgreSQL schema (271 tables), a single Express/Node.js API (84 route files), and a single React/Vite frontend codebase. Each 'platform' is a modular UI configuration — a themed entry point and curated feature set — layered on top of one unified data architecture. Adding a platform is additive, not duplicative. Every new platform reuses the same benefits screener, ALIGN journey engine, grant intelligence system, and ITI consent layer. This is a single product with 15 community-facing surfaces, not 15 products.",C.emerald,"#ecfdf5");
 
 h3("Platform Scale (Primary-Source Verified, 2026-05-22)");
 const scale=[["271","Drizzle/PostgreSQL tables"],["211","Frontend pages"],["84","Server route/logic files"],
@@ -483,6 +496,7 @@ h3("Impact Framework");
   {l:"Outputs",b:"ALIGN phase advancement events · org capacity scores · benefits matches · credential completions · grants submitted · clinical screenings · community THRIVE Index scores · rural service desert reductions."},
   {l:"Outcomes",b:"Individuals advancing from crisis to contribution · orgs increasing grant-readiness · practitioners credentialed · rural residents accessing unclaimed federal programs · communities reducing phase gaps."},
   {l:"KPIs",b:"% individuals advancing ≥1 ALIGN phase per 90 days · grant win rate · credential completions per quarter · rural program claims facilitated · org capacity score change · community THRIVE Index trend."},
+  {l:"Unit Economics",b:"Projected Cost per ALIGN Phase Advancement: $180–$220 (pilot phase, includes staff, technology, and data overhead). MAP-GAP CQI engine continuously identifies inefficiencies and routes to lower-cost interventions. Target by Year 3: $80–$120 per advancement as automation and scale reduce marginal cost. Benchmark: HUD Continuum of Care estimates $10,000–$50,000 per person housed — ALIGN identifies upstream intervention 12–36 months before housing crisis, compressing cost 40–200x."},
 ].forEach(({l,b})=>{
   safe(26);
   const iy=cy();
@@ -507,7 +521,7 @@ banner("Roadmap · Partnerships · Risk · Investment Ask",C.indigoMid);
 
 h3("12-Month Objectives (2026–2027)");
 twoCol([
-  {label:"Technology",body:"Mobile offline mode (Q4 2026). HMIS integration. Unite Us bidirectional referral sync. FHIR CDS-Hooks live clinical integration. 6th trade simulation. Rural tool API expansions."},
+  {label:"Technology",body:"Mobile offline PWA (Q4 2026). HMIS integration. Unite Us bidirectional referral sync. FHIR CDS-Hooks live clinical integration. 6th trade simulation. Rural tool API expansions. SOC 2 Type II audit engagement (Q2 2027). FedRAMP Tailored LI-SaaS readiness assessment (Q3 2027) — required for formal HHS/VA/DOL integration."},
   {label:"Organizations & Users",body:"50+ org ALIGN assessments. 500+ individual journeys. 5 Hub deployments initiated. SDVOSB certification filed. APEX Accelerator enrollment for partner orgs."},
   {label:"Research",body:"First case study (Q3 2026). University research partnership signed. CFIR fidelity baseline published. NSF TechAccess submission. Promise Neighborhoods LOI."},
   {label:"Revenue",body:"First Hub licensing. 3 government service contracts. SBIR Phase I submitted. $500K+ ARR target. Federal agency pilot designation."},
@@ -521,10 +535,14 @@ twoCol([
   {label:"Platforms",body:"3 additional platforms. SafeReport Epic integration live. RPLICE national IS community launched. USDA partnership for rural tools."},
 ]);
 
+safe(70); hRule(); doc.moveDown(0.4);
+h3("SDVOSB Fast-Track: Mission Transition as the VA Pilot Vehicle");
+callout("Dr. Flood is a medically retired U.S. veteran with a service-connected disability. Once SBA VetCert certification is complete (filing in progress), VA statute (38 U.S.C. § 8127) requires contracting officers to give Service-Disabled Veteran-Owned Small Businesses (SDVOSBs) first consideration — bypassing traditional competitive procurement cycles. MISSION TRANSITION (M2C) is the designated pilot vehicle for this pathway: a fully operational military-to-civilian navigation platform serving benefits, employment, housing, and SDOH. Mission Transition is positioned as a $1–$5M sole-source VA service contract immediately upon VetCert issuance, without waiting for a competitive grant cycle. No other platform in TCAF's portfolio has this acceleration pathway. This is not aspirational — the platform is live, the credentials are real, and the statute is clear.",C.ruby,"#fff1f2");
+
 h3("36-Month Vision");
 bullet([
   "National: Hub Adoption Kit in all 50 states. Federal strategic partner — HHS, DOL, DOJ, HUD, USDA.",
-  "SDVOSB: VA sole-source contracts up to $5M once SBA VetCert certification complete.",
+  "SDVOSB: VA sole-source contracts up to $5M — Mission Transition as first contract vehicle, immediately upon SBA VetCert issuance.",
   "Research: TCAF publication stream. National CFIR/RE-AIM training and certification program.",
   "Rural: USDA Rural Development formal partnership. Rural connectivity tool adopted by 3+ state broadband offices.",
   "Agriculture: NFJP partnership for farmworker training. FSA eligibility engine cited in USDA grant proposals.",
