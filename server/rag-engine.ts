@@ -1,5 +1,6 @@
 import { db } from "./storage";
 import { ecosystemKnowledgeChunks, ecosystemPlatforms, ecosystemDirectives, ecosystemDirectiveAcks } from "@shared/schema";
+import { getChainwebRAGContext } from "./chainweb-engine";
 import { eq, sql } from "drizzle-orm";
 import { generateAIResponse, streamAIResponse } from "./ai-provider";
 import type { Express, Request, Response } from "express";
@@ -994,9 +995,11 @@ RULES:
 15. When asked about evidence — walk through all four levels: real-time operational evidence, framework-based evidence, outcome evidence, and planned published evidence.`;
 
 export async function queryRAG(userQuery: string): Promise<{ answer: string; sources: string[]; liveData: boolean }> {
-  const [chunks, liveContext] = await Promise.all([
+  const isROIQuery = /roi|return|invest|cost|prevent|chainweb|causal|early.child|pre.?k|dropout|school.prison|housing|recidiv/i.test(userQuery);
+  const [chunks, liveContext, chainwebContext] = await Promise.all([
     retrieveRelevantChunks(userQuery),
     buildLiveIntelligenceContext(),
+    isROIQuery ? getChainwebRAGContext() : Promise.resolve(""),
   ]);
 
   const knowledgeContext = chunks.length > 0
@@ -1007,7 +1010,7 @@ export async function queryRAG(userQuery: string): Promise<{ answer: string; sou
 
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
-    { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}\n\nUSER QUESTION: ${userQuery}` },
+    { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}${chainwebContext ? `\n\n${chainwebContext}` : ""}\n\nUSER QUESTION: ${userQuery}` },
   ];
 
   const answer = await generateAIResponse(messages, 2000);
@@ -1083,9 +1086,11 @@ export function registerRAGRoutes(app: Express) {
         return res.status(400).json({ error: `Query must be 3–${MAX_QUERY_LENGTH} characters` });
       }
 
-      const [chunks, liveContext] = await Promise.all([
+      const isROIQuery = /roi|return|invest|cost|prevent|chainweb|causal|early.child|pre.?k|dropout|school.prison|housing|recidiv/i.test(query);
+      const [chunks, liveContext, chainwebContext] = await Promise.all([
         retrieveRelevantChunks(query),
         buildLiveIntelligenceContext(),
+        isROIQuery ? getChainwebRAGContext() : Promise.resolve(""),
       ]);
 
       const knowledgeContext = chunks.length > 0
@@ -1106,7 +1111,7 @@ export function registerRAGRoutes(app: Express) {
       await streamAIResponse({
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}\n\nUSER QUESTION: ${query}` },
+          { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}${chainwebContext ? `\n\n${chainwebContext}` : ""}\n\nUSER QUESTION: ${query}` },
         ],
         maxTokens: 2000,
         onChunk: (content: string) => {

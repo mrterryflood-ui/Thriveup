@@ -100,6 +100,7 @@ import { registerAgentCommunicationRoutes } from "./agent-communication";
 import { registerRAGRoutes } from "./rag-engine";
 import { registerFacilitatorRoutes } from "./facilitator-routes";
 import { registerMetricsRoutes } from "./metrics-routes";
+import { registerChainwebRoutes } from "./chainweb-routes";
 import { registerProgramManagementRoutes } from "./program-management-routes";
 import { registerContactRoutes } from "./contact-routes";
 import { registerRpliceToolsRoutes } from "./rplice-tools";
@@ -482,6 +483,7 @@ export async function registerRoutes(
   registerRAGRoutes(app);
   registerFacilitatorRoutes(app);
   registerMetricsRoutes(app);
+  registerChainwebRoutes(app);
   registerProgramManagementRoutes(app);
   registerContactRoutes(app);
   registerRpliceToolsRoutes(app);

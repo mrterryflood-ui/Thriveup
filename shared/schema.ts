@@ -6285,3 +6285,119 @@ export const alignPhaseEvents = pgTable("align_phase_events", {
 export const insertAlignPhaseEventSchema = createInsertSchema(alignPhaseEvents).omit({ id: true, createdAt: true });
 export type InsertAlignPhaseEvent = z.infer<typeof insertAlignPhaseEventSchema>;
 export type AlignPhaseEvent = typeof alignPhaseEvents.$inferSelect;
+
+// ── CHAINWEB ROI CALCULATION SYSTEM ─────────────────────────────────────────
+// Causal-chain engine: counterfactual (do nothing) vs intervention (change X)
+// Every number traces to a cited primary source. No fabrication.
+// Domains: early_childhood · education · housing · workforce · health · justice · family · civic · economic
+
+export const chainwebScenarios = pgTable("chainweb_scenarios", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+  geographyType: varchar("geography_type", { length: 50 }).notNull(), // county | city | state | zip | national
+  geographyLabel: text("geography_label").notNull(),                   // "Travis County, TX"
+  geographyFips: varchar("geography_fips", { length: 20 }),
+  entryDomain: varchar("entry_domain", { length: 50 }).notNull(),      // which domain starts the chain
+  interventionName: text("intervention_name").notNull(),
+  interventionDescription: text("intervention_description"),
+  interventionCostPerPerson: decimal("intervention_cost_per_person", { precision: 12, scale: 2 }),
+  populationSize: integer("population_size"),
+  populationProfile: jsonb("population_profile"),                       // demographics, SDOH scores, etc.
+  timeHorizonYears: integer("time_horizon_years").default(10),
+  status: varchar("status", { length: 20 }).default("draft"),          // draft | calculated | published
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertChainwebScenarioSchema = createInsertSchema(chainwebScenarios).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertChainwebScenario = z.infer<typeof insertChainwebScenarioSchema>;
+export type ChainwebScenario = typeof chainwebScenarios.$inferSelect;
+
+export const chainwebNodes = pgTable("chainweb_nodes", {
+  id: serial("id").primaryKey(),
+  scenarioId: integer("scenario_id").notNull(),
+  domain: varchar("domain", { length: 50 }).notNull(),
+  label: text("label").notNull(),                                      // "3rd Grade Reading Proficiency"
+  unit: varchar("unit", { length: 60 }),                               // "% proficient" | "$/year" | "per 1000"
+  counterfactualValue: decimal("counterfactual_value", { precision: 14, scale: 4 }),
+  interventionValue: decimal("intervention_value", { precision: 14, scale: 4 }),
+  delta: decimal("delta", { precision: 14, scale: 4 }),                // interventionValue - counterfactualValue
+  annualizedCost: decimal("annualized_cost", { precision: 14, scale: 2 }),
+  dataSource: text("data_source"),
+  citation: text("citation"),
+  year: integer("year"),
+  isEntryNode: boolean("is_entry_node").default(false),
+});
+export const insertChainwebNodeSchema = createInsertSchema(chainwebNodes).omit({ id: true });
+export type InsertChainwebNode = z.infer<typeof insertChainwebNodeSchema>;
+export type ChainwebNode = typeof chainwebNodes.$inferSelect;
+
+export const chainwebEdges = pgTable("chainweb_edges", {
+  id: serial("id").primaryKey(),
+  scenarioId: integer("scenario_id").notNull(),
+  fromNodeId: integer("from_node_id").notNull(),
+  toNodeId: integer("to_node_id").notNull(),
+  coefficient: decimal("coefficient", { precision: 8, scale: 4 }).notNull(), // effect size: 0.34 = 34% change
+  lagYears: integer("lag_years").default(0),
+  direction: varchar("direction", { length: 10 }).default("positive"),  // positive | negative
+  evidenceCitation: text("evidence_citation"),
+  confidenceLevel: varchar("confidence_level", { length: 20 }).default("moderate"), // strong | moderate | emerging
+});
+export const insertChainwebEdgeSchema = createInsertSchema(chainwebEdges).omit({ id: true });
+export type InsertChainwebEdge = z.infer<typeof insertChainwebEdgeSchema>;
+export type ChainwebEdge = typeof chainwebEdges.$inferSelect;
+
+// Master coefficient library — evidence-based ripple coefficients, all cited
+export const chainwebCoefficients = pgTable("chainweb_coefficients", {
+  id: serial("id").primaryKey(),
+  fromDomain: varchar("from_domain", { length: 50 }).notNull(),
+  toDomain: varchar("to_domain", { length: 50 }).notNull(),
+  fromMetric: text("from_metric").notNull(),
+  toMetric: text("to_metric").notNull(),
+  coefficient: decimal("coefficient", { precision: 8, scale: 4 }).notNull(),
+  direction: varchar("direction", { length: 10 }).default("positive"),
+  lagYears: integer("lag_years").default(0),
+  unit: text("unit"),
+  evidenceCitation: text("evidence_citation").notNull(),
+  studyYear: integer("study_year"),
+  populationNotes: text("population_notes"),
+  confidenceLevel: varchar("confidence_level", { length: 20 }).default("moderate"),
+  isActive: boolean("is_active").default(true),
+});
+export const insertChainwebCoefficientSchema = createInsertSchema(chainwebCoefficients).omit({ id: true });
+export type InsertChainwebCoefficient = z.infer<typeof insertChainwebCoefficientSchema>;
+export type ChainwebCoefficient = typeof chainwebCoefficients.$inferSelect;
+
+// Calculated ROI output per scenario
+export const chainwebCalculations = pgTable("chainweb_calculations", {
+  id: serial("id").primaryKey(),
+  scenarioId: integer("scenario_id").notNull().unique(),
+  timeHorizonYears: integer("time_horizon_years").notNull(),
+  populationSize: integer("population_size"),
+  counterfactualTotalCost: decimal("counterfactual_total_cost", { precision: 16, scale: 2 }),
+  interventionTotalCost: decimal("intervention_total_cost", { precision: 16, scale: 2 }),
+  netSavings: decimal("net_savings", { precision: 16, scale: 2 }),
+  roiRatio: decimal("roi_ratio", { precision: 8, scale: 2 }),          // e.g. 8.40 = $8.40 saved per $1 invested
+  domainBreakdown: jsonb("domain_breakdown"),                           // savings by domain
+  keyStatements: jsonb("key_statements"),                               // top 5 cited ROI claims
+  calculatedAt: timestamp("calculated_at").defaultNow(),
+});
+export const insertChainwebCalculationSchema = createInsertSchema(chainwebCalculations).omit({ id: true, calculatedAt: true });
+export type InsertChainwebCalculation = z.infer<typeof insertChainwebCalculationSchema>;
+export type ChainwebCalculation = typeof chainwebCalculations.$inferSelect;
+
+// Stakeholder-specific narrative outputs
+export const chainwebNarratives = pgTable("chainweb_narratives", {
+  id: serial("id").primaryKey(),
+  calculationId: integer("calculation_id").notNull(),
+  audienceType: varchar("audience_type", { length: 40 }).notNull(), // grant_writer | org_leader | researcher | council | funder
+  headline: text("headline"),
+  narrativeText: text("narrative_text"),
+  keyStats: jsonb("key_stats"),
+  dataCitations: jsonb("data_citations"),
+  generatedAt: timestamp("generated_at").defaultNow(),
+});
+export const insertChainwebNarrativeSchema = createInsertSchema(chainwebNarratives).omit({ id: true, generatedAt: true });
+export type InsertChainwebNarrative = z.infer<typeof insertChainwebNarrativeSchema>;
+export type ChainwebNarrative = typeof chainwebNarratives.$inferSelect;
