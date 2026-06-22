@@ -1,0 +1,720 @@
+You:
+i WANT TO FIND GRANTS AND AVAILABILITY WITH https://childinc.org/ THEY WANT TO KNOW WHAT WE CAN DO FOR THEM AND HELP THEM WIN AWARDS AND CONTRACTS. THEY ARE LOOKING TO SCALE UP, SCALE OUT, AND DO WORKFORCE DEVELOPMENT. WHAT IS OUT THERE FOR THEM ON A STATE, LOCAL, AND FEDERAL LEVEL
+
+---
+
+The Advisor:
+Child Inc. is a long-standing nonprofit human services organization in Austin, Texas, best known for Head Start/Early Head Start, child development, family support, and related wraparound services for low-income families. That means the strongest funding landscape for them is not generic “nonprofit grants” — it is a layered stack across early childhood, workforce pathways, family economic stability, maternal/child health, behavioral health, housing stabilization, nutrition, community schools, and public-sector service contracts. For scale-up and scale-out, the real opportunity is to position Child Inc. as both a direct-service provider and a workforce intermediary: childcare workforce, family support workforce, CHWs, home visitors, youth pipeline, and potentially pre-apprenticeship and human services staffing models.
+
+Austin and Travis County are also strong context for this strategy. The region has grown rapidly, has major affordability pressure, rising housing cost burden, persistent disparities across east/southeast Austin, and continued demand for childcare access, workforce participation supports, and family-serving contract capacity. That combination makes Child Inc. well-positioned for federal formula and discretionary grants, Texas pass-through grants, City of Austin/Travis County procurements, and subcontracting opportunities with school districts, health systems, workforce boards, and managed care/community health partners.
+
+## LOCATION PROFILE — AUSTIN / TRAVIS COUNTY, TEXAS
+
+Austin was founded in 1839 as the capital of the Republic of Texas and developed first as a government and university center, then as a technology and service economy anchored by state government, the University of Texas, semiconductor manufacturing, and later software and creative industries. Travis County, established in 1840, shifted over decades from a smaller regional government/agricultural base to one of the fastest-growing metropolitan counties in the country. That growth created a familiar split-screen reality: regional prosperity and high-skill job expansion on one hand, and deep affordability strain, displacement, childcare shortages, and unequal access to health, transportation, and economic mobility on the other. East Austin in particular carries the legacy of segregation, disinvestment, and displacement pressure that continues to shape service demand and funding narratives around equity, access, and culturally competent family support.
+
+Demographically, Travis County now exceeds 1.3 million residents, with the City of Austin near 975,000–980,000. Median household income is roughly in the low-to-mid $90,000s for Austin and lower countywide depending on ACS year, but those topline figures mask major neighborhood-level disparities. Poverty remains around the low teens countywide, with child poverty materially higher in many service areas. The population is racially and ethnically diverse: large White non-Hispanic and Hispanic/Latino populations, substantial Black/African American and Asian communities, and many mixed-status and multilingual households. Educational attainment is high overall because of the metro’s professional base, but not evenly distributed. Housing cost burden is one of the region’s defining stressors: renters face severe rent pressure, ownership has become less attainable, and family-serving nonprofits are operating in a market where housing and childcare together can block workforce participation. For Child Inc., that matters because many federal and state programs reward integrated family economic stabilization, workforce participation supports, and service delivery in disadvantaged census tracts.
+
+Infrastructure and social conditions reinforce that case. Austin has stronger institutional capacity than many regions, but rapid growth has strained transportation, childcare supply, housing stock affordability, and social-service access. Transit exists but is uneven as a practical option for many low-income working families, especially for shift workers. Broadband access is better than rural Texas but affordability and device access gaps still affect family engagement, telehealth, and workforce training. Public health needs include maternal/child health disparities, behavioral health access gaps, food insecurity in specific neighborhoods, and continued pressure on school readiness systems. Safety-net demand remains elevated where housing instability, wage stagnation at the lower end of the labor market, and family stress intersect. Strategically, this profile triggers strong relevance for HHS/ACF, HRSA, SAMHSA, DOL, USDA nutrition/community food, HUD self-sufficiency and homelessness-related family supports, ED community-school and literacy pathways, and city/county human-services contracts tied to equity and family stabilization.
+
+## WHAT CHILD INC. CAN REALISTICALLY PURSUE
+
+For Child Inc., I would break the landscape into six practical lanes:
+
+1. **Core early childhood expansion**
+2. **Workforce development and workforce pipeline**
+3. **Family stabilization and wraparound services**
+4. **Maternal/child health and behavioral health**
+5. **Local government and quasi-public contracts**
+6. **Capacity-building and innovation grants**
+
+Below is the opportunity landscape.
+
+---
+
+## FEDERAL OPPORTUNITY LANDSCAPE
+
+**[1]. Head Start and Early Head Start Grants** — HHS / Administration for Children and Families / Office of Head Start  
+Award: Varies widely; often $500K–$20M+ depending on service area and slots  
+URL: https://www.acf.hhs.gov/ohs  
+Fit: Child Inc.’s core identity is directly aligned with Head Start/Early Head Start expansion, continuation, partnership, and service-area competitions.  
+Move: Review current funded service areas, slot utilization, and upcoming ACF service-area competition notices affecting Central Texas.  
+
+**[2]. Preschool Development Birth Through Five Renewal Grants** — HHS / ACF & U.S. Department of Education  
+Award: Commonly $500K–$15M  
+URL: https://www.acf.hhs.gov/ecd/early-care-and-education-projects/preschool-development-grants-birth-through-five-pdg-b-5  
+Fit: Strong for state-led early childhood system building in which Child Inc. can serve as implementation partner, subcontractor, or demonstration site.  
+Move: Track Texas’ PDG B-5 activities and position Child Inc. as a regional implementation and family-engagement partner.  
+
+**[3]. Child Care and Development Fund (CCDF) Quality/Access Pass-Through** — HHS / ACF / Office of Child Care  
+Award: Varies; often $100K–$5M through state procurement or grant channels  
+URL: https://www.acf.hhs.gov/occ  
+Fit: Child Inc. can compete for Texas-administered childcare quality, provider support, family access, and supply-building opportunities.  
+Move: Monitor Texas Workforce Commission and local workforce board releases tied to CCDF quality and childcare capacity.  
+
+**[4]. Community Services Block Grant Discretionary / CSD Innovation Opportunities** — HHS / ACF / Office of Community Services  
+Award: $150K–$2M  
+URL: https://www.acf.hhs.gov/ocs  
+Fit: Good fit if Child Inc. packages family economic mobility, anti-poverty strategy, or integrated service delivery beyond childcare alone.  
+Move: Build a concept around family stabilization plus workforce participation outcomes for low-income households.  
+
+**[5]. Community Economic Development (CED) Program** — HHS / ACF / Office of Community Services  
+Award: Up to about $800K–$1.1M historically  
+URL: https://www.acf.hhs.gov/ocs/programs/community-economic-development  
+Fit: Strong if Child Inc. forms or partners on a social enterprise/job creation strategy for low-income parents and communities.  
+Move: Explore a childcare workforce enterprise, family-support staffing model, or employer-linked training initiative.  
+
+**[6]. Assets for Independence successor-style financial capability opportunities / OCS economic mobility initiatives** — HHS / ACF / Office of Community Services  
+Award: $100K–$1M  
+URL: https://www.acf.hhs.gov/ocs  
+Fit: Relevant if Child Inc. wants to add financial capability, matched savings, or family self-sufficiency components.  
+Move: Package workforce development with coaching, credit building, and savings supports for parents.  
+
+**[7]. Healthy Marriage and Responsible Fatherhood Grants** — HHS / ACF / Office of Family Assistance  
+Award: Often $500K–$1.5M annually  
+URL: https://www.acf.hhs.gov/ofa/programs/healthy-marriage-and-responsible-fatherhood  
+Fit: Useful if Child Inc. expands family strengthening, father engagement, co-parenting, and employment supports.  
+Move: Assess whether Child Inc. has enough family-strengthening programming to credibly add fatherhood/employment services.  
+
+**[8]. Transitional Living Program for Runaway and Homeless Youth** — HHS / Administration for Children and Families / Family and Youth Services Bureau  
+Award: $200K–$1M  
+URL: https://www.acf.hhs.gov/fysb  
+Fit: Fits only if Child Inc. has or develops youth/older adolescent housing and support capacity.  
+Move: Treat as adjacency only if there is a youth-serving expansion strategy beyond early childhood.  
+
+**[9]. Maternal, Infant, and Early Childhood Home Visiting (MIECHV) Program** — HRSA  
+Award: Large state awards; local subawards vary from $100K–$5M+  
+URL: https://mchb.hrsa.gov/programs-impact/programs/home-visiting/miechv  
+Fit: Excellent fit if Child Inc. adds or partners on evidence-based home visiting for high-need families.  
+Move: Identify Texas MIECHV lead entities and offer Child Inc. as a culturally competent delivery site or subcontractor.  
+
+**[10]. Early Childhood Comprehensive Systems (ECCS)** — HRSA  
+Award: Often state/territory-focused, but local implementation partnerships can flow from it  
+URL: https://mchb.hrsa.gov/programs-impact/programs/early-childhood-comprehensive-systems  
+Fit: Child Inc. can position as an implementation partner in maternal/child health, developmental screening, and family system coordination.  
+Move: Map Texas ECCS-related efforts and build state-partner relationships.  
+
+**[11]. Infant and Early Childhood Mental Health Grant Opportunities** — SAMHSA  
+Award: $300K–$3M  
+URL: https://www.samhsa.gov/grants  
+Fit: Strong if Child Inc. integrates trauma-informed care, parent-child mental health supports, and early developmental interventions.  
+Move: Build a behavioral health concept with screening, referral, caregiver support, and workforce training.  
+
+**[12]. Project LAUNCH** — SAMHSA  
+Award: Often $800K–$4M  
+URL: https://www.samhsa.gov/grants/grant-announcements  
+Fit: Relevant for young child wellness, developmental promotion, family resilience, and systems integration.  
+Move: Monitor for reopenings and prepare a partner table including pediatric, school, and family support entities.  
+
+**[13]. Community Schools Program** — U.S. Department of Education  
+Award: Often $500K–$5M  
+URL: https://oese.ed.gov/offices/office-of-formula-grants/school-support-and-accountability/full-service-community-schools-program/  
+Fit: Strong if Child Inc. partners with school districts around family resource centers, afterschool, attendance, and wraparound supports.  
+Move: Pursue AISD or charter/community school partnerships where Child Inc. is the lead service integrator.  
+
+**[14]. Child Care Access Means Parents in School (CCAMPIS)** — U.S. Department of Education  
+Award: $100K–$1M+  
+URL: https://www2.ed.gov/programs/campisp/index.html  
+Fit: Good subcontract angle with local colleges/universities serving student parents needing childcare access.  
+Move: Approach Austin Community College and university partners as childcare implementation partner.  
+
+**[15]. 21st Century Community Learning Centers (state-administered)** — U.S. Department of Education / Texas Education Agency  
+Award: Often $50K–$2M  
+URL: https://tea.texas.gov/academics/learning-support-and-programs/21st-century-community-learning-centers  
+Fit: Good for afterschool, youth enrichment, family engagement, and school-linked support expansion.  
+Move: Evaluate whether Child Inc. wants a school-age service line or district subcontract role.  
+
+**[16]. AmeriCorps State and National** — AmeriCorps  
+Award: $75K–$1.5M+  
+URL: https://americorps.gov/funding-opportunity/americorps-state-and-national-grants  
+Fit: Strong for scaling staffing capacity through service members in family engagement, education support, and community outreach.  
+Move: Design a workforce augmentation model using AmeriCorps members for navigation, family support, and readiness services.  
+
+**[17]. AmeriCorps VISTA** — AmeriCorps  
+Award: In-kind/member support equivalent; project value varies  
+URL: https://americorps.gov/serve/fit-finder/americorps-vista  
+Fit: Good for capacity building, fundraising systems, volunteer systems, data, and partnership development.  
+Move: Use VISTA for back-end scale infrastructure rather than direct classroom/service delivery.  
+
+**[18]. YouthBuild** — U.S. Department of Labor  
+Award: Often $700K–$1.5M  
+URL: https://www.dol.gov/agencies/eta/youth/youthbuild  
+Fit: Only fits if Child Inc. expands meaningfully into older youth workforce pathways.  
+Move: Consider only as a strategic adjacency with construction/housing/employment partners.  
+
+**[19]. Reentry Employment Opportunities** — U.S. Department of Labor  
+Award: $500K–$4M  
+URL: https://www.dol.gov/agencies/eta/grants  
+Fit: Fit depends on whether Child Inc. is willing to build a justice-impacted family economic mobility line.  
+Move: Treat as an expansion lane only if aligned with mission and partner network.  
+
+**[20]. Apprenticeship Building America / Apprenticeship Expansion Grants** — U.S. Department of Labor  
+Award: $500K–$8M  
+URL: https://www.dol.gov/agencies/eta/apprenticeship/grants-contracts  
+Fit: Strong if Child Inc. builds a childcare and family-services workforce pipeline with employers and training partners.  
+Move: Frame early childhood educator, family advocate, and community health worker tracks as registered apprenticeship or pre-apprenticeship pathways.  
+
+**[21]. Strengthening Community Colleges Training Grants** — U.S. Department of Labor  
+Award: $1M–$5M  
+URL: https://www.dol.gov/agencies/eta/skills-training-grants  
+Fit: Child Inc. is a credible employer/implementation partner for childcare workforce pathways led by community colleges.  
+Move: Approach Austin Community College with a joint concept on early childhood and family-support occupations.  
+
+**[22]. SNAP Employment and Training 50/50 Partnerships** — USDA / Food and Nutrition Service  
+Award: Reimbursement-based; scale varies  
+URL: https://www.fns.usda.gov/snap/et  
+Fit: Strong if Child Inc. can support low-income parents with
+
+---
+
+You:
+cAN i GET THE TOTAL AMOUNT OF POSSIBLE FUNDING YOU JUST DISCOVERED FOR THEM.
+
+---
+
+The Advisor:
+Yes — but only as a **bounded estimate**, not a true “available total,” because these programs are a mix of:
+
+- **direct federal grants**
+- **state pass-through funds**
+- **formula programs**
+- **procurements/contracts**
+- **reimbursement models**
+- **subaward opportunities**
+
+So there is **no honest single total pot** I can give as if all of it were simultaneously available to Child Inc.
+
+## Best-answer funding view
+
+### 1) Sum of the listed programs with stated ranges only
+Using only the opportunities from the prior list that had identifiable funding ranges, the **theoretical aggregate range** was approximately:
+
+- **Minimum visible opportunity floor:** about **$12.9M**
+- **Maximum visible opportunity ceiling:** about **$126.8M**
+
+That number is **not cumulative money Child Inc. can win**. It is the sum of upper/lower bounds across heterogeneous programs, many of which:
+- are competitive nationwide
+- may not be open now
+- may require a state or institutional lead
+- may only be accessible as a subcontractor
+- may fund one site, one cohort, or one service line rather than the full organization
+
+### 2) Realistic near-term funding addressable by Child Inc.
+For Child Inc., the more useful number is the **addressable near-term pipeline**, broken into tiers:
+
+#### Tier A — highly aligned, realistic direct or lead opportunities
+Likely addressable across 12–24 months:
+- **$3M–$15M+**
+
+This would usually come from combinations of:
+- Head Start / Early Head Start expansion or continuation-related opportunities
+- CCDF/Texas childcare quality and access funds
+- DOL workforce pathway grants via partnership
+- AmeriCorps capacity/service expansion
+- local human services contracts
+- maternal/child health and family support subawards
+
+#### Tier B — broader partnership/subaward ecosystem
+If Child Inc. aggressively pursues prime/sub roles with colleges, workforce boards, school systems, city/county, and health partners:
+- **$5M–$25M+** in potential influenced pipeline value
+
+That does **not** mean all revenue to Child Inc.; some would be consortium or pass-through value.
+
+#### Tier C — full multi-level ecosystem including local/state/federal contracts
+If you include:
+- City of Austin contracts
+- Travis County contracts
+- Texas Workforce Commission / Workforce Solutions contracts
+- TEA / HHSC pass-throughs
+- school district partnerships
+- managed care / hospital / philanthropy braid funding
+
+the **multi-source growth ceiling** can become materially larger than federal grants alone, but it must be built as a rolling pipeline, not treated as one total.
+
+## What I would tell Child Inc. directly
+
+**Credible headline:**  
+Child Inc. likely has a **multi-million-dollar expansion landscape**, with a **realistic near-term addressable opportunity set in the low-to-mid seven figures**, and a broader **12–24 month pipeline that could exceed $10M+** if they pursue a combined strategy of grants, pass-throughs, and service contracts.
+
+## Important caution
+I would **not** present “$126.8M available” to them. That would be misleading.
+
+I would present it this way instead:
+
+- **Theoretical opportunity universe identified:** ~$12.9M to ~$126.8M across listed programs
+- **Realistic direct/near-term addressable funding for Child Inc.:** ~$3M to $15M+
+- **Expanded partnership-driven pipeline potential:** ~$5M to $25M+
+
+## Best next step
+If you want, I can now turn this into a **funding matrix for Child Inc.** with these columns:
+
+1. Program name  
+2. Estimated award size  
+3. Direct vs subaward vs contract  
+4. Federal / Texas / Austin-Travis County  
+5. Probability of fit  
+6. Time to pursue  
+7. Recommended pursue now / build toward / monitor  
+
+That will give you a **clean total by level: federal, state, and local** and a much more defensible number for your conversation with them.
+
+---
+
+You:
+CAN YOU BUILD A SLIDE DECK TO SHOW THEM WHAT THEY ARE ELIGIBLE FOR, AND WHAT SERVICE WE CAN PROVIDE FOR THEM.
+
+---
+
+The Advisor:
+Yes. The strongest deck for Child Inc. is **not** a generic grants pitch — it should show:
+
+1. **what Child Inc. is positioned to win**
+2. **why those opportunities fit their current footprint**
+3. **where the biggest growth lanes are**
+4. **what your team will do to help them capture funding and contracts**
+5. **what the engagement model looks like**
+
+Below is a **client-facing slide deck structure** you can use directly in PowerPoint, Google Slides, or Canva.
+
+---
+
+# SLIDE DECK: FUNDING & GROWTH STRATEGY FOR CHILD INC.
+
+## Slide 1 — Title Slide
+**Child Inc. Funding Growth Strategy**  
+**Federal, State, Local, and Contract Opportunity Landscape**  
+Prepared by: **The Collaborative Advocate Foundation / GrantPathPro**  
+Subtitle: **Scaling Up, Scaling Out, and Building Workforce Capacity**
+
+---
+
+## Slide 2 — Executive Summary
+**Child Inc. is strongly positioned for a multi-source funding growth strategy.**
+
+**What we see immediately:**
+- Strong alignment with **early childhood, family support, and workforce development funding**
+- Real opportunity across **federal grants, Texas pass-through funding, local government contracts, and strategic partnerships**
+- Best growth path is a **braided funding model**, not reliance on a single grant stream
+
+**Near-term funding potential:**
+- **Realistic direct/near-term addressable pipeline:** multi-million-dollar range
+- Strongest categories:
+  - Early childhood expansion
+  - Childcare workforce development
+  - Family stabilization and wraparound services
+  - Maternal and child health
+  - Public-sector service contracts
+
+---
+
+## Slide 3 — What We Know About Child Inc.
+**Child Inc. is already in a high-opportunity lane.**
+
+**Core strengths:**
+- Established nonprofit human services footprint
+- Trusted provider in **Head Start / Early Head Start and family-centered services**
+- Strong fit for funding focused on:
+  - low-income families
+  - school readiness
+  - childcare access
+  - parent workforce participation
+  - family economic mobility
+  - community-based service delivery
+
+**Why funders care:**
+- Child Inc. serves priority populations that federal, state, and local funders are actively targeting
+- Their service model can be framed as both:
+  - **direct child/family impact**
+  - **economic infrastructure that supports workforce participation**
+
+---
+
+## Slide 4 — Austin / Travis County Market Context
+**The local environment strengthens Child Inc.’s eligibility.**
+
+**Key regional conditions:**
+- Rapid population growth and rising service demand
+- High housing and cost-of-living pressure on working families
+- Persistent childcare affordability and access gaps
+- Employer demand for stable workforce participation
+- Equity gaps affecting low-income households and historically underserved neighborhoods
+
+**Grant relevance:**
+These conditions strengthen competitiveness for:
+- childcare access and quality funds
+- workforce pathway grants
+- maternal/child health funding
+- family stabilization programs
+- local government contracts tied to equity and economic mobility
+
+---
+
+## Slide 5 — What Child Inc. Is Eligible For
+**Child Inc. is eligible for opportunities across four major funding levels:**
+
+### Federal
+- Head Start / Early Head Start
+- Child Care and Development Fund pass-through opportunities
+- Maternal and child health grants
+- Behavioral health / early childhood wellness programs
+- AmeriCorps
+- Department of Labor workforce grants
+- Community economic development grants
+
+### State of Texas
+- Texas Workforce Commission childcare and workforce opportunities
+- Texas Education Agency school-linked and afterschool funding
+- Texas Health and Human Services family and community supports
+- Maternal/child health and prevention pass-through funds
+
+### Local / Regional
+- City of Austin human services contracts
+- Travis County health and human services contracts
+- Workforce Solutions Capital Area procurements
+- School district and higher education partnerships
+
+### Private / Blended
+- Foundation grants
+- Health system partnerships
+- Managed care/community health collaborations
+- Corporate and place-based funding
+
+---
+
+## Slide 6 — Top Eligible Federal Opportunity Categories
+**Federal opportunities with strongest fit**
+
+### 1. Early Childhood Expansion
+- Head Start / Early Head Start
+- Preschool development and systems opportunities
+- Childcare access and provider quality initiatives
+
+### 2. Workforce Development
+- Childcare workforce pipeline grants
+- Apprenticeship and pre-apprenticeship opportunities
+- Community college workforce partnerships
+- Parent-focused employment support models
+
+### 3. Family Stabilization
+- Anti-poverty and economic mobility programs
+- Family strengthening and navigation models
+- Financial capability and household stability initiatives
+
+### 4. Maternal / Child Health + Behavioral Health
+- Home visiting
+- infant and early childhood mental health
+- developmental support
+- caregiver support and trauma-informed programming
+
+---
+
+## Slide 7 — Top Federal Programs We Would Prioritize
+**Priority opportunities to evaluate first**
+
+1. **Head Start / Early Head Start expansion and service-area opportunities**  
+2. **Child Care and Development Fund pass-through opportunities in Texas**  
+3. **Maternal, Infant, and Early Childhood Home Visiting partnerships**  
+4. **Department of Labor childcare workforce / apprenticeship grants**  
+5. **AmeriCorps for staffing and capacity expansion**  
+6. **Community Economic Development funding for family economic mobility models**  
+7. **Community Schools and school-linked wraparound service opportunities**  
+8. **SAMHSA early childhood mental health opportunities**
+
+**Message:**  
+These are the programs most likely to produce near-term strategic value.
+
+---
+
+## Slide 8 — State of Texas Opportunity Landscape
+**Texas-level funding and procurement channels**
+
+### High-value state channels:
+- **Texas Workforce Commission**
+  - childcare quality
+  - provider support
+  - workforce participation initiatives
+- **Workforce Solutions Capital Area**
+  - local childcare and workforce contracts
+  - parent employment support models
+- **Texas Education Agency**
+  - afterschool / extended learning
+  - school-linked support services
+- **Texas Health and Human Services**
+  - family support
+  - prevention
+  - maternal/child health aligned programs
+- **Texas Department of Housing and Community Affairs**
+  - family stabilization and supportive service intersections
+
+**Strategic note:**  
+Much of the best state funding will come through **pass-through contracts and implementation partnerships**, not only open grants.
+
+---
+
+## Slide 9 — Local and Regional Contract Opportunities
+**Local government and public-sector contract lanes**
+
+### City of Austin
+- Family support services
+- Early childhood and youth services
+- Community-based social service contracts
+- Equity-focused neighborhood and community initiatives
+
+### Travis County
+- Health and human services contracts
+- Family stabilization and prevention services
+- Community health and social support partnerships
+
+### Regional Institutions
+- Austin ISD and school partners
+- Austin Community College
+- Workforce Solutions Capital Area
+- hospital/community benefit partners
+- coordinated care / managed care community investment initiatives
+
+**Message:**  
+Contracts can be as important as grants for sustainable scale.
+
+---
+
+## Slide 10 — Best Growth Strategy for Child Inc.
+**Recommended growth model: braid funding across three lanes**
+
+### Lane 1 — Protect and Expand Core
+- Head Start / Early Head Start
+- childcare access and quality
+- family support services
+
+### Lane 2 — Scale Out Adjacent Services
+- home visiting
+- early childhood mental health
+- parent navigation
+- community schools
+- family economic mobility supports
+
+### Lane 3 — Build Workforce Development as a Revenue Line
+- childcare workforce pathways
+- family advocate workforce training
+- CHW / parent peer support workforce models
+- apprenticeship and pre-apprenticeship partnerships
+
+**Bottom line:**  
+Workforce development is the strongest “scale-out” strategy because it attracts both grants and contracts.
+
+---
+
+## Slide 11 — What Services We Provide
+**How we help Child Inc. win**
+
+### Funding Strategy
+- Full federal, state, and local opportunity mapping
+- eligibility analysis
+- funding pipeline design
+- funding calendar and sequencing strategy
+
+### Pursuit Support
+- opportunity qualification and scoring
+- go / no-go recommendation
+- proposal development support
+- compliance review
+- partnership and teaming strategy
+
+### Contracting Support
+- public-sector contract identification
+- capability positioning
+- RFP response support
+- pricing and budget framing
+- subcontracting and teaming pathways
+
+### Growth Infrastructure
+- grants management readiness
+- evidence and outcomes positioning
+- budget development
+- reporting and compliance preparation
+
+---
+
+## Slide 12 — Our Delivery Model
+**What engagement with us looks like**
+
+### Phase 1 — Discovery + Opportunity Map
+- assess current programs, footprint, and expansion goals
+- identify best-fit grants, contracts, and pass-through funds
+- build a prioritized pursuit list
+
+### Phase 2 — Funding Capture Strategy
+- rank opportunities by fit, timing, and win probability
+- define which to pursue now vs. build toward
+- prepare partner strategy and required documents
+
+### Phase 3 — Application and Proposal Execution
+- compliance matrix
+- narrative development
+- budget support
+- attachments and submission readiness
+
+### Phase 4 — Post-Award Support
+- implementation planning
+- grants management systems
+- reporting and compliance workflow
+- renewal and continuation strategy
+
+---
+
+## Slide 13 — What Makes Our Approach Different
+**We do more than send listings.**
+
+We help Child Inc.:
+- identify the right opportunities
+- avoid low-probability pursuits
+- package programs in funder language
+- align workforce development with childcare and family outcomes
+- pursue both **grants and contracts**
+- build a repeatable funding pipeline
+
+**Key distinction:**  
+We focus on **awardability**, not just availability.
+
+---
+
+## Slide 14 — Example Funding Pipeline View
+**Illustrative pipeline structure**
+
+### Pursue Now
+- Head Start / Early Head Start-related opportunities
+- Texas childcare pass-through opportunities
+- AmeriCorps capacity expansion
+- local family support contracts
+
+### Build Toward
+- DOL apprenticeship/workforce grants
+- MIECHV partnerships
+- community schools partnerships
+- early childhood mental health grants
+
+### Monitor
+- larger state-led systems grants
+- multi-agency demonstrations
+- innovation pilots requiring broader consortium structure
+
+---
+
+## Slide 15 — Estimated Opportunity Range
+**Funding outlook**
+
+### Theoretical opportunity universe identified
+- Broad multi-source landscape across federal, state, local, and partnership channels
+
+### Practical interpretation
+- Immediate landscape supports a **multi-million-dollar funding strategy**
+- Near-term opportunities likely come from a combination of:
+  - direct grants
+  - pass-through funding
+  - subawards
+  - service contracts
+
+**Important note:**  
+The goal is not to chase every grant. The goal is to build a **high-fit, high-probability pipeline**.
+
+---
+
+## Slide 16 — Recommended Next Steps
+**What we recommend for Child Inc. now**
+
+1. Confirm priority growth lanes:
+   - core early childhood
+   - workforce development
+   - family stabilization
+2. Build a 12-month prioritized funding pipeline
+3. Identify which opportunities are:
+   - direct lead applications
+   - subcontract roles
+   - local government contract pursuits
+4. Prepare a pursuit package:
+   - organizational profile
+   - core outcomes and impact data
+   - budget framework
+   - partnership map
+5. Launch the first 3–5 highest-fit pursuits
+
+---
+
+## Slide 17 — Call to Action
+**Proposed engagement**
+We can support Child Inc. with:
+
+- funding landscape analysis
+- opportunity qualification
+- strategic pipeline development
+- grant writing support
+- contract pursuit support
+- compliance and submission readiness
+
+**Next decision:**  
+Approve a focused engagement to build Child Inc.’s **grant and contract capture strategy**.
+
+---
+
+# OPTIONAL FINAL SLIDE — Appendix
+You can add an appendix slide with:
+- sample priority programs
+- sample local funding channels
+- engagement options
+- timeline
+
+---
+
+# HOW TO POSITION YOUR SERVICE TO THEM
+
+Use this exact framing:
+
+## What we can do for Child Inc.
+- Identify the **right-fit grants, contracts, and pass-through opportunities**
+- Build a **funding roadmap aligned to their growth strategy**
+- Help them decide where to **lead, partner, or subcontract**
+- Prepare competitive applications and responses
+- Strengthen compliance, budgeting, and award readiness
+- Build repeatable systems so they are not chasing funding reactively
+
+## Strong message for the meeting
+**“We are not just helping you search for grants. We are helping you build a funding capture system for growth.”**
+
+---
+
+# BEST VERSION IF YOU WANT TO WIN THE CLIENT
+I recommend you present **three service packages** in the deck:
+
+### Option 1 — Opportunity Scan
+- funding landscape
+- eligibility mapping
+- prioritized list
+- pursue now / later matrix
+
+### Option 2 — Pipeline Buildout
+- everything in Option 1
+- funding calendar
+- partner mapping
+- readiness review
+- grant/contract pursuit strategy
+
+### Option 3 — Full Capture Support
+- everything in Option 2
+- application support
+- proposal drafting support
+- budget/compliance support
+- submission preparation
+
+---
+
+# NEXT STEP I CAN DO FOR YOU
+I can turn this into one of three formats:
+
+1. **A polished 10-slide executive version**
+2. **A fuller 15–17 slide client presentation**
+3. **A speaker script with talking points for each slide**
+
+If you want, I can do the **finished slide-by-slide copy in presentation format next** so you can paste it directly into PowerPoint.
+
+---
+
+You:
+SO CAN YOU BUILD A SLIDE DECK OR NOT

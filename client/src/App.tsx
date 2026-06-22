@@ -219,6 +219,7 @@ const DonorsPage = lazy(() => import("@/pages/donors"));
 const DonorReceiptDemoPage = lazy(() => import("@/pages/donor-receipt-demo"));
 const SDOHChainPage = lazy(() => import("@/pages/sdoh-chain"));
 const ChainwebBuilderPage = lazy(() => import("@/pages/chainweb-builder"));
+const ChildIncDeckPage = lazy(() => import("@/pages/childinc-deck"));
 const SDOHExplorerPage = lazy(() => import("@/pages/sdoh-explorer"));
 const CityComparisonPage = lazy(() => import("@/pages/city-comparison"));
 const FafsaNavigatorPage = lazy(() => import("@/pages/fafsa-navigator"));
@@ -955,6 +956,11 @@ function App() {
                 <Switch>
                   <Route path="/presentation">
                     <PresentationLayout />
+                  </Route>
+                  <Route path="/childinc-deck">
+                    <Suspense fallback={<div className="fixed inset-0 bg-slate-950" />}>
+                      <ChildIncDeckPage />
+                    </Suspense>
                   </Route>
                   <Route path="/ecosystem/embed">
                     <EmbedLayout><EcosystemEmbedPage /></EmbedLayout>
