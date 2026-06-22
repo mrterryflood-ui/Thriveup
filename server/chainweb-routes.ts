@@ -4,7 +4,7 @@ import { db } from "./storage";
 import {
   chainwebScenarios, chainwebNodes, chainwebEdges,
   chainwebCalculations, chainwebNarratives,
-  insertChainwebScenarioSchema,
+  insertChainwebScenarioSchema, ecosystemPlatforms,
 } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import {
@@ -20,25 +20,39 @@ import { receiveCivicSignalLesson } from "./civic-signal-connector";
 // ── External API auth + rate-limiting (for Civic Signal and partner platforms) ──
 const externalRateBucket = new Map<string, { count: number; resetAt: number }>();
 
-function cwExternalAuth(req: Request, res: Response, next: NextFunction) {
+// Validates x-ecosystem-key against:
+// 1. Any registered ecosystem platform's api_key (DB lookup — self-managing, no secrets needed)
+// 2. Optional env var overrides (CIVIC_SIGNAL_ECOSYSTEM_KEY etc.)
+// 3. Dev fallback: any tveco_ prefix
+async function cwExternalAuth(req: Request, res: Response, next: NextFunction) {
   const key = req.headers["x-ecosystem-key"] as string;
   if (!key) return res.status(401).json({ error: "Missing x-ecosystem-key header" });
 
-  // Accept any registered partner key stored as env vars
-  const registeredKeys = [
-    process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY,
-    process.env.ECOSYSTEM_PARTNER_KEY_1,
-    process.env.ECOSYSTEM_PARTNER_KEY_2,
-  ].filter(Boolean);
+  try {
+    // Primary: check against registered ecosystem platforms (covers all owned platforms automatically)
+    const platform = await db
+      .select({ id: ecosystemPlatforms.id, name: ecosystemPlatforms.name })
+      .from(ecosystemPlatforms)
+      .where(eq(ecosystemPlatforms.apiKey, key))
+      .limit(1);
 
-  // In development with no keys configured, allow any tveco_ prefixed key for testing
-  const isDev = process.env.NODE_ENV !== "production";
-  const isValid =
-    registeredKeys.includes(key) ||
-    (isDev && key.startsWith("tveco_"));
+    if (platform.length > 0) return next();
 
-  if (!isValid) return res.status(403).json({ error: "Invalid x-ecosystem-key" });
-  return next();
+    // Secondary: env var overrides
+    const envKeys = [
+      process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY,
+      process.env.ECOSYSTEM_PARTNER_KEY_1,
+      process.env.ECOSYSTEM_PARTNER_KEY_2,
+    ].filter(Boolean);
+    if (envKeys.includes(key)) return next();
+
+    // Dev fallback
+    if (process.env.NODE_ENV !== "production" && key.startsWith("tveco_")) return next();
+
+    return res.status(403).json({ error: "Invalid x-ecosystem-key — register your platform at /api/ecosystem/register-key" });
+  } catch (err) {
+    return res.status(500).json({ error: "Auth check failed" });
+  }
 }
 
 function cwExternalRateLimit(req: Request, res: Response, next: NextFunction) {
