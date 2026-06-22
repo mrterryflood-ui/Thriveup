@@ -189,15 +189,10 @@ async function zipToGeography(zipCode: string): Promise<{ stateFips: string; cou
     console.log("Geocoder fallback for ZIP:", zipCode);
   }
 
-  try {
-    const relUrl = `https://api.census.gov/data/2020/dec/dhc?get=NAME,P1_001N&for=zip%20code%20tabulation%20area:${zipCode}`;
-    const data = await fetchJson(relUrl);
-    if (Array.isArray(data) && data.length > 1) {
-      return { stateFips: "", countyFips: "", tractFips: "", countyName: "", isZcta: true };
-    }
-  } catch {}
-
-  return null;
+  // If the address geocoder didn't match, treat the ZIP as a ZCTA directly.
+  // fetchZctaData will confirm whether ACS5 data exists for it; if not, the
+  // caller returns a proper 404 rather than this function returning null.
+  return { stateFips: "", countyFips: "", tractFips: "", countyName: "", isZcta: true };
 }
 
 async function fetchZctaData(zipCode: string): Promise<any> {
