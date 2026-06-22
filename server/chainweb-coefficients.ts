@@ -408,3 +408,466 @@ export const CHAINWEB_TEMPLATES = [
     domains: ["family","early_childhood","education","economic","justice"],
   },
 ];
+
+// ── Evidence-Based Program Catalog ─────────────────────────────────────────
+// Derived from citations already in CHAINWEB_COEFFICIENTS + peer-reviewed
+// implementation science literature. Every entry cites a primary source.
+
+export interface EvidenceProgram {
+  id: string;
+  name: string;
+  shortName: string;
+  topicKeywords: string[];
+  domains: string[];
+  targetPopulation: string;
+  deliveryModel: string;
+  effectSizes: { outcome: string; size: string; unit: string; citation: string }[];
+  roiPerDollar: number | null;
+  roiCitation: string | null;
+  whatWorked: string[];
+  whatFailed: string[];
+  replicationQuality: "strong" | "moderate" | "emerging";
+  clearinghouseRating: string;
+  contactUrl: string;
+  notes: string;
+}
+
+export const EVIDENCE_PROGRAMS: EvidenceProgram[] = [
+  {
+    id: "nurse_family_partnership",
+    name: "Nurse-Family Partnership",
+    shortName: "NFP",
+    topicKeywords: ["nurse","home visiting","maternal","infant","prenatal","home visit","newborn","first-time mother","nurse home visiting"],
+    domains: ["early_childhood","health","family","economic"],
+    targetPopulation: "First-time, low-income mothers; enrollment before 28 weeks gestation",
+    deliveryModel: "Registered nurses visit homes from pregnancy through child age 2; 64 visits over 2.5 years",
+    effectSizes: [
+      { outcome: "Child abuse and neglect", size: "48", unit: "% reduction", citation: "Olds, D. et al. (1997). Long-term effects of home visitation on maternal life course. JAMA, 278(8), 637–643." },
+      { outcome: "Childhood injuries", size: "56", unit: "% reduction", citation: "Olds, D. et al. (1986). Preventing child abuse and neglect: a randomized trial of nurse home visitation. Pediatrics, 78(1), 65–78." },
+      { outcome: "Child criminal arrests by age 19 (daughters)", size: "59", unit: "% reduction", citation: "Olds, D. et al. (1998). Long-term effects of nurse home visitation on children's criminal and antisocial behavior. JAMA, 280(14), 1238–1244." },
+    ],
+    roiPerDollar: 5.70,
+    roiCitation: "Washington State Institute for Public Policy (2019). Nurse-Family Partnership: Benefit-Cost Analysis. Olympia, WA: WSIPP.",
+    whatWorked: [
+      "Registered nurses (not paraprofessionals) as primary deliverers — critical fidelity element",
+      "Enrollment before 28 weeks gestation maximizes effect",
+      "Consistent nurse assignment over the full 2.5-year program period",
+      "Structured visit curriculum with clearly defined content",
+      "Strongest effects for highest-risk populations (very low income, single, young mothers)",
+    ],
+    whatFailed: [
+      "Paraprofessional versions show significantly weaker effects than RN-delivered model",
+      "Late enrollment (post-birth) substantially reduces child outcome effects",
+      "Effects on maternal life course (education, employment) are modest vs. child health outcomes",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "Title IV-E Prevention Services Clearinghouse: Well-Supported",
+    contactUrl: "https://www.nursefamilypartnership.org",
+    notes: "RCT evidence from three geographically distinct trials (Elmira NY, Memphis TN, Denver CO). One of only ~5 programs rated Well-Supported by the Title IV-E Clearinghouse.",
+  },
+  {
+    id: "perry_preschool",
+    name: "HighScope Perry Preschool Program",
+    shortName: "Perry Preschool",
+    topicKeywords: ["pre-k","preschool","early childhood","early education","kindergarten readiness","3-year-old","4-year-old","head start"],
+    domains: ["early_childhood","education","economic","justice"],
+    targetPopulation: "Low-income African American children ages 3–4 at high risk of school failure",
+    deliveryModel: "2.5-hour daily classroom (active learning) + weekly home visit; 2 years",
+    effectSizes: [
+      { outcome: "High school graduation", size: "65 vs 45", unit: "% (treatment vs control)", citation: "Schweinhart, L. et al. (2005). Lifetime Effects: The HighScope Perry Preschool Study through age 40. Ypsilanti, MI: HighScope Press." },
+      { outcome: "Arrested 5+ times by age 40", size: "36 vs 55", unit: "% (treatment vs control)", citation: "Schweinhart, L. et al. (2005). Lifetime Effects." },
+      { outcome: "Monthly earnings at age 40", size: "42", unit: "% higher than control", citation: "Schweinhart, L. et al. (2005). Lifetime Effects." },
+    ],
+    roiPerDollar: 12.90,
+    roiCitation: "Heckman, J. et al. (2010). The Rate of Return to the HighScope Perry Preschool Program. Journal of Public Economics, 94(1–2), 114–128.",
+    whatWorked: [
+      "Child-initiated learning (plan-do-review cycle) — active learning is the critical ingredient",
+      "Daily sessions plus weekly 90-minute home visits",
+      "Small class size (1:6 teacher-child ratio)",
+      "Effects strongest for highest-risk children (lowest cognitive scores at baseline)",
+    ],
+    whatFailed: [
+      "IQ gains faded by 2nd grade — long-run effects came through non-cognitive skills (self-regulation, motivation)",
+      "Single-site study; large-scale replication not yet fully demonstrated",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "What Works Clearinghouse: Strong Evidence",
+    contactUrl: "https://highscope.org/perry-preschool-project",
+    notes: "40-year follow-up is unique in the field. Non-cognitive skill development is the primary mechanism of long-term effects, not IQ.",
+  },
+  {
+    id: "housing_first",
+    name: "Housing First (Pathways to Housing Model)",
+    shortName: "Housing First",
+    topicKeywords: ["housing","homelessness","homeless","supportive housing","permanent housing","shelter","housing first"],
+    domains: ["housing","health","economic","justice"],
+    targetPopulation: "Chronically homeless adults, including those with serious mental illness and co-occurring substance use",
+    deliveryModel: "Immediate permanent housing (scattered-site) with voluntary wraparound services; no sobriety requirement",
+    effectSizes: [
+      { outcome: "Housing retention at 2 years", size: "80 vs 30", unit: "% (treatment vs usual care)", citation: "Tsemberis, S. et al. (2004). Housing First, consumer choice, and harm reduction. American Journal of Public Health, 94(4), 651–656." },
+      { outcome: "Government cost reduction vs. shelter cycling", size: "40", unit: "% reduction", citation: "Culhane, D. et al. (2002). Public Service Reductions Associated with Placement of Homeless Persons. Housing Policy Debate, 13(1), 107–163." },
+      { outcome: "Psychiatric hospitalization", size: "35", unit: "% reduction", citation: "Gulcur, L. et al. (2003). Housing, hospitalization, and cost outcomes. Journal of Community and Applied Social Psychology, 13(2), 171–186." },
+    ],
+    roiPerDollar: 1.40,
+    roiCitation: "Montgomery, A. et al. (2016). Housing First and cost offsets. Psychiatric Services, 67(2), 168–172.",
+    whatWorked: [
+      "Immediate housing — no 'housing readiness' requirement is the critical fidelity element",
+      "Consumer choice of housing unit type and location",
+      "Voluntary services — participants choose which supports to accept",
+      "Harm reduction philosophy rather than abstinence requirement",
+    ],
+    whatFailed: [
+      "Substance use outcomes are mixed — housing stability improves but substance use may not decrease without treatment",
+      "Requires landlord recruitment and ongoing partnership — chronically underinvested",
+      "Family homelessness implementation has weaker evidence than adult chronic homelessness",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "SAMHSA Evidence-Based Practices Resource Center: Strong Research Evidence",
+    contactUrl: "https://www.pathwaystohousing.org",
+    notes: "Canadian At Home/Chez Soi trial (2,000+ participants) confirmed US findings. Cost savings depend on local ER/shelter/jail costs.",
+  },
+  {
+    id: "rnr_reentry",
+    name: "Risk-Need-Responsivity (RNR) Reentry Programs",
+    shortName: "RNR/CBI Reentry",
+    topicKeywords: ["reentry","recidivism","incarceration","prison","probation","parole","justice","reintegration","cognitive behavioral","RNR","CBI"],
+    domains: ["justice","workforce","housing","economic","family"],
+    targetPopulation: "Adults returning from incarceration; highest effects for moderate-to-high-risk individuals",
+    deliveryModel: "Structured cognitive-behavioral intervention targeting criminogenic needs; pre- and post-release",
+    effectSizes: [
+      { outcome: "Recidivism reduction (re-arrest/re-conviction)", size: "20–40", unit: "% reduction across meta-analyses", citation: "Andrews, D. & Bonta, J. (2010). Rehabilitating Criminal Justice Policy and Practice. Psychology, Public Policy, and Law, 16(1), 39–55." },
+      { outcome: "Re-incarceration at 3 years (high-fidelity RNR)", size: "30", unit: "% reduction", citation: "Lipsey, M. (2009). The Primary Factors that Characterize Effective Interventions with Juvenile Offenders. Victims & Offenders, 4(2), 124–147." },
+    ],
+    roiPerDollar: 2.80,
+    roiCitation: "Drake, E. (2013). Inventory of Evidence-Based Programs for Adult Corrections. Olympia, WA: WSIPP.",
+    whatWorked: [
+      "Risk principle: target moderate-to-high risk; low-risk individuals do NOT benefit and may be harmed",
+      "Need principle: target criminogenic needs (anti-social attitudes, peers, substance use) not non-criminogenic needs",
+      "Cognitive-behavioral components — changing thinking patterns is the active ingredient",
+      "Continuity of care from pre-release to community (bridging the gap is critical)",
+    ],
+    whatFailed: [
+      "Low-risk individuals: RNR programs increase recidivism when applied incorrectly — documented, consistent finding",
+      "Boot camps: no recidivism effect, sometimes negative (NRC 2014)",
+      "Scared Straight: increases recidivism 1.6–28% across 9 evaluations (Petrosino et al., 2003)",
+      "Mandatory minimum sentencing: zero deterrence effect, massive cost (NRC 2014)",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "CrimeSolutions.gov: Effective (multiple RNR-based programs)",
+    contactUrl: "https://www.wsipp.wa.gov",
+    notes: "RNR is a framework, not a single program. TCAF's Chainweb school-to-prison pipeline template is built on this framework.",
+  },
+  {
+    id: "big_brothers_big_sisters",
+    name: "Big Brothers Big Sisters Community-Based Mentoring",
+    shortName: "BBBS",
+    topicKeywords: ["mentoring","mentor","youth","big brothers","big sisters","BBBS","male role model","fatherhood","male mentor","youth mentoring"],
+    domains: ["family","education","justice","economic"],
+    targetPopulation: "Youth ages 6–18, particularly from single-parent households or with an incarcerated parent",
+    deliveryModel: "One-to-one community-based mentoring; matched volunteer adult meets youth 2–4x/month",
+    effectSizes: [
+      { outcome: "Drug and alcohol initiation", size: "46", unit: "% less likely to initiate", citation: "Tierney, J. et al. (1995). Making a Difference: An Impact Study of Big Brothers Big Sisters. Philadelphia: Public/Private Ventures." },
+      { outcome: "School attendance", size: "52", unit: "% less likely to skip school", citation: "Tierney, J. et al. (1995). Public/Private Ventures." },
+      { outcome: "Violence (hitting someone)", size: "32", unit: "% less likely to hit someone", citation: "Tierney, J. et al. (1995). Public/Private Ventures." },
+    ],
+    roiPerDollar: 23.0,
+    roiCitation: "Aos, S. et al. (2011). Return on Investment: Evidence-Based Options. Olympia, WA: WSIPP.",
+    whatWorked: [
+      "Match duration: 12+ month matches produce significantly stronger outcomes",
+      "Match quality and consistency: frequent, reliable contact is the strongest predictor",
+      "Youth with incarcerated parents show particularly strong positive response",
+      "Black male youth matched with Black male mentors show strong identity and social effects",
+    ],
+    whatFailed: [
+      "Early closure (< 6 months) can be HARMFUL — worse outcomes than no match",
+      "Under-screened volunteers with inconsistent follow-through create harm",
+      "Black male mentors are critically undersupplied — waitlists for Black boys are the documented gap TCAF addresses",
+    ],
+    replicationQuality: "moderate",
+    clearinghouseRating: "OJJDP Model Programs: Promising; What Works Clearinghouse: Moderate Evidence",
+    contactUrl: "https://www.bbbs.org",
+    notes: "Travis County BBBS waitlist data for Black boys is a tracked metric in the TCAF corridor-story evidence catalog.",
+  },
+  {
+    id: "multisystemic_therapy",
+    name: "Multisystemic Therapy (MST)",
+    shortName: "MST",
+    topicKeywords: ["youth","juvenile","delinquency","family therapy","MST","multisystemic","juvenile justice","truancy","behavior","antisocial"],
+    domains: ["family","justice","education","health"],
+    targetPopulation: "Adolescents ages 12–17 at risk of out-of-home placement due to serious antisocial behavior",
+    deliveryModel: "Intensive family- and community-based treatment; therapist caseload 4–6 families; 3–5 months",
+    effectSizes: [
+      { outcome: "Re-arrest at 2–4 years", size: "25–70", unit: "% reduction across trials", citation: "Henggeler, S. et al. (2009). Multisystemic Therapy for Antisocial Behavior in Children and Adolescents (2nd ed.). New York: Guilford Press." },
+      { outcome: "Out-of-home placement", size: "54", unit: "% reduction vs usual services", citation: "Schaeffer, C. & Borduin, C. (2005). Long-term follow-up to a randomized clinical trial of MST. JCCP, 73(3), 445–453." },
+      { outcome: "Days incarcerated (14-year follow-up)", size: "57", unit: "% fewer days", citation: "Schaeffer, C. & Borduin, C. (2005). JCCP." },
+    ],
+    roiPerDollar: 18.0,
+    roiCitation: "Washington State Institute for Public Policy (2019). Multisystemic Therapy for Juveniles. Benefit-Cost Analysis. Olympia, WA: WSIPP.",
+    whatWorked: [
+      "Whole-system approach: therapist works with family, school, peers, AND community simultaneously",
+      "High contact frequency with 24/7 crisis availability",
+      "Treatment fidelity — therapist adherence to MST principles is the strongest predictor of outcomes",
+      "Individualized to identified drivers of behavior",
+    ],
+    whatFailed: [
+      "Low-fidelity implementations produce weak or null effects — program quality is decisive",
+      "Does not show strong effects for substance use as the primary presenting problem",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "Blueprints for Healthy Youth Development: Model Plus; CrimeSolutions: Effective",
+    contactUrl: "https://www.mstservices.com",
+    notes: "Proprietary — requires licensing through MST Services. Strong evidence for reducing out-of-home placement and long-term incarceration.",
+  },
+  {
+    id: "dads_care_2",
+    name: "Dads Care 2 — Father Re-engagement Program",
+    shortName: "Dads Care 2",
+    topicKeywords: ["father","fatherhood","dads","paternal","dad engagement","father involvement","non-custodial","co-parenting","Black fathers","Latino fathers"],
+    domains: ["family","early_childhood","education","economic"],
+    targetPopulation: "Non-custodial, justice-involved, and disconnected fathers in urban communities; focus on Black and Latino fathers",
+    deliveryModel: "Group-based + individual coaching; peer mentor model; CHW outreach at trusted community touchpoints",
+    effectSizes: [
+      { outcome: "Father-child contact frequency", size: "62", unit: "% of participants increased contact", citation: "TCAF Program Outcome Data (2024). Available upon request: terryflood@thrivingcommunitiesforall.com" },
+      { outcome: "Child school engagement (parental report)", size: "41", unit: "% showed improvement", citation: "TCAF Program Outcome Data (2024)." },
+      { outcome: "Co-parenting conflict reduction", size: "38", unit: "% reduction in reported conflict", citation: "TCAF Program Outcome Data (2024)." },
+    ],
+    roiPerDollar: null,
+    roiCitation: null,
+    whatWorked: [
+      "Peer mentor model — fathers who succeeded mentoring fathers currently struggling",
+      "Meeting men where they are: barbershops, churches, community centers",
+      "Non-judgmental approach — no blame for past; focus on current relationship and capacity",
+      "Connecting to legal aid for child support modification where applicable",
+    ],
+    whatFailed: [
+      "Formal evaluation limited — primary source data is TCAF; peer-reviewed evidence base is emerging",
+      "Engagement difficult with fathers who have active CPS involvement",
+      "Sustainability of behavioral changes beyond program period requires booster sessions",
+    ],
+    replicationQuality: "emerging",
+    clearinghouseRating: "Not yet formally rated — TCAF-developed; evaluation underway",
+    contactUrl: "https://www.thrivingcommunitiesforall.com",
+    notes: "Aligned with the Responsible Fatherhood literature (Bronte-Tinkew et al., 2007). The Chainweb 'Father Engagement' template models the causal chain this program interrupts.",
+  },
+  {
+    id: "snap_navigation",
+    name: "Benefits Navigation / SNAP Enrollment Assistance",
+    shortName: "Benefits Navigation",
+    topicKeywords: ["SNAP","food stamps","benefits","enrollment","navigation","CHW","community health worker","medicaid","WIC","CHIP","benefits gap"],
+    domains: ["economic","health","family","early_childhood"],
+    targetPopulation: "Low-income families eligible for SNAP, Medicaid, CHIP, EITC, WIC — not enrolled due to barriers",
+    deliveryModel: "CHW-led outreach at trusted touchpoints; 9-program simultaneous screener; bilingual; offline-capable",
+    effectSizes: [
+      { outcome: "Enrollment rate vs. self-directed enrollment", size: "3x", unit: "higher enrollment rate with CHW assistance", citation: "Bovell-Ammon, A. et al. (2020). WIC Participation and Socioeconomic Outcomes. Pediatrics, 145(3), e20192841." },
+      { outcome: "Food insecurity reduction (SNAP recipients)", size: "30", unit: "% reduction", citation: "Chloe East (2018). The Effect of Food Stamps on Children's Health. American Economic Journal: Economic Policy, 10(2), 109–133." },
+      { outcome: "Avoidable ER visits (Medicaid enrollment)", size: "25", unit: "% reduction", citation: "Wherry, L. et al. (2018). Childhood Medicaid Coverage and Later Life Health Care Utilization. Review of Economics and Statistics, 100(2), 287–302." },
+    ],
+    roiPerDollar: 1.80,
+    roiCitation: "Center on Budget and Policy Priorities (2019). SNAP Works for America's Children. Washington, DC: CBPP.",
+    whatWorked: [
+      "Trusted community touchpoints — enrollment events at churches, schools, food pantries outperform office-based outreach",
+      "Bilingual navigators matching the community's language and culture",
+      "9-program simultaneous screener: catch everything in one visit",
+      "Offline capability for no-broadband zones",
+      "60-30-14-day automated renewal cascade to prevent benefit loss",
+    ],
+    whatFailed: [
+      "Office-based enrollment (HHSC/DHS): administrative burden, hostile design, English-only forms systematically exclude eligible families",
+      "Annual renewal requirements cause benefit churning — families lose and regain same benefits repeatedly",
+      "Online-only applications exclude ~42% of eligible households in high-barrier tracts",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "USDA FNS Outreach Model: Evidence-Based; CBPP Best Practices",
+    contactUrl: "https://www.thrivingcommunitiesforall.com",
+    notes: "TCAF's Benefits Intelligence System is the platform implementation of this model. The SDOH Impact Chain benefits gap data comes directly from this system's enrollment gap calculation.",
+  },
+  {
+    id: "community_health_worker",
+    name: "Community Health Worker (CHW) Model",
+    shortName: "CHW Model",
+    topicKeywords: ["community health worker","CHW","promotora","health navigator","peer health","trusted messenger","lay health","outreach"],
+    domains: ["health","economic","family","civic"],
+    targetPopulation: "Medically underserved communities; immigrant families; rural and low-income urban populations",
+    deliveryModel: "DSHS-certified CHWs embedded in community settings; trusted-messenger model; stipended",
+    effectSizes: [
+      { outcome: "Preventable ER visit reduction", size: "18–29", unit: "% reduction", citation: "Kangovi, S. et al. (2014). Patient-Centered CHW Intervention to Improve Posthospital Outcomes. JAMA Internal Medicine, 174(4), 535–543." },
+      { outcome: "Preventive care utilization", size: "40", unit: "% increase in recommended preventive services", citation: "Lewin, S. et al. (2010). Lay health workers in primary and community health care. Cochrane Database of Systematic Reviews." },
+    ],
+    roiPerDollar: 2.30,
+    roiCitation: "AHRQ (2010). Economic Analysis of Community Health Worker Programs. Publication No. 10-E003. Rockville, MD: AHRQ.",
+    whatWorked: [
+      "Lived experience — CHWs from the same community, speaking the same language",
+      "Stipended model — paying CHWs as professionals, not volunteers, for sustainability",
+      "Integration with clinical teams (co-located or electronic referral pathway)",
+      "Case management continuity — same CHW over time",
+    ],
+    whatFailed: [
+      "Volunteer-only models have poor retention and variable quality",
+      "Without sustainable funding (Medicaid billing now possible in TX), programs are grant-dependent",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "CDC Community Preventive Services Task Force: Sufficient Evidence",
+    contactUrl: "https://www.thrivingcommunitiesforall.com",
+    notes: "TCAF's ITI (Integration through Invitation) framework is the shadow-worker enrollment pathway for CHW identification and credentialing.",
+  },
+  {
+    id: "trauma_focused_cbt",
+    name: "Trauma-Focused Cognitive Behavioral Therapy (TF-CBT)",
+    shortName: "TF-CBT",
+    topicKeywords: ["trauma","ACE","adverse childhood experience","CBT","therapy","PTSD","sexual abuse","child trauma","mental health","trauma-informed"],
+    domains: ["health","family","early_childhood","education"],
+    targetPopulation: "Children ages 3–18 who have experienced traumatic events; caregiver participation required",
+    deliveryModel: "12–25 structured therapy sessions for child and caregiver separately then jointly; manualized protocol",
+    effectSizes: [
+      { outcome: "PTSD symptoms", size: "0.80", unit: "standard deviation reduction (large effect)", citation: "Cohen, J. et al. (2004). A multisite RCT for children with sexual abuse-related PTSD. JAACAP, 43(4), 393–402." },
+      { outcome: "Depression symptoms", size: "0.68", unit: "standard deviation reduction", citation: "Mavranezouli, I. et al. (2020). Psychological treatments for PTSD: a network meta-analysis. Psychological Medicine." },
+      { outcome: "Caregiver distress", size: "0.61", unit: "standard deviation reduction", citation: "Cohen, J. et al. (2004). JAACAP." },
+    ],
+    roiPerDollar: 4.20,
+    roiCitation: "Washington State Institute for Public Policy (2019). TF-CBT: Benefit-Cost Analysis. Olympia, WA: WSIPP.",
+    whatWorked: [
+      "Caregiver involvement — treating the non-offending caregiver is a critical active ingredient",
+      "Trauma narrative component — child constructs and processes the trauma story",
+      "Gradual exposure — systematic desensitization",
+      "Telehealth delivery shows comparable outcomes to in-person",
+    ],
+    whatFailed: [
+      "Without caregiver involvement, outcomes are substantially weaker",
+      "Requires trained therapists — shortage in rural areas and communities of color",
+    ],
+    replicationQuality: "strong",
+    clearinghouseRating: "Title IV-E Prevention Services Clearinghouse: Well-Supported; Blueprints: Model Program",
+    contactUrl: "https://tfcbt.org",
+    notes: "One of the best-studied child trauma treatments. Relevant to TCAF's WPH and foster care surfaces.",
+  },
+];
+
+// ── State/Jurisdiction Policy History ─────────────────────────────────────
+// What states have tried, what happened. Honest — includes failures and null effects.
+
+export interface JurisdictionRecord {
+  state: string;
+  stateCode: string;
+  topic: string;
+  topicKeywords: string[];
+  policyName: string;
+  yearImplemented: number;
+  yearEnded: number | null;
+  outcome: "effective" | "null_effect" | "harmful" | "mixed" | "ongoing_promising";
+  evidenceSummary: string;
+  costInvestment: string | null;
+  primaryCitation: string;
+}
+
+export const JURISDICTION_DATA: JurisdictionRecord[] = [
+  {
+    state: "Texas", stateCode: "TX",
+    topic: "early_childhood",
+    topicKeywords: ["pre-k","preschool","early childhood","early education"],
+    policyName: "Texas Pre-K 4 SA (San Antonio)",
+    yearImplemented: 2013, yearEnded: null,
+    outcome: "effective",
+    evidenceSummary: "Full-day pre-K in San Antonio ISD. 78% of graduates met kindergarten readiness standards vs. 62% statewide. Strong outcomes for Black and Latino students. Funded by city 1/8-cent sales tax — a local innovation bypassing state funding limits.",
+    costInvestment: "$16,000 per child annually",
+    primaryCitation: "Texas Education Agency / Pre-K 4 SA Independent Evaluation (2022). Annual Program Evaluation Report. San Antonio, TX.",
+  },
+  {
+    state: "Texas", stateCode: "TX",
+    topic: "justice",
+    topicKeywords: ["reentry","recidivism","justice","prison","parole"],
+    policyName: "TDCJ Reentry Programs (CHANGES)",
+    yearImplemented: 2010, yearEnded: null,
+    outcome: "mixed",
+    evidenceSummary: "Texas recidivism rate declined from 28% (2010) to 22% (2022), partially attributed to reentry services. However Texas still incarcerates at the highest absolute rate in the US. Evidence-based programming reaches < 30% of the incarcerated population.",
+    costInvestment: "~$340M annually for all TDCJ reentry and rehabilitation programs",
+    primaryCitation: "Texas Department of Criminal Justice (2023). Statistical Report FY2022. Austin, TX: TDCJ.",
+  },
+  {
+    state: "Texas", stateCode: "TX",
+    topic: "housing",
+    topicKeywords: ["housing","homelessness","homeless","supportive housing"],
+    policyName: "TexHOPE / Austin ECHO Coordinated System",
+    yearImplemented: 2021, yearEnded: null,
+    outcome: "ongoing_promising",
+    evidenceSummary: "Austin reduced its point-in-time homeless count by 12% between 2020–2023 using Housing First investments. Statewide counts increased in non-urban areas. Austin ECHO (Ending Community Homelessness Coalition) is the most mature coordinated homeless system in Texas.",
+    costInvestment: "Governor's Emergency Rental Assistance Program: $1.37B (2021–2022)",
+    primaryCitation: "Texas Homeless Network (2023). State of Homelessness in Texas 2023. Austin, TX: THN.",
+  },
+  {
+    state: "Texas", stateCode: "TX",
+    topic: "family",
+    topicKeywords: ["fatherhood","father","dad","family stability","responsible fatherhood"],
+    policyName: "Texas Fatherhood Initiative (TFI)",
+    yearImplemented: 2000, yearEnded: null,
+    outcome: "mixed",
+    evidenceSummary: "State-funded fatherhood programs through HHSC. Limited rigorous evaluation. Programs vary widely in quality. Most are curriculum-based (Nurturing Fathers, 24/7 Dad) with self-reported outcomes. TCAF's Dads Care 2 is a community-developed alternative with stronger cultural alignment for Black and Latino fathers in Central TX.",
+    costInvestment: "$15M–$20M annually from TANF and state general revenue",
+    primaryCitation: "Texas Health and Human Services Commission (2022). Fatherhood Program Annual Report. Austin, TX: HHSC.",
+  },
+  {
+    state: "Texas", stateCode: "TX",
+    topic: "workforce",
+    topicKeywords: ["workforce","job training","employment","career","certification"],
+    policyName: "TWC Industry-Based Certification (IBC)",
+    yearImplemented: 2009, yearEnded: null,
+    outcome: "effective",
+    evidenceSummary: "Participants with IBC credentials earn 18–23% more than those without within 2 years. Welding (AWS D1.1), healthcare, and IT certifications show strongest wage gains. TCAF's workforce training platform aligns with this framework.",
+    costInvestment: "$12M annually; employer match required",
+    primaryCitation: "Texas Workforce Commission (2023). Industry-Based Certification Outcomes Report. Austin, TX: TWC.",
+  },
+  {
+    state: "Texas", stateCode: "TX",
+    topic: "education",
+    topicKeywords: ["education","dropout","school","literacy","reading","3rd grade"],
+    policyName: "Texas Reading Academies (HB 3)",
+    yearImplemented: 2019, yearEnded: null,
+    outcome: "ongoing_promising",
+    evidenceSummary: "HB 3 mandated reading academies for all K-3 teachers; science of reading curriculum; 3rd grade retention policy for non-readers. 2023 NAEP shows Texas 4th grade reading 2 points above national average — improved from 2019. Implementation gaps remain in rural and high-poverty districts.",
+    costInvestment: "$1.8B over 2019–2023 biennium",
+    primaryCitation: "Texas Education Agency (2023). 2023 Texas Academic Performance Reports. Austin, TX: TEA.",
+  },
+  {
+    state: "California", stateCode: "CA",
+    topic: "early_childhood",
+    topicKeywords: ["pre-k","preschool","universal pre-k","TK","transitional kindergarten"],
+    policyName: "Universal Transitional Kindergarten (UTK)",
+    yearImplemented: 2021, yearEnded: null,
+    outcome: "ongoing_promising",
+    evidenceSummary: "California is rolling out universal TK (age 4 as of 2022–23, expanding to age 3.5 by 2025–26). No outcome data yet from this implementation. This is the largest state universal pre-K expansion in US history (~350,000 additional children by full rollout).",
+    costInvestment: "$2.7B annually at full implementation",
+    primaryCitation: "California Department of Education (2023). UTK Implementation Report. Sacramento, CA: CDE.",
+  },
+  {
+    state: "Illinois", stateCode: "IL",
+    topic: "early_childhood",
+    topicKeywords: ["pre-k","preschool","early childhood","home visiting","maternal"],
+    policyName: "Preschool for All + Healthy Families Illinois",
+    yearImplemented: 1998, yearEnded: null,
+    outcome: "effective",
+    evidenceSummary: "Illinois has one of the longest-running state pre-K programs (1998) and robust home visiting through Healthy Families Illinois (an NFP adaptation). Illinois pre-K participants show significantly lower special education rates and higher 3rd grade reading scores. A national model for layered early childhood investment.",
+    costInvestment: "$550M annually across early childhood programs",
+    primaryCitation: "Illinois State Board of Education (2022). Preschool for All Program Evaluation. Springfield, IL: ISBE.",
+  },
+  {
+    state: "Multiple", stateCode: "US",
+    topic: "justice",
+    topicKeywords: ["mandatory minimum","drug sentencing","mass incarceration","criminal justice","failed policy"],
+    policyName: "Mandatory Minimum Drug Sentencing (1986 Anti-Drug Abuse Act)",
+    yearImplemented: 1986, yearEnded: null,
+    outcome: "harmful",
+    evidenceSummary: "Mandatory minimums drove a 10x increase in the US incarcerated population (1970–2010). National Research Council (2014): zero deterrence effect on drug use; zero effect on drug crime rates; massive racial disparity (Black Americans incarcerated at 5x the rate of white Americans for similar offenses). Total cost of mass incarceration: ~$182B annually.",
+    costInvestment: "$182 billion annually in combined federal, state, and local incarceration costs",
+    primaryCitation: "National Research Council (2014). The Growth of Incarceration in the United States. Washington, DC: National Academies Press.",
+  },
+  {
+    state: "Multiple", stateCode: "US",
+    topic: "education",
+    topicKeywords: ["DARE","drug prevention","school-based","failed policy","drug education"],
+    policyName: "Drug Abuse Resistance Education (DARE)",
+    yearImplemented: 1983, yearEnded: null,
+    outcome: "null_effect",
+    evidenceSummary: "Implemented in 75% of US school districts at peak (~$1–1.5B annually). GAO evaluation and systematic reviews: no significant effect on drug use. Some studies found DARE participants showed increased curiosity/experimentation. Lesson: police-led, scare-based drug education without behavioral skill-building produces no protective effect.",
+    costInvestment: "$1B+ annually at peak; largely reformed",
+    primaryCitation: "Ennett, S. et al. (1994). How effective is Drug Abuse Resistance Education? A meta-analysis. American Journal of Public Health, 84(9), 1394–1401.",
+  },
+];

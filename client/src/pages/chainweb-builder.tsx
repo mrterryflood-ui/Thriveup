@@ -14,8 +14,10 @@ import { useToast } from "@/hooks/use-toast";
 import {
   TrendingDown, TrendingUp, DollarSign, AlertTriangle, BookOpen,
   ArrowRight, Loader2, ChevronRight, ExternalLink, Copy, RefreshCw,
-  Zap, Users, Baby, GraduationCap, Briefcase, Home, Heart, Scale, Building2
+  Zap, Users, Baby, GraduationCap, Briefcase, Home, Heart, Scale, Building2,
+  Network, MapPin, Info
 } from "lucide-react";
+import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
 
 const DOMAIN_ICONS: Record<string, any> = {
   early_childhood: Baby,
@@ -80,7 +82,7 @@ function DomainChip({ domain }: { domain: string }) {
 export default function ChainwebBuilderPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"build" | "library" | "results">("build");
+  const [activeTab, setActiveTab] = useState<"build" | "library" | "results" | "story">("build");
   const [selectedScenario, setSelectedScenario] = useState<number | null>(null);
   const [audience, setAudience] = useState<string>("grant_writer");
   const [narrative, setNarrative] = useState<any>(null);
@@ -221,10 +223,14 @@ export default function ChainwebBuilderPage() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as any)}>
-          <TabsList className="mb-6 bg-white dark:bg-slate-800 border shadow-sm">
+          <TabsList className="mb-6 bg-white dark:bg-slate-800 border shadow-sm flex-wrap h-auto gap-1 p-1">
             <TabsTrigger value="build" data-testid="tab-build">Build Scenario</TabsTrigger>
             <TabsTrigger value="results" data-testid="tab-results" disabled={!selectedScenario}>
               ROI Results {selectedScenario && <span className="ml-1 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">Ready</span>}
+            </TabsTrigger>
+            <TabsTrigger value="story" data-testid="tab-story" className="flex items-center gap-1.5">
+              <Network className="h-3.5 w-3.5" />
+              Community Story
             </TabsTrigger>
             <TabsTrigger value="library" data-testid="tab-library">Coefficient Library</TabsTrigger>
           </TabsList>
@@ -694,6 +700,121 @@ export default function ChainwebBuilderPage() {
                 )}
               </div>
             )}
+          </TabsContent>
+
+          {/* ── COMMUNITY STORY TAB ───────────────────────────────────────── */}
+          <TabsContent value="story">
+            {(() => {
+              // Parse 5-digit FIPS → stateCode + countyCode
+              const clean = (form.geographyFips || "").replace(/\D/g, "");
+              const hasFips = clean.length === 5;
+              const stateCode = hasFips ? clean.slice(0, 2) : undefined;
+              const countyCodes = hasFips ? clean.slice(2) : undefined;
+
+              return (
+                <div className="space-y-6">
+                  {/* Context banner */}
+                  <div className="flex items-start justify-between gap-4 flex-wrap">
+                    <div>
+                      <h2 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                        <Network className="h-5 w-5 text-blue-600" />
+                        SDOH Community Story — Break the Chain, Change the Outcome
+                      </h2>
+                      <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">
+                        The causal story behind the numbers. Real Census + CDC + SVI data for{" "}
+                        <strong>{form.geographyLabel || "your geography"}</strong> — showing the three realities
+                        people face and the breaking points where intervention changes the trajectory.
+                      </p>
+                    </div>
+                    {selectedScenario && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        data-testid="button-view-roi-from-story"
+                        onClick={() => setActiveTab("results")}
+                        className="shrink-0"
+                      >
+                        <DollarSign className="h-3.5 w-3.5 mr-1" />
+                        View ROI Results
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Geography info strip */}
+                  <div className="flex items-center gap-3 text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-900 border rounded-lg px-4 py-3">
+                    <MapPin className="h-4 w-4 text-blue-500 shrink-0" />
+                    <span>
+                      <strong>{form.geographyLabel || "Geography not set"}</strong>
+                      {hasFips ? (
+                        <span className="ml-2 text-slate-400">
+                          · FIPS {form.geographyFips} · State {stateCode}, County {countyCodes}
+                          · Live Census/CDC/SVI data
+                        </span>
+                      ) : (
+                        <span className="ml-2 text-amber-500">
+                          · Enter a 5-digit FIPS code in Build Scenario to load live data for your geography
+                        </span>
+                      )}
+                    </span>
+                    {!hasFips && (
+                      <Button
+                        variant="link"
+                        size="sm"
+                        className="ml-auto text-blue-600 px-0 h-auto"
+                        data-testid="button-go-to-build"
+                        onClick={() => setActiveTab("build")}
+                      >
+                        Set geography →
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Bridging callout: ROI ↔ Story */}
+                  {selectedScenario && (
+                    <div className="flex items-start gap-3 bg-blue-50 border border-blue-200 dark:bg-blue-950/30 rounded-xl p-4">
+                      <Info className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+                          This story is the human side of the ROI calculation you built.
+                        </p>
+                        <p className="text-sm text-blue-700 dark:text-blue-400 mt-0.5">
+                          The causal chain below maps the same poverty → school failure → incarceration cascade
+                          that the Chainweb coefficients quantify. Use this tab to explain <em>why</em> the numbers
+                          are what they are — to a council member, a funder, or a community.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* The full SDOH Impact Chain — live data if FIPS provided */}
+                  <SDOHImpactChain
+                    stateCode={stateCode}
+                    countyCodes={countyCodes}
+                  />
+
+                  {/* Bottom CTA */}
+                  <div className="flex flex-wrap gap-3 pt-2">
+                    <Button
+                      variant="outline"
+                      data-testid="button-build-roi-from-story"
+                      onClick={() => setActiveTab("build")}
+                    >
+                      <Zap className="h-4 w-4 mr-2" />
+                      Build the ROI for This Geography
+                    </Button>
+                    {selectedScenario && (
+                      <Button
+                        data-testid="button-results-from-story"
+                        onClick={() => setActiveTab("results")}
+                      >
+                        <DollarSign className="h-4 w-4 mr-2" />
+                        See ROI Results
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              );
+            })()}
           </TabsContent>
 
           {/* ── COEFFICIENT LIBRARY TAB ───────────────────────────────────── */}
