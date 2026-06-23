@@ -1,7 +1,7 @@
 import { ConceptCardShell } from "@/components/concepts/concept-card-shell";
 import { PumpjackSim } from "@/components/concepts/pumpjack-sim";
 import { Card } from "@/components/ui/card";
-import pumpjackDiagram from "@assets/IMG_7754_1779333337877.png";
+import pumpjackDiagram from "@assets/pumpjack-diagram-optimized.webp";
 
 export default function OilPumpjackConceptPage() {
   return (

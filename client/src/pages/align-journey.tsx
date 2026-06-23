@@ -14,7 +14,7 @@ import {
   ArrowRight, ChevronRight, Sparkles, Users, RefreshCw
 } from "lucide-react";
 import { useState } from "react";
-import alignLogo from "@assets/4C3587C9-E0BC-45FD-9E4E-CD435BE825BD_1781974706746.png";
+import alignLogo from "@assets/align-logo-optimized.webp";
 
 const PHASE_ICONS = { assess: Search, listen: Ear, integrate: Puzzle, guide: Compass, navigate: Navigation, thrive: Star };
 const PHASE_ORDER: AlignPhase[] = ["assess", "listen", "integrate", "guide", "navigate", "thrive"];

@@ -7,7 +7,7 @@ import {
   Users, Sparkles
 } from "lucide-react";
 import { SiInstagram } from "react-icons/si";
-import alignLogo from "@assets/4C3587C9-E0BC-45FD-9E4E-CD435BE825BD_1781974706746.png";
+import alignLogo from "@assets/align-logo-optimized.webp";
 
 const FRAMEWORK = [
   {

@@ -18,6 +18,7 @@ import {
   Play, Pause, Volume2, VolumeX, Maximize,
 } from "lucide-react";
 import featureVideoSrc from "@assets/Learning_Academy_1.0_1772131808280.mp4";
+import featureVideoPoster from "@assets/learning-academy-poster.jpg";
 import { MapContainer, TileLayer, Marker, Popup, Circle, useMap } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -502,6 +503,8 @@ function PlatformTourVideo() {
         <video
           ref={videoRef}
           src={featureVideoSrc}
+          poster={featureVideoPoster}
+          preload="none"
           className="w-full aspect-video bg-black"
           aria-label="ThriveUp Academy platform tour with Arthur Wakanda"
           onEnded={() => { setIsPlaying(false); setShowOverlay(true); }}

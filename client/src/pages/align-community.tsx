@@ -9,7 +9,7 @@ import {
   Users, Building2, Globe, ArrowRight, TrendingUp,
   Heart, Zap, Target, AlertCircle
 } from "lucide-react";
-import alignLogo from "@assets/4C3587C9-E0BC-45FD-9E4E-CD435BE825BD_1781974706746.png";
+import alignLogo from "@assets/align-logo-optimized.webp";
 
 const PHASE_ICONS = { assess: Search, listen: Ear, integrate: Puzzle, guide: Compass, navigate: Navigation, thrive: Star };
 

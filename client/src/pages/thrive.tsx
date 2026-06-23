@@ -6,7 +6,7 @@ import {
   Sparkles, Users, Heart, Zap, TrendingUp, HandHeart,
   ArrowRight, Star, Globe, Mic2, BookOpen, ChevronRight
 } from "lucide-react";
-import alignLogo from "@assets/4C3587C9-E0BC-45FD-9E4E-CD435BE825BD_1781974706746.png";
+import alignLogo from "@assets/align-logo-optimized.webp";
 
 const THRIVE_PILLARS = [
   {

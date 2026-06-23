@@ -8,7 +8,7 @@ import {
   AlertCircle, ExternalLink, Download, Star, FileText, Lock,
   RefreshCw, Scale, Layers, ChevronRight, CircleDot
 } from "lucide-react";
-import alignLogo from "@assets/4C3587C9-E0BC-45FD-9E4E-CD435BE825BD_1781974706746.png";
+import alignLogo from "@assets/align-logo-optimized.webp";
 
 // ── Section wrapper ───────────────────────────────────────────────────────────
 function Section({ id, children, className = "" }: { id: string; children: React.ReactNode; className?: string }) {

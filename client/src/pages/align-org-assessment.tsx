@@ -15,7 +15,7 @@ import {
   ChevronRight, Plus, Trash2, Building2, Users, Globe
 } from "lucide-react";
 import { useState } from "react";
-import alignLogo from "@assets/4C3587C9-E0BC-45FD-9E4E-CD435BE825BD_1781974706746.png";
+import alignLogo from "@assets/align-logo-optimized.webp";
 
 type AlignPhaseKey = "assess" | "listen" | "integrate" | "guide" | "navigate" | "thrive";
 const PHASE_ORDER: AlignPhaseKey[] = ["assess", "listen", "integrate", "guide", "navigate", "thrive"];
