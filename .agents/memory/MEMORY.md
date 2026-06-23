@@ -5,3 +5,4 @@
 - [Chainweb External API](chainweb-external-api.md) — 3 authenticated endpoints + webhook; x-ecosystem-key auth; Civic Signal connector stub built; awaiting their URL+token to go live.
 - [TCAF Core Identity & IGN](tcaf-identity.md) — IGN=Initial Guidance & Navigation; multi-disciplinary lenses; 4-stakeholder model; full cycle not just needs assessment; bake into every surface.
 - [Canonical public-facing stats](canonical-stats.md) — no grant numbers ever; 15 service platforms externally; 107 languages; 4 AI engines; 50 states = architecture not deployment.
+- [Visual Circuit Canvas](visual-circuit-canvas.md) — SVG schematic editor; shouldShowCanvas() gates display; ENGINES_WITH_CANVAS still gates completion; onInteract fires onRun for concept-only.

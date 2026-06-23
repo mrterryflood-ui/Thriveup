@@ -13,7 +13,7 @@ import {
   ChevronLeft, ChevronRight, BookOpen, Target, Beaker, Lightbulb,
   GraduationCap, Save, Loader2, CheckCircle2, XCircle,
 } from "lucide-react";
-import { CircuitCanvas } from "@/components/trade-sims/electrical/circuit-canvas";
+import { VisualCircuitCanvas } from "@/components/trade-sims/electrical/visual-circuit-canvas";
 import { PlumbingCanvas } from "@/components/trade-sims/plumbing/plumbing-canvas";
 import { AutoCanvas } from "@/components/trade-sims/automotive/auto-canvas";
 import { WeldingCanvas } from "@/components/trade-sims/welding/welding-canvas";
@@ -43,20 +43,25 @@ function renderEngineCanvas(
   }) => void,
   tradeSlug?: string,
 ) {
-  if (engineMode === "linear-dc") {
-    // Automotive lessons reuse the linear-dc solver but ship their own canvas
-    // so learners can watch terminal voltage sag on the battery/alternator
-    // while toggling fuses, starters, and internal resistance.
-    if (tradeSlug === "automotive") {
-      return (
-        <AutoCanvas
-          initialComponents={initialComponents ?? []}
-          onChange={(s) => { if (s.lastSolve) onRun(); }}
-        />
-      );
-    }
+  // Electrical: always use the visual schematic canvas regardless of engineMode.
+  // This covers both linear-dc lessons (full physics) and concept-only lessons
+  // (exploration mode — solver still runs for any solvable sub-circuits).
+  if (tradeSlug === "electrical") {
     return (
-      <CircuitCanvas
+      <VisualCircuitCanvas
+        initialComponents={initialComponents ?? []}
+        onChange={(s) => { if (s.lastSolve) onRun(); }}
+        onInteract={onRun}
+        engineMode={engineMode}
+      />
+    );
+  }
+
+  if (engineMode === "linear-dc") {
+    // Automotive reuses the linear-dc solver but ships its own domain canvas
+    // (battery sag, fuse blowing, alternator load, starter current).
+    return (
+      <AutoCanvas
         initialComponents={initialComponents ?? []}
         onChange={(s) => { if (s.lastSolve) onRun(); }}
       />
@@ -74,8 +79,6 @@ function renderEngineCanvas(
     );
   }
   if (engineMode === "heat-input") {
-    // Welding: heat-input engine. Canvas computes live as inputs change, so
-    // any non-error solve counts as "ran the sim."
     return (
       <WeldingCanvas
         onChange={(s) => { if (s.lastSolve) onRun(); }}
@@ -83,7 +86,6 @@ function renderEngineCanvas(
     );
   }
   if (engineMode === "thermal-airflow") {
-    // HVAC: thermal-airflow engine. Same live-solve pattern.
     return (
       <HvacCanvas
         onChange={(s) => { if (s.lastSolve) onRun(); }}
@@ -91,6 +93,16 @@ function renderEngineCanvas(
     );
   }
   return null;
+}
+
+/**
+ * Whether this trade+engine combination should surface an interactive canvas
+ * to the learner. Electrical always gets the visual circuit canvas. All other
+ * trades use the ENGINES_WITH_CANVAS set (physics-backed engine required).
+ */
+function shouldShowCanvas(tradeSlug: string | undefined, engineMode: string): boolean {
+  if (tradeSlug === "electrical") return true;
+  return ENGINES_WITH_CANVAS.has(engineMode);
 }
 
 /**
@@ -594,9 +606,16 @@ export default function LessonPlayerPage() {
                   </div>
                 );
               })}
-              {ENGINES_WITH_CANVAS.has(engineMode) ? (
+              {shouldShowCanvas(tradeSlug, engineMode) && (
                 <div className="pt-4 border-t">
-                  <h3 className="font-semibold mb-2">Build it on the canvas</h3>
+                  <h3 className="font-semibold mb-2">
+                    {ENGINES_WITH_CANVAS.has(engineMode) ? "Build it on the canvas" : "Explore on the canvas"}
+                  </h3>
+                  {lesson.sandboxStarter?.prompt && !ENGINES_WITH_CANVAS.has(engineMode) && (
+                    <p className="text-sm text-muted-foreground mb-3 italic">
+                      {lesson.sandboxStarter.prompt}
+                    </p>
+                  )}
                   {renderEngineCanvas(
                     engineMode,
                     lesson.sandboxStarter?.initialComponents,
@@ -605,14 +624,6 @@ export default function LessonPlayerPage() {
                     tradeSlug,
                   )}
                 </div>
-              ) : (
-                <Alert>
-                  <AlertTitle>{engineMode} simulator coming soon</AlertTitle>
-                  <AlertDescription>
-                    This lesson uses the {engineMode} engine. Work through the guided steps above — the interactive
-                    simulator for this engine ships in the next release.
-                  </AlertDescription>
-                </Alert>
               )}
               <div className="pt-2">
                 <Button onClick={() => setTab("solo")} data-testid="button-next-solo">
@@ -641,7 +652,7 @@ export default function LessonPlayerPage() {
                     <h3 className="font-semibold">Success criteria</h3>
                     <p className="text-sm text-muted-foreground">{lesson.soloChallenge.successCriteria}</p>
                   </div>
-                  {ENGINES_WITH_CANVAS.has(engineMode) &&
+                  {shouldShowCanvas(tradeSlug, engineMode) &&
                     renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug)}
                   {lesson.soloChallenge.backflowRubric && engineMode === "pipe-network" && (() => {
                     const g = gradeBackflow(
@@ -731,7 +742,7 @@ export default function LessonPlayerPage() {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {ENGINES_WITH_CANVAS.has(engineMode) ? (
+              {shouldShowCanvas(tradeSlug, engineMode) ? (
                 renderEngineCanvas(
                   engineMode,
                   lesson.sandboxStarter?.initialComponents,
@@ -740,9 +751,6 @@ export default function LessonPlayerPage() {
                   tradeSlug,
                 )
               ) : (
-                // No interactive canvas for this engine — but the lesson author
-                // wrote a real sandbox prompt. Surface it and give the learner
-                // a journal to plan/explore in writing. Counts as engagement.
                 <div className="space-y-3">
                   <Alert>
                     <AlertTitle>Sandbox prompt</AlertTitle>
