@@ -518,7 +518,7 @@ export function registerTradeSimsRoutes(app: Express) {
           sandbox_help: "Tutor is offline. In sandbox mode, the most common errors are (1) a floating node — every terminal must wire to something — and (2) a short circuit — two nodes that should differ are forced equal.",
         };
         responseText = fallbacks[mode];
-        modelUsed = "fallback-stub";
+        modelUsed = "ai-tutor-offline-fallback";
       }
 
       // ---------- Log + return ----------
