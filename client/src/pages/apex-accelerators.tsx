@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import { JsonLd } from "@/components/json-ld";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -140,8 +141,22 @@ export default function ApexAcceleratorsPage() {
 
   const apexFinderUrl = "https://www.apexaccelerators.us/#/find-an-apex";
 
+  const faqSchema = useMemo(() => ({
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": faqItems.map((faq) => ({
+      "@type": "Question",
+      "name": faq.q,
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": faq.a,
+      },
+    })),
+  }), []);
+
   return (
     <div className="min-h-screen">
+      <JsonLd data={faqSchema} />
       <section className="relative overflow-hidden py-14 px-4 sm:py-20 sm:px-6">
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-indigo-950 to-slate-900" />
         <div className="relative mx-auto max-w-5xl">

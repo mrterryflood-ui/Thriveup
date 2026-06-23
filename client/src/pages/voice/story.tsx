@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { Link, useRoute } from "wouter";
+import { JsonLd } from "@/components/json-ld";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -65,8 +66,26 @@ export default function VoiceStoryPage() {
   const totalVoices = insight?.pinCount ?? pins.length;
   const lastSync = insight?.syncedToStoryAt ? new Date(insight.syncedToStoryAt).toLocaleDateString() : null;
 
+  const articleSchema = project ? {
+    "@context": "https://schema.org",
+    "@type": "Report",
+    "name": project.name,
+    "description": project.description ?? "A community storytelling report surfacing resident voices, themes, and priorities from the ThriveUp Voice platform.",
+    "about": {
+      "@type": "Thing",
+      "name": project.name
+    },
+    "publisher": {
+      "@type": "Organization",
+      "name": "ThriveUp Academy",
+      "url": "https://ai-mastery-academy.replit.app/"
+    },
+    "url": `https://ai-mastery-academy.replit.app/voice/${slug}/story`
+  } : null;
+
   return (
     <div className="container max-w-5xl py-8 px-4">
+      {articleSchema && <JsonLd data={articleSchema} />}
       <Link href={`/voice/${slug}`} data-testid="link-back-to-map">
         <Button variant="ghost" size="sm" className="mb-4"><ArrowLeft className="h-4 w-4 mr-1" />Back to the map</Button>
       </Link>

@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { JsonLd } from "@/components/json-ld";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,9 +27,29 @@ const SYSTEM_GAP_STATS = [
   { stat: "~25%", label: "lifetime PTSD — twice the rate of U.S. war veterans", source: "Casey Northwest Alumni Study" },
 ];
 
+const FOSTER_YOUTH_SERVICE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Foster Youth Transition Hub",
+  "description": "Free transition support for foster youth aging out of care — toolkits, transition plans, wellbeing check-ins, rights guides, state benefits navigation, and AI-assisted intake for personalized 30/60/90-day action plans.",
+  "provider": {
+    "@type": "Organization",
+    "name": "ThriveUp Academy",
+    "url": "https://ai-mastery-academy.replit.app/"
+  },
+  "serviceType": "Foster Care Transition Support",
+  "areaServed": "United States",
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Foster youth aging out of care, ages 14–26"
+  },
+  "url": "https://ai-mastery-academy.replit.app/foster-youth"
+};
+
 export default function FosterYouthHubPage() {
   return (
     <div className="min-h-screen bg-background" data-testid="page-foster-youth-hub">
+      <JsonLd data={FOSTER_YOUTH_SERVICE_SCHEMA} />
       {/* Crisis banner — always first */}
       <div className="bg-rose-50 dark:bg-rose-950/30 border-b border-rose-200 dark:border-rose-900" data-testid="banner-crisis">
         <div className="max-w-6xl mx-auto px-4 py-2 flex items-center gap-3 flex-wrap text-sm">

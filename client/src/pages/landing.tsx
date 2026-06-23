@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useSearch } from "wouter";
+import { JsonLd } from "@/components/json-ld";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -1198,6 +1199,19 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen" data-testid="landing-page">
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        "name": "ThriveUp Academy",
+        "url": "https://ai-mastery-academy.replit.app/",
+        "description": "A national community-infrastructure platform connecting people to grant funding, aligning service delivery with workforce development, and producing measurable community impact across the United States.",
+        "publisher": {
+          "@type": "Organization",
+          "name": "ThriveUp Academy",
+          "foundingLocation": { "@type": "Place", "name": "Austin, TX" },
+          "areaServed": "United States"
+        }
+      }} />
       <style>{`
         @keyframes heroGradientShift {
           0% { background-position: 0% 50%; }

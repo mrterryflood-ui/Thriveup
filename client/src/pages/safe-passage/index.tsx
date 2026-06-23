@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "wouter";
+import { JsonLd } from "@/components/json-ld";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -113,11 +114,31 @@ const STATS = [
   { value: "0", label: "statutory match requirement — OVW funds are available" },
 ];
 
+const SAFE_PASSAGE_SERVICE_SCHEMA = {
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Safe Passage — Domestic Violence & Safety Support",
+  "description": "Confidential resources and support for survivors of domestic violence and unsafe situations — safety planning, housing resources, legal aid, employment support, and connections to local shelters and advocates.",
+  "provider": {
+    "@type": "Organization",
+    "name": "ThriveUp Academy",
+    "url": "https://ai-mastery-academy.replit.app/"
+  },
+  "serviceType": "Domestic Violence Support & Safety Resources",
+  "areaServed": "United States",
+  "audience": {
+    "@type": "Audience",
+    "audienceType": "Survivors of domestic violence and unsafe situations"
+  },
+  "url": "https://ai-mastery-academy.replit.app/safe-passage"
+};
+
 export default function SafePassageLandingPage() {
   const [showStats, setShowStats] = useState(false);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50/30 dark:from-slate-950 dark:to-teal-950/20">
+      <JsonLd data={SAFE_PASSAGE_SERVICE_SCHEMA} />
       <QuickExit />
 
       {/* Hero */}
