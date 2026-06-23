@@ -52,7 +52,8 @@ function StateTile({ usps, name, isActive }: { usps: string; name: string; isAct
               <Sparkles className="h-3 w-3 mr-1" /> Active
             </Badge>
           ) : (
-            <Badge variant="outline" className="shrink-0 text-muted-foreground">
+            <Badge variant="outline" className="shrink-0 text-muted-foreground"
+              title="Census ACS data, federal program eligibility rules, and county geography are already wired in for this state. Activating a pilot here means connecting local CHWs, clinics, and partners — the data infrastructure is ready.">
               Ready
             </Badge>
           )}
@@ -207,6 +208,22 @@ export default function CoveragePage() {
               <Building2 className="h-3 w-3 mr-1" /> {JURISDICTIONS.length} jurisdictions
             </Badge>
           </div>
+
+          {/* What "Ready" means — prominently before the grid */}
+          <div className="mb-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start gap-3">
+              <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">What <em>Ready</em> means</p>
+                <p className="text-sm text-blue-700 dark:text-blue-400 mt-0.5">
+                  For every "Ready" state, our platform already has Census ACS data, federal program eligibility rules, and county geography loaded and analyzable — today, for free.
+                  What's <em>not</em> there yet is the local activation: the CHWs, the clinic partners, the employers, the community relationships.
+                  That's what a county pilot adds. <strong>Ready = the data foundation is built. The community connection is the next step.</strong>
+                </p>
+              </div>
+            </div>
+          </div>
+
           <div
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2"
             data-testid="grid-states"
@@ -215,10 +232,8 @@ export default function CoveragePage() {
               <StateTile key={j.code} usps={j.code} name={j.name} isActive={j.code === ACTIVE_DEPLOYMENT.state} />
             ))}
           </div>
-          <p className="text-xs text-muted-foreground mt-3 italic">
-            "Ready" means our nationwide data layer (Census ACS, federal program eligibility, county
-            geography) is wired in for that state today. Adding active services — local CHWs, clinics,
-            employers, justice partners — happens through county-by-county pilots like the one in Texas.
+          <p className="text-xs text-muted-foreground mt-3">
+            Hover any state badge for details. Data layer: Census ACS 5-Year Estimates + federal program eligibility rules + county FIPS geography. Active services — CHWs, clinics, employer partners — added through county pilots.
           </p>
         </section>
 

@@ -935,11 +935,29 @@ export default function SDOHExplorerPage() {
                               const parts = (t.tractName || "").split(",").map((s: string) => s.trim()).filter(Boolean);
                               const tractLabel = parts[0]?.replace(/^Census Tract\s*/i, "") || t.tractId;
                               const countyLabel = parts[1] || "";
+                              const statePart = parts[2] || "";
+                              const mapsQuery = encodeURIComponent(`Census Tract ${tractLabel}, ${countyLabel}${statePart ? ", " + statePart : ""}`);
+                              const censusUrl = t.tractId
+                                ? `https://data.census.gov/table?g=1400000US${t.tractId}`
+                                : null;
                               return (
                               <tr key={i} className="border-b border-muted/50">
                                 <td className="py-1.5 pr-3 text-xs">
                                   <div className="font-medium">{countyLabel || `Tract ${tractLabel}`}</div>
                                   {countyLabel && <div className="text-muted-foreground">Tract {tractLabel}</div>}
+                                  <div className="flex items-center gap-2 mt-0.5">
+                                    <a href={`https://www.google.com/maps/search/${mapsQuery}`}
+                                      target="_blank" rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-0.5 text-blue-600 dark:text-blue-400 hover:underline text-xs">
+                                      <MapPin className="h-2.5 w-2.5" /> Find on map
+                                    </a>
+                                    {censusUrl && (
+                                      <a href={censusUrl} target="_blank" rel="noopener noreferrer"
+                                        className="inline-flex items-center gap-0.5 text-slate-500 hover:text-slate-700 dark:text-slate-400 hover:underline text-xs">
+                                        Census data ↗
+                                      </a>
+                                    )}
+                                  </div>
                                 </td>
                                 <td className="py-1.5 pr-3 text-right">{t.totalPop?.toLocaleString()}</td>
                                 <td className="py-1.5 pr-3 text-right">

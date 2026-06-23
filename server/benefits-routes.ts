@@ -1748,6 +1748,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           stateFips: "48", counties: ["453","491","209","021","055"],
           spotlight: true,
           description: "Central Texas 5-county region: Travis, Williamson, Hays, Bastrop, Caldwell — the St. David's We All Benefit 2.0 target area",
+          story: "In Pflugerville, a single mother earning $38,000 a year qualifies for SNAP, CHIP for her three kids, and a utility assistance program she has never heard of. She is one of 192,000 Central Texans in the enrollment gap — above the line most people think of as 'poor,' but below what it actually costs to survive here. The benefits exist. The infrastructure to connect her to them is what ThriveUp is building. Crime and safety aren't an absence here — they're the downstream outcome we prevent by addressing what's upstream.",
           initiatives: [
             { name: "St. David's We All Benefit 2.0", status: "active", years: "2026-2029", funder: "St. David's Foundation", amount: "$35M/3yr",
               chainLinks: ["poverty","benefit-gap","health-insecurity","isolation"],
@@ -1777,6 +1778,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "houston-metro", name: "Houston Metro", state: "TX",
           stateFips: "48", counties: ["201","157","039","071"],
           description: "Harris, Fort Bend, Brazoria, Chambers counties — largest metro in TX",
+          story: "In Alief, a Salvadoran family with two U.S.-citizen daughters has avoided every government system for six years. The girls qualify for CHIP. The parents qualify for nothing — but they don't know that. BakerRipley's promotoras are starting to reach them, but conversion from contact to enrollment is still only 15%. The girls remain uninsured not because the system failed — but because no one who looked like their mother ever sat down and walked them through it.",
           initiatives: [
             { name: "Houston Food Bank Benefits Enrollment", status: "active", years: "2019-present", funder: "Multiple", amount: "$20M+/yr",
               chainLinks: ["benefit-gap","health-insecurity"],
@@ -1801,6 +1803,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "dallas-fort-worth", name: "Dallas-Fort Worth", state: "TX",
           stateFips: "48", counties: ["113","439","085","397"],
           description: "Dallas, Tarrant, Collin, Rockwall counties",
+          story: "In South Dallas, a 35-year-old home health aide works full-time and earns $29,000 a year. She's uninsured. She qualifies for Medicaid but has never applied — the nearest eligibility office is a bus transfer and half a day of work she can't afford to lose. Parkland's CHW program reduced ER use by 35% in the neighborhoods where it deployed. The hard lesson from Dallas: the model works, but it only reaches people where it actually shows up. Most of South Dallas is still waiting.",
           initiatives: [
             { name: "Parkland CHAP Program", status: "active", years: "2015-present", funder: "Parkland Health", amount: "Public funding",
               chainLinks: ["health-insecurity","benefit-gap"],
@@ -1825,9 +1828,16 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "chicago-metro", name: "Chicago Metro", state: "IL",
           stateFips: "17", counties: ["031"],
           description: "Cook County, IL — includes South Side and West Side Chicago",
+          story: "On the South Side, a grandmother raising three grandchildren on a laundromat wage qualifies for SNAP, CCAP childcare assistance, and Medicaid for the kids. She knows none of this. Illinois achieves 82% SNAP participation statewide — the highest of any major state — but in her census tract it's still under 50%. READI Chicago is putting formerly incarcerated men to work as credible messengers in the same blocks. The model that works is the same in every city: someone who looks like you, sitting at your kitchen table.",
           initiatives: [
+            { name: "READI Chicago (Rapid Employment & Development Initiative)", status: "active", years: "2017-present",
+              funder: "Heartland Alliance / City of Chicago", amount: "$45M total",
+              chainLinks: ["crime","poverty","isolation"],
+              approach: "Transitional jobs + cognitive behavioral therapy for people most likely to shoot or be shot — credible messengers, not police. Participants are paid wages while completing trauma-informed CBT.",
+              evidence: "Participants 79% less likely to be shot, 43% reduction in violent crime arrests vs. control group (Heartland Alliance randomized control trial, 2020)",
+              outcome: "Gold-standard RCT evidence that direct investment in the most at-risk individuals breaks the violence cycle" },
             { name: "All Chicago Making Homelessness History", status: "active", years: "2012-present", funder: "Multiple", amount: "$50M+/yr",
-              chainLinks: ["poverty","isolation","health-insecurity"],
+              chainLinks: ["poverty","isolation","health-insecurity","crime"],
               approach: "Coordinated Entry System for housing + benefits enrollment",
               evidence: "Housed 10K+ individuals since 2015, but homelessness persists (65K+ experiencing annually)",
               outcome: "System works but demand far exceeds capacity" },
@@ -1849,7 +1859,14 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "detroit-metro", name: "Detroit Metro", state: "MI",
           stateFips: "26", counties: ["163","125","099"],
           description: "Wayne, Oakland, Macomb counties, MI",
+          story: "In Northwest Detroit, a 42-year-old father lost his Chrysler assembly job in 2020 and has been doing gig work since — $34,000 a year, no insurance, no safety net. His kids qualify for MIChild. He doesn't know. The Michigan Bridges program served 25,000 families like his and moved 40% toward self-sufficiency. Its funding was cut in 2023. Detroit's Group Violence Intervention is working in his neighborhood — because when you take away economic hope and social connection, the vacuum fills with something.",
           initiatives: [
+            { name: "Detroit Group Violence Intervention (GVI)", status: "active", years: "2020-present",
+              funder: "City of Detroit / U.S. DOJ", amount: "$8M+",
+              chainLinks: ["crime","isolation","poverty"],
+              approach: "Call-ins bring individuals involved in violence together with service providers, credible messengers, and community leaders — offer genuine help first, clear consequences second. Grounded in David Kennedy's focused deterrence model.",
+              evidence: "Gun violence decreased 12% in pilot precincts 2020-2022 (Detroit Metro Area Communities Study). Requires sustained upstream SDOH investment to hold gains.",
+              outcome: "Promising results — demonstrates that violence interruption + service connection is the only durable model" },
             { name: "Detroit Health Department Healthy Neighborhoods", status: "active", years: "2018-present", funder: "City of Detroit/CDC", amount: "$10M+",
               chainLinks: ["health-insecurity","isolation","poverty"],
               approach: "Place-based health interventions in 7 target neighborhoods",
@@ -1868,6 +1885,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "atlanta-metro", name: "Atlanta Metro", state: "GA",
           stateFips: "13", counties: ["121","089","067","063"],
           description: "Fulton, DeKalb, Cobb, Clayton counties, GA",
+          story: "In Clayton County, a Black single mother earns $22,000 and falls into Georgia's Medicaid coverage gap — she makes too much for traditional Medicaid but too little for ACA subsidies. Georgia only partially expanded Medicaid in 2024, and she still doesn't qualify. She's gone two years without seeing a doctor. Grady Hospital will see her in the ER. But the CHW who would find her before the crisis, enroll her in something, and follow up next month — that person doesn't exist in Clayton County.",
           initiatives: [
             { name: "Georgia DFCS SNAP Modernization", status: "active", years: "2020-present", funder: "State of Georgia", amount: "State funding",
               chainLinks: ["benefit-gap","poverty"],
@@ -1892,6 +1910,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "rio-grande-valley", name: "Rio Grande Valley", state: "TX",
           stateFips: "48", counties: ["215","061","427","489"],
           description: "Hidalgo, Cameron, Starr, Willacy counties — TX-Mexico border",
+          story: "In Hidalgo County, a family where both parents are undocumented has three U.S.-citizen children who qualify for CHIP, WIC, and school lunch programs. The parents have never applied for anything. The DHR promotora knocked on their door twice before the mother opened it. On the fourth visit, she enrolled all three children. The A1C numbers went down. The SNAP enrollment went up. This is what the model looks like when it works — and why fear of enforcement is itself a public health crisis.",
           initiatives: [
             { name: "Doctors Hospital at Renaissance CHW Program", status: "active", years: "2016-present", funder: "DHR/HRSA", amount: "$8M+",
               chainLinks: ["health-insecurity","benefit-gap","isolation"],
@@ -1911,6 +1930,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "mississippi-delta", name: "Mississippi Delta", state: "MS",
           stateFips: "28", counties: ["011","151","083","133"],
           description: "Bolivar, Washington, Leflore, Sunflower counties — deep poverty region",
+          story: "In Bolivar County, a grandmother drives 45 miles to the nearest SNAP office — when she can borrow a car. Mississippi's SNAP participation rate is 55% of eligible, the lowest in the nation. There is no CHW outreach program. There is no enrollment infrastructure. The state has made a political choice not to fund one. The Delta Health Alliance runs telehealth into some of the most isolated tracts in the country. But telehealth doesn't enroll you in SNAP. This is what it looks like when there is no political will.",
           initiatives: [
             { name: "Delta Health Alliance", status: "active", years: "2003-present", funder: "HRSA/Delta Regional Authority", amount: "$30M+ total",
               chainLinks: ["health-insecurity","education","poverty"],
@@ -1930,6 +1950,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "appalachia-ky", name: "Eastern Kentucky (Appalachia)", state: "KY",
           stateFips: "21", counties: ["195","131","025","071"],
           description: "Pike, Leslie, Breathitt, Floyd counties — coal country",
+          story: "In Leslie County, a former coal miner's wife manages her husband's diabetes, hypertension, and disability claim while working part-time at a Dollar General. Kentucky's kynect system dropped the uninsured rate from 20% to 6% statewide — one of the best policy outcomes in modern public health. But in the most isolated hollers of Leslie County, the enrollment plateau persists. The broadband is arriving. The navigator who walks you through the application hasn't arrived yet. SOAR is building the infrastructure. The people are still waiting.",
           initiatives: [
             { name: "Kentucky kynect (ACA Marketplace)", status: "active", years: "2013-present", funder: "Federal/State", amount: "Federal funding",
               chainLinks: ["health-insecurity","benefit-gap"],
@@ -1949,6 +1970,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
           id: "san-antonio-metro", name: "San Antonio Metro", state: "TX",
           stateFips: "48", counties: ["029","091","259","187"],
           description: "Bexar, Comal, Kendall, Guadalupe counties",
+          story: "On San Antonio's West Side, a veteran transitioning off TRICARE discovers that civilian benefits work differently. His combined part-time income lands him at 205% of the federal poverty level. CareLink — which has genuinely transformed Bexar County's safety net — cuts off at 200% FPL. He is five percentage points above the line. His wife and daughter are uninsured. The system isn't broken in the way people think it is. It's exactly as precise as it was designed to be, and that precision is the problem.",
           initiatives: [
             { name: "University Health System CareLink", status: "active", years: "2000-present", funder: "Bexar County", amount: "Public funding",
               chainLinks: ["health-insecurity","poverty"],

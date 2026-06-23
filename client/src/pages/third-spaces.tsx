@@ -442,8 +442,8 @@ export default function ThirdSpacesPage() {
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8" data-testid="third-spaces-page">
       <PageHeader
-        title="Texas Third Spaces Enablement Platform"
-        description="Identify, activate, and manage community third spaces across all of Texas — where services meet people where they are."
+        title="Third Spaces"
+        description="A Third Space is any community place that isn't home or work — a library, church, park, barbershop. These are where people already trust. TCAF brings services to them."
         actions={
           <div className="flex gap-2 flex-wrap">
             <TrainingGuideButton moduleId="third-spaces" />
@@ -494,6 +494,33 @@ export default function ThirdSpacesPage() {
             <div className="text-2xl font-bold">20</div>
             <div className="text-sm font-medium">Ecosystem Platforms</div>
             <div className="text-xs text-muted-foreground">Deployable at third spaces</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Plain-language guide to this tool */}
+      <div className="grid md:grid-cols-2 gap-4">
+        <Card className="bg-violet-50 dark:bg-violet-950/20 border-violet-200 dark:border-violet-800">
+          <CardContent className="pt-4 pb-3">
+            <p className="text-sm font-semibold text-violet-800 dark:text-violet-300 mb-1">What is a Third Space?</p>
+            <p className="text-sm text-violet-700 dark:text-violet-400">
+              Home is your first space. Work is your second. A Third Space is the library, the park, the church, the barbershop — places you already go because you trust them.
+              TCAF partners with these spaces to bring health screenings, benefits enrollment, job coaching, and telehealth directly to where your neighbors already are.
+              No waiting room. No paperwork barrier. Just help where people already show up.
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="bg-slate-50 dark:bg-slate-900/30 border-slate-200 dark:border-slate-800">
+          <CardContent className="pt-4 pb-3">
+            <p className="text-sm font-semibold mb-1">What each tab does</p>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li><strong>Statewide Map</strong> — interactive map of current and planned locations across Texas</li>
+              <li><strong>Activation Toolkit</strong> — step-by-step checklist for site managers setting up a new space</li>
+              <li><strong>Service Matrix</strong> — which services work at which types of spaces (library vs. park vs. faith center)</li>
+              <li><strong>Regional Networks</strong> — gap analysis by Texas region: where we have spaces, where we don't</li>
+              <li><strong>Impact &amp; RPLICE</strong> — implementation science scores and outcome tracking framework</li>
+              <li><strong>ESRI Integration</strong> — GIS data layers available for mapping and planning partners</li>
+            </ul>
           </CardContent>
         </Card>
       </div>
