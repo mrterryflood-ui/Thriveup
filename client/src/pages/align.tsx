@@ -320,11 +320,13 @@ export default function AlignPage() {
               Instagram
             </a>
             <a
-              href="#"
+              href="https://www.facebook.com/thrivingcommunitiesforall"
+              target="_blank"
+              rel="noopener noreferrer"
               data-testid="link-align-podcast"
               className="flex items-center gap-2 rounded-xl border bg-background px-4 py-2.5 text-sm font-medium hover:bg-primary/5 transition-colors no-underline text-foreground">
               <Mic2 className="h-4 w-4 text-violet-600" />
-              Weekly Podcast — Coming Soon
+              Weekly Podcast
             </a>
           </div>
           <p className="text-xs text-muted-foreground mt-4">

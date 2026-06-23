@@ -282,9 +282,9 @@ export default function ThrivePage() {
             <Link href="/align">
               <Button size="sm" variant="outline" data-testid="button-thrive-back-align">ALIGN Home</Button>
             </Link>
-            <a href="#" data-testid="link-thrive-podcast">
+            <a href="https://www.facebook.com/thrivingcommunitiesforall" target="_blank" rel="noopener noreferrer" data-testid="link-thrive-podcast">
               <Button size="sm" variant="outline" className="gap-1">
-                <Mic2 className="h-3 w-3" /> Weekly Podcast — Coming Soon
+                <Mic2 className="h-3 w-3" /> Weekly Podcast
               </Button>
             </a>
           </div>

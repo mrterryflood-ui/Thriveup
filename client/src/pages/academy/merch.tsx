@@ -216,9 +216,9 @@ export default function AcademyMerchPage() {
           <>
             <Card className="p-8 text-center" data-testid="card-empty-merch">
               <ShoppingBag className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold text-lg mb-2">Merch Shop Coming Soon</h3>
+              <h3 className="font-semibold text-lg mb-2">No Items in Catalog Yet</h3>
               <p className="text-sm text-muted-foreground mb-4">
-                Branded merchandise items are being added to the catalog. Check back soon for ThriveUp Academy apparel, accessories, and stationery.
+                Your administrator has not added any merchandise items to the catalog. Contact them to get branded ThriveUp Academy apparel, accessories, and stationery listed.
               </p>
             </Card>
             <Card className="p-4 mt-4" data-testid="card-preview-notice">

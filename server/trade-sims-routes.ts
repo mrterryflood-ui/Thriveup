@@ -9,7 +9,7 @@
  *   GET  /api/trade-sims/progress/:tradeSlug               caller's progress for a trade
  *   POST /api/trade-sims/sandbox-projects                  save sandbox project
  *   GET  /api/trade-sims/sandbox-projects                  list caller's sandbox projects
- *   POST /api/trade-sims/ai-tutor/hint                     rate-limited hint (stub until T008)
+ *   POST /api/trade-sims/ai-tutor/hint                     rate-limited AI tutor (hint / debrief / sandbox_help)
  *   POST /api/trade-sims/admin/seed-electrical             admin: seed the 15 electrical lessons
  *
  * Open access: most endpoints accept either an authenticated user OR an
