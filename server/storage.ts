@@ -1338,6 +1338,8 @@ export class DatabaseStorage implements IStorage {
         const { seedAILiteracyFullLessons } = await import("./seed-ai-lessons-full");
         await seedAILiteracyFullLessons(db);
       }
+      const { migrateAIActivityTypes } = await import("./seed-ai-activity-migration");
+      await migrateAIActivityTypes(db);
       const wrNewLessons = await db.select().from(lessons).where(eq(lessons.id, "wr_m1_lesson_1"));
       if (wrNewLessons.length < 1) {
         const oldWrLessons = await db.select().from(lessons).where(eq(lessons.id, "wr_prof_l1"));

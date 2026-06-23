@@ -990,6 +990,56 @@ export async function registerRoutes(
     }
   });
 
+  // ── Lesson Lab: open (no auth) AI sandbox for curriculum activities ──────────
+  const lessonLabRateLimit = new Map<string, { count: number; resetAt: number }>();
+  app.post("/api/lesson-lab/run", async (req, res) => {
+    try {
+      const ip = (req.headers["x-forwarded-for"] as string)?.split(",")[0]?.trim() || req.socket.remoteAddress || "unknown";
+      const now = Date.now();
+      const rl = lessonLabRateLimit.get(ip);
+      if (rl) {
+        if (now < rl.resetAt && rl.count >= 20) {
+          return res.status(429).json({ error: "Rate limit reached. Take a moment to reflect on your last response, then try again." });
+        }
+        if (now >= rl.resetAt) {
+          lessonLabRateLimit.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
+        } else {
+          rl.count++;
+        }
+      } else {
+        lessonLabRateLimit.set(ip, { count: 1, resetAt: now + 60 * 60 * 1000 });
+      }
+
+      const { prompt, systemPrompt } = req.body;
+      if (!prompt || typeof prompt !== "string" || prompt.trim().length === 0) {
+        return res.status(400).json({ error: "prompt is required" });
+      }
+      if (prompt.length > 3000) {
+        return res.status(400).json({ error: "Prompt is too long (max 3000 characters)" });
+      }
+
+      const { generateAIResponse, withEthicalPreamble } = await import("./ai-provider");
+
+      const defaultSystem = "You are Spark, a supportive AI tutor helping students learn about artificial intelligence. Give honest, clear, educational responses. Keep responses under 300 words unless the student explicitly asks for more detail. Be encouraging but accurate.";
+      const effectiveSystem = withEthicalPreamble(
+        typeof systemPrompt === "string" && systemPrompt.trim() ? systemPrompt : defaultSystem
+      );
+
+      const response = await generateAIResponse(
+        [
+          { role: "system", content: effectiveSystem },
+          { role: "user", content: prompt.trim() },
+        ],
+        500,
+      );
+
+      res.json({ response });
+    } catch (error) {
+      console.error("Error in POST /api/lesson-lab/run", error);
+      res.status(500).json({ error: "AI unavailable. Please try again in a moment." });
+    }
+  });
+
   const chatRateLimit = new Map<string, { count: number; resetAt: number }>();
   app.post("/api/ai-companion/chat", requireAuth, async (req, res) => {
     try {

@@ -22,6 +22,11 @@ import MatchingGame from "@/components/activities/matching-game";
 import SortingActivity from "@/components/activities/sorting-activity";
 import BreathingExercise from "@/components/activities/breathing-exercise";
 import EmotionCheck from "@/components/activities/emotion-check";
+import PromptLab from "@/components/activities/prompt-lab";
+import ArcbEvaluator from "@/components/activities/arcb-evaluator";
+import HallucinationSpotter from "@/components/activities/hallucination-spotter";
+import BiasDetective from "@/components/activities/bias-detective";
+import AiOrHuman from "@/components/activities/ai-or-human";
 import AICompanion from "@/components/ai-companion";
 import LessonComments from "@/components/lesson-comments";
 
@@ -52,6 +57,16 @@ function ActivityRenderer({ lesson }: { lesson: Lesson }) {
       return <BreathingExercise data={data} />;
     case "emotion_check":
       return <EmotionCheck data={data} />;
+    case "prompt-lab":
+      return <PromptLab data={data} />;
+    case "arcb-evaluator":
+      return <ArcbEvaluator data={data} />;
+    case "hallucination-spotter":
+      return <HallucinationSpotter data={data} />;
+    case "bias-detective":
+      return <BiasDetective data={data} />;
+    case "ai-or-human":
+      return <AiOrHuman data={data} />;
     default:
       return null;
   }

@@ -6,3 +6,4 @@
 - [TCAF Core Identity & IGN](tcaf-identity.md) — IGN=Initial Guidance & Navigation; multi-disciplinary lenses; 4-stakeholder model; full cycle not just needs assessment; bake into every surface.
 - [Canonical public-facing stats](canonical-stats.md) — no grant numbers ever; 15 service platforms externally; 107 languages; 4 AI engines; 50 states = architecture not deployment.
 - [Visual Circuit Canvas](visual-circuit-canvas.md) — SVG schematic editor; shouldShowCanvas() gates display; ENGINES_WITH_CANVAS still gates completion; onInteract fires onRun for concept-only.
+- [AI Curriculum Interactive Activities](ai-curriculum-activities.md) — 5 new activity types; migration pattern via seed-ai-activity-migration.ts; lesson-lab endpoint open (no auth); activityData JSONB drives all content.
