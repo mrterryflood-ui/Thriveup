@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -656,6 +656,26 @@ export default function SDOHExplorerPage() {
   const [countyCodes, setCountyCodes] = useState("453,491,209,021,055");
   const [queryParams, setQueryParams] = useState({ state: "48", counties: "453,491,209,021,055" });
   const [activePreset, setActivePreset] = useState("Central Texas (5-County Region)");
+  const [fromStateName, setFromStateName] = useState<string | null>(null);
+
+  // Read ?state=XX from URL so the Coverage page can link directly to any state.
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const stateParam = params.get("state");
+    if (!stateParam) return;
+    const usps = stateParam.toUpperCase();
+    const fips = USPS_TO_STATE_FIPS[usps];
+    if (!fips) return;
+    // Auto-select the first 5 counties for that state so data loads immediately.
+    const stateCounties = (COUNTIES_BY_STATE[usps] || []).slice(0, 5).map((c: any) => c.countyFips).join(",");
+    setStateCode(fips);
+    setActivePreset("");
+    setFromStateName(usps);
+    if (stateCounties) {
+      setCountyCodes(stateCounties);
+      setQueryParams({ state: fips, counties: stateCounties });
+    }
+  }, []);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["/api/benefits/sdoh-explorer/live", queryParams.state, queryParams.counties],
@@ -711,6 +731,24 @@ export default function SDOHExplorerPage() {
             Built by <strong>The Collaborative Advocate Foundation (TCAF)</strong> · Powered by Census ACS 5-Year Estimates (2018-2022)
           </p>
         </div>
+
+        {/* Banner when user arrives via a Coverage state tile link */}
+        {fromStateName && (
+          <div className="mb-4 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-xl flex items-start gap-3">
+            <CheckCircle2 className="h-4 w-4 text-green-600 dark:text-green-400 shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-green-800 dark:text-green-300">
+                Showing live Census data for {fromStateName}
+              </p>
+              <p className="text-xs text-green-700 dark:text-green-400 mt-0.5">
+                This tool pulls from the U.S. Census Bureau — it works for every county in every state, right now.
+                Top counties for {fromStateName} are pre-selected below. Use the picker to change or narrow the selection, then click <strong>Analyze</strong>.
+              </p>
+            </div>
+            <button onClick={() => setFromStateName(null)}
+              className="text-green-600 dark:text-green-400 hover:text-green-800 text-lg leading-none shrink-0">×</button>
+          </div>
+        )}
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid grid-cols-5 w-full max-w-2xl mx-auto">

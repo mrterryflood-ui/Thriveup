@@ -31,35 +31,36 @@ const ACTIVE_DEPLOYMENT = {
 function StateTile({ usps, name, isActive }: { usps: string; name: string; isActive: boolean }) {
   const countyCount = COUNTIES_BY_STATE[usps]?.length ?? 0;
   return (
-    <Card
-      className={`text-left ${
-        isActive
-          ? "border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 ring-1 ring-amber-300"
-          : "hover-elevate"
-      }`}
-      data-testid={`tile-state-${usps}`}
-    >
-      <CardContent className="p-3">
-        <div className="flex items-start justify-between gap-2">
-          <div className="min-w-0">
-            <p className="text-sm font-semibold truncate">{name}</p>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              {countyCount > 0 ? `${countyCount} counties` : "Territory"}
-            </p>
+    <Link href={`/sdoh-explorer?state=${usps}`}>
+      <Card
+        className={`text-left cursor-pointer transition-shadow ${
+          isActive
+            ? "border-amber-400 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/30 ring-1 ring-amber-300"
+            : "hover-elevate"
+        }`}
+        data-testid={`tile-state-${usps}`}
+      >
+        <CardContent className="p-3">
+          <div className="flex items-start justify-between gap-2">
+            <div className="min-w-0">
+              <p className="text-sm font-semibold truncate">{name}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {countyCount > 0 ? `${countyCount} counties` : "Territory"}
+              </p>
+            </div>
+            {isActive ? (
+              <Badge className="bg-amber-500 hover:bg-amber-500 text-white shrink-0">
+                <Sparkles className="h-3 w-3 mr-1" /> Active
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="shrink-0 text-muted-foreground">
+                Explore →
+              </Badge>
+            )}
           </div>
-          {isActive ? (
-            <Badge className="bg-amber-500 hover:bg-amber-500 text-white shrink-0">
-              <Sparkles className="h-3 w-3 mr-1" /> Active
-            </Badge>
-          ) : (
-            <Badge variant="outline" className="shrink-0 text-muted-foreground"
-              title="Census ACS data, federal program eligibility rules, and county geography are already wired in for this state. Activating a pilot here means connecting local CHWs, clinics, and partners — the data infrastructure is ready.">
-              Ready
-            </Badge>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </Link>
   );
 }
 
@@ -213,12 +214,17 @@ export default function CoveragePage() {
           <div className="mb-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800">
             <div className="flex items-start gap-3">
               <CheckCircle2 className="h-5 w-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-              <div>
-                <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">What <em>Ready</em> means</p>
-                <p className="text-sm text-blue-700 dark:text-blue-400 mt-0.5">
-                  For every "Ready" state, our platform already has Census ACS data, federal program eligibility rules, and county geography loaded and analyzable — today, for free.
-                  What's <em>not</em> there yet is the local activation: the CHWs, the clinic partners, the employers, the community relationships.
-                  That's what a county pilot adds. <strong>Ready = the data foundation is built. The community connection is the next step.</strong>
+              <div className="space-y-2">
+                <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+                  The data analysis works right now for every state — click any tile to explore it
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-400">
+                  Our <strong>SDOH Impact Chain Explorer</strong> pulls live U.S. Census Bureau data for any county in any state.
+                  Click any state below and the Explorer opens pre-loaded with that state's data — poverty rates, uninsured populations, limited-English speakers, broadband gaps — all of it, today, for free.
+                </p>
+                <p className="text-sm text-blue-700 dark:text-blue-400">
+                  What's <em>unique to Texas</em> is the <strong>local network</strong>: CHW partners, clinic agreements, employer pipelines, community relationships. That's what a county pilot adds.
+                  <strong> Ready = data live. Pilot = community connected.</strong>
                 </p>
               </div>
             </div>
