@@ -114,6 +114,7 @@ import { registerPricingRoutes } from "./pricing-routes";
 import { registerCollaborationRoutes } from "./collaboration-routes";
 import { registerCollegeAccessAIRoutes } from "./college-access-ai-routes";
 import { registerNeighborhoodRoutes } from "./neighborhood-routes";
+import { registerExportPdfRoutes } from "./export-pdf-routes";
 import { registerCorridorRoutes } from "./corridor-story";
 import { registerNetworkRoutes } from "./network-routes";
 import { registerStandardsRoutes } from "./standards-routes";
@@ -499,6 +500,7 @@ export async function registerRoutes(
   registerCollaborationRoutes(app);
   registerCollegeAccessAIRoutes(app);
   registerNeighborhoodRoutes(app);
+  registerExportPdfRoutes(app);
   registerSafePassageRoutes(app);
   registerEcosystemIntelRoutes(app);
   registerRuralIntelRoutes(app);

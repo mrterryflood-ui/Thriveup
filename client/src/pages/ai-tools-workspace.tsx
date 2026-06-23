@@ -294,14 +294,28 @@ export default function AIToolsWorkspacePage() {
     });
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([generatedContent], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `${projectTitle || currentTool?.name || "project"}.md`;
-    a.click();
-    URL.revokeObjectURL(url);
+  const handleDownload = async () => {
+    if (!generatedContent) return;
+    const toolName = projectTitle || currentTool?.name || "document";
+    try {
+      toast({ title: isEs ? "Generando PDF…" : "Generating PDF…", description: isEs ? "Creando documento listo para presentar." : "Building a presentation-ready document." });
+      const res = await fetch("/api/export/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: generatedContent, title: toolName, subtitle: "ThriveUp Academy · TCAF", filename: toolName }),
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${toolName.replace(/\s+/g, "_")}.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+      toast({ title: isEs ? "PDF descargado" : "PDF Downloaded", description: isEs ? "Tu documento ha sido guardado." : "Your document has been saved." });
+    } catch {
+      toast({ title: isEs ? "Error al descargar" : "Download Failed", description: isEs ? "Por favor inténtalo de nuevo." : "Please try again.", variant: "destructive" });
+    }
   };
 
   useEffect(() => {

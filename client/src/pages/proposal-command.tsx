@@ -858,9 +858,6 @@ export default function ProposalCommandPage() {
                   <Button variant="outline" size="sm" onClick={copyProposal} data-testid="button-copy">
                     <Copy className="h-4 w-4 mr-1.5" /> Copy
                   </Button>
-                  <Button variant="outline" size="sm" onClick={downloadProposal} data-testid="button-download-md">
-                    <Download className="h-4 w-4 mr-1.5" /> .md
-                  </Button>
                   <Button size="sm" onClick={downloadPDF} className="bg-amber-600 hover:bg-amber-700 text-white" data-testid="button-download-pdf">
                     <FileText className="h-4 w-4 mr-1.5" /> Download PDF
                   </Button>

@@ -134,13 +134,25 @@ export default function RfpWriterPage() {
     onSuccess: () => { refetchDocs(); if (selectedDocId) setSelectedDocId(null); },
   });
 
-  const exportDraft = () => {
+  const exportDraft = async () => {
     if (!draft) return;
     const md = draft.sections.map(s => `# ${s.sectionName}${s.pointValue ? ` (${s.pointValue} pts)` : ""}\n\n${s.body}\n`).join("\n---\n\n") + `\n\n## Compliance notes\n${draft.complianceNotes}`;
-    const blob = new Blob([md], { type: "text/markdown" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url; a.download = "grant-draft.md"; a.click(); URL.revokeObjectURL(url);
+    try {
+      toast({ title: "Generating PDF…", description: "Building presentation-ready grant document." });
+      const res = await fetch("/api/export/pdf", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: md, title: "Grant Proposal Draft", subtitle: "RFP-Driven Narrative — ThriveUp Academy / TCAF", filename: "grant-draft" }),
+      });
+      if (!res.ok) throw new Error("PDF generation failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = "grant-draft.pdf"; a.click(); URL.revokeObjectURL(url);
+      toast({ title: "PDF Downloaded", description: "Your grant draft has been saved." });
+    } catch {
+      toast({ title: "Download failed", description: "Please try again.", variant: "destructive" });
+    }
   };
 
   if (orgLoading) return <div className="container max-w-6xl mx-auto py-10 px-4">Loading…</div>;

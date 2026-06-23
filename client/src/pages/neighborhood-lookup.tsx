@@ -209,6 +209,11 @@ export default function NeighborhoodLookupPage() {
           scenario: scenarioMutation.data || null,
         }),
       });
+      if (!res.ok) {
+        let msg = "PDF generation failed";
+        try { const e = await res.json(); msg = e.error || msg; } catch {}
+        throw new Error(msg);
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
@@ -235,6 +240,11 @@ export default function NeighborhoodLookupPage() {
           scenario: scenarioMutation.data || null,
         }),
       });
+      if (!res.ok) {
+        let msg = "Presentation generation failed";
+        try { const e = await res.json(); msg = e.error || msg; } catch {}
+        throw new Error(msg);
+      }
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
