@@ -6,6 +6,7 @@ import fs from "fs";
 import path from "path";
 import { nanoid } from "nanoid";
 import { isKnownPublicPath } from "./public-routes";
+import { injectRouteMeta } from "./route-meta";
 
 const viteLogger = createLogger();
 
@@ -49,7 +50,9 @@ export async function setupVite(server: Server, app: Express) {
         `src="/src/main.tsx"`,
         `src="/src/main.tsx?v=${nanoid()}"`,
       );
-      const page = await vite.transformIndexHtml(url, template);
+      let page = await vite.transformIndexHtml(url, template);
+      const pathname = req.originalUrl.split("?")[0];
+      page = injectRouteMeta(page, pathname);
       // Return 404 for structurally unknown paths so crawlers don't treat
       // them as valid pages; the SPA shell still renders the not-found UI.
       const status = isKnownPublicPath(req.path) ? 200 : 404;
