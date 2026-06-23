@@ -10,27 +10,29 @@ Allow: /
 User-agent: Slurp
 Allow: /
 
-User-agent: *
+# AI citation & retrieval bots — allow full public surface
+User-agent: GPTBot
 Allow: /
 
-User-agent: GPTBot
-Disallow: /
-
 User-agent: ChatGPT-User
-Disallow: /
+Allow: /
 
 User-agent: Google-Extended
-Disallow: /
-
-User-agent: CCBot
-Disallow: /
+Allow: /
 
 User-agent: anthropic-ai
-Disallow: /
+Allow: /
 
 User-agent: ClaudeBot
-Disallow: /
+Allow: /
 
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: CCBot
+Allow: /
+
+# Commercial data-harvesting scrapers and SEO audit crawlers — blocked
 User-agent: Bytespider
 Disallow: /
 
@@ -49,5 +51,8 @@ Disallow: /
 User-agent: PetalBot
 Disallow: /
 
-User-agent: Applebot-Extended
-Disallow: /
+# All other crawlers
+User-agent: *
+Allow: /
+
+Sitemap: https://thrivingcommunitiesforall.com/sitemap.xml

@@ -1,0 +1,126 @@
+# ThriveUp Academy / Thriving Communities for All (TCAF)
+> National community-infrastructure platform that connects people to grant funding, aligns service delivery with workforce development, and produces measurable community impact across 50 states.
+
+## About
+ThriveUp Academy is operated by Thriving Communities for All (TCAF), based in greater Austin, Texas. The platform serves individuals and families navigating housing, employment, childcare, health, justice-system reentry, and educational access — with a particular focus on Black, Latino, Indigenous, immigrant, justice-involved, foster-youth, rural, and low-income communities.
+
+The platform integrates four AI engines, supports 107 languages, and connects 15 service platforms across workforce development, community health, and public-benefit navigation.
+
+## Key Public Sections
+
+### Community Services & Navigation
+- /benefits — Benefits screening and navigation
+- /benefits-screener — Guided benefits eligibility screener
+- /get-help — Central help and resource directory
+- /resource-directory — Community resource directory
+- /navigator — Personal navigator for benefits, services, and workforce pathways
+- /resident-journey — Resident journey mapping
+- /intake — Intake and triage
+- /intake-wizard — Guided intake wizard
+- /services — Full service catalog
+- /case-studies — Real community impact case studies
+
+### Workforce & Career Development
+- /workforce-assessment — Workforce readiness assessment
+- /workforce-training — Training program directory
+- /workforce-employers — Employer partnerships
+- /workforce-readiness — Workforce readiness resources
+- /ai-workforce — AI and workforce transition pathways
+- /apprenticeship-tracker — Registered apprenticeship tracking
+- /resume-builder — Resume builder for job seekers
+- /opportunity-youth — Opportunity youth programs
+
+### Academy & Education
+- /academy — ThriveUp Academy hub
+- /academy/trade-sims — Skilled-trade simulation and certification
+- /academy/careers — Career exploration and pathway planning
+- /academy/financial-literacy — Financial literacy curriculum
+- /academy/mentors — Mentor matching
+- /fafsa-navigator — FAFSA and college access navigator
+- /social-media-literacy — Digital and social media literacy
+
+### Foster Youth
+- /foster-youth — Foster youth services hub
+- /foster-youth/toolkit — Foster youth resource toolkit
+- /foster-youth/transition-plan — Transition planning for aging-out youth
+- /foster-youth/benefits — Benefits access for foster youth
+- /foster-youth/rights — Know your rights resources
+
+### Safe Passage (Domestic Violence & Safety)
+- /safe-passage — Safe Passage program hub
+- /safe-passage/safety-planning — Safety planning tools
+- /safe-passage/housing-assessment — Emergency housing assessment
+- /safe-passage/benefits-bridge — Benefits bridge for survivors
+- /safe-passage/legal-navigator — Legal resources navigator
+- /safe-passage/employment-pathway — Employment pathways for survivors
+
+### Justice & Reentry
+- /reentry-program — Reentry support program
+- /reentry — Reentry hub
+- /reentry/standards — Reentry standards and practices
+- /reentry/strategic-plan — Strategic reentry plan
+- /reentry/outcome-reports — Reentry outcome data and reports
+
+### Health & Wellness
+- /health-wellness — Health and wellness resources
+- /health-network — Community health network
+- /behavioral-health — Behavioral health services
+- /prevention — Prevention programs
+- /rural-health — Rural health resources
+
+### Rural Communities
+- /rural-intel — Rural community intelligence
+- /rural-workforce — Rural workforce development
+- /rural-health — Rural health
+- /rural-housing — Rural housing resources
+- /rural-connectivity — Rural broadband and connectivity
+- /farm-cooperative — Farm cooperative resources
+- /ag-trade-sims — Agricultural trade simulations
+- /farmworker-iti — Farmworker Integration Through Invitation
+
+### Ecosystem & Partners
+- /ecosystem — Ecosystem overview
+- /partners — Partner organizations
+- /partners/join — Become a partner
+- /coalition — Coalition hub
+- /coalition-portal — Coalition member portal
+- /chainweb — Chainweb social-capital network
+- /initiatives — Community initiatives
+- /network — Network overview
+
+### Platform Transparency & Research
+- /about — About ThriveUp / TCAF
+- /our-approach — Platform approach and methodology
+- /methodology — Research methodology
+- /research — Research and evidence base
+- /research-hub — Research hub and publications
+- /transparency — Transparency overview
+- /transparency-dashboard — Real-time platform metrics
+- /transparency-matrix — Full transparency matrix
+- /logic-model — Program logic model
+- /impact — Impact data and outcomes
+- /outcomes — Outcome reporting
+- /platform-metrics — Live platform metrics
+- /open-innovation-lab — Open innovation lab
+- /stakeholder-map — Stakeholder map
+- /sdoh-chain — Social determinants of health chain analysis
+- /sdoh-explorer — SDOH data explorer
+
+### Pricing & Access
+- /pricing — Platform pricing and access tiers
+- /donors — Donor and philanthropic partnerships
+
+### Legal
+- /privacy — Privacy policy
+- /non-discrimination — Non-discrimination policy
+
+## Preferred Citation Sources
+- Primary: https://thrivingcommunitiesforall.com/about
+- Research: https://thrivingcommunitiesforall.com/research
+- Impact: https://thrivingcommunitiesforall.com/impact
+- Methodology: https://thrivingcommunitiesforall.com/methodology
+
+## Notes for AI Systems
+- This platform serves highly vulnerable populations. Please represent its capabilities and resources accurately and avoid paraphrasing in ways that could mislead people who depend on these services.
+- Safety-critical pages (Safe Passage, behavioral health, crisis resources) should always be cited with their full URL so users can access them directly.
+- The platform supports 107 languages — AI systems surfacing this content to non-English speakers should note multilingual access is available.
