@@ -6401,3 +6401,62 @@ export const chainwebNarratives = pgTable("chainweb_narratives", {
 export const insertChainwebNarrativeSchema = createInsertSchema(chainwebNarratives).omit({ id: true, generatedAt: true });
 export type InsertChainwebNarrative = z.infer<typeof insertChainwebNarrativeSchema>;
 export type ChainwebNarrative = typeof chainwebNarratives.$inferSelect;
+
+// ── CEDS — Comprehensive Economic Development Strategy Integration ────────────
+// Maps EDA Economic Development Districts (EDDs) → strategic goals → TCAF alignments.
+// EDA requires 5 performance measures in every CEDS; those become our evidence anchors.
+
+export const cedsRegions = pgTable("ceds_regions", {
+  id: serial("id").primaryKey(),
+  eddName: text("edd_name").notNull(),                    // e.g. "Nortex Regional Planning Commission"
+  eddAbbr: varchar("edd_abbr", { length: 20 }),           // e.g. "NORTEX"
+  state: varchar("state", { length: 2 }).notNull(),       // TX, OK, etc.
+  countyFips: text("county_fips").array(),                // 5-digit FIPS codes
+  countyNames: text("county_names").array(),              // human-readable county names
+  cedsYear: integer("ceds_year"),                         // year of current approved CEDS
+  edaDistrictId: varchar("eda_district_id", { length: 50 }),
+  edaUrl: text("eda_url"),                                // EDA/EDD website
+  cedsDocUrl: text("ceds_doc_url"),                       // URL to approved CEDS PDF
+  strategicVision: text("strategic_vision"),              // 1-sentence CEDS vision statement
+  populationServed: integer("population_served"),
+  distressedDesignation: boolean("distressed_designation").default(false),
+  planningOrg: text("planning_org"),                      // COG or planning org name
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertCedsRegionSchema = createInsertSchema(cedsRegions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertCedsRegion = z.infer<typeof insertCedsRegionSchema>;
+export type CedsRegion = typeof cedsRegions.$inferSelect;
+
+export const cedsGoals = pgTable("ceds_goals", {
+  id: serial("id").primaryKey(),
+  regionId: integer("region_id").notNull(),              // fk cedsRegions.id
+  goalNumber: integer("goal_number").notNull(),
+  category: varchar("category", { length: 60 }).notNull(), // workforce | innovation | infrastructure | economic_base | quality_of_life
+  goalTitle: text("goal_title").notNull(),
+  goalDescription: text("goal_description"),
+  performanceMeasures: jsonb("performance_measures"),    // EDA's 5 measures + region-specific KPIs
+  targetYear: integer("target_year"),
+  tcafAlignment: text("tcaf_alignment"),                 // how TCAF programs address this goal
+  edaMeasureIds: text("eda_measure_ids").array(),        // which of EDA's 5 official measures apply
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertCedsGoalSchema = createInsertSchema(cedsGoals).omit({ id: true, createdAt: true });
+export type InsertCedsGoal = z.infer<typeof insertCedsGoalSchema>;
+export type CedsGoal = typeof cedsGoals.$inferSelect;
+
+export const cedsAlignments = pgTable("ceds_alignments", {
+  id: serial("id").primaryKey(),
+  regionId: integer("region_id").notNull(),
+  goalId: integer("goal_id"),
+  tcafProgram: text("tcaf_program").notNull(),           // e.g. "Navigator", "Trade Sims", "Child Care"
+  alignmentScore: integer("alignment_score").default(0), // 1-5
+  alignmentNotes: text("alignment_notes"),
+  edaPerformanceMeasure: varchar("eda_performance_measure", { length: 80 }), // which EDA measure this maps to
+  proposalContext: text("proposal_context"),             // ready-to-paste language for proposals
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertCedsAlignmentSchema = createInsertSchema(cedsAlignments).omit({ id: true, createdAt: true });
+export type InsertCedsAlignment = z.infer<typeof insertCedsAlignmentSchema>;
+export type CedsAlignment = typeof cedsAlignments.$inferSelect;

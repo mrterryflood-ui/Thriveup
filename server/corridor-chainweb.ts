@@ -513,6 +513,58 @@ export const CHAIN_STEPS: ChainStep[] = [
       return { ok: wrote > 0, evidenceWritten: wrote, values: { [county.countyFips]: violentTotal } };
     },
   },
+  {
+    id: "ceds_alignment",
+    label: "CEDS Regional Alignment (EDA Framework)",
+    source: "EDA Comprehensive Economic Development Strategy",
+    sourceUrl: "https://www.eda.gov/funding/programs/comprehensive-economic-development-strategies",
+    dependsOn: ["census_pop", "acs_poverty"],
+    run: async (county, _ctx) => {
+      // Look up EDD region for this county FIPS, attach CEDS goals + EDA performance measures
+      try {
+        const { db } = await import("./storage");
+        const { cedsRegions: regTbl, cedsGoals: goalTbl, cedsAlignments: alignTbl } = await import("@shared/schema");
+        const { inArray } = await import("drizzle-orm");
+
+        const allRegions = await db.select().from(regTbl);
+        const matched = allRegions.filter(r => r.countyFips?.includes(county.countyFips));
+        if (!matched.length) {
+          return { ok: true, evidenceWritten: 0, values: {}, skipped: `No CEDS region found for FIPS ${county.countyFips}` };
+        }
+
+        const regionIds = matched.map(r => r.id);
+        const goals = await db.select().from(goalTbl).where(inArray(goalTbl.regionId, regionIds));
+        const alignments = await db.select().from(alignTbl).where(inArray(alignTbl.regionId, regionIds));
+
+        const regionSummary = matched.map(r => ({
+          edd: r.eddName,
+          abbr: r.eddAbbr,
+          vision: r.strategicVision,
+          distressed: r.distressedDesignation,
+          goals: goals.filter(g => g.regionId === r.id).map(g => g.goalTitle),
+        }));
+
+        const { upsertEvidence } = await import("./gis-engine");
+        let wrote = 0;
+        for (const r of matched) {
+          await upsertEvidence(db, {
+            countyFips: county.countyFips,
+            indicator: "ceds_region",
+            value: r.id,
+            valueLabel: `EDD: ${r.eddName} (${r.eddAbbr})`,
+            year: r.cedsYear ?? new Date().getFullYear(),
+            source: "EDA CEDS Registry",
+            sourceUrl: r.edaUrl ?? "https://www.eda.gov",
+            verifiedBy: "chainweb:ceds_alignment",
+          });
+          wrote++;
+        }
+        return { ok: true, evidenceWritten: wrote, values: { [county.countyFips]: matched.length } };
+      } catch (err: any) {
+        return { ok: false, evidenceWritten: 0, values: {}, error: err.message };
+      }
+    },
+  },
 ];
 
 /* ----------------------------------------------------------------------------

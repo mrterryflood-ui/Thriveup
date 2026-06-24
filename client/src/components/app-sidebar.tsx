@@ -82,6 +82,7 @@ const getFundedItems: NavItem[] = [
   { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
   { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart, authOnly: true },
   { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope, authOnly: true },
+  { title: "CEDS Regional Alignment", url: "/ceds", icon: Map },
 ];
 
 // HUB 2a — Benefits & Intake: the public front door for any person seeking help.

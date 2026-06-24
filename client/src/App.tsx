@@ -148,6 +148,7 @@ const CohortOnboardingPage = lazy(() => import("@/pages/cohort-onboarding"));
 const MapGapCqiPage = lazy(() => import("@/pages/map-gap-cqi"));
 const LogicModelPage = lazy(() => import("@/pages/logic-model"));
 const GrantNarrativePage = lazy(() => import("@/pages/grant-narrative"));
+const CedsNavigatorPage = lazy(() => import("@/pages/ceds-navigator"));
 const RfpWriterPage = lazy(() => import("@/pages/rfp-writer"));
 const OrgOnboardingPage = lazy(() => import("@/pages/org-onboarding"));
 const PartnerPortalPage = lazy(() => import("@/pages/partner-portal"));
@@ -506,6 +507,8 @@ function AppRouter() {
           <RfpFidelityPage />
         </RequireAuth>
       </Route>
+      <Route path="/ceds" component={CedsNavigatorPage} />
+      <Route path="/ceds/:regionId" component={CedsNavigatorPage} />
       <Route path="/this-week" component={ThisWeekPage} />
       <Route path="/nsf-techaccess-hub" component={NsfTechAccessHubPage} />
       <Route path="/st-davids-wab2">

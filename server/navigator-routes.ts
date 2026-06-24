@@ -7,8 +7,8 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { searchByState, searchByLocation, generateCommunityNarrative } from "./gis-engine";
 import { searchResources, getResourceCategories } from "./resource-engine";
-import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData } from "@shared/schema";
-import { eq, desc, and, like, sql } from "drizzle-orm";
+import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData, cedsRegions, cedsGoals, cedsAlignments } from "@shared/schema";
+import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
 import multer from "multer";
 import { spawnSync } from "child_process";
 import * as fs from "fs";
@@ -367,6 +367,35 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
     const locationLabel = [detectedCity, stateMatch?.[1]].filter(Boolean).join(", ");
     if (locationLabel) {
       contextParts.push(`[DETECTED LOCATION]: ${locationLabel} — tailor all resources and 211 lookups to this area`);
+    }
+
+    // CEDS context: when state is known, surface EDA regional framework for grant/workforce alignment
+    if (stateMatch) {
+      try {
+        const stateAbbr = stateMatch[1].length === 2
+          ? stateMatch[1].toUpperCase()
+          : { texas: "TX", oklahoma: "OK", louisiana: "LA", "new mexico": "NM",
+              arkansas: "AR", mississippi: "MS", alabama: "AL" }[stateMatch[1].toLowerCase()] ?? "";
+        if (stateAbbr) {
+          const regions = await db.select().from(cedsRegions).where(eq(cedsRegions.state, stateAbbr));
+          if (regions.length > 0) {
+            const regionIds = regions.map(r => r.id);
+            const goals = await db.select().from(cedsGoals).where(inArray(cedsGoals.regionId, regionIds));
+            const regionSummaries = regions.slice(0, 6).map(r => {
+              const rGoals = goals.filter(g => g.regionId === r.id).map(g => g.goalTitle);
+              return `• ${r.eddAbbr} (${r.eddName}): ${r.strategicVision ?? "No vision on file"}${rGoals.length ? " | Goals: " + rGoals.slice(0,2).join("; ") : ""}`;
+            }).join("\n");
+            contextParts.push(`[CEDS REGIONAL FRAMEWORK for ${stateAbbr}]:
+EDA's 5 mandatory performance measures for all CEDS-aligned proposals:
+  PM1: Jobs Created | PM2: Jobs Retained | PM3: Private Investment Leveraged | PM4: Construction Jobs | PM5: Businesses Assisted
+Regional EDD plans active in ${stateAbbr}:
+${regionSummaries}
+When discussing workforce, grants, or economic development — align TCAF programs to these EDA performance measures and regional strategic visions.`);
+          }
+        }
+      } catch (cedsErr) {
+        // Non-fatal — CEDS context is additive, not required
+      }
     }
   } catch (err) {
     console.error("[Navigator] GIS context assembly error:", err);

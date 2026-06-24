@@ -157,6 +157,7 @@ import { registerGapClosureRoutes } from "./gap-closure-routes";
 import { registerEvidenceBindingRoutes } from "./evidence-binding-routes";
 import { registerProposalAuthoringRoutes } from "./proposal-authoring-routes";
 import { registerEditorDraftsRoutes } from "./editor-drafts-routes";
+import { registerCedsRoutes } from "./ceds-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -456,6 +457,7 @@ export async function registerRoutes(
   registerEvidenceBindingRoutes(app);
   registerProposalAuthoringRoutes(app);
   registerEditorDraftsRoutes(app);
+  registerCedsRoutes(app);
   registerAgentKnowledgeRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");
   registerLoiRoutes(app);
