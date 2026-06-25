@@ -8,3 +8,4 @@
 - [Visual Circuit Canvas](visual-circuit-canvas.md) — SVG schematic editor; shouldShowCanvas() gates display; ENGINES_WITH_CANVAS still gates completion; onInteract fires onRun for concept-only.
 - [AI Curriculum Interactive Activities](ai-curriculum-activities.md) — 5 new activity types; migration pattern via seed-ai-activity-migration.ts; lesson-lab endpoint open (no auth); activityData JSONB drives all content.
 - [CEDS Regional Alignment Integration](ceds-integration.md) — EDA framework (PM1-PM5) baked into Navigator, Chainweb, proposals; 12 TX EDD regions seeded; NORTEX (id=2) = WSNT child care region (RFP2026-004).
+- [Partner API Hub](partner-api-hub.md) — permanent external integration layer; tcaf_* keys, scope-gated, audit-logged; admin UI in Ops Center → Partner API tab.

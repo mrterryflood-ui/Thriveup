@@ -516,7 +516,7 @@ export default function EcosystemOpsCenterPage() {
           </div>
 
           <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-ops">
-            <TabsList className="grid w-full grid-cols-4 md:grid-cols-7 gap-1 h-auto p-1">
+            <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 gap-1 h-auto p-1">
               <TabsTrigger value="intelligence" className="text-xs md:text-sm" data-testid="tab-intelligence">
                 <TrendingUp className="h-3.5 w-3.5 mr-1" /> Intelligence
               </TabsTrigger>
@@ -537,6 +537,9 @@ export default function EcosystemOpsCenterPage() {
               </TabsTrigger>
               <TabsTrigger value="regional" className="text-xs md:text-sm" data-testid="tab-regional">
                 <MapPin className="h-3.5 w-3.5 mr-1" /> Regional Hubs
+              </TabsTrigger>
+              <TabsTrigger value="partner-api" className="text-xs md:text-sm" data-testid="tab-partner-api">
+                <Link2 className="h-3.5 w-3.5 mr-1" /> Partner API
               </TabsTrigger>
             </TabsList>
 
@@ -1372,6 +1375,10 @@ export default function EcosystemOpsCenterPage() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            <TabsContent value="partner-api" className="mt-6 space-y-6" data-testid="content-partner-api">
+              <PartnerApiTab />
+            </TabsContent>
           </Tabs>
         </>
       ) : (
@@ -1388,6 +1395,290 @@ export default function EcosystemOpsCenterPage() {
       )}
 
       <BackToTop />
+    </div>
+  );
+}
+
+function PartnerApiTab() {
+  const { toast } = useToast();
+  const [showCreate, setShowCreate] = useState(false);
+  const [newPartnerName, setNewPartnerName] = useState("");
+  const [newPartnerEmail, setNewPartnerEmail] = useState("");
+  const [newNotes, setNewNotes] = useState("");
+  const [selectedScopes, setSelectedScopes] = useState(["content:read"]);
+  const [revealedKey, setRevealedKey] = useState<string | null>(null);
+
+  const { data, isLoading, refetch } = useQuery<{ keys: any[] }>({
+    queryKey: ["/api/admin/partner-keys"],
+  });
+
+  const { data: auditData } = useQuery<{ logs: any[] }>({
+    queryKey: ["/api/admin/partner-keys/audit"],
+  });
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/partner-keys", {
+        partnerName: newPartnerName,
+        partnerEmail: newPartnerEmail || undefined,
+        scopes: selectedScopes,
+        notes: newNotes || undefined,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setRevealedKey(data.plaintextKey);
+      setShowCreate(false);
+      setNewPartnerName(""); setNewPartnerEmail(""); setNewNotes("");
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/partner-keys"] });
+    },
+    onError: () => toast({ title: "Error", description: "Failed to create key.", variant: "destructive" }),
+  });
+
+  const revokeMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("PATCH", `/api/admin/partner-keys/${id}/revoke`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Key Revoked", description: "Partner access removed immediately." });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/partner-keys"] });
+    },
+  });
+
+  const restoreMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("PATCH", `/api/admin/partner-keys/${id}/restore`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Key Restored", description: "Partner access re-enabled." });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/partner-keys"] });
+    },
+  });
+
+  const SCOPES = [
+    { value: "content:read", label: "Content & Programs", desc: "Program descriptions, module text for RAG ingestion" },
+    { value: "platforms:read", label: "Platform Catalog", desc: "List of TCAF platforms and health status" },
+  ];
+
+  const baseUrl = window.location.origin;
+
+  return (
+    <div className="space-y-6" data-testid="content-partner-api-inner">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-lg font-bold flex items-center gap-2">
+            <Link2 className="h-5 w-5 text-blue-600" />
+            Partner API Hub
+          </h2>
+          <p className="text-sm text-muted-foreground mt-0.5">
+            One permanent connection point. Give a partner their key and they plug in — no custom code each time.
+          </p>
+        </div>
+        <Button onClick={() => setShowCreate(!showCreate)} data-testid="button-create-key">
+          <Zap className="h-4 w-4 mr-1" /> New Partner Key
+        </Button>
+      </div>
+
+      {revealedKey && (
+        <Card className="border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" data-testid="card-revealed-key">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base flex items-center gap-2 text-emerald-700 dark:text-emerald-400">
+              <Shield className="h-4 w-4" /> New Key Created — Copy It Now
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <p className="text-xs text-muted-foreground">This key will never be shown again. Copy it and send it to your partner securely.</p>
+            <div className="flex items-center gap-2">
+              <code className="flex-1 bg-white dark:bg-black border rounded px-3 py-2 text-sm font-mono break-all">{revealedKey}</code>
+              <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(revealedKey); toast({ title: "Copied!" }); }} data-testid="button-copy-key">
+                Copy
+              </Button>
+            </div>
+            <div className="bg-white dark:bg-black border rounded p-3 text-xs font-mono space-y-1 text-muted-foreground">
+              <div className="font-semibold text-foreground mb-1">How to use:</div>
+              <div>curl -H "x-partner-key: {revealedKey}" \</div>
+              <div className="pl-4">{baseUrl}/api/partner/v1/health</div>
+            </div>
+            <Button variant="ghost" size="sm" onClick={() => setRevealedKey(null)} data-testid="button-dismiss-key">
+              I've copied it — dismiss
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {showCreate && (
+        <Card data-testid="card-create-key">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Create Partner Key</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Partner / Organization *</label>
+                <input
+                  className="w-full border rounded px-3 py-2 text-sm bg-background"
+                  placeholder="e.g. Black Praxis Labs"
+                  value={newPartnerName}
+                  onChange={e => setNewPartnerName(e.target.value)}
+                  data-testid="input-partner-name"
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">Contact Email (optional)</label>
+                <input
+                  className="w-full border rounded px-3 py-2 text-sm bg-background"
+                  placeholder="dev@partnerorg.com"
+                  value={newPartnerEmail}
+                  onChange={e => setNewPartnerEmail(e.target.value)}
+                  data-testid="input-partner-email"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium">Scopes — What can they access?</label>
+              {SCOPES.map(s => (
+                <label key={s.value} className="flex items-start gap-2 cursor-pointer p-2 rounded hover:bg-muted/40">
+                  <input
+                    type="checkbox"
+                    checked={selectedScopes.includes(s.value)}
+                    onChange={e => setSelectedScopes(prev => e.target.checked ? [...prev, s.value] : prev.filter(x => x !== s.value))}
+                    className="mt-0.5"
+                    data-testid={`checkbox-scope-${s.value}`}
+                  />
+                  <div>
+                    <div className="text-sm font-medium">{s.label}</div>
+                    <div className="text-xs text-muted-foreground">{s.desc}</div>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <div className="space-y-1">
+              <label className="text-sm font-medium">Notes (optional)</label>
+              <input
+                className="w-full border rounded px-3 py-2 text-sm bg-background"
+                placeholder="What are they using this for?"
+                value={newNotes}
+                onChange={e => setNewNotes(e.target.value)}
+                data-testid="input-partner-notes"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => createMutation.mutate()} disabled={!newPartnerName || createMutation.isPending} data-testid="button-confirm-create">
+                {createMutation.isPending ? "Creating..." : "Generate Key"}
+              </Button>
+              <Button variant="outline" onClick={() => setShowCreate(false)} data-testid="button-cancel-create">Cancel</Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card data-testid="card-api-endpoints">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm text-muted-foreground font-normal">Standard Endpoints — same for every partner</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2 text-xs font-mono">
+            {[
+              { method: "GET", path: "/api/partner/v1/health", scope: "any key", desc: "Verify key works" },
+              { method: "GET", path: "/api/partner/v1/export", scope: "content:read", desc: "Full content export for RAG ingestion" },
+              { method: "GET", path: "/api/partner/v1/platforms", scope: "platforms:read", desc: "Platform catalog + health status" },
+            ].map(e => (
+              <div key={e.path} className="flex items-center gap-3 p-2 bg-muted/30 rounded">
+                <Badge variant="outline" className="text-xs shrink-0">{e.method}</Badge>
+                <span className="flex-1 text-foreground">{baseUrl}{e.path}</span>
+                <span className="text-muted-foreground hidden md:inline">{e.desc}</span>
+                <Badge variant="secondary" className="text-xs shrink-0">{e.scope}</Badge>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card data-testid="card-partner-keys-list">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base">Active Partners ({data?.keys.filter(k => k.active).length ?? 0})</CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => refetch()} data-testid="button-refresh-keys">
+              <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="space-y-2">{Array.from({ length: 3 }).map((_, i) => <Skeleton key={i} className="h-12" />)}</div>
+          ) : !data?.keys.length ? (
+            <div className="text-center py-8 text-muted-foreground">
+              <Link2 className="h-8 w-8 mx-auto mb-2 opacity-40" />
+              <p className="text-sm">No partner keys yet. Create one above to get started.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {data.keys.map(key => (
+                <div key={key.id} className={`flex items-center justify-between p-3 rounded-lg border ${key.active ? "bg-muted/20" : "bg-red-50/30 dark:bg-red-950/10 border-red-200 dark:border-red-900/30 opacity-60"}`} data-testid={`row-partner-${key.id}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-semibold text-sm">{key.partnerName}</span>
+                      {key.active ? (
+                        <Badge className="text-xs bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-0">Active</Badge>
+                      ) : (
+                        <Badge variant="destructive" className="text-xs">Revoked</Badge>
+                      )}
+                      {key.scopes.map((s: string) => (
+                        <Badge key={s} variant="outline" className="text-xs">{s}</Badge>
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-3 mt-0.5 text-xs text-muted-foreground">
+                      <span>Key: <code className="font-mono">{key.keyPrefix}…</code></span>
+                      <span>{key.usageCount} calls</span>
+                      {key.lastUsedAt && <span>Last used: {new Date(key.lastUsedAt).toLocaleDateString()}</span>}
+                      {key.partnerEmail && <span>{key.partnerEmail}</span>}
+                    </div>
+                  </div>
+                  <div className="flex gap-2 ml-3">
+                    {key.active ? (
+                      <Button size="sm" variant="outline" className="text-red-600 border-red-200 hover:bg-red-50 dark:hover:bg-red-950/20 text-xs" onClick={() => revokeMutation.mutate(key.id)} disabled={revokeMutation.isPending} data-testid={`button-revoke-${key.id}`}>
+                        Revoke
+                      </Button>
+                    ) : (
+                      <Button size="sm" variant="outline" className="text-xs" onClick={() => restoreMutation.mutate(key.id)} disabled={restoreMutation.isPending} data-testid={`button-restore-${key.id}`}>
+                        Restore
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {auditData?.logs && auditData.logs.length > 0 && (
+        <Card data-testid="card-audit-log">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Activity className="h-4 w-4 text-blue-500" /> Recent API Calls
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-1 max-h-64 overflow-y-auto">
+              {auditData.logs.slice(0, 50).map(log => (
+                <div key={log.id} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-muted/30">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="text-xs font-mono">{log.method}</Badge>
+                    <code className="text-muted-foreground">{log.endpoint}</code>
+                  </div>
+                  <div className="flex items-center gap-3 text-muted-foreground">
+                    <span className="font-medium text-foreground">{log.partnerName}</span>
+                    <span>{new Date(log.calledAt).toLocaleTimeString()}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }

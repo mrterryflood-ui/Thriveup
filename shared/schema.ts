@@ -6461,3 +6461,33 @@ export const cedsAlignments = pgTable("ceds_alignments", {
 export const insertCedsAlignmentSchema = createInsertSchema(cedsAlignments).omit({ id: true, createdAt: true });
 export type InsertCedsAlignment = z.infer<typeof insertCedsAlignmentSchema>;
 export type CedsAlignment = typeof cedsAlignments.$inferSelect;
+
+// ── Partner API Key Hub ─────────────────────────────────────────────────────
+// Permanent connection point for external partners (Black Praxis Labs, etc.)
+export const partnerApiKeys = pgTable("partner_api_keys", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  partnerName: varchar("partner_name", { length: 200 }).notNull(),
+  partnerEmail: varchar("partner_email", { length: 200 }),
+  keyHash: varchar("key_hash", { length: 255 }).notNull(),
+  keyPrefix: varchar("key_prefix", { length: 20 }).notNull(),
+  scopes: text("scopes").array().notNull().default(sql`ARRAY['content:read']::text[]`),
+  active: boolean("active").notNull().default(true),
+  usageCount: integer("usage_count").notNull().default(0),
+  lastUsedAt: timestamp("last_used_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type PartnerApiKey = typeof partnerApiKeys.$inferSelect;
+
+export const partnerApiAuditLog = pgTable("partner_api_audit_log", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  keyId: varchar("key_id", { length: 100 }).notNull(),
+  keyPrefix: varchar("key_prefix", { length: 20 }).notNull(),
+  partnerName: varchar("partner_name", { length: 200 }).notNull(),
+  endpoint: varchar("endpoint", { length: 200 }).notNull(),
+  method: varchar("method", { length: 10 }).notNull(),
+  statusCode: integer("status_code"),
+  ip: varchar("ip", { length: 60 }),
+  userAgent: varchar("user_agent", { length: 300 }),
+  calledAt: timestamp("called_at").defaultNow(),
+});
