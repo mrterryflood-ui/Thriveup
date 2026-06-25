@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { Switch } from "@/components/ui/switch";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 
@@ -36,6 +37,7 @@ interface PlatformStatus {
   lastHeartbeat: string | null;
   grantAlignment: string[];
   description: string;
+  keepAlive: boolean;
 }
 
 interface LiveStatus {
@@ -253,6 +255,23 @@ export default function EcosystemOpsCenterPage() {
     },
     onError: (error: Error) => {
       toast({ title: "Error", description: error.message || "Could not reach platforms.", variant: "destructive" });
+    },
+  });
+
+  const keepAliveMutation = useMutation({
+    mutationFn: async ({ id, keepAlive }: { id: string; keepAlive: boolean }) => {
+      const res = await apiRequest("PATCH", `/api/ecosystem/platforms/${id}/keep-alive`, { keepAlive });
+      return res.json();
+    },
+    onSuccess: (_data, { keepAlive }) => {
+      toast({
+        title: keepAlive ? "Keep-Awake On" : "Sleeping",
+        description: keepAlive ? "Platform will be pinged every 10 min to stay awake." : "Platform will sleep between hourly health checks.",
+      });
+      queryClient.invalidateQueries({ queryKey: ["/api/ecosystem/live-status"] });
+    },
+    onError: (error: Error) => {
+      toast({ title: "Error", description: error.message || "Could not update setting.", variant: "destructive" });
     },
   });
 
@@ -1089,6 +1108,17 @@ export default function EcosystemOpsCenterPage() {
                         <div className="flex items-center gap-4">
                           <ResponseTimeBadge ms={platform.responseTimeMs} />
                           <StatusIndicator status={platform.status} />
+                          <div className="flex items-center gap-1.5" title={platform.keepAlive ? "Pinging every 10 min — app stays awake" : "Sleeping — app wakes on demand"}>
+                            <span className="text-xs text-muted-foreground hidden md:inline">
+                              {platform.keepAlive ? "Awake" : "Sleep"}
+                            </span>
+                            <Switch
+                              checked={platform.keepAlive}
+                              onCheckedChange={(val) => keepAliveMutation.mutate({ id: platform.id, keepAlive: val })}
+                              disabled={keepAliveMutation.isPending || platform.role === "self-hub"}
+                              data-testid={`switch-keepalive-${platform.id}`}
+                            />
+                          </div>
                           <a
                             href={platform.url}
                             target="_blank"

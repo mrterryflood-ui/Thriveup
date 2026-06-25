@@ -3650,6 +3650,7 @@ export const ecosystemPlatforms = pgTable("ecosystem_platforms", {
   grantAlignment: jsonb("grant_alignment"),
   domain: varchar("domain", { length: 100 }),
   publicVisible: boolean("public_visible").default(true),
+  keepAlive: boolean("keep_alive").default(false),
   registeredAt: timestamp("registered_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks, grantOpportunities, inboundFixes } from "@shared/schema";
-import { eq, desc, and, gte, sql, inArray } from "drizzle-orm";
+import { eq, desc, and, gte, sql, inArray, lt } from "drizzle-orm";
 import crypto from "crypto";
 import { z } from "zod";
 import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
@@ -1719,11 +1719,30 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   let pingerInterval: ReturnType<typeof setInterval> | null = null;
   let lastPingCycle: { startedAt: string; completedAt: string; results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> } | null = null;
 
-  async function pingAllPlatforms(): Promise<typeof lastPingCycle> {
-    const startedAt = new Date().toISOString();
-    console.log(`[Pinger] Starting wake-up cycle for all platforms...`);
+  // Prune health logs older than 7 days — keeps the table from growing unbounded
+  async function pruneHealthLogs() {
+    try {
+      const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const result = await db.delete(ecosystemHealthLogs).where(lt(ecosystemHealthLogs.checkedAt, cutoff));
+      const deleted = (result as any).rowCount ?? 0;
+      if (deleted > 0) console.log(`[Pinger] Pruned ${deleted} health log rows older than 7 days`);
+    } catch (err) {
+      console.error("[Pinger] Health log prune failed:", err);
+    }
+  }
 
-    const platforms = await db.select().from(ecosystemPlatforms);
+  async function pingAllPlatforms(keepAliveOnly = false): Promise<typeof lastPingCycle> {
+    const startedAt = new Date().toISOString();
+    if (keepAliveOnly) {
+      console.log(`[Pinger] Starting keep-alive cycle (keepAlive=true platforms only)...`);
+    } else {
+      console.log(`[Pinger] Starting full health-check cycle for all platforms...`);
+    }
+
+    const allPlatforms = await db.select().from(ecosystemPlatforms);
+    const platforms = keepAliveOnly
+      ? allPlatforms.filter(p => p.keepAlive && p.role !== "self-hub")
+      : allPlatforms;
     const results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> = [];
 
     const REPLIT_DEPLOY_URLS: Record<string, string> = {
@@ -1825,13 +1844,24 @@ export function registerEcosystemConnectorRoutes(app: Express) {
 
   function startPlatformPinger() {
     if (pingerInterval) return;
-    console.log("[Pinger] Starting outbound platform pinger — 10 minute cycle");
-    // Fire immediately on startup
-    pingAllPlatforms().catch(err => console.error("[Pinger] Initial cycle failed:", err));
-    // Then every 10 minutes
+    console.log("[Pinger] Starting outbound platform pinger — keep-alive every 10 min (flagged platforms), health-check every 60 min (all)");
+
+    // Prune stale logs on startup, then daily
+    pruneHealthLogs().catch(() => {});
+    setInterval(() => pruneHealthLogs().catch(() => {}), 24 * 60 * 60 * 1000);
+
+    // Full health-check on startup (all platforms)
+    pingAllPlatforms(false).catch(err => console.error("[Pinger] Initial health-check failed:", err));
+
+    // Every 10 min: only ping platforms with keepAlive=true (keeps them from sleeping)
     pingerInterval = setInterval(() => {
-      pingAllPlatforms().catch(err => console.error("[Pinger] Cycle failed:", err));
+      pingAllPlatforms(true).catch(err => console.error("[Pinger] Keep-alive cycle failed:", err));
     }, 10 * 60 * 1000);
+
+    // Every 60 min: full health-check of all platforms
+    setInterval(() => {
+      pingAllPlatforms(false).catch(err => console.error("[Pinger] Health-check cycle failed:", err));
+    }, 60 * 60 * 1000);
   }
 
   // Manual trigger — wake all platforms now
@@ -1863,6 +1893,25 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     } catch (error) {
       console.error("[Pinger] Manual wake-all failed:", error);
       res.status(500).json({ error: "Wake-all cycle failed" });
+    }
+  });
+
+  // Toggle keepAlive for a single platform
+  app.patch("/api/ecosystem/platforms/:id/keep-alive", requireAdminAuth, requireAuth, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { keepAlive } = req.body;
+      if (typeof keepAlive !== "boolean") return res.status(400).json({ error: "keepAlive must be a boolean" });
+      const [updated] = await db.update(ecosystemPlatforms)
+        .set({ keepAlive })
+        .where(eq(ecosystemPlatforms.id, id))
+        .returning({ id: ecosystemPlatforms.id, name: ecosystemPlatforms.name, keepAlive: ecosystemPlatforms.keepAlive });
+      if (!updated) return res.status(404).json({ error: "Platform not found" });
+      console.log(`[Pinger] ${updated.name} keep-alive set to ${keepAlive}`);
+      res.json({ success: true, platform: updated });
+    } catch (error) {
+      console.error("[Pinger] keep-alive toggle failed:", error);
+      res.status(500).json({ error: "Failed to update keep-alive setting" });
     }
   });
 
@@ -7778,6 +7827,7 @@ if (typeof module !== "undefined") {
           lastHeartbeat: platform.lastHeartbeat,
           grantAlignment: platform.grantAlignment,
           description: platformDef?.description || platform.description,
+          keepAlive: platform.keepAlive ?? false,
         });
       }
 
