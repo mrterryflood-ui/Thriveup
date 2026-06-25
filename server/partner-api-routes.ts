@@ -1,6 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
-import { partnerApiKeys, partnerApiAuditLog, ecosystemPlatforms } from "@shared/schema";
+import { partnerApiKeys, partnerApiAuditLog, partnerInboundData, ecosystemPlatforms } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 import crypto from "crypto";
 
@@ -135,6 +135,71 @@ export function registerPartnerApiRoutes(app: Express) {
       res.json({ count: platforms.length, platforms });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch platforms." });
+    }
+  });
+
+  // ── Inbound — partners push data TO ThriveUp ─────────────────────────────
+
+  app.post("/api/partner/v1/heartbeat", requirePartnerAuth, async (req, res) => {
+    const key: any = (req as any).partnerKey;
+    await db.insert(partnerInboundData).values({
+      keyId: key.id,
+      partnerName: key.partnerName,
+      dataType: "heartbeat",
+      payload: { message: req.body?.message || "alive", meta: req.body?.meta || {} },
+    }).catch(() => {});
+    res.json({ received: true, partner: key.partnerName, timestamp: new Date().toISOString() });
+  });
+
+  app.post("/api/partner/v1/push", requirePartnerAuth, requireScope("inbound:write"), async (req, res) => {
+    const key: any = (req as any).partnerKey;
+    const { dataType, payload } = req.body;
+    if (!dataType || !payload) {
+      return res.status(400).json({ error: "dataType and payload are required." });
+    }
+    const ALLOWED_TYPES = ["content", "event", "insight", "update", "metric", "referral", "alert"];
+    if (!ALLOWED_TYPES.includes(dataType)) {
+      return res.status(400).json({ error: `dataType must be one of: ${ALLOWED_TYPES.join(", ")}` });
+    }
+    const [row] = await db.insert(partnerInboundData).values({
+      keyId: key.id,
+      partnerName: key.partnerName,
+      dataType,
+      payload,
+    }).returning({ id: partnerInboundData.id, receivedAt: partnerInboundData.receivedAt });
+
+    res.json({
+      received: true,
+      id: row.id,
+      partner: key.partnerName,
+      dataType,
+      receivedAt: row.receivedAt,
+    });
+  });
+
+  // ── Admin — inbound data viewer ───────────────────────────────────────────
+
+  app.get("/api/admin/partner-inbound", requireAdminKey, async (req, res) => {
+    try {
+      const rows = await db.select().from(partnerInboundData)
+        .orderBy(desc(partnerInboundData.receivedAt))
+        .limit(100);
+      res.json({ count: rows.length, data: rows });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch inbound data." });
+    }
+  });
+
+  app.patch("/api/admin/partner-inbound/:id/mark-processed", requireAdminKey, async (req, res) => {
+    try {
+      const [updated] = await db.update(partnerInboundData)
+        .set({ processed: true, processedAt: new Date() })
+        .where(eq(partnerInboundData.id, req.params.id))
+        .returning({ id: partnerInboundData.id });
+      if (!updated) return res.status(404).json({ error: "Record not found." });
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to mark processed." });
     }
   });
 

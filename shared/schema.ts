@@ -6491,3 +6491,16 @@ export const partnerApiAuditLog = pgTable("partner_api_audit_log", {
   userAgent: varchar("user_agent", { length: 300 }),
   calledAt: timestamp("called_at").defaultNow(),
 });
+
+// Inbound data pushed BY partners TO ThriveUp (the other direction)
+export const partnerInboundData = pgTable("partner_inbound_data", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  keyId: varchar("key_id", { length: 100 }).notNull(),
+  partnerName: varchar("partner_name", { length: 200 }).notNull(),
+  dataType: varchar("data_type", { length: 100 }).notNull(), // "content", "event", "insight", "heartbeat", etc.
+  payload: jsonb("payload").notNull(),
+  processed: boolean("processed").default(false),
+  processedAt: timestamp("processed_at"),
+  receivedAt: timestamp("received_at").defaultNow(),
+});
+export type PartnerInboundData = typeof partnerInboundData.$inferSelect;

@@ -1416,6 +1416,18 @@ function PartnerApiTab() {
     queryKey: ["/api/admin/partner-keys/audit"],
   });
 
+  const { data: inboundData, refetch: refetchInbound } = useQuery<{ count: number; data: any[] }>({
+    queryKey: ["/api/admin/partner-inbound"],
+  });
+
+  const markProcessedMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const res = await apiRequest("PATCH", `/api/admin/partner-inbound/${id}/mark-processed`, {});
+      return res.json();
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["/api/admin/partner-inbound"] }),
+  });
+
   const createMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/admin/partner-keys", {
@@ -1458,8 +1470,9 @@ function PartnerApiTab() {
   });
 
   const SCOPES = [
-    { value: "content:read", label: "Content & Programs", desc: "Program descriptions, module text for RAG ingestion" },
-    { value: "platforms:read", label: "Platform Catalog", desc: "List of TCAF platforms and health status" },
+    { value: "content:read", label: "Content & Programs (outbound)", desc: "Partner pulls program descriptions and RAG content from ThriveUp" },
+    { value: "platforms:read", label: "Platform Catalog (outbound)", desc: "Partner pulls list of TCAF platforms and health status" },
+    { value: "inbound:write", label: "Push Data Inbound ↩", desc: "Partner can POST content, insights, events, and metrics back to ThriveUp" },
   ];
 
   const baseUrl = window.location.origin;
@@ -1581,9 +1594,11 @@ function PartnerApiTab() {
         <CardContent>
           <div className="space-y-2 text-xs font-mono">
             {[
-              { method: "GET", path: "/api/partner/v1/health", scope: "any key", desc: "Verify key works" },
-              { method: "GET", path: "/api/partner/v1/export", scope: "content:read", desc: "Full content export for RAG ingestion" },
-              { method: "GET", path: "/api/partner/v1/platforms", scope: "platforms:read", desc: "Platform catalog + health status" },
+              { method: "GET",  path: "/api/partner/v1/health",    scope: "any key",       desc: "Verify key — no scope needed" },
+              { method: "GET",  path: "/api/partner/v1/export",    scope: "content:read",  desc: "Pull content for RAG ingestion" },
+              { method: "GET",  path: "/api/partner/v1/platforms", scope: "platforms:read",desc: "Pull platform catalog" },
+              { method: "POST", path: "/api/partner/v1/heartbeat", scope: "any key",       desc: "Partner signals alive ↩" },
+              { method: "POST", path: "/api/partner/v1/push",      scope: "inbound:write", desc: "Partner pushes data to ThriveUp ↩" },
             ].map(e => (
               <div key={e.path} className="flex items-center gap-3 p-2 bg-muted/30 rounded">
                 <Badge variant="outline" className="text-xs shrink-0">{e.method}</Badge>
@@ -1658,11 +1673,11 @@ function PartnerApiTab() {
         <Card data-testid="card-audit-log">
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
-              <Activity className="h-4 w-4 text-blue-500" /> Recent API Calls
+              <Activity className="h-4 w-4 text-blue-500" /> Recent API Calls (Outbound)
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="space-y-1 max-h-64 overflow-y-auto">
+            <div className="space-y-1 max-h-48 overflow-y-auto">
               {auditData.logs.slice(0, 50).map(log => (
                 <div key={log.id} className="flex items-center justify-between text-xs p-1.5 rounded hover:bg-muted/30">
                   <div className="flex items-center gap-2">
@@ -1679,6 +1694,53 @@ function PartnerApiTab() {
           </CardContent>
         </Card>
       )}
+
+      <Card data-testid="card-inbound-data">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <ArrowRight className="h-4 w-4 text-emerald-500 rotate-180" /> Inbound Data from Partners
+            </CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => refetchInbound()} data-testid="button-refresh-inbound">
+              <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+        </CardHeader>
+        <CardContent>
+          {!inboundData?.data?.length ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <ArrowRight className="h-6 w-6 mx-auto mb-2 opacity-30 rotate-180" />
+              <p className="text-sm">No inbound data yet.</p>
+              <p className="text-xs mt-1">When a partner calls <code className="bg-muted px-1 rounded">/api/partner/v1/push</code> it shows up here.</p>
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {inboundData.data.map(row => (
+                <div key={row.id} className={`p-3 rounded-lg border text-sm ${row.processed ? "opacity-50 bg-muted/20" : "bg-emerald-50/30 dark:bg-emerald-950/10 border-emerald-200 dark:border-emerald-900/30"}`} data-testid={`row-inbound-${row.id}`}>
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Badge variant="secondary" className="text-xs">{row.dataType}</Badge>
+                        <span className="font-medium text-xs">{row.partnerName}</span>
+                        <span className="text-xs text-muted-foreground">{new Date(row.receivedAt).toLocaleString()}</span>
+                        {row.processed && <Badge variant="outline" className="text-xs">Processed</Badge>}
+                      </div>
+                      <pre className="text-xs text-muted-foreground bg-muted/40 rounded p-2 overflow-x-auto max-h-20">
+                        {JSON.stringify(row.payload, null, 2).slice(0, 300)}{JSON.stringify(row.payload).length > 300 ? "…" : ""}
+                      </pre>
+                    </div>
+                    {!row.processed && (
+                      <Button size="sm" variant="outline" className="text-xs shrink-0" onClick={() => markProcessedMutation.mutate(row.id)} disabled={markProcessedMutation.isPending} data-testid={`button-process-${row.id}`}>
+                        ✓ Done
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
