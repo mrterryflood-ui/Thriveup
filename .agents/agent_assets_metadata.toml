@@ -743,3 +743,9 @@ id = "TjY3hXhQlnOaTvXcMB6PT"
 uri = "file://attached_assets/LifeTransitions-ALIGN-Prospectus.pdf"
 type = "pdf"
 title = "ThriveUp Academy | TCAF — Prospectus v4 (Investor-Grade)"
+
+[[outputs]]
+id = "fjteGnt682_6h-jrLn0j6"
+uri = "file://attached_assets/tcaf-hbcu-one-pager.pdf"
+type = "pdf"
+title = "ThriveUp Academy — HBCU One Pager"
