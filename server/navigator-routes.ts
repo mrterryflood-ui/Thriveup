@@ -1,7 +1,7 @@
 import type { Express, Request } from "express";
 import { randomUUID } from "crypto";
 import { db } from "./storage";
-import { streamAIResponse } from "./ai-provider";
+import { streamAIResponse, generateAIJSON, withEthicalPreamble } from "./ai-provider";
 import { collaborativeStream } from "./collaborative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
@@ -756,6 +756,110 @@ export function registerNavigatorRoutes(app: Express) {
         console.log(`[Navigator] Fetched ${fetchedParts.length} URL(s) for context`);
       }
     }
+
+    // ── Grant Hunt Intent ─────────────────────────────────────────────────────
+    // Fires when user says "find grants for [org]", "hunt for grants for City of Manor", etc.
+    // Runs the full AI Hunt engine inline and injects ranked results + alignment framing
+    // into the context so the AI tells the story, not just lists the grants.
+    const grantHuntMatch =
+      /(?:find|search|hunt|look\s+for|get|show\s+me|discover|pull)\s+(?:a\s+)?grants?\s+for\s+(?:the\s+)?(.+?)(?:\s*[.?!]?\s*$)/i.exec(message.trim())
+      || /grants?\s+(?:available\s+)?for\s+(?:the\s+)?(.+?)(?:\s*[.?!]?\s*$)/i.exec(message.trim())
+      || /what\s+grants?\s+(?:can|could|would|should|does|do|is\s+available(?:\s+for)?)\s+(?:the\s+)?(.+?)\s+(?:apply|qualify|get|use)/i.exec(message.trim());
+
+    if (grantHuntMatch) {
+      const orgDesc = grantHuntMatch[1].trim().replace(/['"]/g, "");
+      try {
+        console.log(`[Navigator] Grant hunt intent for: "${orgDesc}"`);
+
+        // Step 1 — AI generates targeted queries
+        const queryPlan = await generateAIJSON<{ queries: string[]; orgType: string; primaryDomains: string[] }>(
+          `Generate 6 targeted Grants.gov keyword search queries for this organization: "${orgDesc}"\nReturn ONLY JSON: {"queries":["..."],"orgType":"nonprofit","primaryDomains":["..."]}\nRules: 2-5 words per query, federal grant terminology, mix broad + specific, no duplicates`,
+          withEthicalPreamble("You are a federal grant search specialist. Return only valid JSON, no markdown.")
+        );
+        const queries = (queryPlan.queries || []).slice(0, 7);
+
+        // Step 2 — Parallel Grants.gov fetch
+        const fetched = await Promise.allSettled(
+          queries.map(async (q) => {
+            const r = await fetch("https://apply07.grants.gov/grantsws/rest/opportunities/search", {
+              method: "POST",
+              headers: { "Content-Type": "application/json", Accept: "application/json" },
+              body: JSON.stringify({ keyword: q, oppStatuses: "posted", rows: 8 }),
+              signal: AbortSignal.timeout(10000),
+            });
+            if (!r.ok) return [];
+            const d = await r.json();
+            return (d.oppHits || []).map((h: any) => ({
+              id: String(h.id || h.number),
+              number: h.number || "",
+              title: h.title || "Untitled",
+              agency: h.agency || "Federal",
+              synopsis: (h.synopsis || "").slice(0, 250),
+              closeDate: h.closeDate || null,
+              cfdaList: (h.cfdaList || []).slice(0, 3),
+              sourceUrl: `https://www.grants.gov/search-results-detail/${h.id}`,
+              matchedQuery: q,
+            }));
+          })
+        );
+
+        // Step 3 — Deduplicate
+        const seen = new Set<string>();
+        const allHits: any[] = [];
+        for (const r of fetched) {
+          if (r.status === "fulfilled") {
+            for (const h of r.value) {
+              if (!seen.has(h.id)) { seen.add(h.id); allHits.push(h); }
+            }
+          }
+        }
+
+        // Step 4 — Score top results
+        let scored = allHits.slice(0, 20);
+        if (scored.length > 0) {
+          try {
+            const scoreResult = await generateAIJSON<{ scores: Array<{ index: number; score: number; reason: string }> }>(
+              `Score each grant 0-100 fit for "${orgDesc}":\n${scored.map((h, i) => `${i}. ${h.title} | ${h.agency} | ${h.synopsis.slice(0, 120)}`).join("\n")}\nReturn ONLY JSON: {"scores":[{"index":0,"score":85,"reason":"2-sentence alignment rationale"},...]}`,
+              withEthicalPreamble("Grant fit analyst. Be specific and accurate. Return only valid JSON.")
+            );
+            scored = scored.map((h, i) => {
+              const s = scoreResult.scores?.find(e => e.index === i);
+              return { ...h, fitScore: s?.score ?? 50, reason: s?.reason ?? "" };
+            }).sort((a, b) => b.fitScore - a.fitScore).slice(0, 10);
+          } catch { scored = scored.slice(0, 10); }
+        }
+
+        // Step 5 — Inject as structured context block
+        const huntBlock = `\n\n[GRANT HUNT ENGINE RESULTS — Live from Grants.gov for "${orgDesc}"]
+Total found: ${allHits.length} | Showing top ${scored.length} ranked by AI fit score
+Queries fired: ${queries.join(" · ")}
+
+${scored.map((h, i) => [
+  `${i + 1}. ${h.fitScore ?? "?"}% FIT — ${h.title}`,
+  `   Agency: ${h.agency}`,
+  h.closeDate ? `   Deadline: ${new Date(h.closeDate).toLocaleDateString()}` : `   Deadline: Open`,
+  h.cfdaList.length ? `   CFDA: ${h.cfdaList.join(", ")}` : "",
+  h.reason ? `   Alignment: ${h.reason}` : "",
+  `   Link: ${h.sourceUrl}`,
+].filter(Boolean).join("\n")).join("\n\n")}
+
+[YOUR RESPONSE MUST]:
+1. Open by naming "${orgDesc}" and what makes them a competitive applicant for federal funding
+2. For the top 5 grants: write 2-3 sentences each — what it funds, why ${orgDesc} aligns, and the specific narrative hook that wins
+3. Be direct about any fit gaps ("this one is a stretch because…")
+4. Close with: "I can draft the full narrative, budget justification, or logic model for any of these — just pick one."
+Do NOT just list grants. Tell the alignment story. Be specific. Use the org name throughout.`;
+
+        augmentedMessage = message + huntBlock;
+        // Emit structured grant cards BEFORE the text stream — frontend renders them with "Add to Pipeline" buttons
+        res.write(`data: ${JSON.stringify({ grantHuntResults: scored, grantOrgName: orgDesc, totalFound: allHits.length })}\n\n`);
+        console.log(`[Navigator] Grant hunt complete: ${allHits.length} found, top ${scored.length} scored`);
+      } catch (huntErr) {
+        console.error("[Navigator] Grant hunt error:", huntErr);
+        // Fall through — AI responds without hunt data (still helpful)
+      }
+    }
+    // ── End Grant Hunt Intent ─────────────────────────────────────────────────
 
     msgs.push({ role: "user", content: augmentedMessage });
 

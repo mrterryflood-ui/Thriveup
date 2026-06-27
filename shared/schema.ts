@@ -1644,6 +1644,7 @@ export const grantOpportunities = pgTable("grant_opportunities", {
   source: varchar("source", { length: 50 }).default("manual"),
   aiAnalysis: jsonb("ai_analysis"),
   strengthsGaps: jsonb("strengths_gaps"),
+  entityName: varchar("entity_name", { length: 500 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });

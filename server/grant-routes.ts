@@ -3,7 +3,7 @@ import { db, storage } from "./storage";
 import { lookup as dnsLookup } from "dns/promises";
 import { isIP } from "net";
 import { convert as htmlToText } from "html-to-text";
-import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts, documentSignatures, insertDocumentSignatureSchema, proposalPipeline } from "@shared/schema";
+import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts, documentSignatures, insertDocumentSignatureSchema, proposalPipeline, organizations } from "@shared/schema";
 import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
@@ -552,7 +552,7 @@ function formatCurrency(amount?: number): string {
 }
 const grantCreateSchema = insertGrantOpportunitySchema.pick({
   title: true, agency: true, fundingAmount: true, description: true,
-  eligibilityCriteria: true, focusAreas: true, sourceUrl: true, grantType: true,
+  eligibilityCriteria: true, focusAreas: true, sourceUrl: true, grantType: true, entityName: true,
 });
 
 function renderGrantDigestHtml(rows: GrantOpportunity[], days: number): string {
@@ -978,11 +978,33 @@ export function registerGrantRoutes(app: Express) {
   // in parallel → scores every result → returns ranked list with AI reasoning.
   app.post("/api/grants/ai-hunt", async (req, res) => {
     try {
-      const { orgDescription, focusAreas, state } = req.body as {
-        orgDescription?: string; focusAreas?: string[]; state?: string;
+      const { saveToDb } = req.body as { saveToDb?: boolean };
+      let { orgDescription, focusAreas, state } = req.body as {
+        orgDescription?: string; focusAreas?: string[]; state?: string; saveToDb?: boolean;
       };
+
+      // Entity-aligned: if authenticated and no manual description, auto-load from org profile
+      let orgName = "";
+      const userId = getUserId(req);
+      if (userId) {
+        const [orgProfile] = await db.select().from(organizations).where(eq(organizations.userId, userId));
+        if (orgProfile) {
+          orgName = orgProfile.name;
+          if (!orgDescription || orgDescription.trim().length < 10) {
+            const parts = [
+              orgProfile.name,
+              orgProfile.missionText,
+              orgProfile.capabilityStatementText,
+            ].filter(Boolean);
+            orgDescription = parts.join(". ");
+          }
+          if (!focusAreas?.length && orgProfile.focusAreas?.length) focusAreas = orgProfile.focusAreas;
+          if (!state && orgProfile.state) state = orgProfile.state;
+        }
+      }
+
       if (!orgDescription || orgDescription.trim().length < 10) {
-        return res.status(400).json({ error: "Please describe the organization (at least 10 characters)" });
+        return res.status(400).json({ error: "Please describe the organization (at least 10 characters), or set up an org profile in Settings." });
       }
 
       // Step 1: AI generates 6-8 targeted Grants.gov search queries
@@ -1079,12 +1101,40 @@ Return ONLY JSON:
         scoredResults = toScore.slice(0, 20);
       }
 
+      // RAG sync: write top results to grant_opportunities so Navigator picks them up live
+      if (saveToDb && scoredResults.length > 0) {
+        const toInsert = scoredResults.filter(h => h.fitScore >= 50).slice(0, 10);
+        for (const h of toInsert) {
+          try {
+            const existing = await db.select({ id: grantOpportunities.id })
+              .from(grantOpportunities)
+              .where(eq(grantOpportunities.title, h.title))
+              .limit(1);
+            if (existing.length === 0) {
+              await db.insert(grantOpportunities).values({
+                title: h.title,
+                agency: h.agency || null,
+                description: h.synopsis || null,
+                sourceUrl: h.sourceUrl || null,
+                deadline: h.closeDate ? new Date(h.closeDate) : null,
+                fitScore: h.fitScore,
+                status: "identified",
+                source: "ai-hunt",
+                focusAreas: h.cfdaList || [],
+                samgovId: h.number || null,
+              });
+            }
+          } catch { /* skip duplicates */ }
+        }
+      }
+
       res.json({
         results: scoredResults,
         queriesUsed: queries,
         orgType: queryPlan.orgType || "nonprofit",
         primaryDomains: queryPlan.primaryDomains || [],
         totalFound: allHits.length,
+        orgName: orgName || undefined,
       });
     } catch (error: any) {
       console.error("[AIHunt] error:", error);

@@ -377,6 +377,7 @@ export default function GrantHubPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [entityFilter, setEntityFilter] = useState("all");
   const [formData, setFormData] = useState({ title: "", agency: "", fundingAmount: "", description: "", eligibilityCriteria: "", focusAreas: "", sourceUrl: "", grantType: "" });
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
   const [liveResults, setLiveResults] = useState<any[]>([]);
@@ -393,9 +394,10 @@ export default function GrantHubPage() {
   }
   interface AIHuntResponse {
     results: AIHuntResult[]; queriesUsed: string[]; orgType: string;
-    primaryDomains: string[]; totalFound: number;
+    primaryDomains: string[]; totalFound: number; orgName?: string;
   }
   const [huntResults, setHuntResults] = useState<AIHuntResponse | null>(null);
+  const [saveHuntToDb, setSaveHuntToDb] = useState(true);
 
   const { data: rawGrants, isLoading, error: grantsError } = useQuery<GrantOpportunity[]>({
     queryKey: ["/api/grants", { category: categoryFilter !== "all" ? categoryFilter : undefined, status: statusFilter !== "all" ? statusFilter : undefined }],
@@ -411,6 +413,26 @@ export default function GrantHubPage() {
   const grants = rawGrants ?? [];
 
   const { data: stats } = useQuery<GrantStats>({ queryKey: ["/api/grants/stats"] });
+
+  // Auto-load org profile for entity-aligned hunt
+  const { data: orgProfile } = useQuery<{ name: string; missionText?: string; focusAreas?: string[]; state?: string } | null>({
+    queryKey: ["/api/me/organization"],
+    enabled: isAuthenticated,
+    queryFn: async () => {
+      const res = await fetch("/api/me/organization", { credentials: "include" });
+      if (!res.ok) return null;
+      return res.json();
+    },
+  });
+
+  // Pre-fill hunt description from org profile once loaded (only if user hasn't typed)
+  useEffect(() => {
+    if (orgProfile && !huntOrgDesc && orgProfile.name) {
+      const desc = [orgProfile.name, orgProfile.missionText].filter(Boolean).join(". ");
+      if (desc.length >= 10) setHuntOrgDesc(desc);
+      if (!huntState && orgProfile.state) setHuntState(orgProfile.state);
+    }
+  }, [orgProfile]);
   const { data: rawAlerts } = useQuery<GrantAlert[]>({ queryKey: ["/api/grants/alerts"] });
   const alerts = rawAlerts ?? [];
   const unreadAlerts = alerts.filter(a => !a.isRead).length;
@@ -486,13 +508,20 @@ export default function GrantHubPage() {
     },
   });
 
-  const filteredGrants = searchQuery
-    ? grants.filter(g =>
-        g.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (g.agency || "").toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (g.description || "").toLowerCase().includes(searchQuery.toLowerCase())
-      )
-    : grants;
+  // Collect unique entity names for filter dropdown
+  const entityNames = Array.from(new Set(grants.map(g => (g as any).entityName).filter(Boolean))).sort() as string[];
+
+  const filteredGrants = grants.filter(g => {
+    if (entityFilter !== "all" && (g as any).entityName !== entityFilter) return false;
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      g.title.toLowerCase().includes(q) ||
+      (g.agency || "").toLowerCase().includes(q) ||
+      (g.description || "").toLowerCase().includes(q) ||
+      ((g as any).entityName || "").toLowerCase().includes(q)
+    );
+  });
 
   // Debounced live search — fires 600ms after the user stops typing (min 3 chars)
   useEffect(() => {
@@ -591,7 +620,7 @@ export default function GrantHubPage() {
       const res = await fetch("/api/grants/ai-hunt", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orgDescription: huntOrgDesc, state: huntState || undefined }),
+        body: JSON.stringify({ orgDescription: huntOrgDesc || undefined, state: huntState || undefined, saveToDb: saveHuntToDb }),
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -601,7 +630,11 @@ export default function GrantHubPage() {
     },
     onSuccess: (data) => {
       setHuntResults(data);
-      toast({ title: `AI Grant Hunt complete`, description: `Found ${data.totalFound} grants, ranked top ${data.results.length} by fit. Queries: ${data.queriesUsed.join(" · ")}` });
+      if (saveHuntToDb) {
+        queryClient.invalidateQueries({ queryKey: ["/api/grants"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/grants/stats"] });
+      }
+      toast({ title: `AI Grant Hunt complete`, description: `Found ${data.totalFound} grants on Grants.gov, ranked top ${data.results.length} by fit${saveHuntToDb ? " — top matches saved to your pipeline" : ""}.` });
     },
     onError: (e: Error) => {
       toast({ title: "AI Hunt failed", description: e.message, variant: "destructive" });
@@ -658,14 +691,22 @@ export default function GrantHubPage() {
 
       {showAIHunt && (
         <Card className="p-5 border-violet-200 dark:border-violet-800 bg-violet-50/40 dark:bg-violet-950/20" data-testid="card-ai-hunt">
-          <div className="flex items-center gap-2 mb-3">
+          <div className="flex items-center gap-2 mb-3 flex-wrap">
             <Brain className="h-5 w-5 text-violet-600" />
             <h2 className="font-semibold text-sm text-violet-800 dark:text-violet-200">AI Grant Hunt — Any Organization</h2>
-            <span className="text-xs text-muted-foreground ml-1">Claude generates targeted queries · fires them at Grants.gov · scores every result</span>
+            <span className="text-xs text-muted-foreground">Claude generates targeted queries · fires them at Grants.gov · scores every result</span>
+            {orgProfile?.name && (
+              <span className="text-[10px] px-2 py-0.5 rounded-full bg-violet-200 dark:bg-violet-800 text-violet-800 dark:text-violet-200 font-medium ml-auto">
+                ⚡ Entity: {orgProfile.name}
+              </span>
+            )}
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="text-xs font-medium text-muted-foreground mb-1 block">Describe the organization you're building for</label>
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">
+                Organization context
+                {orgProfile?.name && <span className="text-violet-600 ml-1">(auto-loaded from your profile — edit if demoing a different org)</span>}
+              </label>
               <Textarea
                 value={huntOrgDesc}
                 onChange={e => setHuntOrgDesc(e.target.value)}
@@ -685,6 +726,16 @@ export default function GrantHubPage() {
                   data-testid="input-hunt-state"
                 />
               </div>
+              <label className="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={saveHuntToDb}
+                  onChange={e => setSaveHuntToDb(e.target.checked)}
+                  className="accent-violet-600"
+                  data-testid="checkbox-save-hunt"
+                />
+                <span className="text-xs text-muted-foreground">Save top matches to pipeline + sync RAG</span>
+              </label>
               <Button
                 onClick={() => aiHuntMutation.mutate()}
                 disabled={aiHuntMutation.isPending || huntOrgDesc.trim().length < 10}
@@ -699,7 +750,7 @@ export default function GrantHubPage() {
           {aiHuntMutation.isPending && (
             <div className="mt-3 text-xs text-violet-600 flex items-center gap-2">
               <RefreshCw className="h-3 w-3 animate-spin" />
-              Step 1 of 3: AI generating search queries… then firing them at Grants.gov in parallel… then scoring results…
+              Generating queries → firing at Grants.gov in parallel → scoring results… (~15s)
             </div>
           )}
           {huntResults && (
@@ -895,6 +946,19 @@ export default function GrantHubPage() {
                 <SelectItem value="declined">Declined</SelectItem>
               </SelectContent>
             </Select>
+            {entityNames.length > 0 && (
+              <Select value={entityFilter} onValueChange={setEntityFilter}>
+                <SelectTrigger className="w-[180px]" data-testid="select-entity-filter">
+                  <SelectValue placeholder="Entity" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Entities</SelectItem>
+                  {entityNames.map(n => (
+                    <SelectItem key={n} value={n}>{n}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {showForm && (
@@ -1112,7 +1176,15 @@ export default function GrantHubPage() {
                         <FitScoreBadge score={grant.fitScore} />
                         <StatusBadge status={grant.status} />
                         <CategoryBadge category={grant.category} />
-                        {grant.source && (
+                        {(grant as any).entityName && (
+                          <Badge variant="outline" className="text-xs border-violet-300 text-violet-700 dark:text-violet-300 dark:border-violet-700 cursor-pointer" onClick={() => setEntityFilter((grant as any).entityName)} data-testid={`badge-entity-${grant.id}`}>
+                            ⚡ {(grant as any).entityName}
+                          </Badge>
+                        )}
+                        {grant.source === "ai-hunt" && !(grant as any).entityName && (
+                          <Badge variant="outline" className="text-xs border-violet-300 text-violet-600 dark:text-violet-400">AI Hunt</Badge>
+                        )}
+                        {grant.source && grant.source !== "ai-hunt" && (
                           <Badge variant="outline" className="text-xs" data-testid={`badge-source-${grant.id}`}>
                             {grant.source === "samgov" ? "SAM.gov" :
                              grant.source === "grants.gov" ? "Grants.gov" :

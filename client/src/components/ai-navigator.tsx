@@ -11,9 +11,14 @@ import {
   Compass, Send, X, MessageSquarePlus, Trash2, ChevronLeft,
   Loader2, Sparkles, Phone, ExternalLink, AlertTriangle,
   History, Minimize2, Maximize2, Bot, User, Brain, ChevronDown, ChevronUp,
-  Paperclip, Copy, Download, Check, FileText, Expand, Lightbulb,
+  Paperclip, Copy, Download, Check, FileText, Expand, Lightbulb, Plus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+
+interface HuntGrant {
+  id: string; title: string; agency: string; fitScore?: number; reason?: string;
+  closeDate?: string; cfdaList?: string[]; sourceUrl: string; matchedQuery?: string; synopsis?: string;
+}
 
 interface NavigatorMessage {
   id?: string;
@@ -22,6 +27,9 @@ interface NavigatorMessage {
   createdAt?: string;
   deepThinking?: string;
   deepThinkingPending?: boolean;
+  grantResults?: HuntGrant[];
+  grantOrgName?: string;
+  totalFound?: number;
 }
 
 interface NavigatorConversation {
@@ -112,6 +120,96 @@ function renderInlineContent(text: string) {
   }
 
   return <>{parts}</>;
+}
+
+function GrantResultCards({ grants, orgName, totalFound, isAuthenticated }: {
+  grants: HuntGrant[]; orgName: string; totalFound: number; isAuthenticated: boolean;
+}) {
+  const { toast } = useToast();
+  const [saved, setSaved] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState<Set<string>>(new Set());
+
+  const saveToPipeline = async (g: HuntGrant) => {
+    if (!isAuthenticated) { toast({ title: "Sign in to save grants", variant: "destructive" }); return; }
+    setSaving(prev => new Set([...prev, g.id]));
+    try {
+      const res = await fetch("/api/grants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title: g.title,
+          agency: g.agency,
+          description: g.synopsis || g.reason || "",
+          sourceUrl: g.sourceUrl,
+          entityName: orgName,
+          source: "ai-hunt",
+          fitScore: g.fitScore,
+          cfda: g.cfdaList?.[0] || null,
+          deadline: g.closeDate ? new Date(g.closeDate).toISOString() : null,
+          status: "identified",
+        }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      setSaved(prev => new Set([...prev, g.id]));
+      queryClient.invalidateQueries({ queryKey: ["/api/grants"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/grants/stats"] });
+      toast({ title: "Added to pipeline", description: `"${g.title}" saved under ${orgName}` });
+    } catch {
+      toast({ title: "Save failed", variant: "destructive" });
+    } finally {
+      setSaving(prev => { const n = new Set(prev); n.delete(g.id); return n; });
+    }
+  };
+
+  const saveAll = async () => {
+    const unsaved = grants.filter(g => !saved.has(g.id));
+    for (const g of unsaved) await saveToPipeline(g);
+  };
+
+  return (
+    <div className="ml-11 mt-3 space-y-2" data-testid="grant-hunt-results-cards">
+      <div className="flex items-center justify-between mb-1">
+        <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">
+          ⚡ {totalFound} grants found on Grants.gov · top {grants.length} ranked for <span className="italic">{orgName}</span>
+        </p>
+        {isAuthenticated && saved.size < grants.length && (
+          <button onClick={saveAll} className="text-[10px] px-2 py-0.5 rounded bg-violet-100 dark:bg-violet-900 text-violet-700 dark:text-violet-300 hover:bg-violet-200 font-medium transition-colors" data-testid="button-save-all-grants">
+            Save all to pipeline
+          </button>
+        )}
+      </div>
+      {grants.map((g, i) => (
+        <div key={g.id} className="rounded-lg border border-violet-200 dark:border-violet-800 bg-violet-50/40 dark:bg-violet-950/20 px-3 py-2 flex items-start gap-3" data-testid={`grant-card-${i}`}>
+          <div className="shrink-0 text-center min-w-[36px]">
+            <div className={`text-sm font-bold ${(g.fitScore || 0) >= 70 ? "text-emerald-600" : (g.fitScore || 0) >= 50 ? "text-amber-600" : "text-slate-500"}`}>{g.fitScore ?? "?"}%</div>
+            <div className="text-[9px] text-muted-foreground">fit</div>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-xs font-semibold leading-tight truncate">{g.title}</p>
+            <p className="text-[10px] text-muted-foreground mt-0.5">{g.agency}{g.closeDate ? ` · Due ${new Date(g.closeDate).toLocaleDateString()}` : ""}{g.cfdaList?.length ? ` · CFDA ${g.cfdaList[0]}` : ""}</p>
+            {g.reason && <p className="text-[10px] text-muted-foreground mt-0.5 line-clamp-2 italic">{g.reason}</p>}
+          </div>
+          <div className="flex items-center gap-1 shrink-0">
+            <a href={g.sourceUrl} target="_blank" rel="noopener noreferrer" className="p-1 rounded hover:bg-violet-100 dark:hover:bg-violet-900 text-muted-foreground hover:text-violet-700" title="View on Grants.gov" data-testid={`link-grant-${i}`}>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+            {isAuthenticated && (
+              <button
+                onClick={() => saveToPipeline(g)}
+                disabled={saved.has(g.id) || saving.has(g.id)}
+                className={`flex items-center gap-0.5 text-[10px] px-1.5 py-0.5 rounded font-medium transition-colors ${saved.has(g.id) ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900 dark:text-emerald-300" : "bg-violet-600 text-white hover:bg-violet-700"}`}
+                data-testid={`button-save-grant-${i}`}
+              >
+                {saved.has(g.id) ? <Check className="h-3 w-3" /> : saving.has(g.id) ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                {saved.has(g.id) ? "Saved" : "Pipeline"}
+              </button>
+            )}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = {}) {
@@ -460,6 +558,21 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                 break;
               }
 
+              if (parsed.grantHuntResults) {
+                setMessages(prev => {
+                  const updated = [...prev];
+                  if (updated[assistantIdx]) {
+                    updated[assistantIdx] = {
+                      ...updated[assistantIdx],
+                      grantResults: parsed.grantHuntResults,
+                      grantOrgName: parsed.grantOrgName,
+                      totalFound: parsed.totalFound,
+                    };
+                  }
+                  return updated;
+                });
+              }
+
               if (parsed.content) {
                 fullText += parsed.content;
                 setMessages(prev => {
@@ -793,6 +906,9 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                             </div>
                           )}
                         </div>
+                        {msg.role === "assistant" && msg.grantResults && msg.grantResults.length > 0 && (
+                          <GrantResultCards grants={msg.grantResults} orgName={msg.grantOrgName || ""} totalFound={msg.totalFound || 0} isAuthenticated={isAuthenticated} />
+                        )}
                         {msg.role === "assistant" && msg.content && (
                           <div className="ml-11 mt-1.5 flex items-center gap-1">
                             <button onClick={() => copyMessage(msg.content, idx)} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-muted/50" data-testid={`button-page-copy-${idx}`}>
