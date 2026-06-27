@@ -553,7 +553,8 @@ function formatCurrency(amount?: number): string {
 const grantCreateSchema = insertGrantOpportunitySchema.pick({
   title: true, agency: true, fundingAmount: true, description: true,
   eligibilityCriteria: true, focusAreas: true, sourceUrl: true, grantType: true, entityName: true,
-});
+  source: true, fitScore: true, cfda: true, deadline: true, status: true, notes: true,
+}).partial();
 
 function renderGrantDigestHtml(rows: GrantOpportunity[], days: number): string {
   const high = rows.filter(r => (r.fitScore || 0) >= 70);
@@ -737,11 +738,11 @@ export function registerGrantRoutes(app: Express) {
 
       const [grant] = await db.insert(grantOpportunities).values({
         ...data,
-        fitScore,
+        fitScore: data.fitScore ?? fitScore,
         fitAnalysis: keywordFit.analysis,
         readinessChecklist: generateReadinessChecklist(keywordFit.matchedAreas),
         category,
-        source: "manual",
+        source: data.source || "manual",
         aiAnalysis: aiResult?.aiAnalysis || null,
         strengthsGaps: aiResult?.strengthsGaps || null,
       }).returning();

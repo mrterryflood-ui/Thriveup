@@ -558,6 +558,19 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                 break;
               }
 
+              if (parsed.grantHuntProgress) {
+                setMessages(prev => {
+                  const updated = [...prev];
+                  if (updated[assistantIdx]) {
+                    updated[assistantIdx] = {
+                      ...updated[assistantIdx],
+                      content: updated[assistantIdx].content || `🔍 ${parsed.grantHuntProgress.message}`,
+                    };
+                  }
+                  return updated;
+                });
+              }
+
               if (parsed.grantHuntResults) {
                 setMessages(prev => {
                   const updated = [...prev];

@@ -770,6 +770,8 @@ export function registerNavigatorRoutes(app: Express) {
       const orgDesc = grantHuntMatch[1].trim().replace(/['"]/g, "");
       try {
         console.log(`[Navigator] Grant hunt intent for: "${orgDesc}"`);
+        // Immediately signal the frontend so the user sees activity, not a frozen spinner
+        res.write(`data: ${JSON.stringify({ grantHuntProgress: { org: orgDesc, step: "querying", message: `Hunting Grants.gov for "${orgDesc}"…` } })}\n\n`);
 
         // Step 1 — AI generates targeted queries
         const queryPlan = await generateAIJSON<{ queries: string[]; orgType: string; primaryDomains: string[] }>(
