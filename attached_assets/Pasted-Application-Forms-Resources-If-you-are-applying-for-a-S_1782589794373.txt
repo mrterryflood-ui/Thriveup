@@ -1,0 +1,64 @@
+Application Forms & Resources
+If you are applying for a SAMHSA grant, you must download the application forms found on Grants.gov. You may require additional forms found on the SAMHSA website. Read the Notice of Funding Opportunity (NOFO) carefully to determine which forms you must include in your application. Applications that do not include all required forms will be screened out and will not be eligible for review.
+
+Budget Templates and Sample SF-424 and SF-424A Forms
+All applications must include a detailed budget and narrative that explains the federal and the non-federal expenditures broken out by the object class cost categories listed on SF-424A − Section B (Budget Category) for non-construction awards.
+
+SAMHSA Budget Template
+To expedite review of your application, it is highly recommended you use the following PDF budget template to complete the Detailed Budget and Narrative for submission with your application:
+
+IMPORTANT: For the dynamic PDF template to function as designed, it must be opened directly in Adobe Acrobat Reader instead of your web browser.
+
+SAMHSA Budget Template (PDF | 1.2 MB)
+Use the following instructions for successful download.
+
+Right click the above “SAMHSA Budget Template (PDF | 1.2 MB)” link to access the shortcut menu. Note: DO NOT click the link, as this will open the budget template directly in your browser and generate a “Please wait …” message.
+Click "save link as" to save the document to a folder located on your computer.
+Go to the folder on your computer where the file was stored
+Right click the file, select “open with” and choose your adobe software from the list to open the file locally on your computer. Note: If your browser is set as the default application for opening Adobe file types, double clicking the file may result in the “Please wait …” message.
+If you need accessibility assistance when using this file, please contact troy.valladares@samhsa.hhs.gov.
+Guidance
+The following information will assist you in preparing and submitting your application:
+
+Formatting Requirements and System Validation
+Developing Goals and Measurable Objectives
+Developing the Plan for Data Collection and Performance Measurement
+Biographical Sketches and Position Descriptions
+The following documents provide guidance on using the budget template:
+
+Key Features of the Budget Template (PDF | 261 KB)
+Budget Template User Guide (PDF | 3.4 MB)
+Budget Review Checklist (PDF | 329 KB) – use this checklist to review your Detailed Budget and Narrative Justification before submission to SAMHSA.
+For a Section 508 accessible budget template, use the MS Word DOCX budget template:
+
+Sample Budget Template – NON-MATCH (DOCX | 74 KB)
+Sample Budget Template – MATCH REQUIRED (DOCX | 96 KB)
+SAMHSA Budget Template Guidance (PDF | 453 KB)
+Sample SF-424 and SF-424A Forms
+The following PDFs are samples of the SF-424 and SF-424A forms:
+
+Sample SF-424 – New Awards (PDF | 1.3 KB)
+Sample SF-424A – MATCH (PDF | 1.1 MB)
+Sample SF-424A – NON-MATCH (PDF | 770 KB)
+Assurances and Certifications
+When the Authorized Organization Representative (AOR) signs the Application for Federal Assistance SF-424 form, they certify that the statements contained in the SAMHSA List of Certifications (PDF | 11 KB) are true. Their signature also certifies that they agree to comply with the Assurances for Non-Construction Programs (SF-424B) (PDF | 65 KB).
+
+Charitable Choice Form SMA 170
+You may be required to submit an Assurance of Compliance with SAMHSA Charitable Choice Statutes and Regulations form SMA 170 (PDF | 23 KB). Check the NOFO to determine if this form is required for the grant program for which you are applying.
+
+Additional Resources
+Developing a Competitive SAMHSA Grant Application (PDF | 3.3 MB)
+Grants.gov Guide for Applicants
+Intergovernmental Review (E.O. 12372) Requirements
+Administrative and National Policy Requirements
+Guidance for States requesting use of Substance Abuse Prevention and Treatment Block Grant funds to Implement SSPs (PDF | 88 KB)
+Guidance for Minority HIV/AIDS Initiative (MAI) Programs Implementing SSPs (PDF | 86 KB)
+Participation Guidelines for Individuals with Lived Experience and Family
+Center for Behavioral Health Statistics and Quality
+Directory of Single State Substance Abuse Agencies
+Directory of Single State Mental Health Authorities
+Evidence-Based Practices Resource Center
+Last Updated: 05/12/2026
+Sign Up for SAMHSA Email Updates
+To sign up for updates or to access your subscriber preferences, please enter your contact information.
+

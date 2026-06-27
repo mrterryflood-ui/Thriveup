@@ -3402,6 +3402,22 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       "disability support services",
       "trauma informed care",
       "mental health workforce",
+      // Substance use, homelessness, street outreach (SAMHSA)
+      "substance use disorder treatment",
+      "opioid treatment recovery",
+      "medication assisted treatment",
+      "co-occurring disorders",
+      "peer recovery support services",
+      "serious mental illness",
+      "street outreach homeless",
+      "homeless recovery services",
+      "recovery support services",
+      "community mental health services",
+      "SAMHSA grant behavioral",
+      "housing first homeless outreach",
+      "overdose prevention",
+      "harm reduction services",
+      "crisis stabilization services",
       // Children, youth, family
       "child abuse prevention",
       "youth mentoring education",
@@ -3525,6 +3541,14 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         // Health & behavioral
         "behavioral health", "community health", "maternal health",
         "disability services", "trauma informed", "mental health",
+        // Substance use, homelessness, street outreach (SAMHSA)
+        "substance use disorder", "opioid treatment",
+        "medication assisted treatment", "co-occurring disorders",
+        "peer recovery support", "serious mental illness",
+        "street outreach", "homeless recovery",
+        "recovery support services", "community mental health",
+        "overdose prevention", "harm reduction",
+        "crisis stabilization", "SAMHSA",
         // Children, youth, family
         "child abuse prevention", "youth mentoring", "two generation",
         // Criminal justice & reentry

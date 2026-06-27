@@ -38,7 +38,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import thriveupLogo from "@assets/thriveup-logo.png";
+import thriveupLogo from "../assets/thriveup-logo.png";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
 import { OrgSwitcher } from "@/components/org-switcher";
