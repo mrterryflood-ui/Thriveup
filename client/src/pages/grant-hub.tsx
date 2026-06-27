@@ -383,6 +383,19 @@ export default function GrantHubPage() {
   const [liveTotal, setLiveTotal] = useState<number | null>(null);
   const [isLiveSearching, setIsLiveSearching] = useState(false);
   const liveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [showAIHunt, setShowAIHunt] = useState(false);
+  const [huntOrgDesc, setHuntOrgDesc] = useState("");
+  const [huntState, setHuntState] = useState("");
+  interface AIHuntResult {
+    id: string; title: string; agency: string; synopsis: string;
+    closeDate?: string; openDate?: string; cfdaList: string[];
+    sourceUrl: string; matchedQuery: string; fitScore: number; reason: string; number?: string;
+  }
+  interface AIHuntResponse {
+    results: AIHuntResult[]; queriesUsed: string[]; orgType: string;
+    primaryDomains: string[]; totalFound: number;
+  }
+  const [huntResults, setHuntResults] = useState<AIHuntResponse | null>(null);
 
   const { data: rawGrants, isLoading, error: grantsError } = useQuery<GrantOpportunity[]>({
     queryKey: ["/api/grants", { category: categoryFilter !== "all" ? categoryFilter : undefined, status: statusFilter !== "all" ? statusFilter : undefined }],
@@ -573,6 +586,28 @@ export default function GrantHubPage() {
     },
   });
 
+  const aiHuntMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/grants/ai-hunt", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orgDescription: huntOrgDesc, state: huntState || undefined }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "AI hunt failed");
+      }
+      return res.json() as Promise<AIHuntResponse>;
+    },
+    onSuccess: (data) => {
+      setHuntResults(data);
+      toast({ title: `AI Grant Hunt complete`, description: `Found ${data.totalFound} grants, ranked top ${data.results.length} by fit. Queries: ${data.queriesUsed.join(" · ")}` });
+    },
+    onError: (e: Error) => {
+      toast({ title: "AI Hunt failed", description: e.message, variant: "destructive" });
+    },
+  });
+
   const handleSubmit = () => {
     const fa = formData.focusAreas.split(",").map(s => s.trim()).filter(Boolean);
     createMutation.mutate({ ...formData, focusAreas: fa.length ? fa : undefined });
@@ -596,6 +631,15 @@ export default function GrantHubPage() {
         <div className="flex flex-wrap gap-2">
           <TrainingGuideButton moduleId="grant-hub" />
           <Button
+            variant={showAIHunt ? "default" : "outline"}
+            onClick={() => { setShowAIHunt(!showAIHunt); if (showAIHunt) setHuntResults(null); }}
+            data-testid="button-ai-hunt"
+            className={showAIHunt ? "bg-violet-600 hover:bg-violet-700 text-white" : "border-violet-400 text-violet-700 dark:text-violet-300 hover:bg-violet-50 dark:hover:bg-violet-950/30"}
+          >
+            <Brain className={`mr-2 h-4 w-4 ${aiHuntMutation.isPending ? "animate-spin" : ""}`} />
+            {aiHuntMutation.isPending ? "AI Hunting…" : "AI Grant Hunt"}
+          </Button>
+          <Button
             variant="outline"
             onClick={() => refreshMutation.mutate()}
             disabled={refreshMutation.isPending}
@@ -611,6 +655,72 @@ export default function GrantHubPage() {
       </div>
 
       <PasteRfpUrlCard />
+
+      {showAIHunt && (
+        <Card className="p-5 border-violet-200 dark:border-violet-800 bg-violet-50/40 dark:bg-violet-950/20" data-testid="card-ai-hunt">
+          <div className="flex items-center gap-2 mb-3">
+            <Brain className="h-5 w-5 text-violet-600" />
+            <h2 className="font-semibold text-sm text-violet-800 dark:text-violet-200">AI Grant Hunt — Any Organization</h2>
+            <span className="text-xs text-muted-foreground ml-1">Claude generates targeted queries · fires them at Grants.gov · scores every result</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <label className="text-xs font-medium text-muted-foreground mb-1 block">Describe the organization you're building for</label>
+              <Textarea
+                value={huntOrgDesc}
+                onChange={e => setHuntOrgDesc(e.target.value)}
+                placeholder="e.g. A behavioral health nonprofit in Austin TX focused on opioid recovery and workforce re-entry for justice-involved adults. Partners include Travis County and CommUnityCare."
+                rows={3}
+                className="resize-none"
+                data-testid="input-hunt-org-desc"
+              />
+            </div>
+            <div className="flex flex-col gap-2">
+              <div>
+                <label className="text-xs font-medium text-muted-foreground mb-1 block">State (optional)</label>
+                <Input
+                  value={huntState}
+                  onChange={e => setHuntState(e.target.value)}
+                  placeholder="e.g. Texas"
+                  data-testid="input-hunt-state"
+                />
+              </div>
+              <Button
+                onClick={() => aiHuntMutation.mutate()}
+                disabled={aiHuntMutation.isPending || huntOrgDesc.trim().length < 10}
+                className="mt-auto bg-violet-600 hover:bg-violet-700 text-white w-full"
+                data-testid="button-run-ai-hunt"
+              >
+                <Brain className={`mr-2 h-4 w-4 ${aiHuntMutation.isPending ? "animate-spin" : ""}`} />
+                {aiHuntMutation.isPending ? "Hunting…" : "Find Grants"}
+              </Button>
+            </div>
+          </div>
+          {aiHuntMutation.isPending && (
+            <div className="mt-3 text-xs text-violet-600 flex items-center gap-2">
+              <RefreshCw className="h-3 w-3 animate-spin" />
+              Step 1 of 3: AI generating search queries… then firing them at Grants.gov in parallel… then scoring results…
+            </div>
+          )}
+          {huntResults && (
+            <div className="mt-3 flex flex-wrap gap-2 items-center">
+              <span className="text-xs font-medium text-violet-700 dark:text-violet-300">{huntResults.totalFound} grants found</span>
+              <span className="text-xs text-muted-foreground">Queries used:</span>
+              {huntResults.queriesUsed.map(q => (
+                <span key={q} className="text-[10px] px-2 py-0.5 rounded-full bg-violet-100 dark:bg-violet-900/50 text-violet-700 dark:text-violet-300">{q}</span>
+              ))}
+              {huntResults.primaryDomains.length > 0 && (
+                <>
+                  <span className="text-xs text-muted-foreground ml-1">Domains:</span>
+                  {huntResults.primaryDomains.map(d => (
+                    <span key={d} className="text-[10px] px-2 py-0.5 rounded-full bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300">{d}</span>
+                  ))}
+                </>
+              )}
+            </div>
+          )}
+        </Card>
+      )}
 
       {discoveryStatus && (
         <Card className="p-4 border-l-4 border-l-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/20" data-testid="card-discovery-status">
@@ -865,6 +975,73 @@ export default function GrantHubPage() {
             </Card>
           ) : (
             <div className="space-y-3">
+              {/* AI Hunt results — ranked, scored, with reasoning */}
+              {huntResults && huntResults.results.length > 0 && (
+                <>
+                  <div className="flex items-center gap-2 pt-1">
+                    <Brain className="h-3.5 w-3.5 text-violet-600" />
+                    <span className="text-xs font-bold text-violet-600">AI GRANT HUNT RESULTS</span>
+                    <span className="text-xs text-muted-foreground">— {huntResults.totalFound} found · ranked by AI fit score</span>
+                  </div>
+                  {huntResults.results.map((grant) => (
+                    <Card key={`hunt-${grant.id}`} className="p-5 hover:shadow-md transition-shadow border-violet-200 dark:border-violet-800 bg-violet-50/20 dark:bg-violet-950/10" data-testid={`card-hunt-${grant.id}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h3 className="font-semibold">{grant.title}</h3>
+                            <span className={`text-xs font-bold px-2 py-0.5 rounded ${grant.fitScore >= 70 ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300" : grant.fitScore >= 50 ? "bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300" : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+                              {grant.fitScore}% fit
+                            </span>
+                            {grant.number && <Badge variant="outline" className="text-xs">#{grant.number}</Badge>}
+                            <Badge className="text-[10px] font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/50 dark:text-violet-300 border-0">AI Hunt</Badge>
+                          </div>
+                          {grant.agency && <p className="text-sm text-muted-foreground">{grant.agency}</p>}
+                          <div className="flex flex-wrap items-center gap-3 mt-1">
+                            {grant.closeDate && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Deadline: {new Date(grant.closeDate).toLocaleDateString()}
+                              </span>
+                            )}
+                            {grant.matchedQuery && (
+                              <span className="text-xs text-muted-foreground">Query: <em>{grant.matchedQuery}</em></span>
+                            )}
+                          </div>
+                          {grant.synopsis && <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{grant.synopsis}</p>}
+                          {grant.reason && (
+                            <p className="text-xs text-violet-700 dark:text-violet-300 mt-2 flex items-start gap-1">
+                              <Brain className="h-3 w-3 mt-0.5 shrink-0" />
+                              {grant.reason}
+                            </p>
+                          )}
+                          {grant.cfdaList.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {grant.cfdaList.map((c: string) => (
+                                <Badge key={c} variant="secondary" className="text-xs">CFDA {c}</Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2 shrink-0">
+                          {grant.sourceUrl && (
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={grant.sourceUrl} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-3 w-3 mr-1" /> Grants.gov
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                  <div className="flex items-center gap-2 py-1">
+                    <div className="flex-1 h-px bg-border" />
+                    <span className="text-xs text-muted-foreground">LIVE SEARCH & YOUR PIPELINE</span>
+                    <div className="flex-1 h-px bg-border" />
+                  </div>
+                </>
+              )}
+
               {/* Live results from Grants.gov — appear at top when searching */}
               {liveResults.length > 0 && (
                 <>

@@ -8,7 +8,7 @@ import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
 import { eq, desc, sql, gte, lte, lt, and, or, ilike, notInArray } from "drizzle-orm";
-import { generateAIResponse, streamAIResponse, withEthicalPreamble } from "./ai-provider";
+import { generateAIResponse, generateAIJSON, streamAIResponse, withEthicalPreamble } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
 import PDFDocument from "pdfkit";
 import type { SQL } from "drizzle-orm";
@@ -970,6 +970,125 @@ export function registerGrantRoutes(app: Express) {
     } catch (error) {
       console.error("Failed to get grant stats:", error);
       res.status(500).json({ error: "Failed to get grant stats" });
+    }
+  });
+
+  // POST /api/grants/ai-hunt — no auth required.
+  // Describe any org → AI generates targeted queries → fires them at Grants.gov
+  // in parallel → scores every result → returns ranked list with AI reasoning.
+  app.post("/api/grants/ai-hunt", async (req, res) => {
+    try {
+      const { orgDescription, focusAreas, state } = req.body as {
+        orgDescription?: string; focusAreas?: string[]; state?: string;
+      };
+      if (!orgDescription || orgDescription.trim().length < 10) {
+        return res.status(400).json({ error: "Please describe the organization (at least 10 characters)" });
+      }
+
+      // Step 1: AI generates 6-8 targeted Grants.gov search queries
+      const queryGenPrompt = `You are a federal grant discovery specialist. Based on the organization description below, generate 6-8 targeted search queries to find relevant currently-open federal grants on Grants.gov.
+
+Organization: ${orgDescription.trim()}
+${Array.isArray(focusAreas) && focusAreas.length ? `Focus areas: ${focusAreas.join(", ")}` : ""}
+${state ? `State: ${state}` : ""}
+
+Return ONLY a JSON object:
+{
+  "queries": ["behavioral health workforce", "substance use disorder recovery", ...],
+  "orgType": "nonprofit | government | tribal | university | for-profit",
+  "primaryDomains": ["behavioral health", "workforce development"]
+}
+
+Rules:
+- Each query: 2-5 words, Grants.gov keyword style
+- Mix broad and specific; include CFDA-relevant terminology
+- Max 8 queries, no duplicates`;
+
+      const queryPlan = await generateAIJSON<{ queries: string[]; orgType: string; primaryDomains: string[] }>(
+        queryGenPrompt,
+        withEthicalPreamble("You are a federal grant search specialist. Return only valid JSON, no markdown.")
+      );
+      const queries = (queryPlan.queries || []).slice(0, 8);
+      if (queries.length === 0) return res.status(500).json({ error: "AI could not generate search queries" });
+
+      // Step 2: Fire queries at Grants.gov in parallel
+      const searchResults = await Promise.allSettled(
+        queries.map(async (q) => {
+          const ggRes = await fetch("https://apply07.grants.gov/grantsws/rest/opportunities/search", {
+            method: "POST",
+            headers: { "Content-Type": "application/json", "Accept": "application/json" },
+            body: JSON.stringify({ keyword: q, oppStatuses: "posted", rows: 10 }),
+            signal: AbortSignal.timeout(12000),
+          });
+          if (!ggRes.ok) return [];
+          const data = await ggRes.json();
+          return (data.oppHits || []).map((hit: any) => ({
+            id: String(hit.id || hit.number || Math.random()),
+            number: hit.number || "",
+            title: hit.title || "Untitled",
+            agency: hit.agency || "Federal",
+            synopsis: hit.synopsis || "",
+            closeDate: hit.closeDate || null,
+            openDate: hit.openDate || null,
+            cfdaList: hit.cfdaList || [],
+            sourceUrl: `https://www.grants.gov/search-results-detail/${hit.id}`,
+            matchedQuery: q,
+          }));
+        })
+      );
+
+      // Step 3: Deduplicate by id
+      const seen = new Set<string>();
+      const allHits: any[] = [];
+      for (const r of searchResults) {
+        if (r.status === "fulfilled") {
+          for (const h of r.value) {
+            if (!seen.has(h.id)) { seen.add(h.id); allHits.push(h); }
+          }
+        }
+      }
+
+      if (allHits.length === 0) {
+        return res.json({ results: [], queriesUsed: queries, orgType: queryPlan.orgType, primaryDomains: queryPlan.primaryDomains, totalFound: 0 });
+      }
+
+      // Step 4: AI scores top 30 and returns ranked list
+      const toScore = allHits.slice(0, 30);
+      let scoredResults: any[] = toScore.map(h => ({ ...h, fitScore: 50, reason: "" }));
+      try {
+        const scorePrompt = `Score each federal grant opportunity 0–100 for fit with this organization. Be generous for strong matches, strict for weak ones.
+
+Organization: ${orgDescription.trim()}
+${Array.isArray(focusAreas) && focusAreas.length ? `Focus: ${focusAreas.join(", ")}` : ""}
+
+Grants:
+${toScore.map((h, i) => `${i}. ${h.title} | ${h.agency} | ${(h.synopsis || "").slice(0, 120)}`).join("\n")}
+
+Return ONLY JSON:
+{"scores":[{"index":0,"score":85,"reason":"Direct match for behavioral health workforce development"},...]}}`;
+
+        const scoreResult = await generateAIJSON<{ scores: Array<{ index: number; score: number; reason: string }> }>(
+          scorePrompt,
+          withEthicalPreamble("You are a grant fit analyst. Return only valid JSON.")
+        );
+        scoredResults = toScore.map((h, i) => {
+          const s = scoreResult.scores?.find(e => e.index === i);
+          return { ...h, fitScore: s?.score ?? 50, reason: s?.reason ?? "" };
+        }).sort((a, b) => b.fitScore - a.fitScore).slice(0, 20);
+      } catch {
+        scoredResults = toScore.slice(0, 20);
+      }
+
+      res.json({
+        results: scoredResults,
+        queriesUsed: queries,
+        orgType: queryPlan.orgType || "nonprofit",
+        primaryDomains: queryPlan.primaryDomains || [],
+        totalFound: allHits.length,
+      });
+    } catch (error: any) {
+      console.error("[AIHunt] error:", error);
+      res.status(500).json({ error: "AI grant hunt failed — " + (error?.message || "unknown error") });
     }
   });
 
