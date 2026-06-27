@@ -309,6 +309,7 @@ const RuralHealthPage = lazy(() => import("@/pages/rural-health"));
 const RuralConnectivityPage = lazy(() => import("@/pages/rural-connectivity"));
 const RuralHousingPage = lazy(() => import("@/pages/rural-housing"));
 const RuralWorkforcePage = lazy(() => import("@/pages/rural-workforce"));
+const StreetsProgramPage = lazy(() => import("@/pages/streets-program"));
 const AlignPage = lazy(() => import("@/pages/align"));
 const AlignJourneyPage = lazy(() => import("@/pages/align-journey"));
 const AlignOrgAssessmentPage = lazy(() => import("@/pages/align-org-assessment"));
@@ -783,6 +784,7 @@ function AppRouter() {
       <Route path="/rural-housing" component={RuralHousingPage} />
       <Route path="/rural-workforce" component={RuralWorkforcePage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
+      <Route path="/streets" component={StreetsProgramPage} />
       <Route path="/align" component={AlignPage} />
       <Route path="/align/my-journey" component={AlignJourneyPage} />
       <Route path="/align/org-assessment" component={AlignOrgAssessmentPage} />

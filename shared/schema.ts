@@ -6504,3 +6504,187 @@ export const partnerInboundData = pgTable("partner_inbound_data", {
   receivedAt: timestamp("received_at").defaultNow(),
 });
 export type PartnerInboundData = typeof partnerInboundData.$inferSelect;
+
+// ==================== STREETS PROGRAM — ADULT BH + HOMELESSNESS + RECOVERY ====================
+
+export const sudAssessments = pgTable("sud_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  clientId: varchar("client_id", { length: 100 }),
+  assessorName: varchar("assessor_name", { length: 200 }),
+  assessmentType: varchar("assessment_type", { length: 20 }).notNull(), // audit_c | dast_10 | cage
+  responses: jsonb("responses").notNull(),
+  totalScore: integer("total_score").notNull(),
+  riskLevel: varchar("risk_level", { length: 30 }).notNull(), // low | moderate | high | severe
+  clinicalNotes: text("clinical_notes"),
+  referralRecommended: boolean("referral_recommended").default(false),
+  completedAt: timestamp("completed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type SudAssessment = typeof sudAssessments.$inferSelect;
+
+export const recoveryPlans = pgTable("recovery_plans", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  clientId: varchar("client_id", { length: 100 }),
+  currentPhase: varchar("current_phase", { length: 40 }).notNull(), // pre_contemplation | contemplation | preparation | action | maintenance
+  recoveryCapitalScore: integer("recovery_capital_score").default(0),
+  primarySubstance: varchar("primary_substance", { length: 100 }),
+  sobrietyDate: timestamp("sobriety_date"),
+  primaryClinician: varchar("primary_clinician", { length: 200 }),
+  peerCoachId: varchar("peer_coach_id", { length: 100 }),
+  goals: jsonb("goals").default(sql`'[]'::jsonb`),
+  strengths: text("strengths"),
+  barriers: text("barriers"),
+  lastReviewedAt: timestamp("last_reviewed_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type RecoveryPlan = typeof recoveryPlans.$inferSelect;
+
+export const recoveryMilestones = pgTable("recovery_milestones", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  planId: varchar("plan_id", { length: 100 }).notNull(),
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  domain: varchar("domain", { length: 50 }).notNull(), // housing | employment | family | health | legal | social | spiritual
+  milestone: text("milestone").notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("pending"), // pending | in_progress | achieved
+  achievedAt: timestamp("achieved_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type RecoveryMilestone = typeof recoveryMilestones.$inferSelect;
+
+export const housingFirstIntakes = pgTable("housing_first_intakes", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  clientId: varchar("client_id", { length: 100 }),
+  intakeDate: timestamp("intake_date").defaultNow(),
+  currentHousingStatus: varchar("current_housing_status", { length: 60 }).notNull(), // unsheltered | emergency_shelter | transitional | doubled_up | at_risk
+  chronicallyHomeless: boolean("chronically_homeless").default(false),
+  veteranStatus: boolean("veteran_status").default(false),
+  disabilityStatus: boolean("disability_status").default(false),
+  vulnerabilityScore: integer("vulnerability_score").default(0),
+  barriers: jsonb("barriers").default(sql`'[]'::jsonb`),
+  priorityTier: varchar("priority_tier", { length: 10 }).default("3"), // 1=highest
+  referredTo: varchar("referred_to", { length: 300 }),
+  referralDate: timestamp("referral_date"),
+  housingSecuredAt: timestamp("housing_secured_at"),
+  caseworker: varchar("caseworker", { length: 200 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type HousingFirstIntake = typeof housingFirstIntakes.$inferSelect;
+
+export const warmHandoffs = pgTable("warm_handoffs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  clientId: varchar("client_id", { length: 100 }),
+  fromProviderName: varchar("from_provider_name", { length: 200 }).notNull(),
+  fromProviderType: varchar("from_provider_type", { length: 80 }).notNull(), // street_outreach | shelter | behavioral_health | primary_care | peer_support | legal | housing
+  toProviderName: varchar("to_provider_name", { length: 200 }).notNull(),
+  toProviderType: varchar("to_provider_type", { length: 80 }).notNull(),
+  handoffReason: text("handoff_reason").notNull(),
+  handoffDate: timestamp("handoff_date").defaultNow(),
+  contactMade: boolean("contact_made").default(false),
+  contactDate: timestamp("contact_date"),
+  followUpDate: timestamp("follow_up_date"),
+  outcome: varchar("outcome", { length: 80 }), // connected | no_contact | refused | enrolled
+  coordinatedBy: varchar("coordinated_by", { length: 200 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type WarmHandoff = typeof warmHandoffs.$inferSelect;
+
+export const peerRecoveryCoaches = pgTable("peer_recovery_coaches", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 200 }).notNull(),
+  email: varchar("email", { length: 200 }),
+  phone: varchar("phone", { length: 30 }),
+  yearsInRecovery: integer("years_in_recovery"),
+  primarySubstance: varchar("primary_substance", { length: 100 }),
+  certifications: jsonb("certifications").default(sql`'[]'::jsonb`), // CPRS, CARC, etc.
+  specializations: text("specializations").array().default(sql`'{}'::text[]`),
+  languages: text("languages").array().default(sql`'{}'::text[]`),
+  activeClients: integer("active_clients").default(0),
+  maxClients: integer("max_clients").default(10),
+  stipendStatus: varchar("stipend_status", { length: 30 }).default("pending"), // pending | active | completed
+  stipendAmount: real("stipend_amount"),
+  credentialingPathway: varchar("credentialing_pathway", { length: 200 }),
+  iti: boolean("iti").default(true),
+  active: boolean("active").default(true),
+  bio: text("bio"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type PeerRecoveryCoach = typeof peerRecoveryCoaches.$inferSelect;
+
+export const crisisRoutingLog = pgTable("crisis_routing_log", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }),
+  clientId: varchar("client_id", { length: 100 }),
+  routingDate: timestamp("routing_date").defaultNow(),
+  crisisType: varchar("crisis_type", { length: 80 }).notNull(), // suicidal_ideation | overdose | psychiatric | domestic_violence | housing_loss | other
+  acuityLevel: varchar("acuity_level", { length: 20 }).notNull(), // low | moderate | high | imminent
+  disposition: varchar("disposition", { length: 40 }).notNull(), // line_988 | line_911 | csu | ed | mobile_crisis | peer | shelter | de_escalated
+  respondedBy: varchar("responded_by", { length: 200 }),
+  followUpRequired: boolean("follow_up_required").default(true),
+  followUpCompleted: boolean("follow_up_completed").default(false),
+  followUpDate: timestamp("follow_up_date"),
+  outcome: text("outcome"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type CrisisRoutingEntry = typeof crisisRoutingLog.$inferSelect;
+
+export const harmReductionServices = pgTable("harm_reduction_services", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }),
+  anonymous: boolean("anonymous").default(false),
+  serviceDate: timestamp("service_date").defaultNow(),
+  serviceType: varchar("service_type", { length: 80 }).notNull(), // naloxone | syringes | test_strips | overdose_reversal | wound_care | education | linkage
+  quantityProvided: integer("quantity_provided"),
+  overdoseReversal: boolean("overdose_reversal").default(false),
+  substanceInvolved: varchar("substance_involved", { length: 100 }),
+  linkedToTreatment: boolean("linked_to_treatment").default(false),
+  providedBy: varchar("provided_by", { length: 200 }),
+  location: varchar("location", { length: 300 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type HarmReductionService = typeof harmReductionServices.$inferSelect;
+
+export const matCoordination = pgTable("mat_coordination", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  clientId: varchar("client_id", { length: 100 }),
+  medication: varchar("medication", { length: 80 }).notNull(), // buprenorphine | methadone | naltrexone | vivitrol | suboxone
+  clinicName: varchar("clinic_name", { length: 300 }),
+  clinicPhone: varchar("clinic_phone", { length: 30 }),
+  clinicAddress: varchar("clinic_address", { length: 400 }),
+  prescribingProvider: varchar("prescribing_provider", { length: 200 }),
+  referralDate: timestamp("referral_date").defaultNow(),
+  enrollmentDate: timestamp("enrollment_date"),
+  status: varchar("status", { length: 40 }).notNull().default("referred"), // referred | enrolled | active | on_hold | discharged
+  lastContactDate: timestamp("last_contact_date"),
+  nextAppointment: timestamp("next_appointment"),
+  barriers: text("barriers"),
+  coordinatedBy: varchar("coordinated_by", { length: 200 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type MatCoordination = typeof matCoordination.$inferSelect;
+
+export const continuumOfCareEvents = pgTable("continuum_of_care_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  clientName: varchar("client_name", { length: 200 }).notNull(),
+  clientId: varchar("client_id", { length: 100 }),
+  providerName: varchar("provider_name", { length: 300 }).notNull(),
+  providerType: varchar("provider_type", { length: 80 }).notNull(), // outreach | shelter | treatment | housing | employment | legal | peer | primary_care
+  eventType: varchar("event_type", { length: 80 }).notNull(), // enrollment | service | handoff | exit | follow_up | crisis
+  eventDate: timestamp("event_date").defaultNow(),
+  outcome: varchar("outcome", { length: 200 }),
+  nextStep: text("next_step"),
+  documentedBy: varchar("documented_by", { length: 200 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type ContinuumOfCareEvent = typeof continuumOfCareEvents.$inferSelect;
