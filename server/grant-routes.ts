@@ -396,59 +396,50 @@ interface SamGovOpportunity {
   focusAreas?: string[];
 }
 
-async function fetchSamGovOpportunities(keywords: string[]): Promise<SamGovOpportunity[]> {
+// Pulls ALL grants posted in the last `daysBack` days — one paginated date-window call,
+// no keyword loop, so quota isn't burned and nothing is missed by keyword mismatch.
+async function fetchSamGovByDateWindow(daysBack: number = 30): Promise<SamGovOpportunity[]> {
   const apiKey = process.env.SAM_GOV_API_KEY;
-  const results: SamGovOpportunity[] = [];
+  if (!apiKey || apiKey === "DEMO_KEY") return [];
 
-  for (let i = 0; i < keywords.length; i++) {
-    const keyword = keywords[i];
-    if (i > 0) {
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
+  const results: SamGovOpportunity[] = [];
+  const pageSize = 100;
+  let offset = 0;
+  let totalRecords = Infinity;
+  const postedFrom = getDateMonthsAgo(Math.ceil(daysBack / 30));
+  const postedTo = getTodayFormatted();
+
+  while (offset < totalRecords && offset < 600) {
     try {
       const params = new URLSearchParams({
-        api_key: apiKey || "DEMO_KEY",
-        keyword: keyword,
+        api_key: apiKey,
         ptype: "g",
-        limit: "10",
-        postedFrom: getDateMonthsAgo(3),
-        postedTo: getTodayFormatted(),
+        limit: String(pageSize),
+        offset: String(offset),
+        postedFrom,
+        postedTo,
       });
 
       const url = `https://api.sam.gov/opportunities/v2/search?${params.toString()}`;
       const response = await fetch(url, {
         headers: { "Accept": "application/json" },
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(20000),
       });
 
-      let activeResponse = response;
-      if (!activeResponse.ok) {
-        if (activeResponse.status === 429) {
-          const body = await activeResponse.text();
-          if (body.includes("exceeded your quota")) {
-            console.log(`[GrantDiscovery] SAM.gov daily quota exceeded — will resume tomorrow. Processed ${i}/${keywords.length} keywords so far.`);
-            break;
-          }
-          console.log(`SAM.gov rate limited on "${keyword}" — waiting 15s before retry...`);
-          await new Promise(resolve => setTimeout(resolve, 15000));
-          activeResponse = await fetch(url, {
-            headers: { "Accept": "application/json" },
-            signal: AbortSignal.timeout(15000),
-          });
-          if (!activeResponse.ok) {
-            console.error(`SAM.gov retry failed for "${keyword}": ${activeResponse.status}`);
-            continue;
-          }
-          console.log(`SAM.gov retry success for "${keyword}"`);
-        } else {
-          console.error(`SAM.gov API error for "${keyword}": ${activeResponse.status} ${activeResponse.statusText}`);
-          continue;
+      if (!response.ok) {
+        const body = await response.text();
+        if (response.status === 429 || body.includes("exceeded your quota")) {
+          console.log(`[GrantDiscovery] SAM.gov quota exceeded at offset ${offset} — stopping for today`);
+          break;
         }
+        console.error(`[GrantDiscovery] SAM.gov error at offset ${offset}: ${response.status} ${response.statusText}`);
+        break;
       }
 
-      const data = await activeResponse.json();
-      const opportunities = data.opportunitiesData || [];
-      if (opportunities.length > 0) console.log(`SAM.gov found ${opportunities.length} results for "${keyword}"`);
+      const data = await response.json();
+      totalRecords = data.totalRecords ?? 0;
+      const opportunities: any[] = data.opportunitiesData || [];
+      console.log(`[GrantDiscovery] SAM.gov offset=${offset}: ${opportunities.length} grants (${totalRecords} total posted ${postedFrom}–${postedTo})`);
 
       for (const opp of opportunities) {
         if (results.find(r => r.noticeId === opp.noticeId)) continue;
@@ -458,12 +449,8 @@ async function fetchSamGovOpportunities(keywords: string[]): Promise<SamGovOppor
           const types = Array.isArray(opp.applicantTypes) ? opp.applicantTypes : [opp.applicantTypes];
           eligibilityParts.push(`Eligible Applicants: ${types.join(", ")}`);
         }
-        if (opp.applicantEligibilityDescription) {
-          eligibilityParts.push(String(opp.applicantEligibilityDescription));
-        }
-        if (opp.additionalInformationOnEligibility) {
-          eligibilityParts.push(String(opp.additionalInformationOnEligibility));
-        }
+        if (opp.applicantEligibilityDescription) eligibilityParts.push(String(opp.applicantEligibilityDescription));
+        if (opp.additionalInformationOnEligibility) eligibilityParts.push(String(opp.additionalInformationOnEligibility));
         if (opp.fundingActivityCategories) {
           const cats = Array.isArray(opp.fundingActivityCategories) ? opp.fundingActivityCategories : [opp.fundingActivityCategories];
           eligibilityParts.push(`Funding Categories: ${cats.join(", ")}`);
@@ -497,10 +484,18 @@ async function fetchSamGovOpportunities(keywords: string[]): Promise<SamGovOppor
           focusAreas,
         });
       }
+
+      offset += pageSize;
+      if (offset < totalRecords && offset < 600) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
     } catch (error) {
-      console.error(`SAM.gov fetch error for "${keyword}":`, error);
+      console.error(`[GrantDiscovery] SAM.gov fetch error at offset ${offset}:`, error);
+      break;
     }
   }
+
+  console.log(`[GrantDiscovery] SAM.gov date-window fetch complete: ${results.length} unique grants`);
   return results;
 }
 
@@ -3389,71 +3384,10 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
 
     if (samgovEnabled) {
-    const keywords = [
-      // Workforce & economic
-      "workforce development",
-      "workforce innovation opportunity act",
-      "minority business enterprise",
-      "digital literacy education",
-      // Health & behavioral
-      "behavioral health equity",
-      "community health workers",
-      "maternal health equity",
-      "disability support services",
-      "trauma informed care",
-      "mental health workforce",
-      // Substance use, homelessness, street outreach (SAMHSA)
-      "substance use disorder treatment",
-      "opioid treatment recovery",
-      "medication assisted treatment",
-      "co-occurring disorders",
-      "peer recovery support services",
-      "serious mental illness",
-      "street outreach homeless",
-      "homeless recovery services",
-      "recovery support services",
-      "community mental health services",
-      "SAMHSA grant behavioral",
-      "housing first homeless outreach",
-      "overdose prevention",
-      "harm reduction services",
-      "crisis stabilization services",
-      // Children, youth, family
-      "child abuse prevention",
-      "youth mentoring education",
-      "two generation family",
-      "adverse childhood experiences",
-      // Criminal justice & reentry
-      "prisoner reentry",
-      "second chance act",
-      "restorative justice",
-      "crime victim services",
-      "juvenile reentry",
-      // Veterans
-      "veteran transition services",
-      // Community, research, faith
-      "community resilience",
-      "community based participatory research",
-      "implementation science",
-      "evidence based practice",
-      "faith based community partnership",
-      "place based initiative",
-      // AI & data
-      "artificial intelligence community",
-      "responsible artificial intelligence",
-      "data infrastructure outcomes",
-      // Safety net & access
-      "benefits enrollment outreach",
-      "social safety net access",
-      "housing assistance social services",
-      "emergency preparedness community",
-      // Capacity
-      "capacity building nonprofit",
-      "fiscal sponsor intermediary",
-    ];
-
+    // Pull ALL grants posted in last 30 days — no keyword loop, no quota waste.
+    // Score and filter locally after fetching.
     try {
-      const opportunities = await fetchSamGovOpportunities(keywords);
+      const opportunities = await fetchSamGovByDateWindow(30);
 
       for (const opp of opportunities) {
         const existing = await db.select({ id: grantOpportunities.id })
@@ -3533,57 +3467,27 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     } // end SAM.gov else block
 
     // === SOURCE 2: Grants.gov (Federal — no API key needed) ===
+    // Paginate through ALL currently-posted grants — no keyword filter, score locally.
     try {
-      console.log("[GrantDiscovery] Scanning Grants.gov...");
-      const grantsGovKeywords = [
-        // Workforce & economic
-        "workforce development", "minority business", "digital literacy",
-        // Health & behavioral
-        "behavioral health", "community health", "maternal health",
-        "disability services", "trauma informed", "mental health",
-        // Substance use, homelessness, street outreach (SAMHSA)
-        "substance use disorder", "opioid treatment",
-        "medication assisted treatment", "co-occurring disorders",
-        "peer recovery support", "serious mental illness",
-        "street outreach", "homeless recovery",
-        "recovery support services", "community mental health",
-        "overdose prevention", "harm reduction",
-        "crisis stabilization", "SAMHSA",
-        // Children, youth, family
-        "child abuse prevention", "youth mentoring", "two generation",
-        // Criminal justice & reentry
-        "prisoner reentry", "second chance", "restorative justice",
-        "juvenile justice", "crime victim",
-        // Veterans
-        "veteran services",
-        // Community, research, faith
-        "community resilience", "community based participatory research",
-        "implementation science", "evidence based practice",
-        "faith based partnership", "place based",
-        // AI & data
-        "artificial intelligence", "responsible AI",
-        "outcomes measurement",
-        // Safety net
-        "benefits enrollment", "social safety net",
-        "housing assistance",
-        // Capacity
-        "capacity building nonprofit", "fiscal sponsor",
-      ];
+      console.log("[GrantDiscovery] Scanning Grants.gov (keywordless pagination)...");
+      const ggPageSize = 50;
+      let ggOffset = 0;
+      let ggTotal = Infinity;
+      const ggMaxGrants = 500; // cap per daily run
 
-      for (let gi = 0; gi < grantsGovKeywords.length; gi++) {
-        const kw = grantsGovKeywords[gi];
-        if (gi > 0) await new Promise(resolve => setTimeout(resolve, 3000));
+      while (ggOffset < ggTotal && ggOffset < ggMaxGrants) {
         try {
           const ggRes = await fetch("https://apply07.grants.gov/grantsws/rest/opportunities/search", {
             method: "POST",
             headers: { "Content-Type": "application/json", "Accept": "application/json" },
-            body: JSON.stringify({ keyword: kw, oppStatuses: "posted", rows: 10 }),
-            signal: AbortSignal.timeout(20000),
+            body: JSON.stringify({ oppStatuses: "posted", rows: ggPageSize, startRecordNum: ggOffset }),
+            signal: AbortSignal.timeout(25000),
           });
-          if (!ggRes.ok) { console.log(`[GrantDiscovery] Grants.gov error for "${kw}": ${ggRes.status}`); continue; }
+          if (!ggRes.ok) { console.log(`[GrantDiscovery] Grants.gov error at offset ${ggOffset}: ${ggRes.status}`); break; }
           const ggData = await ggRes.json();
-          const ggHits = ggData.oppHits || [];
-          if (ggHits.length > 0) console.log(`[GrantDiscovery] Grants.gov found ${ggHits.length} results for "${kw}"`);
+          ggTotal = ggData.totalCount ?? ggData.hitCount ?? 0;
+          const ggHits: any[] = ggData.oppHits || [];
+          console.log(`[GrantDiscovery] Grants.gov offset=${ggOffset}: ${ggHits.length} grants (${ggTotal} total posted)`);
 
           for (const hit of ggHits) {
             const ggNoticeId = `GG-${hit.id || hit.number}`;
@@ -3605,6 +3509,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
             };
 
             const ggFit = computeFitScore(ggGrantData);
+            if (ggFit.score < 30) { skipped++; continue; } // skip clearly irrelevant
             const ggCategory = categorizeGrant(ggGrantData);
             const ggDeadline = hit.closeDate ? parseSamDate(hit.closeDate) : null;
             const ggPosted = hit.openDate ? parseSamDate(hit.openDate) : null;
@@ -3634,13 +3539,108 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
               });
             }
           }
-        } catch (ggErr) {
-          console.error(`[GrantDiscovery] Grants.gov error for "${kw}":`, ggErr);
+
+          ggOffset += ggPageSize;
+          if (ggOffset < ggTotal && ggOffset < ggMaxGrants) {
+            await new Promise(resolve => setTimeout(resolve, 2000));
+          }
+        } catch (ggPageErr) {
+          console.error(`[GrantDiscovery] Grants.gov page error at offset ${ggOffset}:`, ggPageErr);
+          break;
         }
       }
       console.log(`[GrantDiscovery] Grants.gov scan complete`);
     } catch (error) {
       console.error("[GrantDiscovery] Grants.gov scan failed:", error);
+    }
+
+    // === SOURCE 2b: SAMHSA.gov direct NOFA listing (no API key, no quota) ===
+    // SAMHSA posts all active NOFAs at samhsa.gov/grants/grant-announcements
+    // This catches SAMHSA grants that may not surface quickly through SAM.gov/Grants.gov.
+    try {
+      console.log("[GrantDiscovery] Scanning SAMHSA.gov grant announcements...");
+      const samhsaRes = await fetch("https://www.samhsa.gov/grants/grant-announcements", {
+        headers: { "Accept": "text/html", "User-Agent": "Mozilla/5.0 (compatible; ThriveUpGrantDiscovery/1.0)" },
+        signal: AbortSignal.timeout(20000),
+      });
+      if (samhsaRes.ok) {
+        const html = await samhsaRes.text();
+        // Extract NOFO links — SAMHSA uses patterns like /grants/grant-announcements/SM-YY-NNN
+        const nofoPattern = /href="([^"]*\/grants\/grant-announcements\/([A-Z]{2}-\d{2}-\d{3,4})[^"]*)"/gi;
+        const titlePattern = /<a[^>]+href="[^"]*\/grants\/grant-announcements\/[A-Z]{2}-\d{2}-\d{3,4}[^"]*"[^>]*>([^<]{10,200})<\/a>/gi;
+        const found = new Map<string, { url: string; title: string }>();
+
+        let m;
+        while ((m = nofoPattern.exec(html)) !== null) {
+          const path = m[1];
+          const number = m[2];
+          if (!found.has(number)) {
+            const fullUrl = path.startsWith("http") ? path : `https://www.samhsa.gov${path}`;
+            found.set(number, { url: fullUrl, title: number });
+          }
+        }
+        while ((m = titlePattern.exec(html)) !== null) {
+          const titleText = m[1].trim().replace(/\s+/g, " ");
+          // match number in the title text or just use as label
+          const numInTitle = titleText.match(/[A-Z]{2}-\d{2}-\d{3,4}/);
+          if (numInTitle && found.has(numInTitle[0])) {
+            found.get(numInTitle[0])!.title = titleText;
+          }
+        }
+
+        console.log(`[GrantDiscovery] SAMHSA.gov: found ${found.size} NOFO references`);
+
+        for (const [number, { url, title }] of found) {
+          const samhsaId = `SAMHSA-${number}`;
+          const existing = await db.select({ id: grantOpportunities.id })
+            .from(grantOpportunities)
+            .where(eq(grantOpportunities.samgovId, number))
+            .limit(1);
+          if (existing.length > 0) { skipped++; continue; }
+
+          const grantData = {
+            title: title !== number ? title : `SAMHSA NOFO ${number}`,
+            agency: "SAMHSA / HHS",
+            description: `SAMHSA Notice of Funding Opportunity ${number}. Visit the SAMHSA grants page for full details, eligibility, and application instructions.`,
+            fundingAmount: "",
+            sourceUrl: url,
+            grantType: "Federal Grant — NOFO",
+            focusAreas: ["behavioral health", "SAMHSA", "substance use", "mental health"],
+            eligibilityCriteria: "See SAMHSA NOFO for eligibility requirements.",
+          };
+
+          const fit = computeFitScore(grantData);
+          const category = categorizeGrant(grantData);
+
+          const [samhsaGrant] = await db.insert(grantOpportunities).values({
+            ...grantData,
+            samgovId: number,
+            samgovNoticeId: samhsaId,
+            fitScore: fit.score,
+            fitAnalysis: fit.analysis,
+            readinessChecklist: generateReadinessChecklist(fit.matchedAreas),
+            category,
+            source: "samhsa",
+            status: "identified",
+          }).returning();
+
+          imported++;
+
+          if (fit.score >= 70) {
+            await db.insert(grantAlerts).values({
+              grantId: samhsaGrant.id,
+              alertType: "high_fit_match",
+              title: `SAMHSA NOFO Detected: ${number}`,
+              message: `SAMHSA.gov direct scan found ${number} with ${fit.score}% fit score. Review eligibility and deadline at ${url}`,
+              fitScore: fit.score,
+            });
+          }
+        }
+      } else {
+        console.log(`[GrantDiscovery] SAMHSA.gov returned ${samhsaRes.status} — skipping`);
+      }
+    } catch (samhsaErr) {
+      console.error("[GrantDiscovery] SAMHSA.gov scan error:", samhsaErr);
     }
 
     // === SOURCE 3: USASpending.gov (Federal Awards — see what's being funded NOW) ===
@@ -3955,7 +3955,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       ],
       totalGrantsTracked: totalGrants[0]?.count || 0,
       highFitGrants: highFitGrants[0]?.count || 0,
-      sources: ["SAM.gov (Federal)", "Grants.gov (Federal)", "USASpending.gov (Active Awards)", "Texas State (TWC, HHSC, TEA)", "Foundations (St. David's, DreamBee)", "Corporate (Adient)", "Accelerators (Grand Founders)"],
+      sources: ["SAM.gov (date-window, no keyword loop)", "Grants.gov (keywordless pagination)", "SAMHSA.gov (direct NOFA listing)", "USASpending.gov (Active Awards)", "Texas State (TWC, HHSC, TEA)", "Foundations (St. David's, DreamBee)", "Corporate (Adient)", "Accelerators (Grand Founders)"],
     });
     } catch (error) {
       console.error("Error in GET /api/grants/discovery/status", error);
