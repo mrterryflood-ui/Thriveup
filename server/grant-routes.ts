@@ -973,6 +973,53 @@ export function registerGrantRoutes(app: Express) {
     }
   });
 
+  // POST /api/grants/live-search — no auth required, queries Grants.gov directly.
+  // Use during demos to show real-time results for any org/topic without waiting
+  // for the daily scan. Returns results in seconds.
+  app.post("/api/grants/live-search", async (req, res) => {
+    try {
+      const { query } = req.body as { query?: string };
+      if (!query || query.trim().length < 2) {
+        return res.status(400).json({ error: "Query must be at least 2 characters" });
+      }
+      const ggRes = await fetch("https://apply07.grants.gov/grantsws/rest/opportunities/search", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "Accept": "application/json" },
+        body: JSON.stringify({ keyword: query.trim(), oppStatuses: "posted", rows: 25 }),
+        signal: AbortSignal.timeout(15000),
+      });
+      if (!ggRes.ok) {
+        return res.status(502).json({ error: `Grants.gov returned ${ggRes.status}` });
+      }
+      const ggData = await ggRes.json();
+      const hits: any[] = ggData.oppHits || [];
+      const results = hits.map((hit: any) => ({
+        id: `live-${hit.id || hit.number || Math.random()}`,
+        title: hit.title || "Untitled",
+        agency: hit.agency || "Federal",
+        description: hit.synopsis || "",
+        sourceUrl: `https://www.grants.gov/search-results-detail/${hit.id}`,
+        grantType: hit.docType || "grant",
+        deadline: hit.closeDate ? new Date(hit.closeDate).toISOString() : null,
+        postedDate: hit.openDate ? new Date(hit.openDate).toISOString() : null,
+        fundingAmount: "",
+        fitScore: null as number | null,
+        status: "identified",
+        source: "live",
+        focusAreas: hit.cfdaList ? hit.cfdaList.map((c: string) => `CFDA ${c}`) : [],
+        eligibilityCriteria: "",
+        samgovId: hit.number || null,
+        cfda: hit.cfdaList?.[0] || null,
+        notes: null,
+        category: null,
+      }));
+      res.json({ results, total: ggData.totalCount || hits.length, query: query.trim() });
+    } catch (error: any) {
+      console.error("[LiveSearch] error:", error);
+      res.status(500).json({ error: "Live search failed — Grants.gov may be temporarily unavailable" });
+    }
+  });
+
   app.get("/api/grants/alerts", async (_req, res) => {
     try {
       const alerts = await db.select().from(grantAlerts).orderBy(desc(grantAlerts.createdAt)).limit(50);

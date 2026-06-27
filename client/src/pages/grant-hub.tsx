@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Link as LinkIcon } from "lucide-react";
 import { TrainingGuideButton } from "@/components/training-guide";
@@ -379,6 +379,10 @@ export default function GrantHubPage() {
   const [statusFilter, setStatusFilter] = useState("all");
   const [formData, setFormData] = useState({ title: "", agency: "", fundingAmount: "", description: "", eligibilityCriteria: "", focusAreas: "", sourceUrl: "", grantType: "" });
   const [compareIds, setCompareIds] = useState<Set<string>>(new Set());
+  const [liveResults, setLiveResults] = useState<any[]>([]);
+  const [liveTotal, setLiveTotal] = useState<number | null>(null);
+  const [isLiveSearching, setIsLiveSearching] = useState(false);
+  const liveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: rawGrants, isLoading, error: grantsError } = useQuery<GrantOpportunity[]>({
     queryKey: ["/api/grants", { category: categoryFilter !== "all" ? categoryFilter : undefined, status: statusFilter !== "all" ? statusFilter : undefined }],
@@ -476,6 +480,42 @@ export default function GrantHubPage() {
         (g.description || "").toLowerCase().includes(searchQuery.toLowerCase())
       )
     : grants;
+
+  // Debounced live search — fires 600ms after the user stops typing (min 3 chars)
+  useEffect(() => {
+    if (liveDebounceRef.current) clearTimeout(liveDebounceRef.current);
+    if (searchQuery.trim().length < 3) {
+      setLiveResults([]);
+      setLiveTotal(null);
+      setIsLiveSearching(false);
+      return;
+    }
+    setIsLiveSearching(true);
+    liveDebounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch("/api/grants/live-search", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: searchQuery.trim() }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          // Filter out grants already in our DB (matched by title prefix)
+          const dbTitles = new Set(grants.map(g => g.title.toLowerCase().slice(0, 40)));
+          const fresh = (data.results || []).filter(
+            (r: any) => !dbTitles.has(r.title.toLowerCase().slice(0, 40))
+          );
+          setLiveResults(fresh);
+          setLiveTotal(data.total ?? fresh.length);
+        }
+      } catch {
+        // silent — live search is best-effort
+      } finally {
+        setIsLiveSearching(false);
+      }
+    }, 600);
+    return () => { if (liveDebounceRef.current) clearTimeout(liveDebounceRef.current); };
+  }, [searchQuery]);
 
   const createMutation = useMutation({
     mutationFn: async (data: Record<string, unknown>) => {
@@ -693,14 +733,29 @@ export default function GrantHubPage() {
         <TabsContent value="grants" className="space-y-4">
           <div className="flex flex-col sm:flex-row gap-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              {isLiveSearching
+                ? <RefreshCw className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-blue-500 animate-spin" />
+                : liveResults.length > 0 && searchQuery.trim().length >= 3
+                ? <span className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] font-bold text-red-500">⬤</span>
+                : <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              }
               <Input
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search grants by title, agency, or description..."
+                placeholder="Search grants — live Grants.gov results appear as you type"
                 className="pl-9"
                 data-testid="input-search-grants"
               />
+              {searchQuery.trim().length >= 3 && (
+                <div className="absolute right-3 top-1/2 -translate-y-1/2 flex items-center gap-1">
+                  {isLiveSearching && <span className="text-[10px] text-blue-500 font-medium">Searching live…</span>}
+                  {!isLiveSearching && liveResults.length > 0 && (
+                    <span className="text-[10px] font-bold text-red-500 bg-red-50 dark:bg-red-950/30 px-1.5 py-0.5 rounded">
+                      ⬤ LIVE · {liveTotal !== null && liveTotal > liveResults.length ? `${liveTotal} on Grants.gov` : `${liveResults.length} new`}
+                    </span>
+                  )}
+                </div>
+              )}
             </div>
             <Select value={categoryFilter} onValueChange={setCategoryFilter}>
               <SelectTrigger className="w-[160px]" data-testid="select-category-filter">
@@ -796,14 +851,81 @@ export default function GrantHubPage() {
                 </Card>
               ))}
             </div>
-          ) : filteredGrants.length === 0 ? (
+          ) : filteredGrants.length === 0 && liveResults.length === 0 ? (
             <Card className="p-8 text-center text-muted-foreground" data-testid="card-no-grants">
               <Target className="h-10 w-10 mx-auto mb-3 opacity-40" />
               <p className="font-medium">No grant opportunities found.</p>
-              <p className="text-sm mt-1">Click "Refresh SAM.gov" to discover federal grants, or "Add Grant" to manually track an opportunity.</p>
+              <p className="text-sm mt-1">
+                {searchQuery.trim().length >= 3 && isLiveSearching
+                  ? "Searching Grants.gov live…"
+                  : searchQuery.trim().length >= 3
+                  ? "Nothing matched in your pipeline or Grants.gov for this term."
+                  : "Type a search term to pull live results from Grants.gov, or click \"Refresh SAM.gov\" to run a full scan."}
+              </p>
             </Card>
           ) : (
             <div className="space-y-3">
+              {/* Live results from Grants.gov — appear at top when searching */}
+              {liveResults.length > 0 && (
+                <>
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-xs font-bold text-red-500">⬤ LIVE FROM GRANTS.GOV</span>
+                    <span className="text-xs text-muted-foreground">— not yet in your pipeline</span>
+                    {liveTotal !== null && liveTotal > liveResults.length && (
+                      <span className="text-xs text-muted-foreground">· {liveTotal.toLocaleString()} total matching</span>
+                    )}
+                  </div>
+                  {liveResults.map((grant: any) => (
+                    <Card key={grant.id} className="p-5 hover:shadow-md transition-shadow border-red-200 dark:border-red-900/50 bg-red-50/30 dark:bg-red-950/10" data-testid={`card-grant-${grant.id}`}>
+                      <div className="flex flex-col sm:flex-row sm:items-start gap-4">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <h3 className="font-semibold">{grant.title}</h3>
+                            <Badge className="text-[10px] font-bold bg-red-100 text-red-700 dark:bg-red-900/50 dark:text-red-300 border-0">⬤ LIVE</Badge>
+                            {grant.samgovId && <Badge variant="outline" className="text-xs">#{grant.samgovId}</Badge>}
+                          </div>
+                          {grant.agency && <p className="text-sm text-muted-foreground">{grant.agency}</p>}
+                          <div className="flex flex-wrap items-center gap-3 mt-1">
+                            {grant.deadline && (
+                              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                                <Calendar className="h-3 w-3" />
+                                Deadline: {new Date(grant.deadline).toLocaleDateString()}
+                              </span>
+                            )}
+                            {grant.postedDate && (
+                              <span className="text-xs text-muted-foreground">Posted: {new Date(grant.postedDate).toLocaleDateString()}</span>
+                            )}
+                          </div>
+                          {grant.description && <p className="text-sm text-muted-foreground mt-2 line-clamp-2">{grant.description}</p>}
+                          {Array.isArray(grant.focusAreas) && grant.focusAreas.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {grant.focusAreas.map((area: string) => (
+                                <Badge key={area} variant="secondary" className="text-xs">{area}</Badge>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col gap-2 shrink-0">
+                          {grant.sourceUrl && (
+                            <Button size="sm" variant="outline" asChild>
+                              <a href={grant.sourceUrl} target="_blank" rel="noopener noreferrer">
+                                <ExternalLink className="h-3 w-3 mr-1" /> View on Grants.gov
+                              </a>
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                  {filteredGrants.length > 0 && (
+                    <div className="flex items-center gap-2 pt-2 pb-1">
+                      <div className="flex-1 h-px bg-border" />
+                      <span className="text-xs text-muted-foreground">YOUR PIPELINE</span>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+                  )}
+                </>
+              )}
               {filteredGrants.map(grant => (
                 <Card key={grant.id} className="p-5 hover:shadow-md transition-shadow" data-testid={`card-grant-${grant.id}`}>
                   <div className="flex flex-col sm:flex-row sm:items-start gap-4">
