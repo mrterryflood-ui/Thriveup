@@ -5,6 +5,7 @@ import { and, desc, eq } from "drizzle-orm";
 import { requireAuth, requireOrg, getCallerOrg, rateLimitAi } from "./tenant-middleware";
 import { extractRubric, getOrExtractRubric, loadRfpDocumentStack, generateDraftFromRubric, scoreDraftAgainstRubric, type GeneratedDraft } from "./rfp-rubric";
 import { getAgencyIntel } from "./agency-intelligence";
+import { detectProfileFromGrant } from "./agency-profiles";
 import { getFoundationIntel, classifyFunder } from "./foundation-intelligence";
 import { loadRelevantWonProposals } from "./won-proposals";
 import type { ActiveBid } from "@shared/active-bids";
@@ -74,7 +75,60 @@ export function registerGrantNarrativeRoutes(app: Express) {
     }
   });
 
-  // Agency intelligence (USASpending + AI summary).
+  // Zero-click agency profile detection — surfaces forms, language, performance
+  // system, evaluation signals for any grant without user action.
+  // GET /api/agency-profiles/detect?agency=SAMHSA&cfda=93.243&title=...
+  app.get("/api/agency-profiles/detect", requireAuth, async (req: Request, res: Response) => {
+    const agency = typeof req.query.agency === "string" ? req.query.agency : null;
+    const cfda = typeof req.query.cfda === "string" ? req.query.cfda : null;
+    const title = typeof req.query.title === "string" ? req.query.title : null;
+    const grantId = typeof req.query.grantId === "string" ? req.query.grantId : null;
+
+    // Allow fetching by grantId — pull agency/cfda from the DB record
+    let resolvedAgency = agency;
+    let resolvedCfda = cfda;
+    let resolvedTitle = title;
+    if (grantId && !resolvedAgency) {
+      try {
+        const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, grantId));
+        if (grant) {
+          resolvedAgency = grant.agency ?? null;
+          resolvedCfda = grant.cfda ?? null;
+          resolvedTitle = grant.title ?? null;
+        }
+      } catch { /* non-fatal */ }
+    }
+
+    const profile = detectProfileFromGrant({ agency: resolvedAgency, cfda: resolvedCfda, title: resolvedTitle });
+    if (!profile) {
+      return res.json({ profile: null, detected: false, message: "No profile matched for this grant — submit agency name/CFDA for best results" });
+    }
+
+    // Return a structured response useful for the writing platform UI
+    res.json({
+      detected: true,
+      agencyId: profile.agencyId,
+      name: profile.name,
+      abbreviation: profile.abbreviation,
+      resourcesUrl: profile.resourcesUrl,
+      howToApplyUrl: profile.howToApplyUrl,
+      programOffices: profile.programOffices,
+      requiredForms: profile.requiredForms,
+      performanceSystem: {
+        name: profile.performanceSystem.name,
+        description: profile.performanceSystem.description,
+        reportingFrequency: profile.performanceSystem.reportingFrequency,
+        portalUrl: profile.performanceSystem.portalUrl,
+        keyMetrics: profile.performanceSystem.keyMetrics,
+      },
+      languageDictionary: profile.languageDictionary,
+      evidenceRequirements: profile.evidenceRequirements,
+      budgetRules: profile.budgetRules,
+      evaluationSignals: profile.evaluationSignals,
+    });
+  });
+
+  // Agency intelligence (USASpending + AI summary + static profile merged).
   app.get("/api/agency-intel", requireAuth, async (req: Request, res: Response) => {
     const agency = typeof req.query.agency === "string" ? req.query.agency : "";
     const cfda = typeof req.query.cfda === "string" ? req.query.cfda : null;

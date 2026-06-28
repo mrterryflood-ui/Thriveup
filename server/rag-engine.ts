@@ -4,6 +4,7 @@ import { getChainwebRAGContext } from "./chainweb-engine";
 import { eq, sql } from "drizzle-orm";
 import { generateAIResponse, streamAIResponse } from "./ai-provider";
 import type { Express, Request, Response } from "express";
+import { getAllRagEntries } from "./agency-profiles";
 
 interface KnowledgeChunk {
   source: string;
@@ -836,7 +837,23 @@ async function seedKnowledgeBase() {
       metadata: {},
     });
   }
-  console.log(`[RAG] Seeded ${ECOSYSTEM_KNOWLEDGE.length} knowledge chunks`);
+
+  // Seed 28-agency profiles (forms, language, performance system, evaluation signals)
+  const agencyEntries = getAllRagEntries();
+  for (const entry of agencyEntries) {
+    await db.insert(ecosystemKnowledgeChunks).values({
+      source: `agency-profile-${entry.agencyId}`,
+      category: "federal-agency-intelligence",
+      title: entry.title,
+      content: entry.content,
+      keywords: entry.keywords,
+      metadata: { agencyId: entry.agencyId },
+    });
+  }
+
+  console.log(
+    `[RAG] Seeded ${ECOSYSTEM_KNOWLEDGE.length} platform chunks + ${agencyEntries.length} agency intelligence chunks`,
+  );
 }
 
 export async function buildLiveIntelligenceContext(): Promise<string> {

@@ -146,13 +146,75 @@ function buildFoundationIntelBlock(intel: FoundationIntel | null): string {
 function buildAgencyIntelBlock(intel: AgencyIntel | null): string {
   if (!intel) return "(no agency intelligence available)";
   const winners = intel.recentWinners.slice(0, 8).map(w => `  • ${w.recipient}${w.amount ? ` ($${w.amount.toLocaleString()})` : ""}${w.year ? ` [${w.year}]` : ""}${w.project ? ` — ${w.project.slice(0, 120)}` : ""}`).join("\n");
-  return [
+
+  const lines: string[] = [
     `Agency: ${intel.agencyName}`,
     `Typical award size: ${intel.typicalAwardSize ?? "unknown"}`,
     `What this agency funds: ${intel.whatTheyFund}`,
     `Winning-language patterns to mirror:\n  ${intel.languagePatterns.map(p => `• ${p}`).join("\n  ") || "(none detected)"}`,
     `Recent winners (mirror their framing where applicable):\n${winners || "  (none on file)"}`,
-  ].join("\n");
+  ];
+
+  // ── Static profile layer (program-level intelligence) ─────────────────────
+  const p = intel.profile;
+  if (p) {
+    lines.push(`\n=== AGENCY PROGRAM INTELLIGENCE: ${p.abbreviation} ===`);
+
+    // Required forms checklist
+    const required = p.requiredForms.filter(f => f.required);
+    const conditional = p.requiredForms.filter(f => !f.required);
+    if (required.length) {
+      lines.push(`\nREQUIRED FORMS (every application must include these):`);
+      for (const f of required) {
+        lines.push(`  ✓ ${f.name} — ${f.description} [${f.url}]`);
+      }
+    }
+    if (conditional.length) {
+      lines.push(`\nCONDITIONAL FORMS (include when applicable):`);
+      for (const f of conditional) {
+        lines.push(`  ○ ${f.name}${f.whenRequired ? ` (when: ${f.whenRequired})` : ""} — ${f.description}`);
+      }
+    }
+
+    // Performance system — write to THESE metrics
+    lines.push(`\nMANDATORY PERFORMANCE SYSTEM (post-award reporting):\n  ${p.performanceSystem.slice(0, 400)}`);
+
+    // Language dictionary — exact terminology
+    lines.push(`\nAGENCY LANGUAGE DICTIONARY (use these exact terms — reviewers notice when you don't):\n  ${p.languageDictionary.slice(0, 20).map(t => `• ${t}`).join("\n  ")}`);
+
+    // Evidence requirements
+    lines.push(`\nEVIDENCE REQUIREMENTS:\n  ${p.evidenceRequirement.slice(0, 300)}`);
+
+    // Budget rules
+    lines.push(`\nBUDGET RULES:\n  ${p.budgetRules.slice(0, 300)}`);
+
+    // Evaluation signals
+    if (p.evaluationSignals.whatTheyScore.length) {
+      lines.push(`\nWHAT REVIEWERS SCORE (write to each of these):`);
+      for (const s of p.evaluationSignals.whatTheyScore) {
+        lines.push(`  → ${s}`);
+      }
+    }
+    if (p.evaluationSignals.winFactors.length) {
+      lines.push(`\nWIN FACTORS (explicitly include these):`);
+      for (const w of p.evaluationSignals.winFactors) {
+        lines.push(`  ★ ${w}`);
+      }
+    }
+    if (p.evaluationSignals.commonDisqualifiers.length) {
+      lines.push(`\nCOMMON DISQUALIFIERS (do not trigger these):`);
+      for (const d of p.evaluationSignals.commonDisqualifiers) {
+        lines.push(`  ✗ ${d}`);
+      }
+    }
+
+    // Resource page updates (monthly crawl)
+    if (p.resourcePageUpdates) {
+      lines.push(`\n⚠ RECENT AGENCY GUIDANCE UPDATE (fetched from ${p.resourcesUrl}):\n  ${p.resourcePageUpdates}`);
+    }
+  }
+
+  return lines.join("\n");
 }
 
 export type DraftSection = { sectionName: string; pointValue?: number; body: string };

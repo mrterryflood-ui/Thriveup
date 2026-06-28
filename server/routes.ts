@@ -124,6 +124,7 @@ import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerOrgProfileRoutes } from "./org-profile-routes";
 import { registerOrgDocumentsRoutes } from "./org-documents-routes";
 import { registerGrantNarrativeRoutes } from "./grant-narrative-routes";
+import { scheduleMonthlyResourceRefresh } from "./agency-intelligence";
 import { registerSafePassageRoutes } from "./safe-passage-routes";
 import { registerEcosystemIntelRoutes } from "./ecosystem-intel-routes";
 import { registerRuralIntelRoutes } from "./rural-intel-routes";
@@ -451,6 +452,7 @@ export async function registerRoutes(
   registerOrgProfileRoutes(app);
   registerOrgDocumentsRoutes(app);
   registerGrantNarrativeRoutes(app);
+  scheduleMonthlyResourceRefresh(); // non-blocking; staggered 2s/agency background refresh
   registerWonProposalsRoutes(app);
   registerActiveBidsRoutes(app);
   registerRfpFidelityRoutes(app);
