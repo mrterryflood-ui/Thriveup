@@ -13,6 +13,7 @@
  * Auth: X-Api-Key: <key>  OR  Authorization: Bearer <key>
  * Rate: 60 requests / minute per IP
  */
+import { Router } from "express";
 import type { Express, Request, Response, NextFunction } from "express";
 import { createHash } from "node:crypto";
 import { db } from "./storage";
@@ -287,26 +288,37 @@ function extractCountyFromGeographies(geographies: any): ResolvedCounty | null {
   };
 }
 
-// City + state → county (Census Geocoder address endpoint)
-async function resolveCityToCounty(city: string, stateAbbr: string): Promise<ResolvedCounty | null> {
-  const url = `${CENSUS_GEOCODER}/address?city=${encodeURIComponent(city)}&state=${encodeURIComponent(stateAbbr)}&benchmark=Public_AR_Current&vintage=Current_Current&layers=2&format=json`;
+const NOMINATIM = "https://nominatim.openstreetmap.org/search";
+const NOMINATIM_UA = "ThriveUp-CommunityAPI/2.0 (thrivingcommunitiesforall.com)";
+
+// Nominatim → lat/lon → Census Geocoder reverse → county
+// Nominatim handles ZIP-only and city-only lookups; Census Geocoder does not.
+async function nominatimToCounty(params: Record<string, string>): Promise<ResolvedCounty | null> {
+  const qs = new URLSearchParams({ ...params, country: "us", format: "json", addressdetails: "1", limit: "1" });
   try {
-    const data = await fetchJson(url);
-    const match = data?.result?.addressMatches?.[0];
-    if (!match) return null;
-    return extractCountyFromGeographies(match.geographies);
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 10_000);
+    const r = await fetch(`${NOMINATIM}?${qs}`, {
+      headers: { Accept: "application/json", "User-Agent": NOMINATIM_UA },
+      signal: ctl.signal,
+    });
+    clearTimeout(t);
+    if (!r.ok) return null;
+    const data = await r.json();
+    const hit = Array.isArray(data) ? data[0] : null;
+    if (!hit?.lat || !hit?.lon) return null;
+    return resolveLatLngToCounty(parseFloat(hit.lat), parseFloat(hit.lon));
   } catch { return null; }
 }
 
-// ZIP code → county (Census Geocoder address endpoint)
+// City + state → county
+async function resolveCityToCounty(city: string, stateAbbr: string): Promise<ResolvedCounty | null> {
+  return nominatimToCounty({ city, state: stateAbbr });
+}
+
+// ZIP code → county
 async function resolveZipToCounty(zip: string): Promise<ResolvedCounty | null> {
-  const url = `${CENSUS_GEOCODER}/address?zip=${encodeURIComponent(zip)}&benchmark=Public_AR_Current&vintage=Current_Current&layers=2&format=json`;
-  try {
-    const data = await fetchJson(url);
-    const match = data?.result?.addressMatches?.[0];
-    if (!match) return null;
-    return extractCountyFromGeographies(match.geographies);
-  } catch { return null; }
+  return nominatimToCounty({ postalcode: zip });
 }
 
 // Lat/lng reverse geocode → county (Census Geocoder coordinates endpoint)
@@ -320,13 +332,16 @@ async function resolveLatLngToCounty(lat: number, lng: number): Promise<Resolved
   } catch { return null; }
 }
 
-// ── Route registration ────────────────────────────────────────────────────────
-export function registerCommunityApiRoutes(app: Express) {
+// ── Router factory ────────────────────────────────────────────────────────────
+// Returns an Express Router mounted at /api/community by server/index.ts.
+// All paths here are relative (e.g. "/profile" not "/api/community/profile").
+export function createCommunityRouter(): Router {
+  const router = Router();
   const rl = rateLimit(60, 60_000);
   const mw = [requireApiKey, rl] as any[];
 
-  // ── /api/community/profile ─────────────────────────────────────────────────
-  app.get("/api/community/profile", ...mw, async (req: Request, res: Response) => {
+  // ── /profile ───────────────────────────────────────────────────────────────
+  router.get("/profile", ...mw, async (req: Request, res: Response) => {
     try {
       const state  = String(req.query.state  ?? "").toUpperCase().trim();
       const county = String(req.query.county ?? "").trim();
@@ -372,8 +387,8 @@ export function registerCommunityApiRoutes(app: Express) {
     }
   });
 
-  // ── /api/community/opportunities ──────────────────────────────────────────
-  app.get("/api/community/opportunities", ...mw, async (req: Request, res: Response) => {
+  // ── /opportunities ────────────────────────────────────────────────────────
+  router.get("/opportunities", ...mw, async (req: Request, res: Response) => {
     try {
       const state  = String(req.query.state  ?? "").toUpperCase().trim();
       const county = String(req.query.county ?? "").trim();
@@ -432,8 +447,8 @@ export function registerCommunityApiRoutes(app: Express) {
     }
   });
 
-  // ── /api/community/compare ─────────────────────────────────────────────────
-  app.get("/api/community/compare", ...mw, async (req: Request, res: Response) => {
+  // ── /compare ──────────────────────────────────────────────────────────────
+  router.get("/compare", ...mw, async (req: Request, res: Response) => {
     try {
       const state  = String(req.query.state  ?? "").toUpperCase().trim();
       const county = String(req.query.county ?? "").trim();
@@ -505,10 +520,10 @@ export function registerCommunityApiRoutes(app: Express) {
     }
   });
 
-  // ── /api/community (root manifest) ────────────────────────────────────────
+  // ── / (root manifest) ─────────────────────────────────────────────────────
   // Must be registered AFTER the sub-routes so it doesn't shadow them.
   // Returns JSON capabilities — never HTML.
-  app.get("/api/community", ...mw, (_req: Request, res: Response) => {
+  router.get("/", ...mw, (_req: Request, res: Response) => {
     res.json({
       name: "ThriveUp Community Intelligence API",
       version: "2.0.0",
@@ -534,9 +549,9 @@ export function registerCommunityApiRoutes(app: Express) {
     });
   });
 
-  // ── /api/community/city ────────────────────────────────────────────────────
-  // City + state → Census Geocoder → county FIPS → full profile
-  app.get("/api/community/city", ...mw, async (req: Request, res: Response) => {
+  // ── /city ─────────────────────────────────────────────────────────────────
+  // City + state → Nominatim → lat/lon → Census Geocoder → county + full profile
+  router.get("/city", ...mw, async (req: Request, res: Response) => {
     try {
       const city  = String(req.query.city  ?? "").trim();
       const state = String(req.query.state ?? "").toUpperCase().trim();
@@ -577,9 +592,9 @@ export function registerCommunityApiRoutes(app: Express) {
     }
   });
 
-  // ── /api/community/zip ─────────────────────────────────────────────────────
-  // ZIP code → Census Geocoder → county FIPS → full profile
-  app.get("/api/community/zip", ...mw, async (req: Request, res: Response) => {
+  // ── /zip ──────────────────────────────────────────────────────────────────
+  // ZIP code → Nominatim → lat/lon → Census Geocoder → county + full profile
+  router.get("/zip", ...mw, async (req: Request, res: Response) => {
     try {
       const zip = String(req.query.zip ?? "").replace(/\D/g, "").slice(0, 5);
       if (!zip || zip.length < 5) {
@@ -616,9 +631,9 @@ export function registerCommunityApiRoutes(app: Express) {
     }
   });
 
-  // ── /api/community/geo ─────────────────────────────────────────────────────
-  // Lat/lng reverse geocode → county → full profile
-  app.get("/api/community/geo", ...mw, async (req: Request, res: Response) => {
+  // ── /geo ──────────────────────────────────────────────────────────────────
+  // Lat/lng → Census Geocoder reverse → county + full profile
+  router.get("/geo", ...mw, async (req: Request, res: Response) => {
     try {
       const lat = parseFloat(String(req.query.lat ?? ""));
       const lng = parseFloat(String(req.query.lng ?? req.query.lon ?? ""));
@@ -660,39 +675,52 @@ export function registerCommunityApiRoutes(app: Express) {
   });
 
   // ── /api/community/search ──────────────────────────────────────────────────
-  // Free-text → Census Geocoder → ranked county candidates (autocomplete helper)
-  app.get("/api/community/search", ...mw, async (req: Request, res: Response) => {
+  // Free-text → Nominatim → ranked county candidates (autocomplete helper)
+  router.get("/search", ...mw, async (req: Request, res: Response) => {
     try {
       const q = String(req.query.q ?? "").trim();
       if (!q || q.length < 2) {
         return res.status(400).json({ error: "q must be at least 2 characters.", example: "?q=Austin+TX" });
       }
-      const url = `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(q)}&benchmark=Public_AR_Current&vintage=Current_Current&layers=2&format=json`;
-      let candidates: any[] = [];
-      try {
-        const data = await fetchJson(url);
-        candidates = data?.result?.addressMatches ?? [];
-      } catch { /* non-fatal — return empty results */ }
 
-      const results = candidates.slice(0, 5).map((m: any) => {
-        const geo = extractCountyFromGeographies(m.geographies);
-        if (!geo) return null;
-        return {
-          matchedAddress: m.matchedAddress ?? null,
-          county:         geo.countyName,
-          state:          geo.stateAbbr,
-          countyFips:     geo.countyFips,
-          profileUrl:     `/api/community/profile?state=${geo.stateAbbr}&county=${encodeURIComponent(geo.countyName)}`,
-          cityUrl:        null,
-        };
-      }).filter(Boolean);
+      // Nominatim handles free-text city/county/ZIP queries; Census Geocoder requires street addresses.
+      const qs = new URLSearchParams({ q, country: "us", format: "json", addressdetails: "1", limit: "5" });
+      let hits: any[] = [];
+      try {
+        const ctl = new AbortController();
+        const t = setTimeout(() => ctl.abort(), 10_000);
+        const r = await fetch(`${NOMINATIM}?${qs}`, {
+          headers: { Accept: "application/json", "User-Agent": NOMINATIM_UA },
+          signal: ctl.signal,
+        });
+        clearTimeout(t);
+        if (r.ok) hits = await r.json();
+      } catch { /* non-fatal */ }
+
+      // Deduplicate by county FIPS — multiple Nominatim hits often map to same county
+      const seen = new Set<string>();
+      const results: any[] = [];
+      for (const hit of hits) {
+        if (!hit.lat || !hit.lon) continue;
+        const geo = await resolveLatLngToCounty(parseFloat(hit.lat), parseFloat(hit.lon));
+        if (!geo || seen.has(geo.countyFips)) continue;
+        seen.add(geo.countyFips);
+        results.push({
+          matchedText:  hit.display_name?.split(",").slice(0, 2).join(",").trim() ?? null,
+          county:       geo.countyName,
+          state:        geo.stateAbbr,
+          countyFips:   geo.countyFips,
+          profileUrl:   `/api/community/profile?state=${geo.stateAbbr}&county=${encodeURIComponent(geo.countyName)}`,
+        });
+        if (results.length >= 5) break;
+      }
 
       return res.json({
         query:   q,
         total:   results.length,
         results,
-        tip: results.length === 0 ? "Try including a state abbreviation, e.g. 'Austin TX' or 'Travis County TX'" : undefined,
-        _poweredBy: "ThriveUp Community Intelligence API · Census Geocoder",
+        tip: results.length === 0 ? "Try adding a state abbreviation, e.g. 'Austin TX', '78701', or 'Travis County TX'" : undefined,
+        _poweredBy: "ThriveUp Community Intelligence API · Nominatim · Census Geocoder",
       });
     } catch (err: any) {
       console.error("[community-api/search]", err?.message ?? err);
@@ -700,10 +728,8 @@ export function registerCommunityApiRoutes(app: Express) {
     }
   });
 
-  // ── Terminal JSON 404 for any unmatched /api/community/* path ──────────────
-  // Prevents the SPA catch-all from responding to API paths with HTML.
-  // Must be the LAST handler registered in this function.
-  app.use("/api/community", (_req: Request, res: Response) => {
+  // ── Terminal JSON 404 — must be last in this router ──────────────────────
+  router.use((_req: Request, res: Response) => {
     res.status(404).json({
       error: "API endpoint not found.",
       availableEndpoints: [
@@ -718,7 +744,12 @@ export function registerCommunityApiRoutes(app: Express) {
       ],
     });
   });
+
+  return router;
 }
+
+// Singleton export — mounted as app.use('/api/community', communityRouter) in index.ts
+export const communityRouter = createCommunityRouter();
 
 // ── Grant narrative hint builder ──────────────────────────────────────────────
 function buildNarrativeHint(

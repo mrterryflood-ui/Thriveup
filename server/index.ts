@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
+import { communityRouter } from "./community-api-routes";
 import { setupAuth, registerAuthRoutes } from "./replit_integrations/auth";
 import { serveStatic } from "./static";
 import { createServer } from "http";
@@ -119,6 +120,11 @@ app.use((req, res, next) => {
 
   await setupAuth(app);
   registerAuthRoutes(app);
+
+  // STEP 1 — API routers first, before any static middleware
+  app.use("/api/community", communityRouter);
+
+  // STEP 2 — remaining API routes
   await registerRoutes(httpServer, app);
 
   // AI engine smoke tests — runs every 15 min in production, emails Dr. Flood
@@ -153,11 +159,11 @@ app.use((req, res, next) => {
     return res.status(status).json({ message });
   });
 
-  // Global API 404 guard — sits between registerRoutes and serveStatic.
-  // Any /api/* path that was not handled by a real route returns JSON 404,
-  // never the SPA index.html. This permanently closes the HTML-leak vector
-  // described in the three-way-fusion fail-safe protocol.
-  app.use("/api", (_req: Request, res: Response) => {
+  // Global API 404 firebreak — explicit wildcard so Express 5 path-to-regexp
+  // matches only unhandled /api/... sub-paths, never bleeds into the SPA.
+  // Sits between registerRoutes (top) and serveStatic (bottom) — that ordering
+  // is what makes it work. HTML can never be the response to an API path.
+  app.use("/api/*path", (_req: Request, res: Response) => {
     res.status(404).json({ error: "API endpoint not found." });
   });
 
