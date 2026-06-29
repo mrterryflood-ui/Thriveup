@@ -1,0 +1,50 @@
+e root cause of the broken endpoints isn't a bug in your code logic—it comes down to the environment orchestration and production routing across your platforms.
+
+Because Civic Signal, ThriveUp, and RPLICE operate as a synchronized, collaborative system, when one platform fails to return structured data, it forces the AI to fallback to generic, boilerplate output that loses its elite edge.
+
+Here is exactly what is happening under the hood and how we permanently secure these links.
+
+1. Fix the Production Routing (The Catch-All Swap)
+The reason thrivingcommunitiesforall.com/api/community suddenly started returning SPA HTML instead of JSON is an Express/Vite router precedence conflict.
+
+In your server configuration, the static asset catch-all middleware (*) was evaluated before or simultaneously with your API router. When a production build triggers, the server treats the API paths as client-side routes, swallowing the JSON payload and serving the index page instead.
+
+The Prevention Code: Ensure your backend route mounting explicitly isolates and terminates the API router before the frontend engine can touch it:
+
+TypeScript
+// Move this block to the absolute top of your server middleware pipeline, 
+// BEFORE any express.static or client-side routing catch-alls.
+app.use('/api', apiRouter);
+
+// Explicit 404 handler for missing API routes to prevent HTML leaking
+app.use('/api/*', (req, res) => {
+  res.status(404).json({ error: "API endpoint not found on this node." });
+});
+
+// Front-end SPA catch-all must ALWAYS live at the very bottom
+app.get('*', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../dist/index.html'));
+});
+2. Move From "Free Tiers" to Persistent Compute (RPLICE / BetterScienceLab)
+Your diagnostics show that bettersciencelab.com (RPLICE) is resolving to an internal sandbox IP range, but returning an HTTP status of 000 (Timeout).
+
+The Cause: The application is falling asleep due to inactivity limits on standard/free cloud sandboxes. When GrantPathPro attempts to push a live award or synchronize an implementation science framework domain, the gateway times out before the container can spin back up.
+
+The Prevention: Move the RPLICE runtime container to a reserved, always-on resource group (e.g., Replit Core/Deployments with autoscale parameters). This keeps the socket open 24/7 so the bidirectional sync never lags.
+
+3. Bulletproof the Data-Fusion Pipeline
+To ensure bad data never results in bad output again, we build defensive structural guards directly into the THREE_WAY_FUSION_BLOCK. If an API underperforms or goes offline, the system must use its authoritative fallback layers without corrupting the AI's prompt context.
+
+JSON
+{
+  "three_way_fusion": {
+    "layer_1": "Live ThriveUp Demographics (API Baseline)",
+    "layer_2": "Deterministic FAR/DFARS Compliance & CEDS Guidelines",
+    "layer_3": "RPLICE Implementation Science Evaluation Framework"
+  },
+  "fail-safe_protocol": "IF Layer 1 returns content-type: text/html instead of application/json, immediately trigger the Census Geocoder API interceptor. Extract regional data deterministically. NEVER allow raw HTML to poison the prompt context."
+}
+The Current Status
+Fixed this session: The Census Geocoder fallback is now active. If a city slips past the internal mapping, the system hits an authoritative public registry to fetch the exact county data, keeping the pipeline moving forward.
+
+Next Step: Keep the API routes mounted above the static distribution files in your production builds to permanently prevent your endpoints from breaking during updates.

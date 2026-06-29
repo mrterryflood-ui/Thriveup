@@ -20,8 +20,9 @@ import { grantOpportunities } from "@shared/schema";
 import { desc } from "drizzle-orm";
 import { getStateFips } from "./gis-engine";
 
-const CENSUS_ACS = "https://api.census.gov/data/2022/acs/acs5";
-const CDC_PLACES = "https://data.cdc.gov/resource/swc5-untb.json";
+const CENSUS_ACS      = "https://api.census.gov/data/2022/acs/acs5";
+const CDC_PLACES      = "https://data.cdc.gov/resource/swc5-untb.json";
+const CENSUS_GEOCODER = "https://geocoding.geo.census.gov/geocoder/geographies";
 
 const STATE_NAMES: Record<string, string> = {
   AL:"Alabama",AK:"Alaska",AZ:"Arizona",AR:"Arkansas",CA:"California",
@@ -35,6 +36,18 @@ const STATE_NAMES: Record<string, string> = {
   SD:"South Dakota",TN:"Tennessee",TX:"Texas",UT:"Utah",VT:"Vermont",
   VA:"Virginia",WA:"Washington",WV:"West Virginia",WI:"Wisconsin",WY:"Wyoming",
   DC:"District of Columbia",
+};
+
+// Reverse FIPS → state abbreviation (used after Census Geocoder resolves a county)
+const FIPS_TO_STATE: Record<string, string> = {
+  "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT",
+  "10":"DE","11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL",
+  "18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD",
+  "25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE",
+  "32":"NV","33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND",
+  "39":"OH","40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD",
+  "47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV",
+  "55":"WI","56":"WY",
 };
 
 // ── Fetch with retry ─────────────────────────────────────────────────────────
@@ -242,6 +255,71 @@ async function fetchAcsSummary(forClause: string, censusKey: string) {
   }
 }
 
+// ── Census Geocoder helpers ───────────────────────────────────────────────────
+type ResolvedCounty = {
+  stateFips: string;
+  countyFips3: string;
+  countyFips: string;
+  countyName: string;
+  stateAbbr: string;
+};
+
+function extractCountyFromGeographies(geographies: any): ResolvedCounty | null {
+  const counties: any[] =
+    geographies?.["Counties"] ??
+    geographies?.["2010 Census Counties"] ??
+    geographies?.["Census Counties"] ??
+    [];
+  if (!Array.isArray(counties) || counties.length === 0) return null;
+  const c = counties[0];
+  const stateFips   = String(c.STATE   ?? c.STATEFP  ?? "");
+  const countyFips3 = String(c.COUNTY  ?? c.COUNTYFP ?? "");
+  if (!stateFips || !countyFips3) return null;
+  const countyName = String(c.NAME ?? c.BASENAME ?? "")
+    .replace(/\s*County\s*$/, "")
+    .trim();
+  return {
+    stateFips,
+    countyFips3,
+    countyFips: `${stateFips}${countyFips3}`,
+    countyName,
+    stateAbbr: FIPS_TO_STATE[stateFips] ?? "",
+  };
+}
+
+// City + state → county (Census Geocoder address endpoint)
+async function resolveCityToCounty(city: string, stateAbbr: string): Promise<ResolvedCounty | null> {
+  const url = `${CENSUS_GEOCODER}/address?city=${encodeURIComponent(city)}&state=${encodeURIComponent(stateAbbr)}&benchmark=Public_AR_Current&vintage=Current_Current&layers=2&format=json`;
+  try {
+    const data = await fetchJson(url);
+    const match = data?.result?.addressMatches?.[0];
+    if (!match) return null;
+    return extractCountyFromGeographies(match.geographies);
+  } catch { return null; }
+}
+
+// ZIP code → county (Census Geocoder address endpoint)
+async function resolveZipToCounty(zip: string): Promise<ResolvedCounty | null> {
+  const url = `${CENSUS_GEOCODER}/address?zip=${encodeURIComponent(zip)}&benchmark=Public_AR_Current&vintage=Current_Current&layers=2&format=json`;
+  try {
+    const data = await fetchJson(url);
+    const match = data?.result?.addressMatches?.[0];
+    if (!match) return null;
+    return extractCountyFromGeographies(match.geographies);
+  } catch { return null; }
+}
+
+// Lat/lng reverse geocode → county (Census Geocoder coordinates endpoint)
+async function resolveLatLngToCounty(lat: number, lng: number): Promise<ResolvedCounty | null> {
+  const url = `${CENSUS_GEOCODER}/coordinates?x=${lng}&y=${lat}&benchmark=Public_AR_Current&vintage=Current_Current&layers=Counties&format=json`;
+  try {
+    const data = await fetchJson(url);
+    const geographies = data?.result?.geographies;
+    if (!geographies) return null;
+    return extractCountyFromGeographies(geographies);
+  } catch { return null; }
+}
+
 // ── Route registration ────────────────────────────────────────────────────────
 export function registerCommunityApiRoutes(app: Express) {
   const rl = rateLimit(60, 60_000);
@@ -425,6 +503,220 @@ export function registerCommunityApiRoutes(app: Express) {
       console.error("[community-api/compare]", err?.message ?? err);
       return res.status(500).json({ error: "Failed to retrieve comparison data." });
     }
+  });
+
+  // ── /api/community (root manifest) ────────────────────────────────────────
+  // Must be registered AFTER the sub-routes so it doesn't shadow them.
+  // Returns JSON capabilities — never HTML.
+  app.get("/api/community", ...mw, (_req: Request, res: Response) => {
+    res.json({
+      name: "ThriveUp Community Intelligence API",
+      version: "2.0.0",
+      poweredBy: "thrivingcommunitiesforall.com",
+      description: "Real-time U.S. county demographics, health indicators, and grant opportunities for any geography.",
+      endpoints: {
+        profile:       "GET /api/community/profile?state=TX&county=Burnet",
+        city:          "GET /api/community/city?city=Austin&state=TX",
+        zip:           "GET /api/community/zip?zip=78701",
+        geo:           "GET /api/community/geo?lat=30.2672&lng=-97.7431",
+        search:        "GET /api/community/search?q=Austin+TX",
+        opportunities: "GET /api/community/opportunities?state=TX&county=Burnet",
+        compare:       "GET /api/community/compare?state=TX&county=Burnet",
+      },
+      auth: "X-Api-Key: <key>  OR  Authorization: Bearer <key>",
+      rateLimit: "60 requests / minute per IP",
+      dataSources: [
+        "U.S. Census Bureau ACS 5-year (2018–2022)",
+        "CDC PLACES 2023",
+        "Census Geocoder (city / ZIP / lat-lng resolution)",
+        "ThriveUp Grant Discovery Engine (SAM.gov · Grants.gov · curated feeds)",
+      ],
+    });
+  });
+
+  // ── /api/community/city ────────────────────────────────────────────────────
+  // City + state → Census Geocoder → county FIPS → full profile
+  app.get("/api/community/city", ...mw, async (req: Request, res: Response) => {
+    try {
+      const city  = String(req.query.city  ?? "").trim();
+      const state = String(req.query.state ?? "").toUpperCase().trim();
+      if (!city || !state) {
+        return res.status(400).json({ error: "city and state are required.", example: "?city=Austin&state=TX" });
+      }
+      const resolved = await resolveCityToCounty(city, state);
+      if (!resolved) {
+        return res.status(404).json({
+          error: `Could not resolve "${city}, ${state}" to a county.`,
+          tip: "Try a nearby major city, or use /api/community/zip or /api/community/profile?state=TX&county=Travis",
+        });
+      }
+      const censusKey = process.env.CENSUS_API_KEY ?? "";
+      const [censusResult, healthResult] = await Promise.allSettled([
+        fetchCensusProfile(resolved.stateFips, resolved.countyFips3, censusKey),
+        fetchCdcHealth(resolved.stateAbbr || state, resolved.countyName),
+      ]);
+      const census = censusResult.status === "fulfilled" ? censusResult.value : null;
+      const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+      return res.json({
+        resolvedFrom: { city, state, method: "census-geocoder" },
+        geography: {
+          state:      resolved.stateAbbr || state,
+          county:     resolved.countyName,
+          countyFips: resolved.countyFips,
+          label:      census?.countyLabel ?? `${resolved.countyName} County`,
+        },
+        demographics: census?.demographics ?? null,
+        health:       health ?? null,
+        sources: ["U.S. Census Bureau ACS 5-year (2018–2022)", health ? "CDC PLACES 2023" : null, "Census Geocoder"].filter(Boolean),
+        asOf: "2022–2023",
+        _poweredBy: "ThriveUp Community Intelligence API · thrivingcommunitiesforall.com",
+      });
+    } catch (err: any) {
+      console.error("[community-api/city]", err?.message ?? err);
+      return res.status(500).json({ error: "Failed to resolve city. Please retry." });
+    }
+  });
+
+  // ── /api/community/zip ─────────────────────────────────────────────────────
+  // ZIP code → Census Geocoder → county FIPS → full profile
+  app.get("/api/community/zip", ...mw, async (req: Request, res: Response) => {
+    try {
+      const zip = String(req.query.zip ?? "").replace(/\D/g, "").slice(0, 5);
+      if (!zip || zip.length < 5) {
+        return res.status(400).json({ error: "A 5-digit ZIP code is required.", example: "?zip=78701" });
+      }
+      const resolved = await resolveZipToCounty(zip);
+      if (!resolved) {
+        return res.status(404).json({ error: `Could not resolve ZIP code "${zip}" to a U.S. county.` });
+      }
+      const censusKey = process.env.CENSUS_API_KEY ?? "";
+      const [censusResult, healthResult] = await Promise.allSettled([
+        fetchCensusProfile(resolved.stateFips, resolved.countyFips3, censusKey),
+        fetchCdcHealth(resolved.stateAbbr, resolved.countyName),
+      ]);
+      const census = censusResult.status === "fulfilled" ? censusResult.value : null;
+      const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+      return res.json({
+        resolvedFrom: { zip, method: "census-geocoder" },
+        geography: {
+          state:      resolved.stateAbbr,
+          county:     resolved.countyName,
+          countyFips: resolved.countyFips,
+          label:      census?.countyLabel ?? `${resolved.countyName} County`,
+        },
+        demographics: census?.demographics ?? null,
+        health:       health ?? null,
+        sources: ["U.S. Census Bureau ACS 5-year (2018–2022)", health ? "CDC PLACES 2023" : null, "Census Geocoder"].filter(Boolean),
+        asOf: "2022–2023",
+        _poweredBy: "ThriveUp Community Intelligence API · thrivingcommunitiesforall.com",
+      });
+    } catch (err: any) {
+      console.error("[community-api/zip]", err?.message ?? err);
+      return res.status(500).json({ error: "Failed to resolve ZIP code. Please retry." });
+    }
+  });
+
+  // ── /api/community/geo ─────────────────────────────────────────────────────
+  // Lat/lng reverse geocode → county → full profile
+  app.get("/api/community/geo", ...mw, async (req: Request, res: Response) => {
+    try {
+      const lat = parseFloat(String(req.query.lat ?? ""));
+      const lng = parseFloat(String(req.query.lng ?? req.query.lon ?? ""));
+      if (isNaN(lat) || isNaN(lng)) {
+        return res.status(400).json({ error: "lat and lng are required.", example: "?lat=30.2672&lng=-97.7431" });
+      }
+      if (lat < 18 || lat > 72 || lng < -180 || lng > -65) {
+        return res.status(400).json({ error: "Coordinates appear to be outside the United States." });
+      }
+      const resolved = await resolveLatLngToCounty(lat, lng);
+      if (!resolved) {
+        return res.status(404).json({ error: "Could not resolve these coordinates to a U.S. county." });
+      }
+      const censusKey = process.env.CENSUS_API_KEY ?? "";
+      const [censusResult, healthResult] = await Promise.allSettled([
+        fetchCensusProfile(resolved.stateFips, resolved.countyFips3, censusKey),
+        fetchCdcHealth(resolved.stateAbbr, resolved.countyName),
+      ]);
+      const census = censusResult.status === "fulfilled" ? censusResult.value : null;
+      const health = healthResult.status === "fulfilled" ? healthResult.value : null;
+      return res.json({
+        resolvedFrom: { lat, lng, method: "census-geocoder-reverse" },
+        geography: {
+          state:      resolved.stateAbbr,
+          county:     resolved.countyName,
+          countyFips: resolved.countyFips,
+          label:      census?.countyLabel ?? `${resolved.countyName} County`,
+        },
+        demographics: census?.demographics ?? null,
+        health:       health ?? null,
+        sources: ["U.S. Census Bureau ACS 5-year (2018–2022)", health ? "CDC PLACES 2023" : null, "Census Geocoder"].filter(Boolean),
+        asOf: "2022–2023",
+        _poweredBy: "ThriveUp Community Intelligence API · thrivingcommunitiesforall.com",
+      });
+    } catch (err: any) {
+      console.error("[community-api/geo]", err?.message ?? err);
+      return res.status(500).json({ error: "Failed to resolve coordinates. Please retry." });
+    }
+  });
+
+  // ── /api/community/search ──────────────────────────────────────────────────
+  // Free-text → Census Geocoder → ranked county candidates (autocomplete helper)
+  app.get("/api/community/search", ...mw, async (req: Request, res: Response) => {
+    try {
+      const q = String(req.query.q ?? "").trim();
+      if (!q || q.length < 2) {
+        return res.status(400).json({ error: "q must be at least 2 characters.", example: "?q=Austin+TX" });
+      }
+      const url = `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(q)}&benchmark=Public_AR_Current&vintage=Current_Current&layers=2&format=json`;
+      let candidates: any[] = [];
+      try {
+        const data = await fetchJson(url);
+        candidates = data?.result?.addressMatches ?? [];
+      } catch { /* non-fatal — return empty results */ }
+
+      const results = candidates.slice(0, 5).map((m: any) => {
+        const geo = extractCountyFromGeographies(m.geographies);
+        if (!geo) return null;
+        return {
+          matchedAddress: m.matchedAddress ?? null,
+          county:         geo.countyName,
+          state:          geo.stateAbbr,
+          countyFips:     geo.countyFips,
+          profileUrl:     `/api/community/profile?state=${geo.stateAbbr}&county=${encodeURIComponent(geo.countyName)}`,
+          cityUrl:        null,
+        };
+      }).filter(Boolean);
+
+      return res.json({
+        query:   q,
+        total:   results.length,
+        results,
+        tip: results.length === 0 ? "Try including a state abbreviation, e.g. 'Austin TX' or 'Travis County TX'" : undefined,
+        _poweredBy: "ThriveUp Community Intelligence API · Census Geocoder",
+      });
+    } catch (err: any) {
+      console.error("[community-api/search]", err?.message ?? err);
+      return res.status(500).json({ error: "Search failed. Please retry." });
+    }
+  });
+
+  // ── Terminal JSON 404 for any unmatched /api/community/* path ──────────────
+  // Prevents the SPA catch-all from responding to API paths with HTML.
+  // Must be the LAST handler registered in this function.
+  app.use("/api/community", (_req: Request, res: Response) => {
+    res.status(404).json({
+      error: "API endpoint not found.",
+      availableEndpoints: [
+        "GET /api/community",
+        "GET /api/community/profile?state=TX&county=Burnet",
+        "GET /api/community/city?city=Austin&state=TX",
+        "GET /api/community/zip?zip=78701",
+        "GET /api/community/geo?lat=30.2672&lng=-97.7431",
+        "GET /api/community/search?q=Austin+TX",
+        "GET /api/community/opportunities?state=TX&county=Burnet",
+        "GET /api/community/compare?state=TX&county=Burnet",
+      ],
+    });
   });
 }
 

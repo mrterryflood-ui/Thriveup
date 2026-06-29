@@ -153,6 +153,14 @@ app.use((req, res, next) => {
     return res.status(status).json({ message });
   });
 
+  // Global API 404 guard — sits between registerRoutes and serveStatic.
+  // Any /api/* path that was not handled by a real route returns JSON 404,
+  // never the SPA index.html. This permanently closes the HTML-leak vector
+  // described in the three-way-fusion fail-safe protocol.
+  app.use("/api", (_req: Request, res: Response) => {
+    res.status(404).json({ error: "API endpoint not found." });
+  });
+
   if (process.env.NODE_ENV === "production") {
     serveStatic(app);
   } else {
