@@ -32,6 +32,38 @@ Strategy, pipeline mechanics, active pursuits, submission doctrine.
 | **SSG Fox FY27** (VA Suicide Prevention) | US Dept of Veterans Affairs | 2026-06-12 4:59 PM ET | pursuing | **Lives on `vetmissiontransition.com`, NOT this codebase.** Year-1 Central TX only · ask $400K–$600K · EIN 41-3618003 |
 | **NSF 26-508 TechAccess** (AI-Ready America Coordination Hub) | NSF (TIP/EDU/CISE) + DOL/ETA/USDA-NIFA/SBA | 2026-06-16 | loi_drafting | Fit 100. LOI draft: `docs/grants/NSF-TechAccess-LOI-Draft.md` |
 | **Promise Neighborhoods 84.215N** (Cradle-to-Career) | US Dept of Education | 2026-08-06 | pursuing | Fit very high (Chainweb + Community Voice + Trade Sims). REAL GAP: needs LEA partner. Score = capability fit, not award probability |
+| **FY 2026 Tech Youth Program DFOP0018281** | State Dept / Bureau of Educational and Cultural Affairs (ECA) | **2026-07-06** | pursuing | $1.1M fixed (floor=ceiling). Cooperative agreement. ~96 HS students (72 international + 24 US). 3-week US-based exchange summer 2027. **TEAM LOCKED — see below.** |
+
+## Tech Youth Program (DFOP0018281) — team & strategy locked 2026-06-29
+
+**Funder:** State Dept ECA, Office of Citizen Exchanges — `ShieldsSD@state.gov`
+**Award:** $1,100,000 fixed (cooperative agreement, floor = ceiling)
+**Deadline:** July 6, 2026 — confirmed pursuing
+**Program:** 3-week US-based tech/leadership/entrepreneurship exchange, summer 2027. ~72 international + 24 US high school students. Pre-exchange prep + post-exchange alumni + capstone projects.
+
+**Team (locked by Dr. Flood 2026-06-29):**
+- **WSU Community Relations** (Wichita State University) — **Prime**. Closes every ECA logistics gap: dorms for 72 international students, WSU International Programs Office for visa letters, prior federal cooperative agreement capacity, Wichita industry ecosystem (Boeing, Spirit AeroSystems, Textron Aviation, Koch Industries) for site visits.
+- **TCAF** — Sub: technical curriculum platform (Trade Sims, AI Workforce Academy, Career Explorer, capstone architecture). TCAF writes and delivers the entire tech curriculum section.
+- **USD 259 Wichita KS** (Wichita public schools) — US student pipeline. Sources and screens the 24 American HS participants. Adds public-school equity credibility ECA values.
+- Dr. Love (Wichita) and Dr. Vann available as community-support subs if needed.
+
+**TCAF's differentiating contribution:**
+- Trade Sims (5 trades, 75 lessons, industry-grade physics engines — MNA, Hardy-Cross, AWS D1.1)
+- AI Workforce Academy (6 tracks, 29 modules, 24+ hands-on projects)
+- 55+ career pathways across 12 industries
+- Capstone project framework (credential routing at 80% completion)
+- Implementation-science fidelity tracking (CFIR 2.0, 39 constructs in live code)
+- Platform already live and deployed — not aspirational
+
+**Why WSU as prime, not TCAF:** ECA scores exchange program track record heavily. WSU as a public university (explicitly listed eligible applicant category) absorbs the ECA-experience gap. TCAF's curriculum platform is the competitive differentiator ECA can't find elsewhere.
+
+**Next actions:**
+1. Dr. Flood calls WSU Community Relations today — confirm prime, get UEI for budget
+2. USD 259 letter of support or MOU stub
+3. TCAF drafts: technical curriculum narrative, capstone project framework, TCAF budget sub-portion
+4. WSU drafts: exchange logistics, housing plan, international student support, program management
+
+---
 
 ## Decision-pending (not yet in active rotation)
 
