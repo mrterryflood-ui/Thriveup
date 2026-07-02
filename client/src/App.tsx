@@ -273,6 +273,7 @@ const HubServePage = lazy(() => import("@/pages/hub-serve"));
 const HubFundPage = lazy(() => import("@/pages/hub-fund"));
 const HubGrowPage = lazy(() => import("@/pages/hub-grow"));
 const HubMorePage = lazy(() => import("@/pages/hub-more"));
+const HubConnectPage = lazy(() => import("@/pages/hub-connect"));
 const WorkbenchPage = lazy(() => import("@/pages/workbench"));
 const EcosystemIntelPage = lazy(() => import("@/pages/ecosystem-intel"));
 const SafePassagePage = lazy(() => import("@/pages/safe-passage/index"));
@@ -749,7 +750,7 @@ function AppRouter() {
       <Route path="/hub/fund" component={HubFundPage} />
       <Route path="/hub/grow" component={HubGrowPage} />
       <Route path="/hub/more" component={HubMorePage} />
-      <Route path="/hub/connect" component={HubMorePage} />
+      <Route path="/hub/connect" component={HubConnectPage} />
       <Route path="/workbench" component={WorkbenchPage} />
       <Route path="/safe-passage" component={SafePassagePage} />
       <Route path="/safe-passage/safety-planning" component={SafePassageSafetyPlanningPage} />

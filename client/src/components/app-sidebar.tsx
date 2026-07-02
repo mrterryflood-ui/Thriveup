@@ -611,6 +611,29 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
+        {/* Foundation Network — 4-pillar quick-nav */}
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <div className="px-3 pb-3">
+              <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 font-semibold">Foundation Network</p>
+              <div className="grid grid-cols-2 gap-1.5">
+                <Link href="/hub/serve" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors" data-testid="link-pillar-serve">
+                  <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Serve
+                </Link>
+                <Link href="/hub/grow" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors" data-testid="link-pillar-grow">
+                  <Rocket className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Grow
+                </Link>
+                <Link href="/hub/fund" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors" data-testid="link-pillar-fund">
+                  <Target className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Fund
+                </Link>
+                <Link href="/hub/connect" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors" data-testid="link-pillar-connect">
+                  <Compass className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Connect
+                </Link>
+              </div>
+            </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
         {/* EIGHT HUBS — seven thematic hubs plus Central Texas geographic front door. */}
         <NavSection label="Central Texas" items={hubCtx} location={location} icon={MapPin} />
         <NavSection label="Get Funded" items={hub1} location={location} icon={Trophy} />
