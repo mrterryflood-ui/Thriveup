@@ -80,7 +80,7 @@ const PATHWAYS = [
     subtitle: "Church, CHW org, school district, reentry nonprofit, media partner",
     description: "You're already doing the work. Affiliate with the Foundation Network and gain platform access, shared referral pathways, outcome measurement, grant support, and co-branded intake — without giving up your identity or mission.",
     action: "Become an Affiliate Partner",
-    href: "/partners-join",
+    href: "/partners/join",
     color: "from-teal-600 to-cyan-600",
     bgLight: "bg-teal-50 dark:bg-teal-950/20",
     borderColor: "border-teal-200 dark:border-teal-800",

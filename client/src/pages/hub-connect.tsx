@@ -11,7 +11,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useHubRole } from "@/lib/hub-role";
 
 const CARDS: HubCardDef[] = [
-  { icon: Heart,        title: "Join the Foundation Network",  subtitle: "Affiliates get platform access, grant support & shared outcomes", href: "/partners-join",          tag: "Network",   variant: "hero", color: "teal",   badge: "New" },
+  { icon: Heart,        title: "Join the Foundation Network",  subtitle: "Affiliates get platform access, grant support & shared outcomes", href: "/partners/join",          tag: "Network",   variant: "hero", color: "teal",   badge: "New" },
   { icon: MessageCircle,title: "Community Voice",              subtitle: "Community tells us what's missing — we act on it",               href: "/voice",                  tag: "Media",     variant: "hero", color: "violet" },
   { icon: Globe,        title: "Civic Signal",                 subtitle: "1,448 court records · 880 ordinances · 360 meetings — live",     href: "https://power2thepeople.net", tag: "Civic", variant: "hero", color: "indigo", badge: "Live" },
   { icon: Megaphone,    title: "Voices of Austin",             subtitle: "Community storytelling — real people, real outcomes",            href: "/voices-of-austin",       tag: "Media",     variant: "hero", color: "rose" },
