@@ -293,6 +293,22 @@ export function registerWorkforceRoutes(app: Express) {
     }
   });
 
+  // Public employer self-registration — no auth required; status defaults to "pending" for admin review
+  app.post("/api/workforce/employers/register", async (req, res) => {
+    try {
+      const parsed = insertEmployerPartnerSchema.safeParse({ ...req.body, partnershipStatus: "pending" });
+      if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
+      if (!parsed.data.companyName || !parsed.data.industry || !parsed.data.contactEmail) {
+        return res.status(400).json({ error: "companyName, industry, and contactEmail are required" });
+      }
+      const [employer] = await db.insert(employerPartners).values(parsed.data).returning();
+      res.status(201).json({ ok: true, id: employer.id, message: "Registration received — we'll review and activate your listing within 1–2 business days." });
+    } catch (error) {
+      console.error("Employer self-registration failed:", error);
+      res.status(500).json({ error: "Registration failed — please try again" });
+    }
+  });
+
   app.get("/api/workforce/job-postings", async (_req, res) => {
     try {
       const results = await db.select().from(jobPostings).where(eq(jobPostings.status, "open")).orderBy(desc(jobPostings.createdAt));

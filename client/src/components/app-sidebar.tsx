@@ -338,6 +338,7 @@ const adminProgramItems: NavItem[] = [
   { title: "Program Lifecycle", url: "/program-lifecycle", icon: RefreshCw },
   { title: "PM Academy", url: "/pm-academy", icon: GraduationCap },
   { title: "MCE Contracts", url: "/mce-contracts", icon: Building2 },
+  { title: "SDVOSB Tracker", url: "/sdvosb-tracker", icon: Shield },
   { title: "Proposal Command", url: "/proposal-command", icon: Zap },
 ];
 

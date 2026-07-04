@@ -1,5 +1,7 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import type { EmployerPartner, JobPosting } from "@shared/schema";
 import { PageHeader } from "@/components/page-header";
 import { Card } from "@/components/ui/card";
@@ -12,7 +14,11 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { TrainingGuideButton } from "@/components/training-guide";
 import {
   Building2,
@@ -29,13 +35,35 @@ import {
   Clock,
   Users,
   Star,
+  PlusCircle,
+  Loader2,
 } from "lucide-react";
 
+const INDUSTRIES = ["Healthcare", "Technology", "Construction & Trades", "Manufacturing", "Retail & Hospitality", "Transportation & Logistics", "Education", "Nonprofit & Government", "Agriculture", "Finance & Insurance", "Other"];
+
 export default function WorkforceEmployersPage() {
+  const { toast } = useToast();
   const [search, setSearch] = useState("");
   const [fairChanceOnly, setFairChanceOnly] = useState(false);
   const [selectedEmployer, setSelectedEmployer] = useState<EmployerPartner | null>(null);
   const [selectedPosting, setSelectedPosting] = useState<JobPosting | null>(null);
+  const [showSelfPost, setShowSelfPost] = useState(false);
+  const [selfPostForm, setSelfPostForm] = useState({
+    companyName: "", industry: "", contactName: "", contactEmail: "", contactPhone: "",
+    description: "", location: "", website: "", hiringCommitments: "",
+    fairChanceHiring: false, banTheBox: false, barrierFriendly: false,
+  });
+
+  const selfPostMutation = useMutation({
+    mutationFn: (data: typeof selfPostForm) => apiRequest("POST", "/api/workforce/employers/register", data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/workforce/employers"] });
+      setShowSelfPost(false);
+      setSelfPostForm({ companyName: "", industry: "", contactName: "", contactEmail: "", contactPhone: "", description: "", location: "", website: "", hiringCommitments: "", fairChanceHiring: false, banTheBox: false, barrierFriendly: false });
+      toast({ title: "Registration submitted", description: "We'll review your listing and activate it within 1–2 business days." });
+    },
+    onError: (e: any) => toast({ title: "Submission failed", description: e.message, variant: "destructive" }),
+  });
 
   const { data: employers, isLoading: loadingEmployers } = useQuery<EmployerPartner[]>({
     queryKey: ["/api/workforce/employers"],
@@ -74,7 +102,14 @@ export default function WorkforceEmployersPage() {
         title="Employer Partners & Job Board"
         description="Connect with barrier-friendly employers and find job opportunities"
         icon={<Building2 className="h-7 w-7" />}
-        actions={<TrainingGuideButton moduleId="workforce-employers" />}
+        actions={
+          <div className="flex items-center gap-2">
+            <TrainingGuideButton moduleId="workforce-employers" />
+            <Button size="sm" onClick={() => setShowSelfPost(true)} data-testid="button-register-employer" className="gap-1.5">
+              <PlusCircle className="h-4 w-4" /> Register Your Business
+            </Button>
+          </div>
+        }
       />
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
@@ -287,6 +322,103 @@ export default function WorkforceEmployersPage() {
               )}
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Employer Self-Registration Dialog */}
+      <Dialog open={showSelfPost} onOpenChange={setShowSelfPost}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" data-testid="dialog-employer-register">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" /> Register Your Business
+            </DialogTitle>
+            <DialogDescription>
+              List your company as a fair-chance or barrier-friendly employer. We'll review your submission within 1–2 business days.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="ep-name">Company Name *</Label>
+                <Input id="ep-name" value={selfPostForm.companyName} onChange={e => setSelfPostForm(f => ({ ...f, companyName: e.target.value }))} placeholder="Acme Construction LLC" data-testid="input-ep-name" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ep-industry">Industry *</Label>
+                <Select value={selfPostForm.industry} onValueChange={v => setSelfPostForm(f => ({ ...f, industry: v }))}>
+                  <SelectTrigger id="ep-industry" data-testid="select-ep-industry">
+                    <SelectValue placeholder="Select industry" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {INDUSTRIES.map(i => <SelectItem key={i} value={i}>{i}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="ep-contact">Contact Name</Label>
+                <Input id="ep-contact" value={selfPostForm.contactName} onChange={e => setSelfPostForm(f => ({ ...f, contactName: e.target.value }))} placeholder="Jane Smith, HR Director" data-testid="input-ep-contact" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ep-email">Contact Email *</Label>
+                <Input id="ep-email" type="email" value={selfPostForm.contactEmail} onChange={e => setSelfPostForm(f => ({ ...f, contactEmail: e.target.value }))} placeholder="hiring@company.com" data-testid="input-ep-email" />
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="ep-phone">Phone</Label>
+                <Input id="ep-phone" value={selfPostForm.contactPhone} onChange={e => setSelfPostForm(f => ({ ...f, contactPhone: e.target.value }))} placeholder="(512) 555-0100" data-testid="input-ep-phone" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="ep-location">City / Region</Label>
+                <Input id="ep-location" value={selfPostForm.location} onChange={e => setSelfPostForm(f => ({ ...f, location: e.target.value }))} placeholder="Austin, TX" data-testid="input-ep-location" />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ep-website">Website</Label>
+              <Input id="ep-website" value={selfPostForm.website} onChange={e => setSelfPostForm(f => ({ ...f, website: e.target.value }))} placeholder="https://company.com" data-testid="input-ep-website" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ep-desc">Company Description</Label>
+              <Textarea id="ep-desc" value={selfPostForm.description} onChange={e => setSelfPostForm(f => ({ ...f, description: e.target.value }))} placeholder="Tell us about your company, culture, and commitment to inclusive hiring..." rows={3} data-testid="textarea-ep-desc" />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="ep-commitments">Hiring Commitments</Label>
+              <Textarea id="ep-commitments" value={selfPostForm.hiringCommitments} onChange={e => setSelfPostForm(f => ({ ...f, hiringCommitments: e.target.value }))} placeholder="e.g., 'We hire returning citizens 90+ days post-release. No background check until after conditional offer.'" rows={2} data-testid="textarea-ep-commitments" />
+            </div>
+            <div className="space-y-3 p-4 rounded-lg bg-muted/30 border">
+              <p className="text-sm font-semibold">Inclusive Hiring Commitments</p>
+              {([
+                { key: "fairChanceHiring", label: "Fair Chance Employer", desc: "We consider applicants regardless of criminal history" },
+                { key: "banTheBox", label: "Ban the Box", desc: "We removed criminal history from initial applications" },
+                { key: "barrierFriendly", label: "Barrier-Friendly", desc: "We actively accommodate housing instability, transportation gaps, or other barriers" },
+              ] as const).map(({ key, label, desc }) => (
+                <label key={key} className="flex items-start gap-3 cursor-pointer" data-testid={`checkbox-ep-${key}`}>
+                  <input
+                    type="checkbox"
+                    className="mt-0.5 h-4 w-4 rounded border-border"
+                    checked={selfPostForm[key]}
+                    onChange={e => setSelfPostForm(f => ({ ...f, [key]: e.target.checked }))}
+                  />
+                  <div>
+                    <p className="text-sm font-medium">{label}</p>
+                    <p className="text-xs text-muted-foreground">{desc}</p>
+                  </div>
+                </label>
+              ))}
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button variant="outline" onClick={() => setShowSelfPost(false)} className="flex-1" data-testid="button-ep-cancel">Cancel</Button>
+              <Button
+                className="flex-1"
+                disabled={!selfPostForm.companyName || !selfPostForm.industry || !selfPostForm.contactEmail || selfPostMutation.isPending}
+                onClick={() => selfPostMutation.mutate(selfPostForm)}
+                data-testid="button-ep-submit"
+              >
+                {selfPostMutation.isPending ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting…</> : "Submit Registration"}
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

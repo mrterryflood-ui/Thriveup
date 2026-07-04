@@ -167,6 +167,7 @@ export default function ChwDashboardPage() {
           <TabsTrigger value="visits" data-testid="tab-visits">Home Visits</TabsTrigger>
           <TabsTrigger value="resources" data-testid="tab-resources">Resources</TabsTrigger>
           <TabsTrigger value="training" data-testid="tab-training">Training</TabsTrigger>
+          <TabsTrigger value="supervisor" data-testid="tab-supervisor">Supervisor View</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -523,6 +524,112 @@ export default function ChwDashboardPage() {
               </div>
             </Card>
           </div>
+        </TabsContent>
+        <TabsContent value="supervisor">
+          {(() => {
+            const caseloadSize = activeCases;
+            const highRiskRatio = activeCases > 0 ? highRisk / activeCases : 0;
+            const overdueRatio = activeCases > 0 ? overdueFollowUps / activeCases : 0;
+            const visitLoad = visits.length;
+            const burnoutScore =
+              (caseloadSize > 15 ? 30 : caseloadSize > 10 ? 15 : 0) +
+              (highRiskRatio > 0.3 ? 30 : highRiskRatio > 0.15 ? 15 : 0) +
+              (overdueRatio > 0.25 ? 25 : overdueRatio > 0.1 ? 12 : 0) +
+              (visitLoad > 20 ? 15 : visitLoad > 12 ? 8 : 0);
+            const burnoutLevel = burnoutScore >= 60 ? "high" : burnoutScore >= 30 ? "moderate" : "low";
+            const burnoutColor = burnoutLevel === "high" ? "text-red-600 dark:text-red-400" : burnoutLevel === "moderate" ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400";
+            const burnoutBg = burnoutLevel === "high" ? "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800" : burnoutLevel === "moderate" ? "bg-amber-50 dark:bg-amber-950/20 border-amber-200 dark:border-amber-800" : "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800";
+            return (
+              <div className="space-y-6" data-testid="tab-content-supervisor">
+                <Card className={`p-5 border ${burnoutBg}`} data-testid="card-burnout-risk">
+                  <div className="flex items-start justify-between gap-4 flex-wrap mb-4">
+                    <div>
+                      <h3 className="font-bold text-base flex items-center gap-2">
+                        <Activity className="h-5 w-5" />
+                        CHW Wellbeing & Burnout Risk
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-0.5">Based on caseload size, high-risk ratio, and visit frequency. Update weekly.</p>
+                    </div>
+                    <div className="text-right">
+                      <p className={`text-3xl font-bold ${burnoutColor}`} data-testid="text-burnout-score">{burnoutScore}</p>
+                      <p className={`text-sm font-semibold capitalize ${burnoutColor}`} data-testid="text-burnout-level">{burnoutLevel} risk</p>
+                    </div>
+                  </div>
+                  <Progress value={Math.min(burnoutScore, 100)} className="h-2 mb-4" />
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                    {[
+                      { label: "Caseload", value: `${caseloadSize}`, flag: caseloadSize > 15, tip: "Recommended max: 15 active cases per CHW" },
+                      { label: "High-Risk %", value: `${Math.round(highRiskRatio * 100)}%`, flag: highRiskRatio > 0.3, tip: ">30% high-risk signals supervision gap" },
+                      { label: "Overdue %", value: `${Math.round(overdueRatio * 100)}%`, flag: overdueRatio > 0.25, tip: ">25% overdue follow-ups = capacity alert" },
+                      { label: "Visits/Mo", value: `${visitLoad}`, flag: visitLoad > 20, tip: ">20 home visits/month may indicate overload" },
+                    ].map(({ label, value, flag, tip }) => (
+                      <div key={label} className={`p-3 rounded-md ${flag ? "bg-red-100/60 dark:bg-red-900/20" : "bg-muted/30"}`} data-testid={`stat-supervisor-${label.toLowerCase().replace(/[^a-z]/g, '-')}`}>
+                        <p className="text-xs text-muted-foreground">{label}</p>
+                        <p className={`text-xl font-bold ${flag ? "text-red-700 dark:text-red-400" : ""}`}>{value}</p>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{tip}</p>
+                      </div>
+                    ))}
+                  </div>
+                </Card>
+
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <Card className="p-5" data-testid="card-supervision-actions">
+                    <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      <ClipboardCheck className="h-4 w-4 text-teal-500" /> Recommended Supervisor Actions
+                    </h3>
+                    <ul className="space-y-2">
+                      {[
+                        { done: caseloadSize <= 15, text: `Caseload within safe range (current: ${caseloadSize})` },
+                        { done: overdueFollowUps === 0, text: `No overdue follow-ups (${overdueFollowUps} pending)` },
+                        { done: highRisk === 0, text: `High-risk cases have active safety plans (${highRisk} flagged)` },
+                        { done: burnoutScore < 30, text: "Burnout risk score below threshold" },
+                        { done: false, text: "Schedule monthly 1:1 supervision session" },
+                        { done: false, text: "Review secondary trauma & self-care check-in" },
+                      ].map((item, i) => (
+                        <li key={i} className="flex items-start gap-2 text-sm" data-testid={`action-supervisor-${i}`}>
+                          {item.done
+                            ? <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0 mt-0.5" />
+                            : <AlertTriangle className="h-4 w-4 text-amber-500 shrink-0 mt-0.5" />}
+                          <span className={item.done ? "text-muted-foreground line-through" : ""}>{item.text}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </Card>
+
+                  <Card className="p-5" data-testid="card-research-anchors">
+                    <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      <Brain className="h-4 w-4 text-violet-500" /> Research-Backed Benchmarks
+                    </h3>
+                    <div className="space-y-3 text-xs">
+                      {[
+                        { title: "Optimal Caseload (CDC / NACHW)", body: "10–15 active clients per CHW for sustained quality. Above 20 sharply increases error rates and burnout." },
+                        { title: "High-Risk Threshold", body: "30%+ high-risk concentration signals need for supervisor co-visits, peer debriefs, or caseload redistribution." },
+                        { title: "Supervision Frequency (APHA)", body: "Weekly group + monthly individual supervision reduces secondary traumatic stress by ~40%." },
+                        { title: "Self-Care Protocol", body: "Structured debriefs after critical incidents within 48h. Referral to EAP when burnout score exceeds 60." },
+                      ].map(({ title, body }) => (
+                        <div key={title} className="p-2 rounded bg-muted/30">
+                          <p className="font-semibold text-[11px]">{title}</p>
+                          <p className="text-muted-foreground">{body}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </Card>
+                </div>
+
+                <Card className="p-5 border-violet-200 dark:border-violet-800" data-testid="card-itw-shadow-workers">
+                  <h3 className="font-semibold text-sm mb-2 flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-violet-500" /> Shadow CHW Recognition (Integration Through Invitation)
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-3">
+                    Community members doing CHW work informally — promotoras, peer navigators, faith health advocates — can self-identify for stipends and credentialing pathways. No credential check required.
+                  </p>
+                  <Button size="sm" variant="outline" asChild data-testid="button-shadow-chw-hub">
+                    <a href="/shadow-worker-hub">View Shadow Worker Hub →</a>
+                  </Button>
+                </Card>
+              </div>
+            );
+          })()}
         </TabsContent>
       </Tabs>
     </div>

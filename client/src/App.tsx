@@ -322,6 +322,7 @@ const MyAppointmentsPage = lazy(() => import("@/pages/my-appointments"));
 const MyHouseholdPage = lazy(() => import("@/pages/my-household"));
 const ShadowWorkerHubPage = lazy(() => import("@/pages/shadow-worker-hub"));
 const DataCouncilPage = lazy(() => import("@/pages/data-council"));
+const SdvosbTrackerPage = lazy(() => import("@/pages/sdvosb-tracker"));
 
 function PageFallback() {
   return (
@@ -802,6 +803,7 @@ function AppRouter() {
       <Route path="/my-household" component={MyHouseholdPage} />
       <Route path="/shadow-worker-hub" component={ShadowWorkerHubPage} />
       <Route path="/data-council" component={DataCouncilPage} />
+      <Route path="/sdvosb-tracker" component={SdvosbTrackerPage} />
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
       <Route path="/network/members"><Redirect to="/network" /></Route>
