@@ -6689,3 +6689,64 @@ export const continuumOfCareEvents = pgTable("continuum_of_care_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 export type ContinuumOfCareEvent = typeof continuumOfCareEvents.$inferSelect;
+
+// ─── Participant Document Vault ──────────────────────────────────────────────
+export const participantDocuments = pgTable("participant_documents", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 200 }).notNull(),
+  category: varchar("category", { length: 60 }).notNull().default("other"),
+  label: varchar("label", { length: 200 }).notNull(),
+  fileName: varchar("file_name", { length: 300 }).notNull(),
+  fileSize: integer("file_size"),
+  mimeType: varchar("mime_type", { length: 100 }),
+  storageKey: varchar("storage_key", { length: 500 }),
+  notes: text("notes"),
+  expiresAt: timestamp("expires_at"),
+  uploadedAt: timestamp("uploaded_at").defaultNow(),
+});
+export const insertParticipantDocumentSchema = createInsertSchema(participantDocuments).omit({ id: true, uploadedAt: true });
+export type ParticipantDocument = typeof participantDocuments.$inferSelect;
+export type InsertParticipantDocument = typeof insertParticipantDocumentSchema._type;
+
+// ─── Participant Appointments ────────────────────────────────────────────────
+export const participantAppointments = pgTable("participant_appointments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 200 }).notNull(),
+  title: varchar("title", { length: 300 }).notNull(),
+  orgName: varchar("org_name", { length: 300 }),
+  appointmentDate: varchar("appointment_date", { length: 20 }).notNull(),
+  appointmentTime: varchar("appointment_time", { length: 20 }),
+  location: text("location"),
+  notes: text("notes"),
+  documentsNeeded: text("documents_needed").array(),
+  status: varchar("status", { length: 30 }).notNull().default("upcoming"),
+  reminderDismissed: boolean("reminder_dismissed").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertParticipantAppointmentSchema = createInsertSchema(participantAppointments).omit({ id: true, createdAt: true });
+export type ParticipantAppointment = typeof participantAppointments.$inferSelect;
+export type InsertParticipantAppointment = typeof insertParticipantAppointmentSchema._type;
+
+// ─── Resident Household (participant-facing, not partner-facing) ──────────────
+export const residentHouseholds = pgTable("resident_households", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 200 }).notNull().unique(),
+  householdName: varchar("household_name", { length: 200 }).notNull().default("My Household"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertResidentHouseholdSchema = createInsertSchema(residentHouseholds).omit({ id: true, createdAt: true, updatedAt: true });
+export type ResidentHousehold = typeof residentHouseholds.$inferSelect;
+
+export const residentHouseholdMembers = pgTable("resident_household_members", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  householdId: varchar("household_id", { length: 100 }).notNull().references(() => residentHouseholds.id, { onDelete: "cascade" }),
+  firstName: varchar("first_name", { length: 100 }).notNull(),
+  lastName: varchar("last_name", { length: 100 }),
+  relationship: varchar("relationship", { length: 80 }).notNull().default("Other"),
+  dateOfBirth: varchar("date_of_birth", { length: 20 }),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertResidentHouseholdMemberSchema = createInsertSchema(residentHouseholdMembers).omit({ id: true, createdAt: true });
+export type ResidentHouseholdMember = typeof residentHouseholdMembers.$inferSelect;

@@ -45,6 +45,12 @@ import {
   insertCqiOutcomeSchema,
   sparkySessions,
   sparkySessionMessages,
+  participantDocuments,
+  participantAppointments,
+  insertParticipantDocumentSchema,
+  insertParticipantAppointmentSchema,
+  residentHouseholds,
+  residentHouseholdMembers,
 } from "@shared/schema";
 import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
@@ -6238,6 +6244,137 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
+  });
+
+  // ─── Participant Document Vault ─────────────────────────────────────────────
+  app.get("/api/my-documents", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const docs = await db.select().from(participantDocuments)
+        .where(eq(participantDocuments.userId, user.id))
+        .orderBy(desc(participantDocuments.uploadedAt));
+      res.json(docs);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/my-documents", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const parsed = insertParticipantDocumentSchema.safeParse({ ...req.body, userId: user.id });
+      if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+      const [doc] = await db.insert(participantDocuments).values(parsed.data).returning();
+      res.json(doc);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.delete("/api/my-documents/:id", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const [deleted] = await db.delete(participantDocuments)
+        .where(and(eq(participantDocuments.id, req.params.id), eq(participantDocuments.userId, user.id)))
+        .returning();
+      if (!deleted) return res.status(404).json({ error: "Not found" });
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── Participant Appointments ───────────────────────────────────────────────
+  app.get("/api/my-appointments", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const appts = await db.select().from(participantAppointments)
+        .where(eq(participantAppointments.userId, user.id))
+        .orderBy(participantAppointments.appointmentDate);
+      res.json(appts);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/my-appointments", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const parsed = insertParticipantAppointmentSchema.safeParse({ ...req.body, userId: user.id });
+      if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+      const [appt] = await db.insert(participantAppointments).values(parsed.data).returning();
+      res.json(appt);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.patch("/api/my-appointments/:id", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const allowed = ["status", "reminderDismissed", "notes", "location", "appointmentTime"];
+      const updates: Record<string, unknown> = {};
+      for (const k of allowed) { if (req.body[k] !== undefined) updates[k] = req.body[k]; }
+      const [updated] = await db.update(participantAppointments)
+        .set(updates as any)
+        .where(and(eq(participantAppointments.id, req.params.id), eq(participantAppointments.userId, user.id)))
+        .returning();
+      if (!updated) return res.status(404).json({ error: "Not found" });
+      res.json(updated);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.delete("/api/my-appointments/:id", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const [deleted] = await db.delete(participantAppointments)
+        .where(and(eq(participantAppointments.id, req.params.id), eq(participantAppointments.userId, user.id)))
+        .returning();
+      if (!deleted) return res.status(404).json({ error: "Not found" });
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  // ─── My Household (resident-facing, not partner-facing) ────────────────────
+  app.get("/api/my-household", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const [hh] = await db.select().from(residentHouseholds)
+        .where(eq(residentHouseholds.userId, user.id)).limit(1);
+      if (!hh) return res.json(null);
+      const members = await db.select().from(residentHouseholdMembers)
+        .where(eq(residentHouseholdMembers.householdId, hh.id))
+        .orderBy(residentHouseholdMembers.createdAt);
+      res.json({ ...hh, members });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/my-household", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const [existing] = await db.select().from(residentHouseholds)
+        .where(eq(residentHouseholds.userId, user.id)).limit(1);
+      if (existing) return res.json({ ...existing, members: [] });
+      const [hh] = await db.insert(residentHouseholds)
+        .values({ userId: user.id, householdName: req.body.householdName || "My Household" })
+        .returning();
+      res.json({ ...hh, members: [] });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.post("/api/my-household/:id/members", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const [hh] = await db.select().from(residentHouseholds)
+        .where(and(eq(residentHouseholds.id, req.params.id), eq(residentHouseholds.userId, user.id))).limit(1);
+      if (!hh) return res.status(403).json({ error: "Not your household" });
+      const [member] = await db.insert(residentHouseholdMembers)
+        .values({ householdId: hh.id, firstName: req.body.firstName, lastName: req.body.lastName, relationship: req.body.relationship || "Other", dateOfBirth: req.body.dateOfBirth, notes: req.body.notes })
+        .returning();
+      res.json(member);
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
+  });
+
+  app.delete("/api/my-household/:id/members/:memberId", requireAuth, async (req, res) => {
+    try {
+      const user = (req as any).user;
+      const [hh] = await db.select().from(residentHouseholds)
+        .where(and(eq(residentHouseholds.id, req.params.id), eq(residentHouseholds.userId, user.id))).limit(1);
+      if (!hh) return res.status(403).json({ error: "Not your household" });
+      await db.delete(residentHouseholdMembers)
+        .where(and(eq(residentHouseholdMembers.id, req.params.memberId), eq(residentHouseholdMembers.householdId, hh.id)));
+      res.json({ ok: true });
+    } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
 
   return httpServer;

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -155,9 +155,19 @@ function LoadingSkeleton() {
 }
 
 export default function AcademyHubPage() {
+  const [careerMode, setCareerMode] = useState<boolean>(() => {
+    try { return localStorage.getItem("academy-mode") === "career"; } catch { return false; }
+  });
+
+  function toggleMode() {
+    const next = !careerMode;
+    setCareerMode(next);
+    try { localStorage.setItem("academy-mode", next ? "career" : "student"); } catch {}
+  }
+
   useEffect(() => {
-    document.title = "Academy Hub | ThriveUp Academy";
-  }, []);
+    document.title = careerMode ? "Academy — Career Mode | ThriveUp" : "Academy Hub | ThriveUp Academy";
+  }, [careerMode]);
 
   const { data, isLoading, error, refetch } = useQuery<DashboardData>({
     queryKey: ["/api/academy/dashboard"],
@@ -187,15 +197,69 @@ export default function AcademyHubPage() {
 
   const myHouse = houses.length > 0 ? houses[0] : null;
 
+  if (careerMode) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto space-y-8" data-testid="academy-hub-career-mode">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div>
+            <h1 className="text-2xl font-bold flex items-center gap-2">
+              <ArrowRight className="h-5 w-5 text-primary" /> Career Mode
+            </h1>
+            <p className="text-sm text-muted-foreground mt-0.5">Focused pathways for adult learners, career changers, and working professionals.</p>
+          </div>
+          <button
+            onClick={toggleMode}
+            className="text-xs px-3 py-1.5 rounded-full border border-primary/30 text-primary hover:bg-primary/5 transition-colors"
+            data-testid="button-switch-student-mode"
+          >
+            ← Switch to Student Mode
+          </button>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-4" data-testid="grid-career-actions">
+          {[
+            { label: "Trade Sims", desc: "Free game-based skilled-trades learning — try before you commit", href: "/academy/trade-sims", icon: Zap, color: "text-amber-600" },
+            { label: "Career Explorer", desc: "Map industries, wages, and pathways to your goals", href: "/academy/careers", icon: ArrowRight, color: "text-blue-600" },
+            { label: "Employer Connections", desc: "Fair-chance and barrier-friendly employers hiring now", href: "/workforce-employers", icon: Link2, color: "text-emerald-600" },
+            { label: "My Pathway", desc: "Your personalized career development plan", href: "/academy/pathway", icon: CalendarCheck, color: "text-violet-600" },
+            { label: "Life Lessons", desc: "Business meets life — practical skills for every adult learner", href: "/academy/lessons", icon: Lightbulb, color: "text-rose-600" },
+            { label: "AI Literacy Courses", desc: "Free AI literacy training — self-paced, no prerequisites", href: "/curriculum", icon: Users, color: "text-indigo-600" },
+          ].map(item => (
+            <Link key={item.label} href={item.href}>
+              <Card className="hover-elevate cursor-pointer h-full border" data-testid={`card-career-${item.label.toLowerCase().replace(/\s+/g, '-')}`}>
+                <CardContent className="pt-5 pb-5 flex items-start gap-4">
+                  <item.icon className={`h-6 w-6 shrink-0 mt-0.5 ${item.color}`} aria-hidden="true" />
+                  <div>
+                    <p className="font-semibold">{item.label}</p>
+                    <p className="text-sm text-muted-foreground mt-0.5">{item.desc}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
+        <div className="p-4 rounded-xl bg-muted/30 border text-sm text-muted-foreground">
+          <strong className="text-foreground">Career Mode</strong> hides the student gamification (houses, quests, merch, competitions) and shows only the tools adult learners use most. Switch back to Student Mode anytime — your progress is saved.
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-5xl mx-auto" data-testid="academy-hub-page">
-      <PageHeader
-        title="Academy Hub"
-        description="Young Leaders Building Their Future Through AI"
-        breadcrumbs={[
-          { label: "Academy Hub" },
-        ]}
-      />
+      <div className="flex items-center justify-between gap-3 flex-wrap mb-4">
+        <PageHeader
+          title="Academy Hub"
+          description="Young Leaders Building Their Future Through AI"
+          breadcrumbs={[{ label: "Academy Hub" }]}
+        />
+        <button
+          onClick={toggleMode}
+          className="text-xs px-3 py-1.5 rounded-full border border-border text-muted-foreground hover:bg-muted transition-colors shrink-0"
+          data-testid="button-switch-career-mode"
+        >
+          Adult / Career Mode →
+        </button>
+      </div>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8" data-testid="section-quick-stats">
         <Card className="p-5">

@@ -317,6 +317,11 @@ const AlignOrgAssessmentPage = lazy(() => import("@/pages/align-org-assessment")
 const AlignCommunityPage = lazy(() => import("@/pages/align-community"));
 const WhyThriveUpPage = lazy(() => import("@/pages/why-thriveup"));
 const ThrivePage = lazy(() => import("@/pages/thrive"));
+const MyDocumentsPage = lazy(() => import("@/pages/my-documents"));
+const MyAppointmentsPage = lazy(() => import("@/pages/my-appointments"));
+const MyHouseholdPage = lazy(() => import("@/pages/my-household"));
+const ShadowWorkerHubPage = lazy(() => import("@/pages/shadow-worker-hub"));
+const DataCouncilPage = lazy(() => import("@/pages/data-council"));
 
 function PageFallback() {
   return (
@@ -792,6 +797,11 @@ function AppRouter() {
       <Route path="/align/community" component={AlignCommunityPage} />
       <Route path="/why-thriveup" component={WhyThriveUpPage} />
       <Route path="/thrive" component={ThrivePage} />
+      <Route path="/my-documents" component={MyDocumentsPage} />
+      <Route path="/my-appointments" component={MyAppointmentsPage} />
+      <Route path="/my-household" component={MyHouseholdPage} />
+      <Route path="/shadow-worker-hub" component={ShadowWorkerHubPage} />
+      <Route path="/data-council" component={DataCouncilPage} />
       <Route path="/reentry-dashboard"><Redirect to="/reentry" /></Route>
       <Route path="/corridor"><Redirect to="/corridor-intelligence" /></Route>
       <Route path="/network/members"><Redirect to="/network" /></Route>

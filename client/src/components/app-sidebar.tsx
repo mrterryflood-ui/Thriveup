@@ -34,7 +34,7 @@ import {
   Mail, Landmark, RefreshCw, Package, PenTool,
   Microscope, Stethoscope, Film, HandHeart, Search, Wrench,
   Compass, Baby, Layers, Sprout, Bug, FlaskConical, Droplets, HeartHandshake, Mic, Building, Wheat,
-  Wifi, AlertTriangle,
+  Wifi, AlertTriangle, FolderLock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -96,6 +96,9 @@ const servePeopleItems: NavItem[] = [
   { title: "Resident Journey (demo)", url: "/resident-journey", icon: Route },
   { title: "Resource Directory", url: "/resource-directory", icon: HandHeart },
   { title: "My Journey", url: "/my-journey", icon: Rocket, authOnly: true },
+  { title: "My Appointments", url: "/my-appointments", icon: CalendarCheck, authOnly: true },
+  { title: "My Document Vault", url: "/my-documents", icon: FolderLock, authOnly: true },
+  { title: "My Household", url: "/my-household", icon: Home, authOnly: true },
   { title: "Service Delivery", url: "/services", icon: Activity, authOnly: true },
   { title: "Cohort Onboarding", url: "/cohort-onboarding", icon: Users, authOnly: true },
   { title: "Case Manager View", url: "/case-manager", icon: Shield, authOnly: true },
@@ -148,6 +151,7 @@ const workforceTradesItems: NavItem[] = [
   { title: "Apprenticeship Tracker", url: "/apprenticeship-tracker", icon: Wrench },
   { title: "Mentors & Pathways", url: "/mentorship-directory", icon: Handshake },
   { title: "Employer Connections", url: "/workforce-employers", icon: Building2 },
+  { title: "Shadow Worker Hub", url: "/shadow-worker-hub", icon: Heart },
   { title: "Transition Plans", url: "/transition-plans", icon: GraduationCap },
   { title: "Dream Design", url: "/academy/dreams", icon: Target },
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
@@ -258,6 +262,7 @@ const aboutTrustItems: NavItem[] = [
   { title: "Peer Review", url: "/peer-review", icon: Users },
   { title: "Implementation Plan", url: "/implementation", icon: ClipboardList },
   { title: "Contact Us", url: "/contact", icon: Mail },
+  { title: "Community Data Council", url: "/data-council", icon: Users },
   { title: "Non-Discrimination", url: "/non-discrimination", icon: Shield },
   { title: "Privacy Policy", url: "/privacy", icon: Shield },
 ];
