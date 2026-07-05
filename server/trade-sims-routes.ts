@@ -23,6 +23,7 @@
 
 import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
+import { fireLearnerEvent } from "./learner-events";
 import {
   tradeSimsTrades,
   tradeSimsLessons,
@@ -234,6 +235,9 @@ export function registerTradeSimsRoutes(app: Express) {
           })
           .where(eq(tradeSimsLessonProgress.id, existing.id))
           .returning();
+        if (scope.userId && updated.status === "completed" && existing.status !== "completed") {
+          void fireLearnerEvent({ type: "trade_lesson_completed", userId: scope.userId, userName: "Learner", metadata: { lessonId: payload.lessonId } });
+        }
         return res.json(updated);
       }
 
@@ -246,6 +250,9 @@ export function registerTradeSimsRoutes(app: Express) {
           attemptCount: 1,
         })
         .returning();
+      if (scope.userId && inserted.status === "completed") {
+        void fireLearnerEvent({ type: "trade_lesson_completed", userId: scope.userId, userName: "Learner", metadata: { lessonId: payload.lessonId } });
+      }
       res.json(inserted);
     } catch (err) {
       console.error("[TradeSims] upsert progress failed:", err);

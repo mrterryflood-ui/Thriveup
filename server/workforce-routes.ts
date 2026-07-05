@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
+import { fireLearnerEvent } from "./learner-events";
 import {
   workforceAssessments, trainingPrograms, trainingEnrollments,
   employerPartners, jobPostings, jobPlacements, retentionChecks,
@@ -357,6 +358,12 @@ export function registerWorkforceRoutes(app: Express) {
       const parsed = insertJobPlacementSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid data", details: parsed.error.flatten().fieldErrors });
       const [placement] = await db.insert(jobPlacements).values(parsed.data).returning();
+      void fireLearnerEvent({
+        type: "job_placement_recorded",
+        userId: parsed.data.userId ?? "unknown",
+        userName: parsed.data.userName ?? "Participant",
+        metadata: { employerName: parsed.data.employerName, wage: parsed.data.wage, startDate: parsed.data.startDate },
+      });
       res.json(placement);
     } catch (error) {
       console.error("Failed to create placement:", error);
