@@ -57,6 +57,17 @@ const QUICK_PROMPTS = [
   { label: "Education programs", icon: "🎓" },
 ];
 
+const PLATFORM_ACTIONS: Array<{ label: string; icon: string; message?: string; href?: string }> = [
+  { label: "Benefits check", icon: "🧾", message: "Run a full benefits screening. Check all 9 programs — SNAP, Medicaid, CHIP, WIC, Marketplace, EITC, CTC, SSI, SSDI — and tell me what I may qualify for." },
+  { label: "Find grants", icon: "💰", message: "Find grant opportunities that match our organization. We are a community development nonprofit focused on workforce training, benefits navigation, and reentry services in Central Texas." },
+  { label: "Trade Sims", icon: "🔧", href: "/academy/trade-sims" },
+  { label: "Workforce Pell", icon: "🎓", href: "/workforce-pell" },
+  { label: "Career path", icon: "🗺️", message: "Help me build a personalized career pathway plan. I want to understand which TCAF programs lead to in-demand jobs and how to stack credentials." },
+  { label: "WIOA + Pell", icon: "📋", message: "Explain how to stack a Workforce Pell Grant with WIOA funding. What does each program cover, and what are the step-by-step enrollment steps?" },
+  { label: "Resources near me", icon: "📍", message: "What community resources are available near me? I'm looking for food, housing, childcare, transportation, and employment support." },
+  { label: "My progress", icon: "🏆", href: "/academy/progress-report" },
+];
+
 const NEED_COLORS: Record<string, string> = {
   housing: "bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200",
   food: "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200",
@@ -889,6 +900,26 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                           </button>
                         ))}
                       </div>
+                      <div className="max-w-xl mx-auto">
+                        <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2">Platform actions</p>
+                        <div className="flex flex-wrap gap-2">
+                          {PLATFORM_ACTIONS.map(action => (
+                            <button
+                              key={action.label}
+                              disabled={isStreaming}
+                              onClick={() => {
+                                if (action.href) { navigate(action.href); }
+                                else if (action.message) { sendMessage(action.message); }
+                              }}
+                              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs bg-teal-50 border-teal-200 text-teal-800 hover:bg-teal-100 dark:bg-teal-950/40 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-900/50 transition-colors disabled:opacity-50"
+                              data-testid={`button-page-action-${action.label.replace(/\s+/g, "-").toLowerCase()}`}
+                            >
+                              <span>{action.icon}</span>
+                              <span>{action.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
                     </div>
                   ) : (
                     messages.map((msg, idx) => (
@@ -1253,6 +1284,26 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                         >
                           <span>{prompt.icon}</span>
                           <span>{prompt.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Platform actions</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {PLATFORM_ACTIONS.map((action) => (
+                        <button
+                          key={action.label}
+                          disabled={isStreaming}
+                          onClick={() => {
+                            if (action.href) { navigate(action.href); }
+                            else if (action.message) { sendMessage(action.message); }
+                          }}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-full border text-xs bg-teal-50 border-teal-200 text-teal-800 hover:bg-teal-100 dark:bg-teal-950/40 dark:border-teal-800 dark:text-teal-300 dark:hover:bg-teal-900/50 transition-colors disabled:opacity-50"
+                          data-testid={`button-bubble-action-${action.label.replace(/\s+/g, "-").toLowerCase()}`}
+                        >
+                          <span>{action.icon}</span>
+                          <span>{action.label}</span>
                         </button>
                       ))}
                     </div>

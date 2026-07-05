@@ -6,7 +6,7 @@ import {
   Sparkles, Brain, Gamepad2, Map, Store,
   TrendingUp, Wallet, DollarSign, Calendar,
   Megaphone, HelpCircle, ShoppingBag, Wand2,
-  MessageCircle, Compass,
+  MessageCircle, Compass, Layers,
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
 import { OrchestraStrip } from "@/components/orchestra-strip";
@@ -14,6 +14,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useHubRole } from "@/lib/hub-role";
 
 const CARDS: HubCardDef[] = [
+  { icon: Layers,       title: "Workforce Pell Grant",  subtitle: "Up to $4,310 for career training",     href: "/workforce-pell",        tag: "Workforce",   variant: "hero", color: "indigo",  badge: "New Jul 2026" },
   { icon: Wrench,       title: "Trade Sims",            subtitle: "Try free → real skills, real pay",     href: "/academy/trade-sims",    tag: "Trade Sims",  variant: "hero", color: "blue",    badge: "Free" },
   { icon: Briefcase,    title: "Career Explorer",       subtitle: "Discover high-demand careers",         href: "/academy/careers",       tag: "Workforce",   variant: "hero", color: "indigo" },
   { icon: Rocket,       title: "Panther Village",       subtitle: "Your academic home base",              href: "/academy",               tag: "Academy",     variant: "hero", color: "violet" },

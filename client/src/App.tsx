@@ -124,6 +124,8 @@ const JusticeCommandCenterPage = lazy(() => import("@/pages/justice-command-cent
 const WorkforceAssessmentPage = lazy(() => import("@/pages/workforce-assessment"));
 const WorkforceTrainingPage = lazy(() => import("@/pages/workforce-training"));
 const WorkforceEmployersPage = lazy(() => import("@/pages/workforce-employers"));
+const WorkforcePellPage = lazy(() => import("@/pages/workforce-pell"));
+const PlatformHealthPage = lazy(() => import("@/pages/admin/platform-health"));
 const WorkforceDashboardPage = lazy(() => import("@/pages/workforce-dashboard"));
 const CommunityMapPage = lazy(() => import("@/pages/community-map"));
 const VoiceIndexPage = lazy(() => import("@/pages/voice/index"));
@@ -494,6 +496,12 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/workforce-readiness" component={WorkforceReadinessPage} />
+      <Route path="/workforce-pell" component={WorkforcePellPage} />
+      <Route path="/admin/platform-health">
+        <RequireAuth adminOnly reason="Platform Health Monitor is restricted to TCAF admins.">
+          <PlatformHealthPage />
+        </RequireAuth>
+      </Route>
       <Route path="/business-card" component={BusinessCardPage} />
       <Route path="/grant-command-center">
         <RequireAuth adminOnly reason="The Grant Command Center is restricted to TCAF admins.">
