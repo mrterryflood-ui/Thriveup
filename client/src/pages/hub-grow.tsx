@@ -34,6 +34,7 @@ const CARDS: HubCardDef[] = [
   { icon: Target,       title: "Dream Design",          subtitle: "Design your ideal future",             href: "/academy/dreams",        tag: "Workforce",   color: "amber",   roles: ["youth", "community", "admin"] },
   { icon: Lightbulb,    title: "Life Lessons",          subtitle: "Real-world skill building",            href: "/academy/lessons",       tag: "Workforce",   color: "yellow",  roles: ["youth", "community", "chw", "admin"] },
   { icon: BarChart3,    title: "WIOA Outcomes",         subtitle: "Live placement rate, wages, retention",href: "/wioa-outcomes",         tag: "Workforce",   color: "emerald", authOnly: true, roles: ["admin", "org", "grant"] },
+  { icon: BarChart3,    title: "Equity Dashboard",      subtitle: "Benefits gap by county — commissioner-ready", href: "/equity-dashboard",  tag: "Data",        color: "rose" },
   { icon: BarChart3,    title: "Workforce Dashboard",   subtitle: "Program-wide workforce metrics",       href: "/workforce-dashboard",   tag: "Workforce",   color: "indigo",  authOnly: true, roles: ["admin", "org", "grant"] },
   { icon: ClipboardCheck,title: "Workforce Assessment", subtitle: "Skills & readiness assessment",        href: "/workforce-assessment",  tag: "Workforce",   color: "blue",    authOnly: true, roles: ["chw", "admin"] },
   { icon: GraduationCap,title: "Workforce Training",    subtitle: "Structured training programs",         href: "/workforce-training",    tag: "Workforce",   color: "violet" },

@@ -69,6 +69,7 @@ const PLATFORM_ACTIONS: Array<{ label: string; icon: string; message?: string; h
   { label: "Health resources", icon: "❤️", message: "Help me access health resources through Sankofa Health and Whole-Person Health. I may need behavioral health support, maternal health info, or a community health worker connection." },
   { label: "Reentry support", icon: "🔓", message: "I need reentry support after incarceration. Help me find housing, employment, expungement assistance, and benefits I qualify for — and route me to the right TCAF platform." },
   { label: "Veteran services", icon: "🇺🇸", message: "I'm a veteran. Help me translate my military experience to civilian credentials, find WIOA and VA benefits I qualify for, and connect to M2C transition support." },
+  { label: "Equity Dashboard", icon: "📊", href: "/equity-dashboard" },
   { label: "Resources near me", icon: "📍", message: "What community resources are available near me? I'm looking for food, housing, childcare, transportation, and employment support." },
   { label: "My progress", icon: "🏆", href: "/academy/progress-report" },
 ];
