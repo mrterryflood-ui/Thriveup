@@ -1,4 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
+import { computeEligibility } from "./benefits-screener-fix";
 import { db } from "./storage";
 import {
   benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork,
@@ -658,27 +659,25 @@ export function registerBenefitsRoutes(app: Express) {
             handoffType: null,
             enrollmentOutcome: null,
           };
-      const income = data.annualIncome || 0;
-      const hhSize = data.householdSize || 1;
-      const fpl = 15060 + (hhSize - 1) * 5380;
+      const eligibility = computeEligibility({
+        annualIncome: data.annualIncome || 0,
+        householdSize: data.householdSize || 1,
+        hasChildren: data.hasChildren ?? false,
+        isPregnant: data.isPregnant ?? false,
+        isDisabled: data.isDisabled ?? false,
+        isVeteran: (data as any).isVeteran ?? false,
+        isSingleParent: (data as any).isSingleParent ?? false,
+        currentBenefits: data.currentBenefits ?? [],
+      });
 
-      const eligible: string[] = [];
-      if (income <= fpl * 1.3) eligible.push("SNAP");
-      if (income <= fpl * 1.38) eligible.push("Medicaid");
-      if (data.hasChildren && income <= fpl * 2.0) eligible.push("CHIP");
-      if (data.isPregnant || data.hasChildren) eligible.push("WIC");
-      if (income <= fpl * 4.0) eligible.push("Marketplace");
-      if (income > 0 && income <= fpl * 3.0) eligible.push("EITC");
-      if (data.hasChildren && income <= fpl * 4.0) eligible.push("CTC");
-      if (data.isDisabled) { eligible.push("SSI"); eligible.push("SSDI"); }
-
+      const { eligible, gaps, estimatedAnnualValue, navigationGuides } = eligibility;
       const current = data.currentBenefits || [];
-      const gaps = eligible.filter(b => !current.includes(b));
 
       const [created] = await db.insert(benefitsScreenings).values({
         ...data,
         eligibleBenefits: eligible,
         gapBenefits: gaps,
+        navigationGuides: navigationGuides as any,
         status: "completed",
       }).returning();
 
@@ -687,13 +686,9 @@ export function registerBenefitsRoutes(app: Express) {
         eligibleBenefits: eligible,
         currentBenefits: current,
         gapBenefits: gaps,
-        estimatedAnnualValue: gaps.reduce((sum, b) => {
-          const vals: Record<string, number> = {
-            SNAP: 3024, Medicaid: 7200, CHIP: 2400, EITC: 3584,
-            WIC: 528, SSI: 10092, SSDI: 16560, Marketplace: 5400, CTC: 3600,
-          };
-          return sum + (vals[b] || 0);
-        }, 0),
+        gaps,
+        estimatedAnnualValue,
+        navigationGuides,
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to process screening" });

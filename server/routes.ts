@@ -1,6 +1,8 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { getEmployerMatches } from "./workforce-match";
+import { jobPostings, employerPartners } from "../shared/schema";
 import {
   insertCurriculumDocumentSchema,
   studentProgress, completedLessons, earnedBadges, certificates,
@@ -778,34 +780,47 @@ export async function registerRoutes(
       const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
 
       let correct = 0;
+      const missedConcepts: string[] = [];
       for (const q of questions) {
         if (answers[q.id] === q.correctAnswer) {
           correct++;
+        } else {
+          const label = (q as any).topic ?? (q as any).questionText?.substring(0, 60) ?? `Question ${q.id}`;
+          missedConcepts.push(label);
         }
       }
 
-      const passed = questions.length > 0 && (correct / questions.length) >= 0.7;
-      const attempt = await storage.submitQuiz(progress.id, req.params.moduleId as string, correct, questions.length, passed);
+      const percentage = questions.length > 0 ? correct / questions.length : 0;
+      const masteryAchieved = percentage >= 0.80;
+      const passed = percentage >= 0.70;
+      const triggerSpark = !masteryAchieved;
+      const canAdvance = masteryAchieved;
+      const sparkContext = missedConcepts.length > 0
+        ? `The learner scored ${Math.round(percentage * 100)}% and needs 80% to advance. They missed: ${missedConcepts.join("; ")}. Help them understand ONLY these specific concepts.`
+        : "";
 
-      const pointsEarned = passed ? 100 : 25;
-      const allAttempts = await storage.getQuizAttempts(progress.id);
-      const scores = allAttempts.map(a => a.totalQuestions > 0 ? Math.round((a.score / a.totalQuestions) * 100) : 0);
-      const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
+      const attempt = await storage.submitQuiz(progress.id, req.params.moduleId as string, correct, questions.length, masteryAchieved);
 
-      await storage.updateProgress(progress.id, {
-        totalPoints: progress.totalPoints + pointsEarned,
-        quizzesCompleted: progress.quizzesCompleted + 1,
-        averageScore: avgScore,
-      });
+      const pointsEarned = masteryAchieved ? 100 : passed ? 50 : 25;
 
-      if (passed && progress.quizzesCompleted === 0) {
-        await storage.earnBadge(progress.id, "quiz_whiz");
-      }
-      if (correct === questions.length && questions.length > 0) {
-        await storage.earnBadge(progress.id, "perfect_score");
-      }
+      if (masteryAchieved) {
+        const allAttempts = await storage.getQuizAttempts(progress.id);
+        const scores = allAttempts.map(a => a.totalQuestions > 0 ? Math.round((a.score / a.totalQuestions) * 100) : 0);
+        const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
 
-      if (passed) {
+        await storage.updateProgress(progress.id, {
+          totalPoints: progress.totalPoints + pointsEarned,
+          quizzesCompleted: progress.quizzesCompleted + 1,
+          averageScore: avgScore,
+        });
+
+        if (progress.quizzesCompleted === 0) {
+          await storage.earnBadge(progress.id, "quiz_whiz");
+        }
+        if (correct === questions.length && questions.length > 0) {
+          await storage.earnBadge(progress.id, "perfect_score");
+        }
+
         const mod = await storage.getModule(req.params.moduleId as string);
         if (mod) {
           const levelModules = await storage.getModulesByLevel(mod.levelId);
@@ -824,12 +839,53 @@ export async function registerRoutes(
       res.json({
         score: correct,
         total: questions.length,
+        percentage,
         passed,
+        masteryAchieved,
+        canAdvance,
+        triggerSpark,
+        sparkContext,
         pointsEarned,
+        remediation: {
+          required: !masteryAchieved,
+          missedConcepts,
+          suggestedReview: !masteryAchieved && missedConcepts.length > 0
+            ? `Review the lesson and focus on: ${missedConcepts.slice(0, 2).join(" and ")}.`
+            : "",
+        },
       });
     } catch (error) {
       console.error("Error in POST /api/modules/:moduleId/quiz/submit", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Workforce / fair-chance job board routes
+  app.get("/api/workforce/match/:userId", requireAuth, async (req, res) => {
+    try {
+      const userId = req.params.userId === "me" ? getUserId(req)! : req.params.userId;
+      const result = await getEmployerMatches(userId);
+      res.json(result);
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load employer matches" });
+    }
+  });
+
+  app.get("/api/workforce/jobs", async (req, res) => {
+    try {
+      const jobs = await db
+        .select()
+        .from(jobPostings)
+        .leftJoin(employerPartners, eq(jobPostings.employerId, employerPartners.id))
+        .where(
+          and(
+            eq(jobPostings.status, "open"),
+            eq(jobPostings.barrierFriendly, true)
+          )
+        );
+      res.json(jobs.map((r) => ({ job: r.job_postings, employer: r.employer_partners })));
+    } catch (err) {
+      res.status(500).json({ error: "Failed to load job board" });
     }
   });
 

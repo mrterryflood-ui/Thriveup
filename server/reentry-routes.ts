@@ -1,4 +1,5 @@
 import type { Express, Request, Response } from "express";
+import { createParticipantEnhanced } from "./reentry-intake-enhanced";
 import { db, storage } from "./storage";
 import {
   reentryPlans, reentryMilestones, reentryIntakeAssessments,
@@ -311,9 +312,16 @@ export function registerReentryRoutes(app: Express) {
   app.post("/api/intake/participants", requireAuth, async (req, res) => {
     try {
       const parsed = insertParticipantProfileSchema.safeParse(req.body);
-      if (!parsed.success) return res.status(400).json({ error: "Invalid participant data", details: parsed.error.flatten().fieldErrors });
-      const [profile] = await db.insert(participantProfiles).values(parsed.data).returning();
-      res.json(profile);
+      if (!parsed.success)
+        return res.status(400).json({ error: "Invalid participant data", details: parsed.error.flatten().fieldErrors });
+
+      const result = await createParticipantEnhanced(parsed.data, {
+        riskAnswers: req.body.riskAnswers,
+        zipCode: req.body.zipCodeExtra ?? parsed.data.zipCode ?? undefined,
+        countyFips: req.body.countyFips,
+      });
+
+      res.json(result);
     } catch (error) {
       console.error("Failed to create participant:", error);
       res.status(500).json({ error: "Failed to create participant" });

@@ -52,16 +52,20 @@ export default function JobBoard() {
     document.title = "Fair-Chance Job Board | ThriveUp Academy";
     Promise.allSettled([
       fetch("/api/workforce/jobs").then((r) => r.json()),
-      fetch("/api/workforce/match/me").then((r) => r.json()),
+      fetch("/api/workforce/match/me").then((r) => r.ok ? r.json() : null),
     ]).then(([jobsRes, matchRes]) => {
-      if (jobsRes.status === "fulfilled") setJobs(jobsRes.value);
-      if (matchRes.status === "fulfilled") setMatches(matchRes.value);
+      if (jobsRes.status === "fulfilled" && Array.isArray(jobsRes.value)) {
+        setJobs(jobsRes.value);
+      }
+      if (matchRes.status === "fulfilled" && matchRes.value?.fairChanceMatches) {
+        setMatches(matchRes.value);
+      }
       setLoading(false);
     });
   }, []);
 
   const displayJobs =
-    view === "matched" && matches
+    view === "matched" && matches?.fairChanceMatches?.length
       ? matches.fairChanceMatches.flatMap((m) =>
           m.openPostings.map((p) => ({
             job: p,

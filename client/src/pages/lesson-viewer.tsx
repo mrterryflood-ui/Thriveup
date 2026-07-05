@@ -27,8 +27,8 @@ import ArcbEvaluator from "@/components/activities/arcb-evaluator";
 import HallucinationSpotter from "@/components/activities/hallucination-spotter";
 import BiasDetective from "@/components/activities/bias-detective";
 import AiOrHuman from "@/components/activities/ai-or-human";
-import AICompanion from "@/components/ai-companion";
 import LessonComments from "@/components/lesson-comments";
+import { SparkAuto } from "@/components/SparkAuto";
 
 function parseActivityData(lesson: Lesson) {
   if (!lesson.activityData || !lesson.activityType) return null;
@@ -77,7 +77,6 @@ export default function LessonViewerPage() {
   const lessonId = params.lessonId || "";
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const [showSpark, setShowSpark] = useState(false);
 
   const { data: lesson, isLoading, error, refetch } = useQuery<Lesson>({
     queryKey: ["/api/lessons", lessonId],
@@ -212,21 +211,10 @@ export default function LessonViewerPage() {
 
       {/* AI Learning Companion */}
       <div className="mt-6">
-        <Button
-          variant="outline"
-          onClick={() => setShowSpark(!showSpark)}
-          className="w-full mb-3"
-          data-testid="button-toggle-spark"
-        >
-          <Sparkles className="mr-2 h-4 w-4" />
-          {showSpark ? "Hide Spark" : "Need help? Ask Spark!"}
-        </Button>
-        {showSpark && (
-          <AICompanion
-            lessonContext={lesson.title + ": " + lesson.content.substring(0, 300)}
-            className="h-[400px]"
-          />
-        )}
+        <SparkAuto
+          lessonTitle={lesson.title}
+          lessonContent={lesson.content}
+        />
       </div>
 
       <div className="mt-6">

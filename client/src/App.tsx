@@ -250,6 +250,8 @@ const WAB2EnrollmentHubPage = lazy(() => import("@/pages/wab2-enrollment-hub"));
 const DataSourcesPage = lazy(() => import("@/pages/data-sources"));
 const ReentryStipendPilotPage = lazy(() => import("@/pages/reentry-stipend-pilot"));
 const ReentryStandardsPage = lazy(() => import("@/pages/reentry-standards"));
+const JobBoardPage = lazy(() => import("@/pages/JobBoard"));
+const ReentryIntakeEnhancedPage = lazy(() => import("@/pages/ReentryIntakeEnhanced"));
 const StandardsPublicPage = lazy(() => import("@/pages/standards-public"));
 const StrategicPlanPage = lazy(() => import("@/pages/strategic-plan"));
 const OutcomeReportsNrrcPage = lazy(() => import("@/pages/outcome-reports-nrrc"));
@@ -760,6 +762,8 @@ function AppRouter() {
       <Route path="/fafsa-navigator" component={FafsaNavigatorPage} />
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />
+      <Route path="/jobs" component={JobBoardPage} />
+      <Route path="/reentry/intake" component={ReentryIntakeEnhancedPage} />
       <Route path="/reentry-stipend-pilot" component={ReentryStipendPilotPage} />
       <Route path="/reentry/standards" component={ReentryStandardsPage} />
       <Route path="/standards/public" component={StandardsPublicPage} />
