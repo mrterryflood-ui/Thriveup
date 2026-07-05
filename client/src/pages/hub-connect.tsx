@@ -7,6 +7,7 @@ import {
   DollarSign, Mail, RefreshCw, BookOpen,
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
+import { OrchestraStrip } from "@/components/orchestra-strip";
 import { useAuth } from "@/hooks/use-auth";
 import { useHubRole } from "@/lib/hub-role";
 
@@ -67,6 +68,7 @@ export default function HubConnectPage() {
       itiContext="connect-hub"
       itiPrompt="Does your organization serve the community without formal recognition or funding?"
       itiRoleTags={["Faith Leader", "Community Organizer", "Informal Advocate", "Neighborhood Connector", "Promotora"]}
+      extra={<OrchestraStrip hub="connect" />}
     />
   );
 }

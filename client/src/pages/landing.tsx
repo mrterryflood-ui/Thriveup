@@ -432,36 +432,82 @@ function SuccessStories() {
 }
 
 function HowItWorks() {
-  const steps = [
-    { step: 1, title: "Discover & Unlock", desc: "Find out what you qualify for — 9+ benefit programs screened in one conversation. Then choose your path: workforce training, education, career exploration, or the support you need to get stable first.", icon: Search, href: "/benefits-screener", action: "Screen for Benefits" },
-    { step: 2, title: "Learn & Earn Your Credential", desc: "AI-powered workforce readiness curriculum — 15 weeks, self-paced, aligned to Texas CTE standards. You earn a verifiable digital credential that's yours to keep and share with employers.", icon: Target, href: "/curriculum", action: "Start the Curriculum" },
-    { step: 3, title: "Launch & Own Your Future", desc: "Employer matching, interview prep, and placement support. Outcomes tracked at 30, 90, 180, and 365 days — not to check on you, but to prove what you've built.", icon: BarChart3, href: "/academy/careers", action: "Explore Career Paths" },
+  const hubs = [
+    {
+      icon: Heart, color: "from-emerald-500 to-teal-600", iconBg: "bg-emerald-100 text-emerald-700",
+      label: "Serve People", href: "/hub/serve",
+      role: "Frontline delivery — benefits screening, foster navigation, justice reentry, community health.",
+      feeds: "Outcome data → grant proposals. Skill gaps → workforce training. Population trends → partner coordination.",
+    },
+    {
+      icon: Target, color: "from-amber-500 to-orange-600", iconBg: "bg-amber-100 text-amber-700",
+      label: "Get Funded", href: "/hub/fund",
+      role: "The evidence layer — RFP intelligence, proposal writing, compliance, and win-rate analytics.",
+      feeds: "Awarded grants → direct service capacity. Coalition evidence → more partner funding.",
+    },
+    {
+      icon: Rocket, color: "from-blue-600 to-indigo-700", iconBg: "bg-blue-100 text-blue-700",
+      label: "Grow", href: "/hub/grow",
+      role: "Workforce readiness engine — Trade Sims, Academy curriculum, employer matching, AI tools.",
+      feeds: "Credentialed graduates → serve-side employment outcomes. ROI data → workforce grant proposals.",
+    },
+    {
+      icon: Network, color: "from-teal-600 to-cyan-700", iconBg: "bg-teal-100 text-teal-700",
+      label: "Connect", href: "/hub/connect",
+      role: "Coordination backbone — partner network, Foundation coalition, civic data, impact reporting.",
+      feeds: "Shared referrals → Serve. Organizational capacity → Fund. Employer network → Grow.",
+    },
   ];
 
   return (
     <section className="py-12 px-4 sm:py-16 sm:px-6" data-testid="section-how-it-works">
       <div className="max-w-5xl mx-auto">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-how-heading">Three Steps to Impact</h2>
-          <p className="text-sm text-muted-foreground max-w-lg mx-auto">A holistic path — from discovering what you're entitled to, through earning credentials, to owning your future. At every step, you lead. We build alongside you.</p>
+        <div className="text-center mb-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-3">
+            <Layers className="h-3 w-3" />
+            <span>Integrated by design</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3" data-testid="text-how-heading">
+            Nothing operates in a silo.
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto leading-relaxed">
+            Four coordinated hubs — each one doing its part, each one feeding the others. Outcomes from service delivery
+            become evidence in grant proposals. Credentials earned in training become employment outcomes measured at 365 days.
+            Partner coordination amplifies all of it. This is what a backbone organization actually looks like.
+          </p>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {steps.map((item) => (
-            <Link key={item.step} href={item.href} className="no-underline group">
-              <Card className="p-5 text-center h-full flex flex-col transition-all duration-200 hover:shadow-md hover:border-primary/30 cursor-pointer" data-testid={`card-step-${item.step}`}>
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-3">
-                  <span className="text-lg font-bold text-primary">{item.step}</span>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+          {hubs.map((hub) => (
+            <Link key={hub.label} href={hub.href} className="no-underline group">
+              <Card className="p-5 h-full flex flex-col gap-3 transition-all duration-200 hover:shadow-md hover:border-primary/30 cursor-pointer" data-testid={`card-hub-${hub.label.toLowerCase().replace(/\s+/g, "-")}`}>
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${hub.color} flex items-center justify-center shadow-sm shrink-0`}>
+                    <hub.icon className="h-5 w-5 text-white" />
+                  </div>
+                  <h3 className="font-bold text-sm group-hover:text-primary transition-colors">{hub.label}</h3>
                 </div>
-                <item.icon className="h-5 w-5 text-primary mx-auto mb-2" />
-                <h3 className="font-semibold mb-1 group-hover:text-primary transition-colors" data-testid={`text-step-title-${item.step}`}>{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">{item.desc}</p>
-                <div className="flex items-center justify-center gap-1.5 text-sm font-medium text-primary mt-auto">
-                  <span>{item.action}</span>
-                  <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                <p className="text-xs text-muted-foreground leading-relaxed">{hub.role}</p>
+                <div className="border-t border-border/40 pt-2 mt-auto">
+                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wide mb-1">Feeds →</p>
+                  <p className="text-[11px] text-muted-foreground leading-relaxed">{hub.feeds}</p>
+                </div>
+                <div className="flex items-center gap-1 text-xs font-medium text-primary">
+                  <span>Open {hub.label}</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
                 </div>
               </Card>
             </Link>
           ))}
+        </div>
+
+        <div className="rounded-2xl bg-muted/50 border border-border/60 p-5 text-center">
+          <p className="text-sm font-semibold mb-1">The conductor role</p>
+          <p className="text-xs text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            TCAF doesn't deliver services — it coordinates the infrastructure that makes services continuous, measurable, and fundable.
+            Community members don't fall through cracks because the system is designed so there are no cracks: every action in one hub
+            creates a signal in the others. Every outcome tracked becomes evidence the next funder can verify.
+          </p>
         </div>
       </div>
     </section>

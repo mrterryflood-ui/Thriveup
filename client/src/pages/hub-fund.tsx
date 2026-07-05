@@ -7,6 +7,7 @@ import {
   Sparkles, Star, Clock, ExternalLink, ArrowRight,
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
+import { OrchestraStrip } from "@/components/orchestra-strip";
 import { useAuth } from "@/hooks/use-auth";
 import { useHubRole } from "@/lib/hub-role";
 import { Badge } from "@/components/ui/badge";
@@ -148,6 +149,7 @@ export default function HubFundPage() {
         itiContext="fund-hub"
         itiPrompt="Do you support your community without formal grant funding?"
         itiRoleTags={["Promotora", "Peer Navigator", "Informal Caseworker", "Community Organizer", "Shadow Workforce"]}
+        extra={<OrchestraStrip hub="fund" />}
       />
     </div>
   );

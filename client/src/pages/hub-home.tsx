@@ -5,7 +5,7 @@ import {
   MessageCircle, Calendar, Compass, TrendingUp,
   Sparkles, Users, Map, Wrench,
   AlertCircle, Clock, ChevronRight, Pencil,
-  LayoutGrid,
+  LayoutGrid, Music2, ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
@@ -191,6 +191,71 @@ function MyWork({ isAuthenticated }: { isAuthenticated: boolean }) {
   );
 }
 
+const SYNC_FLOWS = [
+  { from: "Serve", to: "Fund",    desc: "Outcome data → proposal evidence" },
+  { from: "Grow",  to: "Serve",   desc: "Credentials → workforce-ready clients" },
+  { from: "Fund",  to: "Serve",   desc: "Awarded grants → program resources" },
+  { from: "Connect", to: "All",   desc: "Partner coordination → aligned referrals" },
+];
+
+const HUB_NODES = [
+  { label: "Serve",   href: "/hub/serve",   color: "bg-emerald-500", icon: Heart },
+  { label: "Fund",    href: "/hub/fund",    color: "bg-amber-500",   icon: Target },
+  { label: "Grow",    href: "/hub/grow",    color: "bg-blue-600",    icon: Rocket },
+  { label: "Connect", href: "/hub/connect", color: "bg-teal-600",    icon: Network },
+];
+
+function SystemSyncStrip() {
+  return (
+    <div
+      className="rounded-2xl border border-border/60 bg-card p-4 space-y-3"
+      data-testid="system-sync-strip"
+    >
+      <div className="flex items-center gap-2">
+        <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center">
+          <Music2 className="w-3.5 h-3.5 text-primary" />
+        </div>
+        <div>
+          <p className="text-xs font-bold text-foreground leading-none">Nothing operates alone</p>
+          <p className="text-[10px] text-muted-foreground mt-0.5">Every section feeds the others. Action here creates evidence there.</p>
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between gap-1">
+        {HUB_NODES.map((node, i) => {
+          const Icon = node.icon;
+          return (
+            <div key={node.label} className="flex items-center gap-1 shrink-0">
+              <Link href={node.href}>
+                <div className="flex flex-col items-center gap-1 cursor-pointer group" data-testid={`sync-hub-${node.label.toLowerCase()}`}>
+                  <div className={cn("w-9 h-9 rounded-xl flex items-center justify-center shadow-sm transition-transform group-active:scale-95", node.color)}>
+                    <Icon className="w-4 h-4 text-white" />
+                  </div>
+                  <span className="text-[9px] font-semibold text-muted-foreground group-hover:text-foreground transition-colors">{node.label}</span>
+                </div>
+              </Link>
+              {i < HUB_NODES.length - 1 && (
+                <ArrowRight className="w-3 h-3 text-muted-foreground/40 mb-3 shrink-0" />
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="space-y-1 border-t border-border/40 pt-2">
+        {SYNC_FLOWS.map((f) => (
+          <div key={`${f.from}-${f.to}`} className="flex items-center gap-1.5 text-[10px]">
+            <span className="font-semibold text-foreground">{f.from}</span>
+            <ArrowRight className="w-2.5 h-2.5 text-muted-foreground/60 shrink-0" />
+            <span className="font-semibold text-foreground">{f.to}</span>
+            <span className="text-muted-foreground">— {f.desc}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function HubHomePage() {
   const { user, isAuthenticated } = useAuth();
   const { role, onboarded, setRole, dismiss, clearRole } = useHubRole();
@@ -257,6 +322,8 @@ export default function HubHomePage() {
             })}
           </div>
         </div>
+
+        <SystemSyncStrip />
 
         <div>
           <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">

@@ -5,6 +5,7 @@ import {
   Building2, Sparkles, BarChart3, MessageCircle,
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
+import { OrchestraStrip } from "@/components/orchestra-strip";
 import { useAuth } from "@/hooks/use-auth";
 import { useHubRole } from "@/lib/hub-role";
 
@@ -66,6 +67,7 @@ export default function HubServePage() {
       itiContext="serve-hub"
       itiPrompt="Are you already helping people in your community?"
       itiRoleTags={["Informal Caregiver", "Neighbor Helper", "Promotora", "Peer Support", "Faith Leader", "Driveway Helper"]}
+      extra={<OrchestraStrip hub="serve" />}
     />
   );
 }

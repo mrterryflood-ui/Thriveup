@@ -9,6 +9,7 @@ import {
   MessageCircle, Compass,
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
+import { OrchestraStrip } from "@/components/orchestra-strip";
 import { useAuth } from "@/hooks/use-auth";
 import { useHubRole } from "@/lib/hub-role";
 
@@ -72,6 +73,7 @@ export default function HubGrowPage() {
       itiContext="grow-hub"
       itiPrompt="Are you teaching trades or skills informally in your community?"
       itiRoleTags={["Driveway Journeyman", "Informal Trainer", "Peer Coach", "Neighborhood Mechanic", "Community Teacher"]}
+      extra={<OrchestraStrip hub="grow" />}
     />
   );
 }
