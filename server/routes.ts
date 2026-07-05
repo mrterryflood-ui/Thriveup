@@ -113,6 +113,7 @@ import { registerRpliceToolsRoutes } from "./rplice-tools";
 import { registerMceContractRoutes } from "./mce-contracts";
 import { registerIntegrationInvitationRoutes } from "./integration-invitation-routes";
 import { registerItiWeek3Routes } from "./iti-week3-routes";
+import { registerSystemPulseRoutes } from "./system-pulse-routes";
 import { registerVideoPipelineRoutes } from "./video-pipeline";
 import { registerProgramEngineRoutes } from "./program-engine";
 import { registerPeerReviewRoutes } from "./peer-review-routes";
@@ -531,6 +532,7 @@ export async function registerRoutes(
   registerCorridorRoutes(app);
   registerNetworkRoutes(app);
   registerStandardsRoutes(app);
+  registerSystemPulseRoutes(app);
   registerCoalitionRoutes(app);
   registerChainWebRoutes(app);
   registerRegionalBriefingRoutes(app);
