@@ -1,0 +1,63 @@
+Before I write a plan, let me be precise about what "complete" means for each of these five items — because they have different completion paths.
+
+Item 1 — BJS recidivism + housing court filings
+These are not API integrations in the traditional sense. BJS does not have a live recidivism API. What exists is:
+
+BJS publishes static datasets (NCRP, RSIA) updated annually as downloadable files
+Housing court filings in Texas are available through county district clerk portals — Travis County has a public case search but no structured API
+
+Completion path here is not "wire an API." It's:
+
+Ingest the BJS NCRP dataset (CSV → PostgreSQL) on a scheduled job
+Build a FOIAIQ workflow to systematically request housing court filing data from Travis, Williamson, Hays, Bastrop county clerks
+Parse and normalize the responses into a justice_indicators table
+Feed that table into the equity dashboard and policy signal engine
+
+Question before building: Do you want the BJS data ingestion pipeline (scheduled, pulls annual datasets), the FOIA request workflow for housing courts, or both? And is FOIAIQ a platform you own the codebase for, or is it an external service you're integrating against?
+
+Item 2 — FOIAIQ connector
+You said the stub exists but URL and token don't. This means FOIAIQ is either:
+
+A platform you're still building (in which case we define the API contract and build both sides)
+A platform that exists but isn't deployed to a stable URL yet (in which case we build the connector and stub the auth until it is)
+
+Question: Is FOIAIQ a platform you control the codebase for? If yes, pull me the routes file and I'll build both the connector on ThriveUp's side and the receiving endpoint on FOIAIQ's side simultaneously.
+
+Item 3 — Civic Signal connector
+Same situation. The stub is built on ThriveUp's side. Civic Signal has its own codebase.
+Question: Same as above — do you control Civic Signal's codebase? If yes, pull me its routes file and I'll build the bidirectional connector: community voice data flowing upstream to RPLICE and downstream to the Navigator's context window.
+
+Item 4 — Validated risk instrument
+The LSI-R is a proprietary instrument (MHS Inc.) — you cannot legally embed it in software without a license. ORAS is Ohio-developed and publicly available for non-commercial use in some states but requires state authorization in Texas.
+What you can build legally and clinically defensibly:
+
+CRAFFT (adolescents, substance use) — public domain
+PHQ-9 (depression screening) — public domain, Pfizer-licensed free
+PCL-5 (PTSD, veteran population) — VA-developed, public domain
+CAGE-AID (substance use) — public domain
+Columbia Suicide Severity Rating Scale (C-SSRS) — free for non-commercial use
+A custom criminogenic needs screen built on the published RNR literature (Andrews & Bonta) that flags domains without scoring a proprietary instrument — this is what your 8-question triage is, and it's the right approach
+
+The completion path here is: expand the 8-domain triage into a 25-item criminogenic needs screener built on published RNR literature, add PHQ-9 and PCL-5 as separate instruments for mental health and trauma, and build a referral routing engine that maps scores to specific community resources.
+Question: Do you want me to build the expanded screener now, or is there a licensed instrument you've already acquired that needs to be embedded?
+
+Item 5 — Employer directory
+A live employer API feed has two realistic sources:
+
+Indeed Publisher API — requires Indeed partnership approval, not open
+LinkedIn Jobs API — requires enterprise agreement
+USA Jobs API — public, federal jobs, free
+Handshake — higher ed focused, not right for your population
+Texas Workforce Commission job listings — TWC has a public API via their Workforce Solutions network
+
+The realistic completion path is:
+
+Wire the TWC job listings API (public, no approval needed) filtered by fair-chance criteria
+Build an employer self-registration portal where employers apply to be listed, facilitators verify ban-the-box commitment, and the listing goes live
+Add credential tag matching to job postings so the match engine works on real data
+
+Question: Do you want me to check whether TWC has a public API right now, then build against it? And do you want the employer self-registration portal built?
+
+The complete plan, pending your answers:
+ItemBuild pathBlockerBJS recidivismDataset ingestion pipeline + scheduled refreshConfirm: ingestion vs FOIA workflowHousing court filingsFOIAIQ workflow + parser + justice_indicators tableConfirm: FOIAIQ codebase accessFOIAIQ connectorBidirectional API + authNeed: FOIAIQ routes fileCivic Signal connectorBidirectional API + Navigator context injectionNeed: Civic Signal routes fileRisk instrument25-item RNR screen + PHQ-9 + PCL-5 + referral routingConfirm: proprietary license or build openEmployer directoryTWC API feed + self-registration portal + credential tagsConfirm: TWC API checkResident equity dashboardPublic-facing layer of equity dashboard (different from funder view)Ready to build now
+Answer the five questions and I build everything in one pass, no breadcrumbing. The resident layer I can start immediately while you pull the FOIAIQ and Civic Signal codebases.
