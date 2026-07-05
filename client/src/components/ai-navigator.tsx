@@ -62,8 +62,13 @@ const PLATFORM_ACTIONS: Array<{ label: string; icon: string; message?: string; h
   { label: "Find grants", icon: "💰", message: "Find grant opportunities that match our organization. We are a community development nonprofit focused on workforce training, benefits navigation, and reentry services in Central Texas." },
   { label: "Trade Sims", icon: "🔧", href: "/academy/trade-sims" },
   { label: "Workforce Pell", icon: "🎓", href: "/workforce-pell" },
+  { label: "MOS Translator", icon: "🎖️", href: "/mos-translator" },
   { label: "Career path", icon: "🗺️", message: "Help me build a personalized career pathway plan. I want to understand which TCAF programs lead to in-demand jobs and how to stack credentials." },
   { label: "WIOA + Pell", icon: "📋", message: "Explain how to stack a Workforce Pell Grant with WIOA funding. What does each program cover, and what are the step-by-step enrollment steps?" },
+  { label: "Housing + food", icon: "🏠", message: "I need help with housing and food security. Connect me to LifeBridge resources near me — emergency rental assistance, food pantries, utility help, and SNAP enrollment." },
+  { label: "Health resources", icon: "❤️", message: "Help me access health resources through Sankofa Health and Whole-Person Health. I may need behavioral health support, maternal health info, or a community health worker connection." },
+  { label: "Reentry support", icon: "🔓", message: "I need reentry support after incarceration. Help me find housing, employment, expungement assistance, and benefits I qualify for — and route me to the right TCAF platform." },
+  { label: "Veteran services", icon: "🇺🇸", message: "I'm a veteran. Help me translate my military experience to civilian credentials, find WIOA and VA benefits I qualify for, and connect to M2C transition support." },
   { label: "Resources near me", icon: "📍", message: "What community resources are available near me? I'm looking for food, housing, childcare, transportation, and employment support." },
   { label: "My progress", icon: "🏆", href: "/academy/progress-report" },
 ];

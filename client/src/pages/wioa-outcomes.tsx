@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrendingUp, Briefcase, DollarSign, Clock, Users, BarChart3, RefreshCw, Download } from "lucide-react";
 import { queryClient } from "@/lib/queryClient";
+import { EcosystemGateway } from "@/components/ecosystem-gateway";
 
 interface Placement {
   id: string;
@@ -303,6 +304,12 @@ export default function WIOAOutcomesPage() {
             </CardContent>
           </Card>
         )}
+
+        <EcosystemGateway
+          context={["evaluation", "outcomes", "grants", "workforce", "employment", "research"]}
+          title="Connected Measurement Infrastructure"
+          subtitle="WIOA outcome data flows directly to RPLICE for implementation science reporting, LifeBridge for SDOH gap identification, and the grant pipeline for renewal narratives."
+        />
 
         <Card className="border-blue-200 dark:border-blue-800 bg-blue-50/50 dark:bg-blue-950/20">
           <CardContent className="pt-5 pb-5">

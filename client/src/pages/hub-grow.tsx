@@ -6,7 +6,7 @@ import {
   Sparkles, Brain, Gamepad2, Map, Store,
   TrendingUp, Wallet, DollarSign, Calendar,
   Megaphone, HelpCircle, ShoppingBag, Wand2,
-  MessageCircle, Compass, Layers,
+  MessageCircle, Compass, Layers, Shield,
 } from "lucide-react";
 import { HubShell, type HubCardDef } from "@/components/hub-shell";
 import { OrchestraStrip } from "@/components/orchestra-strip";
@@ -16,6 +16,7 @@ import { useHubRole } from "@/lib/hub-role";
 const CARDS: HubCardDef[] = [
   { icon: Layers,       title: "Workforce Pell Grant",  subtitle: "Up to $4,310 for career training",     href: "/workforce-pell",        tag: "Workforce",   variant: "hero", color: "indigo",  badge: "New Jul 2026" },
   { icon: Wrench,       title: "Trade Sims",            subtitle: "Try free → real skills, real pay",     href: "/academy/trade-sims",    tag: "Trade Sims",  variant: "hero", color: "blue",    badge: "Free" },
+  { icon: Shield,       title: "MOS Translator",        subtitle: "Military service → civilian credentials", href: "/mos-translator",      tag: "Veterans",    variant: "hero", color: "slate",   badge: "Veterans" },
   { icon: Briefcase,    title: "Career Explorer",       subtitle: "Discover high-demand careers",         href: "/academy/careers",       tag: "Workforce",   variant: "hero", color: "indigo" },
   { icon: Rocket,       title: "Panther Village",       subtitle: "Your academic home base",              href: "/academy",               tag: "Academy",     variant: "hero", color: "violet" },
   { icon: Brain,        title: "AI Creation Studio",    subtitle: "Build with AI tools",                  href: "/ai-tools",              tag: "AI",          variant: "hero", color: "purple" },
@@ -32,6 +33,7 @@ const CARDS: HubCardDef[] = [
   { icon: GraduationCap,title: "Transition Plans",      subtitle: "Education-to-career transitions",      href: "/transition-plans",      tag: "Workforce",   color: "green" },
   { icon: Target,       title: "Dream Design",          subtitle: "Design your ideal future",             href: "/academy/dreams",        tag: "Workforce",   color: "amber",   roles: ["youth", "community", "admin"] },
   { icon: Lightbulb,    title: "Life Lessons",          subtitle: "Real-world skill building",            href: "/academy/lessons",       tag: "Workforce",   color: "yellow",  roles: ["youth", "community", "chw", "admin"] },
+  { icon: BarChart3,    title: "WIOA Outcomes",         subtitle: "Live placement rate, wages, retention",href: "/wioa-outcomes",         tag: "Workforce",   color: "emerald", authOnly: true, roles: ["admin", "org", "grant"] },
   { icon: BarChart3,    title: "Workforce Dashboard",   subtitle: "Program-wide workforce metrics",       href: "/workforce-dashboard",   tag: "Workforce",   color: "indigo",  authOnly: true, roles: ["admin", "org", "grant"] },
   { icon: ClipboardCheck,title: "Workforce Assessment", subtitle: "Skills & readiness assessment",        href: "/workforce-assessment",  tag: "Workforce",   color: "blue",    authOnly: true, roles: ["chw", "admin"] },
   { icon: GraduationCap,title: "Workforce Training",    subtitle: "Structured training programs",         href: "/workforce-training",    tag: "Workforce",   color: "violet" },
@@ -66,7 +68,7 @@ export default function HubGrowPage() {
       title="Grow"
       subtitle="Trade Sims · Workforce · Academy · AI Tools"
       headerGradient="from-blue-600 via-indigo-600 to-blue-800"
-      chips={["All", "Trade Sims", "Workforce", "Academy", "AI"]}
+      chips={["All", "Trade Sims", "Workforce", "Veterans", "Academy", "AI"]}
       cards={CARDS}
       isAuthenticated={isAuthenticated}
       role={role}

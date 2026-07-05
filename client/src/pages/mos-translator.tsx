@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Shield, Wrench, GraduationCap, ArrowRight, CheckCircle2, AlertTriangle, ChevronRight, Search } from "lucide-react";
 import { Link } from "wouter";
+import { EcosystemGateway } from "@/components/ecosystem-gateway";
 
 type Branch = "Army" | "Navy" | "Marine Corps" | "Air Force" | "Coast Guard";
 
@@ -280,6 +281,13 @@ export default function MOSTranslatorPage() {
                 </div>
               </CardContent>
             </Card>
+
+            <EcosystemGateway
+              context={["veterans", "military", "workforce", "career", "employment", "transition"]}
+              title="The Rest of the Orchestra"
+              subtitle="Your MOS opens doors across the full TCAF ecosystem — LifeBridge for housing stability, Sankofa for health, RPLICE to measure your outcomes, MCE if you want to launch a business."
+              className="mt-2"
+            />
           </div>
         )}
       </div>
