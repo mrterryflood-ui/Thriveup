@@ -247,6 +247,7 @@ const whereWeOperateItems: NavItem[] = [
   { title: "SDOH Impact Chain", url: "/sdoh-chain", icon: Link2 },
   { title: "SDOH Explorer", url: "/sdoh-explorer", icon: Search },
   { title: "Equity Dashboard", url: "/equity-dashboard", icon: BarChart3 },
+  { title: "Policy Signal Engine", url: "/policy-engine", icon: BarChart3 },
   { title: "City Comparison", url: "/city-comparison", icon: Scale },
   { title: "Data Sources", url: "/data-sources", icon: LayoutDashboard, authOnly: true },
 ];

@@ -129,6 +129,8 @@ const PlatformHealthPage = lazy(() => import("@/pages/admin/platform-health"));
 const MOSTranslatorPage = lazy(() => import("@/pages/mos-translator"));
 const WIOAOutcomesPage = lazy(() => import("@/pages/wioa-outcomes"));
 const EquityDashboardPage = lazy(() => import("@/pages/EquityDashboard"));
+const HouseholdProfilePage = lazy(() => import("@/pages/HouseholdProfile"));
+const PolicyEnginePage = lazy(() => import("@/pages/PolicyEngine"));
 const WorkforceDashboardPage = lazy(() => import("@/pages/workforce-dashboard"));
 const CommunityMapPage = lazy(() => import("@/pages/community-map"));
 const VoiceIndexPage = lazy(() => import("@/pages/voice/index"));
@@ -502,6 +504,8 @@ function AppRouter() {
       <Route path="/workforce-pell" component={WorkforcePellPage} />
       <Route path="/mos-translator" component={MOSTranslatorPage} />
       <Route path="/equity-dashboard" component={EquityDashboardPage} />
+      <Route path="/household/:id" component={HouseholdProfilePage} />
+      <Route path="/policy-engine" component={PolicyEnginePage} />
       <Route path="/wioa-outcomes">
         <RequireAuth adminOnly reason="The WIOA Outcome Dashboard contains placement and wage data. Restricted to TCAF admins.">
           <WIOAOutcomesPage />

@@ -1,0 +1,23 @@
+One file, nine clearly labeled sections. Here's what shipped:
+Schema (household-schema.ts) — 5 new tables, zero changes to existing ones:
+
+households — first-class entity, FIPS-coded, cohort-tagged, facilitator-assigned
+household_members — time-series membership with effective dates. Incarceration, relocation, death — all handled without destroying history
+household_member_consent — domain-level privacy per member. Legal data stays private unless explicitly shared. Employment/education default to household-visible
+household_sdoh_snapshots — member-level screening, aggregated at query time, partner routing stored as JSONB
+household_outcomes — trajectory snapshots that generate automatically whenever SDOH data is recorded
+
+Queries (household-queries.ts) — three functions:
+
+getHouseholdProfile() — full profile with consent-filtered view, SDOH aggregation, highest-burden domain ranking
+findOrCreateHousehold() — idempotent, generates human-readable codes (HH-78653-0042), seeds default consent
+snapshotHouseholdOutcomes() — called automatically on SDOH intake, also triggerable manually
+
+API (household-routes.ts) — 8 endpoints covering full CRUD plus consent management and outcome snapshots
+UI (HouseholdProfile.tsx) — four-tab facilitator view: overview aggregates, member cards with barrier flags, SDOH domain visualization, outcome trajectory
+Learner-events wiring — when a job placement fires, it now updates the member's employment status in the household and triggers an outcome snapshot automatically
+To deploy:
+bashnpm run db:push   # creates the 5 new tables
+Then wire the 3 import lines noted in sections 5–7.
+What this unlocks: The equity dashboard stops being county aggregates and becomes "this household, these barriers, these specific programs." The WIOA dashboard can now show household-level employment trajectories. The Policy Signal Engine — which is next — can now say "47% of households in Travis County with 3+ SDOH barriers have at least one member enrolled in a trade sim" and auto-generate the grant narrative from that number.
+Ready to build the Policy Signal Engine when you are.

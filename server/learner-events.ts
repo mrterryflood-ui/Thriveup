@@ -9,6 +9,8 @@ import {
   tradeSimsLessonProgress,
   tradeSimsTrades,
 } from "@shared/schema";
+import { householdMembers } from "../shared/household-schema";
+import { snapshotHouseholdOutcomes } from "./household-queries";
 
 export type LearnerEventType =
   | "trade_lesson_completed"
@@ -178,6 +180,18 @@ async function handleJobPlacementRecorded(event: LearnerEvent) {
     source: "workforce",
     notes: `Wage: ${metadata.wage ?? "N/A"} | Start: ${metadata.startDate ?? "N/A"}`,
   });
+  // Update household employment flag when a member gets a job placement
+  const [hm] = await db.select()
+    .from(householdMembers)
+    .where(eq(householdMembers.userId, userId));
+  if (hm) {
+    await db.update(householdMembers)
+      .set({ isEmployed: true, employmentWage: Math.round((Number(metadata.wage) || 0) * 100) })
+      .where(eq(householdMembers.id, hm.id));
+    await snapshotHouseholdOutcomes(hm.householdId).catch(
+      (e) => console.error("[learner-events] household snapshot failed:", e)
+    );
+  }
 }
 
 export async function fireLearnerEvent(event: LearnerEvent): Promise<void> {

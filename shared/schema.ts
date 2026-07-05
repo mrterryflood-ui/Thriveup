@@ -6750,3 +6750,5 @@ export const residentHouseholdMembers = pgTable("resident_household_members", {
 });
 export const insertResidentHouseholdMemberSchema = createInsertSchema(residentHouseholdMembers).omit({ id: true, createdAt: true });
 export type ResidentHouseholdMember = typeof residentHouseholdMembers.$inferSelect;
+
+export * from "./household-schema";

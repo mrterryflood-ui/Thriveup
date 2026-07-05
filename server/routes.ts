@@ -131,6 +131,8 @@ import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerOrgProfileRoutes } from "./org-profile-routes";
 import { registerOrgDocumentsRoutes } from "./org-documents-routes";
 import { registerGrantNarrativeRoutes } from "./grant-narrative-routes";
+import { householdRouter } from "./household-routes";
+import { policyRouter } from "./policy-routes";
 import { scheduleMonthlyResourceRefresh } from "./agency-intelligence";
 import { registerSafePassageRoutes } from "./safe-passage-routes";
 import { registerEcosystemIntelRoutes } from "./ecosystem-intel-routes";
@@ -6378,6 +6380,9 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
       res.json({ ok: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });
+
+  app.use("/api/households", householdRouter);
+  app.use("/api/policy", policyRouter);
 
   return httpServer;
 }
