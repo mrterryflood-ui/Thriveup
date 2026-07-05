@@ -2170,6 +2170,9 @@ export const jobPostings = pgTable("job_postings", {
   barrierFriendly: boolean("barrier_friendly").notNull().default(false),
   location: text("location"),
   status: varchar("status", { length: 50 }).notNull().default("open"),
+  credentialTags: text("credential_tags").array(),
+  wageMin: integer("wage_min_cents"),
+  wageMax: integer("wage_max_cents"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -2192,6 +2195,7 @@ export const jobPlacements = pgTable("job_placements", {
   status: varchar("status", { length: 50 }).notNull().default("active"),
   endDate: timestamp("end_date"),
   endReason: text("end_reason"),
+  reentryPlanId: varchar("reentry_plan_id", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -2289,6 +2293,10 @@ export const participantProfiles = pgTable("participant_profiles", {
   status: varchar("status", { length: 50 }).notNull().default("active"),
   intakeCompletedAt: timestamp("intake_completed_at"),
   notes: text("notes"),
+  riskScore: integer("risk_score"),
+  riskLevel: varchar("risk_level", { length: 20 }),
+  riskDomains: jsonb("risk_domains"),
+  householdId: varchar("household_id", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
@@ -4252,6 +4260,9 @@ export const benefitsScreenings = pgTable("benefits_screenings", {
   isPregnant: boolean("is_pregnant").default(false),
   isDisabled: boolean("is_disabled").default(false),
   isElderly: boolean("is_elderly").default(false),
+  isVeteran: boolean("is_veteran").default(false),
+  isSingleParent: boolean("is_single_parent").default(false),
+  navigationGuides: jsonb("navigation_guides"),
   citizenshipStatus: varchar("citizenship_status", { length: 50 }),
   eligibleBenefits: text("eligible_benefits").array(),
   currentBenefits: text("current_benefits").array(),

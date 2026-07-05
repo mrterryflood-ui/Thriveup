@@ -1,0 +1,1044 @@
+// ============================================================
+// THRIVE UP ACADEMY — COMPREHENSIVE PLATFORM FIXES
+// All 5 areas, one pass, complete implementations
+//
+// FILE INDEX:
+//   1. server/benefits-screener-fix.ts     — TANF + 4 missing programs + navigation
+//   2. server/reentry-intake-enhanced.ts   — participant creation → 4 side effects
+//   3. server/workforce-match.ts           — employer match endpoint + schema additions
+//   4. server/lesson-mastery.ts            — mastery gating at 80%, remediation branch
+//   5. client/src/components/SparkAuto.tsx — auto-surface on quiz fail, context-aware
+//   6. shared/schema-additions.ts          — additive schema fields needed
+//   7. Wiring notes at bottom
+// ============================================================
+
+
+// ============================================================
+// FILE 1: server/benefits-screener-fix.ts
+// Drop-in replacement for the screening POST handler
+// Fix: TANF logic, CCDF, LIHEAP, Section 8, Veterans benefits
+// Fix: Estimated values table
+// Fix: Navigation output (application link, docs, deadline)
+// ============================================================
+
+/*
+REPLACE the existing POST /api/benefits/screenings handler body with this.
+The route wrapper (app.post, requireAuth, etc.) stays the same.
+Only replace the inner logic from `const income = ...` to `res.json(...)`.
+*/
+
+export const BENEFIT_NAVIGATION: Record<string, {
+  applicationUrl: string;
+  documentsRequired: string[];
+  enrollmentType: string;
+  processingDays: string;
+  estimatedAnnualValue: number;
+  notes?: string;
+}> = {
+  SNAP: {
+    applicationUrl: "https://yourtexasbenefits.com",
+    documentsRequired: ["Photo ID", "Proof of income (last 30 days)", "Proof of residency", "Social Security numbers for all household members"],
+    enrollmentType: "Rolling — apply any time",
+    processingDays: "30 days standard; 7 days if expedited (income under $150/mo)",
+    estimatedAnnualValue: 3024,
+    notes: "Apply online at YourTexasBenefits.com or call 2-1-1 for in-person help."
+  },
+  Medicaid: {
+    applicationUrl: "https://yourtexasbenefits.com",
+    documentsRequired: ["Photo ID", "Proof of income", "Social Security number", "Proof of citizenship or immigration status"],
+    enrollmentType: "Rolling — no open enrollment period",
+    processingDays: "45 days standard; 90 days for disability-based",
+    estimatedAnnualValue: 7200,
+  },
+  CHIP: {
+    applicationUrl: "https://chipmedicaid.org",
+    documentsRequired: ["Child's birth certificate", "Proof of income", "Proof of Texas residency", "Social Security numbers"],
+    enrollmentType: "Rolling",
+    processingDays: "30 days",
+    estimatedAnnualValue: 2400,
+  },
+  WIC: {
+    applicationUrl: "https://texaswic.org",
+    documentsRequired: ["Photo ID", "Proof of income", "Proof of residency", "Medical records showing pregnancy or child's age"],
+    enrollmentType: "Rolling — certification every 6 months",
+    processingDays: "Same-day at WIC clinic",
+    estimatedAnnualValue: 528,
+    notes: "Call 1-800-942-3678 to find your nearest WIC clinic."
+  },
+  TANF: {
+    applicationUrl: "https://yourtexasbenefits.com",
+    documentsRequired: ["Photo ID", "Birth certificates for all children", "Proof of income", "Social Security numbers", "Proof of Texas residency", "School enrollment verification for children over 6"],
+    enrollmentType: "Rolling; 60-month lifetime limit in Texas",
+    processingDays: "30 days; interview required",
+    estimatedAnnualValue: 6444,
+    notes: "Texas TANF averages $74/month for a family of 3. Work requirements apply unless exempt."
+  },
+  Marketplace: {
+    applicationUrl: "https://healthcare.gov",
+    documentsRequired: ["Social Security number", "Employer and income information", "Policy numbers for current coverage"],
+    enrollmentType: "Open enrollment Nov 1 – Jan 15; Special Enrollment if qualifying life event",
+    processingDays: "Coverage starts 1st of following month",
+    estimatedAnnualValue: 5400,
+  },
+  EITC: {
+    applicationUrl: "https://irs.gov/eitc",
+    documentsRequired: ["Social Security numbers for self, spouse, and children", "W-2s and 1099s", "Birth dates for all children"],
+    enrollmentType: "Annual — file federal tax return",
+    processingDays: "21 days after filing if e-filed with direct deposit",
+    estimatedAnnualValue: 3584,
+    notes: "Free tax filing help at myfreetaxes.com or local VITA sites."
+  },
+  CTC: {
+    applicationUrl: "https://irs.gov/childtaxcredit",
+    documentsRequired: ["Social Security numbers for children", "Proof of relationship", "Tax return"],
+    enrollmentType: "Annual — claim on federal tax return",
+    processingDays: "21 days if e-filed",
+    estimatedAnnualValue: 3600,
+  },
+  SSI: {
+    applicationUrl: "https://ssa.gov/ssi/apply",
+    documentsRequired: ["Social Security card", "Birth certificate", "Proof of residency", "Medical records", "Financial records"],
+    enrollmentType: "Rolling — apply immediately if disabled",
+    processingDays: "3–6 months; up to 2 years if appealed",
+    estimatedAnnualValue: 10092,
+    notes: "Apply as early as possible — backpay starts from application date."
+  },
+  SSDI: {
+    applicationUrl: "https://ssa.gov/disability/apply",
+    documentsRequired: ["Work history", "Medical records", "Social Security card", "W-2s last 2 years"],
+    enrollmentType: "Rolling",
+    processingDays: "3–6 months; Medicare starts after 24 months of SSDI",
+    estimatedAnnualValue: 16560,
+  },
+  CCDF: {
+    applicationUrl: "https://childcare.texas.gov",
+    documentsRequired: ["Child's birth certificate", "Proof of income", "Proof of work, school, or training enrollment", "Social Security numbers", "Immunization records"],
+    enrollmentType: "Rolling; waitlist common in high-demand areas",
+    processingDays: "30–90 days depending on waitlist",
+    estimatedAnnualValue: 8400,
+    notes: "Texas Child Care Assistance (CCAP) through Texas HHSC. Call 1-877-541-7905."
+  },
+  LIHEAP: {
+    applicationUrl: "https://capmetx.org",
+    documentsRequired: ["Photo ID", "Proof of income", "Utility bill", "Social Security numbers", "Proof of residency"],
+    enrollmentType: "Seasonal — typically Oct–Sep; funds limited",
+    processingDays: "2–4 weeks",
+    estimatedAnnualValue: 1200,
+    notes: "Apply early — LIHEAP funds are exhausted quickly each season. Local CAP agency: capmetx.org."
+  },
+  Section8: {
+    applicationUrl: "https://hacanline.org",
+    documentsRequired: ["Photo ID", "Social Security cards for all members", "Birth certificates", "Income verification", "Rental history"],
+    enrollmentType: "Waitlist-based; HACA opens waitlist periodically",
+    processingDays: "Waitlist: months to years",
+    estimatedAnnualValue: 12000,
+    notes: "Austin Housing Authority (HACA): 512-477-4488. Also check local PHA and project-based Section 8."
+  },
+  VeteransBenefits: {
+    applicationUrl: "https://va.gov/apply-for-benefits",
+    documentsRequired: ["DD-214", "Service records", "Medical records", "Social Security number"],
+    enrollmentType: "Rolling — apply immediately after discharge",
+    processingDays: "125 days average for disability claims",
+    estimatedAnnualValue: 18000,
+    notes: "VSO assistance available at no cost. Contact DAV, VFW, or American Legion."
+  },
+};
+
+// The fixed eligibility logic — paste this into your screening POST handler
+// replacing from `const income = ...` to the closing `res.json()`
+
+export function computeEligibility(data: {
+  annualIncome: number;
+  householdSize: number;
+  hasChildren?: boolean;
+  isPregnant?: boolean;
+  isDisabled?: boolean;
+  isVeteran?: boolean;
+  isSingleParent?: boolean;
+  currentBenefits?: string[];
+}): {
+  eligible: string[];
+  gaps: string[];
+  estimatedAnnualValue: number;
+  navigationGuides: typeof BENEFIT_NAVIGATION;
+} {
+  const income = data.annualIncome || 0;
+  const hhSize = data.householdSize || 1;
+  // 2024 FPL base: $15,060 for household of 1, +$5,380 per additional member
+  const fpl = 15060 + (hhSize - 1) * 5380;
+  const eligible: string[] = [];
+
+  // ── Existing programs (verified correct) ─────────────────
+  if (income <= fpl * 1.3) eligible.push("SNAP");
+  if (income <= fpl * 1.38) eligible.push("Medicaid");
+  if (data.hasChildren && income <= fpl * 2.0) eligible.push("CHIP");
+  if (data.isPregnant || data.hasChildren) eligible.push("WIC");
+  if (income <= fpl * 4.0) eligible.push("Marketplace");
+  if (income > 0 && income <= fpl * 3.0) eligible.push("EITC");
+  if (data.hasChildren && income <= fpl * 4.0) eligible.push("CTC");
+  if (data.isDisabled) { eligible.push("SSI"); eligible.push("SSDI"); }
+
+  // ── FIX: TANF (was completely missing) ───────────────────
+  // Texas TANF: children in household, income ≤ 17% FPL for cash,
+  // but federal screen is ≤ 200% FPL for program eligibility
+  // Single parent flag increases likelihood but is not required
+  if (
+    data.hasChildren &&
+    income <= fpl * 0.17  // Texas cash assistance threshold
+  ) {
+    eligible.push("TANF");
+  }
+
+  // ── NEW: CCDF Childcare Assistance ───────────────────────
+  // Income ≤ 85% State Median Income (~$53,000 for family of 3 in TX)
+  // Must be working, in school, or in job training
+  if (data.hasChildren && income <= 53000) {
+    eligible.push("CCDF");
+  }
+
+  // ── NEW: LIHEAP Utility Assistance ───────────────────────
+  // Income ≤ 150% FPL
+  if (income <= fpl * 1.5) {
+    eligible.push("LIHEAP");
+  }
+
+  // ── NEW: Section 8 / Housing Choice Voucher ───────────────
+  // Income ≤ 50% Area Median Income (AMI)
+  // Austin AMI 2024: ~$110,300 for family of 4 → 50% = ~$55,150
+  const austinAMI50pct = 55150 + (hhSize - 4) * 5000; // rough scaling
+  if (income <= austinAMI50pct) {
+    eligible.push("Section8");
+  }
+
+  // ── NEW: Veterans Benefits ────────────────────────────────
+  // VA healthcare: any veteran with honorable discharge
+  // No income limit for basic enrollment; Priority Group 1–8
+  if (data.isVeteran) {
+    eligible.push("VeteransBenefits");
+  }
+
+  const current = data.currentBenefits || [];
+  const gaps = eligible.filter((b) => !current.includes(b));
+
+  const estimatedAnnualValue = gaps.reduce((sum, b) => {
+    return sum + (BENEFIT_NAVIGATION[b]?.estimatedAnnualValue ?? 0);
+  }, 0);
+
+  // Build navigation guides for gap programs only
+  const navigationGuides = Object.fromEntries(
+    gaps
+      .filter((b) => BENEFIT_NAVIGATION[b])
+      .map((b) => [b, BENEFIT_NAVIGATION[b]])
+  ) as typeof BENEFIT_NAVIGATION;
+
+  return { eligible, gaps, estimatedAnnualValue, navigationGuides };
+}
+
+/*
+UPDATE the screening POST handler res.json() to include navigationGuides:
+
+const { eligible, gaps, estimatedAnnualValue, navigationGuides } =
+  computeEligibility({
+    annualIncome: data.annualIncome || 0,
+    householdSize: data.householdSize || 1,
+    hasChildren: data.hasChildren,
+    isPregnant: data.isPregnant,
+    isDisabled: data.isDisabled,
+    isVeteran: data.isVeteran,        // add to schema if not present
+    isSingleParent: data.isSingleParent, // add to schema if not present
+    currentBenefits: data.currentBenefits || [],
+  });
+
+res.json({
+  screening: created,
+  eligibleBenefits: eligible,
+  currentBenefits: data.currentBenefits || [],
+  gapBenefits: gaps,
+  estimatedAnnualValue,
+  navigationGuides,  // ← NEW: application link, docs, processing time per program
+});
+*/
+
+
+// ============================================================
+// FILE 2: server/reentry-intake-enhanced.ts
+// Enhanced reentry participant creation — 4 side effects:
+//   1. Create/link household record
+//   2. Auto-trigger benefits screening
+//   3. Query ban-the-box employer matches
+//   4. Risk needs screener (8-question simplified RNR)
+// Replace the POST /api/intake/participants handler body
+// ============================================================
+
+import { db } from "./storage";
+import { eq, and, isNull } from "drizzle-orm";
+import {
+  participantProfiles,
+  employerPartners,
+  jobPostings,
+} from "../shared/schema";
+import {
+  households,
+  householdMembers,
+} from "../shared/household-schema";
+import { computeEligibility } from "./benefits-screener-fix";
+import { findOrCreateHousehold } from "./household-queries";
+
+// Simplified 8-domain risk/needs screen (LSI-R lite)
+// Not a validated clinical instrument — intake triage only
+// Flag for full LSI-R/ORAS assessment by case manager
+interface RiskScreenResult {
+  score: number;               // 0–16
+  riskLevel: "low" | "medium" | "high";
+  flaggedDomains: string[];
+  recommendFullAssessment: boolean;
+}
+
+export function scoreRiskNeeds(answers: Record<string, boolean>): RiskScreenResult {
+  const domains: Record<string, boolean> = {
+    "Prior felony convictions (2+)": answers.priorFelonies ?? false,
+    "Prior probation/parole violations": answers.priorViolations ?? false,
+    "Unstable housing at release": answers.unstableHousing ?? false,
+    "Unemployed at time of offense": answers.unemployedAtOffense ?? false,
+    "Less than HS diploma/GED": answers.noHsDiploma ?? false,
+    "History of substance use": answers.substanceHistory ?? false,
+    "Family/social network with criminal history": answers.antisocialNetwork ?? false,
+    "Self-reported mental health needs": answers.mentalHealthNeeds ?? false,
+  };
+
+  const flaggedDomains = Object.entries(domains)
+    .filter(([, v]) => v)
+    .map(([k]) => k);
+
+  const score = flaggedDomains.length * 2; // 0–16
+  const riskLevel =
+    score >= 10 ? "high" : score >= 6 ? "medium" : "low";
+
+  return {
+    score,
+    riskLevel,
+    flaggedDomains,
+    recommendFullAssessment: score >= 6,
+  };
+}
+
+// Ban-the-box employer match — by location string partial match
+export async function matchFairChanceEmployers(
+  location?: string
+): Promise<Array<{
+  employer: typeof employerPartners.$inferSelect;
+  openPostings: typeof jobPostings.$inferSelect[];
+}>> {
+  const employers = await db
+    .select()
+    .from(employerPartners)
+    .where(
+      and(
+        eq(employerPartners.banTheBox, true),
+        eq(employerPartners.partnershipStatus, "active")
+      )
+    );
+
+  const results = await Promise.all(
+    employers.map(async (employer) => {
+      const openPostings = await db
+        .select()
+        .from(jobPostings)
+        .where(
+          and(
+            eq(jobPostings.employerId, employer.id),
+            eq(jobPostings.status, "open"),
+            eq(jobPostings.barrierFriendly, true)
+          )
+        );
+      return { employer, openPostings };
+    })
+  );
+
+  // Filter to employers with at least one open posting
+  return results.filter((r) => r.openPostings.length > 0);
+}
+
+// Enhanced participant creation handler
+// Replaces the body of POST /api/intake/participants
+export async function createParticipantEnhanced(
+  participantData: typeof participantProfiles.$inferInsert,
+  options: {
+    riskAnswers?: Record<string, boolean>;
+    zipCode?: string;
+    countyFips?: string;
+  } = {}
+): Promise<{
+  profile: typeof participantProfiles.$inferSelect;
+  householdId: string;
+  benefitsScreening: ReturnType<typeof computeEligibility> | null;
+  employerMatches: Awaited<ReturnType<typeof matchFairChanceEmployers>>;
+  riskScreen: RiskScreenResult | null;
+}> {
+  // 1. Create participant profile (existing behavior)
+  const [profile] = await db
+    .insert(participantProfiles)
+    .values(participantData)
+    .returning();
+
+  // Run all side effects in parallel — failures are isolated
+  const [householdResult, benefitsResult, employerResult, riskResult] =
+    await Promise.allSettled([
+
+      // 2. Create/link household record
+      (async () => {
+        const { householdId } = await findOrCreateHousehold(
+          participantData.userId ?? profile.id,
+          participantData.firstName + " " + participantData.lastName,
+          db,
+          {
+            zipCode: options.zipCode,
+            countyFips: options.countyFips ?? "48453", // default Travis County
+          }
+        );
+        // Tag household as reentry
+        await db
+          .update(households)
+          .set({ programCohort: "reentry" })
+          .where(eq(households.id, householdId));
+        return householdId;
+      })(),
+
+      // 3. Auto-run benefits screening
+      (async () => {
+        // Use what we know from participant profile
+        const annualIncome = 0; // intake default — no income at release
+        const hasChildren =
+          (participantData as any).dependentsCount > 0 ?? false;
+        return computeEligibility({
+          annualIncome,
+          householdSize: 1 + ((participantData as any).dependentsCount ?? 0),
+          hasChildren,
+          isVeteran: (participantData as any).isVeteran ?? false,
+          currentBenefits: [],
+        });
+      })(),
+
+      // 4. Query fair-chance employer matches
+      matchFairChanceEmployers(options.zipCode),
+
+      // 5. Score risk needs if answers provided
+      (async () => {
+        if (!options.riskAnswers) return null;
+        return scoreRiskNeeds(options.riskAnswers);
+      })(),
+    ]);
+
+  return {
+    profile,
+    householdId:
+      householdResult.status === "fulfilled" ? householdResult.value : "unlinked",
+    benefitsScreening:
+      benefitsResult.status === "fulfilled" ? benefitsResult.value : null,
+    employerMatches:
+      employerResult.status === "fulfilled" ? employerResult.value : [],
+    riskScreen:
+      riskResult.status === "fulfilled" ? riskResult.value : null,
+  };
+}
+
+/*
+REPLACE the POST /api/intake/participants handler with:
+
+app.post("/api/intake/participants", requireAuth, async (req, res) => {
+  try {
+    const parsed = insertParticipantProfileSchema.safeParse(req.body);
+    if (!parsed.success)
+      return res.status(400).json({ error: "Invalid participant data", details: parsed.error.flatten().fieldErrors });
+
+    const result = await createParticipantEnhanced(parsed.data, {
+      riskAnswers: req.body.riskAnswers,
+      zipCode: req.body.zipCode,
+      countyFips: req.body.countyFips,
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error("Failed to create participant:", error);
+    res.status(500).json({ error: "Failed to create participant" });
+  }
+});
+*/
+
+
+// ============================================================
+// FILE 3: server/workforce-match.ts
+// Employer match endpoint + credential-tag matching
+// New route: GET /api/workforce/match/:userId
+// New route: GET /api/workforce/jobs (learner-facing job board)
+// ============================================================
+
+import { certificates, studentProgress } from "../shared/schema";
+
+// GET /api/workforce/match/:userId
+// Returns fair-chance employers + open postings matched to earned credentials
+export async function getEmployerMatches(userId: string): Promise<{
+  userId: string;
+  credentialsEarned: string[];
+  fairChanceMatches: Array<{
+    employer: typeof employerPartners.$inferSelect;
+    matchReason: string[];
+    openPostings: typeof jobPostings.$inferSelect[];
+  }>;
+  allFairChanceJobs: typeof jobPostings.$inferSelect[];
+}> {
+  // 1. Get learner's earned credentials
+  const earnedCerts = await db
+    .select({ levelTitle: certificates.levelTitle })
+    .from(certificates)
+    .where(eq(certificates.userId, userId));
+
+  const credentialNames = earnedCerts.map((c) =>
+    c.levelTitle.toLowerCase().replace(" trade certification", "").trim()
+  );
+
+  // 2. Get all active fair-chance employers
+  const fairChanceEmployers = await db
+    .select()
+    .from(employerPartners)
+    .where(
+      and(
+        eq(employerPartners.banTheBox, true),
+        eq(employerPartners.partnershipStatus, "active")
+      )
+    );
+
+  // 3. Get open barrier-friendly postings per employer
+  const matches = await Promise.all(
+    fairChanceEmployers.map(async (employer) => {
+      const postings = await db
+        .select()
+        .from(jobPostings)
+        .where(
+          and(
+            eq(jobPostings.employerId, employer.id),
+            eq(jobPostings.status, "open")
+          )
+        );
+
+      // Match reasons: credential overlap + barrier-friendly flags
+      const matchReason: string[] = [];
+      if (employer.banTheBox) matchReason.push("Ban-the-box employer");
+      if (employer.fairChanceHiring) matchReason.push("Fair-chance hiring policy");
+      if (employer.barrierFriendly) matchReason.push("Barrier-friendly workplace");
+
+      // Check if any posting title matches a credential
+      for (const posting of postings) {
+        for (const cred of credentialNames) {
+          if (
+            posting.title.toLowerCase().includes(cred) ||
+            (posting.requirements ?? "").toLowerCase().includes(cred)
+          ) {
+            matchReason.push(`Matches your ${cred} certification`);
+            break;
+          }
+        }
+      }
+
+      return {
+        employer,
+        matchReason: [...new Set(matchReason)],
+        openPostings: postings.filter((p) => p.status === "open"),
+      };
+    })
+  );
+
+  // 4. All open barrier-friendly jobs (for learner job board)
+  const allFairChanceJobs = await db
+    .select()
+    .from(jobPostings)
+    .where(
+      and(
+        eq(jobPostings.status, "open"),
+        eq(jobPostings.barrierFriendly, true)
+      )
+    );
+
+  return {
+    userId,
+    credentialsEarned: credentialNames,
+    fairChanceMatches: matches.filter((m) => m.openPostings.length > 0),
+    allFairChanceJobs,
+  };
+}
+
+/*
+ADD to server/routes.ts:
+
+// Learner employer match — wired to earned credentials
+app.get("/api/workforce/match/:userId", requireAuth, async (req, res) => {
+  try {
+    const result = await getEmployerMatches(req.params.userId);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load employer matches" });
+  }
+});
+
+// Learner-facing job board — all open fair-chance jobs
+app.get("/api/workforce/jobs", async (req, res) => {
+  try {
+    const jobs = await db
+      .select({
+        job: jobPostings,
+        employer: employerPartners,
+      })
+      .from(jobPostings)
+      .leftJoin(employerPartners, eq(jobPostings.employerId, employerPartners.id))
+      .where(
+        and(
+          eq(jobPostings.status, "open"),
+          eq(jobPostings.barrierFriendly, true)
+        )
+      );
+    res.json(jobs);
+  } catch (err) {
+    res.status(500).json({ error: "Failed to load job board" });
+  }
+});
+*/
+
+
+// ============================================================
+// FILE 4: server/lesson-mastery.ts
+// Mastery gating at 80%, remediation branch, Spark trigger flag
+// Modifies quiz submit handler — replaces 70% pass threshold
+// ============================================================
+
+export const MASTERY_THRESHOLD = 0.80; // 80% to advance
+export const MAX_ATTEMPTS_BEFORE_REMEDIATION = 3;
+
+export interface QuizResult {
+  score: number;
+  total: number;
+  percentage: number;
+  passed: boolean;
+  attemptNumber: number;
+  pointsEarned: number;
+  masteryAchieved: boolean;
+  triggerSpark: boolean;         // ← NEW: signal to frontend to auto-open Spark
+  sparkContext: string;          // ← NEW: which questions to focus on
+  remediation: {
+    required: boolean;
+    missedConcepts: string[];    // question titles/topics the learner missed
+    suggestedReview: string;     // lesson or module to review
+  };
+  canAdvance: boolean;           // ← NEW: explicit gate
+}
+
+export async function processQuizSubmission(
+  moduleId: string,
+  userId: string,
+  answers: Record<string, string>,
+  questions: Array<{ id: string; correctAnswer: string; title?: string; topic?: string }>,
+  attemptNumber: number
+): Promise<QuizResult> {
+  let correct = 0;
+  const missedQuestions: Array<{ id: string; title?: string; topic?: string }> = [];
+
+  for (const q of questions) {
+    if (answers[q.id] === q.correctAnswer) {
+      correct++;
+    } else {
+      missedQuestions.push(q);
+    }
+  }
+
+  const percentage = questions.length > 0 ? correct / questions.length : 0;
+  const masteryAchieved = percentage >= MASTERY_THRESHOLD;
+  const needsRemediation =
+    !masteryAchieved && attemptNumber >= MAX_ATTEMPTS_BEFORE_REMEDIATION;
+
+  // Points: 100 for mastery, 50 for pass (70–79%), 25 for fail
+  const pointsEarned = masteryAchieved ? 100 : percentage >= 0.70 ? 50 : 25;
+
+  // Spark context — list the missed topics for the AI to focus on
+  const missedConcepts = missedQuestions
+    .map((q) => q.topic ?? q.title ?? `Question ${q.id}`)
+    .filter(Boolean);
+
+  const sparkContext =
+    missedConcepts.length > 0
+      ? `The learner just failed a quiz. They missed questions about: ${missedConcepts.join(", ")}. Help them understand these specific concepts. Do not just re-explain everything — focus only on what they got wrong.`
+      : "";
+
+  return {
+    score: correct,
+    total: questions.length,
+    percentage,
+    passed: percentage >= 0.70,       // still track "pass" at 70%
+    attemptNumber,
+    pointsEarned,
+    masteryAchieved,                  // 80% = can advance
+    triggerSpark: !masteryAchieved,   // auto-open Spark on any non-mastery result
+    sparkContext,
+    remediation: {
+      required: needsRemediation,
+      missedConcepts,
+      suggestedReview: needsRemediation
+        ? `Review the lesson content before attempting again. Focus on: ${missedConcepts.slice(0, 2).join(" and ")}.`
+        : "",
+    },
+    canAdvance: masteryAchieved,      // hard gate — 80% required to advance
+  };
+}
+
+/*
+REPLACE the quiz submit handler body:
+
+app.post("/api/modules/:moduleId/quiz/submit", requireAuth, async (req, res) => {
+  try {
+    const { answers } = req.body;
+    const questions = await storage.getQuizByModule(req.params.moduleId);
+    const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
+
+    // Get attempt count for this module
+    const priorAttempts = await storage.getQuizAttemptCount(progress.id, req.params.moduleId);
+    const attemptNumber = priorAttempts + 1;
+
+    const result = await processQuizSubmission(
+      req.params.moduleId,
+      getUserId(req),
+      answers,
+      questions,
+      attemptNumber
+    );
+
+    // Only award points and record completion if mastery achieved
+    if (result.masteryAchieved) {
+      await storage.submitQuiz(progress.id, req.params.moduleId, result.score, result.total, true);
+      await storage.updateProgress(progress.id, {
+        totalPoints: progress.totalPoints + result.pointsEarned,
+      });
+    } else {
+      // Record attempt but don't mark complete
+      await storage.recordQuizAttempt(progress.id, req.params.moduleId, result.score, result.total, false);
+    }
+
+    res.json(result); // includes triggerSpark + sparkContext + canAdvance
+  } catch (err) {
+    res.status(500).json({ error: "Failed to process quiz" });
+  }
+});
+
+// ALSO: lesson complete endpoint — add mastery check before allowing advance
+app.post("/api/lessons/:lessonId/complete", requireAuth, async (req, res) => {
+  const lesson = await storage.getLesson(req.params.lessonId);
+
+  // If lesson has an associated quiz, check mastery before completing
+  if (lesson.moduleId) {
+    const quizAttempts = await storage.getQuizAttemptsByModule(
+      getUserId(req), lesson.moduleId
+    );
+    const hasMastery = quizAttempts.some((a) => a.passed && (a.score / a.total) >= 0.80);
+
+    if (lesson.requiresQuiz && !hasMastery) {
+      return res.status(403).json({
+        error: "mastery_required",
+        message: "Complete the quiz with 80% or higher to advance.",
+        triggerSpark: true,
+        sparkContext: "The learner is trying to advance without passing the quiz. Encourage them and help them review the lesson concepts.",
+      });
+    }
+  }
+
+  // Existing completion logic continues...
+  const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
+  await storage.completeLesson(progress.id, req.params.lessonId);
+  const completed = await storage.getCompletedLessons(progress.id);
+  await storage.updateProgress(progress.id, {
+    totalPoints: progress.totalPoints + 50,
+    lessonsCompleted: completed.length,
+    currentModuleId: lesson.moduleId,
+  });
+
+  res.json({ success: true, pointsEarned: 50 });
+});
+*/
+
+
+// ============================================================
+// FILE 5: client/src/components/SparkAuto.tsx
+// Auto-surface Spark on quiz fail — replaces lesson-viewer.tsx
+// Spark toggle logic. Drop-in wrapper component.
+// ============================================================
+
+/*
+Replace the Spark section in client/src/pages/lesson-viewer.tsx
+with this component. It:
+  1. Auto-opens on quiz fail (triggerSpark prop)
+  2. Injects missed-concept context into first message
+  3. Sets grade level from learner profile (not user dropdown)
+  4. Shows inline (not collapsible) when auto-triggered
+  5. Reverts to collapsible when learner dismisses
+*/
+
+export const SparkAutoComponent = `
+import { useState, useEffect, useRef } from "react";
+import { Sparkles, X } from "lucide-react";
+
+interface SparkAutoProps {
+  lessonTitle: string;
+  lessonContent: string;          // full content, not just 300 chars
+  triggerSpark?: boolean;          // auto-open signal from quiz result
+  sparkContext?: string;           // focused context from quiz failure
+  gradeLevel?: "3-5" | "6-8" | "9-12" | "adult"; // from learner profile
+  language?: "en" | "es";
+}
+
+export function SparkAuto({
+  lessonTitle,
+  lessonContent,
+  triggerSpark = false,
+  sparkContext,
+  gradeLevel = "adult",
+  language = "en",
+}: SparkAutoProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [autoTriggered, setAutoTriggered] = useState(false);
+  const [messages, setMessages] = useState<Array<{ role: string; content: string }>>([]);
+  const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-open when quiz signals failure
+  useEffect(() => {
+    if (triggerSpark && !autoTriggered) {
+      setIsOpen(true);
+      setAutoTriggered(true);
+      // Inject a focused opening message from Spark
+      if (sparkContext) {
+        setMessages([{
+          role: "assistant",
+          content: language === "es"
+            ? "Vi que tuviste algunas dificultades con el cuestionario. Déjame ayudarte con los conceptos específicos que necesitas repasar."
+            : "I noticed you had some difficulty with the quiz. Let me help you work through the specific concepts you need to review.",
+        }]);
+        // Send the spark context as a silent system message
+        sendSilentContext(sparkContext);
+      }
+    }
+  }, [triggerSpark]);
+
+  async function sendSilentContext(context: string) {
+    // Prime the conversation without showing the system message
+    try {
+      await fetch("/api/ai-companion/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: context,
+          gradeLevel,
+          lessonContext: lessonTitle + ": " + lessonContent.substring(0, 800),
+          conversationHistory: [],
+          language,
+          isSystemPrime: true, // flag to backend to not return this in history
+        }),
+      });
+    } catch { /* silent — don't surface errors from priming */ }
+  }
+
+  async function sendMessage() {
+    if (!input.trim() || loading) return;
+    const userMessage = input.trim();
+    setInput("");
+    setLoading(true);
+
+    const updatedHistory = [...messages, { role: "user", content: userMessage }];
+    setMessages(updatedHistory);
+
+    try {
+      const res = await fetch("/api/ai-companion/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          message: userMessage,
+          gradeLevel,
+          lessonContext: lessonTitle + ": " + lessonContent.substring(0, 800),
+          conversationHistory: messages,
+          language,
+        }),
+      });
+      const data = await res.json();
+      setMessages([...updatedHistory, { role: "assistant", content: data.response ?? data.message ?? "" }]);
+    } catch {
+      setMessages([...updatedHistory, { role: "assistant", content: "I'm having trouble connecting right now. Try again in a moment." }]);
+    } finally {
+      setLoading(false);
+      inputRef.current?.focus();
+    }
+  }
+
+  // Collapsed state — learner can still open manually
+  if (!isOpen) {
+    return (
+      <button
+        onClick={() => setIsOpen(true)}
+        className="w-full flex items-center gap-2 px-4 py-2 rounded-lg border border-purple-200 text-purple-700 hover:bg-purple-50 transition-colors text-sm font-medium"
+      >
+        <Sparkles className="h-4 w-4" />
+        {language === "es" ? "¿Necesitas ayuda? Pregúntale a Spark" : "Need help? Ask Spark"}
+      </button>
+    );
+  }
+
+  // Open state
+  return (
+    <div className={\`
+      flex flex-col rounded-xl border shadow-lg overflow-hidden
+      \${autoTriggered && triggerSpark
+        ? "border-orange-300 bg-orange-50"   // visual distinction when auto-triggered
+        : "border-purple-200 bg-white"
+      }
+    \`} style={{ height: 420 }}>
+      {/* Header */}
+      <div className={\`
+        flex items-center justify-between px-4 py-3
+        \${autoTriggered && triggerSpark ? "bg-orange-100" : "bg-purple-50"}
+      \`}>
+        <div className="flex items-center gap-2">
+          <Sparkles className={\`h-4 w-4 \${autoTriggered && triggerSpark ? "text-orange-600" : "text-purple-600"}\`} />
+          <span className="text-sm font-semibold text-gray-700">
+            Spark
+            {autoTriggered && triggerSpark && (
+              <span className="ml-2 text-xs font-normal text-orange-600">
+                — Let's review what you missed
+              </span>
+            )}
+          </span>
+        </div>
+        <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-gray-600">
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3">
+        {messages.length === 0 && (
+          <p className="text-sm text-gray-500 text-center mt-8">
+            {language === "es"
+              ? "¡Hola! Soy Spark. ¿En qué puedo ayudarte hoy?"
+              : "Hi! I'm Spark. What can I help you with today?"}
+          </p>
+        )}
+        {messages.map((m, i) => (
+          <div key={i} className={\`flex \${m.role === "user" ? "justify-end" : "justify-start"}\`}>
+            <div className={\`
+              max-w-xs rounded-lg px-3 py-2 text-sm
+              \${m.role === "user"
+                ? "bg-purple-600 text-white"
+                : "bg-gray-100 text-gray-800"
+              }
+            \`}>
+              {m.content}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex justify-start">
+            <div className="bg-gray-100 rounded-lg px-3 py-2 text-sm text-gray-500">
+              Spark is thinking…
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="flex gap-2 px-4 py-3 border-t">
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+          placeholder={language === "es" ? "Escribe tu pregunta…" : "Ask Spark anything…"}
+          className="flex-1 text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-300"
+        />
+        <button
+          onClick={sendMessage}
+          disabled={loading || !input.trim()}
+          className="px-4 py-2 bg-purple-600 text-white text-sm font-medium rounded-lg disabled:opacity-40 hover:bg-purple-700 transition-colors"
+        >
+          Send
+        </button>
+      </div>
+    </div>
+  );
+}
+`;
+
+// ============================================================
+// FILE 6: shared/schema-additions.ts
+// Additive schema fields — run db:push after adding
+// ============================================================
+
+/*
+ADD to benefitsScreenings table in shared/schema.ts:
+  isVeteran: boolean("is_veteran").default(false),
+  isSingleParent: boolean("is_single_parent").default(false),
+  navigationGuides: jsonb("navigation_guides"),  // application links + docs per program
+
+ADD to jobPostings table:
+  credentialTags: text("credential_tags").array(), // ["electrical", "hvac", "welding"]
+  wageMin: integer("wage_min_cents"),              // for sorting/filtering
+  wageMax: integer("wage_max_cents"),
+
+ADD to jobPlacements table:
+  reentryPlanId: varchar("reentry_plan_id", { length: 100 }),  // FK to reentry participant
+
+ADD to participantProfiles table (if not present):
+  dependentsCount: integer("dependents_count").default(0),
+  isVeteran: boolean("is_veteran").default(false),
+  zipCode: varchar("zip_code", { length: 10 }),
+  riskScore: integer("risk_score"),           // 0-16 from scoreRiskNeeds
+  riskLevel: varchar("risk_level", { length: 20 }), // low/medium/high
+  riskDomains: jsonb("risk_domains"),         // array of flagged domain strings
+  householdId: varchar("household_id", { length: 100 }), // FK to households table
+
+Run: npm run db:push
+*/
+
+
+// ============================================================
+// WIRING SUMMARY
+// ============================================================
+
+/*
+server/routes.ts additions:
+  1. Import computeEligibility from "./benefits-screener-fix"
+     → Replace eligibility logic block in POST /api/benefits/screenings
+     → Add navigationGuides to res.json() response
+
+  2. Import createParticipantEnhanced from "./reentry-intake-enhanced"
+     → Replace POST /api/intake/participants handler body
+
+  3. Import getEmployerMatches from "./workforce-match"
+     → Add GET /api/workforce/match/:userId route
+     → Add GET /api/workforce/jobs route
+
+  4. Import processQuizSubmission from "./lesson-mastery"
+     → Replace POST /api/modules/:moduleId/quiz/submit handler body
+     → Update POST /api/lessons/:lessonId/complete with mastery check
+
+client/src/pages/lesson-viewer.tsx:
+  5. Import SparkAuto from "../components/SparkAuto"
+     → Replace existing Spark toggle section
+     → Pass triggerSpark={quizResult?.triggerSpark} 
+     → Pass sparkContext={quizResult?.sparkContext}
+     → Pass gradeLevel from learner profile (not user-selected dropdown)
+
+  6. Update quiz submit handler to use QuizResult type:
+     const [quizResult, setQuizResult] = useState<QuizResult | null>(null);
+     → On quiz submit: setQuizResult(data)
+     → Show "You need 80% to advance" message when !data.canAdvance
+     → Show remediation panel when data.remediation.required
+
+  7. Advance button: disabled={!quizResult?.canAdvance}
+
+Database:
+  8. npm run db:push  (adds 8 new columns across 4 tables)
+*/

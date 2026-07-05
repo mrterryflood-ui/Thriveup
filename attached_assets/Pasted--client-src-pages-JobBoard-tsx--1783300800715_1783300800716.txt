@@ -1,0 +1,519 @@
+// ============================================================
+// client/src/pages/JobBoard.tsx
+// Learner-facing fair-chance job board
+// Route: /jobs
+// ============================================================
+
+import { useState, useEffect } from "react";
+
+interface JobPosting {
+  id: string;
+  title: string;
+  description: string;
+  wageRange?: string;
+  hoursPerWeek?: string;
+  benefits?: string;
+  requirements?: string;
+  barrierFriendly: boolean;
+  location?: string;
+  status: string;
+  createdAt: string;
+}
+
+interface Employer {
+  id: string;
+  companyName: string;
+  industry: string;
+  banTheBox: boolean;
+  fairChanceHiring: boolean;
+  barrierFriendly: boolean;
+  description?: string;
+  location?: string;
+  website?: string;
+}
+
+interface JobWithEmployer {
+  job: JobPosting;
+  employer: Employer | null;
+}
+
+interface MatchResult {
+  credentialsEarned: string[];
+  fairChanceMatches: Array<{
+    employer: Employer;
+    matchReason: string[];
+    openPostings: JobPosting[];
+  }>;
+  allFairChanceJobs: JobPosting[];
+}
+
+export default function JobBoard() {
+  const [jobs, setJobs] = useState<JobWithEmployer[]>([]);
+  const [matches, setMatches] = useState<MatchResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [view, setView] = useState<"all" | "matched">("matched");
+  const [selectedJob, setSelectedJob] = useState<string | null>(null);
+
+  useEffect(() => {
+    Promise.allSettled([
+      fetch("/api/workforce/jobs").then(r => r.json()),
+      fetch("/api/workforce/match/me").then(r => r.json()),
+    ]).then(([jobsRes, matchRes]) => {
+      if (jobsRes.status === "fulfilled") setJobs(jobsRes.value);
+      if (matchRes.status === "fulfilled") setMatches(matchRes.value);
+      setLoading(false);
+    });
+  }, []);
+
+  const displayJobs = view === "matched" && matches
+    ? matches.fairChanceMatches.flatMap(m =>
+        m.openPostings.map(p => ({ job: p, employer: m.employer, matchReasons: m.matchReason }))
+      )
+    : jobs.map(j => ({ ...j, matchReasons: [] as string[] }));
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "'Inter', system-ui, sans-serif" }}>
+
+      {/* Header */}
+      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "24px 40px" }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#10b981", marginBottom: 4 }}>
+          ThriveUp Academy · Career Center
+        </div>
+        <h1 style={{ margin: "0 0 4px", fontSize: 22, fontWeight: 700, color: "#0f172a" }}>
+          Fair-Chance Job Board
+        </h1>
+        <p style={{ margin: 0, fontSize: 14, color: "#64748b" }}>
+          Every employer here has a ban-the-box or fair-chance hiring policy.
+        </p>
+      </div>
+
+      {/* Credential banner */}
+      {matches?.credentialsEarned && matches.credentialsEarned.length > 0 && (
+        <div style={{ background: "rgba(16,185,129,0.08)", borderBottom: "1px solid rgba(16,185,129,0.15)", padding: "12px 40px", display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+          <span style={{ fontSize: 13, color: "#064e3b", fontWeight: 600 }}>Your credentials:</span>
+          {matches.credentialsEarned.map(c => (
+            <span key={c} style={{ padding: "3px 10px", background: "#d1fae5", color: "#065f46", borderRadius: 4, fontSize: 12, fontWeight: 600, textTransform: "capitalize" }}>
+              {c}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <div style={{ padding: "24px 40px", maxWidth: 1100, margin: "0 auto" }}>
+
+        {/* View toggle */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+          {[
+            { id: "matched" as const, label: `Matched to your credentials (${matches?.fairChanceMatches.length ?? 0})` },
+            { id: "all" as const, label: `All fair-chance jobs (${jobs.length})` },
+          ].map(({ id, label }) => (
+            <button key={id} onClick={() => setView(id)} style={{
+              padding: "8px 16px", borderRadius: 8, fontSize: 13, fontWeight: view === id ? 600 : 400,
+              background: view === id ? "#0f172a" : "transparent",
+              color: view === id ? "#fff" : "#64748b",
+              border: view === id ? "none" : "1px solid #e2e8f0",
+              cursor: "pointer",
+            }}>
+              {label}
+            </button>
+          ))}
+        </div>
+
+        {loading && <div style={{ color: "#94a3b8", padding: "60px 0", textAlign: "center" }}>Loading jobs…</div>}
+
+        {!loading && displayJobs.length === 0 && (
+          <div style={{ color: "#94a3b8", padding: "60px 0", textAlign: "center" }}>
+            {view === "matched"
+              ? "Complete trade sims to earn credentials and unlock matched jobs."
+              : "No open fair-chance jobs at this time. Check back soon."}
+          </div>
+        )}
+
+        <div style={{ display: "grid", gap: 16 }}>
+          {displayJobs.map(({ job, employer, matchReasons }) => (
+            <div
+              key={job.id}
+              onClick={() => setSelectedJob(selectedJob === job.id ? null : job.id)}
+              style={{
+                background: "#fff",
+                border: selectedJob === job.id ? "2px solid #10b981" : "1px solid #e2e8f0",
+                borderRadius: 12,
+                padding: "20px 24px",
+                cursor: "pointer",
+                transition: "all 0.15s",
+              }}
+            >
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", flexWrap: "wrap", gap: 12 }}>
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: "#0f172a", marginBottom: 4 }}>{job.title}</div>
+                  <div style={{ fontSize: 14, color: "#475569" }}>
+                    {employer?.companyName ?? "Employer"} · {job.location ?? employer?.location ?? "Location TBD"}
+                  </div>
+                </div>
+                <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+                  {job.wageRange && (
+                    <span style={{ fontSize: 15, fontWeight: 700, color: "#10b981" }}>{job.wageRange}</span>
+                  )}
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    {employer?.banTheBox && (
+                      <span style={{ fontSize: 11, padding: "2px 8px", background: "#dbeafe", color: "#1e40af", borderRadius: 4, fontWeight: 600 }}>
+                        Ban the Box
+                      </span>
+                    )}
+                    {employer?.fairChanceHiring && (
+                      <span style={{ fontSize: 11, padding: "2px 8px", background: "#d1fae5", color: "#065f46", borderRadius: 4, fontWeight: 600 }}>
+                        Fair Chance
+                      </span>
+                    )}
+                    {job.barrierFriendly && (
+                      <span style={{ fontSize: 11, padding: "2px 8px", background: "#fef3c7", color: "#92400e", borderRadius: 4, fontWeight: 600 }}>
+                        Barrier Friendly
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {matchReasons && matchReasons.length > 0 && (
+                <div style={{ marginTop: 12, display: "flex", gap: 8, flexWrap: "wrap" }}>
+                  {matchReasons.map(r => (
+                    <span key={r} style={{ fontSize: 12, padding: "3px 8px", background: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0", borderRadius: 4 }}>
+                      ✓ {r}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {selectedJob === job.id && (
+                <div style={{ marginTop: 16, paddingTop: 16, borderTop: "1px solid #f1f5f9" }}>
+                  <p style={{ fontSize: 14, color: "#374151", lineHeight: 1.7, margin: "0 0 12px" }}>{job.description}</p>
+                  {job.requirements && (
+                    <div style={{ marginBottom: 12 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>Requirements</div>
+                      <div style={{ fontSize: 13, color: "#374151" }}>{job.requirements}</div>
+                    </div>
+                  )}
+                  {job.benefits && (
+                    <div style={{ marginBottom: 16 }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: "#64748b", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.05em" }}>Benefits</div>
+                      <div style={{ fontSize: 13, color: "#374151" }}>{job.benefits}</div>
+                    </div>
+                  )}
+                  {employer?.website && (
+                    <a
+                      href={employer.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={e => e.stopPropagation()}
+                      style={{
+                        display: "inline-block", padding: "10px 20px",
+                        background: "#10b981", color: "#fff",
+                        borderRadius: 8, fontSize: 14, fontWeight: 600,
+                        textDecoration: "none",
+                      }}
+                    >
+                      Learn more at {employer.companyName} →
+                    </a>
+                  )}
+                  {!employer?.website && (
+                    <div style={{ fontSize: 13, color: "#64748b" }}>
+                      Contact your facilitator to apply for this position.
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+// ============================================================
+// client/src/pages/ReentryIntakeEnhanced.tsx
+// Reentry participant intake with:
+//   - Risk needs screener (8 questions)
+//   - Immediate benefits screening output
+//   - Fair-chance employer matches at completion
+//   - Household creation
+// Route: /reentry/intake (facilitator-facing)
+// ============================================================
+
+import { useState } from "react";
+
+const RISK_QUESTIONS = [
+  { id: "priorFelonies", label: "Has the participant had 2 or more prior felony convictions?" },
+  { id: "priorViolations", label: "Has the participant had prior probation or parole violations?" },
+  { id: "unstableHousing", label: "Does the participant have unstable or no housing at release?" },
+  { id: "unemployedAtOffense", label: "Was the participant unemployed at the time of the offense?" },
+  { id: "noHsDiploma", label: "Does the participant lack a high school diploma or GED?" },
+  { id: "substanceHistory", label: "Is there a documented history of substance use?" },
+  { id: "antisocialNetwork", label: "Does the participant's primary social network have criminal history?" },
+  { id: "mentalHealthNeeds", label: "Has the participant self-reported mental health needs?" },
+];
+
+const PHASES = ["pre_release", "transition", "stabilization", "independence"] as const;
+
+export function ReentryIntakeEnhanced() {
+  const [step, setStep] = useState<"profile" | "risk" | "results">("profile");
+  const [profile, setProfile] = useState({
+    firstName: "", lastName: "", dateOfBirth: "",
+    currentPhase: "transition" as typeof PHASES[number],
+    dependentsCount: 0, isVeteran: false,
+    zipCode: "", immediateNeeds: "",
+  });
+  const [riskAnswers, setRiskAnswers] = useState<Record<string, boolean>>({});
+  const [results, setResults] = useState<any>(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function submitIntake() {
+    setSubmitting(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/intake/participants", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          firstName: profile.firstName,
+          lastName: profile.lastName,
+          dateOfBirth: profile.dateOfBirth,
+          currentPhase: profile.currentPhase,
+          dependentsCount: profile.dependentsCount,
+          isVeteran: profile.isVeteran,
+          immediateNeeds: profile.immediateNeeds,
+          zipCode: profile.zipCode,
+          riskAnswers,
+        }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      const data = await res.json();
+      setResults(data);
+      setStep("results");
+    } catch (e: any) {
+      setError(e.message ?? "Intake failed. Try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  const inputStyle = {
+    width: "100%", padding: "10px 14px", borderRadius: 8,
+    border: "1px solid #e2e8f0", fontSize: 14, color: "#0f172a",
+    background: "#fff", boxSizing: "border-box" as const,
+  };
+
+  const labelStyle = { fontSize: 13, fontWeight: 600, color: "#374151", marginBottom: 6, display: "block" };
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#f8fafc", fontFamily: "'Inter', system-ui, sans-serif" }}>
+      <div style={{ background: "#fff", borderBottom: "1px solid #e2e8f0", padding: "20px 40px" }}>
+        <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6366f1", marginBottom: 4 }}>
+          ThriveUp Academy · Reentry Program
+        </div>
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: "#0f172a" }}>Participant Intake</h1>
+      </div>
+
+      <div style={{ maxWidth: 720, margin: "32px auto", padding: "0 24px" }}>
+
+        {/* Step indicator */}
+        <div style={{ display: "flex", gap: 0, marginBottom: 32 }}>
+          {[
+            { id: "profile", label: "1. Profile" },
+            { id: "risk", label: "2. Risk Screen" },
+            { id: "results", label: "3. Results" },
+          ].map(({ id, label }) => (
+            <div key={id} style={{
+              flex: 1, padding: "8px 0", textAlign: "center", fontSize: 13, fontWeight: 600,
+              borderBottom: step === id ? "3px solid #6366f1" : "3px solid #e2e8f0",
+              color: step === id ? "#6366f1" : "#94a3b8",
+            }}>
+              {label}
+            </div>
+          ))}
+        </div>
+
+        {/* Step 1: Profile */}
+        {step === "profile" && (
+          <div style={{ background: "#fff", borderRadius: 12, padding: "28px 32px", border: "1px solid #e2e8f0" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>First Name</label>
+                <input style={inputStyle} value={profile.firstName} onChange={e => setProfile(p => ({ ...p, firstName: e.target.value }))} placeholder="First name" />
+              </div>
+              <div>
+                <label style={labelStyle}>Last Name</label>
+                <input style={inputStyle} value={profile.lastName} onChange={e => setProfile(p => ({ ...p, lastName: e.target.value }))} placeholder="Last name" />
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>Date of Birth</label>
+                <input type="date" style={inputStyle} value={profile.dateOfBirth} onChange={e => setProfile(p => ({ ...p, dateOfBirth: e.target.value }))} />
+              </div>
+              <div>
+                <label style={labelStyle}>Current Phase</label>
+                <select style={inputStyle} value={profile.currentPhase} onChange={e => setProfile(p => ({ ...p, currentPhase: e.target.value as any }))}>
+                  {PHASES.map(ph => <option key={ph} value={ph}>{ph.replace("_", " ").replace(/\b\w/g, c => c.toUpperCase())}</option>)}
+                </select>
+              </div>
+            </div>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 16 }}>
+              <div>
+                <label style={labelStyle}>ZIP Code</label>
+                <input style={inputStyle} value={profile.zipCode} onChange={e => setProfile(p => ({ ...p, zipCode: e.target.value }))} placeholder="78653" />
+              </div>
+              <div>
+                <label style={labelStyle}>Number of Dependents</label>
+                <input type="number" min={0} style={inputStyle} value={profile.dependentsCount} onChange={e => setProfile(p => ({ ...p, dependentsCount: parseInt(e.target.value) || 0 }))} />
+              </div>
+            </div>
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ ...labelStyle, display: "flex", alignItems: "center", gap: 8 }}>
+                <input type="checkbox" checked={profile.isVeteran} onChange={e => setProfile(p => ({ ...p, isVeteran: e.target.checked }))} />
+                Veteran (eligible for additional benefits)
+              </label>
+            </div>
+            <div style={{ marginBottom: 24 }}>
+              <label style={labelStyle}>Immediate Needs (free text)</label>
+              <textarea style={{ ...inputStyle, minHeight: 80, resize: "vertical" }} value={profile.immediateNeeds} onChange={e => setProfile(p => ({ ...p, immediateNeeds: e.target.value }))} placeholder="Housing, ID, medications, childcare…" />
+            </div>
+            <button
+              onClick={() => setStep("risk")}
+              disabled={!profile.firstName || !profile.lastName}
+              style={{ padding: "12px 28px", background: !profile.firstName || !profile.lastName ? "#e2e8f0" : "#6366f1", color: !profile.firstName || !profile.lastName ? "#94a3b8" : "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: !profile.firstName || !profile.lastName ? "not-allowed" : "pointer" }}
+            >
+              Continue to Risk Screen →
+            </button>
+          </div>
+        )}
+
+        {/* Step 2: Risk Screener */}
+        {step === "risk" && (
+          <div style={{ background: "#fff", borderRadius: 12, padding: "28px 32px", border: "1px solid #e2e8f0" }}>
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 15, fontWeight: 700, color: "#0f172a", marginBottom: 6 }}>Risk & Needs Screen</div>
+              <div style={{ fontSize: 13, color: "#64748b", lineHeight: 1.6 }}>
+                This is a simplified 8-domain intake triage. Scores 6+ will flag for full LSI-R or ORAS assessment by a case manager. All responses are confidential.
+              </div>
+            </div>
+            {RISK_QUESTIONS.map((q) => (
+              <div key={q.id} style={{ display: "flex", alignItems: "flex-start", gap: 12, padding: "14px 0", borderBottom: "1px solid #f1f5f9" }}>
+                <div style={{ display: "flex", gap: 12, flexShrink: 0 }}>
+                  {["Yes", "No"].map(opt => (
+                    <label key={opt} style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 14, cursor: "pointer" }}>
+                      <input
+                        type="radio"
+                        name={q.id}
+                        checked={riskAnswers[q.id] === (opt === "Yes")}
+                        onChange={() => setRiskAnswers(r => ({ ...r, [q.id]: opt === "Yes" }))}
+                      />
+                      {opt}
+                    </label>
+                  ))}
+                </div>
+                <span style={{ fontSize: 14, color: "#374151", lineHeight: 1.5 }}>{q.label}</span>
+              </div>
+            ))}
+            {error && <div style={{ color: "#dc2626", fontSize: 13, marginTop: 16 }}>{error}</div>}
+            <div style={{ display: "flex", gap: 12, marginTop: 24 }}>
+              <button onClick={() => setStep("profile")} style={{ padding: "10px 20px", background: "transparent", border: "1px solid #e2e8f0", borderRadius: 8, fontSize: 14, cursor: "pointer", color: "#64748b" }}>
+                ← Back
+              </button>
+              <button
+                onClick={submitIntake}
+                disabled={submitting}
+                style={{ padding: "12px 28px", background: submitting ? "#e2e8f0" : "#6366f1", color: submitting ? "#94a3b8" : "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 700, cursor: submitting ? "not-allowed" : "pointer" }}
+              >
+                {submitting ? "Creating profile…" : "Complete Intake →"}
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Step 3: Results */}
+        {step === "results" && results && (
+          <div>
+            {/* Risk result */}
+            {results.riskScreen && (
+              <div style={{
+                background: results.riskScreen.riskLevel === "high" ? "#fef2f2" : results.riskScreen.riskLevel === "medium" ? "#fffbeb" : "#f0fdf4",
+                border: `1px solid ${results.riskScreen.riskLevel === "high" ? "#fecaca" : results.riskScreen.riskLevel === "medium" ? "#fde68a" : "#bbf7d0"}`,
+                borderRadius: 12, padding: "20px 24px", marginBottom: 20,
+              }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 8 }}>
+                  Risk/Needs Screen: <span style={{ color: results.riskScreen.riskLevel === "high" ? "#dc2626" : results.riskScreen.riskLevel === "medium" ? "#ca8a04" : "#16a34a", textTransform: "capitalize" }}>
+                    {results.riskScreen.riskLevel} risk
+                  </span> (score {results.riskScreen.score}/16)
+                </div>
+                {results.riskScreen.recommendFullAssessment && (
+                  <div style={{ fontSize: 13, color: "#92400e", background: "#fef3c7", border: "1px solid #fde68a", borderRadius: 6, padding: "8px 12px", marginBottom: 10 }}>
+                    ⚠ Recommend full LSI-R or ORAS assessment by case manager
+                  </div>
+                )}
+                {results.riskScreen.flaggedDomains.length > 0 && (
+                  <div>
+                    <div style={{ fontSize: 12, color: "#64748b", marginBottom: 6 }}>Flagged domains:</div>
+                    {results.riskScreen.flaggedDomains.map((d: string) => (
+                      <div key={d} style={{ fontSize: 13, color: "#374151", marginBottom: 4 }}>• {d}</div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Benefits screening */}
+            {results.benefitsScreening && results.benefitsScreening.gaps?.length > 0 && (
+              <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "20px 24px", marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 12 }}>
+                  Benefits Gap — estimated ${results.benefitsScreening.estimatedAnnualValue?.toLocaleString()}/yr unclaimed
+                </div>
+                {results.benefitsScreening.gaps.map((b: string) => (
+                  <div key={b} style={{ padding: "10px 0", borderBottom: "1px solid #f1f5f9", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{b}</span>
+                    {results.benefitsScreening.navigationGuides?.[b]?.applicationUrl && (
+                      <a href={results.benefitsScreening.navigationGuides[b].applicationUrl} target="_blank" rel="noopener noreferrer"
+                        style={{ fontSize: 12, color: "#10b981", fontWeight: 600, textDecoration: "none" }}>
+                        Apply →
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Employer matches */}
+            {results.employerMatches?.length > 0 && (
+              <div style={{ background: "#fff", border: "1px solid #e2e8f0", borderRadius: 12, padding: "20px 24px", marginBottom: 20 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, color: "#0f172a", marginBottom: 12 }}>
+                  Fair-Chance Employer Matches ({results.employerMatches.length})
+                </div>
+                {results.employerMatches.map((m: any) => (
+                  <div key={m.employer.id} style={{ padding: "12px 0", borderBottom: "1px solid #f1f5f9" }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: "#0f172a" }}>{m.employer.companyName}</div>
+                    <div style={{ fontSize: 13, color: "#64748b" }}>{m.employer.industry} · {m.openPostings.length} open position{m.openPostings.length !== 1 ? "s" : ""}</div>
+                    <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                      {m.openPostings.slice(0, 3).map((p: any) => (
+                        <span key={p.id} style={{ fontSize: 12, padding: "2px 8px", background: "#f0fdf4", color: "#065f46", borderRadius: 4, border: "1px solid #bbf7d0" }}>
+                          {p.title} {p.wageRange && `· ${p.wageRange}`}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Household ID */}
+            <div style={{ background: "#f8fafc", borderRadius: 8, padding: "14px 16px", fontSize: 13, color: "#475569" }}>
+              Household record created: <strong>{results.householdId}</strong><br />
+              Participant ID: <strong>{results.profile?.id}</strong>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
