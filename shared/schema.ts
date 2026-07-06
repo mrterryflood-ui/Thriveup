@@ -3848,6 +3848,24 @@ export const insertRpliceActionPlanSchema = createInsertSchema(rpliceActionPlans
 export type InsertRpliceActionPlan = z.infer<typeof insertRpliceActionPlanSchema>;
 export type RpliceActionPlan = typeof rpliceActionPlans.$inferSelect;
 
+// Links RPLICE program assessments and CFIR programs to county FIPS codes.
+// Enables equity dashboard overlay: intervention effectiveness → Census tract gap map.
+export const programGeography = pgTable("program_geography", {
+  id: serial("id").primaryKey(),
+  programName: text("program_name").notNull(), // matches rpliceAssessments.programName
+  cfirProgramId: varchar("cfir_program_id", { length: 100 }), // matches cfirAssessments.programId
+  countyFips: varchar("county_fips", { length: 10 }).notNull(),
+  countyName: varchar("county_name", { length: 100 }).notNull(),
+  stateFips: varchar("state_fips", { length: 5 }).notNull().default("48"),
+  serviceType: varchar("service_type", { length: 50 }).notNull().default("primary"), // primary | secondary | statewide
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertProgramGeographySchema = createInsertSchema(programGeography).omit({ id: true, createdAt: true });
+export type InsertProgramGeography = z.infer<typeof insertProgramGeographySchema>;
+export type ProgramGeography = typeof programGeography.$inferSelect;
+
 export const outcomeBaselines = pgTable("outcome_baselines", {
   id: serial("id").primaryKey(),
   regionName: text("region_name").notNull(),
@@ -6761,6 +6779,75 @@ export const residentHouseholdMembers = pgTable("resident_household_members", {
 });
 export const insertResidentHouseholdMemberSchema = createInsertSchema(residentHouseholdMembers).omit({ id: true, createdAt: true });
 export type ResidentHouseholdMember = typeof residentHouseholdMembers.$inferSelect;
+
+// ── GAP 5: Learner profile (reading-level adaptation) ──────────────────────────
+export const learnerProfiles = pgTable("learner_profiles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull().unique(),
+  readingLevel: varchar("reading_level", { length: 30 }).notNull().default("adult"), // elementary | middle | high | adult
+  preferredLanguage: varchar("preferred_language", { length: 20 }).notNull().default("en"),
+  captionsEnabled: boolean("captions_enabled").notNull().default(false),
+  highContrastEnabled: boolean("high_contrast_enabled").notNull().default(false),
+  screenReaderMode: boolean("screen_reader_mode").notNull().default(false),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export const insertLearnerProfileSchema = createInsertSchema(learnerProfiles).omit({ id: true, createdAt: true });
+export type InsertLearnerProfile = z.infer<typeof insertLearnerProfileSchema>;
+export type LearnerProfile = typeof learnerProfiles.$inferSelect;
+
+// ── GAP 7: Nonprofit effectiveness scorecard ───────────────────────────────────
+// Partner orgs submit program outcomes against shared WIOA/CFIR rubric.
+export const partnerOutcomeSubmissions = pgTable("partner_outcome_submissions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 64 }),
+  orgName: text("org_name").notNull(),
+  programName: text("program_name").notNull(),
+  programType: varchar("program_type", { length: 80 }).notNull(), // workforce | reentry | childcare | health | youth | housing
+  reportingPeriod: varchar("reporting_period", { length: 30 }).notNull(), // e.g. "2024-Q4"
+  participantsServed: integer("participants_served").notNull().default(0),
+  participantsCompleted: integer("participants_completed").notNull().default(0),
+  enteredEmployment: integer("entered_employment").notNull().default(0),
+  retainedEmployment6mo: integer("retained_employment_6mo").notNull().default(0),
+  credentialsAttained: integer("credentials_attained").notNull().default(0),
+  medianEarnings: integer("median_earnings_cents"),
+  measurableSkillsGains: integer("measurable_skills_gains").notNull().default(0),
+  cfirFidelityScore: integer("cfir_fidelity_score"), // 0–100, self-reported
+  countyFips: varchar("county_fips", { length: 10 }),
+  submittedBy: varchar("submitted_by", { length: 255 }),
+  notes: text("notes"),
+  status: varchar("status", { length: 30 }).notNull().default("pending"), // pending | reviewed | approved
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export const insertPartnerOutcomeSchema = createInsertSchema(partnerOutcomeSubmissions).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertPartnerOutcome = z.infer<typeof insertPartnerOutcomeSchema>;
+export type PartnerOutcomeSubmission = typeof partnerOutcomeSubmissions.$inferSelect;
+
+// Computed effectiveness scores per program / per period (populated by scoring engine).
+export const partnerEffectivenessScores = pgTable("partner_effectiveness_scores", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  submissionId: varchar("submission_id", { length: 100 }).notNull().references(() => partnerOutcomeSubmissions.id, { onDelete: "cascade" }),
+  orgName: text("org_name").notNull(),
+  programName: text("program_name").notNull(),
+  reportingPeriod: varchar("reporting_period", { length: 30 }).notNull(),
+  // WIOA primary indicators (0–100 scaled)
+  employmentRateScore: integer("employment_rate_score").notNull().default(0),
+  retentionRateScore: integer("retention_rate_score").notNull().default(0),
+  earningsScore: integer("earnings_score").notNull().default(0),
+  credentialRateScore: integer("credential_rate_score").notNull().default(0),
+  skillsGainsScore: integer("skills_gains_score").notNull().default(0),
+  completionRateScore: integer("completion_rate_score").notNull().default(0),
+  // CFIR fidelity (0–100)
+  cfirFidelityScore: integer("cfir_fidelity_score").notNull().default(0),
+  // Composite
+  overallScore: integer("overall_score").notNull().default(0), // 0–100
+  tier: varchar("tier", { length: 20 }).notNull().default("bronze"), // gold | silver | bronze | provisional
+  scoredAt: timestamp("scored_at").defaultNow(),
+});
+export const insertPartnerEffectivenessScoreSchema = createInsertSchema(partnerEffectivenessScores).omit({ id: true, scoredAt: true });
+export type InsertPartnerEffectivenessScore = z.infer<typeof insertPartnerEffectivenessScoreSchema>;
+export type PartnerEffectivenessScore = typeof partnerEffectivenessScores.$inferSelect;
 
 export * from "./household-schema";
 export * from "./justice-schema";
