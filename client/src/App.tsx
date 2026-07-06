@@ -332,6 +332,9 @@ const MyHouseholdPage = lazy(() => import("@/pages/my-household"));
 const ShadowWorkerHubPage = lazy(() => import("@/pages/shadow-worker-hub"));
 const DataCouncilPage = lazy(() => import("@/pages/data-council"));
 const SdvosbTrackerPage = lazy(() => import("@/pages/sdvosb-tracker"));
+const ClinicalScreeningPage = lazy(() => import("@/pages/ClinicalScreening"));
+const FoiaTrackerPage = lazy(() => import("@/pages/FoiaTracker"));
+const EmployerRegistrationPage = lazy(() => import("@/pages/EmployerRegistration"));
 
 function PageFallback() {
   return (
@@ -763,6 +766,9 @@ function AppRouter() {
       <Route path="/neighborhood" component={NeighborhoodLookupPage} />
       <Route path="/data-sources" component={DataSourcesPage} />
       <Route path="/jobs" component={JobBoardPage} />
+      <Route path="/clinical-screening/:participantId?" component={ClinicalScreeningPage} />
+      <Route path="/foia-tracker" component={FoiaTrackerPage} />
+      <Route path="/employer/register" component={EmployerRegistrationPage} />
       <Route path="/reentry/intake" component={ReentryIntakeEnhancedPage} />
       <Route path="/reentry-stipend-pilot" component={ReentryStipendPilotPage} />
       <Route path="/reentry/standards" component={ReentryStandardsPage} />

@@ -6763,3 +6763,5 @@ export const insertResidentHouseholdMemberSchema = createInsertSchema(residentHo
 export type ResidentHouseholdMember = typeof residentHouseholdMembers.$inferSelect;
 
 export * from "./household-schema";
+export * from "./justice-schema";
+export * from "./clinical-schema";

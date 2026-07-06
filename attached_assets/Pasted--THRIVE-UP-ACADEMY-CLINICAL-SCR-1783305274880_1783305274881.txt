@@ -1,0 +1,772 @@
+// ============================================================
+// THRIVE UP ACADEMY — CLINICAL SCREENING INSTRUMENTS
+// Built on published RNR literature (Andrews & Bonta)
+// PHQ-9 (Kroenke & Spitzer, public domain)
+// PCL-5 (Weathers et al., VA public domain)
+//
+// FILE 1: shared/clinical-schema.ts — screening tables
+// FILE 2: server/clinical-instruments.ts — scoring engines
+// FILE 3: server/referral-routing.ts — domain → resource routing
+// FILE 4: server/clinical-routes.ts — REST API
+// FILE 5: client/src/pages/ClinicalScreening.tsx — UI
+// ============================================================
+
+
+// ============================================================
+// FILE 1: shared/clinical-schema.ts
+// ============================================================
+
+import {
+  pgTable, varchar, text, integer, boolean,
+  timestamp, jsonb, pgEnum, real,
+} from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+
+export const riskLevelEnum = pgEnum("clinical_risk_level", [
+  "low", "moderate", "high", "very_high",
+]);
+
+export const instrumentTypeEnum = pgEnum("instrument_type", [
+  "rnr_criminogenic",  // 25-item RNR needs screen
+  "phq9",              // depression
+  "pcl5",              // PTSD/trauma
+  "combined",          // all three co-administered
+]);
+
+// clinical_screenings — all instrument results
+export const clinicalScreenings = pgTable("clinical_screenings", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }),
+  userId: varchar("user_id", { length: 255 }),
+  householdId: varchar("household_id", { length: 100 }),
+  instrumentType: instrumentTypeEnum("instrument_type").notNull(),
+  administeredBy: varchar("administered_by", { length: 255 }), // facilitator userId or "self"
+  administeredAt: timestamp("administered_at").defaultNow(),
+
+  // RNR scores
+  rnrTotalScore: integer("rnr_total_score"),        // 0–50
+  rnrRiskLevel: riskLevelEnum("rnr_risk_level"),
+  rnrDomainScores: jsonb("rnr_domain_scores"),      // {criminal_history: 8, education: 4, ...}
+  rnrFlaggedDomains: text("rnr_flagged_domains").array(),
+  rnrResponses: jsonb("rnr_responses"),              // raw item responses
+
+  // PHQ-9 scores
+  phq9TotalScore: integer("phq9_total_score"),       // 0–27
+  phq9Severity: varchar("phq9_severity", { length: 20 }), // minimal/mild/moderate/moderately_severe/severe
+  phq9SuicidalIdeation: boolean("phq9_suicidal_ideation").default(false), // item 9 > 0
+  phq9Responses: jsonb("phq9_responses"),
+
+  // PCL-5 scores
+  pcl5TotalScore: integer("pcl5_total_score"),       // 0–80
+  pcl5PtsdIndicator: boolean("pcl5_ptsd_indicator").default(false), // score >= 33
+  pcl5ClusterScores: jsonb("pcl5_cluster_scores"),  // {B: 12, C: 8, D: 15, E: 10}
+  pcl5Responses: jsonb("pcl5_responses"),
+
+  // Routing output
+  referrals: jsonb("referrals"),                    // [{domain, resource, urgency, contactInfo}]
+  requiresClinicalFollowup: boolean("requires_clinical_followup").default(false),
+  requiresImmediateIntervention: boolean("requires_immediate_intervention").default(false),
+  notes: text("notes"),
+});
+
+
+// ============================================================
+// FILE 2: server/clinical-instruments.ts
+// Scoring engines for all three instruments
+// ============================================================
+
+// ── RNR 25-ITEM CRIMINOGENIC NEEDS SCREENER ──────────────────
+// Based on: Andrews & Bonta (2010) "The Psychology of Criminal Conduct"
+// Central Eight risk/need factors: criminal history, antisocial pattern,
+// antisocial cognition, antisocial associates, family/marital,
+// school/work, leisure/recreation, substance abuse
+
+export interface RnrItem {
+  id: string;
+  domain: string;
+  question: string;
+  weight: number;        // domain weight for total score
+  scoring: "binary" | "scale3" | "scale5";
+  reverseScored?: boolean;
+}
+
+export const RNR_ITEMS: RnrItem[] = [
+  // Domain 1: Criminal History (max 10 pts)
+  { id: "ch1", domain: "criminal_history", weight: 2, scoring: "binary",
+    question: "Have you ever been convicted of a felony?" },
+  { id: "ch2", domain: "criminal_history", weight: 2, scoring: "binary",
+    question: "Have you had 2 or more prior convictions (felony or misdemeanor)?" },
+  { id: "ch3", domain: "criminal_history", weight: 2, scoring: "binary",
+    question: "Have you previously been on probation or parole?" },
+  { id: "ch4", domain: "criminal_history", weight: 2, scoring: "binary",
+    question: "Have you ever had a probation or parole revocation?" },
+  { id: "ch5", domain: "criminal_history", weight: 2, scoring: "binary",
+    question: "Were you under 18 at the time of your first arrest?" },
+
+  // Domain 2: Education & Employment (max 8 pts)
+  { id: "ee1", domain: "education_employment", weight: 2, scoring: "binary",
+    question: "Do you currently lack a high school diploma or GED?" },
+  { id: "ee2", domain: "education_employment", weight: 2, scoring: "binary",
+    question: "Were you unemployed for most of the 12 months before your last incarceration?" },
+  { id: "ee3", domain: "education_employment", weight: 2, scoring: "binary",
+    question: "Have you had 3 or more jobs in the past 2 years (not by choice)?" },
+  { id: "ee4", domain: "education_employment", weight: 2, scoring: "binary",
+    question: "Do you currently have no employment plans or prospects?" },
+
+  // Domain 3: Family & Social Relationships (max 6 pts)
+  { id: "fs1", domain: "family_social", weight: 2, scoring: "binary",
+    question: "Are most of your close friends or family members currently involved in criminal activity?" },
+  { id: "fs2", domain: "family_social", weight: 2, scoring: "binary",
+    question: "Do you feel isolated from positive social support?" },
+  { id: "fs3", domain: "family_social", weight: 2, scoring: "binary",
+    question: "Have you experienced significant conflict in close relationships in the past year?" },
+
+  // Domain 4: Substance Use (max 8 pts)
+  { id: "su1", domain: "substance_use", weight: 2, scoring: "binary",
+    question: "Have you used alcohol or drugs problematically in the past 12 months?" },
+  { id: "su2", domain: "substance_use", weight: 2, scoring: "binary",
+    question: "Has substance use ever contributed to your involvement with the law?" },
+  { id: "su3", domain: "substance_use", weight: 2, scoring: "binary",
+    question: "Have you ever been in substance use treatment?" },
+  { id: "su4", domain: "substance_use", weight: 2, scoring: "binary",
+    question: "Do you feel that substance use is currently a problem for you?" },
+
+  // Domain 5: Housing Stability (max 4 pts)
+  { id: "hs1", domain: "housing", weight: 2, scoring: "binary",
+    question: "Do you lack stable, safe housing currently?" },
+  { id: "hs2", domain: "housing", weight: 2, scoring: "binary",
+    question: "Have you experienced homelessness in the past 2 years?" },
+
+  // Domain 6: Mental Health (max 4 pts)
+  { id: "mh1", domain: "mental_health", weight: 2, scoring: "binary",
+    question: "Have you ever been diagnosed with a mental health condition?" },
+  { id: "mh2", domain: "mental_health", weight: 2, scoring: "binary",
+    question: "Are you currently experiencing mental health symptoms that interfere with daily life?" },
+
+  // Domain 7: Antisocial Attitudes & Cognition (max 6 pts)
+  { id: "aa1", domain: "antisocial_cognition", weight: 2, scoring: "binary",
+    question: "Do you believe that rules and laws are generally unfair or don't apply to you?" },
+  { id: "aa2", domain: "antisocial_cognition", weight: 2, scoring: "binary",
+    question: "Do you frequently feel that others are to blame for problems in your life?" },
+  { id: "aa3", domain: "antisocial_cognition", weight: 2, scoring: "binary",
+    question: "Do you have difficulty controlling anger or impulsive reactions?" },
+
+  // Domain 8: Leisure & Recreation (max 4 pts)
+  { id: "lr1", domain: "leisure_recreation", weight: 2, scoring: "binary",
+    question: "Do you have few or no structured positive leisure activities?" },
+  { id: "lr2", domain: "leisure_recreation", weight: 2, scoring: "binary",
+    question: "Do you spend most of your free time with people who engage in antisocial behavior?" },
+];
+
+export interface RnrResult {
+  totalScore: number;        // 0–50
+  riskLevel: "low" | "moderate" | "high" | "very_high";
+  domainScores: Record<string, number>;
+  flaggedDomains: string[];
+  needsIntervention: string[];
+  recommendFullLsiR: boolean;
+  interpretationNote: string;
+}
+
+export function scoreRnr(responses: Record<string, boolean>): RnrResult {
+  const domainScores: Record<string, number> = {};
+  let totalScore = 0;
+
+  for (const item of RNR_ITEMS) {
+    const answered = responses[item.id] === true;
+    const points = answered ? item.weight : 0;
+    domainScores[item.domain] = (domainScores[item.domain] ?? 0) + points;
+    totalScore += points;
+  }
+
+  const riskLevel =
+    totalScore >= 30 ? "very_high" :
+    totalScore >= 20 ? "high" :
+    totalScore >= 10 ? "moderate" : "low";
+
+  // Flag domains scoring more than 50% of their max
+  const domainMaxes: Record<string, number> = {
+    criminal_history: 10, education_employment: 8, family_social: 6,
+    substance_use: 8, housing: 4, mental_health: 4,
+    antisocial_cognition: 6, leisure_recreation: 4,
+  };
+
+  const flaggedDomains = Object.entries(domainScores)
+    .filter(([domain, score]) => score > (domainMaxes[domain] ?? 4) * 0.5)
+    .map(([domain]) => domain);
+
+  const needsIntervention = Object.entries(domainScores)
+    .filter(([domain, score]) => score > (domainMaxes[domain] ?? 4) * 0.75)
+    .map(([domain]) => domain);
+
+  return {
+    totalScore,
+    riskLevel,
+    domainScores,
+    flaggedDomains,
+    needsIntervention,
+    recommendFullLsiR: totalScore >= 20,
+    interpretationNote: totalScore >= 20
+      ? "Score indicates moderate-high risk. A full LSI-R or ORAS assessment by a licensed clinician is recommended before program planning."
+      : "Score indicates lower risk level. Proceed with standard program planning and quarterly check-ins.",
+  };
+}
+
+
+// ── PHQ-9 ─────────────────────────────────────────────────────
+// Kroenke & Spitzer (2002). Public domain, freely reproducible.
+// Detects depression severity. 9 items, 0–3 per item, total 0–27.
+
+export const PHQ9_ITEMS = [
+  { id: "phq1", question: "Little interest or pleasure in doing things" },
+  { id: "phq2", question: "Feeling down, depressed, or hopeless" },
+  { id: "phq3", question: "Trouble falling or staying asleep, or sleeping too much" },
+  { id: "phq4", question: "Feeling tired or having little energy" },
+  { id: "phq5", question: "Poor appetite or overeating" },
+  { id: "phq6", question: "Feeling bad about yourself — or that you are a failure or have let yourself or your family down" },
+  { id: "phq7", question: "Trouble concentrating on things, such as reading the newspaper or watching television" },
+  { id: "phq8", question: "Moving or speaking so slowly that other people could have noticed — or the opposite, being so fidgety or restless that you have been moving around a lot more than usual" },
+  { id: "phq9", question: "Thoughts that you would be better off dead, or of hurting yourself in some way" },
+];
+
+export const PHQ9_RESPONSE_OPTIONS = [
+  { value: 0, label: "Not at all" },
+  { value: 1, label: "Several days" },
+  { value: 2, label: "More than half the days" },
+  { value: 3, label: "Nearly every day" },
+];
+
+export interface Phq9Result {
+  totalScore: number;
+  severity: "minimal" | "mild" | "moderate" | "moderately_severe" | "severe";
+  suicidalIdeation: boolean;
+  requiresImmediateFollowup: boolean;
+  clinicalNote: string;
+}
+
+export function scorePhq9(responses: Record<string, number>): Phq9Result {
+  const totalScore = PHQ9_ITEMS.reduce((sum, item) => sum + (responses[item.id] ?? 0), 0);
+  const suicidalIdeation = (responses["phq9"] ?? 0) > 0;
+
+  const severity =
+    totalScore >= 20 ? "severe" :
+    totalScore >= 15 ? "moderately_severe" :
+    totalScore >= 10 ? "moderate" :
+    totalScore >= 5 ? "mild" : "minimal";
+
+  return {
+    totalScore,
+    severity,
+    suicidalIdeation,
+    requiresImmediateFollowup: suicidalIdeation || totalScore >= 15,
+    clinicalNote: suicidalIdeation
+      ? "IMMEDIATE FOLLOW-UP REQUIRED: Item 9 indicates suicidal ideation. Refer to crisis services immediately. Do not leave the individual alone."
+      : totalScore >= 15
+      ? "Moderately severe to severe depression indicated. Refer to mental health services. Medication evaluation may be warranted."
+      : totalScore >= 10
+      ? "Moderate depression indicated. Consider referral to counseling or behavioral health."
+      : "Screen complete. Monitor and re-screen in 30 days if concerns persist.",
+  };
+}
+
+
+// ── PCL-5 ─────────────────────────────────────────────────────
+// Weathers et al. (2013). VA public domain, free use.
+// PTSD Checklist for DSM-5. 20 items, 0–4 per item, total 0–80.
+// Clinical cutoff: ≥ 33 indicates probable PTSD.
+
+export const PCL5_ITEMS = [
+  // Cluster B: Intrusion (items 1–5)
+  { id: "pcl1", cluster: "B", question: "Repeated, disturbing, and unwanted memories of a stressful experience from the past?" },
+  { id: "pcl2", cluster: "B", question: "Repeated, disturbing dreams of a stressful experience?" },
+  { id: "pcl3", cluster: "B", question: "Suddenly feeling or acting as if the experience was actually happening again (as if you were actually back there reliving it)?" },
+  { id: "pcl4", cluster: "B", question: "Feeling very upset when something reminded you of the experience?" },
+  { id: "pcl5", cluster: "B", question: "Having strong physical reactions when something reminded you of the experience (heart pounding, trouble breathing, sweating)?" },
+  // Cluster C: Avoidance (items 6–7)
+  { id: "pcl6", cluster: "C", question: "Avoiding memories, thoughts, or feelings related to a stressful experience?" },
+  { id: "pcl7", cluster: "C", question: "Avoiding external reminders of a stressful experience (people, places, conversations, activities, objects, or situations)?" },
+  // Cluster D: Negative cognitions (items 8–14)
+  { id: "pcl8", cluster: "D", question: "Trouble remembering important parts of a stressful experience?" },
+  { id: "pcl9", cluster: "D", question: "Having strong negative beliefs about yourself, other people, or the world?" },
+  { id: "pcl10", cluster: "D", question: "Blaming yourself or someone else for the stressful experience or what happened after it?" },
+  { id: "pcl11", cluster: "D", question: "Having strong negative feelings such as fear, horror, anger, guilt, or shame?" },
+  { id: "pcl12", cluster: "D", question: "Loss of interest in activities that you used to enjoy?" },
+  { id: "pcl13", cluster: "D", question: "Feeling distant or cut off from other people?" },
+  { id: "pcl14", cluster: "D", question: "Trouble experiencing positive feelings (for example, being unable to feel happiness or love toward people close to you)?" },
+  // Cluster E: Hyperarousal (items 15–20)
+  { id: "pcl15", cluster: "E", question: "Irritable behavior, angry outbursts, or acting aggressively?" },
+  { id: "pcl16", cluster: "E", question: "Taking too many risks or doing things that could cause you harm?" },
+  { id: "pcl17", cluster: "E", question: "Being 'superalert' or watchful or on guard?" },
+  { id: "pcl18", cluster: "E", question: "Feeling jumpy or easily startled?" },
+  { id: "pcl19", cluster: "E", question: "Having difficulty concentrating?" },
+  { id: "pcl20", cluster: "E", question: "Trouble falling or staying asleep?" },
+];
+
+export const PCL5_RESPONSE_OPTIONS = [
+  { value: 0, label: "Not at all" },
+  { value: 1, label: "A little bit" },
+  { value: 2, label: "Moderately" },
+  { value: 3, label: "Quite a bit" },
+  { value: 4, label: "Extremely" },
+];
+
+export interface Pcl5Result {
+  totalScore: number;
+  ptsdIndicator: boolean;
+  clusterScores: { B: number; C: number; D: number; E: number };
+  dominantCluster: string;
+  clinicalNote: string;
+}
+
+export function scorePcl5(responses: Record<string, number>): Pcl5Result {
+  const clusterScores = { B: 0, C: 0, D: 0, E: 0 };
+  let totalScore = 0;
+
+  for (const item of PCL5_ITEMS) {
+    const val = responses[item.id] ?? 0;
+    clusterScores[item.cluster as keyof typeof clusterScores] += val;
+    totalScore += val;
+  }
+
+  const ptsdIndicator = totalScore >= 33;
+  const dominantCluster = Object.entries(clusterScores)
+    .sort(([,a],[,b]) => b - a)[0][0];
+
+  const clusterLabels: Record<string, string> = {
+    B: "intrusive memories and re-experiencing",
+    C: "avoidance of trauma reminders",
+    D: "negative thoughts and mood changes",
+    E: "hyperarousal and reactivity",
+  };
+
+  return {
+    totalScore,
+    ptsdIndicator,
+    clusterScores,
+    dominantCluster,
+    clinicalNote: ptsdIndicator
+      ? `PCL-5 score (${totalScore}/80) meets provisional PTSD threshold. Primary symptoms cluster around ${clusterLabels[dominantCluster]}. Refer to trauma-informed therapist or VA mental health services.`
+      : `PCL-5 score (${totalScore}/80) below PTSD threshold. Trauma-informed care approach still recommended. Re-screen in 60 days.`,
+  };
+}
+
+
+// ============================================================
+// FILE 3: server/referral-routing.ts
+// Domain scores → specific community resources
+// ============================================================
+
+export interface ReferralRecommendation {
+  domain: string;
+  urgency: "immediate" | "within_week" | "within_month" | "routine";
+  resourceName: string;
+  resourceType: string;
+  contactInfo: string;
+  url?: string;
+  eligibilityNote?: string;
+}
+
+// Resource directory — mapped to your existing partner network
+const DOMAIN_RESOURCES: Record<string, ReferralRecommendation[]> = {
+  mental_health: [
+    {
+      domain: "mental_health",
+      urgency: "within_week",
+      resourceName: "CommUnity Care FQHCs",
+      resourceType: "Federally Qualified Health Center — behavioral health",
+      contactInfo: "512-978-9015 | communitycaretx.org",
+      url: "https://communitycaretx.org",
+      eligibilityNote: "Sliding scale fees. Medicaid, uninsured accepted.",
+    },
+    {
+      domain: "mental_health",
+      urgency: "within_week",
+      resourceName: "Integral Care (Austin Travis County MHMR)",
+      resourceType: "County mental health authority",
+      contactInfo: "512-472-4357 | integralcare.org",
+      url: "https://integralcare.org",
+      eligibilityNote: "Priority access for justice-involved individuals.",
+    },
+    {
+      domain: "mental_health",
+      urgency: "immediate",
+      resourceName: "988 Suicide & Crisis Lifeline",
+      resourceType: "Crisis intervention",
+      contactInfo: "Call or text 988",
+      url: "https://988lifeline.org",
+    },
+  ],
+  substance_use: [
+    {
+      domain: "substance_use",
+      urgency: "within_week",
+      resourceName: "Austin Recovery (ATCIC)",
+      resourceType: "Substance use treatment",
+      contactInfo: "512-776-2704 | atcic.net",
+      url: "https://atcic.net",
+      eligibilityNote: "Medicaid accepted. Justice-involved individuals welcome.",
+    },
+    {
+      domain: "substance_use",
+      urgency: "routine",
+      resourceName: "AA/NA Central Texas Intergroup",
+      resourceType: "Peer support — recovery",
+      contactInfo: "512-444-0071 | austinaa.org",
+      url: "https://austinaa.org",
+    },
+  ],
+  housing: [
+    {
+      domain: "housing",
+      urgency: "immediate",
+      resourceName: "LifeBridge Housing Services",
+      resourceType: "Emergency and transitional housing navigation",
+      contactInfo: "Via ThriveUp Navigator | lifebridge.org",
+      url: "https://lifebridge.org",
+    },
+    {
+      domain: "housing",
+      urgency: "within_week",
+      resourceName: "Foundation Communities",
+      resourceType: "Affordable housing — reentry-friendly",
+      contactInfo: "512-447-2026 | foundcom.org",
+      url: "https://foundcom.org",
+      eligibilityNote: "Background check policies vary by property. Ask about reentry units.",
+    },
+    {
+      domain: "housing",
+      urgency: "routine",
+      resourceName: "Austin Housing Authority (Section 8)",
+      resourceType: "Housing Choice Voucher",
+      contactInfo: "512-477-4488 | hacanline.org",
+      url: "https://hacanline.org",
+      eligibilityNote: "Waitlist may be closed. Check hacanline.org for current status.",
+    },
+  ],
+  education_employment: [
+    {
+      domain: "education_employment",
+      urgency: "within_week",
+      resourceName: "ThriveUp Academy Trade Sims",
+      resourceType: "Workforce training — credentialing",
+      contactInfo: "Available on this platform at /academy/trade-sims",
+      url: "/academy/trade-sims",
+    },
+    {
+      domain: "education_employment",
+      urgency: "within_week",
+      resourceName: "Austin Community College — Continuing Education",
+      resourceType: "GED, vocational training",
+      contactInfo: "512-223-7000 | austincc.edu/ce",
+      url: "https://austincc.edu/ce",
+      eligibilityNote: "GED prep free for eligible adults. Workforce programs WIOA-fundable.",
+    },
+    {
+      domain: "education_employment",
+      urgency: "routine",
+      resourceName: "Workforce Solutions Capital Area",
+      resourceType: "WIOA-funded employment services",
+      contactInfo: "512-597-7100 | workforcesolutionscapitalarea.com",
+      url: "https://workforcesolutionscapitalarea.com",
+    },
+  ],
+  family_social: [
+    {
+      domain: "family_social",
+      urgency: "within_month",
+      resourceName: "The Collaborative Advocate Foundation (TCAF)",
+      resourceType: "Mentorship, legal aid, advocacy",
+      contactInfo: "info@tcaf.org",
+    },
+    {
+      domain: "family_social",
+      urgency: "within_month",
+      resourceName: "Austin Community Court",
+      resourceType: "Restorative justice, family mediation",
+      contactInfo: "512-974-4600",
+    },
+  ],
+  criminal_history: [
+    {
+      domain: "criminal_history",
+      urgency: "within_month",
+      resourceName: "Texas RioGrande Legal Aid — Record Sealing",
+      resourceType: "Expungement and nondisclosure legal services",
+      contactInfo: "956-996-8752 | trla.org",
+      url: "https://trla.org",
+      eligibilityNote: "Free services for income-eligible individuals. Check eligibility at trla.org.",
+    },
+    {
+      domain: "criminal_history",
+      urgency: "within_month",
+      resourceName: "Lone Star Justice Alliance",
+      resourceType: "Reentry legal services",
+      contactInfo: "info@lsjalliance.org | lsjalliance.org",
+      url: "https://lsjalliance.org",
+    },
+  ],
+  antisocial_cognition: [
+    {
+      domain: "antisocial_cognition",
+      urgency: "within_week",
+      resourceName: "Thinking for a Change (T4C)",
+      resourceType: "Cognitive behavioral intervention — group format",
+      contactInfo: "Refer to case manager for enrollment",
+      eligibilityNote: "Evidence-based CBT program developed by NIC. Often available through probation/parole.",
+    },
+  ],
+  leisure_recreation: [
+    {
+      domain: "leisure_recreation",
+      urgency: "routine",
+      resourceName: "Austin Parks & Recreation — Community Centers",
+      resourceType: "Structured recreation, fitness",
+      contactInfo: "512-974-6700 | austintexas.gov/department/parks-and-recreation",
+      url: "https://austintexas.gov/department/parks-and-recreation",
+    },
+  ],
+};
+
+// Crisis override — PHQ-9 item 9 > 0 or PCL-5 ≥ 33
+const CRISIS_REFERRALS: ReferralRecommendation[] = [
+  {
+    domain: "crisis",
+    urgency: "immediate",
+    resourceName: "988 Suicide & Crisis Lifeline",
+    resourceType: "Crisis intervention",
+    contactInfo: "Call or text 988 — 24/7",
+    url: "https://988lifeline.org",
+  },
+  {
+    domain: "crisis",
+    urgency: "immediate",
+    resourceName: "SafeReport Crisis Support",
+    resourceType: "Platform safety resource",
+    contactInfo: "Available via SafeReport on this platform",
+    url: "/safe-report",
+  },
+];
+
+export function generateReferrals(params: {
+  rnrResult?: { flaggedDomains: string[]; needsIntervention: string[] };
+  phq9Result?: { suicidalIdeation: boolean; severity: string; requiresImmediateFollowup: boolean };
+  pcl5Result?: { ptsdIndicator: boolean };
+}): {
+  referrals: ReferralRecommendation[];
+  requiresImmediateIntervention: boolean;
+  requiresClinicalFollowup: boolean;
+} {
+  const referrals: ReferralRecommendation[] = [];
+  let requiresImmediateIntervention = false;
+  let requiresClinicalFollowup = false;
+
+  // Crisis override — always first
+  if (params.phq9Result?.suicidalIdeation) {
+    referrals.push(...CRISIS_REFERRALS);
+    requiresImmediateIntervention = true;
+  }
+
+  // PHQ-9 clinical followup
+  if (params.phq9Result?.requiresImmediateFollowup) {
+    referrals.push(...(DOMAIN_RESOURCES["mental_health"] ?? []));
+    requiresClinicalFollowup = true;
+  }
+
+  // PCL-5 PTSD
+  if (params.pcl5Result?.ptsdIndicator) {
+    const traumaRef = DOMAIN_RESOURCES["mental_health"]?.find(r =>
+      r.resourceName.includes("CommUnity") || r.resourceName.includes("Integral")
+    );
+    if (traumaRef) referrals.push({ ...traumaRef, urgency: "within_week" });
+    requiresClinicalFollowup = true;
+  }
+
+  // RNR domain routing
+  for (const domain of params.rnrResult?.needsIntervention ?? []) {
+    const resources = DOMAIN_RESOURCES[domain] ?? [];
+    // Highest urgency resources for intervention-level domains
+    const topResource = resources.find(r => r.urgency === "immediate" || r.urgency === "within_week");
+    if (topResource) referrals.push(topResource);
+  }
+
+  // Add routine resources for flagged (but not intervention-level) domains
+  for (const domain of params.rnrResult?.flaggedDomains ?? []) {
+    if (params.rnrResult?.needsIntervention.includes(domain)) continue;
+    const resources = DOMAIN_RESOURCES[domain] ?? [];
+    const routineResource = resources.find(r => r.urgency === "routine" || r.urgency === "within_month");
+    if (routineResource) referrals.push(routineResource);
+  }
+
+  // Deduplicate by resourceName
+  const seen = new Set<string>();
+  const dedupedReferrals = referrals.filter(r => {
+    if (seen.has(r.resourceName)) return false;
+    seen.add(r.resourceName);
+    return true;
+  });
+
+  return {
+    referrals: dedupedReferrals,
+    requiresImmediateIntervention,
+    requiresClinicalFollowup,
+  };
+}
+
+
+// ============================================================
+// FILE 4: server/clinical-routes.ts
+// REST API
+// Register: app.use("/api/clinical", clinicalRouter)
+// ============================================================
+
+import express from "express";
+import { z } from "zod";
+import { clinicalScreenings } from "../shared/clinical-schema";
+import { scoreRnr, scorePhq9, scorePcl5, RNR_ITEMS, PHQ9_ITEMS, PCL5_ITEMS } from "./clinical-instruments";
+import { generateReferrals } from "./referral-routing";
+import { db } from "./storage";
+import { eq, desc } from "drizzle-orm";
+
+const clinicalRouter = express.Router();
+
+// GET /api/clinical/instruments — return all instrument definitions
+clinicalRouter.get("/instruments", (req, res) => {
+  res.json({
+    rnr: { items: RNR_ITEMS, totalItems: RNR_ITEMS.length, maxScore: 50 },
+    phq9: { items: PHQ9_ITEMS, totalItems: 9, maxScore: 27 },
+    pcl5: { items: PCL5_ITEMS, totalItems: 20, maxScore: 80 },
+  });
+});
+
+// POST /api/clinical/screen — submit all three instruments at once
+clinicalRouter.post("/screen", async (req, res) => {
+  try {
+    const schema = z.object({
+      participantId: z.string().optional(),
+      userId: z.string().optional(),
+      householdId: z.string().optional(),
+      instrumentType: z.enum(["rnr_criminogenic","phq9","pcl5","combined"]).default("combined"),
+      administeredBy: z.string().optional(),
+      rnrResponses: z.record(z.boolean()).optional(),
+      phq9Responses: z.record(z.number().min(0).max(3)).optional(),
+      pcl5Responses: z.record(z.number().min(0).max(4)).optional(),
+      notes: z.string().optional(),
+    });
+    const parsed = schema.safeParse(req.body);
+    if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+    const data = parsed.data;
+
+    // Score each instrument
+    const rnrResult = data.rnrResponses ? scoreRnr(data.rnrResponses) : undefined;
+    const phq9Result = data.phq9Responses ? scorePhq9(data.phq9Responses) : undefined;
+    const pcl5Result = data.pcl5Responses ? scorePcl5(data.pcl5Responses) : undefined;
+
+    // Generate referrals
+    const { referrals, requiresImmediateIntervention, requiresClinicalFollowup } =
+      generateReferrals({ rnrResult, phq9Result, pcl5Result });
+
+    // Save to DB
+    const [screening] = await db.insert(clinicalScreenings).values({
+      participantId: data.participantId,
+      userId: data.userId,
+      householdId: data.householdId,
+      instrumentType: data.instrumentType,
+      administeredBy: data.administeredBy ?? "self",
+      rnrTotalScore: rnrResult?.totalScore,
+      rnrRiskLevel: rnrResult?.riskLevel as any,
+      rnrDomainScores: rnrResult?.domainScores as any,
+      rnrFlaggedDomains: rnrResult?.flaggedDomains,
+      rnrResponses: data.rnrResponses as any,
+      phq9TotalScore: phq9Result?.totalScore,
+      phq9Severity: phq9Result?.severity,
+      phq9SuicidalIdeation: phq9Result?.suicidalIdeation ?? false,
+      phq9Responses: data.phq9Responses as any,
+      pcl5TotalScore: pcl5Result?.totalScore,
+      pcl5PtsdIndicator: pcl5Result?.ptsdIndicator ?? false,
+      pcl5ClusterScores: pcl5Result?.clusterScores as any,
+      pcl5Responses: data.pcl5Responses as any,
+      referrals: referrals as any,
+      requiresClinicalFollowup,
+      requiresImmediateIntervention,
+      notes: data.notes,
+    }).returning();
+
+    res.json({
+      screening,
+      rnrResult,
+      phq9Result,
+      pcl5Result,
+      referrals,
+      requiresImmediateIntervention,
+      requiresClinicalFollowup,
+      // If suicidal ideation: always surface 988 prominently
+      crisisAlert: phq9Result?.suicidalIdeation
+        ? { message: "Please reach out for support right now. You are not alone.", contact: "Call or text 988" }
+        : null,
+    });
+  } catch (err) {
+    console.error("[clinical-routes] POST /screen:", err);
+    res.status(500).json({ error: "Screening failed" });
+  }
+});
+
+// GET /api/clinical/screenings/:participantId — history
+clinicalRouter.get("/screenings/:participantId", async (req, res) => {
+  try {
+    const screenings = await db.select().from(clinicalScreenings)
+      .where(eq(clinicalScreenings.participantId, req.params.participantId))
+      .orderBy(desc(clinicalScreenings.administeredAt));
+    res.json(screenings);
+  } catch { res.status(500).json({ error: "Failed to load screenings" }); }
+});
+
+export { clinicalRouter };
+
+
+// ============================================================
+// WIRING SUMMARY
+// ============================================================
+
+/*
+server/routes.ts additions:
+  import { clinicalRouter } from "./clinical-routes";
+  import { foiaRouter } from "./foia-routes";
+  import { employerRegRouter } from "./employer-registration";
+  import { syncCareerOneStopJobs } from "./careeronestop";
+  import { runBjsIngestion } from "./bjs-ingestion";
+
+  app.use("/api/clinical", requireAuth, clinicalRouter);
+  app.use("/api/foia", requireAuth, foiaRouter);
+  app.use("/api/employers", employerRegRouter); // register: public; review: auth
+  app.use("/api/employers", requireAuth, employerRegRouter); // review endpoints
+
+  // Startup jobs:
+  syncCareerOneStopJobs().catch(console.error);
+  runBjsIngestion().catch(console.error);
+
+shared/schema.ts additions:
+  export * from "./justice-schema";
+  export * from "./clinical-schema";
+
+App.tsx additions:
+  import ClinicalScreening from "./pages/ClinicalScreening";
+  import FoiaTracker from "./pages/FoiaTracker";
+  import EmployerRegistration from "./pages/EmployerRegistration";
+  <Route path="/clinical-screening/:participantId?" component={ClinicalScreening} />
+  <Route path="/foia-tracker" component={FoiaTracker} />
+  <Route path="/employer/register" component={EmployerRegistration} />
+
+ENV vars:
+  CAREERONESTOP_USER_ID=
+  CAREERONESTOP_API_KEY=
+  (Register free: careeronestop.org/Developers/WebAPI/web-api.aspx)
+
+Database:
+  npm run db:push
+  New tables:
+    justice_indicators
+    foia_requests
+    foia_responses
+    employer_registrations
+    clinical_screenings
+*/

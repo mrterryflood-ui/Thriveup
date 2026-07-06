@@ -135,6 +135,11 @@ import { registerOrgDocumentsRoutes } from "./org-documents-routes";
 import { registerGrantNarrativeRoutes } from "./grant-narrative-routes";
 import { householdRouter } from "./household-routes";
 import { policyRouter } from "./policy-routes";
+import { clinicalRouter } from "./clinical-routes";
+import { foiaRouter } from "./foia-routes";
+import { employerRegRouter } from "./employer-registration";
+import { syncCareerOneStopJobs } from "./careeronestop";
+import { runBjsIngestion } from "./bjs-ingestion";
 import { scheduleMonthlyResourceRefresh } from "./agency-intelligence";
 import { registerSafePassageRoutes } from "./safe-passage-routes";
 import { registerEcosystemIntelRoutes } from "./ecosystem-intel-routes";
@@ -6439,6 +6444,13 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
 
   app.use("/api/households", householdRouter);
   app.use("/api/policy", policyRouter);
+
+  app.use("/api/clinical", clinicalRouter);
+  app.use("/api/foia", requireAuth, foiaRouter);
+  app.use("/api/employers", employerRegRouter);
+
+  syncCareerOneStopJobs().catch((e: Error) => console.error("[startup] CareerOneStop sync:", e.message));
+  runBjsIngestion().catch((e: Error) => console.error("[startup] BJS ingestion:", e.message));
 
   return httpServer;
 }
