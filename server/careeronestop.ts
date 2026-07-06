@@ -3,8 +3,8 @@ import { employerPartners, jobPostings } from "../shared/schema";
 import { eq } from "drizzle-orm";
 
 const COS_BASE = "https://api.careeronestop.org/v1";
-const COS_USER_ID = process.env.CAREERONESTOP_USER_ID ?? "";
-const COS_API_KEY = process.env.CAREERONESTOP_API_KEY ?? "";
+const COS_USER_ID = (process.env.CAREERONESTOP_USER_ID ?? "").trim();
+const COS_API_KEY = (process.env.CAREERONESTOP_API_KEY ?? "").trim();
 
 interface CosJobResult {
   JobID: string;
@@ -70,7 +70,8 @@ export async function fetchCareerOneStopJobs(params: {
     });
 
     if (!res.ok) {
-      console.error(`[careeronestop] API error: ${res.status}`);
+      const body = await res.text().catch(() => "(unreadable)");
+      console.error(`[careeronestop] API error: ${res.status} — URL: ${url.replace(COS_USER_ID, "***")} — Body: ${body.slice(0, 200)}`);
       return [];
     }
 
