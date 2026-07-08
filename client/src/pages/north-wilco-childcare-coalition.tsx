@@ -25,6 +25,12 @@ import {
   ChevronRight,
   BarChart3,
   Briefcase,
+  Compass,
+  BookOpen,
+  Car,
+  Home,
+  Utensils,
+  CalendarCheck,
 } from "lucide-react";
 
 const COALITION_PARTNERS = [
@@ -196,6 +202,93 @@ const THEORY_OF_CHANGE = [
   },
 ];
 
+const CIM_PILLARS = [
+  {
+    pillar: "Co-Create Solutions",
+    desc: "Solutions built with families, providers, and employers — not handed down.",
+    platformSupport: "Community Voice project + shadow-worker Integration Invitation surface real caregiver input directly into the coalition's planning data.",
+    grantLink: "United Way SX6 Coalition Grant — backbone convening funds this collaborative design work.",
+  },
+  {
+    pillar: "Build Partnerships",
+    desc: "Formal commitments across government, schools, employers, and community organizations.",
+    platformSupport: "Coalition Partners dashboard (this page) tracks every partner's role, contribution, and status in one shared view — updated live, not a static slide.",
+    grantLink: "W.K. Kellogg Community Engagement & Civic Infrastructure — funds collective-impact backbone capacity.",
+  },
+  {
+    pillar: "Strengthen Financial Health",
+    desc: "Family economic stability alongside childcare access — benefits, wages, and cost burden together.",
+    platformSupport: "9-Benefit Screener (SNAP, Medicaid, CHIP, WIC, EITC, CTC, TANF, SSI, ACA) — closes the 58.6% enrollment gap that drains family budgets before childcare costs even enter the picture.",
+    grantLink: "Robert Wood Johnson Healthy Communities — frames childcare + benefits as joint social-determinants infrastructure.",
+  },
+  {
+    pillar: "Provider Support & Workforce Stability",
+    desc: "Recognize and formalize the informal caregiver workforce; stabilize licensed provider capacity.",
+    platformSupport: "Shadow-worker stipend + credentialing pathways (Integration Invitation) give informal caregivers a path toward licensure without a credential check gate.",
+    grantLink: "Texas DECD Childcare Infrastructure Development + CCDF — direct funding lines for provider capacity and workforce stabilization.",
+  },
+];
+
+const WRAPAROUND_MAP = [
+  {
+    need: "Transportation",
+    barrierData: "Barrier Index includes a dedicated transportation weight (20%) — no-vehicle-access tracts are already flagged county-wide.",
+    platformCapability: "County Intelligence dashboard surfaces no-vehicle-access census tracts alongside childcare deserts, so transportation gaps and childcare gaps can be mapped together instead of discussed separately.",
+    status: "data-ready",
+  },
+  {
+    need: "Mental Health & Family Well-Being",
+    barrierData: "Referral routing engine has a live mental-health domain with urgency tiers (immediate / within-week / routine).",
+    platformCapability: "Any CHW or navigator using the platform can generate an immediate mental-health referral in the same conversation as a childcare or benefits intake — no separate system needed.",
+    status: "built",
+  },
+  {
+    need: "Family Coaching & Navigation",
+    barrierData: "This is the CHW/navigator model itself — bilingual Community Health Workers embedded at partner sites.",
+    platformCapability: "Case Manager View + My Journey give every family a single navigator relationship instead of bouncing between agencies.",
+    status: "built",
+  },
+  {
+    need: "Housing Stability",
+    barrierData: "Referral routing engine has a live housing domain (emergency/transitional housing navigation, affordable housing).",
+    platformCapability: "Housing referrals route automatically alongside childcare and benefits — a family flagged for housing instability doesn't need a fourth intake form.",
+    status: "built",
+  },
+  {
+    need: "Food & Basic Needs",
+    barrierData: "9-Benefit Screener includes SNAP + WIC directly; food insecurity is scored as part of the same intake as childcare need.",
+    platformCapability: "A childcare-desert referral and a SNAP/WIC enrollment can happen in the same conversation — providers become trusted referral points without new infrastructure.",
+    status: "built",
+  },
+];
+
+const ACTION_PLAN = {
+  "30-day": [
+    "Finalize North Wilco Landscape Analysis priorities using ATX/San Antonio comparison",
+    "Confirm childcare provider survey questions (3 max) — pull from referral routing intake pattern",
+    "Map awarded Community Investment grants to the 4 CIM pillars (draft above, ready for partner review)",
+  ],
+  "60-day": [
+    "Launch bilingual CHW provider outreach at Taylor/Hutto employer sites",
+    "Draft CIM Toolkit outline — employer engagement, provider business support, funding directory sections",
+    "Pilot wraparound referral routing (housing + mental health domains already live) with 1–2 coalition partners",
+  ],
+  "90-day": [
+    "Publish CIM Toolkit v1 for partner and employer distribution",
+    "Report first-quarter enrollment + referral data on coalition dashboard",
+    "Formalize partner MOUs for shared services and provider stipend pathway",
+  ],
+};
+
+const TOOLKIT_SECTIONS = [
+  { title: "Employer Engagement Materials", audience: "Employers", desc: "One-pagers for Samsung/Applied Materials HR — childcare landscape data, referral pathway, wraparound resource map." },
+  { title: "Childcare Workforce Resources", audience: "Providers", desc: "Licensure pathway guide, stipend and credentialing options for informal caregivers, shared-services opportunities." },
+  { title: "Provider Business Support Tools", audience: "Providers", desc: "Facility development guidance, zoning/licensing navigation with the county, funding directory access." },
+  { title: "Funding & Grant Opportunities", audience: "Community organizations", desc: "Live-pulled list from this dashboard's Funding Alignment tab — always current, not a static PDF." },
+  { title: "Community Partnership Templates", audience: "Municipal & economic development partners", desc: "MOU templates, coalition onboarding checklist, shared dashboard access request." },
+  { title: "Local Childcare Data & Advocacy Resources", audience: "Families & community organizations", desc: "Gap Data tab exportable as a standalone brief — Census + CDC PLACES, always sourced and dated." },
+];
+
 const VOICE_QUOTES = [
   {
     quote: "I watch four kids so their mamas can work the night shift at Samsung. I been doing this for twelve years. Nobody ever asked me what I need.",
@@ -304,6 +397,10 @@ export default function NorthWilcoChildcareCoalitionPage() {
           <TabsTrigger value="coalition" data-testid="tab-coalition">Coalition Partners</TabsTrigger>
           <TabsTrigger value="theory" data-testid="tab-theory">Theory of Change</TabsTrigger>
           <TabsTrigger value="funding" data-testid="tab-funding">Funding Alignment</TabsTrigger>
+          <TabsTrigger value="pillars" data-testid="tab-pillars">CIM Pillars</TabsTrigger>
+          <TabsTrigger value="wraparound" data-testid="tab-wraparound">Wraparound Map</TabsTrigger>
+          <TabsTrigger value="toolkit" data-testid="tab-toolkit">CIM Toolkit</TabsTrigger>
+          <TabsTrigger value="action-plan" data-testid="tab-action-plan">30/60/90 Plan</TabsTrigger>
           <TabsTrigger value="voice" data-testid="tab-voice">Community Voice</TabsTrigger>
         </TabsList>
 
@@ -598,6 +695,130 @@ export default function NorthWilcoChildcareCoalitionPage() {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* CIM PILLARS */}
+        <TabsContent value="pillars" className="space-y-4 mt-4">
+          <Card className="border-sky-200 dark:border-sky-800 bg-sky-50 dark:bg-sky-950/20" data-testid="card-pillars-intro">
+            <CardContent className="pt-4 pb-4 text-sm text-sky-900 dark:text-sky-200">
+              <strong>July 9 CIM Partner Meeting — Awarded Grants & Alignment.</strong> Mapping how current grant-funded
+              work and platform capabilities already advance each of the four Childcare Infrastructure Model pillars.
+            </CardContent>
+          </Card>
+          <div className="grid md:grid-cols-2 gap-4">
+            {CIM_PILLARS.map((p, i) => (
+              <Card key={p.pillar} data-testid={`card-pillar-${i}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <Target className="h-4 w-4 text-sky-600" /> {p.pillar}
+                  </CardTitle>
+                  <CardDescription>{p.desc}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="rounded-lg border p-3">
+                    <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-1">Platform support today</div>
+                    <div>{p.platformSupport}</div>
+                  </div>
+                  <div className="rounded-lg border-l-2 border-green-400 pl-3 text-xs text-green-800 dark:text-green-300">
+                    {p.grantLink}
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* WRAPAROUND MAP */}
+        <TabsContent value="wraparound" className="space-y-4 mt-4">
+          <Card className="border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20" data-testid="card-wraparound-intro">
+            <CardContent className="pt-4 pb-4 text-sm text-rose-900 dark:text-rose-200">
+              <strong>"If we successfully increase childcare capacity, what other barriers might still prevent families
+              from participating?"</strong> Here's what's already built or data-ready on this platform for each need
+              named in the CIM wraparound discussion.
+            </CardContent>
+          </Card>
+          <div className="space-y-3">
+            {WRAPAROUND_MAP.map((w) => {
+              const Icon = w.need.includes("Transportation") ? Car
+                : w.need.includes("Mental Health") ? Heart
+                : w.need.includes("Family Coaching") ? Compass
+                : w.need.includes("Housing") ? Home
+                : Utensils;
+              return (
+                <Card key={w.need} data-testid={`card-wraparound-${w.need.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}`}>
+                  <CardContent className="pt-4 pb-4">
+                    <div className="flex items-start justify-between gap-3 flex-wrap mb-2">
+                      <div className="flex items-center gap-2 font-semibold text-sm">
+                        <Icon className="h-4 w-4 text-rose-500" /> {w.need}
+                      </div>
+                      <Badge
+                        variant="outline"
+                        className={`text-[10px] ${w.status === "built" ? "border-green-600 text-green-700" : "border-amber-500 text-amber-600"}`}
+                      >
+                        {w.status === "built" ? "Built & live" : "Data-ready"}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1.5">{w.barrierData}</div>
+                    <div className="text-sm">{w.platformCapability}</div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </TabsContent>
+
+        {/* CIM TOOLKIT */}
+        <TabsContent value="toolkit" className="space-y-4 mt-4">
+          <Card className="border-violet-200 dark:border-violet-800 bg-violet-50 dark:bg-violet-950/20" data-testid="card-toolkit-intro">
+            <CardContent className="pt-4 pb-4 text-sm text-violet-900 dark:text-violet-200">
+              <strong>CIM Toolkit — draft outline for discussion.</strong> Every section below can be pulled live from
+              existing platform data rather than built as a one-off static document.
+            </CardContent>
+          </Card>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {TOOLKIT_SECTIONS.map((s) => (
+              <Card key={s.title} data-testid={`card-toolkit-${s.title.toLowerCase().replace(/\s+/g, "-").slice(0, 20)}`}>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    <BookOpen className="h-4 w-4 text-violet-600 shrink-0" />
+                    <div className="font-medium text-sm">{s.title}</div>
+                  </div>
+                  <Badge variant="secondary" className="text-[10px] mb-1.5">{s.audience}</Badge>
+                  <div className="text-xs text-muted-foreground">{s.desc}</div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+
+        {/* 30/60/90 ACTION PLAN */}
+        <TabsContent value="action-plan" className="space-y-4 mt-4">
+          <Card className="border-dashed" data-testid="card-action-plan-intro">
+            <CardContent className="pt-4 pb-4 text-sm text-muted-foreground">
+              Draft starting point for the July 9 "Concrete Steps to Move the Model Forward" session — edit live with the coalition.
+            </CardContent>
+          </Card>
+          <div className="grid md:grid-cols-3 gap-4">
+            {Object.entries(ACTION_PLAN).map(([period, items]) => (
+              <Card key={period} data-testid={`card-plan-${period}`}>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-base flex items-center gap-2">
+                    <CalendarCheck className="h-4 w-4 text-sky-600" /> {period}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ul className="space-y-2 text-sm">
+                    {items.map((item, i) => (
+                      <li key={i} className="flex items-start gap-2">
+                        <Circle className="h-3 w-3 text-slate-400 mt-1 shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </TabsContent>
 
         {/* COMMUNITY VOICE */}
