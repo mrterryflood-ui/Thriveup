@@ -12,7 +12,8 @@
  * against ENGINE_REGISTRY, not by trusting each call site to remember.
  */
 import { db } from "../storage";
-import { gisContextData, benefitsEnrollmentData, partnerOutcomeSubmissions, farmworkerItiEnrollments, reentryPlans, participantProfiles, zctaCountyMap, residentJourneyEvents, producerProfiles, farmProfitabilitySnapshots, fosterYouthAgencyCases } from "@shared/schema";
+import { gisContextData, benefitsEnrollmentData, partnerOutcomeSubmissions, farmworkerItiEnrollments, reentryPlans, participantProfiles, zctaCountyMap, residentJourneyEvents, producerProfiles, farmProfitabilitySnapshots, fosterYouthAgencyCases, workforceAssessments, justiceReferrals, tradeSimsLessonProgress } from "@shared/schema";
+import { clinicalScreenings } from "@shared/clinical-schema";
 import { eq, like, and, sql } from "drizzle-orm";
 import { getEngineById, getNonPIIEngines, type EngineDefinition } from "./engine-registry";
 import { getChainwebRAGContext } from "../chainweb-engine";
@@ -25,6 +26,16 @@ import { getAgWageData } from "../rural-workforce-routes";
 import { getHousingCostBurden } from "../rural-housing-routes";
 import { fetchZctaData } from "../neighborhood-routes";
 import { getListingsForCounty } from "../safe-passage-routes";
+import { getServiceDesertScore } from "../rural-connectivity-routes";
+
+/** Small-cell suppression floor for any aggregate bucket derived from
+ * individual-level PII tables (workforce, justice, trade-sims, clinical).
+ * A county with only 1-4 people in a bucket is potentially re-identifiable;
+ * suppress rather than report a tiny exact count. */
+const MIN_AGGREGATE_CELL = 5;
+function suppressSmallCells<T extends { count: number }>(rows: T[]): (T | { suppressed: true; note: string })[] {
+  return rows.map((r) => (r.count < MIN_AGGREGATE_CELL ? { suppressed: true, note: `Fewer than ${MIN_AGGREGATE_CELL} records in this bucket — suppressed to avoid re-identification` } : r));
+}
 
 const STATE_FIPS_TO_ABBR: Record<string, string> = {
   "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT","10":"DE","12":"FL","13":"GA",
@@ -239,22 +250,99 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalCases: total, byPlacementType: rows, geographyGrain: "state (no county column exists on this table)" } };
     }
     if (engine.id === "rural-connectivity") {
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Blocked: underlying FCC/service-desert lookups require lat/lng, which GeographyRef does not carry (only county/zip/state). Needs a ZIP/county-centroid lookup added before this can be wired." };
+      // getFccBroadband/cell-coverage genuinely need lat/lng, which GeographyRef
+      // doesn't carry — those two stay unwired. But getServiceDesertScore only
+      // needs stateFips+countyFips for its real ACS calls; lat/lng there are
+      // only used to build human-facing FCC map URLs, not to fetch data. We
+      // pass null for lat/lng and drop those URL fields rather than fabricate
+      // coordinates.
+      if (!geo.countyFips || geo.countyFips.length !== 5) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for rural-connectivity desert-score lookup" };
+      const stateFips = geo.countyFips.slice(0, 2);
+      const countyPart = geo.countyFips.slice(2);
+      const desert = await getServiceDesertScore(NaN, NaN, stateFips, countyPart).catch((e: any) => ({ error: e?.message || String(e) }));
+      const { lat, lng, ...desertNoCoords } = (desert as any) || {};
+      return {
+        engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt,
+        data: { desertScore: desertNoCoords },
+        error: "Partial: only the Census-based service-desert score is wired (stateFips/countyFips is enough for that data). FCC broadband-availability and cell-coverage lookups are NOT included here — those genuinely require lat/lng coordinates, which GeographyRef doesn't carry, and no county-centroid table exists in this repo to derive them without fabricating a point.",
+      };
     }
     if (engine.id === "workforce") {
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Blocked: workforceAssessments has no zip/county/state column anywhere in its schema — a real geography rollup requires a schema change, not just a resolver." };
+      if (!geo.countyFips || geo.countyFips.length !== 5) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for workforce aggregate lookup" };
+      // Aggregate-only join: userId -> participantProfiles.userId -> zipCode -> zctaCountyMap -> countyFips.
+      // Never selects userName, skills, workHistory, barriers, assessmentData, or personalizedPlan.
+      const rows = await db
+        .select({ readinessLevel: workforceAssessments.readinessLevel, count: sql<number>`count(*)::int` })
+        .from(workforceAssessments)
+        .innerJoin(participantProfiles, eq(workforceAssessments.userId, participantProfiles.userId))
+        .innerJoin(zctaCountyMap, eq(participantProfiles.zipCode, zctaCountyMap.zip))
+        .where(eq(zctaCountyMap.countyFips, geo.countyFips))
+        .groupBy(workforceAssessments.readinessLevel);
+      const total = rows.reduce((sum, r) => sum + r.count, 0);
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalAssessments: total, byReadinessLevel: suppressSmallCells(rows) } };
     }
     if (engine.id === "justice") {
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Blocked: justiceReferrals/supervisionCompliance have no zip/county/state column — a real geography rollup requires a schema change. (Note: reentry, a related justice-domain engine, IS wired via participantProfiles.zipCode.)" };
-    }
-    if (engine.id === "clinical") {
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Blocked: clinicalScreenings has no zip/county/state column, and this is the platform's highest-sensitivity PII table — even an aggregate wiring would need a deliberate schema + policy decision, not a quick fix." };
+      if (!geo.countyFips || geo.countyFips.length !== 5) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for justice aggregate lookup" };
+      // Aggregate-only join: same zip->county path as workforce/reentry.
+      // Never selects agencyName, demographicData, offenseCategory, or notes.
+      const rows = await db
+        .select({ status: justiceReferrals.status, count: sql<number>`count(*)::int` })
+        .from(justiceReferrals)
+        .innerJoin(participantProfiles, eq(justiceReferrals.userId, participantProfiles.userId))
+        .innerJoin(zctaCountyMap, eq(participantProfiles.zipCode, zctaCountyMap.zip))
+        .where(eq(zctaCountyMap.countyFips, geo.countyFips))
+        .groupBy(justiceReferrals.status);
+      const total = rows.reduce((sum, r) => sum + r.count, 0);
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalReferrals: total, byStatus: suppressSmallCells(rows), note: "supervisionCompliance is not included — it has no independent geography path beyond this same referral join, and adds no additional safe signal." } };
     }
     if (engine.id === "trade-sims") {
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Blocked: trade-sims tables (lessons, progress, sandbox projects) have no geography column at all — this is a per-learner skill simulator, not geography-indexed data." };
+      if (!geo.countyFips || geo.countyFips.length !== 5) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for trade-sims aggregate lookup" };
+      // Aggregate-only join over tradeSimsLessonProgress only (the one trade-sims
+      // table with a userId). tradeSimsLessons is static content (no PII, no geo);
+      // tradeSimsSandboxProjects is skipped — canvasState/name are free-text and not
+      // safe to aggregate even by count without risking content leakage in edge cases.
+      const rows = await db
+        .select({ status: tradeSimsLessonProgress.status, count: sql<number>`count(*)::int` })
+        .from(tradeSimsLessonProgress)
+        .innerJoin(participantProfiles, eq(tradeSimsLessonProgress.userId, participantProfiles.userId))
+        .innerJoin(zctaCountyMap, eq(participantProfiles.zipCode, zctaCountyMap.zip))
+        .where(eq(zctaCountyMap.countyFips, geo.countyFips))
+        .groupBy(tradeSimsLessonProgress.status);
+      const total = rows.reduce((sum, r) => sum + r.count, 0);
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalLessonAttempts: total, byStatus: suppressSmallCells(rows), note: "Only lesson-progress status counts; sandbox projects (free-text canvasState/name) are intentionally excluded." } };
+    }
+    if (engine.id === "clinical") {
+      if (!geo.countyFips || geo.countyFips.length !== 5) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for clinical aggregate lookup" };
+      // Highest-sensitivity table on the platform. Aggregate-only join via
+      // participantId -> participantProfiles.id -> zipCode -> zctaCountyMap.
+      // Selects ONLY rnrRiskLevel (an already-categorical bucket) for a COUNT.
+      // NEVER selects rnrTotalScore, phq9*, pcl5*, referrals, or any *Responses
+      // jsonb column. Small-cell suppression applied on top of that.
+      const rows = await db
+        .select({ riskLevel: clinicalScreenings.rnrRiskLevel, count: sql<number>`count(*)::int` })
+        .from(clinicalScreenings)
+        .innerJoin(participantProfiles, eq(clinicalScreenings.participantId, participantProfiles.id))
+        .innerJoin(zctaCountyMap, eq(participantProfiles.zipCode, zctaCountyMap.zip))
+        .where(eq(zctaCountyMap.countyFips, geo.countyFips))
+        .groupBy(clinicalScreenings.rnrRiskLevel);
+      const total = rows.reduce((sum, r) => sum + r.count, 0);
+      return {
+        engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt,
+        data: { totalScreenings: total, byRnrRiskLevel: suppressSmallCells(rows) },
+        error: total > 0 && total < MIN_AGGREGATE_CELL ? "Total screening count for this county is itself below the suppression floor — treat as not-yet-statistically-meaningful." : undefined,
+      };
     }
     if (engine.id === "college-access-ai") {
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Blocked: this engine is a live per-request AI advisor with no backing geography-indexed table — there is no stored dataset to query for a given county." };
+      // Deliberately NOT added to IN_PROCESS_ENGINE_IDS by default: this has no
+      // backing geography-indexed table (it's a live per-request AI advisor), so
+      // "wiring" it means firing a real paid LLM call on every orchestration
+      // query that touches the education domain — that's a cost/DoS profile the
+      // conductor's other engines don't have (see threat_model.md "Denial of
+      // Service"). It is fully callable if explicitly requested via
+      // engines:["college-access-ai"], but silently auto-including it in
+      // domain-wide bundles would turn every geography lookup into an AI spend
+      // event. Report it honestly as available-but-opt-in, not "blocked".
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Available only by explicit request, not auto-included: this is a live per-request AI advisor with no backing dataset, and auto-firing it on every domain-wide orchestration query would create unbounded AI spend. Call /api/fafsa/ai-advisor or /api/apprenticeship/ai-coach directly with a specific question instead." };
     }
     // Any other route-invoked engine not yet covered above.
     return {
@@ -287,6 +375,9 @@ const IN_PROCESS_ENGINE_IDS = [
   "farmworker-iti", "reentry", "resident-journey",
   "regional-briefing", "rural-health", "rural-workforce", "rural-housing", "neighborhood", "safe-passage",
   "farm-cooperative", "farm-profitability", "foster-youth-agency",
+  "workforce", "justice", "trade-sims", "clinical", "rural-connectivity",
+  // college-access-ai deliberately excluded — see callEngine() comment: no
+  // backing dataset, and auto-firing it would create unbounded AI spend.
 ];
 
 export async function getOrchestratedIntelligence(

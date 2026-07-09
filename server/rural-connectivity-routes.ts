@@ -146,7 +146,7 @@ function getCommunityFacilitiesPrograms() {
 }
 
 // Transportation / service desert score
-async function getServiceDesertScore(lat: number, lng: number, stateFips: string, countyFips: string) {
+export async function getServiceDesertScore(lat: number, lng: number, stateFips: string, countyFips: string) {
   // Use Census ACS data for vehicle access, commute time, poverty
   let censusData: any = null;
   const censusBit = process.env.CENSUS_API_KEY ? `&key=${process.env.CENSUS_API_KEY}` : "";
