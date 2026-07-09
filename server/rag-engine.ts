@@ -6,20 +6,20 @@ import { generateAIResponse, streamAIResponse } from "./ai-provider";
 import type { Express, Request, Response } from "express";
 import { getAllRagEntries } from "./agency-profiles";
 import { getOrchestratedIntelligence, renderBundleAsContext } from "./orchestration/conductor";
-import { resolveZip } from "@shared/nationwide/zip-resolver";
+import { resolveZipBestEffort } from "./geo/zip-county-resolver";
 
 /**
  * Extract a US ZIP mentioned in a free-text query, if any, and resolve it to a
  * geography ref via the existing (5-county-seeded, state-fallback-elsewhere)
  * static resolver. Returns null if no ZIP is present or it can't be resolved.
  */
-function extractGeographyFromQuery(query: string): { countyFips?: string; zip?: string; state?: string; countyName?: string } | null {
+async function extractGeographyFromQuery(query: string): Promise<{ countyFips?: string; zip?: string; state?: string; countyName?: string } | null> {
   const zipMatch = query.match(/\b(\d{5})\b/);
   if (!zipMatch) return null;
   const zip = zipMatch[1];
-  const resolved = resolveZip(zip);
-  if (!resolved) return null;
-  return { zip, countyFips: resolved.countyFips || undefined, state: resolved.state, countyName: resolved.countyName || undefined };
+  const best = await resolveZipBestEffort(zip);
+  if (best.source === "none") return null;
+  return { zip, countyFips: best.countyFips, state: best.state, countyName: best.countyName };
 }
 
 interface KnowledgeChunk {
@@ -1032,7 +1032,7 @@ export async function queryRAG(
   orchestrationOptions?: { engines?: string[]; domains?: string[] },
 ): Promise<{ answer: string; sources: string[]; liveData: boolean }> {
   const isROIQuery = /roi|return|invest|cost|prevent|chainweb|causal|early.child|pre.?k|dropout|school.prison|housing|recidiv/i.test(userQuery);
-  const geo = extractGeographyFromQuery(userQuery);
+  const geo = await extractGeographyFromQuery(userQuery);
 
   const [chunks, liveContext, chainwebContext, orchestrationContext] = await Promise.all([
     retrieveRelevantChunks(userQuery),
@@ -1131,7 +1131,7 @@ export function registerRAGRoutes(app: Express) {
       }
 
       const isROIQuery = /roi|return|invest|cost|prevent|chainweb|causal|early.child|pre.?k|dropout|school.prison|housing|recidiv/i.test(query);
-      const geo = extractGeographyFromQuery(query);
+      const geo = await extractGeographyFromQuery(query);
       const orchestrationOptions = (req.body?.engines || req.body?.domains)
         ? { engines: Array.isArray(req.body?.engines) ? req.body.engines : undefined, domains: Array.isArray(req.body?.domains) ? req.body.domains : undefined }
         : undefined;

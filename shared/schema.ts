@@ -3,6 +3,23 @@ import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, re
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
+// ZCTA (ZIP Code Tabulation Area) to county FIPS lookup, loaded once from the
+// U.S. Census Bureau's public ZCTA-to-County relationship file. When a ZCTA
+// spans multiple counties, only the county with the largest population share
+// is stored (primaryCounty) — this is a best-effort resolver, not a legal
+// determination of county of residence for any individual.
+export const zctaCountyMap = pgTable("zcta_county_map", {
+  zip: varchar("zip", { length: 5 }).primaryKey(),
+  countyFips: varchar("county_fips", { length: 5 }).notNull(),
+  stateFips: varchar("state_fips", { length: 2 }).notNull(),
+  popPct: real("pop_pct"),
+  source: varchar("source", { length: 100 }).notNull().default("Census ZCTA-County Relationship File (2010)"),
+  loadedAt: timestamp("loaded_at").defaultNow(),
+});
+export const insertZctaCountyMapSchema = createInsertSchema(zctaCountyMap).omit({ loadedAt: true });
+export type InsertZctaCountyMap = z.infer<typeof insertZctaCountyMapSchema>;
+export type ZctaCountyMap = typeof zctaCountyMap.$inferSelect;
+
 export const subjects = pgTable("subjects", {
   id: varchar("id", { length: 100 }).primaryKey(),
   name: text("name").notNull(),

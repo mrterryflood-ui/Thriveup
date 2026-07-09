@@ -12,8 +12,8 @@
  * against ENGINE_REGISTRY, not by trusting each call site to remember.
  */
 import { db } from "../storage";
-import { gisContextData, benefitsEnrollmentData, partnerOutcomeSubmissions } from "@shared/schema";
-import { eq, like } from "drizzle-orm";
+import { gisContextData, benefitsEnrollmentData, partnerOutcomeSubmissions, farmworkerItiEnrollments, reentryPlans, participantProfiles, zctaCountyMap, residentJourneyEvents } from "@shared/schema";
+import { eq, like, and, sql } from "drizzle-orm";
 import { getEngineById, getNonPIIEngines, type EngineDefinition } from "./engine-registry";
 import { getChainwebRAGContext } from "../chainweb-engine";
 import { getContextForGeography } from "../gis-engine";
@@ -86,6 +86,52 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
       const county = geo.countyFips ? report.steps.map((s) => ({ id: s.id, label: s.label, value: s.perCounty[geo.countyFips!]?.value ?? null })) : null;
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: county ?? report };
     }
+    if (engine.id === "farmworker-iti") {
+      if (!geo.countyFips || geo.countyFips.length !== 5) {
+        return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for farmworker-iti aggregate lookup" };
+      }
+      const stateFips = geo.countyFips.slice(0, 2);
+      const countyPart = geo.countyFips.slice(2);
+      // Aggregate-only: COUNT by workerType, never accessToken or any other individual-identifying column.
+      const rows = await db
+        .select({ workerType: farmworkerItiEnrollments.workerType, count: sql<number>`count(*)::int` })
+        .from(farmworkerItiEnrollments)
+        .where(and(eq(farmworkerItiEnrollments.stateFips, stateFips), eq(farmworkerItiEnrollments.countyFips, countyPart)))
+        .groupBy(farmworkerItiEnrollments.workerType);
+      const total = rows.reduce((sum, r) => sum + r.count, 0);
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalEnrollments: total, byWorkerType: rows } };
+    }
+    if (engine.id === "reentry") {
+      if (!geo.countyFips || geo.countyFips.length !== 5) {
+        return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for reentry aggregate lookup" };
+      }
+      // Aggregate-only join: resolve each participant's zipCode to a county via
+      // zctaCountyMap, then COUNT reentry plans by phase for the target county.
+      // Never selects userName, notes, goals, or any other PII column.
+      const rows = await db
+        .select({ phase: reentryPlans.phase, count: sql<number>`count(*)::int` })
+        .from(reentryPlans)
+        .innerJoin(participantProfiles, eq(reentryPlans.userId, participantProfiles.userId))
+        .innerJoin(zctaCountyMap, eq(participantProfiles.zipCode, zctaCountyMap.zip))
+        .where(eq(zctaCountyMap.countyFips, geo.countyFips))
+        .groupBy(reentryPlans.phase);
+      const total = rows.reduce((sum, r) => sum + r.count, 0);
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalActiveOrCompletePlans: total, byPhase: rows } };
+    }
+    if (engine.id === "resident-journey") {
+      if (!geo.countyFips) {
+        return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No countyFips resolvable for resident-journey aggregate lookup" };
+      }
+      // Aggregate-only: COUNT by eventDomain, matched on countyAtEvent. Never
+      // selects participantId, eventPayload, eventTitle, or sourceUserId.
+      const rows = await db
+        .select({ eventDomain: residentJourneyEvents.eventDomain, count: sql<number>`count(*)::int` })
+        .from(residentJourneyEvents)
+        .where(eq(residentJourneyEvents.countyAtEvent, geo.countyFips))
+        .groupBy(residentJourneyEvents.eventDomain);
+      const total = rows.reduce((sum, r) => sum + r.count, 0);
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalEvents: total, byDomain: rows } };
+    }
     if (engine.id === "corridor-story") {
       const corridorCounties = CORRIDOR.metros.map((m) => m.countyFips);
       if (!geo.countyFips || !corridorCounties.includes(geo.countyFips)) {
@@ -131,7 +177,7 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
  * engines are listed in the bundle with an explicit "not yet wired" marker
  * rather than silently omitted — visibility over false completeness.
  */
-const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity", "benefits", "corridor-chainweb", "scorecard", "corridor-story"];
+const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity", "benefits", "corridor-chainweb", "scorecard", "corridor-story", "farmworker-iti", "reentry", "resident-journey"];
 
 export async function getOrchestratedIntelligence(
   geo: GeographyRef,
