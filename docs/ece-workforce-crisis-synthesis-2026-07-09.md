@@ -104,3 +104,21 @@ The natural shape, in priority order, would be:
 4. Add a director-succession-risk signal, generalizable to any sector with concentrated long-tenure leadership.
 
 Not attempted in this session — this document is analysis only, per what was asked.
+
+---
+
+## 7. Cross-reference: Williamson & Burnet Counties Childcare Infrastructure Model (CIM)
+
+A parallel regional effort — the CIM Partner Meeting (Opportunities for Williamson & Burnet Counties, July 2026) — is working the same problem with a structure worth reading alongside this survey.
+
+**Where CIM already reflects the deeper diagnosis:**
+- Its four pillars (Co-Create Solutions, Build Partnerships, **Strengthen Financial Health**, **Provider Support & Workforce Stability**) split financial health and workforce stability into separate pillars rather than collapsing both into a single "raise wages" ask.
+- "Shared services opportunities" and "workforce stabilization strategies" as named Year-1 implementation items attack the fixed-cost-per-classroom structure directly, closer to a structural fix than UW's "Next Steps" slide (more reports/dashboards/focus groups).
+- The wraparound-services agenda item explicitly names transportation, mental health, housing, and food as barriers that persist for **families** even if capacity is fixed — same instinct as this document's core thesis, applied to the demand side.
+
+**Where the same gaps carry over:**
+- The wraparound discussion asks what families need to access childcare, but never asks the mirror question for **childcare staff themselves** — many ECE workers can't afford or access care for their own children, a documented driver of field exit. Missing here too.
+- CIM's audience is partners/agencies/grant recipients — the same leadership/partner-level sampling gap (Section 4a) applies unless "provider engagement" and "family input" line items actually reach frontline staff and waitlisted families directly, not just directors and orgs.
+- No true-cost-of-care or subsidy-rate-gap number appears despite "Strengthen Financial Health" being a named pillar — the same underspecified target for "how much is enough" carries over from the UW deck.
+
+**Implication:** these two documents should be read as one dataset, not two separate ones — CIM is the regional implementation vehicle this survey's data could feed directly into (via Section 6, item 1), and CIM's toolkit-development workstream is a live opening to inject the true-cost-of-care model, staff-side wraparound question, and frontline-voice data collection this analysis identifies as missing from both.
