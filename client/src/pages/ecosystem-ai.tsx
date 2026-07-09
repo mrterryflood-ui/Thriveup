@@ -25,6 +25,7 @@ const ORCHESTRATION_DOMAINS = [
   { id: "equity", label: "Equity" },
   { id: "benefits", label: "Benefits Enrollment" },
   { id: "program-management", label: "Nonprofit Effectiveness" },
+  { id: "narrative", label: "Corridor Narrative (Waco/Austin)" },
 ];
 
 export default function EcosystemAIPage() {

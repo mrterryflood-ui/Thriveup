@@ -18,6 +18,7 @@ import { getEngineById, getNonPIIEngines, type EngineDefinition } from "./engine
 import { getChainwebRAGContext } from "../chainweb-engine";
 import { getContextForGeography } from "../gis-engine";
 import { getLastChainWebRun } from "../corridor-chainweb";
+import { buildCorridorStory, CORRIDOR } from "../corridor-story";
 
 export interface GeographyRef {
   /** Best-known geography key: county FIPS preferred, ZIP as fallback */
@@ -85,6 +86,22 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
       const county = geo.countyFips ? report.steps.map((s) => ({ id: s.id, label: s.label, value: s.perCounty[geo.countyFips!]?.value ?? null })) : null;
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: county ?? report };
     }
+    if (engine.id === "corridor-story") {
+      const corridorCounties = CORRIDOR.metros.map((m) => m.countyFips);
+      if (!geo.countyFips || !corridorCounties.includes(geo.countyFips)) {
+        return {
+          engineId: engine.id,
+          engineLabel: engine.label,
+          sources: engine.sources,
+          fetchedAt,
+          data: null,
+          error: `Geography outside the I-35 Waco–Austin corridor scope (McLennan 48309 / Travis 48453 only)`,
+        };
+      }
+      const story = await buildCorridorStory();
+      const metro = geo.countyFips === CORRIDOR.metros[0].countyFips ? story.metros.waco : story.metros.austin;
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { metro, comparison: story.comparison, narrative: story.narrative } };
+    }
     // Route-invoked engines (rural-*, regional-briefing, etc.) are not
     // yet directly callable from server-internal code without an HTTP round trip.
     // Rather than fake a result, be explicit that this engine isn't wired for
@@ -114,7 +131,7 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
  * engines are listed in the bundle with an explicit "not yet wired" marker
  * rather than silently omitted — visibility over false completeness.
  */
-const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity", "benefits", "corridor-chainweb", "scorecard"];
+const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity", "benefits", "corridor-chainweb", "scorecard", "corridor-story"];
 
 export async function getOrchestratedIntelligence(
   geo: GeographyRef,
