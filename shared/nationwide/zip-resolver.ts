@@ -109,3 +109,25 @@ export function resolveZip(zip: string): ZipResolution | null {
   }
   return null;
 }
+
+/**
+ * NOTE — verified 2026-07-09: the Census Bureau Geocoder ("geographies/address"
+ * and "geographies/onelineaddress" endpoints) requires a full street address;
+ * it does NOT resolve ZIP-only queries to a county (confirmed by direct test —
+ * both return zero matches for a bare ZIP). There is no free no-key REST API
+ * that resolves ZIP → county FIPS on demand.
+ *
+ * A real nationwide ZIP→county resolver requires bulk-ingesting the Census
+ * Bureau's static ZCTA-to-county relationship file (a downloadable crosswalk,
+ * tens of thousands of rows) into a DB table once, then querying that table —
+ * not a per-request live API call. That ingestion is real data-engineering
+ * work (fetch + parse + load + verify row counts against the primary file) and
+ * is scoped as a follow-up rather than something to fake here.
+ *
+ * Until that table exists, `resolveZip` (static range table, state-only outside
+ * the 5-county seed region) remains the honest answer. Do not call this a
+ * "nationwide resolver" in UI copy until the crosswalk table backs it.
+ */
+export async function resolveZipLive(zip: string): Promise<ZipResolution | null> {
+  return resolveZip(zip);
+}
