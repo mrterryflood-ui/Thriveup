@@ -37,6 +37,18 @@ export interface EngineDefinition {
   refreshCadence: "realtime" | "daily" | "weekly" | "annual" | "on-demand";
   /** True if this engine ever touches household/individual PII — MUST stay walled off from RAG/orchestration output per 0-PHI-egress rule */
   touchesPII: boolean;
+  /**
+   * True ONLY for engines where an operator/collaborator explicitly selecting
+   * this engine by id (via OrchestrationOptions.engines) is itself the
+   * consent/authorization event — e.g. a live per-request AI advisor that
+   * only ever answers the specific question it's given, never a stored
+   * dataset scan. Such engines are still excluded from `domains`-based
+   * auto-bundling and from the default (no-filter) pool — they ONLY fire
+   * when named explicitly. Setting this to true on an engine that reads
+   * from a stored PII table would defeat the PII wall; it must stay false
+   * for anything but a live, question-scoped advisor.
+   */
+  operatorSelectable?: boolean;
   notes?: string;
 }
 
@@ -248,12 +260,14 @@ export const ENGINE_REGISTRY: EngineDefinition[] = [
     label: "College Access AI Advisor",
     domains: ["education", "youth"],
     geographyGrains: ["individual"],
-    sources: ["Collaborative AI engine"],
-    invocation: "route",
+    sources: ["Collaborative AI engine (live, question-scoped — no stored dataset)"],
+    invocation: "function",
+    exportNames: ["callEngine (conductor-internal, requires options.collegeAccessQuestion)"],
     routePrefix: "/api/college-access-ai",
     refreshCadence: "on-demand",
     touchesPII: true,
-    notes: "Deliberately excluded from IN_PROCESS_ENGINE_IDS by design, not by schema blocker: there is no backing geography-indexed dataset (it's a live per-request AI advisor), so auto-including it in domain-wide orchestration bundles would fire a real paid LLM call on every matching query — an unbounded-AI-spend / DoS profile the other engines don't have (see threat_model.md). Conductor's callEngine() branch exists and reports this reasoning explicitly if requested by id; call the routes directly with a specific student question for real use.",
+    operatorSelectable: true,
+    notes: "touchesPII:true is kept intentionally — this ensures the engine is NEVER pulled into a `domains`-based auto-bundle or the default no-filter pool, only ever fired when an operator explicitly names \"college-access-ai\" in options.engines AND supplies options.collegeAccessQuestion. That explicit two-part request (id + question) is the consent event, per operatorSelectable semantics. Still absent a stored dataset — this is a live per-request AI advisor, never a geography-indexed table scan, so there is nothing to aggregate or leak beyond the single answer returned. Conductor applies its own call-rate cap (see CONDUCTOR_AI_CALL_LIMIT) independent of the route-level per-IP limiter in college-access-ai-routes.ts, since operator-invoked calls don't go through that HTTP path.",
   },
   {
     id: "foster-youth-agency",

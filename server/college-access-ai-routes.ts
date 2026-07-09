@@ -40,7 +40,7 @@ function checkAIAdvisorRateLimit(req: Request, route: string): boolean {
   return true;
 }
 
-const FAFSA_SYSTEM_PROMPT = `You are the ThriveUp Academy FAFSA AI Advisor — an expert financial aid counselor integrated into a 24-platform workforce development ecosystem. You specialize in:
+export const FAFSA_SYSTEM_PROMPT = `You are the ThriveUp Academy FAFSA AI Advisor — an expert financial aid counselor integrated into a 24-platform workforce development ecosystem. You specialize in:
 - FAFSA application guidance and troubleshooting
 - Federal, state, and institutional financial aid programs
 - Pell Grant eligibility and optimization

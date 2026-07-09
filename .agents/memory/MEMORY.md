@@ -10,4 +10,4 @@
 - [CEDS Regional Alignment Integration](ceds-integration.md) — EDA framework (PM1-PM5) baked into Navigator, Chainweb, proposals; 12 TX EDD regions seeded; NORTEX (id=2) = WSNT child care region (RFP2026-004).
 - [Partner API Hub](partner-api-hub.md) — permanent external integration layer; tcaf_* keys, scope-gated, audit-logged; admin UI in Ops Center → Partner API tab.
 - [ITSM Compliance Framework](itsm-framework.md) — first formal ITSM doc; docs/itsm/itsm-compliance-framework.md; 15 services, 3 tiers, P1–P4 SLAs, ITIL 4 + OMB A-130 + NIST SP 800-53 aligned.
-- [Orchestration Layer (Chainweb Conductor)](orchestration-layer.md) — 24/25 engines wired in-process; college-access-ai excluded by design (AI-spend/DoS), not a schema gap.
+- [Orchestration Layer (Chainweb Conductor)](orchestration-layer.md) — all 25 engines wired; college-access-ai is operator-selectable (explicit id+question payload bypasses PII wall, capped AI spend).

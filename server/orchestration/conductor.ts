@@ -27,6 +27,31 @@ import { getHousingCostBurden } from "../rural-housing-routes";
 import { fetchZctaData } from "../neighborhood-routes";
 import { getListingsForCounty } from "../safe-passage-routes";
 import { getServiceDesertScore } from "../rural-connectivity-routes";
+import { collaborativeResponse } from "../collaborative-ai";
+import { FAFSA_SYSTEM_PROMPT } from "../college-access-ai-routes";
+
+/**
+ * Conductor-side cost cap for operator-invoked live-AI engines (currently
+ * only college-access-ai). This is separate from the per-IP HTTP rate
+ * limiter in college-access-ai-routes.ts — operator/collaborative calls go
+ * through getOrchestratedIntelligence() directly, never that HTTP path, so
+ * that limiter never sees them. Process-lifetime counter, resets every
+ * minute; deliberately conservative since each call is a real paid LLM
+ * request fanned out across multiple engines (see collaborative-ai.ts).
+ */
+const CONDUCTOR_AI_CALL_LIMIT = 5; // operator-invoked AI engine calls per minute, process-wide
+let conductorAiCallWindowStart = Date.now();
+let conductorAiCallCount = 0;
+function checkConductorAiCallBudget(): boolean {
+  const now = Date.now();
+  if (now - conductorAiCallWindowStart > 60_000) {
+    conductorAiCallWindowStart = now;
+    conductorAiCallCount = 0;
+  }
+  if (conductorAiCallCount >= CONDUCTOR_AI_CALL_LIMIT) return false;
+  conductorAiCallCount++;
+  return true;
+}
 
 /** Small-cell suppression floor for any aggregate bucket derived from
  * individual-level PII tables (workforce, justice, trade-sims, clinical).
@@ -75,9 +100,19 @@ export interface OrchestrationOptions {
   engines?: string[];
   /** If provided (and `engines` is not), only engines tagged with these domains are consulted */
   domains?: string[];
+  /**
+   * Required to actually fire "college-access-ai" (or any future
+   * operatorSelectable live-AI engine). Naming the engine id alone is not
+   * enough — the operator must also supply the real question being asked,
+   * since there is no stored dataset to fall back to. Optional
+   * studentProfile context is passed through verbatim to the same context
+   * block the HTTP route builds.
+   */
+  collegeAccessQuestion?: string;
+  collegeAccessStudentProfile?: Record<string, unknown>;
 }
 
-async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<OrchestrationFact> {
+async function callEngine(engine: EngineDefinition, geo: GeographyRef, options: OrchestrationOptions = {}): Promise<OrchestrationFact> {
   const fetchedAt = new Date().toISOString();
   try {
     if (engine.id === "chainweb-engine") {
@@ -333,16 +368,44 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
       };
     }
     if (engine.id === "college-access-ai") {
-      // Deliberately NOT added to IN_PROCESS_ENGINE_IDS by default: this has no
-      // backing geography-indexed table (it's a live per-request AI advisor), so
-      // "wiring" it means firing a real paid LLM call on every orchestration
-      // query that touches the education domain — that's a cost/DoS profile the
-      // conductor's other engines don't have (see threat_model.md "Denial of
-      // Service"). It is fully callable if explicitly requested via
-      // engines:["college-access-ai"], but silently auto-including it in
-      // domain-wide bundles would turn every geography lookup into an AI spend
-      // event. Report it honestly as available-but-opt-in, not "blocked".
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Available only by explicit request, not auto-included: this is a live per-request AI advisor with no backing dataset, and auto-firing it on every domain-wide orchestration query would create unbounded AI spend. Call /api/fafsa/ai-advisor or /api/apprenticeship/ai-coach directly with a specific question instead." };
+      // operatorSelectable: only reachable when an operator explicitly named
+      // this engine id AND supplied a real question (enforced in
+      // getOrchestratedIntelligence's selection step below — this branch
+      // should never see a missing question, but re-checks defensively).
+      const question = options.collegeAccessQuestion?.trim();
+      if (!question) {
+        return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "college-access-ai requires options.collegeAccessQuestion — naming the engine id alone does not fire it (there is no dataset to fall back to)." };
+      }
+      if (!checkConductorAiCallBudget()) {
+        return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: `Conductor AI call budget exceeded (${CONDUCTOR_AI_CALL_LIMIT}/min across all operator-invoked calls) — this caps real paid-LLM spend from orchestration; try again shortly.` };
+      }
+      let contextBlock = "";
+      const profile = options.collegeAccessStudentProfile;
+      if (profile) {
+        const parts: string[] = [];
+        for (const [k, v] of Object.entries(profile)) {
+          if (v !== undefined && v !== null && v !== "") parts.push(`${k}: ${v}`);
+        }
+        if (parts.length > 0) contextBlock = `\n\nSTUDENT CONTEXT:\n${parts.join("\n")}`;
+      }
+      const result = await collaborativeResponse(`${question}${contextBlock}`, {
+        systemPrompt: FAFSA_SYSTEM_PROMPT,
+        maxTokens: 3000,
+        includeRAG: true,
+        includeRPLICE: true,
+        includeMAPGAP: true,
+        topic: "FAFSA financial aid college access",
+      });
+      return {
+        engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt,
+        data: {
+          answer: result.synthesis,
+          engines: result.engines.map((e) => ({ engine: e.engine, model: e.model, responseTimeMs: e.responseTimeMs, hasResponse: !!e.response && e.response.length > 20, error: e.error })),
+          frameworks: result.frameworks,
+          consensusMethod: result.consensusMethod,
+          totalTimeMs: result.totalTimeMs,
+        },
+      };
     }
     // Any other route-invoked engine not yet covered above.
     return {
@@ -376,8 +439,11 @@ const IN_PROCESS_ENGINE_IDS = [
   "regional-briefing", "rural-health", "rural-workforce", "rural-housing", "neighborhood", "safe-passage",
   "farm-cooperative", "farm-profitability", "foster-youth-agency",
   "workforce", "justice", "trade-sims", "clinical", "rural-connectivity",
-  // college-access-ai deliberately excluded — see callEngine() comment: no
-  // backing dataset, and auto-firing it would create unbounded AI spend.
+  // college-access-ai IS function-callable (see callEngine() branch above),
+  // but stays out of the default/domain-bundle pool — it only ever runs when
+  // an operator explicitly selects it by id AND supplies a real question.
+  // See operatorSelectable handling in getOrchestratedIntelligence() below.
+  "college-access-ai",
 ];
 
 export async function getOrchestratedIntelligence(
@@ -396,6 +462,21 @@ export async function getOrchestratedIntelligence(
       .filter((e): e is EngineDefinition => {
         if (!e) return true; // unknown id — will surface below
         if (e.touchesPII) {
+          // operatorSelectable engines (currently only college-access-ai) are
+          // allowed through the wall ONLY when explicitly named here AND the
+          // required per-engine payload is present — naming the id is not
+          // itself sufficient consent, the payload is what proves it's a
+          // real, scoped, operator-issued request rather than an accidental
+          // domain-bundle sweep.
+          if (e.operatorSelectable) {
+            if (e.id === "college-access-ai" && options.collegeAccessQuestion?.trim()) {
+              return true;
+            }
+            skipped.push({ engineId: e.id, reason: e.id === "college-access-ai"
+              ? "Operator selected college-access-ai but did not supply options.collegeAccessQuestion — naming the id alone does not bypass the PII wall."
+              : "operatorSelectable engine selected without its required payload" });
+            return false;
+          }
           skipped.push({ engineId: e.id, reason: "PII wall — engine touches individual/household PII, excluded from orchestration output" });
           return false;
         }
@@ -405,9 +486,11 @@ export async function getOrchestratedIntelligence(
       if (!getEngineById(id)) skipped.push({ engineId: id, reason: "Unknown engine id — not found in registry" });
     }
   } else if (options.domains && options.domains.length > 0) {
-    selected = pool.filter((e) => e.domains.some((d) => options.domains!.includes(d)));
+    // domains-based auto-bundling NEVER includes operatorSelectable engines —
+    // only an explicit `engines: [...]` request can reach them.
+    selected = pool.filter((e) => !e.operatorSelectable && e.domains.some((d) => options.domains!.includes(d)));
   } else {
-    selected = pool;
+    selected = pool.filter((e) => !e.operatorSelectable);
   }
 
   const callable = selected.filter((e) => IN_PROCESS_ENGINE_IDS.includes(e.id));
@@ -417,7 +500,7 @@ export async function getOrchestratedIntelligence(
     }
   }
 
-  const facts = await Promise.all(callable.map((e) => callEngine(e, geo)));
+  const facts = await Promise.all(callable.map((e) => callEngine(e, geo, options)));
 
   return { geography: geo, requestedAt, facts, skipped };
 }
