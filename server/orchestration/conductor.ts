@@ -12,7 +12,7 @@
  * against ENGINE_REGISTRY, not by trusting each call site to remember.
  */
 import { db } from "../storage";
-import { gisContextData } from "@shared/schema";
+import { gisContextData, benefitsEnrollmentData } from "@shared/schema";
 import { eq, like } from "drizzle-orm";
 import { getEngineById, getNonPIIEngines, type EngineDefinition } from "./engine-registry";
 import { getChainwebRAGContext } from "../chainweb-engine";
@@ -68,7 +68,12 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
       const records = await db.select().from(gisContextData).where(like(gisContextData.geographyKey, `${geo.countyFips}%`));
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: records };
     }
-    // Route-invoked engines (benefits, rural-*, regional-briefing, etc.) are not
+    if (engine.id === "benefits") {
+      if (!geo.countyFips) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No countyFips" };
+      const records = await db.select().from(benefitsEnrollmentData).where(eq(benefitsEnrollmentData.countyFips, geo.countyFips));
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: records };
+    }
+    // Route-invoked engines (rural-*, regional-briefing, etc.) are not
     // yet directly callable from server-internal code without an HTTP round trip.
     // Rather than fake a result, be explicit that this engine isn't wired for
     // in-process orchestration yet.
@@ -97,7 +102,7 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
  * engines are listed in the bundle with an explicit "not yet wired" marker
  * rather than silently omitted — visibility over false completeness.
  */
-const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity"];
+const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity", "benefits"];
 
 export async function getOrchestratedIntelligence(
   geo: GeographyRef,

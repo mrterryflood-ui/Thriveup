@@ -12,12 +12,31 @@ interface Message {
   streaming?: boolean;
 }
 
+/**
+ * "Instrument picker" — lets a user narrow which orchestrated data domains
+ * feed an answer. Maps to the `domains` filter on the Conductor
+ * (server/orchestration/conductor.ts). Empty selection = all available
+ * non-PII domains (default behavior, unchanged).
+ */
+const ORCHESTRATION_DOMAINS = [
+  { id: "roi-causal", label: "ROI / Cost Modeling" },
+  { id: "geospatial", label: "GIS / Geospatial" },
+  { id: "health", label: "Health Context" },
+  { id: "equity", label: "Equity" },
+  { id: "benefits", label: "Benefits Enrollment" },
+];
+
 export default function EcosystemAIPage() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
+
+  function toggleDomain(id: string) {
+    setSelectedDomains(prev => prev.includes(id) ? prev.filter(d => d !== id) : [...prev, id]);
+  }
 
   const { data: suggestions, isLoading } = useQuery<{ questions: string[] }>({
     queryKey: ["/api/ecosystem-ai/suggested-questions"],
@@ -41,7 +60,7 @@ export default function EcosystemAIPage() {
       const res = await fetch("/api/ecosystem-ai/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        body: JSON.stringify(selectedDomains.length > 0 ? { query, domains: selectedDomains } : { query }),
         signal: abortRef.current.signal,
       });
 
@@ -133,7 +152,7 @@ export default function EcosystemAIPage() {
       setIsStreaming(false);
       abortRef.current = null;
     }
-  }, [isStreaming, messages.length]);
+  }, [isStreaming, messages.length, selectedDomains]);
 
   function handleSubmit(query?: string) {
     const q = query || input.trim();
@@ -276,6 +295,34 @@ export default function EcosystemAIPage() {
 
       <div className="border-t border-gray-200 dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4">
         <div className="max-w-3xl mx-auto">
+          <div className="flex flex-wrap items-center gap-1.5 mb-2" data-testid="picker-orchestration-domains">
+            <span className="text-[10px] text-gray-400 mr-1">Data sources:</span>
+            {ORCHESTRATION_DOMAINS.map(d => (
+              <button
+                key={d.id}
+                type="button"
+                onClick={() => toggleDomain(d.id)}
+                className={`text-[10px] px-2 py-1 rounded-full border transition-colors ${
+                  selectedDomains.includes(d.id)
+                    ? "bg-violet-600 border-violet-600 text-white"
+                    : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-violet-300"
+                }`}
+                data-testid={`toggle-domain-${d.id}`}
+              >
+                {d.label}
+              </button>
+            ))}
+            {selectedDomains.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setSelectedDomains([])}
+                className="text-[10px] text-gray-400 hover:text-violet-500 ml-1"
+                data-testid="button-clear-domains"
+              >
+                Reset (use all)
+              </button>
+            )}
+          </div>
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <Textarea

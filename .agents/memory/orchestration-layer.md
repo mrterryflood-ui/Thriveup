@@ -7,6 +7,8 @@ description: Status and hard constraints for the cross-engine "conductor" that m
 - `server/orchestration/engine-registry.ts` — manifest of platform engines with domain/geography-grain/PII tags.
 - `server/orchestration/conductor.ts` — `getOrchestratedIntelligence(geo, {engines?, domains?})` calls relevant engines in parallel, returns provenance-tagged bundle.
 - Wired into `queryRAG` (both non-streaming and streaming paths) in `server/rag-engine.ts` — geography auto-detected from a ZIP mentioned in the user's query.
+- `benefits` engine (county-level, non-PII aggregate from `benefitsEnrollmentData`) is now wired into the in-process Conductor alongside chainweb/gis/equity — `IN_PROCESS_ENGINE_IDS` in `conductor.ts`.
+- Instrument picker has a real (minimal) UI: `client/src/pages/ecosystem-ai.tsx` has domain-toggle chips above the chat input that pass `domains` to `POST /api/ecosystem-ai/stream`; verified end-to-end with curl (domains filter accepted, sourced response returned).
 
 ## Hard constraints discovered (do not re-attempt without new info)
 - **No free ZIP-only geocoding API exists.** Tested the Census Bureau Geocoder directly — both `geographies/address` and `geographies/onelineaddress` require a full street address; a bare ZIP returns zero matches. A real nationwide ZIP→county resolver requires bulk-loading the Census ZCTA relationship file into a DB table, not a live per-request API call.
