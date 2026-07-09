@@ -69,6 +69,19 @@ Checked directly against the codebase (`server/orchestration/engine-registry.ts`
 5. **No age-band / geography cross-tab for waitlist vs. open-slot data.** If TCAF ingested this dataset, it could immediately show the mismatch (infant demand vs. preschool supply) that United Way's own deck doesn't surface — but that requires structured ingestion of provider-level survey microdata, which hasn't happened.
 6. **No child-outcomes/developmental-risk lens on turnover.** Consistent with the five-lens standard (psychology/neuroscience lens) this platform holds itself to — turnover >40% among caregivers of 0–5 year-olds is an attachment-disruption risk, not just an HR statistic. Nothing in the current engine set connects staffing instability to a developmental-harm framing.
 
+## 4a. Methodological gap: leadership-only sampling (CFIR Inner Setting)
+
+Every finding in the deck — turnover drivers, retention strategies, culture, financial confidence — comes from **directors/leadership only**. No frontline teacher/assistant-teacher voice appears anywhere in the instrument.
+
+In CFIR terms, this survey measures Outer Setting (funding, subsidy environment, licensing) and a leadership-only proxy for Inner Setting, but never reaches the Inner Setting constructs that actually govern turnover:
+
+- **Culture & Relational Connections** — director-reported "50% say culture drives retention" is a belief about culture, not a teacher's lived experience of it. These routinely diverge, and directors reliably overestimate how supported staff feel.
+- **Tension for Change / Compatibility** — whether teachers believe the job is fixable at all, versus already checked out. Not visible from a director-only instrument.
+- **Relative Priority** — whether frontline staff feel valued relative to other functions in the org, a stronger predictor of "career change" exits than topline wage numbers.
+- **Available Resources as experienced, not as budgeted** — a director can report PD funding exists while teachers report they can never get release time to use it.
+
+**Consequence:** any wage-only or culture-only intervention built from this data is built on leadership's model of the workforce, not the workforce's own model of itself. Until a frontline-staff instrument runs alongside the director instrument, "culture" as a validated retention lever remains unconfirmed — it's what directors believe works, not what staff report actually keeps them.
+
 ## 5. What's missing — from United Way's own plan
 
 (For contrast — these are gaps in *their* "Next Steps," not the platform's job to fix, but worth being explicit about since the user asked what they're missing):
