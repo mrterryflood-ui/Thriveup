@@ -36,6 +36,8 @@ export default function EcosystemAIPage() {
   const [input, setInput] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
+  const [collegeAdvisorEnabled, setCollegeAdvisorEnabled] = useState(false);
+  const [collegeAccessQuestion, setCollegeAccessQuestion] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -57,15 +59,23 @@ export default function EcosystemAIPage() {
 
     setMessages(prev => [...prev, { role: "user", content: query, timestamp: new Date() }]);
     setInput("");
+    if (collegeAdvisorEnabled) setCollegeAccessQuestion("");
 
     setMessages(prev => [...prev, { role: "assistant", content: "", sources: [], timestamp: new Date(), streaming: true }]);
 
     try {
       abortRef.current = new AbortController();
+      const body: Record<string, unknown> = { query };
+      if (selectedDomains.length > 0) body.domains = selectedDomains;
+      if (collegeAdvisorEnabled && collegeAccessQuestion.trim()) {
+        body.engines = ["college-access-ai"];
+        body.collegeAccessQuestion = collegeAccessQuestion.trim();
+        delete body.domains;
+      }
       const res = await fetch("/api/ecosystem-ai/stream", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(selectedDomains.length > 0 ? { query, domains: selectedDomains } : { query }),
+        body: JSON.stringify(body),
         signal: abortRef.current.signal,
       });
 
@@ -157,10 +167,10 @@ export default function EcosystemAIPage() {
       setIsStreaming(false);
       abortRef.current = null;
     }
-  }, [isStreaming, messages.length, selectedDomains]);
+  }, [isStreaming, messages.length, selectedDomains, collegeAdvisorEnabled, collegeAccessQuestion]);
 
   function handleSubmit(query?: string) {
-    const q = query || input.trim();
+    const q = query || (collegeAdvisorEnabled ? collegeAccessQuestion.trim() : input.trim());
     if (!q || isStreaming) return;
     handleStream(q);
   }
@@ -328,21 +338,55 @@ export default function EcosystemAIPage() {
               </button>
             )}
           </div>
+
+          <div className="mb-2" data-testid="picker-college-advisor">
+            <button
+              type="button"
+              onClick={() => setCollegeAdvisorEnabled(v => !v)}
+              className={`flex items-center gap-1.5 text-[10px] px-2 py-1 rounded-full border transition-colors ${
+                collegeAdvisorEnabled
+                  ? "bg-blue-600 border-blue-600 text-white"
+                  : "bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 text-gray-500 dark:text-gray-400 hover:border-blue-300"
+              }`}
+              data-testid="toggle-college-advisor"
+            >
+              <BookOpen className="w-3 h-3" />
+              College &amp; FAFSA Advisor
+            </button>
+            {collegeAdvisorEnabled && (
+              <div className="mt-1.5">
+                <Textarea
+                  value={collegeAccessQuestion}
+                  onChange={e => setCollegeAccessQuestion(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder={`Ask a specific student-facing college/FAFSA question — e.g. "What's the Pell Grant income cutoff for a first-generation TX student?"`}
+                  className="resize-none min-h-[44px] max-h-[100px] rounded-xl border-blue-200 dark:border-blue-800 focus:border-blue-400 text-xs"
+                  rows={2}
+                  data-testid="input-college-access-question"
+                />
+                <p className="text-[10px] text-gray-400 mt-1">
+                  This is a live AI advisor, not a data lookup — asking a question here fires a direct AI call scoped to your text above (rate-limited). It replaces the "Data sources" picker for this message.
+                </p>
+              </div>
+            )}
+          </div>
+
           <div className="flex gap-2">
             <div className="flex-1 relative">
               <Textarea
                 value={input}
                 onChange={e => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Ask about platforms, grants, services, compliance, MAP-GAP..."
-                className="resize-none pr-12 min-h-[44px] max-h-[120px] rounded-xl border-gray-200 dark:border-gray-700 focus:border-violet-400 dark:focus:border-violet-500"
+                disabled={collegeAdvisorEnabled}
+                placeholder={collegeAdvisorEnabled ? "Type your question in the College & FAFSA Advisor box above, then send." : "Ask about platforms, grants, services, compliance, MAP-GAP..."}
+                className="resize-none pr-12 min-h-[44px] max-h-[120px] rounded-xl border-gray-200 dark:border-gray-700 focus:border-violet-400 dark:focus:border-violet-500 disabled:opacity-60"
                 rows={1}
                 data-testid="input-ai-query"
               />
             </div>
             <Button
               onClick={() => handleSubmit()}
-              disabled={!input.trim() || isStreaming}
+              disabled={(collegeAdvisorEnabled ? !collegeAccessQuestion.trim() : !input.trim()) || isStreaming}
               className="h-[44px] w-[44px] rounded-xl bg-violet-600 hover:bg-violet-700 p-0"
               data-testid="button-send-query"
             >

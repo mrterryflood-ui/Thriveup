@@ -1131,9 +1131,26 @@ export function registerRAGRoutes(app: Express) {
       }
 
       const isROIQuery = /roi|return|invest|cost|prevent|chainweb|causal|early.child|pre.?k|dropout|school.prison|housing|recidiv/i.test(query);
-      const geo = await extractGeographyFromQuery(query);
-      const orchestrationOptions = (req.body?.engines || req.body?.domains)
-        ? { engines: Array.isArray(req.body?.engines) ? req.body.engines : undefined, domains: Array.isArray(req.body?.domains) ? req.body.domains : undefined }
+      let geo = await extractGeographyFromQuery(query);
+      const collegeAccessQuestion = typeof req.body?.collegeAccessQuestion === "string" ? req.body.collegeAccessQuestion.trim() : undefined;
+      // college-access-ai never reads `geo` (it's a live per-request advisor,
+      // no dataset lookup) — but getOrchestratedIntelligence() requires a
+      // GeographyRef argument to run at all. If an operator asked a college
+      // question but the query text has no ZIP, use an inert placeholder geo
+      // so the call still reaches callEngine() instead of being silently
+      // dropped by the `geo ? ... : Promise.resolve("")` gate below.
+      if (!geo && collegeAccessQuestion) {
+        geo = { zip: undefined, countyFips: undefined, state: undefined, countyName: undefined };
+      }
+      const orchestrationOptions = (req.body?.engines || req.body?.domains || collegeAccessQuestion)
+        ? {
+            engines: Array.isArray(req.body?.engines) ? req.body.engines : undefined,
+            domains: Array.isArray(req.body?.domains) ? req.body.domains : undefined,
+            collegeAccessQuestion,
+            collegeAccessStudentProfile: req.body?.collegeAccessStudentProfile && typeof req.body.collegeAccessStudentProfile === "object"
+              ? req.body.collegeAccessStudentProfile
+              : undefined,
+          }
         : undefined;
       const [chunks, liveContext, chainwebContext, orchestrationContext] = await Promise.all([
         retrieveRelevantChunks(query),
