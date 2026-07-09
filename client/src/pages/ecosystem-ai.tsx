@@ -24,6 +24,7 @@ const ORCHESTRATION_DOMAINS = [
   { id: "health", label: "Health Context" },
   { id: "equity", label: "Equity" },
   { id: "benefits", label: "Benefits Enrollment" },
+  { id: "program-management", label: "Nonprofit Effectiveness" },
 ];
 
 export default function EcosystemAIPage() {

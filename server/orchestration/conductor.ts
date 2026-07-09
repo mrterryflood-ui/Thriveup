@@ -12,11 +12,12 @@
  * against ENGINE_REGISTRY, not by trusting each call site to remember.
  */
 import { db } from "../storage";
-import { gisContextData, benefitsEnrollmentData } from "@shared/schema";
+import { gisContextData, benefitsEnrollmentData, partnerOutcomeSubmissions } from "@shared/schema";
 import { eq, like } from "drizzle-orm";
 import { getEngineById, getNonPIIEngines, type EngineDefinition } from "./engine-registry";
 import { getChainwebRAGContext } from "../chainweb-engine";
 import { getContextForGeography } from "../gis-engine";
+import { getLastChainWebRun } from "../corridor-chainweb";
 
 export interface GeographyRef {
   /** Best-known geography key: county FIPS preferred, ZIP as fallback */
@@ -73,6 +74,17 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
       const records = await db.select().from(benefitsEnrollmentData).where(eq(benefitsEnrollmentData.countyFips, geo.countyFips));
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: records };
     }
+    if (engine.id === "scorecard") {
+      if (!geo.countyFips) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No countyFips" };
+      const records = await db.select().from(partnerOutcomeSubmissions).where(eq(partnerOutcomeSubmissions.countyFips, geo.countyFips));
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: records };
+    }
+    if (engine.id === "corridor-chainweb") {
+      const report = getLastChainWebRun();
+      if (!report) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No corridor chain-web run has executed yet this process — read-only accessor never triggers a new run (that hits Census/FBI APIs)." };
+      const county = geo.countyFips ? report.steps.map((s) => ({ id: s.id, label: s.label, value: s.perCounty[geo.countyFips!]?.value ?? null })) : null;
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: county ?? report };
+    }
     // Route-invoked engines (rural-*, regional-briefing, etc.) are not
     // yet directly callable from server-internal code without an HTTP round trip.
     // Rather than fake a result, be explicit that this engine isn't wired for
@@ -102,7 +114,7 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef): Promise<
  * engines are listed in the bundle with an explicit "not yet wired" marker
  * rather than silently omitted — visibility over false completeness.
  */
-const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity", "benefits"];
+const IN_PROCESS_ENGINE_IDS = ["chainweb-engine", "gis-engine", "equity", "benefits", "corridor-chainweb", "scorecard"];
 
 export async function getOrchestratedIntelligence(
   geo: GeographyRef,

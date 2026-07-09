@@ -591,6 +591,11 @@ export interface ChainRunReport {
 
 let LAST_RUN: ChainRunReport | null = null;
 
+/** Read-only accessor for the orchestration Conductor — never triggers a new run (that hits Census/FBI APIs and writes evidence). */
+export function getLastChainWebRun(): ChainRunReport | null {
+  return LAST_RUN;
+}
+
 export async function runChainWeb(
   counties: Array<{ countyFips: string; metroId: string }> = CORRIDOR.metros.map((m) => ({
     countyFips: m.countyFips, metroId: m.id,
