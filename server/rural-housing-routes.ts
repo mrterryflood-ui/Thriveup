@@ -142,7 +142,7 @@ function getSection515() {
 }
 
 // Housing cost burden by county using Census ACS
-async function getHousingCostBurden(stateFips: string, countyFips: string) {
+export async function getHousingCostBurden(stateFips: string, countyFips: string) {
   const censusBit = process.env.CENSUS_API_KEY ? `&key=${process.env.CENSUS_API_KEY}` : "";
   try {
     // B25070: Gross rent as % of income; B25091: Owner costs as % of income

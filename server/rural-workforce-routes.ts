@@ -109,7 +109,7 @@ const CREDENTIALS = [
 ];
 
 // Census occupational wage data for ag jobs
-async function getAgWageData(stateFips: string) {
+export async function getAgWageData(stateFips: string) {
   const censusBit = process.env.CENSUS_API_KEY ? `&key=${process.env.CENSUS_API_KEY}` : "";
   try {
     // C24010: occupation by sex; B24022: occupation by sex & median earnings

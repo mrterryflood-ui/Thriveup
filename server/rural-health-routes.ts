@@ -25,7 +25,7 @@ const STATE_FIPS: Record<string, string> = {
 };
 
 // HRSA HPSA data for a state — whether area is a Health Professional Shortage Area
-async function getHpsaData(stateFips: string, facilityType: "Primary Medical Care" | "Dental Health" | "Mental Health" = "Primary Medical Care") {
+export async function getHpsaData(stateFips: string, facilityType: "Primary Medical Care" | "Dental Health" | "Mental Health" = "Primary Medical Care") {
   try {
     const typeCode = facilityType === "Primary Medical Care" ? "1" : facilityType === "Dental Health" ? "2" : "3";
     const url = `https://data.hrsa.gov/api/download/datafile?filename=BCD_HPSA_FCT_DET_P.csv`;
@@ -111,7 +111,7 @@ function getStateFarmStressResources(state: string): any[] {
 }
 
 // Rural hospital vulnerability data
-function getRuralHospitalContext(state: string) {
+export function getRuralHospitalContext(state: string) {
   const AT_RISK_STATES: Record<string, any> = {
     TX: { atRisk: 22, closed2010: 26, criticalAccess: 89, note: "Largest number of rural hospital closures nationally" },
     GA: { atRisk: 17, closed2010: 11, criticalAccess: 51 },

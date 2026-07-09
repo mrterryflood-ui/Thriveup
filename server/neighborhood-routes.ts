@@ -195,7 +195,7 @@ async function zipToGeography(zipCode: string): Promise<{ stateFips: string; cou
   return { stateFips: "", countyFips: "", tractFips: "", countyName: "", isZcta: true };
 }
 
-async function fetchZctaData(zipCode: string): Promise<any> {
+export async function fetchZctaData(zipCode: string): Promise<any> {
   const censusKey = process.env.CENSUS_API_KEY || "";
   const keyParam = censusKey ? `&key=${censusKey}` : "";
 
@@ -405,7 +405,7 @@ function processIndicators(v: (n: string) => number, v2: (n: string) => number, 
   };
 }
 
-async function fetchNeighborhoodData(stateFips: string, countyFips: string, tractFips: string): Promise<any> {
+export async function fetchNeighborhoodData(stateFips: string, countyFips: string, tractFips: string): Promise<any> {
   const censusKey = process.env.CENSUS_API_KEY || "";
   const keyParam = censusKey ? `&key=${censusKey}` : "";
 

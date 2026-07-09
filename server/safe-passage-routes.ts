@@ -39,6 +39,30 @@ const partnerOrgs: PartnerOrg[] = [];
 const voucherRequests: VoucherRequest[] = [];
 let listingId = 1, logId = 1, partnerId = 1, voucherId = 1;
 
+/**
+ * In-process accessor for the Conductor. Safe-passage listings are
+ * org/facility-level (no survivor PII) so this is already covered by
+ * touchesPII:false in the engine registry — no aggregation needed, just a
+ * county filter. Returns only fields useful for orchestration context
+ * (never the internal `notes` free-text field, out of caution).
+ */
+export function getListingsForCounty(countyName: string) {
+  return listings
+    .filter((l) => l.county && l.county.toLowerCase() === countyName.toLowerCase())
+    .map((l) => ({
+      type: l.type,
+      beds: l.beds,
+      childrenAllowed: l.childrenAllowed,
+      petsAllowed: l.petsAllowed,
+      wheelchairAccessible: l.wheelchairAccessible,
+      languages: l.languages,
+      maxMonths: l.maxMonths,
+      onSiteServices: l.onSiteServices,
+      available: l.available,
+      county: l.county,
+    }));
+}
+
 export function registerSafePassageRoutes(app: Express) {
   app.post("/api/safe-passage/log", async (req, res) => {
     try {
