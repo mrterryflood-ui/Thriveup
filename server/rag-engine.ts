@@ -5,6 +5,22 @@ import { eq, sql } from "drizzle-orm";
 import { generateAIResponse, streamAIResponse } from "./ai-provider";
 import type { Express, Request, Response } from "express";
 import { getAllRagEntries } from "./agency-profiles";
+import { getOrchestratedIntelligence, renderBundleAsContext } from "./orchestration/conductor";
+import { resolveZip } from "@shared/nationwide/zip-resolver";
+
+/**
+ * Extract a US ZIP mentioned in a free-text query, if any, and resolve it to a
+ * geography ref via the existing (5-county-seeded, state-fallback-elsewhere)
+ * static resolver. Returns null if no ZIP is present or it can't be resolved.
+ */
+function extractGeographyFromQuery(query: string): { countyFips?: string; zip?: string; state?: string; countyName?: string } | null {
+  const zipMatch = query.match(/\b(\d{5})\b/);
+  if (!zipMatch) return null;
+  const zip = zipMatch[1];
+  const resolved = resolveZip(zip);
+  if (!resolved) return null;
+  return { zip, countyFips: resolved.countyFips || undefined, state: resolved.state, countyName: resolved.countyName || undefined };
+}
 
 interface KnowledgeChunk {
   source: string;
@@ -1011,12 +1027,20 @@ RULES:
 14. When asked about interoperability — describe current internal APIs, near-term FHIR/HHSC/TEA integration roadmap, and long-term VA/211/Medicaid vision.
 15. When asked about evidence — walk through all four levels: real-time operational evidence, framework-based evidence, outcome evidence, and planned published evidence.`;
 
-export async function queryRAG(userQuery: string): Promise<{ answer: string; sources: string[]; liveData: boolean }> {
+export async function queryRAG(
+  userQuery: string,
+  orchestrationOptions?: { engines?: string[]; domains?: string[] },
+): Promise<{ answer: string; sources: string[]; liveData: boolean }> {
   const isROIQuery = /roi|return|invest|cost|prevent|chainweb|causal|early.child|pre.?k|dropout|school.prison|housing|recidiv/i.test(userQuery);
-  const [chunks, liveContext, chainwebContext] = await Promise.all([
+  const geo = extractGeographyFromQuery(userQuery);
+
+  const [chunks, liveContext, chainwebContext, orchestrationContext] = await Promise.all([
     retrieveRelevantChunks(userQuery),
     buildLiveIntelligenceContext(),
     isROIQuery ? getChainwebRAGContext() : Promise.resolve(""),
+    geo
+      ? getOrchestratedIntelligence(geo, orchestrationOptions).then(renderBundleAsContext)
+      : Promise.resolve(""),
   ]);
 
   const knowledgeContext = chunks.length > 0
@@ -1027,7 +1051,7 @@ export async function queryRAG(userQuery: string): Promise<{ answer: string; sou
 
   const messages = [
     { role: "system", content: SYSTEM_PROMPT },
-    { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}${chainwebContext ? `\n\n${chainwebContext}` : ""}\n\nUSER QUESTION: ${userQuery}` },
+    { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}${chainwebContext ? `\n\n${chainwebContext}` : ""}${orchestrationContext ? `\n\n${orchestrationContext}` : ""}\n\nUSER QUESTION: ${userQuery}` },
   ];
 
   const answer = await generateAIResponse(messages, 2000);
@@ -1083,7 +1107,10 @@ export function registerRAGRoutes(app: Express) {
         return res.status(400).json({ error: `Query must be 3–${MAX_QUERY_LENGTH} characters` });
       }
 
-      const result = await queryRAG(query);
+      const orchestrationOptions = (req.body?.engines || req.body?.domains)
+        ? { engines: Array.isArray(req.body?.engines) ? req.body.engines : undefined, domains: Array.isArray(req.body?.domains) ? req.body.domains : undefined }
+        : undefined;
+      const result = await queryRAG(query, orchestrationOptions);
       res.json(result);
     } catch (error) {
       console.error("[RAG] Query failed:", error);
@@ -1104,10 +1131,17 @@ export function registerRAGRoutes(app: Express) {
       }
 
       const isROIQuery = /roi|return|invest|cost|prevent|chainweb|causal|early.child|pre.?k|dropout|school.prison|housing|recidiv/i.test(query);
-      const [chunks, liveContext, chainwebContext] = await Promise.all([
+      const geo = extractGeographyFromQuery(query);
+      const orchestrationOptions = (req.body?.engines || req.body?.domains)
+        ? { engines: Array.isArray(req.body?.engines) ? req.body.engines : undefined, domains: Array.isArray(req.body?.domains) ? req.body.domains : undefined }
+        : undefined;
+      const [chunks, liveContext, chainwebContext, orchestrationContext] = await Promise.all([
         retrieveRelevantChunks(query),
         buildLiveIntelligenceContext(),
         isROIQuery ? getChainwebRAGContext() : Promise.resolve(""),
+        geo
+          ? getOrchestratedIntelligence(geo, orchestrationOptions).then(renderBundleAsContext)
+          : Promise.resolve(""),
       ]);
 
       const knowledgeContext = chunks.length > 0
@@ -1128,7 +1162,7 @@ export function registerRAGRoutes(app: Express) {
       await streamAIResponse({
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}${chainwebContext ? `\n\n${chainwebContext}` : ""}\n\nUSER QUESTION: ${query}` },
+          { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}${chainwebContext ? `\n\n${chainwebContext}` : ""}${orchestrationContext ? `\n\n${orchestrationContext}` : ""}\n\nUSER QUESTION: ${query}` },
         ],
         maxTokens: 2000,
         onChunk: (content: string) => {
