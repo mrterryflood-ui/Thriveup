@@ -16,6 +16,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Skeleton } from "@/components/ui/skeleton";
 import NotFound from "@/pages/not-found";
 import { ContextualHelpButton } from "@/components/contextual-help";
+import { openCommandPalette } from "@/components/command-palette";
+import { Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import LandingPage from "@/pages/landing";
 import CoveragePage from "@/pages/coverage";
 import CurriculumPage, { LevelDetailPage } from "@/pages/curriculum";
@@ -919,17 +922,31 @@ function AppLayoutInner() {
   }
 
   return (
-    <SidebarProvider style={style as React.CSSProperties}>
+    <SidebarProvider defaultOpen={false} style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
         <AppSidebar />
         <div className={cn("flex flex-col flex-1 min-w-0", mode === "hub" && "pb-[60px]")}>
           <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">
             Skip to main content
           </a>
-          <header className="flex items-center justify-between gap-2 p-2 border-b sticky top-0 z-50 bg-background">
-            <SidebarTrigger data-testid="button-sidebar-toggle" />
-            <div className="flex items-center gap-1">
-              <NavModeToggle />
+          <header className="flex items-center gap-2 px-3 py-2 border-b sticky top-0 z-50 bg-background/95 backdrop-blur-md">
+            <SidebarTrigger data-testid="button-sidebar-toggle" className="shrink-0" />
+            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+              <span className="font-bold text-sm tracking-wide uppercase leading-none select-none truncate">ThriveUp</span>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={openCommandPalette}
+                className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-2.5 h-8 rounded-lg border border-border/60 bg-muted/50 hover:bg-muted"
+                data-testid="button-search-palette"
+                aria-label="Search all pages"
+              >
+                <Search className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline text-xs">Search</span>
+                <kbd className="hidden md:flex h-4 items-center rounded border bg-background px-1 text-[10px] font-mono text-muted-foreground/70 select-none">⌘K</kbd>
+              </Button>
               <AccessibilityPanel />
               <HeaderControls />
             </div>

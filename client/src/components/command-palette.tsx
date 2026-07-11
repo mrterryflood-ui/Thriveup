@@ -3,31 +3,144 @@ import { useLocation } from "wouter";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
-  LayoutDashboard,
-  BookOpen,
-  Briefcase,
-  Wand2,
-  FolderSearch,
-  BarChart3,
-  Users,
-  Award,
-  GraduationCap,
-  Bot,
-  Search,
+  Search, Home, Target, Heart, Rocket, Network,
+  ClipboardList, HandHeart, MapPin, Route, Shield,
+  Trophy, FileText, Wand2, BarChart3, Users,
+  Award, GraduationCap, Bot, Brain, Briefcase,
+  DollarSign, Globe, Map, Building2, Scale,
+  Calendar, Flame, Zap, Compass, MessageCircle,
+  Wheat, Baby, AlertTriangle, Stethoscope,
+  BookOpen, TrendingUp, Activity, Wrench,
+  PenLine, Package, ClipboardCheck, Lightbulb,
+  Sparkles, Star, Info, Mail, Landmark,
+  LayoutDashboard, HeartHandshake, Handshake, FlaskConical,
+  ShieldCheck, FolderLock, Wallet, Store,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-const NAV_ITEMS = [
-  { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { label: "AI Curriculum", path: "/curriculum", icon: BookOpen },
-  { label: "Career Explorer", path: "/academy/careers", icon: Briefcase },
-  { label: "AI Creation Studio", path: "/ai-tools", icon: Wand2 },
-  { label: "Resource Finder", path: "/resources", icon: FolderSearch },
-  { label: "Impact Dashboard", path: "/impact", icon: BarChart3 },
-  { label: "Mentor Network", path: "/academy/mentors", icon: Users },
-  { label: "Achievements", path: "/achievements", icon: Award },
-  { label: "STAAR Test Prep", path: "/academy/staar-prep", icon: GraduationCap },
-  { label: "Spark AI", path: "/ai-companion", icon: Bot },
+export interface CommandItem {
+  label: string;
+  path: string;
+  icon: React.ElementType;
+  group: string;
+  keywords?: string;
+}
+
+const ALL_ITEMS: CommandItem[] = [
+  { group: "Home", label: "Hub Home", path: "/hub", icon: Home, keywords: "home dashboard" },
+  { group: "Home", label: "This Week (Monday Brief)", path: "/this-week", icon: Calendar, keywords: "weekly brief" },
+  { group: "Home", label: "Neighborhood Intel", path: "/neighborhood", icon: MapPin },
+  { group: "Home", label: "Coverage Map", path: "/coverage", icon: Map },
+
+  { group: "Get Funded", label: "Live Grant Opportunities", path: "/grants", icon: Target },
+  { group: "Get Funded", label: "My Grants & Win Rate", path: "/my-grants", icon: Trophy },
+  { group: "Get Funded", label: "RFP / Narrative Writer", path: "/grant-narrative", icon: PenLine },
+  { group: "Get Funded", label: "LOI Writer", path: "/loi-writer", icon: FileText },
+  { group: "Get Funded", label: "Grant Packages", path: "/grant-packages", icon: Package },
+  { group: "Get Funded", label: "RFP Fidelity Engine", path: "/rfp-fidelity", icon: ShieldCheck },
+  { group: "Get Funded", label: "Winning Proposals Library", path: "/won-proposals", icon: Trophy },
+  { group: "Get Funded", label: "APEX Accelerators", path: "/apex-accelerators", icon: Landmark },
+  { group: "Get Funded", label: "CEDS Regional Alignment", path: "/ceds", icon: Map },
+  { group: "Get Funded", label: "Application Tracker", path: "/grants/applications", icon: ClipboardCheck },
+
+  { group: "Benefits & Serve", label: "Resource Finder", path: "/resources", icon: MapPin, keywords: "find help" },
+  { group: "Benefits & Serve", label: "9-Benefit Screener", path: "/benefits-screener", icon: ClipboardList, keywords: "snap medicaid benefits" },
+  { group: "Benefits & Serve", label: "Benefits Command Center", path: "/benefits", icon: HandHeart },
+  { group: "Benefits & Serve", label: "Intake Wizard", path: "/intake", icon: ClipboardCheck },
+  { group: "Benefits & Serve", label: "Resident Journey", path: "/resident-journey", icon: Route },
+  { group: "Benefits & Serve", label: "My Journey", path: "/my-journey", icon: Rocket },
+  { group: "Benefits & Serve", label: "My Household", path: "/my-household", icon: Home },
+  { group: "Benefits & Serve", label: "My Document Vault", path: "/my-documents", icon: FolderLock },
+  { group: "Benefits & Serve", label: "My Appointments", path: "/my-appointments", icon: Calendar },
+
+  { group: "Foster Youth", label: "Foster Youth Hub", path: "/foster-youth", icon: HandHeart },
+  { group: "Foster Youth", label: "Aging-Out Toolkit", path: "/foster-youth/toolkit", icon: ClipboardCheck },
+  { group: "Foster Youth", label: "Wellbeing Check-in", path: "/foster-youth/wellbeing", icon: Heart },
+  { group: "Foster Youth", label: "State Benefits (50 states)", path: "/foster-youth/benefits", icon: Landmark },
+  { group: "Foster Youth", label: "FAFSA & ETV (foster)", path: "/fafsa-navigator?audience=foster", icon: GraduationCap },
+
+  { group: "Justice & Reentry", label: "Reentry Program", path: "/reentry-program", icon: Scale },
+  { group: "Justice & Reentry", label: "Fair-Chance Employers", path: "/jobs", icon: Trophy },
+  { group: "Justice & Reentry", label: "Reentry Dashboard", path: "/reentry", icon: Scale },
+  { group: "Justice & Reentry", label: "Justice Partners", path: "/justice-partners", icon: Handshake },
+
+  { group: "Health & Prevention", label: "Veterans Program", path: "/veterans", icon: Shield },
+  { group: "Health & Prevention", label: "Behavioral Health", path: "/behavioral-health", icon: Heart },
+  { group: "Health & Prevention", label: "Prevention Hub", path: "/prevention", icon: ShieldCheck },
+  { group: "Health & Prevention", label: "Parent Education", path: "/parent-education", icon: Heart },
+  { group: "Health & Prevention", label: "CHW Dashboard", path: "/chw-dashboard", icon: Stethoscope },
+
+  { group: "Workforce & Trades", label: "Trade Sims", path: "/academy/trade-sims", icon: Wrench, keywords: "trades vocational" },
+  { group: "Workforce & Trades", label: "Career Explorer", path: "/academy/careers", icon: Briefcase },
+  { group: "Workforce & Trades", label: "My Pathway", path: "/academy/pathway", icon: Route },
+  { group: "Workforce & Trades", label: "Mentors & Pathways", path: "/mentorship-directory", icon: Handshake },
+  { group: "Workforce & Trades", label: "Employer Connections", path: "/workforce-employers", icon: Building2 },
+  { group: "Workforce & Trades", label: "MOS Translator", path: "/mos-translator", icon: Shield, keywords: "military veteran" },
+  { group: "Workforce & Trades", label: "Workforce Pell Grant", path: "/workforce-pell", icon: DollarSign },
+  { group: "Workforce & Trades", label: "Shadow Worker Hub", path: "/shadow-worker-hub", icon: Heart },
+
+  { group: "Academy & Learning", label: "Panther Village", path: "/academy", icon: Rocket },
+  { group: "Academy & Learning", label: "AI Curriculum (Youth)", path: "/curriculum", icon: Brain },
+  { group: "Academy & Learning", label: "Trade Simulations", path: "/academy/trade-sims", icon: Wrench },
+  { group: "Academy & Learning", label: "STAAR Test Prep", path: "/academy/staar-prep", icon: GraduationCap },
+  { group: "Academy & Learning", label: "Daily Check-In", path: "/academy/self-assessment", icon: ClipboardCheck },
+  { group: "Academy & Learning", label: "Daily Quests", path: "/academy/quests", icon: Zap },
+  { group: "Academy & Learning", label: "Achievements", path: "/achievements", icon: Award },
+  { group: "Academy & Learning", label: "Financial Literacy", path: "/academy/financial-literacy", icon: DollarSign },
+  { group: "Academy & Learning", label: "FAFSA Navigator", path: "/fafsa-navigator", icon: GraduationCap },
+  { group: "Academy & Learning", label: "AI Creation Studio", path: "/ai-tools", icon: Wand2 },
+  { group: "Academy & Learning", label: "Sparky (AI Companion)", path: "/sparky", icon: MessageCircle },
+  { group: "Academy & Learning", label: "Navigator (AI)", path: "/navigator", icon: Compass },
+
+  { group: "Partners & Connect", label: "ALIGN", path: "/align", icon: Sparkles },
+  { group: "Partners & Connect", label: "THRIVE", path: "/thrive", icon: Star },
+  { group: "Partners & Connect", label: "Community Partners", path: "/partners", icon: Handshake },
+  { group: "Partners & Connect", label: "Coalition Dashboard", path: "/coalition", icon: Users },
+  { group: "Partners & Connect", label: "Ecosystem Hub", path: "/ecosystem", icon: Globe },
+  { group: "Partners & Connect", label: "Community Voice", path: "/voice", icon: MessageCircle },
+  { group: "Partners & Connect", label: "Community Map", path: "/community-map", icon: Map },
+  { group: "Partners & Connect", label: "Why ThriveUp?", path: "/why-thriveup", icon: FileText },
+
+  { group: "Central Texas", label: "CTX Benefits Initiative", path: "/st-davids", icon: LayoutDashboard },
+  { group: "Central Texas", label: "N. Wilco Childcare Coalition", path: "/north-wilco-childcare-coalition", icon: Baby },
+  { group: "Central Texas", label: "Regional Briefing", path: "/regional-briefing", icon: Sparkles },
+  { group: "Central Texas", label: "Austin Initiative", path: "/austin", icon: MapPin },
+  { group: "Central Texas", label: "Manor Hub", path: "/manor", icon: MapPin },
+  { group: "Central Texas", label: "Pflugerville Hub", path: "/pflugerville", icon: MapPin },
+
+  { group: "Child Care", label: "Child Care Overview", path: "/child-care", icon: Baby },
+  { group: "Child Care", label: "Williamson County Initiative", path: "/child-care-wilco", icon: MapPin },
+  { group: "Child Care", label: "Workforce Connection & Policy", path: "/child-care-workforce", icon: TrendingUp },
+
+  { group: "Rural & Agriculture", label: "County Ag Intelligence", path: "/rural-intel", icon: Wheat },
+  { group: "Rural & Agriculture", label: "Farm Profitability Navigator", path: "/farm-profitability", icon: DollarSign },
+  { group: "Rural & Agriculture", label: "Ag Trade Simulations", path: "/ag-trade-sims", icon: FlaskConical },
+  { group: "Rural & Agriculture", label: "Farmworker ITI", path: "/farmworker-iti", icon: HeartHandshake },
+  { group: "Rural & Agriculture", label: "Rural Healthcare Hub", path: "/rural-health", icon: Stethoscope },
+  { group: "Rural & Agriculture", label: "Rural Workforce Pipeline", path: "/rural-workforce", icon: GraduationCap },
+  { group: "Rural & Agriculture", label: "Rural Connectivity", path: "/rural-connectivity", icon: Activity },
+
+  { group: "Impact & Data", label: "Impact Dashboard", path: "/impact", icon: BarChart3 },
+  { group: "Impact & Data", label: "Equity Dashboard", path: "/equity-dashboard", icon: BarChart3 },
+  { group: "Impact & Data", label: "SDOH Explorer", path: "/sdoh-explorer", icon: Search },
+  { group: "Impact & Data", label: "Transparency Dashboard", path: "/transparency", icon: Activity },
+  { group: "Impact & Data", label: "Policy Signal Engine", path: "/policy-engine", icon: BarChart3 },
+  { group: "Impact & Data", label: "Live Network View", path: "/network", icon: BarChart3 },
+  { group: "Impact & Data", label: "City Comparison", path: "/city-comparison", icon: Scale },
+
+  { group: "About", label: "About / Our Structure", path: "/about", icon: Info },
+  { group: "About", label: "Pricing & Services", path: "/pricing", icon: DollarSign },
+  { group: "About", label: "Methodology", path: "/methodology", icon: BookOpen },
+  { group: "About", label: "Research Hub", path: "/research-hub", icon: BookOpen },
+  { group: "About", label: "Contact Us", path: "/contact", icon: Mail },
+  { group: "About", label: "Privacy Policy", path: "/privacy", icon: Shield },
 ];
+
+let _openCommandPalette: (() => void) | null = null;
+
+export function openCommandPalette() {
+  _openCommandPalette?.();
+}
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
@@ -35,11 +148,29 @@ export function CommandPalette() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [, setLocation] = useLocation();
   const inputRef = useRef<HTMLInputElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const listRef = useRef<HTMLDivElement>(null);
 
-  const filtered = NAV_ITEMS.filter((item) =>
-    item.label.toLowerCase().includes(query.toLowerCase())
-  );
+  _openCommandPalette = () => setOpen(true);
+
+  const filtered = query.trim()
+    ? ALL_ITEMS.filter((item) => {
+        const q = query.toLowerCase();
+        return (
+          item.label.toLowerCase().includes(q) ||
+          item.group.toLowerCase().includes(q) ||
+          item.path.toLowerCase().includes(q) ||
+          (item.keywords || "").toLowerCase().includes(q)
+        );
+      }).slice(0, 20)
+    : ALL_ITEMS.slice(0, 8);
+
+  const grouped = filtered.reduce<Record<string, CommandItem[]>>((acc, item) => {
+    if (!acc[item.group]) acc[item.group] = [];
+    acc[item.group].push(item);
+    return acc;
+  }, {});
+
+  const flatFiltered = filtered;
 
   useEffect(() => {
     setSelectedIndex(0);
@@ -77,94 +208,131 @@ export function CommandPalette() {
   function handleInputKeyDown(e: React.KeyboardEvent) {
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      setSelectedIndex((i) => Math.min(i + 1, filtered.length - 1));
+      setSelectedIndex((i) => Math.min(i + 1, flatFiltered.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
       setSelectedIndex((i) => Math.max(i - 1, 0));
     } else if (e.key === "Enter") {
       e.preventDefault();
-      if (filtered[selectedIndex]) {
-        handleNavigate(filtered[selectedIndex].path);
+      if (flatFiltered[selectedIndex]) {
+        handleNavigate(flatFiltered[selectedIndex].path);
       }
     }
   }
 
-  useEffect(() => {
-    if (listRef.current) {
-      const selected = listRef.current.children[selectedIndex] as HTMLElement;
-      selected?.scrollIntoView({ block: "nearest" });
-    }
-  }, [selectedIndex]);
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent
-        className="p-0 gap-0 max-w-md"
+        className="p-0 gap-0 max-w-lg rounded-2xl overflow-hidden shadow-2xl"
         data-testid="dialog-command-palette"
         aria-label="Command palette"
       >
-        <DialogTitle className="sr-only">Command Palette</DialogTitle>
-        <div className="flex items-center gap-2 border-b px-3" data-testid="container-command-search" aria-label="Search container">
-          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
+        <DialogTitle className="sr-only">Search</DialogTitle>
+
+        <div
+          className="flex items-center gap-3 px-4 py-3.5 border-b bg-background"
+          data-testid="container-command-search"
+        >
+          <Search className="h-[18px] w-[18px] shrink-0 text-muted-foreground" />
           <Input
             ref={inputRef}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleInputKeyDown}
-            placeholder="Search pages..."
-            className="border-0 focus-visible:ring-0 shadow-none"
+            placeholder="Search pages, tools, resources…"
+            className="border-0 focus-visible:ring-0 shadow-none text-base h-auto py-0 px-0 placeholder:text-muted-foreground/60"
             data-testid="input-command-search"
             aria-label="Search pages"
           />
+          <kbd className="hidden sm:flex h-5 items-center gap-0.5 rounded border bg-muted px-1.5 text-[10px] font-mono text-muted-foreground select-none">
+            <span className="text-[11px]">⌘</span>K
+          </kbd>
         </div>
-        <ul
-          ref={listRef}
-          className="max-h-72 overflow-y-auto p-2"
-          role="listbox"
-          data-testid="list-command-results"
-          aria-label="Navigation results"
-        >
-          {filtered.length === 0 && (
-            <li
-              className="px-3 py-6 text-center text-sm text-muted-foreground"
-              data-testid="text-command-no-results"
-              aria-label="No results found"
-            >
-              No results found
-            </li>
-          )}
-          {filtered.map((item, index) => {
-            const Icon = item.icon;
-            const isSelected = index === selectedIndex;
-            return (
-              <li
-                key={item.path}
-                role="option"
-                aria-selected={isSelected}
-                className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm cursor-pointer hover-elevate ${
-                  isSelected ? "bg-accent text-accent-foreground" : ""
-                }`}
-                onClick={() => handleNavigate(item.path)}
-                data-testid={`item-command-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
-                aria-label={item.label}
-              >
-                <Icon className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <span data-testid={`text-command-label-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>{item.label}</span>
-                <span className="ml-auto text-xs text-muted-foreground" data-testid={`text-command-path-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>{item.path}</span>
-              </li>
-            );
-          })}
-        </ul>
+
         <div
-          className="border-t px-3 py-2 text-xs text-muted-foreground flex items-center gap-4 flex-wrap"
-          data-testid="container-command-hints"
-          aria-label="Keyboard shortcuts"
+          ref={listRef}
+          className="max-h-[400px] overflow-y-auto overscroll-contain p-2"
+          data-testid="list-command-results"
+          role="listbox"
         >
-          <span data-testid="text-command-hint-navigate">Use arrow keys to navigate</span>
-          <span data-testid="text-command-hint-select">Enter to select</span>
-          <span data-testid="text-command-hint-close">Esc to close</span>
+          {flatFiltered.length === 0 ? (
+            <p className="px-3 py-8 text-center text-sm text-muted-foreground" data-testid="text-command-no-results">
+              No results for &ldquo;{query}&rdquo;
+            </p>
+          ) : query.trim() ? (
+            flatFiltered.map((item, index) => (
+              <CommandRow
+                key={item.path + item.label}
+                item={item}
+                isSelected={index === selectedIndex}
+                onClick={() => handleNavigate(item.path)}
+                showGroup
+              />
+            ))
+          ) : (
+            Object.entries(grouped).map(([group, items]) => (
+              <div key={group} className="mb-1">
+                <p className="px-3 pt-2 pb-1 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                  {group}
+                </p>
+                {items.map((item, index) => (
+                  <CommandRow
+                    key={item.path + item.label}
+                    item={item}
+                    isSelected={flatFiltered.indexOf(item) === selectedIndex}
+                    onClick={() => handleNavigate(item.path)}
+                  />
+                ))}
+              </div>
+            ))
+          )}
+        </div>
+
+        <div className="border-t px-4 py-2 text-[11px] text-muted-foreground flex items-center gap-3 bg-muted/40" data-testid="container-command-hints">
+          <span>↑↓ navigate</span>
+          <span>↵ open</span>
+          <span className="ml-auto">Esc to close</span>
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CommandRow({
+  item,
+  isSelected,
+  onClick,
+  showGroup,
+}: {
+  item: CommandItem;
+  isSelected: boolean;
+  onClick: () => void;
+  showGroup?: boolean;
+}) {
+  const Icon = item.icon;
+  return (
+    <button
+      role="option"
+      aria-selected={isSelected}
+      className={cn(
+        "w-full flex items-center gap-3 rounded-xl px-3 py-2 text-sm cursor-pointer transition-colors text-left",
+        isSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted"
+      )}
+      onClick={onClick}
+      data-testid={`item-command-${item.label.toLowerCase().replace(/\s+/g, "-")}`}
+    >
+      <span className={cn(
+        "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg",
+        isSelected ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+      )}>
+        <Icon className="h-4 w-4" />
+      </span>
+      <span className="flex-1 min-w-0">
+        <span className="font-medium block truncate">{item.label}</span>
+        {showGroup && (
+          <span className="text-[11px] text-muted-foreground">{item.group}</span>
+        )}
+      </span>
+    </button>
   );
 }
