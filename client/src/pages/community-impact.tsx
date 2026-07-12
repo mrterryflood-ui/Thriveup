@@ -1,6 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+
+const SkylineMap      = lazy(() => import("@/components/viz3d/SkylineMap"));
+const CascadeWaterfall = lazy(() => import("@/components/viz3d/CascadeWaterfall"));
+const DomainWeb       = lazy(() => import("@/components/viz3d/DomainWeb"));
+const ParticleFlow    = lazy(() => import("@/components/viz3d/ParticleFlow"));
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -434,13 +439,28 @@ function LoadingSkeleton() {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 
+const VIZ_TABS = [
+  { id: "skyline",   label: "🏙 Skyline Map",       desc: "Real ZIP scores — height = cost of inaction" },
+  { id: "cascade",   label: "🌊 Cascade Waterfall",  desc: "25-year cost chain by life stage" },
+  { id: "web",       label: "🕸 Domain Web",          desc: "How the 10 systems pull on each other" },
+  { id: "particles", label: "✨ Particle Flow",       desc: "Community population: invest vs. don't" },
+] as const;
+
+type VizTab = typeof VIZ_TABS[number]["id"];
+
 export default function CommunityImpactPage() {
   const [location, setLocation] = useState("");
   const [submitted, setSubmitted] = useState("");
+  const [activeViz, setActiveViz] = useState<VizTab>("skyline");
 
   const brief = useMutation({
     mutationFn: (loc: string) =>
       apiRequest("POST", "/api/conductor/community-brief", { location: loc, populationSize: 10000, timeHorizon: 25 }).then((r) => r.json()),
+  });
+
+  const neighborsMut = useMutation({
+    mutationFn: (payload: { zip: string; centerScore: number; centerGrade: string; centerUrgency: string; centerCost: number }) =>
+      apiRequest("POST", "/api/conductor/neighbor-zips", payload).then((r) => r.json()),
   });
 
   function handleSearch(e?: React.FormEvent) {
@@ -451,6 +471,21 @@ export default function CommunityImpactPage() {
   }
 
   const data = brief.data;
+
+  // Trigger neighbor-zips fetch when a brief comes back
+  useEffect(() => {
+    if (!data?.geography?.zip && !data?.geography?.displayName) return;
+    const zip = data.geography.zip || data.geography.displayName?.match(/\d{5}/)?.[0];
+    if (!zip) return;
+    neighborsMut.mutate({
+      zip,
+      centerScore: data.overallScore ?? 50,
+      centerGrade: data.overallGrade ?? "D",
+      centerUrgency: Object.values(data.systemsScores || {}).some((s: any) => s.urgency === "crisis") ? "crisis" : "concern",
+      centerCost: data.cascade?.counterfactualCost ?? 100000,
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data?.geography?.displayName]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -542,6 +577,80 @@ export default function CommunityImpactPage() {
 
             {/* Solutions */}
             <SolutionsLayer solutions={data.solutions} policyContext={data.policyContext} />
+
+            {/* ── 3D Visualizations ─────────────────────────────────────── */}
+            <section data-testid="section-3d-viz" className="space-y-0">
+              <div className="flex items-center gap-2 mb-3">
+                <Zap className="w-5 h-5 text-violet-500" />
+                <h2 className="text-xl font-bold">3D Visualizations</h2>
+                <Badge className="bg-violet-500/20 text-violet-300 border-violet-500/30 text-xs">Interactive</Badge>
+              </div>
+
+              {/* Tab bar */}
+              <div className="flex gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 mb-0 overflow-x-auto" data-testid="viz-tab-bar">
+                {VIZ_TABS.map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveViz(tab.id)}
+                    data-testid={`viz-tab-${tab.id}`}
+                    className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
+                      activeViz === tab.id
+                        ? "bg-white dark:bg-slate-700 shadow text-foreground"
+                        : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Viz description */}
+              <p className="text-xs text-muted-foreground px-1 pt-2 pb-3">
+                {VIZ_TABS.find((t) => t.id === activeViz)?.desc}
+                {activeViz === "skyline" && neighborsMut.isPending && " · Loading neighboring ZIPs from Census…"}
+              </p>
+
+              {/* Canvas area */}
+              <Card className="overflow-hidden border-slate-200 dark:border-slate-700" style={{ height: 480 }}>
+                <Suspense fallback={<div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-400 text-sm">Loading 3D engine…</div>}>
+                  {activeViz === "skyline" && (
+                    neighborsMut.isPending
+                      ? <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-400 gap-3">
+                          <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+                          <span className="text-sm">Fetching real Census data for neighboring ZIPs…</span>
+                        </div>
+                      : <SkylineMap
+                          zips={neighborsMut.data?.zips ?? []}
+                          centerLat={neighborsMut.data?.centerLat ?? 30.25}
+                          centerLng={neighborsMut.data?.centerLng ?? -97.75}
+                        />
+                  )}
+                  {activeViz === "cascade" && (
+                    <CascadeWaterfall
+                      timeline={data.cascade?.timeline ?? []}
+                      totalWithout={data.cascade?.counterfactualCost ?? 0}
+                      totalWith={data.cascade?.interventionCost ?? 0}
+                      geography={data.geography?.displayName ?? submitted}
+                    />
+                  )}
+                  {activeViz === "web" && (
+                    <DomainWeb systemsScores={data.systemsScores ?? {}} />
+                  )}
+                  {activeViz === "particles" && (
+                    <ParticleFlow
+                      costOfInaction={data.cascade?.counterfactualCost ?? 0}
+                      netSavings={data.cascade?.netSavings ?? 0}
+                      roi={data.cascade?.roi ?? "0"}
+                      populationSize={10000}
+                    />
+                  )}
+                </Suspense>
+              </Card>
+
+              <p className="text-xs text-muted-foreground text-center pt-2">
+                Drag to rotate · scroll to zoom · all figures from U.S. Census ACS 5-Year Estimates
+              </p>
+            </section>
 
             {/* Export strip */}
             <Card className="p-4 flex flex-wrap gap-3 items-center justify-between" data-testid="card-export">

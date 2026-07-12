@@ -28,6 +28,25 @@ Never access `.record` or `.nationalRanking` — those fields don't exist.
 
 **Why:** High-poverty ZIPs and mid-size TX cities hit F because the coefficients weight infant mortality, uninsured rate, and ECE access heavily — these are often worst in rural/urban-core areas while aggregate city data looks better.
 
+## API response field names (verified 2026-07-12)
+- Top-level score: `overallScore` + `overallGrade` — NOT compositeScore/compositeGrade
+- Cascade: `interventionCost` — NOT investmentCost; cascade.timeline nodes have `age`, `milestone`, `without`/`with` as narrative strings (not numbers)
+- Systems domain key: `healthAccess` — NOT `health`
+- Urgency levels: `stable` | `watch` | `concern` | `crisis`
+
+## Neighbor-ZIPs endpoint (POST /api/conductor/neighbor-zips)
+- Returns up to 14 scored ZIPs + centerLat/centerLng
+- TIGERweb ZCTA API is unreliable — use Nominatim for center ZIP centroid
+- Neighbor candidates: same 3-digit prefix range (78700-78799 for 78741)
+- ACS data fetched per-zip for real poverty/unemployment scores
+- Response: `{ zips: ZipPin[], centerLat, centerLng }` where ZipPin has score/grade/urgency/costOfInaction/lat/lng
+
+## 3D Visualizations — MUST use vanilla Three.js (NOT @react-three/fiber)
+- R3F v8 + @react-three/drei are UNINSTALLED — they cause "multiple copies of React" crash in React 18.3.x
+- Pattern: useEffect + useRef<HTMLDivElement> + THREE.WebGLRenderer rendered into div, OrbitControls from `three/examples/jsm/controls/OrbitControls.js`
+- vite.config.ts has `resolve.dedupe: ['react', 'react-dom', 'react-dom/client']` (added as functional necessity)
+- 4 viz components: SkylineMap (ZIP bars), CascadeWaterfall (life-stage paths), DomainWeb (graph), ParticleFlow (ROI particles)
+
 ## Navigation
 - Route: `/community-impact` (lazy-loaded in App.tsx)
 - Command palette: "Community Impact Conductor" in "Impact & Data" group

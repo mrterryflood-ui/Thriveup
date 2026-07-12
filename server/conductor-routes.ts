@@ -863,4 +863,97 @@ export function registerConductorRoutes(app: Express) {
       return res.status(500).json({ error: "Comparison failed" });
     }
   });
+
+  // ─── POST /api/conductor/neighbor-zips ──────────────────────────────────────
+  // Fetch neighboring ZIPs with real Census data for the 3D skyline map.
+  // Returns array of { zip, lat, lng, score, grade, urgency, costOfInaction }.
+  app.post("/api/conductor/neighbor-zips", async (req: Request, res: Response) => {
+    try {
+      const { zip, centerScore = 50, centerGrade = "D", centerUrgency = "concern", centerCost = 100000 } = req.body;
+      if (!zip) return res.status(400).json({ error: "zip required" });
+
+      const CENSUS_ACS = "https://api.census.gov/data/2022/acs/acs5";
+      const CENSUS_KEY = process.env.CENSUS_API_KEY || "";
+      const keyParam = CENSUS_KEY ? `&key=${CENSUS_KEY}` : "";
+
+      // Step 1: Get center ZIP centroid via Nominatim (OSM geocoder, no key needed)
+      let centerLat = 30.25, centerLng = -97.75;
+      try {
+        const nomUrl = `https://nominatim.openstreetmap.org/search?postalcode=${zip}&countrycodes=us&format=json&limit=1`;
+        const nomResp = await fetch(nomUrl, {
+          headers: { "User-Agent": "ThriveUp-CommunityImpact/1.0 (terryflood@thrivingcommunitiesforall.com)" },
+          signal: AbortSignal.timeout(6000),
+        });
+        const nomData = await nomResp.json();
+        if (nomData[0]?.lat) {
+          centerLat = parseFloat(nomData[0].lat);
+          centerLng = parseFloat(nomData[0].lon);
+        }
+      } catch { /* use defaults */ }
+
+      // Step 2: Generate candidate neighbor ZIPs from same 3-digit prefix range
+      // ZIPs in the same prefix region are geographically proximate for most US metros.
+      const baseNum = parseInt(zip, 10);
+      const prefix = Math.floor(baseNum / 100) * 100; // e.g. 78700 for 78741
+      const candidateZips: string[] = [];
+      for (let offset = 0; offset <= 99; offset += 2) {
+        const z = String(prefix + offset).padStart(5, "0");
+        if (z !== zip) candidateZips.push(z);
+      }
+      const neighborCandidates = candidateZips.slice(0, 18); // up to 18 candidates
+
+      let neighborZips: Array<{ zip: string; lat: number; lng: number }> = neighborCandidates.map((z, i) => {
+        // Assign approximate lat/lng by distributing around center in a grid
+        const angle = (i / neighborCandidates.length) * 2 * Math.PI;
+        const radius = 0.15 + (i % 3) * 0.12;
+        return {
+          zip: z,
+          lat: centerLat + Math.sin(angle) * radius,
+          lng: centerLng + Math.cos(angle) * radius,
+        };
+      });
+
+      // Step 3: Fetch simplified ACS indicators for each neighbor ZIP in parallel
+      function quickScore(povertyRate: number, unemploymentRate: number) {
+        const raw = Math.max(0, 100 - povertyRate * 2.5 - unemploymentRate * 2);
+        const score = Math.round(Math.min(100, raw));
+        const grade = score >= 85 ? "A" : score >= 70 ? "B" : score >= 55 ? "C" : score >= 40 ? "D" : "F";
+        const urgency: "stable" | "watch" | "concern" | "crisis" =
+          score >= 75 ? "stable" : score >= 55 ? "watch" : score >= 35 ? "concern" : "crisis";
+        const costOfInaction = Math.round((povertyRate / 100) * 10000 * 18000 * 0.47);
+        return { score, grade, urgency, costOfInaction };
+      }
+
+      const scoredNeighbors = await Promise.allSettled(
+        neighborZips.map(async (nz) => {
+          try {
+            const url = `${CENSUS_ACS}?get=B17001_001E,B17001_002E,B23025_003E,B23025_005E` +
+              `&for=zip%20code%20tabulation%20area:${nz.zip}${keyParam}`;
+            const r = await fetch(url, { signal: AbortSignal.timeout(6000) });
+            const rows = await r.json();
+            if (!Array.isArray(rows) || rows.length < 2) return null;
+            const [headers, values] = [rows[0], rows[1]];
+            const h = (k: string) => parseFloat(values[headers.indexOf(k)] || "0") || 0;
+            const totalPop = h("B17001_001E");
+            const povertyRate = totalPop > 0 ? (h("B17001_002E") / totalPop) * 100 : 12;
+            const laborForce = h("B23025_003E");
+            const unemploymentRate = laborForce > 0 ? (h("B23025_005E") / laborForce) * 100 : 5;
+            return { ...nz, povertyRate: Math.round(povertyRate * 10) / 10, unemploymentRate: Math.round(unemploymentRate * 10) / 10, ...quickScore(povertyRate, unemploymentRate) };
+          } catch { return null; }
+        })
+      );
+
+      const zips = [
+        { zip, lat: centerLat, lng: centerLng, score: centerScore, grade: centerGrade, urgency: centerUrgency, costOfInaction: centerCost, isCenter: true },
+        ...scoredNeighbors
+          .filter((r): r is PromiseFulfilledResult<any> => r.status === "fulfilled" && r.value !== null)
+          .map((r) => r.value),
+      ];
+
+      return res.json({ zips, centerLat, centerLng });
+    } catch (err) {
+      console.error("neighbor-zips error:", err);
+      return res.status(500).json({ error: "Failed to fetch neighbor ZIPs" });
+    }
+  });
 }
