@@ -8,6 +8,8 @@
  */
 
 import type { Express, Request, Response } from "express";
+import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
+import { buildRpliceInboundContext } from "./rplice-inbound-routes";
 import {
   resolveLocationToZip,
   zipToGeography,
@@ -113,6 +115,17 @@ interface ConductorBrief {
     gaps: string[];
     nationalComparison: string;
   };
+  rplice: {
+    relevant: boolean;
+    reasoning: string;
+    relevanceScore: number;
+    activeAnalyses: unknown[];
+    interventionAssignments: unknown[];
+    actionPlanMilestones: unknown[];
+    outcomeBaselines: unknown[];
+    availableTools: string[];
+    inboundEvidenceFeedActive: boolean;
+  } | null;
   generatedAt: string;
 }
 
@@ -985,13 +998,14 @@ export function registerConductorRoutes(app: Express) {
       const cascade = buildCascadeModel(ind, Math.min(totalPop, populationSize), timeHorizon);
       const BRIEF_CENSUS_KEY = process.env.CENSUS_API_KEY || "";
 
-      const [grants, narrative, historicalCascade] = await Promise.all([
+      const [grants, narrative, historicalCascade, rpliceIntelligence] = await Promise.all([
         findRelevantGrants(domainScores),
         generateCommunityNarrative(displayName, demographics, domainScores, cascade, atRiskPopulations),
         buildHistoricalCascade(zip, BRIEF_CENSUS_KEY, stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip)).catch(() => ({
           vintages: [], totalAccumulatedCost: 0, trendDirection: "stagnant" as const,
           yearsAboveCrisisThreshold: 0, keyInsight: "", yearsOfData: 0,
         })),
+        generateRpliceHeartbeatIntelligence("thriveup").catch(() => null),
       ]);
 
       // Step 5: Evidence programs (filter by crisis domains)
@@ -1025,6 +1039,9 @@ export function registerConductorRoutes(app: Express) {
       const scores = Object.values(domainScores).map((d) => d.score);
       const overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 
+      // Build RPLICE context block (inbound evidence feed + DB intelligence)
+      const rpliceInboundContext = buildRpliceInboundContext();
+
       const brief: ConductorBrief = {
         geography: {
           input: location,
@@ -1052,6 +1069,19 @@ export function registerConductorRoutes(app: Express) {
           gaps: policyCtx.gaps,
           nationalComparison,
         },
+        rplice: rpliceIntelligence
+          ? {
+              relevant: rpliceIntelligence.relevant,
+              reasoning: rpliceIntelligence.reasoning,
+              relevanceScore: rpliceIntelligence.relevanceScore,
+              activeAnalyses: rpliceIntelligence.analyses,
+              interventionAssignments: rpliceIntelligence.interventionAssignments,
+              actionPlanMilestones: rpliceIntelligence.actionPlanMilestones,
+              outcomeBaselines: rpliceIntelligence.outcomeBaselines,
+              availableTools: rpliceIntelligence.availableTools,
+              inboundEvidenceFeedActive: rpliceInboundContext.length > 0,
+            }
+          : null,
         generatedAt: new Date().toISOString(),
       };
 

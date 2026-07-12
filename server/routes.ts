@@ -111,6 +111,7 @@ import { registerMetricsRoutes } from "./metrics-routes";
 import { registerChainwebRoutes } from "./chainweb-routes";
 import { registerConductorRoutes } from "./conductor-routes";
 import { registerGrantPathProRoutes } from "./grantpathpro-routes";
+import { registerRpliceInboundRoutes } from "./rplice-inbound-routes";
 import { registerProgramManagementRoutes } from "./program-management-routes";
 import { registerContactRoutes } from "./contact-routes";
 import { registerRpliceToolsRoutes } from "./rplice-tools";
@@ -514,6 +515,7 @@ export async function registerRoutes(
   registerChainwebRoutes(app);
   registerConductorRoutes(app);
   registerGrantPathProRoutes(app);
+  registerRpliceInboundRoutes(app);
   registerProgramManagementRoutes(app);
   registerContactRoutes(app);
   registerRpliceToolsRoutes(app);

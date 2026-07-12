@@ -4,6 +4,10 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { retrieveRelevantChunks, buildLiveIntelligenceContext } from "./rag-engine";
 import { withEthicalPreamble } from "./ai-provider";
 import { triggerImmediateSmokeAlert } from "./ai-smoke-test";
+import { db } from "./storage";
+import { rpliceAssessments, rpliceActionPlans, outcomeBaselines } from "@shared/schema";
+import { desc, eq } from "drizzle-orm";
+import { buildRpliceInboundContext } from "./rplice-inbound-routes";
 
 type EngineId = "gemini" | "claude" | "openai" | "deepseek-r1";
 
@@ -54,13 +58,67 @@ interface CollaborativeStreamParams {
   onKeepAlive?: () => void;
 }
 
-const RPLICE_LENS = `Apply implementation science thinking grounded in ThriveUp's actual frameworks:
+const RPLICE_LENS_STATIC = `Apply implementation science thinking grounded in ThriveUp's actual frameworks:
 - RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a sister platform at implementationineducatio.com — NOT a generic acronym. Reference it correctly when relevant.
 - CFIR 2.0 (Consolidated Framework for Implementation Research): 5 domains, 39 constructs — operationalized in ThriveUp's Research Hub (/research-hub), not just named.
 - RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance): evaluation lens built into outcome reporting.
 - MAP-GAP continuous improvement: Measure → Analyze → Plan → Gap → Action → Progress.
 - RNR (Risk-Need-Responsivity): gold-standard criminal justice framework embedded in reentry case management.
 - When analyzing a problem, ask: Who does this reach? What evidence supports the approach? What are the fidelity indicators? How is maintenance and scale planned?`;
+
+/** Pull live RPLICE data from DB and combine with inbound evidence feed for AI injection */
+async function buildLiveRpliceLens(): Promise<string> {
+  try {
+    const [assessments, actionPlans, baselines] = await Promise.all([
+      db.select().from(rpliceAssessments).orderBy(desc(rpliceAssessments.createdAt)).limit(5),
+      db.select().from(rpliceActionPlans).where(eq(rpliceActionPlans.status, "active")).orderBy(desc(rpliceActionPlans.createdAt)).limit(5),
+      db.select().from(outcomeBaselines).where(eq(outcomeBaselines.status, "active")).orderBy(desc(outcomeBaselines.createdAt)).limit(5),
+    ]);
+
+    const lines: string[] = [RPLICE_LENS_STATIC, ""];
+
+    if (assessments.length > 0) {
+      lines.push("=== LIVE RPLICE COMMUNITY ASSESSMENTS ===");
+      for (const a of assessments) {
+        lines.push(`• ${a.programName}: ${a.status} assessment`);
+        if (a.recommendations && Array.isArray(a.recommendations)) {
+          const recs = (a.recommendations as string[]).slice(0, 2);
+          if (recs.length) lines.push(`  Recommendations: ${recs.join("; ")}`);
+        }
+      }
+      lines.push("");
+    }
+
+    if (actionPlans.length > 0) {
+      lines.push("=== ACTIVE RPLICE INTERVENTION PLANS ===");
+      for (const p of actionPlans) {
+        lines.push(`• ${p.regionName}: ${p.interventionType} (${p.status})`);
+        if (p.goals && Array.isArray(p.goals)) {
+          const goals = (p.goals as string[]).slice(0, 2);
+          if (goals.length) lines.push(`  Goals: ${goals.join("; ")}`);
+        }
+      }
+      lines.push("");
+    }
+
+    if (baselines.length > 0) {
+      lines.push("=== RPLICE OUTCOME BASELINES (active) ===");
+      for (const b of baselines) {
+        lines.push(`• ${b.regionName}: ${b.timelineMonths}mo tracking window`);
+      }
+      lines.push("");
+    }
+
+    // Append any inbound RPLICE evidence pushed via POST /api/inbound/rplice
+    const inboundContext = buildRpliceInboundContext();
+    if (inboundContext) lines.push(inboundContext);
+
+    return lines.join("\n");
+  } catch {
+    // Fall back to static lens if DB is unavailable
+    return RPLICE_LENS_STATIC + "\n" + buildRpliceInboundContext();
+  }
+}
 
 const MAPGAP_LENS = `Apply MAP-GAP continuous improvement framework:
 - Measure: What is the current state? What data do we have?
@@ -381,7 +439,10 @@ export async function collaborativeResponse(
   }
 
   let frameworkContext = "";
-  if (includeRPLICE) frameworkContext += `\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}`;
+  if (includeRPLICE) {
+    const liveLens = await buildLiveRpliceLens();
+    frameworkContext += `\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS (LIVE) ===\n${liveLens}`;
+  }
   if (includeMAPGAP) frameworkContext += `\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}`;
 
   const enrichedPrompt = `${prompt}${ragContext}${frameworkContext}
@@ -516,7 +577,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
     ? `${params.prompt}\n\nCRITICAL DOCUMENT READING INSTRUCTIONS:\nOne or more documents are attached above inside [ATTACHED DOCUMENT: "..."] blocks. These are EXTERNAL documents the user is asking you to read and work with — they did NOT write them and want YOU to analyze, synthesize, or produce output BASED on the actual content.\n\nYou MUST:\n1. Read the attached document(s) carefully before responding.\n2. Ground EVERY fact, figure, and claim in what the documents actually say. Quote specific numbers, names, dollar amounts, programs, and policy language from the documents.\n3. Answer the user's question using the documents as your primary source. Do NOT substitute generic AI knowledge, internal ThriveUp frameworks, or MAP-GAP boilerplate for document content.\n4. If the user asks you to brief, analyze, build on, or produce output from the documents — do exactly that using the real content in the documents.\n5. Do NOT produce generic framework templates. Do NOT apply RPLICE/MAP-GAP sections unless the documents themselves use that framing. Be specific, substantive, and grounded in the actual document text.\n6. Do NOT truncate. Write full, complete responses.`
     : params.noFrameworkInjection
     ? `${params.prompt}${ragContext}\n\nINSTRUCTIONS: Use the RAG knowledge context above if it is relevant to the person's question. Ground every statement in real data. Speak directly to the person's actual situation — be specific, warm, and conversational. Do NOT produce framework headers, "Phase" sections, or generic consulting-speak. Answer as a knowledgeable, empathetic guide.`
-    : `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS ===\n${RPLICE_LENS}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
+    : `${params.prompt}${ragContext}\n\n=== RPLICE IMPLEMENTATION SCIENCE LENS (LIVE) ===\n${RPLICE_LENS_STATIC}\n\n${buildRpliceInboundContext()}\n\n=== MAP-GAP CONTINUOUS IMPROVEMENT LENS ===\n${MAPGAP_LENS}\n\nINSTRUCTIONS: Incorporate the RAG knowledge context and apply both RPLICE and MAP-GAP framework thinking. Ground every statement in real data. Be specific and actionable.`;
 
   const STREAM_ANTI_FAB = `NON-NEGOTIABLE TRUTH RULES (override everything else):
 1. No fabricated numbers — every metric/percentage/count must come from RAG context, user document, or live data explicitly provided. If absent, say "I don't have that data."
