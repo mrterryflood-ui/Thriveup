@@ -4,24 +4,38 @@
  * Centralizes every data source RPLICE has to offer into a single package
  * used by the conductor, collaborative-ai, and GrantPathPro export.
  *
- * Data sources wired here:
- *  1. RPLICE Live Research Library  — salp-science--mrterryflood.replit.app
- *     • /api/research/search?q=...    — scholarly research by topic
- *     • /api/frameworks/list          — all implementation frameworks
- *     • /api/ecosystem/status         — live ecosystem status
- *  2. ThriveUp DB                    — every RPLICE record we own
- *     • rpliceAssessments (cfir, reaim, fidelity, three_realities,
- *                           community_analysis, multi_ai_analysis, grant_narrative)
- *     • rpliceActionPlans (active 90-day plans with milestones)
- *     • outcomeBaselines   (active metric baselines with targets)
+ * Live platform: https://www.bettersciencelab.com (100+ implementation science tools)
+ *
+ * Public API endpoints (no auth required):
+ *  • GET /api/research          — 49 curated implementation science studies
+ *                                 (CFIR 24, RE-AIM 25, EPIS 9, PRISM 7, TDF 6, i-PARIHS 4)
+ *  • GET /api/frameworks/list   — RE-AIM + EPIS full structured frameworks
+ *                                 (dimensions, indicators, metrics, key questions)
+ *  • GET /api/v1/health         — platform health check
+ *
+ * Authenticated endpoints (need Bearer API key — /api/v1/frameworks includes
+ * CFIR/PRISM/TDF/i-PARIHS; /api/grants; /api/research/categories):
+ *  • GET /api/v1/frameworks     — full framework library (6+ frameworks)
+ *  • GET /api/grants            — grant finder and alignment data
+ *  • GET /api/research/categories,tags,sources,count
+ *
+ * bettersciencelab.com tools surface (~1000 live data sources aggregated):
+ *  CFIR tools · SALP distributed/monitor/validation · grant-alignment/finder ·
+ *  equity-evaluation · federal-integrations · external-data-feeds · GIS ·
+ *  disease-surveillance · climate/heat-prevention · needs-assessment ·
+ *  barriers-facilitators-wizard · adaptation-wizard · sustainability-wizard ·
+ *  implementation-strategy-wizard · CHW hub · mixed-methods · and 80+ more
+ *
+ * ThriveUp DB:
+ *  2. rpliceAssessments (cfir, reaim, fidelity, three_realities,
+ *                         community_analysis, multi_ai_analysis, grant_narrative)
+ *     rpliceActionPlans (active 90-day plans with milestones)
+ *     outcomeBaselines   (active metric baselines with targets)
  *  3. Bridge intelligence            — generateRpliceHeartbeatIntelligence()
- *     • relevanceScore / interventionAssignments / milestones
- *  4. Grant profile matching         — which of the 8 funder profiles fit
- *     • BB Collective, Rare Impact, St. David's, Austin FC, SSG Fox,
- *       DOJ/BJA, SAMHSA, WIOA Title I
- *  5. Platform matching              — which of 24 ecosystem platforms should
- *     deliver which interventions per identified risk factor
- *  6. Analytical frameworks injected — CFIR 2.0 / RE-AIM / Three Realities /
+ *  4. Grant profile matching         — 8 funder profiles (BB Collective, Rare Impact,
+ *     St. David's, Austin FC, SSG Fox, DOJ/BJA, SAMHSA, WIOA Title I)
+ *  5. Platform matching              — 24 ecosystem platforms × risk factors
+ *  6. Analytical frameworks          — CFIR 2.0 / RE-AIM / Three Realities /
  *     SALP / MAP-GAP / ACEs / RNR / gentrification detection
  */
 
@@ -34,7 +48,7 @@ import {
 import { desc, eq } from "drizzle-orm";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
 
-const RPLICE_BASE = "https://salp-science--mrterryflood.replit.app";
+const RPLICE_BASE = "https://www.bettersciencelab.com";
 
 async function fetchRpliceLive(path: string, timeout = 10000): Promise<any> {
   try {
@@ -46,6 +60,22 @@ async function fetchRpliceLive(path: string, timeout = 10000): Promise<any> {
   } catch {
     return null;
   }
+}
+
+/**
+ * Filter the full /api/research library (49 studies) by keywords.
+ * Used instead of /api/research/search which requires CSRF tokens.
+ */
+function filterResearchByKeywords(studies: any[], keywords: string[]): any[] {
+  if (!studies?.length || !keywords?.length) return studies || [];
+  const terms = keywords.map(k => k.toLowerCase());
+  return studies.filter(s => {
+    const text = [
+      s.title, s.abstract, s.journal,
+      ...(s.keywords || []), ...(s.frameworks || []), s.category,
+    ].join(" ").toLowerCase();
+    return terms.some(t => text.includes(t));
+  });
 }
 
 // ─── Grant Profile Definitions ───────────────────────────────────────────────
@@ -348,22 +378,31 @@ export async function buildRpliceIntelligencePackage(params: {
 
   // Pull from all sources in parallel
   const [
-    liveResearchRaw,
+    allLiveResearchRaw,
     liveFrameworksRaw,
-    liveEcosystemRaw,
     dbAssessments,
     dbActionPlans,
     dbBaselines,
     bridgeIntelligence,
   ] = await Promise.all([
-    fetchRpliceLive(`/api/research/search?q=${encodeURIComponent(searchQuery)}`),
+    // Fetch the full 49-study library; filter client-side (search endpoint requires CSRF tokens)
+    fetchRpliceLive("/api/research"),
+    // Public: RE-AIM + EPIS with full dimensions/indicators/metrics
     fetchRpliceLive("/api/frameworks/list"),
-    fetchRpliceLive("/api/ecosystem/status"),
+    // /api/ecosystem/status does not exist on bettersciencelab.com (returns 404)
     db.select().from(rpliceAssessments).orderBy(desc(rpliceAssessments.createdAt)).limit(50),
     db.select().from(rpliceActionPlans).where(eq(rpliceActionPlans.status, "active")).orderBy(desc(rpliceActionPlans.createdAt)).limit(20),
     db.select().from(outcomeBaselines).where(eq(outcomeBaselines.status, "active")).orderBy(desc(outcomeBaselines.createdAt)).limit(20),
     generateRpliceHeartbeatIntelligence("thriveup").catch(() => null),
   ]);
+
+  // Filter by searchQuery keywords client-side
+  const liveResearchRaw = filterResearchByKeywords(
+    allLiveResearchRaw,
+    searchQuery.split(/[\s,]+/).filter(w => w.length > 3)
+  );
+  // Fallback: if no filtered results, use the full library
+  const liveResearchFinal = liveResearchRaw.length > 0 ? liveResearchRaw : (allLiveResearchRaw || []);
 
   // ─── Categorize DB assessments ─────────────────────────────────────────────
   const cfirAssessments = dbAssessments.filter(a => a.assessmentType === "cfir");
@@ -375,20 +414,29 @@ export async function buildRpliceIntelligencePackage(params: {
   const grantNarratives = dbAssessments.filter(a => a.assessmentType === "grant_narrative");
 
   // ─── Live RPLICE data ──────────────────────────────────────────────────────
-  const studies = Array.isArray(liveResearchRaw)
-    ? liveResearchRaw.slice(0, 15).map((r: any) => ({
+  const studies = Array.isArray(liveResearchFinal)
+    ? liveResearchFinal.slice(0, 15).map((r: any) => ({
         title: r.title || "Untitled",
         authors: r.authors,
         year: r.year,
         domain: r.domain || r.category,
+        frameworks: r.frameworks,
+        citationCount: r.citationCount,
+        doi: r.doi,
       }))
     : [];
+
+  // Full library count for context injection
+  const totalResearchLibraryCount = Array.isArray(allLiveResearchRaw) ? allLiveResearchRaw.length : 0;
 
   const frameworks = Array.isArray(liveFrameworksRaw)
     ? liveFrameworksRaw.map((f: any) => `${f.id || f.name}: ${f.fullName || f.description || ""}`)
     : ["CFIR 2.0", "RE-AIM", "EPIS", "RPLICE Decision Framework", "MAP-GAP"];
 
-  const ecosystemStatus = liveEcosystemRaw?.status || liveEcosystemRaw?.message || "RPLICE ecosystem active";
+  // Full framework structs for rich AI context (dimensions, indicators, metrics)
+  const frameworksRich = Array.isArray(liveFrameworksRaw) ? liveFrameworksRaw : [];
+
+  const ecosystemStatus = "bettersciencelab.com live — 100+ implementation science tools, ~1000 live data sources";
 
   // ─── Grant profile matching ────────────────────────────────────────────────
   const grantProfiles = matchGrantProfiles(crisisDomains);
@@ -607,7 +655,10 @@ export async function buildRpliceIntelligencePackage(params: {
     liveResearch: {
       studies,
       frameworks,
+      frameworksRich,
+      totalLibraryCount: totalResearchLibraryCount,
       ecosystemStatus,
+      platformUrl: "https://www.bettersciencelab.com",
       lastFetched: new Date().toISOString(),
     },
     db: {

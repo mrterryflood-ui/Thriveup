@@ -12,3 +12,4 @@
 - [ITSM Compliance Framework](itsm-framework.md) — first formal ITSM doc; docs/itsm/itsm-compliance-framework.md; 15 services, 3 tiers, P1–P4 SLAs, ITIL 4 + OMB A-130 + NIST SP 800-53 aligned.
 - [Orchestration Layer (Chainweb Conductor)](orchestration-layer.md) — all 25 engines wired; college-access-ai is operator-selectable (explicit id+question payload bypasses PII wall, capped AI spend).
 - [Community Impact Conductor](community-impact-conductor.md) — /community-impact; 4 vanilla Three.js 3D viz tabs; R3F MUST stay uninstalled (dual-React crash); API fields: overallScore, interventionCost, healthAccess.
+- [RPLICE Live Platform](rplice-live-platform.md) — bettersciencelab.com is correct URL; 3 public endpoints; /api/research/search needs CSRF; filter client-side; Bearer key needed for grants/full-frameworks.

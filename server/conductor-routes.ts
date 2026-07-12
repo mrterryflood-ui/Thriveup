@@ -1349,7 +1349,7 @@ export function registerConductorRoutes(app: Express) {
          * Everything GPP needs to write a defensible, funder-facing grant narrative
          * grounded in implementation science. Sources:
          *
-         * • Live RPLICE scholarly research library (salp-science--mrterryflood.replit.app)
+         * • Live RPLICE scholarly research library (www.bettersciencelab.com — 100+ tools, ~1000 live sources)
          * • 8 funder-specific grant profiles with unique AI voices, matched to crisis domains
          * • 24 ecosystem platform interventions mapped to risk factors
          * • All ThriveUp DB assessments (CFIR, RE-AIM, fidelity, Three Realities, etc.)

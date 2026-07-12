@@ -354,10 +354,11 @@ export function registerRpliceToolsRoutes(app: Express) {
 
       send("status", { message: matchingAnalysis ? "Found saved RPLICE analysis — pulling data..." : "No saved analysis found — gathering fresh Census data..." });
 
-      const [regionData, rpliceResearch] = await Promise.all([
+      const [regionData, allRpliceResearch] = await Promise.all([
         gatherRegionData(stateFips, countyFips),
-        fetchRplice(`/api/research/search?q=${encodeURIComponent(grantProfile.focusAreas.join(" "))}`),
+        fetchRplice("/api/research"),
       ]);
+      const rpliceResearch = filterRpliceResearch(allRpliceResearch, grantProfile.focusAreas);
 
       send("status", { message: `Census data loaded — ${regionData.stats.totalTracts} tracts analyzed` });
 
@@ -504,7 +505,7 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
     res.end();
   });
 
-  const RPLICE_BASE = "https://salp-science--mrterryflood.replit.app";
+  const RPLICE_BASE = "https://www.bettersciencelab.com";
 
   async function fetchRplice(path: string): Promise<any> {
     try {
@@ -512,6 +513,19 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
       if (!resp.ok) return null;
       return await resp.json();
     } catch { return null; }
+  }
+
+  /** Filter the full /api/research library by keywords (client-side, avoids CSRF). */
+  function filterRpliceResearch(studies: any[], keywords: string[]): any[] {
+    if (!studies?.length || !keywords?.length) return studies || [];
+    const terms = keywords.map(k => k.toLowerCase());
+    return studies.filter(s => {
+      const text = [
+        s.title, s.abstract, s.journal,
+        ...(s.keywords || []), ...(s.frameworks || []), s.category,
+      ].join(" ").toLowerCase();
+      return terms.some(t => text.includes(t));
+    });
   }
 
   app.post("/api/rplice/community-analysis", requireAuth, async (req, res) => {
@@ -529,12 +543,16 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
     try {
       send("status", { message: "Gathering Census data for " + (cityName || countyFips) + "..." });
 
-      const [regionData, rpliceFrameworks, rpliceResearch, rpliceEcosystem] = await Promise.all([
+      const [regionData, rpliceFrameworks, allRpliceResearch] = await Promise.all([
         gatherRegionData(stateFips, countyFips),
         fetchRplice("/api/frameworks/list"),
-        fetchRplice(`/api/research/search?q=${encodeURIComponent((focusAreas || ["poverty", "education", "violence prevention"]).join(" "))}`),
-        fetchRplice("/api/ecosystem/status"),
+        fetchRplice("/api/research"),
       ]);
+      // Filter the 49-study library client-side — /api/research/search requires CSRF tokens
+      const rpliceResearch = filterRpliceResearch(
+        allRpliceResearch,
+        focusAreas?.length ? focusAreas : ["poverty", "education", "violence prevention", "implementation", "community"]
+      );
 
       send("status", { message: "Census data loaded — " + regionData.stats.totalTracts + " tracts analyzed" });
       send("data", {
@@ -546,13 +564,14 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
         timeline: regionData.timeline,
       });
 
-      send("status", { message: "RPLICE research library queried — " + (rpliceResearch?.length || 0) + " studies found" });
+      send("status", { message: "RPLICE research library queried — " + (rpliceResearch?.length || 0) + " studies matched from " + (allRpliceResearch?.length || 0) + " total" });
       send("data", {
         section: "rplice",
         frameworks: rpliceFrameworks,
         researchCount: rpliceResearch?.length || 0,
-        topStudies: (rpliceResearch || []).slice(0, 5).map((r: any) => ({ title: r.title, authors: r.authors, year: r.year })),
-        ecosystemStatus: rpliceEcosystem,
+        totalLibraryCount: allRpliceResearch?.length || 0,
+        topStudies: (rpliceResearch || []).slice(0, 5).map((r: any) => ({ title: r.title, authors: r.authors, year: r.year, frameworks: r.frameworks })),
+        platformNote: "bettersciencelab.com — 100+ implementation science tools, ~1000 live data sources",
       });
 
       const topHighRisk = regionData.highRiskTracts.slice(0, 8);
@@ -830,10 +849,14 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
     if (!stateFips || !countyFips) return res.status(400).json({ error: "stateFips and countyFips required" });
 
     try {
-      const [regionData, rpliceResearch] = await Promise.all([
+      const [regionData, allRpliceResearch] = await Promise.all([
         gatherRegionData(stateFips, countyFips),
-        fetchRplice(`/api/research/search?q=${encodeURIComponent(question || "community intervention implementation")}`),
+        fetchRplice("/api/research"),
       ]);
+      const rpliceResearch = filterRpliceResearch(
+        allRpliceResearch,
+        (question || "community intervention implementation").split(/\s+/).filter(w => w.length > 3)
+      );
 
       const prompt = `Using RPLICE frameworks (CFIR, RE-AIM, Three Realities, SALP), analyze this community data and answer: "${question || "What are the priority interventions for this community?"}"
 
