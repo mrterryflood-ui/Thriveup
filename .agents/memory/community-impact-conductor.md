@@ -1,6 +1,6 @@
 ---
 name: Community Impact Conductor
-description: Unified community story surface — any ZIP/city/county → 10 social-domain scores, 25-year cascade, counterfactual cost, solutions layer, AI narrative.
+description: Unified community story surface — any ZIP/city/county → 10 social-domain scores, 25-year forward cascade, historical counterfactual (multi-vintage ACS), 5 vanilla Three.js viz tabs.
 ---
 
 ## What it is
@@ -19,35 +19,61 @@ Flat records, NOT a `.policies` array. Fields: `state, topic, policyName, outcom
 `getPolicyContext()` filters by state + categorizes by `outcome` field.
 Never access `.record` or `.nationalRanking` — those fields don't exist.
 
-## Verified benchmark results (2026-07-12)
-| Geography | Grade | Score | Cost of Inaction |
-|-----------|-------|-------|-----------------|
-| 78741 (East Austin ZIP) | F | 37 | $128M / 25yr |
-| Austin TX (city) | C | 72 | $13M / 25yr |
-| Waco TX (city) | F | 19 | $399M / 25yr |
+## API response field names (caused silent mismatches)
+- `overallScore` / `overallGrade` (not score/grade)
+- `cascade.interventionCost` (not investmentCost)
+- `systemsScores.healthAccess` (not health)
+- `cascade.timeline` nodes are narrative strings (without/with) not numbers
+- `historicalCascade` — multi-vintage ACS historical cost (see below)
 
-**Why:** High-poverty ZIPs and mid-size TX cities hit F because the coefficients weight infant mortality, uninsured rate, and ECE access heavily — these are often worst in rural/urban-core areas while aggregate city data looks better.
+## 3D Viz — CRITICAL: NEVER reinstall @react-three/fiber or @react-three/drei
+They crash the app with "multiple copies of React" in React 18.3.x + Vite.
+All viz components are vanilla Three.js: `useEffect + useRef + WebGLRenderer on div`.
+`vite.config.ts` has `resolve.dedupe: ['react', 'react-dom', 'react-dom/client']` — do NOT remove.
 
-## API response field names (verified 2026-07-12)
-- Top-level score: `overallScore` + `overallGrade` — NOT compositeScore/compositeGrade
-- Cascade: `interventionCost` — NOT investmentCost; cascade.timeline nodes have `age`, `milestone`, `without`/`with` as narrative strings (not numbers)
-- Systems domain key: `healthAccess` — NOT `health`
-- Urgency levels: `stable` | `watch` | `concern` | `crisis`
+## Five viz tabs
+1. skyline — SkylineMap.tsx — neighbor ZIPs, height = cost of inaction
+2. cascade — CascadeWaterfall.tsx — narrative timeline nodes (string shape)
+3. web — DomainWeb.tsx — domain score connections
+4. particles — ParticleFlow.tsx — invest vs. don't population flow
+5. historical — HistoricalTimeline.tsx — ACS multi-vintage bar chart, NOW divider
 
-## Neighbor-ZIPs endpoint (POST /api/conductor/neighbor-zips)
-- Returns up to 14 scored ZIPs + centerLat/centerLng
-- TIGERweb ZCTA API is unreliable — use Nominatim for center ZIP centroid
-- Neighbor candidates: same 3-digit prefix range (78700-78799 for 78741)
-- ACS data fetched per-zip for real poverty/unemployment scores
-- Response: `{ zips: ZipPin[], centerLat, centerLng }` where ZipPin has score/grade/urgency/costOfInaction/lat/lng
+## Historical cascade — what has ALREADY been paid
 
-## 3D Visualizations — MUST use vanilla Three.js (NOT @react-three/fiber)
-- R3F v8 + @react-three/drei are UNINSTALLED — they cause "multiple copies of React" crash in React 18.3.x
-- Pattern: useEffect + useRef<HTMLDivElement> + THREE.WebGLRenderer rendered into div, OrbitControls from `three/examples/jsm/controls/OrbitControls.js`
-- vite.config.ts has `resolve.dedupe: ['react', 'react-dom', 'react-dom/client']` (added as functional necessity)
-- 4 viz components: SkylineMap (ZIP bars), CascadeWaterfall (life-stage paths), DomainWeb (graph), ParticleFlow (ROI particles)
+### Census ACS multi-vintage ZCTA query quirk (CRITICAL)
+Pre-2022 ACS vintages (2013, 2015, 2019) return `error: ambiguous geography` for
+bare ZCTA queries. **Must add `&in=state:{FIPS}`**.
 
-## Navigation
-- Route: `/community-impact` (lazy-loaded in App.tsx)
-- Command palette: "Community Impact Conductor" in "Impact & Data" group
-- Hub-connect: hero card in Civic section with "New" badge
+- 2022: works without qualifier
+- 2019, 2015, 2013: requires `&in=state:48` (TX example) — wildcard `&in=state:*` also fails
+
+### How to get state FIPS reliably
+`stateFipsFromZip(zip)` — ZIP range lookup table covering all 50 states + DC + PR.
+Called as: `stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip)`.
+When ZIP routes through `fetchZctaData` (no tract-level geo), stateFips is empty and
+stateName is bare ZIP, so ZIP range lookup is the definitive fallback.
+
+**Why:** The Census API changed its ZCTA geography hierarchy between survey years.
+**How to apply:** Always pass stateFips to any function that fetches older ACS vintages.
+
+### Census API error response detection
+Census errors return plain string (e.g. `error: ambiguous...`) — `resp.json()` throws.
+Safe detection: `Array.isArray(data) && Array.isArray(data[0]) && data[1]`.
+
+### historicalCascade shape in community-brief response
+```typescript
+historicalCascade: {
+  vintages: Array<{ year, povertyRate, unemploymentRate, cohortCost }>;
+  totalAccumulatedCost: number;
+  trendDirection: "improving" | "stagnant" | "worsening";
+  yearsAboveCrisisThreshold: number;
+  keyInsight: string;
+  yearsOfData: number;
+}
+```
+Vintages: 2013, 2015, 2019, 2022. Chain model (ECE→dropout→incarceration, MH→homelessness)
+applied per cohort with years-elapsed maturity factor. BRIEF_CENSUS_KEY defined inline.
+
+### Real results (spot-check for correctness)
+- 78741 Austin TX: 4 vintages, $15.89M accumulated, improving (41.5% → 24.2% poverty)
+- 76707 Waco TX:   4 vintages, $16.47M accumulated, worsening (30.3% → 34.3% poverty)

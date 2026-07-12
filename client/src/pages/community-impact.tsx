@@ -2,10 +2,11 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 
-const SkylineMap      = lazy(() => import("@/components/viz3d/SkylineMap"));
-const CascadeWaterfall = lazy(() => import("@/components/viz3d/CascadeWaterfall"));
-const DomainWeb       = lazy(() => import("@/components/viz3d/DomainWeb"));
-const ParticleFlow    = lazy(() => import("@/components/viz3d/ParticleFlow"));
+const SkylineMap         = lazy(() => import("@/components/viz3d/SkylineMap"));
+const CascadeWaterfall   = lazy(() => import("@/components/viz3d/CascadeWaterfall"));
+const DomainWeb          = lazy(() => import("@/components/viz3d/DomainWeb"));
+const ParticleFlow       = lazy(() => import("@/components/viz3d/ParticleFlow"));
+const HistoricalTimeline = lazy(() => import("@/components/viz3d/HistoricalTimeline"));
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -440,10 +441,11 @@ function LoadingSkeleton() {
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 const VIZ_TABS = [
-  { id: "skyline",   label: "🏙 Skyline Map",       desc: "Real ZIP scores — height = cost of inaction" },
-  { id: "cascade",   label: "🌊 Cascade Waterfall",  desc: "25-year cost chain by life stage" },
-  { id: "web",       label: "🕸 Domain Web",          desc: "How the 10 systems pull on each other" },
-  { id: "particles", label: "✨ Particle Flow",       desc: "Community population: invest vs. don't" },
+  { id: "skyline",    label: "🏙 Skyline Map",        desc: "Real ZIP scores — height = cost of inaction" },
+  { id: "cascade",    label: "🌊 Cascade Waterfall",   desc: "25-year cost chain by life stage" },
+  { id: "web",        label: "🕸 Domain Web",           desc: "How the 10 systems pull on each other" },
+  { id: "particles",  label: "✨ Particle Flow",        desc: "Community population: invest vs. don't" },
+  { id: "historical", label: "📜 Historical Receipt",   desc: "What this community has already paid — ACS multi-vintage 2010–2022" },
 ] as const;
 
 type VizTab = typeof VIZ_TABS[number]["id"];
@@ -572,6 +574,94 @@ export default function CommunityImpactPage() {
             {/* Life Arc Timeline */}
             <LifeArcTimeline timeline={data.cascade?.timeline || []} />
 
+            {/* ── Historical Receipt ─────────────────────────────────────── */}
+            {data.historicalCascade?.vintages?.length > 0 && (
+              <section data-testid="section-historical-receipt">
+                <div className="rounded-2xl overflow-hidden border border-amber-200 dark:border-amber-800/60 bg-amber-50/60 dark:bg-amber-950/20">
+                  {/* Header */}
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 px-6 py-5 border-b border-amber-200 dark:border-amber-800/40">
+                    <div className="flex items-start gap-3">
+                      <span className="text-3xl mt-0.5">🧾</span>
+                      <div>
+                        <h2 className="text-lg font-black text-amber-900 dark:text-amber-200">
+                          What This Community Has Already Paid
+                        </h2>
+                        <p className="text-sm text-amber-800/70 dark:text-amber-300/70 mt-0.5">
+                          Accumulated cost from {data.historicalCascade.vintages[0]?.year}–{data.historicalCascade.vintages[data.historicalCascade.vintages.length - 1]?.year} · ACS 5-Year Estimates · per-cohort chain model
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex-shrink-0 text-right">
+                      <div className="text-3xl font-black text-amber-700 dark:text-amber-300" data-testid="text-historical-total">
+                        {fmt$(data.historicalCascade.totalAccumulatedCost)}
+                      </div>
+                      <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 font-medium uppercase tracking-wide">
+                        already spent / lost
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Trend callout */}
+                  <div className="px-6 py-3 border-b border-amber-200 dark:border-amber-800/30 flex items-center gap-2 text-sm">
+                    {data.historicalCascade.trendDirection === "worsening" && (
+                      <><TrendingDown className="w-4 h-4 text-red-500 flex-none" /><span className="text-red-700 dark:text-red-400 font-medium">Conditions worsened</span></>
+                    )}
+                    {data.historicalCascade.trendDirection === "stagnant" && (
+                      <><Clock className="w-4 h-4 text-amber-500 flex-none" /><span className="text-amber-700 dark:text-amber-300 font-medium">Conditions stagnant</span></>
+                    )}
+                    {data.historicalCascade.trendDirection === "improving" && (
+                      <><TrendingUp className="w-4 h-4 text-emerald-500 flex-none" /><span className="text-emerald-700 dark:text-emerald-400 font-medium">Conditions improving</span></>
+                    )}
+                    <span className="text-muted-foreground">·</span>
+                    <span className="text-muted-foreground">{data.historicalCascade.keyInsight}</span>
+                  </div>
+
+                  {/* Vintage table */}
+                  <div className="px-6 py-4 overflow-x-auto">
+                    <table className="w-full text-sm" data-testid="table-historical-vintages">
+                      <thead>
+                        <tr className="text-xs text-muted-foreground uppercase tracking-wide border-b border-amber-200 dark:border-amber-800/30">
+                          <th className="text-left pb-2 pr-4">Census Year</th>
+                          <th className="text-right pb-2 pr-4">Poverty Rate</th>
+                          <th className="text-right pb-2 pr-4">Unemployment</th>
+                          <th className="text-right pb-2">Est. Cohort Cost</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {data.historicalCascade.vintages.map((v: any, i: number) => (
+                          <tr key={v.year} className={`border-b border-amber-100 dark:border-amber-900/20 ${i % 2 === 0 ? "" : "bg-amber-50/40 dark:bg-amber-900/10"}`} data-testid={`row-vintage-${v.year}`}>
+                            <td className="py-2 pr-4 font-semibold text-amber-900 dark:text-amber-200">{v.year} ACS</td>
+                            <td className={`py-2 pr-4 text-right font-mono ${v.povertyRate >= 20 ? "text-red-600 dark:text-red-400 font-bold" : v.povertyRate >= 15 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400"}`}>
+                              {v.povertyRate.toFixed(1)}%
+                            </td>
+                            <td className="py-2 pr-4 text-right font-mono text-muted-foreground">
+                              {v.unemploymentRate.toFixed(1)}%
+                            </td>
+                            <td className="py-2 text-right font-mono font-bold text-amber-800 dark:text-amber-300">
+                              {fmt$(v.cohortCost)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="border-t-2 border-amber-300 dark:border-amber-700">
+                          <td colSpan={3} className="pt-2 pr-4 font-bold text-amber-900 dark:text-amber-200 text-sm">Total accumulated (documented cohorts)</td>
+                          <td className="pt-2 text-right font-black text-amber-700 dark:text-amber-300">{fmt$(data.historicalCascade.totalAccumulatedCost)}</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                  </div>
+
+                  {/* Framing callout */}
+                  <div className="px-6 py-4 bg-amber-100/60 dark:bg-amber-900/20 border-t border-amber-200 dark:border-amber-800/40">
+                    <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed max-w-3xl">
+                      <span className="font-bold">How to read this:</span> For each Census vintage, we apply the same evidence-based chain model (ECE gap → 3rd grade failure → dropout → incarceration; untreated mental illness → homelessness) to the cohort of children who were young at that time. Those children are now old enough for those outcomes to have materialized. This is the cost that has already been incurred — not a projection. Forward projection for the next 25 years: <span className="font-bold">{fmt$(data.cascade?.counterfactualCost ?? 0)}</span> if nothing changes.
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
+
             {/* Counterfactual */}
             <CounterfactualPanel cascade={data.cascade} />
 
@@ -642,6 +732,16 @@ export default function CommunityImpactPage() {
                       netSavings={data.cascade?.netSavings ?? 0}
                       roi={data.cascade?.roi ?? "0"}
                       populationSize={10000}
+                    />
+                  )}
+                  {activeViz === "historical" && (
+                    <HistoricalTimeline
+                      vintages={data.historicalCascade?.vintages ?? []}
+                      totalAccumulatedCost={data.historicalCascade?.totalAccumulatedCost ?? 0}
+                      trendDirection={data.historicalCascade?.trendDirection ?? "stagnant"}
+                      forwardCost={data.cascade?.counterfactualCost ?? 0}
+                      interventionCost={data.cascade?.interventionCost ?? 0}
+                      geography={data.geography?.displayName ?? submitted}
                     />
                   )}
                 </Suspense>

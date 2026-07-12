@@ -61,6 +61,22 @@ interface TimelineNode {
   interventionWindow?: string;
 }
 
+interface HistoricalVintage {
+  year: number;
+  povertyRate: number;
+  unemploymentRate: number;
+  cohortCost: number;
+}
+
+interface HistoricalCascade {
+  vintages: HistoricalVintage[];
+  totalAccumulatedCost: number;
+  trendDirection: "improving" | "stagnant" | "worsening";
+  yearsAboveCrisisThreshold: number;
+  keyInsight: string;
+  yearsOfData: number;
+}
+
 interface ConductorBrief {
   geography: {
     input: string;
@@ -84,6 +100,7 @@ interface ConductorBrief {
     keyChains: CascadeChain[];
     timeline: TimelineNode[];
   };
+  historicalCascade: HistoricalCascade;
   solutions: {
     topInterventions: EvidenceProgram[];
     grants: any[];
@@ -410,6 +427,210 @@ function identifyAtRiskPopulations(
   });
 }
 
+// ─── State name/abbrev → FIPS lookup ─────────────────────────────────────────
+
+const STATE_FIPS: Record<string, string> = {
+  AL:"01",AK:"02",AZ:"04",AR:"05",CA:"06",CO:"08",CT:"09",DE:"10",FL:"12",GA:"13",
+  HI:"15",ID:"16",IL:"17",IN:"18",IA:"19",KS:"20",KY:"21",LA:"22",ME:"23",MD:"24",
+  MA:"25",MI:"26",MN:"27",MS:"28",MO:"29",MT:"30",NE:"31",NV:"32",NH:"33",NJ:"34",
+  NM:"35",NY:"36",NC:"37",ND:"38",OH:"39",OK:"40",OR:"41",PA:"42",RI:"44",SC:"45",
+  SD:"46",TN:"47",TX:"48",UT:"49",VT:"50",VA:"51",WA:"53",WV:"54",WI:"55",WY:"56",
+  DC:"11",PR:"72",
+  ALABAMA:"01",ALASKA:"02",ARIZONA:"04",ARKANSAS:"05",CALIFORNIA:"06",COLORADO:"08",
+  CONNECTICUT:"09",DELAWARE:"10",FLORIDA:"12",GEORGIA:"13",HAWAII:"15",IDAHO:"16",
+  ILLINOIS:"17",INDIANA:"18",IOWA:"19",KANSAS:"20",KENTUCKY:"21",LOUISIANA:"22",
+  MAINE:"23",MARYLAND:"24",MASSACHUSETTS:"25",MICHIGAN:"26",MINNESOTA:"27",
+  MISSISSIPPI:"28",MISSOURI:"29",MONTANA:"30",NEBRASKA:"31",NEVADA:"32",
+  "NEW HAMPSHIRE":"33",NEWHAMPSHIRE:"33","NEW JERSEY":"34",NEWJERSEY:"34",
+  "NEW MEXICO":"35",NEWMEXICO:"35","NEW YORK":"36",NEWYORK:"36",
+  "NORTH CAROLINA":"37",NORTHCAROLINA:"37","NORTH DAKOTA":"38",NORTHDAKOTA:"38",
+  OHIO:"39",OKLAHOMA:"40",OREGON:"41",PENNSYLVANIA:"42","RHODE ISLAND":"44",
+  RHODEISLAND:"44","SOUTH CAROLINA":"45",SOUTHCAROLINA:"45","SOUTH DAKOTA":"46",
+  SOUTHDAKOTA:"46",TENNESSEE:"47",TEXAS:"48",UTAH:"49",VERMONT:"50",VIRGINIA:"51",
+  WASHINGTON:"53","WEST VIRGINIA":"54",WESTVIRGINIA:"54",WISCONSIN:"55",WYOMING:"56",
+  "DISTRICT OF COLUMBIA":"11",DISTRICTOFCOLUMBIA:"11","PUERTO RICO":"72",PUERTORICO:"72",
+};
+
+function stateFipsFromName(name: string): string {
+  const key = name.trim().toUpperCase().replace(/[^A-Z ]/g, "");
+  return STATE_FIPS[key] || STATE_FIPS[key.replace(/ /g, "")] || "";
+}
+
+// ZIP range → state FIPS — covers all 50 states + DC + PR
+function stateFipsFromZip(zip: string): string {
+  const n = parseInt(zip.slice(0, 5), 10);
+  if (isNaN(n)) return "";
+  if (n >= 600   && n <= 988  ) return "72"; // PR
+  if (n >= 1000  && n <= 2799 ) return "25"; // MA
+  if (n >= 2800  && n <= 2999 ) return "44"; // RI
+  if (n >= 3000  && n <= 3899 ) return "33"; // NH
+  if (n >= 3900  && n <= 4999 ) return "23"; // ME
+  if (n >= 5000  && n <= 5999 ) return "50"; // VT
+  if (n >= 6000  && n <= 6999 ) return "09"; // CT
+  if (n >= 7000  && n <= 8999 ) return "34"; // NJ
+  if (n >= 10000 && n <= 14999) return "36"; // NY
+  if (n >= 15000 && n <= 19699) return "42"; // PA
+  if (n >= 19700 && n <= 19999) return "10"; // DE
+  if (n >= 20000 && n <= 20099) return "11"; // DC
+  if (n >= 20100 && n <= 20199) return "51"; // VA (N. VA)
+  if (n >= 20200 && n <= 20599) return "11"; // DC
+  if (n >= 20600 && n <= 21999) return "24"; // MD
+  if (n >= 22000 && n <= 24699) return "51"; // VA
+  if (n >= 24700 && n <= 26999) return "54"; // WV
+  if (n >= 27000 && n <= 28999) return "37"; // NC
+  if (n >= 29000 && n <= 29999) return "45"; // SC
+  if (n >= 30000 && n <= 31999) return "13"; // GA
+  if (n >= 32000 && n <= 34999) return "12"; // FL
+  if (n >= 35000 && n <= 36999) return "01"; // AL
+  if (n >= 37000 && n <= 38599) return "47"; // TN
+  if (n >= 38600 && n <= 39999) return "28"; // MS
+  if (n >= 40000 && n <= 42799) return "21"; // KY
+  if (n >= 43000 && n <= 45999) return "39"; // OH
+  if (n >= 46000 && n <= 47999) return "18"; // IN
+  if (n >= 48000 && n <= 49999) return "26"; // MI
+  if (n >= 50000 && n <= 52999) return "19"; // IA
+  if (n >= 53000 && n <= 54999) return "55"; // WI
+  if (n >= 55000 && n <= 56799) return "27"; // MN
+  if (n >= 57000 && n <= 57999) return "46"; // SD
+  if (n >= 58000 && n <= 58999) return "38"; // ND
+  if (n >= 59000 && n <= 59999) return "30"; // MT
+  if (n >= 60000 && n <= 62999) return "17"; // IL
+  if (n >= 63000 && n <= 65999) return "29"; // MO
+  if (n >= 66000 && n <= 67999) return "20"; // KS
+  if (n >= 68000 && n <= 69999) return "31"; // NE
+  if (n >= 70000 && n <= 71599) return "22"; // LA
+  if (n >= 71600 && n <= 72999) return "05"; // AR
+  if (n >= 73000 && n <= 74999) return "40"; // OK
+  if (n >= 75000 && n <= 79999) return "48"; // TX
+  if (n >= 80000 && n <= 81999) return "08"; // CO
+  if (n >= 82000 && n <= 83199) return "56"; // WY
+  if (n >= 83200 && n <= 83999) return "16"; // ID
+  if (n >= 84000 && n <= 84999) return "49"; // UT
+  if (n >= 85000 && n <= 86599) return "04"; // AZ
+  if (n >= 87000 && n <= 88499) return "35"; // NM
+  if (n >= 88500 && n <= 88599) return "48"; // TX (El Paso area)
+  if (n >= 89000 && n <= 89999) return "32"; // NV
+  if (n >= 90000 && n <= 96199) return "06"; // CA
+  if (n >= 96700 && n <= 96899) return "15"; // HI
+  if (n >= 97000 && n <= 97999) return "41"; // OR
+  if (n >= 98000 && n <= 99499) return "53"; // WA
+  if (n >= 99500 && n <= 99999) return "02"; // AK
+  return "";
+}
+
+// ─── Historical cascade — what has ALREADY been paid (multi-vintage ACS) ──────
+
+async function buildHistoricalCascade(zcta: string, censusKey: string, stateFips = ""): Promise<HistoricalCascade> {
+  const VINTAGES = [2013, 2015, 2019, 2022];
+  const BASE = "https://api.census.gov/data";
+  const kp = censusKey ? `&key=${censusKey}` : "";
+  const CURRENT_YEAR = 2025;
+  const CRISIS_POVERTY_THRESHOLD = 15;
+
+  // Helper: try a URL, return parsed row or null
+  async function tryUrl(url: string) {
+    try {
+      const resp = await fetch(url, { signal: AbortSignal.timeout(8000) });
+      if (!resp.ok) return null;
+      const data = await resp.json();
+      // Census returns [[header...], [row...]] — error responses are objects or have string first element
+      if (!Array.isArray(data) || !Array.isArray(data[0]) || !data[1]) return null;
+      return data[1] as string[];
+    } catch { return null; }
+  }
+
+  // Fetch poverty + unemployment for each vintage in parallel
+  // Older ACS vintages require &in=state:{fips} to disambiguate ZCTA queries
+  const rows = await Promise.all(
+    VINTAGES.map(async (yr) => {
+      try {
+        const vars = "NAME,B17001_001E,B17001_002E,B23025_003E,B23025_005E";
+        const geo  = `for=zip%20code%20tabulation%20area:${zcta}`;
+        const base = `${BASE}/${yr}/acs/acs5?get=${vars}&${geo}`;
+
+        // Try simple URL first (works for 2022+)
+        let row = await tryUrl(`${base}${kp}`);
+
+        // If that fails and we have a state FIPS, add &in=state qualifier
+        if (!row && stateFips) {
+          row = await tryUrl(`${base}&in=state:${stateFips}${kp}`);
+        }
+
+        // If still nothing and we have a 2-digit FIPS from ZCTA prefix, try TX=48 as last resort
+        if (!row) {
+          // Most ZCTAs can be partially mapped by leading digits — skip rather than guess wrong
+          return null;
+        }
+
+        const total      = parseInt(row[1]) || 0;
+        const inPoverty  = parseInt(row[2]) || 0;
+        const laborForce = parseInt(row[3]) || 0;
+        const unemployed = parseInt(row[4]) || 0;
+        return {
+          year: yr,
+          povertyRate:      total > 0      ? (inPoverty  / total)      * 100 : 0,
+          unemploymentRate: laborForce > 0 ? (unemployed / laborForce) * 100 : 0,
+        };
+      } catch { return null; }
+    })
+  );
+
+  const valid = rows.filter(Boolean) as Array<{ year: number; povertyRate: number; unemploymentRate: number }>;
+
+  // For each vintage, compute what that year's cohort of at-risk children has
+  // ALREADY cost in realized government + social expenditure.
+  // Children age 0-5 in a given vintage year are now old enough for those costs to have materialized.
+  const COHORT = 1000; // per-1000-children baseline for comparability
+  const vintageResults: HistoricalVintage[] = valid.map(({ year, povertyRate, unemploymentRate }) => {
+    const yearsElapsed = CURRENT_YEAR - year;
+
+    // ECE → dropout → incarceration chain (proportional to poverty rate)
+    const childrenInPov   = COHORT * (povertyRate / 100) * 0.24;
+    const noPrek          = childrenInPov * 0.38;
+    const thirdGradeFail  = noPrek * 0.62;
+    const dropouts        = thirdGradeFail * 0.72;
+    const incarcerated    = dropouts * 0.45;
+
+    // Realized costs based on how many years have elapsed since that cohort was young
+    const remedialEd  = Math.round(thirdGradeFail * 11500 * Math.min(yearsElapsed, 8));
+    const jailCost    = Math.round(incarcerated   * 45000 * Math.min(yearsElapsed / 4, 4));
+    const lostWages   = Math.round(dropouts       * 9000  * Math.min(yearsElapsed, 12));
+
+    // Mental health chain
+    const mhUnmet     = COHORT * (unemploymentRate / 100) * 0.28;
+    const mhCost      = Math.round(mhUnmet * 6200 * Math.min(yearsElapsed, 10));
+
+    const cohortCost = remedialEd + jailCost + lostWages + mhCost;
+
+    return { year, povertyRate, unemploymentRate, cohortCost };
+  });
+
+  const totalAccumulatedCost = vintageResults.reduce((s, v) => s + v.cohortCost, 0);
+
+  // Trend direction from first to last vintage
+  const first = vintageResults[0]?.povertyRate ?? 0;
+  const last  = vintageResults[vintageResults.length - 1]?.povertyRate ?? 0;
+  const trendDirection: "improving" | "stagnant" | "worsening" =
+    last < first - 2 ? "improving" : last > first + 2 ? "worsening" : "stagnant";
+
+  const yearsAboveCrisisThreshold = vintageResults.filter(v => v.povertyRate >= CRISIS_POVERTY_THRESHOLD).length;
+
+  const keyInsight = trendDirection === "stagnant"
+    ? `This community's poverty rate has stayed near ${Math.round(first)}% for at least 12 years — no structural shift occurred.`
+    : trendDirection === "worsening"
+    ? `Poverty rose from ${first.toFixed(1)}% in ${vintageResults[0]?.year ?? 2010} to ${last.toFixed(1)}% by ${vintageResults[vintageResults.length - 1]?.year ?? 2022} — conditions deteriorated.`
+    : `Poverty fell from ${first.toFixed(1)}% to ${last.toFixed(1)}% — progress was made, but accumulated cost remains real and documented.`;
+
+  return {
+    vintages: vintageResults,
+    totalAccumulatedCost,
+    trendDirection,
+    yearsAboveCrisisThreshold,
+    keyInsight,
+    yearsOfData: valid.length * 5, // each vintage covers a 5-year period
+  };
+}
+
 // ─── Cross-domain cascade model ───────────────────────────────────────────────
 
 function buildCascadeModel(
@@ -704,10 +925,12 @@ export function registerConductorRoutes(app: Express) {
       let censusData: any = null;
       let stateName = "";
       let countyName = "";
+      let stateFips = "";
 
       try {
         const geo = await zipToGeography(zip);
         if (geo && !geo.isZcta && geo.stateFips && geo.countyFips && geo.tractFips) {
+          stateFips = geo.stateFips || "";
           censusData = await fetchNeighborhoodData(geo.stateFips, geo.countyFips, geo.tractFips);
           countyName = geo.countyName || "";
         }
@@ -760,10 +983,15 @@ export function registerConductorRoutes(app: Express) {
       const domainScores = computeDomainScores(ind);
       const atRiskPopulations = identifyAtRiskPopulations(ind, totalPop);
       const cascade = buildCascadeModel(ind, Math.min(totalPop, populationSize), timeHorizon);
+      const BRIEF_CENSUS_KEY = process.env.CENSUS_API_KEY || "";
 
-      const [grants, narrative] = await Promise.all([
+      const [grants, narrative, historicalCascade] = await Promise.all([
         findRelevantGrants(domainScores),
         generateCommunityNarrative(displayName, demographics, domainScores, cascade, atRiskPopulations),
+        buildHistoricalCascade(zip, BRIEF_CENSUS_KEY, stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip)).catch(() => ({
+          vintages: [], totalAccumulatedCost: 0, trendDirection: "stagnant" as const,
+          yearsAboveCrisisThreshold: 0, keyInsight: "", yearsOfData: 0,
+        })),
       ]);
 
       // Step 5: Evidence programs (filter by crisis domains)
@@ -811,6 +1039,7 @@ export function registerConductorRoutes(app: Express) {
         overallGrade: gradeFromScore(overallScore),
         atRiskPopulations,
         cascade,
+        historicalCascade,
         solutions: {
           topInterventions,
           grants,
