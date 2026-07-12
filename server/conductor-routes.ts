@@ -1188,4 +1188,107 @@ export function registerConductorRoutes(app: Express) {
       return res.status(500).json({ error: "Failed to fetch neighbor ZIPs" });
     }
   });
+
+  /**
+   * POST /api/conductor/export-to-grantpathpro
+   * Packages the community brief (needs assessment, cascade, domain scores) and
+   * sends it to the Grant Path Pro API for grant execution and monitoring.
+   *
+   * WIRING NOTE: Set GPP_API_URL and GPP_API_KEY environment variables when
+   * the Grant Path Pro API endpoint and credentials are available.
+   * Until then, the endpoint returns the payload so the frontend can show a preview.
+   */
+  app.post("/api/conductor/export-to-grantpathpro", async (req: Request, res: Response) => {
+    try {
+      const { brief, geography, requestedBy } = req.body;
+
+      if (!brief || !geography) {
+        return res.status(400).json({ error: "brief and geography are required" });
+      }
+
+      const gppPayload = {
+        source: "ThriveUp Community Impact Conductor",
+        exportedAt: new Date().toISOString(),
+        requestedBy: requestedBy || "anonymous",
+        geography: {
+          zip: geography.zip,
+          city: geography.city,
+          county: geography.county,
+          state: geography.state,
+        },
+        needsAssessment: {
+          overallScore: brief.overallScore,
+          grade: brief.grade,
+          population: brief.population,
+          povertyRate: brief.povertyRate,
+          unemploymentRate: brief.unemploymentRate,
+          medianIncome: brief.medianIncome,
+          domainScores: brief.domainScores,
+          atRiskPopulations: brief.atRiskPopulations,
+        },
+        financialImpact: {
+          historicalCost: brief.historicalCost,
+          forwardProjection: brief.forwardProjection,
+          interventionSavings: brief.interventionSavings,
+          roi: brief.roi,
+          cascadeChains: brief.cascadeChains,
+        },
+        grantAlignment: {
+          matchedOpportunities: brief.matchedGrants ?? [],
+          evidencePrograms: brief.evidencePrograms ?? [],
+          recommendedInterventions: brief.recommendedInterventions ?? [],
+        },
+        narrative: brief.aiNarrative ?? null,
+        censusSources: [
+          "U.S. Census Bureau ACS 5-Year Estimates (2013, 2015, 2019, 2022)",
+          `ZCTA: ${geography.zip}`,
+        ],
+      };
+
+      const gppApiUrl = process.env.GPP_API_URL;
+      const gppApiKey = process.env.GPP_API_KEY;
+
+      if (gppApiUrl && gppApiKey) {
+        const gppResponse = await fetch(gppApiUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${gppApiKey}`,
+            "X-Source": "ThriveUp-ConductorV1",
+          },
+          body: JSON.stringify(gppPayload),
+          signal: AbortSignal.timeout(15000),
+        });
+
+        if (!gppResponse.ok) {
+          const errText = await gppResponse.text();
+          console.error("Grant Path Pro API error:", gppResponse.status, errText);
+          return res.status(502).json({
+            error: "Grant Path Pro API returned an error",
+            status: gppResponse.status,
+            detail: errText,
+          });
+        }
+
+        const gppResult = await gppResponse.json();
+        return res.json({
+          success: true,
+          mode: "live",
+          gppResponse: gppResult,
+          exportedPayload: gppPayload,
+        });
+      }
+
+      return res.json({
+        success: true,
+        mode: "preview",
+        message: "Grant Path Pro API credentials not yet configured. Payload ready for transmission.",
+        exportedPayload: gppPayload,
+      });
+
+    } catch (err) {
+      console.error("export-to-grantpathpro error:", err);
+      return res.status(500).json({ error: "Failed to export to Grant Path Pro" });
+    }
+  });
 }

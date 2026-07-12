@@ -16,7 +16,8 @@ import {
   Globe, ExternalLink, Brain, Stethoscope, Baby, User,
   Siren, Eye, Pill, MessageSquare, Activity,
   Video, Megaphone, Network, Cpu,
-  Rocket, MessageCircle, Compass, Users
+  Rocket, MessageCircle, Compass, Users,
+  Zap, FileText, Send, Lock, Star, Plug
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 
@@ -966,6 +967,391 @@ const HERO_NODES = [
 ];
 const HERO_STREAM_COLORS = ["#22d3ee", "#f59e0b", "#a78bfa", "#34d399", "#f472b6"];
 
+// ─── Service Platform Declaration ────────────────────────────────────────────
+function ServicePlatformSection() {
+  const audiences = [
+    {
+      icon: Building2,
+      color: "from-violet-500 to-purple-600",
+      border: "border-violet-200 dark:border-violet-800",
+      bg: "bg-violet-50 dark:bg-violet-950/20",
+      title: "Nonprofits",
+      sub: "Community organizations, social service agencies, faith-based orgs, CHW networks",
+      bullets: [
+        "Census-verified community needs assessment for any U.S. ZIP",
+        "AI-generated grant narratives with funder-ready evidence chains",
+        "Compliance matrix builder for federal and state RFPs",
+        "Outcome tracking aligned to WIOA, OJJDP, SAMHSA, ACF standards",
+        "Send directly to Grant Path Pro for execution and monitoring",
+      ],
+      cta: "Start Your Community Brief",
+      href: "/community-impact",
+    },
+    {
+      icon: Globe,
+      color: "from-blue-500 to-indigo-600",
+      border: "border-blue-200 dark:border-blue-800",
+      bg: "bg-blue-50 dark:bg-blue-950/20",
+      title: "Government Agencies",
+      sub: "City departments, county offices, state agencies, planning commissions",
+      bullets: [
+        "Multi-geography comparison across jurisdictions",
+        "CEDS-aligned regional economic data (EDA PM1–PM5 framework)",
+        "Community Health Needs Assessment (CHNA) generation — IRS-required for hospitals",
+        "Cost-of-inaction modeling to justify public investment",
+        "Secure API integration with existing government data systems",
+      ],
+      cta: "Request a Government Demo",
+      href: "/community-compare",
+    },
+    {
+      icon: Target,
+      color: "from-amber-500 to-orange-600",
+      border: "border-amber-200 dark:border-amber-800",
+      bg: "bg-amber-50 dark:bg-amber-950/20",
+      title: "Funders & Evaluators",
+      sub: "Foundations, CDFIs, health systems, impact investors, grant reviewers",
+      bullets: [
+        "Standardized community impact scores for portfolio comparison",
+        "Historical ROI modeling — four Census vintages, 2013–2022",
+        "25-year forward cascade with intervention savings projections",
+        "One-page Community Invoice PDF — leave-behind in any room",
+        "Grantee-facing needs assessment that feeds your monitoring dashboard",
+      ],
+      cta: "View a Sample Community Brief",
+      href: "/community-impact",
+    },
+  ];
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6 bg-gradient-to-br from-background via-card to-background border-t" data-testid="section-service-platform">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <Badge variant="secondary" className="mb-3 text-xs">
+            <Briefcase className="mr-1 h-3 w-3" /> B2C · B2G Service Platform
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3" data-testid="text-service-platform-heading">
+            The infrastructure layer for organizations that serve communities.
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+            ThriveUp is not just a community benefit — it's a professional-grade service platform for nonprofits and government organizations that need Census-verified data, funder-ready analysis, and direct integration with grant execution tools.
+            One platform. Any U.S. community. Real data you can defend.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {audiences.map((a) => (
+            <div
+              key={a.title}
+              className={`rounded-xl border-2 ${a.border} ${a.bg} p-5 flex flex-col`}
+              data-testid={`card-service-audience-${a.title.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              <div className={`rounded-xl p-3 bg-gradient-to-br ${a.color} w-fit mb-4 shadow-md`}>
+                <a.icon className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-bold text-base mb-1">{a.title}</h3>
+              <p className="text-xs text-muted-foreground mb-3 leading-relaxed">{a.sub}</p>
+              <ul className="space-y-1.5 mb-5 flex-1">
+                {a.bullets.map((b) => (
+                  <li key={b} className="flex items-start gap-2 text-xs">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-foreground/80 leading-snug">{b}</span>
+                  </li>
+                ))}
+              </ul>
+              <Link href={a.href}>
+                <button
+                  className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${a.color} shadow-sm hover:opacity-90 transition-opacity`}
+                  data-testid={`button-service-cta-${a.title.toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  {a.cta} →
+                </button>
+              </Link>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Pricing Tiers ────────────────────────────────────────────────────────────
+function PricingTiersSection() {
+  const tiers = [
+    {
+      name: "Community",
+      price: "Free",
+      priceNote: "Always free for community members",
+      color: "from-emerald-500 to-teal-600",
+      border: "border-emerald-200 dark:border-emerald-800",
+      highlight: false,
+      audience: "Individuals, families, community advocates",
+      features: [
+        "Benefits screener — 9 programs, one conversation",
+        "Community data explorer — any U.S. ZIP",
+        "AI Navigator — plain-language guidance",
+        "Trade simulations — 5 trades, no signup",
+        "AI literacy curriculum — self-paced",
+        "107 languages supported",
+      ],
+      cta: "Start Free",
+      href: "/benefits-screener",
+      badge: null,
+    },
+    {
+      name: "Partner",
+      price: "$495",
+      priceNote: "per month · billed annually",
+      color: "from-violet-500 to-purple-600",
+      border: "border-violet-400 dark:border-violet-600",
+      highlight: true,
+      audience: "Nonprofits, CHW organizations, community agencies",
+      features: [
+        "Everything in Community",
+        "Unlimited community briefs — any U.S. geography",
+        "AI grant narrative builder (WIOA · OJJDP · SAMHSA · ACF)",
+        "RFP compliance matrix + gap analysis",
+        "Community Invoice PDF — funder-ready leave-behind",
+        "Grant Hub — 721+ matched opportunities",
+        "Outcome tracking dashboard",
+        "Grant Path Pro integration — push needs assessment directly",
+        "Email support + quarterly check-in",
+      ],
+      cta: "Start Partner Trial",
+      href: "/partners/join",
+      badge: "Most Popular",
+    },
+    {
+      name: "Enterprise",
+      price: "$2,800",
+      priceNote: "per month · custom contracts available",
+      color: "from-amber-500 to-orange-600",
+      border: "border-amber-200 dark:border-amber-800",
+      highlight: false,
+      audience: "Government agencies, health systems, CDFIs, large foundations",
+      features: [
+        "Everything in Partner",
+        "Multi-jurisdiction comparison dashboard",
+        "CEDS regional alignment (12 TX EDD regions, expandable)",
+        "Custom Community Health Needs Assessment (CHNA) reports",
+        "White-label community brief with your branding",
+        "Secure API access — integrate into your own systems",
+        "Dedicated integration support for Grant Path Pro",
+        "SLA-backed uptime · SOC 2 framework",
+        "Priority support + dedicated success manager",
+      ],
+      cta: "Talk to Dr. Flood",
+      href: "https://calendar.google.com/calendar/appointments/schedules/AcZssZ2O1JcnlDSXEidpWJKtc02RF37MRUytN66JNOkHDRxDParffIH6eSlbRe0DVXUbfpJwGFRp2bFG?gv=true",
+      badge: "Government · Health System · CDFI",
+    },
+  ];
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6 bg-card border-y" data-testid="section-pricing-tiers">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-10">
+          <Badge variant="secondary" className="mb-3 text-xs">
+            <DollarSign className="mr-1 h-3 w-3" /> Pricing
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-3" data-testid="text-pricing-heading">
+            Free for families. Built for organizations. Scaled for government.
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            The community tier is and will always be free. Organization and government plans fund the infrastructure that keeps it that way.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch">
+          {tiers.map((tier) => (
+            <div
+              key={tier.name}
+              className={`relative rounded-xl border-2 ${tier.border} bg-background p-5 flex flex-col ${tier.highlight ? "shadow-xl ring-2 ring-violet-400/30 scale-[1.02]" : ""}`}
+              data-testid={`card-pricing-${tier.name.toLowerCase()}`}
+            >
+              {tier.badge && (
+                <div className={`absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-bold text-white bg-gradient-to-r ${tier.color} shadow-md whitespace-nowrap`}>
+                  {tier.badge}
+                </div>
+              )}
+              <div className={`rounded-xl p-2.5 bg-gradient-to-br ${tier.color} w-fit mb-3 shadow-sm`}>
+                {tier.name === "Community" && <Heart className="h-5 w-5 text-white" />}
+                {tier.name === "Partner" && <HandshakeIcon className="h-5 w-5 text-white" />}
+                {tier.name === "Enterprise" && <Building2 className="h-5 w-5 text-white" />}
+              </div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-widest mb-0.5">{tier.name}</p>
+              <div className="flex items-baseline gap-1 mb-0.5">
+                <span className="text-2xl font-black">{tier.price}</span>
+                {tier.price !== "Free" && <span className="text-xs text-muted-foreground">/mo</span>}
+              </div>
+              <p className="text-[10px] text-muted-foreground mb-2 leading-tight">{tier.priceNote}</p>
+              <p className="text-xs font-medium mb-4 text-foreground/70 leading-snug border-b pb-3">{tier.audience}</p>
+              <ul className="space-y-1.5 mb-5 flex-1">
+                {tier.features.map((f) => (
+                  <li key={f} className="flex items-start gap-2 text-xs">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0 mt-0.5" />
+                    <span className="text-foreground/80 leading-snug">{f}</span>
+                  </li>
+                ))}
+              </ul>
+              {tier.href.startsWith("http") ? (
+                <a href={tier.href} target="_blank" rel="noopener noreferrer">
+                  <button
+                    className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${tier.color} shadow-sm hover:opacity-90 transition-opacity`}
+                    data-testid={`button-pricing-cta-${tier.name.toLowerCase()}`}
+                  >
+                    {tier.cta} →
+                  </button>
+                </a>
+              ) : (
+                <Link href={tier.href}>
+                  <button
+                    className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${tier.color} shadow-sm hover:opacity-90 transition-opacity`}
+                    data-testid={`button-pricing-cta-${tier.name.toLowerCase()}`}
+                  >
+                    {tier.cta} →
+                  </button>
+                </Link>
+              )}
+            </div>
+          ))}
+        </div>
+
+        <p className="text-center text-xs text-muted-foreground mt-6">
+          Nonprofit discount available · Government cooperative purchasing accepted · TCAF is a 501(c)(3) — grants may cover subscription costs
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ─── Grant Path Pro Integration Panel ────────────────────────────────────────
+function GrantPathProSection() {
+  const flow = [
+    { icon: Search,    label: "Enter any ZIP",          desc: "Type any U.S. community — city, county, or ZIP code" },
+    { icon: BarChart3, label: "Get the analysis",       desc: "Census-verified needs assessment, cascade, ROI — 15 seconds" },
+    { icon: FileText,  label: "Invoice + narrative",    desc: "Download the Community Invoice PDF or the AI grant narrative" },
+    { icon: Send,      label: "Push to Grant Path Pro", desc: "One click sends the full package — needs assessment, domain scores, matched grants" },
+    { icon: Zap,       label: "Execute & monitor",      desc: "Grant Path Pro handles submission tracking, compliance, and reporting" },
+  ];
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6 border-t" data-testid="section-grantpathpro">
+      <div className="max-w-4xl mx-auto">
+        <div className="rounded-2xl border-2 border-amber-200 dark:border-amber-800 bg-gradient-to-br from-amber-50/60 via-background to-amber-50/30 dark:from-amber-950/20 dark:to-background overflow-hidden">
+          <div className="p-6 sm:p-8">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 mb-6">
+              <div className="rounded-xl p-3 bg-gradient-to-br from-amber-500 to-orange-600 shadow-md shrink-0">
+                <Plug className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2 mb-1">
+                  <h2 className="text-xl sm:text-2xl font-bold" data-testid="text-gpp-heading">
+                    ThriveUp + Grant Path Pro
+                  </h2>
+                  <Badge className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border-amber-300">
+                    Integrated
+                  </Badge>
+                </div>
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
+                  Two complementary platforms. ThriveUp generates the intelligence — community needs, financial impact, grant alignment.
+                  Grant Path Pro executes and monitors. Together, you never switch platforms mid-grant.
+                </p>
+              </div>
+            </div>
+
+            {/* Flow diagram */}
+            <div className="flex flex-col sm:flex-row items-center gap-2 sm:gap-0 mb-8 overflow-x-auto pb-2">
+              {flow.map((step, i) => (
+                <div key={step.label} className="flex items-center gap-0 shrink-0">
+                  <div className="flex flex-col items-center text-center w-[120px] sm:w-[110px]" data-testid={`step-gpp-flow-${i + 1}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 shadow-sm ${i === 3 ? "bg-gradient-to-br from-amber-500 to-orange-600" : "bg-primary/10"}`}>
+                      <step.icon className={`h-4 w-4 ${i === 3 ? "text-white" : "text-primary"}`} />
+                    </div>
+                    <p className="text-[10px] font-bold leading-tight mb-0.5">{step.label}</p>
+                    <p className="text-[9px] text-muted-foreground leading-snug hidden sm:block">{step.desc}</p>
+                  </div>
+                  {i < flow.length - 1 && (
+                    <ArrowRight className="h-4 w-4 text-muted-foreground/40 mx-1 shrink-0 hidden sm:block" />
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* What each platform does */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+              <div className="rounded-xl border border-border/60 bg-background/80 p-4" data-testid="card-gpp-thriveup-role">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center">
+                    <BarChart3 className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="text-xs font-bold">ThriveUp does</span>
+                </div>
+                <ul className="space-y-1">
+                  {[
+                    "Community needs assessment (Census-verified)",
+                    "Historical cost cascade (4 vintages, 2013–2022)",
+                    "25-year forward projection + ROI",
+                    "Grant matching from 721+ opportunities",
+                    "AI narrative for any RFP section",
+                    "Community Invoice PDF",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-1.5 text-[11px]">
+                      <CheckCircle2 className="h-3 w-3 text-violet-500 shrink-0 mt-0.5" />
+                      <span className="text-foreground/80">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background/80 p-4" data-testid="card-gpp-grantpathpro-role">
+                <div className="flex items-center gap-2 mb-2">
+                  <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
+                    <Zap className="h-3 w-3 text-white" />
+                  </div>
+                  <span className="text-xs font-bold">Grant Path Pro does</span>
+                </div>
+                <ul className="space-y-1">
+                  {[
+                    "Grant execution workflow management",
+                    "Submission tracking and deadline alerts",
+                    "Compliance monitoring and reporting",
+                    "Budget management and spend tracking",
+                    "Funder relationship management",
+                    "Post-award outcome reporting",
+                  ].map((f) => (
+                    <li key={f} className="flex items-start gap-1.5 text-[11px]">
+                      <CheckCircle2 className="h-3 w-3 text-amber-500 shrink-0 mt-0.5" />
+                      <span className="text-foreground/80">{f}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            {/* CTA row */}
+            <div className="flex flex-col sm:flex-row items-center gap-3">
+              <Link href="/community-impact">
+                <button
+                  className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 shadow-sm hover:opacity-90 transition-opacity"
+                  data-testid="button-gpp-generate-brief"
+                >
+                  Generate a Community Brief →
+                </button>
+              </Link>
+              <span className="text-xs text-muted-foreground">
+                Then send directly to Grant Path Pro with one click
+              </span>
+              <div className="flex items-center gap-1.5 ml-auto">
+                <Lock className="h-3 w-3 text-muted-foreground/60" />
+                <span className="text-[10px] text-muted-foreground/60">Secure API · Census-sourced · Audit-logged</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function FiveWTeaser() {
   const points = [
     {
@@ -1306,38 +1692,41 @@ export default function LandingPage() {
           </h1>
 
           {/* Subtitle */}
-          <p className="mb-4 px-2" data-testid="text-hero-subtitle"
-            style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 560, lineHeight: 1.75 }}>
-            The backbone for nonprofits, residents, funders, and policymakers — not a competitor. We bring the tools, data, and funding knowledge. You bring the mission. Together we turn advocacy and passion into lasting, measurable impact.
+          <p className="mb-3 px-2" data-testid="text-hero-subtitle"
+            style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 580, lineHeight: 1.75 }}>
+            A B2C · B2G service platform for <strong>nonprofits, government agencies, and the communities they serve</strong> — powered by live U.S. Census data, AI grant intelligence, and direct integration with Grant Path Pro for end-to-end execution.
           </p>
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
             style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.7 }}>
-            Built to work in any U.S. county.{" "}
+            Any U.S. ZIP in 15 seconds: Census-verified needs assessment → AI grant narrative → Community Invoice PDF → pushed directly to Grant Path Pro.{" "}
             <Link href="/coverage" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-coverage">
-              Texas is our first deployment
+              Texas-first deployment
             </Link>
-            {" "}— Travis, Williamson, Hays, Bastrop, and Caldwell counties.
-            Veteran-founded. Black-led. Built by people who've been where you are.
-          </p>
-
-          <p className="text-xs mb-2 px-2" data-testid="text-hero-philosophy"
-            style={{ color: heroFaint, maxWidth: 500, lineHeight: 1.7 }}>
-            "No one cares how much you know until they know how much you care." We meet every community where they are — at their pace, at their readiness level, with real solutions.
+            {" "}· Travis, Williamson, Hays, Bastrop, Caldwell.
+            Veteran-founded. Black-led.
           </p>
 
           <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
             style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
-            TCAF is the community infrastructure platform — 6 service domains, 15 platforms, 4-engine AI, built for any U.S. county. We are stronger together.
+            15 platforms · 6 service domains · 4-engine AI · 107 languages · 50-state architecture.
+            Free for families. Professional tiers for organizations. Built to deploy everywhere.
           </p>
 
           {/* CTAs */}
           <div className="flex flex-wrap gap-4 justify-center mb-6">
-            <Link href="/benefits-screener">
+            <Link href="/community-impact">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
                 style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}
+                data-testid="button-hero-community-brief">
+                Generate a Community Brief →
+              </button>
+            </Link>
+            <Link href="/benefits-screener">
+              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+                style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
                 data-testid="button-hero-benefits">
-                Find What Your Family Qualifies For →
+                I Need Help for My Family →
               </button>
             </Link>
             <Link href="/our-approach">
@@ -1395,6 +1784,9 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <ServicePlatformSection />
+      <GrantPathProSection />
+      <PricingTiersSection />
       <FiveWTeaser />
       <TrustBar />
       <DisciplineStrip />
