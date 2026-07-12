@@ -11,3 +11,4 @@
 - [Partner API Hub](partner-api-hub.md) — permanent external integration layer; tcaf_* keys, scope-gated, audit-logged; admin UI in Ops Center → Partner API tab.
 - [ITSM Compliance Framework](itsm-framework.md) — first formal ITSM doc; docs/itsm/itsm-compliance-framework.md; 15 services, 3 tiers, P1–P4 SLAs, ITIL 4 + OMB A-130 + NIST SP 800-53 aligned.
 - [Orchestration Layer (Chainweb Conductor)](orchestration-layer.md) — all 25 engines wired; college-access-ai is operator-selectable (explicit id+question payload bypasses PII wall, capped AI spend).
+- [Community Impact Conductor](community-impact-conductor.md) — /community-impact; POST /api/conductor/community-brief; 10-domain scoring, 25-yr cascade, grant match, AI narrative; db from ./storage, schema from @shared/schema.

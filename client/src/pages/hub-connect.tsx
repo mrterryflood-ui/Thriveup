@@ -31,6 +31,7 @@ const CARDS: HubCardDef[] = [
   { icon: Microscope,   title: "Open Innovation Lab",          subtitle: "Research, co-creation, and evidence building",                  href: "/open-innovation-lab",    tag: "Media",     color: "rose" },
 
   { icon: Globe,        title: "Civic Signal (power2thepeople.net)", subtitle: "Live civic feed — courts, ordinances, public meetings",   href: "https://power2thepeople.net", tag: "Civic", color: "indigo" },
+  { icon: BarChart3,    title: "Community Impact Conductor",   subtitle: "Any ZIP → 10 systems scored · 25-year cascade · solutions",    href: "/community-impact",       tag: "Civic",     variant: "hero", color: "blue",  badge: "New" },
   { icon: Search,       title: "SDOH Explorer",                subtitle: "Neighborhood-by-neighborhood social determinants data",         href: "/sdoh-explorer",          tag: "Civic",     color: "blue" },
   { icon: Map,          title: "Coverage Map",                 subtitle: "National coverage — 50-state architecture",                    href: "/coverage",               tag: "Civic",     color: "cyan" },
   { icon: MapPin,       title: "Bring TCAF to Your State",     subtitle: "Request the Foundation Network in your community",             href: "/coverage#request",       tag: "Civic",     color: "emerald" },

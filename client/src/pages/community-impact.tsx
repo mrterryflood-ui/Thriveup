@@ -1,0 +1,596 @@
+import { useState } from "react";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Heart, Brain, Shield, Home, Baby, GraduationCap, Scale, Briefcase,
+  Users, MapPin, Globe, Search, AlertTriangle, TrendingDown, TrendingUp,
+  ArrowRight, DollarSign, Clock, Zap, ChevronRight, Download, Building2,
+  Target, Lightbulb, FileText, UserCheck, Accessibility, TreePine,
+} from "lucide-react";
+
+// ─── Icon map ─────────────────────────────────────────────────────────────────
+
+const ICON_MAP: Record<string, any> = {
+  Heart, Brain, Shield, Home, Baby, GraduationCap, Scale, Briefcase,
+  Users, MapPin, Globe, UserCheck, Accessibility, TreePine, Building2,
+};
+
+function DomainIcon({ name, className }: { name: string; className?: string }) {
+  const Icon = ICON_MAP[name] || Target;
+  return <Icon className={className} />;
+}
+
+// ─── Urgency styling ──────────────────────────────────────────────────────────
+
+const URGENCY_CONFIG: Record<string, { bg: string; text: string; border: string; badge: string; dot: string }> = {
+  stable:  { bg: "bg-emerald-50 dark:bg-emerald-950/30", text: "text-emerald-700 dark:text-emerald-400", border: "border-emerald-200 dark:border-emerald-800", badge: "bg-emerald-100 text-emerald-800", dot: "bg-emerald-500" },
+  watch:   { bg: "bg-amber-50 dark:bg-amber-950/30",   text: "text-amber-700 dark:text-amber-400",   border: "border-amber-200 dark:border-amber-800",   badge: "bg-amber-100 text-amber-800",   dot: "bg-amber-500"   },
+  concern: { bg: "bg-orange-50 dark:bg-orange-950/30", text: "text-orange-700 dark:text-orange-400", border: "border-orange-200 dark:border-orange-800", badge: "bg-orange-100 text-orange-800", dot: "bg-orange-500" },
+  crisis:  { bg: "bg-red-50 dark:bg-red-950/30",       text: "text-red-700 dark:text-red-400",       border: "border-red-200 dark:border-red-800",       badge: "bg-red-100 text-red-800",       dot: "bg-red-500"   },
+};
+const POP_URGENCY: Record<string, string> = {
+  moderate: "border-l-amber-400",
+  high:     "border-l-orange-500",
+  critical: "border-l-red-600",
+};
+
+function fmt$(n: number) {
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
+  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
+  return `$${n.toFixed(0)}`;
+}
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function ScoreRing({ score, grade, urgency }: { score: number; grade: string; urgency: string }) {
+  const cfg = URGENCY_CONFIG[urgency] || URGENCY_CONFIG.watch;
+  const color = urgency === "stable" ? "#10b981" : urgency === "watch" ? "#f59e0b" : urgency === "concern" ? "#f97316" : "#ef4444";
+  const r = 26; const circ = 2 * Math.PI * r;
+  const dash = (score / 100) * circ;
+  return (
+    <div className="relative w-16 h-16 flex items-center justify-center">
+      <svg width="64" height="64" className="-rotate-90">
+        <circle cx="32" cy="32" r={r} fill="none" stroke="#e5e7eb" strokeWidth="5" />
+        <circle cx="32" cy="32" r={r} fill="none" stroke={color} strokeWidth="5"
+          strokeDasharray={`${dash} ${circ}`} strokeLinecap="round" />
+      </svg>
+      <div className="absolute text-center">
+        <div className="text-lg font-bold leading-none">{grade}</div>
+        <div className="text-[10px] text-muted-foreground">{score}</div>
+      </div>
+    </div>
+  );
+}
+
+function SystemsVitals({ scores }: { scores: Record<string, any> }) {
+  return (
+    <section data-testid="section-systems-vitals">
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Zap className="w-5 h-5 text-amber-500" />Systems Vitals</h2>
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+        {Object.entries(scores).map(([key, d]: [string, any]) => {
+          const cfg = URGENCY_CONFIG[d.urgency] || URGENCY_CONFIG.watch;
+          return (
+            <Card key={key} className={`p-3 border ${cfg.border} ${cfg.bg} flex flex-col gap-2`} data-testid={`card-domain-${key}`}>
+              <div className="flex items-start justify-between">
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${cfg.bg} ${cfg.text}`}>
+                  <DomainIcon name={d.icon} className="w-4 h-4" />
+                </div>
+                <ScoreRing score={d.score} grade={d.grade} urgency={d.urgency} />
+              </div>
+              <div>
+                <div className="text-sm font-semibold leading-tight">{d.label}</div>
+                <div className={`text-[11px] mt-1 leading-snug ${cfg.text}`}>{d.keyGap}</div>
+              </div>
+              <Badge className={`text-[10px] px-1.5 py-0.5 w-fit ${cfg.badge}`}>{d.urgency.toUpperCase()}</Badge>
+            </Card>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
+
+function PopulationSnapshot({ populations }: { populations: any[] }) {
+  return (
+    <section data-testid="section-population-snapshot">
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Users className="w-5 h-5 text-blue-500" />Who Is Falling Through the Gaps</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {populations.map((p: any) => (
+          <Card key={p.id} className={`p-4 border-l-4 ${POP_URGENCY[p.urgency] || "border-l-amber-400"}`} data-testid={`card-pop-${p.id}`}>
+            <div className="flex items-start justify-between mb-2">
+              <div>
+                <div className="font-semibold text-sm">{p.name}</div>
+                <div className="text-2xl font-bold mt-0.5">{p.estimated.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{p.unit}</span></div>
+              </div>
+              <Badge variant={p.urgency === "critical" ? "destructive" : "outline"} className="text-[10px]">{p.urgency}</Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mb-2">{p.primaryGap}</p>
+            <div className="flex flex-wrap gap-1">
+              {(p.interventions || []).slice(0, 3).map((iv: string, i: number) => (
+                <span key={i} className="text-[10px] bg-muted px-2 py-0.5 rounded-full">{iv}</span>
+              ))}
+            </div>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function LifeArcTimeline({ timeline }: { timeline: any[] }) {
+  const [active, setActive] = useState<number | null>(null);
+  return (
+    <section data-testid="section-life-arc">
+      <h2 className="text-xl font-bold mb-2 flex items-center gap-2">
+        <Clock className="w-5 h-5 text-purple-500" />The 25-Year Story — Two Paths
+      </h2>
+      <p className="text-sm text-muted-foreground mb-5">Click any stage to see what changes with — and without — early investment.</p>
+
+      <div className="relative overflow-x-auto pb-2">
+        {/* WITHOUT row */}
+        <div className="flex items-stretch gap-0 mb-1">
+          <div className="flex-none w-28 flex items-center justify-end pr-3">
+            <span className="text-xs font-semibold text-red-600 flex items-center gap-1"><TrendingDown className="w-3 h-3" />Without</span>
+          </div>
+          <div className="flex gap-0 flex-1">
+            {timeline.map((node: any, i: number) => (
+              <button
+                key={i}
+                onClick={() => setActive(active === i ? null : i)}
+                className={`flex-1 min-w-[90px] text-left p-2 rounded-t-lg border border-b-0 text-[11px] leading-snug transition-all
+                  ${active === i ? "bg-red-100 dark:bg-red-950 border-red-400" : "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-950/60"}`}
+                data-testid={`timeline-without-${i}`}
+              >
+                <span className="line-clamp-3 text-red-800 dark:text-red-300">{node.without}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Age axis */}
+        <div className="flex gap-0">
+          <div className="flex-none w-28" />
+          <div className="flex flex-1">
+            {timeline.map((node: any, i: number) => (
+              <div key={i}
+                onClick={() => setActive(active === i ? null : i)}
+                className={`flex-1 min-w-[90px] flex flex-col items-center justify-center py-2 cursor-pointer border-x border-gray-200 dark:border-gray-700 transition-all
+                  ${active === i ? "bg-purple-100 dark:bg-purple-950" : "bg-muted/60"}`}
+              >
+                <div className={`w-3 h-3 rounded-full mb-1 ${active === i ? "bg-purple-500" : "bg-gray-400"}`} />
+                <span className="text-[11px] font-bold text-center leading-none">{node.age}</span>
+                <span className="text-[10px] text-muted-foreground text-center mt-0.5 leading-none line-clamp-1">{node.milestone}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* WITH row */}
+        <div className="flex items-stretch gap-0 mt-1">
+          <div className="flex-none w-28 flex items-center justify-end pr-3">
+            <span className="text-xs font-semibold text-emerald-600 flex items-center gap-1"><TrendingUp className="w-3 h-3" />With</span>
+          </div>
+          <div className="flex gap-0 flex-1">
+            {timeline.map((node: any, i: number) => (
+              <button
+                key={i}
+                onClick={() => setActive(active === i ? null : i)}
+                className={`flex-1 min-w-[90px] text-left p-2 rounded-b-lg border border-t-0 text-[11px] leading-snug transition-all
+                  ${active === i ? "bg-emerald-100 dark:bg-emerald-950 border-emerald-400" : "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-950/60"}`}
+                data-testid={`timeline-with-${i}`}
+              >
+                <span className="line-clamp-3 text-emerald-800 dark:text-emerald-300">{node.with}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Detail panel */}
+      {active !== null && timeline[active] && (
+        <Card className="mt-4 p-4 border-purple-200 dark:border-purple-800 bg-purple-50 dark:bg-purple-950/30" data-testid="panel-timeline-detail">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-full bg-purple-100 dark:bg-purple-900 flex items-center justify-center flex-none">
+              <Clock className="w-5 h-5 text-purple-600" />
+            </div>
+            <div className="flex-1">
+              <div className="font-semibold text-purple-900 dark:text-purple-200">{timeline[active].age} — {timeline[active].milestone}</div>
+              {timeline[active].interventionWindow && (
+                <div className="mt-1 text-xs text-purple-700 dark:text-purple-300 font-medium flex items-center gap-1">
+                  <Zap className="w-3 h-3" />{timeline[active].interventionWindow}
+                </div>
+              )}
+              <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-red-50 dark:bg-red-950/50 rounded-lg p-3 border border-red-200 dark:border-red-800">
+                  <div className="text-xs font-semibold text-red-700 dark:text-red-400 mb-1 flex items-center gap-1"><TrendingDown className="w-3 h-3" />Without Intervention</div>
+                  <p className="text-xs text-red-800 dark:text-red-300">{timeline[active].without}</p>
+                </div>
+                <div className="bg-emerald-50 dark:bg-emerald-950/50 rounded-lg p-3 border border-emerald-200 dark:border-emerald-800">
+                  <div className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 mb-1 flex items-center gap-1"><TrendingUp className="w-3 h-3" />With Evidence-Based Investment</div>
+                  <p className="text-xs text-emerald-800 dark:text-emerald-300">{timeline[active].with}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </Card>
+      )}
+    </section>
+  );
+}
+
+function CounterfactualPanel({ cascade }: { cascade: any }) {
+  return (
+    <section data-testid="section-counterfactual">
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><DollarSign className="w-5 h-5 text-emerald-500" />The Cost of Inaction vs. Investment</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Card className="p-5 text-center border-red-200 dark:border-red-800 bg-red-50 dark:bg-red-950/30" data-testid="card-cost-inaction">
+          <TrendingDown className="w-8 h-8 text-red-500 mx-auto mb-2" />
+          <div className="text-3xl font-bold text-red-700 dark:text-red-400">{fmt$(cascade.counterfactualCost)}</div>
+          <div className="text-sm text-red-600 dark:text-red-500 mt-1">Cost of doing nothing</div>
+          <div className="text-xs text-muted-foreground mt-1">over {cascade.timeHorizonYears} years</div>
+        </Card>
+        <Card className="p-5 text-center border-blue-200 dark:border-blue-800 bg-blue-50 dark:bg-blue-950/30" data-testid="card-cost-intervention">
+          <Target className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+          <div className="text-3xl font-bold text-blue-700 dark:text-blue-400">{fmt$(cascade.interventionCost)}</div>
+          <div className="text-sm text-blue-600 dark:text-blue-500 mt-1">Evidence-based investment</div>
+          <div className="text-xs text-muted-foreground mt-1">pre-K · Medicaid · Housing First · NFP</div>
+        </Card>
+        <Card className="p-5 text-center border-emerald-200 dark:border-emerald-800 bg-emerald-50 dark:bg-emerald-950/30" data-testid="card-net-savings">
+          <TrendingUp className="w-8 h-8 text-emerald-500 mx-auto mb-2" />
+          <div className="text-3xl font-bold text-emerald-700 dark:text-emerald-400">{fmt$(cascade.netSavings)}</div>
+          <div className="text-sm text-emerald-600 dark:text-emerald-500 mt-1">Net savings to taxpayers</div>
+          <div className="text-xs text-muted-foreground mt-1">{cascade.roi}× return on investment</div>
+        </Card>
+      </div>
+
+      <div className="space-y-3">
+        {(cascade.keyChains || []).map((chain: any, i: number) => (
+          <Card key={i} className="p-4" data-testid={`card-chain-${i}`}>
+            <div className="flex items-start gap-3">
+              <div className="w-6 h-6 rounded-full bg-muted flex items-center justify-center flex-none text-xs font-bold">{i + 1}</div>
+              <div className="flex-1">
+                <div className="font-semibold text-sm mb-2 flex items-center gap-2">
+                  {chain.chain}
+                  <Badge variant="outline" className="text-[10px] text-red-600 border-red-300">{fmt$(chain.costDelta)} cost</Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                  <div className="bg-red-50 dark:bg-red-950/40 rounded p-2 text-red-700 dark:text-red-400"><span className="font-medium">Without:</span> {chain.without}</div>
+                  <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded p-2 text-emerald-700 dark:text-emerald-400"><span className="font-medium">With:</span> {chain.with}</div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function SolutionsLayer({ solutions, policyContext }: { solutions: any; policyContext: any }) {
+  const [tab, setTab] = useState<"interventions" | "grants" | "policy">("interventions");
+
+  return (
+    <section data-testid="section-solutions">
+      <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><Lightbulb className="w-5 h-5 text-yellow-500" />Evidence-Based Solutions</h2>
+      <div className="flex gap-2 mb-4">
+        {(["interventions", "grants", "policy"] as const).map((t) => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-3 py-1.5 rounded-full text-sm font-medium transition-all ${tab === t ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-muted/80"}`}
+            data-testid={`tab-${t}`}
+          >{t.charAt(0).toUpperCase() + t.slice(1)}</button>
+        ))}
+      </div>
+
+      {tab === "interventions" && (
+        <div className="space-y-3">
+          {(solutions.topInterventions || []).length === 0
+            ? <p className="text-muted-foreground text-sm">Run a community brief to load evidence-based programs.</p>
+            : (solutions.topInterventions || []).map((prog: any, i: number) => (
+              <Card key={i} className="p-4" data-testid={`card-intervention-${i}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm">{prog.name}</div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{prog.targetPopulation}</div>
+                    <div className="text-xs mt-1">{prog.evidenceSummary || prog.description}</div>
+                    {prog.roiPerDollar && (
+                      <Badge className="mt-2 bg-emerald-100 text-emerald-800 text-[10px]">
+                        ${prog.roiPerDollar.toFixed(2)} returned per $1 invested
+                      </Badge>
+                    )}
+                  </div>
+                  <Badge variant="outline" className="text-[10px] flex-none">{prog.evidenceTier || "Evidence-based"}</Badge>
+                </div>
+              </Card>
+            ))}
+        </div>
+      )}
+
+      {tab === "grants" && (
+        <div className="space-y-3">
+          {(solutions.grants || []).length === 0
+            ? <p className="text-muted-foreground text-sm">No grant matches found. Run an AI Grant Hunt in Grant Hub for this community's profile.</p>
+            : (solutions.grants || []).map((g: any, i: number) => (
+              <Card key={i} className="p-4" data-testid={`card-grant-${i}`}>
+                <div className="flex items-start justify-between gap-2">
+                  <div className="flex-1">
+                    <div className="font-semibold text-sm">{g.title}</div>
+                    <div className="text-xs text-muted-foreground">{g.agency}</div>
+                    {g.fundingAmount && <div className="text-xs mt-1 font-medium text-emerald-700">{g.fundingAmount}</div>}
+                    {g.deadline && <div className="text-xs text-muted-foreground">Deadline: {g.deadline}</div>}
+                  </div>
+                  {g.fitScore && (
+                    <Badge className={`flex-none text-[10px] ${g.fitScore >= 70 ? "bg-emerald-100 text-emerald-800" : g.fitScore >= 40 ? "bg-amber-100 text-amber-800" : "bg-gray-100 text-gray-700"}`}>
+                      {g.fitScore}% fit
+                    </Badge>
+                  )}
+                </div>
+              </Card>
+            ))}
+          <div className="text-center pt-2">
+            <a href="/grant-hub" className="text-sm text-primary hover:underline flex items-center gap-1 justify-center" data-testid="link-grant-hub">
+              Find more grants in Grant Hub <ChevronRight className="w-3 h-3" />
+            </a>
+          </div>
+        </div>
+      )}
+
+      {tab === "policy" && (
+        <div className="space-y-4">
+          {policyContext?.strengths?.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-emerald-700 dark:text-emerald-400 mb-2">State Policy Strengths</h3>
+              <ul className="space-y-1">
+                {policyContext.strengths.map((s: string, i: number) => (
+                  <li key={i} className="text-sm flex gap-2 items-start">
+                    <TrendingUp className="w-4 h-4 text-emerald-500 flex-none mt-0.5" />{s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {policyContext?.gaps?.length > 0 && (
+            <div>
+              <h3 className="text-sm font-semibold text-red-700 dark:text-red-400 mb-2">Policy Gaps to Address</h3>
+              <ul className="space-y-1">
+                {policyContext.gaps.map((g: string, i: number) => (
+                  <li key={i} className="text-sm flex gap-2 items-start">
+                    <AlertTriangle className="w-4 h-4 text-red-500 flex-none mt-0.5" />{g}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          <div>
+            <h3 className="text-sm font-semibold mb-2">Recommended Policy Actions</h3>
+            <ul className="space-y-1">
+              {(solutions.policyActions || []).map((action: string, i: number) => (
+                <li key={i} className="text-sm flex gap-2 items-start">
+                  <ArrowRight className="w-4 h-4 text-blue-500 flex-none mt-0.5" />{action}
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}
+
+function DemographicsStrip({ geo, demographics, overallScore, overallGrade }: { geo: any; demographics: any; overallScore: number; overallGrade: string }) {
+  const items = [
+    { label: "Poverty Rate", value: `${demographics.povertyRate?.toFixed(1)}%`, warn: demographics.povertyRate > 15 },
+    { label: "Uninsured", value: `${demographics.uninsuredRate?.toFixed(1)}%`, warn: demographics.uninsuredRate > 10 },
+    { label: "Housing Burden", value: `${demographics.housingCostBurden?.toFixed(0)}%`, warn: demographics.housingCostBurden > 30 },
+    { label: "Unemployment", value: `${demographics.unemploymentRate?.toFixed(1)}%`, warn: demographics.unemploymentRate > 6 },
+    { label: "No HS Diploma", value: `${demographics.noHighSchoolDiploma?.toFixed(1)}%`, warn: demographics.noHighSchoolDiploma > 12 },
+    { label: "Single Parent", value: `${demographics.singleParentRate?.toFixed(0)}%`, warn: demographics.singleParentRate > 25 },
+  ];
+  return (
+    <Card className="p-4" data-testid="card-demographics-strip">
+      <div className="flex items-center justify-between mb-3">
+        <div>
+          <h1 className="text-2xl font-bold">{geo.displayName}</h1>
+          <p className="text-sm text-muted-foreground">{geo.countyName} · ZIP {geo.zip}</p>
+        </div>
+        <div className="text-center">
+          <div className={`text-5xl font-black ${overallGrade === "A" ? "text-emerald-600" : overallGrade === "B" ? "text-amber-600" : overallGrade === "C" ? "text-orange-600" : "text-red-600"}`}>{overallGrade}</div>
+          <div className="text-xs text-muted-foreground">overall systems grade</div>
+        </div>
+      </div>
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+        {items.map((item) => (
+          <div key={item.label} className={`rounded-lg p-2 text-center ${item.warn ? "bg-red-50 dark:bg-red-950/40" : "bg-muted/50"}`} data-testid={`stat-${item.label.toLowerCase().replace(/\s+/g, "-")}`}>
+            <div className={`text-lg font-bold ${item.warn ? "text-red-700 dark:text-red-400" : ""}`}>{item.value}</div>
+            <div className="text-[10px] text-muted-foreground leading-tight">{item.label}</div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// ─── Skeleton loaders ─────────────────────────────────────────────────────────
+
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-6">
+      <Skeleton className="h-32 w-full rounded-xl" />
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {Array.from({ length: 10 }).map((_, i) => <Skeleton key={i} className="h-36 rounded-xl" />)}
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {Array.from({ length: 6 }).map((_, i) => <Skeleton key={i} className="h-24 rounded-xl" />)}
+      </div>
+      <Skeleton className="h-64 w-full rounded-xl" />
+    </div>
+  );
+}
+
+// ─── Main page ────────────────────────────────────────────────────────────────
+
+export default function CommunityImpactPage() {
+  const [location, setLocation] = useState("");
+  const [submitted, setSubmitted] = useState("");
+
+  const brief = useMutation({
+    mutationFn: (loc: string) =>
+      apiRequest("POST", "/api/conductor/community-brief", { location: loc, populationSize: 10000, timeHorizon: 25 }).then((r) => r.json()),
+  });
+
+  function handleSearch(e?: React.FormEvent) {
+    e?.preventDefault();
+    if (!location.trim()) return;
+    setSubmitted(location.trim());
+    brief.mutate(location.trim());
+  }
+
+  const data = brief.data;
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Hero */}
+      <div className="bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 text-white">
+        <div className="max-w-5xl mx-auto px-4 py-12 md:py-20">
+          <div className="flex items-center gap-2 mb-4">
+            <Badge className="bg-blue-500/20 text-blue-200 border-blue-500/30 text-xs">Community Impact Conductor</Badge>
+          </div>
+          <h1 className="text-3xl md:text-5xl font-black leading-tight mb-4">
+            Every Community Has a Story.<br />
+            <span className="text-blue-300">Let's Tell the Truth About It.</span>
+          </h1>
+          <p className="text-blue-100/80 text-lg mb-8 max-w-2xl">
+            Enter any ZIP code, city, or county. See the real data — health, mental health, benefits, housing, education, justice, foster care — and the 25-year cascade of what happens when we invest, and when we don't.
+          </p>
+          <form onSubmit={handleSearch} className="flex gap-3 max-w-xl" data-testid="form-community-search">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
+              <Input
+                value={location}
+                onChange={(e) => setLocation(e.target.value)}
+                placeholder="78741, Austin TX, Waco TX, Williamson County..."
+                className="pl-9 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:bg-white/15"
+                data-testid="input-location"
+              />
+            </div>
+            <Button type="submit" disabled={brief.isPending || !location.trim()} className="bg-blue-500 hover:bg-blue-400 text-white px-6" data-testid="button-search">
+              {brief.isPending ? "Analyzing…" : "Analyze"}
+            </Button>
+          </form>
+          {!submitted && (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {["Austin, TX", "Waco, TX", "Williamson County, TX", "78741", "Rural Texas"].map((loc) => (
+                <button key={loc} onClick={() => { setLocation(loc); }} className="text-xs text-blue-200/60 hover:text-blue-200 transition-colors underline underline-offset-2" data-testid={`quick-${loc.replace(/,?\s+/g, "-").toLowerCase()}`}>
+                  {loc}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Results */}
+      <div className="max-w-5xl mx-auto px-4 py-8">
+        {brief.isPending && <LoadingSkeleton />}
+
+        {brief.isError && (
+          <Card className="p-6 border-red-200 bg-red-50 dark:bg-red-950/30" data-testid="card-error">
+            <div className="flex gap-3 items-start">
+              <AlertTriangle className="w-5 h-5 text-red-500 flex-none mt-0.5" />
+              <div>
+                <div className="font-semibold text-red-700">Could not analyze this location</div>
+                <div className="text-sm text-red-600 mt-1">Try a specific ZIP code (e.g. 78741) or "City, State" format.</div>
+              </div>
+            </div>
+          </Card>
+        )}
+
+        {data && !brief.isPending && (
+          <div className="space-y-10">
+            {/* Demographics strip */}
+            <DemographicsStrip geo={data.geography} demographics={data.demographics} overallScore={data.overallScore} overallGrade={data.overallGrade} />
+
+            {/* AI Narrative */}
+            {data.narrative && (
+              <Card className="p-6 border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/30" data-testid="card-narrative">
+                <div className="flex items-start gap-3">
+                  <FileText className="w-5 h-5 text-indigo-500 flex-none mt-0.5" />
+                  <div>
+                    <h2 className="font-bold text-indigo-900 dark:text-indigo-200 mb-3">The Community Story</h2>
+                    <p className="text-sm text-indigo-800 dark:text-indigo-300 whitespace-pre-line leading-relaxed">{data.narrative}</p>
+                  </div>
+                </div>
+              </Card>
+            )}
+
+            {/* Systems Vitals */}
+            <SystemsVitals scores={data.systemsScores} />
+
+            {/* Population Snapshot */}
+            <PopulationSnapshot populations={data.atRiskPopulations} />
+
+            {/* Life Arc Timeline */}
+            <LifeArcTimeline timeline={data.cascade?.timeline || []} />
+
+            {/* Counterfactual */}
+            <CounterfactualPanel cascade={data.cascade} />
+
+            {/* Solutions */}
+            <SolutionsLayer solutions={data.solutions} policyContext={data.policyContext} />
+
+            {/* Export strip */}
+            <Card className="p-4 flex flex-wrap gap-3 items-center justify-between" data-testid="card-export">
+              <div>
+                <div className="font-semibold text-sm">Export this community brief</div>
+                <div className="text-xs text-muted-foreground">Use as a funder pitch, council briefing, or grant narrative</div>
+              </div>
+              <div className="flex gap-2 flex-wrap">
+                <a href="/grant-hub" data-testid="link-export-grant-hub">
+                  <Button variant="outline" size="sm" className="gap-1.5"><Building2 className="w-3.5 h-3.5" />Grant Hub</Button>
+                </a>
+                <a href="/chainweb-builder" data-testid="link-export-chainweb">
+                  <Button variant="outline" size="sm" className="gap-1.5"><Target className="w-3.5 h-3.5" />Chainweb</Button>
+                </a>
+                <a href="/city-comparison" data-testid="link-export-compare">
+                  <Button variant="outline" size="sm" className="gap-1.5"><TrendingUp className="w-3.5 h-3.5" />Compare Cities</Button>
+                </a>
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.print()} data-testid="button-print">
+                  <Download className="w-3.5 h-3.5" />Print / PDF
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!brief.isPending && !data && !brief.isError && (
+          <div className="text-center py-16 text-muted-foreground" data-testid="state-empty">
+            <Globe className="w-12 h-12 mx-auto mb-4 opacity-30" />
+            <p className="text-lg font-medium mb-2">Enter any community above</p>
+            <p className="text-sm max-w-md mx-auto">
+              ZIP code, city name, or county — we'll pull real Census data and show the full systems picture: health, mental health, benefits, housing, education, justice, foster care, and what it all costs over 25 years.
+            </p>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4 max-w-2xl mx-auto text-left">
+              {[
+                { icon: "🗺️", title: "Any Geography", desc: "ZIP, city, county, or state — nationwide" },
+                { icon: "🔗", title: "Connected Systems", desc: "Health · Mental health · Benefits · Housing · ECE · Justice · Workforce" },
+                { icon: "📊", title: "25-Year Cascade", desc: "The cost of inaction vs. the ROI of evidence-based investment" },
+              ].map((f) => (
+                <Card key={f.title} className="p-4">
+                  <div className="text-2xl mb-2">{f.icon}</div>
+                  <div className="font-semibold text-sm mb-1">{f.title}</div>
+                  <div className="text-xs text-muted-foreground">{f.desc}</div>
+                </Card>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}

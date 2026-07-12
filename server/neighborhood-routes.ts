@@ -84,7 +84,7 @@ interface NeighborhoodProfile {
   generatedAt: string;
 }
 
-async function resolveLocationToZip(locationText: string): Promise<{ zip: string; displayName: string } | null> {
+export async function resolveLocationToZip(locationText: string): Promise<{ zip: string; displayName: string } | null> {
   const trimmed = locationText.trim();
   if (/^\d{5}$/.test(trimmed)) return { zip: trimmed, displayName: trimmed };
 
@@ -168,7 +168,7 @@ async function resolveLocationToZip(locationText: string): Promise<{ zip: string
   return null;
 }
 
-async function zipToGeography(zipCode: string): Promise<{ stateFips: string; countyFips: string; tractFips: string; countyName: string; isZcta: boolean } | null> {
+export async function zipToGeography(zipCode: string): Promise<{ stateFips: string; countyFips: string; tractFips: string; countyName: string; isZcta: boolean } | null> {
   try {
     const url = `${CENSUS_GEOCODER_URL}?street=1+Main+St&zip=${zipCode}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
     const data = await fetchJson(url);

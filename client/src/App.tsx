@@ -230,6 +230,7 @@ const DonorsPage = lazy(() => import("@/pages/donors"));
 const DonorReceiptDemoPage = lazy(() => import("@/pages/donor-receipt-demo"));
 const SDOHChainPage = lazy(() => import("@/pages/sdoh-chain"));
 const ChainwebBuilderPage = lazy(() => import("@/pages/chainweb-builder"));
+const CommunityImpactPage = lazy(() => import("@/pages/community-impact"));
 const ChildIncDeckPage = lazy(() => import("@/pages/childinc-deck"));
 const SDOHExplorerPage = lazy(() => import("@/pages/sdoh-explorer"));
 const CityComparisonPage = lazy(() => import("@/pages/city-comparison"));
@@ -724,6 +725,7 @@ function AppRouter() {
       <Route path="/donor-receipt-demo" component={DonorReceiptDemoPage} />
       <Route path="/sdoh-chain" component={SDOHChainPage} />
       <Route path="/chainweb" component={ChainwebBuilderPage} />
+      <Route path="/community-impact" component={CommunityImpactPage} />
       <Route path="/sdoh-explorer" component={SDOHExplorerPage} />
       <Route path="/resident-journey" component={ResidentJourneyPage} />
       <Route path="/resident-journey/:id" component={ResidentJourneyPage} />

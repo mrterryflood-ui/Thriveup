@@ -126,6 +126,7 @@ const ALL_ITEMS: CommandItem[] = [
   { group: "Impact & Data", label: "Transparency Dashboard", path: "/transparency", icon: Activity },
   { group: "Impact & Data", label: "Policy Signal Engine", path: "/policy-engine", icon: BarChart3 },
   { group: "Impact & Data", label: "Live Network View", path: "/network", icon: BarChart3 },
+  { group: "Impact & Data", label: "Community Impact Conductor", path: "/community-impact", icon: BarChart3 },
   { group: "Impact & Data", label: "City Comparison", path: "/city-comparison", icon: Scale },
 
   { group: "About", label: "About / Our Structure", path: "/about", icon: Info },
