@@ -52,7 +52,7 @@ const RPLICE_BASE = "https://www.bettersciencelab.com";
 
 // Bearer key — set RPLICE_API_KEY secret to unlock all /api/v1/* authenticated endpoints.
 // Without it, public endpoints still work; auth-gated calls return null gracefully.
-const RPLICE_API_KEY = process.env.THRIVE_GPP_API_KEY || process.env.RPLICE_API_KEY || "";
+const RPLICE_API_KEY = process.env.THRIVE_GPP_API_KEY || process.env.THRIVE_GPP_API || process.env.RPLICE_API_KEY || "";
 
 /** Public GET — no auth needed (knowledge slices, /api/research, /api/frameworks/list) */
 async function fetchRpliceLive(path: string, timeout = 10000): Promise<any> {

@@ -506,7 +506,7 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
   });
 
   const RPLICE_BASE = "https://www.bettersciencelab.com";
-  const RPLICE_API_KEY = process.env.THRIVE_GPP_API_KEY || process.env.RPLICE_API_KEY || "";
+  const RPLICE_API_KEY = process.env.THRIVE_GPP_API_KEY || process.env.THRIVE_GPP_API || process.env.RPLICE_API_KEY || "";
 
   async function fetchRplice(path: string): Promise<any> {
     try {
