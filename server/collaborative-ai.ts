@@ -4,9 +4,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { retrieveRelevantChunks, buildLiveIntelligenceContext } from "./rag-engine";
 import { withEthicalPreamble } from "./ai-provider";
 import { triggerImmediateSmokeAlert } from "./ai-smoke-test";
-import { db } from "./storage";
-import { rpliceAssessments, rpliceActionPlans, outcomeBaselines } from "@shared/schema";
-import { desc, eq } from "drizzle-orm";
+import { buildRpliceIntelligencePackage } from "./rplice-intelligence";
 import { buildRpliceInboundContext } from "./rplice-inbound-routes";
 
 type EngineId = "gemini" | "claude" | "openai" | "deepseek-r1";
@@ -62,61 +60,23 @@ const RPLICE_LENS_STATIC = `Apply implementation science thinking grounded in Th
 - RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) is a sister platform at implementationineducatio.com — NOT a generic acronym. Reference it correctly when relevant.
 - CFIR 2.0 (Consolidated Framework for Implementation Research): 5 domains, 39 constructs — operationalized in ThriveUp's Research Hub (/research-hub), not just named.
 - RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance): evaluation lens built into outcome reporting.
+- Three Realities (Dr. Flood): Research Reality (what data says) / Political Reality (what officials say) / Ground Truth (what community experiences).
+- SALP Indicators: every outcome must be Specific, Actionable, Linked, and Predictive.
 - MAP-GAP continuous improvement: Measure → Analyze → Plan → Gap → Action → Progress.
 - RNR (Risk-Need-Responsivity): gold-standard criminal justice framework embedded in reentry case management.
+- ACEs (Adverse Childhood Experiences): every youth/family outcome must cite Felitti 1998; education is the primary protective factor.
+- Dr. Flood's key principles: "1 year of college = primary protective factor"; "crime doesn't disappear, it migrates"; family structure amplifies all other factors; tract-level data, not county averages.
 - When analyzing a problem, ask: Who does this reach? What evidence supports the approach? What are the fidelity indicators? How is maintenance and scale planned?`;
 
-/** Pull live RPLICE data from DB and combine with inbound evidence feed for AI injection */
+/** Pull the full RPLICE intelligence package (live research + DB + bridge + grant profiles) */
 async function buildLiveRpliceLens(): Promise<string> {
   try {
-    const [assessments, actionPlans, baselines] = await Promise.all([
-      db.select().from(rpliceAssessments).orderBy(desc(rpliceAssessments.createdAt)).limit(5),
-      db.select().from(rpliceActionPlans).where(eq(rpliceActionPlans.status, "active")).orderBy(desc(rpliceActionPlans.createdAt)).limit(5),
-      db.select().from(outcomeBaselines).where(eq(outcomeBaselines.status, "active")).orderBy(desc(outcomeBaselines.createdAt)).limit(5),
-    ]);
-
-    const lines: string[] = [RPLICE_LENS_STATIC, ""];
-
-    if (assessments.length > 0) {
-      lines.push("=== LIVE RPLICE COMMUNITY ASSESSMENTS ===");
-      for (const a of assessments) {
-        lines.push(`• ${a.programName}: ${a.status} assessment`);
-        if (a.recommendations && Array.isArray(a.recommendations)) {
-          const recs = (a.recommendations as string[]).slice(0, 2);
-          if (recs.length) lines.push(`  Recommendations: ${recs.join("; ")}`);
-        }
-      }
-      lines.push("");
-    }
-
-    if (actionPlans.length > 0) {
-      lines.push("=== ACTIVE RPLICE INTERVENTION PLANS ===");
-      for (const p of actionPlans) {
-        lines.push(`• ${p.regionName}: ${p.interventionType} (${p.status})`);
-        if (p.goals && Array.isArray(p.goals)) {
-          const goals = (p.goals as string[]).slice(0, 2);
-          if (goals.length) lines.push(`  Goals: ${goals.join("; ")}`);
-        }
-      }
-      lines.push("");
-    }
-
-    if (baselines.length > 0) {
-      lines.push("=== RPLICE OUTCOME BASELINES (active) ===");
-      for (const b of baselines) {
-        lines.push(`• ${b.regionName}: ${b.timelineMonths}mo tracking window`);
-      }
-      lines.push("");
-    }
-
-    // Append any inbound RPLICE evidence pushed via POST /api/inbound/rplice
+    const pkg = await buildRpliceIntelligencePackage({ crisisDomains: [] });
     const inboundContext = buildRpliceInboundContext();
-    if (inboundContext) lines.push(inboundContext);
-
-    return lines.join("\n");
+    const lens = pkg.aiContextBlock + (inboundContext ? "\n\n" + inboundContext : "");
+    return lens;
   } catch {
-    // Fall back to static lens if DB is unavailable
-    return RPLICE_LENS_STATIC + "\n" + buildRpliceInboundContext();
+    return RPLICE_LENS_STATIC + "\n\n" + buildRpliceInboundContext();
   }
 }
 

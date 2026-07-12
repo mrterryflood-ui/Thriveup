@@ -8,7 +8,7 @@
  */
 
 import type { Express, Request, Response } from "express";
-import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
+import { buildRpliceIntelligencePackage } from "./rplice-intelligence";
 import { buildRpliceInboundContext } from "./rplice-inbound-routes";
 import {
   resolveLocationToZip,
@@ -998,6 +998,11 @@ export function registerConductorRoutes(app: Express) {
       const cascade = buildCascadeModel(ind, Math.min(totalPop, populationSize), timeHorizon);
       const BRIEF_CENSUS_KEY = process.env.CENSUS_API_KEY || "";
 
+      // Compute crisis domains before the parallel block so RPLICE gets the full picture
+      const crisisDomainIds = Object.entries(domainScores)
+        .filter(([, v]) => v.urgency === "crisis" || v.urgency === "concern")
+        .map(([k]) => k);
+
       const [grants, narrative, historicalCascade, rpliceIntelligence] = await Promise.all([
         findRelevantGrants(domainScores),
         generateCommunityNarrative(displayName, demographics, domainScores, cascade, atRiskPopulations),
@@ -1005,13 +1010,15 @@ export function registerConductorRoutes(app: Express) {
           vintages: [], totalAccumulatedCost: 0, trendDirection: "stagnant" as const,
           yearsAboveCrisisThreshold: 0, keyInsight: "", yearsOfData: 0,
         })),
-        generateRpliceHeartbeatIntelligence("thriveup").catch(() => null),
+        buildRpliceIntelligencePackage({
+          crisisDomains: crisisDomainIds,
+          regionName: displayName,
+          stateFips: stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip) || undefined,
+          countyFips: undefined,
+        }).catch(() => null),
       ]);
 
-      // Step 5: Evidence programs (filter by crisis domains)
-      const crisisDomainIds = Object.entries(domainScores)
-        .filter(([, v]) => v.urgency === "crisis" || v.urgency === "concern")
-        .map(([k]) => k);
+      // Step 5: Evidence programs (filter by crisis domains — already computed above)
 
       const topInterventions = EVIDENCE_PROGRAMS.filter((p) => {
         const kw = (p.topicKeywords || []).join(" ").toLowerCase();
@@ -1039,7 +1046,7 @@ export function registerConductorRoutes(app: Express) {
       const scores = Object.values(domainScores).map((d) => d.score);
       const overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
 
-      // Build RPLICE context block (inbound evidence feed + DB intelligence)
+      // Build RPLICE context block (inbound evidence feed)
       const rpliceInboundContext = buildRpliceInboundContext();
 
       const brief: ConductorBrief = {
@@ -1071,14 +1078,42 @@ export function registerConductorRoutes(app: Express) {
         },
         rplice: rpliceIntelligence
           ? {
-              relevant: rpliceIntelligence.relevant,
-              reasoning: rpliceIntelligence.reasoning,
-              relevanceScore: rpliceIntelligence.relevanceScore,
-              activeAnalyses: rpliceIntelligence.analyses,
-              interventionAssignments: rpliceIntelligence.interventionAssignments,
-              actionPlanMilestones: rpliceIntelligence.actionPlanMilestones,
-              outcomeBaselines: rpliceIntelligence.outcomeBaselines,
-              availableTools: rpliceIntelligence.availableTools,
+              // Bridge intelligence
+              relevant: rpliceIntelligence.bridge.relevant,
+              reasoning: rpliceIntelligence.bridge.reasoning,
+              relevanceScore: rpliceIntelligence.bridge.relevanceScore,
+              interventionAssignments: rpliceIntelligence.bridge.interventionAssignments,
+              actionPlanMilestones: rpliceIntelligence.bridge.actionPlanMilestones,
+              outcomeBaselines: rpliceIntelligence.bridge.outcomeBaselines,
+              // Live RPLICE research library
+              liveResearch: {
+                studies: rpliceIntelligence.liveResearch.studies.slice(0, 8),
+                frameworks: rpliceIntelligence.liveResearch.frameworks.slice(0, 6),
+                ecosystemStatus: rpliceIntelligence.liveResearch.ecosystemStatus,
+              },
+              // Grant profiles ranked by alignment to this community's crisis domains
+              matchedGrantProfiles: rpliceIntelligence.grantProfiles.slice(0, 5).map(g => ({
+                id: g.profile.id,
+                name: g.profile.name,
+                funder: g.profile.funder,
+                priority: g.priority,
+                alignmentScore: g.alignmentScore,
+                matchedDomains: g.matchedDomains,
+                focusAreas: g.profile.focusAreas,
+              })),
+              // Ecosystem platform deployment plan
+              platformInterventions: rpliceIntelligence.platformInterventions,
+              // DB assessment counts
+              assessmentCounts: {
+                cfir: rpliceIntelligence.db.cfirAssessments.length,
+                reaim: rpliceIntelligence.db.reaimScorecards.length,
+                fidelity: rpliceIntelligence.db.fidelityChecklists.length,
+                threeRealities: rpliceIntelligence.db.threeRealitiesAnalyses.length,
+                communityAnalyses: rpliceIntelligence.db.communityAnalyses.length,
+                grantNarratives: rpliceIntelligence.db.grantNarratives.length,
+                activeActionPlans: rpliceIntelligence.db.activeActionPlans.length,
+                activeBaselines: rpliceIntelligence.db.activeBaselines.length,
+              },
               inboundEvidenceFeedActive: rpliceInboundContext.length > 0,
             }
           : null,
@@ -1240,16 +1275,25 @@ export function registerConductorRoutes(app: Express) {
         ? `https://${process.env.REPLIT_DEV_DOMAIN}`
         : "https://thriveupacademy.com";
 
-      // Pull fresh RPLICE data for GPP export (in parallel with brief's rplice field,
-      // this fetch is for the export payload — GPP needs it for narrative writing)
-      const [rpliceForGpp, rpliceInboundEventsForGpp] = await Promise.all([
-        generateRpliceHeartbeatIntelligence("thriveup").catch(() => null),
+      // Pull full RPLICE intelligence for GPP export — live research library,
+      // all DB assessments, grant profiles matched to the brief's domains, and platform map
+      const briefDomains = brief?.systemsScores
+        ? Object.entries(brief.systemsScores)
+            .filter(([, v]: [string, any]) => v.urgency === "crisis" || v.urgency === "concern")
+            .map(([k]) => k)
+        : [];
+
+      const [rpliceGppPackage, rpliceInboundEventsForGpp] = await Promise.all([
+        buildRpliceIntelligencePackage({
+          crisisDomains: briefDomains,
+          regionName: geography.city || geography.county || geography.zip || "community",
+        }).catch(() => null),
         fetch(`http://localhost:5000/api/inbound/rplice/latest`)
           .then((r) => r.json())
           .catch(() => ({ events: [], contextBlock: "", total: 0 })),
       ]);
 
-      // Surface any quality-gate reviews and grant narrative feedback from RPLICE inbound feed
+      // Surface inbound event categories from the RPLICE evidence feed
       const qualityGateReviews = (rpliceInboundEventsForGpp.events || []).filter(
         (e: any) => e.eventType === "quality_gate_review" || e.eventType === "grant_narrative_feedback"
       );
@@ -1300,97 +1344,135 @@ export function registerConductorRoutes(app: Express) {
         },
         narrative: brief.aiNarrative ?? null,
         /**
-         * RPLICE Implementation Science Package
-         * ──────────────────────────────────────
+         * RPLICE Maximum Intelligence Package
+         * ─────────────────────────────────────
          * Everything GPP needs to write a defensible, funder-facing grant narrative
-         * grounded in implementation science:
+         * grounded in implementation science. Sources:
          *
-         * • frameworkContext — CFIR/RE-AIM framing GPP should inject into every section
-         * • qualityGate — has RPLICE reviewed this narrative? What did they flag?
-         * • fidelityScores — program fidelity in this region (cite in Section C/D)
-         * • evidenceBase — peer-reviewed evidence backing the proposed interventions
-         * • outcomeBaselines — what we're measuring, current baseline, target (Section E/F)
-         * • implementationPlan — CFIR barriers + facilitators, active milestones (Section G)
-         * • bridgeIntelligence — which RPLICE assessments and plans are relevant to this grant
+         * • Live RPLICE scholarly research library (salp-science--mrterryflood.replit.app)
+         * • 8 funder-specific grant profiles with unique AI voices, matched to crisis domains
+         * • 24 ecosystem platform interventions mapped to risk factors
+         * • All ThriveUp DB assessments (CFIR, RE-AIM, fidelity, Three Realities, etc.)
+         * • Bridge intelligence (assignments, milestones, outcome baselines)
+         * • Inbound RPLICE evidence feed (quality-gate reviews, fidelity, research)
+         * • Full analytical frameworks: CFIR 2.0, RE-AIM, Three Realities, SALP, MAP-GAP, ACEs, RNR
          */
-        rplice: {
-          frameworksApplied: [
-            "CFIR 2.0 (Consolidated Framework for Implementation Research) — 5 domains, 39 constructs",
-            "RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance)",
-            "EPIS (Exploration, Preparation, Implementation, Sustainment)",
-            "RNR (Risk-Need-Responsivity — justice-involved populations)",
-            "MAP-GAP continuous improvement methodology",
-          ],
-          qualityGate: {
-            reviewed: qualityGateReviews.length > 0,
-            reviewCount: qualityGateReviews.length,
-            reviews: qualityGateReviews.slice(0, 5).map((e: any) => ({
-              receivedAt: e.receivedAt,
-              finding: e.finding,
-              actionItems: e.actionItems ?? [],
-              citations: e.citations ?? [],
-              evidenceLevel: e.evidenceLevel,
-            })),
-            note: qualityGateReviews.length === 0
-              ? "No RPLICE quality-gate review yet — submit narrative to RPLICE via POST /api/inbound/rplice (eventType: grant_narrative_feedback) for pre-submission review"
-              : `${qualityGateReviews.length} review(s) from RPLICE — address all actionItems before submission`,
-          },
-          fidelityScores: fidelityAssessments.slice(0, 10).map((e: any) => ({
-            program: e.program,
-            region: e.region,
-            score: e.fidelityScore,
-            evidenceLevel: e.evidenceLevel,
-            receivedAt: e.receivedAt,
-          })),
-          evidenceBase: evidenceUpdates.slice(0, 10).map((e: any) => ({
-            program: e.program,
-            framework: e.framework,
-            finding: e.finding,
-            evidenceLevel: e.evidenceLevel,
-            citations: e.citations ?? [],
-            receivedAt: e.receivedAt,
-          })),
-          outcomeBaselines: outcomeData.slice(0, 5).map((e: any) => ({
-            region: e.region,
-            program: e.program,
-            finding: e.finding,
-            framework: e.framework,
-            receivedAt: e.receivedAt,
-          })),
-          implementationPlan: {
-            alerts: implementationAlerts.slice(0, 5).map((e: any) => ({
-              region: e.region,
-              framework: e.framework,
-              finding: e.finding,
-              actionRequired: e.actionRequired,
-              actionItems: e.actionItems ?? [],
-              receivedAt: e.receivedAt,
-            })),
-          },
-          bridgeIntelligence: rpliceForGpp
-            ? {
-                relevant: rpliceForGpp.relevant,
-                relevanceScore: rpliceForGpp.relevanceScore,
-                reasoning: rpliceForGpp.reasoning,
-                activeAnalyses: (rpliceForGpp.analyses ?? []).slice(0, 5),
-                interventionAssignments: (rpliceForGpp.interventionAssignments ?? []).slice(0, 5),
-                actionPlanMilestones: (rpliceForGpp.actionPlanMilestones ?? []).slice(0, 5),
-                outcomeBaselinesSummary: (rpliceForGpp.outcomeBaselines ?? []).slice(0, 5),
-                availableRpliceTools: rpliceForGpp.availableTools ?? [],
-              }
-            : null,
-          inboundFeedTotal: rpliceInboundEventsForGpp.total ?? 0,
-          lastRpliceUpdateAt: rpliceInboundEventsForGpp.lastReceivedAt ?? null,
-          rpliceConnectionInfo: `${host}/api/inbound/rplice/connection-info`,
-          gppNarrativeGuidance: [
-            "Open every Section M paragraph with the CFIR construct it addresses — e.g. 'In response to the Inner Setting barrier of Knowledge & Beliefs about the Intervention…'",
-            "Cite fidelityScores.score as baseline program fidelity evidence in Section C (Organizational Capacity)",
-            "Use evidenceBase[].evidenceLevel to classify each intervention as 'strong' / 'moderate' / 'emerging' per Title IV-E or SAMHSA registry standards",
-            "Anchor outcome targets in outcomeBaselines — reviewers expect measurable baseline → target pairs, not aspirational language",
-            "Address every qualityGate.reviews[].actionItem before submission — RPLICE flags are the same questions funder reviewers will ask",
-            "implementationPlan.alerts map directly to Section G (Implementation Plan) — CFIR barriers must have named mitigation strategies",
-          ],
-        },
+        rplice: rpliceGppPackage
+          ? {
+              // ── Core GPP package from intelligence builder ──────────────────
+              ...rpliceGppPackage.gppPackage,
+
+              // ── Live RPLICE research library ────────────────────────────────
+              liveResearch: {
+                studies: rpliceGppPackage.liveResearch.studies.slice(0, 12),
+                frameworks: rpliceGppPackage.liveResearch.frameworks.slice(0, 8),
+                ecosystemStatus: rpliceGppPackage.liveResearch.ecosystemStatus,
+                lastFetched: rpliceGppPackage.liveResearch.lastFetched,
+              },
+
+              // ── Full ranked grant profiles with narrative endpoints ──────────
+              grantProfiles: rpliceGppPackage.grantProfiles.map(g => ({
+                id: g.profile.id,
+                name: g.profile.name,
+                funder: g.profile.funder,
+                voice: g.profile.voice,
+                focusAreas: g.profile.focusAreas,
+                domains: g.profile.domains,
+                alignmentScore: g.alignmentScore,
+                matchedDomains: g.matchedDomains,
+                priority: g.priority,
+                federalAgency: g.profile.federalAgency,
+                typicalAward: g.profile.typicalAward,
+                cfirEmphasis: g.profile.cfirEmphasis,
+                reaimPriority: g.profile.reaimPriority,
+                howToGenerate: {
+                  endpoint: "POST /api/rplice/grant-narrative",
+                  body: { grantName: g.profile.id, stateFips: "<from geography>", countyFips: "<from geography>", cityName: "<from geography>" },
+                  note: "Streams a 5-section grant narrative via SSE using live Census + RPLICE research. Ready for grant submission.",
+                },
+              })),
+
+              // ── Full analytical frameworks ──────────────────────────────────
+              analyticalFrameworks: rpliceGppPackage.analyticalFrameworks,
+
+              // ── Bridge intelligence ─────────────────────────────────────────
+              bridgeIntelligence: {
+                relevant: rpliceGppPackage.bridge.relevant,
+                relevanceScore: rpliceGppPackage.bridge.relevanceScore,
+                reasoning: rpliceGppPackage.bridge.reasoning,
+                interventionAssignments: rpliceGppPackage.bridge.interventionAssignments.slice(0, 5),
+                actionPlanMilestones: rpliceGppPackage.bridge.actionPlanMilestones.slice(0, 5),
+                outcomeBaselinesSummary: rpliceGppPackage.bridge.outcomeBaselines.slice(0, 5),
+              },
+
+              // ── DB assessments (cite these in grant narrative sections) ─────
+              savedAssessments: {
+                cfir: rpliceGppPackage.db.cfirAssessments.slice(0, 3).map((a: any) => ({
+                  name: a.programName, score: a.score, status: a.status,
+                })),
+                reaim: rpliceGppPackage.db.reaimScorecards.slice(0, 3).map((a: any) => ({
+                  name: a.programName, score: a.score, status: a.status,
+                })),
+                fidelity: rpliceGppPackage.db.fidelityChecklists.slice(0, 3).map((a: any) => ({
+                  name: a.programName, score: a.score, status: a.status,
+                })),
+                threeRealities: rpliceGppPackage.db.threeRealitiesAnalyses.slice(0, 3).map((a: any) => ({
+                  name: a.programName, status: a.status,
+                })),
+                communityAnalyses: rpliceGppPackage.db.communityAnalyses.slice(0, 3).map((a: any) => ({
+                  name: a.programName, createdAt: a.createdAt,
+                })),
+                activeActionPlans: rpliceGppPackage.db.activeActionPlans.slice(0, 3).map((p: any) => ({
+                  region: p.regionName, phaseCount: (p.phases || []).length, status: p.status,
+                })),
+                activeBaselines: rpliceGppPackage.db.activeBaselines.slice(0, 3).map((b: any) => ({
+                  region: b.regionName, timelineMonths: b.timelineMonths,
+                  metrics: Object.keys(b.metrics || {}),
+                })),
+              },
+
+              // ── Inbound RPLICE evidence feed ────────────────────────────────
+              qualityGate: {
+                reviewed: qualityGateReviews.length > 0,
+                reviewCount: qualityGateReviews.length,
+                reviews: qualityGateReviews.slice(0, 5).map((e: any) => ({
+                  receivedAt: e.receivedAt, finding: e.finding,
+                  actionItems: e.actionItems ?? [], citations: e.citations ?? [],
+                  evidenceLevel: e.evidenceLevel,
+                })),
+                note: qualityGateReviews.length === 0
+                  ? "No RPLICE quality-gate review yet — submit narrative to RPLICE via POST /api/inbound/rplice (eventType: grant_narrative_feedback)"
+                  : `${qualityGateReviews.length} review(s) from RPLICE — address all actionItems before submission`,
+              },
+              fidelityScores: fidelityAssessments.slice(0, 10).map((e: any) => ({
+                program: e.program, region: e.region, score: e.fidelityScore,
+                evidenceLevel: e.evidenceLevel, receivedAt: e.receivedAt,
+              })),
+              inboundEvidenceBase: evidenceUpdates.slice(0, 10).map((e: any) => ({
+                program: e.program, framework: e.framework, finding: e.finding,
+                evidenceLevel: e.evidenceLevel, citations: e.citations ?? [],
+                receivedAt: e.receivedAt,
+              })),
+              implementationPlan: {
+                alerts: implementationAlerts.slice(0, 5).map((e: any) => ({
+                  region: e.region, framework: e.framework, finding: e.finding,
+                  actionRequired: e.actionRequired, actionItems: e.actionItems ?? [],
+                  receivedAt: e.receivedAt,
+                })),
+              },
+
+              // ── Meta ────────────────────────────────────────────────────────
+              inboundFeedTotal: rpliceInboundEventsForGpp.total ?? 0,
+              lastRpliceUpdateAt: rpliceInboundEventsForGpp.lastReceivedAt ?? null,
+              rpliceConnectionInfo: `${host}/api/inbound/rplice/connection-info`,
+            }
+          : {
+              // Fallback when intelligence package unavailable
+              frameworksApplied: ["CFIR 2.0", "RE-AIM", "MAP-GAP", "SALP", "RNR"],
+              qualityGate: { reviewed: false, reviewCount: 0, reviews: [],
+                note: "RPLICE intelligence package unavailable — retry export" },
+              rpliceConnectionInfo: `${host}/api/inbound/rplice/connection-info`,
+            },
         censusSources: [
           "U.S. Census Bureau ACS 5-Year Estimates (2013, 2015, 2019, 2022)",
           `ZCTA: ${geography.zip}`,
