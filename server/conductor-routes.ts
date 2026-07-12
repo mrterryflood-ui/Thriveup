@@ -1240,6 +1240,32 @@ export function registerConductorRoutes(app: Express) {
         ? `https://${process.env.REPLIT_DEV_DOMAIN}`
         : "https://thriveupacademy.com";
 
+      // Pull fresh RPLICE data for GPP export (in parallel with brief's rplice field,
+      // this fetch is for the export payload — GPP needs it for narrative writing)
+      const [rpliceForGpp, rpliceInboundEventsForGpp] = await Promise.all([
+        generateRpliceHeartbeatIntelligence("thriveup").catch(() => null),
+        fetch(`http://localhost:5000/api/inbound/rplice/latest`)
+          .then((r) => r.json())
+          .catch(() => ({ events: [], contextBlock: "", total: 0 })),
+      ]);
+
+      // Surface any quality-gate reviews and grant narrative feedback from RPLICE inbound feed
+      const qualityGateReviews = (rpliceInboundEventsForGpp.events || []).filter(
+        (e: any) => e.eventType === "quality_gate_review" || e.eventType === "grant_narrative_feedback"
+      );
+      const fidelityAssessments = (rpliceInboundEventsForGpp.events || []).filter(
+        (e: any) => e.eventType === "fidelity_assessment"
+      );
+      const evidenceUpdates = (rpliceInboundEventsForGpp.events || []).filter(
+        (e: any) => e.eventType === "evidence_update" || e.eventType === "research_finding"
+      );
+      const outcomeData = (rpliceInboundEventsForGpp.events || []).filter(
+        (e: any) => e.eventType === "outcome_data" || e.eventType === "reaim_evaluation"
+      );
+      const implementationAlerts = (rpliceInboundEventsForGpp.events || []).filter(
+        (e: any) => e.eventType === "implementation_alert" || e.eventType === "cfir_assessment"
+      );
+
       const gppPayload = {
         source: "ThriveUp Community Impact Conductor",
         exportedAt: new Date().toISOString(),
@@ -1273,6 +1299,98 @@ export function registerConductorRoutes(app: Express) {
           recommendedInterventions: brief.recommendedInterventions ?? [],
         },
         narrative: brief.aiNarrative ?? null,
+        /**
+         * RPLICE Implementation Science Package
+         * ──────────────────────────────────────
+         * Everything GPP needs to write a defensible, funder-facing grant narrative
+         * grounded in implementation science:
+         *
+         * • frameworkContext — CFIR/RE-AIM framing GPP should inject into every section
+         * • qualityGate — has RPLICE reviewed this narrative? What did they flag?
+         * • fidelityScores — program fidelity in this region (cite in Section C/D)
+         * • evidenceBase — peer-reviewed evidence backing the proposed interventions
+         * • outcomeBaselines — what we're measuring, current baseline, target (Section E/F)
+         * • implementationPlan — CFIR barriers + facilitators, active milestones (Section G)
+         * • bridgeIntelligence — which RPLICE assessments and plans are relevant to this grant
+         */
+        rplice: {
+          frameworksApplied: [
+            "CFIR 2.0 (Consolidated Framework for Implementation Research) — 5 domains, 39 constructs",
+            "RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance)",
+            "EPIS (Exploration, Preparation, Implementation, Sustainment)",
+            "RNR (Risk-Need-Responsivity — justice-involved populations)",
+            "MAP-GAP continuous improvement methodology",
+          ],
+          qualityGate: {
+            reviewed: qualityGateReviews.length > 0,
+            reviewCount: qualityGateReviews.length,
+            reviews: qualityGateReviews.slice(0, 5).map((e: any) => ({
+              receivedAt: e.receivedAt,
+              finding: e.finding,
+              actionItems: e.actionItems ?? [],
+              citations: e.citations ?? [],
+              evidenceLevel: e.evidenceLevel,
+            })),
+            note: qualityGateReviews.length === 0
+              ? "No RPLICE quality-gate review yet — submit narrative to RPLICE via POST /api/inbound/rplice (eventType: grant_narrative_feedback) for pre-submission review"
+              : `${qualityGateReviews.length} review(s) from RPLICE — address all actionItems before submission`,
+          },
+          fidelityScores: fidelityAssessments.slice(0, 10).map((e: any) => ({
+            program: e.program,
+            region: e.region,
+            score: e.fidelityScore,
+            evidenceLevel: e.evidenceLevel,
+            receivedAt: e.receivedAt,
+          })),
+          evidenceBase: evidenceUpdates.slice(0, 10).map((e: any) => ({
+            program: e.program,
+            framework: e.framework,
+            finding: e.finding,
+            evidenceLevel: e.evidenceLevel,
+            citations: e.citations ?? [],
+            receivedAt: e.receivedAt,
+          })),
+          outcomeBaselines: outcomeData.slice(0, 5).map((e: any) => ({
+            region: e.region,
+            program: e.program,
+            finding: e.finding,
+            framework: e.framework,
+            receivedAt: e.receivedAt,
+          })),
+          implementationPlan: {
+            alerts: implementationAlerts.slice(0, 5).map((e: any) => ({
+              region: e.region,
+              framework: e.framework,
+              finding: e.finding,
+              actionRequired: e.actionRequired,
+              actionItems: e.actionItems ?? [],
+              receivedAt: e.receivedAt,
+            })),
+          },
+          bridgeIntelligence: rpliceForGpp
+            ? {
+                relevant: rpliceForGpp.relevant,
+                relevanceScore: rpliceForGpp.relevanceScore,
+                reasoning: rpliceForGpp.reasoning,
+                activeAnalyses: (rpliceForGpp.analyses ?? []).slice(0, 5),
+                interventionAssignments: (rpliceForGpp.interventionAssignments ?? []).slice(0, 5),
+                actionPlanMilestones: (rpliceForGpp.actionPlanMilestones ?? []).slice(0, 5),
+                outcomeBaselinesSummary: (rpliceForGpp.outcomeBaselines ?? []).slice(0, 5),
+                availableRpliceTools: rpliceForGpp.availableTools ?? [],
+              }
+            : null,
+          inboundFeedTotal: rpliceInboundEventsForGpp.total ?? 0,
+          lastRpliceUpdateAt: rpliceInboundEventsForGpp.lastReceivedAt ?? null,
+          rpliceConnectionInfo: `${host}/api/inbound/rplice/connection-info`,
+          gppNarrativeGuidance: [
+            "Open every Section M paragraph with the CFIR construct it addresses — e.g. 'In response to the Inner Setting barrier of Knowledge & Beliefs about the Intervention…'",
+            "Cite fidelityScores.score as baseline program fidelity evidence in Section C (Organizational Capacity)",
+            "Use evidenceBase[].evidenceLevel to classify each intervention as 'strong' / 'moderate' / 'emerging' per Title IV-E or SAMHSA registry standards",
+            "Anchor outcome targets in outcomeBaselines — reviewers expect measurable baseline → target pairs, not aspirational language",
+            "Address every qualityGate.reviews[].actionItem before submission — RPLICE flags are the same questions funder reviewers will ask",
+            "implementationPlan.alerts map directly to Section G (Implementation Plan) — CFIR barriers must have named mitigation strategies",
+          ],
+        },
         censusSources: [
           "U.S. Census Bureau ACS 5-Year Estimates (2013, 2015, 2019, 2022)",
           `ZCTA: ${geography.zip}`,
@@ -1280,15 +1398,24 @@ export function registerConductorRoutes(app: Express) {
         callback: {
           description: "POST grant execution events back to ThriveUp using these credentials",
           inboundEndpoint: `${host}/api/inbound/grantpathpro`,
+          rpliceQualityGateEndpoint: `${host}/api/inbound/rplice`,
           statusEndpoint: `${host}/api/inbound/grantpathpro/status`,
           authHeader: "x-api-key",
           authValue: process.env.THRIVEUP_INBOUND_KEY ?? "(contact ThriveUp for key)",
+          rpliceAuthHeader: "x-shared-secret",
           eventTypes: [
             "status_update",
             "milestone_reached",
             "compliance_alert",
             "budget_event",
             "outcome_report",
+          ],
+          rpliceEventTypes: [
+            "quality_gate_review — RPLICE review of a GPP-drafted narrative section",
+            "grant_narrative_feedback — line-by-line feedback before submission",
+            "fidelity_assessment — program fidelity score for grant Section C",
+            "outcome_data — baseline/target pairs for grant Section E",
+            "evidence_update — new evidence to cite in the grant narrative",
           ],
         },
       };
