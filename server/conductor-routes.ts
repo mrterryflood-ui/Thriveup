@@ -1206,6 +1206,10 @@ export function registerConductorRoutes(app: Express) {
         return res.status(400).json({ error: "brief and geography are required" });
       }
 
+      const host = process.env.REPLIT_DEV_DOMAIN
+        ? `https://${process.env.REPLIT_DEV_DOMAIN}`
+        : "https://thriveupacademy.com";
+
       const gppPayload = {
         source: "ThriveUp Community Impact Conductor",
         exportedAt: new Date().toISOString(),
@@ -1243,6 +1247,20 @@ export function registerConductorRoutes(app: Express) {
           "U.S. Census Bureau ACS 5-Year Estimates (2013, 2015, 2019, 2022)",
           `ZCTA: ${geography.zip}`,
         ],
+        callback: {
+          description: "POST grant execution events back to ThriveUp using these credentials",
+          inboundEndpoint: `${host}/api/inbound/grantpathpro`,
+          statusEndpoint: `${host}/api/inbound/grantpathpro/status`,
+          authHeader: "x-api-key",
+          authValue: process.env.THRIVEUP_INBOUND_KEY ?? "(contact ThriveUp for key)",
+          eventTypes: [
+            "status_update",
+            "milestone_reached",
+            "compliance_alert",
+            "budget_event",
+            "outcome_report",
+          ],
+        },
       };
 
       const gppApiUrl = process.env.GPP_API_URL;

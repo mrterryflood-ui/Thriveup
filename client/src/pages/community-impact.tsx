@@ -18,6 +18,7 @@ import {
   Users, MapPin, Globe, Search, AlertTriangle, TrendingDown, TrendingUp,
   ArrowRight, DollarSign, Clock, Zap, ChevronRight, Download, Building2,
   Target, Lightbulb, FileText, UserCheck, Accessibility, TreePine,
+  Send, CheckCircle2, Loader2,
 } from "lucide-react";
 
 // ─── Icon map ─────────────────────────────────────────────────────────────────
@@ -246,6 +247,61 @@ function generateInvoicePDF(data: any, locationQuery: string) {
 
 // ─── Verdict Hero ─────────────────────────────────────────────────────────────
 
+function useSendToGrantPathPro(data: any, locationQuery: string) {
+  const [gppState, setGppState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+
+  const sendToGPP = async () => {
+    if (gppState === "sending" || gppState === "sent") return;
+    setGppState("sending");
+    try {
+      const res = await apiRequest("POST", "/api/conductor/export-to-grantpathpro", {
+        brief: data,
+        geography: data.geography ?? { zip: locationQuery },
+        requestedBy: "community-impact-page",
+      });
+      const result = await res.json();
+      if (result.success) {
+        setGppState("sent");
+        setTimeout(() => setGppState("idle"), 6000);
+      } else {
+        setGppState("error");
+        setTimeout(() => setGppState("idle"), 4000);
+      }
+    } catch {
+      setGppState("error");
+      setTimeout(() => setGppState("idle"), 4000);
+    }
+  };
+
+  return { gppState, sendToGPP };
+}
+
+function GppExportButton({ data, submitted }: { data: any; submitted: string }) {
+  const { gppState, sendToGPP } = useSendToGrantPathPro(data, submitted);
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={sendToGPP}
+      disabled={gppState === "sending"}
+      className={`gap-1.5 ${
+        gppState === "sent"
+          ? "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20"
+          : gppState === "error"
+          ? "border-red-400 text-red-600"
+          : "border-amber-400 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/20"
+      }`}
+      data-testid="button-export-grantpathpro"
+    >
+      {gppState === "sending" && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+      {gppState === "sent" && <CheckCircle2 className="w-3.5 h-3.5" />}
+      {gppState === "error" && <AlertTriangle className="w-3.5 h-3.5" />}
+      {gppState === "idle" && <Send className="w-3.5 h-3.5" />}
+      {gppState === "sending" ? "Sending…" : gppState === "sent" ? "Sent to Grant Path Pro" : gppState === "error" ? "Retry GPP" : "Send to Grant Path Pro"}
+    </Button>
+  );
+}
+
 function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string }) {
   const geo = data.geography ?? {};
   const hist = data.historicalCascade ?? {};
@@ -258,6 +314,8 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
   const trendIcon = trend === "improving" ? "↗" : trend === "worsening" ? "↘" : "→";
   const trendColor = trend === "improving" ? "text-emerald-400" : trend === "worsening" ? "text-red-400" : "text-amber-400";
 
+  const { gppState, sendToGPP } = useSendToGrantPathPro(data, locationQuery);
+
   return (
     <div className="rounded-2xl overflow-hidden border border-slate-700 bg-slate-900 text-white" data-testid="section-verdict-hero">
       <div className="px-6 py-5 border-b border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -265,7 +323,7 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
           <div className="text-xs text-slate-400 uppercase tracking-widest mb-1 font-semibold">Community Verdict</div>
           <h2 className="text-xl font-black text-white">{geo.displayName || locationQuery}</h2>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             onClick={() => generateInvoicePDF(data, locationQuery)}
             className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
@@ -278,6 +336,24 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
             data-testid="link-compare-from-verdict">
             <ArrowRight className="w-3.5 h-3.5" />Compare
           </a>
+          <button
+            onClick={sendToGPP}
+            disabled={gppState === "sending"}
+            className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border transition-colors ${
+              gppState === "sent"
+                ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                : gppState === "error"
+                ? "bg-red-500/20 border-red-500/40 text-red-300"
+                : "bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/40 text-amber-300"
+            }`}
+            data-testid="button-send-to-grantpathpro"
+          >
+            {gppState === "sending" && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            {gppState === "sent" && <CheckCircle2 className="w-3.5 h-3.5" />}
+            {gppState === "error" && <AlertTriangle className="w-3.5 h-3.5" />}
+            {gppState === "idle" && <Send className="w-3.5 h-3.5" />}
+            {gppState === "sending" ? "Sending…" : gppState === "sent" ? "Sent to GPP" : gppState === "error" ? "Retry" : "Send to Grant Path Pro"}
+          </button>
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-700/60">
@@ -1014,10 +1090,12 @@ export default function CommunityImpactPage() {
             </section>
 
             {/* Export strip */}
-            <Card className="p-4 flex flex-wrap gap-3 items-center justify-between" data-testid="card-export">
-              <div>
-                <div className="font-semibold text-sm">Export this community brief</div>
-                <div className="text-xs text-muted-foreground">Use as a funder pitch, council briefing, or grant narrative</div>
+            <Card className="p-4" data-testid="card-export">
+              <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div>
+                  <div className="font-semibold text-sm">Export this community brief</div>
+                  <div className="text-xs text-muted-foreground">Use as a funder pitch, council briefing, or grant narrative</div>
+                </div>
               </div>
               <div className="flex gap-2 flex-wrap">
                 <a href="/grant-hub" data-testid="link-export-grant-hub">
@@ -1025,9 +1103,6 @@ export default function CommunityImpactPage() {
                 </a>
                 <a href="/chainweb-builder" data-testid="link-export-chainweb">
                   <Button variant="outline" size="sm" className="gap-1.5"><Target className="w-3.5 h-3.5" />Chainweb</Button>
-                </a>
-                <a href="/city-comparison" data-testid="link-export-compare">
-                  <Button variant="outline" size="sm" className="gap-1.5"><TrendingUp className="w-3.5 h-3.5" />Compare Cities</Button>
                 </a>
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={() => generateInvoicePDF(data, submitted)} data-testid="button-download-invoice-strip">
                   <Download className="w-3.5 h-3.5" />Download Invoice
@@ -1037,6 +1112,7 @@ export default function CommunityImpactPage() {
                     <ArrowRight className="w-3.5 h-3.5" />Compare Communities
                   </Button>
                 </a>
+                <GppExportButton data={data} submitted={submitted} />
               </div>
             </Card>
           </div>
