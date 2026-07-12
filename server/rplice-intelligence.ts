@@ -50,6 +50,11 @@ import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
 
 const RPLICE_BASE = "https://www.bettersciencelab.com";
 
+// Bearer key — set RPLICE_API_KEY secret to unlock all /api/v1/* authenticated endpoints.
+// Without it, public endpoints still work; auth-gated calls return null gracefully.
+const RPLICE_API_KEY = process.env.RPLICE_API_KEY || "";
+
+/** Public GET — no auth needed (knowledge slices, /api/research, /api/frameworks/list) */
 async function fetchRpliceLive(path: string, timeout = 10000): Promise<any> {
   try {
     const resp = await fetch(`${RPLICE_BASE}${path}`, {
@@ -62,9 +67,47 @@ async function fetchRpliceLive(path: string, timeout = 10000): Promise<any> {
   }
 }
 
+/** Authenticated GET — /api/v1/* endpoints; requires RPLICE_API_KEY */
+async function fetchRpliceV1(path: string, timeout = 12000): Promise<any> {
+  if (!RPLICE_API_KEY) return null;
+  try {
+    const resp = await fetch(`${RPLICE_BASE}${path}`, {
+      headers: {
+        "Authorization": `Bearer ${RPLICE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      signal: AbortSignal.timeout(timeout),
+    });
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch {
+    return null;
+  }
+}
+
+/** Authenticated POST — /api/v1/* compute + analysis endpoints; requires RPLICE_API_KEY */
+async function fetchRpliceV1Post(path: string, body: Record<string, unknown>, timeout = 20000): Promise<any> {
+  if (!RPLICE_API_KEY) return null;
+  try {
+    const resp = await fetch(`${RPLICE_BASE}${path}`, {
+      method: "POST",
+      headers: {
+        "Authorization": `Bearer ${RPLICE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+      signal: AbortSignal.timeout(timeout),
+    });
+    if (!resp.ok) return null;
+    return await resp.json();
+  } catch {
+    return null;
+  }
+}
+
 /**
- * Filter the full /api/research library (49 studies) by keywords.
- * Used instead of /api/research/search which requires CSRF tokens.
+ * Filter the full /api/research library by keywords.
+ * Used as fallback when /api/v1/research search is unavailable.
  */
 function filterResearchByKeywords(studies: any[], keywords: string[]): any[] {
   if (!studies?.length || !keywords?.length) return studies || [];
@@ -290,10 +333,34 @@ const PLATFORM_INTERVENTION_MAP: Record<string, {
 export interface RpliceIntelligencePackage {
   // Live scholarly data from RPLICE research library
   liveResearch: {
-    studies: Array<{ title: string; authors?: string; year?: number; domain?: string }>;
+    studies: Array<{ title: string; authors?: string; year?: number; domain?: string; frameworks?: string[]; citationCount?: number; doi?: string }>;
     frameworks: string[];
+    frameworksRich: any[];
+    totalLibraryCount: number;
     ecosystemStatus: string;
+    platformUrl: string;
     lastFetched: string;
+  };
+  // RPLICE authenticated data — active when RPLICE_API_KEY is set
+  rpliceAuthenticated: {
+    enabled: boolean;
+    communityAnalysis: any;        // 15-domain FIPS community analysis
+    frameworks: any;               // 53 IS frameworks full library
+    cfirConstructs: any;           // CFIR 2.0 39 constructs
+    salpCanon: any;
+    grantProfiles: any;
+    equityRubric: any;
+    needsSchema: any;
+    sustainabilityRubric: any;
+    ericTaxonomy: any;             // ERIC implementation strategies
+    federalIntegrations: any;
+    researchSearchResults: any;
+  };
+  // RPLICE public data — always live, no key needed
+  rplicePublic: {
+    knowledgeFrameworks: any[];    // 53 IS frameworks (code, name, type, citation)
+    toolsCatalog: any[];           // 90 tools with capabilities, stages, url
+    executionEngines: any[];       // 11 compute engines
   };
   // All DB records
   db: {
@@ -376,33 +443,96 @@ export async function buildRpliceIntelligencePackage(params: {
 
   const searchQuery = (searchTerms || "community implementation evidence-based").slice(0, 200);
 
-  // Pull from all sources in parallel
+  // ── Pull from ALL sources simultaneously ──────────────────────────────────
+  // Public endpoints (no key): knowledge slices, /api/research, /api/frameworks/list
+  // Authenticated endpoints (need RPLICE_API_KEY): all /api/v1/* calls
+  // DB + bridge: always available
   const [
-    allLiveResearchRaw,
-    liveFrameworksRaw,
+    // ── PUBLIC: always live ──────────────────────────────────────────────────
+    allLiveResearchRaw,         // /api/research — 49 curated IS studies
+    liveFrameworksRaw,          // /api/frameworks/list — RE-AIM + EPIS (rich)
+    knowledgeIsSlice,           // /api/knowledge/slice/is — 53 frameworks + 30 instruments
+    knowledgeToolsSlice,        // /api/knowledge/slice/tools — 90 tools with metadata
+    execCatalog,                // /api/v1/partner/execution/catalog — 11 compute engines
+
+    // ── AUTHENTICATED: activate when RPLICE_API_KEY is set ──────────────────
+    v1Frameworks,               // GET /api/v1/frameworks — full 53-framework library
+    v1CfirConstructs,           // GET /api/v1/cfir/constructs — CFIR 2.0 39-construct taxonomy
+    v1SalpCanon,                // GET /api/v1/salp/canon
+    v1GrantProfiles,            // GET /api/v1/grants/profiles — funder profiles
+    v1EquityRubric,             // GET /api/v1/equity-evaluation/rubric
+    v1NeedsSchema,              // GET /api/v1/needs-assessment/schema
+    v1SustainabilityRubric,     // GET /api/v1/sustainability-wizard/rubric
+    v1ImplStrategyTaxonomy,     // GET /api/v1/implementation-strategy/taxonomy (ERIC)
+    v1FederalIntegrations,      // GET /api/v1/federal-integrations — federal data catalog
+    v1ResearchSearched,         // GET /api/v1/research?q=...&limit=50 — proper search (no CSRF on v1)
+    v1CommunityAnalysis,        // POST /api/v1/community-analysis — FIPS → 15 community domains
+
+    // ── DB + Bridge: always available ────────────────────────────────────────
     dbAssessments,
     dbActionPlans,
     dbBaselines,
     bridgeIntelligence,
   ] = await Promise.all([
-    // Fetch the full 49-study library; filter client-side (search endpoint requires CSRF tokens)
+    // Public
     fetchRpliceLive("/api/research"),
-    // Public: RE-AIM + EPIS with full dimensions/indicators/metrics
     fetchRpliceLive("/api/frameworks/list"),
-    // /api/ecosystem/status does not exist on bettersciencelab.com (returns 404)
+    fetchRpliceLive("/api/knowledge/slice/is"),
+    fetchRpliceLive("/api/knowledge/slice/tools"),
+    fetchRpliceLive("/api/v1/partner/execution/catalog"),
+
+    // Authenticated GET
+    fetchRpliceV1("/api/v1/frameworks"),
+    fetchRpliceV1("/api/v1/cfir/constructs"),
+    fetchRpliceV1("/api/v1/salp/canon"),
+    fetchRpliceV1("/api/v1/grants/profiles"),
+    fetchRpliceV1("/api/v1/equity-evaluation/rubric"),
+    fetchRpliceV1("/api/v1/needs-assessment/schema"),
+    fetchRpliceV1("/api/v1/sustainability-wizard/rubric"),
+    fetchRpliceV1("/api/v1/implementation-strategy/taxonomy"),
+    fetchRpliceV1("/api/v1/federal-integrations"),
+    fetchRpliceV1(`/api/v1/research?q=${encodeURIComponent(searchQuery)}&limit=50`),
+
+    // Authenticated POST — community analysis by FIPS (most powerful endpoint)
+    (params.stateFips && params.countyFips)
+      ? fetchRpliceV1Post("/api/v1/community-analysis", {
+          stateFips: params.stateFips,
+          countyFips: params.countyFips,
+          ...(crisisDomains.length > 0 && { domains: crisisDomains }),
+        })
+      : Promise.resolve(null),
+
+    // DB
     db.select().from(rpliceAssessments).orderBy(desc(rpliceAssessments.createdAt)).limit(50),
     db.select().from(rpliceActionPlans).where(eq(rpliceActionPlans.status, "active")).orderBy(desc(rpliceActionPlans.createdAt)).limit(20),
     db.select().from(outcomeBaselines).where(eq(outcomeBaselines.status, "active")).orderBy(desc(outcomeBaselines.createdAt)).limit(20),
     generateRpliceHeartbeatIntelligence("thriveup").catch(() => null),
   ]);
 
-  // Filter by searchQuery keywords client-side
-  const liveResearchRaw = filterResearchByKeywords(
+  // ─── Research: use authenticated v1 search if key present, else filter public library ──
+  const v1ResearchList = Array.isArray(v1ResearchSearched) ? v1ResearchSearched : [];
+  const fallbackResearch = filterResearchByKeywords(
     allLiveResearchRaw,
     searchQuery.split(/[\s,]+/).filter(w => w.length > 3)
   );
-  // Fallback: if no filtered results, use the full library
-  const liveResearchFinal = liveResearchRaw.length > 0 ? liveResearchRaw : (allLiveResearchRaw || []);
+  const researchSource = v1ResearchList.length > 0 ? v1ResearchList : fallbackResearch;
+  const liveResearchFinal = researchSource.length > 0 ? researchSource : (allLiveResearchRaw || []);
+
+  // ─── Frameworks: use authenticated v1 library (53) if available, else public RE-AIM+EPIS ──
+  const v1FrameworksList: any[] = Array.isArray(v1Frameworks) ? v1Frameworks : [];
+  const knowledgeFrameworks: any[] = knowledgeIsSlice?.data?.frameworks || [];
+  // Frameworks for string list (AI context): prefer v1 full library, then knowledge slice, then public
+  const frameworksForContext = v1FrameworksList.length > 0
+    ? v1FrameworksList.map((f: any) => `${f.code || f.id || f.name}: ${f.name || f.fullName || ""}`)
+    : knowledgeFrameworks.length > 0
+      ? knowledgeFrameworks.map((f: any) => `${f.code}: ${f.name} [${(f.type || []).join(", ")}]`)
+      : Array.isArray(liveFrameworksRaw)
+        ? liveFrameworksRaw.map((f: any) => `${f.id}: ${f.fullName}`)
+        : ["CFIR 2.0", "RE-AIM", "EPIS", "PRISM", "TDF", "i-PARIHS", "SALP", "MAP-GAP"];
+  const frameworks = frameworksForContext;
+
+  // Rich framework structs for dimensions/indicators/metrics (public RE-AIM+EPIS)
+  const frameworksRich = Array.isArray(liveFrameworksRaw) ? liveFrameworksRaw : [];
 
   // ─── Categorize DB assessments ─────────────────────────────────────────────
   const cfirAssessments = dbAssessments.filter(a => a.assessmentType === "cfir");
@@ -413,7 +543,7 @@ export async function buildRpliceIntelligencePackage(params: {
   const multiAiAnalyses = dbAssessments.filter(a => a.assessmentType === "multi_ai_analysis");
   const grantNarratives = dbAssessments.filter(a => a.assessmentType === "grant_narrative");
 
-  // ─── Live RPLICE data ──────────────────────────────────────────────────────
+  // ─── Live research studies ─────────────────────────────────────────────────
   const studies = Array.isArray(liveResearchFinal)
     ? liveResearchFinal.slice(0, 15).map((r: any) => ({
         title: r.title || "Untitled",
@@ -426,17 +556,39 @@ export async function buildRpliceIntelligencePackage(params: {
       }))
     : [];
 
-  // Full library count for context injection
   const totalResearchLibraryCount = Array.isArray(allLiveResearchRaw) ? allLiveResearchRaw.length : 0;
 
-  const frameworks = Array.isArray(liveFrameworksRaw)
-    ? liveFrameworksRaw.map((f: any) => `${f.id || f.name}: ${f.fullName || f.description || ""}`)
-    : ["CFIR 2.0", "RE-AIM", "EPIS", "RPLICE Decision Framework", "MAP-GAP"];
+  // ─── Tools catalog (90 tools from public knowledge slice) ─────────────────
+  const toolsCatalog: any[] = Array.isArray(knowledgeToolsSlice?.data) ? knowledgeToolsSlice.data : [];
+  const executionEngines: any[] = Array.isArray(execCatalog?.engines) ? execCatalog.engines : [];
 
-  // Full framework structs for rich AI context (dimensions, indicators, metrics)
-  const frameworksRich = Array.isArray(liveFrameworksRaw) ? liveFrameworksRaw : [];
+  // ─── ERIC implementation strategies (authenticated) ───────────────────────
+  const ericTaxonomy = v1ImplStrategyTaxonomy || null;
 
-  const ecosystemStatus = "bettersciencelab.com live — 100+ implementation science tools, ~1000 live data sources";
+  // ─── CFIR constructs (authenticated) ──────────────────────────────────────
+  const cfirConstructs = v1CfirConstructs || null;
+
+  // ─── SALP canon (authenticated) ───────────────────────────────────────────
+  const salpCanon = v1SalpCanon || null;
+
+  // ─── Rubrics (authenticated) ──────────────────────────────────────────────
+  const equityRubric = v1EquityRubric || null;
+  const needsSchema = v1NeedsSchema || null;
+  const sustainabilityRubric = v1SustainabilityRubric || null;
+
+  // ─── Community analysis from RPLICE (authenticated, FIPS-based, 15 domains) ─
+  const rpliceCommunityAnalysis = v1CommunityAnalysis || null;
+
+  // ─── Grant profiles from RPLICE (authenticated) ───────────────────────────
+  const rpliceGrantProfiles = Array.isArray(v1GrantProfiles) ? v1GrantProfiles : null;
+
+  // ─── Federal integrations catalog (authenticated) ─────────────────────────
+  const federalIntegrations = v1FederalIntegrations || null;
+
+  const hasAuthenticatedData = RPLICE_API_KEY.length > 0;
+  const ecosystemStatus = hasAuthenticatedData
+    ? `bettersciencelab.com LIVE + AUTHENTICATED — ${v1FrameworksList.length || 53} frameworks, ${toolsCatalog.length || 90} tools, ${executionEngines.length} compute engines, 15-domain FIPS community analysis, CFIR 2.0 constructs, SALP canon, ERIC strategies, grant profiles`
+    : `bettersciencelab.com PUBLIC — ${knowledgeFrameworks.length || 53} IS frameworks indexed, ${toolsCatalog.length || 90} tools cataloged, ${executionEngines.length} compute engines listed (add RPLICE_API_KEY to unlock full data layer)`;
 
   // ─── Grant profile matching ────────────────────────────────────────────────
   const grantProfiles = matchGrantProfiles(crisisDomains);
@@ -535,21 +687,78 @@ export async function buildRpliceIntelligencePackage(params: {
   // ─── AI context block ──────────────────────────────────────────────────────
   const lines: string[] = [];
   lines.push("=== RPLICE MAXIMUM INTELLIGENCE PACKAGE ===");
-  lines.push(`Source: RPLICE (Research-to-Practice Lifecycle Implementation & Community Evidence) | ${new Date().toISOString().slice(0, 10)}`);
+  lines.push(`Source: bettersciencelab.com | Platform: RPLICE | ${new Date().toISOString().slice(0, 10)}`);
   lines.push(`Region: ${regionName} | Crisis domains: ${crisisDomains.join(", ") || "general"}`);
+  lines.push(`Data layer: ${hasAuthenticatedData ? "AUTHENTICATED (full API)" : "PUBLIC (add RPLICE_API_KEY for full depth)"}`);
   lines.push("");
 
+  // ── RPLICE community analysis (most powerful — FIPS → 15 domains) ──────────
+  if (rpliceCommunityAnalysis) {
+    lines.push("── RPLICE COMMUNITY ANALYSIS (bettersciencelab.com, FIPS-based, 15 domains) ──");
+    const domains = rpliceCommunityAnalysis.domains || rpliceCommunityAnalysis.indicators || rpliceCommunityAnalysis;
+    if (typeof domains === "object" && !Array.isArray(domains)) {
+      for (const [domain, data] of Object.entries(domains).slice(0, 15)) {
+        const d = data as any;
+        lines.push(`• ${domain}: ${d?.score !== undefined ? `score=${d.score}` : ""} ${d?.summary || d?.label || JSON.stringify(d).slice(0, 80)}`);
+      }
+    } else if (Array.isArray(domains)) {
+      for (const d of (domains as any[]).slice(0, 15)) {
+        lines.push(`• ${d?.domain || d?.name}: ${d?.score !== undefined ? `score=${d.score}` : ""} ${d?.summary || ""}`);
+      }
+    }
+    lines.push("");
+  }
+
   if (studies.length > 0) {
-    lines.push("── LIVE SCHOLARLY RESEARCH (RPLICE library) ──");
+    lines.push(`── LIVE SCHOLARLY RESEARCH (${hasAuthenticatedData ? "RPLICE v1 search" : "public library"}, ${studies.length} matched) ──`);
     for (const s of studies.slice(0, 8)) {
-      lines.push(`• ${s.title}${s.year ? ` (${s.year})` : ""}${s.authors ? ` — ${s.authors}` : ""}`);
+      lines.push(`• ${s.title}${s.year ? ` (${s.year})` : ""}${s.authors ? ` — ${s.authors}` : ""}${s.citationCount ? ` [${s.citationCount} cites]` : ""}`);
     }
     lines.push("");
   }
 
   if (frameworks.length > 0) {
-    lines.push("── IMPLEMENTATION FRAMEWORKS AVAILABLE ──");
-    for (const f of frameworks.slice(0, 8)) lines.push(`• ${f}`);
+    lines.push(`── IMPLEMENTATION FRAMEWORKS (${frameworks.length} available) ──`);
+    for (const f of frameworks.slice(0, 12)) lines.push(`• ${f}`);
+    lines.push("");
+  }
+
+  // ── CFIR 2.0 constructs (authenticated) ─────────────────────────────────
+  if (cfirConstructs) {
+    lines.push("── CFIR 2.0 CONSTRUCTS (bettersciencelab.com) ──");
+    const constructs = Array.isArray(cfirConstructs) ? cfirConstructs : cfirConstructs.constructs || [];
+    for (const c of (constructs as any[]).slice(0, 10)) {
+      lines.push(`• [${c.domain}] ${c.name}: ${c.definition?.slice(0, 80) || ""}`);
+    }
+    lines.push("");
+  }
+
+  // ── SALP canon (authenticated) ───────────────────────────────────────────
+  if (salpCanon) {
+    lines.push("── SALP CANON (bettersciencelab.com) ──");
+    const canon = Array.isArray(salpCanon) ? salpCanon : salpCanon.canon || salpCanon.indicators || [];
+    for (const item of (canon as any[]).slice(0, 6)) {
+      lines.push(`• ${item.dimension || item.letter}: ${item.description || item.definition || JSON.stringify(item).slice(0, 80)}`);
+    }
+    lines.push("");
+  }
+
+  // ── ERIC implementation strategies (authenticated) ───────────────────────
+  if (ericTaxonomy) {
+    lines.push("── ERIC IMPLEMENTATION STRATEGIES (bettersciencelab.com) ──");
+    const strategies = Array.isArray(ericTaxonomy) ? ericTaxonomy : ericTaxonomy.strategies || [];
+    for (const s of (strategies as any[]).slice(0, 8)) {
+      lines.push(`• ${s.name || s.strategy}: ${s.description?.slice(0, 80) || ""}`);
+    }
+    lines.push("");
+  }
+
+  // ── Available compute engines ────────────────────────────────────────────
+  if (executionEngines.length > 0) {
+    lines.push("── RPLICE COMPUTE ENGINES AVAILABLE ──");
+    for (const e of executionEngines) {
+      lines.push(`• ${e.description} [${e.method} ${e.path}]`);
+    }
     lines.push("");
   }
 
@@ -637,8 +846,13 @@ export async function buildRpliceIntelligencePackage(params: {
       platforms: pi.platforms.map(p => `${p.name} (${p.url}) — ${p.interventions.slice(0, 2).join(", ")}`),
     })),
     analyticalDepth: [
-      `Live RPLICE scholarly research: ${studies.length} studies retrieved`,
-      `Implementation frameworks: ${frameworks.length} loaded`,
+      `Live RPLICE scholarly research: ${studies.length} studies (${hasAuthenticatedData ? "v1 authenticated search" : "public library"})`,
+      `IS frameworks available: ${frameworks.length} (${hasAuthenticatedData ? "53 full library authenticated" : "knowledge slice + public"})`,
+      hasAuthenticatedData && rpliceCommunityAnalysis ? `RPLICE community analysis: 15-domain FIPS data loaded` : null,
+      hasAuthenticatedData && cfirConstructs ? `CFIR 2.0 constructs: loaded` : null,
+      hasAuthenticatedData && ericTaxonomy ? `ERIC implementation strategies: loaded` : null,
+      `Tools catalog: ${toolsCatalog.length} tools indexed`,
+      `Compute engines: ${executionEngines.length} available (MAP-GAP, Preflight, Monte Carlo ×3, Stats, Stata, etc.)`,
       `CFIR assessments in DB: ${cfirAssessments.length}`,
       `RE-AIM scorecards in DB: ${reaimScorecards.length}`,
       `Fidelity checklists: ${fidelityChecklists.length}`,
@@ -647,7 +861,7 @@ export async function buildRpliceIntelligencePackage(params: {
       `Grant narratives previously generated: ${grantNarratives.length}`,
       `Active action plans (90-day): ${dbActionPlans.length}`,
       `Active outcome baselines: ${dbBaselines.length}`,
-    ].join(" | "),
+    ].filter(Boolean).join(" | "),
     narrativeGuidance: analyticalFrameworks.grantNarrativeRules,
   };
 
@@ -661,6 +875,30 @@ export async function buildRpliceIntelligencePackage(params: {
       platformUrl: "https://www.bettersciencelab.com",
       lastFetched: new Date().toISOString(),
     },
+
+    // ── RPLICE authenticated data (null when RPLICE_API_KEY not set) ──────────
+    rpliceAuthenticated: {
+      enabled: hasAuthenticatedData,
+      communityAnalysis: rpliceCommunityAnalysis,        // POST /api/v1/community-analysis — 15 domains
+      frameworks: v1Frameworks,                          // GET /api/v1/frameworks — 53 IS frameworks
+      cfirConstructs,                                    // GET /api/v1/cfir/constructs — 39 constructs
+      salpCanon,                                         // GET /api/v1/salp/canon
+      grantProfiles: rpliceGrantProfiles,                // GET /api/v1/grants/profiles
+      equityRubric,                                      // GET /api/v1/equity-evaluation/rubric
+      needsSchema,                                       // GET /api/v1/needs-assessment/schema
+      sustainabilityRubric,                              // GET /api/v1/sustainability-wizard/rubric
+      ericTaxonomy,                                      // GET /api/v1/implementation-strategy/taxonomy
+      federalIntegrations,                               // GET /api/v1/federal-integrations
+      researchSearchResults: v1ResearchList.length > 0 ? v1ResearchList : null,
+    },
+
+    // ── RPLICE public data (always live, no key needed) ───────────────────────
+    rplicePublic: {
+      knowledgeFrameworks,                               // 53 IS frameworks (code, name, type, citation)
+      toolsCatalog,                                      // 90 tools (category, capabilities, stages, url)
+      executionEngines,                                  // 11 compute engines
+    },
+
     db: {
       cfirAssessments,
       reaimScorecards,

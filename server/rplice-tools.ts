@@ -506,10 +506,36 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
   });
 
   const RPLICE_BASE = "https://www.bettersciencelab.com";
+  const RPLICE_API_KEY = process.env.RPLICE_API_KEY || "";
 
   async function fetchRplice(path: string): Promise<any> {
     try {
-      const resp = await fetch(`${RPLICE_BASE}${path}`, { signal: AbortSignal.timeout(12000) });
+      const headers: Record<string, string> = {};
+      if (RPLICE_API_KEY && path.includes("/api/v1/")) {
+        headers["Authorization"] = `Bearer ${RPLICE_API_KEY}`;
+        headers["Content-Type"] = "application/json";
+      }
+      const resp = await fetch(`${RPLICE_BASE}${path}`, {
+        headers,
+        signal: AbortSignal.timeout(12000),
+      });
+      if (!resp.ok) return null;
+      return await resp.json();
+    } catch { return null; }
+  }
+
+  async function postRplice(path: string, body: Record<string, unknown>): Promise<any> {
+    if (!RPLICE_API_KEY) return null;
+    try {
+      const resp = await fetch(`${RPLICE_BASE}${path}`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${RPLICE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+        signal: AbortSignal.timeout(20000),
+      });
       if (!resp.ok) return null;
       return await resp.json();
     } catch { return null; }
@@ -1087,6 +1113,187 @@ Generate 4-6 milestones per phase. Make them specific to the region's data. Use 
         .returning();
       if (!row) return res.status(404).json({ error: "Action plan not found" });
       res.json(row);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // ── RPLICE Compute Engine Routes ─────────────────────────────────────────────
+  // All require RPLICE_API_KEY. Return 503 with clear message when key not set.
+  // Documented at: https://www.bettersciencelab.com/api-docs
+
+  /**
+   * MAP-GAP Assessment Engine
+   * POST /api/rplice/compute/mapgap
+   * Body: { programName, currentState, targetState, domains[], barriers[], facilitators[] }
+   */
+  app.post("/api/rplice/compute/mapgap", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set — add the secret to unlock compute engines", engine: "MAP-GAP" });
+      }
+      const result = await postRplice("/api/v1/partner/mapgap/assess", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE MAP-GAP engine did not respond" });
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * Implementation Preflight Engine
+   * POST /api/rplice/compute/preflight
+   * Body: { programName, interventionType, targetPopulation, settingType, fidelityRequirements, cfirBarriers[] }
+   */
+  app.post("/api/rplice/compute/preflight", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set — add the secret to unlock compute engines", engine: "Preflight" });
+      }
+      const result = await postRplice("/api/v1/partner/preflight", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE Preflight engine did not respond" });
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * Behavioral Determinants Monte Carlo Engine (TDF/COM-B)
+   * POST /api/rplice/compute/monte-carlo/behavioral
+   * Body: { behavior, population, priors: { capability, opportunity, motivation }, iterations? }
+   * Returns: probability distributions + driver correlations (P50/P80)
+   */
+  app.post("/api/rplice/compute/monte-carlo/behavioral", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set — add the secret to unlock compute engines", engine: "MC-Behavioral" });
+      }
+      const result = await postRplice("/api/v1/partner/monte-carlo/behavioral", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE Behavioral MC engine did not respond" });
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * Cost-Effectiveness Monte Carlo Engine
+   * POST /api/rplice/compute/monte-carlo/cea
+   * Body: { intervention, comparator, costs: { low, mid, high }, outcomes: { low, mid, high }, iterations? }
+   * Returns: ICER distribution, P50/P80 thresholds, net benefit curve
+   */
+  app.post("/api/rplice/compute/monte-carlo/cea", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set — add the secret to unlock compute engines", engine: "MC-CEA" });
+      }
+      const result = await postRplice("/api/v1/partner/monte-carlo/cea", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE CEA MC engine did not respond" });
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * Statistical Analysis Engine
+   * POST /api/rplice/compute/stats
+   * Body: { method: "mann-whitney"|"did"|"its"|"logistic", data, groupVar?, outcomeVar?, covariates? }
+   * Returns: test statistic, p-value, effect size, confidence intervals, interpretation
+   */
+  app.post("/api/rplice/compute/stats", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set — add the secret to unlock compute engines", engine: "Stats" });
+      }
+      const result = await postRplice("/api/v1/partner/stats/run", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE Stats engine did not respond" });
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * RPLICE Compute Engine Catalog
+   * GET /api/rplice/compute/catalog
+   * Returns the list of 11 available compute engines and their schemas (public, no auth required)
+   */
+  app.get("/api/rplice/compute/catalog", async (_req, res) => {
+    try {
+      const catalog = await fetchRplice("/api/v1/partner/execution/catalog");
+      if (!catalog) {
+        return res.json({
+          keyConfigured: !!RPLICE_API_KEY,
+          engines: [
+            { id: "mapgap", name: "MAP-GAP Assessment", endpoint: "POST /api/rplice/compute/mapgap" },
+            { id: "preflight", name: "Implementation Preflight", endpoint: "POST /api/rplice/compute/preflight" },
+            { id: "monte-carlo-behavioral", name: "Behavioral Determinants Monte Carlo (TDF/COM-B)", endpoint: "POST /api/rplice/compute/monte-carlo/behavioral" },
+            { id: "monte-carlo-cea", name: "Cost-Effectiveness Monte Carlo", endpoint: "POST /api/rplice/compute/monte-carlo/cea" },
+            { id: "stats", name: "Statistical Analysis (Mann-Whitney, DID, ITS, Logistic)", endpoint: "POST /api/rplice/compute/stats" },
+          ],
+          note: RPLICE_API_KEY ? "API key configured — engines ready" : "Add RPLICE_API_KEY secret to unlock engines",
+        });
+      }
+      res.json({ ...catalog, keyConfigured: !!RPLICE_API_KEY });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * Grant Alignment Engine (authenticated)
+   * POST /api/rplice/compute/grant-alignment
+   * Body: { grantId?, grantTitle, focusAreas[], cfirBarriers[], targetPopulation, serviceArea }
+   * Returns: alignment scores, narrative guidance, section-by-section strategy
+   */
+  app.post("/api/rplice/compute/grant-alignment", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set", engine: "Grant-Alignment" });
+      }
+      const result = await postRplice("/api/v1/grants/alignment", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE grant alignment engine did not respond" });
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * Implementation Strategy Matcher (ERIC taxonomy)
+   * POST /api/rplice/compute/impl-strategy-match
+   * Body: { barriers[], context, targetBehavior, cfirDomains[] }
+   * Returns: ranked ERIC strategies with rationale
+   */
+  app.post("/api/rplice/compute/impl-strategy-match", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set", engine: "ERIC-Match" });
+      }
+      const result = await postRplice("/api/v1/implementation-strategy/match", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE implementation strategy matcher did not respond" });
+      res.json(result);
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  /**
+   * Fidelity Scorer
+   * POST /api/rplice/compute/fidelity-score
+   * Body: { intervention, observedComponents[], requiredComponents[], adaptations[] }
+   * Returns: fidelity score, component-level analysis, adaptation classification
+   */
+  app.post("/api/rplice/compute/fidelity-score", requireAuth, async (req, res) => {
+    try {
+      if (!RPLICE_API_KEY) {
+        return res.status(503).json({ error: "RPLICE_API_KEY not set", engine: "Fidelity" });
+      }
+      const result = await postRplice("/api/v1/fidelity/score", req.body);
+      if (!result) return res.status(502).json({ error: "RPLICE fidelity scorer did not respond" });
+      res.json(result);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
