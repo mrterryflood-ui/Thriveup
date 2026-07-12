@@ -1080,11 +1080,14 @@ export function registerConductorRoutes(app: Express) {
         )
       );
 
-      const comparisons = results.map((r, i) => ({
-        location: locations[i],
-        data: r.status === "fulfilled" ? r.value : null,
-        error: r.status === "rejected" ? String(r.reason) : null,
-      }));
+      const comparisons = results.map((r, i) => {
+        const brief = r.status === "fulfilled" ? r.value : null;
+        return {
+          location: locations[i],
+          error: r.status === "rejected" ? String(r.reason) : null,
+          ...(brief ?? {}),
+        };
+      });
 
       return res.json({ comparisons });
     } catch (err) {

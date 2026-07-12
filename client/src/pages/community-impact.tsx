@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import jsPDF from "jspdf";
 
 const SkylineMap         = lazy(() => import("@/components/viz3d/SkylineMap"));
 const CascadeWaterfall   = lazy(() => import("@/components/viz3d/CascadeWaterfall"));
@@ -50,6 +51,263 @@ function fmt$(n: number) {
   if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
   if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
   return `$${n.toFixed(0)}`;
+}
+
+// ─── Community Invoice PDF ────────────────────────────────────────────────────
+
+function generateInvoicePDF(data: any, locationQuery: string) {
+  const doc = new jsPDF();
+  const W = doc.internal.pageSize.getWidth();
+  const margin = 18;
+  const maxW = W - margin * 2;
+  let y = 0;
+
+  const fmtD = (n: number) => {
+    if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
+    if (n >= 1e6) return `$${(n / 1e6).toFixed(2)}M`;
+    if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
+    return `$${n.toFixed(0)}`;
+  };
+
+  const geo = data.geography ?? {};
+  const hist = data.historicalCascade ?? {};
+  const casc = data.cascade ?? {};
+  const displayName = geo.displayName || locationQuery;
+
+  // ── Header band ─────────────────────────────────────────────────────────────
+  doc.setFillColor(15, 23, 42);
+  doc.rect(0, 0, W, 36, "F");
+  doc.setFontSize(18);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.text("COMMUNITY INVOICE", margin, 14);
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(148, 163, 184);
+  doc.text("Census-verified cost of disinvestment  ·  ThriveUp Academy / TCAF", margin, 22);
+  doc.text(`Generated ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, margin, 29);
+  y = 46;
+
+  // ── Location & grade ────────────────────────────────────────────────────────
+  doc.setFontSize(16);
+  doc.setTextColor(15, 23, 42);
+  doc.setFont("helvetica", "bold");
+  doc.text(displayName, margin, y);
+  if (data.overallGrade) {
+    doc.setFontSize(11);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Systems grade: ${data.overallGrade}  (${data.overallScore ?? "—"}/100)`, margin + 2, y + 8);
+  }
+  y += 20;
+
+  // ── Three-box verdict ───────────────────────────────────────────────────────
+  const boxes = [
+    { label: "ALREADY PAID (2013–2022)", value: fmtD(hist.totalAccumulatedCost ?? 0), sub: `${hist.trendDirection ?? "stagnant"} trend`, r: 180, g: 83, b: 9 },
+    { label: "IF NOTHING CHANGES (25yr)", value: fmtD(casc.counterfactualCost ?? 0), sub: "forward projection", r: 185, g: 28, b: 28 },
+    { label: "SAVINGS WITH INVESTMENT", value: fmtD(casc.netSavings ?? 0), sub: `${casc.roi ?? "—"}× return on investment`, r: 5, g: 120, b: 85 },
+  ];
+  const bw = (maxW - 8) / 3;
+  boxes.forEach((box, i) => {
+    const bx = margin + i * (bw + 4);
+    doc.setFillColor(248, 250, 252);
+    doc.roundedRect(bx, y, bw, 28, 2, 2, "F");
+    doc.setDrawColor(226, 232, 240);
+    doc.roundedRect(bx, y, bw, 28, 2, 2, "S");
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "bold");
+    doc.text(box.label, bx + 4, y + 7);
+    doc.setFontSize(14);
+    doc.setTextColor(box.r, box.g, box.b);
+    doc.setFont("helvetica", "bold");
+    doc.text(box.value, bx + 4, y + 18);
+    doc.setFontSize(7);
+    doc.setTextColor(100, 116, 139);
+    doc.setFont("helvetica", "normal");
+    doc.text(box.sub, bx + 4, y + 25);
+  });
+  y += 36;
+
+  // ── Historical receipt table ─────────────────────────────────────────────────
+  doc.setFontSize(11);
+  doc.setTextColor(15, 23, 42);
+  doc.setFont("helvetica", "bold");
+  doc.text("Historical Receipt", margin, y);
+  y += 6;
+  doc.setFontSize(8);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text("Per Census ACS 5-Year Estimates — evidence-based chain model (ECE gap → dropout → incarceration; MH → homelessness)", margin, y, { maxWidth: maxW });
+  y += 10;
+
+  const colW = [30, 38, 38, 50];
+  const colX = [margin, margin + colW[0], margin + colW[0] + colW[1], margin + colW[0] + colW[1] + colW[2]];
+  doc.setFillColor(241, 245, 249);
+  doc.rect(margin, y - 4, maxW, 8, "F");
+  ["Census Year", "Poverty Rate", "Unemployment", "Est. Cohort Cost"].forEach((h, i) => {
+    doc.setFontSize(7);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(71, 85, 105);
+    doc.text(h, colX[i] + 2, y + 1);
+  });
+  y += 8;
+
+  (hist.vintages ?? []).forEach((v: any, idx: number) => {
+    if (idx % 2 === 1) { doc.setFillColor(248, 250, 252); doc.rect(margin, y - 4, maxW, 8, "F"); }
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(15, 23, 42);
+    doc.text(`${v.year} ACS`, colX[0] + 2, y + 1);
+    doc.setTextColor(v.povertyRate >= 20 ? 185 : v.povertyRate >= 15 ? 234 : 5, v.povertyRate >= 20 ? 28 : v.povertyRate >= 15 ? 88 : 120, v.povertyRate >= 20 ? 28 : v.povertyRate >= 15 ? 12 : 85);
+    doc.text(`${v.povertyRate.toFixed(1)}%`, colX[1] + 2, y + 1);
+    doc.setTextColor(100, 116, 139);
+    doc.text(`${v.unemploymentRate.toFixed(1)}%`, colX[2] + 2, y + 1);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("helvetica", "bold");
+    doc.text(fmtD(v.cohortCost), colX[3] + 2, y + 1);
+    y += 8;
+  });
+  doc.setDrawColor(180, 83, 9);
+  doc.line(margin, y - 1, margin + maxW, y - 1);
+  y += 4;
+  doc.setFontSize(9);
+  doc.setFont("helvetica", "bold");
+  doc.setTextColor(180, 83, 9);
+  doc.text("TOTAL ACCUMULATED COST", colX[0] + 2, y + 1);
+  doc.text(fmtD(hist.totalAccumulatedCost ?? 0), colX[3] + 2, y + 1);
+  y += 14;
+
+  // ── Forward projection ───────────────────────────────────────────────────────
+  doc.setFontSize(11);
+  doc.setTextColor(15, 23, 42);
+  doc.setFont("helvetica", "bold");
+  doc.text("Forward Projection (Next 25 Years)", margin, y);
+  y += 8;
+  const fwRows = [
+    ["Cost of inaction (no intervention)", fmtD(casc.counterfactualCost ?? 0), [185, 28, 28]],
+    ["Cost with evidence-based investment", fmtD(casc.interventionCost ?? 0), [5, 120, 85]],
+    ["Net savings", fmtD(casc.netSavings ?? 0), [5, 120, 85]],
+    ["Return on investment", `${casc.roi ?? "—"}×`, [5, 120, 85]],
+  ];
+  fwRows.forEach(([label, val, col]: any) => {
+    doc.setFontSize(8);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(71, 85, 105);
+    doc.text(label as string, margin + 2, y);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(col[0], col[1], col[2]);
+    doc.text(val as string, W - margin - 2, y, { align: "right" });
+    y += 7;
+  });
+  y += 6;
+
+  // ── Key chains ───────────────────────────────────────────────────────────────
+  if ((casc.keyChains ?? []).length > 0) {
+    doc.setFontSize(11);
+    doc.setTextColor(15, 23, 42);
+    doc.setFont("helvetica", "bold");
+    doc.text("Evidence Chains Driving These Costs", margin, y);
+    y += 8;
+    (casc.keyChains as any[]).forEach((chain: any) => {
+      doc.setFontSize(8);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(15, 23, 42);
+      const chainText = `• ${chain.chain ?? chain.name ?? ""}`;
+      doc.text(chainText, margin + 2, y);
+      if (chain.annualCost) {
+        doc.setTextColor(185, 28, 28);
+        doc.text(fmtD(chain.annualCost) + "/yr", W - margin - 2, y, { align: "right" });
+      }
+      y += 6;
+      if (chain.description) {
+        doc.setFont("helvetica", "normal");
+        doc.setTextColor(100, 116, 139);
+        const descLines = doc.splitTextToSize(`  ${chain.description}`, maxW - 8);
+        doc.text(descLines, margin + 6, y);
+        y += descLines.length * 5 + 2;
+      }
+    });
+    y += 4;
+  }
+
+  // ── Footer ───────────────────────────────────────────────────────────────────
+  const footerY = doc.internal.pageSize.getHeight() - 14;
+  doc.setFillColor(241, 245, 249);
+  doc.rect(0, footerY - 4, W, 18, "F");
+  doc.setFontSize(7);
+  doc.setFont("helvetica", "normal");
+  doc.setTextColor(100, 116, 139);
+  doc.text("Source: U.S. Census Bureau American Community Survey 5-Year Estimates · Cost model: evidence-based chain (ECE→dropout→incarceration; MH→homelessness)", margin, footerY + 2, { maxWidth: maxW - 30 });
+  doc.text("thriveupacademy.com", W - margin, footerY + 2, { align: "right" });
+
+  doc.save(`community-invoice-${(displayName || locationQuery).replace(/[^a-z0-9]/gi, "-").toLowerCase()}.pdf`);
+}
+
+// ─── Verdict Hero ─────────────────────────────────────────────────────────────
+
+function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string }) {
+  const geo = data.geography ?? {};
+  const hist = data.historicalCascade ?? {};
+  const casc = data.cascade ?? {};
+  const histTotal = hist.totalAccumulatedCost ?? 0;
+  const forwardCost = casc.counterfactualCost ?? 0;
+  const savings = casc.netSavings ?? 0;
+  const roi = casc.roi ?? "—";
+  const trend = hist.trendDirection ?? "stagnant";
+  const trendIcon = trend === "improving" ? "↗" : trend === "worsening" ? "↘" : "→";
+  const trendColor = trend === "improving" ? "text-emerald-400" : trend === "worsening" ? "text-red-400" : "text-amber-400";
+
+  return (
+    <div className="rounded-2xl overflow-hidden border border-slate-700 bg-slate-900 text-white" data-testid="section-verdict-hero">
+      <div className="px-6 py-5 border-b border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div>
+          <div className="text-xs text-slate-400 uppercase tracking-widest mb-1 font-semibold">Community Verdict</div>
+          <h2 className="text-xl font-black text-white">{geo.displayName || locationQuery}</h2>
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => generateInvoicePDF(data, locationQuery)}
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
+            data-testid="button-download-invoice"
+          >
+            <Download className="w-3.5 h-3.5" />Download Invoice
+          </button>
+          <a href={`/community-compare?a=${encodeURIComponent(locationQuery)}`}
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
+            data-testid="link-compare-from-verdict">
+            <ArrowRight className="w-3.5 h-3.5" />Compare
+          </a>
+        </div>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-700/60">
+        <div className="px-6 py-5 flex flex-col gap-1">
+          <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Already Paid · 2013–2022</div>
+          <div className="text-4xl font-black text-amber-400 tabular-nums" data-testid="verdict-historical-total">
+            {histTotal >= 1e9 ? `$${(histTotal/1e9).toFixed(1)}B` : histTotal >= 1e6 ? `$${(histTotal/1e6).toFixed(1)}M` : histTotal >= 1e3 ? `$${(histTotal/1e3).toFixed(0)}K` : `$${histTotal}`}
+          </div>
+          <div className={`text-xs font-semibold mt-1 ${trendColor}`}>{trendIcon} Poverty trend {trend}</div>
+          <div className="text-xs text-slate-400 mt-0.5">Accumulated cost of disinvestment · Census-verified</div>
+        </div>
+        <div className="px-6 py-5 flex flex-col gap-1">
+          <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Next 25 Years · No Action</div>
+          <div className="text-4xl font-black text-red-400 tabular-nums" data-testid="verdict-forward-cost">
+            {forwardCost >= 1e9 ? `$${(forwardCost/1e9).toFixed(1)}B` : forwardCost >= 1e6 ? `$${(forwardCost/1e6).toFixed(1)}M` : forwardCost >= 1e3 ? `$${(forwardCost/1e3).toFixed(0)}K` : `$${forwardCost}`}
+          </div>
+          <div className="text-xs text-red-400 font-semibold mt-1">↑ Cascade continues if nothing changes</div>
+          <div className="text-xs text-slate-400 mt-0.5">Same chain model · ECE gap → dropout → incarceration</div>
+        </div>
+        <div className="px-6 py-5 flex flex-col gap-1">
+          <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Savings · With Investment</div>
+          <div className="text-4xl font-black text-emerald-400 tabular-nums" data-testid="verdict-savings">
+            {savings >= 1e9 ? `$${(savings/1e9).toFixed(1)}B` : savings >= 1e6 ? `$${(savings/1e6).toFixed(1)}M` : savings >= 1e3 ? `$${(savings/1e3).toFixed(0)}K` : `$${savings}`}
+          </div>
+          <div className="text-xs text-emerald-400 font-semibold mt-1">↑ {roi}× return on evidence-based investment</div>
+          <div className="text-xs text-slate-400 mt-0.5">Net over 25 years · same Census geography</div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── Sub-components ──────────────────────────────────────────────────────────
@@ -549,6 +807,9 @@ export default function CommunityImpactPage() {
 
         {data && !brief.isPending && (
           <div className="space-y-10">
+            {/* Verdict Hero — the F-22 first look */}
+            <VerdictHero data={data} locationQuery={submitted} />
+
             {/* Demographics strip */}
             <DemographicsStrip geo={data.geography} demographics={data.demographics} overallScore={data.overallScore} overallGrade={data.overallGrade} />
 
@@ -768,9 +1029,14 @@ export default function CommunityImpactPage() {
                 <a href="/city-comparison" data-testid="link-export-compare">
                   <Button variant="outline" size="sm" className="gap-1.5"><TrendingUp className="w-3.5 h-3.5" />Compare Cities</Button>
                 </a>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => window.print()} data-testid="button-print">
-                  <Download className="w-3.5 h-3.5" />Print / PDF
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => generateInvoicePDF(data, submitted)} data-testid="button-download-invoice-strip">
+                  <Download className="w-3.5 h-3.5" />Download Invoice
                 </Button>
+                <a href={`/community-compare?a=${encodeURIComponent(submitted)}`}>
+                  <Button variant="outline" size="sm" className="gap-1.5" data-testid="link-compare-strip">
+                    <ArrowRight className="w-3.5 h-3.5" />Compare Communities
+                  </Button>
+                </a>
               </div>
             </Card>
           </div>

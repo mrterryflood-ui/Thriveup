@@ -1,6 +1,6 @@
 ---
 name: Community Impact Conductor
-description: Unified community story surface — any ZIP/city/county → 10 social-domain scores, 25-year forward cascade, historical counterfactual (multi-vintage ACS), 5 vanilla Three.js viz tabs.
+description: Unified community story surface — any ZIP/city/county → 10 social-domain scores, 25-year forward cascade, historical counterfactual (multi-vintage ACS), 5 vanilla Three.js viz tabs, verdict hero, PDF invoice, side-by-side comparison.
 ---
 
 ## What it is
