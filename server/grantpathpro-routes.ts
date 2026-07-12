@@ -53,6 +53,7 @@ function requireGppInboundKey(req: Request, res: Response, next: NextFunction) {
   }
   const expected = normalizeKey(rawExpected);
   const provided = typeof raw === "string" ? normalizeKey(raw) : null;
+
   if (!provided || provided !== expected) {
     return res.status(401).json({ error: "Invalid or missing x-api-key" });
   }
