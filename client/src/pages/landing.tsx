@@ -1786,7 +1786,6 @@ export default function LandingPage() {
 
       <ServicePlatformSection />
       <GrantPathProSection />
-      <PricingTiersSection />
       <FiveWTeaser />
       <TrustBar />
       <DisciplineStrip />
