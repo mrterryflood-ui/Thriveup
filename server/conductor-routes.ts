@@ -1505,7 +1505,7 @@ export function registerConductorRoutes(app: Express) {
       };
 
       const gppApiUrl = process.env.GPP_API_URL;
-      const gppApiKey = process.env.GPP_API_KEY;
+      const gppApiKey = process.env.GRANTPATHPRO_WEBHOOK_API_KEY || process.env.GPP_API_KEY;
 
       if (gppApiUrl && gppApiKey) {
         const gppResponse = await fetch(gppApiUrl, {

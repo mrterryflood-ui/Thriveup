@@ -50,6 +50,7 @@ integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_wi
 [userenv.shared]
 SUPPORT_PORTAL_URL = "https://student-support-portal--mrterryflood.replit.app"
 CIVIC_SIGNAL_BASE_URL = "https://power2thepeople.net"
+GPP_API_URL = "https://justproposals.net"
 
 [postMerge]
 path = "scripts/post-merge.sh"
