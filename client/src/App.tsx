@@ -344,6 +344,7 @@ const EmployerRegistrationPage = lazy(() => import("@/pages/EmployerRegistration
 const ResidentEquityDashboardPage = lazy(() => import("@/pages/resident-equity-dashboard"));
 const PartnerScorecardPage = lazy(() => import("@/pages/partner-scorecard"));
 const LearnerSettingsPage = lazy(() => import("@/pages/learner-settings"));
+const Community411Page = lazy(() => import("@/pages/community-411"));
 
 function PageFallback() {
   return (
@@ -491,6 +492,7 @@ function AppRouter() {
       <Route path="/open-innovation-lab" component={OpenInnovationLabPage} />
       <Route path="/resources" component={ResourceFinderPage} />
       <Route path="/get-help" component={GetHelpPage} />
+      <Route path="/411" component={Community411Page} />
       <Route path="/impact" component={ImpactPage} />
       <Route path="/api-docs" component={APIDocsPage} />
       <Route path="/grants">
