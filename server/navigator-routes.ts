@@ -959,7 +959,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
               const orClient = new OpenAI({ apiKey: orKey, baseURL: orBase });
               // Use the fastest available model on OR — haiku is ~1-3s TTFT
               const orStream = await orClient.chat.completions.create({
-                model: "anthropic/claude-3-5-haiku",
+                model: "anthropic/claude-haiku-4-5",
                 messages: msgs as any,
                 max_tokens: 2000,
                 stream: true,

@@ -78,7 +78,7 @@ async function probeGemini(): Promise<EngineProbeResult> {
   // and hits quota constantly; OR uses user's paid credits.
   const orKey = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
   const orBase = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
-  const model = "google/gemini-2.0-flash-001";
+  const model = "google/gemini-2.5-flash";
   if (!orKey || !orBase) return { engine: "gemini", model, ok: false, latencyMs: 0, error: "OpenRouter not configured" };
 
   try {

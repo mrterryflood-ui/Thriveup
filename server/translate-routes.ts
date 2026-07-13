@@ -1,5 +1,6 @@
 import type { Express, Request, Response } from "express";
 import OpenAI from "openai";
+import { withEthicalPreamble } from "./ai-provider";
 
 let _openai: OpenAI | null = null;
 function getOpenAI(): OpenAI | null {
@@ -133,7 +134,7 @@ export function registerTranslateRoutes(app: Express) {
           messages: [
             {
               role: "system",
-              content: `You are a professional translator producing UI strings in ${targetName}. Reply with ONLY the translated numbered list — same numbering, one item per line, no commentary, no markdown, no explanations. Keep proper nouns (ThriveUp, Sankofa, LifeBridge, LexiBridge, Talk Your Talk, MAP-GAP, CFIR, RE-AIM, SAM.gov, FAFSA, GI Bill, VA, etc.) untranslated.`,
+              content: withEthicalPreamble(`You are a professional translator producing UI strings in ${targetName}. Reply with ONLY the translated numbered list — same numbering, one item per line, no commentary, no markdown, no explanations. Keep proper nouns (ThriveUp, Sankofa, LifeBridge, LexiBridge, Talk Your Talk, MAP-GAP, CFIR, RE-AIM, SAM.gov, FAFSA, GI Bill, VA, etc.) untranslated.`),
             },
             {
               role: "user",

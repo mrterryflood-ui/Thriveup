@@ -180,7 +180,7 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   // Claude: OpenRouter (preferred — uses user's credits, no proxy latency)
   //         → direct ANTHROPIC_API_KEY → Replit integration proxy
   const hasClaudeDirect = !!(process.env.ANTHROPIC_API_KEY || (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL));
-  if (hasOR) engines.push({ id: "claude", model: "anthropic/claude-3-5-haiku" });
+  if (hasOR) engines.push({ id: "claude", model: "anthropic/claude-haiku-4-5" });
   else if (hasClaudeDirect) engines.push({ id: "claude", model: "claude-haiku-4-5" });
 
   // OpenAI via Replit integration
@@ -191,7 +191,7 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
 
   // Gemini: OpenRouter (bypasses free-tier quota issues) → direct API key
   const hasGeminiDirect = !!(process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil);
-  if (hasOR) engines.push({ id: "gemini", model: "google/gemini-2.0-flash-001" });
+  if (hasOR) engines.push({ id: "gemini", model: "google/gemini-2.5-flash" });
   else if (hasGeminiDirect) engines.push({ id: "gemini", model: "gemini-2.0-flash" });
 
   return engines;

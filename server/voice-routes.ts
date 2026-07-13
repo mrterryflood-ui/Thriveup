@@ -19,11 +19,8 @@ import {
 import { and, desc, eq, sql, inArray } from "drizzle-orm";
 import { randomUUID, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { z } from "zod";
-import OpenAI from "openai";
 import { generateAIJSON } from "./ai-provider";
 import { filterByItiConsent } from "./integration-invitation-routes";
-
-const openai = process.env.OPENAI_API_KEY ? new OpenAI() : null;
 
 // Deterministic category → ecosystem-platform routing map.
 // Used both for AI theme recommendations and the chain-web visualization.

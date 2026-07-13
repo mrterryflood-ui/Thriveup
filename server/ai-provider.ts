@@ -3,7 +3,33 @@ import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCurrentCommunityContext } from "./community-context";
 
-type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1";
+type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
+
+/**
+ * Claude model fallback chain. claude-haiku-4-5 is the preferred model but
+ * newer models can 404 before a key/plan has access — fall back to the
+ * stable claude-3-5-haiku rather than losing the direct-Anthropic path
+ * entirely. First model that succeeds is cached for the process lifetime.
+ */
+const CLAUDE_MODEL_CHAIN = ["claude-haiku-4-5", "claude-3-5-haiku-20241022"];
+let resolvedClaudeModel: string | null = null;
+
+function isModelNotFoundError(error: unknown): boolean {
+  if (error && typeof error === "object") {
+    const e = error as any;
+    if (e.status === 404 || e.statusCode === 404) return true;
+    const msg = (e.message || "").toLowerCase();
+    if (msg.includes("not_found") || msg.includes("model") && msg.includes("not found")) return true;
+  }
+  return false;
+}
+
+function logProviderError(provider: string, error: unknown): void {
+  const e = error as any;
+  const status = e?.status ?? e?.statusCode ?? "?";
+  const msg = (e?.message || String(error)).slice(0, 300);
+  console.error(`[AI Provider] ${provider} error detail: status=${status} message=${msg}`);
+}
 
 /**
  * ETHICAL_EI_PREAMBLE — persistent operating principle for every AI call on
@@ -127,6 +153,11 @@ function getAvailableProviders(): Provider[] {
   return providers;
 }
 
+/** Perplexity (via OpenRouter) is available when OpenRouter creds exist. */
+export function isPerplexityAvailable(): boolean {
+  return Boolean(process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL);
+}
+
 function detectProvider(): Provider {
   const providers = getAvailableProviders();
   if (providers.length === 0) {
@@ -140,10 +171,11 @@ function detectProvider(): Provider {
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   gemini: { model: "gemini-2.0-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
-  "openrouter-claude": { model: "anthropic/claude-3.5-haiku", isFree: false },
+  "openrouter-claude": { model: "anthropic/claude-haiku-4-5", isFree: false },
   openai: { model: "gpt-4o-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
   "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
+  perplexity: { model: "perplexity/sonar-pro", isFree: false },
 };
 
 export function getActiveProvider(): string {
@@ -245,35 +277,157 @@ async function streamClaude(params: StreamAIResponseParams): Promise<void> {
     ? [{ type: "web_search_20250305", name: "web_search", max_uses: params.webSearchMaxUses ?? 8 }]
     : undefined;
 
-  const stream = client.messages.stream({
-    model: "claude-haiku-4-5",
-    max_tokens: params.maxTokens || 8192,
-    ...(systemPrompt ? { system: systemPrompt } : {}),
-    messages: chatMessages,
-    ...(webSearchTool ? { tools: webSearchTool as any } : {}),
-  });
+  // Model fallback chain: resolvedClaudeModel is cached after first success
+  // so the 404 probe cost is paid at most once per process.
+  const modelsToTry = resolvedClaudeModel ? [resolvedClaudeModel] : CLAUDE_MODEL_CHAIN;
+  let lastError: unknown;
 
-  for await (const event of stream) {
-    if (event.type === "content_block_delta") {
-      const delta: any = event.delta;
-      if (delta.type === "text_delta" && delta.text) {
-        params.onChunk(delta.text);
-      } else if (delta.type === "citations_delta" && delta.citation) {
-        // Surface citations inline so the markdown the user sees actually
-        // carries the URL Claude consulted. Only emit a markdown link when
-        // we have a real URL — document_title and similar metadata would
-        // produce broken/malformed links and weaken the "primary-source-
-        // cited" guarantee §4 makes.
-        const c: any = delta.citation;
-        const url: string | undefined = c.url || c.source_url;
-        if (typeof url === "string" && /^https?:\/\//i.test(url)) {
-          params.onChunk(` [↗](${url})`);
+  for (const model of modelsToTry) {
+    try {
+      const stream = client.messages.stream({
+        model,
+        max_tokens: params.maxTokens || 8192,
+        ...(systemPrompt ? { system: systemPrompt } : {}),
+        messages: chatMessages,
+        ...(webSearchTool ? { tools: webSearchTool as any } : {}),
+      });
+
+      for await (const event of stream) {
+        if (event.type === "content_block_delta") {
+          const delta: any = event.delta;
+          if (delta.type === "text_delta" && delta.text) {
+            params.onChunk(delta.text);
+          } else if (delta.type === "citations_delta" && delta.citation) {
+            // Surface citations inline so the markdown the user sees actually
+            // carries the URL Claude consulted. Only emit a markdown link when
+            // we have a real URL — document_title and similar metadata would
+            // produce broken/malformed links and weaken the "primary-source-
+            // cited" guarantee §4 makes.
+            const c: any = delta.citation;
+            const url: string | undefined = c.url || c.source_url;
+            if (typeof url === "string" && /^https?:\/\//i.test(url)) {
+              params.onChunk(` [↗](${url})`);
+            }
+          }
         }
+      }
+
+      resolvedClaudeModel = model;
+      params.onDone();
+      return;
+    } catch (error) {
+      lastError = error;
+      logProviderError(`claude(${model})`, error);
+      // Only continue down the chain on model-availability errors; auth,
+      // rate-limit, and overload errors would fail on every model equally.
+      if (!isModelNotFoundError(error)) throw error;
+    }
+  }
+  throw lastError;
+}
+
+/**
+ * Non-streaming Anthropic call with the same model fallback chain as
+ * streamClaude. Shared by generateAIJSON and callProviderDirect.
+ */
+async function claudeCreateWithFallback(
+  client: Anthropic,
+  req: { max_tokens: number; system?: string; messages: Array<{ role: "user" | "assistant"; content: string }> },
+): Promise<string> {
+  const modelsToTry = resolvedClaudeModel ? [resolvedClaudeModel] : CLAUDE_MODEL_CHAIN;
+  let lastError: unknown;
+  for (const model of modelsToTry) {
+    try {
+      const resp = await client.messages.create({
+        model,
+        max_tokens: req.max_tokens,
+        ...(req.system ? { system: req.system } : {}),
+        messages: req.messages,
+      });
+      resolvedClaudeModel = model;
+      const block = resp.content[0];
+      return block.type === "text" ? block.text : "";
+    } catch (error) {
+      lastError = error;
+      logProviderError(`claude(${model})`, error);
+      if (!isModelNotFoundError(error)) throw error;
+    }
+  }
+  throw lastError;
+}
+
+/**
+ * Perplexity Sonar Pro via OpenRouter — live web-grounded answers with
+ * citations. Used when enableWebSearch is requested (preferred over
+ * Claude's web_search tool: cheaper, purpose-built for retrieval) and as
+ * the research engine in the collaborative synthesizer.
+ */
+async function streamPerplexity(params: StreamAIResponseParams): Promise<void> {
+  const client = new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+  });
+  const stream = await client.chat.completions.create({
+    model: "perplexity/sonar-pro",
+    messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
+    stream: true,
+    max_tokens: params.maxTokens || 4000,
+  });
+  const seenUrls = new Set<string>();
+  for await (const chunk of stream) {
+    const choice: any = chunk.choices[0];
+    const content = choice?.delta?.content || "";
+    if (content) params.onChunk(content);
+    // OpenRouter surfaces Perplexity citations as url_citation annotations.
+    const annotations: Array<{ type?: string; url_citation?: { url?: string } }> =
+      choice?.delta?.annotations ?? [];
+    for (const a of annotations) {
+      const url = a?.type === "url_citation" ? a.url_citation?.url : undefined;
+      if (url && /^https?:\/\//i.test(url) && !seenUrls.has(url)) {
+        seenUrls.add(url);
+        params.onChunk(` [↗](${url})`);
       }
     }
   }
-
   params.onDone();
+}
+
+/**
+ * Direct (non-streaming) Perplexity research call with citations returned
+ * separately. Exported for engines that need live web intelligence as a
+ * discrete step (orchestration demo, conductor, grant research).
+ */
+export async function perplexityResearch(
+  prompt: string,
+  systemPrompt?: string,
+  maxTokens?: number,
+): Promise<{ text: string; citations: string[] }> {
+  if (!isPerplexityAvailable()) {
+    throw new Error("Perplexity unavailable: OpenRouter credentials not configured");
+  }
+  const client = new OpenAI({
+    apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
+    baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+  });
+  const resp = await client.chat.completions.create({
+    model: "perplexity/sonar-pro",
+    messages: [
+      { role: "system", content: withEthicalPreamble(systemPrompt) },
+      { role: "user", content: prompt },
+    ],
+    max_tokens: maxTokens || 1200,
+    temperature: 0.2,
+  });
+  const text = resp.choices[0]?.message?.content ?? "";
+  const topLevel = resp as unknown as { citations?: string[]; search_results?: Array<{ url?: string }> };
+  const annotations = (resp.choices[0]?.message as unknown as { annotations?: Array<{ type?: string; url_citation?: { url?: string } }> })?.annotations ?? [];
+  const fromAnnotations = annotations
+    .filter(a => a?.type === "url_citation" && a.url_citation?.url)
+    .map(a => a.url_citation!.url!);
+  const citations: string[] = topLevel.citations
+    ?? topLevel.search_results?.map(s => s.url).filter((u): u is string => !!u)
+    ?? fromAnnotations;
+  return { text, citations };
 }
 
 async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" | "replit-ai-integrations"): Promise<void> {
@@ -337,7 +491,7 @@ async function streamOpenRouterClaude(params: StreamAIResponseParams): Promise<v
     baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
   });
   const stream = await client.chat.completions.create({
-    model: "anthropic/claude-3.5-haiku",
+    model: "anthropic/claude-haiku-4-5",
     messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
     stream: true,
     max_tokens: params.maxTokens || 8192,
@@ -358,6 +512,8 @@ async function tryProvider(provider: Provider, params: StreamAIResponseParams): 
     await streamOpenRouterClaude(params);
   } else if (provider === "deepseek-r1") {
     await streamDeepSeekR1(params);
+  } else if (provider === "perplexity") {
+    await streamPerplexity(params);
   } else {
     await streamOpenAI(params, provider);
   }
@@ -389,14 +545,11 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
         const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
         chatMsgs.push({ role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` });
-        const resp = await client.messages.create({
-          model: "claude-haiku-4-5",
+        text = (await claudeCreateWithFallback(client, {
           max_tokens: 8192,
-          ...(systemPrompt ? { system: systemPrompt } : {}),
+          system: systemPrompt,
           messages: chatMsgs,
-        });
-        const block = resp.content[0];
-        text = block.type === "text" ? block.text : "{}";
+        })) || "{}";
       } else if (provider === "openrouter-claude") {
         const client = new OpenAI({
           apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
@@ -406,7 +559,7 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
         msgs.push({ role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` });
         const resp = await client.chat.completions.create({
-          model: "anthropic/claude-3.5-haiku",
+          model: "anthropic/claude-haiku-4-5",
           messages: msgs,
           max_tokens: 4000,
         });
@@ -504,14 +657,14 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
     const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
     chatMsgs.push({ role: "user", content: prompt });
-    const resp = await client.messages.create({
-      model: "claude-haiku-4-5",
+    return await claudeCreateWithFallback(client, {
       max_tokens: maxTokens || 8192,
-      ...(systemPrompt ? { system: systemPrompt } : {}),
+      system: systemPrompt,
       messages: chatMsgs,
     });
-    const block = resp.content[0];
-    return block.type === "text" ? block.text : "";
+  } else if (provider === "perplexity") {
+    const { text } = await perplexityResearch(prompt, systemPrompt, maxTokens);
+    return text;
   } else if (provider === "openrouter-claude") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
@@ -521,7 +674,7 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
     msgs.push({ role: "user", content: prompt });
     const resp = await client.chat.completions.create({
-      model: "anthropic/claude-3.5-haiku",
+      model: "anthropic/claude-haiku-4-5",
       messages: msgs,
       max_tokens: maxTokens || 8192,
     });
@@ -635,8 +788,17 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
   // matter which provider downstream serves it.
   params = { ...params, messages: withEthicalMessages(params.messages) };
 
-  for (let i = 0; i < providers.length; i++) {
-    const provider = providers[i];
+  // When live web retrieval is requested, Perplexity Sonar Pro leads the
+  // chain — it is purpose-built for web-grounded answers with citations.
+  // Claude (with its web_search tool) remains the next candidate, then the
+  // standard non-retrieval fallbacks.
+  const orderedProviders: Provider[] =
+    params.enableWebSearch && isPerplexityAvailable()
+      ? ["perplexity", ...providers]
+      : providers;
+
+  for (let i = 0; i < orderedProviders.length; i++) {
+    const provider = orderedProviders[i];
     try {
       const collectedChunks: string[] = [];
 
@@ -655,9 +817,14 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
         await streamGemini(wrappedParams);
       } else if (provider === "claude") {
         await streamClaude(wrappedParams);
+      } else if (provider === "perplexity") {
+        await streamPerplexity(wrappedParams);
       } else if (provider === "deepseek-r1") {
         if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but DeepSeek path has no web_search wired — answer will rely on training-cutoff knowledge.");
         await streamDeepSeekR1(wrappedParams);
+      } else if (provider === "openrouter-claude") {
+        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but OpenRouter-Claude path has no web_search wired — answer will rely on training-cutoff knowledge.");
+        await streamOpenRouterClaude(wrappedParams);
       } else {
         if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but OpenAI-family path has no web_search wired — answer will rely on training-cutoff knowledge.");
         await streamOpenAI(wrappedParams, provider);
@@ -665,9 +832,9 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
 
       const totalContent = collectedChunks.join("");
       if (totalContent.trim().length === 0) {
-        const isLast = i === providers.length - 1;
+        const isLast = i === orderedProviders.length - 1;
         if (!isLast) {
-          const next = providers[i + 1];
+          const next = orderedProviders[i + 1];
           console.error(`[AI Provider] ${provider} returned empty response, falling back to ${next}`);
           continue;
         }
@@ -676,7 +843,7 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
       params.onDone();
       return;
     } catch (error) {
-      const isLast = i === providers.length - 1;
+      const isLast = i === orderedProviders.length - 1;
 
       if (isRateLimitError(error) && provider === "gemini") {
         geminiQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
@@ -685,11 +852,13 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
 
       if (!isLast) {
         const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : "provider error";
-        const next = providers[i + 1];
+        const next = orderedProviders[i + 1];
+        logProviderError(provider, error);
         console.error(`[AI Provider] ${provider} failed (${reason}), falling back to ${next}`);
         continue;
       }
 
+      logProviderError(provider, error);
       params.onError(error instanceof Error ? error : new Error(String(error)));
       return;
     }
