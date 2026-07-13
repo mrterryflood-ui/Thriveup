@@ -1287,6 +1287,8 @@ export function registerConductorRoutes(app: Express) {
         buildRpliceIntelligencePackage({
           crisisDomains: briefDomains,
           regionName: geography.city || geography.county || geography.zip || "community",
+          stateFips: geography.stateFips || stateFipsFromZip(geography.zip) || stateFipsFromName(geography.state) || undefined,
+          countyFips: geography.countyFips || undefined,
         }).catch(() => null),
         fetch(`http://localhost:5000/api/inbound/rplice/latest`)
           .then((r) => r.json())
