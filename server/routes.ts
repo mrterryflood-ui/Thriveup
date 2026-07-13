@@ -109,6 +109,7 @@ import { registerRAGRoutes } from "./rag-engine";
 import { registerFacilitatorRoutes } from "./facilitator-routes";
 import { registerMetricsRoutes } from "./metrics-routes";
 import { registerChainwebRoutes } from "./chainweb-routes";
+import { registerCommunityIntelligenceRoutes } from "./community-intelligence-routes";
 import { registerConductorRoutes } from "./conductor-routes";
 import { registerOrchestraRoutes } from "./orchestra-routes";
 import { registerGrantPathProRoutes } from "./grantpathpro-routes";
@@ -541,6 +542,7 @@ export async function registerRoutes(
   registerCollaborationRoutes(app);
   registerCollegeAccessAIRoutes(app);
   registerNeighborhoodRoutes(app);
+  registerCommunityIntelligenceRoutes(app);
   registerExportPdfRoutes(app);
   registerSafePassageRoutes(app);
   registerEcosystemIntelRoutes(app);

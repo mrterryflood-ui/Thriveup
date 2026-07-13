@@ -712,6 +712,27 @@ export default function NeighborhoodLookupPage() {
               </TabsContent>
             </Tabs>
 
+            {zipCode && (
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold text-primary">Ready for deeper analysis?</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        See GIS hotspots, evidence-based interventions, and cross-city adaptation science for ZIP {zipCode}.
+                      </p>
+                    </div>
+                    <Link href={`/community-analysis?zip=${zipCode}`}>
+                      <Button size="sm" className="shrink-0" data-testid="link-community-analysis">
+                        <ChevronRight className="h-4 w-4 mr-1" />
+                        Open Intervention Analysis
+                      </Button>
+                    </Link>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
             <Card className="bg-muted/30">
               <CardContent className="pt-4">
                 <p className="text-xs text-muted-foreground text-center">

@@ -345,6 +345,7 @@ const ResidentEquityDashboardPage = lazy(() => import("@/pages/resident-equity-d
 const PartnerScorecardPage = lazy(() => import("@/pages/partner-scorecard"));
 const LearnerSettingsPage = lazy(() => import("@/pages/learner-settings"));
 const Community411Page = lazy(() => import("@/pages/community-411"));
+const CommunityAnalysisPage = lazy(() => import("@/pages/community-analysis"));
 
 function PageFallback() {
   return (
@@ -493,6 +494,7 @@ function AppRouter() {
       <Route path="/resources" component={ResourceFinderPage} />
       <Route path="/get-help" component={GetHelpPage} />
       <Route path="/411" component={Community411Page} />
+      <Route path="/community-analysis" component={CommunityAnalysisPage} />
       <Route path="/impact" component={ImpactPage} />
       <Route path="/api-docs" component={APIDocsPage} />
       <Route path="/grants">
