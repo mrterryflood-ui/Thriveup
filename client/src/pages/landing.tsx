@@ -1722,6 +1722,13 @@ export default function LandingPage() {
                 Generate a Community Brief →
               </button>
             </Link>
+            <Link href="/community-analysis">
+              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+                style={{ background: "linear-gradient(135deg,#6366f1,#0ea5e9)", color: "#fff", boxShadow: "0 0 28px rgba(99,102,241,0.28)", border: "none", cursor: "pointer" }}
+                data-testid="button-hero-intervention">
+                Intervention Analysis →
+              </button>
+            </Link>
             <Link href="/benefits-screener">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
                 style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}

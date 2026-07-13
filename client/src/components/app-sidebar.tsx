@@ -242,6 +242,8 @@ const whereWeOperateItems: NavItem[] = [
   { title: "Texas Assessment", url: "/texas-assessment", icon: Map, authOnly: true },
   { title: "Third Spaces", url: "/third-spaces", icon: Building2 },
   { title: "Neighborhood Intel", url: "/neighborhood", icon: MapPin },
+  { title: "Community 411", url: "/411", icon: Globe },
+  { title: "Intervention Analysis", url: "/community-analysis", icon: FlaskConical },
   { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
   { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
