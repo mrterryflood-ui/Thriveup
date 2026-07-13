@@ -13,3 +13,4 @@
 - [Orchestration Layer (Chainweb Conductor)](orchestration-layer.md) — all 25 engines wired; college-access-ai is operator-selectable (explicit id+question payload bypasses PII wall, capped AI spend).
 - [Community Impact Conductor](community-impact-conductor.md) — /community-impact; 4 vanilla Three.js 3D viz tabs; R3F MUST stay uninstalled (dual-React crash); API fields: overallScore, interventionCost, healthAccess.
 - [RPLICE Live Platform](rplice-live-platform.md) — bettersciencelab.com is correct URL; 3 public endpoints; /api/research/search needs CSRF; filter client-side; Bearer key needed for grants/full-frameworks.
+- [Community Context Orchestration](community-context-orchestration.md) — AsyncLocalStorage wires Census+RPLICE into every AI call; middleware extracts ZIP; withEthicalPreamble appends it automatically.

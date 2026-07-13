@@ -47,6 +47,7 @@ import {
 } from "@shared/schema";
 import { desc, eq } from "drizzle-orm";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
+import { fetchZctaData } from "./neighborhood-routes";
 
 const RPLICE_BASE = "https://www.bettersciencelab.com";
 
@@ -923,4 +924,82 @@ export async function buildRpliceIntelligencePackage(params: {
     aiContextBlock,
     gppPackage,
   };
+}
+
+/**
+ * Build a compact, AI-ready community context block for a known geography.
+ *
+ * Called by: Navigator (when ZIP detected), Collaborative AI (when geography
+ * is in session), grant narrative engine, and any AI surface that knows where
+ * the user is. Returns a string ready to prepend to any system prompt.
+ *
+ * Runs Census + RPLICE in parallel — typical latency 800ms-2s.
+ */
+export async function buildCommunityAIContext(params: {
+  zip?: string;
+  stateFips?: string;
+  countyFips?: string;
+  crisisDomains?: string[];
+  regionName?: string;
+}): Promise<string> {
+  const { zip, stateFips, countyFips, crisisDomains = [], regionName } = params;
+
+  try {
+    const [rplicePkg, censusData] = await Promise.all([
+      buildRpliceIntelligencePackage({
+        crisisDomains,
+        regionName: regionName || zip || "community",
+        stateFips,
+        countyFips,
+      }).catch(() => null),
+      zip ? fetchZctaData(zip).catch(() => null) : Promise.resolve(null),
+    ]);
+
+    const lines: string[] = [];
+    lines.push("══ LIVE COMMUNITY INTELLIGENCE ══");
+
+    // ── Census snapshot for this ZIP ───────────────────────────────────────────
+    if (censusData && zip) {
+      const ind = censusData.indicators || {};
+      lines.push(`\n[CENSUS DATA — ZIP ${zip}${censusData.countyName ? " · " + censusData.countyName : ""}]`);
+      if (censusData.population) lines.push(`• Population: ${Number(censusData.population).toLocaleString()}`);
+      if (censusData.medianIncome) lines.push(`• Median household income: $${Number(censusData.medianIncome).toLocaleString()}`);
+      if (ind.povertyRate) lines.push(`• Poverty rate: ${ind.povertyRate}%`);
+      if (ind.unemploymentRate) lines.push(`• Unemployment: ${ind.unemploymentRate}%`);
+      if (ind.uninsuredRate) lines.push(`• Uninsured: ${ind.uninsuredRate}%`);
+      if (ind.noHighSchoolDiploma) lines.push(`• No HS diploma: ${ind.noHighSchoolDiploma}%`);
+      if (ind.singleParentRate) lines.push(`• Single-parent households: ${ind.singleParentRate}%`);
+      if (ind.snapRecipients) lines.push(`• SNAP recipients: ${ind.snapRecipients}%`);
+      if (ind.limitedEnglish) lines.push(`• Limited English proficiency: ${ind.limitedEnglish}%`);
+      if (censusData.sviScore != null) lines.push(`• Social Vulnerability Index: ${censusData.sviScore} (0=lowest, 1=highest)`);
+
+      // Surface the top "needs attention" flags directly
+      const flags = (censusData.needsAttention || []).slice(0, 4);
+      if (flags.length > 0) {
+        lines.push("• Community flags: " + flags.map((f: any) => f.label).join(" · "));
+      }
+    }
+
+    // ── RPLICE 15-domain community analysis (FIPS-level) ──────────────────────
+    const communityAnalysis = rplicePkg?.rpliceAuthenticated?.communityAnalysis;
+    if (communityAnalysis?.domains?.length) {
+      lines.push("\n[RPLICE COMMUNITY ANALYSIS — TOP DOMAINS BY SEVERITY]");
+      const top = [...communityAnalysis.domains]
+        .sort((a: any, b: any) => (b.severityScore ?? 0) - (a.severityScore ?? 0))
+        .slice(0, 6);
+      for (const d of top) {
+        const tags = d.cfirConstructTags?.slice(0, 2).join(", ") || "";
+        lines.push(`• ${d.domain}: severity ${d.severityScore ?? "?"}/10${tags ? " — CFIR: " + tags : ""}`);
+      }
+    }
+
+    // ── RPLICE IS frameworks + grant profiles + implementation science ─────────
+    if (rplicePkg?.aiContextBlock) {
+      lines.push("\n" + rplicePkg.aiContextBlock);
+    }
+
+    return lines.join("\n");
+  } catch {
+    return "";
+  }
 }

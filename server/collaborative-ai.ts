@@ -4,7 +4,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 import { retrieveRelevantChunks, buildLiveIntelligenceContext } from "./rag-engine";
 import { withEthicalPreamble } from "./ai-provider";
 import { triggerImmediateSmokeAlert } from "./ai-smoke-test";
-import { buildRpliceIntelligencePackage } from "./rplice-intelligence";
+import { buildRpliceIntelligencePackage, buildCommunityAIContext } from "./rplice-intelligence";
+import { warmCommunityContext, runWithCommunityContext } from "./community-context";
 import { buildRpliceInboundContext } from "./rplice-inbound-routes";
 
 type EngineId = "gemini" | "claude" | "openai" | "deepseek-r1";
@@ -68,13 +69,31 @@ const RPLICE_LENS_STATIC = `Apply implementation science thinking grounded in Th
 - Dr. Flood's key principles: "1 year of college = primary protective factor"; "crime doesn't disappear, it migrates"; family structure amplifies all other factors; tract-level data, not county averages.
 - When analyzing a problem, ask: Who does this reach? What evidence supports the approach? What are the fidelity indicators? How is maintenance and scale planned?`;
 
-/** Pull the full RPLICE intelligence package (live research + DB + bridge + grant profiles) */
-async function buildLiveRpliceLens(): Promise<string> {
+/**
+ * Pull the full RPLICE intelligence package. When geography is provided
+ * (zip/stateFips/crisisDomains), returns a community-specific context block
+ * from the cache (warm if needed). Falls back to generic RPLICE aiContextBlock
+ * when no geography is known.
+ */
+async function buildLiveRpliceLens(geography?: {
+  zip?: string;
+  stateFips?: string;
+  countyFips?: string;
+  crisisDomains?: string[];
+}): Promise<string> {
   try {
-    const pkg = await buildRpliceIntelligencePackage({ crisisDomains: [] });
     const inboundContext = buildRpliceInboundContext();
-    const lens = pkg.aiContextBlock + (inboundContext ? "\n\n" + inboundContext : "");
-    return lens;
+    if (geography && (geography.zip || geography.stateFips)) {
+      const ctx = await buildCommunityAIContext({
+        zip: geography.zip,
+        stateFips: geography.stateFips,
+        countyFips: geography.countyFips,
+        crisisDomains: geography.crisisDomains ?? [],
+      });
+      return ctx + (inboundContext ? "\n\n" + inboundContext : "");
+    }
+    const pkg = await buildRpliceIntelligencePackage({ crisisDomains: [] });
+    return pkg.aiContextBlock + (inboundContext ? "\n\n" + inboundContext : "");
   } catch {
     return RPLICE_LENS_STATIC + "\n\n" + buildRpliceInboundContext();
   }

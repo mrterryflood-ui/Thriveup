@@ -466,6 +466,14 @@ export async function registerRoutes(
 
   app.use(dosageTrackingMiddleware);
 
+  // ── Community Intelligence Orchestration ──────────────────────────────────
+  // Extracts ZIP from any request body field and wires the live community
+  // data (Census + RPLICE) into AsyncLocalStorage so EVERY downstream AI call
+  // automatically receives it through withEthicalPreamble() — no route changes
+  // needed. Cache is 30 min TTL; cold-path warm happens in the background.
+  const { communityContextMiddleware } = await import("./community-context");
+  app.use(communityContextMiddleware());
+
   registerObjectStorageRoutes(app);
   registerCrossPlatformRoutes(app);
   registerGrantRoutes(app);

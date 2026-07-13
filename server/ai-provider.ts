@@ -1,6 +1,7 @@
 import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/generative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
+import { getCurrentCommunityContext } from "./community-context";
 
 type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1";
 
@@ -33,10 +34,24 @@ export const ETHICAL_EI_PREAMBLE = [
  * principle is impossible to bypass from a route file.
  */
 export function withEthicalPreamble(systemPrompt?: string): string {
-  if (!systemPrompt || systemPrompt.trim().length === 0) return ETHICAL_EI_PREAMBLE;
-  // Idempotent: don't double-wrap if the preamble is already present.
-  if (systemPrompt.includes("Operating principles for this platform")) return systemPrompt;
-  return `${ETHICAL_EI_PREAMBLE}\n\n---\n\n${systemPrompt}`;
+  // Pull live community intelligence from AsyncLocalStorage (set by
+  // communityContextMiddleware when request body contains a ZIP code).
+  // Empty string when no geography context is active — no-op.
+  const communityCtx = getCurrentCommunityContext();
+
+  const assembleWithCommunity = (base: string): string => {
+    if (!communityCtx || base.includes("══ LIVE COMMUNITY INTELLIGENCE ══")) return base;
+    return `${base}\n\n${communityCtx}`;
+  };
+
+  if (!systemPrompt || systemPrompt.trim().length === 0) {
+    return assembleWithCommunity(ETHICAL_EI_PREAMBLE);
+  }
+  // Idempotent: don't double-wrap the ethical preamble.
+  if (systemPrompt.includes("Operating principles for this platform")) {
+    return assembleWithCommunity(systemPrompt);
+  }
+  return assembleWithCommunity(`${ETHICAL_EI_PREAMBLE}\n\n---\n\n${systemPrompt}`);
 }
 
 /**

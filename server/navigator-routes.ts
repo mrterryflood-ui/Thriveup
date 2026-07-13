@@ -6,6 +6,7 @@ import { collaborativeStream } from "./collaborative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { searchByState, searchByLocation, generateCommunityNarrative } from "./gis-engine";
+import { buildCommunityAIContext } from "./rplice-intelligence";
 import { searchResources, getResourceCategories } from "./resource-engine";
 import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData, cedsRegions, cedsGoals, cedsAlignments } from "@shared/schema";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
@@ -350,10 +351,20 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
   try {
     if (locationMatch) {
       const zipCode = locationMatch[1];
-      const { records, locationName } = await searchByLocation(db, zipCode);
+      // Run GIS lookup + community context warm in parallel.
+      // warmCommunityContext populates the 30-min cache so the next Navigator
+      // message for the same ZIP hits instantly (and the middleware catches
+      // future requests that carry ZIP in the body).
+      const [{ records, locationName }, communityCtx] = await Promise.all([
+        searchByLocation(db, zipCode),
+        buildCommunityAIContext({ zip: zipCode }).catch(() => ""),
+      ]);
       if (records.length > 0) {
         const narrative = generateCommunityNarrative(records[0]);
         contextParts.push(`[GIS DATA for ${locationName}]: ${narrative}`);
+      }
+      if (communityCtx) {
+        contextParts.push(communityCtx);
       }
     } else if (stateMatch) {
       const stateQuery = stateMatch[1];
