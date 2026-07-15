@@ -42,19 +42,29 @@ export function registerMouRoutes(app: Express): void {
   });
 
   app.delete("/api/nsf/mous/:id", isAuthenticated, async (req, res) => {
-    await db.delete(hubMous).where(eq(hubMous.id, String(req.params.id)));
-    res.json({ ok: true });
+    try {
+      await db.delete(hubMous).where(eq(hubMous.id, String(req.params.id)));
+      res.json({ ok: true });
+    } catch (err: any) {
+      console.error("[mou] delete error:", err);
+      res.status(500).json({ error: "Failed to delete MOU" });
+    }
   });
 
   // ---- Discoveries (Perplexity findings) confirmation ----
   app.get("/api/nsf/discoveries/:stateCode", isAuthenticated, async (req, res) => {
-    const code = String(req.params.stateCode || "").toUpperCase();
-    const status = req.query.status ? String(req.query.status) : undefined;
-    const where = status
-      ? and(eq(nationwideDiscoveries.stateCode, code), eq(nationwideDiscoveries.status, status))
-      : eq(nationwideDiscoveries.stateCode, code);
-    const rows = await db.select().from(nationwideDiscoveries).where(where).orderBy(desc(nationwideDiscoveries.retrievedAt)).limit(50);
-    res.json({ stateCode: code, count: rows.length, discoveries: rows });
+    try {
+      const code = String(req.params.stateCode || "").toUpperCase();
+      const status = req.query.status ? String(req.query.status) : undefined;
+      const where = status
+        ? and(eq(nationwideDiscoveries.stateCode, code), eq(nationwideDiscoveries.status, status))
+        : eq(nationwideDiscoveries.stateCode, code);
+      const rows = await db.select().from(nationwideDiscoveries).where(where).orderBy(desc(nationwideDiscoveries.retrievedAt)).limit(50);
+      res.json({ stateCode: code, count: rows.length, discoveries: rows });
+    } catch (err: any) {
+      console.error("[mou] discoveries error:", err);
+      res.status(500).json({ error: "Failed to load discoveries" });
+    }
   });
 
   app.patch("/api/nsf/discoveries/:id", isAuthenticated, async (req, res) => {

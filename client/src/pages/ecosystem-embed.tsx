@@ -221,8 +221,8 @@ interface LifeBridgeData {
 
 export function LifeBridgeEmbedPage() {
   const { data, isLoading, error } = useQuery<LifeBridgeData>({
-    queryKey: ["/api/ecosystem/platform-directives", "lifebridge"],
-    queryFn: () => fetch("/api/ecosystem/platform-directives/lifebridge").then(r => {
+    queryKey: ["/api/ecosystem/internal/platform-directives", "lifebridge"],
+    queryFn: () => fetch("/api/ecosystem/internal/platform-directives/lifebridge").then(r => {
       if (!r.ok) throw new Error("Failed to fetch");
       return r.json();
     }),

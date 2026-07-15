@@ -3109,14 +3109,19 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
   // Nationwide catalog — federal + state programs, canonical slugs.
   // Peers consume this to stay in sync without redeploying.
   app.get("/api/benefits/catalog", async (_req, res) => {
-    res.json({
-      version: CATALOG_VERSION,
-      areas: BENEFIT_AREAS,
-      federal: FEDERAL_PROGRAMS,
-      state: STATE_PROGRAMS,
-      catalog: CATALOG,
-      generatedAt: new Date().toISOString(),
-    });
+    try {
+      res.json({
+        version: CATALOG_VERSION,
+        areas: BENEFIT_AREAS,
+        federal: FEDERAL_PROGRAMS,
+        state: STATE_PROGRAMS,
+        catalog: CATALOG,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      console.error("[benefits] catalog error:", err);
+      res.status(500).json({ error: "Failed to load benefits catalog" });
+    }
   });
 
   // Nationwide ZIP resolver — client UX helper for the any-ZIP wizard.
@@ -3559,36 +3564,46 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
   }
 
   app.get("/api/rplice/state/:countyFips", async (req, res) => {
-    const fips = req.params.countyFips;
-    const profile = rpliceCache.countyProfiles[fips];
-    const map = rpliceCache.mapgapPriority[fips];
-    const partners = rpliceCache.partners[fips];
-    res.json({
-      countyFips: fips,
-      countyProfile: profile || null,
-      prioritizedPrograms: map?.programs || null,
-      prioritizedProgramsOrigin: map?.origin || null,
-      partners: partners?.items || [],
-      partnersOrigin: partners?.origin || null,
-      activeAlerts: rpliceCache.programAlerts.filter(a => !a.counties || a.counties.includes(fips) || a.counties.length === 0),
-      lastEventAt: rpliceCache.lastEventAt || null,
-      network: buildNetworkView(),
-    });
+    try {
+      const fips = req.params.countyFips;
+      const profile = rpliceCache.countyProfiles[fips];
+      const map = rpliceCache.mapgapPriority[fips];
+      const partners = rpliceCache.partners[fips];
+      res.json({
+        countyFips: fips,
+        countyProfile: profile || null,
+        prioritizedPrograms: map?.programs || null,
+        prioritizedProgramsOrigin: map?.origin || null,
+        partners: partners?.items || [],
+        partnersOrigin: partners?.origin || null,
+        activeAlerts: rpliceCache.programAlerts.filter(a => !a.counties || a.counties.includes(fips) || a.counties.length === 0),
+        lastEventAt: rpliceCache.lastEventAt || null,
+        network: buildNetworkView(),
+      });
+    } catch (err: any) {
+      console.error("[rplice] state/:countyFips error:", err);
+      res.status(500).json({ error: "Failed to load county profile" });
+    }
   });
 
   app.get("/api/rplice/state", async (_req, res) => {
-    res.json({
-      countyProfiles: rpliceCache.countyProfiles,
-      mapgapPriority: rpliceCache.mapgapPriority,
-      partners: rpliceCache.partners,
-      programAlerts: rpliceCache.programAlerts,
-      lastEventAt: rpliceCache.lastEventAt,
-      countiesWithProfile: Object.keys(rpliceCache.countyProfiles),
-      countiesWithMapGap: Object.keys(rpliceCache.mapgapPriority),
-      countiesWithPartners: Object.keys(rpliceCache.partners),
-      network: buildNetworkView(),
-      mirrorLog: rpliceCache.mirrorLog.slice(0, 20),
-    });
+    try {
+      res.json({
+        countyProfiles: rpliceCache.countyProfiles,
+        mapgapPriority: rpliceCache.mapgapPriority,
+        partners: rpliceCache.partners,
+        programAlerts: rpliceCache.programAlerts,
+        lastEventAt: rpliceCache.lastEventAt,
+        countiesWithProfile: Object.keys(rpliceCache.countyProfiles),
+        countiesWithMapGap: Object.keys(rpliceCache.mapgapPriority),
+        countiesWithPartners: Object.keys(rpliceCache.partners),
+        network: buildNetworkView(),
+        mirrorLog: rpliceCache.mirrorLog.slice(0, 20),
+      });
+    } catch (err: any) {
+      console.error("[rplice] state error:", err);
+      res.status(500).json({ error: "Failed to load RPLICE state" });
+    }
   });
 
   // Network totals — shows how many enrollments are locally-owned vs peer-mirrored (e.g. from LifeBridge).
@@ -3733,25 +3748,30 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
 
   // Legacy sync metadata (kept for backward compat with any existing consumers).
   app.get("/api/rplice/sync-legacy", async (_req, res) => {
-    const network = buildNetworkView();
-    res.json({
-      ok: true,
-      platform: SELF_PLATFORM_ID,
-      role: "consumer+relay",
-      acceptedEventTypes: ACCEPTED_EVENT_TYPES,
-      pushEndpoint: "/api/rplice/sync",
-      legacyPushEndpoint: "/api/rplice/inbound-event",
-      stateEndpoint: "/api/rplice/state/:countyFips",
-      lastEventAt: rpliceCache.lastEventAt || null,
-      counties: {
-        withProfile: Object.keys(rpliceCache.countyProfiles),
-        withMapGap: Object.keys(rpliceCache.mapgapPriority),
-        withPartners: Object.keys(rpliceCache.partners),
-      },
-      activeAlertCount: rpliceCache.programAlerts.length,
-      network,
-      recentMirrors: rpliceCache.mirrorLog.slice(0, 10),
-    });
+    try {
+      const network = buildNetworkView();
+      res.json({
+        ok: true,
+        platform: SELF_PLATFORM_ID,
+        role: "consumer+relay",
+        acceptedEventTypes: ACCEPTED_EVENT_TYPES,
+        pushEndpoint: "/api/rplice/sync",
+        legacyPushEndpoint: "/api/rplice/inbound-event",
+        stateEndpoint: "/api/rplice/state/:countyFips",
+        lastEventAt: rpliceCache.lastEventAt || null,
+        counties: {
+          withProfile: Object.keys(rpliceCache.countyProfiles),
+          withMapGap: Object.keys(rpliceCache.mapgapPriority),
+          withPartners: Object.keys(rpliceCache.partners),
+        },
+        activeAlertCount: rpliceCache.programAlerts.length,
+        network,
+        recentMirrors: rpliceCache.mirrorLog.slice(0, 10),
+      });
+    } catch (err: any) {
+      console.error("[rplice] sync-legacy error:", err);
+      res.status(500).json({ error: "Failed to load sync metadata" });
+    }
   });
 
   app.post("/api/rplice/sync", async (req, res) => {

@@ -6485,6 +6485,99 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api/households", householdRouter);
   app.use("/api/policy", policyRouter);
 
+  // ── Learner Profile: GET + PUT for personal accessibility/reading preferences ─
+  app.get("/api/learner-profile", requireAuth, async (req, res) => {
+    try {
+      const { learnerProfiles } = await import("../shared/schema");
+      const userId = getUserId(req)!;
+      const [profile] = await db.select().from(learnerProfiles).where(eq(learnerProfiles.userId, userId));
+      if (!profile) {
+        return res.json({
+          userId,
+          readingLevel: "adult",
+          preferredLanguage: "en",
+          captionsEnabled: false,
+          highContrastEnabled: false,
+          screenReaderMode: false,
+        });
+      }
+      res.json(profile);
+    } catch (err: any) {
+      console.error("[learner-profile] GET error:", err);
+      res.status(500).json({ error: "Failed to load learner profile" });
+    }
+  });
+
+  app.put("/api/learner-profile", requireAuth, async (req, res) => {
+    try {
+      const { learnerProfiles, insertLearnerProfileSchema } = await import("../shared/schema");
+      const userId = getUserId(req)!;
+      const parsed = insertLearnerProfileSchema.partial().safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+      const [existing] = await db.select().from(learnerProfiles).where(eq(learnerProfiles.userId, userId));
+      if (existing) {
+        const [updated] = await db.update(learnerProfiles)
+          .set({ ...parsed.data, updatedAt: new Date() })
+          .where(eq(learnerProfiles.userId, userId))
+          .returning();
+        return res.json(updated);
+      }
+      const [created] = await db.insert(learnerProfiles)
+        .values({ userId, ...parsed.data })
+        .returning();
+      res.json(created);
+    } catch (err: any) {
+      console.error("[learner-profile] PUT error:", err);
+      res.status(500).json({ error: "Failed to update learner profile" });
+    }
+  });
+
+  // ── Ecosystem platform directives — internal read (requireAuth, not ecosystem key) ─
+  // Used by ecosystem-embed.tsx which runs inside ThriveUp as an authenticated page.
+  app.get("/api/ecosystem/internal/platform-directives/:platformId", requireAuth, async (req, res) => {
+    try {
+      const { platformId } = req.params as Record<string, string>;
+      const { ecosystemPlatforms, ecosystemDirectives, ecosystemDirectiveAcks } = await import("../shared/schema");
+      const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.id, platformId));
+      if (!platform) return res.status(404).json({ error: "Platform not found" });
+
+      const acks = await db.select().from(ecosystemDirectiveAcks)
+        .where(eq(ecosystemDirectiveAcks.platformId, platformId));
+      const directiveDetails = (await Promise.all(acks.map(async (a) => {
+        const [d] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, a.directiveId));
+        if (!d) return null;
+        const roles = (d.platformRoles as Record<string, string>) || {};
+        return {
+          directiveId: d.id, title: d.title, type: d.directiveType,
+          content: d.content, grantId: d.grantId, yourRole: roles[platformId] || null,
+          trackingRequirements: d.trackingRequirements,
+          deliveryStatus: a.status, issuedAt: d.createdAt,
+          acknowledgedAt: a.status === "acknowledged" ? a.acknowledgedAt : null,
+        };
+      }))).filter(Boolean);
+
+      const dataFlows = platform.dataFlowConfig as { sends?: string[]; receives?: string[] } | null;
+      res.json({
+        platform: {
+          id: platform.id, name: platform.name, url: platform.url,
+          role: platform.role, domain: platform.domain, description: platform.description,
+          healthStatus: platform.healthStatus, lastHeartbeat: platform.lastHeartbeat,
+          grantAlignment: platform.grantAlignment,
+          sends: dataFlows?.sends || [], receives: dataFlows?.receives || [],
+        },
+        totalDirectives: directiveDetails.length,
+        pending: directiveDetails.filter((d: any) => d.deliveryStatus === "pending").length,
+        delivered: directiveDetails.filter((d: any) => d.deliveryStatus === "delivered").length,
+        acknowledged: directiveDetails.filter((d: any) => d.deliveryStatus === "acknowledged").length,
+        directives: directiveDetails,
+      });
+    } catch (err: any) {
+      console.error("[ecosystem-internal] platform-directives error:", err);
+      res.status(500).json({ error: "Failed to load platform directives" });
+    }
+  });
+
   app.use("/api/clinical", clinicalRouter);
   app.use("/api/foia", requireAuth, foiaRouter);
   app.use("/api/employers", employerRegRouter);
