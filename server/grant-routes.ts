@@ -10,6 +10,7 @@ import { z } from "zod";
 import { eq, desc, sql, gte, lte, lt, and, or, ilike, notInArray } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON, streamAIResponse, withEthicalPreamble } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
+import { communityNarrativeBlock } from "./community-intel";
 import PDFDocument from "pdfkit";
 import type { SQL } from "drizzle-orm";
 
@@ -2374,6 +2375,9 @@ Respond in this exact JSON format (no markdown, just JSON):
         return res.status(400).json({ error: "Missing required fields: grantId, sectionName, grantName" });
       }
 
+      // Fetch live community intelligence — impact, platform, and benefits data injected as evidence
+      const communityContext = await communityNarrativeBlock();
+
       const systemPrompt = `You are an expert grant writer for ThriveUp Academy, a 501(c)(3) nonprofit workforce development platform founded by Dr. Terry Flood. You specialize in writing compelling, evidence-based grant proposals that meet exact page and word count requirements.
 
 Key context about the organization:
@@ -2382,6 +2386,7 @@ Key context about the organization:
 - 24-platform technology ecosystem: ThriveUp Academy (education), MCE (minority business), LifeBridge (community voice/benefits navigation), RPLICE/Better Science Lab (fidelity monitoring/research), Sankofa Health Network (health equity), Holistic Black Feminine Health Hub, Black Maternal Health Network, Black Men's Health Hub, M2C Transition (military-to-civilian), Mission Transition (separation support), SafeReport (safety/mandatory reporting), Perfectly Different (neurodiversity), WholeMind Learning (K-12 education), PillScheduler (medication adherence), SafeCogniCare (cognitive health), Emergency Management (risk intelligence), The Collaborative Advocate (VOSB services), Video Creator AI (content production), Ecosystem Nexus (coordination), ISSS (student support), Pinnacle Business Conglomerate (contractor enablement)
 - Focus areas: youth workforce development, substance use prevention, community coalition building, economic empowerment, reentry services
 
+${communityContext ? `\n${communityContext}\n` : ""}
 ${grantKnowledge ? `\nDETAILED GRANT KNOWLEDGE (use this to align every section precisely):\n${grantKnowledge}` : ""}
 
 CRITICAL INSTRUCTIONS:

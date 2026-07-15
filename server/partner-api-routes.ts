@@ -485,10 +485,22 @@ export function registerPartnerApiRoutes(app: Express) {
     if (!dataType || !payload) {
       return res.status(400).json({ error: "dataType and payload are required." });
     }
-    const ALLOWED_TYPES = ["content", "event", "insight", "update", "metric", "referral", "alert"];
+    const ALLOWED_TYPES = ["content", "event", "insight", "update", "metric", "referral", "alert", "grant_outcome", "intervention"];
     if (!ALLOWED_TYPES.includes(dataType)) {
       return res.status(400).json({ error: `dataType must be one of: ${ALLOWED_TYPES.join(", ")}` });
     }
+
+    // grant_outcome: validate required fields before storing
+    if (dataType === "grant_outcome") {
+      const { grantId, grantTitle, status } = payload as any;
+      if (!grantId && !grantTitle) {
+        return res.status(400).json({ error: "grant_outcome payload must include at least grantId or grantTitle." });
+      }
+      if (!status) {
+        return res.status(400).json({ error: "grant_outcome payload must include a status field (e.g. 'awarded', 'submitted', 'declined')." });
+      }
+    }
+
     const [row] = await db.insert(partnerInboundData).values({
       keyId: key.id,
       partnerName: key.partnerName,
@@ -496,13 +508,28 @@ export function registerPartnerApiRoutes(app: Express) {
       payload,
     }).returning({ id: partnerInboundData.id, receivedAt: partnerInboundData.receivedAt });
 
-    res.json({
+    const response: Record<string, unknown> = {
       received: true,
       id: row.id,
       partner: key.partnerName,
       dataType,
       receivedAt: row.receivedAt,
-    });
+    };
+
+    // Echo a grant_outcome acknowledgement so the caller knows what was captured
+    if (dataType === "grant_outcome") {
+      const p = payload as any;
+      response.grantOutcomeAck = {
+        grantId: p.grantId ?? null,
+        grantTitle: p.grantTitle ?? null,
+        status: p.status,
+        awardAmount: p.awardAmount ?? null,
+        nextStep: "Outcome stored. ThriveUp team will log this in the grant compliance matrix.",
+      };
+      console.log(`[PartnerAPI] Grant outcome received from ${key.partnerName}: ${p.grantTitle || p.grantId} — ${p.status}`);
+    }
+
+    res.json(response);
   });
 
   // ── Admin — inbound data viewer ───────────────────────────────────────────
