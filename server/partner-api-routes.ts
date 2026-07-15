@@ -1,7 +1,12 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
-import { partnerApiKeys, partnerApiAuditLog, partnerInboundData, ecosystemPlatforms } from "@shared/schema";
-import { eq, desc, and } from "drizzle-orm";
+import {
+  partnerApiKeys, partnerApiAuditLog, partnerInboundData, ecosystemPlatforms,
+  programs, partnerOutcomeSubmissions,
+  studentProgress, academyPantherPower, pathwayPlans,
+  attendanceLogs, studentSelfAssessments, thriveScores, earlyWarningFlags, studentReflections,
+} from "@shared/schema";
+import { eq, desc, and, sql } from "drizzle-orm";
 import crypto from "crypto";
 
 function hashKey(plaintext: string): string {
@@ -71,7 +76,65 @@ function requireAdminKey(req: Request, res: Response, next: NextFunction) {
 
 export function registerPartnerApiRoutes(app: Express) {
 
-  // ── Public partner endpoints ──────────────────────────────────────────────
+  // ── Public schema docs (no auth — external devs can self-onboard) ─────────
+
+  app.get("/api/partner/v1/docs", (_req, res) => {
+    res.json({
+      gateway: "ThriveUp Academy Partner API",
+      version: "1.0",
+      baseUrl: "/api/partner/v1",
+      auth: {
+        header: "x-partner-key",
+        format: "tcaf_<hex>",
+        note: "Keys are issued per partner. Contact terryflood@thrivingcommunitiesforall.com to request access.",
+      },
+      scopes: [
+        { scope: "content:read",    description: "Ecosystem platform list and content export" },
+        { scope: "platforms:read",  description: "Live platform health status and metadata" },
+        { scope: "community:read",  description: "Community impact metrics and service-platform summary" },
+        { scope: "benefits:read",   description: "Public benefits program catalog" },
+        { scope: "impact:read",     description: "Community intervention impact scores and outcome data" },
+        { scope: "student:read",    description: "Student progress overview, thrive scores, pathways, attendance, early warnings" },
+        { scope: "inbound:write",   description: "POST referrals, events, metrics, or alerts into ThriveUp" },
+      ],
+      endpoints: [
+        "GET  /api/partner/v1/docs              — this schema (public)",
+        "GET  /api/partner/v1/health            — auth check + key info (any scope)",
+        "GET  /api/partner/v1/platforms         — live platform list (platforms:read)",
+        "GET  /api/partner/v1/export            — content export (content:read)",
+        "GET  /api/partner/v1/community         — community service summary (community:read)",
+        "GET  /api/partner/v1/benefits          — benefits program catalog (benefits:read)",
+        "GET  /api/partner/v1/impact            — community impact metrics (impact:read)",
+        "GET  /api/partner/v1/students/overview — student progress overview (student:read)",
+        "GET  /api/partner/v1/students/:id/thrive     — thrive score + flags (student:read)",
+        "GET  /api/partner/v1/students/:id/assessments — self-assessments (student:read)",
+        "GET  /api/partner/v1/students/:id/pathway    — pathway plan (student:read)",
+        "GET  /api/partner/v1/attendance/summary      — attendance summary (student:read)",
+        "GET  /api/partner/v1/early-warnings          — early warning flags (student:read)",
+        "GET  /api/partner/v1/pathways/overview       — all pathway plans (student:read)",
+        "POST /api/partner/v1/push              — push data to ThriveUp (inbound:write)",
+        "POST /api/partner/v1/heartbeat         — platform keepalive (any scope)",
+      ],
+      deprecatedEndpoints: {
+        note: "The /api/external/* endpoints are deprecated. Migrate to /api/partner/v1/* with a scoped tcaf_ key.",
+        mapping: {
+          "GET /api/external/students/overview"         : "GET /api/partner/v1/students/overview (scope: student:read)",
+          "GET /api/external/students/:id/thrive"       : "GET /api/partner/v1/students/:id/thrive (scope: student:read)",
+          "GET /api/external/students/:id/assessments"  : "GET /api/partner/v1/students/:id/assessments (scope: student:read)",
+          "GET /api/external/students/:id/pathway"      : "GET /api/partner/v1/students/:id/pathway (scope: student:read)",
+          "GET /api/external/attendance/summary"        : "GET /api/partner/v1/attendance/summary (scope: student:read)",
+          "GET /api/external/early-warnings"            : "GET /api/partner/v1/early-warnings (scope: student:read)",
+          "GET /api/external/reflections/recent"        : "GET /api/partner/v1/students/reflections (scope: student:read)",
+          "GET /api/external/pathways/overview"         : "GET /api/partner/v1/pathways/overview (scope: student:read)",
+          "POST /api/external/interventions/receive"    : "POST /api/partner/v1/push with dataType=intervention (scope: inbound:write)",
+        },
+      },
+      rateLimit: "No hard rate limit currently. Please be respectful — bulk imports should be batched.",
+      contact: "terryflood@thrivingcommunitiesforall.com",
+    });
+  });
+
+  // ── Authenticated partner endpoints ───────────────────────────────────────
 
   app.get("/api/partner/v1/health", requirePartnerAuth, (req, res) => {
     const key: any = (req as any).partnerKey;
@@ -135,6 +198,222 @@ export function registerPartnerApiRoutes(app: Express) {
       res.json({ count: platforms.length, platforms });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch platforms." });
+    }
+  });
+
+  // ── Community data (community:read) ──────────────────────────────────────
+
+  app.get("/api/partner/v1/community", requirePartnerAuth, requireScope("community:read"), async (_req, res) => {
+    try {
+      const platforms = await db.select({
+        id: ecosystemPlatforms.id,
+        name: ecosystemPlatforms.name,
+        role: ecosystemPlatforms.role,
+        domain: ecosystemPlatforms.domain,
+        healthStatus: ecosystemPlatforms.healthStatus,
+        description: ecosystemPlatforms.description,
+      }).from(ecosystemPlatforms).where(eq(ecosystemPlatforms.publicVisible, true));
+
+      const byDomain: Record<string, number> = {};
+      const byRole: Record<string, number> = {};
+      for (const p of platforms) {
+        if (p.domain) byDomain[p.domain] = (byDomain[p.domain] || 0) + 1;
+        if (p.role) byRole[p.role] = (byRole[p.role] || 0) + 1;
+      }
+      const online = platforms.filter(p => p.healthStatus === "healthy" || p.healthStatus === "ok").length;
+
+      res.json({
+        summary: {
+          totalPlatforms: platforms.length,
+          platformsOnline: online,
+          platformsByDomain: byDomain,
+          platformsByRole: byRole,
+          languagesSupported: 107,
+          geographicReach: "50-state architecture, nationwide",
+          exportedAt: new Date().toISOString(),
+        },
+        platforms,
+      });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch community summary." });
+    }
+  });
+
+  // ── Benefits program catalog (benefits:read) ──────────────────────────────
+
+  app.get("/api/partner/v1/benefits", requirePartnerAuth, requireScope("benefits:read"), async (req, res) => {
+    try {
+      const limit = Math.min(parseInt((req.query.limit as string) || "100", 10), 500);
+      const catalog = await db.select({
+        id: programs.id,
+        title: programs.title,
+        description: programs.description,
+        methodology: programs.methodology,
+        status: programs.status,
+        targetPopulation: programs.targetPopulation,
+        geographicFocus: programs.geographicFocus,
+      }).from(programs).limit(limit);
+      res.json({ count: catalog.length, programs: catalog, exportedAt: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch benefits catalog." });
+    }
+  });
+
+  // ── Community impact metrics (impact:read) ────────────────────────────────
+
+  app.get("/api/partner/v1/impact", requirePartnerAuth, requireScope("impact:read"), async (req, res) => {
+    try {
+      const limit = Math.min(parseInt((req.query.limit as string) || "50", 10), 200);
+      const outcomes = await db.select({
+        orgName: partnerOutcomeSubmissions.orgName,
+        programName: partnerOutcomeSubmissions.programName,
+        programType: partnerOutcomeSubmissions.programType,
+        reportingPeriod: partnerOutcomeSubmissions.reportingPeriod,
+        participantsServed: partnerOutcomeSubmissions.participantsServed,
+        participantsCompleted: partnerOutcomeSubmissions.participantsCompleted,
+        enteredEmployment: partnerOutcomeSubmissions.enteredEmployment,
+        retainedEmployment6mo: partnerOutcomeSubmissions.retainedEmployment6mo,
+        credentialsAttained: partnerOutcomeSubmissions.credentialsAttained,
+        cfirFidelityScore: partnerOutcomeSubmissions.cfirFidelityScore,
+        countyFips: partnerOutcomeSubmissions.countyFips,
+      }).from(partnerOutcomeSubmissions).orderBy(desc(partnerOutcomeSubmissions.id)).limit(limit);
+
+      const totals = outcomes.reduce((acc, o) => ({
+        participantsServed: acc.participantsServed + (o.participantsServed || 0),
+        enteredEmployment: acc.enteredEmployment + (o.enteredEmployment || 0),
+        credentialsAttained: acc.credentialsAttained + (o.credentialsAttained || 0),
+      }), { participantsServed: 0, enteredEmployment: 0, credentialsAttained: 0 });
+
+      res.json({ totals, count: outcomes.length, outcomes, exportedAt: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch impact metrics." });
+    }
+  });
+
+  // ── Student data (student:read) ───────────────────────────────────────────
+
+  app.get("/api/partner/v1/students/overview", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
+    try {
+      const gradeFilter = req.query.grade ? parseInt(req.query.grade as string, 10) : null;
+      const progress = await db.select().from(studentProgress);
+      const power = await db.select().from(academyPantherPower);
+      const pathways = await db.select().from(pathwayPlans);
+      const powerMap = new Map(power.map(p => [p.userId, p]));
+      const pathwayMap = new Map(pathways.map(pw => [pw.userId, pw]));
+      let students = progress.map(p => {
+        const uid = p.userId ?? "";
+        const pp = uid ? powerMap.get(uid) : undefined;
+        const pw = uid ? pathwayMap.get(uid) : undefined;
+        return {
+          userId: p.userId, studentName: p.studentName, totalPoints: p.totalPoints,
+          currentStreak: p.streakDays, lessonsCompleted: p.lessonsCompleted,
+          pantherPower: pp ? { totalScore: pp.totalScore, level: pp.level, title: pp.title } : null,
+          pathway: pw ? { currentGrade: pw.currentGrade, primaryCareerInterest: pw.primaryCareerInterest, status: pw.status } : null,
+        };
+      });
+      if (gradeFilter !== null && !isNaN(gradeFilter)) {
+        students = students.filter(s => s.pathway?.currentGrade === gradeFilter);
+      }
+      res.json({ students, count: students.length, timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch student overview." });
+    }
+  });
+
+  app.get("/api/partner/v1/students/:userId/thrive", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const [score] = await db.select().from(thriveScores).where(sql`${thriveScores.userId} = ${userId}`);
+      const flags = await db.select().from(earlyWarningFlags).where(sql`${earlyWarningFlags.userId} = ${userId}`).orderBy(desc(earlyWarningFlags.createdAt));
+      res.json({ userId, thriveScore: score || null, earlyWarningFlags: flags, timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch thrive data." });
+    }
+  });
+
+  app.get("/api/partner/v1/students/:userId/assessments", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const assessments = await db.select().from(studentSelfAssessments)
+        .where(sql`${studentSelfAssessments.userId} = ${userId}`)
+        .orderBy(desc(studentSelfAssessments.createdAt)).limit(30);
+      res.json({ userId, assessments, timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch assessments." });
+    }
+  });
+
+  app.get("/api/partner/v1/students/:userId/pathway", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
+    try {
+      const userId = req.params.userId;
+      const [plan] = await db.select().from(pathwayPlans).where(sql`${pathwayPlans.userId} = ${userId}`);
+      res.json({ userId, pathway: plan || null, timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch pathway." });
+    }
+  });
+
+  app.get("/api/partner/v1/attendance/summary", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
+    try {
+      const logs = await db.select().from(attendanceLogs).orderBy(desc(attendanceLogs.loginTime));
+      const studentMap = new Map<string, { name: string; logins: number; lastLogin: string; dates: string[] }>();
+      for (const log of logs) {
+        const existing = studentMap.get(log.userId);
+        if (existing) { existing.logins++; existing.dates.push(log.loginDate); }
+        else { studentMap.set(log.userId, { name: log.studentName, logins: 1, lastLogin: log.loginDate, dates: [log.loginDate] }); }
+      }
+      const summary = Array.from(studentMap.entries()).map(([userId, data]) => ({
+        userId, studentName: data.name, totalLogins: data.logins, lastLogin: data.lastLogin,
+        uniqueDays: new Set(data.dates).size,
+      }));
+      res.json({ summary, totalStudents: summary.length, timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch attendance summary." });
+    }
+  });
+
+  app.get("/api/partner/v1/early-warnings", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
+    try {
+      const flags = await db.select({
+        id: earlyWarningFlags.id, userId: earlyWarningFlags.userId,
+        flagLevel: earlyWarningFlags.flagLevel, triggerClass: earlyWarningFlags.triggerClass,
+        whatChanged: earlyWarningFlags.whatChanged, whyItMatters: earlyWarningFlags.whyItMatters,
+        resolvedAt: earlyWarningFlags.resolvedAt, createdAt: earlyWarningFlags.createdAt,
+      }).from(earlyWarningFlags).orderBy(desc(earlyWarningFlags.createdAt));
+      res.json({ flags, count: flags.length, timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch early warnings." });
+    }
+  });
+
+  app.get("/api/partner/v1/pathways/overview", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
+    try {
+      const allPlans = await db.select().from(pathwayPlans);
+      const gradeDistribution: Record<number, number> = {};
+      const educationPathCounts: Record<string, number> = {};
+      let activeCount = 0;
+      for (const plan of allPlans) {
+        const g = plan.currentGrade;
+        if (g >= 6 && g <= 12) gradeDistribution[g] = (gradeDistribution[g] || 0) + 1;
+        const pt = plan.educationPathType || "unspecified";
+        educationPathCounts[pt] = (educationPathCounts[pt] || 0) + 1;
+        if (plan.status === "active") activeCount++;
+      }
+      res.json({ total: allPlans.length, totalActive: activeCount, gradeDistribution, educationPathCounts, timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch pathways overview." });
+    }
+  });
+
+  app.get("/api/partner/v1/students/reflections", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
+    try {
+      const recent = await db.select({
+        userId: studentReflections.userId, studentName: studentReflections.studentName,
+        entryDate: studentReflections.entryDate, period: studentReflections.period, mood: studentReflections.mood,
+      }).from(studentReflections).orderBy(desc(studentReflections.createdAt)).limit(50);
+      res.json({ recentReflections: recent, needsAttention: recent.filter(r => r.mood === "tired" || r.mood === "neutral"), timestamp: new Date().toISOString() });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch reflections." });
     }
   });
 

@@ -16,6 +16,10 @@ const requireApiKey = (req: Request, res: Response, next: NextFunction) => {
   if (!apiKey || apiKey !== validKey) {
     return res.status(401).json({ error: "Invalid or missing API key" });
   }
+  // Add deprecation warning — migrate to /api/partner/v1/* with tcaf_ scoped keys
+  res.setHeader("Deprecation", "true");
+  res.setHeader("Sunset", "2027-01-01");
+  res.setHeader("Link", '</api/partner/v1/docs>; rel="successor-version"');
   next();
 };
 

@@ -23,6 +23,10 @@ const requireApiKey = (req: Request, res: Response, next: Function) => {
   if (!validKey) return res.status(503).json({ error: "API key not configured" });
   const apiKey = typeof rawKey === "string" ? rawKey.trim() : null;
   if (!apiKey || apiKey !== validKey) return res.status(401).json({ error: "Invalid or missing API key" });
+  // Deprecated auth pattern — migrate to /api/partner/v1/* with tcaf_ scoped key (student:read scope)
+  res.setHeader("Deprecation", "true");
+  res.setHeader("Sunset", "2027-01-01");
+  res.setHeader("Link", '</api/partner/v1/docs>; rel="successor-version"');
   next();
 };
 

@@ -1684,33 +1684,33 @@ export default function LandingPage() {
           {/* Headline */}
           <h1 className="font-black mb-5 tracking-tight leading-tight" data-testid="text-hero-title"
             style={{ fontSize: "clamp(2.2rem,5.5vw,3.75rem)", color: heroText, maxWidth: 740, textShadow: isDark ? "0 2px 40px rgba(5,8,16,0.9)" : "0 1px 24px rgba(255,255,255,0.8)" }}>
-            Built from community.
+            Nobody should fall
             <br />
             <span style={{ background: "linear-gradient(90deg,#d97706 0%,#e11d48 55%,#7c3aed 100%)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-              Powered by data.
+              through the cracks.
             </span>
           </h1>
 
           {/* Subtitle */}
           <p className="mb-3 px-2" data-testid="text-hero-subtitle"
             style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 580, lineHeight: 1.75 }}>
-            A B2C · B2G service platform for <strong>nonprofits, government agencies, and the communities they serve</strong> — powered by live U.S. Census data, AI grant intelligence, and direct integration with Grant Path Pro for end-to-end execution.
+            <strong>Free for families</strong> who need help finding it. <strong>Essential for nonprofits</strong> that need to prove their impact. <strong>Built for funders</strong> who want their dollars to work where it matters most.
           </p>
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
             style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.7 }}>
-            Any U.S. ZIP in 15 seconds: Census-verified needs assessment → AI grant narrative → Community Invoice PDF → pushed directly to Grant Path Pro.{" "}
+            Any U.S. community. Any ZIP code. Any need.{" "}
             <Link href="/coverage" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-coverage">
-              Texas-first deployment
+              Nationwide coverage
             </Link>
-            {" "}· Travis, Williamson, Hays, Bastrop, Caldwell.
+            {" "}— start in 15 seconds, no account required.
             Veteran-founded. Black-led.
           </p>
 
           <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
             style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
-            15 platforms · 6 service domains · 4-engine AI · 107 languages · 50-state architecture.
-            Free for families. Professional tiers for organizations. Built to deploy everywhere.
+            15 service platforms · 4 AI engines · 107 languages · Built for every community in America.
+            Free for families. No prerequisites. No paperwork.
           </p>
 
           {/* CTAs */}
