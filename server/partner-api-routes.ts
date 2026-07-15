@@ -115,6 +115,58 @@ function requireAdminKey(req: Request, res: Response, next: NextFunction) {
 
 export function registerPartnerApiRoutes(app: Express) {
 
+  // ── Startup: auto-provision pinned partner keys from env secrets ───────────
+  // Runs once on boot. Safe to re-run — skips if key already present.
+  // This ensures keys provisioned in dev are automatically present in production
+  // after deploy without requiring a manual DB insert on the prod replica.
+  ;(async () => {
+    try {
+      const PINNED: Array<{
+        envVar: string;
+        partnerName: string;
+        partnerEmail: string;
+        scopes: string[];
+        notes: string;
+      }> = [
+        {
+          envVar: "THRIVEUP_PARTNER_KEY",
+          partnerName: "GrantPathPro",
+          partnerEmail: "terryflood@thrivingcommunitiesforall.com",
+          scopes: ["community:read", "impact:read", "benefits:read", "inbound:write"],
+          notes: "Pinned key — auto-provisioned from THRIVEUP_PARTNER_KEY secret",
+        },
+      ];
+
+      for (const pin of PINNED) {
+        const plaintext = process.env[pin.envVar];
+        if (!plaintext || !plaintext.startsWith("tcaf_")) continue;
+
+        const hash = hashKey(plaintext);
+        const existing = await db.select({ id: partnerApiKeys.id })
+          .from(partnerApiKeys)
+          .where(eq(partnerApiKeys.keyHash, hash));
+
+        if (existing.length === 0) {
+          const prefix = plaintext.slice(0, 14);
+          await db.insert(partnerApiKeys).values({
+            partnerName: pin.partnerName,
+            partnerEmail: pin.partnerEmail,
+            keyHash: hash,
+            keyPrefix: prefix,
+            scopes: pin.scopes,
+            active: true,
+            notes: pin.notes,
+          });
+          console.log(`[PartnerAPI] Auto-provisioned pinned key for ${pin.partnerName} (${prefix}...)`);
+        } else {
+          console.log(`[PartnerAPI] Pinned key for ${pin.partnerName} already present — skipping.`);
+        }
+      }
+    } catch (err) {
+      console.error("[PartnerAPI] Startup key provisioning error:", err);
+    }
+  })();
+
   // ── Public schema docs (no auth — external devs can self-onboard) ─────────
 
   app.get("/api/partner/v1/docs", (_req, res) => {
