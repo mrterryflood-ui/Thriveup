@@ -1162,6 +1162,23 @@ const ECOSYSTEM_PLATFORMS = [
     },
     grantAlignment: ["wioa", "foundation", "st-davids", "ssg-fox"],
   },
+  {
+    id: "business-orchestra",
+    name: "Business Orchestra",
+    url: "https://businessorchestra.com",
+    role: "platform",
+    domain: "business-operations",
+    description: "Business coordination and operational intelligence platform at businessorchestra.com. Accesses ThriveUp RPLICE quality gate, community intelligence, and ecosystem research for evidence-based business operations and grant-aligned service delivery.",
+    capabilities: {
+      features: ["RPLICE Quality Gate Access", "Community Intelligence Integration", "Ecosystem Research Pipeline", "Evidence-Based Operations"],
+      grantNarrative: "Leverages ThriveUp RPLICE evidence and community intelligence to align business operations with grant-funded workforce and economic development outcomes",
+    },
+    dataFlowConfig: {
+      sends: ["business_events", "operational_data", "service_outcomes"],
+      receives: ["rplice_assessments", "community_briefs", "ecosystem_directives", "research_findings"],
+    },
+    grantAlignment: ["foundation", "federal", "workforce"],
+  },
 ];
 
 // ============================================================
