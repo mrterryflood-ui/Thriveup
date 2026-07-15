@@ -21,12 +21,52 @@ function generateKey(): { plaintext: string; prefix: string; hash: string } {
 }
 
 async function requirePartnerAuth(req: Request, res: Response, next: NextFunction) {
-  const raw = (req.headers["x-partner-key"] as string) || (req.headers["authorization"] || "").replace("Bearer ", "");
-  if (!raw || !raw.startsWith("tcaf_")) {
-    return res.status(401).json({ error: "Missing or invalid partner key. Include x-partner-key header." });
+  const ecosystemKey = req.headers["x-ecosystem-key"] as string;
+  const partnerKeyRaw = (req.headers["x-partner-key"] as string) || (req.headers["authorization"] || "").replace("Bearer ", "");
+
+  // ── Path A: Ecosystem sibling platform (your own platforms) ─────────────
+  if (ecosystemKey) {
+    const [platform] = await db.select({
+      id: ecosystemPlatforms.id,
+      name: ecosystemPlatforms.name,
+      domain: ecosystemPlatforms.domain,
+      role: ecosystemPlatforms.role,
+    }).from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, ecosystemKey));
+
+    if (!platform) {
+      return res.status(401).json({ error: "Invalid ecosystem key." });
+    }
+
+    // Ecosystem platforms get all scopes — they are trusted siblings
+    (req as any).partnerKey = {
+      partnerName: platform.name,
+      scopes: ["content:read","platforms:read","community:read","benefits:read","impact:read","student:read","inbound:write"],
+      isEcosystemPlatform: true,
+      platformId: platform.id,
+    };
+
+    await db.insert(partnerApiAuditLog).values({
+      keyId: platform.id,
+      keyPrefix: `eco_${platform.id.slice(0, 10)}`,
+      partnerName: platform.name,
+      endpoint: req.path,
+      method: req.method,
+      statusCode: 200,
+      ip: (req.headers["x-forwarded-for"] as string) || req.ip || "unknown",
+      userAgent: (req.headers["user-agent"] || "").slice(0, 299),
+    }).catch(() => {});
+
+    return next();
   }
 
-  const hash = hashKey(raw);
+  // ── Path B: External partner with tcaf_ key ──────────────────────────────
+  if (!partnerKeyRaw || !partnerKeyRaw.startsWith("tcaf_")) {
+    return res.status(401).json({
+      error: "Authentication required. Include x-ecosystem-key (ecosystem platforms) or x-partner-key: tcaf_... (external partners).",
+    });
+  }
+
+  const hash = hashKey(partnerKeyRaw);
   const [key] = await db.select().from(partnerApiKeys).where(and(eq(partnerApiKeys.keyHash, hash), eq(partnerApiKeys.active, true)));
   if (!key) {
     return res.status(401).json({ error: "Invalid or revoked partner key." });
@@ -34,20 +74,17 @@ async function requirePartnerAuth(req: Request, res: Response, next: NextFunctio
 
   (req as any).partnerKey = key;
 
-  // Log the call
-  const endpoint = req.path;
   await db.insert(partnerApiAuditLog).values({
     keyId: key.id,
     keyPrefix: key.keyPrefix,
     partnerName: key.partnerName,
-    endpoint,
+    endpoint: req.path,
     method: req.method,
     statusCode: 200,
     ip: (req.headers["x-forwarded-for"] as string) || req.ip || "unknown",
     userAgent: (req.headers["user-agent"] || "").slice(0, 299),
   }).catch(() => {});
 
-  // Increment usage count
   await db.update(partnerApiKeys)
     .set({ usageCount: key.usageCount + 1, lastUsedAt: new Date() })
     .where(eq(partnerApiKeys.id, key.id))
@@ -59,6 +96,8 @@ async function requirePartnerAuth(req: Request, res: Response, next: NextFunctio
 function requireScope(scope: string) {
   return (req: Request, res: Response, next: NextFunction) => {
     const key: any = (req as any).partnerKey;
+    // Ecosystem platforms already have all scopes granted in requirePartnerAuth
+    if (key?.isEcosystemPlatform) return next();
     if (!key?.scopes?.includes(scope)) {
       return res.status(403).json({ error: `This key does not have the '${scope}' scope.` });
     }
@@ -84,9 +123,19 @@ export function registerPartnerApiRoutes(app: Express) {
       version: "1.0",
       baseUrl: "/api/partner/v1",
       auth: {
-        header: "x-partner-key",
-        format: "tcaf_<hex>",
-        note: "Keys are issued per partner. Contact terryflood@thrivingcommunitiesforall.com to request access.",
+        option_A_ecosystem_platforms: {
+          header: "x-ecosystem-key",
+          value: "<your platform's ecosystem API key from the DB>",
+          who: "The Collaborative Advocate Foundation's own sibling platforms (WPH, Sankofa, LifeBridge, etc.)",
+          scopes: "all — no restrictions",
+          setup: "Zero setup. Your ecosystem key is already provisioned. Pass it in x-ecosystem-key.",
+        },
+        option_B_external_partners: {
+          header: "x-partner-key",
+          format: "tcaf_<hex>",
+          who: "External organizations, third-party sites",
+          setup: "Email terryflood@thrivingcommunitiesforall.com to request a scoped key.",
+        },
       },
       scopes: [
         { scope: "content:read",    description: "Ecosystem platform list and content export" },
