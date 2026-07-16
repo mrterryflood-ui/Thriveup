@@ -6866,6 +6866,44 @@ export const insertPartnerEffectivenessScoreSchema = createInsertSchema(partnerE
 export type InsertPartnerEffectivenessScore = z.infer<typeof insertPartnerEffectivenessScoreSchema>;
 export type PartnerEffectivenessScore = typeof partnerEffectivenessScores.$inferSelect;
 
+// ─── Knowledge Graph ──────────────────────────────────────────────────────────
+// Persistent entity + relationship store. Nodes represent platforms, grants,
+// partners, service areas, populations, outcomes, and concepts. Edges capture
+// typed relationships (serves, funds, produces, is_aligned_with, etc.).
+// Seeded automatically from ECOSYSTEM_PLATFORMS on startup; extended at runtime
+// via API and by ecosystem partners (x-ecosystem-key).
+
+export const kgNodes = pgTable("kg_nodes", {
+  id: text("id").primaryKey(),                         // e.g. "platform:civic-signal"
+  type: text("type").notNull(),                        // platform | grant_program | partner | service_area | population | outcome | concept | domain
+  label: text("label").notNull(),
+  description: text("description"),
+  url: text("url"),
+  properties: jsonb("properties").$type<Record<string, any>>().default({}),
+  source: text("source").notNull().default("manual"), // ecosystem_seeder | manual | api | directive
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const kgEdges = pgTable("kg_edges", {
+  id: serial("id").primaryKey(),
+  fromNodeId: text("from_node_id").notNull().references(() => kgNodes.id, { onDelete: "cascade" }),
+  toNodeId: text("to_node_id").notNull().references(() => kgNodes.id, { onDelete: "cascade" }),
+  relationshipType: text("relationship_type").notNull(), // serves | funds | produces | requires | connects_to | is_aligned_with | operates_in | delivers_to | sends_to | receives_from
+  weight: real("weight").default(1.0),                 // 0–1 edge confidence / strength
+  properties: jsonb("properties").$type<Record<string, any>>().default({}),
+  source: text("source").notNull().default("manual"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertKgNodeSchema = createInsertSchema(kgNodes).omit({ createdAt: true, updatedAt: true });
+export type InsertKgNode = z.infer<typeof insertKgNodeSchema>;
+export type KgNode = typeof kgNodes.$inferSelect;
+
+export const insertKgEdgeSchema = createInsertSchema(kgEdges).omit({ id: true, createdAt: true });
+export type InsertKgEdge = z.infer<typeof insertKgEdgeSchema>;
+export type KgEdge = typeof kgEdges.$inferSelect;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";

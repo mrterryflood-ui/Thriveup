@@ -2,6 +2,7 @@ import { GoogleGenerativeAI, HarmCategory, HarmBlockThreshold } from "@google/ge
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
 import { getCurrentCommunityContext } from "./community-context";
+import { getCurrentGraphContext } from "./knowledge-graph";
 
 type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
 
@@ -65,9 +66,17 @@ export function withEthicalPreamble(systemPrompt?: string): string {
   // Empty string when no geography context is active — no-op.
   const communityCtx = getCurrentCommunityContext();
 
+  const graphCtx = getCurrentGraphContext();
+
   const assembleWithCommunity = (base: string): string => {
-    if (!communityCtx || base.includes("══ LIVE COMMUNITY INTELLIGENCE ══")) return base;
-    return `${base}\n\n${communityCtx}`;
+    let out = base;
+    if (communityCtx && !out.includes("══ LIVE COMMUNITY INTELLIGENCE ══")) {
+      out = `${out}\n\n${communityCtx}`;
+    }
+    if (graphCtx && !out.includes("══ KNOWLEDGE GRAPH")) {
+      out = `${out}\n\n${graphCtx}`;
+    }
+    return out;
   };
 
   if (!systemPrompt || systemPrompt.trim().length === 0) {

@@ -147,6 +147,8 @@ import { equityRouter } from "./equity-routes";
 import { scorecardRouter } from "./scorecard-routes";
 import { syncCareerOneStopJobs } from "./careeronestop";
 import { runBjsIngestion } from "./bjs-ingestion";
+import { registerKnowledgeGraphRoutes } from "./knowledge-graph-routes";
+import { seedKnowledgeGraph } from "./knowledge-graph";
 import { scheduleMonthlyResourceRefresh } from "./agency-intelligence";
 import { registerSafePassageRoutes } from "./safe-passage-routes";
 import { registerEcosystemIntelRoutes } from "./ecosystem-intel-routes";
@@ -494,6 +496,7 @@ export async function registerRoutes(
   registerCedsRoutes(app);
   registerPartnerApiRoutes(app);
   registerStreetsRoutes(app);
+  registerKnowledgeGraphRoutes(app);
   registerAgentKnowledgeRoutes(app);
   const { registerLoiRoutes } = await import("./loi-routes");
   registerLoiRoutes(app);
@@ -6586,6 +6589,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
 
   syncCareerOneStopJobs().catch((e: Error) => console.error("[startup] CareerOneStop sync:", e.message));
   runBjsIngestion().catch((e: Error) => console.error("[startup] BJS ingestion:", e.message));
+  seedKnowledgeGraph().catch((e: Error) => console.error("[startup] Knowledge graph seed:", e.message));
 
   return httpServer;
 }
