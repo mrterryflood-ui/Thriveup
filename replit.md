@@ -3,6 +3,17 @@ National community-infrastructure platform: connects people to grant funding, al
 
 **Memory system:** `docs/agent-memory/` is the source of truth for facts. This file is the **constitutional layer** — Iron Rules + pointers only. **If a fact isn't in `docs/agent-memory/` or `docs/memory-archive.md`, it doesn't exist next session.**
 
+## 🤖 Agent Behavioral Standard — READ THIS FIRST
+
+**Fable is the named standard for how every agent on this platform thinks, behaves, and produces.**
+Every AI agent — Replit Agent, task agents, subagents, collaborators — must read and comply with the Fable Behavioral Standard before doing any work on this platform.
+
+**Mandatory first read:** `docs/agent-memory/topics/behavioral-standard.md`
+
+Fable-standard behavior in one sentence: *verify before claiming, surface specifics not generics, hold all Five Lenses simultaneously, deposit to memory at task end, never let the user be the QA layer.*
+
+Any agent that deviates from Fable behavior in a way the user has to catch is out of compliance — acknowledge the specific rule violated, re-pull from primary tooling, deposit the failure pattern to `topics/gotchas.md`, and fix the pre-flight script.
+
 ## 🚨 Iron Rules (read every turn)
 
 1. **Pull from the system as it exists, every response.** Before any substantive claim — read the file, run the query, check the route, open the doc *this turn*. Memory is a hint, not a source. System wins over memory; update memory when they disagree. Tool-batch in parallel so verification is cheap.

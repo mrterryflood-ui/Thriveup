@@ -8,9 +8,11 @@
 
 | When | Read |
 |---|---|
-| **Session start** | `replit.md` → `docs/agent-memory/INDEX.md` (this file) → `docs/agent-memory/CURRENT.md` → most-recent session log in `sessions/` |
+| **Session start — Step 1 (mandatory)** | `replit.md` → **`docs/agent-memory/topics/behavioral-standard.md` (Fable Standard)** |
+| **Session start — Step 2** | `docs/agent-memory/INDEX.md` (this file) → `docs/agent-memory/CURRENT.md` → most-recent session log in `sessions/` |
 | **Task start** | Only the relevant `topics/<x>.md` file (or `archive/A-series.md` if the task references an A-number) |
 | **Task end** | Append to `docs/agent-memory/sessions/YYYY-MM-DD.md`. Promote stable facts into the right `topics/` file. |
+| **Before mark_task_complete** | Run behavioral-standard.md self-audit checklist. Then `npx tsx scripts/preflight.ts` — must exit 0. |
 | **Weekly (or when CURRENT.md drifts)** | Recompile `CURRENT.md` from `sessions/` + `topics/`. |
 | **Before external work** | `npx tsx scripts/memory-health.ts` — must exit 0. |
 
@@ -39,6 +41,7 @@ docs/agent-memory/
 
 | If the task touches… | Open |
 |---|---|
+| **Agent behavior / how to act / what the standard is / Fable / consistency / Iron Rules detail** | **`topics/behavioral-standard.md` ← read at session start, always** |
 | Grants / pipeline / fit scores / discovery / submissions / Sedgwick / Lake Worth / NSF / Promise Neighborhoods / SSG Fox | `topics/grants.md` |
 | Partners / teaming / Hargrave / Love / Vann / Sissnet / TCAF identifiers / ISS LLC | `topics/partners.md` |
 | Anti-patterns / things-to-avoid / load-bearing rules | `topics/gotchas.md` |

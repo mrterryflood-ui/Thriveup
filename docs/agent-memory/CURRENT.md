@@ -108,7 +108,8 @@ Full reference: **`docs/agent-memory/topics/federal-acquisition.md`** — read a
 
 ## 🆘 If lost / cold-start
 
-1. Read `replit.md` (Iron Rules)
-2. Read this file (`CURRENT.md`)
-3. Read most-recent `sessions/YYYY-MM-DD.md`
-4. Then open the relevant `topics/<x>.md` for the specific ask.
+1. Read `replit.md` (Iron Rules + Fable Standard pointer)
+2. Read `docs/agent-memory/topics/behavioral-standard.md` ← **Fable is the standard. Read this. Every agent. Every session.**
+3. Read this file (`CURRENT.md`)
+4. Read most-recent `sessions/YYYY-MM-DD.md`
+5. Then open the relevant `topics/<x>.md` for the specific ask.
