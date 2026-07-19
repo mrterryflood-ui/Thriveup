@@ -8,7 +8,7 @@
 
 | When | Read |
 |---|---|
-| **Session start — Step 1 (mandatory)** | `replit.md` → **`docs/agent-memory/topics/behavioral-standard.md` (Fable Standard)** |
+| **Session start — Step 1 (mandatory)** | `replit.md` → **`docs/agent-memory/topics/behavioral-standard.md` (Fable Standard)** → **`docs/agent-memory/topics/salp-bia-adis.md` (Platform DNA)** |
 | **Session start — Step 2** | `docs/agent-memory/INDEX.md` (this file) → `docs/agent-memory/CURRENT.md` → most-recent session log in `sessions/` |
 | **Task start** | Only the relevant `topics/<x>.md` file (or `archive/A-series.md` if the task references an A-number) |
 | **Task end** | Append to `docs/agent-memory/sessions/YYYY-MM-DD.md`. Promote stable facts into the right `topics/` file. |
@@ -42,6 +42,8 @@ docs/agent-memory/
 | If the task touches… | Open |
 |---|---|
 | **Agent behavior / how to act / what the standard is / Fable / consistency / Iron Rules detail** | **`topics/behavioral-standard.md` ← read at session start, always** |
+| **SALP / BIA / ADIS / Scholar-Athlete Protocol / Living AI Body / 12 layers / RPLICE / vital signs / temporal gating / immune layer / platform DNA** | **`topics/salp-bia-adis.md` ← read after behavioral-standard.md, every session** |
+| **Platform Identity Constitution / veteran-built system / self-diagnostic protocol / sustainability / operating identity** | **`topics/platform-identity-constitution.md` ← read when auditing platform health or building new surfaces** |
 | Grants / pipeline / fit scores / discovery / submissions / Sedgwick / Lake Worth / NSF / Promise Neighborhoods / SSG Fox | `topics/grants.md` |
 | Partners / teaming / Hargrave / Love / Vann / Sissnet / TCAF identifiers / ISS LLC | `topics/partners.md` |
 | Anti-patterns / things-to-avoid / load-bearing rules | `topics/gotchas.md` |

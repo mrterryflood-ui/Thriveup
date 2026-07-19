@@ -15,3 +15,4 @@
 - [OpenRouter model rotation](openrouter-model-rotation.md) — proxy silently retires model IDs (all Claude 3.x gone 2026-07); probe with 1-token calls, /models returns 405; IDs are hardcoded in multiple server files.
 - [RPLICE Live Platform](rplice-live-platform.md) — bettersciencelab.com is correct URL; 3 public endpoints; /api/research/search needs CSRF; filter client-side; Bearer key needed for grants/full-frameworks.
 - [Community Context Orchestration](community-context-orchestration.md) — AsyncLocalStorage wires Census+RPLICE into every AI call; middleware extracts ZIP; withEthicalPreamble appends it automatically.
+- [SALP+BIA+ADIS Platform DNA](salp-bia-adis-memory.md) — Full unified framework recorded 2026-07-19; identity-level ingestion; 12-layer BIA anatomy mapped to platform; all 5 Cognitive Laws + 7 Diagnostic Rules live in topics/salp-bia-adis.md.

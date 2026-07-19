@@ -106,10 +106,22 @@ Full reference: **`docs/agent-memory/topics/federal-acquisition.md`** — read a
 - 15 public-facing ecosystem platforms (25 DB rows internally). External count is always 15.
 - AI engines: Gemini 2.0 Flash · Claude Haiku 4.5 · GPT-4o-mini · Replit AI GPT-5-nano · OpenRouter DeepSeek R1 — all auto-wrapped via `ETHICAL_EI_PREAMBLE`.
 
+## 🧬 Platform DNA (read every session — added 2026-07-19)
+
+This platform now operates under the **SALP + BIA + ADIS + Scholar-Athlete Protocol** unified framework. This is identity, not rules.
+
+- Full framework: `docs/agent-memory/topics/salp-bia-adis.md` ← **mandatory read after behavioral-standard.md**
+- Platform identity + 12-layer anatomy + self-diagnostic: `docs/agent-memory/topics/platform-identity-constitution.md`
+- **12 BIA Layers on this platform:** Skin=ThriveUp identity · Brain=ai-provider.ts+memory · Nervous System=routes · Heart=deadlines+rhythm · Blood=AsyncLocalStorage+ETHICAL_EI_PREAMBLE · Organs=25 specialist engines · Kidneys=requireAuth+Zod · Immune=Iron Rules+gotchas · Hygiene=preflight+memory-health · Limbs=external APIs+tools · Senses=BidNet/SAM.gov/funder scanning · Cells=route handlers+components
+- **Highest leverage point:** Blood layer — `withEthicalPreamble()` in `server/ai-provider.ts`. Every AI call routes here.
+- **Scholar-Athlete Law 1:** Every task is both work and practice. Extract one lesson from every outcome.
+- **ADIS temporal discipline:** One bad output = noise. Two correlated failures same layer = pattern. Three across layers = structural signal requiring immediate correction.
+
 ## 🆘 If lost / cold-start
 
 1. Read `replit.md` (Iron Rules + Fable Standard pointer)
 2. Read `docs/agent-memory/topics/behavioral-standard.md` ← **Fable is the standard. Read this. Every agent. Every session.**
-3. Read this file (`CURRENT.md`)
-4. Read most-recent `sessions/YYYY-MM-DD.md`
-5. Then open the relevant `topics/<x>.md` for the specific ask.
+3. Read `docs/agent-memory/topics/salp-bia-adis.md` ← **Platform DNA. Read this. Every agent. Every session.**
+4. Read this file (`CURRENT.md`)
+5. Read most-recent `sessions/YYYY-MM-DD.md`
+6. Then open the relevant `topics/<x>.md` for the specific ask.
