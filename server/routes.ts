@@ -184,6 +184,7 @@ import { registerProposalAuthoringRoutes } from "./proposal-authoring-routes";
 import { registerEditorDraftsRoutes } from "./editor-drafts-routes";
 import { registerCedsRoutes } from "./ceds-routes";
 import { registerPartnerApiRoutes } from "./partner-api-routes";
+import { registerEcosystemDataRoutes } from "./ecosystem-data-routes";
 import { registerStreetsRoutes } from "./streets-routes";
 
 const AI_TOOLS = [
@@ -495,6 +496,7 @@ export async function registerRoutes(
   registerEditorDraftsRoutes(app);
   registerCedsRoutes(app);
   registerPartnerApiRoutes(app);
+  registerEcosystemDataRoutes(app);
   registerStreetsRoutes(app);
   registerKnowledgeGraphRoutes(app);
   registerAgentKnowledgeRoutes(app);

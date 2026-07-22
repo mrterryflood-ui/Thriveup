@@ -20,7 +20,7 @@ function generateKey(): { plaintext: string; prefix: string; hash: string } {
   return { plaintext, prefix, hash: hashKey(plaintext) };
 }
 
-async function requirePartnerAuth(req: Request, res: Response, next: NextFunction) {
+export async function requirePartnerAuth(req: Request, res: Response, next: NextFunction) {
   const ecosystemKey = req.headers["x-ecosystem-key"] as string;
   const partnerKeyRaw = (req.headers["x-partner-key"] as string) || (req.headers["authorization"] || "").replace("Bearer ", "");
 
@@ -93,7 +93,7 @@ async function requirePartnerAuth(req: Request, res: Response, next: NextFunctio
   next();
 }
 
-function requireScope(scope: string) {
+export function requireScope(scope: string) {
   return (req: Request, res: Response, next: NextFunction) => {
     const key: any = (req as any).partnerKey;
     // Ecosystem platforms already have all scopes granted in requirePartnerAuth
