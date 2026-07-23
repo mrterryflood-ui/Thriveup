@@ -27,8 +27,10 @@ import {
   insertCommunityPartnerSchema,
   networkMemberEvents,
   partnerInboundData,
+  partnerReferrals,
   ecosystemPlatforms,
 } from "@shared/schema";
+import { requireEcosystemAuth, resolveplatformFromKey } from "./ecosystem-rplice-bridge";
 import { z } from "zod";
 import { eq, and, sql, gte, lte } from "drizzle-orm";
 import { CATALOG } from "@shared/nationwide";
@@ -759,6 +761,303 @@ export function registerEcosystemDataRoutes(app: Express) {
     } catch (err: any) {
       console.error("[ecosystem-data] GET /api/outcomes/aggregate error:", err);
       res.status(500).json({ error: "Outcomes aggregate failed." });
+    }
+  });
+
+  // ── Block 9: Feminine Network Bidirectional Sync ──────────────────────────────
+  // HerHealth Network (sankofa-feminine-health) ↔ Black Mamas Village (sankofa-maternal-health)
+  // These two platforms have a live bidirectional API contract.
+  // HerHealth refers women who need maternal health support → BMV.
+  // BMV refers postpartum/post-care women back → HerHealth for holistic health, advocacy, rural/urban navigation.
+  // All 4 endpoints require x-ecosystem-key from one of the two platforms.
+  // No PII is transmitted — all records are keyed by an anonymous participant ID.
+
+  const FEMININE_NETWORK = ["sankofa-feminine-health", "sankofa-maternal-health"] as const;
+  type FeminineNetworkPlatform = typeof FEMININE_NETWORK[number];
+
+  const FEMININE_NETWORK_PARTNER: Record<FeminineNetworkPlatform, FeminineNetworkPlatform> = {
+    "sankofa-feminine-health": "sankofa-maternal-health",
+    "sankofa-maternal-health": "sankofa-feminine-health",
+  };
+
+  const FEMININE_NETWORK_NAMES: Record<FeminineNetworkPlatform, string> = {
+    "sankofa-feminine-health": "HerHealth Network",
+    "sankofa-maternal-health": "Black Mamas Village",
+  };
+
+  function requireFeminineNetwork(req: Request, res: Response, next: Function) {
+    const apiKey = req.headers["x-ecosystem-key"] as string;
+    if (!apiKey) return res.status(401).json({ error: "Missing x-ecosystem-key header" });
+    next();
+  }
+
+  async function resolveFeminineNetworkPlatform(apiKey: string): Promise<FeminineNetworkPlatform | null> {
+    const platform = await resolveplatformFromKey(apiKey);
+    if (!platform) return null;
+    if (!FEMININE_NETWORK.includes(platform.id as FeminineNetworkPlatform)) return null;
+    return platform.id as FeminineNetworkPlatform;
+  }
+
+  // POST /api/ecosystem/feminine-network/refer
+  // Either platform sends a referral to its counterpart.
+  // Body: { anonymousId, referralType, conditions?, urgency?, languagePref?, zip?, screeningFlags?, notes? }
+  app.post("/api/ecosystem/feminine-network/refer", requireFeminineNetwork, async (req: Request, res: Response) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const fromPlatformId = await resolveFeminineNetworkPlatform(apiKey);
+      if (!fromPlatformId) {
+        return res.status(403).json({ error: "Access denied. Only HerHealth Network and Black Mamas Village can use this endpoint." });
+      }
+
+      const schema = z.object({
+        anonymousId:    z.string().min(1),
+        referralType:   z.enum(["maternal-care", "postpartum-support", "holistic-health", "mental-health", "rural-navigation", "advocacy", "epds-follow-up", "care-coordination"]),
+        conditions:     z.array(z.string()).optional(),
+        urgency:        z.enum(["routine", "urgent", "emergency"]).optional().default("routine"),
+        languagePref:   z.string().optional(),
+        zip:            z.string().optional(),
+        screeningFlags: z.record(z.any()).optional(),
+        notes:          z.string().max(1000).optional(),
+      });
+
+      const body = schema.safeParse(req.body);
+      if (!body.success) return res.status(400).json({ error: "Invalid request body", details: body.error.flatten() });
+
+      const { anonymousId, referralType, conditions, urgency, languagePref, zip, screeningFlags, notes } = body.data;
+      const toPlatformId = FEMININE_NETWORK_PARTNER[fromPlatformId];
+      const referralId = `fnref_${Date.now()}_${anonymousId.slice(-8)}`;
+      const now = new Date();
+
+      await db.insert(partnerReferrals).values({
+        id:          referralId,
+        partnerId:   toPlatformId,
+        userId:      anonymousId,
+        referredBy:  fromPlatformId,
+        serviceType: referralType,
+        status:      "pending",
+        notes:       notes || null,
+      });
+
+      await db.insert(networkMemberEvents).values({
+        platformId:     fromPlatformId,
+        externalUserId: anonymousId,
+        eventType:      "feminine_network_referral_sent",
+        payload: {
+          referralId,
+          fromPlatform:   fromPlatformId,
+          fromName:       FEMININE_NETWORK_NAMES[fromPlatformId],
+          toPlatform:     toPlatformId,
+          toName:         FEMININE_NETWORK_NAMES[toPlatformId],
+          referralType,
+          conditions:     conditions || [],
+          urgency,
+          languagePref:   languagePref || null,
+          zip:            zip || null,
+          screeningFlags: screeningFlags || {},
+          sentAt:         now.toISOString(),
+        },
+        occurredAt: now,
+      });
+
+      res.json({
+        referralId,
+        from:   { platformId: fromPlatformId, name: FEMININE_NETWORK_NAMES[fromPlatformId] },
+        to:     { platformId: toPlatformId,   name: FEMININE_NETWORK_NAMES[toPlatformId] },
+        status: "pending",
+        referralType,
+        urgency,
+        message: `Referral sent ${FEMININE_NETWORK_NAMES[fromPlatformId]} → ${FEMININE_NETWORK_NAMES[toPlatformId]}. Partner can poll /api/ecosystem/feminine-network/pending to retrieve it.`,
+      });
+    } catch (err: any) {
+      console.error("[feminine-network] POST /refer error:", err);
+      res.status(500).json({ error: "Referral submission failed." });
+    }
+  });
+
+  // GET /api/ecosystem/feminine-network/pending
+  // Receiving platform polls for referrals sent to it by its counterpart.
+  // Query params: status (default "pending"), limit (default 50)
+  app.get("/api/ecosystem/feminine-network/pending", requireFeminineNetwork, async (req: Request, res: Response) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const myPlatformId = await resolveFeminineNetworkPlatform(apiKey);
+      if (!myPlatformId) {
+        return res.status(403).json({ error: "Access denied. Only HerHealth Network and Black Mamas Village can use this endpoint." });
+      }
+
+      const statusFilter = (req.query.status as string) || "pending";
+      const limit = Math.min(parseInt(req.query.limit as string || "50", 10) || 50, 200);
+      const partnerPlatformId = FEMININE_NETWORK_PARTNER[myPlatformId];
+
+      const referrals = await db
+        .select()
+        .from(partnerReferrals)
+        .where(
+          and(
+            eq(partnerReferrals.partnerId, myPlatformId),
+            eq(partnerReferrals.referredBy, partnerPlatformId),
+            statusFilter !== "all" ? eq(partnerReferrals.status, statusFilter) : sql`true`,
+          )
+        )
+        .orderBy(partnerReferrals.createdAt)
+        .limit(limit);
+
+      res.json({
+        myPlatform:      { platformId: myPlatformId,      name: FEMININE_NETWORK_NAMES[myPlatformId] },
+        partnerPlatform: { platformId: partnerPlatformId, name: FEMININE_NETWORK_NAMES[partnerPlatformId] },
+        statusFilter,
+        count: referrals.length,
+        referrals: referrals.map(r => ({
+          referralId:   r.id,
+          anonymousId:  r.userId,
+          referralType: r.serviceType,
+          status:       r.status,
+          notes:        r.notes,
+          partnerNotes: r.partnerNotes,
+          receivedAt:   r.createdAt,
+          updatedAt:    r.updatedAt,
+        })),
+        note: referrals.length === 0
+          ? `No ${statusFilter} referrals from ${FEMININE_NETWORK_NAMES[partnerPlatformId]} at this time.`
+          : `${referrals.length} ${statusFilter} referral(s) from ${FEMININE_NETWORK_NAMES[partnerPlatformId]} awaiting action.`,
+      });
+    } catch (err: any) {
+      console.error("[feminine-network] GET /pending error:", err);
+      res.status(500).json({ error: "Failed to retrieve pending referrals." });
+    }
+  });
+
+  // POST /api/ecosystem/feminine-network/acknowledge
+  // Receiving platform updates referral status and optionally adds partner notes.
+  // Body: { referralId, status, partnerNotes?, outcomeStatus? }
+  app.post("/api/ecosystem/feminine-network/acknowledge", requireFeminineNetwork, async (req: Request, res: Response) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const myPlatformId = await resolveFeminineNetworkPlatform(apiKey);
+      if (!myPlatformId) {
+        return res.status(403).json({ error: "Access denied. Only HerHealth Network and Black Mamas Village can use this endpoint." });
+      }
+
+      const schema = z.object({
+        referralId:    z.string().min(1),
+        status:        z.enum(["accepted", "in-progress", "completed", "declined", "transferred"]),
+        partnerNotes:  z.string().max(1000).optional(),
+        outcomeStatus: z.enum(["enrolled", "connected", "declined-service", "no-contact", "transferred-out"]).optional(),
+      });
+
+      const body = schema.safeParse(req.body);
+      if (!body.success) return res.status(400).json({ error: "Invalid request body", details: body.error.flatten() });
+
+      const { referralId, status, partnerNotes, outcomeStatus } = body.data;
+      const partnerPlatformId = FEMININE_NETWORK_PARTNER[myPlatformId];
+
+      const [referral] = await db
+        .select()
+        .from(partnerReferrals)
+        .where(
+          and(
+            eq(partnerReferrals.id, referralId),
+            eq(partnerReferrals.partnerId, myPlatformId),
+            eq(partnerReferrals.referredBy, partnerPlatformId),
+          )
+        );
+
+      if (!referral) {
+        return res.status(404).json({ error: `Referral '${referralId}' not found or does not belong to ${FEMININE_NETWORK_NAMES[myPlatformId]}.` });
+      }
+
+      const now = new Date();
+      await db
+        .update(partnerReferrals)
+        .set({
+          status,
+          partnerNotes:  partnerNotes  || referral.partnerNotes,
+          outcomeStatus: outcomeStatus || referral.outcomeStatus,
+          completedDate: status === "completed" ? now : referral.completedDate,
+          updatedAt:     now,
+        })
+        .where(eq(partnerReferrals.id, referralId));
+
+      await db.insert(networkMemberEvents).values({
+        platformId:     myPlatformId,
+        externalUserId: referral.userId,
+        eventType:      "feminine_network_referral_acknowledged",
+        payload: {
+          referralId,
+          acknowledgedBy:   myPlatformId,
+          acknowledgedName: FEMININE_NETWORK_NAMES[myPlatformId],
+          originPlatform:   partnerPlatformId,
+          originName:       FEMININE_NETWORK_NAMES[partnerPlatformId],
+          newStatus:        status,
+          outcomeStatus:    outcomeStatus || null,
+          acknowledgedAt:   now.toISOString(),
+        },
+        occurredAt: now,
+      });
+
+      res.json({
+        referralId,
+        updatedStatus:  status,
+        outcomeStatus:  outcomeStatus || null,
+        acknowledgedBy: { platformId: myPlatformId,      name: FEMININE_NETWORK_NAMES[myPlatformId] },
+        originPlatform: { platformId: partnerPlatformId, name: FEMININE_NETWORK_NAMES[partnerPlatformId] },
+        updatedAt: now.toISOString(),
+        message: `Referral ${referralId} marked '${status}' by ${FEMININE_NETWORK_NAMES[myPlatformId]}. Origin platform can check /api/ecosystem/feminine-network/status/${referralId} for the updated state.`,
+      });
+    } catch (err: any) {
+      console.error("[feminine-network] POST /acknowledge error:", err);
+      res.status(500).json({ error: "Acknowledgement failed." });
+    }
+  });
+
+  // GET /api/ecosystem/feminine-network/status/:referralId
+  // Either side can check the current state of a specific referral they originated or received.
+  app.get("/api/ecosystem/feminine-network/status/:referralId", requireFeminineNetwork, async (req: Request, res: Response) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const myPlatformId = await resolveFeminineNetworkPlatform(apiKey);
+      if (!myPlatformId) {
+        return res.status(403).json({ error: "Access denied. Only HerHealth Network and Black Mamas Village can use this endpoint." });
+      }
+
+      const { referralId } = req.params;
+      const partnerPlatformId = FEMININE_NETWORK_PARTNER[myPlatformId];
+
+      const [referral] = await db
+        .select()
+        .from(partnerReferrals)
+        .where(
+          and(
+            eq(partnerReferrals.id, referralId),
+            sql`(${partnerReferrals.partnerId} = ${myPlatformId} OR ${partnerReferrals.referredBy} = ${myPlatformId})`,
+            sql`(${partnerReferrals.partnerId} = ${partnerPlatformId} OR ${partnerReferrals.referredBy} = ${partnerPlatformId})`,
+          )
+        );
+
+      if (!referral) {
+        return res.status(404).json({ error: `Referral '${referralId}' not found in the HerHealth ↔ BMV network.` });
+      }
+
+      const iOriginated = referral.referredBy === myPlatformId;
+
+      res.json({
+        referralId,
+        myRole:        iOriginated ? "originator" : "receiver",
+        status:        referral.status,
+        outcomeStatus: referral.outcomeStatus,
+        referralType:  referral.serviceType,
+        anonymousId:   referral.userId,
+        originator:    { platformId: referral.referredBy, name: FEMININE_NETWORK_NAMES[referral.referredBy as FeminineNetworkPlatform] || referral.referredBy },
+        receiver:      { platformId: referral.partnerId,  name: FEMININE_NETWORK_NAMES[referral.partnerId  as FeminineNetworkPlatform] || referral.partnerId  },
+        notes:         iOriginated ? referral.notes        : undefined,
+        partnerNotes:  referral.partnerNotes,
+        createdAt:     referral.createdAt,
+        updatedAt:     referral.updatedAt,
+        completedDate: referral.completedDate,
+      });
+    } catch (err: any) {
+      console.error("[feminine-network] GET /status/:referralId error:", err);
+      res.status(500).json({ error: "Status lookup failed." });
     }
   });
 }

@@ -4,24 +4,46 @@ import { rpliceAssessments, rpliceActionPlans, outcomeBaselines, ecosystemPlatfo
 import { eq, desc } from "drizzle-orm";
 
 const PLATFORM_DOMAIN_MAP: Record<string, string[]> = {
-  "education": ["isss", "wholemind", "betterscience"],
+  "education": ["isss", "wholemind", "betterscience", "sankofa-feminine-health"],
   "health-equity": ["whole-person-health", "sankofa", "sankofa-feminine-health", "sankofa-maternal-health", "sankofa-mens-health", "perfectly-different", "safecognicare", "autoimmune-thrive", "pillscheduler", "speech-bridge"],
   "workforce": ["mce", "pinnacle-business-conglomerate", "collaborative-advocate"],
   "veterans": ["m2c", "collaborative-advocate", "sankofa-mens-health"],
   "compliance": ["safereport", "emergency-mgmt"],
-  "housing": ["lifebridge"],
-  "mental-health": ["whole-person-health", "perfectly-different", "safecognicare"],
-  "research": ["betterscience"],
-  "community": ["lifebridge", "whole-person-health"],
+  "housing": ["lifebridge", "sankofa-feminine-health"],
+  "mental-health": ["whole-person-health", "perfectly-different", "safecognicare", "sankofa-feminine-health", "sankofa-maternal-health"],
+  "research": ["betterscience", "sankofa-feminine-health"],
+  "community": ["lifebridge", "whole-person-health", "sankofa-feminine-health", "sankofa-maternal-health"],
   "business": ["mce", "pinnacle-business-conglomerate"],
+  // New domains added for HerHealth / BMV scope
+  "maternal-health": ["sankofa-feminine-health", "sankofa-maternal-health"],
+  "advocacy": ["sankofa-feminine-health", "sankofa-maternal-health"],
+  "rural-health": ["sankofa-feminine-health", "whole-person-health"],
 };
 
 const PLATFORM_RISK_RELEVANCE: Record<string, string[]> = {
   "whole-person-health": ["health-equity", "mental-health", "veterans", "community"],
   "isss": ["education"],
   "sankofa": ["health-equity"],
-  "sankofa-feminine-health": ["health-equity"],
-  "sankofa-maternal-health": ["health-equity"],
+  // HerHealth Network — full female health equity + advocacy + education + rural/urban platform
+  "sankofa-feminine-health": [
+    "health-equity",    // racial/gender health disparities, SDOH
+    "mental-health",    // EPDS, postpartum depression, anxiety, autoimmune-mental health link
+    "community",        // CHW networks, peer navigation, BMV, urban/rural community health
+    "education",        // health literacy, awareness, understanding options and rights
+    "maternal-health",  // pregnancy, postpartum, birth outcomes, Black maternal mortality
+    "advocacy",         // policy navigation, rights, empowerment
+    "rural-health",     // provider deserts, telehealth gaps, transportation barriers
+    "housing",          // SDOH — housing instability directly affects women's health outcomes
+    "research",         // evidence-based outcomes, EPDS validation, autoimmune studies
+  ],
+  // Black Mamas Village — community-led maternal health, CHW navigation, advocacy
+  "sankofa-maternal-health": [
+    "health-equity",
+    "mental-health",
+    "community",
+    "maternal-health",
+    "advocacy",
+  ],
   "sankofa-mens-health": ["health-equity", "veterans"],
   "emergency-mgmt": ["safety", "housing"],
   "wholemind": ["education"],
@@ -191,6 +213,73 @@ function getRelevantBaselines(platformId: string, baselines: any[]): any[] {
       relevantMetrics.riskScore100Tracts = { value: metrics.riskScore100Tracts, label: "Max-Risk Tracts", unit: "count" };
       hasRelevant = true;
     }
+    // Maternal / women's health metrics
+    if (platformRelevance.includes("maternal-health") || platformRelevance.includes("health-equity")) {
+      if (metrics.maternalMortalityRate !== undefined) {
+        relevantMetrics.maternalMortalityRate = { value: metrics.maternalMortalityRate, label: "Maternal Mortality Rate (per 100K)", unit: "/100K" };
+        hasRelevant = true;
+      }
+      if (metrics.blackMaternalMortalityRate !== undefined) {
+        relevantMetrics.blackMaternalMortalityRate = { value: metrics.blackMaternalMortalityRate, label: "Black Maternal Mortality Rate (per 100K)", unit: "/100K" };
+        hasRelevant = true;
+      }
+      if (metrics.prenatalCareAccess !== undefined) {
+        relevantMetrics.prenatalCareAccess = { value: metrics.prenatalCareAccess, label: "Prenatal Care First-Trimester Rate", unit: "%" };
+        hasRelevant = true;
+      }
+      if (metrics.reproductiveHealthAccess !== undefined) {
+        relevantMetrics.reproductiveHealthAccess = { value: metrics.reproductiveHealthAccess, label: "Reproductive Health Access Score", unit: "0–100" };
+        hasRelevant = true;
+      }
+    }
+    if (platformRelevance.includes("mental-health") || platformRelevance.includes("maternal-health")) {
+      if (metrics.epdsRate !== undefined) {
+        relevantMetrics.epdsRate = { value: metrics.epdsRate, label: "EPDS Positive Screening Rate", unit: "%" };
+        hasRelevant = true;
+      }
+      if (metrics.postpartumConnectionRate !== undefined) {
+        relevantMetrics.postpartumConnectionRate = { value: metrics.postpartumConnectionRate, label: "Postpartum Care Connection Rate", unit: "%" };
+        hasRelevant = true;
+      }
+      if (metrics.screeningCompletionRate !== undefined) {
+        relevantMetrics.screeningCompletionRate = { value: metrics.screeningCompletionRate, label: "Screening Completion Rate", unit: "%" };
+        hasRelevant = true;
+      }
+    }
+    if (platformRelevance.includes("rural-health")) {
+      if (metrics.ruralProviderRatio !== undefined) {
+        relevantMetrics.ruralProviderRatio = { value: metrics.ruralProviderRatio, label: "Rural OB/GYN Provider Ratio (per 10K women)", unit: "/10K" };
+        hasRelevant = true;
+      }
+      if (metrics.ruralHealthAccessScore !== undefined) {
+        relevantMetrics.ruralHealthAccessScore = { value: metrics.ruralHealthAccessScore, label: "Rural Health Access Score", unit: "0–100" };
+        hasRelevant = true;
+      }
+    }
+    if (platformRelevance.includes("community") || platformRelevance.includes("advocacy")) {
+      if (metrics.communityHealthWorkerReach !== undefined) {
+        relevantMetrics.communityHealthWorkerReach = { value: metrics.communityHealthWorkerReach, label: "CHW Reach (women served)", unit: "count" };
+        hasRelevant = true;
+      }
+      if (metrics.advocacyEngagementRate !== undefined) {
+        relevantMetrics.advocacyEngagementRate = { value: metrics.advocacyEngagementRate, label: "Advocacy Engagement Rate", unit: "%" };
+        hasRelevant = true;
+      }
+    }
+    if (platformRelevance.includes("health-equity")) {
+      if (metrics.uninsuredWomenPct !== undefined) {
+        relevantMetrics.uninsuredWomenPct = { value: metrics.uninsuredWomenPct, label: "Uninsured Women Rate", unit: "%" };
+        hasRelevant = true;
+      }
+      if (metrics.socialVulnerabilityIndex !== undefined) {
+        relevantMetrics.socialVulnerabilityIndex = { value: metrics.socialVulnerabilityIndex, label: "CDC Social Vulnerability Index", unit: "0–1" };
+        hasRelevant = true;
+      }
+      if (metrics.preventiveCareUtilization !== undefined) {
+        relevantMetrics.preventiveCareUtilization = { value: metrics.preventiveCareUtilization, label: "Preventive Care Utilization Rate", unit: "%" };
+        hasRelevant = true;
+      }
+    }
 
     if (hasRelevant) {
       const targets = baseline.targets as Record<string, any> || {};
@@ -285,7 +374,7 @@ export async function generateRpliceHeartbeatIntelligence(platformId: string): P
   };
 }
 
-function requireEcosystemAuth(req: Request, res: Response, next: Function) {
+export function requireEcosystemAuth(req: Request, res: Response, next: Function) {
   const apiKey = req.headers["x-ecosystem-key"] as string;
   if (!apiKey) {
     return res.status(401).json({ error: "Missing x-ecosystem-key header" });
@@ -293,7 +382,7 @@ function requireEcosystemAuth(req: Request, res: Response, next: Function) {
   next();
 }
 
-async function resolveplatformFromKey(apiKey: string): Promise<any | null> {
+export async function resolveplatformFromKey(apiKey: string): Promise<any | null> {
   const [platform] = await db.select().from(ecosystemPlatforms).where(eq(ecosystemPlatforms.apiKey, apiKey));
   return platform || null;
 }
@@ -402,6 +491,25 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
         "doj-bja": ["safety", "community"],
         "samhsa": ["mental-health", "health-equity"],
         "wioa": ["workforce", "education"],
+        // Women's / maternal / health equity grants — added for HerHealth scope
+        "nih-health-equity": ["health-equity", "community", "research"],
+        "nih-womens-health": ["health-equity", "maternal-health", "mental-health", "research"],
+        "nih-di-r01": ["health-equity", "research", "community"],
+        "hrsa-mchb": ["maternal-health", "health-equity", "community"],
+        "hrsa-rural-health": ["rural-health", "health-equity", "community"],
+        "hrsa-fqhc": ["health-equity", "community", "rural-health"],
+        "cdc-maternal-mortality": ["maternal-health", "health-equity", "advocacy"],
+        "cdc-wisewoman": ["health-equity", "maternal-health", "education"],
+        "cdc-hrif": ["health-equity", "rural-health", "community"],
+        "cdc-places": ["health-equity", "research"],
+        "robert-wood-johnson": ["health-equity", "community", "education", "advocacy"],
+        "march-of-dimes": ["maternal-health", "health-equity", "advocacy"],
+        "commonweal": ["health-equity", "community", "advocacy"],
+        "acog-foundation": ["maternal-health", "health-equity", "education"],
+        "wellbeing-trust": ["mental-health", "community", "rural-health"],
+        "annie-casey": ["community", "advocacy", "education", "health-equity"],
+        "kresge": ["health-equity", "community", "housing", "advocacy"],
+        "w-k-kellogg": ["health-equity", "community", "education", "maternal-health"],
       };
 
       const grantDomains = grantDomainOverlap[grantName] || [];
@@ -464,6 +572,7 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
 
       const platformRelevance = PLATFORM_RISK_RELEVANCE[platform.id] || [];
       const metricDomainMap: Record<string, string[]> = {
+        // Census / economic SDOH
         povertyRate: ["health-equity", "community", "housing"],
         collegePct: ["education"],
         unemploymentRate: ["workforce"],
@@ -472,6 +581,37 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
         riskScore100Tracts: ["safety", "mental-health"],
         marriagePct: ["community"],
         twoParentPct: ["community", "education"],
+        // Maternal / birth outcomes
+        maternalMortalityRate: ["health-equity", "maternal-health"],
+        blackMaternalMortalityRate: ["health-equity", "maternal-health", "advocacy"],
+        infantMortalityRate: ["health-equity", "maternal-health"],
+        lowBirthWeightRate: ["health-equity", "maternal-health"],
+        pretermBirthRate: ["health-equity", "maternal-health"],
+        prenatalCareAccess: ["health-equity", "maternal-health", "community"],
+        breastfeedingRate: ["health-equity", "maternal-health", "education"],
+        postpartumConnectionRate: ["mental-health", "maternal-health", "community"],
+        reproductiveHealthAccess: ["health-equity", "maternal-health"],
+        // Mental health — women's focus
+        epdsRate: ["mental-health", "maternal-health"],
+        screeningCompletionRate: ["health-equity", "mental-health"],
+        mentalHealthServiceAccessRate: ["mental-health", "community"],
+        // Rural / geographic access
+        ruralProviderRatio: ["rural-health", "health-equity"],
+        ruralHealthAccessScore: ["rural-health", "health-equity"],
+        telehealthAdoptionRate: ["rural-health", "health-equity", "education"],
+        transportationBarrierRate: ["rural-health", "housing", "health-equity"],
+        // Community health / CHW / advocacy
+        communityHealthWorkerReach: ["community", "health-equity", "advocacy"],
+        advocacyEngagementRate: ["advocacy", "community"],
+        peerNavigatorSessionCount: ["community", "mental-health", "maternal-health"],
+        // Health coverage / SDOH
+        uninsuredWomenPct: ["health-equity"],
+        medicaidEnrollmentRate: ["health-equity", "community"],
+        preventiveCareUtilization: ["health-equity", "community"],
+        socialVulnerabilityIndex: ["health-equity", "community", "housing"],
+        // Research / outcomes tracking
+        evidenceAdoptionRate: ["research", "education"],
+        programFidelityScore: ["research", "community"],
       };
 
       const metricDomains = metricDomainMap[metricKey] || [];
@@ -553,6 +693,210 @@ export function registerEcosystemRpliceBridgeRoutes(app: Express) {
         message: intelligence.relevant
           ? `${platform.name}: You have ${actionItems.length} RPLICE action item(s). Review and act on items within your domain.`
           : `${platform.name}: No RPLICE action items target your domain right now. Intelligence delivered for ecosystem awareness only — no action required.`,
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // GET /api/ecosystem/rplice/research
+  // Search RPLICE live research database by keyword/condition — scoped to the platform's domain.
+  // Query params: q (required), condition, domain, limit (default 20)
+  app.get("/api/ecosystem/rplice/research", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const platform = await resolveplatformFromKey(apiKey);
+      if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const q = (req.query.q as string || "").trim();
+      const condition = (req.query.condition as string || "").trim();
+      const domainFilter = (req.query.domain as string || "").trim();
+      const limit = Math.min(parseInt(req.query.limit as string || "20", 10) || 20, 50);
+
+      // Build search query from platform domains + explicit params
+      const platformDomains = PLATFORM_RISK_RELEVANCE[platform.id] || [];
+      const domainTermMap: Record<string, string[]> = {
+        "maternal-health":  ["maternal mortality", "prenatal", "postpartum", "birth outcomes", "obstetric"],
+        "health-equity":    ["health equity", "disparities", "SDOH", "social determinants"],
+        "mental-health":    ["depression", "anxiety", "EPDS", "postpartum depression", "perinatal mental health"],
+        "rural-health":     ["rural health", "provider desert", "telehealth access", "rural women"],
+        "advocacy":         ["policy", "advocacy", "health rights", "reproductive rights"],
+        "community":        ["community health worker", "CHW", "peer navigator", "trusted messenger"],
+        "research":         ["implementation science", "evidence-based", "CFIR", "randomized controlled"],
+        "education":        ["health literacy", "patient education", "awareness"],
+        "housing":          ["housing instability", "SDOH", "social determinants"],
+      };
+
+      // Auto-enrich the query with domain-relevant terms if no explicit q
+      let searchQuery = q || condition;
+      if (!searchQuery && platformDomains.length > 0) {
+        const domainTerms: string[] = [];
+        for (const d of platformDomains.slice(0, 3)) {
+          const terms = domainTermMap[d];
+          if (terms) domainTerms.push(terms[0]);
+        }
+        searchQuery = domainTerms.join(" OR ");
+      }
+      if (!searchQuery) {
+        return res.status(400).json({ error: "Provide at least one of: q, condition — or ensure your platform has configured domains." });
+      }
+
+      const RPLICE_BASE = "https://www.bettersciencelab.com";
+      const url = `${RPLICE_BASE}/api/v1/research?q=${encodeURIComponent(searchQuery)}&limit=${limit}`;
+
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 12000);
+      let rpliceResults: any = null;
+      try {
+        const resp = await fetch(url, {
+          headers: { "Accept": "application/json", "User-Agent": "ThriveUp-TCAF-Hub/1.0" },
+          signal: controller.signal,
+        });
+        clearTimeout(timeout);
+        if (resp.ok) {
+          rpliceResults = await resp.json();
+        }
+      } catch (_fetchErr) {
+        clearTimeout(timeout);
+        // RPLICE is external — graceful degradation, not a hard error
+      }
+
+      // Filter results to the platform's domain scope
+      const relevantDomainTerms = platformDomains.flatMap(d => domainTermMap[d] || []).map(t => t.toLowerCase());
+      let studies: any[] = Array.isArray(rpliceResults) ? rpliceResults
+        : Array.isArray(rpliceResults?.results) ? rpliceResults.results
+        : Array.isArray(rpliceResults?.studies) ? rpliceResults.studies
+        : [];
+
+      if (domainFilter) {
+        const filterTerms = (domainTermMap[domainFilter] || [domainFilter]).map(t => t.toLowerCase());
+        studies = studies.filter(s => {
+          const text = `${s.title || ""} ${s.abstract || ""} ${s.tags?.join(" ") || ""}`.toLowerCase();
+          return filterTerms.some(t => text.includes(t));
+        });
+      }
+
+      res.json({
+        platformId: platform.id,
+        platformName: platform.name,
+        platformDomains,
+        query: searchQuery,
+        domainFilter: domainFilter || null,
+        resultCount: studies.length,
+        studies: studies.slice(0, limit),
+        source: "RPLICE — bettersciencelab.com live research database",
+        rpliceAvailable: rpliceResults !== null,
+        note: rpliceResults === null
+          ? "RPLICE live database is temporarily unreachable. Results may be empty or incomplete."
+          : `${studies.length} studies found matching your platform's domains (${platformDomains.join(", ")}).`,
+      });
+    } catch (e: any) {
+      res.status(500).json({ error: e.message });
+    }
+  });
+
+  // GET /api/ecosystem/rplice/equity-analysis
+  // Pull RPLICE equity evaluation rubric + apply it to the platform's service population.
+  // Returns a scored equity frame so HerHealth/BMV can surface gap analysis to their users.
+  // Query params: zip (optional), fips (optional) — if neither provided, uses platform's registered ZIP.
+  app.get("/api/ecosystem/rplice/equity-analysis", requireEcosystemAuth, async (req, res) => {
+    try {
+      const apiKey = req.headers["x-ecosystem-key"] as string;
+      const platform = await resolveplatformFromKey(apiKey);
+      if (!platform) return res.status(403).json({ error: "Invalid ecosystem key" });
+
+      const platformDomains = PLATFORM_RISK_RELEVANCE[platform.id] || [];
+
+      // Fetch RPLICE equity rubric and grant profiles in parallel
+      const RPLICE_BASE = "https://www.bettersciencelab.com";
+      const fetchRplice = async (path: string): Promise<any> => {
+        const controller = new AbortController();
+        const to = setTimeout(() => controller.abort(), 12000);
+        try {
+          const r = await fetch(`${RPLICE_BASE}${path}`, {
+            headers: { "Accept": "application/json", "User-Agent": "ThriveUp-TCAF-Hub/1.0" },
+            signal: controller.signal,
+          });
+          clearTimeout(to);
+          if (r.ok) return await r.json();
+          return null;
+        } catch { clearTimeout(to); return null; }
+      };
+
+      const [rubric, grantProfiles, cfirConstructs] = await Promise.all([
+        fetchRplice("/api/v1/equity-evaluation/rubric"),
+        fetchRplice("/api/v1/grants/profiles"),
+        fetchRplice("/api/v1/cfir/constructs"),
+      ]);
+
+      // Derive domain-relevant equity dimensions from rubric
+      const equityDimensionMap: Record<string, string[]> = {
+        "health-equity":   ["racial equity", "gender equity", "health disparities", "SDOH screening", "access to care"],
+        "maternal-health": ["maternal mortality", "prenatal access", "postpartum support", "birth equity", "midwifery access"],
+        "mental-health":   ["mental health parity", "perinatal mental health", "trauma-informed care", "EPDS screening"],
+        "rural-health":    ["rural access", "provider supply", "telehealth", "geographic barriers", "HPSA designation"],
+        "advocacy":        ["policy alignment", "community voice", "rights navigation", "legislative awareness"],
+        "community":       ["CHW workforce", "peer support", "trusted messenger", "co-design", "lived experience"],
+        "education":       ["health literacy", "plain language", "culturally responsive education", "awareness campaigns"],
+        "housing":         ["housing stability", "SDOH navigation", "eviction risk", "homelessness prevention"],
+        "research":        ["evidence base", "implementation fidelity", "evaluation design", "data sovereignty"],
+      };
+
+      const relevantDimensions: string[] = [];
+      for (const domain of platformDomains) {
+        const dims = equityDimensionMap[domain] || [];
+        relevantDimensions.push(...dims);
+      }
+      const uniqueDimensions = [...new Set(relevantDimensions)];
+
+      // Score each dimension against rubric (stub score if RPLICE unreachable)
+      const dimensionScores = uniqueDimensions.map(dim => {
+        let rubricMatch: any = null;
+        if (Array.isArray(rubric?.dimensions)) {
+          rubricMatch = rubric.dimensions.find((d: any) =>
+            (d.name || d.label || d.title || "").toLowerCase().includes(dim.split(" ")[0].toLowerCase())
+          );
+        }
+        return {
+          dimension: dim,
+          rubricAligned: !!rubricMatch,
+          rubricWeight: rubricMatch?.weight || null,
+          rubricGuidance: rubricMatch?.guidance || rubricMatch?.description || null,
+          platformDomains: platformDomains.filter(pd => (equityDimensionMap[pd] || []).includes(dim)),
+        };
+      });
+
+      // Filter grant profiles for platform-relevant ones
+      const relevantGrants: any[] = [];
+      if (Array.isArray(grantProfiles)) {
+        for (const g of grantProfiles) {
+          const tags = `${g.title || ""} ${g.tags?.join(" ") || ""} ${g.domain || ""}`.toLowerCase();
+          const domainHit = platformDomains.some(pd => {
+            const terms = equityDimensionMap[pd] || [];
+            return terms.some(t => tags.includes(t.split(" ")[0].toLowerCase()));
+          });
+          if (domainHit) relevantGrants.push(g);
+        }
+      }
+
+      res.json({
+        platformId: platform.id,
+        platformName: platform.name,
+        platformDomains,
+        equityDimensions: {
+          total: uniqueDimensions.length,
+          rubricAligned: dimensionScores.filter(d => d.rubricAligned).length,
+          dimensions: dimensionScores,
+        },
+        cfirConstructCount: Array.isArray(cfirConstructs) ? cfirConstructs.length : (cfirConstructs?.constructs?.length ?? null),
+        relevantGrantProfiles: relevantGrants.slice(0, 15),
+        rpliceDataAvailable: {
+          rubric: rubric !== null,
+          grants: grantProfiles !== null,
+          cfir: cfirConstructs !== null,
+        },
+        source: "RPLICE equity evaluation rubric — bettersciencelab.com",
+        note: `Equity analysis scoped to ${platform.name}'s ${platformDomains.length} domain(s): ${platformDomains.join(", ")}. ${uniqueDimensions.length} equity dimensions identified.`,
       });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
