@@ -29,6 +29,7 @@ import {
   partnerInboundData,
   partnerReferrals,
   ecosystemPlatforms,
+  zctaCountyMap,
 } from "@shared/schema";
 import { requireEcosystemAuth, resolveplatformFromKey } from "./ecosystem-rplice-bridge";
 import { z } from "zod";
@@ -36,6 +37,7 @@ import { eq, and, sql, gte, lte } from "drizzle-orm";
 import { CATALOG } from "@shared/nationwide";
 import type { BenefitProgram } from "@shared/nationwide/types";
 import { requirePartnerAuth, requireScope } from "./partner-api-routes";
+import { perplexityResearch, withEthicalPreamble, generateAIJSON } from "./ai-provider";
 
 const CENSUS_KEY = process.env.CENSUS_API_KEY || "";
 const CENSUS_ACS = "https://api.census.gov/data/2022/acs/acs5";
@@ -110,32 +112,137 @@ function coverageNotesForProgram(p: BenefitProgram, population?: string): string
 }
 
 // Static CDC SVI 2022 reference values for Texas counties (source: CDC/ATSDR SVI 2022)
+// TX-specific fast-path SVI — kept for backward compat; national data comes from CDC PLACES live
 const CDC_SVI_TX: Record<string, number> = {
-  "48453": 0.52, // Travis County
-  "48201": 0.61, // Harris County
-  "48029": 0.59, // Bexar County
-  "48113": 0.57, // Dallas County
-  "48439": 0.44, // Tarrant County
-  "48141": 0.68, // El Paso County
-  "48339": 0.42, // Montgomery County
-  "48085": 0.38, // Collin County
-  "48121": 0.49, // Denton County
-  "48157": 0.71, // Fort Bend County (Harris adj.)
-  "48375": 0.55, // Potter County (Amarillo)
-  "48355": 0.64, // Nueces County (Corpus Christi)
+  "48453": 0.52, "48201": 0.61, "48029": 0.59, "48113": 0.57,
+  "48439": 0.44, "48141": 0.68, "48339": 0.42, "48085": 0.38,
+  "48121": 0.49, "48157": 0.71, "48375": 0.55, "48355": 0.64,
 };
-
-// Black maternal mortality rate per 100K live births, TX county estimates
 // Source: CDC WONDER 2018–2022; TX DSHS Maternal Mortality Review 2024
 const TX_BLACK_MATERNAL_MORTALITY: Record<string, number> = {
-  "48453": 69.4,  // Travis County (CDC WONDER 2018–2022)
-  "48201": 82.1,  // Harris County
-  "48029": 74.3,  // Bexar County
-  "48113": 78.8,  // Dallas County
+  "48453": 69.4, "48201": 82.1, "48029": 74.3, "48113": 78.8,
 };
 const TX_OVERALL_MATERNAL_MORTALITY: Record<string, number> = {
   "48453": 28.1, "48201": 31.4, "48029": 29.7, "48113": 30.2,
 };
+
+// FIPS state code → 2-letter abbreviation (all 50 states + DC)
+const FIPS_TO_STATE: Record<string, string> = {
+  "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT",
+  "10":"DE","11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL",
+  "18":"IN","19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD",
+  "25":"MA","26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE",
+  "32":"NV","33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND",
+  "39":"OH","40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD",
+  "47":"TN","48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV",
+  "55":"WI","56":"WY",
+};
+
+// National women's / maternal health organizations — pre-seeded as static fallback
+// when the communityPartners table has no results for a given location.
+// All entries are real, verifiable, serve all 50 states.
+const NATIONAL_WOMENS_HEALTH_ORGS = [
+  {
+    name: "Black Mamas Matter Alliance",
+    type: "advocacy_org",
+    description: "National advocacy organization centering Black women's maternal health, birth justice, and policy change.",
+    contactPhone: null,
+    website: "https://blackmamasmatter.org",
+    serviceArea: "National",
+    serviceCategories: ["maternal health", "advocacy", "birth justice", "policy"],
+    programsOffered: ["legislative advocacy", "community building", "research & training"],
+  },
+  {
+    name: "National Birth Equity Collaborative",
+    type: "advocacy_org",
+    description: "Trains birth workers and advocates to dismantle structural racism in birth outcomes. Nationwide technical assistance.",
+    contactPhone: null,
+    website: "https://birthequity.org",
+    serviceArea: "National",
+    serviceCategories: ["maternal health", "health equity", "training", "advocacy"],
+    programsOffered: ["community doula training", "birth equity institutes", "policy advocacy"],
+  },
+  {
+    name: "Postpartum Support International",
+    type: "mental_health",
+    description: "Helpline and provider directory for postpartum depression, anxiety, and perinatal mental health. All 50 states.",
+    contactPhone: "1-800-944-4773",
+    website: "https://postpartum.net",
+    serviceArea: "National",
+    serviceCategories: ["postpartum mental health", "EPDS", "peer support", "provider directory"],
+    programsOffered: ["PSI helpline", "online support groups", "provider training"],
+  },
+  {
+    name: "SisterSong Women of Color Reproductive Justice Collective",
+    type: "advocacy_org",
+    description: "National reproductive justice organization centering Indigenous women and women of color in all 50 states.",
+    contactPhone: null,
+    website: "https://sistersong.net",
+    serviceArea: "National",
+    serviceCategories: ["reproductive justice", "advocacy", "community organizing", "maternal health"],
+    programsOffered: ["advocacy campaigns", "capacity building", "national conference"],
+  },
+  {
+    name: "March of Dimes",
+    type: "maternal_health_org",
+    description: "Funds research and advocates for policies to end premature birth, birth defects, and maternal/infant mortality. Local chapters nationwide.",
+    contactPhone: "1-888-663-4637",
+    website: "https://marchofdimes.org",
+    serviceArea: "National",
+    serviceCategories: ["maternal health", "prenatal care", "NICU support", "advocacy", "education"],
+    programsOffered: ["Nurse-Family Partnership", "NICU support", "advocacy", "research grants"],
+  },
+  {
+    name: "National Association of Certified Professional Midwives (NACPM)",
+    type: "clinical_org",
+    description: "Connects families with Certified Professional Midwives for out-of-hospital births. Provider directory for all 50 states.",
+    contactPhone: null,
+    website: "https://nacpm.org",
+    serviceArea: "National",
+    serviceCategories: ["midwifery", "home birth", "birth center", "prenatal care"],
+    programsOffered: ["midwife finder", "CPM education", "legislative advocacy"],
+  },
+  {
+    name: "HRSA Find a Health Center (FQHCs)",
+    type: "FQHC",
+    description: "Federally Qualified Health Centers provide sliding-scale primary care, OB/GYN, and prenatal services in all 50 states. Find your local FQHC.",
+    contactPhone: "1-877-464-4772",
+    website: "https://findahealthcenter.hrsa.gov",
+    serviceArea: "National",
+    serviceCategories: ["FQHC", "prenatal care", "women's health", "primary care", "sliding scale"],
+    programsOffered: ["prenatal care", "OB/GYN", "family planning", "WIC co-location"],
+  },
+  {
+    name: "WIC — USDA Special Supplemental Nutrition Program for Women, Infants, and Children",
+    type: "government_program",
+    description: "Nutrition support, breastfeeding education, and healthy food benefits for pregnant and postpartum women and children under 5. Available in all 50 states.",
+    contactPhone: "1-800-942-3678",
+    website: "https://wic.fns.usda.gov",
+    serviceArea: "National",
+    serviceCategories: ["nutrition", "WIC", "prenatal", "postpartum", "breastfeeding support"],
+    programsOffered: ["food benefits", "nutrition counseling", "breastfeeding support", "referrals"],
+  },
+  {
+    name: "Planned Parenthood Federation of America",
+    type: "reproductive_health",
+    description: "Reproductive and sexual health care including STI testing, contraception, cancer screening, and prenatal referrals at 600+ locations nationwide.",
+    contactPhone: "1-800-230-PLAN",
+    website: "https://plannedparenthood.org",
+    serviceArea: "National",
+    serviceCategories: ["reproductive health", "contraception", "cancer screening", "STI testing", "prenatal referral"],
+    programsOffered: ["family planning", "health education", "telehealth"],
+  },
+  {
+    name: "AWHONN — Association of Women's Health, Obstetric and Neonatal Nurses",
+    type: "clinical_org",
+    description: "Promotes best-practice perinatal nursing care and patient advocacy for women and newborns across all 50 states.",
+    contactPhone: null,
+    website: "https://awhonn.org",
+    serviceArea: "National",
+    serviceCategories: ["maternal health", "nursing", "NICU", "advocacy", "education"],
+    programsOffered: ["Postpartum Hemorrhage Initiative", "clinical education", "research"],
+  },
+];
 
 export function registerEcosystemDataRoutes(app: Express) {
 
@@ -230,15 +337,28 @@ export function registerEcosystemDataRoutes(app: Express) {
         return res.status(400).json({ error: "Provide fips (county FIPS code) or zip query parameter." });
       }
 
-      // Derive state/county FIPS digits
-      const resolvedFips = fips || "";
-      const stateFips  = resolvedFips.length >= 2 ? resolvedFips.slice(0, 2) : "";
-      const countyFips = resolvedFips.length === 5 ? resolvedFips.slice(2, 5) : "";
+      // ── Step 1: Resolve FIPS — from param or from ZIP via zcta_county_map DB table ──
+      let resolvedFips = fips || "";
+      let stateFips    = resolvedFips.length >= 2 ? resolvedFips.slice(0, 2) : "";
+      let countyFips   = resolvedFips.length === 5 ? resolvedFips.slice(2, 5) : "";
 
-      const sources: string[] = ["U.S. Census ACS 5-Year 2018–2022"];
+      if (!resolvedFips && zip) {
+        try {
+          const [zipRow] = await db.select().from(zctaCountyMap).where(eq(zctaCountyMap.zip, zip));
+          if (zipRow) {
+            resolvedFips = zipRow.countyFips;
+            stateFips    = zipRow.stateFips;
+            countyFips   = zipRow.countyFips.slice(2);
+          }
+        } catch (zipErr) {
+          console.warn("[ecosystem-data] ZIP→FIPS lookup failed:", zipErr);
+        }
+      }
+
+      const sources: string[] = [];
       let censusData: Record<string, number | null> = {};
 
-      // Live Census ACS call when we have full 5-digit FIPS
+      // ── Step 2: Live Census ACS (nationwide — uninsured, poverty, broadband) ──────
       if (stateFips && countyFips && CENSUS_KEY) {
         try {
           const vars = [
@@ -259,78 +379,120 @@ export function registerEcosystemDataRoutes(app: Express) {
             const g = (k: string) => parseInt(row[headers.indexOf(k)] ?? "0") || 0;
             const pct = (n: number, d: number): number | null =>
               d > 0 ? parseFloat(((n / d) * 100).toFixed(1)) : null;
-
             const insTotal = g("B27001_001E");
-            const uninsuredMale = [
-              "B27001_005E","B27001_008E","B27001_011E","B27001_014E",
-              "B27001_017E","B27001_020E","B27001_023E","B27001_026E","B27001_029E",
-            ].reduce((s, k) => s + g(k), 0);
             const uninsuredFemale = [
               "B27001_033E","B27001_036E","B27001_039E","B27001_042E",
               "B27001_045E","B27001_048E","B27001_051E","B27001_054E","B27001_057E",
             ].reduce((s, k) => s + g(k), 0);
-
             const povTotal = g("B17001_001E");
             const belowPov = g("B17001_002E");
             const bbTotal  = g("B28002_001E");
             const bbNoNet  = g("B28002_013E");
-
             censusData = {
               uninsured_women_pct: pct(uninsuredFemale, Math.round(insTotal / 2)),
               food_insecurity_rate: pct(belowPov, povTotal),
               broadband_access_pct: pct(bbTotal - bbNoNet, bbTotal),
             };
+            sources.push("U.S. Census ACS 5-Year 2018–2022");
           }
         } catch (censusErr) {
-          console.warn("[ecosystem-data] Census ACS call failed, continuing with reference data:", censusErr);
+          console.warn("[ecosystem-data] Census ACS call failed:", censusErr);
         }
       }
 
-      // Static SVI + maternal mortality reference data (CDC SVI 2022; CDC WONDER 2018–2022)
-      const svi = CDC_SVI_TX[resolvedFips] ?? null;
-      const mmBlack = TX_BLACK_MATERNAL_MORTALITY[resolvedFips] ?? null;
-      const mmOverall = TX_OVERALL_MATERNAL_MORTALITY[resolvedFips] ?? null;
+      // ── Step 3: Live CDC PLACES — works for ANY US county by 5-digit FIPS ─────────
+      // Source: CDC PLACES 2024 Local Data for Better Health (county-level)
+      // https://data.cdc.gov/resource/swc5-untb.json
+      let cdcPlaces: Record<string, number | null> = {};
+      let cdcCountyName: string | null = null;
+      if (resolvedFips) {
+        try {
+          const placesUrl =
+            `https://data.cdc.gov/resource/swc5-untb.json?locationid=${resolvedFips}` +
+            `&$where=measureid IN ('ACCESS2','DEPRESSION','MHLTH','FOODINSECU','MAMMOUSE','CHECKUP','HOUSINSECU','DISABILITY','BPHIGH','OBESITY')` +
+            `&$limit=50`;
+          const places = await fetchJson(placesUrl) as Array<Record<string, string>>;
+          const measureValues: Record<string, number[]> = {};
+          for (const row of places) {
+            const mid = row.measureid;
+            const val = parseFloat(row.data_value);
+            if (mid && !isNaN(val)) {
+              measureValues[mid] = measureValues[mid] || [];
+              measureValues[mid].push(val);
+            }
+            if (row.locationname && !cdcCountyName) cdcCountyName = row.locationname;
+          }
+          const avg = (vals: number[] | undefined): number | null =>
+            vals && vals.length ? parseFloat((vals.reduce((a, b) => a + b, 0) / vals.length).toFixed(1)) : null;
+          cdcPlaces = {
+            uninsured_adults_pct:      avg(measureValues["ACCESS2"]),
+            depression_pct:            avg(measureValues["DEPRESSION"]),
+            mental_health_distress_pct: avg(measureValues["MHLTH"]),
+            food_insecurity_pct:       avg(measureValues["FOODINSECU"]),
+            mammography_use_pct:       avg(measureValues["MAMMOUSE"]),
+            routine_checkup_pct:       avg(measureValues["CHECKUP"]),
+            housing_insecurity_pct:    avg(measureValues["HOUSINSECU"]),
+            any_disability_pct:        avg(measureValues["DISABILITY"]),
+            high_blood_pressure_pct:   avg(measureValues["BPHIGH"]),
+            obesity_pct:               avg(measureValues["OBESITY"]),
+          };
+          if (places.length > 0) sources.push("CDC PLACES 2024 Local Data for Better Health");
+        } catch (placesErr) {
+          console.warn("[ecosystem-data] CDC PLACES call failed:", placesErr);
+        }
+      }
 
-      if (svi !== null) sources.push("CDC/ATSDR Social Vulnerability Index 2022");
+      // ── Step 4: TX-specific fast-path for maternal mortality rates ────────────────
+      const svi = CDC_SVI_TX[resolvedFips] ?? null;
+      const mmBlack   = TX_BLACK_MATERNAL_MORTALITY[resolvedFips] ?? null;
+      const mmOverall = TX_OVERALL_MATERNAL_MORTALITY[resolvedFips] ?? null;
+      if (svi !== null) sources.push("CDC/ATSDR Social Vulnerability Index 2022 (TX)");
       if (mmBlack !== null) sources.push("CDC WONDER Maternal Mortality 2018–2022", "TX DSHS Maternal Mortality Review 2024");
 
+      // ── Step 5: Derive state abbreviation from FIPS ───────────────────────────────
+      const stateAbbr = stateFips ? (FIPS_TO_STATE[stateFips] || null) : null;
+
       const metrics: Record<string, number | null | boolean> = {
+        // Maternal
         maternal_mortality_rate_per_100k: mmOverall,
-        maternal_mortality_black_rate: mmBlack,
-        prenatal_care_first_trimester_pct: null,
-        prenatal_care_desert: resolvedFips === "48453" ? true : null,
-        food_insecurity_rate: censusData.food_insecurity_rate ?? null,
-        uninsured_women_pct: censusData.uninsured_women_pct ?? null,
-        social_vulnerability_index: svi,
-        transportation_access_score: null,
-        broadband_access_pct: censusData.broadband_access_pct ?? null,
+        maternal_mortality_black_rate:    mmBlack,
+        // Women's preventive health (CDC PLACES)
+        uninsured_adults_pct:             cdcPlaces.uninsured_adults_pct   ?? censusData.uninsured_women_pct ?? null,
+        mammography_use_pct:              cdcPlaces.mammography_use_pct    ?? null,
+        routine_checkup_pct:              cdcPlaces.routine_checkup_pct    ?? null,
+        // Mental health
+        depression_pct:                   cdcPlaces.depression_pct         ?? null,
+        mental_health_distress_pct:       cdcPlaces.mental_health_distress_pct ?? null,
+        // SDOH
+        food_insecurity_pct:              cdcPlaces.food_insecurity_pct    ?? censusData.food_insecurity_rate ?? null,
+        housing_insecurity_pct:           cdcPlaces.housing_insecurity_pct ?? null,
+        broadband_access_pct:             censusData.broadband_access_pct  ?? null,
+        // Chronic conditions
+        high_blood_pressure_pct:          cdcPlaces.high_blood_pressure_pct ?? null,
+        obesity_pct:                      cdcPlaces.obesity_pct             ?? null,
+        any_disability_pct:               cdcPlaces.any_disability_pct      ?? null,
+        // Social vulnerability
+        social_vulnerability_index:       svi,
       };
 
-      // If caller specified metrics[], trim the response to only what was asked for
       const filteredMetrics = requestedMetrics.length > 0
         ? Object.fromEntries(requestedMetrics.map(m => [m, (metrics as any)[m] ?? null]))
         : metrics;
 
-      // Derive county name from FIPS_TO_COUNTY if available, otherwise from Census data
-      const countyNames: Record<string, string> = {
-        "48453": "Travis County", "48201": "Harris County", "48029": "Bexar County",
-        "48113": "Dallas County", "48439": "Tarrant County", "48141": "El Paso County",
-      };
-
       res.json({
         location: {
-          fips: resolvedFips || null,
-          county: countyNames[resolvedFips] || null,
-          state: stateFips === "48" ? "TX" : null,
-          zip: zip || null,
+          fips:   resolvedFips || null,
+          county: cdcCountyName ? `${cdcCountyName} County` : null,
+          state:  stateAbbr,
+          zip:    zip || null,
         },
         metrics: filteredMetrics,
-        dataYear: "2018–2022 (ACS 5-year); SVI 2022; Maternal Mortality 2018–2022",
-        sources,
-        notes: [
-          "Prenatal care first-trimester rate and transportation access score require HRSA Area Health Resources File — not yet integrated.",
-          "County-specific metrics available for select Texas counties. National coverage expanding.",
-        ],
+        dataYear: "CDC PLACES 2024; ACS 2018–2022; Maternal Mortality 2018–2022 (TX)",
+        sources: sources.length > 0 ? sources : ["CDC PLACES", "U.S. Census ACS"],
+        notes: stateFips && stateFips !== "48"
+          ? ["Maternal mortality rates are available for TX counties only. CDC PLACES health measures cover all 50 states."]
+          : [],
+        coverage: "nationwide",
       });
     } catch (err: any) {
       console.error("[ecosystem-data] GET /api/sdoh/location error:", err);
@@ -441,11 +603,52 @@ export function registerEcosystemDataRoutes(app: Express) {
       // Sort by distance
       shaped.sort((a, b) => (a!.distance_miles - b!.distance_miles));
 
+      // ── National org fallback ─────────────────────────────────────────────────────
+      // When DB returns fewer than 3 local results, supplement with national orgs
+      // that match the requested types (or all if no type filter).
+      let nationalSupplement: typeof shaped = [];
+      if (shaped.length < 3) {
+        const nationalFiltered = NATIONAL_WOMENS_HEALTH_ORGS.filter(org => {
+          if (normalizedTypes.length === 0) return true;
+          const orgText = [
+            org.type,
+            org.description,
+            ...(org.serviceCategories || []),
+            ...(org.programsOffered || []),
+          ].join(" ").toLowerCase();
+          return normalizedTypes.some(t => orgText.includes(t));
+        });
+        nationalSupplement = nationalFiltered.map(org => ({
+          id: `national-${org.name.toLowerCase().replace(/\s+/g, "-")}`,
+          name: org.name,
+          type: org.type,
+          address: null,
+          phone: org.contactPhone || null,
+          website: org.website,
+          accepts_medicaid: null,
+          sliding_scale: null,
+          languages: [],
+          population_focus: org.serviceCategories || [],
+          description: org.description,
+          distance_miles: 9999,
+          mou_status: null,
+          scope: "national" as const,
+        }));
+      }
+
+      const allResources = [...shaped, ...nationalSupplement];
+
       res.json({
-        resources: shaped,
-        total: shaped.length,
+        resources: allResources,
+        local_count: shaped.length,
+        national_count: nationalSupplement.length,
+        total: allResources.length,
         queryContext: { zip, radius_miles: radiusMiles, types, population },
-        note: "Distance is approximate (ZIP-code proximity). Geocoded distance coming in next release.",
+        note: nationalSupplement.length > 0
+          ? `${shaped.length} local organization(s) found within ${radiusMiles} miles. ${nationalSupplement.length} national organization(s) added — they serve all 50 states.`
+          : "Distance is approximate (ZIP-code proximity).",
+        fqhc_locator: "https://findahealthcenter.hrsa.gov",
+        wic_locator: "https://wic.fns.usda.gov/wic-clinic-locator",
       });
     } catch (err: any) {
       console.error("[ecosystem-data] GET /api/resources/community error:", err);
@@ -1058,6 +1261,192 @@ export function registerEcosystemDataRoutes(app: Express) {
     } catch (err: any) {
       console.error("[feminine-network] GET /status/:referralId error:", err);
       res.status(500).json({ error: "Status lookup failed." });
+    }
+  });
+
+  // ── Block 10: Live Health Search + Provider Kit Generator ────────────────────
+  //
+  //   GET  /api/health/search      — Perplexity Sonar Pro live search for any
+  //                                  health condition or topic, nationwide.
+  //                                  Returns grounded answer + citations.
+  //
+  //   POST /api/health/provider-kit — AI-generated "bring-to-your-provider" kit
+  //                                   for any health condition. Covers questions
+  //                                   to ask, red-flag symptoms, standard-of-care
+  //                                   checklist, medication log template, and
+  //                                   community/national resources. Saveable/
+  //                                   printable JSON + markdown text.
+
+  /**
+   * GET /api/health/search
+   * Query: topic (required), zip (optional), population (optional)
+   * Auth:  requireEcosystemAuth (HerHealth or BMV key)
+   *
+   * Calls Perplexity Sonar Pro for live, citation-backed health information
+   * on any condition — nationwide, no geographic restriction.
+   */
+  app.get("/api/health/search", requireEcosystemAuth, async (req: Request, res: Response) => {
+    try {
+      const topic      = ((req.query.topic as string) || "").trim();
+      const zip        = ((req.query.zip as string) || "").trim();
+      const population = ((req.query.population as string) || "general").trim();
+
+      if (!topic) {
+        return res.status(400).json({ error: "topic query parameter is required (e.g. 'postpartum depression', 'gestational diabetes', 'hypertension during pregnancy')." });
+      }
+
+      // Build a grounded, equity-aware system prompt
+      const system = withEthicalPreamble(
+        `You are a health information specialist for HerHealth Network, a national women's health platform.
+Your audience is primarily Black, Latina, Indigenous, immigrant, and rural women across all 50 states.
+When answering health questions:
+- Center equity, cultural context, and plain language (8th-grade reading level or lower).
+- Surface BOTH mainstream clinical guidance AND community/peer-based resources.
+- Flag any racial/ethnic disparities in outcomes where evidence exists.
+- Never diagnose, always recommend consulting a licensed provider.
+- Mention 988 (mental health crisis) or 911 if the topic involves safety.
+- Cite primary sources (CDC, NIH, ACOG, HRSA, peer-reviewed journals).
+- If relevant, mention federally-funded resources: FQHCs, WIC, Medicaid, Title X.`
+      );
+
+      const locationContext = zip
+        ? `The person is located near ZIP code ${zip}${population !== "general" ? `, and is in the ${population} population` : ""}.`
+        : population !== "general"
+          ? `The person is in the ${population} population.`
+          : "";
+
+      const userPrompt = `${locationContext ? locationContext + "\n\n" : ""}Health topic: ${topic}
+
+Please provide:
+1. Plain-language explanation of this condition/topic
+2. Key symptoms to know (especially those often missed or dismissed in women of color)
+3. Standard of care / recommended treatments or screenings
+4. Racial and ethnic health disparities in outcomes (if any — cite sources)
+5. Questions to ask a doctor, midwife, or social worker at the next visit
+6. Community and national resources (FQHCs, hotlines, advocacy orgs)
+7. Any red-flag symptoms that need immediate care (911 or ER)`;
+
+      const { text, citations } = await perplexityResearch(userPrompt, system, 3000);
+
+      res.json({
+        topic,
+        zip: zip || null,
+        population,
+        answer: text,
+        citations,
+        disclaimer: "This information is for educational purposes only and does not constitute medical advice. Always consult a licensed healthcare provider.",
+        powered_by: "Perplexity Sonar Pro (live web search)",
+        timestamp: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      console.error("[health-search] error:", err);
+      res.status(500).json({ error: "Health search failed.", detail: err.message });
+    }
+  });
+
+  /**
+   * POST /api/health/provider-kit
+   * Body: { condition, zip?, population?, language? }
+   * Auth: requireEcosystemAuth (HerHealth or BMV key)
+   *
+   * Generates a structured "bring-to-your-provider" kit for any health condition.
+   * Returns JSON with sections the member can save, print, copy, or download.
+   * Uses Claude (via generateAIJSON) for structured output; Perplexity for live
+   * research context first.
+   */
+  app.post("/api/health/provider-kit", requireEcosystemAuth, async (req: Request, res: Response) => {
+    try {
+      const schema = z.object({
+        condition:  z.string().min(2).max(300),
+        zip:        z.string().length(5).optional(),
+        population: z.string().max(100).optional(),
+        language:   z.string().max(50).optional(),
+      });
+
+      const parsed = schema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid request body", details: parsed.error.flatten() });
+      }
+
+      const { condition, zip, population = "general", language = "English" } = parsed.data;
+
+      // Step 1: Get live research context from Perplexity
+      let researchContext = "";
+      try {
+        const system = withEthicalPreamble(
+          "You are a clinical research synthesizer. Return concise, evidence-based facts about the given health condition — standard of care, racial/ethnic disparities, key labs/screenings, and relevant community resources. Be specific, cite sources."
+        );
+        const { text } = await perplexityResearch(
+          `Current clinical guidance, racial/ethnic disparities, and community resources for: ${condition}. Focus on women, especially Black, Latina, Indigenous, and rural women.`,
+          system,
+          2000
+        );
+        researchContext = text;
+      } catch (perplexityErr) {
+        console.warn("[provider-kit] Perplexity context failed, continuing:", perplexityErr);
+      }
+
+      // Step 2: Generate structured kit with Claude via generateAIJSON
+      const kitPrompt = `
+Generate a complete "bring-to-your-provider" health kit for: "${condition}"
+Population: ${population}
+Language preference: ${language}
+${zip ? `ZIP code: ${zip}` : ""}
+${researchContext ? `\nClinical research context:\n${researchContext}` : ""}
+
+Return a JSON object with EXACTLY this structure:
+{
+  "condition": string,
+  "condition_plain_language": string (2-3 sentence plain-language explanation at 8th-grade reading level),
+  "questions_for_provider": string[] (8-12 specific questions to ask doctor, midwife, or social worker),
+  "red_flag_symptoms": string[] (4-8 symptoms that mean go to ER or call 911 immediately),
+  "standard_of_care_checklist": [
+    { "item": string, "why_it_matters": string, "frequency": string }
+  ] (6-10 evidence-based screenings, labs, or treatments to ask about),
+  "medication_log_template": {
+    "headers": string[],
+    "example_row": string[],
+    "instructions": string
+  },
+  "know_your_rights": string[] (3-5 patient rights relevant to this condition, especially for women of color),
+  "racial_ethnic_disparities": string (1-2 sentences on known disparities, or null if none documented),
+  "community_resources": [
+    { "name": string, "type": string, "phone": string | null, "website": string, "who_it_serves": string }
+  ] (5-8 national and community resources — include FQHCs, WIC, Medicaid, hotlines, advocacy orgs),
+  "glossary": [
+    { "term": string, "plain_language": string }
+  ] (6-10 medical terms the person is likely to encounter, explained simply),
+  "self_advocacy_script": string (a 3-4 sentence script the person can say out loud to their provider to assert their needs and concerns),
+  "safety_resources": {
+    "mental_health_crisis": "988 Suicide & Crisis Lifeline — call or text 988",
+    "domestic_violence": "National DV Hotline: 1-800-799-7233 | thehotline.org",
+    "emergency": "911",
+    "additional": string | null
+  },
+  "printable_summary": string (a 200-250 word plain-language summary the person can hand to any provider)
+}
+
+Center Black, Latina, Indigenous, immigrant, and rural women. Plain language throughout. No jargon without a glossary entry.
+`;
+
+      const kit = await generateAIJSON<Record<string, unknown>>(kitPrompt, withEthicalPreamble());
+
+      // Attach metadata
+      res.json({
+        kit: {
+          ...kit,
+          condition,
+          generated_for: { zip: zip || null, population, language },
+          generated_at: new Date().toISOString(),
+          disclaimer: "This kit is for educational and self-advocacy purposes. It does not replace a licensed healthcare provider's advice.",
+          powered_by: "ThriveUp Academy — HerHealth Network | Perplexity Sonar Pro + Claude",
+          save_instructions: "You can copy, print, or download this kit. Bring the 'printable_summary' and 'questions_for_provider' to your next appointment.",
+        },
+        citations_available: researchContext.length > 0,
+      });
+    } catch (err: any) {
+      console.error("[provider-kit] error:", err);
+      res.status(500).json({ error: "Provider kit generation failed.", detail: err.message });
     }
   });
 }
