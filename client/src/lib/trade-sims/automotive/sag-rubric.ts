@@ -1,20 +1,22 @@
 /**
- * Sag rubric — grades automotive canvas circuits across four modes.
+ * Sag rubric — grades automotive canvas circuits across six modes.
  *
  * Originally written for the Day 3 starting-circuit exclusively.
- * Expanded to support Day 4 (ignition-coil primary) and Day 9 (wiring
+ * Expanded to support Day 4 (ignition-coil primary), Day 9 (wiring
  * diagram / headlight circuit, where `ignition_coil` at 5 Ω stands in
  * for a resistive load because the automotive palette has no generic
- * "resistor" component).
+ * "resistor" component), and Day 2 (battery/charging system).
  *
  * Mode overview
  * ─────────────
- *   1. loop-complete   — circuit is wired and current flows.
- *   2. fuse-blown-open — fuse blown, terminal ≈ open-circuit, no load current.
- *   3. healthy-cranking — load current in-range, terminal voltage above its
- *                         circuit-type floor (no severe sag).
- *   4. weak-battery    — internalResistance raised, terminal drops, load
- *                         current collapses — the failing-battery signature.
+ *   1. loop-complete      — circuit is wired and current flows.
+ *   2. fuse-blown-open    — fuse blown, terminal ≈ open-circuit, no load current.
+ *   3. healthy-cranking   — load current in-range, terminal voltage above its
+ *                           circuit-type floor (no severe sag).
+ *   4. weak-battery       — internalResistance raised, terminal drops, load
+ *                           current collapses — the failing-battery signature.
+ *   5. battery-only-load  — Day 2 step 3: alternator OFF, bus voltage 12.4–12.7 V.
+ *   6. alternator-on-load — Day 2 step 4: alternator ON, bus voltage 13.8–14.4 V.
  *
  * Circuit-type detection
  * ──────────────────────
@@ -279,7 +281,31 @@ export function gradeSag(
     return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
   }
 
-  // ── 5. slow-cranking ─────────────────────────────────────────────────────
+  // ── 5. battery-only-load ─────────────────────────────────────────────────
+  // Day 2 step 3: alternator OFF, bus voltage 12.4–12.7 V.
+  if (rubric.mode === "battery-only-load") {
+    const alternator = comps.find((c) => c.kind === "alternator");
+    const alternatorOff = !alternator || alternator.props.running === false;
+    if (!alternatorOff) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    const pass = terminal >= 12.4 && terminal <= 12.7;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+  }
+
+  // ── 6. alternator-on-load ─────────────────────────────────────────────────
+  // Day 2 step 4: alternator ON, bus voltage 13.8–14.4 V.
+  if (rubric.mode === "alternator-on-load") {
+    const alternator = comps.find((c) => c.kind === "alternator");
+    const alternatorOn = alternator?.props.running === true;
+    if (!alternatorOn) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    const pass = terminal >= 13.8 && terminal <= 14.4;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+  }
+
+  // ── 7. slow-cranking ─────────────────────────────────────────────────────
   if (rubric.mode === "slow-cranking") {
     // Day 3 solo challenge: learner must reduce starter current to 130-170 A
     // (simulating a weak battery or corroded cable, vs the healthy 150-250 A).

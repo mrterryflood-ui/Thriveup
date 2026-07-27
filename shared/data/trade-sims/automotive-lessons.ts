@@ -30,7 +30,9 @@ export type SagRubricMode =
   | "fuse-blown-open"
   | "healthy-cranking"
   | "weak-battery"
-  | "slow-cranking";
+  | "slow-cranking"
+  | "battery-only-load"
+  | "alternator-on-load";
 
 export interface SagRubric {
   mode: SagRubricMode;
@@ -132,8 +134,26 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
     guidedSteps: [
       { instruction: "Place a 12 V car battery and a chassis ground on the canvas.", hint: "Battery negative will wire to chassis ground.", checkDescription: "car_battery + ground_point present" },
       { instruction: "Place an alternator and wire it in parallel with the battery (both + terminals together, both negatives to ground).", hint: "When the engine runs, alternator wins. When off, battery is the only source.", checkDescription: "alternator wired in parallel with battery" },
-      { instruction: "Place a 1 Ω resistor as a stand-in load (headlights). Run with alternator OFF.", hint: "You should see ~12.6 V at the load.", checkDescription: "load voltage between 12.4 V and 12.7 V with alternator off" },
-      { instruction: "Toggle the alternator ON and re-run.", hint: "Now you should see ~14 V at the load — the alternator wins.", checkDescription: "load voltage between 13.8 V and 14.4 V with alternator on" },
+      {
+        instruction: "Place a 1 Ω resistor as a stand-in load (headlights). Run with alternator OFF.",
+        hint: "You should see ~12.6 V at the load.",
+        checkDescription: "load voltage between 12.4 V and 12.7 V with alternator off",
+        sagRubric: {
+          mode: "battery-only-load",
+          passMessage: "Correct — alternator off, bus voltage sits at 12.4–12.7 V. The battery alone is powering the load.",
+          failMessage: "Make sure the alternator is OFF and the resistor load is wired in. Bus voltage should read 12.4–12.7 V when you run the sim.",
+        },
+      },
+      {
+        instruction: "Toggle the alternator ON and re-run.",
+        hint: "Now you should see ~14 V at the load — the alternator wins.",
+        checkDescription: "load voltage between 13.8 V and 14.4 V with alternator on",
+        sagRubric: {
+          mode: "alternator-on-load",
+          passMessage: "Correct — alternator on, bus voltage rises to 13.8–14.4 V. The alternator is now the dominant source and charging the battery.",
+          failMessage: "Toggle the alternator's running flag to ON and re-run. Bus voltage should climb to 13.8–14.4 V.",
+        },
+      },
       { instruction: "Now edit the battery's internalResistance up to 0.10 Ω (a tired battery) and re-run with the alternator ON.", hint: "Same primitive you used on Day 3: a weak battery drops more voltage across its own internal resistance, so the alternator ends up doing more of the work and the bus sits closer to the alternator's 14.2 V regulated output than it did with the healthy 0.02 Ω battery.", checkDescription: "with internalResistance raised to 0.10 Ω and alternator ON, bus/load voltage sits noticeably higher than the healthy-battery case — closer to 14.2 V (the gap between alt-off and alt-on widens), showing the alternator is carrying more of the charging load" },
     ],
     soloChallenge: {
