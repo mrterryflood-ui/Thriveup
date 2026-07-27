@@ -27,6 +27,13 @@ import {
 } from "@/lib/trade-sims/plumbing/backflow-rubric";
 import type { FlowSolveResult } from "@/lib/trade-sims/plumbing/flow-solver";
 import type { PlacedPlumbingComponent } from "@/lib/trade-sims/plumbing/component-defs";
+import {
+  gradeSag,
+  type SagRubric,
+  type SagGrade,
+} from "@/lib/trade-sims/automotive/sag-rubric";
+import type { PlacedAutoComponent } from "@/lib/trade-sims/automotive/component-defs";
+import type { SolveOutput } from "@/lib/trade-sims/electrical/circuit-solver";
 
 /**
  * Render the right sim canvas for a given engineMode, or null if that engine
@@ -42,6 +49,10 @@ function renderEngineCanvas(
     lastSolve: FlowSolveResult | null;
   }) => void,
   tradeSlug?: string,
+  onAutoState?: (s: {
+    components: PlacedAutoComponent[];
+    lastSolve: SolveOutput | null;
+  }) => void,
 ) {
   // Electrical: always use the visual schematic canvas regardless of engineMode.
   // This covers both linear-dc lessons (full physics) and concept-only lessons
@@ -63,7 +74,10 @@ function renderEngineCanvas(
     return (
       <AutoCanvas
         initialComponents={initialComponents ?? []}
-        onChange={(s) => { if (s.lastSolve) onRun(); }}
+        onChange={(s) => {
+          if (s.lastSolve) onRun();
+          onAutoState?.(s);
+        }}
       />
     );
   }
@@ -103,6 +117,32 @@ function renderEngineCanvas(
 function shouldShowCanvas(tradeSlug: string | undefined, engineMode: string): boolean {
   if (tradeSlug === "electrical") return true;
   return ENGINES_WITH_CANVAS.has(engineMode);
+}
+
+/**
+ * Tiny pass/fail badge for a sag-rubric step (automotive Day 3). Mirrors the
+ * BackflowGradeBadge pattern exactly so the guided-steps render stays uniform.
+ */
+function SagGradeBadge({ grade }: { grade: SagGrade }) {
+  if (grade.status === "pending") {
+    return (
+      <Badge variant="outline" data-testid="badge-sag-pending">
+        Run the sim to grade
+      </Badge>
+    );
+  }
+  if (grade.status === "pass") {
+    return (
+      <Badge className="bg-green-600 hover:bg-green-600" data-testid="badge-sag-pass">
+        <CheckCircle2 className="h-3 w-3 mr-1" /> PASS
+      </Badge>
+    );
+  }
+  return (
+    <Badge variant="destructive" data-testid="badge-sag-fail">
+      <XCircle className="h-3 w-3 mr-1" /> Not yet
+    </Badge>
+  );
 }
 
 /**
@@ -214,12 +254,14 @@ interface LessonRow {
     hint: string;
     checkDescription: string;
     backflowRubric?: BackflowRubric;
+    sagRubric?: SagRubric;
   }> | null;
   soloChallenge: {
     prompt: string;
     successCriteria: string;
     scoringRubric?: { correctness: number; time: number; componentCount: number };
     backflowRubric?: BackflowRubric;
+    sagRubric?: SagRubric;
   } | null;
   sandboxStarter: {
     prompt: string;
@@ -262,6 +304,29 @@ export default function LessonPlayerPage() {
   // Concept → Debrief and claim 100%. Honesty-in-claims requirement.
   const [tabsVisited, setTabsVisited] = useState<Set<PlayerTab>>(new Set(["concept"]));
   const [hasRunSim, setHasRunSim] = useState(false);
+  // Latest automotive canvas state, scoped PER TAB. Matches the plumbing
+  // pattern — Guided and Solo each have their own AutoCanvas so grades only
+  // reflect what the learner built on that specific tab.
+  type AutoTabState = {
+    components: PlacedAutoComponent[];
+    lastSolve: SolveOutput | null;
+  };
+  const EMPTY_AUTO: AutoTabState = { components: [], lastSolve: null };
+  const [autoByTab, setAutoByTab] = useState<Record<PlayerTab, AutoTabState>>({
+    concept: EMPTY_AUTO,
+    guided: EMPTY_AUTO,
+    solo: EMPTY_AUTO,
+    sandbox: EMPTY_AUTO,
+    debrief: EMPTY_AUTO,
+  });
+  const setAutoFor = useCallback(
+    (t: PlayerTab) => (s: AutoTabState) =>
+      setAutoByTab((prev) => ({ ...prev, [t]: s })),
+    [],
+  );
+  const guidedAuto = autoByTab.guided;
+  const soloAuto = autoByTab.solo;
+
   // Latest plumbing canvas state, scoped PER TAB. Guided / Solo / Sandbox
   // each mount their own PlumbingCanvas instance, so we must not let a
   // Guided solve bleed into the Solo rubric (and vice-versa) — that would
@@ -584,8 +649,11 @@ export default function LessonPlayerPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               {(lesson.guidedSteps ?? []).map((step, i) => {
-                const grade = step.backflowRubric && engineMode === "pipe-network"
+                const backflowGrade = step.backflowRubric && engineMode === "pipe-network"
                   ? gradeBackflow(step.backflowRubric, guidedPlumbing.lastSolve, guidedPlumbing.components)
+                  : null;
+                const sagGrade = step.sagRubric && tradeSlug === "automotive" && engineMode === "linear-dc"
+                  ? gradeSag(step.sagRubric, guidedAuto.lastSolve, guidedAuto.components)
                   : null;
                 return (
                   <div key={i} className="border-l-4 border-primary pl-4 py-2" data-testid={`block-step-${i}`}>
@@ -595,10 +663,16 @@ export default function LessonPlayerPage() {
                         <div className="font-semibold">{step.instruction}</div>
                         <div className="text-sm text-muted-foreground mt-1">Hint: {step.hint}</div>
                         <div className="text-xs text-muted-foreground/80 mt-1">Check: {step.checkDescription}</div>
-                        {grade && (
+                        {backflowGrade && (
                           <div className="mt-2 flex items-start gap-2" data-testid={`grade-step-${i}`}>
-                            <BackflowGradeBadge grade={grade} />
-                            <p className="text-xs text-muted-foreground flex-1">{grade.message}</p>
+                            <BackflowGradeBadge grade={backflowGrade} />
+                            <p className="text-xs text-muted-foreground flex-1">{backflowGrade.message}</p>
+                          </div>
+                        )}
+                        {sagGrade && (
+                          <div className="mt-2 flex items-start gap-2" data-testid={`grade-sag-step-${i}`}>
+                            <SagGradeBadge grade={sagGrade} />
+                            <p className="text-xs text-muted-foreground flex-1">{sagGrade.message}</p>
                           </div>
                         )}
                       </div>
@@ -622,6 +696,7 @@ export default function LessonPlayerPage() {
                     () => setHasRunSim(true),
                     setPlumbingFor("guided"),
                     tradeSlug,
+                    setAutoFor("guided"),
                   )}
                 </div>
               )}
@@ -653,7 +728,26 @@ export default function LessonPlayerPage() {
                     <p className="text-sm text-muted-foreground">{lesson.soloChallenge.successCriteria}</p>
                   </div>
                   {shouldShowCanvas(tradeSlug, engineMode) &&
-                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug)}
+                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug, setAutoFor("solo"))}
+                  {lesson.soloChallenge.sagRubric && tradeSlug === "automotive" && engineMode === "linear-dc" && (() => {
+                    const g = gradeSag(
+                      lesson.soloChallenge!.sagRubric!,
+                      soloAuto.lastSolve,
+                      soloAuto.components,
+                    );
+                    return (
+                      <Alert
+                        variant={g.status === "fail" ? "destructive" : "default"}
+                        data-testid="alert-solo-sag-grade"
+                      >
+                        <AlertTitle className="flex items-center gap-2">
+                          <SagGradeBadge grade={g} />
+                          <span>Solo grade</span>
+                        </AlertTitle>
+                        <AlertDescription>{g.message}</AlertDescription>
+                      </Alert>
+                    );
+                  })()}
                   {lesson.soloChallenge.backflowRubric && engineMode === "pipe-network" && (() => {
                     const g = gradeBackflow(
                       lesson.soloChallenge.backflowRubric,

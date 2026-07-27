@@ -25,16 +25,34 @@ export type LessonConcept = {
   diagramKey?: string;
 };
 
+export type SagRubricMode =
+  | "loop-complete"
+  | "fuse-blown-open"
+  | "healthy-cranking"
+  | "weak-battery";
+
+export interface SagRubric {
+  mode: SagRubricMode;
+  /** Shown when the rubric passes. */
+  passMessage: string;
+  /** Shown when the rubric has been evaluated but failed. */
+  failMessage: string;
+}
+
 export type LessonGuidedStep = {
   instruction: string;
   hint: string;
   checkDescription: string;
+  /** Optional instant-grade rubric for automotive starting-circuit lessons. */
+  sagRubric?: SagRubric;
 };
 
 export type LessonSoloChallenge = {
   prompt: string;
   successCriteria: string;
   scoringRubric: { correctness: number; time: number; componentCount: number };
+  /** Optional instant-grade rubric for the solo challenge (automotive lessons). */
+  sagRubric?: SagRubric;
 };
 
 export type LessonSandboxStarter = {
@@ -142,10 +160,46 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
       ],
     },
     guidedSteps: [
-      { instruction: "Build a battery + fuse + starter motor circuit, with chassis ground returning the loop. Leave the battery at its healthy defaults (12.6 V, internalResistance 0.02 Ω).", hint: "Use a 200 A fuse so it doesn't immediately blow.", checkDescription: "car_battery(voltage 12.6, internalResistance 0.02) + fuse(200A, not blown) + starter_motor + ground_point wired in a complete loop" },
-      { instruction: "Mark the fuse as BLOWN and run the sim. With no current flowing, terminal voltage at battery+ should sit at the battery's open-circuit value.", hint: "No load means I × R_internal = 0 — the terminal reads the full open-circuit voltage.", checkDescription: "with fuse blown, terminal voltage at battery+ ≈ 12.6 V (within 0.1 V) and starter current = 0 A" },
-      { instruction: "Un-blow the fuse and re-run. Watch terminal voltage at battery+ sag the moment the starter starts cranking.", hint: "V_terminal = V_open − I × R_internal. With ~180 A through a 0.02 Ω internal R, the terminal sags about 3-4 V from open-circuit.", checkDescription: "with healthy battery cranking, starter current is 150-250 A and terminal voltage at battery+ sags to ~8-10 V (clearly below open-circuit 12.6 V, well above the 9.6 V cranking floor)" },
-      { instruction: "Edit the battery's internalResistance to 0.10 Ω (a tired, aging battery) and re-run.", hint: "Higher internal R fights the starter draw harder. Hand-calc: I = 12.6 / (0.10 + 0.05) = 84 A, V_terminal = 12.6 − 84 × 0.10 ≈ 4.2 V.", checkDescription: "with internalResistance raised to 0.10 Ω, terminal voltage at battery+ drops below 10 V (target ~4-5 V), and starter current collapses below 100 A — the diagnostic signature of a weak battery" },
+      {
+        instruction: "Build a battery + fuse + starter motor circuit, with chassis ground returning the loop. Leave the battery at its healthy defaults (12.6 V, internalResistance 0.02 Ω).",
+        hint: "Use a 200 A fuse so it doesn't immediately blow.",
+        checkDescription: "car_battery(voltage 12.6, internalResistance 0.02) + fuse(200A, not blown) + starter_motor + ground_point wired in a complete loop",
+        sagRubric: {
+          mode: "loop-complete",
+          passMessage: "Loop confirmed — battery, unblown fuse, starter, and ground are all wired and the starter draws current.",
+          failMessage: "Add a car battery, an unblown fuse (200 A), a starter motor, and a chassis ground — then wire them into a complete loop and run the sim.",
+        },
+      },
+      {
+        instruction: "Mark the fuse as BLOWN and run the sim. With no current flowing, terminal voltage at battery+ should sit at the battery's open-circuit value.",
+        hint: "No load means I × R_internal = 0 — the terminal reads the full open-circuit voltage.",
+        checkDescription: "with fuse blown, terminal voltage at battery+ ≈ 12.6 V (within 0.1 V) and starter current = 0 A",
+        sagRubric: {
+          mode: "fuse-blown-open",
+          passMessage: "Correct — fuse blown, terminal holds at open-circuit (≈ 12.6 V), and starter current is 0 A.",
+          failMessage: "Mark the fuse as blown and run the sim. Terminal should read close to the battery's open-circuit voltage with zero starter current.",
+        },
+      },
+      {
+        instruction: "Un-blow the fuse and re-run. Watch terminal voltage at battery+ sag the moment the starter starts cranking.",
+        hint: "V_terminal = V_open − I × R_internal. With ~180 A through a 0.02 Ω internal R, the terminal sags about 3-4 V from open-circuit.",
+        checkDescription: "with healthy battery cranking, starter current is 150-250 A and terminal voltage at battery+ sags to ~8-10 V (clearly below open-circuit 12.6 V, well above the 9.6 V cranking floor)",
+        sagRubric: {
+          mode: "healthy-cranking",
+          passMessage: "Sag confirmed — starter draws 150-250 A and terminal drops to 8-10 V. That's the healthy-battery cranking signature.",
+          failMessage: "Un-blow the fuse and run with the default healthy battery (internalResistance 0.02 Ω). Starter current should be 150-250 A and terminal voltage 8-10 V.",
+        },
+      },
+      {
+        instruction: "Edit the battery's internalResistance to 0.10 Ω (a tired, aging battery) and re-run.",
+        hint: "Higher internal R fights the starter draw harder. Hand-calc: I = 12.6 / (0.10 + 0.05) = 84 A, V_terminal = 12.6 − 84 × 0.10 ≈ 4.2 V.",
+        checkDescription: "with internalResistance raised to 0.10 Ω, terminal voltage at battery+ drops below 10 V (target ~4-5 V), and starter current collapses below 100 A — the diagnostic signature of a weak battery",
+        sagRubric: {
+          mode: "weak-battery",
+          passMessage: "Weak battery confirmed — terminal dropped below 10 V and starter current collapsed below 100 A. That's the failing-battery diagnostic signature.",
+          failMessage: "Raise the battery's internalResistance to 0.10 Ω and re-run. Terminal should drop below 10 V and starter current should fall below 100 A.",
+        },
+      },
     ],
     soloChallenge: {
       prompt: "A car cranks slowly. You suspect either a weak battery or a corroded starter cable. Build a model that shows ~150 A starter current (instead of 250 A). Identify which component you adjusted.",
