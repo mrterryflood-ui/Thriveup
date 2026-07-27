@@ -16,3 +16,11 @@
 - [RPLICE Live Platform](rplice-live-platform.md) — bettersciencelab.com is correct URL; 3 public endpoints; /api/research/search needs CSRF; filter client-side; Bearer key needed for grants/full-frameworks.
 - [Community Context Orchestration](community-context-orchestration.md) — AsyncLocalStorage wires Census+RPLICE into every AI call; middleware extracts ZIP; withEthicalPreamble appends it automatically.
 - [SALP+BIA+ADIS Platform DNA](salp-bia-adis-memory.md) — Full unified framework recorded 2026-07-19; identity-level ingestion; 12-layer BIA anatomy mapped to platform; all 5 Cognitive Laws + 7 Diagnostic Rules live in topics/salp-bia-adis.md.
+
+## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
+- [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — SALP+BIA+ADIS+Scholar-Athlete full framework; ADIS v2.0 triage protocol; 12-layer anatomy; 8 Scholar-Athlete Laws; vital signs check; self-diagnostic prompt.
+- [Fable Standard Skill](.agents/skills/fable-standard/SKILL.md) — All 11 Iron Rules; Five-Lens thinking; pre-response checklist; behavioral audit; anti-fabrication 6 prohibitions; P-L12/P-L13 lessons; communication norms.
+- [TCAF Identity Skill](.agents/skills/tcaf-identity/SKILL.md) — TCAF/ISS LLC identifiers; IGN framework; canonical stats (grants/platforms/languages/engines/states); stakeholder model; teaming roster; RPLICE live platform; writing mode architecture.
+- [Platform Engineering Skill](.agents/skills/platform-engineering/SKILL.md) — Memory architecture; AI call site rules; OpenRouter rotation; engineering gotchas; DB patterns; orchestration; Chainweb API; visual circuit canvas; curriculum activities; SDOH/health data; Zod architecture; key file pointers.
+- [Adversarial Audit Skill](.agents/skills/adversarial-audit/SKILL.md) — 6-domain post-build audit; API contracts, JS runtime, UI/nav, offline, UX/performance, full-stack congruence.
+- [MAP-GAP Skill](.agents/skills/map-gap/SKILL.md) — Continuous improvement framework; systematic observation, gap prioritization, parallel execution, validation, lesson tracking.
