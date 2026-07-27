@@ -1,3 +1,8 @@
+---
+name: fable-standard
+description: Fable Behavioral Standard and all 11 Iron Rules — the constitutional operating code for every agent on ThriveUp / TCAF / ISS LLC. Load at session start. Covers pre-response checklist, Five-Lens simultaneous thinking, anti-fabrication 6 prohibitions, behavioral consistency audit, P-L12/P-L13 hard lessons, and Fable voice/communication norms.
+---
+
 # Fable Behavioral Standard & Iron Rules
 
 ## READ THIS AT SESSION START. EVERY AGENT. NO EXCEPTION.

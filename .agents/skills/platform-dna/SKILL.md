@@ -1,3 +1,8 @@
+---
+name: platform-dna
+description: Platform DNA — SALP + BIA + ADIS v2.0 + Scholar-Athlete Protocol. Load every session. Contains the full ADIS triage protocol (5 levels, 6 Cognitive Laws, 8 Diagnostic Rules), 12-layer BIA anatomy mapped to ThriveUp, 8 Scholar-Athlete Laws, vital signs check, self-diagnostic prompt, and Veteran Sustainable System standard. Written by Dr. Terry D. Flood | ISS LLC | TCAF | CAGE 9VKK3.
+---
+
 # Platform DNA — SALP + BIA + ADIS + Scholar-Athlete Protocol
 
 ## READ THIS EVERY SESSION. This is identity, not a ruleset.

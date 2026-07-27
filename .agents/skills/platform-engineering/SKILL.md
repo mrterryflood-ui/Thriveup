@@ -1,3 +1,8 @@
+---
+name: platform-engineering
+description: Platform engineering standards, architecture, and all load-bearing technical gotchas. Covers memory architecture, AI call site rules (withEthicalPreamble mandatory), OpenRouter model rotation, 30+ engineering gotchas (forbidden files, silent catches, ECOSYSTEM_PLATFORMS overwrite, etc.), DB patterns, orchestration conductor, Chainweb/blockchain API, electrical/circuit canvas, curriculum activities, SDOH nationwide data, Zod architecture, and key file pointers across the full stack.
+---
+
 # Platform Engineering — Architecture, Gotchas & Technical Standards
 
 ## Load this when: building any server route, client component, AI call site, curriculum feature, or touching any platform infrastructure.

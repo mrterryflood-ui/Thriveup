@@ -1,3 +1,8 @@
+---
+name: tcaf-identity
+description: TCAF and ISS LLC identity, IGN framework, canonical public-facing statistics, stakeholder model, writing mode architecture, teaming roster, people/funder gotchas, and RPLICE live platform facts. Load before writing any external-facing material, proposals, platform copy, or AI prompts. Covers Dr. Flood credentials, CAGE 9VKK3, EIN 41-3618003, canonical stats (15 platforms, 107 languages, 4 engines, 50 states), and all naming/framing rules.
+---
+
 # TCAF Identity, IGN Framework & Canonical Platform Facts
 
 ## Load this when: writing any external-facing material, proposals, platform copy, AI prompts, or any surface that represents TCAF to the world.

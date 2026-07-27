@@ -1,3 +1,8 @@
+---
+name: adversarial-audit
+description: Post-build adversarial audit SOP — 6-domain parallel audit covering API contracts, JS runtime/DOM, UI/navigation, offline/storage, UX/performance/collaboration, and full-stack congruence/symmetry. Run after every build session before declaring work complete. Finds bugs that conventional testing misses.
+---
+
 # Adversarial Audit SOP
 
 ## Standard Operating Procedure — Post-Build Debugging
