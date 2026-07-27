@@ -226,16 +226,48 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
       ],
     },
     guidedSteps: [
-      { instruction: "Wire a 12 V battery → ignition coil primary → ground, with no current limiting other than the coil's primary resistance.", hint: "Coil primary defaults to 0.5 Ω.", checkDescription: "car_battery + ignition_coil + ground wired in a complete primary-side loop" },
-      { instruction: "Run the sim. Read the primary current.", hint: "I = V / R = 12.6 / 0.5 ≈ 25 A — that's why the ECU only grounds it for a few milliseconds.", checkDescription: "ignition coil primary current between 22 A and 30 A" },
-      { instruction: "Add a spark plug to the canvas as a label-only component. Note that it does NOT join the circuit.", hint: "Secondary side is concept-only. The lesson player will mark it as inspectable.", checkDescription: "spark_plug placed; solver elements unchanged" },
+      {
+        instruction: "Wire a 12 V battery → ignition coil primary → ground, with no current limiting other than the coil's primary resistance. Give the battery's pos terminal node 1, the coil's primary_pos node 1, primary_neg node 0, and ground_point node 0.",
+        hint: "Coil primary defaults to 0.5 Ω. Matching node numbers = connected terminals.",
+        checkDescription: "car_battery + ignition_coil + ground wired in a complete primary-side loop",
+        sagRubric: {
+          mode: "loop-complete",
+          passMessage: "Loop confirmed — battery, coil primary, and ground are all wired and current is flowing.",
+          failMessage: "Wire the battery pos → coil primary_pos (same node number), coil primary_neg → ground (node 0), and make sure the ground_point is also on node 0.",
+        },
+      },
+      {
+        instruction: "Run the sim. Look at the amber V_term badge on the battery — that's its terminal voltage under the coil load. Also read the 'Coil I_primary' line in the Currents section.",
+        hint: "I = V / (R_internal + R_coil) = 12.6 / (0.02 + 0.5) ≈ 24.2 A. Sag = I × R_int = 24.2 × 0.02 ≈ 0.48 V, so V_term ≈ 12.1 V — not 12.6 V. The V_term badge shows the actual terminal; the sag line under the battery shows how much voltage was dropped inside it.",
+        checkDescription: "ignition coil primary current between 20 A and 30 A; V_term badge on battery reads between 11.0 V and 12.5 V (small sag from coil load, confirming healthy supply)",
+        sagRubric: {
+          mode: "healthy-cranking",
+          passMessage: "Primary current confirmed in the 20–30 A range and terminal voltage above 11.0 V — healthy supply to the coil with minimal sag.",
+          failMessage: "Run the sim with the default 0.5 Ω coil and healthy battery (internalResistance 0.02 Ω). The Coil I_primary readout should show 20–30 A and the V_term badge should read above 11.0 V.",
+        },
+      },
+      {
+        instruction: "Now raise the battery's internalResistance to 0.10 Ω (a weak/aging battery) and re-run. Compare the V_term badge to the previous run.",
+        hint: "Higher internal resistance drops more voltage inside the battery before it reaches the coil. The V_term badge turns amber and the I_primary reading falls — a weak supply reduces coil saturation, which weakens the spark event downstream.",
+        checkDescription: "with internalResistance 0.10 Ω, V_term badge shows noticeably lower terminal voltage and coil primary current drops compared to healthy-battery case",
+        sagRubric: {
+          mode: "weak-battery",
+          passMessage: "Weak-supply confirmed — V_term dropped and coil primary current fell. That's the real-world signature of an aging battery degrading ignition coil saturation.",
+          failMessage: "Set the battery's internalResistance to 0.10 Ω and re-run. The V_term badge should show a lower terminal voltage and I_primary should decrease from the healthy-battery value.",
+        },
+      },
+      {
+        instruction: "Add a spark plug to the canvas as a label-only component. Note that it does NOT join the circuit.",
+        hint: "Secondary side is concept-only. The lesson player will mark it as inspectable.",
+        checkDescription: "spark_plug placed; solver elements unchanged",
+      },
     ],
     soloChallenge: {
-      prompt: "A coil with 1.5 Ω primary resistance is in the parts bin. Replace your 0.5 Ω coil with it and predict the new primary current before you run the sim.",
-      successCriteria: "Learner states 'about 8 A' before running, then confirms within ±15%.",
+      prompt: "A coil with 1.5 Ω primary resistance is in the parts bin. Replace your 0.5 Ω coil with it and predict the new primary current before you run the sim. Then check whether a weak battery (internalResistance 0.10 Ω) makes the drop worse.",
+      successCriteria: "Learner states 'about 8 A' for the 1.5 Ω coil with healthy battery, then runs and confirms within ±15%. With weak battery the V_term badge shows further sag and I_primary falls below 8 A.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
-    sandboxStarter: { initialComponents: [{ kind: "car_battery", props: { voltage: 12.6 } }, { kind: "ignition_coil", props: { primaryResistance: 0.5 } }, { kind: "spark_plug" }, { kind: "ground_point" }], prompt: "Add a fuse rated 20 A in line with the coil. What happens? (Hint: fuses don't actually blow in the sim — but mark it 'blown' and see what the symptom would be.)" },
+    sandboxStarter: { initialComponents: [{ kind: "car_battery", props: { voltage: 12.6, internalResistance: 0.02 } }, { kind: "ignition_coil", props: { primaryResistance: 0.5 } }, { kind: "spark_plug" }, { kind: "ground_point" }], prompt: "Add a fuse rated 20 A in line with the coil (node 1 → node 2, coil on node 2). Mark it blown and note the V_term badge: with no current drawn, terminal voltage returns to open-circuit. Un-blow and watch it dip again." },
     credentialPathway:
       "Primary ignition diagnostics is on ASE A8 Engine Performance. The wiring you just built is what's tested with a primary current waveform on a scope in advanced ACC courses.",
   },
@@ -371,16 +403,43 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
       ],
     },
     guidedSteps: [
-      { instruction: "Build: car battery (12.6 V) → fuse (10 A) → resistor (representing one headlight bulb at 5 Ω) → chassis ground.", hint: "A real headlight pulls about 5 A — pick R = V/I ≈ 2.5 Ω if you want exactly that, or use 5 Ω for a lower-watt sim.", checkDescription: "car_battery + fuse(rated 10A, not blown) + 5 Ω resistor + ground in a complete loop" },
-      { instruction: "Run the sim. Note current.", hint: "I = 12.6 / 5 = 2.52 A. Safely under the 10 A fuse rating.", checkDescription: "load current between 2 A and 3 A" },
-      { instruction: "Add a second headlight in parallel (another 5 Ω resistor on the same bus). Re-run.", hint: "Parallel doubles current. Now you're pulling ~5 A — still under the fuse.", checkDescription: "total current between 4.5 A and 5.5 A" },
+      {
+        instruction: "Build the schematic from the diagram: car battery (pos → node 1) → fuse (10 A, nodes 1→2) → Ignition Coil set to primaryResistance 5 Ω as the headlight stand-in (pos → node 2, neg → node 0) → chassis ground (node 0). The Ignition Coil component is a configurable resistor — set it to 5 Ω to model a real headlight bulb.",
+        hint: "The automotive sim doesn't have a generic 'resistor' on the palette, so we use the Ignition Coil at 5 Ω — physically identical. A real headlight pulls ~2.5 A at 12.6 V across 5 Ω, well inside the 10 A fuse.",
+        checkDescription: "car_battery + fuse(rated 10A, not blown) + ignition_coil(primaryResistance 5 Ω, wired as headlight load) + ground in a complete loop",
+        sagRubric: {
+          mode: "loop-complete",
+          passMessage: "Loop confirmed — battery, fuse, headlight load (coil at 5 Ω), and ground are wired and current is flowing.",
+          failMessage: "Add a car battery (pos → node 1), fuse (nodes 1→2, not blown), an Ignition Coil with primaryResistance 5 Ω (pos → node 2, neg → node 0), and a chassis ground (node 0). Run the sim to confirm current flows.",
+        },
+      },
+      {
+        instruction: "Run the sim. Read two things directly from the canvas: (1) the amber V_term badge on the battery — headlight current is so small that terminal voltage barely sags; (2) the fuse current in the Currents section — confirm it stays under 10 A.",
+        hint: "I = 12.6 / (0.02 + 5) ≈ 2.51 A. Sag = 2.51 × 0.02 ≈ 0.05 V — V_term ≈ 12.55 V. That's the real-world reason headlights don't dim your dash lights — low current, negligible sag.",
+        checkDescription: "headlight load current ~2.5 A (between 2 A and 3 A); V_term badge reads above 12.4 V (minimal sag on a healthy battery)",
+        sagRubric: {
+          mode: "healthy-cranking",
+          passMessage: "Confirmed — headlight draws 2–3 A, V_term badge above 12.4 V. Low-current loads cause negligible sag on a healthy battery — now you know why headlights don't dim dash lights.",
+          failMessage: "Run the sim with the fuse un-blown and the coil at 5 Ω. The Coil I_primary readout should show ~2.5 A and the V_term badge should read above 12.4 V.",
+        },
+      },
+      {
+        instruction: "Add a second headlight: drop another Ignition Coil (primaryResistance 5 Ω) onto the canvas and wire it in parallel with the first (same node numbers, pos → node 2, neg → node 0). Re-run and read the V_term badge again.",
+        hint: "Two 5 Ω coils in parallel = 2.5 Ω total load. I ≈ 12.6 / 2.52 ≈ 5 A — still under the 10 A fuse. Check whether the V_term badge shows any more sag than the single-headlight case.",
+        checkDescription: "total load current between 4.5 A and 5.5 A; V_term badge still above 12.4 V — two headlights don't sag a healthy 12 V bus",
+        sagRubric: {
+          mode: "healthy-cranking",
+          passMessage: "Good — ~5 A total and V_term still above 12.4 V. Two headlights are light enough that a healthy battery shows almost no sag — the V_term badge confirms it.",
+          failMessage: "Add the second Ignition Coil at 5 Ω on nodes 2→0 (parallel with the first) and re-run. Total current should be 4.5–5.5 A and V_term badge should still read above 12.4 V.",
+        },
+      },
     ],
     soloChallenge: {
-      prompt: "Build a headlight circuit that pulls exactly 7 A from a 12.6 V source. What resistance does each of TWO parallel bulbs need?",
-      successCriteria: "Each bulb ~3.6 Ω; total current 7 A ±5%.",
+      prompt: "Build a headlight circuit that draws exactly 7 A from a 12.6 V battery using TWO parallel coil loads. What primaryResistance does each need? Calculate first, then run the sim and read the answer off the V_term badge and Currents section.",
+      successCriteria: "Each coil ~3.6 Ω (total R ≈ 1.8 Ω, I ≈ 7 A); V_term badge reads above 12.4 V confirming a healthy 12 V bus even at 7 A.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
-    sandboxStarter: { initialComponents: [{ kind: "car_battery" }, { kind: "fuse", props: { ratedAmps: 10 } }, { kind: "ground_point" }], prompt: "Add three parallel bulbs and a relay (model the relay as a switchable connection — use the fuse's 'blown' flag to simulate the relay being de-energized). What total current do you draw with all three on?" },
+    sandboxStarter: { initialComponents: [{ kind: "car_battery", props: { voltage: 12.6, internalResistance: 0.02 } }, { kind: "fuse", props: { ratedAmps: 10 } }, { kind: "ignition_coil", props: { primaryResistance: 5 } }, { kind: "ground_point" }], prompt: "Add a second coil (5 Ω) in parallel, then mark the fuse as blown to simulate the relay being de-energized. Watch the V_term badge: with fuse blown and no current drawn, terminal voltage jumps back to open-circuit — no load means no sag." },
     credentialPathway:
       "Wiring-diagram literacy is the difference between a parts-swapper and a tech. NCCER Automotive Level 2 Module 2 and ASE A6 both depend on this.",
   },

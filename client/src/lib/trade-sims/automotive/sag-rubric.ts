@@ -1,24 +1,41 @@
 /**
- * Sag rubric — grades a learner's automotive starting-circuit on the four
- * Day 3 checks:
+ * Sag rubric — grades automotive canvas circuits across four modes.
  *
- *   1. `loop-complete`   — circuit has battery + unblown fuse + starter +
- *                          ground, and the solver confirms the starter draws
- *                          current (i.e. the loop is actually wired up).
+ * Originally written for the Day 3 starting-circuit exclusively.
+ * Expanded to support Day 4 (ignition-coil primary) and Day 9 (wiring
+ * diagram / headlight circuit, where `ignition_coil` at 5 Ω stands in
+ * for a resistive load because the automotive palette has no generic
+ * "resistor" component).
  *
- *   2. `fuse-blown-open` — fuse is blown so terminal voltage stays at
- *                          open-circuit and starter current = 0 A.
+ * Mode overview
+ * ─────────────
+ *   1. loop-complete   — circuit is wired and current flows.
+ *   2. fuse-blown-open — fuse blown, terminal ≈ open-circuit, no load current.
+ *   3. healthy-cranking — load current in-range, terminal voltage above its
+ *                         circuit-type floor (no severe sag).
+ *   4. weak-battery    — internalResistance raised, terminal drops, load
+ *                         current collapses — the failing-battery signature.
  *
- *   3. `healthy-cranking` — fuse un-blown, healthy battery (low Ri), starter
- *                           draws 150-250 A and terminal sags to 8-10 V.
+ * Circuit-type detection
+ * ──────────────────────
+ * The grader inspects which load component is on the canvas and picks
+ * the appropriate thresholds automatically:
  *
- *   4. `weak-battery`    — internalResistance raised to ~0.10 Ω so terminal
- *                          drops below 10 V and starter current collapses
- *                          below 100 A — the diagnostic signature of a
- *                          failing battery.
+ *   • starter_motor present → Day 3 thresholds (150-250 A, terminal 8-10 V)
+ *   • ignition_coil present, no starter → Day 4 / Day 9 thresholds.
+ *     The grader computes the expected current dynamically from the actual
+ *     coil primaryResistance values (parallel combination) and the battery
+ *     open-circuit voltage, then checks the actual source current is within
+ *     ±30% of that expected value. This catches wrong-resistance coils and
+ *     open-circuit faults regardless of whether the lesson uses a 0.5 Ω
+ *     primary (Day 4) or a 5 Ω headlight stand-in (Day 9).
  *
- * Other Day 3 lessons (or future automotive lessons) can opt in by attaching
- * a `sagRubric` to their guided steps or solo challenge.
+ * Fuse enforcement
+ * ────────────────
+ * In `loop-complete`, if any fuse component exists on the canvas the grader
+ * requires it to be unblown. This matches Day 9's circuit requirement
+ * (battery → fuse → load → ground) without breaking Day 4 (no fuse on
+ * canvas by default).
  */
 
 import type { PlacedAutoComponent } from "./component-defs";
@@ -47,113 +64,219 @@ export function gradeSag(
 ): SagGrade {
   const comps = components ?? [];
 
-  // ── 1. loop-complete ──────────────────────────────────────────────────────
-  if (rubric.mode === "loop-complete") {
-    const hasBattery = comps.some((c) => c.kind === "car_battery");
-    const hasFuseUnblown = comps.some((c) => c.kind === "fuse" && !c.props.blown);
-    const hasStarter = comps.some((c) => c.kind === "starter_motor");
-    const hasGround = comps.some((c) => c.kind === "ground_point");
+  // ── Shared helpers ────────────────────────────────────────────────────────
 
-    if (!hasBattery || !hasFuseUnblown || !hasStarter || !hasGround) {
-      return { status: "fail", message: rubric.failMessage };
-    }
-    // Also require a successful solve to confirm the loop is wired, not just
-    // placed. If the starter draws > 0 A, the loop is closed.
-    if (!lastSolve) {
-      return {
-        status: "pending",
-        message: "Run the sim to confirm the loop is wired correctly.",
-      };
-    }
-    const starter = comps.find((c) => c.kind === "starter_motor");
-    const starterCurrent = starter
-      ? Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0)
-      : 0;
-    const pass = starterCurrent > 0.1;
-    return {
-      status: pass ? "pass" : "fail",
-      message: pass ? rubric.passMessage : rubric.failMessage,
-    };
+  /** Voltage at battery+ terminal minus battery− terminal. */
+  function batteryTerminalV(battery: PlacedAutoComponent): number {
+    if (!lastSolve) return 0;
+    const posNode = battery.terminalNodes.pos ?? 0;
+    const negNode = battery.terminalNodes.neg ?? 0;
+    return (lastSolve.nodeVoltages[posNode] ?? 0) - (lastSolve.nodeVoltages[negNode] ?? 0);
   }
 
-  // All remaining modes need a solve result to grade.
+  /**
+   * Total current drawn from the battery (always positive).
+   *
+   * When stamped with internal resistance via AdapterContext, the vsource id
+   * becomes `${battery.id}_src`. When stamped as an ideal vsource (rInt ≤ 0),
+   * the id is `battery.id`. We fall back gracefully.
+   *
+   * MNA convention: vsource current is the current flowing from the external
+   * circuit into the + terminal — negative when sourcing. Math.abs normalises.
+   */
+  function batterySourceCurrent(battery: PlacedAutoComponent): number {
+    if (!lastSolve) return 0;
+    const srcKey  = `${battery.id}_src`;
+    const directKey = battery.id;
+    const raw =
+      lastSolve.vsourceCurrents[srcKey] ??
+      lastSolve.vsourceCurrents[directKey] ??
+      0;
+    return Math.abs(raw);
+  }
+
+  /**
+   * Expected total load current for a coil-based circuit (Day 4 or Day 9).
+   *
+   * Reads the `primaryResistance` from every `ignition_coil` on canvas,
+   * treats them as a parallel combination, adds the battery's internal
+   * resistance, and computes I = V_oc / R_total.
+   *
+   * Returns null when no coils are present or the parallel R is zero.
+   */
+  function expectedCoilCurrent(battery: PlacedAutoComponent): number | null {
+    const coils = comps.filter((c) => c.kind === "ignition_coil");
+    if (coils.length === 0) return null;
+    const parallelConductance = coils.reduce((sum, c) => {
+      const r = Number(c.props.primaryResistance ?? 0.5);
+      return r > 0 ? sum + 1 / r : sum;
+    }, 0);
+    if (parallelConductance <= 0) return null;
+    const parallelR = 1 / parallelConductance;
+    const vOc = Number(battery.props.voltage ?? 12.6);
+    const ri  = Number(battery.props.internalResistance ?? 0.02);
+    return vOc / (ri + parallelR);
+  }
+
+  // ── Circuit-type detection ────────────────────────────────────────────────
+  const hasStarter     = comps.some((c) => c.kind === "starter_motor");
+  const hasCoil        = comps.some((c) => c.kind === "ignition_coil");
+  const hasFuseOnCanvas  = comps.some((c) => c.kind === "fuse");
+  const hasFuseUnblown   = comps.some((c) => c.kind === "fuse" && !c.props.blown);
+  const hasFuseBlown     = comps.some((c) => c.kind === "fuse" &&  c.props.blown);
+
+  // ── 1. loop-complete ──────────────────────────────────────────────────────
+  if (rubric.mode === "loop-complete") {
+    const battery = comps.find((c) => c.kind === "car_battery");
+    const hasGround = comps.some((c) => c.kind === "ground_point");
+
+    if (!battery || !hasGround) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+
+    // If ANY fuse exists on the canvas, it must be unblown to be part of a
+    // functioning loop. This enforces the Day 9 fuse requirement without
+    // breaking Day 4 (where no fuse is placed in the initial circuit).
+    if (hasFuseOnCanvas && !hasFuseUnblown) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+
+    if (hasStarter) {
+      // Day 3: specifically need an unblown fuse + starter motor.
+      if (!hasFuseUnblown) {
+        return { status: "fail", message: rubric.failMessage };
+      }
+      if (!lastSolve) {
+        return { status: "pending", message: "Run the sim to confirm the loop is wired correctly." };
+      }
+      const starter = comps.find((c) => c.kind === "starter_motor")!;
+      const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
+      const pass = starterCurrent > 0.1;
+      return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+    }
+
+    if (hasCoil) {
+      // Day 4 or Day 9 (coil as load).
+      if (!lastSolve) {
+        return { status: "pending", message: "Run the sim to confirm the loop is wired correctly." };
+      }
+      const coil = comps.find((c) => c.kind === "ignition_coil")!;
+      const coilCurrent = Math.abs(lastSolve.resistorCurrents[coil.id] ?? 0);
+      const pass = coilCurrent > 0.1;
+      return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+    }
+
+    // Generic: battery source must be delivering current.
+    if (!lastSolve) {
+      return { status: "pending", message: "Run the sim to confirm the loop is wired correctly." };
+    }
+    const totalCurrent = batterySourceCurrent(battery);
+    const pass = totalCurrent > 0.1;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+  }
+
+  // All remaining modes need a solve result.
   if (!lastSolve) {
     return { status: "pending", message: "Run the sim to grade this step." };
   }
 
-  // Helper: find battery terminal voltage (pos − neg nodes).
-  function batteryTerminalV(battery: PlacedAutoComponent): number {
-    const posNode = battery.terminalNodes.pos ?? 0;
-    const negNode = battery.terminalNodes.neg ?? 0;
-    return (lastSolve!.nodeVoltages[posNode] ?? 0) - (lastSolve!.nodeVoltages[negNode] ?? 0);
+  const battery = comps.find((c) => c.kind === "car_battery");
+  if (!battery) {
+    return { status: "fail", message: rubric.failMessage };
   }
+
+  const terminal      = batteryTerminalV(battery);
+  const sourceCurrent = batterySourceCurrent(battery);
 
   // ── 2. fuse-blown-open ───────────────────────────────────────────────────
   if (rubric.mode === "fuse-blown-open") {
-    const battery = comps.find((c) => c.kind === "car_battery");
-    const fuseBlown = comps.some((c) => c.kind === "fuse" && c.props.blown);
-    const starter = comps.find((c) => c.kind === "starter_motor");
+    const openCircuit = Number(battery.props.voltage ?? 12.6);
 
-    if (!battery || !starter) {
-      return { status: "fail", message: rubric.failMessage };
+    if (hasStarter) {
+      // Day 3: require starter present (the load that should be silent).
+      const starter = comps.find((c) => c.kind === "starter_motor");
+      if (!starter) return { status: "fail", message: rubric.failMessage };
+      const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
+      const pass =
+        hasFuseBlown &&
+        Math.abs(terminal - openCircuit) < 0.15 &&
+        starterCurrent < 1;
+      return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
     }
 
-    const openCircuit = Number(battery.props.voltage ?? 12.6);
-    const terminal = batteryTerminalV(battery);
-    const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
-
-    // Fuse blown → terminal ≈ open-circuit (within 0.15 V) and no starter current.
-    const pass = fuseBlown && Math.abs(terminal - openCircuit) < 0.15 && starterCurrent < 1;
-    return {
-      status: pass ? "pass" : "fail",
-      message: pass ? rubric.passMessage : rubric.failMessage,
-    };
+    // General (Day 4 / Day 9): fuse blown, terminal near open-circuit, no load current.
+    const pass =
+      hasFuseBlown &&
+      Math.abs(terminal - openCircuit) < 0.15 &&
+      sourceCurrent < 0.5;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
   }
 
   // ── 3. healthy-cranking ───────────────────────────────────────────────────
   if (rubric.mode === "healthy-cranking") {
-    const battery = comps.find((c) => c.kind === "car_battery");
-    const starter = comps.find((c) => c.kind === "starter_motor");
-    const fuseUnblown = comps.some((c) => c.kind === "fuse" && !c.props.blown);
-
-    if (!battery || !starter) {
-      return { status: "fail", message: rubric.failMessage };
+    if (hasStarter) {
+      // Day 3: starter draws 150-250 A, terminal sags to 8-10 V.
+      const starter = comps.find((c) => c.kind === "starter_motor");
+      if (!starter) return { status: "fail", message: rubric.failMessage };
+      const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
+      const pass =
+        hasFuseUnblown &&
+        starterCurrent >= 150 &&
+        starterCurrent <= 250 &&
+        terminal >= 8 &&
+        terminal <= 10;
+      return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
     }
 
-    const terminal = batteryTerminalV(battery);
-    const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
+    if (hasCoil) {
+      // Day 4 (0.5 Ω primary, ~24 A) or Day 9 (5 Ω headlight, ~2.5-5 A).
+      //
+      // Validation: compute the expected source current from the actual coil
+      // resistance values (parallel combination) and the battery's rated
+      // open-circuit voltage. Accept actual current within ±30% of expected.
+      // Also require terminal voltage above 11.0 V (no severe sag on a healthy
+      // battery — satisfied for both Day 4 at ~12.1 V and Day 9 at ~12.5 V).
+      const expected = expectedCoilCurrent(battery);
+      if (expected === null) {
+        return { status: "fail", message: rubric.failMessage };
+      }
+      const ratioOk =
+        expected > 0 && Math.abs(sourceCurrent - expected) / expected <= 0.30;
+      const pass = terminal > 11.0 && ratioOk;
+      return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+    }
 
-    // Healthy battery cranking: 150-250 A, terminal 8-10 V.
-    const pass =
-      fuseUnblown &&
-      starterCurrent >= 150 &&
-      starterCurrent <= 250 &&
-      terminal >= 8 &&
-      terminal <= 10;
-    return {
-      status: pass ? "pass" : "fail",
-      message: pass ? rubric.passMessage : rubric.failMessage,
-    };
+    // Generic fallback: terminal above floor, some current flowing.
+    const pass = terminal > 11.0 && sourceCurrent > 0.1;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
   }
 
   // ── 4. weak-battery ───────────────────────────────────────────────────────
   if (rubric.mode === "weak-battery") {
-    const battery = comps.find((c) => c.kind === "car_battery");
-    const starter = comps.find((c) => c.kind === "starter_motor");
-
-    if (!battery || !starter) {
-      return { status: "fail", message: rubric.failMessage };
+    if (hasStarter) {
+      // Day 3: terminal < 10 V AND current collapses < 100 A.
+      const starter = comps.find((c) => c.kind === "starter_motor");
+      if (!starter) return { status: "fail", message: rubric.failMessage };
+      const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
+      const pass = terminal < 10 && starterCurrent < 100;
+      return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
     }
 
-    const terminal = batteryTerminalV(battery);
-    const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
+    if (hasCoil) {
+      // Day 4: Ri raised to ~0.10 Ω, coil 0.5 Ω → I ≈ 21 A, V_term ≈ 10.5 V.
+      // Pass when terminal drops below 11.5 V (below the healthy ~12.1 V floor)
+      // AND coil current falls below 22 A (below the healthy ~24 A value).
+      const coil = comps.find((c) => c.kind === "ignition_coil")!;
+      const coilCurrent = Math.abs(lastSolve.resistorCurrents[coil.id] ?? 0);
+      const pass = terminal < 11.5 && coilCurrent < 22;
+      return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+    }
 
-    // Weak battery: terminal < 10 V AND current collapses < 100 A.
-    const pass = terminal < 10 && starterCurrent < 100;
-    return {
-      status: pass ? "pass" : "fail",
-      message: pass ? rubric.passMessage : rubric.failMessage,
-    };
+    // Generic: sag more than 0.5 V from open-circuit.
+    const openCircuit = Number(battery.props.voltage ?? 12.6);
+    const sag = openCircuit - terminal;
+    const pass = sag > 0.5;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
   }
 
   return { status: "pending", message: "Unknown rubric mode." };
