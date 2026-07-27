@@ -279,5 +279,16 @@ export function gradeSag(
     return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
   }
 
+  // ── 5. slow-cranking ─────────────────────────────────────────────────────
+  if (rubric.mode === "slow-cranking") {
+    // Day 3 solo challenge: learner must reduce starter current to 130-170 A
+    // (simulating a weak battery or corroded cable, vs the healthy 150-250 A).
+    const starter = comps.find((c) => c.kind === "starter_motor");
+    if (!starter) return { status: "fail", message: rubric.failMessage };
+    const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
+    const pass = starterCurrent >= 130 && starterCurrent <= 170;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+  }
+
   return { status: "pending", message: "Unknown rubric mode." };
 }

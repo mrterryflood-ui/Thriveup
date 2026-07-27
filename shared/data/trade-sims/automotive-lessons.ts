@@ -29,7 +29,8 @@ export type SagRubricMode =
   | "loop-complete"
   | "fuse-blown-open"
   | "healthy-cranking"
-  | "weak-battery";
+  | "weak-battery"
+  | "slow-cranking";
 
 export interface SagRubric {
   mode: SagRubricMode;
@@ -205,6 +206,11 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
       prompt: "A car cranks slowly. You suspect either a weak battery or a corroded starter cable. Build a model that shows ~150 A starter current (instead of 250 A). Identify which component you adjusted.",
       successCriteria: "Starter current measures between 130 and 170 A, achieved by either lowering battery voltage to ~10 V or raising the cable resistance via a fuse-rated-down stand-in.",
       scoringRubric: { correctness: 0.6, time: 0.2, componentCount: 0.2 },
+      sagRubric: {
+        mode: "slow-cranking",
+        passMessage: "Slow-crank confirmed — starter draws 130–170 A. That's the 'something is limiting current' diagnostic signature: bad battery, corroded cable, or undersized fuse.",
+        failMessage: "Get the starter current into the 130–170 A range. Try lowering the battery voltage to ~10 V or raising a series resistance (e.g. a lower-rated fuse stand-in) to limit current.",
+      },
     },
     sandboxStarter: { initialComponents: [{ kind: "car_battery", props: { voltage: 12.6 } }, { kind: "fuse", props: { ratedAmps: 200, blown: false } }, { kind: "starter_motor", props: { resistance: 0.05 } }, { kind: "ground_point" }], prompt: "Lower the battery voltage to 10 V — what happens to starter current? At what voltage does the starter draw less than 100 A?" },
     credentialPathway:
