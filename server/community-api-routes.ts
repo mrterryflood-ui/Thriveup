@@ -73,7 +73,7 @@ async function fetchJson(url: string, retries = 2): Promise<any> {
 
 // ── API key auth ──────────────────────────────────────────────────────────────
 function requireApiKey(req: Request, res: Response, next: NextFunction) {
-  const expectedKey = process.env.COMMUNITY_API_KEY;
+  const expectedKey = process.env.COMMUNITY_API_KEY || process.env.THRIVEUP_API_KEY;
   if (!expectedKey) {
     return res.status(503).json({ error: "Community API not configured on this server." });
   }
