@@ -15,8 +15,12 @@
  *                           circuit-type floor (no severe sag).
  *   4. weak-battery       — internalResistance raised, terminal drops, load
  *                           current collapses — the failing-battery signature.
- *   5. battery-only-load  — Day 2 step 3: alternator OFF, bus voltage 12.4–12.7 V.
- *   6. alternator-on-load — Day 2 step 4: alternator ON, bus voltage 13.8–14.4 V.
+ *   5. battery-only-load     — Day 2 step 3: alternator OFF, bus voltage 12.4–12.7 V.
+ *   6. alternator-on-load    — Day 2 step 4: alternator ON, bus voltage 13.8–14.4 V.
+ *   7. slow-cranking         — Day 3 solo challenge: starter current 130–170 A.
+ *   8. weak-battery-charging — Day 2 step 5: tired battery (Ri ≥ 0.08 Ω) + alternator
+ *                              ON; bus sits within 0.2 V of the alternator's regulated
+ *                              output, confirming the alternator carries most of the load.
  *
  * Circuit-type detection
  * ──────────────────────
@@ -313,6 +317,25 @@ export function gradeSag(
     if (!starter) return { status: "fail", message: rubric.failMessage };
     const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
     const pass = starterCurrent >= 130 && starterCurrent <= 170;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+  }
+
+  // ── 8. weak-battery-charging ─────────────────────────────────────────────
+  // Day 2 step 5: tired battery (internalResistance ≥ 0.08 Ω) + alternator ON.
+  // Bus sits within 0.2 V of the alternator's regulated output (default 14.2 V),
+  // confirming the alternator is carrying most of the charging load.
+  if (rubric.mode === "weak-battery-charging") {
+    const alternator = comps.find((c) => c.kind === "alternator");
+    const alternatorOn = alternator?.props.running === true;
+    if (!alternatorOn) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    const ri = Number(battery.props.internalResistance ?? 0.02);
+    if (ri < 0.08) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    const altVoltage = Number(alternator!.props.voltage ?? 14.2);
+    const pass = terminal > 13.9 && Math.abs(terminal - altVoltage) <= 0.2;
     return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
   }
 

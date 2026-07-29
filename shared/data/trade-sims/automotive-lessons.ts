@@ -32,7 +32,8 @@ export type SagRubricMode =
   | "weak-battery"
   | "slow-cranking"
   | "battery-only-load"
-  | "alternator-on-load";
+  | "alternator-on-load"
+  | "weak-battery-charging";
 
 export interface SagRubric {
   mode: SagRubricMode;
@@ -154,7 +155,16 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
           failMessage: "Toggle the alternator's running flag to ON and re-run. Bus voltage should climb to 13.8–14.4 V.",
         },
       },
-      { instruction: "Now edit the battery's internalResistance up to 0.10 Ω (a tired battery) and re-run with the alternator ON.", hint: "Same primitive you used on Day 3: a weak battery drops more voltage across its own internal resistance, so the alternator ends up doing more of the work and the bus sits closer to the alternator's 14.2 V regulated output than it did with the healthy 0.02 Ω battery.", checkDescription: "with internalResistance raised to 0.10 Ω and alternator ON, bus/load voltage sits noticeably higher than the healthy-battery case — closer to 14.2 V (the gap between alt-off and alt-on widens), showing the alternator is carrying more of the charging load" },
+      {
+        instruction: "Now edit the battery's internalResistance up to 0.10 Ω (a tired battery) and re-run with the alternator ON.",
+        hint: "Same primitive you used on Day 3: a weak battery drops more voltage across its own internal resistance, so the alternator ends up doing more of the work and the bus sits closer to the alternator's 14.2 V regulated output than it did with the healthy 0.02 Ω battery.",
+        checkDescription: "with internalResistance raised to 0.10 Ω and alternator ON, bus/load voltage sits noticeably higher than the healthy-battery case — closer to 14.2 V (the gap between alt-off and alt-on widens), showing the alternator is carrying more of the charging load",
+        sagRubric: {
+          mode: "weak-battery-charging",
+          passMessage: "Correct — tired battery (internalResistance ≥ 0.08 Ω) with alternator ON: bus voltage is within 0.2 V of the alternator's 14.2 V regulated output, confirming the alternator is carrying most of the charging load.",
+          failMessage: "Raise the battery's internalResistance to 0.10 Ω, make sure the alternator is ON, and re-run. Bus voltage should sit very close to the alternator's 14.2 V output (within 0.2 V), showing the alternator is doing most of the work.",
+        },
+      },
     ],
     soloChallenge: {
       prompt: "Wire a working 12 V system. With the alternator off the load should see 12.6 V; with it on, between 13.8 and 14.2 V.",
