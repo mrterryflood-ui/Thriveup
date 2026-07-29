@@ -939,6 +939,335 @@ console.log("\n── weak-battery (coil) ────────────�
   );
 }
 
+// ── Day 2 component builder ────────────────────────────────────────────────────
+
+/**
+ * Build a minimal Day 2 canvas: battery (node 1 pos, node 0 neg), ground,
+ * and an optional alternator component.
+ *
+ * batteryTerminalV reads nodeVoltages[pos] − nodeVoltages[neg], so we pass
+ * the desired terminal reading through the solve's nodeVoltages array.
+ */
+function makeDay2Components(opts: {
+  includeAlternator?: boolean;
+  alternatorRunning?: boolean;
+} = {}): PlacedAutoComponent[] {
+  const { includeAlternator = true, alternatorRunning = false } = opts;
+
+  const battery: PlacedAutoComponent = {
+    id: "BAT",
+    kind: "car_battery",
+    terminalNodes: { pos: 1, neg: 0 },
+    props: { voltage: 12.6, internalResistance: 0.02 },
+  };
+  const ground: PlacedAutoComponent = {
+    id: "GND",
+    kind: "ground_point",
+    terminalNodes: { gnd: 0 },
+    props: {},
+  };
+  const alternator: PlacedAutoComponent = {
+    id: "ALT",
+    kind: "alternator",
+    terminalNodes: { pos: 1, neg: 0 },
+    props: { running: alternatorRunning },
+  };
+
+  const comps: PlacedAutoComponent[] = [battery, ground];
+  if (includeAlternator) comps.push(alternator);
+  return comps;
+}
+
+// ── Mode 5: battery-only-load ─────────────────────────────────────────────────
+// Day 2 step 3: alternator OFF (or absent), bus voltage 12.4–12.7 V.
+console.log("\n── battery-only-load ────────────────────────────────────────────");
+
+{
+  // PENDING: no solve yet.
+  const comps = makeDay2Components({ alternatorRunning: false });
+  const result = gradeSag(makeRubric("battery-only-load"), null, comps);
+  check(
+    "battery-only-load / pending: null solve → pending",
+    result.status === "pending",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: no alternator component at all, terminal 12.5 V (in 12.4–12.7).
+  const comps = makeDay2Components({ includeAlternator: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / pass: no alternator, terminal 12.5 V → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: alternator present but running=false, terminal 12.5 V.
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / pass: alternator off, terminal 12.5 V → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: alternator present with running=true — wrong state for this step.
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 14.1, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / fail: alternator running=true → fail regardless of voltage",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: alternator off but terminal voltage too low (< 12.4 V).
+  const comps = makeDay2Components({ alternatorRunning: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.0, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / fail: alternator off, terminal 12.0 V (below 12.4) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: alternator off but terminal voltage too high (> 12.7 V).
+  const comps = makeDay2Components({ alternatorRunning: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 13.0, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / fail: alternator off, terminal 13.0 V (above 12.7) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: boundary — exactly 12.4 V (lower bound, inclusive).
+  const comps = makeDay2Components({ alternatorRunning: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.4, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / pass: alternator off, terminal exactly 12.4 V (lower bound) → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: boundary — exactly 12.7 V (upper bound, inclusive).
+  const comps = makeDay2Components({ alternatorRunning: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.7, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / pass: alternator off, terminal exactly 12.7 V (upper bound) → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: no battery on canvas (outer guard triggers before alternator check).
+  const comps = makeDay2Components({ includeAlternator: false }).filter(
+    (c) => c.kind !== "car_battery",
+  );
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("battery-only-load"), solve, comps);
+  check(
+    "battery-only-load / fail: no battery on canvas → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+// ── Mode 6: alternator-on-load ────────────────────────────────────────────────
+// Day 2 step 4: alternator ON, bus voltage 13.8–14.4 V.
+console.log("\n── alternator-on-load ───────────────────────────────────────────");
+
+{
+  // PENDING: no solve yet.
+  const comps = makeDay2Components({ alternatorRunning: true });
+  const result = gradeSag(makeRubric("alternator-on-load"), null, comps);
+  check(
+    "alternator-on-load / pending: null solve → pending",
+    result.status === "pending",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: alternator running=true, terminal 14.1 V (in 13.8–14.4).
+  const comps = makeDay2Components({ alternatorRunning: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 14.1, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / pass: alternator on, terminal 14.1 V → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: no alternator component on canvas.
+  const comps = makeDay2Components({ includeAlternator: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 14.1, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / fail: no alternator component → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: alternator present but running=false — wrong state for this step.
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / fail: alternator running=false → fail regardless of voltage",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: alternator on but terminal voltage too low (< 13.8 V — battery-only range).
+  const comps = makeDay2Components({ alternatorRunning: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / fail: alternator on but terminal 12.5 V (below 13.8) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: alternator on but terminal voltage too high (> 14.4 V — overcharging).
+  const comps = makeDay2Components({ alternatorRunning: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 15.0, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / fail: alternator on, terminal 15.0 V (above 14.4) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: boundary — exactly 13.8 V (lower bound, inclusive).
+  const comps = makeDay2Components({ alternatorRunning: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 13.8, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / pass: alternator on, terminal exactly 13.8 V (lower bound) → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: boundary — exactly 14.4 V (upper bound, inclusive).
+  const comps = makeDay2Components({ alternatorRunning: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 14.4, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / pass: alternator on, terminal exactly 14.4 V (upper bound) → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: no battery on canvas (outer guard triggers before alternator check).
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: true }).filter(
+    (c) => c.kind !== "car_battery",
+  );
+  const solve = makeSolve({
+    nodeVoltages: [0, 14.1, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("alternator-on-load"), solve, comps);
+  check(
+    "alternator-on-load / fail: no battery on canvas → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
 // ── Summary ────────────────────────────────────────────────────────────────────
 console.log(`\n  ${pass} passed, ${fail} failed`);
 if (fail > 0) {
