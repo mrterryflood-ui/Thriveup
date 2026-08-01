@@ -1,0 +1,50 @@
+The user wants me to:
+
+Understand the "Double Helix AI Verification While Building" rule they're proposing
+Apply it to the three gaps identified (PostgreSQL RLS, Golden eval dataset + LLM-as-judge, PromptBOM)
+Confirm I understand completely before proceeding
+Let me understand the "double helix" concept:
+
+Every build requires a subagent
+They work on tasks together
+They follow Iron Rules
+They verify and ensure each other's work with fidelity
+Alternating: build → fix → verify
+This alternating build/fix/verify ensures no failures
+Architect checks (Iron Rule 19) remain mandatory at the end
+So the pattern is: one agent builds something, the other verifies and identifies gaps, the first agent fixes those gaps, the second agent re-verifies, and this cycle continues until everything passes. The DNA metaphor captures how these two strands—building and verifying—intertwine throughout, complementing each other, with a final architect review to ensure everything meets standards.
+
+For the three gaps I need to address: PostgreSQL Row Level Security for multi-tenant isolation, a curated evaluation dataset with an LLM-as-judge scorer using ADIS dimensions, and a PromptBOM system to track model, prompt, and parameter details for audit purposes. Before I start implementing, I should review the relevant skills—the Iron Rules, iterative build approach, verification protocols, and delegation patterns—then plan each task using the double helix method with architect sign-off.
+
+The double helix rule means I'll run two concurrent strands: a BUILD strand that implements the feature following Iron Rules, and a VERIFY strand handled by a subagent that independently checks for rule compliance, edge cases, data integrity, type safety, and CI gate adherence. After VERIFY identifies gaps, BUILD fixes them and VERIFY re-checks, with this cycle continuing until no gaps remain. Only then does the mandatory architect review run as the final gate, and the full helix trace gets recorded in the session.
+
+For the three tasks ahead, I need to load the relevant skills, read the current codebase state for each one, then implement using the double helix protocol with an architect review at the end. The user wants me to confirm my understanding first, then proceed with building.
+
+The double helix approach means the build and verify strands spiral together — implementation paired with independent verification, fixes for any findings, re-verification to ensure nothing broke, and finally a mandatory architect review before recording the session. I'll start by loading the iron-rules, platform-arch, verification, and build-iterative skills, then read the current database schema, ADIS library, and AI routes to begin implementing PostgreSQL RLS.
+
+For the RLS implementation, I need to examine the current database setup and add row-level security policies to multi-tenant tables like grants, entities, pursuits, and proposals that have owner_id fields. For the golden evaluation dataset, I'm creating tables to store curated conversation samples, LLM-as-judge scores across ADIS dimensions, and batch run metadata, along with the corresponding API routes to support evaluation workflows.
+
+For PromptBOM, I'll need a table to track model calls with their prompts, parameters, and context (user, entity, grant, session), plus middleware to capture this data and a route to retrieve it by call ID.
+
+Before diving in, I should map out the implementation order carefully since RLS can be risky if misconfigured—I need to identify all tables with owner_id and plan the policy structure methodically. the challenge is that connection pooling makes session variables persist across requests, so I'd need to carefully reset the owner_id on each connection release. A cleaner approach might be wrapping queries in transactions with SET LOCAL to scope the variable, or creating a database function that handles the owner context internally. Either way, this adds complexity to the existing query layer. The issue is that every query would need to be wrapped in a transaction to maintain the session variable, which the current codebase doesn't do uniformly. A safer incremental approach would be to create RLS policies in permissive mode and leverage PostgreSQL's superuser bypass—since the service account is likely a superuser, RLS won't actually apply to it. For a proper multi-tenant setup, I'd need to create a separate restricted application role that isn't the table owner, grant it the necessary privileges, and then enable RLS with policies that check the session context.
+
+But this is a significant infrastructure change, and I'm uncertain whether Replit's managed Postgres allows creating separate roles. Let me consider a more pragmatic defense-in-depth approach: either enable RLS with explicit owner_id checks and force row-level security so even the table owner is constrained, requiring every request to set the session variable, or explore other RLS enforcement strategies.
+
+The practical challenge is that the shared connection pool makes transaction-scoped variables tricky to manage. The cleanest path forward would be enabling RLS on the most sensitive tables, using policies that check the session-level owner_id variable, and adding middleware to set this variable when connections are checked out from the pool—but this is a substantial refactor that needs careful scoping.
+
+Let me focus on the highest-impact tables first: entities, grants, pursuits, proposals, document chunks, conversations, and audit logs. I'll enable RLS on these with permissive policies that reference the owner_id setting, enforce row-level security strictly, and wire up the middleware to set the owner context per request.
+
+Actually, I should be more pragmatic given the complexity. I'll start with just the three most sensitive tables—entities, proposals, and ai_conversations—and create policies that allow access when the owner_id matches the current session setting or when the row has no owner. Then I'll add middleware to set that session variable and test everything through the type checker and CI pipeline.
+
+For the LLM-as-judge evaluation feature, I need to build out the database schema, API endpoints, a judge prompt, and potentially a UI page. For PromptBOM, I'll need a table to store the data, capture it in the AI route middleware, and create a retrieval endpoint.
+
+Now I'm going to work through this systematically. Let me confirm my understanding of the double helix protocol first—where I build the feature and a verifier checks for type safety, rule compliance, edge cases, and data integrity before we do an architect review. I'll read through the relevant skills and explore the codebase in parallel to get started on all three tasks.
+Understood completely. Let me articulate the rule before I execute, so you can correct me if I've misread it.
+
+Double Helix AI Verification Protocol:
+
+Every build session runs two interleaved strands: BUILD (main agent) and VERIFY (independent subagent)
+BUILD implements a section → VERIFY reads the result cold, checks every Iron Rule, reports findings explicitly (pass/fail per rule, per file, per edge case) → BUILD fixes every VERIFY finding → VERIFY re-checks → repeat until VERIFY finds zero gaps
+Neither strand can declare done — only a clean VERIFY pass + mandatory Iron Rule 19 Architect review unlocks completion
+The "helix" means the two strands are always working the same axis (same feature) but from opposite perspectives — builder assumes it works, verifier assumes it's broken
+Session verification record is written to .verification/ at the end

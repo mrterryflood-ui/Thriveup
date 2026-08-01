@@ -16,6 +16,7 @@
 - [RPLICE Live Platform](rplice-live-platform.md) — bettersciencelab.com is correct URL; 3 public endpoints; /api/research/search needs CSRF; filter client-side; Bearer key needed for grants/full-frameworks.
 - [Community Context Orchestration](community-context-orchestration.md) — AsyncLocalStorage wires Census+RPLICE into every AI call; middleware extracts ZIP; withEthicalPreamble appends it automatically.
 - [SALP+BIA+ADIS Platform DNA](salp-bia-adis-memory.md) — Full unified framework recorded 2026-07-19; identity-level ingestion; 12-layer BIA anatomy mapped to platform; all 5 Cognitive Laws + 7 Diagnostic Rules live in topics/salp-bia-adis.md.
+- [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — SALP+BIA+ADIS+Scholar-Athlete full framework; ADIS v2.0 triage protocol; 12-layer anatomy; 8 Scholar-Athlete Laws; vital signs check; self-diagnostic prompt.
