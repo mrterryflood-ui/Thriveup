@@ -6,12 +6,38 @@
  */
 import type { Express } from "express";
 import { db } from "./storage";
-import { benefitsPartners, communityPrograms } from "@shared/schema";
-import { eq, or, isNotNull } from "drizzle-orm";
+import { benefitsPartners, gisResourceOverlays } from "@shared/schema";
+import { eq } from "drizzle-orm";
 import { fetchZctaData, zipToGeography } from "./neighborhood-routes";
 import { generateAIJSON } from "./ai-provider";
-import { CHAINWEB_COEFFICIENTS, CHAINWEB_DOMAINS, EVIDENCE_PROGRAMS } from "./chainweb-coefficients";
+import { CHAINWEB_COEFFICIENTS, EVIDENCE_PROGRAMS } from "./chainweb-coefficients";
 import { withEthicalPreamble } from "./ai-provider";
+
+/** Normalize the fetchZctaData result into a flat shape the rest of this
+ *  module can read without nesting. fetchZctaData buries rates inside
+ *  .indicators and themes inside .themes — this unwraps them. */
+function flattenSvi(raw: any): Record<string, any> {
+  if (!raw) return {};
+  return {
+    population:              raw.population,
+    medianHouseholdIncome:   raw.medianIncome,
+    sviScore:                raw.sviScore,
+    sviTheme1:               raw.themes?.socioeconomic,
+    sviTheme2:               raw.themes?.household,
+    sviTheme3:               raw.themes?.minority,
+    sviTheme4:               raw.themes?.housingTransport,
+    povertyRate:             raw.indicators?.povertyRate,
+    unemploymentRate:        raw.indicators?.unemploymentRate,
+    noHighSchoolDiplomaRate: raw.indicators?.noHighSchoolDiploma,
+    noHealthInsuranceRate:   raw.indicators?.uninsuredRate,
+    housingCostBurdenRate:   raw.indicators?.overcrowding,   // closest proxy
+    percentMinority:         raw.indicators?.minorityPct,
+    limitedEnglishProficiency: raw.indicators?.limitedEnglish,
+    disabilityRate:          raw.indicators?.disabilityRate,
+    snapRate:                raw.indicators?.snapRecipients,
+    countyName:              raw.countyName,
+  };
+}
 
 // ── Geocode a ZIP via Nominatim (OpenStreetMap, no key needed) ───────────────
 async function geocodeZip(zip: string): Promise<{ lat: number; lng: number } | null> {
@@ -29,31 +55,40 @@ async function geocodeZip(zip: string): Promise<{ lat: number; lng: number } | n
 }
 
 // ── Pull community org markers from DB ───────────────────────────────────────
-async function getOrgMarkers(county: string) {
+async function getOrgMarkers(_county: string) {
   try {
-    const partners = await db
-      .select({
+    // Primary: benefits_partners with coordinates
+    const [partners, overlays] = await Promise.all([
+      db.select({
         id: benefitsPartners.id,
         name: benefitsPartners.name,
         type: benefitsPartners.organizationType,
         services: benefitsPartners.servicesOffered,
-        benefits: benefitsPartners.benefitTypes,
         address: benefitsPartners.address,
         lat: benefitsPartners.latitude,
         lng: benefitsPartners.longitude,
         phone: benefitsPartners.contactPhone,
         languages: benefitsPartners.languages,
         capacity: benefitsPartners.capacity,
-      })
-      .from(benefitsPartners)
-      .where(eq(benefitsPartners.isActive, true));
+      }).from(benefitsPartners).where(eq(benefitsPartners.isActive, true)),
 
-    return partners.filter(p => p.lat && p.lng).map(p => ({
+      // Fallback: GIS resource overlays (always have coordinates)
+      db.select({
+        id: gisResourceOverlays.id,
+        name: gisResourceOverlays.name,
+        category: gisResourceOverlays.category,
+        address: gisResourceOverlays.address,
+        lat: gisResourceOverlays.latitude,
+        lng: gisResourceOverlays.longitude,
+        contact: gisResourceOverlays.contactInfo,
+      }).from(gisResourceOverlays).where(eq(gisResourceOverlays.isActive, true)),
+    ]);
+
+    const fromPartners = partners.filter(p => p.lat && p.lng).map(p => ({
       id: p.id,
       name: p.name,
       type: p.type || "service",
       services: p.services || [],
-      benefits: p.benefits || [],
       address: p.address || "",
       lat: p.lat!,
       lng: p.lng!,
@@ -61,35 +96,64 @@ async function getOrgMarkers(county: string) {
       languages: p.languages || [],
       capacity: p.capacity || null,
     }));
+
+    const fromOverlays = overlays.filter(o => o.lat && o.lng).map(o => ({
+      id: o.id,
+      name: o.name,
+      type: o.category || "resource",
+      services: [o.category || "Community Resource"],
+      address: o.address || "",
+      lat: o.lat!,
+      lng: o.lng!,
+      phone: o.contact || "",
+      languages: [],
+      capacity: null,
+    }));
+
+    // Deduplicate by id, partners take priority
+    const seen = new Set(fromPartners.map(p => p.id));
+    const merged = [...fromPartners, ...fromOverlays.filter(o => !seen.has(o.id))];
+    return merged;
   } catch {
     return [];
   }
 }
 
 // ── Extract relevant Chainweb coefficients for high-vulnerability domains ───
+// CHAINWEB_COEFFICIENTS uses fromDomain/toDomain/fromMetric/toMetric/evidenceCitation
 function getChainwebLinks(sviData: any) {
   const priority: string[] = [];
-  if (sviData.povertyRate > 15) priority.push("poverty", "income", "employment");
-  if (sviData.unemploymentRate > 8) priority.push("workforce", "employment");
-  if (sviData.noHealthInsuranceRate > 15) priority.push("health", "healthcare");
-  if (sviData.noHighSchoolDiplomaRate > 15) priority.push("education");
-  if (sviData.housingCostBurdenRate > 30) priority.push("housing");
+  if ((sviData.povertyRate ?? 0) > 10) priority.push("economic", "workforce", "early_childhood");
+  if ((sviData.unemploymentRate ?? 0) > 5) priority.push("workforce", "economic");
+  if ((sviData.noHealthInsuranceRate ?? 0) > 10) priority.push("health");
+  if ((sviData.noHighSchoolDiplomaRate ?? 0) > 10) priority.push("education");
+  if ((sviData.housingCostBurdenRate ?? 0) > 20) priority.push("housing");
+  // SVI score fallback — always show something
+  if (priority.length === 0) {
+    priority.push("early_childhood", "economic", "workforce", "health", "education", "housing");
+  }
 
-  return CHAINWEB_COEFFICIENTS
-    .filter(c =>
-      priority.some(k =>
-        c.cause.toLowerCase().includes(k) ||
-        c.effect.toLowerCase().includes(k)
-      )
-    )
+  // Guard: skip entries missing required fields
+  const valid = CHAINWEB_COEFFICIENTS.filter(
+    c => c.fromDomain && c.toDomain && c.fromMetric && c.toMetric
+  );
+
+  const matched = valid.filter(c =>
+    priority.some(k => c.fromDomain === k || c.toDomain === k)
+  );
+
+  // Always return at least 6 — fall back to all valid if too few matched
+  const source = matched.length >= 4 ? matched : valid;
+
+  return source
     .slice(0, 8)
     .map(c => ({
-      cause: c.cause,
-      effect: c.effect,
+      cause: c.fromMetric,
+      effect: c.toMetric,
       coefficient: c.coefficient,
       direction: c.coefficient > 0 ? "positive" : "negative",
       magnitude: Math.abs(c.coefficient) > 1 ? "high" : Math.abs(c.coefficient) > 0.3 ? "medium" : "low",
-      citation: c.citation,
+      citation: c.evidenceCitation || "",
     }));
 }
 
@@ -227,10 +291,14 @@ async function handleInterventions(req: any, res: any) {
     const zipStr = String(zip);
     const targetZipStr = targetZip && /^\d{5}$/.test(String(targetZip)) ? String(targetZip) : null;
 
-    const [sourceSVI, targetSVI] = await Promise.all([
+    const [sourceSVIRaw, targetSVIRaw] = await Promise.all([
       fetchZctaData(zipStr).catch(() => null),
       targetZipStr ? fetchZctaData(targetZipStr).catch(() => null) : Promise.resolve(null),
     ]);
+
+    // Flatten nested fetchZctaData shapes
+    const sourceSVI = flattenSvi(sourceSVIRaw);
+    const targetSVI = targetSVIRaw ? flattenSvi(targetSVIRaw) : null;
 
     const [sourceCenter, targetCenter] = await Promise.all([
       geocodeZip(zipStr),
@@ -259,7 +327,7 @@ async function handleInterventions(req: any, res: any) {
         size: e.size,
         unit: e.unit,
         localScale: sourceSVI?.population
-          ? `~${Math.round((sourceSVI.population * (sourceSVI.povertyRate / 100)) * 0.1)} eligible residents in ZIP ${zipStr}`
+          ? `~${Math.round((sourceSVI.population * ((sourceSVI.povertyRate ?? 0) / 100)) * 0.1)} eligible residents in ZIP ${zipStr}`
           : "Scale to local eligible population",
       })),
       cfirAdaptation: buildCFIRAdaptation(program, sourceSVI, targetSVI),
@@ -341,15 +409,18 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
         return res.status(404).json({ error: `Could not geocode ZIP ${zipStr}. Verify it is a valid U.S. ZIP code.` });
       }
 
-      const county = geo?.countyName || "Unknown County";
+      const county = geo?.countyName || sviRaw?.countyName || "Unknown County";
+
+      // Flatten the nested fetchZctaData shape into the flat shape this module expects
+      const svi = flattenSvi(sviRaw);
 
       // Orgs + Chainweb + AI in parallel once we have SVI
       const [orgs, aiAnalysis] = await Promise.all([
         getOrgMarkers(county),
-        synthesizeAnalysis(prompt, sviRaw, zipStr, 0),
+        synthesizeAnalysis(prompt, svi, zipStr, 0),
       ]);
 
-      const chainwebLinks = getChainwebLinks(sviRaw || {});
+      const chainwebLinks = getChainwebLinks(svi);
 
       // Compute quadrant bounds (±0.12 degree box around center)
       const delta = 0.12;
@@ -364,25 +435,24 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
         zip: zipStr,
         center,
         county,
-        stateName: geo ? undefined : undefined,
         census: {
-          population: sviRaw?.population,
-          medianHouseholdIncome: sviRaw?.medianHouseholdIncome,
-          povertyRate: sviRaw?.povertyRate,
-          unemploymentRate: sviRaw?.unemploymentRate,
-          noHealthInsuranceRate: sviRaw?.noHealthInsuranceRate,
-          noHighSchoolDiplomaRate: sviRaw?.noHighSchoolDiplomaRate,
-          housingCostBurdenRate: sviRaw?.housingCostBurdenRate,
-          percentMinority: sviRaw?.percentMinority,
-          limitedEnglishProficiency: sviRaw?.limitedEnglishProficiency,
+          population:              svi.population,
+          medianHouseholdIncome:   svi.medianHouseholdIncome,
+          povertyRate:             svi.povertyRate,
+          unemploymentRate:        svi.unemploymentRate,
+          noHealthInsuranceRate:   svi.noHealthInsuranceRate,
+          noHighSchoolDiplomaRate: svi.noHighSchoolDiplomaRate,
+          housingCostBurdenRate:   svi.housingCostBurdenRate,
+          percentMinority:         svi.percentMinority,
+          limitedEnglishProficiency: svi.limitedEnglishProficiency,
         },
         svi: {
-          score: sviRaw?.sviScore,
-          theme1Socioeconomic: sviRaw?.sviTheme1,
-          theme2Household: sviRaw?.sviTheme2,
-          theme3Minority: sviRaw?.sviTheme3,
-          theme4Housing: sviRaw?.sviTheme4,
-          urgency: sviRaw?.sviScore > 0.75 ? "crisis" : sviRaw?.sviScore > 0.5 ? "concern" : sviRaw?.sviScore > 0.25 ? "watch" : "stable",
+          score:               svi.sviScore,
+          theme1Socioeconomic: svi.sviTheme1,
+          theme2Household:     svi.sviTheme2,
+          theme3Minority:      svi.sviTheme3,
+          theme4Housing:       svi.sviTheme4,
+          urgency: svi.sviScore > 0.75 ? "crisis" : svi.sviScore > 0.5 ? "concern" : svi.sviScore > 0.25 ? "watch" : "stable",
         },
         orgs,
         chainwebLinks,
