@@ -73,6 +73,16 @@ function requireGppInboundKey(req: Request, res: Response, next: NextFunction) {
 export function registerGrantPathProRoutes(app: Express) {
 
   /**
+   * GET /api/consortium/gpp-status
+   * Returns whether GPP_API_URL is configured — used by the UI to show sync status.
+   * No auth required (config presence is not sensitive).
+   */
+  app.get("/api/consortium/gpp-status", (_req: Request, res: Response) => {
+    const configured = !!(process.env.GPP_API_URL && process.env.GPP_API_URL.trim());
+    return res.json({ configured, url: configured ? process.env.GPP_API_URL!.replace(/\/.*/, "") : null });
+  });
+
+  /**
    * INBOUND — Grant Path Pro → ThriveUp
    * GPP POSTs grant execution events here.
    * Auth: x-api-key: THRIVEUP_INBOUND_KEY

@@ -9,7 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Plus, Users, FileText, Send, Download, Loader2, ChevronRight, Building2, Zap } from "lucide-react";
+import { Plus, Users, FileText, Send, Download, Loader2, ChevronRight, Building2, Zap, CheckCircle, AlertTriangle, Clock } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const ROLES = [
   { value: "prime", label: "Prime Applicant / Fiscal Agent" },
@@ -435,6 +436,41 @@ function ProposalWorkspace({ proposalId, onBack }: { proposalId: string; onBack:
   );
 }
 
+function GppStatusBanner() {
+  const { data, isLoading } = useQuery<{ configured: boolean; url: string | null }>({
+    queryKey: ["/api/consortium/gpp-status"],
+    queryFn: () => apiRequest("GET", "/api/consortium/gpp-status").then(r => r.json()),
+    staleTime: 60_000,
+  });
+
+  if (isLoading || data?.configured) return null;
+
+  return (
+    <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+      <AlertTriangle className="h-4 w-4 text-amber-600" />
+      <AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
+        <strong>GrantPathPro auto-push is not yet connected.</strong> Every write you make (create proposal, add partner, generate section, merge) is queued and will push automatically once <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded text-xs font-mono">GPP_API_URL</code> is set in environment secrets. Your data is safe — no work is lost.
+      </AlertDescription>
+    </Alert>
+  );
+}
+
+function GppSyncBadge({ pushedAt }: { pushedAt?: string }) {
+  if (!pushedAt) return (
+    <Badge variant="outline" className="text-xs text-muted-foreground gap-1">
+      <Clock className="h-3 w-3" />GPP pending
+    </Badge>
+  );
+  const when = new Date(pushedAt);
+  const minutesAgo = Math.round((Date.now() - when.getTime()) / 60000);
+  const label = minutesAgo < 2 ? "just now" : minutesAgo < 60 ? `${minutesAgo}m ago` : when.toLocaleDateString();
+  return (
+    <Badge variant="outline" className="text-xs text-green-700 border-green-300 gap-1">
+      <CheckCircle className="h-3 w-3" />GPP synced {label}
+    </Badge>
+  );
+}
+
 export default function ConsortiumProposalPage() {
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
@@ -462,6 +498,8 @@ export default function ConsortiumProposalPage() {
         <NewProposalDialog onCreated={() => qc.invalidateQueries({ queryKey: ["/api/consortium/proposals"] })} />
       </div>
 
+      <GppStatusBanner />
+
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
       ) : proposals.length === 0 ? (
@@ -486,6 +524,7 @@ export default function ConsortiumProposalPage() {
                       <Badge variant="outline" className="text-xs"><Building2 className="h-3 w-3 mr-1" />{p.primeOrgName}</Badge>
                       {p.geography && <Badge variant="outline" className="text-xs">{p.geography}</Badge>}
                       {p.awardAmount && <Badge variant="secondary" className="text-xs">{p.awardAmount}</Badge>}
+                      <GppSyncBadge pushedAt={p.gppPushedAt} />
                     </div>
                   </div>
                   <div className="flex items-center gap-2">

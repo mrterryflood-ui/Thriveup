@@ -37,6 +37,7 @@ import {
   sessionPlans,
   curriculumDeliveryLogs,
   outcomeTracking,
+  gisResourceOverlays,
 } from "@shared/schema";
 
 // ---------------------------------------------------------------------------
@@ -121,6 +122,7 @@ export async function seedComprehensive(): Promise<void> {
     await seedNsfTechAccessOpportunity();
     await seedTexasHubMous();
     await seedTradeSimsAll();
+    await seedGisResourceOverlays();
     console.log("[Seed] Comprehensive seed completed");
   } catch (err) {
     console.error("[Seed] Comprehensive seed error:", err);
@@ -469,4 +471,37 @@ async function seedFacilitatorData() {
   ]);
 
   console.log("[Seed] Facilitator and outcome tracking data seeded");
+}
+
+async function seedGisResourceOverlays() {
+  const existing = await db.select().from(gisResourceOverlays).limit(1);
+  if (existing.length > 0) return;
+
+  await db.insert(gisResourceOverlays).values([
+    // === Austin / Pflugerville TX (78660, 78701, 78702) ===
+    { id: "gro-001", name: "Foundation Communities", category: "benefits-enrollment", geographyKey: "78704", latitude: 30.2390, longitude: -97.7590, address: "3036 S First St, Austin, TX 78704", contactInfo: "512-610-4100 | foundcom.org", description: "Free tax prep, benefits enrollment, housing counseling. Serves 30,000+ families annually.", isActive: true },
+    { id: "gro-002", name: "Catholic Charities of Central TX", category: "social-services", geographyKey: "78754", latitude: 30.3648, longitude: -97.6892, address: "1625 Rutherford Ln, Austin, TX 78754", contactInfo: "512-651-6100 | ccctx.org", description: "Immigration services, food pantry, refugee resettlement, benefits navigation in 9 languages.", isActive: true },
+    { id: "gro-003", name: "Lone Star Legal Aid", category: "legal-aid", geographyKey: "78701", latitude: 30.2695, longitude: -97.7408, address: "816 Congress Ave #1600, Austin, TX 78701", contactInfo: "512-477-6000 | lonestarlegal.org", description: "Free civil legal services including Medicaid appeals, SSI/SSDI claims, housing disputes.", isActive: true },
+    { id: "gro-004", name: "CommUnityCare Health Centers – Rundberg", category: "health-clinic", geographyKey: "78753", latitude: 30.3614, longitude: -97.6968, address: "630 W Rundberg Ln, Austin, TX 78753", contactInfo: "512-978-9900 | communitycaretx.org", description: "FQHC serving uninsured and underinsured. Sliding scale. Medical, dental, behavioral health.", isActive: true },
+    { id: "gro-005", name: "LifeWorks – Pflugerville Youth Drop-In", category: "youth-services", geographyKey: "78660", latitude: 30.4340, longitude: -97.6195, address: "1405 Wells Branch Pkwy, Pflugerville, TX 78660", contactInfo: "512-735-2400 | lifeworksaustin.org", description: "Youth homelessness prevention, mental health, workforce readiness for ages 16–24.", isActive: true },
+    { id: "gro-006", name: "Capital Area Food Bank – Pflugerville Site", category: "food-access", geographyKey: "78660", latitude: 30.4511, longitude: -97.6321, address: "15641 Wells Port Dr, Austin, TX 78728", contactInfo: "512-282-2111 | austinfoodbank.org", description: "Monthly mobile pantry serving Pflugerville and Round Rock corridors. No ID required.", isActive: true },
+    { id: "gro-007", name: "Travis County Health & Human Services", category: "county-services", geographyKey: "78741", latitude: 30.2218, longitude: -97.7204, address: "2600 W 7th St, Austin, TX 78701", contactInfo: "512-854-4100 | traviscountytx.gov", description: "TANF, emergency rental assistance, crisis services, child protective connections.", isActive: true },
+    { id: "gro-008", name: "Austin Public Health – Neighborhood Centers", category: "public-health", geographyKey: "78702", latitude: 30.2622, longitude: -97.7155, address: "1183 Chestnut Ave, Austin, TX 78702", contactInfo: "512-978-0300 | austintexas.gov/health", description: "WIC, immunizations, health education, SNAP enrollment assistance. East Austin hub.", isActive: true },
+
+    // === Wichita / Sedgwick County KS (67202, 67218) ===
+    { id: "gro-009", name: "Kansas Legal Services – Wichita", category: "legal-aid", geographyKey: "67202", latitude: 37.6879, longitude: -97.3361, address: "712 S Kansas Ave #200, Wichita, KS 67202", contactInfo: "316-265-9681 | kansaslegalservices.org", description: "Free civil legal help for low-income Kansans — housing, benefits, family law.", isActive: true },
+    { id: "gro-010", name: "United Methodist Open Door – Wichita", category: "social-services", geographyKey: "67202", latitude: 37.6927, longitude: -97.3352, address: "520 N Emporia Ave, Wichita, KS 67202", contactInfo: "316-942-4600 | umod.org", description: "Homeless services, day shelter, benefits navigation, employment support.", isActive: true },
+    { id: "gro-011", name: "Wichita Children's Home", category: "youth-services", geographyKey: "67218", latitude: 37.6693, longitude: -97.2996, address: "810 N Holyoke Ave, Wichita, KS 67218", contactInfo: "316-858-2600 | wch.org", description: "Trauma-informed residential and community services for at-risk youth and families.", isActive: true },
+    { id: "gro-012", name: "Sedgwick County – COMCARE Mental Health", category: "behavioral-health", geographyKey: "67202", latitude: 37.6898, longitude: -97.3332, address: "635 N Main St, Wichita, KS 67203", contactInfo: "316-660-7500 | sedgwickcounty.org/comcare", description: "Crisis stabilization, outpatient mental health, substance use treatment. Sliding scale.", isActive: true },
+
+    // === Houston TX (77002, 77021) ===
+    { id: "gro-013", name: "Houston Food Bank – Eastex Distribution", category: "food-access", geographyKey: "77028", latitude: 29.7893, longitude: -95.3143, address: "535 Portwall St, Houston, TX 77029", contactInfo: "832-369-9390 | houstonfoodbank.org", description: "Largest food bank in the US by volume. Drive-through and partner agency distributions.", isActive: true },
+    { id: "gro-014", name: "Harris County Public Health SDOH Hub", category: "public-health", geographyKey: "77002", latitude: 29.7580, longitude: -95.3677, address: "2450 Holcombe Blvd, Houston, TX 77021", contactInfo: "713-439-6000 | hcphtx.org", description: "WIC, disease prevention, SNAP outreach, COVID-19 support, community health workers.", isActive: true },
+
+    // === Dallas TX (75201, 75215) ===
+    { id: "gro-015", name: "Parkland Community Health – South Dallas", category: "health-clinic", geographyKey: "75215", latitude: 32.7610, longitude: -96.7908, address: "2600 Martin Luther King Jr Blvd, Dallas, TX 75215", contactInfo: "214-590-8000 | parklandhospital.com", description: "FQHC-level access via county hospital. Medicaid enrollment, WIC, behavioral health.", isActive: true },
+    { id: "gro-016", name: "CitySquare – East Dallas Services", category: "social-services", geographyKey: "75201", latitude: 32.7835, longitude: -96.7826, address: "1610 S Malcolm X Blvd, Dallas, TX 75226", contactInfo: "214-823-8710 | citysquare.org", description: "Integrated poverty-fighting: housing, workforce, health, food, legal services.", isActive: true },
+  ]);
+
+  console.log("[Seed] GIS resource overlays seeded (16 community orgs with coordinates)");
 }
