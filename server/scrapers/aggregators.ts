@@ -68,26 +68,87 @@ export async function fetchRfpMartFeed(): Promise<AggregatorOpportunity[]> {
   const p = process.env.RFPMART_PASSWORD;
   if (!u || !p) throw new Error("RFPMART_USERNAME / RFPMART_PASSWORD not set");
 
-  // RFP Mart exposes a member-only listing page. We use Basic Auth on the printable
-  // listing endpoint which preserves a stable, parseable HTML format. If that endpoint
-  // moves, this fetch will return non-200 and we'll surface the error.
-  const url = "https://www.rfpmart.com/sf-2-states-Texas.html";
-  const auth = "Basic " + Buffer.from(`${u}:${p}`).toString("base64");
-  const resp = await fetch(url, { headers: { Authorization: auth, "User-Agent": "TCAF-Grant-Discovery/1.0" } });
-  if (!resp.ok) throw new Error(`RFP Mart fetch returned ${resp.status}`);
+  const BASE = "https://www.rfpmart.com";
+  const TX_URL = `${BASE}/usa-texas-rfp-bids-tender.html`;
+
+  const browserHeaders: Record<string, string> = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "en-US,en;q=0.9",
+    Referer: `${BASE}/`,
+  };
+
+  // Step 1: Attempt session login to unlock member-only detail pages (non-fatal if it fails)
+  let cookieHeader = "";
+  try {
+    const loginResp = await fetch(`${BASE}/userlogin.html`, {
+      method: "POST",
+      headers: {
+        ...browserHeaders,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({ txtemail: u, txtpass: p, submitlogin: "Submit" }).toString(),
+      redirect: "manual",
+      signal: AbortSignal.timeout(15_000),
+    });
+    const setCookie = loginResp.headers.get("set-cookie");
+    if (setCookie) {
+      // Keep only the first name=value pair from the Set-Cookie header
+      cookieHeader = setCookie.split(";")[0];
+      console.log("[GrantDiscovery] RFPMart session established");
+    }
+  } catch {
+    console.warn("[GrantDiscovery] RFPMart login attempt failed — continuing with public listing page");
+  }
+
+  // Step 2: Fetch the Texas RFP listing page
+  const fetchHeaders: Record<string, string> = { ...browserHeaders };
+  if (cookieHeader) fetchHeaders["Cookie"] = cookieHeader;
+
+  const resp = await fetch(TX_URL, {
+    headers: fetchHeaders,
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!resp.ok) throw new Error(`RFP Mart Texas page returned ${resp.status}`);
   const html = await resp.text();
 
+  // Step 3: Parse RFP anchor links.
+  // Link format: href="NNNNNNN-usa-[city]-[state]-[slug].html" (relative, no leading slash)
+  // Anchor text: "REF-USA (City, TX) - Title of Solicitation - Deadline Month DD,YYYY"
   const opps: AggregatorOpportunity[] = [];
-  const rowPattern = /<a[^>]+href="(\/[^"]*?(?:rfp|bid|tender)[^"]*?\.html)"[^>]*>([^<]+)<\/a>[\s\S]{0,300}?(\d{1,2}[\/-][A-Za-z0-9]{2,}[\/-]\d{2,4})?/gi;
+  const rfpPattern = /<a[^>]+href="(\d[^"]{5,150}\.html)"[^>]*>\s*([^<]{10,500}?)\s*<\/a>/gi;
   let m: RegExpExecArray | null;
-  while ((m = rowPattern.exec(html)) !== null) {
+  const seen = new Set<string>();
+
+  while ((m = rfpPattern.exec(html)) !== null) {
     const path = m[1];
-    const title = cleanText(m[2]);
-    const deadlineText = m[3] || undefined;
-    if (!title || title.length < 5) continue;
-    const fullUrl = path.startsWith("http") ? path : `https://www.rfpmart.com${path}`;
-    const externalId = path.split("/").pop()?.replace(".html", "") || fullUrl;
-    opps.push({ source: "aggregator-rfpmart", externalId, title, url: fullUrl, deadlineText });
+    const rawTitle = cleanText(m[2]);
+    if (!rawTitle || rawTitle.length < 8) continue;
+
+    const externalId = path.split("/").pop()?.replace(".html", "") || path;
+    if (seen.has(externalId)) continue;
+    seen.add(externalId);
+
+    // Extract optional deadline from "… Deadline Month DD,YYYY" or "… Deadline: …" suffix
+    const deadlineM = rawTitle.match(/[Dd]eadline[:\s]+([A-Za-z]+ \d{1,2}[,\s]+\d{4})/);
+    const deadlineText = deadlineM?.[1]?.trim();
+    // Strip the deadline suffix from the display title
+    const title = rawTitle.replace(/\s*[-–]\s*[Dd]eadline.*$/, "").trim();
+
+    opps.push({
+      source: "aggregator-rfpmart",
+      externalId,
+      title: title || rawTitle,
+      url: `${BASE}/${path}`,
+      agency: "Texas Government (RFPMart)",
+      deadlineText,
+    });
+  }
+
+  if (opps.length === 0) {
+    console.warn("[GrantDiscovery] RFPMart returned 0 parsed results — HTML structure may have changed. URL:", TX_URL);
+  } else {
+    console.log(`[GrantDiscovery] RFPMart parsed ${opps.length} Texas solicitations`);
   }
   return opps;
 }
