@@ -1793,6 +1793,31 @@ Write the LOI in 500-750 words. Professional but passionate. This should sound l
         ST_DAVIDS_FULL: `Generate a full grant narrative for St. David's Foundation "We All Benefit 2.0" application. Use the same voice, values, and ecosystem alignment as the LOI but expanded to 2,000-2,500 words with detailed sections: (1) Organizational Background, (2) Community Need with Census tract-level data, (3) Program Design showing how 24 platforms create comprehensive economic stability pathways, (4) Community Voice through Three Realities methodology, (5) Populations Served including homeless, immigrants, veterans, justice-involved, foster youth — no one left behind, (6) Data & Measurement Infrastructure showing 8 federal sources and locked baselines, (7) Collaborative Approach showing ecosystem coordination and partner integration, (8) Sustainability beyond the grant period. Emphasize equity, access, collaborative accountability, transparency, data-led decision making, and holistic comprehensive service delivery.`,
         COLLABORATION: `Generate a collaboration proposal narrative for ThriveUp Academy ACOS (Autonomous Collaborative Operating System), a 24-platform AI-powered ecosystem under The Collaborative Advocate Foundation (501(c)(3), EIN 41-3618003). This is NOT a grant request — it is a partnership proposal showing mutual value. ThriveUp offers collaborators: tract-level community data (not county averages), 8 integrated federal data sources (CDC PLACES, SVI, FBI Crime, Census ACS, USDA Food Atlas, HUD, SAMHSA, BLS), GIS mapping infrastructure, autonomous agent coordination across 24 platforms, and implementation science validation (CFIR, RE-AIM). In return, collaborators bring credibility, network access, co-validation, and shared impact measurement. Frame this as infrastructure the collaborator doesn't have to build themselves — they plug into what already exists. Emphasize mutual accountability, shared data, and joint community impact.`,
         DATA_PARTNERSHIP: `Generate a data partnership proposal for ThriveUp Academy's community measurement infrastructure. ThriveUp has built tract-level data analysis across 8 federal sources — CDC PLACES API, CDC/ATSDR SVI, FBI Crime Data Explorer, Census ACS, USDA Food Atlas, HUD, SAMHSA, and BLS. The platform exposes the neighborhoods where poverty exceeds 40% and unemployment tops 20% that county averages hide. For data-focused organizations like Measure Austin, United Way, and community foundations, this is shared infrastructure: API access, community data packages, GIS visualization, and automated reporting. Frame this as a two-way data relationship — not a one-sided ask.`,
+        HUD_YHSI: `Generate a grant narrative section for HUD's Youth Homelessness System Improvement (YHSI) program, NOFO CPD-2600-DC-0035. The applicant is Prime Fit Youth Foundation (prime recipient and fiscal agent), partnering with Turning Point/Vernetta Dixon (programmatic lead), Fountain of Life Ministries/HIS (network convening and grant support), USD 259 McKinney-Vento (school-system referral and education coordination), The Center (trauma-informed behavioral health), local CoC/Coordinated Entry/HMIS lead, and youth with lived experience.
+
+PROJECT: Turning Point Youth Homelessness Response Collaborative, serving Wichita and Sedgwick County, Kansas. Goal: establish a coordinated, youth-informed system that identifies children and young adults experiencing or at risk of homelessness and connects them with existing housing, education, employment, behavioral-health, and family-stability resources.
+
+AWARD: Approximately $1,000,000 for a 30-month nonrenewable project. No matching funds required.
+
+HUD YHSI ELIGIBLE ACTIVITIES THIS PROPOSAL ADDRESSES:
+- Youth leadership and Youth Action Board governance
+- Community planning and coordinated referral system design
+- Cross-agency coordination (school, CoC, behavioral health, employment)
+- HMIS/data capacity improvement and real-time outcome tracking
+- Partner training on trauma-informed, youth-centered practices
+- Education and employment connection pathways
+- Implementation capacity building
+- Continuous system improvement using data feedback loops
+NOTE: YHSI cannot fund housing, rental assistance, or direct services to individual youth — this proposal is entirely system-level.
+
+DR. TERRY FLOOD / ISS LLC CONTRIBUTION (systems architect role):
+- Systems analysis using SALP (Strengths, Assets, Leverage, Priorities) framework
+- Implementation framework design (Three-Pillar: Relief → Stabilize → Contribute adapted for system-level planning)
+- Workflow architecture: coordinated referral pathways, warm handoff protocols, data feedback triggers
+- Performance structure: outcome metrics aligned to HUD YHSI performance measures (youth identified, referrals completed, system response time, youth voice integration rate)
+- Continuous improvement methodology: MAP-GAP cycle applied at system level — observe, prioritize, execute, validate, record lessons
+
+WRITE in formal HUD grant language. Use specific data — Sedgwick County, Kansas (Wichita metro); youth homelessness data; coordinated entry; trauma-informed care. Emphasize: youth voice embedded in governance, cross-system data sharing, measurable system-level outcomes, sustainability through institutional partnerships rather than continued federal funding. Approximately 500-700 words per section. Plain paragraphs — no markdown.`,
       };
 
       const template = grantTemplates[grantType] || grantTemplates.WIOA;
