@@ -314,6 +314,7 @@ const ChildCareWorkforcePage = lazy(() => import("@/pages/child-care-workforce")
 
 // ─── Rural & Agricultural Tools (USDA NIFA Open Data Framework) ──────────────
 const RuralIntelPage = lazy(() => import("@/pages/rural-intel"));
+const ContractorOpportunitiesPage = lazy(() => import("@/pages/contractor-opportunities"));
 const FarmCooperativePage = lazy(() => import("@/pages/farm-cooperative"));
 const FarmProfitabilityPage = lazy(() => import("@/pages/farm-profitability"));
 const InvasiveSpeciesPage = lazy(() => import("@/pages/invasive-species"));
@@ -835,6 +836,7 @@ function AppRouter() {
       <Route path="/child-care-workforce" component={ChildCareWorkforcePage} />
       {/* ── Rural & Agricultural Tools (USDA NIFA Open Data Framework) ── */}
       <Route path="/rural-intel" component={RuralIntelPage} />
+      <Route path="/contractor-opportunities" component={ContractorOpportunitiesPage} />
       <Route path="/farm-cooperative" component={FarmCooperativePage} />
       <Route path="/farm-profitability" component={FarmProfitabilityPage} />
       <Route path="/invasive-species" component={InvasiveSpeciesPage} />

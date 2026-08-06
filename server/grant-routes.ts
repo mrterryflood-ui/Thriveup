@@ -4094,8 +4094,85 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       console.error("[GrantDiscovery] Curated opportunities failed:", error);
     }
 
+    // === SOURCE 5: BidNet Direct (TX/National State & Local RFPs — credentials required) ===
+    const bidnetUrl  = process.env.BIDNET_SAVED_SEARCH_URL;
+    const bidnetUser = process.env.BIDNET_USERNAME;
+    const bidnetPass = process.env.BIDNET_PASSWORD;
+    if (!bidnetUrl || !bidnetUser || !bidnetPass) {
+      console.warn("[GrantDiscovery] BidNet skipped — BIDNET_SAVED_SEARCH_URL / BIDNET_USERNAME / BIDNET_PASSWORD not fully set");
+    } else {
+      try {
+        const { fetchBidNetSavedSearch, importAggregatorBatch: importAgg } = await import("./scrapers/aggregators");
+        const bidnetOpps = await fetchBidNetSavedSearch();
+        if (bidnetOpps.length === 0) {
+          console.warn("[GrantDiscovery] BidNet returned 0 solicitations — check saved search URL or session cookie; site may have changed");
+        } else {
+          const imp = await importAgg(bidnetOpps, computeFitScore, generateReadinessChecklist);
+          imported += imp.imported;
+          skipped  += imp.skipped;
+          console.log(`[GrantDiscovery] BidNet — ${imp.imported} new imported, ${imp.skipped} already tracked (${bidnetOpps.length} fetched)`);
+        }
+      } catch (bidnetErr) {
+        console.error("[GrantDiscovery] BidNet scan FAILED (non-fatal, continuing):", bidnetErr);
+      }
+    }
+
+    // === SOURCE 6: Texas ESBD (TX State Agency RFPs — free, no auth required) ===
+    try {
+      const { fetchTexasEsbd, importAggregatorBatch: importAgg2 } = await import("./scrapers/aggregators");
+      const esbdOpps = await fetchTexasEsbd();
+      if (esbdOpps.length > 0) {
+        const imp = await importAgg2(esbdOpps, computeFitScore, generateReadinessChecklist);
+        imported += imp.imported;
+        skipped  += imp.skipped;
+        console.log(`[GrantDiscovery] TX ESBD — ${imp.imported} new imported, ${imp.skipped} already tracked (${esbdOpps.length} fetched)`);
+      }
+    } catch (esbdErr) {
+      console.error("[GrantDiscovery] TX ESBD scan FAILED (non-fatal, continuing):", esbdErr);
+    }
+
+    // === SOURCE 7: RFPMart (TX RFPs — requires RFPMART_USERNAME + RFPMART_PASSWORD) ===
+    const rfpmartUser = process.env.RFPMART_USERNAME;
+    const rfpmartPass = process.env.RFPMART_PASSWORD;
+    if (!rfpmartUser || !rfpmartPass) {
+      if (rfpmartPass && !rfpmartUser) {
+        console.warn("[GrantDiscovery] RFPMart skipped — RFPMART_PASSWORD is set but RFPMART_USERNAME is missing. Add RFPMART_USERNAME secret to enable RFPMart scraping.");
+      } else {
+        console.log("[GrantDiscovery] RFPMart skipped — credentials not configured");
+      }
+    } else {
+      try {
+        const { fetchRfpMartFeed, importAggregatorBatch: importAgg3 } = await import("./scrapers/aggregators");
+        const rfpOpps = await fetchRfpMartFeed();
+        if (rfpOpps.length > 0) {
+          const imp = await importAgg3(rfpOpps, computeFitScore, generateReadinessChecklist);
+          imported += imp.imported;
+          skipped  += imp.skipped;
+          console.log(`[GrantDiscovery] RFPMart — ${imp.imported} new imported, ${imp.skipped} already tracked (${rfpOpps.length} fetched)`);
+        }
+      } catch (rfpmartErr) {
+        console.error("[GrantDiscovery] RFPMart scan FAILED (non-fatal, continuing):", rfpmartErr);
+      }
+    }
+
+    const totalSignals = imported + skipped;
     console.log(`[GrantDiscovery] ALL SOURCES COMPLETE — ${imported} new grants imported, ${skipped} duplicates skipped`);
-    return { imported, skipped, total: imported + skipped };
+
+    // Persist a scan-summary alert so the activity log shows a real timestamped entry
+    try {
+      await db.insert(grantAlerts).values({
+        grantId: "system",
+        alertType: "scan_summary",
+        title: `Nightly opportunity scan — ${totalSignals} signals refreshed`,
+        message: `Automated scan complete: ${imported} new grants imported, ${skipped} already tracked. Sources: SAM.gov · Grants.gov · SAMHSA.gov · USASpending.gov · TX State · Foundations.`,
+        fitScore: null,
+        isRead: false,
+      });
+    } catch (summaryErr) {
+      console.warn("[GrantDiscovery] Could not persist scan summary alert:", summaryErr);
+    }
+
+    return { imported, skipped, total: totalSignals };
   }
 
   // Re-score all grants in the database with the current computeFitScore algorithm.
@@ -4207,6 +4284,61 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     } catch (error) {
       console.error("Error in GET /api/grants/discovery/status", error);
       res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // ── Public contractor opportunities endpoint — no auth required ─────────────
+  // Returns RFP/solicitation-type grants from BidNet, TX ESBD, and RFPMart.
+  // Intended for end-user-facing contractor opportunity pages.
+  app.get("/api/contractor-opportunities", async (req, res) => {
+    try {
+      const limitParam = Math.min(parseInt(String(req.query.limit || "100")), 200);
+      const src = String(req.query.source || "all");
+      const cutoff = new Date();
+      cutoff.setDate(cutoff.getDate() - 90); // show last 90 days
+
+      // Build source filter
+      let sourceCondition;
+      if (src === "bidnet") {
+        sourceCondition = eq(grantOpportunities.source, "aggregator-bidnet");
+      } else if (src === "esbd") {
+        sourceCondition = eq(grantOpportunities.source, "aggregator-esbd-tx");
+      } else if (src === "rfpmart") {
+        sourceCondition = eq(grantOpportunities.source, "aggregator-rfpmart");
+      } else {
+        sourceCondition = or(
+          eq(grantOpportunities.grantType, "rfp"),
+          ilike(grantOpportunities.source, "aggregator-%"),
+        );
+      }
+
+      const opps = await db.select({
+        id:            grantOpportunities.id,
+        title:         grantOpportunities.title,
+        agency:        grantOpportunities.agency,
+        fundingAmount: grantOpportunities.fundingAmount,
+        deadline:      grantOpportunities.deadline,
+        sourceUrl:     grantOpportunities.sourceUrl,
+        source:        grantOpportunities.source,
+        grantType:     grantOpportunities.grantType,
+        createdAt:     grantOpportunities.createdAt,
+        fitScore:      grantOpportunities.fitScore,
+        description:   grantOpportunities.description,
+      })
+        .from(grantOpportunities)
+        .where(and(sourceCondition!, gte(grantOpportunities.createdAt, cutoff)))
+        .orderBy(desc(grantOpportunities.createdAt))
+        .limit(limitParam);
+
+      res.json({
+        opportunities: opps,
+        total: opps.length,
+        sources: ["BidNet Direct", "Texas ESBD", "RFPMart"],
+        lastDiscoveryScan: lastDailyDiscoveryRun?.toISOString() || null,
+      });
+    } catch (error) {
+      console.error("Error in GET /api/contractor-opportunities:", error);
+      res.status(500).json({ error: "Failed to load contractor opportunities" });
     }
   });
 

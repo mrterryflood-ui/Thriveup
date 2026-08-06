@@ -3,7 +3,7 @@ import { grantOpportunities } from "@shared/schema";
 import { eq } from "drizzle-orm";
 
 export interface AggregatorOpportunity {
-  source: "aggregator-bidnet" | "aggregator-rfpmart";
+  source: "aggregator-bidnet" | "aggregator-rfpmart" | "aggregator-esbd-tx";
   externalId: string;
   title: string;
   url: string;
@@ -88,6 +88,73 @@ export async function fetchRfpMartFeed(): Promise<AggregatorOpportunity[]> {
     const fullUrl = path.startsWith("http") ? path : `https://www.rfpmart.com${path}`;
     const externalId = path.split("/").pop()?.replace(".html", "") || fullUrl;
     opps.push({ source: "aggregator-rfpmart", externalId, title, url: fullUrl, deadlineText });
+  }
+  return opps;
+}
+
+// ── Texas ESBD (Electronic State Business Daily) ─────────────────────────────
+// Free, no auth required. Fetches open solicitations from the Texas Comptroller
+// procurement portal. Source: https://www.txsmartbuy.gov/esbd
+export async function fetchTexasEsbd(): Promise<AggregatorOpportunity[]> {
+  const BASE = "https://www.txsmartbuy.gov";
+  // Hit the public solicitations search — open/posted status, all categories
+  const url = `${BASE}/esbd?status=POSTED&pageNumber=1&pageSize=50`;
+  const resp = await fetch(url, {
+    headers: {
+      "User-Agent": "TCAF-Contractor-Discovery/1.0 (support@thrivingcommunitiesforall.com)",
+      Accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    },
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!resp.ok) throw new Error(`TX ESBD returned HTTP ${resp.status}`);
+  const html = await resp.text();
+
+  const opps: AggregatorOpportunity[] = [];
+
+  // Pattern 1: anchor links to individual solicitations (e.g. /esbd/NNNNNNNN)
+  const solicPattern = /href="(\/esbd\/\d[^"]{2,60})"[^>]*>\s*([^<]{5,200})/gi;
+  const seen = new Set<string>();
+  let m: RegExpExecArray | null;
+  while ((m = solicPattern.exec(html)) !== null) {
+    const path = m[1].trim();
+    const title = cleanText(m[2]);
+    if (!title || title.length < 6) continue;
+    const externalId = path.split("/").filter(Boolean).pop() || path;
+    if (seen.has(externalId)) continue;
+    seen.add(externalId);
+    const fullUrl = `${BASE}${path}`;
+    // Scan nearby HTML for a date pattern (MM/DD/YYYY)
+    const context = html.slice(Math.max(0, m.index - 50), m.index + 300);
+    const dateM = context.match(/(\d{1,2}\/\d{1,2}\/\d{4})/);
+    opps.push({
+      source: "aggregator-esbd-tx",
+      externalId,
+      title,
+      url: fullUrl,
+      agency: "Texas State Agency (ESBD)",
+      deadlineText: dateM?.[1],
+    });
+  }
+
+  // Pattern 2: fallback — generic title/date row pattern for alternate markup
+  if (opps.length === 0) {
+    const rowPat = /<td[^>]*>\s*<a[^>]+href="([^"]+)"[^>]*>([^<]{5,200})<\/a>[\s\S]{0,400}?(\d{1,2}\/\d{1,2}\/\d{4})/gi;
+    while ((m = rowPat.exec(html)) !== null) {
+      const rawUrl = m[1];
+      const title = cleanText(m[2]);
+      if (!title || title.length < 6) continue;
+      const fullUrl = rawUrl.startsWith("http") ? rawUrl : `${BASE}${rawUrl}`;
+      const externalId = fullUrl.split("/").filter(Boolean).pop() || fullUrl;
+      if (seen.has(externalId)) continue;
+      seen.add(externalId);
+      opps.push({ source: "aggregator-esbd-tx", externalId, title, url: fullUrl, agency: "Texas State Agency (ESBD)", deadlineText: m[3] });
+    }
+  }
+
+  if (opps.length === 0) {
+    console.warn("[GrantDiscovery] TX ESBD returned 0 parsed solicitations — HTML structure may have changed or no open solicitations at this time. URL:", url);
+  } else {
+    console.log(`[GrantDiscovery] TX ESBD parsed ${opps.length} open solicitations`);
   }
   return opps;
 }

@@ -61,7 +61,7 @@ export default function RuralIntelPage() {
   });
 
   // Full rural intel for selected county
-  const { data: intel, isLoading: intelLoading } = useQuery({
+  const { data: intel, isLoading: intelLoading, refetch: refetchIntel } = useQuery({
     queryKey: ["/api/rural-intel/county", selected?.stateFips, selected?.countyFips],
     queryFn: async () => {
       if (!selected) return null;
@@ -128,9 +128,9 @@ export default function RuralIntelPage() {
                 </div>
               )}
             </div>
-            <Button data-testid="button-analyze" disabled={!selected} onClick={() => {}}>
+            <Button data-testid="button-analyze" disabled={!selected || intelLoading} onClick={() => { if (selected) refetchIntel(); }}>
               <BarChart3 className="w-4 h-4 mr-2" />
-              Analyze
+              {intelLoading ? "Loading…" : "Analyze"}
             </Button>
           </div>
         </div>
