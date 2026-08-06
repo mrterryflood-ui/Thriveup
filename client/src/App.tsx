@@ -220,6 +220,7 @@ const ProgramEnginePage = lazy(() => import("@/pages/program-engine"));
 const PricingPage = lazy(() => import("@/pages/pricing"));
 const ProposalCommandPage = lazy(() => import("@/pages/proposal-command"));
 const ProposalPipelinePage = lazy(() => import("@/pages/proposal-pipeline"));
+const ConsortiumProposalPage = lazy(() => import("@/pages/consortium-proposal"));
 const BusinessDocumentsPage = lazy(() => import("@/pages/business-documents"));
 const CommunityResourceDirectoryPage = lazy(() => import("@/pages/community-resource-directory"));
 const BenefitsCommandCenterPage = lazy(() => import("@/pages/benefits-command-center"));
@@ -755,6 +756,7 @@ function AppRouter() {
       <Route path="/pricing" component={PricingPage} />
       <Route path="/proposal-command" component={ProposalCommandPage} />
       <Route path="/proposal-pipeline" component={ProposalPipelinePage} />
+      <Route path="/consortium-proposals" component={ConsortiumProposalPage} />
       <Route path="/apprenticeship-tracker" component={ApprenticeshipTrackerPage} />
       <Route path="/opportunity-youth" component={OpportunityYouthPage} />
       <Route path="/foster-youth" component={FosterYouthHubPage} />

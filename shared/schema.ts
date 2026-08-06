@@ -6904,6 +6904,49 @@ export const insertKgEdgeSchema = createInsertSchema(kgEdges).omit({ id: true, c
 export type InsertKgEdge = z.infer<typeof insertKgEdgeSchema>;
 export type KgEdge = typeof kgEdges.$inferSelect;
 
+// ── Consortium / Multi-Org Grant Proposals ────────────────────────────────────
+// Supports complex federal grants where one org is prime applicant/fiscal agent
+// and others contribute specific sections or program elements.
+export const consortiumProposals = pgTable("consortium_proposals", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  createdBy: varchar("created_by", { length: 255 }).notNull(),
+  grantId: varchar("grant_id", { length: 100 }).references(() => grantOpportunities.id, { onDelete: "set null" }),
+  grantTitle: varchar("grant_title", { length: 1000 }).notNull(),
+  grantNofo: varchar("grant_nofo", { length: 200 }),
+  grantDeadline: timestamp("grant_deadline"),
+  awardAmount: varchar("award_amount", { length: 100 }),
+  projectTitle: varchar("project_title", { length: 1000 }).notNull(),
+  geography: varchar("geography", { length: 500 }),
+  status: varchar("status", { length: 50 }).notNull().default("drafting"),
+  // prime entity — can be an org in the system or an external org by name/UEI
+  primeOrgId: varchar("prime_org_id", { length: 100 }),
+  primeOrgName: varchar("prime_org_name", { length: 500 }).notNull(),
+  primeUei: varchar("prime_uei", { length: 32 }),
+  primeEin: varchar("prime_ein", { length: 32 }),
+  indirectCostApproach: varchar("indirect_cost_approach", { length: 100 }).default("de_minimis_10"),
+  mergedNarrative: text("merged_narrative"),
+  gppPushedAt: timestamp("gpp_pushed_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export type ConsortiumProposal = typeof consortiumProposals.$inferSelect;
+
+export const consortiumTeamMembers = pgTable("consortium_team_members", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  consortiumId: varchar("consortium_id", { length: 100 }).notNull().references(() => consortiumProposals.id, { onDelete: "cascade" }),
+  orgName: varchar("org_name", { length: 500 }).notNull(),
+  contactName: varchar("contact_name", { length: 300 }),
+  contactEmail: varchar("contact_email", { length: 300 }),
+  role: varchar("role", { length: 100 }).notNull(),
+  // Sections this member is responsible for writing
+  assignedSections: text("assigned_sections").array().notNull().default(sql`'{}'::text[]`),
+  // Generated section content keyed by section name
+  sectionContent: jsonb("section_content").notNull().default(sql`'{}'::jsonb`),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export type ConsortiumTeamMember = typeof consortiumTeamMembers.$inferSelect;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";

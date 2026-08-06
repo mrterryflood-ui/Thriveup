@@ -20,6 +20,16 @@
  */
 
 import type { Express, Request, Response, NextFunction } from "express";
+import { db } from "./storage";
+import { organizations, grantOpportunities, consortiumProposals, consortiumTeamMembers } from "@shared/schema";
+import { eq, desc } from "drizzle-orm";
+import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
+
+function getUserId(req: Request): string | undefined {
+  const user = (req as any).user;
+  if (!user) return undefined;
+  return user.id || user.userId || user.sub || undefined;
+}
 
 // ─── In-memory event store (lightweight — promote to DB if volume warrants) ─────
 export interface GppEvent {
@@ -142,6 +152,263 @@ export function registerGrantPathProRoutes(app: Express) {
         "outcome_reporting",
       ],
     });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // CONSORTIUM PROPOSAL CRUD
+  // ══════════════════════════════════════════════════════════════
+
+  app.post("/api/consortium/proposals", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const { grantTitle, grantNofo, grantDeadline, grantId, awardAmount, projectTitle, geography,
+      primeOrgName, primeUei, primeEin, primeOrgId, indirectCostApproach } = req.body;
+    if (!grantTitle || !projectTitle || !primeOrgName) {
+      return res.status(400).json({ error: "grantTitle, projectTitle, and primeOrgName are required" });
+    }
+    const [row] = await db.insert(consortiumProposals).values({
+      createdBy: userId, grantTitle, grantNofo, grantId: grantId || null,
+      grantDeadline: grantDeadline ? new Date(grantDeadline) : null,
+      awardAmount, projectTitle, geography, primeOrgName,
+      primeUei, primeEin, primeOrgId, indirectCostApproach: indirectCostApproach || "de_minimis_10",
+    }).returning();
+    return res.status(201).json(row);
+  });
+
+  app.get("/api/consortium/proposals", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const rows = await db.select().from(consortiumProposals)
+      .where(eq(consortiumProposals.createdBy, userId))
+      .orderBy(desc(consortiumProposals.updatedAt));
+    return res.json(rows);
+  });
+
+  app.get("/api/consortium/proposals/:id", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id));
+    if (!proposal) return res.status(404).json({ error: "Not found" });
+    const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, proposal.id));
+    return res.json({ ...proposal, members });
+  });
+
+  app.post("/api/consortium/proposals/:id/members", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const { orgName, contactName, contactEmail, role, assignedSections, notes } = req.body;
+    if (!orgName || !role) return res.status(400).json({ error: "orgName and role required" });
+    const [row] = await db.insert(consortiumTeamMembers).values({
+      consortiumId: req.params.id, orgName, contactName, contactEmail,
+      role, assignedSections: assignedSections || [], notes,
+    }).returning();
+    return res.status(201).json(row);
+  });
+
+  app.delete("/api/consortium/proposals/:id/members/:memberId", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    await db.delete(consortiumTeamMembers).where(eq(consortiumTeamMembers.id, req.params.memberId));
+    return res.json({ ok: true });
+  });
+
+  /** Generate a section for a specific team member's assignment */
+  app.post("/api/consortium/proposals/:id/generate-section", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const { memberId, section, additionalContext } = req.body;
+    if (!memberId || !section) return res.status(400).json({ error: "memberId and section required" });
+
+    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id));
+    if (!proposal) return res.status(404).json({ error: "Proposal not found" });
+    const [member] = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.id, memberId));
+    if (!member) return res.status(404).json({ error: "Member not found" });
+
+    const prompt = `You are a federal grant writer. Generate the "${section}" narrative section for a HUD Youth Homelessness System Improvement (YHSI) grant proposal.
+
+GRANT: ${proposal.grantTitle} ${proposal.grantNofo ? `(${proposal.grantNofo})` : ""}
+PROJECT: ${proposal.projectTitle}
+GEOGRAPHY: ${proposal.geography || "not specified"}
+AWARD: ${proposal.awardAmount || "~$1,000,000"}, 30 months, no match required
+PRIME APPLICANT: ${proposal.primeOrgName}${proposal.primeUei ? ` (UEI: ${proposal.primeUei})` : ""}
+
+CONTRIBUTING ORG: ${member.orgName}
+ROLE: ${member.role}
+CONTACT: ${member.contactName || ""}
+
+SECTION TO WRITE: ${section}
+${additionalContext ? `\nADDITIONAL CONTEXT: ${additionalContext}` : ""}
+
+Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown headers. Emphasize youth voice, cross-system coordination, data-driven continuous improvement, and measurable system-level outcomes. YHSI cannot fund direct services or housing — keep all content system-level.`;
+
+    try {
+      const content = await generateAIResponse([
+        { role: "system", content: withEthicalPreamble("You are a professional federal grant writer specializing in HUD youth homelessness programs. Write in formal, precise grant language.") },
+        { role: "user", content: prompt },
+      ], 1400);
+
+      // Persist into member's sectionContent JSONB
+      const existing = (member.sectionContent as Record<string, string>) || {};
+      existing[section] = content;
+      await db.update(consortiumTeamMembers)
+        .set({ sectionContent: existing })
+        .where(eq(consortiumTeamMembers.id, memberId));
+
+      return res.json({ section, content, memberId, memberOrg: member.orgName });
+    } catch (e: any) {
+      return res.status(500).json({ error: e.message || "Generation failed" });
+    }
+  });
+
+  /** Merge all member sections into a unified narrative on the proposal */
+  app.post("/api/consortium/proposals/:id/merge", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id));
+    if (!proposal) return res.status(404).json({ error: "Not found" });
+    const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, proposal.id));
+
+    const parts: string[] = [`# ${proposal.projectTitle}\n${proposal.grantTitle}${proposal.grantNofo ? ` — ${proposal.grantNofo}` : ""}\nPrime Applicant: ${proposal.primeOrgName}\nGeography: ${proposal.geography || "Not specified"}\n`];
+    for (const m of members) {
+      const content = m.sectionContent as Record<string, string>;
+      for (const [section, text] of Object.entries(content)) {
+        if (text) parts.push(`\n## ${section}\n[${m.orgName} — ${m.role}]\n\n${text}`);
+      }
+    }
+    const merged = parts.join("\n");
+    await db.update(consortiumProposals).set({ mergedNarrative: merged, updatedAt: new Date() }).where(eq(consortiumProposals.id, proposal.id));
+    return res.json({ merged });
+  });
+
+  // ══════════════════════════════════════════════════════════════
+  // FOUR PUSH ROUTES — ThriveUp → GrantPathPro
+  // Each packages data from ThriveUp's DB and POSTs to GPP.
+  // If GPP_API_URL is not set, returns a preview of what would be sent.
+  // ══════════════════════════════════════════════════════════════
+
+  async function pushToGpp(payload: Record<string, unknown>, endpoint: string): Promise<{ sent: boolean; preview?: unknown; response?: unknown; error?: string }> {
+    const gppUrl = process.env.GPP_API_URL;
+    const gppKey = process.env.THRIVE_GPP_API_KEY;
+    if (!gppUrl) return { sent: false, preview: payload };
+    try {
+      const r = await fetch(`${gppUrl}${endpoint}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${gppKey || ""}` },
+        body: JSON.stringify(payload),
+        signal: AbortSignal.timeout(15_000),
+      });
+      const response = r.ok ? await r.json().catch(() => ({ status: r.status })) : { status: r.status, statusText: r.statusText };
+      return { sent: true, response };
+    } catch (e: any) {
+      return { sent: false, error: e.message, preview: payload };
+    }
+  }
+
+  /** POST /api/thriveup/push-entity — push org profile to GPP */
+  app.post("/api/thriveup/push-entity", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const { entityId, consortiumId } = req.body;
+
+    let orgData: Record<string, unknown> = {};
+    if (entityId) {
+      const [org] = await db.select().from(organizations).where(eq(organizations.id, entityId));
+      if (org) {
+        orgData = { name: org.name, ein: org.ein, uei: org.uei, cageCode: org.cageCode, state: org.state, is501c3: org.is501c3, focusAreas: org.focusAreas, populationsServed: org.populationsServed, naicsCodes: org.naicsCodes, samStatus: org.samStatus, missionText: org.missionText };
+      }
+    }
+    if (consortiumId) {
+      const [cp] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
+      if (cp) orgData = { ...orgData, consortiumPrimeOrg: cp.primeOrgName, consortiumPrimeUei: cp.primeUei, consortiumPrimeEin: cp.primeEin };
+    }
+
+    const payload = { source: "thriveup", type: "entity_profile", entity: orgData, pushedAt: new Date().toISOString() };
+    const result = await pushToGpp(payload, "/api/inbound/entity");
+    return res.json(result);
+  });
+
+  /** POST /api/thriveup/push-pursuit — push NOFO context + opportunity packet to GPP */
+  app.post("/api/thriveup/push-pursuit", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const { grantId, consortiumId } = req.body;
+    if (!grantId && !consortiumId) return res.status(400).json({ error: "grantId or consortiumId required" });
+
+    let grantData: Record<string, unknown> = {};
+    let entityContext: Record<string, unknown> = {};
+
+    if (grantId) {
+      const [g] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, grantId));
+      if (g) grantData = { title: g.title, agency: g.agency, nofo: g.samgovId, deadline: g.deadline, description: g.description, eligibility: g.eligibilityCriteria, fundingAmount: g.fundingAmount, awardCeiling: g.awardCeiling, cfda: g.cfda, sourceUrl: g.sourceUrl, focusAreas: g.focusAreas, fitScore: g.fitScore, fitAnalysis: g.fitAnalysis, aiAnalysis: g.aiAnalysis };
+    }
+    if (consortiumId) {
+      const [cp] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
+      if (cp) {
+        entityContext = { primeOrg: cp.primeOrgName, primeUei: cp.primeUei, projectTitle: cp.projectTitle, geography: cp.geography, awardAmount: cp.awardAmount };
+        if (!grantData.title) grantData = { title: cp.grantTitle, nofo: cp.grantNofo, deadline: cp.grantDeadline, fundingAmount: cp.awardAmount };
+      }
+    }
+
+    const payload = { source: "thriveup", type: "pursuit_packet", grant: grantData, entityContext, pushedAt: new Date().toISOString() };
+    const result = await pushToGpp(payload, "/api/inbound/pursuit");
+    return res.json(result);
+  });
+
+  /** POST /api/thriveup/push-collaborative — push consortium structure to GPP */
+  app.post("/api/thriveup/push-collaborative", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const { consortiumId } = req.body;
+    if (!consortiumId) return res.status(400).json({ error: "consortiumId required" });
+
+    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
+    if (!proposal) return res.status(404).json({ error: "Consortium proposal not found" });
+    const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, consortiumId));
+
+    const payload = {
+      source: "thriveup", type: "collaborative_structure",
+      grant: { title: proposal.grantTitle, nofo: proposal.grantNofo, deadline: proposal.grantDeadline, fundingAmount: proposal.awardAmount },
+      projectTitle: proposal.projectTitle, geography: proposal.geography,
+      prime: { orgName: proposal.primeOrgName, uei: proposal.primeUei, ein: proposal.primeEin, indirectCostApproach: proposal.indirectCostApproach },
+      team: members.map(m => ({ orgName: m.orgName, contactName: m.contactName, contactEmail: m.contactEmail, role: m.role, assignedSections: m.assignedSections })),
+      pushedAt: new Date().toISOString(),
+    };
+    const result = await pushToGpp(payload, "/api/inbound/collaborative");
+    return res.json(result);
+  });
+
+  /** POST /api/thriveup/push-proposal — push all generated sections to GPP */
+  app.post("/api/thriveup/push-proposal", async (req: Request, res: Response) => {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const { consortiumId } = req.body;
+    if (!consortiumId) return res.status(400).json({ error: "consortiumId required" });
+
+    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
+    if (!proposal) return res.status(404).json({ error: "Consortium proposal not found" });
+    const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, consortiumId));
+
+    const sections: Array<{ section: string; content: string; author: string; role: string; wordCount: number }> = [];
+    for (const m of members) {
+      const content = m.sectionContent as Record<string, string>;
+      for (const [section, text] of Object.entries(content)) {
+        if (text) sections.push({ section, content: text, author: m.orgName, role: m.role, wordCount: text.split(/\s+/).length });
+      }
+    }
+
+    const payload = {
+      source: "thriveup", type: "proposal_draft",
+      grant: { title: proposal.grantTitle, nofo: proposal.grantNofo },
+      projectTitle: proposal.projectTitle, prime: proposal.primeOrgName,
+      sections, mergedNarrative: proposal.mergedNarrative,
+      totalWords: sections.reduce((s, x) => s + x.wordCount, 0),
+      pushedAt: new Date().toISOString(),
+    };
+
+    // Mark push timestamp
+    await db.update(consortiumProposals).set({ gppPushedAt: new Date() }).where(eq(consortiumProposals.id, consortiumId));
+    const result = await pushToGpp(payload, "/api/inbound/proposal");
+    return res.json(result);
   });
 
   /**

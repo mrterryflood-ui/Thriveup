@@ -352,6 +352,7 @@ const adminProgramItems: NavItem[] = [
   { title: "MCE Contracts", url: "/mce-contracts", icon: Building2 },
   { title: "SDVOSB Tracker", url: "/sdvosb-tracker", icon: Shield },
   { title: "Proposal Command", url: "/proposal-command", icon: Zap },
+  { title: "Consortium Proposals", url: "/consortium-proposals", icon: Users },
 ];
 
 const adminInternalItems: NavItem[] = [
