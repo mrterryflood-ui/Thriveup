@@ -172,6 +172,8 @@ export function registerGrantPathProRoutes(app: Express) {
       awardAmount, projectTitle, geography, primeOrgName,
       primeUei, primeEin, primeOrgId, indirectCostApproach: indirectCostApproach || "de_minimis_10",
     }).returning();
+    // Auto-push entity profile to GPP in background
+    pushToGpp({ source: "thriveup", type: "entity_profile", entity: { name: primeOrgName, uei: primeUei, ein: primeEin }, consortiumId: row.id, pushedAt: new Date().toISOString() }, "/api/inbound/entity").catch(() => {});
     return res.status(201).json(row);
   });
 
@@ -202,6 +204,13 @@ export function registerGrantPathProRoutes(app: Express) {
       consortiumId: req.params.id, orgName, contactName, contactEmail,
       role, assignedSections: assignedSections || [], notes,
     }).returning();
+    // Auto-push updated collaborative structure to GPP in background
+    db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id)).then(([cp]) => {
+      if (!cp) return;
+      db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, cp.id)).then(members => {
+        pushToGpp({ source: "thriveup", type: "collaborative_structure", grant: { title: cp.grantTitle, nofo: cp.grantNofo }, projectTitle: cp.projectTitle, prime: { orgName: cp.primeOrgName, uei: cp.primeUei }, team: members.map(m => ({ orgName: m.orgName, role: m.role, assignedSections: m.assignedSections })), pushedAt: new Date().toISOString() }, "/api/inbound/collaborative").catch(() => {});
+      }).catch(() => {});
+    }).catch(() => {});
     return res.status(201).json(row);
   });
 
@@ -254,6 +263,11 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
         .set({ sectionContent: existing })
         .where(eq(consortiumTeamMembers.id, memberId));
 
+      // Auto-push updated proposal draft to GPP in background
+      db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, proposal.id)).then(allMembers => {
+        const sections = allMembers.flatMap(m => Object.entries((m.sectionContent as Record<string,string>) || {}).filter(([,t]) => t).map(([sec, text]) => ({ section: sec, content: text, author: m.orgName, role: m.role, wordCount: text.split(/\s+/).length })));
+        pushToGpp({ source: "thriveup", type: "proposal_draft", grant: { title: proposal.grantTitle, nofo: proposal.grantNofo }, projectTitle: proposal.projectTitle, prime: proposal.primeOrgName, sections, totalWords: sections.reduce((s,x) => s + x.wordCount, 0), pushedAt: new Date().toISOString() }, "/api/inbound/proposal").catch(() => {});
+      }).catch(() => {});
       return res.json({ section, content, memberId, memberOrg: member.orgName });
     } catch (e: any) {
       return res.status(500).json({ error: e.message || "Generation failed" });
@@ -277,6 +291,8 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
     }
     const merged = parts.join("\n");
     await db.update(consortiumProposals).set({ mergedNarrative: merged, updatedAt: new Date() }).where(eq(consortiumProposals.id, proposal.id));
+    // Auto-push full merged proposal to GPP in background
+    pushToGpp({ source: "thriveup", type: "proposal_merged", grant: { title: proposal.grantTitle, nofo: proposal.grantNofo }, projectTitle: proposal.projectTitle, prime: proposal.primeOrgName, mergedNarrative: merged, pushedAt: new Date().toISOString() }, "/api/inbound/proposal").catch(() => {});
     return res.json({ merged });
   });
 
