@@ -146,6 +146,11 @@ interface StreamAIResponseParams {
   // when Claude is skipped so callers know retrieval didn't actually happen.
   enableWebSearch?: boolean;
   webSearchMaxUses?: number;
+  // Optional user-selected engine preference ("auto" = default fallback chain).
+  // When provided and the provider is available, it is moved to the front of
+  // the fallback chain so it runs first. Never blocks — if the preferred
+  // provider fails or is unavailable, the standard chain continues.
+  preferredProvider?: string;
 }
 
 let geminiQuotaExhaustedUntil = 0;
@@ -801,10 +806,23 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
   // chain — it is purpose-built for web-grounded answers with citations.
   // Claude (with its web_search tool) remains the next candidate, then the
   // standard non-retrieval fallbacks.
-  const orderedProviders: Provider[] =
+  let orderedProviders: Provider[] =
     params.enableWebSearch && isPerplexityAvailable()
       ? ["perplexity", ...providers]
       : providers;
+
+  // User-selected engine preference — promote to front of chain when available.
+  // Never blocks: if the preferred provider is unavailable or fails, the
+  // standard fallback chain continues automatically.
+  if (params.preferredProvider && params.preferredProvider !== "auto") {
+    const pref = params.preferredProvider as Provider;
+    if (providers.includes(pref)) {
+      orderedProviders = [pref, ...orderedProviders.filter(p => p !== pref)];
+      console.log(`[AI Provider] User preferred engine: ${pref}`);
+    } else {
+      console.warn(`[AI Provider] User preferred engine "${params.preferredProvider}" not available — using default chain`);
+    }
+  }
 
   for (let i = 0; i < orderedProviders.length; i++) {
     const provider = orderedProviders[i];

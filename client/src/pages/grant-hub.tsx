@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Link as LinkIcon } from "lucide-react";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { GrantCoach } from "@/components/grant-coach";
+import { EngineSelector, getPreferredEngine } from "@/components/engine-selector";
 import { PillarFlowNav } from "@/components/dfc-cross-nav";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
@@ -384,6 +386,7 @@ export default function GrantHubPage() {
   const [liveTotal, setLiveTotal] = useState<number | null>(null);
   const [isLiveSearching, setIsLiveSearching] = useState(false);
   const liveDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [preferredEngine, setPreferredEngine] = useState<string>(getPreferredEngine());
   const [showAIHunt, setShowAIHunt] = useState(false);
   const [huntOrgDesc, setHuntOrgDesc] = useState("");
   const [huntState, setHuntState] = useState("");
@@ -688,6 +691,19 @@ export default function GrantHubPage() {
       </div>
 
       <PasteRfpUrlCard />
+
+      {/* ── Grant Coach + Engine Selector ── */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start">
+        <GrantCoach className="flex-1" />
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-xs text-muted-foreground hidden sm:inline">AI engine:</span>
+          <EngineSelector
+            value={preferredEngine}
+            onChange={setPreferredEngine}
+            className="text-xs"
+          />
+        </div>
+      </div>
 
       {showAIHunt && (
         <Card className="p-5 border-violet-200 dark:border-violet-800 bg-violet-50/40 dark:bg-violet-950/20" data-testid="card-ai-hunt">

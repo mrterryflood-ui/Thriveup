@@ -80,6 +80,7 @@ const getFundedItems: NavItem[] = [
   { title: "Stakeholder Deck", url: "/presentations", icon: Presentation, authOnly: true },
   { title: "E-Sign Center", url: "/esign", icon: PenTool, authOnly: true },
   { title: "TX Contractor Opportunities", url: "/contractor-opportunities", icon: Briefcase },
+  { title: "Grants 101 — How It Works", url: "/grants-101", icon: GraduationCap },
   { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
   { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart, authOnly: true },
   { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope, authOnly: true },

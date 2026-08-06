@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Brain, Send, Sparkles, Loader2, Bot, User, RefreshCw, ChevronRight, Zap, BookOpen, Database, Activity } from "lucide-react";
+import { EngineSelector, getPreferredEngine } from "@/components/engine-selector";
 
 interface Message {
   role: "user" | "assistant";
@@ -38,6 +39,7 @@ export default function EcosystemAIPage() {
   const [selectedDomains, setSelectedDomains] = useState<string[]>([]);
   const [collegeAdvisorEnabled, setCollegeAdvisorEnabled] = useState(false);
   const [collegeAccessQuestion, setCollegeAccessQuestion] = useState("");
+  const [preferredEngine, setPreferredEngine] = useState<string>(getPreferredEngine());
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const abortRef = useRef<AbortController | null>(null);
 
@@ -66,6 +68,7 @@ export default function EcosystemAIPage() {
     try {
       abortRef.current = new AbortController();
       const body: Record<string, unknown> = { query };
+      if (preferredEngine && preferredEngine !== "auto") body.preferredEngine = preferredEngine;
       if (selectedDomains.length > 0) body.domains = selectedDomains;
       if (collegeAdvisorEnabled && collegeAccessQuestion.trim()) {
         body.engines = ["college-access-ai"];
@@ -398,10 +401,18 @@ export default function EcosystemAIPage() {
             </Button>
           </div>
           <div className="flex items-center justify-between mt-2">
-            <p className="text-[10px] text-gray-400">
-              <Sparkles className="w-3 h-3 inline mr-1" />
-              RAG intelligence with live ecosystem data — streaming responses
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-[10px] text-gray-400">
+                <Sparkles className="w-3 h-3 inline mr-1" />
+                RAG · streaming
+              </p>
+              <EngineSelector
+                value={preferredEngine}
+                onChange={setPreferredEngine}
+                compact
+                className="h-6 text-[10px] px-2 border-gray-200 dark:border-gray-700"
+              />
+            </div>
             {messages.length > 0 && (
               <button
                 onClick={() => { setMessages([]); if (abortRef.current) abortRef.current.abort(); }}

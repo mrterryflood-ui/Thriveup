@@ -1176,12 +1176,19 @@ export function registerRAGRoutes(app: Express) {
 
       res.write(`data: ${JSON.stringify({ sources })}\n\n`);
 
+      // Honor the user's engine preference — sent as `preferredEngine` in the
+      // request body ("auto" or undefined = default fallback chain).
+      const preferredProvider = (typeof req.body?.preferredEngine === "string" && req.body.preferredEngine !== "auto")
+        ? req.body.preferredEngine
+        : undefined;
+
       await streamAIResponse({
         messages: [
           { role: "system", content: SYSTEM_PROMPT },
           { role: "user", content: `KNOWLEDGE BASE:\n${knowledgeContext}\n\n${liveContext}${chainwebContext ? `\n\n${chainwebContext}` : ""}${orchestrationContext ? `\n\n${orchestrationContext}` : ""}\n\nUSER QUESTION: ${query}` },
         ],
         maxTokens: 2000,
+        preferredProvider,
         onChunk: (content: string) => {
           if (!clientDisconnected) {
             res.write(`data: ${JSON.stringify({ content })}\n\n`);
