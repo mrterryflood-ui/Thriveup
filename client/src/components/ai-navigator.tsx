@@ -245,6 +245,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [savedIdx, setSavedIdx] = useState<number | null>(null);
   const [responseMode, setResponseMode] = useState<"brief" | "detailed" | "report">("detailed");
+  const [youthMode, setYouthMode] = useState(false);
   // R1 background polling state
   const [deepThinkElapsed, setDeepThinkElapsed] = useState(0);
   const deepThinkPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -519,7 +520,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ message: apiText, conversationId: activeConversationId, responseMode }),
+        body: JSON.stringify({ message: apiText, conversationId: activeConversationId, responseMode, youthMode }),
       });
 
       if (response.status === 401) {
@@ -754,7 +755,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
     } finally {
       setIsStreaming(false);
     }
-  }, [input, isStreaming, activeConversationId, messages, attachedDocs, refetchConversations]);
+  }, [input, isStreaming, activeConversationId, messages, attachedDocs, refetchConversations, responseMode, youthMode]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     // Ctrl/Cmd+Enter sends — plain Enter always creates a new line
@@ -1047,7 +1048,27 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                         {m === "brief" ? "Quick" : m === "detailed" ? "Detailed" : "Full Report"}
                       </button>
                     ))}
+                    <span className="mx-1 h-4 w-px bg-border" aria-hidden="true" />
+                    <button
+                      onClick={() => setYouthMode(v => !v)}
+                      data-testid="button-youth-mode"
+                      role="switch"
+                      aria-checked={youthMode}
+                      title="Youth Mode: youth-friendly language, your rights info, and safety-first guidance"
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-colors ${
+                        youthMode
+                          ? "bg-violet-600 text-white border-violet-600"
+                          : "bg-background text-muted-foreground border-border hover:border-violet-400 hover:text-violet-700"
+                      }`}
+                    >
+                      Youth Mode {youthMode ? "On" : "Off"}
+                    </button>
                   </div>
+                  {youthMode && (
+                    <p className="text-[11px] text-violet-700 dark:text-violet-300 mb-2" data-testid="text-youth-mode-note">
+                      Youth Mode is on — responses use youth-friendly language, include your rights, and put safety first.
+                    </p>
+                  )}
                   <div className="flex gap-3">
                     <input ref={fileInputRef} type="file" multiple accept=".pdf,.txt,.md,text/plain,text/markdown,application/pdf" className="hidden" onChange={handleFileSelect} data-testid="input-file-upload-page" />
                     <button onClick={() => fileInputRef.current?.click()} disabled={isStreaming} className="relative shrink-0 p-2.5 rounded-xl border hover:bg-muted/50 transition-colors text-muted-foreground hover:text-foreground disabled:opacity-50" title="Attach PDF, .txt, or .md — click multiple times to add more" data-testid="button-attach-page">
@@ -1478,6 +1499,20 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                   {m === "brief" ? "Quick" : m === "detailed" ? "Detailed" : "Full Report"}
                 </button>
               ))}
+              <button
+                onClick={() => setYouthMode(v => !v)}
+                data-testid="button-youth-mode-bubble"
+                role="switch"
+                aria-checked={youthMode}
+                title="Youth Mode: youth-friendly language, your rights info, and safety-first guidance"
+                className={`flex-1 py-0.5 rounded text-[10px] font-medium border transition-colors ${
+                  youthMode
+                    ? "bg-violet-600 text-white border-violet-600"
+                    : "bg-background text-muted-foreground border-border hover:border-violet-400"
+                }`}
+              >
+                Youth {youthMode ? "On" : "Off"}
+              </button>
             </div>
             <div className="flex gap-2">
               {/* Hidden file input */}
