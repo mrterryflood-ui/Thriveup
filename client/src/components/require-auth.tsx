@@ -30,8 +30,11 @@ export function RequireAuth({ children, reason, adminOnly, staffOnly }: RequireA
   }
 
   const role = (user as any)?.role;
-  const isAdmin = role === "admin";
-  const isStaff = STAFF_ROLES.has(role);
+  // /api/auth/user returns the users-table row, which carries isTcafAdmin but
+  // no role field — accept either so admin gates actually admit admins.
+  const isTcafAdmin = (user as any)?.isTcafAdmin === true;
+  const isAdmin = role === "admin" || isTcafAdmin;
+  const isStaff = STAFF_ROLES.has(role) || isTcafAdmin;
   const blocked = !isAuthenticated || (adminOnly && !isAdmin) || (staffOnly && !isStaff);
 
   if (blocked) {

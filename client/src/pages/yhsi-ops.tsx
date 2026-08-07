@@ -847,6 +847,9 @@ export default function YhsiOpsPage() {
                     {r.status !== "final" && (
                       <Button size="sm" variant="outline" data-testid={`button-finalize-${r.id}`} disabled={finalizeMutation.isPending} onClick={() => finalizeMutation.mutate(r.id)}>Finalize</Button>
                     )}
+                    <Button size="sm" variant="outline" asChild data-testid={`button-pdf-${r.id}`}>
+                      <a href={`/api/yhsi/reports/${r.id}/pdf`} download>Download HUD PDF</a>
+                    </Button>
                   </div>
                   {r.narrative && <details className="text-sm"><summary className="cursor-pointer text-muted-foreground">Narrative</summary><p className="whitespace-pre-wrap mt-2">{r.narrative}</p></details>}
                 </CardContent>

@@ -29,6 +29,7 @@ import { generateAIResponse } from "./ai-provider";
 import { randomUUID, randomBytes, timingSafeEqual } from "crypto";
 import { z } from "zod";
 import { screenParticipantGaps } from "@shared/foster-eligibility";
+import PDFDocument from "pdfkit";
 
 const coerceDate = z.preprocess((v) => (typeof v === "string" || v instanceof Date ? new Date(v as string) : v), z.date());
 
@@ -259,7 +260,7 @@ export function registerYhsiRoutes(app: Express): void {
   // Contributor revisits their entry with token; staff can view any.
   app.get("/api/yhsi/voice/:id", async (req: Request, res: Response) => {
     try {
-      const [entry] = await db.select().from(yhsiVoiceEntries).where(eq(yhsiVoiceEntries.id, req.params.id)).limit(1);
+      const [entry] = await db.select().from(yhsiVoiceEntries).where(eq(yhsiVoiceEntries.id, String(req.params.id))).limit(1);
       if (!entry) return res.status(404).json({ error: "Not found" });
       // Header-only capability token (query strings leak via logs/referrers).
       const presented = (req.header("x-voice-token") || "").trim();
@@ -332,14 +333,14 @@ export function registerYhsiRoutes(app: Express): void {
       const parsed = schema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
       if (parsed.data.status === "incorporated" && !parsed.data.impactNote?.trim()) {
-        const [existing] = await db.select({ impactNote: yhsiVoiceEntries.impactNote }).from(yhsiVoiceEntries).where(eq(yhsiVoiceEntries.id, req.params.id)).limit(1);
+        const [existing] = await db.select({ impactNote: yhsiVoiceEntries.impactNote }).from(yhsiVoiceEntries).where(eq(yhsiVoiceEntries.id, String(req.params.id))).limit(1);
         if (!existing?.impactNote?.trim()) {
           return res.status(400).json({ error: "An impact note is required when marking an entry incorporated — youth must be able to see how their input shaped the program." });
         }
       }
       const updates: Record<string, unknown> = { ...parsed.data, updatedAt: new Date(), reviewedBy: getUserId(req) ?? null };
       if (parsed.data.status === "incorporated") updates.incorporatedAt = new Date();
-      const [updated] = await db.update(yhsiVoiceEntries).set(updates).where(eq(yhsiVoiceEntries.id, req.params.id)).returning();
+      const [updated] = await db.update(yhsiVoiceEntries).set(updates).where(eq(yhsiVoiceEntries.id, String(req.params.id))).returning();
       if (!updated) return res.status(404).json({ error: "Not found" });
       return res.json(stripToken(updated));
     } catch (err) {
@@ -375,7 +376,7 @@ export function registerYhsiRoutes(app: Express): void {
     try {
       const parsed = insertYhsiYouthParticipantSchema.partial().safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
-      const [row] = await db.update(yhsiYouthParticipants).set({ ...parsed.data, updatedAt: new Date() }).where(eq(yhsiYouthParticipants.id, req.params.id)).returning();
+      const [row] = await db.update(yhsiYouthParticipants).set({ ...parsed.data, updatedAt: new Date() }).where(eq(yhsiYouthParticipants.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json(row);
     } catch (err) {
@@ -388,9 +389,9 @@ export function registerYhsiRoutes(app: Express): void {
     try {
       const parsed = insertYhsiOutcomeSnapshotSchema.omit({ participantId: true }).extend(snapshotFieldConstraints).safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
-      const [participant] = await db.select({ id: yhsiYouthParticipants.id }).from(yhsiYouthParticipants).where(eq(yhsiYouthParticipants.id, req.params.id)).limit(1);
+      const [participant] = await db.select({ id: yhsiYouthParticipants.id }).from(yhsiYouthParticipants).where(eq(yhsiYouthParticipants.id, String(req.params.id))).limit(1);
       if (!participant) return res.status(404).json({ error: "Participant not found" });
-      const [row] = await db.insert(yhsiOutcomeSnapshots).values({ ...parsed.data, id: randomUUID(), participantId: req.params.id, recordedBy: getUserId(req) ?? null }).returning();
+      const [row] = await db.insert(yhsiOutcomeSnapshots).values({ ...parsed.data, id: randomUUID(), participantId: String(req.params.id), recordedBy: getUserId(req) ?? null }).returning();
       return res.status(201).json(row);
     } catch (err) {
       console.error("[YHSI] snapshot create failed:", err);
@@ -400,7 +401,7 @@ export function registerYhsiRoutes(app: Express): void {
 
   app.get("/api/yhsi/participants/:id/snapshots", requireStaff, async (req: Request, res: Response) => {
     try {
-      const rows = await db.select().from(yhsiOutcomeSnapshots).where(eq(yhsiOutcomeSnapshots.participantId, req.params.id)).orderBy(desc(yhsiOutcomeSnapshots.recordedAt));
+      const rows = await db.select().from(yhsiOutcomeSnapshots).where(eq(yhsiOutcomeSnapshots.participantId, String(req.params.id))).orderBy(desc(yhsiOutcomeSnapshots.recordedAt));
       return res.json(rows);
     } catch (err) {
       console.error("[YHSI] snapshot list failed:", err);
@@ -445,7 +446,7 @@ export function registerYhsiRoutes(app: Express): void {
       });
       const parsed = schema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
-      const [row] = await db.update(yhsiReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(yhsiReferrals.id, req.params.id)).returning();
+      const [row] = await db.update(yhsiReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(yhsiReferrals.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json(row);
     } catch (err) {
@@ -458,12 +459,12 @@ export function registerYhsiRoutes(app: Express): void {
     try {
       const parsed = insertYhsiReferralTouchpointSchema.omit({ referralId: true }).safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
-      const [referral] = await db.select({ id: yhsiReferrals.id, firstContactAt: yhsiReferrals.firstContactAt }).from(yhsiReferrals).where(eq(yhsiReferrals.id, req.params.id)).limit(1);
+      const [referral] = await db.select({ id: yhsiReferrals.id, firstContactAt: yhsiReferrals.firstContactAt }).from(yhsiReferrals).where(eq(yhsiReferrals.id, String(req.params.id))).limit(1);
       if (!referral) return res.status(404).json({ error: "Referral not found" });
-      const [row] = await db.insert(yhsiReferralTouchpoints).values({ ...parsed.data, id: randomUUID(), referralId: req.params.id, recordedBy: getUserId(req) ?? null }).returning();
+      const [row] = await db.insert(yhsiReferralTouchpoints).values({ ...parsed.data, id: randomUUID(), referralId: String(req.params.id), recordedBy: getUserId(req) ?? null }).returning();
       // First touchpoint of a contact-type auto-stamps firstContactAt.
       if (!referral.firstContactAt && ["outreach_call", "meeting", "warm_handoff"].includes(parsed.data.touchpointType)) {
-        await db.update(yhsiReferrals).set({ firstContactAt: new Date(), status: "contacted", updatedAt: new Date() }).where(and(eq(yhsiReferrals.id, req.params.id), eq(yhsiReferrals.status, "initiated")));
+        await db.update(yhsiReferrals).set({ firstContactAt: new Date(), status: "contacted", updatedAt: new Date() }).where(and(eq(yhsiReferrals.id, String(req.params.id)), eq(yhsiReferrals.status, "initiated")));
       }
       return res.status(201).json(row);
     } catch (err) {
@@ -474,7 +475,7 @@ export function registerYhsiRoutes(app: Express): void {
 
   app.get("/api/yhsi/referrals/:id/touchpoints", requireStaff, async (req: Request, res: Response) => {
     try {
-      const rows = await db.select().from(yhsiReferralTouchpoints).where(eq(yhsiReferralTouchpoints.referralId, req.params.id)).orderBy(desc(yhsiReferralTouchpoints.occurredAt));
+      const rows = await db.select().from(yhsiReferralTouchpoints).where(eq(yhsiReferralTouchpoints.referralId, String(req.params.id))).orderBy(desc(yhsiReferralTouchpoints.occurredAt));
       return res.json(rows);
     } catch (err) {
       console.error("[YHSI] touchpoint list failed:", err);
@@ -589,6 +590,22 @@ export function registerYhsiRoutes(app: Express): void {
     }
   });
 
+  // One-click HUD-format PDF export of a biannual report. Values already
+  // stored suppressed — the PDF renders nulls as "<5 (suppressed)".
+  app.get("/api/yhsi/reports/:id/pdf", requireStaff, async (req: Request, res: Response) => {
+    try {
+      const [report] = await db.select().from(yhsiReports).where(eq(yhsiReports.id, String(req.params.id)));
+      if (!report) return res.status(404).json({ error: "Not found" });
+      const filename = `YHSI-HUD-Report-${report.periodStart.toISOString().slice(0, 10)}_to_${report.periodEnd.toISOString().slice(0, 10)}${report.status === "final" ? "" : "-DRAFT"}.pdf`;
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      renderYhsiReportPdf(report, res);
+    } catch (err) {
+      console.error("[YHSI] report PDF export failed:", err);
+      if (!res.headersSent) return res.status(500).json({ error: "Failed to generate PDF" });
+    }
+  });
+
   app.patch("/api/yhsi/reports/:id", requireStaff, async (req: Request, res: Response) => {
     try {
       const schema = z.object({
@@ -599,7 +616,7 @@ export function registerYhsiRoutes(app: Express): void {
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
       const updates: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
       if (parsed.data.status === "final") updates.finalizedAt = new Date();
-      const [row] = await db.update(yhsiReports).set(updates).where(eq(yhsiReports.id, req.params.id)).returning();
+      const [row] = await db.update(yhsiReports).set(updates).where(eq(yhsiReports.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json(row);
     } catch (err) {
@@ -682,9 +699,9 @@ export function registerYhsiRoutes(app: Express): void {
         annualValue: z.number().min(0).max(1000000).optional().nullable(),
       }).safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
-      const [participant] = await db.select({ id: yhsiYouthParticipants.id }).from(yhsiYouthParticipants).where(eq(yhsiYouthParticipants.id, req.params.id)).limit(1);
+      const [participant] = await db.select({ id: yhsiYouthParticipants.id }).from(yhsiYouthParticipants).where(eq(yhsiYouthParticipants.id, String(req.params.id))).limit(1);
       if (!participant) return res.status(404).json({ error: "Participant not found" });
-      const [row] = await db.insert(yhsiEntitlements).values({ ...parsed.data, id: randomUUID(), participantId: req.params.id, recordedBy: getUserId(req) ?? null }).returning();
+      const [row] = await db.insert(yhsiEntitlements).values({ ...parsed.data, id: randomUUID(), participantId: String(req.params.id), recordedBy: getUserId(req) ?? null }).returning();
       return res.status(201).json(row);
     } catch (err) {
       console.error("[YHSI] entitlement create failed:", err);
@@ -759,7 +776,7 @@ export function registerYhsiRoutes(app: Express): void {
       // Status transitions auto-stamp their timestamps if not provided.
       if (parsed.data.status === "applied" && !parsed.data.appliedAt) updates.appliedAt = new Date();
       if (parsed.data.status === "enrolled" && !parsed.data.enrolledAt) updates.enrolledAt = new Date();
-      const [row] = await db.update(yhsiEntitlements).set(updates).where(eq(yhsiEntitlements.id, req.params.id)).returning();
+      const [row] = await db.update(yhsiEntitlements).set(updates).where(eq(yhsiEntitlements.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json(row);
     } catch (err) {
@@ -890,7 +907,7 @@ export function registerYhsiRoutes(app: Express): void {
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
       const updates: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
       if (parsed.data.status === "submitted") updates.completedAt = new Date();
-      const [row] = await db.update(yhsiMilestones).set(updates).where(eq(yhsiMilestones.id, req.params.id)).returning();
+      const [row] = await db.update(yhsiMilestones).set(updates).where(eq(yhsiMilestones.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json(row);
     } catch (err) {
@@ -901,7 +918,7 @@ export function registerYhsiRoutes(app: Express): void {
 
   app.delete("/api/yhsi/milestones/:id", requireStaff, async (req: Request, res: Response) => {
     try {
-      const [row] = await db.delete(yhsiMilestones).where(eq(yhsiMilestones.id, req.params.id)).returning();
+      const [row] = await db.delete(yhsiMilestones).where(eq(yhsiMilestones.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json({ deleted: true });
     } catch (err) {
@@ -911,4 +928,134 @@ export function registerYhsiRoutes(app: Express): void {
   });
 
   console.log("[YHSI] routes registered");
+}
+
+export function renderYhsiReportPdf(
+  report: {
+    periodStart: Date; periodEnd: Date; status: string;
+    metrics: Record<string, any> | null; narrative: string | null;
+    finalizedAt?: Date | null;
+  },
+  out: NodeJS.WritableStream,
+) {
+      const fmtDate = (d: Date | string | null | undefined) =>
+        d ? new Date(d).toISOString().slice(0, 10) : "—";
+      const fmtVal = (v: unknown, pct = false): string => {
+        if (v === null || v === undefined) return "<5 (suppressed)";
+        if (typeof v === "number") return pct ? `${v}%` : String(v);
+        return String(v);
+      };
+      const titleCase = (s: string) =>
+        s.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+      const m = (report.metrics ?? {}) as Record<string, any>;
+      const NAVY = "#1a365d";
+      const TEAL = "#2c7a7b";
+      const GRAY = "#4a5568";
+      const PAGE_W = 612;
+      const MARGIN = 50;
+      const W = PAGE_W - MARGIN * 2;
+
+      const doc = new PDFDocument({ size: "LETTER", margin: MARGIN, bufferPages: true });
+      doc.pipe(out);
+
+      // ── HUD cover header ──
+      doc.rect(0, 0, PAGE_W, 130).fill(NAVY);
+      doc.fontSize(10).font("Helvetica").fillColor("#bee3f8")
+        .text("U.S. Department of Housing and Urban Development", MARGIN, 24, { width: W });
+      doc.fontSize(17).font("Helvetica-Bold").fillColor("white")
+        .text("Youth Homelessness System Improvement (YHSI)", MARGIN, 40, { width: W });
+      doc.fontSize(13).font("Helvetica-Bold").fillColor("white")
+        .text("Biannual Progress Report", MARGIN, 62, { width: W });
+      doc.fontSize(9.5).font("Helvetica").fillColor("#bee3f8")
+        .text(`Grant Agreement: CPD-2600-DC-0035  ·  Recipient: Innovative Support Services LLC / TCAF`, MARGIN, 84, { width: W });
+      doc.fontSize(9.5).font("Helvetica").fillColor("#bee3f8")
+        .text(`Reporting Period: ${fmtDate(report.periodStart)} to ${fmtDate(report.periodEnd)}  ·  Status: ${report.status === "final" ? "FINAL" : "DRAFT — not yet submitted"}`, MARGIN, 100, { width: W });
+
+      doc.y = 150;
+
+      const sectionHeader = (label: string) => {
+        if (doc.y > 680) doc.addPage();
+        doc.moveDown(0.8);
+        doc.fontSize(12).font("Helvetica-Bold").fillColor(NAVY).text(label, MARGIN, doc.y, { width: W });
+        doc.moveDown(0.2);
+        doc.rect(MARGIN, doc.y, W, 1.2).fill(TEAL);
+        doc.moveDown(0.5);
+      };
+      const kvLine = (label: string, value: string, indent = 0) => {
+        if (doc.y > 710) doc.addPage();
+        const x = MARGIN + indent;
+        doc.fontSize(10).font("Helvetica-Bold").fillColor(GRAY).text(`${label}: `, x, doc.y, { continued: true, width: W - indent });
+        doc.font("Helvetica").fillColor("#1a202c").text(value);
+      };
+      const mapLines = (obj: Record<string, unknown> | undefined, indent = 14) => {
+        for (const [k, v] of Object.entries(obj ?? {})) kvLine(titleCase(k), fmtVal(v), indent);
+      };
+
+      // ── I. Report metadata ──
+      sectionHeader("I. Report Information");
+      kvLine("Reporting Period", `${fmtDate(report.periodStart)} to ${fmtDate(report.periodEnd)}`);
+      kvLine("Report Status", report.status === "final" ? "Final" : "Draft");
+      kvLine("Metrics Computed At", m.computedAt ? String(m.computedAt).slice(0, 19).replace("T", " ") + " UTC" : "—");
+      if (report.finalizedAt) kvLine("Finalized At", fmtDate(report.finalizedAt));
+
+      // ── II. Metrics ──
+      sectionHeader("II. Performance Metrics");
+      if (m.suppressionNote) {
+        doc.fontSize(8.5).font("Helvetica-Oblique").fillColor(GRAY)
+          .text(`Data privacy note: ${m.suppressionNote}`, MARGIN, doc.y, { width: W });
+        doc.moveDown(0.6);
+      }
+      kvLine("Youth Participants Enrolled (period)", fmtVal(m.participants));
+      doc.moveDown(0.4);
+      doc.fontSize(10.5).font("Helvetica-Bold").fillColor(NAVY).text("A. Referral Pathway Performance", MARGIN, doc.y, { width: W });
+      doc.moveDown(0.2);
+      kvLine("Total Referrals", fmtVal(m.referrals?.total), 14);
+      kvLine("Resolution Rate", fmtVal(m.referrals?.resolutionRate, true), 14);
+      kvLine("Avg Days to First Contact", fmtVal(m.referrals?.avgDaysToFirstContact), 14);
+      if (m.referrals?.byStatus && Object.keys(m.referrals.byStatus).length) {
+        kvLine("Referrals by Status", "", 14);
+        mapLines(m.referrals.byStatus, 28);
+      }
+      if (m.referrals?.byService && Object.keys(m.referrals.byService).length) {
+        kvLine("Referrals by Service Type", "", 14);
+        mapLines(m.referrals.byService, 28);
+      }
+      doc.moveDown(0.4);
+      doc.fontSize(10.5).font("Helvetica-Bold").fillColor(NAVY).text("B. Housing Stability at 6 Months", MARGIN, doc.y, { width: W });
+      doc.moveDown(0.2);
+      kvLine("Youth with 6-Month Snapshot", fmtVal(m.housingStabilityAt6Months?.total), 14);
+      kvLine("Stably Housed", fmtVal(m.housingStabilityAt6Months?.stable), 14);
+      kvLine("Stability Rate", fmtVal(m.housingStabilityAt6Months?.stableRate, true), 14);
+      if (m.housingStabilityAt6Months?.byStatus && Object.keys(m.housingStabilityAt6Months.byStatus).length) {
+        kvLine("By Housing Status", "", 14);
+        mapLines(m.housingStabilityAt6Months.byStatus, 28);
+      }
+      doc.moveDown(0.4);
+      doc.fontSize(10.5).font("Helvetica-Bold").fillColor(NAVY).text("C. Youth Leadership & Voice", MARGIN, doc.y, { width: W });
+      doc.moveDown(0.2);
+      kvLine("Total Youth Voice Submissions", fmtVal(m.youthVoice?.total), 14);
+      kvLine("Incorporated into Programming", fmtVal(m.youthVoice?.incorporated), 14);
+      if (m.youthVoice?.byStatus && Object.keys(m.youthVoice.byStatus).length) {
+        kvLine("Submissions by Status", "", 14);
+        mapLines(m.youthVoice.byStatus, 28);
+      }
+
+      // ── III. Narrative ──
+      sectionHeader("III. Progress Narrative");
+      const narrative = (report.narrative ?? "").trim();
+      doc.fontSize(10).font("Helvetica").fillColor("#1a202c")
+        .text(narrative || "[No narrative on file for this report.]", MARGIN, doc.y, { width: W, align: "left", lineGap: 2 });
+
+      // ── Footer with page numbers on every page ──
+      const range = doc.bufferedPageRange();
+      for (let i = range.start; i < range.start + range.count; i++) {
+        doc.switchToPage(i);
+        doc.fontSize(8).font("Helvetica-Oblique").fillColor(GRAY)
+          .text(
+            `YHSI Biannual Progress Report · CPD-2600-DC-0035 · ${fmtDate(report.periodStart)}–${fmtDate(report.periodEnd)} · Page ${i - range.start + 1} of ${range.count}`,
+            MARGIN, 755, { width: W, align: "center", lineBreak: false },
+          );
+      }
+      doc.end();
 }
