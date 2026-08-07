@@ -1,0 +1,22 @@
+Good question to pressure-test — let me pull the actual IHE matching logic rather than answer from memory:
+Pulled the full pipeline end-to-end. Honest answer, in your four frames:
+
+The logic — classification-routed, not keyword-matched
+
+An institution flows: entity type (8 IHE classes — university, hbcu, msi, tribal_college, community_college, research_institution, technical_college, hbcu_university) → ihe scoring class → research calibration track → six scoring streams. There is no keyword bonus for "college/university/HBCU" appearing in a title. Those words in opportunity text do the reverse: they infer the funding mechanism (Title III → hbcu_formula, HSI/Title V → msi_formula), and those mechanisms are hard-blocked for any non-IHE entity. So a daycare named "University Heights" can't pull Title III, and an HBCU isn't shown something merely because "university" is in the name — appropriateness comes from class × opportunity-type fit (+40) plus mission-cluster fit (+35).
+
+The alignment — what's actually read per institution
+
+Mission + capabilities parsed for research disciplines — if a solicitation's discipline isn't evidenced in the profile, score is forced to 18. It cannot fake research fit.
+Research infrastructure signals: NICRA/F&A rate, NAICS, active-research markers; budget, staff, certifications, SAM/UEI, geography, rural/urban class.
+MSI evidence layer: designations (HBCU, HSI, TCU, AANAPISI, PBI, NASNTI, ANNH) live in a DB table with six verification states, auto-resolved against the USED HBCU registry + SAM. The AI is constitutionally barred from claiming "verified HBCU" without a record, and evaluates designation vs. solicitation eligibility separately.
+Advisory depth is real: F&A/cognizant-agency, campus-vs-system UEI traps, Title IV/IX, FERPA, IRB, Bayh-Dole, research security — plus mechanism intelligence for Title III Parts A/B/F, Title V, NSF CAREER/EPSCoR/RUI, NIH R01/R15/T32, DoD MURI/DURIP, TRIO/McNair, GEAR UP, GAANN. SBIR for an IHE routes to "build-toward/subaward" rather than being discarded.
+The symmetry — where it breaks today
+
+No institutional depth fields exist on the profile: no Carnegie class (R1/R2), enrollment, NSF HERD research expenditure, degree programs, IPEDS linkage. Institutional nuance rides only in free-text mission/capabilities.
+MSI designations shape AI reasoning but not the numeric ranking — a verified HBCU and an unverified claimant rank identically in the discovery feed; a Title III set-aside isn't numerically boosted for the one institution actually eligible for it.
+One calibration for all IHE subtypes — a community college and an R1 get the same research-track calibration; teaching-focused vs research-intensive isn't differentiated.
+No IHE-specific warm-funder tiers; no live IPEDS/NCES/Carnegie/HERD hydration (identity hydrates from SAM/IRS/USASpending like any org — only the HBCU registry pull is education-specific).
+The opportunity
+
+Depth is strong at the advisory layer (mechanism, compliance, designation evidence) and structurally sound at the eligibility layer (gates, not keywords). The gap is the ranking layer: hydrate IPEDS/Carnegie/HERD into real profile fields, let verified designations numerically lift their matched mechanisms, and split calibration by subtype (R1 / regional / community college / TCU / 1890 land-grant). That's what would make "aligned per institution" true in the feed itself — the same leap the jurisdiction work just made for state coverage: measured symmetry instead of assumed symmetry.
