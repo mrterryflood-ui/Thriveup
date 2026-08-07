@@ -19,3 +19,9 @@ description: HUD youth homelessness grant (CPD-2600-DC-0035) modules — where t
 - MH scores must NEVER be averaged across scales (PHQ-9 vs GAD-7 vs CANS are incomparable) — always group by mh_scale_used.
 - Entitlements (Chafee/ETV/etc), fidelity observations (5 SAMHSA domains), and HUD milestones tables exist; all vocabularies are server-enforced zod enums — free-form values would silently vanish from fixed-milestone summaries.
 - Repo baseline has ~100 pre-existing tsc TS2769 errors from a drizzle eq() typing quirk (project-wide, incl. server/routes.ts); don't attribute them to new work — diff error counts against a stash.
+
+## Durable rules (from architect reviews)
+- PIT/official-stat data policy: populate ONLY from staff import of the official HUD file (huduser.gov blocks automated downloads); imports must be all-or-nothing transactional with strict whole-number parsing — partial imports misstate totals.
+- Auth gating: use RequireAuth staffOnly (mirrors server requireStaff: admin/teacher/case_manager) for pages backed by requireStaff endpoints — adminOnly locks out server-authorized staff.
+- UI rule: never render an empty-state message when a query errored — show explicit error/retry, or staff mistake outages for absent records.
+- Program knowledge layer: all youth-facing eligibility/rights content lives in a single citation-backed module sourced ONLY from uploaded federal docs; screeners must capture EVERY condition in the source (unaccompanied status, care-after-14 timing, exact age bands) before showing "likely eligible" — overstated eligibility is a fabrication failure. Kansas Chafee runs to 21 (not on the 31-state age-23 list).

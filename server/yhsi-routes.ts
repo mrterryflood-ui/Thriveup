@@ -39,7 +39,7 @@ const HS_COMPLETION = z.enum(["completed", "on_track", "ged_track", "disengaged"
 const POST_SECONDARY = z.enum(["enrolled", "apprenticeship", "applied", "not_enrolled", "na", "unknown"]);
 const EMPLOYMENT_STATUSES = z.enum(["employed_ft", "employed_pt", "seeking", "not_seeking", "unknown"]);
 const EDUCATION_STATUSES = z.enum(["enrolled", "disengaged", "graduated", "ged_track", "unknown"]);
-const ENTITLEMENT_TYPES = z.enum(["chafee", "etv", "medicaid_former_foster", "fafsa_independent", "snap", "other"]);
+const ENTITLEMENT_TYPES = z.enum(["chafee", "etv", "medicaid_former_foster", "fafsa_independent", "mckinney_vento_services", "snap", "other"]);
 const ENTITLEMENT_STATUSES = z.enum(["offered", "declined", "applied", "enrolled", "denied", "ineligible"]);
 const MILESTONE_TYPES = z.enum(["hud_biannual_report", "project_plan_update", "budget_report", "drawdown", "site_visit", "renewal_application", "other"]);
 const MILESTONE_STATUSES = z.enum(["upcoming", "submitted", "waived"]);
@@ -63,8 +63,8 @@ function optionalString(max: number) {
 }
 
 // Small-cell suppression floor (platform doctrine): never expose counts 1–4.
-const SUPPRESSION_FLOOR = 5;
-function suppress(n: number): number | null {
+export const SUPPRESSION_FLOOR = 5;
+export function suppress(n: number): number | null {
   return n > 0 && n < SUPPRESSION_FLOOR ? null : n;
 }
 
@@ -74,7 +74,7 @@ function getUser(req: Request) {
     | undefined;
   return u;
 }
-function getUserId(req: Request): string | undefined {
+export function getUserId(req: Request): string | undefined {
   const u = getUser(req);
   return u?.claims?.sub || u?.id;
 }
@@ -93,7 +93,7 @@ async function isStaff(req: Request): Promise<boolean> {
     return false;
   }
 }
-async function requireStaff(req: Request, res: Response, next: NextFunction) {
+export async function requireStaff(req: Request, res: Response, next: NextFunction) {
   if (!getUserId(req)) return res.status(401).json({ error: "Unauthorized" });
   if (await isStaff(req)) return next();
   return res.status(403).json({ error: "Staff access required" });

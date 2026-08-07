@@ -472,7 +472,7 @@ export default function YhsiOpsPage() {
   }
 
   function EntitlementsTab() {
-    const ENTITLEMENT_TYPES = ["chafee", "etv", "medicaid_former_foster", "fafsa_independent", "snap", "other"];
+    const ENTITLEMENT_TYPES = ["chafee", "etv", "medicaid_former_foster", "fafsa_independent", "mckinney_vento_services", "snap", "other"];
     const ENT_STATUSES = ["offered", "declined", "applied", "enrolled", "denied", "ineligible"];
     const { data: summary } = useQuery<any>({ queryKey: ["/api/yhsi/entitlements/summary"] });
     const { data: entitlements, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/entitlements"] });

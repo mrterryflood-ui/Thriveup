@@ -8,9 +8,13 @@ interface RequireAuthProps {
   children: React.ReactNode;
   reason?: string;
   adminOnly?: boolean;
+  /** Allows admin, teacher, and case_manager — mirrors the server's requireStaff policy. */
+  staffOnly?: boolean;
 }
 
-export function RequireAuth({ children, reason, adminOnly }: RequireAuthProps) {
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager"]);
+
+export function RequireAuth({ children, reason, adminOnly, staffOnly }: RequireAuthProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
 
   if (isLoading) {
@@ -27,7 +31,8 @@ export function RequireAuth({ children, reason, adminOnly }: RequireAuthProps) {
 
   const role = (user as any)?.role;
   const isAdmin = role === "admin";
-  const blocked = !isAuthenticated || (adminOnly && !isAdmin);
+  const isStaff = STAFF_ROLES.has(role);
+  const blocked = !isAuthenticated || (adminOnly && !isAdmin) || (staffOnly && !isStaff);
 
   if (blocked) {
     return (

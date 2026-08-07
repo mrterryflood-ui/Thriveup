@@ -319,6 +319,8 @@ const Grants101Page = lazy(() => import("@/pages/grants-101"));
 // ─── YHSI (HUD CPD-2600-DC-0035) ──────────────────────────────────────────────
 const YouthVoicePage = lazy(() => import("@/pages/youth-voice"));
 const YhsiOpsPage = lazy(() => import("@/pages/yhsi-ops"));
+const YhsiSystemPage = lazy(() => import("@/pages/yhsi-system"));
+const YouthRightsPage = lazy(() => import("@/pages/youth-rights"));
 const FarmCooperativePage = lazy(() => import("@/pages/farm-cooperative"));
 const FarmProfitabilityPage = lazy(() => import("@/pages/farm-profitability"));
 const InvasiveSpeciesPage = lazy(() => import("@/pages/invasive-species"));
@@ -847,6 +849,12 @@ function AppRouter() {
       <Route path="/yhsi-ops">
         <RequireAuth adminOnly reason="YHSI Operations contains youth PII (McKinney-Vento status, housing situations). Restricted to staff.">
           <YhsiOpsPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/youth-rights" component={YouthRightsPage} />
+      <Route path="/yhsi-system">
+        <RequireAuth staffOnly reason="YHSI System Improvement contains youth assessment data and grant financials. Restricted to staff.">
+          <YhsiSystemPage />
         </RequireAuth>
       </Route>
       <Route path="/farm-cooperative" component={FarmCooperativePage} />

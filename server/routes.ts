@@ -166,6 +166,7 @@ import { registerRuralHousingRoutes } from "./rural-housing-routes";
 import { registerRuralWorkforceRoutes } from "./rural-workforce-routes";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerYhsiRoutes } from "./yhsi-routes";
+import { registerYhsiSystemRoutes } from "./yhsi-system-routes";
 import { registerVoiceRoutes } from "./voice-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
 import { registerCommunityProgramRoutes } from "./community-program-routes";
@@ -574,6 +575,7 @@ export async function registerRoutes(
   registerCorridorDocRoutes(app);
   registerFosterYouthIntakeRoutes(app);
   registerYhsiRoutes(app);
+  registerYhsiSystemRoutes(app);
   registerVoiceRoutes(app);
   registerFosterYouthAgencyRoutes(app);
   registerCommunityProgramRoutes(app);

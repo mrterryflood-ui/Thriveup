@@ -7146,6 +7146,128 @@ export const insertYhsiReportSchema = createInsertSchema(yhsiReports).omit({ id:
 export type InsertYhsiReport = z.infer<typeof insertYhsiReportSchema>;
 export type YhsiReport = typeof yhsiReports.$inferSelect;
 
+// ─── YHSI System Improvement Layer ──────────────────────────────────────────
+// CES youth-specific assessments — standardized acuity + diversion pathway
+export const yhsiCesAssessments = pgTable("yhsi_ces_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull().references(() => yhsiYouthParticipants.id),
+  assessmentType: varchar("assessment_type", { length: 60 }).notNull().default("ty_vi_spdat"), // ty_vi_spdat | next_step_tool | local_youth_tool | other
+  acuityScore: integer("acuity_score").notNull(),                        // raw tool score
+  prioritizationTier: varchar("prioritization_tier", { length: 30 }).notNull(), // high | medium | low
+  diversionAttempted: boolean("diversion_attempted").notNull().default(false),
+  diversionOutcome: varchar("diversion_outcome", { length: 40 }),        // diverted_family | diverted_kin | diverted_other | not_diverted | pending
+  assessedAt: timestamp("assessed_at").defaultNow().notNull(),
+  notes: text("notes"),
+  recordedBy: varchar("recorded_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export const insertYhsiCesAssessmentSchema = createInsertSchema(yhsiCesAssessments).omit({ id: true, createdAt: true, assessedAt: true });
+export type YhsiCesAssessment = typeof yhsiCesAssessments.$inferSelect;
+
+// Partner org registry — K-12 / child welfare / juvenile justice / workforce / CoC
+export const yhsiPartnerOrgs = pgTable("yhsi_partner_orgs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  name: varchar("name", { length: 300 }).notNull(),
+  systemType: varchar("system_type", { length: 60 }).notNull(),          // k12_mckinney_vento | child_welfare | juvenile_justice | workforce | coc_hmis | healthcare | housing_provider | other
+  contactName: varchar("contact_name", { length: 200 }),
+  contactEmail: varchar("contact_email", { length: 320 }),
+  contactPhone: varchar("contact_phone", { length: 40 }),
+  mouStatus: varchar("mou_status", { length: 30 }).notNull().default("none"), // none | drafting | signed | expired
+  mouSignedAt: timestamp("mou_signed_at"),
+  mouExpiresAt: timestamp("mou_expires_at"),
+  dataSharing: boolean("data_sharing").notNull().default(false),         // covered by a data-sharing agreement
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiPartnerOrgSchema = createInsertSchema(yhsiPartnerOrgs).omit({ id: true, createdAt: true, updatedAt: true });
+export type YhsiPartnerOrg = typeof yhsiPartnerOrgs.$inferSelect;
+
+// Youth Action Board — governance, membership, stipends, co-design decisions
+export const yhsiYabMembers = pgTable("yhsi_yab_members", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  displayName: varchar("display_name", { length: 200 }).notNull(),       // chosen name/alias — never legal name required
+  role: varchar("role", { length: 60 }).notNull().default("member"),     // member | co_chair | chair | alumni
+  status: varchar("status", { length: 30 }).notNull().default("active"), // active | inactive | alumni
+  joinedAt: timestamp("joined_at").defaultNow().notNull(),
+  stipendRate: numeric("stipend_rate", { precision: 8, scale: 2 }),      // per-meeting stipend
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiYabMemberSchema = createInsertSchema(yhsiYabMembers).omit({ id: true, createdAt: true, updatedAt: true, joinedAt: true });
+export type YhsiYabMember = typeof yhsiYabMembers.$inferSelect;
+
+export const yhsiYabDecisions = pgTable("yhsi_yab_decisions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  meetingDate: timestamp("meeting_date").notNull(),
+  topic: varchar("topic", { length: 400 }).notNull(),
+  decision: text("decision").notNull(),
+  voteSummary: varchar("vote_summary", { length: 200 }),                 // e.g. "7 for / 1 against / 2 abstain"
+  status: varchar("status", { length: 30 }).notNull().default("proposed"), // proposed | adopted | implemented | declined
+  coDesignSignoff: boolean("co_design_signoff").notNull().default(false), // youth signed off on final implementation
+  implementedAt: timestamp("implemented_at"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiYabDecisionSchema = createInsertSchema(yhsiYabDecisions).omit({ id: true, createdAt: true, updatedAt: true, implementedAt: true });
+export type YhsiYabDecision = typeof yhsiYabDecisions.$inferSelect;
+
+export const yhsiYabStipends = pgTable("yhsi_yab_stipends", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  memberId: varchar("member_id", { length: 100 }).notNull().references(() => yhsiYabMembers.id),
+  amount: numeric("amount", { precision: 8, scale: 2 }).notNull(),
+  purpose: varchar("purpose", { length: 200 }).notNull().default("meeting"), // meeting | workgroup | interview_panel | conference | other
+  paidAt: timestamp("paid_at").defaultNow().notNull(),
+  recordedBy: varchar("recorded_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export const insertYhsiYabStipendSchema = createInsertSchema(yhsiYabStipends).omit({ id: true, createdAt: true, paidAt: true });
+export type YhsiYabStipend = typeof yhsiYabStipends.$inferSelect;
+
+// Sage compliance — eligible-activity spending categories with federal caps
+export const yhsiSpendingCategories = pgTable("yhsi_spending_categories", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  grantLabel: varchar("grant_label", { length: 200 }).notNull().default("HUD YHSI CPD-2600-DC-0035"),
+  category: varchar("category", { length: 200 }).notNull(),              // e.g. "Admin (capped)", "Systems improvement", "Youth engagement"
+  capPercent: numeric("cap_percent", { precision: 5, scale: 2 }),        // null = no federal cap
+  budgetedAmount: numeric("budgeted_amount", { precision: 12, scale: 2 }).notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiSpendingCategorySchema = createInsertSchema(yhsiSpendingCategories).omit({ id: true, createdAt: true, updatedAt: true });
+export type YhsiSpendingCategory = typeof yhsiSpendingCategories.$inferSelect;
+
+export const yhsiSpendingEntries = pgTable("yhsi_spending_entries", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  categoryId: varchar("category_id", { length: 100 }).notNull().references(() => yhsiSpendingCategories.id),
+  amount: numeric("amount", { precision: 12, scale: 2 }).notNull(),
+  description: varchar("description", { length: 400 }).notNull(),
+  spentAt: timestamp("spent_at").defaultNow().notNull(),
+  recordedBy: varchar("recorded_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export const insertYhsiSpendingEntrySchema = createInsertSchema(yhsiSpendingEntries).omit({ id: true, createdAt: true });
+export type YhsiSpendingEntry = typeof yhsiSpendingEntries.$inferSelect;
+
+// HUD PIT counts by CoC — populated ONLY from imported official HUD data
+// (huduser.gov "PIT Counts by CoC" file). Never seeded with invented numbers.
+export const hudPitCounts = pgTable("hud_pit_counts", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  cocNumber: varchar("coc_number", { length: 20 }).notNull(),            // e.g. KS-502
+  cocName: varchar("coc_name", { length: 300 }).notNull(),
+  state: varchar("state", { length: 2 }).notNull(),
+  year: integer("year").notNull(),
+  overallHomeless: integer("overall_homeless"),
+  unaccompaniedYouthUnder25: integer("unaccompanied_youth_under_25"),
+  unshelteredHomeless: integer("unsheltered_homeless"),
+  source: varchar("source", { length: 300 }).notNull(),                  // filename/URL of the official HUD file imported
+  importedAt: timestamp("imported_at").defaultNow().notNull(),
+}, (t) => [uniqueIndex("hud_pit_coc_year_idx").on(t.cocNumber, t.year)]);
+export type HudPitCount = typeof hudPitCounts.$inferSelect;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";
