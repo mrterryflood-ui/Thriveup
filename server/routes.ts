@@ -6508,6 +6508,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
           captionsEnabled: false,
           highContrastEnabled: false,
           screenReaderMode: false,
+          youthMode: false,
         });
       }
       res.json(profile);

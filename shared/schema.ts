@@ -6806,6 +6806,7 @@ export const learnerProfiles = pgTable("learner_profiles", {
   captionsEnabled: boolean("captions_enabled").notNull().default(false),
   highContrastEnabled: boolean("high_contrast_enabled").notNull().default(false),
   screenReaderMode: boolean("screen_reader_mode").notNull().default(false),
+  youthMode: boolean("youth_mode").notNull().default(false),
   updatedAt: timestamp("updated_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 });

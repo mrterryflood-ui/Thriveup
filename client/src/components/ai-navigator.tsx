@@ -231,7 +231,7 @@ function GrantResultCards({ grants, orgName, totalFound, isAuthenticated }: {
 
 export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = {}) {
   const { toast } = useToast();
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [, navigate] = useLocation();
   const [isOpen, setIsOpen] = useState(mode === "page");
   const [isExpanded, setIsExpanded] = useState(false);
@@ -245,7 +245,9 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   const [copiedIdx, setCopiedIdx] = useState<number | null>(null);
   const [savedIdx, setSavedIdx] = useState<number | null>(null);
   const [responseMode, setResponseMode] = useState<"brief" | "detailed" | "report">("detailed");
-  const [youthMode, setYouthMode] = useState(false);
+  const [youthMode, setYouthMode] = useState<boolean>(() => {
+    try { return localStorage.getItem("tcaf_youth_mode") === "true"; } catch { return false; }
+  });
   // R1 background polling state
   const [deepThinkElapsed, setDeepThinkElapsed] = useState(0);
   const deepThinkPollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -260,6 +262,105 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
     queryKey: ["/api/navigator/conversations"],
     enabled: isOpen || mode === "page",
   });
+
+  // ── Youth Mode persistence ──────────────────────────────────────────────────
+  // Fetch the server-side preference for signed-in users
+  const { data: learnerProfile } = useQuery<{ youthMode?: boolean }>({
+    queryKey: ["/api/learner-profile"],
+    enabled: isAuthenticated && !authLoading,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  // Tracks whether the user has toggled youth mode locally this session.
+  // When true, incoming GET responses must NOT overwrite the user's local choice.
+  const youthModeUserEditedRef = useRef(false);
+
+  // Debounce timer — cancelled on unmount and auth changes
+  const youthModeDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Always holds the latest intended value so the debounced write uses final intent
+  const youthModeLatestRef = useRef<boolean>(youthMode);
+
+  // Sync from server — only applies before the user makes any local edit
+  useEffect(() => {
+    if (!isAuthenticated || learnerProfile === undefined) return;
+    if (youthModeUserEditedRef.current) return; // user already toggled — don't overwrite
+    const serverValue = learnerProfile.youthMode ?? false;
+    setYouthMode(serverValue);
+    youthModeLatestRef.current = serverValue;
+    try { localStorage.setItem("tcaf_youth_mode", String(serverValue)); } catch { /* storage blocked */ }
+  }, [isAuthenticated, learnerProfile]);
+
+  // Cancel any pending write on unmount (component removed from tree)
+  useEffect(() => {
+    return () => { if (youthModeDebounceRef.current) clearTimeout(youthModeDebounceRef.current); };
+  }, []);
+
+  // Cancel pending write and reset edit flag whenever auth identity changes
+  // (sign-out, account switch) so a queued write can't bleed into a new session.
+  useEffect(() => {
+    if (youthModeDebounceRef.current) clearTimeout(youthModeDebounceRef.current);
+    youthModeUserEditedRef.current = false;
+  }, [user?.id]); // keyed on user identity, not just isAuthenticated boolean
+
+  // Toggle handler: instant UI + localStorage; debounced, session-bound server write
+  const handleYouthModeToggle = useCallback((next: boolean) => {
+    // 1. Mark locally edited so the GET response can't undo this choice
+    youthModeUserEditedRef.current = true;
+
+    // 2. Update UI and localStorage immediately for responsiveness
+    setYouthMode(next);
+    youthModeLatestRef.current = next;
+    try { localStorage.setItem("tcaf_youth_mode", String(next)); } catch { /* storage blocked */ }
+
+    if (!isAuthenticated) return;
+
+    // 3. Optimistically update query cache
+    queryClient.setQueryData(["/api/learner-profile"], (old: any) => ({ ...old, youthMode: next }));
+
+    // 4. Debounce: absorb rapid toggles; only the final value is sent to the server
+    if (youthModeDebounceRef.current) clearTimeout(youthModeDebounceRef.current);
+
+    // Capture the session owner at toggle time to detect account switches before the write fires
+    const sessionUserId = user?.id;
+
+    youthModeDebounceRef.current = setTimeout(async () => {
+      // Bail if the auth user has changed since this toggle was queued
+      if (!sessionUserId) return;
+
+      const valueToSave = youthModeLatestRef.current; // final intent after all rapid toggles
+      try {
+        const res = await fetch("/api/learner-profile", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ youthMode: valueToSave }),
+        });
+        if (res.ok) {
+          // Confirm cache reflects exactly what was persisted
+          queryClient.setQueryData(["/api/learner-profile"], (old: any) => ({ ...old, youthMode: valueToSave }));
+        } else {
+          const body = await res.text().catch(() => "");
+          console.error("[youth-mode] Failed to save preference:", res.status, body);
+          // Invalidate so the cache doesn't retain a stale optimistic value
+          queryClient.invalidateQueries({ queryKey: ["/api/learner-profile"] });
+          toast({
+            title: "Youth Mode preference not saved",
+            description: "Couldn't save to your account — setting applies this session only.",
+            variant: "destructive",
+          });
+        }
+      } catch (err) {
+        console.error("[youth-mode] Network error saving preference:", err);
+        queryClient.invalidateQueries({ queryKey: ["/api/learner-profile"] });
+        toast({
+          title: "Youth Mode preference not saved",
+          description: "Check your connection — the setting applies this session only.",
+          variant: "destructive",
+        });
+      }
+    }, 600);
+  }, [isAuthenticated, user?.id, toast]);
 
   const deleteConversation = useMutation({
     mutationFn: (id: string) => apiRequest("DELETE", `/api/navigator/conversations/${id}`),
@@ -1050,7 +1151,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                     ))}
                     <span className="mx-1 h-4 w-px bg-border" aria-hidden="true" />
                     <button
-                      onClick={() => setYouthMode(v => !v)}
+                      onClick={() => handleYouthModeToggle(!youthMode)}
                       data-testid="button-youth-mode"
                       role="switch"
                       aria-checked={youthMode}
@@ -1500,7 +1601,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                 </button>
               ))}
               <button
-                onClick={() => setYouthMode(v => !v)}
+                onClick={() => handleYouthModeToggle(!youthMode)}
                 data-testid="button-youth-mode-bubble"
                 role="switch"
                 aria-checked={youthMode}
