@@ -6947,6 +6947,205 @@ export const consortiumTeamMembers = pgTable("consortium_team_members", {
 });
 export type ConsortiumTeamMember = typeof consortiumTeamMembers.$inferSelect;
 
+// ── YHSI (Youth Homelessness System Improvement) — HUD CPD-2600-DC-0035 ──────
+// Youth data layer + voice portal + referral pathway + biannual reporting.
+// PII lives only in yhsiYouthParticipants; aggregate surfaces must apply the
+// small-cell suppression floor of 5 (see platform-engineering doctrine).
+
+export const yhsiYouthParticipants = pgTable("yhsi_youth_participants", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  // HMIS compatibility fields (HMIS CSV 2026 Client + Enrollment subset)
+  hmisPersonalId: varchar("hmis_personal_id", { length: 64 }),        // HMIS PersonalID if known
+  firstName: varchar("first_name", { length: 200 }),
+  preferredName: varchar("preferred_name", { length: 200 }),
+  lastNameInitial: varchar("last_name_initial", { length: 8 }),
+  dobQuality: varchar("dob_quality", { length: 30 }).default("full"), // full | approximate | refused | unknown (HMIS DOBDataQuality)
+  birthYear: integer("birth_year"),
+  ageAtContact: integer("age_at_contact"),
+  pronouns: varchar("pronouns", { length: 60 }),
+  stateCode: varchar("state_code", { length: 2 }).default("KS"),
+  // McKinney-Vento + homelessness status
+  mckinneyVentoStatus: varchar("mckinney_vento_status", { length: 40 }), // identified | suspected | not_identified | unknown
+  livingSituation: varchar("living_situation", { length: 60 }),          // HMIS 3.917 categories: doubled_up | shelter | unsheltered | transitional | hotel_motel | housed_at_risk | other
+  chronicPattern: boolean("chronic_pattern").default(false),
+  fosterCareHistory: boolean("foster_care_history").default(false),
+  justiceInvolvement: boolean("justice_involvement").default(false),
+  isParenting: boolean("is_parenting").default(false),
+  // Education / employment at first contact
+  educationStatus: varchar("education_status", { length: 60 }),          // enrolled | disengaged | graduated | ged_track | unknown
+  employmentStatus: varchar("employment_status", { length: 60 }),        // employed_ft | employed_pt | seeking | not_seeking | unknown
+  schoolDistrict: varchar("school_district", { length: 120 }),           // e.g. USD 259
+  referralSource: varchar("referral_source", { length: 120 }),           // usd259_mckinney_vento | turning_point | self | outreach | partner
+  consentOnFile: boolean("consent_on_file").notNull().default(false),
+  notes: text("notes"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiYouthParticipantSchema = createInsertSchema(yhsiYouthParticipants).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertYhsiYouthParticipant = z.infer<typeof insertYhsiYouthParticipantSchema>;
+export type YhsiYouthParticipant = typeof yhsiYouthParticipants.$inferSelect;
+
+// Outcome snapshots — status at contact and at 6-month follow-up (HUD YHSI measures)
+export const yhsiOutcomeSnapshots = pgTable("yhsi_outcome_snapshots", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull().references(() => yhsiYouthParticipants.id, { onDelete: "cascade" }),
+  snapshotType: varchar("snapshot_type", { length: 30 }).notNull(),      // at_contact | day_30 | day_90 | day_180 | day_365 | month_6 | month_12 | exit | custom
+  housingStatus: varchar("housing_status", { length: 60 }).notNull(),    // stable_permanent | stable_temporary | doubled_up | shelter | unsheltered | unknown
+  educationStatus: varchar("education_status", { length: 60 }),
+  employmentStatus: varchar("employment_status", { length: 60 }),
+  mckinneyVentoStatus: varchar("mckinney_vento_status", { length: 40 }),
+  // Funder-language outcome fields (Casey, Dave Thomas, HUD renewals)
+  hsCompletion: varchar("hs_completion", { length: 40 }),                // completed | on_track | ged_track | disengaged | na | unknown
+  postSecondaryStatus: varchar("post_secondary_status", { length: 40 }), // enrolled | apprenticeship | applied | not_enrolled | na | unknown
+  hourlyWage: real("hourly_wage"),                                       // null = not employed / not reported
+  livableWage: boolean("livable_wage"),                                  // wage ≥ local livable-wage threshold at time of recording
+  mentorConnections: integer("mentor_connections"),                      // count of stable adult supports (funder benchmark: ≥2)
+  mhScaleUsed: varchar("mh_scale_used", { length: 60 }),                 // validated scale name, e.g. PHQ-9, GAD-7, CANS
+  mhScaleScore: integer("mh_scale_score"),
+  notes: text("notes"),
+  recordedBy: varchar("recorded_by", { length: 255 }),
+  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
+});
+export const insertYhsiOutcomeSnapshotSchema = createInsertSchema(yhsiOutcomeSnapshots).omit({ id: true, recordedAt: true });
+export type InsertYhsiOutcomeSnapshot = z.infer<typeof insertYhsiOutcomeSnapshotSchema>;
+export type YhsiOutcomeSnapshot = typeof yhsiOutcomeSnapshots.$inferSelect;
+
+// Referral pathway — USD 259 → Turning Point → services pipeline
+export const yhsiReferrals = pgTable("yhsi_referrals", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).references(() => yhsiYouthParticipants.id, { onDelete: "set null" }),
+  sourceOrg: varchar("source_org", { length: 200 }).notNull(),           // e.g. USD 259 McKinney-Vento
+  destinationOrg: varchar("destination_org", { length: 200 }).notNull(), // e.g. Turning Point
+  serviceType: varchar("service_type", { length: 120 }).notNull(),       // housing_navigation | case_management | education_reengagement | employment | behavioral_health | basic_needs | legal | other
+  urgency: varchar("urgency", { length: 20 }).notNull().default("routine"), // crisis | urgent | routine
+  status: varchar("status", { length: 40 }).notNull().default("initiated"), // initiated | contacted | enrolled | in_service | completed | closed_unresolved | declined
+  initiatedAt: timestamp("initiated_at").defaultNow().notNull(),
+  firstContactAt: timestamp("first_contact_at"),
+  resolvedAt: timestamp("resolved_at"),
+  outcome: varchar("outcome", { length: 400 }),
+  notes: text("notes"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiReferralSchema = createInsertSchema(yhsiReferrals).omit({ id: true, createdAt: true, updatedAt: true, initiatedAt: true });
+export type InsertYhsiReferral = z.infer<typeof insertYhsiReferralSchema>;
+export type YhsiReferral = typeof yhsiReferrals.$inferSelect;
+
+export const yhsiReferralTouchpoints = pgTable("yhsi_referral_touchpoints", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  referralId: varchar("referral_id", { length: 100 }).notNull().references(() => yhsiReferrals.id, { onDelete: "cascade" }),
+  touchpointType: varchar("touchpoint_type", { length: 60 }).notNull(),  // outreach_call | meeting | warm_handoff | service_start | status_check | closure
+  summary: text("summary"),
+  recordedBy: varchar("recorded_by", { length: 255 }),
+  occurredAt: timestamp("occurred_at").defaultNow().notNull(),
+});
+export const insertYhsiReferralTouchpointSchema = createInsertSchema(yhsiReferralTouchpoints).omit({ id: true, occurredAt: true });
+export type InsertYhsiReferralTouchpoint = z.infer<typeof insertYhsiReferralTouchpointSchema>;
+export type YhsiReferralTouchpoint = typeof yhsiReferralTouchpoints.$inferSelect;
+
+// Youth Voice Portal — youth with lived experience contribute input; each entry
+// carries a server-generated capability token so the contributor can revisit
+// their entry and see how it shaped programs (HUD Youth Leadership factor).
+export const yhsiVoiceEntries = pgTable("yhsi_voice_entries", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  accessToken: varchar("access_token", { length: 64 }),                  // capability token, returned once at creation
+  contributorAlias: varchar("contributor_alias", { length: 120 }),       // youth-chosen name; never require legal name
+  ageRange: varchar("age_range", { length: 20 }),                        // 14-17 | 18-20 | 21-24 | prefer_not
+  livedExperience: boolean("lived_experience").notNull().default(true),
+  inputType: varchar("input_type", { length: 60 }).notNull().default("program_design"), // program_design | application_feedback | service_gap | policy | safety | other
+  body: text("body").notNull(),
+  relatedProgram: varchar("related_program", { length: 200 }),
+  status: varchar("status", { length: 40 }).notNull().default("new"),    // new | reviewed | incorporated | not_actionable
+  impactNote: text("impact_note"),                                       // staff-written: how this input shaped the program/application
+  incorporatedAt: timestamp("incorporated_at"),
+  reviewedBy: varchar("reviewed_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiVoiceEntrySchema = createInsertSchema(yhsiVoiceEntries).omit({ id: true, accessToken: true, status: true, impactNote: true, incorporatedAt: true, reviewedBy: true, createdAt: true, updatedAt: true });
+export type InsertYhsiVoiceEntry = z.infer<typeof insertYhsiVoiceEntrySchema>;
+export type YhsiVoiceEntry = typeof yhsiVoiceEntries.$inferSelect;
+
+// Chafee / ETV / federal entitlement navigation tracking — the "100% of our
+// participants are offered navigation support, X% enrolled" proof line.
+export const yhsiEntitlements = pgTable("yhsi_entitlements", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  participantId: varchar("participant_id", { length: 100 }).notNull().references(() => yhsiYouthParticipants.id, { onDelete: "cascade" }),
+  entitlementType: varchar("entitlement_type", { length: 60 }).notNull(), // chafee | etv | medicaid_former_foster | fafsa_independent | snap | other
+  status: varchar("status", { length: 40 }).notNull().default("offered"), // offered | declined | applied | enrolled | denied | ineligible
+  offeredAt: timestamp("offered_at").defaultNow().notNull(),
+  appliedAt: timestamp("applied_at"),
+  enrolledAt: timestamp("enrolled_at"),
+  annualValue: real("annual_value"),                                      // $ value flowing to youth once enrolled (e.g. ETV up to $5,000/yr)
+  barriers: text("barriers"),                                             // what's blocking — documentation, state processing, etc.
+  notes: text("notes"),
+  recordedBy: varchar("recorded_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiEntitlementSchema = createInsertSchema(yhsiEntitlements).omit({ id: true, createdAt: true, updatedAt: true, offeredAt: true });
+export type InsertYhsiEntitlement = z.infer<typeof insertYhsiEntitlementSchema>;
+export type YhsiEntitlement = typeof yhsiEntitlements.$inferSelect;
+
+// Trauma-informed practice fidelity observations — "we live the book, and
+// here's the data." Observers can be staff, supervisors, or trained youth peers.
+export const yhsiFidelityObservations = pgTable("yhsi_fidelity_observations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  observerRole: varchar("observer_role", { length: 40 }).notNull(),       // staff | supervisor | youth_peer | external
+  programArea: varchar("program_area", { length: 120 }).notNull(),        // e.g. drop-in center, housing navigation, support group
+  // Domain scores 1-5 (SAMHSA trauma-informed principles)
+  scoreRespectAgency: integer("score_respect_agency").notNull(),          // youth spoken to with respect + agency
+  scoreStrengthsBased: integer("score_strengths_based").notNull(),        // "what happened to you" not "what's wrong with you"
+  scoreStaffRegulation: integer("score_staff_regulation").notNull(),      // staff managing own stress, no re-traumatization
+  scoreGentleTransitions: integer("score_gentle_transitions").notNull(),  // transitions handled gently
+  scoreYouthVoiceChoice: integer("score_youth_voice_choice").notNull(),   // youth offered options, not directives
+  strengths: text("strengths"),
+  growthAreas: text("growth_areas"),
+  trainingRecommended: varchar("training_recommended", { length: 300 }),
+  observedAt: timestamp("observed_at").defaultNow().notNull(),
+  recordedBy: varchar("recorded_by", { length: 255 }),
+});
+export const insertYhsiFidelityObservationSchema = createInsertSchema(yhsiFidelityObservations).omit({ id: true, observedAt: true });
+export type InsertYhsiFidelityObservation = z.infer<typeof insertYhsiFidelityObservationSchema>;
+export type YhsiFidelityObservation = typeof yhsiFidelityObservations.$inferSelect;
+
+// HUD compliance milestones — missed project-plan updates get grants rescinded.
+export const yhsiMilestones = pgTable("yhsi_milestones", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  title: varchar("title", { length: 400 }).notNull(),
+  milestoneType: varchar("milestone_type", { length: 60 }).notNull().default("hud_biannual_report"), // hud_biannual_report | project_plan_update | budget_report | drawdown | site_visit | renewal_application | other
+  grantLabel: varchar("grant_label", { length: 200 }),                    // e.g. "HUD YHSI CPD-2600-DC-0035"
+  dueAt: timestamp("due_at").notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("upcoming"), // upcoming | submitted | waived
+  completedAt: timestamp("completed_at"),
+  notes: text("notes"),
+  createdBy: varchar("created_by", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiMilestoneSchema = createInsertSchema(yhsiMilestones).omit({ id: true, createdAt: true, updatedAt: true, completedAt: true });
+export type InsertYhsiMilestone = z.infer<typeof insertYhsiMilestoneSchema>;
+export type YhsiMilestone = typeof yhsiMilestones.$inferSelect;
+
+// Biannual HUD progress reports (missing these gets funding rescinded)
+export const yhsiReports = pgTable("yhsi_reports", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  periodStart: timestamp("period_start").notNull(),
+  periodEnd: timestamp("period_end").notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("draft"),  // draft | final
+  metrics: jsonb("metrics").$type<Record<string, any>>().notNull().default({}), // computed aggregates snapshot
+  narrative: text("narrative"),                                          // AI-drafted, human-edited narrative
+  generatedBy: varchar("generated_by", { length: 255 }),
+  finalizedAt: timestamp("finalized_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+export const insertYhsiReportSchema = createInsertSchema(yhsiReports).omit({ id: true, createdAt: true, updatedAt: true, finalizedAt: true });
+export type InsertYhsiReport = z.infer<typeof insertYhsiReportSchema>;
+export type YhsiReport = typeof yhsiReports.$inferSelect;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";

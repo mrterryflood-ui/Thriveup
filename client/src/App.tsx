@@ -316,6 +316,9 @@ const ChildCareWorkforcePage = lazy(() => import("@/pages/child-care-workforce")
 const RuralIntelPage = lazy(() => import("@/pages/rural-intel"));
 const ContractorOpportunitiesPage = lazy(() => import("@/pages/contractor-opportunities"));
 const Grants101Page = lazy(() => import("@/pages/grants-101"));
+// ─── YHSI (HUD CPD-2600-DC-0035) ──────────────────────────────────────────────
+const YouthVoicePage = lazy(() => import("@/pages/youth-voice"));
+const YhsiOpsPage = lazy(() => import("@/pages/yhsi-ops"));
 const FarmCooperativePage = lazy(() => import("@/pages/farm-cooperative"));
 const FarmProfitabilityPage = lazy(() => import("@/pages/farm-profitability"));
 const InvasiveSpeciesPage = lazy(() => import("@/pages/invasive-species"));
@@ -839,6 +842,13 @@ function AppRouter() {
       <Route path="/rural-intel" component={RuralIntelPage} />
       <Route path="/contractor-opportunities" component={ContractorOpportunitiesPage} />
       <Route path="/grants-101" component={Grants101Page} />
+      {/* ── YHSI — Youth Voice is public by design (no login, capability tokens) ── */}
+      <Route path="/youth-voice" component={YouthVoicePage} />
+      <Route path="/yhsi-ops">
+        <RequireAuth adminOnly reason="YHSI Operations contains youth PII (McKinney-Vento status, housing situations). Restricted to staff.">
+          <YhsiOpsPage />
+        </RequireAuth>
+      </Route>
       <Route path="/farm-cooperative" component={FarmCooperativePage} />
       <Route path="/farm-profitability" component={FarmProfitabilityPage} />
       <Route path="/invasive-species" component={InvasiveSpeciesPage} />

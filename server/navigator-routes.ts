@@ -659,6 +659,12 @@ export function registerNavigatorRoutes(app: Express) {
     };
     const modeInstruction = RESPONSE_MODE_INSTRUCTIONS[responseMode] || RESPONSE_MODE_INSTRUCTIONS.detailed;
 
+    // Youth Mode — calibrated for young people (14-24) navigating housing
+    // instability (YHSI). Opt-in via request body; changes register, not rules.
+    const youthModeInstruction = req.body.youthMode === true
+      ? `\n\n[YOUTH MODE]\nYou are talking with a young person (likely 14-24) who may be experiencing housing instability. Adjust:\n- Language: plain, warm, zero bureaucratic jargon. Short sentences. Never condescending.\n- Safety first: if they describe being unsheltered, in danger, or fleeing, lead with immediate options (school McKinney-Vento liaison, local youth shelter, National Runaway Safeline 1-800-786-2929) before anything else.\n- Rights they often don't know: McKinney-Vento rights to stay enrolled in school without a permanent address, without a parent signature, with transportation; FAFSA independent-student status for unaccompanied homeless youth (no parent info needed — their school liaison or a shelter can verify); ability to get vital documents without a parent in most states.\n- Route housing-adjacent needs proactively: a question about a job or school almost always has a housing dimension — surface both.\n- Never require them to share legal name, immigration status, or family details to get help. Never suggest anything that would out them to an unsafe household.\n- Respect their agency: offer options, not directives.`
+      : "";
+
     // Personal RAG — inject user-specific context when authenticated
     let personalContextBlock = "";
     if (userId) {
@@ -670,7 +676,7 @@ export function registerNavigatorRoutes(app: Express) {
       }
     }
 
-    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + personalContextBlock + modeInstruction;
+    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + personalContextBlock + modeInstruction + youthModeInstruction;
 
     // Only persist conversations for authenticated users
     // Generate a per-request UUID for the DeepSeek R1 poll job.

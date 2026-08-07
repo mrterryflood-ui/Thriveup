@@ -16,6 +16,7 @@
 - [RPLICE Live Platform](rplice-live-platform.md) — bettersciencelab.com is correct URL; 3 public endpoints; /api/research/search needs CSRF; filter client-side; Bearer key needed for grants/full-frameworks.
 - [Community Context Orchestration](community-context-orchestration.md) — AsyncLocalStorage wires Census+RPLICE into every AI call; middleware extracts ZIP; withEthicalPreamble appends it automatically.
 - [SALP+BIA+ADIS Platform DNA](salp-bia-adis-memory.md) — ADIS v3.0 (August 2026): 13-layer BIA (adds Blockchain/Integrity layer), Double Helix Verification Contract, Governance Chain, Conformance Levels, Anti-Pattern Table, Verification Record Template. Supersedes v2.0.
+- [YHSI implementation stack](yhsi-stack.md) — youth voice/referrals/HMIS/reports; role checks MUST hit DB (req.user.role is never set); metrics are suppression-first (floor 5).
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────

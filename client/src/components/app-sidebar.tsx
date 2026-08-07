@@ -120,6 +120,8 @@ const fosterYouthItems: NavItem[] = [
   { title: "AI-assisted Intake (Foster)", url: "/foster-youth/intake", icon: Sparkles },
   { title: "State-Agency Portal", url: "/foster-youth/state-portal", icon: Building2 },
   { title: "Policy Comparison (50 states)", url: "/foster-youth/policy-comparison", icon: Scale },
+  { title: "Youth Voice (YHSI)", url: "/youth-voice", icon: Megaphone },
+  { title: "YHSI Operations", url: "/yhsi-ops", icon: ClipboardList, authOnly: true },
 ];
 
 // HUB 2c — Justice & Reentry: reentry, probation/parole, justice system navigation.

@@ -400,6 +400,14 @@ export const CHAINWEB_TEMPLATES = [
     domains: ["housing","health","education","workforce","justice","economic"],
   },
   {
+    id: "youth_homelessness",
+    name: "Youth Homelessness Intervention vs. Chronic Adult Homelessness (YHSI)",
+    entryDomain: "housing",
+    interventionName: "YHSI youth housing navigation + rapid re-housing (ages 14–24, ~$20K/youth)",
+    description: "HUD YHSI counterfactual: ~$20K/youth for navigation + rapid re-housing during the 14–24 window vs. the documented trajectory into chronic adult homelessness at $40K–$60K/yr in shelter, ER, and justice-system cycling (Culhane et al. 2011; Chapin Hall Voices of Youth Count 2017 — 1 in 10 young adults 18–25 experiences homelessness in a year; early intervention interrupts the chronicity pathway).",
+    domains: ["housing","education","workforce","justice","health","economic"],
+  },
+  {
     id: "dads_care",
     name: "Father Engagement → Family Stability Cascade",
     entryDomain: "family",
