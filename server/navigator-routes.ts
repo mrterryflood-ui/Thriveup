@@ -662,7 +662,10 @@ export function registerNavigatorRoutes(app: Express) {
 
     // Youth Mode — calibrated for young people (14-24) navigating housing
     // instability (YHSI). Opt-in via request body; changes register, not rules.
-    const youthModeInstruction = req.body.youthMode === true
+    // Effective value may also be upgraded from the stored conversation flag
+    // below, so re-opened Youth Mode threads stay youth-friendly.
+    let effectiveYouthMode = req.body.youthMode === true;
+    const buildYouthModeInstruction = () => effectiveYouthMode
       ? `\n\n[YOUTH MODE]\nYou are talking with a young person (likely 14-24) who may be experiencing housing instability. Adjust:\n- Language: plain, warm, zero bureaucratic jargon. Short sentences. Never condescending.\n- Safety first: if they describe being unsheltered, in danger, or fleeing, lead with immediate options (school McKinney-Vento liaison, local youth shelter, National Runaway Safeline 1-800-786-2929) before anything else.\n- Rights they often don't know: McKinney-Vento rights to stay enrolled in school without a permanent address, without a parent signature, with transportation; FAFSA independent-student status for unaccompanied homeless youth (no parent info needed — their school liaison or a shelter can verify).\n- Route housing-adjacent needs proactively: a question about a job or school almost always has a housing dimension — surface both.\n- Never require them to share legal name, immigration status, or family details to get help. Never suggest anything that would out them to an unsafe household.\n- Respect their agency: offer options, not directives.${YOUTH_MODE_KNOWLEDGE}`
       : "";
 
@@ -676,8 +679,6 @@ export function registerNavigatorRoutes(app: Express) {
         console.error("[Navigator] Personal context error:", err);
       }
     }
-
-    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + personalContextBlock + modeInstruction + youthModeInstruction;
 
     // Only persist conversations for authenticated users
     // Generate a per-request UUID for the DeepSeek R1 poll job.
@@ -694,6 +695,7 @@ export function registerNavigatorRoutes(app: Express) {
             userId,
             title: generateConversationTitle(message),
             identifiedNeeds: detectNeeds(message),
+            youthMode: effectiveYouthMode,
           }).returning();
           activeConversationId = newConvo.id;
         } else {
@@ -705,6 +707,16 @@ export function registerNavigatorRoutes(app: Express) {
 
           if (!owned) {
             return res.status(403).json({ error: "Conversation not found or access denied" });
+          }
+
+          // Sticky Youth Mode: a thread that started in Youth Mode stays
+          // youth-friendly, and toggling it on mid-thread persists it.
+          if (owned.youthMode === true) {
+            effectiveYouthMode = true;
+          } else if (effectiveYouthMode) {
+            await db.update(navigatorConversations)
+              .set({ youthMode: true })
+              .where(eq(navigatorConversations.id, activeConversationId));
           }
 
           const newNeeds = detectNeeds(message);
@@ -736,6 +748,8 @@ export function registerNavigatorRoutes(app: Express) {
     res.setHeader("X-Conversation-Id", activeConversationId || "");
 
     res.write(`data: ${JSON.stringify({ conversationId: activeConversationId })}\n\n`);
+
+    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + personalContextBlock + modeInstruction + buildYouthModeInstruction();
 
     const msgs: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
       { role: "system", content: fullSystemPrompt },
@@ -1057,7 +1071,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         .where(eq(navigatorMessages.conversationId, conversationId))
         .orderBy(navigatorMessages.createdAt);
 
-      res.json(messages);
+      res.json({ messages, youthMode: convo.youthMode === true });
     } catch (error) {
       console.error("[Navigator] Error fetching messages:", error);
       res.json([]);

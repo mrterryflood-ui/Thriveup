@@ -2371,6 +2371,7 @@ export const navigatorConversations = pgTable("navigator_conversations", {
   summary: text("summary"),
   identifiedNeeds: text("identified_needs").array(),
   userContext: jsonb("user_context"),
+  youthMode: boolean("youth_mode").notNull().default(false),
   lastMessageAt: timestamp("last_message_at").defaultNow(),
   createdAt: timestamp("created_at").defaultNow(),
 });

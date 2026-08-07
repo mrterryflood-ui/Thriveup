@@ -381,7 +381,9 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
     try {
       const res = await fetch(`/api/navigator/conversations/${convoId}/messages`, { credentials: "include" });
       if (!res.ok) return;
-      const msgs = await res.json();
+      const payload = await res.json();
+      // Endpoint returns { messages, youthMode }; tolerate the old bare-array shape.
+      const msgs = Array.isArray(payload) ? payload : payload.messages ?? [];
       userStartedNewRef.current = false; // resume auto-behaviour after explicit load
       setMessages(msgs.map((m: any) => ({
         id: m.id,
@@ -389,6 +391,13 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
         content: m.content,
         createdAt: m.createdAt,
       })));
+      // Restore Youth Mode for threads that were started (or continued) in it,
+      // so re-opened chats stay youth-friendly end to end.
+      if (!Array.isArray(payload) && payload.youthMode === true) {
+        setYouthMode(true);
+        youthModeLatestRef.current = true;
+        try { localStorage.setItem("tcaf_youth_mode", "true"); } catch { /* storage blocked */ }
+      }
       setActiveConversationId(convoId);
       setView("chat");
     } catch (err) {
