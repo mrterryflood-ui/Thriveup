@@ -17,6 +17,7 @@
 - [Community Context Orchestration](community-context-orchestration.md) — AsyncLocalStorage wires Census+RPLICE into every AI call; middleware extracts ZIP; withEthicalPreamble appends it automatically.
 - [SALP+BIA+ADIS Platform DNA](salp-bia-adis-memory.md) — ADIS v3.0 (August 2026): 13-layer BIA (adds Blockchain/Integrity layer), Double Helix Verification Contract, Governance Chain, Conformance Levels, Anti-Pattern Table, Verification Record Template. Supersedes v2.0.
 - [YHSI implementation stack](yhsi-stack.md) — youth voice/referrals/HMIS/reports; role checks MUST hit DB (req.user.role is never set); metrics are suppression-first (floor 5).
+- [E2E forged-session auth](e2e-forged-session-auth.md) — Playwright can't do OIDC sign-in; forge sessions-table rows + sign connect.sid with SESSION_SECRET to test as an authed user.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
