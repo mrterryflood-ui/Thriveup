@@ -28,6 +28,7 @@ import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
 import { randomUUID, randomBytes, timingSafeEqual } from "crypto";
 import { z } from "zod";
+import { screenParticipantGaps } from "@shared/foster-eligibility";
 
 const coerceDate = z.preprocess((v) => (typeof v === "string" || v instanceof Date ? new Date(v as string) : v), z.date());
 
@@ -688,6 +689,48 @@ export function registerYhsiRoutes(app: Express): void {
     } catch (err) {
       console.error("[YHSI] entitlement create failed:", err);
       return res.status(500).json({ error: "Failed to record entitlement" });
+    }
+  });
+
+  // ── Entitlement gap checklist ──────────────────────────────────────────
+  // For each participant, screen against the codified federal rules
+  // (shared/foster-eligibility.ts) and flag programs with NO tracked
+  // entitlement record. These are screening suggestions requiring staff
+  // verification — never determinations (careAfter14 and unaccompanied
+  // status are not on file, so those conditions are surfaced as caveats).
+  app.get("/api/yhsi/entitlements/gaps", requireStaff, async (_req: Request, res: Response) => {
+    try {
+      const participants = await db.select().from(yhsiYouthParticipants).orderBy(desc(yhsiYouthParticipants.createdAt)).limit(1000);
+      const entitlements = await db.select({ participantId: yhsiEntitlements.participantId, entitlementType: yhsiEntitlements.entitlementType }).from(yhsiEntitlements).limit(5000);
+      const tracked = new Map<string, Set<string>>();
+      for (const e of entitlements) {
+        if (!tracked.has(e.participantId)) tracked.set(e.participantId, new Set());
+        tracked.get(e.participantId)!.add(e.entitlementType);
+      }
+      const KEY_TO_TYPE: Record<string, string> = { chafee: "chafee", etv: "etv", fafsa_independent: "fafsa_independent", mckinney_vento: "mckinney_vento_services" };
+      const gaps: any[] = [];
+      for (const p of participants) {
+        if (p.ageAtContact == null) continue; // cannot screen without age — skip, never guess
+        const housingUnstable = ["doubled_up", "shelter", "unsheltered", "transitional", "hotel_motel"].includes(p.livingSituation ?? "") || p.mckinneyVentoStatus === "identified";
+        // screenParticipantGaps caps every result that depends on a fact NOT
+        // on file (care timing, current-care status, custody) at "maybe".
+        const results = screenParticipantGaps({
+          age: p.ageAtContact,
+          fosterCareHistory: !!p.fosterCareHistory,
+          housingUnstable,
+        });
+        const have = tracked.get(p.id) ?? new Set();
+        const missing = results
+          .filter((r) => (r.eligible === "likely" || r.eligible === "maybe") && !have.has(KEY_TO_TYPE[r.key]))
+          .map((r) => ({ key: r.key, entitlementType: KEY_TO_TYPE[r.key], program: r.program, screen: r.eligible, why: r.why }));
+        if (missing.length > 0) {
+          gaps.push({ participantId: p.id, name: `${p.preferredName || p.firstName} ${p.lastNameInitial ?? ""}.`, age: p.ageAtContact, fosterCareHistory: p.fosterCareHistory, missing });
+        }
+      }
+      return res.json({ gaps, note: "Screening suggestions from codified federal rules — staff must verify care timing and custody status before applying." });
+    } catch (err) {
+      console.error("[YHSI] entitlement gaps failed:", err);
+      return res.status(500).json({ error: "Failed to compute entitlement gaps" });
     }
   });
 

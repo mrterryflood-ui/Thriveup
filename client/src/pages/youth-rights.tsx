@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GraduationCap, ShieldCheck, Bus, FileCheck, HeartHandshake, DollarSign, Phone, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
+import { checkEligibility } from "@shared/foster-eligibility";
 
 // Public "Know Your Rights" hub for youth. Content is served from
 // /api/yhsi/program-guide, which is built ONLY from uploaded source documents
@@ -136,6 +137,26 @@ export default function YouthRightsPage() {
                 <p className="text-muted-foreground">{guide?.chafee?.howToAccess}</p>
               </CardContent>
             </Card>
+            <Card data-testid="card-training-bridge">
+              <CardHeader>
+                <CardTitle className="text-base">What your ETV could pay for — start exploring free, right now</CardTitle>
+                <CardDescription>ETV covers post-secondary education AND training. Try these on this platform today, no cost, no signup — then bring your plan to your child welfare agency.</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-2 sm:grid-cols-2">
+                <Button asChild variant="outline" className="justify-start" data-testid="button-trades">
+                  <Link href="/academy/trade-sims">Trade simulations — electrical, plumbing, HVAC, welding, automotive</Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start" data-testid="button-careers">
+                  <Link href="/academy/careers">Career explorer — see real wages and paths</Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start" data-testid="button-workforce">
+                  <Link href="/workforce-training">Workforce training & credential tracker</Link>
+                </Button>
+                <Button asChild variant="outline" className="justify-start" data-testid="button-childcare">
+                  <Link href="/child-care-workforce">Childcare careers — a field that needs you</Link>
+                </Button>
+              </CardContent>
+            </Card>
           </TabsContent>
 
           <TabsContent value="checker">
@@ -160,63 +181,20 @@ function EligibilityChecker({ guide }: { guide: any }) {
   const [careAfter14, setCareAfter14] = useState<string>("");
 
   const ageN = age === "" ? null : parseInt(age, 10);
-  const results: Array<{ program: string; eligible: "likely" | "maybe" | "no"; why: string }> = [];
-
-  const inCareOrFormer = fosterStatus !== "" && fosterStatus !== "never";
   const needsCareTiming = fosterStatus === "former" || fosterStatus === "adopted16";
 
-  if (ageN !== null && fosterStatus && housing && withParent && (!needsCareTiming || careAfter14)) {
-    // Foster-care-after-14 condition (source: ETV requires foster care
-    // experience after age 14; Chafee "in care" band starts at 14).
-    const careExperienceAfter14 =
-      fosterStatus === "current" ? ageN >= 14 : careAfter14 === "yes";
-    const unaccompanied = withParent === "no";
-
-    // McKinney-Vento: based purely on housing situation (42 U.S.C. §11434a(2))
-    if (housing === "unstable") {
-      results.push({ program: "McKinney-Vento school rights", eligible: "likely", why: "Lacking a fixed, regular, adequate nighttime residence (including doubled-up, motels, shelters, cars) qualifies. 42 U.S.C. §11434a(2)." });
-    } else {
-      results.push({ program: "McKinney-Vento school rights", eligible: "no", why: "These rights apply while you lack stable housing (school-of-origin rights continue through the school year after you get permanent housing)." });
-    }
-
-    // Chafee (Kansas: to 21, since KS is not on the age-23 list in the source doc).
-    // Source bands: youth IN care 14+; people in/formerly in care 18-21;
-    // adoption/guardianship exit at 16+.
-    if (!inCareOrFormer) {
-      results.push({ program: "Chafee services", eligible: "no", why: "Chafee is for youth in or formerly in foster care." });
-    } else if (fosterStatus === "current" && ageN >= 14) {
-      results.push({ program: "Chafee services (Kansas)", eligible: "likely", why: "Youth in foster care ages 14 and older are eligible." });
-    } else if (fosterStatus === "current" && ageN < 14) {
-      results.push({ program: "Chafee services", eligible: "maybe", why: "Chafee starts at 14, but youth 'likely to remain in foster care until 18' can get help participating in age-appropriate activities." });
-    } else if (fosterStatus === "adopted16" && ageN <= 21) {
-      results.push({ program: "Chafee services (Kansas)", eligible: "likely", why: "Youth who left foster care through adoption or guardianship at age 16 or older are eligible." });
-    } else if (fosterStatus === "former" && ageN >= 18 && ageN <= 21) {
-      results.push({ program: "Chafee services (Kansas)", eligible: "likely", why: "Young people formerly in foster care, ages 18 to 21, are eligible in Kansas." });
-    } else if (fosterStatus === "former" && ageN < 18) {
-      results.push({ program: "Chafee services", eligible: "maybe", why: "The formerly-in-care band in the federal rules is ages 18-21; ask your child welfare agency what applies before 18." });
-    } else if (ageN > 21 && ageN <= 23) {
-      results.push({ program: "Chafee services", eligible: "maybe", why: "Kansas serves to age 21, but 31 states + DC + PR serve to 23 — if you live in one of those states, you may still qualify." });
-    } else {
-      results.push({ program: "Chafee services", eligible: "no", why: "Chafee ends at 21 (23 in some states)." });
-    }
-
-    // ETV: requires foster care experience AFTER age 14; up to 26, max 5 years.
-    if (inCareOrFormer && ageN >= 14 && ageN <= 26 && careExperienceAfter14) {
-      results.push({ program: "ETV — up to $5,000/yr for college or training", eligible: "likely", why: "Available up to age 26 (max 5 years total) for young adults who experienced foster care after age 14." });
-    } else if (inCareOrFormer && ageN <= 26) {
-      results.push({ program: "ETV", eligible: "maybe", why: "ETV requires foster care experience after age 14 — if that ends up applying to you, you may qualify up to age 26." });
-    } else if (inCareOrFormer) {
-      results.push({ program: "ETV", eligible: "no", why: "ETV ends at age 26." });
-    }
-
-    // FAFSA independent status: unaccompanied homeless youth only
-    // (42 U.S.C. §11434a(6) + §11432(g)(6)(A)(x)(III)).
-    if (housing === "unstable" && unaccompanied) {
-      results.push({ program: "FAFSA independent student status", eligible: "likely", why: "Unaccompanied homeless youth (not in a parent/guardian's physical custody) file FAFSA without parent info. Your school liaison must give you verification. 42 U.S.C. §11432(g)(6)(A)(x)(III)." });
-    } else if (housing === "unstable") {
-      results.push({ program: "FAFSA independent student status", eligible: "maybe", why: "This applies to unaccompanied homeless youth — youth not in a parent or guardian's physical custody. Since you're with a parent/guardian, talk to your school liaison about your situation." });
-    }
-  }
+  // Rules live in shared/foster-eligibility.ts — the same module the staff
+  // gap checklist uses, and the one covered by boundary tests.
+  const results =
+    ageN !== null && fosterStatus && housing && withParent && (!needsCareTiming || careAfter14)
+      ? checkEligibility({
+          age: ageN,
+          fosterStatus: fosterStatus as any,
+          housingUnstable: housing === "unstable",
+          unaccompanied: withParent === "no",
+          careAfter14: fosterStatus === "current" ? ageN >= 14 : careAfter14 === "yes",
+        })
+      : [];
 
   return (
     <Card>

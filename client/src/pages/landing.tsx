@@ -263,6 +263,13 @@ function CommunitiesWeServe() {
       action: "Explore Career Paths",
     },
     {
+      icon: Heart, title: "Foster Youth & Youth in Transition",
+      desc: "Backed by the full weight of federal law — McKinney-Vento school rights with citations they can show a principal, Chafee and ETV funding up to $5,000/yr for training, an anonymous eligibility checker, and a direct bridge into trades and childcare career paths.",
+      location: "Kansas pilot · built for all 50 states",
+      href: "/youth-rights",
+      action: "Know Your Rights",
+    },
+    {
       icon: Shield, title: "Returning Citizens & Justice-Involved",
       desc: "Empowered to rebuild — with credential recovery, fair-chance employer partnerships, housing navigation, and 365-day retention tracking that proves they belong in the workforce.",
       location: "Travis County & surrounding counties",
@@ -1930,6 +1937,45 @@ export default function LandingPage() {
                       <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
                     </span>
                     <span className="text-xs text-muted-foreground italic">Free · CHW-assisted · No immigration status collected</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      <section className="px-4 pb-4 sm:px-6 pt-8" data-testid="section-foster-youth-initiative">
+        <div className="max-w-3xl mx-auto">
+          <Link
+            href="/youth-rights"
+            className="group block overflow-hidden rounded-xl border-2 border-rose-500/30 bg-gradient-to-br from-rose-500/5 via-card to-card transition-all duration-300 hover:shadow-xl hover:scale-[1.01] active:scale-[0.99] no-underline"
+            data-testid="card-foster-youth-initiative"
+            aria-label="Foster Youth & Transition Initiative — rights, funding, and career pathways for youth aging out of foster care"
+          >
+            <div className="p-5 sm:p-7">
+              <div className="flex items-start gap-4">
+                <div className="rounded-xl p-3 bg-gradient-to-br from-rose-500 to-pink-600 shrink-0 shadow-md">
+                  <Heart className="h-6 w-6 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <Badge variant="secondary" className="mb-2 text-xs" data-testid="badge-foster-initiative">
+                    Foster Youth &amp; Transition Initiative · Kansas pilot, 50-state architecture
+                  </Badge>
+                  <h3 className="font-bold text-lg sm:text-xl mb-2 leading-tight" data-testid="text-foster-initiative-title">
+                    The right solution, at the right time, for the right young person.
+                  </h3>
+                  <p className="text-sm text-muted-foreground mb-3 leading-relaxed" data-testid="text-foster-initiative-desc">
+                    Federal rights with legal citations youth can show a principal. Chafee and ETV funding — up to $5,000/yr for training —
+                    with an anonymous eligibility checker. Coordinated entry, youth-governed decisions, and a staff gap checklist so no one's
+                    entitlements slip through. All bridged straight into trade sims, childcare careers, and workforce pathways on this platform.
+                  </p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-gradient-to-r from-rose-500 to-pink-600 text-white text-sm font-medium shadow-sm" data-testid="button-foster-initiative">
+                      Know Your Rights
+                      <ArrowRight className="h-3.5 w-3.5 group-hover:translate-x-1 transition-transform" />
+                    </span>
+                    <span className="text-xs text-muted-foreground italic">Free · Anonymous · Citations included</span>
                   </div>
                 </div>
               </div>

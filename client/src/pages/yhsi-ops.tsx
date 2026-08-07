@@ -510,12 +510,48 @@ export default function YhsiOpsPage() {
       onError: (e: Error) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
     });
 
+    function GapChecklist({ onTrack }: { onTrack: (participantId: string, entitlementType: string) => void }) {
+      const { data, error, refetch } = useQuery<any>({ queryKey: ["/api/yhsi/entitlements/gaps"] });
+      if (error) return (
+        <Card className="border-destructive"><CardContent className="pt-4 pb-4 flex items-center justify-between gap-3">
+          <p className="text-sm text-destructive" data-testid="text-gaps-error">Couldn't load the gap checklist — a loading error, not an empty checklist.</p>
+          <Button size="sm" variant="outline" onClick={() => refetch()} data-testid="button-gaps-retry">Retry</Button>
+        </CardContent></Card>
+      );
+      if (!data || (data.gaps?.length ?? 0) === 0) return null;
+      return (
+        <Card className="border-amber-500/50" data-testid="card-gap-checklist">
+          <CardContent className="pt-4 pb-4 space-y-3">
+            <div>
+              <p className="text-sm font-semibold">Possible entitlement gaps — {data.gaps.length} youth to review</p>
+              <p className="text-xs text-muted-foreground">{data.note}</p>
+            </div>
+            <div className="space-y-2 max-h-64 overflow-y-auto">
+              {data.gaps.map((g: any) => (
+                <div key={g.participantId} className="rounded-md border p-2 text-sm" data-testid={`gap-${g.participantId}`}>
+                  <p className="font-medium">{g.name} <span className="text-xs text-muted-foreground">age {g.age}{g.fosterCareHistory ? " · foster care history" : ""}</span></p>
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {g.missing.map((m: any) => (
+                      <Button key={m.key} size="sm" variant="outline" className="h-7 text-xs" title={m.why} onClick={() => onTrack(g.participantId, m.entitlementType)} data-testid={`button-gap-${g.participantId}-${m.key}`}>
+                        {m.screen === "likely" ? "⚑ " : ""}{m.entitlementType.replace(/_/g, " ")} — track it
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    }
+
     return (
       <>
         <div className="flex justify-between items-center gap-2 flex-wrap">
           <p className="text-sm text-muted-foreground">Chafee, ETV, and other federal entitlements — track offered → applied → enrolled so every youth accesses what they're legally entitled to.</p>
           <Button size="sm" onClick={() => setShowForm((s) => !s)} data-testid="button-new-entitlement"><Plus className="h-4 w-4 mr-1" /> Track entitlement</Button>
         </div>
+        <GapChecklist onTrack={(participantId, entitlementType) => { setForm((f: any) => ({ ...f, participantId, entitlementType })); setShowForm(true); }} />
         {(summary?.byType?.length ?? 0) > 0 && (
           <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
             {summary.byType.map((t: any) => (
