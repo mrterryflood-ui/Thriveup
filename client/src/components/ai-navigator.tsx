@@ -229,6 +229,18 @@ function GrantResultCards({ grants, orgName, totalFound, isAuthenticated }: {
   );
 }
 
+// ── Youth Mode storage ownership ─────────────────────────────────────────────
+// Two Navigator instances can mount at once: the /navigator page and the
+// globally-mounted floating bubble. Only ONE of them may passively sync the
+// learner profile into the tcaf_youth_mode localStorage key, otherwise the
+// hidden bubble can overwrite the value the page just restored from a youth
+// conversation. Page mode always wins ownership over the bubble.
+const mountedNavigators: { id: symbol; mode: "bubble" | "page" }[] = [];
+function youthModeStorageOwner(): symbol | null {
+  const page = mountedNavigators.find((n) => n.mode === "page");
+  return (page ?? mountedNavigators[0])?.id ?? null;
+}
+
 export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = {}) {
   const { toast } = useToast();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
@@ -281,6 +293,17 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   // Always holds the latest intended value so the debounced write uses final intent
   const youthModeLatestRef = useRef<boolean>(youthMode);
 
+  // Register this instance for Youth Mode storage ownership (page mode wins)
+  const instanceIdRef = useRef<symbol>(Symbol("ai-navigator"));
+  useEffect(() => {
+    const entry = { id: instanceIdRef.current, mode };
+    mountedNavigators.push(entry);
+    return () => {
+      const idx = mountedNavigators.indexOf(entry);
+      if (idx !== -1) mountedNavigators.splice(idx, 1);
+    };
+  }, [mode]);
+
   // Sync from server — only applies before the user makes any local edit
   useEffect(() => {
     if (!isAuthenticated || learnerProfile === undefined) return;
@@ -288,7 +311,11 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
     const serverValue = learnerProfile.youthMode ?? false;
     setYouthMode(serverValue);
     youthModeLatestRef.current = serverValue;
-    try { localStorage.setItem("tcaf_youth_mode", String(serverValue)); } catch { /* storage blocked */ }
+    // Only the owning instance may passively write localStorage — a hidden
+    // bubble must never stomp the value the /navigator page just restored.
+    if (youthModeStorageOwner() === instanceIdRef.current) {
+      try { localStorage.setItem("tcaf_youth_mode", String(serverValue)); } catch { /* storage blocked */ }
+    }
   }, [isAuthenticated, learnerProfile]);
 
   // Cancel any pending write on unmount (component removed from tree)
