@@ -229,6 +229,80 @@ export const PLUMBING_COMPONENT_DEFS: Record<PlumbingComponentKind, PlumbingComp
   },
 };
 
+/* ────────────────────────────────────────────────────────────────────────────
+ * Real-world unit helpers (Task: inches/feet/psi at the UI boundary).
+ * The solver stays SI (meters, m of head, m^3/s). All conversion happens in
+ * the property editors — these tables/constants are the single source of truth.
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+export const IN_TO_M = 0.0254;
+export const FT_TO_M = 1 / 3.28084; // 1 ft = 0.3048 m
+export const PSI_TO_M_HEAD = 1 / 1.42233; // 1 psi ≈ 0.7031 m of water head
+
+export type PipeSchedule = "40" | "80";
+
+export interface NominalPipeSize {
+  /** Display label, e.g. `3/4"` */
+  label: string;
+  /** Nominal size in inches (for sorting/reference). */
+  nominalIn: number;
+  /** Actual inner diameter (inches) per schedule — steel/PVC Sch 40 & 80. */
+  innerIn: Record<PipeSchedule, number>;
+}
+
+/** Standard nominal sizes with Schedule 40 / 80 inner diameters (inches). */
+export const NOMINAL_PIPE_SIZES: NominalPipeSize[] = [
+  { label: `1/2"`, nominalIn: 0.5, innerIn: { "40": 0.622, "80": 0.546 } },
+  { label: `3/4"`, nominalIn: 0.75, innerIn: { "40": 0.824, "80": 0.742 } },
+  { label: `1"`, nominalIn: 1.0, innerIn: { "40": 1.049, "80": 0.957 } },
+  { label: `1-1/4"`, nominalIn: 1.25, innerIn: { "40": 1.38, "80": 1.278 } },
+  { label: `1-1/2"`, nominalIn: 1.5, innerIn: { "40": 1.61, "80": 1.5 } },
+  { label: `2"`, nominalIn: 2.0, innerIn: { "40": 2.067, "80": 1.939 } },
+];
+
+/** SI inner diameter (meters) for a nominal size + schedule. */
+export function nominalToDiameterM(size: NominalPipeSize, schedule: PipeSchedule): number {
+  return size.innerIn[schedule] * IN_TO_M;
+}
+
+/**
+ * Find the nominal size + schedule whose inner diameter matches an SI value
+ * within ~5%, or null if the value is a custom diameter (e.g. legacy 0.019 m
+ * seed data, which is a 3/4" copper approximation between Sch 40 and 80).
+ */
+export function findNominalMatch(
+  diameterM: number,
+): { size: NominalPipeSize; schedule: PipeSchedule } | null {
+  let best: { size: NominalPipeSize; schedule: PipeSchedule; err: number } | null = null;
+  for (const size of NOMINAL_PIPE_SIZES) {
+    for (const schedule of ["40", "80"] as PipeSchedule[]) {
+      const d = nominalToDiameterM(size, schedule);
+      const err = Math.abs(d - diameterM) / d;
+      if (err < 0.02 && (!best || err < best.err)) best = { size, schedule, err };
+    }
+  }
+  return best ? { size: best.size, schedule: best.schedule } : null;
+}
+
+export type HeadUnit = "m" | "ft" | "psi";
+
+export function headFromSI(valueM: number, unit: HeadUnit): number {
+  if (unit === "ft") return valueM / FT_TO_M;
+  if (unit === "psi") return valueM / PSI_TO_M_HEAD;
+  return valueM;
+}
+
+export function headToSI(value: number, unit: HeadUnit): number {
+  if (unit === "ft") return value * FT_TO_M;
+  if (unit === "psi") return value * PSI_TO_M_HEAD;
+  return value;
+}
+
+/** Props that hold a pipe inner diameter in meters (get the nominal-size dropdown). */
+export const DIAMETER_PROP_KEYS = new Set(["diameter", "largeDiameter", "smallDiameter"]);
+/** Props that hold a head/pressure in meters of water (get the ft/psi unit picker). */
+export const HEAD_PROP_KEYS = new Set(["pumpHead", "head"]);
+
 export const PLUMBING_COMPONENT_KINDS: PlumbingComponentKind[] = Object.keys(
   PLUMBING_COMPONENT_DEFS,
 ) as PlumbingComponentKind[];

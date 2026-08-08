@@ -39,6 +39,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Trash2, RotateCcw, Droplets, Info, MoveUpRight } from "lucide-react";
+import {
+  PipeSizeSelect,
+  HeadInput,
+  isDiameterProp,
+  isHeadProp,
+  propLabel,
+} from "@/components/trade-sims/plumbing/plumbing-prop-inputs";
 
 // ─── Canvas constants ─────────────────────────────────────────────────────────
 const CW = 820;
@@ -586,6 +593,14 @@ export function VisualPlumbingCanvas({
     setPropEdit((prev) => ({ ...prev, [`${compId}:${key}`]: rawVal }));
   }, []);
 
+  /** Set a prop directly in SI units (used by unit-aware editors). */
+  const updatePropSI = useCallback((compId: string, key: string, siVal: number) => {
+    if (!Number.isFinite(siVal)) return;
+    setComps((prev) => prev.map((c) =>
+      c.id === compId ? { ...c, props: { ...c.props, [key]: siVal } } : c,
+    ));
+  }, []);
+
   const isClosedCheckValve = useCallback((c: VisualComp) =>
     c.kind === "check_valve" && (result?.closedOneWays?.includes(c.id) ?? false),
   [result]);
@@ -936,6 +951,31 @@ export function VisualPlumbingCanvas({
                 {editableProps.map(([key, val]) => {
                   const editKey = `${selectedComp.id}:${key}`;
                   const displayVal = propEdit[editKey] ?? String(val);
+                  if (isDiameterProp(key)) {
+                    return (
+                      <div key={key} className="flex items-center gap-2">
+                        <Label className="text-xs min-w-fit">{propLabel(key)}</Label>
+                        <PipeSizeSelect
+                          valueM={Number(val)}
+                          onChangeM={(m) => updatePropSI(selectedComp.id, key, m)}
+                          testIdPrefix={`input-prop-${key}`}
+                        />
+                      </div>
+                    );
+                  }
+                  if (isHeadProp(key)) {
+                    return (
+                      <div key={key} className="flex items-center gap-2">
+                        <Label className="text-xs min-w-fit">{propLabel(key)}</Label>
+                        <HeadInput
+                          valueM={Number(val)}
+                          onChangeM={(m) => updatePropSI(selectedComp.id, key, m)}
+                          defaultUnit={key === "pumpHead" ? "ft" : "psi"}
+                          testIdPrefix={`input-prop-${key}`}
+                        />
+                      </div>
+                    );
+                  }
                   return (
                     <div key={key} className="flex items-center gap-2">
                       <Label className="text-xs capitalize min-w-fit">

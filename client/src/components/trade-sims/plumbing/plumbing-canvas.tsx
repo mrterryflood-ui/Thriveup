@@ -18,6 +18,13 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Trash2, Play, RotateCcw, Plus, Droplets } from "lucide-react";
+import {
+  PipeSizeSelect,
+  HeadInput,
+  isDiameterProp,
+  isHeadProp,
+  propLabel,
+} from "@/components/trade-sims/plumbing/plumbing-prop-inputs";
 
 export interface PlumbingCanvasProps {
   initialComponents?: Array<{ kind: string; props?: Record<string, number | boolean | string> }>;
@@ -256,6 +263,31 @@ export function PlumbingCanvas({ initialComponents, onChange, compact = false }:
                               checked={Boolean(c.props[k])}
                               onChange={(e) => updateProp(c.id, k, e.target.checked)}
                               data-testid={`input-prop-${c.id}-${k}`}
+                            />
+                          </div>
+                        );
+                      }
+                      if (typeof v === "number" && isDiameterProp(k)) {
+                        return (
+                          <div key={k} className="flex items-center gap-2 my-1">
+                            <Label className="text-xs flex-1">{propLabel(k)}</Label>
+                            <PipeSizeSelect
+                              valueM={Number(c.props[k] ?? v)}
+                              onChangeM={(m) => updateProp(c.id, k, m)}
+                              testIdPrefix={`input-prop-${c.id}-${k}`}
+                            />
+                          </div>
+                        );
+                      }
+                      if (typeof v === "number" && isHeadProp(k)) {
+                        return (
+                          <div key={k} className="flex items-center gap-2 my-1">
+                            <Label className="text-xs flex-1">{propLabel(k)}</Label>
+                            <HeadInput
+                              valueM={Number(c.props[k] ?? v)}
+                              onChangeM={(m) => updateProp(c.id, k, m)}
+                              defaultUnit={k === "pumpHead" ? "ft" : "psi"}
+                              testIdPrefix={`input-prop-${c.id}-${k}`}
                             />
                           </div>
                         );
