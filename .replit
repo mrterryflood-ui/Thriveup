@@ -57,6 +57,10 @@ args = "yhsi-metrics"
 task = "workflow.run"
 args = "yhsi-guard"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "youth-mode-e2e"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -128,6 +132,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx tsx scripts/test-yhsi-staff-guard.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "youth-mode-e2e"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/run-youth-mode-e2e.sh"
 
 [workflows.workflow.metadata]
 isValidation = true
