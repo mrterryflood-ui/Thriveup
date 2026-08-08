@@ -487,6 +487,9 @@ export function VisualCircuitCanvas({
   compact = false,
 }: VisualCircuitCanvasProps) {
   const svgRef = useRef<SVGSVGElement>(null);
+  // True while a click derived from a terminal pointerdown is in flight —
+  // pointer capture retargets that click to the <svg>, which must not cancel wiring.
+  const terminalTapRef = useRef(false);
   const instanceId = useRef(genId()).current;
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -611,6 +614,12 @@ export function VisualCircuitCanvas({
   }, [dragging, wiringFrom, comps, wires, onInteract]);
 
   const handleSVGClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    // A click that originated from a terminal pointerdown retargets to the
+    // <svg> when pointer capture is active — it must never cancel wiring.
+    if (terminalTapRef.current) {
+      terminalTapRef.current = false;
+      return;
+    }
     if (wiringFrom) {
       // Cancel wiring only when the tap/click landed on empty canvas — clicks
       // on terminals bubble here too and must not cancel the wire in progress.
@@ -917,6 +926,7 @@ export function VisualCircuitCanvas({
                   strokeWidth={isSelWire ? 3 : WIRE_W}
                   strokeLinecap="round"
                   strokeLinejoin="round"
+                  style={{ pointerEvents: "none" }}
                 />
                 {/* Current dots */}
                 {result && v > 0.005 && (() => {
@@ -1038,6 +1048,7 @@ export function VisualCircuitCanvas({
                       onMouseLeave={() => setHoverTerm(null)}
                       onPointerDown={(e) => {
                         e.stopPropagation();
+                        terminalTapRef.current = true;
                         if (svgRef.current) {
                           try { svgRef.current.setPointerCapture(e.pointerId); } catch { /* capture unsupported */ }
                         }

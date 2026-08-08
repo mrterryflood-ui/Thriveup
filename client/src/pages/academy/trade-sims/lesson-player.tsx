@@ -14,7 +14,7 @@ import {
   GraduationCap, Save, Loader2, CheckCircle2, XCircle,
 } from "lucide-react";
 import { VisualCircuitCanvas } from "@/components/trade-sims/electrical/visual-circuit-canvas";
-import { PlumbingCanvas } from "@/components/trade-sims/plumbing/plumbing-canvas";
+import { VisualPlumbingCanvas } from "@/components/trade-sims/plumbing/visual-plumbing-canvas";
 import { AutoCanvas } from "@/components/trade-sims/automotive/auto-canvas";
 import { WeldingCanvas } from "@/components/trade-sims/welding/welding-canvas";
 import { HvacCanvas } from "@/components/trade-sims/hvac/hvac-canvas";
@@ -83,7 +83,7 @@ function renderEngineCanvas(
   }
   if (engineMode === "pipe-network") {
     return (
-      <PlumbingCanvas
+      <VisualPlumbingCanvas
         initialComponents={initialComponents ?? []}
         onChange={(s) => {
           if (s.lastSolve) onRun();
