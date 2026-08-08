@@ -396,6 +396,9 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
       if (!Array.isArray(payload) && payload.youthMode === true) {
         setYouthMode(true);
         youthModeLatestRef.current = true;
+        // Guard against the profile query resolving later and stomping the
+        // conversation-level restore (thread-on beats profile-off).
+        youthModeUserEditedRef.current = true;
         try { localStorage.setItem("tcaf_youth_mode", "true"); } catch { /* storage blocked */ }
       }
       setActiveConversationId(convoId);
