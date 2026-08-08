@@ -24,6 +24,7 @@
 - [SVG canvas touch UX](svg-canvas-touch-ux.md) — stroke-only symbols are untappable on phones; body hit-rects + svg pointer capture + tap-wire must not self-cancel on bubbled pointerup.
 - [Academy economy invariants](academy-economy.md) — virtual money must be unforgeable at the DB level: lock every validated row, server-derive amounts, make rewards claim-once.
 - [Trade Sims adaptive growth path](trade-sims-adaptive-growth.md) — soloPassed gates next day (completed alone doesn't); overrides never cascade; pass decays weakConcepts; stretch = harder rubric mode.
+- [Canonical staff-role lockstep](staff-role-lockstep.md) — all staff gates (server + client) must share the 5-role set and enforce it server-side via DB role lookup.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────

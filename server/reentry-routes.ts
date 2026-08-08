@@ -21,14 +21,17 @@ function requireAuth(req: Request, res: Response, next: Function) {
   next();
 }
 
+// Staff gate — must accept every role in STAFF_ROLES (the same set the
+// /api/reentry/access resolver uses to route users to the staff dashboard),
+// otherwise facilitator/staff users get routed to a dashboard whose APIs 403.
 async function requireAdmin(req: Request, res: Response, next: Function) {
   const userId = getUserId(req);
   if (!userId) return res.status(401).json({ error: "Authentication required" });
   try {
     const user = await storage.getUser(userId);
-    if (user?.role === "admin" || user?.role === "teacher" || user?.role === "case_manager") return next();
+    if (user?.role && STAFF_ROLES.has(user.role)) return next();
   } catch (e) { console.error("Admin check error:", e); }
-  return res.status(403).json({ error: "Admin access required" });
+  return res.status(403).json({ error: "Staff access required" });
 }
 
 const DEFAULT_MILESTONES: Record<string, Array<{ category: string; title: string; phase: string }>> = {

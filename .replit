@@ -61,6 +61,10 @@ args = "yhsi-guard"
 task = "workflow.run"
 args = "youth-mode-e2e"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "access-model-guards"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -146,6 +150,17 @@ args = "bash scripts/run-youth-mode-e2e.sh"
 
 [workflows.workflow.metadata]
 isValidation = true
+
+[[workflows.workflow]]
+name = "access-model-guards"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/test-access-model-guards.ts"
+
+[workflows.workflow.metadata]
+outputType = "console"
 
 [agent]
 integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_with_replit:2.0.0", "javascript_object_storage:2.0.0", "resend:1.0.0", "javascript_anthropic_ai_integrations:2.0.0", "javascript_openrouter_ai_integrations:2.0.0"]

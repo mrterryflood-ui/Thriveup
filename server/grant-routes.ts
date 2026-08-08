@@ -67,6 +67,21 @@ function requireAuth(req: Request, res: Response, next: Function) {
   next();
 }
 
+// Canonical staff-role set — keep in lockstep with server/reentry-routes.ts,
+// server/yhsi-routes.ts, and the client RequireAuth staffOnly gate. Role is
+// resolved from the DB (req.user.role is never set on the session).
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+async function requireStaff(req: Request, res: Response, next: Function) {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role && STAFF_ROLES.has(user.role)) return next();
+  } catch (e) { console.error("Staff check error:", e); }
+  return res.status(403).json({ error: "Staff access required" });
+}
+
 async function requireAdmin(req: Request, res: Response, next: Function) {
   const userId = getUserId(req);
   if (!userId) return res.status(401).json({ error: "Authentication required" });
@@ -3461,9 +3476,9 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
-  app.get("/api/esign/documents", requireAuth, async (req, res) => {
+  app.get("/api/esign/documents", requireStaff, async (req, res) => {
     try {
-      const userId = (req as any).user?.id || (req as any).userId;
+      const userId = getUserId(req)!; // requireStaff guarantees presence
       const docs = await db.select().from(documentSignatures).where(eq(documentSignatures.userId, userId)).orderBy(desc(documentSignatures.createdAt));
       res.json(docs);
     } catch (error) {
@@ -3472,9 +3487,9 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
-  app.post("/api/esign/create", requireAuth, async (req, res) => {
+  app.post("/api/esign/create", requireStaff, async (req, res) => {
     try {
-      const userId = (req as any).user?.id || (req as any).userId;
+      const userId = getUserId(req)!; // requireStaff guarantees presence
       const { documentType, documentTitle, documentContext, recipientName, recipientEmail, recipientOrg, grantId } = req.body;
 
       if (!documentType || !documentTitle || !recipientName) {
@@ -3510,7 +3525,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
-  app.post("/api/esign/sign/:id", requireAuth, async (req, res) => {
+  app.post("/api/esign/sign/:id", requireStaff, async (req, res) => {
     try {
       const { id } = req.params as Record<string, string>;
       const { signatureData, signerName } = req.body;
@@ -3549,7 +3564,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
-  app.post("/api/esign/revoke/:id", requireAuth, async (req, res) => {
+  app.post("/api/esign/revoke/:id", requireStaff, async (req, res) => {
     try {
       const { id } = req.params as Record<string, string>;
       const [updated] = await db.update(documentSignatures)
@@ -3702,7 +3717,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     }
   });
 
-  app.post("/api/esign/generate-template", requireAuth, async (req, res) => {
+  app.post("/api/esign/generate-template", requireStaff, async (req, res) => {
     try {
       const { templateType, grantName, partnerOrg, partnerContact } = req.body;
       if (!templateType) {

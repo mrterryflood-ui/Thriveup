@@ -2,6 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { isStaffUser } from "@/components/require-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -89,7 +90,11 @@ function MetricSection({ title, icon: Icon, children, color }: {
 
 export default function PlatformMetricsPage() {
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  // Snapshot capture is a staff-only action server-side — only render the
+  // control for users the shared staff policy admits, so no visitor ever sees
+  // a button guaranteed to 403.
+  const { user } = useAuth();
+  const isStaff = isStaffUser(user);
 
   // Public read-only aggregates — no auth required. Values are non-sensitive
   // rollups; people counts below the suppression floor come back masked, and
@@ -129,7 +134,7 @@ export default function PlatformMetricsPage() {
           title="Platform Metrics"
           description="Comprehensive metrics dashboard across all platform categories"
         />
-        {isAuthenticated && (
+        {isStaff && (
           <div className="flex items-center gap-2 flex-wrap">
             <Button variant="outline" onClick={() => snapshotMutation.mutate()} disabled={snapshotMutation.isPending} data-testid="button-snapshot">
               <Camera className="mr-2 h-4 w-4" />

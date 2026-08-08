@@ -721,9 +721,18 @@ function AppRouter() {
           <StDavidsPrepPage />
         </RequireAuth>
       </Route>
-      <Route path="/esign" component={ESignPage} />
+      <Route path="/esign">
+        <RequireAuth staffOnly reason="The E-Sign Center manages grant and partnership signature requests. Restricted to TCAF staff — external recipients sign through their emailed invite link instead.">
+          <ESignPage />
+        </RequireAuth>
+      </Route>
+      {/* Public token-scoped invite page — external signers need no account. */}
       <Route path="/esign/invite/:id" component={ESignInvitePage} />
-      <Route path="/esign/:id" component={ESignPage} />
+      <Route path="/esign/:id">
+        <RequireAuth staffOnly reason="The E-Sign Center manages grant and partnership signature requests. Restricted to TCAF staff — external recipients sign through their emailed invite link instead.">
+          <ESignPage />
+        </RequireAuth>
+      </Route>
       <Route path="/austin" component={AustinHousingInitiativePage} />
       <Route path="/roku-ads" component={RokuAdsPage} />
       <Route path="/voices-of-austin" component={VoicesOfAustinPage} />

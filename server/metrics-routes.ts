@@ -1,5 +1,5 @@
 import type { Express, Request, Response } from "express";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import {
   platformMetrics, insertPlatformMetricSchema,
   studentProgress, facilitatorProfiles, sessionPlans, curriculumDeliveryLogs,
@@ -16,6 +16,21 @@ function getUserId(req: Request): string | undefined {
 function requireAuth(req: Request, res: Response, next: Function) {
   if (!getUserId(req)) return res.status(401).json({ error: "Unauthorized" });
   next();
+}
+
+// Canonical staff-role set — keep in lockstep with server/reentry-routes.ts,
+// server/yhsi-routes.ts, server/grant-routes.ts, and the client RequireAuth
+// staffOnly gate. Role is resolved from the DB (req.user.role is never set).
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+async function requireStaff(req: Request, res: Response, next: Function) {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role && STAFF_ROLES.has(user.role)) return next();
+  } catch (e) { console.error("Staff check error:", e); }
+  return res.status(403).json({ error: "Staff access required" });
 }
 
 function getTrend(current: number, previous: number): string {
@@ -37,6 +52,45 @@ function suppressCount(n: number): number | string {
 // Presented to the public as "not yet reported" rather than a misleading 0.
 const NOT_YET_REPORTED = "not yet reported" as const;
 
+// Bounded SQL aggregates — never load full tables into memory. Every value
+// the metrics endpoints publish is computed in the database.
+async function computeAggregates() {
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+
+  const [studentAgg] = await db.select({
+    totalStudents: count(),
+    activeStudents30d: sql<number>`count(*) filter (where ${studentProgress.lastActiveDate} >= ${thirtyDaysAgo})`.mapWith(Number),
+    lessonsCompleted: sql<number>`coalesce(sum(${studentProgress.lessonsCompleted}), 0)`.mapWith(Number),
+    quizzesCompleted: sql<number>`coalesce(sum(${studentProgress.quizzesCompleted}), 0)`.mapWith(Number),
+    avgScore: sql<number | null>`avg(${studentProgress.averageScore})`.mapWith((v) => (v === null ? null : Number(v))),
+  }).from(studentProgress);
+
+  const [facilitatorAgg] = await db.select({ totalFacilitators: count() }).from(facilitatorProfiles);
+
+  const [logAgg] = await db.select({
+    sessionsDelivered: count(),
+    avgFidelity: sql<number | null>`avg(${curriculumDeliveryLogs.fidelityScore})`.mapWith((v) => (v === null ? null : Number(v))),
+    totalDosageMinutes: sql<number>`coalesce(sum(${curriculumDeliveryLogs.dosageMinutes}), 0)`.mapWith(Number),
+  }).from(curriculumDeliveryLogs);
+
+  const [classroomAgg] = await db.select({ classroomsActive: count() }).from(classrooms);
+  const [certificateAgg] = await db.select({ certificatesIssued: count() }).from(certificates);
+
+  return {
+    totalStudents: studentAgg.totalStudents,
+    activeStudents30d: studentAgg.activeStudents30d,
+    lessonsCompleted: studentAgg.lessonsCompleted,
+    quizzesCompleted: studentAgg.quizzesCompleted,
+    avgScore: studentAgg.avgScore === null ? null : Math.round(studentAgg.avgScore),
+    totalFacilitators: facilitatorAgg.totalFacilitators,
+    sessionsDelivered: logAgg.sessionsDelivered,
+    avgFidelity: logAgg.avgFidelity === null ? null : Math.round(logAgg.avgFidelity * 10) / 10,
+    totalDosageHours: Math.round((logAgg.totalDosageMinutes / 60) * 10) / 10,
+    classroomsActive: classroomAgg.classroomsActive,
+    certificatesIssued: certificateAgg.certificatesIssued,
+  };
+}
+
 export function registerMetricsRoutes(app: Express) {
   // PUBLIC read-only aggregates for /platform-metrics and /transparency.
   // No auth required. Returns ONLY non-sensitive rollups — no individual rows,
@@ -44,40 +98,23 @@ export function registerMetricsRoutes(app: Express) {
   // Values with no live data source are labeled "not yet reported" (never 0).
   app.get("/api/public/platform-metrics", async (_req, res) => {
     try {
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-
-      const allStudents = await db.select().from(studentProgress);
-      const activeStudents = allStudents.filter(s => s.lastActiveDate && s.lastActiveDate >= thirtyDaysAgo);
-      const totalLessonsCompleted = allStudents.reduce((s, p) => s + p.lessonsCompleted, 0);
-      const totalQuizzes = allStudents.reduce((s, p) => s + p.quizzesCompleted, 0);
-
-      const allFacilitators = await db.select().from(facilitatorProfiles);
-      const allLogs = await db.select().from(curriculumDeliveryLogs);
-      const avgFidelity = allLogs.length > 0
-        ? allLogs.reduce((s, l) => s + l.fidelityScore, 0) / allLogs.length
-        : 0;
-      const totalDosage = allLogs.reduce((s, l) => s + l.dosageMinutes, 0);
-
-      const allClassrooms = await db.select().from(classrooms);
-      const allCertificates = await db.select().from(certificates);
+      const agg = await computeAggregates();
 
       res.json({
         engagement: {
-          totalUsers: suppressCount(allStudents.length),
-          activeUsers30d: suppressCount(activeStudents.length),
-          lessonsCompleted: totalLessonsCompleted,
-          quizzesCompleted: totalQuizzes,
+          totalUsers: suppressCount(agg.totalStudents),
+          activeUsers30d: suppressCount(agg.activeStudents30d),
+          lessonsCompleted: agg.lessonsCompleted,
+          quizzesCompleted: agg.quizzesCompleted,
         },
         prevention: {
-          youthReached: suppressCount(allStudents.length),
-          modulesCompleted: totalLessonsCompleted,
-          avgScore: allStudents.length > 0
-            ? Math.round(allStudents.reduce((s, p) => s + p.averageScore, 0) / allStudents.length)
-            : NOT_YET_REPORTED,
+          youthReached: suppressCount(agg.totalStudents),
+          modulesCompleted: agg.lessonsCompleted,
+          avgScore: agg.avgScore ?? NOT_YET_REPORTED,
         },
         coalition: {
-          classroomsActive: allClassrooms.length,
-          certificatesIssued: allCertificates.length,
+          classroomsActive: agg.classroomsActive,
+          certificatesIssued: agg.certificatesIssued,
         },
         // No live source yet — do not present placeholder zeros as measured.
         workforce: {
@@ -89,10 +126,10 @@ export function registerMetricsRoutes(app: Express) {
           totalFundingSecured: NOT_YET_REPORTED,
         },
         facilitator: {
-          totalFacilitators: allFacilitators.length,
-          sessionsDelivered: allLogs.length,
-          avgFidelity: allLogs.length > 0 ? Math.round(avgFidelity * 10) / 10 : NOT_YET_REPORTED,
-          totalDosageHours: Math.round(totalDosage / 60 * 10) / 10,
+          totalFacilitators: agg.totalFacilitators,
+          sessionsDelivered: agg.sessionsDelivered,
+          avgFidelity: agg.avgFidelity ?? NOT_YET_REPORTED,
+          totalDosageHours: agg.totalDosageHours,
         },
         parent: {
           modulesCompleted: NOT_YET_REPORTED,
@@ -110,64 +147,49 @@ export function registerMetricsRoutes(app: Express) {
   });
 
 
-  app.get("/api/metrics/platform-wide", requireAuth, async (_req, res) => {
+  // Authenticated staff view — exact counts (no suppression), but unmeasured
+  // values are still labeled "not yet reported" rather than placeholder zeros.
+  app.get("/api/metrics/platform-wide", requireStaff, async (_req, res) => {
     try {
-      const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
-
-      const allStudents = await db.select().from(studentProgress);
-      const activeStudents = allStudents.filter(s => s.lastActiveDate && s.lastActiveDate >= thirtyDaysAgo);
-      const totalLessonsCompleted = allStudents.reduce((s, p) => s + p.lessonsCompleted, 0);
-      const totalQuizzes = allStudents.reduce((s, p) => s + p.quizzesCompleted, 0);
-
-      const allFacilitators = await db.select().from(facilitatorProfiles);
-      const allLogs = await db.select().from(curriculumDeliveryLogs);
-      const avgFidelity = allLogs.length > 0
-        ? allLogs.reduce((s, l) => s + l.fidelityScore, 0) / allLogs.length
-        : 0;
-      const totalDosage = allLogs.reduce((s, l) => s + l.dosageMinutes, 0);
-
-      const allClassrooms = await db.select().from(classrooms);
-      const allCertificates = await db.select().from(certificates);
+      const agg = await computeAggregates();
 
       const metrics = {
         engagement: {
-          totalUsers: allStudents.length,
-          activeUsers30d: activeStudents.length,
-          lessonsCompleted: totalLessonsCompleted,
-          quizzesCompleted: totalQuizzes,
+          totalUsers: agg.totalStudents,
+          activeUsers30d: agg.activeStudents30d,
+          lessonsCompleted: agg.lessonsCompleted,
+          quizzesCompleted: agg.quizzesCompleted,
         },
         prevention: {
-          youthReached: allStudents.length,
-          modulesCompleted: totalLessonsCompleted,
-          avgScore: allStudents.length > 0
-            ? Math.round(allStudents.reduce((s, p) => s + p.averageScore, 0) / allStudents.length)
-            : 0,
+          youthReached: agg.totalStudents,
+          modulesCompleted: agg.lessonsCompleted,
+          avgScore: agg.avgScore ?? NOT_YET_REPORTED,
         },
         coalition: {
-          classroomsActive: allClassrooms.length,
-          certificatesIssued: allCertificates.length,
+          classroomsActive: agg.classroomsActive,
+          certificatesIssued: agg.certificatesIssued,
         },
         workforce: {
-          careerAssessments: 0,
-          jobPlacements: 0,
+          careerAssessments: NOT_YET_REPORTED,
+          jobPlacements: NOT_YET_REPORTED,
         },
         grants: {
-          applicationsInProgress: 0,
-          totalFundingSecured: 0,
+          applicationsInProgress: NOT_YET_REPORTED,
+          totalFundingSecured: NOT_YET_REPORTED,
         },
         facilitator: {
-          totalFacilitators: allFacilitators.length,
-          sessionsDelivered: allLogs.length,
-          avgFidelity: Math.round(avgFidelity * 10) / 10,
-          totalDosageHours: Math.round(totalDosage / 60 * 10) / 10,
+          totalFacilitators: agg.totalFacilitators,
+          sessionsDelivered: agg.sessionsDelivered,
+          avgFidelity: agg.avgFidelity ?? NOT_YET_REPORTED,
+          totalDosageHours: agg.totalDosageHours,
         },
         parent: {
-          modulesCompleted: 0,
-          familyAssessments: 0,
+          modulesCompleted: NOT_YET_REPORTED,
+          familyAssessments: NOT_YET_REPORTED,
         },
         email: {
-          inquiriesReceived: 0,
-          responseRate: 0,
+          inquiriesReceived: NOT_YET_REPORTED,
+          responseRate: NOT_YET_REPORTED,
         },
       };
 
@@ -177,7 +199,7 @@ export function registerMetricsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/metrics/trends/:category", requireAuth, async (req, res) => {
+  app.get("/api/metrics/trends/:category", requireStaff, async (req, res) => {
     try {
       const { category } = req.params as Record<string, string>;
       const stored = await db.select().from(platformMetrics)
@@ -189,19 +211,17 @@ export function registerMetricsRoutes(app: Express) {
     }
   });
 
-  app.post("/api/metrics/snapshot", requireAuth, async (_req, res) => {
+  app.post("/api/metrics/snapshot", requireStaff, async (_req, res) => {
     try {
-      const allStudents = await db.select().from(studentProgress);
-      const allLogs = await db.select().from(curriculumDeliveryLogs);
-      const allFacilitators = await db.select().from(facilitatorProfiles);
+      const agg = await computeAggregates();
 
       const snapshots = [
-        { metricName: "Total Users", metricCategory: "engagement", currentValue: allStudents.length, previousValue: 0, targetValue: 100, unit: "count", trend: "stable" },
-        { metricName: "Total Facilitators", metricCategory: "facilitator", currentValue: allFacilitators.length, previousValue: 0, targetValue: 10, unit: "count", trend: "stable" },
-        { metricName: "Sessions Delivered", metricCategory: "facilitator", currentValue: allLogs.length, previousValue: 0, targetValue: 50, unit: "count", trend: "stable" },
-        { metricName: "Avg Fidelity", metricCategory: "fidelity", currentValue: allLogs.length > 0 ? allLogs.reduce((s, l) => s + l.fidelityScore, 0) / allLogs.length : 0, previousValue: 0, targetValue: 4.0, unit: "score", trend: "stable" },
-        { metricName: "Total Dosage Hours", metricCategory: "operational", currentValue: Math.round(allLogs.reduce((s, l) => s + l.dosageMinutes, 0) / 60 * 10) / 10, previousValue: 0, targetValue: 500, unit: "hours", trend: "stable" },
-        { metricName: "Youth Reached", metricCategory: "reach", currentValue: allStudents.length, previousValue: 0, targetValue: 200, unit: "count", trend: "stable" },
+        { metricName: "Total Users", metricCategory: "engagement", currentValue: agg.totalStudents, previousValue: 0, targetValue: 100, unit: "count", trend: "stable" },
+        { metricName: "Total Facilitators", metricCategory: "facilitator", currentValue: agg.totalFacilitators, previousValue: 0, targetValue: 10, unit: "count", trend: "stable" },
+        { metricName: "Sessions Delivered", metricCategory: "facilitator", currentValue: agg.sessionsDelivered, previousValue: 0, targetValue: 50, unit: "count", trend: "stable" },
+        { metricName: "Avg Fidelity", metricCategory: "fidelity", currentValue: agg.avgFidelity ?? 0, previousValue: 0, targetValue: 4.0, unit: "score", trend: "stable" },
+        { metricName: "Total Dosage Hours", metricCategory: "operational", currentValue: agg.totalDosageHours, previousValue: 0, targetValue: 500, unit: "hours", trend: "stable" },
+        { metricName: "Youth Reached", metricCategory: "reach", currentValue: agg.totalStudents, previousValue: 0, targetValue: 200, unit: "count", trend: "stable" },
       ];
 
       for (const snap of snapshots) {
@@ -214,7 +234,7 @@ export function registerMetricsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/metrics/stored", requireAuth, async (_req, res) => {
+  app.get("/api/metrics/stored", requireStaff, async (_req, res) => {
     try {
       const stored = await db.select().from(platformMetrics).orderBy(desc(platformMetrics.calculatedAt));
       res.json(stored);

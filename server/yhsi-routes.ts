@@ -154,7 +154,10 @@ export function getUserId(req: Request): string | undefined {
 // Roles are persisted in the users table, NOT attached to req.user by the
 // auth layer — resolve via storage.getUser(claims.sub), same as the main
 // requireAdmin in server/routes.ts. Session-only checks are nonfunctional.
-const STAFF_ROLES = new Set(["admin", "teacher", "case_manager"]);
+// Canonical staff-role set — keep in lockstep with server/reentry-routes.ts
+// STAFF_ROLES and the client RequireAuth staffOnly gate, or staff-routed pages
+// will render while their APIs 403.
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
 async function isStaff(req: Request): Promise<boolean> {
   const userId = getUserId(req);
   if (!userId) return false;

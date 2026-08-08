@@ -8,11 +8,22 @@ interface RequireAuthProps {
   children: React.ReactNode;
   reason?: string;
   adminOnly?: boolean;
-  /** Allows admin, teacher, and case_manager — mirrors the server's requireStaff policy. */
+  /** Allows any staff role — mirrors the server's canonical STAFF_ROLES set
+   * (e.g. server/reentry-routes.ts). Server endpoints still enforce their own
+   * role checks; this gate only controls what the client renders. */
   staffOnly?: boolean;
 }
 
-const STAFF_ROLES = new Set(["admin", "teacher", "case_manager"]);
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+/** Shared client-side staff policy — single source of truth for pages that
+ * show or hide staff-only controls. Mirrors the server's canonical staff set;
+ * the server still enforces authorization on every staff endpoint. */
+export function isStaffUser(user: unknown): boolean {
+  const role = (user as any)?.role;
+  const isTcafAdmin = (user as any)?.isTcafAdmin === true;
+  return isTcafAdmin || STAFF_ROLES.has(role);
+}
 
 export function RequireAuth({ children, reason, adminOnly, staffOnly }: RequireAuthProps) {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -34,7 +45,7 @@ export function RequireAuth({ children, reason, adminOnly, staffOnly }: RequireA
   // no role field — accept either so admin gates actually admit admins.
   const isTcafAdmin = (user as any)?.isTcafAdmin === true;
   const isAdmin = role === "admin" || isTcafAdmin;
-  const isStaff = STAFF_ROLES.has(role) || isTcafAdmin;
+  const isStaff = isStaffUser(user);
   const blocked = !isAuthenticated || (adminOnly && !isAdmin) || (staffOnly && !isStaff);
 
   if (blocked) {
