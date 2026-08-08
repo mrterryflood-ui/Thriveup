@@ -53,6 +53,10 @@ args = "ai-preamble"
 task = "workflow.run"
 args = "yhsi-metrics"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "yhsi-guard"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -113,6 +117,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx tsx --test server/__tests__/yhsi-metrics.test.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "yhsi-guard"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/test-yhsi-staff-guard.ts"
 
 [workflows.workflow.metadata]
 isValidation = true
