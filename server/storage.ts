@@ -29,7 +29,7 @@ import {
   type AcademyMerchItem, type InsertAcademyMerchItem,
   type AcademyMerchOrder, type InsertAcademyMerchOrder,
   academyPantherPower, academyDailyQuests, academyLifeLessons, academyWizardProgress,
-  academyScenarios, academyScenarioNodes, academyScenarioRuns, academyChoiceLogs,
+  academyScenarios, academyScenarioNodes, academyScenarioRuns, academyChoiceLogs, academyScenarioRewardClaims,
   academyMarketListings, academyPeerTrades, academyActivityFeed, academyAdminNotes, academyContentReports,
   type AcademyPantherPower, type InsertAcademyPantherPower,
   type AcademyDailyQuest, type InsertAcademyDailyQuest,
@@ -222,6 +222,8 @@ export interface IStorage {
   atomicWalletDebit(userId: string, amount: number, tx: { type: string; description: string; category?: string }, extraWallet?: (walletBalanceBefore: number) => Partial<AcademyWallet>): Promise<AcademyWallet>;
   atomicStockTrade(userId: string, stockId: string, action: "buy" | "sell", shares: number): Promise<{ action: string; shares: number; price: number; total: number; newBalance: string }>;
   atomicCampusFund(userId: string, amount: number): Promise<{ project: AcademyCampusProject; newBalance: string }>;
+  atomicUpsertCampusProject(userId: string, updates: { projectName?: string; totalBudget?: string; currentPhase?: number; completedPhases?: unknown; features?: unknown }): Promise<AcademyCampusProject>;
+  atomicScenarioChoice(userId: string, runId: string, nodeKey: string, choiceKey: string, choiceLabel: string): Promise<{ run: AcademyScenarioRun; nextNode: AcademyScenarioNode | undefined; walletImpact: number; powerImpact: number; meritImpact: number; isEnd: boolean }>;
   atomicMarketplaceBuy(listingId: string, buyerId: string, buyerName: string, quantity: number): Promise<{ trade: AcademyPeerTrade; price: number; listing: AcademyMarketListing }>;
   atomicMerchOrder(userId: string, userName: string, itemId: string, quantity: number): Promise<{ order: AcademyMerchOrder; totalPrice: string; newBalance: string }>;
   simulateStocksForToday(today: string): Promise<AcademyStock[]>;
@@ -880,8 +882,13 @@ export class DatabaseStorage implements IStorage {
   async getOrCreateWallet(userId: string): Promise<AcademyWallet> {
     const [existing] = await db.select().from(academyWallets).where(eq(academyWallets.userId, userId));
     if (existing) return existing;
-    const [created] = await db.insert(academyWallets).values({ userId, balance: "1000.00" }).returning();
-    return created;
+    // Conflict-safe: concurrent first requests collapse onto the unique
+    // user_id constraint instead of creating duplicate wallets.
+    const [created] = await db.insert(academyWallets).values({ userId, balance: "1000.00" })
+      .onConflictDoNothing({ target: academyWallets.userId }).returning();
+    if (created) return created;
+    const [row] = await db.select().from(academyWallets).where(eq(academyWallets.userId, userId));
+    return row;
   }
 
   async updateWalletBalance(id: string, data: Partial<AcademyWallet>): Promise<AcademyWallet> {
@@ -890,7 +897,8 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getTransactionsByWallet(walletId: string): Promise<AcademyTransaction[]> {
-    return db.select().from(academyTransactions).where(eq(academyTransactions.walletId, walletId)).orderBy(desc(academyTransactions.createdAt));
+    // Bounded history: the ledger table grows forever, but API reads stay capped.
+    return db.select().from(academyTransactions).where(eq(academyTransactions.walletId, walletId)).orderBy(desc(academyTransactions.createdAt)).limit(200);
   }
 
   async createTransaction(transaction: InsertAcademyTransaction): Promise<AcademyTransaction> {
@@ -952,21 +960,68 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
+  async atomicUpsertCampusProject(
+    userId: string,
+    updates: { projectName?: string; totalBudget?: string; currentPhase?: number; completedPhases?: unknown; features?: unknown }
+  ): Promise<AcademyCampusProject> {
+    // Every budget mutation runs under the project row lock, so a totalBudget
+    // reduction can never interleave with the (also project-locked) funding
+    // flow: validation always sees the committed amountFunded.
+    return db.transaction(async (tx) => {
+      await tx.execute(sql`SELECT id FROM academy_campus_projects WHERE user_id = ${userId} FOR UPDATE`);
+      const [existing] = await tx.select().from(academyCampusProjects).where(eq(academyCampusProjects.userId, userId));
+      if (!existing) {
+        // ON CONFLICT via the user_id unique constraint: concurrent initial
+        // creates collapse to one row instead of producing duplicates.
+        const [created] = await tx.insert(academyCampusProjects)
+          .values({
+            userId,
+            projectName: updates.projectName || "My Campus",
+            ...(updates.totalBudget !== undefined ? { totalBudget: updates.totalBudget } : {}),
+            ...(updates.currentPhase !== undefined ? { currentPhase: updates.currentPhase } : {}),
+            ...(updates.completedPhases !== undefined ? { completedPhases: updates.completedPhases } : {}),
+            ...(updates.features !== undefined ? { features: updates.features } : {}),
+          } as InsertAcademyCampusProject)
+          .onConflictDoNothing({ target: academyCampusProjects.userId })
+          .returning();
+        if (created) return created;
+        // Lost the insert race — re-lock and fall through to update semantics.
+        await tx.execute(sql`SELECT id FROM academy_campus_projects WHERE user_id = ${userId} FOR UPDATE`);
+        const [row] = await tx.select().from(academyCampusProjects).where(eq(academyCampusProjects.userId, userId));
+        return this.applyCampusUpdates(tx, row, updates);
+      }
+      return this.applyCampusUpdates(tx, existing, updates);
+    });
+  }
+
+  private async applyCampusUpdates(tx: any, existing: AcademyCampusProject, updates: { projectName?: string; totalBudget?: string; currentPhase?: number; completedPhases?: unknown; features?: unknown }): Promise<AcademyCampusProject> {
+    if (updates.totalBudget !== undefined && parseFloat(String(updates.totalBudget)) < parseFloat(existing.amountFunded)) {
+      throw new Error("BUDGET_BELOW_FUNDED");
+    }
+    const set: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(updates)) {
+      if (v !== undefined) set[k] = v;
+    }
+    if (Object.keys(set).length === 0) return existing;
+    const [updated] = await tx.update(academyCampusProjects).set(set).where(eq(academyCampusProjects.id, existing.id)).returning();
+    return updated;
+  }
+
   // ── Atomic economy operations ────────────────────────────────────────────
   // All of these lock the wallet row (SELECT ... FOR UPDATE) inside a single DB
   // transaction so concurrent requests cannot double-spend, and so the balance
   // mutation and the ledger transaction insert can never diverge.
 
   private async lockWallet(tx: any, userId: string): Promise<AcademyWallet> {
-    // Ensure the wallet exists before locking (getOrCreateWallet is not tx-aware).
-    let [wallet] = await tx.select().from(academyWallets).where(eq(academyWallets.userId, userId));
-    if (!wallet) {
-      [wallet] = await tx.insert(academyWallets).values({ userId, balance: "1000.00" }).returning();
-    }
-    // Lock the row for the remainder of the transaction.
-    await tx.execute(sql`SELECT id FROM academy_wallets WHERE id = ${wallet.id} FOR UPDATE`);
-    // Re-read under lock to get the authoritative current balance.
-    [wallet] = await tx.select().from(academyWallets).where(eq(academyWallets.id, wallet.id));
+    // Race-safe ensure-then-lock: the insert collapses onto the unique
+    // user_id constraint, so two concurrent first-ever requests can never
+    // create (and each lock) separate wallets for the same user.
+    await tx.insert(academyWallets).values({ userId, balance: "1000.00" })
+      .onConflictDoNothing({ target: academyWallets.userId });
+    // Lock the single canonical row for the remainder of the transaction and
+    // read the authoritative balance under that lock.
+    await tx.execute(sql`SELECT id FROM academy_wallets WHERE user_id = ${userId} FOR UPDATE`);
+    const [wallet] = await tx.select().from(academyWallets).where(eq(academyWallets.userId, userId));
     return wallet;
   }
 
@@ -987,6 +1042,85 @@ export class DatabaseStorage implements IStorage {
         category: txData.category || "general",
       });
       return updated;
+    });
+  }
+
+
+  async atomicScenarioChoice(
+    userId: string, runId: string, nodeKey: string, choiceKey: string, choiceLabel: string
+  ): Promise<{ run: AcademyScenarioRun; nextNode: AcademyScenarioNode | undefined; walletImpact: number; powerImpact: number; meritImpact: number; isEnd: boolean }> {
+    return db.transaction(async (tx) => {
+      // Lock the run row so a replayed or concurrent choice serializes here and
+      // sees the advanced state. Only the run's CURRENT node may be answered,
+      // so each node's wallet impact can be collected exactly once per run.
+      await tx.execute(sql`SELECT id FROM academy_scenario_runs WHERE id = ${runId} FOR UPDATE`);
+      const [run] = await tx.select().from(academyScenarioRuns).where(eq(academyScenarioRuns.id, runId));
+      if (!run || run.userId !== userId) throw new Error("RUN_NOT_FOUND");
+      if (run.status !== "in_progress") throw new Error("RUN_NOT_ACTIVE");
+      if (run.currentNodeKey !== nodeKey) throw new Error("NODE_OUT_OF_STATE");
+
+      const [currentNode] = await tx.select().from(academyScenarioNodes)
+        .where(and(eq(academyScenarioNodes.scenarioId, run.scenarioId), eq(academyScenarioNodes.nodeKey, nodeKey)));
+      if (!currentNode) throw new Error("NODE_NOT_FOUND");
+      const choices = (currentNode.choices as any[]) || [];
+      const selectedChoice = choices.find((c: any) => c.key === choiceKey);
+      if (!selectedChoice) throw new Error("CHOICE_INVALID");
+
+      const nextNodeKey = selectedChoice.nextNodeKey;
+      const [nextNode] = await tx.select().from(academyScenarioNodes)
+        .where(and(eq(academyScenarioNodes.scenarioId, run.scenarioId), eq(academyScenarioNodes.nodeKey, nextNodeKey)));
+
+      await tx.insert(academyChoiceLogs).values({
+        runId: run.id, userId, nodeKey, choiceKey,
+        choiceLabel: choiceLabel || String(selectedChoice.label || choiceKey),
+        consequence: selectedChoice.consequence || {},
+      });
+
+      // Wallet impact is server-authored (lives on the node) and applied under
+      // the wallet lock inside this same transaction — advancing the run and
+      // paying the reward can never diverge.
+      const walletImpact = nextNode ? parseFloat(String(nextNode.walletImpact || "0")) : 0;
+      let creditAllowed = true;
+      if (walletImpact > 0) {
+        // Cross-run idempotency: a positive award for this (user, scenario,
+        // node) is claimable exactly once, ever. Starting a fresh run of the
+        // same scenario cannot re-mint it — the unique claim row (inserted in
+        // this same transaction) collapses replays.
+        const [claim] = await tx.insert(academyScenarioRewardClaims)
+          .values({ userId, scenarioId: run.scenarioId, nodeKey: nextNodeKey, amount: walletImpact.toFixed(2) })
+          .onConflictDoNothing({ target: [academyScenarioRewardClaims.userId, academyScenarioRewardClaims.scenarioId, academyScenarioRewardClaims.nodeKey] })
+          .returning();
+        creditAllowed = !!claim;
+      }
+      if (walletImpact !== 0 && (walletImpact < 0 || creditAllowed)) {
+        const wallet = await this.lockWallet(tx, userId);
+        const balance = parseFloat(wallet.balance);
+        // Debits are clamped so a setback can't drive the wallet negative.
+        const applied = walletImpact > 0 ? walletImpact : -Math.min(Math.abs(walletImpact), balance);
+        if (applied !== 0) {
+          const newBalance = (balance + applied).toFixed(2);
+          const newEarned = applied > 0 ? (parseFloat(wallet.totalEarned) + applied).toFixed(2) : wallet.totalEarned;
+          await tx.update(academyWallets).set({ balance: newBalance, totalEarned: newEarned }).where(eq(academyWallets.id, wallet.id));
+          await tx.insert(academyTransactions).values({
+            walletId: wallet.id, type: "adventure", amount: applied.toFixed(2),
+            description: applied > 0 ? "Adventure reward" : "Adventure setback", category: "scenario",
+          });
+        }
+      }
+
+      const powerImpact = nextNode ? (nextNode.powerImpact || 0) : 0;
+      const meritImpact = nextNode ? (nextNode.meritImpact || 0) : 0;
+      const isEnd = nextNode?.isEnd ?? false;
+      const [updatedRun] = await tx.update(academyScenarioRuns).set({
+        currentNodeKey: nextNodeKey,
+        totalChoicesMade: (run.totalChoicesMade || 0) + 1,
+        totalWalletImpact: String(parseFloat(String(run.totalWalletImpact || "0")) + walletImpact),
+        totalPowerEarned: (run.totalPowerEarned || 0) + powerImpact,
+        status: isEnd ? "completed" : "in_progress",
+        completedAt: isEnd ? new Date() : undefined,
+      }).where(eq(academyScenarioRuns.id, run.id)).returning();
+
+      return { run: updatedRun, nextNode, walletImpact, powerImpact, meritImpact, isEnd };
     });
   }
 
@@ -1062,8 +1196,17 @@ export class DatabaseStorage implements IStorage {
   async atomicCampusFund(userId: string, amount: number): Promise<{ project: AcademyCampusProject; newBalance: string }> {
     if (!(amount > 0)) throw new Error("AMOUNT_INVALID");
     return db.transaction(async (tx) => {
+      // Lock the project row FIRST, then validate against the re-read (locked)
+      // state. Without this, two concurrent contributions each validate the
+      // same stale amountFunded and together blow past the budget cap.
+      await tx.execute(sql`SELECT id FROM academy_campus_projects WHERE user_id = ${userId} FOR UPDATE`);
       const [project] = await tx.select().from(academyCampusProjects).where(eq(academyCampusProjects.userId, userId));
       if (!project) throw new Error("NO_CAMPUS_PROJECT");
+      // Server-side budget cap: contributions can never exceed the project's
+      // total budget, regardless of what the client sends.
+      const totalBudget = parseFloat(project.totalBudget);
+      const alreadyFunded = parseFloat(project.amountFunded);
+      if (totalBudget > 0 && alreadyFunded + amount > totalBudget + 0.005) throw new Error("BUDGET_EXCEEDED");
       const wallet = await this.lockWallet(tx, userId);
       const balance = parseFloat(wallet.balance);
       if (balance < amount) throw new Error("INSUFFICIENT_FUNDS");

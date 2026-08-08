@@ -2488,46 +2488,22 @@ export async function registerRoutes(
     }
   });
 
-  // Server-authoritative reward catalog. The ONLY way virtual money enters a
-  // wallet through this endpoint. The client picks a rewardKey; the server owns
-  // the amount, type, description and category. Clients can NEVER supply an
-  // amount — this closes the "post arbitrary transactions to mint money" hole.
-  const ACADEMY_EARN_CATALOG: Record<string, { amount: number; type: string; description: string; category: string }> = {
-    daily_login: { amount: 25, type: "reward", description: "Daily login bonus", category: "reward" },
-    lesson_complete: { amount: 50, type: "reward", description: "Completed a lesson", category: "reward" },
-    quiz_pass: { amount: 75, type: "reward", description: "Passed a quiz", category: "reward" },
-    reflection_submitted: { amount: 30, type: "reward", description: "Submitted a reflection", category: "reward" },
-  };
-
-  app.post("/api/academy/transactions", requireAuth, async (req, res) => {
-    try {
-      const userId = getUserId(req)!;
-      const rewardKey = String(req.body.rewardKey || "");
-      const reward = ACADEMY_EARN_CATALOG[rewardKey];
-      if (!reward) {
-        // Deliberately reject any client-supplied amount/type. Only catalog
-        // reward keys are honored; the amount is fixed server-side.
-        return res.status(400).json({
-          error: "A valid rewardKey is required. Client-supplied amounts are not accepted.",
-          validRewardKeys: Object.keys(ACADEMY_EARN_CATALOG),
-        });
-      }
-      const wallet = await storage.atomicWalletCredit(userId, reward.amount, {
-        type: reward.type,
-        description: reward.description,
-        category: reward.category,
-      });
-      res.status(201).json({ success: true, credited: reward.amount, wallet });
-    } catch (error) {
-      console.error("Error in POST /api/academy/transactions", error);
-      res.status(500).json({ error: "Failed to create transaction" });
-    }
+  // SECURITY: there is deliberately NO client-triggered way to mint money.
+  // Rewards are credited only by server-verified flows (e.g. lesson-completion
+  // handlers call atomicWalletCredit against their own completion evidence).
+  // The old generic transaction-creation endpoint was an authenticated mint
+  // hole; it is permanently retired.
+  app.post("/api/academy/transactions", requireAuth, async (_req, res) => {
+    res.status(410).json({ error: "Retired. Wallet credits are issued only by server-verified activity (lessons, quests, trades)." });
   });
 
   app.get("/api/academy/stocks", async (_req, res) => {
     try {
       const stocks = await storage.getAllStocks();
-      res.json(stocks);
+      // Prices are deterministic simulations for financial-literacy learning —
+      // they are NOT real market quotes. Label them so no client can present
+      // them as live data.
+      res.json(stocks.map((s) => ({ ...s, simulated: true, priceSource: "simulated" })));
     } catch (error) {
       console.error("Error in GET /api/academy/stocks", error);
       res.status(500).json({ error: "Internal server error" });
@@ -2630,14 +2606,21 @@ export async function registerRoutes(
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid campus project data", details: parsed.error.flatten() });
       }
-      const { projectName, totalBudget, amountFunded, currentPhase, completedPhases, features } = parsed.data;
-      const existing = await storage.getCampusProject(userId);
-      if (existing) {
-        const updated = await storage.updateCampusProject(existing.id, { projectName, totalBudget, amountFunded, currentPhase, completedPhases, features });
-        return res.json(updated);
+      // SECURITY: amountFunded is server-owned — it can only change via the
+      // atomic /campus/fund flow, never via client-supplied project data.
+      // Create/update runs in one transaction under the project row lock so a
+      // budget reduction can't interleave with concurrent funding, and the
+      // user_id unique constraint guarantees exactly one project per user.
+      const { projectName, totalBudget, currentPhase, completedPhases, features } = parsed.data;
+      try {
+        const project = await storage.atomicUpsertCampusProject(userId, { projectName, totalBudget, currentPhase, completedPhases, features });
+        return res.status(200).json(project);
+      } catch (e: any) {
+        if (e?.message === "BUDGET_BELOW_FUNDED") {
+          return res.status(400).json({ error: "totalBudget cannot be lowered below the amount already funded" });
+        }
+        throw e;
       }
-      const project = await storage.createCampusProject({ projectName: projectName || "My Campus", totalBudget, amountFunded, currentPhase, completedPhases, features, userId });
-      res.status(201).json(project);
     } catch (error) {
       res.status(500).json({ error: "Failed to save campus project" });
     }
@@ -2661,6 +2644,7 @@ export async function registerRoutes(
         switch (e?.message) {
           case "NO_CAMPUS_PROJECT": return res.status(404).json({ error: "No campus project found" });
           case "INSUFFICIENT_FUNDS": return res.status(400).json({ error: "Insufficient funds" });
+          case "BUDGET_EXCEEDED": return res.status(400).json({ error: "Contribution would exceed the project's total budget" });
           case "AMOUNT_INVALID": return res.status(400).json({ error: "Valid amount is required" });
           default: throw e;
         }
@@ -3047,50 +3031,24 @@ export async function registerRoutes(
     try {
       const userId = getUserId(req)!;
       const { choiceKey, choiceLabel, nodeKey } = req.body;
-      const run = await storage.getScenarioRun(req.params.runId as string);
-      if (!run || run.userId !== userId) return res.status(404).json({ error: "Run not found" });
-      
-      const currentNode = await storage.getScenarioNode(run.scenarioId, nodeKey);
-      if (!currentNode) return res.status(404).json({ error: "Node not found" });
-      
-      const choices = (currentNode.choices as any[]) || [];
-      const selectedChoice = choices.find((c: any) => c.key === choiceKey);
-      if (!selectedChoice) return res.status(400).json({ error: "Invalid choice" });
-      
-      const nextNodeKey = selectedChoice.nextNodeKey;
-      const nextNode = await storage.getScenarioNode(run.scenarioId, nextNodeKey);
-      
-      await storage.createChoiceLog({
-        runId: run.id,
-        userId,
-        nodeKey,
-        choiceKey,
-        choiceLabel,
-        consequence: selectedChoice.consequence || {},
-      });
-      
-      // walletImpact is server-authored (it lives on the scenario node, not the
-      // request body), but the mutation must still be atomic + ledgered. A debit
-      // is clamped to the available balance so an adventure setback can't drive
-      // the wallet negative.
-      const walletImpact = nextNode ? parseFloat(String(nextNode.walletImpact || "0")) : 0;
-      const powerImpact = nextNode ? (nextNode.powerImpact || 0) : 0;
-      
-      if (walletImpact > 0) {
-        await storage.atomicWalletCredit(userId, walletImpact, {
-          type: "adventure", description: "Adventure reward", category: "scenario",
-        });
-      } else if (walletImpact < 0) {
-        const wallet = await storage.getOrCreateWallet(userId);
-        const debit = Math.min(Math.abs(walletImpact), parseFloat(String(wallet.balance)));
-        if (debit > 0) {
-          await storage.atomicWalletDebit(userId, debit, {
-            type: "adventure", description: "Adventure setback", category: "scenario",
-          });
+      // SECURITY: the whole choice — run lock, current-node check, choice
+      // validation, wallet impact, and run advancement — happens in ONE locked
+      // transaction. A replayed or out-of-state nodeKey is rejected, so a
+      // positive walletImpact can be collected at most once per run node.
+      let outcome;
+      try {
+        outcome = await storage.atomicScenarioChoice(userId, req.params.runId as string, String(nodeKey || ""), String(choiceKey || ""), String(choiceLabel || ""));
+      } catch (e: any) {
+        switch (e?.message) {
+          case "RUN_NOT_FOUND": return res.status(404).json({ error: "Run not found" });
+          case "RUN_NOT_ACTIVE": return res.status(409).json({ error: "This adventure run is already finished" });
+          case "NODE_OUT_OF_STATE": return res.status(409).json({ error: "That is not the run's current step" });
+          case "NODE_NOT_FOUND": return res.status(404).json({ error: "Node not found" });
+          case "CHOICE_INVALID": return res.status(400).json({ error: "Invalid choice" });
+          default: throw e;
         }
       }
-      
-      const meritImpact = nextNode ? (nextNode.meritImpact || 0) : 0;
+      const { run, nextNode, powerImpact, meritImpact } = outcome;
       if (meritImpact > 0) {
         try {
           const avatar = await storage.getAcademyAvatar(userId);
@@ -3111,16 +3069,8 @@ export async function registerRoutes(
         }
       }
       
-      const isEnd = nextNode?.isEnd ?? false;
-      const updatedRun = await storage.updateScenarioRun(run.id, {
-        currentNodeKey: nextNodeKey,
-        totalChoicesMade: (run.totalChoicesMade || 0) + 1,
-        totalWalletImpact: String(parseFloat(String(run.totalWalletImpact || "0")) + walletImpact),
-        totalPowerEarned: (run.totalPowerEarned || 0) + powerImpact,
-        status: isEnd ? "completed" : "in_progress",
-        completedAt: isEnd ? new Date() : undefined,
-      });
-      
+      // The run was already advanced atomically inside atomicScenarioChoice.
+      const isEnd = outcome.isEnd;
       if (isEnd && powerImpact > 0) {
         try {
           const scenario = await storage.getScenario(run.scenarioId);
@@ -3139,14 +3089,14 @@ export async function registerRoutes(
           userName: getUserName(req) || "Student",
           activityType: "scenario_complete",
           title: "Completed an Adventure",
-          description: `Finished with ${(run.totalChoicesMade || 0) + 1} choices made`,
+          description: `Finished with ${run.totalChoicesMade || 0} choices made`,
           metadata: { scenarioId: run.scenarioId, runId: run.id },
           powerCategory: null,
           pointsEarned: powerImpact,
         });
       }
       
-      res.json({ run: updatedRun, nextNode, isEnd });
+      res.json({ run, nextNode, isEnd });
     } catch (error) {
       res.status(500).json({ error: "Failed to process choice" });
     }

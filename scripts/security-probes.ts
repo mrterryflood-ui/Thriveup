@@ -97,6 +97,18 @@ const PROBES: Probe[] = [
 
   // ── benefits-routes.ts: stored renewal PII (now requireAuth) ───────────────
   { name: "GET    /api/benefits/renewals (no session)", method: "GET", path: "/api/benefits/renewals" },
+
+  // ── routes.ts: academy economy (server-authoritative money paths) ──────────
+  // No session → 401. These are the forge/double-spend doors: minting via
+  // transactions, trading, funding campus, rewriting campus project fields
+  // (amountFunded is server-owned), and admin-only market simulation.
+  { name: "POST   /api/academy/transactions (mint attempt, no session)", method: "POST", path: "/api/academy/transactions", body: { amount: 999999, type: "reward", rewardKey: "daily_login" } },
+  { name: "POST   /api/academy/stocks/trade (no session)", method: "POST", path: "/api/academy/stocks/trade", body: { stockId: "probe", action: "buy", shares: 1, price: 0.01 } },
+  { name: "POST   /api/academy/campus/fund (no session)", method: "POST", path: "/api/academy/campus/fund", body: { amount: 999999 } },
+  { name: "POST   /api/academy/campus (amountFunded forge, no session)", method: "POST", path: "/api/academy/campus", body: { amountFunded: "999999.00", totalBudget: "1.00" } },
+  { name: "POST   /api/academy/stocks/simulate (no session)", method: "POST", path: "/api/academy/stocks/simulate", body: {} },
+  { name: "GET    /api/academy/wallet (no session)", method: "GET", path: "/api/academy/wallet" },
+  { name: "GET    /api/academy/transactions (no session)", method: "GET", path: "/api/academy/transactions" },
 ];
 
 // The partner student-detail route answers 410 Gone once authenticated; treat

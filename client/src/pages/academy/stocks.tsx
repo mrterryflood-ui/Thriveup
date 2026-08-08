@@ -334,6 +334,7 @@ export default function AcademyStocksPage() {
             </div>
           </div>
           <Badge variant="secondary" className="mb-2" data-testid="badge-market-status">Open</Badge>
+          <Badge variant="outline" className="mb-2 ml-2" data-testid="badge-simulated-prices">Simulated prices — not real market data</Badge>
           <div>
             <Button
               size="sm"

@@ -22,6 +22,7 @@
 - [Data foundation hardening](data-foundation-hardening.md) — seeds are idempotent upserts (reseed = sanctioned content push); award-once semantics via newlyCompleted; typecheck gate baseline 85.
 - [Remediation doctrine & re-audit outcome](remediation-doctrine.md) — 5 permanent validation gates; stash hazard in parallel waves; partner keys tenantless→aggregate-only; completed referrals immutable.
 - [SVG canvas touch UX](svg-canvas-touch-ux.md) — stroke-only symbols are untappable on phones; body hit-rects + svg pointer capture + tap-wire must not self-cancel on bubbled pointerup.
+- [Academy economy invariants](academy-economy.md) — virtual money must be unforgeable at the DB level: lock every validated row, server-derive amounts, make rewards claim-once.
 - [Trade Sims adaptive growth path](trade-sims-adaptive-growth.md) — soloPassed gates next day (completed alone doesn't); overrides never cascade; pass decays weakConcepts; stretch = harder rubric mode.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 

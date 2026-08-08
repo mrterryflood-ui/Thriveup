@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex, unique } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -270,7 +270,8 @@ export const academyMeritEvents = pgTable("academy_merit_events", {
 
 export const academyWallets = pgTable("academy_wallets", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id", { length: 255 }).notNull(),
+  // One wallet per user, enforced at the DB level (race-safe first creation).
+  userId: varchar("user_id", { length: 255 }).notNull().unique(),
   balance: decimal("balance", { precision: 12, scale: 2 }).notNull().default("1000.00"),
   totalEarned: decimal("total_earned", { precision: 12, scale: 2 }).notNull().default("0.00"),
   totalInvested: decimal("total_invested", { precision: 12, scale: 2 }).notNull().default("0.00"),
@@ -310,7 +311,11 @@ export const academyPortfolios = pgTable("academy_portfolios", {
   shares: integer("shares").notNull().default(0),
   avgBuyPrice: decimal("avg_buy_price", { precision: 12, scale: 2 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (t) => [
+  // One holding row per (user, stock) — first-buy races collapse instead of
+  // creating duplicate portfolio rows.
+  unique("academy_portfolios_user_stock_unique").on(t.userId, t.stockId),
+]);
 
 export const academyCommunityPortfolio = pgTable("academy_community_portfolio", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -322,7 +327,9 @@ export const academyCommunityPortfolio = pgTable("academy_community_portfolio", 
 
 export const academyCampusProjects = pgTable("academy_campus_projects", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  userId: varchar("user_id", { length: 255 }).notNull(),
+  // One project per user — funding validates/updates by user, so duplicates
+  // would make the budget model ambiguous.
+  userId: varchar("user_id", { length: 255 }).notNull().unique(),
   projectName: text("project_name").notNull(),
   totalBudget: decimal("total_budget", { precision: 12, scale: 2 }).notNull().default("50000.00"),
   amountFunded: decimal("amount_funded", { precision: 12, scale: 2 }).notNull().default("0.00"),
@@ -497,6 +504,19 @@ export const academyScenarioRuns = pgTable("academy_scenario_runs", {
   startedAt: timestamp("started_at").defaultNow(),
   completedAt: timestamp("completed_at"),
 });
+
+// One positive wallet award per (user, scenario, node) — replaying a scenario
+// via fresh runs advances the story but cannot re-mint the same node's reward.
+export const academyScenarioRewardClaims = pgTable("academy_scenario_reward_claims", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  scenarioId: varchar("scenario_id", { length: 100 }).notNull(),
+  nodeKey: text("node_key").notNull(),
+  amount: decimal("amount", { precision: 12, scale: 2 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+}, (t) => [
+  unique("academy_scenario_reward_claims_unique").on(t.userId, t.scenarioId, t.nodeKey),
+]);
 
 export const academyChoiceLogs = pgTable("academy_choice_logs", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
