@@ -46,12 +46,21 @@ async function awardXP(userId: string, userName: string, xp: number, lessonsIncr
       lastActiveDate: new Date().toISOString().slice(0, 10),
     }).where(eq(studentProgress.id, existing.id));
   } else {
-    await db.insert(studentProgress).values({
+    // Race-safe under uq_student_progress_user: if a concurrent request won
+    // the insert, fall back to updating the winning row so XP is not lost.
+    const [created] = await db.insert(studentProgress).values({
       userId, studentName: userName,
       totalPoints: xp, lessonsCompleted: lessonsIncrement,
       currentLevel: 1, streakDays: 0,
       lastActiveDate: new Date().toISOString().slice(0, 10),
-    });
+    }).onConflictDoNothing().returning({ id: studentProgress.id });
+    if (!created) {
+      await db.update(studentProgress).set({
+        totalPoints: sql`${studentProgress.totalPoints} + ${xp}`,
+        lessonsCompleted: sql`${studentProgress.lessonsCompleted} + ${lessonsIncrement}`,
+        lastActiveDate: new Date().toISOString().slice(0, 10),
+      }).where(eq(studentProgress.userId, userId));
+    }
   }
 }
 

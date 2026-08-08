@@ -786,6 +786,7 @@ export default function LessonPlayerPage() {
                       onChange={(e) => setSoloReflection(e.target.value)}
                       placeholder="What did you try? What surprised you? What's still unclear?"
                       rows={4}
+                      aria-label="Your reflection"
                       data-testid="textarea-solo-reflection"
                     />
                     <p className="text-xs text-muted-foreground" data-testid="text-reflection-wordcount">
@@ -862,6 +863,7 @@ export default function LessonPlayerPage() {
                       onChange={(e) => setSandboxJournal(e.target.value)}
                       placeholder="If I had the tools in front of me right now, I would start by…"
                       rows={5}
+                      aria-label="Your sandbox journal"
                       data-testid="textarea-sandbox-journal"
                     />
                     <p className="text-xs text-muted-foreground" data-testid="text-sandbox-wordcount">
@@ -908,6 +910,7 @@ export default function LessonPlayerPage() {
                   onChange={(e) => setDebriefNote(e.target.value)}
                   placeholder="One sentence: what's the single most useful thing you learned today?"
                   rows={3}
+                  aria-label="Your notes"
                   data-testid="textarea-debrief-note"
                 />
               </div>

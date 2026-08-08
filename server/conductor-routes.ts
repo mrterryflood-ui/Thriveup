@@ -7,7 +7,7 @@
  * POST /api/conductor/compare          — side-by-side multi-geography comparison
  */
 
-import type { Express, Request, Response } from "express";
+import type { Express, NextFunction, Request, Response } from "express";
 import { buildRpliceIntelligencePackage } from "./rplice-intelligence";
 import { buildRpliceInboundContext } from "./rplice-inbound-routes";
 import {
@@ -22,9 +22,24 @@ import {
   type EvidenceProgram,
 } from "./chainweb-coefficients";
 import { generateAIJSON } from "./ai-provider";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import { grantOpportunities } from "@shared/schema";
 import { desc, gte, and, isNotNull } from "drizzle-orm";
+
+// ── First-party session auth (mirrors requireAuth in server/routes.ts) ────────
+// Roles live in the users table, never on req.user — resolve via storage.getUser
+// (same pattern as yhsi-routes requireStaff).
+function conductorGetUserId(req: Request): string | undefined {
+  const user = (req as any).user;
+  return user?.claims?.sub || user?.id;
+}
+
+function conductorRequireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!conductorGetUserId(req)) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -862,8 +877,13 @@ async function findRelevantGrants(domainScores: Record<string, DomainScore>, lim
       .sort((a, b) => b.priority - a.priority)
       .slice(0, limit)
       .map((s) => s.grant);
-  } catch {
-    return [];
+  } catch (err) {
+    // Fail loudly: a DB failure here previously returned an empty list, silently
+    // hiding real grant matches. Let the caller surface an honest 500/502.
+    console.error("[Conductor] grant matching query failed:", err);
+    throw new Error(
+      `Grant matching failed: ${err instanceof Error ? err.message : String(err)}`
+    );
   }
 }
 
@@ -908,8 +928,14 @@ Return JSON: { "narrative": "..." }`,
       { narrative: "" }
     );
     return result.narrative || "";
-  } catch {
-    return `In ${geography}, the data reveals interconnected systems under strain. A poverty rate of ${demographics.povertyRate}% and uninsured rate of ${demographics.uninsuredRate}% are not isolated statistics — they are the conditions that determine whether a child born here today will graduate high school, access mental health care, find stable housing, and participate in the workforce. The 25-year cost of inaction is estimated at $${(cascade.counterfactualCost / 1e6).toFixed(1)}M — far exceeding the $${(cascade.interventionCost / 1e6).toFixed(1)}M cost of evidence-based intervention. This community deserves investment, not blame. Organizations, policymakers, and funders have a clear, affordable path forward.`;
+  } catch (err) {
+    // Fail loudly: previously this returned a hardcoded, fabricated narrative that
+    // looked AI-generated. Surface the real failure so the caller returns an
+    // honest error instead of shipping template text as if it were analysis.
+    console.error("[Conductor] narrative generation failed:", err);
+    throw new Error(
+      `AI narrative generation failed for ${geography}: ${err instanceof Error ? err.message : String(err)}`
+    );
   }
 }
 
@@ -917,7 +943,10 @@ Return JSON: { "narrative": "..." }`,
 
 export function registerConductorRoutes(app: Express) {
   // POST /api/conductor/community-brief
-  app.post("/api/conductor/community-brief", async (req: Request, res: Response) => {
+  // DECISION: requireAuth. This runs Census fetches + an AI narrative generation
+  // (cost + rate-limited upstream). It is an internal analyst tool, not an
+  // anonymous public endpoint, so we gate it on an authenticated first-party user.
+  app.post("/api/conductor/community-brief", conductorRequireAuth, async (req: Request, res: Response) => {
     try {
       const { location, populationSize = 10000, timeHorizon = 25 } = req.body || {};
       if (!location || typeof location !== "string") {
@@ -940,6 +969,8 @@ export function registerConductorRoutes(app: Express) {
       let countyName = "";
       let stateFips = "";
 
+      // Fail loudly on Census failure rather than fabricating national-average
+      // demographics and presenting them as this community's real data.
       try {
         const geo = await zipToGeography(zip);
         if (geo && !geo.isZcta && geo.stateFips && geo.countyFips && geo.tractFips) {
@@ -950,23 +981,35 @@ export function registerConductorRoutes(app: Express) {
         if (!censusData) {
           censusData = await fetchZctaData(zip);
         }
-      } catch {
-        censusData = null;
+      } catch (err) {
+        console.error(`[Conductor] Census fetch failed for ${zip}:`, err);
+        return res.status(502).json({
+          error: `Census data is currently unavailable for ${displayName} (${zip}). The community brief cannot be generated without real demographic data. Please try again shortly.`,
+        });
       }
 
-      // Step 3: Build indicators (with safe defaults)
+      if (!censusData?.indicators || censusData.indicators.povertyRate == null) {
+        return res.status(502).json({
+          error: `No Census demographic data returned for ${displayName} (${zip}). We will not generate a brief from fabricated figures. Verify the location and try again.`,
+        });
+      }
+
+      // Step 3: Build indicators from real Census data. Only genuinely optional
+      // secondary indicators fall back to Census national medians; the core
+      // indicators above are required and validated to exist.
+      const ci = censusData.indicators;
       const ind = {
-        povertyRate: censusData?.indicators?.povertyRate ?? 14.5,
-        uninsuredRate: censusData?.indicators?.uninsuredRate ?? 10.2,
-        housingCostBurden: censusData?.indicators?.housingCostBurden ?? 30,
-        singleParentRate: censusData?.indicators?.singleParentRate ?? 22,
-        unemploymentRate: censusData?.indicators?.unemploymentRate ?? 5.8,
-        noHighSchoolDiploma: censusData?.indicators?.noHighSchoolDiploma ?? 12,
-        limitedEnglish: censusData?.indicators?.limitedEnglish ?? 5,
-        disabilityRate: censusData?.indicators?.disabilityRate ?? 10,
-        ageUnder17: censusData?.indicators?.ageUnder17 ?? 24,
-        age65Plus: censusData?.indicators?.age65Plus ?? 13,
-        totalPopulation: censusData?.indicators?.totalPopulation ?? populationSize,
+        povertyRate: ci.povertyRate,
+        uninsuredRate: ci.uninsuredRate ?? 10.2,
+        housingCostBurden: ci.housingCostBurden ?? 30,
+        singleParentRate: ci.singleParentRate ?? 22,
+        unemploymentRate: ci.unemploymentRate ?? 5.8,
+        noHighSchoolDiploma: ci.noHighSchoolDiploma ?? 12,
+        limitedEnglish: ci.limitedEnglish ?? 5,
+        disabilityRate: ci.disabilityRate ?? 10,
+        ageUnder17: ci.ageUnder17 ?? 24,
+        age65Plus: ci.age65Plus ?? 13,
+        totalPopulation: ci.totalPopulation ?? populationSize,
       };
 
       const totalPop = Math.max(ind.totalPopulation, populationSize);
@@ -1122,26 +1165,47 @@ export function registerConductorRoutes(app: Express) {
 
       return res.json(brief);
     } catch (err) {
+      // Honest error: surface the real failure (AI narrative / grant DB / Census
+      // upstream) instead of swallowing it. Upstream (AI/DB) failures map to 502.
       console.error("Conductor error:", err);
-      return res.status(500).json({ error: "Community brief generation failed. Please try again." });
+      const msg = err instanceof Error ? err.message : String(err);
+      const isUpstream = /narrative generation failed|grant matching failed/i.test(msg);
+      return res.status(isUpstream ? 502 : 500).json({
+        error: `Community brief generation failed: ${msg}`,
+      });
     }
   });
 
   // POST /api/conductor/compare — side-by-side geography comparison
-  app.post("/api/conductor/compare", async (req: Request, res: Response) => {
+  // DECISION: requireAuth. Fans out into multiple community-brief runs (AI + Census
+  // cost multiplied by N locations); same internal-analyst trust model as above.
+  app.post("/api/conductor/compare", conductorRequireAuth, async (req: Request, res: Response) => {
     try {
       const { locations } = req.body || {};
       if (!Array.isArray(locations) || locations.length < 2 || locations.length > 4) {
         return res.status(400).json({ error: "Provide 2–4 location strings to compare" });
       }
 
+      // Forward the caller's session cookie so the internal self-calls remain
+      // authenticated (community-brief now requires auth). Server never trusts a
+      // fabricated identity — we only relay the real caller's cookie.
+      const forwardCookie = req.headers.cookie || "";
+
       const results = await Promise.allSettled(
         locations.map((loc: string) =>
           fetch(`http://localhost:5000/api/conductor/community-brief`, {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", cookie: forwardCookie },
             body: JSON.stringify({ location: loc, populationSize: 10000 }),
-          }).then((r) => r.json())
+          }).then(async (r) => {
+            // Non-2xx must be an explicit failure, never spread into results
+            // as if it were comparison data.
+            if (!r.ok) {
+              const body = await r.text().catch(() => "");
+              throw new Error(`community-brief ${r.status}: ${body.slice(0, 200)}`);
+            }
+            return r.json();
+          })
         )
       );
 
@@ -1164,7 +1228,10 @@ export function registerConductorRoutes(app: Express) {
   // ─── POST /api/conductor/neighbor-zips ──────────────────────────────────────
   // Fetch neighboring ZIPs with real Census data for the 3D skyline map.
   // Returns array of { zip, lat, lng, score, grade, urgency, costOfInaction }.
-  app.post("/api/conductor/neighbor-zips", async (req: Request, res: Response) => {
+  // DECISION: requireAuth. Powers the internal 3D skyline map and issues a fan-out
+  // of live Census + Nominatim requests (up to ~18 per call) — gating on an
+  // authenticated user prevents anonymous amplification against those upstreams.
+  app.post("/api/conductor/neighbor-zips", conductorRequireAuth, async (req: Request, res: Response) => {
     try {
       const { zip, centerScore = 50, centerGrade = "D", centerUrgency = "concern", centerCost = 100000 } = req.body;
       if (!zip) return res.status(400).json({ error: "zip required" });
@@ -1173,20 +1240,27 @@ export function registerConductorRoutes(app: Express) {
       const CENSUS_KEY = process.env.CENSUS_API_KEY || "";
       const keyParam = CENSUS_KEY ? `&key=${CENSUS_KEY}` : "";
 
-      // Step 1: Get center ZIP centroid via Nominatim (OSM geocoder, no key needed)
-      let centerLat = 30.25, centerLng = -97.75;
+      // Step 1: Get center ZIP centroid via Nominatim (OSM geocoder, no key needed).
+      // HONESTY: if geocoding fails we return an explicit error — we never
+      // substitute default coordinates and present another city's neighbors
+      // as if they belonged to the requested ZIP.
+      let centerLat: number; let centerLng: number;
       try {
         const nomUrl = `https://nominatim.openstreetmap.org/search?postalcode=${zip}&countrycodes=us&format=json&limit=1`;
         const nomResp = await fetch(nomUrl, {
           headers: { "User-Agent": "ThriveUp-CommunityImpact/1.0 (terryflood@thrivingcommunitiesforall.com)" },
           signal: AbortSignal.timeout(6000),
         });
+        if (!nomResp.ok) throw new Error(`geocoder responded ${nomResp.status}`);
         const nomData = await nomResp.json();
-        if (nomData[0]?.lat) {
-          centerLat = parseFloat(nomData[0].lat);
-          centerLng = parseFloat(nomData[0].lon);
-        }
-      } catch { /* use defaults */ }
+        if (!nomData[0]?.lat) throw new Error(`no geocoding result for ZIP ${zip}`);
+        centerLat = parseFloat(nomData[0].lat);
+        centerLng = parseFloat(nomData[0].lon);
+      } catch (geoErr: any) {
+        return res.status(502).json({
+          error: `Could not locate ZIP ${zip} right now (geocoding unavailable). Please try again shortly.`,
+        });
+      }
 
       // Step 2: Generate candidate neighbor ZIPs from same 3-digit prefix range
       // ZIPs in the same prefix region are geographically proximate for most US metros.
@@ -1263,7 +1337,10 @@ export function registerConductorRoutes(app: Express) {
    * the Grant Path Pro API endpoint and credentials are available.
    * Until then, the endpoint returns the payload so the frontend can show a preview.
    */
-  app.post("/api/conductor/export-to-grantpathpro", async (req: Request, res: Response) => {
+  // DECISION: requireAuth. Exports a full intelligence package to an external
+  // partner system (Grant Path Pro) and can transmit with a server-held API key.
+  // This is a privileged outbound action, never anonymous.
+  app.post("/api/conductor/export-to-grantpathpro", conductorRequireAuth, async (req: Request, res: Response) => {
     try {
       const { brief, geography, requestedBy } = req.body;
 

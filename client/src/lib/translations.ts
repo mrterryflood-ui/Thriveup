@@ -26,6 +26,18 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.parents": "Parents",
     "nav.home": "Home",
 
+    "shell.tab.home": "Home",
+    "shell.tab.serve": "Serve",
+    "shell.tab.fund": "Fund",
+    "shell.tab.grow": "Grow",
+    "shell.tab.connect": "Connect",
+    "shell.skipToContent": "Skip to main content",
+    "shell.search": "Search",
+    "shell.searchAll": "Search all pages",
+
+    "state.error.default": "Something went wrong loading this data. Please try again.",
+    "state.error.tryAgain": "Try Again",
+
     "landing.badge": "ThriveUp Academy — AI-Powered Workforce Development for All Ages",
     "landing.title": "ThriveUp Academy",
     "landing.subtitle": "Empowering under-resourced communities with AI mastery, workforce readiness, and career pipelines",
@@ -181,6 +193,18 @@ export const translations: Record<Language, Record<string, string>> = {
     "nav.community": "Comunidad",
     "nav.parents": "Padres",
     "nav.home": "Inicio",
+
+    "shell.tab.home": "Inicio",
+    "shell.tab.serve": "Servir",
+    "shell.tab.fund": "Financiar",
+    "shell.tab.grow": "Crecer",
+    "shell.tab.connect": "Conectar",
+    "shell.skipToContent": "Saltar al contenido principal",
+    "shell.search": "Buscar",
+    "shell.searchAll": "Buscar en todas las páginas",
+
+    "state.error.default": "Algo salió mal al cargar estos datos. Inténtalo de nuevo.",
+    "state.error.tryAgain": "Intentar de nuevo",
 
     "landing.badge": "ThriveUp Academy — Desarrollo Laboral Impulsado por IA para Todas las Edades",
     "landing.title": "Academia de Dominio de IA",

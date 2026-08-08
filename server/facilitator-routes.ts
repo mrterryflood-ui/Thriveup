@@ -6,7 +6,7 @@ import {
   insertCurriculumDeliveryLogSchema, insertFacilitatorCertificationSchema,
 } from "@shared/schema";
 import { eq, desc, sql, and, gte, count } from "drizzle-orm";
-import { generateAIResponse } from "./ai-provider";
+import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 
 function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
@@ -156,7 +156,7 @@ Respond in JSON format with these fields:
   "notes": "Additional facilitator guidance"
 }`;
       const response = await generateAIResponse([
-        { role: "system", content: "You are a curriculum design expert specializing in youth prevention programs. Always respond with valid JSON." },
+        { role: "system", content: withEthicalPreamble("You are a curriculum design expert specializing in youth prevention programs. Always respond with valid JSON.") },
         { role: "user", content: prompt },
       ], 2000);
 

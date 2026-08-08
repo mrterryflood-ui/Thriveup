@@ -524,6 +524,8 @@ export class DatabaseStorage implements IStorage {
         }
         return existing[0];
       }
+      // Race-safe under uq_student_progress_user: concurrent first requests
+      // resolve to the single winning row instead of a 500.
       const [created] = await db.insert(studentProgress).values({
         userId,
         studentName: name || "Explorer",
@@ -536,8 +538,10 @@ export class DatabaseStorage implements IStorage {
         streakDays: 1,
         lastActiveDate: new Date().toISOString().split("T")[0],
         longestStreak: 1,
-      }).returning();
-      return created;
+      }).onConflictDoNothing().returning();
+      if (created) return created;
+      const [row] = await db.select().from(studentProgress).where(eq(studentProgress.userId, userId)).limit(1);
+      return row;
     }
     throw new Error("userId is required to get or create progress");
   }
@@ -547,16 +551,18 @@ export class DatabaseStorage implements IStorage {
     return updated;
   }
 
-  async completeLesson(progressId: string, lessonId: string): Promise<CompletedLesson> {
-    const existing = await db.select().from(completedLessons)
-      .where(and(eq(completedLessons.progressId, progressId), eq(completedLessons.lessonId, lessonId)));
-    if (existing.length > 0) return existing[0];
-
+  async completeLesson(progressId: string, lessonId: string): Promise<CompletedLesson & { newlyCompleted: boolean }> {
+    // Race-safe: unique index uq_completed_lessons_progress_lesson makes the
+    // double-tap case a no-op instead of duplicate credit. `newlyCompleted`
+    // tells callers whether to award points (prevents repeat-award farming).
     const [created] = await db.insert(completedLessons).values({
       progressId,
       lessonId,
-    }).returning();
-    return created;
+    }).onConflictDoNothing().returning();
+    if (created) return { ...created, newlyCompleted: true };
+    const [row] = await db.select().from(completedLessons)
+      .where(and(eq(completedLessons.progressId, progressId), eq(completedLessons.lessonId, lessonId)));
+    return { ...row, newlyCompleted: false };
   }
 
   async getCompletedLessons(progressId: string): Promise<CompletedLesson[]> {
@@ -574,6 +580,27 @@ export class DatabaseStorage implements IStorage {
     return created;
   }
 
+  /**
+   * Atomically records a quiz attempt and claims first-mastery if applicable.
+   * Locks the studentProgress row (SELECT ... FOR UPDATE) so two concurrent
+   * passing submissions cannot both be "first mastery" and double-award points.
+   * Returns the attempt plus whether THIS submission won the first-mastery claim.
+   */
+  async submitQuizWithMasteryClaim(
+    progressId: string, moduleId: string, score: number, total: number, masteryAchieved: boolean,
+  ): Promise<{ attempt: QuizAttempt; firstMastery: boolean }> {
+    return db.transaction(async (tx) => {
+      await tx.execute(sql`SELECT id FROM student_progress WHERE id = ${progressId} FOR UPDATE`);
+      const prior = await tx.select().from(quizAttempts)
+        .where(and(eq(quizAttempts.progressId, progressId), eq(quizAttempts.moduleId, moduleId), eq(quizAttempts.passed, true)));
+      const firstMastery = masteryAchieved && prior.length === 0;
+      const [attempt] = await tx.insert(quizAttempts).values({
+        progressId, moduleId, score, totalQuestions: total, passed: masteryAchieved,
+      }).returning();
+      return { attempt, firstMastery };
+    });
+  }
+
   async getQuizAttempts(progressId: string): Promise<QuizAttempt[]> {
     return db.select().from(quizAttempts).where(eq(quizAttempts.progressId, progressId)).orderBy(desc(quizAttempts.completedAt));
   }
@@ -586,8 +613,11 @@ export class DatabaseStorage implements IStorage {
     const [created] = await db.insert(earnedBadges).values({
       progressId,
       badgeId,
-    }).returning();
-    return created;
+    }).onConflictDoNothing().returning();
+    if (created) return created;
+    const [row] = await db.select().from(earnedBadges)
+      .where(and(eq(earnedBadges.progressId, progressId), eq(earnedBadges.badgeId, badgeId)));
+    return row;
   }
 
   async getEarnedBadges(progressId: string): Promise<Array<EarnedBadge & { badge: Badge }>> {
@@ -663,7 +693,7 @@ export class DatabaseStorage implements IStorage {
         return;
       }
     }
-    await db.insert(lessonReactions).values({ lessonId, userId, reactionType });
+    await db.insert(lessonReactions).values({ lessonId, userId, reactionType }).onConflictDoNothing();
   }
 
   async getStudyTipsByModule(moduleId: string): Promise<StudyTip[]> {
@@ -704,8 +734,11 @@ export class DatabaseStorage implements IStorage {
     const existing = await db.select().from(classroomMembers)
       .where(and(eq(classroomMembers.classroomId, classroomId), eq(classroomMembers.userId, userId)));
     if (existing.length > 0) return existing[0];
-    const [created] = await db.insert(classroomMembers).values({ classroomId, userId, studentName }).returning();
-    return created;
+    const [created] = await db.insert(classroomMembers).values({ classroomId, userId, studentName }).onConflictDoNothing().returning();
+    if (created) return created;
+    const [row] = await db.select().from(classroomMembers)
+      .where(and(eq(classroomMembers.classroomId, classroomId), eq(classroomMembers.userId, userId)));
+    return row;
   }
 
   async getClassroomMembers(classroomId: string): Promise<ClassroomMember[]> {
@@ -1728,16 +1761,18 @@ export class DatabaseStorage implements IStorage {
   }
 
   async deleteCqiCycle(id: string): Promise<void> {
-    const defs = await db.select().from(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.cycleId, id));
-    for (const def of defs) {
-      await db.delete(cqiFidelityObservations).where(eq(cqiFidelityObservations.definitionId, def.id));
-    }
-    await db.delete(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.cycleId, id));
-    await db.delete(cqiOutcomes).where(eq(cqiOutcomes.cycleId, id));
-    await db.delete(cqiInterventions).where(eq(cqiInterventions.cycleId, id));
-    await db.delete(cqiGaps).where(eq(cqiGaps.cycleId, id));
-    await db.delete(cqiCyclePhases).where(eq(cqiCyclePhases.cycleId, id));
-    await db.delete(cqiCycles).where(eq(cqiCycles.id, id));
+    await db.transaction(async (tx) => {
+      const defs = await tx.select().from(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.cycleId, id));
+      for (const def of defs) {
+        await tx.delete(cqiFidelityObservations).where(eq(cqiFidelityObservations.definitionId, def.id));
+      }
+      await tx.delete(cqiFidelityDefinitions).where(eq(cqiFidelityDefinitions.cycleId, id));
+      await tx.delete(cqiOutcomes).where(eq(cqiOutcomes.cycleId, id));
+      await tx.delete(cqiInterventions).where(eq(cqiInterventions.cycleId, id));
+      await tx.delete(cqiGaps).where(eq(cqiGaps.cycleId, id));
+      await tx.delete(cqiCyclePhases).where(eq(cqiCyclePhases.cycleId, id));
+      await tx.delete(cqiCycles).where(eq(cqiCycles.id, id));
+    });
   }
 
   async getCqiGaps(cycleId: string): Promise<CqiGap[]> {

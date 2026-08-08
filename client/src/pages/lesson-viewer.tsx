@@ -97,6 +97,13 @@ export default function LessonViewerPage() {
         setLocation(`/module/${lesson.moduleId}`);
       }
     },
+    onError: () => {
+      toast({
+        title: "Couldn't mark this lesson complete",
+        description: "We couldn't save your progress. Please check your connection and try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   useEffect(() => { document.title = "Lesson | ThriveUp Academy"; }, []);

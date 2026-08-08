@@ -4,6 +4,35 @@
 // documents (McKinney-Vento Quick Reference Aug 2024; ACF Chafee page,
 // current as of 2026-07-24). Do not add rules without a source.
 
+// ── Canonical federal program constants (single source of truth) ────────────
+// Used by both the public Know Your Rights page and the foster-youth intake AI
+// prompt so the two can never drift. Every value traces to the cited statute.
+export const FOSTER_PROGRAM_CONSTANTS = {
+  /** Medicaid (FFCC) — ACA §2004, no income test. */
+  medicaidMaxAge: 26,
+  /** ETV award ceiling per year — Chafee §477(i). */
+  etvAnnualMaxUsd: 5000,
+  /** ETV eligibility ceiling (age). */
+  etvMaxAge: 26,
+  /** ETV maximum total years of support. */
+  etvMaxYears: 5,
+  /** ETV requires foster-care experience at/after this age. */
+  etvCareAfterAge: 14,
+  /** Chafee floor: youth in care are eligible starting at this age. */
+  chafeeMinAge: 14,
+  /** Chafee ends at this age in every state (baseline). */
+  chafeeBaselineMaxAge: 21,
+  /** Chafee extended max age offered by 31 states + DC + PR. */
+  chafeeExtendedMaxAge: 23,
+  /** HUD Foster Youth to Independence (FYI) — max months of rental assistance. */
+  fyiMaxMonths: 36,
+  /** HUD FYI eligible age band. */
+  fyiMinAge: 18,
+  fyiMaxAge: 24,
+  /** FAFSA independent-student max Pell (approx) — HEA §480(d). */
+  fafsaMaxPellUsd: 7395,
+} as const;
+
 export type FosterStatus = "current" | "former" | "adopted16" | "never";
 export type Verdict = "likely" | "maybe" | "no";
 

@@ -406,7 +406,7 @@ Return ONLY valid JSON:
     const baseURL = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
     if (!apiKey || !baseURL) {
       console.warn("[Peer Review] Claude not available for independent verification — falling back to primary AI");
-      return generateAIResponse([{ role: "system", content: systemPrompt }, { role: "user", content: prompt }], maxTokens);
+      return generateAIResponse([{ role: "system", content: withEthicalPreamble(systemPrompt) }, { role: "user", content: prompt }], maxTokens);
     }
     const client = new Anthropic({ apiKey, baseURL });
     const resp = await client.messages.create({

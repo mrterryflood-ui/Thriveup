@@ -8,7 +8,7 @@ import {
   insertComplianceCalendarSchema, insertSustainabilityPlanSchema, insertAdjacentAgencySchema,
 } from "@shared/schema";
 import { eq, desc, sql, gte, and } from "drizzle-orm";
-import { generateAIResponse } from "./ai-provider";
+import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -394,7 +394,7 @@ For each agency, provide:
 Return ONLY a JSON array of objects with these fields. No markdown, no extra text.`;
 
       const aiResponse = await generateAIResponse([
-        { role: "system", content: "You are a community partnership expert. Return only valid JSON arrays." },
+        { role: "system", content: withEthicalPreamble("You are a community partnership expert. Return only valid JSON arrays.") },
         { role: "user", content: prompt },
       ], 2000);
 

@@ -16,6 +16,8 @@ interface TradeRow {
   description: string;
   iconKey: string;
   displayOrder: number;
+  /** Count of active lessons, derived server-side from the lessons table. */
+  lessonCount: number;
 }
 
 const ICONS: Record<string, typeof Zap> = {
@@ -115,7 +117,11 @@ export default function TradeSimsLandingPage() {
                     <CardContent>
                       <p className="text-sm text-muted-foreground line-clamp-3">{t.description}</p>
                       <div className="mt-3">
-                        <Badge variant="outline">15 lessons · ~15 days</Badge>
+                        {t.lessonCount > 0 && (
+                          <Badge variant="outline">
+                            {t.lessonCount} {t.lessonCount === 1 ? "lesson" : "lessons"}
+                          </Badge>
+                        )}
                       </div>
                     </CardContent>
                   </Card>

@@ -1,7 +1,7 @@
 // YHSI Operations — staff console for HUD CPD-2600-DC-0035.
 // Tabs: Referrals (USD 259 → Turning Point pipeline), Participants (youth data
 // layer + HMIS export), Voice Review, Biannual Reports. Admin/staff only.
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { PageHeader } from "@/components/page-header";
@@ -14,8 +14,55 @@ import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
+import { ErrorRetry } from "@/components/error-retry";
 import { Users, GitBranch, Megaphone, FileText, Download, Plus, TrendingUp, Landmark, HeartHandshake, AlarmClock } from "lucide-react";
+
+// Draft persistence: staff forms live inside tab panels that unmount on tab
+// switch, silently discarding half-typed input. We persist each form's draft
+// to sessionStorage (keyed by form name) so a tab switch — or accidental
+// navigation within the session — no longer loses work. Drafts are cleared on
+// successful submit. sessionStorage (not localStorage) keeps drafts scoped to
+// the tab session, matching the ephemeral nature of these forms.
+const DRAFT_PREFIX = "yhsi-ops-draft:";
+function loadDraft<T>(name: string, fallback: T): T {
+  try {
+    const raw = sessionStorage.getItem(DRAFT_PREFIX + name);
+    if (!raw) return fallback;
+    return { ...fallback, ...JSON.parse(raw) };
+  } catch {
+    return fallback;
+  }
+}
+function clearDraft(name: string) {
+  try {
+    sessionStorage.removeItem(DRAFT_PREFIX + name);
+  } catch {
+    // sessionStorage unavailable (private mode / disabled) — nothing to clear.
+  }
+}
+// Persist `form` under `name` whenever it changes. Restore happens via
+// loadDraft() in the useState initializer at each form's mount.
+function useFormDraft(name: string, form: unknown) {
+  useEffect(() => {
+    try {
+      sessionStorage.setItem(DRAFT_PREFIX + name, JSON.stringify(form));
+    } catch {
+      // sessionStorage unavailable — drafts simply won't persist this session.
+    }
+  }, [name, form]);
+}
 
 const REFERRAL_STATUSES = ["initiated", "contacted", "enrolled", "in_service", "completed", "closed_unresolved", "declined"];
 const SERVICE_TYPES = ["housing_navigation", "case_management", "education_reengagement", "employment", "behavioral_health", "basic_needs", "legal", "other"];
@@ -77,15 +124,19 @@ export default function YhsiOpsPage() {
   }
 
   function ReferralsTab() {
+    const REFERRAL_FORM_DEFAULTS = { sourceOrg: "USD 259 McKinney-Vento", destinationOrg: "Turning Point", serviceType: "housing_navigation", urgency: "routine", notes: "" };
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState({ sourceOrg: "USD 259 McKinney-Vento", destinationOrg: "Turning Point", serviceType: "housing_navigation", urgency: "routine", notes: "" });
-    const { data: referrals, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/referrals"] });
+    const [form, setForm] = useState(() => loadDraft("referral", REFERRAL_FORM_DEFAULTS));
+    useFormDraft("referral", form);
+    const { data: referrals, isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ["/api/yhsi/referrals"] });
 
     const createMutation = useMutation({
       mutationFn: async () => (await apiRequest("POST", "/api/yhsi/referrals", form)).json(),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/referrals"] });
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/metrics"] });
+        clearDraft("referral");
+        setForm(REFERRAL_FORM_DEFAULTS);
         setShowForm(false);
         toast({ title: "Referral created" });
       },
@@ -108,7 +159,7 @@ export default function YhsiOpsPage() {
     return (
       <>
         <div className="flex justify-between items-center">
-          <p className="text-sm text-muted-foreground">USD 259 → Turning Point → services pipeline. Touchpoints auto-stamp first contact.</p>
+          <p className="text-sm text-muted-foreground">USD 259 → Turning Point → services pipeline. Logging a contact-type touchpoint auto-stamps first contact and advances the status.</p>
           <Button size="sm" onClick={() => setShowForm((s) => !s)} data-testid="button-new-referral"><Plus className="h-4 w-4 mr-1" /> New referral</Button>
         </div>
         {showForm && (
@@ -135,24 +186,29 @@ export default function YhsiOpsPage() {
             </CardContent>
           </Card>
         )}
-        {isLoading ? <Skeleton className="h-32 w-full" /> : (referrals?.length ?? 0) === 0 ? (
+        {isLoading ? <Skeleton className="h-32 w-full" /> : isError ? (
+          <ErrorRetry message="Couldn't load referrals. Please try again." onRetry={() => void refetch()} />
+        ) : (referrals?.length ?? 0) === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="text-referrals-empty">No referrals yet.</p>
         ) : (
           <div className="space-y-2">
             {referrals!.map((r) => (
               <Card key={r.id} data-testid={`referral-${r.id}`}>
-                <CardContent className="pt-4 pb-4 flex flex-wrap items-center gap-3 justify-between">
-                  <div className="space-y-1 min-w-0">
-                    <p className="font-medium text-sm">{r.sourceOrg} → {r.destinationOrg}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {r.serviceType.replace(/_/g, " ")} · {r.urgency} · initiated {fmtDate(r.initiatedAt)} · first contact {fmtDate(r.firstContactAt)}
-                    </p>
-                    {r.notes && <p className="text-xs text-muted-foreground truncate max-w-xl">{r.notes}</p>}
+                <CardContent className="pt-4 pb-4 space-y-3">
+                  <div className="flex flex-wrap items-center gap-3 justify-between">
+                    <div className="space-y-1 min-w-0">
+                      <p className="font-medium text-sm">{r.sourceOrg} → {r.destinationOrg}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {r.serviceType.replace(/_/g, " ")} · {r.urgency} · initiated {fmtDate(r.initiatedAt)} · first contact {fmtDate(r.firstContactAt)}
+                      </p>
+                      {r.notes && <p className="text-xs text-muted-foreground truncate max-w-xl">{r.notes}</p>}
+                    </div>
+                    <Select value={r.status} onValueChange={(status) => statusMutation.mutate({ id: r.id, status })}>
+                      <SelectTrigger className="w-44" data-testid={`select-status-${r.id}`}><SelectValue /></SelectTrigger>
+                      <SelectContent>{REFERRAL_STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>)}</SelectContent>
+                    </Select>
                   </div>
-                  <Select value={r.status} onValueChange={(status) => statusMutation.mutate({ id: r.id, status })}>
-                    <SelectTrigger className="w-44" data-testid={`select-status-${r.id}`}><SelectValue /></SelectTrigger>
-                    <SelectContent>{REFERRAL_STATUSES.map((s) => <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>)}</SelectContent>
-                  </Select>
+                  <TouchpointLog referralId={r.id} />
                 </CardContent>
               </Card>
             ))}
@@ -162,10 +218,71 @@ export default function YhsiOpsPage() {
     );
   }
 
+  // Touchpoint log — the data lives server-side (GET/POST
+  // /api/yhsi/referrals/:id/touchpoints) but the page never surfaced it. Show
+  // the log and let staff add a touchpoint; a contact-type touchpoint is what
+  // auto-stamps firstContactAt server-side (see server/yhsi-routes.ts).
+  function TouchpointLog({ referralId }: { referralId: string }) {
+    const TOUCHPOINT_TYPES = ["outreach_call", "meeting", "warm_handoff", "service_start", "status_check", "closure"];
+    const [open, setOpen] = useState(false);
+    const [form, setForm] = useState({ touchpointType: "outreach_call", summary: "" });
+    const { data: touchpoints, isLoading, isError, refetch } = useQuery<any[]>({
+      queryKey: ["/api/yhsi/referrals", referralId, "touchpoints"],
+      enabled: open,
+    });
+
+    const addMutation = useMutation({
+      mutationFn: async () => (await apiRequest("POST", `/api/yhsi/referrals/${referralId}/touchpoints`, { touchpointType: form.touchpointType, summary: form.summary || undefined })).json(),
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["/api/yhsi/referrals", referralId, "touchpoints"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/yhsi/referrals"] });
+        queryClient.invalidateQueries({ queryKey: ["/api/yhsi/metrics"] });
+        setForm({ touchpointType: "outreach_call", summary: "" });
+        toast({ title: "Touchpoint logged" });
+      },
+      onError: (e: Error) => toast({ title: "Failed to log touchpoint", description: e.message, variant: "destructive" }),
+    });
+
+    return (
+      <div className="border-t pt-2">
+        <Button size="sm" variant="ghost" className="h-7 px-2 text-xs" onClick={() => setOpen((o) => !o)} data-testid={`button-touchpoints-${referralId}`}>
+          {open ? "Hide" : "Show"} touchpoint log
+        </Button>
+        {open && (
+          <div className="mt-2 space-y-2">
+            {isLoading ? <Skeleton className="h-12 w-full" /> : isError ? (
+              <ErrorRetry message="Couldn't load touchpoints. Please try again." onRetry={() => void refetch()} />
+            ) : (touchpoints?.length ?? 0) === 0 ? (
+              <p className="text-xs text-muted-foreground" data-testid={`text-touchpoints-empty-${referralId}`}>No touchpoints logged yet.</p>
+            ) : (
+              <ul className="space-y-1">
+                {touchpoints!.map((t) => (
+                  <li key={t.id} className="text-xs text-muted-foreground" data-testid={`touchpoint-${t.id}`}>
+                    <span className="font-medium">{t.touchpointType.replace(/_/g, " ")}</span> · {fmtDate(t.occurredAt)}{t.summary ? ` — ${t.summary}` : ""}
+                  </li>
+                ))}
+              </ul>
+            )}
+            <div className="flex flex-wrap items-end gap-2">
+              <Select value={form.touchpointType} onValueChange={(v) => setForm({ ...form, touchpointType: v })}>
+                <SelectTrigger className="w-40 h-8" data-testid={`select-touchpoint-type-${referralId}`}><SelectValue /></SelectTrigger>
+                <SelectContent>{TOUCHPOINT_TYPES.map((s) => <SelectItem key={s} value={s}>{s.replace(/_/g, " ")}</SelectItem>)}</SelectContent>
+              </Select>
+              <Input className="h-8 max-w-xs" placeholder="Summary (optional)" value={form.summary} onChange={(e) => setForm({ ...form, summary: e.target.value })} data-testid={`input-touchpoint-summary-${referralId}`} />
+              <Button size="sm" className="h-8" disabled={addMutation.isPending} onClick={() => addMutation.mutate()} data-testid={`button-add-touchpoint-${referralId}`}>Log touchpoint</Button>
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  }
+
   function ParticipantsTab() {
+    const PARTICIPANT_FORM_DEFAULTS = { preferredName: "", ageAtContact: "", mckinneyVentoStatus: "identified", livingSituation: "doubled_up", educationStatus: "enrolled", employmentStatus: "unknown", schoolDistrict: "USD 259", referralSource: "usd259_mckinney_vento", consentOnFile: false };
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState<any>({ preferredName: "", ageAtContact: "", mckinneyVentoStatus: "identified", livingSituation: "doubled_up", educationStatus: "enrolled", employmentStatus: "unknown", schoolDistrict: "USD 259", referralSource: "usd259_mckinney_vento", consentOnFile: false });
-    const { data: participants, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/participants"] });
+    const [form, setForm] = useState<any>(() => loadDraft("participant", PARTICIPANT_FORM_DEFAULTS));
+    useFormDraft("participant", form);
+    const { data: participants, isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ["/api/yhsi/participants"] });
 
     const createMutation = useMutation({
       mutationFn: async () => (await apiRequest("POST", "/api/yhsi/participants", {
@@ -175,6 +292,8 @@ export default function YhsiOpsPage() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/participants"] });
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/metrics"] });
+        clearDraft("participant");
+        setForm(PARTICIPANT_FORM_DEFAULTS);
         setShowForm(false);
         toast({ title: "Participant added" });
       },
@@ -237,7 +356,9 @@ export default function YhsiOpsPage() {
             </CardContent>
           </Card>
         )}
-        {isLoading ? <Skeleton className="h-32 w-full" /> : (participants?.length ?? 0) === 0 ? (
+        {isLoading ? <Skeleton className="h-32 w-full" /> : isError ? (
+          <ErrorRetry message="Couldn't load participants. Please try again." onRetry={() => void refetch()} />
+        ) : (participants?.length ?? 0) === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="text-participants-empty">No participants yet.</p>
         ) : (
           <div className="space-y-2">
@@ -264,15 +385,22 @@ export default function YhsiOpsPage() {
   }
 
   function VoiceTab() {
-    const { data: entries, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/voice"] });
-    const [impactDrafts, setImpactDrafts] = useState<Record<string, string>>({});
+    const { data: entries, isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ["/api/yhsi/voice"] });
+    const [impactDrafts, setImpactDrafts] = useState<Record<string, string>>(() => loadDraft<Record<string, string>>("voice-impact", {}));
+    useFormDraft("voice-impact", impactDrafts);
 
     const reviewMutation = useMutation({
       mutationFn: async ({ id, status, impactNote }: { id: string; status: string; impactNote?: string }) =>
         (await apiRequest("PATCH", `/api/yhsi/voice/${id}`, impactNote !== undefined ? { status, impactNote } : { status })).json(),
-      onSuccess: () => {
+      onSuccess: (_data, variables) => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/voice"] });
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/metrics"] });
+        // Clear this entry's persisted impact draft now that it's saved.
+        setImpactDrafts((prev) => {
+          const next = { ...prev };
+          delete next[variables.id];
+          return next;
+        });
         toast({ title: "Entry updated" });
       },
       onError: (e: Error) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
@@ -281,7 +409,9 @@ export default function YhsiOpsPage() {
     return (
       <>
         <p className="text-sm text-muted-foreground">Marking an entry <strong>incorporated</strong> requires an impact note — that note is what the young person sees, and it's the evidence behind the HUD Youth Leadership certification.</p>
-        {isLoading ? <Skeleton className="h-32 w-full" /> : (entries?.length ?? 0) === 0 ? (
+        {isLoading ? <Skeleton className="h-32 w-full" /> : isError ? (
+          <ErrorRetry message="Couldn't load youth voice entries. Please try again." onRetry={() => void refetch()} />
+        ) : (entries?.length ?? 0) === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="text-voice-empty">No youth input yet. Share the Youth Voice link: <code>/youth-voice</code></p>
         ) : (
           <div className="space-y-3">
@@ -304,6 +434,7 @@ export default function YhsiOpsPage() {
                           placeholder="Impact note (required to mark incorporated): what changed because of this input?"
                           value={impactDrafts[e.id] ?? ""}
                           onChange={(ev) => setImpactDrafts({ ...impactDrafts, [e.id]: ev.target.value })}
+                          aria-label="Impact note"
                           data-testid={`input-impact-${e.id}`}
                         />
                         <Button size="sm" data-testid={`button-incorporate-${e.id}`}
@@ -331,10 +462,12 @@ export default function YhsiOpsPage() {
     const MILESTONE_LABELS: Record<string, string> = {
       at_contact: "At contact", day_30: "30 days", day_90: "90 days", day_180: "180 days", day_365: "365 days", month_6: "6 months", month_12: "12 months", exit: "Exit",
     };
-    const { data: summary, isLoading } = useQuery<any>({ queryKey: ["/api/yhsi/outcomes-summary"] });
+    const { data: summary, isLoading, isError, refetch } = useQuery<any>({ queryKey: ["/api/yhsi/outcomes-summary"] });
     const { data: participants } = useQuery<any[]>({ queryKey: ["/api/yhsi/participants"] });
+    const SNAPSHOT_FORM_DEFAULTS = { participantId: "", snapshotType: "day_90", housingStatus: "stable_permanent", educationStatus: "enrolled", employmentStatus: "unknown", hsCompletion: "on_track", postSecondaryStatus: "not_enrolled", hourlyWage: "", livableWage: "false", mentorConnections: "", mhScaleUsed: "", mhScaleScore: "" };
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState<any>({ participantId: "", snapshotType: "day_90", housingStatus: "stable_permanent", educationStatus: "enrolled", employmentStatus: "unknown", hsCompletion: "on_track", postSecondaryStatus: "not_enrolled", hourlyWage: "", livableWage: "false", mentorConnections: "", mhScaleUsed: "", mhScaleScore: "" });
+    const [form, setForm] = useState<any>(() => loadDraft("snapshot", SNAPSHOT_FORM_DEFAULTS));
+    useFormDraft("snapshot", form);
 
     const createMutation = useMutation({
       mutationFn: async () => (await apiRequest("POST", `/api/yhsi/participants/${form.participantId}/snapshots`, {
@@ -352,6 +485,8 @@ export default function YhsiOpsPage() {
       })).json(),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/outcomes-summary"] });
+        clearDraft("snapshot");
+        setForm(SNAPSHOT_FORM_DEFAULTS);
         setShowForm(false);
         toast({ title: "Outcome milestone recorded" });
       },
@@ -435,7 +570,9 @@ export default function YhsiOpsPage() {
             </CardContent>
           </Card>
         )}
-        {isLoading ? <Skeleton className="h-40 w-full" /> : !summary?.milestoneOrder?.length ? (
+        {isLoading ? <Skeleton className="h-40 w-full" /> : isError ? (
+          <ErrorRetry message="Couldn't load outcomes summary. Please try again." onRetry={() => void refetch()} />
+        ) : !summary?.milestoneOrder?.length ? (
           <p className="text-sm text-muted-foreground" data-testid="text-outcomes-empty">No outcome milestones recorded yet. Record milestones at contact, then 30/90/180/365 days.</p>
         ) : (
           <Card>
@@ -475,10 +612,12 @@ export default function YhsiOpsPage() {
     const ENTITLEMENT_TYPES = ["chafee", "etv", "medicaid_former_foster", "fafsa_independent", "mckinney_vento_services", "snap", "other"];
     const ENT_STATUSES = ["offered", "declined", "applied", "enrolled", "denied", "ineligible"];
     const { data: summary } = useQuery<any>({ queryKey: ["/api/yhsi/entitlements/summary"] });
-    const { data: entitlements, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/entitlements"] });
+    const { data: entitlements, isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ["/api/yhsi/entitlements"] });
     const { data: participants } = useQuery<any[]>({ queryKey: ["/api/yhsi/participants"] });
+    const ENTITLEMENT_FORM_DEFAULTS = { participantId: "", entitlementType: "chafee", status: "offered", annualValue: "", notes: "" };
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState<any>({ participantId: "", entitlementType: "chafee", status: "offered", annualValue: "", notes: "" });
+    const [form, setForm] = useState<any>(() => loadDraft("entitlement", ENTITLEMENT_FORM_DEFAULTS));
+    useFormDraft("entitlement", form);
 
     const nameOf = (id: string) => {
       const p = (participants ?? []).find((x) => x.id === id);
@@ -495,6 +634,8 @@ export default function YhsiOpsPage() {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/entitlements"] });
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/entitlements/summary"] });
+        clearDraft("entitlement");
+        setForm(ENTITLEMENT_FORM_DEFAULTS);
         setShowForm(false);
         toast({ title: "Entitlement tracked" });
       },
@@ -590,7 +731,9 @@ export default function YhsiOpsPage() {
             </CardContent>
           </Card>
         )}
-        {isLoading ? <Skeleton className="h-32 w-full" /> : (entitlements?.length ?? 0) === 0 ? (
+        {isLoading ? <Skeleton className="h-32 w-full" /> : isError ? (
+          <ErrorRetry message="Couldn't load entitlements. Please try again." onRetry={() => void refetch()} />
+        ) : (entitlements?.length ?? 0) === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="text-entitlements-empty">Nothing tracked yet. Every participant should have Chafee and ETV rows — even "ineligible" is worth recording.</p>
         ) : (
           <div className="space-y-2">
@@ -624,15 +767,19 @@ export default function YhsiOpsPage() {
       { key: "scoreYouthVoiceChoice", label: "Youth voice & choice" },
     ];
     const { data: summary } = useQuery<any[]>({ queryKey: ["/api/yhsi/fidelity/summary"] });
-    const { data: observations, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/fidelity"] });
+    const { data: observations, isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ["/api/yhsi/fidelity"] });
+    const FIDELITY_FORM_DEFAULTS = { observerRole: "supervisor", programArea: "", scoreRespectAgency: 3, scoreStrengthsBased: 3, scoreStaffRegulation: 3, scoreGentleTransitions: 3, scoreYouthVoiceChoice: 3, strengths: "", growthAreas: "" };
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState<any>({ observerRole: "supervisor", programArea: "", scoreRespectAgency: 3, scoreStrengthsBased: 3, scoreStaffRegulation: 3, scoreGentleTransitions: 3, scoreYouthVoiceChoice: 3, strengths: "", growthAreas: "" });
+    const [form, setForm] = useState<any>(() => loadDraft("fidelity", FIDELITY_FORM_DEFAULTS));
+    useFormDraft("fidelity", form);
 
     const createMutation = useMutation({
       mutationFn: async () => (await apiRequest("POST", "/api/yhsi/fidelity", { ...form, strengths: form.strengths || undefined, growthAreas: form.growthAreas || undefined })).json(),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/fidelity"] });
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/fidelity/summary"] });
+        clearDraft("fidelity");
+        setForm(FIDELITY_FORM_DEFAULTS);
         setShowForm(false);
         toast({ title: "Observation recorded" });
       },
@@ -694,7 +841,9 @@ export default function YhsiOpsPage() {
             </CardContent>
           </Card>
         )}
-        {isLoading ? <Skeleton className="h-24 w-full" /> : (observations?.length ?? 0) === 0 ? (
+        {isLoading ? <Skeleton className="h-24 w-full" /> : isError ? (
+          <ErrorRetry message="Couldn't load fidelity observations. Please try again." onRetry={() => void refetch()} />
+        ) : (observations?.length ?? 0) === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="text-fidelity-empty">No observations yet. Aim for at least 5 per quarter so trend averages can be released.</p>
         ) : (
           <div className="space-y-2">
@@ -705,7 +854,7 @@ export default function YhsiOpsPage() {
                     <Badge variant="outline">{o.observerRole.replace(/_/g, " ")}</Badge>
                     <span className="text-sm font-medium">{o.programArea}</span>
                     <span className="text-xs text-muted-foreground">{fmtDate(o.observedAt)}</span>
-                    <Badge variant="secondary">avg {((o.scoreRespectAgency + o.scoreStrengthsBased + o.scoreStaffRegulation + o.scoreGentleTransitions + o.scoreYouthVoiceChoice) / 5).toFixed(1)}</Badge>
+                    <Badge variant="secondary">avg {((Number(o.scoreRespectAgency) + Number(o.scoreStrengthsBased) + Number(o.scoreStaffRegulation) + Number(o.scoreGentleTransitions) + Number(o.scoreYouthVoiceChoice)) / 5).toFixed(1)}</Badge>
                   </div>
                   {o.growthAreas && <p className="text-xs text-muted-foreground">Growth: {o.growthAreas}</p>}
                 </CardContent>
@@ -719,14 +868,18 @@ export default function YhsiOpsPage() {
 
   function MilestonesPanel() {
     const MILESTONE_TYPES = ["hud_biannual_report", "project_plan_update", "budget_report", "drawdown", "site_visit", "renewal_application", "other"];
-    const { data: milestones, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/milestones"] });
+    const MILESTONE_FORM_DEFAULTS = { title: "", milestoneType: "hud_biannual_report", grantLabel: "HUD YHSI CPD-2600-DC-0035", dueAt: "" };
+    const { data: milestones, isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ["/api/yhsi/milestones"] });
     const [showForm, setShowForm] = useState(false);
-    const [form, setForm] = useState<any>({ title: "", milestoneType: "hud_biannual_report", grantLabel: "HUD YHSI CPD-2600-DC-0035", dueAt: "" });
+    const [form, setForm] = useState<any>(() => loadDraft("milestone", MILESTONE_FORM_DEFAULTS));
+    useFormDraft("milestone", form);
 
     const createMutation = useMutation({
       mutationFn: async () => (await apiRequest("POST", "/api/yhsi/milestones", form)).json(),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/milestones"] });
+        clearDraft("milestone");
+        setForm(MILESTONE_FORM_DEFAULTS);
         setShowForm(false);
         toast({ title: "Milestone added" });
       },
@@ -777,7 +930,9 @@ export default function YhsiOpsPage() {
               <div className="flex items-end"><Button size="sm" data-testid="button-save-milestone" disabled={!form.title.trim() || !form.dueAt || createMutation.isPending} onClick={() => createMutation.mutate()}>Add</Button></div>
             </div>
           )}
-          {isLoading ? <Skeleton className="h-16 w-full" /> : (milestones?.length ?? 0) === 0 ? (
+          {isLoading ? <Skeleton className="h-16 w-full" /> : isError ? (
+            <ErrorRetry message="Couldn't load milestones. Please try again." onRetry={() => void refetch()} />
+          ) : (milestones?.length ?? 0) === 0 ? (
             <p className="text-sm text-muted-foreground" data-testid="text-milestones-empty">No milestones yet. Add the HUD biannual report dates as soon as the award letter arrives.</p>
           ) : (
             milestones!.map((m) => (
@@ -789,7 +944,29 @@ export default function YhsiOpsPage() {
                 <div className="flex items-center gap-2 shrink-0">
                   {alertBadge(m)}
                   {m.status === "upcoming" && <Button size="sm" variant="outline" data-testid={`button-milestone-done-${m.id}`} disabled={submitMutation.isPending} onClick={() => submitMutation.mutate(m.id)}>Mark submitted</Button>}
-                  <Button size="sm" variant="ghost" data-testid={`button-milestone-delete-${m.id}`} disabled={deleteMutation.isPending} onClick={() => deleteMutation.mutate(m.id)}>Delete</Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="ghost" data-testid={`button-milestone-delete-${m.id}`} disabled={deleteMutation.isPending}>Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete compliance milestone?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This permanently deletes "{m.title}" ({m.grantLabel} · due {fmtDate(m.dueAt)}). Deleted milestones aren't recoverable, and a missed HUD deadline can risk rescission. This can't be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel data-testid={`button-cancel-milestone-delete-${m.id}`}>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => deleteMutation.mutate(m.id)}
+                          className="bg-destructive text-destructive-foreground"
+                          data-testid={`button-confirm-milestone-delete-${m.id}`}
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             ))
@@ -800,14 +977,20 @@ export default function YhsiOpsPage() {
   }
 
   function ReportsTab() {
-    const { data: reports, isLoading } = useQuery<any[]>({ queryKey: ["/api/yhsi/reports"] });
-    const [periodStart, setPeriodStart] = useState("");
-    const [periodEnd, setPeriodEnd] = useState("");
+    const REPORT_FORM_DEFAULTS = { periodStart: "", periodEnd: "" };
+    const { data: reports, isLoading, isError, refetch } = useQuery<any[]>({ queryKey: ["/api/yhsi/reports"] });
+    const [period, setPeriod] = useState(() => loadDraft("report", REPORT_FORM_DEFAULTS));
+    useFormDraft("report", period);
+    const { periodStart, periodEnd } = period;
+    const setPeriodStart = (v: string) => setPeriod((p) => ({ ...p, periodStart: v }));
+    const setPeriodEnd = (v: string) => setPeriod((p) => ({ ...p, periodEnd: v }));
 
     const generateMutation = useMutation({
       mutationFn: async () => (await apiRequest("POST", "/api/yhsi/reports/generate", { periodStart, periodEnd })).json(),
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: ["/api/yhsi/reports"] });
+        clearDraft("report");
+        setPeriod(REPORT_FORM_DEFAULTS);
         toast({ title: "Draft report generated", description: "Review and edit the narrative before finalizing." });
       },
       onError: (e: Error) => toast({ title: "Generation failed", description: e.message, variant: "destructive" }),
@@ -834,7 +1017,9 @@ export default function YhsiOpsPage() {
             </Button>
           </CardContent>
         </Card>
-        {isLoading ? <Skeleton className="h-24 w-full" /> : (reports?.length ?? 0) === 0 ? (
+        {isLoading ? <Skeleton className="h-24 w-full" /> : isError ? (
+          <ErrorRetry message="Couldn't load reports. Please try again." onRetry={() => void refetch()} />
+        ) : (reports?.length ?? 0) === 0 ? (
           <p className="text-sm text-muted-foreground" data-testid="text-reports-empty">No reports yet.</p>
         ) : (
           <div className="space-y-3">
@@ -843,9 +1028,10 @@ export default function YhsiOpsPage() {
                 <CardContent className="pt-4 pb-4 space-y-2">
                   <div className="flex items-center gap-2 flex-wrap">
                     <Badge variant={r.status === "final" ? "default" : "outline"}>{r.status}</Badge>
+                    {r.incomplete && <Badge variant="destructive" data-testid={`badge-incomplete-${r.id}`}>Incomplete — narrative required</Badge>}
                     <span className="text-sm font-medium">{fmtDate(r.periodStart)} – {fmtDate(r.periodEnd)}</span>
                     {r.status !== "final" && (
-                      <Button size="sm" variant="outline" data-testid={`button-finalize-${r.id}`} disabled={finalizeMutation.isPending} onClick={() => finalizeMutation.mutate(r.id)}>Finalize</Button>
+                      <Button size="sm" variant="outline" data-testid={`button-finalize-${r.id}`} disabled={finalizeMutation.isPending || r.incomplete} title={r.incomplete ? "Write the report narrative before finalizing" : undefined} onClick={() => finalizeMutation.mutate(r.id)}>Finalize</Button>
                     )}
                     <Button size="sm" variant="outline" asChild data-testid={`button-pdf-${r.id}`}>
                       <a href={`/api/yhsi/reports/${r.id}/pdf`} download>Download HUD PDF</a>

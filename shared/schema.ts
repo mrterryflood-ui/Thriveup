@@ -102,14 +102,20 @@ export const studentProgress = pgTable("student_progress", {
   streakDays: integer("streak_days").notNull().default(0),
   lastActiveDate: text("last_active_date"),
   longestStreak: integer("longest_streak").notNull().default(0),
-});
+}, (t) => [
+  uniqueIndex("uq_student_progress_user")
+    .on(t.userId)
+    .where(sql`user_id IS NOT NULL`),
+]);
 
 export const completedLessons = pgTable("completed_lessons", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   progressId: varchar("progress_id", { length: 100 }).notNull().references(() => studentProgress.id),
   lessonId: varchar("lesson_id", { length: 100 }).notNull().references(() => lessons.id),
   completedAt: timestamp("completed_at").defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("uq_completed_lessons_progress_lesson").on(t.progressId, t.lessonId),
+]);
 
 export const quizAttempts = pgTable("quiz_attempts", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -126,7 +132,9 @@ export const earnedBadges = pgTable("earned_badges", {
   progressId: varchar("progress_id", { length: 100 }).notNull().references(() => studentProgress.id),
   badgeId: varchar("badge_id", { length: 100 }).notNull().references(() => badges.id),
   earnedAt: timestamp("earned_at").defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("uq_earned_badges_progress_badge").on(t.progressId, t.badgeId),
+]);
 
 export const curriculumDocuments = pgTable("curriculum_documents", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -167,7 +175,11 @@ export const lessonReactions = pgTable("lesson_reactions", {
   userId: varchar("user_id", { length: 255 }),
   reactionType: text("reaction_type").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("uq_lesson_reactions_user_lesson_type")
+    .on(t.lessonId, t.userId, t.reactionType)
+    .where(sql`user_id IS NOT NULL`),
+]);
 
 export const studyTips = pgTable("study_tips", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -195,7 +207,9 @@ export const classroomMembers = pgTable("classroom_members", {
   userId: varchar("user_id", { length: 255 }).notNull(),
   studentName: text("student_name").notNull(),
   joinedAt: timestamp("joined_at").defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("uq_classroom_members_classroom_user").on(t.classroomId, t.userId),
+]);
 
 export const certificates = pgTable("certificates", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -1321,17 +1335,7 @@ export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments
 export type InsertCourseEnrollment = z.infer<typeof insertCourseEnrollmentSchema>;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
 
-export const courseLessonProgress = pgTable("course_lesson_progress", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  enrollmentId: varchar("enrollment_id", { length: 100 }).notNull().references(() => courseEnrollments.id),
-  lessonId: varchar("lesson_id", { length: 100 }).notNull().references(() => courseLessons.id),
-  completed: boolean("completed").notNull().default(false),
-  completedAt: timestamp("completed_at"),
-});
 
-export const insertCourseLessonProgressSchema = createInsertSchema(courseLessonProgress).omit({ id: true });
-export type InsertCourseLessonProgress = z.infer<typeof insertCourseLessonProgressSchema>;
-export type CourseLessonProgress = typeof courseLessonProgress.$inferSelect;
 
 // ==================== STAAR TEST PREP TABLES ====================
 
@@ -2768,73 +2772,13 @@ export const insertCoalitionMeetingSchema = createInsertSchema(coalitionMeetings
 export type InsertCoalitionMeeting = z.infer<typeof insertCoalitionMeetingSchema>;
 export type CoalitionMeeting = typeof coalitionMeetings.$inferSelect;
 
-export const coalitionActionItems = pgTable("coalition_action_items", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  meetingId: varchar("meeting_id", { length: 100 }),
-  coalitionId: varchar("coalition_id", { length: 100 }).notNull(),
-  description: text("description").notNull(),
-  assignedTo: text("assigned_to"),
-  dueDate: text("due_date"),
-  status: varchar("status", { length: 50 }).notNull().default("pending"),
-  completedAt: timestamp("completed_at"),
-});
 
-export const insertCoalitionActionItemSchema = createInsertSchema(coalitionActionItems).omit({ id: true, completedAt: true });
-export type InsertCoalitionActionItem = z.infer<typeof insertCoalitionActionItemSchema>;
-export type CoalitionActionItem = typeof coalitionActionItems.$inferSelect;
 
-export const coalitionCapacityAssessments = pgTable("coalition_capacity_assessments", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  coalitionId: varchar("coalition_id", { length: 100 }).notNull(),
-  assessorId: varchar("assessor_id", { length: 255 }),
-  organizationalCapacity: integer("organizational_capacity").notNull().default(0),
-  leadershipEffectiveness: integer("leadership_effectiveness").notNull().default(0),
-  substanceAbuseKnowledge: integer("substance_abuse_knowledge").notNull().default(0),
-  communityEngagement: integer("community_engagement").notNull().default(0),
-  overallScore: integer("overall_score").notNull().default(0),
-  recommendations: jsonb("recommendations"),
-  assessedAt: timestamp("assessed_at").defaultNow(),
-});
 
-export const insertCoalitionCapacityAssessmentSchema = createInsertSchema(coalitionCapacityAssessments).omit({ id: true, assessedAt: true });
-export type InsertCoalitionCapacityAssessment = z.infer<typeof insertCoalitionCapacityAssessmentSchema>;
-export type CoalitionCapacityAssessment = typeof coalitionCapacityAssessments.$inferSelect;
 
-export const communityActionPlans = pgTable("community_action_plans", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  coalitionId: varchar("coalition_id", { length: 100 }).notNull(),
-  title: text("title").notNull(),
-  spfPhase: varchar("spf_phase", { length: 50 }).notNull().default("assessment"),
-  goals: jsonb("goals"),
-  objectives: jsonb("objectives"),
-  strategies: jsonb("strategies"),
-  responsibleParties: jsonb("responsible_parties"),
-  timeline: jsonb("timeline"),
-  evaluationMetrics: jsonb("evaluation_metrics"),
-  status: varchar("status", { length: 50 }).notNull().default("draft"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
 
-export const insertCommunityActionPlanSchema = createInsertSchema(communityActionPlans).omit({ id: true, createdAt: true });
-export type InsertCommunityActionPlan = z.infer<typeof insertCommunityActionPlanSchema>;
-export type CommunityActionPlan = typeof communityActionPlans.$inferSelect;
 
-export const costMatchRecords = pgTable("cost_match_records", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  coalitionId: varchar("coalition_id", { length: 100 }).notNull(),
-  contributorName: text("contributor_name").notNull(),
-  contributionType: varchar("contribution_type", { length: 50 }).notNull().default("cash"),
-  description: text("description"),
-  dollarValue: decimal("dollar_value", { precision: 12, scale: 2 }).notNull().default("0.00"),
-  hoursContributed: decimal("hours_contributed", { precision: 8, scale: 2 }),
-  dateRecorded: text("date_recorded"),
-  verifiedBy: text("verified_by"),
-  verifiedAt: timestamp("verified_at"),
-});
 
-export const insertCostMatchRecordSchema = createInsertSchema(costMatchRecords).omit({ id: true, verifiedAt: true });
-export type InsertCostMatchRecord = z.infer<typeof insertCostMatchRecordSchema>;
-export type CostMatchRecord = typeof costMatchRecords.$inferSelect;
 
 // ==================== PARENT EDUCATION & FAMILY STRENGTHENING ====================
 
@@ -3175,21 +3119,7 @@ export const insertDfcCoreMeasureSchema = createInsertSchema(dfcCoreMeasures).om
 export type InsertDfcCoreMeasure = z.infer<typeof insertDfcCoreMeasureSchema>;
 export type DfcCoreMeasure = typeof dfcCoreMeasures.$inferSelect;
 
-export const dfcStakeholderSurveys = pgTable("dfc_stakeholder_surveys", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  populationType: text("population_type").notNull(),
-  surveyPeriod: text("survey_period").notNull(),
-  respondentCount: integer("respondent_count").default(0),
-  questions: jsonb("questions").notNull().default([]),
-  responses: jsonb("responses").notNull().default([]),
-  summary: jsonb("summary").default({}),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
 
-export const insertDfcStakeholderSurveySchema = createInsertSchema(dfcStakeholderSurveys).omit({ id: true, createdAt: true });
-export type InsertDfcStakeholderSurvey = z.infer<typeof insertDfcStakeholderSurveySchema>;
-export type DfcStakeholderSurvey = typeof dfcStakeholderSurveys.$inferSelect;
 
 export const communityReadinessAssessments = pgTable("community_readiness_assessments", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -3212,22 +3142,7 @@ export const insertCommunityReadinessAssessmentSchema = createInsertSchema(commu
 export type InsertCommunityReadinessAssessment = z.infer<typeof insertCommunityReadinessAssessmentSchema>;
 export type CommunityReadinessAssessment = typeof communityReadinessAssessments.$inferSelect;
 
-export const communityReadinessInterviews = pgTable("community_readiness_interviews", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  assessmentId: varchar("assessment_id", { length: 100 }),
-  intervieweeType: text("interviewee_type").notNull(),
-  intervieweeName: text("interviewee_name"),
-  interviewDate: text("interview_date").notNull(),
-  responses: jsonb("responses").notNull().default({}),
-  dimensionScores: jsonb("dimension_scores").default({}),
-  notes: text("notes"),
-  interviewerId: varchar("interviewer_id", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow(),
-});
 
-export const insertCommunityReadinessInterviewSchema = createInsertSchema(communityReadinessInterviews).omit({ id: true, createdAt: true });
-export type InsertCommunityReadinessInterview = z.infer<typeof insertCommunityReadinessInterviewSchema>;
-export type CommunityReadinessInterview = typeof communityReadinessInterviews.$inferSelect;
 
 // ==================== DFC READINESS & MEDIA CAMPAIGN TABLES ====================
 
@@ -3251,37 +3166,9 @@ export const insertMediaCampaignSchema = createInsertSchema(mediaCampaigns).omit
 export type InsertMediaCampaign = z.infer<typeof insertMediaCampaignSchema>;
 export type MediaCampaign = typeof mediaCampaigns.$inferSelect;
 
-export const campaignContent = pgTable("campaign_content", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  campaignId: varchar("campaign_id", { length: 100 }).notNull().references(() => mediaCampaigns.id),
-  contentType: text("content_type").notNull(),
-  title: text("title").notNull(),
-  body: text("body"),
-  platform: text("platform"),
-  scheduledDate: text("scheduled_date"),
-  status: text("status").notNull().default("draft"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
 
-export const insertCampaignContentSchema = createInsertSchema(campaignContent).omit({ id: true, createdAt: true });
-export type InsertCampaignContent = z.infer<typeof insertCampaignContentSchema>;
-export type CampaignContent = typeof campaignContent.$inferSelect;
 
-export const campaignMetrics = pgTable("campaign_metrics", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  campaignId: varchar("campaign_id", { length: 100 }).notNull().references(() => mediaCampaigns.id),
-  metricDate: text("metric_date").notNull(),
-  impressions: integer("impressions").default(0),
-  interactions: integer("interactions").default(0),
-  eventAttendance: integer("event_attendance").default(0),
-  mediaMentions: integer("media_mentions").default(0),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
 
-export const insertCampaignMetricSchema = createInsertSchema(campaignMetrics).omit({ id: true, createdAt: true });
-export type InsertCampaignMetric = z.infer<typeof insertCampaignMetricSchema>;
-export type CampaignMetric = typeof campaignMetrics.$inferSelect;
 
 export const dfcReadinessItems = pgTable("dfc_readiness_items", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
@@ -3318,19 +3205,7 @@ export const insertStakeholderCommitmentSchema = createInsertSchema(stakeholderC
 export type InsertStakeholderCommitment = z.infer<typeof insertStakeholderCommitmentSchema>;
 export type StakeholderCommitment = typeof stakeholderCommitments.$inferSelect;
 
-export const dfcWizardState = pgTable("dfc_wizard_state", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  visitorId: varchar("visitor_id", { length: 255 }).notNull(),
-  wizardType: text("wizard_type").notNull(),
-  currentStep: integer("current_step").notNull().default(0),
-  completedSteps: jsonb("completed_steps").notNull().default([]),
-  metadata: jsonb("metadata").notNull().default({}),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
 
-export const insertDfcWizardStateSchema = createInsertSchema(dfcWizardState).omit({ id: true, updatedAt: true });
-export type InsertDfcWizardState = z.infer<typeof insertDfcWizardStateSchema>;
-export type DfcWizardState = typeof dfcWizardState.$inferSelect;
 
 // ==================== CONTACT INQUIRIES ====================
 
@@ -4267,23 +4142,7 @@ export const insertBenefitsChwSchema = createInsertSchema(benefitsChwNetwork).om
 export type InsertBenefitsChw = z.infer<typeof insertBenefitsChwSchema>;
 export type BenefitsChw = typeof benefitsChwNetwork.$inferSelect;
 
-export const benefitsEnrollmentLog = pgTable("benefits_enrollment_log", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  countyFips: varchar("county_fips", { length: 10 }).notNull(),
-  zipCode: varchar("zip_code", { length: 10 }),
-  benefitType: varchar("benefit_type", { length: 50 }).notNull(),
-  enrollmentType: varchar("enrollment_type", { length: 20 }).notNull(),
-  modality: varchar("modality", { length: 50 }),
-  chwId: varchar("chw_id"),
-  partnerId: varchar("partner_id"),
-  status: varchar("status", { length: 50 }).notNull().default("pending"),
-  notes: text("notes"),
-  createdAt: timestamp("created_at").defaultNow(),
-});
 
-export const insertBenefitsEnrollmentLogSchema = createInsertSchema(benefitsEnrollmentLog).omit({ id: true, createdAt: true });
-export type InsertBenefitsEnrollmentLog = z.infer<typeof insertBenefitsEnrollmentLogSchema>;
-export type BenefitsEnrollmentLog = typeof benefitsEnrollmentLog.$inferSelect;
 
 export const benefitsScreenings = pgTable("benefits_screenings", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),

@@ -10,7 +10,7 @@
  * POST /api/ceds/align            — given a program description, return matching goals + proposal language
  */
 
-import type { Express, Request, Response } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { cedsRegions, cedsGoals, cedsAlignments } from "@shared/schema";
 import { eq, inArray, or, ilike, sql } from "drizzle-orm";
@@ -65,6 +65,32 @@ export const CEDS_CATEGORIES = [
   { id: "economic_base", label: "Economic Base & Industry Diversification", description: "Industry clusters, supply chains, exports" },
   { id: "quality_of_life", label: "Quality of Life & Community Resilience", description: "Health, safety, arts, civic capacity, disaster preparedness" },
 ] as const;
+
+// In-memory per-IP rate limiter for the expensive AI /align endpoint.
+// Re-creates on process restart, which is acceptable — the floor is "no public
+// abuse vector against a cost-bearing AI call." `req.ip` is reliable because
+// `app.set('trust proxy', 1)` is set at boot; we never read raw x-forwarded-for.
+const cedsAlignBuckets = new Map<string, { count: number; resetAt: number }>();
+const CEDS_ALIGN_MAX = 15;                    // requests per IP per window
+const CEDS_ALIGN_WINDOW_MS = 10 * 60 * 1000;  // 10 minutes
+
+function cedsAlignRateLimit(req: Request, res: Response, next: NextFunction) {
+  const ip = req.ip || req.socket?.remoteAddress || "unknown"; // trust proxy already set
+  const now = Date.now();
+  const key = `ceds-align:${ip}`;
+  const b = cedsAlignBuckets.get(key);
+  if (!b || b.resetAt < now) {
+    cedsAlignBuckets.set(key, { count: 1, resetAt: now + CEDS_ALIGN_WINDOW_MS });
+    return next();
+  }
+  if (b.count >= CEDS_ALIGN_MAX) {
+    const retryAfterSec = Math.ceil((b.resetAt - now) / 1000);
+    res.setHeader("Retry-After", String(retryAfterSec));
+    return res.status(429).json({ error: `Too many alignment requests. Try again in ${retryAfterSec}s.` });
+  }
+  b.count += 1;
+  return next();
+}
 
 export function registerCedsRoutes(app: Express) {
 
@@ -165,7 +191,7 @@ export function registerCedsRoutes(app: Express) {
   });
 
   // ── AI alignment: given org/program description → CEDS match + proposal language ─
-  app.post("/api/ceds/align", requireAuth, async (req: Request, res: Response) => {
+  app.post("/api/ceds/align", requireAuth, cedsAlignRateLimit, async (req: Request, res: Response) => {
     try {
       const { programDescription, grantId, targetState, targetCountyFips } = z.object({
         programDescription: z.string().min(20),

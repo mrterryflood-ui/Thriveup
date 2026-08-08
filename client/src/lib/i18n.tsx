@@ -1,4 +1,5 @@
 import { createContext, useState, useEffect, useContext, useCallback, useRef } from "react";
+import { X } from "lucide-react";
 import { translations, type Language, LANGUAGES } from "./translations";
 
 type LanguageContextType = {
@@ -8,6 +9,9 @@ type LanguageContextType = {
   setAiTranslate: (on: boolean) => void;
   t: (key: string) => string;
   isTranslating: boolean;
+  /** True when the active language is non-English but some UI is falling back
+   *  to English because a translation is unavailable (cache miss / fetch fail). */
+  translationFellBack: boolean;
 };
 
 const LanguageContext = createContext<LanguageContextType | null>(null);
@@ -50,6 +54,14 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const [isTranslating, setIsTranslating] = useState(false);
   const inFlight = useRef<Set<string>>(new Set());
+
+  // Honest, non-blocking notice: when the active language is non-English but a
+  // translation is missing, t() shows English — we surface that instead of
+  // silently pretending the UI is translated. `fellBackRef` is written during
+  // render by t(); `translationFellBack` is the reconciled, dismissible state.
+  const fellBackRef = useRef(false);
+  const [translationFellBack, setTranslationFellBack] = useState(false);
+  const [noticeDismissed, setNoticeDismissed] = useState(false);
 
   useEffect(() => {
     try { localStorage.setItem(LANG_KEY, language); }
@@ -132,17 +144,61 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const t = useCallback((key: string): string => {
     const enText = translations.en[key] ?? key;
     if (HUMAN_LANGS.has(language)) {
-      return translations[language][key] ?? enText;
+      const translated = translations[language][key];
+      if (translated == null) fellBackRef.current = true;
+      return translated ?? enText;
     }
     if (aiTranslate) {
       const cached = aiCache[language]?.[enText];
       if (cached) return cached;
     }
+    // Non-English language active but no translation available — English shown.
+    fellBackRef.current = true;
     return enText;
   }, [language, aiTranslate, aiCache]);
 
+  // Reset the fallback flag whenever the language/cache/toggle changes so the
+  // notice re-evaluates against the new state rather than sticking on forever.
+  useEffect(() => {
+    fellBackRef.current = false;
+    setTranslationFellBack(false);
+    setNoticeDismissed(false);
+  }, [language, aiTranslate, aiCache]);
+
+  // After each commit, reconcile what t() observed during render into state.
+  useEffect(() => {
+    if (HUMAN_LANGS.has(language) && language === "en") return;
+    if (fellBackRef.current && !translationFellBack) {
+      setTranslationFellBack(true);
+    }
+  });
+
+  const showNotice =
+    translationFellBack && !noticeDismissed && language !== "en";
+
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, aiTranslate, setAiTranslate, t, isTranslating }}>
+    <LanguageContext.Provider
+      value={{ language, setLanguage, aiTranslate, setAiTranslate, t, isTranslating, translationFellBack }}
+    >
+      {showNotice && (
+        <div
+          className="fixed top-2 left-1/2 -translate-x-1/2 z-[60] flex items-center gap-2 max-w-[92vw] rounded-full border border-amber-300 bg-amber-50 px-3 py-1.5 text-xs font-medium text-amber-900 shadow-md dark:border-amber-700 dark:bg-amber-950 dark:text-amber-200"
+          role="status"
+          aria-live="polite"
+          data-testid="notice-translation-fallback"
+        >
+          <span className="truncate">Showing English — translation unavailable</span>
+          <button
+            type="button"
+            onClick={() => setNoticeDismissed(true)}
+            className="shrink-0 rounded-full p-0.5 hover:bg-amber-200/60 dark:hover:bg-amber-800/60 transition-colors"
+            aria-label="Dismiss translation notice"
+            data-testid="button-dismiss-translation-notice"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        </div>
+      )}
       {children}
     </LanguageContext.Provider>
   );

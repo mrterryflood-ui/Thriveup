@@ -650,6 +650,13 @@ export function registerNavigatorRoutes(app: Express) {
       return res.status(400).json({ error: "Message is required" });
     }
 
+    // Cap message length — don't trust the client to send a reasonable size.
+    // Oversized input drives cost and can be an abuse/DoS vector.
+    const MAX_MESSAGE_CHARS = 8000;
+    if (message.length > MAX_MESSAGE_CHARS) {
+      return res.status(400).json({ error: `Message is too long (max ${MAX_MESSAGE_CHARS} characters). Please shorten it and try again.` });
+    }
+
     const contextData = await assembleContext(req, message);
 
     // Inject response-depth instructions based on user's selected mode

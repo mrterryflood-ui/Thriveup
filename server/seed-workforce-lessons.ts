@@ -1,4 +1,5 @@
 import { lessons, quizQuestions, badges } from "@shared/schema";
+import { sql } from "drizzle-orm";
 
 export async function seedWorkforceLessons(db: any): Promise<void> {
   const { eq } = await import("drizzle-orm");
@@ -1434,7 +1435,7 @@ Completing the Workforce Readiness Academy unlocks new pathways across the Thriv
         milestone: "resume_complete"
       }),
     },
-  ]);
+  ]).onConflictDoUpdate({ target: lessons.id, set: { moduleId: sql`excluded.module_id`, title: sql`excluded.title`, content: sql`excluded.content`, lessonNumber: sql`excluded.lesson_number`, durationMinutes: sql`excluded.duration_minutes`, activityType: sql`excluded.activity_type`, activityData: sql`excluded.activity_data` } });
 
   // ===== QUIZ QUESTIONS: 10 PER MODULE, 50 TOTAL =====
   const existingQuiz = await db.select().from(quizQuestions).where(eq(quizQuestions.id, "wr_q_m1_1")).limit(1);
@@ -1499,7 +1500,7 @@ Completing the Workforce Readiness Academy unlocks new pathways across the Thriv
       { id: "wr_q_m5_8", moduleId: "wr_work_ethic_leadership", questionText: "What does 'being on time' actually mean in the workplace?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Arriving at your start time"},{id:"b",text:"Arriving 5-10 minutes early, ready to start at your scheduled time"},{id:"c",text:"It doesn't matter as long as you get your work done"},{id:"d",text:"Arriving within 15 minutes of your start time"}]), correctAnswer: "b", explanation: "Being on time means being READY at your start time — not walking in the door.", points: 10 },
       { id: "wr_q_m5_9", moduleId: "wr_work_ethic_leadership", questionText: "By completing the Workforce Readiness Academy, you've earned:", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"A participation trophy"},{id:"b",text:"A verifiable ThriveUp Workforce Readiness Certificate aligned to TEKS, a complete resume, and real skills"},{id:"c",text:"A discount on college tuition"},{id:"d",text:"A guaranteed job"}]), correctAnswer: "b", explanation: "Your certificate is verifiable, your resume is built from real experiences, and your skills are aligned to Texas state standards.", points: 10 },
       { id: "wr_q_m5_10", moduleId: "wr_work_ethic_leadership", questionText: "What is the key message of the Workforce Readiness Academy?", questionType: "multiple_choice", options: JSON.stringify([{id:"a",text:"Get a job as fast as possible"},{id:"b",text:"You already have more skills than you think — this program helps you name them, prove them, and build on them"},{id:"c",text:"College is the only path to success"},{id:"d",text:"Just follow the rules and you'll be fine"}]), correctAnswer: "b", explanation: "You started with skills you didn't know how to name. You're ending with a resume, a certificate, a network, and a plan. That's agency.", points: 10 },
-    ]);
+    ]).onConflictDoUpdate({ target: quizQuestions.id, set: { moduleId: sql`excluded.module_id`, questionText: sql`excluded.question_text`, questionType: sql`excluded.question_type`, options: sql`excluded.options`, correctAnswer: sql`excluded.correct_answer`, explanation: sql`excluded.explanation`, points: sql`excluded.points` } });
   }
 
   // ===== WORKFORCE READINESS BADGES =====
@@ -1517,7 +1518,7 @@ Completing the Workforce Readiness Academy unlocks new pathways across the Thriv
       { id: "wr_resume_accomplishments", name: "Accomplishments Proven", description: "Added Projects & Accomplishments with the XYZ formula", category: "milestone", levelRequirement: 4, rarity: "uncommon" },
       { id: "wr_resume_complete", name: "Career Passport Complete", description: "Finished your entire resume including cover letter — ready for the world", category: "milestone", levelRequirement: 4, rarity: "rare" },
       { id: "wr_workforce_ready_cert", name: "Workforce Ready", description: "Completed all 5 modules and earned the ThriveUp Workforce Readiness Certificate", category: "milestone", levelRequirement: 4, rarity: "legendary" },
-    ]);
+    ]).onConflictDoUpdate({ target: badges.id, set: { name: sql`excluded.name`, description: sql`excluded.description`, category: sql`excluded.category`, levelRequirement: sql`excluded.level_requirement`, rarity: sql`excluded.rarity` } });
   }
 
   // ---- GRADES 6-8 WORKFORCE: wr_career_foundations_teamwork L1, L2, L3 ----
@@ -1718,7 +1719,7 @@ Example: "I feel frustrated when the project work isn't divided equally because 
 
 Practice resolving 4 conflict scenarios using the strategies you've learned. The AI will guide you through each one and show you how different approaches lead to different outcomes.`,
     },
-  ]);
+  ]).onConflictDoUpdate({ target: lessons.id, set: { moduleId: sql`excluded.module_id`, title: sql`excluded.title`, content: sql`excluded.content`, lessonNumber: sql`excluded.lesson_number`, durationMinutes: sql`excluded.duration_minutes`, activityType: sql`excluded.activity_type`, activityData: sql`excluded.activity_data` } });
 
   // ---- GRADES 6-8 WORKFORCE: wr_career_foundations_professionalism L1, L2, L3 ----
   await db.insert(lessons).values([
@@ -1915,5 +1916,5 @@ For this activity, pick 3 careers that interest you:
 
 Your career exploration is a journey, not a destination. The more you explore, the more confident your eventual choice will be.`,
     },
-  ]);
+  ]).onConflictDoUpdate({ target: lessons.id, set: { moduleId: sql`excluded.module_id`, title: sql`excluded.title`, content: sql`excluded.content`, lessonNumber: sql`excluded.lesson_number`, durationMinutes: sql`excluded.duration_minutes`, activityType: sql`excluded.activity_type`, activityData: sql`excluded.activity_data` } });
 }

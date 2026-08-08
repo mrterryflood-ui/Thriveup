@@ -3601,7 +3601,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       const prompt = prompts[templateType] || prompts.mou;
 
       const content = await generateAIResponse([
-        { role: "system", content: "You are a legal document specialist for nonprofit organizations. Generate professional, ready-to-use documents. Use formal language. Include [FILL IN] placeholders only for specific details like dates, addresses, and dollar amounts. Include clear signature blocks at the end with lines for signature, printed name, title, organization, and date." },
+        { role: "system", content: withEthicalPreamble("You are a legal document specialist for nonprofit organizations. Generate professional, ready-to-use documents. Use formal language. Include [FILL IN] placeholders only for specific details like dates, addresses, and dollar amounts. Include clear signature blocks at the end with lines for signature, printed name, title, organization, and date.") },
         { role: "user", content: prompt },
       ], 4000);
 
@@ -4855,7 +4855,7 @@ Return ONLY valid JSON:
 
     const response = await generateAIResponse(
       [
-        { role: "system", content: "You are a procurement research analyst. You NEVER fabricate information about agencies. If you don't know how a specific agency evaluates proposals, you say so clearly and suggest where to find that information (agency website, past solicitations, procurement office phone number). Honesty about gaps in your knowledge is more valuable than confident guessing." },
+        { role: "system", content: withEthicalPreamble("You are a procurement research analyst. You NEVER fabricate information about agencies. If you don't know how a specific agency evaluates proposals, you say so clearly and suggest where to find that information (agency website, past solicitations, procurement office phone number). Honesty about gaps in your knowledge is more valuable than confident guessing.") },
         { role: "user", content: prompt },
       ],
       2000
@@ -4991,7 +4991,7 @@ Return ONLY valid JSON. Start with { and end with }. No markdown, no explanation
 
     const response = await generateAIResponse(
       [
-        { role: "system", content: "You are a document parser that extracts structured data from government solicitations. You read every word. You never guess — you only report what the document actually states. If something is not in the document, use null. Return ONLY valid JSON." },
+        { role: "system", content: withEthicalPreamble("You are a document parser that extracts structured data from government solicitations. You read every word. You never guess — you only report what the document actually states. If something is not in the document, use null. Return ONLY valid JSON.") },
         { role: "user", content: parsePrompt },
       ],
       4000

@@ -33,6 +33,26 @@ author = "agent"
 task = "workflow.run"
 args = "Start application"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "seed-idempotency"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "typecheck"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "security-probes"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "ai-preamble"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "yhsi-metrics"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -41,6 +61,61 @@ author = "agent"
 task = "shell.exec"
 args = "npm run dev"
 waitForPort = 5000
+
+[[workflows.workflow]]
+name = "seed-idempotency"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/verify-seed-idempotency.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "typecheck"
+author = "agent"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash -c 'NODE_OPTIONS=--max-old-space-size=8192 npx tsc --noEmit -p . > /tmp/tsc-val.out 2>&1; c=$(grep -c \"error TS\" /tmp/tsc-val.out || true); echo \"tsc errors: $c (baseline 85)\"; [ \"$c\" -le 85 ]'"
+
+[[workflows.workflow]]
+name = "security-probes"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/security-probes.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "ai-preamble"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/verify-ai-preamble.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "yhsi-metrics"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx --test server/__tests__/yhsi-metrics.test.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
 
 [agent]
 integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_with_replit:2.0.0", "javascript_object_storage:2.0.0", "resend:1.0.0", "javascript_anthropic_ai_integrations:2.0.0", "javascript_openrouter_ai_integrations:2.0.0"]

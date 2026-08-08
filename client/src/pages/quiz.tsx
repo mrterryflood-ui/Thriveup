@@ -17,6 +17,11 @@ import {
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import type { QuizQuestion } from "@shared/schema";
+
+// The quiz GET intentionally strips the answer key — type the client to the
+// sanitized shape so nothing can accidentally assume correctAnswer/explanation
+// exist on the client.
+type PublicQuizQuestion = Omit<QuizQuestion, "correctAnswer" | "explanation">;
 import { ErrorRetry } from "@/components/error-retry";
 
 export default function QuizPage() {
@@ -25,12 +30,57 @@ export default function QuizPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
+  // Persist in-progress answers + current question to sessionStorage keyed by
+  // moduleId so a refresh (or accidental navigation-back) doesn't wipe the
+  // learner's work. Decision: sessionStorage over server-side attempt drafts —
+  // this quiz is small (a handful of questions) and the answers only need to
+  // survive a reload within the same browser tab, so a server round-trip and
+  // draft table would be overkill.
+  const draftKey = `quiz-draft:${moduleId}`;
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [showResults, setShowResults] = useState(false);
-  const [quizResult, setQuizResult] = useState<{ score: number; total: number; passed: boolean; pointsEarned: number } | null>(null);
+  const [quizResult, setQuizResult] = useState<{ score: number; total: number; passed: boolean; masteryAchieved: boolean; canAdvance: boolean; pointsEarned: number } | null>(null);
 
-  const { data: questions, isLoading, error, refetch } = useQuery<QuizQuestion[]>({
+  // Restore any saved draft on mount / when the module changes. Parse failures
+  // are surfaced (and the corrupt draft dropped) rather than silently ignored.
+  useEffect(() => {
+    if (!moduleId) return;
+    const raw = sessionStorage.getItem(draftKey);
+    if (!raw) return;
+    try {
+      const draft = JSON.parse(raw) as { answers?: Record<string, string>; currentQuestion?: number };
+      if (draft.answers && typeof draft.answers === "object") setAnswers(draft.answers);
+      if (typeof draft.currentQuestion === "number") setCurrentQuestion(draft.currentQuestion);
+    } catch (err) {
+      console.error(`[Quiz] failed to restore draft for ${draftKey}, dropping it:`, err);
+      sessionStorage.removeItem(draftKey);
+    }
+  }, [draftKey, moduleId]);
+
+  // Persist the draft as the learner answers / navigates. Only write once
+  // there's something worth restoring, and never after results are shown.
+  useEffect(() => {
+    if (!moduleId || showResults) return;
+    if (Object.keys(answers).length === 0) return;
+    sessionStorage.setItem(draftKey, JSON.stringify({ answers, currentQuestion }));
+  }, [answers, currentQuestion, moduleId, draftKey, showResults]);
+
+  // Unsaved-work guard: warn on refresh / tab-close while answers exist and the
+  // quiz has not been submitted.
+  useEffect(() => {
+    const hasUnsaved = Object.keys(answers).length > 0 && !showResults;
+    if (!hasUnsaved) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = "";
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [answers, showResults]);
+
+  const { data: questions, isLoading, error, refetch } = useQuery<PublicQuizQuestion[]>({
     queryKey: ["/api/modules", moduleId, "quiz"],
   });
 
@@ -42,7 +92,21 @@ export default function QuizPage() {
     onSuccess: (data) => {
       setQuizResult(data);
       setShowResults(true);
+      // Work is safely submitted — drop the local draft.
+      sessionStorage.removeItem(draftKey);
+      // Mastery can unlock badges, certificates, and level advancement —
+      // invalidate everything downstream, not just /api/progress.
       queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/modules"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/levels"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/certificates"] });
+    },
+    onError: () => {
+      toast({
+        title: "Couldn't submit your quiz",
+        description: "We couldn't save your answers. Please check your connection and try submitting again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -79,20 +143,22 @@ export default function QuizPage() {
     return (
       <div className="p-6 max-w-3xl mx-auto">
         <Card className="p-8 text-center">
-          <div className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-6 ${quizResult.passed ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-amber-100 dark:bg-amber-900/30'}`}>
-            {quizResult.passed ? (
+          <div className={`mx-auto w-20 h-20 rounded-full flex items-center justify-center mb-6 ${quizResult.masteryAchieved ? 'bg-emerald-100 dark:bg-emerald-900/30' : 'bg-amber-100 dark:bg-amber-900/30'}`}>
+            {quizResult.masteryAchieved ? (
               <Trophy className="h-10 w-10 text-emerald-600 dark:text-emerald-400" />
             ) : (
               <RotateCcw className="h-10 w-10 text-amber-600 dark:text-amber-400" />
             )}
           </div>
           <h2 className="text-2xl font-bold mb-2" data-testid="text-quiz-result">
-            {quizResult.passed ? "Congratulations!" : "Keep Trying!"}
+            {quizResult.masteryAchieved ? "Congratulations!" : "Keep Trying!"}
           </h2>
           <p className="text-muted-foreground mb-4">
-            {quizResult.passed
-              ? `You scored ${percentage}% and earned ${quizResult.pointsEarned} points!`
-              : `You scored ${percentage}%. You need 70% to pass. Review the material and try again!`}
+            {quizResult.masteryAchieved
+              ? quizResult.pointsEarned > 0
+                ? `You scored ${percentage}% and earned ${quizResult.pointsEarned} points!`
+                : `You scored ${percentage}%! You've already mastered this quiz, so no new points this time.`
+              : `You scored ${percentage}%. You need 80% to advance. Review the material and try again!`}
           </p>
           <div className="flex items-center justify-center gap-2 mb-6">
             <span className="text-4xl font-bold text-primary">{quizResult.score}</span>
@@ -100,7 +166,7 @@ export default function QuizPage() {
           </div>
           <Progress value={percentage} className="h-3 mb-8 max-w-xs mx-auto" />
           <div className="flex justify-center gap-3 flex-wrap">
-            {!quizResult.passed && (
+            {!quizResult.masteryAchieved && (
               <Button
                 variant="outline"
                 onClick={() => {
@@ -108,6 +174,7 @@ export default function QuizPage() {
                   setAnswers({});
                   setShowResults(false);
                   setQuizResult(null);
+                  sessionStorage.removeItem(draftKey);
                 }}
                 data-testid="button-retry-quiz"
               >

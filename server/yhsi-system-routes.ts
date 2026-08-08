@@ -43,6 +43,28 @@ const YAB_MEMBER_STATUSES = z.enum(["active", "inactive", "alumni"]);
 const DECISION_STATUSES = z.enum(["proposed", "adopted", "implemented", "declined"]);
 const STIPEND_PURPOSES = z.enum(["meeting", "workgroup", "interview_panel", "conference", "other"]);
 
+// Single source of truth for the CES cohort: the LATEST assessment per
+// participant. The queue and the summary must count the same population —
+// counting every historical assessment in the summary while the queue shows
+// one row per participant made the two surfaces disagree. This subquery is
+// shared so a participant is represented exactly once in both.
+function latestCesAssessmentPerParticipant() {
+  return db
+    .select({
+      id: yhsiCesAssessments.id,
+      participantId: yhsiCesAssessments.participantId,
+      assessmentType: yhsiCesAssessments.assessmentType,
+      acuityScore: yhsiCesAssessments.acuityScore,
+      prioritizationTier: yhsiCesAssessments.prioritizationTier,
+      diversionAttempted: yhsiCesAssessments.diversionAttempted,
+      diversionOutcome: yhsiCesAssessments.diversionOutcome,
+      assessedAt: yhsiCesAssessments.assessedAt,
+      rn: sql<number>`row_number() over (partition by ${yhsiCesAssessments.participantId} order by ${yhsiCesAssessments.assessedAt} desc)`.as("rn"),
+    })
+    .from(yhsiCesAssessments)
+    .as("latest_ces");
+}
+
 export function registerYhsiSystemRoutes(app: Express) {
   // ═══ Program guide — PUBLIC by design ════════════════════════════════════
   // McKinney-Vento requires public notice of rights "in a manner and form
@@ -76,18 +98,24 @@ export function registerYhsiSystemRoutes(app: Express) {
   // Prioritization queue — latest assessment per participant, highest acuity first.
   app.get("/api/yhsi/ces/queue", requireStaff, async (_req: Request, res: Response) => {
     try {
-      const rows = await db.execute(sql`
-        select distinct on (a.participant_id)
-          a.id, a.participant_id as "participantId", a.assessment_type as "assessmentType",
-          a.acuity_score as "acuityScore", a.prioritization_tier as "prioritizationTier",
-          a.diversion_attempted as "diversionAttempted", a.diversion_outcome as "diversionOutcome",
-          a.assessed_at as "assessedAt",
-          p.preferred_name as "preferredName", p.first_name as "firstName"
-        from yhsi_ces_assessments a
-        join yhsi_youth_participants p on p.id = a.participant_id
-        order by a.participant_id, a.assessed_at desc
-      `);
-      const queue = (rows.rows as any[]).sort((a, b) => {
+      const latest = latestCesAssessmentPerParticipant();
+      const rows = await db
+        .select({
+          id: latest.id,
+          participantId: latest.participantId,
+          assessmentType: latest.assessmentType,
+          acuityScore: latest.acuityScore,
+          prioritizationTier: latest.prioritizationTier,
+          diversionAttempted: latest.diversionAttempted,
+          diversionOutcome: latest.diversionOutcome,
+          assessedAt: latest.assessedAt,
+          preferredName: yhsiYouthParticipants.preferredName,
+          firstName: yhsiYouthParticipants.firstName,
+        })
+        .from(latest)
+        .innerJoin(yhsiYouthParticipants, eq(yhsiYouthParticipants.id, latest.participantId))
+        .where(eq(latest.rn, 1));
+      const queue = (rows as any[]).sort((a, b) => {
         const tierRank: Record<string, number> = { high: 0, medium: 1, low: 2 };
         return (tierRank[a.prioritizationTier] - tierRank[b.prioritizationTier]) || (b.acuityScore - a.acuityScore);
       });
@@ -101,12 +129,17 @@ export function registerYhsiSystemRoutes(app: Express) {
   // Diversion effectiveness — suppressed rates.
   app.get("/api/yhsi/ces/summary", requireStaff, async (_req: Request, res: Response) => {
     try {
+      // Reconcile with the queue: count the LATEST assessment per participant,
+      // not every historical assessment. Otherwise `assessments` here reports a
+      // larger number than the queue shows, and diversion/tier rates are drawn
+      // from a different (stale-inclusive) population.
+      const latest = latestCesAssessmentPerParticipant();
       const [r] = await db.select({
         total: sql<number>`count(*)::int`,
-        attempted: sql<number>`count(*) filter (where diversion_attempted)::int`,
-        diverted: sql<number>`count(*) filter (where diversion_outcome like 'diverted%')::int`,
-        highTier: sql<number>`count(*) filter (where prioritization_tier = 'high')::int`,
-      }).from(yhsiCesAssessments);
+        attempted: sql<number>`count(*) filter (where ${latest.diversionAttempted})::int`,
+        diverted: sql<number>`count(*) filter (where ${latest.diversionOutcome} like 'diverted%')::int`,
+        highTier: sql<number>`count(*) filter (where ${latest.prioritizationTier} = 'high')::int`,
+      }).from(latest).where(eq(latest.rn, 1));
       const rate = (num: number, den: number) => (den >= SUPPRESSION_FLOOR ? Math.round((num / den) * 100) : null);
       return res.json({
         assessments: suppress(r.total),

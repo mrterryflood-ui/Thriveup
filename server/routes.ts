@@ -799,7 +799,10 @@ export async function registerRoutes(
   app.get("/api/modules/:moduleId/quiz", async (req, res) => {
     try {
       const questions = await storage.getQuizByModule(req.params.moduleId as string);
-      res.json(questions);
+      // SECURITY: never send the answer key or explanation to the client.
+      // Grading is server-side only (POST /quiz/submit).
+      const sanitized = questions.map(({ correctAnswer, explanation, ...q }) => q);
+      res.json(sanitized);
     } catch (error) {
       console.error("Error in GET /api/modules/:moduleId/quiz", error);
       res.status(500).json({ error: "Internal server error" });
@@ -835,11 +838,16 @@ export async function registerRoutes(
         ? `The learner scored ${Math.round(percentage * 100)}% and needs 80% to advance. They missed: ${missedConcepts.join("; ")}. Help them understand ONLY these specific concepts.`
         : "";
 
-      const attempt = await storage.submitQuiz(progress.id, req.params.moduleId as string, correct, questions.length, masteryAchieved);
+      // Anti-farming: points are only awarded the FIRST time a module is
+      // mastered — claimed atomically (row lock) so concurrent submissions
+      // cannot both win the award.
+      const { attempt, firstMastery } = await storage.submitQuizWithMasteryClaim(
+        progress.id, req.params.moduleId as string, correct, questions.length, masteryAchieved,
+      );
 
-      const pointsEarned = masteryAchieved ? 100 : passed ? 50 : 25;
+      const pointsEarned = firstMastery ? 100 : 0;
 
-      if (masteryAchieved) {
+      if (firstMastery) {
         const allAttempts = await storage.getQuizAttempts(progress.id);
         const scores = allAttempts.map(a => a.totalQuestions > 0 ? Math.round((a.score / a.totalQuestions) * 100) : 0);
         const avgScore = scores.length > 0 ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length) : 0;
@@ -942,10 +950,11 @@ export async function registerRoutes(
       if (!lesson) return res.status(404).json({ error: "Lesson not found" });
 
       const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
-      await storage.completeLesson(progress.id, req.params.lessonId as string);
+      const completion = await storage.completeLesson(progress.id, req.params.lessonId as string);
 
       const completed = await storage.getCompletedLessons(progress.id);
-      const pointsEarned = 50;
+      // Award points only for a NEW completion — repeat requests are a no-op.
+      const pointsEarned = completion.newlyCompleted ? 50 : 0;
 
       await storage.updateProgress(progress.id, {
         totalPoints: progress.totalPoints + pointsEarned,
@@ -4939,7 +4948,7 @@ export async function registerRoutes(
       const script = await generateAIResponse([
         {
           role: "system",
-          content: `You are a professional video scriptwriter and Roku/CTV streaming content strategist for ThriveUp Academy, a 24-platform AI-powered workforce development ecosystem founded by Dr. Terry Flood.
+          content: withEthicalPreamble(`You are a professional video scriptwriter and Roku/CTV streaming content strategist for ThriveUp Academy, a 24-platform AI-powered workforce development ecosystem founded by Dr. Terry Flood.
 
 Create complete video scripts optimized for Roku distribution with ad monetization.
 
@@ -4956,7 +4965,7 @@ Then include a ## Roku & CTV Distribution section with:
 - **Revenue Estimates:** Based on Roku CTV CPM ($20-$40)
 - **MRSS Feed Entry:** For Roku Direct Publisher
 - **RAF Integration Notes:** BrightScript ad insertion points
-- **Channel Metadata:** Poster specs, rating, genre tags`
+- **Channel Metadata:** Poster specs, rating, genre tags`)
         },
         { role: "user", content: prompt }
       ], 4000);

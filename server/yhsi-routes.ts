@@ -26,7 +26,7 @@ import {
 } from "@shared/schema";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
-import { randomUUID, randomBytes, timingSafeEqual } from "crypto";
+import { randomUUID, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { z } from "zod";
 import { screenParticipantGaps } from "@shared/foster-eligibility";
 import PDFDocument from "pdfkit";
@@ -64,10 +64,81 @@ function optionalString(max: number) {
   return z.string().max(max).optional();
 }
 
+// Sentinel narrative used when AI drafting fails. A report carrying this text
+// is INCOMPLETE and must never be finalizable — a placeholder can't be
+// submitted to HUD. Detection is substring-based so human edits that keep the
+// marker are still blocked, but a fully rewritten narrative clears it.
+export const NARRATIVE_PLACEHOLDER = "[Narrative generation unavailable — draft manually from the metrics below.]";
+export function isPlaceholderNarrative(narrative?: string | null): boolean {
+  return !narrative?.trim() || narrative.includes(NARRATIVE_PLACEHOLDER);
+}
+
+// Timezone-safe period parsing. A date-only string like "2024-06-30" must
+// resolve to the same UTC day regardless of server locale; parsing "2024-06-30"
+// then reading it in a negative-offset zone could roll back to the 29th. We
+// pin date-only inputs to UTC midnight explicitly.
+export function toUtcPeriodDate(v: unknown): Date | null {
+  if (v instanceof Date) return isNaN(v.getTime()) ? null : v;
+  if (typeof v !== "string") return null;
+  const s = v.trim();
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s);
+  if (dateOnly) {
+    return new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3])));
+  }
+  const d = new Date(s);
+  return isNaN(d.getTime()) ? null : d;
+}
+const utcPeriodDate = z.preprocess((v) => toUtcPeriodDate(v) ?? v, z.date());
+
 // Small-cell suppression floor (platform doctrine): never expose counts 1–4.
 export const SUPPRESSION_FLOOR = 5;
 export function suppress(n: number): number | null {
   return n > 0 && n < SUPPRESSION_FLOOR ? null : n;
+}
+
+// ── Metric-truth doctrine (exported so tests lock the exact rules) ──────────
+// Referral resolution counts ONLY genuinely terminal-success statuses. The
+// lifecycle is initiated → contacted → enrolled → in_service → completed;
+// enrolled/in_service are still in progress, closed_unresolved/declined are
+// terminal failures. Only "completed" is a resolution.
+export const RESOLVED_REFERRAL_STATUSES = new Set(["completed"]);
+export function isResolvedReferralStatus(status: string): boolean {
+  return RESOLVED_REFERRAL_STATUSES.has(status);
+}
+// An entitlement was actually OFFERED only if it reached offered/applied/
+// enrolled. declined/denied/ineligible were never offers extended-and-open.
+export const OFFERED_ENTITLEMENT_STATUSES = new Set(["offered", "applied", "enrolled"]);
+export function isOfferedEntitlementStatus(status: string): boolean {
+  return OFFERED_ENTITLEMENT_STATUSES.has(status);
+}
+
+// ── Referral status transition matrix ───────────────────────────────────────
+// The lifecycle is initiated → contacted → enrolled → in_service → completed,
+// with terminal-failure exits (closed_unresolved, declined) reachable from any
+// live stage. Without a guard the UI's free-choice dropdown lets staff jump a
+// referral straight from "declined" back to "completed" — which silently
+// inflates the completed-only resolution rate the funder reports on. We keep it
+// simple: an explicit map of the moves that make sense. A youth re-referred
+// after a decline should get a NEW referral row (re-referral), not have the old
+// terminal one rewritten — so terminal statuses only allow reopening back to an
+// in-progress stage, never a direct hop to another terminal outcome.
+export const ALLOWED_REFERRAL_TRANSITIONS: Record<string, string[]> = {
+  initiated: ["contacted", "enrolled", "in_service", "completed", "closed_unresolved", "declined"],
+  contacted: ["enrolled", "in_service", "completed", "closed_unresolved", "declined"],
+  enrolled: ["in_service", "completed", "closed_unresolved", "declined"],
+  in_service: ["completed", "closed_unresolved", "declined"],
+  // Terminal statuses: completed is IMMUTABLE — it feeds the funder-reported
+  // resolution rate, so history must not be rewritten. A youth returning to
+  // service gets a NEW referral row (re-referral). Failure terminals are
+  // correctable only by reopening to a live stage (premature closure), never
+  // by hopping directly to a different outcome.
+  completed: [],
+  closed_unresolved: ["contacted", "enrolled", "in_service"],
+  declined: ["contacted", "enrolled", "in_service"],
+};
+export function isAllowedReferralTransition(from: string, to: string): boolean {
+  if (from === to) return true; // idempotent no-op (e.g. re-saving notes on same status)
+  return ALLOWED_REFERRAL_TRANSITIONS[from]?.includes(to) ?? false;
 }
 
 function getUser(req: Request) {
@@ -199,7 +270,9 @@ async function computeYhsiMetrics(periodStart?: Date, periodEnd?: Date) {
     .groupBy(yhsiVoiceEntries.status);
 
   const total = referralsByStatus.reduce((s, r) => s + r.n, 0);
-  const resolved = referralsByStatus.filter((r) => ["completed", "in_service", "enrolled"].includes(r.key)).reduce((s, r) => s + r.n, 0);
+  // Resolution = genuinely terminal-success only (see isResolvedReferralStatus).
+  // in_service/enrolled are still in progress; counting them inflated the rate.
+  const resolved = referralsByStatus.filter((r) => isResolvedReferralStatus(r.key)).reduce((s, r) => s + r.n, 0);
   const stable6mo = housingAt6mo.filter((r) => r.key.startsWith("stable")).reduce((s, r) => s + r.n, 0);
   const total6mo = housingAt6mo.reduce((s, r) => s + r.n, 0);
   const voiceTotal = voiceByStatus.reduce((s, r) => s + r.n, 0);
@@ -446,6 +519,18 @@ export function registerYhsiRoutes(app: Express): void {
       });
       const parsed = schema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
+      // Enforce the lifecycle matrix on any status change. Read the current
+      // status first so we can reject nonsensical jumps (e.g. declined →
+      // completed) with an honest 400 instead of silently corrupting metrics.
+      if (parsed.data.status !== undefined) {
+        const [current] = await db.select({ status: yhsiReferrals.status }).from(yhsiReferrals).where(eq(yhsiReferrals.id, String(req.params.id))).limit(1);
+        if (!current) return res.status(404).json({ error: "Not found" });
+        if (!isAllowedReferralTransition(current.status, parsed.data.status)) {
+          return res.status(400).json({
+            error: `Can't change referral status from "${current.status}" to "${parsed.data.status}". A youth re-engaged after a terminal outcome needs a new (re-)referral, not an edit to the closed one. Allowed next steps: ${(ALLOWED_REFERRAL_TRANSITIONS[current.status] ?? []).join(", ") || "none"}.`,
+          });
+        }
+      }
       const [row] = await db.update(yhsiReferrals).set({ ...parsed.data, updatedAt: new Date() }).where(eq(yhsiReferrals.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json(row);
@@ -499,7 +584,36 @@ export function registerYhsiRoutes(app: Express): void {
   app.get("/api/yhsi/hmis/export.csv", requireStaff, async (req: Request, res: Response) => {
     try {
       const includeNames = req.query.includeNames === "true";
-      const rows = await db.select().from(yhsiYouthParticipants).orderBy(desc(yhsiYouthParticipants.createdAt));
+      // Consent gate: only participants with consent on file may leave the
+      // system in an export. Youth without consent are excluded entirely —
+      // never de-identified-and-included, which still discloses their record.
+      const rows = await db
+        .select()
+        .from(yhsiYouthParticipants)
+        .where(eq(yhsiYouthParticipants.consentOnFile, true))
+        .orderBy(desc(yhsiYouthParticipants.createdAt));
+
+      // Per-export rotating pseudonymous ID. The prior export used the STABLE
+      // hmisPersonalId/id as PersonalID, which let two exports be joined back
+      // to the same youth across runs (re-identification). We salt with a
+      // random per-export value + timestamp so the same youth gets a different
+      // PersonalID every run; joins across exports are no longer possible.
+      const exportSalt = randomBytes(16).toString("hex");
+      const exportedAt = new Date();
+      const pseudonymousId = (participantId: string) =>
+        createHash("sha256").update(`${exportSalt}:${participantId}`).digest("hex").slice(0, 32);
+
+      // Audit trail: releasing real names is a privileged disclosure. Log who
+      // exported, with which option, how many records, and the (non-reversible)
+      // salt fingerprint so the export is accountable after the fact.
+      console.log("[YHSI][AUDIT] HMIS export", JSON.stringify({
+        actor: getUserId(req) ?? "unknown",
+        includeNames,
+        recordCount: rows.length,
+        saltFingerprint: createHash("sha256").update(exportSalt).digest("hex").slice(0, 12),
+        at: exportedAt.toISOString(),
+      }));
+
       const header = [
         "PersonalID", ...(includeNames ? ["FirstName", "LastNameInitial"] : []),
         "DOBDataQuality", "BirthYear", "AgeAtContact", "State",
@@ -514,7 +628,7 @@ export function registerYhsiRoutes(app: Express): void {
       const lines = [header.join(",")];
       for (const p of rows) {
         lines.push([
-          p.hmisPersonalId || p.id,
+          pseudonymousId(p.id),
           ...(includeNames ? [p.firstName || "", p.lastNameInitial || ""] : []),
           p.dobQuality || "", p.birthYear ?? "", p.ageAtContact ?? "", p.stateCode || "",
           p.mckinneyVentoStatus || "", p.livingSituation || "", p.chronicPattern ? 1 : 0,
@@ -524,7 +638,7 @@ export function registerYhsiRoutes(app: Express): void {
         ].map(esc).join(","));
       }
       res.setHeader("Content-Type", "text/csv; charset=utf-8");
-      res.setHeader("Content-Disposition", `attachment; filename="yhsi-hmis-export-${new Date().toISOString().slice(0, 10)}.csv"`);
+      res.setHeader("Content-Disposition", `attachment; filename="yhsi-hmis-export-${exportedAt.toISOString().slice(0, 10)}.csv"`);
       return res.send(lines.join("\n"));
     } catch (err) {
       console.error("[YHSI] HMIS export failed:", err);
@@ -535,10 +649,20 @@ export function registerYhsiRoutes(app: Express): void {
   // ── Biannual HUD progress reports (staff) ────────────────────────────────
   app.post("/api/yhsi/reports/generate", requireStaff, rateLimit("report-generate", 5, 60 * 60 * 1000), async (req: Request, res: Response) => {
     try {
-      const body = z.object({ periodStart: coerceDate, periodEnd: coerceDate }).safeParse(req.body);
+      const body = z.object({ periodStart: utcPeriodDate, periodEnd: utcPeriodDate }).safeParse(req.body);
       if (!body.success) return res.status(400).json({ error: "periodStart and periodEnd (ISO dates) are required", details: body.error.flatten() });
       const { periodStart, periodEnd } = body.data;
       if (periodEnd <= periodStart) return res.status(400).json({ error: "periodEnd must be after periodStart" });
+
+      // Guard against duplicate report periods — two reports for the same
+      // period would confuse HUD reviewers about which is authoritative and
+      // risk double-counting in the funder record.
+      const [dup] = await db
+        .select({ id: yhsiReports.id })
+        .from(yhsiReports)
+        .where(and(eq(yhsiReports.periodStart, periodStart), eq(yhsiReports.periodEnd, periodEnd)))
+        .limit(1);
+      if (dup) return res.status(409).json({ error: "A report for this exact period already exists. Edit or delete the existing report instead of generating a duplicate." });
 
       const metrics = await computeYhsiMetrics(periodStart, periodEnd);
       let narrative: string;
@@ -561,7 +685,7 @@ export function registerYhsiRoutes(app: Express): void {
         ], 2000);
       } catch (aiErr) {
         console.error("[YHSI] report narrative generation failed:", aiErr);
-        narrative = "[Narrative generation unavailable — draft manually from the metrics below.]";
+        narrative = NARRATIVE_PLACEHOLDER;
       }
 
       const [report] = await db.insert(yhsiReports).values({
@@ -573,7 +697,7 @@ export function registerYhsiRoutes(app: Express): void {
         narrative,
         generatedBy: getUserId(req) ?? null,
       }).returning();
-      return res.status(201).json(report);
+      return res.status(201).json({ ...report, incomplete: isPlaceholderNarrative(report.narrative) });
     } catch (err) {
       console.error("[YHSI] report generate failed:", err);
       return res.status(500).json({ error: "Failed to generate report" });
@@ -583,7 +707,9 @@ export function registerYhsiRoutes(app: Express): void {
   app.get("/api/yhsi/reports", requireStaff, async (_req: Request, res: Response) => {
     try {
       const rows = await db.select().from(yhsiReports).orderBy(desc(yhsiReports.periodStart));
-      return res.json(rows);
+      // Surface a computed `incomplete` flag so the UI can flag drafts whose
+      // narrative is still a placeholder — these cannot be finalized.
+      return res.json(rows.map((r) => ({ ...r, incomplete: isPlaceholderNarrative(r.narrative) })));
     } catch (err) {
       console.error("[YHSI] report list failed:", err);
       return res.status(500).json({ error: "Failed to list reports" });
@@ -615,7 +741,21 @@ export function registerYhsiRoutes(app: Express): void {
       const parsed = schema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
       const updates: Record<string, unknown> = { ...parsed.data, updatedAt: new Date() };
-      if (parsed.data.status === "final") updates.finalizedAt = new Date();
+      if (parsed.data.status === "final") {
+        // Block finalizing a report whose narrative is still the AI-failure
+        // placeholder (or empty). The effective narrative is the one being set
+        // in this request if present, otherwise the stored one.
+        let effectiveNarrative = parsed.data.narrative;
+        if (effectiveNarrative === undefined) {
+          const [existing] = await db.select({ narrative: yhsiReports.narrative }).from(yhsiReports).where(eq(yhsiReports.id, String(req.params.id))).limit(1);
+          if (!existing) return res.status(404).json({ error: "Not found" });
+          effectiveNarrative = existing.narrative ?? undefined;
+        }
+        if (isPlaceholderNarrative(effectiveNarrative)) {
+          return res.status(400).json({ error: "This report cannot be finalized: its narrative is a placeholder or empty. Write the report narrative before finalizing." });
+        }
+        updates.finalizedAt = new Date();
+      }
       const [row] = await db.update(yhsiReports).set(updates).where(eq(yhsiReports.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
       return res.json(row);
@@ -630,46 +770,81 @@ export function registerYhsiRoutes(app: Express): void {
   app.get("/api/yhsi/outcomes-summary", requireStaff, async (_req: Request, res: Response) => {
     try {
       const MILESTONES = ["at_contact", "day_30", "day_90", "day_180", "day_365", "month_6", "month_12", "exit"];
+      // Dedupe to one snapshot per (participant, snapshotType) — the latest by
+      // recorded_at. A participant re-recorded at the same milestone must count
+      // once, otherwise a single youth double-counts and every rate/denominator
+      // is corrupted. Denominators are then KNOWN-only and consistent per
+      // measure (a youth with an unknown value is excluded from that measure's
+      // numerator AND denominator, never silently counted against them).
+      const latestPerType = db
+        .select({
+          participantId: yhsiOutcomeSnapshots.participantId,
+          snapshotType: yhsiOutcomeSnapshots.snapshotType,
+          housingStatus: yhsiOutcomeSnapshots.housingStatus,
+          hsCompletion: yhsiOutcomeSnapshots.hsCompletion,
+          postSecondaryStatus: yhsiOutcomeSnapshots.postSecondaryStatus,
+          employmentStatus: yhsiOutcomeSnapshots.employmentStatus,
+          livableWage: yhsiOutcomeSnapshots.livableWage,
+          mentorConnections: yhsiOutcomeSnapshots.mentorConnections,
+          rn: sql<number>`row_number() over (partition by ${yhsiOutcomeSnapshots.participantId}, ${yhsiOutcomeSnapshots.snapshotType} order by ${yhsiOutcomeSnapshots.recordedAt} desc)`.as("rn"),
+        })
+        .from(yhsiOutcomeSnapshots)
+        .as("latest_per_type");
       const rows = await db
         .select({
-          snapshotType: yhsiOutcomeSnapshots.snapshotType,
+          snapshotType: latestPerType.snapshotType,
           total: sql<number>`count(*)::int`,
           stableHoused: sql<number>`count(*) filter (where housing_status like 'stable%')::int`,
+          housingKnown: sql<number>`count(*) filter (where housing_status is not null and housing_status <> 'unknown')::int`,
           hsDone: sql<number>`count(*) filter (where hs_completion in ('completed','on_track','ged_track'))::int`,
           hsKnown: sql<number>`count(*) filter (where hs_completion is not null and hs_completion not in ('na','unknown'))::int`,
           postSec: sql<number>`count(*) filter (where post_secondary_status in ('enrolled','apprenticeship'))::int`,
           postSecKnown: sql<number>`count(*) filter (where post_secondary_status is not null and post_secondary_status not in ('na','unknown'))::int`,
           livableWage: sql<number>`count(*) filter (where livable_wage = true)::int`,
+          livableWageKnown: sql<number>`count(*) filter (where livable_wage is not null)::int`,
           employed: sql<number>`count(*) filter (where employment_status in ('employed_ft','employed_pt'))::int`,
+          employmentKnown: sql<number>`count(*) filter (where employment_status is not null and employment_status <> 'unknown')::int`,
           twoPlusMentors: sql<number>`count(*) filter (where mentor_connections >= 2)::int`,
           mentorsKnown: sql<number>`count(*) filter (where mentor_connections is not null)::int`,
         })
-        .from(yhsiOutcomeSnapshots)
-        .groupBy(yhsiOutcomeSnapshots.snapshotType);
+        .from(latestPerType)
+        .where(eq(latestPerType.rn, 1))
+        .groupBy(latestPerType.snapshotType);
 
       // MH scores are only comparable within the same validated scale —
       // PHQ-9, GAD-7, CANS etc. have incompatible ranges. Never cross-average.
-      const mhRows = await db
+      // Same dedupe: one latest snapshot per (participant, snapshotType, scale).
+      const latestMh = db
         .select({
           snapshotType: yhsiOutcomeSnapshots.snapshotType,
           scale: yhsiOutcomeSnapshots.mhScaleUsed,
-          n: sql<number>`count(*)::int`,
-          avg: sql<number>`round(avg(mh_scale_score)::numeric, 1)::float`,
+          score: yhsiOutcomeSnapshots.mhScaleScore,
+          rn: sql<number>`row_number() over (partition by ${yhsiOutcomeSnapshots.participantId}, ${yhsiOutcomeSnapshots.snapshotType}, ${yhsiOutcomeSnapshots.mhScaleUsed} order by ${yhsiOutcomeSnapshots.recordedAt} desc)`.as("rn"),
         })
         .from(yhsiOutcomeSnapshots)
         .where(and(sql`mh_scale_score is not null`, sql`mh_scale_used is not null`))
-        .groupBy(yhsiOutcomeSnapshots.snapshotType, yhsiOutcomeSnapshots.mhScaleUsed);
+        .as("latest_mh");
+      const mhRows = await db
+        .select({
+          snapshotType: latestMh.snapshotType,
+          scale: latestMh.scale,
+          n: sql<number>`count(*)::int`,
+          avg: sql<number>`round(avg(score)::numeric, 1)::float`,
+        })
+        .from(latestMh)
+        .where(eq(latestMh.rn, 1))
+        .groupBy(latestMh.snapshotType, latestMh.scale);
 
       const rate = (num: number, den: number) => (den >= SUPPRESSION_FLOOR ? Math.round((num / den) * 100) : null);
       const byMilestone: Record<string, any> = {};
       for (const r of rows) {
         byMilestone[r.snapshotType] = {
           youthTracked: suppress(r.total),
-          stableHousingRate: rate(r.stableHoused, r.total),
+          stableHousingRate: rate(r.stableHoused, r.housingKnown),
           hsCompletionOrOnTrackRate: rate(r.hsDone, r.hsKnown),
           postSecondaryRate: rate(r.postSec, r.postSecKnown),
-          employmentRate: rate(r.employed, r.total),
-          livableWageRate: rate(r.livableWage, r.total),
+          employmentRate: rate(r.employed, r.employmentKnown),
+          livableWageRate: rate(r.livableWage, r.livableWageKnown),
           twoPlusStableAdultsRate: rate(r.twoPlusMentors, r.mentorsKnown),
           mhByScale: Object.fromEntries(
             mhRows
@@ -789,10 +964,16 @@ export function registerYhsiRoutes(app: Express): void {
   app.get("/api/yhsi/entitlements/summary", requireStaff, async (_req: Request, res: Response) => {
     try {
       const [participants] = await db.select({ n: sql<number>`count(*)::int` }).from(yhsiYouthParticipants);
+      // "Offered" must mean an offer actually extended (see
+      // isOfferedEntitlementStatus): offered/applied/enrolled. Counting
+      // declined/ineligible/denied records as "offered" inflated reach — a
+      // youth screened ineligible was never offered the benefit. Denominators
+      // for offeredRate stay consistent with this.
+      const offeredStatusList = sql.join([...OFFERED_ENTITLEMENT_STATUSES].map((s) => sql`${s}`), sql`, `);
       const byType = await db
         .select({
           entitlementType: yhsiEntitlements.entitlementType,
-          offered: sql<number>`count(distinct participant_id)::int`,
+          offered: sql<number>`count(distinct participant_id) filter (where status in (${offeredStatusList}))::int`,
           enrolled: sql<number>`count(distinct participant_id) filter (where status = 'enrolled')::int`,
           annualValue: sql<number>`coalesce(sum(annual_value) filter (where status = 'enrolled'), 0)::float`,
         })

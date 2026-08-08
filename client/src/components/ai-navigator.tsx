@@ -1185,7 +1185,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                       <Paperclip className="h-5 w-5" />
                       {attachedDocs.length > 0 && <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-teal-600 text-[9px] font-bold text-white">{attachedDocs.length}</span>}
                     </button>
-                    <Textarea ref={textareaRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder={attachedDocs.length > 0 ? "What would you like me to do with these documents?" : "Ask anything — paste a URL, upload a doc, or type your question... (Ctrl+Enter to send)"} className="min-h-[48px] max-h-[180px] resize-none rounded-xl text-sm" rows={2} disabled={isStreaming} data-testid="textarea-navigator-input-page" />
+                    <Textarea ref={textareaRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown} placeholder={attachedDocs.length > 0 ? "What would you like me to do with these documents?" : "Ask anything — paste a URL, upload a doc, or type your question... (Ctrl+Enter to send)"} className="min-h-[48px] max-h-[180px] resize-none rounded-xl text-sm" rows={2} disabled={isStreaming} aria-label="Message to the Navigator assistant" data-testid="textarea-navigator-input-page" />
                     <Button onClick={() => sendMessage()} disabled={(!input.trim() && attachedDocs.length === 0) || isStreaming} size="icon" className="h-12 w-12 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 shrink-0" data-testid="button-send-page" aria-label="Send message">
                       {isStreaming ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
                     </Button>
@@ -1217,12 +1217,18 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
     );
   }
 
-  const panelWidth = isExpanded ? "w-[600px]" : "w-[380px]";
-  const panelHeight = isExpanded ? "h-[80vh]" : "h-[560px]";
+  // Fluid width: never exceed the viewport minus the fixed insets, so the
+  // panel stays fully on-screen at narrow widths (e.g. 360px) instead of the
+  // old fixed 380px/600px that overflowed. `left-4 right-4` clamps it on small
+  // screens; `sm:` restores the anchored, capped desktop panel.
+  const panelWidth = isExpanded
+    ? "w-auto sm:w-[min(600px,calc(100vw-3rem))]"
+    : "w-auto sm:w-[min(380px,calc(100vw-3rem))]";
+  const panelHeight = isExpanded ? "h-[80vh]" : "h-[min(560px,80vh)]";
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 ${panelWidth} ${panelHeight} flex flex-col bg-background border rounded-2xl shadow-2xl overflow-hidden transition-all duration-200`}
+      className={`fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 ${panelWidth} ${panelHeight} flex flex-col bg-background border rounded-2xl shadow-2xl overflow-hidden transition-all duration-200`}
       data-testid="navigator-panel"
     >
       {/* Header */}
@@ -1662,6 +1668,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                 className="min-h-[40px] max-h-[100px] resize-none text-sm rounded-xl"
                 rows={1}
                 disabled={isStreaming}
+                aria-label="Message to the Navigator assistant"
                 data-testid="textarea-navigator-input"
               />
 

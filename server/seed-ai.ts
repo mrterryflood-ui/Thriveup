@@ -1,4 +1,5 @@
 import { levels, modules, lessons, quizQuestions, badges } from "@shared/schema";
+import { sql } from "drizzle-orm";
 
 export async function seedAILevels(db: any): Promise<void> {
   await db.insert(levels).values([
@@ -57,7 +58,7 @@ export async function seedAILevels(db: any): Promise<void> {
       color: "rose",
       iconName: "Crown",
     },
-  ]);
+  ]).onConflictDoUpdate({ target: levels.id, set: { title: sql`excluded.title`, subtitle: sql`excluded.subtitle`, description: sql`excluded.description`, grades: sql`excluded.grades`, duration: sql`excluded.duration`, theme: sql`excluded.theme`, color: sql`excluded.color`, iconName: sql`excluded.icon_name` } });
 
   await db.insert(modules).values([
     {
@@ -503,7 +504,7 @@ export async function seedAILevels(db: any): Promise<void> {
         "Case Study Development: Document process and lessons",
       ],
     },
-  ]);
+  ]).onConflictDoUpdate({ target: modules.id, set: { levelId: sql`excluded.level_id`, moduleNumber: sql`excluded.module_number`, title: sql`excluded.title`, description: sql`excluded.description`, durationWeeks: sql`excluded.duration_weeks`, storyArcTitle: sql`excluded.story_arc_title`, storyArcNarrative: sql`excluded.story_arc_narrative`, learningObjectives: sql`excluded.learning_objectives`, activities: sql`excluded.activities` } });
 
   await db.insert(lessons).values([
     {
@@ -970,7 +971,7 @@ The answer: because foundations don't expire. Variables, logic, debugging, desig
 
 That's the real superpower.`,
     },
-  ]);
+  ]).onConflictDoUpdate({ target: lessons.id, set: { moduleId: sql`excluded.module_id`, title: sql`excluded.title`, content: sql`excluded.content`, lessonNumber: sql`excluded.lesson_number`, durationMinutes: sql`excluded.duration_minutes`, activityType: sql`excluded.activity_type`, activityData: sql`excluded.activity_data` } });
 
   await db.insert(quizQuestions).values([
     {
@@ -1093,7 +1094,7 @@ That's the real superpower.`,
       explanation: "You are the creator! AI is just a tool, like a paintbrush. You came up with the idea and guided AI to make it.",
       points: 10,
     },
-  ]);
+  ]).onConflictDoUpdate({ target: quizQuestions.id, set: { moduleId: sql`excluded.module_id`, questionText: sql`excluded.question_text`, questionType: sql`excluded.question_type`, options: sql`excluded.options`, correctAnswer: sql`excluded.correct_answer`, explanation: sql`excluded.explanation`, points: sql`excluded.points` } });
 
   await db.insert(badges).values([
     { id: "first_steps", name: "First Steps", description: "Complete your very first lesson", category: "milestone", levelRequirement: 1, rarity: "common" },
@@ -1108,5 +1109,5 @@ That's the real superpower.`,
     { id: "ai_architect", name: "AI Architect", description: "Build your own AI-powered application", category: "skill", levelRequirement: 3, rarity: "rare" },
     { id: "innovator", name: "Innovator", description: "Create an original AI solution", category: "milestone", levelRequirement: 4, rarity: "rare" },
     { id: "teaching_star", name: "Teaching Star", description: "Successfully teach AI concepts to others", category: "character", levelRequirement: 5, rarity: "legendary" },
-  ]);
+  ]).onConflictDoUpdate({ target: badges.id, set: { name: sql`excluded.name`, description: sql`excluded.description`, category: sql`excluded.category`, levelRequirement: sql`excluded.level_requirement`, rarity: sql`excluded.rarity` } });
 }

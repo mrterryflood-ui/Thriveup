@@ -20,6 +20,7 @@ import {
   Zap, FileText, Send, Lock, Star, Plug
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
+import { IDENTITY_STRAP, LANGUAGES_SHORT_PHRASE } from "@shared/canonical-claims";
 
 const PATHWAYS = [
   {
@@ -185,9 +186,6 @@ function TrustBar() {
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-sam-active">
             <CheckCircle2 className="mr-1 h-3 w-3" /> Federal Award Eligible
-          </Badge>
-          <Badge variant="outline" className="text-xs" data-testid="badge-trust-wcag">
-            <Shield className="mr-1 h-3 w-3" /> WCAG 2.1 AA
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-coppa">
             <Shield className="mr-1 h-3 w-3" /> COPPA Compliant
@@ -1099,7 +1097,7 @@ function PricingTiersSection() {
         "AI Navigator — plain-language guidance",
         "Trade simulations — 5 trades, no signup",
         "AI literacy curriculum — self-paced",
-        "107 languages supported",
+        LANGUAGES_SHORT_PHRASE,
       ],
       cta: "Start Free",
       href: "/benefits-screener",
@@ -1716,7 +1714,7 @@ export default function LandingPage() {
 
           <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
             style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
-            15 service platforms · 4 AI engines · 107 languages · Built for every community in America.
+            {IDENTITY_STRAP} · Built for every community in America.
             Free for families. No prerequisites. No paperwork.
           </p>
 
@@ -2247,8 +2245,6 @@ export default function LandingPage() {
           <div className="mt-6 pt-4 border-t text-center">
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
               <span>TEKS Aligned</span>
-              <span aria-hidden="true">&middot;</span>
-              <span>Section 508</span>
               <span aria-hidden="true">&middot;</span>
               <span>FERPA Ready</span>
               <span aria-hidden="true">&middot;</span>

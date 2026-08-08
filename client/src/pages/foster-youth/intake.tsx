@@ -157,7 +157,10 @@ export default function FosterYouthIntakePage() {
     if (data.intake?.id) setIntakeId(data.intake.id);
     if (data.accessToken) setAccessToken(data.accessToken);
     if (nextStep) setStep(nextStep);
-    return data.intake;
+    // Return the fresh token alongside the row: React state set above is not
+    // visible to the caller in this same tick, so first-upload flows must use
+    // this value, not the (stale) accessToken state.
+    return data.intake ? { ...data.intake, __accessToken: data.accessToken ?? accessToken } : null;
   }
 
   async function handleFile(file: File, docType: string) {
@@ -167,15 +170,19 @@ export default function FosterYouthIntakePage() {
       const created = await saveIntake();
       if (!created) return;
       id = created.id;
-      // accessToken will have been set by saveIntake; re-read on next render — for this call we use a fresh fetch:
-      token = accessToken; // may still be null on this synchronous call; the headers helper will pick up state on next call
+      token = created.__accessToken ?? null;
     }
-    if (!id) return;
+    if (!id || !token) {
+      toast({ title: "Upload failed", description: "Could not start your intake session. Please try saving again.", variant: "destructive" });
+      return;
+    }
+    // Explicit headers with the fresh token — never rely on possibly-stale state.
+    const hdrs: Record<string, string> = { "Content-Type": "application/json", "x-intake-token": token };
     setUploading(true);
     try {
       const reqUrl = await fetch(`/api/foster-youth/intake/${id}/upload-url`, {
         method: "POST",
-        headers: authHeaders(),
+        headers: hdrs,
         body: JSON.stringify({ filename: file.name, contentType: file.type, size: file.size, docType }),
       });
       if (!reqUrl.ok) throw new Error(await reqUrl.text() || "upload URL failed");
@@ -189,7 +196,7 @@ export default function FosterYouthIntakePage() {
       }
       const reg = await fetch(`/api/foster-youth/intake/${id}/document`, {
         method: "POST",
-        headers: authHeaders(),
+        headers: hdrs,
         body: JSON.stringify({ docType, filename: file.name, contentType: file.type, size: file.size, objectPath, extractedText }),
       });
       if (!reg.ok) throw new Error(await reg.text() || "doc register failed");
@@ -226,7 +233,11 @@ export default function FosterYouthIntakePage() {
   return (
     <div className="min-h-screen bg-background" data-testid="page-foster-youth-intake">
       <CrisisStrip />
-      <div className="max-w-4xl mx-auto px-4 py-6">
+      {/* Youth-facing form: enforce >=44px touch targets on mobile for the
+          form controls and buttons (Buttons default to 36px, Inputs/Select to
+          36px). The `sm:` breakpoint relaxes back to the compact defaults on
+          larger pointers. Checkbox/upload rows already tap the full p-3 label. */}
+      <div className="max-w-4xl mx-auto px-4 py-6 [&_button]:min-h-[44px] [&_input]:min-h-[44px] [&_textarea]:min-h-[44px] [&_[role=combobox]]:min-h-[44px] sm:[&_button]:min-h-0 sm:[&_input]:min-h-0 sm:[&_textarea]:min-h-0 sm:[&_[role=combobox]]:min-h-0">
         <IntegrationInvitation
           surface="foster-intake"
           prompt="Are you already holding a foster youth's life together?"

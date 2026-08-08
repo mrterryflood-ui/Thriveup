@@ -393,3 +393,10 @@ Zod IS the validation system here — not integrated into it. The pattern:
 | Congruence audit | `scripts/congruence-audit.ts` |
 | Capabilities inventory | `docs/grants/tcaf-capabilities-inventory-2026-05-17.md` |
 | API contract | `docs/api-contract.md` |
+
+## Five Remediation Disciplines (from the Aug 2026 total-platform remediation)
+1. **DB truth**: every "once" semantic gets a unique index + conflict-safe write (onConflictDoNothing/DoUpdate); seeds are idempotent upserts; award/points paths return `newlyCompleted`-style flags and gate on them. First-win claims (points, certificates) run in a transaction with a row lock — never read-then-write.
+2. **Server truth**: never trust the client for auth identity, role (hit the DB), answer keys (strip from GETs, grade server-side), or AI output (Zod-validate, retry once, then honest failure — no raw model text stored or returned). Every AI system prompt goes through withEthicalPreamble (verify-ai-preamble.ts enforces).
+3. **Honest failure**: no silent catches that fabricate data (default coords, hardcoded narratives, empty-array fallbacks). Upstream failure = 502 with a plain message. Placeholder content blocks finalization. Metrics use known-only denominators + suppression floor 5.
+4. **Journey survival**: drafts in sessionStorage for forms/quizzes; token-restorable anonymous flows return full state; anon ids are crypto-random bearer credentials merged transactionally with possession proof; session expiry is detected via a was-authenticated signal so anonymous visitors are never redirected.
+5. **Permanence**: every discipline has a registered validation step (seed-idempotency, typecheck ≤ baseline, security-probes, ai-preamble, yhsi-metrics). New endpoints get a probe. Claims copy imports from shared/canonical-claims.ts, never literals.

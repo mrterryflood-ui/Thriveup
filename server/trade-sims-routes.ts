@@ -33,7 +33,7 @@ import {
   insertTradeSimsLessonProgressSchema,
   insertTradeSimsSandboxProjectSchema,
 } from "@shared/schema";
-import { and, asc, desc, eq, isNull } from "drizzle-orm";
+import { and, asc, desc, eq, isNull, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   ELECTRICAL_LESSONS,
@@ -136,7 +136,20 @@ export function registerTradeSimsRoutes(app: Express) {
         .from(tradeSimsTrades)
         .where(eq(tradeSimsTrades.active, true))
         .orderBy(asc(tradeSimsTrades.displayOrder));
-      res.json(rows);
+
+      // Derive lesson counts from the data rather than hard-coding "15" in the
+      // UI — a trade with fewer/more seeded lessons must report honestly.
+      const counts = await db
+        .select({
+          tradeId: tradeSimsLessons.tradeId,
+          lessonCount: sql<number>`count(*)::int`,
+        })
+        .from(tradeSimsLessons)
+        .where(eq(tradeSimsLessons.active, true))
+        .groupBy(tradeSimsLessons.tradeId);
+      const countByTrade = new Map(counts.map((c) => [c.tradeId, c.lessonCount]));
+
+      res.json(rows.map((r) => ({ ...r, lessonCount: countByTrade.get(r.id) ?? 0 })));
     } catch (err) {
       console.error("[TradeSims] list trades failed:", err);
       res.status(500).json({ error: "Failed to load trades." });
@@ -293,6 +306,86 @@ export function registerTradeSimsRoutes(app: Express) {
     } catch (err) {
       console.error("[TradeSims] get progress failed:", err);
       res.status(500).json({ error: "Failed to load progress." });
+    }
+  });
+
+  // Merge anonymous progress into a freshly authenticated account.
+  // Called by the client right after login/signup when a local anonSessionId
+  // exists. Re-assigns rows owned by that anon session to the userId. The
+  // (anon_session_id, lesson_id) and (user_id, lesson_id) partial unique
+  // indexes mean we cannot blindly re-point a row when the user already has
+  // that lesson — so we skip (delete the anon row) instead of failing.
+  app.post("/api/trade-sims/merge-anon", async (req, res) => {
+    try {
+      const userId = getUserId(req);
+      if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+      const bodySchema = z.object({
+        anonSessionId: z.string().regex(/^[a-zA-Z0-9_-]{8,64}$/, "Invalid anonSessionId format."),
+      });
+      const parsed = bodySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid merge payload", details: parsed.error.format() });
+      const { anonSessionId } = parsed.data;
+
+      // Guard against merging a session id that happens to equal the userId.
+      if (anonSessionId === userId) return res.json({ merged: 0, skipped: 0 });
+
+      // POSSESSION PROOF: the caller must present the anon id the same way the
+      // anon flows do — as the x-anon-session header. Combined with the ids
+      // being cryptographically random (see client anon-session.ts), a caller
+      // who can produce the header IS the session holder; a body-only id from
+      // a guess or a leak elsewhere is rejected.
+      const headerAnon = req.headers["x-anon-session"];
+      if (headerAnon !== anonSessionId) {
+        return res.status(403).json({ error: "Anon session proof missing or mismatched." });
+      }
+
+      // Transactional merge: the row scan and the move/delete must be atomic,
+      // or concurrent merges race into the partial unique indexes and 500.
+      const { merged, skipped } = await db.transaction(async (tx) => {
+        // Rows the anon session owns (locked for the duration of the merge).
+        const anonRows = await tx
+          .select({ id: tradeSimsLessonProgress.id, lessonId: tradeSimsLessonProgress.lessonId })
+          .from(tradeSimsLessonProgress)
+          .where(eq(tradeSimsLessonProgress.anonSessionId, anonSessionId))
+          .for("update");
+
+        if (anonRows.length === 0) return { merged: 0, skipped: 0 };
+
+        // Lessons the user already has — those anon rows must be skipped to
+        // respect the (user_id, lesson_id) unique index.
+        const anonLessonIds = anonRows.map((r) => r.lessonId);
+        const userRows = await tx
+          .select({ lessonId: tradeSimsLessonProgress.lessonId })
+          .from(tradeSimsLessonProgress)
+          .where(and(eq(tradeSimsLessonProgress.userId, userId), inArray(tradeSimsLessonProgress.lessonId, anonLessonIds)))
+          .for("update");
+        const userLessonIds = new Set(userRows.map((r) => r.lessonId));
+
+        const toMove = anonRows.filter((r) => !userLessonIds.has(r.lessonId));
+        const toSkip = anonRows.filter((r) => userLessonIds.has(r.lessonId));
+
+        // Re-point rows the user does not already have.
+        if (toMove.length > 0) {
+          await tx
+            .update(tradeSimsLessonProgress)
+            .set({ userId, anonSessionId: null, updatedAt: new Date() })
+            .where(inArray(tradeSimsLessonProgress.id, toMove.map((r) => r.id)));
+        }
+
+        // Delete conflicting anon rows — user's existing progress wins.
+        if (toSkip.length > 0) {
+          await tx
+            .delete(tradeSimsLessonProgress)
+            .where(inArray(tradeSimsLessonProgress.id, toSkip.map((r) => r.id)));
+        }
+        return { merged: toMove.length, skipped: toSkip.length };
+      });
+
+      res.json({ merged, skipped });
+    } catch (err) {
+      console.error("[TradeSims] merge-anon failed:", err);
+      res.status(500).json({ error: "Failed to merge anonymous progress." });
     }
   });
 

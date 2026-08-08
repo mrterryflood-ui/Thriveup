@@ -372,7 +372,7 @@ function PageFallback() {
   );
 }
 
-import { LanguageProvider } from "@/lib/i18n";
+import { LanguageProvider, useLanguage } from "@/lib/i18n";
 import { BandwidthProvider } from "@/lib/bandwidth-mode";
 import { AccessibilityProvider } from "@/lib/accessibility";
 import { HeaderControls } from "@/components/header-controls";
@@ -944,6 +944,7 @@ function NavModeToggle() {
 function AppLayoutInner() {
   useAttendanceLog();
   const { mode } = useNavMode();
+  const { t } = useLanguage();
   const [isInIframe] = useState(() => typeof window !== "undefined" && window.self !== window.top);
   const style = { "--sidebar-width": "16rem", "--sidebar-width-icon": "3rem" };
 
@@ -967,7 +968,7 @@ function AppLayoutInner() {
         <AppSidebar />
         <div className={cn("flex flex-col flex-1 min-w-0", mode === "hub" && "pb-[60px]")}>
           <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">
-            Skip to main content
+            {t("shell.skipToContent")}
           </a>
           <header className="flex items-center gap-2 px-3 py-2 border-b sticky top-0 z-50 bg-background/95 backdrop-blur-md">
             <SidebarTrigger data-testid="button-sidebar-toggle" className="shrink-0" />
@@ -981,10 +982,10 @@ function AppLayoutInner() {
                 onClick={openCommandPalette}
                 className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground px-2.5 h-8 rounded-lg border border-border/60 bg-muted/50 hover:bg-muted"
                 data-testid="button-search-palette"
-                aria-label="Search all pages"
+                aria-label={t("shell.searchAll")}
               >
                 <Search className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline text-xs">Search</span>
+                <span className="hidden sm:inline text-xs">{t("shell.search")}</span>
                 <kbd className="hidden md:flex h-4 items-center rounded border bg-background px-1 text-[10px] font-mono text-muted-foreground/70 select-none">⌘K</kbd>
               </Button>
               <AccessibilityPanel />
@@ -1064,27 +1065,33 @@ function App() {
           <BandwidthProvider>
             <QueryClientProvider client={queryClient}>
               <TooltipProvider>
-                <DemoFlagsHandler />
-                <OrgRedirectGuard />
-                <Switch>
-                  <Route path="/presentation">
-                    <PresentationLayout />
-                  </Route>
-                  <Route path="/childinc-deck">
-                    <Suspense fallback={<div className="fixed inset-0 bg-slate-950" />}>
-                      <ChildIncDeckPage />
-                    </Suspense>
-                  </Route>
-                  <Route path="/ecosystem/embed">
-                    <EmbedLayout><EcosystemEmbedPage /></EmbedLayout>
-                  </Route>
-                  <Route path="/ecosystem/lifebridge">
-                    <EmbedLayout><LifeBridgeEmbedPage /></EmbedLayout>
-                  </Route>
-                  <Route>
-                    <AppLayout />
-                  </Route>
-                </Switch>
+                {/* Toaster stays OUTSIDE the boundary so session-expiry / error
+                    toasts still render even if the routed subtree crashes; the
+                    boundary catches render errors inside the providers while it
+                    (and the toaster) keep rendering. */}
+                <ErrorBoundary>
+                  <DemoFlagsHandler />
+                  <OrgRedirectGuard />
+                  <Switch>
+                    <Route path="/presentation">
+                      <PresentationLayout />
+                    </Route>
+                    <Route path="/childinc-deck">
+                      <Suspense fallback={<div className="fixed inset-0 bg-slate-950" />}>
+                        <ChildIncDeckPage />
+                      </Suspense>
+                    </Route>
+                    <Route path="/ecosystem/embed">
+                      <EmbedLayout><EcosystemEmbedPage /></EmbedLayout>
+                    </Route>
+                    <Route path="/ecosystem/lifebridge">
+                      <EmbedLayout><LifeBridgeEmbedPage /></EmbedLayout>
+                    </Route>
+                    <Route>
+                      <AppLayout />
+                    </Route>
+                  </Switch>
+                </ErrorBoundary>
                 <Toaster />
               </TooltipProvider>
             </QueryClientProvider>

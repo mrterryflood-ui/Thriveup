@@ -1,12 +1,14 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import {
   partnerApiKeys, partnerApiAuditLog, partnerInboundData, ecosystemPlatforms,
   programs, partnerOutcomeSubmissions,
   studentProgress, academyPantherPower, pathwayPlans,
-  attendanceLogs, studentSelfAssessments, thriveScores, earlyWarningFlags, studentReflections,
+  attendanceLogs, earlyWarningFlags,
 } from "@shared/schema";
-import { eq, desc, and, sql } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
+import { AI_TRANSLATION_LANGUAGE_COUNT, GEOGRAPHIC_REACH } from "@shared/canonical-claims";
+import { SUPPRESSION_FLOOR, suppress } from "./yhsi-routes";
 import crypto from "crypto";
 
 function hashKey(plaintext: string): string {
@@ -105,12 +107,33 @@ export function requireScope(scope: string) {
   };
 }
 
-// Admin auth reused from ecosystem connector pattern
-function requireAdminKey(req: Request, res: Response, next: NextFunction) {
+// Admin auth. Roles live in the users table and are NEVER trusted from
+// req.user/session — we resolve the id and hit the DB, matching the YHSI
+// requireStaff pattern in server/yhsi-routes.ts. Session presence alone is
+// insufficient; any authenticated non-admin must be rejected with 403.
+const ADMIN_ROLES = new Set(["admin", "teacher"]);
+
+async function requireAdminKey(req: Request, res: Response, next: NextFunction) {
+  // Resolve the caller's user id from the passport session / req.user.
+  const user = (req as any).user;
   const session = (req as any).session;
-  const user = session?.passport?.user || session?.user;
-  if (!user) return res.status(401).json({ error: "Admin authentication required." });
-  next();
+  const userId: string | undefined =
+    user?.claims?.sub || user?.id || session?.passport?.user?.claims?.sub || session?.passport?.user;
+
+  if (!userId || typeof userId !== "string") {
+    return res.status(401).json({ error: "Admin authentication required." });
+  }
+
+  try {
+    const dbUser = await storage.getUser(userId);
+    if (!dbUser || !ADMIN_ROLES.has(dbUser.role)) {
+      return res.status(403).json({ error: "Admin access required." });
+    }
+    return next();
+  } catch (err) {
+    console.error("[PartnerAPI] admin role lookup failed:", err);
+    return res.status(500).json({ error: "Admin authorization check failed." });
+  }
 }
 
 export function registerPartnerApiRoutes(app: Express) {
@@ -195,7 +218,7 @@ export function registerPartnerApiRoutes(app: Express) {
         { scope: "community:read",  description: "Community impact metrics and service-platform summary" },
         { scope: "benefits:read",   description: "Public benefits program catalog" },
         { scope: "impact:read",     description: "Community intervention impact scores and outcome data" },
-        { scope: "student:read",    description: "Student progress overview, thrive scores, pathways, attendance, early warnings" },
+        { scope: "student:read",    description: "AGGREGATE, suppression-floored youth metrics only — no per-student PII. See students/* endpoints." },
         { scope: "inbound:write",   description: "POST referrals, events, metrics, or alerts into ThriveUp" },
       ],
       endpoints: [
@@ -206,26 +229,24 @@ export function registerPartnerApiRoutes(app: Express) {
         "GET  /api/partner/v1/community         — community service summary (community:read)",
         "GET  /api/partner/v1/benefits          — benefits program catalog (benefits:read)",
         "GET  /api/partner/v1/impact            — community impact metrics (impact:read)",
-        "GET  /api/partner/v1/students/overview — student progress overview (student:read)",
-        "GET  /api/partner/v1/students/:id/thrive     — thrive score + flags (student:read)",
-        "GET  /api/partner/v1/students/:id/assessments — self-assessments (student:read)",
-        "GET  /api/partner/v1/students/:id/pathway    — pathway plan (student:read)",
-        "GET  /api/partner/v1/attendance/summary      — attendance summary (student:read)",
-        "GET  /api/partner/v1/early-warnings          — early warning flags (student:read)",
-        "GET  /api/partner/v1/pathways/overview       — all pathway plans (student:read)",
+        "GET  /api/partner/v1/students/overview — AGGREGATE cohort metrics, suppression-floored (student:read)",
+        "GET  /api/partner/v1/attendance/summary      — AGGREGATE attendance metrics, suppression-floored (student:read)",
+        "GET  /api/partner/v1/early-warnings          — AGGREGATE early-warning counts, suppression-floored (student:read)",
+        "GET  /api/partner/v1/pathways/overview       — AGGREGATE pathway distribution, suppression-floored (student:read)",
         "POST /api/partner/v1/push              — push data to ThriveUp (inbound:write)",
         "POST /api/partner/v1/heartbeat         — platform keepalive (any scope)",
       ],
       deprecatedEndpoints: {
-        note: "The /api/external/* endpoints are deprecated. Migrate to /api/partner/v1/* with a scoped tcaf_ key.",
+        note: "The /api/external/* endpoints are deprecated. Migrate to /api/partner/v1/* with a scoped tcaf_ key. Per-student detail endpoints (thrive/assessments/pathway by id) are REMOVED — see students/* aggregate note below.",
+        studentDataNote: "Per-student youth records are no longer served over the partner API. Partner keys have no tenant/audience binding in the schema, so honoring an arbitrary :userId would expose any child's records to any keyholder. All student:read endpoints now return AGGREGATE, suppression-floored data only.",
         mapping: {
-          "GET /api/external/students/overview"         : "GET /api/partner/v1/students/overview (scope: student:read)",
-          "GET /api/external/students/:id/thrive"       : "GET /api/partner/v1/students/:id/thrive (scope: student:read)",
-          "GET /api/external/students/:id/assessments"  : "GET /api/partner/v1/students/:id/assessments (scope: student:read)",
-          "GET /api/external/students/:id/pathway"      : "GET /api/partner/v1/students/:id/pathway (scope: student:read)",
-          "GET /api/external/attendance/summary"        : "GET /api/partner/v1/attendance/summary (scope: student:read)",
-          "GET /api/external/early-warnings"            : "GET /api/partner/v1/early-warnings (scope: student:read)",
-          "GET /api/external/reflections/recent"        : "GET /api/partner/v1/students/reflections (scope: student:read)",
+          "GET /api/external/students/overview"         : "GET /api/partner/v1/students/overview (now AGGREGATE only)",
+          "GET /api/external/students/:id/thrive"       : "REMOVED (410) — no per-student PII over partner API",
+          "GET /api/external/students/:id/assessments"  : "REMOVED (410) — no per-student PII over partner API",
+          "GET /api/external/students/:id/pathway"      : "REMOVED (410) — no per-student PII over partner API",
+          "GET /api/external/attendance/summary"        : "GET /api/partner/v1/attendance/summary (now AGGREGATE only)",
+          "GET /api/external/early-warnings"            : "GET /api/partner/v1/early-warnings (now AGGREGATE counts only)",
+          "GET /api/external/reflections/recent"        : "REMOVED (410) — no per-student reflections over partner API",
           "GET /api/external/pathways/overview"         : "GET /api/partner/v1/pathways/overview (scope: student:read)",
           "POST /api/external/interventions/receive"    : "POST /api/partner/v1/push with dataType=intervention (scope: inbound:write)",
         },
@@ -329,8 +350,9 @@ export function registerPartnerApiRoutes(app: Express) {
           platformsOnline: online,
           platformsByDomain: byDomain,
           platformsByRole: byRole,
-          languagesSupported: 107,
-          geographicReach: "50-state architecture, nationwide",
+          languagesSupported: AI_TRANSLATION_LANGUAGE_COUNT,
+          languagesNote: "Machine translation via the AI layer — not human-verified translations.",
+          geographicReach: GEOGRAPHIC_REACH,
           exportedAt: new Date().toISOString(),
         },
         platforms,
@@ -391,7 +413,40 @@ export function registerPartnerApiRoutes(app: Express) {
     }
   });
 
-  // ── Student data (student:read) ───────────────────────────────────────────
+  // ── Student data (student:read) — AGGREGATE, SUPPRESSION-FLOORED ONLY ──────
+  //
+  // DECISION (adversarial re-audit remediation): The partner_api_keys table has
+  // NO org/tenant/audience column (see shared/schema.ts ~6374). A partner key is
+  // therefore an UNBOUNDED credential — it cannot be scoped to a subset of youth.
+  // Honoring an arbitrary :userId or returning per-student rows would let ANY
+  // keyholder pull ANY child's thrive scores, early-warning flags, self-
+  // assessments, pathway plans, attendance, and reflections. That is a cross-
+  // tenant youth-PII exposure and inventing a tenant model here would require a
+  // schema change (out of scope / no db:push allowed).
+  //
+  // Least-breaking honest fix (option a): all student:read endpoints now return
+  // ONLY aggregate, small-cell-suppressed metrics (floor 5, mirroring the YHSI
+  // suppress() doctrine). Per-student detail routes are REMOVED and answer 410.
+  // No names, no user ids, no per-row PII ever leave these handlers.
+  // Every access is already recorded by requirePartnerAuth's audit-log insert.
+
+  const suppressMap = (m: Record<string, number>): Record<string, number | null> =>
+    Object.fromEntries(Object.entries(m).map(([k, v]) => [k, suppress(v)]));
+
+  // Per-student detail routes are permanently removed — they cannot be served
+  // safely without a tenant binding. Answer 410 Gone (still auth+scope gated so
+  // the audit log captures the attempt) rather than silently 404.
+  const removedStudentDetail = (req: Request, res: Response) => {
+    res.status(410).json({
+      error: "Per-student detail is no longer served over the partner API.",
+      reason: "Partner keys are not bound to a data boundary; serving arbitrary :userId would expose any youth's records to any keyholder.",
+      alternative: "Use the aggregate, suppression-floored endpoints: /students/overview, /attendance/summary, /early-warnings, /pathways/overview.",
+    });
+  };
+  app.get("/api/partner/v1/students/:userId/thrive", requirePartnerAuth, requireScope("student:read"), removedStudentDetail);
+  app.get("/api/partner/v1/students/:userId/assessments", requirePartnerAuth, requireScope("student:read"), removedStudentDetail);
+  app.get("/api/partner/v1/students/:userId/pathway", requirePartnerAuth, requireScope("student:read"), removedStudentDetail);
+  app.get("/api/partner/v1/students/reflections", requirePartnerAuth, requireScope("student:read"), removedStudentDetail);
 
   app.get("/api/partner/v1/students/overview", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
     try {
@@ -401,73 +456,80 @@ export function registerPartnerApiRoutes(app: Express) {
       const pathways = await db.select().from(pathwayPlans);
       const powerMap = new Map(power.map(p => [p.userId, p]));
       const pathwayMap = new Map(pathways.map(pw => [pw.userId, pw]));
+
+      // Build a per-student view internally, but ONLY emit suppressed aggregates.
       let students = progress.map(p => {
         const uid = p.userId ?? "";
         const pp = uid ? powerMap.get(uid) : undefined;
         const pw = uid ? pathwayMap.get(uid) : undefined;
         return {
-          userId: p.userId, studentName: p.studentName, totalPoints: p.totalPoints,
-          currentStreak: p.streakDays, lessonsCompleted: p.lessonsCompleted,
-          pantherPower: pp ? { totalScore: pp.totalScore, level: pp.level, title: pp.title } : null,
-          pathway: pw ? { currentGrade: pw.currentGrade, primaryCareerInterest: pw.primaryCareerInterest, status: pw.status } : null,
+          totalPoints: p.totalPoints ?? 0,
+          lessonsCompleted: p.lessonsCompleted ?? 0,
+          streakDays: p.streakDays ?? 0,
+          pantherLevel: pp?.level ?? null,
+          currentGrade: pw?.currentGrade ?? null,
+          status: pw?.status ?? null,
         };
       });
       if (gradeFilter !== null && !isNaN(gradeFilter)) {
-        students = students.filter(s => s.pathway?.currentGrade === gradeFilter);
+        students = students.filter(s => s.currentGrade === gradeFilter);
       }
-      res.json({ students, count: students.length, timestamp: new Date().toISOString() });
+
+      const n = students.length;
+      const gradeDistribution: Record<string, number> = {};
+      const statusDistribution: Record<string, number> = {};
+      const levelDistribution: Record<string, number> = {};
+      let sumPoints = 0, sumLessons = 0, sumStreak = 0;
+      for (const s of students) {
+        sumPoints += s.totalPoints; sumLessons += s.lessonsCompleted; sumStreak += s.streakDays;
+        if (s.currentGrade != null) gradeDistribution[String(s.currentGrade)] = (gradeDistribution[String(s.currentGrade)] || 0) + 1;
+        if (s.status) statusDistribution[s.status] = (statusDistribution[s.status] || 0) + 1;
+        if (s.pantherLevel != null) levelDistribution[String(s.pantherLevel)] = (levelDistribution[String(s.pantherLevel)] || 0) + 1;
+      }
+
+      res.json({
+        aggregateOnly: true,
+        suppressionNote: `Cohort counts below ${SUPPRESSION_FLOOR} are suppressed (null); averages require a cohort of at least ${SUPPRESSION_FLOOR}.`,
+        totalStudents: suppress(n),
+        averages: n >= SUPPRESSION_FLOOR ? {
+          avgTotalPoints: Math.round(sumPoints / n),
+          avgLessonsCompleted: Math.round((sumLessons / n) * 10) / 10,
+          avgStreakDays: Math.round((sumStreak / n) * 10) / 10,
+        } : null,
+        gradeDistribution: suppressMap(gradeDistribution),
+        statusDistribution: suppressMap(statusDistribution),
+        pantherLevelDistribution: suppressMap(levelDistribution),
+        timestamp: new Date().toISOString(),
+      });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch student overview." });
-    }
-  });
-
-  app.get("/api/partner/v1/students/:userId/thrive", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const [score] = await db.select().from(thriveScores).where(sql`${thriveScores.userId} = ${userId}`);
-      const flags = await db.select().from(earlyWarningFlags).where(sql`${earlyWarningFlags.userId} = ${userId}`).orderBy(desc(earlyWarningFlags.createdAt));
-      res.json({ userId, thriveScore: score || null, earlyWarningFlags: flags, timestamp: new Date().toISOString() });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch thrive data." });
-    }
-  });
-
-  app.get("/api/partner/v1/students/:userId/assessments", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const assessments = await db.select().from(studentSelfAssessments)
-        .where(sql`${studentSelfAssessments.userId} = ${userId}`)
-        .orderBy(desc(studentSelfAssessments.createdAt)).limit(30);
-      res.json({ userId, assessments, timestamp: new Date().toISOString() });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch assessments." });
-    }
-  });
-
-  app.get("/api/partner/v1/students/:userId/pathway", requirePartnerAuth, requireScope("student:read"), async (req, res) => {
-    try {
-      const userId = req.params.userId;
-      const [plan] = await db.select().from(pathwayPlans).where(sql`${pathwayPlans.userId} = ${userId}`);
-      res.json({ userId, pathway: plan || null, timestamp: new Date().toISOString() });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch pathway." });
     }
   });
 
   app.get("/api/partner/v1/attendance/summary", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
     try {
       const logs = await db.select().from(attendanceLogs).orderBy(desc(attendanceLogs.loginTime));
-      const studentMap = new Map<string, { name: string; logins: number; lastLogin: string; dates: string[] }>();
+      const perStudent = new Map<string, { logins: number; dates: Set<string> }>();
       for (const log of logs) {
-        const existing = studentMap.get(log.userId);
-        if (existing) { existing.logins++; existing.dates.push(log.loginDate); }
-        else { studentMap.set(log.userId, { name: log.studentName, logins: 1, lastLogin: log.loginDate, dates: [log.loginDate] }); }
+        const existing = perStudent.get(log.userId);
+        if (existing) { existing.logins++; existing.dates.add(log.loginDate); }
+        else { perStudent.set(log.userId, { logins: 1, dates: new Set([log.loginDate]) }); }
       }
-      const summary = Array.from(studentMap.entries()).map(([userId, data]) => ({
-        userId, studentName: data.name, totalLogins: data.logins, lastLogin: data.lastLogin,
-        uniqueDays: new Set(data.dates).size,
-      }));
-      res.json({ summary, totalStudents: summary.length, timestamp: new Date().toISOString() });
+      const n = perStudent.size;
+      let totalLogins = 0, totalUniqueDays = 0;
+      for (const data of perStudent.values()) { totalLogins += data.logins; totalUniqueDays += data.dates.size; }
+
+      res.json({
+        aggregateOnly: true,
+        suppressionNote: `Counts below ${SUPPRESSION_FLOOR} are suppressed; averages require at least ${SUPPRESSION_FLOOR} students.`,
+        totalStudents: suppress(n),
+        totalLogins: suppress(totalLogins),
+        averages: n >= SUPPRESSION_FLOOR ? {
+          avgLoginsPerStudent: Math.round((totalLogins / n) * 10) / 10,
+          avgActiveDaysPerStudent: Math.round((totalUniqueDays / n) * 10) / 10,
+        } : null,
+        timestamp: new Date().toISOString(),
+      });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch attendance summary." });
     }
@@ -476,12 +538,30 @@ export function registerPartnerApiRoutes(app: Express) {
   app.get("/api/partner/v1/early-warnings", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
     try {
       const flags = await db.select({
-        id: earlyWarningFlags.id, userId: earlyWarningFlags.userId,
-        flagLevel: earlyWarningFlags.flagLevel, triggerClass: earlyWarningFlags.triggerClass,
-        whatChanged: earlyWarningFlags.whatChanged, whyItMatters: earlyWarningFlags.whyItMatters,
-        resolvedAt: earlyWarningFlags.resolvedAt, createdAt: earlyWarningFlags.createdAt,
-      }).from(earlyWarningFlags).orderBy(desc(earlyWarningFlags.createdAt));
-      res.json({ flags, count: flags.length, timestamp: new Date().toISOString() });
+        flagLevel: earlyWarningFlags.flagLevel,
+        triggerClass: earlyWarningFlags.triggerClass,
+        resolvedAt: earlyWarningFlags.resolvedAt,
+      }).from(earlyWarningFlags);
+
+      const byLevel: Record<string, number> = {};
+      const byTrigger: Record<string, number> = {};
+      let resolved = 0, open = 0;
+      for (const f of flags) {
+        if (f.flagLevel) byLevel[f.flagLevel] = (byLevel[f.flagLevel] || 0) + 1;
+        if (f.triggerClass) byTrigger[f.triggerClass] = (byTrigger[f.triggerClass] || 0) + 1;
+        if (f.resolvedAt) resolved++; else open++;
+      }
+
+      res.json({
+        aggregateOnly: true,
+        suppressionNote: `Counts below ${SUPPRESSION_FLOOR} are suppressed (null).`,
+        total: suppress(flags.length),
+        open: suppress(open),
+        resolved: suppress(resolved),
+        byLevel: suppressMap(byLevel),
+        byTrigger: suppressMap(byTrigger),
+        timestamp: new Date().toISOString(),
+      });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch early warnings." });
     }
@@ -490,31 +570,27 @@ export function registerPartnerApiRoutes(app: Express) {
   app.get("/api/partner/v1/pathways/overview", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
     try {
       const allPlans = await db.select().from(pathwayPlans);
-      const gradeDistribution: Record<number, number> = {};
+      const gradeDistribution: Record<string, number> = {};
       const educationPathCounts: Record<string, number> = {};
       let activeCount = 0;
       for (const plan of allPlans) {
         const g = plan.currentGrade;
-        if (g >= 6 && g <= 12) gradeDistribution[g] = (gradeDistribution[g] || 0) + 1;
+        if (g >= 6 && g <= 12) gradeDistribution[String(g)] = (gradeDistribution[String(g)] || 0) + 1;
         const pt = plan.educationPathType || "unspecified";
         educationPathCounts[pt] = (educationPathCounts[pt] || 0) + 1;
         if (plan.status === "active") activeCount++;
       }
-      res.json({ total: allPlans.length, totalActive: activeCount, gradeDistribution, educationPathCounts, timestamp: new Date().toISOString() });
+      res.json({
+        aggregateOnly: true,
+        suppressionNote: `Counts below ${SUPPRESSION_FLOOR} are suppressed (null).`,
+        total: suppress(allPlans.length),
+        totalActive: suppress(activeCount),
+        gradeDistribution: suppressMap(gradeDistribution),
+        educationPathCounts: suppressMap(educationPathCounts),
+        timestamp: new Date().toISOString(),
+      });
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch pathways overview." });
-    }
-  });
-
-  app.get("/api/partner/v1/students/reflections", requirePartnerAuth, requireScope("student:read"), async (_req, res) => {
-    try {
-      const recent = await db.select({
-        userId: studentReflections.userId, studentName: studentReflections.studentName,
-        entryDate: studentReflections.entryDate, period: studentReflections.period, mood: studentReflections.mood,
-      }).from(studentReflections).orderBy(desc(studentReflections.createdAt)).limit(50);
-      res.json({ recentReflections: recent, needsAttention: recent.filter(r => r.mood === "tired" || r.mood === "neutral"), timestamp: new Date().toISOString() });
-    } catch (err) {
-      res.status(500).json({ error: "Failed to fetch reflections." });
     }
   });
 

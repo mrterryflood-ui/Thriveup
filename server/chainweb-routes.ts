@@ -1,6 +1,6 @@
 import type { Express, NextFunction, Request, Response } from "express";
 import { createHash } from "node:crypto";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import {
   chainwebScenarios, chainwebNodes, chainwebEdges,
   chainwebCalculations, chainwebNarratives,
@@ -55,16 +55,38 @@ async function cwExternalAuth(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+// Daily counter bucket — enforces the 5000/day limit advertised in /api-info.
+// Previously that daily limit was documented but never enforced (dishonest).
+const externalDailyBucket = new Map<string, { count: number; resetAt: number }>();
+
 function cwExternalRateLimit(req: Request, res: Response, next: NextFunction) {
   const key = req.headers["x-ecosystem-key"] as string || "anon";
   const ipRaw = req.socket.remoteAddress || "0.0.0.0";
   const bucket = createHash("sha256").update(key + ipRaw).digest("hex").slice(0, 24);
   const now = Date.now();
 
-  const entry = externalRateBucket.get(bucket);
   const windowMs = 60_000; // 1 minute
   const maxPerMinute = 60;
+  const dailyMs = 24 * 60 * 60 * 1000;
+  const maxPerDay = 5000; // matches the advertised limit in /api/chainweb/api-info
 
+  // ── Daily limit (honest enforcement of the advertised 5000/day) ──────────
+  const daily = externalDailyBucket.get(bucket);
+  if (!daily || daily.resetAt < now) {
+    externalDailyBucket.set(bucket, { count: 1, resetAt: now + dailyMs });
+  } else {
+    if (daily.count >= maxPerDay) {
+      return res.status(429).json({
+        error: "Daily rate limit exceeded",
+        retryAfterMs: daily.resetAt - now,
+        limit: `${maxPerDay} requests/day`,
+      });
+    }
+    daily.count += 1;
+  }
+
+  // ── Per-minute limit ─────────────────────────────────────────────────────
+  const entry = externalRateBucket.get(bucket);
   if (!entry || entry.resetAt < now) {
     externalRateBucket.set(bucket, { count: 1, resetAt: now + windowMs });
     return next();
@@ -78,6 +100,20 @@ function cwExternalRateLimit(req: Request, res: Response, next: NextFunction) {
   }
   entry.count += 1;
   return next();
+}
+
+// ── First-party session auth (mirrors requireAuth/requireAdmin in server/routes.ts) ──
+// Roles live in the users table, never on req.user — resolve via storage.getUser.
+function cwGetUserId(req: Request): string | undefined {
+  const user = (req as any).user;
+  return user?.claims?.sub || user?.id;
+}
+
+function cwRequireAuth(req: Request, res: Response, next: NextFunction) {
+  if (!cwGetUserId(req)) {
+    return res.status(401).json({ error: "Authentication required" });
+  }
+  next();
 }
 
 export function registerChainwebRoutes(app: Express) {
@@ -110,11 +146,23 @@ export function registerChainwebRoutes(app: Express) {
     }
   });
 
+  // Reads of a scenario OWNED by someone (createdBy set) require auth + ownership,
+  // since scenarios carry the caller's causal-web inputs. Legacy rows with a null
+  // createdBy predate ownership tracking and stay publicly readable (documented
+  // decision) so existing links do not break.
   app.get("/api/chainweb/scenarios/:id", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const [scenario] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
       if (!scenario) return res.status(404).json({ error: "Not found" });
+
+      if (scenario.createdBy) {
+        const userId = cwGetUserId(req);
+        if (!userId) return res.status(401).json({ error: "Authentication required" });
+        if (scenario.createdBy !== userId) {
+          return res.status(403).json({ error: "You may only view scenarios you created" });
+        }
+      }
 
       const nodes = await db.select().from(chainwebNodes).where(eq(chainwebNodes.scenarioId, id));
       const edges = await db.select().from(chainwebEdges).where(eq(chainwebEdges.scenarioId, id));
@@ -126,23 +174,46 @@ export function registerChainwebRoutes(app: Express) {
     }
   });
 
-  app.post("/api/chainweb/scenarios", async (req: Request, res: Response) => {
+  // Mutations require an authenticated first-party user. The scenario table has a
+  // createdBy column, so we track ownership and enforce it on PATCH/DELETE — a
+  // user may only modify/delete scenarios they created. createdBy is set from the
+  // session, never trusted from the request body.
+  app.post("/api/chainweb/scenarios", cwRequireAuth, async (req: Request, res: Response) => {
     try {
       const parsed = insertChainwebScenarioSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-      const [scenario] = await db.insert(chainwebScenarios).values(parsed.data).returning();
+      const userId = cwGetUserId(req)!;
+      const [scenario] = await db.insert(chainwebScenarios)
+        .values({ ...parsed.data, createdBy: userId })
+        .returning();
       res.json(scenario);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
     }
   });
 
-  app.patch("/api/chainweb/scenarios/:id", async (req: Request, res: Response) => {
+  app.patch("/api/chainweb/scenarios/:id", cwRequireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = cwGetUserId(req)!;
+
+      const [existing] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
+      if (!existing) return res.status(404).json({ error: "Not found" });
+      if (existing.createdBy !== userId) {
+        return res.status(403).json({ error: "You may only modify scenarios you created" });
+      }
+
+      // Validate against the insert schema's .partial() — this strips unknown
+      // keys (Zod objects are strip-by-default) and rejects malformed values,
+      // matching the POST path's validation contract.
+      const parsed = insertChainwebScenarioSchema.partial().safeParse(req.body ?? {});
+      if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
+
+      // Never let the client reassign ownership.
+      const { createdBy: _ignore, ...body } = parsed.data;
       const [updated] = await db.update(chainwebScenarios)
-        .set({ ...req.body, updatedAt: new Date() })
+        .set({ ...body, updatedAt: new Date() })
         .where(eq(chainwebScenarios.id, id))
         .returning();
       res.json(updated);
@@ -151,9 +222,17 @@ export function registerChainwebRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/chainweb/scenarios/:id", async (req: Request, res: Response) => {
+  app.delete("/api/chainweb/scenarios/:id", cwRequireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = cwGetUserId(req)!;
+
+      const [existing] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
+      if (!existing) return res.status(404).json({ error: "Not found" });
+      if (existing.createdBy !== userId) {
+        return res.status(403).json({ error: "You may only delete scenarios you created" });
+      }
+
       await db.delete(chainwebEdges).where(eq(chainwebEdges.scenarioId, id));
       await db.delete(chainwebNodes).where(eq(chainwebNodes.scenarioId, id));
       await db.delete(chainwebCalculations).where(eq(chainwebCalculations.scenarioId, id));
@@ -165,9 +244,17 @@ export function registerChainwebRoutes(app: Express) {
   });
 
   // ── Calculate ROI ─────────────────────────────────────────────────────────
-  app.post("/api/chainweb/scenarios/:id/calculate", async (req: Request, res: Response) => {
+  // Calculate mutates the scenario (status + calculation rows) — require auth
+  // and ownership so a user cannot recompute/overwrite scenarios they don't own.
+  app.post("/api/chainweb/scenarios/:id/calculate", cwRequireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      const userId = cwGetUserId(req)!;
+      const [existing] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
+      if (!existing) return res.status(404).json({ error: "Not found" });
+      if (existing.createdBy !== userId) {
+        return res.status(403).json({ error: "You may only calculate scenarios you created" });
+      }
       // Build the causal web first
       await buildChainwebScenario(id);
       // Then calculate ROI
@@ -183,13 +270,25 @@ export function registerChainwebRoutes(app: Express) {
   });
 
   // ── Narratives ────────────────────────────────────────────────────────────
-  app.post("/api/chainweb/calculations/:id/narratives", async (req: Request, res: Response) => {
+  // Narrative generation persists rows and calls the AI provider (cost) — require
+  // auth AND ownership: calculation → scenario → createdBy must match the caller,
+  // so one user cannot burn AI spend against or overwrite another user's narratives.
+  app.post("/api/chainweb/calculations/:id/narratives", cwRequireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
       const { audience } = req.body as {
         audience: "grant_writer" | "org_leader" | "researcher" | "council" | "funder"
       };
       if (!audience) return res.status(400).json({ error: "audience required" });
+
+      const [calc] = await db.select().from(chainwebCalculations).where(eq(chainwebCalculations.id, id));
+      if (!calc) return res.status(404).json({ error: "Calculation not found" });
+      const [scenario] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, calc.scenarioId));
+      if (!scenario) return res.status(404).json({ error: "Scenario not found" });
+      const userId = cwGetUserId(req);
+      if (scenario.createdBy && scenario.createdBy !== userId) {
+        return res.status(403).json({ error: "You can only generate narratives for your own scenarios" });
+      }
 
       const result = await generateChainwebNarrative(id, audience);
 
@@ -225,9 +324,22 @@ export function registerChainwebRoutes(app: Express) {
     }
   });
 
+  // Narratives belong to a calculation → scenario. If that scenario is owned
+  // (createdBy set) the narratives are private: require auth + ownership.
+  // Legacy scenarios with a null createdBy stay publicly readable.
   app.get("/api/chainweb/calculations/:id/narratives", async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id);
+      const [calc] = await db.select().from(chainwebCalculations).where(eq(chainwebCalculations.id, id));
+      if (!calc) return res.status(404).json({ error: "Calculation not found" });
+      const [scenario] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, calc.scenarioId));
+      if (scenario?.createdBy) {
+        const userId = cwGetUserId(req);
+        if (!userId) return res.status(401).json({ error: "Authentication required" });
+        if (scenario.createdBy !== userId) {
+          return res.status(403).json({ error: "You may only view narratives for your own scenarios" });
+        }
+      }
       const narratives = await db.select().from(chainwebNarratives)
         .where(eq(chainwebNarratives.calculationId, id));
       res.json(narratives);
@@ -237,7 +349,8 @@ export function registerChainwebRoutes(app: Express) {
   });
 
   // ── RAG context endpoint (internal use) ───────────────────────────────────
-  app.get("/api/chainweb/rag-context", async (req: Request, res: Response) => {
+  // Internal-only: require an authenticated first-party session.
+  app.get("/api/chainweb/rag-context", cwRequireAuth, async (req: Request, res: Response) => {
     try {
       const { grantType, geography, domain } = req.query as Record<string, string>;
       const context = await getChainwebRAGContext(grantType, geography, domain);
@@ -248,13 +361,16 @@ export function registerChainwebRoutes(app: Express) {
   });
 
   // ── Quick scenario from template ──────────────────────────────────────────
-  app.post("/api/chainweb/from-template", async (req: Request, res: Response) => {
+  // Creates a scenario (and calculates it) — require auth and stamp ownership.
+  app.post("/api/chainweb/from-template", cwRequireAuth, async (req: Request, res: Response) => {
     try {
+      const userId = cwGetUserId(req)!;
       const { templateId, geographyLabel, geographyFips, populationSize, interventionCostPerPerson } = req.body;
       const template = CHAINWEB_TEMPLATES.find(t => t.id === templateId);
       if (!template) return res.status(404).json({ error: "Template not found" });
 
       const [scenario] = await db.insert(chainwebScenarios).values({
+        createdBy: userId,
         name: template.name,
         description: template.description,
         geographyType: "county",

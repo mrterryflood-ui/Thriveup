@@ -19,6 +19,8 @@
 - [YHSI implementation stack](yhsi-stack.md) — youth voice/referrals/HMIS/reports; role checks MUST hit DB (req.user.role is never set); metrics are suppression-first (floor 5).
 - [E2E forged-session auth](e2e-forged-session-auth.md) — Playwright can't do OIDC sign-in; forge sessions-table rows + sign connect.sid with SESSION_SECRET to test as an authed user.
 - [HUD PIT nationwide community data](hud-pit-community-data.md) — official-only dataset + public lookup; huduser.gov UA/xlsb quirks; refresh must never follow redirects; youth counts start 2015.
+- [Data foundation hardening](data-foundation-hardening.md) — seeds are idempotent upserts (reseed = sanctioned content push); award-once semantics via newlyCompleted; typecheck gate baseline 85.
+- [Remediation doctrine & re-audit outcome](remediation-doctrine.md) — 5 permanent validation gates; stash hazard in parallel waves; partner keys tenantless→aggregate-only; completed referrals immutable.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────

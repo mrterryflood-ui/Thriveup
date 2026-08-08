@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { GraduationCap, ShieldCheck, Bus, FileCheck, HeartHandshake, DollarSign, Phone, MessageCircle } from "lucide-react";
 import { Link } from "wouter";
-import { checkEligibility } from "@shared/foster-eligibility";
+import { checkEligibility, FOSTER_PROGRAM_CONSTANTS as FPC } from "@shared/foster-eligibility";
 
 // Public "Know Your Rights" hub for youth. Content is served from
 // /api/yhsi/program-guide, which is built ONLY from uploaded source documents
@@ -29,10 +29,10 @@ export default function YouthRightsPage() {
           citations included, so you can show them to anyone who tells you no.
         </p>
         <div className="flex flex-wrap gap-2 pt-1">
-          <Button asChild size="sm" data-testid="button-ask-navigator">
+          <Button asChild size="sm" className="min-h-[44px] sm:min-h-8" data-testid="button-ask-navigator">
             <Link href="/navigator"><MessageCircle className="mr-2 h-4 w-4" /> Ask the Navigator (private)</Link>
           </Button>
-          <Button asChild size="sm" variant="outline" data-testid="button-voice-wall">
+          <Button asChild size="sm" variant="outline" className="min-h-[44px] sm:min-h-8" data-testid="button-voice-wall">
             <Link href="/youth-voice">Youth Voice Wall</Link>
           </Button>
         </div>
@@ -42,7 +42,7 @@ export default function YouthRightsPage() {
         <Card className="border-destructive">
           <CardContent className="pt-4 pb-4 flex items-center justify-between gap-3">
             <p className="text-sm text-destructive" data-testid="text-rights-error">Couldn't load the guide right now — this is a loading problem, not a rights problem. Your rights don't depend on this page working.</p>
-            <Button size="sm" variant="outline" onClick={() => refetch()} data-testid="button-rights-retry">Retry</Button>
+            <Button size="sm" variant="outline" className="min-h-[44px] sm:min-h-8" onClick={() => refetch()} data-testid="button-rights-retry">Retry</Button>
           </CardContent>
         </Card>
       ) : isLoading ? (
@@ -120,9 +120,9 @@ export default function YouthRightsPage() {
               <CardContent className="space-y-3 text-sm">
                 <p className="text-muted-foreground">{guide?.chafee?.etv?.description}</p>
                 <div className="grid grid-cols-3 gap-3 text-center">
-                  <div className="rounded-md border p-3"><p className="text-xl font-bold" data-testid="text-etv-amount">$5,000</p><p className="text-xs text-muted-foreground">per year</p></div>
-                  <div className="rounded-md border p-3"><p className="text-xl font-bold">to age 26</p><p className="text-xs text-muted-foreground">age limit</p></div>
-                  <div className="rounded-md border p-3"><p className="text-xl font-bold">5 years</p><p className="text-xs text-muted-foreground">max total</p></div>
+                  <div className="rounded-md border p-3"><p className="text-xl font-bold" data-testid="text-etv-amount">${FPC.etvAnnualMaxUsd.toLocaleString("en-US")}</p><p className="text-xs text-muted-foreground">per year</p></div>
+                  <div className="rounded-md border p-3"><p className="text-xl font-bold">to age {FPC.etvMaxAge}</p><p className="text-xs text-muted-foreground">age limit</p></div>
+                  <div className="rounded-md border p-3"><p className="text-xl font-bold">{FPC.etvMaxYears} years</p><p className="text-xs text-muted-foreground">max total</p></div>
                 </div>
                 <p className="text-xs text-muted-foreground">
                   Plus: if you're an unaccompanied homeless youth, you file the FAFSA as an <strong>independent
@@ -143,16 +143,16 @@ export default function YouthRightsPage() {
                 <CardDescription>ETV covers post-secondary education AND training. Try these on this platform today, no cost, no signup — then bring your plan to your child welfare agency.</CardDescription>
               </CardHeader>
               <CardContent className="grid gap-2 sm:grid-cols-2">
-                <Button asChild variant="outline" className="justify-start" data-testid="button-trades">
+                <Button asChild variant="outline" className="justify-start min-h-[44px]" data-testid="button-trades">
                   <Link href="/academy/trade-sims">Trade simulations — electrical, plumbing, HVAC, welding, automotive</Link>
                 </Button>
-                <Button asChild variant="outline" className="justify-start" data-testid="button-careers">
+                <Button asChild variant="outline" className="justify-start min-h-[44px]" data-testid="button-careers">
                   <Link href="/academy/careers">Career explorer — see real wages and paths</Link>
                 </Button>
-                <Button asChild variant="outline" className="justify-start" data-testid="button-workforce">
+                <Button asChild variant="outline" className="justify-start min-h-[44px]" data-testid="button-workforce">
                   <Link href="/workforce-training">Workforce training & credential tracker</Link>
                 </Button>
-                <Button asChild variant="outline" className="justify-start" data-testid="button-childcare">
+                <Button asChild variant="outline" className="justify-start min-h-[44px]" data-testid="button-childcare">
                   <Link href="/child-care-workforce">Childcare careers — a field that needs you</Link>
                 </Button>
               </CardContent>
@@ -210,7 +210,7 @@ function EligibilityChecker({ guide }: { guide: any }) {
           <div className="space-y-1.5">
             <Label>Your age</Label>
             <Select value={age} onValueChange={setAge}>
-              <SelectTrigger data-testid="select-checker-age"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger data-testid="select-checker-age" className="min-h-[44px] sm:min-h-9"><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>
                 {Array.from({ length: 17 }, (_, i) => i + 12).map((a) => (
                   <SelectItem key={a} value={String(a)}>{a}</SelectItem>
@@ -222,7 +222,7 @@ function EligibilityChecker({ guide }: { guide: any }) {
           <div className="space-y-1.5">
             <Label>Foster care</Label>
             <Select value={fosterStatus} onValueChange={setFosterStatus}>
-              <SelectTrigger data-testid="select-checker-foster"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger data-testid="select-checker-foster" className="min-h-[44px] sm:min-h-9"><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="current">I'm in foster care now</SelectItem>
                 <SelectItem value="former">I was in foster care</SelectItem>
@@ -234,7 +234,7 @@ function EligibilityChecker({ guide }: { guide: any }) {
           <div className="space-y-1.5">
             <Label>Housing right now</Label>
             <Select value={housing} onValueChange={setHousing}>
-              <SelectTrigger data-testid="select-checker-housing"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger data-testid="select-checker-housing" className="min-h-[44px] sm:min-h-9"><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="unstable">Not stable (staying with others, motel, shelter, car, outside)</SelectItem>
                 <SelectItem value="stable">Stable place to live</SelectItem>
@@ -244,7 +244,7 @@ function EligibilityChecker({ guide }: { guide: any }) {
           <div className="space-y-1.5">
             <Label>Are you living with a parent or guardian?</Label>
             <Select value={withParent} onValueChange={setWithParent}>
-              <SelectTrigger data-testid="select-checker-parent"><SelectValue placeholder="Select" /></SelectTrigger>
+              <SelectTrigger data-testid="select-checker-parent" className="min-h-[44px] sm:min-h-9"><SelectValue placeholder="Select" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="yes">Yes, I'm with a parent/guardian</SelectItem>
                 <SelectItem value="no">No, I'm on my own</SelectItem>
@@ -255,7 +255,7 @@ function EligibilityChecker({ guide }: { guide: any }) {
             <div className="space-y-1.5">
               <Label>Were you in foster care at any point after turning 14?</Label>
               <Select value={careAfter14} onValueChange={setCareAfter14}>
-                <SelectTrigger data-testid="select-checker-after14"><SelectValue placeholder="Select" /></SelectTrigger>
+                <SelectTrigger data-testid="select-checker-after14" className="min-h-[44px] sm:min-h-9"><SelectValue placeholder="Select" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="yes">Yes</SelectItem>
                   <SelectItem value="no">No, only before 14</SelectItem>

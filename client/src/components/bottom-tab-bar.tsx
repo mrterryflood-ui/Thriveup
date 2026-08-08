@@ -1,10 +1,12 @@
 import { useLocation, Link } from "wouter";
 import { Home, Heart, Target, Rocket, Network } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/lib/i18n";
 
 const TABS = [
   {
     label: "Home",
+    labelKey: "shell.tab.home",
     icon: Home,
     href: "/hub",
     prefixes: ["/hub"] as string[],
@@ -12,6 +14,7 @@ const TABS = [
   },
   {
     label: "Serve",
+    labelKey: "shell.tab.serve",
     icon: Heart,
     href: "/hub/serve",
     prefixes: [
@@ -25,6 +28,7 @@ const TABS = [
   },
   {
     label: "Fund",
+    labelKey: "shell.tab.fund",
     icon: Target,
     href: "/hub/fund",
     prefixes: [
@@ -38,6 +42,7 @@ const TABS = [
   },
   {
     label: "Grow",
+    labelKey: "shell.tab.grow",
     icon: Rocket,
     href: "/hub/grow",
     prefixes: [
@@ -50,6 +55,7 @@ const TABS = [
   },
   {
     label: "Connect",
+    labelKey: "shell.tab.connect",
     icon: Network,
     href: "/hub/connect",
     prefixes: [
@@ -77,10 +83,14 @@ function isTabActive(location: string, tab: (typeof TABS)[number]): boolean {
 
 export function BottomTabBar() {
   const [location] = useLocation();
+  const { t } = useLanguage();
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/60 flex items-stretch h-[60px] shadow-lg"
+      // Pad the bottom by the iOS home-indicator safe-area inset so the
+      // interactive row is never covered on notched iPhones. The tappable
+      // links keep a 60px min-height for comfortable touch targets.
+      className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/60 flex items-stretch shadow-lg pb-[env(safe-area-inset-bottom)]"
       data-testid="nav-bottom-tab-bar"
     >
       {TABS.map(tab => {
@@ -91,7 +101,7 @@ export function BottomTabBar() {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors duration-150 cursor-pointer select-none",
+              "flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[60px] text-[10px] font-semibold transition-colors duration-150 cursor-pointer select-none",
               active ? "text-primary" : "text-muted-foreground hover:text-foreground"
             )}
             data-testid={`tab-${tab.label.toLowerCase()}`}
@@ -102,7 +112,7 @@ export function BottomTabBar() {
             )}>
               <Icon className={cn("w-[18px] h-[18px]", active && "stroke-[2.5]")} />
             </span>
-            <span className="leading-none">{tab.label}</span>
+            <span className="leading-none">{t(tab.labelKey)}</span>
           </Link>
         );
       })}
