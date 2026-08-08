@@ -33,7 +33,9 @@ export type SagRubricMode =
   | "slow-cranking"
   | "battery-only-load"
   | "alternator-on-load"
-  | "weak-battery-charging";
+  | "weak-battery-charging"
+  | "coil-swap-current"
+  | "parallel-7a";
 
 export interface SagRubric {
   mode: SagRubricMode;
@@ -302,6 +304,11 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
       prompt: "A coil with 1.5 Ω primary resistance is in the parts bin. Replace your 0.5 Ω coil with it and predict the new primary current before you run the sim. Then check whether a weak battery (internalResistance 0.10 Ω) makes the drop worse.",
       successCriteria: "Learner states 'about 8 A' for the 1.5 Ω coil with healthy battery, then runs and confirms within ±15%. With weak battery the V_term badge shows further sag and I_primary falls below 8 A.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
+      sagRubric: {
+        mode: "coil-swap-current",
+        passMessage: "Swap confirmed — the 1.5 Ω coil pulls ~8 A (within ±15% of the predicted value), matching your hand calculation of I = 12.6 / (0.02 + 1.5).",
+        failMessage: "Swap the coil's primaryResistance to 1.5 Ω and re-run. Primary current should land within ±15% of your predicted ~8 A (roughly 7–9.5 A).",
+      },
     },
     sandboxStarter: { initialComponents: [{ kind: "car_battery", props: { voltage: 12.6, internalResistance: 0.02 } }, { kind: "ignition_coil", props: { primaryResistance: 0.5 } }, { kind: "spark_plug" }, { kind: "ground_point" }], prompt: "Add a fuse rated 20 A in line with the coil (node 1 → node 2, coil on node 2). Mark it blown and note the V_term badge: with no current drawn, terminal voltage returns to open-circuit. Un-blow and watch it dip again." },
     credentialPathway:
@@ -474,6 +481,11 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
       prompt: "Build a headlight circuit that draws exactly 7 A from a 12.6 V battery using TWO parallel coil loads. What primaryResistance does each need? Calculate first, then run the sim and read the answer off the V_term badge and Currents section.",
       successCriteria: "Each coil ~3.6 Ω (total R ≈ 1.8 Ω, I ≈ 7 A); V_term badge reads above 12.4 V confirming a healthy 12 V bus even at 7 A.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
+      sagRubric: {
+        mode: "parallel-7a",
+        passMessage: "Target hit — two parallel coil loads draw 7 A ±5% total from the battery, and the V_term badge stays above 12.4 V. That's a healthy 12 V bus doing real headlight work.",
+        failMessage: "Wire TWO coils in parallel and tune each primaryResistance (~3.6 Ω each) so total battery current lands at 7 A ±5% (6.65–7.35 A) with V_term above 12.4 V.",
+      },
     },
     sandboxStarter: { initialComponents: [{ kind: "car_battery", props: { voltage: 12.6, internalResistance: 0.02 } }, { kind: "fuse", props: { ratedAmps: 10 } }, { kind: "ignition_coil", props: { primaryResistance: 5 } }, { kind: "ground_point" }], prompt: "Add a second coil (5 Ω) in parallel, then mark the fuse as blown to simulate the relay being de-energized. Watch the V_term badge: with fuse blown and no current drawn, terminal voltage jumps back to open-circuit — no load means no sag." },
     credentialPathway:

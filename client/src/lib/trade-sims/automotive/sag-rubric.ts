@@ -124,6 +124,58 @@ export function gradeSag(
     return vOc / (ri + parallelR);
   }
 
+  /**
+   * Node equivalence under unblown fuses.
+   *
+   * An unblown fuse is stamped as a ~0 Ω resistor, so the two nodes it joins
+   * are electrically the same bus. The Day 9 circuit (and the Day 4 sandbox
+   * extension) legitimately puts a fuse between battery+ and the load, so
+   * "coil spans the battery" must be evaluated modulo fuse shorts.
+   * Returns a canonical-representative lookup for node ids.
+   */
+  function fuseMergedFind(): (node: number) => number {
+    const parent = new Map<number, number>();
+    const find = (n: number): number => {
+      let root = n;
+      while (parent.has(root) && parent.get(root)! !== root) root = parent.get(root)!;
+      return root;
+    };
+    const union = (a: number, b: number) => {
+      const ra = find(a);
+      const rb = find(b);
+      if (ra !== rb) parent.set(Math.max(ra, rb), Math.min(ra, rb));
+    };
+    for (const c of comps) {
+      if (c.kind === "fuse" && !c.props.blown) {
+        const a = c.terminalNodes.a;
+        const b = c.terminalNodes.b;
+        if (a !== undefined && b !== undefined) union(a, b);
+      }
+    }
+    return find;
+  }
+
+  /**
+   * True when the component's pos/neg terminals span the battery's pos/neg
+   * nodes (either polarity), treating unblown fuses as shorts. This is what
+   * guarantees the load is actually across the battery — not powered by a
+   * separate source elsewhere on the canvas.
+   */
+  function spansBattery(load: PlacedAutoComponent, battery: PlacedAutoComponent): boolean {
+    const find = fuseMergedFind();
+    const bp = battery.terminalNodes.pos;
+    const bn = battery.terminalNodes.neg;
+    const lp = load.terminalNodes.pos;
+    const ln = load.terminalNodes.neg;
+    if (bp === undefined || bn === undefined || lp === undefined || ln === undefined) return false;
+    const fbp = find(bp);
+    const fbn = find(bn);
+    const flp = find(lp);
+    const fln = find(ln);
+    if (fbp === fbn || flp === fln) return false;
+    return (flp === fbp && fln === fbn) || (flp === fbn && fln === fbp);
+  }
+
   // ── Circuit-type detection ────────────────────────────────────────────────
   const hasStarter     = comps.some((c) => c.kind === "starter_motor");
   const hasCoil        = comps.some((c) => c.kind === "ignition_coil");
@@ -336,6 +388,103 @@ export function gradeSag(
     }
     const altVoltage = Number(alternator!.props.voltage ?? 14.2);
     const pass = terminal > 13.9 && Math.abs(terminal - altVoltage) <= 0.2;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+  }
+
+  // ── 9. coil-swap-current ─────────────────────────────────────────────────
+  // Day 4 solo challenge: learner swaps the 0.5 Ω coil for a 1.5 Ω coil and
+  // predicts ~8 A primary current. Pass when a coil with primaryResistance in
+  // the 1.5 Ω range is on canvas AND the actual source current is within ±15%
+  // of the predicted value I = V_oc / (Ri + R_coil_parallel).
+  if (rubric.mode === "coil-swap-current") {
+    const coils = comps.filter((c) => c.kind === "ignition_coil");
+    // The prompt says REPLACE the 0.5 Ω coil — exactly one coil must remain.
+    // Extra coils (e.g. keeping the original alongside the 1.5 Ω one) change
+    // the load and defeat the prediction exercise, so they fail.
+    if (coils.length !== 1) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    const coil = coils[0];
+    const coilR = Number(coil.props.primaryResistance ?? 0.5);
+    // Must actually be the 1.5 Ω parts-bin coil — reject the original 0.5 Ω.
+    if (coilR < 1.3 || coilR > 1.7) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    // The coil must be wired across the BATTERY (unblown fuses count as
+    // wire) — a coil powered by some other source elsewhere on the canvas
+    // doesn't complete this challenge.
+    if (!spansBattery(coil, battery)) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    // Grade the coil's OWN current against the single-coil prediction
+    // I = V_oc / (Ri + R_coil) — ~8 A with a healthy battery.
+    const vOc = Number(battery.props.voltage ?? 12.6);
+    const ri = Number(battery.props.internalResistance ?? 0.02);
+    const expected = vOc / (ri + coilR);
+    if (!(expected > 0)) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    const coilCurrent = Math.abs(lastSolve.resistorCurrents[coil.id] ?? 0);
+    const pass =
+      coilCurrent > 0.1 &&
+      Math.abs(coilCurrent - expected) / expected <= 0.15 &&
+      Math.abs(sourceCurrent - expected) / expected <= 0.15;
+    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+  }
+
+  // ── 10. parallel-7a ──────────────────────────────────────────────────────
+  // Day 9 solo challenge: TWO coil loads in parallel drawing 7 A ±5% total
+  // (6.65–7.35 A) from the battery, with terminal voltage above 12.4 V
+  // (healthy bus). Each coil ends up around 3.6 Ω.
+  if (rubric.mode === "parallel-7a") {
+    const coils = comps.filter((c) => c.kind === "ignition_coil");
+    // The prompt requires TWO parallel loads — exactly two, no more, no less.
+    if (coils.length !== 2) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    const [a, b] = coils;
+    // Parallel topology: both coils must share the same two ELECTRICAL nodes
+    // (pos↔pos and neg↔neg, or fully swapped), with unblown fuses treated as
+    // wire — a coil fed through its own fuse branch is still parallel.
+    // Series-wired coils fail.
+    const find = fuseMergedFind();
+    const rawAPos = a.terminalNodes.pos;
+    const rawANeg = a.terminalNodes.neg;
+    const rawBPos = b.terminalNodes.pos;
+    const rawBNeg = b.terminalNodes.neg;
+    const nodesDefined =
+      rawAPos !== undefined && rawANeg !== undefined && rawBPos !== undefined && rawBNeg !== undefined;
+    const aPos = nodesDefined ? find(rawAPos) : undefined;
+    const aNeg = nodesDefined ? find(rawANeg) : undefined;
+    const bPos = nodesDefined ? find(rawBPos) : undefined;
+    const bNeg = nodesDefined ? find(rawBNeg) : undefined;
+    const isParallel =
+      nodesDefined &&
+      aPos !== aNeg &&
+      ((aPos === bPos && aNeg === bNeg) || (aPos === bNeg && aNeg === bPos));
+    if (!isParallel) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    // The shared parallel pair must be the BATTERY's own terminals (unblown
+    // fuses count as wire). Coils hung on a different source's nodes while an
+    // unrelated load draws the matching battery current must not pass.
+    if (!spansBattery(a, battery) || !spansBattery(b, battery)) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    // Both coils must actually carry current (true parallel loads, not one
+    // wired and one floating on the canvas), and the branch currents must
+    // add up to the battery's total draw (no hidden extra load).
+    const iA = Math.abs(lastSolve.resistorCurrents[a.id] ?? 0);
+    const iB = Math.abs(lastSolve.resistorCurrents[b.id] ?? 0);
+    const bothConducting = iA > 0.1 && iB > 0.1;
+    const branchesSumToTotal =
+      sourceCurrent > 0 && Math.abs(iA + iB - sourceCurrent) / sourceCurrent <= 0.05;
+    const pass =
+      bothConducting &&
+      branchesSumToTotal &&
+      sourceCurrent >= 7 * 0.95 &&
+      sourceCurrent <= 7 * 1.05 &&
+      terminal > 12.4;
     return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
   }
 

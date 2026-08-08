@@ -1268,6 +1268,526 @@ console.log("\n── alternator-on-load ─────────────
   );
 }
 
+// ── Mode 9: coil-swap-current (Day 4 solo challenge) ─────────────────────────
+console.log("\n── coil-swap-current ────────────────────────────────────────────");
+
+/** Battery + ignition coil(s) + ground fixture for Day 4 / Day 9 tests. */
+function makeSoloCoilComponents(coilResistances: number[], opts: {
+  batteryVoltage?: number;
+  batteryInternalResistance?: number;
+} = {}): PlacedAutoComponent[] {
+  const { batteryVoltage = 12.6, batteryInternalResistance = 0.02 } = opts;
+  const comps: PlacedAutoComponent[] = [
+    {
+      id: "BAT",
+      kind: "car_battery",
+      terminalNodes: { pos: 1, neg: 0 },
+      props: { voltage: batteryVoltage, internalResistance: batteryInternalResistance },
+    },
+    { id: "GND", kind: "ground_point", terminalNodes: { gnd: 0 }, props: {} },
+  ];
+  coilResistances.forEach((r, i) => {
+    comps.push({
+      id: `COIL${i + 1}`,
+      kind: "ignition_coil",
+      terminalNodes: { pos: 1, neg: 0 },
+      props: { primaryResistance: r },
+    });
+  });
+  return comps;
+}
+
+{
+  // PENDING: no solve yet.
+  const comps = makeSoloCoilComponents([1.5]);
+  const result = gradeSag(makeRubric("coil-swap-current"), null, comps);
+  check(
+    "coil-swap-current / pending: null solve → pending",
+    result.status === "pending",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: 1.5 Ω coil, actual current ≈ expected 12.6/(0.02+1.5) ≈ 8.29 A.
+  const comps = makeSoloCoilComponents([1.5]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.43],
+    vsourceCurrents: { BAT_src: -8.29 },
+    resistorCurrents: { COIL1: 8.29 },
+  });
+  const result = gradeSag(makeRubric("coil-swap-current"), solve, comps);
+  check(
+    "coil-swap-current / pass: 1.5 Ω coil at ~8.29 A → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: learner never swapped — still the 0.5 Ω coil (current matches
+  // expected for 0.5 Ω, but the swap requirement fails).
+  const comps = makeSoloCoilComponents([0.5]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.1],
+    vsourceCurrents: { BAT_src: -24.2 },
+    resistorCurrents: { COIL1: 24.2 },
+  });
+  const result = gradeSag(makeRubric("coil-swap-current"), solve, comps);
+  check(
+    "coil-swap-current / fail: still 0.5 Ω coil → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: 1.5 Ω coil placed but current way off expected (open circuit → 0 A).
+  const comps = makeSoloCoilComponents([1.5]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.6],
+    vsourceCurrents: { BAT_src: 0 },
+    resistorCurrents: { COIL1: 0 },
+  });
+  const result = gradeSag(makeRubric("coil-swap-current"), solve, comps);
+  check(
+    "coil-swap-current / fail: 1.5 Ω coil but 0 A (not wired) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: no coil on canvas at all.
+  const comps = makeSoloCoilComponents([]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.6],
+    vsourceCurrents: { BAT_src: 0 },
+    resistorCurrents: {},
+  });
+  const result = gradeSag(makeRubric("coil-swap-current"), solve, comps);
+  check(
+    "coil-swap-current / fail: no coil on canvas → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: current outside ±15% of expected (e.g. extra hidden load doubling draw).
+  const comps = makeSoloCoilComponents([1.5]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.2],
+    vsourceCurrents: { BAT_src: -16.5 },
+    resistorCurrents: { COIL1: 8.29 },
+  });
+  const result = gradeSag(makeRubric("coil-swap-current"), solve, comps);
+  check(
+    "coil-swap-current / fail: source current double the predicted value → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL (adversarial): learner keeps the original 0.5 Ω coil AND adds the
+  // 1.5 Ω coil. Combined parallel load draws far more than the predicted
+  // single-coil 8 A — must fail even though total matches the multi-coil math.
+  const comps = makeSoloCoilComponents([0.5, 1.5]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.0],
+    vsourceCurrents: { BAT_src: -31.9 }, // 12.6 / (0.02 + 0.375)
+    resistorCurrents: { COIL1: 24.0, COIL2: 8.0 },
+  });
+  const result = gradeSag(makeRubric("coil-swap-current"), solve, comps);
+  check(
+    "coil-swap-current / fail (adversarial): original 0.5 Ω coil retained alongside 1.5 Ω → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL (adversarial): two 1.5 Ω coils in parallel — total source current
+  // matches the two-coil expectation, but the coil was not simply replaced.
+  const comps = makeSoloCoilComponents([1.5, 1.5]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.27],
+    vsourceCurrents: { BAT_src: -16.4 }, // 12.6 / (0.02 + 0.75)
+    resistorCurrents: { COIL1: 8.2, COIL2: 8.2 },
+  });
+  const result = gradeSag(makeRubric("coil-swap-current"), solve, comps);
+  check(
+    "coil-swap-current / fail (adversarial): two 1.5 Ω coils in parallel → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+// ── Mode 10: parallel-7a (Day 9 solo challenge) ──────────────────────────────
+console.log("\n── parallel-7a ──────────────────────────────────────────────────");
+
+{
+  // PENDING: no solve yet.
+  const comps = makeSoloCoilComponents([3.6, 3.6]);
+  const result = gradeSag(makeRubric("parallel-7a"), null, comps);
+  check(
+    "parallel-7a / pending: null solve → pending",
+    result.status === "pending",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: two 3.6 Ω coils in parallel → total ≈ 6.93 A, terminal ≈ 12.46 V.
+  const comps = makeSoloCoilComponents([3.6, 3.6]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.46],
+    vsourceCurrents: { BAT_src: -6.93 },
+    resistorCurrents: { COIL1: 3.46, COIL2: 3.46 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / pass: two coils, 6.93 A total, terminal 12.46 V → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS: boundary — exactly 7.35 A (upper bound of ±5%).
+  const comps = makeSoloCoilComponents([3.4, 3.4]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.45],
+    vsourceCurrents: { BAT_src: -7.35 },
+    resistorCurrents: { COIL1: 3.67, COIL2: 3.67 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / pass: exactly 7.35 A (upper bound) → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: only ONE coil doing all the work (7 A through a single 1.8 Ω coil).
+  const comps = makeSoloCoilComponents([1.8]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.46],
+    vsourceCurrents: { BAT_src: -6.92 },
+    resistorCurrents: { COIL1: 6.92 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / fail: single coil (needs two in parallel) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: two coils on canvas but one is floating (carries no current).
+  const comps = makeSoloCoilComponents([1.8, 3.6]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.46],
+    vsourceCurrents: { BAT_src: -6.92 },
+    resistorCurrents: { COIL1: 6.92, COIL2: 0 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / fail: second coil floating at 0 A → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: total current outside ±5% (two 5 Ω coils → only ~5 A).
+  const comps = makeSoloCoilComponents([5, 5]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5],
+    vsourceCurrents: { BAT_src: -4.96 },
+    resistorCurrents: { COIL1: 2.48, COIL2: 2.48 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / fail: 4.96 A total (outside 7 A ±5%) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL (adversarial): two 0.9 Ω coils wired in SERIES draw ~7 A total and
+  // both conduct — but the topology isn't parallel, so it must fail.
+  const comps = makeSoloCoilComponents([0.9, 0.9]);
+  // Rewire COIL2 to sit in series: COIL1 spans nodes 1→2, COIL2 spans 2→0.
+  comps.find((c) => c.id === "COIL1")!.terminalNodes = { pos: 1, neg: 2 };
+  comps.find((c) => c.id === "COIL2")!.terminalNodes = { pos: 2, neg: 0 };
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.46, 6.23],
+    vsourceCurrents: { BAT_src: -6.92 }, // 12.6 / (0.02 + 1.8)
+    resistorCurrents: { COIL1: 6.92, COIL2: 6.92 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / fail (adversarial): two coils in series at ~7 A → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL (adversarial): THREE parallel coils hitting 7 A total — the prompt
+  // requires exactly two loads.
+  const comps = makeSoloCoilComponents([5.4, 5.4, 5.4]);
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.46],
+    vsourceCurrents: { BAT_src: -6.92 },
+    resistorCurrents: { COIL1: 2.31, COIL2: 2.31, COIL3: 2.31 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / fail (adversarial): three coils (needs exactly two) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: current on target but terminal sagging below 12.4 V (weak battery).
+  const comps = makeSoloCoilComponents([3.6, 3.6], { batteryInternalResistance: 0.10 });
+  const solve = makeSolve({
+    nodeVoltages: [0, 11.9],
+    vsourceCurrents: { BAT_src: -7.0 },
+    resistorCurrents: { COIL1: 3.5, COIL2: 3.5 },
+  });
+  const result = gradeSag(makeRubric("parallel-7a"), solve, comps);
+  check(
+    "parallel-7a / fail: 7 A but terminal 11.9 V (below 12.4 V floor) → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+// ── Integration: parallel-7a against the REAL adapter + solver ───────────────
+console.log("\n── parallel-7a (integration: real adapter + solver) ────────────");
+
+{
+  const { placedToSolverElements } = await import("./component-defs");
+  const { solveCircuit } = await import("../electrical/circuit-solver");
+
+  /** Compile placed components with the same adapter path the canvas uses. */
+  function solveReal(comps: PlacedAutoComponent[], nodeCount: number) {
+    let next = nodeCount;
+    const ctx = { allocNode: () => next++ };
+    const elements = comps.flatMap((c) => placedToSolverElements(c, ctx));
+    return solveCircuit({ elements, nodeCount: next });
+  }
+
+  {
+    // PASS: correctly wired Day 9 solo — battery + two 3.58 Ω coils in
+    // parallel (nodes 1↔0). Total ≈ 7.0 A, terminal ≈ 12.46 V.
+    const comps = makeSoloCoilComponents([3.58, 3.58]);
+    const result0 = solveReal(comps, 2);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("parallel-7a / integration pass: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("parallel-7a"), result0, comps);
+      check(
+        "parallel-7a / integration pass: real solve of two parallel 3.58 Ω coils → pass",
+        grade.status === "pass",
+        `got status=${grade.status} msg=${grade.message}`,
+      );
+    }
+  }
+
+  {
+    // FAIL: same coils rewired in SERIES (0.9 Ω each → ~6.9 A total) with the
+    // real solver — topology check must reject it.
+    const comps = makeSoloCoilComponents([0.9, 0.9]);
+    comps.find((c) => c.id === "COIL1")!.terminalNodes = { pos: 1, neg: 2 };
+    comps.find((c) => c.id === "COIL2")!.terminalNodes = { pos: 2, neg: 0 };
+    const result0 = solveReal(comps, 3);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("parallel-7a / integration fail: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("parallel-7a"), result0, comps);
+      check(
+        "parallel-7a / integration fail: real solve of two series coils at ~7 A → fail",
+        grade.status === "fail",
+        `got status=${grade.status}`,
+      );
+    }
+  }
+
+  {
+    // PASS: legit Day 9 wiring WITH a fuse — battery+ (node 1) → unblown fuse
+    // (1→2) → two 3.58 Ω coils in parallel on nodes 2/0. The fuse is a ~0 Ω
+    // short, so the coils still span the battery.
+    const comps = makeSoloCoilComponents([3.58, 3.58]);
+    comps.forEach((c) => {
+      if (c.kind === "ignition_coil") c.terminalNodes = { pos: 2, neg: 0 };
+    });
+    comps.push({
+      id: "F1",
+      kind: "fuse",
+      terminalNodes: { a: 1, b: 2 },
+      props: { ratedAmps: 10, blown: false },
+    });
+    const result0 = solveReal(comps, 3);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("parallel-7a / integration fused pass: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("parallel-7a"), result0, comps);
+      check(
+        "parallel-7a / integration pass: coils fed through an unblown fuse still span the battery → pass",
+        grade.status === "pass",
+        `got status=${grade.status} msg=${grade.message}`,
+      );
+    }
+  }
+
+  {
+    // PASS: each coil fed through its OWN unblown fuse — battery+ (node 1),
+    // fuse A 1→2 → coil A on 2/0, fuse B 1→3 → coil B on 3/0. Raw nodes
+    // differ but the fuses are ~0 Ω, so this is electrically parallel and
+    // spans the battery.
+    const comps = makeSoloCoilComponents([3.58, 3.58]);
+    comps.find((c) => c.id === "COIL1")!.terminalNodes = { pos: 2, neg: 0 };
+    comps.find((c) => c.id === "COIL2")!.terminalNodes = { pos: 3, neg: 0 };
+    comps.push(
+      { id: "FA", kind: "fuse", terminalNodes: { a: 1, b: 2 }, props: { ratedAmps: 10, blown: false } },
+      { id: "FB", kind: "fuse", terminalNodes: { a: 1, b: 3 }, props: { ratedAmps: 10, blown: false } },
+    );
+    const result0 = solveReal(comps, 4);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("parallel-7a / integration per-branch fuses: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("parallel-7a"), result0, comps);
+      check(
+        "parallel-7a / integration pass: each coil on its own unblown fuse branch → pass",
+        grade.status === "pass",
+        `got status=${grade.status} msg=${grade.message}`,
+      );
+    }
+  }
+
+  {
+    // FAIL: series coils where the mid-point is fuse-connected to nothing
+    // special — fuse canonicalization must NOT turn a series chain into a
+    // false parallel. Battery 1/0, coil A 1→2, coil B 2→0 (~7 A), plus an
+    // unblown fuse from battery+ (1) to a dead-end node 3 to exercise the
+    // union-find with an irrelevant fuse present.
+    const comps = makeSoloCoilComponents([0.9, 0.9]);
+    comps.find((c) => c.id === "COIL1")!.terminalNodes = { pos: 1, neg: 2 };
+    comps.find((c) => c.id === "COIL2")!.terminalNodes = { pos: 2, neg: 0 };
+    comps.push(
+      { id: "FX", kind: "fuse", terminalNodes: { a: 1, b: 3 }, props: { ratedAmps: 10, blown: false } },
+    );
+    const result0 = solveReal(comps, 4);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("parallel-7a / integration series+fuse: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("parallel-7a"), result0, comps);
+      check(
+        "parallel-7a / integration fail: series coils remain non-parallel despite unrelated fuse → fail",
+        grade.status === "fail",
+        `got status=${grade.status}`,
+      );
+    }
+  }
+
+  {
+    // FAIL (adversarial): coils are NOT on the battery at all — they hang on a
+    // running alternator's nodes (2/0) while a starter motor tuned to ~1.8 Ω
+    // draws a matching ~6.9 A from the battery on nodes 1/0. Every current and
+    // voltage number can look right, but the required battery-powered
+    // two-coil circuit is absent.
+    const comps = makeSoloCoilComponents([3.9, 3.9]);
+    comps.forEach((c) => {
+      if (c.kind === "ignition_coil") c.terminalNodes = { pos: 2, neg: 0 };
+    });
+    comps.push(
+      {
+        id: "ALT",
+        kind: "alternator",
+        terminalNodes: { pos: 2, neg: 0 },
+        props: { voltage: 14.2, running: true },
+      },
+      {
+        id: "STR",
+        kind: "starter_motor",
+        terminalNodes: { pos: 1, neg: 0 },
+        props: { resistance: 1.8 },
+      },
+    );
+    const result0 = solveReal(comps, 3);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("parallel-7a / integration adversarial: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("parallel-7a"), result0, comps);
+      check(
+        "parallel-7a / integration fail (adversarial): coils on alternator nodes, battery loaded elsewhere → fail",
+        grade.status === "fail",
+        `got status=${grade.status}`,
+      );
+    }
+  }
+
+  {
+    // FAIL (adversarial): Day 4 variant — the 1.5 Ω coil hangs on a running
+    // alternator (nodes 2/0) while a starter at ~1.5 Ω pulls ~8.3 A from the
+    // battery on nodes 1/0. Coil is not across the battery → must fail.
+    const comps = makeSoloCoilComponents([1.5]);
+    comps.forEach((c) => {
+      if (c.kind === "ignition_coil") c.terminalNodes = { pos: 2, neg: 0 };
+    });
+    comps.push(
+      {
+        id: "ALT",
+        kind: "alternator",
+        terminalNodes: { pos: 2, neg: 0 },
+        props: { voltage: 14.2, running: true },
+      },
+      {
+        id: "STR",
+        kind: "starter_motor",
+        terminalNodes: { pos: 1, neg: 0 },
+        props: { resistance: 1.5 },
+      },
+    );
+    const result0 = solveReal(comps, 3);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("coil-swap-current / integration adversarial: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("coil-swap-current"), result0, comps);
+      check(
+        "coil-swap-current / integration fail (adversarial): 1.5 Ω coil on alternator nodes, battery loaded elsewhere → fail",
+        grade.status === "fail",
+        `got status=${grade.status}`,
+      );
+    }
+  }
+
+  {
+    // PASS: Day 4 solo with the real solver — single 1.5 Ω coil, ~8.29 A.
+    const comps = makeSoloCoilComponents([1.5]);
+    const result0 = solveReal(comps, 2);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("coil-swap-current / integration pass: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("coil-swap-current"), result0, comps);
+      check(
+        "coil-swap-current / integration pass: real solve of single 1.5 Ω coil → pass",
+        grade.status === "pass",
+        `got status=${grade.status} msg=${grade.message}`,
+      );
+    }
+  }
+}
+
 // ── Summary ────────────────────────────────────────────────────────────────────
 console.log(`\n  ${pass} passed, ${fail} failed`);
 if (fail > 0) {
