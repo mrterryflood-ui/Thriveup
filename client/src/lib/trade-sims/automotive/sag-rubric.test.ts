@@ -877,6 +877,57 @@ console.log("\n── fuse-blown-open (generic) ──────────�
   );
 }
 
+// ── fuse-blown-open (coil on canvas — Day 4 / Day 9 path) ─────────────────────
+console.log("\n── fuse-blown-open (coil) ────────────────────────────────────────");
+
+{
+  // PASS: coil on canvas, blown fuse, terminal ≈ Voc, source current < 0.5 A.
+  const comps = makeCoilComponents({ includeFuse: true, fuseBlown: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.6, 0],
+    vsourceCurrents: { BAT_src: 0 },
+    resistorCurrents: { COIL: 0 },
+  });
+  const result = gradeSag(makeRubric("fuse-blown-open"), solve, comps);
+  check(
+    "fuse-blown-open/coil / pass: blown fuse, Voc terminal, 0 A → pass",
+    result.status === "pass",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: coil on canvas, blown fuse, but source current still 2 A (short around fuse).
+  const comps = makeCoilComponents({ includeFuse: true, fuseBlown: true });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.6, 0],
+    vsourceCurrents: { BAT_src: 2.0 },
+    resistorCurrents: { COIL: 2.0 },
+  });
+  const result = gradeSag(makeRubric("fuse-blown-open"), solve, comps);
+  check(
+    "fuse-blown-open/coil / fail: blown fuse but source current 2 A → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
+{
+  // FAIL: coil on canvas, fuse NOT blown.
+  const comps = makeCoilComponents({ includeFuse: true, fuseBlown: false });
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 12.4],
+    vsourceCurrents: { BAT_src: 24 },
+    resistorCurrents: { COIL: 24 },
+  });
+  const result = gradeSag(makeRubric("fuse-blown-open"), solve, comps);
+  check(
+    "fuse-blown-open/coil / fail: fuse not blown → fail",
+    result.status === "fail",
+    `got status=${result.status}`,
+  );
+}
+
 // ── healthy-cranking (coil / Day 4 and Day 9) ─────────────────────────────────
 console.log("\n── healthy-cranking (coil) ───────────────────────────────────────");
 
