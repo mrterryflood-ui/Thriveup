@@ -24,6 +24,12 @@ export interface AutoCanvasProps {
   initialComponents?: Array<{ kind: string; props?: Record<string, number | boolean | string> }>;
   onChange?: (state: { components: PlacedAutoComponent[]; lastSolve: SolveOutput | null }) => void;
   compact?: boolean;
+  /**
+   * Optional day-specific hint shown on the empty canvas (e.g. which parts
+   * this lesson needs). Falls back to a day-agnostic message so Day 4/Day 9
+   * learners aren't told to add a starter motor they don't need.
+   */
+  emptyHint?: string;
 }
 
 function genId() {
@@ -46,7 +52,7 @@ function defaultNodesFor(kind: AutoComponentKind): Record<string, number> {
   return out;
 }
 
-export function AutoCanvas({ initialComponents, onChange, compact = false }: AutoCanvasProps) {
+export function AutoCanvas({ initialComponents, onChange, compact = false, emptyHint }: AutoCanvasProps) {
   const [components, setComponents] = useState<PlacedAutoComponent[]>(() =>
     (initialComponents ?? []).map((c) => ({
       id: genId(),
@@ -242,7 +248,7 @@ export function AutoCanvas({ initialComponents, onChange, compact = false }: Aut
         <CardContent>
           {components.length === 0 ? (
             <div className="text-sm text-muted-foreground text-center py-8" data-testid="text-auto-canvas-empty">
-              Empty canvas — add a 12 V battery, a fuse, a starter motor, and a chassis ground from the parts above. Wire them by giving connected terminals the same node number (use 0 for ground). Terminal voltage updates live as you toggle parts; press Run when you're ready to lock in the result.
+              Empty canvas — {emptyHint ?? "add the parts your circuit needs from the parts above"}. Wire them by giving connected terminals the same node number (use 0 for ground). Terminal voltage updates live as you toggle parts; press Run when you're ready to lock in the result.
             </div>
           ) : (
             <div className={`grid gap-3 ${compact ? "grid-cols-1" : "grid-cols-1 md:grid-cols-2"}`}>
