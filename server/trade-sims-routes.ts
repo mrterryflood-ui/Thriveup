@@ -30,9 +30,13 @@ import {
   tradeSimsLessonProgress,
   tradeSimsSandboxProjects,
   tradeSimsAiTutorSessions,
+  tradeSimsAttemptEvents,
   insertTradeSimsLessonProgressSchema,
   insertTradeSimsSandboxProjectSchema,
 } from "@shared/schema";
+import { computeGrowthStates, mergeWeakConcepts, topWeakConcepts } from "@shared/trade-sims-growth";
+import { conceptLabel } from "../shared/data/trade-sims/concept-tags";
+import { gradeAttemptServerSide, soloChallengeHasRubric } from "./trade-sims-grading";
 import { and, asc, desc, eq, isNull, inArray, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
@@ -89,6 +93,7 @@ const buckets = new Map<string, Bucket>();
 const GLOBAL_LIMITS: Record<string, { max: number; windowMs: number }> = {
   "ai-tutor": { max: 400, windowMs: 60 * 60 * 1000 },
   progress: { max: 5000, windowMs: 60 * 60 * 1000 },
+  attempts: { max: 5000, windowMs: 60 * 60 * 1000 },
   "sandbox-save": { max: 600, windowMs: 60 * 60 * 1000 },
 };
 
@@ -212,8 +217,19 @@ export function registerTradeSimsRoutes(app: Express) {
       const scope = getCallerScope(req);
       if (!scope) return res.status(400).json({ error: "Missing caller scope. Provide login or x-anon-session header." });
 
+      // Mastery/adaptivity fields are server-managed only: soloPassed and
+      // stretchPassed come from graded attempts (/attempts), overrides from
+      // /growth/override, weakConcepts from the grading fold. Never from here.
       const bodySchema = insertTradeSimsLessonProgressSchema
-        .omit({ userId: true, anonSessionId: true })
+        .omit({
+          userId: true,
+          anonSessionId: true,
+          soloPassed: true,
+          stretchPassed: true,
+          masteryOverride: true,
+          overrideNote: true,
+          weakConcepts: true,
+        })
         .extend({ lessonId: z.number().int().positive() });
       const parsed = bodySchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid progress payload", details: parsed.error.format() });
@@ -222,11 +238,19 @@ export function registerTradeSimsRoutes(app: Express) {
 
       // Pre-validate lesson existence so a stale id returns 400, not a DB FK 500.
       const [lessonExists] = await db
-        .select({ id: tradeSimsLessons.id })
+        .select({ id: tradeSimsLessons.id, soloChallenge: tradeSimsLessons.soloChallenge })
         .from(tradeSimsLessons)
         .where(eq(tradeSimsLessons.id, payload.lessonId))
         .limit(1);
       if (!lessonExists) return res.status(400).json({ error: "Unknown lessonId." });
+
+      // Lessons with no graded rubric can't earn soloPassed via /attempts, so
+      // honest completion (the client's engagement gate) counts as mastery.
+      // Decided server-side from the lesson row — never from the caller.
+      const noRubricMasteryPatch =
+        payload.status === "completed" && !soloChallengeHasRubric(lessonExists.soloChallenge)
+          ? { soloPassed: true }
+          : {};
 
       // Look up existing row by (scope, lessonId).
       const scopeFilter = scope.userId
@@ -243,6 +267,7 @@ export function registerTradeSimsRoutes(app: Express) {
           .update(tradeSimsLessonProgress)
           .set({
             ...payload,
+            ...noRubricMasteryPatch,
             attemptCount: (existing.attemptCount ?? 0) + 1,
             updatedAt: new Date(),
           })
@@ -258,6 +283,7 @@ export function registerTradeSimsRoutes(app: Express) {
         .insert(tradeSimsLessonProgress)
         .values({
           ...payload,
+          ...noRubricMasteryPatch,
           userId: scope.userId ?? null,
           anonSessionId: scope.anonSessionId ?? null,
           attemptCount: 1,
@@ -270,6 +296,227 @@ export function registerTradeSimsRoutes(app: Express) {
     } catch (err) {
       console.error("[TradeSims] upsert progress failed:", err);
       res.status(500).json({ error: "Failed to save progress." });
+    }
+  });
+
+  // Record a graded solo/stretch attempt. Feeds the adaptive growth path:
+  // failed rubric checks tag concepts (weakness tracking → review reps), a
+  // standard-tier pass sets soloPassed (unlocks the next day), a stretch-tier
+  // pass sets stretchPassed. Anonymous or authed via the usual scope.
+  //
+  // TRUST BOUNDARY: the caller submits only its canvas (placed components +
+  // connectivity). The server reconstructs the network, re-runs the
+  // authoritative solver, and grades the recomputed physics against the
+  // rubric it holds on the lesson row. Client-generated solver output and
+  // client-claimed outcomes are never accepted.
+  app.post("/api/trade-sims/attempts", rateLimit("attempts", 200, 60 * 60 * 1000), async (req, res) => {
+    try {
+      const scope = getCallerScope(req);
+      if (!scope) return res.status(400).json({ error: "Missing caller scope. Provide login or x-anon-session header." });
+
+      const bodySchema = z.object({
+        lessonId: z.number().int().positive(),
+        tier: z.enum(["standard", "stretch"]).default("standard"),
+        components: z.array(z.unknown()).max(200).default([]),
+      });
+      const parsed = bodySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid attempt payload", details: parsed.error.format() });
+      const { lessonId, tier, components } = parsed.data;
+
+      // Cap submitted state size (same cap as canvasState elsewhere).
+      const MAX_STATE_BYTES = 64 * 1024;
+      const stateBytes = Buffer.byteLength(JSON.stringify({ components }), "utf8");
+      if (stateBytes > MAX_STATE_BYTES) {
+        return res.status(413).json({ error: `Attempt state too large (${stateBytes} bytes; max ${MAX_STATE_BYTES}).` });
+      }
+
+      const [lessonRow] = await db
+        .select({ id: tradeSimsLessons.id, soloChallenge: tradeSimsLessons.soloChallenge })
+        .from(tradeSimsLessons)
+        .where(eq(tradeSimsLessons.id, lessonId))
+        .limit(1);
+      if (!lessonRow) return res.status(400).json({ error: "Unknown lessonId." });
+
+      // Look up existing progress before grading — stretch attempts require
+      // the standard tier to already be passed (server-recorded).
+      const scopeFilter = scope.userId
+        ? eq(tradeSimsLessonProgress.userId, scope.userId)
+        : eq(tradeSimsLessonProgress.anonSessionId, scope.anonSessionId!);
+      const [existing] = await db
+        .select()
+        .from(tradeSimsLessonProgress)
+        .where(and(scopeFilter, eq(tradeSimsLessonProgress.lessonId, lessonId)))
+        .limit(1);
+
+      if (tier === "stretch" && !existing?.soloPassed) {
+        return res.status(400).json({ error: "Pass the standard solo challenge before attempting the stretch tier." });
+      }
+
+      const graded = gradeAttemptServerSide(lessonRow.soloChallenge, tier, components);
+      if (!graded.ok) return res.status(400).json({ error: graded.error });
+      const { passed, missedConcepts, summary } = graded;
+
+      const [event] = await db
+        .insert(tradeSimsAttemptEvents)
+        .values({
+          userId: scope.userId ?? null,
+          anonSessionId: scope.anonSessionId ?? null,
+          lessonId,
+          tier,
+          passed,
+          missedConcepts,
+          summary: summary ?? null,
+        })
+        .returning();
+
+      // Fold into the progress row's aggregates (create the row if needed).
+      const weak = mergeWeakConcepts(
+        (existing?.weakConcepts as Record<string, number> | null) ?? null,
+        missedConcepts,
+        passed,
+      );
+      const masteryPatch =
+        tier === "standard" && passed
+          ? { soloPassed: true }
+          : tier === "stretch" && passed
+            ? { stretchPassed: true }
+            : {};
+
+      let progress;
+      if (existing) {
+        [progress] = await db
+          .update(tradeSimsLessonProgress)
+          .set({ weakConcepts: weak, ...masteryPatch, updatedAt: new Date() })
+          .where(eq(tradeSimsLessonProgress.id, existing.id))
+          .returning();
+      } else {
+        [progress] = await db
+          .insert(tradeSimsLessonProgress)
+          .values({
+            userId: scope.userId ?? null,
+            anonSessionId: scope.anonSessionId ?? null,
+            lessonId,
+            status: "attempted",
+            weakConcepts: weak,
+            ...masteryPatch,
+          })
+          .returning();
+      }
+      res.json({ event, progress });
+    } catch (err) {
+      console.error("[TradeSims] record attempt failed:", err);
+      res.status(500).json({ error: "Failed to record attempt." });
+    }
+  });
+
+  // Adaptive growth state for a whole trade: per-lesson unlock/mastery/
+  // weakness data. Callers without scope get the default (only Day 1 open).
+  app.get("/api/trade-sims/growth/:tradeSlug", async (req, res) => {
+    try {
+      const tradeSlug = String(req.params.tradeSlug);
+      const [trade] = await db
+        .select()
+        .from(tradeSimsTrades)
+        .where(eq(tradeSimsTrades.slug, tradeSlug))
+        .limit(1);
+      if (!trade) return res.status(404).json({ error: "Trade not found." });
+
+      const lessons = await db
+        .select({ id: tradeSimsLessons.id, dayNumber: tradeSimsLessons.dayNumber })
+        .from(tradeSimsLessons)
+        .where(and(eq(tradeSimsLessons.tradeId, trade.id), eq(tradeSimsLessons.active, true)))
+        .orderBy(asc(tradeSimsLessons.dayNumber));
+
+      const scope = getCallerScope(req);
+      const progressByLessonId = new Map<number, typeof tradeSimsLessonProgress.$inferSelect>();
+      if (scope) {
+        const scopeFilter = scope.userId
+          ? eq(tradeSimsLessonProgress.userId, scope.userId)
+          : eq(tradeSimsLessonProgress.anonSessionId, scope.anonSessionId!);
+        const rows = await db.select().from(tradeSimsLessonProgress).where(scopeFilter);
+        const lessonIds = new Set(lessons.map((l) => l.id));
+        for (const r of rows) if (lessonIds.has(r.lessonId)) progressByLessonId.set(r.lessonId, r);
+      }
+
+      const states = computeGrowthStates(
+        lessons,
+        new Map(
+          [...progressByLessonId.entries()].map(([id, p]) => [
+            id,
+            {
+              lessonId: p.lessonId,
+              status: p.status,
+              soloPassed: p.soloPassed,
+              stretchPassed: p.stretchPassed,
+              masteryOverride: p.masteryOverride,
+              weakConcepts: p.weakConcepts as Record<string, number> | null,
+            },
+          ]),
+        ),
+      );
+      res.json({ tradeId: trade.id, lessons: states });
+    } catch (err) {
+      console.error("[TradeSims] growth state failed:", err);
+      res.status(500).json({ error: "Failed to load growth state." });
+    }
+  });
+
+  // Explicit skip-ahead override (self or staff) — the escape hatch that
+  // guarantees mastery gating never hard-blocks anyone. Recorded, not silent.
+  app.post("/api/trade-sims/growth/override", rateLimit("attempts", 60, 60 * 60 * 1000), async (req, res) => {
+    try {
+      const scope = getCallerScope(req);
+      if (!scope) return res.status(400).json({ error: "Missing caller scope. Provide login or x-anon-session header." });
+
+      const bodySchema = z.object({
+        lessonId: z.number().int().positive(),
+        note: z.string().max(300).optional(),
+      });
+      const parsed = bodySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid override payload", details: parsed.error.format() });
+      const { lessonId, note } = parsed.data;
+
+      const [lessonExists] = await db
+        .select({ id: tradeSimsLessons.id })
+        .from(tradeSimsLessons)
+        .where(eq(tradeSimsLessons.id, lessonId))
+        .limit(1);
+      if (!lessonExists) return res.status(400).json({ error: "Unknown lessonId." });
+
+      const overrideNote = `${isPrivileged(req) ? "staff" : "self"}: ${note?.trim() || "skip ahead"}`.slice(0, 300);
+      const scopeFilter = scope.userId
+        ? eq(tradeSimsLessonProgress.userId, scope.userId)
+        : eq(tradeSimsLessonProgress.anonSessionId, scope.anonSessionId!);
+      const [existing] = await db
+        .select()
+        .from(tradeSimsLessonProgress)
+        .where(and(scopeFilter, eq(tradeSimsLessonProgress.lessonId, lessonId)))
+        .limit(1);
+
+      let row;
+      if (existing) {
+        [row] = await db
+          .update(tradeSimsLessonProgress)
+          .set({ masteryOverride: true, overrideNote, updatedAt: new Date() })
+          .where(eq(tradeSimsLessonProgress.id, existing.id))
+          .returning();
+      } else {
+        [row] = await db
+          .insert(tradeSimsLessonProgress)
+          .values({
+            userId: scope.userId ?? null,
+            anonSessionId: scope.anonSessionId ?? null,
+            lessonId,
+            status: "not_started",
+            masteryOverride: true,
+            overrideNote,
+          })
+          .returning();
+      }
+      res.json(row);
+    } catch (err) {
+      console.error("[TradeSims] growth override failed:", err);
+      res.status(500).json({ error: "Failed to record override." });
     }
   });
 
@@ -379,6 +626,14 @@ export function registerTradeSimsRoutes(app: Express) {
             .delete(tradeSimsLessonProgress)
             .where(inArray(tradeSimsLessonProgress.id, toSkip.map((r) => r.id)));
         }
+
+        // Attempt history has no uniqueness constraint — re-point all of it
+        // so weakness tracking and tutor history follow the learner.
+        await tx
+          .update(tradeSimsAttemptEvents)
+          .set({ userId, anonSessionId: null })
+          .where(eq(tradeSimsAttemptEvents.anonSessionId, anonSessionId));
+
         return { merged: toMove.length, skipped: toSkip.length };
       });
 
@@ -561,7 +816,59 @@ export function registerTradeSimsRoutes(app: Express) {
           ? `\n\nReply in language code "${language}". If you don't know the language, reply in English.`
           : "";
 
-      const sharedHeader = `You are an AI tutor for ThriveUp Trade Sims — game-based learning for skilled trades. The learner is on Day ${dayNumber} of the ${tradeName} curriculum: "${lessonTitle}". Concept on file: "${conceptBlurb}". Key terms: ${keyTerms}. Speak plainly — high-school reading level. No emojis. No condescension.${langDirective}`;
+      // ---------- Learner history (adaptive growth path) ----------
+      // Pull recent graded attempts + the weakness aggregate so the tutor can
+      // reference real history ("last attempt you missed backflow prevention —
+      // this time check the valve orientation"). Server-generated data only;
+      // concept tags come from our own grader mapping, never from user text.
+      let historyLine = "";
+      const tutorScope = getCallerScope(req);
+      if (tutorScope && resolvedLessonId !== null) {
+        try {
+          const histScopeFilter = tutorScope.userId
+            ? eq(tradeSimsAttemptEvents.userId, tutorScope.userId)
+            : eq(tradeSimsAttemptEvents.anonSessionId, tutorScope.anonSessionId!);
+          const recent = await db
+            .select()
+            .from(tradeSimsAttemptEvents)
+            .where(and(histScopeFilter, eq(tradeSimsAttemptEvents.lessonId, resolvedLessonId)))
+            .orderBy(desc(tradeSimsAttemptEvents.createdAt))
+            .limit(4);
+
+          const progScopeFilter = tutorScope.userId
+            ? eq(tradeSimsLessonProgress.userId, tutorScope.userId)
+            : eq(tradeSimsLessonProgress.anonSessionId, tutorScope.anonSessionId!);
+          const [prog] = await db
+            .select({ weakConcepts: tradeSimsLessonProgress.weakConcepts })
+            .from(tradeSimsLessonProgress)
+            .where(and(progScopeFilter, eq(tradeSimsLessonProgress.lessonId, resolvedLessonId)))
+            .limit(1);
+
+          const attemptBits = recent
+            .slice()
+            .reverse()
+            .map((a) => {
+              const missed = Array.isArray(a.missedConcepts)
+                ? (a.missedConcepts as string[]).map(conceptLabel).join(", ")
+                : "";
+              return `${a.tier === "stretch" ? "stretch " : ""}attempt ${a.passed ? "PASSED" : `FAILED${missed ? ` (missed: ${missed})` : ""}`}`;
+            });
+          const weakBits = topWeakConcepts(prog?.weakConcepts as Record<string, number> | null, 3)
+            .map((w) => `${conceptLabel(w.concept)} (missed x${w.count})`);
+
+          if (attemptBits.length > 0 || weakBits.length > 0) {
+            historyLine =
+              `\n\nLEARNER HISTORY (server-verified — use it): ` +
+              (attemptBits.length > 0 ? `Recent solo attempts on this lesson, oldest first: ${attemptBits.join("; ")}. ` : "") +
+              (weakBits.length > 0 ? `Persistent weak concepts: ${weakBits.join(", ")}. ` : "") +
+              `Reference their history concretely (e.g. "last time X was missing — this time check Y") and target the weakest concept first. If they cleared a previous miss, acknowledge the improvement.`;
+          }
+        } catch (histErr) {
+          console.warn("[TradeSims] tutor history lookup failed (non-fatal):", (histErr as Error)?.message);
+        }
+      }
+
+      const sharedHeader = `You are an AI tutor for ThriveUp Trade Sims — game-based learning for skilled trades. The learner is on Day ${dayNumber} of the ${tradeName} curriculum: "${lessonTitle}". Concept on file: "${conceptBlurb}". Key terms: ${keyTerms}. Speak plainly — high-school reading level. No emojis. No condescension.${langDirective}${historyLine}`;
 
       // User-supplied data is wrapped in <user_input> tags so the model
       // treats it as untrusted content, not as instructions.

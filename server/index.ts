@@ -118,6 +118,11 @@ app.use((req, res, next) => {
 (async () => {
   const port = parseInt(process.env.PORT || "5000", 10);
 
+  // Apply committed SQL migrations before anything touches the schema —
+  // this is the single deploy path that upgrades existing databases.
+  const { runMigrations } = await import("./run-migrations");
+  await runMigrations();
+
   await setupAuth(app);
   registerAuthRoutes(app);
 

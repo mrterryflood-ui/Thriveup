@@ -11,8 +11,17 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ChevronLeft, ChevronRight, BookOpen, Target, Beaker, Lightbulb,
-  GraduationCap, Save, Loader2, CheckCircle2, XCircle,
+  GraduationCap, Save, Loader2, CheckCircle2, XCircle, Lock, Dumbbell, Trophy,
 } from "lucide-react";
+import {
+  CONCEPTS,
+  conceptLabel,
+  SAG_MODE_CONCEPT,
+  BACKFLOW_MODE_CONCEPT,
+  SAG_STRETCH,
+  BACKFLOW_STRETCH,
+} from "../../../../../shared/data/trade-sims/concept-tags";
+import { topWeakConcepts, type LessonGrowthState } from "../../../../../shared/trade-sims-growth";
 import { VisualCircuitCanvas } from "@/components/trade-sims/electrical/visual-circuit-canvas";
 import { VisualPlumbingCanvas } from "@/components/trade-sims/plumbing/visual-plumbing-canvas";
 import { AutoCanvas } from "@/components/trade-sims/automotive/auto-canvas";
@@ -366,6 +375,19 @@ export default function LessonPlayerPage() {
     enabled: !!tradeSlug,
   });
 
+  // Adaptive growth state: unlock/mastery/weakness per lesson for this trade.
+  const { data: growthData } = useQuery<{ tradeId: number; lessons: LessonGrowthState[] }>({
+    queryKey: ["/api/trade-sims/growth", tradeSlug],
+    enabled: !!tradeSlug,
+    queryFn: async () => {
+      const res = await fetch(`/api/trade-sims/growth/${tradeSlug}`, {
+        headers: { "x-anon-session": anonSessionId() },
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+  });
+
   const lesson = lessonData?.lesson;
 
   // localStorage hydration for soloReflection + sandboxJournal, keyed by
@@ -434,6 +456,7 @@ export default function LessonPlayerPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["/api/trade-sims/progress", tradeSlug] });
+      qc.invalidateQueries({ queryKey: ["/api/trade-sims/growth", tradeSlug] });
     },
   });
 
@@ -494,14 +517,122 @@ export default function LessonPlayerPage() {
     },
   });
 
+  // ---------- Adaptive growth path ----------
+  const growthByLessonId = useMemo(() => {
+    const m = new Map<number, LessonGrowthState>();
+    (growthData?.lessons ?? []).forEach((g) => m.set(g.lessonId, g));
+    return m;
+  }, [growthData]);
+  const myGrowth = lesson ? growthByLessonId.get(lesson.id) : undefined;
+  const lessonLocked = !!myGrowth && !myGrowth.unlocked;
+  const prevGrowth = prevLesson ? growthByLessonId.get(prevLesson.id) : undefined;
+
+  // Solo-challenge rubric grade, lifted out of the JSX so gating, attempt
+  // recording, and stretch tiers can all see it.
+  const soloSagRubric =
+    lesson?.soloChallenge?.sagRubric && tradeSlug === "automotive" && engineMode === "linear-dc"
+      ? lesson.soloChallenge.sagRubric
+      : null;
+  const soloBackflowRubric =
+    lesson?.soloChallenge?.backflowRubric && engineMode === "pipe-network"
+      ? lesson.soloChallenge.backflowRubric
+      : null;
+  const hasSoloRubric = !!soloSagRubric || !!soloBackflowRubric;
+  const soloSagGrade = soloSagRubric ? gradeSag(soloSagRubric, soloAuto.lastSolve, soloAuto.components) : null;
+  const soloBackflowGrade = soloBackflowRubric
+    ? gradeBackflow(soloBackflowRubric, soloPlumbing.lastSolve, soloPlumbing.components)
+    : null;
+  const soloGradeStatus: "pass" | "fail" | "pending" | null =
+    soloSagGrade?.status ?? soloBackflowGrade?.status ?? null;
+  const soloRubricMode = soloSagRubric?.mode ?? soloBackflowRubric?.mode ?? null;
+  const soloConceptTag = soloSagRubric
+    ? SAG_MODE_CONCEPT[soloSagRubric.mode] ?? null
+    : soloBackflowRubric
+      ? BACKFLOW_MODE_CONCEPT[soloBackflowRubric.mode] ?? null
+      : null;
+
+  // Stretch tier: after a clean standard pass, offer a genuinely harder
+  // rubric mode from the same grader family.
+  const stretchVariant = soloSagRubric
+    ? SAG_STRETCH[soloSagRubric.mode] ?? null
+    : soloBackflowRubric
+      ? BACKFLOW_STRETCH[soloBackflowRubric.mode] ?? null
+      : null;
+  const [stretchAccepted, setStretchAccepted] = useState(false);
+  const stretchGrade = stretchAccepted && stretchVariant
+    ? stretchVariant.kind === "sag"
+      ? gradeSag(stretchVariant.rubric as SagRubric, soloAuto.lastSolve, soloAuto.components)
+      : gradeBackflow(stretchVariant.rubric as BackflowRubric, soloPlumbing.lastSolve, soloPlumbing.components)
+    : null;
+  const stretchAlreadyPassed = !!myGrowth?.stretchPassed;
+
+  // Record graded attempts server-side — once per distinct solve. The server
+  // reconstructs the submitted canvas, re-runs the authoritative solver, and
+  // grades the recomputed physics (client outcomes are never trusted); this
+  // feeds weakness tracking, mastery unlocks, and the tutor's learner history.
+  const recordAttempt = useMutation({
+    mutationFn: async (payload: { tier: "standard" | "stretch"; components: unknown[] }) => {
+      if (!lesson) return null;
+      const res = await fetch("/api/trade-sims/attempts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-anon-session": anonSessionId() },
+        body: JSON.stringify({ lessonId: lesson.id, ...payload }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["/api/trade-sims/growth", tradeSlug] });
+    },
+  });
+  const lastRecordedSolve = useRef<unknown>(null);
+  const soloSolveObj = soloSagRubric ? soloAuto.lastSolve : soloBackflowRubric ? soloPlumbing.lastSolve : null;
+  const soloComponents = soloSagRubric ? soloAuto.components : soloBackflowRubric ? soloPlumbing.components : [];
+  useEffect(() => {
+    if (!lesson || !hasSoloRubric || !soloSolveObj) return;
+    if (lastRecordedSolve.current === soloSolveObj) return;
+    // Once the learner accepts the stretch tier, new solves count as stretch
+    // attempts; before that, they're standard attempts. Skip while the local
+    // grade is still pending (sim hasn't produced a gradable state).
+    const tier: "standard" | "stretch" = stretchAccepted ? "stretch" : "standard";
+    const localStatus = tier === "stretch" ? stretchGrade?.status : soloGradeStatus;
+    if (!localStatus || localStatus === "pending") return;
+    lastRecordedSolve.current = soloSolveObj;
+    recordAttempt.mutate({ tier, components: soloComponents });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [soloSolveObj, soloGradeStatus, stretchGrade?.status, stretchAccepted, lesson?.id]);
+
+  // Explicit skip-ahead override — the escape hatch so nobody is hard-blocked.
+  const overrideMutation = useMutation({
+    mutationFn: async () => {
+      if (!lesson) return null;
+      const res = await fetch("/api/trade-sims/growth/override", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-anon-session": anonSessionId() },
+        body: JSON.stringify({ lessonId: lesson.id, note: "learner chose to skip ahead" }),
+      });
+      if (!res.ok) throw new Error(await res.text());
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["/api/trade-sims/growth", tradeSlug] });
+      toast({ title: "Unlocked", description: "You skipped ahead. The previous day's solo challenge is still there when you want it." });
+    },
+    onError: () => toast({ title: "Could not unlock", description: "Try again in a moment.", variant: "destructive" }),
+  });
+
+  // Review reps: this lesson's tracked weak concepts (targeted practice
+  // before the next attempt).
+  const myWeakConcepts = topWeakConcepts(myGrowth?.weakConcepts, 3);
+
   // Mark in-progress once per lesson load (ref guard prevents remount re-fire).
   useEffect(() => {
-    if (lesson?.id && !initialProgressFired.current) {
+    if (lesson?.id && !initialProgressFired.current && !lessonLocked) {
       initialProgressFired.current = true;
       saveProgress.mutate({ status: "in_progress" });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lesson?.id]);
+  }, [lesson?.id, lessonLocked]);
 
   // Track tab visits as honest engagement signal.
   useEffect(() => {
@@ -550,6 +681,10 @@ export default function LessonPlayerPage() {
     // No way to score 100% without genuinely visiting + running.
     const speedBonus = Math.max(0, Math.min(15, 15 - Math.floor(elapsedMin)));
     const score = 80 + speedBonus;
+    // Mastery is server-decided: rubric lessons earn soloPassed via graded
+    // /attempts; no-rubric lessons earn it server-side on honest completion.
+    // The local grade below only shapes the toast copy.
+    const soloPassed = hasSoloRubric ? soloGradeStatus === "pass" : true;
     saveProgress.mutate({
       status: "completed",
       conceptCompleted: true,
@@ -557,7 +692,12 @@ export default function LessonPlayerPage() {
       soloTimeMs: elapsedMs,
       debriefCompleted: true,
     });
-    toast({ title: "Lesson complete", description: `Score saved: ${score}%` });
+    toast({
+      title: "Lesson complete",
+      description: soloPassed
+        ? `Score saved: ${score}%. Next day unlocked.`
+        : `Score saved: ${score}%. Solo challenge not passed yet — the next day unlocks when it does (or you can skip ahead from its page).`,
+    });
   };
 
   const guidedStepCount = lesson?.guidedSteps?.length ?? 0;
@@ -567,6 +707,76 @@ export default function LessonPlayerPage() {
       <div className="container mx-auto max-w-5xl py-8 px-4 space-y-4">
         <Skeleton className="h-8 w-2/3" />
         <Skeleton className="h-96 w-full" />
+      </div>
+    );
+  }
+
+  // ---------- Mastery gate ----------
+  // Day N+1 stays locked until Day N's solo challenge passes — with an
+  // explicit skip-ahead so nobody is hard-blocked. Review reps for the
+  // previous day's weak concepts are offered right here.
+  if (lessonLocked) {
+    const prevWeak = topWeakConcepts(prevGrowth?.weakConcepts, 3);
+    return (
+      <div className="container mx-auto max-w-3xl py-8 px-4 space-y-4">
+        <div className="flex items-center gap-2">
+          <Button asChild variant="ghost" size="sm" data-testid="button-back-lessons">
+            <Link href={`/academy/trade-sims/${tradeSlug}`}>
+              <ChevronLeft className="h-4 w-4 mr-1" /> {trade.name} lessons
+            </Link>
+          </Button>
+        </div>
+        <Card data-testid="card-lesson-locked">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Lock className="h-5 w-5" /> Day {lesson.dayNumber} is locked
+            </CardTitle>
+            <CardDescription>
+              Pass Day {prevLesson?.dayNumber ?? lesson.dayNumber - 1}'s solo challenge to unlock this lesson.
+              Mastery first — that's how the skills stick.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {prevWeak.length > 0 && (
+              <div className="rounded border p-3 space-y-2" data-testid="block-review-reps-gate">
+                <h3 className="text-sm font-semibold flex items-center gap-2">
+                  <Dumbbell className="h-4 w-4" /> Targeted review before your next attempt
+                </h3>
+                {prevWeak.map((w) => (
+                  <div key={w.concept} className="text-sm">
+                    <span className="font-medium">{conceptLabel(w.concept)}</span>
+                    <span className="text-muted-foreground"> (missed {w.count}×)</span>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {CONCEPTS[w.concept]?.reviewRep ?? "Revisit this concept on the previous day's canvas."}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-wrap gap-2">
+              {prevLesson && (
+                <Button
+                  onClick={() => navigate(`/academy/trade-sims/${tradeSlug}/${prevLesson.slug}`)}
+                  data-testid="button-goto-prev-day"
+                >
+                  <ChevronLeft className="h-4 w-4 mr-1" /> Back to Day {prevLesson.dayNumber}: {prevLesson.title}
+                </Button>
+              )}
+              <Button
+                variant="outline"
+                onClick={() => overrideMutation.mutate()}
+                disabled={overrideMutation.isPending}
+                data-testid="button-override-unlock"
+              >
+                {overrideMutation.isPending ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : null}
+                I understand — unlock this day anyway
+              </Button>
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Skipping ahead is always your call. The skip is recorded so a coach can circle back with you.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
@@ -737,6 +947,22 @@ export default function LessonPlayerPage() {
                     <h3 className="font-semibold">Success criteria</h3>
                     <p className="text-sm text-muted-foreground">{lesson.soloChallenge.successCriteria}</p>
                   </div>
+                  {myWeakConcepts.length > 0 && soloGradeStatus !== "pass" && (
+                    <div className="rounded border p-3 space-y-2" data-testid="block-review-reps-solo">
+                      <h3 className="text-sm font-semibold flex items-center gap-2">
+                        <Dumbbell className="h-4 w-4" /> Targeted review — based on your past attempts
+                      </h3>
+                      {myWeakConcepts.map((w) => (
+                        <div key={w.concept} className="text-sm">
+                          <span className="font-medium">{conceptLabel(w.concept)}</span>
+                          <span className="text-muted-foreground"> (missed {w.count}×)</span>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {CONCEPTS[w.concept]?.reviewRep ?? "Warm up on this concept before attempting again."}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                   {shouldShowCanvas(tradeSlug, engineMode) &&
                     renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug, setAutoFor("solo"))}
                   {lesson.soloChallenge.sagRubric && tradeSlug === "automotive" && engineMode === "linear-dc" && (() => {
@@ -784,6 +1010,49 @@ export default function LessonPlayerPage() {
                       </Alert>
                     );
                   })()}
+                  {hasSoloRubric && soloGradeStatus === "pass" && stretchVariant && !stretchAlreadyPassed && (
+                    <div className="rounded border border-amber-400/60 p-3 space-y-2" data-testid="block-stretch-offer">
+                      <h3 className="text-sm font-semibold flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-amber-500" /> Stretch challenge
+                        {stretchAccepted && stretchGrade && stretchGrade.status !== "pending" && (
+                          stretchGrade.status === "pass" ? (
+                            <Badge className="bg-green-600 hover:bg-green-600" data-testid="badge-stretch-pass">
+                              <CheckCircle2 className="h-3 w-3 mr-1" /> CLEARED
+                            </Badge>
+                          ) : (
+                            <Badge variant="destructive" data-testid="badge-stretch-fail">
+                              <XCircle className="h-3 w-3 mr-1" /> Not yet
+                            </Badge>
+                          )
+                        )}
+                      </h3>
+                      {!stretchAccepted ? (
+                        <>
+                          <p className="text-sm text-muted-foreground">
+                            Clean pass. Want a harder rep? {stretchVariant.prompt}
+                          </p>
+                          <Button size="sm" variant="outline" onClick={() => setStretchAccepted(true)} data-testid="button-accept-stretch">
+                            Take the stretch challenge
+                          </Button>
+                        </>
+                      ) : (
+                        <p className="text-sm text-muted-foreground" data-testid="text-stretch-status">
+                          {stretchVariant.prompt}
+                          {stretchGrade && stretchGrade.status !== "pending" && (
+                            <span className="block mt-1">{stretchGrade.message}</span>
+                          )}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {stretchAlreadyPassed && (
+                    <Alert data-testid="alert-stretch-cleared">
+                      <AlertTitle className="flex items-center gap-2">
+                        <Trophy className="h-4 w-4 text-amber-500" /> Stretch tier cleared
+                      </AlertTitle>
+                      <AlertDescription>You've already beaten this lesson's stretch variant. That's mastery.</AlertDescription>
+                    </Alert>
+                  )}
                   <div className="space-y-1">
                     <h3 className="font-semibold">Your reflection</h3>
                     <p className="text-xs text-muted-foreground">
@@ -945,6 +1214,18 @@ export default function LessonPlayerPage() {
                     done={reflectionOk}
                     label={`Wrote a ≥${REFLECTION_MIN_WORDS}-word reflection in Solo (${reflectionWords} so far)`}
                     testId="check-reflection"
+                  />
+                )}
+                {hasSoloRubric && (
+                  <CheckItem
+                    done={soloGradeStatus === "pass"}
+                    label={
+                      soloGradeStatus === "pass"
+                        ? "Solo challenge passed — next day unlocks"
+                        : "Solo challenge not passed yet (you can still finish, but the next day stays locked until it passes or you skip ahead)"
+                    }
+                    testId="check-solo-passed"
+                    muted={soloGradeStatus !== "pass"}
                   />
                 )}
                 <CheckItem

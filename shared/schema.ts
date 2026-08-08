@@ -5042,6 +5042,19 @@ export const tradeSimsLessonProgress = pgTable("trade_sims_lesson_progress", {
   sandboxScore: integer("sandbox_score"),
   debriefCompleted: boolean("debrief_completed").default(false).notNull(),
   attemptCount: integer("attempt_count").default(0).notNull(),
+  // --- Adaptive growth path (Task: mastery-gated progression) ---
+  // soloPassed: the lesson's solo-challenge rubric passed (or the lesson has
+  // no rubric and honest completion counts as the pass). Gates the next day.
+  soloPassed: boolean("solo_passed").default(false).notNull(),
+  // stretchPassed: the learner also cleared the harder stretch variant.
+  stretchPassed: boolean("stretch_passed").default(false).notNull(),
+  // masteryOverride: explicit self/staff skip-ahead on THIS lesson — unlocks
+  // it even when the previous day's solo challenge hasn't passed.
+  masteryOverride: boolean("mastery_override").default(false).notNull(),
+  overrideNote: text("override_note"),
+  // weakConcepts: aggregate miss counts per concept tag, e.g.
+  // {"voltage-sag": 2, "overcurrent-protection": 1}. Fed by attempt events.
+  weakConcepts: jsonb("weak_concepts"),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [
   // Partial unique indexes — exactly one of (userId, anonSessionId) is set per row.
@@ -5053,6 +5066,28 @@ export const tradeSimsLessonProgress = pgTable("trade_sims_lesson_progress", {
     .on(t.anonSessionId, t.lessonId)
     .where(sql`anon_session_id IS NOT NULL`),
 ]);
+
+// Per-attempt event log for the adaptive growth path. Every graded solo run
+// (standard or stretch tier) records what passed and which concept tags were
+// missed, so review reps and the AI tutor can reference real history.
+export const tradeSimsAttemptEvents = pgTable("trade_sims_attempt_events", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id"),
+  anonSessionId: varchar("anon_session_id", { length: 64 }),
+  lessonId: integer("lesson_id").notNull().references(() => tradeSimsLessons.id, { onDelete: "cascade" }),
+  tier: varchar("tier", { length: 16 }).default("standard").notNull(), // standard | stretch
+  passed: boolean("passed").notNull(),
+  missedConcepts: jsonb("missed_concepts"), // string[] of concept tags
+  summary: text("summary"), // short human-readable grader message
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  index("idx_trade_sims_attempts_user_lesson").on(t.userId, t.lessonId),
+  index("idx_trade_sims_attempts_anon_lesson").on(t.anonSessionId, t.lessonId),
+]);
+
+export const insertTradeSimsAttemptEventSchema = createInsertSchema(tradeSimsAttemptEvents).omit({ id: true, createdAt: true });
+export type InsertTradeSimsAttemptEvent = z.infer<typeof insertTradeSimsAttemptEventSchema>;
+export type TradeSimsAttemptEvent = typeof tradeSimsAttemptEvents.$inferSelect;
 
 export const tradeSimsSandboxProjects = pgTable("trade_sims_sandbox_projects", {
   id: serial("id").primaryKey(),
