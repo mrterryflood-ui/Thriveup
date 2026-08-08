@@ -28,6 +28,10 @@ export type PlumbingBackflowRubric = {
   mode: "must-close" | "must-not-close" | "must-have-check-valve";
   passMessage: string;
   failMessage: string;
+  /** Flow-based modes only: also fail unless a check valve is present. */
+  requireCheckValve?: boolean;
+  /** Shown when `requireCheckValve` is set and no check valve is placed. */
+  missingCheckValveMessage?: string;
 };
 
 export type PlumbingLessonGuidedStep = {
@@ -414,6 +418,16 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         hint: "Pumps add head in the inlet-to-outlet direction.",
         checkDescription: "pump placed; shower supply head increases",
       },
+      {
+        instruction: "Add a Check Valve after the pump. Every recirculation loop needs one — when the pump shuts off, hot water will thermosiphon backward through the loop without it.",
+        hint: "Check valves are in the valve palette. Place it downstream of the pump, pointing toward the fixture.",
+        checkDescription: "check valve present in the recirculation line",
+        backflowRubric: {
+          mode: "must-have-check-valve",
+          passMessage: "Check valve added. One thing this grader can't see: placement. It only protects the loop if it sits downstream of the pump, pointing toward the fixture — double-check yours before moving on. When the pump cycles off, that valve is what stops the hot side from thermosiphoning backward all night.",
+          failMessage: "No check valve in the network yet. A recirculation line without one runs backward the moment the pump stops — add a check valve downstream of the pump.",
+        },
+      },
     ],
     soloChallenge: {
       prompt: "A two-story house with a tankless heater in the garage struggles to deliver hot water to the upstairs master bath. The pipe run is 25 m. Diagnose and propose two fixes.",
@@ -453,9 +467,16 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         checkDescription: "tank @ 70m → pipe → sink",
       },
       {
-        instruction: "Replace the source tank with a 35 m tank (simulating a properly-set PRV downstream of the meter). Run.",
-        hint: "Same plumbing, but the source head is regulated.",
-        checkDescription: "source head ≈ 35 m",
+        instruction: "Replace the source tank with a 35 m tank (simulating a properly-set PRV downstream of the meter). Add a Check Valve right after it — most modern PRVs have an integral check — and run. On a healthy regulated system, that check must stay open.",
+        hint: "Same plumbing, but the source head is regulated. The check valve should sit idle on a normal forward run.",
+        checkDescription: "source head ≈ 35 m; check valve present; no closed one-ways",
+        backflowRubric: {
+          mode: "must-not-close",
+          requireCheckValve: true,
+          missingCheckValveMessage: "No check valve in the network yet. This step models a PRV's integral check — add a Check Valve right after the regulated source tank, then run the sim.",
+          passMessage: "Regulated forward run: 35 m of PRV-set head drives every fixture and the integral check never has to seat. That's a healthy system — and it's also why a thermal expansion tank is required: that check makes the house a closed system with nowhere for heated water to expand.",
+          failMessage: "Your check valve closed on what should be a normal forward run. That means something downstream has higher head than your regulated source — re-check that the source tank is at 35 m and the fixtures are the low-pressure end.",
+        },
       },
       {
         instruction: "Compare flow before and after. Lower head = lower flow but safer fixtures.",
@@ -773,6 +794,11 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       prompt: "Capstone project, your design, your defense.",
       successCriteria: "AI tutor PASS rating on: correctness, code compliance, pipe sizing, backflow protection, and design intent.",
       scoringRubric: { correctness: 0.6, time: 0.0, componentCount: 0.4 },
+      backflowRubric: {
+        mode: "must-have-check-valve",
+        passMessage: "Backflow protection present. Your capstone design includes at least one check valve at a cross-connection — the one criterion an inspector will fail an otherwise perfect system for missing.",
+        failMessage: "Your capstone has no backflow protection. Code requires a check valve (or air gap / RPZ) at every cross-connection — add at least one check valve to your design before submitting.",
+      },
     },
     sandboxStarter: {
       initialComponents: [],

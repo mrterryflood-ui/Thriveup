@@ -32,6 +32,14 @@ export interface BackflowRubric {
   passMessage: string;
   /** Shown when the rubric has been evaluated but failed. */
   failMessage: string;
+  /**
+   * For the flow-based modes: also require that a check valve is present in
+   * the network. Guards against a false PASS on `must-not-close` when the
+   * learner simply never installed the valve the step asked for.
+   */
+  requireCheckValve?: boolean;
+  /** Shown when `requireCheckValve` is set and no check valve is placed. */
+  missingCheckValveMessage?: string;
 }
 
 export type BackflowGradeStatus = "pass" | "fail" | "pending";
@@ -61,6 +69,19 @@ export function gradeBackflow(
     return {
       status: hasCheckValve ? "pass" : "fail",
       message: hasCheckValve ? rubric.passMessage : rubric.failMessage,
+      closedCount,
+      hasCheckValve,
+    };
+  }
+
+  // Flow-based modes may additionally require the valve to exist at all —
+  // otherwise `must-not-close` would vacuously pass on a valveless network.
+  if (rubric.requireCheckValve && !hasCheckValve) {
+    return {
+      status: "fail",
+      message:
+        rubric.missingCheckValveMessage ??
+        "This step requires a check valve in the network. Add one, then run the sim again.",
       closedCount,
       hasCheckValve,
     };
