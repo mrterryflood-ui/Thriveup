@@ -2044,6 +2044,121 @@ console.log("\n── slow-cranking (integration: real adapter + solver) ──�
   }
 }
 
+// ── Day 2 no-battery guard ordering ──────────────────────────────────────────
+// Locks in the outer no-battery guard shared by `battery-only-load` and
+// `alternator-on-load`: the guard must fire BEFORE the mode's alternator-state
+// check. Each scenario below sets the alternator state and bus voltage so the
+// mode would otherwise PASS — with no battery on canvas the only thing that
+// can produce a fail is the outer guard itself. A refactor that moves the
+// guard after the alternator check (or removes it) would either pass these
+// canvases or crash reading battery props; both regressions are caught here.
+console.log("\n── Day 2 no-battery guard ordering ─────────────────────────────");
+
+{
+  // battery-only-load: alternator OFF (its check would pass) + bus 12.5 V
+  // (in the 12.4–12.7 pass band) but NO battery → outer guard must fail it.
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: false }).filter(
+    (c) => c.kind !== "car_battery",
+  );
+  const rubric = makeRubric("battery-only-load");
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(rubric, solve, comps);
+  check(
+    "guard-order / battery-only-load: no battery, alternator off, pass-band voltage → guard fails it first",
+    result.status === "fail" && result.message === rubric.failMessage,
+    `got status=${result.status} msg=${result.message}`,
+  );
+}
+
+{
+  // battery-only-load: no battery AND alternator ON (its check would ALSO
+  // fail). Both orderings return fail here, but combined with the case above
+  // this pins the guard as the first check regardless of alternator state.
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: true }).filter(
+    (c) => c.kind !== "car_battery",
+  );
+  const rubric = makeRubric("battery-only-load");
+  const solve = makeSolve({
+    nodeVoltages: [0, 12.5, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(rubric, solve, comps);
+  check(
+    "guard-order / battery-only-load: no battery, alternator on → still the no-battery fail",
+    result.status === "fail" && result.message === rubric.failMessage,
+    `got status=${result.status} msg=${result.message}`,
+  );
+}
+
+{
+  // battery-only-load: completely empty canvas must fail, never pass/pend.
+  const rubric = makeRubric("battery-only-load");
+  const solve = makeSolve({ nodeVoltages: [0, 12.5, 0] });
+  const result = gradeSag(rubric, solve, []);
+  check(
+    "guard-order / battery-only-load: empty canvas → fail",
+    result.status === "fail" && result.message === rubric.failMessage,
+    `got status=${result.status} msg=${result.message}`,
+  );
+}
+
+{
+  // alternator-on-load: alternator ON (its check would pass) + bus 14.1 V
+  // (in the 13.8–14.4 pass band) but NO battery → outer guard must fail it.
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: true }).filter(
+    (c) => c.kind !== "car_battery",
+  );
+  const rubric = makeRubric("alternator-on-load");
+  const solve = makeSolve({
+    nodeVoltages: [0, 14.1, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(rubric, solve, comps);
+  check(
+    "guard-order / alternator-on-load: no battery, alternator on, pass-band voltage → guard fails it first",
+    result.status === "fail" && result.message === rubric.failMessage,
+    `got status=${result.status} msg=${result.message}`,
+  );
+}
+
+{
+  // alternator-on-load: no battery AND alternator OFF (its check would ALSO
+  // fail) — the guard must still be the check that fires first.
+  const comps = makeDay2Components({ includeAlternator: true, alternatorRunning: false }).filter(
+    (c) => c.kind !== "car_battery",
+  );
+  const rubric = makeRubric("alternator-on-load");
+  const solve = makeSolve({
+    nodeVoltages: [0, 14.1, 0],
+    vsourceCurrents: {},
+    resistorCurrents: {},
+  });
+  const result = gradeSag(rubric, solve, comps);
+  check(
+    "guard-order / alternator-on-load: no battery, alternator off → still the no-battery fail",
+    result.status === "fail" && result.message === rubric.failMessage,
+    `got status=${result.status} msg=${result.message}`,
+  );
+}
+
+{
+  // alternator-on-load: completely empty canvas must fail, never pass/pend.
+  const rubric = makeRubric("alternator-on-load");
+  const solve = makeSolve({ nodeVoltages: [0, 14.1, 0] });
+  const result = gradeSag(rubric, solve, []);
+  check(
+    "guard-order / alternator-on-load: empty canvas → fail",
+    result.status === "fail" && result.message === rubric.failMessage,
+    `got status=${result.status} msg=${result.message}`,
+  );
+}
+
 // ── Summary ────────────────────────────────────────────────────────────────────
 console.log(`\n  ${pass} passed, ${fail} failed`);
 if (fail > 0) {
