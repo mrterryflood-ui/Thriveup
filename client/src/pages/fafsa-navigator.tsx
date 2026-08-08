@@ -299,6 +299,14 @@ export default function FafsaNavigatorPage() {
           </div>
         </div>
 
+        <div className="mb-6 rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 p-3 text-xs text-amber-900 dark:text-amber-100 flex items-start gap-2" data-testid="banner-facts-source">
+          <Info className="h-4 w-4 shrink-0 mt-0.5" />
+          <span>
+            Aid amounts, income brackets, deadlines, and scholarship details on this page are <strong>reference examples last reviewed August 2026</strong> and can change each year. Always confirm current figures and deadlines at the official source of truth,{" "}
+            <a href="https://studentaid.gov" target="_blank" rel="noreferrer" className="underline font-semibold">studentaid.gov</a>.
+          </span>
+        </div>
+
         <Card className="mb-6" data-testid="card-process-flow">
           <CardContent className="pt-4 pb-4">
             <p className="text-xs font-semibold text-muted-foreground mb-3">YOUR FINANCIAL AID JOURNEY</p>
@@ -847,6 +855,7 @@ export default function FafsaNavigatorPage() {
               <div className="space-y-4" data-testid="wizard-scholarships">
                 <h2 className="text-lg font-bold flex items-center gap-2"><Award className="h-5 w-5" /> Scholarship Finder</h2>
                 <p className="text-sm text-muted-foreground">Scholarships matched to students in our 5-county Central Texas service area.</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1" data-testid="text-scholarship-source"><Info className="h-3 w-3" /> Amounts and deadlines are reference examples last reviewed August 2026 — confirm current details on each scholarship's official site.</p>
                 <Card>
                   <CardContent className="pt-4 space-y-3">
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -925,6 +934,7 @@ export default function FafsaNavigatorPage() {
               <div className="space-y-4" data-testid="wizard-timeline">
                 <h2 className="text-lg font-bold flex items-center gap-2"><Calendar className="h-5 w-5" /> Financial Aid Timeline</h2>
                 <p className="text-sm text-muted-foreground">Key dates and deadlines for the 2025-2026 FAFSA cycle.</p>
+                <p className="text-xs text-muted-foreground flex items-center gap-1" data-testid="text-timeline-source"><Info className="h-3 w-3" /> Deadlines are typical dates last reviewed August 2026 and vary by year and school — verify at <a href="https://studentaid.gov" target="_blank" rel="noreferrer" className="underline">studentaid.gov</a>.</p>
                 <div className="space-y-2">
                   {TIMELINE_EVENTS.map((event, i) => (
                     <Card key={i} data-testid={`card-timeline-${i}`}>
@@ -1257,6 +1267,12 @@ export default function FafsaNavigatorPage() {
                   rows={3}
                   data-testid="input-ai-question"
                 />
+                <p className="text-xs text-muted-foreground flex items-start gap-1.5" data-testid="text-ai-privacy-note">
+                  <Shield className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-foreground">Privacy:</strong> Your question and any profile context (income range, county, first-gen status) are sent to our AI providers to generate an answer. Do not enter your Social Security number, FSA ID, or other sensitive personal identifiers. This is general guidance, not official financial-aid advice — verify everything at <a href="https://studentaid.gov" target="_blank" rel="noreferrer" className="underline">studentaid.gov</a>.
+                  </span>
+                </p>
                 <div className="flex items-center justify-between gap-2 flex-wrap">
                   <div className="flex items-center gap-2 flex-wrap">
                     {estimatorData.incomeBracket && (

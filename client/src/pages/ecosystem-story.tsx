@@ -9,6 +9,7 @@ import {
   BarChart3, TrendingUp, Globe, ChevronLeft, ChevronRight,
   ArrowRight, Sparkles, Shield, Target, Activity, Heart, Briefcase,
 } from "lucide-react";
+import { SERVICE_PLATFORM_COUNT } from "@shared/canonical-claims";
 
 interface StoryStep {
   id: number;
@@ -118,7 +119,7 @@ const storySteps: StoryStep[] = [
       "Compliance calendar auto-populated with semi-annual reports, site visits, and data submissions",
       "In-kind contribution tracker initialized with match requirements",
     ],
-    highlight: "$625K secured",
+    highlight: "Grant awarded",
   },
   {
     id: 7,
@@ -173,7 +174,7 @@ const storySteps: StoryStep[] = [
     id: 10,
     phase: "Always",
     title: "The Ecosystem Effect",
-    description: "Data flows between ALL 15 service platforms throughout this journey, creating a living intelligence network.",
+    description: `Data flows between ALL ${SERVICE_PLATFORM_COUNT} service platforms throughout this journey, creating a living intelligence network.`,
     icon: Globe,
     activePlatforms: [
       "ThriveUp Academy", "The Incubator", "MCE", "LifeBridge", "RPLICE",
@@ -205,8 +206,11 @@ export default function EcosystemStoryPage() {
       <div className="space-y-2">
         <h1 className="text-3xl font-bold" data-testid="text-story-title">The Ecosystem in Action</h1>
         <p className="text-muted-foreground">
-          How ThriveUp Academy wins and executes a $625K Drug-Free Communities Grant — a real scenario showing all 14 platforms working together.
+          An illustrative walkthrough of how ThriveUp Academy could pursue and execute a Drug-Free Communities grant — showing all {SERVICE_PLATFORM_COUNT} platforms working together.
         </p>
+        <Badge variant="outline" className="text-xs" data-testid="badge-illustrative-scenario">
+          Illustrative scenario — figures are examples, not actual awards or outcomes
+        </Badge>
       </div>
 
       <div className="space-y-2">

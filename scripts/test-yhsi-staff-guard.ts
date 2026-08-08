@@ -141,6 +141,19 @@ async function main() {
       check("no-DB-record session GET /metrics → 403", r4.status === 403, `got ${r4.status}`);
     }
 
+    // Privilege escalation: a client-supplied avatar role must never grant a
+    // privileged role. This exercises the exact sanitizer used by
+    // POST /api/academy/avatar (server/roles.ts).
+    console.log("\nRole escalation — client-supplied avatar roles are demoted:");
+    {
+      const { sanitizeAvatarRole } = await import("../server/roles");
+      check("role=admin on create → student", sanitizeAvatarRole("admin", undefined) === "student", `got ${sanitizeAvatarRole("admin", undefined)}`);
+      check("role=teacher on create → student", sanitizeAvatarRole("teacher", undefined) === "student", `got ${sanitizeAvatarRole("teacher", undefined)}`);
+      check("role=case_manager on update keeps existing", sanitizeAvatarRole("case_manager", "student") === "student", `got ${sanitizeAvatarRole("case_manager", "student")}`);
+      check("cosmetic role passes through", sanitizeAvatarRole("explorer", "student") === "explorer", `got ${sanitizeAvatarRole("explorer", "student")}`);
+      check("admin-set teacher role survives cosmetic update", sanitizeAvatarRole(undefined, "teacher") === "teacher", `got ${sanitizeAvatarRole(undefined, "teacher")}`);
+    }
+
     // ── 2. Capability token matrix ───────────────────────────────────────
     console.log("\nCapability token — GET /api/yhsi/voice/:id:");
     const created = await call("/api/yhsi/voice", {

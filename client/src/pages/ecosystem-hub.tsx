@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { PLATFORMS_PHRASE } from "@shared/canonical-claims";
 
 type DisciplineId = "implementation-science" | "criminal-justice" | "hr-management" | "io-psychology";
 
@@ -62,7 +63,7 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
     borderColor: "border-violet-200 dark:border-violet-800",
     status: "integrated",
     description: "The central platform connecting all ecosystem services. Provides AI-powered workforce development, community intelligence, grant management, case management, and outcome reporting.",
-    features: ["AI Curriculum (5 levels)", "50+ Career Pathways", "Grant Discovery Engine", "Community Intelligence Map", "Case Management", "Outcome Reporting", "Coalition Dashboard", "Prevention Curriculum", "Parent Education", "Dosage Tracking"],
+    features: ["AI Curriculum (5 levels)", "Multiple Career Pathways", "Grant Discovery Engine", "Community Intelligence Map", "Case Management", "Outcome Reporting", "Coalition Dashboard", "Prevention Curriculum", "Parent Education", "Dosage Tracking"],
     populations: ["Returning Citizens", "Youth", "Veterans", "Single Parents", "Seniors", "Career Changers"],
     thriveUpConnections: [],
     grantAlignment: [
@@ -433,12 +434,14 @@ const ECOSYSTEM_APPS: EcosystemApp[] = [
   },
 ];
 
+// Grant streams the platform aligns to. Per canonical claims policy, NO
+// grant-dollar figures ever appear in public copy — name the stream only.
 const GRANT_STREAMS = [
-  { id: "wioa", name: "WIOA Title I Youth", amount: "Varies", deadline: "Ongoing", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
-  { id: "ojjdp", name: "OJJDP Second Chance", amount: "$750K", deadline: "Varies", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300" },
-  { id: "samhsa", name: "SAMHSA Mental Health", amount: "$1M+", deadline: "Varies", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" },
-  { id: "hhs", name: "HHS/HRSA", amount: "Varies", deadline: "Varies", color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300" },
-  { id: "sba", name: "SBA/DOC MBD", amount: "Varies", deadline: "Varies", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
+  { id: "wioa", name: "WIOA Title I Youth", color: "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-300" },
+  { id: "ojjdp", name: "OJJDP Second Chance", color: "bg-orange-100 text-orange-800 dark:bg-orange-900/30 dark:text-orange-300" },
+  { id: "samhsa", name: "SAMHSA Mental Health", color: "bg-purple-100 text-purple-800 dark:bg-purple-900/30 dark:text-purple-300" },
+  { id: "hhs", name: "HHS/HRSA", color: "bg-rose-100 text-rose-800 dark:bg-rose-900/30 dark:text-rose-300" },
+  { id: "sba", name: "SBA/DOC MBD", color: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300" },
 ];
 
 const DOMAIN_ICONS: Record<string, typeof Globe> = {
@@ -1449,7 +1452,6 @@ export default function EcosystemHubPage() {
                         {GRANT_STREAMS.map(g => (
                           <th key={g.id} className="text-center py-3 px-2">
                             <Badge className={`${g.color} text-xs`}>{g.name}</Badge>
-                            <div className="text-xs text-gray-400 mt-1">{g.amount}</div>
                           </th>
                         ))}
                       </tr>
@@ -1504,7 +1506,7 @@ export default function EcosystemHubPage() {
                 <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4" data-testid="narrative-coalition-infrastructure">
                   <h4 className="font-semibold text-amber-800 dark:text-amber-300 mb-2">Coalition Infrastructure</h4>
                   <p className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed">
-                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of 15 interconnected service platforms forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across community sectors spanning health equity, workforce development, education, and veteran services. Our coalition management dashboard tracks sector representation, meeting activity, and capacity assessments aligned to evidence-based frameworks.
+                    Our coalition operates through ThriveUp Academy, an AI-powered community enablement platform that serves as the central coordination hub for a network of {PLATFORMS_PHRASE} forming The Collaborative Advocate ecosystem. This infrastructure enables real-time cross-sector collaboration, data-driven decision-making, and measurable outcome tracking across community sectors spanning health equity, workforce development, education, and veteran services. Our coalition management dashboard tracks sector representation, meeting activity, and capacity assessments aligned to evidence-based frameworks.
                   </p>
                 </div>
 

@@ -833,14 +833,19 @@ export function getStatesList(): Array<{ code: string; name: string }> {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+// Hard cap on results returned to the client so a broad query can never return an
+// unbounded payload. Callers can request fewer via `limit`, never more than this.
+export const RESOURCE_SEARCH_MAX_RESULTS = 100;
+
 export function searchResources(params: {
   stateCode?: string;
   categories?: string[];
   query?: string;
   ageRange?: string;
+  limit?: number;
 }): StateResource[] {
   const results: StateResource[] = [];
-  const { stateCode, categories, query, ageRange } = params;
+  const { stateCode, categories, query, ageRange, limit } = params;
 
   if (stateCode && STATE_DATA[stateCode]) {
     const stateInfo = STATE_DATA[stateCode];
@@ -924,7 +929,11 @@ export function searchResources(params: {
     }
   }
 
-  return filtered;
+  const cap = Math.min(
+    typeof limit === "number" && limit > 0 ? limit : RESOURCE_SEARCH_MAX_RESULTS,
+    RESOURCE_SEARCH_MAX_RESULTS,
+  );
+  return filtered.slice(0, cap);
 }
 
 export async function fetchBLSWageData(stateCode: string, occupationCode?: string): Promise<any> {

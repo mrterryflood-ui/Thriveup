@@ -9,6 +9,7 @@ import {
   documentAttachments, type DocumentAttachment, type InsertDocumentAttachment,
   type LessonComment, type LessonReaction, type StudyTip,
   type Classroom, type ClassroomMember, type Certificate,
+  users,
   academyAvatars, academyHouses, academyMeritEvents, academyWallets, academyTransactions,
   academyStocks, academyPortfolios, academyCommunityPortfolio,
   academyCampusProjects, academyCompetitions, academyCompetitionEntries,
@@ -149,6 +150,7 @@ export interface IStorage {
   getModulesBySubject(subjectId: string): Promise<Module[]>;
   getModule(id: string): Promise<Module | undefined>;
   getLessonsByModule(moduleId: string): Promise<Lesson[]>;
+  getLessonsByModules(moduleIds: string[]): Promise<Lesson[]>;
   getLesson(id: string): Promise<Lesson | undefined>;
   getQuizByModule(moduleId: string): Promise<QuizQuestion[]>;
   getBadges(): Promise<Badge[]>;
@@ -447,10 +449,23 @@ export interface IStorage {
 
 export class DatabaseStorage implements IStorage {
   async getUser(userId: string): Promise<{ id: string; role: string } | undefined> {
+    // SECURITY: privileged roles must come from server-controlled state only.
+    // users.isTcafAdmin is set exclusively by the boot-time seed (seed-tcaf-admins.ts)
+    // or an admin-gated endpoint — never by the client. The avatar table's role
+    // column is client-editable cosmetic data and is now sanitized at the
+    // write path (POST /api/academy/avatar strips privileged values), but we
+    // still defense-in-depth here: an avatar role only counts if it is not in
+    // the privileged set OR the users row confirms admin.
+    const [row] = await db
+      .select({ id: users.id, isTcafAdmin: users.isTcafAdmin })
+      .from(users)
+      .where(eq(users.id, userId));
     const [avatar] = await db.select({ id: academyAvatars.userId, role: academyAvatars.role })
       .from(academyAvatars)
       .where(eq(academyAvatars.userId, userId));
-    return avatar || undefined;
+    if (row?.isTcafAdmin) return { id: userId, role: "admin" };
+    if (!avatar) return row ? { id: userId, role: "student" } : undefined;
+    return avatar;
   }
 
   async getLevels(): Promise<Level[]> {
@@ -490,6 +505,11 @@ export class DatabaseStorage implements IStorage {
 
   async getLessonsByModule(moduleId: string): Promise<Lesson[]> {
     return db.select().from(lessons).where(eq(lessons.moduleId, moduleId)).orderBy(lessons.lessonNumber);
+  }
+
+  async getLessonsByModules(moduleIds: string[]): Promise<Lesson[]> {
+    if (moduleIds.length === 0) return [];
+    return db.select().from(lessons).where(inArray(lessons.moduleId, moduleIds)).orderBy(lessons.lessonNumber);
   }
 
   async getLesson(id: string): Promise<Lesson | undefined> {

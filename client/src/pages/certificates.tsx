@@ -111,14 +111,17 @@ export default function CertificatesPage() {
               <p className="text-sm text-muted-foreground text-center mb-1" data-testid={`text-cert-name-${cert.id}`}>
                 {cert.userName}
               </p>
-              <p className="text-xs text-muted-foreground text-center mb-4" data-testid={`text-cert-date-${cert.id}`}>
+              <p className="text-xs text-muted-foreground text-center mb-2" data-testid={`text-cert-date-${cert.id}`}>
                 {cert.issuedAt
-                  ? new Date(cert.issuedAt).toLocaleDateString("en-US", {
+                  ? `Issued ${new Date(cert.issuedAt).toLocaleDateString("en-US", {
                       year: "numeric",
                       month: "long",
                       day: "numeric",
-                    })
-                  : "Date not available"}
+                    })}`
+                  : "Issue date not available"}
+              </p>
+              <p className="text-xs text-muted-foreground text-center mb-4" data-testid={`text-cert-criteria-${cert.id}`}>
+                Earned by completing all module quizzes in {cert.levelTitle}.
               </p>
               <Link href={`/certificates/${cert.id}`}>
                 <Button variant="outline" className="w-full" data-testid={`button-view-cert-${cert.id}`}>

@@ -634,7 +634,10 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/benefits/screenings", async (_req, res) => {
+  // Screening records contain applicant PII (income, contact info, household detail).
+  // The POST endpoint is intentionally public for the crisis intake flow, but reads
+  // must be staff-only — never expose stored screenings to unauthenticated callers.
+  app.get("/api/benefits/screenings", requireAuth, async (_req, res) => {
     try {
       const screenings = await db.select().from(benefitsScreenings).orderBy(desc(benefitsScreenings.createdAt)).limit(100);
       res.json(screenings);

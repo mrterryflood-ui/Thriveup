@@ -10,6 +10,7 @@ import {
   Church, FileCheck, Info,
 } from "lucide-react";
 import { MISSION_STATEMENT, VISION_STATEMENT, VALUES } from "@/lib/mvv-content";
+import { SERVICE_PLATFORM_COUNT, PLATFORMS_PHRASE, NATIONWIDE_ARCHITECTURE_PHRASE } from "@shared/canonical-claims";
 import terryPhoto from "@assets/Terry2_1773768611245.jpg";
 import terryMilitaryPhoto from "@assets/pic1_1773768611248.jpg";
 import { useEffect } from "react";
@@ -134,7 +135,7 @@ export default function AboutLeadershipPage() {
             <div className="space-y-2 text-sm">
               <div>
                 <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Role</p>
-                <p>Technology partner, methodology developer, and healthcare administrative support. Operates the 15-service-platform Autonomous Community Operating System and the methodology catalog (RPLICE, MAP-GAP, SALP, MG-PATR) used in service delivery.</p>
+                <p>Technology partner, methodology developer, and healthcare administrative support. Operates the {SERVICE_PLATFORM_COUNT}-service-platform Autonomous Community Operating System and the methodology catalog (RPLICE, MAP-GAP, SALP, MG-PATR) used in service delivery.</p>
               </div>
               <div>
                 <p className="font-semibold text-xs uppercase tracking-wide text-muted-foreground">Responsibilities</p>
@@ -183,9 +184,9 @@ export default function AboutLeadershipPage() {
             <div className="space-y-1.5 text-sm">
               <p className="font-semibold">Geographic Scope — Honest</p>
               <p className="text-muted-foreground">
-                <span className="font-medium text-foreground">National platform, Texas-piloted.</span> The Collaborative Advocate Foundation is built as national community infrastructure — the operating system for how communities support, engage, and serve their people across all 50 states and 5 U.S. territories.{" "}
+                <span className="font-medium text-foreground">National platform, Texas-piloted.</span> The Collaborative Advocate Foundation is built as national community infrastructure — the operating system for how communities support, engage, and serve their people, with a {NATIONWIDE_ARCHITECTURE_PHRASE} built to cover all 50 states and 5 U.S. territories (not a claim of active deployment in every state).{" "}
                 <span className="font-medium text-foreground">Live pilot:</span> Travis County, Texas (Austin, Pflugerville, Manor) with active outreach across Central Texas. Travis is the implementation template; everything we build for Texas is engineered to deploy in any U.S. county via the open Hub Adoption Kit.{" "}
-                <span className="font-medium text-foreground">National replicability:</span> The 15-service-platform ecosystem, RPLICE protocol, MAP-GAP CQI engine, and benefits screener are jurisdiction-agnostic by design — a community in Ohio, Mississippi, or Puerto Rico can stand up the same operating system without rewriting code.
+                <span className="font-medium text-foreground">National replicability:</span> The {SERVICE_PLATFORM_COUNT}-service-platform ecosystem, RPLICE protocol, MAP-GAP CQI engine, and benefits screener are jurisdiction-agnostic by design — a community in Ohio, Mississippi, or Puerto Rico can stand up the same operating system without rewriting code.
               </p>
             </div>
           </div>
@@ -488,7 +489,7 @@ export default function AboutLeadershipPage() {
         <p className="text-sm text-muted-foreground mb-4">See the ecosystem the President and the team have built.</p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
           {[
-            { title: "Ecosystem Story", desc: "See how 15 service platforms work together on a real grant scenario", href: "/ecosystem-story", icon: BookOpen },
+            { title: "Ecosystem Story", desc: `See how ${PLATFORMS_PHRASE} work together on a real grant scenario`, href: "/ecosystem-story", icon: BookOpen },
             { title: "SDOH Explorer", desc: "Live community data analysis for any U.S. region", href: "/sdoh-explorer", icon: Search },
             { title: "Case Studies", desc: "Real implementation evidence and outcome metrics", href: "/case-studies", icon: BarChart3 },
             { title: "Stakeholder Deck", desc: "Presentation materials for funders and partners", href: "/presentations", icon: Target },

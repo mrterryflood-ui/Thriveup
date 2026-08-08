@@ -98,11 +98,14 @@ export default function ResourceFinderPage() {
   if (searchQuery) searchParams.set("q", searchQuery);
   if (ageFilter) searchParams.set("age", ageFilter);
 
+  const [resultsTruncated, setResultsTruncated] = useState(false);
+
   const { data: results, isLoading: resultsLoading, refetch: refetchResults } = useQuery<ResourceResult[]>({
     queryKey: ["/api/resources/search", selectedState, selectedCategories.join(","), searchQuery, ageFilter],
     queryFn: async () => {
       const res = await fetch(`/api/resources/search?${searchParams.toString()}`);
       if (!res.ok) throw new Error("Search failed");
+      setResultsTruncated(res.headers.get("X-Results-Truncated") === "true");
       return res.json();
     },
     enabled: showResults,
@@ -333,6 +336,12 @@ export default function ResourceFinderPage() {
                 </Card>
               </div>
 
+              {resultsTruncated && !resultsLoading && (
+                <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-900 dark:text-amber-100 flex items-start gap-2" data-testid="banner-refine-search">
+                  <Filter className="h-4 w-4 shrink-0 mt-0.5" />
+                  <span>Showing the first {totalResults} matches. <strong>Refine your search</strong> — pick a state and specific categories, or add a keyword — to see the most relevant resources.</span>
+                </div>
+              )}
               {resultsLoading ? (
                 <div className="space-y-4">
                   {[1,2,3].map(i => <Skeleton key={i} className="h-32" />)}

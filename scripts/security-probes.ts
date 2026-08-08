@@ -65,6 +65,7 @@ const PROBES: Probe[] = [
   // route is only reachable once authenticated). Either way the caller does not
   // receive youth PII. 401/403/410 are all acceptable "rejected" outcomes.
   { name: "GET    /api/partner/v1/students/:userId/thrive (no key)", method: "GET", path: "/api/partner/v1/students/probe-user-id/thrive" },
+  { name: "PATCH  /api/admin/users/:userId/role (no session)", method: "PATCH", path: "/api/admin/users/probe-user-id/role", body: { role: "admin" } },
 ];
 
 // The partner student-detail route answers 410 Gone once authenticated; treat

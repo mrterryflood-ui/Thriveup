@@ -204,6 +204,9 @@ export default function GetHelpPage() {
               <PhoneCall className="h-3 w-3" /> {line.label}: <strong>{line.number}</strong>
             </a>
           ))}
+          <span className="text-xs text-red-100 w-full text-center md:w-auto" data-testid="text-numbers-verified">
+            Crisis numbers verified as of August 2026
+          </span>
         </div>
       </div>
 

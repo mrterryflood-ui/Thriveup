@@ -17,6 +17,7 @@ import {
   ClipboardCheck, Eye, TrendingUp, Wrench,
   Search,
 } from "lucide-react";
+import { SERVICE_PLATFORM_COUNT } from "@shared/canonical-claims";
 
 interface PlatformContribution {
   platformName: string;
@@ -75,7 +76,7 @@ const CASE_STUDIES: CaseStudy[] = [
     setting: "Urban/Suburban Community — Mixed demographics, high ACEs prevalence",
     population: "Youth ages 10-24, families, 12-sector community coalition",
     timeline: "5-year grant cycle with Year 1 implementation",
-    grantAlignment: ["CDC/ONDCP Drug-Free Communities ($625K)", "SAMHSA Strategic Prevention Framework"],
+    grantAlignment: ["CDC/ONDCP Drug-Free Communities", "SAMHSA Strategic Prevention Framework"],
     challenge: {
       summary: "Rising youth substance use rates, fragmented prevention efforts across agencies, no shared data or accountability, community distrust of top-down programs.",
       dataPoints: [
@@ -215,7 +216,7 @@ const CASE_STUDIES: CaseStudy[] = [
       qualitative: [
         "DA's office became coalition advocate after seeing real-time accountability data through Transparency Dashboard",
         "Employer partners increased from 3 to 18 after seeing 90-day retention data published transparently",
-        "Veteran participants connected to VA benefits through M2C generated $340K in annual benefit utilization",
+        "Veteran participants connected to VA benefits through M2C increased annual benefit utilization",
         "LifeBridge housing navigation reduced average time-to-stable-housing from 47 days to 11 days",
       ],
     },
@@ -347,7 +348,7 @@ const CASE_STUDIES: CaseStudy[] = [
       ground: "LifeBridge data showed 68% of families were navigating opioid-related needs alongside employment barriers — you cannot separate the two. HerHealth Network assessment showed MAT adherence dropped 40% when patients had to drive 45 minutes to pharmacy. MCE assessment showed 3 minority-owned businesses ready for federal contracting with APEX Accelerator support.",
     },
     mapGapApplication: {
-      discovery: "The Incubator identified 4 aligned grants across WIOA, SAMHSA, EDA, USDA — $2.1M combined pipeline. ThriveUp Community Intelligence Map showed economic decline correlated with health outcomes. Sankofa surfaced opioid use patterns. LifeBridge call data quantified service gaps.",
+      discovery: "The Incubator identified 4 aligned grants across WIOA, SAMHSA, EDA, USDA in a combined pipeline. ThriveUp Community Intelligence Map showed economic decline correlated with health outcomes. Sankofa surfaced opioid use patterns. LifeBridge call data quantified service gaps.",
       assessment: "RPLICE Three Realities analysis: Research supported technology-enabled models. Politics demanded local ownership — program had to be OF the community, not FOR the community. Ground truth: MAT access and employment were inseparable issues. SafeCogniCare assessed elder population cognitive safety needs (20% of region over 65).",
       design: "Program Designer mapped 4 grants simultaneously — 80% requirement overlap reduced application burden. MCE designed social enterprise pathway. M2C designed veteran-specific transition for local military base population. HerHealth Network designed telehealth MAT adherence support system. Sankofa designed behavioral health telehealth protocol. SALP indicators adapted for rural context (lower dosage frequency, higher per-session intensity).",
       implementation: "ThriveUp delivered career pathways with remote/hybrid options. Sankofa Health telehealth behavioral health services — no 45-minute drive. HerHealth Network coordinated MAT adherence support with reminders and pharmacy coordination. LifeBridge navigated transportation, childcare, food access. MCE supported 3 minority businesses through APEX Accelerators to federal contracting. M2C served veteran population from nearby base. SafeCogniCare monitored elder cognitive safety in the 65+ population.",
@@ -364,7 +365,7 @@ const CASE_STUDIES: CaseStudy[] = [
       { platformName: "SafeCogniCare", platformId: "safecognicare", role: "Elder Care", specificAction: "Cognitive safety monitoring for 65+ population (20% of region), elder abuse prevention" },
       { platformName: "RPLICE", platformId: "rplice", role: "Rural Fidelity", specificAction: "SALP fidelity monitoring with rural adaptations (intensity over frequency), RE-AIM evaluation" },
       { platformName: "Better Science Lab", platformId: "betterscience", role: "Research", specificAction: "Appalachian economic revitalization literature review, telehealth effectiveness validation" },
-      { platformName: "The Incubator", platformId: "incubator", role: "Multi-Grant", specificAction: "Identified 4 aligned grants ($2.1M pipeline), mapped 80% requirement overlap to reduce application burden" },
+      { platformName: "The Incubator", platformId: "incubator", role: "Multi-Grant", specificAction: "Identified 4 aligned grants in a combined pipeline, mapped 80% requirement overlap to reduce application burden" },
     ],
     stakeholders: ["Regional Health Systems", "Community Colleges", "Employers (New Industries)", "Recovery Courts", "Community Health Workers", "Faith Communities", "County Government", "Chamber of Commerce"],
     disciplines: [
@@ -693,8 +694,14 @@ export default function CaseStudiesPage() {
           <TrainingGuideButton moduleId="case-studies" />
         </div>
         <p className="text-muted-foreground mt-1" data-testid="text-page-subtitle">
-          Real-world applications of the MAP-GAP framework across the 15-service-platform ecosystem. Each case study shows how collaborative intelligence — no silos, no black boxes — produces measurable outcomes.
+          Illustrative applications of the MAP-GAP framework across the {SERVICE_PLATFORM_COUNT}-service-platform ecosystem. Each case study is a composite model showing how collaborative intelligence — no silos, no black boxes — is designed to produce measurable outcomes.
         </p>
+        <div className="mt-3 rounded-md border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 px-3 py-2 flex items-start gap-2" data-testid="banner-illustrative-case-studies">
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+          <p className="text-xs text-amber-800 dark:text-amber-200">
+            <span className="font-semibold">Illustrative models.</span> These case studies are composite scenarios that demonstrate how the ecosystem is designed to work. Metrics, dollar figures, and outcomes are examples, not actual awards or reported results.
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" data-testid="grid-case-study-selector">

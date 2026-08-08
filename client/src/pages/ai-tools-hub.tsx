@@ -118,26 +118,24 @@ export default function AIToolsHubPage() {
   const [lessonStep, setLessonStep] = useState(0);
   const [quizAnswers, setQuizAnswers] = useState<(number | null)[]>([null, null]);
 
-  const isAdult = useMemo(() => {
+  // The client may REQUEST adult mode via ?mode=adult, but whether it is
+  // actually granted is decided by the SERVER (based on user role). We never
+  // override unlock state client-side.
+  const requestedAdult = useMemo(() => {
     const params = new URLSearchParams(window.location.search);
     return params.get("mode") === "adult";
   }, []);
 
-  const toolsQueryKey = isAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
+  const toolsQueryKey = requestedAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
 
-  const { data: rawToolsData, isLoading: toolsLoading, error: toolsError, refetch: refetchTools } = useQuery<Tool[]>({
+  const { data: rawToolsData, isLoading: toolsLoading, error: toolsError, refetch: refetchTools } = useQuery<{ tools: Tool[]; adultMode: boolean }>({
     queryKey: [toolsQueryKey],
   });
-  const rawTools = rawToolsData ?? [];
+  const tools = rawToolsData?.tools ?? [];
+  // Server-authoritative: only true if the server actually granted adult mode.
+  const isAdult = rawToolsData?.adultMode ?? false;
 
-  const tools = useMemo(() => {
-    if (isAdult) {
-      return rawTools.map(t => ({ ...t, isUnlocked: true }));
-    }
-    return rawTools;
-  }, [rawTools, isAdult]);
-
-  const { data: rawModules, isLoading: modulesLoading } = useQuery<Module[]>({
+  const { data: rawModules, isLoading: modulesLoading, error: modulesError, refetch: refetchModules } = useQuery<Module[]>({
     queryKey: ["/api/ai-tools/modules"],
   });
   const modules = rawModules ?? [];
@@ -302,7 +300,12 @@ export default function AIToolsHubPage() {
         </TabsContent>
 
         <TabsContent value="course">
-          {modulesLoading ? (
+          {modulesError ? (
+            <ErrorRetry
+              message={language === "es" ? "No se pudieron cargar los modulos del curso." : "Failed to load course modules."}
+              onRetry={refetchModules}
+            />
+          ) : modulesLoading ? (
             <div className="space-y-4">
               {Array.from({ length: 5 }).map((_, i) => (
                 <Card key={i} className="p-4 animate-pulse">

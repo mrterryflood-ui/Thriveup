@@ -1,6 +1,7 @@
 import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { sanitizeAvatarRole } from "./roles";
 import { getEmployerMatches } from "./workforce-match";
 import { jobPostings, employerPartners } from "../shared/schema";
 import {
@@ -54,7 +55,7 @@ import {
   residentHouseholds,
   residentHouseholdMembers,
 } from "@shared/schema";
-import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData } from "./resource-engine";
+import { searchResources, getResourceCategories, getStatesList, getStateName, fetchBLSWageData, RESOURCE_SEARCH_MAX_RESULTS } from "./resource-engine";
 import { eq, and, desc, sql, count, gte } from "drizzle-orm";
 import { z } from "zod";
 import { computeFullThriveScore, computeAllStudentScores, getThriveHistory } from "./thrive-engine";
@@ -428,6 +429,22 @@ function requireAuth(req: Request, res: any, next: any) {
   next();
 }
 
+// Roles allowed to use "adult mode" for AI tools (all tools unlocked,
+// bypassing the youth module-completion gating). Server-authoritative:
+// the client cannot force this by passing ?mode=adult.
+const AI_ADULT_MODE_ROLES = new Set(["admin", "teacher", "facilitator", "parent", "adult", "staff"]);
+
+async function userQualifiesForAdultMode(userId: string | undefined): Promise<boolean> {
+  if (!userId) return false;
+  try {
+    const user = await storage.getUser(userId);
+    return !!user && AI_ADULT_MODE_ROLES.has(user.role);
+  } catch (error) {
+    console.error("Error checking adult-mode eligibility", error);
+    return false;
+  }
+}
+
 const requireAdmin = async (req: any, res: any, next: any) => {
   if (!req.isAuthenticated || !req.isAuthenticated()) {
     return res.status(401).json({ error: "Authentication required" });
@@ -775,6 +792,33 @@ export async function registerRoutes(
     }
   });
 
+  // Per-module completion for the authenticated learner within a level.
+  // Returns { moduleId: { total, completed } } computed from a single batched
+  // lesson query (no N+1) plus the learner's completed-lesson set.
+  app.get("/api/levels/:levelId/progress", requireAuth, async (req, res) => {
+    try {
+      const levelId = parseInt(req.params.levelId as string);
+      const mods = await storage.getModulesByLevel(levelId);
+      const progress = await storage.getOrCreateProgress(getUserId(req), getUserName(req));
+      const completedList = await storage.getCompletedLessons(progress.id);
+      const completedIds = new Set(completedList.map((cl: any) => cl.lessonId));
+
+      const levelLessons = await storage.getLessonsByModules(mods.map((m) => m.id));
+      const byModule: Record<string, { total: number; completed: number }> = {};
+      for (const mod of mods) byModule[mod.id] = { total: 0, completed: 0 };
+      for (const lesson of levelLessons) {
+        const bucket = byModule[lesson.moduleId];
+        if (!bucket) continue;
+        bucket.total += 1;
+        if (completedIds.has(lesson.id)) bucket.completed += 1;
+      }
+      res.json(byModule);
+    } catch (error) {
+      console.error("Error in GET /api/levels/:levelId/progress", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
   app.get("/api/modules/:moduleId", async (req, res) => {
     try {
       const mod = await storage.getModule(req.params.moduleId as string);
@@ -1030,8 +1074,17 @@ export async function registerRoutes(
       let completedModulesCount = 0;
       const completedLessonsList = await storage.getCompletedLessons(progress.id);
       const completedLessonIds = new Set(completedLessonsList.map((cl: any) => cl.lessonId));
+
+      // Batch: fetch all lessons for the level's modules in a single query (avoids N+1).
+      const allLevelLessons = await storage.getLessonsByModules(allModules.map((m) => m.id));
+      const lessonsByModule = new Map<string, any[]>();
+      for (const l of allLevelLessons) {
+        const list = lessonsByModule.get(l.moduleId) || [];
+        list.push(l);
+        lessonsByModule.set(l.moduleId, list);
+      }
       for (const mod of allModules) {
-        const modLessons = await storage.getLessonsByModule(mod.id);
+        const modLessons = lessonsByModule.get(mod.id) || [];
         totalLessons += modLessons.length;
         if (modLessons.length > 0 && modLessons.every((l: any) => completedLessonIds.has(l.id))) {
           completedModulesCount++;
@@ -2292,15 +2345,39 @@ export async function registerRoutes(
         return res.status(400).json({ error: "Invalid avatar data", details: parsed.error.flatten() });
       }
       const { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio } = parsed.data;
+      // SECURITY: clients may NOT self-assign privileged roles here — those
+      // are granted only via PATCH /api/admin/users/:userId/role or the
+      // isTcafAdmin seed. See server/roles.ts.
       const existing = await storage.getAcademyAvatar(userId);
+      const safeRole = sanitizeAvatarRole(role, existing?.role);
       if (existing) {
-        const updated = await storage.updateAcademyAvatar(existing.id, { displayName, role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio });
+        const updated = await storage.updateAcademyAvatar(existing.id, { displayName, role: safeRole, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio });
         return res.json(updated);
       }
-      const avatar = await storage.createAcademyAvatar({ displayName: displayName || "Student", role, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio, userId });
+      const avatar = await storage.createAcademyAvatar({ displayName: displayName || "Student", role: safeRole, skinTone, hairStyle, hairColor, outfit, outfitColor, accessory, background, bio, userId });
       res.status(201).json(avatar);
     } catch (error) {
       res.status(500).json({ error: "Failed to save avatar" });
+    }
+  });
+
+  // Admin-only role management: the ONLY sanctioned path to grant privileged
+  // roles (teacher, case_manager, facilitator, staff, parent, adult, admin).
+  app.patch("/api/admin/users/:userId/role", requireAuth, requireAdmin, async (req, res) => {
+    try {
+      const { role } = req.body ?? {};
+      const ASSIGNABLE = new Set(["student", "teacher", "case_manager", "facilitator", "staff", "parent", "adult", "admin"]);
+      if (typeof role !== "string" || !ASSIGNABLE.has(role)) {
+        return res.status(400).json({ error: "Invalid role", assignable: Array.from(ASSIGNABLE) });
+      }
+      const targetAvatar = await storage.getAcademyAvatar(req.params.userId);
+      if (!targetAvatar) return res.status(404).json({ error: "User has no profile to assign a role to" });
+      const updated = await storage.updateAcademyAvatar(targetAvatar.id, { role });
+      console.log(`[RoleAdmin] ${getUserId(req)} set role of ${req.params.userId} to ${role}`);
+      res.json({ userId: req.params.userId, role: updated.role });
+    } catch (error) {
+      console.error("Error in PATCH /api/admin/users/:userId/role", error);
+      res.status(500).json({ error: "Failed to update role" });
     }
   });
 
@@ -4640,11 +4717,18 @@ export async function registerRoutes(
 
   // ==================== AI TOOLS ROUTES ====================
 
+  const aiToolRunRateLimit = new Map<string, { count: number; resetAt: number }>();
+
   app.get("/api/ai-tools", async (req, res) => {
     try {
       const userId = getUserId(req);
-      const isAdult = req.query.mode === "adult";
-  
+
+      // Adult mode is a legitimate product mode, but the decision is
+      // server-authoritative: only privileged/adult roles get it. The client
+      // may REQUEST it via ?mode=adult but cannot force tools unlocked.
+      const requestedAdult = req.query.mode === "adult";
+      const isAdult = requestedAdult && (await userQualifiesForAdultMode(userId));
+
       const tools = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.isActive, true)).orderBy(aiToolCatalog.sortOrder);
   
       let unlocks: any[] = [];
@@ -4660,7 +4744,7 @@ export async function registerRoutes(
         moduleInfo: AI_COURSE_MODULES.find(m => m.key === tool.requiredModuleKey),
       }));
   
-      res.json(toolsWithStatus);
+      res.json({ tools: toolsWithStatus, adultMode: isAdult });
     } catch (error) {
       console.error("Error in GET /api/ai-tools", error);
       res.status(500).json({ error: "Internal server error" });
@@ -4721,12 +4805,43 @@ export async function registerRoutes(
     try {
       const userId = getUserId(req)!;
       const toolId = req.params.toolId as string;
-      const { prompt, context, existingContent, language, isAdult } = req.body;
+      const { prompt, context, existingContent, language } = req.body;
 
-      if (!prompt) return res.status(400).json({ error: "Prompt is required" });
+      if (!prompt || typeof prompt !== "string" || !prompt.trim()) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
+
+      // ----- Size caps (defense-in-depth; client also caps) -----
+      const MAX_PROMPT_CHARS = 8000;
+      const MAX_CONTEXT_CHARS = 40000;
+      const MAX_EXISTING_CHARS = 20000;
+      if (prompt.length > MAX_PROMPT_CHARS) {
+        return res.status(413).json({ error: `Prompt too long (max ${MAX_PROMPT_CHARS} characters).` });
+      }
+      if (typeof context === "string" && context.length > MAX_CONTEXT_CHARS) {
+        return res.status(413).json({ error: `Context too long (max ${MAX_CONTEXT_CHARS} characters).` });
+      }
+      if (typeof existingContent === "string" && existingContent.length > MAX_EXISTING_CHARS) {
+        return res.status(413).json({ error: `Existing content too long (max ${MAX_EXISTING_CHARS} characters).` });
+      }
+
+      // ----- Per-user rate limit (20 generations / minute) -----
+      const now = Date.now();
+      const rl = aiToolRunRateLimit.get(userId);
+      if (rl && now < rl.resetAt) {
+        if (rl.count >= 20) {
+          return res.status(429).json({ error: "Rate limit exceeded. Please wait before generating again." });
+        }
+        rl.count++;
+      } else {
+        aiToolRunRateLimit.set(userId, { count: 1, resetAt: now + 60000 });
+      }
 
       const tool = await db.select().from(aiToolCatalog).where(eq(aiToolCatalog.id, toolId));
       if (!tool.length) return res.status(404).json({ error: "Tool not found" });
+
+      // Adult mode is server-authoritative: do NOT trust a client-provided flag.
+      const isAdult = await userQualifiesForAdultMode(userId);
 
       if (!isAdult) {
         const unlock = await db.select().from(aiToolUnlocks).where(and(eq(aiToolUnlocks.userId, userId), eq(aiToolUnlocks.toolId, toolId)));
@@ -5392,6 +5507,12 @@ Then include a ## Roku & CTV Distribution section with:
       const ageRange = req.query.age as string | undefined;
 
       const results = searchResources({ stateCode, categories, query, ageRange });
+
+      // Signal to the client when results hit the server-side cap so it can prompt
+      // the user to refine their search (results are bounded to protect payload size).
+      if (results.length >= RESOURCE_SEARCH_MAX_RESULTS) {
+        res.setHeader("X-Results-Truncated", "true");
+      }
 
       const userId = getUserId(req);
       if (userId) {

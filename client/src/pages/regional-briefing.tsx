@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger,
 } from "@/components/ui/dialog";
 import {
-  Sparkles, Loader2, ExternalLink, Send, Save, X, Plus, MapPin, Bookmark, Trash2, Database, Copy, Check, MessageCircleQuestion, FileText,
+  Sparkles, Loader2, ExternalLink, Send, Save, X, Plus, MapPin, Bookmark, Trash2, Database, Copy, Check, MessageCircleQuestion, FileText, AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -97,10 +97,15 @@ export default function RegionalBriefingPage() {
   const [followups, setFollowups] = useState<Array<{ q: string; a: string; savedPlanId?: number }>>([]);
   const [savingPlanIdx, setSavingPlanIdx] = useState<number | null>(null);
 
+  // Prepended to every copy/export so the AI-draft warning travels with the
+  // text even after it leaves the page.
+  const AI_DRAFT_DISCLAIMER = "AI-generated draft — verify all facts before external use.";
+
   async function copyBriefing() {
     if (!briefing) return;
     try {
-      await navigator.clipboard.writeText(briefing);
+      const text = briefingSource === "ai" ? `${AI_DRAFT_DISCLAIMER}\n\n${briefing}` : briefing;
+      await navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
       toast({ title: "Copied", description: "Briefing copied to clipboard." });
@@ -696,6 +701,17 @@ export default function RegionalBriefingPage() {
               )}
             </CardHeader>
             <CardContent>
+              {(streaming || (briefing && briefingSource === "ai")) && (
+                <div
+                  className="mb-3 rounded-md border border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30 px-3 py-2 flex items-start gap-2"
+                  data-testid="banner-ai-draft-disclaimer"
+                >
+                  <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-amber-800 dark:text-amber-200 font-medium">
+                    AI-generated draft — verify all facts before external use.
+                  </p>
+                </div>
+              )}
               {!briefing && !streaming && (
                 <p className="text-sm text-muted-foreground">
                   Type your question, optionally hit <em>Parse</em> to review the locations the AI extracted, then <em>Run briefing</em>. The answer is scope-aware — ask to "understand the situation" and you get place + data story + stakeholders only; ask for the funding picture, TCAF fit, or a full plan to expand.

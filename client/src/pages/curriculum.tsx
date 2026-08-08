@@ -13,7 +13,10 @@ import {
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
+import { useAuth } from "@/hooks/use-auth";
 import type { Level, Module } from "@shared/schema";
+
+type ModuleProgress = Record<string, { total: number; completed: number }>;
 
 const levelIcons = [Compass, Map, Building2, Lightbulb, Crown];
 
@@ -22,13 +25,17 @@ export default function CurriculumPage() {
     queryKey: ["/api/levels"],
   });
 
-  const { data: moduleCounts } = useQuery<Record<number, number>>({
+  const { data: moduleCounts, error: moduleCountsError } = useQuery<Record<number, number>>({
     queryKey: ["/api/levels/module-counts"],
   });
 
   useEffect(() => { document.title = "AI Curriculum | ThriveUp Academy"; }, []);
 
   const totalModules = moduleCounts ? Object.values(moduleCounts).reduce((s, c) => s + c, 0) : null;
+  const levelCount = levels?.length ?? null;
+  const gradeRange = levels && levels.length > 0
+    ? `${levels[0].grades.split(/[–-]/)[0].trim()}–${levels[levels.length - 1].grades.split(/[–-]/).pop()?.trim() ?? ""}`
+    : null;
 
   if (isLoading) {
   return (
@@ -48,9 +55,16 @@ export default function CurriculumPage() {
       <div className="mb-10">
         <h1 className="text-3xl font-bold mb-2" data-testid="text-curriculum-heading">Curriculum</h1>
         <p className="text-muted-foreground">
-          5 progressive mastery levels spanning K–12
+          {levelCount != null
+            ? `${levelCount} progressive mastery level${levelCount !== 1 ? "s" : ""}${gradeRange ? ` spanning ${gradeRange}` : ""}`
+            : "Progressive mastery levels"}
           {totalModules ? ` · ${totalModules} modules total` : ""} — each with capstone projects and parent teachbacks.
         </p>
+        {moduleCountsError && (
+          <p className="text-sm text-destructive mt-2" data-testid="text-module-counts-error">
+            Module counts couldn't be loaded right now — level details are still available below.
+          </p>
+        )}
       </div>
 
       <div className="space-y-4">
@@ -108,6 +122,13 @@ export function LevelDetailPage() {
     queryKey: ["/api/levels", levelId, "modules"],
   });
 
+  const { isAuthenticated } = useAuth();
+
+  const { data: moduleProgress } = useQuery<ModuleProgress>({
+    queryKey: ["/api/levels", levelId, "progress"],
+    enabled: isAuthenticated,
+  });
+
   const isLoading = levelLoading || modulesLoading;
   const Icon = levelIcons[(levelId - 1) % 5];
   const colors = LEVEL_COLORS[levelId];
@@ -163,8 +184,17 @@ export function LevelDetailPage() {
         <BookOpen className="h-5 w-5 text-primary" /> Modules
       </h2>
 
+      {!isAuthenticated && (
+        <p className="text-sm text-muted-foreground mb-4" data-testid="text-signin-progress-note">
+          <a href="/api/login" className="text-primary underline">Sign in</a> to see your progress on each module.
+        </p>
+      )}
+
       <div className="space-y-3">
-        {levelModules?.map((mod) => (
+        {levelModules?.map((mod) => {
+          const prog = moduleProgress?.[mod.id];
+          const isComplete = !!prog && prog.total > 0 && prog.completed >= prog.total;
+          return (
           <Link key={mod.id} href={`/module/${mod.id}`} data-testid={`link-module-${mod.id}`}>
             <Card className="p-5 hover-elevate cursor-pointer group" data-testid={`card-module-${mod.id}`}>
               <div className="flex items-start gap-4 flex-wrap">
@@ -172,8 +202,23 @@ export function LevelDetailPage() {
                   {mod.moduleNumber}
                 </div>
                 <div className="flex-1 min-w-[200px]">
-                  <h3 className="font-semibold mb-1">{mod.title}</h3>
+                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                    <h3 className="font-semibold">{mod.title}</h3>
+                    {isComplete && (
+                      <Badge variant="secondary" className="text-xs flex items-center gap-1" data-testid={`badge-module-complete-${mod.id}`}>
+                        <CheckCircle2 className="h-3 w-3 text-emerald-500" /> Complete
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground mb-2">{mod.description}</p>
+                  {isAuthenticated && prog && prog.total > 0 && (
+                    <div className="mb-2" data-testid={`progress-module-${mod.id}`}>
+                      <Progress value={(prog.completed / prog.total) * 100} className="h-1.5" />
+                      <span className="text-xs text-muted-foreground">
+                        {prog.completed} / {prog.total} lessons complete
+                      </span>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1">
                       <Clock className="h-3.5 w-3.5" /> {mod.durationWeeks} weeks
@@ -190,7 +235,8 @@ export function LevelDetailPage() {
               </div>
             </Card>
           </Link>
-        ))}
+          );
+        })}
       </div>
 
       <Card className="p-6 mt-8">

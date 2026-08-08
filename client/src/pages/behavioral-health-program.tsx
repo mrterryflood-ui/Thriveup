@@ -41,7 +41,8 @@ export default function BehavioralHealthProgramPage() {
             <div className="text-sm space-y-1">
               <p className="font-semibold text-red-900 dark:text-red-200">If you or someone you know is in crisis:</p>
               <p className="text-muted-foreground">
-                Call or text <span className="font-semibold text-foreground">988</span> for the Suicide & Crisis Lifeline.
+                If there is an immediate danger to life, call <span className="font-semibold text-foreground">911</span> now.
+                For mental health or suicidal crisis, call or text <span className="font-semibold text-foreground">988</span> for the Suicide &amp; Crisis Lifeline.
                 Veterans: dial <span className="font-semibold text-foreground">988, then Press 1</span> or text <span className="font-semibold text-foreground">838255</span>.
                 Available 24/7. Free and confidential.
               </p>

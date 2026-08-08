@@ -89,6 +89,10 @@ export default function LessonViewerPage() {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/achievements"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/certificates"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/modules"] });
       toast({
         title: "Lesson Complete!",
         description: `You earned ${data.pointsEarned || 50} points!`,

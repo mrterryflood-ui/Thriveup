@@ -18,3 +18,6 @@ description: Durable lessons from the Aug 2026 total-platform remediation; where
 
 ## How to apply
 Before shipping any feature: run the five validation steps; new "once" semantics need a unique index; new AI call sites need withEthicalPreamble (the script catches it); new public claims import from shared/canonical-claims.ts.
+
+
+- **Roles live in the client-writable avatar table** — there is no users.role column; only users.isTcafAdmin is server-controlled. Any auth check via storage.getUser depends on avatar role, so the avatar write path MUST demote privileged roles (server/roles.ts sanitizeAvatarRole); privileged roles are granted only via the admin role endpoint. A parallel agent once wired "server-authoritative adult mode" straight to this table and created a full privilege escalation — always ask "who can write the field this check reads?"

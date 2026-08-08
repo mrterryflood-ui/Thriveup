@@ -767,6 +767,9 @@ export default function StDavidsPrep() {
             <Badge variant="outline" className="text-sm">5-County Central Texas</Badge>
             <Badge variant="outline" className="text-sm">LOI-First Process</Badge>
           </div>
+          <p className="text-xs text-muted-foreground mt-2" data-testid="text-grant-asof">
+            Grant amounts, deadlines, and program details shown here are as of August 2026 — always confirm current figures directly with St. David's Foundation before relying on them.
+          </p>
         </div>
 
         <Card className="mb-8 border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20" data-testid="card-we-all-benefit-2">
@@ -774,9 +777,10 @@ export default function StDavidsPrep() {
             <div className="flex items-start gap-3">
               <DollarSign className="h-6 w-6 text-green-600 mt-0.5 shrink-0" />
               <div className="w-full">
-                <div className="flex items-center gap-2 mb-2">
+                <div className="flex items-center gap-2 mb-2 flex-wrap">
                   <h3 className="font-bold text-green-900 dark:text-green-200 text-lg">NEW: We All Benefit 2.0 — Building Economic Stability</h3>
                   <Badge className="bg-green-600 text-white">APPLICATION OPEN</Badge>
+                  <Badge variant="outline" className="text-xs" data-testid="badge-wab2-asof">Deadlines &amp; amounts as of August 2026 — verify with funder</Badge>
                 </div>
                 <p className="text-sm text-green-800 dark:text-green-300 mb-3">
                   Separate grant opportunity from St. David's Foundation investing in community-informed organizations providing core economic stability services for historically marginalized communities.

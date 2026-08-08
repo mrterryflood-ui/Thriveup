@@ -326,6 +326,11 @@ export default function AICompanion({ subject, lessonContext, className, languag
             <Send className="h-4 w-4" />
           </Button>
         </div>
+        <p className="mt-2 text-center text-xs text-muted-foreground" data-testid="disclaimer-ai-mistakes">
+          {language === "es"
+            ? "La IA puede cometer errores — verifica los datos importantes."
+            : "AI can make mistakes — verify important facts."}
+        </p>
         <div
           className="mt-2 flex items-start gap-2 rounded-md border bg-muted/50 px-3 py-2 text-xs text-muted-foreground"
           data-testid="banner-spark-privacy-disclosure"

@@ -50,6 +50,10 @@ export default function SubjectsPage() {
 
   const filteredSubjects = allSubjects?.filter(s => s.gradeBand === selectedBand) || [];
 
+  const distinctSubjectCount = allSubjects
+    ? new Set(allSubjects.map(s => s.name)).size
+    : null;
+
   useEffect(() => { document.title = "Subjects | ThriveUp Academy"; }, []);
 
   if (isLoading) {
@@ -74,7 +78,9 @@ export default function SubjectsPage() {
           <h1 className="text-3xl font-bold" data-testid="text-subjects-heading">Subjects</h1>
         </div>
         <p className="text-muted-foreground" data-testid="text-subjects-description">
-          Six core subject areas designed to support the whole child across grades 3 through 12.
+          {distinctSubjectCount != null
+            ? `${distinctSubjectCount} subject area${distinctSubjectCount !== 1 ? "s" : ""} designed to support the whole child across grades 3 through 12.`
+            : "Subject areas designed to support the whole child across grades 3 through 12."}
         </p>
       </div>
 

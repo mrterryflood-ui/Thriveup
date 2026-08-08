@@ -83,13 +83,16 @@ const ROLE_LABELS: Record<string, string> = {
   "risk-intelligence": "Risk Intelligence",
 };
 
+// Grant lenses filter platforms by funding-stream alignment. Per canonical
+// claims policy, NO grant-dollar figures ever appear in public copy — describe
+// the funding stream only, never the amount.
 const GRANT_LENSES = [
   { id: "all", label: "All Platforms", color: "bg-gray-100 text-gray-700", description: "All ecosystem platforms" },
-  { id: "ssg-fox", label: "SSG Fox VA Suicide Prevention", color: "bg-red-100 text-red-700", description: "Up to $750K — June 12-18, 2026" },
-  { id: "wioa", label: "WIOA Title I Youth", color: "bg-green-100 text-green-700", description: "$200K-$500K — Rolling" },
-  { id: "foundation", label: "Foundation Grant", color: "bg-orange-100 text-orange-700", description: "$100K-$500K — Rolling LOI" },
-  { id: "st-davids", label: "St. David's Foundation", color: "bg-purple-100 text-purple-700", description: "Up to $1M — Opens March 30, 2026" },
-  { id: "samhsa", label: "SAMHSA Community Mental Health", color: "bg-pink-100 text-pink-700", description: "Varies — Varies" },
+  { id: "ssg-fox", label: "SSG Fox VA Suicide Prevention", color: "bg-red-100 text-red-700", description: "VA suicide-prevention alignment" },
+  { id: "wioa", label: "WIOA Title I Youth", color: "bg-green-100 text-green-700", description: "Youth workforce development alignment" },
+  { id: "foundation", label: "Foundation Grant", color: "bg-orange-100 text-orange-700", description: "Private foundation alignment" },
+  { id: "st-davids", label: "St. David's Foundation", color: "bg-purple-100 text-purple-700", description: "Central Texas economic stability alignment" },
+  { id: "samhsa", label: "SAMHSA Community Mental Health", color: "bg-pink-100 text-pink-700", description: "Community mental health alignment" },
 ];
 
 const HEALTH_CONFIG: Record<string, { label: string; color: string; icon: typeof Wifi }> = {

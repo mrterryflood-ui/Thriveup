@@ -331,6 +331,14 @@ export default function BenefitsScreenerPage() {
                 })}
               </div>
               <p className="text-xs text-muted-foreground">Don't worry if you're not sure — we'll still check everything.</p>
+              <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/20 p-3 text-xs text-muted-foreground space-y-1" data-testid="notice-consent">
+                <p className="flex items-start gap-2">
+                  <Shield className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="text-foreground">Before you continue:</strong> This is a <strong>screening estimate, not an eligibility determination</strong>. Only the benefit program can decide if you qualify. The information you entered is <strong>stored securely to help a navigator connect you to services</strong> and is never sold or shared for marketing. By selecting "Check My Benefits" you consent to this use.
+                  </span>
+                </p>
+              </div>
             </CardContent>
           </Card>
         )}
@@ -349,6 +357,13 @@ export default function BenefitsScreenerPage() {
                 </p>
               </CardContent>
             </Card>
+
+            <div className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-900 dark:text-amber-100 flex items-start gap-2" data-testid="disclaimer-results">
+              <Shield className="h-4 w-4 shrink-0 mt-0.5" />
+              <span>
+                <strong>This is an estimate, not a determination.</strong> These results show programs you <em>may</em> qualify for based on the information you entered. Final eligibility and benefit amounts are decided only by each program's official application. A navigator can help you apply.
+              </span>
+            </div>
 
             {result.gapBenefits?.length > 0 && (
               <Card>

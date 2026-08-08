@@ -240,6 +240,11 @@ export function SparkAuto({
           <Send className="h-4 w-4" />
         </button>
       </div>
+      <p className="px-4 pb-2 text-center text-xs text-gray-400" data-testid="disclaimer-ai-mistakes">
+        {language === "es"
+          ? "La IA puede cometer errores — verifica los datos importantes."
+          : "AI can make mistakes — verify important facts."}
+      </p>
     </div>
   );
 }
