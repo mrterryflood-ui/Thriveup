@@ -217,8 +217,14 @@ export const certificates = pgTable("certificates", {
   userName: text("user_name").notNull(),
   levelId: integer("level_id").notNull().references(() => levels.id),
   levelTitle: text("level_title").notNull(),
+  // Stable machine identity of what the cert was issued FOR (e.g.
+  // "trade-sim:electrical"). Unique per user so concurrent issuance paths
+  // can never mint duplicates; NULL for legacy academy-level certificates.
+  sourceKey: text("source_key"),
   issuedAt: timestamp("issued_at").defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("certificates_user_source_key_uq").on(t.userId, t.sourceKey),
+]);
 
 // ==================== SIXTH GRADE ACADEMY TABLES ====================
 
@@ -1334,7 +1340,6 @@ export const courseEnrollments = pgTable("course_enrollments", {
 export const insertCourseEnrollmentSchema = createInsertSchema(courseEnrollments).omit({ id: true, enrolledAt: true });
 export type InsertCourseEnrollment = z.infer<typeof insertCourseEnrollmentSchema>;
 export type CourseEnrollment = typeof courseEnrollments.$inferSelect;
-
 
 
 // ==================== STAAR TEST PREP TABLES ====================
@@ -2773,13 +2778,6 @@ export type InsertCoalitionMeeting = z.infer<typeof insertCoalitionMeetingSchema
 export type CoalitionMeeting = typeof coalitionMeetings.$inferSelect;
 
 
-
-
-
-
-
-
-
 // ==================== PARENT EDUCATION & FAMILY STRENGTHENING ====================
 
 export const parentEducationModules = pgTable("parent_education_modules", {
@@ -3120,7 +3118,6 @@ export type InsertDfcCoreMeasure = z.infer<typeof insertDfcCoreMeasureSchema>;
 export type DfcCoreMeasure = typeof dfcCoreMeasures.$inferSelect;
 
 
-
 export const communityReadinessAssessments = pgTable("community_readiness_assessments", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   assessmentDate: text("assessment_date").notNull(),
@@ -3141,7 +3138,6 @@ export const communityReadinessAssessments = pgTable("community_readiness_assess
 export const insertCommunityReadinessAssessmentSchema = createInsertSchema(communityReadinessAssessments).omit({ id: true, createdAt: true });
 export type InsertCommunityReadinessAssessment = z.infer<typeof insertCommunityReadinessAssessmentSchema>;
 export type CommunityReadinessAssessment = typeof communityReadinessAssessments.$inferSelect;
-
 
 
 // ==================== DFC READINESS & MEDIA CAMPAIGN TABLES ====================
@@ -3165,9 +3161,6 @@ export const mediaCampaigns = pgTable("media_campaigns", {
 export const insertMediaCampaignSchema = createInsertSchema(mediaCampaigns).omit({ id: true, createdAt: true });
 export type InsertMediaCampaign = z.infer<typeof insertMediaCampaignSchema>;
 export type MediaCampaign = typeof mediaCampaigns.$inferSelect;
-
-
-
 
 
 export const dfcReadinessItems = pgTable("dfc_readiness_items", {
@@ -3204,7 +3197,6 @@ export const stakeholderCommitments = pgTable("stakeholder_commitments", {
 export const insertStakeholderCommitmentSchema = createInsertSchema(stakeholderCommitments).omit({ id: true, createdAt: true });
 export type InsertStakeholderCommitment = z.infer<typeof insertStakeholderCommitmentSchema>;
 export type StakeholderCommitment = typeof stakeholderCommitments.$inferSelect;
-
 
 
 // ==================== CONTACT INQUIRIES ====================
@@ -4141,7 +4133,6 @@ export const benefitsChwNetwork = pgTable("benefits_chw_network", {
 export const insertBenefitsChwSchema = createInsertSchema(benefitsChwNetwork).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertBenefitsChw = z.infer<typeof insertBenefitsChwSchema>;
 export type BenefitsChw = typeof benefitsChwNetwork.$inferSelect;
-
 
 
 export const benefitsScreenings = pgTable("benefits_screenings", {

@@ -1,5 +1,5 @@
 import { db } from "./storage";
-import { eq, and, count, sql } from "drizzle-orm";
+import { eq, and, count, sql, isNull, asc } from "drizzle-orm";
 import {
   studentProgress,
   certificates,
@@ -8,6 +8,7 @@ import {
   tradeSimsLessons,
   tradeSimsLessonProgress,
   tradeSimsTrades,
+  users,
 } from "@shared/schema";
 import { householdMembers } from "../shared/household-schema";
 import { snapshotHouseholdOutcomes } from "./household-queries";
@@ -119,10 +120,70 @@ async function handleTradeCompleted(event: LearnerEvent) {
 
   await awardXP(userId, userName, 200, 0);
 
-  await db.insert(certificates).values({
-    userId, userName, levelId: 1,
-    levelTitle: `${tradeName} Trade Certification`,
-  });
+  // Dedupe: the (userId, sourceKey) unique index makes issuance concurrency-
+  // safe — simultaneous final-lesson completions race harmlessly and exactly
+  // one insert wins. onConflictDoNothing + returning() tells us if we lost.
+  const certTitle = `${tradeName} Trade Certification`;
+  const tradeId = Number(metadata.tradeId);
+  const [trade] = Number.isFinite(tradeId)
+    ? await db.select({ slug: tradeSimsTrades.slug }).from(tradeSimsTrades).where(eq(tradeSimsTrades.id, tradeId)).limit(1)
+    : [];
+  const sourceKey = `trade-sim:${trade?.slug ?? tradeName.toLowerCase().replace(/\s+/g, "-")}`;
+
+  // The credential must carry the learner's real name — the event pipeline
+  // often only knows a placeholder ("Learner"), so resolve from the users row.
+  const [u] = await db
+    .select({ firstName: users.firstName, lastName: users.lastName, email: users.email })
+    .from(users)
+    .where(eq(users.id, userId))
+    .limit(1);
+  const realName =
+    [u?.firstName, u?.lastName].filter(Boolean).join(" ").trim() || u?.email || userName;
+
+  // If a keyed certificate already exists, we're done — never claim or insert
+  // another (also protects the legacy claim below from a unique violation).
+  const [alreadyKeyed] = await db
+    .select({ id: certificates.id })
+    .from(certificates)
+    .where(and(eq(certificates.userId, userId), eq(certificates.sourceKey, sourceKey)))
+    .limit(1);
+  if (alreadyKeyed) return;
+
+  // Claim a legacy pre-source_key certificate for this trade (and repair a
+  // placeholder name) instead of minting a duplicate alongside it. Historical
+  // duplicates are possible, so claim exactly ONE deterministic row (earliest
+  // issued) by primary key; any extra legacy rows stay NULL-keyed (retired).
+  const [legacy] = await db
+    .select({ id: certificates.id })
+    .from(certificates)
+    .where(and(
+      eq(certificates.userId, userId),
+      eq(certificates.levelTitle, certTitle),
+      isNull(certificates.sourceKey),
+    ))
+    .orderBy(asc(certificates.issuedAt), asc(certificates.id))
+    .limit(1);
+  if (legacy) {
+    // isNull guard keeps a concurrent claimer from double-writing. If a
+    // concurrent insert won the (userId, sourceKey) key first, the update
+    // hits the unique index — swallow it: a keyed certificate exists.
+    try {
+      await db
+        .update(certificates)
+        .set({ sourceKey, userName: realName })
+        .where(and(eq(certificates.id, legacy.id), isNull(certificates.sourceKey)));
+    } catch (err: any) {
+      if (err?.code !== "23505") throw err;
+    }
+    return;
+  }
+
+  const inserted = await db.insert(certificates).values({
+    userId, userName: realName, levelId: 1,
+    levelTitle: certTitle,
+    sourceKey,
+  }).onConflictDoNothing({ target: [certificates.userId, certificates.sourceKey] }).returning({ id: certificates.id });
+  if (inserted.length === 0) return; // already issued — don't duplicate outcome rows
 
   await db.insert(outcomeTracking).values({
     userId, category: "workforce", metricName: "trade_certification_earned",

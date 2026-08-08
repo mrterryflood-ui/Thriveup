@@ -58,6 +58,10 @@ const TradeSimsLandingPage = lazy(() => import("@/pages/academy/trade-sims/index
 const TradeSimsTradeDetailPage = lazy(() => import("@/pages/academy/trade-sims/trade-detail"));
 const TradeSimsLessonPlayerPage = lazy(() => import("@/pages/academy/trade-sims/lesson-player"));
 const TradeSimsCertifyPage = lazy(() => import("@/pages/academy/trade-sims/certify"));
+
+const TradeSimsTranscriptPage = lazy(() => import("@/pages/academy/trade-sims/transcript"));
+
+const TradeCertVerifyPage = lazy(() => import("@/pages/academy/trade-sims/verify"));
 const TradeSimsSignupsAdminPage = lazy(() => import("@/pages/admin/trade-sims-signups"));
 import { TradeSimsTrialGate } from "@/components/trade-sims-trial-gate";
 const AcademyVillagePage = lazy(() => import("@/pages/academy/village"));
@@ -437,6 +441,11 @@ function AppRouter() {
       <Route path="/concepts/pacemaker" component={PacemakerConceptPage} />
       <Route path="/academy/trade-sims">
         <TradeSimsTrialGate><TradeSimsLandingPage /></TradeSimsTrialGate>
+      </Route>
+      {/* Public employer verification — deliberately NOT behind the trial gate */}
+      <Route path="/verify/trade-cert/:certificateId" component={TradeCertVerifyPage} />
+      <Route path="/academy/trade-sims/:tradeSlug/transcript">
+        <TradeSimsTrialGate><TradeSimsTranscriptPage /></TradeSimsTrialGate>
       </Route>
       <Route path="/academy/trade-sims/:tradeSlug/certify">
         <TradeSimsTrialGate><TradeSimsCertifyPage /></TradeSimsTrialGate>

@@ -427,7 +427,7 @@ function voltageColor(v: number, maxV: number): string {
   return "#f97316";                  // orange
 }
 
-function toSVGCoords(e: React.MouseEvent, svgEl: SVGSVGElement): Vec2 {
+function toSVGCoords(e: { clientX: number; clientY: number }, svgEl: SVGSVGElement): Vec2 {
   const r = svgEl.getBoundingClientRect();
   return {
     x: ((e.clientX - r.left) / r.width) * CW,
@@ -566,7 +566,7 @@ export function VisualCircuitCanvas({
   }, [selected, selectedWire]);
 
   // ── SVG event handlers ─────────────────────────────────────────────────────
-  const handleSVGMouseMove = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+  const handleSVGMouseMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     if (!svgRef.current) return;
     const pos = toSVGCoords(e, svgRef.current);
     setMousePos(pos);
@@ -579,7 +579,7 @@ export function VisualCircuitCanvas({
     }
   }, [dragging]);
 
-  const handleSVGMouseUp = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+  const handleSVGMouseUp = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     if (dragging) setDragging(null);
     if (wiringFrom && svgRef.current) {
       const pos = toSVGCoords(e, svgRef.current);
@@ -601,13 +601,25 @@ export function VisualCircuitCanvas({
           }]);
           onInteract?.();
         }
+        setWiringFrom(null);
       }
-      setWiringFrom(null);
+      // No terminal near the release point: stay in wiring mode. The tap that
+      // STARTS wiring fires this same pointerup (it bubbles from the terminal),
+      // so cancelling here would make tap-to-wire impossible on touch. Wiring
+      // is cancelled by Escape or by tapping empty canvas (see handleSVGClick).
     }
   }, [dragging, wiringFrom, comps, wires, onInteract]);
 
-  const handleSVGClick = useCallback(() => {
-    if (!wiringFrom) { setSelected(null); setSelectedWire(null); }
+  const handleSVGClick = useCallback((e: React.MouseEvent<SVGSVGElement>) => {
+    if (wiringFrom) {
+      // Cancel wiring only when the tap/click landed on empty canvas — clicks
+      // on terminals bubble here too and must not cancel the wire in progress.
+      const tag = (e.target as Element).tagName?.toLowerCase();
+      if (tag === "svg" || tag === "rect") setWiringFrom(null);
+      return;
+    }
+    setSelected(null);
+    setSelectedWire(null);
   }, [wiringFrom]);
 
   // ── Add component from palette ─────────────────────────────────────────────
@@ -846,11 +858,13 @@ export function VisualCircuitCanvas({
           ref={svgRef}
           viewBox={`0 0 ${CW} ${CH}`}
           width="100%"
-          style={{ display: "block", userSelect: "none" }}
-          onMouseMove={handleSVGMouseMove}
-          onMouseUp={handleSVGMouseUp}
+          // touchAction none: without it, a finger-drag on a phone scrolls the
+          // page instead of moving the component / drawing the wire.
+          style={{ display: "block", userSelect: "none", touchAction: "none" }}
+          onPointerMove={handleSVGMouseMove}
+          onPointerUp={handleSVGMouseUp}
           onClick={handleSVGClick}
-          onMouseLeave={() => {
+          onPointerLeave={() => {
             if (dragging) setDragging(null);
           }}
           data-testid="canvas-svg"
@@ -956,10 +970,15 @@ export function VisualCircuitCanvas({
                 key={comp.id}
                 transform={`translate(${comp.x} ${comp.y})`}
                 style={{ cursor: dragging?.id === comp.id ? "grabbing" : "grab", color: def.color }}
-                onMouseDown={(e) => {
+                onPointerDown={(e) => {
                   if (wiringFrom) return;
                   e.stopPropagation();
                   if (!svgRef.current) return;
+                  // Route the whole drag to the svg: touch pointers get implicit
+                  // capture on the touched child, which would hide pointermove/up
+                  // from the svg-level handlers. Capturing on the svg guarantees
+                  // the svg sees every move until release, on mouse and touch.
+                  try { svgRef.current.setPointerCapture(e.pointerId); } catch { /* capture unsupported */ }
                   const pos = toSVGCoords(e, svgRef.current);
                   setDragging({ id: comp.id, ox: pos.x - comp.x, oy: pos.y - comp.y });
                   setSelected(comp.id);
@@ -967,6 +986,11 @@ export function VisualCircuitCanvas({
                   onInteract?.();
                 }}
               >
+                {/* Invisible body hit area: symbols are stroke-only, so a
+                    finger (or mouse) press in the middle of a component would
+                    otherwise fall through to the grid. Must be the first child
+                    so terminals (rendered later) stay on top. */}
+                <rect x={-36} y={-30} width={72} height={60} fill="transparent" stroke="none" />
                 {/* Selection ring */}
                 {isSel && (
                   <circle
@@ -990,8 +1014,8 @@ export function VisualCircuitCanvas({
                   const tColor = voltageColor(v, maxV);
 
                   return (
+                    <g key={tName}>
                     <circle
-                      key={tName}
                       cx={tOff.x}
                       cy={tOff.y}
                       r={isHover || isWiring ? TERM_R * 1.4 : TERM_R}
@@ -999,11 +1023,24 @@ export function VisualCircuitCanvas({
                       fillOpacity={isHover ? 0.5 : 0.3}
                       stroke={isHover ? "#2563eb" : "#3b82f6"}
                       strokeWidth={isHover ? 2 : 1.5}
-                      style={{ cursor: "crosshair", transition: "r 0.1s" }}
+                      style={{ pointerEvents: "none", transition: "r 0.1s" }}
+                    />
+                    {/* Oversized invisible hit target: TERM_R is too small for a
+                        fingertip; all terminal interaction handlers live here. */}
+                    <circle
+                      cx={tOff.x}
+                      cy={tOff.y}
+                      r={16}
+                      fill="transparent"
+                      stroke="none"
+                      style={{ cursor: "crosshair" }}
                       onMouseEnter={() => setHoverTerm({ compId: comp.id, term: tName })}
                       onMouseLeave={() => setHoverTerm(null)}
-                      onMouseDown={(e) => {
+                      onPointerDown={(e) => {
                         e.stopPropagation();
+                        if (svgRef.current) {
+                          try { svgRef.current.setPointerCapture(e.pointerId); } catch { /* capture unsupported */ }
+                        }
                         if (wiringFrom) {
                           // complete wire if different component
                           if (wiringFrom.compId !== comp.id) {
@@ -1026,15 +1063,14 @@ export function VisualCircuitCanvas({
                             setWiringFrom(null);
                           }
                         } else {
-                          if (!svgRef.current) return;
-                          const svgPos = toSVGCoords(e, svgRef.current);
                           const absPos = { x: comp.x + tOff.x, y: comp.y + tOff.y };
                           setWiringFrom({ compId: comp.id, term: tName, pos: absPos });
                           setDragging(null);
                         }
                       }}
-                      title={tName}
+                      aria-label={tName}
                     />
+                    </g>
                   );
                 })}
               </g>

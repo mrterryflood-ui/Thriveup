@@ -978,6 +978,13 @@ export default function LessonPlayerPage() {
                 >
                   Credentials & apprenticeships <ChevronRight className="h-4 w-4 ml-1" />
                 </Button>
+                <Button
+                  variant="secondary"
+                  onClick={() => navigate(`/academy/trade-sims/${tradeSlug}/transcript`)}
+                  data-testid="button-transcript"
+                >
+                  Skills transcript <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
               </div>
               {debrief && (
                 <Alert data-testid="alert-debrief">

@@ -153,9 +153,16 @@ export default function TradeSimsCertifyPage() {
             <ChevronLeft className="h-4 w-4 mr-1" /> {tradeName} lessons
           </Button>
         </Link>
-        <Badge variant="outline" data-testid="badge-progress-summary">
-          {data.progress.completedLessons} / {data.progress.totalLessons} lessons complete
-        </Badge>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="outline" data-testid="badge-progress-summary">
+            {data.progress.completedLessons} / {data.progress.totalLessons} lessons complete
+          </Badge>
+          <Link href={`/academy/trade-sims/${tradeSlug}/transcript`} data-testid="link-transcript">
+            <Button variant="outline" size="sm">
+              <GraduationCap className="h-4 w-4 mr-1" /> Skills transcript
+            </Button>
+          </Link>
+        </div>
       </div>
 
       <header className="space-y-2">
