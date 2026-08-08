@@ -93,6 +93,7 @@ test.describe("Foster Youth Aging Out — congruence walkthrough", () => {
     await page.getByTestId("input-first-name").fill("Marcus");
     await page.getByTestId("input-age").fill("18");
     await page.getByTestId("input-age-out-date").fill("2026-08-01");
+    await page.getByTestId("textarea-situation").fill("Couch surfing, looking for work and a stable place.");
     // state defaults to TX in the form
     await expect(page.getByTestId("button-next-step-2")).toBeEnabled();
   });

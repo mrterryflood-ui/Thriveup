@@ -6,20 +6,20 @@ test.describe("smoke: public pages render", () => {
     await expect(page).toHaveTitle(/.+/);
   });
 
-  test("prior-award research page renders summary cards", async ({ page }) => {
+  test("prior-award research page is admin-gated for anonymous visitors", async ({ page }) => {
+    // /grant-prior-awards is wrapped in RequireAuth adminOnly (client/src/App.tsx),
+    // so anonymous visitors must see the auth gate, not the page content.
     await page.goto("/grant-prior-awards");
-    await expect(page.getByTestId("page-grant-prior-awards")).toBeVisible();
-    await expect(page.getByTestId("text-page-title")).toContainText("Prior Award Research");
-    await expect(page.getByTestId("text-stat-total")).toBeVisible();
-    await expect(page.getByTestId("text-stat-percent")).toBeVisible();
-    await expect(page.getByTestId("card-methodology")).toBeVisible();
-    await expect(page.getByTestId("card-sources")).toBeVisible();
+    // First visit may trigger a cold Vite lazy-chunk compile in dev
+    await expect(page.getByTestId("auth-gate-blocked")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId("button-auth-login")).toBeVisible();
+    await expect(page.getByTestId("page-grant-prior-awards")).not.toBeVisible();
   });
 
-  test("ecosystem orchestration page renders 24 platforms + 7 triads", async ({ page }) => {
+  test("ecosystem orchestration page renders 27 platforms + 7 triads", async ({ page }) => {
     await page.goto("/ecosystem-orchestration");
-    await expect(page.getByTestId("page-ecosystem-orchestration")).toBeVisible();
-    await expect(page.getByTestId("text-stat-platforms")).toContainText("24");
+    await expect(page.getByTestId("page-ecosystem-orchestration")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByTestId("text-stat-platforms")).toContainText("27");
     await expect(page.getByTestId("text-stat-triads")).toContainText("7");
     await page.getByTestId("tab-triads").click();
     await expect(page.getByTestId("card-triad-health-core-triad")).toBeVisible();
@@ -47,11 +47,11 @@ test.describe("smoke: API endpoints respond", () => {
     expect(body).toHaveProperty("summary.total");
   });
 
-  test("GET /api/ecosystem/registry returns 24 platforms + 7 triads", async ({ request }) => {
+  test("GET /api/ecosystem/registry returns 27 platforms + 7 triads", async ({ request }) => {
     const res = await request.get("/api/ecosystem/registry");
     expect(res.status()).toBe(200);
     const body = await res.json();
-    expect(body.platformCount).toBe(24);
+    expect(body.platformCount).toBe(27);
     expect(body.triadCount).toBe(7);
   });
 
