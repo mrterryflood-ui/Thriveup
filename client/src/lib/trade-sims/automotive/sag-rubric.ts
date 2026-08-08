@@ -369,7 +369,44 @@ export function gradeSag(
     if (!starter) return { status: "fail", message: rubric.failMessage };
     const starterCurrent = Math.abs(lastSolve.resistorCurrents[starter.id] ?? 0);
     const pass = starterCurrent >= 130 && starterCurrent <= 170;
-    return { status: pass ? "pass" : "fail", message: pass ? rubric.passMessage : rubric.failMessage };
+    if (!pass) {
+      return { status: "fail", message: rubric.failMessage };
+    }
+    // Detect WHICH diagnostic path the learner took, so the feedback names
+    // the component they adjusted (different real-world repair paths):
+    //   • battery voltage lowered below 11 V → simulated discharged/weak battery
+    //   • fuse ratedAmps dialed down to ≤ 100 A → fuse used as a resistive
+    //     cable stand-in (corroded-cable simulation; the adapter stamps
+    //     R = 0.5/ratedAmps, so a rated-down fuse genuinely limits current)
+    //
+    // Attribution must be CAUSAL, not cosmetic: the low-rated fuse only
+    // counts if it is actually carrying the starter's current (in series
+    // with the starter), so an unrelated low fuse elsewhere on the canvas
+    // can't be credited as the corroded cable.
+    const batteryV = Number(battery.props.voltage ?? 12.6);
+    const loweredVoltage = batteryV < 11;
+    const resistiveFuse = comps.some((c) => {
+      if (c.kind !== "fuse" || c.props.blown) return false;
+      if (Number(c.props.ratedAmps ?? 200) > 100) return false;
+      const fuseCurrent = Math.abs(lastSolve.resistorCurrents[c.id] ?? 0);
+      // Must carry (approximately) the starter's current — i.e. be in the
+      // cranking loop, not on some unrelated branch.
+      return starterCurrent > 0 && Math.abs(fuseCurrent - starterCurrent) / starterCurrent <= 0.2;
+    });
+    if (loweredVoltage && !resistiveFuse) {
+      return {
+        status: "pass",
+        message: `Slow-crank confirmed — starter draws ${Math.round(starterCurrent)} A. You lowered battery voltage to ${batteryV.toFixed(1)} V to simulate a discharged battery. Real-world fix: load-test the battery and charge or replace it.`,
+      };
+    }
+    if (resistiveFuse && !loweredVoltage) {
+      return {
+        status: "pass",
+        message: `Slow-crank confirmed — starter draws ${Math.round(starterCurrent)} A. You reduced fuse amperage to simulate cable resistance — the corroded-cable path. Real-world fix: inspect and clean the cable connections or replace the cable.`,
+      };
+    }
+    // Both or neither detected — fall back to the rubric's generic pass message.
+    return { status: "pass", message: rubric.passMessage };
   }
 
   // ── 8. weak-battery-charging ─────────────────────────────────────────────

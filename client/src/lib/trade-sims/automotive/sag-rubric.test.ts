@@ -55,6 +55,7 @@ function makeDay3Components(opts: {
   includeGround?: boolean;
   batteryVoltage?: number;
   batteryInternalResistance?: number;
+  fuseRatedAmps?: number;
 } = {}): PlacedAutoComponent[] {
   const {
     fuseBlown = false,
@@ -63,6 +64,7 @@ function makeDay3Components(opts: {
     includeGround = true,
     batteryVoltage = 12.6,
     batteryInternalResistance,
+    fuseRatedAmps = 200,
   } = opts;
 
   const battery: PlacedAutoComponent = {
@@ -88,7 +90,7 @@ function makeDay3Components(opts: {
     id: "F1",
     kind: "fuse",
     terminalNodes: { a: 1, b: 2 },
-    props: { ratedAmps: 200, blown: fuseBlown },
+    props: { ratedAmps: fuseRatedAmps, blown: fuseBlown },
   };
 
   const starter: PlacedAutoComponent = {
@@ -589,6 +591,97 @@ console.log("\n── slow-cranking ──────────────�
     "slow-cranking / fail: no starter motor → fail",
     result.status === "fail",
     `got status=${result.status}`,
+  );
+}
+
+{
+  // PASS + tailored message: battery voltage lowered to 10 V → discharged-battery path.
+  const comps = makeDay3Components({ batteryVoltage: 10 });
+  const solve = makeSolve({
+    nodeVoltages: [0, 7.5, 7.4],
+    resistorCurrents: { STR: 150 },
+    vsourceCurrents: {},
+  });
+  const result = gradeSag(makeRubric("slow-cranking"), solve, comps);
+  check(
+    "slow-cranking / pass (lowered voltage): message names battery voltage path",
+    result.status === "pass" && result.message.includes("lowered battery voltage"),
+    `got status=${result.status}, message=${result.message}`,
+  );
+}
+
+{
+  // PASS + tailored message: fuse rated down to 100 A → cable-resistance path.
+  // The fuse must be CARRYING the starter current (series) to be credited.
+  const comps = makeDay3Components({ fuseRatedAmps: 100 });
+  const solve = makeSolve({
+    nodeVoltages: [0, 8.0, 7.9],
+    resistorCurrents: { STR: 150, F1: 150 },
+    vsourceCurrents: {},
+  });
+  const result = gradeSag(makeRubric("slow-cranking"), solve, comps);
+  check(
+    "slow-cranking / pass (rated-down fuse): message names cable-resistance path",
+    result.status === "pass" && result.message.includes("reduced fuse amperage"),
+    `got status=${result.status}, message=${result.message}`,
+  );
+}
+
+{
+  // PASS + generic fallback: BOTH voltage lowered AND fuse rated down → ambiguous → generic passMessage.
+  const comps = makeDay3Components({ batteryVoltage: 10, fuseRatedAmps: 100 });
+  const solve = makeSolve({
+    nodeVoltages: [0, 7.5, 7.4],
+    resistorCurrents: { STR: 150, F1: 150 },
+    vsourceCurrents: {},
+  });
+  const result = gradeSag(makeRubric("slow-cranking"), solve, comps);
+  check(
+    "slow-cranking / pass (both methods): ambiguous → generic pass message",
+    result.status === "pass" && result.message === "Nice work!",
+    `got status=${result.status}, message=${result.message}`,
+  );
+}
+
+{
+  // PASS + generic fallback: NEITHER method detected (healthy 12.6 V battery, 200 A fuse)
+  // but current somehow lands in-band → generic passMessage.
+  const comps = makeDay3Components();
+  const solve = makeSolve({
+    nodeVoltages: [0, 8.0, 7.9],
+    resistorCurrents: { STR: 150, F1: 150 },
+    vsourceCurrents: {},
+  });
+  const result = gradeSag(makeRubric("slow-cranking"), solve, comps);
+  check(
+    "slow-cranking / pass (neither detected): generic pass message fallback",
+    result.status === "pass" && result.message === "Nice work!",
+    `got status=${result.status}, message=${result.message}`,
+  );
+}
+
+{
+  // PASS + generic fallback (adversarial attribution): battery internal
+  // resistance was raised to slow the crank, and a low-rated fuse sits on an
+  // UNRELATED branch carrying almost no current. The fuse must NOT be
+  // credited as the corroded cable → generic passMessage.
+  const comps = makeDay3Components({ batteryInternalResistance: 0.014 });
+  comps.push({
+    id: "F_STRAY",
+    kind: "fuse",
+    terminalNodes: { a: 1, b: 5 },
+    props: { ratedAmps: 50, blown: false },
+  });
+  const solve = makeSolve({
+    nodeVoltages: [0, 8.0, 7.9],
+    resistorCurrents: { STR: 150, F1: 150, F_STRAY: 0 },
+    vsourceCurrents: {},
+  });
+  const result = gradeSag(makeRubric("slow-cranking"), solve, comps);
+  check(
+    "slow-cranking / pass (stray low fuse not conducting): NOT credited as cable path → generic message",
+    result.status === "pass" && result.message === "Nice work!",
+    `got status=${result.status}, message=${result.message}`,
   );
 }
 
@@ -1782,6 +1875,118 @@ console.log("\n── parallel-7a (integration: real adapter + solver) ───
       check(
         "coil-swap-current / integration pass: real solve of single 1.5 Ω coil → pass",
         grade.status === "pass",
+        `got status=${grade.status} msg=${grade.message}`,
+      );
+    }
+  }
+}
+
+// ── Integration: slow-cranking against the REAL adapter + solver ─────────────
+console.log("\n── slow-cranking (integration: real adapter + solver) ──────────");
+
+{
+  const { placedToSolverElements } = await import("./component-defs");
+  const { solveCircuit } = await import("../electrical/circuit-solver");
+
+  /** Compile placed components with the same adapter path the canvas uses. */
+  function solveReal(comps: PlacedAutoComponent[], nodeCount: number) {
+    let next = nodeCount;
+    const ctx = { allocNode: () => next++ };
+    const elements = comps.flatMap((c) => placedToSolverElements(c, ctx));
+    return solveCircuit({ elements, nodeCount: next });
+  }
+
+  /** Day 3 loop: battery(1/0) → fuse(1→2) → starter(2/0) → ground. */
+  function day3Circuit(opts: { batteryVoltage?: number; fuseRatedAmps?: number } = {}): PlacedAutoComponent[] {
+    const { batteryVoltage = 12.6, fuseRatedAmps = 200 } = opts;
+    return [
+      { id: "BAT", kind: "car_battery", terminalNodes: { pos: 1, neg: 0 }, props: { voltage: batteryVoltage, internalResistance: 0.02 } },
+      { id: "F1", kind: "fuse", terminalNodes: { a: 1, b: 2 }, props: { ratedAmps: fuseRatedAmps, blown: false } },
+      { id: "STR", kind: "starter_motor", terminalNodes: { pos: 2, neg: 0 }, props: { resistance: 0.05 } },
+      { id: "GND", kind: "ground_point", terminalNodes: { gnd: 0 }, props: {} },
+    ];
+  }
+
+  {
+    // Baseline sanity: healthy 12.6 V battery + 200 A fuse cranks ABOVE the
+    // slow band (~174 A) → slow-cranking must FAIL on the untouched circuit.
+    const comps = day3Circuit();
+    const result0 = solveReal(comps, 3);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("slow-cranking / integration baseline: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("slow-cranking"), result0, comps);
+      check(
+        "slow-cranking / integration baseline: healthy untouched circuit (~174 A) → fail",
+        grade.status === "fail",
+        `got status=${grade.status} I_STR=${Math.abs(result0.resistorCurrents["STR"] ?? 0)}`,
+      );
+      // The healthy circuit must still satisfy the Day 3 healthy-cranking step.
+      const healthy = gradeSag(makeRubric("healthy-cranking"), result0, comps);
+      check(
+        "slow-cranking / integration baseline: healthy circuit still passes healthy-cranking",
+        healthy.status === "pass",
+        `got status=${healthy.status}`,
+      );
+    }
+  }
+
+  {
+    // PATH A: lower battery voltage to 10 V (fuse untouched at 200 A).
+    // Real solve → ~138 A → pass with the battery-voltage message.
+    const comps = day3Circuit({ batteryVoltage: 10 });
+    const result0 = solveReal(comps, 3);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("slow-cranking / integration path A: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("slow-cranking"), result0, comps);
+      check(
+        "slow-cranking / integration pass (real solve): 10 V battery → tailored battery-voltage message",
+        grade.status === "pass" && grade.message.includes("lowered battery voltage"),
+        `got status=${grade.status} msg=${grade.message} I_STR=${Math.abs(result0.resistorCurrents["STR"] ?? 0)}`,
+      );
+    }
+  }
+
+  {
+    // PATH B: rate the fuse down to 50 A (battery healthy at 12.6 V).
+    // Adapter stamps R = 0.5/50 = 0.01 Ω → real solve → ~157.5 A → pass with
+    // the cable-resistance message.
+    const comps = day3Circuit({ fuseRatedAmps: 50 });
+    const result0 = solveReal(comps, 3);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("slow-cranking / integration path B: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("slow-cranking"), result0, comps);
+      check(
+        "slow-cranking / integration pass (real solve): 50 A fuse stand-in → tailored cable-resistance message",
+        grade.status === "pass" && grade.message.includes("reduced fuse amperage"),
+        `got status=${grade.status} msg=${grade.message} I_STR=${Math.abs(result0.resistorCurrents["STR"] ?? 0)}`,
+      );
+    }
+  }
+
+  {
+    // ADVERSARIAL: slow crank achieved by lowering battery voltage, while an
+    // unrelated 50 A fuse dangles on a dead-end branch carrying no current.
+    // The stray fuse must NOT be credited — battery message expected? No:
+    // both signals present would be ambiguous, but the stray fuse conducts
+    // ~0 A so only the voltage path is causal → battery-voltage message.
+    const comps = day3Circuit({ batteryVoltage: 10 });
+    comps.push({
+      id: "F_STRAY",
+      kind: "fuse",
+      terminalNodes: { a: 1, b: 3 },
+      props: { ratedAmps: 50, blown: false },
+    });
+    const result0 = solveReal(comps, 4);
+    if (!("ok" in result0) || result0.ok !== true) {
+      check("slow-cranking / integration adversarial: solver produced a solve", false, JSON.stringify(result0));
+    } else {
+      const grade = gradeSag(makeRubric("slow-cranking"), result0, comps);
+      check(
+        "slow-cranking / integration adversarial (real solve): dead-end low fuse ignored, voltage path credited",
+        grade.status === "pass" && grade.message.includes("lowered battery voltage"),
         `got status=${grade.status} msg=${grade.message}`,
       );
     }

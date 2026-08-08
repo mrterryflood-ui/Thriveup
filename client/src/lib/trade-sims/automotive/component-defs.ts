@@ -311,7 +311,16 @@ export function placedToSolverElements(
     case "fuse": {
       const blown = Boolean(props.blown);
       if (blown) return [];
-      return [{ id, kind: "resistor", nodes: [terminalNodes.a, terminalNodes.b], resistance: 1e-6 }];
+      // Element resistance scales inversely with rating: R = 0.5 / ratedAmps.
+      // A 200 A starter fuse is ~0.0025 Ω (electrically negligible), a 10 A
+      // circuit fuse is 0.05 Ω (negligible next to a multi-ohm coil load).
+      // Pedagogically this makes "rate the fuse down" a real series-resistance
+      // move: Day 3's corroded-cable stand-in (ratedAmps ≤ 100 → ≥ 0.005 Ω)
+      // genuinely reduces starter current into the 130–170 A slow-crank band
+      // instead of being a cosmetic prop change.
+      const rated = Number(props.ratedAmps ?? 30);
+      const resistance = rated > 0 ? 0.5 / rated : 1e-6;
+      return [{ id, kind: "resistor", nodes: [terminalNodes.a, terminalNodes.b], resistance }];
     }
     case "ground_point":
       // The canvas layer guarantees that any wire connected to a ground_point
