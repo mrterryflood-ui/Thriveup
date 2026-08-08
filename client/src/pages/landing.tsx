@@ -1984,6 +1984,30 @@ export default function LandingPage() {
         </div>
       </section>
 
+      <section className="px-4 pb-4 sm:px-6 pt-6" data-testid="section-community-data">
+        <div className="max-w-3xl mx-auto">
+          <Link
+            href="/community-data"
+            className="group flex items-center gap-4 rounded-xl border bg-card p-4 sm:p-5 transition-all duration-300 hover:shadow-lg hover:border-primary/40 no-underline"
+            data-testid="card-community-data"
+            aria-label="Look up official homelessness data for your community — every U.S. Continuum of Care, 2007 to present"
+          >
+            <div className="rounded-xl p-3 bg-gradient-to-br from-sky-500 to-blue-600 shrink-0 shadow-md">
+              <BarChart3 className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="font-semibold text-base leading-tight" data-testid="text-community-data-link-title">
+                What does homelessness look like in your community?
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                Official HUD counts for every U.S. community, every published year since 2007 — plus live, cited answers about local services. Nothing estimated.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" />
+          </Link>
+        </div>
+      </section>
+
       <section className="px-4 pb-4 sm:px-6 pt-8" data-testid="section-marcus-story">
         <div className="max-w-3xl mx-auto">
           <Link

@@ -232,6 +232,7 @@ const DonorReceiptDemoPage = lazy(() => import("@/pages/donor-receipt-demo"));
 const SDOHChainPage = lazy(() => import("@/pages/sdoh-chain"));
 const ChainwebBuilderPage = lazy(() => import("@/pages/chainweb-builder"));
 const CommunityImpactPage = lazy(() => import("@/pages/community-impact"));
+const CommunityDataPage = lazy(() => import("@/pages/community-data"));
 const OrchestraDemoPage = lazy(() => import("@/pages/orchestra-demo"));
 const CommunityComparePage = lazy(() => import("@/pages/community-compare"));
 const ChildIncDeckPage = lazy(() => import("@/pages/childinc-deck"));
@@ -740,6 +741,7 @@ function AppRouter() {
       <Route path="/sdoh-chain" component={SDOHChainPage} />
       <Route path="/chainweb" component={ChainwebBuilderPage} />
       <Route path="/community-impact" component={CommunityImpactPage} />
+      <Route path="/community-data" component={CommunityDataPage} />
       <Route path="/orchestra">
         <RequireAuth adminOnly reason="The Full Orchestra runs paid AI across every engine. Restricted to TCAF admins.">
           <OrchestraDemoPage />
