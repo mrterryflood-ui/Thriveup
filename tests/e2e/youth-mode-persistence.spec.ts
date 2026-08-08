@@ -1,6 +1,11 @@
 import { test, expect, request as pwRequest } from "@playwright/test";
 import { Client } from "pg";
-import crypto from "crypto";
+import {
+  forgeSession as forgeSessionShared,
+  ensureTestUser,
+  cleanupTestUser,
+  requireEnv,
+} from "./helpers/auth";
 
 /**
  * Youth Mode persistence — guards the server round-trip for authenticated users
@@ -20,57 +25,19 @@ const BASE = process.env.E2E_BASE_URL || "http://localhost:5000";
 const TEST_USER_ID = "e2e-youth-mode-test-user";
 const TEST_EMAIL = "e2e-youth-mode@test.local";
 
-function requireEnv(name: string): string {
-  const v = process.env[name];
-  if (!v) throw new Error(`${name} env var is required for this test`);
-  return v;
-}
-
-/** Sign a session id the way express-session/cookie-signature does. */
-function signSid(sid: string, secret: string): string {
-  const sig = crypto
-    .createHmac("sha256", secret)
-    .update(sid)
-    .digest("base64")
-    .replace(/=+$/, "");
-  return `s:${sid}.${sig}`;
-}
-
-/** Insert a fresh session row for TEST_USER_ID; returns the Cookie header value. */
-async function forgeSession(db: Client): Promise<string> {
-  const sid = crypto.randomBytes(24).toString("hex");
-  const expires = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
-  const sess = {
-    cookie: {
-      originalMaxAge: 60 * 60 * 1000,
-      expires: expires.toISOString(),
-      secure: true,
-      httpOnly: true,
-      path: "/",
-    },
-    passport: {
-      user: {
-        claims: {
-          sub: TEST_USER_ID,
-          email: TEST_EMAIL,
-          first_name: "E2E",
-          last_name: "YouthMode",
-        },
-        expires_at: Math.floor(expires.getTime() / 1000),
-      },
-    },
-  };
-  await db.query(
-    `INSERT INTO sessions (sid, sess, expire) VALUES ($1, $2, $3)`,
-    [sid, JSON.stringify(sess), expires]
-  );
-  return `connect.sid=${encodeURIComponent(signSid(sid, requireEnv("SESSION_SECRET")))}`;
+/** Forge a session for this spec's test user via the shared helper. */
+function forgeSession(db: Client): Promise<string> {
+  return forgeSessionShared(db, {
+    userId: TEST_USER_ID,
+    email: TEST_EMAIL,
+    firstName: "E2E",
+    lastName: "YouthMode",
+  });
 }
 
 async function cleanup(db: Client) {
   await db.query(`DELETE FROM learner_profiles WHERE user_id = $1`, [TEST_USER_ID]);
-  await db.query(`DELETE FROM sessions WHERE sess->'passport'->'user'->'claims'->>'sub' = $1`, [TEST_USER_ID]);
-  await db.query(`DELETE FROM users WHERE id = $1`, [TEST_USER_ID]);
+  await cleanupTestUser(db, TEST_USER_ID);
 }
 
 test.describe("Youth Mode persistence", () => {
@@ -81,10 +48,12 @@ test.describe("Youth Mode persistence", () => {
     await db.connect();
     await cleanup(db);
     // The users row the OIDC callback would normally upsert (needed by /api/auth/user)
-    await db.query(
-      `INSERT INTO users (id, email, first_name, last_name) VALUES ($1, $2, 'E2E', 'YouthMode')`,
-      [TEST_USER_ID, TEST_EMAIL]
-    );
+    await ensureTestUser(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "YouthMode",
+    });
   });
 
   test.afterAll(async () => {
