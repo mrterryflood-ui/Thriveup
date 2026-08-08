@@ -135,6 +135,20 @@ app.use((req, res, next) => {
     startAISmokeTests();
   }
 
+  // Trade Sims content push — idempotent data upserts (no DDL) that keep the
+  // production lesson rows in sync with shared/data lesson content (e.g. the
+  // Day 6 backflowRubric). Non-fatal: a failure is logged, never blocks boot.
+  if (process.env.NODE_ENV === "production") {
+    import("./seed-trade-sims-plumbing")
+      .then(({ seedTradeSimsPlumbing }) => seedTradeSimsPlumbing())
+      .then(({ upserted }) => {
+        console.log(`[startup-content-seed] plumbing lessons synced (${upserted} upserted)`);
+      })
+      .catch((err) => {
+        console.error("[startup-content-seed] plumbing seed failed:", err?.message || err);
+      });
+  }
+
   // Trade Sims daily digest — fires once every 24 hours. The function itself
   // is a no-op when there are no new signups.
   if (process.env.NODE_ENV === "production") {
