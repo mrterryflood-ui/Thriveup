@@ -87,7 +87,58 @@ const milestoneUpdateSchema = z.object({
   notes: z.string().optional(),
 });
 
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
 export function registerReentryRoutes(app: Express) {
+  // Access resolver for the /reentry page. Authenticated only — the client
+  // renders a public info page for unauthenticated visitors without calling this.
+  // Role is resolved server-side via storage.getUser (req.user.role is never set).
+  app.get("/api/reentry/access", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const user = await storage.getUser(userId);
+      const role = user?.role ?? "student";
+      const isStaff = STAFF_ROLES.has(role);
+      let hasPlan = false;
+      if (!isStaff) {
+        const [plan] = await db.select({ id: reentryPlans.id })
+          .from(reentryPlans)
+          .where(eq(reentryPlans.userId, userId))
+          .limit(1);
+        hasPlan = !!plan;
+      }
+      res.json({ role, isStaff, hasPlan });
+    } catch (error) {
+      console.error("Failed to resolve reentry access:", error);
+      res.status(500).json({ error: "Failed to resolve reentry access" });
+    }
+  });
+
+  // Participant-scoped journey — returns ONLY the caller's own plan(s) and
+  // milestones. Any authenticated participant can read their own journey.
+  app.get("/api/reentry/my-journey", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const plans = await db.select().from(reentryPlans)
+        .where(eq(reentryPlans.userId, userId))
+        .orderBy(desc(reentryPlans.createdAt));
+      if (plans.length === 0) {
+        return res.json({ hasPlan: false, plans: [] });
+      }
+      const planIds = plans.map(p => p.id);
+      const milestones = await db.select().from(reentryMilestones)
+        .where(inArray(reentryMilestones.planId, planIds));
+      const enriched = plans.map(plan => ({
+        ...plan,
+        milestones: milestones.filter(m => m.planId === plan.id),
+      }));
+      res.json({ hasPlan: true, plans: enriched });
+    } catch (error) {
+      console.error("Failed to fetch reentry journey:", error);
+      res.status(500).json({ error: "Failed to fetch reentry journey" });
+    }
+  });
+
   app.get("/api/reentry/plans", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const plans = await db.select().from(reentryPlans).orderBy(desc(reentryPlans.createdAt));

@@ -2,12 +2,13 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
 import { lookup as dnsLookup } from "dns/promises";
 import { isIP } from "net";
+import { randomBytes, timingSafeEqual } from "crypto";
 import { convert as htmlToText } from "html-to-text";
 import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySchema, advisoryBoardMembers, advisoryBoardMeetings, staffingPlanEntries, insertAdvisoryBoardMemberSchema, insertAdvisoryBoardMeetingSchema, insertStaffingPlanEntrySchema, outcomeTracking, participantProfiles, serviceRecords, grantReminders, grantChecklistItems, insertGrantReminderSchema, insertGrantChecklistItemSchema, grantSectionDrafts, documentSignatures, insertDocumentSignatureSchema, proposalPipeline, organizations } from "@shared/schema";
 import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
-import { eq, desc, sql, gte, lte, lt, and, or, ilike, notInArray } from "drizzle-orm";
+import { eq, desc, sql, gte, gt, lte, lt, and, or, isNull, ilike, notInArray } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON, streamAIResponse, withEthicalPreamble } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
 import { communityNarrativeBlock } from "./community-intel";
@@ -3483,6 +3484,11 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 30);
 
+      // High-entropy token for the external invitee signing link. Lets an
+      // off-platform recipient open and sign exactly this one document without
+      // a session. Expires with the request (expiresAt).
+      const signingToken = randomBytes(32).toString("hex");
+
       const [doc] = await db.insert(documentSignatures).values({
         userId,
         documentType,
@@ -3494,6 +3500,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         status: "pending",
         grantId: grantId || null,
         expiresAt,
+        signingToken,
       }).returning();
 
       res.json(doc);
@@ -3580,6 +3587,118 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     } catch (error) {
       console.error("Failed to verify document:", error);
       res.status(500).json({ error: "Failed to verify document" });
+    }
+  });
+
+  // ── External invitee signed-token flow ────────────────────────────────
+  // Off-platform recipients receive a link carrying a random token. These two
+  // endpoints require NO session — they validate the token with a constant-time
+  // compare and are scoped to exactly the one document the token belongs to.
+  //
+  // Constant-time compare that tolerates length differences without leaking
+  // them via early return timing.
+  function tokenMatches(provided: string | undefined, expected: string | null | undefined): boolean {
+    if (!provided || !expected) return false;
+    const a = Buffer.from(provided);
+    const b = Buffer.from(expected);
+    if (a.length !== b.length) {
+      // Still run a compare against a fixed-length buffer to keep timing flat.
+      timingSafeEqual(b, b);
+      return false;
+    }
+    return timingSafeEqual(a, b);
+  }
+
+  // GET the document an invitee is being asked to sign. Public, token-scoped.
+  app.get("/api/esign/invite/:id", async (req, res) => {
+    try {
+      const { id } = req.params as Record<string, string>;
+      const token = typeof req.query.token === "string" ? req.query.token : undefined;
+      const [doc] = await db.select().from(documentSignatures).where(eq(documentSignatures.id, id));
+      if (!doc || !tokenMatches(token, doc.signingToken)) {
+        return res.status(404).json({ error: "Invalid or expired signing link" });
+      }
+      if (doc.expiresAt && new Date(doc.expiresAt) < new Date()) {
+        return res.status(410).json({ error: "This signing link has expired" });
+      }
+      // Return ONLY what the invitee needs — no owner userId, no signerIp of others.
+      return res.json({
+        id: doc.id,
+        documentType: doc.documentType,
+        documentTitle: doc.documentTitle,
+        documentContext: doc.documentContext,
+        recipientName: doc.recipientName,
+        recipientOrg: doc.recipientOrg,
+        status: doc.status,
+        signedAt: doc.signedAt,
+        expiresAt: doc.expiresAt,
+      });
+    } catch (error) {
+      console.error("Failed to load invite document:", error);
+      res.status(500).json({ error: "Failed to load document" });
+    }
+  });
+
+  // POST an invitee's signature. Public, token-scoped to this one document.
+  app.post("/api/esign/invite/:id/sign", async (req, res) => {
+    try {
+      const { id } = req.params as Record<string, string>;
+      const { signatureData, token } = req.body as { signatureData?: string; token?: string };
+
+      if (!signatureData) {
+        return res.status(400).json({ error: "Missing signature data" });
+      }
+
+      // First, timing-safe token check + friendly state errors for the common
+      // (non-concurrent) cases. This is advisory only — the authoritative
+      // one-time transition is the conditional UPDATE below.
+      const [existing] = await db.select().from(documentSignatures).where(eq(documentSignatures.id, id));
+      if (!existing || !tokenMatches(token, existing.signingToken)) {
+        return res.status(404).json({ error: "Invalid or expired signing link" });
+      }
+      if (existing.status === "revoked") {
+        return res.status(400).json({ error: "This signature request has been revoked" });
+      }
+      if (existing.expiresAt && new Date(existing.expiresAt) < new Date()) {
+        return res.status(410).json({ error: "This signing link has expired" });
+      }
+
+      const signerIp = req.ip || req.socket.remoteAddress || "unknown";
+
+      // ATOMIC one-time-use transition. Guarding on status='pending' AND the
+      // token AND non-expired inside a single UPDATE ... RETURNING means two
+      // concurrent valid requests cannot both succeed: exactly one row flips
+      // from pending→signed (and burns the token); the loser updates zero rows.
+      const [updated] = await db.update(documentSignatures)
+        .set({
+          signatureData,
+          status: "signed",
+          signedAt: new Date(),
+          signerIp,
+          // One-time use: burn the token so a signed link cannot be replayed.
+          signingToken: null,
+        })
+        .where(and(
+          eq(documentSignatures.id, id),
+          eq(documentSignatures.signingToken, existing.signingToken!),
+          eq(documentSignatures.status, "pending"),
+          or(
+            isNull(documentSignatures.expiresAt),
+            gt(documentSignatures.expiresAt, new Date()),
+          ),
+        ))
+        .returning();
+
+      if (!updated) {
+        // Zero rows updated → another request won the race, or the doc was
+        // signed/revoked/expired between the read and the update. 409 Conflict.
+        return res.status(409).json({ error: "This document has already been signed or is no longer available to sign" });
+      }
+
+      return res.json({ id: updated.id, status: updated.status, signedAt: updated.signedAt });
+    } catch (error) {
+      console.error("Failed to record invitee signature:", error);
+      res.status(500).json({ error: "Failed to sign document" });
     }
   });
 

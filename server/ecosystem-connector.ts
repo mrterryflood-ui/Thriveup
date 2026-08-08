@@ -1,5 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import { ecosystemPlatforms, ecosystemEvents, ecosystemHealthLogs, ecosystemDirectives, ecosystemDirectiveAcks, grantOpportunities, inboundFixes } from "@shared/schema";
 import { eq, desc, and, gte, sql, inArray, lt } from "drizzle-orm";
 import crypto from "crypto";
@@ -1556,13 +1556,26 @@ function requireEcosystemAuth(req: Request, res: Response, next: Function) {
   next();
 }
 
-function requireAdminAuth(req: Request, res: Response, next: Function) {
+async function requireAdminAuth(req: Request, res: Response, next: Function) {
   const session = (req as any).session;
   const userId = session?.passport?.user || (req as any).user?.id;
   if (!userId) {
     return res.status(401).json({ error: "Authentication required" });
   }
-  next();
+  // SECURITY: session presence alone is NOT sufficient — the Ops Center gives
+  // full ecosystem control (wake/keep-alive, deliverable verification, partner
+  // keys). Role must be confirmed server-side from the DB (storage.getUser
+  // resolves privileged roles from users.isTcafAdmin / sanitized avatar role).
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role === "admin" || user?.role === "teacher") {
+      return next();
+    }
+  } catch (e) {
+    console.error("[EcosystemConnector] requireAdminAuth role check failed:", e);
+    return res.status(500).json({ error: "Authorization check failed" });
+  }
+  return res.status(403).json({ error: "Admin access required" });
 }
 
 export function registerEcosystemConnectorRoutes(app: Express) {

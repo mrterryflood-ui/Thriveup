@@ -20,15 +20,49 @@
  */
 
 import type { Express, Request, Response, NextFunction } from "express";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import { organizations, grantOpportunities, consortiumProposals, consortiumTeamMembers } from "@shared/schema";
-import { eq, desc } from "drizzle-orm";
+import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
   if (!user) return undefined;
   return user.id || user.userId || user.sub || undefined;
+}
+
+/**
+ * Load a consortium proposal and enforce that the caller either created it or
+ * is staff/admin. Returns the proposal on success; otherwise sends the error
+ * response and returns null so the caller can `return`.
+ * SECURITY: proposals hold org identity (UEI/EIN) + grant strategy — never
+ * expose or mutate another user's proposal.
+ */
+async function loadOwnedProposal(
+  req: Request,
+  res: Response,
+  proposalIdRaw: string | string[],
+): Promise<typeof consortiumProposals.$inferSelect | null> {
+  const proposalId = Array.isArray(proposalIdRaw) ? proposalIdRaw[0] : proposalIdRaw;
+  const userId = getUserId(req);
+  if (!userId) {
+    res.status(401).json({ error: "Sign in required" });
+    return null;
+  }
+  const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, proposalId));
+  if (!proposal) {
+    res.status(404).json({ error: "Not found" });
+    return null;
+  }
+  if (proposal.createdBy !== userId) {
+    const viewer = await storage.getUser(userId);
+    const isStaff = viewer?.role === "admin" || viewer?.role === "teacher" || viewer?.role === "facilitator";
+    if (!isStaff) {
+      res.status(403).json({ error: "You do not have access to this proposal" });
+      return null;
+    }
+  }
+  return proposal;
 }
 
 // ─── In-memory event store (lightweight — promote to DB if volume warrants) ─────
@@ -197,17 +231,15 @@ export function registerGrantPathProRoutes(app: Express) {
   });
 
   app.get("/api/consortium/proposals/:id", async (req: Request, res: Response) => {
-    const userId = getUserId(req);
-    if (!userId) return res.status(401).json({ error: "Sign in required" });
-    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id));
-    if (!proposal) return res.status(404).json({ error: "Not found" });
+    const proposal = await loadOwnedProposal(req, res, req.params.id);
+    if (!proposal) return;
     const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, proposal.id));
     return res.json({ ...proposal, members });
   });
 
   app.post("/api/consortium/proposals/:id/members", async (req: Request, res: Response) => {
-    const userId = getUserId(req);
-    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const owned = await loadOwnedProposal(req, res, req.params.id);
+    if (!owned) return;
     const { orgName, contactName, contactEmail, role, assignedSections, notes } = req.body;
     if (!orgName || !role) return res.status(400).json({ error: "orgName and role required" });
     const [row] = await db.insert(consortiumTeamMembers).values({
@@ -225,22 +257,27 @@ export function registerGrantPathProRoutes(app: Express) {
   });
 
   app.delete("/api/consortium/proposals/:id/members/:memberId", async (req: Request, res: Response) => {
-    const userId = getUserId(req);
-    if (!userId) return res.status(401).json({ error: "Sign in required" });
-    await db.delete(consortiumTeamMembers).where(eq(consortiumTeamMembers.id, req.params.memberId));
+    const owned = await loadOwnedProposal(req, res, req.params.id);
+    if (!owned) return;
+    // Only delete the member if it belongs to this (owned) proposal.
+    await db.delete(consortiumTeamMembers).where(and(
+      eq(consortiumTeamMembers.id, req.params.memberId),
+      eq(consortiumTeamMembers.consortiumId, owned.id),
+    ));
     return res.json({ ok: true });
   });
 
   /** Generate a section for a specific team member's assignment */
   app.post("/api/consortium/proposals/:id/generate-section", async (req: Request, res: Response) => {
-    const userId = getUserId(req);
-    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    const proposal = await loadOwnedProposal(req, res, req.params.id);
+    if (!proposal) return;
     const { memberId, section, additionalContext } = req.body;
     if (!memberId || !section) return res.status(400).json({ error: "memberId and section required" });
 
-    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id));
-    if (!proposal) return res.status(404).json({ error: "Proposal not found" });
-    const [member] = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.id, memberId));
+    const [member] = await db.select().from(consortiumTeamMembers).where(and(
+      eq(consortiumTeamMembers.id, memberId),
+      eq(consortiumTeamMembers.consortiumId, proposal.id),
+    ));
     if (!member) return res.status(404).json({ error: "Member not found" });
 
     const prompt = `You are a federal grant writer. Generate the "${section}" narrative section for a HUD Youth Homelessness System Improvement (YHSI) grant proposal.
@@ -286,10 +323,8 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
 
   /** Merge all member sections into a unified narrative on the proposal */
   app.post("/api/consortium/proposals/:id/merge", async (req: Request, res: Response) => {
-    const userId = getUserId(req);
-    if (!userId) return res.status(401).json({ error: "Sign in required" });
-    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id));
-    if (!proposal) return res.status(404).json({ error: "Not found" });
+    const proposal = await loadOwnedProposal(req, res, req.params.id);
+    if (!proposal) return;
     const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, proposal.id));
 
     const parts: string[] = [`# ${proposal.projectTitle}\n${proposal.grantTitle}${proposal.grantNofo ? ` — ${proposal.grantNofo}` : ""}\nPrime Applicant: ${proposal.primeOrgName}\nGeography: ${proposal.geography || "Not specified"}\n`];
@@ -387,8 +422,8 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
     const { consortiumId } = req.body;
     if (!consortiumId) return res.status(400).json({ error: "consortiumId required" });
 
-    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
-    if (!proposal) return res.status(404).json({ error: "Consortium proposal not found" });
+    const proposal = await loadOwnedProposal(req, res, consortiumId);
+    if (!proposal) return;
     const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, consortiumId));
 
     const payload = {
@@ -410,8 +445,8 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
     const { consortiumId } = req.body;
     if (!consortiumId) return res.status(400).json({ error: "consortiumId required" });
 
-    const [proposal] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
-    if (!proposal) return res.status(404).json({ error: "Consortium proposal not found" });
+    const proposal = await loadOwnedProposal(req, res, consortiumId);
+    if (!proposal) return;
     const members = await db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, consortiumId));
 
     const sections: Array<{ section: string; content: string; author: string; role: string; wordCount: number }> = [];

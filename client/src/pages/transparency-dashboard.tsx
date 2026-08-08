@@ -15,6 +15,44 @@ import {
   School, Home, BookOpen, Handshake, FileBarChart,
 } from "lucide-react";
 
+// Public aggregate values may arrive as a measured number, a suppressed count
+// like "<5", or the sentinel "not yet reported". Raw shapes carry these; the
+// normalized shapes below coerce them to numbers for derived computations.
+type MetricValue = number | string;
+
+const NOT_YET_REPORTED = "not yet reported";
+
+/** Coerce a public metric value to a number for computations. Non-numeric
+ * (suppressed "<5" or "not yet reported") collapses to the given fallback. */
+function num(value: MetricValue | null | undefined, fallback = 0): number {
+  return typeof value === "number" ? value : fallback;
+}
+
+/** True when a value is the unmeasured sentinel. */
+function isNotReported(value: MetricValue | null | undefined): boolean {
+  return value === NOT_YET_REPORTED;
+}
+
+/** Display a metric value: numbers as-is, sentinel as "Not yet reported". */
+function displayValue(value: MetricValue | null | undefined, suffix = ""): string {
+  if (value === null || value === undefined) return "Not yet reported";
+  if (isNotReported(value)) return "Not yet reported";
+  return `${value}${suffix}`;
+}
+
+// Raw shapes as returned by the public aggregate endpoints.
+interface RawPlatformMetrics {
+  engagement: { totalUsers: MetricValue; activeUsers30d: MetricValue; lessonsCompleted: MetricValue; quizzesCompleted: MetricValue };
+  prevention: { youthReached: MetricValue; modulesCompleted: MetricValue; avgScore: MetricValue };
+  coalition: { classroomsActive: MetricValue; certificatesIssued: MetricValue };
+  workforce: { careerAssessments: MetricValue; jobPlacements: MetricValue };
+  grants: { applicationsInProgress: MetricValue; totalFundingSecured: MetricValue };
+  facilitator: { totalFacilitators: MetricValue; sessionsDelivered: MetricValue; avgFidelity: MetricValue; totalDosageHours: MetricValue };
+  parent: { modulesCompleted: MetricValue; familyAssessments: MetricValue };
+  email: { inquiriesReceived: MetricValue; responseRate: MetricValue };
+}
+
+// Numeric shape used by SALP / SMART derived computations (sentinels → 0).
 interface PlatformMetrics {
   engagement: { totalUsers: number; activeUsers30d: number; lessonsCompleted: number; quizzesCompleted: number };
   prevention: { youthReached: number; modulesCompleted: number; avgScore: number };
@@ -26,6 +64,13 @@ interface PlatformMetrics {
   email: { inquiriesReceived: number; responseRate: number };
 }
 
+interface RawOutcomeDashboard {
+  totalOutcomes: number;
+  uniqueParticipants: MetricValue;
+  totalActivePlans: MetricValue;
+  milestoneCompletionRate: MetricValue;
+}
+
 interface OutcomeDashboard {
   totalOutcomes: number;
   uniqueParticipants: number;
@@ -33,11 +78,64 @@ interface OutcomeDashboard {
   milestoneCompletionRate: number;
 }
 
+function normalizeMetrics(raw: RawPlatformMetrics | null): PlatformMetrics | null {
+  if (!raw) return null;
+  return {
+    engagement: {
+      totalUsers: num(raw.engagement.totalUsers),
+      activeUsers30d: num(raw.engagement.activeUsers30d),
+      lessonsCompleted: num(raw.engagement.lessonsCompleted),
+      quizzesCompleted: num(raw.engagement.quizzesCompleted),
+    },
+    prevention: {
+      youthReached: num(raw.prevention.youthReached),
+      modulesCompleted: num(raw.prevention.modulesCompleted),
+      avgScore: num(raw.prevention.avgScore),
+    },
+    coalition: {
+      classroomsActive: num(raw.coalition.classroomsActive),
+      certificatesIssued: num(raw.coalition.certificatesIssued),
+    },
+    workforce: {
+      careerAssessments: num(raw.workforce.careerAssessments),
+      jobPlacements: num(raw.workforce.jobPlacements),
+    },
+    grants: {
+      applicationsInProgress: num(raw.grants.applicationsInProgress),
+      totalFundingSecured: num(raw.grants.totalFundingSecured),
+    },
+    facilitator: {
+      totalFacilitators: num(raw.facilitator.totalFacilitators),
+      sessionsDelivered: num(raw.facilitator.sessionsDelivered),
+      avgFidelity: num(raw.facilitator.avgFidelity),
+      totalDosageHours: num(raw.facilitator.totalDosageHours),
+    },
+    parent: {
+      modulesCompleted: num(raw.parent.modulesCompleted),
+      familyAssessments: num(raw.parent.familyAssessments),
+    },
+    email: {
+      inquiriesReceived: num(raw.email.inquiriesReceived),
+      responseRate: num(raw.email.responseRate),
+    },
+  };
+}
+
+function normalizeOutcomes(raw: RawOutcomeDashboard | null): OutcomeDashboard | null {
+  if (!raw) return null;
+  return {
+    totalOutcomes: raw.totalOutcomes,
+    uniqueParticipants: num(raw.uniqueParticipants),
+    totalActivePlans: num(raw.totalActivePlans),
+    milestoneCompletionRate: num(raw.milestoneCompletionRate),
+  };
+}
+
 interface DosageSummary {
   totalMinutes: number;
   totalHours: number;
   totalSessions: number;
-  uniqueParticipants: number;
+  uniqueParticipants: MetricValue;
 }
 
 interface ImpactData {
@@ -757,13 +855,16 @@ export default function TransparencyDashboardPage() {
 
   const refetchOpts = { refetchInterval: 60000, staleTime: 30000 };
 
-  const { data: rawMetrics, isLoading: metricsLoading } = useQuery<PlatformMetrics>({ queryKey: ["/api/metrics/platform-wide"], ...refetchOpts });
-  const metrics = rawMetrics ?? null;
+  // Public read-only aggregate endpoints — no auth required. Sentinels
+  // ("not yet reported") and suppressed counts ("<5") are normalized to numbers
+  // for derived SALP/SMART computations; headline cards keep the raw display.
+  const { data: rawMetrics, isLoading: metricsLoading } = useQuery<RawPlatformMetrics>({ queryKey: ["/api/public/platform-metrics"], ...refetchOpts });
+  const metrics = normalizeMetrics(rawMetrics ?? null);
 
-  const { data: rawOutcomes, isLoading: outcomesLoading } = useQuery<OutcomeDashboard>({ queryKey: ["/api/outcomes/dashboard"], ...refetchOpts });
-  const outcomes = rawOutcomes ?? null;
+  const { data: rawOutcomes, isLoading: outcomesLoading } = useQuery<RawOutcomeDashboard>({ queryKey: ["/api/public/outcomes-summary"], ...refetchOpts });
+  const outcomes = normalizeOutcomes(rawOutcomes ?? null);
 
-  const { data: rawDosage, isLoading: dosageLoading } = useQuery<DosageSummary>({ queryKey: ["/api/dosage/summary"], ...refetchOpts });
+  const { data: rawDosage, isLoading: dosageLoading } = useQuery<DosageSummary>({ queryKey: ["/api/public/dosage-summary"], ...refetchOpts });
   const dosage = rawDosage ?? null;
 
   const { data: rawImpact, isLoading: impactLoading } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"], ...refetchOpts });

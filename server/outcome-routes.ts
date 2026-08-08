@@ -36,7 +36,36 @@ const outcomeCreateSchema = insertOutcomeTrackingSchema.pick({
   metricValue: true, periodMonths: true, source: true,
 });
 
+const OUTCOMES_SUPPRESSION_FLOOR = 5;
+function suppressOutcomeCount(n: number): number | string {
+  if (n === 0) return 0;
+  return n < OUTCOMES_SUPPRESSION_FLOOR ? `<${OUTCOMES_SUPPRESSION_FLOOR}` : n;
+}
+
 export function registerOutcomeRoutes(app: Express) {
+  // PUBLIC read-only outcomes aggregate for /transparency. No auth, no
+  // individual rows. Participant counts below the suppression floor are masked.
+  app.get("/api/public/outcomes-summary", async (_req, res) => {
+    try {
+      const outcomes = await db.select({ userId: outcomeTracking.userId }).from(outcomeTracking);
+      const plans = await db.select({ status: reentryPlans.status }).from(reentryPlans);
+      const milestones = await db.select({ status: reentryMilestones.status }).from(reentryMilestones);
+      const uniqueUsers = new Set(outcomes.map(o => o.userId));
+      const completedMilestones = milestones.filter(m => m.status === "completed").length;
+      res.json({
+        totalOutcomes: outcomes.length,
+        uniqueParticipants: suppressOutcomeCount(uniqueUsers.size),
+        totalActivePlans: suppressOutcomeCount(plans.filter(p => p.status === "active").length),
+        milestoneCompletionRate: milestones.length > 0
+          ? Math.round((completedMilestones / milestones.length) * 100)
+          : "not yet reported",
+      });
+    } catch (error) {
+      console.error("Failed to fetch public outcomes summary:", error);
+      res.status(500).json({ error: "Failed to fetch public outcomes summary" });
+    }
+  });
+
   app.get("/api/outcomes", requireAuth, requireAdmin, async (req, res) => {
     try {
       const category = req.query.category as string | undefined;

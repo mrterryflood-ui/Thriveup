@@ -297,6 +297,10 @@ export const academyStocks = pgTable("academy_stocks", {
   previousPrice: decimal("previous_price", { precision: 12, scale: 2 }).notNull(),
   changePercent: decimal("change_percent", { precision: 6, scale: 2 }).notNull().default("0.00"),
   priceHistory: jsonb("price_history").notNull().default([]),
+  // UTC calendar date (YYYY-MM-DD) of the last applied daily price move. Used to
+  // make POST /api/academy/stocks/simulate idempotent: the market advances at
+  // most one step per day regardless of how many times simulate is called.
+  lastSimulatedDate: varchar("last_simulated_date", { length: 10 }),
 });
 
 export const academyPortfolios = pgTable("academy_portfolios", {
@@ -3521,6 +3525,10 @@ export const documentSignatures = pgTable("document_signatures", {
   signerIp: varchar("signer_ip", { length: 100 }),
   expiresAt: timestamp("expires_at"),
   grantId: varchar("grant_id", { length: 100 }),
+  // Random, high-entropy token embedded in the external invitee signing link.
+  // Validated with a constant-time compare on the public invitee endpoints so
+  // external signers never need a session. Scoped to exactly one document.
+  signingToken: varchar("signing_token", { length: 128 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
 

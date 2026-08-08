@@ -176,10 +176,20 @@ export default function ESignPage() {
     signMutation.mutate({ id: docId, signatureData });
   };
 
-  const copySignLink = (docId: string) => {
-    const url = `${window.location.origin}/esign/${docId}`;
+  // Signing link for an EXTERNAL invitee. Carries the per-document token so the
+  // recipient can open and sign without a ThriveUp account. Falls back to the
+  // internal verify view if no token is present (e.g. already-signed docs).
+  const copySignLink = (docId: string, signingToken?: string | null) => {
+    const url = signingToken
+      ? `${window.location.origin}/esign/invite/${docId}?token=${encodeURIComponent(signingToken)}`
+      : `${window.location.origin}/esign/${docId}`;
     navigator.clipboard.writeText(url);
-    toast({ title: "Link copied", description: "Share this link with the signer." });
+    toast({
+      title: "Link copied",
+      description: signingToken
+        ? "Share this signing link with your external recipient — no account required."
+        : "Share this link with the signer.",
+    });
   };
 
   const pendingDocs = documents.filter((d) => d.status === "pending");
@@ -609,7 +619,7 @@ export default function ESignPage() {
                         <div className="flex gap-1.5">
                           {doc.status === "pending" && (
                             <>
-                              <Button variant="outline" size="sm" onClick={() => copySignLink(doc.id)} data-testid={`button-copy-link-${doc.id}`}>
+                              <Button variant="outline" size="sm" onClick={() => copySignLink(doc.id, doc.signingToken)} data-testid={`button-copy-link-${doc.id}`}>
                                 <Copy className="h-3.5 w-3.5 mr-1" /> Copy Link
                               </Button>
                               <Button size="sm" onClick={() => setShowSignModal(doc.id)} className="bg-emerald-600 hover:bg-emerald-700 text-white" data-testid={`button-sign-${doc.id}`}>

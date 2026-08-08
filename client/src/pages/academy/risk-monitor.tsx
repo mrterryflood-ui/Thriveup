@@ -13,8 +13,14 @@ import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Settings, AlertTriangle, Brain, Users, Shield, CheckCircle, Clock, Eye } from "lucide-react";
-import type { RiskDecision, RiskNotificationSettings } from "@shared/schema";
+import type { RiskDecision, RiskNotificationSettings, AcademyAvatar } from "@shared/schema";
 import { ErrorRetry } from "@/components/error-retry";
+
+// Staff roles allowed to view student risk data. This is defense-in-depth: the
+// underlying /api/admin/risk-* endpoints already enforce a DB role check
+// (requireAdmin). This gate stops learners from ever rendering the screen (or
+// its student-PII scaffolding) if they navigate directly to the URL.
+const RISK_STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "staff"]);
 
 interface StudentSummary {
   studentName: string;
@@ -67,8 +73,15 @@ function getPatternBadge(rate: number) {
 
 export default function AcademyRiskMonitorPage() {
   useEffect(() => { document.title = 'Risk Monitor | ThriveUp Academy'; }, []);
-  const { user, isLoading: authLoading } = useAuth();
+  const { user, isLoading: authLoading, isAuthenticated } = useAuth();
   const { toast } = useToast();
+
+  // Resolve the caller's role (same source app-sidebar uses) to gate the page.
+  const { data: avatar, isLoading: avatarLoading } = useQuery<AcademyAvatar>({
+    queryKey: ["/api/academy/avatar"],
+    enabled: isAuthenticated,
+  });
+  const isStaff = !!avatar && RISK_STAFF_ROLES.has(avatar.role);
 
   const [overrideCountThreshold, setOverrideCountThreshold] = useState(3);
   const [tradeAmountThreshold, setTradeAmountThreshold] = useState(500);
@@ -78,7 +91,7 @@ export default function AcademyRiskMonitorPage() {
 
   const { isLoading: settingsLoading } = useQuery<RiskNotificationSettings | null>({
     queryKey: ["/api/admin/risk-settings"],
-    enabled: !!user,
+    enabled: isStaff,
     queryFn: async () => {
       const res = await fetch("/api/admin/risk-settings", { credentials: "include" });
       if (!res.ok) return null;
@@ -96,7 +109,7 @@ export default function AcademyRiskMonitorPage() {
 
   const { data: decisions, isLoading: decisionsLoading, error: decisionsError, refetch: refetchDecisions } = useQuery<RiskDecision[]>({
     queryKey: ["/api/admin/risk-decisions"],
-    enabled: !!user,
+    enabled: isStaff,
   });
 
   const saveSettingsMutation = useMutation({
@@ -157,17 +170,13 @@ export default function AcademyRiskMonitorPage() {
     }));
   })();
 
-  if (authLoading) {
+  if (authLoading || (isAuthenticated && avatarLoading)) {
     return (
       <div className="p-6 space-y-4">
         <Skeleton className="h-32 w-full" />
         <Skeleton className="h-64 w-full" />
       </div>
     );
-  }
-
-  if (decisionsError) {
-    return <div className="p-6"><ErrorRetry message="Failed to load risk decisions." onRetry={refetchDecisions} /></div>;
   }
 
   if (!user) {
@@ -178,6 +187,22 @@ export default function AcademyRiskMonitorPage() {
         <p className="text-muted-foreground">Please sign in to access the Risk Decision Monitor.</p>
       </div>
     );
+  }
+
+  // Staff-only: student risk data must never render for a learner. The API is
+  // also DB-role gated (requireAdmin), so this is defense-in-depth.
+  if (!isStaff) {
+    return (
+      <div className="p-6 text-center" data-testid="section-access-denied">
+        <Shield className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+        <h2 className="text-xl font-semibold mb-2" data-testid="text-access-denied">Staff access required</h2>
+        <p className="text-muted-foreground">The Risk Decision Monitor is available to teachers and staff only.</p>
+      </div>
+    );
+  }
+
+  if (decisionsError) {
+    return <div className="p-6"><ErrorRetry message="Failed to load risk decisions." onRetry={refetchDecisions} /></div>;
   }
 
   return (

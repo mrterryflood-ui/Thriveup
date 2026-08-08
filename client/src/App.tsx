@@ -124,6 +124,7 @@ const APIDocsPage = lazy(() => import("@/pages/api-docs"));
 const StakeholderPresentationPage = lazy(() => import("@/pages/stakeholder-presentation"));
 const GrantHubPage = lazy(() => import("@/pages/grant-hub"));
 const ReentryDashboardPage = lazy(() => import("@/pages/reentry-dashboard"));
+const ReentryRouterPage = lazy(() => import("@/pages/reentry-router"));
 const CommunityPartnersPage = lazy(() => import("@/pages/community-partners"));
 const OutcomeReportingPage = lazy(() => import("@/pages/outcome-reporting"));
 const JusticePartnersPage = lazy(() => import("@/pages/justice-partners"));
@@ -199,6 +200,7 @@ const GrantPriorAwardsPage = lazy(() => import("@/pages/grant-prior-awards"));
 const EcosystemOrchestrationPage = lazy(() => import("@/pages/ecosystem-orchestration"));
 const StDavidsPrepPage = lazy(() => import("@/pages/stdavids-prep"));
 const ESignPage = lazy(() => import("@/pages/esign"));
+const ESignInvitePage = lazy(() => import("@/pages/esign-invite"));
 const EcosystemConnectorPage = lazy(() => import("@/pages/ecosystem-connector"));
 const AustinHousingInitiativePage = lazy(() => import("@/pages/austin-housing-initiative"));
 const RokuAdsPage = lazy(() => import("@/pages/roku-ads"));
@@ -520,7 +522,7 @@ function AppRouter() {
           <GrantHubPage />
         </RequireAuth>
       </Route>
-      <Route path="/reentry" component={ReentryDashboardPage} />
+      <Route path="/reentry" component={ReentryRouterPage} />
       <Route path="/intake-wizard" component={IntakeWizardPage} />
       <Route path="/transparency-dashboard" component={TransparencyDashboardPage} />
       <Route path="/partners" component={CommunityPartnersPage} />
@@ -720,13 +722,18 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/esign" component={ESignPage} />
+      <Route path="/esign/invite/:id" component={ESignInvitePage} />
       <Route path="/esign/:id" component={ESignPage} />
       <Route path="/austin" component={AustinHousingInitiativePage} />
       <Route path="/roku-ads" component={RokuAdsPage} />
       <Route path="/voices-of-austin" component={VoicesOfAustinPage} />
       <Route path="/manor" component={ManorCommunityHubPage} />
       <Route path="/pflugerville" component={PflugervilleCommunityHubPage} />
-      <Route path="/ops-center" component={EcosystemOpsCenterPage} />
+      <Route path="/ops-center">
+        <RequireAuth adminOnly reason="The Ecosystem Ops Center controls platform wake/keep-alive, deliverable verification, and partner API keys. Restricted to TCAF admins.">
+          <EcosystemOpsCenterPage />
+        </RequireAuth>
+      </Route>
       <Route path="/presentations" component={PresentationsHubPage} />
       <Route path="/texas-assessment" component={TexasAssessmentPage} />
       <Route path="/third-spaces" component={ThirdSpacesPage} />

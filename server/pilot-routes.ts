@@ -28,7 +28,32 @@ async function requireAdmin(req: Request, res: Response, next: Function) {
   return res.status(403).json({ error: "Admin access required" });
 }
 
+const DOSAGE_SUPPRESSION_FLOOR = 5;
+
 export function registerPilotRoutes(app: Express) {
+
+  // PUBLIC read-only dosage aggregate for /transparency. No auth, no per-person
+  // rows — only rolled-up totals. Unique participant count below the
+  // suppression floor is masked as "<5".
+  app.get("/api/public/dosage-summary", async (_req, res) => {
+    try {
+      const allLogs = await db.select({
+        durationMinutes: engagementDosageLogs.durationMinutes,
+        userId: engagementDosageLogs.userId,
+      }).from(engagementDosageLogs);
+      const totalMinutes = allLogs.reduce((s, l) => s + l.durationMinutes, 0);
+      const uniqueUsers = new Set(allLogs.map(l => l.userId)).size;
+      res.json({
+        totalMinutes,
+        totalHours: Math.round(totalMinutes / 60 * 10) / 10,
+        totalSessions: allLogs.length,
+        uniqueParticipants: uniqueUsers === 0 ? 0 : (uniqueUsers < DOSAGE_SUPPRESSION_FLOOR ? `<${DOSAGE_SUPPRESSION_FLOOR}` : uniqueUsers),
+      });
+    } catch (error) {
+      console.error("Failed to fetch public dosage summary:", error);
+      res.status(500).json({ error: "Failed to fetch public dosage summary" });
+    }
+  });
 
   app.get("/api/pilot/cohorts", requireAuth, requireAdmin, async (_req, res) => {
     try {

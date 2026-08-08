@@ -698,7 +698,7 @@ export function registerBenefitsRoutes(app: Express) {
     }
   });
 
-  app.get("/api/benefits/renewals", async (_req, res) => {
+  app.get("/api/benefits/renewals", requireAuth, async (_req, res) => {
     try {
       const renewals = await db.select().from(benefitsRenewals).orderBy(desc(benefitsRenewals.createdAt)).limit(100);
       res.json(renewals);

@@ -215,6 +215,16 @@ export interface IStorage {
   updateWalletBalance(id: string, data: Partial<AcademyWallet>): Promise<AcademyWallet>;
   getTransactionsByWallet(walletId: string): Promise<AcademyTransaction[]>;
   createTransaction(transaction: InsertAcademyTransaction): Promise<AcademyTransaction>;
+  // Atomic economy operations — balance mutation + transaction insert wrapped in
+  // a single DB transaction with a row lock so virtual money can't be forged or
+  // double-spent. Server computes all amounts; clients never supply them.
+  atomicWalletCredit(userId: string, amount: number, tx: { type: string; description: string; category?: string }, extraWallet?: Partial<AcademyWallet>): Promise<AcademyWallet>;
+  atomicWalletDebit(userId: string, amount: number, tx: { type: string; description: string; category?: string }, extraWallet?: (walletBalanceBefore: number) => Partial<AcademyWallet>): Promise<AcademyWallet>;
+  atomicStockTrade(userId: string, stockId: string, action: "buy" | "sell", shares: number): Promise<{ action: string; shares: number; price: number; total: number; newBalance: string }>;
+  atomicCampusFund(userId: string, amount: number): Promise<{ project: AcademyCampusProject; newBalance: string }>;
+  atomicMarketplaceBuy(listingId: string, buyerId: string, buyerName: string, quantity: number): Promise<{ trade: AcademyPeerTrade; price: number; listing: AcademyMarketListing }>;
+  atomicMerchOrder(userId: string, userName: string, itemId: string, quantity: number): Promise<{ order: AcademyMerchOrder; totalPrice: string; newBalance: string }>;
+  simulateStocksForToday(today: string): Promise<AcademyStock[]>;
 
   getAllStocks(): Promise<AcademyStock[]>;
   getStock(id: string): Promise<AcademyStock | undefined>;
@@ -940,6 +950,253 @@ export class DatabaseStorage implements IStorage {
   async updateCampusProject(id: string, data: Partial<InsertAcademyCampusProject>): Promise<AcademyCampusProject> {
     const [updated] = await db.update(academyCampusProjects).set(data).where(eq(academyCampusProjects.id, id)).returning();
     return updated;
+  }
+
+  // ── Atomic economy operations ────────────────────────────────────────────
+  // All of these lock the wallet row (SELECT ... FOR UPDATE) inside a single DB
+  // transaction so concurrent requests cannot double-spend, and so the balance
+  // mutation and the ledger transaction insert can never diverge.
+
+  private async lockWallet(tx: any, userId: string): Promise<AcademyWallet> {
+    // Ensure the wallet exists before locking (getOrCreateWallet is not tx-aware).
+    let [wallet] = await tx.select().from(academyWallets).where(eq(academyWallets.userId, userId));
+    if (!wallet) {
+      [wallet] = await tx.insert(academyWallets).values({ userId, balance: "1000.00" }).returning();
+    }
+    // Lock the row for the remainder of the transaction.
+    await tx.execute(sql`SELECT id FROM academy_wallets WHERE id = ${wallet.id} FOR UPDATE`);
+    // Re-read under lock to get the authoritative current balance.
+    [wallet] = await tx.select().from(academyWallets).where(eq(academyWallets.id, wallet.id));
+    return wallet;
+  }
+
+  async atomicWalletCredit(userId: string, amount: number, txData: { type: string; description: string; category?: string }, extraWallet?: Partial<AcademyWallet>): Promise<AcademyWallet> {
+    if (!(amount > 0)) throw new Error("Credit amount must be positive");
+    return db.transaction(async (tx) => {
+      const wallet = await this.lockWallet(tx, userId);
+      const newBalance = (parseFloat(wallet.balance) + amount).toFixed(2);
+      const newEarned = (parseFloat(wallet.totalEarned) + amount).toFixed(2);
+      const [updated] = await tx.update(academyWallets)
+        .set({ balance: newBalance, totalEarned: newEarned, ...(extraWallet || {}) })
+        .where(eq(academyWallets.id, wallet.id)).returning();
+      await tx.insert(academyTransactions).values({
+        walletId: wallet.id,
+        type: txData.type,
+        amount: amount.toFixed(2),
+        description: txData.description,
+        category: txData.category || "general",
+      });
+      return updated;
+    });
+  }
+
+  async atomicWalletDebit(userId: string, amount: number, txData: { type: string; description: string; category?: string }, extraWallet?: (balanceBefore: number) => Partial<AcademyWallet>): Promise<AcademyWallet> {
+    if (!(amount > 0)) throw new Error("Debit amount must be positive");
+    return db.transaction(async (tx) => {
+      const wallet = await this.lockWallet(tx, userId);
+      const balanceBefore = parseFloat(wallet.balance);
+      if (balanceBefore < amount) throw new Error("INSUFFICIENT_FUNDS");
+      const newBalance = (balanceBefore - amount).toFixed(2);
+      const [updated] = await tx.update(academyWallets)
+        .set({ balance: newBalance, ...(extraWallet ? extraWallet(balanceBefore) : {}) })
+        .where(eq(academyWallets.id, wallet.id)).returning();
+      await tx.insert(academyTransactions).values({
+        walletId: wallet.id,
+        type: txData.type,
+        amount: (-amount).toFixed(2),
+        description: txData.description,
+        category: txData.category || "general",
+      });
+      return updated;
+    });
+  }
+
+  async atomicStockTrade(userId: string, stockId: string, action: "buy" | "sell", shares: number): Promise<{ action: string; shares: number; price: number; total: number; newBalance: string }> {
+    if (!Number.isInteger(shares) || shares <= 0) throw new Error("SHARES_INVALID");
+    return db.transaction(async (tx) => {
+      const [stock] = await tx.select().from(academyStocks).where(eq(academyStocks.id, stockId));
+      if (!stock) throw new Error("STOCK_NOT_FOUND");
+      // Server-quoted price — the client never supplies price or cost.
+      const price = parseFloat(stock.currentPrice);
+      const total = price * shares;
+      const wallet = await this.lockWallet(tx, userId);
+      const [existingPortfolio] = await tx.select().from(academyPortfolios)
+        .where(and(eq(academyPortfolios.userId, userId), eq(academyPortfolios.stockId, stockId)));
+
+      if (action === "buy") {
+        const balance = parseFloat(wallet.balance);
+        if (balance < total) throw new Error("INSUFFICIENT_FUNDS");
+        const newBalance = (balance - total).toFixed(2);
+        const newInvested = (parseFloat(wallet.totalInvested) + total).toFixed(2);
+        await tx.update(academyWallets).set({ balance: newBalance, totalInvested: newInvested }).where(eq(academyWallets.id, wallet.id));
+
+        const existingShares = existingPortfolio ? existingPortfolio.shares : 0;
+        const existingAvg = existingPortfolio ? parseFloat(existingPortfolio.avgBuyPrice) : 0;
+        const newTotalShares = existingShares + shares;
+        const newAvgPrice = ((existingAvg * existingShares + price * shares) / newTotalShares).toFixed(2);
+        if (existingPortfolio) {
+          await tx.update(academyPortfolios).set({ shares: newTotalShares, avgBuyPrice: newAvgPrice }).where(eq(academyPortfolios.id, existingPortfolio.id));
+        } else {
+          await tx.insert(academyPortfolios).values({ userId, stockId, shares: newTotalShares, avgBuyPrice: newAvgPrice });
+        }
+        await tx.insert(academyTransactions).values({
+          walletId: wallet.id, type: "stock_buy", amount: (-total).toFixed(2),
+          description: `Bought ${shares} shares of ${stock.symbol} at $${price.toFixed(2)}`, category: "investment",
+        });
+        return { action, shares, price, total, newBalance };
+      } else {
+        if (!existingPortfolio || existingPortfolio.shares < shares) throw new Error("INSUFFICIENT_SHARES");
+        const newBalance = (parseFloat(wallet.balance) + total).toFixed(2);
+        await tx.update(academyWallets).set({ balance: newBalance }).where(eq(academyWallets.id, wallet.id));
+        const remainingShares = existingPortfolio.shares - shares;
+        await tx.update(academyPortfolios).set({ shares: remainingShares, avgBuyPrice: existingPortfolio.avgBuyPrice }).where(eq(academyPortfolios.id, existingPortfolio.id));
+        await tx.insert(academyTransactions).values({
+          walletId: wallet.id, type: "stock_sell", amount: total.toFixed(2),
+          description: `Sold ${shares} shares of ${stock.symbol} at $${price.toFixed(2)}`, category: "investment",
+        });
+        return { action, shares, price, total, newBalance };
+      }
+    });
+  }
+
+  async atomicCampusFund(userId: string, amount: number): Promise<{ project: AcademyCampusProject; newBalance: string }> {
+    if (!(amount > 0)) throw new Error("AMOUNT_INVALID");
+    return db.transaction(async (tx) => {
+      const [project] = await tx.select().from(academyCampusProjects).where(eq(academyCampusProjects.userId, userId));
+      if (!project) throw new Error("NO_CAMPUS_PROJECT");
+      const wallet = await this.lockWallet(tx, userId);
+      const balance = parseFloat(wallet.balance);
+      if (balance < amount) throw new Error("INSUFFICIENT_FUNDS");
+      const newBalance = (balance - amount).toFixed(2);
+      const newCampusContributed = (parseFloat(wallet.campusContributed) + amount).toFixed(2);
+      await tx.update(academyWallets).set({ balance: newBalance, campusContributed: newCampusContributed }).where(eq(academyWallets.id, wallet.id));
+      const newAmountFunded = (parseFloat(project.amountFunded) + amount).toFixed(2);
+      const [updatedProject] = await tx.update(academyCampusProjects).set({ amountFunded: newAmountFunded }).where(eq(academyCampusProjects.id, project.id)).returning();
+      await tx.insert(academyTransactions).values({
+        walletId: wallet.id, type: "campus_fund", amount: (-amount).toFixed(2),
+        description: `Funded campus project: ${project.projectName}`, category: "campus",
+      });
+      return { project: updatedProject, newBalance };
+    });
+  }
+
+  async atomicMarketplaceBuy(listingId: string, buyerId: string, buyerName: string, quantity: number): Promise<{ trade: AcademyPeerTrade; price: number; listing: AcademyMarketListing }> {
+    const qty = Number.isInteger(quantity) && quantity > 0 ? quantity : 1;
+    return db.transaction(async (tx) => {
+      // Lock the listing row so two buyers can't both claim the last unit.
+      await tx.execute(sql`SELECT id FROM academy_market_listings WHERE id = ${listingId} FOR UPDATE`);
+      const [listing] = await tx.select().from(academyMarketListings).where(eq(academyMarketListings.id, listingId));
+      if (!listing || listing.status !== "active" || listing.quantity <= 0) throw new Error("LISTING_UNAVAILABLE");
+      if (listing.sellerId === buyerId) throw new Error("CANNOT_BUY_OWN");
+      if (listing.quantity < qty) throw new Error("INSUFFICIENT_QUANTITY");
+      // Server-authoritative price from the listing.
+      const price = parseFloat(String(listing.price)) * qty;
+
+      const buyerWallet = await this.lockWallet(tx, buyerId);
+      const buyerBalance = parseFloat(buyerWallet.balance);
+      if (buyerBalance < price) throw new Error("INSUFFICIENT_FUNDS");
+      await tx.update(academyWallets).set({ balance: (buyerBalance - price).toFixed(2) }).where(eq(academyWallets.id, buyerWallet.id));
+      await tx.insert(academyTransactions).values({
+        walletId: buyerWallet.id, type: "purchase", amount: (-price).toFixed(2),
+        description: `Bought "${listing.itemName}" from ${listing.sellerName}`, category: "marketplace",
+      });
+
+      const sellerWallet = await this.lockWallet(tx, listing.sellerId);
+      const sellerBalance = parseFloat(sellerWallet.balance);
+      await tx.update(academyWallets).set({ balance: (sellerBalance + price).toFixed(2) }).where(eq(academyWallets.id, sellerWallet.id));
+      await tx.insert(academyTransactions).values({
+        walletId: sellerWallet.id, type: "sale", amount: price.toFixed(2),
+        description: `Sold "${listing.itemName}" to ${buyerName}`, category: "marketplace",
+      });
+
+      const newQty = listing.quantity - qty;
+      const [updatedListing] = await tx.update(academyMarketListings)
+        .set({ quantity: Math.max(0, newQty), status: newQty <= 0 ? "sold" : "active" })
+        .where(eq(academyMarketListings.id, listing.id)).returning();
+
+      const [trade] = await tx.insert(academyPeerTrades).values({
+        listingId: listing.id, buyerId, buyerName, sellerId: listing.sellerId, sellerName: listing.sellerName,
+        quantity: qty, totalPrice: price.toFixed(2), status: "completed",
+      }).returning();
+
+      return { trade, price, listing: updatedListing };
+    });
+  }
+
+  async atomicMerchOrder(userId: string, userName: string, itemId: string, quantity: number): Promise<{ order: AcademyMerchOrder; totalPrice: string; newBalance: string }> {
+    if (!Number.isInteger(quantity) || quantity <= 0) throw new Error("QUANTITY_INVALID");
+    return db.transaction(async (tx) => {
+      // Lock the merch item row so an availability flip can't race the checkout.
+      await tx.execute(sql`SELECT id FROM academy_merch_items WHERE id = ${itemId} FOR UPDATE`);
+      const [item] = await tx.select().from(academyMerchItems).where(eq(academyMerchItems.id, itemId));
+      if (!item) throw new Error("ITEM_NOT_FOUND");
+      if (!item.inStock) throw new Error("OUT_OF_STOCK");
+      // Server-authoritative price from the catalog; client totalPrice is ignored.
+      const total = parseFloat(String(item.price)) * quantity;
+      const totalPrice = total.toFixed(2);
+
+      const wallet = await this.lockWallet(tx, userId);
+      const balance = parseFloat(wallet.balance);
+      if (balance < total) throw new Error("INSUFFICIENT_FUNDS");
+      const newBalance = (balance - total).toFixed(2);
+      await tx.update(academyWallets).set({ balance: newBalance }).where(eq(academyWallets.id, wallet.id));
+      await tx.insert(academyTransactions).values({
+        walletId: wallet.id, type: "merch_purchase", amount: (-total).toFixed(2),
+        description: `Ordered ${quantity} x ${item.name}`, category: "merch",
+      });
+      // academy_merch_items tracks availability as a boolean (inStock), not a
+      // numeric count, so there is no per-unit quantity to decrement.
+      const [order] = await tx.insert(academyMerchOrders).values({
+        userId, userName, itemId, quantity, totalPrice, status: "pending",
+      }).returning();
+      return { order, totalPrice, newBalance };
+    });
+  }
+
+  async simulateStocksForToday(today: string): Promise<AcademyStock[]> {
+    // Advance the market at most one step per UTC calendar day. Each stock's
+    // daily move is a pure function of (symbol, today) so it's reproducible, and
+    // stocks already stamped with today's date are left untouched — making the
+    // whole operation idempotent regardless of how many times it's called.
+    const seededMovePercent = (symbol: string): number => {
+      let h = 2166136261 >>> 0;
+      const key = `${symbol}:${today}`;
+      for (let i = 0; i < key.length; i++) {
+        h ^= key.charCodeAt(i);
+        h = Math.imul(h, 16777619) >>> 0;
+      }
+      const unit = (h % 100000) / 100000; // [0, 1)
+      return unit * 10 - 5; // [-5, +5)
+    };
+    return db.transaction(async (tx) => {
+      // Lock the whole stock table for the step so concurrent simulate calls
+      // can't both apply today's move.
+      await tx.execute(sql`SELECT id FROM academy_stocks FOR UPDATE`);
+      const stocks = await tx.select().from(academyStocks);
+      const result: AcademyStock[] = [];
+      for (const stock of stocks) {
+        if (stock.lastSimulatedDate === today) {
+          // Already advanced today — return the existing quote unchanged.
+          result.push(stock);
+          continue;
+        }
+        const changePercent = seededMovePercent(stock.symbol);
+        const prevPrice = parseFloat(stock.currentPrice);
+        const newPrice = Math.max(1, prevPrice * (1 + changePercent / 100));
+        const history = Array.isArray(stock.priceHistory) ? [...(stock.priceHistory as number[])] : [];
+        history.push(prevPrice);
+        if (history.length > 30) history.splice(0, history.length - 30);
+        const [updated] = await tx.update(academyStocks).set({
+          previousPrice: stock.currentPrice,
+          currentPrice: newPrice.toFixed(2),
+          changePercent: changePercent.toFixed(2),
+          priceHistory: history,
+          lastSimulatedDate: today,
+        }).where(eq(academyStocks.id, stock.id)).returning();
+        result.push(updated);
+      }
+      return result;
+    });
   }
 
   async getAllCompetitions(): Promise<AcademyCompetition[]> {

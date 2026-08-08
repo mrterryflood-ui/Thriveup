@@ -1,7 +1,7 @@
-import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -14,15 +14,19 @@ import {
   Download, Camera,
 } from "lucide-react";
 
+// Public aggregate values may be a measured number, a suppressed count like
+// "<5", or the sentinel "not yet reported" for unmeasured values.
+type MetricValue = number | string;
+
 interface PlatformMetrics {
-  engagement: { totalUsers: number; activeUsers30d: number; lessonsCompleted: number; quizzesCompleted: number };
-  prevention: { youthReached: number; modulesCompleted: number; avgScore: number };
-  coalition: { classroomsActive: number; certificatesIssued: number };
-  workforce: { careerAssessments: number; jobPlacements: number };
-  grants: { applicationsInProgress: number; totalFundingSecured: number };
-  facilitator: { totalFacilitators: number; sessionsDelivered: number; avgFidelity: number; totalDosageHours: number };
-  parent: { modulesCompleted: number; familyAssessments: number };
-  email: { inquiriesReceived: number; responseRate: number };
+  engagement: { totalUsers: MetricValue; activeUsers30d: MetricValue; lessonsCompleted: MetricValue; quizzesCompleted: MetricValue };
+  prevention: { youthReached: MetricValue; modulesCompleted: MetricValue; avgScore: MetricValue };
+  coalition: { classroomsActive: MetricValue; certificatesIssued: MetricValue };
+  workforce: { careerAssessments: MetricValue; jobPlacements: MetricValue };
+  grants: { applicationsInProgress: MetricValue; totalFundingSecured: MetricValue };
+  facilitator: { totalFacilitators: MetricValue; sessionsDelivered: MetricValue; avgFidelity: MetricValue; totalDosageHours: MetricValue };
+  parent: { modulesCompleted: MetricValue; familyAssessments: MetricValue };
+  email: { inquiriesReceived: MetricValue; responseRate: MetricValue };
 }
 
 function TrendIcon({ value, previous }: { value: number; previous?: number }) {
@@ -31,16 +35,29 @@ function TrendIcon({ value, previous }: { value: number; previous?: number }) {
   return <TrendingDown className="h-4 w-4 text-red-500" />;
 }
 
+const NOT_YET_REPORTED = "not yet reported";
+
 function MetricCard({ label, value, unit, icon: Icon, href, color }: {
-  label: string; value: number; unit?: string; icon: typeof Users; href?: string; color: string;
+  label: string; value: MetricValue; unit?: string; icon: typeof Users; href?: string; color: string;
 }) {
+  const notReported = value === NOT_YET_REPORTED;
+  const display = notReported
+    ? "Not yet reported"
+    : typeof value === "number" && unit === "$"
+      ? `$${value.toLocaleString()}`
+      : `${value}`;
+  const suffix = !notReported && unit && unit !== "$" ? ` ${unit}` : "";
+
   const content = (
     <Card className={href ? "hover-elevate cursor-pointer" : ""}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-2">
           <div>
-            <p className="text-2xl font-bold" data-testid={`text-metric-${label.toLowerCase().replace(/\s+/g, '-')}`}>
-              {typeof value === "number" && unit === "$" ? `$${value.toLocaleString()}` : value}{unit && unit !== "$" ? ` ${unit}` : ""}
+            <p
+              className={notReported ? "text-sm font-medium text-muted-foreground italic" : "text-2xl font-bold"}
+              data-testid={`text-metric-${label.toLowerCase().replace(/\s+/g, '-')}`}
+            >
+              {display}{suffix}
             </p>
             <p className="text-sm text-muted-foreground">{label}</p>
           </div>
@@ -72,9 +89,13 @@ function MetricSection({ title, icon: Icon, children, color }: {
 
 export default function PlatformMetricsPage() {
   const { toast } = useToast();
+  const { isAuthenticated } = useAuth();
 
+  // Public read-only aggregates — no auth required. Values are non-sensitive
+  // rollups; people counts below the suppression floor come back masked, and
+  // unmeasured values arrive as "not yet reported".
   const { data: metrics, isLoading } = useQuery<PlatformMetrics>({
-    queryKey: ["/api/metrics/platform-wide"],
+    queryKey: ["/api/public/platform-metrics"],
   });
 
   const snapshotMutation = useMutation({
@@ -97,7 +118,7 @@ export default function PlatformMetricsPage() {
     );
   }
 
-  if (!metrics) return <p className="p-6 text-muted-foreground" data-testid="text-no-metrics">No metrics data available. Please sign in to view platform metrics.</p>;
+  if (!metrics) return <p className="p-6 text-muted-foreground" data-testid="text-no-metrics">No metrics data available right now. Please try again later.</p>;
 
   const m = metrics;
 
@@ -108,12 +129,14 @@ export default function PlatformMetricsPage() {
           title="Platform Metrics"
           description="Comprehensive metrics dashboard across all platform categories"
         />
-        <div className="flex items-center gap-2 flex-wrap">
-          <Button variant="outline" onClick={() => snapshotMutation.mutate()} disabled={snapshotMutation.isPending} data-testid="button-snapshot">
-            <Camera className="mr-2 h-4 w-4" />
-            {snapshotMutation.isPending ? "Capturing..." : "Capture Snapshot"}
-          </Button>
-        </div>
+        {isAuthenticated && (
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button variant="outline" onClick={() => snapshotMutation.mutate()} disabled={snapshotMutation.isPending} data-testid="button-snapshot">
+              <Camera className="mr-2 h-4 w-4" />
+              {snapshotMutation.isPending ? "Capturing..." : "Capture Snapshot"}
+            </Button>
+          </div>
+        )}
       </div>
 
       <MetricSection title="Engagement" icon={Users} color="text-blue-500">
