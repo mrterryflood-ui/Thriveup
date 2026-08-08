@@ -395,7 +395,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     engineMode: "concept-only",
     concept: {
       blurb:
-        "Structural welding in the U.S. follows AWS D1.1 — the code that says how welds must be made, inspected, and documented. A WPS (Welding Procedure Specification) describes the approved parameters for a specific joint. A welder gets qualified by passing a test plate to that WPS. Qualification is position- and thickness-limited: pass a 2F test on 10 mm and you can weld 2F and 1F up to 19 mm — but not 3F (vertical) or thicker plate. Code work demands paper. Track everything.",
+        "Structural welding in the U.S. follows AWS D1.1 — the code that says how welds must be made, inspected, and documented. A WPS (Welding Procedure Specification) describes the approved parameters for a specific joint. A welder gets qualified by passing a test plate to that WPS. Qualification is position- and thickness-limited: pass a 2F test on 10 mm and you can weld 2F and 1F up to 19 mm — but not 3F (vertical) or thicker plate. Code work demands paper. Track everything. (Everything in this lesson is a study approximation: exact position and thickness ranges vary by D1.1 edition and process — the adopted edition's qualification tables are the only authority.)",
       keyTerms: [
         { term: "WPS", definition: "Welding Procedure Specification — the document listing approved parameters." },
         { term: "PQR", definition: "Procedure Qualification Record — the test results proving a WPS produces sound welds." },
@@ -408,8 +408,8 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
       { instruction: "Identify what happens when a welder passes a 3G test plate (qualifies for 3G + which other positions?).", hint: "3G qualifies the welder for 1G, 2G, and 3G — vertical includes flat and horizontal.", checkDescription: "learner names 1G+2G+3G" },
     ],
     soloChallenge: {
-      prompt: "A welder needs to qualify for all groove positions on plate up to 25 mm thick. What single test plate qualifies them for the most positions?",
-      successCriteria: "4G test on plate ≥ 19 mm (or 6G on pipe) qualifies all positions — the hardest test covers the easiest.",
+      prompt: "A welder needs to qualify for all groove positions on plate up to 25 mm thick. What test plate(s) get them there with the fewest tests? (Study approximation — the governing AWS D1.1 edition's qualification tables are the authority.)",
+      successCriteria: "In AWS D1.1, no single plate position test covers everything: 3G qualifies flat/horizontal/vertical and 4G qualifies flat/horizontal/overhead, so 3G + 4G together (on plate thick enough per the edition's table, commonly ≥ 25 mm for unlimited thickness) cover all plate positions. A 6G pipe test qualifies all positions on both pipe and plate. Exact position/thickness ranges depend on the D1.1 edition and process — cite the table, don't recite a rule of thumb.",
       scoringRubric: { correctness: 0.85, time: 0.15, componentCount: 0 },
     },
     sandboxStarter: { initialComponents: [], prompt: "On the canvas, build the qualification matrix: which test position qualifies the welder for which production positions?" },
@@ -437,8 +437,8 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
       { instruction: "Identify which defect is almost always a reject under D1.1.", hint: "Cracks. No transverse cracks of any length are allowed.", checkDescription: "learner names cracks as auto-reject" },
     ],
     soloChallenge: {
-      prompt: "A 12 mm structural butt weld shows a 1 mm-deep undercut along 50 mm of the toe. Acceptable under D1.1 or reject?",
-      successCriteria: "Reject — D1.1 §6 limits undercut to 1 mm depth max but only in short discontinuous lengths; a 50 mm run is excessive.",
+      prompt: "A 12 mm structural butt weld shows a 1 mm-deep undercut along 50 mm of the toe. Acceptable under D1.1 or reject? (Study approximation — the adopted D1.1 edition's acceptance table is the authority.)",
+      successCriteria: "Likely reject — D1.1 undercut limits depend on member thickness, direction of applied stress, and the edition in force. For members stressed in tension the allowance is commonly on the order of 0.25–1 mm with length restrictions; a continuous 1 mm-deep, 50 mm-long run at a weld toe is rejectable under typical acceptance criteria. The correct field answer: look it up in the governing edition's table, don't recite a universal rule.",
       scoringRubric: { correctness: 0.85, time: 0.15, componentCount: 0 },
     },
     sandboxStarter: { initialComponents: [], prompt: "Build a defect-vs-method matrix on the canvas. For each common defect, mark which NDT method best detects it." },

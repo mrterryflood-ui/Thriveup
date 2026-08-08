@@ -88,14 +88,13 @@ async function upsertTrade(meta: { slug: string; name: string; tagline: string; 
   }
 }
 
-async function seedTradeSimsAll(): Promise<void> {
+export async function seedTradeSimsAll(): Promise<void> {
   try {
-    // Fast path: if all 6 trades already exist, skip the upsert work.
-    const existing = await db.select({ slug: tradeSimsTrades.slug }).from(tradeSimsTrades);
-    const have = new Set(existing.map(r => r.slug));
-    const needed = ["electrical","plumbing","hvac","welding","automotive","software-engineering"];
-    if (needed.every(s => have.has(s))) return;
-
+    // NOTE: no fast path — lesson content in shared/data is the source of
+    // truth and must be re-upserted on EVERY boot so content fixes (accuracy
+    // corrections, caveats, rubrics) reach existing databases, including
+    // production, without a manual step. The upserts are idempotent and
+    // data-only (no DDL).
     await upsertTrade(ELECTRICAL_TRADE_META as any, ELECTRICAL_LESSONS);
     await upsertTrade(PLUMBING_TRADE_META as any, PLUMBING_LESSONS);
     await upsertTrade(HVAC_TRADE_META as any, HVAC_LESSONS);

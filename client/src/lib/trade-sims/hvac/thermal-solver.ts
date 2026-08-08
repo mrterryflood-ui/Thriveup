@@ -436,9 +436,26 @@ export function solveThermal(input: ThermalSolveInput): ThermalSolveResult | The
     );
   }
   // Duct velocity sanity (residential supply duct typical 600–900 fpm = 3–4.5 m/s).
+  // Threshold aligned with the Day 5 lesson target: keep supply velocity
+  // under 4.5 m/s (~900 fpm) to avoid noise and excess friction loss.
   for (const [id, r] of Object.entries(perDuct)) {
-    if (r.velocity > 7.5) {
-      warnings.push(`Duct ${id} velocity ${r.velocity.toFixed(1)} m/s exceeds ~7.5 m/s — expect noise.`);
+    if (r.velocity > 4.5) {
+      warnings.push(`Duct ${id} velocity ${r.velocity.toFixed(1)} m/s exceeds ~4.5 m/s (900 fpm) — expect noise and high friction loss.`);
+    }
+  }
+  // Mixed-sign zone loads: some zones heating while others cool. The net
+  // aggregation above cancels them, so flag it explicitly.
+  {
+    const sens = Object.values(perZone).map((z) => z.sensibleLoad);
+    const hasPos = sens.some((s) => s > 1);
+    const hasNeg = sens.some((s) => s < -1);
+    if (hasPos && hasNeg) {
+      const sumMagnitudes = Object.values(perZone).reduce((s, z) => s + Math.abs(z.sensibleLoad), 0) + totalLatent;
+      warnings.push(
+        `Mixed loads: some zones need heating while others need cooling. Total load shown is the NET demand ` +
+          `(${totalLoad.toFixed(0)} W); the sum of per-zone magnitudes is ${sumMagnitudes.toFixed(0)} W. ` +
+          `A single system cannot serve both modes at once — size per-zone equipment from the per-zone loads.`,
+      );
     }
   }
 

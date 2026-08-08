@@ -616,9 +616,10 @@ export function VisualPlumbingCanvas({
     if (solveError) return { text: `⚠ ${solveError}`, color: "text-amber-600" };
     if (!result) return { text: "Keep connecting — the network solves automatically when complete.", color: "text-muted-foreground" };
     const closed = result.closedOneWays?.length ?? 0;
+    const stagnantNote = result.warnings && result.warnings.length > 0 ? ` · ⚠ ${result.warnings[0]}` : "";
     return {
-      text: `✓ Network solved — ${result.iterations} iterations${closed > 0 ? ` · 🛑 ${closed} check valve${closed === 1 ? "" : "s"} closed to block backflow` : ""}`,
-      color: closed > 0 ? "text-amber-600" : "text-green-600",
+      text: `✓ Network solved — ${result.iterations} iterations${closed > 0 ? ` · 🛑 ${closed} check valve${closed === 1 ? "" : "s"} closed to block backflow` : ""}${stagnantNote}`,
+      color: closed > 0 || stagnantNote ? "text-amber-600" : "text-green-600",
     };
   })();
 

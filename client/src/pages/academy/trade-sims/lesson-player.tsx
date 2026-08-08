@@ -629,6 +629,16 @@ export default function LessonPlayerPage() {
                   </ul>
                 </div>
               )}
+              <div
+                className="rounded-md border border-amber-300/50 bg-amber-50 dark:bg-amber-950/30 px-3 py-2 text-xs text-muted-foreground"
+                data-testid="text-code-disclaimer"
+              >
+                <span className="font-semibold">Training simplification:</span> code and standard citations
+                (IPC, IRC, UPC, NEC, AWS D1.1, ACCA manuals, ASHRAE, etc.) are simplified for learning and may
+                reflect a specific edition. Requirements vary by adopted edition and local jurisdiction — always
+                verify against the code in force where you work. The simulators are simplified physics models,
+                not design or code-compliance tools.
+              </div>
               <div className="pt-2">
                 <Button onClick={() => setTab("guided")} data-testid="button-next-guided">
                   Next: Guided practice <ChevronRight className="h-4 w-4 ml-1" />

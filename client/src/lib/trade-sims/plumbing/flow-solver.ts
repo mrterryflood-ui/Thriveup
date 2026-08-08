@@ -69,6 +69,15 @@ export interface FlowSolveResult {
    * UI to highlight "this check valve prevented backflow."
    */
   closedOneWays: string[];
+  /**
+   * Junction ids that ended up with no open path to any fixed-head boundary
+   * (e.g. a check valve closed and isolated a dead-end branch). These are
+   * stagnant: zero flow, head reported as 0. Any demand at a stagnant
+   * junction is unserved and reported in `warnings`.
+   */
+  stagnantJunctions?: string[];
+  /** Non-fatal advisories (e.g. unserved demand at a stagnant junction). */
+  warnings?: string[];
 }
 
 export interface FlowSolveError {
@@ -167,7 +176,7 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
   let pass = 0;
   for (; pass < MAX_ACTIVE_SET_PASSES; pass++) {
     const active = userOpen.filter((p) => !forcedClosed.has(p.id));
-    result = solveInner(active, junctions, fixedHeadMap, demandMap, maxIter, tol);
+    result = solveInner(active, junctions, fixedHeadMap, demandMap, maxIter, tol, userOpen.filter((p) => forcedClosed.has(p.id)));
     if (!result.ok) return result;
 
     // Fill zero flow for any pipe we excluded so the result is complete.
@@ -180,7 +189,11 @@ export function solveFlow(input: FlowSolveInput): FlowSolveResult | FlowSolveErr
     for (const p of userOpen) {
       if (!p.oneWay) continue;
       if (forcedClosed.has(p.id)) {
-        // Closed: would it reopen? Need forward driving head.
+        // Closed: would it reopen? Need forward driving head. Never reopen
+        // into/out of a stagnant (isolated) junction — its reported head of 0
+        // is a placeholder, not a real pressure, and using it would make the
+        // active set oscillate.
+        if (result.stagnantJunctions?.includes(p.from) || result.stagnantJunctions?.includes(p.to)) continue;
         const hf = result.heads[p.from];
         const ht = result.heads[p.to];
         if (hf === undefined || ht === undefined) continue;
@@ -221,6 +234,8 @@ function solveInner(
   demandMap: Map<string, number>,
   maxIter: number,
   tol: number,
+  /** One-way pipes the active-set loop has forced closed (excluded from `active`). */
+  forcedClosedPipes: Pipe[] = [],
 ): FlowSolveResult | FlowSolveError {
   // --- Reachability: every free junction must reach a fixed-head one -----
   const adj = new Map<string, string[]>();
@@ -240,13 +255,61 @@ function solveInner(
       }
     }
   }
-  for (const j of junctions) {
-    if (!reached.has(j.id)) {
-      return {
-        ok: false,
-        error: `Junction ${j.id} is not connected to any fixed-head boundary — network is over-constrained or disconnected. (A check valve may be installed in the wrong direction, blocking the only supply path.)`,
-      };
+  // A junction with no open path to a fixed-head boundary is either:
+  //  (a) STAGNANT — it WOULD be reachable if the check valves the active-set
+  //      loop forced closed were open. That's the valve legitimately doing
+  //      its job (isolating its downstream branch), so it's a successful
+  //      solve of the remaining network plus a warning; or
+  //  (b) a genuinely disconnected/broken topology — still a fatal error,
+  //      exactly as before.
+  const unreachable = junctions.filter((j) => !reached.has(j.id));
+  let stagnant: Junction[] = [];
+  if (unreachable.length > 0) {
+    // Recompute reachability WITH the forced-closed one-way pipes restored.
+    const adj2 = new Map<string, string[]>();
+    for (const j of junctions) adj2.set(j.id, []);
+    for (const p of [...active, ...forcedClosedPipes]) {
+      adj2.get(p.from)?.push(p.to);
+      adj2.get(p.to)?.push(p.from);
     }
+    const reached2 = new Set<string>(fixedHeadMap.keys());
+    const q2: string[] = [...fixedHeadMap.keys()];
+    while (q2.length) {
+      const n = q2.shift()!;
+      for (const nb of adj2.get(n) ?? []) {
+        if (!reached2.has(nb)) {
+          reached2.add(nb);
+          q2.push(nb);
+        }
+      }
+    }
+    for (const j of unreachable) {
+      if (!reached2.has(j.id)) {
+        return {
+          ok: false,
+          error: `Junction ${j.id} is not connected to any fixed-head boundary — network is over-constrained or disconnected. (A check valve may be installed in the wrong direction, blocking the only supply path.)`,
+        };
+      }
+    }
+    stagnant = unreachable;
+  }
+  const stagnantIds = new Set(stagnant.map((j) => j.id));
+  const warnings: string[] = [];
+  for (const j of stagnant) {
+    const dem = demandMap.get(j.id) ?? 0;
+    if (dem !== 0) {
+      warnings.push(
+        `Junction ${j.id} is isolated from every pressure source (a closed valve or check valve cut it off) — its demand of ${dem} m³/s cannot be served.`,
+      );
+    } else {
+      warnings.push(
+        `Junction ${j.id} is isolated from every pressure source — stagnant, zero flow.`,
+      );
+    }
+  }
+  if (stagnantIds.size > 0) {
+    active = active.filter((p) => !stagnantIds.has(p.from) && !stagnantIds.has(p.to));
+    junctions = junctions.filter((j) => !stagnantIds.has(j.id));
   }
 
   // --- Index free (non-fixed-head) junctions ----------------------------
@@ -296,7 +359,12 @@ function solveInner(
     }
     const heads: Record<string, number> = {};
     for (const j of junctions) heads[j.id] = fixedHeadMap.get(j.id)!;
-    return { ok: true, heads, flows, iterations: 0, residual: 0, closedOneWays: [] };
+    for (const id of stagnantIds) heads[id] = 0;
+    return {
+      ok: true, heads, flows, iterations: 0, residual: 0, closedOneWays: [],
+      stagnantJunctions: [...stagnantIds],
+      warnings: warnings.length ? warnings : undefined,
+    };
   }
 
   // Adjacency by free junction (kept for parity with original; unused below).
@@ -387,7 +455,12 @@ function solveInner(
     flows[p.id] = q;
   }
 
-  return { ok: true, heads, flows, iterations: iter, residual: lastResidual, closedOneWays: [] };
+  for (const id of stagnantIds) heads[id] = 0;
+  return {
+    ok: true, heads, flows, iterations: iter, residual: lastResidual, closedOneWays: [],
+    stagnantJunctions: [...stagnantIds],
+    warnings: warnings.length ? warnings : undefined,
+  };
 }
 
 /** Convenience: head loss across a pipe at a given flow (m). */

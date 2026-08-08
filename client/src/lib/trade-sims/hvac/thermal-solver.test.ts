@@ -332,5 +332,57 @@ test("13. rejects system with supply ducts but no return path", () => {
   }
 });
 
+// 14. Mixed-sign zone loads must produce an explicit warning (net vs magnitudes).
+test("14. warns when some zones heat while others cool (net-load cancellation)", () => {
+  const r = solveThermal({
+    zones: [
+      // Cold ambient → this zone needs heating.
+      { id: "Z1", volume: 80, targetTemp: 22, externalWallArea: 120, externalWallR: 3 },
+      // Big internal gain flips this zone to cooling even in a cold ambient.
+      { id: "Z2", volume: 80, targetTemp: 22, externalWallArea: 20, externalWallR: 10, internalGain: 5000 },
+    ],
+    ducts: [
+      { id: "s1", fromZone: "equipment", toZone: "Z1", crossSection: 0.05, length: 5, kind: "supply" },
+      { id: "s2", fromZone: "equipment", toZone: "Z2", crossSection: 0.05, length: 5, kind: "supply" },
+      { id: "r1", fromZone: "Z1", toZone: "equipment", crossSection: 0.1, length: 6, kind: "return" },
+    ],
+    equipment: { id: "hp", heatingCapacity: 8000, coolingCapacity: 8000, efficiency: 3.5, blowerCFM: 1500 },
+    ambient: { temp: -5 },
+  });
+  assert(r.ok, `expected ok, got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  const signs = Object.values(r.perZone).map((z) => Math.sign(z.sensibleLoad));
+  assert(signs.includes(1) && signs.includes(-1), "test setup should produce opposite-sign zone loads");
+  assert(
+    r.warnings.some((w) => /mixed loads/i.test(w)),
+    `expected a Mixed loads warning, got: ${JSON.stringify(r.warnings)}`,
+  );
+});
+
+// 15. Velocity warning threshold aligned with the Day 5 lesson target (4.5 m/s).
+test("15. flags duct velocity above 4.5 m/s (lesson-aligned threshold)", () => {
+  const r = solveThermal({
+    zones: [{ id: "Z1", volume: 80, targetTemp: 22, externalWallArea: 150, externalWallR: 2 }],
+    ducts: [
+      // Tiny cross-section forces a high velocity for the required CFM.
+      { id: "s1", fromZone: "equipment", toZone: "Z1", crossSection: 0.01, length: 5, kind: "supply" },
+      { id: "r1", fromZone: "Z1", toZone: "equipment", crossSection: 0.1, length: 6, kind: "return" },
+    ],
+    equipment: { id: "hp", heatingCapacity: 12000, coolingCapacity: 12000, efficiency: 3.5, blowerCFM: 2000 },
+    ambient: { temp: -10 },
+  });
+  assert(r.ok, `expected ok, got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  const v = r.perDuct.s1.velocity;
+  if (v > 4.5) {
+    assert(
+      r.warnings.some((w) => /velocity/.test(w) && /4\.5/.test(w)),
+      `expected a 4.5 m/s velocity warning for v=${v}, got: ${JSON.stringify(r.warnings)}`,
+    );
+  } else {
+    assert(false, `test setup should exceed 4.5 m/s, got ${v}`);
+  }
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

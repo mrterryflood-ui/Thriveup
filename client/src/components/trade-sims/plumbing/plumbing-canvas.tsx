@@ -421,6 +421,13 @@ export function PlumbingCanvas({ initialComponents, onChange, compact = false }:
                   driving head — fix orientation or add pressure.
                 </>
               )}
+              {result.warnings && result.warnings.length > 0 && (
+                <span className="block mt-1 text-amber-600" data-testid="text-solver-warnings">
+                  {result.warnings.map((w, i) => (
+                    <span key={i} className="block">⚠ {w}</span>
+                  ))}
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>

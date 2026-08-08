@@ -363,5 +363,43 @@ test("17. no one-way pipe ever reports negative flow in the result (Day 6 contra
   assert(r.flows.cv >= -1e-10, `Day 6 contract violated: check valve has reverse flow ${r.flows.cv}`);
 });
 
+// 18. Closed check valve isolating a dead-end branch is stagnant, not an error
+test("18. branch isolated by a closed check valve is reported stagnant, not a solve error", () => {
+  // A (high) -> B (low) main run; a check valve feeds dead-end junction D
+  // from the wrong direction (D -> M), so it closes and D has no path to any
+  // fixed head. That must NOT be a fatal error — D is stagnant.
+  const r = solveFlow({
+    pipes: [
+      { id: "p1", from: "A", to: "M", length: 50, diameter: 0.1, frictionFactor: 0.02 },
+      { id: "p2", from: "M", to: "B", length: 50, diameter: 0.1, frictionFactor: 0.02 },
+      { id: "cv", from: "D", to: "M", length: 0.1, diameter: 0.05, frictionFactor: 0.022, oneWay: true, valveKAdd: 5 },
+    ],
+    // Demand at D tries to pull water backwards through the check valve
+    // (M -> D), so the valve closes and D is cut off from every source.
+    junctions: [{ id: "A", fixedHead: 50 }, { id: "M" }, { id: "B", fixedHead: 10 }, { id: "D", demand: 0.001 }],
+  });
+  assert(r.ok, `expected ok (stagnant branch), got ${!r.ok ? r.error : ""}`);
+  if (!r.ok) return;
+  assert(r.flows.p1 > 0, "main run still flows");
+  assert(approx(r.flows.cv, 0, 1e-10), `closed check valve flow must be 0, got ${r.flows.cv}`);
+  assert((r.stagnantJunctions ?? []).includes("D"), `D must be reported stagnant, got ${JSON.stringify(r.stagnantJunctions)}`);
+  assert((r.warnings ?? []).length > 0, "expected a stagnant warning");
+});
+
+// 19. Ordinary disconnected topology is still a fatal error (not stagnant)
+test("19. a junction with no path to any source (no check valve involved) still errors", () => {
+  const r = solveFlow({
+    pipes: [
+      { id: "p1", from: "A", to: "B", length: 50, diameter: 0.1, frictionFactor: 0.02 },
+      // D-E floats free: no connection to A/B at all.
+      { id: "p2", from: "D", to: "E", length: 10, diameter: 0.05, frictionFactor: 0.02 },
+    ],
+    junctions: [{ id: "A", fixedHead: 50 }, { id: "B", fixedHead: 10 }, { id: "D" }, { id: "E", demand: 0.001 }],
+  });
+  assert(!r.ok, "expected a disconnected-network error, got ok");
+  if (r.ok) return;
+  assert(/not connected/i.test(r.error), `error should say not connected, got: ${r.error}`);
+});
+
 console.log(`\n${passed} passed, ${failed} failed`);
 if (failed > 0) process.exit(1);

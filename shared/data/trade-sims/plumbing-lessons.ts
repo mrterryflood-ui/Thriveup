@@ -718,9 +718,9 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     engineMode: "pipe-network",
     concept: {
       blurb:
-        "Commercial systems use the same physics as residential but scale up: 4\" mains instead of 1\"; flush valves (no tank) for toilets at 1.6 gpf flushing in 4 seconds; recirculation as a code requirement for any hot-water run > 50 ft; flushometer urinals; grease interceptors on every food-service drain; multiple risers per floor. The math is the same — Hardy-Cross, fixture units, Darcy-Weisbach — but the diversity factor drops dramatically (more fixtures, less simultaneous use).",
+        "Commercial systems use the same physics as residential but scale up: 4\" mains instead of 1\"; flush valves (no tank) for toilets at 1.6 gpf flushing in 4 seconds; recirculation as a code requirement for any hot-water run > 50 ft; flushometer urinals; grease interceptors on every food-service drain; multiple risers per floor. The math is the same — Hardy-Cross, fixture units, Darcy-Weisbach — but diversity matters more: as fixture count grows, the fraction of fixtures running at the same time shrinks, so peak demand grows much more slowly than fixture count. That's why a 200-fixture building doesn't need 100× the pipe of a 2-fixture bathroom.",
       keyTerms: [
-        { term: "Flushometer", definition: "Direct-supply toilet/urinal valve. Needs 25+ psi residual and 1\" supply minimum." },
+        { term: "Flushometer", definition: "Direct-supply toilet/urinal valve. Typical manufacturer specs call for roughly 25 psi flowing pressure and a 1\" supply — always verify the actual model's spec sheet and locally adopted code." },
         { term: "Grease interceptor", definition: "Tank between food-service drains and the sewer. Captures fats, oils, grease. Sized per IPC Chapter 10." },
         { term: "Riser", definition: "Vertical supply run feeding multiple floors." },
       ],

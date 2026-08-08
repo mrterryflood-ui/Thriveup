@@ -1127,6 +1127,11 @@ export function VisualCircuitCanvas({
           </span>
         )}
       </div>
+      {comps.some(c => c.kind === "battery") && (
+        <div className="text-[11px] text-muted-foreground px-1" data-testid="text-ground-reference">
+          Reference ground (0 V) is the first battery's negative terminal — all node voltages are measured from there.
+        </div>
+      )}
 
       {/* Inspector */}
       {selectedComp && (() => {
