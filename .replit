@@ -81,6 +81,10 @@ args = "touch-targets"
 task = "workflow.run"
 args = "canvas-wire-e2e"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "plumbing-sims"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -218,6 +222,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash scripts/run-canvas-wire-e2e.sh"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "plumbing-sims"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts"
 
 [workflows.workflow.metadata]
 isValidation = true
