@@ -1,18 +1,19 @@
 import { Router } from "express";
-import { db } from "./storage";
-import { users, benefitsScreenings, communityPartners } from "@shared/schema";
+import { db, storage } from "./storage";
+import { benefitsScreenings, communityPartners } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 
 export const chwRouter = Router();
 
-// Staff roles that can access CHW data
-const CHW_ROLES = ["staff", "case_manager", "teacher", "facilitator", "admin"] as const;
+// Staff roles that can access CHW data — keep in lockstep with yhsi-routes.ts STAFF_ROLES
+const CHW_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
 
 async function requireCHWRole(req: any, res: any, next: any) {
-  if (!req.user?.id) return res.status(401).json({ error: "Authentication required" });
+  const userId: string | undefined = req.user?.id ?? req.session?.userId;
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
   try {
-    const [dbUser] = await db.select({ role: users.role }).from(users).where(eq(users.id, req.user.id));
-    if (!dbUser || !CHW_ROLES.includes(dbUser.role as any)) return res.status(403).json({ error: "CHW role required" });
+    const user = await storage.getUser(userId);
+    if (!user || !CHW_ROLES.has(user.role)) return res.status(403).json({ error: "CHW role required" });
     next();
   } catch { res.status(500).json({ error: "Auth check failed" }); }
 }

@@ -132,21 +132,23 @@ export default function ChwDashboardPage() {
   const { data: liveData } = useQuery({ queryKey: ["/api/chw/caseload"], retry: false });
   const { data: liveResources } = useQuery({ queryKey: ["/api/chw/resources"], retry: false });
 
-  const caseload = (liveData as any)?.caseload?.length ? (liveData as any).caseload : SAMPLE_CASELOAD;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const caseload: any[] = (liveData as any)?.caseload?.length ? (liveData as any).caseload : SAMPLE_CASELOAD;
   const isLiveCaseload = !!(liveData as any)?.isLive && (liveData as any)?.caseload?.length > 0;
   const visits = SAMPLE_VISITS;
-  const allResources = (liveResources as any)?.resources?.length ? (liveResources as any).resources : SAMPLE_RESOURCES;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const allResources: any[] = (liveResources as any)?.resources?.length ? (liveResources as any).resources : SAMPLE_RESOURCES;
   const isLiveResources = !!(liveResources as any)?.isLive && (liveResources as any)?.resources?.length > 0;
-  const resources = resourceFilter === "all" ? allResources : allResources.filter((r: any) => r.category === resourceFilter);
-  const resourceCategories = Array.from(new Set(allResources.map((r: any) => r.category)));
+  const resources: any[] = resourceFilter === "all" ? allResources : allResources.filter((r: any) => r.category === resourceFilter);
+  const resourceCategories: string[] = Array.from(new Set<string>(allResources.map((r: any) => r.category as string)));
 
   const trainings = trainingFilter === "all" ? SAMPLE_TRAININGS : SAMPLE_TRAININGS.filter(t => t.status === trainingFilter);
   const completedTrainings = SAMPLE_TRAININGS.filter(t => t.status === "completed").length;
   const totalTrainingHours = SAMPLE_TRAININGS.filter(t => t.status === "completed").reduce((sum, t) => sum + parseInt(t.duration), 0);
 
-  const activeCases = caseload.filter(c => c.status === "active").length;
-  const highRisk = caseload.filter(c => c.riskLevel === "high" && c.status === "active").length;
-  const overdueFollowUps = caseload.filter(c => c.nextFollowUp && new Date(c.nextFollowUp) < new Date()).length;
+  const activeCases = caseload.filter((c: any) => c.status === "active").length;
+  const highRisk = caseload.filter((c: any) => c.riskLevel === "high" && c.status === "active").length;
+  const overdueFollowUps = caseload.filter((c: any) => c.nextFollowUp && new Date(c.nextFollowUp) < new Date()).length;
 
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="chw-dashboard-page">
