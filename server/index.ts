@@ -140,6 +140,16 @@ app.use((req, res, next) => {
     startAISmokeTests();
   }
 
+  // Community-brief production probe — runs every 30 min in production against
+  // the live site anonymously.  Emails Dr. Flood on the 2nd consecutive failure
+  // (401/403 login-wall regression, 429-loop, 5xx, or hollow narrative) and
+  // sends an all-clear when the endpoint recovers.  Closes the gap where the
+  // original outage sat unnoticed because the dev-gate only ran before ship.
+  if (process.env.NODE_ENV === "production") {
+    const { startCommunityBriefProbe } = await import("./community-brief-probe");
+    startCommunityBriefProbe();
+  }
+
   // NOTE: Trade Sims lesson content sync happens on EVERY boot (dev and
   // production) via seedTradeSimsAll() inside seedComprehensive(), called
   // from registerRoutes above. It re-upserts all trades' lessons from
