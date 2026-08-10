@@ -130,13 +130,13 @@ async function probeOpenAI(): Promise<EngineProbeResult> {
   const start = Date.now();
   const key = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
   const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
-  if (!key || !baseURL) return { engine: "openai", model: "gpt-4o-mini", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENAI_* not set" };
+  if (!key || !baseURL) return { engine: "openai", model: "gpt-5-mini", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENAI_* not set" };
 
   try {
     const client = new OpenAI({ apiKey: key, baseURL });
     const resp = await withTimeout(
       client.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini",
         messages: [{ role: "user", content: PROBE_PROMPT }],
         max_completion_tokens: PROBE_MAX_TOKENS,
       }),
@@ -145,9 +145,9 @@ async function probeOpenAI(): Promise<EngineProbeResult> {
     );
     const text = resp.choices[0]?.message?.content || "";
     if (!text || text.trim().length === 0) throw new Error("Empty response");
-    return { engine: "openai", model: "gpt-4o-mini", ok: true, latencyMs: Date.now() - start };
+    return { engine: "openai", model: "gpt-5-mini", ok: true, latencyMs: Date.now() - start };
   } catch (err: any) {
-    return { engine: "openai", model: "gpt-4o-mini", ok: false, latencyMs: Date.now() - start, error: err.message };
+    return { engine: "openai", model: "gpt-5-mini", ok: false, latencyMs: Date.now() - start, error: err.message };
   }
 }
 

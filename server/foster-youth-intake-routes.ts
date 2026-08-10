@@ -296,7 +296,7 @@ async function callAIProvider(prompt: string): Promise<{ provider: string; raw: 
   if (process.env.OPENAI_API_KEY) {
     const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
     const resp = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-5-mini",
       messages: [
         { role: "system", content: withEthicalPreamble("You are a careful, evidence-based case-planning assistant. Output strict JSON only.") },
         { role: "user", content: prompt },
@@ -304,7 +304,7 @@ async function callAIProvider(prompt: string): Promise<{ provider: string; raw: 
       response_format: { type: "json_object" },
     });
     const text = resp.choices[0]?.message?.content ?? "{}";
-    return { provider: "gpt-4o-mini", raw: text };
+    return { provider: "gpt-5-mini", raw: text };
   }
 
   throw new Error("No AI provider configured for intake analysis");

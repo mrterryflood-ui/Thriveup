@@ -184,7 +184,7 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   else if (hasClaudeDirect) engines.push({ id: "claude", model: "claude-haiku-4-5" });
 
   // OpenAI via Replit integration
-  if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
+  if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-5-mini" });
 
   // DeepSeek R1 via OpenRouter — distilled 70B is fast enough to finish in <60s
   if (hasOR) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1-distill-llama-70b" });
@@ -265,7 +265,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
         baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
       });
       const resp = await client.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-5-mini",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt },

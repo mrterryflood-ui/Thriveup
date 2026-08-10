@@ -66,6 +66,7 @@ const TradeSimsTranscriptPage = lazy(() => import("@/pages/academy/trade-sims/tr
 
 const TradeCertVerifyPage = lazy(() => import("@/pages/academy/trade-sims/verify"));
 const BriefSharePage = lazy(() => import("@/pages/brief-share"));
+const FunderDashboard = lazy(() => import("@/pages/funder-dashboard"));
 const TradeSimsSignupsAdminPage = lazy(() => import("@/pages/admin/trade-sims-signups"));
 import { TradeSimsTrialGate } from "@/components/trade-sims-trial-gate";
 const AcademyVillagePage = lazy(() => import("@/pages/academy/village"));
@@ -773,6 +774,7 @@ function AppRouter() {
       <Route path="/chainweb" component={ChainwebBuilderPage} />
       <Route path="/community-impact" component={CommunityImpactPage} />
       <Route path="/brief/:shareId" component={BriefSharePage} />
+      <Route path="/funder/:shareToken" component={FunderDashboard} />
       <Route path="/community-data" component={CommunityDataPage} />
       <Route path="/for-partners" component={ForPartnersPage} />
       <Route path="/orchestra">

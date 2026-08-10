@@ -130,7 +130,7 @@ export function registerTranslateRoutes(app: Express) {
         const numbered = toTranslate.map((t, i) => `${i + 1}. ${t.text}`).join("\n");
 
         const completion = await openai.chat.completions.create({
-          model: "gpt-4o-mini",
+          model: "gpt-5-mini",
           messages: [
             {
               role: "system",

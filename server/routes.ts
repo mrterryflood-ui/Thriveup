@@ -192,6 +192,10 @@ import { registerPartnerApiRoutes } from "./partner-api-routes";
 import { registerEcosystemDataRoutes } from "./ecosystem-data-routes";
 import { registerStreetsRoutes } from "./streets-routes";
 import { embedRouter } from "./embed-routes";
+import { chwRouter } from "./chw-routes";
+import { referralRouter } from "./referral-routes";
+import { capacityRouter, partnerCapacityRouter } from "./capacity-routes";
+import { funderRouter } from "./funder-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -6709,6 +6713,11 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api/employers", employerRegRouter);
   app.use("/api/equity", equityRouter);
   app.use("/api", scorecardRouter);
+  app.use("/api/chw", chwRouter);
+  app.use("/api/referrals", referralRouter);
+  app.use("/api/directory", capacityRouter);
+  app.use("/api/partner/v1", partnerCapacityRouter);
+  app.use("/api/funder", funderRouter);
 
   // ── Embed widget routes — no auth, must be before SPA catch-all ──────────
   app.use("/embed", embedRouter);

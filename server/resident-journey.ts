@@ -138,7 +138,7 @@ async function ensureDemoScenario(forceReset = false) {
     disabilityStatus: "none",
     primaryLanguage: "English",
     needsInterpreter: false,
-    phone: "(512) 555-0142",
+    phone: "(512) 978-9015",
     email: "marcus.j.demo@example.org",
     address: "1100 E 11th St",
     city: "Austin",

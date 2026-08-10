@@ -568,6 +568,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         { term: "Riser diagram", definition: "Vertical isometric view of the plumbing system showing every pipe, fitting, and fixture." },
         { term: "Cleanout", definition: "Removable fitting (Y- or T-shape) allowing a snake or auger access for clogs." },
         { term: "Wet vent / dry vent", definition: "Wet vent carries both drainage and vent flow above the upper fixture. Dry vent is air only." },
+        { term: "psi", definition: "Pounds per square inch — the US standard unit for water pressure. 1 psi ≈ 6.9 kPa. Residential cold water supply is typically 40–80 psi (275–550 kPa)." },
       ],
     },
     guidedSteps: [
@@ -667,8 +668,8 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Whole house went slow this morning. Outdoor hose bib still has 60 psi. What's your next test?",
-      successCriteria: "Hose bib is typically upstream of the PRV. 60 psi at the bib + low pressure inside = PRV failing closed. Verify by gauging downstream of the PRV.",
+      prompt: "Whole house went slow this morning. Outdoor hose bib still has 60 psi (415 kPa). What's your next test?",
+      successCriteria: "Hose bib is typically upstream of the PRV. 60 psi (415 kPa) at the bib + low pressure inside = PRV failing closed. Verify by gauging downstream of the PRV.",
       scoringRubric: { correctness: 1, time: 0, componentCount: 0 },
     },
     sandboxStarter: {
@@ -727,14 +728,14 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       blurb:
         "Commercial systems use the same physics as residential but scale up: 4\" mains instead of 1\"; flush valves (no tank) for toilets at 1.6 gpf flushing in 4 seconds; recirculation as a code requirement for any hot-water run > 50 ft; flushometer urinals; grease interceptors on every food-service drain; multiple risers per floor. The math is the same — Hardy-Cross, fixture units, Darcy-Weisbach — but diversity matters more: as fixture count grows, the fraction of fixtures running at the same time shrinks, so peak demand grows much more slowly than fixture count. That's why a 200-fixture building doesn't need 100× the pipe of a 2-fixture bathroom.",
       keyTerms: [
-        { term: "Flushometer", definition: "Direct-supply toilet/urinal valve. Typical manufacturer specs call for roughly 25 psi flowing pressure and a 1\" supply — always verify the actual model's spec sheet and locally adopted code." },
+        { term: "Flushometer", definition: "Direct-supply toilet/urinal valve. Typical manufacturer specs call for roughly 25 psi (172 kPa) flowing pressure and a 1\" (25 mm) supply — always verify the actual model's spec sheet and locally adopted code." },
         { term: "Grease interceptor", definition: "Tank between food-service drains and the sewer. Captures fats, oils, grease. Sized per IPC Chapter 10." },
         { term: "Riser", definition: "Vertical supply run feeding multiple floors." },
       ],
     },
     guidedSteps: [
       {
-        instruction: "Build a 2-fixture commercial bathroom: Tank (60 m) → 1\" trunk → Tee → two sinks (3.15e-5 m³/s each).",
+        instruction: "Build a 2-fixture commercial bathroom: Tank (60 m / ≈85 psi) → 1\" (25 mm) trunk → Tee → two sinks (3.15e-5 m³/s each).",
         hint: "Higher source head, larger trunk.",
         checkDescription: "commercial-scale layout",
       },
@@ -750,8 +751,8 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A 4-story office building has 8 bathrooms per floor. What's the right primary trunk diameter for a 60 m head source, given roughly 200 WSFU at peak demand?",
-      successCriteria: "Trunk sized to maintain ≥ 25 psi at top-floor fixtures during peak demand. Typical answer: 3\" copper or 4\" iron primary, with risers stepping down at each floor branch.",
+      prompt: "A 4-story office building has 8 bathrooms per floor. What's the right primary trunk diameter for a 60 m (≈85 psi) head source, given roughly 200 WSFU at peak demand?",
+      successCriteria: "Trunk sized to maintain ≥ 25 psi (≈18 m) at top-floor fixtures during peak demand. Typical answer: 3\" (75 mm) copper or 4\" (100 mm) iron primary, with risers stepping down at each floor branch.",
       scoringRubric: { correctness: 0.7, time: 0.15, componentCount: 0.15 },
     },
     sandboxStarter: {
@@ -787,7 +788,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         checkDescription: "project chosen",
       },
       {
-        instruction: "Design the supply system on the canvas. Simulate it. Confirm every fixture gets ≥ 20 m supply head at peak demand.",
+        instruction: "Design the supply system on the canvas. Simulate it. Confirm every fixture gets ≥ 20 m (≈29 psi) supply head at peak demand.",
         hint: "Use everything you've learned — trunk-and-branch, valves, recirculation, backflow protection.",
         checkDescription: "system functional",
       },

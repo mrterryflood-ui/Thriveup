@@ -86,11 +86,12 @@ export async function seedVannDemo(): Promise<{ skipped: boolean; orgs: string[]
   };
   type SeededHh = { id: string; orgIds: string[]; name: string; lang: string; city: string; zip: string; members: SeededMember[] };
 
+  // NOTE: Demo seed data only — not real client records. Replace with real data via API.
   const families: SeededHh[] = [
     {
       id: "hh_williams", orgIds: [IASIS_ID, SISTAHS_ID], name: "Williams Family (placeholder)", lang: "en", city: "Wichita", zip: "67214",
       members: [
-        { id: "m_williams_mom", displayName: "L. Williams", relationship: "parent", age: 38, lang: "en", phone: "316-555-0101", email: "", primary: true, enrolledIn: [programs.healthyMe.id, programs.quarterlyTeaching.id] },
+        { id: "m_williams_mom", displayName: "L. Williams", relationship: "parent", age: 38, lang: "en", phone: "(316) 000-0000", email: "", primary: true, enrolledIn: [programs.healthyMe.id, programs.quarterlyTeaching.id] },
         { id: "m_williams_c1", displayName: "Williams child A", relationship: "child", age: 13, enrolledIn: [programs.joshuaGen.id, programs.sistahsMentoring.id] },
         { id: "m_williams_c2", displayName: "Williams child B", relationship: "child", age: 9, enrolledIn: [programs.academyExcellence.id, programs.childrensMinistry.id] },
         { id: "m_williams_c3", displayName: "Williams child C", relationship: "child", age: 5, enrolledIn: [programs.academyExcellence.id, programs.childrensMinistry.id] },
@@ -99,7 +100,7 @@ export async function seedVannDemo(): Promise<{ skipped: boolean; orgs: string[]
     {
       id: "hh_johnson", orgIds: [IASIS_ID, SISTAHS_ID], name: "Johnson Family (placeholder)", lang: "en", city: "Wichita", zip: "67214",
       members: [
-        { id: "m_johnson_mom", displayName: "K. Johnson", relationship: "parent", age: 41, lang: "en", phone: "316-555-0102", primary: true, enrolledIn: [programs.healthyMe.id] },
+        { id: "m_johnson_mom", displayName: "K. Johnson", relationship: "parent", age: 41, lang: "en", phone: "(316) 000-0000", primary: true, enrolledIn: [programs.healthyMe.id] },
         { id: "m_johnson_c1", displayName: "Johnson child A", relationship: "child", age: 14, enrolledIn: [programs.joshuaGen.id] },
         { id: "m_johnson_c2", displayName: "Johnson child B", relationship: "child", age: 11, enrolledIn: [programs.academyExcellence.id] },
       ],
@@ -107,7 +108,7 @@ export async function seedVannDemo(): Promise<{ skipped: boolean; orgs: string[]
     {
       id: "hh_garcia", orgIds: [IASIS_ID, SISTAHS_ID], name: "Garcia Family (placeholder, Spanish-preferred)", lang: "es", city: "Wichita", zip: "67213",
       members: [
-        { id: "m_garcia_mom", displayName: "M. García", relationship: "parent", age: 36, lang: "es", phone: "316-555-0103", primary: true, enrolledIn: [programs.healthyMe.id] },
+        { id: "m_garcia_mom", displayName: "M. García", relationship: "parent", age: 36, lang: "es", phone: "(316) 000-0000", primary: true, enrolledIn: [programs.healthyMe.id] },
         { id: "m_garcia_c1", displayName: "García child A", relationship: "child", age: 13, lang: "es", enrolledIn: [programs.joshuaGen.id] },
         { id: "m_garcia_c2", displayName: "García child B", relationship: "child", age: 10, lang: "es", enrolledIn: [programs.academyExcellence.id] },
       ],
@@ -115,21 +116,21 @@ export async function seedVannDemo(): Promise<{ skipped: boolean; orgs: string[]
     {
       id: "hh_tran", orgIds: [IASIS_ID, SISTAHS_ID], name: "Tran Family (placeholder, Vietnamese-preferred)", lang: "vi", city: "Wichita", zip: "67217",
       members: [
-        { id: "m_tran_mom", displayName: "T. Trần", relationship: "parent", age: 44, lang: "vi", phone: "316-555-0104", primary: true, enrolledIn: [programs.healthyMe.id] },
+        { id: "m_tran_mom", displayName: "T. Trần", relationship: "parent", age: 44, lang: "vi", phone: "(316) 000-0000", primary: true, enrolledIn: [programs.healthyMe.id] },
         { id: "m_tran_d", displayName: "Trần daughter", relationship: "child", age: 15, lang: "en", enrolledIn: [programs.joshuaGen.id, programs.sistahsMentoring.id] },
       ],
     },
     {
       id: "hh_davis", orgIds: [IASIS_ID, SISTAHS_ID], name: "Davis Family (placeholder, single parent)", lang: "en", city: "Wichita", zip: "67214",
       members: [
-        { id: "m_davis_mom", displayName: "R. Davis", relationship: "parent", age: 33, lang: "en", phone: "316-555-0105", primary: true, enrolledIn: [programs.healthyMe.id] },
+        { id: "m_davis_mom", displayName: "R. Davis", relationship: "parent", age: 33, lang: "en", phone: "(316) 000-0000", primary: true, enrolledIn: [programs.healthyMe.id] },
         { id: "m_davis_d", displayName: "Davis daughter", relationship: "child", age: 12, enrolledIn: [programs.joshuaGen.id, programs.sistahsMentoring.id] },
       ],
     },
     {
       id: "hh_brown", orgIds: [IASIS_ID, SISTAHS_ID], name: "Brown Family (placeholder, grandparent caregiver)", lang: "en", city: "Wichita", zip: "67219",
       members: [
-        { id: "m_brown_gma", displayName: "B. Brown", relationship: "grandparent", age: 64, lang: "en", phone: "316-555-0106", primary: true, enrolledIn: [programs.quarterlyTeaching.id] },
+        { id: "m_brown_gma", displayName: "B. Brown", relationship: "grandparent", age: 64, lang: "en", phone: "(316) 000-0000", primary: true, enrolledIn: [programs.quarterlyTeaching.id] },
         { id: "m_brown_c1", displayName: "Brown grandchild A", relationship: "child", age: 16, enrolledIn: [programs.joshuaGen.id] },
         { id: "m_brown_c2", displayName: "Brown grandchild B", relationship: "child", age: 13, enrolledIn: [programs.joshuaGen.id, programs.sistahsMentoring.id] },
       ],
@@ -137,7 +138,7 @@ export async function seedVannDemo(): Promise<{ skipped: boolean; orgs: string[]
     {
       id: "hh_anderson", orgIds: [IASIS_ID, SISTAHS_ID], name: "Anderson Family (placeholder, two-parent)", lang: "en", city: "Wichita", zip: "67220",
       members: [
-        { id: "m_anderson_mom", displayName: "A. Anderson", relationship: "parent", age: 39, lang: "en", phone: "316-555-0107", primary: true, enrolledIn: [programs.healthyMe.id] },
+        { id: "m_anderson_mom", displayName: "A. Anderson", relationship: "parent", age: 39, lang: "en", phone: "(316) 000-0000", primary: true, enrolledIn: [programs.healthyMe.id] },
         { id: "m_anderson_dad", displayName: "D. Anderson", relationship: "spouse", age: 41, lang: "en" },
         { id: "m_anderson_s", displayName: "Anderson son", relationship: "child", age: 11, enrolledIn: [programs.academyExcellence.id, programs.childrensMinistry.id] },
       ],
@@ -145,7 +146,7 @@ export async function seedVannDemo(): Promise<{ skipped: boolean; orgs: string[]
     {
       id: "hh_thomas", orgIds: [IASIS_ID, SISTAHS_ID], name: "Thomas Family (placeholder, large household)", lang: "en", city: "Wichita", zip: "67214",
       members: [
-        { id: "m_thomas_mom", displayName: "S. Thomas", relationship: "parent", age: 45, lang: "en", phone: "316-555-0108", primary: true, enrolledIn: [programs.healthyMe.id, programs.quarterlyTeaching.id] },
+        { id: "m_thomas_mom", displayName: "S. Thomas", relationship: "parent", age: 45, lang: "en", phone: "(316) 000-0000", primary: true, enrolledIn: [programs.healthyMe.id, programs.quarterlyTeaching.id] },
         { id: "m_thomas_c1", displayName: "Thomas child A", relationship: "child", age: 17, enrolledIn: [programs.joshuaGen.id, programs.sistahsMentoring.id] },
         { id: "m_thomas_c2", displayName: "Thomas child B", relationship: "child", age: 14, enrolledIn: [programs.joshuaGen.id] },
         { id: "m_thomas_c3", displayName: "Thomas child C", relationship: "child", age: 8, enrolledIn: [programs.academyExcellence.id] },

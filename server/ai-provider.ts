@@ -186,7 +186,7 @@ const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   gemini: { model: "gemini-2.0-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
   "openrouter-claude": { model: "anthropic/claude-haiku-4-5", isFree: false },
-  openai: { model: "gpt-4o-mini", isFree: false },
+  openai: { model: "gpt-5-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
   "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
   perplexity: { model: "perplexity/sonar-pro", isFree: false },
@@ -450,7 +450,7 @@ async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" |
 
   if (provider === "openai") {
     client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    model = "gpt-4o-mini";
+    model = "gpt-5-mini";
   } else {
     client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,

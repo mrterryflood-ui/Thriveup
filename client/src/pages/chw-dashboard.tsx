@@ -53,6 +53,7 @@ interface CommunityResource {
   hours: string;
   description: string;
   acceptingClients: boolean;
+  website?: string;
 }
 
 interface TrainingModule {
@@ -80,14 +81,14 @@ const SAMPLE_VISITS = [
 ];
 
 const SAMPLE_RESOURCES: CommunityResource[] = [
-  { id: "cr-1", name: "Community Health Center", category: "Primary Care", address: "123 Main St", phone: "(555) 123-4567", hours: "Mon-Fri 8am-6pm", description: "Sliding-scale primary care, behavioral health, dental", acceptingClients: true },
-  { id: "cr-2", name: "Behavioral Health Services", category: "Mental Health", address: "456 Oak Ave", phone: "(555) 234-5678", hours: "Mon-Sat 9am-7pm", description: "Counseling, substance use treatment, crisis services", acceptingClients: true },
-  { id: "cr-3", name: "Food Pantry & Nutrition Center", category: "Food Access", address: "789 Elm St", phone: "(555) 345-6789", hours: "Tue-Thu 10am-4pm", description: "Emergency food, nutrition education, SNAP enrollment assistance", acceptingClients: true },
-  { id: "cr-4", name: "Housing Navigation Services", category: "Housing", address: "321 Pine Rd", phone: "(555) 456-7890", hours: "Mon-Fri 9am-5pm", description: "Rapid rehousing, emergency shelter referrals, landlord mediation", acceptingClients: false },
-  { id: "cr-5", name: "Workforce Development Center", category: "Employment", address: "654 Cedar Blvd", phone: "(555) 567-8901", hours: "Mon-Fri 8am-5pm", description: "Job training, resume workshops, career counseling, GED programs", acceptingClients: true },
-  { id: "cr-6", name: "WIC & Maternal Health", category: "Maternal Health", address: "987 Maple Dr", phone: "(555) 678-9012", hours: "Mon-Wed-Fri 8am-4pm", description: "WIC enrollment, prenatal care coordination, breastfeeding support", acceptingClients: true },
-  { id: "cr-7", name: "Substance Use Prevention Center", category: "Prevention", address: "147 Birch Ln", phone: "(555) 789-0123", hours: "Mon-Fri 9am-6pm", description: "Prevention education, youth programs, naloxone training", acceptingClients: true },
-  { id: "cr-8", name: "Legal Aid Society", category: "Legal", address: "258 Walnut St", phone: "(555) 890-1234", hours: "Mon-Thu 9am-5pm", description: "Free legal representation, immigration assistance, tenant rights", acceptingClients: true },
+  { id: "cr-1", name: "CommUnityCare Health Centers", category: "Primary Care", address: "123 Main St", phone: "(512) 978-9015", hours: "Mon-Fri 8am-6pm", description: "Sliding-scale primary care, behavioral health, dental", acceptingClients: true, website: "https://communitycaretx.org" },
+  { id: "cr-2", name: "Austin Travis County Integral Care", category: "Mental Health", address: "456 Oak Ave", phone: "(512) 472-4357", hours: "Mon-Sat 9am-7pm", description: "Counseling, substance use treatment, crisis services", acceptingClients: true, website: "https://integralcare.org" },
+  { id: "cr-3", name: "Central Texas Food Bank", category: "Food Access", address: "789 Elm St", phone: "(512) 282-2111", hours: "Tue-Thu 10am-4pm", description: "Emergency food, nutrition education, SNAP enrollment assistance", acceptingClients: true, website: "https://centraltexasfoodbank.org" },
+  { id: "cr-4", name: "LifeWorks", category: "Housing", address: "321 Pine Rd", phone: "(512) 735-2400", hours: "Mon-Fri 9am-5pm", description: "Rapid rehousing, emergency shelter referrals, landlord mediation", acceptingClients: false, website: "https://lifeworksaustin.org" },
+  { id: "cr-5", name: "Workforce Solutions Capital Area", category: "Employment", address: "654 Cedar Blvd", phone: "(512) 597-7100", hours: "Mon-Fri 8am-5pm", description: "Job training, resume workshops, career counseling, GED programs", acceptingClients: true, website: "https://workforcesolutionscapitalarea.com" },
+  { id: "cr-6", name: "Austin Public Health WIC", category: "Maternal Health", address: "987 Maple Dr", phone: "(512) 972-5400", hours: "Mon-Wed-Fri 8am-4pm", description: "WIC enrollment, prenatal care coordination, breastfeeding support", acceptingClients: true, website: "https://www.austintexas.gov/department/wic" },
+  { id: "cr-7", name: "Austin Recovery", category: "Prevention", address: "147 Birch Ln", phone: "(512) 697-3843", hours: "Mon-Fri 9am-6pm", description: "Prevention education, youth programs, naloxone training", acceptingClients: true, website: "https://austinrecovery.org" },
+  { id: "cr-8", name: "Texas RioGrande Legal Aid", category: "Legal", address: "258 Walnut St", phone: "(512) 374-2700", hours: "Mon-Thu 9am-5pm", description: "Free legal representation, immigration assistance, tenant rights", acceptingClients: true, website: "https://www.trla.org" },
 ];
 
 const SAMPLE_TRAININGS: TrainingModule[] = [
@@ -128,10 +129,16 @@ export default function ChwDashboardPage() {
   const [resourceFilter, setResourceFilter] = useState("all");
   const [trainingFilter, setTrainingFilter] = useState("all");
 
-  const caseload = SAMPLE_CASELOAD;
+  const { data: liveData } = useQuery({ queryKey: ["/api/chw/caseload"], retry: false });
+  const { data: liveResources } = useQuery({ queryKey: ["/api/chw/resources"], retry: false });
+
+  const caseload = (liveData as any)?.caseload?.length ? (liveData as any).caseload : SAMPLE_CASELOAD;
+  const isLiveCaseload = !!(liveData as any)?.isLive && (liveData as any)?.caseload?.length > 0;
   const visits = SAMPLE_VISITS;
-  const resources = resourceFilter === "all" ? SAMPLE_RESOURCES : SAMPLE_RESOURCES.filter(r => r.category === resourceFilter);
-  const resourceCategories = Array.from(new Set(SAMPLE_RESOURCES.map(r => r.category)));
+  const allResources = (liveResources as any)?.resources?.length ? (liveResources as any).resources : SAMPLE_RESOURCES;
+  const isLiveResources = !!(liveResources as any)?.isLive && (liveResources as any)?.resources?.length > 0;
+  const resources = resourceFilter === "all" ? allResources : allResources.filter((r: any) => r.category === resourceFilter);
+  const resourceCategories = Array.from(new Set(allResources.map((r: any) => r.category)));
 
   const trainings = trainingFilter === "all" ? SAMPLE_TRAININGS : SAMPLE_TRAININGS.filter(t => t.status === trainingFilter);
   const completedTrainings = SAMPLE_TRAININGS.filter(t => t.status === "completed").length;
@@ -290,7 +297,10 @@ export default function ChwDashboardPage() {
         <TabsContent value="caseload">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-semibold">Active Caseload ({activeCases} clients)</h3>
+              <h3 className="font-semibold flex items-center gap-2">
+                Active Caseload ({activeCases} clients)
+                {!isLiveCaseload && <Badge variant="outline" className="text-xs text-amber-600">Demo data</Badge>}
+              </h3>
             </div>
             <div className="space-y-3" data-testid="section-caseload">
               {caseload.map(client => (
@@ -403,8 +413,13 @@ export default function ChwDashboardPage() {
               </Select>
               <span className="text-xs text-muted-foreground">{resources.length} resources</span>
             </div>
+            {!isLiveResources && (
+              <div data-testid="notice-sample-resources" className="text-xs text-amber-600 bg-amber-50 border border-amber-200 rounded p-2 mb-3">
+                Demo data — connect your resource directory via the Partner API to see your organization's real resources here.
+              </div>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="section-resources">
-              {resources.map(resource => (
+              {resources.map((resource: any) => (
                 <Card key={resource.id} className="p-4" data-testid={`card-resource-${resource.id}`}>
                   <div className="flex items-start gap-3">
                     <div className="rounded-md p-2 bg-teal-100 dark:bg-teal-900/30 shrink-0">
@@ -434,6 +449,12 @@ export default function ChwDashboardPage() {
                           <Clock className="h-3 w-3 shrink-0" />
                           <span>{resource.hours}</span>
                         </div>
+                        {resource.website && (
+                          <div className="flex items-center gap-1">
+                            <ExternalLink className="h-3 w-3 shrink-0" />
+                            <a href={resource.website} target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:underline truncate">{resource.website}</a>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

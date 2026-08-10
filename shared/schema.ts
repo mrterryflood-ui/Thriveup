@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex, unique } from "drizzle-orm/pg-core";
+import { nanoid } from "nanoid";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
@@ -7244,6 +7245,51 @@ export const briefShares = pgTable("brief_shares", {
   briefData: jsonb("brief_data").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   expiresAt: timestamp("expires_at").notNull(),
+});
+
+// ── Referral Loop — track what happens after a CHW makes a referral ──────────
+export const referrals = pgTable("referrals", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(12)),
+  screeningId: integer("screening_id"),
+  programCode: text("program_code").notNull(),
+  orgName: text("org_name").notNull(),
+  orgId: text("org_id"),
+  clientDisplayName: text("client_display_name"),
+  clientPhone: text("client_phone"),
+  chwUserId: integer("chw_user_id"),
+  statusToken: text("status_token").unique().$defaultFn(() => nanoid(16)),
+  status: text("status").notNull().default("sent"),
+  benefitValueEstimate: integer("benefit_value_estimate"),
+  notes: text("notes"),
+  funderId: text("funder_id"),
+  createdAt: timestamp("created_at").defaultNow(),
+  resolvedAt: timestamp("resolved_at"),
+});
+
+// ── Org Capacity Registry — real-time open/waitlist/closed status ─────────────
+export const orgCapacity = pgTable("org_capacity", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(8)),
+  orgId: text("org_id").notNull(),
+  orgName: text("org_name").notNull(),
+  programCode: text("program_code").notNull().default("general"),
+  status: text("status").notNull().default("open"),
+  waitWeeks: integer("wait_weeks"),
+  note: text("note"),
+  contactPhone: text("contact_phone"),
+  contactUrl: text("contact_url"),
+  serviceZips: text("service_zips").array(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+  updatedByPartnerKey: text("updated_by_partner_key"),
+});
+
+// ── Funders — foundation/government funders with token-gated dashboards ───────
+export const funders = pgTable("funders", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(8)),
+  name: text("name").notNull(),
+  type: text("type").notNull().default("foundation"),
+  shareToken: text("share_token").unique().$defaultFn(() => nanoid(16)),
+  linkedOrgIds: text("linked_org_ids").array(),
+  createdAt: timestamp("created_at").defaultNow(),
 });
 
 export * from "./household-schema";

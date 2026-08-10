@@ -92,11 +92,12 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         { term: "U-value", definition: "How easily heat passes through 1 m² of wall per 1 K. U = 1/R." },
         { term: "R-value", definition: "Resistance to heat flow. Higher R = better insulation." },
         { term: "ΔT (delta-T)", definition: "Temperature difference, usually indoor − outdoor. Drives load." },
+        { term: "°F ↔ °C", definition: "°F = (°C × 9/5) + 32. °C = (°F − 32) × 5/9. Quick reference: 32°F = 0°C, 70°F = 21°C, 95°F = 35°C, 212°F = 100°C. HVAC ratings use 95°F (35°C) outdoor / 80°F (27°C) indoor as standard test conditions." },
       ],
     },
     guidedSteps: [
       {
-        instruction: "Place one Zone with 60 m² external-wall area, R-4, target 22 °C.",
+        instruction: "Place one Zone with 60 m² external-wall area, R-4, target 22 °C (72°F).",
         hint: "Zone defaults are reasonable; you only need to confirm them.",
         checkDescription: "1 zone placed",
       },
@@ -106,7 +107,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         checkDescription: "1 heat pump + 1 supply duct connected",
       },
       {
-        instruction: "Run with ambient −5 °C. The solver reports the sensible heating load (W).",
+        instruction: "Run with ambient −5 °C (23°F). The solver reports the sensible heating load (W).",
         hint: "Heating mode kicks in whenever outdoor is colder than the zone.",
         checkDescription: "perZone.sensibleLoad > 0",
       },
@@ -117,7 +118,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A bedroom has 40 m² of external wall, R-3, target 20 °C, ambient −10 °C. Compute the design heating load with no internal gains. (Expected ≈ 400 W.)",
+      prompt: "A bedroom has 40 m² of external wall, R-3, target 20 °C (68°F), ambient −10 °C (14°F). Compute the design heating load with no internal gains. (Expected ≈ 400 W.)",
       successCriteria: "Reported sensibleLoad within ±10 % of 400 W.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
@@ -151,13 +152,13 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Read the chart: at 22 °C dry-bulb and 50 % RH, what is the humidity ratio?",
-        hint: "Drop straight down from the 50 % RH line at 22 °C.",
+        instruction: "Read the chart: at 22 °C (72°F) dry-bulb and 50 % RH, what is the humidity ratio?",
+        hint: "Drop straight down from the 50 % RH line at 22 °C (72°F).",
         checkDescription: "answers ≈ 0.0083 kg/kg",
       },
       {
-        instruction: "If you cool that same air to 14 °C without removing moisture, what is the new RH?",
-        hint: "Horizontal line (constant W) to the left until you hit 14 °C.",
+        instruction: "If you cool that same air to 14 °C (57°F) without removing moisture, what is the new RH?",
+        hint: "Horizontal line (constant W) to the left until you hit 14 °C (57°F).",
         checkDescription: "answers ≈ 100 % (you've hit dew point)",
       },
       {
@@ -167,7 +168,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Outdoor air is 32 °C / 70 % RH. Indoor target is 24 °C / 50 % RH. Is there latent load? (Yes — outdoor humidity ratio is higher.)",
+      prompt: "Outdoor air is 32 °C (90°F) / 70 % RH. Indoor target is 24 °C (75°F) / 50 % RH. Is there latent load? (Yes — outdoor humidity ratio is higher.)",
       successCriteria: "Identifies latent load and that the coil must condense moisture.",
       scoringRubric: { correctness: 0.8, time: 0.1, componentCount: 0.1 },
     },
@@ -187,7 +188,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     concept: {
       diagramKey: "sensible-latent",
       blurb:
-        "Total cooling load = sensible (the heat you feel) + latent (the heat in the water vapor). Q_sensible = m·c·ΔT moves the thermometer. Q_latent = m·h_fg·ΔW pulls water out of the air. A system that's too oversized for sensible load short-cycles before it has time to dehumidify, so latent stays high and you feel clammy at 24 °C. This is the #1 reason a 'cold' house still feels uncomfortable in August.",
+        "Total cooling load = sensible (the heat you feel) + latent (the heat in the water vapor). Q_sensible = m·c·ΔT moves the thermometer. Q_latent = m·h_fg·ΔW pulls water out of the air. A system that's too oversized for sensible load short-cycles before it has time to dehumidify, so latent stays high and you feel clammy at 24 °C (75°F). This is the #1 reason a 'cold' house still feels uncomfortable in August.",
       keyTerms: [
         { term: "Sensible heat", definition: "Heat that changes temperature. cp,air ≈ 1005 J/kg·K." },
         { term: "Latent heat", definition: "Heat tied up in phase change. h_fg ≈ 2.45 MJ/kg for water." },
@@ -196,7 +197,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Place a Zone with 2 occupants and 0.02 m³/s ventilation. Cooling design (ambient 32 °C).",
+        instruction: "Place a Zone with 2 occupants and 0.02 m³/s ventilation. Cooling design (ambient 32 °C / 90°F).",
         hint: "Occupants + outdoor air = a real latent load.",
         checkDescription: "zone with occupancy ≥ 2 and ventilationM3s > 0",
       },
@@ -212,7 +213,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A 100 m² classroom with 25 students (occupancy 25) and 0.15 m³/s of outdoor air sits at 24 °C target. Outdoor 35 °C / W=0.020. Compute total load and SHR.",
+      prompt: "A 100 m² classroom with 25 students (occupancy 25) and 0.15 m³/s of outdoor air sits at 24 °C (75°F) target. Outdoor 35 °C (95°F) / W=0.020. Compute total load and SHR.",
       successCriteria: "Latent > 0; total load consistent with sum of perZone.designLoad.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
@@ -235,7 +236,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     engineMode: "thermal-airflow",
     concept: {
       blurb:
-        "Manual J is ACCA's published method for sizing residential equipment. Wrong sizing is the most common HVAC mistake — '1 ton per 500 ft²' is a folk rule that oversizes new construction by 30–60 %. Real Manual J adds up wall losses, window losses (huge), roof losses, infiltration, internal gains, then picks equipment that matches DESIGN-DAY load, not peak record. Travis County design outdoor: 36 °C cooling, −4 °C heating (99 %/1 % bins).",
+        "Manual J is ACCA's published method for sizing residential equipment. Wrong sizing is the most common HVAC mistake — '1 ton per 500 ft²' is a folk rule that oversizes new construction by 30–60 %. Real Manual J adds up wall losses, window losses (huge), roof losses, infiltration, internal gains, then picks equipment that matches DESIGN-DAY load, not peak record. Travis County design outdoor: 36 °C (97°F) cooling, −4 °C (25°F) heating (99 %/1 % bins).",
       keyTerms: [
         { term: "Design day", definition: "Outdoor at the 99 %/1 % exceedance level — sized to cover almost every hour." },
         { term: "Block load", definition: "Whole-house load, what the equipment sees." },
@@ -254,7 +255,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         checkDescription: "4 supply ducts",
       },
       {
-        instruction: "Run at heating design (−5 °C). Note the per-zone loads vs the total.",
+        instruction: "Run at heating design (−5 °C / 23°F). Note the per-zone loads vs the total.",
         hint: "Total should equal |sum(sensible)| + latent.",
         checkDescription: "totalLoad reported",
       },
@@ -380,7 +381,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     concept: {
       diagramKey: "heat-pump",
       blurb:
-        "Heat pumps move heat instead of making it, so they deliver 2.5–4× the heat per kWh that resistance does. Modern cold-climate models keep COP > 2 down to −15 °C. Two numbers matter at design: heating capacity at the design outdoor (always less than the rated 47 °F capacity) and the balance point — outdoor temp where the heat pump's output equals the house's load. Below the balance point you need auxiliary heat (strip or backup furnace).",
+        "Heat pumps move heat instead of making it, so they deliver 2.5–4× the heat per kWh that resistance does. Modern cold-climate models keep COP > 2 down to −15 °C (5°F). Two numbers matter at design: heating capacity at the design outdoor (always less than the rated 47 °F / 8 °C capacity) and the balance point — outdoor temp where the heat pump's output equals the house's load. Below the balance point you need auxiliary heat (strip or backup furnace).",
       keyTerms: [
         { term: "COP", definition: "Coefficient of Performance = heat delivered / electrical input. Heating side metric." },
         { term: "SEER2", definition: "Seasonal Energy Efficiency Ratio (2023+ revision). Cooling side metric." },
@@ -395,19 +396,19 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         checkDescription: "1 heat pump + zones totaling ~6 kW load at design",
       },
       {
-        instruction: "Run at ambient −5 °C. Verify load < capacity, no warnings.",
+        instruction: "Run at ambient −5 °C (23°F). Verify load < capacity, no warnings.",
         hint: "totalLoad ≤ equipmentCapacity.",
         checkDescription: "no Undersized warning",
       },
       {
-        instruction: "Drop ambient to −15 °C. Recompute. Does the heat pump still cover the load?",
+        instruction: "Drop ambient to −15 °C (5°F). Recompute. Does the heat pump still cover the load?",
         hint: "Real HP capacity drops at low temps; this v1 doesn't auto-derate, so the test is whether YOU realized it should.",
         checkDescription: "learner identifies need for aux heat",
       },
     ],
     soloChallenge: {
-      prompt: "Design a heat pump + aux strip system for a Travis County house (5 kW load at −4 °C design, balance point goal 0 °C). Pick capacity + aux size.",
-      successCriteria: "Heat-pump heatingCapacity ≥ 5 kW at design; aux backup ≥ load minus HP output at −10 °C.",
+      prompt: "Design a heat pump + aux strip system for a Travis County house (5 kW load at −4 °C / 25°F design, balance point goal 0 °C / 32°F). Pick capacity + aux size.",
+      successCriteria: "Heat-pump heatingCapacity ≥ 5 kW at design; aux backup ≥ load minus HP output at −10 °C (14°F).",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
     sandboxStarter: {
@@ -418,7 +419,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         { kind: "supply_duct", props: { length: 6, crossSection: 0.06 } },
         { kind: "return_duct", props: { length: 8, crossSection: 0.10 } },
       ],
-      prompt: "Vary ambient from +10 to −15 °C. You'll see the load curve cross the rated capacity around −5 °C — that's roughly your balance point.",
+      prompt: "Vary ambient from +10 °C (50°F) to −15 °C (5°F). You'll see the load curve cross the rated capacity around −5 °C (23°F) — that's roughly your balance point.",
     },
     credentialPathway: `${NATE} Heat Pump specialty + ${EPA608} are the natural combo. Cold-climate HP installs are the fastest-growing IRA-incentivized work in Texas.`,
   },
@@ -476,11 +477,11 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     engineMode: "thermal-airflow",
     concept: {
       blurb:
-        "A single-zone system holds one average temperature with one thermostat. Zoning splits the duct trunk into independently-damped branches, each with its own thermostat — so the bedroom can hold 18 °C while the office holds 22 °C. The trick is the bypass / variable-speed blower: when only one zone is calling, the blower has to slow down or dump excess air, or you'll over-pressurize the trunk and short-cycle the equipment.",
+        "A single-zone system holds one average temperature with one thermostat. Zoning splits the duct trunk into independently-damped branches, each with its own thermostat — so the bedroom can hold 18 °C (64°F) while the office holds 22 °C (72°F). The trick is the bypass / variable-speed blower: when only one zone is calling, the blower has to slow down or dump excess air, or you'll over-pressurize the trunk and short-cycle the equipment.",
       keyTerms: [
         { term: "Zone damper", definition: "Motorized damper in a branch duct, opened by a calling thermostat." },
         { term: "Bypass duct", definition: "Diverts excess supply air back to the return when only one zone is open." },
-        { term: "Setback", definition: "Temporary setpoint reduction (e.g., night). 1 °C setback ≈ 1–3 % season savings." },
+        { term: "Setback", definition: "Temporary setpoint reduction (e.g., night). 1 °C (1.8°F) setback ≈ 1–3 % season savings." },
       ],
     },
     guidedSteps: [
@@ -501,7 +502,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Two bedrooms have a 4 °C setpoint difference (20 °C vs 24 °C). Sketch the damper + thermostat layout to hold both — and identify the failure mode if you don't add a bypass.",
+      prompt: "Two bedrooms have a 4 °C (7°F) setpoint difference (20 °C / 68°F vs 24 °C / 75°F). Sketch the damper + thermostat layout to hold both — and identify the failure mode if you don't add a bypass.",
       successCriteria: "Identifies bypass need; if missing → blower over-pressures or trips on high static.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
@@ -553,7 +554,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A 4-person family in a 200 m² house needs ASHRAE 62.2 ventilation. Compute the required outdoor airflow (CFM) and how much latent it adds at 32 °C / W=0.018 outdoor.",
+      prompt: "A 4-person family in a 200 m² house needs ASHRAE 62.2 ventilation. Compute the required outdoor airflow (CFM) and how much latent it adds at 32 °C (90°F) / W=0.018 outdoor.",
       successCriteria: "Required ventilation ≈ 30 + 65 = 95 CFM; latent computed from m·h_fg·ΔW.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
@@ -676,7 +677,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       keyTerms: [
         { term: "Superheat", definition: "Above-saturation vapor temp. High = under-charge / restricted metering." },
         { term: "Subcooling", definition: "Below-saturation liquid temp. Low = under-charge; high = over-charge." },
-        { term: "ΔT across coil", definition: "Return-air − supply-air. Normal 8–12 °C; low = airflow problem or refrigerant problem." },
+        { term: "ΔT across coil", definition: "Return-air − supply-air. Normal 8–12 °C (14–22°F); low = airflow problem or refrigerant problem." },
       ],
     },
     guidedSteps: [
@@ -686,7 +687,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         checkDescription: "answer includes ΔT or static",
       },
       {
-        instruction: "Static is 0.95 in.w.c. (rated 0.5). ΔT is 7 °C (rated 11 °C). What's the most likely cause?",
+        instruction: "Static is 0.95 in.w.c. (rated 0.5). ΔT is 7 °C (13°F) (rated 11 °C / 20°F). What's the most likely cause?",
         hint: "Airflow problem first, not refrigerant.",
         checkDescription: "answer identifies airflow / dirty filter / undersized return",
       },
@@ -697,7 +698,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Heat pump in heating: ΔT across the indoor coil is 4 °C, static is normal, superheat 28 °F. Diagnose.",
+      prompt: "Heat pump in heating: ΔT across the indoor coil is 4 °C (7°F), static is normal, superheat 28 °F. Diagnose.",
       successCriteria: "Identifies low-charge / restricted metering; recommends weigh-in or recovery + recharge.",
       scoringRubric: { correctness: 0.8, time: 0.1, componentCount: 0.1 },
     },
@@ -725,7 +726,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Take a 1980s-era house: R-11 walls, R-19 roof, ambient −5 °C. Compute heating load.",
+        instruction: "Take a 1980s-era house: R-11 walls, R-19 roof, ambient −5 °C (23°F). Compute heating load.",
         hint: "Bigger load than you'd guess for the same square footage.",
         checkDescription: "load reported",
       },
@@ -763,7 +764,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     engineMode: "thermal-airflow",
     concept: {
       blurb:
-        "Capstone day. You'll design a 3-zone Texas home (Pflugerville, climate zone 2A) end-to-end: Manual J load, equipment selection (heat pump preferred for IRA credit), Manual D duct sizing, zone controls, IAQ accessories, commissioning targets. The rubric scores: load accuracy, equipment right-sizing (no oversize/undersize warnings), duct static within blower rating, IAQ adequate, and economically defensible (capacity within 20 % of load).",
+        "Capstone day. You'll design a 3-zone Texas home (Pflugerville, climate zone 2A) end-to-end: Manual J load, equipment selection (heat pump preferred for IRA credit), Manual D duct sizing, zone controls, IAQ accessories, commissioning targets. The rubric scores: load accuracy, equipment right-sizing (no oversize/undersize warnings), duct static within blower rating, IAQ adequate, and economically defensible (capacity within 20 % of load). Design conditions: 36 °C (97°F) cooling / −4 °C (25°F) heating.",
       keyTerms: [
         { term: "Manual J", definition: "Residential load calculation." },
         { term: "Manual D", definition: "Residential duct design." },
@@ -777,7 +778,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         checkDescription: "3 zones placed",
       },
       {
-        instruction: "Add a heat pump sized to design heating load (Travis County design −4 °C cooling 36 °C).",
+        instruction: "Add a heat pump sized to design heating load (Travis County design −4 °C / 25°F heating, 36 °C / 97°F cooling).",
         hint: "Check both heating and cooling at design ambient.",
         checkDescription: "no Undersized OR Oversized warnings at both runs",
       },

@@ -126,6 +126,21 @@ async function run() {
 
   console.log(`✓ PASS: full anonymous brief for ${ZIP} → 200; narrative ${brief.narrative.trim().length} chars; ${Object.keys(brief.systemsScores).length} systems scores; poverty rate ${brief.demographics.povertyRate}%; no PII; no internal RPLICE block.`);
 
+  // Freshness check — detect if we're being served a stale cached answer
+  const genAt = brief.generatedAt ?? brief.geography?.generatedAt;
+  if (!genAt) {
+    // generatedAt missing: warn but don't fail (older cached entries may lack it)
+    console.warn("  ⚠ WARN: generatedAt missing from brief — cannot verify pipeline freshness");
+  } else {
+    const ageMs = Date.now() - new Date(genAt).getTime();
+    const ageHours = Math.round(ageMs / (1000 * 60 * 60) * 10) / 10;
+    if (ageMs > 2 * 60 * 60 * 1000) {
+      console.warn(`  ⚠ WARN: brief is ${ageHours}h old (served from cache) — verify AI pipeline is healthy if this persists`);
+    } else {
+      console.log(`  ✓ freshness: generatedAt present, ${ageHours}h old`);
+    }
+  }
+
   // ── Authed positive contract + public-share strip contract ────────────────
   // 1. An AUTHENTICATED analyst must receive the RPLICE block (the feature).
   // 2. Sharing that authed brief through the public share endpoint must strip

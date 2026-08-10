@@ -243,7 +243,7 @@ isValidation = true
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts && npx tsx client/src/lib/trade-sims/automotive/sag-rubric.test.ts && npx tsx client/src/lib/trade-sims/hvac/thermal-solver.test.ts"
+args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts && npx tsx client/src/lib/trade-sims/automotive/sag-rubric.test.ts && npx tsx client/src/lib/trade-sims/hvac/thermal-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/pipe-size.test.ts && npx tsx scripts/verify-lesson-content-sync.ts && npx tsx scripts/verify-lesson-diagrams.ts"
 
 [[workflows.workflow]]
 name = "hud-pdf-e2e"
