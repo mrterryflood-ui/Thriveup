@@ -1472,10 +1472,69 @@ function PartnerApiTab() {
   const SCOPES = [
     { value: "content:read", label: "Content & Programs (outbound)", desc: "Partner pulls program descriptions and RAG content from ThriveUp" },
     { value: "platforms:read", label: "Platform Catalog (outbound)", desc: "Partner pulls list of TCAF platforms and health status" },
+    { value: "community:read", label: "Community Brief + Data", desc: "Partner queries community briefs and subscribes to scheduled delivery" },
+    { value: "outcomes:read", label: "Outcomes / Trade Completions", desc: "Partner reads aggregate trade sim completion counts (no PII)" },
+    { value: "certs:read", label: "Certificate Verification", desc: "Partner verifies learner trade certificates by ID" },
     { value: "inbound:write", label: "Push Data Inbound ↩", desc: "Partner can POST content, insights, events, and metrics back to ThriveUp" },
   ];
 
   const baseUrl = window.location.origin;
+
+  // ── Webhooks admin (global admin view) ────────────────────────────────────
+  const [showRegisterWebhook, setShowRegisterWebhook] = useState(false);
+  const [newWebhookEvent, setNewWebhookEvent] = useState("trade_cert.issued");
+  const [newWebhookUrl, setNewWebhookUrl] = useState("");
+  const [newWebhookKeyId, setNewWebhookKeyId] = useState("");
+  const [revealedWebhookSecret, setRevealedWebhookSecret] = useState<string | null>(null);
+
+  const { data: allWebhooks, refetch: refetchWebhooks } = useQuery<{ count: number; webhooks: any[] }>({
+    queryKey: ["/api/admin/partner-webhooks"],
+  });
+
+  const registerWebhookMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/admin/partner-webhooks", {
+        partnerKeyId: parseInt(newWebhookKeyId, 10),
+        event: newWebhookEvent,
+        webhookUrl: newWebhookUrl,
+      });
+      return res.json();
+    },
+    onSuccess: (d) => {
+      setRevealedWebhookSecret(d.secret ?? null);
+      setShowRegisterWebhook(false);
+      setNewWebhookUrl(""); setNewWebhookKeyId("");
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/partner-webhooks"] });
+    },
+    onError: () => toast({ title: "Error", description: "Failed to register webhook.", variant: "destructive" }),
+  });
+
+  const deactivateWebhookMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("PATCH", `/api/admin/partner-webhooks/${id}/deactivate`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Webhook deactivated." });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/partner-webhooks"] });
+    },
+  });
+
+  // ── Brief Subscriptions admin (global admin view) ─────────────────────────
+  const { data: allSubscriptions, refetch: refetchSubscriptions } = useQuery<{ count: number; subscriptions: any[] }>({
+    queryKey: ["/api/admin/brief-subscriptions"],
+  });
+
+  const deactivateSubscriptionMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await apiRequest("PATCH", `/api/admin/brief-subscriptions/${id}/deactivate`, {});
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Subscription deactivated." });
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/brief-subscriptions"] });
+    },
+  });
 
   return (
     <div className="space-y-6" data-testid="content-partner-api-inner">
@@ -1735,6 +1794,144 @@ function PartnerApiTab() {
                       </Button>
                     )}
                   </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Webhooks sub-section ──────────────────────────────────────────── */}
+      <Card data-testid="card-webhooks">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Zap className="h-4 w-4 text-violet-500" /> Registered Webhooks
+            </CardTitle>
+            <div className="flex gap-2">
+              <Button variant="ghost" size="sm" onClick={() => refetchWebhooks()} data-testid="button-refresh-webhooks">
+                <RefreshCw className="h-3.5 w-3.5" />
+              </Button>
+              <Button size="sm" onClick={() => setShowRegisterWebhook(!showRegisterWebhook)} data-testid="button-register-webhook">
+                + Register
+              </Button>
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Partners receive POST to their URL for each event. Signed with HMAC-SHA256.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {revealedWebhookSecret && (
+            <div className="border border-violet-300 bg-violet-50 dark:bg-violet-950/20 rounded p-3 space-y-2">
+              <p className="text-xs font-semibold text-violet-700 dark:text-violet-300">Webhook secret — copy now, never shown again:</p>
+              <div className="flex gap-2 items-center">
+                <code className="flex-1 text-xs font-mono break-all bg-white dark:bg-black border rounded px-2 py-1">{revealedWebhookSecret}</code>
+                <Button size="sm" variant="outline" onClick={() => { navigator.clipboard.writeText(revealedWebhookSecret); toast({ title: "Copied!" }); }}>Copy</Button>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setRevealedWebhookSecret(null)}>Dismiss</Button>
+            </div>
+          )}
+          {showRegisterWebhook && (
+            <div className="border rounded p-3 space-y-3 bg-muted/20" data-testid="form-register-webhook">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Partner Key ID (numeric)</label>
+                  <input className="w-full border rounded px-2 py-1.5 text-sm bg-background" placeholder="1" value={newWebhookKeyId} onChange={e => setNewWebhookKeyId(e.target.value)} data-testid="input-webhook-keyid" />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-xs font-medium">Event</label>
+                  <select className="w-full border rounded px-2 py-1.5 text-sm bg-background" value={newWebhookEvent} onChange={e => setNewWebhookEvent(e.target.value)} data-testid="select-webhook-event">
+                    <option value="trade_cert.issued">trade_cert.issued</option>
+                    <option value="foster_youth.outcome">foster_youth.outcome</option>
+                    <option value="community_brief.completed">community_brief.completed</option>
+                  </select>
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-medium">Webhook URL</label>
+                <input className="w-full border rounded px-2 py-1.5 text-sm bg-background" placeholder="https://your-org.example.com/hooks/tcaf" value={newWebhookUrl} onChange={e => setNewWebhookUrl(e.target.value)} data-testid="input-webhook-url" />
+              </div>
+              <div className="flex gap-2">
+                <Button size="sm" onClick={() => registerWebhookMutation.mutate()} disabled={!newWebhookUrl || !newWebhookKeyId || registerWebhookMutation.isPending} data-testid="button-confirm-register-webhook">
+                  {registerWebhookMutation.isPending ? "Registering…" : "Register Webhook"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setShowRegisterWebhook(false)}>Cancel</Button>
+              </div>
+            </div>
+          )}
+          {!allWebhooks?.webhooks?.length ? (
+            <div className="text-center py-6 text-muted-foreground text-sm">
+              <Zap className="h-6 w-6 mx-auto mb-2 opacity-30" />
+              No webhooks registered yet.
+            </div>
+          ) : (
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {allWebhooks.webhooks.map((hook: any) => (
+                <div key={hook.id} className={`flex items-center justify-between p-2.5 rounded border text-xs ${hook.active ? "bg-muted/20" : "opacity-50 bg-muted/10"}`} data-testid={`row-webhook-${hook.id}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="text-xs">{hook.event}</Badge>
+                      <span className="text-muted-foreground truncate max-w-[200px]">{hook.webhookUrl}</span>
+                      {!hook.active && <Badge variant="destructive" className="text-xs">Inactive</Badge>}
+                    </div>
+                    <div className="text-muted-foreground mt-0.5">
+                      Key ID: {hook.partnerKeyId} · {hook.lastFiredAt ? `Last fired: ${new Date(hook.lastFiredAt).toLocaleDateString()}` : "Never fired"}
+                    </div>
+                  </div>
+                  {hook.active && (
+                    <Button size="sm" variant="outline" className="text-red-600 border-red-200 text-xs ml-2 shrink-0" onClick={() => deactivateWebhookMutation.mutate(hook.id)} disabled={deactivateWebhookMutation.isPending} data-testid={`button-deactivate-webhook-${hook.id}`}>
+                      Deactivate
+                    </Button>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Brief Subscriptions sub-section ──────────────────────────────── */}
+      <Card data-testid="card-brief-subscriptions">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <Activity className="h-4 w-4 text-blue-500" /> Community Brief Subscriptions
+            </CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => refetchSubscriptions()} data-testid="button-refresh-subscriptions">
+              <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Partners subscribe via <code className="bg-muted px-1 rounded text-xs">POST /api/partner/v1/community-brief/subscribe</code>. Dispatch is activated within 24h.
+          </p>
+        </CardHeader>
+        <CardContent>
+          {!allSubscriptions?.subscriptions?.length ? (
+            <div className="text-center py-6 text-muted-foreground text-sm">
+              <Activity className="h-6 w-6 mx-auto mb-2 opacity-30" />
+              No brief subscriptions yet.
+            </div>
+          ) : (
+            <div className="space-y-1 max-h-48 overflow-y-auto">
+              {allSubscriptions.subscriptions.map((sub: any) => (
+                <div key={sub.id} className={`flex items-center justify-between p-2.5 rounded border text-xs ${sub.active ? "bg-muted/20" : "opacity-50 bg-muted/10"}`} data-testid={`row-subscription-${sub.id}`}>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium">{sub.location}</span>
+                      <Badge variant="secondary" className="text-xs">{sub.frequency}</Badge>
+                      {!sub.active && <Badge variant="destructive" className="text-xs">Inactive</Badge>}
+                    </div>
+                    <div className="text-muted-foreground mt-0.5 truncate">
+                      {sub.webhookUrl} · Key ID: {sub.partnerKeyId}
+                      {sub.lastSentAt && ` · Last sent: ${new Date(sub.lastSentAt).toLocaleDateString()}`}
+                    </div>
+                  </div>
+                  {sub.active && (
+                    <Button size="sm" variant="outline" className="text-red-600 border-red-200 text-xs ml-2 shrink-0" onClick={() => deactivateSubscriptionMutation.mutate(sub.id)} disabled={deactivateSubscriptionMutation.isPending} data-testid={`button-deactivate-sub-${sub.id}`}>
+                      Deactivate
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>

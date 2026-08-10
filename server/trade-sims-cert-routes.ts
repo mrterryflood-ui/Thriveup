@@ -19,6 +19,7 @@ import type { Express, Request, Response } from "express";
 import { db } from "./storage";
 import { tradeSimsTrades, tradeSimsLessons, tradeSimsLessonProgress, certificates, users } from "@shared/schema";
 import { eq, and, inArray, asc, isNull } from "drizzle-orm";
+import { fireWebhook } from "./webhook-dispatcher";
 
 type LessonRow = typeof tradeSimsLessons.$inferSelect;
 type ProgressRow = typeof tradeSimsLessonProgress.$inferSelect;
@@ -401,6 +402,13 @@ export function registerTradeSimsCertRoutes(app: Express) {
             .returning();
           if (issued) {
             certificate = { id: issued.id, levelTitle: issued.levelTitle, issuedAt: issued.issuedAt };
+            // Fire webhook for new certificate issuance — non-blocking, never throws.
+            fireWebhook("trade_cert.issued", {
+              certId: issued.id,
+              trade: sourceKey,
+              issuedAt: (issued.issuedAt ?? new Date()).toISOString(),
+              verificationUrl: `/api/trade-sims/verify/${issued.id}`,
+            });
           } else {
             // Lost a benign race with a concurrent request — read the winner.
             const [winner] = await db

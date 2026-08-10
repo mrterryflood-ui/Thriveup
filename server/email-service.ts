@@ -108,6 +108,42 @@ export async function sendPartnerNotification(
   }), `partner-notification to ${partnerEmail}`);
 }
 
+export async function sendFosterYouthOutcomeEmail(params: {
+  caseworkerEmail: string;
+  intakeId: string;
+  referredBy: string | null;
+  stateCode: string | null;
+  has30DayPlan: boolean;
+  has60DayPlan: boolean;
+  immediateNeeds: string[] | null;
+  reportedAt: string;
+}): Promise<boolean> {
+  const { client, fromEmail } = await getResendClient();
+  const needs = (params.immediateNeeds ?? []).join(", ") || "(none recorded)";
+  const planStatus = [
+    params.has30DayPlan ? "✅ 30-day plan generated" : "❌ 30-day plan not yet run",
+    params.has60DayPlan ? "✅ 60-day plan generated" : "❌ 60-day plan not yet run",
+  ].join("<br/>");
+  const orgLine = params.referredBy ? `<p><strong>Referring organization:</strong> ${params.referredBy}</p>` : "";
+  return await safeSend(() => client.emails.send({
+    from: fromEmail,
+    to: params.caseworkerEmail,
+    subject: `[TCAF] Foster Youth Outcome Report — Intake ${params.intakeId.slice(0, 8)}`,
+    html: `
+      <h2>Foster Youth Outcome Report</h2>
+      <p>This is an automated outcome notification from The Collaborative Advocate Foundation (TCAF) / ThriveUp Academy.</p>
+      ${orgLine}
+      <p><strong>Intake reference:</strong> ${params.intakeId}</p>
+      <p><strong>State:</strong> ${params.stateCode ?? "(not recorded)"}</p>
+      <p><strong>Immediate needs addressed:</strong> ${needs}</p>
+      <p><strong>Plan status:</strong><br/>${planStatus}</p>
+      <p><strong>Outcome reported at:</strong> ${params.reportedAt}</p>
+      <hr/>
+      <p style="font-size:12px;color:#666;">This notification was generated because a referral from your organization included a caseworker email for outcome reporting. For questions, contact <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a>.</p>
+    `,
+  }), `foster-youth-outcome to ${params.caseworkerEmail}`);
+}
+
 export async function sendGrantAlert(
   recipientEmail: string,
   grantDetails: { title: string; agency: string; deadline: string; matchScore: number }

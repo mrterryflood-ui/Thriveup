@@ -4745,6 +4745,15 @@ export const fosterYouthIntakes = pgTable("foster_youth_intakes", {
   aiProvider: varchar("ai_provider", { length: 60 }),
   aiAnalyzedAt: timestamp("ai_analyzed_at"),
   createdBy: varchar("created_by", { length: 128 }),
+  // ── Referral-origin tracking (added 2026) ───────────────────────────────
+  // Migration: ALTER TABLE foster_youth_intakes ADD COLUMN referred_by text;
+  // Migration: ALTER TABLE foster_youth_intakes ADD COLUMN referral_org_id text;
+  // Migration: ALTER TABLE foster_youth_intakes ADD COLUMN caseworker_email text;
+  // Migration: ALTER TABLE foster_youth_intakes ADD COLUMN outcome_reported_at timestamp;
+  referredBy: text("referred_by"),              // org name (free text, optional)
+  referralOrgId: text("referral_org_id"),       // FK to partner_api_keys.id (varchar uuid, nullable)
+  caseworkerEmail: text("caseworker_email"),    // for outcome notification (optional)
+  outcomeReportedAt: timestamp("outcome_reported_at"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -4783,6 +4792,47 @@ export type FosterYouthIntakeDocument = typeof fosterYouthIntakeDocuments.$infer
 export const insertFosterYouthEventSchema = createInsertSchema(fosterYouthEvents).omit({ id: true, occurredAt: true });
 export type InsertFosterYouthEvent = z.infer<typeof insertFosterYouthEventSchema>;
 export type FosterYouthEvent = typeof fosterYouthEvents.$inferSelect;
+
+// ============================================================================
+// PARTNER WEBHOOKS — outbound webhook subscriptions for partner orgs
+// Migration: run npm run db:push after adding this table.
+// Events: "foster_youth.outcome" | "trade_cert.issued" | "community_brief.completed"
+// ============================================================================
+export const partnerWebhooks = pgTable("partner_webhooks", {
+  id: serial("id").primaryKey(),
+  partnerKeyId: text("partner_key_id").notNull(), // FK to partner_api_keys.id (varchar/uuid)
+  event: text("event").notNull(),                 // "foster_youth.outcome" | "trade_cert.issued" | "community_brief.completed"
+  webhookUrl: text("webhook_url").notNull(),
+  secret: text("secret").notNull(),               // HMAC signing secret, shown once
+  active: boolean("active").default(true).notNull(),
+  lastFiredAt: timestamp("last_fired_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const insertPartnerWebhookSchema = createInsertSchema(partnerWebhooks).omit({ id: true, createdAt: true });
+export type InsertPartnerWebhook = z.infer<typeof insertPartnerWebhookSchema>;
+export type PartnerWebhook = typeof partnerWebhooks.$inferSelect;
+
+// =====================================================================
+// Brief Subscriptions — partners register to receive community briefs
+// delivered to their webhookUrl on a schedule (daily/weekly/on-change).
+// Actual dispatch is handled by a cron job (future work).
+// MIGRATION: run `npm run db:push` to create the brief_subscriptions table.
+// =====================================================================
+export const briefSubscriptions = pgTable("brief_subscriptions", {
+  id: serial("id").primaryKey(),
+  // References partner_api_keys.id (varchar/uuid). Text to match that column's type.
+  partnerKeyId: text("partner_key_id").notNull(),
+  location: text("location").notNull(),
+  webhookUrl: text("webhook_url").notNull(),
+  frequency: text("frequency").default("weekly").notNull(),
+  active: boolean("active").default(true).notNull(),
+  lastSentAt: timestamp("last_sent_at"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+export const insertBriefSubscriptionSchema = createInsertSchema(briefSubscriptions).omit({ id: true, createdAt: true });
+export type InsertBriefSubscription = z.infer<typeof insertBriefSubscriptionSchema>;
+export type BriefSubscription = typeof briefSubscriptions.$inferSelect;
 
 // =====================================================================
 // State-Agency Caseload (national rollout scaffold).
@@ -7182,6 +7232,19 @@ export const hudPitCounts = pgTable("hud_pit_counts", {
   importedAt: timestamp("imported_at").defaultNow().notNull(),
 }, (t) => [uniqueIndex("hud_pit_coc_year_idx").on(t.cocNumber, t.year)]);
 export type HudPitCount = typeof hudPitCounts.$inferSelect;
+
+// ── Brief Shares — shareable community analysis links (30-day TTL) ────────────
+// Migration comment: CREATE TABLE brief_shares (id text PRIMARY KEY,
+// location text NOT NULL, brief_data jsonb NOT NULL,
+// created_at timestamptz NOT NULL DEFAULT NOW(),
+// expires_at timestamptz NOT NULL);
+export const briefShares = pgTable("brief_shares", {
+  id: text("id").primaryKey(),
+  location: text("location").notNull(),
+  briefData: jsonb("brief_data").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  expiresAt: timestamp("expires_at").notNull(),
+});
 
 export * from "./household-schema";
 export * from "./justice-schema";

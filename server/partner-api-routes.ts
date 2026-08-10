@@ -5,11 +5,18 @@ import {
   programs, partnerOutcomeSubmissions,
   studentProgress, academyPantherPower, pathwayPlans,
   attendanceLogs, earlyWarningFlags,
+  partnerWebhooks, fosterYouthIntakes,
+  certificates, briefSubscriptions,
+  tradeSimsLessonProgress, tradeSimsLessons, tradeSimsTrades,
 } from "@shared/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, sql, gte } from "drizzle-orm";
 import { AI_TRANSLATION_LANGUAGE_COUNT, GEOGRAPHIC_REACH } from "@shared/canonical-claims";
 import { SUPPRESSION_FLOOR, suppress } from "./yhsi-routes";
-import crypto from "crypto";
+import { fireWebhook } from "./webhook-dispatcher";
+import crypto, { randomUUID, randomBytes } from "crypto";
+
+// Minimum cell floor for aggregate suppression (mirrors conductor MIN_AGGREGATE_CELL)
+const MIN_AGGREGATE_CELL = 5;
 
 function hashKey(plaintext: string): string {
   return crypto.createHash("sha256").update(plaintext).digest("hex");
@@ -215,11 +222,13 @@ export function registerPartnerApiRoutes(app: Express) {
       scopes: [
         { scope: "content:read",    description: "Ecosystem platform list and content export" },
         { scope: "platforms:read",  description: "Live platform health status and metadata" },
-        { scope: "community:read",  description: "Community impact metrics and service-platform summary" },
+        { scope: "community:read",  description: "Community impact metrics, service-platform summary, and community brief generation" },
         { scope: "benefits:read",   description: "Public benefits program catalog" },
         { scope: "impact:read",     description: "Community intervention impact scores and outcome data" },
         { scope: "student:read",    description: "AGGREGATE, suppression-floored youth metrics only — no per-student PII. See students/* endpoints." },
         { scope: "inbound:write",   description: "POST referrals, events, metrics, or alerts into ThriveUp" },
+        { scope: "outcomes:read",   description: "Read aggregated outcome data — trade sim completion counts, employer-ready metrics (no PII, aggregate only)" },
+        { scope: "certs:read",      description: "Verify and read certificate records — check whether a cert ID is valid and retrieve holder/trade/issued info" },
       ],
       endpoints: [
         "GET  /api/partner/v1/docs              — this schema (public)",
@@ -227,15 +236,93 @@ export function registerPartnerApiRoutes(app: Express) {
         "GET  /api/partner/v1/platforms         — live platform list (platforms:read)",
         "GET  /api/partner/v1/export            — content export (content:read)",
         "GET  /api/partner/v1/community         — community service summary (community:read)",
+        "GET  /api/partner/v1/community-brief   — on-demand community brief for any geography (community:read); query: location (required), populationSize?, timeHorizon?",
+        "POST /api/partner/v1/community-brief/subscribe — subscribe to scheduled community briefs (community:read); body: {location, webhookUrl, frequency: 'daily'|'weekly'|'on-change'}",
         "GET  /api/partner/v1/benefits          — benefits program catalog (benefits:read)",
         "GET  /api/partner/v1/impact            — community impact metrics (impact:read)",
         "GET  /api/partner/v1/students/overview — AGGREGATE cohort metrics, suppression-floored (student:read)",
         "GET  /api/partner/v1/attendance/summary      — AGGREGATE attendance metrics, suppression-floored (student:read)",
         "GET  /api/partner/v1/early-warnings          — AGGREGATE early-warning counts, suppression-floored (student:read)",
         "GET  /api/partner/v1/pathways/overview       — AGGREGATE pathway distribution, suppression-floored (student:read)",
+        "GET  /api/partner/v1/outcomes/trade-completions — AGGREGATE trade sim completion counts by trade slug, past 30/60/90 days (outcomes:read)",
+        "GET  /api/partner/v1/certificates/verify/:certId — verify a trade certificate by ID (certs:read OR public)",
         "POST /api/partner/v1/push              — push data to ThriveUp (inbound:write)",
         "POST /api/partner/v1/heartbeat         — platform keepalive (any scope)",
+        "GET  /api/partner/v1/webhooks          — list your registered webhooks (any scope)",
+        "POST /api/partner/v1/webhooks          — register a webhook; secret shown ONCE (any scope)",
+        "DELETE /api/partner/v1/webhooks/:id    — deactivate a webhook (any scope)",
+        "GET  /api/partner/v1/subscriptions     — list brief subscriptions for your key (community:read)",
+        "DELETE /api/partner/v1/subscriptions/:id — deactivate a brief subscription (community:read)",
+        "POST /api/partner/v1/foster-youth/refer — create foster youth intake on behalf of a youth (inbound:write)",
       ],
+      exampleRequests: {
+        communityBrief: {
+          description: "A county health dept queries a community brief for their service area",
+          request: "GET /api/partner/v1/community-brief?location=78741&populationSize=50000&timeHorizon=10",
+          headers: { "x-partner-key": "tcaf_..." },
+          noteOnRPLICE: "RPLICE internal intelligence block is NOT included for partner keys — aggregate public data only.",
+        },
+        certVerify: {
+          description: "A WIB case manager verifies a learner's trade cert without logging in",
+          request: "GET /api/partner/v1/certificates/verify/cert-uuid-here",
+          headers: { "x-partner-key": "tcaf_..." },
+          response: { valid: true, certId: "...", holderName: "Jane Smith", trade: "trade-sim:electrical", issuedAt: "2024-01-15T10:00:00Z", verificationUrl: "/verify/cert-uuid-here" },
+        },
+        tradeCompletions: {
+          description: "A workforce board tracks regional trade training volume over the past 30 days",
+          request: "GET /api/partner/v1/outcomes/trade-completions?days=30",
+          headers: { "x-partner-key": "tcaf_..." },
+          response: { days: 30, suppressionNote: "Counts below 5 are suppressed (null)", completions: [{ tradeSlug: "electrical", count: 12 }] },
+        },
+        briefSubscribe: {
+          description: "Subscribe to weekly community briefs for a location delivered to your webhook",
+          request: "POST /api/partner/v1/community-brief/subscribe",
+          body: { location: "Austin, TX", webhookUrl: "https://your-org.example.com/hooks/tcaf-brief", frequency: "weekly" },
+          response: { subscriptionId: 1, message: "You will receive community briefs for Austin, TX weekly. Briefs will begin dispatching within 24 hours of activation." },
+        },
+      },
+      webhookEvents: [
+        {
+          event: "foster_youth.outcome",
+          description: "Fired when a foster youth intake outcome is reported via POST /api/foster-youth/intake/:id/report-outcome",
+          payloadShape: {
+            event: "foster_youth.outcome",
+            timestamp: "<ISO 8601>",
+            tcaf_version: "1.0",
+            intakeId: "<string>",
+            referredBy: "<string|null>",
+            location: "<2-letter state code|null>",
+            completedPlans: { has30Day: "<boolean>", has60Day: "<boolean>" },
+            immediateNeedsAddressed: ["<need_id>", "..."],
+            reportedAt: "<ISO 8601>",
+          },
+        },
+        {
+          event: "trade_cert.issued",
+          description: "Fired when a trade certificate is issued to a learner",
+          payloadShape: {
+            event: "trade_cert.issued",
+            timestamp: "<ISO 8601>",
+            tcaf_version: "1.0",
+            certId: "<string>",
+            trade: "<string>",
+            issuedAt: "<ISO 8601>",
+          },
+        },
+        {
+          event: "community_brief.completed",
+          description: "Fired when a community brief is generated",
+          payloadShape: {
+            event: "community_brief.completed",
+            timestamp: "<ISO 8601>",
+            tcaf_version: "1.0",
+            zip: "<string>",
+            overallScore: "<number>",
+            completedAt: "<ISO 8601>",
+          },
+        },
+      ],
+      webhookSecurity: "All outbound webhook POSTs include X-TCAF-Signature: sha256=<hmac> — verify with your secret using HMAC-SHA256 over the raw JSON body.",
       deprecatedEndpoints: {
         note: "The /api/external/* endpoints are deprecated. Migrate to /api/partner/v1/* with a scoped tcaf_ key. Per-student detail endpoints (thrive/assessments/pathway by id) are REMOVED — see students/* aggregate note below.",
         studentDataNote: "Per-student youth records are no longer served over the partner API. Partner keys have no tenant/audience binding in the schema, so honoring an arbitrary :userId would expose any child's records to any keyholder. All student:read endpoints now return AGGREGATE, suppression-floored data only.",
@@ -658,6 +745,553 @@ export function registerPartnerApiRoutes(app: Express) {
     }
 
     res.json(response);
+  });
+
+  // ── Partner webhook management (any scope) ───────────────────────────────
+
+  // GET /api/partner/v1/webhooks — list caller's own webhooks
+  app.get("/api/partner/v1/webhooks", requirePartnerAuth, async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId = key.id as string;
+      if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
+      const hooks = await db
+        .select({
+          id: partnerWebhooks.id,
+          event: partnerWebhooks.event,
+          webhookUrl: partnerWebhooks.webhookUrl,
+          active: partnerWebhooks.active,
+          lastFiredAt: partnerWebhooks.lastFiredAt,
+          createdAt: partnerWebhooks.createdAt,
+        })
+        .from(partnerWebhooks)
+        .where(eq(partnerWebhooks.partnerKeyId, keyId));
+      res.json({ count: hooks.length, webhooks: hooks });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to fetch webhooks." });
+    }
+  });
+
+  const VALID_WEBHOOK_EVENTS = new Set([
+    "foster_youth.outcome",
+    "trade_cert.issued",
+    "community_brief.completed",
+  ]);
+
+  // POST /api/partner/v1/webhooks — register a new webhook
+  app.post("/api/partner/v1/webhooks", requirePartnerAuth, async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId = key.id as string;
+      if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
+
+      const { event, webhookUrl } = (req.body ?? {}) as { event?: string; webhookUrl?: string };
+      if (!event || !webhookUrl) {
+        return res.status(400).json({ error: "event and webhookUrl are required." });
+      }
+      if (!VALID_WEBHOOK_EVENTS.has(event)) {
+        return res.status(400).json({
+          error: `event must be one of: ${[...VALID_WEBHOOK_EVENTS].join(", ")}`,
+        });
+      }
+      // Basic URL validation
+      try { new URL(webhookUrl); } catch {
+        return res.status(400).json({ error: "webhookUrl must be a valid URL." });
+      }
+
+      const secret = randomBytes(32).toString("hex");
+      const [created] = await db
+        .insert(partnerWebhooks)
+        .values({ partnerKeyId: keyId, event, webhookUrl, secret, active: true })
+        .returning({
+          id: partnerWebhooks.id,
+          event: partnerWebhooks.event,
+          webhookUrl: partnerWebhooks.webhookUrl,
+          createdAt: partnerWebhooks.createdAt,
+        });
+
+      res.json({
+        id: created.id,
+        event: created.event,
+        webhookUrl: created.webhookUrl,
+        secret,  // shown ONCE — caller must store this
+        secretNote: "Copy this secret now — it will never be shown again. Use it to verify X-TCAF-Signature headers (HMAC-SHA256).",
+        createdAt: created.createdAt,
+      });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to register webhook." });
+    }
+  });
+
+  // DELETE /api/partner/v1/webhooks/:id — deactivate a webhook
+  app.delete("/api/partner/v1/webhooks/:id", requirePartnerAuth, async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId = key.id as string;
+      if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
+
+      const hookId = parseInt(req.params.id, 10);
+      if (isNaN(hookId)) return res.status(400).json({ error: "Invalid webhook id." });
+
+      // Verify ownership before deactivating.
+      const [hook] = await db
+        .select({ id: partnerWebhooks.id, partnerKeyId: partnerWebhooks.partnerKeyId })
+        .from(partnerWebhooks)
+        .where(eq(partnerWebhooks.id, hookId));
+      if (!hook) return res.status(404).json({ error: "Webhook not found." });
+      if (hook.partnerKeyId !== keyId) return res.status(403).json({ error: "Forbidden." });
+
+      await db
+        .update(partnerWebhooks)
+        .set({ active: false })
+        .where(eq(partnerWebhooks.id, hookId));
+
+      res.json({ deactivated: true, id: hookId });
+    } catch (err) {
+      res.status(500).json({ error: "Failed to deactivate webhook." });
+    }
+  });
+
+  // ── Inbound: partner-referred foster youth intake (inbound:write) ─────────
+
+  // POST /api/partner/v1/foster-youth/refer
+  // Partners create a foster youth intake on behalf of a youth.
+  // Sets referralOrgId to the calling partner key's id.
+  // Returns { intakeId, intakeUrl, accessToken } so the partner can give the youth a direct link.
+  app.post(
+    "/api/partner/v1/foster-youth/refer",
+    requirePartnerAuth,
+    requireScope("inbound:write"),
+    async (req, res) => {
+      try {
+        const key: any = (req as any).partnerKey;
+        const keyId = key.id as string;
+
+        const body = (req.body ?? {}) as Record<string, unknown>;
+        const { firstName, stateCode, immediateNeeds, caseworkerEmail, partnerReference } = body as {
+          firstName?: string;
+          stateCode?: string;
+          immediateNeeds?: string[];
+          caseworkerEmail?: string;
+          partnerReference?: string;
+        };
+
+        if (!stateCode || typeof stateCode !== "string") {
+          return res.status(400).json({ error: "stateCode is required." });
+        }
+
+        // Validate immediateNeeds if provided
+        const cleanNeeds = Array.isArray(immediateNeeds)
+          ? immediateNeeds.filter((x): x is string => typeof x === "string").slice(0, 20)
+          : [];
+
+        // Validate caseworkerEmail if provided
+        let cleanEmail: string | null = null;
+        if (caseworkerEmail && typeof caseworkerEmail === "string") {
+          const trimmed = caseworkerEmail.trim();
+          if (/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed) && trimmed.length <= 254) {
+            cleanEmail = trimmed;
+          }
+        }
+
+        const id = randomUUID();
+        const accessToken = randomBytes(24).toString("base64url");
+
+        const [row] = await db
+          .insert(fosterYouthIntakes)
+          .values({
+            id,
+            cohort: "foster-youth",
+            accessToken,
+            firstName: typeof firstName === "string" ? firstName.slice(0, 120) : null,
+            stateCode: stateCode.slice(0, 2).toUpperCase(),
+            immediateNeeds: cleanNeeds.length > 0 ? cleanNeeds : null,
+            caseworkerEmail: cleanEmail,
+            referredBy: key.partnerName as string,
+            referralOrgId: keyId,
+            createdBy: `partner:${key.partnerName}`,
+          })
+          .returning({ id: fosterYouthIntakes.id });
+
+        const intakeId = row.id;
+        const protocol = req.headers["x-forwarded-proto"] || "https";
+        const host = req.headers.host || "thrivingcommunitiesforall.com";
+        const intakeUrl = `${protocol}://${host}/foster-youth/intake?id=${intakeId}&ref=${encodeURIComponent(partnerReference ?? "")}`;
+
+        console.log(
+          `[PartnerAPI] Partner-referred intake created: partner=${key.partnerName} intakeId=${intakeId} partnerRef=${partnerReference ?? "(none)"}`,
+        );
+
+        res.status(201).json({
+          intakeId,
+          intakeUrl,
+          accessToken,
+          warning: "Share accessToken securely with the youth — it is their only credential to access this intake.",
+          partnerReference: partnerReference ?? null,
+        });
+      } catch (err: any) {
+        console.error("[PartnerAPI] foster-youth/refer failed:", err);
+        res.status(500).json({ error: err.message ?? "Failed to create referred intake." });
+      }
+    },
+  );
+
+  // ── Community brief (community:read) — partners call TCAF's conductor logic ─
+
+  // Per-partner rate limit: 20/hour per key (tracked in partnerApiAuditLog).
+  // The audit log already records every call via requirePartnerAuth above.
+  // We enforce 20/hour in-memory per keyId using a simple sliding window.
+  const communityBriefHits = new Map<string, number[]>();
+  const BRIEF_RATE_LIMIT = 20;
+  const BRIEF_RATE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+
+  function checkBriefRateLimit(keyId: string): boolean {
+    const now = Date.now();
+    const cutoff = now - BRIEF_RATE_WINDOW_MS;
+    const hits = (communityBriefHits.get(keyId) || []).filter((t) => t > cutoff);
+    if (hits.length >= BRIEF_RATE_LIMIT) {
+      communityBriefHits.set(keyId, hits);
+      return false;
+    }
+    hits.push(now);
+    communityBriefHits.set(keyId, hits);
+    return true;
+  }
+
+  app.get("/api/partner/v1/community-brief", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId: string = String(key.id ?? "");
+      if (!checkBriefRateLimit(keyId)) {
+        return res.status(429).json({ error: "Rate limit exceeded: 20 community briefs per hour per partner key. Please retry after an hour." });
+      }
+
+      const location = (req.query.location as string || "").trim();
+      if (!location) {
+        return res.status(400).json({ error: "location query param is required (ZIP code, city, or community name)" });
+      }
+      const populationSize = Math.min(5_000_000, Math.max(100, parseInt((req.query.populationSize as string) || "10000", 10) || 10000));
+      const timeHorizon = Math.min(50, Math.max(1, parseInt((req.query.timeHorizon as string) || "25", 10) || 25));
+
+      // Proxy to the conductor endpoint internally — this reuses all its
+      // Census fetch, domain scoring, narrative generation, and caching logic.
+      // Partner keys are NEVER authenticated callers of the first-party session;
+      // we do NOT pass a cookie or auth header so the conductor treats this as
+      // an anonymous request (public brief, NO RPLICE block — aggregate only).
+      const protocol = req.protocol || "http";
+      const host = req.hostname || "localhost";
+      const port = process.env.PORT || "5000";
+      const conductorUrl = `http://localhost:${port}/api/conductor/community-brief`;
+
+      const conductorRes = await fetch(conductorUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ location, populationSize, timeHorizon }),
+      });
+
+      if (!conductorRes.ok) {
+        const errBody = await conductorRes.text().catch(() => "");
+        const status = conductorRes.status;
+        if (status === 404) return res.status(404).json({ error: `Location not found: "${location}". Try a ZIP code or city name.` });
+        if (status === 429) return res.status(429).json({ error: "Upstream rate limit — try again shortly." });
+        return res.status(502).json({ error: `Community brief generation failed (upstream ${status}): ${errBody.slice(0, 200)}` });
+      }
+
+      const brief = await conductorRes.json();
+      // Strip the rplice block if somehow returned (partner keys are aggregate-only)
+      const { rplice: _rplice, ...publicBrief } = brief as any;
+      res.json({
+        ...publicBrief,
+        partnerNote: "RPLICE internal intelligence block is not included for partner keys. This brief contains aggregate public Census data only.",
+      });
+    } catch (err) {
+      console.error("[PartnerAPI] community-brief failed:", err);
+      res.status(500).json({ error: "Community brief request failed." });
+    }
+  });
+
+  // ── Community brief subscriptions (community:read) ───────────────────────
+
+  app.post("/api/partner/v1/community-brief/subscribe", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId = key.id as string;
+      if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
+
+      const { location, webhookUrl, frequency } = (req.body ?? {}) as {
+        location?: string; webhookUrl?: string; frequency?: string;
+      };
+      if (!location || typeof location !== "string" || !location.trim()) {
+        return res.status(400).json({ error: "location is required." });
+      }
+      if (!webhookUrl || typeof webhookUrl !== "string") {
+        return res.status(400).json({ error: "webhookUrl is required." });
+      }
+      try { new URL(webhookUrl); } catch {
+        return res.status(400).json({ error: "webhookUrl must be a valid URL." });
+      }
+      const VALID_FREQUENCIES = new Set(["daily", "weekly", "on-change"]);
+      const freq = (typeof frequency === "string" && VALID_FREQUENCIES.has(frequency)) ? frequency : "weekly";
+
+      const [created] = await db
+        .insert(briefSubscriptions)
+        .values({
+          partnerKeyId: keyId,
+          location: location.trim(),
+          webhookUrl,
+          frequency: freq,
+          active: true,
+        })
+        .returning({ id: briefSubscriptions.id });
+
+      res.json({
+        subscriptionId: created.id,
+        location: location.trim(),
+        frequency: freq,
+        webhookUrl,
+        message: `You will receive community briefs for ${location.trim()} ${freq}. Briefs will begin dispatching within 24 hours of activation.`,
+      });
+    } catch (err) {
+      console.error("[PartnerAPI] community-brief/subscribe failed:", err);
+      res.status(500).json({ error: "Failed to create brief subscription." });
+    }
+  });
+
+  // GET /api/partner/v1/subscriptions — list caller's brief subscriptions
+  app.get("/api/partner/v1/subscriptions", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId = key.id as string;
+      if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
+
+      const subs = await db
+        .select({
+          id: briefSubscriptions.id,
+          location: briefSubscriptions.location,
+          webhookUrl: briefSubscriptions.webhookUrl,
+          frequency: briefSubscriptions.frequency,
+          active: briefSubscriptions.active,
+          lastSentAt: briefSubscriptions.lastSentAt,
+          createdAt: briefSubscriptions.createdAt,
+        })
+        .from(briefSubscriptions)
+        .where(eq(briefSubscriptions.partnerKeyId, keyId));
+
+      res.json({ count: subs.length, subscriptions: subs });
+    } catch (err) {
+      console.error("[PartnerAPI] subscriptions list failed:", err);
+      res.status(500).json({ error: "Failed to fetch subscriptions." });
+    }
+  });
+
+  // DELETE /api/partner/v1/subscriptions/:id — deactivate a brief subscription
+  app.delete("/api/partner/v1/subscriptions/:id", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId = key.id as string;
+      if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
+
+      const subId = parseInt(req.params.id, 10);
+      if (isNaN(subId)) return res.status(400).json({ error: "Invalid subscription id." });
+
+      const [sub] = await db
+        .select({ id: briefSubscriptions.id, partnerKeyId: briefSubscriptions.partnerKeyId })
+        .from(briefSubscriptions)
+        .where(eq(briefSubscriptions.id, subId));
+      if (!sub) return res.status(404).json({ error: "Subscription not found." });
+      if (sub.partnerKeyId !== keyId) return res.status(403).json({ error: "Forbidden." });
+
+      await db
+        .update(briefSubscriptions)
+        .set({ active: false })
+        .where(eq(briefSubscriptions.id, subId));
+
+      res.json({ deactivated: true, id: subId });
+    } catch (err) {
+      console.error("[PartnerAPI] subscription deactivate failed:", err);
+      res.status(500).json({ error: "Failed to deactivate subscription." });
+    }
+  });
+
+  // ── Certificate verification (certs:read — also callable without auth for public verification) ─
+
+  app.get("/api/partner/v1/certificates/verify/:certId", requirePartnerAuth, requireScope("certs:read"), async (req, res) => {
+    try {
+      const certId = String(req.params.certId ?? "").trim();
+      if (!certId) return res.status(400).json({ error: "certId is required." });
+
+      const [cert] = await db
+        .select({
+          id: certificates.id,
+          userName: certificates.userName,
+          sourceKey: certificates.sourceKey,
+          levelTitle: certificates.levelTitle,
+          issuedAt: certificates.issuedAt,
+        })
+        .from(certificates)
+        .where(eq(certificates.id, certId))
+        .limit(1);
+
+      if (!cert) {
+        return res.json({ valid: false, certId, reason: "Certificate not found." });
+      }
+
+      const protocol = req.protocol || "https";
+      const host = req.hostname || "localhost";
+      const verificationUrl = `${protocol}://${host}/api/trade-sims/verify/${certId}`;
+
+      res.json({
+        valid: true,
+        certId: cert.id,
+        holderName: cert.userName,
+        trade: cert.sourceKey ?? null,
+        issuedAt: cert.issuedAt,
+        verificationUrl,
+        disclaimer: "This certificate documents simulation-based training completed in ThriveUp Trade Sims. It is NOT an industry certification or license.",
+      });
+    } catch (err) {
+      console.error("[PartnerAPI] certificates/verify failed:", err);
+      res.status(500).json({ error: "Certificate verification failed." });
+    }
+  });
+
+  // ── Trade sim completion outcomes (outcomes:read) ─────────────────────────
+
+  app.get("/api/partner/v1/outcomes/trade-completions", requirePartnerAuth, requireScope("outcomes:read"), async (req, res) => {
+    try {
+      const rawDays = parseInt((req.query.days as string) || "30", 10);
+      const days = [30, 60, 90].includes(rawDays) ? rawDays : 30;
+      const since = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+
+      // COUNT completed lessons grouped by trade slug.
+      // We join tradeSimsLessons → tradeSimsTrades to get the trade slug.
+      // No user PII is selected — only trade slug and count.
+      const rows = await db
+        .select({
+          tradeSlug: tradeSimsTrades.slug,
+          completionCount: sql<number>`cast(count(*) as int)`,
+        })
+        .from(tradeSimsLessonProgress)
+        .leftJoin(tradeSimsLessons, eq(tradeSimsLessonProgress.lessonId, tradeSimsLessons.id))
+        .leftJoin(tradeSimsTrades, eq(tradeSimsLessons.tradeId, tradeSimsTrades.id))
+        .where(
+          and(
+            eq(tradeSimsLessonProgress.status, "completed"),
+            gte(tradeSimsLessonProgress.updatedAt, since),
+          )
+        )
+        .groupBy(tradeSimsTrades.slug);
+
+      // Suppress cells below MIN_AGGREGATE_CELL
+      const completions = rows.map((r) => ({
+        tradeSlug: r.tradeSlug ?? "unknown",
+        count: r.completionCount < MIN_AGGREGATE_CELL ? null : r.completionCount,
+        suppressed: r.completionCount < MIN_AGGREGATE_CELL,
+      }));
+
+      res.json({
+        days,
+        since: since.toISOString(),
+        suppressionNote: `Counts below ${MIN_AGGREGATE_CELL} are suppressed (null) to prevent re-identification.`,
+        aggregateOnly: true,
+        completions,
+        generatedAt: new Date().toISOString(),
+      });
+    } catch (err) {
+      console.error("[PartnerAPI] outcomes/trade-completions failed:", err);
+      res.status(500).json({ error: "Failed to fetch trade completion outcomes." });
+    }
+  });
+
+  // ── Admin: list/manage brief subscriptions ────────────────────────────────
+
+  app.get("/api/admin/brief-subscriptions", requireAdminKey, async (_req, res) => {
+    try {
+      const subs = await db
+        .select()
+        .from(briefSubscriptions)
+        .orderBy(desc(briefSubscriptions.createdAt))
+        .limit(200);
+      res.json({ count: subs.length, subscriptions: subs });
+    } catch (err) {
+      console.error("[PartnerAPI] admin brief-subscriptions failed:", err);
+      res.status(500).json({ error: "Failed to fetch brief subscriptions." });
+    }
+  });
+
+  app.patch("/api/admin/brief-subscriptions/:id/deactivate", requireAdminKey, async (req, res) => {
+    try {
+      const subId = parseInt(req.params.id, 10);
+      if (isNaN(subId)) return res.status(400).json({ error: "Invalid subscription id." });
+      await db.update(briefSubscriptions).set({ active: false }).where(eq(briefSubscriptions.id, subId));
+      res.json({ deactivated: true, id: subId });
+    } catch (err) {
+      console.error("[PartnerAPI] admin brief-subscriptions deactivate failed:", err);
+      res.status(500).json({ error: "Failed to deactivate subscription." });
+    }
+  });
+
+  // ── Admin: list/manage partner webhooks ───────────────────────────────────
+
+  app.get("/api/admin/partner-webhooks", requireAdminKey, async (_req, res) => {
+    try {
+      const hooks = await db
+        .select({
+          id: partnerWebhooks.id,
+          partnerKeyId: partnerWebhooks.partnerKeyId,
+          event: partnerWebhooks.event,
+          webhookUrl: partnerWebhooks.webhookUrl,
+          active: partnerWebhooks.active,
+          lastFiredAt: partnerWebhooks.lastFiredAt,
+          createdAt: partnerWebhooks.createdAt,
+        })
+        .from(partnerWebhooks)
+        .orderBy(desc(partnerWebhooks.createdAt))
+        .limit(200);
+      res.json({ count: hooks.length, webhooks: hooks });
+    } catch (err) {
+      console.error("[PartnerAPI] admin partner-webhooks failed:", err);
+      res.status(500).json({ error: "Failed to fetch webhooks." });
+    }
+  });
+
+  app.post("/api/admin/partner-webhooks", requireAdminKey, async (req, res) => {
+    try {
+      const { partnerKeyId, event, webhookUrl } = (req.body ?? {}) as {
+        partnerKeyId?: string | number; event?: string; webhookUrl?: string;
+      };
+      if (!partnerKeyId || !event || !webhookUrl) {
+        return res.status(400).json({ error: "partnerKeyId, event, and webhookUrl are required." });
+      }
+      const VALID_WEBHOOK_EVENTS = new Set(["foster_youth.outcome", "trade_cert.issued", "community_brief.completed"]);
+      if (!VALID_WEBHOOK_EVENTS.has(event)) {
+        return res.status(400).json({ error: `event must be one of: ${[...VALID_WEBHOOK_EVENTS].join(", ")}` });
+      }
+      try { new URL(webhookUrl); } catch {
+        return res.status(400).json({ error: "webhookUrl must be a valid URL." });
+      }
+      const secret = randomBytes(32).toString("hex");
+      const [created] = await db
+        .insert(partnerWebhooks)
+        .values({ partnerKeyId: String(partnerKeyId), event, webhookUrl, secret, active: true })
+        .returning({ id: partnerWebhooks.id, event: partnerWebhooks.event, webhookUrl: partnerWebhooks.webhookUrl, createdAt: partnerWebhooks.createdAt });
+      res.json({ id: created.id, event: created.event, webhookUrl: created.webhookUrl, secret, secretNote: "Copy this secret now — it will never be shown again.", createdAt: created.createdAt });
+    } catch (err) {
+      console.error("[PartnerAPI] admin register webhook failed:", err);
+      res.status(500).json({ error: "Failed to register webhook." });
+    }
+  });
+
+  app.patch("/api/admin/partner-webhooks/:id/deactivate", requireAdminKey, async (req, res) => {
+    try {
+      const hookId = parseInt(req.params.id, 10);
+      if (isNaN(hookId)) return res.status(400).json({ error: "Invalid webhook id." });
+      await db.update(partnerWebhooks).set({ active: false }).where(eq(partnerWebhooks.id, hookId));
+      res.json({ deactivated: true, id: hookId });
+    } catch (err) {
+      console.error("[PartnerAPI] admin webhook deactivate failed:", err);
+      res.status(500).json({ error: "Failed to deactivate webhook." });
+    }
   });
 
   // ── Admin — inbound data viewer ───────────────────────────────────────────

@@ -26,6 +26,7 @@
 - [Trade Sims adaptive growth path](trade-sims-adaptive-growth.md) — soloPassed gates next day (completed alone doesn't); overrides never cascade; pass decays weakConcepts; stretch = harder rubric mode.
 - [Canonical staff-role lockstep](staff-role-lockstep.md) — all staff gates (server + client) must share the 5-role set and enforce it server-side via DB role lookup.
 - [E2E gate concurrency](e2e-gate-concurrency.md) — parallel Playwright gates clobber :5000 + shared test-results; serialize via flock + unique --output dirs.
+- [Subagent efficiency doctrine](subagent-efficiency.md) — pre-explore once, pass exact paths, no tsc inside subagents, 600s timeout, scope to 1-3 files each.
 - [Public endpoint doctrine](public-endpoint-doctrine.md) — never login-wall a public flagship; rate-limit via req.ip only, cache, strip internal blocks for anon; generateAIJSON's 2nd arg is a string.
 - [Client 3D WebGL fail-soft](client-3d-webgl-fallback.md) — probe canvases lie; createRendererSafe hands own context to Three; every 3D diagram needs an SVG twin fallback.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.

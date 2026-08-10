@@ -65,6 +65,7 @@ const TradeSimsCertifyPage = lazy(() => import("@/pages/academy/trade-sims/certi
 const TradeSimsTranscriptPage = lazy(() => import("@/pages/academy/trade-sims/transcript"));
 
 const TradeCertVerifyPage = lazy(() => import("@/pages/academy/trade-sims/verify"));
+const BriefSharePage = lazy(() => import("@/pages/brief-share"));
 const TradeSimsSignupsAdminPage = lazy(() => import("@/pages/admin/trade-sims-signups"));
 import { TradeSimsTrialGate } from "@/components/trade-sims-trial-gate";
 const AcademyVillagePage = lazy(() => import("@/pages/academy/village"));
@@ -211,6 +212,7 @@ const VoicesOfAustinPage = lazy(() => import("@/pages/voices-of-austin"));
 const ManorCommunityHubPage = lazy(() => import("@/pages/manor-community-hub"));
 const PflugervilleCommunityHubPage = lazy(() => import("@/pages/pflugerville-community-hub"));
 const EcosystemOpsCenterPage = lazy(() => import("@/pages/ecosystem-ops-center"));
+const ForPartnersPage = lazy(() => import("@/pages/for-partners"));
 const PresentationsHubPage = lazy(() => import("@/pages/presentations"));
 const EcosystemEmbedPage = lazy(() => import("@/pages/ecosystem-embed"));
 const LifeBridgeEmbedPage = lazy(() => import("@/pages/ecosystem-embed").then(m => ({ default: m.LifeBridgeEmbedPage })));
@@ -770,7 +772,9 @@ function AppRouter() {
       <Route path="/sdoh-chain" component={SDOHChainPage} />
       <Route path="/chainweb" component={ChainwebBuilderPage} />
       <Route path="/community-impact" component={CommunityImpactPage} />
+      <Route path="/brief/:shareId" component={BriefSharePage} />
       <Route path="/community-data" component={CommunityDataPage} />
+      <Route path="/for-partners" component={ForPartnersPage} />
       <Route path="/orchestra">
         <RequireAuth adminOnly reason="The Full Orchestra runs paid AI across every engine. Restricted to TCAF admins.">
           <OrchestraDemoPage />

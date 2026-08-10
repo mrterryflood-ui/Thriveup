@@ -48,6 +48,9 @@ interface IntakeForm {
   hasHousing: boolean;
   enrolledSchool: boolean;
   employed: boolean;
+  // Referral-origin tracking (optional)
+  referredBy: string;
+  caseworkerEmail: string;
 }
 
 const NEED_OPTIONS = [
@@ -81,6 +84,8 @@ const empty: IntakeForm = {
   immediateNeeds: [],
   hasStateId: false, hasSsnCard: false, hasBirthCert: false, hasMedicaid: false,
   hasHousing: false, enrolledSchool: false, employed: false,
+  referredBy: "",
+  caseworkerEmail: "",
 };
 
 interface UploadedDoc { id: string; docType: string; filename: string; size?: number }
@@ -357,6 +362,36 @@ export default function FosterYouthIntakePage() {
                       </label>
                     );
                   })}
+                </div>
+              </div>
+              {/* Referral-origin tracking — optional, helps us report outcomes back */}
+              <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+                <p className="text-sm text-muted-foreground font-medium">
+                  Were you referred by an organization? <span className="italic">(optional — this helps us report outcomes back to your support team)</span>
+                </p>
+                <div className="grid sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="referredBy">Referred by organization <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                    <Input
+                      id="referredBy"
+                      value={form.referredBy}
+                      onChange={(e) => update("referredBy", e.target.value)}
+                      placeholder="e.g. Texas DFPS, Youth Advocacy Center..."
+                      data-testid="input-referred-by"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="caseworkerEmail">Caseworker email for outcome report <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                    <Input
+                      id="caseworkerEmail"
+                      type="email"
+                      value={form.caseworkerEmail}
+                      onChange={(e) => update("caseworkerEmail", e.target.value)}
+                      placeholder="caseworker@agency.gov"
+                      data-testid="input-caseworker-email"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">We'll send them a summary when your plan is ready.</p>
+                  </div>
                 </div>
               </div>
               <div className="flex justify-end">

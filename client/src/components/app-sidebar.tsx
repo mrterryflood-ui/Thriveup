@@ -241,6 +241,7 @@ const partnersCoalitionsItems: NavItem[] = [
   { title: "Community Voice", url: "/voice", icon: MessageCircle },
   { title: "Community Map", url: "/community-map", icon: Map },
   { title: "Open Innovation Lab", url: "/open-innovation-lab", icon: Microscope },
+  { title: "Embed Our Tools", url: "/for-partners", icon: Globe },
 ];
 
 // HUB 6 — Where We Operate: national coverage, transparency, neighborhood

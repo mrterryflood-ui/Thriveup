@@ -17,7 +17,7 @@ import { Link, useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import {
   ChevronLeft, Printer, Share2, ShieldCheck, Award, CheckCircle2,
-  Circle, ExternalLink, GraduationCap, FlaskConical, BookOpen,
+  Circle, ExternalLink, GraduationCap, FlaskConical, BookOpen, Download,
 } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -194,9 +194,19 @@ export default function TradeSimsTranscriptPage() {
                 {data.certificate.levelTitle} · Issued {fmtDate(data.certificate.issuedAt)} · ID {data.certificate.id.slice(0, 8)}
               </CardDescription>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">
-              This certificate documents completion of all {data.summary.totalLessons} lessons of the ThriveUp {data.tradeName} simulation
-              curriculum. It certifies simulated skill practice — not an industry license or credential.
+            <CardContent className="text-sm text-muted-foreground space-y-3">
+              <p>
+                This certificate documents completion of all {data.summary.totalLessons} lessons of the ThriveUp {data.tradeName} simulation
+                curriculum. It certifies simulated skill practice — not an industry license or credential.
+              </p>
+              <a
+                href={`/api/export/trade-cert-pdf/${data.certificate.id}`}
+                download
+                className="inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-md border border-green-600/40 bg-green-50 dark:bg-green-950/20 text-green-700 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-950/40 transition-colors"
+                data-testid="link-download-cert-pdf"
+              >
+                <Download className="h-3.5 w-3.5" />Download Certificate PDF
+              </a>
             </CardContent>
           </Card>
         ) : (

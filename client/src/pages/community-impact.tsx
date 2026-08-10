@@ -1,6 +1,7 @@
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 
 const SkylineMap         = lazy(() => import("@/components/viz3d/SkylineMap"));
@@ -276,6 +277,38 @@ function useSendToGrantPathPro(data: any, locationQuery: string) {
   return { gppState, sendToGPP };
 }
 
+function StripPdfButton({ data, submitted }: { data: any; submitted: string }) {
+  const [pdfState, setPdfState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const handleClick = async () => {
+    if (pdfState === "loading") return;
+    setPdfState("loading");
+    try {
+      await downloadCommunityBriefPdf(submitted);
+      setPdfState("done");
+      setTimeout(() => setPdfState("idle"), 4000);
+    } catch {
+      setPdfState("error");
+      setTimeout(() => setPdfState("idle"), 4000);
+    }
+  };
+  return (
+    <Button variant="outline" size="sm" className="gap-1.5" onClick={handleClick} disabled={pdfState === "loading"} data-testid="button-download-brief-pdf-strip">
+      {pdfState === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+      {pdfState === "loading" ? "Generating…" : pdfState === "done" ? "Downloaded!" : pdfState === "error" ? "PDF Error" : "Download PDF"}
+    </Button>
+  );
+}
+
+function StripShareButton({ data }: { data: any }) {
+  const { shareState, shareBrief } = useShareBrief();
+  return (
+    <Button variant="outline" size="sm" className="gap-1.5" onClick={() => shareBrief(data)} disabled={shareState === "sharing"} data-testid="button-share-brief-strip">
+      {shareState === "sharing" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+      {shareState === "sharing" ? "Creating link…" : shareState === "done" ? "Link copied!" : shareState === "error" ? "Share failed" : "Share link"}
+    </Button>
+  );
+}
+
 function GppExportButton({ data, submitted }: { data: any; submitted: string }) {
   const { gppState, sendToGPP } = useSendToGrantPathPro(data, submitted);
   return (
@@ -302,6 +335,59 @@ function GppExportButton({ data, submitted }: { data: any; submitted: string }) 
   );
 }
 
+// ─── Server-side PDF Download ─────────────────────────────────────────────────
+
+async function downloadCommunityBriefPdf(locationQuery: string, orgName?: string) {
+  const res = await fetch("/api/export/community-brief-pdf", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ location: locationQuery, populationSize: 10000, timeHorizon: 25, orgName }),
+  });
+  if (!res.ok) {
+    let msg = "PDF generation failed";
+    try { msg = (await res.json()).error ?? msg; } catch {}
+    throw new Error(msg);
+  }
+  const blob = await res.blob();
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `community-brief-${locationQuery.replace(/[^a-z0-9]/gi, "-").toLowerCase()}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+}
+
+function useShareBrief() {
+  const { toast } = useToast();
+  const [shareState, setShareState] = useState<"idle" | "sharing" | "done" | "error">("idle");
+
+  const shareBrief = async (brief: any) => {
+    if (shareState === "sharing") return;
+    setShareState("sharing");
+    try {
+      const res = await apiRequest("POST", "/api/conductor/community-brief/share", brief);
+      const { shareUrl } = await res.json() as { shareUrl: string };
+      await navigator.clipboard.writeText(shareUrl).catch(() => {});
+      toast({
+        title: "Share link copied!",
+        description: shareUrl,
+        duration: 8000,
+      });
+      setShareState("done");
+      setTimeout(() => setShareState("idle"), 6000);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Failed to create share link";
+      toast({ title: "Share failed", description: msg, variant: "destructive" });
+      setShareState("error");
+      setTimeout(() => setShareState("idle"), 4000);
+    }
+  };
+
+  return { shareState, shareBrief };
+}
+
 function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string }) {
   const geo = data.geography ?? {};
   const hist = data.historicalCascade ?? {};
@@ -315,6 +401,21 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
   const trendColor = trend === "improving" ? "text-emerald-400" : trend === "worsening" ? "text-red-400" : "text-amber-400";
 
   const { gppState, sendToGPP } = useSendToGrantPathPro(data, locationQuery);
+  const { shareState, shareBrief } = useShareBrief();
+  const [pdfState, setPdfState] = useState<"idle" | "loading" | "done" | "error">("idle");
+
+  const handleDownloadPdf = async () => {
+    if (pdfState === "loading") return;
+    setPdfState("loading");
+    try {
+      await downloadCommunityBriefPdf(locationQuery);
+      setPdfState("done");
+      setTimeout(() => setPdfState("idle"), 4000);
+    } catch {
+      setPdfState("error");
+      setTimeout(() => setPdfState("idle"), 4000);
+    }
+  };
 
   return (
     <div className="rounded-2xl overflow-hidden border border-slate-700 bg-slate-900 text-white" data-testid="section-verdict-hero">
@@ -330,6 +431,24 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
             data-testid="button-download-invoice"
           >
             <Download className="w-3.5 h-3.5" />Download Invoice
+          </button>
+          <button
+            onClick={handleDownloadPdf}
+            disabled={pdfState === "loading"}
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20 disabled:opacity-60"
+            data-testid="button-download-brief-pdf"
+          >
+            {pdfState === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
+            {pdfState === "loading" ? "Generating…" : pdfState === "done" ? "Downloaded!" : pdfState === "error" ? "PDF Error" : "Download PDF"}
+          </button>
+          <button
+            onClick={() => shareBrief(data)}
+            disabled={shareState === "sharing"}
+            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20 disabled:opacity-60"
+            data-testid="button-share-brief"
+          >
+            {shareState === "sharing" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
+            {shareState === "sharing" ? "Creating link…" : shareState === "done" ? "Link copied!" : shareState === "error" ? "Share failed" : "Share link"}
           </button>
           <a href={`/community-compare?a=${encodeURIComponent(locationQuery)}`}
             className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
@@ -1139,6 +1258,8 @@ export default function CommunityImpactPage() {
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={() => generateInvoicePDF(data, submitted)} data-testid="button-download-invoice-strip">
                   <Download className="w-3.5 h-3.5" />Download Invoice
                 </Button>
+                <StripPdfButton data={data} submitted={submitted} />
+                <StripShareButton data={data} />
                 <a href={`/community-compare?a=${encodeURIComponent(submitted)}`}>
                   <Button variant="outline" size="sm" className="gap-1.5" data-testid="link-compare-strip">
                     <ArrowRight className="w-3.5 h-3.5" />Compare Communities

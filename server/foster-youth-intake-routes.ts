@@ -14,6 +14,8 @@ import { randomUUID, randomBytes, timingSafeEqual } from "crypto";
 import Anthropic from "@anthropic-ai/sdk";
 import OpenAI from "openai";
 import { ObjectStorageService } from "./replit_integrations/object_storage/objectStorage";
+import { fireWebhook } from "./webhook-dispatcher";
+import { sendFosterYouthOutcomeEmail } from "./email-service";
 
 // ── AI output contract ───────────────────────────────────────────────────────
 // The model is NOT trusted. Its JSON is validated against this schema before any
@@ -341,10 +343,18 @@ async function runValidatedAnalysis(
   return { provider, plan: null };
 }
 
+// Basic email validation (no external deps — just sanity check).
+function isValidEmail(v: string): boolean {
+  return v.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+}
+
 // Field allowlist for create/update — never trust the client to supply id/accessToken/createdBy/createdAt/AI fields.
 function pickIntakeFields(body: Record<string, unknown>): Partial<typeof fosterYouthIntakes.$inferInsert> {
   const sessionId = typeof body.sessionId === "string" ? body.sessionId.slice(0, 128) : null;
   const stateCode = typeof body.stateCode === "string" ? body.stateCode.slice(0, 2).toUpperCase() : null;
+  // Referral fields — all optional, none trusted for security decisions.
+  const rawEmail = typeof body.caseworkerEmail === "string" ? body.caseworkerEmail.trim() : null;
+  const caseworkerEmail = rawEmail && isValidEmail(rawEmail) ? rawEmail : null;
   return {
     sessionId,
     firstName: typeof body.firstName === "string" ? body.firstName.slice(0, 120) : null,
@@ -367,6 +377,10 @@ function pickIntakeFields(body: Record<string, unknown>): Partial<typeof fosterY
     ilpCoordinator: typeof body.ilpCoordinator === "string" ? body.ilpCoordinator.slice(0, 200) : null,
     ilpPhone: typeof body.ilpPhone === "string" ? body.ilpPhone.slice(0, 60) : null,
     caseworker: typeof body.caseworker === "string" ? body.caseworker.slice(0, 200) : null,
+    // Referral-origin tracking (optional, from body; never a security decision)
+    referredBy: typeof body.referredBy === "string" ? body.referredBy.slice(0, 500) : null,
+    caseworkerEmail,
+    // referralOrgId is ONLY set explicitly by the partner refer route — not from user body
   };
 }
 
@@ -594,6 +608,63 @@ export function registerFosterYouthIntakeRoutes(app: Express): void {
       }
     }
   );
+
+  // Report an outcome for an intake. Capability token OR privileged staff.
+  // Fires an outbound webhook and optionally emails the caseworker.
+  app.post("/api/foster-youth/intake/:id/report-outcome", async (req, res) => {
+    try {
+      const auth = await authorizeIntake(req, req.params.id as string);
+      if (!auth) return res.status(403).json({ error: "Forbidden" });
+
+      const { intake } = auth;
+      const reportedAt = new Date();
+
+      // Mark outcome timestamp.
+      await db.update(fosterYouthIntakes)
+        .set({ outcomeReportedAt: reportedAt, updatedAt: reportedAt })
+        .where(eq(fosterYouthIntakes.id, intake.id));
+
+      await logEvent({
+        intakeId: intake.id,
+        eventType: "outcome_reported",
+        metadata: { referredBy: intake.referredBy ?? null, stateCode: intake.stateCode },
+      });
+
+      // Fire outbound webhook (non-blocking).
+      fireWebhook("foster_youth.outcome", {
+        intakeId: intake.id,
+        referredBy: intake.referredBy ?? null,
+        location: intake.stateCode ?? null,
+        completedPlans: {
+          has30Day: !!(intake.ai30DayPlan),
+          has60Day: !!(intake.ai60DayPlan),
+        },
+        immediateNeedsAddressed: intake.immediateNeeds ?? [],
+        reportedAt: reportedAt.toISOString(),
+      });
+
+      // Send caseworker email if present.
+      if (intake.caseworkerEmail) {
+        sendFosterYouthOutcomeEmail({
+          caseworkerEmail: intake.caseworkerEmail,
+          intakeId: intake.id,
+          referredBy: intake.referredBy ?? null,
+          stateCode: intake.stateCode ?? null,
+          has30DayPlan: !!(intake.ai30DayPlan),
+          has60DayPlan: !!(intake.ai60DayPlan),
+          immediateNeeds: intake.immediateNeeds ?? null,
+          reportedAt: reportedAt.toISOString(),
+        }).catch((err: unknown) => {
+          console.error("[FosterYouth] caseworker outcome email failed:", err);
+        });
+      }
+
+      res.json({ reported: true });
+    } catch (err: any) {
+      console.error("[FosterYouth] report-outcome failed:", err);
+      res.status(500).json({ error: err.message ?? "Failed to report outcome" });
+    }
+  });
 
   // Lightweight client-side event tracking endpoint. No PII required, but rate-limited to prevent abuse.
   app.post(

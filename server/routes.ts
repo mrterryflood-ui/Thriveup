@@ -130,6 +130,7 @@ import { registerCollaborationRoutes } from "./collaboration-routes";
 import { registerCollegeAccessAIRoutes } from "./college-access-ai-routes";
 import { registerNeighborhoodRoutes } from "./neighborhood-routes";
 import { registerExportPdfRoutes } from "./export-pdf-routes";
+import { registerBriefShareRoutes } from "./brief-share-routes";
 import { registerCorridorRoutes } from "./corridor-story";
 import { registerNetworkRoutes } from "./network-routes";
 import { registerStandardsRoutes } from "./standards-routes";
@@ -190,6 +191,7 @@ import { registerCedsRoutes } from "./ceds-routes";
 import { registerPartnerApiRoutes } from "./partner-api-routes";
 import { registerEcosystemDataRoutes } from "./ecosystem-data-routes";
 import { registerStreetsRoutes } from "./streets-routes";
+import { embedRouter } from "./embed-routes";
 
 const AI_TOOLS = [
   { toolKey: "presentation-builder", name: "Presentation Builder", description: "Create slide-by-slide presentations with AI-generated content, talking points, and visual suggestions", category: "create", iconName: "presentation", gradeBand: "all", requiredModuleKey: "ai-presentations", promptTemplate: "PRESENTATION_BUILDER", outputFormat: "slides", sortOrder: 1 },
@@ -569,6 +571,7 @@ export async function registerRoutes(
   registerNeighborhoodRoutes(app);
   registerCommunityIntelligenceRoutes(app);
   registerExportPdfRoutes(app);
+  registerBriefShareRoutes(app);
   registerSafePassageRoutes(app);
   registerEcosystemIntelRoutes(app);
   registerRuralIntelRoutes(app);
@@ -6706,6 +6709,9 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api/employers", employerRegRouter);
   app.use("/api/equity", equityRouter);
   app.use("/api", scorecardRouter);
+
+  // ── Embed widget routes — no auth, must be before SPA catch-all ──────────
+  app.use("/embed", embedRouter);
 
   syncCareerOneStopJobs().catch((e: Error) => console.error("[startup] CareerOneStop sync:", e.message));
   runBjsIngestion().catch((e: Error) => console.error("[startup] BJS ingestion:", e.message));
