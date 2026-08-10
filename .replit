@@ -83,7 +83,7 @@ args = "canvas-wire-e2e"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "plumbing-sims"
+args = "trade-sims"
 
 [[workflows.workflow]]
 name = "Start application"
@@ -227,12 +227,12 @@ args = "bash scripts/run-canvas-wire-e2e.sh"
 isValidation = true
 
 [[workflows.workflow]]
-name = "plumbing-sims"
+name = "trade-sims"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts"
+args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts && npx tsx client/src/lib/trade-sims/automotive/sag-rubric.test.ts"
 
 [workflows.workflow.metadata]
 isValidation = true
