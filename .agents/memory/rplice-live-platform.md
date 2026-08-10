@@ -15,12 +15,14 @@ Old dead URL (never use): `https://salp-science--mrterryflood.replit.app`
 | GET /api/frameworks/list | RE-AIM + EPIS with full dimensions / key questions / indicators / metrics |
 | GET /api/v1/health | `{"status":"ok","version":"1.0.0","platform":"RPLICE"}` |
 
-## Broken / auth-gated endpoints
-- `GET /api/research/search?q=...` — requires CSRF token; returns `[]` or `{"error":"CSRF token required"}`. **Do not use.** Fetch /api/research and filter client-side.
+## Gateways OPENED (verified 2026-08-10)
+- `GET /api/research/search?q=...` — now PUBLIC, no CSRF; returns matching studies (empty [] for no match — keep local-filter fallback).
+- `GET /api/research/categories|tags|sources|count` — now public.
+- Bearer key = existing `THRIVE_GPP_API_KEY` secret now unlocks `/api/v1/research?q=`, `/api/v1/frameworks` (CFIR 2.0/PRISM/TDF/i-PARIHS), `/api/v1/partner/execution/catalog`.
+
+## Still broken / locked
 - `GET /api/ecosystem/status` — 404. Does not exist.
-- `GET /api/grants` — 401 ("Authentication required"). Needs Bearer API key.
-- `GET /api/v1/frameworks` — 401 ("Missing or invalid Authorization header. Use: Bearer <api_key>"). Has CFIR, PRISM, TDF, i-PARIHS beyond the public 2.
-- `GET /api/research/categories|tags|sources|count` — 401.
+- `GET /api/grants` — 401 even with THRIVE_GPP_API_KEY (separate auth; ask Dr. Flood for grants key).
 
 ## Client-side filter pattern
 ```ts

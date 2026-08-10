@@ -354,11 +354,11 @@ export function registerRpliceToolsRoutes(app: Express) {
 
       send("status", { message: matchingAnalysis ? "Found saved RPLICE analysis — pulling data..." : "No saved analysis found — gathering fresh Census data..." });
 
-      const [regionData, allRpliceResearch] = await Promise.all([
+      const [regionData, rpliceSearch] = await Promise.all([
         gatherRegionData(stateFips, countyFips),
-        fetchRplice("/api/research"),
+        searchRplice(grantProfile.focusAreas || []),
       ]);
-      const rpliceResearch = filterRpliceResearch(allRpliceResearch, grantProfile.focusAreas);
+      const rpliceResearch = rpliceSearch.matched;
 
       send("status", { message: `Census data loaded — ${regionData.stats.totalTracts} tracts analyzed` });
 
@@ -541,7 +541,25 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
     } catch { return null; }
   }
 
-  /** Filter the full /api/research library by keywords (client-side, avoids CSRF). */
+  /**
+   * Search the RPLICE research library server-side.
+   * As of Aug 2026, GET /api/research/search?q= is public (CSRF requirement removed).
+   * Falls back to fetch-all + local keyword filter if the gateway regresses.
+   */
+  async function searchRplice(keywords: string[]): Promise<{ matched: any[]; total: number }> {
+    const q = keywords.filter(Boolean).join(" ").slice(0, 200);
+    const [searched, all] = await Promise.all([
+      q ? fetchRplice(`/api/research/search?q=${encodeURIComponent(q)}`) : Promise.resolve(null),
+      fetchRplice("/api/research"),
+    ]);
+    const total = Array.isArray(all) ? all.length : 0;
+    if (Array.isArray(searched) && searched.length > 0) return { matched: searched, total };
+    // Fallback: local keyword filter over the full library
+    const filtered = filterRpliceResearch(all || [], keywords);
+    return { matched: filtered.length > 0 ? filtered : (all || []), total };
+  }
+
+  /** Filter the full /api/research library by keywords (local fallback for searchRplice). */
   function filterRpliceResearch(studies: any[], keywords: string[]): any[] {
     if (!studies?.length || !keywords?.length) return studies || [];
     const terms = keywords.map(k => k.toLowerCase());
@@ -569,16 +587,14 @@ Write in the voice specified for this funder. Be specific. Every claim must refe
     try {
       send("status", { message: "Gathering Census data for " + (cityName || countyFips) + "..." });
 
-      const [regionData, rpliceFrameworks, allRpliceResearch] = await Promise.all([
+      const [regionData, rpliceFrameworks, rpliceSearch] = await Promise.all([
         gatherRegionData(stateFips, countyFips),
         fetchRplice("/api/frameworks/list"),
-        fetchRplice("/api/research"),
+        // Server-side search gateway (public as of Aug 2026) with local-filter fallback
+        searchRplice(focusAreas?.length ? focusAreas : ["poverty", "education", "violence prevention", "implementation", "community"]),
       ]);
-      // Filter the 49-study library client-side — /api/research/search requires CSRF tokens
-      const rpliceResearch = filterRpliceResearch(
-        allRpliceResearch,
-        focusAreas?.length ? focusAreas : ["poverty", "education", "violence prevention", "implementation", "community"]
-      );
+      const rpliceResearch = rpliceSearch.matched;
+      const allRpliceResearch = { length: rpliceSearch.total } as { length: number };
 
       send("status", { message: "Census data loaded — " + regionData.stats.totalTracts + " tracts analyzed" });
       send("data", {
@@ -875,14 +891,11 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
     if (!stateFips || !countyFips) return res.status(400).json({ error: "stateFips and countyFips required" });
 
     try {
-      const [regionData, allRpliceResearch] = await Promise.all([
+      const [regionData, rpliceSearch] = await Promise.all([
         gatherRegionData(stateFips, countyFips),
-        fetchRplice("/api/research"),
+        searchRplice((question || "community intervention implementation").split(/\s+/).filter((w: string) => w.length > 3)),
       ]);
-      const rpliceResearch = filterRpliceResearch(
-        allRpliceResearch,
-        (question || "community intervention implementation").split(/\s+/).filter(w => w.length > 3)
-      );
+      const rpliceResearch = rpliceSearch.matched;
 
       const prompt = `Using RPLICE frameworks (CFIR, RE-AIM, Three Realities, SALP), analyze this community data and answer: "${question || "What are the priority interventions for this community?"}"
 

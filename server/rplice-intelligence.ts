@@ -13,11 +13,13 @@
  *                                 (dimensions, indicators, metrics, key questions)
  *  • GET /api/v1/health         — platform health check
  *
- * Authenticated endpoints (need Bearer API key — /api/v1/frameworks includes
- * CFIR/PRISM/TDF/i-PARIHS; /api/grants; /api/research/categories):
- *  • GET /api/v1/frameworks     — full framework library (6+ frameworks)
- *  • GET /api/grants            — grant finder and alignment data
+ * Public as of Aug 2026 (gateways opened — previously CSRF/401 gated):
+ *  • GET /api/research/search?q=…            — server-side search, no CSRF
  *  • GET /api/research/categories,tags,sources,count
+ * Authenticated endpoints (Bearer key = THRIVE_GPP_API_KEY, verified working Aug 2026):
+ *  • GET /api/v1/frameworks     — full framework library (CFIR 2.0/PRISM/TDF/i-PARIHS+)
+ *  • GET /api/v1/research?q=…   — authenticated search
+ *  • GET /api/grants            — still 401 with current key (separate auth)
  *
  * bettersciencelab.com tools surface (~1000 live data sources aggregated):
  *  CFIR tools · SALP distributed/monitor/validation · grant-alignment/finder ·
