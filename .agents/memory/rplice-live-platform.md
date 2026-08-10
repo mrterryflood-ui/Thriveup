@@ -46,3 +46,6 @@ bettersciencelab.com has 100+ tool pages (confirmed via sitemap): CFIR tools, SA
 **Why:** The old URL was a Replit dev repl that was never published to production. bettersciencelab.com is the actual deployed platform. The SSL cert mismatch (bare vs www) caused exit code 60 errors when not using www.
 
 **How to apply:** Always use `https://www.bettersciencelab.com` as RPLICE_BASE. Never call /api/research/search or /api/ecosystem/status. If Dr. Flood provides a Bearer API key, wire it into fetchRplice headers to unlock /api/v1/frameworks and /api/grants.
+
+## Division of labor (user directive, 2026-08-10)
+Grants intelligence lives in a SEPARATE platform (GrantPathPro ecosystem) — neither this platform nor the RPLICE connection should take on grant-finder/funder-profile work. Use RPLICE strictly for research evidence, frameworks, and community-analysis feeds. Do not propose RPLICE grants integrations again; /api/grants being locked is irrelevant.
