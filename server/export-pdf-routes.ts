@@ -1,6 +1,8 @@
 import type { Express, Request, Response } from "express";
 import { createRequire } from "module";
-const require = createRequire(import.meta.url);
+// import.meta.url is undefined in esbuild CJS bundles; fall back to __filename (CJS global)
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const require = createRequire((import.meta as any).url ?? (globalThis as any).__filename ?? process.cwd() + "/index.js");
 const PDFDocument = require("pdfkit");
 
 import { db } from "./storage";

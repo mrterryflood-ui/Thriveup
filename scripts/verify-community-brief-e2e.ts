@@ -43,8 +43,23 @@ async function postBrief(): Promise<{ status: number; text: string; retryAfter: 
   return { status: res.status, text, retryAfter: ra ? parseInt(ra, 10) : null };
 }
 
+/** Poll a cheap endpoint until the server responds (up to 60 s). */
+async function waitForServer(): Promise<void> {
+  const PROBE = `${BASE}/`;
+  for (let i = 0; i < 30; i++) {
+    try {
+      const r = await fetch(PROBE, { signal: AbortSignal.timeout(3000) });
+      if (r.status < 600) return; // any HTTP response means the server is up
+    } catch { /* not ready yet */ }
+    await sleep(2000);
+  }
+  fail("Server did not become reachable within 60 s.");
+}
+
 async function run() {
   console.log(`Anonymous community-brief e2e against ${BASE}${PATH} (ZIP ${ZIP})`);
+
+  await waitForServer();
 
   // Up to 3 attempts total. A single 429 with a sane Retry-After is honored
   // once (another gate may have just spent the per-IP budget); persistent 429s

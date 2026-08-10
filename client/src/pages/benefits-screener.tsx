@@ -383,13 +383,35 @@ export default function BenefitsScreenerPage() {
                           </div>
                           <Badge variant="secondary" className="shrink-0">~${info.annualValue.toLocaleString()}/yr</Badge>
                         </div>
-                        <div className="mt-3 pl-9">
+                        <div className="mt-3 pl-9 space-y-2">
                           <p className="text-xs font-semibold text-muted-foreground mb-1">Documents you'll need:</p>
                           <ul className="text-xs text-muted-foreground space-y-0.5">
                             {info.docs.map(d => (
                               <li key={d} className="flex items-center gap-1"><FileText className="h-3 w-3 shrink-0" /> {d}</li>
                             ))}
                           </ul>
+                          {(() => {
+                            const guide = result?.navigationGuides?.[b];
+                            const url = guide?.applicationUrl;
+                            const note = guide?.notes || guide?.processingNote;
+                            const days = guide?.processingDays;
+                            return url ? (
+                              <div className="pt-1 space-y-1">
+                                {days && <p className="text-xs text-muted-foreground">Processing: {days}</p>}
+                                {note && <p className="text-xs text-muted-foreground italic">{note}</p>}
+                                <a
+                                  href={url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white rounded-md px-3 py-1.5 mt-1"
+                                  style={{ backgroundColor: info.color }}
+                                  data-testid={`apply-link-${b}`}
+                                >
+                                  Apply Online →
+                                </a>
+                              </div>
+                            ) : null;
+                          })()}
                         </div>
                       </div>
                     );
@@ -466,11 +488,19 @@ export default function BenefitsScreenerPage() {
                   <Label>Phone number (optional)</Label>
                   <Input value={data.contactPhone} onChange={e => setData({...data, contactPhone: e.target.value})} placeholder="We'll call or text you" data-testid="input-contact-phone" />
                 </div>
-                <Button className="w-full" size="lg" data-testid="button-connect">
-                  <Phone className="h-4 w-4 mr-2" /> Connect Me with a Navigator
-                </Button>
+                <a
+                  href="https://www.211texas.org/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full"
+                  data-testid="button-connect"
+                >
+                  <Button className="w-full" size="lg">
+                    <Phone className="h-4 w-4 mr-2" /> Connect Me with a Navigator
+                  </Button>
+                </a>
                 <p className="text-xs text-muted-foreground text-center">
-                  Or call us directly: (512) 555-HELP · Monday-Friday 8am-6pm
+                  Or dial <strong>2-1-1</strong> (free, 24/7, available in 170+ languages) · TTY: 1-800-735-2989
                 </p>
               </CardContent>
             </Card>
