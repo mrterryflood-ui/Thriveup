@@ -89,6 +89,10 @@ args = "trade-sims"
 task = "workflow.run"
 args = "hud-pdf-e2e"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "community-brief-e2e"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -248,6 +252,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash scripts/run-hud-report-pdf-e2e.sh"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "community-brief-e2e"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/verify-community-brief-e2e.ts"
 
 [workflows.workflow.metadata]
 isValidation = true
