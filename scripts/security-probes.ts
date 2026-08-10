@@ -203,7 +203,11 @@ async function run() {
 }
 
 // Field names that would indicate PII leaking into an aggregate public response.
-const PII_FIELD_PATTERN = /\b(email|phone|ssn|firstName|lastName|fullName|dateOfBirth|dob|address1|streetAddress|userId|studentId|guardianName|contactName|caseNotes)\b/i;
+// Uses JSON key syntax ("field":) rather than bare word matching so that
+// legitimate prose in the AI narrative ("access to phone services") does not
+// false-positive.  The RPLICE pattern below already uses this form; keeping
+// both patterns consistent avoids future false positives.
+const PII_FIELD_PATTERN = /"(email|phone|ssn|firstName|lastName|fullName|dateOfBirth|dob|address1|streetAddress|userId|studentId|guardianName|contactName|caseNotes)"\s*:/i;
 
 // The RPLICE intelligence block is built from globally-scoped internal
 // operational data (active action plans, outcome baselines, assessment records)

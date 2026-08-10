@@ -1096,20 +1096,34 @@ export function registerConductorRoutes(app: Express) {
       // authenticated caller always falls through to a full build so they get
       // the up-to-date RPLICE intelligence block attached (never cached).
       const cacheKey = `${location.trim().toLowerCase()}|${populationSize}|${timeHorizon}`;
-      if (!isAuthed) {
+      // Dev-only cache bypass: the e2e gate sends X-Cache-Skip: 1 so every gate
+      // run exercises the real Census + AI path rather than a cached answer.
+      // This header is only honored in non-production to prevent anonymous
+      // production traffic from using it to drain rate-limit / cache protections.
+      const skipCache =
+        process.env.NODE_ENV !== "production" &&
+        req.headers["x-cache-skip"] === "1";
+      if (!isAuthed && !skipCache) {
         const cached = conductorCacheGet(cacheKey);
         if (cached !== undefined) {
           return res.json(cached);
         }
       }
 
-      // Rate limit only cache misses (the expensive path).
-      const retryAfter = conductorRateLimit(conductorClientIp(req));
-      if (retryAfter !== null) {
-        res.setHeader("Retry-After", String(retryAfter));
-        return res.status(429).json({
-          error: `You've run several community analyses in a short time. Please wait about ${Math.ceil(retryAfter / 60)} minute(s) and try again — this keeps the free public analyzer available for everyone.`,
-        });
+      // Rate limit only cache misses (the expensive path). The dev-mode
+      // X-Cache-Skip bypass also exempts the request from rate limiting so
+      // the e2e gate can run unconditionally against a warm dev server
+      // regardless of how many validation passes have run in the window.
+      // skipCache is already gated on NODE_ENV !== "production" so this
+      // exemption cannot be triggered by anonymous production traffic.
+      if (!skipCache) {
+        const retryAfter = conductorRateLimit(conductorClientIp(req));
+        if (retryAfter !== null) {
+          res.setHeader("Retry-After", String(retryAfter));
+          return res.status(429).json({
+            error: `You've run several community analyses in a short time. Please wait about ${Math.ceil(retryAfter / 60)} minute(s) and try again — this keeps the free public analyzer available for everyone.`,
+          });
+        }
       }
 
       // Step 1: Resolve geography

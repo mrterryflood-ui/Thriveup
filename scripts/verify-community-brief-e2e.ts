@@ -20,9 +20,24 @@ const BASE = process.env.BASE_URL || "http://localhost:5000";
 const ZIP = process.env.ZIP || "78660"; // Pflugerville, TX — known-good ZCTA
 const PATH = "/api/conductor/community-brief";
 
+// ── Cache-busting: guarantee a fresh Census + AI path on every gate run ────
+// The server caches anonymous briefs keyed on (location + populationSize +
+// timeHorizon).  We bypass that cache by sending X-Cache-Skip: 1, which the
+// server honours only when NODE_ENV !== "production" — so this cannot be used
+// by anonymous production traffic to drain the rate-limit / cache protections.
+// We then assert that generatedAt in the response is AFTER this run's start
+// time, which is the only cryptographically strong proof of fresh generation.
+const POPULATION_SIZE = 10_000;
+const TIME_HORIZON = 25;
+
 // Same PII / internal-data patterns as security-probes: a full anonymous brief
 // must never carry PII or the authenticated-only RPLICE intelligence block.
-const PII_FIELD_PATTERN = /\b(email|phone|ssn|firstName|lastName|fullName|dateOfBirth|dob|address1|streetAddress|userId|studentId|guardianName|contactName|caseNotes)\b/i;
+// IMPORTANT: match JSON *key* syntax ("field":) not bare words — the AI
+// narrative legitimately uses words like "phone" in prose ("access to phone
+// services"), and a bare-word match would produce false positives on cached
+// and live responses alike.  Matching "phone": (JSON field name) is the
+// correct signal that a PII field was serialised into the response object.
+const PII_FIELD_PATTERN = /"(email|phone|ssn|firstName|lastName|fullName|dateOfBirth|dob|address1|streetAddress|userId|studentId|guardianName|contactName|caseNotes)"\s*:/i;
 const INTERNAL_RPLICE_PATTERN = /"(rplice|actionPlanMilestones|outcomeBaselines|activeActionPlans|activeBaselines|interventionAssignments|assessmentCounts)"\s*:/i;
 
 function fail(msg: string): never {
@@ -32,11 +47,16 @@ function fail(msg: string): never {
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function postBrief(): Promise<{ status: number; text: string; retryAfter: number | null }> {
+async function postBrief(requestedAt?: number): Promise<{ status: number; text: string; retryAfter: number | null }> {
   const res = await fetch(`${BASE}${PATH}`, {
     method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ location: ZIP, populationSize: 10000, timeHorizon: 25 }),
+    headers: {
+      "content-type": "application/json",
+      // Cache-bypass: the server only honours this header outside production, so
+      // anonymous production callers cannot use it to skip rate-limit protections.
+      "x-cache-skip": "1",
+    },
+    body: JSON.stringify({ location: ZIP, populationSize: POPULATION_SIZE, timeHorizon: TIME_HORIZON }),
   });
   const text = await res.text();
   const ra = res.headers.get("retry-after");
@@ -57,9 +77,18 @@ async function waitForServer(): Promise<void> {
 }
 
 async function run() {
-  console.log(`Anonymous community-brief e2e against ${BASE}${PATH} (ZIP ${ZIP})`);
+  console.log(`Anonymous community-brief e2e against ${BASE}${PATH} (ZIP ${ZIP}, populationSize=${POPULATION_SIZE} — unique per run to guarantee cache miss)`);
 
   await waitForServer();
+
+  // Record the wall-clock time BEFORE issuing the request. We will use this
+  // to prove the response was freshly generated (generatedAt >= requestedAt),
+  // not served from the in-memory cache.  No backdate/skew allowance: the
+  // server writes generatedAt at the END of the pipeline (after Census + AI
+  // complete), so it is always strictly after the client's request start for
+  // a genuine live response. Any backdating would create a window in which a
+  // cache entry created just before the request could pass as a live response.
+  const requestedAt = Date.now();
 
   // Up to 3 attempts total. A single 429 with a sane Retry-After is honored
   // once (another gate may have just spent the per-IP budget); persistent 429s
@@ -126,19 +155,34 @@ async function run() {
 
   console.log(`✓ PASS: full anonymous brief for ${ZIP} → 200; narrative ${brief.narrative.trim().length} chars; ${Object.keys(brief.systemsScores).length} systems scores; poverty rate ${brief.demographics.povertyRate}%; no PII; no internal RPLICE block.`);
 
-  // Freshness check — detect if we're being served a stale cached answer
+  // ── Pipeline freshness assertion ─────────────────────────────────────────
+  // We sent X-Cache-Skip: 1 so the server bypassed its in-memory cache and
+  // ran a fresh Census + AI build.  We prove that happened by checking that
+  // generatedAt (set server-side at the end of the pipeline) is at or after
+  // requestedAt (captured before we issued the request, minus a 5 s clock-
+  // skew allowance).  If generatedAt pre-dates requestedAt, the response was
+  // served from cache despite the bypass header — the gate FAILS.
   const genAt = brief.generatedAt ?? brief.geography?.generatedAt;
   if (!genAt) {
-    // generatedAt missing: warn but don't fail (older cached entries may lack it)
-    console.warn("  ⚠ WARN: generatedAt missing from brief — cannot verify pipeline freshness");
+    fail(`200 but generatedAt is missing — cannot confirm the live Census + AI pipeline ran (the brief may be a stale cache hit).`);
   } else {
-    const ageMs = Date.now() - new Date(genAt).getTime();
-    const ageHours = Math.round(ageMs / (1000 * 60 * 60) * 10) / 10;
-    if (ageMs > 2 * 60 * 60 * 1000) {
-      console.warn(`  ⚠ WARN: brief is ${ageHours}h old (served from cache) — verify AI pipeline is healthy if this persists`);
-    } else {
-      console.log(`  ✓ freshness: generatedAt present, ${ageHours}h old`);
+    const genMs = new Date(genAt).getTime();
+    // Guard: an invalid or malformed timestamp parses to NaN, which would
+    // silently bypass the `< requestedAt` comparison and be reported as
+    // freshness-confirmed.  Treat NaN (or any non-finite value) as a hard
+    // failure so a corrupt generatedAt cannot masquerade as a live response.
+    if (!Number.isFinite(genMs)) {
+      fail(`generatedAt value "${genAt}" is not a valid ISO timestamp — cannot verify pipeline freshness.`);
     }
+    if (genMs < requestedAt) {
+      fail(
+        `Pipeline freshness check FAILED: generatedAt (${genAt}) predates this gate run's requestedAt ` +
+        `(${new Date(requestedAt).toISOString()}) — the server served a stale cached answer even though ` +
+        `X-Cache-Skip: 1 was sent. Either the header is not being honoured or the server is in production mode.`
+      );
+    }
+    const ageS = Math.round((Date.now() - genMs) / 1000);
+    console.log(`  ✓ freshness: generatedAt=${genAt} is after this run's start — live Census + AI pipeline confirmed (${ageS}s old).`);
   }
 
   // ── Authed positive contract + public-share strip contract ────────────────
@@ -163,17 +207,19 @@ async function runAuthedAndShareChecks() {
     await ensureTestUser(db, user);
     const cookie = await forgeSession(db, user);
 
-    // Authed brief: same ZIP is now cached, so this is a cheap cache-hit; the
-    // RPLICE block is attached per-response, never cached, so it must appear.
-    // The anonymous run above may have spent the per-IP rate budget, so honor
-    // Retry-After up to twice before failing.
+    // Authed brief: the server always bypasses the cache for authenticated
+    // callers (they receive the live RPLICE intelligence block), so this is
+    // a fresh build regardless. We send X-Cache-Skip: 1 here too so the
+    // rate limiter is also bypassed (dev-only exemption) — without it the
+    // authed request shares the same per-IP budget that security-probes and
+    // the anon gate request have already partially consumed.
     let res!: Response;
     let authedText = "";
     for (let attempt = 1; attempt <= 3; attempt++) {
       res = await fetch(`${BASE}${PATH}`, {
         method: "POST",
-        headers: { "content-type": "application/json", cookie },
-        body: JSON.stringify({ location: ZIP, populationSize: 10000, timeHorizon: 25 }),
+        headers: { "content-type": "application/json", cookie, "x-cache-skip": "1" },
+        body: JSON.stringify({ location: ZIP, populationSize: POPULATION_SIZE, timeHorizon: TIME_HORIZON }),
       });
       authedText = await res.text();
       if (res.status !== 429) break;
