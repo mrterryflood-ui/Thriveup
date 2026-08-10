@@ -4,3 +4,7 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
+# Playwright / e2e test output artifacts (PDFs, screenshots, etc.)
+test-results/**/*.pdf
+test-results/**/*.png
+test-results/**/*.jpg
