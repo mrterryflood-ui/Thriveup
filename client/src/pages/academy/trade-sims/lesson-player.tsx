@@ -63,6 +63,7 @@ function renderEngineCanvas(
     components: PlacedAutoComponent[];
     lastSolve: SolveOutput | null;
   }) => void,
+  autoEmptyHint?: string,
 ) {
   // Electrical: always use the visual schematic canvas regardless of engineMode.
   // This covers both linear-dc lessons (full physics) and concept-only lessons
@@ -88,6 +89,7 @@ function renderEngineCanvas(
           if (s.lastSolve) onRun();
           onAutoState?.(s);
         }}
+        emptyHint={autoEmptyHint}
       />
     );
   }
@@ -185,6 +187,21 @@ function BackflowGradeBadge({ grade }: { grade: BackflowGrade }) {
 // will (a) mount its canvas via renderEngineCanvas and (b) require the learner
 // to actually run the sim before Mark Complete unlocks.
 const ENGINES_WITH_CANVAS = new Set(["linear-dc", "pipe-network", "heat-input", "thermal-airflow"]);
+
+// Day-specific empty-canvas hints for the automotive linear-dc lessons.
+// Keyed by dayNumber; derived from each lesson's guided steps so learners see
+// exactly which parts THIS lesson needs instead of a generic message. Content
+// only — no effect on the solver or grading.
+const AUTO_EMPTY_HINTS: Record<number, string> = {
+  2: "this lesson needs a car battery, an alternator, a load, and a chassis ground",
+  3: "this lesson needs a car battery, a fuse, a starter motor, and a chassis ground",
+  4: "this lesson needs a car battery, an ignition coil, and a chassis ground",
+  9: "this lesson needs a car battery, a fuse, an ignition coil (set to 5 Ω as the headlight stand-in), and a chassis ground",
+};
+function autoEmptyHintFor(tradeSlug: string | undefined, dayNumber: number | undefined): string | undefined {
+  if (tradeSlug !== "automotive" || dayNumber === undefined) return undefined;
+  return AUTO_EMPTY_HINTS[dayNumber];
+}
 
 // Learner-facing label for an engine mode. The raw mode names (linear-dc,
 // thermal-airflow, heat-input, pipe-network, concept-only) are developer
@@ -919,6 +936,7 @@ export default function LessonPlayerPage() {
                     setPlumbingFor("guided"),
                     tradeSlug,
                     setAutoFor("guided"),
+                    autoEmptyHintFor(tradeSlug, lesson.dayNumber),
                   )}
                 </div>
               )}
@@ -966,7 +984,7 @@ export default function LessonPlayerPage() {
                     </div>
                   )}
                   {shouldShowCanvas(tradeSlug, engineMode) &&
-                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug, setAutoFor("solo"))}
+                    renderEngineCanvas(engineMode, undefined, () => setHasRunSim(true), setPlumbingFor("solo"), tradeSlug, setAutoFor("solo"), autoEmptyHintFor(tradeSlug, lesson.dayNumber))}
                   {lesson.soloChallenge.sagRubric && tradeSlug === "automotive" && engineMode === "linear-dc" && (() => {
                     const g = gradeSag(
                       lesson.soloChallenge!.sagRubric!,
@@ -1125,6 +1143,8 @@ export default function LessonPlayerPage() {
                   () => setHasRunSim(true),
                   setPlumbingFor("sandbox"),
                   tradeSlug,
+                  undefined,
+                  autoEmptyHintFor(tradeSlug, lesson.dayNumber),
                 )
               ) : (
                 <div className="space-y-3">
