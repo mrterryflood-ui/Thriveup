@@ -338,7 +338,7 @@ export default function LessonPlayerPage() {
   const soloAuto = autoByTab.solo;
 
   // Latest plumbing canvas state, scoped PER TAB. Guided / Solo / Sandbox
-  // each mount their own PlumbingCanvas instance, so we must not let a
+  // each mount their own VisualPlumbingCanvas instance, so we must not let a
   // Guided solve bleed into the Solo rubric (and vice-versa) — that would
   // grade the learner on work they did somewhere else.
   type PlumbingTabState = {
