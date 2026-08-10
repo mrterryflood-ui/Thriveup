@@ -86,3 +86,6 @@ This clause has been removed from all platform MD files. It was clinically dange
 6. Be Coachable — accept correction immediately; guardrails are coaching
 7. Mental Toughness Protocol — Acknowledge → Recover → Learn → Improve; never freeze
 8. Championship Mindset — build for the long game; shortcuts degrade the system
+
+## v4 adoption (2026-08-10)
+ADIS v4 now governs — see .agents/skills/platform-dna/ (SKILL.md = Tier A/B + deployment map; adis-v4-spec.md = full author text; adis-v3-archive.md = archival, governs where v4 silent). New records: .agents/residuals.md (residuals ledger, Stage 0 ingestion required), .agents/sessions/ (session ledgers). Key v4 shifts: one-pass external review with residuals instead of review spirals; rules carry Invariant+Falsifier+Guard with enforcement class (COMPILED/GATED/HONOR); vital signs read off instruments, never self-reported; every subagent must receive the platform-dna skill path.

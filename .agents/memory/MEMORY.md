@@ -15,7 +15,7 @@
 - [OpenRouter model rotation](openrouter-model-rotation.md) — proxy silently retires model IDs (all Claude 3.x gone 2026-07); probe with 1-token calls, /models returns 405; IDs are hardcoded in multiple server files.
 - [RPLICE Live Platform](rplice-live-platform.md) — bettersciencelab.com is correct URL; 3 public endpoints; /api/research/search needs CSRF; filter client-side; Bearer key needed for grants/full-frameworks.
 - [Community Context Orchestration](community-context-orchestration.md) — AsyncLocalStorage wires Census+RPLICE into every AI call; middleware extracts ZIP; withEthicalPreamble appends it automatically.
-- [SALP+BIA+ADIS Platform DNA](salp-bia-adis-memory.md) — ADIS v3.0 (August 2026): 13-layer BIA (adds Blockchain/Integrity layer), Double Helix Verification Contract, Governance Chain, Conformance Levels, Anti-Pattern Table, Verification Record Template. Supersedes v2.0.
+- [SALP+BIA+ADIS Platform DNA](salp-bia-adis-memory.md) — ADIS v4.0 governs (2026-08-10): 3-tier authority, 10 invariants, enforcement physics, Stage Verifier pipeline, residuals ledger. v3 archival; where v4 silent, v3 governs.
 - [YHSI implementation stack](yhsi-stack.md) — youth voice/referrals/HMIS/reports; role checks MUST hit DB (req.user.role is never set); metrics are suppression-first (floor 5).
 - [E2E forged-session auth](e2e-forged-session-auth.md) — Playwright can't do OIDC sign-in; forge sessions-table rows + sign connect.sid with SESSION_SECRET to test as an authed user.
 - [HUD PIT nationwide community data](hud-pit-community-data.md) — official-only dataset + public lookup; huduser.gov UA/xlsb quirks; refresh must never follow redirects; youth counts start 2015.
@@ -29,7 +29,7 @@
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
-- [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — SALP+BIA+ADIS+Scholar-Athlete full framework; ADIS v2.0 triage protocol; 12-layer anatomy; 8 Scholar-Athlete Laws; vital signs check; self-diagnostic prompt.
+- [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.
 - [Fable Standard Skill](.agents/skills/fable-standard/SKILL.md) — All 11 Iron Rules; Five-Lens thinking; pre-response checklist; behavioral audit; anti-fabrication 6 prohibitions; P-L12/P-L13 lessons; communication norms.
 - [TCAF Identity Skill](.agents/skills/tcaf-identity/SKILL.md) — TCAF/ISS LLC identifiers; IGN framework; canonical stats (grants/platforms/languages/engines/states); stakeholder model; teaming roster; RPLICE live platform; writing mode architecture.
 - [Platform Engineering Skill](.agents/skills/platform-engineering/SKILL.md) — Memory architecture; AI call site rules; OpenRouter rotation; engineering gotchas; DB patterns; orchestration; Chainweb API; visual circuit canvas; curriculum activities; SDOH/health data; Zod architecture; key file pointers.
