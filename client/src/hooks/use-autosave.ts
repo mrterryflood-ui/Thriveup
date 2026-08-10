@@ -66,6 +66,14 @@ export function useAutosave<T>(opts: UseAutosaveOptions<T>): UseAutosaveResult {
   const [hasDraft, setHasDraft] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const lastSerializedRef = useRef<string | null>(null);
+  // Monotonic request-generation counter. Each scheduled save increments it;
+  // a PUT response only "wins" if its generation is still the latest — this
+  // prevents an older in-flight PUT that resolves late from clobbering the
+  // draft written by a newer save.
+  const saveGenRef = useRef(0);
+  // AbortController for the currently in-flight save PUT, so a newer save (or
+  // cleanup) can abort the older request.
+  const saveAbortRef = useRef<AbortController | null>(null);
   const onHydrateRef = useRef(onHydrate);
   onHydrateRef.current = onHydrate;
 
@@ -136,6 +144,12 @@ export function useAutosave<T>(opts: UseAutosaveOptions<T>): UseAutosaveResult {
     if (serialized === lastSerializedRef.current) return;
     if (timerRef.current) clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
+      // Abort any still-in-flight save from a previous value, then claim a
+      // fresh generation number for this one.
+      saveAbortRef.current?.abort();
+      const controller = new AbortController();
+      saveAbortRef.current = controller;
+      const myGen = ++saveGenRef.current;
       setStatus("saving");
       try {
         const res = await fetch(draftUrl, {
@@ -143,7 +157,11 @@ export function useAutosave<T>(opts: UseAutosaveOptions<T>): UseAutosaveResult {
           credentials: "include",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ content: value }),
+          signal: controller.signal,
         });
+        // A newer save has been scheduled since this one started — its result
+        // is authoritative, so ignore this (stale) response entirely.
+        if (myGen !== saveGenRef.current) return;
         if (res.ok) {
           lastSerializedRef.current = serialized;
           setLastSavedAt(new Date());
@@ -155,6 +173,9 @@ export function useAutosave<T>(opts: UseAutosaveOptions<T>): UseAutosaveResult {
           setStatus("error");
         }
       } catch (err) {
+        // Aborted requests are intentional supersessions — not errors.
+        if ((err as { name?: string })?.name === "AbortError") return;
+        if (myGen !== saveGenRef.current) return;
         console.warn("[useAutosave] save failed:", err);
         setStatus("error");
       }
@@ -165,8 +186,21 @@ export function useAutosave<T>(opts: UseAutosaveOptions<T>): UseAutosaveResult {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value, hydrated, enabled, isSignedIn, debounceMs]);
 
+  // Abort any in-flight save on unmount so a late response can't touch state
+  // after the component is gone.
+  useEffect(() => {
+    return () => {
+      saveAbortRef.current?.abort();
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
+
   const clearDraft = async () => {
     if (!isSignedIn) return;
+    // A clear supersedes any pending/in-flight save.
+    saveAbortRef.current?.abort();
+    saveGenRef.current++;
+    if (timerRef.current) clearTimeout(timerRef.current);
     try {
       await fetch(draftUrl, { method: "DELETE", credentials: "include" });
       setHasDraft(false);

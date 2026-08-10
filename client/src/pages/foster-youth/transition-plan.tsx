@@ -8,6 +8,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, Route, Save, CheckCircle2, Calendar, Home, Heart, Briefcase, GraduationCap, Users, DollarSign } from "lucide-react";
 import { CrisisStrip } from "@/components/foster-youth/crisis-strip";
+import { getVersioned, setVersioned, safeRemove } from "@/lib/safe-storage";
+
+const TRANSITION_PLAN_KEY = "foster-youth-transition-plan";
+const TRANSITION_PLAN_VERSION = 1;
+
+function isStringRecord(v: unknown): v is Record<string, string> {
+  if (!v || typeof v !== "object" || Array.isArray(v)) return false;
+  return Object.values(v).every((x) => typeof x === "string");
+}
 
 interface PlanField {
   id: string;
@@ -43,19 +52,20 @@ const FIELDS_AFTER: PlanField[] = [
 export default function FosterYouthTransitionPlanPage() {
   const [values, setValues] = useState<Record<string, string>>(() => {
     if (typeof window === "undefined") return {};
-    try {
-      const raw = localStorage.getItem("foster-youth-transition-plan");
-      return raw ? JSON.parse(raw) : {};
-    } catch {
-      return {};
-    }
+    const stored = getVersioned<Record<string, string>>(
+      TRANSITION_PLAN_KEY,
+      { version: TRANSITION_PLAN_VERSION },
+      isStringRecord,
+    );
+    return stored ?? {};
   });
   const [saved, setSaved] = useState(false);
 
   useEffect(() => {
-    try {
-      localStorage.setItem("foster-youth-transition-plan", JSON.stringify(values));
-    } catch {}
+    setVersioned<Record<string, string>>(TRANSITION_PLAN_KEY, values, {
+      version: TRANSITION_PLAN_VERSION,
+      pruneKeys: [TRANSITION_PLAN_KEY],
+    });
   }, [values]);
 
   const setField = (id: string, v: string) => {
@@ -155,6 +165,19 @@ export default function FosterYouthTransitionPlanPage() {
             <Save className="mr-2 h-4 w-4" /> {saved ? "Saved!" : "Save my plan"}
           </Button>
           <Button variant="outline" onClick={() => window.print()} data-testid="button-print">Print for court hearing</Button>
+          <Button
+            variant="outline"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.confirm("Clear all your saved answers on this device? This cannot be undone.")) {
+                setValues({});
+                safeRemove(TRANSITION_PLAN_KEY);
+                setSaved(false);
+              }
+            }}
+            data-testid="button-clear-plan"
+          >
+            Clear my plan
+          </Button>
           <Link href="/foster-youth/wellbeing">
             <Button variant="outline" data-testid="button-go-wellbeing">Wellbeing check-in →</Button>
           </Link>

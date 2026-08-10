@@ -179,8 +179,13 @@ function SudTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/sud-assessments"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/sud-assessments", form); return r.json(); },
-    onSuccess: () => { toast({ title: "Assessment saved" }); refetch(); setForm({ clientName: "", assessorName: "", assessmentType: "audit_c", responses: {}, clinicalNotes: "", referralRecommended: false }); },
-    onError: () => toast({ title: "Error saving assessment", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Assessment saved" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/sud-assessments"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", assessorName: "", assessmentType: "audit_c", responses: {}, clinicalNotes: "", referralRecommended: false });
+    },
+    onError: (err: any) => toast({ title: "Error saving assessment", description: err?.message, variant: "destructive" }),
   });
 
   const questions = form.assessmentType === "audit_c" ? AUDIT_C : form.assessmentType === "dast_10" ? DAST_10 : CAGE;
@@ -263,8 +268,13 @@ function RecoveryTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/recovery-plans"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/recovery-plans", form); return r.json(); },
-    onSuccess: () => { toast({ title: "Recovery plan created" }); refetch(); setForm({ clientName: "", currentPhase: "contemplation", recoveryCapitalScore: 0, primarySubstance: "", primaryClinician: "", strengths: "", barriers: "", goals: [] }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Recovery plan created" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/recovery-plans"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", currentPhase: "contemplation", recoveryCapitalScore: 0, primarySubstance: "", primaryClinician: "", strengths: "", barriers: "", goals: [] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   const PHASES = ["pre_contemplation", "contemplation", "preparation", "action", "maintenance"];
@@ -325,12 +335,22 @@ function HousingTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/housing-intakes"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/housing-intakes", form); return r.json(); },
-    onSuccess: () => { toast({ title: "Intake saved" }); refetch(); setForm({ clientName: "", currentHousingStatus: "unsheltered", chronicallyHomeless: false, veteranStatus: false, disabilityStatus: false, vulnerabilityScore: 0, caseworker: "", notes: "" }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Intake saved" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/housing-intakes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", currentHousingStatus: "unsheltered", chronicallyHomeless: false, veteranStatus: false, disabilityStatus: false, vulnerabilityScore: 0, caseworker: "", notes: "" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
   const houseMutation = useMutation({
     mutationFn: async (id: string) => { const r = await apiRequest("PATCH", `/api/streets/housing-intakes/${id}/housed`, {}); return r.json(); },
-    onSuccess: () => { toast({ title: "Marked as housed ✓" }); queryClient.invalidateQueries({ queryKey: ["/api/streets/housing-intakes"] }); },
+    onSuccess: () => {
+      toast({ title: "Marked as housed ✓" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/housing-intakes"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   const HOUSING_STATUSES = ["unsheltered", "emergency_shelter", "transitional", "doubled_up", "at_risk"];
@@ -401,12 +421,22 @@ function HandoffsTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/warm-handoffs"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/warm-handoffs", form); return r.json(); },
-    onSuccess: () => { toast({ title: "Warm handoff documented" }); refetch(); setForm({ clientName: "", fromProviderName: "", fromProviderType: "street_outreach", toProviderName: "", toProviderType: "behavioral_health", handoffReason: "", coordinatedBy: "", followUpDate: "" }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Warm handoff documented" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/warm-handoffs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", fromProviderName: "", fromProviderType: "street_outreach", toProviderName: "", toProviderType: "behavioral_health", handoffReason: "", coordinatedBy: "", followUpDate: "" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
   const outcomeMutation = useMutation({
     mutationFn: async ({ id, outcome }: any) => { const r = await apiRequest("PATCH", `/api/streets/warm-handoffs/${id}/outcome`, { outcome }); return r.json(); },
-    onSuccess: () => { toast({ title: "Outcome recorded" }); queryClient.invalidateQueries({ queryKey: ["/api/streets/warm-handoffs"] }); },
+    onSuccess: () => {
+      toast({ title: "Outcome recorded" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/warm-handoffs"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   const PROVIDER_TYPES = ["street_outreach", "shelter", "behavioral_health", "primary_care", "peer_support", "legal", "housing", "mat_clinic", "recovery_housing"];
@@ -476,8 +506,13 @@ function CoachesTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/peer-coaches"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/peer-coaches", { ...form, yearsInRecovery: parseInt(form.yearsInRecovery) || 0, stipendAmount: parseFloat(form.stipendAmount) || 0 }); return r.json(); },
-    onSuccess: () => { toast({ title: "Peer coach enrolled" }); refetch(); setForm({ name: "", email: "", phone: "", yearsInRecovery: "", primarySubstance: "", bio: "", stipendAmount: "", credentialingPathway: "" }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Peer coach enrolled" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/peer-coaches"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ name: "", email: "", phone: "", yearsInRecovery: "", primarySubstance: "", bio: "", stipendAmount: "", credentialingPathway: "" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   return (
@@ -538,12 +573,22 @@ function CrisisTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/crisis-log"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/crisis-log", { ...form, followUpRequired: true }); return r.json(); },
-    onSuccess: () => { toast({ title: "Crisis event logged" }); refetch(); setForm({ clientName: "", crisisType: "suicidal_ideation", acuityLevel: "moderate", disposition: "line_988", respondedBy: "", notes: "" }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Crisis event logged" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/crisis-log"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", crisisType: "suicidal_ideation", acuityLevel: "moderate", disposition: "line_988", respondedBy: "", notes: "" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
   const followUpMutation = useMutation({
     mutationFn: async ({ id, outcome }: any) => { const r = await apiRequest("PATCH", `/api/streets/crisis-log/${id}/follow-up`, { outcome }); return r.json(); },
-    onSuccess: () => { toast({ title: "Follow-up completed" }); queryClient.invalidateQueries({ queryKey: ["/api/streets/crisis-log"] }); },
+    onSuccess: () => {
+      toast({ title: "Follow-up completed" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/crisis-log"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   const ACUITY_COLOR: Record<string, string> = { low: "text-green-600", moderate: "text-yellow-600", high: "text-orange-600", imminent: "text-red-600" };
@@ -619,8 +664,13 @@ function HarmTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/harm-reduction"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/harm-reduction", form); return r.json(); },
-    onSuccess: () => { toast({ title: "Service logged" }); refetch(); setForm({ clientName: "", anonymous: false, serviceType: "naloxone", quantityProvided: 1, overdoseReversal: false, substanceInvolved: "", linkedToTreatment: false, providedBy: "", location: "", notes: "" }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "Service logged" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/harm-reduction"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", anonymous: false, serviceType: "naloxone", quantityProvided: 1, overdoseReversal: false, substanceInvolved: "", linkedToTreatment: false, providedBy: "", location: "", notes: "" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   const SERVICE_TYPES = [["naloxone", "Naloxone (Narcan)"], ["syringes", "Syringe Exchange"], ["test_strips", "Fentanyl Test Strips"], ["overdose_reversal", "Overdose Reversal Documented"], ["wound_care", "Wound Care"], ["education", "Harm Reduction Education"], ["linkage", "Treatment Linkage"]];
@@ -694,12 +744,22 @@ function MatTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/mat"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/mat", form); return r.json(); },
-    onSuccess: () => { toast({ title: "MAT referral created" }); refetch(); setForm({ clientName: "", medication: "buprenorphine", clinicName: "", clinicPhone: "", clinicAddress: "", prescribingProvider: "", barriers: "", coordinatedBy: "", notes: "" }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "MAT referral created" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/mat"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", medication: "buprenorphine", clinicName: "", clinicPhone: "", clinicAddress: "", prescribingProvider: "", barriers: "", coordinatedBy: "", notes: "" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
   const enrollMutation = useMutation({
     mutationFn: async (id: string) => { const r = await apiRequest("PATCH", `/api/streets/mat/${id}`, { status: "enrolled", enrollmentDate: new Date().toISOString() }); return r.json(); },
-    onSuccess: () => { toast({ title: "Enrollment confirmed" }); queryClient.invalidateQueries({ queryKey: ["/api/streets/mat"] }); },
+    onSuccess: () => {
+      toast({ title: "Enrollment confirmed" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/mat"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   const STATUS_COLOR: Record<string, string> = { referred: "bg-yellow-100 text-yellow-800", enrolled: "bg-blue-100 text-blue-800", active: "bg-green-100 text-green-800", on_hold: "bg-gray-100 text-gray-700", discharged: "bg-red-100 text-red-800" };
@@ -763,8 +823,13 @@ function ContinuumTab() {
   const { data, refetch } = useQuery<any>({ queryKey: ["/api/streets/continuum"] });
   const mutation = useMutation({
     mutationFn: async () => { const r = await apiRequest("POST", "/api/streets/continuum", form); return r.json(); },
-    onSuccess: () => { toast({ title: "CoC event logged" }); refetch(); setForm({ clientName: "", providerName: "", providerType: "outreach", eventType: "enrollment", outcome: "", nextStep: "", documentedBy: "", notes: "" }); },
-    onError: () => toast({ title: "Error", variant: "destructive" }),
+    onSuccess: () => {
+      toast({ title: "CoC event logged" });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/continuum"] });
+      queryClient.invalidateQueries({ queryKey: ["/api/streets/dashboard"] });
+      setForm({ clientName: "", providerName: "", providerType: "outreach", eventType: "enrollment", outcome: "", nextStep: "", documentedBy: "", notes: "" });
+    },
+    onError: (err: any) => toast({ title: "Error", description: err?.message, variant: "destructive" }),
   });
 
   const PROVIDER_TYPES = ["outreach", "shelter", "treatment", "housing", "employment", "legal", "peer", "primary_care", "mat_clinic", "recovery_housing"];

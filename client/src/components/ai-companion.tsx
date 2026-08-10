@@ -55,6 +55,34 @@ const WELCOME_ES: Message = {
   content: "Bienvenido! Soy Spark, tu companero de aprendizaje. Estoy aqui para ayudarte a explorar, pensar y crecer — ya seas estudiante, profesional en transicion, o aprendiz de por vida. Que tienes en mente hoy?",
 };
 
+// Bound the number of per-subject conversation keys in localStorage. An index
+// key tracks insertion order so we can prune the oldest subjects when over cap.
+const SPARK_KEY_PREFIX = "spark_messages_";
+const SPARK_INDEX_KEY = "spark_conversations_index_v1";
+const SPARK_MAX_KEYS = 20;
+
+function pruneSparkKeys(activeKey: string) {
+  try {
+    let order: string[] = [];
+    const rawIdx = localStorage.getItem(SPARK_INDEX_KEY);
+    if (rawIdx) {
+      const parsed = JSON.parse(rawIdx);
+      if (Array.isArray(parsed)) order = parsed.filter((k) => typeof k === "string");
+    }
+    // Move active key to the end (most-recently-used).
+    order = order.filter((k) => k !== activeKey);
+    order.push(activeKey);
+    // Prune oldest subject keys beyond the cap.
+    while (order.length > SPARK_MAX_KEYS) {
+      const oldest = order.shift();
+      if (oldest && oldest.startsWith(SPARK_KEY_PREFIX)) {
+        try { localStorage.removeItem(oldest); } catch { /* ignore */ }
+      }
+    }
+    localStorage.setItem(SPARK_INDEX_KEY, JSON.stringify(order));
+  } catch { /* best-effort */ }
+}
+
 export default function AICompanion({ subject, lessonContext, className, language = "en" }: AICompanionProps) {
   const welcomeMsg = language === "es" ? WELCOME_ES : WELCOME_EN;
   const [messages, setMessages] = useState<Message[]>([welcomeMsg]);
@@ -84,9 +112,13 @@ export default function AICompanion({ subject, lessonContext, className, languag
     }
   }, [storageKey]);
 
-  // Save conversation to localStorage after every exchange
+  // Save conversation to localStorage after every exchange. Keep only the last
+  // 100 messages per subject, and bound the TOTAL number of per-subject keys so
+  // conversation storage can't grow unbounded across many subjects — prune the
+  // oldest subject keys (tracked via an index) when over the cap.
   useEffect(() => {
     if (messages.length > 1) {
+      pruneSparkKeys(storageKey);
       try { localStorage.setItem(storageKey, JSON.stringify(messages.slice(-100))); } catch {}
     }
   }, [messages, storageKey]);

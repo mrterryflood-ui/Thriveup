@@ -3170,13 +3170,30 @@ export async function registerRoutes(
     try {
       const userId = getUserId(req)!;
       const userName = getUserName(req) || "Student";
-      const { itemName, description, price, category, quantity } = req.body;
-      const nameCheck = moderateContent(itemName || "");
+      // Strict, bounded validation: price is a non-negative integer number of
+      // credits (cap 1,000,000), quantity a positive integer (cap 999), and
+      // both text fields are required and length-bounded. Category is restricted
+      // to the known enum (matches the schema default set). This runs BEFORE the
+      // content-moderation pass and the DB insert so garbage/overflow inputs are
+      // rejected loudly with a 400.
+      const listingSchema = z.object({
+        itemName: z.string().trim().min(3).max(120),
+        description: z.string().trim().min(3).max(2000),
+        price: z.number().int().min(0).max(1_000_000),
+        quantity: z.number().int().min(1).max(999).default(1),
+        category: z.enum(["service", "product", "skill", "tutoring", "general"]).default("general"),
+      });
+      const parsedListing = listingSchema.safeParse(req.body ?? {});
+      if (!parsedListing.success) {
+        return res.status(400).json({ error: "Invalid listing", details: parsedListing.error.flatten().fieldErrors });
+      }
+      const { itemName, description, price, category, quantity } = parsedListing.data;
+      const nameCheck = moderateContent(itemName);
       if (!nameCheck.safe) return res.status(400).json({ error: nameCheck.reason });
-      const descCheck = moderateContent(description || "");
+      const descCheck = moderateContent(description);
       if (!descCheck.safe) return res.status(400).json({ error: descCheck.reason });
       const listing = await storage.createListing({
-        itemName, description, price, category, quantity,
+        itemName, description, price: String(price), category, quantity,
         sellerId: userId,
         sellerName: userName,
         status: "active",
@@ -3207,7 +3224,17 @@ export async function registerRoutes(
     try {
       const buyerId = getUserId(req)!;
       const buyerName = getUserName(req) || "Student";
-      const quantity = Number(req.body.quantity) || 1;
+      // Strictly validate quantity: a finite positive integer with a sane max.
+      // The old `Number(req.body.quantity) || 1` silently coerced NaN/negatives/
+      // floats to 1. The listing's available quantity is still re-checked and
+      // row-locked inside atomicMarketplaceBuy — this only rejects malformed
+      // input loudly with a 400.
+      const quantitySchema = z.number().int().min(1).max(999);
+      const parsedQty = quantitySchema.safeParse(req.body?.quantity ?? 1);
+      if (!parsedQty.success) {
+        return res.status(400).json({ error: "Quantity must be an integer between 1 and 999" });
+      }
+      const quantity = parsedQty.data;
 
       // Listing availability, buyer-balance check, buyer debit, seller credit,
       // both ledger entries, listing quantity decrement and the peer-trade row
@@ -3475,13 +3502,23 @@ export async function registerRoutes(
     try {
       const userId = getUserId(req)!;
       const userName = getUserName(req) || "Student";
+      // Bounded, enumerated report input: reason must be one of the known
+      // categories; details is an optional length-bounded string.
+      const reportSchema = z.object({
+        reason: z.enum(["inappropriate", "scam", "spam", "harassment", "offensive", "other"]).default("inappropriate"),
+        details: z.string().trim().max(1000).optional().default(""),
+      });
+      const parsedReport = reportSchema.safeParse(req.body ?? {});
+      if (!parsedReport.success) {
+        return res.status(400).json({ error: "Invalid report", details: parsedReport.error.flatten().fieldErrors });
+      }
       const report = await storage.createContentReport({
         reporterId: userId,
         reporterName: userName,
         contentType: "marketplace_listing",
         contentId: req.params.id as string,
-        reason: req.body.reason || "inappropriate",
-        details: req.body.details || "",
+        reason: parsedReport.data.reason,
+        details: parsedReport.data.details,
         status: "pending",
       });
       res.status(201).json({ message: "Thank you for helping keep our community safe. Your report has been sent to a teacher for review.", report });

@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { ArrowRight, Music2, Heart, Target, Rocket, Network, Loader2 } from "lucide-react";
+import { ArrowRight, Music2, Heart, Target, Rocket, Network, Loader2, AlertTriangle } from "lucide-react";
 
 type Hub = "serve" | "fund" | "grow" | "connect";
 
@@ -115,11 +115,21 @@ export function OrchestraStrip({ hub }: OrchestraStripProps) {
   const meta = HUB_META[hub];
   const Icon = meta.icon;
 
-  const { data, isLoading } = useQuery<PulseData>({
+  const { data, isLoading, error, dataUpdatedAt } = useQuery<PulseData>({
     queryKey: ["/api/system/pulse"],
     staleTime: 60_000,
     refetchInterval: 120_000,
   });
+
+  // Honest liveness: the strip must never imply "live" when the signal is
+  // absent, errored, or stale. We consider data stale once it's older than
+  // ~2× the refetch interval (data collected but not refreshing).
+  const STALE_AFTER_MS = 5 * 60_000;
+  const ageMs = dataUpdatedAt ? Date.now() - dataUpdatedAt : Infinity;
+  const isStale = data != null && ageMs > STALE_AFTER_MS;
+  // Wording downgrades from "Live" to "Last known" when stale/errored so the
+  // UI is never fabricating current liveness.
+  const feedsLabel = isStale ? "Last known — this section fed →" : "Live — this section feeds →";
 
   return (
     <div className={`rounded-2xl border p-4 mt-2 ${meta.stripBg}`} data-testid={`orchestra-strip-${hub}`}>
@@ -163,18 +173,36 @@ export function OrchestraStrip({ hub }: OrchestraStripProps) {
       </div>
 
       {isLoading && (
-        <div className="flex items-center gap-2 text-xs text-muted-foreground py-2">
-          <Loader2 className="w-3 h-3 animate-spin" />
-          Loading live signals…
+        <div className="space-y-2 py-1" data-testid={`orchestra-strip-loading-${hub}`}>
+          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+            <Loader2 className="w-3 h-3 animate-spin" />
+            Loading live signals…
+          </div>
+          <div className="h-3 w-3/4 rounded bg-muted animate-pulse" />
+          <div className="h-3 w-2/3 rounded bg-muted animate-pulse" />
+          <div className="h-3 w-1/2 rounded bg-muted animate-pulse" />
+        </div>
+      )}
+
+      {/* Error — surface loudly, never imply liveness. */}
+      {!isLoading && error && (
+        <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 py-2" data-testid={`orchestra-strip-error-${hub}`}>
+          <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
+          <span>Live cross-hub signals are temporarily unavailable — showing no live data rather than stale or fabricated figures.</span>
         </div>
       )}
 
       {/* Live data flows out */}
-      {data && (
+      {!isLoading && !error && data && (
         <>
+          {isStale && (
+            <p className="text-[10px] text-amber-600 dark:text-amber-400 mb-2" data-testid={`orchestra-strip-stale-${hub}`}>
+              Signals may be out of date (last refreshed {Math.round(ageMs / 60_000)} min ago).
+            </p>
+          )}
           <div className="mb-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
-              Live — this section feeds →
+              {feedsLabel}
             </p>
             <div className="space-y-1.5">
               {meta.liveFeeds(data).map((f) => (
@@ -188,7 +216,7 @@ export function OrchestraStrip({ hub }: OrchestraStripProps) {
 
           <div className="border-t border-border/30 pt-3">
             <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1.5">
-              ← And receives from the system
+              {isStale ? "← And last received from the system" : "← And receives from the system"}
             </p>
             <div className="space-y-0.5">
               {meta.liveReceives(data).map((r) => (
@@ -199,8 +227,8 @@ export function OrchestraStrip({ hub }: OrchestraStripProps) {
         </>
       )}
 
-      {/* Fallback static when no data yet */}
-      {!data && !isLoading && (
+      {/* Fallback when no data yet and no error — honest, non-fabricated. */}
+      {!data && !isLoading && !error && (
         <p className="text-xs text-muted-foreground">
           Live signals unavailable — cross-hub data is being collected.
         </p>

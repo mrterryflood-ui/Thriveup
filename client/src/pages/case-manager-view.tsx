@@ -22,7 +22,10 @@ function RiskScoreBadge({ score }: { score: number }) {
 
 export default function CaseManagerView() {
   const chainQuery = useQuery<any>({
-    queryKey: ["/api/case-manager", "demo", "risk-chain"],
+    // Use the canonical fetched URL as the query key so cache reads/writes and
+    // any external invalidations key on the exact endpoint being fetched
+    // (previously the segmented key did not match the URL string).
+    queryKey: ["/api/case-manager/demo/risk-chain"],
     queryFn: async () => {
       const res = await apiRequest("GET", "/api/case-manager/demo/risk-chain");
       return res.json();

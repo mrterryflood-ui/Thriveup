@@ -126,10 +126,20 @@ export default function AIToolsHubPage() {
     return params.get("mode") === "adult";
   }, []);
 
-  const toolsQueryKey = requestedAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
+  // Stable tuple key: ['/api/ai-tools', { mode }]. Both youth and adult modes
+  // share the '/api/ai-tools' prefix, so invalidating ['/api/ai-tools'] after
+  // a module completion refreshes unlock state for BOTH modes (a bare-string
+  // '/api/ai-tools?mode=adult' key would never be hit by that invalidation).
+  const toolsMode = requestedAdult ? "adult" : "youth";
 
   const { data: rawToolsData, isLoading: toolsLoading, error: toolsError, refetch: refetchTools } = useQuery<{ tools: Tool[]; adultMode: boolean }>({
-    queryKey: [toolsQueryKey],
+    queryKey: ["/api/ai-tools", { mode: toolsMode }],
+    queryFn: () =>
+      fetch(requestedAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools", { credentials: "include" })
+        .then(async (res) => {
+          if (!res.ok) throw new Error(`${res.status}: ${(await res.text()) || res.statusText}`);
+          return res.json();
+        }),
   });
   const tools = rawToolsData?.tools ?? [];
   // Server-authoritative: only true if the server actually granted adult mode.

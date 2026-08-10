@@ -87,6 +87,21 @@ const PROBES: Probe[] = [
   // ── routes.ts: certificate IDOR (now requireAuth + ownership) ──────────────
   { name: "GET    /api/certificates/:id (no session)", method: "GET", path: "/api/certificates/00000000-0000-0000-0000-000000000000" },
 
+  // ── grant-routes.ts: shared grant catalog mutation is STAFF-ONLY now ───────
+  // Grant opportunities have no per-user owner column, so PATCH/DELETE are a
+  // staff-only operation. An anonymous (no-session) caller must be rejected
+  // (401); a real-but-non-staff session would get 403 (not forgeable here).
+  // This proves any authenticated user can no longer mutate/delete ANY grant.
+  { name: "PATCH  /api/grants/:id (cross-user mutation, no session)", method: "PATCH", path: "/api/grants/00000000-0000-0000-0000-000000000000", body: { title: "probe-hijack" } },
+  { name: "DELETE /api/grants/:id (cross-user delete, no session)", method: "DELETE", path: "/api/grants/00000000-0000-0000-0000-000000000000" },
+
+  // ── grant-routes.ts: grant alerts are STAFF-ONLY now ───────────────────────
+  // Previously the alerts feed was globally readable with NO auth and any
+  // authenticated user could mark any alert read. Both must now reject the
+  // anonymous caller (401). This proves alerts are not anonymously readable.
+  { name: "GET    /api/grants/alerts (anon read must be rejected)", method: "GET", path: "/api/grants/alerts" },
+  { name: "PATCH  /api/grants/alerts/:id/read (no session)", method: "PATCH", path: "/api/grants/alerts/00000000-0000-0000-0000-000000000000/read", body: {} },
+
   // ── ecosystem-connector.ts: Ops Center admin controls (DB role check) ──────
   // No session → 401. (Session-present-but-not-admin → 403 requires a real
   // session we can't forge here; the unauthenticated 401 proves the door is

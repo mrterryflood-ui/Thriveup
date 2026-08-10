@@ -67,6 +67,56 @@ function requireAuth(req: Request, res: Response, next: Function) {
   next();
 }
 
+// ── Per-IP sliding-window rate limiter for PUBLIC (no-auth) endpoints ─────────
+// Mirrors the conductor-routes limiter: bounds anonymous amplification of the
+// paid AI + Grants.gov calls behind the public ai-hunt / live-search endpoints.
+// Uses Express's resolved req.ip (app runs with trust proxy = 1) so callers
+// cannot spoof a fresh IP per request via a raw X-Forwarded-For header.
+function grantClientIp(req: Request): string {
+  const ip = req.ip || req.socket?.remoteAddress || "";
+  return (ip || "").trim() || "unknown";
+}
+
+const grantRateBuckets = new Map<string, Map<string, number[]>>();
+
+// Returns null if allowed, or the number of seconds until the caller may retry.
+function grantRateLimit(bucket: string, ip: string, max: number, windowMs: number): number | null {
+  const now = Date.now();
+  const cutoff = now - windowMs;
+  let byIp = grantRateBuckets.get(bucket);
+  if (!byIp) { byIp = new Map(); grantRateBuckets.set(bucket, byIp); }
+  const hits = (byIp.get(ip) || []).filter((t) => t > cutoff);
+  if (hits.length >= max) {
+    const retryMs = hits[0] + windowMs - now;
+    byIp.set(ip, hits);
+    return Math.max(1, Math.ceil(retryMs / 1000));
+  }
+  hits.push(now);
+  byIp.set(ip, hits);
+  // Opportunistic cleanup so the map doesn't grow unbounded across many IPs.
+  if (byIp.size > 5000) {
+    for (const [k, v] of byIp) {
+      const live = v.filter((t) => t > cutoff);
+      if (live.length === 0) byIp.delete(k);
+      else byIp.set(k, live);
+    }
+  }
+  return null;
+}
+
+// Middleware factory: enforces a per-IP sliding window and returns 429 with
+// Retry-After when exceeded. Fails loudly (never silently allows over-limit).
+function grantRateLimitMw(bucket: string, max: number, windowMs: number) {
+  return (req: Request, res: Response, next: Function) => {
+    const retry = grantRateLimit(bucket, grantClientIp(req), max, windowMs);
+    if (retry !== null) {
+      res.setHeader("Retry-After", String(retry));
+      return res.status(429).json({ error: `Rate limit exceeded. Try again in ${retry}s.` });
+    }
+    next();
+  };
+}
+
 // Canonical staff-role set — keep in lockstep with server/reentry-routes.ts,
 // server/yhsi-routes.ts, and the client RequireAuth staffOnly gate. Role is
 // resolved from the DB (req.user.role is never set on the session).
@@ -726,8 +776,14 @@ export function registerGrantRoutes(app: Express) {
         };
       });
 
-      if (minFit && typeof minFit === "string") {
-        const min = parseInt(minFit);
+      if (minFit !== undefined) {
+        if (typeof minFit !== "string" || !/^\d{1,3}$/.test(minFit.trim())) {
+          return res.status(400).json({ error: "minFit must be an integer between 0 and 100" });
+        }
+        const min = parseInt(minFit.trim(), 10);
+        if (!Number.isFinite(min) || min < 0 || min > 100) {
+          return res.status(400).json({ error: "minFit must be an integer between 0 and 100" });
+        }
         enriched = enriched.filter(g => (callerOrgId ? (g.orgFitScore ?? 0) : (g.fitScore ?? 0)) >= min);
       }
       // Re-sort by org fit when scoped.
@@ -994,12 +1050,22 @@ export function registerGrantRoutes(app: Express) {
   // POST /api/grants/ai-hunt — no auth required.
   // Describe any org → AI generates targeted queries → fires them at Grants.gov
   // in parallel → scores every result → returns ranked list with AI reasoning.
-  app.post("/api/grants/ai-hunt", async (req, res) => {
+  app.post("/api/grants/ai-hunt", grantRateLimitMw("ai-hunt", 8, 10 * 60 * 1000), async (req, res) => {
     try {
-      const { saveToDb } = req.body as { saveToDb?: boolean };
-      let { orgDescription, focusAreas, state } = req.body as {
-        orgDescription?: string; focusAreas?: string[]; state?: string; saveToDb?: boolean;
-      };
+      // Strict, bounded input validation — this public endpoint fans out into
+      // paid AI + Grants.gov calls, so unbounded input is an amplification risk.
+      const aiHuntSchema = z.object({
+        orgDescription: z.string().trim().max(4000).optional(),
+        focusAreas: z.array(z.string().trim().min(1).max(200)).max(25).optional(),
+        state: z.string().trim().max(100).optional(),
+        saveToDb: z.boolean().optional(),
+      });
+      const parsedBody = aiHuntSchema.safeParse(req.body ?? {});
+      if (!parsedBody.success) {
+        return res.status(400).json({ error: "Invalid request", details: parsedBody.error.flatten().fieldErrors });
+      }
+      const { saveToDb } = parsedBody.data;
+      let { orgDescription, focusAreas, state } = parsedBody.data;
 
       // Entity-aligned: if authenticated and no manual description, auto-load from org profile
       let orgName = "";
@@ -1163,12 +1229,14 @@ Return ONLY JSON:
   // POST /api/grants/live-search — no auth required, queries Grants.gov directly.
   // Use during demos to show real-time results for any org/topic without waiting
   // for the daily scan. Returns results in seconds.
-  app.post("/api/grants/live-search", async (req, res) => {
+  app.post("/api/grants/live-search", grantRateLimitMw("live-search", 20, 10 * 60 * 1000), async (req, res) => {
     try {
-      const { query } = req.body as { query?: string };
-      if (!query || query.trim().length < 2) {
-        return res.status(400).json({ error: "Query must be at least 2 characters" });
+      const liveSearchSchema = z.object({ query: z.string().trim().min(2).max(200) });
+      const parsedBody = liveSearchSchema.safeParse(req.body ?? {});
+      if (!parsedBody.success) {
+        return res.status(400).json({ error: "Query must be between 2 and 200 characters" });
       }
+      const { query } = parsedBody.data;
       const ggRes = await fetch("https://apply07.grants.gov/grantsws/rest/opportunities/search", {
         method: "POST",
         headers: { "Content-Type": "application/json", "Accept": "application/json" },
@@ -1207,7 +1275,13 @@ Return ONLY JSON:
     }
   });
 
-  app.get("/api/grants/alerts", async (_req, res) => {
+  // Grant alerts are internal org-wide operational signals (the table has NO
+  // per-user/per-org column), so both reading the feed and marking an alert
+  // read are STAFF-ONLY. Previously the GET was globally readable with no auth
+  // and any authenticated user could mark any alert read. Role resolves from
+  // the DB via requireStaff; a missing alert on PATCH returns 404 (checked via
+  // RETURNING) so we never report success on a phantom id.
+  app.get("/api/grants/alerts", requireAuth, requireStaff, async (_req, res) => {
     try {
       const alerts = await db.select().from(grantAlerts).orderBy(desc(grantAlerts.createdAt)).limit(50);
       res.json(alerts);
@@ -1217,9 +1291,10 @@ Return ONLY JSON:
     }
   });
 
-  app.patch("/api/grants/alerts/:id/read", requireAuth, async (req, res) => {
+  app.patch("/api/grants/alerts/:id/read", requireAuth, requireStaff, async (req, res) => {
     try {
       const [alert] = await db.update(grantAlerts).set({ isRead: true }).where(eq(grantAlerts.id, getParamId(req))).returning();
+      if (!alert) return res.status(404).json({ error: "Alert not found" });
       res.json(alert);
     } catch (error) {
       res.status(500).json({ error: "Failed to update alert" });
@@ -1631,7 +1706,12 @@ Return ONLY JSON:
     }
   });
 
-  app.patch("/api/grants/:id", requireAuth, async (req, res) => {
+  // Grant opportunities are a shared, org-wide catalog (the table has NO
+  // per-user owner column), so mutation is a STAFF-ONLY operation. Role is
+  // resolved from the DB via requireStaff (req.user.role is never trusted).
+  // Any authenticated non-staff user gets 403; a missing grant gets 404 —
+  // checked via RETURNING rowcount so we never report success on a phantom id.
+  app.patch("/api/grants/:id", requireAuth, requireStaff, async (req, res) => {
     try {
       const parsed = grantCreateSchema.partial().safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid grant data", details: parsed.error.flatten().fieldErrors });
@@ -1644,6 +1724,7 @@ Return ONLY JSON:
         data.category = categorizeGrant(parsed.data);
       }
       const [updated] = await db.update(grantOpportunities).set(data).where(eq(grantOpportunities.id, getParamId(req))).returning();
+      if (!updated) return res.status(404).json({ error: "Grant not found" });
       res.json(updated);
     } catch (error) {
       console.error("Failed to update grant:", error);
@@ -1651,9 +1732,10 @@ Return ONLY JSON:
     }
   });
 
-  app.delete("/api/grants/:id", requireAuth, async (req, res) => {
+  app.delete("/api/grants/:id", requireAuth, requireStaff, async (req, res) => {
     try {
-      await db.delete(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
+      const [deleted] = await db.delete(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req))).returning({ id: grantOpportunities.id });
+      if (!deleted) return res.status(404).json({ error: "Grant not found" });
       res.json({ success: true });
     } catch (error) {
       console.error("Failed to delete grant:", error);

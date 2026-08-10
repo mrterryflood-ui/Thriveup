@@ -14,6 +14,21 @@ import { CrisisStrip } from "@/components/foster-youth/crisis-strip";
 import { IntegrationInvitation } from "@/components/integration-invitation";
 import { STATE_ILP } from "@/data/foster-youth/state-ilp";
 import { useToast } from "@/hooks/use-toast";
+import { getVersioned, setVersioned, safeRemove } from "@/lib/safe-storage";
+
+// Token-based access for youth WITHOUT accounts. Minimize exposure: keep the
+// id+token in sessionStorage (cleared when the tab closes) with an expiry
+// envelope, not localStorage forever.
+const INTAKE_CRED_KEY = "foster-youth-intake-credentials";
+const INTAKE_CRED_VERSION = 1;
+const INTAKE_CRED_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
+
+interface IntakeCred { id: string; token: string }
+function isIntakeCred(v: unknown): v is IntakeCred {
+  return !!v && typeof v === "object"
+    && typeof (v as any).id === "string"
+    && typeof (v as any).token === "string";
+}
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -97,21 +112,25 @@ export default function FosterYouthIntakePage() {
     return v!;
   });
 
-  // Restore last intake's id+token from localStorage so a refresh doesn't lose access.
+  // Restore last intake's id+token from sessionStorage so a refresh doesn't
+  // lose access. Envelope validates version + expiry; expired/invalid drops.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    try {
-      const raw = localStorage.getItem("foster-youth-intake-credentials");
-      if (raw) {
-        const c = JSON.parse(raw) as { id?: string; token?: string };
-        if (c.id && c.token) { setIntakeId(c.id); setAccessToken(c.token); }
-      }
-    } catch { /* noop */ }
+    const c = getVersioned<IntakeCred>(
+      INTAKE_CRED_KEY,
+      { version: INTAKE_CRED_VERSION, store: "session" },
+      isIntakeCred,
+    );
+    if (c) { setIntakeId(c.id); setAccessToken(c.token); }
   }, []);
   useEffect(() => {
     if (typeof window === "undefined") return;
     if (intakeId && accessToken) {
-      localStorage.setItem("foster-youth-intake-credentials", JSON.stringify({ id: intakeId, token: accessToken }));
+      setVersioned<IntakeCred>(
+        INTAKE_CRED_KEY,
+        { id: intakeId, token: accessToken },
+        { version: INTAKE_CRED_VERSION, store: "session", ttlMs: INTAKE_CRED_TTL_MS },
+      );
     }
   }, [intakeId, accessToken]);
 
@@ -531,7 +550,7 @@ export default function FosterYouthIntakePage() {
 
             <div className="flex justify-between">
               <Button variant="ghost" onClick={() => setStep(3)} data-testid="button-prev-step-3"><ArrowLeft className="mr-1 h-4 w-4" /> Back to documents</Button>
-              <Button variant="outline" onClick={() => setLocation("/foster-youth")} data-testid="button-done">Done</Button>
+              <Button variant="outline" onClick={() => { safeRemove(INTAKE_CRED_KEY, "session"); setLocation("/foster-youth"); }} data-testid="button-done">Done</Button>
             </div>
           </div>
         )}

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
+import { safeGetRaw, safeSetRaw, safeRemove } from "@/lib/safe-storage";
 import { useAuth } from "@/hooks/use-auth";
 import { useLocation, Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -437,8 +438,9 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
 
   const startNewConversation = useCallback(() => {
     userStartedNewRef.current = true;
-    // Persist across hard-refresh within the same browser tab
-    sessionStorage.setItem("navigator_skip_resume", "1");
+    // Persist across hard-refresh within the same browser tab. Safe helper
+    // never throws in private mode (falls back to in-memory for this tab).
+    safeSetRaw("navigator_skip_resume", "1", "session");
     setMessages([]);
     setActiveConversationId(null);
     setAttachedDocs([]);
@@ -449,7 +451,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   // so a future hard-refresh auto-resumes their new conversation correctly.
   useEffect(() => {
     if (activeConversationId) {
-      sessionStorage.removeItem("navigator_skip_resume");
+      safeRemove("navigator_skip_resume", "session");
       userStartedNewRef.current = false;
     }
   }, [activeConversationId]);
@@ -457,7 +459,7 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
   // Auto-resume the most recent conversation when the navigator opens.
   // Skip if the user explicitly clicked New Conversation (or refreshed after doing so).
   useEffect(() => {
-    const skipFlag = sessionStorage.getItem("navigator_skip_resume") === "1";
+    const skipFlag = safeGetRaw("navigator_skip_resume", "session") === "1";
     if (skipFlag) {
       userStartedNewRef.current = true; // keep ref in sync
       return;

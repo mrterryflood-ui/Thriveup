@@ -88,12 +88,26 @@ export default function LOIWriterPage() {
     onSuccess: (data) => {
       setLoiText(data.loi);
     },
+    onError: (err: any) => {
+      toast({
+        title: "LOI generation failed",
+        description: err?.message || "Could not draft the LOI. Please try again.",
+        variant: "destructive",
+      });
+    },
   });
 
   const rpliceMutation = useMutation({
     mutationFn: async () => {
       const res = await apiRequest("POST", "/api/benefits/coalition/rplice-validation", {});
       return res.json();
+    },
+    onError: (err: any) => {
+      toast({
+        title: "Validation failed",
+        description: err?.message || "Could not run the validation. Please try again.",
+        variant: "destructive",
+      });
     },
   });
 
@@ -171,6 +185,23 @@ export default function LOIWriterPage() {
                     <><Brain className="h-5 w-5 mr-2" /> Generate 500-Word LOI</>
                   )}
                 </Button>
+
+                {loiMutation.isError && (
+                  <div className="flex items-start gap-2 rounded-lg border border-red-300 dark:border-red-800 bg-red-50/50 dark:bg-red-950/20 p-3 text-sm" data-testid="error-loi">
+                    <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="font-medium text-red-700 dark:text-red-400">Couldn't generate the LOI</p>
+                      <p className="text-xs text-muted-foreground">{(loiMutation.error as any)?.message || "Please try again."}</p>
+                    </div>
+                    <Button variant="outline" size="sm" onClick={() => loiMutation.mutate()} data-testid="button-retry-loi">Retry</Button>
+                  </div>
+                )}
+
+                {loiMutation.isSuccess && !loiText && !loiMutation.isPending && (
+                  <p className="text-sm text-muted-foreground text-center" data-testid="empty-loi">
+                    The generator returned no text. Adjust your inputs and try again.
+                  </p>
+                )}
 
                 {loiMutation.data?.dataSnapshot && (
                   <div className="flex gap-3 flex-wrap justify-center">
@@ -269,6 +300,39 @@ export default function LOIWriterPage() {
                 </Button>
               </CardContent>
             </Card>
+
+            {rpliceMutation.isPending && (
+              <Card>
+                <CardContent className="flex items-center justify-center p-12" data-testid="pending-validation">
+                  <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                  <span className="ml-3 text-muted-foreground">Running RPLICE / CFIR 2.0 / RE-AIM validation…</span>
+                </CardContent>
+              </Card>
+            )}
+
+            {rpliceMutation.isError && (
+              <Card className="border-red-300 dark:border-red-800">
+                <CardContent className="flex items-start gap-2 p-4 text-sm" data-testid="error-validation">
+                  <AlertTriangle className="h-4 w-4 text-red-500 shrink-0 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-red-700 dark:text-red-400">Validation failed</p>
+                    <p className="text-xs text-muted-foreground">{(rpliceMutation.error as any)?.message || "Please try again."}</p>
+                  </div>
+                  <Button variant="outline" size="sm" onClick={() => rpliceMutation.mutate()} data-testid="button-retry-validation">Retry</Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {rpliceMutation.isSuccess && !v && !rpliceMutation.isPending && (
+              <Card>
+                <CardContent className="p-6 text-center text-sm text-muted-foreground" data-testid="empty-validation">
+                  The validation returned no results. Please re-run it.
+                  <div className="mt-3">
+                    <Button variant="outline" size="sm" onClick={() => rpliceMutation.mutate()} data-testid="button-rerun-validation">Re-run Validation</Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             {v && (
               <>

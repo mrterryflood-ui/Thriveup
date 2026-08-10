@@ -24,6 +24,33 @@ function fmt$(n: number) {
   return `$${n}`;
 }
 
+// Recursively dispose every geometry, material (and its textures / material
+// arrays) in a scene graph before renderer.dispose() so re-renders don't leak
+// GPU memory.
+function disposeMaterial(material: THREE.Material) {
+  for (const key of Object.keys(material)) {
+    const value = (material as unknown as Record<string, unknown>)[key];
+    if (value && (value as THREE.Texture).isTexture) {
+      (value as THREE.Texture).dispose();
+    }
+  }
+  material.dispose();
+}
+
+function disposeScene(scene: THREE.Scene) {
+  scene.traverse((obj: any) => {
+    const mesh = obj as THREE.Mesh & { geometry?: THREE.BufferGeometry; material?: THREE.Material | THREE.Material[] };
+    if (mesh.geometry) mesh.geometry.dispose();
+    if (mesh.material) {
+      if (Array.isArray(mesh.material)) {
+        mesh.material.forEach((m: any) => disposeMaterial(m));
+      } else {
+        disposeMaterial(mesh.material);
+      }
+    }
+  });
+}
+
 function makeLabel(text: string, color: string, fontSize = 18, maxW = 256): THREE.Sprite {
   const c = document.createElement("canvas");
   c.width = maxW; c.height = 56;
@@ -198,6 +225,8 @@ export default function CascadeWaterfall({ timeline, totalWithout, totalWith }: 
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
       controls.dispose();
+      // Free all GPU resources (geometries/materials/textures) before renderer teardown.
+      disposeScene(scene);
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };

@@ -84,9 +84,10 @@ const TOOLS = [
     icon: HandHeart,
     color: "from-fuchsia-500 to-pink-500",
     label: "Connect with a Peer Mentor",
-    description: "Talk to someone who's been through it. Survivors supporting survivors.",
+    description: "Coming soon — a peer mentor program is in development. Until it launches, the confidential hotlines above connect you to a trained advocate right now.",
     who: "For survivors",
     badge: "Coming soon",
+    comingSoon: true,
     testId: "card-tool-peer-mentor",
   },
   {
@@ -181,34 +182,47 @@ export default function SafePassageLandingPage() {
         {/* Tools grid */}
         <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-200 mb-4">Tools & Resources</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-          {TOOLS.map(tool => (
-            <Link key={tool.href} href={tool.badge ? "#" : tool.href}>
-              <Card className={`h-full hover:shadow-md transition-all cursor-pointer border-slate-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700 group ${tool.badge ? "opacity-70 cursor-default" : ""}`}
+          {TOOLS.map(tool => {
+            const cardInner = (
+              <Card className={`h-full transition-all border-slate-200 dark:border-slate-700 group ${tool.comingSoon ? "opacity-80 cursor-default" : "hover:shadow-md cursor-pointer hover:border-teal-300 dark:hover:border-teal-700"}`}
                 data-testid={tool.testId}>
                 <CardContent className="p-4">
                   <div className="flex items-start justify-between mb-3">
                     <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${tool.color} flex items-center justify-center flex-shrink-0`}>
-                      <tool.icon className="h-5 w-5 text-white" />
+                      <tool.icon className="h-5 w-5 text-white" aria-hidden="true" />
                     </div>
                     <div className="flex items-center gap-2">
                       {tool.badge && <Badge variant="outline" className="text-[10px]">{tool.badge}</Badge>}
                       <Badge variant="secondary" className="text-[10px]">{tool.who}</Badge>
                     </div>
                   </div>
-                  <h3 className="font-semibold text-slate-900 dark:text-slate-100 mb-1 group-hover:text-teal-700 dark:group-hover:text-teal-300 transition-colors">
+                  <h3 className={`font-semibold text-slate-900 dark:text-slate-100 mb-1 transition-colors ${tool.comingSoon ? "" : "group-hover:text-teal-700 dark:group-hover:text-teal-300"}`}>
                     {tool.label}
                   </h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">{tool.description}</p>
-                  {!tool.badge && (
+                  {tool.comingSoon ? (
+                    <a
+                      href="mailto:info@thriveupacademy.org?subject=Safe%20Passage%20Peer%20Mentor%20interest"
+                      className="inline-flex items-center gap-1 mt-3 text-teal-600 dark:text-teal-400 text-xs font-medium underline"
+                      data-testid="link-peer-mentor-interest"
+                    >
+                      <span>Email us to hear when it launches</span>
+                      <ChevronRight className="h-3 w-3" aria-hidden="true" />
+                    </a>
+                  ) : (
                     <div className="flex items-center gap-1 mt-3 text-teal-600 dark:text-teal-400 text-xs font-medium">
                       <span>Open tool</span>
-                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                      <ChevronRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" aria-hidden="true" />
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </Link>
-          ))}
+            );
+            if (tool.comingSoon) {
+              return <div key={tool.href}>{cardInner}</div>;
+            }
+            return <Link key={tool.href} href={tool.href}>{cardInner}</Link>;
+          })}
         </div>
 
         {/* Impact / stats toggle */}

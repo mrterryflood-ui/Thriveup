@@ -15,6 +15,7 @@ import {
   ChevronRight, Briefcase
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
+import { getVersioned, setVersioned, safeRemove } from "@/lib/safe-storage";
 
 interface DocumentIntel {
   solicitationType?: string;
@@ -88,13 +89,23 @@ const TCAF_PROFILE: CompanyProfile = {
 };
 
 const STORAGE_KEY = "proposal-command-profile";
+const PROFILE_VERSION = 1;
 
 function loadSavedProfile(): CompanyProfile {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) return { ...EMPTY_PROFILE, ...JSON.parse(saved) };
-  } catch {}
+  const saved = getVersioned<Partial<CompanyProfile>>(
+    STORAGE_KEY,
+    { version: PROFILE_VERSION },
+    (v): v is Partial<CompanyProfile> => !!v && typeof v === "object" && !Array.isArray(v),
+  );
+  if (saved) return { ...EMPTY_PROFILE, ...saved };
   return { ...EMPTY_PROFILE };
+}
+
+function persistProfile(profile: CompanyProfile): boolean {
+  return setVersioned<CompanyProfile>(STORAGE_KEY, profile, {
+    version: PROFILE_VERSION,
+    pruneKeys: [STORAGE_KEY],
+  });
 }
 
 export default function ProposalCommandPage() {
@@ -136,7 +147,13 @@ export default function ProposalCommandPage() {
   const updateProfile = (field: keyof CompanyProfile, value: string) => {
     setCompanyProfile(prev => {
       const updated = { ...prev, [field]: value };
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(updated)); } catch {}
+      if (!persistProfile(updated)) {
+        toast({
+          title: "Couldn't save your company profile",
+          description: "Your browser storage is full or unavailable. Your edits stay in this tab, but may not survive a refresh. Free up space and try again.",
+          variant: "destructive",
+        });
+      }
       return updated;
     });
   };
@@ -544,8 +561,11 @@ export default function ProposalCommandPage() {
                     className="border-violet-300 text-violet-700 hover:bg-violet-50 dark:border-violet-700 dark:text-violet-300 dark:hover:bg-violet-950"
                     onClick={() => {
                       setCompanyProfile({ ...TCAF_PROFILE });
-                      localStorage.setItem(STORAGE_KEY, JSON.stringify(TCAF_PROFILE));
-                      toast({ title: "TCAF profile loaded", description: "All verified organization data pre-filled." });
+                      if (persistProfile({ ...TCAF_PROFILE })) {
+                        toast({ title: "TCAF profile loaded", description: "All verified organization data pre-filled." });
+                      } else {
+                        toast({ title: "TCAF profile loaded (not saved)", description: "Loaded into this tab, but browser storage is full or unavailable — it may not survive a refresh.", variant: "destructive" });
+                      }
                     }}
                     data-testid="button-load-tcaf"
                   >
@@ -553,7 +573,7 @@ export default function ProposalCommandPage() {
                   </Button>
                   <Button
                     variant="outline"
-                    onClick={() => { setCompanyProfile({ ...EMPTY_PROFILE }); localStorage.removeItem(STORAGE_KEY); toast({ title: "Profile cleared" }); }}
+                    onClick={() => { setCompanyProfile({ ...EMPTY_PROFILE }); safeRemove(STORAGE_KEY); toast({ title: "Profile cleared" }); }}
                     data-testid="button-clear-profile"
                   >
                     Clear

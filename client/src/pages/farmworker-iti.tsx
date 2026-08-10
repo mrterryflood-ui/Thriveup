@@ -14,6 +14,27 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { HeartHandshake, ShieldCheck, Lock, Star, ChevronRight, ExternalLink, Globe } from "lucide-react";
+import { getVersioned, setVersioned, safeRemove } from "@/lib/safe-storage";
+
+// Token-based access for farmworkers WITHOUT accounts. Minimize exposure: keep
+// the access token in sessionStorage (tab-scoped) with an expiry envelope,
+// not localStorage forever.
+const FW_TOKEN_KEY = "fw_token";
+const FW_TOKEN_VERSION = 1;
+const FW_TOKEN_TTL_MS = 1000 * 60 * 60 * 12; // 12 hours
+function readFwToken(): string {
+  const t = getVersioned<string>(
+    FW_TOKEN_KEY,
+    { version: FW_TOKEN_VERSION, store: "session" },
+    (v): v is string => typeof v === "string" && v.length > 0,
+  );
+  return t ?? "";
+}
+function writeFwToken(token: string): void {
+  setVersioned<string>(FW_TOKEN_KEY, token, {
+    version: FW_TOKEN_VERSION, store: "session", ttlMs: FW_TOKEN_TTL_MS,
+  });
+}
 
 const enrollSchema = z.object({
   workerType: z.enum(["seasonal","h2a","farmworker","promotora","community-gardener","backyard-grower","informal-food-producer"]),
@@ -69,7 +90,7 @@ const US_STATES = [
 export default function FarmworkerItiPage() {
   const { toast } = useToast();
   const [lang, setLang] = useState<"en" | "es">("en");
-  const [token, setToken] = useState<string>(() => localStorage.getItem("fw_token") || "");
+  const [token, setToken] = useState<string>(() => readFwToken());
   const [tab, setTab] = useState(token ? "navigator" : "welcome");
   const [navResult, setNavResult] = useState<any>(null);
 
@@ -118,7 +139,7 @@ export default function FarmworkerItiPage() {
     },
     onSuccess: (data) => {
       if (data.accessToken) {
-        localStorage.setItem("fw_token", data.accessToken);
+        writeFwToken(data.accessToken);
         setToken(data.accessToken);
         setTab("navigator");
         toast({ title: data.message });
@@ -158,10 +179,18 @@ export default function FarmworkerItiPage() {
                  "Sin verificación de credenciales. Sin verificación de estatus migratorio. Navegación de beneficios, vías de estipendio y oportunidades de credenciales para todos los trabajadores agrícolas.")}
             </p>
           </div>
-          <Button variant="outline" size="sm" data-testid="button-language"
-            onClick={() => { setLang(l => l === "en" ? "es" : "en"); enrollForm.setValue("preferredLanguage", lang === "en" ? "es" : "en"); }}>
-            <Globe className="w-4 h-4 mr-1" />{lang === "en" ? "🇪🇸 Español" : "🇺🇸 English"}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" data-testid="button-language"
+              onClick={() => { setLang(l => l === "en" ? "es" : "en"); enrollForm.setValue("preferredLanguage", lang === "en" ? "es" : "en"); }}>
+              <Globe className="w-4 h-4 mr-1" />{lang === "en" ? "🇪🇸 Español" : "🇺🇸 English"}
+            </Button>
+            {token && (
+              <Button variant="ghost" size="sm" data-testid="button-fw-exit"
+                onClick={() => { safeRemove(FW_TOKEN_KEY, "session"); setToken(""); setNavResult(null); setTab("welcome"); }}>
+                {L("Exit", "Salir")}
+              </Button>
+            )}
+          </div>
         </div>
       </div>
 

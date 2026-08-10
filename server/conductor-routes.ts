@@ -1368,6 +1368,17 @@ export function registerConductorRoutes(app: Express) {
       if (!Array.isArray(locations) || locations.length < 2 || locations.length > 4) {
         return res.status(400).json({ error: "Provide 2–4 location strings to compare" });
       }
+      // Each location must be a bounded, non-empty string. A single malformed
+      // entry fails the whole request loudly (400) rather than silently
+      // fanning out a garbage self-call whose failure would be buried in the
+      // per-item error field.
+      const badLocation = locations.find(
+        (loc) => typeof loc !== "string" || loc.trim().length === 0 || loc.trim().length > 200,
+      );
+      if (badLocation !== undefined) {
+        return res.status(400).json({ error: "Each location must be a non-empty string of at most 200 characters" });
+      }
+      const normalizedLocations = (locations as string[]).map((loc) => loc.trim());
 
       // Relay the caller's session cookie to the internal self-calls. community-
       // brief is public now, so this is no longer required for auth — we forward
@@ -1376,7 +1387,7 @@ export function registerConductorRoutes(app: Express) {
       const forwardCookie = req.headers.cookie || "";
 
       const results = await Promise.allSettled(
-        locations.map((loc: string) =>
+        normalizedLocations.map((loc: string) =>
           fetch(`http://localhost:5000/api/conductor/community-brief`, {
             method: "POST",
             headers: { "Content-Type": "application/json", cookie: forwardCookie },
@@ -1393,10 +1404,14 @@ export function registerConductorRoutes(app: Express) {
         )
       );
 
+      // Per-item explicit status: each comparison carries `status: "ok" | "failed"`
+      // plus an `error` string on failure, so a downstream consumer can never
+      // mistake a failed self-call for real comparison data.
       const comparisons = results.map((r, i) => {
         const brief = r.status === "fulfilled" ? r.value : null;
         return {
-          location: locations[i],
+          location: normalizedLocations[i],
+          status: r.status === "fulfilled" ? "ok" : "failed",
           error: r.status === "rejected" ? String(r.reason) : null,
           ...(brief ?? {}),
         };

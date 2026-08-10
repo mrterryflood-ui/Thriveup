@@ -105,10 +105,19 @@ export default function AIToolsWorkspacePage() {
     return params.get("mode") === "adult";
   }, []);
 
-  const toolsQueryKey = requestedAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools";
+  // Stable tuple key: ['/api/ai-tools', { mode }] — shares the '/api/ai-tools'
+  // prefix across youth/adult so a module-completion invalidation of
+  // ['/api/ai-tools'] refreshes unlock state for BOTH modes.
+  const toolsMode = requestedAdult ? "adult" : "youth";
 
   const { data: rawToolsData, isLoading, error: toolsError, refetch: refetchTools } = useQuery<{ tools: Tool[]; adultMode: boolean }>({
-    queryKey: [toolsQueryKey],
+    queryKey: ["/api/ai-tools", { mode: toolsMode }],
+    queryFn: () =>
+      fetch(requestedAdult ? "/api/ai-tools?mode=adult" : "/api/ai-tools", { credentials: "include" })
+        .then(async (res) => {
+          if (!res.ok) throw new Error(`${res.status}: ${(await res.text()) || res.statusText}`);
+          return res.json();
+        }),
   });
   const tools = rawToolsData?.tools ?? [];
   // Server-authoritative: only true if the server actually granted adult mode.

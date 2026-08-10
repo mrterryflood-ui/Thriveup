@@ -8,6 +8,14 @@ import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, ClipboardCheck, FileText, Phone, Download, AlertTriangle, CheckCircle2 } from "lucide-react";
 import { CrisisStrip } from "@/components/foster-youth/crisis-strip";
+import { getVersioned, setVersioned } from "@/lib/safe-storage";
+
+const TOOLKIT_KEY = "foster-youth-toolkit";
+const TOOLKIT_VERSION = 1;
+
+function isStringArray(v: unknown): v is string[] {
+  return Array.isArray(v) && v.every((x) => typeof x === "string");
+}
 
 interface ToolkitItem {
   id: string;
@@ -56,18 +64,19 @@ const CATEGORIES = Array.from(new Set(TOOLKIT.map((t) => t.category)));
 export default function FosterYouthToolkitPage() {
   const [checked, setChecked] = useState<Set<string>>(() => {
     if (typeof window === "undefined") return new Set();
-    try {
-      const raw = localStorage.getItem("foster-youth-toolkit");
-      return raw ? new Set(JSON.parse(raw)) : new Set();
-    } catch {
-      return new Set();
-    }
+    const stored = getVersioned<string[]>(
+      TOOLKIT_KEY,
+      { version: TOOLKIT_VERSION },
+      isStringArray,
+    );
+    return new Set(stored ?? []);
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem("foster-youth-toolkit", JSON.stringify(Array.from(checked)));
-    } catch {}
+    setVersioned<string[]>(TOOLKIT_KEY, Array.from(checked), {
+      version: TOOLKIT_VERSION,
+      pruneKeys: [TOOLKIT_KEY],
+    });
   }, [checked]);
 
   const toggle = (id: string) => {

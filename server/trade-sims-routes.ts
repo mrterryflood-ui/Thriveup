@@ -199,7 +199,7 @@ export function registerTradeSimsRoutes(app: Express) {
       const [lesson] = await db
         .select()
         .from(tradeSimsLessons)
-        .where(and(eq(tradeSimsLessons.tradeId, trade.id), eq(tradeSimsLessons.slug, lessonSlug)))
+        .where(and(eq(tradeSimsLessons.tradeId, trade.id), eq(tradeSimsLessons.slug, lessonSlug), eq(tradeSimsLessons.active, true)))
         .limit(1);
       if (!lesson) return res.status(404).json({ error: "Lesson not found." });
       res.json({ trade, lesson });

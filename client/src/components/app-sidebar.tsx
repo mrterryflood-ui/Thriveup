@@ -50,6 +50,7 @@ interface NavItem {
   url: string;
   icon: LucideIcon;
   authOnly?: boolean;
+  adminOnly?: boolean;
 }
 
 // =========================================================================
@@ -67,14 +68,14 @@ const getFundedItems: NavItem[] = [
   { title: "This Week (Monday Brief)", url: "/this-week", icon: Calendar },
   { title: "Live Grant Opportunities", url: "/grants", icon: Target },
   { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy, authOnly: true },
-  { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck, authOnly: true },
+  { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck, authOnly: true, adminOnly: true },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true },
   { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true },
   { title: "LOI Writer", url: "/loi-writer", icon: PenLine, authOnly: true },
   { title: "Grant Packages", url: "/grant-packages", icon: Package, authOnly: true },
   { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy, authOnly: true },
   { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users, authOnly: true },
-  { title: "Prior Award Research", url: "/grant-prior-awards", icon: Search, authOnly: true },
+  { title: "Prior Award Research", url: "/grant-prior-awards", icon: Search, authOnly: true, adminOnly: true },
   { title: "Logic Model", url: "/logic-model", icon: Route, authOnly: true },
   { title: "Staffing Plan", url: "/staffing-plan", icon: Briefcase, authOnly: true },
   { title: "Stakeholder Deck", url: "/presentations", icon: Presentation, authOnly: true },
@@ -173,7 +174,7 @@ const workforceTradesItems: NavItem[] = [
   { title: "MOS Translator", url: "/mos-translator", icon: Shield },
   { title: "Workforce Pell Grant", url: "/workforce-pell", icon: DollarSign },
   { title: "WIOA Outcomes", url: "/wioa-outcomes", icon: BarChart3, authOnly: true },
-  { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3 },
+  { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3, authOnly: true, adminOnly: true },
   { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
   { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
 ];
@@ -416,9 +417,12 @@ function isItemActive(location: string, url: string): boolean {
   return false;
 }
 
-function filterAuth(items: NavItem[], isAuthenticated: boolean): NavItem[] {
-  if (isAuthenticated) return items;
-  return items.filter((i) => !i.authOnly);
+function filterAuth(items: NavItem[], isAuthenticated: boolean, isAdmin: boolean): NavItem[] {
+  return items.filter((i) => {
+    if (i.adminOnly && !isAdmin) return false;
+    if (i.authOnly && !isAuthenticated) return false;
+    return true;
+  });
 }
 
 function groupContainsActive(location: string, items: NavItem[]): boolean {
@@ -527,19 +531,19 @@ export function AppSidebar() {
     : "?";
 
   // Visible items per hub (auth-gated).
-  const hubCtx = useMemo(() => filterAuth(ctxHubItems, isAuthenticated), [isAuthenticated]);
-  const hub1 = useMemo(() => filterAuth(getFundedItems, isAuthenticated), [isAuthenticated]);
-  const hub2 = useMemo(() => filterAuth(servePeopleItems, isAuthenticated), [isAuthenticated]);
-  const hubFoster = useMemo(() => filterAuth(fosterYouthItems, isAuthenticated), [isAuthenticated]);
-  const hubJustice = useMemo(() => filterAuth(justiceReentryItems, isAuthenticated), [isAuthenticated]);
-  const hubPrevHealth = useMemo(() => filterAuth(preventionHealthItems, isAuthenticated), [isAuthenticated]);
-  const hub3 = useMemo(() => filterAuth(workforceTradesItems, isAuthenticated), [isAuthenticated]);
-  const hub4 = useMemo(() => filterAuth(academyLearningItems, isAuthenticated), [isAuthenticated]);
-  const hub5 = useMemo(() => filterAuth(partnersCoalitionsItems, isAuthenticated), [isAuthenticated]);
-  const hub6 = useMemo(() => filterAuth(whereWeOperateItems, isAuthenticated), [isAuthenticated]);
-  const hub7 = useMemo(() => filterAuth(aboutTrustItems, isAuthenticated), [isAuthenticated]);
-  const hubChildCare = useMemo(() => filterAuth(hubChildCareWorkforce, isAuthenticated), [isAuthenticated]);
-  const hubRural = useMemo(() => filterAuth(hubRuralAg, isAuthenticated), [isAuthenticated]);
+  const hubCtx = useMemo(() => filterAuth(ctxHubItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hub1 = useMemo(() => filterAuth(getFundedItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hub2 = useMemo(() => filterAuth(servePeopleItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hubFoster = useMemo(() => filterAuth(fosterYouthItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hubJustice = useMemo(() => filterAuth(justiceReentryItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hubPrevHealth = useMemo(() => filterAuth(preventionHealthItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hub3 = useMemo(() => filterAuth(workforceTradesItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hub4 = useMemo(() => filterAuth(academyLearningItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hub5 = useMemo(() => filterAuth(partnersCoalitionsItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hub6 = useMemo(() => filterAuth(whereWeOperateItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hub7 = useMemo(() => filterAuth(aboutTrustItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hubChildCare = useMemo(() => filterAuth(hubChildCareWorkforce, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const hubRural = useMemo(() => filterAuth(hubRuralAg, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
 
   // Search corpus mirrors what's actually navigable for THIS viewer:
   // - CTX hub + 7 public hubs (already auth-filtered above)
@@ -728,18 +732,18 @@ export function AppSidebar() {
       <SidebarFooter className="p-4" aria-label="Sidebar footer">
         {!authLoading && (
           isAuthenticated ? (
-            <a href="/api/logout" aria-label="Sign out">
-              <Button variant="ghost" size="sm" className="w-full justify-start" data-testid="button-logout">
+            <Button asChild variant="ghost" size="sm" className="w-full justify-start" data-testid="button-logout">
+              <a href="/api/logout" aria-label="Sign out">
                 <LogOut className="mr-2 h-4 w-4" aria-hidden="true" /> Sign Out
-              </Button>
-            </a>
+              </a>
+            </Button>
           ) : (
             <div className="space-y-1.5">
-              <a href="/api/login" aria-label="Sign in">
-                <Button variant="default" size="sm" className="w-full" data-testid="button-login">
+              <Button asChild variant="default" size="sm" className="w-full" data-testid="button-login">
+                <a href="/api/login" aria-label="Sign in">
                   <LogIn className="mr-2 h-4 w-4" aria-hidden="true" /> Sign In
-                </Button>
-              </a>
+                </a>
+              </Button>
               <p className="text-[10px] text-muted-foreground text-center" data-testid="text-login-hint">
                 Sign in to autosave your work across devices
               </p>

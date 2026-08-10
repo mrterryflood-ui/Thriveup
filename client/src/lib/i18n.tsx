@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, useContext, useCallback, useRef } from "react";
 import { X } from "lucide-react";
 import { translations, type Language, LANGUAGES } from "./translations";
+import { getVersioned, setVersioned, safeRemove } from "./safe-storage";
 
 type LanguageContextType = {
   language: Language;
@@ -19,6 +20,51 @@ const LanguageContext = createContext<LanguageContextType | null>(null);
 const LANG_KEY = "learning-academy-language";
 const AI_KEY = "learning-academy-ai-translate";
 const CACHE_KEY = "learning-academy-ai-cache";
+// Bump when the cache shape changes so old, unversioned/mis-shaped data is
+// dropped on read instead of being trusted.
+const CACHE_VERSION = 2;
+// Bounds so the cache can't grow unbounded across long-lived sessions.
+const CACHE_MAX_ENTRIES = 4000; // total src->translation pairs across langs
+const CACHE_MAX_BYTES = 512 * 1024; // ~512KB serialized ceiling
+
+type AiCache = Record<string, Record<string, string>>;
+
+// Prune the cache to fit within entry + byte bounds. Drops whole language
+// buckets oldest-first (insertion order of object keys), then trims entries
+// within the remaining buckets. Simple, deterministic, no LRU bookkeeping.
+function pruneCache(cache: AiCache): AiCache {
+  let entries = 0;
+  for (const lang of Object.keys(cache)) entries += Object.keys(cache[lang]).length;
+
+  const withinBytes = (c: AiCache): boolean => {
+    try { return JSON.stringify(c).length <= CACHE_MAX_BYTES; }
+    catch { return false; }
+  };
+
+  if (entries <= CACHE_MAX_ENTRIES && withinBytes(cache)) return cache;
+
+  const next: AiCache = { ...cache };
+  const langOrder = Object.keys(next);
+  // Trim entries within each bucket first (drop oldest keys), then drop whole
+  // buckets if still over budget.
+  for (const lang of langOrder) {
+    let count = 0;
+    for (const l of Object.keys(next)) count += Object.keys(next[l]).length;
+    if (count <= CACHE_MAX_ENTRIES && withinBytes(next)) break;
+    const keys = Object.keys(next[lang]);
+    const bucket = { ...next[lang] };
+    // Remove up to half the bucket oldest-first per pass.
+    let removed = 0;
+    for (const k of keys) {
+      if (count - removed <= CACHE_MAX_ENTRIES && withinBytes({ ...next, [lang]: bucket })) break;
+      delete bucket[k];
+      removed++;
+    }
+    if (Object.keys(bucket).length === 0) delete next[lang];
+    else next[lang] = bucket;
+  }
+  return next;
+}
 
 const VALID_LANGS = new Set<string>(LANGUAGES.map(l => l.code));
 const HUMAN_LANGS = new Set<string>(["en", "es"]);
@@ -42,14 +88,13 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     }
   });
 
-  const [aiCache, setAiCache] = useState<Record<string, Record<string, string>>>(() => {
-    try {
-      const stored = localStorage.getItem(CACHE_KEY);
-      return stored ? JSON.parse(stored) : {};
-    } catch (err) {
-      console.warn("[i18n] localStorage read failed (CACHE_KEY)", err);
-      return {};
-    }
+  const [aiCache, setAiCache] = useState<AiCache>(() => {
+    const stored = getVersioned<AiCache>(
+      CACHE_KEY,
+      { version: CACHE_VERSION },
+      (v): v is AiCache => !!v && typeof v === "object" && !Array.isArray(v),
+    );
+    return stored ?? {};
   });
 
   const [isTranslating, setIsTranslating] = useState(false);
@@ -72,8 +117,18 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     catch (err) { console.warn("[i18n] localStorage write failed (AI_KEY)", err); }
   }, [aiTranslate]);
   useEffect(() => {
-    try { localStorage.setItem(CACHE_KEY, JSON.stringify(aiCache)); }
-    catch (err) { console.warn("[i18n] localStorage write failed (CACHE_KEY)", err); }
+    const bounded = pruneCache(aiCache);
+    // setVersioned handles QuotaExceededError by pruning nominated keys and
+    // retrying once; if it still fails, drop the persisted cache so a corrupt
+    // /oversized entry can't wedge future writes (in-memory state is unaffected).
+    const ok = setVersioned<AiCache>(CACHE_KEY, bounded, {
+      version: CACHE_VERSION,
+      pruneKeys: [CACHE_KEY],
+    });
+    if (!ok) {
+      console.warn("[i18n] translation cache could not be persisted (quota/private mode); keeping in-memory only");
+      safeRemove(CACHE_KEY);
+    }
   }, [aiCache]);
 
   // Set RTL on <html> for Arabic

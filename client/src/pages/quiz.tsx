@@ -16,7 +16,22 @@ import {
   ChevronRight, RotateCcw, Trophy, Home
 } from "lucide-react";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useAuth } from "@/hooks/use-auth";
+import { getVersioned, setVersioned, safeRemove } from "@/lib/safe-storage";
 import type { QuizQuestion } from "@shared/schema";
+
+const QUIZ_DRAFT_VERSION = 1;
+const QUIZ_DRAFT_TTL_MS = 1000 * 60 * 60 * 6; // 6 hours
+
+interface QuizDraft { answers: Record<string, string>; currentQuestion: number }
+function isQuizDraft(v: unknown): v is QuizDraft {
+  if (!v || typeof v !== "object") return false;
+  const d = v as any;
+  const answersOk = d.answers && typeof d.answers === "object" && !Array.isArray(d.answers)
+    && Object.values(d.answers).every((x) => typeof x === "string");
+  const cqOk = typeof d.currentQuestion === "number";
+  return answersOk && cqOk;
+}
 
 // The quiz GET intentionally strips the answer key — type the client to the
 // sanitized shape so nothing can accidentally assume correctAnswer/explanation
@@ -29,14 +44,18 @@ export default function QuizPage() {
   const moduleId = params.moduleId || "";
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Persist in-progress answers + current question to sessionStorage keyed by
-  // moduleId so a refresh (or accidental navigation-back) doesn't wipe the
-  // learner's work. Decision: sessionStorage over server-side attempt drafts —
-  // this quiz is small (a handful of questions) and the answers only need to
-  // survive a reload within the same browser tab, so a server round-trip and
-  // draft table would be overkill.
-  const draftKey = `quiz-draft:${moduleId}`;
+  // moduleId AND user id so a refresh (or accidental navigation-back) doesn't
+  // wipe the learner's work — and one learner's draft can't bleed into another
+  // learner's session on a shared browser. Anonymous learners use "anon".
+  // Decision: sessionStorage over server-side attempt drafts — this quiz is
+  // small (a handful of questions) and the answers only need to survive a
+  // reload within the same browser tab, so a server round-trip and draft table
+  // would be overkill. The draft carries a version + expiry envelope.
+  const userId = user?.id ?? "anon";
+  const draftKey = `quiz-draft:${userId}:${moduleId}`;
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
@@ -47,15 +66,16 @@ export default function QuizPage() {
   // are surfaced (and the corrupt draft dropped) rather than silently ignored.
   useEffect(() => {
     if (!moduleId) return;
-    const raw = sessionStorage.getItem(draftKey);
-    if (!raw) return;
-    try {
-      const draft = JSON.parse(raw) as { answers?: Record<string, string>; currentQuestion?: number };
-      if (draft.answers && typeof draft.answers === "object") setAnswers(draft.answers);
-      if (typeof draft.currentQuestion === "number") setCurrentQuestion(draft.currentQuestion);
-    } catch (err) {
-      console.error(`[Quiz] failed to restore draft for ${draftKey}, dropping it:`, err);
-      sessionStorage.removeItem(draftKey);
+    // getVersioned validates version + expiry + shape; a corrupt/expired draft
+    // is dropped (side-effect) and null is returned rather than mis-parsed.
+    const draft = getVersioned<QuizDraft>(
+      draftKey,
+      { version: QUIZ_DRAFT_VERSION, store: "session" },
+      isQuizDraft,
+    );
+    if (draft) {
+      setAnswers(draft.answers);
+      setCurrentQuestion(draft.currentQuestion);
     }
   }, [draftKey, moduleId]);
 
@@ -64,7 +84,12 @@ export default function QuizPage() {
   useEffect(() => {
     if (!moduleId || showResults) return;
     if (Object.keys(answers).length === 0) return;
-    sessionStorage.setItem(draftKey, JSON.stringify({ answers, currentQuestion }));
+    setVersioned<QuizDraft>(draftKey, { answers, currentQuestion }, {
+      version: QUIZ_DRAFT_VERSION,
+      store: "session",
+      ttlMs: QUIZ_DRAFT_TTL_MS,
+      pruneKeys: [draftKey],
+    });
   }, [answers, currentQuestion, moduleId, draftKey, showResults]);
 
   // Unsaved-work guard: warn on refresh / tab-close while answers exist and the
@@ -93,7 +118,7 @@ export default function QuizPage() {
       setQuizResult(data);
       setShowResults(true);
       // Work is safely submitted — drop the local draft.
-      sessionStorage.removeItem(draftKey);
+      safeRemove(draftKey, "session");
       // Mastery can unlock badges, certificates, and level advancement —
       // invalidate everything downstream, not just /api/progress.
       queryClient.invalidateQueries({ queryKey: ["/api/progress"] });
@@ -174,7 +199,7 @@ export default function QuizPage() {
                   setAnswers({});
                   setShowResults(false);
                   setQuizResult(null);
-                  sessionStorage.removeItem(draftKey);
+                  safeRemove(draftKey, "session");
                 }}
                 data-testid="button-retry-quiz"
               >

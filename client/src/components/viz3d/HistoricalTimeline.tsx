@@ -25,6 +25,34 @@ function fmt$(n: number) {
   return `$${n}`;
 }
 
+// Recursively dispose every geometry, material (and its textures / material
+// arrays) attached to a scene graph. Without this, each re-render of the
+// visualization leaks GPU memory (geometries + textures) even after
+// renderer.dispose().
+function disposeMaterial(material: THREE.Material) {
+  for (const key of Object.keys(material)) {
+    const value = (material as unknown as Record<string, unknown>)[key];
+    if (value && (value as THREE.Texture).isTexture) {
+      (value as THREE.Texture).dispose();
+    }
+  }
+  material.dispose();
+}
+
+function disposeScene(scene: THREE.Scene) {
+  scene.traverse((obj: any) => {
+    const mesh = obj as THREE.Mesh & { geometry?: THREE.BufferGeometry; material?: THREE.Material | THREE.Material[] };
+    if (mesh.geometry) mesh.geometry.dispose();
+    if (mesh.material) {
+      if (Array.isArray(mesh.material)) {
+        mesh.material.forEach((m: any) => disposeMaterial(m));
+      } else {
+        disposeMaterial(mesh.material);
+      }
+    }
+  });
+}
+
 function makeLabel(text: string, color: string, fontSize = 18, w = 256, h = 56): THREE.Sprite {
   const c = document.createElement("canvas");
   c.width = w; c.height = h;
@@ -258,6 +286,9 @@ export default function HistoricalTimeline({
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
       controls.dispose();
+      // Dispose all GPU resources (geometries, materials, textures) before
+      // tearing down the renderer to avoid leaking WebGL memory on re-render.
+      disposeScene(scene);
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };

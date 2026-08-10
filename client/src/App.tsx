@@ -20,11 +20,13 @@ import { openCommandPalette } from "@/components/command-palette";
 import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import LandingPage from "@/pages/landing";
-import CoveragePage from "@/pages/coverage";
-import CurriculumPage, { LevelDetailPage } from "@/pages/curriculum";
-import SubjectsPage, { SubjectDetailPage } from "@/pages/subjects";
-import DashboardPage from "@/pages/dashboard";
-import AICompanionPage from "@/pages/ai-companion";
+const CoveragePage = lazy(() => import("@/pages/coverage"));
+const CurriculumPage = lazy(() => import("@/pages/curriculum"));
+const LevelDetailPage = lazy(() => import("@/pages/curriculum").then(m => ({ default: m.LevelDetailPage })));
+const SubjectsPage = lazy(() => import("@/pages/subjects"));
+const SubjectDetailPage = lazy(() => import("@/pages/subjects").then(m => ({ default: m.SubjectDetailPage })));
+const DashboardPage = lazy(() => import("@/pages/dashboard"));
+const AICompanionPage = lazy(() => import("@/pages/ai-companion"));
 
 const ModuleDetailPage = lazy(() => import("@/pages/module-detail"));
 const LessonViewerPage = lazy(() => import("@/pages/lesson-viewer"));
@@ -1046,18 +1048,22 @@ function AppLayout() {
 
 function PresentationLayout() {
   return (
-    <Suspense fallback={<PageFallback />}>
-      <StakeholderPresentationPage />
-    </Suspense>
+    <ErrorBoundary>
+      <Suspense fallback={<PageFallback />}>
+        <StakeholderPresentationPage />
+      </Suspense>
+    </ErrorBoundary>
   );
 }
 
 function EmbedLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <Suspense fallback={<PageFallback />}>
-        {children}
-      </Suspense>
+      <ErrorBoundary>
+        <Suspense fallback={<PageFallback />}>
+          {children}
+        </Suspense>
+      </ErrorBoundary>
     </div>
   );
 }

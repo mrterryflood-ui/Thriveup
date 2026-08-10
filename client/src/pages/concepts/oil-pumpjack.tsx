@@ -19,6 +19,8 @@ export default function OilPumpjackConceptPage() {
             <img
               src={pumpjackDiagram}
               alt="Labeled diagram of an oil pumpjack: walking beam, horsehead, crank, counterweight, pitman arm, polished rod, sucker rod, well casing, tubing, and oil reservoir."
+              width={1320}
+              height={2868}
               className="w-full h-auto"
               data-testid="img-pumpjack-diagram"
             />

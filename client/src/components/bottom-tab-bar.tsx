@@ -100,6 +100,8 @@ export function BottomTabBar() {
           <Link
             key={tab.href}
             href={tab.href}
+            aria-label={t(tab.labelKey)}
+            aria-current={active ? "page" : undefined}
             className={cn(
               "flex-1 flex flex-col items-center justify-center gap-0.5 min-h-[60px] text-[10px] font-semibold transition-colors duration-150 cursor-pointer select-none",
               active ? "text-primary" : "text-muted-foreground hover:text-foreground"
@@ -110,7 +112,7 @@ export function BottomTabBar() {
               "flex items-center justify-center w-10 h-6 rounded-full transition-all duration-150",
               active && "bg-primary/10"
             )}>
-              <Icon className={cn("w-[18px] h-[18px]", active && "stroke-[2.5]")} />
+              <Icon className={cn("w-[18px] h-[18px]", active && "stroke-[2.5]")} aria-hidden="true" />
             </span>
             <span className="leading-none">{t(tab.labelKey)}</span>
           </Link>

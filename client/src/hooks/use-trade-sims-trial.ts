@@ -24,8 +24,8 @@ interface TrialStatus {
 
 const DEFAULT_TOTAL_MS = 10 * 60 * 1000;
 
-async function fetchTrialStatus(): Promise<TrialStatus> {
-  const r = await fetch("/api/trade-sims/trial/status", { credentials: "include" });
+async function fetchTrialStatus(signal?: AbortSignal): Promise<TrialStatus> {
+  const r = await fetch("/api/trade-sims/trial/status", { credentials: "include", signal });
   if (!r.ok) {
     return {
       authenticated: false,
@@ -70,20 +70,36 @@ export function useTradeSimsTrial(): UseTradeSimsTrialResult {
   const [state, setState] = useState<TrialStatus | null>(null);
   const trackedRef = useRef<string | null>(null);
 
-  // Initial + periodic fetch.
+  // Initial + periodic fetch. Guard against overlapping polls: if a previous
+  // fetch is still in flight when the interval fires, abort it first so a slow
+  // response can't resolve after a newer one and clobber state.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      const s = await fetchTrialStatus();
-      if (!cancelled) setState(s);
-    })();
-    const id = setInterval(async () => {
-      const s = await fetchTrialStatus();
-      if (!cancelled) setState(s);
-    }, 90_000);
+    let inFlight: AbortController | null = null;
+
+    const poll = async () => {
+      // Abort any still-in-flight request before starting a new one.
+      inFlight?.abort();
+      const controller = new AbortController();
+      inFlight = controller;
+      try {
+        const s = await fetchTrialStatus(controller.signal);
+        if (!cancelled && !controller.signal.aborted) setState(s);
+      } catch (err) {
+        if ((err as { name?: string })?.name === "AbortError") return;
+        // Non-abort network failure: leave prior state intact (fetchTrialStatus
+        // only throws on network error, not on !ok).
+      } finally {
+        if (inFlight === controller) inFlight = null;
+      }
+    };
+
+    void poll();
+    const id = setInterval(() => { void poll(); }, 90_000);
     return () => {
       cancelled = true;
       clearInterval(id);
+      inFlight?.abort();
     };
   }, [isAuthenticated]);
 
