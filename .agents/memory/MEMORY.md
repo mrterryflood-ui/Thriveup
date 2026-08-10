@@ -30,6 +30,7 @@
 - [Public endpoint doctrine](public-endpoint-doctrine.md) — never login-wall a public flagship; rate-limit via req.ip only, cache, strip internal blocks for anon; generateAIJSON's 2nd arg is a string.
 - [Client 3D WebGL fail-soft](client-3d-webgl-fallback.md) — probe canvases lie; createRendererSafe hands own context to Three; every 3D diagram needs an SVG twin fallback.
 - [Validation workflow 10-slot limit](validation-workflow-limit.md) — configureWorkflow refuses adds past 10 workflows; use setValidationCommand and chain sibling test files into one gate.
+- [Lesson diagram verification](lesson-diagram-verification.md) — diagrams must reuse the lesson's own worked numbers/units; 3D canvases use touch-action pan-y; 375px gallery recipe.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────

@@ -57,7 +57,7 @@ export default function ThreeSeriesCircuit({ onError }: Diagram3DProps = {}) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x0b1220, 1);
     mount.appendChild(renderer.domElement);
-    renderer.domElement.style.touchAction = "none";
+    renderer.domElement.style.touchAction = "pan-y"; // horizontal drag rotates; vertical swipe still scrolls the page
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);
@@ -97,11 +97,12 @@ export default function ThreeSeriesCircuit({ onError }: Diagram3DProps = {}) {
     );
     battery.position.set(-R, 0, 0);
     scene.add(battery);
-    const srcLabel = makeLabel("12 V source", "#fbbf24", 30);
+    const srcLabel = makeLabel("9 V source", "#fbbf24", 30);
     srcLabel.position.set(-R - 0.2, 0, 0.8);
     scene.add(srcLabel);
 
-    // Two equal resistors on the top edge → 6 V drop each
+    // Two equal 1 kΩ resistors on the top edge → 4.5 V drop each (matches the
+    // lesson's worked example: 9 V ÷ 2 kΩ = 4.5 mA)
     const resMat = new THREE.MeshPhongMaterial({ color: 0xef4444 });
     const r1 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.4, 0.4), resMat);
     r1.position.set(-1.2, 1.6, 0);
@@ -109,14 +110,14 @@ export default function ThreeSeriesCircuit({ onError }: Diagram3DProps = {}) {
     const r2 = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.4, 0.4), resMat);
     r2.position.set(1.2, 1.6, 0);
     scene.add(r2);
-    const d1 = makeLabel("R1 · 6 V drop", "#fca5a5", 26);
+    const d1 = makeLabel("R1 1 kΩ · 4.5 V drop", "#fca5a5", 26);
     d1.position.set(-1.2, 2.3, 0);
     scene.add(d1);
-    const d2 = makeLabel("R2 · 6 V drop", "#fca5a5", 26);
+    const d2 = makeLabel("R2 1 kΩ · 4.5 V drop", "#fca5a5", 26);
     d2.position.set(1.2, 2.3, 0);
     scene.add(d2);
 
-    const iLabel = makeLabel("I is the SAME everywhere", "#93c5fd", 28);
+    const iLabel = makeLabel("I = 4.5 mA — the SAME everywhere", "#93c5fd", 28);
     iLabel.position.set(0, -2.6, 0);
     scene.add(iLabel);
 

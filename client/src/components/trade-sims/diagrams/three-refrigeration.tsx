@@ -60,7 +60,7 @@ export default function ThreeRefrigeration({ onError }: Diagram3DProps = {}) {
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x0b1220, 1);
     mount.appendChild(renderer.domElement);
-    renderer.domElement.style.touchAction = "none";
+    renderer.domElement.style.touchAction = "pan-y"; // horizontal drag rotates; vertical swipe still scrolls the page
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, W / H, 0.1, 100);

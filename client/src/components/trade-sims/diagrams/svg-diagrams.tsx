@@ -150,8 +150,9 @@ function AcSine() {
 function Capacitor() {
   return (
     <Frame label="Capacitor storing charge: electrons build up on two plates separated by a gap">
-      <line x1="120" y1="50" x2="120" y2="130" stroke={C.blue} strokeWidth="4" />
-      <line x1="145" y1="50" x2="145" y2="130" stroke={C.red} strokeWidth="4" />
+      {/* left plate holds + charge (red), right plate − (blue) */}
+      <line x1="120" y1="50" x2="120" y2="130" stroke={C.red} strokeWidth="4" />
+      <line x1="145" y1="50" x2="145" y2="130" stroke={C.blue} strokeWidth="4" />
       {/* + charges */}
       {[65, 85, 105].map((y) => (
         <text key={`p${y}`} x="108" y={y} fontSize="13" fill={C.red}>+</text>
@@ -395,7 +396,8 @@ function DrainVent() {
 function FixtureUnits() {
   return (
     <Frame label="Fixture units: each fixture adds demand; total WSFU sizes the supply pipe">
-      {[["toilet", 3, 40], ["sink", 1, 120], ["shower", 2, 200], ["washer", 4, 265]].map(
+      {/* WSFU values match the lesson: lavatory 1, tank toilet 2.2, shower 2 */}
+      {[["lavatory", 1, 55], ["toilet", 2.2, 160], ["shower", 2, 260]].map(
         ([name, wsfu, x], i) => (
           <g key={i}>
             <rect x={Number(x) - 18} y="55" width="36" height="24" rx="3" fill={C.blue} opacity="0.2" stroke={C.blue} strokeWidth="1.5" />
@@ -405,7 +407,7 @@ function FixtureUnits() {
         ),
       )}
       <line x1="30" y1="120" x2="290" y2="120" stroke={C.blue} strokeWidth="6" />
-      <text x="160" y="145" fontSize="11" fill={C.ink} textAnchor="middle">Σ = 10 WSFU → size the main</text>
+      <text x="160" y="145" fontSize="11" fill={C.ink} textAnchor="middle">Σ = 5.2 WSFU → size the main</text>
       <text x="160" y="165" fontSize="9" fill={C.muted} textAnchor="middle">demand isn't additive gpm — use the WSFU curve</text>
     </Frame>
   );
@@ -437,10 +439,10 @@ function HeatTransfer() {
     <Frame label="Heat transfer: heat always moves from hot to cold — conduction, convection, radiation">
       <rect x="30" y="55" width="60" height="70" fill={C.red} opacity="0.3" stroke={C.red} strokeWidth="1.5" />
       <text x="60" y="95" fontSize="11" fill={C.red} textAnchor="middle" fontWeight="bold">HOT</text>
-      <text x="60" y="112" fontSize="9" fill={C.muted} textAnchor="middle">75°F</text>
+      <text x="60" y="112" fontSize="9" fill={C.muted} textAnchor="middle">22°C indoor</text>
       <rect x="230" y="55" width="60" height="70" fill={C.blue} opacity="0.3" stroke={C.blue} strokeWidth="1.5" />
       <text x="260" y="95" fontSize="11" fill={C.blue} textAnchor="middle" fontWeight="bold">COLD</text>
-      <text x="260" y="112" fontSize="9" fill={C.muted} textAnchor="middle">45°F</text>
+      <text x="260" y="112" fontSize="9" fill={C.muted} textAnchor="middle">−5°C outdoor</text>
       <path id="ht-flow" d="M92 90 H228" fill="none" stroke="none" />
       <FlowDots pathId="ht-flow" color={C.amber} count={4} dur={2} />
       <line x1="92" y1="90" x2="226" y2="90" stroke={C.amber} strokeWidth="2" strokeDasharray="4 4" opacity="0.5" />
@@ -500,7 +502,7 @@ function Psychrometric() {
         <animate attributeName="cy" values="110;100;110" dur="3s" repeatCount="indefinite" />
       </circle>
       <text x="160" y="122" fontSize="9" fill={C.ink}>comfort zone</text>
-      <text x="165" y="158" fontSize="10" fill={C.muted} textAnchor="middle">dry-bulb °F →</text>
+      <text x="165" y="158" fontSize="10" fill={C.muted} textAnchor="middle">dry-bulb °C →</text>
       <text x="24" y="90" fontSize="10" fill={C.muted} transform="rotate(-90 24 90)">humidity ratio →</text>
     </Frame>
   );
@@ -907,23 +909,24 @@ function WaterHeadColumn() {
 }
 
 // ELECTRICAL: series circuit — one current path, equal current everywhere,
-// two 6 V drops summing to the 12 V source (KVL). Twin of the 3D loop.
+// two 4.5 V drops summing to the 9 V source (KVL). Matches the lesson's own
+// worked example (9 V ÷ 2 kΩ = 4.5 mA). Twin of the 3D loop.
 function SeriesCircuitFlow() {
   return (
-    <Frame label="Series circuit: one loop, the same current everywhere, two 6 V drops summing to 12 V">
+    <Frame label="Series circuit: one loop, the same 4.5 milliamp current everywhere, two 4.5 V drops summing to 9 V">
       <path id="scf-loop" d="M50 50 H270 V140 H50 Z" fill="none" stroke={C.slate} strokeWidth="3" />
       <FlowDots pathId="scf-loop" color={C.blue} count={4} dur={2.4} />
       {/* battery left */}
       <line x1="50" y1="86" x2="50" y2="96" stroke={C.ink} strokeWidth="6" />
       <line x1="50" y1="98" x2="50" y2="106" stroke={C.ink} strokeWidth="14" />
-      <text x="20" y="98" fontSize="12" fill={C.ink} fontWeight="bold">12V</text>
-      {/* two resistors on top */}
+      <text x="20" y="98" fontSize="12" fill={C.ink} fontWeight="bold">9V</text>
+      {/* two 1 kΩ resistors on top */}
       <rect x="110" y="42" width="26" height="16" fill={C.red} rx="2" />
       <rect x="184" y="42" width="26" height="16" fill={C.red} rx="2" />
-      <text x="123" y="34" fontSize="9" fill={C.red} textAnchor="middle">R1 · 6V</text>
-      <text x="197" y="34" fontSize="9" fill={C.red} textAnchor="middle">R2 · 6V</text>
-      <text x="160" y="132" fontSize="11" fill={C.primary} textAnchor="middle" fontWeight="bold">I is the SAME everywhere</text>
-      <text x="160" y="168" fontSize="9" fill={C.muted} textAnchor="middle">6V + 6V = 12V source (KVL)</text>
+      <text x="123" y="34" fontSize="9" fill={C.red} textAnchor="middle">R1 1kΩ · 4.5V</text>
+      <text x="197" y="34" fontSize="9" fill={C.red} textAnchor="middle">R2 1kΩ · 4.5V</text>
+      <text x="160" y="132" fontSize="11" fill={C.primary} textAnchor="middle" fontWeight="bold">I = 4.5 mA — SAME everywhere</text>
+      <text x="160" y="168" fontSize="9" fill={C.muted} textAnchor="middle">4.5V + 4.5V = 9V source (KVL) · I = 9V ÷ 2kΩ</text>
     </Frame>
   );
 }
