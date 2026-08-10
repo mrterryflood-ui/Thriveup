@@ -85,6 +85,10 @@ args = "canvas-wire-e2e"
 task = "workflow.run"
 args = "trade-sims"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "hud-pdf-e2e"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -233,6 +237,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts && npx tsx client/src/lib/trade-sims/automotive/sag-rubric.test.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "hud-pdf-e2e"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/run-hud-report-pdf-e2e.sh"
 
 [workflows.workflow.metadata]
 isValidation = true
