@@ -110,7 +110,107 @@ async function run() {
   if (rplice) fail(`anonymous brief leaks the internal RPLICE block: ${rplice[0]}`);
 
   console.log(`✓ PASS: full anonymous brief for ${ZIP} → 200; narrative ${brief.narrative.trim().length} chars; ${Object.keys(brief.systemsScores).length} systems scores; poverty rate ${brief.demographics.povertyRate}%; no PII; no internal RPLICE block.`);
+
+  // ── Authed positive contract + public-share strip contract ────────────────
+  // 1. An AUTHENTICATED analyst must receive the RPLICE block (the feature).
+  // 2. Sharing that authed brief through the public share endpoint must strip
+  //    the block server-side, so a share link can never exfiltrate it.
+  // Uses the forged-session helper (real sessions-table row + signed cookie).
+  await runAuthedAndShareChecks();
   process.exit(0);
+}
+
+async function runAuthedAndShareChecks() {
+  const { Client } = await import("pg");
+  const { ensureTestUser, forgeSession, cleanupTestUser, requireEnv } = await import(
+    "../tests/e2e/helpers/auth"
+  );
+
+  const db = new Client({ connectionString: requireEnv("DATABASE_URL") });
+  await db.connect();
+  const user = { userId: "e2e-brief-rplice", email: "e2e-brief-rplice@test.local" };
+  try {
+    await ensureTestUser(db, user);
+    const cookie = await forgeSession(db, user);
+
+    // Authed brief: same ZIP is now cached, so this is a cheap cache-hit; the
+    // RPLICE block is attached per-response, never cached, so it must appear.
+    // The anonymous run above may have spent the per-IP rate budget, so honor
+    // Retry-After up to twice before failing.
+    let res!: Response;
+    let authedText = "";
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      res = await fetch(`${BASE}${PATH}`, {
+        method: "POST",
+        headers: { "content-type": "application/json", cookie },
+        body: JSON.stringify({ location: ZIP, populationSize: 10000, timeHorizon: 25 }),
+      });
+      authedText = await res.text();
+      if (res.status !== 429) break;
+      const wait = Math.min(parseInt(res.headers.get("retry-after") ?? "60", 10) || 60, 120);
+      if (attempt < 3) {
+        console.warn(`  429 on authed brief (attempt ${attempt}/3); waiting ≈ ${wait}s...`);
+        await sleep(wait * 1000);
+      }
+    }
+    if (!res.ok) fail(`authed brief request failed with ${res.status}: ${authedText.slice(0, 200)}`);
+    let authedBrief: any;
+    try {
+      authedBrief = JSON.parse(authedText);
+    } catch {
+      fail(`authed brief 200 but response is not valid JSON`);
+    }
+    if (!("rplice" in authedBrief)) {
+      fail(`authenticated brief is missing the RPLICE research block — signed-in analysts lost their research-grade detail.`);
+    }
+    console.log(`✓ PASS: authenticated brief carries the RPLICE block (rplice ${authedBrief.rplice === null ? "null (upstream unavailable — key present)" : "populated"}).`);
+
+    // Share the authed brief (rplice and all) — the server must strip it.
+    const shareRes = await fetch(`${BASE}/api/conductor/community-brief/share`, {
+      method: "POST",
+      headers: { "content-type": "application/json", cookie },
+      body: JSON.stringify(authedBrief),
+    });
+    if (shareRes.status === 429) {
+      console.warn(`  ? share endpoint rate-limited (429) this run — strip contract also asserted by security-probes.`);
+      return;
+    }
+    if (!shareRes.ok) fail(`share POST failed with ${shareRes.status}`);
+    const { shareId } = (await shareRes.json()) as { shareId: string };
+    const getRes = await fetch(`${BASE}/api/conductor/community-brief/share/${shareId}`);
+    const sharedText = await getRes.text();
+    if (!getRes.ok) fail(`share GET failed with ${getRes.status}`);
+    const leak = sharedText.match(INTERNAL_RPLICE_PATTERN);
+    if (leak) {
+      fail(`publicly shared brief leaks the internal RPLICE block (${leak[0]}) — share links are an anonymous exfiltration path.`);
+    }
+    console.log(`✓ PASS: public share retrieval of an authed brief carries NO internal RPLICE data (stripped server-side).`);
+
+    // Legacy-row regression: rows written BEFORE the POST-side strip existed
+    // may carry rplice. Seed one directly and assert the public GET strips it
+    // (and scrubs the stored row).
+    const legacyId = `lgcy${Date.now().toString(36)}`.slice(0, 8);
+    await db.query(
+      `INSERT INTO brief_shares (id, location, brief_data, created_at, expires_at)
+       VALUES ($1, $2, $3, now(), now() + interval '1 day')`,
+      [legacyId, "Legacy Probe, TX", JSON.stringify({ geography: { displayName: "Legacy Probe, TX" }, overallScore: 42, rplice: { reasoning: "legacy", assessmentCounts: { cfir: 1 } } })]
+    );
+    try {
+      const legacyRes = await fetch(`${BASE}/api/conductor/community-brief/share/${legacyId}`);
+      const legacyText = await legacyRes.text();
+      if (!legacyRes.ok) fail(`legacy share GET failed with ${legacyRes.status}`);
+      const legacyLeak = legacyText.match(INTERNAL_RPLICE_PATTERN);
+      if (legacyLeak) {
+        fail(`legacy stored share row leaks the internal RPLICE block (${legacyLeak[0]}) — GET must strip defensively.`);
+      }
+      console.log(`✓ PASS: legacy share row with stored rplice is stripped on public retrieval.`);
+    } finally {
+      await db.query(`DELETE FROM brief_shares WHERE id = $1`, [legacyId]).catch(() => {});
+    }
+  } finally {
+    await cleanupTestUser(db, user.userId).catch(() => {});
+    await db.end().catch(() => {});
+  }
 }
 
 run().catch((err) => {

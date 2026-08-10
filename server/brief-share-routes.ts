@@ -55,6 +55,14 @@ export function registerBriefShareRoutes(app: Express) {
         return res.status(400).json({ error: "brief object is required in request body" });
       }
 
+      // Share links are PUBLIC and unauthenticated. The `rplice` research /
+      // intelligence block is authenticated-analyst-only (built from internal
+      // operational data), so it must never be persisted into a shared brief —
+      // strip it server-side regardless of what the client sent.
+      if ("rplice" in brief) {
+        delete (brief as Record<string, unknown>).rplice;
+      }
+
       const location = String(
         brief.geography?.displayName ?? brief.geography?.input ?? brief.location ?? "community",
       ).slice(0, 400);
@@ -114,7 +122,19 @@ export function registerBriefShareRoutes(app: Express) {
         });
       }
 
-      return res.json(row.briefData);
+      // Defensive strip on read: rows written before the POST-side strip was
+      // deployed may still carry the analyst-only `rplice` block. The share
+      // GET is public, so never return it — and scrub the stored row so the
+      // legacy data doesn't linger until expiry.
+      const stored = row.briefData as Record<string, unknown> | null;
+      if (stored && typeof stored === "object" && "rplice" in stored) {
+        delete stored.rplice;
+        db.update(briefShares)
+          .set({ briefData: stored })
+          .where(eq(briefShares.id, shareId))
+          .catch((err: Error) => console.error("[brief-share] legacy rplice scrub error:", err));
+      }
+      return res.json(stored);
     } catch (err) {
       console.error("[brief-share/get] error:", err);
       return res.status(500).json({ error: "Failed to retrieve shared brief." });

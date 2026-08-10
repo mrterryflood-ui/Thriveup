@@ -2,6 +2,7 @@ import { useState, useEffect, lazy, Suspense } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/use-auth";
 import jsPDF from "jspdf";
 
 const SkylineMap         = lazy(() => import("@/components/viz3d/SkylineMap"));
@@ -19,7 +20,7 @@ import {
   Users, MapPin, Globe, Search, AlertTriangle, TrendingDown, TrendingUp,
   ArrowRight, DollarSign, Clock, Zap, ChevronRight, Download, Building2,
   Target, Lightbulb, FileText, UserCheck, Accessibility, TreePine,
-  Send, CheckCircle2, Loader2,
+  Send, CheckCircle2, Loader2, Lock, FlaskConical, BookOpen,
 } from "lucide-react";
 
 // ─── Icon map ─────────────────────────────────────────────────────────────────
@@ -925,7 +926,157 @@ function parseConductorError(err: unknown): string {
   return trimmed || "Something went wrong analyzing this location. Please try again.";
 }
 
+// ─── Research Intelligence (authed-only RPLICE block) ────────────────────────
+
+function ResearchIntelligenceSection({ rplice, isAuthenticated }: { rplice: any; isAuthenticated: boolean }) {
+  // Anonymous visitor: the server strips the research block — show a tasteful upsell.
+  if (!isAuthenticated) {
+    return (
+      <Card className="p-6 border-violet-200 dark:border-violet-800 bg-violet-50/60 dark:bg-violet-950/20" data-testid="card-research-upsell">
+        <div className="flex items-start gap-3">
+          <Lock className="w-5 h-5 text-violet-500 flex-none mt-0.5" />
+          <div className="flex-1">
+            <h2 className="font-bold text-violet-900 dark:text-violet-200 mb-1">Research-Grade Detail Available</h2>
+            <p className="text-sm text-violet-800 dark:text-violet-300 leading-relaxed mb-3">
+              Signed-in analysts see the full RPLICE research &amp; intelligence layer for this brief:
+              live implementation-science studies, structured frameworks, matched grant profiles,
+              active intervention assignments, and outcome baselines.
+            </p>
+            <a href="/api/login">
+              <Button size="sm" className="gap-1.5 bg-violet-600 hover:bg-violet-500 text-white" data-testid="button-research-signin">
+                <Lock className="w-3.5 h-3.5" /> Sign in for research-grade detail
+              </Button>
+            </a>
+          </div>
+        </div>
+      </Card>
+    );
+  }
+
+  // Authed but block missing (e.g. RPLICE upstream unavailable): stay quiet.
+  if (!rplice) return null;
+
+  const studies: any[] = rplice.liveResearch?.studies ?? [];
+  const frameworks: any[] = rplice.liveResearch?.frameworks ?? [];
+  const grantProfiles: any[] = rplice.matchedGrantProfiles ?? [];
+  const counts = rplice.assessmentCounts ?? {};
+  const countItems: Array<[string, number]> = [
+    ["CFIR assessments", counts.cfir],
+    ["RE-AIM scorecards", counts.reaim],
+    ["Fidelity checklists", counts.fidelity],
+    ["Three Realities analyses", counts.threeRealities],
+    ["Community analyses", counts.communityAnalyses],
+    ["Grant narratives", counts.grantNarratives],
+    ["Active action plans", counts.activeActionPlans],
+    ["Active baselines", counts.activeBaselines],
+  ];
+
+  return (
+    <section data-testid="section-research-intelligence" className="space-y-4">
+      <div className="flex items-center gap-2">
+        <FlaskConical className="w-5 h-5 text-violet-500" />
+        <h2 className="text-xl font-bold">Research &amp; Intelligence</h2>
+        <Badge className="bg-violet-500/20 text-violet-600 dark:text-violet-300 border-violet-500/30 text-xs">Analysts only</Badge>
+        {rplice.inboundEvidenceFeedActive && (
+          <Badge variant="outline" className="text-xs text-emerald-600 dark:text-emerald-400 border-emerald-500/40">Live evidence feed</Badge>
+        )}
+      </div>
+
+      {rplice.reasoning && (
+        <Card className="p-5 border-violet-200 dark:border-violet-800 bg-violet-50/60 dark:bg-violet-950/20" data-testid="card-rplice-reasoning">
+          <div className="flex items-start gap-3">
+            <Brain className="w-5 h-5 text-violet-500 flex-none mt-0.5" />
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="font-semibold text-sm text-violet-900 dark:text-violet-200">RPLICE relevance</span>
+                {typeof rplice.relevanceScore === "number" && (
+                  <Badge variant="outline" className="text-xs" data-testid="badge-relevance-score">{rplice.relevanceScore}/100</Badge>
+                )}
+              </div>
+              <p className="text-sm text-violet-800 dark:text-violet-300 leading-relaxed">{rplice.reasoning}</p>
+            </div>
+          </div>
+        </Card>
+      )}
+
+      {studies.length > 0 && (
+        <Card className="p-5" data-testid="card-rplice-studies">
+          <div className="flex items-center gap-2 mb-3">
+            <BookOpen className="w-4 h-4 text-blue-500" />
+            <h3 className="font-semibold text-sm">Live Implementation-Science Studies</h3>
+            <Badge variant="outline" className="text-xs">{studies.length}</Badge>
+          </div>
+          <ul className="space-y-2">
+            {studies.map((s: any, i: number) => (
+              <li key={i} className="text-sm border-b border-border/50 last:border-0 pb-2 last:pb-0" data-testid={`row-study-${i}`}>
+                <span className="font-medium">{s.title ?? "Untitled study"}</span>
+                <span className="text-xs text-muted-foreground ml-2">
+                  {[s.authors, s.year, s.domain].filter(Boolean).join(" · ")}
+                </span>
+                {Array.isArray(s.frameworks) && s.frameworks.length > 0 && (
+                  <span className="ml-2 inline-flex flex-wrap gap-1 align-middle">
+                    {s.frameworks.slice(0, 4).map((f: string) => (
+                      <Badge key={f} variant="secondary" className="text-[10px] px-1.5 py-0">{f}</Badge>
+                    ))}
+                  </span>
+                )}
+              </li>
+            ))}
+          </ul>
+          {frameworks.length > 0 && (
+            <p className="text-xs text-muted-foreground mt-3">
+              Frameworks in play: {frameworks.map((f: any) => (typeof f === "string" ? f : f?.name)).filter(Boolean).join(", ")}
+            </p>
+          )}
+        </Card>
+      )}
+
+      {grantProfiles.length > 0 && (
+        <Card className="p-5" data-testid="card-rplice-grants">
+          <div className="flex items-center gap-2 mb-3">
+            <Target className="w-4 h-4 text-emerald-500" />
+            <h3 className="font-semibold text-sm">Matched Grant Profiles</h3>
+            <Badge variant="outline" className="text-xs">{grantProfiles.length}</Badge>
+          </div>
+          <ul className="space-y-2">
+            {grantProfiles.map((g: any, i: number) => (
+              <li key={i} className="flex items-start justify-between gap-3 text-sm border-b border-border/50 last:border-0 pb-2 last:pb-0" data-testid={`row-grant-profile-${i}`}>
+                <div>
+                  <span className="font-medium">{g.name}</span>
+                  {g.funder && <span className="text-xs text-muted-foreground ml-2">{g.funder}</span>}
+                  {Array.isArray(g.matchedDomains) && g.matchedDomains.length > 0 && (
+                    <div className="text-xs text-muted-foreground mt-0.5">Domains: {g.matchedDomains.join(", ")}</div>
+                  )}
+                </div>
+                {typeof g.alignmentScore === "number" && (
+                  <Badge variant="secondary" className="text-xs flex-none">{g.alignmentScore}% aligned</Badge>
+                )}
+              </li>
+            ))}
+          </ul>
+        </Card>
+      )}
+
+      <Card className="p-5" data-testid="card-rplice-counts">
+        <div className="flex items-center gap-2 mb-3">
+          <FileText className="w-4 h-4 text-slate-500" />
+          <h3 className="font-semibold text-sm">Internal Evidence Base</h3>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {countItems.map(([label, n]) => (
+            <div key={label} className="rounded-lg bg-muted/50 px-3 py-2" data-testid={`stat-${label.replace(/\s+/g, "-").toLowerCase()}`}>
+              <div className="text-lg font-bold">{n ?? 0}</div>
+              <div className="text-[11px] text-muted-foreground leading-tight">{label}</div>
+            </div>
+          ))}
+        </div>
+      </Card>
+    </section>
+  );
+}
+
 export default function CommunityImpactPage() {
+  const { isAuthenticated } = useAuth();
   const [location, setLocation] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [activeViz, setActiveViz] = useState<VizTab>("skyline");
@@ -1155,6 +1306,9 @@ export default function CommunityImpactPage() {
 
             {/* Solutions */}
             <SolutionsLayer solutions={data.solutions} policyContext={data.policyContext} />
+
+            {/* Research & Intelligence (authed) / sign-in upsell (anon) */}
+            <ResearchIntelligenceSection rplice={data.rplice} isAuthenticated={isAuthenticated} />
 
             {/* ── 3D Visualizations ─────────────────────────────────────── */}
             <section data-testid="section-3d-viz" className="space-y-0">

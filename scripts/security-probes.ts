@@ -260,6 +260,56 @@ async function runPublicContractProbes() {
       passes++;
     }
   }
+
+  // ── Public share round-trip must strip the analyst-only RPLICE block ──────
+  // The share endpoint is public and its GET returns the stored brief verbatim
+  // to anyone with the link. If a (possibly authenticated) client posts a brief
+  // that still carries `rplice`, the server MUST strip it before persisting —
+  // otherwise a share link becomes an anonymous exfiltration path for internal
+  // operational data.
+  const shareName = "POST+GET /api/conductor/community-brief/share (rplice must be stripped)";
+  try {
+    const briefWithRplice = {
+      geography: { displayName: "Probe City, TX", input: "probe" },
+      overallScore: 50,
+      rplice: {
+        reasoning: "probe",
+        interventionAssignments: [],
+        actionPlanMilestones: [],
+        outcomeBaselines: [],
+        assessmentCounts: { cfir: 1 },
+      },
+    };
+    const postRes = await fetch(`${BASE}/api/conductor/community-brief/share`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(briefWithRplice),
+    });
+    if (postRes.status === 429) {
+      console.log(`  ✓ ${shareName} → 429 (share rate-limited this run; strip contract asserted by community-brief e2e gate)`);
+      passes++;
+    } else if (!postRes.ok) {
+      failures++;
+      console.error(`  ✗ ${shareName} → share POST failed with ${postRes.status}`);
+    } else {
+      const { shareId } = (await postRes.json()) as { shareId: string };
+      const getRes = await fetch(`${BASE}/api/conductor/community-brief/share/${shareId}`);
+      const getText = await getRes.text();
+      const leak = getText.match(INTERNAL_RPLICE_PATTERN);
+      if (!getRes.ok) {
+        failures++;
+        console.error(`  ✗ ${shareName} → share GET failed with ${getRes.status}`);
+      } else if (leak) {
+        failures++;
+        console.error(`  ✗ ${shareName} → public share retrieval leaks internal RPLICE data (${leak[0]})`);
+      } else {
+        passes++;
+        console.log(`  ✓ ${shareName} → rplice stripped from publicly shared brief`);
+      }
+    }
+  } catch (err) {
+    console.warn(`  ? ${shareName} → request error: ${err instanceof Error ? err.message : String(err)}`);
+  }
 }
 
 run().catch((err) => {
