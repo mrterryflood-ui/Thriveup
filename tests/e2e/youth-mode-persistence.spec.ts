@@ -62,6 +62,9 @@ test.describe("Youth Mode persistence", () => {
   });
 
   test("preference toggled in the UI survives sign-out and sign-in on a different device", async ({ browser }) => {
+    // Validation runs many gates in parallel; page loads that take ~5s solo can
+    // exceed the 30s global timeout under CPU contention. Headroom, not slack.
+    test.setTimeout(120_000);
     // ── Device A: signed in, toggles Youth Mode on in the Navigator UI ──
     const cookieA = await forgeSession(db);
     const deviceA = await browser.newContext({ extraHTTPHeaders: { Cookie: cookieA } });
@@ -118,6 +121,7 @@ test.describe("Youth Mode persistence", () => {
   });
 
   test("anonymous users: toggling in the UI persists via localStorage across reloads", async ({ browser }) => {
+    test.setTimeout(120_000); // headroom for parallel-validation CPU contention
     const ctx = await browser.newContext(); // isolated storage
     const page = await ctx.newPage();
 

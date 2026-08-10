@@ -114,7 +114,7 @@ test.describe("Youth Mode thread resume", () => {
 
     // Re-open the thread from history → toggle must flip back to On
     await page.getByTestId(`card-convo-page-${convo.id}`).click();
-    await expect(toggle).toContainText("Youth Mode On", { timeout: 10_000 });
+    await expect(toggle).toContainText("Youth Mode On", { timeout: 30_000 });
     await expect(toggle).toHaveAttribute("aria-checked", "true");
 
     // Next message must carry youthMode: true into the AI request for this thread

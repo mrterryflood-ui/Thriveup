@@ -19,6 +19,8 @@ import {
 const BASE = process.env.E2E_BASE_URL || "http://localhost:5000";
 const ADMIN_ID = "e2e-staff-role-admin";
 const ADMIN_EMAIL = "e2e-staff-role-admin@test.local";
+const STUDENT_ID = "e2e-staff-role-student";
+const STUDENT_EMAIL = "e2e-staff-role-student@test.local";
 
 test.describe("Shared auth helper role support", () => {
   let db: Client;
@@ -27,6 +29,7 @@ test.describe("Shared auth helper role support", () => {
     db = new Client({ connectionString: requireEnv("DATABASE_URL") });
     await db.connect();
     await cleanupTestUser(db, ADMIN_ID);
+    await cleanupTestUser(db, STUDENT_ID);
     await ensureTestUser(db, {
       userId: ADMIN_ID,
       email: ADMIN_EMAIL,
@@ -34,10 +37,18 @@ test.describe("Shared auth helper role support", () => {
       lastName: "StaffRole",
       role: "admin",
     });
+    await ensureTestUser(db, {
+      userId: STUDENT_ID,
+      email: STUDENT_EMAIL,
+      firstName: "E2E",
+      lastName: "NonStaff",
+      role: "student",
+    });
   });
 
   test.afterAll(async () => {
     await cleanupTestUser(db, ADMIN_ID);
+    await cleanupTestUser(db, STUDENT_ID);
     await db.end();
   });
 
@@ -63,6 +74,33 @@ test.describe("Shared auth helper role support", () => {
     const anon = await pwRequest.newContext({ baseURL: BASE });
     expect((await anon.get("/api/parent/support-alerts")).status()).toBe(401);
     expect((await anon.get("/api/yhsi/participants")).status()).toBe(401);
+    await anon.dispose();
+  });
+
+  // GPP inbound event feed (server/grantpathpro-routes.ts): staff session must
+  // get through, a signed-in non-staff user must get 403, anonymous gets 401.
+  test("GPP events feed: staff 200, non-staff 403, anonymous 401", async () => {
+    const staffCookie = await forgeSession(db, { userId: ADMIN_ID, email: ADMIN_EMAIL });
+    const staffCtx = await pwRequest.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: staffCookie },
+    });
+    const staffRes = await staffCtx.get("/api/inbound/grantpathpro/events");
+    expect(staffRes.status()).toBe(200);
+    const body = await staffRes.json();
+    expect(Array.isArray(body.events)).toBe(true);
+    await staffCtx.dispose();
+
+    const studentCookie = await forgeSession(db, { userId: STUDENT_ID, email: STUDENT_EMAIL });
+    const studentCtx = await pwRequest.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: studentCookie },
+    });
+    expect((await studentCtx.get("/api/inbound/grantpathpro/events")).status()).toBe(403);
+    await studentCtx.dispose();
+
+    const anon = await pwRequest.newContext({ baseURL: BASE });
+    expect((await anon.get("/api/inbound/grantpathpro/events")).status()).toBe(401);
     await anon.dispose();
   });
 });

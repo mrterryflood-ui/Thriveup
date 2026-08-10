@@ -28,7 +28,9 @@ import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
   if (!user) return undefined;
-  return user.id || user.userId || user.sub || undefined;
+  // Replit Auth (OIDC) stores the id at claims.sub — check it first, in
+  // lockstep with server/grant-routes.ts.
+  return user.claims?.sub || user.id || user.userId || user.sub || undefined;
 }
 
 /**
@@ -104,6 +106,34 @@ function requireGppInboundKey(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+// Canonical staff-role set — keep in lockstep with server/grant-routes.ts,
+// server/reentry-routes.ts, server/yhsi-routes.ts, and the client RequireAuth
+// staffOnly gate. Role is resolved from the DB (req.user.role is never set).
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+/**
+ * Allow either (a) a signed-in staff session (role verified from the DB), or
+ * (b) the GPP inbound x-api-key — the same key /status accepts.
+ */
+async function requireStaffOrInboundKey(req: Request, res: Response, next: NextFunction) {
+  // (b) inbound key path
+  const raw = req.headers["x-api-key"];
+  const rawExpected = process.env.THRIVEUP_INBOUND_KEY;
+  if (typeof raw === "string" && rawExpected && normalizeKey(raw) === normalizeKey(rawExpected)) {
+    return next();
+  }
+  // (a) staff session path
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role && STAFF_ROLES.has(user.role)) return next();
+  } catch (e) {
+    console.error("[GrantPathPro] Staff check error:", e);
+  }
+  return res.status(403).json({ error: "Staff access required" });
+}
+
 export function registerGrantPathProRoutes(app: Express) {
 
   /**
@@ -161,10 +191,12 @@ export function registerGrantPathProRoutes(app: Express) {
 
   /**
    * GET /api/inbound/grantpathpro/events
-   * Returns recent GPP events (internal use — grant hub, ops center).
-   * No external auth required — internal only, not listed in public docs.
+   * Returns recent GPP events (grant hub, ops center).
+   * Auth: signed-in staff session (role resolved from the DB) OR the same
+   * x-api-key GPP uses for /status. Grant pipeline activity (titles, statuses,
+   * milestones, compliance data) must never be anonymously readable.
    */
-  app.get("/api/inbound/grantpathpro/events", (req: Request, res: Response) => {
+  app.get("/api/inbound/grantpathpro/events", requireStaffOrInboundKey, (req: Request, res: Response) => {
     const limit = Math.min(parseInt(req.query.limit as string || "50", 10), 200);
     const grantId = req.query.grantId as string | undefined;
     const filtered = grantId
