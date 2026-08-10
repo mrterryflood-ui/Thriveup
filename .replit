@@ -93,6 +93,10 @@ args = "hud-pdf-e2e"
 task = "workflow.run"
 args = "community-brief-e2e"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "directory-links"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -263,6 +267,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx tsx scripts/verify-community-brief-e2e.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "directory-links"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/verify-directory-links.ts"
 
 [workflows.workflow.metadata]
 isValidation = true
