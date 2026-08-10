@@ -308,9 +308,11 @@ export function AutoCanvas({ initialComponents, onChange, compact = false, empty
                       if (typeof v === "boolean") {
                         return (
                           <div key={k} className="flex items-center gap-2 my-1">
-                            <Label className="text-xs flex-1">{k}</Label>
+                            <Label className="text-xs flex-1" htmlFor={`prop-auto-${c.id}-${k}`}>{k}</Label>
                             <input
                               type="checkbox"
+                              id={`prop-auto-${c.id}-${k}`}
+                              className="h-8 w-8 cursor-pointer"
                               checked={Boolean(c.props[k])}
                               onChange={(e) => updateProp(c.id, k, e.target.checked)}
                               data-testid={`input-prop-auto-${c.id}-${k}`}
@@ -327,7 +329,7 @@ export function AutoCanvas({ initialComponents, onChange, compact = false, empty
                             <Input
                               type="number"
                               step="any"
-                              className="h-7 text-xs w-28"
+                              className="h-8 text-xs w-28"
                               value={Number(c.props[k] ?? v)}
                               onChange={(e) => updateProp(c.id, k, Number(e.target.value))}
                               data-testid={`input-prop-auto-${c.id}-${k}`}
@@ -341,7 +343,7 @@ export function AutoCanvas({ initialComponents, onChange, compact = false, empty
                             <Label className="text-xs flex-1">{k}</Label>
                             <Input
                               type="text"
-                              className="h-7 text-xs w-28"
+                              className="h-8 text-xs w-28"
                               value={String(c.props[k] ?? v)}
                               onChange={(e) => updateProp(c.id, k, e.target.value)}
                               data-testid={`input-prop-auto-${c.id}-${k}`}
@@ -363,7 +365,7 @@ export function AutoCanvas({ initialComponents, onChange, compact = false, empty
                               <Input
                                 type="number"
                                 min={0}
-                                className="h-7 text-xs w-16"
+                                className="h-8 text-xs w-16"
                                 value={c.terminalNodes[t.name] ?? 0}
                                 onChange={(e) =>
                                   updateTerminalNode(

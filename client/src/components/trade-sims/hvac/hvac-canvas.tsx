@@ -190,7 +190,7 @@ export function HvacCanvas({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="absolute top-2 right-2 h-6 w-6"
+                  className="absolute top-2 right-2 h-8 w-8"
                   onClick={() => removeZone(z.id)}
                   data-testid={`button-remove-${z.id}`}
                   aria-label={`Remove ${z.id}`}

@@ -73,7 +73,13 @@ async function upsertTrade(meta: { slug: string; name: string; tagline: string; 
       slug: lesson.slug,
       title: lesson.title,
       shortDescription: lesson.shortDescription,
-      concept: lesson.concept as unknown,
+      // Flatten engineMode into the concept jsonb — the lesson-player reads
+      // concept.engineMode to decide whether to mount an interactive canvas.
+      // Omitting it here silently downgrades every sim lesson to read+reflect
+      // (matches the per-trade server/seed-trade-sims-*.ts storage shape).
+      concept: (lesson.engineMode !== undefined
+        ? { ...lesson.concept, engineMode: lesson.engineMode }
+        : lesson.concept) as unknown,
       guidedSteps: lesson.guidedSteps as unknown,
       soloChallenge: lesson.soloChallenge as unknown,
       sandboxStarter: lesson.sandboxStarter as unknown,

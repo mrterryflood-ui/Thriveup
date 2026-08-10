@@ -15,6 +15,11 @@ import { tradeSimsTrades, tradeSimsLessons } from "../shared/schema";
 import { and, eq } from "drizzle-orm";
 import { seedTradeSimsAll } from "../server/seed-comprehensive";
 import { ELECTRICAL_LESSONS } from "../shared/data/trade-sims/electrical-lessons";
+import { PLUMBING_LESSONS } from "../shared/data/trade-sims/plumbing-lessons";
+import { HVAC_LESSONS } from "../shared/data/trade-sims/hvac-lessons";
+import { WELDING_LESSONS } from "../shared/data/trade-sims/welding-lessons";
+import { AUTOMOTIVE_LESSONS } from "../shared/data/trade-sims/automotive-lessons";
+import { SOFTWARE_ENGINEERING_LESSONS } from "../shared/data/trade-sims/software-engineering-lessons";
 
 async function main() {
   const canonical = ELECTRICAL_LESSONS[0];
@@ -38,7 +43,39 @@ async function main() {
     console.error(`FAIL: lesson title not restored by seedTradeSimsAll — got "${after?.title}"`);
     process.exit(1);
   }
-  console.log("OK: boot-time seed restores drifted lesson content (production content-sync path works)");
+
+  // 4. Assert engineMode survives the boot-time seed for every trade.
+  //    The lesson-player reads concept.engineMode to decide whether to mount
+  //    an interactive canvas; a seed that drops it silently downgrades every
+  //    sim lesson to read+reflect (this actually happened — see task history).
+  const tradeLessonSources: Array<[string, ReadonlyArray<{ slug: string; engineMode: string }>]> = [
+    ["electrical", ELECTRICAL_LESSONS as any],
+    ["plumbing", PLUMBING_LESSONS as any],
+    ["hvac", HVAC_LESSONS as any],
+    ["welding", WELDING_LESSONS as any],
+    ["automotive", AUTOMOTIVE_LESSONS as any],
+    ["software-engineering", SOFTWARE_ENGINEERING_LESSONS as any],
+  ];
+  let engineFailures = 0;
+  for (const [slug, lessons] of tradeLessonSources) {
+    const [t] = await db.select().from(tradeSimsTrades).where(eq(tradeSimsTrades.slug, slug)).limit(1);
+    if (!t) { console.error(`FAIL: trade ${slug} missing after seed`); engineFailures++; continue; }
+    const rows = await db.select().from(tradeSimsLessons).where(eq(tradeSimsLessons.tradeId, t.id));
+    const bySlug = new Map(rows.map((r) => [r.slug, r]));
+    for (const l of lessons) {
+      const r = bySlug.get(l.slug);
+      const stored = (r?.concept as any)?.engineMode;
+      if (!r || stored !== l.engineMode) {
+        console.error(`FAIL: ${slug}/${l.slug} concept.engineMode = ${JSON.stringify(stored)}, expected "${l.engineMode}"`);
+        engineFailures++;
+      }
+    }
+  }
+  if (engineFailures > 0) {
+    console.error(`FAIL: ${engineFailures} lesson(s) lost engineMode through the boot-time seed`);
+    process.exit(1);
+  }
+  console.log("OK: boot-time seed restores drifted lesson content and preserves concept.engineMode for all 6 trades");
   process.exit(0);
 }
 

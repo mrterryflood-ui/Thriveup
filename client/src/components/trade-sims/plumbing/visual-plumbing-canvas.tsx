@@ -47,9 +47,18 @@ import {
   propLabel,
 } from "@/components/trade-sims/plumbing/plumbing-prop-inputs";
 
+import {
+  CANVAS_VIEWBOX_W,
+  CANVAS_VIEWBOX_H,
+  WIRE_HIT_STROKE,
+  TERMINAL_HIT_R,
+} from "@/components/trade-sims/plumbing/touch-constants";
+
 // ─── Canvas constants ─────────────────────────────────────────────────────────
-const CW = 820;
-const CH = 440;
+// Hit-target sizes live in touch-constants.ts, guarded by
+// scripts/verify-touch-targets.ts (>=32px effective at a 390px viewport).
+const CW = CANVAS_VIEWBOX_W;
+const CH = CANVAS_VIEWBOX_H;
 const GRID = 24;
 const TERM_R = 9;
 const WIRE_W = 3;
@@ -648,7 +657,7 @@ export function VisualPlumbingCanvas({
                   onClick={() => addComponent(kind)}
                   title={`Add ${def.label}`}
                   data-testid={`palette-${kind}`}
-                  className="px-2 py-1 text-xs rounded border bg-background hover:bg-muted transition-colors
+                  className="px-2.5 min-h-8 text-xs rounded border bg-background hover:bg-muted transition-colors
                     font-medium border-border hover:border-foreground/40 cursor-pointer"
                   style={{ color: def.color }}
                 >
@@ -663,7 +672,7 @@ export function VisualPlumbingCanvas({
           onClick={reset}
           title="Reset canvas to initial state"
           data-testid="button-reset-plumbing-canvas"
-          className="px-2 py-1 text-xs rounded border bg-background hover:bg-muted transition-colors
+          className="px-2.5 min-h-8 text-xs rounded border bg-background hover:bg-muted transition-colors
             text-muted-foreground border-border ml-auto flex items-center gap-1"
         >
           <RotateCcw className="h-3 w-3" /> Reset
@@ -719,8 +728,19 @@ export function VisualPlumbingCanvas({
                   d={path}
                   fill="none"
                   stroke="transparent"
-                  strokeWidth={16}
+                  strokeWidth={WIRE_HIT_STROKE}
                   style={{ cursor: "pointer" }}
+                  data-testid={`wire-hit-${w.id}`}
+                  // Select on pointerdown, not the derived click: with svg-level
+                  // pointer capture active, touch taps don't always synthesize a
+                  // click on the child path (memory: svg-canvas-touch-ux rule 5).
+                  onPointerDown={(e) => {
+                    if (wiringFrom) return; // let wiring taps pass through
+                    e.stopPropagation();
+                    terminalTapRef.current = true; // swallow the retargeted click
+                    setSelectedWire(w.id);
+                    setSelected(null);
+                  }}
                   onClick={(e) => { e.stopPropagation(); setSelectedWire(w.id); setSelected(null); }}
                 />
                 <path
@@ -808,7 +828,7 @@ export function VisualPlumbingCanvas({
                       {/* Oversized invisible hit target for fingertips; all
                           terminal handlers live here. */}
                       <circle
-                        cx={tOff.x} cy={tOff.y} r={16}
+                        cx={tOff.x} cy={tOff.y} r={TERMINAL_HIT_R}
                         fill="transparent" stroke="none"
                         style={{ cursor: "crosshair" }}
                         onMouseEnter={() => setHoverTerm({ compId: comp.id, term: tName })}
@@ -891,7 +911,7 @@ export function VisualPlumbingCanvas({
             <Button
               size="sm"
               variant="destructive"
-              className="h-6 text-xs px-2"
+              className="h-8 text-xs px-2.5"
               onClick={() => { setWires((w) => w.filter((x) => x.id !== selectedWire)); setSelectedWire(null); }}
               data-testid="button-delete-connection"
             >
@@ -936,7 +956,7 @@ export function VisualPlumbingCanvas({
               <Button
                 size="sm"
                 variant="ghost"
-                className="h-7 text-destructive hover:text-destructive"
+                className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                 onClick={() => {
                   setComps((c) => c.filter((x) => x.id !== selected));
                   setWires((w) => w.filter((x) => x.fromComp !== selected && x.toComp !== selected));
@@ -985,7 +1005,7 @@ export function VisualPlumbingCanvas({
                       <Input
                         type="text"
                         inputMode="decimal"
-                        className="w-28 h-7 text-xs font-mono"
+                        className="w-28 h-8 text-xs font-mono"
                         value={displayVal}
                         onChange={(e) => updateProp(selectedComp.id, key, e.target.value)}
                         onBlur={() => {
@@ -1005,7 +1025,7 @@ export function VisualPlumbingCanvas({
                     key={key}
                     size="sm"
                     variant="outline"
-                    className="h-7 text-xs"
+                    className="h-8 text-xs"
                     onClick={() => setComps((prev) => prev.map((c) =>
                       c.id === selectedComp.id
                         ? { ...c, props: { ...c.props, [key]: !c.props[key] } }

@@ -73,6 +73,10 @@ args = "auth-e2e"
 task = "workflow.run"
 args = "academy-economy"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "touch-targets"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -188,6 +192,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash scripts/run-academy-economy.sh"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "touch-targets"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/verify-touch-targets.ts"
 
 [workflows.workflow.metadata]
 isValidation = true
