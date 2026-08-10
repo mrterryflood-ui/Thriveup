@@ -917,6 +917,7 @@ export function VisualCircuitCanvas({
                   strokeWidth={16}
                   style={{ cursor: "pointer" }}
                   onClick={(e) => { e.stopPropagation(); setSelectedWire(w.id); setSelected(null); }}
+                  data-testid={`wire-hit-${w.id}`}
                 />
                 {/* Wire */}
                 <path
@@ -1080,6 +1081,7 @@ export function VisualCircuitCanvas({
                         }
                       }}
                       aria-label={tName}
+                      data-testid={`terminal-${comp.kind}-${tName}`}
                     />
                     </g>
                   );
@@ -1094,7 +1096,7 @@ export function VisualCircuitCanvas({
 
         {/* Wiring mode indicator */}
         {wiringFrom && (
-          <div className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow">
+          <div data-testid="wiring-banner" className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow">
             <MoveUpRight className="h-3 w-3" />
             Click another terminal to complete wire — or press Escape to cancel
           </div>

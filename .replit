@@ -77,6 +77,10 @@ args = "academy-economy"
 task = "workflow.run"
 args = "touch-targets"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "canvas-wire-e2e"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -203,6 +207,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx tsx scripts/verify-touch-targets.ts"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "canvas-wire-e2e"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/run-canvas-wire-e2e.sh"
 
 [workflows.workflow.metadata]
 isValidation = true

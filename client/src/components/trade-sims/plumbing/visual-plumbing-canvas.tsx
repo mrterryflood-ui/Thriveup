@@ -898,7 +898,7 @@ export function VisualPlumbingCanvas({
 
         {/* Wiring mode indicator */}
         {wiringFrom && (
-          <div className="absolute top-2 left-2 bg-sky-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow">
+          <div data-testid="wiring-banner" className="absolute top-2 left-2 bg-sky-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1 shadow">
             <MoveUpRight className="h-3 w-3" />
             Click another terminal to connect — or press Escape to cancel
           </div>

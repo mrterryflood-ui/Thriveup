@@ -16,3 +16,5 @@ description: Why stroke-only SVG editors silently fail on phones and how to make
 
 **Why:** mobile drag on the electrical circuit canvas was completely broken for phone-first learners; the failure was invisible on desktop because a precise mouse can hit strokes.
 **How to apply:** any new drag/tap SVG canvas (plumbing visual wiring, etc.) must follow all three rules and be verified with real touch events, not mouse emulation.
+
+**Playwright quirk:** a straight SVG path (stroke-only, zero-height geometry) is treated as "not visible" and `locator.click()` retries forever — even though `boundingBox()` includes the stroke. To click wires in e2e, compute the path midpoint via `getPointAtLength` + viewBox→screen mapping and use `page.mouse.click()` (still real hit-testing). See tests/e2e/canvas-wire-interaction.spec.ts.
