@@ -267,8 +267,9 @@ export function nominalToDiameterM(size: NominalPipeSize, schedule: PipeSchedule
 
 /**
  * Find the nominal size + schedule whose inner diameter matches an SI value
- * within ~5%, or null if the value is a custom diameter (e.g. legacy 0.019 m
- * seed data, which is a 3/4" copper approximation between Sch 40 and 80).
+ * within 0.5%, or null if the value is a custom diameter. The window must stay
+ * tight: legacy 0.019 m seed data (a 3/4" copper approximation) sits only
+ * ~0.8% from 3/4" Sch 80 and must NOT be claimed as a nominal match.
  */
 export function findNominalMatch(
   diameterM: number,
@@ -278,7 +279,7 @@ export function findNominalMatch(
     for (const schedule of ["40", "80"] as PipeSchedule[]) {
       const d = nominalToDiameterM(size, schedule);
       const err = Math.abs(d - diameterM) / d;
-      if (err < 0.02 && (!best || err < best.err)) best = { size, schedule, err };
+      if (err < 0.005 && (!best || err < best.err)) best = { size, schedule, err };
     }
   }
   return best ? { size: best.size, schedule: best.schedule } : null;
