@@ -144,6 +144,50 @@ export default function ReentryProgramPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
+            <Home className="h-5 w-5 text-primary" aria-hidden="true" /> Find Services Now — Verified Directories
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3 text-sm">
+          <p className="text-muted-foreground">
+            We do not maintain our own public resource list yet. Until our launch cohort begins, use these
+            authoritative directories — each is maintained and updated by the organization that operates it.
+          </p>
+          <div className="space-y-2">
+            <DirectoryRow
+              name="2-1-1 Texas"
+              operator="Texas Health and Human Services Commission"
+              desc="Free, 24/7 statewide helpline for housing, food, health care, and reentry services. Dial 2-1-1 from any phone, or search online."
+              href="https://www.211texas.org"
+            />
+            <DirectoryRow
+              name="TDCJ Reentry and Integration Division"
+              operator="Texas Department of Criminal Justice"
+              desc="Official state reentry resources for people returning from TDCJ facilities, including resource guides by county."
+              href="https://reentry.tdcj.texas.gov/"
+            />
+            <DirectoryRow
+              name="ConnectATX"
+              operator="United Way for Greater Austin"
+              desc="Searchable directory of free and reduced-cost services in the Austin / Travis County area."
+              href="https://www.connectatx.org"
+            />
+            <DirectoryRow
+              name="National Reentry Resource Center"
+              operator="U.S. Department of Justice, Bureau of Justice Assistance"
+              desc="National clearinghouse of reentry programs, research, and resources."
+              href="https://nationalreentryresourcecenter.org"
+            />
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Links last verified August 10, 2026. Availability and eligibility are determined by each
+            organization — call ahead to confirm.
+          </p>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
             <CheckCircle2 className="h-5 w-5 text-primary" aria-hidden="true" /> Fidelity Framework
           </CardTitle>
         </CardHeader>
@@ -249,6 +293,23 @@ function Service({ icon: Icon, title, desc }: { icon: any; title: string; desc: 
       <div className="flex items-center gap-2"><Icon className="h-4 w-4 text-primary" aria-hidden="true" /><p className="text-sm font-semibold">{title}</p></div>
       <p className="text-xs text-muted-foreground">{desc}</p>
     </div>
+  );
+}
+function DirectoryRow({ name, operator, desc, href }: { name: string; operator: string; desc: string; href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block p-3 rounded-md border bg-background hover-elevate"
+      data-testid={`link-directory-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+    >
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <p className="text-sm font-semibold text-primary">{name}</p>
+        <Badge variant="secondary" className="text-[10px]">Source: {operator}</Badge>
+      </div>
+      <p className="text-xs text-muted-foreground mt-1">{desc}</p>
+    </a>
   );
 }
 function PartnerRow({ name, role, stage }: { name: string; role: string; stage: any }) {
