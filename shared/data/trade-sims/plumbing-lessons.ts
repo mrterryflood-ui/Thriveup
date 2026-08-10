@@ -99,12 +99,12 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Place a Tank with 40 m head (≈57 psi street pressure) on the canvas.",
+        instruction: "Place a Tank and set its supply pressure to about 57 psi (40 m head) — typical street pressure.",
         hint: "Tanks are in the source palette.",
         checkDescription: "1 tank placed, head ≈ 40",
       },
       {
-        instruction: "Place a 3 m Pipe (3/4\" ≈ 0.019 m diameter) connecting the tank to a second tank at 30 m head.",
+        instruction: "Place a 3 m Pipe and pick 3/4\" nominal from the size dropdown, connecting the tank to a second tank at about 43 psi (30 m head).",
         hint: "Two tanks let you see flow driven by pressure difference.",
         checkDescription: "1 pipe between two tanks",
       },
@@ -120,8 +120,8 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Two tanks at 50 m and 20 m head are connected by a single 10 m pipe. Pick a diameter that delivers about 0.001 m³/s (≈16 gpm).",
-      successCriteria: "Computed flow within ±10% of 0.001 m³/s.",
+      prompt: "Two tanks at about 71 psi (50 m head) and 28 psi (20 m head) are connected by a single 10 m pipe. Pick a nominal pipe size that delivers about 16 gpm (0.001 m³/s).",
+      successCriteria: "Computed flow within ±10% of 16 gpm (0.001 m³/s).",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
     sandboxStarter: {
@@ -130,7 +130,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         { kind: "pipe", props: { length: 5, diameter: 0.019 } },
         { kind: "tank", props: { head: 0 } },
       ],
-      prompt: "Experiment: shrink the diameter and watch flow collapse. That's why nobody puts a 1/4-inch supply line on a shower.",
+      prompt: "Experiment: step the pipe size down through the dropdown and watch flow collapse. That's why nobody puts a 1/4-inch supply line on a shower.",
     },
     credentialPathway:
       "Pressure and flow are the first thing tested on the PHCC apprenticeship entrance exam. Master this and you're ready for ACC's plumbing certificate intake.",
@@ -153,7 +153,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build: Tank (40 m head) → 10 m Pipe (0.013 m / 1/2\" copper) → Tank (0 m).",
+        instruction: "Build: Tank at ≈57 psi (40 m head) → 10 m Pipe set to 1/2\" nominal → Tank at 0 psi.",
         hint: "Small-diameter long run.",
         checkDescription: "loop with 1/2-inch pipe between two tanks",
       },
@@ -163,7 +163,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         checkDescription: "flow recorded",
       },
       {
-        instruction: "Change pipe diameter to 0.025 m (1\"). Run again — flow more than doubles.",
+        instruction: "Change the pipe size to 1\" nominal in the dropdown. Run again — flow more than doubles.",
         hint: "Friction loss drops dramatically with bigger pipe.",
         checkDescription: "flow increases substantially with diameter increase",
       },
@@ -174,8 +174,8 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A 20 m supply line must deliver at least 0.0005 m³/s (≈8 gpm) between tanks at 45 m and 5 m head. Find the smallest pipe diameter that works.",
-      successCriteria: "Resulting flow ≥ 0.0005 m³/s; diameter chosen within standard sizes (1/2, 3/4, 1\").",
+      prompt: "A 20 m supply line must deliver at least 8 gpm (0.0005 m³/s) between tanks at about 64 psi (45 m head) and 7 psi (5 m head). Find the smallest nominal pipe size that works.",
+      successCriteria: "Resulting flow ≥ 8 gpm (0.0005 m³/s); size chosen from the standard nominal dropdown (1/2\", 3/4\", or 1\").",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
     sandboxStarter: {
@@ -207,13 +207,13 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Place a Tank (40 m head), a 5 m Pipe (3/4\"), and a Sink Fixture.",
+        instruction: "Place a Tank at ≈57 psi (40 m head), a 5 m Pipe at 3/4\" nominal, and a Sink Fixture.",
         hint: "Sink default demand is 0.5 gpm ≈ 3.15e-5 m³/s.",
         checkDescription: "tank → pipe → sink",
       },
       {
         instruction: "Run. Note the head at the sink and verify the demand is being met.",
-        hint: "Head at the fixture should still be most of 40 m.",
+        hint: "Supply pressure at the fixture should still be most of the ≈57 psi (40 m head) you started with.",
         checkDescription: "sink supply head > 30 m",
       },
       {
@@ -223,8 +223,8 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Size a single supply line from a 50 m head tank to a bathroom with one sink, one toilet, and one shower (≈4 WSFU). Pipe must be ≤ 8 m long and keep all fixture supply heads above 20 m.",
-      successCriteria: "All three fixtures show supply head ≥ 20 m at peak demand.",
+      prompt: "Size a single supply line from a tank at ≈71 psi (50 m head) to a bathroom with one sink, one toilet, and one shower (≈4 WSFU). Pipe must be ≤ 8 m long and keep every fixture's supply pressure above ≈28 psi (20 m head).",
+      successCriteria: "All three fixtures show supply head ≥ 20 m (≈28 psi) at peak demand.",
       scoringRubric: { correctness: 0.7, time: 0.15, componentCount: 0.15 },
     },
     sandboxStarter: {
@@ -233,7 +233,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         { kind: "pipe", props: { length: 6, diameter: 0.019 } },
         { kind: "sink_fixture" },
       ],
-      prompt: "Add fixtures one at a time and watch the supply head drop. At what point does the sink supply head fall below 14 m (≈20 psi, code minimum)?",
+      prompt: "Add fixtures one at a time and watch the supply head drop. At what point does the sink supply pressure fall below 20 psi (≈14 m head, code minimum)?",
     },
     credentialPathway:
       "WSFU sizing is the spine of every commercial plumbing plan. Mastered in UA Local 286 first-year curriculum and ACC PLAB 1305.",
@@ -255,12 +255,12 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Place a Tank, a 5 m trunk Pipe (1\"), then a Tee.",
+        instruction: "Place a Tank, a 5 m trunk Pipe at 1\" nominal, then a Tee.",
         hint: "Tee branches one supply into two.",
         checkDescription: "tank → pipe → tee",
       },
       {
-        instruction: "On each tee branch, add a 2 m Pipe (3/4\") and a Sink Fixture.",
+        instruction: "On each tee branch, add a 2 m Pipe at 3/4\" nominal and a Sink Fixture.",
         hint: "Two sinks, served by one trunk.",
         checkDescription: "two sinks each fed by branch from tee",
       },
@@ -271,8 +271,8 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Design a supply layout for a kitchen with sink + dishwasher + ice-maker, fed from a 1\" trunk. Keep all branches ≤ 3 m and use the right diameter at each split.",
-      successCriteria: "All three fixtures' supply heads ≥ 25 m at simultaneous demand.",
+      prompt: "Design a supply layout for a kitchen with sink + dishwasher + ice-maker, fed from a 1\" nominal trunk. Keep all branches ≤ 3 m and step down to the right nominal size at each split.",
+      successCriteria: "All three fixtures' supply heads ≥ 25 m (≈36 psi) at simultaneous demand.",
       scoringRubric: { correctness: 0.6, time: 0.2, componentCount: 0.2 },
     },
     sandboxStarter: {
@@ -345,7 +345,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build: Tank (40 m) → Check Valve → Pipe → second Tank (0 m). Run the sim. Expected: forward flow, no check valve closed.",
+        instruction: "Build: Tank at ≈57 psi (40 m head) → Check Valve → Pipe → second Tank at 0 psi. Run the sim. Expected: forward flow, no check valve closed.",
         hint: "Standard one-way installation. The check valve should sit idle on the forward run.",
         checkDescription: "tank + check valve + pipe + tank; no closed one-ways",
         backflowRubric: {
@@ -355,13 +355,13 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         },
       },
       {
-        instruction: "Now swap the two tank heads (set source to 0 m, sink to 40 m) and run again. The check valve must now do its job.",
+        instruction: "Now swap the two tank pressures (set source to 0 psi, sink to ≈57 psi / 40 m head) and run again. The check valve must now do its job.",
         hint: "This simulates the supply briefly losing pressure while a downstream tank is still full.",
         checkDescription: "tank heads swapped; at least one check valve closed",
         backflowRubric: {
           mode: "must-close",
           passMessage: "Backflow event caught. The solver forced the check valve closed — in the real world that's the moment the valve seats and protects the clean supply.",
-          failMessage: "Swap the source and sink tank heads (source = 0 m, sink = 40 m) and run the sim. The check valve should be forced closed; if it isn't, the network isn't producing a reverse-pressure scenario yet.",
+          failMessage: "Swap the source and sink tank pressures (source = 0 psi, sink ≈ 57 psi / 40 m head) and run the sim. The check valve should be forced closed; if it isn't, the network isn't producing a reverse-pressure scenario yet.",
         },
       },
       {
@@ -409,7 +409,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build a hot-side supply: Tank (35 m — hot heater output) → 8 m Pipe → Shower Fixture.",
+        instruction: "Build a hot-side supply: Tank at ≈50 psi (35 m head — hot heater output) → 8 m Pipe → Shower Fixture.",
         hint: "Single hot-side run.",
         checkDescription: "tank → pipe → shower",
       },
@@ -419,7 +419,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         checkDescription: "shower supply head computed",
       },
       {
-        instruction: "Add a Pump (5 m boost) in the line to model a recirculation pump pushing toward the fixture.",
+        instruction: "Add a Pump with about 7 psi (5 m) of boost in the line to model a recirculation pump pushing toward the fixture.",
         hint: "Pumps add head in the inlet-to-outlet direction.",
         checkDescription: "pump placed; shower supply head increases",
       },
@@ -468,20 +468,20 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build a 'before-PRV' system: Tank (70 m, ≈100 psi) → 3 m Pipe → Sink.",
+        instruction: "Build a 'before-PRV' system: Tank at ≈100 psi (70 m head) → 3 m Pipe → Sink.",
         hint: "Street pressure that's too high.",
         checkDescription: "tank @ 70m → pipe → sink",
       },
       {
-        instruction: "Replace the source tank with a 35 m tank (simulating a properly-set PRV downstream of the meter). Add a Check Valve right after it — most modern PRVs have an integral check — and run. On a healthy regulated system, that check must stay open.",
+        instruction: "Replace the source tank with one set to ≈50 psi (35 m head), simulating a properly-set PRV downstream of the meter. Add a Check Valve right after it — most modern PRVs have an integral check — and run. On a healthy regulated system, that check must stay open.",
         hint: "Same plumbing, but the source head is regulated. The check valve should sit idle on a normal forward run.",
         checkDescription: "source head ≈ 35 m; check valve present; no closed one-ways",
         backflowRubric: {
           mode: "must-not-close",
           requireCheckValve: true,
           missingCheckValveMessage: "No check valve in the network yet. This step models a PRV's integral check — add a Check Valve right after the regulated source tank, then run the sim.",
-          passMessage: "Regulated forward run: 35 m of PRV-set head drives every fixture and the integral check never has to seat. That's a healthy system — and it's also why a thermal expansion tank is required: that check makes the house a closed system with nowhere for heated water to expand.",
-          failMessage: "Your check valve closed on what should be a normal forward run. That means something downstream has higher head than your regulated source — re-check that the source tank is at 35 m and the fixtures are the low-pressure end.",
+          passMessage: "Regulated forward run: ≈50 psi (35 m) of PRV-set head drives every fixture and the integral check never has to seat. That's a healthy system — and it's also why a thermal expansion tank is required: that check makes the house a closed system with nowhere for heated water to expand.",
+          failMessage: "Your check valve closed on what should be a normal forward run. That means something downstream has higher head than your regulated source — re-check that the source tank is at ≈50 psi (35 m) and the fixtures are the low-pressure end.",
         },
       },
       {
@@ -501,7 +501,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         { kind: "pipe", props: { length: 5, diameter: 0.019 } },
         { kind: "sink_fixture" },
       ],
-      prompt: "Drop the source-tank head from 35 m to 10 m and see how each fixture responds. That's what a failing PRV looks like.",
+      prompt: "Drop the source-tank pressure from ≈50 psi (35 m) to ≈14 psi (10 m) and see how each fixture responds. That's what a failing PRV looks like.",
     },
     credentialPathway:
       "PRV installation and adjustment is on the UA Local 286 first-year practical exam and a routine ACC PLAB 1305 demonstration.",
@@ -523,13 +523,13 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build: Tank (5 m head — low well pressure) → Pump (set to 30 m boost) → Pipe → Shower Fixture.",
+        instruction: "Build: Tank at ≈7 psi (5 m head — low well pressure) → Pump set to ≈43 psi (30 m) of boost → Pipe → Shower Fixture.",
         hint: "Boosting from a low source.",
         checkDescription: "low tank + pump + pipe + shower",
       },
       {
         instruction: "Run. Verify the shower gets adequate supply head.",
-        hint: "Source 5 m + pump 30 m = 35 m of available head minus friction.",
+        hint: "Source ≈7 psi (5 m) + pump ≈43 psi (30 m) = ≈50 psi (35 m) of available head minus friction.",
         checkDescription: "shower supply head ≥ 20 m",
       },
       {
@@ -539,8 +539,8 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A well delivers 1 m of head at the pressure tank. The kitchen sink is 8 m above the tank, 15 m of 3/4\" pipe away. Pick a pump head that delivers ≥ 0.0003 m³/s at the sink.",
-      successCriteria: "Pump head between 25–60 m; verified flow ≥ 0.0003 m³/s.",
+      prompt: "A well delivers only ≈1.4 psi (1 m of head) at the pressure tank. The kitchen sink is 8 m above the tank, 15 m of 3/4\" nominal pipe away. Pick a pump head that delivers ≥ 4.8 gpm (0.0003 m³/s) at the sink.",
+      successCriteria: "Pump head between ≈36–85 psi (25–60 m); verified flow ≥ 4.8 gpm (0.0003 m³/s).",
       scoringRubric: { correctness: 0.7, time: 0.15, componentCount: 0.15 },
     },
     sandboxStarter: {
@@ -550,7 +550,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         { kind: "pipe", props: { length: 10, diameter: 0.019 } },
         { kind: "shower_fixture" },
       ],
-      prompt: "Add a second shower at the same level. Does one pump still work? At what total demand does the pump's 25 m boost become insufficient?",
+      prompt: "Add a second shower at the same level. Does one pump still work? At what total demand does the pump's ≈36 psi (25 m) boost become insufficient?",
     },
     credentialPathway:
       "Well, booster, and ejector pump installation is covered in ACC PLAB 2335 (Service Plumbing) and is a UA Local 286 Year 2 specialty track.",
