@@ -8,3 +8,5 @@ Validation runs execute all gates concurrently. Multiple Playwright e2e gate scr
 **Why:** First parallel run of youth-mode-e2e + auth-e2e failed both gates with trace ENOENT + timeouts; each alone passed.
 
 **How to apply:** Every e2e gate script must (1) self-exec under `flock /tmp/e2e-gate.lock` (guarded by `E2E_GATE_LOCKED=1`), and (2) pass a unique `npx playwright test --output test-results/<gate-name>` dir. Copy the pattern from scripts/run-auth-e2e.sh when adding new e2e gates (plumbing/automotive/HVAC test tasks etc.).
+
+**Also applies to non-Playwright gates:** any validation gate that forges a session or mutates shared DB state (e.g. the academy-economy verifier) must serialize on /tmp/e2e-gate.lock too — parallel gates that restart the server or clean sessions cause mid-run 401s and FK cleanup errors.

@@ -69,6 +69,10 @@ args = "access-model-guards"
 task = "workflow.run"
 args = "auth-e2e"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "academy-economy"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -173,6 +177,17 @@ author = "agent"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash scripts/run-auth-e2e.sh"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow]]
+name = "academy-economy"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/run-academy-economy.sh"
 
 [workflows.workflow.metadata]
 isValidation = true
