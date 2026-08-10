@@ -68,6 +68,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "Voltage, current, and resistance — the foundation of every circuit.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "ohms-law",
       blurb:
         "Every working circuit obeys one rule: V = I × R. Voltage (V) is the push, current (I) is the flow, and resistance (R) is what slows the flow down. Change any one and the other two adjust. Memorize the triangle, then forget it — you'll feel it in every circuit you build from here on.",
       keyTerms: [
@@ -120,6 +121,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "Series, parallel, and the difference that decides which lights stay on.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "series-circuit-flow",
       blurb:
         "Direct current (DC) flows in one direction — battery → load → battery. When components share the same current path, they're in SERIES. When they share the same voltage across them, they're in PARALLEL. Series circuits split voltage; parallel circuits split current. Get this right and house wiring suddenly makes sense.",
       keyTerms: [
@@ -154,6 +156,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "What changes when the current keeps reversing direction.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "ac-sine",
       blurb:
         "Alternating current (AC) reverses direction many times per second — 60 Hz in the U.S. wall outlet. AC is how power gets delivered to your house because it travels long distances better. For now, you'll learn how to recognize AC and where it shows up. We'll work mostly in DC for the simulator, but every electrician needs to know the difference.",
       keyTerms: [
@@ -184,6 +187,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "Color codes, tolerances, and the power rating that decides when a resistor burns up.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "series-parallel",
       blurb:
         "Resistors aren't just numbers — they have a tolerance (±5%, ±1%) and a power rating (¼ W, ½ W, 1 W). Pick a resistor that's too small for the power it has to dissipate and you get smoke. P = I² × R is the formula that keeps your circuits from catching fire.",
       keyTerms: [
@@ -219,6 +223,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "Energy storage in an electric field — the component that smooths every power supply.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "capacitor",
       blurb:
         "Capacitors store energy in an electric field between two plates. In DC steady state, a capacitor acts like an open circuit — no current flows through it once it's fully charged. In AC and transient circuits, it does much more: smoothing power supplies, filtering noise, timing flashes. For now, learn what 'open in DC' means visually. (Simplified model: this sim treats a fully-charged capacitor as a perfect open circuit — real capacitors have leakage current and take time to charge.)",
       keyTerms: [
@@ -253,6 +258,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "Energy storage in a magnetic field — the heart of motors, transformers, and relays.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "inductor",
       blurb:
         "An inductor is a coil of wire that stores energy in its magnetic field when current flows. In DC steady state, an inductor acts like a short circuit — zero resistance, full current through. In AC and transients, it resists changes in current (the opposite of a capacitor, which resists changes in voltage). Inductors are the working heart of every motor, transformer, and relay you'll ever see. (Simplified model: this sim treats an inductor in DC steady state as a near-perfect short — real coils have winding resistance, so a real inductor drops a small voltage.)",
       keyTerms: [
@@ -288,6 +294,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "A tiny switch controlled by an even tinier signal — the building block of all electronics.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "transistor-npn",
       blurb:
         "An NPN transistor has three terminals: collector (C), base (B), and emitter (E). A small current into the base controls a much larger current from collector to emitter. The gain (β, beta) is typically 100 — so 1 mA in the base = 100 mA through the collector. Transistors are how a microcontroller pin drives a 12 V relay or a strip of LEDs. (Concept-only day: the canvas is a sketchpad here — the DC simulator does not compute transistor behavior, so no currents will be calculated.)",
       keyTerms: [
@@ -321,6 +328,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "The NPN's mirror image — for switching the HIGH side of a load.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "transistor-pnp",
       blurb:
         "A PNP transistor is the mirror of an NPN. Current flows from emitter to collector, and the base needs to be pulled LOW to turn the transistor on. PNPs are the right tool when you need to switch the positive supply rail (high-side switching) rather than the ground side. (Concept-only day: the canvas is a sketchpad here — the DC simulator does not compute transistor behavior.)",
       keyTerms: [
@@ -351,6 +359,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "AND, OR, NOT — the alphabet of every digital circuit.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "logic-gate",
       blurb:
         "Logic gates take binary inputs (HIGH or LOW, 1 or 0) and produce a binary output. AND outputs HIGH only when both inputs are HIGH. OR outputs HIGH when either input is HIGH. NOT inverts. Every microprocessor, every smart thermostat, every digital control on an HVAC unit is built from millions of these. (Concept-only day: the canvas is a sketchpad here — the DC simulator does not evaluate logic gates.)",
       keyTerms: [
@@ -443,6 +452,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "The rules that keep people alive — GFCI, AFCI, and the National Electrical Code.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "grounding",
       blurb:
         "Electrical work kills more workers than any other trade if shortcuts are taken. The National Electrical Code (NEC) exists because of every fire, electrocution, and arc-flash injury that's ever happened. GFCI outlets save you from drowning-while-using-a-hairdryer; AFCI breakers stop arcing fires in bedroom walls. Knowing WHERE each is required is half the job.",
       keyTerms: [
@@ -474,6 +484,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "Translating a drawing into a working install — and back again.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "schematic",
       blurb:
         "A schematic shows the electrical connections, not the physical layout. Battery symbols, resistor zigzags, ground triangles, switch lines — every symbol is universal. Read a schematic well and you can install ANY circuit. Read it poorly and you wire your house wrong.",
       keyTerms: [
@@ -504,6 +515,7 @@ export const ELECTRICAL_LESSONS: ElectricalLessonContent[] = [
     shortDescription: "Why isn't the circuit working? The seven things to check, in order.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "troubleshoot",
       blurb:
         "Every working electrician spends most of their time NOT building new circuits — they're fixing broken ones. Troubleshooting is the highest-paid skill in the trade. The order matters: (1) is power on? (2) is the breaker tripped? (3) is the switch working? (4) is the load itself broken? (5) is the wiring intact? (6) is the neutral connected? (7) is there a ground fault? Skip a step and you waste hours.",
       keyTerms: [

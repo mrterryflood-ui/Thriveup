@@ -85,6 +85,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "Conduction, convection, radiation — the three ways heat moves and the three numbers a tech actually uses.",
     engineMode: "thermal-airflow",
     concept: {
+      diagramKey: "heat-transfer",
       blurb:
         "HVAC is just the management of heat. Heat moves three ways: conduction (through solid walls), convection (with moving air or fluid), and radiation (through space, like sunlight on a window). For day-to-day load calc you mostly care about conduction through the envelope and the R-value that resists it: Q = (A/R) × ΔT. A bigger wall, lower R, or colder outdoors all push heat out faster — and the equipment has to put it back in.",
       keyTerms: [
@@ -138,6 +139,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "Dry-bulb, wet-bulb, dew point, humidity ratio — five variables, one chart, every comfort decision.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "psychrometric",
       blurb:
         "Comfort isn't just temperature — it's the temperature + moisture combination. The psychrometric chart plots dry-bulb (the thermometer reading) against humidity ratio (kg of water per kg of dry air). Every line on the chart (relative humidity, wet bulb, enthalpy) is just a way to look at the same air. Cooling shifts you down-left; heating shifts you up-right; humidifying moves you up; drying moves you down.",
       keyTerms: [
@@ -183,6 +185,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "Sensible load changes temperature. Latent load changes moisture. Both matter; only one shows up on the thermostat.",
     engineMode: "thermal-airflow",
     concept: {
+      diagramKey: "sensible-latent",
       blurb:
         "Total cooling load = sensible (the heat you feel) + latent (the heat in the water vapor). Q_sensible = m·c·ΔT moves the thermometer. Q_latent = m·h_fg·ΔW pulls water out of the air. A system that's too oversized for sensible load short-cycles before it has time to dehumidify, so latent stays high and you feel clammy at 24 °C. This is the #1 reason a 'cold' house still feels uncomfortable in August.",
       keyTerms: [
@@ -280,6 +283,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "Air is lazy — it takes the easiest path. Size ducts so the right CFM goes to every room without screaming.",
     engineMode: "thermal-airflow",
     concept: {
+      diagramKey: "duct-static",
       blurb:
         "Duct sizing is Bernoulli + friction. Each duct adds static pressure drop ΔP = f · (L/D_h) · (ρv²/2). The blower has a fixed rating (typically 0.5 in.w.c. ≈ 125 Pa external static); if your ducts eat more than that, airflow collapses. Rule of thumb: residential supply velocity 600–900 fpm (3–4.5 m/s), return 500–700 fpm. Manual D is the ACCA method; we replicate the core of it here.",
       keyTerms: [
@@ -329,6 +333,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "Compressor, condenser, expansion valve, evaporator — the four-stage trick that moves heat against its will.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "refrigeration-cycle",
       blurb:
         "Refrigeration uses a phase change: low-pressure refrigerant absorbs heat indoors (boiling into vapor), the compressor squeezes it to high pressure (and temperature), the condenser rejects heat outdoors (vapor → liquid), and the expansion valve drops pressure for the next pass. Net effect: heat moves from cold to hot, powered by the compressor. Reversing the cycle is what makes a heat pump a heat pump. R-410A is the residential standard; R-454B is the AIM-Act successor as of 2025.",
       keyTerms: [
@@ -373,6 +378,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "One box, two seasons. COP, balance point, defrost, and why heat pumps now win below freezing.",
     engineMode: "thermal-airflow",
     concept: {
+      diagramKey: "heat-pump",
       blurb:
         "Heat pumps move heat instead of making it, so they deliver 2.5–4× the heat per kWh that resistance does. Modern cold-climate models keep COP > 2 down to −15 °C. Two numbers matter at design: heating capacity at the design outdoor (always less than the rated 47 °F capacity) and the balance point — outdoor temp where the heat pump's output equals the house's load. Below the balance point you need auxiliary heat (strip or backup furnace).",
       keyTerms: [
@@ -424,6 +430,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "AFUE, draft, CO. The three numbers that separate a working furnace from a coroner's report.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "combustion",
       blurb:
         "A gas furnace burns natural gas or propane in a sealed heat exchanger; the products of combustion (CO₂, water vapor, and a tiny bit of CO) vent through a flue, while the heat exchanger transfers the warmth to circulating air. AFUE rates seasonal efficiency: 80 % is code minimum, 95 %+ is condensing (PVC flue). Three things kill people: cracked heat exchanger (CO into the supply air), blocked flue (CO into the room), and improper combustion air (incomplete burn = more CO). Test with a combustion analyzer, every install.",
       keyTerms: [
@@ -663,6 +670,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       "The five-step service call: ask, observe, measure, decide, document. The difference between a parts-changer and a tech.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "troubleshoot",
       blurb:
         "Real troubleshooting is procedural, not guess-and-replace. (1) ASK the customer for the symptom and the history. (2) OBSERVE the unit running — listen, smell, watch. (3) MEASURE — temperatures, pressures, voltages, amps. (4) DECIDE based on the measurement against the spec, not the symptom. (5) DOCUMENT — readings, parts, recommendations. A bad capacitor reads as a hard-starting compressor; a dirty coil reads as low capacity; a low charge reads as high superheat. Same symptoms, different fixes.",
       keyTerms: [

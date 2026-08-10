@@ -131,6 +131,7 @@ export const SOFTWARE_ENGINEERING_LESSONS: SoftwareEngineeringLessonContent[] = 
       "Presentation, business logic, data — why every serious app draws the same three boxes.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "n-tier",
       blurb:
         "Most production software organizes itself in tiers: a presentation tier the user sees, a business-logic tier that enforces the rules, and a data tier that persists state. Each tier has one job, and crossing tiers without permission is a code smell. The number of tiers is not the point — the point is that responsibilities don't leak. When an AI generates code that runs SQL queries from a button click handler, that's a tier violation; the fix is structural, not cosmetic.",
       keyTerms: [
@@ -243,6 +244,7 @@ export const SOFTWARE_ENGINEERING_LESSONS: SoftwareEngineeringLessonContent[] = 
       "Why O(n²) is a love letter to your future-self bug report.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "big-o",
       blurb:
         "Big-O notation describes how long an algorithm takes — or how much memory it uses — as the input grows. O(1) is constant: same time no matter how big the input. O(log n) is fast (binary search). O(n) is linear (look at each item). O(n²) is a nested loop — two for-loops over the same data — and it's the most common reason an app that worked for 100 users falls over at 10,000. Knowing Big-O lets you read AI-generated code and immediately say 'that won't survive production'.",
       keyTerms: [
@@ -318,6 +320,7 @@ export const SOFTWARE_ENGINEERING_LESSONS: SoftwareEngineeringLessonContent[] = 
       "Trunk vs. GitFlow vs. PR-review — pick the one your team will actually follow.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "git-branch",
       blurb:
         "Branching strategy is a social contract, not a technical choice. Trunk-based development: everyone commits to main behind feature flags; fast and brutal, requires great tests. GitFlow: separate develop, release, hotfix branches; structured, heavy, good for products with formal release cadence. Pull-Request flow: feature branches reviewed before merge; the GitHub default and the right starting point for almost every team. Pick the one your team will follow under pressure — not the one that looks impressive in a deck.",
       keyTerms: [
@@ -429,6 +432,7 @@ export const SOFTWARE_ENGINEERING_LESSONS: SoftwareEngineeringLessonContent[] = 
       "Model, View, Controller — the most-used pattern in modern web stacks, including ours.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "mvc",
       blurb:
         "MVC organizes UI-driven systems into Model (the data + rules), View (what the user sees), and Controller (what handles user actions and decides what to update). Variations (MVP, MVVM, Flux/Redux) all share the same instinct: keep the thing the user sees separate from the thing that knows what's true. When an AI tells you 'add this to the component' but the change is really a rule about your data, that's the wrong layer — MVC tells you exactly where it actually belongs.",
       keyTerms: [
@@ -503,6 +507,7 @@ export const SOFTWARE_ENGINEERING_LESSONS: SoftwareEngineeringLessonContent[] = 
       "Cache, queue, replicate, partition — the four moves that take a system from 100 users to 100,000.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "scalability",
       blurb:
         "Scalability is the ability to handle more work without proportionally more pain. Four levers cover most situations: cache (don't recompute or refetch what hasn't changed), queue (let slow work happen asynchronously), replicate (run the same thing in parallel behind a load balancer), partition (split data so each server holds only a slice). The trap is reaching for them too early — premature scaling is the second-most-expensive cargo cult after microservices. Measure first, optimize the bottleneck, then move on.",
       keyTerms: [
@@ -578,6 +583,7 @@ export const SOFTWARE_ENGINEERING_LESSONS: SoftwareEngineeringLessonContent[] = 
       "Input validation, secrets, OWASP Top 10 — the bare minimum to not be a headline.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "security",
       blurb:
         "Security is a feature, not a layer. Three habits cover most production attacks: (1) validate every input — never trust the browser, never trust query params, never concatenate untrusted strings into SQL or commands. (2) Never put secrets in code — keys live in environment variables or secret managers, never committed. (3) Authorize every action server-side — the UI hiding a button is not authorization. The OWASP Top 10 is the publicly-published checklist; read it once a year. An AI will happily generate a SQL string with user input concatenated in. You have to be the one who notices.",
       keyTerms: [

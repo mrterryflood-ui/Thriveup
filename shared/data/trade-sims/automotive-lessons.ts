@@ -126,6 +126,7 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
     shortDescription: "Build the live 12 V system that powers everything else.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "battery-charging",
       blurb:
         "Every modern car starts as a 12 V circuit. A lead-acid battery sits at 12.6 V at rest; once the engine runs, the alternator pushes 13.8-14.4 V to charge it back. Drop below 12.4 V and you have a discharged battery; drop below 9.6 V under crank and you have a failing one. Today you build that exact circuit and watch the numbers.",
       keyTerms: [
@@ -184,6 +185,7 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
     shortDescription: "Why 'cranks slow' and 'no crank' point at different problems.",
     engineMode: "linear-dc",
     concept: {
+      diagramKey: "starting-system",
       blurb:
         "The starter motor is a 12 V monster. It draws 150-300 A while cranking — enough to drop a healthy battery from 12.6 V down to ~10 V momentarily. If your battery sags below ~9.6 V under cranking load, the cells can't deliver the current, and you'll diagnose it as a weak battery, NOT a bad starter. Today you build the circuit and watch voltage sag in real time.",
       keyTerms: [
@@ -379,6 +381,7 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
     shortDescription: "Reading the language of the ECU — and knowing when a code is the cause vs the symptom.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "obd2",
       blurb:
         "OBD-II is the standard every gas vehicle since 1996 must support. Plug into the 16-pin port under the dash and you can read Diagnostic Trouble Codes (DTCs), freeze-frame data (a snapshot of what the engine was doing when the code set), and live data. The structure is consistent: P=Powertrain, B=Body, C=Chassis, U=Network. The next digit splits generic (0) from manufacturer-specific (1). Today you learn to read codes, not chase them.",
       keyTerms: [
@@ -408,6 +411,7 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
     shortDescription: "How to tell a bad sensor from a sensor reporting a real problem.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "sensor-diag",
       blurb:
         "The three sensors that drive most diagnostics: MAF (mass air flow — tells the ECU how much air is coming in), O2 (tells the ECU whether the air-fuel mix is right after burning), and coolant temp (tells the ECU whether to enrich for cold-start). A bad MAF will make the engine run rich or lean depending on fault mode. A bad O2 will lock fuel trim into a steady wrong number. A bad coolant temp sensor will give you cold-start problems even in summer.",
       keyTerms: [
@@ -498,6 +502,7 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
     shortDescription: "Hydraulics, hydraulics, hydraulics — plus the electronics that ride along.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "brake-hydraulic",
       blurb:
         "Brakes are hydraulic. When you push the pedal, a master cylinder converts your foot pressure into fluid pressure, which travels through brake lines to a caliper or wheel cylinder at each wheel. The caliper squeezes brake pads against a rotor (disc brakes) or pushes shoes against a drum. ABS adds a pump and valves that can release pressure at any individual wheel to prevent lockup. Today, walkthrough — diagnostic depth comes in Day 14.",
       keyTerms: [
@@ -527,6 +532,7 @@ export const AUTOMOTIVE_LESSONS: AutomotiveLessonContent[] = [
     shortDescription: "Why overheating is almost never just a 'low coolant' problem.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "cooling",
       blurb:
         "Coolant absorbs heat from the engine block, flows to the radiator where the fan blows ambient air through it, then returns. A thermostat blocks flow until the engine is up to temp. A water pump (often belt-driven) keeps it circulating. Five things can cause overheating: low coolant, stuck thermostat, dead water pump, clogged radiator, failed cooling fan. The diagnosis order matters because each test rules out two others.",
       keyTerms: [

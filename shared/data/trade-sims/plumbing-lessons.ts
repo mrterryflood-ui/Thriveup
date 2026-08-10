@@ -88,6 +88,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     shortDescription: "Pressure pushes; flow moves. The two numbers every plumber lives by.",
     engineMode: "pipe-network",
     concept: {
+      diagramKey: "water-head-column",
       blurb:
         "Plumbing has two numbers: pressure (how hard the water is being pushed, measured in psi or meters of head) and flow (how fast it's moving, in gpm or m³/s). A typical U.S. residential water main sits around 40–80 psi (28–55 m head). Pressure drives flow; flow runs into resistance (friction in the pipe) and that resistance drops the pressure further down the line. Get this relationship in your bones and the rest of plumbing is just bookkeeping.",
       keyTerms: [
@@ -141,6 +142,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     shortDescription: "Bigger pipe = less friction. But pipe costs money. The sizing trade-off.",
     engineMode: "pipe-network",
     concept: {
+      diagramKey: "pipe-friction",
       blurb:
         "The Darcy-Weisbach equation says head loss equals K × Q² where K depends on length, diameter, and friction factor. Double the diameter and K drops by a factor of 32 (D to the 5th power). That's why undersized pipes are the #1 cause of low-pressure complaints. Plumbing codes set MINIMUM diameters for each fixture; smart sizing goes one step bigger when long runs are involved.",
       keyTerms: [
@@ -194,6 +196,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     shortDescription: "Counting fixtures to predict how much water a system has to deliver.",
     engineMode: "pipe-network",
     concept: {
+      diagramKey: "fixture-units",
       blurb:
         "Every fixture gets a Water Supply Fixture Unit (WSFU) rating. Lavatory = 1 WSFU. Toilet (tank type) = 2.2. Shower = 2. Add them up, look up the corresponding probable peak demand on the UPC/IPC chart, and that's the gpm the system has to deliver. The chart is non-linear — 10 fixtures don't all run at once. Real demand is much less than the worst case.",
       keyTerms: [
@@ -290,6 +293,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     shortDescription: "Where the water goes after. Gravity, traps, and the air vents that make traps work.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "drain-vent",
       blurb:
         "Supply piping is pressurized; drainage piping is NOT. Drains rely on gravity (a 1/4 inch per foot slope is the standard) and on traps (U-shaped sections holding water) to keep sewer gas out of the house. Every trap needs a VENT pipe to the roof — otherwise the falling water column siphons the trap dry. No vent = sewer gas in the house. This is concept-only in v1; the pipe-network solver models pressurized supply.",
       keyTerms: [
@@ -329,6 +333,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     shortDescription: "Stopping dirty water from running backward into the clean supply.",
     engineMode: "pipe-network",
     concept: {
+      diagramKey: "backflow",
       blurb:
         "Backflow happens when pressure in a contaminated source briefly exceeds pressure in the clean supply — say, a fire hydrant opens nearby and back-siphons a hose left in a bucket. Code requires CHECK VALVES (or air gaps, or reduced-pressure zone assemblies) at every cross-connection. The EPA WaterSense program tracks this; failure to prevent backflow is one of the few plumbing violations that triggers utility shut-off.",
       keyTerms: [
@@ -452,6 +457,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     shortDescription: "Knocking down street pressure to a safe range — and why the wrong PRV breaks everything downstream.",
     engineMode: "pipe-network",
     concept: {
+      diagramKey: "pressure-regulator",
       blurb:
         "Some municipal water mains run 100+ psi (70+ m head). Most plumbing fixtures are rated for 80 psi max. A pressure-reducing valve (PRV) at the meter knocks the incoming pressure down to a safe range, typically 50–60 psi. When a PRV fails closed, the whole house has low pressure; when it fails open, you start blowing fixture supply hoses. In v1 we model a PRV as a tank-set-head boundary.",
       keyTerms: [
@@ -634,6 +640,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     shortDescription: "The seven things to check, in order, when a house is suddenly slow.",
     engineMode: "pipe-network",
     concept: {
+      diagramKey: "pipe-friction",
       blurb:
         "Low-pressure complaints are the most common plumbing service call. Order matters: (1) Is it the whole house or just one fixture? (2) Is the meter spinning? (3) PRV setting? (4) Aerator clogged? (5) Supply line crimped? (6) Galvanized pipe rusted internally? (7) Water heater dip-tube broken (hot-only complaints)? Skip a step and you waste an hour. Run them in order and you find the fault in 15 minutes.",
       keyTerms: [

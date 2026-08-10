@@ -74,6 +74,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     shortDescription: "Stick, MIG, flux-core, TIG — what each is for, what each is not.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "weld-process",
       blurb:
         "Four welding processes cover 95% of the work. SMAW (stick) is portable and works in wind and dirt — field jobs love it. GMAW (MIG) is fast and clean in a shop with clean steel and shielding gas. FCAW (flux-core) is GMAW's tougher cousin — bigger gaps, dirtier steel, more deposition. GTAW (TIG) is slow and clean — thin material, stainless, aluminum, code work where the bead matters. Choose process before you choose anything else.",
       keyTerms: [
@@ -278,6 +279,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     shortDescription: "The drawing tells you what to do — if you can read it.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "weld-symbols",
       blurb:
         "Five basic joint types — butt, lap, tee, corner, edge — cover almost everything. Each accepts certain weld types: butts get groove welds; tees and laps get fillet welds; corners can get either. AWS A2.4 weld symbols compress all the info (process, joint, size, length, other-side requirement) into a small triangle on the drawing. Reading the symbol fast is what separates an apprentice from a journeyman on the shop floor.",
       keyTerms: [
@@ -307,6 +309,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     shortDescription: "AWS D1.1 §5.7 — the table every structural welder knows by heart.",
     engineMode: "heat-input",
     concept: {
+      diagramKey: "weld-joint-geometry",
       blurb:
         "A fillet weld is the triangular bead at the joint between two perpendicular pieces. Its size is the leg length — the side of the triangle. AWS D1.1 Table 5.7 sets minimum leg size based on the thickness of the thinner part: 3 mm for ≤6 mm base, 5 mm for 6-13 mm, 6 mm for 13-19 mm, 8 mm above. Undersize and the weld fails inspection — every time. Today the evaluator enforces that.",
       keyTerms: [
@@ -336,6 +339,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     shortDescription: "Root, hot pass, fill, cap — how thick joints get done.",
     engineMode: "heat-input",
     concept: {
+      diagramKey: "fillet-weld",
       blurb:
         "Thick material can't be welded in one pass — the puddle's too big, the heat sinks too fast, and you'd get incomplete penetration in the middle. So you grind a groove between the pieces (V, double-V, J, U), then fill it in passes: root pass establishes the bottom; hot pass burns out slag; fill passes add metal; cap pass dresses the top. Each pass has its own heat input target. Today you build a multi-pass groove on 12 mm steel.",
       keyTerms: [
@@ -365,6 +369,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     shortDescription: "Why your perfect weld pulls the plate into a U-shape.",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "distortion",
       blurb:
         "Every weld shrinks as it cools. That shrinkage pulls the surrounding material — and if you're not strategic, your flat plate becomes a curl. Three distortion modes: transverse (across the weld), longitudinal (along), and angular (the plates fold toward each other). Combat with tack welding, backstep welding, balanced passes (alternating sides), preheat, or fixturing/clamping. The veterans on the shop floor don't bend material straight — they prevent the bend.",
       keyTerms: [
@@ -423,6 +428,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     shortDescription: "How a CWI looks at your weld and says 'good' or 'cut it out.'",
     engineMode: "concept-only",
     concept: {
+      diagramKey: "weld-defects",
       blurb:
         "A Certified Welding Inspector (CWI) starts with visual inspection: bead profile, undercut, cracks, porosity at the surface, leg size on fillets. About 80% of rejects are caught visually. For the other 20%, NDT methods take over: magnetic-particle (MT) for surface and near-surface cracks in ferrous metals, dye penetrant (PT) for surface defects on any metal, ultrasonic (UT) for internal defects, radiographic (RT) for internal defects on critical work. Each test has its own acceptance criteria in AWS D1.1 §6.",
       keyTerms: [
@@ -452,6 +458,7 @@ export const WELDING_LESSONS: WeldingLessonContent[] = [
     shortDescription: "Three defects, three root-cause clusters. Diagnose like a pro.",
     engineMode: "heat-input",
     concept: {
+      diagramKey: "weld-defects",
       blurb:
         "Three defects cause most rejects. Porosity = atmospheric contamination (wrong gas, low flow, dirty metal, wet rods). Undercut = too much heat at the toe (too much amperage, too long an arc, wrong angle). Lack of fusion = not enough heat OR wrong angle (sometimes both). Today the evaluator helps you produce each defect on purpose, then fix it. The fastest way to learn what 'good' looks like is to make 'bad' and adjust.",
       keyTerms: [

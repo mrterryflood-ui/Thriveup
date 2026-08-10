@@ -44,10 +44,13 @@ const PROBES: Probe[] = [
   // "reads that require a session" hardening in chainweb-routes.ts.)
   { name: "GET    /api/chainweb/rag-context (no session)", method: "GET", path: "/api/chainweb/rag-context?geography=Travis+County&domain=education" },
 
-  // ── conductor-routes.ts: POST endpoints (now requireAuth) ──────────────────
-  { name: "POST   /api/conductor/community-brief", method: "POST", path: "/api/conductor/community-brief", body: { location: "78741" } },
+  // ── conductor-routes.ts: PRIVILEGED POST endpoints (still requireAuth) ─────
+  // community-brief and neighbor-zips are intentionally PUBLIC now (the flagship
+  // "no account required" analyzer) — they are asserted separately below as a
+  // positive/no-PII contract, NOT here. compare (multi-location fan-out) and
+  // export-to-grantpathpro (privileged outbound to an external partner with a
+  // server-held key) remain gated and must still reject the anonymous caller.
   { name: "POST   /api/conductor/compare", method: "POST", path: "/api/conductor/compare", body: { locations: ["78741", "78702"] } },
-  { name: "POST   /api/conductor/neighbor-zips", method: "POST", path: "/api/conductor/neighbor-zips", body: { zip: "78741" } },
   { name: "POST   /api/conductor/export-to-grantpathpro", method: "POST", path: "/api/conductor/export-to-grantpathpro", body: { brief: {}, geography: {} } },
 
   // ── partner-api-routes.ts: admin endpoints (role now verified from DB) ─────
@@ -159,12 +162,83 @@ async function run() {
   }
 
   console.log(`\n${passes} rejected as expected, ${failures} auth hole(s).`);
+
+  // ── PUBLIC-CONTRACT probes ─────────────────────────────────────────────────
+  // community-brief + neighbor-zips are deliberately anonymous (the public
+  // "no account required" Community Impact analyzer). The contract we assert
+  // here is the INVERSE of the reject probes above: an unauthenticated caller
+  // must get through (2xx, or a legitimate 4xx/5xx data outcome like a 404
+  // unknown location / 429 rate limit / 502 upstream), and the successful
+  // response must contain NO PII fields. A 401/403 here would be a REGRESSION
+  // (the login wall returning) and FAILS the probe.
+  await runPublicContractProbes();
+
   if (failures > 0) {
-    console.error("FAIL: at least one unauthenticated mutation succeeded.");
+    console.error("FAIL: at least one unauthenticated mutation succeeded, or a public endpoint regressed.");
     process.exit(1);
   }
-  console.log("PASS: no unauthenticated mutation succeeded.");
+  console.log("PASS: guarded endpoints rejected; public analyzer reachable with no PII.");
   process.exit(0);
+}
+
+// Field names that would indicate PII leaking into an aggregate public response.
+const PII_FIELD_PATTERN = /\b(email|phone|ssn|firstName|lastName|fullName|dateOfBirth|dob|address1|streetAddress|userId|studentId|guardianName|contactName|caseNotes)\b/i;
+
+// The RPLICE intelligence block is built from globally-scoped internal
+// operational data (active action plans, outcome baselines, assessment records)
+// with no geography filter. It must NEVER appear in an anonymous response — it
+// is authenticated-only. Presence of any of these keys anonymously is a leak.
+const INTERNAL_RPLICE_PATTERN = /"(rplice|actionPlanMilestones|outcomeBaselines|activeActionPlans|activeBaselines|interventionAssignments|assessmentCounts)"\s*:/i;
+
+async function runPublicContractProbes() {
+  console.log(`\nPublic-contract probes (anonymous MUST reach the analyzer; NO PII in body):`);
+
+  const publicChecks: Array<{ name: string; path: string; body: unknown; expectPii?: boolean }> = [
+    { name: "POST /api/conductor/community-brief (78660, anon)", path: "/api/conductor/community-brief", body: { location: "78660", populationSize: 10000, timeHorizon: 25 } },
+    { name: "POST /api/conductor/neighbor-zips (78660, anon)", path: "/api/conductor/neighbor-zips", body: { zip: "78660" } },
+  ];
+
+  for (const c of publicChecks) {
+    let status = 0;
+    let text = "";
+    try {
+      const res = await fetch(`${BASE}${c.path}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(c.body),
+      });
+      status = res.status;
+      text = await res.text();
+    } catch (err) {
+      console.warn(`  ? ${c.name} → request error: ${err instanceof Error ? err.message : String(err)}`);
+      continue;
+    }
+
+    // A login wall (401/403) here is the exact regression this task removed.
+    if (status === 401 || status === 403) {
+      failures++;
+      console.error(`  ✗ ${c.name} → ${status} (REGRESSION: public analyzer is behind a login wall again)`);
+      continue;
+    }
+
+    // Any 2xx must carry no PII. Non-2xx (404/429/502) is an acceptable honest
+    // data/limit outcome for an anonymous caller and does not fail the probe.
+    if (status >= 200 && status < 300) {
+      if (PII_FIELD_PATTERN.test(text)) {
+        failures++;
+        console.error(`  ✗ ${c.name} → 200 but response contains a PII-looking field (${(text.match(PII_FIELD_PATTERN) || [])[0]})`);
+      } else if (INTERNAL_RPLICE_PATTERN.test(text)) {
+        failures++;
+        console.error(`  ✗ ${c.name} → 200 but leaks internal RPLICE data anonymously (${(text.match(INTERNAL_RPLICE_PATTERN) || [])[0]})`);
+      } else {
+        passes++;
+        console.log(`  ✓ ${c.name} → ${status} (reachable anonymously, no PII, no internal RPLICE block)`);
+      }
+    } else {
+      console.log(`  ✓ ${c.name} → ${status} (anonymous reached endpoint; honest non-2xx data/limit outcome, not a login wall)`);
+      passes++;
+    }
+  }
 }
 
 run().catch((err) => {

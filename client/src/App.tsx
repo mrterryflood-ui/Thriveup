@@ -56,6 +56,7 @@ const WindTurbineConceptPage = lazy(() => import("@/pages/concepts/wind-turbine"
 const PacemakerConceptPage = lazy(() => import("@/pages/concepts/pacemaker"));
 const TradeSimsLandingPage = lazy(() => import("@/pages/academy/trade-sims/index"));
 const TradeSimsTradeDetailPage = lazy(() => import("@/pages/academy/trade-sims/trade-detail"));
+const WorkforcePathwaysPage = lazy(() => import("@/pages/workforce-pathways"));
 const TradeSimsLessonPlayerPage = lazy(() => import("@/pages/academy/trade-sims/lesson-player"));
 const TradeSimsCertifyPage = lazy(() => import("@/pages/academy/trade-sims/certify"));
 
@@ -441,6 +442,7 @@ function AppRouter() {
       <Route path="/concepts/public-key-encryption" component={PublicKeyEncryptionConceptPage} />
       <Route path="/concepts/wind-turbine" component={WindTurbineConceptPage} />
       <Route path="/concepts/pacemaker" component={PacemakerConceptPage} />
+      <Route path="/workforce" component={WorkforcePathwaysPage} />
       <Route path="/academy/trade-sims">
         <TradeSimsTrialGate><TradeSimsLandingPage /></TradeSimsTrialGate>
       </Route>

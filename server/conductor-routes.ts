@@ -41,6 +41,94 @@ function conductorRequireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+// ── Anonymous abuse protection for the PUBLIC community analyzer ──────────────
+// The community-brief + neighbor-zips endpoints are a public, no-account-required
+// marketing feature. They must NOT sit behind a login wall (that killed the
+// flagship promise). Instead we protect anonymous access with three cheap,
+// in-memory controls: a per-IP sliding-window rate limit, a per-ZIP response
+// cache (so repeated lookups of the same ZIP don't re-spend Census + AI), and
+// hard caps on request body values. None of these endpoints returns PII — they
+// serve only aggregate public Census data + capped AI narrative — so anonymous
+// access is safe once amplification/cost is bounded.
+
+function conductorClientIp(req: Request): string {
+  // Use Express's resolved client IP. The app runs with `trust proxy = 1`
+  // (server/replit_integrations/auth/replitAuth.ts), so req.ip is the real
+  // client address as resolved from the single trusted Replit proxy hop — NOT
+  // an attacker-controlled raw X-Forwarded-For header. Parsing the raw header
+  // ourselves would let any caller spoof a fresh IP per request and bypass the
+  // rate limit to make unlimited paid Census + AI calls.
+  const ip = req.ip || req.socket?.remoteAddress || "";
+  return ip.trim() || "unknown";
+}
+
+// Per-IP sliding window: at most CONDUCTOR_BRIEF_MAX briefs per window.
+const CONDUCTOR_BRIEF_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const CONDUCTOR_BRIEF_MAX = 5;
+const conductorIpHits = new Map<string, number[]>();
+
+// Returns null if allowed, or the number of seconds until the caller may retry.
+function conductorRateLimit(ip: string): number | null {
+  const now = Date.now();
+  const cutoff = now - CONDUCTOR_BRIEF_WINDOW_MS;
+  const hits = (conductorIpHits.get(ip) || []).filter((t) => t > cutoff);
+  if (hits.length >= CONDUCTOR_BRIEF_MAX) {
+    const retryMs = hits[0] + CONDUCTOR_BRIEF_WINDOW_MS - now;
+    conductorIpHits.set(ip, hits);
+    return Math.max(1, Math.ceil(retryMs / 1000));
+  }
+  hits.push(now);
+  conductorIpHits.set(ip, hits);
+  // Opportunistic cleanup so the map doesn't grow unbounded across many IPs.
+  if (conductorIpHits.size > 5000) {
+    for (const [k, v] of conductorIpHits) {
+      const live = v.filter((t) => t > cutoff);
+      if (live.length === 0) conductorIpHits.delete(k);
+      else conductorIpHits.set(k, live);
+    }
+  }
+  return null;
+}
+
+// Per-ZIP response cache (simple LRU by insertion order + TTL). Keyed on the
+// full request shape (zip + populationSize + timeHorizon) so different cascade
+// parameters don't collide. Caches ONLY successful aggregate briefs — never
+// errors, never anything caller-specific.
+const CONDUCTOR_CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12h
+const CONDUCTOR_CACHE_MAX = 300;
+const conductorBriefCache = new Map<string, { at: number; value: unknown }>();
+
+function conductorCacheGet(key: string): unknown | undefined {
+  const entry = conductorBriefCache.get(key);
+  if (!entry) return undefined;
+  if (Date.now() - entry.at > CONDUCTOR_CACHE_TTL_MS) {
+    conductorBriefCache.delete(key);
+    return undefined;
+  }
+  // Refresh LRU recency.
+  conductorBriefCache.delete(key);
+  conductorBriefCache.set(key, entry);
+  return entry.value;
+}
+
+function conductorCacheSet(key: string, value: unknown): void {
+  conductorBriefCache.set(key, { at: Date.now(), value });
+  while (conductorBriefCache.size > CONDUCTOR_CACHE_MAX) {
+    const oldest = conductorBriefCache.keys().next().value;
+    if (oldest === undefined) break;
+    conductorBriefCache.delete(oldest);
+  }
+}
+
+// Clamp caller-supplied numeric cascade parameters into sane ranges. Anonymous
+// callers must not be able to drive absurd population/time values into the
+// cost model.
+function conductorClampInt(raw: unknown, def: number, min: number, max: number): number {
+  const n = typeof raw === "number" ? raw : parseInt(String(raw ?? ""), 10);
+  if (!Number.isFinite(n)) return def;
+  return Math.min(max, Math.max(min, Math.round(n)));
+}
+
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface DomainScore {
@@ -130,18 +218,52 @@ interface ConductorBrief {
     gaps: string[];
     nationalComparison: string;
   };
-  rplice: {
-    relevant: boolean;
-    reasoning: string;
-    relevanceScore: number;
-    activeAnalyses: unknown[];
-    interventionAssignments: unknown[];
-    actionPlanMilestones: unknown[];
-    outcomeBaselines: unknown[];
-    availableTools: string[];
-    inboundEvidenceFeedActive: boolean;
-  } | null;
+  // AUTHENTICATED-ONLY. The RPLICE intelligence package is built from
+  // GLOBALLY-scoped, non-geography-filtered internal operational data (active
+  // action plans, outcome baselines, assessment records). It must NEVER be sent
+  // to an anonymous caller of the public analyzer — it is attached only when a
+  // first-party session is present, so on anonymous responses this field is
+  // simply omitted (hence optional).
+  rplice?: ConductorRpliceBlock | null;
   generatedAt: string;
+}
+
+// Shape of the RPLICE intelligence block as actually constructed below. Typed
+// explicitly so the constructed object is checked against a real contract and
+// authed clients get a stable shape.
+interface ConductorRpliceBlock {
+  relevant: boolean;
+  reasoning: string;
+  relevanceScore: number;
+  interventionAssignments: unknown[];
+  actionPlanMilestones: unknown[];
+  outcomeBaselines: unknown[];
+  liveResearch: {
+    studies: unknown[];
+    frameworks: unknown[];
+    ecosystemStatus: unknown;
+  };
+  matchedGrantProfiles: Array<{
+    id: unknown;
+    name: unknown;
+    funder: unknown;
+    priority: unknown;
+    alignmentScore: unknown;
+    matchedDomains: unknown;
+    focusAreas: unknown;
+  }>;
+  platformInterventions: unknown;
+  assessmentCounts: {
+    cfir: number;
+    reaim: number;
+    fidelity: number;
+    threeRealities: number;
+    communityAnalyses: number;
+    grantNarratives: number;
+    activeActionPlans: number;
+    activeBaselines: number;
+  };
+  inboundEvidenceFeedActive: boolean;
 }
 
 // ─── Domain scoring (derived from Census indicators) ─────────────────────────
@@ -903,7 +1025,7 @@ async function generateCommunityNarrative(
   const topPop = populations.slice(0, 4).map((p) => p.name).join(", ");
 
   try {
-    const result = await generateAIJSON(
+    const result = await generateAIJSON<{ narrative?: string }>(
       `You are writing a community impact narrative for ${geography}. 
       
 Write a 4-paragraph plain-language narrative (no jargon, no bullet points) that:
@@ -924,8 +1046,7 @@ Data inputs:
 
 Tone: compassionate, honest, evidence-grounded. Blame the systems, not the people. Every dollar figure must feel real, not abstract. This is meant to move a funder to act.
 
-Return JSON: { "narrative": "..." }`,
-      { narrative: "" }
+Return JSON: { "narrative": "..." }`
     );
     return result.narrative || "";
   } catch (err) {
@@ -943,14 +1064,52 @@ Return JSON: { "narrative": "..." }`,
 
 export function registerConductorRoutes(app: Express) {
   // POST /api/conductor/community-brief
-  // DECISION: requireAuth. This runs Census fetches + an AI narrative generation
-  // (cost + rate-limited upstream). It is an internal analyst tool, not an
-  // anonymous public endpoint, so we gate it on an authenticated first-party user.
-  app.post("/api/conductor/community-brief", conductorRequireAuth, async (req: Request, res: Response) => {
+  // DECISION: PUBLIC (anonymous OK). This is the flagship "no account required"
+  // Community Impact analyzer. It returns ONLY aggregate public U.S. Census data
+  // plus a capped AI narrative — NO PII of any kind is present in the response.
+  // A login wall broke the platform's public promise, so instead of requireAuth
+  // we protect anonymous access with real abuse controls: (1) a per-IP sliding-
+  // window rate limit (5 briefs / 10 min) to stop amplification against Census +
+  // the paid AI, (2) a per-ZIP response cache so repeated identical lookups don't
+  // re-spend upstream calls, and (3) hard caps on the caller-supplied numeric
+  // parameters. Aggregate public Census data + capped AI spend = safe anonymous.
+  app.post("/api/conductor/community-brief", async (req: Request, res: Response) => {
     try {
-      const { location, populationSize = 10000, timeHorizon = 25 } = req.body || {};
+      // The RPLICE intelligence block is built from globally-scoped internal
+      // operational data (active action plans, outcome baselines, assessments)
+      // with NO geography filter. It must only be exposed to a first-party
+      // authenticated caller — never to an anonymous public visitor. We resolve
+      // auth once here and (a) skip building the package entirely for anon (no
+      // wasted DB work) and (b) omit the field from anonymous responses.
+      const isAuthed = !!conductorGetUserId(req);
+      const { location } = req.body || {};
+      const populationSize = conductorClampInt(req.body?.populationSize, 10000, 100, 5_000_000);
+      const timeHorizon = conductorClampInt(req.body?.timeHorizon, 25, 1, 50);
       if (!location || typeof location !== "string") {
         return res.status(400).json({ error: "location is required (ZIP code, city, or community name)" });
+      }
+
+      // Serve a cached brief for an identical (location + params) request before
+      // spending any Census/AI budget — and before charging the rate limiter, so
+      // cache hits stay free. The cache holds ONLY the anon-safe, RPLICE-free
+      // brief, so we serve it from cache only to anonymous callers; an
+      // authenticated caller always falls through to a full build so they get
+      // the up-to-date RPLICE intelligence block attached (never cached).
+      const cacheKey = `${location.trim().toLowerCase()}|${populationSize}|${timeHorizon}`;
+      if (!isAuthed) {
+        const cached = conductorCacheGet(cacheKey);
+        if (cached !== undefined) {
+          return res.json(cached);
+        }
+      }
+
+      // Rate limit only cache misses (the expensive path).
+      const retryAfter = conductorRateLimit(conductorClientIp(req));
+      if (retryAfter !== null) {
+        res.setHeader("Retry-After", String(retryAfter));
+        return res.status(429).json({
+          error: `You've run several community analyses in a short time. Please wait about ${Math.ceil(retryAfter / 60)} minute(s) and try again — this keeps the free public analyzer available for everyone.`,
+        });
       }
 
       // Step 1: Resolve geography
@@ -1053,12 +1212,17 @@ export function registerConductorRoutes(app: Express) {
           vintages: [], totalAccumulatedCost: 0, trendDirection: "stagnant" as const,
           yearsAboveCrisisThreshold: 0, keyInsight: "", yearsOfData: 0,
         })),
-        buildRpliceIntelligencePackage({
-          crisisDomains: crisisDomainIds,
-          regionName: displayName,
-          stateFips: stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip) || undefined,
-          countyFips: undefined,
-        }).catch(() => null),
+        // Only build the internal RPLICE intelligence package for authenticated
+        // callers — anonymous responses never include it, so don't spend the DB
+        // queries for them.
+        isAuthed
+          ? buildRpliceIntelligencePackage({
+              crisisDomains: crisisDomainIds,
+              regionName: displayName,
+              stateFips: stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip) || undefined,
+              countyFips: undefined,
+            }).catch(() => null)
+          : Promise.resolve(null),
       ]);
 
       // Step 5: Evidence programs (filter by crisis domains — already computed above)
@@ -1092,34 +1256,11 @@ export function registerConductorRoutes(app: Express) {
       // Build RPLICE context block (inbound evidence feed)
       const rpliceInboundContext = buildRpliceInboundContext();
 
-      const brief: ConductorBrief = {
-        geography: {
-          input: location,
-          zip,
-          displayName,
-          state: stateName,
-          countyName,
-        },
-        demographics,
-        systemsScores: domainScores,
-        overallScore,
-        overallGrade: gradeFromScore(overallScore),
-        atRiskPopulations,
-        cascade,
-        historicalCascade,
-        solutions: {
-          topInterventions,
-          grants,
-          policyActions,
-        },
-        narrative,
-        policyContext: {
-          state: stateName,
-          strengths: policyCtx.strengths,
-          gaps: policyCtx.gaps,
-          nationalComparison,
-        },
-        rplice: rpliceIntelligence
+      // Build the RPLICE block separately (only present for authed callers).
+      // It is deliberately NOT part of the cached, anon-safe brief below so a
+      // cache entry seeded by an authed request can never leak internal data to
+      // a subsequent anonymous caller.
+      const rpliceBlock: ConductorRpliceBlock | null = rpliceIntelligence
           ? {
               // Bridge intelligence
               relevant: rpliceIntelligence.bridge.relevant,
@@ -1159,10 +1300,50 @@ export function registerConductorRoutes(app: Express) {
               },
               inboundEvidenceFeedActive: rpliceInboundContext.length > 0,
             }
-          : null,
+          : null;
+
+      // Anon-safe brief: aggregate public Census data + capped AI narrative,
+      // NO PII and NO internal RPLICE block. This is the ONLY thing we cache.
+      const brief: ConductorBrief = {
+        geography: {
+          input: location,
+          zip,
+          displayName,
+          state: stateName,
+          countyName,
+        },
+        demographics,
+        systemsScores: domainScores,
+        overallScore,
+        overallGrade: gradeFromScore(overallScore),
+        atRiskPopulations,
+        cascade,
+        historicalCascade,
+        solutions: {
+          topInterventions,
+          grants,
+          policyActions,
+        },
+        narrative,
+        policyContext: {
+          state: stateName,
+          strengths: policyCtx.strengths,
+          gaps: policyCtx.gaps,
+          nationalComparison,
+        },
         generatedAt: new Date().toISOString(),
       };
 
+      // Cache the aggregate, RPLICE-free brief (no PII, no internal data) so
+      // repeat lookups of the same ZIP/params are served free — safe to hand to
+      // any caller, authed or anonymous.
+      conductorCacheSet(cacheKey, brief);
+
+      // Attach the internal RPLICE intelligence block ONLY for authenticated
+      // callers, on the outbound response and never into the cache.
+      if (isAuthed) {
+        return res.json({ ...brief, rplice: rpliceBlock });
+      }
       return res.json(brief);
     } catch (err) {
       // Honest error: surface the real failure (AI narrative / grant DB / Census
@@ -1177,8 +1358,10 @@ export function registerConductorRoutes(app: Express) {
   });
 
   // POST /api/conductor/compare — side-by-side geography comparison
-  // DECISION: requireAuth. Fans out into multiple community-brief runs (AI + Census
-  // cost multiplied by N locations); same internal-analyst trust model as above.
+  // DECISION: requireAuth. Unlike the single public brief, compare fans out into
+  // 2–4 community-brief runs at once (AI + Census cost multiplied by N). We keep
+  // this multi-location amplification behind an authenticated first-party user;
+  // anonymous visitors still get the full single-location analyzer for free.
   app.post("/api/conductor/compare", conductorRequireAuth, async (req: Request, res: Response) => {
     try {
       const { locations } = req.body || {};
@@ -1186,9 +1369,10 @@ export function registerConductorRoutes(app: Express) {
         return res.status(400).json({ error: "Provide 2–4 location strings to compare" });
       }
 
-      // Forward the caller's session cookie so the internal self-calls remain
-      // authenticated (community-brief now requires auth). Server never trusts a
-      // fabricated identity — we only relay the real caller's cookie.
+      // Relay the caller's session cookie to the internal self-calls. community-
+      // brief is public now, so this is no longer required for auth — we forward
+      // it only so any per-user community context still attaches. The server
+      // never trusts a fabricated identity; it only relays the real cookie.
       const forwardCookie = req.headers.cookie || "";
 
       const results = await Promise.allSettled(
@@ -1228,13 +1412,35 @@ export function registerConductorRoutes(app: Express) {
   // ─── POST /api/conductor/neighbor-zips ──────────────────────────────────────
   // Fetch neighboring ZIPs with real Census data for the 3D skyline map.
   // Returns array of { zip, lat, lng, score, grade, urgency, costOfInaction }.
-  // DECISION: requireAuth. Powers the internal 3D skyline map and issues a fan-out
-  // of live Census + Nominatim requests (up to ~18 per call) — gating on an
-  // authenticated user prevents anonymous amplification against those upstreams.
-  app.post("/api/conductor/neighbor-zips", conductorRequireAuth, async (req: Request, res: Response) => {
+  // DECISION: PUBLIC (anonymous OK). This powers the 3D skyline on the public
+  // community-impact page and is auto-triggered after every brief, so it cannot
+  // sit behind a login wall. It returns ONLY aggregate public Census figures +
+  // approximate ZIP centroids — NO PII. It does fan out up to ~18 live Census +
+  // one Nominatim geocode per call, so we bound anonymous amplification with the
+  // same per-IP sliding-window rate limit as community-brief plus a per-ZIP
+  // response cache (identical ZIP → cached neighbor set, no re-fanning-out).
+  app.post("/api/conductor/neighbor-zips", async (req: Request, res: Response) => {
     try {
       const { zip, centerScore = 50, centerGrade = "D", centerUrgency = "concern", centerCost = 100000 } = req.body;
       if (!zip) return res.status(400).json({ error: "zip required" });
+      if (typeof zip !== "string" || !/^\d{5}$/.test(zip)) {
+        return res.status(400).json({ error: "zip must be a 5-digit ZIP code" });
+      }
+
+      // Cache first (keyed on the center ZIP + center display attributes), then
+      // rate-limit only the expensive fan-out path.
+      const nbrKey = `${zip}|${centerScore}|${centerGrade}|${centerUrgency}|${centerCost}`;
+      const nbrCached = conductorCacheGet(`nbr:${nbrKey}`);
+      if (nbrCached !== undefined) {
+        return res.json(nbrCached);
+      }
+      const nbrRetry = conductorRateLimit(conductorClientIp(req));
+      if (nbrRetry !== null) {
+        res.setHeader("Retry-After", String(nbrRetry));
+        return res.status(429).json({
+          error: `Too many map lookups in a short time. Please wait about ${Math.ceil(nbrRetry / 60)} minute(s) and try again.`,
+        });
+      }
 
       const CENSUS_ACS = "https://api.census.gov/data/2022/acs/acs5";
       const CENSUS_KEY = process.env.CENSUS_API_KEY || "";
@@ -1321,7 +1527,9 @@ export function registerConductorRoutes(app: Express) {
           .map((r) => r.value),
       ];
 
-      return res.json({ zips, centerLat, centerLng });
+      const nbrResult = { zips, centerLat, centerLng };
+      conductorCacheSet(`nbr:${nbrKey}`, nbrResult);
+      return res.json(nbrResult);
     } catch (err) {
       console.error("neighbor-zips error:", err);
       return res.status(500).json({ error: "Failed to fetch neighbor ZIPs" });

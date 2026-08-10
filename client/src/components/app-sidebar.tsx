@@ -156,7 +156,11 @@ const preventionHealthItems: NavItem[] = [
 // HUB 3 — Workforce & Trades: Trade Sims is #1 (most discoverable entry point).
 // My Pathway lives here only. Mentor entries consolidated to 1 (Mentors & Pathways).
 const workforceTradesItems: NavItem[] = [
+  // Journey order (2026): coordinated retraining pathway leads the hub —
+  // Explore (hub) → Train (Trade Sims) → Prove it (certificates) → Next step.
+  { title: "Workforce Pathways", url: "/workforce", icon: Compass },
   { title: "Trade Sims (Try Free →)", url: "/academy/trade-sims", icon: Wrench },
+  { title: "My Certificates", url: "/certificates", icon: ScrollText, authOnly: true },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
   { title: "My Pathway", url: "/academy/pathway", icon: Route },
   { title: "Apprenticeship Tracker", url: "/apprenticeship-tracker", icon: Wrench },

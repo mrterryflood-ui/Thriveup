@@ -27,6 +27,7 @@ import { VisualPlumbingCanvas } from "@/components/trade-sims/plumbing/visual-pl
 import { AutoCanvas } from "@/components/trade-sims/automotive/auto-canvas";
 import { WeldingCanvas } from "@/components/trade-sims/welding/welding-canvas";
 import { HvacCanvas } from "@/components/trade-sims/hvac/hvac-canvas";
+import { ConceptDiagram } from "@/components/trade-sims/concept-diagram";
 import { useToast } from "@/hooks/use-toast";
 import {
   gradeBackflow,
@@ -824,6 +825,7 @@ export default function LessonPlayerPage() {
               <CardDescription>Read this once, then we build.</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
+              <ConceptDiagram diagramKey={lesson.concept?.diagramKey} />
               <p className="text-base leading-relaxed" data-testid="text-concept-blurb">
                 {lesson.concept?.blurb}
               </p>

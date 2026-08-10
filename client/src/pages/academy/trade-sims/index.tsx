@@ -153,6 +153,29 @@ export default function TradeSimsLandingPage() {
         </div>
       </section>
 
+      {/* What happens after Day 15? → Workforce Pathways hub */}
+      <section className="pt-4 border-t">
+        <Card className="bg-primary/5 border-primary/20" data-testid="card-after-day-15">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <GraduationCap className="h-5 w-5 text-primary" />
+              <CardTitle className="text-xl">What happens after Day 15?</CardTitle>
+            </div>
+            <CardDescription>
+              Every trade ends in a capstone certificate — then a named next step:
+              an ACC certificate, an apprenticeship intake (UA Local 286, PHCC,
+              SMART Local 67), or a credential exam (NATE, EPA 608, AWS D1.1, ASE).
+              See the whole journey — what it takes, how long, what you earn — on one page.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button asChild data-testid="button-workforce-pathways">
+              <Link href="/workforce">Explore Workforce Pathways →</Link>
+            </Button>
+          </CardContent>
+        </Card>
+      </section>
+
       <div className="text-center pt-4">
         <Button asChild variant="outline" data-testid="button-back-academy">
           <Link href="/academy">← Back to ThriveUp Academy</Link>

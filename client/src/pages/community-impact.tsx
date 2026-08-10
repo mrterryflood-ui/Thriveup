@@ -784,14 +784,42 @@ const VIZ_TABS = [
 
 type VizTab = typeof VIZ_TABS[number]["id"];
 
+// apiRequest throws Error("<status>: <body>") on a non-2xx response, where body
+// is the server's JSON like {"error":"..."}. Surface the server's real message
+// (404 unknown location vs 429 rate limit vs 502 Census down) instead of one
+// generic card, so anonymous visitors know exactly what happened and what to do.
+function parseConductorError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err ?? "");
+  // Shape: "<status>: <text>". Split once so the body (which may contain ": ")
+  // is preserved intact.
+  const m = raw.match(/^(\d{3}):\s*([\s\S]*)$/);
+  const body = m ? m[2] : raw;
+  try {
+    const parsed = JSON.parse(body);
+    if (parsed && typeof parsed.error === "string" && parsed.error.trim()) {
+      return parsed.error.trim();
+    }
+  } catch {
+    // body wasn't JSON — fall through to the trimmed raw text.
+  }
+  const trimmed = (body || raw).trim();
+  return trimmed || "Something went wrong analyzing this location. Please try again.";
+}
+
 export default function CommunityImpactPage() {
   const [location, setLocation] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [activeViz, setActiveViz] = useState<VizTab>("skyline");
 
   const brief = useMutation({
-    mutationFn: (loc: string) =>
-      apiRequest("POST", "/api/conductor/community-brief", { location: loc, populationSize: 10000, timeHorizon: 25 }).then((r) => r.json()),
+    mutationFn: async (loc: string) => {
+      try {
+        const r = await apiRequest("POST", "/api/conductor/community-brief", { location: loc, populationSize: 10000, timeHorizon: 25 });
+        return r.json();
+      } catch (err) {
+        throw new Error(parseConductorError(err));
+      }
+    },
   });
 
   const neighborsMut = useMutation({
@@ -875,7 +903,11 @@ export default function CommunityImpactPage() {
               <AlertTriangle className="w-5 h-5 text-red-500 flex-none mt-0.5" />
               <div>
                 <div className="font-semibold text-red-700">Could not analyze this location</div>
-                <div className="text-sm text-red-600 mt-1">Try a specific ZIP code (e.g. 78741) or "City, State" format.</div>
+                <div className="text-sm text-red-600 mt-1" data-testid="text-error-detail">
+                  {brief.error instanceof Error && brief.error.message
+                    ? brief.error.message
+                    : 'Try a specific ZIP code (e.g. 78741) or "City, State" format.'}
+                </div>
               </div>
             </div>
           </Card>
