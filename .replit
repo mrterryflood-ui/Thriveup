@@ -234,12 +234,12 @@ isValidation = true
 name = "trade-sims"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts && npx tsx client/src/lib/trade-sims/automotive/sag-rubric.test.ts"
-
 [workflows.workflow.metadata]
 isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx client/src/lib/trade-sims/plumbing/flow-solver.test.ts && npx tsx client/src/lib/trade-sims/plumbing/backflow-rubric.test.ts && npx tsx client/src/lib/trade-sims/automotive/sag-rubric.test.ts && npx tsx client/src/lib/trade-sims/hvac/thermal-solver.test.ts"
 
 [[workflows.workflow]]
 name = "hud-pdf-e2e"
