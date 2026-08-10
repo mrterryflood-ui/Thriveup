@@ -80,6 +80,9 @@ const SAMPLE_VISITS = [
   { id: "hv-3", clientName: "Client D", visitDate: "2026-03-14", visitType: "Screening", duration: 30, notes: "Completed behavioral health screening. Moderate risk identified.", followUpNeeded: false, followUpDate: null },
 ];
 
+// Real Austin-area organizations with verified contact info — used only when live API data is available.
+// Do NOT display these as if they are current operational data; phone/hours change and must be verified
+// before a CHW referral. Show the verified-directory links (below) when live API is not connected.
 const SAMPLE_RESOURCES: CommunityResource[] = [
   { id: "cr-1", name: "CommUnityCare Health Centers", category: "Primary Care", address: "123 Main St", phone: "(512) 978-9015", hours: "Mon-Fri 8am-6pm", description: "Sliding-scale primary care, behavioral health, dental", acceptingClients: true, website: "https://communitycaretx.org" },
   { id: "cr-2", name: "Austin Travis County Integral Care", category: "Mental Health", address: "456 Oak Ave", phone: "(512) 472-4357", hours: "Mon-Sat 9am-7pm", description: "Counseling, substance use treatment, crisis services", acceptingClients: true, website: "https://integralcare.org" },
@@ -656,5 +659,26 @@ export default function ChwDashboardPage() {
         </TabsContent>
       </Tabs>
     </div>
+  );
+}
+
+function DirectoryRow({ name, operator, desc, href }: { name: string; operator: string; desc: string; href: string }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="block p-3 rounded-md border bg-background hover:bg-muted/30 transition-colors"
+      data-testid={`link-directory-${name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+    >
+      <div className="flex items-center justify-between gap-2 flex-wrap">
+        <p className="text-sm font-semibold text-primary flex items-center gap-1.5">
+          <ExternalLink className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          {name}
+        </p>
+        <Badge variant="secondary" className="text-[10px]">Source: {operator}</Badge>
+      </div>
+      <p className="text-xs text-muted-foreground mt-1">{desc}</p>
+    </a>
   );
 }
