@@ -275,12 +275,12 @@ args = "npx tsx scripts/verify-community-brief-e2e.ts && npx tsx scripts/verify-
 name = "directory-links"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsx scripts/verify-directory-links.ts"
-
 [workflows.workflow.metadata]
 isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/verify-directory-links.ts && npx tsx scripts/verify-capacity-badges.ts"
 
 [agent]
 integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_with_replit:2.0.0", "javascript_object_storage:2.0.0", "resend:1.0.0", "javascript_anthropic_ai_integrations:2.0.0", "javascript_openrouter_ai_integrations:2.0.0"]

@@ -2,7 +2,9 @@ import { defineConfig, devices } from "@playwright/test";
 
 export default defineConfig({
   testDir: "./tests/e2e",
-  timeout: 30_000,
+  // 90s: Vite dev-server cold transforms + parallel validation gates make
+  // first page loads routinely exceed 30s; a tight timeout only produced flakes.
+  timeout: 90_000,
   expect: { timeout: 5_000 },
   fullyParallel: false,
   reporter: [["list"]],
