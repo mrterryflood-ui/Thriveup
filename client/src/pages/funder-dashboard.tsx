@@ -90,8 +90,10 @@ export default function FunderDashboardPage() {
 
   const { data, isLoading, error } = useQuery<DashboardData>({
     queryKey: ["/api/funder", shareToken, "dashboard", appliedFrom, appliedTo],
-    queryFn: async () => {
-      const res = await fetch(`/api/funder/${shareToken}/dashboard${qs}`);
+    queryFn: async ({ signal }) => {
+      const res = await fetch(`/api/funder/${shareToken}/dashboard${qs}`, {
+        signal: AbortSignal.any([signal!, AbortSignal.timeout(30_000)]),
+      });
       if (!res.ok) throw new Error("Dashboard not found");
       return res.json();
     },

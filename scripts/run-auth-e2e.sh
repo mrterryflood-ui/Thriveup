@@ -48,4 +48,15 @@ npx playwright test \
   tests/e2e/smoke.spec.ts \
   tests/e2e/staff-role-access.spec.ts \
   tests/e2e/foster-youth-journey.spec.ts
+PLAYWRIGHT_EXIT=$?
+
+# Task #172: also run the referral-loop verification script (no Playwright needed).
+# Exercises create-auth-gate, org-confirm, default-value, immutability, and
+# fireWebhook zero-subscriber safety — all against the live dev server.
+echo ""
+echo "[auth-e2e] running referral-loop verification..."
+npx tsx scripts/verify-referral-webhook.ts
+WEBHOOK_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ]
 exit $?

@@ -296,6 +296,7 @@ funderRouter.get("/:token/impact-report", async (req, res) => {
         lost: sql<number>`count(*) filter (where status in ('ineligible','withdrew'))::int`,
         pending: sql<number>`count(*) filter (where status in ('sent','accepted'))::int`,
         valueUnlocked: sql<number>`coalesce(sum(benefit_value_estimate) filter (where status = 'enrolled'), 0)::int`,
+        estimatedCount: sql<number>`count(*) filter (where status = 'enrolled' and benefit_value_estimate is not null)::int`,
       })
       .from(referrals)
       .where(where);
@@ -306,10 +307,21 @@ funderRouter.get("/:token/impact-report", async (req, res) => {
       lost: agg.lost,
       pending: agg.pending,
       valueUnlocked: agg.valueUnlocked,
+      estimatedCount: agg.estimatedCount,
       enrollmentRate: agg.totalReferrals > 0
         ? Math.round((agg.enrolled / agg.totalReferrals) * 100)
         : 0,
     };
+
+    // Value narrative: only say "$X" when at least one enrolled referral has a
+    // dollar estimate. If all estimates are null, report "value not yet estimated"
+    // so funders don't see "$0 unlocked" when enrollment was confirmed without a
+    // dollar figure.
+    const valuePhrase = metrics.estimatedCount > 0
+      ? `an estimated $${metrics.valueUnlocked.toLocaleString()} in annual benefit value unlocked`
+      : metrics.enrolled > 0
+        ? "benefit value not yet estimated (org confirmed enrollment without a dollar figure)"
+        : "no enrollments confirmed yet";
 
     const byProgram = await db
       .select({
@@ -317,6 +329,7 @@ funderRouter.get("/:token/impact-report", async (req, res) => {
         referrals: sql<number>`count(*)::int`,
         enrolled: sql<number>`count(*) filter (where status = 'enrolled')::int`,
         value: sql<number>`coalesce(sum(benefit_value_estimate) filter (where status = 'enrolled'), 0)::int`,
+        estimatedCount: sql<number>`count(*) filter (where status = 'enrolled' and benefit_value_estimate is not null)::int`,
       })
       .from(referrals)
       .where(where)
@@ -333,11 +346,11 @@ funderRouter.get("/:token/impact-report", async (req, res) => {
       metrics,
       byProgram,
       narrative: {
-        headline: `${funder.name} investment connected ${metrics.totalReferrals} families to public benefits programs, with ${metrics.enrolled} confirmed enrollments and an estimated $${metrics.valueUnlocked.toLocaleString()} in annual benefit value unlocked.`,
+        headline: `${funder.name} investment connected ${metrics.totalReferrals} families to public benefits programs, with ${metrics.enrolled} confirmed enrollments and ${valuePhrase}.`,
         enrollmentRate: `${metrics.enrollmentRate}% of referrals resulted in enrollment.`,
         topPrograms: byProgram
           .slice(0, 3)
-          .map((p) => `${p.programCode}: ${p.enrolled} enrollments, $${p.value.toLocaleString()} value`)
+          .map((p) => `${p.programCode}: ${p.enrolled} enrollments${p.estimatedCount > 0 ? `, $${p.value.toLocaleString()} value` : ""}`)
           .join("; "),
       },
     });

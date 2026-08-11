@@ -85,8 +85,15 @@ export function fireWebhook(event: string, payload: object): void {
         .where(and(eq(partnerWebhooks.event, event), eq(partnerWebhooks.active, true)));
 
       // Zero subscribers is a clean no-op: never throws, never error-logs.
+      // Log at INFO so operators know webhooks are not yet configured when they
+      // see referrals flowing but no partner is being notified automatically.
       if (hooks.length === 0) {
-        console.debug(`[WebhookDispatcher] event=${event} → 0 active subscribers (no-op)`);
+        console.info(
+          `[WebhookDispatcher] event=${event} → 0 active subscribers. ` +
+          `Referral data is stored and the status URL is live, but no partner ` +
+          `endpoint was notified. Register a webhook in the Partner API Hub to ` +
+          `enable automatic org notification.`
+        );
         return;
       }
 

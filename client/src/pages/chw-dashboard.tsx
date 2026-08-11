@@ -104,18 +104,20 @@ const SAMPLE_VISITS = [
   { id: "hv-3", clientName: "Client D", visitDate: "2026-03-14", visitType: "Screening", duration: 30, notes: "Completed behavioral health screening. Moderate risk identified.", followUpNeeded: false, followUpDate: null },
 ];
 
-// Real Austin-area organizations with verified contact info — used only when live API data is available.
-// Do NOT display these as if they are current operational data; phone/hours change and must be verified
-// before a CHW referral. Show the verified-directory links (below) when live API is not connected.
+// DEMO placeholder records — shown only when the live Partner API is not connected.
+// Phone numbers use the non-dialable 555-01xx range (NANP reserved) so a CHW
+// cannot accidentally call a real number from stale sample data.
+// Names and websites are real Austin-area orgs for reference only;
+// always verify current contact info before making a referral.
 const SAMPLE_RESOURCES: CommunityResource[] = [
-  { id: "cr-1", name: "CommUnityCare Health Centers", category: "Primary Care", address: "123 Main St", phone: "(512) 978-9015", hours: "Mon-Fri 8am-6pm", description: "Sliding-scale primary care, behavioral health, dental", acceptingClients: true, website: "https://communitycaretx.org" },
-  { id: "cr-2", name: "Austin Travis County Integral Care", category: "Mental Health", address: "456 Oak Ave", phone: "(512) 472-4357", hours: "Mon-Sat 9am-7pm", description: "Counseling, substance use treatment, crisis services", acceptingClients: true, website: "https://integralcare.org" },
-  { id: "cr-3", name: "Central Texas Food Bank", category: "Food Access", address: "789 Elm St", phone: "(512) 282-2111", hours: "Tue-Thu 10am-4pm", description: "Emergency food, nutrition education, SNAP enrollment assistance", acceptingClients: true, website: "https://centraltexasfoodbank.org" },
-  { id: "cr-4", name: "LifeWorks", category: "Housing", address: "321 Pine Rd", phone: "(512) 735-2400", hours: "Mon-Fri 9am-5pm", description: "Rapid rehousing, emergency shelter referrals, landlord mediation", acceptingClients: false, website: "https://lifeworksaustin.org" },
-  { id: "cr-5", name: "Workforce Solutions Capital Area", category: "Employment", address: "654 Cedar Blvd", phone: "(512) 597-7100", hours: "Mon-Fri 8am-5pm", description: "Job training, resume workshops, career counseling, GED programs", acceptingClients: true, website: "https://workforcesolutionscapitalarea.com" },
-  { id: "cr-6", name: "Austin Public Health WIC", category: "Maternal Health", address: "987 Maple Dr", phone: "(512) 972-5400", hours: "Mon-Wed-Fri 8am-4pm", description: "WIC enrollment, prenatal care coordination, breastfeeding support", acceptingClients: true, website: "https://www.austintexas.gov/health/programs/women-infants-and-children-wic" },
-  { id: "cr-7", name: "Austin Recovery", category: "Prevention", address: "147 Birch Ln", phone: "(512) 697-3843", hours: "Mon-Fri 9am-6pm", description: "Prevention education, youth programs, naloxone training", acceptingClients: true, website: "https://www.infiniterecovery.com" },
-  { id: "cr-8", name: "Texas RioGrande Legal Aid", category: "Legal", address: "258 Walnut St", phone: "(512) 374-2700", hours: "Mon-Thu 9am-5pm", description: "Free legal representation, immigration assistance, tenant rights", acceptingClients: true, website: "https://www.trla.org" },
+  { id: "cr-1", name: "CommUnityCare Health Centers", category: "Primary Care", address: "123 Main St", phone: "(512) 555-0101", hours: "Mon-Fri 8am-6pm", description: "Sliding-scale primary care, behavioral health, dental", acceptingClients: true, website: "https://communitycaretx.org" },
+  { id: "cr-2", name: "Austin Travis County Integral Care", category: "Mental Health", address: "456 Oak Ave", phone: "(512) 555-0102", hours: "Mon-Sat 9am-7pm", description: "Counseling, substance use treatment, crisis services", acceptingClients: true, website: "https://integralcare.org" },
+  { id: "cr-3", name: "Central Texas Food Bank", category: "Food Access", address: "789 Elm St", phone: "(512) 555-0103", hours: "Tue-Thu 10am-4pm", description: "Emergency food, nutrition education, SNAP enrollment assistance", acceptingClients: true, website: "https://centraltexasfoodbank.org" },
+  { id: "cr-4", name: "LifeWorks", category: "Housing", address: "321 Pine Rd", phone: "(512) 555-0104", hours: "Mon-Fri 9am-5pm", description: "Rapid rehousing, emergency shelter referrals, landlord mediation", acceptingClients: false, website: "https://lifeworksaustin.org" },
+  { id: "cr-5", name: "Workforce Solutions Capital Area", category: "Employment", address: "654 Cedar Blvd", phone: "(512) 555-0105", hours: "Mon-Fri 8am-5pm", description: "Job training, resume workshops, career counseling, GED programs", acceptingClients: true, website: "https://workforcesolutionscapitalarea.com" },
+  { id: "cr-6", name: "Austin Public Health WIC", category: "Maternal Health", address: "987 Maple Dr", phone: "(512) 555-0106", hours: "Mon-Wed-Fri 8am-4pm", description: "WIC enrollment, prenatal care coordination, breastfeeding support", acceptingClients: true, website: "https://www.austintexas.gov/health/programs/women-infants-and-children-wic" },
+  { id: "cr-7", name: "Austin Recovery", category: "Prevention", address: "147 Birch Ln", phone: "(512) 555-0107", hours: "Mon-Fri 9am-6pm", description: "Prevention education, youth programs, naloxone training", acceptingClients: true, website: "https://www.infiniterecovery.com" },
+  { id: "cr-8", name: "Texas RioGrande Legal Aid", category: "Legal", address: "258 Walnut St", phone: "(512) 555-0108", hours: "Mon-Thu 9am-5pm", description: "Free legal representation, immigration assistance, tenant rights", acceptingClients: true, website: "https://www.trla.org" },
 ];
 
 const SAMPLE_TRAININGS: TrainingModule[] = [
@@ -188,6 +190,9 @@ export default function ChwDashboardPage() {
   const [funderId, setFunderId] = useState("");
   const [referralNotes, setReferralNotes] = useState("");
   const [lastResult, setLastResult] = useState<CreateReferralResponse | null>(null);
+  // Captured at submit time (before resetReferralForm clears clientPhone) so the
+  // post-submission SMS link can pre-fill the client's number.
+  const [submittedClientPhone, setSubmittedClientPhone] = useState("");
 
   // Funder list — same endpoint the staff funder admin page uses.
   const { data: fundersData } = useQuery<{ funders: FunderOption[] }>({
@@ -220,11 +225,15 @@ export default function ChwDashboardPage() {
       ? (sentData as any)
       : [];
 
-  const orgResourceOptions: { id?: string; name: string }[] = ((): { id?: string; name: string }[] => {
+  const orgResourceOptions: { id?: string; name: string; acceptingClients?: boolean }[] = ((): { id?: string; name: string; acceptingClients?: boolean }[] => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const rs: any[] = (liveResources as any)?.resources?.length ? (liveResources as any).resources : [];
-    return rs.map((r: any) => ({ id: r.id, name: r.name })).filter((r) => !!r.name);
+    return rs.map((r: any) => ({ id: r.id, name: r.name, acceptingClients: r.acceptingClients !== false })).filter((r) => !!r.name);
   })();
+  // Warn CHW (without fully blocking) when selected org is on waitlist.
+  const selectedOrgNotAccepting = orgId
+    ? orgResourceOptions.find((o) => o.id === orgId)?.acceptingClients === false
+    : false;
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(
@@ -258,6 +267,8 @@ export default function ChwDashboardPage() {
       return (await res.json()) as CreateReferralResponse;
     },
     onSuccess: (data) => {
+      // Capture before resetReferralForm clears clientPhone.
+      setSubmittedClientPhone(clientPhone.trim());
       setLastResult(data);
       queryClient.invalidateQueries({ queryKey: ["/api/referrals/my-sent"] });
       resetReferralForm();
@@ -374,6 +385,12 @@ export default function ChwDashboardPage() {
                     }}
                     data-testid="input-org-name"
                   />
+                  {selectedOrgNotAccepting && (
+                    <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-1" role="alert" data-testid="notice-org-not-accepting">
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
+                      This org is on waitlist. You can still submit, but expect delays — consider an alternative if urgent.
+                    </div>
+                  )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -460,6 +477,16 @@ export default function ChwDashboardPage() {
                             <Copy className="h-4 w-4" />
                           </Button>
                         </div>
+                        {submittedClientPhone && (
+                          <a
+                            href={`sms:${submittedClientPhone.replace(/\D/g, "")}?body=${encodeURIComponent(`Your referral status: ${lastResult.statusUrl}`)}`}
+                            className="inline-flex items-center gap-1.5 text-xs text-teal-600 hover:underline"
+                            data-testid="link-sms-status"
+                          >
+                            <Send className="h-3 w-3" />
+                            Send status link to client via SMS
+                          </a>
+                        )}
                       </div>
                     )}
                     {lastResult.orgConfirmUrl && (
@@ -800,7 +827,12 @@ export default function ChwDashboardPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Phone className="h-3 w-3 shrink-0" />
-                          <span>{resource.phone}</span>
+                          {/* tel: link lets CHWs call directly from their phone — Task #164 */}
+                          <a
+                            href={`tel:${resource.phone.replace(/\D/g, "")}`}
+                            className="hover:text-teal-600 hover:underline"
+                            data-testid={`link-phone-${resource.id}`}
+                          >{resource.phone}</a>
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3 shrink-0" />

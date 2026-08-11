@@ -735,7 +735,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build a 2-fixture commercial bathroom: Tank (60 m / ≈85 psi) → 1\" (25 mm) trunk → Tee → two sinks (3.15e-5 m³/s each).",
+        instruction: "Build a 2-fixture commercial bathroom: Tank (60 m / ≈85 psi) → 1\" (25 mm) trunk → Tee → two sinks (3.15e-5 m³/s / ≈0.5 gpm each).",
         hint: "Higher source head, larger trunk.",
         checkDescription: "commercial-scale layout",
       },

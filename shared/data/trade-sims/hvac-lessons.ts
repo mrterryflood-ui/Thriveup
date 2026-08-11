@@ -89,7 +89,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       blurb:
         "HVAC is just the management of heat. Heat moves three ways: conduction (through solid walls), convection (with moving air or fluid), and radiation (through space, like sunlight on a window). For day-to-day load calc you mostly care about conduction through the envelope and the R-value that resists it: Q = (A/R) × ΔT. A bigger wall, lower R, or colder outdoors all push heat out faster — and the equipment has to put it back in.",
       keyTerms: [
-        { term: "U-value", definition: "How easily heat passes through 1 m² of wall per 1 K. U = 1/R." },
+        { term: "U-value", definition: "How easily heat passes through 1 m² (10.8 ft²) of wall per 1 K (1.8 °R). U = 1/R." },
         { term: "R-value", definition: "Resistance to heat flow. Higher R = better insulation." },
         { term: "ΔT (delta-T)", definition: "Temperature difference, usually indoor − outdoor. Drives load." },
         { term: "°F ↔ °C", definition: "°F = (°C × 9/5) + 32. °C = (°F − 32) × 5/9. Quick reference: 32°F = 0°C, 70°F = 21°C, 95°F = 35°C, 212°F = 100°C. HVAC ratings use 95°F (35°C) outdoor / 80°F (27°C) indoor as standard test conditions." },
@@ -112,14 +112,14 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         checkDescription: "perZone.sensibleLoad > 0",
       },
       {
-        instruction: "Double the wall area to 120 m². Sensible load roughly doubles.",
+        instruction: "Double the wall area to 120 m² (1,290 ft²). Sensible load roughly doubles.",
         hint: "Q ∝ A. More wall = more heat lost = more load.",
         checkDescription: "load roughly 2× the previous run",
       },
     ],
     soloChallenge: {
-      prompt: "A bedroom has 40 m² of external wall, R-3, target 20 °C (68°F), ambient −10 °C (14°F). Compute the design heating load with no internal gains. (Expected ≈ 400 W.)",
-      successCriteria: "Reported sensibleLoad within ±10 % of 400 W.",
+      prompt: "A bedroom has 40 m² (430 ft²) of external wall, R-3, target 20 °C (68°F), ambient −10 °C (14°F). Compute the design heating load with no internal gains. (Expected ≈ 400 W / 1,365 BTU/h.)",
+      successCriteria: "Reported sensibleLoad within ±10 % of 400 W (1,365 BTU/h).",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
     sandboxStarter: {
@@ -197,7 +197,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Place a Zone with 2 occupants and 0.02 m³/s ventilation. Cooling design (ambient 32 °C / 90°F).",
+        instruction: "Place a Zone with 2 occupants and 0.02 m³/s (42 CFM) ventilation. Cooling design (ambient 32 °C / 90°F).",
         hint: "Occupants + outdoor air = a real latent load.",
         checkDescription: "zone with occupancy ≥ 2 and ventilationM3s > 0",
       },
@@ -213,7 +213,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A 100 m² classroom with 25 students (occupancy 25) and 0.15 m³/s of outdoor air sits at 24 °C (75°F) target. Outdoor 35 °C (95°F) / W=0.020. Compute total load and SHR.",
+      prompt: "A 100 m² (1,076 ft²) classroom with 25 students (occupancy 25) and 0.15 m³/s (318 CFM) of outdoor air sits at 24 °C (75°F) target. Outdoor 35 °C (95°F) / W=0.020. Compute total load and SHR.",
       successCriteria: "Latent > 0; total load consistent with sum of perZone.designLoad.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
@@ -261,7 +261,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "Build a 4-zone house where the heating block load is between 6 and 8 kW. Resize equipment so capacity is within 1.2× of the load (no oversize warning).",
+      prompt: "Build a 4-zone house where the heating block load is between 6 and 8 kW (20,500–27,300 BTU/h). Resize equipment so capacity is within 1.2× of the load (no oversize warning).",
       successCriteria: "No 'Oversized' or 'Undersized' warning in result.",
       scoringRubric: { correctness: 0.6, time: 0.2, componentCount: 0.2 },
     },
@@ -272,7 +272,7 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         { kind: "zone", props: { volume: 50, targetTemp: 20, externalWallArea: 40, externalWallR: 5 } },
         { kind: "heat_pump", props: { heatingCapacity: 7000, coolingCapacity: 7000, blowerCFM: 800 } },
       ],
-      prompt: "Try a 12 kW heat pump. Watch the Oversized warning appear. Manual J exists to prevent exactly that.",
+      prompt: "Try a 12 kW (41,000 BTU/h) heat pump. Watch the Oversized warning appear. Manual J exists to prevent exactly that.",
     },
     credentialPathway: `Manual J is on every contractor licensing exam in Texas. ${ACC_HVAC} dedicates a full course to it.`,
   },

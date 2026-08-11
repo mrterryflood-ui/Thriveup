@@ -19,7 +19,7 @@
 - [YHSI implementation stack](yhsi-stack.md) — youth voice/referrals/HMIS/reports; role checks MUST hit DB (req.user.role is never set); metrics are suppression-first (floor 5).
 - [E2E forged-session auth](e2e-forged-session-auth.md) — Playwright can't do OIDC sign-in; forge sessions-table rows + sign connect.sid with SESSION_SECRET to test as an authed user.
 - [HUD PIT nationwide community data](hud-pit-community-data.md) — official-only dataset + public lookup; huduser.gov UA/xlsb quirks; refresh must never follow redirects; youth counts start 2015.
-- [Data foundation hardening](data-foundation-hardening.md) — seeds are idempotent upserts (reseed = sanctioned content push); award-once semantics via newlyCompleted; typecheck gate baseline 85.
+- [Data foundation hardening](data-foundation-hardening.md) — seeds are idempotent upserts (reseed = sanctioned content push); award-once semantics via newlyCompleted; typecheck gate baseline 87.
 - [Remediation doctrine & re-audit outcome](remediation-doctrine.md) — 5 permanent validation gates; stash hazard in parallel waves; partner keys tenantless→aggregate-only; completed referrals immutable.
 - [SVG canvas touch UX](svg-canvas-touch-ux.md) — stroke-only symbols are untappable on phones; body hit-rects + svg pointer capture + tap-wire must not self-cancel on bubbled pointerup.
 - [Academy economy invariants](academy-economy.md) — virtual money must be unforgeable at the DB level: lock every validated row, server-derive amounts, make rewards claim-once.
@@ -33,6 +33,9 @@
 - [Lesson diagram verification](lesson-diagram-verification.md) — diagrams must reuse the lesson's own worked numbers/units; 3D canvases use touch-action pan-y; 375px gallery recipe.
 - [Referral loop invariants](referral-loop-invariants.md) — separate status vs org-confirm tokens; staff-gated creation; atomic resolved-at guard; default values need valueSource disclosure.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
+- [CHW dashboard state patterns](chw-dashboard-state.md) — submittedClientPhone captures phone before resetReferralForm() clears it; orgResourceOptions must include acceptingClients for capacity warning; phone numbers use 555-01xx NANP reserved range (never real).
+- [Funder impact report $0 fix](funder-impact-zero.md) — estimatedCount field distinguishes enrolled-with-estimate vs enrolled-without; narrative says "value not yet estimated" not "$0" when estimatedCount=0 and enrolled>0.
+- [Webhook subscriber detection](webhook-subscriber-detection.md) — zero-subscriber case is a clean no-op; upgraded from debug to INFO log so operators can see when no partner endpoint is configured; verify-referral-webhook.ts chained into auth-e2e gate.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.

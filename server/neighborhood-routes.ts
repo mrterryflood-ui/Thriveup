@@ -5,6 +5,7 @@ const PptxGenJS = (PptxGenJSModule as any).default || PptxGenJSModule;
 import { db } from "./storage";
 import { grantOpportunities } from "@shared/schema";
 import { desc, isNotNull } from "drizzle-orm";
+import { requireAuth } from "./tenant-middleware";
 
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 const CENSUS_GEOCODER_URL = "https://geocoding.geo.census.gov/geocoder/geographies/address";
@@ -1577,7 +1578,7 @@ export function registerNeighborhoodRoutes(app: Express) {
   });
 
   const emailRateLimit = new Map<string, number>();
-  app.post("/api/neighborhood/email-report", async (req, res) => {
+  app.post("/api/neighborhood/email-report", requireAuth, async (req, res) => {
     try {
       const { profile, recipientEmail } = req.body;
       if (!profile || !recipientEmail) return res.status(400).json({ error: "Profile and recipient email required." });

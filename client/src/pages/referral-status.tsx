@@ -94,8 +94,10 @@ export default function ReferralStatusPage() {
 
   const { data, isLoading, error } = useQuery<ReferralStatus>({
     queryKey: ["/api/referrals/status", token],
-    queryFn: async () => {
-      const res = await fetch(`/api/referrals/status/${token}`);
+    queryFn: async ({ signal }) => {
+      const res = await fetch(`/api/referrals/status/${token}`, {
+        signal: AbortSignal.any([signal!, AbortSignal.timeout(15_000)]),
+      });
       if (!res.ok) throw new Error("Referral not found");
       return res.json();
     },
