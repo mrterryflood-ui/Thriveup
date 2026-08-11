@@ -144,6 +144,8 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [newStatus, setNewStatus] = useState("open");
   const [newWaitWeeks, setNewWaitWeeks] = useState("");
   const [newNote, setNewNote] = useState("");
+  const [newPhone, setNewPhone] = useState("");
+  const [newUrl, setNewUrl] = useState("");
   const [showAdd, setShowAdd] = useState(false);
 
   const { data, isLoading } = useQuery<{ entries: any[]; orgId: string; orgName: string }>({
@@ -168,6 +170,8 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
       setNewStatus("open");
       setNewWaitWeeks("");
       setNewNote("");
+      setNewPhone("");
+      setNewUrl("");
       toast({ title: "Intake status updated", description: "CHWs will see the change immediately." });
     },
     onError: (e: any) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
@@ -219,12 +223,19 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
               <span className="font-semibold">{e.programCode}</span>
               {e.waitWeeks && <span className="text-muted-foreground ml-2">~{e.waitWeeks} wk wait</span>}
               {e.note && <p className="text-muted-foreground">{e.note}</p>}
+              {(e.contactPhone || e.contactUrl) && (
+                <p className="text-muted-foreground">
+                  {e.contactPhone && <span data-testid={`capacity-entry-phone-${e.programCode}`}>📞 {e.contactPhone}</span>}
+                  {e.contactPhone && e.contactUrl && <span> · </span>}
+                  {e.contactUrl && <span className="break-all" data-testid={`capacity-entry-url-${e.programCode}`}>🔗 {e.contactUrl}</span>}
+                </p>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <StatusBadge status={e.status} stale={e.stale} />
               <Select
                 value={e.status}
-                onValueChange={(v) => updateMutation.mutate({ programCode: e.programCode, status: v, waitWeeks: e.waitWeeks, note: e.note })}
+                onValueChange={(v) => updateMutation.mutate({ programCode: e.programCode, status: v, waitWeeks: e.waitWeeks, note: e.note, contactPhone: e.contactPhone, contactUrl: e.contactUrl, serviceZips: e.serviceZips })}
               >
                 <SelectTrigger className="h-6 w-24 text-[10px]">
                   <SelectValue />
@@ -284,6 +295,33 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
                 placeholder="e.g. Call first to confirm"
               />
             </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Intake phone (optional)</Label>
+                <Input
+                  type="tel"
+                  className="h-8 text-xs"
+                  value={newPhone}
+                  onChange={(e) => setNewPhone(e.target.value)}
+                  placeholder="e.g. 512-555-0142"
+                  data-testid="input-capacity-phone"
+                />
+              </div>
+              <div>
+                <Label className="text-xs">Apply / info URL (optional)</Label>
+                <Input
+                  type="url"
+                  className="h-8 text-xs"
+                  value={newUrl}
+                  onChange={(e) => setNewUrl(e.target.value)}
+                  placeholder="https://…"
+                  data-testid="input-capacity-url"
+                />
+              </div>
+            </div>
+            <p className="text-[10px] text-muted-foreground">
+              CHWs see a "Call" and "Apply / learn more" link on the Benefits Screener when these are set.
+            </p>
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -293,6 +331,8 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
                   status: newStatus,
                   waitWeeks: newWaitWeeks ? parseInt(newWaitWeeks) : undefined,
                   note: newNote || undefined,
+                  contactPhone: newPhone.trim() || undefined,
+                  contactUrl: newUrl.trim() || undefined,
                 })}
                 disabled={updateMutation.isPending}
                 data-testid="button-save-capacity"

@@ -105,28 +105,73 @@ function CapacityBadge({ programCode, capacityOrgs, userZip }: {
   const waitlist = matches.filter((o) => o.status === "waitlist");
   const closed = matches.filter((o) => o.status === "closed");
 
+  // Inline contact actions: "Call" tel: link when the org published a phone,
+  // "Apply / learn more" when it published a URL. Rendered under the status line.
+  const ContactLinks = ({ o }: { o: any }) => {
+    // Only render http(s) URLs — never javascript:/data: from a bad record.
+    const safeUrl = typeof o.contactUrl === "string" && /^https?:\/\//i.test(o.contactUrl.trim())
+      ? o.contactUrl.trim()
+      : null;
+    if (!o.contactPhone && !safeUrl) return null;
+    return (
+      <span className="flex items-center gap-3 mt-0.5">
+        {o.contactPhone && (
+          <a
+            href={`tel:${String(o.contactPhone).replace(/[^+\d]/g, "")}`}
+            className="inline-flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-400 underline underline-offset-2"
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`capacity-call-${o.id}`}
+          >
+            <Phone className="h-3 w-3 shrink-0" /> Call {o.contactPhone}
+          </a>
+        )}
+        {safeUrl && (
+          <a
+            href={safeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 font-semibold text-blue-700 dark:text-blue-400 underline underline-offset-2"
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`capacity-link-${o.id}`}
+          >
+            <ExternalLink className="h-3 w-3 shrink-0" /> Apply / learn more
+          </a>
+        )}
+      </span>
+    );
+  };
+
   return (
     <div className="mt-2 pl-9 space-y-1" data-testid={`capacity-${programCode}`}>
       {open.map((o) => (
-        <div key={o.id} className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400">
-          <CheckCircle className="h-3.5 w-3.5 shrink-0" />
-          <span><strong className="font-semibold">{o.orgName}</strong> — Open now{o.note ? `: ${o.note}` : ""}</span>
+        <div key={o.id} className="flex items-start gap-2 text-xs text-green-700 dark:text-green-400">
+          <CheckCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span className="flex flex-col">
+            <span><strong className="font-semibold">{o.orgName}</strong> — Open now{o.note ? `: ${o.note}` : ""}</span>
+            <ContactLinks o={o} />
+          </span>
         </div>
       ))}
       {waitlist.map((o) => (
-        <div key={o.id} className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400">
-          <Clock className="h-3.5 w-3.5 shrink-0" />
-          <span>
-            <strong className="font-semibold">{o.orgName}</strong> — Waitlist
-            {o.waitWeeks ? ` ~${o.waitWeeks} wk${o.waitWeeks !== 1 ? "s" : ""}` : ""}
-            {o.note ? `: ${o.note}` : ""}
+        <div key={o.id} className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400">
+          <Clock className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span className="flex flex-col">
+            <span>
+              <strong className="font-semibold">{o.orgName}</strong> — Waitlist
+              {o.waitWeeks ? ` ~${o.waitWeeks} wk${o.waitWeeks !== 1 ? "s" : ""}` : ""}
+              {o.note ? `: ${o.note}` : ""}
+            </span>
+            <ContactLinks o={o} />
           </span>
         </div>
       ))}
       {closed.map((o) => (
-        <div key={o.id} className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
-          <XCircle className="h-3.5 w-3.5 shrink-0" />
-          <span><strong className="font-semibold">{o.orgName}</strong> — Closed intake{o.note ? `: ${o.note}` : ""}</span>
+        <div key={o.id} className="flex items-start gap-2 text-xs text-red-600 dark:text-red-400">
+          <XCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+          <span className="flex flex-col">
+            <span><strong className="font-semibold">{o.orgName}</strong> — Closed intake{o.note ? `: ${o.note}` : ""}</span>
+            <ContactLinks o={o} />
+          </span>
         </div>
       ))}
     </div>
