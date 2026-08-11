@@ -26,6 +26,7 @@ import {
   evaluateProbeResponse,
   advanceProbeState,
   _resetProbeState,
+  resolveProbeBase,
   PROBE_POPULATION_VARIANTS,
 } from "../server/community-brief-probe";
 
@@ -244,6 +245,77 @@ console.log("\n── populationSize rotation ──");
   // All values should be realistic (100 to 5 million — same bounds as server clamps)
   const allValid = PROBE_POPULATION_VARIANTS.every(v => v >= 100 && v <= 5_000_000);
   assert(allValid, "all population variants are within server-accepted range [100, 5_000_000]");
+}
+
+// ── Section 4: resolveProbeBase URL resolution ────────────────────────────────
+
+console.log("\n── resolveProbeBase URL resolution ──");
+
+{
+  // COMMUNITY_BRIEF_PROBE_URL takes priority over REPLIT_DOMAINS
+  const saved = { probe: process.env.COMMUNITY_BRIEF_PROBE_URL, domains: process.env.REPLIT_DOMAINS };
+  process.env.COMMUNITY_BRIEF_PROBE_URL = "https://explicit-override.example.com/";
+  process.env.REPLIT_DOMAINS = "some-repl.replit.app,other.replit.app";
+  const base = resolveProbeBase();
+  process.env.COMMUNITY_BRIEF_PROBE_URL = saved.probe ?? "";
+  if (!saved.probe) delete process.env.COMMUNITY_BRIEF_PROBE_URL;
+  process.env.REPLIT_DOMAINS = saved.domains ?? "";
+  if (!saved.domains) delete process.env.REPLIT_DOMAINS;
+
+  assert(base === "https://explicit-override.example.com", "COMMUNITY_BRIEF_PROBE_URL wins over REPLIT_DOMAINS");
+}
+
+{
+  // Trailing slash in COMMUNITY_BRIEF_PROBE_URL is stripped
+  const saved = process.env.COMMUNITY_BRIEF_PROBE_URL;
+  delete process.env.REPLIT_DOMAINS;
+  process.env.COMMUNITY_BRIEF_PROBE_URL = "https://my-app.replit.app/";
+  const base = resolveProbeBase();
+  if (saved !== undefined) process.env.COMMUNITY_BRIEF_PROBE_URL = saved;
+  else delete process.env.COMMUNITY_BRIEF_PROBE_URL;
+
+  assert(base === "https://my-app.replit.app", "trailing slash stripped from COMMUNITY_BRIEF_PROBE_URL");
+}
+
+{
+  // Falls back to first domain in REPLIT_DOMAINS when COMMUNITY_BRIEF_PROBE_URL is absent
+  const savedProbe = process.env.COMMUNITY_BRIEF_PROBE_URL;
+  const savedDomains = process.env.REPLIT_DOMAINS;
+  delete process.env.COMMUNITY_BRIEF_PROBE_URL;
+  process.env.REPLIT_DOMAINS = "primary.replit.app,secondary.replit.app";
+  const base = resolveProbeBase();
+  if (savedProbe !== undefined) process.env.COMMUNITY_BRIEF_PROBE_URL = savedProbe;
+  if (savedDomains !== undefined) process.env.REPLIT_DOMAINS = savedDomains;
+  else delete process.env.REPLIT_DOMAINS;
+
+  assert(base === "https://primary.replit.app", "first REPLIT_DOMAINS hostname used when probe URL absent");
+}
+
+{
+  // Only one domain in REPLIT_DOMAINS — still works
+  const savedProbe = process.env.COMMUNITY_BRIEF_PROBE_URL;
+  const savedDomains = process.env.REPLIT_DOMAINS;
+  delete process.env.COMMUNITY_BRIEF_PROBE_URL;
+  process.env.REPLIT_DOMAINS = "solo.replit.app";
+  const base = resolveProbeBase();
+  if (savedProbe !== undefined) process.env.COMMUNITY_BRIEF_PROBE_URL = savedProbe;
+  if (savedDomains !== undefined) process.env.REPLIT_DOMAINS = savedDomains;
+  else delete process.env.REPLIT_DOMAINS;
+
+  assert(base === "https://solo.replit.app", "single REPLIT_DOMAINS entry works correctly");
+}
+
+{
+  // Both env vars absent → null (probe skipped)
+  const savedProbe = process.env.COMMUNITY_BRIEF_PROBE_URL;
+  const savedDomains = process.env.REPLIT_DOMAINS;
+  delete process.env.COMMUNITY_BRIEF_PROBE_URL;
+  delete process.env.REPLIT_DOMAINS;
+  const base = resolveProbeBase();
+  if (savedProbe !== undefined) process.env.COMMUNITY_BRIEF_PROBE_URL = savedProbe;
+  if (savedDomains !== undefined) process.env.REPLIT_DOMAINS = savedDomains;
+
+  assert(base === null, "both env vars absent → null (probe correctly skipped)");
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────────
