@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { logJourneyEvent } from "@/lib/journey-log";
@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
 import { COUNTIES_BY_STATE } from "@shared/nationwide/counties";
@@ -17,7 +18,8 @@ import {
   ChevronLeft, ChevronRight, Heart, Shield, Home, Users, Baby,
   DollarSign, Building2, Stethoscope, CheckCircle2, Loader2, Search,
   MapPin, Phone, FileText, ArrowRight, Star, Sparkles, ClipboardList,
-  HandHeart, Printer, UserCheck, Calendar, Globe, Clock, XCircle, CheckCircle
+  HandHeart, Printer, UserCheck, Calendar, Globe, Clock, XCircle, CheckCircle,
+  Send, Copy, ExternalLink
 } from "lucide-react";
 
 const STEPS = [
@@ -131,11 +133,171 @@ function CapacityBadge({ programCode, capacityOrgs, userZip }: {
   );
 }
 
+// ── CHW Send-Referral dialog ──────────────────────────────────────────────────
+interface SendReferralState {
+  programCode: string;
+  programName: string;
+  orgName: string;
+  orgId: string;
+  clientName: string;
+  clientPhone: string;
+}
+
+function SendReferralDialog({
+  open,
+  initial,
+  screeningId,
+  onClose,
+}: {
+  open: boolean;
+  initial: SendReferralState | null;
+  screeningId: number | null;
+  onClose: () => void;
+}) {
+  const { toast } = useToast();
+  const [form, setForm] = useState<SendReferralState>(initial ?? {
+    programCode: "", programName: "", orgName: "", orgId: "", clientName: "", clientPhone: "",
+  });
+  const [statusUrl, setStatusUrl] = useState<string | null>(null);
+
+  // Sync form when a new referral target is opened
+  useEffect(() => {
+    if (initial) setForm(initial);
+  }, [initial?.programCode]);
+
+  const referralMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", "/api/referrals", {
+        programCode: form.programCode,
+        orgName: form.orgName,
+        orgId: form.orgId || undefined,
+        clientDisplayName: form.clientName || undefined,
+        clientPhone: form.clientPhone || undefined,
+        screeningId: screeningId ?? undefined,
+      });
+      return res.json();
+    },
+    onSuccess: (data) => {
+      setStatusUrl(data.statusUrl ?? null);
+      toast({ title: "Referral sent!", description: `Referral created for ${form.orgName}.` });
+    },
+    onError: () => toast({ title: "Error", description: "Could not create referral. Try again.", variant: "destructive" }),
+  });
+
+  function copyStatusUrl() {
+    if (!statusUrl) return;
+    const full = `${window.location.origin}${statusUrl}`;
+    navigator.clipboard.writeText(full).then(() =>
+      toast({ title: "Copied!", description: "Status link copied to clipboard." })
+    );
+  }
+
+  function handleClose() {
+    setStatusUrl(null);
+    setForm({ programCode: "", programName: "", orgName: "", orgId: "", clientName: "", clientPhone: "" });
+    onClose();
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Send className="h-5 w-5 text-primary" /> Send Referral
+          </DialogTitle>
+          <DialogDescription>
+            {form.programName && <span className="font-medium text-foreground">{form.programName}</span>}
+          </DialogDescription>
+        </DialogHeader>
+
+        {statusUrl ? (
+          <div className="space-y-4">
+            <div className="rounded-lg bg-green-50 dark:bg-green-950/30 border border-green-300 p-4 text-center space-y-2">
+              <CheckCircle2 className="h-8 w-8 text-green-600 mx-auto" />
+              <p className="font-semibold text-green-800 dark:text-green-300">Referral Created!</p>
+              <p className="text-sm text-muted-foreground">Share this status link with the client so they can track their referral:</p>
+              <div className="flex items-center gap-2 mt-2">
+                <Input
+                  readOnly
+                  value={`${window.location.origin}${statusUrl}`}
+                  className="text-xs"
+                  data-testid="referral-status-url"
+                />
+                <Button size="icon" variant="outline" onClick={copyStatusUrl} title="Copy link">
+                  <Copy className="h-4 w-4" />
+                </Button>
+                <Button size="icon" variant="outline" asChild>
+                  <a href={statusUrl} target="_blank" rel="noopener noreferrer" title="Open status page">
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              </div>
+            </div>
+            <Button className="w-full" variant="outline" onClick={handleClose}>
+              Done
+            </Button>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="space-y-1">
+              <Label>Organization name <span className="text-destructive">*</span></Label>
+              <Input
+                value={form.orgName}
+                onChange={e => setForm({ ...form, orgName: e.target.value })}
+                placeholder="e.g. Austin Community Food Bank"
+                data-testid="referral-org-name"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Client name <span className="text-muted-foreground text-xs">(optional)</span></Label>
+              <Input
+                value={form.clientName}
+                onChange={e => setForm({ ...form, clientName: e.target.value })}
+                placeholder="First name only is fine"
+                data-testid="referral-client-name"
+              />
+            </div>
+            <div className="space-y-1">
+              <Label>Client phone <span className="text-muted-foreground text-xs">(optional — for status link delivery)</span></Label>
+              <Input
+                value={form.clientPhone}
+                onChange={e => setForm({ ...form, clientPhone: e.target.value })}
+                placeholder="e.g. 512-555-0100"
+                data-testid="referral-client-phone"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1" onClick={handleClose}>
+                Cancel
+              </Button>
+              <Button
+                className="flex-1"
+                disabled={!form.orgName.trim() || referralMutation.isPending}
+                onClick={() => referralMutation.mutate()}
+                data-testid="button-submit-referral"
+              >
+                {referralMutation.isPending ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Sending…</>
+                ) : (
+                  <><Send className="h-4 w-4 mr-2" /> Send Referral</>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export default function BenefitsScreenerPage() {
   const { toast } = useToast();
   const [step, setStep] = useState(0);
   const [data, setData] = useState<ScreenerData>(INITIAL_DATA);
   const [result, setResult] = useState<any>(null);
+  const [chwMode, setChwMode] = useState(false);
+  const [referralTarget, setReferralTarget] = useState<SendReferralState | null>(null);
+  const [screeningId, setScreeningId] = useState<number | null>(null);
 
   // Counties in the currently-selected state. Recomputed only when the state changes.
   const countiesInState = useMemo(
@@ -181,6 +343,8 @@ export default function BenefitsScreenerPage() {
     onSuccess: (res) => {
       setResult(res);
       setStep(4);
+      // Capture the screening ID so referrals can link back to it.
+      if (res?.id) setScreeningId(parseInt(res.id, 10));
       queryClient.invalidateQueries({ queryKey: ["/api/benefits/screenings"] });
       const eligibleCount = Array.isArray(res?.eligibility) ? res.eligibility.filter((e: any) => e.eligible).length : 0;
       logJourneyEvent({
@@ -213,6 +377,12 @@ export default function BenefitsScreenerPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-950/20 dark:to-background" data-testid="benefits-screener">
+      <SendReferralDialog
+        open={!!referralTarget}
+        initial={referralTarget}
+        screeningId={screeningId}
+        onClose={() => setReferralTarget(null)}
+      />
       <div className="max-w-2xl mx-auto p-4 md:p-6">
         <div className="text-center mb-6">
           <div className="flex items-center justify-center gap-2 mb-2">
@@ -220,10 +390,27 @@ export default function BenefitsScreenerPage() {
             <h1 className="text-xl md:text-2xl font-bold" data-testid="text-screener-title">Benefits Eligibility Screener</h1>
           </div>
           <p className="text-sm text-muted-foreground">Free · Confidential · Takes 3 minutes</p>
-          <div className="flex items-center gap-2 justify-center mt-2">
+          <div className="flex items-center gap-2 justify-center mt-2 flex-wrap">
             <Badge variant="outline" className="text-xs">Powered by ThriveUp Academy</Badge>
             <Badge variant="outline" className="text-xs">The Collaborative Advocate Foundation</Badge>
           </div>
+          {/* CHW Field Mode toggle — lets navigators send referrals directly from results */}
+          <div className="flex items-center justify-center gap-2 mt-3">
+            <Label htmlFor="chw-mode-toggle" className="text-xs text-muted-foreground cursor-pointer flex items-center gap-1">
+              <UserCheck className="h-3.5 w-3.5" /> CHW Field Mode
+            </Label>
+            <Switch
+              id="chw-mode-toggle"
+              checked={chwMode}
+              onCheckedChange={setChwMode}
+              data-testid="switch-chw-mode"
+            />
+          </div>
+          {chwMode && (
+            <p className="text-xs text-blue-600 dark:text-blue-400 mt-1 font-medium">
+              Field mode active — "Send Referral" buttons will appear on each result
+            </p>
+          )}
         </div>
 
         <div className="mb-6">
@@ -481,6 +668,32 @@ export default function BenefitsScreenerPage() {
                                 </a>
                               </div>
                             ) : null;
+                          })()}
+                          {/* CHW Field Mode — Send Referral button */}
+                          {chwMode && (() => {
+                            // Pre-fill org from capacity data if an open org matches this program
+                            const matchOrg = capacityOrgs.find(o =>
+                              (o.programCode === b || (o.programCode === "general" && (!o.serviceZips || o.serviceZips.length === 0)))
+                              && o.status === "open"
+                            );
+                            return (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="mt-2 gap-1.5 text-xs border-primary text-primary hover:bg-primary/10"
+                                data-testid={`button-send-referral-${b}`}
+                                onClick={() => setReferralTarget({
+                                  programCode: b,
+                                  programName: info.name,
+                                  orgName: matchOrg?.orgName ?? "",
+                                  orgId: matchOrg?.orgId ?? "",
+                                  clientName: "",
+                                  clientPhone: "",
+                                })}
+                              >
+                                <Send className="h-3.5 w-3.5" /> Send Referral
+                              </Button>
+                            );
                           })()}
                         </div>
                       </div>

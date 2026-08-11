@@ -1,0 +1,168 @@
+/**
+ * /status/:token — Public, token-gated referral status page.
+ * No login required. Client visits this link to see where their referral stands.
+ */
+
+import { useParams } from "wouter";
+import { useQuery } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { CheckCircle2, Clock, XCircle, AlertCircle, Heart } from "lucide-react";
+
+interface ReferralStatus {
+  orgName: string;
+  programCode: string;
+  status: string;
+  notes: string | null;
+}
+
+const PROGRAM_LABELS: Record<string, string> = {
+  SNAP: "SNAP (Food Benefits)",
+  Medicaid: "Medicaid",
+  CHIP: "CHIP (Children's Health Insurance)",
+  WIC: "WIC (Women, Infants & Children)",
+  EITC: "Earned Income Tax Credit",
+  CTC: "Child Tax Credit",
+  SSI: "SSI (Supplemental Security Income)",
+  SSDI: "SSDI (Social Security Disability)",
+  Marketplace: "Health Insurance Marketplace",
+};
+
+function StatusDisplay({ status }: { status: string }) {
+  if (status === "enrolled") {
+    return (
+      <div className="flex flex-col items-center gap-2 py-4">
+        <CheckCircle2 className="h-16 w-16 text-green-600" />
+        <Badge className="text-base px-4 py-1 bg-green-600">Enrolled</Badge>
+        <p className="text-muted-foreground text-center max-w-sm">
+          Great news — you have been enrolled in this program. If you have questions about next steps,
+          contact the organization directly.
+        </p>
+      </div>
+    );
+  }
+  if (status === "sent" || status === "accepted") {
+    return (
+      <div className="flex flex-col items-center gap-2 py-4">
+        <Clock className="h-16 w-16 text-amber-500" />
+        <Badge variant="secondary" className="text-base px-4 py-1">In Progress</Badge>
+        <p className="text-muted-foreground text-center max-w-sm">
+          Your referral has been sent and is being reviewed. The organization will follow up with you soon.
+          No action needed from you right now.
+        </p>
+      </div>
+    );
+  }
+  if (status === "ineligible") {
+    return (
+      <div className="flex flex-col items-center gap-2 py-4">
+        <AlertCircle className="h-16 w-16 text-orange-500" />
+        <Badge variant="outline" className="text-base px-4 py-1">Not Eligible</Badge>
+        <p className="text-muted-foreground text-center max-w-sm">
+          After reviewing your application, the program determined you do not qualify at this time.
+          A navigator can help you find other options — call <strong>2-1-1</strong> for free assistance.
+        </p>
+      </div>
+    );
+  }
+  if (status === "withdrew") {
+    return (
+      <div className="flex flex-col items-center gap-2 py-4">
+        <XCircle className="h-16 w-16 text-muted-foreground" />
+        <Badge variant="outline" className="text-base px-4 py-1">Withdrawn</Badge>
+        <p className="text-muted-foreground text-center max-w-sm">
+          This referral was marked as withdrawn. If you still need help, call <strong>2-1-1</strong> to
+          connect with a navigator.
+        </p>
+      </div>
+    );
+  }
+  return (
+    <div className="flex flex-col items-center gap-2 py-4">
+      <Clock className="h-16 w-16 text-blue-500" />
+      <Badge variant="secondary" className="text-base px-4 py-1">Pending</Badge>
+      <p className="text-muted-foreground text-center max-w-sm">
+        Your referral is being processed. You don't need to do anything right now — the organization
+        will reach out to you.
+      </p>
+    </div>
+  );
+}
+
+export default function ReferralStatusPage() {
+  const { token } = useParams<{ token: string }>();
+
+  const { data, isLoading, error } = useQuery<ReferralStatus>({
+    queryKey: ["/api/referrals/status", token],
+    queryFn: async () => {
+      const res = await fetch(`/api/referrals/status/${token}`);
+      if (!res.ok) throw new Error("Referral not found");
+      return res.json();
+    },
+    enabled: !!token,
+    staleTime: 2 * 60 * 1000,
+  });
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-white dark:from-green-950/20 dark:to-background flex items-center justify-center p-4">
+      <div className="w-full max-w-md space-y-4">
+        <div className="text-center space-y-2 mb-6">
+          <div className="flex items-center justify-center gap-2">
+            <Heart className="h-6 w-6 text-red-500" />
+            <h1 className="text-xl font-bold">Referral Status</h1>
+          </div>
+          <p className="text-sm text-muted-foreground">
+            The Collaborative Advocate Foundation · Free · Confidential
+          </p>
+        </div>
+
+        {isLoading && (
+          <Card>
+            <CardContent className="pt-6 text-center text-muted-foreground">
+              Looking up your referral…
+            </CardContent>
+          </Card>
+        )}
+
+        {error && (
+          <Card className="border-destructive">
+            <CardContent className="pt-6 text-center space-y-2">
+              <XCircle className="h-10 w-10 text-destructive mx-auto" />
+              <p className="font-medium">Referral not found</p>
+              <p className="text-sm text-muted-foreground">
+                This link may have expired or be incorrect. Call <strong>2-1-1</strong> for free navigation help.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
+        {data && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base text-muted-foreground">
+                {PROGRAM_LABELS[data.programCode] ?? data.programCode}
+              </CardTitle>
+              <p className="text-sm font-semibold">{data.orgName}</p>
+            </CardHeader>
+            <CardContent>
+              <StatusDisplay status={data.status} />
+              {data.notes && (
+                <div className="mt-4 p-3 rounded-lg bg-muted/50 text-sm text-muted-foreground">
+                  <strong className="text-foreground">Note from organization:</strong>{" "}
+                  {data.notes}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
+        <Card className="bg-muted/30">
+          <CardContent className="pt-4 text-center text-xs text-muted-foreground space-y-1">
+            <p>Need more help? Call <strong>2-1-1</strong> — free, 24/7, 170+ languages.</p>
+            <p>The Collaborative Advocate Foundation · 501(c)(3) · EIN 41-3618003</p>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}

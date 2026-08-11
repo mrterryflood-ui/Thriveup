@@ -134,36 +134,39 @@ referralRouter.get("/status/:token", async (req, res) => {
 // link to corrupt outcome data and the value metrics that depend on it.
 referralRouter.patch("/:id/outcome", requireStaff, async (req: Request, res: Response) => {
   try {
-    const { status, benefitValueEstimate, notes } = req.body;
-    if (!VALID_STATUSES.includes(status)) return res.status(400).json({ error: "Invalid status" });
+      const { status, benefitValueEstimate, notes } = req.body;
 
-    // Load current row to apply program default + immutability guard.
-    const [existing] = await db.select().from(referrals).where(eq(referrals.id, req.params.id as string));
-    if (!existing) return res.status(404).json({ error: "Referral not found" });
+const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
+      if (!VALID_STATUSES.includes(status)) return res.status(400).json({ error: "Invalid status" });
 
-    // Immutability: a referral in a terminal resolved state cannot be changed.
-    if (existing.resolvedAt) {
-      return res.status(409).json({ error: "Referral outcome is already resolved and is immutable" });
-    }
+      const [existing] = await db
+        .select()
+        .from(referrals)
+        .where(eq(referrals.orgConfirmToken, req.params.orgToken as string));
+      if (!existing) return res.status(404).json({ error: "Referral not found" });
 
-    const { benefitValueEstimate: bve, valueSource } = resolveBenefitValue(
-      status,
-      existing.programCode,
-      benefitValueEstimate,
-    );
+      // Immutability: reject changes once terminally resolved.
+      if (existing.resolvedAt) {
+        return res.status(409).json({ error: "Referral outcome is already resolved and is immutable" });
+      }
 
-    // Atomic guard: conditional on resolved_at IS NULL so two concurrent
-    // confirms can't both win — the loser matches zero rows and gets a 409.
-    const [updated] = await db.update(referrals)
-      .set({
+      const { benefitValueEstimate: bve, valueSource } = resolveBenefitValue(
         status,
-        benefitValueEstimate: bve,
-        valueSource,
-        notes: notes || null,
-        resolvedAt: new Date(),
-      })
-      .where(and(eq(referrals.id, req.params.id as string), isNull(referrals.resolvedAt)))
-      .returning({ id: referrals.id, status: referrals.status, benefitValueEstimate: referrals.benefitValueEstimate, valueSource: referrals.valueSource });
+        existing.programCode,
+        benefitValueEstimate,
+      );
+
+      // Atomic guard: conditional on resolved_at IS NULL (see PATCH above).
+      const [updated] = await db.update(referrals)
+        .set({
+          status,
+          benefitValueEstimate: bve,
+          valueSource,
+          notes: notes || null,
+          resolvedAt: new Date(),
+        })
+        .where(and(eq(referrals.id, existing.id), isNull(referrals.resolvedAt)))
+        .returning({ id: referrals.id, status: referrals.status, benefitValueEstimate: referrals.benefitValueEstimate, valueSource: referrals.valueSource });
     if (!updated) {
       return res.status(409).json({ error: "Referral outcome is already resolved and is immutable" });
     }
@@ -192,6 +195,8 @@ referralRouter.post(
   async (req: Request, res: Response) => {
     try {
       const { status, benefitValueEstimate, notes } = req.body;
+
+const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
       if (!VALID_STATUSES.includes(status)) return res.status(400).json({ error: "Invalid status" });
 
       const [existing] = await db
