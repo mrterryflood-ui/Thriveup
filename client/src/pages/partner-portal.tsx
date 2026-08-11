@@ -1,17 +1,23 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
 import {
   CheckCircle2, Circle, ArrowRight, Building2, FileText, Users, Sparkles,
   Map, Compass, Network, TrendingUp, Heart, RotateCcw, Home, GraduationCap,
   Baby, Zap, Shield, Command, AlertCircle, ExternalLink, ChevronRight,
+  Clock, XCircle, CheckCircle, Plus, RefreshCw,
 } from "lucide-react";
 import { getToolsForOrg } from "@/lib/partner-tools";
 import type { PartnerTool } from "@/lib/partner-tools";
+import { useState } from "react";
 
 const ICON_MAP: Record<string, React.ElementType> = {
   Compass, FileText, Sparkles, Map, Network, Users, Zap, TrendingUp,
@@ -124,6 +130,184 @@ function StepItem({ step, index }: { step: OnboardingStep; index: number }) {
     );
   }
   return content;
+}
+
+const PROGRAM_CODES = [
+  "general", "SNAP", "Medicaid", "CHIP", "WIC", "EITC", "CTC", "SSI", "SSDI",
+  "TANF", "CCDF", "LIHEAP", "Section8", "VeteransBenefits", "Marketplace",
+];
+
+function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
+  const qc = useQueryClient();
+  const { toast } = useToast();
+  const [newProgram, setNewProgram] = useState("general");
+  const [newStatus, setNewStatus] = useState("open");
+  const [newWaitWeeks, setNewWaitWeeks] = useState("");
+  const [newNote, setNewNote] = useState("");
+  const [showAdd, setShowAdd] = useState(false);
+
+  const { data, isLoading } = useQuery<{ entries: any[]; orgId: string; orgName: string }>({
+    queryKey: ["/api/partner-portal/capacity"],
+    enabled: isAuthenticated,
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async (payload: any) => {
+      const res = await fetch("/api/partner-portal/capacity", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["/api/partner-portal/capacity"] });
+      setShowAdd(false);
+      setNewProgram("general");
+      setNewStatus("open");
+      setNewWaitWeeks("");
+      setNewNote("");
+      toast({ title: "Intake status updated", description: "CHWs will see the change immediately." });
+    },
+    onError: (e: any) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
+  });
+
+  const StatusBadge = ({ status, stale }: { status: string; stale?: boolean }) => {
+    if (stale) return <Badge variant="outline" className="text-amber-600 border-amber-400 text-[10px]">⚠ Stale</Badge>;
+    if (status === "open") return <Badge className="bg-green-600 text-white text-[10px]">Open now</Badge>;
+    if (status === "waitlist") return <Badge className="bg-amber-500 text-white text-[10px]">Waitlist</Badge>;
+    return <Badge variant="destructive" className="text-[10px]">Closed</Badge>;
+  };
+
+  return (
+    <Card data-testid="card-capacity-panel">
+      <CardHeader className="pb-2">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold">Intake Capacity Status</CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs gap-1"
+            onClick={() => setShowAdd(!showAdd)}
+            data-testid="button-add-capacity"
+          >
+            <Plus className="h-3 w-3" /> Add / Update
+          </Button>
+        </div>
+        <p className="text-[11px] text-muted-foreground mt-1">
+          CHWs see this status on the Benefits Screener before making referrals.
+          Entries older than 14 days are flagged stale.
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-2 pt-0">
+        {isLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
+
+        {!isLoading && (!data?.entries || data.entries.length === 0) && !showAdd && (
+          <div className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-800 dark:text-amber-200">
+            <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
+            <div>
+              <span className="font-semibold block">No intake status published</span>
+              Add your capacity status so CHWs know if you're accepting referrals.
+            </div>
+          </div>
+        )}
+
+        {data?.entries?.map((e) => (
+          <div key={e.id} className="flex items-center justify-between p-2 border rounded-lg text-xs" data-testid={`capacity-entry-${e.programCode}`}>
+            <div className="space-y-0.5">
+              <span className="font-semibold">{e.programCode}</span>
+              {e.waitWeeks && <span className="text-muted-foreground ml-2">~{e.waitWeeks} wk wait</span>}
+              {e.note && <p className="text-muted-foreground">{e.note}</p>}
+            </div>
+            <div className="flex items-center gap-2">
+              <StatusBadge status={e.status} stale={e.stale} />
+              <Select
+                value={e.status}
+                onValueChange={(v) => updateMutation.mutate({ programCode: e.programCode, status: v, waitWeeks: e.waitWeeks, note: e.note })}
+              >
+                <SelectTrigger className="h-6 w-24 text-[10px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="open">Open</SelectItem>
+                  <SelectItem value="waitlist">Waitlist</SelectItem>
+                  <SelectItem value="closed">Closed</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        ))}
+
+        {showAdd && (
+          <div className="border rounded-lg p-3 space-y-3 bg-muted/20" data-testid="form-add-capacity">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <Label className="text-xs">Program</Label>
+                <Select value={newProgram} onValueChange={setNewProgram}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {PROGRAM_CODES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Status</Label>
+                <Select value={newStatus} onValueChange={setNewStatus}>
+                  <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="open">Open</SelectItem>
+                    <SelectItem value="waitlist">Waitlist</SelectItem>
+                    <SelectItem value="closed">Closed</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {newStatus === "waitlist" && (
+              <div>
+                <Label className="text-xs">Approximate wait (weeks)</Label>
+                <Input
+                  type="number"
+                  className="h-8 text-xs"
+                  value={newWaitWeeks}
+                  onChange={(e) => setNewWaitWeeks(e.target.value)}
+                  placeholder="e.g. 3"
+                />
+              </div>
+            )}
+            <div>
+              <Label className="text-xs">Note (optional)</Label>
+              <Input
+                className="h-8 text-xs"
+                value={newNote}
+                onChange={(e) => setNewNote(e.target.value)}
+                placeholder="e.g. Call first to confirm"
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                className="h-7 text-xs"
+                onClick={() => updateMutation.mutate({
+                  programCode: newProgram,
+                  status: newStatus,
+                  waitWeeks: newWaitWeeks ? parseInt(newWaitWeeks) : undefined,
+                  note: newNote || undefined,
+                })}
+                disabled={updateMutation.isPending}
+                data-testid="button-save-capacity"
+              >
+                {updateMutation.isPending ? <><RefreshCw className="h-3 w-3 mr-1 animate-spin" /> Saving…</> : "Save status"}
+              </Button>
+              <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setShowAdd(false)}>
+                Cancel
+              </Button>
+            </div>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
 }
 
 export default function PartnerPortalPage() {
@@ -294,6 +478,9 @@ export default function PartnerPortalPage() {
                 ))}
               </CardContent>
             </Card>
+
+            {/* Intake Capacity */}
+            <CapacityPanel isAuthenticated={isAuthenticated} />
 
             {/* What TCAF needs */}
             <Card data-testid="card-tcaf-needs">

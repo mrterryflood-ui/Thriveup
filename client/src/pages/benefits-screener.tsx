@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { logJourneyEvent } from "@/lib/journey-log";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +17,7 @@ import {
   ChevronLeft, ChevronRight, Heart, Shield, Home, Users, Baby,
   DollarSign, Building2, Stethoscope, CheckCircle2, Loader2, Search,
   MapPin, Phone, FileText, ArrowRight, Star, Sparkles, ClipboardList,
-  HandHeart, Printer, UserCheck, Calendar, Globe
+  HandHeart, Printer, UserCheck, Calendar, Globe, Clock, XCircle, CheckCircle
 } from "lucide-react";
 
 const STEPS = [
@@ -76,6 +76,61 @@ const INITIAL_DATA: ScreenerData = {
   currentBenefits: [], contactName: "", contactPhone: "",
 };
 
+// ── Capacity badge helpers ────────────────────────────────────────────────────
+// An org using programCode="general" is shown under every benefit ONLY when its
+// serviceZips is null/empty (i.e. they serve the whole area). If serviceZips is
+// non-empty and the user's ZIP was not in that list, the capacity endpoint already
+// filtered them out, so we don't re-filter here — but we do honour the
+// programCode match to avoid showing truly unrelated records.
+function CapacityBadge({ programCode, capacityOrgs, userZip }: {
+  programCode: string;
+  capacityOrgs: any[];
+  userZip: string;
+}) {
+  const matches = capacityOrgs.filter((o) => {
+    // Exact program match: always show.
+    if (o.programCode === programCode) return true;
+    // "general" record: show ONLY when the org has no serviceZips restriction
+    // (null or empty array = it serves the entire area / all programs).
+    // If serviceZips is non-empty, the org is ZIP-scoped to specific areas and
+    // must not appear as a universal match for every benefit card.
+    if (o.programCode === "general" && (!o.serviceZips || o.serviceZips.length === 0)) return true;
+    return false;
+  });
+  if (matches.length === 0) return null;
+
+  const open = matches.filter((o) => o.status === "open");
+  const waitlist = matches.filter((o) => o.status === "waitlist");
+  const closed = matches.filter((o) => o.status === "closed");
+
+  return (
+    <div className="mt-2 pl-9 space-y-1" data-testid={`capacity-${programCode}`}>
+      {open.map((o) => (
+        <div key={o.id} className="flex items-center gap-2 text-xs text-green-700 dark:text-green-400">
+          <CheckCircle className="h-3.5 w-3.5 shrink-0" />
+          <span><strong className="font-semibold">{o.orgName}</strong> — Open now{o.note ? `: ${o.note}` : ""}</span>
+        </div>
+      ))}
+      {waitlist.map((o) => (
+        <div key={o.id} className="flex items-center gap-2 text-xs text-amber-700 dark:text-amber-400">
+          <Clock className="h-3.5 w-3.5 shrink-0" />
+          <span>
+            <strong className="font-semibold">{o.orgName}</strong> — Waitlist
+            {o.waitWeeks ? ` ~${o.waitWeeks} wk${o.waitWeeks !== 1 ? "s" : ""}` : ""}
+            {o.note ? `: ${o.note}` : ""}
+          </span>
+        </div>
+      ))}
+      {closed.map((o) => (
+        <div key={o.id} className="flex items-center gap-2 text-xs text-red-600 dark:text-red-400">
+          <XCircle className="h-3.5 w-3.5 shrink-0" />
+          <span><strong className="font-semibold">{o.orgName}</strong> — Closed intake{o.note ? `: ${o.note}` : ""}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default function BenefitsScreenerPage() {
   const { toast } = useToast();
   const [step, setStep] = useState(0);
@@ -87,6 +142,20 @@ export default function BenefitsScreenerPage() {
     () => COUNTIES_BY_STATE[data.state] || [],
     [data.state],
   );
+
+  // Fetch live capacity data when we have results (step 4)
+  const { data: capacityData } = useQuery<{ orgs: any[]; count: number }>({
+    queryKey: ["/api/directory/capacity", data.zipCode],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (data.zipCode) params.set("zip", data.zipCode);
+      const res = await fetch(`/api/directory/capacity?${params}`);
+      return res.json();
+    },
+    enabled: step === 4,
+    staleTime: 5 * 60 * 1000,
+  });
+  const capacityOrgs = capacityData?.orgs ?? [];
 
   const screenMutation = useMutation({
     mutationFn: async () => {
@@ -384,6 +453,7 @@ export default function BenefitsScreenerPage() {
                           <Badge variant="secondary" className="shrink-0">~${info.annualValue.toLocaleString()}/yr</Badge>
                         </div>
                         <div className="mt-3 pl-9 space-y-2">
+                          <CapacityBadge programCode={b} capacityOrgs={capacityOrgs} userZip={data.zipCode} />
                           <p className="text-xs font-semibold text-muted-foreground mb-1">Documents you'll need:</p>
                           <ul className="text-xs text-muted-foreground space-y-0.5">
                             {info.docs.map(d => (

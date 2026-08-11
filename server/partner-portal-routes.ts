@@ -1,6 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
-import { organizations, orgDocuments, organizationMembers } from "@shared/schema";
+import { organizations, orgDocuments, organizationMembers, orgCapacity } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -10,6 +10,80 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
 }
 
 export function registerPartnerPortalRoutes(app: Express) {
+  // GET /api/partner-portal/capacity — session-authenticated: org's own capacity entries
+  app.get("/api/partner-portal/capacity", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const [org] = await db.select({ id: organizations.id, name: organizations.name })
+        .from(organizations).where(eq(organizations.userId, userId)).limit(1);
+
+      if (!org) return res.json({ entries: [], orgId: null });
+
+      const orgId = `portal_${org.id}`;
+      const rows = await db.select().from(orgCapacity)
+        .where(eq(orgCapacity.orgId, orgId))
+        .orderBy(orgCapacity.programCode);
+
+      const STALE_MS = 14 * 24 * 60 * 60 * 1000;
+      const entries = rows.map((r) => ({
+        ...r,
+        stale: r.updatedAt ? Date.now() - new Date(r.updatedAt).getTime() > STALE_MS : true,
+      }));
+      res.json({ entries, orgId, orgName: org.name });
+    } catch (err) {
+      console.error("[partner-portal] capacity GET error", err);
+      res.status(500).json({ error: "Failed to load capacity entries" });
+    }
+  });
+
+  // PATCH /api/partner-portal/capacity — session-authenticated: upsert org capacity
+  app.patch("/api/partner-portal/capacity", requireAuth, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const [org] = await db.select({ id: organizations.id, name: organizations.name })
+        .from(organizations).where(eq(organizations.userId, userId)).limit(1);
+
+      if (!org) return res.status(400).json({ error: "No organization found for your account" });
+
+      const { programCode = "general", status = "open", waitWeeks, note, contactPhone, contactUrl, serviceZips } = req.body;
+      if (!["open", "waitlist", "closed"].includes(status)) {
+        return res.status(400).json({ error: "status must be open|waitlist|closed" });
+      }
+
+      const orgId = `portal_${org.id}`;
+      await db.insert(orgCapacity).values({
+        orgId,
+        orgName: org.name,
+        programCode,
+        status,
+        waitWeeks: waitWeeks ?? null,
+        note: note ?? null,
+        contactPhone: contactPhone ?? null,
+        contactUrl: contactUrl ?? null,
+        serviceZips: serviceZips ?? null,
+        updatedByPartnerKey: `portal:${userId.slice(0, 8)}`,
+      }).onConflictDoUpdate({
+        target: [orgCapacity.orgId, orgCapacity.programCode],
+        set: {
+          orgName: org.name,
+          status,
+          waitWeeks: waitWeeks ?? null,
+          note: note ?? null,
+          contactPhone: contactPhone ?? null,
+          contactUrl: contactUrl ?? null,
+          serviceZips: serviceZips ?? null,
+          updatedAt: new Date(),
+          updatedByPartnerKey: `portal:${userId.slice(0, 8)}`,
+        },
+      });
+
+      res.json({ ok: true, orgId, programCode, status });
+    } catch (err) {
+      console.error("[partner-portal] capacity PATCH error", err);
+      res.status(500).json({ error: "Failed to update capacity entry" });
+    }
+  });
+
   app.get("/api/partner-portal/home", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;

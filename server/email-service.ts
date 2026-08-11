@@ -472,6 +472,81 @@ export async function sendAIEngineAlert(opts: {
   }
 }
 
+export async function sendStaleCapacityReminder(opts: {
+  toEmail: string;
+  orgName: string;
+  staleEntries: Array<{ programCode: string; status: string; updatedAt: Date | null }>;
+}) {
+  try {
+    const { client, fromEmail } = await getResendClient();
+    const rows = opts.staleEntries
+      .map(
+        (e) =>
+          `<tr><td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">${e.programCode}</td>` +
+          `<td style="padding:6px 10px;border-bottom:1px solid #e5e7eb">${e.status}</td>` +
+          `<td style="padding:6px 10px;border-bottom:1px solid #e5e7eb;color:#9ca3af">${
+            e.updatedAt ? new Date(e.updatedAt).toLocaleDateString() : "Unknown"
+          }</td></tr>`
+      )
+      .join("");
+
+    await safeSend(
+      () =>
+        client.emails.send({
+          from: fromEmail,
+          to: opts.toEmail,
+          subject: `[Action needed] Update your intake status — ${opts.orgName}`,
+          html: `
+            <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+              <div style="background:#1d4ed8;padding:20px;border-radius:8px 8px 0 0">
+                <h2 style="color:white;margin:0">Intake Status Update Needed</h2>
+                <p style="color:#bfdbfe;margin:6px 0 0">ThriveUp Org Capacity Registry</p>
+              </div>
+              <div style="background:white;padding:24px;border:1px solid #e5e7eb;border-radius:0 0 8px 8px">
+                <p>Hi ${opts.orgName} team,</p>
+                <p>CHWs rely on your intake status to avoid making referrals that bounce.
+                   The following program entries haven't been updated in over 14 days and are
+                   now flagged as <strong>stale</strong> in the public directory:</p>
+                <table style="width:100%;border-collapse:collapse;font-size:14px;margin:16px 0">
+                  <thead>
+                    <tr style="background:#f3f4f6">
+                      <th style="padding:8px 10px;text-align:left;border-bottom:2px solid #e5e7eb">Program</th>
+                      <th style="padding:8px 10px;text-align:left;border-bottom:2px solid #e5e7eb">Status</th>
+                      <th style="padding:8px 10px;text-align:left;border-bottom:2px solid #e5e7eb">Last Updated</th>
+                    </tr>
+                  </thead>
+                  <tbody>${rows}</tbody>
+                </table>
+                <p>Please update your intake status using the Partner API:</p>
+                <pre style="background:#f3f4f6;padding:12px;border-radius:6px;font-size:13px;overflow-x:auto">
+PATCH /api/partner/v1/capacity
+x-partner-key: tcaf_...
+
+{
+  "orgName": "${opts.orgName}",
+  "programCode": "SNAP",
+  "status": "open"    ← open | waitlist | closed
+}</pre>
+                <p style="color:#6b7280;font-size:13px">
+                  Or log in to your Partner Portal to update directly from your dashboard.
+                  Entries not updated within 14 days are hidden from CHW views.
+                </p>
+                <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0"/>
+                <p style="color:#9ca3af;font-size:12px">
+                  ThriveUp Academy · The Collaborative Advocate Foundation · 501(c)(3) EIN 41-3618003<br/>
+                  To unsubscribe from these reminders, reply "unsubscribe" to this email.
+                </p>
+              </div>
+            </div>
+          `,
+        } as any),
+      `stale-capacity-reminder:${opts.orgName}`
+    );
+  } catch (err: any) {
+    console.error("[Email] sendStaleCapacityReminder failed:", err?.message || err);
+  }
+}
+
 export async function sendWelcomeEmail(email: string, name: string) {
   const { client, fromEmail } = await getResendClient();
   await safeSend(() => client.emails.send({

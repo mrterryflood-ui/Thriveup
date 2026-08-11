@@ -166,10 +166,10 @@ export default function ReentryProgramPage() {
               href="https://reentry.tdcj.texas.gov/"
             />
             <DirectoryRow
-              name="ConnectATX"
-              operator="United Way for Greater Austin"
-              desc="Searchable directory of free and reduced-cost services in the Austin / Travis County area."
-              href="https://www.connectatx.org"
+              name="211 Texas"
+              operator="United Way of Metropolitan Dallas / Statewide 211"
+              desc="Searchable directory of health and human services across all 254 Texas counties, including reentry-focused programs."
+              href="https://www.211texas.org"
             />
             <DirectoryRow
               name="National Reentry Resource Center"

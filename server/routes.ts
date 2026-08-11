@@ -6726,5 +6726,90 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   runBjsIngestion().catch((e: Error) => console.error("[startup] BJS ingestion:", e.message));
   seedKnowledgeGraph().catch((e: Error) => console.error("[startup] Knowledge graph seed:", e.message));
 
+  // ── Weekly stale-capacity email ───────────────────────────────────────────
+  // Runs 7 days after boot and then every 7 days. Emails partner contacts whose
+  // capacity entry is older than 14 days so they know to update their status.
+  const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+  async function runStaleCapacityEmailSweep() {
+    try {
+      const { db: _db } = await import("./storage");
+      const { orgCapacity: oc, partnerApiKeys: pak } = await import("@shared/schema");
+      const { lt, eq } = await import("drizzle-orm");
+      const { sendStaleCapacityReminder } = await import("./email-service");
+
+      const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+      const staleRows = await _db.select().from(oc).where(lt(oc.updatedAt, cutoff));
+
+      if (staleRows.length === 0) {
+        console.log("[capacity-stale-sweep] No stale entries — nothing to send.");
+        return;
+      }
+
+      // Group by orgId so one email per partner
+      const byOrg: Record<string, typeof staleRows> = {};
+      for (const row of staleRows) {
+        if (!byOrg[row.orgId]) byOrg[row.orgId] = [];
+        byOrg[row.orgId].push(row);
+      }
+
+      const { organizations } = await import("@shared/schema");
+
+      for (const [orgId, rows] of Object.entries(byOrg)) {
+        let email: string | null = null;
+        let orgName = rows[0].orgName;
+
+        if (orgId.startsWith("pk_")) {
+          // API-key partner: find their registered contact email
+          const prefix = orgId.slice(3); // strip pk_
+          const [key] = await _db.select({ partnerEmail: pak.partnerEmail })
+            .from(pak)
+            .where(eq(pak.keyPrefix, prefix));
+          email = key?.partnerEmail ?? null;
+        } else if (orgId.startsWith("portal_")) {
+          // Portal-authenticated partner: orgId = "portal_" + org.id (full id).
+          const orgDbId = orgId.slice("portal_".length);
+          const { users } = await import("@shared/schema");
+          const [orgRow] = await _db
+            .select({ userId: organizations.userId })
+            .from(organizations)
+            .where(eq(organizations.id, orgDbId))
+            .limit(1)
+            .catch(() => [] as Array<{ userId: string }>);
+          if (orgRow?.userId) {
+            const [userRow] = await _db
+              .select({ email: users.email })
+              .from(users)
+              .where(eq(users.id, orgRow.userId))
+              .limit(1)
+              .catch(() => [] as Array<{ email: string | null }>);
+            email = userRow?.email ?? null;
+          }
+        }
+
+        if (!email) {
+          console.log(`[capacity-stale-sweep] No email found for orgId=${orgId} — skipping`);
+          continue;
+        }
+
+        await sendStaleCapacityReminder({
+          toEmail: email,
+          orgName,
+          staleEntries: rows.map((r) => ({
+            programCode: r.programCode,
+            status: r.status,
+            updatedAt: r.updatedAt,
+          })),
+        });
+        console.log(`[capacity-stale-sweep] Sent reminder to ${email} for ${orgId} (${rows.length} stale entries)`);
+      }
+    } catch (err: any) {
+      console.error("[capacity-stale-sweep] error:", err.message);
+    }
+  }
+  setTimeout(() => {
+    runStaleCapacityEmailSweep();
+    setInterval(runStaleCapacityEmailSweep, WEEK_MS);
+  }, WEEK_MS);
+
   return httpServer;
 }

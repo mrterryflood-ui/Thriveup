@@ -7280,7 +7280,10 @@ export const orgCapacity = pgTable("org_capacity", {
   serviceZips: text("service_zips").array(),
   updatedAt: timestamp("updated_at").defaultNow(),
   updatedByPartnerKey: text("updated_by_partner_key"),
-});
+}, (t) => [
+  uniqueIndex("org_capacity_org_program_uq").on(t.orgId, t.programCode),
+]);
+export type OrgCapacity = typeof orgCapacity.$inferSelect;
 
 // ── Funders — foundation/government funders with token-gated dashboards ───────
 export const funders = pgTable("funders", {
