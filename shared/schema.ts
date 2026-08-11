@@ -7258,8 +7258,14 @@ export const referrals = pgTable("referrals", {
   clientPhone: text("client_phone"),
   chwUserId: integer("chw_user_id"),
   statusToken: text("status_token").unique().$defaultFn(() => nanoid(16)),
+  // Public capability token that lets an org confirm an enrollment outcome
+  // WITHOUT a staff login. Same random-default pattern as statusToken.
+  orgConfirmToken: varchar("org_confirm_token").unique().$defaultFn(() => nanoid(24)),
   status: text("status").notNull().default("sent"),
   benefitValueEstimate: integer("benefit_value_estimate"),
+  // Provenance of benefitValueEstimate: 'default' when a program default was
+  // applied because the org confirmed enrollment without a dollar estimate.
+  valueSource: varchar("value_source"),
   notes: text("notes"),
   funderId: text("funder_id"),
   createdAt: timestamp("created_at").defaultNow(),

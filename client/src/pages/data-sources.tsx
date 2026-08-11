@@ -93,7 +93,7 @@ const FEDERAL_SOURCES: DataSource[] = [
     agency: "Federal Bureau of Investigation",
     description: "State-level violent and property crime estimates, arrest data, juvenile arrest rates, and law enforcement statistics from the national incident-based reporting system.",
     dataTypes: ["Violent Crime Rate", "Property Crime Rate", "Juvenile Arrest Rate", "Homicide Rate", "Aggravated Assault", "Robbery", "Burglary", "Larceny"],
-    url: "https://crime-data-explorer.fr.cloud.gov",
+    url: "https://cde.ucr.cjis.gov",
     apiEndpoint: "https://api.usa.gov/crime/fbi/sapi/api/estimates/states",
     status: "key-required",
     updateFrequency: "Annual",

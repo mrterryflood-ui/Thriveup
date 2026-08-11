@@ -157,7 +157,7 @@ export default function SdvosbTrackerPage() {
           {[
             { label: "SBA VetCert Portal", url: "https://veterans.certify.sba.gov/", desc: "Official SBA SDVOSB/VOSB certification application" },
             { label: "SAM.gov Entity Registration", url: "https://sam.gov", desc: "Verify SDVOSB self-certification in entity profile" },
-            { label: "FAR 19.14 — SDVOSB Set-Asides", url: "https://www.acquisition.gov/far/19.14", desc: "Sole-source and set-aside authority for SDVOSBs" },
+            { label: "FAR 19.14 — SDVOSB Set-Asides", url: "https://www.acquisition.gov/far/part-19", desc: "Sole-source and set-aside authority for SDVOSBs" },
             { label: "DoD SBIR/STTR Portal (DSIP)", url: "https://dodsbirsttr.mil", desc: "Submit SBIR Phase I via CIP LLC (veteran-owned SBC)" },
             { label: "NaVOBA Certification", url: "https://navoba.org", desc: "Corporate buyer access for veteran-owned businesses" },
             { label: "SBA SubNet (Subcontracting)", url: "https://eweb.sba.gov/subnet/client/dsp_Landing.cfm", desc: "Register as SDVOSB subcontractor for large primes" },

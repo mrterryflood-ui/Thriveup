@@ -602,7 +602,7 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
         msgs.push({ role: "user", content: prompt });
         const resp = await client.chat.completions.create({
-          model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+          model: isReplit ? "gpt-5-nano" : "gpt-5-mini",
           messages: msgs,
           max_completion_tokens: 4000,
           response_format: { type: "json_object" },
@@ -718,7 +718,7 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
     msgs.push({ role: "user", content: prompt });
     const resp = await client.chat.completions.create({
-      model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+      model: isReplit ? "gpt-5-nano" : "gpt-5-mini",
       messages: msgs,
       max_completion_tokens: maxTokens || 2000,
     });

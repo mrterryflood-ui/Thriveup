@@ -88,7 +88,7 @@ function WildfireCard({ fire }: { fire: any }) {
             {fire.acres && <p className="text-sm font-semibold text-red-700 dark:text-red-400 mt-1">{fire.acres?.toLocaleString()} acres</p>}
             <p className="text-xs text-slate-400 mt-1">Cause: {fire.cause || "Under investigation"}</p>
           </div>
-          <a href="https://www.nifc.gov/fire-information/active-incidents" target="_blank" rel="noopener noreferrer"
+          <a href="https://www.nifc.gov/fire-information" target="_blank" rel="noopener noreferrer"
             className="text-xs text-blue-600 hover:underline flex items-center gap-0.5">
             <ExternalLink className="w-3 h-3" />NIFC ↗
           </a>
@@ -287,7 +287,7 @@ export default function RuralAlertsPage() {
                   ? wildfires.map((f: any, i: number) => <WildfireCard key={i} fire={f} />)
                   : <p className="text-center py-12 text-slate-500">No active wildfires reported in {STATE_NAMES[state]}.</p>}
                 <div className="flex justify-center mt-2">
-                  <a href="https://www.nifc.gov/fire-information/active-incidents" target="_blank" rel="noopener noreferrer"
+                  <a href="https://www.nifc.gov/fire-information" target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
                     <ExternalLink className="w-3.5 h-3.5" />View all active incidents on NIFC ↗
                   </a>
@@ -329,7 +329,7 @@ export default function RuralAlertsPage() {
                         className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
                         <ExternalLink className="w-3.5 h-3.5" />Full Drought Monitor for {state} ↗
                       </a>
-                      <a href="https://www.fsa.usda.gov/programs-and-services/disaster-assistance-program/drought/index" target="_blank" rel="noopener noreferrer"
+                      <a href="https://www.fsa.usda.gov/resources/programs/disaster-assistance-programs" target="_blank" rel="noopener noreferrer"
                         className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline">
                         <ExternalLink className="w-3.5 h-3.5" />FSA Drought Programs ↗
                       </a>
@@ -342,10 +342,10 @@ export default function RuralAlertsPage() {
                   <CardContent>
                     <div className="space-y-2">
                       {[
-                        { name: "USDA Emergency Livestock Assistance Program (ELAP)", url: "https://www.fsa.usda.gov/programs-and-services/disaster-assistance-program/emergency-livestock-assistance/index", note: "Livestock feed and water transport costs during drought" },
+                        { name: "USDA Emergency Livestock Assistance Program (ELAP)", url: "https://www.fsa.usda.gov/programs-and-services/disaster-assistance-program/emergency-assist-for-livestock-honey-bees-fish", note: "Livestock feed and water transport costs during drought" },
                         { name: "Livestock Forage Disaster Program (LFP)", url: "https://www.fsa.usda.gov/programs-and-services/disaster-assistance-program/livestock-forage/index", note: "Compensation for grazing losses on rangeland" },
                         { name: "Emergency Conservation Program (ECP)", url: "https://www.fsa.usda.gov/programs-and-services/conservation-programs/emergency-conservation/index", note: "Restore farmland damaged by drought-caused erosion" },
-                        { name: "NRCS Emergency Watershed Protection (EWP)", url: "https://www.nrcs.usda.gov/programs-and-services/emergency-programs/emergency-watershed-protection", note: "Restore watershed function after natural disasters" },
+                        { name: "NRCS Emergency Watershed Protection (EWP)", url: "https://www.nrcs.usda.gov/programs-initiatives/emergency-watershed-protection", note: "Restore watershed function after natural disasters" },
                       ].map((p, i) => (
                         <div key={i} className="flex items-start gap-2">
                           <span className="text-blue-500 mt-0.5">•</span>

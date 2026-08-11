@@ -2275,7 +2275,7 @@ Respond in this exact JSON format (no markdown, just JSON):
           if (!apiKey) throw new Error("No vision-capable API key available");
           const openai = new OpenAI({ apiKey, baseURL });
           const chatRes = await openai.chat.completions.create({
-            model: baseURL ? "gpt-5-nano" : "gpt-4o-mini",
+            model: baseURL ? "gpt-5-nano" : "gpt-5-mini",
             max_tokens: 2000,
             messages: [{
               role: "user",

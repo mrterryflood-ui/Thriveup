@@ -115,6 +115,17 @@ export const BENEFIT_NAVIGATION: Record<string, {
   },
 };
 
+/**
+ * PROGRAM_DEFAULT_ANNUAL_VALUE — default annual benefit value (USD) per program
+ * code, derived from the per-program estimatedAnnualValue figures in
+ * BENEFIT_NAVIGATION above. Used when an org confirms enrollment without a
+ * dollar estimate so funder dashboards never show $0 for a confirmed enrollment.
+ * Reuses the exact numbers so screener estimates and funder value stay in sync.
+ */
+export const PROGRAM_DEFAULT_ANNUAL_VALUE: Record<string, number> = Object.fromEntries(
+  Object.entries(BENEFIT_NAVIGATION).map(([code, v]) => [code, v.estimatedAnnualValue]),
+);
+
 export function computeEligibility(data: {
   annualIncome: number;
   householdSize: number;

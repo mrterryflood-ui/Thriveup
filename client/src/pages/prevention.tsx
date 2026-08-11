@@ -373,7 +373,7 @@ function SurveyTaker({ survey, onSubmit, onCancel, isSubmitting }: {
 const RESOURCES = [
   { name: "SAMHSA National Helpline", url: "https://www.samhsa.gov/find-help/national-helpline", desc: "Free, confidential, 24/7 treatment referral and information service: 1-800-662-4357" },
   { name: "NIDA for Teens", url: "https://teens.drugabuse.gov/", desc: "National Institute on Drug Abuse resources specifically for young people" },
-  { name: "CDC Youth Substance Use Prevention", url: "https://www.cdc.gov/substance-use-prevention/youth/index.html", desc: "Evidence-based prevention strategies and data from the CDC" },
+  { name: "CDC Youth Substance Use Prevention", url: "https://www.cdc.gov/overdose-prevention/php/interventions/youth-substance-use-prevention.html", desc: "Evidence-based prevention strategies and data from the CDC" },
   { name: "Communities That Care", url: "https://www.communitiesthatcare.net/", desc: "A coalition-based prevention system for reducing youth substance use" },
   { name: "Too Smart to Start", url: "https://www.samhsa.gov/underage-drinking", desc: "SAMHSA resources on underage drinking prevention" },
   { name: "Truth Initiative", url: "https://truthinitiative.org/", desc: "Leading organization dedicated to ending tobacco and nicotine use among youth" },

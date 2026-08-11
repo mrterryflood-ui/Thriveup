@@ -58,7 +58,7 @@ const SERVICE_CATEGORIES: ServiceCategory[] = [
       { name: "Texas 2-1-1 Housing", description: "Call 2-1-1 for immediate housing and shelter referrals in your area", externalLink: "https://www.211texas.org" },
       { name: "Austin Housing Initiative", description: "Local housing resources, affordable units, and community land trusts", internalLink: "/austin", platform: "LifeBridge" },
       { name: "SSVF (Veterans Housing)", description: "Supportive Services for Veteran Families — rapid re-housing and homelessness prevention", externalLink: "https://www.va.gov/homeless/ssvf/" },
-      { name: "HUD Resource Locator", description: "Find HUD-approved housing counseling agencies near you", externalLink: "https://www.hud.gov/findhelp" },
+      { name: "HUD Resource Locator", description: "Find HUD-approved housing counseling agencies near you", externalLink: "https://resources.hud.gov/" },
       { name: "Resource Finder — Housing", description: "Search housing resources by state", internalLink: "/resources", platform: "LifeBridge" },
     ],
   },

@@ -12,6 +12,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/page-header";
 import { TrainingGuideButton } from "@/components/training-guide";
 import {
@@ -20,6 +22,7 @@ import {
   Clock, Home, FileText, Star, GraduationCap, BookOpen,
   Stethoscope, Brain, ExternalLink, Plus, TrendingUp,
   ArrowRight, Sparkles, Building2, UserCheck, Clipboard, Lightbulb, Loader2,
+  Copy, Send,
 } from "lucide-react";
 
 interface ScreeningReferral {
@@ -66,6 +69,27 @@ interface TrainingModule {
   completedDate: string | null;
 }
 
+interface FunderOption {
+  id: string;
+  name: string;
+}
+
+interface SentReferral {
+  id: string;
+  programCode?: string;
+  orgName?: string;
+  clientDisplayName?: string | null;
+  status: string;
+  createdAt?: string;
+  statusUrl?: string;
+}
+
+interface CreateReferralResponse {
+  id?: string;
+  statusUrl?: string;
+  orgConfirmUrl?: string;
+}
+
 const SAMPLE_CASELOAD = [
   { id: "cl-1", name: "Client A", status: "active", riskLevel: "moderate", lastContact: "2026-03-15", nextFollowUp: "2026-03-22", screeningsComplete: 3, screeningsTotal: 5, notes: "Needs housing referral" },
   { id: "cl-2", name: "Client B", status: "active", riskLevel: "low", lastContact: "2026-03-16", nextFollowUp: "2026-03-30", screeningsComplete: 5, screeningsTotal: 5, notes: "All screenings complete" },
@@ -89,8 +113,8 @@ const SAMPLE_RESOURCES: CommunityResource[] = [
   { id: "cr-3", name: "Central Texas Food Bank", category: "Food Access", address: "789 Elm St", phone: "(512) 282-2111", hours: "Tue-Thu 10am-4pm", description: "Emergency food, nutrition education, SNAP enrollment assistance", acceptingClients: true, website: "https://centraltexasfoodbank.org" },
   { id: "cr-4", name: "LifeWorks", category: "Housing", address: "321 Pine Rd", phone: "(512) 735-2400", hours: "Mon-Fri 9am-5pm", description: "Rapid rehousing, emergency shelter referrals, landlord mediation", acceptingClients: false, website: "https://lifeworksaustin.org" },
   { id: "cr-5", name: "Workforce Solutions Capital Area", category: "Employment", address: "654 Cedar Blvd", phone: "(512) 597-7100", hours: "Mon-Fri 8am-5pm", description: "Job training, resume workshops, career counseling, GED programs", acceptingClients: true, website: "https://workforcesolutionscapitalarea.com" },
-  { id: "cr-6", name: "Austin Public Health WIC", category: "Maternal Health", address: "987 Maple Dr", phone: "(512) 972-5400", hours: "Mon-Wed-Fri 8am-4pm", description: "WIC enrollment, prenatal care coordination, breastfeeding support", acceptingClients: true, website: "https://www.austintexas.gov/department/wic" },
-  { id: "cr-7", name: "Austin Recovery", category: "Prevention", address: "147 Birch Ln", phone: "(512) 697-3843", hours: "Mon-Fri 9am-6pm", description: "Prevention education, youth programs, naloxone training", acceptingClients: true, website: "https://austinrecovery.org" },
+  { id: "cr-6", name: "Austin Public Health WIC", category: "Maternal Health", address: "987 Maple Dr", phone: "(512) 972-5400", hours: "Mon-Wed-Fri 8am-4pm", description: "WIC enrollment, prenatal care coordination, breastfeeding support", acceptingClients: true, website: "https://www.austintexas.gov/health/programs/women-infants-and-children-wic" },
+  { id: "cr-7", name: "Austin Recovery", category: "Prevention", address: "147 Birch Ln", phone: "(512) 697-3843", hours: "Mon-Fri 9am-6pm", description: "Prevention education, youth programs, naloxone training", acceptingClients: true, website: "https://www.infiniterecovery.com" },
   { id: "cr-8", name: "Texas RioGrande Legal Aid", category: "Legal", address: "258 Walnut St", phone: "(512) 374-2700", hours: "Mon-Thu 9am-5pm", description: "Free legal representation, immigration assistance, tenant rights", acceptingClients: true, website: "https://www.trla.org" },
 ];
 
@@ -116,6 +140,25 @@ function getRiskBadge(level: string) {
   }
 }
 
+function getReferralStatusChip(status: string) {
+  const s = (status || "").toLowerCase();
+  switch (s) {
+    case "enrolled":
+      return <Badge className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">Enrolled</Badge>;
+    case "accepted":
+      return <Badge className="text-[10px] bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">Accepted</Badge>;
+    case "ineligible":
+      return <Badge className="text-[10px] bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300">Ineligible</Badge>;
+    case "withdrew":
+      return <Badge variant="secondary" className="text-[10px]">Withdrew</Badge>;
+    case "pending":
+    case "sent":
+      return <Badge className="text-[10px] bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300">Pending</Badge>;
+    default:
+      return <Badge variant="secondary" className="text-[10px]">{status || "—"}</Badge>;
+  }
+}
+
 function getTrainingStatusBadge(status: string) {
   switch (status) {
     case "completed": return <Badge className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300">Completed</Badge>;
@@ -134,6 +177,101 @@ export default function ChwDashboardPage() {
 
   const { data: liveData } = useQuery({ queryKey: ["/api/chw/caseload"], retry: false });
   const { data: liveResources } = useQuery({ queryKey: ["/api/chw/resources"], retry: false });
+
+  // ── New Referral dialog state ─────────────────────────────────────────────
+  const [referralOpen, setReferralOpen] = useState(false);
+  const [programCode, setProgramCode] = useState("");
+  const [orgName, setOrgName] = useState("");
+  const [orgId, setOrgId] = useState("");
+  const [clientDisplayName, setClientDisplayName] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [funderId, setFunderId] = useState("");
+  const [referralNotes, setReferralNotes] = useState("");
+  const [lastResult, setLastResult] = useState<CreateReferralResponse | null>(null);
+
+  // Funder list — same endpoint the staff funder admin page uses.
+  const { data: fundersData } = useQuery<{ funders: FunderOption[] }>({
+    queryKey: ["/api/funder/list"],
+    queryFn: async () => {
+      const res = await fetch("/api/funder/list");
+      if (!res.ok) throw new Error("Failed to load funders");
+      return res.json();
+    },
+    enabled: isAuthenticated,
+    retry: false,
+  });
+  const funders: FunderOption[] = fundersData?.funders ?? [];
+
+  // My sent referrals.
+  const { data: sentData } = useQuery<{ referrals: SentReferral[] }>({
+    queryKey: ["/api/referrals/my-sent"],
+    queryFn: async () => {
+      const res = await fetch("/api/referrals/my-sent");
+      if (!res.ok) throw new Error("Failed to load sent referrals");
+      return res.json();
+    },
+    enabled: isAuthenticated,
+    retry: false,
+  });
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const sentReferrals: SentReferral[] = Array.isArray((sentData as any)?.referrals)
+    ? (sentData as any).referrals
+    : Array.isArray(sentData as any)
+      ? (sentData as any)
+      : [];
+
+  const orgResourceOptions: { id?: string; name: string }[] = ((): { id?: string; name: string }[] => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const rs: any[] = (liveResources as any)?.resources?.length ? (liveResources as any).resources : [];
+    return rs.map((r: any) => ({ id: r.id, name: r.name })).filter((r) => !!r.name);
+  })();
+
+  function copyToClipboard(text: string) {
+    navigator.clipboard.writeText(text).then(
+      () => toast({ title: "Copied", description: "Link copied to clipboard." }),
+      () => toast({ title: "Copy failed", description: "Could not copy to clipboard.", variant: "destructive" }),
+    );
+  }
+
+  function resetReferralForm() {
+    setProgramCode("");
+    setOrgName("");
+    setOrgId("");
+    setClientDisplayName("");
+    setClientPhone("");
+    setFunderId("");
+    setReferralNotes("");
+  }
+
+  const createReferral = useMutation({
+    mutationFn: async () => {
+      const body: Record<string, unknown> = {
+        programCode: programCode.trim(),
+        orgName: orgName.trim(),
+      };
+      if (orgId) body.orgId = orgId;
+      if (clientDisplayName.trim()) body.clientDisplayName = clientDisplayName.trim();
+      if (clientPhone.trim()) body.clientPhone = clientPhone.trim();
+      if (funderId) body.funderId = funderId;
+      if (referralNotes.trim()) body.notes = referralNotes.trim();
+      const res = await apiRequest("POST", "/api/referrals", body);
+      return (await res.json()) as CreateReferralResponse;
+    },
+    onSuccess: (data) => {
+      setLastResult(data);
+      queryClient.invalidateQueries({ queryKey: ["/api/referrals/my-sent"] });
+      resetReferralForm();
+      toast({
+        title: "Referral submitted",
+        description: data.statusUrl
+          ? "Track it below or copy the status link to share."
+          : "Referral created successfully.",
+      });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Could not submit referral", description: err.message, variant: "destructive" });
+    },
+  });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const caseload: any[] = (liveData as any)?.caseload?.length ? (liveData as any).caseload : SAMPLE_CASELOAD;
@@ -171,6 +309,216 @@ export default function ChwDashboardPage() {
           Manage caseloads, track screenings, log home visits, connect to community resources, and build professional skills
         </p>
       </div>
+
+      {isAuthenticated && (
+        <div className="flex items-center justify-end mb-4" data-testid="section-referral-actions">
+          <Dialog
+            open={referralOpen}
+            onOpenChange={(o) => {
+              setReferralOpen(o);
+              if (!o) setLastResult(null);
+            }}
+          >
+            <DialogTrigger asChild>
+              <Button className="gap-2" data-testid="button-new-referral">
+                <Send className="h-4 w-4" /> New Referral
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg" data-testid="dialog-new-referral">
+              <DialogHeader>
+                <DialogTitle>New Referral</DialogTitle>
+              </DialogHeader>
+
+              <div className="space-y-4 pt-1">
+                <div className="space-y-1.5">
+                  <Label htmlFor="ref-program-code">Program code</Label>
+                  <Input
+                    id="ref-program-code"
+                    placeholder="e.g. SNAP-2026"
+                    value={programCode}
+                    onChange={(e) => setProgramCode(e.target.value)}
+                    data-testid="input-program-code"
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="ref-org-name">Organization</Label>
+                  {orgResourceOptions.length > 0 && (
+                    <Select
+                      value={orgId || undefined}
+                      onValueChange={(val) => {
+                        setOrgId(val);
+                        const match = orgResourceOptions.find((o) => o.id === val);
+                        if (match) setOrgName(match.name);
+                      }}
+                    >
+                      <SelectTrigger className="mb-2" data-testid="select-org-resource">
+                        <SelectValue placeholder="Pick from your resources (optional)" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {orgResourceOptions.map((o) => (
+                          <SelectItem key={o.id ?? o.name} value={o.id ?? o.name}>
+                            {o.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <Input
+                    id="ref-org-name"
+                    placeholder="Organization name"
+                    value={orgName}
+                    onChange={(e) => {
+                      setOrgName(e.target.value);
+                      setOrgId("");
+                    }}
+                    data-testid="input-org-name"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="ref-client-name">Client name <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                    <Input
+                      id="ref-client-name"
+                      placeholder="Display name"
+                      value={clientDisplayName}
+                      onChange={(e) => setClientDisplayName(e.target.value)}
+                      data-testid="input-client-name"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="ref-client-phone">Client phone <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                    <Input
+                      id="ref-client-phone"
+                      type="tel"
+                      placeholder="(512) 555-0100"
+                      value={clientPhone}
+                      onChange={(e) => setClientPhone(e.target.value)}
+                      data-testid="input-client-phone"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="ref-funder">Funder <span className="text-muted-foreground font-normal">(optional — credits the right dashboard)</span></Label>
+                  <Select value={funderId || undefined} onValueChange={setFunderId}>
+                    <SelectTrigger id="ref-funder" data-testid="select-funder">
+                      <SelectValue placeholder={funders.length ? "Select a funder" : "No funders available"} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {funders.map((f) => (
+                        <SelectItem key={f.id} value={f.id} data-testid={`option-funder-${f.id}`}>
+                          {f.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="ref-notes">Notes <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                  <Textarea
+                    id="ref-notes"
+                    placeholder="Anything the receiving org should know…"
+                    value={referralNotes}
+                    onChange={(e) => setReferralNotes(e.target.value)}
+                    data-testid="input-referral-notes"
+                  />
+                </div>
+
+                <Button
+                  className="w-full"
+                  disabled={!programCode.trim() || !orgName.trim() || createReferral.isPending}
+                  onClick={() => createReferral.mutate()}
+                  data-testid="button-submit-referral"
+                >
+                  {createReferral.isPending ? (
+                    <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Submitting…</>
+                  ) : (
+                    "Submit Referral"
+                  )}
+                </Button>
+
+                {lastResult && (
+                  <div className="rounded-md border bg-muted/30 p-3 space-y-3" data-testid="referral-result">
+                    <div className="flex items-center gap-2 text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      <CheckCircle2 className="h-4 w-4" /> Referral submitted
+                    </div>
+                    {lastResult.statusUrl && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-muted-foreground">Status link (for you)</p>
+                        <div className="flex items-center gap-2">
+                          <Input readOnly value={lastResult.statusUrl} className="text-xs" data-testid="text-status-url" />
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={() => copyToClipboard(lastResult.statusUrl!)}
+                            data-testid="button-copy-status-url"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                    {lastResult.orgConfirmUrl && (
+                      <div className="space-y-1">
+                        <p className="text-xs font-medium text-muted-foreground">Org confirmation link (send to the org)</p>
+                        <div className="flex items-center gap-2">
+                          <Input readOnly value={lastResult.orgConfirmUrl} className="text-xs" data-testid="text-org-confirm-url" />
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="shrink-0"
+                            onClick={() => copyToClipboard(lastResult.orgConfirmUrl!)}
+                            data-testid="button-copy-org-confirm-url"
+                          >
+                            <Copy className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* My Sent Referrals */}
+                <div className="pt-2 border-t" data-testid="section-my-sent-referrals">
+                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
+                    <Clipboard className="h-4 w-4 text-teal-500" /> My Sent Referrals
+                  </h4>
+                  {sentReferrals.length === 0 ? (
+                    <p className="text-xs text-muted-foreground" data-testid="text-no-sent-referrals">
+                      No referrals sent yet.
+                    </p>
+                  ) : (
+                    <div className="space-y-2 max-h-56 overflow-y-auto">
+                      {sentReferrals.map((r) => (
+                        <div
+                          key={r.id}
+                          className="flex items-center justify-between gap-2 rounded-md border p-2"
+                          data-testid={`card-sent-referral-${r.id}`}
+                        >
+                          <div className="min-w-0">
+                            <p className="text-sm font-medium truncate">
+                              {r.orgName || "Organization"}
+                              {r.programCode ? <span className="text-muted-foreground font-normal"> · {r.programCode}</span> : null}
+                            </p>
+                            {r.clientDisplayName && (
+                              <p className="text-xs text-muted-foreground truncate">{r.clientDisplayName}</p>
+                            )}
+                          </div>
+                          <div className="shrink-0">{getReferralStatusChip(r.status)}</div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
+      )}
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
         <TabsList className="mb-6 flex-wrap" data-testid="tabs-chw">

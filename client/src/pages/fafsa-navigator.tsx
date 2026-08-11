@@ -367,7 +367,7 @@ export default function FafsaNavigatorPage() {
                 </p>
                 <ul className="text-sm text-amber-900 dark:text-amber-100 list-disc pl-5 space-y-1" data-testid="list-foster-mode-actions">
                   <li>On FAFSA, answer <strong>YES</strong> to: "Were you in foster care, an orphan, or a ward of the court at any time since you turned 13?"</li>
-                  <li>Apply for ETV through your state ETV coordinator or <a href="https://www.fc2success.org/programs/education-training-voucher-program/" target="_blank" rel="noreferrer" className="underline">Foster Care to Success</a>.</li>
+                  <li>Apply for ETV through your state ETV coordinator or <a href="https://www.fc2success.org/our-programs/" target="_blank" rel="noreferrer" className="underline">Foster Care to Success</a>.</li>
                   <li>If you're in Texas: combine with the <strong>Texas Tuition and Fee Waiver</strong> (Texas Education Code §54.366) for any Texas public college.</li>
                   <li>See your full rights at <a href="/foster-youth/rights" className="underline">Foster Youth — My Rights</a>.</li>
                 </ul>

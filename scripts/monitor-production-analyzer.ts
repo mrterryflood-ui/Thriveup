@@ -5,6 +5,18 @@
 const BASE = process.env.PROD_URL || "https://thrivingcommunitiesforall.com";
 const JSON_MODE = process.argv.includes("--json");
 
+// Freshness window: the response must have been generated within the last 2h.
+// The server's anonymous cache is 12h, so a stale cache hit would blow past this.
+const FRESHNESS_MAX_AGE_MS = 2 * 60 * 60 * 1000; // 2 hours
+
+// Rotate populationSize per run so the anonymous cache key
+// (`${location}|${populationSize}|${timeHorizon}`) differs every invocation —
+// forcing a live Census + AI build rather than a 12h cache hit. Mirrors the
+// PROBE_POPULATION_VARIANTS strategy in server/community-brief-probe.ts.
+// All values stay plausible for the probe ZIP so Census math isn't distorted.
+const POPULATION_VARIANTS = [9_800, 9_850, 9_900, 9_950, 10_050, 10_100, 10_150, 10_200];
+const briefPopulationSize = POPULATION_VARIANTS[Date.now() % POPULATION_VARIANTS.length];
+
 type Check = { name: string; ok: boolean; status?: number; latencyMs: number; note: string };
 const results: Check[] = [];
 
@@ -19,18 +31,57 @@ async function probe(name: string, fn: () => Promise<{ ok: boolean; status?: num
 }
 
 await probe("community-brief (anon)", async () => {
+  // Capture request time BEFORE the call so we can verify the response was
+  // generated during (not before) this run — a stale cache hit would carry an
+  // older generatedAt.
+  const requestedAtMs = Date.now();
   const res = await fetch(`${BASE}/api/conductor/community-brief`, {
     method: "POST", headers: { "content-type": "application/json" },
-    body: JSON.stringify({ location: "78660", populationSize: 10000, timeHorizon: 25 }),
+    // Rotating populationSize bypasses the 12h anonymous cache — forces a live build.
+    body: JSON.stringify({ location: "78660", populationSize: briefPopulationSize, timeHorizon: 25 }),
     signal: AbortSignal.timeout(30000),
   });
   if (res.status === 401 || res.status === 403) return { ok: false, status: res.status, note: "LOGIN WALL — public analyzer is gated" };
   if (res.status >= 500) return { ok: false, status: res.status, note: `Server error ${res.status}` };
   const text = await res.text();
-  const brief = JSON.parse(text);
+  let brief: any;
+  try {
+    brief = JSON.parse(text);
+  } catch {
+    return { ok: false, status: res.status, note: `200 but response is not valid JSON: ${text.slice(0, 150)}` };
+  }
+
   const narrative = brief.narrative || brief.analysis || "";
   if (narrative.length < 100) return { ok: false, status: res.status, note: `Narrative too short: ${narrative.length} chars` };
-  return { ok: true, status: res.status, note: `OK — narrative ${narrative.length} chars` };
+
+  // ── Freshness assertion ──────────────────────────────────────────────────
+  // generatedAt must exist and be < 2h old. Rotating populationSize should have
+  // forced a live build; if generatedAt is stale, the server served a cache
+  // entry and we must NOT report the endpoint as healthy.
+  const rawGenAt: string | undefined = brief.generatedAt ?? brief.geography?.generatedAt;
+  if (!rawGenAt) {
+    return { ok: false, status: res.status, note: "generatedAt missing — cannot confirm live Census + AI pipeline ran (possible stale cache)" };
+  }
+  const genMs = new Date(rawGenAt).getTime();
+  if (!Number.isFinite(genMs)) {
+    return { ok: false, status: res.status, note: `generatedAt "${rawGenAt}" is not a valid ISO timestamp` };
+  }
+  const ageMs = requestedAtMs - genMs;
+  if (ageMs > FRESHNESS_MAX_AGE_MS) {
+    const ageHrs = (ageMs / 3_600_000).toFixed(1);
+    return { ok: false, status: res.status, note: `STALE — generatedAt ${rawGenAt} is ${ageHrs}h old (>2h); cache masking a broken pipeline (pop=${briefPopulationSize})` };
+  }
+
+  // ── Census-derived field validation ──────────────────────────────────────
+  // A hollow 200 (Census path silently failed) must fail the check. Poverty
+  // rate must be a plausible number in [0, 100].
+  const povertyRate = brief.demographics?.povertyRate;
+  if (typeof povertyRate !== "number" || !Number.isFinite(povertyRate) || povertyRate < 0 || povertyRate > 100) {
+    return { ok: false, status: res.status, note: `Census hollow — demographics.povertyRate is ${JSON.stringify(povertyRate)} (expected number 0-100)` };
+  }
+
+  const ageMin = (ageMs / 60_000).toFixed(1);
+  return { ok: true, status: res.status, note: `OK — narrative ${narrative.length} chars; poverty ${povertyRate}%; generatedAt ${ageMin}min old (pop=${briefPopulationSize})` };
 });
 
 await probe("embed widget JS", async () => {

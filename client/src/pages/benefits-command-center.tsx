@@ -567,7 +567,7 @@ function FacilitatorsPanel() {
             ))}
           </SelectContent>
         </Select>
-        <a href="https://stdavidsfoundation.org/impact/community-resources/" target="_blank" rel="noopener noreferrer">
+        <a href="https://stdavidsfoundation.org/" target="_blank" rel="noopener noreferrer">
           <Button variant="outline" size="sm" data-testid="link-st-davids-map">
             <Globe className="h-4 w-4 mr-2" /> St. David's Resource Map
           </Button>

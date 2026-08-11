@@ -519,7 +519,7 @@ ELIGIBILITY: 501(c)(3) organizations or fiscal sponsors; must demonstrate authen
     bgColor: "bg-teal-50 dark:bg-teal-950/30",
     borderColor: "border-teal-200 dark:border-teal-800",
     description: "Investments in community-informed organizations providing core economic stability services for historically marginalized communities, with a focus on increasing enrollment in public benefits that foster economic stability.",
-    referenceUrl: "https://stdavidsfoundation.org/grants/we-all-benefit/",
+    referenceUrl: "https://stdavidsfoundation.org/how-we-work/grantmaking/funding-opportunities/we-all-benefit/",
     referenceLabel: "St. David's Foundation — We All Benefit 2.0",
     grantKnowledge: `St. David's Foundation — "We All Benefit 2.0: Building Economic Stability" — $35M total over 3 years (~$12M/year). 15-25 grants expected across 5 counties. No min/max award size.
 PURPOSE: Increase community members' economic stability by better leveraging available public benefits. Close the participation gap — ~50% of SNAP-eligible and ~20% of EITC-eligible Texans aren't enrolled. If everyone eligible participated, Texas poverty would drop ~40% (Urban Institute).

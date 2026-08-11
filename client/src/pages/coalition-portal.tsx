@@ -569,7 +569,7 @@ export default function CoalitionPortalPage() {
                     <p className="text-sm text-muted-foreground">{l.desc}</p>
                   </div>
                 ))}
-                <a href="https://www.hhs.texas.gov/services/financial/community-partner-program" target="_blank" rel="noopener noreferrer"
+                <a href="https://www.hhs.texas.gov/about/community-engagement" target="_blank" rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-primary hover:underline font-medium">
                   Register at HHSC <ExternalLink className="h-3 w-3" />
                 </a>

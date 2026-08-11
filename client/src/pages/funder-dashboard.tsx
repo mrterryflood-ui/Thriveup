@@ -30,6 +30,7 @@ interface DashboardData {
     lost: number;
     pending: number;
     valueUnlocked: number;
+    defaultsUsed?: number;
     enrollmentRate: number;
   };
   byProgram: {
@@ -242,7 +243,10 @@ export default function FunderDashboardPage() {
               value: `$${(metrics.valueUnlocked || 0).toLocaleString()}`,
               icon: <DollarSign className="h-5 w-5 text-emerald-400" />,
               color: "text-emerald-700 dark:text-emerald-300",
-              note: "estimated",
+              note:
+                (metrics.defaultsUsed ?? 0) > 0
+                  ? `estimated · ${metrics.defaultsUsed} enrollment${metrics.defaultsUsed === 1 ? "" : "s"} using program-default values`
+                  : "estimated",
             },
           ].map((s) => (
             <Card key={s.label} className="shadow-sm">

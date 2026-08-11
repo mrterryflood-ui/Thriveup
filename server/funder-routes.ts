@@ -128,6 +128,10 @@ funderRouter.get("/:token/dashboard", async (req, res) => {
         lost: sql<number>`count(*) filter (where status in ('ineligible','withdrew'))::int`,
         pending: sql<number>`count(*) filter (where status in ('sent','accepted'))::int`,
         valueUnlocked: sql<number>`coalesce(sum(benefit_value_estimate) filter (where status = 'enrolled'), 0)::int`,
+        // FEATURE 1: how many confirmed enrollments used a program default value
+        // (org confirmed without a dollar estimate). Sums are unaffected — the
+        // default value is already stored on the row — this is transparency only.
+        defaultsUsed: sql<number>`count(*) filter (where status = 'enrolled' and value_source = 'default')::int`,
       })
       .from(referrals)
       .where(where);
@@ -138,6 +142,7 @@ funderRouter.get("/:token/dashboard", async (req, res) => {
       lost: agg.lost,
       pending: agg.pending,
       valueUnlocked: agg.valueUnlocked,
+      defaultsUsed: agg.defaultsUsed,
       enrollmentRate: agg.totalReferrals > 0
         ? Math.round((agg.enrolled / agg.totalReferrals) * 100)
         : 0,

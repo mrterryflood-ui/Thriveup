@@ -24,7 +24,7 @@ function QuickExit() {
 const ALWAYS_ON = [
   { name: "SAFE Alliance — Emergency Shelter", phone: "512-267-7233", url: "https://safeaustin.org", detail: "Austin's primary DV/SA shelter — call 24/7 for availability and intake", county: "Travis", available: true },
   { name: "LifeWorks Austin", phone: "512-735-2400", url: "https://lifeworksaustin.org", detail: "Youth and family transitional housing — Austin", county: "Travis", available: true },
-  { name: "Salvation Army Austin", phone: "512-476-1111", url: "https://centralusa.salvationarmy.org/austin", detail: "Emergency shelter and transitional housing for families", county: "Travis", available: true },
+  { name: "Salvation Army Austin", phone: "512-476-1111", url: "https://salvationarmyaustin.org/texas-austin/", detail: "Emergency shelter and transitional housing for families", county: "Travis", available: true },
   { name: "Front Steps Austin", phone: "512-305-4100", url: "https://frontsteps.org", detail: "Emergency shelter and housing navigation for individuals experiencing homelessness", county: "Travis", available: true },
 ];
 

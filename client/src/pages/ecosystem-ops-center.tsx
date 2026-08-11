@@ -16,7 +16,7 @@ import {
   MapPin, BarChart3, Send, Users, Building2, Printer,
   Stethoscope, Play, Mic, ChevronRight, Radio, Power,
   BellRing, Volume2, TrendingUp, FileCheck, Target,
-  CircleDot, Link2, AlertOctagon, Award,
+  CircleDot, Link2, AlertOctagon, Award, DollarSign,
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import { TrainingGuideButton } from "@/components/training-guide";
@@ -323,6 +323,12 @@ export default function EcosystemOpsCenterPage() {
         actions={
           <div className="flex gap-2 items-center flex-wrap">
             <TrainingGuideButton moduleId="ecosystem-ops-center" />
+            <Button size="sm" variant="outline" asChild data-testid="button-funder-dashboard">
+              <a href="/funder-dashboard">
+                <DollarSign className="h-4 w-4 mr-1" />
+                Funder Impact
+              </a>
+            </Button>
             <Button
               size="sm"
               onClick={() => wakeUpMutation.mutate(undefined)}

@@ -120,7 +120,7 @@ const PIPELINE_INDICATORS = [
 ];
 
 const PUBLIC_DATA_APIS = [
-  { name: "FBI Uniform Crime Report (UCR)", category: "Crime Data", url: "https://crime-data-explorer.fr.cloud.gov/pages/docApi", description: "National crime statistics, offense data, arrest data by demographics", dataPoints: "Agency-level crime data for 18,000+ law enforcement agencies" },
+  { name: "FBI Uniform Crime Report (UCR)", category: "Crime Data", url: "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi", description: "National crime statistics, offense data, arrest data by demographics", dataPoints: "Agency-level crime data for 18,000+ law enforcement agencies" },
   { name: "Bureau of Justice Statistics (BJS)", category: "Justice Data", url: "https://bjs.ojp.gov/data", description: "Correctional populations, recidivism, victimization surveys", dataPoints: "Prison/jail populations, recidivism rates, crime victimization" },
   { name: "Vera Institute Justice Data", category: "Incarceration", url: "https://trends.vera.org", description: "Jail/prison incarceration trends by county", dataPoints: "County-level incarceration data since 1970" },
   { name: "OJJDP Easy Access", category: "Juvenile Justice", url: "https://www.ojjdp.gov/ojstatbb/", description: "Juvenile arrest, court, and detention data", dataPoints: "State-level juvenile justice processing data" },
@@ -130,7 +130,7 @@ const PUBLIC_DATA_APIS = [
   { name: "HUD AFFH Data", category: "Housing", url: "https://egis.hud.gov/affht/", description: "Housing patterns, segregation indices, opportunity mapping", dataPoints: "Census tract-level housing and opportunity data" },
   { name: "BLS Employment Data", category: "Employment", url: "https://www.bls.gov/data/", description: "Employment, wages, unemployment by demographics", dataPoints: "Metro and state-level employment data" },
   { name: "DOJ Civil Rights Data", category: "Disparities", url: "https://civilrightsdata.ed.gov", description: "School discipline, restraint/seclusion, law enforcement referrals", dataPoints: "School-level civil rights data for every public school" },
-  { name: "Sentencing Commission", category: "Sentencing", url: "https://www.ussc.gov/research/datafiles", description: "Federal sentencing data, demographic disparities", dataPoints: "Individual-level federal sentencing data" },
+  { name: "Sentencing Commission", category: "Sentencing", url: "https://www.ussc.gov/research/datafiles/commission-datafiles", description: "Federal sentencing data, demographic disparities", dataPoints: "Individual-level federal sentencing data" },
   { name: "National Neighborhood Indicators", category: "Community", url: "https://www.neighborhoodindicators.org", description: "Neighborhood-level data on multiple well-being dimensions", dataPoints: "Cross-cutting community indicator data" },
 ];
 
@@ -1780,7 +1780,7 @@ const GOVERNMENT_LEVELS = [
       { name: "U.S. Congress — House", count: 435, role: "Federal legislation, spending bills, impeachment", dataSource: "congress.gov API", apiUrl: "https://api.congress.gov" },
       { name: "Executive Branch", count: 15, role: "Cabinet departments, federal agencies, executive orders", dataSource: "WhiteHouse.gov", apiUrl: "https://www.whitehouse.gov" },
       { name: "Federal Judiciary", count: 870, role: "Constitutional interpretation, federal case law, sentencing guidelines", dataSource: "PACER/CourtListener", apiUrl: "https://www.courtlistener.com/api/" },
-      { name: "U.S. Sentencing Commission", count: 7, role: "Federal sentencing guidelines, disparity research, policy recommendations", dataSource: "ussc.gov", apiUrl: "https://www.ussc.gov/research/datafiles" },
+      { name: "U.S. Sentencing Commission", count: 7, role: "Federal sentencing guidelines, disparity research, policy recommendations", dataSource: "ussc.gov", apiUrl: "https://www.ussc.gov/research/datafiles/commission-datafiles" },
     ]
   },
   {
@@ -1809,7 +1809,7 @@ const GOVERNMENT_LEVELS = [
     bodies: [
       { name: "City Councils", count: 19502, role: "Local ordinances, policing policy, community investment, zoning", dataSource: "NLC", apiUrl: "https://www.nlc.org" },
       { name: "Mayors' Offices", count: 19502, role: "Executive leadership, police oversight, community programs, emergency response", dataSource: "USCM", apiUrl: "https://www.usmayors.org" },
-      { name: "Police Departments", count: 18000, role: "Law enforcement, community policing, diversion, school resource officers", dataSource: "FBI UCR/NIBRS", apiUrl: "https://crime-data-explorer.fr.cloud.gov/pages/docApi" },
+      { name: "Police Departments", count: 18000, role: "Law enforcement, community policing, diversion, school resource officers", dataSource: "FBI UCR/NIBRS", apiUrl: "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi" },
       { name: "Municipal Courts", count: 7000, role: "Misdemeanor cases, traffic violations, code enforcement, fines/fees", dataSource: "Court records", apiUrl: "" },
       { name: "School Boards", count: 13000, role: "School discipline policy, SRO agreements, suspension/expulsion policy, SEL adoption", dataSource: "NCES", apiUrl: "https://nces.ed.gov" },
     ]
@@ -2933,8 +2933,8 @@ function DataStoryteller() {
                   <strong className="text-purple-300">The Science:</strong> Individuals with 4+ ACEs are 12x more likely to attempt suicide, 7x more likely to become alcoholic, and 4.6x more likely to experience depression. Children in high-poverty, high-violence neighborhoods accumulate ACEs at 3-4x the rate of children in low-poverty areas. <strong className="text-white">Education and stable family structure are the #1 protective factors against ACE accumulation.</strong>
                 </div>
                 <div className="mt-2 flex flex-wrap gap-2 text-[10px]">
-                  <a href="https://www.cdc.gov/violenceprevention/aces/index.html" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">CDC ACES Data</a>
-                  <a href="https://www.childwelfare.gov/topics/can/statistics/" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Child Welfare Statistics</a>
+                  <a href="https://www.cdc.gov/aces/about/index.html" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">CDC ACES Data</a>
+                  <a href="https://acf.gov/cb/data-research/child-maltreatment" target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">Child Welfare Statistics</a>
                   <a href="https://gunmemorial.org/" target="_blank" rel="noreferrer" className="text-red-400 hover:underline">Gun Memorial — National Database</a>
                   <a href="https://www.gunviolencearchive.org/" target="_blank" rel="noreferrer" className="text-red-400 hover:underline">Gun Violence Archive</a>
                 </div>

@@ -47,7 +47,7 @@ const RESEARCH_SOURCES = [
   { name: "NIH RePORTER", url: "https://reporter.nih.gov/", desc: "NIH funded grants by PA/PAR/RFA, mechanism, IC" },
   { name: "USASpending.gov", url: "https://www.usaspending.gov/", desc: "All federal awards by agency/program/CFDA" },
   { name: "SAM.gov", url: "https://sam.gov/", desc: "Active opportunities + awarded contracts" },
-  { name: "sbir.gov", url: "https://www.sbir.gov/sbirsearch/award/all", desc: "SBIR/STTR Phase I and Phase II awards" },
+  { name: "sbir.gov", url: "https://www.sbir.gov/awards", desc: "SBIR/STTR Phase I and Phase II awards" },
   { name: "CDMRP Funded Awards", url: "https://cdmrp.health.mil/search.aspx", desc: "DoD CDMRP awards by program" },
   { name: "Grants.gov Award History", url: "https://www.grants.gov/", desc: "Federal grant awards (linked from opps)" },
 ];

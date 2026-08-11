@@ -99,7 +99,7 @@ const CFIR_DOMAINS = [
 ];
 
 const RESEARCH_LIBRARY = [
-  { title: "SPF (Strategic Prevention Framework)", org: "SAMHSA", url: "https://www.samhsa.gov/resource/ebp/strategic-prevention-framework-spf", desc: "Five-step framework for community prevention: Assessment, Capacity, Planning, Implementation, Evaluation.", category: "Prevention" },
+  { title: "SPF (Strategic Prevention Framework)", org: "SAMHSA", url: "https://www.samhsa.gov/technical-assistance/sptac/framework", desc: "Five-step framework for community prevention: Assessment, Capacity, Planning, Implementation, Evaluation.", category: "Prevention" },
   { title: "RE-AIM Framework", org: "RE-AIM.org", url: "https://re-aim.org/", desc: "Framework for evaluating public health interventions across Reach, Effectiveness, Adoption, Implementation, Maintenance.", category: "Evaluation" },
   { title: "CFIR Research Guide", org: "CFIR Research Team", url: "https://cfirguide.org/", desc: "Comprehensive guide to the Consolidated Framework for Implementation Research with constructs, tools, and examples.", category: "Implementation" },
   { title: "NREPP (Evidence-Based Programs)", org: "SAMHSA", url: "https://www.samhsa.gov/resource-search/ebp", desc: "Registry of evidence-based programs and practices for behavioral health.", category: "Programs" },
@@ -107,7 +107,7 @@ const RESEARCH_LIBRARY = [
   { title: "Implementation Science Journal", org: "BMC", url: "https://implementationscience.biomedcentral.com/", desc: "Open access journal publishing research on methods to promote the uptake of evidence into practice.", category: "Research" },
   { title: "Global Implementation Conference", org: "GIC", url: "https://gic.globalimplementation.org/", desc: "Leading conference for implementation science practitioners, researchers, and policymakers.", category: "Research" },
   { title: "NIRN Active Implementation Frameworks", org: "NIRN", url: "https://nirn.fpg.unc.edu/", desc: "National Implementation Research Network — science-based implementation frameworks and tools.", category: "Implementation" },
-  { title: "CDC Evidence-Based Prevention", org: "CDC", url: "https://www.cdc.gov/substance-use-prevention/php/evidence-based-resources/index.html", desc: "CDC-recognized strategies and programs for substance use prevention.", category: "Prevention" },
+  { title: "CDC Evidence-Based Prevention", org: "CDC", url: "https://www.cdc.gov/overdose-prevention/php/interventions/index.html", desc: "CDC-recognized strategies and programs for substance use prevention.", category: "Prevention" },
   { title: "Dissemination & Implementation Models", org: "University of Washington", url: "https://dissemination-implementation.org/", desc: "Searchable repository of D&I models, theories, and frameworks.", category: "Dissemination" },
   { title: "PCORI Engagement Guide", org: "PCORI", url: "https://www.pcori.org/engagement", desc: "Tools and rubrics for meaningful community and stakeholder engagement in research.", category: "Engagement" },
   { title: "Health Equity Implementation Framework", org: "Various", url: "https://implementationscience.biomedcentral.com/articles/10.1186/s13012-019-0861-y", desc: "Framework integrating health equity determinants into CFIR implementation processes.", category: "Equity" },

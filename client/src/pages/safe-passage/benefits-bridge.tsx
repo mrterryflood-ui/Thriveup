@@ -51,7 +51,7 @@ const BENEFITS: Benefit[] = [
     howMuch: "Lets you stay in your home or get the abuser removed from the lease. No cost.",
     whatYouNeed: ["Written certification to your landlord that you are a DV survivor (form HUD-5382)", "Your name on the lease (or ability to get it added)"],
     whatToSay: "Tell your housing manager or landlord: 'I want to invoke my VAWA protections as a domestic violence survivor.' They are legally required to respond.",
-    applyUrl: "https://www.hud.gov/program_offices/housing/mfh/violence_against_women_act", applyLabel: "HUD VAWA Info",
+    applyUrl: "https://www.hud.gov/vawa", applyLabel: "HUD VAWA Info",
     tags: ["housing", "renters"],
   },
   {

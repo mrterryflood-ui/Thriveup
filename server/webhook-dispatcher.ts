@@ -84,7 +84,11 @@ export function fireWebhook(event: string, payload: object): void {
         .from(partnerWebhooks)
         .where(and(eq(partnerWebhooks.event, event), eq(partnerWebhooks.active, true)));
 
-      if (hooks.length === 0) return;
+      // Zero subscribers is a clean no-op: never throws, never error-logs.
+      if (hooks.length === 0) {
+        console.debug(`[WebhookDispatcher] event=${event} → 0 active subscribers (no-op)`);
+        return;
+      }
 
       const results = await Promise.allSettled(
         hooks.map((hook) => deliverWebhook(hook, event, body)),

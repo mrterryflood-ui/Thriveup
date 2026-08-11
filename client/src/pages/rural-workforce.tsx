@@ -329,7 +329,7 @@ export default function RuralWorkforcePage() {
                 <CardContent className="pt-4">
                   <p className="text-sm font-semibold mb-2">USDA 1890 Scholars Program — Full Scholarships at HBCUs</p>
                   <p className="text-sm text-slate-600 dark:text-slate-400 mb-3">Full tuition, fees, books, room & board, summer internships, and USDA job offer upon graduation. For students at 1890 HBCU land-grant institutions pursuing ag-related degrees.</p>
-                  <a href="https://www.usda.gov/our-agency/careers/students-and-graduates/1890-scholars" target="_blank" rel="noopener noreferrer"
+                  <a href="https://www.fs.usda.gov/careers/students-and-early-careers/usda-1890" target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"><ExternalLink className="w-3.5 h-3.5" />Apply for USDA 1890 Scholars ↗</a>
                 </CardContent>
               </Card>

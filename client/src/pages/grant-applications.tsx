@@ -225,7 +225,7 @@ const PACKAGES: Pkg[] = [
       { label: "Round 1 full proposal due", date: "2026-07-16T23:59:00Z" },
     ],
     submitUrl: "https://www.research.gov",
-    programInfoUrl: "https://www.nsf.gov/funding/opportunities/nsf26-508",
+    programInfoUrl: "https://www.nsf.gov/funding/opportunities/techaccess-ai-ready-america",
     icon: Brain,
     accent: "purple",
     narrativeSections: [
