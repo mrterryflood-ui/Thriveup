@@ -4,8 +4,32 @@ import { referrals, orgCapacity } from "@shared/schema";
 import { eq, desc, isNull, and, gt, or, sql, inArray } from "drizzle-orm";
 // Canonical staff gate — same function used by YHSI, funder, and reentry routes.
 import { requireStaff } from "./yhsi-routes";
+import { requirePartnerAuth, requireScope } from "./partner-api-routes";
 import { PROGRAM_DEFAULT_ANNUAL_VALUE } from "./benefits-screener-fix";
 import { fireWebhook } from "./webhook-dispatcher";
+
+// ── Combined auth: staff login OR partner key with inbound:write scope ────────
+// Used on PATCH /:id/outcome so receiving orgs can confirm enrollment using
+// their tcaf_ partner key without needing a ThriveUp staff account.
+function requireStaffOrPartnerInbound(req: Request, res: Response, next: NextFunction): void {
+  // Try partner key first (x-partner-key / Authorization: Bearer tcaf_...).
+  const partnerKeyRaw =
+    (req.headers["x-partner-key"] as string) ||
+    (req.headers["authorization"] || "").replace(/^Bearer /i, "");
+  const ecosystemKey = req.headers["x-ecosystem-key"] as string;
+
+  if (ecosystemKey || (partnerKeyRaw && partnerKeyRaw.startsWith("tcaf_"))) {
+    // Run partner auth then scope check, then continue.
+    requirePartnerAuth(req, res, (err?: any) => {
+      if (err) return next(err);
+      requireScope("inbound:write")(req, res, next);
+    });
+    return;
+  }
+
+  // Fall back to staff session auth.
+  requireStaff(req, res, next);
+}
 
 export const referralRouter = Router();
 
@@ -152,6 +176,11 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
 
     // FEATURE 3: fire-and-forget referral.created. Never awaited; zero
     // subscribers is a clean no-op and failures never affect this response.
+    // orgConfirmUrl is intentionally NOT broadcast here: referral.created fires
+    // to all active webhook subscribers, and the org-confirm token is a
+    // one-time mutation capability that must only reach the intended org.
+    // The staff user who created the referral receives it in the HTTP response
+    // below and can share it with the org directly.
     fireWebhook("referral.created", {
       referralId: created.id,
       programCode: created.programCode,
@@ -191,21 +220,38 @@ referralRouter.get("/status/:token", async (req, res) => {
 });
 
 // PATCH /api/referrals/:id/outcome — org confirms enrollment.
-// Requires staff auth: the referral id is included in funder CSV exports, so
-// an unauthenticated mutation endpoint would allow any recipient of a share
-// link to corrupt outcome data and the value metrics that depend on it.
-referralRouter.patch("/:id/outcome", requireStaff, async (req: Request, res: Response) => {
+// Accepts a staff session OR a partner key with inbound:write scope. The
+// partner-key path lets receiving orgs confirm enrollment programmatically
+// using their tcaf_ API key, without needing a ThriveUp staff account.
+referralRouter.patch("/:id/outcome", requireStaffOrPartnerInbound, async (req: Request, res: Response) => {
   try {
       const { status, benefitValueEstimate, notes } = req.body;
 
 const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
       if (!VALID_STATUSES.includes(status)) return res.status(400).json({ error: "Invalid status" });
 
+      const referralId = (req.params.id as string).trim();
+      if (!referralId) return res.status(400).json({ error: "Invalid referral id" });
+
       const [existing] = await db
         .select()
         .from(referrals)
-        .where(eq(referrals.orgConfirmToken, req.params.orgToken as string));
+        .where(eq(referrals.id, referralId));
       if (!existing) return res.status(404).json({ error: "Referral not found" });
+
+      // Org binding: if the caller is a partner key (not a staff session), verify
+      // their partnerName matches the referral's orgName. This prevents a key
+      // provisioned for Org A from resolving a referral sent to Org B.
+      const partnerKey = (req as any).partnerKey as { partnerName?: string } | undefined;
+      if (partnerKey) {
+        const keyOrg = (partnerKey.partnerName ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+        const refOrg = (existing.orgName ?? "").trim().toLowerCase().replace(/\s+/g, " ");
+        if (!keyOrg || keyOrg !== refOrg) {
+          return res.status(403).json({
+            error: "This partner key is not authorized to update this referral. The key's organization does not match the referral's target organization.",
+          });
+        }
+      }
 
       // Immutability: reject changes once terminally resolved.
       if (existing.resolvedAt) {
