@@ -84,59 +84,166 @@ interface NeighborhoodProfile {
   generatedAt: string;
 }
 
+// ── State name/abbreviation helpers ──────────────────────────────────────────
+const STATE_NAME_TO_USPS: Record<string, string> = {
+  alabama:"AL",alaska:"AK",arizona:"AZ",arkansas:"AR",california:"CA",
+  colorado:"CO",connecticut:"CT",delaware:"DE","district of columbia":"DC",
+  florida:"FL",georgia:"GA",hawaii:"HI",idaho:"ID",illinois:"IL",indiana:"IN",
+  iowa:"IA",kansas:"KS",kentucky:"KY",louisiana:"LA",maine:"ME",maryland:"MD",
+  massachusetts:"MA",michigan:"MI",minnesota:"MN",mississippi:"MS",missouri:"MO",
+  montana:"MT",nebraska:"NE",nevada:"NV","new hampshire":"NH","new jersey":"NJ",
+  "new mexico":"NM","new york":"NY","north carolina":"NC","north dakota":"ND",
+  ohio:"OH",oklahoma:"OK",oregon:"OR",pennsylvania:"PA","rhode island":"RI",
+  "south carolina":"SC","south dakota":"SD",tennessee:"TN",texas:"TX",utah:"UT",
+  vermont:"VT",virginia:"VA",washington:"WA","west virginia":"WV",wisconsin:"WI",
+  wyoming:"WY","puerto rico":"PR",
+};
+const ALL_STATE_ABBREVS = new Set(Object.values(STATE_NAME_TO_USPS));
+
+// Fast-path: representative downtown ZIP for major US cities.
+// Used when external geocoders are unavailable — always returns a real ZCTA.
+const CITY_STATE_TO_ZIP: Record<string, string> = {
+  "new york,ny":"10001","los angeles,ca":"90012","chicago,il":"60601",
+  "houston,tx":"77002","phoenix,az":"85004","philadelphia,pa":"19103",
+  "san antonio,tx":"78205","san diego,ca":"92101","dallas,tx":"75201",
+  "san jose,ca":"95113","austin,tx":"78701","jacksonville,fl":"32202",
+  "fort worth,tx":"76102","columbus,oh":"43215","charlotte,nc":"28202",
+  "indianapolis,in":"46204","san francisco,ca":"94102","seattle,wa":"98104",
+  "denver,co":"80202","nashville,tn":"37201","oklahoma city,ok":"73102",
+  "el paso,tx":"79901","washington,dc":"20001","boston,ma":"02201",
+  "louisville,ky":"40202","portland,or":"97204","las vegas,nv":"89101",
+  "memphis,tn":"38103","baltimore,md":"21202","milwaukee,wi":"53202",
+  "albuquerque,nm":"87102","tucson,az":"85701","fresno,ca":"93721",
+  "sacramento,ca":"95814","mesa,az":"85201","kansas city,mo":"64106",
+  "atlanta,ga":"30303","omaha,ne":"68102","colorado springs,co":"80903",
+  "raleigh,nc":"27601","long beach,ca":"90802","virginia beach,va":"23450",
+  "minneapolis,mn":"55401","new orleans,la":"70112","tampa,fl":"33602",
+  "honolulu,hi":"96813","anaheim,ca":"92805","aurora,co":"80012",
+  "santa ana,ca":"92701","corpus christi,tx":"78401","riverside,ca":"92501",
+  "lexington,ky":"40507","st. louis,mo":"63101","saint louis,mo":"63101",
+  "st louis,mo":"63101","pittsburgh,pa":"15222","anchorage,ak":"99501",
+  "stockton,ca":"95202","cincinnati,oh":"45202","st. paul,mn":"55101",
+  "saint paul,mn":"55101","toledo,oh":"43604","greensboro,nc":"27401",
+  "newark,nj":"07102","plano,tx":"75074","henderson,nv":"89002",
+  "lincoln,ne":"68501","buffalo,ny":"14202","jersey city,nj":"07302",
+  "chandler,az":"85224","chula vista,ca":"91910","orlando,fl":"32801",
+  "st. petersburg,fl":"33701","laredo,tx":"78040","norfolk,va":"23510",
+  "madison,wi":"53703","durham,nc":"27701","lubbock,tx":"79401",
+  "winston-salem,nc":"27101","garland,tx":"75040","glendale,az":"85301",
+  "hialeah,fl":"33010","reno,nv":"89501","baton rouge,la":"70801",
+  "irvine,ca":"92612","chesapeake,va":"23320","scottsdale,az":"85250",
+  "north las vegas,nv":"89030","fremont,ca":"94538","gilbert,az":"85234",
+  "san bernardino,ca":"92410","boise,id":"83702","birmingham,al":"35203",
+  "rochester,ny":"14604","richmond,va":"23219","spokane,wa":"99201",
+  "des moines,ia":"50309","montgomery,al":"36104","modesto,ca":"95354",
+  "fayetteville,nc":"28301","tacoma,wa":"98402","akron,oh":"44308",
+  "oxnard,ca":"93030","fontana,ca":"92335","yonkers,ny":"10701",
+  "columbus,ga":"31901","glendale,ca":"91205","huntington beach,ca":"92648",
+  "moreno valley,ca":"92553","little rock,ar":"72201","amarillo,tx":"79101",
+  "grand rapids,mi":"49503","salt lake city,ut":"84101","tallahassee,fl":"32301",
+  "huntsville,al":"35801","worcester,ma":"01608","knoxville,tn":"37902",
+  "brownsville,tx":"78520","santa clarita,ca":"91355","providence,ri":"02903",
+  "garden grove,ca":"92840","oceanside,ca":"92054","chattanooga,tn":"37402",
+  "fort lauderdale,fl":"33301","rancho cucamonga,ca":"91730","santa rosa,ca":"95404",
+  "port arthur,tx":"77640","tempe,az":"85281","cape coral,fl":"33990",
+  "jackson,ms":"39201","ontario,ca":"91762","springfield,mo":"65806",
+  "mobile,al":"36602","columbia,sc":"29201","aurora,il":"60505",
+  "salem,or":"97301","shreveport,la":"71101","peoria,il":"61602",
+  "elk grove,ca":"95758","eugune,or":"97401","eugene,or":"97401",
+  "colorado springs,co":"80903","waco,tx":"76701","mcallen,tx":"78501",
+  "sioux falls,sd":"57104","lakewood,co":"80226","syracuse,ny":"13202",
+  "bridgeport,ct":"06604","hartford,ct":"06103","springfield,ma":"01103",
+  "new haven,ct":"06510","worcester,ma":"01608","lowell,ma":"01852",
+  "cambridge,ma":"02139","ann arbor,mi":"48104","lansing,mi":"48933",
+  "flint,mi":"48502","detroit,mi":"48226","grand rapids,mi":"49503",
+  "warren,mi":"48089","sterling heights,mi":"48312","dearborn,mi":"48124",
+  "duluth,mn":"55802","rochester,mn":"55901","bloomington,mn":"55425",
+  "brooklyn,ny":"11201","queens,ny":"11354","bronx,ny":"10451",
+  "staten island,ny":"10301","manhattan,ny":"10036","harlem,ny":"10027",
+  "brooklyn center,mn":"55430","columbia heights,mn":"55421",
+};
+
+function parseCityState(text: string): { city: string; stateAbbrev: string } | null {
+  // Match "City, ST" or "City, State Name"
+  const m = text.match(/^(.+?),\s*([A-Za-z ]{2,})$/);
+  if (!m) return null;
+  const city = m[1].trim();
+  const stateRaw = m[2].trim();
+  const abbrev = stateRaw.length === 2
+    ? stateRaw.toUpperCase()
+    : STATE_NAME_TO_USPS[stateRaw.toLowerCase()];
+  if (!abbrev || !ALL_STATE_ABBREVS.has(abbrev)) return null;
+  return { city, stateAbbrev: abbrev };
+}
+
 export async function resolveLocationToZip(locationText: string): Promise<{ zip: string; displayName: string } | null> {
   const trimmed = locationText.trim();
+
+  // ── Layer 1: raw ZIP ────────────────────────────────────────────────────────
   if (/^\d{5}$/.test(trimmed)) return { zip: trimmed, displayName: trimmed };
 
+  // ── Layer 2: "City, ST" / "City, State" fast-path ──────────────────────────
+  const parsed = parseCityState(trimmed);
+  if (parsed) {
+    const { city, stateAbbrev } = parsed;
+    const lookupKey = `${city.toLowerCase()},${stateAbbrev.toLowerCase()}`;
+
+    // 2a. Local static table — no network call needed
+    if (CITY_STATE_TO_ZIP[lookupKey]) {
+      return { zip: CITY_STATE_TO_ZIP[lookupKey], displayName: `${city}, ${stateAbbrev}` };
+    }
+
+    // 2b. Census city+state geocoder (correct endpoint for place-name queries)
+    try {
+      const censusUrl =
+        `https://geocoding.geo.census.gov/geocoder/geographies/address` +
+        `?city=${encodeURIComponent(city)}&state=${encodeURIComponent(stateAbbrev)}` +
+        `&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
+      const data = await fetchJson(censusUrl, 10000);
+      const match = data?.result?.addressMatches?.[0];
+      if (match) {
+        const addr = match.matchedAddress || trimmed;
+        const zipMatch = addr.match(/\b(\d{5})\b/);
+        if (zipMatch) return { zip: zipMatch[1], displayName: `${city}, ${stateAbbrev}` };
+        // No ZIP in matched address — reverse-geocode the returned coordinates
+        if (match.coordinates) {
+          const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${match.coordinates.y}&lon=${match.coordinates.x}&format=json&addressdetails=1&zoom=16`;
+          try {
+            const revResp = await fetch(revUrl, { signal: AbortSignal.timeout(8000), headers: { Accept: "application/json", "User-Agent": "ThriveUpAcademy/1.0" } });
+            if (revResp.ok) {
+              const revData = await revResp.json() as any;
+              const z5 = revData?.address?.postcode?.match(/(\d{5})/)?.[1];
+              if (z5) return { zip: z5, displayName: `${city}, ${stateAbbrev}` };
+            }
+          } catch {}
+        }
+      }
+    } catch (err) {
+      console.log(`[resolveLocation] Census city+state geocoder failed for "${city}, ${stateAbbrev}":`, String(err).slice(0, 80));
+    }
+  }
+
+  // ── Layer 3: Census onelineaddress (works for street addresses + some places) ──
   try {
     const onelineUrl = `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(trimmed)}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
-    const data = await fetchJson(onelineUrl);
+    const data = await fetchJson(onelineUrl, 10000);
     const match = data?.result?.addressMatches?.[0];
     if (match) {
       const addr = match.matchedAddress || trimmed;
       const zipMatch = addr.match(/\b(\d{5})\b/);
       if (zipMatch) return { zip: zipMatch[1], displayName: addr };
-      if (match.coordinates) {
-        const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${match.coordinates.y}&lon=${match.coordinates.x}&format=json&addressdetails=1&zoom=18`;
-        try {
-          const revResp = await fetch(revUrl, { headers: { Accept: "application/json", "User-Agent": "ThriveUpAcademy/1.0" } });
-          if (revResp.ok) {
-            const revData = await revResp.json() as any;
-            const pc = revData?.address?.postcode;
-            if (pc) {
-              const z5 = pc.match(/(\d{5})/)?.[1];
-              if (z5) return { zip: z5, displayName: addr };
-            }
-          }
-        } catch {}
-      }
     }
   } catch (err) {
-    console.log("Oneline geocoder attempt for:", trimmed);
+    console.log(`[resolveLocation] Census onelineaddress failed for "${trimmed}":`, String(err).slice(0, 80));
   }
 
-  const variations = [
-    trimmed,
-    `${trimmed}, TX`,
-    `${trimmed}, US`,
-  ];
-  for (const addr of variations) {
-    try {
-      const url = `https://geocoding.geo.census.gov/geocoder/geographies/onelineaddress?address=${encodeURIComponent(addr)}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
-      const data = await fetchJson(url);
-      const match = data?.result?.addressMatches?.[0];
-      if (match) {
-        const matchedAddr = match.matchedAddress || addr;
-        const zipMatch = matchedAddr.match(/\b(\d{5})\b/);
-        if (zipMatch) return { zip: zipMatch[1], displayName: matchedAddr };
-      }
-    } catch {}
-  }
-
+  // ── Layer 4: Nominatim (last resort, avoid double-appending state) ──────────
   try {
     const headers = { Accept: "application/json", "User-Agent": "ThriveUpAcademy/1.0" };
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(trimmed + ", USA")}&format=json&addressdetails=1&limit=1`;
-    const nomResp = await fetch(nominatimUrl, { headers });
+    // Only append ", USA" — never append a state if the user already included one
+    const nomQuery = trimmed + (trimmed.includes(",") ? ", USA" : ", USA");
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(nomQuery)}&format=json&addressdetails=1&limit=1&countrycodes=us`;
+    const nomResp = await fetch(nominatimUrl, { signal: AbortSignal.timeout(8000), headers });
     if (nomResp.ok) {
       const nomData = await nomResp.json() as any[];
       if (Array.isArray(nomData) && nomData.length > 0) {
@@ -146,23 +253,22 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
           const zip5 = postcode.match(/(\d{5})/)?.[1];
           if (zip5) return { zip: zip5, displayName: result.display_name || trimmed };
         }
-
+        // Nominatim returned a location but no postcode — reverse to get one
         if (result.lat && result.lon) {
-          const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${result.lat}&lon=${result.lon}&format=json&addressdetails=1&zoom=18`;
-          const revResp = await fetch(revUrl, { headers });
-          if (revResp.ok) {
-            const revData = await revResp.json() as any;
-            const revPostcode = revData?.address?.postcode;
-            if (revPostcode) {
-              const zip5 = revPostcode.match(/(\d{5})/)?.[1];
-              if (zip5) return { zip: zip5, displayName: result.display_name || trimmed };
+          const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${result.lat}&lon=${result.lon}&format=json&addressdetails=1&zoom=16`;
+          try {
+            const revResp = await fetch(revUrl, { signal: AbortSignal.timeout(6000), headers });
+            if (revResp.ok) {
+              const revData = await revResp.json() as any;
+              const z5 = revData?.address?.postcode?.match(/(\d{5})/)?.[1];
+              if (z5) return { zip: z5, displayName: result.display_name || trimmed };
             }
-          }
+          } catch {}
         }
       }
     }
   } catch (err) {
-    console.log("Nominatim fallback attempt for:", trimmed);
+    console.log(`[resolveLocation] Nominatim failed for "${trimmed}":`, String(err).slice(0, 80));
   }
 
   return null;
