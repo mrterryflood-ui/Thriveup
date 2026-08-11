@@ -13,3 +13,6 @@ description: Security/integrity rules for the CHW→org→funder referral loop (
 - **Webhook dispatch is fire-and-forget** and zero subscribers is an explicit logged no-op — never let dispatch failure affect the API response.
 
 **How to apply:** any new endpoint or export touching referrals must respect the token separation, the staff gate on writes, and the atomic resolved-at guard; any new funder metric summing benefit values must segment by valueSource.
+
+## Post-merge hazard (2026-08-11)
+A task-agent merge appended a duplicate router body to client/src/App.tsx (a second `return (<Switch>...)` after the closing brace), breaking the whole client with "'return' outside of function". After any task merge that touches App.tsx, grep for orphaned `^  return (` blocks and diff route lists before trusting gates.

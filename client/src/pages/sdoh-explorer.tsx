@@ -71,7 +71,7 @@ function RegionPicker({
   onChange: (stateFips: string, countyCsv: string) => void;
 }) {
   const [search, setSearch] = useState("");
-  const usps = STATE_FIPS_TO_USPS[stateCode] || "TX";
+  const usps = STATE_FIPS_TO_USPS[stateCode] || "";
   const counties = COUNTIES_BY_STATE[usps] || [];
   const cities = CITIES_BY_STATE[usps] || [];
   const stateName = JURISDICTIONS.find(j => j.code === usps)?.name || usps;
@@ -118,7 +118,7 @@ function RegionPicker({
         <Label htmlFor="state-picker">State</Label>
         <Select value={usps} onValueChange={setStateAndReset}>
           <SelectTrigger id="state-picker" data-testid="select-state" className="mt-1">
-            <SelectValue />
+            <SelectValue placeholder="Select a state…" />
           </SelectTrigger>
           <SelectContent className="max-h-[320px]">
             {JURISDICTIONS.map(j => (
@@ -129,8 +129,9 @@ function RegionPicker({
           </SelectContent>
         </Select>
         <p className="text-xs text-muted-foreground mt-1">
-          {counties.length.toLocaleString()} counties
-          {cities.length > 0 ? ` · ${cities.length} cities` : ""} in {stateName}.
+          {usps
+            ? `${counties.length.toLocaleString()} counties${cities.length > 0 ? ` · ${cities.length} cities` : ""} in ${stateName}.`
+            : "Data available for all 50 states + DC, PR, territories."}
         </p>
       </div>
 
@@ -164,14 +165,20 @@ function RegionPicker({
 
         <Input
           id="county-search"
-          placeholder={`Search counties or cities in ${stateName}…`}
+          placeholder={usps ? `Search counties or cities in ${stateName}…` : "Select a state first…"}
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           data-testid="input-county-search"
           className="mt-1"
+          disabled={!usps}
         />
 
         <div className="border rounded-md mt-2 max-h-[260px] overflow-y-auto divide-y" data-testid="list-counties">
+          {!usps && (
+            <div className="p-4 text-sm text-muted-foreground text-center">
+              Pick a state from the dropdown, or click a Quick Start region above.
+            </div>
+          )}
           {noResults ? (
             <div className="p-3 text-sm text-muted-foreground">No counties or cities match "{search}".</div>
           ) : (
@@ -652,10 +659,10 @@ function SVITab({ stateCode, counties }: { stateCode: string; counties: string }
 
 export default function SDOHExplorerPage() {
   const [activeTab, setActiveTab] = useState("explorer");
-  const [stateCode, setStateCode] = useState("48");
-  const [countyCodes, setCountyCodes] = useState("453,491,209,021,055");
-  const [queryParams, setQueryParams] = useState({ state: "48", counties: "453,491,209,021,055" });
-  const [activePreset, setActivePreset] = useState("Central Texas (5-County Region)");
+  const [stateCode, setStateCode] = useState("");
+  const [countyCodes, setCountyCodes] = useState("");
+  const [queryParams, setQueryParams] = useState({ state: "", counties: "" });
+  const [activePreset, setActivePreset] = useState("");
   const [fromStateName, setFromStateName] = useState<string | null>(null);
 
   // Read ?state=XX from URL so the Coverage page can link directly to any state.
