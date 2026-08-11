@@ -33,7 +33,7 @@ function loadProgress(): ModuleProgress {
 }
 
 function saveProgress(progress: ModuleProgress) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(progress)); } catch {}
 }
 
 const NAV_ITEMS: { id: ActiveView; label: string; icon: typeof Home }[] = [

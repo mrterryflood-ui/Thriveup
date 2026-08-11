@@ -175,8 +175,8 @@ export default function ChwDashboardPage() {
   const [resourceFilter, setResourceFilter] = useState("all");
   const [trainingFilter, setTrainingFilter] = useState("all");
 
-  const { data: liveData } = useQuery({ queryKey: ["/api/chw/caseload"], retry: false });
-  const { data: liveResources } = useQuery({ queryKey: ["/api/chw/resources"], retry: false });
+  const { data: liveData, isError: caseloadError } = useQuery({ queryKey: ["/api/chw/caseload"], retry: false });
+  const { data: liveResources, isError: resourcesError } = useQuery({ queryKey: ["/api/chw/resources"], retry: false });
 
   // ── New Referral dialog state ─────────────────────────────────────────────
   const [referralOpen, setReferralOpen] = useState(false);
@@ -203,7 +203,7 @@ export default function ChwDashboardPage() {
   const funders: FunderOption[] = fundersData?.funders ?? [];
 
   // My sent referrals.
-  const { data: sentData } = useQuery<{ referrals: SentReferral[] }>({
+  const { data: sentData, isError: sentError } = useQuery<{ referrals: SentReferral[] }>({
     queryKey: ["/api/referrals/my-sent"],
     queryFn: async () => {
       const res = await fetch("/api/referrals/my-sent");
@@ -274,12 +274,12 @@ export default function ChwDashboardPage() {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const caseload: any[] = (liveData as any)?.caseload?.length ? (liveData as any).caseload : SAMPLE_CASELOAD;
-  const isLiveCaseload = !!(liveData as any)?.isLive && (liveData as any)?.caseload?.length > 0;
+  const caseload: any[] = (!caseloadError && (liveData as any)?.caseload?.length) ? (liveData as any).caseload : SAMPLE_CASELOAD;
+  const isLiveCaseload = !caseloadError && !!(liveData as any)?.isLive && (liveData as any)?.caseload?.length > 0;
   const visits = SAMPLE_VISITS;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const allResources: any[] = (liveResources as any)?.resources?.length ? (liveResources as any).resources : SAMPLE_RESOURCES;
-  const isLiveResources = !!(liveResources as any)?.isLive && (liveResources as any)?.resources?.length > 0;
+  const allResources: any[] = (!resourcesError && (liveResources as any)?.resources?.length) ? (liveResources as any).resources : SAMPLE_RESOURCES;
+  const isLiveResources = !resourcesError && !!(liveResources as any)?.isLive && (liveResources as any)?.resources?.length > 0;
   const resources: any[] = resourceFilter === "all" ? allResources : allResources.filter((r: any) => r.category === resourceFilter);
   const resourceCategories: string[] = Array.from(new Set<string>(allResources.map((r: any) => r.category as string)));
 
@@ -487,7 +487,11 @@ export default function ChwDashboardPage() {
                   <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
                     <Clipboard className="h-4 w-4 text-teal-500" /> My Sent Referrals
                   </h4>
-                  {sentReferrals.length === 0 ? (
+                  {sentError ? (
+                    <p className="text-xs text-red-600 dark:text-red-400" data-testid="text-sent-referrals-error">
+                      Could not load referrals — check your connection and refresh.
+                    </p>
+                  ) : sentReferrals.length === 0 ? (
                     <p className="text-xs text-muted-foreground" data-testid="text-no-sent-referrals">
                       No referrals sent yet.
                     </p>

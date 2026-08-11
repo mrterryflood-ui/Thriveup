@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, AlertTriangle, CheckCircle, Info, Loader2, ExternalLink, ChevronDown, ChevronUp, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -317,6 +317,7 @@ function Insight({ text }: { text: string }) {
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function EcosystemIntelPage() {
   const [searchInput, setSearchInput] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [rfpInput, setRfpInput] = useState("");
   const [selectedCounty, setSelectedCounty] = useState<CountyMatch | null>(null);
   const [activeRfp, setActiveRfp] = useState("");
@@ -324,12 +325,18 @@ export default function EcosystemIntelPage() {
   const [showNarrative, setShowNarrative] = useState(true);
   const [searchOpen, setSearchOpen] = useState(false);
 
+  // Debounce search input — avoid firing a request on every keystroke
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchInput), 300);
+    return () => clearTimeout(t);
+  }, [searchInput]);
+
   const searchQuery = useQuery<CountyMatch[]>({
-    queryKey: ["/api/ecosystem-intel/search", searchInput],
-    enabled: searchInput.length >= 3 && !selectedCounty,
+    queryKey: ["/api/ecosystem-intel/search", debouncedSearch],
+    enabled: debouncedSearch.length >= 3 && !selectedCounty,
     staleTime: 60_000,
     queryFn: async () => {
-      const res = await fetch(`/api/ecosystem-intel/search?q=${encodeURIComponent(searchInput)}`, { credentials: "include" });
+      const res = await fetch(`/api/ecosystem-intel/search?q=${encodeURIComponent(debouncedSearch)}`, { credentials: "include" });
       if (!res.ok) throw new Error(await res.text());
       return res.json();
     },

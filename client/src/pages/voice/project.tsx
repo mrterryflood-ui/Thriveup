@@ -72,7 +72,7 @@ export default function VoiceProjectPage() {
   const [myPinTokens, setMyPinTokens] = useState<Record<string, string>>(() => {
     try { return JSON.parse(localStorage.getItem(tokenKey) || "{}"); } catch { return {}; }
   });
-  useEffect(() => { localStorage.setItem(tokenKey, JSON.stringify(myPinTokens)); }, [tokenKey, myPinTokens]);
+  useEffect(() => { try { localStorage.setItem(tokenKey, JSON.stringify(myPinTokens)); } catch {} }, [tokenKey, myPinTokens]);
 
   const { data: projectData, isLoading: projectLoading } = useQuery<ProjectResponse>({
     queryKey: ["/api/voice/projects", slug],

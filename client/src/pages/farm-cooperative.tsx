@@ -106,7 +106,7 @@ export default function FarmCooperativePage() {
     },
     onSuccess: (data) => {
       if (data.accessToken) {
-        localStorage.setItem("prod_token", data.accessToken);
+        try { localStorage.setItem("prod_token", data.accessToken); } catch {}
         setToken(data.accessToken);
         setTab("dashboard");
         toast({ title: L("Welcome to the cooperative!", "¡Bienvenido/a a la cooperativa!"), description: data.message });
@@ -162,7 +162,7 @@ export default function FarmCooperativePage() {
             <Button variant="outline" size="sm" onClick={() => setLang(l => l === "en" ? "es" : "en")}>
               {lang === "en" ? "🇪🇸 Español" : "🇺🇸 English"}
             </Button>
-            {token && <Button variant="ghost" size="sm" onClick={() => { localStorage.removeItem("prod_token"); setToken(""); setTab("enroll"); }}>Sign out</Button>}
+            {token && <Button variant="ghost" size="sm" onClick={() => { try { localStorage.removeItem("prod_token"); } catch {} setToken(""); setTab("enroll"); }}>Sign out</Button>}
           </div>
         </div>
       </div>

@@ -1226,13 +1226,13 @@ export default function CommunityImpactPage() {
                           What This Community Has Already Paid
                         </h2>
                         <p className="text-sm text-amber-800/70 dark:text-amber-300/70 mt-0.5">
-                          Accumulated cost from {data.historicalCascade.vintages[0]?.year}–{data.historicalCascade.vintages[data.historicalCascade.vintages.length - 1]?.year} · ACS 5-Year Estimates · per-cohort chain model
+                          Accumulated cost from {data.historicalCascade?.vintages[0]?.year}–{data.historicalCascade?.vintages[data.historicalCascade?.vintages.length - 1]?.year} · ACS 5-Year Estimates · per-cohort chain model
                         </p>
                       </div>
                     </div>
                     <div className="flex-shrink-0 text-right">
                       <div className="text-3xl font-black text-amber-700 dark:text-amber-300" data-testid="text-historical-total">
-                        {fmt$(data.historicalCascade.totalAccumulatedCost)}
+                        {fmt$(data.historicalCascade?.totalAccumulatedCost ?? 0)}
                       </div>
                       <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 font-medium uppercase tracking-wide">
                         already spent / lost
@@ -1242,17 +1242,17 @@ export default function CommunityImpactPage() {
 
                   {/* Trend callout */}
                   <div className="px-6 py-3 border-b border-amber-200 dark:border-amber-800/30 flex items-center gap-2 text-sm">
-                    {data.historicalCascade.trendDirection === "worsening" && (
+                    {data.historicalCascade?.trendDirection === "worsening" && (
                       <><TrendingDown className="w-4 h-4 text-red-500 flex-none" /><span className="text-red-700 dark:text-red-400 font-medium">Conditions worsened</span></>
                     )}
-                    {data.historicalCascade.trendDirection === "stagnant" && (
+                    {data.historicalCascade?.trendDirection === "stagnant" && (
                       <><Clock className="w-4 h-4 text-amber-500 flex-none" /><span className="text-amber-700 dark:text-amber-300 font-medium">Conditions stagnant</span></>
                     )}
-                    {data.historicalCascade.trendDirection === "improving" && (
+                    {data.historicalCascade?.trendDirection === "improving" && (
                       <><TrendingUp className="w-4 h-4 text-emerald-500 flex-none" /><span className="text-emerald-700 dark:text-emerald-400 font-medium">Conditions improving</span></>
                     )}
                     <span className="text-muted-foreground">·</span>
-                    <span className="text-muted-foreground">{data.historicalCascade.keyInsight}</span>
+                    <span className="text-muted-foreground">{data.historicalCascade?.keyInsight}</span>
                   </div>
 
                   {/* Vintage table */}
@@ -1267,7 +1267,7 @@ export default function CommunityImpactPage() {
                         </tr>
                       </thead>
                       <tbody>
-                        {data.historicalCascade.vintages.map((v: any, i: number) => (
+                        {(data.historicalCascade?.vintages ?? []).map((v: any, i: number) => (
                           <tr key={v.year} className={`border-b border-amber-100 dark:border-amber-900/20 ${i % 2 === 0 ? "" : "bg-amber-50/40 dark:bg-amber-900/10"}`} data-testid={`row-vintage-${v.year}`}>
                             <td className="py-2 pr-4 font-semibold text-amber-900 dark:text-amber-200">{v.year} ACS</td>
                             <td className={`py-2 pr-4 text-right font-mono ${v.povertyRate >= 20 ? "text-red-600 dark:text-red-400 font-bold" : v.povertyRate >= 15 ? "text-orange-600 dark:text-orange-400" : "text-emerald-600 dark:text-emerald-400"}`}>
@@ -1285,7 +1285,7 @@ export default function CommunityImpactPage() {
                       <tfoot>
                         <tr className="border-t-2 border-amber-300 dark:border-amber-700">
                           <td colSpan={3} className="pt-2 pr-4 font-bold text-amber-900 dark:text-amber-200 text-sm">Total accumulated (documented cohorts)</td>
-                          <td className="pt-2 text-right font-black text-amber-700 dark:text-amber-300">{fmt$(data.historicalCascade.totalAccumulatedCost)}</td>
+                          <td className="pt-2 text-right font-black text-amber-700 dark:text-amber-300">{fmt$(data.historicalCascade?.totalAccumulatedCost ?? 0)}</td>
                         </tr>
                       </tfoot>
                     </table>

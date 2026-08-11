@@ -1092,13 +1092,13 @@ function DemoFlagsHandler() {
     const params = new URLSearchParams(window.location.search);
     const demo = params.get("demo");
     if (demo === "partners-on") {
-      window.localStorage.setItem("tcaf_demo_partners", "1");
+      try { window.localStorage.setItem("tcaf_demo_partners", "1"); } catch {}
       window.dispatchEvent(new Event("tcaf-demo-partners-changed"));
       params.delete("demo");
       const q = params.toString();
       window.history.replaceState({}, "", window.location.pathname + (q ? `?${q}` : "") + window.location.hash);
     } else if (demo === "partners-off") {
-      window.localStorage.removeItem("tcaf_demo_partners");
+      try { window.localStorage.removeItem("tcaf_demo_partners"); } catch {}
       window.dispatchEvent(new Event("tcaf-demo-partners-changed"));
       params.delete("demo");
       const q = params.toString();

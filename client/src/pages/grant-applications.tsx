@@ -376,7 +376,7 @@ export default function GrantApplicationsPage() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch {}
   }, [state]);
 
   function toggle(group: keyof TrackerState, key: string) {

@@ -21,20 +21,24 @@ export function useHubRole() {
   });
 
   const setRole = useCallback((r: HubRole) => {
-    localStorage.setItem(STORAGE_KEY, r);
-    localStorage.setItem(ONBOARDED_KEY, "1");
+    try {
+      localStorage.setItem(STORAGE_KEY, r);
+      localStorage.setItem(ONBOARDED_KEY, "1");
+    } catch {}
     setRoleState(r);
     setOnboardedState(true);
   }, []);
 
   const dismiss = useCallback(() => {
-    localStorage.setItem(ONBOARDED_KEY, "1");
+    try { localStorage.setItem(ONBOARDED_KEY, "1"); } catch {}
     setOnboardedState(true);
   }, []);
 
   const clearRole = useCallback(() => {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(ONBOARDED_KEY);
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(ONBOARDED_KEY);
+    } catch {}
     setRoleState(null);
     setOnboardedState(false);
   }, []);

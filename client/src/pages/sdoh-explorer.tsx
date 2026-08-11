@@ -394,7 +394,8 @@ function SVITab({ stateCode, counties }: { stateCode: string; counties: string }
   }
 
   const summary = sviData.sviSummary;
-  const themes = sviData.themes;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const themes: any = sviData.themes ?? {};
   const riskFactors = sviData.riskFactorPrevalence || {};
   const protectiveFactors = sviData.protectiveFactorPrevalence || {};
   const adjacentResources = sviData.adjacentResources || [];
@@ -586,7 +587,7 @@ function SVITab({ stateCode, counties }: { stateCode: string; counties: string }
                       <ShieldCheck className="h-4 w-4 text-green-500 shrink-0" />
                       <span className="text-sm font-medium">Nearby Protective Tracts</span>
                     </div>
-                    {pair.nearbyProtectiveTracts.slice(0, 3).map((pt: any, k: number) => (
+                    {(pair.nearbyProtectiveTracts ?? []).slice(0, 3).map((pt: any, k: number) => (
                       <div key={k} className="pl-6 flex items-center gap-2">
                         <span className="text-xs text-muted-foreground truncate flex-1">{pt.location}</span>
                         <Badge variant="secondary" className="text-xs">SVI: {Math.round(pt.svi * 100)}/100</Badge>
