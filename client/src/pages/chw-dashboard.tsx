@@ -193,6 +193,39 @@ export default function ChwDashboardPage() {
   // Captured at submit time (before resetReferralForm clears clientPhone) so the
   // post-submission SMS link can pre-fill the client's number.
   const [submittedClientPhone, setSubmittedClientPhone] = useState("");
+  const [waitlistAcknowledged, setWaitlistAcknowledged] = useState(false);
+
+  // Live capacity registry — used to block referrals to closed orgs and warn
+  // about waitlists before submission (server enforces the same rules).
+  const { data: capacityData } = useQuery<{ orgs: any[] }>({
+    queryKey: ["/api/directory/capacity"],
+    queryFn: async () => {
+      const res = await fetch("/api/directory/capacity");
+      if (!res.ok) throw new Error("Failed to load capacity");
+      return res.json();
+    },
+    enabled: isAuthenticated && referralOpen,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+  const capacityOrgs: any[] = capacityData?.orgs ?? [];
+
+  // Freshest capacity record for the org being referred to. Matches by
+  // case-insensitive org name; an exact program record wins over "general".
+  const capacityMatch = (() => {
+    const norm = (s: string) => (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const nameNorm = norm(orgName);
+    const programNorm = norm(programCode);
+    if (!nameNorm) return null;
+    const candidates = capacityOrgs.filter((o) => {
+      if (norm(o.orgName) !== nameNorm) return false;
+      return norm(o.programCode) === programNorm || norm(o.programCode) === "general";
+    });
+    if (candidates.length === 0) return null;
+    return candidates.find((o) => norm(o.programCode) === programNorm) ?? candidates[0];
+  })();
+  const capacityClosed = capacityMatch?.status === "closed";
+  const capacityWaitlist = capacityMatch?.status === "waitlist";
 
   // Funder list — same endpoint the staff funder admin page uses.
   const { data: fundersData } = useQuery<{ funders: FunderOption[] }>({
@@ -250,6 +283,7 @@ export default function ChwDashboardPage() {
     setClientPhone("");
     setFunderId("");
     setReferralNotes("");
+    setWaitlistAcknowledged(false);
   }
 
   const createReferral = useMutation({
@@ -263,6 +297,7 @@ export default function ChwDashboardPage() {
       if (clientPhone.trim()) body.clientPhone = clientPhone.trim();
       if (funderId) body.funderId = funderId;
       if (referralNotes.trim()) body.notes = referralNotes.trim();
+      if (waitlistAcknowledged) body.waitlistAcknowledged = true;
       const res = await apiRequest("POST", "/api/referrals", body);
       return (await res.json()) as CreateReferralResponse;
     },
@@ -280,7 +315,12 @@ export default function ChwDashboardPage() {
       });
     },
     onError: (err: Error) => {
-      toast({ title: "Could not submit referral", description: err.message, variant: "destructive" });
+      // Server returns 409 with a JSON body for closed/waitlist orgs.
+      const raw = String(err.message || "");
+      const msg = raw.startsWith("409:")
+        ? (() => { try { return JSON.parse(raw.slice(4).trim()).error; } catch { return raw.slice(4).trim(); } })()
+        : raw;
+      toast({ title: "Could not submit referral", description: msg, variant: "destructive" });
     },
   });
 
@@ -385,7 +425,35 @@ export default function ChwDashboardPage() {
                     }}
                     data-testid="input-org-name"
                   />
-                  {selectedOrgNotAccepting && (
+                  {capacityClosed && (
+                    <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded p-2 mt-1 dark:text-red-400 dark:bg-red-950/30 dark:border-red-800" role="alert" data-testid="notice-org-closed">
+                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-600 mt-0.5" />
+                      <span>
+                        <strong>{capacityMatch.orgName}</strong> has <strong>closed intake</strong> for this program right now. Referrals can't be sent — choose a different organization.
+                      </span>
+                    </div>
+                  )}
+                  {capacityWaitlist && (
+                    <div className="space-y-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-1 dark:text-amber-300 dark:bg-amber-950/30 dark:border-amber-800" role="alert" data-testid="notice-org-waitlist">
+                      <p className="flex items-start gap-2">
+                        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600 mt-0.5" />
+                        <span>
+                          <strong>{capacityMatch.orgName}</strong> is on a <strong>waitlist</strong>
+                          {capacityMatch.waitWeeks ? <> — estimated wait ~{capacityMatch.waitWeeks} week{capacityMatch.waitWeeks !== 1 ? "s" : ""}</> : null}.
+                        </span>
+                      </p>
+                      <label className="flex items-center gap-2 cursor-pointer font-medium">
+                        <input
+                          type="checkbox"
+                          checked={waitlistAcknowledged}
+                          onChange={(e) => setWaitlistAcknowledged(e.target.checked)}
+                          data-testid="checkbox-waitlist-ack"
+                        />
+                        The client understands the wait — submit anyway
+                      </label>
+                    </div>
+                  )}
+                  {selectedOrgNotAccepting && !capacityClosed && !capacityWaitlist && (
                     <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-1" role="alert" data-testid="notice-org-not-accepting">
                       <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
                       This org is on waitlist. You can still submit, but expect delays — consider an alternative if urgent.
@@ -446,7 +514,7 @@ export default function ChwDashboardPage() {
 
                 <Button
                   className="w-full"
-                  disabled={!programCode.trim() || !orgName.trim() || createReferral.isPending}
+                  disabled={!programCode.trim() || !orgName.trim() || createReferral.isPending || capacityClosed || (capacityWaitlist && !waitlistAcknowledged)}
                   onClick={() => createReferral.mutate()}
                   data-testid="button-submit-referral"
                 >

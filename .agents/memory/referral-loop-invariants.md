@@ -16,3 +16,6 @@ description: Security/integrity rules for the CHW→org→funder referral loop (
 
 ## Post-merge hazard (2026-08-11)
 A task-agent merge appended a duplicate router body to client/src/App.tsx (a second `return (<Switch>...)` after the closing brace), breaking the whole client with "'return' outside of function". After any task merge that touches App.tsx, grep for orphaned `^  return (` blocks and diff route lists before trusting gates.
+
+## Capacity guard (2026-08-11)
+Referral creation is capacity-gated server-side, not just in the UI: fresh closed status blocks, waitlist requires explicit CHW acknowledgement, and stale (>14-day) capacity data must never deny service. **Why:** client-only warnings can be bypassed, and out-of-date registry data must not block a client from help.

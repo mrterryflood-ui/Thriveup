@@ -192,11 +192,13 @@ function SendReferralDialog({
   open,
   initial,
   screeningId,
+  capacityOrgs,
   onClose,
 }: {
   open: boolean;
   initial: SendReferralState | null;
   screeningId: number | null;
+  capacityOrgs: any[];
   onClose: () => void;
 }) {
   const { toast } = useToast();
@@ -204,11 +206,33 @@ function SendReferralDialog({
     programCode: "", programName: "", orgName: "", orgId: "", clientName: "", clientPhone: "",
   });
   const [statusUrl, setStatusUrl] = useState<string | null>(null);
+  const [waitlistAcknowledged, setWaitlistAcknowledged] = useState(false);
 
   // Sync form when a new referral target is opened
   useEffect(() => {
-    if (initial) setForm(initial);
+    if (initial) { setForm(initial); setWaitlistAcknowledged(false); }
   }, [initial?.programCode]);
+
+  // Live capacity check for the org being referred to. Matches by orgId when
+  // set, otherwise by case-insensitive org name; exact program record wins
+  // over a "general" record.
+  const capacityMatch = useMemo(() => {
+    const norm = (s: string) => (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+    const nameNorm = norm(form.orgName);
+    const programNorm = norm(form.programCode);
+    if (!nameNorm && !form.orgId) return null;
+    const candidates = capacityOrgs.filter((o) => {
+      const idMatch = form.orgId && o.orgId === form.orgId;
+      const nameMatch = norm(o.orgName) === nameNorm;
+      if (!idMatch && !nameMatch) return false;
+      return norm(o.programCode) === programNorm || norm(o.programCode) === "general";
+    });
+    if (candidates.length === 0) return null;
+    return candidates.find((o) => norm(o.programCode) === programNorm) ?? candidates[0];
+  }, [capacityOrgs, form.orgName, form.orgId, form.programCode]);
+
+  const isClosed = capacityMatch?.status === "closed";
+  const isWaitlist = capacityMatch?.status === "waitlist";
 
   const referralMutation = useMutation({
     mutationFn: async () => {
@@ -219,6 +243,7 @@ function SendReferralDialog({
         clientDisplayName: form.clientName || undefined,
         clientPhone: form.clientPhone || undefined,
         screeningId: screeningId ?? undefined,
+        waitlistAcknowledged: waitlistAcknowledged || undefined,
       });
       return res.json();
     },
@@ -226,7 +251,14 @@ function SendReferralDialog({
       setStatusUrl(data.statusUrl ?? null);
       toast({ title: "Referral sent!", description: `Referral created for ${form.orgName}.` });
     },
-    onError: () => toast({ title: "Error", description: "Could not create referral. Try again.", variant: "destructive" }),
+    onError: (err: any) => {
+      // Server returns 409 with a specific message for closed/waitlist orgs.
+      const raw = String(err?.message || "");
+      const msg = raw.startsWith("409:")
+        ? (() => { try { return JSON.parse(raw.slice(4).trim()).error; } catch { return raw.slice(4).trim(); } })()
+        : "Could not create referral. Try again.";
+      toast({ title: "Referral blocked", description: msg, variant: "destructive" });
+    },
   });
 
   function copyStatusUrl() {
@@ -311,13 +343,42 @@ function SendReferralDialog({
                 data-testid="referral-client-phone"
               />
             </div>
+            {isClosed && (
+              <div className="flex items-start gap-2 text-xs text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-950/30 border border-red-300 dark:border-red-800 rounded-md p-3" role="alert" data-testid="referral-capacity-closed">
+                <XCircle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>
+                  <strong className="font-semibold">{capacityMatch.orgName}</strong> has <strong>closed intake</strong> for this program right now.
+                  Referrals can't be sent — please choose a different organization.
+                </span>
+              </div>
+            )}
+            {isWaitlist && (
+              <div className="space-y-2 text-xs text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/30 border border-amber-300 dark:border-amber-800 rounded-md p-3" role="alert" data-testid="referral-capacity-waitlist">
+                <p className="flex items-start gap-2">
+                  <Clock className="h-4 w-4 shrink-0 mt-0.5" />
+                  <span>
+                    <strong className="font-semibold">{capacityMatch.orgName}</strong> is currently on a <strong>waitlist</strong>
+                    {capacityMatch.waitWeeks ? <> — estimated wait ~{capacityMatch.waitWeeks} week{capacityMatch.waitWeeks !== 1 ? "s" : ""}</> : null}.
+                  </span>
+                </p>
+                <label className="flex items-center gap-2 cursor-pointer font-medium">
+                  <input
+                    type="checkbox"
+                    checked={waitlistAcknowledged}
+                    onChange={(e) => setWaitlistAcknowledged(e.target.checked)}
+                    data-testid="checkbox-waitlist-ack"
+                  />
+                  The client understands the wait — send anyway
+                </label>
+              </div>
+            )}
             <div className="flex gap-2">
               <Button variant="outline" className="flex-1" onClick={handleClose}>
                 Cancel
               </Button>
               <Button
                 className="flex-1"
-                disabled={!form.orgName.trim() || referralMutation.isPending}
+                disabled={!form.orgName.trim() || referralMutation.isPending || isClosed || (isWaitlist && !waitlistAcknowledged)}
                 onClick={() => referralMutation.mutate()}
                 data-testid="button-submit-referral"
               >
@@ -426,6 +487,7 @@ export default function BenefitsScreenerPage() {
         open={!!referralTarget}
         initial={referralTarget}
         screeningId={screeningId}
+        capacityOrgs={capacityOrgs}
         onClose={() => setReferralTarget(null)}
       />
       <div className="max-w-2xl mx-auto p-4 md:p-6">

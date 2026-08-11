@@ -58,5 +58,12 @@ echo "[auth-e2e] running referral-loop verification..."
 npx tsx scripts/verify-referral-webhook.ts
 WEBHOOK_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ]
+# Task #165: referral capacity guard — closed orgs blocked, waitlist requires
+# explicit acknowledgement. Self-contained (spins its own express instance).
+echo ""
+echo "[auth-e2e] running referral capacity-guard verification..."
+npx tsx scripts/test-referral-capacity-guard.ts
+CAPACITY_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ]
 exit $?

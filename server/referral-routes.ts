@@ -1,7 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "./storage";
-import { referrals } from "@shared/schema";
-import { eq, desc, isNull, and } from "drizzle-orm";
+import { referrals, orgCapacity } from "@shared/schema";
+import { eq, desc, isNull, and, gt, or, sql, inArray } from "drizzle-orm";
 // Canonical staff gate — same function used by YHSI, funder, and reentry routes.
 import { requireStaff } from "./yhsi-routes";
 import { PROGRAM_DEFAULT_ANNUAL_VALUE } from "./benefits-screener-fix";
@@ -68,13 +68,75 @@ function resolveBenefitValue(
   };
 }
 
+/**
+ * Look up the freshest capacity record for the org a referral targets.
+ * Matches by orgId when provided, otherwise by case-insensitive orgName.
+ * Prefers an exact programCode match over a "general" record. Records older
+ * than 14 days are ignored (same freshness window as the public GET).
+ */
+async function lookupCapacity(
+  orgId: string | undefined,
+  orgName: string,
+  programCode: string,
+): Promise<{ status: string; waitWeeks: number | null; orgName: string } | null> {
+  const cutoff = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  // Canonicalize both sides so trivial formatting variants ("snap", extra
+  // internal spaces) cannot slip past the guard.
+  const nameNorm = orgName.trim().toLowerCase().replace(/\s+/g, " ");
+  const programNorm = programCode.trim().toLowerCase();
+  // Match entirely in the database (no pre-limit that could drop the target
+  // org in a large registry): org identity by id or normalized name, program
+  // by case-insensitive exact code or "general". Deterministic precedence:
+  // orgId match beats name fallback, exact program record beats "general",
+  // then most recently updated.
+  const nameMatch = sql`lower(regexp_replace(trim(${orgCapacity.orgName}), '\\s+', ' ', 'g')) = ${nameNorm}`;
+  const identity = orgId ? or(eq(orgCapacity.orgId, orgId), nameMatch) : nameMatch;
+  const programMatch = sql`lower(trim(${orgCapacity.programCode})) in (${programNorm}, 'general')`;
+  const [best] = await db.select().from(orgCapacity)
+    .where(and(
+      gt(orgCapacity.updatedAt, cutoff),
+      identity,
+      programMatch,
+    ))
+    .orderBy(
+      ...(orgId ? [sql`case when ${orgCapacity.orgId} = ${orgId} then 0 else 1 end`] : []),
+      sql`case when lower(trim(${orgCapacity.programCode})) = ${programNorm} then 0 else 1 end`,
+      desc(orgCapacity.updatedAt),
+    )
+    .limit(1);
+  if (!best) return null;
+  return { status: best.status, waitWeeks: best.waitWeeks ?? null, orgName: best.orgName };
+}
+
 // POST /api/referrals — create referral. Staff-gated: an open endpoint would
 // let any internet caller attach fake referrals (and client PII) to a funder's
 // public dashboard and pump the outcome webhook. Rate-limited defense-in-depth.
 referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 * 1000), async (req, res) => {
   try {
-    const { programCode, orgName, orgId, clientDisplayName, clientPhone, screeningId, funderId, notes } = req.body;
+    const { programCode, orgName, orgId, clientDisplayName, clientPhone, screeningId, funderId, notes, waitlistAcknowledged } = req.body;
     if (!programCode || !orgName) return res.status(400).json({ error: "programCode and orgName required" });
+
+    // Capacity guard: block referrals to orgs whose intake is closed, and
+    // require explicit acknowledgement when the org is on a waitlist. The
+    // client shows the same states pre-submit; this is the server-side
+    // enforcement so the check can't be bypassed.
+    const capacity = await lookupCapacity(orgId, orgName, programCode);
+    if (capacity?.status === "closed") {
+      return res.status(409).json({
+        error: `${capacity.orgName} has closed intake for this program right now. Please choose a different organization.`,
+        capacityStatus: "closed",
+      });
+    }
+    if (capacity?.status === "waitlist" && waitlistAcknowledged !== true) {
+      const wait = capacity.waitWeeks
+        ? ` Estimated wait: ~${capacity.waitWeeks} week${capacity.waitWeeks === 1 ? "" : "s"}.`
+        : "";
+      return res.status(409).json({
+        error: `${capacity.orgName} is currently on a waitlist.${wait} Confirm the client understands the wait to proceed.`,
+        capacityStatus: "waitlist",
+        waitWeeks: capacity.waitWeeks,
+      });
+    }
 
     const [created] = await db.insert(referrals).values({
       programCode,
