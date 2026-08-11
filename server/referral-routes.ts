@@ -1,7 +1,9 @@
-import { Router } from "express";
+import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "./storage";
 import { referrals } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
+// Canonical staff gate — same function used by YHSI, funder, and reentry routes.
+import { requireStaff } from "./yhsi-routes";
 
 export const referralRouter = Router();
 
@@ -31,7 +33,7 @@ referralRouter.post("/", async (req, res) => {
   }
 });
 
-// GET /api/referrals/status/:token — public client status check
+// GET /api/referrals/status/:token — public client status check via capability token
 referralRouter.get("/status/:token", async (req, res) => {
   try {
     const [r] = await db.select({
@@ -39,7 +41,7 @@ referralRouter.get("/status/:token", async (req, res) => {
       programCode: referrals.programCode,
       status: referrals.status,
       notes: referrals.notes,
-    }).from(referrals).where(eq(referrals.statusToken, req.params.token));
+    }).from(referrals).where(eq(referrals.statusToken, req.params.token as string));
 
     if (!r) return res.status(404).json({ error: "Referral not found" });
     res.json(r);
@@ -48,8 +50,11 @@ referralRouter.get("/status/:token", async (req, res) => {
   }
 });
 
-// PATCH /api/referrals/:id/outcome — org confirms enrollment
-referralRouter.patch("/:id/outcome", async (req, res) => {
+// PATCH /api/referrals/:id/outcome — org confirms enrollment.
+// Requires staff auth: the referral id is included in funder CSV exports, so
+// an unauthenticated mutation endpoint would allow any recipient of a share
+// link to corrupt outcome data and the value metrics that depend on it.
+referralRouter.patch("/:id/outcome", requireStaff, async (req: Request, res: Response) => {
   try {
     const { status, benefitValueEstimate, notes } = req.body;
     const validStatuses = ["enrolled", "ineligible", "withdrew", "accepted"];
@@ -57,7 +62,7 @@ referralRouter.patch("/:id/outcome", async (req, res) => {
 
     const [updated] = await db.update(referrals)
       .set({ status, benefitValueEstimate: benefitValueEstimate || null, notes: notes || null, resolvedAt: new Date() })
-      .where(eq(referrals.id, req.params.id))
+      .where(eq(referrals.id, req.params.id as string))
       .returning({ id: referrals.id, status: referrals.status });
 
     if (!updated) return res.status(404).json({ error: "Referral not found" });
