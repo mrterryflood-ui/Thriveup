@@ -1,4 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
+import { getLastBriefProbeResult } from "./community-brief-probe";
 import { db, storage } from "./storage";
 import {
   partnerApiKeys, partnerApiAuditLog, partnerInboundData, ecosystemPlatforms,
@@ -1404,5 +1405,17 @@ export function registerPartnerApiRoutes(app: Express) {
     } catch (err) {
       res.status(500).json({ error: "Failed to fetch audit log." });
     }
+  });
+
+  // ── Community-brief production probe status ──────────────────────────────
+  // Returns the last result recorded by the 30-minute background probe so
+  // the Ops Center can display a live health badge without waiting for email.
+  app.get("/api/admin/brief-probe-status", requireAdminKey, (_req, res) => {
+    const result = getLastBriefProbeResult();
+    if (!result) {
+      // Probe hasn't run yet (server just started, or probe disabled in this env)
+      return res.json({ available: false, message: "No probe result yet — probe runs 60 s after boot, then every 30 min." });
+    }
+    return res.json({ available: true, ...result });
   });
 }

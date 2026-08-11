@@ -234,6 +234,20 @@ export default function EcosystemOpsCenterPage() {
     staleTime: 30000,
   });
 
+  interface BriefProbeStatus {
+    available: boolean;
+    message?: string;
+    ok?: boolean;
+    detail?: string;
+    ts?: string;
+  }
+
+  const { data: briefProbeStatus, refetch: refetchProbe } = useQuery<BriefProbeStatus>({
+    queryKey: ["/api/admin/brief-probe-status"],
+    refetchInterval: 5 * 60 * 1000, // refresh every 5 min
+    staleTime: 60000,
+  });
+
   const { data: intelReport, isLoading: intelLoading, refetch: refetchIntel } = useQuery<IntelReport>({
     queryKey: ["/api/ecosystem/intelligence-report"],
     staleTime: 60000,
@@ -1086,6 +1100,74 @@ export default function EcosystemOpsCenterPage() {
             </TabsContent>
 
             <TabsContent value="live" className="mt-6 space-y-3" data-testid="content-live">
+              {/* Community-Brief Production Probe Status */}
+              <Card className={`border-2 ${
+                !briefProbeStatus?.available
+                  ? "border-muted"
+                  : briefProbeStatus.ok
+                    ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20"
+                    : "border-red-300 dark:border-red-800 bg-red-50/40 dark:bg-red-950/20"
+              }`} data-testid="card-brief-probe-status">
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <div className="flex items-center gap-3">
+                      <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
+                        !briefProbeStatus?.available
+                          ? "bg-muted"
+                          : briefProbeStatus.ok
+                            ? "bg-emerald-500"
+                            : "bg-red-500"
+                      }`}>
+                        {!briefProbeStatus?.available ? (
+                          <Clock className="h-5 w-5 text-muted-foreground" />
+                        ) : briefProbeStatus.ok ? (
+                          <CheckCircle2 className="h-5 w-5 text-white" />
+                        ) : (
+                          <XCircle className="h-5 w-5 text-white" />
+                        )}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-sm">Community Impact Analyzer — Live Probe</span>
+                          <Badge
+                            variant={!briefProbeStatus?.available ? "secondary" : briefProbeStatus.ok ? "default" : "destructive"}
+                            className={`text-xs ${briefProbeStatus?.ok ? "bg-emerald-500" : ""}`}
+                            data-testid="badge-probe-status"
+                          >
+                            {!briefProbeStatus?.available
+                              ? "No data yet"
+                              : briefProbeStatus.ok
+                                ? "Healthy"
+                                : "FAILING"}
+                          </Badge>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {briefProbeStatus?.available
+                            ? briefProbeStatus.detail
+                            : (briefProbeStatus?.message ?? "Probe runs 60 s after boot, then every 30 min")}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 shrink-0">
+                      {briefProbeStatus?.available && briefProbeStatus.ts && (
+                        <span className="text-xs text-muted-foreground" data-testid="probe-timestamp">
+                          {new Date(briefProbeStatus.ts).toLocaleString()}
+                        </span>
+                      )}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => refetchProbe()}
+                        data-testid="button-refresh-probe"
+                      >
+                        <RefreshCw className="h-3.5 w-3.5 mr-1" />
+                        Refresh
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               <div className="flex items-center justify-between">
                 <h2 className="text-lg font-bold">All Platforms ({liveStatus.summary.total})</h2>
                 <span className="text-xs text-muted-foreground">
