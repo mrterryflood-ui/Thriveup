@@ -8,7 +8,7 @@ import Anthropic from "@anthropic-ai/sdk";
 import { searchByState, searchByLocation, generateCommunityNarrative } from "./gis-engine";
 import { buildCommunityAIContext } from "./rplice-intelligence";
 import { searchResources, getResourceCategories } from "./resource-engine";
-import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData, cedsRegions, cedsGoals, cedsAlignments } from "@shared/schema";
+import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData, cedsRegions, cedsGoals, cedsAlignments, gunViolenceIncidents } from "@shared/schema";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
 import multer from "multer";
 import { spawnSync } from "child_process";
@@ -443,17 +443,41 @@ When discussing workforce, grants, or economic development — align TCAF progra
           .join("\n");
         const topRplice = (intel.rpliceFindings ?? []).at(0);
 
-        // Detect state/city from the query for local enrichment
+        // Detect ZIP/state from the query for local enrichment
         let localContext = "";
+
+        // ZIP-level incident count from local GVA registry
+        if (locationMatch) {
+          try {
+            const detectedZip = locationMatch[1];
+            const zipCounts = await db.select({
+              total: sql<number>`count(*)::int`,
+              fatal: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}),0)::int`,
+            }).from(gunViolenceIncidents)
+              .where(eq(gunViolenceIncidents.zip, detectedZip))
+              .then(r => r[0])
+              .catch(() => null);
+            if (zipCounts && zipCounts.total > 0) {
+              localContext += `\nZIP ${detectedZip} (local GVA registry): ${zipCounts.total} incidents tracked, ${zipCounts.fatal} fatalities.`;
+            }
+          } catch (_) { /* non-fatal — ZIP registry lookup is additive */ }
+        }
+
+        // State-level CDC rates
         if (stateMatch) {
           const stateCode = stateMatch[1].toUpperCase().slice(0, 2);
           const stateRow  = (intel.cdcStates ?? []).find((s: any) =>
             s.stateCode?.toUpperCase() === stateCode || s.state?.toLowerCase() === stateMatch[1].toLowerCase()
           );
           if (stateRow) {
-            localContext = `\nState-level (${stateRow.state ?? stateCode}): crude rate ${stateRow.crudeRate ?? "N/A"}/100k, age-adjusted rate ${stateRow.ageAdjustedRate ?? "N/A"}/100k (CDC WONDER).`;
+            localContext += `\nState-level (${stateRow.state ?? stateCode}): crude rate ${stateRow.crudeRate ?? "N/A"}/100k, age-adjusted rate ${stateRow.ageAdjustedRate ?? "N/A"}/100k (CDC WONDER).`;
           }
         }
+
+        // ACE evidence-based interventions from /api/aces/interventions
+        const topInterventions = (intel.aces?.interventions ?? []).slice(0, 3)
+          .map((iv: any) => `  • ${iv.name ?? iv.intervention ?? iv.label ?? JSON.stringify(iv).slice(0, 80)}`)
+          .join("\n");
 
         contextParts.push(`[GUN VIOLENCE INTELLIGENCE — CDC · FBI · NCVS · WISQARS · RPLICE]:
 National scope (CDC WONDER, all intents, 1999–2022):
@@ -464,10 +488,12 @@ National scope (CDC WONDER, all intents, 1999–2022):
 ACE score → gun violence: r = ${ace ?? "N/A"} (strongest structural predictor — exceeds poverty r=${intel.aces?.correlations?.povertyFirearmR ?? "N/A"})
 Top structural root causes:
 ${topCauses || "  (registry data unavailable)"}
+Evidence-based interventions (ACE framework):
+${topInterventions || "  (no ACE intervention data loaded)"}
 Evidence-based policy interventions (RAND DID analysis):
 ${topPolicy || "  (no policy data loaded)"}
 ${topRplice ? `RPLICE causal finding: ${JSON.stringify(topRplice).slice(0, 300)}` : ""}
-Local incident registry (GVA): ${local?.total?.toLocaleString() ?? "N/A"} incidents tracked, ${local?.fatal?.toLocaleString() ?? "N/A"} fatalities${localContext}
+Local incident registry (GVA): ${local?.total?.toLocaleString() ?? "N/A"} incidents tracked nationally, ${local?.fatal?.toLocaleString() ?? "N/A"} fatalities${localContext}
 SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fabricate statistics. Use the word "approximately" when rounding. Connect root causes to interventions — do not present this as a law-enforcement issue alone.`);
       }
     } catch (gvErr) {
