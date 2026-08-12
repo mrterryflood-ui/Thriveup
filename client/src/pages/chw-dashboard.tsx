@@ -81,6 +81,9 @@ interface SentReferral {
   clientDisplayName?: string | null;
   status: string;
   createdAt?: string;
+  resolvedAt?: string | null;
+  benefitValueEstimate?: number | null;
+  valueSource?: string | null;
   statusUrl?: string;
 }
 
@@ -591,25 +594,56 @@ export default function ChwDashboardPage() {
                       No referrals sent yet.
                     </p>
                   ) : (
-                    <div className="space-y-2 max-h-56 overflow-y-auto">
-                      {sentReferrals.map((r) => (
-                        <div
-                          key={r.id}
-                          className="flex items-center justify-between gap-2 rounded-md border p-2"
-                          data-testid={`card-sent-referral-${r.id}`}
-                        >
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium truncate">
-                              {r.orgName || "Organization"}
-                              {r.programCode ? <span className="text-muted-foreground font-normal"> · {r.programCode}</span> : null}
-                            </p>
-                            {r.clientDisplayName && (
-                              <p className="text-xs text-muted-foreground truncate">{r.clientDisplayName}</p>
+                    <div className="space-y-2 max-h-64 overflow-y-auto">
+                      {sentReferrals.map((r) => {
+                        const needsFollowUp = ["sent", "pending", "accepted"].includes((r.status || "").toLowerCase());
+                        const resolvedDate = r.resolvedAt
+                          ? new Date(r.resolvedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })
+                          : null;
+                        const hasValue = r.benefitValueEstimate != null && r.benefitValueEstimate > 0;
+                        const valueLabel = hasValue
+                          ? r.valueSource === "reported"
+                            ? `$${r.benefitValueEstimate!.toLocaleString()} (org-reported)`
+                            : `$${r.benefitValueEstimate!.toLocaleString()} (program default)`
+                          : null;
+                        return (
+                          <div
+                            key={r.id}
+                            className="rounded-md border p-2 space-y-1"
+                            data-testid={`card-sent-referral-${r.id}`}
+                          >
+                            <div className="flex items-center justify-between gap-2">
+                              <div className="min-w-0">
+                                <p className="text-sm font-medium truncate">
+                                  {r.orgName || "Organization"}
+                                  {r.programCode ? <span className="text-muted-foreground font-normal"> · {r.programCode}</span> : null}
+                                </p>
+                                {r.clientDisplayName && (
+                                  <p className="text-xs text-muted-foreground truncate">{r.clientDisplayName}</p>
+                                )}
+                              </div>
+                              <div className="shrink-0 flex flex-col items-end gap-1">
+                                {getReferralStatusChip(r.status)}
+                                {needsFollowUp && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] text-amber-600 dark:text-amber-400 font-medium" data-testid={`label-follow-up-${r.id}`}>
+                                    <Clock className="h-3 w-3" /> Follow-up needed
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                            {(resolvedDate || valueLabel) && (
+                              <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[10px] text-muted-foreground pl-0.5" data-testid={`meta-resolved-${r.id}`}>
+                                {resolvedDate && (
+                                  <span>Resolved {resolvedDate}</span>
+                                )}
+                                {valueLabel && (
+                                  <span data-testid={`label-value-source-${r.id}`}>{valueLabel}</span>
+                                )}
+                              </div>
                             )}
                           </div>
-                          <div className="shrink-0">{getReferralStatusChip(r.status)}</div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   )}
                 </div>
