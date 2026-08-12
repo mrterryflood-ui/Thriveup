@@ -119,6 +119,11 @@ const PROBES: Probe[] = [
   { name: "GET    /api/ecosystem/platforms (no session)", method: "GET", path: "/api/ecosystem/platforms" },
   { name: "PATCH  /api/ecosystem/platforms/:id/keep-alive (no session)", method: "PATCH", path: "/api/ecosystem/platforms/probe/keep-alive", body: { keepAlive: true } },
 
+  // ── neighborhood-routes.ts: email-report (requireAuth — email spam relay) ──
+  // An unauthenticated POST must be rejected with 401; it must never send
+  // a real email to an attacker-supplied address.
+  { name: "POST   /api/neighborhood/email-report (no session)", method: "POST", path: "/api/neighborhood/email-report", body: { recipientEmail: "probe@example.com", profile: { zipCode: "78701" } } },
+
   // ── gun-violence-routes.ts: import endpoint is staff-gated ─────────────────
   { name: "POST   /api/gun-violence/import (no session)", method: "POST", path: "/api/gun-violence/import", body: [{ incidentId: "probe-1", dataSource: "probe" }] },
   { name: "GET    /api/gun-violence/imports (no session)", method: "GET", path: "/api/gun-violence/imports" },
