@@ -40,4 +40,5 @@ if ! server_up; then
   fi
 fi
 
-BASE_URL="$BASE" npx tsx scripts/verify-referral-loop.ts
+BASE_URL="$BASE" npx tsx scripts/verify-referral-loop.ts && \
+BASE_URL="$BASE" npx tsx scripts/verify-referral-webhook.ts
