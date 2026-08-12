@@ -178,17 +178,17 @@ app.use((req, res, next) => {
       try {
         const { runGunViolenceRegistrySync } = await import("./gun-violence-routes");
         const result = await runGunViolenceRegistrySync();
-        console.info(`[gun-violence] scheduled sync complete — fetched=${result.fetched} upserted=${result.upserted} elapsed=${result.elapsedMs}ms`);
+        console.info(`[gv-sync] scheduled sync complete — fetched=${result.fetched} upserted=${result.upserted} elapsed=${result.elapsedMs}ms`);
       } catch (err: any) {
-        console.warn("[gun-violence] scheduled sync failed:", err?.message ?? err);
+        console.warn("[gv-sync] scheduled sync failed:", err?.message ?? err);
       }
       setInterval(async () => {
         try {
           const { runGunViolenceRegistrySync } = await import("./gun-violence-routes");
           const result = await runGunViolenceRegistrySync();
-          console.info(`[gun-violence] scheduled sync complete — fetched=${result.fetched} upserted=${result.upserted} elapsed=${result.elapsedMs}ms`);
+          console.info(`[gv-sync] scheduled sync complete — fetched=${result.fetched} upserted=${result.upserted} elapsed=${result.elapsedMs}ms`);
         } catch (err: any) {
-          console.warn("[gun-violence] scheduled sync failed:", err?.message ?? err);
+          console.warn("[gv-sync] scheduled sync failed:", err?.message ?? err);
         }
       }, GV_SYNC_INTERVAL_MS);
     }, 3 * 60 * 1000);

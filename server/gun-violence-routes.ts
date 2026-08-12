@@ -208,7 +208,7 @@ export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; u
     notes: `Scheduled sync. fetched=${totalFetched} upserted=${totalUpserted} elapsed=${elapsedMs}ms`,
   });
 
-  console.info(`[gun-violence] sync complete — fetched=${totalFetched} upserted=${totalUpserted} elapsed=${elapsedMs}ms`);
+  console.info(`[gv-sync] sync complete — fetched=${totalFetched} upserted=${totalUpserted} elapsed=${elapsedMs}ms`);
   return { fetched: totalFetched, upserted: totalUpserted, elapsedMs };
 }
 
