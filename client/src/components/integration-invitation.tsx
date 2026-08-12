@@ -29,7 +29,8 @@ export type ItiSurface =
   | "wph"
   | "workforce-readiness"
   | "public-site"
-  | "direct";
+  | "direct"
+  | "shadow-worker-hub";
 
 interface InvitationRow {
   id: string;

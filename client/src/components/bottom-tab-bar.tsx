@@ -66,7 +66,7 @@ const TABS = [
       "/case-studies", "/contact", "/privacy",
       "/manor", "/pflugerville", "/austin", "/st-davids",
       "/voice", "/third-spaces", "/neighborhood", "/411",
-      "/community-analysis",
+      "/community-analysis", "/gun-violence",
       "/advisory", "/open-innovation", "/opportunity-youth",
       "/peer-review", "/pricing", "/rplice", "/mapgap",
       "/pilot", "/dosage", "/outcomes", "/platform-metrics",

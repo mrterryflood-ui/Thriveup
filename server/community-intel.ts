@@ -122,16 +122,16 @@ async function fetchImpactStream(limit = 50): Promise<ImpactStream> {
 
   const totals = outcomes.reduce(
     (acc, o) => ({
-      participantsServed: acc.participantsServed + (o.participantsServed || 0),
-      enteredEmployment: acc.enteredEmployment + (o.enteredEmployment || 0),
-      credentialsAttained: acc.credentialsAttained + (o.credentialsAttained || 0),
+      totalParticipantsServed: acc.totalParticipantsServed + (o.participantsServed || 0),
+      totalEnteredEmployment: acc.totalEnteredEmployment + (o.enteredEmployment || 0),
+      totalCredentialsAttained: acc.totalCredentialsAttained + (o.credentialsAttained || 0),
     }),
-    { participantsServed: 0, enteredEmployment: 0, credentialsAttained: 0 }
+    { totalParticipantsServed: 0, totalEnteredEmployment: 0, totalCredentialsAttained: 0 }
   );
 
   const employmentRate =
-    totals.participantsServed > 0
-      ? `${Math.round((totals.enteredEmployment / totals.participantsServed) * 100)}%`
+    totals.totalParticipantsServed > 0
+      ? `${Math.round((totals.totalEnteredEmployment / totals.totalParticipantsServed) * 100)}%`
       : "N/A";
 
   return {

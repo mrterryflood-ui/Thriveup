@@ -734,7 +734,7 @@ export function registerEcosystemDataRoutes(app: Express) {
   // ── Block 5: Organization Registry ───────────────────────────────────────────
   app.get("/api/orgs/:orgId", requirePartnerAuth, requireScope("community:read"), async (req: Request, res: Response) => {
     try {
-      const { orgId } = req.params;
+      const orgId = req.params.orgId as string;
       const [org] = await db.select().from(communityPartners).where(eq(communityPartners.id, orgId));
       if (!org) {
         return res.status(404).json({ error: `Organization '${orgId}' not found in ThriveUp registry.` });
@@ -1223,7 +1223,7 @@ export function registerEcosystemDataRoutes(app: Express) {
         return res.status(403).json({ error: "Access denied. Only HerHealth Network and Black Mamas Village can use this endpoint." });
       }
 
-      const { referralId } = req.params;
+      const referralId = req.params.referralId as string;
       const partnerPlatformId = FEMININE_NETWORK_PARTNER[myPlatformId];
 
       const [referral] = await db

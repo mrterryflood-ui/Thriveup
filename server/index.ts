@@ -168,6 +168,32 @@ app.use((req, res, next) => {
     }, 24 * 60 * 60 * 1000);
   }
 
+  // Gun violence registry sync — runs every 24 hours in any environment.
+  // Pulls current GVA incidents from gun-violence-registry.replit.app and
+  // upserts them locally.  Idempotent; errors are logged but never crash the server.
+  {
+    const GV_SYNC_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 h
+    // Delay first auto-run by 3 minutes so startup load settles.
+    setTimeout(async () => {
+      try {
+        const { runGunViolenceRegistrySync } = await import("./gun-violence-routes");
+        const result = await runGunViolenceRegistrySync();
+        console.info(`[gun-violence] scheduled sync complete — fetched=${result.fetched} upserted=${result.upserted} elapsed=${result.elapsedMs}ms`);
+      } catch (err: any) {
+        console.warn("[gun-violence] scheduled sync failed:", err?.message ?? err);
+      }
+      setInterval(async () => {
+        try {
+          const { runGunViolenceRegistrySync } = await import("./gun-violence-routes");
+          const result = await runGunViolenceRegistrySync();
+          console.info(`[gun-violence] scheduled sync complete — fetched=${result.fetched} upserted=${result.upserted} elapsed=${result.elapsedMs}ms`);
+        } catch (err: any) {
+          console.warn("[gun-violence] scheduled sync failed:", err?.message ?? err);
+        }
+      }, GV_SYNC_INTERVAL_MS);
+    }, 3 * 60 * 1000);
+  }
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";

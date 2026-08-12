@@ -1929,7 +1929,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   // Toggle keepAlive for a single platform
   app.patch("/api/ecosystem/platforms/:id/keep-alive", requireAdminAuth, requireAuth, async (req, res) => {
     try {
-      const { id } = req.params;
+      const id = req.params.id as string;
       const { keepAlive } = req.body;
       if (typeof keepAlive !== "boolean") return res.status(400).json({ error: "keepAlive must be a boolean" });
       const [updated] = await db.update(ecosystemPlatforms)

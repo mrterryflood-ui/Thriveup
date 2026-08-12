@@ -599,10 +599,10 @@ PROFILE:
 - Dependents: ${profile.dependents || 0}
 - Family situation: ${profile.familySituation || "not reported"}
 
-RISK FACTORS: ${JSON.stringify((snapshot?.riskFactors || []).map((r: any) => r.factor))}
-PROTECTIVE FACTORS: ${JSON.stringify((snapshot?.protectiveFactors || []).map((p: any) => p.factor))}
-RISK SCORE: ${snapshot?.overallRiskScore ?? "not computed"}/100
-RECOMMENDED INTERVENTIONS: ${JSON.stringify((snapshot?.recommendedInterventions || []).map((i: any) => i.intervention))}
+RISK FACTORS: ${JSON.stringify(((snapshot as any)?.riskFactors ?? [] as any[]).map((r: any) => r.factor))}
+PROTECTIVE FACTORS: ${JSON.stringify(((snapshot as any)?.protectiveFactors ?? [] as any[]).map((p: any) => p.factor))}
+RISK SCORE: ${(snapshot as any)?.overallRiskScore ?? "not computed"}/100
+RECOMMENDED INTERVENTIONS: ${JSON.stringify(((snapshot as any)?.recommendedInterventions ?? [] as any[]).map((i: any) => i.intervention))}
 
 Write a ChainWeb Individual Plan in JSON:
 {

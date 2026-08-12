@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { db } from "./storage";
 import { fsaEligibilityChecks, insertFsaEligibilityCheckSchema } from "@shared/schema";
 import { generateAIJSON } from "./ai-provider";
+import { eq } from "drizzle-orm";
 
 // FSA program eligibility rules (based on 2024 Farm Bill program parameters)
 const FSA_PROGRAMS = [
@@ -209,7 +210,7 @@ Write guidance covering: (1) which program to prioritize first and why, (2) what
     try {
       const payload = insertFsaEligibilityCheckSchema.parse({
         ...inputs,
-        userId: req.user?.id,
+        userId: (req.user as any)?.id,
         sessionToken: req.headers["x-session-token"] as string || null,
         eligibleProgramsJson: JSON.stringify(eligible),
         estimatedPaymentsJson: JSON.stringify({ totalEstimate }),

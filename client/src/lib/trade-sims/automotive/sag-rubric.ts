@@ -46,10 +46,10 @@
 
 import type { PlacedAutoComponent } from "./component-defs";
 import type { SolveOutput } from "../electrical/circuit-solver";
-import type { SagRubric } from "../../../../shared/data/trade-sims/automotive-lessons";
+import type { SagRubric } from "@shared/data/trade-sims/automotive-lessons";
 
-export type { SagRubric } from "../../../../shared/data/trade-sims/automotive-lessons";
-export type { SagRubricMode } from "../../../../shared/data/trade-sims/automotive-lessons";
+export type { SagRubric } from "@shared/data/trade-sims/automotive-lessons";
+export type { SagRubricMode } from "@shared/data/trade-sims/automotive-lessons";
 
 export type SagGradeStatus = "pass" | "fail" | "pending";
 

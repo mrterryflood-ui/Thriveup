@@ -159,7 +159,7 @@ export default function WorkforcePellPage() {
     mutationFn: (data: PlacementForm) => apiRequest("POST", "/api/workforce/placements", {
       ...data,
       userId: user?.id ?? "guest",
-      userName: user?.username ?? "Anonymous",
+      userName: user?.firstName ?? "Anonymous",
       employerId: "direct",
       startDate: new Date(data.startDate).toISOString(),
     }),

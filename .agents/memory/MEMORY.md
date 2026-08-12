@@ -36,6 +36,7 @@
 - [CHW dashboard state patterns](chw-dashboard-state.md) — submittedClientPhone captures phone before resetReferralForm() clears it; orgResourceOptions must include acceptingClients for capacity warning; phone numbers use 555-01xx NANP reserved range (never real).
 - [Funder impact report $0 fix](funder-impact-zero.md) — estimatedCount field distinguishes enrolled-with-estimate vs enrolled-without; narrative says "value not yet estimated" not "$0" when estimatedCount=0 and enrolled>0.
 - [Webhook subscriber detection](webhook-subscriber-detection.md) — zero-subscriber case is a clean no-op; upgraded from debug to INFO log so operators can see when no partner endpoint is configured; verify-referral-webhook.ts chained into auth-e2e gate.
+- [Gun Violence Intelligence integration](gun-violence-intelligence.md) — registry is fully wired into Chainweb (engine #26), Navigator AI, and scheduled daily sync; exported functions are in server/gun-violence-routes.ts.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.

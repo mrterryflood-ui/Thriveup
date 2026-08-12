@@ -818,7 +818,7 @@ export function registerGrantRoutes(app: Express) {
         source: data.source || "manual",
         aiAnalysis: aiResult?.aiAnalysis || null,
         strengthsGaps: aiResult?.strengthsGaps || null,
-      }).returning();
+      } as any).returning();
 
       if (aiResult?.strengthsGaps?.gaps?.length) {
         await persistGapsFromGrant(grant.id, aiResult.strengthsGaps.gaps);
@@ -1320,7 +1320,11 @@ Return ONLY JSON:
         "community resilience",
         "digital literacy education",
       ];
-      const opportunities = await fetchSamGovOpportunities(keywords);
+      const _allOpps = await fetchSamGovByDateWindow(60);
+      const lc = (s: string) => s.toLowerCase();
+      const opportunities = _allOpps.filter(opp =>
+        keywords.some(kw => lc(opp.title || "").includes(lc(kw)) || lc(opp.description || "").includes(lc(kw)))
+      );
 
       let imported = 0;
       let skipped = 0;

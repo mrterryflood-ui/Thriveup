@@ -101,7 +101,7 @@ export function registerKnowledgeGraphRoutes(app: Express) {
   // ── Single node ────────────────────────────────────────────────────────────
   app.get("/api/knowledge-graph/nodes/:id", async (req: Request, res: Response) => {
     try {
-      const node = await getNode(decodeURIComponent(req.params.id));
+      const node = await getNode(decodeURIComponent(req.params.id as string));
       if (!node) return res.status(404).json({ error: "Node not found" });
       res.json(node);
     } catch (e: any) {
@@ -113,7 +113,7 @@ export function registerKnowledgeGraphRoutes(app: Express) {
   app.get("/api/knowledge-graph/neighbors/:id", async (req: Request, res: Response) => {
     try {
       const depth = Math.min(parseInt((req.query.depth as string) || "1"), 3);
-      const result = await getNeighbors(decodeURIComponent(req.params.id), depth);
+      const result = await getNeighbors(decodeURIComponent(req.params.id as string), depth);
       res.json(result);
     } catch (e: any) {
       res.status(500).json({ error: e.message });
@@ -123,7 +123,7 @@ export function registerKnowledgeGraphRoutes(app: Express) {
   // ── Graph context text for an entity (AI prompt injection) ─────────────────
   app.get("/api/knowledge-graph/context/:id", async (req: Request, res: Response) => {
     try {
-      const ctx = await buildGraphContext(decodeURIComponent(req.params.id));
+      const ctx = await buildGraphContext(decodeURIComponent(req.params.id as string));
       res.json({ context: ctx });
     } catch (e: any) {
       res.status(500).json({ error: e.message });
@@ -168,7 +168,7 @@ export function registerKnowledgeGraphRoutes(app: Express) {
   app.delete("/api/knowledge-graph/nodes/:id", async (req: Request, res: Response) => {
     if (!(await requireAuth(req, res))) return;
     try {
-      const id = decodeURIComponent(req.params.id);
+      const id = decodeURIComponent(req.params.id as string);
       // Edges cascade via FK
       await db.delete(kgNodes).where(eq(kgNodes.id, id));
       res.json({ ok: true });
@@ -201,7 +201,7 @@ export function registerKnowledgeGraphRoutes(app: Express) {
   app.get("/api/ecosystem/knowledge-graph/neighbors/:id", requireEcosystemAuth, async (req: Request, res: Response) => {
     try {
       const depth = Math.min(parseInt((req.query.depth as string) || "1"), 2);
-      const result = await getNeighbors(decodeURIComponent(req.params.id), depth);
+      const result = await getNeighbors(decodeURIComponent(req.params.id as string), depth);
       const scoped = {
         nodes: result.nodes.map(n => ({ id: n.id, type: n.type, label: n.label, description: n.description })),
         edges: result.edges,
@@ -215,7 +215,7 @@ export function registerKnowledgeGraphRoutes(app: Express) {
   // GET graph context text block
   app.get("/api/ecosystem/knowledge-graph/context/:id", requireEcosystemAuth, async (req: Request, res: Response) => {
     try {
-      const ctx = await buildGraphContext(decodeURIComponent(req.params.id));
+      const ctx = await buildGraphContext(decodeURIComponent(req.params.id as string));
       res.json({ context: ctx });
     } catch (e: any) {
       res.status(500).json({ error: e.message });

@@ -69,7 +69,7 @@ employerRegRouter.patch("/registrations/:id/review", ensureAuth, async (req, res
     if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
     const [reg] = await db.select().from(employerRegistrations)
-      .where(eq(employerRegistrations.id, req.params.id));
+      .where(eq(employerRegistrations.id, req.params.id as string));
 
     if (!reg) return res.status(404).json({ error: "Registration not found" });
 
@@ -99,7 +99,7 @@ employerRegRouter.patch("/registrations/:id/review", ensureAuth, async (req, res
       reviewedBy: parsed.data.reviewedBy,
       reviewNotes: parsed.data.reviewNotes,
       approvedEmployerId: employerId,
-    }).where(eq(employerRegistrations.id, req.params.id)).returning();
+    }).where(eq(employerRegistrations.id, req.params.id as string)).returning();
 
     res.json({ registration: updated, employerId });
   } catch (err) {

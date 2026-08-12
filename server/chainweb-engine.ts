@@ -220,7 +220,7 @@ Generate a compelling, citation-grounded narrative. Every dollar figure must cit
 Respond with JSON: { "headline": "string", "narrative": "string (3-5 paragraphs)", "keyStats": [{"label":"string","value":"string","citation":"string"}], "citations": ["string"] }
 `;
 
-  const result = await generateAIJSON(prompt, { temperature: 0.3, maxTokens: 1500 });
+  const result = await generateAIJSON<{ headline: string; narrative: string; keyStats: any[]; citations: string[] }>(prompt);
   return result;
 }
 

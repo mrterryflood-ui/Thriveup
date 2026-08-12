@@ -962,7 +962,7 @@ export async function registerRoutes(
   // Workforce / fair-chance job board routes
   app.get("/api/workforce/match/:userId", requireAuth, async (req, res) => {
     try {
-      const userId = req.params.userId === "me" ? getUserId(req)! : req.params.userId;
+      const userId = (req.params.userId as string) === "me" ? getUserId(req)! : req.params.userId as string;
       const result = await getEmployerMatches(userId);
       res.json(result);
     } catch (err) {
@@ -1833,7 +1833,7 @@ export async function registerRoutes(
   app.get("/api/sparky/sessions/:id/messages", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const { id } = req.params;
+      const id = req.params.id as string;
       const [session] = await db.select().from(sparkySessions)
         .where(and(eq(sparkySessions.id, id), eq(sparkySessions.userId, userId)));
       if (!session) return res.status(404).json({ error: "Session not found" });
@@ -1850,7 +1850,7 @@ export async function registerRoutes(
   app.delete("/api/sparky/sessions/:id", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const { id } = req.params;
+      const id = req.params.id as string;
       const [session] = await db.select().from(sparkySessions)
         .where(and(eq(sparkySessions.id, id), eq(sparkySessions.userId, userId)));
       if (!session) return res.status(404).json({ error: "Session not found" });
@@ -2403,7 +2403,7 @@ export async function registerRoutes(
       if (typeof role !== "string" || !ASSIGNABLE.has(role)) {
         return res.status(400).json({ error: "Invalid role", assignable: Array.from(ASSIGNABLE) });
       }
-      const targetAvatar = await storage.getAcademyAvatar(req.params.userId);
+      const targetAvatar = await storage.getAcademyAvatar(req.params.userId as string);
       if (!targetAvatar) return res.status(404).json({ error: "User has no profile to assign a role to" });
       const updated = await storage.updateAcademyAvatar(targetAvatar.id, { role });
       console.log(`[RoleAdmin] ${getUserId(req)} set role of ${req.params.userId} to ${role}`);
@@ -6373,7 +6373,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     try {
       const { initiatives } = await import("@shared/schema");
       const user = (req as any).user;
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       if (isNaN(id)) return res.status(400).json({ error: "Invalid id" });
       const rows = await db.select().from(initiatives).where(eq(initiatives.id, id)).limit(1);
       if (!rows.length) return res.status(404).json({ error: "Not found" });
@@ -6509,7 +6509,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     try {
       const user = (req as any).user;
       const [deleted] = await db.delete(participantDocuments)
-        .where(and(eq(participantDocuments.id, req.params.id), eq(participantDocuments.userId, user.id)))
+        .where(and(eq(participantDocuments.id, req.params.id as string), eq(participantDocuments.userId, user.id)))
         .returning();
       if (!deleted) return res.status(404).json({ error: "Not found" });
       res.json({ ok: true });
@@ -6545,7 +6545,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
       for (const k of allowed) { if (req.body[k] !== undefined) updates[k] = req.body[k]; }
       const [updated] = await db.update(participantAppointments)
         .set(updates as any)
-        .where(and(eq(participantAppointments.id, req.params.id), eq(participantAppointments.userId, user.id)))
+        .where(and(eq(participantAppointments.id, req.params.id as string), eq(participantAppointments.userId, user.id)))
         .returning();
       if (!updated) return res.status(404).json({ error: "Not found" });
       res.json(updated);
@@ -6556,7 +6556,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     try {
       const user = (req as any).user;
       const [deleted] = await db.delete(participantAppointments)
-        .where(and(eq(participantAppointments.id, req.params.id), eq(participantAppointments.userId, user.id)))
+        .where(and(eq(participantAppointments.id, req.params.id as string), eq(participantAppointments.userId, user.id)))
         .returning();
       if (!deleted) return res.status(404).json({ error: "Not found" });
       res.json({ ok: true });
@@ -6594,7 +6594,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     try {
       const user = (req as any).user;
       const [hh] = await db.select().from(residentHouseholds)
-        .where(and(eq(residentHouseholds.id, req.params.id), eq(residentHouseholds.userId, user.id))).limit(1);
+        .where(and(eq(residentHouseholds.id, req.params.id as string), eq(residentHouseholds.userId, user.id))).limit(1);
       if (!hh) return res.status(403).json({ error: "Not your household" });
       const [member] = await db.insert(residentHouseholdMembers)
         .values({ householdId: hh.id, firstName: req.body.firstName, lastName: req.body.lastName, relationship: req.body.relationship || "Other", dateOfBirth: req.body.dateOfBirth, notes: req.body.notes })
@@ -6607,10 +6607,10 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     try {
       const user = (req as any).user;
       const [hh] = await db.select().from(residentHouseholds)
-        .where(and(eq(residentHouseholds.id, req.params.id), eq(residentHouseholds.userId, user.id))).limit(1);
+        .where(and(eq(residentHouseholds.id, req.params.id as string), eq(residentHouseholds.userId, user.id))).limit(1);
       if (!hh) return res.status(403).json({ error: "Not your household" });
       await db.delete(residentHouseholdMembers)
-        .where(and(eq(residentHouseholdMembers.id, req.params.memberId), eq(residentHouseholdMembers.householdId, hh.id)));
+        .where(and(eq(residentHouseholdMembers.id, req.params.memberId as string), eq(residentHouseholdMembers.householdId, hh.id)));
       res.json({ ok: true });
     } catch (err: any) { res.status(500).json({ error: err.message }); }
   });

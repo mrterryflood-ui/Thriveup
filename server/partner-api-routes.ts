@@ -831,7 +831,7 @@ export function registerPartnerApiRoutes(app: Express) {
       const keyId = key.id as string;
       if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
 
-      const hookId = parseInt(req.params.id, 10);
+      const hookId = parseInt(req.params.id as string, 10);
       if (isNaN(hookId)) return res.status(400).json({ error: "Invalid webhook id." });
 
       // Verify ownership before deactivating.
@@ -1092,7 +1092,7 @@ export function registerPartnerApiRoutes(app: Express) {
       const keyId = key.id as string;
       if (!keyId) return res.status(400).json({ error: "Cannot resolve partner key id." });
 
-      const subId = parseInt(req.params.id, 10);
+      const subId = parseInt(req.params.id as string, 10);
       if (isNaN(subId)) return res.status(400).json({ error: "Invalid subscription id." });
 
       const [sub] = await db
@@ -1222,7 +1222,7 @@ export function registerPartnerApiRoutes(app: Express) {
 
   app.patch("/api/admin/brief-subscriptions/:id/deactivate", requireAdminKey, async (req, res) => {
     try {
-      const subId = parseInt(req.params.id, 10);
+      const subId = parseInt(req.params.id as string, 10);
       if (isNaN(subId)) return res.status(400).json({ error: "Invalid subscription id." });
       await db.update(briefSubscriptions).set({ active: false }).where(eq(briefSubscriptions.id, subId));
       res.json({ deactivated: true, id: subId });
@@ -1285,7 +1285,7 @@ export function registerPartnerApiRoutes(app: Express) {
 
   app.patch("/api/admin/partner-webhooks/:id/deactivate", requireAdminKey, async (req, res) => {
     try {
-      const hookId = parseInt(req.params.id, 10);
+      const hookId = parseInt(req.params.id as string, 10);
       if (isNaN(hookId)) return res.status(400).json({ error: "Invalid webhook id." });
       await db.update(partnerWebhooks).set({ active: false }).where(eq(partnerWebhooks.id, hookId));
       res.json({ deactivated: true, id: hookId });
@@ -1312,7 +1312,7 @@ export function registerPartnerApiRoutes(app: Express) {
     try {
       const [updated] = await db.update(partnerInboundData)
         .set({ processed: true, processedAt: new Date() })
-        .where(eq(partnerInboundData.id, req.params.id))
+        .where(eq(partnerInboundData.id, req.params.id as string))
         .returning({ id: partnerInboundData.id });
       if (!updated) return res.status(404).json({ error: "Record not found." });
       res.json({ success: true });
@@ -1374,7 +1374,7 @@ export function registerPartnerApiRoutes(app: Express) {
     try {
       const [updated] = await db.update(partnerApiKeys)
         .set({ active: false })
-        .where(eq(partnerApiKeys.id, req.params.id))
+        .where(eq(partnerApiKeys.id, req.params.id as string))
         .returning({ id: partnerApiKeys.id, partnerName: partnerApiKeys.partnerName });
       if (!updated) return res.status(404).json({ error: "Key not found." });
       res.json({ success: true, revoked: updated });
@@ -1387,7 +1387,7 @@ export function registerPartnerApiRoutes(app: Express) {
     try {
       const [updated] = await db.update(partnerApiKeys)
         .set({ active: true })
-        .where(eq(partnerApiKeys.id, req.params.id))
+        .where(eq(partnerApiKeys.id, req.params.id as string))
         .returning({ id: partnerApiKeys.id, partnerName: partnerApiKeys.partnerName });
       if (!updated) return res.status(404).json({ error: "Key not found." });
       res.json({ success: true, restored: updated });

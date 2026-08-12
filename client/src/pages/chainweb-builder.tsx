@@ -758,7 +758,7 @@ export default function ChainwebBuilderPage() {
                     </span>
                     {!hasFips && (
                       <Button
-                        variant="link"
+                        variant="ghost"
                         size="sm"
                         className="ml-auto text-blue-600 px-0 h-auto"
                         data-testid="button-go-to-build"

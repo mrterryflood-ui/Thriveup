@@ -152,7 +152,7 @@ export function registerChainwebRoutes(app: Express) {
   // decision) so existing links do not break.
   app.get("/api/chainweb/scenarios/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const [scenario] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
       if (!scenario) return res.status(404).json({ error: "Not found" });
 
@@ -195,7 +195,7 @@ export function registerChainwebRoutes(app: Express) {
 
   app.patch("/api/chainweb/scenarios/:id", cwRequireAuth, async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const userId = cwGetUserId(req)!;
 
       const [existing] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
@@ -224,7 +224,7 @@ export function registerChainwebRoutes(app: Express) {
 
   app.delete("/api/chainweb/scenarios/:id", cwRequireAuth, async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const userId = cwGetUserId(req)!;
 
       const [existing] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
@@ -248,7 +248,7 @@ export function registerChainwebRoutes(app: Express) {
   // and ownership so a user cannot recompute/overwrite scenarios they don't own.
   app.post("/api/chainweb/scenarios/:id/calculate", cwRequireAuth, async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const userId = cwGetUserId(req)!;
       const [existing] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, id));
       if (!existing) return res.status(404).json({ error: "Not found" });
@@ -275,7 +275,7 @@ export function registerChainwebRoutes(app: Express) {
   // so one user cannot burn AI spend against or overwrite another user's narratives.
   app.post("/api/chainweb/calculations/:id/narratives", cwRequireAuth, async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const { audience } = req.body as {
         audience: "grant_writer" | "org_leader" | "researcher" | "council" | "funder"
       };
@@ -329,7 +329,7 @@ export function registerChainwebRoutes(app: Express) {
   // Legacy scenarios with a null createdBy stay publicly readable.
   app.get("/api/chainweb/calculations/:id/narratives", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const [calc] = await db.select().from(chainwebCalculations).where(eq(chainwebCalculations.id, id));
       if (!calc) return res.status(404).json({ error: "Calculation not found" });
       const [scenario] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, calc.scenarioId));

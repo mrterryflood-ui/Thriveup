@@ -270,16 +270,17 @@ export function registerGrantPathProRoutes(app: Express) {
   });
 
   app.post("/api/consortium/proposals/:id/members", async (req: Request, res: Response) => {
-    const owned = await loadOwnedProposal(req, res, req.params.id);
+    const reqId = req.params.id as string;
+    const owned = await loadOwnedProposal(req, res, reqId);
     if (!owned) return;
     const { orgName, contactName, contactEmail, role, assignedSections, notes } = req.body;
     if (!orgName || !role) return res.status(400).json({ error: "orgName and role required" });
     const [row] = await db.insert(consortiumTeamMembers).values({
-      consortiumId: req.params.id, orgName, contactName, contactEmail,
+      consortiumId: reqId, orgName, contactName, contactEmail,
       role, assignedSections: assignedSections || [], notes,
     }).returning();
     // Auto-push updated collaborative structure to GPP in background
-    db.select().from(consortiumProposals).where(eq(consortiumProposals.id, req.params.id)).then(([cp]) => {
+    db.select().from(consortiumProposals).where(eq(consortiumProposals.id, reqId)).then(([cp]) => {
       if (!cp) return;
       db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, cp.id)).then(members => {
         pushToGpp({ source: "thriveup", type: "collaborative_structure", grant: { title: cp.grantTitle, nofo: cp.grantNofo }, projectTitle: cp.projectTitle, prime: { orgName: cp.primeOrgName, uei: cp.primeUei }, team: members.map(m => ({ orgName: m.orgName, role: m.role, assignedSections: m.assignedSections })), pushedAt: new Date().toISOString() }, "/api/inbound/collaborative").catch(() => {});
@@ -289,11 +290,12 @@ export function registerGrantPathProRoutes(app: Express) {
   });
 
   app.delete("/api/consortium/proposals/:id/members/:memberId", async (req: Request, res: Response) => {
-    const owned = await loadOwnedProposal(req, res, req.params.id);
+    const reqId = req.params.id as string;
+    const owned = await loadOwnedProposal(req, res, reqId);
     if (!owned) return;
     // Only delete the member if it belongs to this (owned) proposal.
     await db.delete(consortiumTeamMembers).where(and(
-      eq(consortiumTeamMembers.id, req.params.memberId),
+      eq(consortiumTeamMembers.id, req.params.memberId as string),
       eq(consortiumTeamMembers.consortiumId, owned.id),
     ));
     return res.json({ ok: true });

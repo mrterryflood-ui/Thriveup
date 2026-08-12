@@ -136,7 +136,7 @@ export function registerCedsRoutes(app: Express) {
   // ── Single region with goals + alignments ────────────────────────────────────
   app.get("/api/ceds/regions/:id", async (req: Request, res: Response) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id as string);
       const [region] = await db.select().from(cedsRegions).where(eq(cedsRegions.id, id));
       if (!region) return res.status(404).json({ error: "Region not found" });
 
@@ -217,9 +217,7 @@ export function registerCedsRoutes(app: Express) {
         goals: goals.filter(g => g.regionId === r.id).map(g => `${g.goalTitle}: ${g.goalDescription}`),
       }));
 
-      const result = await generateAIJSON({
-        model: "claude-haiku-4-5",
-        system: `You are a CEDS alignment specialist. Map the described program to EDA's Comprehensive Economic Development Strategy framework.
+      const cedsSystemPrompt = `You are a CEDS alignment specialist. Map the described program to EDA's Comprehensive Economic Development Strategy framework.
 EDA's 5 Performance Measures: ${EDA_PERFORMANCE_MEASURES.map(m => `${m.id}: ${m.label}`).join(" | ")}
 CEDS Categories: ${CEDS_CATEGORIES.map(c => c.label).join(" | ")}
 Regional CEDS context: ${JSON.stringify(cedsContext).slice(0, 2000)}
@@ -230,9 +228,8 @@ Return JSON with:
 - alignmentScore: 1-5
 - proposalLanguage: ready-to-paste paragraph for grant proposal (200 words max, references EDA measures by name)
 - regionalGoalMatches: array of {goalTitle, alignmentNote} from regional CEDS
-- evidenceAnchor: one primary data point to cite (Census, BLS, etc.)`,
-        messages: [{ role: "user", content: `Program description: ${programDescription}` }],
-      });
+- evidenceAnchor: one primary data point to cite (Census, BLS, etc.)`;
+      const result = await generateAIJSON(`Program description: ${programDescription}`, cedsSystemPrompt);
 
       res.json({ alignment: result, cedsRegions: regions, goals });
     } catch (err: any) {

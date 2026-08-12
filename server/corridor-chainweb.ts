@@ -548,13 +548,17 @@ export const CHAIN_STEPS: ChainStep[] = [
         let wrote = 0;
         for (const r of matched) {
           await upsertEvidence(db, {
-            countyFips: county.countyFips,
-            indicator: "ceds_region",
+            geographyKey: county.countyFips,
+            geographyType: "county",
+            metricKey: "ceds_region",
+            metricLabel: `EDD: ${r.eddName} (${r.eddAbbr})`,
             value: r.id,
-            valueLabel: `EDD: ${r.eddName} (${r.eddAbbr})`,
-            year: r.cedsYear ?? new Date().getFullYear(),
-            source: "EDA CEDS Registry",
+            unit: "id",
+            asOfDate: `${r.cedsYear ?? new Date().getFullYear()}-01-01`,
+            sourceName: "EDA CEDS Registry",
             sourceUrl: r.edaUrl ?? "https://www.eda.gov",
+            documentTitle: "CEDS Regional Registry",
+            methodology: "EDA CEDS alignment via chainweb",
             verifiedBy: "chainweb:ceds_alignment",
           });
           wrote++;

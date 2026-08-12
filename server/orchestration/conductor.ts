@@ -29,6 +29,7 @@ import { getListingsForCounty } from "../safe-passage-routes";
 import { getServiceDesertScore } from "../rural-connectivity-routes";
 import { collaborativeResponse } from "../collaborative-ai";
 import { FAFSA_SYSTEM_PROMPT } from "../college-access-ai-routes";
+import { getGunViolenceIntelligenceData } from "../gun-violence-routes";
 
 /**
  * Conductor-side cost cap for operator-invoked live-AI engines (currently
@@ -115,6 +116,28 @@ export interface OrchestrationOptions {
 async function callEngine(engine: EngineDefinition, geo: GeographyRef, options: OrchestrationOptions = {}): Promise<OrchestrationFact> {
   const fetchedAt = new Date().toISOString();
   try {
+    if (engine.id === "gun-violence") {
+      // Returns a compact navigator-ready snapshot — headline + ACEs + top root
+      // causes + local registry counts.  Full dataset available at
+      // /api/gun-violence/intelligence; this branch returns what fits an AI context window.
+      const intel = await getGunViolenceIntelligenceData().catch(() => null);
+      if (!intel) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Registry unavailable" };
+      const topCauses = (intel.rootCauses ?? []).slice(0, 5).map((rc: any) =>
+        `${rc.factor} (r=${rc.correlation}, ${rc.direction})`
+      );
+      const snapshot = {
+        headline: intel.headline,
+        aceCorrelation: intel.aces?.correlations?.aceFirearmR ?? null,
+        povertyCorrelation: intel.aces?.correlations?.povertyFirearmR ?? null,
+        topRootCauses: topCauses,
+        cdcLatestYear: (intel.cdcTrend ?? []).at(-1) ?? null,
+        fbiLatestYear: (intel.fbiTrends ?? []).at(-1) ?? null,
+        localRegistry: intel.localRegistry,
+        topRpliceFinding: (intel.rpliceFindings ?? []).at(0)?.payload ?? null,
+        note: "Source: CDC WONDER 1999–2022, FBI UCR, NCVS, WISQARS, RPLICE, GVA. No individual victim data.",
+      };
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: snapshot };
+    }
     if (engine.id === "chainweb-engine") {
       const context = await getChainwebRAGContext(undefined, geo.countyName || geo.state, undefined);
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: context };
@@ -193,7 +216,7 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef, options: 
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalEvents: total, byDomain: rows } };
     }
     if (engine.id === "corridor-story") {
-      const corridorCounties = CORRIDOR.metros.map((m) => m.countyFips);
+      const corridorCounties = CORRIDOR.metros.map((m) => m.countyFips) as string[];
       if (!geo.countyFips || !corridorCounties.includes(geo.countyFips)) {
         return {
           engineId: engine.id,
@@ -439,6 +462,7 @@ const IN_PROCESS_ENGINE_IDS = [
   "regional-briefing", "rural-health", "rural-workforce", "rural-housing", "neighborhood", "safe-passage",
   "farm-cooperative", "farm-profitability", "foster-youth-agency",
   "workforce", "justice", "trade-sims", "clinical", "rural-connectivity",
+  "gun-violence",
   // college-access-ai IS function-callable (see callEngine() branch above),
   // but stays out of the default/domain-bundle pool — it only ever runs when
   // an operator explicitly selects it by id AND supplies a real question.

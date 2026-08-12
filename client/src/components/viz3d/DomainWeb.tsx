@@ -140,7 +140,7 @@ export default function DomainWeb({ systemsScores }: DomainWebProps) {
 
     // Floating animation for nodes
     const nodeObjects: Array<{ mesh: THREE.Mesh; baseY: number; phase: number }> = [];
-    scene.children.forEach((obj) => {
+    scene.children.forEach((obj: THREE.Object3D) => {
       if (obj instanceof THREE.Mesh && obj.geometry instanceof THREE.SphereGeometry) {
         nodeObjects.push({ mesh: obj, baseY: obj.position.y, phase: Math.random() * Math.PI * 2 });
       }

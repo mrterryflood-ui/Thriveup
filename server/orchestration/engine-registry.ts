@@ -17,7 +17,8 @@ export type EngineDomain =
   | "benefits" | "childcare" | "workforce" | "justice" | "reentry"
   | "health" | "housing" | "education" | "agriculture" | "rural-connectivity"
   | "economic-development" | "family-services" | "youth" | "narrative"
-  | "roi-causal" | "equity" | "geospatial" | "program-management";
+  | "roi-causal" | "equity" | "geospatial" | "program-management"
+  | "community-safety";
 
 export interface EngineDefinition {
   id: string;
@@ -34,7 +35,7 @@ export interface EngineDefinition {
   /** Route path prefix, if invocation === "route" */
   routePrefix?: string;
   /** Rough refresh cadence — how stale this engine's underlying data can get before a re-pull matters */
-  refreshCadence: "realtime" | "daily" | "weekly" | "annual" | "on-demand";
+  refreshCadence: "realtime" | "hourly" | "daily" | "weekly" | "annual" | "on-demand";
   /** True if this engine ever touches household/individual PII — MUST stay walled off from RAG/orchestration output per 0-PHI-egress rule */
   touchesPII: boolean;
   /**
@@ -366,6 +367,29 @@ export const ENGINE_REGISTRY: EngineDefinition[] = [
     refreshCadence: "on-demand",
     touchesPII: false,
     notes: "Underlying table (farmworkerItiEnrollments) has per-person rows (accessToken, consent flags) and IS PII-bearing at the row level. This engine is wall-safe ONLY because the conductor branch returns a COUNT-by-workerType aggregate and never selects accessToken or any individual-identifying column. Do not change the conductor query to select('*') or this touchesPII flag becomes a lie.",
+  },
+  {
+    id: "gun-violence",
+    file: "server/gun-violence-routes.ts",
+    label: "Gun Violence Intelligence (CDC · FBI · NCVS · WISQARS · RPLICE · GVA)",
+    domains: ["health", "equity", "justice", "community-safety"],
+    geographyGrains: ["national", "state", "county"],
+    sources: [
+      "CDC WONDER all-intent firearm deaths 1999–2022",
+      "FBI UCR murder & violent crime 1960–present",
+      "NCVS firearm victimization 1993–present",
+      "WISQARS medical & work-loss costs 2018–2021",
+      "Root-cause correlation table (ACE r=0.856, poverty r=0.634)",
+      "50-state social determinant profiles",
+      "RAND DID policy analysis",
+      "RPLICE causal chains",
+      "GVA local incident registry (geography + type + counts only)",
+    ],
+    invocation: "function",
+    exportNames: ["getGunViolenceIntelligenceData"],
+    refreshCadence: "hourly",
+    touchesPII: false,
+    notes: "No individual victim data stored or returned. Federal longitudinal datasets + aggregate incident counts only. Local DB stores incident geography, type, and victim/fatal counts — never names, ages, case-specific identifiers. This is the only nationally-recognized registry with CDC+FBI+NCVS+WISQARS+RPLICE all merged into one queryable layer.",
   },
 ];
 

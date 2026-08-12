@@ -230,7 +230,7 @@ export async function getPersonalContext(
   // ── Audience-mode writing instructions ────────────────────────────────────
   // These tell the AI HOW to write, not just what context it has.
   const audienceInstruction = (() => {
-    switch (audienceMode) {
+    switch (audienceMode as AudienceMode) {
       case "tcaf_internal":
         return `
 [WRITING MODE: TCAF INTERNAL]

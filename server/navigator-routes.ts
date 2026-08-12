@@ -18,6 +18,7 @@ import * as path from "path";
 import { pdfBufferToText } from "./rfp-ingestion";
 import { getPersonalContext } from "./personal-context";
 import { YOUTH_MODE_KNOWLEDGE } from "./yhsi-program-knowledge";
+import { getGunViolenceIntelligenceData } from "./gun-violence-routes";
 
 /**
  * OCR a PDF buffer by rendering pages with pdftoppm then sending images to
@@ -411,6 +412,67 @@ When discussing workforce, grants, or economic development — align TCAF progra
     }
   } catch (err) {
     console.error("[Navigator] GIS context assembly error:", err);
+  }
+
+  // ── Gun violence intelligence injection ──────────────────────────────────────
+  // When the query touches violence, safety, shootings, homicide, or related
+  // topics, surface the full CDC/FBI/NCVS/ACE/RPLICE dataset so the Navigator
+  // can give a grounded, evidence-based answer instead of a generic one.
+  const GV_KEYWORDS = [
+    "gun", "shooting", "shot", "gunshot", "firearm", "weapon",
+    "homicide", "murder", "killed", "fatality", "fatal",
+    "violence", "violent crime", "mass shooting", "drive.by",
+    "community safety", "neighborhood safety", "public safety",
+    "ace", "adverse childhood", "trauma informed",
+  ];
+  const lowerMsg = userMessage.toLowerCase();
+  if (GV_KEYWORDS.some(kw => lowerMsg.includes(kw))) {
+    try {
+      const intel = await getGunViolenceIntelligenceData().catch(() => null);
+      if (intel) {
+        const hl = intel.headline ?? {};
+        const ace = intel.aces?.correlations?.aceFirearmR ?? null;
+        const topCauses = (intel.rootCauses ?? []).slice(0, 5)
+          .map((rc: any) => `  • ${rc.factor}: r=${rc.correlation} (${rc.direction}) — "${rc.description}"`)
+          .join("\n");
+        const latestCDC = (intel.cdcTrend ?? []).at(-1);
+        const latestFBI = (intel.fbiTrends ?? []).at(-1);
+        const local     = intel.localRegistry;
+        const topPolicy = (intel.policy ?? []).slice(0, 3)
+          .map((p: any) => `  • ${p.label}: ${p.short_description ?? ""}`)
+          .join("\n");
+        const topRplice = (intel.rpliceFindings ?? []).at(0);
+
+        // Detect state/city from the query for local enrichment
+        let localContext = "";
+        if (stateMatch) {
+          const stateCode = stateMatch[1].toUpperCase().slice(0, 2);
+          const stateRow  = (intel.cdcStates ?? []).find((s: any) =>
+            s.stateCode?.toUpperCase() === stateCode || s.state?.toLowerCase() === stateMatch[1].toLowerCase()
+          );
+          if (stateRow) {
+            localContext = `\nState-level (${stateRow.state ?? stateCode}): crude rate ${stateRow.crudeRate ?? "N/A"}/100k, age-adjusted rate ${stateRow.ageAdjustedRate ?? "N/A"}/100k (CDC WONDER).`;
+          }
+        }
+
+        contextParts.push(`[GUN VIOLENCE INTELLIGENCE — CDC · FBI · NCVS · WISQARS · RPLICE]:
+National scope (CDC WONDER, all intents, 1999–2022):
+  Total firearm deaths: ${hl.totalDeaths?.toLocaleString() ?? "N/A"} | Homicides: ${hl.totalHomicides?.toLocaleString() ?? "N/A"} | Suicides: ${hl.totalSuicides?.toLocaleString() ?? "N/A"}
+  Peak year: ${hl.peakYear?.year ?? "N/A"} (${hl.peakYear?.deaths?.toLocaleString() ?? "N/A"} deaths)
+  ${latestCDC ? `Most recent CDC year (${latestCDC.year}): ${latestCDC.totalDeaths?.toLocaleString()} deaths, crude rate ${latestCDC.crudeRate}/100k` : ""}
+  ${latestFBI ? `FBI UCR (${latestFBI.year}): murder rate ${latestFBI.murderRate}/100k` : ""}
+ACE score → gun violence: r = ${ace ?? "N/A"} (strongest structural predictor — exceeds poverty r=${intel.aces?.correlations?.povertyFirearmR ?? "N/A"})
+Top structural root causes:
+${topCauses || "  (registry data unavailable)"}
+Evidence-based policy interventions (RAND DID analysis):
+${topPolicy || "  (no policy data loaded)"}
+${topRplice ? `RPLICE causal finding: ${JSON.stringify(topRplice).slice(0, 300)}` : ""}
+Local incident registry (GVA): ${local?.total?.toLocaleString() ?? "N/A"} incidents tracked, ${local?.fatal?.toLocaleString() ?? "N/A"} fatalities${localContext}
+SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fabricate statistics. Use the word "approximately" when rounding. Connect root causes to interventions — do not present this as a law-enforcement issue alone.`);
+      }
+    } catch (gvErr) {
+      // Non-fatal — gun violence context is additive, not required
+    }
   }
 
   const needKeywords: Record<string, string[]> = {
@@ -1008,6 +1070,8 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                   res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
                   res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
                   res.end();
+                },
+                onError: (err) => { console.error("[navigator] stream error:", err); res.end();
                 },
               });
             }
