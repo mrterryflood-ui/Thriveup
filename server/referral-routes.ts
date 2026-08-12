@@ -7,6 +7,7 @@ import { requireStaff } from "./yhsi-routes";
 import { requirePartnerAuth, requireScope } from "./partner-api-routes";
 import { PROGRAM_DEFAULT_ANNUAL_VALUE } from "./benefits-screener-fix";
 import { fireWebhook } from "./webhook-dispatcher";
+import { sendReferralStatusSms } from "./sms-service";
 
 // ── Combined auth: staff login OR partner key with inbound:write scope ────────
 // Used on PATCH /:id/outcome so receiving orgs can confirm enrollment using
@@ -188,6 +189,16 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
       status: created.status,
       funderId: created.funderId,
     });
+
+    // Fire-and-forget SMS: deliver the status link to the client's phone so they
+    // can check their referral status without needing the CHW to forward a URL.
+    // Only sent when a clientPhone was provided. Failure is logged but never
+    // blocks this response — SMS is a best-effort notification.
+    if (created.clientPhone) {
+      sendReferralStatusSms(created.clientPhone, created.statusToken as string).catch(() => {
+        // already logged inside sendReferralStatusSms; swallow here for safety
+      });
+    }
 
     const statusUrl = `/status/${created.statusToken}`;
     const orgConfirmUrl = `/org-confirm/${created.orgConfirmToken}`;
