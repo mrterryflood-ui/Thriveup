@@ -724,12 +724,12 @@ ${generatedStory.subhead ? `<p class="subhead">${generatedStory.subhead}</p>` : 
 ${statsHtml ? `<div class="stats">${statsHtml}</div>` : ""}
 ${bodyHtml}
 ${generatedStory.callToAction ? `<div class="cta">${generatedStory.callToAction}</div>` : ""}
-<div class="footer">Data sources: CDC WONDER &middot; FBI UCR &middot; NCVS &middot; WISQARS &middot; RPLICE &middot; Gun Violence Archive &mdash; TCAF Gun Violence Intelligence Hub &middot; Generated ${new Date().toLocaleDateString()}</div>
+<div class="footer">Data sources: CDC WONDER &middot; FBI UCR &middot; NCVS &middot; WISQARS &middot; RPLICE &middot; GVA &mdash; TCAF Gun Violence Intelligence Hub &middot; Generated ${new Date().toLocaleDateString()}</div>
 </body></html>`);
                     win.document.close();
                     win.print();
                   }}>
-                    <Printer className="h-3.5 w-3.5" /> Download PDF
+                    <Printer className="h-3.5 w-3.5" /> Download as PDF
                   </Button>
                   <Button variant="ghost" size="sm" onClick={() => setGeneratedStory(null)}>Clear</Button>
                 </div>
