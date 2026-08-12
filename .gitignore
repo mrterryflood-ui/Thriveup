@@ -4,10 +4,7 @@ dist
 server/public
 vite.config.ts.*
 *.tar.gz
-# Playwright / e2e test output artifacts — all transient runtime state
-test-results/**/*.pdf
-test-results/**/*.png
-test-results/**/*.jpg
-test-results/**/*.zip
-test-results/**/*.md
-test-results/**/.last-run.json
+# Playwright / e2e test output artifacts — all transient runtime state.
+# Trace archives (.trace, .network) may contain signed session cookies;
+# never commit them. The full test-results tree is transient runtime output.
+test-results/
