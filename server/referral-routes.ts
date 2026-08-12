@@ -8,6 +8,7 @@ import { requirePartnerAuth, requireScope } from "./partner-api-routes";
 import { PROGRAM_DEFAULT_ANNUAL_VALUE } from "./benefits-screener-fix";
 import { fireWebhook } from "./webhook-dispatcher";
 import { sendReferralStatusSms } from "./sms-service";
+import { onReferralEnrolled } from "./grant-scoring-events";
 
 // ── Combined auth: staff login OR partner key with inbound:write scope ────────
 // Used on PATCH /:id/outcome so receiving orgs can confirm enrollment using
@@ -298,6 +299,11 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
       valueSource: updated.valueSource,
     });
 
+    // Outcome-driven grant scoring: bump fit scores on matching grants.
+    if (updated.status === "enrolled") {
+      onReferralEnrolled(updated.id, existing.orgId ?? "", existing.programCode ?? "").catch(() => {});
+    }
+
     res.json(updated);
   } catch (err) {
     res.status(500).json({ error: "Failed to update outcome" });
@@ -358,6 +364,11 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
         valueSource: updated.valueSource,
         via: "org-confirm",
       });
+
+      // Outcome-driven grant scoring.
+      if (updated.status === "enrolled") {
+        onReferralEnrolled(updated.id, existing.orgId ?? "", existing.programCode ?? "").catch(() => {});
+      }
 
       res.json(updated);
     } catch (err) {

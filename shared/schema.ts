@@ -7335,6 +7335,48 @@ export const gunViolenceImports = pgTable("gun_violence_imports", {
 });
 export type GunViolenceImport = typeof gunViolenceImports.$inferSelect;
 
+// ── Participant Cohort Threads ────────────────────────────────────────────────
+// Privacy-preserving longitudinal thread linking YHSI intake → academy →
+// workforce. cohortHash is SHA-256(birthYear‖serviceZip‖referralSource) —
+// no name, DOB, or direct identifier is stored. Individual rows are never
+// exposed; only aggregate counts (floor 5) are returned via the API.
+export const participantCohortThreads = pgTable("participant_cohort_threads", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  cohortHash: varchar("cohort_hash", { length: 64 }).notNull(),
+  yhsiParticipantId: text("yhsi_participant_id"),
+  userId: integer("user_id"),
+  participantProfileId: text("participant_profile_id"),
+  yhsiIntakeAt: timestamp("yhsi_intake_at"),
+  academyEnrolledAt: timestamp("academy_enrolled_at"),
+  academyCompletedAt: timestamp("academy_completed_at"),
+  workforcePlacedAt: timestamp("workforce_placed_at"),
+  workforceRetained90dAt: timestamp("workforce_retained_90d_at"),
+  serviceCategories: text("service_categories").array(),
+  geographyZip: varchar("geography_zip", { length: 10 }),
+  geographyState: varchar("geography_state", { length: 2 }),
+  consentGiven: boolean("consent_given").notNull().default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type ParticipantCohortThread = typeof participantCohortThreads.$inferSelect;
+
+// ── Grant Fit Events ──────────────────────────────────────────────────────────
+// Audit trail for outcome-driven fit score bumps. Every time a referral
+// resolves as enrolled and causes a grant's fitScore to increase, one row is
+// written here. Enables reversibility review and transparency reporting.
+export const grantFitEvents = pgTable("grant_fit_events", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  grantId: text("grant_id").notNull(),
+  triggerType: varchar("trigger_type", { length: 50 }).notNull(),
+  triggerId: text("trigger_id"),
+  orgId: text("org_id"),
+  serviceCategory: varchar("service_category", { length: 100 }),
+  scoreBefore: integer("score_before"),
+  scoreAfter: integer("score_after"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type GrantFitEvent = typeof grantFitEvents.$inferSelect;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";

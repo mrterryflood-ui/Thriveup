@@ -191,6 +191,8 @@ import { registerProposalAuthoringRoutes } from "./proposal-authoring-routes";
 import { registerEditorDraftsRoutes } from "./editor-drafts-routes";
 import { registerCedsRoutes } from "./ceds-routes";
 import { registerPartnerApiRoutes } from "./partner-api-routes";
+import { cohortRouter } from "./research-cohort-routes";
+import { researchReportRouter } from "./research-report-routes";
 import { registerEcosystemDataRoutes } from "./ecosystem-data-routes";
 import { registerStreetsRoutes } from "./streets-routes";
 import { embedRouter } from "./embed-routes";
@@ -6719,6 +6721,8 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api", scorecardRouter);
   app.use("/api/chw", chwRouter);
   app.use("/api/referrals", referralRouter);
+  app.use("/api/research", cohortRouter);
+  app.use("/api/research", researchReportRouter);
   app.use("/api/directory", capacityRouter);
   app.use("/api/partner/v1", partnerCapacityRouter);
   app.use("/api/funder", funderRouter);
