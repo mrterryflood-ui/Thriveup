@@ -255,6 +255,7 @@ export function registerPartnerApiRoutes(app: Express) {
         "GET  /api/partner/v1/subscriptions     — list brief subscriptions for your key (community:read)",
         "DELETE /api/partner/v1/subscriptions/:id — deactivate a brief subscription (community:read)",
         "POST /api/partner/v1/foster-youth/refer — create foster youth intake on behalf of a youth (inbound:write)",
+        "PATCH /api/referrals/:id/outcome — confirm enrollment for a referral your org received; requires inbound:write scope; org-name on key must match referral's target org",
       ],
       exampleRequests: {
         communityBrief: {
@@ -281,8 +282,81 @@ export function registerPartnerApiRoutes(app: Express) {
           body: { location: "Austin, TX", webhookUrl: "https://your-org.example.com/hooks/tcaf-brief", frequency: "weekly" },
           response: { subscriptionId: 1, message: "You will receive community briefs for Austin, TX weekly. Briefs will begin dispatching within 24 hours of activation." },
         },
+        referralOrgConfirm_noKey: {
+          description: "Your org received a referral. The CHW shared the orgConfirmUrl with you. POST to it — no API key needed.",
+          request: "POST /api/referrals/org-confirm/<orgConfirmToken>",
+          body: { status: "enrolled", benefitValueEstimate: 1500, notes: "Client enrolled in 12-month housing assistance program" },
+          response: { id: "<referralId>", status: "enrolled", benefitValueEstimate: 1500, valueSource: "reported" },
+          validStatuses: ["enrolled", "ineligible", "withdrew", "accepted"],
+          valueSources: { reported: "you supplied benefitValueEstimate", default: "program default applied (enrolled, no estimate provided)", null: "non-enrolled outcome (ineligible / withdrew / accepted)" },
+          note: "orgConfirmUrl is returned in the HTTP response when a staff user creates a referral: { referral: {...}, statusUrl, orgConfirmUrl }. It is NOT broadcast in the referral.created webhook (one-time capability token — staff must share it with your org securely).",
+        },
+        referralOrgConfirm_withKey: {
+          description: "Your org has a tcaf_ partner key with inbound:write scope. Use PATCH to confirm programmatically. The partner name on the key must exactly match the referral's target org name.",
+          request: "PATCH /api/referrals/<referralId>/outcome",
+          headers: { "x-partner-key": "tcaf_..." },
+          body: { status: "enrolled", benefitValueEstimate: 1500, notes: "Client enrolled" },
+          response: { id: "<referralId>", status: "enrolled", benefitValueEstimate: 1500, valueSource: "reported" },
+          acceptedFields: {
+            status: "REQUIRED — enrolled | ineligible | withdrew | accepted",
+            benefitValueEstimate: "OPTIONAL number — estimated dollar value of benefit delivered; used in funder impact reports",
+            notes: "OPTIONAL string — free-text notes visible to the referring CHW",
+          },
+        },
       },
       webhookEvents: [
+        {
+          event: "referral.created",
+          description: "Fired when a CHW creates a new referral and your org is the target. Delivery is org-scoped: only hooks registered by a tcaf_ key whose partner name matches the referral's orgName receive this event — your key will never receive events for referrals sent to a different org. NOTE: orgConfirmUrl is NOT included in this payload — it is a one-time capability token returned only in the HTTP response to the creating staff user and must be shared with your org directly (e.g. via secure message or email).",
+          payloadShape: {
+            event: "referral.created",
+            timestamp: "<ISO 8601>",
+            tcaf_version: "1.0",
+            referralId: "<string>",
+            programCode: "<string|null>",
+            orgName: "<string|null>",
+            status: "pending",
+            funderId: "<string|null>",
+          },
+          orgConfirmUrlNote: "When your org receives a referral, the creating CHW holds an orgConfirmUrl of the form /org-confirm/<token>. They should share it with you. POST to that URL (no auth required) or PATCH /api/referrals/:id/outcome (requires your tcaf_ key with inbound:write scope) to confirm the outcome.",
+          confirmationMethods: {
+            option1_postToOrgConfirmUrl: {
+              description: "No API key needed — use the capability URL the CHW shares with you",
+              method: "POST",
+              url: "https://thriveup.app/api/referrals/org-confirm/<orgConfirmToken>",
+              body: { status: "enrolled", benefitValueEstimate: 1500, notes: "Client enrolled in housing assistance program" },
+              validStatuses: ["enrolled", "ineligible", "withdrew", "accepted"],
+              note: "Once resolved, the referral is immutable — a 409 is returned if you attempt to update it again.",
+            },
+            option2_patchWithPartnerKey: {
+              description: "Programmatic — use your tcaf_ key; org name on key must match the referral's target org",
+              method: "PATCH",
+              url: "https://thriveup.app/api/referrals/<referralId>/outcome",
+              headers: { "x-partner-key": "tcaf_..." },
+              body: { status: "enrolled", benefitValueEstimate: 1500, notes: "Client enrolled" },
+              validStatuses: ["enrolled", "ineligible", "withdrew", "accepted"],
+              acceptedFields: {
+                status: "REQUIRED — one of: enrolled | ineligible | withdrew | accepted",
+                benefitValueEstimate: "OPTIONAL — estimated dollar value of the benefit delivered (e.g. 1500 for a $1,500 housing grant); used in funder impact reports",
+                notes: "OPTIONAL — free-text notes visible to the CHW",
+              },
+            },
+          },
+        },
+        {
+          event: "referral.outcome",
+          description: "Fired when an org confirms a referral outcome — either via POST /api/referrals/org-confirm/:token or PATCH /api/referrals/:id/outcome. Delivery is org-scoped: only hooks registered by a tcaf_ key whose partner name matches the referral's orgName receive this event.",
+          payloadShape: {
+            event: "referral.outcome",
+            timestamp: "<ISO 8601>",
+            tcaf_version: "1.0",
+            referralId: "<string>",
+            status: "enrolled | ineligible | withdrew | accepted",
+            benefitValueEstimate: "<number|null — dollar value of benefit delivered>",
+            valueSource: "\"reported\" (org supplied a value) | \"default\" (program default applied) | null (no estimate — non-enrolled outcome)",
+            via: "\"org-confirm\" (present only when confirmed via the orgConfirmUrl POST path; absent for staff/partner-key PATCH updates)",
+          },
+        },
         {
           event: "foster_youth.outcome",
           description: "Fired when a foster youth intake outcome is reported via POST /api/foster-youth/intake/:id/report-outcome",
@@ -774,6 +848,8 @@ export function registerPartnerApiRoutes(app: Express) {
   });
 
   const VALID_WEBHOOK_EVENTS = new Set([
+    "referral.created",
+    "referral.outcome",
     "foster_youth.outcome",
     "trade_cert.issued",
     "community_brief.completed",
@@ -1264,7 +1340,7 @@ export function registerPartnerApiRoutes(app: Express) {
       if (!partnerKeyId || !event || !webhookUrl) {
         return res.status(400).json({ error: "partnerKeyId, event, and webhookUrl are required." });
       }
-      const VALID_WEBHOOK_EVENTS = new Set(["foster_youth.outcome", "trade_cert.issued", "community_brief.completed"]);
+      const VALID_WEBHOOK_EVENTS = new Set(["referral.created", "referral.outcome", "foster_youth.outcome", "trade_cert.issued", "community_brief.completed"]);
       if (!VALID_WEBHOOK_EVENTS.has(event)) {
         return res.status(400).json({ error: `event must be one of: ${[...VALID_WEBHOOK_EVENTS].join(", ")}` });
       }

@@ -6,7 +6,7 @@ import { eq, desc, isNull, and, gt, or, sql, inArray } from "drizzle-orm";
 import { requireStaff } from "./yhsi-routes";
 import { requirePartnerAuth, requireScope } from "./partner-api-routes";
 import { PROGRAM_DEFAULT_ANNUAL_VALUE } from "./benefits-screener-fix";
-import { fireWebhook } from "./webhook-dispatcher";
+import { fireWebhook, fireWebhookForOrg } from "./webhook-dispatcher";
 import { sendReferralStatusSms } from "./sms-service";
 import { onReferralEnrolled } from "./grant-scoring-events";
 
@@ -178,18 +178,31 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
 
     // FEATURE 3: fire-and-forget referral.created. Never awaited; zero
     // subscribers is a clean no-op and failures never affect this response.
-    // orgConfirmUrl is intentionally NOT broadcast here: referral.created fires
-    // to all active webhook subscribers, and the org-confirm token is a
-    // one-time mutation capability that must only reach the intended org.
-    // The staff user who created the referral receives it in the HTTP response
-    // below and can share it with the org directly.
-    fireWebhook("referral.created", {
-      referralId: created.id,
-      programCode: created.programCode,
-      orgName: created.orgName,
-      status: created.status,
-      funderId: created.funderId,
-    });
+    // orgConfirmUrl is intentionally NOT broadcast here: it is a one-time
+    // mutation capability token that must only reach the intended org. Delivery
+    // is scoped to the target org (fireWebhookForOrg) so that a partner key
+    // provisioned for Org A cannot receive events intended for Org B.
+    // The staff user who created the referral receives orgConfirmUrl in the
+    // HTTP response below and can share it with the org directly.
+    if (created.orgName) {
+      fireWebhookForOrg("referral.created", {
+        referralId: created.id,
+        programCode: created.programCode,
+        orgName: created.orgName,
+        status: created.status,
+        funderId: created.funderId,
+      }, created.orgName);
+    } else {
+      // No target org — still fire broadly so any subscriber can see it,
+      // but there is no org-scoped data to protect.
+      fireWebhook("referral.created", {
+        referralId: created.id,
+        programCode: created.programCode,
+        orgName: created.orgName,
+        status: created.status,
+        funderId: created.funderId,
+      });
+    }
 
     // Fire-and-forget SMS: deliver the status link to the client's phone so they
     // can check their referral status without needing the CHW to forward a URL.
@@ -291,13 +304,24 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
       return res.status(409).json({ error: "Referral outcome is already resolved and is immutable" });
     }
 
-    // FEATURE 3: fire-and-forget referral.outcome.
-    fireWebhook("referral.outcome", {
-      referralId: updated.id,
-      status: updated.status,
-      benefitValueEstimate: updated.benefitValueEstimate,
-      valueSource: updated.valueSource,
-    });
+    // FEATURE 3: fire-and-forget referral.outcome (org-scoped).
+    // Delivery is restricted to the referral's target org so Org A cannot
+    // receive outcome data for referrals sent to Org B.
+    if (existing.orgName) {
+      fireWebhookForOrg("referral.outcome", {
+        referralId: updated.id,
+        status: updated.status,
+        benefitValueEstimate: updated.benefitValueEstimate,
+        valueSource: updated.valueSource,
+      }, existing.orgName);
+    } else {
+      fireWebhook("referral.outcome", {
+        referralId: updated.id,
+        status: updated.status,
+        benefitValueEstimate: updated.benefitValueEstimate,
+        valueSource: updated.valueSource,
+      });
+    }
 
     // Outcome-driven grant scoring: bump fit scores on matching grants.
     if (updated.status === "enrolled") {
@@ -356,14 +380,26 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
         return res.status(409).json({ error: "Referral outcome is already resolved and is immutable" });
       }
 
-      // FEATURE 3: fire-and-forget referral.outcome.
-      fireWebhook("referral.outcome", {
-        referralId: updated.id,
-        status: updated.status,
-        benefitValueEstimate: updated.benefitValueEstimate,
-        valueSource: updated.valueSource,
-        via: "org-confirm",
-      });
+      // FEATURE 3: fire-and-forget referral.outcome (org-scoped).
+      // Delivery is restricted to the referral's target org so Org A cannot
+      // receive outcome data for referrals sent to Org B.
+      if (existing.orgName) {
+        fireWebhookForOrg("referral.outcome", {
+          referralId: updated.id,
+          status: updated.status,
+          benefitValueEstimate: updated.benefitValueEstimate,
+          valueSource: updated.valueSource,
+          via: "org-confirm",
+        }, existing.orgName);
+      } else {
+        fireWebhook("referral.outcome", {
+          referralId: updated.id,
+          status: updated.status,
+          benefitValueEstimate: updated.benefitValueEstimate,
+          valueSource: updated.valueSource,
+          via: "org-confirm",
+        });
+      }
 
       // Outcome-driven grant scoring.
       if (updated.status === "enrolled") {

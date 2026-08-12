@@ -20,8 +20,9 @@
  *   POST /api/grant-conduit/push-to-gpp     — package + forward to GPP in one call
  */
 
-import { Router, type Request, type Response } from "express";
+import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "./storage";
+import { requireStaff } from "./yhsi-routes";
 import {
   grantOpportunities,
   partnerOutcomeSubmissions,
@@ -164,23 +165,26 @@ grantConduitRouter.get("/readiness", async (req: Request, res: Response) => {
   const { zip, state } = req.query as { zip?: string; state?: string };
   if (!state) return res.status(400).json({ error: "state query param is required" });
 
-  const [region] = await db.select({ id: cedsRegions.id, name: cedsRegions.eddName, abbr: cedsRegions.eddAbbr })
-    .from(cedsRegions).where(eq(cedsRegions.state, state.toUpperCase())).limit(1);
+    const [region] = await db.select().from(cedsRegions)
+      .where(eq(cedsRegions.state, state)).limit(1);
 
   const rplice = buildRpliceEvidence();
 
-  const [outcomeRow] = await db.select({
-    participants: sql<number>`coalesce(sum(${partnerOutcomeSubmissions.participantsServed}), 0)`,
-  }).from(partnerOutcomeSubmissions);
+    const [outcomeRow] = await db.select({
+      participantsServed:  sql<number>`coalesce(sum(${partnerOutcomeSubmissions.participantsServed}), 0)`,
+      enteredEmployment:   sql<number>`coalesce(sum(${partnerOutcomeSubmissions.enteredEmployment}), 0)`,
+      credentialsAttained: sql<number>`coalesce(sum(${partnerOutcomeSubmissions.credentialsAttained}), 0)`,
+      medianEarnings:      sql<number>`coalesce(avg(${partnerOutcomeSubmissions.medianEarnings}), 0)`,
+    }).from(partnerOutcomeSubmissions);
 
-  const readiness = computeReadiness({
-    hasRegion:   !!region,
-    hasRplice:   !!rplice,
-    hasOutcomes: Number(outcomeRow?.participants ?? 0) > 0,
-    hasGrants:   true, // always have the DB seeded
-    hasMission:  false,
-    hasIdentity: false,
-  });
+    const readiness = computeReadiness({
+      hasRegion:   !!region,
+      hasRplice:   !!rpliceEvidence,
+      hasOutcomes: pServed > 0,
+      hasGrants:   topGrants.length > 0,
+      hasMission:  !!(missionText && focusAreas.length > 0),
+      hasIdentity: !!(ein || uei),
+    });
 
   return res.json({
     geography: { zip: zip ?? null, state: state.toUpperCase() },
@@ -515,7 +519,7 @@ Return ONLY valid JSON (no markdown, no code fences, no explanation) with exactl
 });
 
 // ── POST /push-to-gpp — package + forward to GPP in one step ─────────────────
-grantConduitRouter.post("/push-to-gpp", async (req: Request, res: Response) => {
+grantConduitRouter.post("/push-to-gpp", requireStaff, async (req: Request, res: Response) => {
   const gppUrl = process.env.GPP_API_URL;
   const gppKey = process.env.THRIVE_GPP_API_KEY;
 

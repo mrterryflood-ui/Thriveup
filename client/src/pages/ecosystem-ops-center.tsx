@@ -1930,6 +1930,8 @@ function PartnerApiTab() {
                 <div className="space-y-1">
                   <label className="text-xs font-medium">Event</label>
                   <select className="w-full border rounded px-2 py-1.5 text-sm bg-background" value={newWebhookEvent} onChange={e => setNewWebhookEvent(e.target.value)} data-testid="select-webhook-event">
+                    <option value="referral.created">referral.created</option>
+                    <option value="referral.outcome">referral.outcome</option>
                     <option value="trade_cert.issued">trade_cert.issued</option>
                     <option value="foster_youth.outcome">foster_youth.outcome</option>
                     <option value="community_brief.completed">community_brief.completed</option>
