@@ -29,7 +29,7 @@ import {
   trainingEnrollments,
   certificates,
 } from "@shared/schema";
-import { eq, and, isNull, sql } from "drizzle-orm";
+import { eq, and, isNull, sql, gte, lte } from "drizzle-orm";
 
 export const cohortRouter = Router();
 
@@ -65,11 +65,16 @@ cohortRouter.get("/cohort-pipeline", requireAdmin as any, async (req: Request, r
   try {
     const { state, zip, minYear, maxYear } = req.query as Record<string, string>;
 
+    const minYearInt = minYear ? parseInt(minYear, 10) : null;
+    const maxYearInt = maxYear ? parseInt(maxYear, 10) : null;
+
     const rows = await db.select().from(participantCohortThreads)
       .where(and(
         eq(participantCohortThreads.consentGiven, true),
         state ? eq(participantCohortThreads.geographyState, state) : undefined,
         zip ? eq(participantCohortThreads.geographyZip, zip) : undefined,
+        minYearInt ? gte(participantCohortThreads.yhsiIntakeAt, new Date(`${minYearInt}-01-01`)) : undefined,
+        maxYearInt ? lte(participantCohortThreads.yhsiIntakeAt, new Date(`${maxYearInt}-12-31`)) : undefined,
       ));
 
     const total = rows.length;

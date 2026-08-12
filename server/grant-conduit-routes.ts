@@ -125,6 +125,21 @@ function computeReadiness(opts: {
   return { score, max: 100, grade, checklist: checks };
 }
 
+// ── Rate limiting for /package (AI + DB intensive) ───────────────────────────
+const packageRateMap = new Map<string, { count: number; resetAt: number }>();
+function checkPackageRate(ip: string): boolean {
+  const now = Date.now();
+  const window = 60_000; // 1 minute
+  const limit = 10;
+  let entry = packageRateMap.get(ip);
+  if (!entry || now > entry.resetAt) {
+    entry = { count: 0, resetAt: now + window };
+    packageRateMap.set(ip, entry);
+  }
+  entry.count++;
+  return entry.count <= limit;
+}
+
 export const grantConduitRouter = Router();
 
 // ── GET /org-types ────────────────────────────────────────────────────────────
@@ -181,6 +196,10 @@ grantConduitRouter.get("/readiness", async (req: Request, res: Response) => {
 
 // ── POST /package — the main intelligence engine ──────────────────────────────
 grantConduitRouter.post("/package", async (req: Request, res: Response) => {
+  const ip = req.ip || "unknown";
+  if (!checkPackageRate(ip)) {
+    return res.status(429).json({ error: "Rate limit: 10 package requests per minute per IP." });
+  }
   try {
     const {
       orgType          = "nonprofit",

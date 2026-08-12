@@ -212,6 +212,7 @@ export default function GunViolenceIntelligence() {
           <TabsTrigger value="cost" className="text-xs rounded-lg"><DollarSign className="h-3.5 w-3.5 mr-1" />Economic Weight</TabsTrigger>
           <TabsTrigger value="policy" className="text-xs rounded-lg"><Scale className="h-3.5 w-3.5 mr-1" />Policy Evidence</TabsTrigger>
           <TabsTrigger value="incidents" className="text-xs rounded-lg"><MapPin className="h-3.5 w-3.5 mr-1" />Incident Registry</TabsTrigger>
+          <TabsTrigger value="timeline" className="text-xs rounded-lg"><Activity className="h-3.5 w-3.5 mr-1" />Policy Timeline</TabsTrigger>
           <TabsTrigger value="story" className="text-xs rounded-lg"><Sparkles className="h-3.5 w-3.5 mr-1" />Tell a Story</TabsTrigger>
         </TabsList>
 
@@ -597,6 +598,11 @@ export default function GunViolenceIntelligence() {
         </TabsContent>
 
         {/* ── TAB: Tell a Story ── */}
+        {/* ── TAB: Policy Timeline ── */}
+        <TabsContent value="timeline" className="space-y-4">
+          <PolicyTimelineTab />
+        </TabsContent>
+
         <TabsContent value="story" className="space-y-6">
           <Card>
             <CardHeader>
@@ -770,5 +776,162 @@ function IncidentRows({ filter, stateFilter }: { filter: string; stateFilter: st
         )}
       </tbody>
     </table>
+  );
+}
+
+// ── Policy Timeline sub-component ─────────────────────────────────────────────
+// Calls GET /api/gun-violence/policy-timeline and renders a monthly/quarterly
+// incident trend chart so policy analysts can correlate legislation with outcomes.
+const TIMELINE_STATES = [
+  "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA",
+  "KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
+  "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT",
+  "VA","WA","WV","WI","WY","DC",
+];
+
+function PolicyTimelineTab() {
+  const [tlState, setTlState] = useState("TX");
+  const [tlGranularity, setTlGranularity] = useState<"month" | "quarter">("month");
+  const [fromYear, setFromYear] = useState(String(new Date().getFullYear() - 3));
+  const [toYear, setToYear] = useState(String(new Date().getFullYear()));
+  const [queryKey, setQueryKey] = useState<string | null>(null);
+
+  const { data, isLoading, error } = useQuery<any>({
+    queryKey: ["/api/gun-violence/policy-timeline", queryKey],
+    queryFn: async () => {
+      const params = new URLSearchParams({
+        state: tlState,
+        from: `${fromYear}-01-01`,
+        to: `${toYear}-12-31`,
+        granularity: tlGranularity,
+      });
+      const r = await fetch(`/api/gun-violence/policy-timeline?${params}`);
+      if (!r.ok) throw new Error((await r.json()).error ?? "Timeline fetch failed");
+      return r.json();
+    },
+    enabled: !!queryKey,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const chartData: any[] = (data?.series ?? []).map((s: any) => ({
+    period: s.period,
+    incidents: s.incidents,
+    victims: s.victims,
+    fatalities: s.fatalities,
+  }));
+
+  return (
+    <div className="space-y-4">
+      <p className="text-sm text-muted-foreground">
+        Monthly or quarterly incident counts for a US state — use this to correlate legislation,
+        policy changes, and community interventions with measured outcomes in your grant applications.
+      </p>
+
+      {/* Controls */}
+      <div className="flex flex-wrap gap-3 items-end">
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">State *</label>
+          <Select value={tlState} onValueChange={setTlState}>
+            <SelectTrigger className="h-8 w-24 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              {TIMELINE_STATES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">From</label>
+          <Input
+            type="number" min="2015" max="2026" value={fromYear}
+            onChange={e => setFromYear(e.target.value)}
+            className="h-8 w-24 text-sm"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">To</label>
+          <Input
+            type="number" min="2015" max="2026" value={toYear}
+            onChange={e => setToYear(e.target.value)}
+            className="h-8 w-24 text-sm"
+          />
+        </div>
+        <div className="space-y-1">
+          <label className="text-xs font-medium text-muted-foreground">Granularity</label>
+          <Select value={tlGranularity} onValueChange={v => setTlGranularity(v as "month" | "quarter")}>
+            <SelectTrigger className="h-8 w-28 text-sm"><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="month">Monthly</SelectItem>
+              <SelectItem value="quarter">Quarterly</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Button
+          size="sm"
+          className="h-8"
+          onClick={() => setQueryKey(`${tlState}-${fromYear}-${toYear}-${tlGranularity}-${Date.now()}`)}
+        >
+          <Activity className="h-3.5 w-3.5 mr-1" /> Load Timeline
+        </Button>
+      </div>
+
+      {/* Chart */}
+      {!queryKey && (
+        <div className="rounded-xl border-2 border-dashed p-10 text-center text-sm text-muted-foreground">
+          Select a state and click Load Timeline to see the incident trend.
+        </div>
+      )}
+      {queryKey && isLoading && <Skeleton className="h-72 w-full rounded-xl" />}
+      {queryKey && error && (
+        <p className="text-sm text-destructive">{(error as Error).message}</p>
+      )}
+      {queryKey && !isLoading && data && (
+        <>
+          {chartData.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No registry data for {tlState} in this date range.</p>
+          ) : (
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-sm">
+                  {tlState} — {tlGranularity === "month" ? "Monthly" : "Quarterly"} Incidents ({fromYear}–{toYear})
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={280}>
+                  <LineChart data={chartData} margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="period"
+                      tick={{ fontSize: 10 }}
+                      tickFormatter={(v: string) => v.slice(0, 7)}
+                    />
+                    <YAxis tick={{ fontSize: 10 }} width={32} />
+                    <Tooltip
+                      contentStyle={{ fontSize: 12, background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }}
+                      labelFormatter={(v: string) => v.slice(0, 10)}
+                    />
+                    <Legend wrapperStyle={{ fontSize: 11 }} />
+                    <Line type="monotone" dataKey="incidents" stroke="#f87171" strokeWidth={2} dot={false} name="Incidents" />
+                    <Line type="monotone" dataKey="victims" stroke="#fb923c" strokeWidth={1.5} dot={false} name="Victims" />
+                    <Line type="monotone" dataKey="fatalities" stroke="#dc2626" strokeWidth={2} dot={false} name="Fatalities" strokeDasharray="4 2" />
+                  </LineChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          )}
+          {/* Summary stats */}
+          <div className="grid grid-cols-3 gap-3 text-center">
+            {[
+              { label: "Total incidents", value: data.totals?.incidents ?? 0 },
+              { label: "Total victims", value: data.totals?.victims ?? 0 },
+              { label: "Fatalities", value: data.totals?.fatalities ?? 0 },
+            ].map(s => (
+              <div key={s.label} className="rounded-xl border bg-card p-3">
+                <p className="text-xs text-muted-foreground">{s.label}</p>
+                <p className="text-xl font-bold">{s.value.toLocaleString()}</p>
+              </div>
+            ))}
+          </div>
+        </>
+      )}
+    </div>
   );
 }

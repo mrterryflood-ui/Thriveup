@@ -205,6 +205,7 @@ const CollaborationHubPage = lazy(() => import("@/pages/collaboration-hub"));
 const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 const GrantApplicationsPage = lazy(() => import("@/pages/grant-applications"));
+const GrantConduitPage = lazy(() => import("@/pages/grant-conduit-page"));
 const GrantPriorAwardsPage = lazy(() => import("@/pages/grant-prior-awards"));
 const EcosystemOrchestrationPage = lazy(() => import("@/pages/ecosystem-orchestration"));
 const StDavidsPrepPage = lazy(() => import("@/pages/stdavids-prep"));
@@ -587,6 +588,10 @@ function AppRouter() {
           <RfpFidelityPage />
         </RequireAuth>
       </Route>
+      {/* Hub cards link to /grants/:grantId — redirect to main grants list */}
+      <Route path="/grants/:grantId">
+        <Redirect to="/grants" />
+      </Route>
       <Route path="/ceds" component={CedsNavigatorPage} />
       <Route path="/ceds/:regionId" component={CedsNavigatorPage} />
       <Route path="/this-week" component={ThisWeekPage} />
@@ -861,6 +866,7 @@ function AppRouter() {
       <Route path="/engagement-hub" component={EngagementHubPage} />
       <Route path="/corridor-intelligence" component={CorridorIntelligencePage} />
       <Route path="/gun-violence" component={GunViolenceIntelligencePage} />
+      <Route path="/grant-conduit" component={GrantConduitPage} />
       <Route path="/corridor/evidence" component={CorridorEvidencePage} />
       <Route path="/corridor/docs" component={CorridorDocsPage} />
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />

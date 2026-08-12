@@ -799,7 +799,7 @@ export default function GrantHubPage() {
               <div>
                 <p className="font-semibold text-sm">Daily Automated Grant Discovery</p>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Scanning {discoveryStatus.searchDomains.length} domains across {discoveryStatus.sources.length} sources every 24 hours.
+                  Scanning {(discoveryStatus.searchDomains ?? []).length} domains across {(discoveryStatus.sources ?? []).length} sources every 24 hours.
                   {discoveryStatus.lastRun !== "Not yet run" && (
                     <> Last scan: {new Date(discoveryStatus.lastRun).toLocaleString()}.</>
                   )}
@@ -808,16 +808,16 @@ export default function GrantHubPage() {
                   )}
                 </p>
                 <div className="flex flex-wrap gap-1 mt-1.5">
-                  {discoveryStatus.sources.map(s => (
+                  {(discoveryStatus.sources ?? []).map(s => (
                     <span key={s} className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900/50 text-blue-700 dark:text-blue-300 font-medium">{s}</span>
                   ))}
                 </div>
                 <div className="flex flex-wrap gap-1 mt-1">
-                  {discoveryStatus.searchDomains.slice(0, 8).map(d => (
+                  {(discoveryStatus.searchDomains ?? []).slice(0, 8).map(d => (
                     <span key={d} className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300">{d}</span>
                   ))}
-                  {discoveryStatus.searchDomains.length > 8 && (
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">+{discoveryStatus.searchDomains.length - 8} more</span>
+                  {(discoveryStatus.searchDomains ?? []).length > 8 && (
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-muted text-muted-foreground">+{(discoveryStatus.searchDomains ?? []).length - 8} more</span>
                   )}
                 </div>
               </div>

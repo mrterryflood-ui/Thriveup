@@ -497,7 +497,18 @@ Respond with JSON: { headline: string, subhead: string, body: string[] (array of
       const fromDate     = req.query.from ? new Date(req.query.from as string) : new Date(Date.now() - 730 * 24 * 60 * 60 * 1000);
       const toDate       = req.query.to   ? new Date(req.query.to   as string) : new Date();
 
-      if (!stateParam) return res.status(400).json({ error: "state query param is required" });
+      if (!stateParam || !/^[A-Z]{2}$/.test(stateParam)) {
+        return res.status(400).json({ error: "state must be a 2-letter US state code (e.g. TX)" });
+      }
+      if (isNaN(fromDate.getTime())) {
+        return res.status(400).json({ error: "from must be a valid ISO date" });
+      }
+      if (isNaN(toDate.getTime())) {
+        return res.status(400).json({ error: "to must be a valid ISO date" });
+      }
+      if (fromDate > toDate) {
+        return res.status(400).json({ error: "from must be before to" });
+      }
 
       const conditions: ReturnType<typeof eq>[] = [
         eq(gunViolenceIncidents.state, stateParam),

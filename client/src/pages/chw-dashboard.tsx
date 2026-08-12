@@ -197,6 +197,8 @@ export default function ChwDashboardPage() {
   // post-submission SMS link can pre-fill the client's number.
   const [submittedClientPhone, setSubmittedClientPhone] = useState("");
   const [waitlistAcknowledged, setWaitlistAcknowledged] = useState(false);
+  // Outcome filter for sent referrals (#197)
+  const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
 
   // Live capacity registry — used to block referrals to closed orgs and warn
   // about waitlists before submission (server enforces the same rules).
@@ -270,6 +272,18 @@ export default function ChwDashboardPage() {
   const selectedOrgNotAccepting = orgId
     ? orgResourceOptions.find((o) => o.id === orgId)?.acceptingClients === false
     : false;
+
+  // Open alternatives — shown when selected org is closed (#179)
+  const openAlternatives: any[] = capacityClosed
+    ? capacityOrgs
+        .filter((o) => o.status === "open" && o.orgName !== capacityMatch?.orgName)
+        .slice(0, 4)
+    : [];
+
+  // Filtered sent referrals (#197)
+  const filteredReferrals = outcomeFilter === "all"
+    ? sentReferrals
+    : sentReferrals.filter((r) => (r.status || "").toLowerCase() === outcomeFilter);
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(
@@ -429,11 +443,32 @@ export default function ChwDashboardPage() {
                     data-testid="input-org-name"
                   />
                   {capacityClosed && (
-                    <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded p-2 mt-1 dark:text-red-400 dark:bg-red-950/30 dark:border-red-800" role="alert" data-testid="notice-org-closed">
-                      <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-600 mt-0.5" />
-                      <span>
-                        <strong>{capacityMatch.orgName}</strong> has <strong>closed intake</strong> for this program right now. Referrals can't be sent — choose a different organization.
-                      </span>
+                    <div className="space-y-2 mt-1">
+                      <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded p-2 dark:text-red-400 dark:bg-red-950/30 dark:border-red-800" role="alert" data-testid="notice-org-closed">
+                        <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-red-600 mt-0.5" />
+                        <span>
+                          <strong>{capacityMatch.orgName}</strong> has <strong>closed intake</strong> for this program right now. Referrals can't be sent.
+                        </span>
+                      </div>
+                      {openAlternatives.length > 0 && (
+                        <div className="rounded border border-emerald-200 bg-emerald-50 dark:bg-emerald-950/20 dark:border-emerald-800 p-2 space-y-1.5" data-testid="notice-open-alternatives">
+                          <p className="text-xs font-medium text-emerald-700 dark:text-emerald-300">Open alternatives right now:</p>
+                          {openAlternatives.map((alt) => (
+                            <button
+                              key={alt.orgName}
+                              type="button"
+                              className="w-full text-left text-xs px-2 py-1 rounded hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-800 dark:text-emerald-200 transition-colors"
+                              onClick={() => { setOrgName(alt.orgName); setOrgId(""); }}
+                              data-testid={`btn-alt-org-${alt.orgName}`}
+                            >
+                              <span className="font-medium">{alt.orgName}</span>
+                              {alt.programCode && alt.programCode !== "general" && (
+                                <span className="text-emerald-600 dark:text-emerald-400"> · {alt.programCode}</span>
+                              )}
+                            </button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                   {capacityWaitlist && (
@@ -460,6 +495,13 @@ export default function ChwDashboardPage() {
                     <div className="flex items-center gap-2 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded p-2 mt-1" role="alert" data-testid="notice-org-not-accepting">
                       <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-600" />
                       This org is on waitlist. You can still submit, but expect delays — consider an alternative if urgent.
+                    </div>
+                  )}
+                  {/* Staleness warning (#180) — badge data older than 7 days */}
+                  {capacityMatch?.stale && !capacityClosed && (
+                    <div className="flex items-center gap-2 text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded p-2 mt-1 dark:text-slate-400 dark:bg-slate-900/30 dark:border-slate-700" role="alert" data-testid="notice-capacity-stale">
+                      <Clock className="h-3.5 w-3.5 shrink-0 text-slate-500" />
+                      Capacity data for this org is over 7 days old — status may have changed. Verify before submitting.
                     </div>
                   )}
                 </div>
@@ -582,9 +624,28 @@ export default function ChwDashboardPage() {
 
                 {/* My Sent Referrals */}
                 <div className="pt-2 border-t" data-testid="section-my-sent-referrals">
-                  <h4 className="text-sm font-semibold mb-2 flex items-center gap-2">
-                    <Clipboard className="h-4 w-4 text-teal-500" /> My Sent Referrals
-                  </h4>
+                  <div className="flex items-center justify-between mb-2 gap-2">
+                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                      <Clipboard className="h-4 w-4 text-teal-500" /> My Sent Referrals
+                    </h4>
+                    {/* Outcome filter (#197) — lets CHW isolate cases needing follow-up */}
+                    {sentReferrals.length > 0 && (
+                      <Select value={outcomeFilter} onValueChange={setOutcomeFilter}>
+                        <SelectTrigger className="h-7 text-xs w-36 shrink-0" data-testid="select-outcome-filter">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All outcomes</SelectItem>
+                          <SelectItem value="sent">Pending</SelectItem>
+                          <SelectItem value="accepted">Accepted</SelectItem>
+                          <SelectItem value="enrolled">Enrolled</SelectItem>
+                          <SelectItem value="completed">Completed</SelectItem>
+                          <SelectItem value="declined">Declined</SelectItem>
+                          <SelectItem value="ineligible">Ineligible</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
                   {sentError ? (
                     <p className="text-xs text-red-600 dark:text-red-400" data-testid="text-sent-referrals-error">
                       Could not load referrals — check your connection and refresh.
@@ -593,9 +654,13 @@ export default function ChwDashboardPage() {
                     <p className="text-xs text-muted-foreground" data-testid="text-no-sent-referrals">
                       No referrals sent yet.
                     </p>
+                  ) : filteredReferrals.length === 0 ? (
+                    <p className="text-xs text-muted-foreground" data-testid="text-no-filtered-referrals">
+                      No referrals with status "{outcomeFilter}".
+                    </p>
                   ) : (
                     <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {sentReferrals.map((r) => {
+                      {filteredReferrals.map((r) => {
                         const needsFollowUp = ["sent", "pending", "accepted"].includes((r.status || "").toLowerCase());
                         const resolvedDate = r.resolvedAt
                           ? new Date(r.resolvedAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })

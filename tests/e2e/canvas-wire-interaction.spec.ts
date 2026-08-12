@@ -20,7 +20,16 @@ import { test, expect, type Page } from "@playwright/test";
 
 async function openGuidedTab(page: Page, url: string) {
   await page.goto(url);
-  await expect(page.getByTestId("trial-gate-active")).toBeVisible({ timeout: 15_000 });
+  // The trial gate calls /api/trade-sims/trial/status on mount.
+  // During server startup (seeding, knowledge-graph build) that API can be
+  // slow or return a transient error, leaving the gate in `loading` state.
+  // Wait for ANY settled state (active or expired) before asserting active,
+  // and give the server a generous window to finish initialization.
+  await page.waitForSelector(
+    '[data-testid="trial-gate-active"],[data-testid="trial-gate-expired"]',
+    { timeout: 30_000 },
+  );
+  await expect(page.getByTestId("trial-gate-active")).toBeVisible({ timeout: 5_000 });
   await page.getByTestId("tab-guided").click();
 }
 
