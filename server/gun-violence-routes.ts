@@ -472,6 +472,92 @@ Respond with JSON: { headline: string, subhead: string, body: string[] (array of
     }
   });
 
+  /**
+   * GET /api/gun-violence/policy-timeline
+   * Time-series aggregation by month or quarter so government agencies can
+   * overlay policy changes against crime trends and measure impact.
+   *
+   * Query params:
+   *   state     — required. Two-letter state code.
+   *   zip       — optional. Filter to a single ZIP.
+   *   city      — optional. Filter to a city.
+   *   from      — ISO date, defaults to 24 months ago.
+   *   to        — ISO date, defaults to now.
+   *   granularity — "month" (default) | "quarter"
+   *
+   * Returns periods with incident + victim + fatality counts. Designed for
+   * graphing against policy event markers — no individual records exposed.
+   */
+  app.get("/api/gun-violence/policy-timeline", async (req: Request, res: Response) => {
+    try {
+      const stateParam   = ((req.query.state       as string) || "").trim().toUpperCase();
+      const zipParam     = ((req.query.zip         as string) || "").trim();
+      const cityParam    = ((req.query.city        as string) || "").trim();
+      const granularity  = (req.query.granularity  as string) === "quarter" ? "quarter" : "month";
+      const fromDate     = req.query.from ? new Date(req.query.from as string) : new Date(Date.now() - 730 * 24 * 60 * 60 * 1000);
+      const toDate       = req.query.to   ? new Date(req.query.to   as string) : new Date();
+
+      if (!stateParam) return res.status(400).json({ error: "state query param is required" });
+
+      const conditions: ReturnType<typeof eq>[] = [
+        eq(gunViolenceIncidents.state, stateParam),
+        gte(gunViolenceIncidents.occurredAt, fromDate),
+        lte(gunViolenceIncidents.occurredAt, toDate),
+      ];
+      if (zipParam)  conditions.push(eq(gunViolenceIncidents.zip, zipParam));
+      if (cityParam) conditions.push(eq(gunViolenceIncidents.city, cityParam));
+
+      // date_trunc granularity MUST be a literal — PG rejects bind parameters in that
+      // position. Use separate branches so the string never flows through Drizzle's
+      // parameterization path. Plain sql`...` template tags with no JS interpolation
+      // in the groupBy/orderBy args are emitted as raw SQL, not $N placeholders.
+      const timeline = granularity === "quarter"
+        ? await db.select({
+            period:     sql<string>`to_char(date_trunc('quarter', ${gunViolenceIncidents.occurredAt}), 'YYYY-"Q"Q')`,
+            incidents:  sql<number>`count(*)::int`,
+            victims:    sql<number>`coalesce(sum(${gunViolenceIncidents.victimCount}), 0)::int`,
+            fatalities: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}), 0)::int`,
+          }).from(gunViolenceIncidents).where(and(...conditions))
+            .groupBy(sql`date_trunc('quarter', occurred_at)`)
+            .orderBy(sql`date_trunc('quarter', occurred_at)`)
+        : await db.select({
+            period:     sql<string>`to_char(date_trunc('month', ${gunViolenceIncidents.occurredAt}), 'YYYY-MM')`,
+            incidents:  sql<number>`count(*)::int`,
+            victims:    sql<number>`coalesce(sum(${gunViolenceIncidents.victimCount}), 0)::int`,
+            fatalities: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}), 0)::int`,
+          }).from(gunViolenceIncidents).where(and(...conditions))
+            .groupBy(sql`date_trunc('month', occurred_at)`)
+            .orderBy(sql`date_trunc('month', occurred_at)`);
+
+      const [totals] = await db.select({
+        totalIncidents:  sql<number>`count(*)::int`,
+        totalVictims:    sql<number>`coalesce(sum(${gunViolenceIncidents.victimCount}), 0)::int`,
+        totalFatalities: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}), 0)::int`,
+      }).from(gunViolenceIncidents).where(and(...conditions));
+
+      return res.json({
+        geography: { state: stateParam, zip: zipParam || null, city: cityParam || null },
+        window:    { from: fromDate.toISOString(), to: toDate.toISOString(), granularity },
+        totals: {
+          incidents:  Number(totals?.totalIncidents  ?? 0),
+          victims:    Number(totals?.totalVictims    ?? 0),
+          fatalities: Number(totals?.totalFatalities ?? 0),
+        },
+        timeline,
+        usage: {
+          purpose: "Correlate incident trends against policy change dates to measure intervention effectiveness.",
+          policyOverlay: "Add your policy event markers (ordinance passed, program launched, funding cut) to the timeline periods to visualize impact.",
+          grantUse: "Attach this timeline as Exhibit A in needs statements for DOJ, CDC/NCIPC, and SAMHSA applications to demonstrate community burden with verified data.",
+        },
+        source: "TCAF Gun Violence Registry",
+        note: "Aggregate counts only. No individual victim data is stored or exposed.",
+      });
+    } catch (err: any) {
+      console.error("[gun-violence] policy-timeline error:", err);
+      return res.status(500).json({ error: "Policy timeline failed.", detail: err.message });
+    }
+  });
+
   // ── POST /api/gun-violence/sync — delegates to exported function (staff only) ─
   app.post("/api/gun-violence/sync", async (req: Request, res: Response) => {
     try {

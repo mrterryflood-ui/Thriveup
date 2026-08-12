@@ -36,6 +36,17 @@ description: Three-feature research infrastructure — longitudinal cohort threa
   - Workforce multiplier: 1.8× (BEA 2023)
 - **Auth:** staff/admin role required for both PDF and preview
 
+## Grant Conduit (server/grant-conduit-routes.ts)
+- Mounted at `/api/grant-conduit` — three endpoints: GET /org-types, GET /readiness, POST /package, POST /push-to-gpp
+- POST /package pulls: CEDS region + goals, matched grants (org-type-aware eligibility filter), RPLICE evidence, platform outcomes, gun violence (90-day window + 12-month trend), grant readiness score (0-100), AI narrative drafts (6 sections)
+- Violence-triggered grant categories surface DOJ/OJJDP/CDC/SAMHSA programs when gvIncidents > 0
+- 7 org types: nonprofit, university, government, rural, tribal, faith, coalition
+
+## Gun Violence — Policy Timeline (server/gun-violence-routes.ts)
+- GET /api/gun-violence/policy-timeline?state=TX&zip=&from=&to=&granularity=month|quarter
+- Returns monthly/quarterly aggregates for government policy-impact analysis
+- CRITICAL: date_trunc granularity MUST NOT be a bind parameter — Drizzle parameterizes JS-interpolated strings in groupBy/orderBy even inside sql`` tags. Fix: use separate if/else branches with hardcoded literal strings in the template, NO column reference interpolation in groupBy/orderBy (`sql\`date_trunc('month', occurred_at)\`` not `sql\`date_trunc('month', ${col})\``).
+
 ## Key gotchas
 - `cedsRegions.state` is the correct column name (NOT `stateAbbr`)
 - `jobPlacements.wage` is VARCHAR not number — must parseFloat() before arithmetic
