@@ -284,7 +284,7 @@ isValidation = true
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx scripts/verify-directory-links.ts && npx tsx scripts/verify-capacity-badges.ts"
+args = "npx tsx scripts/verify-directory-links.ts && npx tsx scripts/verify-capacity-badges.ts && npx tsx scripts/verify-sidebar-routes.ts"
 
 [[workflows.workflow]]
 name = "referral-loop"
