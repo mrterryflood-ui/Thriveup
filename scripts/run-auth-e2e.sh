@@ -79,5 +79,13 @@ echo "[auth-e2e] running gun-violence-registry verification..."
 npx tsx scripts/verify-gun-violence-registry.ts
 GV_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ]
+# Task #181: partner-key enrollment loop — proves a partner org can resolve a
+# referral using a tcaf_ API key (inbound:write scope) without a staff login,
+# and that the immutability guard + cross-org isolation hold on that same path.
+echo ""
+echo "[auth-e2e] running partner-key enrollment loop verification..."
+npx tsx scripts/verify-org-confirm-partner-key.ts
+PARTNER_KEY_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ]
 exit $?
