@@ -58,6 +58,14 @@ echo "[auth-e2e] running referral-loop verification..."
 npx tsx scripts/verify-referral-webhook.ts
 WEBHOOK_EXIT=$?
 
+# Task #169: run the full referral-loop e2e (POST with auth → status token →
+# GET status endpoint → PATCH outcome → resolvedAt confirmed).  A silent break
+# here means a CHW's referral loop is broken with no error surfaced.
+echo ""
+echo "[auth-e2e] running referral-loop e2e (statusToken → PATCH outcome)..."
+npx tsx scripts/verify-referral-loop.ts
+LOOP_EXIT=$?
+
 # Task #165: referral capacity guard — closed orgs blocked, waitlist requires
 # explicit acknowledgement. Self-contained (spins its own express instance).
 echo ""
@@ -65,5 +73,5 @@ echo "[auth-e2e] running referral capacity-guard verification..."
 npx tsx scripts/test-referral-capacity-guard.ts
 CAPACITY_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ]
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ]
 exit $?

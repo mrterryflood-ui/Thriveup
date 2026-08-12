@@ -97,6 +97,10 @@ args = "community-brief-e2e"
 task = "workflow.run"
 args = "directory-links"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "referral-loop"
+
 [[workflows.workflow]]
 name = "Start application"
 author = "agent"
@@ -281,6 +285,17 @@ isValidation = true
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npx tsx scripts/verify-directory-links.ts && npx tsx scripts/verify-capacity-badges.ts"
+
+[[workflows.workflow]]
+name = "referral-loop"
+author = "agent"
+
+[workflows.workflow.metadata]
+isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash scripts/run-referral-loop-e2e.sh"
 
 [agent]
 integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_with_replit:2.0.0", "javascript_object_storage:2.0.0", "resend:1.0.0", "javascript_anthropic_ai_integrations:2.0.0", "javascript_openrouter_ai_integrations:2.0.0"]
