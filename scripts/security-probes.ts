@@ -119,6 +119,10 @@ const PROBES: Probe[] = [
   { name: "GET    /api/ecosystem/platforms (no session)", method: "GET", path: "/api/ecosystem/platforms" },
   { name: "PATCH  /api/ecosystem/platforms/:id/keep-alive (no session)", method: "PATCH", path: "/api/ecosystem/platforms/probe/keep-alive", body: { keepAlive: true } },
 
+  // ── gun-violence-routes.ts: import endpoint is staff-gated ─────────────────
+  { name: "POST   /api/gun-violence/import (no session)", method: "POST", path: "/api/gun-violence/import", body: [{ incidentId: "probe-1", dataSource: "probe" }] },
+  { name: "GET    /api/gun-violence/imports (no session)", method: "GET", path: "/api/gun-violence/imports" },
+
   // ── benefits-routes.ts: stored renewal PII (now requireAuth) ───────────────
   { name: "GET    /api/benefits/renewals (no session)", method: "GET", path: "/api/benefits/renewals" },
 

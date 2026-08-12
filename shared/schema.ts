@@ -7301,6 +7301,39 @@ export const funders = pgTable("funders", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// ── Gun Violence Registry ────────────────────────────────────────────────────
+// Incident records are geography + type only — no victim PII ever stored.
+// Summary endpoint exposes aggregate counts; import endpoint is staff-gated.
+export const gunViolenceIncidents = pgTable("gun_violence_incidents", {
+  id: varchar("id", { length: 100 }).primaryKey().$defaultFn(() => nanoid(12)),
+  incidentId: varchar("incident_id", { length: 255 }).notNull(),
+  dataSource: varchar("data_source", { length: 100 }).notNull(),
+  occurredAt: timestamp("occurred_at"),
+  latitude: real("latitude"),
+  longitude: real("longitude"),
+  zip: varchar("zip", { length: 20 }),
+  city: varchar("city", { length: 100 }),
+  ward: varchar("ward", { length: 50 }),
+  victimCount: integer("victim_count").default(1),
+  fatalCount: integer("fatal_count").default(0),
+  incidentType: varchar("incident_type", { length: 100 }),
+  importId: varchar("import_id", { length: 100 }),
+  importedAt: timestamp("imported_at").defaultNow(),
+}, (t) => [
+  uniqueIndex("gvi_incident_source_uq").on(t.incidentId, t.dataSource),
+]);
+export type GunViolenceIncident = typeof gunViolenceIncidents.$inferSelect;
+
+export const gunViolenceImports = pgTable("gun_violence_imports", {
+  id: varchar("id", { length: 100 }).primaryKey().$defaultFn(() => nanoid(12)),
+  dataSource: varchar("data_source", { length: 100 }).notNull(),
+  recordCount: integer("record_count").notNull(),
+  importedAt: timestamp("imported_at").defaultNow(),
+  importedByUserId: integer("imported_by_user_id"),
+  notes: text("notes"),
+});
+export type GunViolenceImport = typeof gunViolenceImports.$inferSelect;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";

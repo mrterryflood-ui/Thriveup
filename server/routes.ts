@@ -180,6 +180,7 @@ import { seedVannDemo } from "./seed-vann-demo";
 import { seedTcafAdmins } from "./seed-tcaf-admins";
 import { seedOrgMemberships } from "./seed-org-memberships";
 import { registerWonProposalsRoutes } from "./won-proposals-routes";
+import { registerGunViolenceRoutes } from "./gun-violence-routes";
 import { registerActiveBidsRoutes } from "./active-bids-routes";
 import { registerRfpFidelityRoutes } from "./rfp-fidelity-routes";
 import { registerRfpIngestionRoutes } from "./rfp-ingestion-routes";
@@ -574,6 +575,7 @@ export async function registerRoutes(
   registerCollegeAccessAIRoutes(app);
   registerNeighborhoodRoutes(app);
   registerCommunityIntelligenceRoutes(app);
+  registerGunViolenceRoutes(app);
   registerExportPdfRoutes(app);
   registerBriefShareRoutes(app);
   registerSafePassageRoutes(app);

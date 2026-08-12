@@ -128,6 +128,8 @@ export async function seedComprehensive(): Promise<void> {
     await seedTexasHubMous();
     await seedTradeSimsAll();
     await seedGisResourceOverlays();
+    await seedChicagoPilot();
+    await seedChicagoGisOverlays();
     console.log("[Seed] Comprehensive seed completed");
   } catch (err) {
     console.error("[Seed] Comprehensive seed error:", err);
@@ -509,4 +511,342 @@ async function seedGisResourceOverlays() {
   ]);
 
   console.log("[Seed] GIS resource overlays seeded (16 community orgs with coordinates)");
+}
+
+// ── Chicago Pilot 2026 ────────────────────────────────────────────────────────
+// Seeds the three named anchor agencies + CHW network + benefits enrollment
+// data for Cook County. Uses Chicago-specific IDs so the guard is independent
+// of the Austin/Travis County seed, meaning it always runs even when the
+// Austin data already exists.
+async function seedChicagoPilot() {
+  const existingPartner = await db.select().from(benefitsPartners)
+    .where(eq(benefitsPartners.id, "bp-004")).limit(1);
+  if (existingPartner.length > 0) return;
+
+  // ── Three anchor agencies ──────────────────────────────────────────────────
+  await db.insert(benefitsPartners).values([
+    {
+      id: "bp-004",
+      name: "Bread of Life Food Pantry",
+      organizationType: "food-pantry",
+      county: "Cook County",
+      coverageZips: ["60637", "60619", "60649"],
+      servicesOffered: ["food-assistance", "emergency-nutrition", "snap-enrollment", "wic-referral", "mobile-pantry"],
+      benefitTypes: ["SNAP", "WIC", "TEFAP", "CSFP"],
+      languages: ["English", "Spanish", "Haitian Creole", "French"],
+      contactName: "Ministry Director",
+      contactEmail: "info@555-0141.example",
+      contactPhone: "(773) 555-0141",
+      address: "6369 S Cottage Grove Ave, Chicago, IL 60637",
+      latitude: 41.7795,
+      longitude: -87.6065,
+      capacity: 350,
+      currentCaseload: 280,
+      isActive: true,
+      notes: "Chicago Pilot 2026 anchor agency. Serves Woodlawn, South Shore, and Chatham neighborhoods. Faith-based. No ID required for emergency food.",
+    },
+    {
+      id: "bp-005",
+      name: "Community Healing Resource Center",
+      organizationType: "faith-based-social-service",
+      county: "Cook County",
+      coverageZips: ["60620", "60621", "60628"],
+      servicesOffered: [
+        "behavioral-health", "mental-health-counseling", "trauma-informed-care",
+        "gun-violence-trauma-response", "substance-use-recovery", "case-management",
+        "grief-support", "crisis-intervention",
+      ],
+      benefitTypes: ["Medicaid", "CHIP", "SAMHSA-block-grant"],
+      languages: ["English", "Spanish"],
+      contactName: "Clinical Director",
+      contactEmail: "info@555-0152.example",
+      contactPhone: "(773) 555-0152",
+      address: "1700 W 79th St, Chicago, IL 60620",
+      latitude: 41.7488,
+      longitude: -87.6677,
+      capacity: 120,
+      currentCaseload: 98,
+      isActive: true,
+      notes: "Chicago Pilot 2026 anchor agency. Specializes in gun violence trauma response and faith-integrated healing. Auburn Gresham and Englewood neighborhoods.",
+    },
+    {
+      id: "bp-006",
+      name: "Chosen Bethel Family Ministries",
+      organizationType: "faith-based",
+      county: "Cook County",
+      coverageZips: ["60624", "60644", "60651"],
+      servicesOffered: [
+        "case-management", "wraparound-services", "food-assistance",
+        "housing-navigation", "workforce-readiness", "family-support",
+        "fatherhood-programming", "reentry-services",
+      ],
+      benefitTypes: ["SNAP", "Medicaid", "TANF", "HUD-emergency"],
+      languages: ["English", "Spanish", "Yoruba", "Igbo"],
+      contactName: "Executive Pastor",
+      contactEmail: "info@555-0163.example",
+      contactPhone: "(773) 555-0163",
+      address: "535 N Pulaski Rd, Chicago, IL 60624",
+      latitude: 41.8927,
+      longitude: -87.7253,
+      capacity: 200,
+      currentCaseload: 145,
+      isActive: true,
+      notes: "Chicago Pilot 2026 anchor agency. Multilingual faith-based hub serving East Garfield Park, Austin, and Lawndale. Strong fatherhood and reentry programs — aligns with TCAF Dads Care 2 / Chainweb model.",
+    },
+  ]);
+
+  // ── Chicago CHW Network ────────────────────────────────────────────────────
+  await db.insert(benefitsChwNetwork).values([
+    {
+      id: "chw-004",
+      name: "Marcus A. Johnson",
+      role: "Community Health Worker — Violence Intervention",
+      county: "Cook County",
+      assignedZips: ["60619", "60620", "60621", "60637"],
+      languages: ["English", "Spanish"],
+      certifications: ["IDPH CHW Certification", "Cure Violence Credible Messenger", "Trauma-Informed Care"],
+      affiliatedOrg: "Community Healing Resource Center",
+      contactEmail: "m.johnson.chw@555-0152.example",
+      contactPhone: "(773) 555-0194",
+      capacity: 25,
+      activeCases: 19,
+      specializations: ["Gun violence trauma response", "Behavioral health navigation", "Crisis de-escalation"],
+      trustLevel: "high",
+      isActive: true,
+      latitude: 41.7488,
+      longitude: -87.6677,
+    },
+    {
+      id: "chw-005",
+      name: "Aaliyah M. Washington",
+      role: "Peer Navigator — Food & Housing",
+      county: "Cook County",
+      assignedZips: ["60637", "60649", "60619"],
+      languages: ["English", "Haitian Creole"],
+      certifications: ["IDPH CHW Certification", "SNAP Outreach Specialist", "WIC Nutrition Educator"],
+      affiliatedOrg: "Bread of Life Food Pantry",
+      contactEmail: "a.washington.chw@555-0141.example",
+      contactPhone: "(773) 555-0185",
+      capacity: 30,
+      activeCases: 22,
+      specializations: ["SNAP enrollment", "WIC referrals", "Emergency food access", "Woodlawn/South Shore"],
+      trustLevel: "established",
+      isActive: true,
+      latitude: 41.7795,
+      longitude: -87.6065,
+    },
+    {
+      id: "chw-006",
+      name: "Emmanuel O. Adeyemi",
+      role: "Family Navigator — Reentry & Workforce",
+      county: "Cook County",
+      assignedZips: ["60624", "60644", "60651"],
+      languages: ["English", "Yoruba", "Igbo"],
+      certifications: ["IDPH CHW Certification", "Reentry Navigator", "Workforce Development Specialist"],
+      affiliatedOrg: "Chosen Bethel Family Ministries",
+      contactEmail: "e.adeyemi.chw@555-0163.example",
+      contactPhone: "(773) 555-0176",
+      capacity: 20,
+      activeCases: 14,
+      specializations: ["Reentry benefits", "Fatherhood programming", "West Side multilingual outreach"],
+      trustLevel: "established",
+      isActive: true,
+      latitude: 41.8927,
+      longitude: -87.7253,
+    },
+  ]);
+
+  // ── Cook County Benefits Enrollment Data ───────────────────────────────────
+  // ZIPs chosen for highest-need Chicago neighborhoods matching the pilot agencies.
+  await db.insert(benefitsEnrollmentData).values([
+    {
+      id: "bed-chi-001",
+      countyFips: "17031", // Cook County, IL
+      countyName: "Cook County",
+      zipCode: "60619",
+      benefitType: "SNAP",
+      eligiblePopulation: 18400,
+      enrolledPopulation: 11040,
+      participationRate: 0.60,
+      participationGap: 0.40,
+      renewalsPending: 620,
+      renewalsAtRisk: 185,
+      barrierIndex: 4.1,
+      limitedEnglishPct: 0.09,
+      noVehiclePct: 0.34,
+      noBroadbandPct: 0.22,
+      povertyRate: 0.28,
+      totalPopulation: 53000,
+      medianIncome: 32000,
+      dataYear: 2024,
+    },
+    {
+      id: "bed-chi-002",
+      countyFips: "17031",
+      countyName: "Cook County",
+      zipCode: "60621",
+      benefitType: "SNAP",
+      eligiblePopulation: 14200,
+      enrolledPopulation: 7810,
+      participationRate: 0.55,
+      participationGap: 0.45,
+      renewalsPending: 510,
+      renewalsAtRisk: 210,
+      barrierIndex: 4.8,
+      limitedEnglishPct: 0.11,
+      noVehiclePct: 0.41,
+      noBroadbandPct: 0.29,
+      povertyRate: 0.45,
+      totalPopulation: 24000,
+      medianIncome: 24000,
+      dataYear: 2024,
+    },
+    {
+      id: "bed-chi-003",
+      countyFips: "17031",
+      countyName: "Cook County",
+      zipCode: "60624",
+      benefitType: "Medicaid",
+      eligiblePopulation: 16800,
+      enrolledPopulation: 11760,
+      participationRate: 0.70,
+      participationGap: 0.30,
+      renewalsPending: 480,
+      renewalsAtRisk: 160,
+      barrierIndex: 4.5,
+      limitedEnglishPct: 0.15,
+      noVehiclePct: 0.38,
+      noBroadbandPct: 0.26,
+      povertyRate: 0.42,
+      totalPopulation: 29000,
+      medianIncome: 27000,
+      dataYear: 2024,
+    },
+    {
+      id: "bed-chi-004",
+      countyFips: "17031",
+      countyName: "Cook County",
+      zipCode: "60620",
+      benefitType: "Medicaid",
+      eligiblePopulation: 21000,
+      enrolledPopulation: 14700,
+      participationRate: 0.70,
+      participationGap: 0.30,
+      renewalsPending: 560,
+      renewalsAtRisk: 175,
+      barrierIndex: 3.9,
+      limitedEnglishPct: 0.08,
+      noVehiclePct: 0.30,
+      noBroadbandPct: 0.19,
+      povertyRate: 0.27,
+      totalPopulation: 48000,
+      medianIncome: 36000,
+      dataYear: 2024,
+    },
+  ]);
+
+  // ── Chicago Pilot 2026 Cohort ──────────────────────────────────────────────
+  await db.insert(pilotCohorts).values([
+    {
+      id: "pilot-chi-001",
+      name: "Chicago Community Healing Pilot 2026",
+      description: "TCAF's second pilot city — anchored by three faith-based and community organizations in Cook County's highest-need neighborhoods. Focus: gun violence trauma recovery, food security, wraparound family services, and multilingual community health navigation. Aligned with CFIR inner-setting readiness and RE-AIM implementation science framework.",
+      targetPopulation: "Residents of Chicago's South and West sides impacted by gun violence, food insecurity, and housing instability. Ages 0–65+.",
+      targetSize: 150,
+      startDate: "2026-09-01",
+      endDate: "2027-08-31",
+      status: "planning" as const,
+      createdBy: "terry-flood",
+    },
+  ]);
+
+  console.log("[Seed] Chicago Pilot 2026 data seeded (3 agencies, 3 CHWs, 4 enrollment datasets, 1 cohort)");
+}
+
+// ── Chicago GIS Resource Overlays ─────────────────────────────────────────────
+// Separate guard from seedGisResourceOverlays so Chicago pins are added
+// even when the Austin overlays were already seeded.
+async function seedChicagoGisOverlays() {
+  const existing = await db.select().from(gisResourceOverlays)
+    .where(eq(gisResourceOverlays.id, "gro-chi-001")).limit(1);
+  if (existing.length > 0) return;
+
+  await db.insert(gisResourceOverlays).values([
+    // ── Chicago Pilot Anchor Agencies ─────────────────────────────────────
+    {
+      id: "gro-chi-001",
+      name: "Bread of Life Food Pantry",
+      category: "food-access",
+      geographyKey: "60637",
+      latitude: 41.7795,
+      longitude: -87.6065,
+      address: "6369 S Cottage Grove Ave, Chicago, IL 60637",
+      contactInfo: "(773) 555-0141 | Chicago Pilot Anchor",
+      description: "Faith-based food pantry serving Woodlawn, South Shore, and Chatham. No ID required. SNAP enrollment assistance available. Multilingual staff (English, Spanish, Haitian Creole).",
+      isActive: true,
+    },
+    {
+      id: "gro-chi-002",
+      name: "Community Healing Resource Center",
+      category: "behavioral-health",
+      geographyKey: "60620",
+      latitude: 41.7488,
+      longitude: -87.6677,
+      address: "1700 W 79th St, Chicago, IL 60620",
+      contactInfo: "(773) 555-0152 | Chicago Pilot Anchor",
+      description: "Faith-integrated behavioral health and gun violence trauma response. Trauma-informed counseling, grief support, crisis intervention. Auburn Gresham and Englewood neighborhoods.",
+      isActive: true,
+    },
+    {
+      id: "gro-chi-003",
+      name: "Chosen Bethel Family Ministries",
+      category: "social-services",
+      geographyKey: "60624",
+      latitude: 41.8927,
+      longitude: -87.7253,
+      address: "535 N Pulaski Rd, Chicago, IL 60624",
+      contactInfo: "(773) 555-0163 | Chicago Pilot Anchor",
+      description: "Multilingual (English, Spanish, Yoruba, Igbo) faith-based wraparound hub. Case management, fatherhood programming, reentry services, housing navigation. East Garfield Park, Austin, Lawndale.",
+      isActive: true,
+    },
+    // ── Additional Cook County Resources ─────────────────────────────────
+    {
+      id: "gro-chi-004",
+      name: "Cook County Health – Stroger Hospital FQHC Network",
+      category: "health-clinic",
+      geographyKey: "60612",
+      latitude: 41.8779,
+      longitude: -87.6808,
+      address: "1901 W Harrison St, Chicago, IL 60612",
+      contactInfo: "312-864-6000 | cookcountyhealth.org",
+      description: "County safety-net health system. Sliding-scale care, Medicaid enrollment, mental health, substance use treatment. Serves uninsured and underinsured across all 77 Chicago community areas.",
+      isActive: true,
+    },
+    {
+      id: "gro-chi-005",
+      name: "Greater Chicago Food Depository",
+      category: "food-access",
+      geographyKey: "60608",
+      latitude: 41.8583,
+      longitude: -87.6682,
+      address: "4100 W Ann Lurie Pl, Chicago, IL 60632",
+      contactInfo: "312-714-1414 | gcfd.org",
+      description: "Chicago's food bank. Distributes to 700+ partner agencies including Bread of Life. Operates mobile pantries, senior nutrition, and summer youth meals across Cook County.",
+      isActive: true,
+    },
+    {
+      id: "gro-chi-006",
+      name: "Metropolitan Family Services – Chicago",
+      category: "county-services",
+      geographyKey: "60611",
+      latitude: 41.8946,
+      longitude: -87.6279,
+      address: "1 N Dearborn St #1400, Chicago, IL 60602",
+      contactInfo: "312-986-4000 | metrofamily.org",
+      description: "Comprehensive wraparound: domestic violence, mental health, early childhood, senior services, workforce development. DFSS-funded. Serves all of Cook County.",
+      isActive: true,
+    },
+  ]);
+
+  console.log("[Seed] Chicago GIS overlays seeded (6 community orgs with coordinates)");
 }
