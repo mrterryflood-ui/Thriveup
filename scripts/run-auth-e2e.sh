@@ -73,5 +73,11 @@ echo "[auth-e2e] running referral capacity-guard verification..."
 npx tsx scripts/test-referral-capacity-guard.ts
 CAPACITY_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ]
+# Gun violence registry: import safety, idempotency, audit trail correctness
+echo ""
+echo "[auth-e2e] running gun-violence-registry verification..."
+npx tsx scripts/verify-gun-violence-registry.ts
+GV_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ]
 exit $?

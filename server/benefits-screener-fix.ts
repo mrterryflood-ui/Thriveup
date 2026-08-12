@@ -1,3 +1,5 @@
+import { getBenefitNav } from "./benefits-local-nav";
+
 export const BENEFIT_NAVIGATION: Record<string, {
   applicationUrl: string;
   documentsRequired: string[];
@@ -135,11 +137,12 @@ export function computeEligibility(data: {
   isVeteran?: boolean;
   isSingleParent?: boolean;
   currentBenefits?: string[];
+  state?: string;   // USPS 2-letter code, e.g. "TX", "IL" — enables state-specific portals/hotlines
 }): {
   eligible: string[];
   gaps: string[];
   estimatedAnnualValue: number;
-  navigationGuides: Partial<typeof BENEFIT_NAVIGATION>;
+  navigationGuides: Record<string, any>;
 } {
   const income = data.annualIncome || 0;
   const hhSize = data.householdSize || 1;
@@ -172,11 +175,18 @@ export function computeEligibility(data: {
     0
   );
 
-  const navigationGuides = Object.fromEntries(
-    gaps
-      .filter((b) => BENEFIT_NAVIGATION[b])
-      .map((b) => [b, BENEFIT_NAVIGATION[b]])
-  ) as Partial<typeof BENEFIT_NAVIGATION>;
+  // Build state-aware navigation guides: merge static docs/value with
+  // the state-specific portal, hotline, and office-finder URL.
+  const navigationGuides: Record<string, any> = {};
+  for (const b of gaps) {
+    const staticInfo = BENEFIT_NAVIGATION[b];
+    if (!staticInfo) continue;
+    const stateNav = getBenefitNav(data.state, b);
+    navigationGuides[b] = {
+      ...staticInfo,
+      ...(stateNav || {}),
+    };
+  }
 
   return { eligible, gaps, estimatedAnnualValue, navigationGuides };
 }

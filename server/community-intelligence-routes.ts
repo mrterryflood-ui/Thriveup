@@ -6,8 +6,8 @@
  */
 import type { Express } from "express";
 import { db } from "./storage";
-import { benefitsPartners, gisResourceOverlays } from "@shared/schema";
-import { eq } from "drizzle-orm";
+import { benefitsPartners, gisResourceOverlays, gunViolenceIncidents } from "@shared/schema";
+import { eq, sql, and, gte, lte } from "drizzle-orm";
 import { fetchZctaData, zipToGeography } from "./neighborhood-routes";
 import { generateAIJSON } from "./ai-provider";
 import { CHAINWEB_COEFFICIENTS, EVIDENCE_PROGRAMS } from "./chainweb-coefficients";
@@ -37,6 +37,51 @@ function flattenSvi(raw: any): Record<string, any> {
     snapRate:                raw.indicators?.snapRecipients,
     countyName:              raw.countyName,
   };
+}
+
+// ── Chicago Gun Violence Context (Cook County ZIPs 606xx) ────────────────────
+async function fetchChicagoGunViolenceContext(zip: string): Promise<{
+  cityIncidents: number;
+  cityVictims: number;
+  cityFatalities: number;
+  zipIncidents: number;
+  zipVictims: number;
+  source: string;
+  note: string;
+} | null> {
+  try {
+    const [cityTotals] = await db
+      .select({
+        incidents:  sql<number>`count(*)::int`,
+        victims:    sql<number>`coalesce(sum(${gunViolenceIncidents.victimCount}), 0)::int`,
+        fatalities: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}), 0)::int`,
+      })
+      .from(gunViolenceIncidents)
+      .where(eq(gunViolenceIncidents.city, "Chicago"));
+
+    const [zipTotals] = await db
+      .select({
+        incidents:  sql<number>`count(*)::int`,
+        victims:    sql<number>`coalesce(sum(${gunViolenceIncidents.victimCount}), 0)::int`,
+      })
+      .from(gunViolenceIncidents)
+      .where(eq(gunViolenceIncidents.zip, zip));
+
+    const hasData = (cityTotals?.incidents ?? 0) > 0;
+    return {
+      cityIncidents:  cityTotals?.incidents  ?? 0,
+      cityVictims:    cityTotals?.victims    ?? 0,
+      cityFatalities: cityTotals?.fatalities ?? 0,
+      zipIncidents:   zipTotals?.incidents   ?? 0,
+      zipVictims:     zipTotals?.victims     ?? 0,
+      source: "TCAF Gun Violence Registry",
+      note: hasData
+        ? `Registry data reflects confirmed import batches. Gun violence is a public health crisis in Chicago's South and West sides — the TCAF Chicago pilot anchors three agencies in the highest-impact neighborhoods (Woodlawn, Auburn Gresham, East Garfield Park). Trauma-informed care resources available through Community Healing Resource Center.`
+        : "Gun Violence Registry is live and ready to receive data from connected sources. No records imported yet — contact the TCAF team to connect your data pipeline.",
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ── Geocode a ZIP via Nominatim (OpenStreetMap, no key needed) ───────────────
@@ -414,10 +459,14 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
       // Flatten the nested fetchZctaData shape into the flat shape this module expects
       const svi = flattenSvi(sviRaw);
 
-      // Orgs + Chainweb + AI in parallel once we have SVI
-      const [orgs, aiAnalysis] = await Promise.all([
+      // Detect Cook County / Chicago ZIPs (60601–60699)
+      const isChicagoZip = /^606\d{2}$/.test(zipStr);
+
+      // Orgs + AI + optional gun-violence context all in parallel
+      const [orgs, aiAnalysis, gunViolenceCtx] = await Promise.all([
         getOrgMarkers(county),
         synthesizeAnalysis(prompt, svi, zipStr, 0),
+        isChicagoZip ? fetchChicagoGunViolenceContext(zipStr) : Promise.resolve(null),
       ]);
 
       const chainwebLinks = getChainwebLinks(svi);
@@ -458,6 +507,7 @@ export function registerCommunityIntelligenceRoutes(app: Express) {
         chainwebLinks,
         quadrants,
         aiAnalysis,
+        ...(gunViolenceCtx ? { gunViolenceContext: gunViolenceCtx } : {}),
       });
     } catch (err) {
       console.error("[CommunityIntelligence] Error:", err);

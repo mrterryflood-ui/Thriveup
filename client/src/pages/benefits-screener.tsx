@@ -757,24 +757,54 @@ export default function BenefitsScreenerPage() {
                           {(() => {
                             const guide = result?.navigationGuides?.[b];
                             const url = guide?.applicationUrl;
+                            const officeFinder = guide?.officeFinder;
+                            const hotline = guide?.hotline;
                             const note = guide?.notes || guide?.processingNote;
                             const days = guide?.processingDays;
-                            return url ? (
-                              <div className="pt-1 space-y-1">
+                            if (!url && !officeFinder && !hotline) return null;
+                            const safeHotlineHref = hotline
+                              ? `tel:${hotline.replace(/[^\d+]/g, "")}`
+                              : null;
+                            return (
+                              <div className="pt-2 space-y-2">
                                 {days && <p className="text-xs text-muted-foreground">Processing: {days}</p>}
                                 {note && <p className="text-xs text-muted-foreground italic">{note}</p>}
-                                <a
-                                  href={url}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-white rounded-md px-3 py-1.5 mt-1"
-                                  style={{ backgroundColor: info.color }}
-                                  data-testid={`apply-link-${b}`}
-                                >
-                                  Apply Online →
-                                </a>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {url && (
+                                    <a
+                                      href={url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-xs font-semibold text-white rounded-md px-3 py-1.5"
+                                      style={{ backgroundColor: info.color }}
+                                      data-testid={`apply-link-${b}`}
+                                    >
+                                      <ExternalLink className="h-3 w-3" /> Apply Online →
+                                    </a>
+                                  )}
+                                  {officeFinder && (
+                                    <a
+                                      href={officeFinder}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center gap-1.5 text-xs font-semibold border rounded-md px-3 py-1.5 text-foreground hover:bg-muted transition-colors"
+                                      data-testid={`office-finder-${b}`}
+                                    >
+                                      <MapPin className="h-3 w-3" /> Find Local Office
+                                    </a>
+                                  )}
+                                  {hotline && safeHotlineHref && (
+                                    <a
+                                      href={safeHotlineHref}
+                                      className="inline-flex items-center gap-1.5 text-xs font-semibold border rounded-md px-3 py-1.5 text-foreground hover:bg-muted transition-colors"
+                                      data-testid={`hotline-${b}`}
+                                    >
+                                      <Phone className="h-3 w-3" /> Call {hotline}
+                                    </a>
+                                  )}
+                                </div>
                               </div>
-                            ) : null;
+                            );
                           })()}
                           {/* CHW Field Mode — Send Referral button */}
                           {chwMode && (() => {

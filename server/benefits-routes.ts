@@ -662,6 +662,9 @@ export function registerBenefitsRoutes(app: Express) {
             handoffType: null,
             enrollmentOutcome: null,
           };
+      // Resolve USPS state code from the 2-digit stateFips sent by the client
+      const stateFips2 = ((data as any).stateFips || "").slice(0, 2);
+      const stateUsps = FIPS_STATE[stateFips2] || (data as any).stateUsps || "";
       const eligibility = computeEligibility({
         annualIncome: data.annualIncome || 0,
         householdSize: data.householdSize || 1,
@@ -671,6 +674,7 @@ export function registerBenefitsRoutes(app: Express) {
         isVeteran: (data as any).isVeteran ?? false,
         isSingleParent: (data as any).isSingleParent ?? false,
         currentBenefits: data.currentBenefits ?? [],
+        state: stateUsps,
       });
 
       const { eligible, gaps, estimatedAnnualValue, navigationGuides } = eligibility;
