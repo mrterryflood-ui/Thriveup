@@ -7313,6 +7313,7 @@ export const gunViolenceIncidents = pgTable("gun_violence_incidents", {
   longitude: real("longitude"),
   zip: varchar("zip", { length: 20 }),
   city: varchar("city", { length: 100 }),
+  state: varchar("state", { length: 50 }),
   ward: varchar("ward", { length: 50 }),
   victimCount: integer("victim_count").default(1),
   fatalCount: integer("fatal_count").default(0),

@@ -207,4 +207,106 @@ export function registerGunViolenceRoutes(app: Express) {
       res.status(500).json({ error: "Failed to load import history.", detail: err.message });
     }
   });
+
+  // ── POST /api/gun-violence/sync — pull from external registry (staff only) ──
+  // Streams records in from gun-violence-registry.replit.app via paginated
+  // fetch and upserts them locally.  Returns immediately with a job summary.
+  // Idempotent — safe to re-run; existing rows are updated in place.
+  app.post("/api/gun-violence/sync", async (req: Request, res: Response) => {
+    try {
+      if (!isStaff(req)) {
+        return res.status(403).json({ error: "Staff access required." });
+      }
+
+      const REGISTRY_BASE = "https://gun-violence-registry.replit.app";
+      const DATA_SOURCE   = "gun-violence-registry";
+      const BATCH_SIZE    = 500;
+      const INSERT_CHUNK  = 100;
+      const { nanoid }    = await import("nanoid");
+
+      const importId  = nanoid(12);
+      let totalFetched  = 0;
+      let totalUpserted = 0;
+      let offset        = 0;
+      const startedAt   = Date.now();
+
+      while (true) {
+        const url = `${REGISTRY_BASE}/api/incidents?offset=${offset}`;
+        const apiRes = await fetch(url, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(30_000) });
+        if (!apiRes.ok) throw new Error(`Registry HTTP ${apiRes.status} at offset=${offset}`);
+
+        const batch: any[] = await apiRes.json();
+        if (!Array.isArray(batch) || batch.length === 0) break;
+
+        totalFetched += batch.length;
+
+        const rows = batch.map((r: any) => {
+          let occurredAt: Date | undefined;
+          try {
+            if (r.date && r.date !== "0001-01-01") {
+              const d = new Date(`${r.date}T${r.time || "00:00"}:00Z`);
+              if (!isNaN(d.getTime())) occurredAt = d;
+            }
+          } catch { /* ignore */ }
+
+          return {
+            id:           nanoid(12),
+            incidentId:   r.externalId || r.id,
+            dataSource:   DATA_SOURCE,
+            occurredAt,
+            latitude:     r.latitude || undefined,
+            longitude:    r.longitude || undefined,
+            zip:          r.zipCode || undefined,
+            city:         r.city || undefined,
+            state:        r.state || undefined,
+            victimCount:  (r.killed ?? 0) + (r.injured ?? 0),
+            fatalCount:   r.killed ?? 0,
+            incidentType: r.incidentType || undefined,
+            importId,
+          };
+        });
+
+        for (let i = 0; i < rows.length; i += INSERT_CHUNK) {
+          const chunk = rows.slice(i, i + INSERT_CHUNK);
+          await db.insert(gunViolenceIncidents)
+            .values(chunk)
+            .onConflictDoUpdate({
+              target: [gunViolenceIncidents.incidentId, gunViolenceIncidents.dataSource],
+              set: {
+                occurredAt:   sql`excluded.occurred_at`,
+                latitude:     sql`excluded.latitude`,
+                longitude:    sql`excluded.longitude`,
+                zip:          sql`excluded.zip`,
+                city:         sql`excluded.city`,
+                state:        sql`excluded.state`,
+                victimCount:  sql`excluded.victim_count`,
+                fatalCount:   sql`excluded.fatal_count`,
+                incidentType: sql`excluded.incident_type`,
+                importId:     sql`excluded.import_id`,
+              },
+            });
+          totalUpserted += chunk.length;
+        }
+
+        if (batch.length < BATCH_SIZE) break;  // last page
+        offset += BATCH_SIZE;
+        await new Promise(r => setTimeout(r, 150)); // polite pause
+      }
+
+      const elapsedMs = Date.now() - startedAt;
+
+      await db.insert(gunViolenceImports).values({
+        dataSource:  DATA_SOURCE,
+        recordCount: totalUpserted,
+        notes: `API pull sync via /api/gun-violence/sync. fetched=${totalFetched} upserted=${totalUpserted} elapsed=${elapsedMs}ms`,
+      });
+
+      console.log(`[gun-violence] sync complete — fetched=${totalFetched} upserted=${totalUpserted} elapsed=${elapsedMs}ms`);
+      res.json({ ok: true, fetched: totalFetched, upserted: totalUpserted, elapsedMs, importId });
+
+    } catch (err: any) {
+      console.error("[gun-violence] sync error:", err);
+      res.status(500).json({ error: "Sync failed.", detail: err.message });
+    }
+  });
 }
