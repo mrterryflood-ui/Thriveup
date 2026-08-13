@@ -177,13 +177,14 @@ grantConduitRouter.get("/readiness", async (req: Request, res: Response) => {
       medianEarnings:      sql<number>`coalesce(avg(${partnerOutcomeSubmissions.medianEarnings}), 0)`,
     }).from(partnerOutcomeSubmissions);
 
+    const pServedCount = Number(outcomeRow?.participantsServed ?? 0);
     const readiness = computeReadiness({
       hasRegion:   !!region,
-      hasRplice:   !!rpliceEvidence,
-      hasOutcomes: pServed > 0,
-      hasGrants:   topGrants.length > 0,
-      hasMission:  !!(missionText && focusAreas.length > 0),
-      hasIdentity: !!(ein || uei),
+      hasRplice:   !!rplice,
+      hasOutcomes: pServedCount > 0,
+      hasGrants:   false,    // grants not queried in readiness endpoint
+      hasMission:  false,    // mission not a query param for readiness
+      hasIdentity: false,    // ein/uei not provided in readiness check
     });
 
   return res.json({
@@ -192,7 +193,7 @@ grantConduitRouter.get("/readiness", async (req: Request, res: Response) => {
     rpliceEvidence: rplice
       ? { evidenceLevel: rplice.evidenceLevel, fidelityScore: rplice.fidelityScore, qualityGate: rplice.qualityGate }
       : null,
-    platformOutcomes: { participantsServed: Number(outcomeRow?.participants ?? 0) },
+    platformOutcomes: { participantsServed: pServedCount },
     readiness,
     nextStep: "POST /api/grant-conduit/package with orgType, geography, missionText, and focusAreas to receive your full package.",
   });
