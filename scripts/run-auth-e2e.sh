@@ -46,6 +46,7 @@ fi
 npx playwright test \
   --output test-results/auth-e2e \
   tests/e2e/smoke.spec.ts \
+  tests/e2e/hub-pages-smoke.spec.ts \
   tests/e2e/staff-role-access.spec.ts \
   tests/e2e/foster-youth-journey.spec.ts
 PLAYWRIGHT_EXIT=$?
