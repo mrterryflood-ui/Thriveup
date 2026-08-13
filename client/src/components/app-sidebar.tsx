@@ -73,6 +73,7 @@ const getFundedItems: NavItem[] = [
   { title: "Embed Portal on Your Website", url: "/widget-install", icon: Smartphone },
   { title: "Agency Connector", url: "/agency-connector", icon: Puzzle },
   { title: "Partner Dashboard", url: "/partner-dashboard", icon: LayoutDashboard },
+  { title: "For Nonprofits", url: "/for-nonprofits", icon: Handshake },
   { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true },
   { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true },

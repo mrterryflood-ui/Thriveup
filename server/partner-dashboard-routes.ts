@@ -19,6 +19,7 @@ import { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { partnerApiKeys } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
+import { nanoid } from "nanoid";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -119,6 +120,83 @@ export function registerPartnerDashboardRoutes(app: Express) {
     const result = await proxyGet("/api/partner/v1/impact", key);
     if (!result.ok) return res.status(502).json({ error: result.error ?? "Impact data unavailable." });
     return res.json(result.data);
+  });
+
+  // ── POST /api/partner-dashboard/share/generate ──────────────────────────────
+  // Authenticated: creates or returns a share token for the org's dashboard.
+  app.post("/api/partner-dashboard/share/generate", requireKey, async (req: Request, res: Response) => {
+    const record = (req as any).partnerRecord;
+    try {
+      // Reuse existing token if already generated
+      if (record.shareToken) {
+        const shareUrl = `${req.protocol}://${req.get("host")}/partner-dashboard/shared/${record.shareToken}`;
+        return res.json({ shareUrl, token: record.shareToken });
+      }
+      const token = nanoid(20);
+      await db.update(partnerApiKeys)
+        .set({ shareToken: token })
+        .where(eq(partnerApiKeys.id, record.id));
+      const shareUrl = `${req.protocol}://${req.get("host")}/partner-dashboard/shared/${token}`;
+      return res.json({ shareUrl, token });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message ?? "Could not generate share link." });
+    }
+  });
+
+  // ── Shared (public) endpoints — authenticated by share token, not tcaf_* key ─
+  async function resolveShareToken(token: string) {
+    if (!token) return null;
+    const [record] = await db
+      .select()
+      .from(partnerApiKeys)
+      .where(and(eq(partnerApiKeys.shareToken, token), eq(partnerApiKeys.active, true)));
+    return record ?? null;
+  }
+
+  app.get("/api/partner-dashboard/share/:token/profile", async (req: Request, res: Response) => {
+    const record = await resolveShareToken(req.params.token).catch(() => null);
+    if (!record) return res.status(404).json({ error: "Share link not found or expired." });
+    return res.json({
+      orgName:  record.partnerName,
+      location: extractLocation(record.notes ?? null),
+      scopes:   record.scopes ?? [],
+    });
+  });
+
+  app.get("/api/partner-dashboard/share/:token/community-story", async (req: Request, res: Response) => {
+    const record = await resolveShareToken(req.params.token).catch(() => null);
+    if (!record) return res.status(404).json({ error: "Share link not found." });
+    // Use the first active key for this org to proxy — we need x-partner-key
+    // Find any active key for this org and use the share token as a proxy signal
+    const location = extractLocation(record.notes ?? null);
+    const orgName  = encodeURIComponent(record.partnerName);
+    try {
+      // Fetch community story directly without a partner key (internal call)
+      const r = await fetch(`http://localhost:5000/api/community-story/pack`, {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify({ location, orgName: record.partnerName }),
+      });
+      const data = await r.json();
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ error: "Community story unavailable." });
+    }
+  });
+
+  app.get("/api/partner-dashboard/share/:token/benefits", async (req: Request, res: Response) => {
+    const record = await resolveShareToken(req.params.token).catch(() => null);
+    if (!record) return res.status(404).json({ error: "Share link not found." });
+    // Benefits are public catalog data — return directly
+    try {
+      const r = await fetch(`http://localhost:5000/api/partner/v1/benefits`, {
+        headers: { "x-partner-key": record.keyPrefix }, // prefix is safe to use as identity signal
+      });
+      const data = await r.json();
+      return res.json(data);
+    } catch (err: any) {
+      return res.status(502).json({ error: "Benefits unavailable." });
+    }
   });
 
   // ── POST /api/partner-dashboard/report-pdf ───────────────────────────────────

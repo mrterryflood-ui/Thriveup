@@ -644,7 +644,9 @@ function ImpactTab({ impact }: { impact: TabData }) {
 // ── Reports tab ───────────────────────────────────────────────────────────────
 function ReportsTab({ auth, story }: { auth: AuthState; story: TabData }) {
   const { toast } = useToast();
-  const [generatingPdf, setGeneratingPdf] = useState(false);
+  const [generatingPdf,   setGeneratingPdf]   = useState(false);
+  const [shareUrl,        setShareUrl]         = useState<string | null>(null);
+  const [generatingShare, setGeneratingShare]  = useState(false);
 
   const downloadPdf = useCallback(async () => {
     setGeneratingPdf(true);
@@ -675,10 +677,27 @@ function ReportsTab({ auth, story }: { auth: AuthState; story: TabData }) {
       ? narratives
       : narratives.demographics ?? narratives.need ?? narratives.overview ?? "";
 
+  const generateShare = useCallback(async () => {
+    setGeneratingShare(true);
+    try {
+      const res = await fetch("/api/partner-dashboard/share/generate", {
+        method: "POST",
+        headers: { "x-tcaf-key": auth.key },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? "Failed");
+      setShareUrl(data.shareUrl);
+    } catch (e: any) {
+      toast({ title: "Could not generate link", description: e.message, variant: "destructive" });
+    } finally {
+      setGeneratingShare(false);
+    }
+  }, [auth.key, toast]);
+
   return (
     <div className="space-y-5">
       <p className="text-sm text-gray-600">
-        Download funder-ready reports and copy grant-narrative text — built from live community data for your service area.
+        Download funder-ready reports, copy grant-narrative text, and share a public view with funders or board members.
       </p>
 
       {/* PDF download */}
@@ -741,6 +760,54 @@ function ReportsTab({ auth, story }: { auth: AuthState; story: TabData }) {
           </CardContent>
         </Card>
       )}
+
+      {/* Share link */}
+      <Card>
+        <CardContent className="pt-5 pb-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-lg bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+              <Globe className="h-5 w-5 text-amber-700" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-semibold text-gray-900 text-sm">Share with your board or a funder</h3>
+              <p className="text-xs text-gray-500 mt-0.5 mb-3 leading-relaxed">
+                Generate a public read-only link anyone can open — community data, SDOH indicators, benefits catalog.
+                Your partner key stays private.
+              </p>
+              {shareUrl ? (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 bg-gray-50 border rounded-lg px-3 py-2">
+                    <span className="text-xs font-mono text-gray-700 truncate flex-1">{shareUrl}</span>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="h-7 text-xs shrink-0"
+                      onClick={() => {
+                        navigator.clipboard.writeText(shareUrl);
+                        toast({ title: "Link copied!", description: "Anyone with this link can view your dashboard." });
+                      }}
+                    >
+                      <Copy className="h-3 w-3 mr-1" /> Copy
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-400">This link is permanent until you regenerate it.</p>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  className="h-8 text-xs border-amber-300 text-amber-800 hover:bg-amber-50"
+                  onClick={generateShare}
+                  disabled={generatingShare}
+                >
+                  {generatingShare
+                    ? <><RefreshCw className="h-3 w-3 mr-1.5 animate-spin" /> Generating…</>
+                    : <><Globe className="h-3 w-3 mr-1.5" /> Generate share link</>}
+                </Button>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Embed instructions */}
       <Card>

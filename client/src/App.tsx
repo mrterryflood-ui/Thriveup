@@ -210,6 +210,8 @@ const CommunityStoryPackPage = lazy(() => import("@/pages/community-story-pack")
 const WidgetInstallPage = lazy(() => import("@/pages/widget-install"));
 const AgencyConnectorPage = lazy(() => import("@/pages/agency-connector"));
 const PartnerDashboardPage = lazy(() => import("@/pages/partner-dashboard"));
+const PartnerDashboardSharedPage = lazy(() => import("@/pages/partner-dashboard-shared"));
+const ForNonprofitsPage = lazy(() => import("@/pages/for-nonprofits"));
 const MemberHealthPage = lazy(() => import("@/pages/member-health-page"));
 const GrantPriorAwardsPage = lazy(() => import("@/pages/grant-prior-awards"));
 const EcosystemOrchestrationPage = lazy(() => import("@/pages/ecosystem-orchestration"));
@@ -877,6 +879,8 @@ function AppRouter() {
       <Route path="/widget-install" component={WidgetInstallPage} />
       <Route path="/agency-connector" component={AgencyConnectorPage} />
       <Route path="/partner-dashboard" component={PartnerDashboardPage} />
+      <Route path="/partner-dashboard/shared/:token" component={PartnerDashboardSharedPage} />
+      <Route path="/for-nonprofits" component={ForNonprofitsPage} />
       <Route path="/member-health" component={MemberHealthPage} />
       <Route path="/corridor/evidence" component={CorridorEvidencePage} />
       <Route path="/corridor/docs" component={CorridorDocsPage} />

@@ -6487,6 +6487,7 @@ export const partnerApiKeys = pgTable("partner_api_keys", {
   usageCount: integer("usage_count").notNull().default(0),
   lastUsedAt: timestamp("last_used_at"),
   notes: text("notes"),
+  shareToken: text("share_token").unique(),
   createdAt: timestamp("created_at").defaultNow(),
 });
 export type PartnerApiKey = typeof partnerApiKeys.$inferSelect;
