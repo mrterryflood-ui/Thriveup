@@ -194,6 +194,7 @@ import { registerPartnerApiRoutes } from "./partner-api-routes";
 import { cohortRouter } from "./research-cohort-routes";
 import { researchReportRouter } from "./research-report-routes";
 import { grantConduitRouter } from "./grant-conduit-routes";
+import { memberEngagementRouter, seedHedisMeasures } from "./member-engagement-routes";
 import { registerEcosystemDataRoutes } from "./ecosystem-data-routes";
 import { registerStreetsRoutes } from "./streets-routes";
 import { embedRouter } from "./embed-routes";
@@ -6725,6 +6726,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api/research", cohortRouter);
   app.use("/api/research", researchReportRouter);
   app.use("/api/grant-conduit", grantConduitRouter);
+  app.use("/api/member-engagement", memberEngagementRouter);
   app.use("/api/directory", capacityRouter);
   app.use("/api/partner/v1", partnerCapacityRouter);
   app.use("/api/funder", funderRouter);
@@ -6735,6 +6737,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   syncCareerOneStopJobs().catch((e: Error) => console.error("[startup] CareerOneStop sync:", e.message));
   runBjsIngestion().catch((e: Error) => console.error("[startup] BJS ingestion:", e.message));
   seedKnowledgeGraph().catch((e: Error) => console.error("[startup] Knowledge graph seed:", e.message));
+  seedHedisMeasures().catch((e: Error) => console.error("[startup] HEDIS catalog seed:", e.message));
 
   // ── Weekly stale-capacity email ───────────────────────────────────────────
   // Runs 7 days after boot and then every 7 days. Emails partner contacts whose

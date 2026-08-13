@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex, unique } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex, unique, date } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -7376,6 +7376,219 @@ export const grantFitEvents = pgTable("grant_fit_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 export type GrantFitEvent = typeof grantFitEvents.$inferSelect;
+
+// ── Member Health Engagement Engine ──────────────────────────────────────────
+// Full managed-care member engagement layer: health plan orgs, HEDIS measure
+// catalog, member rosters, care gap tracking, outreach campaigns, benefit
+// utilization, and CHW escalation queues. Plan-agnostic: Medicaid MCO,
+// Medicare Advantage, FQHC network, ACO, Commercial — all use same tables.
+
+export const healthPlanOrgs = pgTable("health_plan_orgs", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  name: varchar("name", { length: 255 }).notNull(),
+  /** medicaid | medicare_advantage | commercial | fqhc | aco | mixed */
+  planType: varchar("plan_type", { length: 50 }).notNull().default("mixed"),
+  state: varchar("state", { length: 2 }),
+  statesServed: text("states_served").array().default([]),
+  contactName: varchar("contact_name", { length: 255 }),
+  contactEmail: varchar("contact_email", { length: 255 }),
+  contactPhone: varchar("contact_phone", { length: 20 }),
+  npiNumber: varchar("npi_number", { length: 20 }),
+  memberCount: integer("member_count").default(0),
+  hedisContractYear: varchar("hedis_contract_year", { length: 4 }),
+  starsRatingCurrent: numeric("stars_rating_current", { precision: 3, scale: 2 }),
+  starsTargetRating: numeric("stars_target_rating", { precision: 3, scale: 2 }),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type HealthPlanOrg = typeof healthPlanOrgs.$inferSelect;
+export type InsertHealthPlanOrg = typeof healthPlanOrgs.$inferInsert;
+
+// Full NCQA HEDIS measure catalog — seeded once at boot, never mutated.
+// 27 measures across Preventive, Chronic, Behavioral, Pharmacy, Maternal,
+// and Utilization domains. clinicalPriority 1=Stars-critical → 5=informational.
+export const hedisMeasures = pgTable("hedis_measures", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  measureCode: varchar("measure_code", { length: 10 }).notNull().unique(),
+  measureName: varchar("measure_name", { length: 255 }).notNull(),
+  category: varchar("category", { length: 100 }).notNull(),
+  description: text("description"),
+  clinicalPriority: integer("clinical_priority").notNull().default(3),
+  starsWeight: numeric("stars_weight", { precision: 4, scale: 2 }).default("1.00"),
+  gapDefinition: text("gap_definition"),
+  closureCriteria: text("closure_criteria"),
+  dueDateLogic: varchar("due_date_logic", { length: 255 }),
+  eligiblePopulation: text("eligible_population"),
+  isActive: boolean("is_active").notNull().default(true),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type HedisMeasure = typeof hedisMeasures.$inferSelect;
+export type InsertHedisMeasure = typeof hedisMeasures.$inferInsert;
+
+// One row per member per health plan org. entrySource distinguishes the three
+// ingestion paths: chw_manual, csv_import, self_enroll.
+// riskTier and sdohFlags drive outreach prioritization.
+export const healthPlanMembers = pgTable("health_plan_members", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  planOrgId: text("plan_org_id").notNull().references(() => healthPlanOrgs.id),
+  memberId: varchar("member_id", { length: 100 }),
+  userId: integer("user_id"),
+  firstName: varchar("first_name", { length: 100 }),
+  lastName: varchar("last_name", { length: 100 }),
+  dateOfBirth: date("date_of_birth"),
+  gender: varchar("gender", { length: 30 }),
+  preferredLanguage: varchar("preferred_language", { length: 50 }).default("english"),
+  email: varchar("email", { length: 255 }),
+  phone: varchar("phone", { length: 20 }),
+  /** email | sms | phone | mail */
+  preferredContactChannel: varchar("preferred_contact_channel", { length: 20 }).default("email"),
+  addressLine1: varchar("address_line1", { length: 255 }),
+  addressCity: varchar("address_city", { length: 100 }),
+  addressState: varchar("address_state", { length: 2 }),
+  addressZip: varchar("address_zip", { length: 10 }),
+  pcpName: varchar("pcp_name", { length: 255 }),
+  pcpNpi: varchar("pcp_npi", { length: 20 }),
+  planEnrollmentDate: date("plan_enrollment_date"),
+  planEndDate: date("plan_end_date"),
+  /** low | rising | high | very_high */
+  riskTier: varchar("risk_tier", { length: 20 }).default("low"),
+  sdohScore: integer("sdoh_score"),
+  sdohFlags: text("sdoh_flags").array().default([]),
+  optedOutAt: timestamp("opted_out_at"),
+  optedOutChannel: varchar("opted_out_channel", { length: 20 }),
+  /** chw_manual | csv_import | self_enroll */
+  entrySource: varchar("entry_source", { length: 20 }).notNull().default("chw_manual"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type HealthPlanMember = typeof healthPlanMembers.$inferSelect;
+export type InsertHealthPlanMember = typeof healthPlanMembers.$inferInsert;
+
+// One row per member per HEDIS measure per measurement year.
+// Open gaps drive outreach. Closed gaps link to the referral or claim that
+// closed them. status: open | in_progress | closed | excluded.
+export const memberCareGaps = pgTable("member_care_gaps", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  memberId: text("member_id").notNull().references(() => healthPlanMembers.id),
+  measureId: text("measure_id").notNull().references(() => hedisMeasures.id),
+  measureCode: varchar("measure_code", { length: 10 }).notNull(),
+  measurementYear: integer("measurement_year").notNull(),
+  dueDate: date("due_date"),
+  priority: integer("priority").notNull().default(3),
+  /** open | in_progress | closed | excluded */
+  status: varchar("status", { length: 20 }).notNull().default("open"),
+  closedAt: timestamp("closed_at"),
+  /** claim | referral_confirm | provider_attestation | patient_reported */
+  closureMethod: varchar("closure_method", { length: 30 }),
+  closedByReferralId: text("closed_by_referral_id"),
+  closedByUserId: integer("closed_by_user_id"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type MemberCareGap = typeof memberCareGaps.$inferSelect;
+export type InsertMemberCareGap = typeof memberCareGaps.$inferInsert;
+
+// A targeted outreach campaign sent to a filtered member cohort.
+// Segment filters: measure codes, risk tiers, ZIPs, preferred languages.
+// Message body supports {{firstName}}, {{measureName}}, {{dueDate}}, {{pcpName}}.
+// status: draft | scheduled | sending | sent | cancelled.
+export const memberOutreachCampaigns = pgTable("member_outreach_campaigns", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  planOrgId: text("plan_org_id").notNull().references(() => healthPlanOrgs.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  description: text("description"),
+  /** email | sms | phone | mail */
+  channel: varchar("channel", { length: 20 }).notNull().default("email"),
+  targetMeasureCodes: text("target_measure_codes").array().default([]),
+  targetRiskTiers: text("target_risk_tiers").array().default([]),
+  targetZips: text("target_zips").array().default([]),
+  targetLanguages: text("target_languages").array().default([]),
+  messageSubject: varchar("message_subject", { length: 255 }),
+  messageBody: text("message_body").notNull(),
+  callToAction: varchar("call_to_action", { length: 255 }),
+  callToActionUrl: text("call_to_action_url"),
+  /** draft | scheduled | sending | sent | cancelled */
+  status: varchar("status", { length: 20 }).notNull().default("draft"),
+  scheduledAt: timestamp("scheduled_at"),
+  sentAt: timestamp("sent_at"),
+  createdByUserId: integer("created_by_user_id"),
+  totalRecipients: integer("total_recipients").default(0),
+  totalDelivered: integer("total_delivered").default(0),
+  totalOpened: integer("total_opened").default(0),
+  totalResponded: integer("total_responded").default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type MemberOutreachCampaign = typeof memberOutreachCampaigns.$inferSelect;
+export type InsertMemberOutreachCampaign = typeof memberOutreachCampaigns.$inferInsert;
+
+// One row per individual outreach attempt (member × campaign × send event).
+// Delivery/open/response tracking enables campaign performance analytics.
+export const memberOutreachTouches = pgTable("member_outreach_touches", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  campaignId: text("campaign_id").notNull().references(() => memberOutreachCampaigns.id),
+  memberId: text("member_id").notNull().references(() => healthPlanMembers.id),
+  channel: varchar("channel", { length: 20 }).notNull(),
+  sentAt: timestamp("sent_at"),
+  deliveredAt: timestamp("delivered_at"),
+  openedAt: timestamp("opened_at"),
+  respondedAt: timestamp("responded_at"),
+  /** appointment_scheduled | call_back | opt_out | no_response | complaint */
+  responseType: varchar("response_type", { length: 30 }),
+  bounced: boolean("bounced").default(false),
+  bouncedReason: varchar("bounced_reason", { length: 255 }),
+  externalMessageId: varchar("external_message_id", { length: 255 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type MemberOutreachTouch = typeof memberOutreachTouches.$inferSelect;
+export type InsertMemberOutreachTouch = typeof memberOutreachTouches.$inferInsert;
+
+// Tracks health plan benefit usage per member per plan year.
+// Benefits with allowance reset dates (dental, vision, OTC, flex card) are
+// surfaced in nudge campaigns when balance remains close to reset date.
+export const memberBenefitUtilization = pgTable("member_benefit_utilization", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  memberId: text("member_id").notNull().references(() => healthPlanMembers.id),
+  planOrgId: text("plan_org_id").notNull().references(() => healthPlanOrgs.id),
+  /** dental | vision | otc | transportation | meal_delivery | gym | hearing | mental_health | flex_card */
+  benefitType: varchar("benefit_type", { length: 50 }).notNull(),
+  planYear: integer("plan_year").notNull(),
+  allowanceUsd: numeric("allowance_usd", { precision: 10, scale: 2 }),
+  utilizedUsd: numeric("utilized_usd", { precision: 10, scale: 2 }).default("0"),
+  utilizationCount: integer("utilization_count").default(0),
+  lastUtilizedAt: timestamp("last_utilized_at"),
+  benefitResetDate: date("benefit_reset_date"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type MemberBenefitUtil = typeof memberBenefitUtilization.$inferSelect;
+export type InsertMemberBenefitUtil = typeof memberBenefitUtilization.$inferInsert;
+
+// When automated outreach fails (≥2 touches, no response), a member escalates
+// to a CHW engagement. CHWs see a priority-ranked queue.
+// priority: 1=urgent → 5=routine. status: queued | in_progress | resolved | transferred.
+export const memberCHWEngagements = pgTable("member_chw_engagements", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(10)),
+  memberId: text("member_id").notNull().references(() => healthPlanMembers.id),
+  assignedToUserId: integer("assigned_to_user_id"),
+  /** no_response_2_touches | high_risk_flag | new_member | member_request */
+  escalationReason: varchar("escalation_reason", { length: 100 }).notNull(),
+  openCareGapCount: integer("open_care_gap_count").default(0),
+  priority: integer("priority").notNull().default(3),
+  /** queued | in_progress | resolved | transferred */
+  status: varchar("status", { length: 20 }).notNull().default("queued"),
+  chwNotes: text("chw_notes"),
+  contactedAt: timestamp("contacted_at"),
+  resolvedAt: timestamp("resolved_at"),
+  resolutionSummary: text("resolution_summary"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+export type MemberCHWEngagement = typeof memberCHWEngagements.$inferSelect;
+export type InsertMemberCHWEngagement = typeof memberCHWEngagements.$inferInsert;
 
 export * from "./household-schema";
 export * from "./justice-schema";

@@ -206,6 +206,7 @@ const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 const GrantApplicationsPage = lazy(() => import("@/pages/grant-applications"));
 const GrantConduitPage = lazy(() => import("@/pages/grant-conduit-page"));
+const MemberHealthPage = lazy(() => import("@/pages/member-health-page"));
 const GrantPriorAwardsPage = lazy(() => import("@/pages/grant-prior-awards"));
 const EcosystemOrchestrationPage = lazy(() => import("@/pages/ecosystem-orchestration"));
 const StDavidsPrepPage = lazy(() => import("@/pages/stdavids-prep"));
@@ -867,6 +868,7 @@ function AppRouter() {
       <Route path="/corridor-intelligence" component={CorridorIntelligencePage} />
       <Route path="/gun-violence" component={GunViolenceIntelligencePage} />
       <Route path="/grant-conduit" component={GrantConduitPage} />
+      <Route path="/member-health" component={MemberHealthPage} />
       <Route path="/corridor/evidence" component={CorridorEvidencePage} />
       <Route path="/corridor/docs" component={CorridorDocsPage} />
       <Route path="/corridor/docs/live" component={CorridorDocsLivePage} />

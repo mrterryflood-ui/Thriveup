@@ -562,3 +562,42 @@ export async function sendWelcomeEmail(email: string, name: string) {
     `,
   }), `welcome-email to ${email}`);
 }
+
+// ── Member Health Engagement outreach email ───────────────────────────────────
+// Used by the Member Engagement campaign send engine. Supports an optional
+// call-to-action button and appends an opt-out notice per CAN-SPAM.
+export async function sendMemberEngagementEmail(opts: {
+  to: string;
+  subject: string;
+  body: string;
+  callToAction?: string;
+  callToActionUrl?: string;
+}): Promise<boolean> {
+  const { client, fromEmail } = await getResendClient();
+  const ctaHtml = opts.callToAction && opts.callToActionUrl
+    ? `<p style="margin-top:24px;text-align:center;">
+         <a href="${opts.callToActionUrl}"
+            style="background:#2563eb;color:white;padding:12px 28px;border-radius:6px;
+                   text-decoration:none;font-weight:600;font-size:15px;">
+           ${opts.callToAction}
+         </a>
+       </p>`
+    : "";
+  return safeSend(
+    () => client.emails.send({
+      from: fromEmail,
+      to: opts.to,
+      subject: opts.subject,
+      html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:24px;color:#1f2937;">
+        <p style="font-size:15px;line-height:1.6;">${opts.body.replace(/\n/g, "<br>")}</p>
+        ${ctaHtml}
+        <hr style="margin-top:32px;border:none;border-top:1px solid #e5e7eb;">
+        <p style="color:#9ca3af;font-size:12px;margin-top:16px;">
+          You received this message from your health plan's ThriveUp Member Engagement program.
+          To opt out of future messages, reply STOP or contact your health plan member services.
+        </p>
+      </div>`,
+    }),
+    `member-engagement to ${opts.to}`,
+  );
+}

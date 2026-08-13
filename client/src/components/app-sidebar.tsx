@@ -152,6 +152,7 @@ const preventionHealthItems: NavItem[] = [
   { title: "Facilitator Hub", url: "/facilitator-hub", icon: ClipboardCheck, authOnly: true },
   { title: "Health Network", url: "/health-network", icon: Heart, authOnly: true },
   { title: "CHW Dashboard", url: "/chw-dashboard", icon: Stethoscope, authOnly: true },
+  { title: "Member Health Engagement", url: "/member-health", icon: ClipboardList, authOnly: true },
 ];
 
 // HUB 3 — Workforce & Trades: Trade Sims is #1 (most discoverable entry point).
