@@ -72,6 +72,7 @@ const getFundedItems: NavItem[] = [
   { title: "Community Story Pack", url: "/community-story-pack", icon: Globe },
   { title: "Embed Portal on Your Website", url: "/widget-install", icon: Smartphone },
   { title: "Agency Connector", url: "/agency-connector", icon: Puzzle },
+  { title: "Partner Dashboard", url: "/partner-dashboard", icon: LayoutDashboard },
   { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true },
   { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true },

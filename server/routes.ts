@@ -132,6 +132,7 @@ import { registerNeighborhoodRoutes } from "./neighborhood-routes";
 import { registerExportPdfRoutes } from "./export-pdf-routes";
 import { registerCommunityStoryRoutes } from "./community-story-routes";
 import { registerAgencyConnectorRoutes } from "./agency-connector-routes";
+import { registerPartnerDashboardRoutes } from "./partner-dashboard-routes";
 import { registerBriefShareRoutes } from "./brief-share-routes";
 import { registerCorridorRoutes } from "./corridor-story";
 import { registerNetworkRoutes } from "./network-routes";
@@ -587,6 +588,7 @@ export async function registerRoutes(
   registerExportPdfRoutes(app);
   registerCommunityStoryRoutes(app);
   registerAgencyConnectorRoutes(app);
+  registerPartnerDashboardRoutes(app);
   registerBriefShareRoutes(app);
   registerSafePassageRoutes(app);
   registerEcosystemIntelRoutes(app);

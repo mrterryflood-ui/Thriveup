@@ -669,6 +669,19 @@ export default function AgencyConnectorPage() {
                   <p className="text-xs text-gray-500">
                     Replace <code className="bg-gray-100 px-1 rounded">YOUR_TCAF_PARTNER_KEY</code> in the code below with this value.
                   </p>
+                  <div className="pt-1">
+                    <Button
+                      className="w-full bg-emerald-700 hover:bg-emerald-800 h-9 text-sm"
+                      onClick={() => {
+                        window.location.href = `/partner-dashboard?key=${encodeURIComponent(issuedKey)}`;
+                      }}
+                    >
+                      <ArrowRight className="h-4 w-4 mr-2" /> Open your live dashboard →
+                    </Button>
+                    <p className="text-xs text-center text-gray-400 mt-1.5">
+                      Your community data, benefits catalog, and impact reports — no setup required.
+                    </p>
+                  </div>
                 </CardContent>
               </Card>
             ) : (
