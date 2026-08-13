@@ -1,0 +1,29 @@
+I read the shared-dashboard handoff and have it aligned with the ECS/national portal model.
+
+### What the shared view adds
+A public, read-only route:
+
+- `/partner-dashboard/shared/:token`
+- Loads an organization profile, Community Story, and Benefits catalog through:
+  - `/api/partner-dashboard/share/:token/profile`
+  - `/api/partner-dashboard/share/:token/community-story`
+  - `/api/partner-dashboard/share/:token/benefits`
+- Presents community indicators, a Census-attributed statement of need, active programs, organization branding, and a nonprofit onboarding call-to-action.
+
+### Alignment decisions now captured
+- **Private partner dashboard:** organization-bound, authenticated, scope-enforced access.
+- **Public shared dashboard:** separate, narrowly scoped visibility—not the private dashboard exposed publicly.
+- **Share tokens:** must be opaque, high-entropy, hashed server-side, organization-bound, expiry/revocation-capable, and read-only.
+- **No partner key exposure:** a `tcaf_*` key must never appear in a share URL, browser storage, browser request header, or public page.
+- **No public writes:** referrals, outcomes, key management, and any client/household data remain unavailable from shared links.
+- **Evidence integrity:** partner narratives and calculated indicators remain source material; they do not become ECS-reviewed evidence or reports automatically.
+
+### Important implementation gap
+The handoff gives the shared page and its expected backend route names, but not the server-side code that:
+- validates/creates/revokes share tokens,
+- determines approved public fields,
+- enforces organization isolation,
+- forwards Benefits/Impact calls, or
+- generates reports.
+
+I have **not** created guessed public routes or exposed the existing private ECS data. To wire this safely into this Repl, add the equivalent of `server/partner-dashboard-routes.ts` into `attached_assets` as a pasted `.txt` file, the same way you added the shared-view source. I’ll then reconcile it with the current ECS database, Admin Hub, and server-only partner adapter.
