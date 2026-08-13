@@ -88,5 +88,13 @@ echo "[auth-e2e] running partner-key enrollment loop verification..."
 npx tsx scripts/verify-org-confirm-partner-key.ts
 PARTNER_KEY_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ]
+# Share-link e2e: generate → public profile/story/benefits → revoke → 404 → regenerate.
+# Auth steps are skipped unless ECS_PARTNER_KEY is set; public-endpoint steps always run
+# if a share token already exists in the DB, so this catches regressions without secrets.
+echo ""
+echo "[auth-e2e] running share-link e2e verification..."
+npx tsx scripts/verify-share-link-e2e.ts
+SHARE_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ] && [ $SHARE_EXIT -eq 0 ]
 exit $?

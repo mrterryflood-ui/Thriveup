@@ -17,9 +17,10 @@
 import crypto from "crypto";
 import { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
-import { partnerApiKeys } from "@shared/schema";
+import { partnerApiKeys, programs } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { assembleStoryPack } from "./community-story-routes";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -166,19 +167,14 @@ export function registerPartnerDashboardRoutes(app: Express) {
   app.get("/api/partner-dashboard/share/:token/community-story", async (req: Request, res: Response) => {
     const record = await resolveShareToken(req.params.token).catch(() => null);
     if (!record) return res.status(404).json({ error: "Share link not found." });
-    // Use the first active key for this org to proxy — we need x-partner-key
-    // Find any active key for this org and use the share token as a proxy signal
     const location = extractLocation(record.notes ?? null);
-    const orgName  = encodeURIComponent(record.partnerName);
     try {
-      // Fetch community story directly without a partner key (internal call)
-      const r = await fetch(`http://localhost:5000/api/community-story/pack`, {
-        method:  "POST",
-        headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ location, orgName: record.partnerName }),
+      // Call assembleStoryPack directly — no self-HTTP round-trip
+      const story = await assembleStoryPack({
+        location,
+        orgName: record.partnerName,
       });
-      const data = await r.json();
-      return res.json(data);
+      return res.json(story);
     } catch (err: any) {
       return res.status(502).json({ error: "Community story unavailable." });
     }
@@ -187,15 +183,34 @@ export function registerPartnerDashboardRoutes(app: Express) {
   app.get("/api/partner-dashboard/share/:token/benefits", async (req: Request, res: Response) => {
     const record = await resolveShareToken(req.params.token).catch(() => null);
     if (!record) return res.status(404).json({ error: "Share link not found." });
-    // Benefits are public catalog data — return directly
     try {
-      const r = await fetch(`http://localhost:5000/api/partner/v1/benefits`, {
-        headers: { "x-partner-key": record.keyPrefix }, // prefix is safe to use as identity signal
-      });
-      const data = await r.json();
-      return res.json(data);
+      // Query the programs table directly — no self-HTTP round-trip
+      const catalog = await db.select({
+        id:               programs.id,
+        title:            programs.title,
+        description:      programs.description,
+        methodology:      programs.methodology,
+        status:           programs.status,
+        targetPopulation: programs.targetPopulation,
+        geographicFocus:  programs.geographicFocus,
+      }).from(programs).limit(100);
+      return res.json({ count: catalog.length, programs: catalog, exportedAt: new Date().toISOString() });
     } catch (err: any) {
       return res.status(502).json({ error: "Benefits unavailable." });
+    }
+  });
+
+  // ── DELETE /api/partner-dashboard/share/revoke ───────────────────────────────
+  // Authenticated: clears the share_token so any existing public link stops working.
+  app.delete("/api/partner-dashboard/share/revoke", requireKey, async (req: Request, res: Response) => {
+    const record = (req as any).partnerRecord;
+    try {
+      await db.update(partnerApiKeys)
+        .set({ shareToken: null })
+        .where(eq(partnerApiKeys.id, record.id));
+      return res.json({ revoked: true });
+    } catch (err: any) {
+      return res.status(500).json({ error: err?.message ?? "Could not revoke share link." });
     }
   });
 

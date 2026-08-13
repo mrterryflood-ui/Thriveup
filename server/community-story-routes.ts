@@ -104,7 +104,7 @@ async function fetchGrantConduit(body: Record<string, unknown>): Promise<Record<
 }
 
 // ── Assemble the full story pack ──────────────────────────────────────────────
-async function assembleStoryPack(opts: {
+export async function assembleStoryPack(opts: {
   location: string;
   populationSize?: number;
   orgName?: string;

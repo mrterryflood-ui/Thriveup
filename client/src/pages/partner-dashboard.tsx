@@ -647,6 +647,7 @@ function ReportsTab({ auth, story }: { auth: AuthState; story: TabData }) {
   const [generatingPdf,   setGeneratingPdf]   = useState(false);
   const [shareUrl,        setShareUrl]         = useState<string | null>(null);
   const [generatingShare, setGeneratingShare]  = useState(false);
+  const [revoking,        setRevoking]         = useState(false);
 
   const downloadPdf = useCallback(async () => {
     setGeneratingPdf(true);
@@ -691,6 +692,23 @@ function ReportsTab({ auth, story }: { auth: AuthState; story: TabData }) {
       toast({ title: "Could not generate link", description: e.message, variant: "destructive" });
     } finally {
       setGeneratingShare(false);
+    }
+  }, [auth.key, toast]);
+
+  const revokeShare = useCallback(async () => {
+    setRevoking(true);
+    try {
+      const res = await fetch("/api/partner-dashboard/share/revoke", {
+        method: "DELETE",
+        headers: { "x-tcaf-key": auth.key },
+      });
+      if (!res.ok) throw new Error((await res.json()).error ?? "Failed");
+      setShareUrl(null);
+      toast({ title: "Share link revoked", description: "The public link is no longer active." });
+    } catch (e: any) {
+      toast({ title: "Could not revoke", description: e.message, variant: "destructive" });
+    } finally {
+      setRevoking(false);
     }
   }, [auth.key, toast]);
 
@@ -790,7 +808,18 @@ function ReportsTab({ auth, story }: { auth: AuthState; story: TabData }) {
                       <Copy className="h-3 w-3 mr-1" /> Copy
                     </Button>
                   </div>
-                  <p className="text-xs text-gray-400">This link is permanent until you regenerate it.</p>
+                  <div className="flex items-center justify-between gap-2">
+                    <p className="text-xs text-gray-400">Anyone with this link can view your dashboard — no key required.</p>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-6 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 shrink-0 px-2"
+                      onClick={revokeShare}
+                      disabled={revoking}
+                    >
+                      {revoking ? <><RefreshCw className="h-3 w-3 mr-1 animate-spin" /> Revoking…</> : "Revoke link"}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <Button
