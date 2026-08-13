@@ -749,3 +749,10 @@ id = "fjteGnt682_6h-jrLn0j6"
 uri = "file://attached_assets/tcaf-hbcu-one-pager.pdf"
 type = "pdf"
 title = "ThriveUp Academy — HBCU One Pager"
+
+[[outputs]]
+id = "_CBM5wWyjm_Ub77m0ahey"
+uri = "file://ecs-thrive-briefing.html"
+type = "text"
+title = "ECS of NC — ThriveUp Platform Briefing"
+description = "Full capability briefing for Karen Flood and ECS of NC — every data feed, AI tool, and integration available for their five-county NC service area."

@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ThriveUp Platform Briefing — ECS of NC</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --blue: #1d4ed8; --blue-dark: #1e3a8a; --blue-light: #eff6ff; --blue-mid: #dbeafe;
+    --green: #16a34a; --green-light: #f0fdf4; --green-mid: #bbf7d0;
+    --amber: #d97706; --amber-light: #fffbeb; --amber-mid: #fde68a;
+    --gray-50: #f9fafb; --gray-100: #f3f4f6; --gray-200: #e5e7eb;
+    --gray-400: #9ca3af; --gray-600: #4b5563; --gray-800: #1f2937; --gray-900: #111827;
+    --red: #dc2626; --purple: #7c3aed; --purple-light: #f5f3ff;
+    --teal: #0d9488; --teal-light: #f0fdfa;
+  }
+  body { font-family: system-ui, -apple-system, sans-serif; color: var(--gray-800); background: var(--gray-50); line-height: 1.6; }
+  a { color: var(--blue); }
+
+  .hero {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1d4ed8 60%, #2563eb 100%);
+    color: white; padding: 48px 32px 40px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content:""; position:absolute; top:-40px; right:-60px; width:300px; height:300px;
+    background: rgba(255,255,255,.05); border-radius:50%;
+  }
+  .hero::after {
+    content:""; position:absolute; bottom:-60px; left:60px; width:200px; height:200px;
+    background: rgba(255,255,255,.04); border-radius:50%;
+  }
+  .hero-inner { max-width: 860px; margin: 0 auto; position: relative; }
+  .hero-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,255,255,.15); border: 1px solid rgba(255,255,255,.25);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600;
+    letter-spacing: .04em; text-transform: uppercase; margin-bottom: 16px;
+  }
+  .hero h1 { font-size: clamp(24px, 4vw, 36px); font-weight: 800; line-height: 1.2; margin-bottom: 8px; }
+  .hero .sub { font-size: 16px; opacity: .85; max-width: 560px; margin-bottom: 24px; }
+  .hero-stats { display: flex; flex-wrap: wrap; gap: 24px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,.2); }
+  .hero-stat .num { font-size: 28px; font-weight: 800; line-height: 1; }
+  .hero-stat .lbl { font-size: 11px; opacity: .7; text-transform: uppercase; letter-spacing: .05em; margin-top: 2px; }
+
+  .page { max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .section { margin-bottom: 48px; }
+  .section-header {
+    display: flex; align-items: flex-start; gap: 14px; margin-bottom: 20px;
+    padding-bottom: 16px; border-bottom: 2px solid var(--gray-200);
+  }
+  .section-icon {
+    width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 20px; flex-shrink: 0; margin-top: 2px;
+  }
+  .section-title { font-size: 20px; font-weight: 700; color: var(--gray-900); line-height: 1.3; }
+  .section-desc { font-size: 14px; color: var(--gray-600); margin-top: 3px; }
+
+  .cap-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+  .cap-card {
+    background: white; border: 1px solid var(--gray-200); border-radius: 12px;
+    padding: 18px; position: relative; overflow: hidden;
+  }
+  .cap-card::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent, var(--blue));
+  }
+  .cap-card h3 { font-size: 14px; font-weight: 700; color: var(--gray-900); margin-bottom: 6px; }
+  .cap-card p { font-size: 13px; color: var(--gray-600); line-height: 1.5; }
+  .cap-card .tag {
+    display: inline-block; margin-top: 10px; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 4px; letter-spacing: .03em;
+  }
+
+  .use-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .use-table th {
+    background: var(--gray-100); text-align: left; padding: 10px 14px;
+    font-weight: 600; color: var(--gray-600); font-size: 11px; text-transform: uppercase;
+    letter-spacing: .05em; border-bottom: 2px solid var(--gray-200);
+  }
+  .use-table td { padding: 12px 14px; border-bottom: 1px solid var(--gray-100); vertical-align: top; }
+  .use-table tr:last-child td { border-bottom: none; }
+  .use-table tr:hover td { background: var(--gray-50); }
+
+  .code-block {
+    background: #0f172a; color: #e2e8f0; border-radius: 8px; padding: 16px 20px;
+    font-family: "SF Mono", "Fira Code", monospace; font-size: 12px; line-height: 1.7;
+    overflow-x: auto; margin-top: 12px;
+  }
+  .kw { color: #93c5fd; }
+  .str { color: #86efac; }
+  .cm { color: #64748b; font-style: italic; }
+
+  .alert {
+    border-radius: 10px; padding: 14px 18px; margin-bottom: 16px;
+    display: flex; gap: 12px; align-items: flex-start; font-size: 13px;
+  }
+  .alert-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .alert-blue { background: var(--blue-light); border: 1px solid var(--blue-mid); color: #1e3a8a; }
+  .alert-green { background: var(--green-light); border: 1px solid var(--green-mid); color: #14532d; }
+  .alert-amber { background: var(--amber-light); border: 1px solid var(--amber-mid); color: #78350f; }
+
+  .county-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .county-badge {
+    background: white; border: 1.5px solid var(--blue); color: var(--blue-dark);
+    border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600;
+  }
+  .county-badge span { color: var(--gray-400); margin-left: 4px; font-weight: 400; }
+
+  .action-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .action-list li {
+    background: white; border: 1px solid var(--gray-200); border-radius: 8px;
+    padding: 12px 16px; display: flex; gap: 12px; align-items: flex-start; font-size: 13px;
+  }
+  .action-list li .num {
+    width: 22px; height: 22px; border-radius: 50%; background: var(--blue);
+    color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center;
+    justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .action-list li strong { display: block; font-weight: 600; color: var(--gray-900); margin-bottom: 2px; }
+
+  .footer {
+    margin-top: 64px; padding: 24px; background: var(--blue-dark); color: white;
+    border-radius: 12px; font-size: 13px;
+  }
+  .footer h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px; }
+  .footer p { opacity: .85; margin-bottom: 6px; }
+  .footer code { background: rgba(255,255,255,.15); padding: 1px 6px; border-radius: 3px; font-family: monospace; }
+
+  .scope { background: #1e3a8a; color: white; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-family: monospace; }
+  code { background: var(--gray-100); padding: 1px 5px; border-radius: 3px; font-family: monospace; font-size: 12px; }
+
+  @media(max-width:600px){
+    .hero { padding: 32px 20px; }
+    .page { padding: 24px 16px 60px; }
+    .cap-grid { grid-template-columns: 1fr; }
+    .hero-stats { gap: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge">🤝 ThriveUp Partner Briefing</div>
+    <h1>What ThriveUp Can Do for ECS of NC</h1>
+    <p class="sub">A full-platform briefing for Emergency Charitable Services of NC — every data feed, AI tool, and integration available to your five-county service area, right now.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="num">5</div><div class="lbl">Counties wired in</div></div>
+      <div class="hero-stat"><div class="num">9</div><div class="lbl">Live API endpoints</div></div>
+      <div class="hero-stat"><div class="num">107</div><div class="lbl">Languages supported</div></div>
+      <div class="hero-stat"><div class="num">50</div><div class="lbl">States of data coverage</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="page">
+
+  <div class="alert alert-blue" style="margin-bottom:32px;">
+    <div class="alert-icon">📋</div>
+    <div>
+      <strong>Prepared for:</strong> Karen Flood, Founder · ECS of NC &nbsp;|&nbsp;
+      <strong>Partner key prefix:</strong> <code>tcaf_18f09f9b4…</code> &nbsp;|&nbsp;
+      <strong>Service area:</strong> Columbus · Brunswick · Bladen · Pender · New Hanover (NC FIPS 37)
+    </div>
+  </div>
+
+  <div class="alert alert-amber">
+    <div class="alert-icon">💡</div>
+    <div>
+      <strong>Note to the rep agent:</strong> ECS is a rural NC direct-service nonprofit doing emergency assistance, foster youth support, and housing/utility help across five counties. They are not yet using any of these feeds. Start with the Community Brief and the Embed Portal — zero integration overhead, immediate value. Then move to the Partner API for their grant reporting workflow.
+    </div>
+  </div>
+
+  <!-- 1. YOUR COUNTIES -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#eff6ff;">🗺️</div>
+      <div>
+        <div class="section-title">Your Five Counties Are Already Wired In</div>
+        <div class="section-desc">Every ThriveUp data feed understands your exact service footprint — individually and as a multi-county aggregate.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:12px;">Call any endpoint with a county name, FIPS code, or pipe-separated list and ThriveUp resolves it directly to Census ACS data — no ZIP-code guessing, no approximation. These numbers are current as of the latest ACS 5-year release.</p>
+
+    <div class="county-row">
+      <div class="county-badge">Columbus County <span>FIPS 37047 · Poverty 21.1% · Grade F</span></div>
+      <div class="county-badge">Bladen County <span>FIPS 37017 · Poverty 24.4% · Grade F</span></div>
+      <div class="county-badge">Brunswick County <span>FIPS 37019 · Poverty 9.1% · Grade D</span></div>
+      <div class="county-badge">Pender County <span>FIPS 37141 · Poverty 11.7% · Grade D</span></div>
+      <div class="county-badge">New Hanover County <span>FIPS 37129 · Poverty 12.7% · Grade D</span></div>
+    </div>
+
+    <div class="code-block" style="margin-top:16px;">
+      <span class="cm">// Pull an aggregate brief for all five counties at once</span><br/>
+      GET /api/partner/v1/community-story<br/>
+      &nbsp;&nbsp;?location=Columbus+County%2C+NC|Brunswick+County%2C+NC|Bladen+County%2C+NC|Pender+County%2C+NC|New+Hanover+County%2C+NC<br/>
+      x-partner-key: <span class="str">tcaf_18f09f9b4…</span>
+    </div>
+  </div>
+
+  <!-- 2. COMMUNITY INTELLIGENCE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f0fdf4;">📊</div>
+      <div>
+        <div class="section-title">Community Intelligence — Live Census Data for Every County</div>
+        <div class="section-desc">Real U.S. Census ACS 5-year estimates, translated into plain language your funders can read and cite.</div>
+      </div>
+    </div>
+
+    <div class="cap-grid">
+      <div class="cap-card" style="--accent:#16a34a;">
+        <h3>Poverty &amp; Income</h3>
+        <p>Poverty rate, median household income, ALICE threshold households, deep poverty — per county and aggregated across your five-county footprint.</p>
+        <div class="tag" style="background:#f0fdf4;color:#166534;">Census ACS 5-yr</div>
+      </div>
+      <div class="cap-card" style="--accent:#d97706;">
+        <h3>Housing Burden</h3>
+        <p>Cost-burdened renter percentage, median gross rent, homeownership rate, overcrowded units — the numbers behind every housing call you receive.</p>
+        <div class="tag" style="background:#fffbeb;color:#92400e;">HUD / ACS</div>
+      </div>
+      <div class="cap-card" style="--accent:#dc2626;">
+        <h3>Food Insecurity</h3>
+        <p>SNAP enrollment rate, food insecurity estimates by county — maps directly to your food assistance case volume and grant justification.</p>
+        <div class="tag" style="background:#fef2f2;color:#991b1b;">USDA / ACS</div>
+      </div>
+      <div class="cap-card" style="--accent:#7c3aed;">
+        <h3>Unemployment &amp; Workforce</h3>
+        <p>Civilian unemployment rate, labor force participation, industry sector breakdown — tells you what jobs exist and what training gaps remain.</p>
+        <div class="tag" style="background:#f5f3ff;color:#4c1d95;">BLS / ACS</div>
+      </div>
+      <div class="cap-card" style="--accent:#0d9488;">
+        <h3>Health &amp; Social Vulnerability</h3>
+        <p>Uninsured rate, disability rate, CDC Social Vulnerability Index, environmental burden — the SDOH conditions your case managers address daily.</p>
+        <div class="tag" style="background:#f0fdfa;color:#134e4a;">CDC SVI / ACS</div>
+      </div>
+      <div class="cap-card" style="--accent:#1d4ed8;">
+        <h3>Population &amp; Demographics</h3>
+        <p>Total population, age distribution, race/ethnicity, household type, single-parent households — the people you serve, quantified for any funder.</p>
+        <div class="tag" style="background:#eff6ff;color:#1e3a8a;">Census ACS</div>
+      </div>
+    </div>
+
+    <div class="alert alert-green" style="margin-top:20px;">
+      <div class="alert-icon">✅</div>
+      <div><strong>How ECS uses this today:</strong> Stop manually looking up Census data every grant cycle. One API call returns a formatted narrative with your exact five-county numbers — with citations included.</div>
+    </div>
+  </div>
+
+  <!-- 3. COMMUNITY STORY -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fef3c7;">📝</div>
+      <div>
+        <div class="section-title">Community Story — A Grant-Ready Narrative in One Call</div>
+        <div class="section-desc">A structured, sourced narrative brief for your service area — delivered as formatted content you can paste directly into proposals.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px;">The Community Story endpoint returns more than numbers. It returns a structured narrative built for grant proposals, advocacy presentations, and board reports:</p>
+
+    <ul class="action-list">
+      <li>
+        <div class="num">1</div>
+        <div><strong>Demographics Narrative</strong> — a written paragraph describing your population with all ACS citations included. Paste directly into a grant proposal's "Statement of Need."</div>
+      </li>
+      <li>
+        <div class="num">2</div>
+        <div><strong>Systems Analysis</strong> — which SDOH domains are highest-burden in your counties: housing, food, income, health, workforce, safety — ranked by severity.</div>
+      </li>
+      <li>
+        <div class="num">3</div>
+        <div><strong>Matched Grant Intelligence</strong> — active federal and foundation funding opportunities matched to your community's documented needs and your org type. Refreshed continuously.</div>
+      </li>
+      <li>
+        <div class="num">4</div>
+        <div><strong>Evidence Base</strong> — peer-reviewed citations for the interventions ECS already delivers: emergency assistance, housing, food, foster youth support. Already formatted for proposal use.</div>
+      </li>
+      <li>
+        <div class="num">5</div>
+        <div><strong>Community Grades</strong> — an A–F grade per SDOH domain. Columbus County poverty: F. Bladen County poverty: F. Your funder sees exactly where the need is worst.</div>
+      </li>
+    </ul>
+
+    <div class="code-block">
+      <span class="cm">// Narrative brief for ECS's service area — ready to paste into proposals</span><br/>
+      GET /api/partner/v1/community-story?location=Columbus+County%2C+NC&amp;orgName=Emergency+Charitable+Services+of+NC<br/>
+      x-partner-key: <span class="str">tcaf_18f09f9b4…</span>
+    </div>
+  </div>
+
+  <!-- 4. BENEFITS SCREENING -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fef2f2;">🛡️</div>
+      <div>
+        <div class="section-title">Benefits Screening — What Your Clients Can Apply For Right Now</div>
+        <div class="section-desc">A live catalog of assistance programs your clients are likely eligible for — pulled at intake, not from memory.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px;">When a client calls ECS, your intake worker can pull the benefits catalog in real time and know immediately what to screen for — rather than relying on a binder that's six months out of date.</p>
+
+    <table class="use-table" style="margin-bottom:16px;">
+      <thead><tr><th>Program Area</th><th>What It Returns</th><th>ECS Use Case</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Food Assistance</strong></td><td>SNAP eligibility guidelines, WIC, local food pantry referrals</td><td>Supplement your food assistance triage at intake</td></tr>
+        <tr><td><strong>Housing &amp; Rent</strong></td><td>Emergency rental assistance programs, Section 8 status, ERAP</td><td>Know what's open before you make a referral</td></tr>
+        <tr><td><strong>Utilities</strong></td><td>LIHEAP, crisis utility programs, Duke/Progress Energy CARE</td><td>Match the utility call to the right program instantly</td></tr>
+        <tr><td><strong>Health Coverage</strong></td><td>Medicaid, NC Health Choice, sliding-scale clinics</td><td>Uninsured client? Know what they qualify for in 30 seconds</td></tr>
+        <tr><td><strong>Crisis Cash</strong></td><td>Emergency funds, faith-based assistance, local discretionary funds</td><td>When ECS's own fund is depleted — know what's next for that client</td></tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-green">
+      <div class="alert-icon">✅</div>
+      <div><strong>Scope required:</strong> <span class="scope">benefits:read</span> — already on your partner key. No additional setup.</div>
+    </div>
+  </div>
+
+  <!-- 5. NAVIGATOR AI -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f5f3ff;">🤖</div>
+      <div>
+        <div class="section-title">Navigator AI — A Community Health Worker in Your Pocket</div>
+        <div class="section-desc">A trained AI that knows your five counties — answers questions about safety, benefits, and services in 107 languages.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px;">The Navigator isn't a generic chatbot. It knows your service area. It can tell a client the poverty rate in Columbus County, where to find a food bank in Bladen County, what gun violence data says about safety in Whiteville, or how to help a foster youth transitioning out of care in Brunswick County — with sourced, county-specific answers, not generic national data.</p>
+
+    <div class="cap-grid" style="margin-bottom:16px;">
+      <div class="cap-card" style="--accent:#7c3aed;">
+        <h3>Social Services Navigation</h3>
+        <p>Answers questions about food, housing, utilities, health, childcare — sourced from your county's actual program landscape.</p>
+      </div>
+      <div class="cap-card" style="--accent:#dc2626;">
+        <h3>Safety &amp; Gun Violence Intelligence</h3>
+        <p>Pulls live safety data for your counties — homicide rates, gun violence incidents, community violence index — when clients or staff ask neighborhood safety questions.</p>
+      </div>
+      <div class="cap-card" style="--accent:#0d9488;">
+        <h3>Policy &amp; Benefits Guidance</h3>
+        <p>Explains Medicaid expansion, SNAP rules, LIHEAP cycles, housing vouchers — in plain language a client who doesn't know where to start can follow.</p>
+      </div>
+      <div class="cap-card" style="--accent:#d97706;">
+        <h3>Foster Youth Support</h3>
+        <p>Knows TAY programs, Independent Living, housing supports for youth aging out — specific to NC's child welfare landscape.</p>
+      </div>
+    </div>
+
+    <div class="alert alert-blue">
+      <div class="alert-icon">🌐</div>
+      <div><strong>Embed it on ecsofnc.org.</strong> One script tag adds a "Get Help" chat button to your website. No API key required for the public widget. A site visitor can ask it anything and get a county-aware answer — in any of 107 languages.</div>
+    </div>
+  </div>
+
+  <!-- 6. EMBED PORTAL -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#ecfeff;">🌐</div>
+      <div>
+        <div class="section-title">Embed Portal — Four Tools on Your Website, One Snippet</div>
+        <div class="section-desc">Everything ThriveUp has for your clients, embedded as a branded overlay on ecsofnc.org. No partner key required.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px;">Paste one script tag before <code>&lt;/body&gt;</code> on your website. Visitors get a "Community Resources" button that opens a full-screen overlay with four tabs:</p>
+
+    <table class="use-table" style="margin-bottom:16px;">
+      <thead><tr><th>Tab</th><th>What the visitor sees</th></tr></thead>
+      <tbody>
+        <tr><td><strong>📖 Community Story</strong></td><td>Live data brief for their county — poverty rate, housing burden, what's available. Sourced, graded, readable by anyone.</td></tr>
+        <tr><td><strong>🤲 Get Help</strong></td><td>Benefits screener + resource finder + Navigator AI chat — all in one place, in their language.</td></tr>
+        <tr><td><strong>💰 Grants</strong></td><td>Active funding opportunities matched to the community's documented needs — useful for ECS staff who write grants.</td></tr>
+        <tr><td><strong>🤖 Navigator AI</strong></td><td>Full Navigator chat pre-loaded with their county context. Answers in 107 languages.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="code-block">
+      <span class="cm">&lt;!-- Paste before &lt;/body&gt; on any page of ecsofnc.org — no key required --&gt;</span><br/>
+      &lt;<span class="kw">script</span><br/>
+      &nbsp;&nbsp;src=<span class="str">"https://thrivingcommunitiesforall.com/embed/tcaf-widget.js"</span><br/>
+      &nbsp;&nbsp;data-tcaf-portal<br/>
+      &nbsp;&nbsp;data-location=<span class="str">"Columbus County, NC"</span><br/>
+      &nbsp;&nbsp;data-org=<span class="str">"Emergency Charitable Services of NC"</span><br/>
+      &nbsp;&nbsp;data-color=<span class="str">"#2d6a4f"</span><br/>
+      &gt;&lt;/<span class="kw">script</span>&gt;
+    </div>
+  </div>
+
+  <!-- 7. FOSTER YOUTH -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fdf4ff;">👦</div>
+      <div>
+        <div class="section-title">Foster Youth Referrals — Warm Handoffs That Close the Loop</div>
+        <div class="section-desc">Submit foster youth referrals through ThriveUp and track every touchpoint to outcome — HMIS-compatible, funder-reportable.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px;">When ECS serves a youth transitioning out of foster care, you can submit a structured referral to ThriveUp's Youth Homelessness System Initiative (YHSI) — and get back a secure intake record, tracked engagement milestones, and outcome data you can export for funder reporting.</p>
+
+    <ul class="action-list">
+      <li>
+        <div class="num">1</div>
+        <div><strong>Submit the referral</strong> — POST the youth's immediate needs, referring caseworker, and state code. Returns an <code>intakeId</code> and a secure <code>intakeUrl</code> — no youth PII exposed in any API response.</div>
+      </li>
+      <li>
+        <div class="num">2</div>
+        <div><strong>Touchpoints tracked automatically</strong> — first contact, warm handoff, meeting, and outcome are timestamped without manual logging on your end.</div>
+      </li>
+      <li>
+        <div class="num">3</div>
+        <div><strong>HMIS-compatible export</strong> — de-identified, consent-gated CSV export compatible with your HMIS reporting requirements. Floor-5 suppression protects small-cell counts per HUD guidance.</div>
+      </li>
+      <li>
+        <div class="num">4</div>
+        <div><strong>Outcome notifications</strong> — when the receiving org confirms housing, employment, or benefit enrollment, you receive a notification. The loop closes automatically without a follow-up phone call.</div>
+      </li>
+    </ul>
+
+    <div class="alert alert-green" style="margin-top:16px;">
+      <div class="alert-icon">✅</div>
+      <div><strong>Scope required:</strong> <span class="scope">inbound:write</span> — already on your partner key.</div>
+    </div>
+  </div>
+
+  <!-- 8. IMPACT REPORTING -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f0fdf4;">📈</div>
+      <div>
+        <div class="section-title">Impact Reporting — Tell Your Funders What You've Actually Changed</div>
+        <div class="section-desc">Aggregate outcomes, ROI modeling, and funder-safe narratives — not just activity counts.</div>
+      </div>
+    </div>
+
+    <div class="cap-grid" style="margin-bottom:16px;">
+      <div class="cap-card" style="--accent:#16a34a;">
+        <h3>Participants Served</h3>
+        <p>Aggregate count of individuals ECS has served through ThriveUp-connected programs — by county, by service type, by time period. Funder-safe, suppression-floored.</p>
+        <div class="tag" style="background:#f0fdf4;color:#166534;">GET /impact</div>
+      </div>
+      <div class="cap-card" style="--accent:#16a34a;">
+        <h3>Referral Outcomes</h3>
+        <p>How many referrals were sent, confirmed by the receiving org, and resulted in a documented benefit enrollment — tracked without PII.</p>
+        <div class="tag" style="background:#f0fdf4;color:#166534;">YHSI Reports</div>
+      </div>
+      <div class="cap-card" style="--accent:#7c3aed;">
+        <h3>Chainweb ROI Model</h3>
+        <p>Quantify the downstream value of ECS's interventions — housing stability prevents shelter costs, food assistance prevents ER visits. Real dollar ROI for funder narratives.</p>
+        <div class="tag" style="background:#f5f3ff;color:#4c1d95;">Chainweb API</div>
+      </div>
+      <div class="cap-card" style="--accent:#d97706;">
+        <h3>One-Click Funder Report</h3>
+        <p>Generate a formatted PDF combining community data, outcomes, and grant-matched evidence. Ready to attach to your next letter of intent.</p>
+        <div class="tag" style="background:#fffbeb;color:#92400e;">YHSI / Brief PDF</div>
+      </div>
+    </div>
+
+    <div class="alert alert-amber">
+      <div class="alert-icon">⚠️</div>
+      <div><strong>Known gap:</strong> The <code>medianEarnings</code> field in the impact endpoint currently returns null — ThriveUp is resolving this. All other outcome fields (participants served, referrals, confirmations, credentials) are live.</div>
+    </div>
+  </div>
+
+  <!-- 9. CHAINWEB ROI -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fdf4ff;">⛓️</div>
+      <div>
+        <div class="section-title">Chainweb — Prove the Dollar Value of What You Do</div>
+        <div class="section-desc">Causal modeling that translates ECS's interventions into prevented costs and net savings — in language county commissioners and foundations understand.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px;">Every intervention ECS makes has a downstream causal chain that prevents more expensive outcomes. Chainweb models those chains with peer-reviewed coefficients and returns a counterfactual: <em>what would have happened if ECS hadn't intervened?</em></p>
+
+    <table class="use-table">
+      <thead><tr><th>ECS Intervention</th><th>Downstream Cost Prevented</th><th>Chainweb Domain</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>Emergency rent assistance</strong></td>
+          <td>Prevented eviction → averted emergency shelter stays, child welfare involvement, school instability</td>
+          <td>Housing → Stability</td>
+        </tr>
+        <tr>
+          <td><strong>Utility assistance</strong></td>
+          <td>Prevented disconnection → averted hypothermia ER visits, food spoilage, health crisis</td>
+          <td>Health / Poverty</td>
+        </tr>
+        <tr>
+          <td><strong>Food assistance</strong></td>
+          <td>Prevented food insecurity → averted pediatric ER visits, cognitive impacts, school absences</td>
+          <td>Food → Health / Education</td>
+        </tr>
+        <tr>
+          <td><strong>Foster youth housing support</strong></td>
+          <td>Prevented youth homelessness → averted justice involvement, long-term dependency costs</td>
+          <td>Safety / Housing → Employment</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- 10. SAFETY INTELLIGENCE -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#fef2f2;">🔒</div>
+      <div>
+        <div class="section-title">Safety Intelligence — What the Data Says About Your Counties</div>
+        <div class="section-desc">County-level gun violence, community safety, and homicide data — so ECS can speak to the safety conditions their clients actually live in.</div>
+      </div>
+    </div>
+
+    <p style="font-size:14px;color:var(--gray-600);margin-bottom:16px;">Columbus County's 21.1% poverty rate is correlated with elevated community violence exposure. ThriveUp's safety intelligence layer pulls and interprets this data daily so ECS can:</p>
+
+    <ul style="font-size:14px;color:var(--gray-600);list-style:disc;padding-left:20px;display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+      <li>Answer a client who asks "is my neighborhood safe?" with grounded, sourced county data — not a guess or a deflection</li>
+      <li>Include safety context in community briefs and grant proposals without separate manual research</li>
+      <li>Demonstrate the connection between ECS's emergency assistance work and community safety outcomes to funders and county commissioners</li>
+      <li>Pull county-specific safety trends for advocacy presentations at Columbus County Commission meetings</li>
+    </ul>
+
+    <div class="alert alert-blue">
+      <div class="alert-icon">💬</div>
+      <div>The Navigator AI has direct access to the safety layer. When a client types "is Whiteville safe?" or a caseworker asks "what's the violence data for Columbus County?" — the Navigator answers with real, sourced county-level data. Not a generic response, not a redirect to Google.</div>
+    </div>
+  </div>
+
+  <!-- 11. GET STARTED -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-icon" style="background:#f0fdf4;">🚀</div>
+      <div>
+        <div class="section-title">Where to Start — Ordered by Effort and Immediate Impact</div>
+        <div class="section-desc">You don't have to do everything at once. This sequence gets ECS real value in the shortest time.</div>
+      </div>
+    </div>
+
+    <ul class="action-list">
+      <li>
+        <div class="num">1</div>
+        <div>
+          <strong>This week — Embed the portal on ecsofnc.org (30 minutes, zero cost)</strong>
+          Paste one script tag. Your site visitors immediately get a county-aware "Get Help" button with the benefits screener, resource finder, grants tab, and Navigator AI — branded to ECS's colors. No key required. Send the code snippet to your web contact today.
+        </div>
+      </li>
+      <li>
+        <div class="num">2</div>
+        <div>
+          <strong>This week — Pull a Community Story brief for your five counties</strong>
+          Use your partner key to call <code>/community-story</code> with your five-county location. Save the output — you'll find paragraphs ready to paste directly into your next grant application's "Statement of Need."
+        </div>
+      </li>
+      <li>
+        <div class="num">3</div>
+        <div>
+          <strong>Next intake — Use the benefits screener at first contact</strong>
+          When a client calls, hit <code>/benefits</code> to see what programs are active before the conversation ends — instead of calling back after you've checked your binder.
+        </div>
+      </li>
+      <li>
+        <div class="num">4</div>
+        <div>
+          <strong>Next foster youth case — Submit through the YHSI referral API</strong>
+          Every foster youth ECS serves can become a tracked, HMIS-compatible record with outcomes that close automatically and appear in your funder reports. Scope <span class="scope">inbound:write</span> is already on your key.
+        </div>
+      </li>
+      <li>
+        <div class="num">5</div>
+        <div>
+          <strong>Annual report season — Run the Chainweb ROI model on ECS's case volume</strong>
+          Before your next board meeting or funder presentation, quantify the downstream costs your work prevented. That number — in dollars — belongs in every annual report you write.
+        </div>
+      </li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <h3>Your Partner Credentials</h3>
+    <p><strong>Partner key:</strong> <code>tcaf_18f09f9b4…</code> (issued 2026-08-13)</p>
+    <p><strong>Active scopes:</strong> <code>benefits:read</code> &nbsp; <code>inbound:write</code> &nbsp; <code>community:read</code></p>
+    <p><strong>Base URL:</strong> <code>https://thrivingcommunitiesforall.com</code></p>
+    <p><strong>Integration wizard:</strong> <code>https://thrivingcommunitiesforall.com/agency-connector</code> — paste your mission, get copy-paste code for every endpoint in 60 seconds</p>
+    <p style="margin-top:12px;"><strong>Questions:</strong> terryflood@thrivingcommunitiesforall.com &nbsp;·&nbsp; Dr. Terry D. Flood, DHA &nbsp;·&nbsp; ThriveUp Academy / TCAF &nbsp;·&nbsp; EIN 41-3618003</p>
+  </div>
+
+</div>
+</body>
+</html>
