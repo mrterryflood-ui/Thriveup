@@ -12,7 +12,7 @@ import {
   CheckCircle2, Circle, ArrowRight, ArrowLeft, Zap, Eye,
   Code2, Copy, AlertTriangle, Globe, Users, TrendingUp,
   BookOpen, Shield, Send, Puzzle, RefreshCw, ChevronRight,
-  CheckSquare, Square,
+  CheckSquare, Square, Key, Mail,
 } from "lucide-react";
 
 // ── Types mirrored from the server ───────────────────────────────────────────
@@ -176,6 +176,11 @@ export default function AgencyConnectorPage() {
   // ── Step 4: Code ────────────────────────────────────────────────────────────
   const [code, setCode]           = useState<CodeResult | null>(null);
   const [generatingCode, setGeneratingCode] = useState(false);
+
+  // ── Step 4: Key request ─────────────────────────────────────────────────────
+  const [contactEmail, setContactEmail] = useState("");
+  const [requestingKey, setRequestingKey] = useState(false);
+  const [issuedKey, setIssuedKey]         = useState<string | null>(null);
 
   // ── Actions ─────────────────────────────────────────────────────────────────
   const analyzeMission = useCallback(async () => {
@@ -634,22 +639,99 @@ export default function AgencyConnectorPage() {
               <GapBanner gap={selectedRecs.find(r => r.gap)!.gap!} />
             )}
 
-            {/* Partner key request callout */}
-            <Card className="border-blue-200 bg-blue-50">
-              <CardContent className="pt-4 pb-4">
-                <div className="flex gap-3">
-                  <Shield className="h-5 w-5 text-blue-600 mt-0.5 shrink-0" />
-                  <div>
-                    <p className="text-sm font-semibold text-blue-800">Getting your partner key</p>
-                    <p className="text-xs text-blue-700 mt-0.5">
-                      Email <a href="mailto:terryflood@thrivingcommunitiesforall.com" className="underline">terryflood@thrivingcommunitiesforall.com</a> with
-                      your organisation name and the scopes you need (listed in the code below).
-                      ThriveUp will issue a <code className="bg-blue-100 px-0.5 rounded">tcaf_*</code> key and return it within 2 business days.
-                    </p>
+            {/* Partner key — self-service */}
+            {issuedKey ? (
+              <Card className="border-emerald-300 bg-emerald-50">
+                <CardContent className="pt-4 pb-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0" />
+                    <p className="text-sm font-semibold text-emerald-800">Your partner key is ready</p>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
+                  <p className="text-xs text-emerald-700">
+                    A copy has been emailed to <strong>{contactEmail}</strong>. Keep this key private — do not commit it to version control.
+                  </p>
+                  <div className="relative">
+                    <pre className="bg-white border border-emerald-200 rounded-lg px-4 py-3 text-sm font-mono text-gray-800 break-all pr-20">
+                      {issuedKey}
+                    </pre>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="absolute top-2 right-2 h-7 text-xs border-emerald-300 text-emerald-800 hover:bg-emerald-100"
+                      onClick={() => {
+                        navigator.clipboard.writeText(issuedKey);
+                        toast({ title: "Key copied!", description: "Paste it in place of YOUR_TCAF_PARTNER_KEY." });
+                      }}
+                    >
+                      <Copy className="h-3 w-3 mr-1" /> Copy
+                    </Button>
+                  </div>
+                  <p className="text-xs text-gray-500">
+                    Replace <code className="bg-gray-100 px-1 rounded">YOUR_TCAF_PARTNER_KEY</code> in the code below with this value.
+                  </p>
+                </CardContent>
+              </Card>
+            ) : (
+              <Card className="border-blue-200 bg-blue-50">
+                <CardContent className="pt-4 pb-4 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Key className="h-5 w-5 text-blue-600 shrink-0" />
+                    <p className="text-sm font-semibold text-blue-800">Get your partner key instantly</p>
+                  </div>
+                  <p className="text-xs text-blue-700">
+                    Enter your contact email and we'll generate a <code className="bg-blue-100 px-0.5 rounded">tcaf_*</code> key
+                    scoped to the endpoints you selected — no waiting, no back-and-forth.
+                  </p>
+                  <div className="flex gap-2">
+                    <div className="relative flex-1">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                      <Input
+                        type="email"
+                        placeholder="your@org.email"
+                        value={contactEmail}
+                        onChange={e => setContactEmail(e.target.value)}
+                        className="pl-9 bg-white border-blue-200 text-sm"
+                      />
+                    </div>
+                    <Button
+                      className="bg-blue-700 hover:bg-blue-800 shrink-0"
+                      disabled={requestingKey || !contactEmail.includes("@")}
+                      onClick={async () => {
+                        setRequestingKey(true);
+                        try {
+                          const res = await fetch("/api/agency-connector/request-key", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              orgName,
+                              orgEmail: contactEmail,
+                              orgType,
+                              location,
+                              endpointIds: [...selected],
+                              color: accentColor,
+                            }),
+                          });
+                          const data = await res.json();
+                          if (!res.ok) throw new Error(data.error || "Failed");
+                          setIssuedKey(data.key);
+                          toast({ title: "Key issued!", description: "Copy it above and paste into your code." });
+                        } catch (e: any) {
+                          toast({ title: "Could not issue key", description: e.message, variant: "destructive" });
+                        } finally {
+                          setRequestingKey(false);
+                        }
+                      }}
+                    >
+                      {requestingKey ? (
+                        <><RefreshCw className="h-4 w-4 mr-2 animate-spin" /> Issuing…</>
+                      ) : (
+                        <><Key className="h-4 w-4 mr-2" /> Get my key</>
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
             <Tabs defaultValue="javascript">
               <TabsList className="bg-gray-100">

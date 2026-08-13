@@ -11,7 +11,11 @@
  *   POST /api/agency-connector/code          → ready-to-paste code for chosen endpoints
  */
 
+import crypto from "crypto";
 import { Express, Request, Response } from "express";
+import { db } from "./storage";
+import { partnerApiKeys } from "@shared/schema";
+import { sendPartnerNotification } from "./email-service";
 
 // ── Endpoint catalogue ────────────────────────────────────────────────────────
 // Each entry describes one Partner API endpoint with signal keywords that
@@ -468,6 +472,91 @@ export function registerAgencyConnectorRoutes(app: Express) {
     const result = await previewEndpoint(endpointId, location);
     const gap = ep.gap || null;
     return res.json({ ...result, gap });
+  });
+
+  // POST /api/agency-connector/request-key — self-service key issuance
+  app.post("/api/agency-connector/request-key", async (req: Request, res: Response) => {
+    const { orgName, orgEmail, orgType, location, endpointIds = [], color } = req.body || {};
+    if (!orgName || typeof orgName !== "string") return res.status(400).json({ error: "orgName is required" });
+    if (!orgEmail || !orgEmail.includes("@")) return res.status(400).json({ error: "Valid orgEmail is required" });
+
+    // Derive scopes from selected endpoint IDs
+    const scopeSet = new Set<string>();
+    for (const id of endpointIds) {
+      const ep = PARTNER_ENDPOINTS.find(e => e.id === id);
+      if (ep) scopeSet.add(ep.scope);
+    }
+    if (scopeSet.size === 0) scopeSet.add("content:read");
+    const scopes = [...scopeSet];
+
+    // Generate key
+    const raw       = crypto.randomBytes(32).toString("hex");
+    const plaintext = `tcaf_${raw}`;
+    const prefix    = plaintext.slice(0, 14);
+    const hash      = crypto.createHash("sha256").update(plaintext).digest("hex");
+
+    // Insert into DB
+    try {
+      await db.insert(partnerApiKeys).values({
+        partnerName:  orgName,
+        partnerEmail: orgEmail,
+        keyHash:      hash,
+        keyPrefix:    prefix,
+        scopes,
+        notes: `Self-issued via Agency Connector. Type: ${orgType || "unknown"}. Location: ${location || "unknown"}. Issued ${new Date().toISOString().slice(0, 10)}.`,
+      });
+    } catch (err: any) {
+      console.error("[AgencyConnector] key insert failed:", err?.message || err);
+      return res.status(500).json({ error: "Failed to create partner key — please try again or contact ThriveUp." });
+    }
+
+    const endpointLabels = (endpointIds as string[])
+      .map(id => PARTNER_ENDPOINTS.find(e => e.id === id)?.label || id)
+      .join(", ") || "(none selected)";
+    const scopeList = scopes.join(", ");
+
+    // Email partner their key
+    await sendPartnerNotification(orgEmail, `Your ThriveUp Partner API Key — ${orgName}`, `
+      <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto">
+        <div style="background:#1d4ed8;padding:20px;border-radius:8px 8px 0 0">
+          <h2 style="color:white;margin:0">Your ThriveUp Partner API Key</h2>
+          <p style="color:#bfdbfe;margin:6px 0 0">Ready to integrate</p>
+        </div>
+        <div style="background:white;padding:24px;border:1px solid #e5e7eb;border-radius:0 0 8px 8px">
+          <p>Hi ${orgName} team,</p>
+          <p>Your ThriveUp Partner API key is ready. Replace <code>YOUR_TCAF_PARTNER_KEY</code> in your integration code with:</p>
+          <div style="background:#f3f4f6;border:1px solid #e5e7eb;border-radius:6px;padding:16px;margin:16px 0;font-family:monospace;font-size:15px;word-break:break-all">
+            ${plaintext}
+          </div>
+          <p><strong>Scopes:</strong> ${scopeList}</p>
+          <p><strong>Endpoints:</strong> ${endpointLabels}</p>
+          <p><strong>Base URL:</strong> <code>https://thrivingcommunitiesforall.com</code></p>
+          <p style="color:#dc2626;font-size:13px">⚠ Keep this key private. Do not commit it to version control or share it publicly. If compromised, email <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a> immediately to revoke it.</p>
+          <hr style="border:none;border-top:1px solid #e5e7eb;margin:20px 0"/>
+          <p style="color:#6b7280;font-size:13px">
+            Need help? <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a>
+          </p>
+          <p style="color:#9ca3af;font-size:12px">
+            ThriveUp Academy · The Collaborative Advocate Foundation · 501(c)(3) EIN 41-3618003
+          </p>
+        </div>
+      </div>
+    `);
+
+    // Notify Dr. Flood
+    await sendPartnerNotification("terryflood@thrivingcommunitiesforall.com",
+      `[AgencyConnector] New self-issued partner key — ${orgName}`, `
+      <p><strong>Org:</strong> ${orgName}</p>
+      <p><strong>Email:</strong> ${orgEmail}</p>
+      <p><strong>Type:</strong> ${orgType || "(not set)"}</p>
+      <p><strong>Location:</strong> ${location || "(not set)"}</p>
+      <p><strong>Scopes:</strong> ${scopeList}</p>
+      <p><strong>Endpoints:</strong> ${endpointLabels}</p>
+      <p><strong>Key prefix:</strong> <code>${prefix}</code></p>
+      <p style="color:#6b7280;font-size:12px">Issued automatically via the Agency Connector wizard at ${new Date().toISOString()}.</p>
+    `);
+
+    return res.json({ success: true, key: plaintext, prefix, scopes });
   });
 
   // POST /api/agency-connector/code
