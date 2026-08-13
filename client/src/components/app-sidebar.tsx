@@ -69,6 +69,7 @@ const getFundedItems: NavItem[] = [
   { title: "Live Grant Opportunities", url: "/grants", icon: Target },
   { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy, authOnly: true },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck, authOnly: true, adminOnly: true },
+  { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true },
   { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true },
   { title: "LOI Writer", url: "/loi-writer", icon: PenLine, authOnly: true },
