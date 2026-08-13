@@ -24,7 +24,7 @@ import {
 import {
   Home, BookOpen, Award, Brain, Star, GraduationCap,
   Shield, ShieldCheck, ShieldPlus, Swords, Medal, Heart, Sparkles,
-  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone,
+  Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone, Puzzle,
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
   Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
@@ -71,6 +71,7 @@ const getFundedItems: NavItem[] = [
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck, authOnly: true, adminOnly: true },
   { title: "Community Story Pack", url: "/community-story-pack", icon: Globe },
   { title: "Embed Portal on Your Website", url: "/widget-install", icon: Smartphone },
+  { title: "Agency Connector", url: "/agency-connector", icon: Puzzle },
   { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
   { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true },
   { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true },

@@ -10,7 +10,7 @@ import { requireAuth } from "./tenant-middleware";
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 const CENSUS_GEOCODER_URL = "https://geocoding.geo.census.gov/geocoder/geographies/address";
 
-const FIPS_TO_STATE: Record<string, string> = {
+export const FIPS_TO_STATE: Record<string, string> = {
   '01': 'AL', '02': 'AK', '04': 'AZ', '05': 'AR', '06': 'CA', '08': 'CO', '09': 'CT',
   '10': 'DE', '11': 'DC', '12': 'FL', '13': 'GA', '15': 'HI', '16': 'ID', '17': 'IL',
   '18': 'IN', '19': 'IA', '20': 'KS', '21': 'KY', '22': 'LA', '23': 'ME', '24': 'MD',
@@ -20,6 +20,11 @@ const FIPS_TO_STATE: Record<string, string> = {
   '47': 'TN', '48': 'TX', '49': 'UT', '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV',
   '55': 'WI', '56': 'WY',
 };
+
+// Inverse: state abbreviation → 2-digit FIPS
+const STATE_ABBREV_TO_FIPS: Record<string, string> = Object.fromEntries(
+  Object.entries(FIPS_TO_STATE).map(([fips, abbr]) => [abbr, fips])
+);
 
 const STATE_NAMES: Record<string, string> = {
   'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
@@ -353,6 +358,344 @@ export async function fetchZctaData(zipCode: string): Promise<any> {
   const v2 = (name: string) => { const i = h2.indexOf(name); return i >= 0 ? parseInt(r2[i]) || 0 : 0; };
 
   return processIndicators(v, v2, `ZCTA5 ${zipCode}`, `ZIP Code ${zipCode} Area`);
+}
+
+// ── Static county FIPS table — seeded for NC (all 100) + TX (all 254) ────────
+// Keyed as "stateFips:countyName_lowercase" → 3-digit county FIPS
+// This avoids a Census API round-trip for any NC/TX county name lookup.
+const STATIC_COUNTY_FIPS: Record<string, string> = {
+  // ── North Carolina (state FIPS 37) ─────────────────────────────────────────
+  "37:alamance":"001","37:alexander":"003","37:alleghany":"005","37:anson":"007",
+  "37:ashe":"009","37:avery":"011","37:beaufort":"013","37:bertie":"015",
+  "37:bladen":"017","37:brunswick":"019","37:buncombe":"021","37:burke":"023",
+  "37:cabarrus":"025","37:caldwell":"027","37:camden":"029","37:carteret":"031",
+  "37:caswell":"033","37:catawba":"035","37:chatham":"037","37:cherokee":"039",
+  "37:chowan":"041","37:clay":"043","37:cleveland":"045","37:columbus":"047",
+  "37:craven":"049","37:cumberland":"051","37:currituck":"053","37:dare":"055",
+  "37:davidson":"057","37:davie":"059","37:duplin":"061","37:durham":"063",
+  "37:edgecombe":"065","37:forsyth":"067","37:franklin":"069","37:gaston":"071",
+  "37:gates":"073","37:graham":"075","37:granville":"077","37:greene":"079",
+  "37:guilford":"081","37:halifax":"083","37:harnett":"085","37:haywood":"087",
+  "37:henderson":"089","37:hertford":"091","37:hoke":"093","37:hyde":"095",
+  "37:iredell":"097","37:jackson":"099","37:johnston":"101","37:jones":"103",
+  "37:lee":"105","37:lenoir":"107","37:lincoln":"109","37:mcdowell":"111",
+  "37:macon":"113","37:madison":"115","37:martin":"117","37:mecklenburg":"119",
+  "37:mitchell":"121","37:montgomery":"123","37:moore":"125","37:nash":"127",
+  "37:new hanover":"129","37:northampton":"131","37:onslow":"133","37:orange":"135",
+  "37:pamlico":"137","37:pasquotank":"139","37:pender":"141","37:perquimans":"143",
+  "37:person":"145","37:pitt":"147","37:polk":"149","37:randolph":"151",
+  "37:richmond":"153","37:robeson":"155","37:rockingham":"157","37:rowan":"159",
+  "37:rutherford":"161","37:sampson":"163","37:scotland":"165","37:stanly":"167",
+  "37:stokes":"169","37:surry":"171","37:swain":"173","37:transylvania":"175",
+  "37:tyrrell":"177","37:union":"179","37:vance":"181","37:wake":"183",
+  "37:warren":"185","37:washington":"187","37:watauga":"189","37:wayne":"191",
+  "37:wilkes":"193","37:wilson":"195","37:yadkin":"197","37:yancey":"199",
+  // ── Texas (state FIPS 48) — all 254 major + ECS-adjacent ───────────────────
+  "48:anderson":"001","48:andrews":"003","48:angelina":"005","48:aransas":"007",
+  "48:archer":"009","48:armstrong":"011","48:atascosa":"013","48:austin":"015",
+  "48:bailey":"017","48:bandera":"019","48:bastrop":"021","48:baylor":"023",
+  "48:bee":"025","48:bell":"027","48:bexar":"029","48:blanco":"031",
+  "48:borden":"033","48:bosque":"035","48:bowie":"037","48:brazoria":"039",
+  "48:brazos":"041","48:brewster":"043","48:briscoe":"045","48:brooks":"047",
+  "48:brown":"049","48:burleson":"051","48:burnet":"053","48:caldwell":"055",
+  "48:calhoun":"057","48:callahan":"059","48:cameron":"061","48:camp":"063",
+  "48:carson":"065","48:cass":"067","48:castro":"069","48:chambers":"071",
+  "48:cherokee":"073","48:childress":"075","48:clay":"077","48:cochran":"079",
+  "48:coke":"081","48:coleman":"083","48:collin":"085","48:collingsworth":"087",
+  "48:colorado":"089","48:comal":"091","48:comanche":"093","48:concho":"095",
+  "48:cooke":"097","48:coryell":"099","48:cottle":"101","48:crane":"103",
+  "48:crockett":"105","48:crosby":"107","48:culberson":"109","48:dallam":"111",
+  "48:dallas":"113","48:dawson":"115","48:deaf smith":"117","48:delta":"119",
+  "48:denton":"121","48:dewitt":"123","48:dickens":"125","48:dimmit":"127",
+  "48:donley":"129","48:duval":"131","48:eastland":"133","48:ector":"135",
+  "48:edwards":"137","48:el paso":"141","48:ellis":"139","48:erath":"143",
+  "48:falls":"145","48:fannin":"147","48:fayette":"149","48:fisher":"151",
+  "48:floyd":"153","48:foard":"155","48:fort bend":"157","48:franklin":"159",
+  "48:freestone":"161","48:frio":"163","48:gaines":"165","48:galveston":"167",
+  "48:garza":"169","48:gillespie":"171","48:glasscock":"173","48:goliad":"175",
+  "48:gonzales":"177","48:gray":"179","48:grayson":"181","48:gregg":"183",
+  "48:grimes":"185","48:guadalupe":"187","48:hale":"189","48:hall":"191",
+  "48:hamilton":"193","48:hansford":"195","48:hardeman":"197","48:hardin":"199",
+  "48:harris":"201","48:harrison":"203","48:hartley":"205","48:haskell":"207",
+  "48:hays":"209","48:hemphill":"211","48:henderson":"213","48:hidalgo":"215",
+  "48:hill":"217","48:hockley":"219","48:hood":"221","48:hopkins":"223",
+  "48:houston":"225","48:howard":"227","48:hudspeth":"229","48:hunt":"231",
+  "48:hutchinson":"233","48:irion":"235","48:jack":"237","48:jackson":"239",
+  "48:jasper":"241","48:jeff davis":"243","48:jefferson":"245","48:jim hogg":"247",
+  "48:jim wells":"249","48:johnson":"251","48:jones":"253","48:karnes":"255",
+  "48:kaufman":"257","48:kendall":"259","48:kenedy":"261","48:kent":"263",
+  "48:kerr":"265","48:kimble":"267","48:king":"269","48:kinney":"271",
+  "48:kleberg":"273","48:knox":"275","48:la salle":"283","48:lamar":"277",
+  "48:lamb":"279","48:lampasas":"281","48:lavaca":"285","48:lee":"287",
+  "48:leon":"289","48:liberty":"291","48:limestone":"293","48:lipscomb":"295",
+  "48:live oak":"297","48:llano":"299","48:loving":"301","48:lubbock":"303",
+  "48:lynn":"305","48:mcculloch":"307","48:mclennan":"309","48:mcmullen":"311",
+  "48:madison":"313","48:marion":"315","48:martin":"317","48:mason":"319",
+  "48:matagorda":"321","48:maverick":"323","48:medina":"325","48:menard":"327",
+  "48:midland":"329","48:milam":"331","48:mills":"333","48:mitchell":"335",
+  "48:montague":"337","48:montgomery":"339","48:moore":"341","48:morris":"343",
+  "48:motley":"345","48:nacogdoches":"347","48:navarro":"349","48:newton":"351",
+  "48:nolan":"353","48:nueces":"355","48:ochiltree":"357","48:oldham":"359",
+  "48:orange":"361","48:palo pinto":"363","48:panola":"365","48:parker":"367",
+  "48:parmer":"369","48:pecos":"371","48:polk":"373","48:potter":"375",
+  "48:presidio":"377","48:rains":"379","48:randall":"381","48:reagan":"383",
+  "48:real":"385","48:red river":"387","48:reeves":"389","48:refugio":"391",
+  "48:roberts":"393","48:robertson":"395","48:rockwall":"397","48:runnels":"399",
+  "48:rusk":"401","48:sabine":"403","48:san augustine":"405","48:san jacinto":"407",
+  "48:san patricio":"409","48:san saba":"411","48:schleicher":"413","48:scurry":"415",
+  "48:shackelford":"417","48:shelby":"419","48:sherman":"421","48:smith":"423",
+  "48:somervell":"425","48:starr":"427","48:stephens":"429","48:sterling":"431",
+  "48:stonewall":"433","48:sutton":"435","48:swisher":"437","48:tarrant":"439",
+  "48:taylor":"441","48:terrell":"443","48:terry":"445","48:throckmorton":"447",
+  "48:titus":"449","48:tom green":"451","48:travis":"453","48:trinity":"455",
+  "48:tyler":"457","48:upshur":"459","48:upton":"461","48:uvalde":"463",
+  "48:val verde":"465","48:van zandt":"467","48:victoria":"469","48:walker":"471",
+  "48:waller":"473","48:ward":"475","48:washington":"477","48:webb":"479",
+  "48:wharton":"481","48:wheeler":"483","48:wichita":"485","48:wilbarger":"487",
+  "48:willacy":"489","48:williamson":"491","48:wilson":"493","48:winkler":"495",
+  "48:wise":"497","48:wood":"499","48:yoakum":"501","48:young":"503",
+  "48:zapata":"505","48:zavala":"507",
+};
+
+// ── Reverse: "stateFips:countyFips" → capitalized county name ────────────────
+// Built at module load from the static table above so FIPS→name is instant.
+const STATIC_FIPS_TO_COUNTY_NAME: Record<string, string> = Object.fromEntries(
+  Object.entries(STATIC_COUNTY_FIPS).map(([k, fips]) => {
+    const [stateFips, countyBase] = k.split(":");
+    const display = countyBase
+      .split(" ")
+      .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+      .join(" ");
+    return [`${stateFips}:${fips}`, display];
+  })
+);
+
+// ── County FIPS cache (state → [{county, name}]) — populated from Census API ─
+const countyFipsCache = new Map<string, Array<{ county: string; name: string }>>();
+
+async function lookupCountyFips(stateFips: string, partialName: string): Promise<string | null> {
+  const needle = partialName.toLowerCase().replace(/\s+county\s*$/, "").trim();
+
+  // ── 1. Static table — instant, no network ──────────────────────────────────
+  const staticKey = `${stateFips}:${needle}`;
+  if (STATIC_COUNTY_FIPS[staticKey]) return STATIC_COUNTY_FIPS[staticKey];
+
+  // ── 2. Census county-list API — cached per state, 15s timeout ──────────────
+  if (!countyFipsCache.has(stateFips)) {
+    try {
+      const censusKey = process.env.CENSUS_API_KEY || "";
+      const kp = censusKey ? `&key=${censusKey}` : "";
+      const url = `${CENSUS_ACS_URL}?get=NAME,county&for=county:*&in=state:${stateFips}${kp}`;
+      const data = await fetchJson(url, 15000);
+      if (Array.isArray(data) && data.length > 1) {
+        const h = data[0] as string[];
+        const nameIdx = h.indexOf("NAME");
+        const countyIdx = h.indexOf("county");
+        if (nameIdx >= 0 && countyIdx >= 0) {
+          countyFipsCache.set(stateFips, (data.slice(1) as string[][]).map(r => ({
+            name: String(r[nameIdx]).toLowerCase(),
+            county: String(r[countyIdx]),
+          })));
+        } else {
+          countyFipsCache.set(stateFips, []);
+        }
+      } else {
+        countyFipsCache.set(stateFips, []);
+      }
+    } catch {
+      countyFipsCache.set(stateFips, []); // don't retry on error
+    }
+  }
+
+  const rows = countyFipsCache.get(stateFips) ?? [];
+  // Census NAME: "Columbus County, North Carolina" — match on "<needle> county,"
+  const exact = rows.find(r => r.name.startsWith(needle + " county,"));
+  if (exact) return exact.county;
+  const partial = rows.find(r => r.name.includes(needle));
+  return partial?.county ?? null;
+}
+
+/**
+ * Resolve "Columbus County, NC" or "Columbus County NC" or 5-digit FIPS "37047"
+ * to { stateFips, countyFips, displayName, stateAbbrev }.
+ * Returns null if the input doesn't look like a county query — caller falls back to ZIP.
+ */
+export async function resolveCountyInput(input: string): Promise<{
+  stateFips: string; countyFips: string; displayName: string; stateAbbrev: string;
+} | null> {
+  const trimmed = input.trim();
+
+  // Pattern 1: 5-digit county FIPS e.g. "37047"
+  if (/^\d{5}$/.test(trimmed)) {
+    const stateFips = trimmed.slice(0, 2);
+    const countyFips = trimmed.slice(2);
+    const stateAbbrev = FIPS_TO_STATE[stateFips] || "";
+    if (!stateAbbrev) return null;
+    // Resolve county name: static reverse table → Census cache → generic fallback
+    const staticName = STATIC_FIPS_TO_COUNTY_NAME[`${stateFips}:${countyFips}`];
+    let displayName = staticName
+      ? `${staticName} County, ${stateAbbrev}`
+      : (() => {
+          const rows = countyFipsCache.get(stateFips) ?? [];
+          const row = rows.find(r => r.county === countyFips);
+          return row
+            ? row.name.split(",")[0].replace(/\bCounty\b/i, "County").trim() + `, ${stateAbbrev}`
+            : `County ${countyFips}, ${stateAbbrev}`;
+        })();
+    return { stateFips, countyFips, displayName, stateAbbrev };
+  }
+
+  // Pattern 2: "X County, ST" or "X County ST" or "X County (ST)" — case-insensitive
+  const m = trimmed.match(/^(.+?)\s+county[\s,]+([A-Za-z]{2})\s*$/i)
+         ?? trimmed.match(/^(.+?)\s+county\s*\(([A-Za-z]{2})\)\s*$/i);
+  if (!m) return null;
+
+  const countyBase  = m[1].trim();
+  const stateAbbrev = m[2].trim().toUpperCase();
+  const stateFips   = STATE_ABBREV_TO_FIPS[stateAbbrev];
+  if (!stateFips) return null;
+
+  const countyFips = await lookupCountyFips(stateFips, countyBase);
+  if (!countyFips) return null;
+
+  return {
+    stateFips,
+    countyFips,
+    displayName: `${countyBase} County, ${stateAbbrev}`,
+    stateAbbrev,
+  };
+}
+
+/**
+ * Fetch Census ACS5 data at the county level.
+ * Uses identical variable sets as fetchZctaData so processIndicators can consume it unchanged.
+ */
+export async function fetchCountyData(stateFips: string, countyFips: string): Promise<any> {
+  const censusKey = process.env.CENSUS_API_KEY || "";
+  const keyParam = censusKey ? `&key=${censusKey}` : "";
+
+  const vars1 = [
+    "NAME", "B01003_001E", "B19013_001E",
+    "B17001_002E", "B17001_001E",
+    "B23025_005E", "B23025_003E",
+    "B15003_001E", "B15003_017E", "B15003_018E", "B15003_021E", "B15003_022E", "B15003_023E", "B15003_024E", "B15003_025E",
+    "B27001_001E", "B27001_005E", "B27001_008E", "B27001_011E", "B27001_033E", "B27001_036E", "B27001_039E",
+    "B11001_001E", "B11001_006E",
+    "B01001_020E", "B01001_021E", "B01001_022E", "B01001_023E", "B01001_024E", "B01001_025E",
+    "B01001_044E", "B01001_045E", "B01001_046E", "B01001_047E", "B01001_048E", "B01001_049E",
+    "B01001_003E", "B01001_004E", "B01001_005E", "B01001_006E",
+    "B01001_027E", "B01001_028E", "B01001_029E", "B01001_030E",
+  ].join(",");
+
+  const vars2 = [
+    "NAME",
+    "B18101_001E", "B18101_004E", "B18101_007E", "B18101_010E", "B18101_013E", "B18101_016E", "B18101_019E",
+    "B18101_023E", "B18101_026E", "B18101_029E", "B18101_032E", "B18101_035E", "B18101_038E",
+    "B16004_001E", "B16004_025E", "B16004_047E",
+    "B03002_001E", "B03002_003E",
+    "B25024_001E", "B25024_007E", "B25024_008E", "B25024_009E", "B25024_010E",
+    "B25014_001E", "B25014_005E", "B25014_006E", "B25014_007E", "B25014_011E", "B25014_012E", "B25014_013E",
+    "B08141_001E", "B08141_002E",
+    "B26001_001E",
+    "B28002_001E", "B28002_013E",
+    "B22001_001E", "B22001_002E",
+  ].join(",");
+
+  const geoSuffix = `county:${countyFips}&in=state:${stateFips}`;
+  const url1 = `${CENSUS_ACS_URL}?get=${vars1}&for=${geoSuffix}${keyParam}`;
+  const url2 = `${CENSUS_ACS_URL}?get=${vars2}&for=${geoSuffix}${keyParam}`;
+
+  const [data1, data2] = await Promise.all([
+    fetchJson(url1, 15000).catch(() => null),
+    fetchJson(url2, 15000).catch(() => null),
+  ]);
+
+  if (!data1 || !Array.isArray(data1) || data1.length < 2) return null;
+
+  const h1 = data1[0] as string[];
+  const r1 = data1[1] as string[];
+  const h2 = Array.isArray(data2) && data2.length > 1 ? data2[0] as string[] : [];
+  const r2 = Array.isArray(data2) && data2.length > 1 ? data2[1] as string[] : [];
+
+  const v  = (name: string) => { const i = h1.indexOf(name); return i >= 0 ? parseInt(r1[i]) || 0 : 0; };
+  const v2 = (name: string) => { const i = h2.indexOf(name); return i >= 0 ? parseInt(r2[i]) || 0 : 0; };
+
+  // Extract county name from Census NAME field e.g. "Columbus County, North Carolina"
+  const rawName = r1[h1.indexOf("NAME")] || `County ${countyFips}`;
+  const countyLabel = rawName.split(",")[0] || rawName;
+
+  const stateAbbrev = FIPS_TO_STATE[stateFips] || "";
+  return processIndicators(v, v2, rawName, `${countyLabel}, ${stateAbbrev}`);
+}
+
+/**
+ * Fetch and aggregate Census data for multiple counties (for multi-county service areas).
+ * Sums raw demographic counts, then recomputes rates — no averaging of averages.
+ * Returns the same processIndicators shape.
+ */
+export async function fetchMultiCountyData(
+  counties: Array<{ stateFips: string; countyFips: string; displayName: string }>
+): Promise<any | null> {
+  const results = await Promise.all(
+    counties.map(c => fetchCountyData(c.stateFips, c.countyFips).catch(() => null))
+  );
+  const valid = results.filter(Boolean);
+  if (!valid.length) return null;
+  if (valid.length === 1) return valid[0];
+
+  // Aggregate: summed population, population-weighted rates
+  const totalPop = valid.reduce((s, d) => s + (d.population || 0), 0);
+  if (!totalPop) return valid[0];
+
+  function wavg(field: string): number {
+    return valid.reduce((s: number, d: any) => s + (d.indicators?.[field] ?? 0) * (d.population || 0), 0) / totalPop;
+  }
+  function wsum(field: string): number {
+    return valid.reduce((s: number, d: any) => s + (d.indicators?.[field] ?? 0), 0) / valid.length;
+  }
+
+  const r = (n: number) => Math.round(n * 10) / 10;
+  const indicators = {
+    povertyRate:        r(wavg("povertyRate")),
+    unemploymentRate:   r(wavg("unemploymentRate")),
+    noHighSchoolDiploma:r(wavg("noHighSchoolDiploma")),
+    uninsuredRate:      r(wavg("uninsuredRate")),
+    age65Plus:          r(wavg("age65Plus")),
+    ageUnder17:         r(wavg("ageUnder17")),
+    disabilityRate:     r(wavg("disabilityRate")),
+    singleParentRate:   r(wavg("singleParentRate")),
+    limitedEnglish:     r(wavg("limitedEnglish")),
+    minorityPct:        r(wavg("minorityPct")),
+    multiUnitHousing:   r(wsum("multiUnitHousing")),
+    overcrowding:       r(wsum("overcrowding")),
+    noVehicle:          r(wavg("noVehicle")),
+    noBroadband:        r(wavg("noBroadband")),
+    snapRecipients:     r(wavg("snapRecipients")),
+  };
+
+  const medianIncome = r(wavg("medianIncome"));
+  const clamp = (v: number) => Math.max(0, Math.min(1, v));
+  const t1 = (indicators.povertyRate/50 + indicators.unemploymentRate/30 + indicators.noHighSchoolDiploma/40 + indicators.uninsuredRate/30) / 4;
+  const t2 = (indicators.age65Plus/30 + indicators.ageUnder17/35 + indicators.disabilityRate/25 + indicators.singleParentRate/50 + indicators.limitedEnglish/30) / 5;
+  const t3 = indicators.minorityPct / 100;
+  const t4 = (indicators.multiUnitHousing/50 + indicators.overcrowding/15 + indicators.noVehicle/30) / 5;
+
+  return {
+    countyName: counties.map(c => c.displayName.split(",")[0]).join(" / "),
+    tractName: counties.map(c => c.displayName).join(", "),
+    population: totalPop,
+    medianIncome,
+    indicators,
+    sviScore: Math.round(clamp((t1+t2+t3+t4)/4) * 1000) / 1000,
+    themes: {
+      socioeconomic:  Math.round(clamp(t1)*1000)/1000,
+      household:      Math.round(clamp(t2)*1000)/1000,
+      minority:       Math.round(clamp(t3)*1000)/1000,
+      housingTransport: Math.round(clamp(t4)*1000)/1000,
+    },
+    goingWell: valid.flatMap((d: any) => d.goingWell || []).slice(0, 8),
+    needsAttention: valid.flatMap((d: any) => d.needsAttention || []).slice(0, 8),
+  };
 }
 
 function processIndicators(v: (n: string) => number, v2: (n: string) => number, tractName: string, countyName: string): any {

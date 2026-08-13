@@ -15,6 +15,10 @@ import {
   zipToGeography,
   fetchZctaData,
   fetchNeighborhoodData,
+  resolveCountyInput,
+  fetchCountyData,
+  fetchMultiCountyData,
+  FIPS_TO_STATE as CONDUCTOR_FIPS_TO_STATE,
 } from "./neighborhood-routes";
 import {
   EVIDENCE_PROGRAMS,
@@ -1126,50 +1130,132 @@ export function registerConductorRoutes(app: Express) {
         }
       }
 
-      // Step 1: Resolve geography
-      const resolved = await resolveLocationToZip(location.trim());
-      if (!resolved) {
-        return res.status(404).json({
-          error: `Could not find a location for "${location}". Try a ZIP code (e.g. 78741) or city name (e.g. "Austin, TX").`,
-        });
-      }
+      // Step 1: Resolve geography — county-aware path, then ZIP fallback
+      //
+      // Priority order (doctrine C1 — scope must match actual service area):
+      //   1. Pipe-separated multi-county   "Columbus County, NC|Brunswick County, NC|…"
+      //   2. Single county name / FIPS     "Columbus County, NC" or "37047"
+      //   3. ZIP code                      "28472"
+      //   4. City, State                   "Whiteville, NC" (normalised if comma-less)
+      //
+      // A county or multi-county query goes directly to county-level Census ACS —
+      // it NEVER gets downsampled to a single ZIP (which would fabricate scope).
 
-      const { zip, displayName } = resolved;
-
-      // Step 2: Fetch Census data
       let censusData: any = null;
-      let stateName = "";
-      let countyName = "";
-      let stateFips = "";
+      let displayName = location.trim();
+      let countyName  = "";
+      let stateName   = "";
+      let stateFips   = "";
+      let zip         = "";
+      let isCountyLevel = false;
 
-      // Fail loudly on Census failure rather than fabricating national-average
-      // demographics and presenting them as this community's real data.
-      try {
-        const geo = await zipToGeography(zip);
-        if (geo && !geo.isZcta && geo.stateFips && geo.countyFips && geo.tractFips) {
-          stateFips = geo.stateFips || "";
-          censusData = await fetchNeighborhoodData(geo.stateFips, geo.countyFips, geo.tractFips);
-          countyName = geo.countyName || "";
+      const rawInput = location.trim();
+
+      // ── 1a: Multi-county (pipe-separated) ────────────────────────────────
+      if (rawInput.includes("|")) {
+        const parts = rawInput.split("|").map(s => s.trim()).filter(Boolean);
+        const resolved = await Promise.all(parts.map(p => resolveCountyInput(p)));
+        const counties = resolved.filter(Boolean) as Array<{ stateFips: string; countyFips: string; displayName: string; stateAbbrev: string }>;
+        if (!counties.length) {
+          return res.status(404).json({
+            error: `Could not resolve any counties in "${rawInput}". Use format "Columbus County, NC|Brunswick County, NC".`,
+          });
+        }
+        try {
+          censusData = await fetchMultiCountyData(counties);
+        } catch (err) {
+          console.error("[Conductor] Multi-county Census fetch failed:", err);
         }
         if (!censusData) {
-          censusData = await fetchZctaData(zip);
+          return res.status(502).json({
+            error: `Census data unavailable for the specified counties. Please try again shortly.`,
+          });
         }
-      } catch (err) {
-        console.error(`[Conductor] Census fetch failed for ${zip}:`, err);
-        return res.status(502).json({
-          error: `Census data is currently unavailable for ${displayName} (${zip}). The community brief cannot be generated without real demographic data. Please try again shortly.`,
-        });
+        isCountyLevel = true;
+        displayName = counties.map(c => c.displayName.split(",")[0]).join(" / ") + ", " + counties[0].stateAbbrev;
+        countyName  = displayName;
+        stateName   = counties[0].stateAbbrev;
+        stateFips   = counties[0].stateFips;
+
+      // ── 1b: Single county name or 5-digit county FIPS ────────────────────
+      } else {
+        const countyResolved = await resolveCountyInput(rawInput);
+        if (countyResolved) {
+          try {
+            censusData = await fetchCountyData(countyResolved.stateFips, countyResolved.countyFips);
+          } catch (err) {
+            console.error("[Conductor] County Census fetch failed:", err);
+          }
+          if (!censusData) {
+            return res.status(502).json({
+              error: `Census data unavailable for "${rawInput}". The county exists but Census ACS data could not be retrieved. Please try again shortly.`,
+            });
+          }
+          isCountyLevel = true;
+          displayName = countyResolved.displayName;
+          countyName  = countyResolved.displayName;
+          stateName   = countyResolved.stateAbbrev;
+          stateFips   = countyResolved.stateFips;
+        }
+      }
+
+      // ── 1c: ZIP / city fallback (if not a county query) ──────────────────
+      if (!isCountyLevel) {
+        // Normalise "City ST" (no comma) → "City, ST" so city resolver picks it up
+        const normalised = rawInput.replace(/^([A-Za-z\s]+)\s+([A-Z]{2})$/, "$1, $2");
+
+        const resolved = await resolveLocationToZip(normalised);
+        if (!resolved) {
+          return res.status(404).json({
+            error: `Could not find a location for "${rawInput}". ` +
+              `Try a ZIP code (e.g. 28472), a county name (e.g. "Columbus County, NC"), ` +
+              `or a city name (e.g. "Whiteville, NC").`,
+          });
+        }
+        zip = resolved.zip;
+        displayName = resolved.displayName && resolved.displayName.length < 100
+          ? resolved.displayName : rawInput;
+
+        // Fail loudly on Census failure
+        try {
+          const geo = await zipToGeography(zip);
+          if (geo && !geo.isZcta && geo.stateFips && geo.countyFips && geo.tractFips) {
+            stateFips  = geo.stateFips;
+            countyName = geo.countyName || "";
+            censusData = await fetchNeighborhoodData(geo.stateFips, geo.countyFips, geo.tractFips);
+          }
+          if (!censusData) {
+            censusData = await fetchZctaData(zip);
+          }
+        } catch (err) {
+          console.error(`[Conductor] Census fetch failed for ${zip}:`, err);
+          return res.status(502).json({
+            error: `Census data is currently unavailable for ${displayName}. ` +
+              `The community brief cannot be generated without real demographic data. Please try again shortly.`,
+          });
+        }
+
+        if (!censusData?.indicators || censusData.indicators.povertyRate == null) {
+          return res.status(502).json({
+            error: `No Census demographic data returned for ${displayName} (${zip}). ` +
+              `We will not generate a brief from fabricated figures. Verify the location and try again.`,
+          });
+        }
+
+        // Derive state from FIPS (authoritative) — never from Nominatim display_name string
+        if (stateFips) {
+          stateName = CONDUCTOR_FIPS_TO_STATE[stateFips] || "";
+        }
+        if (!countyName) countyName = censusData?.countyName || displayName;
       }
 
       if (!censusData?.indicators || censusData.indicators.povertyRate == null) {
         return res.status(502).json({
-          error: `No Census demographic data returned for ${displayName} (${zip}). We will not generate a brief from fabricated figures. Verify the location and try again.`,
+          error: `No Census demographic data returned for ${displayName}. We will not generate a brief from fabricated figures.`,
         });
       }
 
-      // Step 3: Build indicators from real Census data. Only genuinely optional
-      // secondary indicators fall back to Census national medians; the core
-      // indicators above are required and validated to exist.
+      // Step 2 (was Step 3): Build indicators from real Census data.
       const ci = censusData.indicators;
       const ind = {
         povertyRate: ci.povertyRate,
@@ -1186,12 +1272,6 @@ export function registerConductorRoutes(app: Express) {
       };
 
       const totalPop = Math.max(ind.totalPopulation, populationSize);
-
-      // Try to extract state from displayName
-      const stateMatch = displayName.match(/,\s*([A-Z]{2})\s*\d{5}$/) ||
-        displayName.match(/,\s*([A-Za-z ]+)$/);
-      stateName = stateMatch?.[1]?.trim() || "";
-      if (!countyName) countyName = censusData?.countyName || displayName;
 
       const demographics = {
         totalPopulation: totalPop,

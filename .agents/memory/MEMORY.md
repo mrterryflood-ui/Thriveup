@@ -40,6 +40,7 @@
 - [Research Data Pipeline](research-data-pipeline.md) — cohort thread (SHA-256 hash, floor-5 suppression), outcome→grant scoring, one-click PDF report; drizzle-kit needs TTY so use raw SQL for new tables.
 - [Canvas-wire trial gate E2E pattern](canvas-wire-trial-gate.md) — wait for settled state (active OR expired) before asserting active; server-side trial API is slow during boot; 15s timeout not enough.
 - [Member Health Engagement Engine](member-health-engine.md) — 8 tables, 27 HEDIS measures seeded at boot, 3 entry paths, email-first outreach; page at /member-health; apiRequest call sites must use meGet/mePost/mePatch helpers (method is first arg, returns Response not JSON).
+- [County-level Census resolution](county-resolution.md) — county names / FIPS / multi-county pipe lists route DIRECTLY to ACS county endpoint; never downsampled to ZIP; static NC+TX table = instant FIPS lookup with no network hop.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.

@@ -131,6 +131,7 @@ import { registerCollegeAccessAIRoutes } from "./college-access-ai-routes";
 import { registerNeighborhoodRoutes } from "./neighborhood-routes";
 import { registerExportPdfRoutes } from "./export-pdf-routes";
 import { registerCommunityStoryRoutes } from "./community-story-routes";
+import { registerAgencyConnectorRoutes } from "./agency-connector-routes";
 import { registerBriefShareRoutes } from "./brief-share-routes";
 import { registerCorridorRoutes } from "./corridor-story";
 import { registerNetworkRoutes } from "./network-routes";
@@ -585,6 +586,7 @@ export async function registerRoutes(
   registerProviderDiscoveryRoutes(app);
   registerExportPdfRoutes(app);
   registerCommunityStoryRoutes(app);
+  registerAgencyConnectorRoutes(app);
   registerBriefShareRoutes(app);
   registerSafePassageRoutes(app);
   registerEcosystemIntelRoutes(app);
