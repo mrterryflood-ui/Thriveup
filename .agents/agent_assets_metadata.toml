@@ -756,3 +756,10 @@ uri = "file://ecs-thrive-briefing.html"
 type = "text"
 title = "ECS of NC — ThriveUp Platform Briefing"
 description = "Full capability briefing for Karen Flood and ECS of NC — every data feed, AI tool, and integration available for their five-county NC service area."
+
+[[outputs]]
+id = "qy2fhlGREtY2xkzltcJyN"
+uri = "file://attached_assets/Partner-Dashboard-Implementation-Bundle.txt"
+type = "text"
+title = "Partner Dashboard Implementation Bundle"
+description = "One upload-ready file containing the current dashboard source, public share view, landing page, server routes, schema/routing integration instructions, E2E check, and explicit security gaps to reconcile before ECS merges it."
