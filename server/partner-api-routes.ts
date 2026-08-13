@@ -1087,6 +1087,64 @@ export function registerPartnerApiRoutes(app: Express) {
     }
   });
 
+  // ── Community story pack (community:read) — full packaged story ──────────
+  // GET /api/partner/v1/community-story?location=28472&orgName=ECS
+  // Returns combined community brief + grant intelligence in one call.
+  // Rate limit: 10/hour per key (heavier than brief alone due to grant conduit call).
+  const storyHits = new Map<string, number[]>();
+  function checkStoryRateLimit(keyId: string): boolean {
+    const now = Date.now();
+    const cutoff = now - 60 * 60 * 1000;
+    const hits = (storyHits.get(keyId) || []).filter((t) => t > cutoff);
+    if (hits.length >= 10) { storyHits.set(keyId, hits); return false; }
+    hits.push(now); storyHits.set(keyId, hits); return true;
+  }
+
+  app.get("/api/partner/v1/community-story", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
+    try {
+      const key: any = (req as any).partnerKey;
+      const keyId: string = String(key.id ?? "");
+      if (!checkStoryRateLimit(keyId)) {
+        return res.status(429).json({ error: "Rate limit exceeded: 10 community story packs per hour per partner key." });
+      }
+      const location = (req.query.location as string || "").trim();
+      if (!location) return res.status(400).json({ error: "location query param is required" });
+
+      const port = process.env.PORT || "5000";
+      const packRes = await fetch(`http://localhost:${port}/api/community-story/pack`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          location,
+          orgName: req.query.orgName ? String(req.query.orgName) : undefined,
+          orgType: req.query.orgType ? String(req.query.orgType) : "nonprofit",
+          includeGrantData: req.query.includeGrantData !== "false",
+        }),
+      });
+      if (!packRes.ok) {
+        const errBody = await packRes.text().catch(() => "");
+        return res.status(packRes.status === 404 ? 404 : 502).json({ error: `Story pack failed: ${errBody.slice(0, 200)}` });
+      }
+      const story = await packRes.json() as Record<string, unknown>;
+      // Strip any rplice block — partner keys get aggregate data only
+      const brief = (story.brief as Record<string, unknown>) ?? {};
+      const { rplice: _r, ...publicBrief } = brief as any;
+      res.json({
+        ...story,
+        brief: publicBrief,
+        partnerNote: "Community Story Pack via TCAF Partner API. RPLICE internal block excluded. Embed at /community-story/{shareId} after calling POST /api/community-story/share.",
+        embedInstructions: {
+          step1: `POST /api/community-story/share with body { location: '${location}' } to get a shareId and embedCode`,
+          step2: "Paste the embedCode <iframe> on your website or grant portal",
+          step3: "The embed shows live community data for 30 days",
+        },
+      });
+    } catch (err) {
+      console.error("[PartnerAPI] community-story failed:", err);
+      res.status(500).json({ error: "Community story pack request failed." });
+    }
+  });
+
   // ── Community brief subscriptions (community:read) ───────────────────────
 
   app.post("/api/partner/v1/community-brief/subscribe", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
