@@ -979,6 +979,11 @@ export default function ChwDashboardPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-semibold text-sm truncate">{resource.name}</h4>
+                        {!isLiveResources && (
+                          <Badge variant="outline" className="text-[10px] shrink-0 border-amber-400 text-amber-700 dark:text-amber-400" data-testid={`badge-demo-${resource.id}`}>
+                            Demo
+                          </Badge>
+                        )}
                         {resource.acceptingClients ? (
                           <Badge className="text-[10px] bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300 shrink-0">Accepting</Badge>
                         ) : (
@@ -994,12 +999,22 @@ export default function ChwDashboardPage() {
                         </div>
                         <div className="flex items-center gap-1">
                           <Phone className="h-3 w-3 shrink-0" />
-                          {/* tel: link lets CHWs call directly from their phone — Task #164 */}
-                          <a
-                            href={`tel:${resource.phone.replace(/\D/g, "")}`}
-                            className="hover:text-teal-600 hover:underline"
-                            data-testid={`link-phone-${resource.id}`}
-                          >{resource.phone}</a>
+                          {/* tel: link lets CHWs call directly from their phone — Task #164.
+                              Demo/sample records use reserved 555-01xx numbers that are never
+                              dialable; block the tap and explain instead of silently failing. */}
+                          {isLiveResources ? (
+                            <a
+                              href={`tel:${resource.phone.replace(/\D/g, "")}`}
+                              className="hover:text-teal-600 hover:underline"
+                              data-testid={`link-phone-${resource.id}`}
+                            >{resource.phone}</a>
+                          ) : (
+                            <span
+                              className="text-muted-foreground/70 cursor-not-allowed"
+                              title="Demo record — this number is a non-dialable placeholder, not a real organization contact."
+                              data-testid={`text-demo-phone-${resource.id}`}
+                            >{resource.phone} (demo — not callable)</span>
+                          )}
                         </div>
                         <div className="flex items-center gap-1">
                           <Clock className="h-3 w-3 shrink-0" />

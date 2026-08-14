@@ -2110,17 +2110,32 @@ export function registerNeighborhoodRoutes(app: Express) {
       emailRateLimit.set(ip, now);
 
       const sanitize = (s: string) => String(s || "").replace(/[<>]/g, "").substring(0, 500);
-      const safeProfile = {
-        ...profile,
-        neighborhoodName: sanitize(profile.neighborhoodName),
-        countyName: sanitize(profile.countyName),
-        stateName: sanitize(profile.stateName),
-        tractName: sanitize(profile.tractName),
+      // Recursively strip <>, on every string field (including nested arrays/objects
+      // like goingWell/needsAttention items with detail/solution text), not just the
+      // four top-level fields — an unsanitized nested field is interpolated directly
+      // into the outbound HTML email and would otherwise allow HTML injection.
+      const deepSanitize = (val: any): any => {
+        if (typeof val === "string") return sanitize(val);
+        if (Array.isArray(val)) return val.map(deepSanitize);
+        if (val && typeof val === "object") {
+          const out: Record<string, any> = {};
+          for (const [k, v] of Object.entries(val)) out[k] = deepSanitize(v);
+          return out;
+        }
+        return val;
       };
+      const safeProfile = deepSanitize(profile);
 
       const { sendNeighborhoodReport } = await import("./email-service");
       const sent = await sendNeighborhoodReport(safeProfile, recipientEmail);
-      res.json({ sent, message: sent ? "Report emailed successfully." : "Email delivery pending." });
+      // Report the real outcome — do not let the client assume success when
+      // Resend failed or is unavailable; a logged-in user must be told
+      // truthfully whether the email actually went out.
+      if (sent) {
+        res.json({ sent: true, message: "Report emailed successfully." });
+      } else {
+        res.status(502).json({ sent: false, message: "Email delivery failed. Please try again or download the PDF instead." });
+      }
     } catch (err) {
       console.error("Email error:", err);
       res.json({ sent: false, message: "Email service currently unavailable. Please download the PDF instead." });

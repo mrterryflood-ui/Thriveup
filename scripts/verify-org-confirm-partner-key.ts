@@ -87,6 +87,7 @@ async function run() {
   let createdId: string | undefined;
   let keyMatchId: string | undefined;
   let keyMismatchId: string | undefined;
+  let r2Id: string | undefined;
 
   try {
     // ── Insert two test partner keys directly in the DB ──────────────────────
@@ -228,7 +229,7 @@ async function run() {
       .insert(referrals)
       .values({ programCode: "SNAP", orgName: TARGET_ORG })
       .returning({ id: referrals.id });
-    const r2Id = r2.id;
+    r2Id = r2.id;
 
     const patch3Res = await fetch(`${BASE}/api/referrals/${r2Id}/outcome`, {
       method: "PATCH",
@@ -239,8 +240,10 @@ async function run() {
       body: JSON.stringify({ status: "enrolled" }),
     });
 
-    // Cleanup the second referral row regardless of result.
+    // Cleanup the second referral row now (success path); the outer finally
+    // also covers r2Id so a thrown exception before this point still cleans it up.
     await db.delete(referrals).where(eq(referrals.id, r2Id)).catch(() => {});
+    r2Id = undefined;
 
     if (patch3Res.status !== 403) {
       const body = await patch3Res.text();

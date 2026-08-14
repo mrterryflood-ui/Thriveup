@@ -53,51 +53,61 @@ async function main() {
     .values({ programCode: "SNAP", orgName: "Verify Script Org" })
     .returning();
   const referralId = seeded.id;
-  const orgToken = seeded.orgConfirmToken;
-  assert(!!orgToken, "seeded referral has an orgConfirmToken");
 
-  // ── (2) Org confirm: expect status update + default value applied ─────────
-  console.log("\n[2] POST /api/referrals/org-confirm/:orgToken");
-  const confirmRes = await fetch(`${BASE}/api/referrals/org-confirm/${orgToken}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: "enrolled" }),
-  });
-  assert(confirmRes.status === 200, `org-confirm returned 200 (got ${confirmRes.status})`);
-  const confirmBody: any = await confirmRes.json();
-  assert(confirmBody.status === "enrolled", "status updated to 'enrolled'");
-  assert(confirmBody.benefitValueEstimate > 0, `default value applied (${confirmBody.benefitValueEstimate})`);
-  assert(confirmBody.valueSource === "default", "valueSource === 'default'");
-
-  // Verify persistence + immutability on a second confirm attempt.
-  const [row] = await db.select().from(referrals).where(eq(referrals.id, referralId));
-  assert(row.status === "enrolled" && !!row.resolvedAt, "referral row persisted as resolved");
-
-  const secondConfirm = await fetch(`${BASE}/api/referrals/org-confirm/${orgToken}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ status: "withdrew" }),
-  });
-  assert(secondConfirm.status === 409, `second confirm rejected as immutable 409 (got ${secondConfirm.status})`);
-
-  // ── (3) Dispatcher with zero subscribers resolves without throwing ────────
-  console.log("\n[3] fireWebhook() with zero subscribers");
-  let threw = false;
+  // From this point on, a referral row exists in the DB. Wrap everything in
+  // try/finally so a mid-run crash (assertion failure, network error, thrown
+  // exception) still deletes it instead of leaving it orphaned for the
+  // auth-e2e gate to accumulate across runs.
   try {
-    fireWebhook("referral.created", { referralId: "unit-test", note: "zero-subscriber check" });
-    fireWebhook("referral.outcome", { referralId: "unit-test", status: "enrolled" });
-  } catch (e) {
-    threw = true;
+    const orgToken = seeded.orgConfirmToken;
+    assert(!!orgToken, "seeded referral has an orgConfirmToken");
+
+    // ── (2) Org confirm: expect status update + default value applied ───────
+    console.log("\n[2] POST /api/referrals/org-confirm/:orgToken");
+    const confirmRes = await fetch(`${BASE}/api/referrals/org-confirm/${orgToken}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "enrolled" }),
+    });
+    assert(confirmRes.status === 200, `org-confirm returned 200 (got ${confirmRes.status})`);
+    const confirmBody: any = await confirmRes.json();
+    assert(confirmBody.status === "enrolled", "status updated to 'enrolled'");
+    assert(confirmBody.benefitValueEstimate > 0, `default value applied (${confirmBody.benefitValueEstimate})`);
+    assert(confirmBody.valueSource === "default", "valueSource === 'default'");
+
+    // Verify persistence + immutability on a second confirm attempt.
+    const [row] = await db.select().from(referrals).where(eq(referrals.id, referralId));
+    assert(row.status === "enrolled" && !!row.resolvedAt, "referral row persisted as resolved");
+
+    const secondConfirm = await fetch(`${BASE}/api/referrals/org-confirm/${orgToken}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ status: "withdrew" }),
+    });
+    assert(secondConfirm.status === 409, `second confirm rejected as immutable 409 (got ${secondConfirm.status})`);
+
+    // ── (3) Dispatcher with zero subscribers resolves without throwing ──────
+    console.log("\n[3] fireWebhook() with zero subscribers");
+    let threw = false;
+    try {
+      fireWebhook("referral.created", { referralId: "unit-test", note: "zero-subscriber check" });
+      fireWebhook("referral.outcome", { referralId: "unit-test", status: "enrolled" });
+    } catch (e) {
+      threw = true;
+    }
+    assert(!threw, "fireWebhook did not throw synchronously");
+    // Give the background async task a moment to complete its clean no-op.
+    await new Promise((r) => setTimeout(r, 500));
+    assert(true, "background dispatch resolved without unhandled rejection");
+
+    console.log("\n✅ All referral webhook verification checks passed.");
+  } finally {
+    try {
+      await db.delete(referrals).where(eq(referrals.id, referralId));
+    } catch (cleanupErr) {
+      console.error(`⚠️  Failed to clean up test referral ${referralId}:`, cleanupErr);
+    }
   }
-  assert(!threw, "fireWebhook did not throw synchronously");
-  // Give the background async task a moment to complete its clean no-op.
-  await new Promise((r) => setTimeout(r, 500));
-  assert(true, "background dispatch resolved without unhandled rejection");
-
-  // Cleanup the verify-created row.
-  await db.delete(referrals).where(eq(referrals.id, referralId));
-
-  console.log("\n✅ All referral webhook verification checks passed.");
   process.exit(0);
 }
 

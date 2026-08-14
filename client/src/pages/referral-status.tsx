@@ -102,7 +102,15 @@ export default function ReferralStatusPage() {
       return res.json();
     },
     enabled: !!token,
-    staleTime: 2 * 60 * 1000,
+    // This page is often left open by a client waiting on a partner org's
+    // decision. Poll and refetch aggressively so a status change (partner
+    // confirms/updates the referral) shows up without the client needing to
+    // manually reload — a stale badge here is the exact failure this page
+    // exists to prevent.
+    staleTime: 15 * 1000,
+    refetchInterval: 15 * 1000,
+    refetchOnWindowFocus: true,
+    refetchOnMount: "always",
   });
 
   return (

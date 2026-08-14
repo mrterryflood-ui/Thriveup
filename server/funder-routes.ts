@@ -132,6 +132,10 @@ funderRouter.get("/:token/dashboard", async (req, res) => {
         // (org confirmed without a dollar estimate). Sums are unaffected — the
         // default value is already stored on the row — this is transparency only.
         defaultsUsed: sql<number>`count(*) filter (where status = 'enrolled' and value_source = 'default')::int`,
+        // Distinguishes "enrolled with $0 of estimated value" (real, unusual)
+        // from "enrolled but no dollar estimate exists yet" (the common case,
+        // which must never render as a misleading literal $0 to a funder).
+        estimatedCount: sql<number>`count(*) filter (where status = 'enrolled' and benefit_value_estimate is not null)::int`,
       })
       .from(referrals)
       .where(where);
@@ -143,6 +147,7 @@ funderRouter.get("/:token/dashboard", async (req, res) => {
       pending: agg.pending,
       valueUnlocked: agg.valueUnlocked,
       defaultsUsed: agg.defaultsUsed,
+      estimatedCount: agg.estimatedCount,
       enrollmentRate: agg.totalReferrals > 0
         ? Math.round((agg.enrolled / agg.totalReferrals) * 100)
         : 0,
@@ -156,6 +161,7 @@ funderRouter.get("/:token/dashboard", async (req, res) => {
         enrolled: sql<number>`count(*) filter (where status = 'enrolled')::int`,
         lost: sql<number>`count(*) filter (where status in ('ineligible','withdrew'))::int`,
         value: sql<number>`coalesce(sum(benefit_value_estimate) filter (where status = 'enrolled'), 0)::int`,
+        estimatedCount: sql<number>`count(*) filter (where status = 'enrolled' and benefit_value_estimate is not null)::int`,
       })
       .from(referrals)
       .where(where)

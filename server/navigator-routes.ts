@@ -333,6 +333,33 @@ Your responses should feel like a conversation with a knowledgeable friend, not 
 If they haven't told you their city or state, ask — it makes your resource recommendations dramatically more useful. When they do share their location, acknowledge it and tailor everything to that geography. The [AVAILABLE RESOURCES] and [GIS DATA] blocks in your context contain locally-matched programs — reference them by name and explain what they do. For anything local you don't have data for, 211 (call or text, works in every state 24/7) and findhelp.org (search any ZIP) are the two universal bridges to local help.`;
 
 
+const GV_KEYWORDS = [
+  "gun", "shooting", "shot", "gunshot", "firearm", "weapon",
+  "homicide", "murder", "killed", "fatality", "fatal",
+  "violence", "violent crime", "mass shooting", "drive.by",
+  "community safety", "neighborhood safety", "public safety",
+  "ace", "adverse childhood", "trauma informed",
+];
+
+// Cheap, regex-only detection reused both to decide whether to inject the
+// gun-violence dataset into the AI context (assembleContext) and, separately,
+// by the route handler to build the "Continue in Tell-a-Story" carry-over
+// link (#216) without needing assembleContext to leak its internals.
+function detectGunViolenceContext(userMessage: string): { injected: boolean; geography: string | null; state: string | null } {
+  const lowerMsg = userMessage.toLowerCase();
+  const injected = GV_KEYWORDS.some(kw => lowerMsg.includes(kw));
+  if (!injected) return { injected: false, geography: null, state: null };
+
+  const locationMatch = userMessage.match(/(?:zip\s*(?:code)?\s*|in\s+|near\s+|around\s+)(\d{5})/i)
+    || userMessage.match(/\b(\d{5})\b/);
+  const stateMatch = userMessage.match(/\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\s+Hampshire|New\s+Jersey|New\s+Mexico|New\s+York|North\s+Carolina|North\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\s+Island|South\s+Carolina|South\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\s+Virginia|Wisconsin|Wyoming)\b/i)
+    || userMessage.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/);
+  const cityMatch = userMessage.match(/\b(?:in|near|from|at|I(?:'m| am) in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/);
+  const detectedCity = cityMatch ? cityMatch[1] : null;
+  const geography = locationMatch?.[1] || [detectedCity, stateMatch?.[1]].filter(Boolean).join(", ") || null;
+  return { injected: true, geography: geography || null, state: stateMatch?.[1] || null };
+}
+
 async function assembleContext(req: Request, userMessage: string): Promise<string> {
   const contextParts: string[] = [];
   const userId = getUserId(req);
@@ -418,15 +445,8 @@ When discussing workforce, grants, or economic development — align TCAF progra
   // When the query touches violence, safety, shootings, homicide, or related
   // topics, surface the full CDC/FBI/NCVS/ACE/RPLICE dataset so the Navigator
   // can give a grounded, evidence-based answer instead of a generic one.
-  const GV_KEYWORDS = [
-    "gun", "shooting", "shot", "gunshot", "firearm", "weapon",
-    "homicide", "murder", "killed", "fatality", "fatal",
-    "violence", "violent crime", "mass shooting", "drive.by",
-    "community safety", "neighborhood safety", "public safety",
-    "ace", "adverse childhood", "trauma informed",
-  ];
-  const lowerMsg = userMessage.toLowerCase();
-  if (GV_KEYWORDS.some(kw => lowerMsg.includes(kw))) {
+  const gvDetection = detectGunViolenceContext(userMessage);
+  if (gvDetection.injected) {
     try {
       const intel = await getGunViolenceIntelligenceData().catch(() => null);
       if (intel) {
@@ -746,6 +766,10 @@ export function registerNavigatorRoutes(app: Express) {
     }
 
     const contextData = await assembleContext(req, message);
+    // Recompute (cheap, regex-only) in this handler's scope so the "Continue
+    // in Tell-a-Story" carry-over (#216) can reference it — assembleContext's
+    // internal detection variables are local to that function.
+    const gunViolenceContext = detectGunViolenceContext(message);
 
     // Inject response-depth instructions based on user's selected mode
     const RESPONSE_MODE_INSTRUCTIONS: Record<string, string> = {
@@ -1068,7 +1092,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           }
           // Always send deepThinkJobId (per-request UUID) so both authenticated
           // and anonymous users can poll for the DeepSeek R1 result.
-          res.write(`data: ${JSON.stringify({ done: true, deepThinkJobId, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
+          res.write(`data: ${JSON.stringify({ done: true, deepThinkJobId, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
           res.end();
         },
         onError: async (error) => {
@@ -1093,7 +1117,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
               }
               res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
-              res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
+              res.write(`data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
               res.end();
             } else {
               // No OR key — last-resort waterfall (slow but better than nothing)
@@ -1102,7 +1126,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 onChunk: (content) => { res.write(`data: ${JSON.stringify({ content })}\n\n`); },
                 onDone: () => {
                   res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
-                  res.write(`data: ${JSON.stringify({ done: true, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
+                  res.write(`data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
                   res.end();
                 },
                 onError: (err) => { console.error("[navigator] stream error:", err); res.end();

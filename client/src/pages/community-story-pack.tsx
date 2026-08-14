@@ -11,7 +11,7 @@
  * ECS, El Buen Samaritano, any org: fill in your geography, hit Generate.
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -196,6 +196,12 @@ export default function CommunityStoryPackPage() {
   });
 
   // ── PDF download ────────────────────────────────────────────────────────────
+  // Some mobile browsers (iOS Safari in certain contexts, in-app webviews like
+  // Instagram/Facebook browser) silently ignore a synthetic <a download> click
+  // or block window.open(). We keep the generated blob URL around and surface
+  // a persistent, tappable fallback link so the report is never unreachable —
+  // the user can manually open/save it even if the automatic download didn't fire.
+  const [pdfFallbackUrl, setPdfFallbackUrl] = useState<{ url: string; filename: string } | null>(null);
   const pdfMutation = useMutation({
     mutationFn: async () => {
       const res = await fetch("/api/community-story/pdf", {
@@ -213,15 +219,30 @@ export default function CommunityStoryPackPage() {
       if (!res.ok) throw new Error("PDF generation failed");
       const blob = await res.blob();
       const url = URL.createObjectURL(blob);
+      const geo = story?.brief?.geography;
+      const filename = `community-story-${(geo?.displayName ?? location).replace(/[^a-z0-9]/gi, "-").slice(0, 50)}.pdf`;
       const a = document.createElement("a");
       a.href = url;
-      const geo = story?.brief?.geography;
-      a.download = `community-story-${(geo?.displayName ?? location).replace(/[^a-z0-9]/gi, "-").slice(0, 50)}.pdf`;
+      a.download = filename;
       a.click();
-      URL.revokeObjectURL(url);
+      // Don't revoke immediately — some mobile browsers process the download
+      // asynchronously and a too-early revoke breaks it. Keep the URL alive
+      // and offer a manual fallback link; revoke once the user navigates away
+      // or triggers another export.
+      setPdfFallbackUrl((prev) => {
+        if (prev) URL.revokeObjectURL(prev.url);
+        return { url, filename };
+      });
     },
-    onError: () => toast({ title: "PDF failed", variant: "destructive" }),
+    onError: () => toast({ title: "PDF failed", description: "Could not generate the PDF. Please try again.", variant: "destructive" }),
   });
+
+  useEffect(() => {
+    return () => {
+      if (pdfFallbackUrl) URL.revokeObjectURL(pdfFallbackUrl.url);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // ── Presentation download ───────────────────────────────────────────────────
   const presentMutation = useMutation({
@@ -429,6 +450,18 @@ export default function CommunityStoryPackPage() {
                   <Download className="h-4 w-4 mr-2 text-primary" />
                   {pdfMutation.isPending ? "Generating PDF…" : "Download PDF Report"}
                 </Button>
+                {pdfFallbackUrl && (
+                  <a
+                    href={pdfFallbackUrl.url}
+                    download={pdfFallbackUrl.filename}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs text-muted-foreground underline underline-offset-2 px-1"
+                    data-testid="link-pdf-fallback"
+                  >
+                    PDF generated — if the download didn't start automatically, tap here to open it
+                  </a>
+                )}
                 <Button
                   variant="outline"
                   className="w-full justify-start"

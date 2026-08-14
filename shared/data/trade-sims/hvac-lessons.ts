@@ -391,9 +391,9 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Place a Heat Pump rated at 10.5 kW heating, COP 3.5, and serve a 6 kW house.",
-        hint: "Block load 6 kW means equipment is sized fine at design.",
-        checkDescription: "1 heat pump + zones totaling ~6 kW load at design",
+        instruction: "Place a Heat Pump rated at 10.5 kW (≈35,800 BTU/h) heating, COP 3.5, and serve a 6 kW (≈20,500 BTU/h) house.",
+        hint: "Block load 6 kW (≈20,500 BTU/h) means equipment is sized fine at design.",
+        checkDescription: "1 heat pump + zones totaling ~6 kW (≈20,500 BTU/h) load at design",
       },
       {
         instruction: "Run at ambient −5 °C (23°F). Verify load < capacity, no warnings.",
@@ -736,14 +736,14 @@ export const HVAC_LESSONS: HvacLessonContent[] = [
         checkDescription: "load reduced by ≥ 35 %",
       },
       {
-        instruction: "Now downsize the heat pump from 14 kW to 7 kW. Confirm no Undersized warning at the post-retrofit envelope.",
+        instruction: "Now downsize the heat pump from 14 kW (≈47,800 BTU/h) to 7 kW (≈23,900 BTU/h). Confirm no Undersized warning at the post-retrofit envelope.",
         hint: "Right-sizing IS the retrofit.",
         checkDescription: "no Undersized warning at design",
       },
     ],
     soloChallenge: {
-      prompt: "Convert a 4-ton AC + 80 kBTU furnace to a single 3-ton cold-climate heat pump. Show that envelope upgrades make the math work for an 11 kW design load → 8 kW post-retrofit.",
-      successCriteria: "Final design: heat pump 8.5–9.5 kW, no warnings.",
+      prompt: "Convert a 4-ton AC + 80 kBTU furnace to a single 3-ton cold-climate heat pump. Show that envelope upgrades make the math work for an 11 kW (≈37,500 BTU/h) design load → 8 kW (≈27,300 BTU/h) post-retrofit.",
+      successCriteria: "Final design: heat pump 8.5–9.5 kW (≈29,000–32,400 BTU/h), no warnings.",
       scoringRubric: { correctness: 0.7, time: 0.2, componentCount: 0.1 },
     },
     sandboxStarter: {

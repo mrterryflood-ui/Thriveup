@@ -37,6 +37,26 @@ async function cleanup() {
 
 async function main() {
   await cleanup();
+  let server: Server | undefined;
+  try {
+    server = await run();
+  } finally {
+    // Always clean up seeded rows, even if an assertion or request throws
+    // mid-run, so this script can never orphan cap-guard-test-* rows for
+    // the auth-e2e gate to accumulate across crashed runs.
+    try {
+      server?.close();
+    } catch {
+      // server may not have started yet; ignore.
+    }
+    await cleanup();
+  }
+
+  console.log(`\n${passed} passed, ${failed} failed`);
+  if (failed > 0) process.exit(1);
+}
+
+async function run(): Promise<Server> {
   await db.insert(academyAvatars).values({ userId: STAFF_ID, displayName: "cap guard staff", role: "case_manager" });
 
   const now = new Date();

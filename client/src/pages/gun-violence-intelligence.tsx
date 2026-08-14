@@ -6,7 +6,7 @@
  * NCVS 1993–present, WISQARS, root causes, social determinants, policy DID,
  * RPLICE causal chains) and merges with local incident registry.
  */
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -76,12 +76,19 @@ function ChartSkeleton() {
 // ── Main page ─────────────────────────────────────────────────────────────────
 export default function GunViolenceIntelligence() {
   const { toast } = useToast();
-  const [storyGeo, setStoryGeo] = useState("");
-  const [storyState, setStoryState] = useState("");
+  // A CHW may arrive here via the Navigator's "Continue in Tell-a-Story" link
+  // (?tab=story&geo=...&state=...) after already asking about neighborhood
+  // safety — carry that context in so they don't have to re-enter it or ask twice.
+  const initialParams = typeof window !== "undefined" ? new URLSearchParams(window.location.search) : null;
+  const initialTab = initialParams?.get("tab") === "story" ? "story" : "arc";
+  const [activeTab, setActiveTab] = useState(initialTab);
+  const [storyGeo, setStoryGeo] = useState(initialParams?.get("geo") ?? "");
+  const [storyState, setStoryState] = useState(initialParams?.get("state") ?? "");
   const [storyFocus, setStoryFocus] = useState("");
   const [incidentFilter, setIncidentFilter] = useState("");
   const [incidentStateFilter, setIncidentStateFilter] = useState("all");
   const [generatedStory, setGeneratedStory] = useState<any>(null);
+  const autoStoryRequested = useRef(false);
 
   const { data, isLoading, error, refetch } = useQuery<IntelData>({
     queryKey: ["/api/gun-violence/intelligence"],
@@ -114,6 +121,16 @@ export default function GunViolenceIntelligence() {
     },
     onError: () => toast({ title: "Story generation failed", variant: "destructive" }),
   });
+
+  // Auto-generate the story once when arriving with a carried-over geography
+  // so the CHW lands on a populated report instead of an empty form.
+  useEffect(() => {
+    if (!autoStoryRequested.current && initialTab === "story" && storyGeo) {
+      autoStoryRequested.current = true;
+      storyMutation.mutate();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (error) {
     return (
@@ -204,7 +221,7 @@ export default function GunViolenceIntelligence() {
       )}
 
       {/* ── Main tabs ── */}
-      <Tabs defaultValue="arc" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList className="flex flex-wrap h-auto gap-1 bg-muted p-1 rounded-xl">
           <TabsTrigger value="arc" className="text-xs rounded-lg"><TrendingDown className="h-3.5 w-3.5 mr-1" />The Long Arc</TabsTrigger>
           <TabsTrigger value="roots" className="text-xs rounded-lg"><Activity className="h-3.5 w-3.5 mr-1" />Root Causes</TabsTrigger>

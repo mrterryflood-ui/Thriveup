@@ -31,6 +31,7 @@ interface NavigatorMessage {
   grantResults?: HuntGrant[];
   grantOrgName?: string;
   totalFound?: number;
+  gunViolenceContext?: { geography?: string | null; state?: string | null } | null;
 }
 
 interface NavigatorConversation {
@@ -786,6 +787,15 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
 
               if (parsed.done) {
                 refetchConversations();
+                if (parsed.gunViolenceContext) {
+                  setMessages(prev => {
+                    const updated = [...prev];
+                    if (updated[assistantIdx]) {
+                      updated[assistantIdx] = { ...updated[assistantIdx], gunViolenceContext: parsed.gunViolenceContext };
+                    }
+                    return updated;
+                  });
+                }
                 const jobId: string | undefined = parsed.deepThinkJobId;
                 if (jobId) {
                   // Phase 1 SSE closed — start polling for DeepSeek R1 result.
@@ -1101,6 +1111,18 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                         </div>
                         {msg.role === "assistant" && msg.grantResults && msg.grantResults.length > 0 && (
                           <GrantResultCards grants={msg.grantResults} orgName={msg.grantOrgName || ""} totalFound={msg.totalFound || 0} isAuthenticated={isAuthenticated} />
+                        )}
+                        {msg.role === "assistant" && msg.gunViolenceContext && (msg.gunViolenceContext.geography || msg.gunViolenceContext.state) && (
+                          <div className="ml-11 mt-1.5">
+                            <a
+                              href={`/gun-violence-intelligence?tab=story${msg.gunViolenceContext.geography ? `&geo=${encodeURIComponent(msg.gunViolenceContext.geography)}` : ""}${msg.gunViolenceContext.state ? `&state=${encodeURIComponent(msg.gunViolenceContext.state)}` : ""}`}
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg px-3 py-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
+                              data-testid={`link-continue-in-story-${idx}`}
+                            >
+                              <Sparkles className="h-3.5 w-3.5" />
+                              Continue in Tell-a-Story — see the full grounded report for this area
+                            </a>
+                          </div>
                         )}
                         {msg.role === "assistant" && msg.content && (
                           <div className="ml-11 mt-1.5 flex items-center gap-1">

@@ -31,6 +31,7 @@ interface DashboardData {
     pending: number;
     valueUnlocked: number;
     defaultsUsed?: number;
+    estimatedCount?: number;
     enrollmentRate: number;
   };
   byProgram: {
@@ -242,11 +243,16 @@ export default function FunderDashboardPage() {
             },
             {
               label: "Est. Annual Value",
-              value: `$${(metrics.valueUnlocked || 0).toLocaleString()}`,
+              value:
+                metrics.enrolled > 0 && (metrics.estimatedCount ?? 0) === 0
+                  ? "Not yet estimated"
+                  : `$${(metrics.valueUnlocked || 0).toLocaleString()}`,
               icon: <DollarSign className="h-5 w-5 text-emerald-400" />,
               color: "text-emerald-700 dark:text-emerald-300",
               note:
-                (metrics.defaultsUsed ?? 0) > 0
+                metrics.enrolled > 0 && (metrics.estimatedCount ?? 0) === 0
+                  ? "enrollments confirmed, no dollar estimate recorded yet"
+                  : (metrics.defaultsUsed ?? 0) > 0
                   ? `estimated · ${metrics.defaultsUsed} enrollment${metrics.defaultsUsed === 1 ? "" : "s"} using program-default values`
                   : "estimated",
             },
