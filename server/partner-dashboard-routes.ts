@@ -21,6 +21,7 @@ import { partnerApiKeys, programs } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
 import { nanoid } from "nanoid";
 import { assembleStoryPack } from "./community-story-routes";
+import { hasValidCommunityEvidence } from "./community-evidence";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -113,6 +114,10 @@ export function registerPartnerDashboardRoutes(app: Express) {
       key,
     );
     if (!result.ok) return res.status(502).json({ error: result.error ?? "Community story unavailable." });
+    // Evidence gate: reject responses whose community brief lacks a valid evidence contract.
+    if (!hasValidCommunityEvidence(result.data?.brief)) {
+      return res.status(502).json({ error: "Community story response did not include a valid evidence contract." });
+    }
     return res.json(result.data);
   });
 
@@ -121,6 +126,10 @@ export function registerPartnerDashboardRoutes(app: Express) {
     const key    = (req as any).tcafKey as string;
     const result = await proxyGet("/api/partner/v1/benefits", key);
     if (!result.ok) return res.status(502).json({ error: result.error ?? "Benefits unavailable." });
+    // Evidence gate: if the upstream response embeds a community brief, it must carry a valid evidence contract.
+    if (result.data?.brief != null && !hasValidCommunityEvidence(result.data.brief)) {
+      return res.status(502).json({ error: "Benefits response included a community brief with an invalid evidence contract." });
+    }
     return res.json(result.data);
   });
 
@@ -129,6 +138,10 @@ export function registerPartnerDashboardRoutes(app: Express) {
     const key    = (req as any).tcafKey as string;
     const result = await proxyGet("/api/partner/v1/impact", key);
     if (!result.ok) return res.status(502).json({ error: result.error ?? "Impact data unavailable." });
+    // Evidence gate: if the upstream response embeds a community brief, it must carry a valid evidence contract.
+    if (result.data?.brief != null && !hasValidCommunityEvidence(result.data.brief)) {
+      return res.status(502).json({ error: "Impact response included a community brief with an invalid evidence contract." });
+    }
     return res.json(result.data);
   });
 
@@ -234,6 +247,14 @@ export function registerPartnerDashboardRoutes(app: Express) {
     if (!location) return res.status(422).json(missingLocationError());
     const orgName  = record.partnerName;
     try {
+      // Evidence gate: validate the community brief before committing to PDF generation.
+      // assembleStoryPack is the same function the PDF endpoint uses internally, so this
+      // is a zero-redundancy pre-check that blocks PDFs built on invalid evidence.
+      const story = await assembleStoryPack({ location, orgName });
+      if (!hasValidCommunityEvidence((story as Record<string, any>).brief)) {
+        return res.status(422).json({ error: "Community story for this location does not yet have a valid evidence contract. Please wait for data to be refreshed." });
+      }
+
       const upstream = await fetch("http://localhost:5000/api/community-story/pdf", {
         method:  "POST",
         headers: { "Content-Type": "application/json" },

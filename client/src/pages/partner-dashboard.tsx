@@ -915,7 +915,47 @@ export default function PartnerDashboardPage() {
 
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      try { setAuth(JSON.parse(stored)); } catch {}
+      try {
+        const cached: AuthState = JSON.parse(stored);
+        // Revalidate the cached key against the server so a stale or tampered
+        // location value can't silently drive the wrong geography's community data.
+        (async () => {
+          try {
+            const res  = await fetch("/api/partner-dashboard/auth", {
+              method:  "POST",
+              headers: { "Content-Type": "application/json" },
+              body:    JSON.stringify({ key: cached.key }),
+            });
+            if (res.ok) {
+              const data = await res.json();
+              // Always use the server-authoritative location/scopes; keep the cached key.
+              const fresh: AuthState = {
+                key:       cached.key,
+                orgName:   data.orgName   ?? cached.orgName,
+                orgEmail:  data.orgEmail  ?? cached.orgEmail ?? null,
+                location:  data.location  ?? cached.location,
+                scopes:    data.scopes    ?? cached.scopes ?? [],
+                keyPrefix: data.keyPrefix ?? cached.keyPrefix,
+              };
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(fresh));
+              setAuth(fresh);
+            } else {
+              // Key is no longer valid — clear the stale session.
+              localStorage.removeItem(STORAGE_KEY);
+            }
+          } catch {
+            // Network failure: fall back to the cached state so offline users
+            // aren't logged out unexpectedly, but do not persist location changes.
+            setAuth(cached);
+          } finally {
+            setBooting(false);
+          }
+        })();
+        return;
+      } catch {
+        // JSON parse failed — clear the corrupt entry.
+        localStorage.removeItem(STORAGE_KEY);
+      }
     }
     setBooting(false);
   }, []);
