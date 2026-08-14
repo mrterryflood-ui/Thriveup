@@ -915,7 +915,7 @@ const VIZ_TABS = [
   { id: "cascade",    label: "🌊 Cascade Waterfall",   desc: "25-year cost chain by life stage" },
   { id: "web",        label: "🕸 Domain Web",           desc: "How the 10 systems pull on each other" },
   { id: "particles",  label: "✨ Particle Flow",        desc: "Community population: invest vs. don't" },
-  { id: "historical", label: "📜 Historical Receipt",   desc: "What this community has already paid — ACS multi-vintage 2010–2022" },
+  { id: "historical", label: "📜 Historical Receipt",   desc: "What this community has already paid — ACS multi-vintage 2013–2022" },
 ] as const;
 
 type VizTab = typeof VIZ_TABS[number]["id"];
@@ -1395,14 +1395,25 @@ export default function CommunityImpactPage() {
                     />
                   )}
                   {activeViz === "historical" && (
-                    <HistoricalTimeline
-                      vintages={data.historicalCascade?.vintages ?? []}
-                      totalAccumulatedCost={data.historicalCascade?.totalAccumulatedCost ?? 0}
-                      trendDirection={data.historicalCascade?.trendDirection ?? "stagnant"}
-                      forwardCost={data.cascade?.counterfactualCost ?? 0}
-                      interventionCost={data.cascade?.interventionCost ?? 0}
-                      geography={data.geography?.displayName ?? submitted}
-                    />
+                    data.historicalCascade?.vintages?.length > 0 ? (
+                      <HistoricalTimeline
+                        vintages={data.historicalCascade.vintages}
+                        totalAccumulatedCost={data.historicalCascade.totalAccumulatedCost ?? 0}
+                        trendDirection={data.historicalCascade.trendDirection ?? "stagnant"}
+                        forwardCost={data.cascade?.counterfactualCost ?? 0}
+                        interventionCost={data.cascade?.interventionCost ?? 0}
+                        geography={data.geography?.displayName ?? submitted}
+                      />
+                    ) : (
+                      <div className="flex flex-col items-center justify-center h-64 gap-3 text-center px-6" data-testid="historical-unavailable-disclosure">
+                        <span className="text-4xl">🧾</span>
+                        <div className="text-base font-semibold text-muted-foreground">Historical receipt not available</div>
+                        <p className="text-sm text-muted-foreground max-w-md">
+                          {data.evidence?.claims?.historicalCascade?.disclosure
+                            ?? "Multi-vintage Census ACS data is only available for ZIP/ZCTA lookups. Search by ZIP code to see the year-by-year receipt."}
+                        </p>
+                      </div>
+                    )
                   )}
                 </Suspense>
               </Card>

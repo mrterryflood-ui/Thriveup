@@ -6,6 +6,10 @@
  */
 const REQUEST_TYPES = new Set(["zip", "city", "address_or_place", "county", "multi_county"]);
 const RESOLVED_TYPES = new Set(["zcta", "county", "multi_county"]);
+// historicalCascade is intentionally NOT in the required-keys list: it was
+// added after the original v1 contract shipped, so legacy cached/stored briefs
+// that predate it must still pass validation (backward compat). If the claim
+// is present, it is validated below; if absent, validation is unaffected.
 const CLAIM_KEYS = ["observed", "tcafDerived", "tcafScenario", "aiSynthesis"] as const;
 
 const isRecord = (value: unknown): value is Record<string, any> =>
@@ -40,6 +44,11 @@ export function hasValidCommunityEvidence(brief: unknown): boolean {
     const claim = evidence.claims[key];
     if (!isRecord(claim) || !isText(claim.label) || !["available", "unavailable"].includes(claim.status)) return false;
     if (key !== "observed" && !isText(claim.disclosure)) return false;
+  }
+  // historicalCascade is optional (added after v1 shipped); validate it only if present.
+  if (evidence.claims.historicalCascade != null) {
+    const hc = evidence.claims.historicalCascade;
+    if (!isRecord(hc) || !isText(hc.label) || !["available", "unavailable"].includes(hc.status) || !isText(hc.disclosure)) return false;
   }
   return ["verified_at_resolved_grain", "limited_resolution", "unavailable"].includes(evidence.dataQuality.status)
     && Array.isArray(evidence.dataQuality.warnings)

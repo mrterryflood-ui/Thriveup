@@ -218,6 +218,7 @@ interface CommunityEvidenceContract {
     observed: { label: string; status: "available" };
     tcafDerived: { label: string; status: "available" | "unavailable"; disclosure: string };
     tcafScenario: { label: string; status: "available" | "unavailable"; disclosure: string };
+    historicalCascade: { label: string; status: "available" | "unavailable"; disclosure: string };
     aiSynthesis: { label: string; status: "available"; disclosure: string };
   };
   dataQuality: {
@@ -743,6 +744,16 @@ async function buildHistoricalCascade(zcta: string, censusKey: string, stateFips
 
   const valid = rows.filter(Boolean) as Array<{ year: number; povertyRate: number; unemploymentRate: number }>;
 
+  // Require at least 2 distinct vintage years. A single year cannot show
+  // trend direction and would generate a misleading "for at least 12 years"
+  // insight. Return null so the caller sets the evidence claim to "unavailable"
+  // rather than presenting incomplete data as a full historical receipt.
+  if (valid.length < 2) {
+    throw new Error(
+      `buildHistoricalCascade: only ${valid.length} of ${VINTAGES.length} vintages returned data for ZCTA ${zcta} — insufficient for a multi-year receipt`,
+    );
+  }
+
   // For each vintage, compute what that year's cohort of at-risk children has
   // ALREADY cost in realized government + social expenditure.
   // Children age 0-5 in a given vintage year are now old enough for those costs to have materialized.
@@ -773,19 +784,27 @@ async function buildHistoricalCascade(zcta: string, censusKey: string, stateFips
 
   const totalAccumulatedCost = vintageResults.reduce((s, v) => s + v.cohortCost, 0);
 
-  // Trend direction from first to last vintage
-  const first = vintageResults[0]?.povertyRate ?? 0;
-  const last  = vintageResults[vintageResults.length - 1]?.povertyRate ?? 0;
+  // Trend direction from first to last vintage (require span ≥ 1 year so the
+  // direction claim is grounded; also derive labels from the actual years
+  // returned rather than hardcoded strings).
+  const firstVintage = vintageResults[0];
+  const lastVintage  = vintageResults[vintageResults.length - 1];
+  const first = firstVintage.povertyRate;
+  const last  = lastVintage.povertyRate;
+  const firstYear = firstVintage.year;
+  const lastYear  = lastVintage.year;
+  const spanYears = lastYear - firstYear;
+
   const trendDirection: "improving" | "stagnant" | "worsening" =
     last < first - 2 ? "improving" : last > first + 2 ? "worsening" : "stagnant";
 
   const yearsAboveCrisisThreshold = vintageResults.filter(v => v.povertyRate >= CRISIS_POVERTY_THRESHOLD).length;
 
   const keyInsight = trendDirection === "stagnant"
-    ? `This community's poverty rate has stayed near ${Math.round(first)}% for at least 12 years — no structural shift occurred.`
+    ? `This community's poverty rate has stayed near ${Math.round((first + last) / 2)}% across the ${spanYears}-year period from ${firstYear} to ${lastYear} — no structural shift occurred.`
     : trendDirection === "worsening"
-    ? `Poverty rose from ${first.toFixed(1)}% in ${vintageResults[0]?.year ?? 2010} to ${last.toFixed(1)}% by ${vintageResults[vintageResults.length - 1]?.year ?? 2022} — conditions deteriorated.`
-    : `Poverty fell from ${first.toFixed(1)}% to ${last.toFixed(1)}% — progress was made, but accumulated cost remains real and documented.`;
+    ? `Poverty rose from ${first.toFixed(1)}% in ${firstYear} to ${last.toFixed(1)}% by ${lastYear} — conditions deteriorated over ${spanYears} years.`
+    : `Poverty fell from ${first.toFixed(1)}% in ${firstYear} to ${last.toFixed(1)}% by ${lastYear} — progress was made, but accumulated cost remains real and documented.`;
 
   return {
     vintages: vintageResults,
@@ -1502,7 +1521,26 @@ export function registerConductorRoutes(app: Express) {
         .map(([k]) => k);
 
       const resolvedEvidenceGeography = evidenceGeography!;
-      const [grants, narrative, rpliceIntelligence] = await Promise.all([
+
+      // Historical cascade is only possible for ZCTA (ZIP-level) geographies —
+      // older ACS vintages expose ZCTA-level poverty/unemployment but NOT
+      // county-level time series through the same endpoint pattern. For county
+      // and multi-county briefs we set it null with a clear disclosure so the
+      // client can render an appropriate message instead of an empty section.
+      // For older ACS vintages (2013, 2015, 2019) the Census API requires
+      // &in=state:{fips} to disambiguate ZCTAs. When the user submitted a raw
+      // ZIP, stateFips may be empty (no state was resolved). Fall back to the
+      // ZIP-range table so the state qualifier is always available.
+      const historicalStateFips = stateFips || stateFipsFromZip(zip);
+      const historicalCascadePromise: Promise<HistoricalCascade | null> =
+        !isCountyLevel && zip
+          ? buildHistoricalCascade(zip, process.env.CENSUS_API_KEY || "", historicalStateFips).catch((err) => {
+              console.warn("[Conductor] buildHistoricalCascade failed (non-fatal):", err?.message ?? err);
+              return null;
+            })
+          : Promise.resolve(null);
+
+      const [grants, narrative, rpliceIntelligence, historicalCascade] = await Promise.all([
         findRelevantGrants(domainScores),
         generateCommunityNarrative(
           `${resolvedEvidenceGeography.resolved.label} (${resolvedEvidenceGeography.resolved.type.toUpperCase()} ${resolvedEvidenceGeography.resolved.identifier})`,
@@ -1522,6 +1560,7 @@ export function registerConductorRoutes(app: Express) {
               countyFips: undefined,
             }).catch(() => null)
           : Promise.resolve(null),
+        historicalCascadePromise,
       ]);
 
       // Step 5: Evidence programs (filter by crisis domains — already computed above)
@@ -1586,6 +1625,15 @@ export function registerConductorRoutes(app: Express) {
             disclosure: cascade
               ? "Cascade costs, savings, ROI, and timelines are TCAF scenario outputs using observed inputs and published model assumptions. They are not observed or Census-verified costs."
               : "Scenario output is unavailable because one or more required observed inputs were not returned. No default values were substituted.",
+          },
+          historicalCascade: {
+            label: "Multi-vintage historical cost model (2013–2022)",
+            status: historicalCascade ? "available" : "unavailable",
+            disclosure: historicalCascade
+              ? "Historical cohort costs are TCAF chain-model outputs derived from multi-vintage Census ACS 5-Year Estimates (poverty + unemployment per ZCTA). They represent modeled cohort outcomes, not Census-verified government expenditures."
+              : isCountyLevel
+                ? "Multi-vintage historical data is not available for county or multi-county geographies — the Census ACS ZCTA endpoint used for multi-year comparison does not support county-level queries."
+                : "Historical vintage data could not be retrieved for this ZCTA. The Census ACS endpoint may not have data for all requested years at this geography.",
           },
           aiSynthesis: {
             label: "TCAF AI synthesis",
@@ -1669,7 +1717,7 @@ export function registerConductorRoutes(app: Express) {
         overallGrade: overallScore == null ? null : gradeFromScore(overallScore),
         atRiskPopulations,
         cascade,
-        historicalCascade: null,
+        historicalCascade,
         solutions: {
           topInterventions,
           grants,
