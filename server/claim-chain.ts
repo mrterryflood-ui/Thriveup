@@ -17,9 +17,17 @@
  */
 import { db } from "./storage";
 import { aiClaimChain, type InsertAiClaimChain } from "@shared/schema";
-import { asc, desc } from "drizzle-orm";
+import { asc, desc, sql } from "drizzle-orm";
 import crypto from "crypto";
 import type { GroundingDecision } from "./ai-claim-grounding";
+
+// Stable advisory-lock key used to serialize chain appends across concurrent
+// requests. pg_advisory_xact_lock() holds until the surrounding transaction
+// commits or rolls back, so two concurrent recordClaimDecisions calls are
+// guaranteed to see each other's rows before building the next prevHash.
+// The key is arbitrary; it must not collide with other pg_advisory_lock uses
+// in this codebase (none currently exist).
+const CHAIN_LOCK_KEY = 0x7463_6166n; // "tcaf" in hex, as bigint
 
 const GENESIS = crypto.createHash("sha256").update("tcaf:ai-claim-chain:v1:genesis").digest("hex");
 
@@ -45,28 +53,38 @@ function linkHash(prevHash: string, row: { surface: string; subject: string; rul
 export async function recordClaimDecisions(surface: string, subject: string, decisions: GroundingDecision[]): Promise<void> {
   if (decisions.length === 0) return;
   try {
-    const [latest] = await db.select({ hash: aiClaimChain.hash }).from(aiClaimChain).orderBy(desc(aiClaimChain.id)).limit(1);
-    let prevHash = latest ? latest.hash : GENESIS;
+    await db.transaction(async (tx) => {
+      // Acquire an exclusive session-level advisory lock for the duration of
+      // this transaction. Any concurrent recordClaimDecisions call will block
+      // here until the current transaction commits, guaranteeing that the
+      // prevHash read and the subsequent insert are atomic with respect to
+      // other appenders — so verifyChainIntegrity can never see a gap or
+      // a reused prevHash caused by two callers racing on the same chain head.
+      await tx.execute(sql`SELECT pg_advisory_xact_lock(${sql.raw(String(CHAIN_LOCK_KEY))})`);
 
-    const rows: InsertAiClaimChain[] = [];
-    for (const d of decisions) {
-      const claimText = d.sentence.slice(0, 2000);
-      const extractedValuesJson = JSON.stringify(d.extractedValues);
-      const hash = linkHash(prevHash, { surface, subject, ruleId: d.ruleId, verdict: d.verdict, claimText, extractedValuesJson });
-      rows.push({
-        surface,
-        subject: subject.slice(0, 500),
-        ruleId: d.ruleId,
-        verdict: d.verdict,
-        claimText,
-        extractedValuesJson,
-        expectedDescription: d.expectedDescription.slice(0, 500),
-        prevHash,
-        hash,
-      });
-      prevHash = hash;
-    }
-    await db.insert(aiClaimChain).values(rows);
+      const [latest] = await tx.select({ hash: aiClaimChain.hash }).from(aiClaimChain).orderBy(desc(aiClaimChain.id)).limit(1);
+      let prevHash = latest ? latest.hash : GENESIS;
+
+      const rows: InsertAiClaimChain[] = [];
+      for (const d of decisions) {
+        const claimText = d.sentence.slice(0, 2000);
+        const extractedValuesJson = JSON.stringify(d.extractedValues);
+        const hash = linkHash(prevHash, { surface, subject, ruleId: d.ruleId, verdict: d.verdict, claimText, extractedValuesJson });
+        rows.push({
+          surface,
+          subject: subject.slice(0, 500),
+          ruleId: d.ruleId,
+          verdict: d.verdict,
+          claimText,
+          extractedValuesJson,
+          expectedDescription: d.expectedDescription.slice(0, 500),
+          prevHash,
+          hash,
+        });
+        prevHash = hash;
+      }
+      await tx.insert(aiClaimChain).values(rows);
+    });
   } catch (err) {
     console.error(`[ClaimChain] failed to record ${decisions.length} decision(s) for ${surface}/${subject} (non-fatal):`, err);
   }

@@ -18,7 +18,7 @@ export const FIPS_TO_STATE: Record<string, string> = {
   '32': 'NV', '33': 'NH', '34': 'NJ', '35': 'NM', '36': 'NY', '37': 'NC', '38': 'ND',
   '39': 'OH', '40': 'OK', '41': 'OR', '42': 'PA', '44': 'RI', '45': 'SC', '46': 'SD',
   '47': 'TN', '48': 'TX', '49': 'UT', '50': 'VT', '51': 'VA', '53': 'WA', '54': 'WV',
-  '55': 'WI', '56': 'WY',
+  '55': 'WI', '56': 'WY', '72': 'PR',
 };
 
 // Inverse: state abbreviation → 2-digit FIPS
@@ -39,6 +39,88 @@ const STATE_NAMES: Record<string, string> = {
   'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont', 'VA': 'Virginia',
   'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
 };
+
+// ZIP numeric-range → state FIPS — covers all 50 states + DC + PR.
+// Mirrors the same table in conductor-routes.ts so resolveLocationToZip can
+// return a complete contract without relying on a downstream patch.
+//
+// Known exceptions that fall outside the main numeric ranges:
+// 00501, 00544 — USPS Unique: IRS Holtsville, NY (Suffolk County)
+const ZIP_FIPS_EXCEPTIONS: Record<string, string> = {
+  "00501": "36", // NY
+  "00544": "36", // NY
+};
+
+function stateFipsFromZipRange(zip: string): string {
+  const z5 = zip.slice(0, 5);
+  if (ZIP_FIPS_EXCEPTIONS[z5]) return ZIP_FIPS_EXCEPTIONS[z5];
+  const n = parseInt(z5, 10);
+  if (isNaN(n)) return "";
+  if (n >= 600   && n <= 988  ) return "72"; // PR
+  if (n >= 1000  && n <= 2799 ) return "25"; // MA
+  if (n >= 2800  && n <= 2999 ) return "44"; // RI
+  if (n >= 3000  && n <= 3899 ) return "33"; // NH
+  if (n >= 3900  && n <= 4999 ) return "23"; // ME
+  if (n >= 5000  && n <= 5999 ) return "50"; // VT
+  if (n >= 6000  && n <= 6999 ) return "09"; // CT
+  if (n >= 7000  && n <= 8999 ) return "34"; // NJ
+  if (n >= 10000 && n <= 14999) return "36"; // NY
+  if (n >= 15000 && n <= 19699) return "42"; // PA
+  if (n >= 19700 && n <= 19999) return "10"; // DE
+  if (n >= 20000 && n <= 20099) return "11"; // DC
+  if (n >= 20100 && n <= 20199) return "51"; // VA (N. VA)
+  if (n >= 20200 && n <= 20599) return "11"; // DC
+  if (n >= 20600 && n <= 21999) return "24"; // MD
+  if (n >= 22000 && n <= 24699) return "51"; // VA
+  if (n >= 24700 && n <= 26999) return "54"; // WV
+  if (n >= 27000 && n <= 28999) return "37"; // NC
+  if (n >= 29000 && n <= 29999) return "45"; // SC
+  if (n >= 30000 && n <= 31999) return "13"; // GA
+  if (n >= 32000 && n <= 34999) return "12"; // FL
+  if (n >= 35000 && n <= 36999) return "01"; // AL
+  if (n >= 37000 && n <= 38599) return "47"; // TN
+  if (n >= 38600 && n <= 39999) return "28"; // MS
+  if (n >= 40000 && n <= 42799) return "21"; // KY
+  if (n >= 43000 && n <= 45999) return "39"; // OH
+  if (n >= 46000 && n <= 47999) return "18"; // IN
+  if (n >= 48000 && n <= 49999) return "26"; // MI
+  if (n >= 50000 && n <= 52999) return "19"; // IA
+  if (n >= 53000 && n <= 54999) return "55"; // WI
+  if (n >= 55000 && n <= 56799) return "27"; // MN
+  if (n >= 56800 && n <= 56999) return "11"; // DC (congressional/federal ZIP block)
+  if (n >= 57000 && n <= 57999) return "46"; // SD
+  if (n >= 58000 && n <= 58999) return "38"; // ND
+  if (n >= 59000 && n <= 59999) return "30"; // MT
+  if (n >= 60000 && n <= 62999) return "17"; // IL
+  if (n >= 63000 && n <= 65999) return "29"; // MO
+  if (n >= 66000 && n <= 67999) return "20"; // KS
+  if (n >= 68000 && n <= 69999) return "31"; // NE
+  if (n >= 70000 && n <= 71599) return "22"; // LA
+  if (n >= 71600 && n <= 72999) return "05"; // AR
+  if (n >= 73000 && n <= 74999) return "40"; // OK
+  if (n >= 75000 && n <= 79999) return "48"; // TX
+  if (n >= 80000 && n <= 81999) return "08"; // CO
+  if (n >= 82000 && n <= 83199) return "56"; // WY
+  if (n >= 83200 && n <= 83999) return "16"; // ID
+  if (n >= 84000 && n <= 84999) return "49"; // UT
+  if (n >= 85000 && n <= 86599) return "04"; // AZ
+  if (n >= 87000 && n <= 88499) return "35"; // NM
+  if (n >= 88500 && n <= 88599) return "48"; // TX (El Paso area)
+  if (n >= 89000 && n <= 89999) return "32"; // NV
+  if (n >= 90000 && n <= 96199) return "06"; // CA
+  if (n >= 96700 && n <= 96899) return "15"; // HI
+  if (n >= 97000 && n <= 97999) return "41"; // OR
+  if (n >= 98000 && n <= 99499) return "53"; // WA
+  if (n >= 99500 && n <= 99999) return "02"; // AK
+  return "";
+}
+
+/** Returns the USPS two-letter state abbreviation for a 5-digit ZIP using the
+ *  numeric range table. Returns an empty string for unrecognised ZIPs. */
+export function stateAbbrevFromZip(zip: string): string {
+  const fips = stateFipsFromZipRange(zip);
+  return fips ? (FIPS_TO_STATE[fips] ?? "") : "";
+}
 
 async function fetchJson(url: string, timeoutMs = 12000): Promise<any> {
   const response = await fetch(url, {
@@ -200,6 +282,7 @@ export async function resolveLocationToZip(locationText: string): Promise<Resolv
       displayName: trimmed,
       requestedType: "zip",
       resolutionMethod: "Direct ZIP input; analyzed as the corresponding Census ZCTA",
+      stateAbbrev: stateAbbrevFromZip(trimmed) || undefined,
     };
   }
 
@@ -275,11 +358,20 @@ export async function resolveLocationToZip(locationText: string): Promise<Resolv
       const addr = match.matchedAddress || trimmed;
       const zipMatch = addr.match(/\b(\d{5})\b/);
       if (zipMatch) {
+        const zip3 = zipMatch[1];
+        // Try to extract state abbreviation from the matched address string
+        // (e.g. "123 MAIN ST, WILMINGTON, NC 28401") before falling back to
+        // the ZIP numeric-range table.
+        // Accept both "NC 28401" and "DC, 20500" forms from Census geocoder.
+        const addrStateMatch = addr.match(/,\s*([A-Z]{2})[,\s]+\d{5}/);
+        const fromAddr = addrStateMatch && ALL_STATE_ABBREVS.has(addrStateMatch[1]) ? addrStateMatch[1] : "";
+        const stateAbbrev3 = (fromAddr || stateAbbrevFromZip(zip3)) || undefined;
         return {
-          zip: zipMatch[1],
+          zip: zip3,
           displayName: addr,
           requestedType: "address_or_place",
           resolutionMethod: "Census one-line geocoder resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+          stateAbbrev: stateAbbrev3,
         };
       }
     }
@@ -302,11 +394,17 @@ export async function resolveLocationToZip(locationText: string): Promise<Resolv
         if (postcode) {
           const zip5 = postcode.match(/(\d{5})/)?.[1];
           if (zip5) {
+            // Nominatim often provides a two-letter state_code; fall back to
+            // ZIP range table when absent.
+            const nomStateCode = (result.address?.state_code as string | undefined) || "";
+            const fromNomCode = nomStateCode && ALL_STATE_ABBREVS.has(nomStateCode.toUpperCase()) ? nomStateCode.toUpperCase() : "";
+            const stateAbbrev4 = (fromNomCode || stateAbbrevFromZip(zip5)) || undefined;
             return {
               zip: zip5,
               displayName: result.display_name || trimmed,
               requestedType: "address_or_place",
               resolutionMethod: "Nominatim lookup resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+              stateAbbrev: stateAbbrev4,
             };
           }
         }
@@ -319,11 +417,15 @@ export async function resolveLocationToZip(locationText: string): Promise<Resolv
               const revData = await revResp.json() as any;
               const z5 = revData?.address?.postcode?.match(/(\d{5})/)?.[1];
               if (z5) {
+                const revStateCode = (revData.address?.state_code as string | undefined) || "";
+                const fromRevCode = revStateCode && ALL_STATE_ABBREVS.has(revStateCode.toUpperCase()) ? revStateCode.toUpperCase() : "";
+                const stateAbbrevRev = (fromRevCode || stateAbbrevFromZip(z5)) || undefined;
                 return {
                   zip: z5,
                   displayName: result.display_name || trimmed,
                   requestedType: "address_or_place",
                   resolutionMethod: "Nominatim coordinate reverse lookup resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+                  stateAbbrev: stateAbbrevRev,
                 };
               }
             }

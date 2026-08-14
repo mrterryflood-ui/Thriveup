@@ -623,9 +623,14 @@ function stateFipsFromName(name: string): string {
   return STATE_FIPS[key] || STATE_FIPS[key.replace(/ /g, "")] || "";
 }
 
-// ZIP range → state FIPS — covers all 50 states + DC + PR
+const CONDUCTOR_ZIP_FIPS_EXCEPTIONS: Record<string, string> = {
+  "00501": "36", // NY — IRS Holtsville (USPS Unique)
+  "00544": "36", // NY — IRS Holtsville (USPS Unique)
+};
 function stateFipsFromZip(zip: string): string {
-  const n = parseInt(zip.slice(0, 5), 10);
+  const z5 = zip.slice(0, 5);
+  if (CONDUCTOR_ZIP_FIPS_EXCEPTIONS[z5]) return CONDUCTOR_ZIP_FIPS_EXCEPTIONS[z5];
+  const n = parseInt(z5, 10);
   if (isNaN(n)) return "";
   if (n >= 600   && n <= 988  ) return "72"; // PR
   if (n >= 1000  && n <= 2799 ) return "25"; // MA
@@ -658,6 +663,7 @@ function stateFipsFromZip(zip: string): string {
   if (n >= 50000 && n <= 52999) return "19"; // IA
   if (n >= 53000 && n <= 54999) return "55"; // WI
   if (n >= 55000 && n <= 56799) return "27"; // MN
+  if (n >= 56800 && n <= 56999) return "11"; // DC (congressional/federal ZIP block)
   if (n >= 57000 && n <= 57999) return "46"; // SD
   if (n >= 58000 && n <= 58999) return "38"; // ND
   if (n >= 59000 && n <= 59999) return "30"; // MT
