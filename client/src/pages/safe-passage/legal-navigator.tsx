@@ -54,7 +54,7 @@ const TOPICS: LegalTopic[] = [
       "Filing is free if you cannot afford the fee.",
     ],
     resources: [
-      { name: "Travis County Family Law Center", phone: "512-854-9234", url: "https://www.traviscountytx.gov/courts/family-law-center", detail: "File for a protective order here, 1450 Collier St, Austin" },
+      { name: "Travis County Family Law Center", phone: "512-854-9234", url: "https://www.traviscountytx.gov/district-clerk/", detail: "File for a protective order here, 1450 Collier St, Austin" },
       { name: "SAFE Alliance Legal Services", phone: "512-267-7233", url: "https://safeaustin.org", detail: "Free legal advocacy — they can go with you to court" },
       { name: "Texas Legal Services Center", phone: "512-477-6000", url: "https://www.tlsc.org", detail: "Protective order hotline — free help statewide" },
     ],
@@ -120,7 +120,7 @@ const TOPICS: LegalTopic[] = [
     ],
     resources: [
       { name: "SAFE Alliance — SAFE Futures", phone: "512-267-7233", url: "https://safeaustin.org", detail: "Specialized advocacy for families navigating CPS and family court" },
-      { name: "Travis County Family Law Center", phone: "512-854-9234", url: "https://www.traviscountytx.gov/courts/family-law-center", detail: "File for emergency custody orders" },
+      { name: "Travis County Family Law Center", phone: "512-854-9234", url: "https://www.traviscountytx.gov/district-clerk/", detail: "File for emergency custody orders" },
     ],
     warning: "If CPS is involved, contact a DV advocate immediately. A DV-informed CPS caseworker can make a significant difference in your case outcome.",
   },

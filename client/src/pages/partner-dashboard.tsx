@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
+import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
 import {
   LayoutDashboard, Key, Building2, MapPin, Users, TrendingUp,
   Shield, FileText, Download, Copy, RefreshCw, AlertTriangle,
@@ -297,7 +298,7 @@ function OverviewTab({ auth, story }: { auth: AuthState; story: TabData }) {
         </CardHeader>
         <CardContent className="pt-0 space-y-2.5">
           {[
-            { icon: Globe,   tab: "community", label: "View your Community Story", sub: "Census-sourced demographics, SDOH grades, grant matches" },
+            { icon: Globe,   tab: "community", label: "View your Community Story", sub: "Disclosed public-data estimates, TCAF-derived scores, grant matches" },
             { icon: Shield,  tab: "benefits",  label: "Browse the Benefits Catalog", sub: "Live programs your clients can apply for right now" },
             { icon: BarChart3, tab: "impact",   label: "See your Impact Numbers", sub: "Participants served, employment outcomes, credentials" },
             { icon: FileText, tab: "reports",  label: "Download a Funder Report", sub: "Grant-ready PDF with community data and outcomes" },
@@ -351,12 +352,12 @@ function CommunityTab({ story }: { story: TabData }) {
   // If no indicators array, synthesize from flat demographics
   const syntheticIndicators = indicators.length === 0 && Object.keys(demo).length > 0
     ? [
-        demo.povertyRate     != null ? { label: "Poverty rate",       value: demo.povertyRate,     displayValue: `${Number(demo.povertyRate).toFixed(1)}%`,  grade: demo.povertyRate > 20 ? "F" : demo.povertyRate > 15 ? "D" : demo.povertyRate > 10 ? "C" : "B", source: "Census ACS" } : null,
-        demo.unemploymentRate != null ? { label: "Unemployment",      value: demo.unemploymentRate, displayValue: `${Number(demo.unemploymentRate).toFixed(1)}%`, source: "Census ACS" } : null,
-        demo.medianIncome    != null ? { label: "Median income",      value: demo.medianIncome,    displayValue: `$${fmt(demo.medianIncome)}`, source: "Census ACS" } : null,
-        demo.noHealthInsurance != null ? { label: "Uninsured",        value: demo.noHealthInsurance, displayValue: `${Number(demo.noHealthInsurance).toFixed(1)}%`, source: "Census ACS" } : null,
-        demo.singleParentHouseholds != null ? { label: "Single-parent HH", value: demo.singleParentHouseholds, displayValue: `${Number(demo.singleParentHouseholds).toFixed(1)}%`, source: "Census ACS" } : null,
-        demo.educationBelowHS != null ? { label: "Below HS diploma", value: demo.educationBelowHS, displayValue: `${Number(demo.educationBelowHS).toFixed(1)}%`, source: "Census ACS" } : null,
+        demo.povertyRate     != null ? { label: "Poverty rate",       value: demo.povertyRate,     displayValue: `${Number(demo.povertyRate).toFixed(1)}%`,  grade: demo.povertyRate > 20 ? "F" : demo.povertyRate > 15 ? "D" : demo.povertyRate > 10 ? "C" : "B", source: "Observed public-data estimate" } : null,
+        demo.unemploymentRate != null ? { label: "Unemployment",      value: demo.unemploymentRate, displayValue: `${Number(demo.unemploymentRate).toFixed(1)}%`, source: "Observed public-data estimate" } : null,
+        demo.medianIncome    != null ? { label: "Median income",      value: demo.medianIncome,    displayValue: `$${fmt(demo.medianIncome)}`, source: "Observed public-data estimate" } : null,
+        demo.uninsuredRate != null ? { label: "Uninsured",            value: demo.uninsuredRate,    displayValue: `${Number(demo.uninsuredRate).toFixed(1)}%`, source: "Observed public-data estimate" } : null,
+        demo.singleParentRate != null ? { label: "Single-parent HH", value: demo.singleParentRate, displayValue: `${Number(demo.singleParentRate).toFixed(1)}%`, source: "Observed public-data estimate" } : null,
+        demo.noHighSchoolDiploma != null ? { label: "Below HS diploma", value: demo.noHighSchoolDiploma, displayValue: `${Number(demo.noHighSchoolDiploma).toFixed(1)}%`, source: "Observed public-data estimate" } : null,
       ].filter(Boolean) as any[]
     : indicators;
 
@@ -395,6 +396,8 @@ function CommunityTab({ story }: { story: TabData }) {
           </div>
         </CardContent>
       </Card>
+
+      <CommunityEvidencePanel evidence={brief.evidence} compact />
 
       {/* SDOH indicator grid */}
       {(syntheticIndicators.length > 0 || indicators.length > 0) && (
@@ -436,7 +439,7 @@ function CommunityTab({ story }: { story: TabData }) {
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm">Demographics Narrative</CardTitle>
+              <CardTitle className="text-sm">AI-synthesized demographics narrative</CardTitle>
               <Button
                 size="sm"
                 variant="outline"

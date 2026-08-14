@@ -29,10 +29,16 @@ function hashKey(plaintext: string): string {
 }
 
 /** Parse the location written by Agency Connector into the notes field. */
-function extractLocation(notes: string | null): string {
-  if (!notes) return "28472";
+function extractLocation(notes: string | null): string | null {
+  if (!notes) return null;
   const m = notes.match(/Location:\s*([^.]+)\./);
-  return m ? m[1].trim() : "28472";
+  return m?.[1]?.trim() || null;
+}
+
+function missingLocationError() {
+  return {
+    error: "This partner dashboard has no valid service-area location configured. Add a ZIP, city/state, county, or multi-county service area in Agency Connector before generating a community story.",
+  };
 }
 
 async function resolveKey(key: string) {
@@ -83,13 +89,15 @@ export function registerPartnerDashboardRoutes(app: Express) {
     if (!record) {
       return res.status(401).json({ error: "Key not found or inactive. Check your key and try again." });
     }
-    return res.json({
+    const location = extractLocation(record.notes ?? null);
+    return res.status(location ? 200 : 422).json({
       valid:     true,
       orgName:   record.partnerName,
       orgEmail:  record.partnerEmail,
-      location:  extractLocation(record.notes ?? null),
+      location,
       scopes:    record.scopes ?? [],
       keyPrefix: record.keyPrefix,
+      ...(location ? {} : { configurationError: missingLocationError().error }),
     });
   });
 
@@ -97,7 +105,8 @@ export function registerPartnerDashboardRoutes(app: Express) {
   app.get("/api/partner-dashboard/community-story", requireKey, async (req: Request, res: Response) => {
     const record   = (req as any).partnerRecord;
     const key      = (req as any).tcafKey as string;
-    const location = (req.query.location as string) || extractLocation(record.notes ?? null);
+    const location = (req.query.location as string)?.trim() || extractLocation(record.notes ?? null);
+    if (!location) return res.status(422).json(missingLocationError());
     const orgName  = encodeURIComponent(record.partnerName);
     const result   = await proxyGet(
       `/api/partner/v1/community-story?location=${encodeURIComponent(location)}&orgName=${orgName}`,
@@ -155,19 +164,22 @@ export function registerPartnerDashboardRoutes(app: Express) {
   }
 
   app.get("/api/partner-dashboard/share/:token/profile", async (req: Request, res: Response) => {
-    const record = await resolveShareToken(req.params.token).catch(() => null);
+    const record = await resolveShareToken(String(req.params.token ?? "")).catch(() => null);
     if (!record) return res.status(404).json({ error: "Share link not found or expired." });
+    const location = extractLocation(record.notes ?? null);
+    if (!location) return res.status(422).json(missingLocationError());
     return res.json({
       orgName:  record.partnerName,
-      location: extractLocation(record.notes ?? null),
+      location,
       scopes:   record.scopes ?? [],
     });
   });
 
   app.get("/api/partner-dashboard/share/:token/community-story", async (req: Request, res: Response) => {
-    const record = await resolveShareToken(req.params.token).catch(() => null);
+    const record = await resolveShareToken(String(req.params.token ?? "")).catch(() => null);
     if (!record) return res.status(404).json({ error: "Share link not found." });
     const location = extractLocation(record.notes ?? null);
+    if (!location) return res.status(422).json(missingLocationError());
     try {
       // Call assembleStoryPack directly — no self-HTTP round-trip
       const story = await assembleStoryPack({
@@ -181,7 +193,7 @@ export function registerPartnerDashboardRoutes(app: Express) {
   });
 
   app.get("/api/partner-dashboard/share/:token/benefits", async (req: Request, res: Response) => {
-    const record = await resolveShareToken(req.params.token).catch(() => null);
+    const record = await resolveShareToken(String(req.params.token ?? "")).catch(() => null);
     if (!record) return res.status(404).json({ error: "Share link not found." });
     try {
       // Query the programs table directly — no self-HTTP round-trip
@@ -218,7 +230,8 @@ export function registerPartnerDashboardRoutes(app: Express) {
   // Streams the community-story PDF back to the client.
   app.post("/api/partner-dashboard/report-pdf", requireKey, async (req: Request, res: Response) => {
     const record   = (req as any).partnerRecord;
-    const location = (req.body?.location as string) || extractLocation(record.notes ?? null);
+    const location = (req.body?.location as string)?.trim() || extractLocation(record.notes ?? null);
+    if (!location) return res.status(422).json(missingLocationError());
     const orgName  = record.partnerName;
     try {
       const upstream = await fetch("http://localhost:5000/api/community-story/pdf", {

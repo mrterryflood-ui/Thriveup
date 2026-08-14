@@ -1,0 +1,16 @@
+I ran a live query against ThriveUp for New Hanover County (Wilmington) to see exactly what depth we're dealing with. Here's what came back, and why it matters for your question.
+
+Where the AI advisor is today It's not connected. In impact-specialist.ts the Impact Hub's assistant block is deliberately stubbed as state: "awaiting_verified_engine" — it shows a static "AI assistant unavailable" notice in the UI rather than answering anything. That was an intentional guardrail from earlier work: no grounded advisor should go live until source-provenance and contradiction-checking exist, because ThriveUp's raw output has real trust problems — which the live query just proved.
+
+What ThriveUp actually returned for Wilmington/New Hanover County A single request pulled back a 125KB "Community Story Pack" containing:
+
+Demographics: population 50,000, poverty rate 12.7%, uninsured 3.3%, median income $55,000.
+10 system scores (health, mental health, housing, education, justice, workforce...) each with a letter grade and "key gap." Justice & Safety scored 33/F — "reentry employment barriers compound recidivism." Education scored 20/F.
+A 25-year cascade model: without intervention, $352.1M in downstream cost; a $8.0M upfront investment yields $344M in net savings (ROI listed as "43.0").
+A full narrative tying poverty → foster-care exits → justice involvement → incarceration → generational cost, closing with "every dollar invested today prevents five dollars in downstream cost tomorrow."
+A gun/violent-crime repository: grant.gunViolence, with a 90-day incident/victim/fatality count and a monthly trend table, plus a policy-timeline endpoint (/api/gun-violence/policy-timeline?state=NC).
+5 evidence-based interventions with real citations (e.g., Perry Preschool, Heckman 2010, ROI $12.90 per $1) and matched grant opportunities from a 300-grant federal database.
+Why I'm flagging this before wiring it into an advisor The same response contains two internal contradictions, live, right now:
+
+The gun-violence summary says "0 incidents, 0 victims, 0 fatalities... no incidents on record for this geography" — but its own monthlyTrend table for the same 90-day window shows 15–26 incidents/month with victim and fatality counts. Those can't both be true.
+The cascade model's ROI is stated as 43.0, but the narrative text says "every dollar invested prevents five dollars" (a 5:1 ratio) — the same discrepancy pattern flagged earlier. historicalCascade also claims poverty "stayed near 0% for 12 years" while demographics shows 12.7%, with yearsOfData: 0.

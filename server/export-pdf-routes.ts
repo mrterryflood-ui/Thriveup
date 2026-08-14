@@ -8,6 +8,7 @@ const PDFDocument = require("pdfkit");
 import { db } from "./storage";
 import { certificates } from "@shared/schema";
 import { eq } from "drizzle-orm";
+import { hasValidCommunityEvidence } from "./community-evidence";
 
 const NAVY = "#1a365d";
 const TEAL = "#0d9488";
@@ -172,9 +173,12 @@ function buildCommunityBriefPdf(
   const atRisk = Array.isArray(brief.atRiskPopulations) ? brief.atRiskPopulations : [];
   const cascade = brief.cascade ?? {};
   const narrative = brief.narrativeSummary ?? brief.narrative ?? "";
+  const evidence = brief.evidence ?? null;
+  const resolved = evidence?.geography?.resolved ?? {};
+  const source = Array.isArray(evidence?.sources) ? evidence.sources[0] : null;
   const overallScore = brief.overallScore ?? null;
   const overallGrade = brief.overallGrade ?? null;
-  const displayName = geo.displayName ?? geo.input ?? "Community";
+  const displayName = resolved.label ?? geo.displayName ?? geo.input ?? "Community";
 
   // ── Cover header ──────────────────────────────────────────────────────────
   doc.rect(0, 0, 612, 130).fill(NAVY);
@@ -289,13 +293,13 @@ function buildCommunityBriefPdf(
     if (doc.y > 600) doc.addPage();
     doc.moveDown(0.8);
     doc.fontSize(12).font("Helvetica-Bold").fillColor(NAVY)
-      .text("25-Year Cost Cascade", 50, undefined, { width: W });
+      .text("25-Year TCAF Scenario Model", 50, undefined, { width: W });
     doc.moveDown(0.3);
     const cascRows: [string, string][] = [];
-    if (cascade.counterfactualCost != null) cascRows.push(["Cost of Inaction (no investment)", fmtDollar(cascade.counterfactualCost)]);
-    if (cascade.interventionCost != null) cascRows.push(["Cost of Evidence-Based Investment", fmtDollar(cascade.interventionCost)]);
-    if (cascade.netSavings != null) cascRows.push(["Net Savings", fmtDollar(cascade.netSavings)]);
-    if (cascade.roi != null) cascRows.push(["Return on Investment", String(cascade.roi)]);
+    if (cascade.counterfactualCost != null) cascRows.push(["Model: cost of inaction", fmtDollar(cascade.counterfactualCost)]);
+    if (cascade.interventionCost != null) cascRows.push(["Model: investment", fmtDollar(cascade.interventionCost)]);
+    if (cascade.netSavings != null) cascRows.push(["Model: net savings", fmtDollar(cascade.netSavings)]);
+    if (cascade.roi != null) cascRows.push(["Model: return on investment", String(cascade.roi)]);
     const csy = doc.y;
     drawTableHeader(doc, 50, csy, "Metric", "Value", "", 280, 180);
     cascRows.forEach(([label, val], idx) => {
@@ -309,7 +313,7 @@ function buildCommunityBriefPdf(
     if (doc.y > 600) doc.addPage();
     doc.moveDown(0.8);
     doc.fontSize(12).font("Helvetica-Bold").fillColor(NAVY)
-      .text("Narrative Summary", 50, undefined, { width: W });
+      .text("AI-synthesized Narrative Summary", 50, undefined, { width: W });
     doc.moveDown(0.4);
     const narLines = String(narrative).split("\n").filter(Boolean);
     for (const line of narLines) {
@@ -320,13 +324,39 @@ function buildCommunityBriefPdf(
     }
   }
 
+  // ── Sources & methodology ─────────────────────────────────────────────────
+  if (doc.y > 590) doc.addPage();
+  doc.moveDown(1);
+  doc.fontSize(12).font("Helvetica-Bold").fillColor(NAVY)
+    .text("Sources & Methodology", 50, undefined, { width: W });
+  doc.moveDown(0.35);
+  doc.fontSize(9.5).font("Helvetica").fillColor(GRAY)
+    .text(
+      `Analyzed geography: ${resolved.label ?? "not disclosed"}${resolved.type ? ` (${String(resolved.type).toUpperCase()}${resolved.identifier ? ` ${resolved.identifier}` : ""})` : ""}.`,
+      50, undefined, { width: W },
+    )
+    .text(
+      `${source?.publisher ?? "Source not disclosed"}${source?.dataset ? ` · ${source.dataset}` : ""}${source?.vintage ? ` · ${source.vintage}` : ""}.`,
+      50, undefined, { width: W },
+    );
+  if (resolved.coverageWarning) {
+    doc.moveDown(0.25);
+    doc.fontSize(9).font("Helvetica-Bold").fillColor("#975a16").text(String(resolved.coverageWarning), 50, undefined, { width: W });
+  }
+  doc.moveDown(0.4);
+  doc.fontSize(9).font("Helvetica").fillColor(GRAY)
+    .text(
+      "Observed values are public-data estimates at the disclosed geography grain. Scores and population estimates are TCAF-derived calculations, not Census findings. Cascade figures are TCAF scenario/model outputs, not observed costs. Narrative text is AI decision support, not an independently verified factual finding.",
+      50, undefined, { width: W },
+    );
+
   // ── Footer ────────────────────────────────────────────────────────────────
   doc.moveDown(1.5);
   doc.rect(50, doc.y, W, 1).fill(TEAL);
   doc.moveDown(0.5);
   doc.fontSize(8).font("Helvetica-Oblique").fillColor(LIGHT_GRAY)
     .text(
-      "Powered by TCAF | thrivingcommunitiesforall.com · Source: U.S. Census Bureau ACS 5-Year Estimates",
+      "Powered by TCAF | thrivingcommunitiesforall.com · See Sources & Methodology for geography, source, and claim labels.",
       50,
       undefined,
       { width: W, align: "center" },
@@ -433,6 +463,9 @@ export function registerExportPdfRoutes(app: Express) {
       }
 
       const brief = await briefRes.json() as Record<string, any>;
+      if (!hasValidCommunityEvidence(brief)) {
+        return res.status(502).json({ error: "Community brief generation did not return a valid evidence contract; PDF export was refused." });
+      }
 
       // Generate PDF — only from fields actually present in the brief.
       const doc = new PDFDocument({ size: "LETTER", margin: 50, bufferPages: true });

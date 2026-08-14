@@ -12,9 +12,7 @@ import { buildRpliceIntelligencePackage } from "./rplice-intelligence";
 import { buildRpliceInboundContext } from "./rplice-inbound-routes";
 import {
   resolveLocationToZip,
-  zipToGeography,
   fetchZctaData,
-  fetchNeighborhoodData,
   resolveCountyInput,
   fetchCountyData,
   fetchMultiCountyData,
@@ -29,6 +27,7 @@ import { generateAIJSON } from "./ai-provider";
 import { db, storage } from "./storage";
 import { grantOpportunities } from "@shared/schema";
 import { desc, gte, and, isNotNull } from "drizzle-orm";
+import { hasValidCommunityEvidence } from "./community-evidence";
 
 // ── First-party session auth (mirrors requireAuth in server/routes.ts) ────────
 // Roles live in the users table, never on req.user — resolve via storage.getUser
@@ -109,6 +108,14 @@ function conductorCacheGet(key: string): unknown | undefined {
     conductorBriefCache.delete(key);
     return undefined;
   }
+  // A cache entry written by an older server version (before an evidence-
+  // integrity fix shipped) can otherwise be served, unchanged, for up to the
+  // full TTL — silently reintroducing a bug that was already fixed in code.
+  // Treat any cached value that fails today's strict contract as a miss.
+  if (!hasValidCommunityEvidence(entry.value)) {
+    conductorBriefCache.delete(key);
+    return undefined;
+  }
   // Refresh LRU recency.
   conductorBriefCache.delete(key);
   conductorBriefCache.set(key, entry);
@@ -144,7 +151,7 @@ interface DomainScore {
   urgency: "stable" | "watch" | "concern" | "crisis";
 }
 
-interface AtRiskPopulation {
+export interface AtRiskPopulation {
   id: string;
   name: string;
   icon: string;
@@ -186,6 +193,39 @@ interface HistoricalCascade {
   yearsOfData: number;
 }
 
+interface CommunityEvidenceContract {
+  version: "community-evidence/v1";
+  geography: {
+    requested: { input: string; type: "zip" | "city" | "county" | "multi_county" | "address_or_place" };
+    resolved: {
+      type: "zcta" | "county" | "multi_county";
+      identifier: string;
+      label: string;
+      method: string;
+      coverageWarning?: string;
+    };
+  };
+  sources: Array<{
+    publisher: "U.S. Census Bureau";
+    dataset: "American Community Survey 5-Year Estimates";
+    vintage: "2022";
+    retrievedAt: string;
+    url: string;
+    variables: string[];
+    geographyGrain: "ZCTA" | "county" | "multi-county aggregate";
+  }>;
+  claims: {
+    observed: { label: string; status: "available" };
+    tcafDerived: { label: string; status: "available" | "unavailable"; disclosure: string };
+    tcafScenario: { label: string; status: "available" | "unavailable"; disclosure: string };
+    aiSynthesis: { label: string; status: "available"; disclosure: string };
+  };
+  dataQuality: {
+    status: "verified_at_resolved_grain" | "limited_resolution" | "unavailable";
+    warnings: string[];
+  };
+}
+
 interface ConductorBrief {
   geography: {
     input: string;
@@ -194,10 +234,10 @@ interface ConductorBrief {
     state: string;
     countyName: string;
   };
-  demographics: Record<string, number | string>;
+  demographics: Record<string, number | string | null>;
   systemsScores: Record<string, DomainScore>;
-  overallScore: number;
-  overallGrade: string;
+  overallScore: number | null;
+  overallGrade: string | null;
   atRiskPopulations: AtRiskPopulation[];
   cascade: {
     timeHorizonYears: number;
@@ -208,8 +248,8 @@ interface ConductorBrief {
     roi: string;
     keyChains: CascadeChain[];
     timeline: TimelineNode[];
-  };
-  historicalCascade: HistoricalCascade;
+  } | null;
+  historicalCascade: HistoricalCascade | null;
   solutions: {
     topInterventions: EvidenceProgram[];
     grants: any[];
@@ -222,6 +262,7 @@ interface ConductorBrief {
     gaps: string[];
     nationalComparison: string;
   };
+  evidence: CommunityEvidenceContract;
   // AUTHENTICATED-ONLY. The RPLICE intelligence package is built from
   // GLOBALLY-scoped, non-geography-filtered internal operational data (active
   // action plans, outcome baselines, assessment records). It must NEVER be sent
@@ -306,11 +347,11 @@ function computeDomainScores(ind: {
   const {
     povertyRate: pov,
     uninsuredRate: unins,
-    housingCostBurden: hcb = 30,
+    housingCostBurden: hcb,
     singleParentRate: spr,
     unemploymentRate: unem,
     noHighSchoolDiploma: noHs,
-    disabilityRate: dis = 10,
+    disabilityRate: dis,
   } = ind;
 
   const domains: Array<{
@@ -354,14 +395,14 @@ function computeDomainScores(ind: {
     },
     {
       id: "housing",
-      score: clamp(100 - (hcb - 20) * 2.2 - pov * 0.6),
+      score: clamp(100 - ((hcb ?? Number.NaN) - 20) * 2.2 - pov * 0.6),
       label: "Housing Stability",
       icon: "Home",
       keyGap:
-        hcb > 40
-          ? `${hcb.toFixed(1)}% spend >30% income on housing — eviction risk high; homelessness pipeline active`
-          : hcb > 30
-            ? `${hcb.toFixed(1)}% cost-burdened; one crisis away from housing loss`
+        Number(hcb) > 40
+          ? `${Number(hcb).toFixed(1)}% spend >30% income on housing — eviction risk high; homelessness pipeline active`
+          : Number(hcb) > 30
+            ? `${Number(hcb).toFixed(1)}% cost-burdened; one crisis away from housing loss`
             : "Housing costs manageable; affordability gaps emerging",
     },
     {
@@ -410,7 +451,7 @@ function computeDomainScores(ind: {
     },
     {
       id: "fostersAndAging",
-      score: clamp(100 - pov * 1.5 - dis * 1.2 - spr * 0.8),
+      score: clamp(100 - pov * 1.5 - (dis ?? Number.NaN) * 1.2 - spr * 0.8),
       label: "Foster & Aging",
       icon: "Users",
       keyGap:
@@ -427,6 +468,7 @@ function computeDomainScores(ind: {
 
   const result: Record<string, DomainScore> = {};
   for (const d of domains) {
+    if (!Number.isFinite(d.score)) continue;
     result[d.id] = {
       score: d.score,
       grade: gradeFromScore(d.score),
@@ -460,14 +502,14 @@ function identifyAtRiskPopulations(
   const {
     povertyRate: pov,
     uninsuredRate: unins,
-    housingCostBurden: hcb = 30,
+    housingCostBurden: hcb,
     singleParentRate: spr,
     unemploymentRate: unem,
     noHighSchoolDiploma: noHs,
-    limitedEnglish: le = 5,
-    disabilityRate: dis = 10,
-    ageUnder17 = 24,
-    age65Plus = 13,
+    limitedEnglish: le,
+    disabilityRate: dis,
+    ageUnder17,
+    age65Plus,
   } = ind;
 
   const pop = totalPopulation;
@@ -477,7 +519,7 @@ function identifyAtRiskPopulations(
       id: "children-poverty",
       name: "Children in Poverty",
       icon: "Baby",
-      estimated: Math.round(pop * (ageUnder17 / 100) * (pov / 100)),
+      estimated: Math.round(pop * (Number(ageUnder17) / 100) * (pov / 100)),
       unit: "children",
       primaryGap: "Pre-K access, food security, stable housing",
       urgency: pov > 25 ? "critical" : pov > 15 ? "high" : "moderate",
@@ -497,41 +539,11 @@ function identifyAtRiskPopulations(
       id: "housing-burdened",
       name: "Housing Cost-Burdened",
       icon: "Home",
-      estimated: Math.round(pop * ((Math.max(hcb, 20) - 20) / 100) * 0.6),
+      estimated: Math.round(pop * ((Math.max(Number(hcb), 20) - 20) / 100) * 0.6),
       unit: "households",
       primaryGap: "One crisis from eviction; no emergency housing safety net",
-      urgency: hcb > 40 ? "critical" : hcb > 30 ? "high" : "moderate",
+      urgency: Number(hcb) > 40 ? "critical" : Number(hcb) > 30 ? "high" : "moderate",
       interventions: ["Emergency rental assistance", "Housing counseling", "Section 8 waitlist navigation", "Housing First programs"],
-    },
-    {
-      id: "foster-aging-out",
-      name: "Youth Aging Out of Foster Care",
-      icon: "Shield",
-      estimated: Math.round(pop * 0.0015),
-      unit: "youth/year",
-      primaryGap: "Medicaid cliff at 18, no housing, no employment record, no support network",
-      urgency: "critical",
-      interventions: ["Medicaid bridge enrollment", "Transitional housing", "Employment mentorship", "Independent living programs"],
-    },
-    {
-      id: "reentry",
-      name: "Recently Released (Reentry)",
-      icon: "Scale",
-      estimated: Math.round(pop * 0.008),
-      unit: "individuals",
-      primaryGap: "No ID, no housing, no employer willing to hire; recidivism risk highest in first 90 days",
-      urgency: "critical",
-      interventions: ["ID restoration", "Reentry housing", "RNR-aligned employment", "Peer mentor networks"],
-    },
-    {
-      id: "homeless",
-      name: "Homeless / Unstably Housed",
-      icon: "MapPin",
-      estimated: Math.round(pop * 0.003 * (1 + pov / 50)),
-      unit: "individuals",
-      primaryGap: "Excluded from digital systems; no address = no benefits; highest ER cost users",
-      urgency: "critical",
-      interventions: ["Housing First", "Street outreach teams", "Benefits enrollment without address", "Peer navigators"],
     },
     {
       id: "single-parents",
@@ -547,17 +559,17 @@ function identifyAtRiskPopulations(
       id: "limited-english",
       name: "Limited English Proficient",
       icon: "Globe",
-      estimated: Math.round(pop * (le / 100)),
+      estimated: Math.round(pop * (Number(le) / 100)),
       unit: "individuals",
       primaryGap: "Language barrier blocks benefits enrollment, healthcare navigation, employment, and legal access",
-      urgency: le > 15 ? "high" : "moderate",
+      urgency: Number(le) > 15 ? "high" : "moderate",
       interventions: ["CHW/promotora outreach", "Multilingual benefits navigation", "ESL programs", "Interpreter services"],
     },
     {
       id: "disability",
       name: "People with Disabilities",
       icon: "Accessibility",
-      estimated: Math.round(pop * (dis / 100)),
+      estimated: Math.round(pop * (Number(dis) / 100)),
       unit: "individuals",
       primaryGap: "Benefits cliffs (earn too much → lose Medicaid), employment discrimination, inaccessible services",
       urgency: "high",
@@ -567,7 +579,7 @@ function identifyAtRiskPopulations(
       id: "elderly-isolated",
       name: "Elderly & Isolated (65+)",
       icon: "UserCheck",
-      estimated: Math.round(pop * (age65Plus / 100) * 0.25),
+      estimated: Math.round(pop * (Number(age65Plus) / 100) * 0.25),
       unit: "individuals",
       primaryGap: "Social isolation, technology barrier to benefits, caregiver absence, medication costs",
       urgency: "high",
@@ -575,7 +587,7 @@ function identifyAtRiskPopulations(
     },
   ];
 
-  return populations.filter((p) => p.estimated > 0).sort((a, b) => {
+  return populations.filter((p) => Number.isFinite(p.estimated) && p.estimated > 0).sort((a, b) => {
     const urgOrder = { critical: 0, high: 1, moderate: 2 };
     return urgOrder[a.urgency] - urgOrder[b.urgency];
   });
@@ -803,16 +815,16 @@ function buildCascadeModel(
   const {
     povertyRate: pov,
     uninsuredRate: unins,
-    housingCostBurden: hcb = 30,
+    housingCostBurden: hcb,
     singleParentRate: spr,
     noHighSchoolDiploma: noHs,
-    ageUnder17 = 24,
+    ageUnder17,
   } = ind;
 
   const h = Math.min(timeHorizonYears, 25);
 
   // ── Chain 1: ECE → Education → Justice ──────────────────────────────────
-  const childrenInPoverty = Math.round(populationSize * (ageUnder17 / 100) * (pov / 100));
+  const childrenInPoverty = Math.round(populationSize * (Number(ageUnder17) / 100) * (pov / 100));
   const noPrekGap = Math.round(childrenInPoverty * 0.38); // 38% of poverty children lack quality pre-K
   const thirdGradeFailures = Math.round(noPrekGap * 0.62);
   const dropouts = Math.round(thirdGradeFailures * 0.72);
@@ -831,7 +843,7 @@ function buildCascadeModel(
   const chain2Cost = mhHealthcareCost + mhServiceCost;
 
   // ── Chain 3: Housing instability → School disruption → Poverty cycle ──────
-  const overBurdened = Math.round(populationSize * (Math.max(hcb - 25, 0) / 100));
+  const overBurdened = Math.round(populationSize * (Math.max(Number(hcb) - 25, 0) / 100));
   const chronicallyUnstable = Math.round(overBurdened * 0.14);
   const erVisits = chronicallyUnstable * 4 * 1800; // 4 ER visits/yr @ $1,800
   const educationDisruption = Math.round(chronicallyUnstable * 0.4 * 8000 * Math.min(h, 10));
@@ -1015,11 +1027,151 @@ async function findRelevantGrants(domainScores: Record<string, DomainScore>, lim
 
 // ─── AI narrative generator ───────────────────────────────────────────────────
 
+// ── Deterministic ROI-claim validation ──────────────────────────────────────
+// Prompt instructions alone are not a guarantee the model complies — an LLM
+// can still restate, round, or reframe a ratio. This is a mechanical,
+// non-AI check run AFTER generation: it extracts every cost-benefit-ratio-
+// shaped claim from the narrative text and verifies it is either absent (no
+// scenario computed) or exactly matches the one real computed ROI. Anything
+// that fails is redacted before the narrative is ever returned.
+const ROI_NUMBER_WORDS: Record<string, number> = {
+  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
+};
+
+interface RoiClaim {
+  value: number;
+  // "ratio": directly comparable to cascade.roi (e.g. "3.2x", "3.2:1").
+  // "percent": a % framing of the same multiplier (e.g. "320% return" for
+  // roi=3.2), compared against roi*100.
+  kind: "ratio" | "percent";
+}
+
+// Every phrasing this platform is willing to treat as a grounded ROI
+// statement, each capturing the number that must equal the computed ROI
+// (or, for percent claims, roi*100). Deliberately covers numeric AND
+// spelled-out forms across every trigger phrase in ROI_TRIGGER_RE below, so
+// a correctly-grounded claim in any of these forms survives redaction while
+// an invented or mismatched number in the same form does not.
+function extractRoiClaimsDetailed(text: string): RoiClaim[] {
+  const claims: RoiClaim[] = [];
+  const ratioNumericPatterns = [
+    /(\d+(?:\.\d+)?)\s*(?::|to)\s*1\b/gi, // "5:1" / "5 to 1"
+    /(\d+(?:\.\d+)?)\s*x\b/gi, // "5x" / "5.0x"
+    /\$?\s*(\d+(?:\.\d+)?)\s*(?:dollars?)?\s*for every\s*(?:\$ ?1|dollar)\b/gi, // "$5 for every $1" / "5 dollars for every dollar"
+    /\$?\s*(\d+(?:\.\d+)?)\s*(?:dollars?)?\s*(?:saved|returned)?\s*per\s*(?:dollar|\$1)\b(?:\s+invested)?/gi, // "$5 saved per dollar" / "5 per dollar invested"
+    /(\d+(?:\.\d+)?)[\s-]*fold\b/gi, // "5-fold" / "5 fold" / "5fold"
+    /(\d+(?:\.\d+)?)\s*times\s*(?:the\s*)?(?:investment|cost)\b/gi, // "5 times the investment"
+  ];
+  for (const re of ratioNumericPatterns) {
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text))) {
+      const n = parseFloat(m[1]);
+      if (Number.isFinite(n)) claims.push({ value: n, kind: "ratio" });
+    }
+  }
+  const percentPatterns = [
+    /(\d+(?:\.\d+)?)\s*%\s*return\b/gi, // "320% return"
+    /(\d+(?:\.\d+)?)\s*percent\s*return\b/gi, // "320 percent return"
+  ];
+  for (const re of percentPatterns) {
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text))) {
+      const n = parseFloat(m[1]);
+      if (Number.isFinite(n)) claims.push({ value: n, kind: "percent" });
+    }
+  }
+  const wordAlternation = "one|two|three|four|five|six|seven|eight|nine|ten";
+  const wordPatterns = [
+    new RegExp(`\\b(${wordAlternation})\\b[\\s-]*(?:dollars?)?\\s*(?:for every|to|per)\\s*\\$?(?:one|1|dollar)\\b`, "gi"),
+    new RegExp(`\\b(${wordAlternation})[\\s-]*fold\\b`, "gi"),
+    new RegExp(`\\b(${wordAlternation})\\b\\s*times\\s*(?:the\\s*)?(?:investment|cost)\\b`, "gi"),
+  ];
+  for (const re of wordPatterns) {
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text))) {
+      const n = ROI_NUMBER_WORDS[m[1].toLowerCase()];
+      if (n != null) claims.push({ value: n, kind: "ratio" });
+    }
+  }
+  return claims;
+}
+
+export function extractRoiClaims(narrative: string): number[] {
+  return extractRoiClaimsDetailed(narrative).map((c) => c.value);
+}
+
+// Broad trigger: any phrasing that COULD be a cost-benefit / return-on-
+// investment style claim, however it is worded — numeric, spelled-out,
+// percentage, "-fold", or named ("ROI", "return on investment"). Deliberately
+// wide, because the redaction rule below is a per-sentence allow-list (a
+// triggered sentence is kept only if it states the exact canonical ROI), so
+// over-triggering only ever removes text, never lets a mismatch through.
+// NOTE: decimal points inside these patterns must use \u0000 (see
+// `protectDecimals` below), not a literal ".", or the sentence splitter two
+// functions down would misread "3.2" as two sentences.
+const ROI_TRIGGER_RE = /(return on investment|\bROI\b|for every\s*(?:dollar|\$ ?1)\b|dollars?\s+for every|per\s*(?:dollar|\$1)\b(?:\s+invested)?|\d+(?:\u0000\d+)?\s*(?::|to)\s*1\b|\d+(?:\u0000\d+)?\s*x\b|\w*fold\b|times\s*(?:the\s*)?(?:investment|cost)\b|%\s*return|percent\s*return|cost[- ]benefit)/i;
+
+// A real decimal point ("3.2") always has a digit on both sides with no
+// space; a sentence-ending period never does. Swap decimal points for a
+// sentinel character before sentence-splitting or pattern-matching, so "."
+// can be trusted as a sentence boundary, and restore it in the final output.
+function protectDecimals(text: string): string {
+  return text.replace(/(\d)\.(?=\d)/g, "$1\u0000");
+}
+function restoreDecimals(text: string): string {
+  return text.replace(/\u0000/g, ".");
+}
+
+/**
+ * A sentence that trips ROI_TRIGGER_RE is only "grounded" if it states the
+ * exact computed ROI figure in a recognized canonical form. Anything else —
+ * an invented number, a rephrased ratio, a vague "for every dollar invested"
+ * claim with no verifiable figure — cannot be confirmed to match the
+ * computed value, so it does not count as grounded.
+ */
+function roiSentenceIsGrounded(protectedSentence: string, cascade: { roi: string } | null): boolean {
+  if (!cascade) return false; // no scenario was computed — no claim can be grounded
+  const roi = parseFloat(cascade.roi);
+  if (!Number.isFinite(roi)) return false;
+  // Sentence-splitting is already done; safe to restore real decimal points
+  // before running the (unprotected) claim extractor.
+  const claims = extractRoiClaimsDetailed(restoreDecimals(protectedSentence));
+  if (claims.length === 0) return false; // trigger fired but no verifiable number — can't confirm it's grounded
+  return claims.every((c) => (c.kind === "percent" ? Math.abs(c.value - roi * 100) < 0.5 : Math.abs(c.value - roi) < 0.05));
+}
+
+/**
+ * Returns the narrative unchanged if it contains no ROI/cost-benefit-shaped
+ * claim at all. Otherwise, splits into sentences (including a trailing
+ * fragment with no terminal punctuation) and keeps only sentences that
+ * either don't touch ROI/cost-benefit language, or state the exact computed
+ * ROI figure verbatim. This is a mechanical, non-AI check — it does not
+ * trust prompt instructions to have been followed.
+ */
+export function enforceGroundedRoi(narrative: string, cascade: { roi: string } | null): string {
+  const protectedText = protectDecimals(narrative);
+  if (!ROI_TRIGGER_RE.test(protectedText)) return narrative;
+  const sentences = protectedText.match(/[^.!?]+(?:[.!?]+|$)/g) ?? [protectedText];
+  let droppedAny = false;
+  const kept = sentences.filter((sentence) => {
+    if (!ROI_TRIGGER_RE.test(sentence)) return true;
+    const grounded = roiSentenceIsGrounded(sentence, cascade);
+    if (!grounded) droppedAny = true;
+    return grounded;
+  });
+  if (!droppedAny) return narrative;
+  console.error(
+    `[Conductor] narrative contained an ungrounded ROI/cost-benefit claim ` +
+    `(expected ${cascade ? `${cascade.roi}x` : "none (no scenario computed)"}) — redacting offending sentence(s).`
+  );
+  return restoreDecimals(kept.join(" ").replace(/\s{2,}/g, " ").trim());
+}
+
 async function generateCommunityNarrative(
   geography: string,
-  demographics: Record<string, number | string>,
+  demographics: Record<string, number | string | null>,
   domainScores: Record<string, DomainScore>,
-  cascade: ReturnType<typeof buildCascadeModel>,
+  cascade: ReturnType<typeof buildCascadeModel> | null,
   populations: AtRiskPopulation[]
 ): Promise<string> {
   const crisisDomains = Object.values(domainScores)
@@ -1028,13 +1180,21 @@ async function generateCommunityNarrative(
 
   const topPop = populations.slice(0, 4).map((p) => p.name).join(", ");
 
+  // The narrative previously produced its own return-on-investment framing
+  // (e.g. "every dollar invested prevents five dollars") independent of the
+  // ROI figure this brief actually computed and displays elsewhere. That
+  // contradiction is a direct evidence-integrity failure — the fix is to
+  // hand the model the exact computed figure and forbid it from stating any
+  // other ratio, rather than trying to detect the contradiction after the
+  // fact in free text.
   try {
     const result = await generateAIJSON<{ narrative?: string }>(
       `You are writing a community impact narrative for ${geography}. 
       
 Write a 4-paragraph plain-language narrative (no jargon, no bullet points) that:
 1. Opens with what is HAPPENING in this community right now — specific, human, grounded in the data
-2. Describes the CASCADE — how these conditions compound over 25 years through the lives of children, families, and the next generation
+2. Describes the available observed indicators without implying they represent any larger city, county, or service area
+3. If a TCAF scenario is supplied, identify it explicitly as a scenario/model, not an observed Census finding
 3. Names the COUNTERFACTUAL — what this community could look like with evidence-based investment
 4. Closes with a CALL TO ACTION for organizations, policymakers, and funders
 
@@ -1043,16 +1203,18 @@ Data inputs:
 - Poverty rate: ${demographics.povertyRate}%
 - Uninsured rate: ${demographics.uninsuredRate}%
 - Crisis domains: ${crisisDomains.join(", ") || "none in crisis"}
-- 25-year cost of inaction: $${(cascade.counterfactualCost / 1e6).toFixed(1)}M
-- Intervention cost: $${(cascade.interventionCost / 1e6).toFixed(1)}M
-- Net savings: $${(cascade.netSavings / 1e6).toFixed(1)}M
+- TCAF scenario availability: ${cascade ? "available" : "unavailable because required observed inputs were not returned"}
+${cascade ? `- TCAF scenario cost of inaction: $${(cascade.counterfactualCost / 1e6).toFixed(1)}M
+- TCAF scenario intervention cost: $${(cascade.interventionCost / 1e6).toFixed(1)}M
+- TCAF scenario net savings: $${(cascade.netSavings / 1e6).toFixed(1)}M
+- TCAF scenario ROI: ${cascade.roi}x (this is the ONLY return-on-investment figure you may state — do not invent, round to a different ratio, or restate it as a "dollars saved per dollar" claim using any other number)` : "- No cost-benefit ratio, ROI, or \"dollars saved per dollar\" figure may be stated anywhere in the narrative, because no scenario was computed for this geography."}
 - At-risk populations: ${topPop}
 
-Tone: compassionate, honest, evidence-grounded. Blame the systems, not the people. Every dollar figure must feel real, not abstract. This is meant to move a funder to act.
+Tone: compassionate, honest, evidence-grounded. Blame the systems, not the people. Do not call any modeled dollar figure Census-verified or a fact. Do not call a ZCTA result citywide. This is decision support, not a factual certification. Never state a cost-benefit ratio, "return per dollar", or "saves $X for every $1" claim other than the exact TCAF scenario ROI figure given above (or, if none was given, do not state one at all).
 
 Return JSON: { "narrative": "..." }`
     );
-    return result.narrative || "";
+    return enforceGroundedRoi(result.narrative || "", cascade);
   } catch (err) {
     // Fail loudly: previously this returned a hardcoded, fabricated narrative that
     // looked AI-generated. Surface the real failure so the caller returns an
@@ -1148,6 +1310,7 @@ export function registerConductorRoutes(app: Express) {
       let stateFips   = "";
       let zip         = "";
       let isCountyLevel = false;
+      let evidenceGeography: CommunityEvidenceContract["geography"];
 
       const rawInput = location.trim();
 
@@ -1176,6 +1339,15 @@ export function registerConductorRoutes(app: Express) {
         countyName  = displayName;
         stateName   = counties[0].stateAbbrev;
         stateFips   = counties[0].stateFips;
+        evidenceGeography = {
+          requested: { input: rawInput, type: "multi_county" },
+          resolved: {
+            type: "multi_county",
+            identifier: counties.map((county) => `${county.stateFips}${county.countyFips}`).join("|"),
+            label: displayName,
+            method: "Direct Census ACS aggregation across the requested counties",
+          },
+        };
 
       // ── 1b: Single county name or 5-digit county FIPS ────────────────────
       } else {
@@ -1196,6 +1368,15 @@ export function registerConductorRoutes(app: Express) {
           countyName  = countyResolved.displayName;
           stateName   = countyResolved.stateAbbrev;
           stateFips   = countyResolved.stateFips;
+          evidenceGeography = {
+            requested: { input: rawInput, type: "county" },
+            resolved: {
+              type: "county",
+              identifier: `${countyResolved.stateFips}${countyResolved.countyFips}`,
+              label: displayName,
+              method: "Direct Census ACS county lookup",
+            },
+          };
         }
       }
 
@@ -1213,20 +1394,29 @@ export function registerConductorRoutes(app: Express) {
           });
         }
         zip = resolved.zip;
-        displayName = resolved.displayName && resolved.displayName.length < 100
-          ? resolved.displayName : rawInput;
+        // A ZIP is analyzed as its Census ZCTA. Never carry a city-like label
+        // after resolving it to one representative ZIP; that would overstate the
+        // coverage of the public data.
+        displayName = `ZCTA ${zip}`;
+        stateName = resolved.stateAbbrev ?? "";
+        stateFips = stateName ? stateFipsFromName(stateName) : "";
+        evidenceGeography = {
+          requested: { input: rawInput, type: resolved.requestedType },
+          resolved: {
+            type: "zcta",
+            identifier: zip,
+            label: displayName,
+            method: resolved.resolutionMethod,
+            coverageWarning: resolved.requestedType === "city"
+              ? `The city request "${rawInput}" was resolved to ZCTA ${zip}. This is not a citywide estimate.`
+              : "Census ZCTAs approximate ZIP delivery areas and are not USPS ZIP boundaries.",
+          },
+        };
 
-        // Fail loudly on Census failure
+        // Fail loudly on Census failure. Do not geocode a made-up street inside
+        // the ZIP to obtain an arbitrary tract.
         try {
-          const geo = await zipToGeography(zip);
-          if (geo && !geo.isZcta && geo.stateFips && geo.countyFips && geo.tractFips) {
-            stateFips  = geo.stateFips;
-            countyName = geo.countyName || "";
-            censusData = await fetchNeighborhoodData(geo.stateFips, geo.countyFips, geo.tractFips);
-          }
-          if (!censusData) {
-            censusData = await fetchZctaData(zip);
-          }
+          censusData = await fetchZctaData(zip);
         } catch (err) {
           console.error(`[Conductor] Census fetch failed for ${zip}:`, err);
           return res.status(502).json({
@@ -1242,11 +1432,9 @@ export function registerConductorRoutes(app: Express) {
           });
         }
 
-        // Derive state from FIPS (authoritative) — never from Nominatim display_name string
-        if (stateFips) {
-          stateName = CONDUCTOR_FIPS_TO_STATE[stateFips] || "";
-        }
-        if (!countyName) countyName = censusData?.countyName || displayName;
+        // Do not infer a county from a ZCTA: ZCTAs commonly cross county lines.
+        // State is included only when resolution supplied an explicit state.
+        if (stateFips) stateName = CONDUCTOR_FIPS_TO_STATE[stateFips] || stateName;
       }
 
       if (!censusData?.indicators || censusData.indicators.povertyRate == null) {
@@ -1257,21 +1445,26 @@ export function registerConductorRoutes(app: Express) {
 
       // Step 2 (was Step 3): Build indicators from real Census data.
       const ci = censusData.indicators;
-      const ind = {
+      const ind: any = {
         povertyRate: ci.povertyRate,
-        uninsuredRate: ci.uninsuredRate ?? 10.2,
-        housingCostBurden: ci.housingCostBurden ?? 30,
-        singleParentRate: ci.singleParentRate ?? 22,
-        unemploymentRate: ci.unemploymentRate ?? 5.8,
-        noHighSchoolDiploma: ci.noHighSchoolDiploma ?? 12,
-        limitedEnglish: ci.limitedEnglish ?? 5,
-        disabilityRate: ci.disabilityRate ?? 10,
-        ageUnder17: ci.ageUnder17 ?? 24,
-        age65Plus: ci.age65Plus ?? 13,
-        totalPopulation: ci.totalPopulation ?? populationSize,
+        uninsuredRate: ci.uninsuredRate ?? null,
+        housingCostBurden: ci.housingCostBurden ?? null,
+        singleParentRate: ci.singleParentRate ?? null,
+        unemploymentRate: ci.unemploymentRate ?? null,
+        noHighSchoolDiploma: ci.noHighSchoolDiploma ?? null,
+        limitedEnglish: ci.limitedEnglish ?? null,
+        disabilityRate: ci.disabilityRate ?? null,
+        ageUnder17: ci.ageUnder17 ?? null,
+        age65Plus: ci.age65Plus ?? null,
+        totalPopulation: censusData.population ?? null,
       };
 
-      const totalPop = Math.max(ind.totalPopulation, populationSize);
+      if (!Number.isFinite(ind.totalPopulation) || ind.totalPopulation <= 0) {
+        return res.status(502).json({
+          error: `Census returned no usable population for ${displayName}. We will not substitute the requested population parameter for observed data.`,
+        });
+      }
+      const totalPop = ind.totalPopulation;
 
       const demographics = {
         totalPopulation: totalPop,
@@ -1285,27 +1478,39 @@ export function registerConductorRoutes(app: Express) {
         disabilityRate: ind.disabilityRate,
         ageUnder17: ind.ageUnder17,
         age65Plus: ind.age65Plus,
-        medianIncome: censusData?.indicators?.medianIncome ?? 55000,
+        medianIncome: censusData?.medianIncome ?? null,
       };
 
       // Step 4: Compute all layers in parallel
       const domainScores = computeDomainScores(ind);
       const atRiskPopulations = identifyAtRiskPopulations(ind, totalPop);
-      const cascade = buildCascadeModel(ind, Math.min(totalPop, populationSize), timeHorizon);
-      const BRIEF_CENSUS_KEY = process.env.CENSUS_API_KEY || "";
+      const scenarioInputsAvailable = [
+        ind.povertyRate,
+        ind.uninsuredRate,
+        ind.housingCostBurden,
+        ind.singleParentRate,
+        ind.noHighSchoolDiploma,
+        ind.ageUnder17,
+      ].every((value) => Number.isFinite(value));
+      const cascade = scenarioInputsAvailable
+        ? buildCascadeModel(ind, Math.min(totalPop, populationSize), timeHorizon)
+        : null;
 
       // Compute crisis domains before the parallel block so RPLICE gets the full picture
       const crisisDomainIds = Object.entries(domainScores)
         .filter(([, v]) => v.urgency === "crisis" || v.urgency === "concern")
         .map(([k]) => k);
 
-      const [grants, narrative, historicalCascade, rpliceIntelligence] = await Promise.all([
+      const resolvedEvidenceGeography = evidenceGeography!;
+      const [grants, narrative, rpliceIntelligence] = await Promise.all([
         findRelevantGrants(domainScores),
-        generateCommunityNarrative(displayName, demographics, domainScores, cascade, atRiskPopulations),
-        buildHistoricalCascade(zip, BRIEF_CENSUS_KEY, stateFips || stateFipsFromName(stateName) || stateFipsFromZip(zip)).catch(() => ({
-          vintages: [], totalAccumulatedCost: 0, trendDirection: "stagnant" as const,
-          yearsAboveCrisisThreshold: 0, keyInsight: "", yearsOfData: 0,
-        })),
+        generateCommunityNarrative(
+          `${resolvedEvidenceGeography.resolved.label} (${resolvedEvidenceGeography.resolved.type.toUpperCase()} ${resolvedEvidenceGeography.resolved.identifier})`,
+          demographics,
+          domainScores,
+          cascade,
+          atRiskPopulations,
+        ),
         // Only build the internal RPLICE intelligence package for authenticated
         // callers — anonymous responses never include it, so don't spend the DB
         // queries for them.
@@ -1335,17 +1540,69 @@ export function registerConductorRoutes(app: Express) {
 
       // Step 7: Policy actions
       const policyActions: string[] = [];
-      if (ind.povertyRate > 15) policyActions.push("Expand EITC eligibility and auto-enrollment for eligible filers");
-      if (ind.uninsuredRate > 10) policyActions.push("Medicaid expansion (if not expanded) or gap coverage for 100–138% FPL adults");
-      if (ind.housingCostBurden > 35) policyActions.push("Inclusionary zoning and affordable housing trust fund capitalization");
-      if (ind.noHighSchoolDiploma > 15) policyActions.push("Universal pre-K investment and 3rd grade reading guarantees");
-      if (ind.singleParentRate > 30) policyActions.push("Subsidized childcare (CCDF expansion) and co-parenting program funding");
+      if (Number.isFinite(ind.povertyRate) && ind.povertyRate > 15) policyActions.push("Expand EITC eligibility and auto-enrollment for eligible filers");
+      if (Number.isFinite(ind.uninsuredRate) && ind.uninsuredRate > 10) policyActions.push("Medicaid expansion (if not expanded) or gap coverage for 100–138% FPL adults");
+      if (Number.isFinite(ind.housingCostBurden) && ind.housingCostBurden > 35) policyActions.push("Inclusionary zoning and affordable housing trust fund capitalization");
+      if (Number.isFinite(ind.noHighSchoolDiploma) && ind.noHighSchoolDiploma > 15) policyActions.push("Universal pre-K investment and 3rd grade reading guarantees");
+      if (Number.isFinite(ind.singleParentRate) && ind.singleParentRate > 30) policyActions.push("Subsidized childcare (CCDF expansion) and co-parenting program funding");
       policyActions.push("Community health worker (CHW) Medicaid reimbursement");
       policyActions.push("Second Chance Act reentry funding for local workforce programs");
 
       // Step 8: Overall score
       const scores = Object.values(domainScores).map((d) => d.score);
-      const overallScore = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length);
+      const overallScore = scores.length > 0
+        ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)
+        : null;
+      const retrievedAt = new Date().toISOString();
+      const evidence: CommunityEvidenceContract = {
+        version: "community-evidence/v1",
+        geography: resolvedEvidenceGeography,
+        sources: [{
+          publisher: "U.S. Census Bureau",
+          dataset: "American Community Survey 5-Year Estimates",
+          vintage: "2022",
+          retrievedAt,
+          url: "https://api.census.gov/data/2022/acs/acs5.html",
+          variables: [
+            "B01003_001E", "B19013_001E", "B17001_001E", "B17001_002E",
+            "B23025_003E", "B23025_005E", "B27001_001E", "B11001_001E",
+          ],
+          geographyGrain: resolvedEvidenceGeography.resolved.type === "zcta"
+            ? "ZCTA"
+            : resolvedEvidenceGeography.resolved.type === "county"
+              ? "county"
+              : "multi-county aggregate",
+        }],
+        claims: {
+          observed: { label: "Observed public-data estimates", status: "available" },
+          tcafDerived: {
+            label: "TCAF-derived scores and population estimates",
+            status: scores.length > 0 ? "available" : "unavailable",
+            disclosure: "Scores and at-risk population estimates are TCAF calculations from the observed estimates above; they are not Census findings.",
+          },
+          tcafScenario: {
+            label: "TCAF scenario/model output",
+            status: cascade ? "available" : "unavailable",
+            disclosure: cascade
+              ? "Cascade costs, savings, ROI, and timelines are TCAF scenario outputs using observed inputs and published model assumptions. They are not observed or Census-verified costs."
+              : "Scenario output is unavailable because one or more required observed inputs were not returned. No default values were substituted.",
+          },
+          aiSynthesis: {
+            label: "TCAF AI synthesis",
+            status: "available",
+            disclosure: "The narrative is AI-generated decision support grounded in the disclosed geography and inputs. It is not an independently verified factual finding.",
+          },
+        },
+        dataQuality: {
+          status: resolvedEvidenceGeography.resolved.type === "zcta" && resolvedEvidenceGeography.requested.type !== "zip"
+            ? "limited_resolution"
+            : "verified_at_resolved_grain",
+          warnings: [
+            ...(resolvedEvidenceGeography.resolved.coverageWarning ? [resolvedEvidenceGeography.resolved.coverageWarning] : []),
+            ...(!cascade ? ["No TCAF scenario is displayed because the required observed inputs are incomplete."] : []),
+          ],
+        },
+      };
 
       // Build RPLICE context block (inbound evidence feed)
       const rpliceInboundContext = buildRpliceInboundContext();
@@ -1409,10 +1666,10 @@ export function registerConductorRoutes(app: Express) {
         demographics,
         systemsScores: domainScores,
         overallScore,
-        overallGrade: gradeFromScore(overallScore),
+        overallGrade: overallScore == null ? null : gradeFromScore(overallScore),
         atRiskPopulations,
         cascade,
-        historicalCascade,
+        historicalCascade: null,
         solutions: {
           topInterventions,
           grants,
@@ -1425,7 +1682,8 @@ export function registerConductorRoutes(app: Express) {
           gaps: policyCtx.gaps,
           nationalComparison,
         },
-        generatedAt: new Date().toISOString(),
+        evidence,
+        generatedAt: retrievedAt,
       };
 
       // Cache the aggregate, RPLICE-free brief (no PII, no internal data) so

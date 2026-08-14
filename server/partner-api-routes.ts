@@ -1,5 +1,6 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { getLastBriefProbeResult } from "./community-brief-probe";
+import { hasValidCommunityEvidence } from "./community-evidence";
 import { db, storage } from "./storage";
 import {
   partnerApiKeys, partnerApiAuditLog, partnerInboundData, ecosystemPlatforms,
@@ -1043,9 +1044,9 @@ export function registerPartnerApiRoutes(app: Express) {
         return res.status(429).json({ error: "Rate limit exceeded: 20 community briefs per hour per partner key. Please retry after an hour." });
       }
 
-      const location = (req.query.location as string || "").trim();
+      const location = (typeof req.query.location === "string" ? req.query.location : "").trim();
       if (!location) {
-        return res.status(400).json({ error: "location query param is required (ZIP code, city, or community name)" });
+        return res.status(400).json({ error: "location query param is required (ZIP/ZCTA, city/state, county, or multi-county service area)" });
       }
       const populationSize = Math.min(5_000_000, Math.max(100, parseInt((req.query.populationSize as string) || "10000", 10) || 10000));
       const timeHorizon = Math.min(50, Math.max(1, parseInt((req.query.timeHorizon as string) || "25", 10) || 25));
@@ -1077,9 +1078,12 @@ export function registerPartnerApiRoutes(app: Express) {
       const brief = await conductorRes.json();
       // Strip the rplice block if somehow returned (partner keys are aggregate-only)
       const { rplice: _rplice, ...publicBrief } = brief as any;
+      if (!hasValidCommunityEvidence(publicBrief)) {
+        return res.status(502).json({ error: "Community brief generation did not return a valid evidence contract." });
+      }
       res.json({
         ...publicBrief,
-        partnerNote: "RPLICE internal intelligence block is not included for partner keys. This brief contains aggregate public Census data only.",
+        partnerNote: "RPLICE internal intelligence is not included for partner keys. The included evidence contract identifies the resolved geography, observed public-data estimates, TCAF-derived calculations, scenario output, and AI synthesis.",
       });
     } catch (err) {
       console.error("[PartnerAPI] community-brief failed:", err);
@@ -1107,7 +1111,7 @@ export function registerPartnerApiRoutes(app: Express) {
       if (!checkStoryRateLimit(keyId)) {
         return res.status(429).json({ error: "Rate limit exceeded: 10 community story packs per hour per partner key." });
       }
-      const location = (req.query.location as string || "").trim();
+      const location = (typeof req.query.location === "string" ? req.query.location : "").trim();
       if (!location) return res.status(400).json({ error: "location query param is required" });
 
       const port = process.env.PORT || "5000";
@@ -1126,13 +1130,20 @@ export function registerPartnerApiRoutes(app: Express) {
         return res.status(packRes.status === 404 ? 404 : 502).json({ error: `Story pack failed: ${errBody.slice(0, 200)}` });
       }
       const story = await packRes.json() as Record<string, unknown>;
-      // Strip any rplice block — partner keys get aggregate data only
-      const brief = (story.brief as Record<string, unknown>) ?? {};
+      // Strip any rplice block — partner keys get aggregate data only. Strip
+      // both the nested brief.rplice AND a top-level story.rplice: the spread
+      // below (`...story`) would otherwise let a top-level key survive even
+      // though the nested one was removed.
+      const { rplice: _topRplice, ...publicStory } = story as any;
+      const brief = (publicStory.brief as Record<string, unknown>) ?? {};
       const { rplice: _r, ...publicBrief } = brief as any;
+      if (!hasValidCommunityEvidence(publicBrief)) {
+        return res.status(502).json({ error: "Community story generation did not return a valid evidence contract." });
+      }
       res.json({
-        ...story,
+        ...publicStory,
         brief: publicBrief,
-        partnerNote: "Community Story Pack via TCAF Partner API. RPLICE internal block excluded. Embed at /community-story/{shareId} after calling POST /api/community-story/share.",
+        partnerNote: "Community Story Pack via TCAF Partner API. RPLICE internal block excluded. The evidence contract identifies resolved geography and claim types. Embed at /community-story/{shareId} after calling POST /api/community-story/share.",
         embedInstructions: {
           step1: `POST /api/community-story/share with body { location: '${location}' } to get a shareId and embedCode`,
           step2: "Paste the embedCode <iframe> on your website or grant portal",

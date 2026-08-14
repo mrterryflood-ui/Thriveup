@@ -15,6 +15,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
 import {
   Heart, Brain, Shield, Home, Baby, GraduationCap, Scale, Briefcase,
   Users, MapPin, Globe, Search, AlertTriangle, TrendingDown, TrendingUp,
@@ -49,11 +50,13 @@ const POP_URGENCY: Record<string, string> = {
   critical: "border-l-red-600",
 };
 
-function fmt$(n: number) {
-  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`;
-  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`;
-  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`;
-  return `$${n.toFixed(0)}`;
+function fmt$(n: number | null | undefined) {
+  if (!Number.isFinite(n as number)) return "—";
+  const v = n as number;
+  if (v >= 1e9) return `$${(v / 1e9).toFixed(1)}B`;
+  if (v >= 1e6) return `$${(v / 1e6).toFixed(1)}M`;
+  if (v >= 1e3) return `$${(v / 1e3).toFixed(0)}K`;
+  return `$${v.toFixed(0)}`;
 }
 
 // ─── Community Invoice PDF ────────────────────────────────────────────────────
@@ -87,7 +90,7 @@ function generateInvoicePDF(data: any, locationQuery: string) {
   doc.setFontSize(8);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(148, 163, 184);
-  doc.text("Census-verified cost of disinvestment  ·  ThriveUp Academy / TCAF", margin, 22);
+  doc.text("TCAF scenario and historical model summary · ThriveUp Academy / TCAF", margin, 22);
   doc.text(`Generated ${new Date().toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}`, margin, 29);
   y = 46;
 
@@ -106,9 +109,9 @@ function generateInvoicePDF(data: any, locationQuery: string) {
 
   // ── Three-box verdict ───────────────────────────────────────────────────────
   const boxes = [
-    { label: "ALREADY PAID (2013–2022)", value: fmtD(hist.totalAccumulatedCost ?? 0), sub: `${hist.trendDirection ?? "stagnant"} trend`, r: 180, g: 83, b: 9 },
-    { label: "IF NOTHING CHANGES (25yr)", value: fmtD(casc.counterfactualCost ?? 0), sub: "forward projection", r: 185, g: 28, b: 28 },
-    { label: "SAVINGS WITH INVESTMENT", value: fmtD(casc.netSavings ?? 0), sub: `${casc.roi ?? "—"}× return on investment`, r: 5, g: 120, b: 85 },
+    ...(hist.totalAccumulatedCost != null ? [{ label: "HISTORICAL MODEL (2013–2022)", value: fmtD(hist.totalAccumulatedCost), sub: `${hist.trendDirection ?? "trend unavailable"} trend`, r: 180, g: 83, b: 9 }] : []),
+    ...(casc.counterfactualCost != null ? [{ label: "TCAF SCENARIO (25yr)", value: fmtD(casc.counterfactualCost), sub: "forward model, not an observed cost", r: 185, g: 28, b: 28 }] : []),
+    ...(casc.netSavings != null ? [{ label: "TCAF SCENARIO SAVINGS", value: fmtD(casc.netSavings), sub: `${casc.roi ?? "—"}× modeled return`, r: 5, g: 120, b: 85 }] : []),
   ];
   const bw = (maxW - 8) / 3;
   boxes.forEach((box, i) => {
@@ -177,8 +180,8 @@ function generateInvoicePDF(data: any, locationQuery: string) {
   doc.setFontSize(9);
   doc.setFont("helvetica", "bold");
   doc.setTextColor(180, 83, 9);
-  doc.text("TOTAL ACCUMULATED COST", colX[0] + 2, y + 1);
-  doc.text(fmtD(hist.totalAccumulatedCost ?? 0), colX[3] + 2, y + 1);
+    doc.text("TOTAL HISTORICAL MODEL OUTPUT", colX[0] + 2, y + 1);
+    doc.text(hist.totalAccumulatedCost != null ? fmtD(hist.totalAccumulatedCost) : "Unavailable", colX[3] + 2, y + 1);
   y += 14;
 
   // ── Forward projection ───────────────────────────────────────────────────────
@@ -188,9 +191,9 @@ function generateInvoicePDF(data: any, locationQuery: string) {
   doc.text("Forward Projection (Next 25 Years)", margin, y);
   y += 8;
   const fwRows = [
-    ["Cost of inaction (no intervention)", fmtD(casc.counterfactualCost ?? 0), [185, 28, 28]],
-    ["Cost with evidence-based investment", fmtD(casc.interventionCost ?? 0), [5, 120, 85]],
-    ["Net savings", fmtD(casc.netSavings ?? 0), [5, 120, 85]],
+    ["TCAF scenario: cost of inaction", casc.counterfactualCost != null ? fmtD(casc.counterfactualCost) : "Unavailable", [185, 28, 28]],
+    ["TCAF scenario: investment", casc.interventionCost != null ? fmtD(casc.interventionCost) : "Unavailable", [5, 120, 85]],
+    ["TCAF scenario: net savings", casc.netSavings != null ? fmtD(casc.netSavings) : "Unavailable", [5, 120, 85]],
     ["Return on investment", `${casc.roi ?? "—"}×`, [5, 120, 85]],
   ];
   fwRows.forEach(([label, val, col]: any) => {
@@ -241,7 +244,7 @@ function generateInvoicePDF(data: any, locationQuery: string) {
   doc.setFontSize(7);
   doc.setFont("helvetica", "normal");
   doc.setTextColor(100, 116, 139);
-  doc.text("Source: U.S. Census Bureau American Community Survey 5-Year Estimates · Cost model: evidence-based chain (ECE→dropout→incarceration; MH→homelessness)", margin, footerY + 2, { maxWidth: maxW - 30 });
+  doc.text("Observed inputs: Census ACS at the disclosed geography. Costs are TCAF model/scenario outputs, not Census-verified expenditures.", margin, footerY + 2, { maxWidth: maxW - 30 });
   doc.text("thriveupacademy.com", W - margin, footerY + 2, { align: "right" });
 
   doc.save(`community-invoice-${(displayName || locationQuery).replace(/[^a-z0-9]/gi, "-").toLowerCase()}.pdf`);
@@ -393,9 +396,9 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
   const geo = data.geography ?? {};
   const hist = data.historicalCascade ?? {};
   const casc = data.cascade ?? {};
-  const histTotal = hist.totalAccumulatedCost ?? 0;
-  const forwardCost = casc.counterfactualCost ?? 0;
-  const savings = casc.netSavings ?? 0;
+  const histTotal = hist.totalAccumulatedCost;
+  const forwardCost = casc.counterfactualCost;
+  const savings = casc.netSavings;
   const roi = casc.roi ?? "—";
   const trend = hist.trendDirection ?? "stagnant";
   const trendIcon = trend === "improving" ? "↗" : trend === "worsening" ? "↘" : "→";
@@ -426,13 +429,15 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
           <h2 className="text-xl font-black text-white">{geo.displayName || locationQuery}</h2>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <button
-            onClick={() => generateInvoicePDF(data, locationQuery)}
-            className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
-            data-testid="button-download-invoice"
-          >
-            <Download className="w-3.5 h-3.5" />Download Invoice
-          </button>
+          {(histTotal != null || forwardCost != null || savings != null) && (
+            <button
+              onClick={() => generateInvoicePDF(data, locationQuery)}
+              className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
+              data-testid="button-download-invoice"
+            >
+              <Download className="w-3.5 h-3.5" />Download Model Summary
+            </button>
+          )}
           <button
             onClick={handleDownloadPdf}
             disabled={pdfState === "loading"}
@@ -476,32 +481,42 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
           </button>
         </div>
       </div>
+      {histTotal == null && forwardCost == null && savings == null ? (
+        <div className="px-6 py-5 text-sm text-slate-300">TCAF scenario and historical model outputs are unavailable because the required observed inputs were not returned. No values were substituted.</div>
+      ) : (
       <div className="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-700/60">
+        {histTotal != null && (
         <div className="px-6 py-5 flex flex-col gap-1">
-          <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Already Paid · 2013–2022</div>
+          <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Historical model · 2013–2022</div>
           <div className="text-4xl font-black text-amber-400 tabular-nums" data-testid="verdict-historical-total">
             {histTotal >= 1e9 ? `$${(histTotal/1e9).toFixed(1)}B` : histTotal >= 1e6 ? `$${(histTotal/1e6).toFixed(1)}M` : histTotal >= 1e3 ? `$${(histTotal/1e3).toFixed(0)}K` : `$${histTotal}`}
           </div>
           <div className={`text-xs font-semibold mt-1 ${trendColor}`}>{trendIcon} Poverty trend {trend}</div>
-          <div className="text-xs text-slate-400 mt-0.5">Accumulated cost of disinvestment · Census-verified</div>
+          <div className="text-xs text-slate-400 mt-0.5">TCAF historical model, not Census-verified expenditure</div>
         </div>
+        )}
+        {forwardCost != null && (
         <div className="px-6 py-5 flex flex-col gap-1">
           <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Next 25 Years · No Action</div>
           <div className="text-4xl font-black text-red-400 tabular-nums" data-testid="verdict-forward-cost">
             {forwardCost >= 1e9 ? `$${(forwardCost/1e9).toFixed(1)}B` : forwardCost >= 1e6 ? `$${(forwardCost/1e6).toFixed(1)}M` : forwardCost >= 1e3 ? `$${(forwardCost/1e3).toFixed(0)}K` : `$${forwardCost}`}
           </div>
-          <div className="text-xs text-red-400 font-semibold mt-1">↑ Cascade continues if nothing changes</div>
-          <div className="text-xs text-slate-400 mt-0.5">Same chain model · ECE gap → dropout → incarceration</div>
+          <div className="text-xs text-red-400 font-semibold mt-1">TCAF scenario if nothing changes</div>
+          <div className="text-xs text-slate-400 mt-0.5">Model output · ECE gap → dropout → incarceration</div>
         </div>
+        )}
+        {savings != null && (
         <div className="px-6 py-5 flex flex-col gap-1">
           <div className="text-xs text-slate-400 uppercase tracking-wide font-semibold mb-1">Savings · With Investment</div>
           <div className="text-4xl font-black text-emerald-400 tabular-nums" data-testid="verdict-savings">
             {savings >= 1e9 ? `$${(savings/1e9).toFixed(1)}B` : savings >= 1e6 ? `$${(savings/1e6).toFixed(1)}M` : savings >= 1e3 ? `$${(savings/1e3).toFixed(0)}K` : `$${savings}`}
           </div>
-          <div className="text-xs text-emerald-400 font-semibold mt-1">↑ {roi}× return on evidence-based investment</div>
-          <div className="text-xs text-slate-400 mt-0.5">Net over 25 years · same Census geography</div>
+          <div className="text-xs text-emerald-400 font-semibold mt-1">TCAF scenario · {roi}× modeled return</div>
+          <div className="text-xs text-slate-400 mt-0.5">Not an observed or Census-verified savings figure</div>
         </div>
+        )}
       </div>
+      )}
     </div>
   );
 }
@@ -566,7 +581,7 @@ function PopulationSnapshot({ populations }: { populations: any[] }) {
             <div className="flex items-start justify-between mb-2">
               <div>
                 <div className="font-semibold text-sm">{p.name}</div>
-                <div className="text-2xl font-bold mt-0.5">{p.estimated.toLocaleString()} <span className="text-sm font-normal text-muted-foreground">{p.unit}</span></div>
+                <div className="text-2xl font-bold mt-0.5">{Number.isFinite(p.estimated) ? p.estimated.toLocaleString() : "—"} <span className="text-sm font-normal text-muted-foreground">{p.unit}</span></div>
               </div>
               <Badge variant={p.urgency === "critical" ? "destructive" : "outline"} className="text-[10px]">{p.urgency}</Badge>
             </div>
@@ -685,6 +700,7 @@ function LifeArcTimeline({ timeline }: { timeline: any[] }) {
 }
 
 function CounterfactualPanel({ cascade }: { cascade: any }) {
+  if (!cascade) return null;
   return (
     <section data-testid="section-counterfactual">
       <h2 className="text-xl font-bold mb-4 flex items-center gap-2"><DollarSign className="w-5 h-5 text-emerald-500" />The Cost of Inaction vs. Investment</h2>
@@ -844,12 +860,12 @@ function SolutionsLayer({ solutions, policyContext }: { solutions: any; policyCo
 
 function DemographicsStrip({ geo, demographics, overallScore, overallGrade }: { geo: any; demographics: any; overallScore: number; overallGrade: string }) {
   const items = [
-    { label: "Poverty Rate", value: `${demographics.povertyRate?.toFixed(1)}%`, warn: demographics.povertyRate > 15 },
-    { label: "Uninsured", value: `${demographics.uninsuredRate?.toFixed(1)}%`, warn: demographics.uninsuredRate > 10 },
-    { label: "Housing Burden", value: `${demographics.housingCostBurden?.toFixed(0)}%`, warn: demographics.housingCostBurden > 30 },
-    { label: "Unemployment", value: `${demographics.unemploymentRate?.toFixed(1)}%`, warn: demographics.unemploymentRate > 6 },
-    { label: "No HS Diploma", value: `${demographics.noHighSchoolDiploma?.toFixed(1)}%`, warn: demographics.noHighSchoolDiploma > 12 },
-    { label: "Single Parent", value: `${demographics.singleParentRate?.toFixed(0)}%`, warn: demographics.singleParentRate > 25 },
+    { label: "Poverty Rate", value: demographics.povertyRate != null ? `${demographics.povertyRate.toFixed(1)}%` : "—", warn: demographics.povertyRate > 15 },
+    { label: "Uninsured", value: demographics.uninsuredRate != null ? `${demographics.uninsuredRate.toFixed(1)}%` : "—", warn: demographics.uninsuredRate > 10 },
+    { label: "Housing Burden", value: demographics.housingCostBurden != null ? `${demographics.housingCostBurden.toFixed(0)}%` : "—", warn: demographics.housingCostBurden > 30 },
+    { label: "Unemployment", value: demographics.unemploymentRate != null ? `${demographics.unemploymentRate.toFixed(1)}%` : "—", warn: demographics.unemploymentRate > 6 },
+    { label: "No HS Diploma", value: demographics.noHighSchoolDiploma != null ? `${demographics.noHighSchoolDiploma.toFixed(1)}%` : "—", warn: demographics.noHighSchoolDiploma > 12 },
+    { label: "Single Parent", value: demographics.singleParentRate != null ? `${demographics.singleParentRate.toFixed(0)}%` : "—", warn: demographics.singleParentRate > 25 },
   ];
   return (
     <Card className="p-4" data-testid="card-demographics-strip">
@@ -1188,6 +1204,8 @@ export default function CommunityImpactPage() {
             {/* Verdict Hero — the F-22 first look */}
             <VerdictHero data={data} locationQuery={submitted} />
 
+            <CommunityEvidencePanel evidence={data.evidence} />
+
             {/* Demographics strip */}
             <DemographicsStrip geo={data.geography} demographics={data.demographics} overallScore={data.overallScore} overallGrade={data.overallGrade} />
 
@@ -1211,7 +1229,7 @@ export default function CommunityImpactPage() {
             <PopulationSnapshot populations={data.atRiskPopulations} />
 
             {/* Life Arc Timeline */}
-            <LifeArcTimeline timeline={data.cascade?.timeline || []} />
+            {data.cascade?.timeline?.length > 0 && <LifeArcTimeline timeline={data.cascade.timeline} />}
 
             {/* ── Historical Receipt ─────────────────────────────────────── */}
             {data.historicalCascade?.vintages?.length > 0 && (
@@ -1302,7 +1320,7 @@ export default function CommunityImpactPage() {
             )}
 
             {/* Counterfactual */}
-            <CounterfactualPanel cascade={data.cascade} />
+            {data.cascade && <CounterfactualPanel cascade={data.cascade} />}
 
             {/* Solutions */}
             <SolutionsLayer solutions={data.solutions} policyContext={data.policyContext} />

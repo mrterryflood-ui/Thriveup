@@ -13,6 +13,7 @@ import { Globe, AlertTriangle, Loader2 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
 
 // ── Urgency styling (mirrors community-impact.tsx) ────────────────────────────
 const URGENCY_CONFIG: Record<string, { bg: string; text: string; border: string; badge: string }> = {
@@ -195,6 +196,8 @@ export default function BriefSharePage() {
         </div>
       </div>
 
+      <CommunityEvidencePanel evidence={data.evidence} />
+
       {/* Narrative */}
       {(data.narrativeSummary ?? data.narrative) && (
         <Card className="p-6">
@@ -214,7 +217,12 @@ export default function BriefSharePage() {
       {data.systemsScores && <SystemsPanel scores={data.systemsScores} />}
 
       {/* Cascade */}
-      {data.cascade && <CascadePanel cascade={data.cascade} />}
+      {data.cascade && (
+        <div>
+          <p className="mb-2 text-xs text-muted-foreground">TCAF scenario/model output — not an observed or Census-verified cost.</p>
+          <CascadePanel cascade={data.cascade} />
+        </div>
+      )}
 
       {/* At-risk populations */}
       {Array.isArray(data.atRiskPopulations) && data.atRiskPopulations.length > 0 && (
@@ -239,7 +247,7 @@ export default function BriefSharePage() {
       {/* Footer */}
       <div className="text-center text-xs text-muted-foreground pb-8">
         <p>Powered by TCAF · <a href="https://thrivingcommunitiesforall.com" className="underline" target="_blank" rel="noopener noreferrer">thrivingcommunitiesforall.com</a></p>
-        <p className="mt-1">Source: U.S. Census Bureau ACS 5-Year Estimates · This link expires 30 days from creation.</p>
+        <p className="mt-1">This link expires 30 days from creation. See Evidence &amp; methodology for the exact geography, source, and claim type.</p>
         <p className="mt-2">
           <a href="/community-impact" className="text-primary hover:underline">Analyze your own community →</a>
         </p>

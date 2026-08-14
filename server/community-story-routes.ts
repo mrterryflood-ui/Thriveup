@@ -24,8 +24,17 @@ const PDFDocument = require("pdfkit");
 
 import { nanoid } from "nanoid";
 import { db } from "./storage";
-import { withEthicalPreamble } from "./ai-service";
-import { generateAIJSON } from "./ai-service";
+import { hasValidCommunityEvidence, canonicalizeGeographyFromEvidence } from "./community-evidence";
+import type { AtRiskPopulation } from "./conductor-routes";
+
+function escapeHtml(s: string): string {
+  return String(s)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
 
 // ── In-memory story share store (30-day TTL, like brief shares) ───────────────
 interface StoredStory {
@@ -40,6 +49,10 @@ function pruneStoryStore() {
   for (const [id, entry] of storyStore) {
     if (entry.expiresAt < now) storyStore.delete(id);
   }
+}
+
+function hasEvidenceContract(story: Record<string, unknown>): boolean {
+  return hasValidCommunityEvidence((story as Record<string, any>).brief);
 }
 
 // ── Per-IP rate limits ────────────────────────────────────────────────────────
@@ -123,7 +136,10 @@ export async function assembleStoryPack(opts: {
     grant = await fetchGrantConduit({
       orgType: orgType ?? "nonprofit",
       orgName,
-      geography: { state: (geo.state as string) ?? "TX", zip: (geo.zip as string) },
+      geography: {
+        ...(typeof geo.state === "string" && geo.state ? { state: geo.state } : {}),
+        ...(typeof geo.zip === "string" && geo.zip ? { zip: geo.zip } : {}),
+      },
       focusAreas: focusAreas ?? [],
       missionText,
       generateNarratives: !!missionText,
@@ -144,7 +160,10 @@ function buildStoryPackPdf(doc: any, story: Record<string, unknown>, orgName?: s
   const cascade    = (brief.cascade as Record<string, unknown>) ?? {};
   const solutions  = (brief.solutions as Record<string, unknown>) ?? {};
   const narrative  = (brief.narrative ?? brief.narrativeSummary ?? "") as string;
-  const displayName = (geo.displayName ?? geo.input ?? location) as string;
+  const evidence = (brief.evidence as Record<string, any>) ?? null;
+  const resolved = evidence?.geography?.resolved ?? {};
+  const source = Array.isArray(evidence?.sources) ? evidence.sources[0] : null;
+  const displayName = (resolved.label ?? geo.displayName ?? geo.input ?? "Community") as string;
   const grade      = (brief.overallGrade ?? "") as string;
   const score      = (brief.overallScore ?? null) as number | null;
 
@@ -175,7 +194,7 @@ function buildStoryPackPdf(doc: any, story: Record<string, unknown>, orgName?: s
   doc.moveDown(1.8);
 
   const demRows = [
-    ["Total Population",         `${Number(demo.totalPopulation ?? 0).toLocaleString()}`],
+    ["Total Population",         demo.totalPopulation != null ? `${Number(demo.totalPopulation).toLocaleString()}` : "—"],
     ["Poverty Rate",             fmtPct(demo.povertyRate as number)],
     ["Unemployment Rate",        fmtPct(demo.unemploymentRate as number)],
     ["Uninsured Rate",           fmtPct(demo.uninsuredRate as number)],
@@ -226,7 +245,9 @@ function buildStoryPackPdf(doc: any, story: Record<string, unknown>, orgName?: s
     doc.fontSize(11).font("Helvetica-Bold").fillColor(TEAL).text("At-Risk Populations", 50);
     doc.moveDown(0.4);
     atRisk.slice(0, 8).forEach((p) => {
-      doc.fontSize(9.5).font("Helvetica").fillColor(GRAY).text(`• ${p}`, 58, undefined, { width: W - 8 });
+      const label = typeof p === "string" ? p : (p as AtRiskPopulation)?.name ?? "";
+      if (!label) return;
+      doc.fontSize(9.5).font("Helvetica").fillColor(GRAY).text(`• ${label}`, 58, undefined, { width: W - 8 });
       doc.moveDown(0.2);
     });
   }
@@ -235,7 +256,7 @@ function buildStoryPackPdf(doc: any, story: Record<string, unknown>, orgName?: s
   if (narrative) {
     doc.addPage();
     doc.rect(50, doc.y, W, 24).fill(NAVY);
-    doc.fontSize(11).font("Helvetica-Bold").fillColor("white").text("Community Narrative", 56, doc.y - 18, { width: W - 12 });
+    doc.fontSize(11).font("Helvetica-Bold").fillColor("white").text("AI-synthesized Community Narrative", 56, doc.y - 18, { width: W - 12 });
     doc.moveDown(1.8);
     doc.fontSize(9.5).font("Helvetica").fillColor(GRAY).text(narrative, 50, undefined, { width: W });
   }
@@ -336,6 +357,34 @@ function buildStoryPackPdf(doc: any, story: Record<string, unknown>, orgName?: s
     }
   }
 
+  // ── Sources & methodology ─────────────────────────────────────────────────
+  doc.addPage();
+  doc.fontSize(14).font("Helvetica-Bold").fillColor(NAVY)
+    .text("Sources & Methodology", 50, 52, { width: W });
+  doc.moveDown(0.7);
+  doc.fontSize(10).font("Helvetica-Bold").fillColor(GRAY)
+    .text(
+      `Analyzed geography: ${resolved.label ?? "not disclosed"}${resolved.type ? ` (${String(resolved.type).toUpperCase()}${resolved.identifier ? ` ${resolved.identifier}` : ""})` : ""}`,
+      50, undefined, { width: W },
+    );
+  doc.moveDown(0.35);
+  doc.fontSize(9.5).font("Helvetica").fillColor(GRAY)
+    .text(
+      `${source?.publisher ?? "Source not disclosed"}${source?.dataset ? ` · ${source.dataset}` : ""}${source?.vintage ? ` · ${source.vintage}` : ""}.`,
+      50, undefined, { width: W },
+    );
+  if (resolved.coverageWarning) {
+    doc.moveDown(0.35);
+    doc.fontSize(9.5).font("Helvetica-Bold").fillColor("#975a16")
+      .text(String(resolved.coverageWarning), 50, undefined, { width: W });
+  }
+  doc.moveDown(0.7);
+  doc.fontSize(9.5).font("Helvetica").fillColor(GRAY)
+    .text(
+      "Observed values are public-data estimates at the disclosed geography grain. Systems scores and at-risk population counts are TCAF-derived calculations, not Census findings. Cascade values are TCAF scenario/model outputs, not observed expenditures or savings. The narrative is AI-generated decision support, not an independently verified factual finding.",
+      50, undefined, { width: W },
+    );
+
   // ── Footer ────────────────────────────────────────────────────────────────
   const pages = doc.bufferedPageRange();
   for (let i = 0; i < pages.count; i++) {
@@ -364,6 +413,9 @@ function buildPresentationHtml(story: Record<string, unknown>, orgName?: string)
   const displayName = (geo.displayName ?? geo.input ?? "") as string;
   const opps      = grant ? (Array.isArray(grant.matchedOpportunities) ? grant.matchedOpportunities as Record<string, unknown>[] : []) : [];
   const readiness = grant ? ((grant.readiness as Record<string, unknown>) ?? {}) : {};
+  const evidence  = (brief.evidence as Record<string, any>) ?? null;
+  const resolved  = evidence?.geography?.resolved ?? {};
+  const source    = Array.isArray(evidence?.sources) ? evidence.sources[0] : null;
 
   const css = `
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
@@ -404,6 +456,7 @@ function buildPresentationHtml(story: Record<string, unknown>, orgName?: string)
     .at-risk      { display: flex; flex-wrap: wrap; gap: 10px; }
     .at-risk span { background: #ebf8ff; color: #2b6cb0; border-radius: 999px; padding: 6px 14px; font-size: 13px; }
     .footer-bar   { background: #1a365d; color: rgba(255,255,255,0.7); font-size: 11px; padding: 12px 64px; display: flex; justify-content: space-between; margin-top: auto; }
+    .method       { margin-top: 22px; border-left: 4px solid #0d9488; background:#f0fdfa; padding:14px 16px; font-size:14px; line-height:1.45; color:#1a365d; }
     @media print {
       body { background: white; }
       .slide { box-shadow: none; border-radius: 0; margin: 0; width: 100%; max-width: 100%; }
@@ -435,7 +488,7 @@ function buildPresentationHtml(story: Record<string, unknown>, orgName?: string)
 
   // Slide 2 — Key stats
   const keyStats = [
-    { num: Number(demo.totalPopulation ?? 0).toLocaleString(), label: "Total Population", warn: false },
+    { num: demo.totalPopulation != null ? Number(demo.totalPopulation).toLocaleString() : "—", label: "Total Population", warn: false },
     { num: fmtPct(demo.povertyRate as number), label: "Poverty Rate", warn: Number(demo.povertyRate ?? 0) > 15 },
     { num: fmtPct(demo.uninsuredRate as number), label: "Uninsured Rate", warn: Number(demo.uninsuredRate ?? 0) > 10 },
     { num: fmtPct(demo.unemploymentRate as number), label: "Unemployment", warn: Number(demo.unemploymentRate ?? 0) > 8 },
@@ -451,6 +504,7 @@ function buildPresentationHtml(story: Record<string, unknown>, orgName?: string)
         <h2 class="slide-h">Community Demographics at a Glance</h2>
       </div>
       <div class="slide-body">
+        <div class="method"><strong>Evidence &amp; methodology</strong><br>Analyzed geography: ${String(resolved.label ?? "not disclosed")}${resolved.type ? ` (${String(resolved.type).toUpperCase()}${resolved.identifier ? ` ${String(resolved.identifier)}` : ""})` : ""}.<br>${String(source?.publisher ?? "Source not disclosed")}${source?.dataset ? ` · ${String(source.dataset)}` : ""}. Observed values are public-data estimates; scores are TCAF-derived calculations; narrative is AI decision support.</div>
         <div class="stat-grid">
           ${keyStats.map(s => `
             <div class="stat-card${s.warn ? " warn" : ""}">
@@ -501,7 +555,7 @@ function buildPresentationHtml(story: Record<string, unknown>, orgName?: string)
         </div>
         <div class="slide-body">
           <div class="at-risk">
-            ${atRisk.map(p => `<span>${p}</span>`).join("")}
+            ${atRisk.map(p => `<span>${escapeHtml(typeof p === "string" ? p : (p as AtRiskPopulation)?.name ?? "")}</span>`).filter(Boolean).join("")}
           </div>
         </div>
         ${footer(displayName)}
@@ -704,9 +758,29 @@ export function registerCommunityStoryRoutes(app: Express) {
           includeGrantData: false,
         });
       }
+      if (!storyData || !hasEvidenceContract(storyData as Record<string, unknown>)) {
+        return res.status(422).json({ error: "This story has no valid community evidence contract and cannot be shared. Generate a new story to disclose geography, sources, and claim types." });
+      }
+
+      // Community Story shares are PUBLIC and unauthenticated. `rplice` is an
+      // authenticated-analyst-only internal intelligence block; the evidence
+      // check above only validates `story.brief.evidence`, so a client-supplied
+      // top-level `story` payload could still smuggle its own `rplice` (or a
+      // nested `brief.rplice`) key through untouched. Strip both regardless of
+      // what the caller sent before it is ever persisted or served publicly.
+      const cleanStory = storyData as Record<string, unknown>;
+      delete cleanStory.rplice;
+      if (cleanStory.brief && typeof cleanStory.brief === "object") {
+        delete (cleanStory.brief as Record<string, unknown>).rplice;
+        // A caller-supplied `story` can pass evidence validation while its
+        // `brief.geography` (rendered prominently on the public story page,
+        // in the PDF, and in embeds) disagrees with what the evidence was
+        // actually resolved against. Force them to agree before persisting.
+        canonicalizeGeographyFromEvidence(cleanStory.brief as Record<string, unknown>);
+      }
 
       const shareId = nanoid(10);
-      storyStore.set(shareId, { story: storyData, expiresAt: Date.now() + STORY_TTL_MS });
+      storyStore.set(shareId, { story: cleanStory, expiresAt: Date.now() + STORY_TTL_MS });
 
       const baseUrl = "https://thrivingcommunitiesforall.com";
       const shareUrl = `${baseUrl}/community-story/${shareId}`;
@@ -721,12 +795,29 @@ export function registerCommunityStoryRoutes(app: Express) {
 
   // ── GET /api/community-story/share/:shareId ────────────────────────────────
   app.get("/api/community-story/share/:shareId", (req: Request, res: Response) => {
-    const { shareId } = req.params;
+    const shareId = String(req.params.shareId ?? "");
     const entry = storyStore.get(shareId);
     if (!entry || entry.expiresAt < Date.now()) {
       storyStore.delete(shareId);
       return res.status(404).json({ error: "Story not found or expired." });
     }
-    res.json(entry.story);
+    // Re-validate on every read, the same way brief-share-routes.ts does. The
+    // store is written only by the POST handler above, but a read-time check
+    // is a cheap, independent guard against any future write path that
+    // bypasses that validation.
+    if (!hasEvidenceContract(entry.story)) {
+      storyStore.delete(shareId);
+      return res.status(422).json({ error: "This shared story lacks a valid evidence contract and is unavailable." });
+    }
+    const story = entry.story as Record<string, unknown>;
+    if ("rplice" in story) delete story.rplice;
+    if (story.brief && typeof story.brief === "object") {
+      const brief = story.brief as Record<string, unknown>;
+      if ("rplice" in brief) delete brief.rplice;
+      // Defensive re-canonicalization on every read (mirrors brief-share-routes.ts):
+      // guards against any stored entry written before this check existed.
+      canonicalizeGeographyFromEvidence(brief);
+    }
+    res.json(story);
   });
 }

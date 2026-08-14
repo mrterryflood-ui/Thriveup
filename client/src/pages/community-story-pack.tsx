@@ -2,7 +2,7 @@
  * Community Story Pack
  *
  * One page that turns any geography + optional org profile into:
- *   • Live data story (Census demographics, SDOH systems scores, narrative)
+ *   • Live data story (disclosed public-data estimates, TCAF scores, narrative)
  *   • Matched grant opportunities (via Grant Conduit)
  *   • Downloadable PDF report
  *   • Downloadable HTML presentation (open in browser → Print to PDF = slides)
@@ -30,6 +30,7 @@ import {
   Copy, ExternalLink, Presentation, BookOpen, Target, Activity,
   Building2, DollarSign, Shield,
 } from "lucide-react";
+import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -71,11 +72,12 @@ interface StoryPack {
   generatedAt: string;
   brief: {
     geography: { displayName: string; zip?: string; state?: string; countyName?: string };
+    evidence?: any;
     demographics: Demographics;
     systemsScores: Record<string, SystemScore>;
     overallScore: number;
     overallGrade: string;
-    atRiskPopulations: string[];
+    atRiskPopulations: Array<{ name: string; estimated: number; unit?: string }>;
     narrative: string;
     solutions?: { grants?: unknown[]; topInterventions?: string[] };
   };
@@ -284,8 +286,8 @@ export default function CommunityStoryPackPage() {
         </div>
         <h1 className="text-3xl font-bold tracking-tight">Community Story Pack</h1>
         <p className="text-muted-foreground max-w-2xl">
-          Enter any geography and we'll assemble a complete community data story — Census demographics,
-          social determinants of health, matched grant opportunities, and an AI-drafted narrative —
+          Enter any geography and we'll assemble a complete community data story — disclosed public-data estimates,
+          TCAF-derived social-determinant scores, matched grant opportunities, and an AI-drafted narrative —
           packaged as a PDF report, presentation deck, and shareable/embeddable page.
         </p>
       </div>
@@ -303,14 +305,14 @@ export default function CommunityStoryPackPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-1.5">
-                <Label>ZIP code, city, or county *</Label>
+                <Label>ZIP/ZCTA, city, county, or multi-county service area *</Label>
                 <Input
                   placeholder="e.g. 28472  or  Columbus County, NC"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Try: 28472 (Whiteville NC) · 78741 (Austin TX) · Columbus County NC
+                  ZIPs are reported as Census ZCTAs. A city request may resolve to a disclosed ZCTA rather than citywide data.
                 </p>
               </div>
             </CardContent>
@@ -524,7 +526,7 @@ export default function CommunityStoryPackPage() {
                 <Activity className="h-10 w-10 text-primary mx-auto animate-pulse" />
                 <p className="font-semibold">Assembling your community story…</p>
                 <p className="text-sm text-muted-foreground">
-                  Pulling Census data, SDOH scores, grant opportunities, and AI narratives.
+                  Pulling disclosed public-data estimates, TCAF scores, grant opportunities, and AI narratives.
                   This takes 15–30 seconds.
                 </p>
               </CardContent>
@@ -565,11 +567,13 @@ export default function CommunityStoryPackPage() {
                   </CardContent>
                 </Card>
 
+                <CommunityEvidencePanel evidence={brief.evidence} />
+
                 {/* Key stats */}
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   <StatCard
                     label="Population"
-                    value={Number(demo?.totalPopulation ?? 0).toLocaleString()}
+                    value={demo?.totalPopulation != null ? Number(demo.totalPopulation).toLocaleString() : "—"}
                   />
                   <StatCard
                     label="Poverty Rate"
@@ -599,7 +603,7 @@ export default function CommunityStoryPackPage() {
                     <CardContent>
                       <div className="flex flex-wrap gap-2">
                         {brief.atRiskPopulations.map((p, i) => (
-                          <Badge key={i} variant="secondary" className="text-xs">{p}</Badge>
+                          <Badge key={i} variant="secondary" className="text-xs">{p.name}</Badge>
                         ))}
                       </div>
                     </CardContent>
@@ -653,7 +657,7 @@ export default function CommunityStoryPackPage() {
                 <Card>
                   <CardHeader className="pb-2">
                     <CardTitle className="text-sm flex items-center gap-2">
-                      <BarChart3 className="h-4 w-4 text-primary" /> Demographics (Census ACS)
+                      <BarChart3 className="h-4 w-4 text-primary" /> Demographics (observed public-data estimates)
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -825,7 +829,7 @@ export default function CommunityStoryPackPage() {
                       {(grant.rpliceEvidence as Record<string, unknown>[]).slice(0, 5).map((ev, i) => (
                         <div key={i} className="text-xs p-2 bg-blue-50 rounded border border-blue-100">
                           <span className="font-medium">{String(ev.title ?? ev.name ?? "Evidence")}</span>
-                          {ev.summary && <span className="text-muted-foreground"> — {String(ev.summary).slice(0, 120)}</span>}
+                          {Boolean(ev.summary) && <span className="text-muted-foreground"> — {String(ev.summary).slice(0, 120)}</span>}
                         </div>
                       ))}
                     </CardContent>

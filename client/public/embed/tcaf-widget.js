@@ -381,7 +381,9 @@
     var narrative = (data.narrative || data.narrativeSummary || "").slice(0, 280);
     var grade = data.overallGrade || "";
     var score = data.overallScore;
-    var displayName = geo.displayName || geo.input || location;
+    var evidence = data.evidence || {};
+    var resolved = (evidence.geography || {}).resolved || {};
+    var displayName = resolved.label || geo.displayName || geo.input || location;
 
     resultEl.innerHTML = "";
     resultEl.style.display = "block";
@@ -396,12 +398,19 @@
     var gradeMeta = document.createElement("div");
     gradeMeta.className = "grade-meta";
     gradeMeta.innerHTML =
-      '<div class="grade-label">Community Health Score</div>' +
+      '<div class="grade-label">TCAF-derived Community Score</div>' +
       '<div class="score-line">' + displayName + "</div>" +
-      (score != null ? '<div style="font-size:13px;color:#6b7280;">' + score + "/100</div>" : "");
+      (typeof score === "number" && isFinite(score) ? '<div style="font-size:13px;color:#6b7280;">' + score + "/100</div>" : "");
     gradeRow.appendChild(gradeBadge);
     gradeRow.appendChild(gradeMeta);
     resultEl.appendChild(gradeRow);
+
+    var disclosure = document.createElement("div");
+    disclosure.style.cssText = "font-size:11px;line-height:1.35;color:#475569;background:#eff6ff;border:1px solid #bfdbfe;border-radius:8px;padding:8px 10px;margin:0 0 12px;";
+    disclosure.textContent = "Analyzed geography: " + (resolved.label || "not disclosed") +
+      (resolved.type ? " (" + String(resolved.type).toUpperCase() + ")" : "") +
+      ". Values are public-data estimates at this geography; the score and narrative are TCAF-derived/AI decision support.";
+    resultEl.appendChild(disclosure);
 
     // Key stats
     var stats = [
@@ -429,9 +438,11 @@
       var popList = document.createElement("div");
       popList.className = "populations-list";
       atRisk.slice(0, 6).forEach(function (p) {
+        var label = typeof p === "string" ? p : (p && p.name) || "";
+        if (!label) return;
         var tag = document.createElement("span");
         tag.className = "pop-tag";
-        tag.textContent = p;
+        tag.textContent = label;
         popList.appendChild(tag);
       });
       resultEl.appendChild(popLabel);

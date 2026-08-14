@@ -143,6 +143,11 @@ async function run() {
   if (!brief.demographics || typeof brief.demographics.povertyRate !== "number") missing.push("demographics.povertyRate (real Census data)");
   if (!brief.solutions || !Array.isArray(brief.solutions.grants)) missing.push("solutions.grants");
   if (!brief.generatedAt) missing.push("generatedAt");
+  if (brief.evidence?.version !== "community-evidence/v1") missing.push("evidence.version (community-evidence/v1)");
+  if (brief.evidence?.geography?.resolved?.type !== "zcta") missing.push("evidence.geography.resolved.type (ZIP must resolve to ZCTA)");
+  if (brief.evidence?.geography?.resolved?.identifier !== ZIP) missing.push("evidence.geography.resolved.identifier (must be the requested ZIP/ZCTA)");
+  if (brief.evidence?.geography?.resolved?.label !== `ZCTA ${ZIP}`) missing.push("evidence.geography.resolved.label (must not retain citywide wording)");
+  if (!Array.isArray(brief.evidence?.sources) || brief.evidence.sources.length === 0) missing.push("evidence.sources");
   if (missing.length > 0) {
     fail(`200 but the brief is hollow — missing/invalid: ${missing.join("; ")}`);
   }
@@ -260,12 +265,27 @@ async function runAuthedAndShareChecks() {
     if (leak) {
       fail(`publicly shared brief leaks the internal RPLICE block (${leak[0]}) — share links are an anonymous exfiltration path.`);
     }
+    const sharedBrief = JSON.parse(sharedText);
+    if (sharedBrief.evidence?.version !== "community-evidence/v1") {
+      fail("shared brief lost its community evidence contract.");
+    }
+    if (sharedBrief.evidence?.geography?.resolved?.type !== "zcta") {
+      fail("shared brief changed the resolved ZCTA geography.");
+    }
     console.log(`✓ PASS: public share retrieval of an authed brief carries NO internal RPLICE data (stripped server-side).`);
 
-    // Legacy-row regression: rows written BEFORE the POST-side strip existed
-    // may carry rplice. Seed one directly and assert the public GET strips it
-    // (and scrubs the stored row).
-    const legacyId = `lgcy${Date.now().toString(36)}`.slice(0, 8);
+    // Legacy-row regression: rows written BEFORE the strict evidence contract
+    // existed may carry rplice AND lack a valid community-evidence/v1 block.
+    // GET now gates on hasValidCommunityEvidence, so a structurally invalid
+    // legacy row must be rejected outright (422) rather than served with
+    // rplice merely stripped — serving a legacy row at all would let an
+    // un-vetted geography/claims shape reach the public UI silently.
+    // Date.now() alone is not a safe uniqueness source here — some sandboxed
+    // environments run with a fixed/frozen clock, which made every run of
+    // this gate generate the identical id and collide with a prior run's
+    // uncleaned row. Mix in Math.random() so re-runs never collide even when
+    // the wall clock does not advance.
+    const legacyId = `lg${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`.slice(0, 8);
     await db.query(
       `INSERT INTO brief_shares (id, location, brief_data, created_at, expires_at)
        VALUES ($1, $2, $3, now(), now() + interval '1 day')`,
@@ -274,12 +294,14 @@ async function runAuthedAndShareChecks() {
     try {
       const legacyRes = await fetch(`${BASE}/api/conductor/community-brief/share/${legacyId}`);
       const legacyText = await legacyRes.text();
-      if (!legacyRes.ok) fail(`legacy share GET failed with ${legacyRes.status}`);
+      if (legacyRes.status !== 422) {
+        fail(`legacy share GET returned ${legacyRes.status}, expected 422 — a structurally invalid legacy row (no evidence contract) must be rejected, not served.`);
+      }
       const legacyLeak = legacyText.match(INTERNAL_RPLICE_PATTERN);
       if (legacyLeak) {
-        fail(`legacy stored share row leaks the internal RPLICE block (${legacyLeak[0]}) — GET must strip defensively.`);
+        fail(`legacy stored share row leaks the internal RPLICE block (${legacyLeak[0]}) even in its 422 error response.`);
       }
-      console.log(`✓ PASS: legacy share row with stored rplice is stripped on public retrieval.`);
+      console.log(`✓ PASS: legacy share row with no valid evidence contract is rejected (422), not served.`);
     } finally {
       await db.query(`DELETE FROM brief_shares WHERE id = $1`, [legacyId]).catch(() => {});
     }

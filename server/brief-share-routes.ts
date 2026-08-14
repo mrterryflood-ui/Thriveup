@@ -10,6 +10,7 @@ import { db } from "./storage";
 import { briefShares } from "@shared/schema";
 import { eq, lt } from "drizzle-orm";
 import { nanoid } from "nanoid";
+import { hasValidCommunityEvidence, canonicalizeGeographyFromEvidence } from "./community-evidence";
 
 // ── Per-IP rate limiter (5 shares / hour) ────────────────────────────────────
 const SHARE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -54,6 +55,11 @@ export function registerBriefShareRoutes(app: Express) {
       if (!brief || typeof brief !== "object") {
         return res.status(400).json({ error: "brief object is required in request body" });
       }
+      if (!hasValidCommunityEvidence(brief)) {
+        return res.status(422).json({
+          error: "This brief cannot be shared because it has no valid community evidence contract. Generate a new brief so the requested and resolved geography, sources, and claim types are disclosed.",
+        });
+      }
 
       // Share links are PUBLIC and unauthenticated. The `rplice` research /
       // intelligence block is authenticated-analyst-only (built from internal
@@ -62,6 +68,12 @@ export function registerBriefShareRoutes(app: Express) {
       if ("rplice" in brief) {
         delete (brief as Record<string, unknown>).rplice;
       }
+
+      // The client supplies the whole brief object, including `geography`.
+      // A structurally-valid evidence block does not guarantee the displayed
+      // geography actually matches it — force the two to agree so a share
+      // link can never show a geography/claims mismatch to the public.
+      canonicalizeGeographyFromEvidence(brief as Record<string, unknown>);
 
       const location = String(
         brief.geography?.displayName ?? brief.geography?.input ?? brief.location ?? "community",
@@ -127,12 +139,28 @@ export function registerBriefShareRoutes(app: Express) {
       // GET is public, so never return it — and scrub the stored row so the
       // legacy data doesn't linger until expiry.
       const stored = row.briefData as Record<string, unknown> | null;
+      if (!hasValidCommunityEvidence(stored)) {
+        return res.status(422).json({
+          error: "This legacy shared brief lacks a complete evidence contract and is unavailable for public viewing. Generate a new brief before sharing it.",
+        });
+      }
+      let dirty = false;
       if (stored && typeof stored === "object" && "rplice" in stored) {
         delete stored.rplice;
+        dirty = true;
+      }
+      // Defensive re-canonicalization: a row written before this guard
+      // existed could have a geography/evidence mismatch baked in already.
+      if (stored) {
+        const before = JSON.stringify(stored.geography);
+        canonicalizeGeographyFromEvidence(stored);
+        if (JSON.stringify(stored.geography) !== before) dirty = true;
+      }
+      if (dirty && stored) {
         db.update(briefShares)
           .set({ briefData: stored })
           .where(eq(briefShares.id, shareId))
-          .catch((err: Error) => console.error("[brief-share] legacy rplice scrub error:", err));
+          .catch((err: Error) => console.error("[brief-share] legacy scrub error:", err));
       }
       return res.json(stored);
     } catch (err) {

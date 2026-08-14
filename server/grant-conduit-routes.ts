@@ -304,17 +304,27 @@ grantConduitRouter.post("/package", async (req: Request, res: Response) => {
       fatalities: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}), 0)::int`,
     }).from(gunViolenceIncidents).where(and(...gvConditions));
 
-    // Monthly trend (last 12 months, state-level)
+    // Monthly trend must use the SAME geography scope as the 90-day totals
+    // above (ZIP when the caller supplied one, else state-wide). Two different
+    // scopes side by side — a ZIP-filtered "0 incidents" total next to a
+    // state-wide monthly trend table showing real counts — reads as a direct
+    // contradiction even though both numbers are individually correct.
     const gvTrendWindow = new Date(Date.now() - 365 * 24 * 60 * 60 * 1000);
+    const gvTrendConditions = [
+      gte(gunViolenceIncidents.occurredAt, gvTrendWindow),
+      eq(gunViolenceIncidents.state, state),
+      ...(geography.zip ? [eq(gunViolenceIncidents.zip, geography.zip)] : []),
+    ];
     const gvTrend = await db.select({
       month:      sql<string>`to_char(date_trunc('month', ${gunViolenceIncidents.occurredAt}), 'YYYY-MM')`,
       incidents:  sql<number>`count(*)::int`,
       victims:    sql<number>`coalesce(sum(${gunViolenceIncidents.victimCount}), 0)::int`,
       fatalities: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}), 0)::int`,
     }).from(gunViolenceIncidents)
-      .where(and(gte(gunViolenceIncidents.occurredAt, gvTrendWindow), eq(gunViolenceIncidents.state, state)))
+      .where(and(...gvTrendConditions))
       .groupBy(sql`date_trunc('month', ${gunViolenceIncidents.occurredAt})`)
       .orderBy(sql`date_trunc('month', ${gunViolenceIncidents.occurredAt})`);
+    const gvScopeLabel = geography.zip ? `ZIP ${geography.zip}` : `${state} (state-wide — no ZIP was specified)`;
 
     const gvIncidents = Number(gvTotals?.incidents ?? 0);
     const gvVictims   = Number(gvTotals?.victims   ?? 0);
@@ -480,15 +490,19 @@ Return ONLY valid JSON (no markdown, no code fences, no explanation) with exactl
       gunViolence: {
         windowDays: 90,
         geography: { state, zip: geography.zip ?? null },
+        scopeLabel: gvScopeLabel,
         incidents:  gvIncidents,
         victims:    gvVictims,
         fatalities: gvFatal,
+        // monthlyTrend is scoped identically to the totals above (same ZIP
+        // filter when present) so the two numbers can never describe
+        // different geographies.
         monthlyTrend: gvTrend,
         triggeredGrantCategories: violenceGrantCategories,
         policyTimelineEndpoint: `/api/gun-violence/policy-timeline?state=${state}${geography.zip ? `&zip=${geography.zip}` : ""}`,
         note: gvIncidents > 0
-          ? "Violence data is drawn from the TCAF Gun Violence Registry. Cite directly in needs statements — verified incident-level data, not estimates."
-          : "No incidents on record for this geography in the last 90 days. Omit violence context from narratives.",
+          ? `Violence data is drawn from the TCAF Gun Violence Registry for ${gvScopeLabel}. Cite directly in needs statements — verified incident-level data, not estimates.`
+          : `No incidents on record for ${gvScopeLabel} in the last 90 days. Omit violence context from narratives.`,
       },
 
       narratives: generateNarratives && missionText

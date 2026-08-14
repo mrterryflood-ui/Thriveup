@@ -29,6 +29,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 function fmt(n: number | null | undefined): string {
@@ -158,42 +159,42 @@ export default function PartnerDashboardSharedPage() {
                       : demo.povertyRate > 15
                         ? "D"
                         : "C",
-                  source: "Census ACS",
+                  source: "Observed public-data estimate",
                 }
               : null,
             demo.unemploymentRate != null
               ? {
                   label: "Unemployment",
                   displayValue: pct(demo.unemploymentRate),
-                  source: "Census ACS",
+                  source: "Observed public-data estimate",
                 }
               : null,
             demo.medianIncome != null
               ? {
                   label: "Median income",
                   displayValue: `$${fmt(demo.medianIncome)}`,
-                  source: "Census ACS",
+                  source: "Observed public-data estimate",
                 }
               : null,
-            demo.noHealthInsurance != null
+            demo.uninsuredRate != null
               ? {
                   label: "Uninsured",
-                  displayValue: pct(demo.noHealthInsurance),
-                  source: "Census ACS",
+                  displayValue: pct(demo.uninsuredRate),
+                  source: "Observed public-data estimate",
                 }
               : null,
-            demo.singleParentHouseholds != null
+            demo.singleParentRate != null
               ? {
                   label: "Single-parent HH",
-                  displayValue: pct(demo.singleParentHouseholds),
-                  source: "Census ACS",
+                  displayValue: pct(demo.singleParentRate),
+                  source: "Observed public-data estimate",
                 }
               : null,
-            demo.educationBelowHS != null
+            demo.noHighSchoolDiploma != null
               ? {
                   label: "Below HS diploma",
-                  displayValue: pct(demo.educationBelowHS),
-                  source: "Census ACS",
+                  displayValue: pct(demo.noHighSchoolDiploma),
+                  source: "Observed public-data estimate",
                 }
               : null,
           ].filter(Boolean) as any[])
@@ -318,6 +319,8 @@ export default function PartnerDashboardSharedPage() {
           </div>
         )}
 
+        {story.status === "ok" && <CommunityEvidencePanel evidence={brief.evidence} compact />}
+
         {/* ── SDOH indicators ── */}
         {story.status === "ok" && displayIndicators.length > 0 && (
           <Card>
@@ -363,7 +366,7 @@ export default function PartnerDashboardSharedPage() {
           <Card>
             <CardHeader className="pb-2">
               <div className="flex items-center justify-between">
-                <CardTitle className="text-sm">Statement of Need</CardTitle>
+                <CardTitle className="text-sm">AI-synthesized statement of need</CardTitle>
                 <Button
                   size="sm"
                   variant="outline"

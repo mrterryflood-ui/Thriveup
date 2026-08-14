@@ -182,11 +182,26 @@ function parseCityState(text: string): { city: string; stateAbbrev: string } | n
   return { city, stateAbbrev: abbrev };
 }
 
-export async function resolveLocationToZip(locationText: string): Promise<{ zip: string; displayName: string } | null> {
+export interface ResolvedLocation {
+  zip: string;
+  displayName: string;
+  requestedType: "zip" | "city" | "address_or_place";
+  resolutionMethod: string;
+  stateAbbrev?: string;
+}
+
+export async function resolveLocationToZip(locationText: string): Promise<ResolvedLocation | null> {
   const trimmed = locationText.trim();
 
   // ── Layer 1: raw ZIP ────────────────────────────────────────────────────────
-  if (/^\d{5}$/.test(trimmed)) return { zip: trimmed, displayName: trimmed };
+  if (/^\d{5}$/.test(trimmed)) {
+    return {
+      zip: trimmed,
+      displayName: trimmed,
+      requestedType: "zip",
+      resolutionMethod: "Direct ZIP input; analyzed as the corresponding Census ZCTA",
+    };
+  }
 
   // ── Layer 2: "City, ST" / "City, State" fast-path ──────────────────────────
   const parsed = parseCityState(trimmed);
@@ -196,7 +211,13 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
 
     // 2a. Local static table — no network call needed
     if (CITY_STATE_TO_ZIP[lookupKey]) {
-      return { zip: CITY_STATE_TO_ZIP[lookupKey], displayName: `${city}, ${stateAbbrev}` };
+      return {
+        zip: CITY_STATE_TO_ZIP[lookupKey],
+        displayName: `${city}, ${stateAbbrev}`,
+        requestedType: "city",
+        resolutionMethod: "Static city-to-representative-ZIP lookup; analyzed as the corresponding Census ZCTA",
+        stateAbbrev,
+      };
     }
 
     // 2b. Census city+state geocoder (correct endpoint for place-name queries)
@@ -210,7 +231,15 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
       if (match) {
         const addr = match.matchedAddress || trimmed;
         const zipMatch = addr.match(/\b(\d{5})\b/);
-        if (zipMatch) return { zip: zipMatch[1], displayName: `${city}, ${stateAbbrev}` };
+        if (zipMatch) {
+          return {
+            zip: zipMatch[1],
+            displayName: `${city}, ${stateAbbrev}`,
+            requestedType: "city",
+            resolutionMethod: "Census geocoder city match resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+            stateAbbrev,
+          };
+        }
         // No ZIP in matched address — reverse-geocode the returned coordinates
         if (match.coordinates) {
           const revUrl = `https://nominatim.openstreetmap.org/reverse?lat=${match.coordinates.y}&lon=${match.coordinates.x}&format=json&addressdetails=1&zoom=16`;
@@ -219,7 +248,15 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
             if (revResp.ok) {
               const revData = await revResp.json() as any;
               const z5 = revData?.address?.postcode?.match(/(\d{5})/)?.[1];
-              if (z5) return { zip: z5, displayName: `${city}, ${stateAbbrev}` };
+              if (z5) {
+                return {
+                  zip: z5,
+                  displayName: `${city}, ${stateAbbrev}`,
+                  requestedType: "city",
+                  resolutionMethod: "Census geocoder and coordinate reverse lookup resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+                  stateAbbrev,
+                };
+              }
             }
           } catch {}
         }
@@ -237,7 +274,14 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
     if (match) {
       const addr = match.matchedAddress || trimmed;
       const zipMatch = addr.match(/\b(\d{5})\b/);
-      if (zipMatch) return { zip: zipMatch[1], displayName: addr };
+      if (zipMatch) {
+        return {
+          zip: zipMatch[1],
+          displayName: addr,
+          requestedType: "address_or_place",
+          resolutionMethod: "Census one-line geocoder resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+        };
+      }
     }
   } catch (err) {
     console.log(`[resolveLocation] Census onelineaddress failed for "${trimmed}":`, String(err).slice(0, 80));
@@ -257,7 +301,14 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
         const postcode = result.address?.postcode;
         if (postcode) {
           const zip5 = postcode.match(/(\d{5})/)?.[1];
-          if (zip5) return { zip: zip5, displayName: result.display_name || trimmed };
+          if (zip5) {
+            return {
+              zip: zip5,
+              displayName: result.display_name || trimmed,
+              requestedType: "address_or_place",
+              resolutionMethod: "Nominatim lookup resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+            };
+          }
         }
         // Nominatim returned a location but no postcode — reverse to get one
         if (result.lat && result.lon) {
@@ -267,7 +318,14 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
             if (revResp.ok) {
               const revData = await revResp.json() as any;
               const z5 = revData?.address?.postcode?.match(/(\d{5})/)?.[1];
-              if (z5) return { zip: z5, displayName: result.display_name || trimmed };
+              if (z5) {
+                return {
+                  zip: z5,
+                  displayName: result.display_name || trimmed,
+                  requestedType: "address_or_place",
+                  resolutionMethod: "Nominatim coordinate reverse lookup resolved to a ZIP; analyzed as the corresponding Census ZCTA",
+                };
+              }
             }
           } catch {}
         }
@@ -281,29 +339,10 @@ export async function resolveLocationToZip(locationText: string): Promise<{ zip:
 }
 
 export async function zipToGeography(zipCode: string): Promise<{ stateFips: string; countyFips: string; tractFips: string; countyName: string; isZcta: boolean } | null> {
-  try {
-    const url = `${CENSUS_GEOCODER_URL}?street=1+Main+St&zip=${zipCode}&benchmark=Public_AR_Current&vintage=Current_Current&format=json`;
-    const data = await fetchJson(url);
-    const match = data?.result?.addressMatches?.[0];
-    if (match) {
-      const geo = match.geographies?.["Census Tracts"]?.[0];
-      if (geo) {
-        return {
-          stateFips: geo.STATE,
-          countyFips: geo.COUNTY,
-          tractFips: geo.TRACT,
-          countyName: geo.NAME || `County ${geo.COUNTY}`,
-          isZcta: false,
-        };
-      }
-    }
-  } catch (err) {
-    console.log("Geocoder fallback for ZIP:", zipCode);
-  }
-
-  // If the address geocoder didn't match, treat the ZIP as a ZCTA directly.
-  // fetchZctaData will confirm whether ACS5 data exists for it; if not, the
-  // caller returns a proper 404 rather than this function returning null.
+  // A ZIP can contain many Census tracts. The former "1 Main St" geocoder
+  // shortcut selected an arbitrary tract inside the ZIP and allowed callers to
+  // label that tract as a city or ZIP-wide result. A ZIP lookup is therefore
+  // always a ZCTA lookup until a caller asks for an explicit tract address.
   return { stateFips: "", countyFips: "", tractFips: "", countyName: "", isZcta: true };
 }
 
@@ -322,7 +361,7 @@ export async function fetchZctaData(zipCode: string): Promise<any> {
     "B01001_044E", "B01001_045E", "B01001_046E", "B01001_047E", "B01001_048E", "B01001_049E",
     "B01001_003E", "B01001_004E", "B01001_005E", "B01001_006E",
     "B01001_027E", "B01001_028E", "B01001_029E", "B01001_030E",
-  ].join(",");
+  ];
 
   const vars2 = [
     "NAME",
@@ -336,26 +375,44 @@ export async function fetchZctaData(zipCode: string): Promise<any> {
     "B26001_001E",
     "B28002_001E", "B28002_013E",
     "B22001_001E", "B22001_002E",
-  ].join(",");
+  ];
 
   const zctaGeo = `zip%20code%20tabulation%20area:${zipCode}`;
-  const url1 = `${CENSUS_ACS_URL}?get=${vars1}&for=${zctaGeo}${keyParam}`;
-  const url2 = `${CENSUS_ACS_URL}?get=${vars2}&for=${zctaGeo}${keyParam}`;
+  const url1 = `${CENSUS_ACS_URL}?get=${vars1.join(",")}&for=${zctaGeo}${keyParam}`;
+  const url2 = `${CENSUS_ACS_URL}?get=${vars2.join(",")}&for=${zctaGeo}${keyParam}`;
 
   const [data1, data2] = await Promise.all([
     fetchJson(url1).catch(() => null),
     fetchJson(url2).catch(() => null),
   ]);
 
-  if (!data1 || !Array.isArray(data1) || data1.length < 2) return null;
+  if (!data1 || !Array.isArray(data1) || data1.length < 2 || !data2 || !Array.isArray(data2) || data2.length < 2) {
+    return null;
+  }
 
   const h1 = data1[0] as string[];
   const r1 = data1[1] as string[];
   const h2 = Array.isArray(data2) && data2.length > 1 ? data2[0] as string[] : [];
   const r2 = Array.isArray(data2) && data2.length > 1 ? data2[1] as string[] : [];
 
-  const v = (name: string) => { const i = h1.indexOf(name); return i >= 0 ? parseInt(r1[i]) || 0 : 0; };
-  const v2 = (name: string) => { const i = h2.indexOf(name); return i >= 0 ? parseInt(r2[i]) || 0 : 0; };
+  // Do not turn a missing or malformed Census value into a plausible zero. A
+  // Community Brief must fail visibly rather than construct evidence from a
+  // partially returned ACS row.
+  const hasValidEstimate = (headers: string[], row: string[], variable: string) => {
+    const index = headers.indexOf(variable);
+    return index >= 0 && /^-?\d+$/.test(String(row[index] ?? ""));
+  };
+  const required = [
+    ...vars1.filter((variable) => variable !== "NAME"),
+    ...vars2.filter((variable) => variable !== "NAME"),
+  ];
+  if (!required.every((variable) => hasValidEstimate(h1, r1, variable) || hasValidEstimate(h2, r2, variable))) {
+    console.error(`[Neighborhood] Census returned incomplete or malformed ZCTA evidence for ${zipCode}`);
+    return null;
+  }
+
+  const v = (name: string) => parseInt(r1[h1.indexOf(name)], 10);
+  const v2 = (name: string) => parseInt(r2[h2.indexOf(name)], 10);
 
   return processIndicators(v, v2, `ZCTA5 ${zipCode}`, `ZIP Code ${zipCode} Area`);
 }
@@ -610,15 +667,26 @@ export async function fetchCountyData(stateFips: string, countyFips: string): Pr
     fetchJson(url2, 15000).catch(() => null),
   ]);
 
-  if (!data1 || !Array.isArray(data1) || data1.length < 2) return null;
+  if (!data1 || !data2 || !Array.isArray(data1) || !Array.isArray(data2) || data1.length < 2 || data2.length < 2) return null;
 
   const h1 = data1[0] as string[];
   const r1 = data1[1] as string[];
-  const h2 = Array.isArray(data2) && data2.length > 1 ? data2[0] as string[] : [];
-  const r2 = Array.isArray(data2) && data2.length > 1 ? data2[1] as string[] : [];
+  const h2 = data2[0] as string[];
+  const r2 = data2[1] as string[];
 
-  const v  = (name: string) => { const i = h1.indexOf(name); return i >= 0 ? parseInt(r1[i]) || 0 : 0; };
-  const v2 = (name: string) => { const i = h2.indexOf(name); return i >= 0 ? parseInt(r2[i]) || 0 : 0; };
+  const parseRequired = (header: string[], row: string[], name: string): number | null => {
+    const raw = row[header.indexOf(name)];
+    if (header.indexOf(name) < 0 || typeof raw !== "string" || !/^-?\d+$/.test(raw)) return null;
+    const value = Number(raw);
+    return Number.isFinite(value) && value >= 0 ? value : null;
+  };
+  const required1 = vars1.split(",").filter((name) => name !== "NAME");
+  const required2 = vars2.split(",").filter((name) => name !== "NAME");
+  if (required1.some((name) => parseRequired(h1, r1, name) == null)
+    || required2.some((name) => parseRequired(h2, r2, name) == null)) return null;
+
+  const v  = (name: string) => parseRequired(h1, r1, name)!;
+  const v2 = (name: string) => parseRequired(h2, r2, name)!;
 
   // Extract county name from Census NAME field e.g. "Columbus County, North Carolina"
   const rawName = r1[h1.indexOf("NAME")] || `County ${countyFips}`;
@@ -640,18 +708,18 @@ export async function fetchMultiCountyData(
     counties.map(c => fetchCountyData(c.stateFips, c.countyFips).catch(() => null))
   );
   const valid = results.filter(Boolean);
-  if (!valid.length) return null;
+  if (valid.length !== counties.length) return null;
   if (valid.length === 1) return valid[0];
 
   // Aggregate: summed population, population-weighted rates
-  const totalPop = valid.reduce((s, d) => s + (d.population || 0), 0);
-  if (!totalPop) return valid[0];
+  const totalPop = valid.reduce((s, d) => s + d.population, 0);
+  if (!Number.isFinite(totalPop) || totalPop <= 0) return null;
 
   function wavg(field: string): number {
-    return valid.reduce((s: number, d: any) => s + (d.indicators?.[field] ?? 0) * (d.population || 0), 0) / totalPop;
+    return valid.reduce((s: number, d: any) => s + d.indicators[field] * d.population, 0) / totalPop;
   }
   function wsum(field: string): number {
-    return valid.reduce((s: number, d: any) => s + (d.indicators?.[field] ?? 0), 0) / valid.length;
+    return valid.reduce((s: number, d: any) => s + d.indicators[field], 0) / valid.length;
   }
 
   const r = (n: number) => Math.round(n * 10) / 10;
@@ -673,7 +741,7 @@ export async function fetchMultiCountyData(
     snapRecipients:     r(wavg("snapRecipients")),
   };
 
-  const medianIncome = r(wavg("medianIncome"));
+  const medianIncome = r(valid.reduce((s: number, d: any) => s + d.medianIncome * d.population, 0) / totalPop);
   const clamp = (v: number) => Math.max(0, Math.min(1, v));
   const t1 = (indicators.povertyRate/50 + indicators.unemploymentRate/30 + indicators.noHighSchoolDiploma/40 + indicators.uninsuredRate/30) / 4;
   const t2 = (indicators.age65Plus/30 + indicators.ageUnder17/35 + indicators.disabilityRate/25 + indicators.singleParentRate/50 + indicators.limitedEnglish/30) / 5;
