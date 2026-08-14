@@ -8,6 +8,26 @@ import { seedEcosystemDirectives } from "./ecosystem-directives-seed";
 import { sendEcosystemUpdate } from "./email-service";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
 import { getAgentInbox, PLATFORM_CAPABILITIES } from "./agent-communication";
+import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
+
+// Sibling platforms self-report compliance work via heartbeat, and that
+// report drives real automated behavior — directive acks flip to
+// "acknowledged", evidenceUrl is stored and later surfaced to Dr. Flood's
+// admin view as "proof" a directive was completed. zod's heartbeatSchema
+// already enforces required-field *presence*, but not that evidenceUrl is
+// actually a URL or that free-text fields are bounded, so a platform (or a
+// forged key) could otherwise wedge an unbounded blob or a non-URL string
+// into what the admin view treats as a clickable evidence link.
+const COMPLETED_WORK_SCHEMA: InboundSchema = {
+  directiveId:  { type: "string", required: true, maxLength: 200 },
+  whatWasDone:  { type: "string", required: true, maxLength: 5000 },
+  evidenceUrl:  { type: "url", maxLength: 500 },
+};
+const BLOCKER_SCHEMA: InboundSchema = {
+  directiveId:         { type: "string", required: true, maxLength: 200 },
+  blockerDescription:  { type: "string", required: true, maxLength: 2000 },
+  needsFrom:           { type: "string", maxLength: 500 },
+};
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!(req as any).isAuthenticated?.() && !(req as any).user) {
@@ -5907,10 +5927,19 @@ if (typeof module !== "undefined") {
 
       const complianceReport = parseResult.data.complianceReport;
       let complianceResponse: Record<string, unknown> | null = null;
+      const inboundCorrections: ReturnType<typeof rejectionsToCorrectionNote> = [];
 
       if (complianceReport) {
         if (complianceReport.completedWork && complianceReport.completedWork.length > 0) {
-          for (const work of complianceReport.completedWork) {
+          for (const rawWork of complianceReport.completedWork) {
+            const { clean, rejections } = verifyInboundPayload<typeof rawWork>(rawWork as any, COMPLETED_WORK_SCHEMA);
+            if (rejections.length) {
+              await recordInboundVerification("ecosystem-heartbeat", `/api/ecosystem/heartbeat (${platform.id})`, rejections);
+              inboundCorrections.push(...rejectionsToCorrectionNote(rejections));
+            }
+            if (!clean.directiveId || !clean.whatWasDone) continue; // required fields failed — can't safely process this item
+            const work = { ...rawWork, whatWasDone: clean.whatWasDone, evidenceUrl: clean.evidenceUrl };
+
             const [existingAck] = await db.select().from(ecosystemDirectiveAcks)
               .where(and(
                 eq(ecosystemDirectiveAcks.directiveId, work.directiveId),
@@ -5934,6 +5963,16 @@ if (typeof module !== "undefined") {
 
               const [directive] = await db.select().from(ecosystemDirectives).where(eq(ecosystemDirectives.id, work.directiveId as string));
               await processCompletedWorkFlow(platform, directive, work, qualityResult);
+            }
+          }
+        }
+
+        if (complianceReport.blockers && complianceReport.blockers.length > 0) {
+          for (const rawBlocker of complianceReport.blockers) {
+            const { rejections } = verifyInboundPayload<typeof rawBlocker>(rawBlocker as any, BLOCKER_SCHEMA);
+            if (rejections.length) {
+              await recordInboundVerification("ecosystem-heartbeat", `/api/ecosystem/heartbeat (${platform.id})`, rejections);
+              inboundCorrections.push(...rejectionsToCorrectionNote(rejections));
             }
           }
         }
@@ -7104,6 +7143,11 @@ if (typeof module !== "undefined") {
           };
         })(),
         serverTime: new Date().toISOString(),
+        // Tells the sending platform exactly which complianceReport fields
+        // were rejected/nulled (bad evidenceUrl, missing directiveId, an
+        // over-length field) instead of silently dropping that item from
+        // the ack flow with no explanation.
+        ...(inboundCorrections.length ? { inboundDataCorrections: inboundCorrections } : {}),
       });
     } catch (error) {
       console.error("Heartbeat failed:", error);
@@ -7534,31 +7578,64 @@ if (typeof module !== "undefined") {
         return res.status(403).json({ error: "Invalid API key" });
       }
 
-      const { source, confidence, summary, files, targetPlatformId } = req.body;
+      const { source, summary, files, targetPlatformId } = req.body;
 
       if (!summary || !files || !Array.isArray(files) || files.length === 0) {
         return res.status(400).json({ error: "Required: summary (string), files (array of {path, content, action})" });
       }
 
+      // `confidence` and each file's `path`/`action` drive an admin review
+      // queue (sitesync fixes get shown to a human as "queued for review"
+      // with a trust score) — a sibling platform reporting confidence:150
+      // or an action outside the known set must not reach that view as if
+      // it were valid.
+      const { clean: cleanTop, rejections: topRejections } = verifyInboundPayload<{ summary: string; confidence: number }>(
+        { summary, confidence: req.body.confidence },
+        { summary: { type: "string", required: true, maxLength: 2000 }, confidence: { type: "number", min: 0, max: 100 } }
+      );
+      const fileSchema: InboundSchema = {
+        path:    { type: "string", required: true, maxLength: 500 },
+        action:  { type: "enum", enum: ["create", "update", "delete"] },
+        content: { type: "string", maxLength: 200_000 },
+      };
+      const fileResults = files.map((f: any) => verifyInboundPayload<any>(f, fileSchema));
+      const fileRejections = fileResults.flatMap((r) => r.rejections);
+      const validFiles = fileResults
+        .map((r, i) => ({ ...files[i], ...r.clean }))
+        .filter((f, i) => fileResults[i].clean.path); // path is required — drop files missing it
+
+      const allRejections = [...topRejections, ...fileRejections];
+      if (allRejections.length) {
+        await recordInboundVerification("sitesync-inject", "/api/sitesync/inject", allRejections);
+      }
+
+      if (!cleanTop.summary || validFiles.length === 0) {
+        return res.status(400).json({
+          error: "Payload rejected after verification — no valid summary/files remained.",
+          corrections: rejectionsToCorrectionNote(allRejections),
+        });
+      }
+      const confidence = cleanTop.confidence ?? 0;
+
       const [fix] = await db.insert(inboundFixes).values({
         source: source || callingPlatform[0].name,
         sourcePlatformId: callingPlatform[0].id,
         targetPlatformId: targetPlatformId || "thriveup-academy",
-        confidence: confidence || 0,
-        summary,
-        files,
+        confidence,
+        summary: cleanTop.summary,
+        files: validFiles,
         status: "pending",
       }).returning();
 
-      console.log(`[SiteSync] Inbound fix received from ${callingPlatform[0].name}: "${summary}" (${files.length} files, ${confidence}% confidence)`);
+      console.log(`[SiteSync] Inbound fix received from ${callingPlatform[0].name}: "${cleanTop.summary}" (${validFiles.length} files, ${confidence}% confidence)`);
 
       await db.insert(ecosystemEvents).values({
         sourcePlatformId: callingPlatform[0].id,
         eventType: "inbound_fix",
         eventData: {
           fixId: fix.id,
-          summary,
-          fileCount: files.length,
+          summary: cleanTop.summary,
+          fileCount: validFiles.length,
           confidence,
         },
         status: "received",
@@ -7567,8 +7644,9 @@ if (typeof module !== "undefined") {
       res.json({
         success: true,
         fixId: fix.id,
-        message: `Fix queued for review: ${files.length} file(s), ${confidence}% confidence`,
+        message: `Fix queued for review: ${validFiles.length} file(s), ${confidence}% confidence`,
         status: "pending",
+        ...(allRejections.length ? { corrections: rejectionsToCorrectionNote(allRejections) } : {}),
       });
     } catch (error) {
       console.error("[SiteSync] Inject error:", error);

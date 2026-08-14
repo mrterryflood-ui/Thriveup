@@ -44,6 +44,7 @@
 - [JSONB hash-chain pitfall](jsonb-hash-chain-pitfall.md) — never hash a jsonb column value; Postgres reorders keys on write, breaking round-trip hash verification. Store exact JSON as text instead.
 - [AI claim grounding + tamper-evident chain](ai-claim-grounding-chain.md) — shared mechanical grounding engine (not NLP) for closed-form numeric AI claims; free-form chat is disclosed/labeled, not verified — a deliberate scope boundary.
 - [Seed data provenance disclosure](seed-provenance-disclosure.md) — isDemoData/dataSource labels legacy fabricated seed rows; allowlist-based audit script; check both insert AND update paths for a "sourced" field.
+- [AI-to-AI inbound verification pattern](inbound-verification-pattern.md) — shared verifyInboundPayload helper scrubs partner/AI payloads before use; reject-or-null + audit log + sender-facing corrections, never trust bidirectionally.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.

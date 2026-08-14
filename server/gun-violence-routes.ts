@@ -17,6 +17,7 @@ import { requireAuth } from "./tenant-middleware";
 import { z } from "zod";
 import { enforceGroundedClaims, buildRoiRule, buildAnyOfRule, type ClaimRule } from "./ai-claim-grounding";
 import { recordClaimDecisions } from "./claim-chain";
+import { verifyInboundPayload, recordInboundVerification, type InboundSchema } from "./inbound-verification";
 
 /**
  * Grounds the AI-generated gun violence story against the real data it was
@@ -191,12 +192,15 @@ export async function getGunViolenceIntelligenceData(): Promise<any> {
     ? rpliceFindingsRaw.filter((f: any) => !f.payload?.probe)
     : [];
 
+  const cleanCdcSummary = validateCdcSummary("getGunViolenceIntelligenceData", cdcSummary);
+  const cleanAcesCorr = validateAcesCorrelations("getGunViolenceIntelligenceData", acesCorr);
+
   const data = {
     meta: { generatedAt: new Date().toISOString(), source: "gun-violence-registry.replit.app" },
-    headline: cdcSummary,
+    headline: cleanCdcSummary,
     cdcTrend, cdcStates, fbiTrends, ncvsTrends, wisqarsCosts,
     rootCauses, socialDeterminants: socialDet,
-    aces: { correlations: acesCorr, interventions: acesInterventions },
+    aces: { correlations: cleanAcesCorr, interventions: acesInterventions },
     policy: didPolicies?.catalog ?? didPolicies,
     rpliceFindings,
     localRegistry: localCounts,
@@ -206,13 +210,79 @@ export async function getGunViolenceIntelligenceData(): Promise<any> {
   return data;
 }
 
+// The registry's CDC/ACES summary endpoints feed straight into the
+// story-generation AI prompt (see the /story route below) as "ground truth"
+// numbers the model is told to cite verbatim. A partner-side bug or a
+// compromised upstream response could hand the model an implausible total
+// (e.g. a negative death count, or a rate above 100 per 100k) that would
+// then be laundered into a public-facing narrative as fact. Validate the
+// handful of fields the prompt actually quotes before they're cached or
+// interpolated — out-of-range values are nulled so the prompt's own `??`
+// fallback constants are used instead of a bad live number.
+const CDC_SUMMARY_SCHEMA: InboundSchema = {
+  totalDeaths: { type: "number", min: 0, max: 5_000_000 },
+};
+const CDC_LATEST_YEAR_SCHEMA: InboundSchema = {
+  year:      { type: "number", min: 1990, max: 2100 },
+  crudeRate: { type: "number", min: 0, max: 200 },
+};
+const CDC_PEAK_YEAR_SCHEMA: InboundSchema = {
+  year:   { type: "number", min: 1990, max: 2100 },
+  deaths: { type: "number", min: 0, max: 5_000_000 },
+};
+const ACES_CORRELATIONS_SCHEMA: InboundSchema = {
+  aceFirearmR: { type: "number", min: -1, max: 1 },
+};
+
+function validateCdcSummary(endpoint: string, raw: any): any {
+  if (!raw || typeof raw !== "object") return raw;
+  const top = verifyInboundPayload<any>(raw, CDC_SUMMARY_SCHEMA);
+  const latest = verifyInboundPayload<any>(raw.latestYear, CDC_LATEST_YEAR_SCHEMA);
+  const peak = verifyInboundPayload<any>(raw.peakYear, CDC_PEAK_YEAR_SCHEMA);
+  const rejections = [...top.rejections, ...latest.rejections, ...peak.rejections];
+  if (rejections.length) recordInboundVerification("gun-violence-registry", endpoint, rejections);
+  return {
+    ...raw,
+    totalDeaths: top.clean.totalDeaths,
+    latestYear: raw.latestYear ? { ...raw.latestYear, ...latest.clean } : raw.latestYear,
+    peakYear: raw.peakYear ? { ...raw.peakYear, ...peak.clean } : raw.peakYear,
+  };
+}
+
+function validateAcesCorrelations(endpoint: string, raw: any): any {
+  if (!raw || typeof raw !== "object") return raw;
+  const { clean, rejections } = verifyInboundPayload<any>(raw, ACES_CORRELATIONS_SCHEMA);
+  if (rejections.length) recordInboundVerification("gun-violence-registry", endpoint, rejections);
+  return { ...raw, ...clean };
+}
+
 /**
  * Pulls current incidents from gun-violence-registry.replit.app and upserts
  * them into the local DB. Idempotent by (incidentId, dataSource).
  * Safe to call from a scheduler; writes an audit row to gun_violence_imports.
  * Returns { fetched, upserted, elapsedMs }.
  */
-export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; upserted: number; elapsedMs: number }> {
+// Schema for one incident record pulled from the gun-violence-registry
+// partner API. `incidentId` is the only required field — a row with no
+// stable identifier can never be safely upserted (it would either collide
+// or duplicate on every sync), so it is dropped rather than stored under a
+// fabricated id. Every other field is individually range/type-checked;
+// an out-of-range or malformed field is nulled (never coerced to a nearby
+// "plausible" value) rather than the whole row being discarded, since a
+// bad zip code doesn't make the victim/fatality counts untrustworthy.
+const INCIDENT_ROW_SCHEMA: InboundSchema = {
+  incidentId:   { type: "string",  required: true, maxLength: 200 },
+  latitude:     { type: "number",  min: -90,  max: 90 },
+  longitude:    { type: "number",  min: -180, max: 180 },
+  zip:          { type: "string",  maxLength: 10 },
+  city:         { type: "string",  maxLength: 200 },
+  state:        { type: "string",  maxLength: 2 },
+  killed:       { type: "number",  min: 0, max: 10_000 },
+  injured:      { type: "number",  min: 0, max: 10_000 },
+  incidentType: { type: "string",  maxLength: 100 },
+};
+
+export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; upserted: number; rejected: number; elapsedMs: number }> {
   const { nanoid } = await import("nanoid");
   const DATA_SOURCE = "gun-violence-registry";
   const BATCH_SIZE  = 500;
@@ -221,6 +291,7 @@ export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; u
   const importId    = nanoid(12);
   let totalFetched  = 0;
   let totalUpserted = 0;
+  let totalRejected = 0;
   let offset        = 0;
   const startedAt   = Date.now();
 
@@ -233,7 +304,20 @@ export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; u
     if (!Array.isArray(batch) || batch.length === 0) break;
     totalFetched += batch.length;
 
-    const rows = batch.map((r: any) => {
+    const rows: (typeof gunViolenceIncidents.$inferInsert)[] = [];
+    for (const r of batch) {
+      // externalId/id doesn't fit verifyInboundPayload's single-field-name
+      // model (the registry uses either key); resolve it first, then run
+      // everything else — including the resolved id — through the schema.
+      const { clean, rejections } = verifyInboundPayload<any>(
+        { ...r, incidentId: r.externalId || r.id },
+        INCIDENT_ROW_SCHEMA
+      );
+      if (rejections.length > 0) {
+        await recordInboundVerification("gun-violence-registry", "runGunViolenceRegistrySync", rejections);
+      }
+      if (!clean.incidentId) { totalRejected++; continue; } // no stable id — cannot safely upsert
+
       let occurredAt: Date | undefined;
       try {
         if (r.date && r.date !== "0001-01-01") {
@@ -241,22 +325,26 @@ export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; u
           if (!isNaN(d.getTime())) occurredAt = d;
         }
       } catch { /* ignore */ }
-      return {
+
+      rows.push({
         id:           nanoid(12),
-        incidentId:   r.externalId || r.id,
+        incidentId:   clean.incidentId,
         dataSource:   DATA_SOURCE,
         occurredAt,
-        latitude:     r.latitude  || undefined,
-        longitude:    r.longitude || undefined,
-        zip:          r.zipCode   || undefined,
-        city:         r.city      || undefined,
-        state:        r.state     || undefined,
-        victimCount:  (r.killed ?? 0) + (r.injured ?? 0),
-        fatalCount:   r.killed ?? 0,
-        incidentType: r.incidentType || undefined,
+        latitude:     clean.latitude,
+        longitude:    clean.longitude,
+        zip:          clean.zip,
+        city:         clean.city,
+        state:        clean.state,
+        // killed/injured are validated individually above; only the
+        // in-range ones survive into `clean`, so a bad `injured` value
+        // doesn't get to inflate an otherwise-valid `killed` count.
+        victimCount:  (clean.killed ?? 0) + (clean.injured ?? 0),
+        fatalCount:   clean.killed ?? 0,
+        incidentType: clean.incidentType,
         importId,
-      };
-    });
+      });
+    }
 
     for (let i = 0; i < rows.length; i += INSERT_CHUNK) {
       const chunk = rows.slice(i, i + INSERT_CHUNK);
@@ -290,11 +378,11 @@ export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; u
   await db.insert(gunViolenceImports).values({
     dataSource:  DATA_SOURCE,
     recordCount: totalUpserted,
-    notes: `Scheduled sync. fetched=${totalFetched} upserted=${totalUpserted} elapsed=${elapsedMs}ms`,
+    notes: `Scheduled sync. fetched=${totalFetched} upserted=${totalUpserted} rejected=${totalRejected} elapsed=${elapsedMs}ms`,
   });
 
-  console.info(`[gv-sync] sync complete — fetched=${totalFetched} upserted=${totalUpserted} elapsed=${elapsedMs}ms`);
-  return { fetched: totalFetched, upserted: totalUpserted, elapsedMs };
+  console.info(`[gv-sync] sync complete — fetched=${totalFetched} upserted=${totalUpserted} rejected=${totalRejected} elapsed=${elapsedMs}ms`);
+  return { fetched: totalFetched, upserted: totalUpserted, rejected: totalRejected, elapsedMs };
 }
 
 export function registerGunViolenceRoutes(app: Express) {
@@ -500,12 +588,18 @@ export function registerGunViolenceRoutes(app: Express) {
         fetch(`${BASE}${path}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(10_000) })
           .then(r => r.ok ? r.json() : null).catch(() => null);
 
-      const [cdcSummary, rootCauses, socialDet, acesCorr] = await Promise.all([
+      const [cdcSummaryRaw, rootCauses, socialDet, acesCorrRaw] = await Promise.all([
         fetcher("/api/cdc/summary"),
         fetcher("/api/root-causes"),
         fetcher("/api/social-determinants"),
         fetcher("/api/aces/correlations"),
       ]);
+      // Same mechanical range checks as getGunViolenceIntelligenceData —
+      // this route re-fetches independently, so it must re-validate
+      // independently too rather than trusting a shared cache was already
+      // scrubbed by the time it gets here.
+      const cdcSummary = validateCdcSummary("gun-violence-story", cdcSummaryRaw);
+      const acesCorr = validateAcesCorrelations("gun-violence-story", acesCorrRaw);
 
       // Local incidents for this geography
       const localRows = state

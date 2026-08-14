@@ -14,9 +14,26 @@
  * ----------------------------------------------------------------------------
  */
 
+import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, hasBlockingRejection, type InboundSchema, type CorrectionNote } from "./inbound-verification";
+
 const CIVIC_SIGNAL_BASE_URL = process.env.CIVIC_SIGNAL_BASE_URL || "https://power2thepeople.net";
 const CIVIC_SIGNAL_PUSH_URL = `${CIVIC_SIGNAL_BASE_URL}/api/thriveup/ingest`;
 const CIVIC_SIGNAL_PULL_URL = `${CIVIC_SIGNAL_BASE_URL}/api/thriveup/lessons`;
+
+// Civic Signal is a partner AI system, not our own form — its lesson/topic/
+// confidence/programIds/roiImplication fields are quoted directly into RAG
+// context (see getCivicSignalRAGContext) that other AI calls treat as
+// ground truth. Validate before storage, not after, so a malformed or
+// out-of-range field never gets a chance to enter that context.
+const CIVIC_SIGNAL_LESSON_SCHEMA: InboundSchema = {
+  lesson:         { type: "string", required: true, maxLength: 4000 },
+  topic:          { type: "string", maxLength: 100 },
+  state:          { type: "string", maxLength: 2 },
+  source:         { type: "string", maxLength: 100 },
+  confidence:     { type: "enum", enum: ["low", "moderate", "high"] },
+  programIds:     { type: "stringArray", maxItems: 20, itemMaxLength: 100 },
+  roiImplication: { type: "string", maxLength: 500 },
+};
 
 // ── In-memory store for incoming Civic Signal lessons ─────────────────────
 const incomingLessons: CivicSignalLesson[] = [];
@@ -45,26 +62,36 @@ function outboundHeaders(): Record<string, string> {
 // ── INBOUND: Receive a lesson pushed FROM Civic Signal ────────────────────
 export async function receiveCivicSignalLesson(
   payload: Partial<CivicSignalLesson>
-): Promise<{ stored: boolean; lessonId: string }> {
+): Promise<{ stored: boolean; lessonId: string; corrections?: CorrectionNote[] }> {
+  const { clean, rejections } = verifyInboundPayload<CivicSignalLesson>(payload as any, CIVIC_SIGNAL_LESSON_SCHEMA);
+  await recordInboundVerification("civic-signal-webhook", "receiveCivicSignalLesson", rejections);
+
+  if (hasBlockingRejection(rejections)) {
+    // No `lesson` text (or it's not a usable string) — nothing safe to
+    // store. Tell Civic Signal exactly what was wrong instead of silently
+    // dropping the push or throwing an opaque 500.
+    const corrections = rejectionsToCorrectionNote(rejections);
+    throw Object.assign(new Error("Payload rejected: " + corrections.map(c => `${c.field}: ${c.problem}`).join("; ")), { corrections });
+  }
+
   const lesson: CivicSignalLesson = {
     id: `cs_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    lesson: payload.lesson || "",
-    topic: payload.topic || "general",
-    state: payload.state || "US",
-    source: payload.source || "civic_signal",
-    confidence: payload.confidence || "moderate",
+    lesson: clean.lesson!,
+    topic: clean.topic || "general",
+    state: clean.state || "US",
+    source: clean.source || "civic_signal",
+    confidence: clean.confidence || "moderate",
     receivedAt: new Date().toISOString(),
-    programIds: payload.programIds,
-    roiImplication: payload.roiImplication,
+    programIds: clean.programIds,
+    roiImplication: clean.roiImplication,
   };
-
-  if (!lesson.lesson) throw new Error("lesson field is required");
 
   incomingLessons.push(lesson);
   if (incomingLessons.length > 100) incomingLessons.splice(0, incomingLessons.length - 100);
 
   console.log(`[CivicSignal] Lesson received: topic=${lesson.topic} state=${lesson.state} confidence=${lesson.confidence}`);
-  return { stored: true, lessonId: lesson.id };
+  const corrections = rejectionsToCorrectionNote(rejections);
+  return { stored: true, lessonId: lesson.id, ...(corrections.length ? { corrections } : {}) };
 }
 
 // ── Retrieve stored lessons ────────────────────────────────────────────────
@@ -159,8 +186,20 @@ export async function fetchCivicSignalAdaptations(opts: {
 
     const data = await response.json();
     console.log("[CivicSignal] Pull succeeded");
+    const rawAdaptations: any[] = Array.isArray(data.adaptations || data.lessons || data)
+      ? (data.adaptations || data.lessons || data)
+      : [];
+    // Same schema as an inbound-pushed lesson — a pull response is just as
+    // untrusted as a webhook push, and these values feed the same RAG
+    // context downstream. Rows that fail validation are dropped (not
+    // stored/quoted), not coerced.
+    const validated = rawAdaptations.map((a) => {
+      const { clean, rejections } = verifyInboundPayload<any>(a, CIVIC_SIGNAL_LESSON_SCHEMA);
+      if (rejections.length) void recordInboundVerification("civic-signal-pull", "fetchCivicSignalAdaptations", rejections);
+      return { ok: !hasBlockingRejection(rejections), clean, original: a };
+    });
     return {
-      adaptations: data.adaptations || data.lessons || data,
+      adaptations: validated.filter((v) => v.ok).map((v) => ({ ...v.original, ...v.clean })),
       source: "civic_signal_live",
     };
 

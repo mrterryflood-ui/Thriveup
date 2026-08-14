@@ -27,6 +27,7 @@ import {
   ecosystemDirectiveAcks,
 } from "@shared/schema";
 import { eq, and, notInArray } from "drizzle-orm";
+import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, hasBlockingRejection, type InboundSchema } from "./inbound-verification";
 
 export interface RpliceInboundEvent {
   id: string;
@@ -55,6 +56,32 @@ export interface RpliceInboundEvent {
 }
 
 const rpliceEvents: RpliceInboundEvent[] = [];
+
+// RPLICE is the platform's designated evidence/quality-gate authority — its
+// evidence/fidelity/outcome fields flow directly into community-brief and
+// AI-conductor context (see buildRpliceInboundContext) as trusted findings.
+// That trust is exactly why a malformed push (a bad enum, an
+// out-of-range fidelity score) must be caught here rather than silently
+// becoming "evidence" other AI calls reason from.
+const RPLICE_EVENT_SCHEMA: InboundSchema = {
+  eventType: {
+    type: "enum",
+    enum: [
+      "evidence_update", "research_finding", "quality_gate_review",
+      "fidelity_assessment", "grant_narrative_feedback", "implementation_alert",
+      "outcome_data", "cfir_assessment", "reaim_evaluation", "directive_response",
+    ],
+  },
+  region:         { type: "string", maxLength: 200 },
+  program:        { type: "string", maxLength: 200 },
+  framework:      { type: "string", maxLength: 200 },
+  finding:        { type: "string", maxLength: 4000 },
+  evidenceLevel:  { type: "enum", enum: ["strong", "moderate", "emerging", "expert_consensus"] },
+  fidelityScore:  { type: "number", min: 0, max: 100 },
+  actionRequired: { type: "boolean" },
+  actionItems:    { type: "stringArray", maxItems: 20, itemMaxLength: 300 },
+  citations:      { type: "stringArray", maxItems: 20, itemMaxLength: 500 },
+};
 
 function normalizeKey(s: string): string {
   return s.replace(/[\s\u0080-\uffff]+$/, "").replace(/^[\s\u0080-\uffff]+/, "");
@@ -211,35 +238,52 @@ export function registerRpliceInboundRoutes(app: Express) {
    * RPLICE pushes evidence updates, research findings, quality-gate reviews.
    * Auth: x-shared-secret: THRIVEUP_SHARED_SECRET
    */
-  app.post("/api/inbound/rplice", requireRpliceAuth, (req: Request, res: Response) => {
+  app.post("/api/inbound/rplice", requireRpliceAuth, async (req: Request, res: Response) => {
     try {
       const body = req.body as Partial<RpliceInboundEvent> & { events?: Partial<RpliceInboundEvent>[] };
 
-      const toStore = (raw: Partial<RpliceInboundEvent>): RpliceInboundEvent => ({
-        id: `rplice_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        receivedAt: new Date().toISOString(),
-        eventType: raw.eventType || "research_finding",
-        region: raw.region,
-        program: raw.program,
-        framework: raw.framework,
-        finding: raw.finding,
-        evidenceLevel: raw.evidenceLevel,
-        fidelityScore: raw.fidelityScore,
-        actionRequired: raw.actionRequired,
-        actionItems: raw.actionItems,
-        citations: raw.citations,
-        meta: raw.meta,
-      });
+      const verify = (raw: Partial<RpliceInboundEvent>) => {
+        const { clean, rejections } = verifyInboundPayload<RpliceInboundEvent>(raw as any, RPLICE_EVENT_SCHEMA);
+        return {
+          event: {
+            id: `rplice_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            receivedAt: new Date().toISOString(),
+            eventType: (clean.eventType as RpliceInboundEvent["eventType"]) || "research_finding",
+            region: clean.region,
+            program: clean.program,
+            framework: clean.framework,
+            finding: clean.finding,
+            evidenceLevel: clean.evidenceLevel as RpliceInboundEvent["evidenceLevel"],
+            fidelityScore: clean.fidelityScore,
+            actionRequired: clean.actionRequired,
+            actionItems: clean.actionItems,
+            citations: clean.citations,
+            meta: raw.meta,
+          } as RpliceInboundEvent,
+          rejections,
+        };
+      };
 
       if (Array.isArray(body.events)) {
-        const stored = body.events.map(toStore);
+        const verified = body.events.map(verify);
+        const allRejections = verified.flatMap((v) => v.rejections);
+        if (allRejections.length) await recordInboundVerification("rplice-inbound", "/api/inbound/rplice (batch)", allRejections);
+
+        const stored = verified.map((v) => v.event);
         rpliceEvents.unshift(...stored);
         if (rpliceEvents.length > 500) rpliceEvents.splice(500);
-        console.log(`[RPLICE-Inbound] Batch received: ${stored.length} event(s)`);
-        return res.json({ received: true, count: stored.length, ids: stored.map((e) => e.id) });
+        console.log(`[RPLICE-Inbound] Batch received: ${stored.length} event(s), ${allRejections.length} field correction(s)`);
+        return res.json({
+          received: true,
+          count: stored.length,
+          ids: stored.map((e) => e.id),
+          ...(allRejections.length ? { corrections: rejectionsToCorrectionNote(allRejections) } : {}),
+        });
       }
 
-      const event = toStore(body);
+      const { event, rejections } = verify(body);
+      if (rejections.length) await recordInboundVerification("rplice-inbound", "/api/inbound/rplice", rejections);
+
       rpliceEvents.unshift(event);
       if (rpliceEvents.length > 500) rpliceEvents.splice(500);
 
@@ -247,7 +291,11 @@ export function registerRpliceInboundRoutes(app: Express) {
         `[RPLICE-Inbound] ${event.eventType} — ${event.program || event.region || event.framework || "no label"} (evidence: ${event.evidenceLevel || "unspecified"})`
       );
 
-      return res.json({ received: true, id: event.id });
+      return res.json({
+        received: true,
+        id: event.id,
+        ...(rejections.length ? { corrections: rejectionsToCorrectionNote(rejections) } : {}),
+      });
     } catch (err) {
       console.error("[RPLICE-Inbound] Error:", err);
       return res.status(500).json({ error: "Failed to process RPLICE event" });

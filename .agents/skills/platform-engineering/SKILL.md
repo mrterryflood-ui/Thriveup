@@ -214,6 +214,45 @@ Naming the id alone does NOT bypass the wall. Payload presence is the consent ch
 
 ---
 
+## AI-to-AI / Partner Inbound Verification (Non-Negotiable)
+
+**Never trust inbound AI-to-AI or partner data bidirectionally by default.** Every endpoint that
+receives data from another AI system, sibling platform, or partner integration — gun-violence
+registry sync, Civic Signal webhook/pull, RPLICE inbound events, ecosystem heartbeat
+`complianceReport`, sitesync `/inject`, partner API `/push` — must run the payload through
+`server/inbound-verification.ts` before it is stored, cached, or fed into an AI prompt/RAG
+context/public output. Checking auth + key presence is not enough; the *content* must be
+schema/range/enum-checked too.
+
+**Shared helper:** `verifyInboundPayload<T>(raw, schema: InboundSchema)` → `{ clean, rejections }`.
+- Define an `InboundSchema` per payload shape: field → `{ type, required?, min?, max?, maxLength?,
+  enum?, maxItems?, itemMaxLength? }`. Types: `string | number | boolean | enum | stringArray | url`.
+- Invalid/out-of-range/oversized fields are **dropped or nulled**, never silently coerced into a
+  plausible-looking value. `hasBlockingRejection(rejections)` tells you if a *required* field failed.
+- `recordInboundVerification(source, endpoint, rejections)` writes every rejection to the
+  append-only `inboundVerificationLog` table (non-fatal — it swallows its own DB errors so a
+  logging failure never blocks the request).
+- `rejectionsToCorrectionNote(rejections)` turns rejections into a structured, sender-facing note
+  (`field`, `reason`, `expected`, `received`) — include it in the response payload wherever the
+  route already talks back to the sender, so the correction is a teaching signal, not a silent drop.
+
+**Pattern for a new AI-to-AI/partner endpoint:**
+1. Auth first (existing key/header checks), unchanged.
+2. Define/reuse an `InboundSchema` for the fields that will be stored or reach an AI/RAG/public
+   surface.
+3. `const { clean, rejections } = verifyInboundPayload(req.body, SCHEMA);`
+4. If a required field is missing/invalid, `await recordInboundVerification(...)` and reject the
+   request (400) with `corrections: rejectionsToCorrectionNote(rejections)` — don't silently accept
+   a partial write.
+5. If only optional fields were rejected, still `await recordInboundVerification(...)`, proceed
+   with `clean` values, and include `corrections` in the success response.
+6. Never use the raw `req.body` fields downstream once a schema exists for them — use `clean`.
+
+This mirrors the discipline `ai-claim-grounding.ts` already applies to *outbound* AI claims
+(mechanical numeric-range checks, not NLP) — same idea, applied to *inbound* structured JSON.
+
+---
+
 ## Chainweb External API
 
 **Endpoints in `server/chainweb-routes.ts`:**

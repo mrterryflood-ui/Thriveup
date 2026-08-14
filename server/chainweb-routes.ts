@@ -551,8 +551,15 @@ export function registerChainwebRoutes(app: Express) {
   app.post("/api/chainweb/webhook/civic-signal", cwExternalAuth, async (req: Request, res: Response) => {
     try {
       const result = await receiveCivicSignalLesson(req.body);
-      res.json({ ok: true, received: result });
+      res.json({ ok: true, received: result, ...(result.corrections?.length ? { corrections: result.corrections } : {}) });
     } catch (e: any) {
+      // e.corrections is populated when receiveCivicSignalLesson rejected
+      // the payload for a validation reason — surface it as a 400 with the
+      // structured correction so Civic Signal knows what to fix, instead of
+      // an opaque 500.
+      if (e.corrections) {
+        return res.status(400).json({ ok: false, error: e.message, corrections: e.corrections });
+      }
       res.status(500).json({ error: e.message });
     }
   });

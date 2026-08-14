@@ -16,6 +16,30 @@ import { AI_TRANSLATION_LANGUAGE_COUNT, GEOGRAPHIC_REACH } from "@shared/canonic
 import { SUPPRESSION_FLOOR, suppress } from "./yhsi-routes";
 import { fireWebhook } from "./webhook-dispatcher";
 import crypto, { randomUUID, randomBytes } from "crypto";
+import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
+
+// Per-dataType field schemas for POST /api/partner/v1/push. Only dataTypes
+// with well-known shapes are checked here; unlisted types are stored as-is
+// (their payload is opaque partner content, not something this endpoint
+// interprets or feeds into AI/community-brief context) but every dataType
+// is still logged to the raw audit trail below regardless of schema
+// coverage.
+const PARTNER_PUSH_SCHEMAS: Record<string, InboundSchema> = {
+  grant_outcome: {
+    grantId:     { type: "string", maxLength: 200 },
+    grantTitle:  { type: "string", maxLength: 500 },
+    status:      { type: "enum", enum: ["awarded", "submitted", "declined", "pending", "withdrawn"], required: true },
+    awardAmount: { type: "number", min: 0, max: 1_000_000_000 },
+  },
+  metric: {
+    name:  { type: "string", maxLength: 200 },
+    value: { type: "number", min: -1_000_000_000, max: 1_000_000_000 },
+  },
+  intervention: {
+    name:           { type: "string", maxLength: 300 },
+    roiImplication: { type: "string", maxLength: 500 },
+  },
+};
 
 // Minimum cell floor for aggregate suppression (mirrors conductor MIN_AGGREGATE_CELL)
 const MIN_AGGREGATE_CELL = 5;
@@ -783,20 +807,44 @@ export function registerPartnerApiRoutes(app: Express) {
 
     // grant_outcome: validate required fields before storing
     if (dataType === "grant_outcome") {
-      const { grantId, grantTitle, status } = payload as any;
+      const { grantId, grantTitle } = payload as any;
       if (!grantId && !grantTitle) {
         return res.status(400).json({ error: "grant_outcome payload must include at least grantId or grantTitle." });
       }
-      if (!status) {
-        return res.status(400).json({ error: "grant_outcome payload must include a status field (e.g. 'awarded', 'submitted', 'declined')." });
+    }
+
+    // Schema-validate the fields this endpoint actually knows the shape of.
+    // A partner-declared dataType with no known schema is still stored (its
+    // payload is opaque partner content we don't interpret), but a known
+    // dataType with a bad enum/out-of-range field is corrected, not stored
+    // as-is and trusted downstream (grant_outcome status/awardAmount feed
+    // the compliance matrix; metric values can feed dashboards).
+    const schema = PARTNER_PUSH_SCHEMAS[dataType];
+    let cleanedPayload = payload;
+    let corrections: ReturnType<typeof rejectionsToCorrectionNote> = [];
+    if (schema) {
+      const { clean, rejections } = verifyInboundPayload<any>(payload, schema);
+      if (rejections.length) {
+        await recordInboundVerification("partner-api-push", `/api/partner/v1/push (${key.partnerName})`, rejections);
+        corrections = rejectionsToCorrectionNote(rejections);
       }
+      if (dataType === "grant_outcome" && !clean.status) {
+        return res.status(400).json({
+          error: "grant_outcome payload must include a valid status field (awarded, submitted, declined, pending, withdrawn).",
+          corrections,
+        });
+      }
+      // Merge validated fields back over the raw payload — invalid fields
+      // (nulled by verifyInboundPayload) are dropped, everything else the
+      // partner sent that isn't in our schema passes through untouched.
+      cleanedPayload = { ...payload, ...clean };
     }
 
     const [row] = await db.insert(partnerInboundData).values({
       keyId: key.id,
       partnerName: key.partnerName,
       dataType,
-      payload,
+      payload: cleanedPayload,
     }).returning({ id: partnerInboundData.id, receivedAt: partnerInboundData.receivedAt });
 
     const response: Record<string, unknown> = {
@@ -805,11 +853,12 @@ export function registerPartnerApiRoutes(app: Express) {
       partner: key.partnerName,
       dataType,
       receivedAt: row.receivedAt,
+      ...(corrections.length ? { corrections } : {}),
     };
 
     // Echo a grant_outcome acknowledgement so the caller knows what was captured
     if (dataType === "grant_outcome") {
-      const p = payload as any;
+      const p = cleanedPayload as any;
       response.grantOutcomeAck = {
         grantId: p.grantId ?? null,
         grantTitle: p.grantTitle ?? null,

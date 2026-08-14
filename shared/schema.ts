@@ -7631,6 +7631,34 @@ export const aiClaimChain = pgTable("ai_claim_chain", {
 export type AiClaimChainRow = typeof aiClaimChain.$inferSelect;
 export type InsertAiClaimChain = typeof aiClaimChain.$inferInsert;
 
+// Append-only audit log of every inbound-payload verification decision made
+// by server/inbound-verification.ts. Records BOTH rejections/nulls AND the
+// fact that a field passed — a route's own console.log is not queryable or
+// durable across restarts, and this is the record an operator (or the
+// sending partner, via /api/*/corrections style responses) uses to see
+// exactly what was wrong with an AI-to-AI or partner payload and why.
+// Never updated or deleted in normal operation.
+export const inboundVerificationLog = pgTable("inbound_verification_log", {
+  id: serial("id").primaryKey(),
+  /** which inbound integration, e.g. "gun-violence-registry", "civic-signal-webhook", "rplice-inbound", "ecosystem-heartbeat", "sitesync-inject", "partner-api-push" */
+  source: varchar("source", { length: 100 }).notNull(),
+  /** the route/function this payload was submitted to */
+  endpoint: varchar("endpoint", { length: 200 }).notNull(),
+  /** dot-path of the field within the payload, e.g. "fidelityScore" or "events[2].evidenceLevel" */
+  field: varchar("field", { length: 200 }).notNull(),
+  /** rejected | nulled | accepted */
+  action: varchar("action", { length: 20 }).notNull(),
+  /** short machine reason, e.g. "out_of_range", "wrong_type", "not_in_enum", "too_long" */
+  reason: varchar("reason", { length: 100 }).notNull(),
+  /** the raw value as received, stringified and truncated — internal audit content, not re-executed */
+  receivedValue: text("received_value"),
+  /** human-readable description of what was expected, echoed back to the sender when the response channel allows it */
+  expected: varchar("expected", { length: 300 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type InboundVerificationLogRow = typeof inboundVerificationLog.$inferSelect;
+export type InsertInboundVerificationLog = typeof inboundVerificationLog.$inferInsert;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";
