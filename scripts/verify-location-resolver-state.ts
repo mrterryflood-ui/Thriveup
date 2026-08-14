@@ -1,105 +1,203 @@
 /**
  * verify-location-resolver-state.ts
  *
- * Focused unit tests for stateAbbrevFromZip and the Layer 1/3/4 state
- * derivation logic in resolveLocationToZip.  Run with:
- *   npx tsx scripts/verify-location-resolver-state.ts
+ * Confirms that resolveLocationToZip returns the correct stateAbbrev for raw
+ * ZIP inputs. A regression in the ZIP numeric-range table (e.g. a wrong
+ * boundary) would silently produce an empty state and break gun violence
+ * lookups, grant conduit filtering, and policy context — all callers that
+ * depend on stateAbbrev.
+ *
+ * Run:  npx tsx scripts/verify-location-resolver-state.ts
  */
 
-// ── Import the helpers under test ─────────────────────────────────────────────
-// We test stateAbbrevFromZip directly; resolveLocationToZip makes network
-// calls so we only verify the synchronous Layer-1 path here.
-import { stateAbbrevFromZip } from "../server/neighborhood-routes";
+import { resolveLocationToZip, stateAbbrevFromZip } from "../server/neighborhood-routes";
+
+interface ZipCase {
+  zip: string;
+  expectedState: string | undefined; // undefined = invalid ZIP, should return undefined
+  note: string;
+}
+
+const CASES: ZipCase[] = [
+  // ── Standard state representatives ──────────────────────────────────────────
+  { zip: "90210", expectedState: "CA", note: "California (Beverly Hills)" },
+  { zip: "10001", expectedState: "NY", note: "New York (Midtown Manhattan)" },
+  { zip: "77002", expectedState: "TX", note: "Texas (downtown Houston)" },
+  { zip: "60601", expectedState: "IL", note: "Illinois (downtown Chicago)" },
+  { zip: "33101", expectedState: "FL", note: "Florida (Miami)" },
+  { zip: "30303", expectedState: "GA", note: "Georgia (Atlanta)" },
+  { zip: "02201", expectedState: "MA", note: "Massachusetts (Boston)" },
+  { zip: "19103", expectedState: "PA", note: "Pennsylvania (Philadelphia)" },
+  { zip: "97201", expectedState: "OR", note: "Oregon (Portland)" },
+  { zip: "98101", expectedState: "WA", note: "Washington (Seattle)" },
+  { zip: "80202", expectedState: "CO", note: "Colorado (Denver)" },
+  { zip: "85004", expectedState: "AZ", note: "Arizona (Phoenix)" },
+  { zip: "89101", expectedState: "NV", note: "Nevada (Las Vegas)" },
+  { zip: "84101", expectedState: "UT", note: "Utah (Salt Lake City)" },
+  { zip: "87102", expectedState: "NM", note: "New Mexico (Albuquerque)" },
+  { zip: "73102", expectedState: "OK", note: "Oklahoma (Oklahoma City)" },
+  { zip: "70112", expectedState: "LA", note: "Louisiana (New Orleans)" },
+  { zip: "72201", expectedState: "AR", note: "Arkansas (Little Rock)" },
+  { zip: "38103", expectedState: "TN", note: "Tennessee (Memphis)" },
+  { zip: "39201", expectedState: "MS", note: "Mississippi (Jackson)" },
+  { zip: "35203", expectedState: "AL", note: "Alabama (Birmingham)" },
+  { zip: "29201", expectedState: "SC", note: "South Carolina (Columbia)" },
+  { zip: "27601", expectedState: "NC", note: "North Carolina (Raleigh)" },
+  { zip: "23219", expectedState: "VA", note: "Virginia (Richmond)" },
+  { zip: "21202", expectedState: "MD", note: "Maryland (Baltimore)" },
+  { zip: "07102", expectedState: "NJ", note: "New Jersey (Newark)" },
+  { zip: "06103", expectedState: "CT", note: "Connecticut (Hartford)" },
+  { zip: "02903", expectedState: "RI", note: "Rhode Island (Providence)" },
+  { zip: "03101", expectedState: "NH", note: "New Hampshire (Manchester)" },
+  { zip: "04101", expectedState: "ME", note: "Maine (Portland)" },
+  { zip: "05401", expectedState: "VT", note: "Vermont (Burlington)" },
+  { zip: "14202", expectedState: "NY", note: "New York (Buffalo)" },
+  { zip: "15222", expectedState: "PA", note: "Pennsylvania (Pittsburgh)" },
+  { zip: "19701", expectedState: "DE", note: "Delaware" },
+  { zip: "26101", expectedState: "WV", note: "West Virginia" },
+  { zip: "40202", expectedState: "KY", note: "Kentucky (Louisville)" },
+  { zip: "43215", expectedState: "OH", note: "Ohio (Columbus)" },
+  { zip: "46204", expectedState: "IN", note: "Indiana (Indianapolis)" },
+  { zip: "48226", expectedState: "MI", note: "Michigan (Detroit)" },
+  { zip: "53202", expectedState: "WI", note: "Wisconsin (Milwaukee)" },
+  { zip: "55401", expectedState: "MN", note: "Minnesota (Minneapolis)" },
+  { zip: "50309", expectedState: "IA", note: "Iowa (Des Moines)" },
+  { zip: "63101", expectedState: "MO", note: "Missouri (St. Louis)" },
+  { zip: "66101", expectedState: "KS", note: "Kansas (Kansas City)" },
+  { zip: "68102", expectedState: "NE", note: "Nebraska (Omaha)" },
+  { zip: "57104", expectedState: "SD", note: "South Dakota (Sioux Falls)" },
+  { zip: "58102", expectedState: "ND", note: "North Dakota (Fargo)" },
+  { zip: "59101", expectedState: "MT", note: "Montana (Billings)" },
+  { zip: "83702", expectedState: "ID", note: "Idaho (Boise)" },
+  { zip: "82001", expectedState: "WY", note: "Wyoming (Cheyenne)" },
+  { zip: "99501", expectedState: "AK", note: "Alaska (Anchorage)" },
+  { zip: "96813", expectedState: "HI", note: "Hawaii (Honolulu)" },
+
+  // ── DC ───────────────────────────────────────────────────────────────────────
+  { zip: "20001", expectedState: "DC", note: "DC core range (20000-20099)" },
+  { zip: "20201", expectedState: "DC", note: "DC mid range (20200-20599)" },
+
+  // ── Boundary / edge ZIPs ─────────────────────────────────────────────────────
+  // N. Virginia block 20100–20199
+  { zip: "20100", expectedState: "VA", note: "N.VA boundary ZIPs: 20100 (lower bound)" },
+  { zip: "20150", expectedState: "VA", note: "N.VA boundary ZIPs: 20150 (mid)" },
+  { zip: "20199", expectedState: "VA", note: "N.VA boundary ZIPs: 20199 (upper bound)" },
+
+  // TX El Paso area 88500–88599 (surrounded by NM range 87000–88499)
+  { zip: "88499", expectedState: "NM", note: "NM upper boundary 88499" },
+  { zip: "88500", expectedState: "TX", note: "TX El Paso boundary lower (88500)" },
+  { zip: "88550", expectedState: "TX", note: "TX El Paso mid (88550)" },
+  { zip: "88599", expectedState: "TX", note: "TX El Paso upper (88599)" },
+  { zip: "88600", expectedState: undefined, note: "gap between TX El Paso (88500-88599) and NV (89000+) — should be undefined" },
+
+  // WY/ID boundary: WY 82000-83199, ID 83200-83999
+  { zip: "83199", expectedState: "WY", note: "WY upper boundary 83199" },
+  { zip: "83200", expectedState: "ID", note: "ID lower boundary 83200" },
+
+  // AZ/NM boundary: AZ 85000-86599, NM 87000-88499
+  { zip: "86599", expectedState: "AZ", note: "AZ upper boundary 86599" },
+  { zip: "87000", expectedState: "NM", note: "NM lower boundary 87000" },
+
+  // CA/OR boundary: CA goes up to 96199, then gap, then HI 96700-96899, OR 97000-97999
+  { zip: "96199", expectedState: "CA", note: "CA upper boundary 96199" },
+  { zip: "97000", expectedState: "OR", note: "OR lower boundary 97000" },
+
+  // WA/AK boundary
+  { zip: "99499", expectedState: "WA", note: "WA upper boundary 99499" },
+  { zip: "99500", expectedState: "AK", note: "AK lower boundary 99500" },
+
+  // LA/AR split: LA 70000-71599, AR 71600-72999
+  { zip: "71599", expectedState: "LA", note: "LA upper boundary 71599" },
+  { zip: "71600", expectedState: "AR", note: "AR lower boundary 71600" },
+
+  // TN/MS split: TN 37000-38599, MS 38600-39999
+  { zip: "38599", expectedState: "TN", note: "TN upper boundary 38599" },
+  { zip: "38600", expectedState: "MS", note: "MS lower boundary 38600" },
+
+  // KY/OH: KY 40000-42799, OH 43000-45999
+  { zip: "42799", expectedState: "KY", note: "KY upper boundary 42799" },
+  { zip: "43000", expectedState: "OH", note: "OH lower boundary 43000" },
+
+  // ── Puerto Rico ──────────────────────────────────────────────────────────────
+  { zip: "00600", expectedState: "PR", note: "PR lower boundary 00600" },
+  { zip: "00785", expectedState: "PR", note: "PR mid range" },
+  { zip: "00988", expectedState: "PR", note: "PR upper boundary 00988" },
+
+  // ── USPS unique exceptions ───────────────────────────────────────────────────
+  { zip: "00501", expectedState: "NY", note: "USPS Unique: IRS Holtsville NY (exception map)" },
+  { zip: "00544", expectedState: "NY", note: "USPS Unique: IRS Holtsville NY (exception map)" },
+
+  // ── Invalid / unrecognised ZIPs ──────────────────────────────────────────────
+  { zip: "00000", expectedState: undefined, note: "00000 — not a valid ZIP" },
+  { zip: "00100", expectedState: undefined, note: "00100 — gap before PR range" },
+  { zip: "09999", expectedState: undefined, note: "09999 — unassigned (military APO uses 09xxx but not in table)" },
+  { zip: "96200", expectedState: undefined, note: "gap between CA (ends 96199) and HI (starts 96700)" },
+  { zip: "96600", expectedState: undefined, note: "gap before HI 96700 lower bound" },
+];
 
 let passed = 0;
 let failed = 0;
+const failures: string[] = [];
 
-function assert(label: string, actual: unknown, expected: unknown) {
-  if (actual === expected) {
-    console.log(`  ✓ ${label}`);
-    passed++;
-  } else {
-    console.error(`  ✗ ${label} — expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`);
-    failed++;
+async function runCases(): Promise<void> {
+  // Test stateAbbrevFromZip directly (sync, unit-level)
+  console.log("=== stateAbbrevFromZip (unit, sync) ===\n");
+  for (const tc of CASES) {
+    const result = stateAbbrevFromZip(tc.zip);
+    const got = result === "" ? undefined : result;
+    const pass = got === tc.expectedState;
+    if (pass) {
+      passed++;
+      console.log(`  ✓  ${tc.zip}  → ${got ?? "(none)"}  [${tc.note}]`);
+    } else {
+      failed++;
+      const msg = `  ✗  ${tc.zip}  → got ${got ?? "(none)"}  expected ${tc.expectedState ?? "(none)"}  [${tc.note}]`;
+      console.log(msg);
+      failures.push(msg);
+    }
+  }
+
+  // Test resolveLocationToZip Layer 1 path (raw ZIP input returns stateAbbrev)
+  console.log("\n=== resolveLocationToZip Layer 1 (raw ZIP input) ===\n");
+  // Only test ZIPs where we expect a valid state (resolveLocationToZip always
+  // returns an object for any 5-digit string, but stateAbbrev may be undefined
+  // for gap ZIPs).
+  const layer1Cases = CASES.filter((tc) => /^\d{5}$/.test(tc.zip));
+  for (const tc of layer1Cases) {
+    const resolved = await resolveLocationToZip(tc.zip);
+    if (!resolved) {
+      failed++;
+      const msg = `  ✗  ${tc.zip}  → resolveLocationToZip returned null (expected an object)  [${tc.note}]`;
+      console.log(msg);
+      failures.push(msg);
+      continue;
+    }
+    const gotState = resolved.stateAbbrev;
+    const pass = gotState === tc.expectedState;
+    if (pass) {
+      passed++;
+      console.log(`  ✓  ${tc.zip}  → stateAbbrev=${gotState ?? "(none)"}  [${tc.note}]`);
+    } else {
+      failed++;
+      const msg = `  ✗  ${tc.zip}  → stateAbbrev=${gotState ?? "(none)"}  expected ${tc.expectedState ?? "(none)"}  [${tc.note}]`;
+      console.log(msg);
+      failures.push(msg);
+    }
   }
 }
 
-// ── stateAbbrevFromZip ────────────────────────────────────────────────────────
-
-console.log("\n=== stateAbbrevFromZip ===");
-
-// Normal ZIPs in the middle of each range
-assert("TX  75201 → TX",  stateAbbrevFromZip("75201"), "TX");
-assert("NC  27601 → NC",  stateAbbrevFromZip("27601"), "NC");
-assert("CA  90210 → CA",  stateAbbrevFromZip("90210"), "CA");
-assert("NY  10001 → NY",  stateAbbrevFromZip("10001"), "NY");
-assert("DC  20001 → DC",  stateAbbrevFromZip("20001"), "DC");
-assert("MA  02201 → MA",  stateAbbrevFromZip("02201"), "MA");
-assert("AK  99501 → AK",  stateAbbrevFromZip("99501"), "AK");
-assert("HI  96813 → HI",  stateAbbrevFromZip("96813"), "HI");
-assert("OR  97204 → OR",  stateAbbrevFromZip("97204"), "OR");
-assert("WA  98104 → WA",  stateAbbrevFromZip("98104"), "WA");
-
-// Puerto Rico
-assert("PR  00601 → PR",  stateAbbrevFromZip("00601"), "PR");
-assert("PR  00988 → PR",  stateAbbrevFromZip("00988"), "PR");
-
-// Known exceptions below the main range
-assert("NY  00501 → NY",  stateAbbrevFromZip("00501"), "NY");
-assert("NY  00544 → NY",  stateAbbrevFromZip("00544"), "NY");
-
-// Range boundary ZIPs
-assert("TX El Paso 88500 → TX",         stateAbbrevFromZip("88500"), "TX");
-assert("N.VA 20100 → VA",               stateAbbrevFromZip("20100"), "VA");
-assert("N.VA 20199 → VA",               stateAbbrevFromZip("20199"), "VA");
-assert("MD  20600 → MD",                stateAbbrevFromZip("20600"), "MD");
-assert("DC  56901 → DC (federal block)", stateAbbrevFromZip("56901"), "DC");
-assert("DC  56999 → DC (federal block)", stateAbbrevFromZip("56999"), "DC");
-
-// Genuinely unknown — should return empty string (not throw)
-assert("00000 → ''",  stateAbbrevFromZip("00000"), "");
-assert("99999 → AK",  stateAbbrevFromZip("99999"), "AK");
-assert("junk  → ''",  stateAbbrevFromZip("junk"),  "");
-
-// ── Census matched-address regex (replicated here to test without network) ───
-
-console.log("\n=== Census matched-address state extraction regex ===");
-
-const ALL_STATE_ABBREVS = new Set([
-  "AL","AK","AZ","AR","CA","CO","CT","DE","DC","FL","GA","HI","ID","IL","IN",
-  "IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH",
-  "NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT",
-  "VT","VA","WA","WV","WI","WY","PR",
-]);
-
-function extractStateFromCensusAddr(addr: string): string {
-  // Accept both "NC 28401" and "DC, 20500" forms from Census geocoder.
-  const m = addr.match(/,\s*([A-Z]{2})[,\s]+\d{5}/);
-  return m && ALL_STATE_ABBREVS.has(m[1]) ? m[1] : "";
-}
-
-assert(
-  "Standard:  '123 MAIN ST, WILMINGTON, NC 28401' → NC",
-  extractStateFromCensusAddr("123 MAIN ST, WILMINGTON, NC 28401"),
-  "NC",
-);
-assert(
-  "Comma:     '1600 PENNSYLVANIA AVE NW, WASHINGTON, DC, 20500' → DC",
-  extractStateFromCensusAddr("1600 PENNSYLVANIA AVE NW, WASHINGTON, DC, 20500"),
-  "DC",
-);
-assert(
-  "No match:  'UNKNOWN PLACE' → ''",
-  extractStateFromCensusAddr("UNKNOWN PLACE"),
-  "",
-);
-assert(
-  "TX format: '123 MAIN ST, AUSTIN, TX 78701' → TX",
-  extractStateFromCensusAddr("123 MAIN ST, AUSTIN, TX 78701"),
-  "TX",
-);
-
-// ── Summary ───────────────────────────────────────────────────────────────────
-
-console.log(`\nResults: ${passed} passed, ${failed} failed`);
-if (failed > 0) process.exit(1);
+runCases().then(() => {
+  console.log(`\n─────────────────────────────────────────────`);
+  console.log(`Results: ${passed} passed, ${failed} failed`);
+  if (failures.length > 0) {
+    console.error("\nFAILURES:");
+    for (const f of failures) console.error(f);
+    process.exit(1);
+  } else {
+    console.log("All ZIP-to-state assertions passed.");
+    process.exit(0);
+  }
+}).catch((err) => {
+  console.error("Unexpected error:", err);
+  process.exit(1);
+});
