@@ -273,7 +273,7 @@ isValidation = true
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx scripts/verify-community-brief-e2e.ts && npx tsx scripts/verify-community-brief-probe-logic.ts && npx tsx scripts/verify-community-evidence-guards.ts"
+args = "npx tsx scripts/verify-community-brief-e2e.ts && npx tsx scripts/verify-community-brief-probe-logic.ts && npx tsx scripts/verify-community-evidence-guards.ts && npx tsx scripts/verify-ai-claim-grounding.ts"
 
 [[workflows.workflow]]
 name = "directory-links"

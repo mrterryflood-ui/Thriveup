@@ -3,6 +3,46 @@ import { db } from "./storage";
 import { rpliceAssessments, rpliceActionPlans, outcomeBaselines, ecosystemPlatforms } from "@shared/schema";
 import { eq, desc } from "drizzle-orm";
 import { generateAIJSON, streamAIResponse, generateMultiAIResponse, getProviderInfo } from "./ai-provider";
+import { enforceGroundedClaims, buildPercentRule, buildAnyOfRule, type ClaimRule } from "./ai-claim-grounding";
+import { recordClaimDecisions } from "./claim-chain";
+
+/**
+ * Grounds RPLICE multi-AI consensus/primary/secondary text against the real
+ * Census-derived region data it was given. Percentage claims about a named
+ * quantity (poverty, unemployment, college attainment, marriage, two-parent
+ * households) are checked against that specific value; income-gap "Nx"
+ * ratio claims and raw dollar median-income claims are checked against the
+ * computed values too. Anything else the model states is left alone.
+ */
+function groundRegionAnalysisText(text: string | undefined, subject: string, regionData: any): { text: string; decisions: import("./ai-claim-grounding").GroundingDecision[] } {
+  if (!text) return { text: text || "", decisions: [] };
+  const c = regionData?.targetCounty || {};
+  const rules: ClaimRule[] = [
+    buildPercentRule("rplice-poverty-rate", /poverty/i, typeof c.povertyRate === "number" ? c.povertyRate : null),
+    buildPercentRule("rplice-unemployment-rate", /unemployment/i, typeof c.unemploymentRate === "number" ? c.unemploymentRate : null),
+    buildPercentRule("rplice-college-attainment", /college/i, typeof c.collegePct === "number" ? c.collegePct : null),
+    buildPercentRule("rplice-marriage-rate", /marriage/i, typeof c.marriagePct === "number" ? c.marriagePct : null),
+    buildPercentRule("rplice-two-parent-rate", /two[- ]parent/i, typeof c.twoParentPct === "number" ? c.twoParentPct : null),
+    buildAnyOfRule(
+      "rplice-income-gap-ratio",
+      /income gap|neighborhood.{0,20}gap|\bgap\b.{0,15}\bx\b/i,
+      (sentence) => {
+        const claims: { value: number; kind: string }[] = [];
+        const re = /(\d+(?:\.\d+)?)\s*x\b/gi;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(sentence))) {
+          const n = parseFloat(m[1]);
+          if (Number.isFinite(n)) claims.push({ value: n, kind: "ratio" });
+        }
+        return claims;
+      },
+      typeof regionData?.incomeGap === "number" ? [regionData.incomeGap] : [],
+      () => 0.15
+    ),
+  ];
+  const result = enforceGroundedClaims(text, rules);
+  return { text: result.text, decisions: result.decisions };
+}
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   if (!(req as any).isAuthenticated?.() && !(req as any).user) {
@@ -921,6 +961,24 @@ Be specific. Use the actual data. Apply Dr. Flood's principle: education is the 
         systemPrompt: "You are an implementation scientist working in the RPLICE framework. Apply CFIR 2.0, RE-AIM, Three Realities, and SALP to community analysis. Dr. Flood's research shows 1 year of college = primary protective factor.",
         maxTokens: 4000,
       });
+
+      const subjectLabel = cityName || regionData.targetCounty?.name || `${stateFips}-${countyFips}`;
+      const groundedPrimary = groundRegionAnalysisText(result.primary, subjectLabel, regionData);
+      const groundedSecondary = groundRegionAnalysisText(result.secondary, subjectLabel, regionData);
+      const groundedConsensus = groundRegionAnalysisText(result.consensus, subjectLabel, regionData);
+      const allDecisions = [...groundedPrimary.decisions, ...groundedSecondary.decisions, ...groundedConsensus.decisions];
+      if (allDecisions.length > 0) {
+        recordClaimDecisions("rplice-consensus", subjectLabel, allDecisions).catch((err) =>
+          console.error("[RPLICE] claim-chain record failed (non-fatal):", err)
+        );
+      }
+      const droppedCount = allDecisions.filter((d) => d.verdict !== "kept").length;
+      if (droppedCount > 0) {
+        console.error(`[RPLICE] multi-AI analysis for ${subjectLabel} contained ${droppedCount} ungrounded claim(s) — redacted.`);
+      }
+      result.primary = groundedPrimary.text;
+      if (result.secondary) result.secondary = groundedSecondary.text;
+      if (result.consensus) result.consensus = groundedConsensus.text;
 
       await db.insert(rpliceAssessments).values({
         assessmentType: "multi_ai_analysis",

@@ -41,6 +41,8 @@
 - [Canvas-wire trial gate E2E pattern](canvas-wire-trial-gate.md) — wait for settled state (active OR expired) before asserting active; server-side trial API is slow during boot; 15s timeout not enough.
 - [Member Health Engagement Engine](member-health-engine.md) — 8 tables, 27 HEDIS measures seeded at boot, 3 entry paths, email-first outreach; page at /member-health; apiRequest call sites must use meGet/mePost/mePatch helpers (method is first arg, returns Response not JSON).
 - [County-level Census resolution](county-resolution.md) — county names / FIPS / multi-county pipe lists route DIRECTLY to ACS county endpoint; never downsampled to ZIP; static NC+TX table = instant FIPS lookup with no network hop.
+- [JSONB hash-chain pitfall](jsonb-hash-chain-pitfall.md) — never hash a jsonb column value; Postgres reorders keys on write, breaking round-trip hash verification. Store exact JSON as text instead.
+- [AI claim grounding + tamper-evident chain](ai-claim-grounding-chain.md) — shared mechanical grounding engine (not NLP) for closed-form numeric AI claims; free-form chat is disclosed/labeled, not verified — a deliberate scope boundary.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.

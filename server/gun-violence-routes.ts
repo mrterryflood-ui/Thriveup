@@ -15,6 +15,91 @@ import { gunViolenceIncidents, gunViolenceImports } from "@shared/schema";
 import { eq, and, gte, lte, sql, desc } from "drizzle-orm";
 import { requireAuth } from "./tenant-middleware";
 import { z } from "zod";
+import { enforceGroundedClaims, buildRoiRule, buildAnyOfRule, type ClaimRule } from "./ai-claim-grounding";
+import { recordClaimDecisions } from "./claim-chain";
+
+/**
+ * Grounds the AI-generated gun violence story against the real data it was
+ * given: no cost-effectiveness/ROI-style dollar claim is permitted anywhere
+ * (none is computed for this surface, so any such claim is fabricated), and
+ * any restatement of the national death total, crude rate, or ACE-firearm
+ * correlation is checked against the real fetched values. `keyNumbers`
+ * values are passed through the same body-text grounding engine (treating
+ * each as its own one-sentence "narrative") so a fabricated key number is
+ * caught the same way a fabricated body sentence would be.
+ */
+function groundGunViolenceStory(
+  story: { headline?: string; subhead?: string; body?: string[]; keyNumbers?: { label: string; value: string }[]; callToAction?: string },
+  ctx: { cdcSummary: any; acesCorr: any; geography: string }
+): typeof story {
+  const totalDeaths = ctx.cdcSummary?.totalDeaths ?? 834013;
+  const crudeRate = ctx.cdcSummary?.latestYear?.crudeRate ?? 14.5;
+  const peakDeaths = ctx.cdcSummary?.peakYear?.deaths ?? 48830;
+  const aceR = ctx.acesCorr?.aceFirearmR ?? 0.856;
+
+  const rules: ClaimRule[] = [
+    // No cost-benefit/ROI figure is computed for this surface — any such claim is fabricated.
+    buildRoiRule("gun-violence-cost-effectiveness", null),
+    buildAnyOfRule(
+      "gun-violence-national-stats",
+      /died|deaths?|per\s*100,?000|correlat|r\s*=/i,
+      (sentence) => {
+        const claims: { value: number; kind: string }[] = [];
+        const numRe = /(\d[\d,]*(?:\.\d+)?)/g;
+        let m: RegExpExecArray | null;
+        while ((m = numRe.exec(sentence))) {
+          const n = parseFloat(m[1].replace(/,/g, ""));
+          if (!Number.isFinite(n)) continue;
+          // Exclude bare 4-digit calendar-year mentions ("since 1999") — a
+          // year is not itself a statistical claim needing grounding.
+          if (n >= 1900 && n <= 2100 && !m[1].includes(",")) continue;
+          claims.push({ value: n, kind: "stat" });
+        }
+        return claims;
+      },
+      [totalDeaths, crudeRate, peakDeaths, aceR, aceR * 100],
+      (v) => Math.max(0.5, Math.abs(v) * 0.03)
+    ),
+  ];
+
+  const allDecisions: import("./ai-claim-grounding").GroundingDecision[] = [];
+  const groundText = (text: string | undefined): string | undefined => {
+    if (!text) return text;
+    const result = enforceGroundedClaims(text, rules);
+    allDecisions.push(...result.decisions);
+    return result.text;
+  };
+
+  const groundedBody = (story.body || []).map((p) => groundText(p) || "");
+  const groundedHeadline = groundText(story.headline);
+  const groundedSubhead = groundText(story.subhead);
+  const groundedCTA = groundText(story.callToAction);
+  const groundedKeyNumbers = (story.keyNumbers || []).map((kn) => {
+    const asSentence = `${kn.label}: ${kn.value}.`;
+    const result = enforceGroundedClaims(asSentence, rules);
+    allDecisions.push(...result.decisions);
+    // Only the ROI/cost-effectiveness rule can invalidate a whole key number
+    // (the national-stats rule is an allow-list of KNOWN good numbers, not
+    // every number this story is entitled to state — a key number restating
+    // a LOCAL registry count, for example, has no source value here and
+    // would be over-flagged by requiring an exact match). Drop a key number
+    // only when it was specifically flagged as an ungrounded cost-benefit claim.
+    const costClaim = result.decisions.find((d) => d.ruleId === "gun-violence-cost-effectiveness" && d.verdict !== "kept");
+    return costClaim ? null : kn;
+  }).filter((kn): kn is { label: string; value: string } => kn !== null);
+
+  if (allDecisions.length > 0) {
+    recordClaimDecisions("gun-violence-story", ctx.geography, allDecisions).catch((err) =>
+      console.error("[GunViolence] claim-chain record failed (non-fatal):", err)
+    );
+  }
+  const droppedCount = allDecisions.filter((d) => d.verdict !== "kept").length;
+  if (droppedCount > 0) {
+    console.error(`[GunViolence] story for ${ctx.geography} contained ${droppedCount} ungrounded claim(s) — redacted.`);
+  }
+
+  return { ...story, headline: groundedHeadline, subhead: groundedSubhead, body: groundedBody, keyNumbers: groundedKeyNumbers, callToAction: groundedCTA };
+}
 
 // ── Simple in-memory rate limiter (no package dependency) ────────────────────
 const summaryRateWindows = new Map<string, { count: number; resetAt: number }>();
@@ -457,15 +542,16 @@ ${focusArea ? `- Focus area: ${focusArea}` : ""}
 The story should:
 1. Open with a human truth — not statistics, a moment
 2. Build the structural picture — poverty, ACEs, disinvestment — using the data
-3. Name what works — evidence-based interventions with real cost-effectiveness numbers
+3. Name what works — evidence-based interventions, described qualitatively (what they do and why they help). Do NOT state a specific cost-effectiveness dollar figure, ratio, or "saves $X per $1" claim — none is computed for this story, so any such number would be invented.
 4. Close with what TCAF's CHW network, anchor agencies, and community partners are doing in response
 5. Be 4–6 paragraphs, written for both a grant committee and a community meeting
 
 Respond with JSON: { headline: string, subhead: string, body: string[] (array of paragraphs), keyNumbers: { label: string, value: string }[], callToAction: string }
 `);
 
-      const story = await generateAIJSON(prompt, "gun violence narrative");
-      res.json({ ok: true, geography, story });
+      const story = await generateAIJSON<{ headline?: string; subhead?: string; body?: string[]; keyNumbers?: { label: string; value: string }[]; callToAction?: string }>(prompt, "gun violence narrative");
+      const grounded = groundGunViolenceStory(story, { cdcSummary, acesCorr, geography });
+      res.json({ ok: true, geography, story: grounded });
     } catch (err: any) {
       console.error("[gun-violence] story error:", err);
       res.status(500).json({ error: "Story generation failed.", detail: err.message });

@@ -7591,6 +7591,37 @@ export const memberCHWEngagements = pgTable("member_chw_engagements", {
 export type MemberCHWEngagement = typeof memberCHWEngagements.$inferSelect;
 export type InsertMemberCHWEngagement = typeof memberCHWEngagements.$inferInsert;
 
+// Tamper-evident, append-only SHA-256 hash chain of AI numeric-claim
+// grounding decisions (see server/ai-claim-grounding.ts + server/claim-chain.ts).
+// Records EVERY decision — kept and stripped — so the chain is a complete
+// audit trail, not just a log of failures. Never updated or deleted in
+// normal operation; that is what makes it tamper-evident.
+export const aiClaimChain = pgTable("ai_claim_chain", {
+  id: serial("id").primaryKey(),
+  /** which AI surface produced the claim, e.g. "conductor-narrative", "gun-violence-story", "rplice-consensus" */
+  surface: varchar("surface", { length: 100 }).notNull(),
+  /** the geography/region/question this generation was about */
+  subject: varchar("subject", { length: 500 }).notNull(),
+  /** which grounding rule fired, e.g. "roi", "poverty-rate" */
+  ruleId: varchar("rule_id", { length: 100 }).notNull(),
+  /** kept | stripped | no_claim_extracted */
+  verdict: varchar("verdict", { length: 30 }).notNull(),
+  claimText: text("claim_text").notNull(),
+  // Stored as a raw JSON string (NOT jsonb) deliberately: Postgres's jsonb
+  // type canonicalizes key order alphabetically on write, which would make
+  // a hash computed from the pre-insert JS object never match a hash
+  // recomputed from the post-round-trip DB value. Storing exact text
+  // guarantees byte-for-byte round-trip fidelity, which the hash chain
+  // depends on.
+  extractedValuesJson: text("extracted_values_json").notNull(),
+  expectedDescription: varchar("expected_description", { length: 500 }).notNull(),
+  prevHash: varchar("prev_hash", { length: 64 }).notNull(),
+  hash: varchar("hash", { length: 64 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type AiClaimChainRow = typeof aiClaimChain.$inferSelect;
+export type InsertAiClaimChain = typeof aiClaimChain.$inferInsert;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";

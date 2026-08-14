@@ -953,7 +953,15 @@ export function registerNavigatorRoutes(app: Express) {
             );
             scored = scored.map((h, i) => {
               const s = scoreResult.scores?.find(e => e.index === i);
-              return { ...h, fitScore: s?.score ?? 50, reason: s?.reason ?? "" };
+              // fitScore is an AI judgment call, not a verified/computed fact —
+              // there is no ground truth to check it against. Clamp it to a
+              // valid range so a malformed model response can't display a
+              // nonsensical number, and label it as an estimate everywhere it
+              // is surfaced (see huntBlock below) instead of presenting it as
+              // a certified figure.
+              const rawScore = typeof s?.score === "number" ? s.score : 50;
+              const fitScore = Math.max(0, Math.min(100, Math.round(rawScore)));
+              return { ...h, fitScore, reason: s?.reason ?? "" };
             }).sort((a, b) => b.fitScore - a.fitScore).slice(0, 10);
           } catch { scored = scored.slice(0, 10); }
         }
@@ -964,7 +972,7 @@ Total found: ${allHits.length} | Showing top ${scored.length} ranked by AI fit s
 Queries fired: ${queries.join(" · ")}
 
 ${scored.map((h, i) => [
-  `${i + 1}. ${h.fitScore ?? "?"}% FIT — ${h.title}`,
+  `${i + 1}. ${h.fitScore ?? "?"}% AI-ESTIMATED FIT (not a certified score) — ${h.title}`,
   `   Agency: ${h.agency}`,
   h.closeDate ? `   Deadline: ${new Date(h.closeDate).toLocaleDateString()}` : `   Deadline: Open`,
   h.cfdaList.length ? `   CFDA: ${h.cfdaList.join(", ")}` : "",

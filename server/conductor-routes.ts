@@ -1046,144 +1046,89 @@ async function findRelevantGrants(domainScores: Record<string, DomainScore>, lim
 
 // ─── AI narrative generator ───────────────────────────────────────────────────
 
-// ── Deterministic ROI-claim validation ──────────────────────────────────────
+// ── Deterministic claim validation ──────────────────────────────────────────
 // Prompt instructions alone are not a guarantee the model complies — an LLM
-// can still restate, round, or reframe a ratio. This is a mechanical,
-// non-AI check run AFTER generation: it extracts every cost-benefit-ratio-
-// shaped claim from the narrative text and verifies it is either absent (no
-// scenario computed) or exactly matches the one real computed ROI. Anything
-// that fails is redacted before the narrative is ever returned.
-const ROI_NUMBER_WORDS: Record<string, number> = {
-  one: 1, two: 2, three: 3, four: 4, five: 5, six: 6, seven: 7, eight: 8, nine: 9, ten: 10,
-};
-
-interface RoiClaim {
-  value: number;
-  // "ratio": directly comparable to cascade.roi (e.g. "3.2x", "3.2:1").
-  // "percent": a % framing of the same multiplier (e.g. "320% return" for
-  // roi=3.2), compared against roi*100.
-  kind: "ratio" | "percent";
-}
-
-// Every phrasing this platform is willing to treat as a grounded ROI
-// statement, each capturing the number that must equal the computed ROI
-// (or, for percent claims, roi*100). Deliberately covers numeric AND
-// spelled-out forms across every trigger phrase in ROI_TRIGGER_RE below, so
-// a correctly-grounded claim in any of these forms survives redaction while
-// an invented or mismatched number in the same form does not.
-function extractRoiClaimsDetailed(text: string): RoiClaim[] {
-  const claims: RoiClaim[] = [];
-  const ratioNumericPatterns = [
-    /(\d+(?:\.\d+)?)\s*(?::|to)\s*1\b/gi, // "5:1" / "5 to 1"
-    /(\d+(?:\.\d+)?)\s*x\b/gi, // "5x" / "5.0x"
-    /\$?\s*(\d+(?:\.\d+)?)\s*(?:dollars?)?\s*for every\s*(?:\$ ?1|dollar)\b/gi, // "$5 for every $1" / "5 dollars for every dollar"
-    /\$?\s*(\d+(?:\.\d+)?)\s*(?:dollars?)?\s*(?:saved|returned)?\s*per\s*(?:dollar|\$1)\b(?:\s+invested)?/gi, // "$5 saved per dollar" / "5 per dollar invested"
-    /(\d+(?:\.\d+)?)[\s-]*fold\b/gi, // "5-fold" / "5 fold" / "5fold"
-    /(\d+(?:\.\d+)?)\s*times\s*(?:the\s*)?(?:investment|cost)\b/gi, // "5 times the investment"
-  ];
-  for (const re of ratioNumericPatterns) {
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(text))) {
-      const n = parseFloat(m[1]);
-      if (Number.isFinite(n)) claims.push({ value: n, kind: "ratio" });
-    }
-  }
-  const percentPatterns = [
-    /(\d+(?:\.\d+)?)\s*%\s*return\b/gi, // "320% return"
-    /(\d+(?:\.\d+)?)\s*percent\s*return\b/gi, // "320 percent return"
-  ];
-  for (const re of percentPatterns) {
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(text))) {
-      const n = parseFloat(m[1]);
-      if (Number.isFinite(n)) claims.push({ value: n, kind: "percent" });
-    }
-  }
-  const wordAlternation = "one|two|three|four|five|six|seven|eight|nine|ten";
-  const wordPatterns = [
-    new RegExp(`\\b(${wordAlternation})\\b[\\s-]*(?:dollars?)?\\s*(?:for every|to|per)\\s*\\$?(?:one|1|dollar)\\b`, "gi"),
-    new RegExp(`\\b(${wordAlternation})[\\s-]*fold\\b`, "gi"),
-    new RegExp(`\\b(${wordAlternation})\\b\\s*times\\s*(?:the\\s*)?(?:investment|cost)\\b`, "gi"),
-  ];
-  for (const re of wordPatterns) {
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(text))) {
-      const n = ROI_NUMBER_WORDS[m[1].toLowerCase()];
-      if (n != null) claims.push({ value: n, kind: "ratio" });
-    }
-  }
-  return claims;
-}
-
-export function extractRoiClaims(narrative: string): number[] {
-  return extractRoiClaimsDetailed(narrative).map((c) => c.value);
-}
-
-// Broad trigger: any phrasing that COULD be a cost-benefit / return-on-
-// investment style claim, however it is worded — numeric, spelled-out,
-// percentage, "-fold", or named ("ROI", "return on investment"). Deliberately
-// wide, because the redaction rule below is a per-sentence allow-list (a
-// triggered sentence is kept only if it states the exact canonical ROI), so
-// over-triggering only ever removes text, never lets a mismatch through.
-// NOTE: decimal points inside these patterns must use \u0000 (see
-// `protectDecimals` below), not a literal ".", or the sentence splitter two
-// functions down would misread "3.2" as two sentences.
-const ROI_TRIGGER_RE = /(return on investment|\bROI\b|for every\s*(?:dollar|\$ ?1)\b|dollars?\s+for every|per\s*(?:dollar|\$1)\b(?:\s+invested)?|\d+(?:\u0000\d+)?\s*(?::|to)\s*1\b|\d+(?:\u0000\d+)?\s*x\b|\w*fold\b|times\s*(?:the\s*)?(?:investment|cost)\b|%\s*return|percent\s*return|cost[- ]benefit)/i;
-
-// A real decimal point ("3.2") always has a digit on both sides with no
-// space; a sentence-ending period never does. Swap decimal points for a
-// sentinel character before sentence-splitting or pattern-matching, so "."
-// can be trusted as a sentence boundary, and restore it in the final output.
-function protectDecimals(text: string): string {
-  return text.replace(/(\d)\.(?=\d)/g, "$1\u0000");
-}
-function restoreDecimals(text: string): string {
-  return text.replace(/\u0000/g, ".");
-}
+// can still restate, round, invent, or reframe a number. This narrative's
+// claims are validated by the shared, reusable `ai-claim-grounding` engine
+// (also used by the gun-violence AI story and RPLICE consensus analysis), so
+// there is one audited code path for "does this AI number match reality",
+// not one per surface.
+import { enforceGroundedClaims, buildRoiRule, buildPercentRule, buildDollarMillionsRule, protectDecimals as protectClaimDecimals, type ClaimRule } from "./ai-claim-grounding";
+import { recordClaimDecisions } from "./claim-chain";
 
 /**
- * A sentence that trips ROI_TRIGGER_RE is only "grounded" if it states the
- * exact computed ROI figure in a recognized canonical form. Anything else —
- * an invented number, a rephrased ratio, a vague "for every dollar invested"
- * claim with no verifiable figure — cannot be confirmed to match the
- * computed value, so it does not count as grounded.
+ * Back-compat: still used by the existing regression gate and any external
+ * caller expecting the raw list of ROI-shaped numbers in a text.
+ * NOTE: unlike `enforceGroundedRoi`, this runs the extractor directly (not
+ * gated behind the broad TRIGGER regex) because callers use it to find any
+ * ratio-shaped number in arbitrary text — e.g. spelled-out "five to one" —
+ * which the (deliberately narrower, numeric-biased) trigger regex is not
+ * required to match.
  */
-function roiSentenceIsGrounded(protectedSentence: string, cascade: { roi: string } | null): boolean {
-  if (!cascade) return false; // no scenario was computed — no claim can be grounded
-  const roi = parseFloat(cascade.roi);
-  if (!Number.isFinite(roi)) return false;
-  // Sentence-splitting is already done; safe to restore real decimal points
-  // before running the (unprotected) claim extractor.
-  const claims = extractRoiClaimsDetailed(restoreDecimals(protectedSentence));
-  if (claims.length === 0) return false; // trigger fired but no verifiable number — can't confirm it's grounded
-  return claims.every((c) => (c.kind === "percent" ? Math.abs(c.value - roi * 100) < 0.5 : Math.abs(c.value - roi) < 0.05));
+export function extractRoiClaims(narrative: string): number[] {
+  const rule = buildRoiRule("roi", null); // isGrounded doesn't matter here, only extract is used
+  return rule.extract(narrative).map((c) => c.value);
 }
 
 /**
  * Returns the narrative unchanged if it contains no ROI/cost-benefit-shaped
- * claim at all. Otherwise, splits into sentences (including a trailing
- * fragment with no terminal punctuation) and keeps only sentences that
- * either don't touch ROI/cost-benefit language, or state the exact computed
- * ROI figure verbatim. This is a mechanical, non-AI check — it does not
- * trust prompt instructions to have been followed.
+ * claim at all. Otherwise, keeps only sentences that either don't touch
+ * ROI/cost-benefit language, or state the exact computed ROI figure
+ * verbatim. This is a mechanical, non-AI check — it does not trust prompt
+ * instructions to have been followed. Kept as its own export for the
+ * existing regression gate; internally it now runs on the shared engine.
  */
 export function enforceGroundedRoi(narrative: string, cascade: { roi: string } | null): string {
-  const protectedText = protectDecimals(narrative);
-  if (!ROI_TRIGGER_RE.test(protectedText)) return narrative;
-  const sentences = protectedText.match(/[^.!?]+(?:[.!?]+|$)/g) ?? [protectedText];
-  let droppedAny = false;
-  const kept = sentences.filter((sentence) => {
-    if (!ROI_TRIGGER_RE.test(sentence)) return true;
-    const grounded = roiSentenceIsGrounded(sentence, cascade);
-    if (!grounded) droppedAny = true;
-    return grounded;
-  });
-  if (!droppedAny) return narrative;
-  console.error(
-    `[Conductor] narrative contained an ungrounded ROI/cost-benefit claim ` +
-    `(expected ${cascade ? `${cascade.roi}x` : "none (no scenario computed)"}) — redacting offending sentence(s).`
-  );
-  return restoreDecimals(kept.join(" ").replace(/\s{2,}/g, " ").trim());
+  const roi = cascade ? parseFloat(cascade.roi) : null;
+  const result = enforceGroundedClaims(narrative, [buildRoiRule("roi", Number.isFinite(roi as number) ? (roi as number) : null)]);
+  if (result.droppedAny) {
+    console.error(
+      `[Conductor] narrative contained an ungrounded ROI/cost-benefit claim ` +
+      `(expected ${cascade ? `${cascade.roi}x` : "none (no scenario computed)"}) — redacting offending sentence(s).`
+    );
+  }
+  return result.text;
+}
+
+/**
+ * Full narrative grounding: ROI/cost-benefit claims PLUS every other
+ * statistic the prompt handed the model (poverty rate, uninsured rate, and
+ * — when a scenario was computed — the cost-of-inaction / intervention-cost
+ * / net-savings dollar figures). Anything else the model restates that
+ * isn't covered by an explicit rule is left alone (this only ever removes
+ * text, never lets a fabricated number through undetected in the surfaces
+ * it does cover). Every decision is appended to the tamper-evident claim
+ * chain for later independent audit.
+ */
+function enforceGroundedNarrative(
+  narrative: string,
+  geography: string,
+  demographics: Record<string, number | string | null>,
+  cascade: { roi: string; counterfactualCost: number; interventionCost: number; netSavings: number } | null
+): string {
+  const povertyRate = typeof demographics.povertyRate === "number" ? demographics.povertyRate : parseFloat(String(demographics.povertyRate));
+  const uninsuredRate = typeof demographics.uninsuredRate === "number" ? demographics.uninsuredRate : parseFloat(String(demographics.uninsuredRate));
+  const roi = cascade ? parseFloat(cascade.roi) : null;
+
+  const rules: ClaimRule[] = [
+    buildRoiRule("roi", Number.isFinite(roi as number) ? (roi as number) : null),
+    buildPercentRule("poverty-rate", /poverty/i, Number.isFinite(povertyRate) ? povertyRate : null),
+    buildPercentRule("uninsured-rate", /uninsured/i, Number.isFinite(uninsuredRate) ? uninsuredRate : null),
+    buildDollarMillionsRule("cost-of-inaction", /cost of inaction|counterfactual|without intervention|status quo/i, cascade ? cascade.counterfactualCost / 1e6 : null),
+    buildDollarMillionsRule("intervention-cost", /intervention cost|cost to intervene|invest(?:ing|ment)? (?:of|would (?:cost|require))/i, cascade ? cascade.interventionCost / 1e6 : null),
+    buildDollarMillionsRule("net-savings", /net savings|would save|saves\s+\$|savings of/i, cascade ? cascade.netSavings / 1e6 : null),
+  ];
+
+  const result = enforceGroundedClaims(narrative, rules);
+  if (result.decisions.length > 0) {
+    recordClaimDecisions("conductor-narrative", geography, result.decisions).catch((err) =>
+      console.error("[Conductor] claim-chain record failed (non-fatal):", err)
+    );
+  }
+  if (result.droppedAny) {
+    console.error(`[Conductor] narrative for ${geography} contained ungrounded claim(s) — redacted. Decisions:`, result.decisions.filter((d) => d.verdict !== "kept"));
+  }
+  return result.text;
 }
 
 async function generateCommunityNarrative(
@@ -1233,7 +1178,7 @@ Tone: compassionate, honest, evidence-grounded. Blame the systems, not the peopl
 
 Return JSON: { "narrative": "..." }`
     );
-    return enforceGroundedRoi(result.narrative || "", cascade);
+    return enforceGroundedNarrative(result.narrative || "", geography, demographics, cascade);
   } catch (err) {
     // Fail loudly: previously this returned a hardcoded, fabricated narrative that
     // looked AI-generated. Surface the real failure so the caller returns an
