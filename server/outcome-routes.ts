@@ -47,11 +47,12 @@ export function registerOutcomeRoutes(app: Express) {
   // individual rows. Participant counts below the suppression floor are masked.
   app.get("/api/public/outcomes-summary", async (_req, res) => {
     try {
-      const outcomes = await db.select({ userId: outcomeTracking.userId }).from(outcomeTracking);
+      const outcomes = await db.select({ userId: outcomeTracking.userId, isDemoData: outcomeTracking.isDemoData }).from(outcomeTracking);
       const plans = await db.select({ status: reentryPlans.status }).from(reentryPlans);
       const milestones = await db.select({ status: reentryMilestones.status }).from(reentryMilestones);
       const uniqueUsers = new Set(outcomes.map(o => o.userId));
       const completedMilestones = milestones.filter(m => m.status === "completed").length;
+      const demoOutcomes = outcomes.filter(o => o.isDemoData).length;
       res.json({
         totalOutcomes: outcomes.length,
         uniqueParticipants: suppressOutcomeCount(uniqueUsers.size),
@@ -59,6 +60,14 @@ export function registerOutcomeRoutes(app: Express) {
         milestoneCompletionRate: milestones.length > 0
           ? Math.round((completedMilestones / milestones.length) * 100)
           : "not yet reported",
+        dataProvenance: {
+          totalOutcomes: outcomes.length,
+          demoOutcomes,
+          hasDemoData: demoOutcomes > 0,
+          note: demoOutcomes > 0
+            ? "Figures include illustrative example participant records used to demonstrate the platform; they are not measured outcomes from a live program cohort."
+            : undefined,
+        },
       });
     } catch (error) {
       console.error("Failed to fetch public outcomes summary:", error);
@@ -151,6 +160,11 @@ export function registerOutcomeRoutes(app: Express) {
           hiringCommitments: partners.reduce((s, p) => s + (p.hiringCommitments || 0), 0),
           hiringFulfilled: partners.reduce((s, p) => s + (p.hiringFulfilled || 0), 0),
           diversionReferrals: partners.reduce((s, p) => s + (p.diversionReferrals || 0), 0),
+        },
+        dataProvenance: {
+          totalOutcomes: outcomes.length,
+          demoOutcomes: outcomes.filter(o => o.isDemoData).length,
+          hasDemoData: outcomes.some(o => o.isDemoData),
         },
       });
     } catch (error) {

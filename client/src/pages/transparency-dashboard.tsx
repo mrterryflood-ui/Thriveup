@@ -69,6 +69,7 @@ interface RawOutcomeDashboard {
   uniqueParticipants: MetricValue;
   totalActivePlans: MetricValue;
   milestoneCompletionRate: MetricValue;
+  dataProvenance?: { totalOutcomes: number; demoOutcomes: number; hasDemoData: boolean };
 }
 
 interface OutcomeDashboard {
@@ -76,6 +77,7 @@ interface OutcomeDashboard {
   uniqueParticipants: number;
   totalActivePlans: number;
   milestoneCompletionRate: number;
+  dataProvenance?: { totalOutcomes: number; demoOutcomes: number; hasDemoData: boolean };
 }
 
 function normalizeMetrics(raw: RawPlatformMetrics | null): PlatformMetrics | null {
@@ -128,6 +130,7 @@ function normalizeOutcomes(raw: RawOutcomeDashboard | null): OutcomeDashboard | 
     uniqueParticipants: num(raw.uniqueParticipants),
     totalActivePlans: num(raw.totalActivePlans),
     milestoneCompletionRate: num(raw.milestoneCompletionRate),
+    dataProvenance: raw.dataProvenance,
   };
 }
 
@@ -622,6 +625,11 @@ function JusticeView({ metrics, outcomes, dosage, impact }: {
   const mentorMatches = impact?.mentorConnections ?? 0;
   return (
     <div className="space-y-6" data-testid="view-justice">
+      {outcomes?.dataProvenance?.hasDemoData && (
+        <Badge variant="outline" className="text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30" data-testid="badge-demo-outcomes">
+          Demo data — {outcomes.dataProvenance.demoOutcomes} of {outcomes.dataProvenance.totalOutcomes} outcome records are illustrative examples, not measured program results
+        </Badge>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard label="Participants Tracked" value={totalParticipants} icon={Users} color="text-amber-500" subtext="Active reentry plans" />
         <MetricCard label="Outcome Measurements" value={outcomes?.totalOutcomes ?? 0} icon={BarChart3} color="text-emerald-500" subtext="Recidivism + employment + housing" />

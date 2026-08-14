@@ -25,6 +25,7 @@ interface DashboardData {
   totalImplementations: number;
   totalStrategies: number;
   totalCfirAssessments: number;
+  dataProvenance?: { totalStrategies: number; demoStrategies: number; hasDemoData: boolean };
 }
 
 interface StrategyCategory {
@@ -639,6 +640,12 @@ export default function PreventionStrategiesPage() {
   return (
     <div className="p-4 sm:p-6 max-w-5xl mx-auto" data-testid="prevention-strategies-page">
       <PageHeader title="Prevention Strategies" breadcrumbs={[{ label: "Prevention Strategies" }]} />
+
+      {dashboard?.dataProvenance?.hasDemoData && (
+        <Badge variant="outline" className="text-xs text-amber-600 mb-3" data-testid="badge-demo-data">
+          Demo data — {dashboard.dataProvenance.demoStrategies} of {dashboard.dataProvenance.totalStrategies} environmental strategies are illustrative examples, not measured program results
+        </Badge>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
         {dashLoading ? (

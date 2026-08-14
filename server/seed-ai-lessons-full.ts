@@ -2388,7 +2388,7 @@ AI governance isn't one-size-fits-all. The right framework depends on:
 
 A dimension often overlooked in AI governance: environmental impact.
 
-Training a large AI model can emit as much carbon as 5 cars over their lifetimes. Running inference (every time you use ChatGPT) requires significant computational resources and electricity.
+One widely cited 2019 University of Massachusetts Amherst study (Strubell et al.) estimated that training one large NLP model of that era emitted roughly as much carbon as 5 cars over their lifetimes — but this figure varies enormously by model size and hardware, is disputed, and is not a fixed constant for "AI" in general. Running inference (every time you use a chatbot) also requires computational resources and electricity, though usually far less per use than training.
 
 Responsible AI governance includes:
 - Choosing right-sized models (don't use GPT-4 for tasks GPT-3.5 handles well)

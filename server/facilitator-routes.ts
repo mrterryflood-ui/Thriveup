@@ -82,6 +82,8 @@ export function registerFacilitatorRoutes(app: Express) {
       const totalDosage = allLogs.reduce((sum, l) => sum + l.dosageMinutes, 0);
       const upcomingSessions = allSessions.filter(s => s.sessionDate >= now.toISOString().split("T")[0] && s.status !== "delivered");
 
+      const demoFacilitators = allFacilitators.filter(f => f.isDemoData).length;
+
       res.json({
         totalFacilitators: allFacilitators.length,
         activeFacilitators: allFacilitators.filter(f => f.status === "active").length,
@@ -90,6 +92,7 @@ export function registerFacilitatorRoutes(app: Express) {
         averageFidelityScore: Math.round(avgFidelity * 10) / 10,
         totalDosageHours: Math.round(totalDosage / 60 * 10) / 10,
         upcomingSessions: upcomingSessions.length,
+        dataProvenance: { totalFacilitators: allFacilitators.length, demoFacilitators, hasDemoData: demoFacilitators > 0 },
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch dashboard metrics" });

@@ -41,6 +41,19 @@ import {
 } from "@shared/schema";
 
 // ---------------------------------------------------------------------------
+// Provenance label for illustrative/scenario rows seeded by this file. These
+// records (benefits ZIP-level figures, DFC coalition survey data, facilitator
+// rosters, session logs, outcome examples) are internally consistent example
+// data used to demonstrate the platform's UI — they are NOT sourced from
+// official administrative data (Census/SNAP/Medicaid/DFC survey systems) or
+// real staff/participant records. Every seeded row in the affected tables
+// carries isDemoData=true (or this dataSource/source string) so the UI can
+// disclose that to viewers instead of presenting it as verified fact. See
+// scripts/verify-seed-provenance.ts, which fails the build if a row in one
+// of these tables is missing that disclosure.
+const DEMO_DATA_SOURCE = "Illustrative demo/scenario data for platform demonstration — not sourced from official administrative or survey systems";
+
+// ---------------------------------------------------------------------------
 // Trade Sims — idempotent boot-time seed for all 6 trades (electrical,
 // plumbing, HVAC, welding, automotive, software-engineering). Mirrors the
 // admin/seed-electrical endpoint and the standalone scripts/seed-trade-sims-*
@@ -388,10 +401,10 @@ async function seedBenefitsData() {
   if (existingEnrollment.length > 0) return;
 
   await db.insert(benefitsEnrollmentData).values([
-    { id: "bed-001", countyFips: "48453", countyName: "Travis County", zipCode: "78702", benefitType: "SNAP", eligiblePopulation: 12400, enrolledPopulation: 8680, participationRate: 0.70, participationGap: 0.30, renewalsPending: 340, renewalsAtRisk: 85, barrierIndex: 3.2, limitedEnglishPct: 0.18, noVehiclePct: 0.12, noBroadbandPct: 0.08, povertyRate: 0.22, totalPopulation: 54000, medianIncome: 42000, dataYear: 2024 },
-    { id: "bed-002", countyFips: "48453", countyName: "Travis County", zipCode: "78741", benefitType: "Medicaid", eligiblePopulation: 18200, enrolledPopulation: 14560, participationRate: 0.80, participationGap: 0.20, renewalsPending: 520, renewalsAtRisk: 130, barrierIndex: 2.8, limitedEnglishPct: 0.22, noVehiclePct: 0.09, noBroadbandPct: 0.06, povertyRate: 0.19, totalPopulation: 67000, medianIncome: 45000, dataYear: 2024 },
-    { id: "bed-003", countyFips: "48453", countyName: "Travis County", zipCode: "78745", benefitType: "CHIP", eligiblePopulation: 4800, enrolledPopulation: 3360, participationRate: 0.70, participationGap: 0.30, renewalsPending: 120, renewalsAtRisk: 45, barrierIndex: 2.5, limitedEnglishPct: 0.15, noVehiclePct: 0.07, noBroadbandPct: 0.05, povertyRate: 0.16, totalPopulation: 42000, medianIncome: 48000, dataYear: 2024 },
-    { id: "bed-004", countyFips: "48491", countyName: "Williamson County", zipCode: "78664", benefitType: "SNAP", eligiblePopulation: 6200, enrolledPopulation: 3720, participationRate: 0.60, participationGap: 0.40, renewalsPending: 180, renewalsAtRisk: 60, barrierIndex: 3.8, limitedEnglishPct: 0.14, noVehiclePct: 0.15, noBroadbandPct: 0.10, povertyRate: 0.14, totalPopulation: 38000, medianIncome: 52000, dataYear: 2024 },
+    { id: "bed-001", countyFips: "48453", countyName: "Travis County", zipCode: "78702", benefitType: "SNAP", eligiblePopulation: 12400, enrolledPopulation: 8680, participationRate: 0.70, participationGap: 0.30, renewalsPending: 340, renewalsAtRisk: 85, barrierIndex: 3.2, limitedEnglishPct: 0.18, noVehiclePct: 0.12, noBroadbandPct: 0.08, povertyRate: 0.22, totalPopulation: 54000, medianIncome: 42000, dataYear: 2024, dataSource: DEMO_DATA_SOURCE },
+    { id: "bed-002", countyFips: "48453", countyName: "Travis County", zipCode: "78741", benefitType: "Medicaid", eligiblePopulation: 18200, enrolledPopulation: 14560, participationRate: 0.80, participationGap: 0.20, renewalsPending: 520, renewalsAtRisk: 130, barrierIndex: 2.8, limitedEnglishPct: 0.22, noVehiclePct: 0.09, noBroadbandPct: 0.06, povertyRate: 0.19, totalPopulation: 67000, medianIncome: 45000, dataYear: 2024, dataSource: DEMO_DATA_SOURCE },
+    { id: "bed-003", countyFips: "48453", countyName: "Travis County", zipCode: "78745", benefitType: "CHIP", eligiblePopulation: 4800, enrolledPopulation: 3360, participationRate: 0.70, participationGap: 0.30, renewalsPending: 120, renewalsAtRisk: 45, barrierIndex: 2.5, limitedEnglishPct: 0.15, noVehiclePct: 0.07, noBroadbandPct: 0.05, povertyRate: 0.16, totalPopulation: 42000, medianIncome: 48000, dataYear: 2024, dataSource: DEMO_DATA_SOURCE },
+    { id: "bed-004", countyFips: "48491", countyName: "Williamson County", zipCode: "78664", benefitType: "SNAP", eligiblePopulation: 6200, enrolledPopulation: 3720, participationRate: 0.60, participationGap: 0.40, renewalsPending: 180, renewalsAtRisk: 60, barrierIndex: 3.8, limitedEnglishPct: 0.14, noVehiclePct: 0.15, noBroadbandPct: 0.10, povertyRate: 0.14, totalPopulation: 38000, medianIncome: 52000, dataYear: 2024, dataSource: DEMO_DATA_SOURCE },
   ]);
 
   await db.insert(benefitsPartners).values([
@@ -414,30 +427,30 @@ async function seedPreventionFramework() {
   if (existing.length > 0) return;
 
   await db.insert(environmentalStrategies).values([
-    { id: "es-001", name: "Retailer Education & Compliance Checks", category: "access-reduction", description: "Partner with local retailers to ensure compliance with tobacco and alcohol age-verification laws. Conduct semi-annual compliance checks and provide merchant education materials.", responsibleSectors: ["Business Community", "Law Enforcement"], targetSubstances: ["Alcohol", "Tobacco"], expectedOutcomes: "Increase retailer compliance rate from 72% to 90% within 12 months", implementationTimeline: "Ongoing quarterly", status: "active", implementationStage: "implementation", coalitionId: "coal-001" },
-    { id: "es-002", name: "Youth Media Literacy Campaign", category: "education", description: "Develop and deliver media literacy curriculum to help youth critically analyze substance use marketing and social media influence. Partner with schools for classroom delivery.", responsibleSectors: ["Schools", "Media", "Youth"], targetSubstances: ["Alcohol", "Marijuana", "Vaping"], expectedOutcomes: "Increase youth critical thinking about substance marketing by 25%", implementationTimeline: "School year 2025-2026", status: "planned", implementationStage: "preparation", coalitionId: "coal-001" },
-    { id: "es-003", name: "Prescription Drug Take-Back Program", category: "access-reduction", description: "Organize quarterly community prescription drug take-back events in partnership with law enforcement and pharmacies. Install permanent collection boxes at participating pharmacies.", responsibleSectors: ["Healthcare Professionals", "Law Enforcement", "Business Community"], targetSubstances: ["Prescription Drugs"], expectedOutcomes: "Collect 500+ lbs of unused medications annually and reduce household medication access by youth", implementationTimeline: "Quarterly events", status: "active", implementationStage: "implementation", coalitionId: "coal-001" },
+    { id: "es-001", name: "Retailer Education & Compliance Checks", category: "access-reduction", description: "Partner with local retailers to ensure compliance with tobacco and alcohol age-verification laws. Conduct semi-annual compliance checks and provide merchant education materials.", responsibleSectors: ["Business Community", "Law Enforcement"], targetSubstances: ["Alcohol", "Tobacco"], expectedOutcomes: "Illustrative target: increase retailer compliance rate from 72% to 90% within 12 months (example baseline, not a measured figure)", implementationTimeline: "Ongoing quarterly", status: "active", implementationStage: "implementation", coalitionId: "coal-001", isDemoData: true },
+    { id: "es-002", name: "Youth Media Literacy Campaign", category: "education", description: "Develop and deliver media literacy curriculum to help youth critically analyze substance use marketing and social media influence. Partner with schools for classroom delivery.", responsibleSectors: ["Schools", "Media", "Youth"], targetSubstances: ["Alcohol", "Marijuana", "Vaping"], expectedOutcomes: "Illustrative target: increase youth critical thinking about substance marketing by 25% (example goal, not a measured figure)", implementationTimeline: "School year 2025-2026", status: "planned", implementationStage: "preparation", coalitionId: "coal-001", isDemoData: true },
+    { id: "es-003", name: "Prescription Drug Take-Back Program", category: "access-reduction", description: "Organize quarterly community prescription drug take-back events in partnership with law enforcement and pharmacies. Install permanent collection boxes at participating pharmacies.", responsibleSectors: ["Healthcare Professionals", "Law Enforcement", "Business Community"], targetSubstances: ["Prescription Drugs"], expectedOutcomes: "Illustrative target: collect 500+ lbs of unused medications annually and reduce household medication access by youth (example goal, not a measured figure)", implementationTimeline: "Quarterly events", status: "active", implementationStage: "implementation", coalitionId: "coal-001", isDemoData: true },
   ]);
 
   await db.insert(dfcCoreMeasures).values([
-    { id: "dcm-001", surveyPeriod: "Fall 2024", periodType: "baseline", ageGroup: "12-14", alcoholPast30: 8.2, marijuanaPast30: 5.1, tobaccoPast30: 3.8, prescriptionPast30: 1.2, perceptionOfRiskAlcohol: 62.0, perceptionOfRiskMarijuana: 48.5, parentalDisapproval: 88.0, peerDisapproval: 52.0, averageAgeFirstUse: 13.2, perceivedAvailability: 35.0, sampleSize: 420, notes: "Baseline survey administered across 3 middle schools" },
-    { id: "dcm-002", surveyPeriod: "Fall 2024", periodType: "baseline", ageGroup: "15-17", alcoholPast30: 22.5, marijuanaPast30: 18.3, tobaccoPast30: 12.1, prescriptionPast30: 4.5, perceptionOfRiskAlcohol: 45.0, perceptionOfRiskMarijuana: 38.2, parentalDisapproval: 75.0, peerDisapproval: 35.0, averageAgeFirstUse: 14.8, perceivedAvailability: 58.0, sampleSize: 380, notes: "Baseline survey administered across 2 high schools" },
+    { id: "dcm-001", surveyPeriod: "Fall 2024", periodType: "baseline", ageGroup: "12-14", alcoholPast30: 8.2, marijuanaPast30: 5.1, tobaccoPast30: 3.8, prescriptionPast30: 1.2, perceptionOfRiskAlcohol: 62.0, perceptionOfRiskMarijuana: 48.5, parentalDisapproval: 88.0, peerDisapproval: 52.0, averageAgeFirstUse: 13.2, perceivedAvailability: 35.0, sampleSize: 420, notes: "ILLUSTRATIVE DEMO DATA — no actual survey was conducted. Baseline survey administered across 3 middle schools", isDemoData: true },
+    { id: "dcm-002", surveyPeriod: "Fall 2024", periodType: "baseline", ageGroup: "15-17", alcoholPast30: 22.5, marijuanaPast30: 18.3, tobaccoPast30: 12.1, prescriptionPast30: 4.5, perceptionOfRiskAlcohol: 45.0, perceptionOfRiskMarijuana: 38.2, parentalDisapproval: 75.0, peerDisapproval: 35.0, averageAgeFirstUse: 14.8, perceivedAvailability: 58.0, sampleSize: 380, notes: "ILLUSTRATIVE DEMO DATA — no actual survey was conducted. Baseline survey administered across 2 high schools", isDemoData: true },
   ]);
 
   await db.insert(communityReadinessAssessments).values([
-    { id: "cra-001", assessmentDate: "2024-11-15", communityEfforts: 5, communityKnowledgeOfEfforts: 4, leadership: 6, communityclimate: 4, communityKnowledgeOfIssue: 5, resources: 4, overallReadiness: 4.7, readinessStage: "Preplanning", recommendations: ["Increase public awareness of coalition efforts", "Engage faith community leaders as champions", "Develop community education materials in Spanish"], assessorId: "dr-raj-patel" },
+    { id: "cra-001", assessmentDate: "2024-11-15", communityEfforts: 5, communityKnowledgeOfEfforts: 4, leadership: 6, communityclimate: 4, communityKnowledgeOfIssue: 5, resources: 4, overallReadiness: 4.7, readinessStage: "Preplanning", recommendations: ["Increase public awareness of coalition efforts", "Engage faith community leaders as champions", "Develop community education materials in Spanish"], assessorId: "dr-raj-patel", notes: "ILLUSTRATIVE DEMO DATA — no actual community readiness assessment was conducted", isDemoData: true },
   ]);
 
   await db.insert(mediaCampaigns).values([
-    { id: "mc-001", title: "Know the Risks: Youth Vaping Awareness", campaignType: "social-media", targetAudience: "Youth ages 13-18 and parents", messagingGuidance: "Use youth voice and peer-to-peer messaging. Avoid scare tactics. Focus on facts and decision-making skills.", status: "active", startDate: "2025-02-01", endDate: "2025-05-31", targetSubstance: "Vaping/E-cigarettes", objectives: "Reach 10,000 youth through social media; increase perception of harm by 15%", createdBy: "alexis-rivera" },
+    { id: "mc-001", title: "Know the Risks: Youth Vaping Awareness", campaignType: "social-media", targetAudience: "Youth ages 13-18 and parents", messagingGuidance: "Use youth voice and peer-to-peer messaging. Avoid scare tactics. Focus on facts and decision-making skills.", status: "active", startDate: "2025-02-01", endDate: "2025-05-31", targetSubstance: "Vaping/E-cigarettes", objectives: "Illustrative target: reach 10,000 youth through social media; increase perception of harm by 15% (example goal, not a measured figure)", createdBy: "alexis-rivera", isDemoData: true },
   ]);
 
   await db.insert(stakeholderCommitments).values([
-    { id: "sc-001", sectorName: "Business Community", sectorNumber: 3, commitmentType: "in-kind", description: "Provide meeting space and refreshments for quarterly coalition meetings", contactName: "David Torres", contactEmail: "dtorres@heb.com", status: "active" },
-    { id: "sc-002", sectorName: "Healthcare Professionals", sectorNumber: 10, commitmentType: "data-sharing", description: "Share anonymized community health data for coalition needs assessment", contactName: "Dr. Angela Morales", contactEmail: "amorales@traviscounty.gov", status: "active" },
-    { id: "sc-003", sectorName: "Schools", sectorNumber: 5, commitmentType: "program-delivery", description: "Allocate classroom time for prevention curriculum delivery in 5 campuses", contactName: "Dr. Lisa Park", contactEmail: "lpark@austinisd.org", status: "active" },
-    { id: "sc-004", sectorName: "Law Enforcement", sectorNumber: 7, commitmentType: "program-support", description: "Conduct retailer compliance checks and participate in take-back events", contactName: "Officer Daniels", contactEmail: "m.daniels@austintexas.gov", status: "active" },
-    { id: "sc-005", sectorName: "Media", sectorNumber: 4, commitmentType: "communications", description: "Pro bono social media campaign design and youth focus group facilitation", contactName: "Alexis Rivera", contactEmail: "arivera@communityvoice.org", status: "active" },
+    { id: "sc-001", sectorName: "Business Community", sectorNumber: 3, commitmentType: "in-kind", description: "Provide meeting space and refreshments for quarterly coalition meetings", contactName: "David Torres", contactEmail: "dtorres@heb.com", status: "active", isDemoData: true },
+    { id: "sc-002", sectorName: "Healthcare Professionals", sectorNumber: 10, commitmentType: "data-sharing", description: "Share anonymized community health data for coalition needs assessment", contactName: "Dr. Angela Morales", contactEmail: "amorales@traviscounty.gov", status: "active", isDemoData: true },
+    { id: "sc-003", sectorName: "Schools", sectorNumber: 5, commitmentType: "program-delivery", description: "Allocate classroom time for prevention curriculum delivery in 5 campuses", contactName: "Dr. Lisa Park", contactEmail: "lpark@austinisd.org", status: "active", isDemoData: true },
+    { id: "sc-004", sectorName: "Law Enforcement", sectorNumber: 7, commitmentType: "program-support", description: "Conduct retailer compliance checks and participate in take-back events", contactName: "Officer Daniels", contactEmail: "m.daniels@austintexas.gov", status: "active", isDemoData: true },
+    { id: "sc-005", sectorName: "Media", sectorNumber: 4, commitmentType: "communications", description: "Pro bono social media campaign design and youth focus group facilitation", contactName: "Alexis Rivera", contactEmail: "arivera@communityvoice.org", status: "active", isDemoData: true },
   ]);
 
   console.log("[Seed] Prevention framework data seeded");
@@ -448,33 +461,33 @@ async function seedFacilitatorData() {
   if (existing.length > 0) return;
 
   const facilitators = [
-    { id: "fac-001", visitorId: "sarah-chen", name: "Sarah Chen", certifications: [{ name: "LifeSkills Training Facilitator", body: "Botvin LifeSkills", earned: "2024-03" }], specializations: ["Youth prevention", "LifeSkills Training"], clearanceLevel: "background-cleared", trainingCompleted: [{ name: "LST Facilitator Training", completedDate: "2024-03-15" }, { name: "Trauma-Informed Facilitation", completedDate: "2024-06-20" }], status: "active" },
-    { id: "fac-002", visitorId: "james-patterson", name: "James Patterson", certifications: [{ name: "Workforce Development Specialist", body: "NAWDP", earned: "2023-09" }], specializations: ["Workforce readiness", "Youth leadership"], clearanceLevel: "background-cleared", trainingCompleted: [{ name: "YouthBuild Model Training", completedDate: "2024-06-01" }, { name: "Motivational Interviewing", completedDate: "2024-08-15" }], status: "active" },
-    { id: "fac-003", visitorId: "rosa-hernandez", name: "Rosa Hernandez", certifications: [{ name: "Certified Career Services Provider", body: "NCDA", earned: "2024-01" }], specializations: ["Career coaching", "Bilingual facilitation"], clearanceLevel: "background-cleared", trainingCompleted: [{ name: "Career Development Facilitator Training", completedDate: "2024-01-20" }, { name: "Cultural Responsiveness", completedDate: "2024-04-10" }], status: "active" },
+    { id: "fac-001", visitorId: "sarah-chen", name: "Sarah Chen", certifications: [{ name: "LifeSkills Training Facilitator", body: "Botvin LifeSkills", earned: "2024-03" }], specializations: ["Youth prevention", "LifeSkills Training"], clearanceLevel: "background-cleared", trainingCompleted: [{ name: "LST Facilitator Training", completedDate: "2024-03-15" }, { name: "Trauma-Informed Facilitation", completedDate: "2024-06-20" }], status: "active", isDemoData: true },
+    { id: "fac-002", visitorId: "james-patterson", name: "James Patterson", certifications: [{ name: "Workforce Development Specialist", body: "NAWDP", earned: "2023-09" }], specializations: ["Workforce readiness", "Youth leadership"], clearanceLevel: "background-cleared", trainingCompleted: [{ name: "YouthBuild Model Training", completedDate: "2024-06-01" }, { name: "Motivational Interviewing", completedDate: "2024-08-15" }], status: "active", isDemoData: true },
+    { id: "fac-003", visitorId: "rosa-hernandez", name: "Rosa Hernandez", certifications: [{ name: "Certified Career Services Provider", body: "NCDA", earned: "2024-01" }], specializations: ["Career coaching", "Bilingual facilitation"], clearanceLevel: "background-cleared", trainingCompleted: [{ name: "Career Development Facilitator Training", completedDate: "2024-01-20" }, { name: "Cultural Responsiveness", completedDate: "2024-04-10" }], status: "active", isDemoData: true },
   ];
 
   await db.insert(facilitatorProfiles).values(facilitators);
 
   await db.insert(sessionPlans).values([
-    { id: "sp-f-001", facilitatorId: "fac-001", sessionDate: "2025-02-10", duration: 60, location: "ThriveUp Main Campus - Room A", targetAudience: "Prevention Champions Cohort (ages 14-18)", materialsNeeded: ["LifeSkills workbooks", "Whiteboard markers", "Scenario cards"], learningObjectives: ["Identify 3 refusal strategies", "Practice assertive communication"], assessmentMethod: "Role-play observation", status: "completed", attendeeCount: 14 },
-    { id: "sp-f-002", facilitatorId: "fac-002", sessionDate: "2025-02-14", duration: 120, location: "ThriveUp Workshop Bay", targetAudience: "Spring YouthBuild Cohort (ages 16-24)", materialsNeeded: ["Safety equipment", "Tool kits", "Project blueprints"], learningObjectives: ["Demonstrate proper tool safety", "Read basic construction blueprints"], assessmentMethod: "Practical demonstration", status: "completed", attendeeCount: 22 },
-    { id: "sp-f-003", facilitatorId: "fac-003", sessionDate: "2025-02-18", duration: 90, location: "Virtual - Zoom", targetAudience: "Job-Ready Participants", materialsNeeded: ["Resume templates", "Interview question bank", "Dress code guide"], learningObjectives: ["Update resume with action verbs", "Practice STAR interview responses"], assessmentMethod: "Mock interview scoring rubric", status: "completed", attendeeCount: 8 },
-    { id: "sp-f-004", facilitatorId: "fac-001", sessionDate: "2025-03-10", duration: 60, location: "ThriveUp Main Campus - Room A", targetAudience: "Prevention Champions Cohort", materialsNeeded: ["Media analysis worksheets", "Ad examples", "Projector"], learningObjectives: ["Analyze advertising tactics targeting youth", "Create counter-messaging content"], assessmentMethod: "Written analysis worksheet", status: "scheduled" },
+    { id: "sp-f-001", facilitatorId: "fac-001", sessionDate: "2025-02-10", duration: 60, location: "ThriveUp Main Campus - Room A", targetAudience: "Prevention Champions Cohort (ages 14-18)", materialsNeeded: ["LifeSkills workbooks", "Whiteboard markers", "Scenario cards"], learningObjectives: ["Identify 3 refusal strategies", "Practice assertive communication"], assessmentMethod: "Role-play observation", status: "completed", attendeeCount: 14, isDemoData: true },
+    { id: "sp-f-002", facilitatorId: "fac-002", sessionDate: "2025-02-14", duration: 120, location: "ThriveUp Workshop Bay", targetAudience: "Spring YouthBuild Cohort (ages 16-24)", materialsNeeded: ["Safety equipment", "Tool kits", "Project blueprints"], learningObjectives: ["Demonstrate proper tool safety", "Read basic construction blueprints"], assessmentMethod: "Practical demonstration", status: "completed", attendeeCount: 22, isDemoData: true },
+    { id: "sp-f-003", facilitatorId: "fac-003", sessionDate: "2025-02-18", duration: 90, location: "Virtual - Zoom", targetAudience: "Job-Ready Participants", materialsNeeded: ["Resume templates", "Interview question bank", "Dress code guide"], learningObjectives: ["Update resume with action verbs", "Practice STAR interview responses"], assessmentMethod: "Mock interview scoring rubric", status: "completed", attendeeCount: 8, isDemoData: true },
+    { id: "sp-f-004", facilitatorId: "fac-001", sessionDate: "2025-03-10", duration: 60, location: "ThriveUp Main Campus - Room A", targetAudience: "Prevention Champions Cohort", materialsNeeded: ["Media analysis worksheets", "Ad examples", "Projector"], learningObjectives: ["Analyze advertising tactics targeting youth", "Create counter-messaging content"], assessmentMethod: "Written analysis worksheet", status: "scheduled", isDemoData: true },
   ]);
 
   await db.insert(curriculumDeliveryLogs).values([
-    { id: "cdl-001", sessionPlanId: "sp-f-001", facilitatorId: "fac-001", actualDate: "2025-02-10", actualDuration: 65, actualAttendeeCount: 14, fidelityScore: 4, adaptationsNoted: "Extended role-play activity by 10 minutes due to high engagement", participantFeedback: "Students reported high confidence in refusal skills after session", followUpNeeded: false, dosageMinutes: 65 },
-    { id: "cdl-002", sessionPlanId: "sp-f-002", facilitatorId: "fac-002", actualDate: "2025-02-14", actualDuration: 130, actualAttendeeCount: 20, fidelityScore: 5, adaptationsNoted: "Two participants arrived late; provided catch-up materials. Added extra safety drill.", challengesFaced: "One power tool malfunctioned; used backup equipment", participantFeedback: "Participants showed strong engagement with hands-on blueprint reading", followUpNeeded: false, dosageMinutes: 130 },
-    { id: "cdl-003", sessionPlanId: "sp-f-003", facilitatorId: "fac-003", actualDate: "2025-02-18", actualDuration: 85, actualAttendeeCount: 7, fidelityScore: 4, adaptationsNoted: "One participant needed Spanish-language resume template", challengesFaced: "Minor connectivity issues for 2 participants on mobile", participantFeedback: "All participants completed updated resumes; 3 reported feeling interview-ready", followUpNeeded: true, dosageMinutes: 85 },
+    { id: "cdl-001", sessionPlanId: "sp-f-001", facilitatorId: "fac-001", actualDate: "2025-02-10", actualDuration: 65, actualAttendeeCount: 14, fidelityScore: 4, adaptationsNoted: "Extended role-play activity by 10 minutes due to high engagement", participantFeedback: "Students reported high confidence in refusal skills after session", followUpNeeded: false, dosageMinutes: 65, isDemoData: true },
+    { id: "cdl-002", sessionPlanId: "sp-f-002", facilitatorId: "fac-002", actualDate: "2025-02-14", actualDuration: 130, actualAttendeeCount: 20, fidelityScore: 5, adaptationsNoted: "Two participants arrived late; provided catch-up materials. Added extra safety drill.", challengesFaced: "One power tool malfunctioned; used backup equipment", participantFeedback: "Participants showed strong engagement with hands-on blueprint reading", followUpNeeded: false, dosageMinutes: 130, isDemoData: true },
+    { id: "cdl-003", sessionPlanId: "sp-f-003", facilitatorId: "fac-003", actualDate: "2025-02-18", actualDuration: 85, actualAttendeeCount: 7, fidelityScore: 4, adaptationsNoted: "One participant needed Spanish-language resume template", challengesFaced: "Minor connectivity issues for 2 participants on mobile", participantFeedback: "All participants completed updated resumes; 3 reported feeling interview-ready", followUpNeeded: true, dosageMinutes: 85, isDemoData: true },
   ]);
 
   await db.insert(outcomeTracking).values([
-    { id: "ot-001", userId: "part-001", cohortId: "pilot-001", category: "employment", metricName: "Job Placement", metricValue: "placed", baseline: "unemployed", target: "full-time employment", notes: "Placed at Goodwill Central Texas", source: "workforce-team" },
-    { id: "ot-002", userId: "part-002", cohortId: "pilot-001", category: "education", metricName: "College Enrollment", metricValue: "enrolled", baseline: "no-postsecondary", target: "enrolled-in-postsecondary", notes: "Accepted to ACC for Fall 2025", source: "education-navigator" },
-    { id: "ot-003", userId: "part-003", cohortId: "pilot-001", category: "credential", metricName: "Industry Certification", metricValue: "in-progress", baseline: "no-credentials", target: "osha-10-certification", notes: "Expected completion March 2025", source: "workforce-team" },
-    { id: "ot-004", userId: "part-004", cohortId: "pilot-001", category: "employment", metricName: "Wage Growth", metricValue: "$15.00/hr", baseline: "$0/hr", target: "$16.00/hr", notes: "Started at H-E-B January 2025", source: "workforce-team" },
-    { id: "ot-005", userId: "part-005", cohortId: "pilot-001", category: "housing", metricName: "Housing Stability", metricValue: "transitional", baseline: "homeless", target: "stable-housing", notes: "Placed in transitional housing program", source: "case-manager" },
-    { id: "ot-006", userId: "pilot-youth-001", cohortId: "pilot-002", category: "prevention", metricName: "Knowledge Assessment Score", metricValue: "82%", baseline: "65%", target: "85%", notes: "Post-test score after LifeSkills module 1-3", source: "facilitator" },
+    { id: "ot-001", userId: "part-001", cohortId: "pilot-001", category: "employment", metricName: "Job Placement", metricValue: "placed", baseline: "unemployed", target: "full-time employment", notes: "Placed at Goodwill Central Texas", source: "workforce-team", isDemoData: true },
+    { id: "ot-002", userId: "part-002", cohortId: "pilot-001", category: "education", metricName: "College Enrollment", metricValue: "enrolled", baseline: "no-postsecondary", target: "enrolled-in-postsecondary", notes: "Accepted to ACC for Fall 2025", source: "education-navigator", isDemoData: true },
+    { id: "ot-003", userId: "part-003", cohortId: "pilot-001", category: "credential", metricName: "Industry Certification", metricValue: "in-progress", baseline: "no-credentials", target: "osha-10-certification", notes: "Expected completion March 2025", source: "workforce-team", isDemoData: true },
+    { id: "ot-004", userId: "part-004", cohortId: "pilot-001", category: "employment", metricName: "Wage Growth", metricValue: "$15.00/hr", baseline: "$0/hr", target: "$16.00/hr", notes: "Started at H-E-B January 2025", source: "workforce-team", isDemoData: true },
+    { id: "ot-005", userId: "part-005", cohortId: "pilot-001", category: "housing", metricName: "Housing Stability", metricValue: "transitional", baseline: "homeless", target: "stable-housing", notes: "Placed in transitional housing program", source: "case-manager", isDemoData: true },
+    { id: "ot-006", userId: "pilot-youth-001", cohortId: "pilot-002", category: "prevention", metricName: "Knowledge Assessment Score", metricValue: "82%", baseline: "65%", target: "85%", notes: "Post-test score after LifeSkills module 1-3", source: "facilitator", isDemoData: true },
   ]);
 
   console.log("[Seed] Facilitator and outcome tracking data seeded");
@@ -679,6 +692,7 @@ async function seedChicagoPilot() {
       totalPopulation: 53000,
       medianIncome: 32000,
       dataYear: 2024,
+      dataSource: DEMO_DATA_SOURCE,
     },
     {
       id: "bed-chi-002",
@@ -700,6 +714,7 @@ async function seedChicagoPilot() {
       totalPopulation: 24000,
       medianIncome: 24000,
       dataYear: 2024,
+      dataSource: DEMO_DATA_SOURCE,
     },
     {
       id: "bed-chi-003",
@@ -721,6 +736,7 @@ async function seedChicagoPilot() {
       totalPopulation: 29000,
       medianIncome: 27000,
       dataYear: 2024,
+      dataSource: DEMO_DATA_SOURCE,
     },
     {
       id: "bed-chi-004",
@@ -742,6 +758,7 @@ async function seedChicagoPilot() {
       totalPopulation: 48000,
       medianIncome: 36000,
       dataYear: 2024,
+      dataSource: DEMO_DATA_SOURCE,
     },
   ]);
 

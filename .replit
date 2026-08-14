@@ -114,12 +114,12 @@ waitForPort = 5000
 name = "seed-idempotency"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsx scripts/verify-seed-idempotency.ts"
-
 [workflows.workflow.metadata]
 isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/verify-seed-idempotency.ts && npx tsx scripts/verify-seed-provenance.ts"
 
 [[workflows.workflow]]
 name = "typecheck"

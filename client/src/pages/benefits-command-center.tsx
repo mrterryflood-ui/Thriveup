@@ -1358,11 +1358,19 @@ function OutreachPanel() {
 
 export default function BenefitsCommandCenterPage() {
   const [activeTab, setActiveTab] = useState<TabId>("command");
+  const { data: provenanceStats } = useQuery<any>({ queryKey: ["/api/benefits/command-center/stats"] });
 
   return (
     <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-6">
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-page-title">Benefits Command Center</h1>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h1 className="text-2xl md:text-3xl font-bold" data-testid="text-page-title">Benefits Command Center</h1>
+          {provenanceStats?.dataProvenance?.hasDemoData && (
+            <Badge variant="outline" className="text-xs text-amber-600" data-testid="badge-demo-data">
+              Demo data — {provenanceStats.dataProvenance.demoRows} of {provenanceStats.dataProvenance.totalRows} rows are illustrative examples, not verified enrollment counts
+            </Badge>
+          )}
+        </div>
         <p className="text-muted-foreground mt-1">
           5-County Benefits Intelligence System — Travis, Williamson, Hays, Bastrop, Caldwell
         </p>

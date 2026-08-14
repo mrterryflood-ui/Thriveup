@@ -65,7 +65,9 @@ async function getFqhc(lat: number, lng: number, radiusMiles = 50) {
   }
 }
 
-// Farm stress resources — documented crisis: farmers suicide rate 3.5× national average
+// Farm stress resources — documented crisis: farmers/ranchers have an elevated suicide
+// rate versus the general population (CDC/NIOSH occupational mortality surveillance;
+// commonly cited multiplier is ~3.5x, varies by study year and occupational classification).
 function getFarmStressResources(state: string) {
   return {
     crisis: {
@@ -92,7 +94,8 @@ function getFarmStressResources(state: string) {
         { name: "Land Stewardship Project Farm Legal & Financial Counseling", url: "https://landstewardshipproject.org/", note: "MN, IA, WI — farm financial crisis" },
       ],
     },
-    stigmaNote: "Farm stress and mental health struggles are documented, not weakness. 1 in 3 farmers reports significant psychological distress. Resources are confidential.",
+    stigmaNote: "Farm stress and mental health struggles are documented, not weakness. Multiple farm-stress surveys report roughly 1 in 3 farmers experiencing significant psychological distress. Resources are confidential.",
+    source: "CDC/NIOSH occupational mortality surveillance; USDA NIFA Farm and Ranch Stress Assistance Network survey data",
   };
 }
 

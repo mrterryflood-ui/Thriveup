@@ -305,7 +305,7 @@ export async function seedNonCollegiatePathways(db: any): Promise<void> {
     {
       name: "Semiconductor Process Technician",
       category: "Skilled Trades",
-      description: "Operate and maintain equipment in semiconductor fabrication facilities. Monitor chip production processes and perform quality checks. Certificate programs take 6-12 months. Samsung, NXP, and other fabs in the Austin area are hiring heavily.",
+      description: "Operate and maintain equipment in semiconductor fabrication facilities. Monitor chip production processes and perform quality checks. Certificate programs take 6-12 months. Samsung, NXP, and other fabs have an established presence in the Austin area — check current job postings for hiring status, since demand fluctuates with the semiconductor market.",
       educationPath: "technical-certification",
       salaryRange: "$40,000 - $65,000",
       requiredSkills: ["Cleanroom Procedures", "Equipment Operation", "Quality Control", "Attention to Detail", "Technical Reading"],

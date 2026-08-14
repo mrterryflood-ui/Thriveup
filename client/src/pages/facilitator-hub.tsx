@@ -27,6 +27,7 @@ function DashboardTab() {
     averageFidelityScore: number;
     totalDosageHours: number;
     upcomingSessions: number;
+    dataProvenance?: { totalFacilitators: number; demoFacilitators: number; hasDemoData: boolean };
   }>({ queryKey: ["/api/facilitators/dashboard/metrics"] });
 
   if (isLoading) return <div className="grid grid-cols-2 md:grid-cols-4 gap-4">{Array.from({ length: 4 }).map((_, i) => <Skeleton key={i} className="h-32" />)}</div>;
@@ -42,6 +43,11 @@ function DashboardTab() {
 
   return (
     <div className="space-y-6">
+      {metrics?.dataProvenance?.hasDemoData && (
+        <Badge variant="outline" className="text-xs text-amber-600" data-testid="badge-demo-data">
+          Demo data — {metrics.dataProvenance.demoFacilitators} of {metrics.dataProvenance.totalFacilitators} facilitator profiles are illustrative examples, not real staff
+        </Badge>
+      )}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         {kpis.map((kpi) => (
           <Card key={kpi.label}>

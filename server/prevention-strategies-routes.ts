@@ -356,12 +356,18 @@ export function registerPreventionStrategiesRoutes(app: Express) {
       const totalImpls = await db.select({ count: count() }).from(ebpImplementations);
       const totalStrategies = await db.select({ count: count() }).from(environmentalStrategies);
       const totalCfir = await db.select({ count: count() }).from(cfirAssessments);
+      const demoStrategies = await db.select({ count: count() }).from(environmentalStrategies).where(eq(environmentalStrategies.isDemoData, true));
 
       res.json({
         totalPrograms: totalPrograms[0]?.count || 0,
         totalImplementations: totalImpls[0]?.count || 0,
         totalStrategies: totalStrategies[0]?.count || 0,
         totalCfirAssessments: totalCfir[0]?.count || 0,
+        dataProvenance: {
+          totalStrategies: totalStrategies[0]?.count || 0,
+          demoStrategies: demoStrategies[0]?.count || 0,
+          hasDemoData: (demoStrategies[0]?.count || 0) > 0,
+        },
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to fetch dashboard" });

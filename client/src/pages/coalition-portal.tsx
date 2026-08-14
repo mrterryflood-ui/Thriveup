@@ -113,6 +113,7 @@ interface CoalitionDashboard {
   partnerRolesNeeded?: PartnerRoleEntry[];
   coalitionStructure?: { lead?: CoalitionLead; partnerTiers?: PartnerTier[] };
   dataMethodology?: DataMethodology;
+  dataProvenance?: { totalRows: number; demoRows: number; hasDemoData: boolean };
 }
 
 function AIInsightPanel({ countyFips, countyName }: { countyFips: string; countyName: string }) {
@@ -250,6 +251,13 @@ export default function CoalitionPortalPage() {
             Closing the enrollment gap for <strong className="text-foreground">{(overview.totalGap || 700000).toLocaleString()}</strong> eligible residents
             through data-driven, community-powered outreach across Central Texas.
           </p>
+          {dashboard?.dataProvenance?.hasDemoData && (
+            <p className="mb-3">
+              <Badge variant="outline" className="text-xs text-amber-600" data-testid="badge-demo-data">
+                Demo data — {dashboard.dataProvenance.demoRows} of {dashboard.dataProvenance.totalRows} benefits rows are illustrative examples, not verified enrollment counts
+              </Badge>
+            </p>
+          )}
           <div className="flex items-center justify-center gap-3 flex-wrap">
             <Badge className="bg-blue-600 text-white"><Landmark className="h-3 w-3 mr-1" /> TCAF · 501(c)(3)</Badge>
             <Badge variant="outline"><Shield className="h-3 w-3 mr-1" /> Veteran-Founded · Black-Led</Badge>

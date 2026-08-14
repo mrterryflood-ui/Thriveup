@@ -415,6 +415,7 @@ async function ingestBenefitsDataForCounty(countyFips: string): Promise<number> 
           latitude: county.lat,
           longitude: county.lng,
           rawCensusData: { totalPop, medianIncome, belowPoverty, snapRecipients, uninsuredTotal },
+          dataSource: "census_acs_2022",
           dataYear: 2022,
         });
       }
@@ -522,6 +523,8 @@ export function registerBenefitsRoutes(app: Express) {
       const totalEligible = enrollmentData.reduce((s, d) => s + (d.eligiblePopulation || 0), 0);
       const totalEnrolled = enrollmentData.reduce((s, d) => s + (d.enrolledPopulation || 0), 0);
 
+      const demoRows = enrollmentData.filter(d => (d.dataSource || "").toLowerCase().includes("illustrative") || (d.dataSource || "").toLowerCase().includes("demo")).length;
+
       res.json({
         countySummaries,
         totals: {
@@ -533,6 +536,12 @@ export function registerBenefitsRoutes(app: Express) {
           renewals: renewalCount?.count || 0,
         },
         hasData: enrollmentData.length > 0,
+        dataProvenance: {
+          totalRows: enrollmentData.length,
+          demoRows,
+          sourcedRows: enrollmentData.length - demoRows,
+          hasDemoData: demoRows > 0,
+        },
       });
     } catch (error) {
       console.error("Stats error:", error);
@@ -1017,7 +1026,10 @@ export function registerBenefitsRoutes(app: Express) {
         });
       }
 
+      const demoRows = enrollmentData.filter(d => (d.dataSource || "").toLowerCase().includes("illustrative") || (d.dataSource || "").toLowerCase().includes("demo")).length;
+
       res.json({
+        dataProvenance: { totalRows: enrollmentData.length, demoRows, hasDemoData: demoRows > 0 },
         overview: {
           totalEligible, totalEnrolled, totalGap,
           gapRate: totalEligible > 0 ? Math.round((totalGap / totalEligible) * 100) : 0,

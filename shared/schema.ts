@@ -1824,6 +1824,7 @@ export const outcomeTracking = pgTable("outcome_tracking", {
   target: text("target"),
   notes: text("notes"),
   source: varchar("source", { length: 100 }),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3074,6 +3075,7 @@ export const environmentalStrategies = pgTable("environmental_strategies", {
   status: text("status").notNull().default("planned"),
   implementationStage: text("implementation_stage").notNull().default("exploration"),
   coalitionId: varchar("coalition_id", { length: 100 }),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3135,6 +3137,7 @@ export const dfcCoreMeasures = pgTable("dfc_core_measures", {
   perceivedAvailability: real("perceived_availability").default(0),
   sampleSize: integer("sample_size").default(0),
   notes: text("notes"),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3157,6 +3160,7 @@ export const communityReadinessAssessments = pgTable("community_readiness_assess
   recommendations: text("recommendations").array().notNull().default(sql`'{}'::text[]`),
   assessorId: varchar("assessor_id", { length: 255 }),
   notes: text("notes"),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3180,6 +3184,7 @@ export const mediaCampaigns = pgTable("media_campaigns", {
   budget: decimal("budget", { precision: 12, scale: 2 }),
   objectives: text("objectives"),
   createdBy: varchar("created_by", { length: 255 }),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3216,6 +3221,7 @@ export const stakeholderCommitments = pgTable("stakeholder_commitments", {
   contactEmail: text("contact_email"),
   status: text("status").notNull().default("pledged"),
   deliveredDate: text("delivered_date"),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3382,6 +3388,7 @@ export const facilitatorProfiles = pgTable("facilitator_profiles", {
   clearanceLevel: text("clearance_level"),
   trainingCompleted: jsonb("training_completed").notNull().default([]),
   status: text("status").notNull().default("active"),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3403,6 +3410,7 @@ export const sessionPlans = pgTable("session_plans", {
   status: text("status").notNull().default("draft"),
   attendeeCount: integer("attendee_count"),
   notes: text("notes"),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
@@ -3423,6 +3431,7 @@ export const curriculumDeliveryLogs = pgTable("curriculum_delivery_logs", {
   participantFeedback: text("participant_feedback"),
   followUpNeeded: boolean("follow_up_needed").notNull().default(false),
   dosageMinutes: integer("dosage_minutes").notNull().default(0),
+  isDemoData: boolean("is_demo_data").notNull().default(false),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
