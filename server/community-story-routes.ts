@@ -131,13 +131,31 @@ export async function assembleStoryPack(opts: {
   const brief = await fetchCommunityBrief(location, populationSize);
 
   let grant: Record<string, unknown> | null = null;
+  // Capture state before the grant conduit call so we can surface a disclosure
+  // when it is absent. An empty state causes the grant conduit to return a 400
+  // (geography.state is required), which fetchGrantConduit turns into null —
+  // silently omitting the entire gunViolence block with no explanation to the
+  // caller. The primary fix is in conductor-routes.ts (ZIP-range fallback), but
+  // we add an explicit note here as a belt-and-suspenders disclosure.
+  const geo = (brief.geography as Record<string, unknown>) ?? {};
+  const resolvedState = typeof geo.state === "string" ? geo.state : "";
+  const stateUnavailable = !resolvedState;
+
   if (includeGrantData) {
-    const geo = (brief.geography as Record<string, unknown>) ?? {};
+    if (stateUnavailable) {
+      console.warn(
+        "[assembleStoryPack] geography.state is empty for location '%s' — " +
+        "grant conduit requires a state; gunViolence and state-scoped grant " +
+        "data will be unavailable. The ZIP-range fallback in conductor-routes " +
+        "should have populated this; check resolveLocationToZip for this input.",
+        location
+      );
+    }
     grant = await fetchGrantConduit({
       orgType: orgType ?? "nonprofit",
       orgName,
       geography: {
-        ...(typeof geo.state === "string" && geo.state ? { state: geo.state } : {}),
+        ...(resolvedState ? { state: resolvedState } : {}),
         ...(typeof geo.zip === "string" && geo.zip ? { zip: geo.zip } : {}),
       },
       focusAreas: focusAreas ?? [],
@@ -146,7 +164,19 @@ export async function assembleStoryPack(opts: {
     });
   }
 
-  return { brief, grant, generatedAt: new Date().toISOString() };
+  return {
+    brief,
+    grant,
+    generatedAt: new Date().toISOString(),
+    ...(stateUnavailable && includeGrantData
+      ? {
+          stateResolutionNote:
+            "State could not be determined for this location. " +
+            "State-level gun violence data and state-scoped grant intelligence " +
+            "are unavailable for this story pack.",
+        }
+      : {}),
+  };
 }
 
 // ── PDF builder for story pack ────────────────────────────────────────────────

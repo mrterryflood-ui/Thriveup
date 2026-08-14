@@ -1419,6 +1419,16 @@ export function registerConductorRoutes(app: Express) {
         displayName = `ZCTA ${zip}`;
         stateName = resolved.stateAbbrev ?? "";
         stateFips = stateName ? stateFipsFromName(stateName) : "";
+        // Fallback: when the resolver didn't supply a stateAbbrev (raw ZIP
+        // input, Census onelineaddress, and Nominatim paths all omit it),
+        // derive the state from the ZIP numeric range table that already exists
+        // in this file. Without this, stateName stays "" and every downstream
+        // consumer — gun violence lookup, policy context, grant conduit — silently
+        // receives an empty state and returns no state-scoped data.
+        if (!stateFips && zip) {
+          stateFips = stateFipsFromZip(zip);
+          if (stateFips) stateName = CONDUCTOR_FIPS_TO_STATE[stateFips] ?? "";
+        }
         evidenceGeography = {
           requested: { input: rawInput, type: resolved.requestedType },
           resolved: {
