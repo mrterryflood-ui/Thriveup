@@ -1,4 +1,3 @@
-THRIVEUP PARTNER DASHBOARD — SINGLE-FILE IMPLEMENTATION BUNDLE
 ===============================================================
 
 Purpose
@@ -7,6 +6,7 @@ This is the exact implementation currently present in the ThriveUp workspace,
 assembled as one portable handoff file for a separate ECS checkout. It is NOT
 a patch that will apply blindly: reconcile the sections with ECS's existing
 schema, route registration, and access model before merging.
+THRIVEUP PARTNER DASHBOARD — SINGLE-FILE IMPLEMENTATION BUNDLE
 
 WHAT THIS BUNDLE INCLUDES
 -------------------------
