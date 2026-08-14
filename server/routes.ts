@@ -548,6 +548,8 @@ export async function registerRoutes(
   registerResidentJourneyRoutes(app);
   const { registerDonorReceiptRoutes } = await import("./donor-receipts");
   registerDonorReceiptRoutes(app);
+  const { registerClaimChainRoutes } = await import("./claim-chain");
+  registerClaimChainRoutes(app);
   registerWorkforceRoutes(app);
   registerNavigatorRoutes(app);
   registerPilotRoutes(app);

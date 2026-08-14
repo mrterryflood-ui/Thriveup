@@ -24,3 +24,12 @@ already computed (a rate, ratio, dollar figure, or count) should build a `ClaimR
 `recordClaimDecisions`, rather than trusting the model's arithmetic or inventing new ad hoc regex
 checks per surface. See also [JSONB hash-chain pitfall](jsonb-hash-chain-pitfall.md) for a gotcha
 hit while building the audit chain itself.
+
+**Hash-chain gotcha:** a hash link must cover every column that records the "why," not just the
+"what" — a field like an audit row's expected-value description is just as tamperable as the claim
+text itself if it's excluded from the hash input. Also hash the exact value that gets persisted:
+if a column has a length limit, truncate/normalize BEFORE hashing, never after — hashing the raw
+value then storing a truncated one makes that row permanently fail its own re-derivation the moment
+a caller supplies input at or past the limit. A public "verify" endpoint for an internal audit chain
+should report self-consistency (aggregate ok/broken-at-id) only — the raw rows are audit content
+(can echo user/request-controlled text) and belong behind staff auth, not full public disclosure.
