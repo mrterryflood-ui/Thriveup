@@ -7662,3 +7662,23 @@ export type InsertInboundVerificationLog = typeof inboundVerificationLog.$inferI
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";
+
+// ── CHW Home Visit Log ──────────────────────────────────────────────────────
+// Each row is a single home visit logged by a CHW. Scoped to the authenticated
+// CHW via chwUserId (integer FK matching the users table id).
+// No referential constraint on chwUserId: the referrals table uses the same
+// pattern (integer, no FK) to avoid schema coupling across subsystems.
+export const chwVisits = pgTable("chw_visits", {
+  id: text("id").primaryKey().$defaultFn(() => nanoid(12)),
+  chwUserId: integer("chw_user_id").notNull(),
+  clientDisplayName: text("client_display_name"),
+  visitDate: date("visit_date").notNull(),
+  visitType: varchar("visit_type", { length: 100 }).notNull().default("Follow-Up"),
+  durationMinutes: integer("duration_minutes"),
+  notes: text("notes"),
+  followUpNeeded: boolean("follow_up_needed").notNull().default(false),
+  followUpDate: date("follow_up_date"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+export type ChwVisit = typeof chwVisits.$inferSelect;
+export type InsertChwVisit = typeof chwVisits.$inferInsert;

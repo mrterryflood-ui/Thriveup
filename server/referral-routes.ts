@@ -414,15 +414,52 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
   },
 );
 
-// GET /api/referrals/my-sent — CHW's sent referrals (requires auth)
+// GET /api/referrals/my-sent — CHW's sent referrals (requires auth).
+// Scoped to the authenticated CHW's userId only — a CHW cannot read another
+// CHW's referral tokens. orgConfirmUrl is derived from orgConfirmToken and
+// included so the CHW can copy it to the receiving org without re-opening
+// each referral. statusToken is intentionally NOT returned here (it is a
+// client-facing token and should not be surfaced on this CHW-facing list).
 referralRouter.get("/my-sent", async (req, res) => {
   if (!(req as any).user?.id) return res.status(401).json({ error: "Authentication required" });
   try {
-    const sent = await db.select().from(referrals)
-      .where(eq(referrals.chwUserId, parseInt((req as any).user.id as any)))
+    const chwUserId = parseInt((req as any).user.id as any);
+    const sent = await db
+      .select({
+        id: referrals.id,
+        programCode: referrals.programCode,
+        orgName: referrals.orgName,
+        clientDisplayName: referrals.clientDisplayName,
+        status: referrals.status,
+        createdAt: referrals.createdAt,
+        resolvedAt: referrals.resolvedAt,
+        benefitValueEstimate: referrals.benefitValueEstimate,
+        valueSource: referrals.valueSource,
+        // Include the org-confirm token so the CHW can reconstruct the URL.
+        // Only visible to the CHW who created the referral (chwUserId scope above).
+        orgConfirmToken: referrals.orgConfirmToken,
+      })
+      .from(referrals)
+      .where(eq(referrals.chwUserId, chwUserId))
       .orderBy(desc(referrals.createdAt))
       .limit(50);
-    res.json({ referrals: sent });
+
+    // Construct the orgConfirmUrl server-side so the client never needs to
+    // know the token-to-URL mapping convention.
+    const referralsWithUrls = sent.map((r) => ({
+      id: r.id,
+      programCode: r.programCode,
+      orgName: r.orgName,
+      clientDisplayName: r.clientDisplayName,
+      status: r.status,
+      createdAt: r.createdAt,
+      resolvedAt: r.resolvedAt,
+      benefitValueEstimate: r.benefitValueEstimate,
+      valueSource: r.valueSource,
+      orgConfirmUrl: r.orgConfirmToken ? `/org-confirm/${r.orgConfirmToken}` : null,
+    }));
+
+    res.json({ referrals: referralsWithUrls });
   } catch (err) {
     res.status(500).json({ error: "Failed to load referrals" });
   }

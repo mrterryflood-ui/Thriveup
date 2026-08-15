@@ -3,6 +3,7 @@ import { db } from "./storage";
 import { orgCapacity } from "@shared/schema";
 import { eq, gt, and } from "drizzle-orm";
 import { requirePartnerAuth } from "./partner-api-routes";
+import { validateContactPhone, validateContactUrl } from "@shared/intake-contact-validators";
 
 export const capacityRouter = Router();
 
@@ -86,6 +87,12 @@ partnerCapacityRouter.patch("/capacity", requirePartnerAuth, async (req, res) =>
     if (!["open", "waitlist", "closed"].includes(status)) {
       return res.status(400).json({ error: "status must be open|waitlist|closed" });
     }
+
+    const phoneCheck = validateContactPhone(contactPhone);
+    if (!phoneCheck.ok) return res.status(400).json({ error: phoneCheck.message });
+
+    const urlCheck = validateContactUrl(contactUrl);
+    if (!urlCheck.ok) return res.status(400).json({ error: urlCheck.message });
 
     // Derive a stable orgId from the partner key identity
     const orgId = key.isEcosystemPlatform

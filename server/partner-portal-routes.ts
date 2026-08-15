@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { organizations, orgDocuments, organizationMembers, orgCapacity } from "@shared/schema";
 import { eq, sql } from "drizzle-orm";
+import { validateContactPhone, validateContactUrl } from "@shared/intake-contact-validators";
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
   const user = (req as any).user;
@@ -49,6 +50,12 @@ export function registerPartnerPortalRoutes(app: Express) {
       if (!["open", "waitlist", "closed"].includes(status)) {
         return res.status(400).json({ error: "status must be open|waitlist|closed" });
       }
+
+      const phoneCheck = validateContactPhone(contactPhone);
+      if (!phoneCheck.ok) return res.status(400).json({ error: phoneCheck.message });
+
+      const urlCheck = validateContactUrl(contactUrl);
+      if (!urlCheck.ok) return res.status(400).json({ error: urlCheck.message });
 
       const orgId = `portal_${org.id}`;
       await db.insert(orgCapacity).values({

@@ -39,138 +39,153 @@ async function cleanup() {
 async function run() {
   console.log("\n[verify-gun-violence-registry] Starting...\n");
 
-  // ── 0. Pre-cleanup to be idempotent ───────────────────────────────────────
+  // ── 0. Pre-cleanup sweep — removes any leftover fixtures from a previous
+  //       crashed run so assertions start from a known-clean baseline.
   await cleanup();
 
-  // ── 1. Unauthenticated import must be rejected ────────────────────────────
-  console.log("1. Security: unauthenticated import must be rejected");
-  const anonResp = await fetch(`${BASE}/api/gun-violence/import`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(FIXTURES),
-  });
-  if (anonResp.status === 401 || anonResp.status === 403) {
-    pass("Unauthenticated POST /api/gun-violence/import → 401/403");
-  } else {
-    fail("Unauthenticated import not rejected", `status=${anonResp.status}`);
-  }
-
-  // ── 2. Unauthenticated import history must be rejected ────────────────────
-  const anonHist = await fetch(`${BASE}/api/gun-violence/imports`);
-  if (anonHist.status === 401 || anonHist.status === 403) {
-    pass("Unauthenticated GET /api/gun-violence/imports → 401/403");
-  } else {
-    fail("Unauthenticated imports history not rejected", `status=${anonHist.status}`);
-  }
-
-  // ── 3. Public summary works without auth ─────────────────────────────────
-  console.log("\n2. Public summary endpoint");
-  const summaryResp = await fetch(`${BASE}/api/gun-violence/summary?city=Chicago`);
-  if (summaryResp.ok) {
-    const body = await summaryResp.json();
-    if (typeof body.incidents === "number") {
-      pass("GET /api/gun-violence/summary returns aggregate counts");
+  // The DB-touching test body is wrapped in try/finally so cleanup always
+  // runs even when a DB call throws mid-run (network error, constraint
+  // violation, etc.) — not just on the happy path.
+  let fixturesInserted = false;
+  try {
+    // ── 1. Unauthenticated import must be rejected ──────────────────────────
+    console.log("1. Security: unauthenticated import must be rejected");
+    const anonResp = await fetch(`${BASE}/api/gun-violence/import`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(FIXTURES),
+    });
+    if (anonResp.status === 401 || anonResp.status === 403) {
+      pass("Unauthenticated POST /api/gun-violence/import → 401/403");
     } else {
-      fail("Summary missing incidents field", JSON.stringify(body).slice(0, 100));
+      fail("Unauthenticated import not rejected", `status=${anonResp.status}`);
     }
-  } else {
-    fail("GET /api/gun-violence/summary failed", `status=${summaryResp.status}`);
-  }
 
-  // ── 4. Direct DB insert of fixtures (bypasses auth for test purposes) ─────
-  console.log("\n3. DB-level fixture import + correctness");
-  await db.insert(gunViolenceIncidents).values(
-    FIXTURES.map((f) => ({
-      incidentId: f.incidentId,
-      dataSource: f.dataSource,
-      zip: f.zip,
-      city: f.city,
-      ward: f.ward,
-      victimCount: f.victimCount,
-      fatalCount: f.fatalCount,
-      incidentType: f.incidentType,
-    }))
-  );
-  pass("Inserted 5 fixture incidents via DB");
+    // ── 2. Unauthenticated import history must be rejected ──────────────────
+    const anonHist = await fetch(`${BASE}/api/gun-violence/imports`);
+    if (anonHist.status === 401 || anonHist.status === 403) {
+      pass("Unauthenticated GET /api/gun-violence/imports → 401/403");
+    } else {
+      fail("Unauthenticated imports history not rejected", `status=${anonHist.status}`);
+    }
 
-  // ── 5. Verify summary counts after insert ─────────────────────────────────
-  const summaryAfter = await fetch(`${BASE}/api/gun-violence/summary?city=Chicago`);
-  const afterBody = await summaryAfter.json();
-  const expectedIncidents = 5;
-  const expectedVictims = FIXTURES.reduce((sum, f) => sum + f.victimCount, 0); // 2+1+1+3+1 = 8
-  const expectedFatalities = FIXTURES.reduce((sum, f) => sum + f.fatalCount, 0); // 0+1+0+1+0 = 2
+    // ── 3. Public summary works without auth ───────────────────────────────
+    console.log("\n2. Public summary endpoint");
+    const summaryResp = await fetch(`${BASE}/api/gun-violence/summary?city=Chicago`);
+    if (summaryResp.ok) {
+      const body = await summaryResp.json();
+      if (typeof body.incidents === "number") {
+        pass("GET /api/gun-violence/summary returns aggregate counts");
+      } else {
+        fail("Summary missing incidents field", JSON.stringify(body).slice(0, 100));
+      }
+    } else {
+      fail("GET /api/gun-violence/summary failed", `status=${summaryResp.status}`);
+    }
 
-  // Note: Chicago has real data so counts will be ≥ our fixtures
-  if (afterBody.victims >= expectedVictims) {
-    pass(`Summary victims ≥ fixture total (got ${afterBody.victims}, expected ≥ ${expectedVictims})`);
-  } else {
-    fail("Summary victim count lower than fixture total", `got=${afterBody.victims} expected≥${expectedVictims}`);
-  }
-  if (afterBody.fatalities >= expectedFatalities) {
-    pass(`Summary fatalities ≥ fixture total (got ${afterBody.fatalities}, expected ≥ ${expectedFatalities})`);
-  } else {
-    fail("Summary fatality count lower than fixture total", `got=${afterBody.fatalities} expected≥${expectedFatalities}`);
-  }
+    // ── 4. Direct DB insert of fixtures (bypasses auth for test purposes) ───
+    console.log("\n3. DB-level fixture import + correctness");
+    await db.insert(gunViolenceIncidents).values(
+      FIXTURES.map((f) => ({
+        incidentId: f.incidentId,
+        dataSource: f.dataSource,
+        zip: f.zip,
+        city: f.city,
+        ward: f.ward,
+        victimCount: f.victimCount,
+        fatalCount: f.fatalCount,
+        incidentType: f.incidentType,
+      }))
+    );
+    fixturesInserted = true;
+    pass("Inserted 5 fixture incidents via DB");
 
-  // ── 6. Idempotency: re-insert same fixtures → onConflictDoNothing ────────
-  console.log("\n4. Idempotency: re-inserting same fixtures must not duplicate");
-  const countBefore = await db.select({ incidentId: gunViolenceIncidents.incidentId })
-    .from(gunViolenceIncidents)
-    .where(eq(gunViolenceIncidents.dataSource, FIXTURE_SOURCE));
+    // ── 5. Verify summary counts after insert ─────────────────────────────
+    const summaryAfter = await fetch(`${BASE}/api/gun-violence/summary?city=Chicago`);
+    const afterBody = await summaryAfter.json();
+    const expectedVictims = FIXTURES.reduce((sum, f) => sum + f.victimCount, 0); // 2+1+1+3+1 = 8
+    const expectedFatalities = FIXTURES.reduce((sum, f) => sum + f.fatalCount, 0); // 0+1+0+1+0 = 2
 
-  await db.insert(gunViolenceIncidents).values(
-    FIXTURES.map((f) => ({
-      incidentId: f.incidentId,
-      dataSource: f.dataSource,
-      zip: f.zip,
-      city: f.city,
-    }))
-  ).onConflictDoNothing();
+    // Note: Chicago has real data so counts will be ≥ our fixtures
+    if (afterBody.victims >= expectedVictims) {
+      pass(`Summary victims ≥ fixture total (got ${afterBody.victims}, expected ≥ ${expectedVictims})`);
+    } else {
+      fail("Summary victim count lower than fixture total", `got=${afterBody.victims} expected≥${expectedVictims}`);
+    }
+    if (afterBody.fatalities >= expectedFatalities) {
+      pass(`Summary fatalities ≥ fixture total (got ${afterBody.fatalities}, expected ≥ ${expectedFatalities})`);
+    } else {
+      fail("Summary fatality count lower than fixture total", `got=${afterBody.fatalities} expected≥${expectedFatalities}`);
+    }
 
-  const countAfter = await db.select({ incidentId: gunViolenceIncidents.incidentId })
-    .from(gunViolenceIncidents)
-    .where(eq(gunViolenceIncidents.dataSource, FIXTURE_SOURCE));
+    // ── 6. Idempotency: re-insert same fixtures → onConflictDoNothing ──────
+    console.log("\n4. Idempotency: re-inserting same fixtures must not duplicate");
+    const countBefore = await db.select({ incidentId: gunViolenceIncidents.incidentId })
+      .from(gunViolenceIncidents)
+      .where(eq(gunViolenceIncidents.dataSource, FIXTURE_SOURCE));
 
-  if (countBefore.length === countAfter.length) {
-    pass(`Re-import produced no duplicates (${countBefore.length} rows before and after)`);
-  } else {
-    fail("Re-import created duplicates", `before=${countBefore.length} after=${countAfter.length}`);
-  }
+    await db.insert(gunViolenceIncidents).values(
+      FIXTURES.map((f) => ({
+        incidentId: f.incidentId,
+        dataSource: f.dataSource,
+        zip: f.zip,
+        city: f.city,
+      }))
+    ).onConflictDoNothing();
 
-  // ── 7. Malformed import payload is rejected ───────────────────────────────
-  console.log("\n5. Malformed payload rejection");
-  const badResp = await fetch(`${BASE}/api/gun-violence/import`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify([{ notAField: "garbage" }]),
-  });
-  // Either 400 (validation error) or 401/403 (auth gate hits first — both are correct rejections)
-  if (badResp.status === 400 || badResp.status === 401 || badResp.status === 403) {
-    pass(`Malformed payload rejected with ${badResp.status}`);
-  } else {
-    fail("Malformed payload not rejected", `status=${badResp.status}`);
-  }
+    const countAfter = await db.select({ incidentId: gunViolenceIncidents.incidentId })
+      .from(gunViolenceIncidents)
+      .where(eq(gunViolenceIncidents.dataSource, FIXTURE_SOURCE));
 
-  // ── 8. ZIP-filtered summary works ─────────────────────────────────────────
-  console.log("\n6. ZIP-filtered summary");
-  const zipSummary = await fetch(`${BASE}/api/gun-violence/summary?zip=60619`);
-  const zipBody = await zipSummary.json();
-  if (zipSummary.ok && typeof zipBody.incidents === "number") {
-    pass(`ZIP-filtered summary for 60619 returned ${zipBody.incidents} incidents, ${zipBody.victims} victims`);
-  } else {
-    fail("ZIP-filtered summary failed", `status=${zipSummary.status}`);
-  }
+    if (countBefore.length === countAfter.length) {
+      pass(`Re-import produced no duplicates (${countBefore.length} rows before and after)`);
+    } else {
+      fail("Re-import created duplicates", `before=${countBefore.length} after=${countAfter.length}`);
+    }
 
-  // ── 9. Cleanup ─────────────────────────────────────────────────────────────
-  console.log("\n7. Cleanup");
-  await cleanup();
-  const remaining = await db.select({ incidentId: gunViolenceIncidents.incidentId })
-    .from(gunViolenceIncidents)
-    .where(eq(gunViolenceIncidents.dataSource, FIXTURE_SOURCE));
-  if (remaining.length === 0) {
-    pass("Fixture cleanup successful — 0 rows remain");
-  } else {
-    fail("Cleanup incomplete", `${remaining.length} rows remain`);
+    // ── 7. Malformed import payload is rejected ───────────────────────────
+    console.log("\n5. Malformed payload rejection");
+    const badResp = await fetch(`${BASE}/api/gun-violence/import`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify([{ notAField: "garbage" }]),
+    });
+    // Either 400 (validation error) or 401/403 (auth gate hits first — both are correct rejections)
+    if (badResp.status === 400 || badResp.status === 401 || badResp.status === 403) {
+      pass(`Malformed payload rejected with ${badResp.status}`);
+    } else {
+      fail("Malformed payload not rejected", `status=${badResp.status}`);
+    }
+
+    // ── 8. ZIP-filtered summary works ─────────────────────────────────────
+    console.log("\n6. ZIP-filtered summary");
+    const zipSummary = await fetch(`${BASE}/api/gun-violence/summary?zip=60619`);
+    const zipBody = await zipSummary.json();
+    if (zipSummary.ok && typeof zipBody.incidents === "number") {
+      pass(`ZIP-filtered summary for 60619 returned ${zipBody.incidents} incidents, ${zipBody.victims} victims`);
+    } else {
+      fail("ZIP-filtered summary failed", `status=${zipSummary.status}`);
+    }
+  } finally {
+    // ── 9. Cleanup — runs even if an error was thrown mid-test ─────────────
+    // Only bother if we actually inserted rows (skip if crash was pre-insert).
+    if (fixturesInserted) {
+      console.log("\n7. Cleanup");
+      await cleanup().catch((e: Error) =>
+        console.warn(`[cleanup] fixture delete failed: ${e.message}`)
+      );
+      const remaining = await db.select({ incidentId: gunViolenceIncidents.incidentId })
+        .from(gunViolenceIncidents)
+        .where(eq(gunViolenceIncidents.dataSource, FIXTURE_SOURCE))
+        .catch(() => null);
+      if (remaining === null) {
+        console.warn("[cleanup] could not verify remaining row count");
+      } else if (remaining.length === 0) {
+        pass("Fixture cleanup successful — 0 rows remain");
+      } else {
+        fail("Cleanup incomplete", `${remaining.length} rows remain`);
+      }
+    }
   }
 
   // ── Final verdict ─────────────────────────────────────────────────────────

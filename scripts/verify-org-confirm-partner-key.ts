@@ -66,6 +66,35 @@ async function run() {
   const pgClient = new Client({ connectionString: requireEnv("DATABASE_URL") });
   await pgClient.connect();
 
+  // ── [sweep] Remove any leftover rows from a previous crashed run ───────────
+  // Removes orphaned referral rows and stale test partner keys that a prior
+  // crashed run may have left behind.  Runs before any inserts so each run
+  // starts from a known-clean baseline.
+  const sweptReferrals = await pgClient.query(
+    `DELETE FROM referrals
+      WHERE org_name IN ('E2E PartnerKey Verify Org', 'E2E PartnerKey Other Org')
+      RETURNING id`,
+  );
+  if (sweptReferrals.rowCount && sweptReferrals.rowCount > 0) {
+    console.warn(
+      `[sweep] Removed ${sweptReferrals.rowCount} orphaned referral row(s) ` +
+        `left by a previous crashed run.`,
+    );
+  }
+  const sweptKeys = await pgClient.query(
+    `DELETE FROM partner_api_keys
+      WHERE notes LIKE '%verify-org-confirm-partner-key.ts%'
+      RETURNING id`,
+  );
+  if (sweptKeys.rowCount && sweptKeys.rowCount > 0) {
+    console.warn(
+      `[sweep] Removed ${sweptKeys.rowCount} orphaned test partner key(s) ` +
+        `left by a previous crashed run.`,
+    );
+  }
+  // Sweep the test user/session that might be left over.
+  await cleanupTestUser(pgClient, "e2e-partner-key-181").catch(() => {});
+
   const testUser = {
     userId: "e2e-partner-key-181",
     email: "e2e-partner-key-181@test.local",

@@ -59,6 +59,23 @@ async function run() {
   const pgClient = new Client({ connectionString: requireEnv("DATABASE_URL") });
   await pgClient.connect();
 
+  // ── [sweep] Remove any leftover rows from a previous crashed run ───────────
+  // If a prior run crashed before its finally block (process.kill, OOM, etc.)
+  // it may have left a referral row with orgName "E2E Loop Verify Org" in the
+  // DB.  Delete those now so each run starts clean and dashboards never
+  // accumulate test noise across crashed runs.
+  const swept = await pgClient.query(
+    `DELETE FROM referrals WHERE org_name = 'E2E Loop Verify Org' RETURNING id`,
+  );
+  if (swept.rowCount && swept.rowCount > 0) {
+    console.warn(
+      `[sweep] Removed ${swept.rowCount} orphaned "E2E Loop Verify Org" referral row(s) ` +
+        `left by a previous crashed run.`,
+    );
+  }
+  // Also sweep the test user/session that might be left over.
+  await cleanupTestUser(pgClient, "e2e-referral-loop").catch(() => {});
+
   // ── [0] Zero-subscriber precondition ──────────────────────────────────────
   // The task's core requirement: prove the HTTP referral loop (POST → status →
   // PATCH outcome) completes correctly when NO partner webhook subscriber has

@@ -535,6 +535,18 @@ export default function EcosystemOpsCenterPage() {
             </Card>
           </div>
 
+          {/* Staff quick-links — tools accessible from this center */}
+          <div className="flex flex-wrap gap-2" data-testid="staff-quick-links">
+            <a
+              href="/funder-dashboard"
+              className="inline-flex items-center gap-1.5 rounded-md border border-amber-300 dark:border-amber-700 bg-amber-50/60 dark:bg-amber-950/20 px-3 py-1.5 text-xs font-medium text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-900/30 transition-colors"
+              data-testid="link-funder-dashboard"
+            >
+              <DollarSign className="h-3.5 w-3.5" aria-hidden="true" />
+              Funder Impact Dashboard
+            </a>
+          </div>
+
           <Tabs value={activeTab} onValueChange={setActiveTab} data-testid="tabs-ops">
             <TabsList className="grid w-full grid-cols-4 md:grid-cols-8 gap-1 h-auto p-1">
               <TabsTrigger value="intelligence" className="text-xs md:text-sm" data-testid="tab-intelligence">
@@ -1508,6 +1520,10 @@ function PartnerApiTab() {
     queryKey: ["/api/admin/partner-inbound"],
   });
 
+  const { data: verifLog, refetch: refetchVerifLog } = useQuery<{ count: number; log: any[] }>({
+    queryKey: ["/api/admin/inbound-verification-log"],
+  });
+
   const markProcessedMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await apiRequest("PATCH", `/api/admin/partner-inbound/${id}/mark-processed`, {});
@@ -1880,6 +1896,64 @@ function PartnerApiTab() {
                       <Button size="sm" variant="outline" className="text-xs shrink-0" onClick={() => markProcessedMutation.mutate(row.id)} disabled={markProcessedMutation.isPending} data-testid={`button-process-${row.id}`}>
                         ✓ Done
                       </Button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* ── Inbound Verification Log — rejected / malformed fields ─────────── */}
+      <Card data-testid="card-inbound-verification-log">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-base flex items-center gap-2">
+              <AlertOctagon className="h-4 w-4 text-amber-500" /> Inbound Verification Log
+            </CardTitle>
+            <Button variant="ghost" size="sm" onClick={() => refetchVerifLog()} data-testid="button-refresh-verif-log">
+              <RefreshCw className="h-3.5 w-3.5" />
+            </Button>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">
+            Fields rejected or nulled from partner <code className="bg-muted px-1 rounded">/push</code> and <code className="bg-muted px-1 rounded">/heartbeat</code> calls. Source prefix <code className="bg-muted px-1 rounded">partner-api-heartbeat:</code> = heartbeat rejection.
+          </p>
+        </CardHeader>
+        <CardContent>
+          {!verifLog?.log?.length ? (
+            <div className="text-center py-6 text-muted-foreground">
+              <AlertOctagon className="h-6 w-6 mx-auto mb-2 opacity-30" />
+              <p className="text-sm">No validation issues recorded yet.</p>
+              <p className="text-xs mt-1">Malformed heartbeat or push fields will appear here.</p>
+            </div>
+          ) : (
+            <div className="space-y-2 max-h-72 overflow-y-auto">
+              {verifLog.log.map(entry => (
+                <div
+                  key={entry.id}
+                  className={`p-3 rounded-lg border text-sm ${entry.action === "rejected" ? "bg-red-50/40 dark:bg-red-950/20 border-red-200 dark:border-red-900/30" : "bg-amber-50/30 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/30"}`}
+                  data-testid={`row-verif-log-${entry.id}`}
+                >
+                  <div className="flex items-start gap-2 flex-wrap">
+                    <Badge variant={entry.action === "rejected" ? "destructive" : "secondary"} className="text-xs shrink-0">
+                      {entry.action}
+                    </Badge>
+                    <span className="font-mono text-xs font-medium">{entry.field}</span>
+                    <span className="text-xs text-muted-foreground">·</span>
+                    <span className="text-xs text-muted-foreground">{entry.reason?.replace(/_/g, " ")}</span>
+                    <span className="text-xs text-muted-foreground ml-auto">
+                      {entry.createdAt ? new Date(entry.createdAt).toLocaleString() : ""}
+                    </span>
+                  </div>
+                  <div className="mt-1.5 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                    <span><span className="font-medium">source:</span> {entry.source}</span>
+                    <span><span className="font-medium">expected:</span> {entry.expected}</span>
+                    {entry.receivedValue != null && (
+                      <span className="md:col-span-2">
+                        <span className="font-medium">received:</span>{" "}
+                        <code className="bg-muted px-1 rounded">{String(entry.receivedValue).slice(0, 200)}</code>
+                      </span>
                     )}
                   </div>
                 </div>

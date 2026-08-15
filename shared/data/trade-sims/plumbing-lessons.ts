@@ -582,6 +582,11 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         hint: "Trace from each trap upward to the vent stack.",
         checkDescription: "vent paths traced",
       },
+      {
+        instruction: "Read the supply annotations on the riser: the trunk is labeled 1\" (25 mm) copper at 60 psi (415 kPa) street pressure; each branch drops to 3/4\" (19 mm) nominal. Confirm those sizes match what the diagram shows at the tee, and note what pressure you'd expect at a fixture 20 ft (6 m) from the tee.",
+        hint: "Friction loss on a short 3/4\" run at typical residential flow is small — you'd still expect close to 55 psi (≈380 kPa) at the fixture.",
+        checkDescription: "pipe sizes and supply pressures identified on riser",
+      },
     ],
     soloChallenge: {
       prompt: "Read the provided two-bathroom riser. Identify which vent serves which fixture and whether any fixture is improperly vented.",
@@ -608,6 +613,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         { term: "IPC vs UPC", definition: "Two competing model codes. Texas adopts IPC. Each is updated on a 3-year cycle." },
         { term: "Lead-free", definition: "<0.25% lead in wetted surfaces. NSF 372 certifies; the mark is required on every fitting touching potable supply." },
         { term: "Scald protection", definition: "Pressure-balancing or thermostatic mixing valve required on showers. Cap at 120 °F / 49 °C." },
+        { term: "T&P relief valve", definition: "Temperature and pressure relief valve on every water heater. Rated at 150 psi (1034 kPa) and 210 °F (99 °C) — opens automatically if either limit is exceeded, preventing a vessel rupture." },
       ],
     },
     guidedSteps: [
@@ -620,6 +626,11 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         instruction: "Look at a fitting picture. Find the NSF 372 lead-free mark.",
         hint: "Usually stamped or labeled near the manufacturer's mark.",
         checkDescription: "NSF 372 identified",
+      },
+      {
+        instruction: "Locate the T&P (temperature and pressure) relief valve on the water heater schematic. Read its stamped rating: 150 psi (1034 kPa) / 210 °F (99 °C). Explain in one sentence why both limits — psi AND °F — appear on the same valve.",
+        hint: "Either runaway pressure OR runaway temperature alone can cause a vessel rupture; the valve monitors both simultaneously and opens on whichever limit is hit first.",
+        checkDescription: "T&P valve rating and dual-limit purpose identified",
       },
     ],
     soloChallenge: {
@@ -652,13 +663,13 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "The simulator gives you a broken house: low flow at the kitchen sink. Run it.",
-        hint: "Look at the head at the kitchen sink fixture.",
+        instruction: "The simulator gives you a broken house: supply pressure at the meter reads 65 psi (448 kPa) but the kitchen sink — fed by 3/4\" (19 mm) nominal copper — is barely a trickle. Run it.",
+        hint: "Look at the head at the kitchen sink fixture. Good 3/4\" supply should deliver close to the street pressure minus a small friction drop; a trickle means something is blocking the run.",
         checkDescription: "broken state detected",
       },
       {
-        instruction: "Try closing each valve in turn. Identify which closed valve doesn't change the outcome (it was already nearly closed in real life — a partially-stuck gate valve).",
-        hint: "A barely-open valve has high effective K.",
+        instruction: "Try closing each valve in turn. Identify which closed valve doesn't change the outcome (it was already nearly closed in real life — a partially-stuck gate valve on the 3/4\" branch).",
+        hint: "A barely-open valve has high effective K — it drops pressure almost as much as a fully closed valve. On a 3/4\" line that's enough to cut flow to a trickle even with 65 psi (448 kPa) at the meter.",
         checkDescription: "fault identified",
       },
       {
@@ -704,6 +715,11 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         instruction: "Isolate hot vs cold by closing the cold supply at the water heater. If meter stops, leak is on the cold side.",
         hint: "Half the system at a time.",
         checkDescription: "isolation logic understood",
+      },
+      {
+        instruction: "Estimate the leak rate: the meter shows 0.5 gallons per minute flowing with all fixtures closed. The hot-side supply is 3/4\" (19 mm) Type L copper at 55 psi (379 kPa). At that pressure through a pinhole roughly 1/32\" (0.8 mm) in diameter, 0.5 gpm is consistent with a slab leak — not a loose packing nut. Explain why pipe diameter and pressure both matter when sizing the search area.",
+        hint: "Higher pressure and larger pipe diameter mean more flow through the same size hole, so a 0.5 gpm loss on a 3/4\" 55-psi line points to a small pinhole, not a loose fitting (those lose less than 0.05 gpm at that pressure).",
+        checkDescription: "leak-rate reasoning with psi and pipe diameter applied",
       },
     ],
     soloChallenge: {
@@ -776,9 +792,9 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       blurb:
         "You've worked through 14 days of fundamentals. Now design a real whole-house supply system from scratch: pick the layout, size every pipe, place every valve and fixture, simulate it, explain your choices, and pass an AI-tutor oral exam. Pass the capstone and your ThriveUp Academy profile shows the Plumbing Fundamentals badge — usable as evidence of prior learning at ACC's PLAB sequence, UA Local 286 pre-apprenticeship intake, and PHCC's apprenticeship application.",
       keyTerms: [
-        { term: "Design intent", definition: "What the system delivers, in plain language: GPM at peak demand at each fixture." },
-        { term: "Component selection", definition: "Right pipe size, right valves, right backflow devices, code-compliant fittings." },
-        { term: "Defense", definition: "Explaining why you chose what you chose — to an inspector, to a homeowner, to a journeyman." },
+        { term: "Design intent", definition: "What the system delivers, in plain language: GPM (or m³/s) at peak demand at each fixture, with every fixture holding at least 20 psi (138 kPa) of supply pressure." },
+        { term: "Component selection", definition: "Right pipe size (e.g., 1\" / 25 mm trunk, 3/4\" / 19 mm branches), right valves, right backflow devices, code-compliant fittings." },
+        { term: "Defense", definition: "Explaining why you chose what you chose — to an inspector, to a homeowner, to a journeyman — using both psi and kPa so any US or international tech can follow your reasoning." },
       ],
     },
     guidedSteps: [

@@ -85,6 +85,9 @@ interface SentReferral {
   benefitValueEstimate?: number | null;
   valueSource?: string | null;
   statusUrl?: string;
+  /** Org confirmation URL — present only for referrals this CHW created.
+   *  Server scopes this to req.user.id so CHW A cannot see CHW B's tokens. */
+  orgConfirmUrl?: string | null;
 }
 
 interface CreateReferralResponse {
@@ -93,19 +96,6 @@ interface CreateReferralResponse {
   orgConfirmUrl?: string;
 }
 
-const SAMPLE_CASELOAD = [
-  { id: "cl-1", name: "Client A", status: "active", riskLevel: "moderate", lastContact: "2026-03-15", nextFollowUp: "2026-03-22", screeningsComplete: 3, screeningsTotal: 5, notes: "Needs housing referral" },
-  { id: "cl-2", name: "Client B", status: "active", riskLevel: "low", lastContact: "2026-03-16", nextFollowUp: "2026-03-30", screeningsComplete: 5, screeningsTotal: 5, notes: "All screenings complete" },
-  { id: "cl-3", name: "Client C", status: "active", riskLevel: "high", lastContact: "2026-03-10", nextFollowUp: "2026-03-18", screeningsComplete: 1, screeningsTotal: 5, notes: "Urgent: substance use concerns, family crisis" },
-  { id: "cl-4", name: "Client D", status: "active", riskLevel: "moderate", lastContact: "2026-03-14", nextFollowUp: "2026-03-21", screeningsComplete: 2, screeningsTotal: 5, notes: "Transportation barrier to appointments" },
-  { id: "cl-5", name: "Client E", status: "inactive", riskLevel: "low", lastContact: "2026-02-28", nextFollowUp: null, screeningsComplete: 5, screeningsTotal: 5, notes: "Graduated from program" },
-];
-
-const SAMPLE_VISITS = [
-  { id: "hv-1", clientName: "Client C", visitDate: "2026-03-17", visitType: "Initial Assessment", duration: 60, notes: "Completed intake, identified immediate needs for food assistance and counseling referral.", followUpNeeded: true, followUpDate: "2026-03-19" },
-  { id: "hv-2", clientName: "Client A", visitDate: "2026-03-15", visitType: "Follow-Up", duration: 45, notes: "Reviewed housing options, connected with shelter coordinator.", followUpNeeded: true, followUpDate: "2026-03-22" },
-  { id: "hv-3", clientName: "Client D", visitDate: "2026-03-14", visitType: "Screening", duration: 30, notes: "Completed behavioral health screening. Moderate risk identified.", followUpNeeded: false, followUpDate: null },
-];
 
 // DEMO placeholder records — shown only when the live Partner API is not connected.
 // Phone numbers use the non-dialable 555-01xx range (NANP reserved) so a CHW
@@ -180,8 +170,9 @@ export default function ChwDashboardPage() {
   const [resourceFilter, setResourceFilter] = useState("all");
   const [trainingFilter, setTrainingFilter] = useState("all");
 
-  const { data: liveData, isError: caseloadError } = useQuery({ queryKey: ["/api/chw/caseload"], retry: false });
-  const { data: liveResources, isError: resourcesError } = useQuery({ queryKey: ["/api/chw/resources"], retry: false });
+  const { data: liveData, isError: caseloadError } = useQuery({ queryKey: ["/api/chw/caseload"], enabled: isAuthenticated, retry: false });
+  const { data: liveVisitsData, isError: visitsError } = useQuery({ queryKey: ["/api/chw/visits"], enabled: isAuthenticated, retry: false });
+  const { data: liveResources, isError: resourcesError } = useQuery({ queryKey: ["/api/chw/resources"], enabled: isAuthenticated, retry: false });
 
   // ── New Referral dialog state ─────────────────────────────────────────────
   const [referralOpen, setReferralOpen] = useState(false);
@@ -342,9 +333,10 @@ export default function ChwDashboardPage() {
   });
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const caseload: any[] = (!caseloadError && (liveData as any)?.caseload?.length) ? (liveData as any).caseload : SAMPLE_CASELOAD;
-  const isLiveCaseload = !caseloadError && !!(liveData as any)?.isLive && (liveData as any)?.caseload?.length > 0;
-  const visits = SAMPLE_VISITS;
+  const caseload: any[] = (!caseloadError && Array.isArray((liveData as any)?.caseload)) ? (liveData as any).caseload : [];
+  const isLiveCaseload = !caseloadError && !!(liveData as any)?.isLive;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const visits: any[] = (!visitsError && Array.isArray((liveVisitsData as any)?.visits)) ? (liveVisitsData as any).visits : [];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const allResources: any[] = (!resourcesError && (liveResources as any)?.resources?.length) ? (liveResources as any).resources : SAMPLE_RESOURCES;
   const isLiveResources = !resourcesError && !!(liveResources as any)?.isLive && (liveResources as any)?.resources?.length > 0;
@@ -706,6 +698,22 @@ export default function ChwDashboardPage() {
                                 )}
                               </div>
                             )}
+                            {r.orgConfirmUrl && (
+                              <div className="flex items-center gap-1.5 pt-1" data-testid={`section-org-confirm-${r.id}`}>
+                                <span className="text-[10px] text-muted-foreground shrink-0">Org confirm link:</span>
+                                <span className="text-[10px] text-muted-foreground truncate flex-1 font-mono">{r.orgConfirmUrl}</span>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-5 w-5 shrink-0"
+                                  onClick={() => copyToClipboard(r.orgConfirmUrl!)}
+                                  title="Copy org confirmation link"
+                                  data-testid={`button-copy-org-confirm-${r.id}`}
+                                >
+                                  <Copy className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            )}
                           </div>
                         );
                       })}
@@ -850,9 +858,20 @@ export default function ChwDashboardPage() {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2">
                 Active Caseload ({activeCases} clients)
-                {!isLiveCaseload && <Badge variant="outline" className="text-xs text-amber-600">Demo data</Badge>}
               </h3>
             </div>
+            {caseloadError && (
+              <div className="rounded-md border border-red-200 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-red-700 dark:text-red-400" data-testid="notice-caseload-error">
+                Could not load caseload — check your connection and refresh.
+              </div>
+            )}
+            {!caseloadError && isLiveCaseload && caseload.length === 0 && (
+              <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground text-sm" data-testid="notice-caseload-empty">
+                <Users className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                <p className="font-medium">No clients assigned to you yet.</p>
+                <p className="text-xs mt-1">Clients will appear here once screenings or referrals are assigned to your account.</p>
+              </div>
+            )}
             <div className="space-y-3" data-testid="section-caseload">
               {caseload.map(client => (
                 <Card key={client.id} className="p-4" data-testid={`card-client-${client.id}`}>
@@ -898,6 +917,18 @@ export default function ChwDashboardPage() {
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Home Visit Log</h3>
             </div>
+            {visitsError && (
+              <div className="rounded-md border border-red-200 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-red-700 dark:text-red-400" data-testid="notice-visits-error">
+                Could not load visit log — check your connection and refresh.
+              </div>
+            )}
+            {!visitsError && visits.length === 0 && (
+              <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground text-sm" data-testid="notice-visits-empty">
+                <Home className="h-8 w-8 mx-auto mb-2 opacity-40" />
+                <p className="font-medium">No home visits logged yet.</p>
+                <p className="text-xs mt-1">Use the Log Home Visit action to record your first visit.</p>
+              </div>
+            )}
             <div className="space-y-3" data-testid="section-visits">
               {visits.map(visit => (
                 <Card key={visit.id} className="p-4" data-testid={`card-visit-${visit.id}`}>

@@ -1,20 +1,39 @@
-// Checks that external https:// URLs in the community resource directory are reachable.
+// Checks that external https:// URLs across all client pages are reachable.
 // Run manually: npx tsx scripts/verify-external-links.ts
-// Does NOT run as a CI gate (network-dependent) — use for periodic manual audits.
+// Also wired into the "directory-links" validation gate — network errors/timeouts
+// are treated as skip (not failure) so transient connectivity issues don't flake
+// the gate; only a real HTTP error status on a resolvable host fails the check.
 
-import { readFileSync } from "fs";
+import { readFileSync, readdirSync, statSync } from "fs";
+import { join } from "path";
 
-const FILE = "client/src/pages/community-resource-directory.tsx";
-const MAX_URLS = 40;
+const PAGES_DIR = "client/src/pages";
+const MAX_URLS = 120;
 const CONCURRENCY = 5;
 const TIMEOUT_MS = 6000;
 
-const text = readFileSync(FILE, "utf-8");
-const urlPattern = /https?:\/\/[^\s'"<>)]+/g;
-const raw = [...new Set([...text.matchAll(urlPattern)].map(m => m[0].replace(/[,;.]+$/, "")))];
-const urls = raw.slice(0, MAX_URLS);
+function listTsxFiles(dir: string): string[] {
+  const out: string[] = [];
+  for (const entry of readdirSync(dir)) {
+    const full = join(dir, entry);
+    const stat = statSync(full);
+    if (stat.isDirectory()) out.push(...listTsxFiles(full));
+    else if (entry.endsWith(".tsx") || entry.endsWith(".ts")) out.push(full);
+  }
+  return out;
+}
 
-console.log(`Checking ${urls.length} unique URLs from ${FILE}...\n`);
+const urlPattern = /https?:\/\/[^\s'"<>)]+/g;
+const seen = new Set<string>();
+for (const file of listTsxFiles(PAGES_DIR)) {
+  const text = readFileSync(file, "utf-8");
+  for (const m of text.matchAll(urlPattern)) {
+    seen.add(m[0].replace(/[,;.]+$/, ""));
+  }
+}
+const urls = [...seen].slice(0, MAX_URLS);
+
+console.log(`Checking ${urls.length} unique URLs across all pages in ${PAGES_DIR}...\n`);
 
 type Result = { url: string; status: number | null; ok: boolean; note: string };
 
@@ -25,6 +44,12 @@ async function checkUrl(url: string): Promise<Result> {
     const res = await fetch(url, { method: "HEAD", signal: ctrl.signal, redirect: "follow" });
     clearTimeout(timer);
     const ok = res.status >= 200 && res.status < 400;
+    // 403/429 commonly mean the host is bot-blocking HEAD requests from a datacenter IP,
+    // not that the link is actually dead — treat as a warning, matching the sibling
+    // verify-directory-links.ts convention, to avoid flaking the gate on live sites.
+    if (!ok && (res.status === 403 || res.status === 429)) {
+      return { url, status: res.status, ok: true, note: `HTTP ${res.status} (bot-blocked?)` };
+    }
     return { url, status: res.status, ok, note: ok ? "OK" : `HTTP ${res.status}` };
   } catch (e: any) {
     if (e.name === "AbortError") return { url, status: null, ok: true, note: "TIMEOUT (skip)" };

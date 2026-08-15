@@ -354,6 +354,7 @@ const myOrgItems: NavItem[] = [
 // the main 7-hub navigation. Each inner array is a distinct admin domain.
 const adminOperationsItems: NavItem[] = [
   { title: "Ops Center", url: "/ops-center", icon: Activity },
+  { title: "Funder Impact Dashboard", url: "/funder-dashboard", icon: DollarSign },
   { title: "Business Plan", url: "/business-plan", icon: Briefcase },
   { title: "Business Documents", url: "/business-documents", icon: FileText },
   { title: "Business Card", url: "/business-card", icon: User },

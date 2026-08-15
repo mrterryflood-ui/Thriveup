@@ -10,13 +10,26 @@ import {
   partnerWebhooks, fosterYouthIntakes,
   certificates, briefSubscriptions,
   tradeSimsLessonProgress, tradeSimsLessons, tradeSimsTrades,
+  inboundVerificationLog,
 } from "@shared/schema";
 import { eq, desc, and, sql, gte } from "drizzle-orm";
 import { AI_TRANSLATION_LANGUAGE_COUNT, GEOGRAPHIC_REACH } from "@shared/canonical-claims";
 import { SUPPRESSION_FLOOR, suppress } from "./yhsi-routes";
 import { fireWebhook } from "./webhook-dispatcher";
 import crypto, { randomUUID, randomBytes } from "crypto";
-import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
+import { verifyInboundPayload, hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
+
+// Schema for POST /api/partner/v1/heartbeat.
+// message: optional free-text status note (max 500 chars)
+// status:  optional machine-readable status flag
+// meta:    optional object — we don't validate its internals (opaque partner content)
+//          but the field must be absent or a non-null object.
+// version: optional semver / build-tag string (max 100 chars)
+const HEARTBEAT_SCHEMA: InboundSchema = {
+  message: { type: "string", maxLength: 500 },
+  status:  { type: "enum",   enum: ["ok", "degraded", "error", "maintenance"] },
+  version: { type: "string", maxLength: 100 },
+};
 
 // Per-dataType field schemas for POST /api/partner/v1/push. Only dataTypes
 // with well-known shapes are checked here; unlisted types are stored as-is
@@ -785,13 +798,84 @@ export function registerPartnerApiRoutes(app: Express) {
 
   app.post("/api/partner/v1/heartbeat", requirePartnerAuth, async (req, res) => {
     const key: any = (req as any).partnerKey;
-    await db.insert(partnerInboundData).values({
-      keyId: key.id,
-      partnerName: key.partnerName,
-      dataType: "heartbeat",
-      payload: { message: req.body?.message || "alive", meta: req.body?.meta || {} },
-    }).catch(() => {});
-    res.json({ received: true, partner: key.partnerName, timestamp: new Date().toISOString() });
+    const partnerName: string = key.partnerName ?? "unknown";
+    const endpoint = "/api/partner/v1/heartbeat";
+
+    // ── Schema validation (same discipline as /push) ─────────────────────────
+    // req.body may be empty for bare keepalive pings — that is valid.
+    // We validate declared fields; unknown fields in req.body are ignored
+    // (heartbeat meta is opaque partner content).
+    const raw: Record<string, unknown> = req.body && typeof req.body === "object" ? req.body : {};
+
+    const { clean, rejections } = verifyInboundPayload<{
+      message?: string;
+      status?: string;
+      version?: string;
+    }>(raw, HEARTBEAT_SCHEMA);
+
+    if (rejections.length > 0) {
+      // Persist every rejection to the inbound verification audit log so
+      // staff can see malformed heartbeats in the same admin listing used
+      // for rejected push data.
+      await recordInboundVerification(`partner-api-heartbeat:${partnerName}`, endpoint, rejections);
+    }
+
+    if (hasBlockingRejection(rejections)) {
+      // A required field was invalid (none are required in HEARTBEAT_SCHEMA
+      // currently, so this path is future-proof — if a required field is
+      // added later it automatically gates here).
+      return res.status(400).json({
+        error: "Heartbeat payload contains invalid required fields.",
+        corrections: rejectionsToCorrectionNote(rejections),
+      });
+    }
+
+    // Non-blocking rejections (optional fields with bad values): surface
+    // corrections in the response so the partner knows what was dropped,
+    // but still accept the heartbeat — a keepalive ping with a malformed
+    // optional field should not be treated as a failure.
+    if (rejections.length > 0) {
+      // Return 422 so callers can distinguish "accepted but malformed" from
+      // a clean 200, giving them a clear signal to fix their payload.
+      return res.status(422).json({
+        received: true,
+        partner: partnerName,
+        timestamp: new Date().toISOString(),
+        warning: "Heartbeat accepted but some optional fields were invalid and have been dropped.",
+        corrections: rejectionsToCorrectionNote(rejections),
+      });
+    }
+
+    // ── Persist the clean heartbeat ───────────────────────────────────────────
+    const payload = {
+      message: clean.message ?? "alive",
+      status:  clean.status,
+      version: clean.version,
+      // Pass through opaque meta if the caller sent it (not in schema so
+      // not validated, but still stored for debugging purposes).
+      ...(raw.meta && typeof raw.meta === "object" && !Array.isArray(raw.meta)
+        ? { meta: raw.meta }
+        : {}),
+    };
+
+    try {
+      await db.insert(partnerInboundData).values({
+        keyId: key.id,
+        partnerName,
+        dataType: "heartbeat",
+        payload,
+      });
+    } catch (persistErr) {
+      // A DB persistence failure is logged and surfaced (not swallowed).
+      // The inbound verification log entry we wrote above (if any) already
+      // persisted; this is an independent write for the raw row.
+      console.error(`[PartnerAPI] heartbeat persistence failure for ${partnerName}:`, persistErr);
+      return res.status(500).json({
+        error: "Heartbeat received but could not be persisted. Please retry — this has been logged for staff review.",
+      });
+    }
+
+    res.json({ received: true, partner: partnerName, timestamp: new Date().toISOString() });
   });
 
   app.post("/api/partner/v1/push", requirePartnerAuth, requireScope("inbound:write"), async (req, res) => {
@@ -1486,6 +1570,24 @@ export function registerPartnerApiRoutes(app: Express) {
     } catch (err) {
       console.error("[PartnerAPI] admin webhook deactivate failed:", err);
       res.status(500).json({ error: "Failed to deactivate webhook." });
+    }
+  });
+
+  // ── Admin — inbound verification log (rejected / corrected fields) ─────────
+  // Returns the most-recent 200 entries from the append-only
+  // `inbound_verification_log` table — the same table recordInboundVerification()
+  // writes to for both /push and /heartbeat rejections. Staff can filter by
+  // source to isolate heartbeat rejections (source prefix: "partner-api-heartbeat:").
+
+  app.get("/api/admin/inbound-verification-log", requireAdminKey, async (req, res) => {
+    try {
+      const rows = await db.select().from(inboundVerificationLog)
+        .orderBy(desc(inboundVerificationLog.createdAt))
+        .limit(200);
+      res.json({ count: rows.length, log: rows });
+    } catch (err) {
+      console.error("[PartnerAPI] admin inbound-verification-log fetch failed:", err);
+      res.status(500).json({ error: "Failed to fetch inbound verification log." });
     }
   });
 

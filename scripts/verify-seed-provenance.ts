@@ -19,6 +19,19 @@
  *    carry is_demo_data=true — a regression test on the seed backfill, not a
  *    blanket audit of every row in the table.
  *
+ * Dynamic discovery (NEW):
+ *    At startup this script queries information_schema.columns for every
+ *    table in the public schema that has an `is_demo_data` column. Any such
+ *    table that is NOT already covered by a `knownSeedIdsFlagged` entry in
+ *    CHECKS is automatically subjected to a "no undisclosed rows" check:
+ *    if the table has ANY row where is_demo_data IS NOT TRUE, the check
+ *    fails. This catches a brand-new seed table that ships with a disclosure
+ *    column but forgets to set isDemoData=true on its INSERT, without
+ *    requiring anyone to edit this script's list.
+ *
+ *    Tables already covered by CHECKS are exempt from the dynamic check
+ *    (their known-seed-ids check is already more precise).
+ *
  * Exit 0 = all checks pass; exit 1 = at least one gap found.
  */
 import { db } from "../server/storage";
@@ -60,9 +73,43 @@ const CHECKS: TableCheck[] = [
   { kind: "knownSeedIdsFlagged", table: "outcome_tracking", ids: OUTCOME_TRACKING_SEED_IDS },
 ];
 
+/**
+ * Discovers every table in the public schema that has an `is_demo_data`
+ * boolean column, returning their DB table names. This is the machine-
+ * readable equivalent of reading shared/schema.ts — it reflects what is
+ * actually deployed to the DB, so a new migration adding a disclosure column
+ * is picked up automatically with no script edits required.
+ */
+async function discoverIsDemoDataTables(): Promise<string[]> {
+  const result = await db.execute(
+    sql`
+      SELECT table_name
+      FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND column_name = 'is_demo_data'
+      ORDER BY table_name
+    `
+  );
+  return result.rows.map((r: any) => r.table_name as string);
+}
+
+/**
+ * Returns the set of table names already covered by an explicit
+ * knownSeedIdsFlagged entry in CHECKS. These tables get a more precise
+ * per-row regression test and are exempt from the blanket dynamic check.
+ */
+function alreadyCoveredTables(): Set<string> {
+  return new Set(
+    CHECKS
+      .filter((c): c is KnownSeedIdsCheck => c.kind === "knownSeedIdsFlagged")
+      .map((c) => c.table)
+  );
+}
+
 async function main() {
   let violations = 0;
 
+  // ── Static checks (existing behaviour, unchanged) ──────────────────────
   for (const check of CHECKS) {
     if (check.kind === "dataSourceNotNull") {
       const result = await db.execute(
@@ -105,10 +152,67 @@ async function main() {
     }
   }
 
+  // ── Dynamic discovery check ────────────────────────────────────────────
+  //
+  // Query the live DB for every table that has an is_demo_data column.
+  // Any table NOT already covered by a knownSeedIdsFlagged entry gets a
+  // blanket check: zero rows with is_demo_data IS NOT TRUE are allowed.
+  //
+  // Why "IS NOT TRUE" (i.e. catches both false AND null):
+  //   The column is declared NOT NULL DEFAULT false in all current tables,
+  //   so a seed INSERT that omits isDemoData will produce false — not null.
+  //   Catching both false and null future-proofs against tables that might
+  //   declare the column nullable.
+  //
+  // Failure scenario: a developer adds a new table (e.g. "prevention_plans")
+  // with an is_demo_data boolean column, seeds illustrative rows without
+  // setting isDemoData: true, and ships. On next run this script discovers
+  // "prevention_plans" is not in alreadyCoveredTables(), queries it, finds
+  // rows with is_demo_data = false, and exits 1 with an actionable message
+  // telling them to either add the table to CHECKS with explicit seed IDs
+  // (preferred) or set isDemoData: true on every seed INSERT.
+
+  const discoveredTables = await discoverIsDemoDataTables();
+  const covered = alreadyCoveredTables();
+  const uncoveredTables = discoveredTables.filter((t) => !covered.has(t));
+
+  if (uncoveredTables.length > 0) {
+    console.log(
+      `\n[verify-seed-provenance] Dynamic discovery found ${discoveredTables.length} table(s) with is_demo_data column; ` +
+      `${uncoveredTables.length} not covered by explicit CHECKS: ${uncoveredTables.join(", ")}`
+    );
+  }
+
+  for (const table of uncoveredTables) {
+    const result = await db.execute(
+      sql`SELECT id FROM ${sql.identifier(table)} WHERE is_demo_data IS NOT TRUE LIMIT 20`
+    );
+    if (result.rows.length > 0) {
+      violations += result.rows.length;
+      console.error(
+        `[verify-seed-provenance] DYNAMIC: ${table} has ${result.rows.length} row(s) where is_demo_data is not set to true. ` +
+        `IDs: ${result.rows.map((r: any) => r.id).join(", ")}. ` +
+        `Either add this table to CHECKS in scripts/verify-seed-provenance.ts with its seed IDs, ` +
+        `or ensure every seed INSERT sets isDemoData: true.`
+      );
+    } else {
+      const countResult = await db.execute(
+        sql`SELECT COUNT(*) AS n FROM ${sql.identifier(table)}`
+      );
+      const n = Number((countResult.rows[0] as any).n);
+      if (n === 0) {
+        console.log(`[verify-seed-provenance] DYNAMIC: ${table}: OK (table is empty — no undisclosed rows)`);
+      } else {
+        console.log(`[verify-seed-provenance] DYNAMIC: ${table}: OK (all ${n} row(s) have is_demo_data = true)`);
+      }
+    }
+  }
+
   if (violations > 0) {
     console.error(
-      `\nSEED PROVENANCE VIOLATION — ${violations} issue(s) across ${CHECKS.length} table(s).\n` +
-        `A known illustrative seed row lost its provenance disclosure, or a real ingest path stopped setting its source field.`
+      `\nSEED PROVENANCE VIOLATION — ${violations} issue(s) across checked table(s).\n` +
+        `A known illustrative seed row lost its provenance disclosure, or a real ingest path stopped setting its source field.\n` +
+        `For dynamically-discovered tables: add them to CHECKS with explicit seed IDs, or set isDemoData: true on every seed INSERT.`
     );
     process.exit(1);
   }
