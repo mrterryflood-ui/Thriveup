@@ -139,3 +139,52 @@ found, the stakeholder splits identified, the LOEs/LOOs, the backward
 critical path, and the stakeholder red-team outcomes per seat. A Phase 3
 build with no discoverable Phase 1–2 record is, by this doctrine, out of
 sequence.
+
+---
+
+## Phase 5 Addendum — Accuracy & Continuous-Learning Ledger
+
+A closing review that isn't measured against reality is an opinion, not a
+verification. This doctrine requires every Phase 5 close to deposit a dated
+entry to an **accuracy ledger** (`.agents/accuracy-ledger.md` in this
+deployment) — not a narrative summary, a falsifiable record: what was
+claimed, how it was checked, and whether the check confirmed or overturned
+the claim. Over time this ledger is the only honest answer to "is this
+system actually getting more accurate, or does it just sound more
+confident?"
+
+**What gets logged, every Phase 5 close:**
+1. **Date** and the subsystem/decision in question.
+2. **The claim or output** being tracked (a number, a decision, a fix) —
+   specific enough that a later session can check it again.
+3. **How it was verified this session** (tool run, live query, test,
+   independent reviewer) — never "it looks right."
+4. **Outcome:** confirmed / overturned / partially-overturned. An
+   overturned prior claim is not a failure to hide — it is the ledger doing
+   its job. Log it exactly like a confirmation.
+5. **Class of finding**, so patterns are visible over time: methodology gap
+   (like a formula whose test tolerance didn't match real rounding
+   propagation), architecture gap (like a function that silently couldn't
+   do what its signature promised), data-availability wall, or
+   stakeholder-missed-need (something Phase 2's red-team should have caught
+   but didn't).
+
+**What this produces, read as a whole (not per-entry):**
+- A **rolling accuracy rate**: confirmed vs. overturned claims per period.
+  Rising overturn rate = a real regression, not noise — escalate per ADIS's
+  triage ladder. Falling overturn rate on repeat subsystems = the doctrine
+  is working.
+- A **recurrence check**: the same class of finding appearing twice means
+  Invariant C10 (prevention before cure) hasn't actually been applied yet —
+  the guard from the first occurrence didn't generalize. Fix the guard, not
+  just the instance, and say so in the entry.
+- **Never self-graded.** The verification in step 3 must be an independent
+  check (a tool run, a different reviewer, a live query) — an agent marking
+  its own claim "confirmed" from memory is exactly the self-certification
+  ADIS's Invariant C3 forbids, and it would make the ledger worthless.
+
+**Reporting cadence:** when a user asks how accuracy or reliability is
+trending, answer from the ledger's actual entries — counts, dates, what
+changed — never from a general impression of "it's been going well." If the
+ledger has too few entries yet to show a trend, say that plainly instead of
+estimating one.

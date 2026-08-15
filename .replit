@@ -191,12 +191,12 @@ isValidation = true
 name = "access-model-guards"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsx scripts/test-access-model-guards.ts"
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/test-access-model-guards.ts && npx tsx scripts/verify-equity-loss-frames.ts"
 
 [[workflows.workflow]]
 name = "auth-e2e"

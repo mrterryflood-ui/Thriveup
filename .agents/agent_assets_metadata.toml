@@ -763,3 +763,10 @@ uri = "file://attached_assets/Partner-Dashboard-Implementation-Bundle.txt"
 type = "text"
 title = "Partner Dashboard Implementation Bundle"
 description = "One upload-ready file containing the current dashboard source, public share view, landing page, server routes, schema/routing integration instructions, E2E check, and explicit security gaps to reconcile before ECS merges it."
+
+[[outputs]]
+id = "UhiLS6rm1eUSuWtzBqFiy"
+uri = "file://docs/order-of-operations-doctrine.md"
+type = "text"
+title = "Five-Phase Order of Operations Doctrine"
+description = "Portable, agnostic doctrine: mandatory environmental-scan + backward-planning/stakeholder-red-team front end before any build, plus the Accuracy & Continuous-Learning Ledger for measuring whether outcomes actually improve over time. Ready to apply to other systems."

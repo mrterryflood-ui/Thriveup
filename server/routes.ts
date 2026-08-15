@@ -149,6 +149,7 @@ import { clinicalRouter } from "./clinical-routes";
 import { foiaRouter } from "./foia-routes";
 import { employerRegRouter } from "./employer-registration";
 import { equityRouter } from "./equity-routes";
+import equityLossRouter from "./equity-loss-routes";
 import { scorecardRouter } from "./scorecard-routes";
 import { syncCareerOneStopJobs } from "./careeronestop";
 import { runBjsIngestion } from "./bjs-ingestion";
@@ -6728,6 +6729,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api/foia", requireAuth, foiaRouter);
   app.use("/api/employers", employerRegRouter);
   app.use("/api/equity", equityRouter);
+  app.use("/api/equity-loss", equityLossRouter);
   app.use("/api", scorecardRouter);
   app.use("/api/chw", chwRouter);
   app.use("/api/referrals", referralRouter);

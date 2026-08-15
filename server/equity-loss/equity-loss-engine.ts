@@ -125,6 +125,15 @@ export interface EquityLossRow {
   aEducation: number | null;
   aIncome: number | null;
 
+  /**
+   * The benchmark this frame is being read against. This is what makes the
+   * three frames actually different from one another — see the
+   * FrameSet-level comment on why a prior version of this function could
+   * never diverge.
+   */
+  referenceLossPct: number | null;
+  divergenceFromReferencePct: number | null;
+
   tier: TrustTier;
   assumptionText: string | null;
   healthInequalityMethod: HealthInequalityMethod;
@@ -258,6 +267,7 @@ function suppressedRow(
   reason: SuppressionReason,
   goalposts: Goalposts,
   coverageFlags: string[],
+  referenceLossPct: number | null,
 ): EquityLossRow {
   const { tier, assumptionText } = assignTier(u);
   return {
@@ -274,6 +284,8 @@ function suppressedRow(
     aHealth: null,
     aEducation: null,
     aIncome: null,
+    referenceLossPct,
+    divergenceFromReferencePct: null,
     tier,
     assumptionText,
     healthInequalityMethod: u.healthInequalityMethod,
@@ -289,6 +301,7 @@ function suppressedRow(
 export function computeEquityLoss(
   u: UnitInputs,
   frame: ComparisonFrame,
+  referenceLossPct: number | null,
   goalposts: Goalposts = UNDP_GOALPOSTS,
   cfg: SuppressionConfig = DEFAULT_SUPPRESSION,
 ): EquityLossRow {
@@ -303,7 +316,7 @@ export function computeEquityLoss(
   // Suppress before computing. A visible gap beats a confident guess.
   const reason = checkSuppression(u, cfg);
   if (reason) {
-    return suppressedRow(u, frame, reason, goalposts, coverageFlags);
+    return suppressedRow(u, frame, reason, goalposts, coverageFlags, referenceLossPct);
   }
 
   // --- Atkinson coefficients per dimension -------------------------------
@@ -370,6 +383,9 @@ export function computeEquityLoss(
     aHealth,
     aEducation,
     aIncome,
+    referenceLossPct,
+    divergenceFromReferencePct:
+      referenceLossPct === null ? null : result.overallLossPct - referenceLossPct,
     tier,
     assumptionText,
     healthInequalityMethod: u.healthInequalityMethod,
@@ -386,15 +402,39 @@ export function computeEquityLoss(
 // Three-frame comparison
 // ---------------------------------------------------------------------------
 
+/**
+ * Each frame needs its OWN reference value. A prior version of this function
+ * called computeEquityLoss three times with identical inputs and no
+ * reference at all, so the three "frames" could never numerically diverge —
+ * caught during Phase 2 of the Order of Operations doctrine, before this was
+ * ever wired into a route. See docs/equity-loss-phase1-2-decisions.md.
+ *
+ * At county grain (this deployment's shipped scope — see the same doc for
+ * why tract/place are descoped), there is no geography *below* a county to
+ * serve as a "parent," so `vsParentCounty` is repurposed to mean "vs.
+ * national (US)" for context — the unit's own loss read against the
+ * national reference row already seeded in benchmark_metrics. This is
+ * documented here, not silently relabeled.
+ */
+export interface FrameReferences {
+  /** County grain: national (US) reference loss %. Null if unavailable. */
+  vsParentCounty: number | null;
+  /** The unit's own state's own computed/reference loss %. */
+  vsState: number | null;
+  /** The precomputed peer-class benchmark average loss %. */
+  vsNationalPeerClass: number | null;
+}
+
 export interface FrameSet {
   vsParentCounty: EquityLossRow;
   vsState: EquityLossRow;
   vsNationalPeerClass: EquityLossRow;
   /**
-   * Divergence between local and peer-class framing IS the finding. A rural
-   * tract can read as deprived against its metro county and advantaged against
-   * national rural peers. Both are true and they imply different policy
-   * responses. Surface this; never average the frames together.
+   * Divergence between local (vs. state) and categorical (vs. peer class)
+   * framing IS the finding. A place can read as deprived against its own
+   * state and advantaged against national peers of the same type — both can
+   * be true, and they imply different policy responses. Never average the
+   * frames together.
    */
   divergencePct: number | null;
   divergenceInterpretation:
@@ -406,22 +446,24 @@ export interface FrameSet {
 
 export function computeAllFrames(
   u: UnitInputs,
+  references: FrameReferences,
   goalposts: Goalposts = UNDP_GOALPOSTS,
   cfg: SuppressionConfig = DEFAULT_SUPPRESSION,
 ): FrameSet {
-  const vsParentCounty = computeEquityLoss(u, 'vs_parent_county', goalposts, cfg);
-  const vsState = computeEquityLoss(u, 'vs_state', goalposts, cfg);
+  const vsParentCounty = computeEquityLoss(
+    u, 'vs_parent_county', references.vsParentCounty, goalposts, cfg,
+  );
+  const vsState = computeEquityLoss(
+    u, 'vs_state', references.vsState, goalposts, cfg,
+  );
   const vsNationalPeerClass = computeEquityLoss(
-    u,
-    'vs_national_peer_class',
-    goalposts,
-    cfg,
+    u, 'vs_national_peer_class', references.vsNationalPeerClass, goalposts, cfg,
   );
 
-  const local = vsParentCounty.overallLossPct;
-  const peer = vsNationalPeerClass.overallLossPct;
+  const localDivergence = vsState.divergenceFromReferencePct;
+  const categoricalDivergence = vsNationalPeerClass.divergenceFromReferencePct;
 
-  if (local === null || peer === null) {
+  if (localDivergence === null || categoricalDivergence === null) {
     return {
       vsParentCounty,
       vsState,
@@ -431,7 +473,7 @@ export function computeAllFrames(
     };
   }
 
-  const divergencePct = local - peer;
+  const divergencePct = localDivergence - categoricalDivergence;
   let divergenceInterpretation: FrameSet['divergenceInterpretation'];
   if (Math.abs(divergencePct) < 1) {
     divergenceInterpretation = 'aligned';
