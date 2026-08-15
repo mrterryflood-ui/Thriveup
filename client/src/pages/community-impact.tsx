@@ -1232,6 +1232,21 @@ export default function CommunityImpactPage() {
             {data.cascade?.timeline?.length > 0 && <LifeArcTimeline timeline={data.cascade.timeline} />}
 
             {/* ── Historical Receipt ─────────────────────────────────────── */}
+            {/* County-level note: show a clear disclosure when Historical Receipt is unavailable for this geography type */}
+            {!data.historicalCascade && data.evidence?.claims?.historicalCascade?.status === "unavailable" && (
+              <section data-testid="section-historical-receipt-unavailable">
+                <div className="rounded-2xl border border-amber-200 dark:border-amber-800/60 bg-amber-50/40 dark:bg-amber-950/10 px-6 py-5 flex items-start gap-3">
+                  <span className="text-2xl mt-0.5 flex-none">🧾</span>
+                  <div>
+                    <h2 className="text-base font-bold text-amber-900 dark:text-amber-200">Historical Receipt — Not Available for This Search Type</h2>
+                    <p className="text-sm text-amber-800/80 dark:text-amber-300/70 mt-1">
+                      {data.evidence.claims.historicalCascade.disclosure
+                        ?? "Multi-vintage historical data is only available for ZIP/ZCTA lookups. Search by ZIP code to see the year-by-year receipt."}
+                    </p>
+                  </div>
+                </div>
+              </section>
+            )}
             {data.historicalCascade?.vintages?.length > 0 && (
               <section data-testid="section-historical-receipt">
                 <div className="rounded-2xl overflow-hidden border border-amber-200 dark:border-amber-800/60 bg-amber-50/60 dark:bg-amber-950/20">

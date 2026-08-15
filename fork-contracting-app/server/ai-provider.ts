@@ -121,7 +121,7 @@ function detectProvider(): Provider {
 const PROVIDER_CONFIG: Record<Provider, { model: string; isFree: boolean }> = {
   gemini: { model: "gemini-2.0-flash", isFree: true },
   claude: { model: "claude-haiku-4-5", isFree: false },
-  openai: { model: "gpt-4o-mini", isFree: false },
+  openai: { model: "gpt-5-mini", isFree: false },
   "replit-ai-integrations": { model: "gpt-5-nano", isFree: false },
   "deepseek-r1": { model: "deepseek/deepseek-r1", isFree: false },
 };
@@ -263,7 +263,7 @@ async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" |
 
   if (provider === "openai") {
     client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-    model = "gpt-4o-mini";
+    model = "gpt-5-mini";
   } else {
     client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -383,7 +383,7 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
         if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
         msgs.push({ role: "user", content: prompt });
         const resp = await client.chat.completions.create({
-          model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+          model: isReplit ? "gpt-5-nano" : "gpt-5-mini",
           messages: msgs,
           max_completion_tokens: 4000,
           response_format: { type: "json_object" },
@@ -486,7 +486,7 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
     msgs.push({ role: "user", content: prompt });
     const resp = await client.chat.completions.create({
-      model: isReplit ? "gpt-5-nano" : "gpt-4o-mini",
+      model: isReplit ? "gpt-5-nano" : "gpt-5-mini",
       messages: msgs,
       max_completion_tokens: maxTokens || 2000,
     });

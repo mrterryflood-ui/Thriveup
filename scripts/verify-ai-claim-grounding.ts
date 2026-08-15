@@ -111,7 +111,60 @@ console.log("── grounding decisions ──");
   check("decisions carry the rule id", result.decisions.every((d) => d.ruleId === "roi"));
 }
 
-// ── 7. Static enforcement: every known numeric AI surface imports the shared engine
+// ── 7. Adversarial cases for new conductor-narrative ClaimRules (#253)
+// These rules were added to enforceGroundedNarrative for Census indicators the AI may
+// restate from crisis-domain context: unemploymentRate, housingCostBurden, noHighSchoolDiploma.
+console.log("── conductor-narrative new ClaimRules adversarial cases (#253) ──");
+{
+  // unemployment-rate rule
+  const unemRule = buildPercentRule("unemployment-rate", /unemploy(?:ment|ed)/i, 8.5);
+  check(
+    "keeps a matching unemployment rate",
+    enforceGroundedClaims("Unemployment stands at 8.5% in this area.", [unemRule]).text.includes("8.5%")
+  );
+  check(
+    "strips a fabricated unemployment rate",
+    !enforceGroundedClaims("Unemployment stands at 35% in this area.", [unemRule]).text.includes("35%")
+  );
+  check(
+    "unrelated percentages not affected by unemployment rule",
+    enforceGroundedClaims("About 40% of residents lack insurance.", [unemRule]).text.includes("40%")
+  );
+}
+{
+  // housing-cost-burden rule
+  const hcbRule = buildPercentRule(
+    "housing-cost-burden",
+    /cost[- ]burdened|spend(?:ing)?\s+(?:more than|over|above)\s+30|housing\s+cost/i,
+    42.1
+  );
+  check(
+    "keeps a matching housing cost-burden rate",
+    enforceGroundedClaims("42.1% of households are cost-burdened.", [hcbRule]).text.includes("42.1%")
+  );
+  check(
+    "strips a fabricated housing cost-burden rate",
+    !enforceGroundedClaims("70% of households are cost-burdened.", [hcbRule]).text.includes("70%")
+  );
+}
+{
+  // no-hs-diploma rule
+  const hsRule = buildPercentRule(
+    "no-hs-diploma",
+    /without\s+(?:a\s+)?(?:high\s+school\s+)?diploma|lack\s+(?:a\s+)?(?:high\s+school\s+)?diploma|no\s+(?:high\s+school\s+)?diploma/i,
+    18.3
+  );
+  check(
+    "keeps a matching no-diploma rate",
+    enforceGroundedClaims("18.3% lack a high school diploma.", [hsRule]).text.includes("18.3%")
+  );
+  check(
+    "strips a fabricated no-diploma rate",
+    !enforceGroundedClaims("55% lack a high school diploma.", [hsRule]).text.includes("55%")
+  );
+}
+
+// ── 8. Static enforcement: every known numeric AI surface imports the shared engine
 console.log("── static import check (pre-merge gate) ──");
 {
   const requiredImporters = [

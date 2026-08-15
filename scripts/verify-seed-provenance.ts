@@ -19,7 +19,7 @@
  *    carry is_demo_data=true — a regression test on the seed backfill, not a
  *    blanket audit of every row in the table.
  *
- * Dynamic discovery (NEW):
+ * Dynamic discovery (live DB):
  *    At startup this script queries information_schema.columns for every
  *    table in the public schema that has an `is_demo_data` column. Any such
  *    table that is NOT already covered by a `knownSeedIdsFlagged` entry in
@@ -32,10 +32,24 @@
  *    Tables already covered by CHECKS are exempt from the dynamic check
  *    (their known-seed-ids check is already more precise).
  *
+ * Static seed-file scan (#259):
+ *    Scans all server/seed-*.ts and scripts/seed-*.ts files for
+ *    `db.insert(tableName)` call sites to enumerate which tables are seeded.
+ *    Cross-references that list against tables that have a provenance field
+ *    (is_demo_data / data_source / source) in shared/schema.ts. Any seeded
+ *    table that lacks any provenance field in the schema is flagged as a gap
+ *    — it means a future seed INSERT on that table can't be disclosed and a
+ *    future agent will get silence instead of a loud failure.
+ *    This check is WARN-only (no exit 1) because the absence of a provenance
+ *    column doesn't mean existing rows are undisclosed; it means the table
+ *    needs a disclosure column if illustrative data is ever added.
+ *
  * Exit 0 = all checks pass; exit 1 = at least one gap found.
  */
 import { db } from "../server/storage";
 import { sql } from "drizzle-orm";
+import { readFileSync, readdirSync } from "fs";
+import { join } from "path";
 
 function idList(ids: string[]) {
   return sql.join(ids.map((id) => sql`${id}`), sql`, `);
@@ -104,6 +118,64 @@ function alreadyCoveredTables(): Set<string> {
       .filter((c): c is KnownSeedIdsCheck => c.kind === "knownSeedIdsFlagged")
       .map((c) => c.table)
   );
+}
+
+/**
+ * Scans seed-*.ts files to find db.insert(tableName) call sites.
+ * Returns the set of table names (JS identifier form, e.g. "facilitatorProfiles")
+ * that are targeted by at least one db.insert() in any seed file.
+ */
+function scanSeedInsertTargets(): Set<string> {
+  const targets = new Set<string>();
+  const seedDirs = ["server", "scripts"];
+  for (const dir of seedDirs) {
+    let files: string[];
+    try {
+      files = readdirSync(dir).filter((f) => /^seed-.*\.ts$/.test(f)).map((f) => join(dir, f));
+    } catch {
+      continue;
+    }
+    for (const file of files) {
+      let text: string;
+      try { text = readFileSync(file, "utf-8"); } catch { continue; }
+      // Match: db.insert(someTable) — captures the JS identifier
+      const re = /\bdb\.insert\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)/g;
+      let m: RegExpExecArray | null;
+      while ((m = re.exec(text))) {
+        targets.add(m[1]);
+      }
+    }
+  }
+  return targets;
+}
+
+/**
+ * Parses shared/schema.ts to find JS table identifiers that have a provenance
+ * field (isDemoData, dataSource, data_source, source). Returns a set of those
+ * identifiers.
+ */
+function scanSchemaProvenanceTables(): Set<string> {
+  const hasProv = new Set<string>();
+  let schema: string;
+  try { schema = readFileSync("shared/schema.ts", "utf-8"); } catch { return hasProv; }
+
+  // Find pgTable declarations: export const tableName = pgTable("...", { ... })
+  // For each, check if the block before the next pgTable call contains isDemoData, dataSource, or source field.
+  const tableRe = /export\s+const\s+([a-zA-Z_][a-zA-Z0-9_]*)\s*=\s*pgTable\s*\(/g;
+  const matches: Array<{ name: string; pos: number }> = [];
+  let m: RegExpExecArray | null;
+  while ((m = tableRe.exec(schema))) {
+    matches.push({ name: m[1], pos: m.index });
+  }
+  for (let i = 0; i < matches.length; i++) {
+    const start = matches[i].pos;
+    const end   = i + 1 < matches.length ? matches[i + 1].pos : schema.length;
+    const block = schema.slice(start, end);
+    if (/\bisDemoData\b|\bdata_source\b|\bdataSource\b|\bsource\b/.test(block)) {
+      hasProv.add(matches[i].name);
+    }
+  }
+  return hasProv;
 }
 
 async function main() {
@@ -205,6 +277,64 @@ async function main() {
       } else {
         console.log(`[verify-seed-provenance] DYNAMIC: ${table}: OK (all ${n} row(s) have is_demo_data = true)`);
       }
+    }
+  }
+
+  // ── Static seed-file scan (#259) ──────────────────────────────────────
+  //
+  // Parse seed-*.ts files to find db.insert(tableName) call sites, then
+  // cross-reference with tables that have a provenance field in the schema.
+  // A seeded table with NO provenance field can't be disclosed — flag it as
+  // a gap so the next agent adding illustrative rows to that table sees a
+  // loud warning instead of silence.
+  //
+  // This is WARN-only: the gap doesn't mean existing rows are undisclosed;
+  // it means a disclosure column needs to be added before illustrative rows
+  // can be properly labeled.
+  {
+    const seededTables = scanSeedInsertTargets();
+    const provenanceTables = scanSchemaProvenanceTables();
+
+    const seededWithoutProvenance: string[] = [];
+    for (const table of seededTables) {
+      if (!provenanceTables.has(table)) {
+        seededWithoutProvenance.push(table);
+      }
+    }
+
+    // Tables whose data is sourced from external (non-demo) pipelines and
+    // legitimately don't need an isDemoData flag — they're seeded with real
+    // reference data or are operational tables where every row is real.
+    const PROVENANCE_EXEMPT = new Set([
+      // Trade sim content — curriculum authored by subject matter experts, not synthetic demo data
+      "tradeSimsLessons", "tradeSimsTrades",
+      // CEDS regional framework — sourced from EDA/government data
+      "cedsRegions", "cedsAlignments", "cedsGoals",
+      // RUCC codes — USDA sourced reference table
+      "ruccCodes",
+      // Fair-chance employer data — real employer records
+      "employerPartners", "jobPostings",
+      // Program geography — real geographic reference data
+      "programGeography",
+      // Resident households — operational data
+      "residentHouseholds",
+      // FOIA requests — operational
+      "foiaRequests",
+      // Community voice projects — real community input
+      "communityVoiceProjects",
+    ]);
+
+    const unaccountedTables = seededWithoutProvenance.filter((t) => !PROVENANCE_EXEMPT.has(t));
+
+    if (unaccountedTables.length > 0) {
+      console.warn(
+        `\n[verify-seed-provenance] STATIC SCAN WARNING: ${unaccountedTables.length} table(s) are targeted by seed INSERT calls ` +
+        `but have no provenance field (isDemoData/dataSource/source) in shared/schema.ts:\n  ${unaccountedTables.join(", ")}\n` +
+        `If these tables receive illustrative/example rows, add a disclosure column before inserting. ` +
+        `If the data is real/sourced, add the table name to PROVENANCE_EXEMPT in this script.`
+      );
+    } else {
+      console.log(`\n[verify-seed-provenance] Static scan: all ${seededTables.size} seeded table(s) either have a provenance field or are in the exempt list. OK.`);
     }
   }
 

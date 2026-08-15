@@ -97,7 +97,7 @@ function conductorRateLimit(ip: string): number | null {
 // full request shape (zip + populationSize + timeHorizon) so different cascade
 // parameters don't collide. Caches ONLY successful aggregate briefs — never
 // errors, never anything caller-specific.
-const CONDUCTOR_CACHE_TTL_MS = 12 * 60 * 60 * 1000; // 12h
+const CONDUCTOR_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2h — keeps stale-Census exposure window to ≤2h
 const CONDUCTOR_CACHE_MAX = 300;
 const conductorBriefCache = new Map<string, { at: number; value: unknown }>();
 
@@ -1114,12 +1114,19 @@ function enforceGroundedNarrative(
 ): string {
   const povertyRate = typeof demographics.povertyRate === "number" ? demographics.povertyRate : parseFloat(String(demographics.povertyRate));
   const uninsuredRate = typeof demographics.uninsuredRate === "number" ? demographics.uninsuredRate : parseFloat(String(demographics.uninsuredRate));
+  const unemploymentRate = typeof demographics.unemploymentRate === "number" ? demographics.unemploymentRate : parseFloat(String(demographics.unemploymentRate ?? ""));
+  const housingCostBurden = typeof demographics.housingCostBurden === "number" ? demographics.housingCostBurden : parseFloat(String(demographics.housingCostBurden ?? ""));
+  const noHighSchoolDiploma = typeof demographics.noHighSchoolDiploma === "number" ? demographics.noHighSchoolDiploma : parseFloat(String(demographics.noHighSchoolDiploma ?? ""));
   const roi = cascade ? parseFloat(cascade.roi) : null;
 
   const rules: ClaimRule[] = [
     buildRoiRule("roi", Number.isFinite(roi as number) ? (roi as number) : null),
     buildPercentRule("poverty-rate", /poverty/i, Number.isFinite(povertyRate) ? povertyRate : null),
     buildPercentRule("uninsured-rate", /uninsured/i, Number.isFinite(uninsuredRate) ? uninsuredRate : null),
+    // Additional Census indicators the AI may restate from the crisis-domain context injected into the prompt.
+    buildPercentRule("unemployment-rate", /unemploy(?:ment|ed)/i, Number.isFinite(unemploymentRate) ? unemploymentRate : null),
+    buildPercentRule("housing-cost-burden", /cost[- ]burdened|spend(?:ing)?\s+(?:more than|over|above)\s+30|housing\s+cost/i, Number.isFinite(housingCostBurden) ? housingCostBurden : null),
+    buildPercentRule("no-hs-diploma", /without\s+(?:a\s+)?(?:high\s+school\s+)?diploma|lack\s+(?:a\s+)?(?:high\s+school\s+)?diploma|no\s+(?:high\s+school\s+)?diploma/i, Number.isFinite(noHighSchoolDiploma) ? noHighSchoolDiploma : null),
     buildDollarMillionsRule("cost-of-inaction", /cost of inaction|counterfactual|without intervention|status quo/i, cascade ? cascade.counterfactualCost / 1e6 : null),
     buildDollarMillionsRule("intervention-cost", /intervention cost|cost to intervene|invest(?:ing|ment)? (?:of|would (?:cost|require))/i, cascade ? cascade.interventionCost / 1e6 : null),
     buildDollarMillionsRule("net-savings", /net savings|would save|saves\s+\$|savings of/i, cascade ? cascade.netSavings / 1e6 : null),

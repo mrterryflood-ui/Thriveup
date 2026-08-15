@@ -22,7 +22,7 @@ import {
   Clock, Home, FileText, Star, GraduationCap, BookOpen,
   Stethoscope, Brain, ExternalLink, Plus, TrendingUp,
   ArrowRight, Sparkles, Building2, UserCheck, Clipboard, Lightbulb, Loader2,
-  Copy, Send,
+  Copy, Send, ShieldAlert,
 } from "lucide-react";
 
 interface ScreeningReferral {
@@ -170,6 +170,22 @@ export default function ChwDashboardPage() {
   const [resourceFilter, setResourceFilter] = useState("all");
   const [trainingFilter, setTrainingFilter] = useState("all");
 
+  // ── Community Safety summary (ZIP-level gun-violence data) ────────────────
+  const [safetyZip, setSafetyZip] = useState("");
+  const [safetyZipInput, setSafetyZipInput] = useState("");
+  const { data: safetySummary, isFetching: safetySummaryLoading } = useQuery<any>({
+    queryKey: ["/api/gun-violence/summary", safetyZip],
+    queryFn: async () => {
+      if (!safetyZip) return null;
+      const res = await fetch(`/api/gun-violence/summary?zip=${encodeURIComponent(safetyZip)}`);
+      if (!res.ok) throw new Error("Failed to load safety summary");
+      return res.json();
+    },
+    enabled: !!safetyZip,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+
   const { data: liveData, isError: caseloadError } = useQuery({ queryKey: ["/api/chw/caseload"], enabled: isAuthenticated, retry: false });
   const { data: liveVisitsData, isError: visitsError } = useQuery({ queryKey: ["/api/chw/visits"], enabled: isAuthenticated, retry: false });
   const { data: liveResources, isError: resourcesError } = useQuery({ queryKey: ["/api/chw/resources"], enabled: isAuthenticated, retry: false });
@@ -188,8 +204,8 @@ export default function ChwDashboardPage() {
   // post-submission SMS link can pre-fill the client's number.
   const [submittedClientPhone, setSubmittedClientPhone] = useState("");
   const [waitlistAcknowledged, setWaitlistAcknowledged] = useState(false);
-  // Outcome filter for sent referrals (#197)
-  const [outcomeFilter, setOutcomeFilter] = useState<string>("all");
+  // Outcome filter for sent referrals (#197) — default "needs-follow-up"
+  const [outcomeFilter, setOutcomeFilter] = useState<string>("needs-follow-up");
 
   // Live capacity registry — used to block referrals to closed orgs and warn
   // about waitlists before submission (server enforces the same rules).
@@ -264,17 +280,46 @@ export default function ChwDashboardPage() {
     ? orgResourceOptions.find((o) => o.id === orgId)?.acceptingClients === false
     : false;
 
-  // Open alternatives — shown when selected org is closed (#179)
+  // Open alternatives — shown when selected org is closed (#179).
+  // Prefer orgs offering the same program code; fall back to "general" entries
+  // that serve the whole area. Sorted so exact-program matches come first.
   const openAlternatives: any[] = capacityClosed
-    ? capacityOrgs
-        .filter((o) => o.status === "open" && o.orgName !== capacityMatch?.orgName)
-        .slice(0, 4)
+    ? (() => {
+        const norm = (s: string) => (s || "").trim().toLowerCase().replace(/\s+/g, " ");
+        const programNorm = norm(programCode);
+        const targetName = norm(capacityMatch?.orgName ?? "");
+        const candidates = capacityOrgs.filter(
+          (o) => o.status === "open" && norm(o.orgName) !== targetName,
+        );
+        // Rank: exact programCode match > "general" > anything else
+        const ranked = candidates.sort((a, b) => {
+          const scoreA =
+            norm(a.programCode) === programNorm ? 0
+              : norm(a.programCode) === "general" ? 1
+              : 2;
+          const scoreB =
+            norm(b.programCode) === programNorm ? 0
+              : norm(b.programCode) === "general" ? 1
+              : 2;
+          return scoreA - scoreB;
+        });
+        return ranked.slice(0, 4);
+      })()
     : [];
 
-  // Filtered sent referrals (#197)
-  const filteredReferrals = outcomeFilter === "all"
-    ? sentReferrals
-    : sentReferrals.filter((r) => (r.status || "").toLowerCase() === outcomeFilter);
+  // Filtered sent referrals (#197) — "needs-follow-up" shows unresolved (sent/pending/accepted)
+  const filteredReferrals = (() => {
+    if (outcomeFilter === "all") return sentReferrals;
+    if (outcomeFilter === "needs-follow-up")
+      return sentReferrals.filter((r) =>
+        ["sent", "pending", "accepted"].includes((r.status || "").toLowerCase())
+      );
+    if (outcomeFilter === "resolved")
+      return sentReferrals.filter((r) =>
+        ["enrolled", "ineligible", "withdrew", "completed", "declined"].includes((r.status || "").toLowerCase())
+      );
+    return sentReferrals;
+  })();
 
   function copyToClipboard(text: string) {
     navigator.clipboard.writeText(text).then(
@@ -616,27 +661,33 @@ export default function ChwDashboardPage() {
 
                 {/* My Sent Referrals */}
                 <div className="pt-2 border-t" data-testid="section-my-sent-referrals">
-                  <div className="flex items-center justify-between mb-2 gap-2">
+                  <div className="flex items-center justify-between mb-2 gap-2 flex-wrap">
                     <h4 className="text-sm font-semibold flex items-center gap-2">
                       <Clipboard className="h-4 w-4 text-teal-500" /> My Sent Referrals
                     </h4>
-                    {/* Outcome filter (#197) — lets CHW isolate cases needing follow-up */}
-                    {sentReferrals.length > 0 && (
-                      <Select value={outcomeFilter} onValueChange={setOutcomeFilter}>
-                        <SelectTrigger className="h-7 text-xs w-36 shrink-0" data-testid="select-outcome-filter">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All outcomes</SelectItem>
-                          <SelectItem value="sent">Pending</SelectItem>
-                          <SelectItem value="accepted">Accepted</SelectItem>
-                          <SelectItem value="enrolled">Enrolled</SelectItem>
-                          <SelectItem value="completed">Completed</SelectItem>
-                          <SelectItem value="declined">Declined</SelectItem>
-                          <SelectItem value="ineligible">Ineligible</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
+                  </div>
+                  {/* Outcome filter tabs (#197) — default is "Needs follow-up" */}
+                  <div className="flex gap-1 mb-2" data-testid="referral-filter-tabs">
+                    {([
+                      { value: "all", label: "All" },
+                      { value: "needs-follow-up", label: "Needs follow-up" },
+                      { value: "resolved", label: "Resolved" },
+                    ] as const).map((tab) => (
+                      <button
+                        key={tab.value}
+                        type="button"
+                        onClick={() => setOutcomeFilter(tab.value)}
+                        data-testid={`tab-referral-filter-${tab.value}`}
+                        className={[
+                          "px-2.5 py-1 rounded text-xs font-medium transition-colors",
+                          outcomeFilter === tab.value
+                            ? "bg-teal-600 text-white"
+                            : "bg-muted text-muted-foreground hover:bg-muted/80",
+                        ].join(" ")}
+                      >
+                        {tab.label}
+                      </button>
+                    ))}
                   </div>
                   {sentError ? (
                     <p className="text-xs text-red-600 dark:text-red-400" data-testid="text-sent-referrals-error">
@@ -648,7 +699,11 @@ export default function ChwDashboardPage() {
                     </p>
                   ) : filteredReferrals.length === 0 ? (
                     <p className="text-xs text-muted-foreground" data-testid="text-no-filtered-referrals">
-                      No referrals with status "{outcomeFilter}".
+                      {outcomeFilter === "needs-follow-up"
+                        ? "No referrals need follow-up right now."
+                        : outcomeFilter === "resolved"
+                          ? "No resolved referrals yet."
+                          : "No referrals found."}
                     </p>
                   ) : (
                     <div className="space-y-2 max-h-64 overflow-y-auto">
@@ -698,7 +753,8 @@ export default function ChwDashboardPage() {
                                 )}
                               </div>
                             )}
-                            {r.orgConfirmUrl && (
+                            {/* #211: show "Copy org confirm link" only for unresolved referrals */}
+                            {r.orgConfirmUrl && !r.resolvedAt && (
                               <div className="flex items-center gap-1.5 pt-1" data-testid={`section-org-confirm-${r.id}`}>
                                 <span className="text-[10px] text-muted-foreground shrink-0">Org confirm link:</span>
                                 <span className="text-[10px] text-muted-foreground truncate flex-1 font-mono">{r.orgConfirmUrl}</span>
@@ -706,7 +762,7 @@ export default function ChwDashboardPage() {
                                   variant="ghost"
                                   size="icon"
                                   className="h-5 w-5 shrink-0"
-                                  onClick={() => copyToClipboard(r.orgConfirmUrl!)}
+                                  onClick={() => copyToClipboard(`${window.location.origin}${r.orgConfirmUrl!}`)}
                                   title="Copy org confirmation link"
                                   data-testid={`button-copy-org-confirm-${r.id}`}
                                 >
@@ -825,6 +881,75 @@ export default function ChwDashboardPage() {
                 </div>
               </Card>
             </div>
+
+            {/* ── Community Safety Summary (#216) ─────────────────────────────────
+                 Auto-fetches local gun-violence data for a ZIP so a CHW doesn't
+                 have to navigate away to the Navigator just to get safety context.
+                 Links directly into Tell-a-Story pre-populated with the ZIP. */}
+            <Card className="p-5" data-testid="card-community-safety">
+              <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-rose-500" /> Community Safety Summary
+              </h3>
+              <p className="text-xs text-muted-foreground mb-3">
+                Enter a ZIP code to instantly pull local gun-violence incident data — no need to ask Navigator separately.
+              </p>
+              <div className="flex gap-2 mb-3">
+                <Input
+                  value={safetyZipInput}
+                  onChange={e => setSafetyZipInput(e.target.value.replace(/\D/g, "").slice(0, 5))}
+                  placeholder="ZIP code (e.g. 60619)"
+                  className="text-sm max-w-[180px]"
+                  maxLength={5}
+                  data-testid="input-safety-zip"
+                  onKeyDown={e => { if (e.key === "Enter" && safetyZipInput.length === 5) setSafetyZip(safetyZipInput); }}
+                />
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={safetyZipInput.length !== 5 || safetySummaryLoading}
+                  onClick={() => setSafetyZip(safetyZipInput)}
+                  data-testid="button-safety-zip-search"
+                >
+                  {safetySummaryLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <MapPin className="h-3.5 w-3.5" />}
+                  <span className="ml-1.5">Lookup</span>
+                </Button>
+              </div>
+
+              {safetyZip && safetySummary && !safetySummaryLoading && (
+                <div className="space-y-2" data-testid="section-safety-summary-result">
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="rounded-md border p-2 text-center">
+                      <p className="text-lg font-bold tabular-nums text-rose-600" data-testid="text-safety-incidents">{safetySummary.incidents ?? 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Incidents</p>
+                    </div>
+                    <div className="rounded-md border p-2 text-center">
+                      <p className="text-lg font-bold tabular-nums text-amber-600" data-testid="text-safety-victims">{safetySummary.victims ?? 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Victims</p>
+                    </div>
+                    <div className="rounded-md border p-2 text-center">
+                      <p className="text-lg font-bold tabular-nums text-gray-700 dark:text-gray-300" data-testid="text-safety-fatalities">{safetySummary.fatalities ?? 0}</p>
+                      <p className="text-[10px] text-muted-foreground">Fatalities</p>
+                    </div>
+                  </div>
+                  {safetySummary.incidents === 0 && (
+                    <p className="text-xs text-muted-foreground" data-testid="text-safety-no-data">
+                      No incidents on record for ZIP {safetyZip} in the local registry. The registry may not yet have data for this area.
+                    </p>
+                  )}
+                  <div className="flex items-center gap-2 pt-1">
+                    <a
+                      href={`/gun-violence-intelligence?tab=story&geo=${encodeURIComponent(safetyZip)}`}
+                      className="inline-flex items-center gap-1.5 text-xs text-purple-600 dark:text-purple-400 hover:underline font-medium"
+                      data-testid="link-safety-tell-story"
+                    >
+                      <Sparkles className="h-3 w-3" />
+                      Generate full story for ZIP {safetyZip} →
+                    </a>
+                  </div>
+                  <p className="text-[10px] text-muted-foreground">Source: TCAF Gun Violence Registry · CDC WONDER · FBI UCR</p>
+                </div>
+              )}
+            </Card>
 
             <Card className="p-5" data-testid="card-priority-clients">
               <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">

@@ -830,32 +830,61 @@ export function registerPartnerApiRoutes(app: Express) {
       });
     }
 
-    // Non-blocking rejections (optional fields with bad values): surface
-    // corrections in the response so the partner knows what was dropped,
-    // but still accept the heartbeat — a keepalive ping with a malformed
-    // optional field should not be treated as a failure.
-    if (rejections.length > 0) {
-      // Return 422 so callers can distinguish "accepted but malformed" from
-      // a clean 200, giving them a clear signal to fix their payload.
-      return res.status(422).json({
-        received: true,
-        partner: partnerName,
-        timestamp: new Date().toISOString(),
-        warning: "Heartbeat accepted but some optional fields were invalid and have been dropped.",
-        corrections: rejectionsToCorrectionNote(rejections),
-      });
+    // ── Validate and cap the `meta` object before storage ────────────────────
+    // meta is opaque partner content (we don't validate internals), but we cap
+    // each string leaf at 2000 chars and limit the total number of keys to 50
+    // so an oversized blob cannot be stored unmodified.  Non-string, non-number,
+    // non-boolean, non-null leaf values are dropped.  Any violation is recorded
+    // to inboundVerificationLog and surfaced in the response corrections block.
+    let cleanMeta: Record<string, unknown> | undefined;
+    const metaRejections: import("./inbound-verification").FieldRejection[] = [];
+    if (raw.meta && typeof raw.meta === "object" && !Array.isArray(raw.meta)) {
+      const metaRaw = raw.meta as Record<string, unknown>;
+      const keys = Object.keys(metaRaw).slice(0, 50); // hard cap: 50 keys
+      if (Object.keys(metaRaw).length > 50) {
+        metaRejections.push({
+          field: "meta",
+          reason: "too_long",
+          receivedValue: `${Object.keys(metaRaw).length} keys`,
+          expected: "an object with at most 50 keys",
+          blocking: false,
+        });
+      }
+      const cleaned: Record<string, unknown> = {};
+      for (const k of keys) {
+        const v = metaRaw[k];
+        if (typeof v === "string") {
+          if (v.length > 2000) {
+            metaRejections.push({
+              field: `meta.${k}`,
+              reason: "too_long",
+              receivedValue: v.slice(0, 100) + "…",
+              expected: "a string up to 2000 chars",
+              blocking: false,
+            });
+            cleaned[k] = v.slice(0, 2000);
+          } else {
+            cleaned[k] = v;
+          }
+        } else if (typeof v === "number" || typeof v === "boolean" || v === null) {
+          cleaned[k] = v;
+        }
+        // arrays/nested objects: silently drop (opaque; not validated further)
+      }
+      cleanMeta = cleaned;
+    }
+    if (metaRejections.length > 0) {
+      await recordInboundVerification(`partner-api-heartbeat:${partnerName}`, endpoint, metaRejections);
     }
 
     // ── Persist the clean heartbeat ───────────────────────────────────────────
+    const metaCorrections = rejectionsToCorrectionNote(metaRejections);
+    const allCorrections = [...rejectionsToCorrectionNote(rejections), ...metaCorrections];
     const payload = {
       message: clean.message ?? "alive",
       status:  clean.status,
       version: clean.version,
-      // Pass through opaque meta if the caller sent it (not in schema so
-      // not validated, but still stored for debugging purposes).
-      ...(raw.meta && typeof raw.meta === "object" && !Array.isArray(raw.meta)
-        ? { meta: raw.meta }
-        : {}),
+      ...(cleanMeta !== undefined ? { meta: cleanMeta } : {}),
     };
 
     try {
@@ -872,6 +901,16 @@ export function registerPartnerApiRoutes(app: Express) {
       console.error(`[PartnerAPI] heartbeat persistence failure for ${partnerName}:`, persistErr);
       return res.status(500).json({
         error: "Heartbeat received but could not be persisted. Please retry — this has been logged for staff review.",
+      });
+    }
+
+    if (allCorrections.length > 0) {
+      return res.status(422).json({
+        received: true,
+        partner: partnerName,
+        timestamp: new Date().toISOString(),
+        warning: "Heartbeat accepted but some fields were invalid or oversized and have been corrected.",
+        corrections: allCorrections,
       });
     }
 
@@ -1581,10 +1620,37 @@ export function registerPartnerApiRoutes(app: Express) {
 
   app.get("/api/admin/inbound-verification-log", requireAdminKey, async (req, res) => {
     try {
+      // Pagination: max 200 rows per page; caller may pass ?limit= (1-200) and ?offset=
+      const limit = Math.min(200, Math.max(1, parseInt((req.query.limit as string) || "100", 10) || 100));
+      const offset = Math.max(0, parseInt((req.query.offset as string) || "0", 10) || 0);
+      // Optional source filter (exact prefix match)
+      const sourceFilter = (req.query.source as string || "").trim().slice(0, 100);
+      // Optional date-range: from/to (ISO 8601). Max range capped at 90 days to
+      // avoid full-table scans on a large append-only log.
+      const fromStr = (req.query.from as string || "").trim();
+      const toStr   = (req.query.to   as string || "").trim();
+      let fromDate: Date | undefined;
+      let toDate: Date | undefined;
+      if (fromStr) { const d = new Date(fromStr); if (!isNaN(d.getTime())) fromDate = d; }
+      if (toStr)   { const d = new Date(toStr);   if (!isNaN(d.getTime())) toDate = d; }
+      // Clamp to a 90-day window
+      if (fromDate && toDate && toDate.getTime() - fromDate.getTime() > 90 * 86400 * 1000) {
+        toDate = new Date(fromDate.getTime() + 90 * 86400 * 1000);
+      }
+
+      const conditions: ReturnType<typeof eq>[] = [];
+      if (sourceFilter) conditions.push(sql`${inboundVerificationLog.source} ilike ${sourceFilter + "%"}` as any);
+      if (fromDate) conditions.push(gte(inboundVerificationLog.createdAt, fromDate) as any);
+      if (toDate)   conditions.push(sql`${inboundVerificationLog.createdAt} <= ${toDate}` as any);
+
+      const where = conditions.length > 0 ? and(...conditions) : undefined;
+
       const rows = await db.select().from(inboundVerificationLog)
+        .where(where)
         .orderBy(desc(inboundVerificationLog.createdAt))
-        .limit(200);
-      res.json({ count: rows.length, log: rows });
+        .limit(limit)
+        .offset(offset);
+      res.json({ count: rows.length, log: rows, limit, offset });
     } catch (err) {
       console.error("[PartnerAPI] admin inbound-verification-log fetch failed:", err);
       res.status(500).json({ error: "Failed to fetch inbound verification log." });

@@ -224,7 +224,11 @@ export async function recordInboundVerification(
 
 function safeStringify(v: unknown): string {
   if (typeof v === "string") return v;
-  try { return JSON.stringify(v); } catch { return String(v); }
+  if (v === undefined) return "undefined";
+  try {
+    const s = JSON.stringify(v);
+    return s === undefined ? String(v) : s;
+  } catch { return String(v); }
 }
 
 // ---------------------------------------------------------------------------

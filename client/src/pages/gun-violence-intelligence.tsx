@@ -717,12 +717,35 @@ export default function GunViolenceIntelligence() {
                     <BookOpen className="h-3.5 w-3.5" /> Copy text
                   </Button>
                   <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
+                    // ── #222: Guard against exporting a blank/trivial PDF ──────────────
+                    // A story is considered exportable when it has a headline AND at least
+                    // one body paragraph with meaningful text (> 20 chars). If the AI
+                    // returned an empty or malformed story, bail with a toast rather than
+                    // opening a blank print window that a CHW might share by mistake.
+                    const bodyParas: string[] = (generatedStory.body ?? []).filter(
+                      (p: string) => typeof p === "string" && p.trim().length > 20
+                    );
+                    const headlineOk = typeof generatedStory.headline === "string" && generatedStory.headline.trim().length > 0;
+                    if (!headlineOk || bodyParas.length === 0) {
+                      toast({
+                        title: "Story content is incomplete",
+                        description: "The story doesn't have enough content to export. Try regenerating it.",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    // ── #223: window.open is called synchronously in this onClick handler
+                    // (not inside any await/promise), so iOS Safari's async-context popup
+                    // blocker does NOT fire. Keep it synchronous — do not refactor to async.
                     const win = window.open("", "_blank");
-                    if (!win) return;
+                    if (!win) {
+                      toast({ title: "Popup blocked", description: "Allow popups for this site to export the PDF.", variant: "destructive" });
+                      return;
+                    }
                     const statsHtml = (generatedStory.keyNumbers ?? []).map((kn: any) =>
                       `<div class="stat"><div class="stat-value">${kn.value}</div><div class="stat-label">${kn.label}</div></div>`
                     ).join("");
-                    const bodyHtml = (generatedStory.body ?? []).map((p: string) => `<p>${p}</p>`).join("");
+                    const bodyHtml = bodyParas.map((p: string) => `<p>${p}</p>`).join("");
                     win.document.write(`<!DOCTYPE html><html><head><title>${generatedStory.headline}</title><style>
 body{font-family:Georgia,serif;max-width:740px;margin:48px auto;color:#111;line-height:1.75;padding:0 24px}
 h1{font-size:26px;margin-bottom:6px;line-height:1.3}

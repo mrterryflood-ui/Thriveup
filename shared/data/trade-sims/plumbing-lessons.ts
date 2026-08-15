@@ -751,7 +751,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
     },
     guidedSteps: [
       {
-        instruction: "Build a 2-fixture commercial bathroom: Tank (60 m / ≈85 psi) → 1\" (25 mm) trunk → Tee → two sinks (3.15e-5 m³/s / ≈0.5 gpm each).",
+        instruction: "Build a 2-fixture commercial bathroom: Tank (≈85 psi / 60 m) → 1\" (25 mm) trunk → Tee → two sinks (≈0.5 gpm / 3.15e-5 m³/s each).",
         hint: "Higher source head, larger trunk.",
         checkDescription: "commercial-scale layout",
       },
@@ -767,7 +767,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
       },
     ],
     soloChallenge: {
-      prompt: "A 4-story office building has 8 bathrooms per floor. What's the right primary trunk diameter for a 60 m (≈85 psi) head source, given roughly 200 WSFU at peak demand?",
+      prompt: "A 4-story office building has 8 bathrooms per floor. What's the right primary trunk diameter for a ≈85 psi (60 m) head source, given roughly 200 WSFU at peak demand?",
       successCriteria: "Trunk sized to maintain ≥ 25 psi (≈18 m) at top-floor fixtures during peak demand. Typical answer: 3\" (75 mm) copper or 4\" (100 mm) iron primary, with risers stepping down at each floor branch.",
       scoringRubric: { correctness: 0.7, time: 0.15, componentCount: 0.15 },
     },
@@ -804,7 +804,7 @@ export const PLUMBING_LESSONS: PlumbingLessonContent[] = [
         checkDescription: "project chosen",
       },
       {
-        instruction: "Design the supply system on the canvas. Simulate it. Confirm every fixture gets ≥ 20 m (≈29 psi) supply head at peak demand.",
+        instruction: "Design the supply system on the canvas. Simulate it. Confirm every fixture gets ≥ 29 psi (≈20 m) supply head at peak demand.",
         hint: "Use everything you've learned — trunk-and-branch, valves, recirculation, backflow protection.",
         checkDescription: "system functional",
       },

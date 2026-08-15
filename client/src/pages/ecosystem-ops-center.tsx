@@ -1520,8 +1520,24 @@ function PartnerApiTab() {
     queryKey: ["/api/admin/partner-inbound"],
   });
 
-  const { data: verifLog, refetch: refetchVerifLog } = useQuery<{ count: number; log: any[] }>({
-    queryKey: ["/api/admin/inbound-verification-log"],
+  const [verifSource, setVerifSource] = useState("");
+  const [verifFrom, setVerifFrom] = useState("");
+  const [verifTo, setVerifTo] = useState("");
+  const [verifOffset, setVerifOffset] = useState(0);
+  const VERIF_LIMIT = 50;
+
+  const verifParams = new URLSearchParams({ limit: String(VERIF_LIMIT), offset: String(verifOffset) });
+  if (verifSource.trim()) verifParams.set("source", verifSource.trim());
+  if (verifFrom.trim()) verifParams.set("from", verifFrom.trim());
+  if (verifTo.trim()) verifParams.set("to", verifTo.trim());
+
+  const { data: verifLog, refetch: refetchVerifLog } = useQuery<{ count: number; log: any[]; limit: number; offset: number }>({
+    queryKey: ["/api/admin/inbound-verification-log", verifSource, verifFrom, verifTo, verifOffset],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/inbound-verification-log?${verifParams}`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
   });
 
   const markProcessedMutation = useMutation({
@@ -1912,53 +1928,106 @@ function PartnerApiTab() {
             <CardTitle className="text-base flex items-center gap-2">
               <AlertOctagon className="h-4 w-4 text-amber-500" /> Inbound Verification Log
             </CardTitle>
-            <Button variant="ghost" size="sm" onClick={() => refetchVerifLog()} data-testid="button-refresh-verif-log">
+            <Button variant="ghost" size="sm" onClick={() => { setVerifOffset(0); refetchVerifLog(); }} data-testid="button-refresh-verif-log">
               <RefreshCw className="h-3.5 w-3.5" />
             </Button>
           </div>
           <p className="text-xs text-muted-foreground mt-1">
-            Fields rejected or nulled from partner <code className="bg-muted px-1 rounded">/push</code> and <code className="bg-muted px-1 rounded">/heartbeat</code> calls. Source prefix <code className="bg-muted px-1 rounded">partner-api-heartbeat:</code> = heartbeat rejection.
+            Fields rejected or nulled from all six inbound paths. Source prefix <code className="bg-muted px-1 rounded">partner-api-heartbeat:</code> = heartbeat, <code className="bg-muted px-1 rounded">partner-api-push</code> = /push, etc.
           </p>
+          {/* ── Filters ────────────────────────────────────────────────── */}
+          <div className="mt-2 flex flex-wrap gap-2 items-end">
+            <div className="space-y-0.5">
+              <label className="text-xs font-medium text-muted-foreground">Source prefix</label>
+              <input
+                className="border rounded px-2 py-1 text-xs bg-background w-44"
+                placeholder="e.g. partner-api-heartbeat"
+                value={verifSource}
+                onChange={e => { setVerifSource(e.target.value); setVerifOffset(0); }}
+                data-testid="input-verif-source"
+              />
+            </div>
+            <div className="space-y-0.5">
+              <label className="text-xs font-medium text-muted-foreground">From (date)</label>
+              <input
+                type="date"
+                className="border rounded px-2 py-1 text-xs bg-background"
+                value={verifFrom}
+                onChange={e => { setVerifFrom(e.target.value); setVerifOffset(0); }}
+                data-testid="input-verif-from"
+              />
+            </div>
+            <div className="space-y-0.5">
+              <label className="text-xs font-medium text-muted-foreground">To (date)</label>
+              <input
+                type="date"
+                className="border rounded px-2 py-1 text-xs bg-background"
+                value={verifTo}
+                onChange={e => { setVerifTo(e.target.value); setVerifOffset(0); }}
+                data-testid="input-verif-to"
+              />
+            </div>
+            {(verifSource || verifFrom || verifTo) && (
+              <Button variant="ghost" size="sm" className="text-xs" onClick={() => { setVerifSource(""); setVerifFrom(""); setVerifTo(""); setVerifOffset(0); }} data-testid="button-verif-clear">
+                Clear filters
+              </Button>
+            )}
+          </div>
         </CardHeader>
         <CardContent>
           {!verifLog?.log?.length ? (
             <div className="text-center py-6 text-muted-foreground">
               <AlertOctagon className="h-6 w-6 mx-auto mb-2 opacity-30" />
               <p className="text-sm">No validation issues recorded yet.</p>
-              <p className="text-xs mt-1">Malformed heartbeat or push fields will appear here.</p>
+              <p className="text-xs mt-1">Malformed inbound fields from any of the six paths will appear here.</p>
             </div>
           ) : (
-            <div className="space-y-2 max-h-72 overflow-y-auto">
-              {verifLog.log.map(entry => (
-                <div
-                  key={entry.id}
-                  className={`p-3 rounded-lg border text-sm ${entry.action === "rejected" ? "bg-red-50/40 dark:bg-red-950/20 border-red-200 dark:border-red-900/30" : "bg-amber-50/30 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/30"}`}
-                  data-testid={`row-verif-log-${entry.id}`}
-                >
-                  <div className="flex items-start gap-2 flex-wrap">
-                    <Badge variant={entry.action === "rejected" ? "destructive" : "secondary"} className="text-xs shrink-0">
-                      {entry.action}
-                    </Badge>
-                    <span className="font-mono text-xs font-medium">{entry.field}</span>
-                    <span className="text-xs text-muted-foreground">·</span>
-                    <span className="text-xs text-muted-foreground">{entry.reason?.replace(/_/g, " ")}</span>
-                    <span className="text-xs text-muted-foreground ml-auto">
-                      {entry.createdAt ? new Date(entry.createdAt).toLocaleString() : ""}
-                    </span>
-                  </div>
-                  <div className="mt-1.5 grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
-                    <span><span className="font-medium">source:</span> {entry.source}</span>
-                    <span><span className="font-medium">expected:</span> {entry.expected}</span>
-                    {entry.receivedValue != null && (
-                      <span className="md:col-span-2">
-                        <span className="font-medium">received:</span>{" "}
-                        <code className="bg-muted px-1 rounded">{String(entry.receivedValue).slice(0, 200)}</code>
+            <>
+              <div className="space-y-2 max-h-96 overflow-y-auto">
+                {verifLog.log.map(entry => (
+                  <div
+                    key={entry.id}
+                    className={`p-3 rounded-lg border text-sm ${entry.action === "rejected" ? "bg-red-50/40 dark:bg-red-950/20 border-red-200 dark:border-red-900/30" : "bg-amber-50/30 dark:bg-amber-950/20 border-amber-200 dark:border-amber-900/30"}`}
+                    data-testid={`row-verif-log-${entry.id}`}
+                  >
+                    <div className="flex items-start gap-2 flex-wrap">
+                      <Badge variant={entry.action === "rejected" ? "destructive" : "secondary"} className="text-xs shrink-0">
+                        {entry.action}
+                      </Badge>
+                      <span className="font-mono text-xs font-medium">{entry.field}</span>
+                      <span className="text-xs text-muted-foreground">·</span>
+                      <span className="text-xs text-muted-foreground">{entry.reason?.replace(/_/g, " ")}</span>
+                      <span className="text-xs text-muted-foreground ml-auto">
+                        {entry.createdAt ? new Date(entry.createdAt).toLocaleString() : ""}
                       </span>
-                    )}
+                    </div>
+                    <div className="mt-1.5 grid grid-cols-1 md:grid-cols-3 gap-x-4 gap-y-0.5 text-xs text-muted-foreground">
+                      <span><span className="font-medium">source:</span> {entry.source}</span>
+                      <span><span className="font-medium">endpoint:</span> {entry.endpoint}</span>
+                      <span><span className="font-medium">expected:</span> {entry.expected}</span>
+                      {entry.receivedValue != null && (
+                        <span className="md:col-span-3">
+                          <span className="font-medium">received:</span>{" "}
+                          <code className="bg-muted px-1 rounded">{String(entry.receivedValue).slice(0, 200)}</code>
+                        </span>
+                      )}
+                    </div>
                   </div>
+                ))}
+              </div>
+              {/* Pagination */}
+              <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
+                <span>Showing {verifOffset + 1}–{verifOffset + (verifLog.log.length)} · page size {VERIF_LIMIT}</span>
+                <div className="flex gap-2">
+                  <Button variant="outline" size="sm" className="text-xs h-7" disabled={verifOffset === 0} onClick={() => setVerifOffset(Math.max(0, verifOffset - VERIF_LIMIT))} data-testid="button-verif-prev">
+                    ← Prev
+                  </Button>
+                  <Button variant="outline" size="sm" className="text-xs h-7" disabled={verifLog.log.length < VERIF_LIMIT} onClick={() => setVerifOffset(verifOffset + VERIF_LIMIT)} data-testid="button-verif-next">
+                    Next →
+                  </Button>
                 </div>
-              ))}
-            </div>
+              </div>
+            </>
           )}
         </CardContent>
       </Card>

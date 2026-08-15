@@ -7682,3 +7682,26 @@ export const chwVisits = pgTable("chw_visits", {
 });
 export type ChwVisit = typeof chwVisits.$inferSelect;
 export type InsertChwVisit = typeof chwVisits.$inferInsert;
+
+// ── GrantPathPro Inbound Events ─────────────────────────────────────────────
+// Persists inbound events from Grant Path Pro (previously in-memory gppEvents[]).
+// Ordered by receivedAt DESC; filtered by grantId when provided.
+export const gppEvents = pgTable("gpp_events", {
+  id: text("id").primaryKey().$defaultFn(() => `gpp_${Date.now()}_${nanoid(6)}`),
+  receivedAt: timestamp("received_at").defaultNow().notNull(),
+  eventType: varchar("event_type", { length: 100 }).notNull().default("status_update"),
+  grantId: text("grant_id"),
+  grantTitle: text("grant_title"),
+  geography: text("geography"),
+  status: text("status"),
+  milestone: text("milestone"),
+  amount: integer("amount"),
+  dueDate: text("due_date"),
+  notes: text("notes"),
+  meta: jsonb("meta"),
+}, (t) => [
+  index("gpp_events_received_at_idx").on(t.receivedAt),
+  index("gpp_events_grant_id_idx").on(t.grantId),
+]);
+export type GppEventRow = typeof gppEvents.$inferSelect;
+export type InsertGppEvent = typeof gppEvents.$inferInsert;

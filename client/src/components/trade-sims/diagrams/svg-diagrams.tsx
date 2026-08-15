@@ -439,10 +439,10 @@ function HeatTransfer() {
     <Frame label="Heat transfer: heat always moves from hot to cold — conduction, convection, radiation">
       <rect x="30" y="55" width="60" height="70" fill={C.red} opacity="0.3" stroke={C.red} strokeWidth="1.5" />
       <text x="60" y="95" fontSize="11" fill={C.red} textAnchor="middle" fontWeight="bold">HOT</text>
-      <text x="60" y="112" fontSize="9" fill={C.muted} textAnchor="middle">22°C indoor</text>
+      <text x="60" y="112" fontSize="9" fill={C.muted} textAnchor="middle">22°C (72°F) indoor</text>
       <rect x="230" y="55" width="60" height="70" fill={C.blue} opacity="0.3" stroke={C.blue} strokeWidth="1.5" />
       <text x="260" y="95" fontSize="11" fill={C.blue} textAnchor="middle" fontWeight="bold">COLD</text>
-      <text x="260" y="112" fontSize="9" fill={C.muted} textAnchor="middle">−5°C outdoor</text>
+      <text x="260" y="112" fontSize="9" fill={C.muted} textAnchor="middle">−5°C (23°F) outdoor</text>
       <path id="ht-flow" d="M92 90 H228" fill="none" stroke="none" />
       <FlowDots pathId="ht-flow" color={C.amber} count={4} dur={2} />
       <line x1="92" y1="90" x2="226" y2="90" stroke={C.amber} strokeWidth="2" strokeDasharray="4 4" opacity="0.5" />
@@ -502,7 +502,7 @@ function Psychrometric() {
         <animate attributeName="cy" values="110;100;110" dur="3s" repeatCount="indefinite" />
       </circle>
       <text x="160" y="122" fontSize="9" fill={C.ink}>comfort zone</text>
-      <text x="165" y="158" fontSize="10" fill={C.muted} textAnchor="middle">dry-bulb °C →</text>
+      <text x="165" y="158" fontSize="10" fill={C.muted} textAnchor="middle">dry-bulb °C (°F) →</text>
       <text x="24" y="90" fontSize="10" fill={C.muted} transform="rotate(-90 24 90)">humidity ratio →</text>
     </Frame>
   );

@@ -141,6 +141,11 @@ async function run() {
   if (typeof brief.overallScore !== "number") missing.push("overallScore");
   if (!brief.systemsScores || typeof brief.systemsScores !== "object" || Object.keys(brief.systemsScores).length === 0) missing.push("systemsScores");
   if (!brief.demographics || typeof brief.demographics.povertyRate !== "number") missing.push("demographics.povertyRate (real Census data)");
+  // Raw-ZIP regression: a ZIP lookup must return non-null, non-zero Census indicators.
+  // Previously the brief silently returned empty/null demographics when the Census ZCTA
+  // path returned no data — this assertion catches that regression.
+  if (!brief.demographics || typeof brief.demographics.unemploymentRate !== "number") missing.push("demographics.unemploymentRate (raw-ZIP Census path broken — regression #246)");
+  if (!brief.demographics || typeof brief.demographics.uninsuredRate !== "number") missing.push("demographics.uninsuredRate (raw-ZIP Census path broken — regression #246)");
   if (!brief.solutions || !Array.isArray(brief.solutions.grants)) missing.push("solutions.grants");
   if (!brief.generatedAt) missing.push("generatedAt");
   if (brief.evidence?.version !== "community-evidence/v1") missing.push("evidence.version (community-evidence/v1)");

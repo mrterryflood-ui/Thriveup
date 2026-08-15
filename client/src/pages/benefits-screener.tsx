@@ -141,19 +141,42 @@ function CapacityBadge({ programCode, capacityOrgs, userZip }: {
     );
   };
 
+  // Render a "as of N days ago" staleness note when the capacity record is
+  // older than 7 days (stale:true set by the server). Fresh entries show nothing.
+  const StaleNote = ({ o }: { o: any }) => {
+    if (!o.stale) return null;
+    // Compute days-ago label when updatedAt is available; fall back to generic.
+    let label = "info may be outdated";
+    if (o.updatedAt) {
+      const days = Math.floor((Date.now() - new Date(o.updatedAt).getTime()) / (24 * 60 * 60 * 1000));
+      label = days >= 1 ? `as of ${days} day${days !== 1 ? "s" : ""} ago` : "info may be outdated";
+    }
+    return (
+      <span
+        className="inline-flex items-center gap-1 text-[10px] text-slate-500 dark:text-slate-400 italic"
+        data-testid={`capacity-stale-note-${o.id}`}
+        title="This capacity data is more than 7 days old. Verify with the organization before referring."
+      >
+        <Clock className="h-2.5 w-2.5 shrink-0" />
+        {label}
+      </span>
+    );
+  };
+
   return (
     <div className="mt-2 pl-9 space-y-1" data-testid={`capacity-${programCode}`}>
       {open.map((o) => (
-        <div key={o.id} className="flex items-start gap-2 text-xs text-green-700 dark:text-green-400">
+        <div key={o.id} className={`flex items-start gap-2 text-xs ${o.stale ? "text-green-600/70 dark:text-green-500/60" : "text-green-700 dark:text-green-400"}`}>
           <CheckCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span className="flex flex-col">
             <span><strong className="font-semibold">{o.orgName}</strong> — Open now{o.note ? `: ${o.note}` : ""}</span>
+            <StaleNote o={o} />
             <ContactLinks o={o} />
           </span>
         </div>
       ))}
       {waitlist.map((o) => (
-        <div key={o.id} className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400">
+        <div key={o.id} className={`flex items-start gap-2 text-xs ${o.stale ? "text-amber-600/70 dark:text-amber-500/60" : "text-amber-700 dark:text-amber-400"}`}>
           <Clock className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span className="flex flex-col">
             <span>
@@ -161,15 +184,17 @@ function CapacityBadge({ programCode, capacityOrgs, userZip }: {
               {o.waitWeeks ? ` ~${o.waitWeeks} wk${o.waitWeeks !== 1 ? "s" : ""}` : ""}
               {o.note ? `: ${o.note}` : ""}
             </span>
+            <StaleNote o={o} />
             <ContactLinks o={o} />
           </span>
         </div>
       ))}
       {closed.map((o) => (
-        <div key={o.id} className="flex items-start gap-2 text-xs text-red-600 dark:text-red-400">
+        <div key={o.id} className={`flex items-start gap-2 text-xs ${o.stale ? "text-red-500/70 dark:text-red-400/60" : "text-red-600 dark:text-red-400"}`}>
           <XCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span className="flex flex-col">
             <span><strong className="font-semibold">{o.orgName}</strong> — Closed intake{o.note ? `: ${o.note}` : ""}</span>
+            <StaleNote o={o} />
             <ContactLinks o={o} />
           </span>
         </div>

@@ -77,6 +77,59 @@ test.describe("Shared auth helper role support", () => {
     await anon.dispose();
   });
 
+  // Task #202: POST /api/neighborhood/email-report requires auth.
+  // Forge an authenticated session and post a minimal valid payload; assert
+  // 200 {sent: true|false} — not a 401 or 403.  The endpoint internally calls
+  // sendNeighborhoodReport which may return false if Resend is unavailable in
+  // this env; that's acceptable — we only care that auth is not rejected.
+  test("email-report: authenticated request is not 401/403", async () => {
+    const cookie = await forgeSession(db, { userId: ADMIN_ID, email: ADMIN_EMAIL });
+    const ctx = await pwRequest.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+
+    const minimalProfile = {
+      zipCode: "10001",
+      neighborhoodName: "Test Area",
+      countyName: "Test County",
+      stateName: "NY",
+      indicators: {
+        povertyRate: 10,
+        medianIncome: 50000,
+        unemploymentRate: 5,
+        noHealthInsurance: 8,
+        minorityPct: 30,
+        multiUnitHousing: 15,
+        overcrowding: 2,
+        noVehicle: 4,
+        noBroadband: 10,
+        snapRecipients: 9,
+      },
+      goingWell: [],
+      needsAttention: [],
+    };
+
+    const res = await ctx.post("/api/neighborhood/email-report", {
+      data: { profile: minimalProfile, recipientEmail: "e2e-test@example.com" },
+    });
+
+    // Auth must pass — 401/403 means the forged session was rejected.
+    expect([401, 403]).not.toContain(res.status());
+
+    // If auth passed we should get 200 (sent: true/false), 429 (rate-limited),
+    // or 502/catch-json (email provider unavailable) — all are acceptable here.
+    const status = res.status();
+    expect([200, 429, 502]).toContain(status);
+
+    if (status === 200) {
+      const body = await res.json();
+      expect(typeof body.sent).toBe("boolean");
+    }
+
+    await ctx.dispose();
+  });
+
   // GPP inbound event feed (server/grantpathpro-routes.ts): staff session must
   // get through, a signed-in non-staff user must get 403, anonymous gets 401.
   test("GPP events feed: staff 200, non-staff 403, anonymous 401", async () => {

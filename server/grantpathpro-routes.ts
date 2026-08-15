@@ -21,7 +21,7 @@
 
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
-import { organizations, grantOpportunities, consortiumProposals, consortiumTeamMembers } from "@shared/schema";
+import { organizations, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 
@@ -67,7 +67,7 @@ async function loadOwnedProposal(
   return proposal;
 }
 
-// ─── In-memory event store (lightweight — promote to DB if volume warrants) ─────
+// ─── GppEvent shape (mirrors the DB table columns) ───────────────────────────
 export interface GppEvent {
   id: string;
   receivedAt: string;
@@ -82,8 +82,6 @@ export interface GppEvent {
   notes?: string;
   meta?: Record<string, unknown>;
 }
-
-const gppEvents: GppEvent[] = [];
 
 /** Strip whitespace and non-ASCII trailing chars (e.g. accidental em-dash from copy-paste) */
 function normalizeKey(s: string): string {
@@ -151,37 +149,32 @@ export function registerGrantPathProRoutes(app: Express) {
    * GPP POSTs grant execution events here.
    * Auth: x-api-key: THRIVEUP_INBOUND_KEY
    */
-  app.post("/api/inbound/grantpathpro", requireGppInboundKey, (req: Request, res: Response) => {
+  app.post("/api/inbound/grantpathpro", requireGppInboundKey, async (req: Request, res: Response) => {
     try {
       const body = req.body as Partial<GppEvent> & { events?: Partial<GppEvent>[] };
 
-      const toStore = (raw: Partial<GppEvent>): GppEvent => ({
-        id: `gpp_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-        receivedAt: new Date().toISOString(),
+      const toInsert = (raw: Partial<GppEvent>) => ({
         eventType: raw.eventType || "status_update",
-        grantId: raw.grantId,
-        grantTitle: raw.grantTitle,
-        geography: raw.geography,
-        status: raw.status,
-        milestone: raw.milestone,
-        amount: raw.amount,
-        dueDate: raw.dueDate,
-        notes: raw.notes,
-        meta: raw.meta,
+        grantId: raw.grantId ?? null,
+        grantTitle: raw.grantTitle ?? null,
+        geography: raw.geography ?? null,
+        status: raw.status ?? null,
+        milestone: raw.milestone ?? null,
+        amount: raw.amount ?? null,
+        dueDate: raw.dueDate ?? null,
+        notes: raw.notes ?? null,
+        meta: raw.meta ?? null,
       });
 
       if (Array.isArray(body.events)) {
-        const stored = body.events.map(toStore);
-        gppEvents.unshift(...stored);
-        console.log(`[GrantPathPro] Received batch: ${stored.length} event(s)`);
-        return res.json({ received: true, count: stored.length, ids: stored.map(e => e.id) });
+        const rows = await db.insert(gppEventsTable).values(body.events.map(toInsert)).returning({ id: gppEventsTable.id });
+        console.log(`[GrantPathPro] Received batch: ${rows.length} event(s)`);
+        return res.json({ received: true, count: rows.length, ids: rows.map(r => r.id) });
       }
 
-      const event = toStore(body);
-      gppEvents.unshift(event);
-      if (gppEvents.length > 500) gppEvents.splice(500);
-      console.log(`[GrantPathPro] Received event: ${event.eventType} — ${event.grantTitle || event.grantId || "no title"}`);
-      return res.json({ received: true, id: event.id });
+      const [row] = await db.insert(gppEventsTable).values(toInsert(body)).returning({ id: gppEventsTable.id });
+      console.log(`[GrantPathPro] Received event: ${body.eventType || "status_update"} — ${body.grantTitle || body.grantId || "no title"}`);
+      return res.json({ received: true, id: row.id });
 
     } catch (err) {
       console.error("[GrantPathPro] Inbound error:", err);
@@ -196,16 +189,41 @@ export function registerGrantPathProRoutes(app: Express) {
    * x-api-key GPP uses for /status. Grant pipeline activity (titles, statuses,
    * milestones, compliance data) must never be anonymously readable.
    */
-  app.get("/api/inbound/grantpathpro/events", requireStaffOrInboundKey, (req: Request, res: Response) => {
-    const limit = Math.min(parseInt(req.query.limit as string || "50", 10), 200);
-    const grantId = req.query.grantId as string | undefined;
-    const filtered = grantId
-      ? gppEvents.filter(e => e.grantId === grantId)
-      : gppEvents;
-    return res.json({
-      events: filtered.slice(0, limit),
-      total: filtered.length,
-    });
+  app.get("/api/inbound/grantpathpro/events", requireStaffOrInboundKey, async (req: Request, res: Response) => {
+    try {
+      const limit = Math.min(parseInt(req.query.limit as string || "50", 10), 200);
+      const grantId = req.query.grantId as string | undefined;
+
+      const query = db
+        .select()
+        .from(gppEventsTable)
+        .orderBy(desc(gppEventsTable.receivedAt))
+        .limit(500);
+
+      const allRows = await (grantId
+        ? db.select().from(gppEventsTable).where(eq(gppEventsTable.grantId, grantId)).orderBy(desc(gppEventsTable.receivedAt)).limit(500)
+        : query);
+
+      const events = allRows.slice(0, limit).map(r => ({
+        id: r.id,
+        receivedAt: r.receivedAt?.toISOString() ?? new Date().toISOString(),
+        eventType: r.eventType,
+        grantId: r.grantId ?? undefined,
+        grantTitle: r.grantTitle ?? undefined,
+        geography: r.geography ?? undefined,
+        status: r.status ?? undefined,
+        milestone: r.milestone ?? undefined,
+        amount: r.amount ?? undefined,
+        dueDate: r.dueDate ?? undefined,
+        notes: r.notes ?? undefined,
+        meta: r.meta as Record<string, unknown> | undefined,
+      }));
+
+      return res.json({ events, total: allRows.length });
+    } catch (err) {
+      console.error("[GrantPathPro] Events fetch error:", err);
+      return res.status(500).json({ error: "Failed to fetch events" });
+    }
   });
 
   /**
@@ -213,21 +231,36 @@ export function registerGrantPathProRoutes(app: Express) {
    * Health check — lets GPP verify the connection is live.
    * Returns the inbound endpoint info without exposing the key.
    */
-  app.get("/api/inbound/grantpathpro/status", requireGppInboundKey, (_req: Request, res: Response) => {
-    return res.json({
-      connected: true,
-      platform: "ThriveUp Academy",
-      inboundEndpoint: "/api/inbound/grantpathpro",
-      eventsReceived: gppEvents.length,
-      lastEventAt: gppEvents[0]?.receivedAt ?? null,
-      capabilities: [
-        "grant_status_updates",
-        "milestone_events",
-        "compliance_alerts",
-        "budget_tracking",
-        "outcome_reporting",
-      ],
-    });
+  app.get("/api/inbound/grantpathpro/status", requireGppInboundKey, async (_req: Request, res: Response) => {
+    try {
+      const [latest] = await db
+        .select({ id: gppEventsTable.id, receivedAt: gppEventsTable.receivedAt })
+        .from(gppEventsTable)
+        .orderBy(desc(gppEventsTable.receivedAt))
+        .limit(1);
+      // Count is approximate (last 500 rows) — full COUNT(*) is expensive; use latest row as proxy
+      const countRows = await db
+        .select({ id: gppEventsTable.id })
+        .from(gppEventsTable)
+        .limit(500);
+      return res.json({
+        connected: true,
+        platform: "ThriveUp Academy",
+        inboundEndpoint: "/api/inbound/grantpathpro",
+        eventsReceived: countRows.length,
+        lastEventAt: latest?.receivedAt?.toISOString() ?? null,
+        capabilities: [
+          "grant_status_updates",
+          "milestone_events",
+          "compliance_alerts",
+          "budget_tracking",
+          "outcome_reporting",
+        ],
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Status error:", err);
+      return res.status(500).json({ error: "Status check failed" });
+    }
   });
 
   // ══════════════════════════════════════════════════════════════

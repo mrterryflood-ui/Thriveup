@@ -3,7 +3,7 @@ import { db } from "./storage";
 import { referrals, orgCapacity } from "@shared/schema";
 import { eq, desc, isNull, and, gt, or, sql, inArray } from "drizzle-orm";
 // Canonical staff gate — same function used by YHSI, funder, and reentry routes.
-import { requireStaff } from "./yhsi-routes";
+import { requireStaff, getUserId } from "./yhsi-routes";
 import { requirePartnerAuth, requireScope } from "./partner-api-routes";
 import { PROGRAM_DEFAULT_ANNUAL_VALUE } from "./benefits-screener-fix";
 import { fireWebhook, fireWebhookForOrg } from "./webhook-dispatcher";
@@ -62,6 +62,32 @@ function rateLimit(name: string, max: number, windowMs: number) {
       return res.status(429).json({ error: `Rate limit exceeded. Try again in ${r.retryAfterSec}s.` });
     }
     return next();
+  };
+}
+
+// ── Failure-only rate limiter (anti-enumeration) ──────────────────────────
+// Unlike rateLimit() above, this does NOT consume the bucket on every
+// request — only when the caller explicitly reports a "miss" (invalid/
+// not-found token). This is the correct shape for token-guarded public
+// endpoints: a legitimate org can confirm many distinct, valid referrals in
+// a row without being throttled (each real token is single-use anyway —
+// resolved referrals are immutable), while an attacker guessing tokens
+// racks up misses and gets locked out. Rejects up-front if the caller has
+// already exceeded the miss budget, without itself counting as a miss.
+function checkEnumerationGuard(name: string, max: number, windowMs: number) {
+  return {
+    isBlocked(req: Request): number | null {
+      const ip = req.ip || req.socket?.remoteAddress || "unknown";
+      const key = `ip:${name}:${ip}`;
+      const b = buckets.get(key);
+      if (!b || b.resetAt < Date.now()) return null;
+      if (b.count >= max) return Math.ceil((b.resetAt - Date.now()) / 1000);
+      return null;
+    },
+    recordMiss(req: Request) {
+      const ip = req.ip || req.socket?.remoteAddress || "unknown";
+      consume(`ip:${name}:${ip}`, max, windowMs);
+    },
   };
 }
 
@@ -171,7 +197,7 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
       clientDisplayName: clientDisplayName || null,
       clientPhone: clientPhone || null,
       screeningId: screeningId ? parseInt(screeningId) : null,
-      chwUserId: (req as any).user?.id ? parseInt((req as any).user.id) : null,
+      chwUserId: (() => { const uid = getUserId(req); const n = uid ? parseInt(uid) : NaN; return isNaN(n) ? null : n; })(),
       funderId: funderId || null,
       notes: notes || null,
     }).returning();
@@ -228,7 +254,7 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
 });
 
 // GET /api/referrals/status/:token — public client status check via capability token
-referralRouter.get("/status/:token", async (req, res) => {
+referralRouter.get("/status/:token", rateLimit("referral-status", 30, 60 * 1000), async (req, res) => {
   try {
     const [r] = await db.select({
       orgName: referrals.orgName,
@@ -338,11 +364,17 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
 // a staff login. Public, no auth, rate-limited by req.ip. Looks up by the
 // org_confirm_token capability token (NOT id, NOT statusToken). Completed
 // (resolved) referrals are immutable per project doctrine.
+const orgConfirmEnumerationGuard = checkEnumerationGuard("org-confirm-miss", 20, 60 * 60 * 1000);
 referralRouter.post(
   "/org-confirm/:orgToken",
-  rateLimit("org-confirm", 20, 60 * 60 * 1000),
   async (req: Request, res: Response) => {
     try {
+      const blockedForSec = orgConfirmEnumerationGuard.isBlocked(req);
+      if (blockedForSec !== null) {
+        res.setHeader("Retry-After", String(blockedForSec));
+        return res.status(429).json({ error: `Too many invalid attempts. Try again in ${blockedForSec}s.` });
+      }
+
       const { status, benefitValueEstimate, notes } = req.body;
 
 const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
@@ -352,7 +384,13 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
         .select()
         .from(referrals)
         .where(eq(referrals.orgConfirmToken, req.params.orgToken as string));
-      if (!existing) return res.status(404).json({ error: "Referral not found" });
+      if (!existing) {
+        // Only invalid/guessed tokens count against the anti-enumeration
+        // budget — a legitimate org confirming many real referrals never
+        // gets throttled.
+        orgConfirmEnumerationGuard.recordMiss(req);
+        return res.status(404).json({ error: "Referral not found" });
+      }
 
       // Immutability: reject changes once terminally resolved.
       if (existing.resolvedAt) {
@@ -421,9 +459,14 @@ const VALID_STATUSES = ["enrolled", "ineligible", "withdrew", "accepted"];
 // each referral. statusToken is intentionally NOT returned here (it is a
 // client-facing token and should not be surfaced on this CHW-facing list).
 referralRouter.get("/my-sent", async (req, res) => {
-  if (!(req as any).user?.id) return res.status(401).json({ error: "Authentication required" });
+  const rawUserId = getUserId(req);
+  if (!rawUserId) return res.status(401).json({ error: "Authentication required" });
   try {
-    const chwUserId = parseInt((req as any).user.id as any);
+    const chwUserId = parseInt(rawUserId);
+    // chwUserId is an integer FK mirroring Replit numeric user IDs.  If the
+    // parsed value is NaN (non-numeric sub — shouldn't happen in production)
+    // return an empty list rather than a DB error.
+    if (isNaN(chwUserId)) return res.json({ referrals: [] });
     const sent = await db
       .select({
         id: referrals.id,

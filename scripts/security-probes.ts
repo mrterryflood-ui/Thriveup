@@ -332,7 +332,26 @@ async function runPublicContractProbes() {
   }
 }
 
-run().catch((err) => {
-  console.error("Probe run crashed:", err);
-  process.exit(1);
-});
+// ── Inbound-verification gate (runs synchronously after network probes) ──────
+// verify-inbound-verification.ts runs as a sub-process via npx tsx so it has
+// its own module resolution context.  A non-zero exit propagates here.
+async function runInboundVerificationGate() {
+  console.log("\n\n══ Inbound Verification Gate (verify-inbound-verification.ts) ══");
+  const { execFileSync } = await import("child_process");
+  try {
+    execFileSync("npx", ["tsx", "scripts/verify-inbound-verification.ts"], {
+      stdio: "inherit",
+      cwd: new URL("..", import.meta.url).pathname,
+    });
+  } catch {
+    // execFileSync throws on non-zero exit; message already printed to stdio
+    process.exit(1);
+  }
+}
+
+run()
+  .then(() => runInboundVerificationGate())
+  .catch((err) => {
+    console.error("Probe run crashed:", err);
+    process.exit(1);
+  });

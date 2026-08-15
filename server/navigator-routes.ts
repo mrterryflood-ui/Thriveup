@@ -10,6 +10,8 @@ import { buildCommunityAIContext } from "./rplice-intelligence";
 import { searchResources, getResourceCategories } from "./resource-engine";
 import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData, cedsRegions, cedsGoals, cedsAlignments, gunViolenceIncidents } from "@shared/schema";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
+import { enforceGroundedClaims, buildPercentRule, buildAnyOfRule, type ClaimRule } from "./ai-claim-grounding";
+import { recordClaimDecisions } from "./claim-chain";
 import multer from "multer";
 import { spawnSync } from "child_process";
 import * as fs from "fs";
@@ -360,10 +362,19 @@ function detectGunViolenceContext(userMessage: string): { injected: boolean; geo
   return { injected: true, geography: geography || null, state: stateMatch?.[1] || null };
 }
 
-async function assembleContext(req: Request, userMessage: string): Promise<string> {
+/** Census indicators captured during context assembly, used to build grounding rules for the response. */
+interface NavigatorCensusIndicators {
+  zip: string;
+  povertyRate: number | null;
+  unemploymentRate: number | null;
+  uninsuredRate: number | null;
+}
+
+async function assembleContext(req: Request, userMessage: string): Promise<{ context: string; censusIndicators: NavigatorCensusIndicators | null }> {
   const contextParts: string[] = [];
   const userId = getUserId(req);
   const userName = getUserName(req);
+  let censusIndicators: NavigatorCensusIndicators | null = null;
 
   if (userName) {
     contextParts.push(`[User: ${userName}]`);
@@ -394,6 +405,17 @@ async function assembleContext(req: Request, userMessage: string): Promise<strin
       }
       if (communityCtx) {
         contextParts.push(communityCtx);
+        // Extract Census indicators from the community context block for downstream grounding.
+        // The format is fixed (built by buildCommunityAIContext): "• Poverty rate: X%", etc.
+        const pov = communityCtx.match(/Poverty rate:\s*([\d.]+)%/);
+        const unem = communityCtx.match(/Unemployment:\s*([\d.]+)%/);
+        const unins = communityCtx.match(/Uninsured:\s*([\d.]+)%/);
+        censusIndicators = {
+          zip: zipCode,
+          povertyRate:      pov  ? parseFloat(pov[1])  : null,
+          unemploymentRate: unem ? parseFloat(unem[1]) : null,
+          uninsuredRate:    unins ? parseFloat(unins[1]) : null,
+        };
       }
     } else if (stateMatch) {
       const stateQuery = stateMatch[1];
@@ -675,7 +697,8 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
     }
   }
 
-  return contextParts.length > 0 ? "\n\n--- CONTEXT DATA ---\n" + contextParts.join("\n\n") + "\n--- END CONTEXT ---" : "";
+  const context = contextParts.length > 0 ? "\n\n--- CONTEXT DATA ---\n" + contextParts.join("\n\n") + "\n--- END CONTEXT ---" : "";
+  return { context, censusIndicators };
 }
 
 function generateConversationTitle(message: string): string {
@@ -765,7 +788,7 @@ export function registerNavigatorRoutes(app: Express) {
       return res.status(400).json({ error: `Message is too long (max ${MAX_MESSAGE_CHARS} characters). Please shorten it and try again.` });
     }
 
-    const contextData = await assembleContext(req, message);
+    const { context: contextData, censusIndicators: navigatorCensusIndicators } = await assembleContext(req, message);
     // Recompute (cheap, regex-only) in this handler's scope so the "Continue
     // in Tell-a-Story" carry-over (#216) can reference it — assembleContext's
     // internal detection variables are local to that function.
@@ -1090,6 +1113,47 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           } catch (err) {
             console.error("[Navigator] Error saving response:", err);
           }
+
+          // ── AI claim grounding for Navigator Census figures (#255) ─────────
+          // When the context injected real Census figures (poverty rate, unemployment
+          // rate, uninsured rate) from buildCommunityAIContext, mechanically verify
+          // that any sentence in the streamed response that restates those stats
+          // matches the injected source values. The response has already been
+          // streamed token-by-token, so we can't redact it in-band; instead we
+          // record every grounding decision to the tamper-evident claim chain and
+          // emit a claimGrounding SSE event so the frontend can flag mismatched
+          // claims to the user in future. Leave free-form advice/judgment alone —
+          // only sentences that TRIGGER the numeric-claim regex are evaluated.
+          if (navigatorCensusIndicators && fullResponse.length > 0) {
+            try {
+              const navigatorRules: ClaimRule[] = [];
+              const { povertyRate, unemploymentRate, uninsuredRate, zip } = navigatorCensusIndicators;
+              if (povertyRate != null && Number.isFinite(povertyRate)) {
+                navigatorRules.push(buildPercentRule("nav-poverty-rate", /poverty/i, povertyRate));
+              }
+              if (unemploymentRate != null && Number.isFinite(unemploymentRate)) {
+                navigatorRules.push(buildPercentRule("nav-unemployment-rate", /unemploy(?:ment|ed)/i, unemploymentRate));
+              }
+              if (uninsuredRate != null && Number.isFinite(uninsuredRate)) {
+                navigatorRules.push(buildPercentRule("nav-uninsured-rate", /uninsured/i, uninsuredRate));
+              }
+              if (navigatorRules.length > 0) {
+                const groundingResult = enforceGroundedClaims(fullResponse, navigatorRules);
+                if (groundingResult.decisions.length > 0) {
+                  recordClaimDecisions("navigator", `ZIP ${zip}`, groundingResult.decisions).catch((err) =>
+                    console.error("[Navigator] claim-chain record failed (non-fatal):", err)
+                  );
+                  if (groundingResult.droppedAny) {
+                    console.warn(`[Navigator] response for ZIP ${zip} contained ungrounded Census claim(s) — recorded to chain but NOT redacted (streaming already complete).`);
+                  }
+                }
+              }
+            } catch (groundingErr) {
+              // Non-fatal — grounding is audit-only for the navigator
+              console.error("[Navigator] grounding check error (non-fatal):", groundingErr);
+            }
+          }
+
           // Always send deepThinkJobId (per-request UUID) so both authenticated
           // and anonymous users can poll for the DeepSeek R1 result.
           res.write(`data: ${JSON.stringify({ done: true, deepThinkJobId, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
