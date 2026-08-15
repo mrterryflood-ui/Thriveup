@@ -8,7 +8,7 @@ import { grantOpportunities, grantAlerts, platformGaps, insertGrantOpportunitySc
 import { seedProposalPipeline } from "./seed-proposal-pipeline";
 import type { GrantOpportunity } from "@shared/schema";
 import { z } from "zod";
-import { eq, desc, sql, gte, gt, lte, lt, and, or, isNull, ilike, notInArray } from "drizzle-orm";
+import { eq, desc, asc, sql, gte, gt, lte, lt, and, or, isNull, isNotNull, ilike, notInArray } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON, streamAIResponse, withEthicalPreamble } from "./ai-provider";
 import { collaborativeResponse } from "./collaborative-ai";
 import { communityNarrativeBlock } from "./community-intel";
@@ -1707,7 +1707,7 @@ Return ONLY JSON:
 
   app.get("/api/grants/:id", async (req, res, next) => {
     // Reserved subpaths handled by other routes; let Express continue to them.
-    const reserved = new Set(["this-week", "digest", "discovery", "stats", "alerts", "report", "platform", "section-drafts", "collaborator-value-map", "for-agencies"]);
+    const reserved = new Set(["this-week", "digest", "discovery", "stats", "alerts", "report", "platform", "section-drafts", "collaborator-value-map", "for-agencies", "next-90-days"]);
     if (reserved.has(getParamId(req))) return next();
     try {
       const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
@@ -4712,6 +4712,105 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     } catch (error) {
       console.error("Error in GET /api/grants/for-agencies", error);
       res.status(500).json({ error: "Failed to load agency funding digest" });
+    }
+  });
+
+  // === Internal 90-Day Funding Outlook ===
+  // Staff-only. This is the platform's OWN pipeline — grants TCAF itself
+  // should pursue — as opposed to /api/grants/for-agencies (external orgs
+  // wanting to replicate the platform). It is a rolling, always-current
+  // window (recomputed on every request against "now"), not a one-time
+  // snapshot: any grant with a deadline in the next 90 days, or with no
+  // deadline that's still open and was posted/discovered in the last 90
+  // days, shows up automatically as it enters the window and drops off once
+  // it leaves it or is marked applied/expired.
+  //
+  // "Why this fits" and "how to present it" are never invented text: when a
+  // grant already has AI-generated fitAnalysis/aiAnalysis (summary,
+  // strengths, gaps, recommendedActions, competitiveAdvantage — produced at
+  // ingestion time via server/grant-routes.ts ~line 383-452), that real
+  // analysis is surfaced verbatim. Otherwise the story is built strictly
+  // from computeFitScore's own matched PLATFORM_CAPABILITIES areas/features
+  // and TIER1_KEYWORDS hits — i.e. only from language that is actually
+  // present in the grant's own title/description and TCAF's own documented
+  // capabilities, never fabricated.
+  app.get("/api/grants/next-90-days", requireAuth, requireStaff, async (_req, res) => {
+    try {
+      const now = new Date();
+      const in90Days = new Date(now.getTime() + 90 * 24 * 60 * 60 * 1000);
+      const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
+
+      // Precision over volume: this is a curated pursuit list, not a raw feed
+      // of every open RFP. Require a real fit signal — either a stored
+      // fitScore of at least 40 (moderate-or-better match against TCAF's own
+      // capabilities) or a matched capability area computed fresh for grants
+      // that were never scored — so a generic, unrelated opportunity (e.g. a
+      // neuroscience research grant with fitScore 0) never shows up here.
+      const MIN_FIT_SCORE = 40;
+      const rows = await db.select().from(grantOpportunities)
+        .where(and(
+          notInArray(grantOpportunities.status, ["expired", "dismissed", "superseded_duplicate", "discontinued_invitation_only", "declined", "not_pursuing"]),
+          notInArray(grantOpportunities.source, ["usaspending"]),
+          or(
+            and(isNotNull(grantOpportunities.deadline), gte(grantOpportunities.deadline, now), lte(grantOpportunities.deadline, in90Days)),
+            and(isNull(grantOpportunities.deadline), gte(grantOpportunities.createdAt, ninetyDaysAgo)),
+          ),
+        ))
+        .orderBy(desc(grantOpportunities.fitScore), asc(grantOpportunities.deadline));
+
+      const filtered = rows.filter(g => {
+        if (g.fitScore !== null && g.fitScore !== undefined) return g.fitScore >= MIN_FIT_SCORE;
+        // Never-scored row: fall back to a fresh compute so it isn't dropped or
+        // wrongly kept purely because fitScore is null.
+        return computeFitScore(g).score >= MIN_FIT_SCORE;
+      }).slice(0, 60);
+
+      const outlook = filtered.map(g => {
+        const fit = computeFitScore(g);
+        const score = g.fitScore ?? fit.score;
+        const daysToDeadline = g.deadline ? Math.ceil((new Date(g.deadline).getTime() - now.getTime()) / (24 * 60 * 60 * 1000)) : null;
+
+        // Prefer real, already-generated AI analysis when present (jsonb column, already parsed).
+        const aiAnalysis = g.aiAnalysis as { summary?: string; recommendedActions?: string[]; competitiveAdvantage?: string } | null;
+
+        let story: string;
+        let howToPresent: string;
+        if (aiAnalysis?.summary) {
+          story = aiAnalysis.summary;
+          howToPresent = aiAnalysis.competitiveAdvantage
+            ? aiAnalysis.competitiveAdvantage
+            : (aiAnalysis.recommendedActions?.length ? aiAnalysis.recommendedActions.join(" ") : "");
+        } else {
+          const matchedCaps = PLATFORM_CAPABILITIES.filter(c => fit.matchedAreas.includes(c.area));
+          const featureExamples = matchedCaps.flatMap(c => c.features).slice(0, 3);
+          story = fit.matchedAreas.length > 0
+            ? `Matches ${fit.matchedAreas.length} of TCAF's documented capability areas (${fit.matchedAreas.join(", ")}) based on the grant's own language: "${fit.analysis.keywords.slice(0, 6).join('", "')}".`
+            : "No strong capability-area match was found in this grant's title/description; scored on general eligibility signals only.";
+          howToPresent = featureExamples.length > 0
+            ? `Lead with concrete evidence already in production: ${featureExamples.join("; ")}. Tie each claim to a named platform component rather than describing capability in the abstract — reviewers weight proof of an operating system over a plan to build one.`
+            : "Re-run AI analysis on this opportunity (from the Grants tab) for tailored proposal guidance — the deterministic keyword match alone isn't strong enough here to generate a specific angle.";
+        }
+
+        return {
+          id: g.id, title: g.title, agency: g.agency, description: g.description,
+          fundingAmount: g.fundingAmount, deadline: g.deadline, daysToDeadline,
+          fitScore: score, status: g.status, source: g.source, sourceUrl: g.sourceUrl,
+          matchedAreas: fit.matchedAreas, matchedKeywords: fit.analysis.keywords,
+          story, howToPresent,
+          hasAiAnalysis: !!aiAnalysis?.summary,
+        };
+      });
+
+      res.json({
+        generatedAt: now.toISOString(),
+        windowStart: now.toISOString(),
+        windowEnd: in90Days.toISOString(),
+        total: outlook.length,
+        opportunities: outlook,
+      });
+    } catch (error) {
+      console.error("Error in GET /api/grants/next-90-days", error);
+      res.status(500).json({ error: "Failed to load 90-day funding outlook" });
     }
   });
 

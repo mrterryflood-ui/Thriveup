@@ -373,7 +373,7 @@ function PasteRfpUrlCard() {
 export default function GrantHubPage() {
   const { toast } = useToast();
   const { isAuthenticated } = useAuth();
-  type TabId = "grants" | "calendar" | "compare" | "alerts" | "reports";
+  type TabId = "grants" | "calendar" | "compare" | "alerts" | "reports" | "outlook";
   const [activeTab, setActiveTab] = useState<TabId>("grants");
   const [showForm, setShowForm] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -452,6 +452,20 @@ export default function GrantHubPage() {
     sources: string[];
   }
   const { data: discoveryStatus } = useQuery<DiscoveryStatus>({ queryKey: ["/api/grants/discovery/status"] });
+
+  interface OutlookOpportunity {
+    id: string; title: string; agency: string | null; description: string | null;
+    fundingAmount: string | null; deadline: string | null; daysToDeadline: number | null;
+    fitScore: number | null; status: string | null; source: string | null; sourceUrl: string | null;
+    matchedAreas: string[]; matchedKeywords: string[]; story: string; howToPresent: string;
+    hasAiAnalysis: boolean;
+  }
+  interface OutlookResponse { generatedAt: string; windowStart: string; windowEnd: string; total: number; opportunities: OutlookOpportunity[]; }
+  const { data: outlookData, isLoading: outlookLoading, refetch: refetchOutlook, isFetching: outlookFetching } = useQuery<OutlookResponse>({
+    queryKey: ["/api/grants/next-90-days"],
+    enabled: activeTab === "outlook",
+  });
+  const outlookOpportunities = outlookData?.opportunities ?? [];
 
   // Gate /api/me/* queries on auth state — these endpoints are requireOrg
   // and will 404 ORG_REQUIRED for signed-in-no-org users. Without gating,
@@ -889,9 +903,13 @@ export default function GrantHubPage() {
         </div>
       )}
 
-      <Tabs defaultValue="grants" className="space-y-4">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as TabId)} className="space-y-4">
         <TabsList data-testid="tabs-grant-sections">
           <TabsTrigger value="grants" data-testid="tab-grants">Grants</TabsTrigger>
+          <TabsTrigger value="outlook" data-testid="tab-outlook">
+            <TrendingUp className="h-4 w-4 mr-1" />
+            90-Day Outlook
+          </TabsTrigger>
           <TabsTrigger value="calendar" data-testid="tab-calendar">
             <Calendar className="h-4 w-4 mr-1" />
             Deadlines
@@ -1337,6 +1355,88 @@ export default function GrantHubPage() {
                       </Button>
                     </div>
                   </div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="outlook" className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <h2 className="font-semibold text-lg flex items-center gap-2" data-testid="text-outlook-heading">
+                <TrendingUp className="h-5 w-5" /> 90-Day Funding Outlook
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                TCAF's own pipeline — real opportunities with a deadline in the next 90 days (or still open with no deadline), scored against the platform's actual capabilities. Recalculated live every time you open this tab.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => refetchOutlook()} disabled={outlookFetching} data-testid="button-refresh-outlook">
+              <RefreshCw className={`h-4 w-4 mr-1 ${outlookFetching ? "animate-spin" : ""}`} /> Refresh
+            </Button>
+          </div>
+
+          {outlookData && (
+            <p className="text-xs text-muted-foreground" data-testid="text-outlook-window">
+              Window: {new Date(outlookData.windowStart).toLocaleDateString()} – {new Date(outlookData.windowEnd).toLocaleDateString()} · {outlookData.total} opportunit{outlookData.total === 1 ? "y" : "ies"}
+            </p>
+          )}
+
+          {outlookLoading ? (
+            <div className="space-y-3">
+              {[1, 2, 3].map(i => <Skeleton key={i} className="h-40 w-full" />)}
+            </div>
+          ) : outlookOpportunities.length === 0 ? (
+            <Card className="p-8 text-center text-muted-foreground" data-testid="card-no-outlook">
+              <TrendingUp className="h-10 w-10 mx-auto mb-3 opacity-40" />
+              <p>Nothing in the next 90 days right now. Run grant discovery to pull in new opportunities.</p>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {outlookOpportunities.map(o => (
+                <Card key={o.id} className="p-4 space-y-3" data-testid={`card-outlook-${o.id}`}>
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-medium text-sm" data-testid={`text-outlook-title-${o.id}`}>{o.title}</h3>
+                      {o.agency && <p className="text-xs text-muted-foreground">{o.agency}</p>}
+                    </div>
+                    <FitScoreBadge score={o.fitScore} />
+                  </div>
+
+                  <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+                    {o.fundingAmount && <span>{o.fundingAmount}</span>}
+                    {o.deadline ? (
+                      <span className={o.daysToDeadline !== null && o.daysToDeadline <= 14 ? "text-amber-600 font-medium" : ""}>
+                        Deadline: {new Date(o.deadline).toLocaleDateString()}
+                        {o.daysToDeadline !== null && ` (${o.daysToDeadline}d)`}
+                      </span>
+                    ) : (
+                      <span>No fixed deadline — rolling/open</span>
+                    )}
+                  </div>
+
+                  {o.matchedAreas.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {o.matchedAreas.map(area => (
+                        <Badge key={area} variant="secondary" className="text-[10px]">{area}</Badge>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="rounded-md bg-muted/60 p-3 text-xs space-y-1.5">
+                    <p><span className="font-medium text-foreground">The story:</span> <span className="text-muted-foreground">{o.story}</span></p>
+                    <p><span className="font-medium text-foreground">How to present it:</span> <span className="text-muted-foreground">{o.howToPresent}</span></p>
+                    {!o.hasAiAnalysis && (
+                      <p className="text-[11px] text-muted-foreground/70 italic">Built from matched capability keywords — open in the Grants tab and run AI analysis for a deeper, opportunity-specific angle.</p>
+                    )}
+                  </div>
+
+                  {o.sourceUrl && (
+                    <a href={o.sourceUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-xs text-primary flex items-center gap-1 hover:underline" data-testid={`link-outlook-source-${o.id}`}>
+                      View opportunity <ExternalLink className="h-3 w-3" />
+                    </a>
+                  )}
                 </Card>
               ))}
             </div>
