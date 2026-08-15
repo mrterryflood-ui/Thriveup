@@ -1147,6 +1147,12 @@ export function registerBenefitsRoutes(app: Express) {
       const totalEnrolled = benefitData.reduce((s, d) => s + (d.enrolledPopulation || 0), 0);
       const highNeedTracts = tractData.filter(t => (t.barrierIndex || 0) > 20 || (t.povertyRate || 0) > 25);
 
+      const demoRows = countyData.filter(d => (d.dataSource || "").toLowerCase().includes("illustrative") || (d.dataSource || "").toLowerCase().includes("demo")).length;
+      const hasDemoData = demoRows > 0;
+      const provenanceNote = hasDemoData
+        ? `\n⚠️ DATA NOTICE: ${demoRows} of the ${countyData.length} data rows for this county are illustrative/demo data, not verified administrative records. Numbers cited from these rows are estimates for planning purposes only.`
+        : "";
+
       const dataContext = `
 COUNTY: ${county.name} (FIPS: ${countyFips})
 STRATEGY: ${county.strategy === "build" ? "Build capacity (rural/emerging)" : "Strengthen existing (urban)"}
@@ -1169,6 +1175,7 @@ ${highNeedTracts.slice(0, 5).map(t => {
   const raw = t.rawCensusData as any;
   return `  Tract ${t.tractId}: Pop ${t.totalPopulation?.toLocaleString()}, Poverty ${Math.round(t.povertyRate || 0)}%, Barrier ${Math.round((t.barrierIndex || 0) * 10) / 10}, Gap ${t.participationGap ? Math.round(t.participationGap) : 'N/A'}%`;
 }).join("\n")}
+${provenanceNote}
 `;
 
       const systemPrompt = `You are the Benefits Intelligence AI for The Collaborative Advocate Foundation (TCAF), a 501(c)(3) veteran-founded, Black-led nonprofit in Central Texas. You analyze Census ACS data, enrollment gaps, and barrier indices to generate actionable neighborhood-level insights for the We All Benefit 2.0 coalition (St. David's Foundation grant, $35M over 3 years across Travis, Williamson, Hays, Bastrop, and Caldwell counties).
@@ -1184,7 +1191,9 @@ Key principles:
 - Data source: U.S. Census Bureau ACS 5-Year Estimates (2018-2022), specific B-series variables at tract level
 - FPL (2024): $15,060 + $5,380 per additional person
 
-Be specific with numbers. Name neighborhoods. Recommend specific partner types needed. Connect to existing facilitators. Always actionable.`;
+Be specific with numbers. Name neighborhoods. Recommend specific partner types needed. Connect to existing facilitators. Always actionable.${hasDemoData ? `
+
+IMPORTANT — DATA PROVENANCE: Some data rows in the context below are illustrative/demo data, not verified administrative records (flagged as such in the source). When citing specific numbers from this context, you MUST include a parenthetical disclosure such as "(illustrative estimate)" so readers know the figures are for planning purposes only, not confirmed enrollment counts.` : ""}`;
 
       const userPrompt = question
         ? `Given this data about ${county.name}, answer this question: ${question}\n\nDATA:\n${dataContext}`
@@ -1196,7 +1205,7 @@ Be specific with numbers. Name neighborhoods. Recommend specific partner types n
         topic: `benefits enrollment ${county.name} gap analysis`,
       });
 
-      res.json({ insight: collabResult.synthesis, county: county.name, dataSnapshot: { totalEligible, totalEnrolled, gap: totalEligible - totalEnrolled, tractCount: tractData.length, highNeedTracts: highNeedTracts.length }, collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs } });
+      res.json({ insight: collabResult.synthesis, county: county.name, dataSnapshot: { totalEligible, totalEnrolled, gap: totalEligible - totalEnrolled, tractCount: tractData.length, highNeedTracts: highNeedTracts.length }, dataProvenance: { totalRows: countyData.length, demoRows, hasDemoData, note: hasDemoData ? "Some figures in this response are illustrative estimates, not verified enrollment records." : "All figures sourced from verified Census ACS records." }, collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs } });
     } catch (error) {
       console.error("AI insight error:", error);
       res.status(500).json({ error: "Failed to generate AI insight" });
@@ -1214,6 +1223,9 @@ Be specific with numbers. Name neighborhoods. Recommend specific partner types n
       const totalEligible = enrollmentData.reduce((s, d) => s + (d.eligiblePopulation || 0), 0);
       const totalEnrolled = enrollmentData.reduce((s, d) => s + (d.enrolledPopulation || 0), 0);
       const totalGap = totalEligible - totalEnrolled;
+
+      const execDemoRows = [...enrollmentData, ...tractData].filter(d => (d.dataSource || "").toLowerCase().includes("illustrative") || (d.dataSource || "").toLowerCase().includes("demo")).length;
+      const execHasDemoData = execDemoRows > 0;
 
       const countyBreakdowns = Object.entries(ST_DAVIDS_COUNTIES).map(([fips, info]) => {
         const cd = enrollmentData.filter(d => d.countyFips === fips);
@@ -1298,9 +1310,11 @@ FORMAT: Write a professional executive summary of 7 pages or less. Include:
 8. Coalition Call to Action (why join, how to join, what's needed)
 9. Next Steps & Timeline (LOI April 27, full app June 18, key milestones)
 
-Use real data from the numbers provided. Be specific. Name organizations. Give dollar values for benefits. Make it compelling but honest. No filler, no fluff. Every sentence earns its place.`;
+Use real data from the numbers provided. Be specific. Name organizations. Give dollar values for benefits. Make it compelling but honest. No filler, no fluff. Every sentence earns its place.${execHasDemoData ? `
 
-      const dataPrompt = `Generate the executive summary using this real data:
+IMPORTANT — DATA PROVENANCE: ${execDemoRows} of the data rows provided below are illustrative/demo data, not verified administrative records. Any specific numbers drawn from those rows must be presented as illustrative estimates, not confirmed figures. Add a footnote at the end of the executive summary disclosing: "Note: Enrollment figures used in this summary include illustrative estimates for planning purposes. Final figures will be derived from verified administrative data sources before submission."` : ""}`;
+
+      const dataPrompt = `Generate the executive summary using this ${execHasDemoData ? "planning" : "real"} data:${execHasDemoData ? "\n\n⚠️ DATA NOTICE: Some rows below are illustrative estimates, not verified administrative records. Disclose this clearly in the summary." : ""}
 
 OVERALL:
 - Total Eligible: ${totalEligible.toLocaleString()}
@@ -1345,7 +1359,7 @@ SNAP: $3,024 | Medicaid: $7,200 | CHIP: $2,400 | EITC: $3,584 | WIC: $528 | SSI:
         topic: "benefits coalition executive summary 5-county gap analysis",
       });
 
-      res.json({ summary: collabResult.synthesis, generatedAt: new Date().toISOString(), dataSnapshot: { totalEligible, totalEnrolled, totalGap, counties: countyBreakdowns.length, tracts: tractData.length }, collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs } });
+      res.json({ summary: collabResult.synthesis, generatedAt: new Date().toISOString(), dataSnapshot: { totalEligible, totalEnrolled, totalGap, counties: countyBreakdowns.length, tracts: tractData.length }, dataProvenance: { totalRows: enrollmentData.length + tractData.length, demoRows: execDemoRows, hasDemoData: execHasDemoData, note: execHasDemoData ? "Some figures in this summary are illustrative estimates, not verified enrollment records." : "All figures sourced from verified Census ACS records." }, collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs } });
     } catch (error) {
       console.error("Exec summary error:", error);
       res.status(500).json({ error: "Failed to generate executive summary" });
@@ -1366,6 +1380,9 @@ SNAP: $3,024 | Medicaid: $7,200 | CHIP: $2,400 | EITC: $3,584 | WIC: $528 | SSI:
       const totalEligible = countyData.reduce((s, d) => s + (d.eligiblePopulation || 0), 0);
       const totalEnrolled = countyData.reduce((s, d) => s + (d.enrolledPopulation || 0), 0);
 
+      const matchDemoRows = countyData.filter(d => (d.dataSource || "").toLowerCase().includes("illustrative") || (d.dataSource || "").toLowerCase().includes("demo")).length;
+      const matchHasDemoData = matchDemoRows > 0;
+
       const systemPrompt = `You are the Coalition Collaboration Matcher for TCAF's We All Benefit 2.0 initiative. Given information about a potential partner organization, generate a personalized collaboration plan that shows them:
 1. Exactly where they fit in the coalition
 2. What specific gaps their organization can help fill
@@ -1374,16 +1391,19 @@ SNAP: $3,024 | Medicaid: $7,200 | CHIP: $2,400 | EITC: $3,584 | WIC: $528 | SSI:
 5. What the first 30/60/90 day engagement looks like
 6. How their participation strengthens the overall grant application
 
-Be specific, use real data, and make them feel like their participation is essential (because it is). Return valid JSON.`;
+Be specific, use real data, and make them feel like their participation is essential (because it is). Return valid JSON.${matchHasDemoData ? `
+
+IMPORTANT — DATA PROVENANCE: ${matchDemoRows} of the county data rows below are illustrative/demo data, not verified administrative records. Any measurableOutcomes you generate that cite specific enrollment numbers from this context must note they are "illustrative estimates" in the string value itself.` : ""}`;
 
       const result = await generateAIJSON<any>(
         `Organization: ${organizationType} named "${description || 'potential partner'}" in ${county}
 Services: ${services || 'general community services'}
-County enrollment gap: ${(totalEligible - totalEnrolled).toLocaleString()} people
+County enrollment gap: ${(totalEligible - totalEnrolled).toLocaleString()} people${matchHasDemoData ? " (illustrative estimate)" : ""}
 Existing partners in county: ${facilitators.map(f => `${f.name} (${f.type})`).join(", ")}
 Registered coalition members: ${existingPartners.length}
 County poverty rate: ${Math.round(countyData[0]?.povertyRate || 0)}%
 County barrier index: ${Math.round((countyData[0]?.barrierIndex || 0) * 10) / 10}
+Data provenance: ${matchHasDemoData ? `${matchDemoRows} of ${countyData.length} rows are illustrative/demo data — label outcome numbers accordingly` : "verified Census ACS records"}
 
 Generate a JSON object with these fields:
 - roleTitle: string (their specific role in the coalition)
@@ -1399,7 +1419,7 @@ Generate a JSON object with these fields:
         systemPrompt
       );
 
-      res.json({ match: result, county, organizationType });
+      res.json({ match: result, county, organizationType, dataProvenance: { totalRows: countyData.length, demoRows: matchDemoRows, hasDemoData: matchHasDemoData, note: matchHasDemoData ? "Some figures are illustrative estimates, not verified enrollment records." : "All figures sourced from verified Census ACS records." } });
     } catch (error) {
       console.error("Collab match error:", error);
       res.status(500).json({ error: "Failed to generate collaboration match" });
@@ -1423,18 +1443,24 @@ Generate a JSON object with these fields:
       const totalTracts = countyStats.reduce((s, c) => s + c.tracts, 0);
       const unclaimed = Math.round(totalGap * 4800);
 
+      const loiDemoRows = allData.filter(d => (d.dataSource || "").toLowerCase().includes("illustrative") || (d.dataSource || "").toLowerCase().includes("demo")).length;
+      const loiHasDemoData = loiDemoRows > 0;
+      const loiProvenanceDisclosure = loiHasDemoData
+        ? `\n\nDATA PROVENANCE NOTICE: ${loiDemoRows} of the ${allData.length} enrollment data rows are illustrative/demo data, not verified administrative records. Any statistics cited in this document that originate from those rows are planning-level estimates. Add a brief disclosure footnote at the end: "Enrollment figures include illustrative estimates used for planning purposes and will be verified against administrative data before submission."`
+        : "";
+
       // Donor-side mode: produce a donor-confidence narrative instead of a grant LOI.
       if (mode === "donor") {
-        const donorSystemPrompt = `You are writing for a charitable donor — not a grant funder. Donors care about three things: (1) is this organization real, (2) will my gift actually reach the outcome, (3) can I see proof. Be plain-spoken, specific, and confident without bragging. Lead with the resident outcome, not the platform. Cite real numbers. Avoid jargon, buzzwords, and acronyms unless defined.`;
+        const donorSystemPrompt = `You are writing for a charitable donor — not a grant funder. Donors care about three things: (1) is this organization real, (2) will my gift actually reach the outcome, (3) can I see proof. Be plain-spoken, specific, and confident without bragging. Lead with the resident outcome, not the platform. Cite real numbers. Avoid jargon, buzzwords, and acronyms unless defined.${loiHasDemoData ? "\n\nDATA PROVENANCE: Some enrollment figures provided are illustrative planning estimates, not verified administrative counts. Disclose this clearly and honestly to donors — do not present planning figures as confirmed data." : ""}`;
         const donorUserPrompt = `Write an approximately 450-word donor-discovery brief for The Collaborative Advocate Foundation (TCAF) — the org behind the WAB2 enrollment engine and the Outcome Receipts pilot.
 
 PURPOSE:
 Help a thoughtful donor (faith network, family foundation, HNWI, or institutional foundation pilot officer) decide in under 5 minutes whether to fund this work. The brief sits on TCAF's donor page and links to a live verifiable receipt demo.
 
-REAL DATA FROM THE LIVE PLATFORM:
-- ${totalEligible.toLocaleString()} people identified as eligible across 5 Central Texas counties
-- ${totalGap.toLocaleString()} of them are not currently enrolled in benefits they qualify for
-- ~$${(unclaimed / 1e9).toFixed(1)}B in unclaimed annual benefits sitting on the table
+${loiHasDemoData ? "PLANNING DATA FROM THE PLATFORM (some figures are illustrative estimates — disclose this):" : "REAL DATA FROM THE LIVE PLATFORM:"}
+- ${totalEligible.toLocaleString()} people identified as eligible across 5 Central Texas counties${loiHasDemoData ? " (illustrative estimate)" : ""}
+- ${totalGap.toLocaleString()} of them are not currently enrolled in benefits they qualify for${loiHasDemoData ? " (illustrative estimate)" : ""}
+- ~$${(unclaimed / 1e9).toFixed(1)}B in unclaimed annual benefits sitting on the table${loiHasDemoData ? " (illustrative estimate)" : ""}
 - ${totalTracts} census tracts continuously analyzed by the ChainWeb evidence engine
 - Live anonymized resident receipt available at lifetransitionsaid.org/donor-receipt-demo
 
@@ -1461,13 +1487,14 @@ Write EXACTLY 450 words (±20). Do NOT include a title or headers — just flowi
           mode: "donor",
           wordCount: donorWordCount,
           dataSnapshot: { totalEligible, totalGap, totalTracts, unclaimed, counties: countyStats.length },
+          dataProvenance: { totalRows: allData.length, demoRows: loiDemoRows, hasDemoData: loiHasDemoData, note: loiHasDemoData ? "Some figures are illustrative planning estimates, not verified enrollment records." : "All figures sourced from verified Census ACS records." },
           generatedAt: new Date().toISOString(),
           collaborative: { engines: collabResultDonor.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResultDonor.ragContext.chunkCount, consensusMethod: collabResultDonor.consensusMethod, timeMs: collabResultDonor.totalTimeMs },
         });
       }
 
-      const systemPrompt = `You are a grant writer for a 501(c)(3) nonprofit. Write clear, specific, impact-focused prose. No jargon, no buzzwords, no fluff. Every sentence earns its place. Use real numbers. Sound like a person who knows their community, not a consultant.`;
-      const userPrompt = `Write an approximately 500-word Letter of Intent for the St. David's Foundation We All Benefit 2.0 grant.
+      const systemPrompt = `You are a grant writer for a 501(c)(3) nonprofit. Write clear, specific, impact-focused prose. No jargon, no buzzwords, no fluff. Every sentence earns its place. Use real numbers. Sound like a person who knows their community, not a consultant.${loiHasDemoData ? "\n\nDATA PROVENANCE: Some enrollment figures provided are illustrative planning estimates, not verified administrative counts. You MUST include a brief disclosure footnote at the end of the LOI acknowledging that enrollment statistics are planning-level estimates derived from Census ACS methodology and will be verified against administrative data sources before final submission." : ""}`;
+      const userPrompt = `Write an approximately 500-word Letter of Intent for the St. David's Foundation We All Benefit 2.0 grant.${loiProvenanceDisclosure}
 
 APPLICANT:
 - The Collaborative Advocate Foundation (TCAF)
@@ -1482,10 +1509,10 @@ GRANT DETAILS:
 - LOI is ~500 words, NO budget required
 - Submission via GivingData portal by April 27, 2026 at 5 PM CT
 
-REAL DATA FROM OUR BENEFITS INTELLIGENCE SYSTEM:
-- Total eligible: ${totalEligible.toLocaleString()} people
-- Total gap (eligible but not enrolled): ${totalGap.toLocaleString()} people
-- Estimated unclaimed annual benefits: $${(unclaimed / 1e9).toFixed(1)} billion
+${loiHasDemoData ? "PLANNING DATA FROM OUR BENEFITS INTELLIGENCE SYSTEM (includes illustrative estimates — disclose in footnote):" : "REAL DATA FROM OUR BENEFITS INTELLIGENCE SYSTEM:"}
+- Total eligible: ${totalEligible.toLocaleString()} people${loiHasDemoData ? " (planning estimate)" : ""}
+- Total gap (eligible but not enrolled): ${totalGap.toLocaleString()} people${loiHasDemoData ? " (planning estimate)" : ""}
+- Estimated unclaimed annual benefits: $${(unclaimed / 1e9).toFixed(1)} billion${loiHasDemoData ? " (planning estimate)" : ""}
 - Census tracts analyzed: ${totalTracts} neighborhoods
 - County breakdown:
 ${countyStats.map(c => `  ${c.name}: ${c.gap.toLocaleString()} gap, ${c.tracts} tracts, strategy: ${c.strategy}`).join("\n")}
@@ -1524,6 +1551,7 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
         loi: collabResult.synthesis,
         wordCount,
         dataSnapshot: { totalEligible, totalGap, totalTracts, unclaimed, counties: countyStats.length },
+        dataProvenance: { totalRows: allData.length, demoRows: loiDemoRows, hasDemoData: loiHasDemoData, note: loiHasDemoData ? "Some figures are illustrative planning estimates, not verified enrollment records." : "All figures sourced from verified Census ACS records." },
         generatedAt: new Date().toISOString(),
         collaborative: { engines: collabResult.engines.filter(e => !e.error).map(e => e.engine), ragChunks: collabResult.ragContext.chunkCount, consensusMethod: collabResult.consensusMethod, timeMs: collabResult.totalTimeMs },
       });
