@@ -136,12 +136,12 @@ args = "bash -c 'NODE_OPTIONS=--max-old-space-size=8192 npx tsc --noEmit -p . > 
 name = "security-probes"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npx tsx scripts/security-probes.ts && npx tsx scripts/verify-location-resolver-state.ts"
-
 [workflows.workflow.metadata]
 isValidation = true
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/security-probes.ts && npx tsx scripts/verify-location-resolver-state.ts && npx tsx scripts/verify-gpp-endpoint.ts"
 
 [[workflows.workflow]]
 name = "ai-preamble"
