@@ -67,6 +67,26 @@ const FEDERAL: Record<string, BenefitNavEntry> = {
     processingDays: "125 days average for disability claims",
     enrollmentType: "Rolling — apply immediately after discharge",
   },
+  // Unemployment insurance and workers' comp are run entirely by each state
+  // (not a single federal portal), so these are national fallback locators
+  // rather than a single application site. Real per-state links can be added
+  // to STATE_NAV over time without changing the frontend.
+  UnemploymentInsurance: {
+    applicationUrl: "https://www.careeronestop.org/LocalHelp/UnemploymentBenefits/find-unemployment-benefits.aspx",
+    officeFinder: "https://www.careeronestop.org/LocalHelp/AmericanJobCenters/find-american-job-centers.aspx",
+    hotline: "1-877-US2-JOBS (1-877-872-5627)",
+    notes: "Unemployment insurance is run by your state, not the federal government — this locator routes you to your state's official site. File the same week you lose your job; don't wait.",
+    processingDays: "2–3 weeks for first payment in most states, after a 1-week unpaid waiting period",
+    enrollmentType: "File a new claim immediately after becoming unemployed",
+  },
+  WorkersComp: {
+    applicationUrl: "https://www.dol.gov/general/topic/workcomp/state",
+    officeFinder: "https://www.dol.gov/general/topic/workcomp/state",
+    hotline: "1-866-4-USA-DOL (1-866-487-2365)",
+    notes: "Workers' compensation is run by your state (federal employees, longshore/harbor workers, and coal miners have separate federal programs at dol.gov/owcp). Report the injury to your employer immediately — many states have short notice deadlines.",
+    processingDays: "Varies by state and injury severity",
+    enrollmentType: "Report injury to employer immediately, then file with the state agency or employer's insurer",
+  },
 };
 
 // ── State-specific overrides keyed by USPS state code ────────────────────────

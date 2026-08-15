@@ -56,3 +56,4 @@
 - [Platform Engineering Skill](.agents/skills/platform-engineering/SKILL.md) — Memory architecture; AI call site rules; OpenRouter rotation; engineering gotchas; DB patterns; orchestration; Chainweb API; visual circuit canvas; curriculum activities; SDOH/health data; Zod architecture; key file pointers.
 - [Adversarial Audit Skill](.agents/skills/adversarial-audit/SKILL.md) — 6-domain post-build audit; API contracts, JS runtime, UI/nav, offline, UX/performance, full-stack congruence.
 - [MAP-GAP Skill](.agents/skills/map-gap/SKILL.md) — Continuous improvement framework; systematic observation, gap prioritization, parallel execution, validation, lesson tracking.
+- [Benefits guided-apply architecture](benefits-guided-apply.md) — 3-file program catalog sync gotcha; navigator/chat is SSE not JSON.

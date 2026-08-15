@@ -4186,6 +4186,8 @@ export const benefitsScreenings = pgTable("benefits_screenings", {
   isElderly: boolean("is_elderly").default(false),
   isVeteran: boolean("is_veteran").default(false),
   isSingleParent: boolean("is_single_parent").default(false),
+  isUnemployed: boolean("is_unemployed").default(false),
+  hadWorkplaceInjury: boolean("had_workplace_injury").default(false),
   navigationGuides: jsonb("navigation_guides"),
   citizenshipStatus: varchar("citizenship_status", { length: 50 }),
   eligibleBenefits: text("eligible_benefits").array(),

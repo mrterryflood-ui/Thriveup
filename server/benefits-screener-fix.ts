@@ -115,6 +115,22 @@ export const BENEFIT_NAVIGATION: Record<string, {
     estimatedAnnualValue: 18000,
     notes: "VSO assistance available at no cost. Contact DAV, VFW, or American Legion.",
   },
+  UnemploymentInsurance: {
+    applicationUrl: "https://www.careeronestop.org/LocalHelp/UnemploymentBenefits/find-unemployment-benefits.aspx",
+    documentsRequired: ["Social Security number", "Driver's license or state ID", "Employer name(s) and address(es) for the last 18 months", "Dates of employment and reason for separation", "Bank account/routing number for direct deposit"],
+    enrollmentType: "File a new claim the same week you become unemployed — do not wait",
+    processingDays: "2–3 weeks for first payment after a 1-week unpaid waiting period in most states",
+    estimatedAnnualValue: 7800,
+    notes: "Unemployment insurance is run by each state, not the federal government — the exact website, weekly benefit amount, and rules vary by state. This link routes you to your state's official unemployment agency. Must be able and available to work, and actively searching for a job, to keep receiving payments.",
+  },
+  WorkersComp: {
+    applicationUrl: "https://www.dol.gov/general/topic/workcomp/state",
+    documentsRequired: ["Written notice of injury given to employer (as soon as possible, before any state deadline)", "Medical records / doctor's report tying the injury to your job", "Incident report or witness statements", "Pay stubs (last 4–8 weeks) to calculate wage-replacement amount", "Employer and insurance carrier information"],
+    enrollmentType: "Report the injury to your employer immediately, then file a claim with your state's workers' compensation agency or your employer's insurer",
+    processingDays: "Varies by state and injury type — initial employer notice deadlines are often as short as 30 days",
+    estimatedAnnualValue: 15600,
+    notes: "Workers' compensation is run by each state (federal employees, longshore workers, and coal miners have separate federal programs). This link lists every state's workers' comp agency. You generally cannot be fired for filing a valid claim — free legal help is available if an employer retaliates or an insurer denies a legitimate claim.",
+  },
 };
 
 /**
@@ -136,6 +152,8 @@ export function computeEligibility(data: {
   isDisabled?: boolean;
   isVeteran?: boolean;
   isSingleParent?: boolean;
+  isUnemployed?: boolean;
+  hadWorkplaceInjury?: boolean;
   currentBenefits?: string[];
   state?: string;   // USPS 2-letter code, e.g. "TX", "IL" — enables state-specific portals/hotlines
 }): {
@@ -166,6 +184,9 @@ export function computeEligibility(data: {
   if (income <= austinAMI50pct) eligible.push("Section8");
 
   if (data.isVeteran) eligible.push("VeteransBenefits");
+
+  if (data.isUnemployed) eligible.push("UnemploymentInsurance");
+  if (data.hadWorkplaceInjury) eligible.push("WorkersComp");
 
   const current = data.currentBenefits || [];
   const gaps = eligible.filter((b) => !current.includes(b));

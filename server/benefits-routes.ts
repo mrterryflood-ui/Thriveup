@@ -682,6 +682,8 @@ export function registerBenefitsRoutes(app: Express) {
         isDisabled: data.isDisabled ?? false,
         isVeteran: (data as any).isVeteran ?? false,
         isSingleParent: (data as any).isSingleParent ?? false,
+        isUnemployed: (data as any).isUnemployed ?? false,
+        hadWorkplaceInjury: (data as any).hadWorkplaceInjury ?? false,
         currentBenefits: data.currentBenefits ?? [],
         state: stateUsps,
       });
