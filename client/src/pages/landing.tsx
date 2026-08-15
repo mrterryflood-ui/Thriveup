@@ -1796,6 +1796,10 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* "Meet people where they are": self-identify FIRST, before any
+          B2B/funding pitch. This must stay directly under the hero. */}
+      <StartHere />
+
       <ServicePlatformSection />
       <GrantPathProSection />
       <FiveWTeaser />
