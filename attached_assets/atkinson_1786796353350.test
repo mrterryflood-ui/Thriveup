@@ -1,0 +1,176 @@
+/**
+ * atkinson.test.ts
+ *
+ * Acceptance test 8.1 from the spec: reproduce UNDP's published figures from
+ * UNDP's own published component inputs.
+ *
+ * IMPORTANT — read before reporting a green run as validation:
+ * These tests validate the FORMULA ONLY. They say nothing about whether the
+ * county-level health input is correct, because UNDP's national health
+ * inequality figure comes from a different pipeline than either USALEEP or
+ * IHME. There is no clean test for the health input. See spec section 8.2.
+ *
+ * Fixtures: UNDP HDR 2025 Statistical Annex Table 3 (2023 data).
+ * https://hdr.undp.org/sites/default/files/2025_HDR/HDR25_Statistical_Annex_I-HDI_Table.pdf
+ *
+ * Runner-agnostic: works with vitest or jest.
+ */
+
+import {
+  atkinsonIndex,
+  computeOverallLoss,
+  computeIhdi,
+  computeHdi,
+  incomeIndex,
+  lifeExpectancyIndex,
+  educationIndex,
+  rescaleTractLifeExpectancy,
+  UNDP_GOALPOSTS,
+} from './atkinson';
+
+/** UNDP HDR25 Table 3. Component losses are percentages as published. */
+const HDR25 = [
+  { country: 'United States', hdi: 0.938, ihdi: 0.832, loss: 11.3, health: 5.5,  edu: 2.7,  income: 23.9 },
+  { country: 'Iceland',       hdi: 0.972, ihdi: 0.923, loss: 5.0,  health: 2.0,  edu: 2.3,  income: 10.7 },
+  { country: 'Norway',        hdi: 0.970, ihdi: 0.909, loss: 6.3,  health: 2.4,  edu: 1.8,  income: 14.3 },
+  { country: 'Denmark',       hdi: 0.962, ihdi: 0.909, loss: 5.5,  health: 3.1,  edu: 2.3,  income: 11.0 },
+  { country: 'Czechia',       hdi: 0.915, ihdi: 0.867, loss: 5.2,  health: 3.0,  edu: 1.2,  income: 11.1 },
+  { country: 'Slovenia',      hdi: 0.931, ihdi: 0.885, loss: 4.9,  health: 2.6,  edu: 2.0,  income: 10.0 },
+  { country: 'Japan',         hdi: 0.925, ihdi: 0.845, loss: 8.6,  health: 2.5,  edu: 5.8,  income: 17.1 },
+  { country: 'Canada',        hdi: 0.939, ihdi: 0.867, loss: 7.7,  health: 4.3,  edu: 2.2,  income: 16.0 },
+  { country: 'OECD',          hdi: 0.916, ihdi: 0.812, loss: 11.4, health: 4.8,  edu: 6.4,  income: 21.8 },
+  { country: 'Very high HD',  hdi: 0.914, ihdi: 0.821, loss: 10.2, health: 4.6,  edu: 5.0,  income: 20.1 },
+];
+
+describe('acceptance 8.1 — overall loss reproduces UNDP published values', () => {
+  for (const row of HDR25) {
+    it(`${row.country}: loss ${row.loss}%`, () => {
+      const computed = computeOverallLoss(
+        row.health / 100,
+        row.edu / 100,
+        row.income / 100,
+      );
+      // UNDP publishes to one decimal; rounding accounts for the tolerance.
+      expect(computed).toBeCloseTo(row.loss, 1);
+    });
+  }
+});
+
+describe('acceptance 8.1 — IHDI reproduces from HDI and loss', () => {
+  for (const row of HDR25) {
+    it(`${row.country}: IHDI ${row.ihdi}`, () => {
+      const retained = 1 - computeOverallLoss(
+        row.health / 100,
+        row.edu / 100,
+        row.income / 100,
+      ) / 100;
+      const computed = row.hdi * retained;
+      // 0.002 tolerance: UNDP rounds HDI, IHDI and each component independently.
+      expect(Math.abs(computed - row.ihdi)).toBeLessThan(0.002);
+    });
+  }
+});
+
+describe('US decomposition — the finding the engine exists to surface', () => {
+  const us = HDR25[0];
+
+  it('income is the dominant driver, not education', () => {
+    expect(us.income).toBeGreaterThan(us.edu * 5);
+  });
+
+  it('US education distribution beats the OECD average', () => {
+    const oecd = HDR25.find((r) => r.country === 'OECD')!;
+    expect(us.edu).toBeLessThan(oecd.edu);
+  });
+
+  it('US health inequality exceeds every peer democracy in the fixture set', () => {
+    const peers = ['Iceland', 'Norway', 'Denmark', 'Czechia', 'Slovenia', 'Japan', 'Canada'];
+    for (const name of peers) {
+      const peer = HDR25.find((r) => r.country === name)!;
+      expect(us.health).toBeGreaterThan(peer.health);
+    }
+  });
+});
+
+describe('atkinsonIndex', () => {
+  it('returns 0 for a perfectly equal distribution', () => {
+    expect(atkinsonIndex([50, 50, 50, 50])).toBeCloseTo(0, 10);
+  });
+
+  it('increases as dispersion increases', () => {
+    const mild = atkinsonIndex([90, 100, 110]);
+    const severe = atkinsonIndex([10, 100, 190]);
+    expect(severe).toBeGreaterThan(mild);
+  });
+
+  it('bottom-codes non-positive values instead of collapsing to 1', () => {
+    const a = atkinsonIndex([0, 100, 200], { bottomCode: 1 });
+    expect(a).toBeLessThan(1);
+    expect(a).toBeGreaterThan(0);
+  });
+
+  it('respects frequency weights', () => {
+    const unweighted = atkinsonIndex([10, 100]);
+    const weighted = atkinsonIndex([10, 100], { weights: [9, 1] });
+    expect(weighted).not.toBeCloseTo(unweighted, 5);
+  });
+
+  it('throws on an empty distribution rather than returning a number', () => {
+    expect(() => atkinsonIndex([])).toThrow();
+  });
+});
+
+describe('input-unit guard', () => {
+  it('rejects percentages passed where proportions are expected', () => {
+    // 5.5 instead of 0.055 — the most likely integration bug.
+    expect(() => computeOverallLoss(5.5, 2.7, 23.9)).toThrow(/proportions/);
+  });
+});
+
+describe('geometric mean is load-bearing', () => {
+  it('a collapsed dimension cannot be offset by excellence elsewhere', () => {
+    const balanced = computeHdi({ health: 0.7, education: 0.7, income: 0.7 });
+    const lopsided = computeHdi({ health: 0.1, education: 1.0, income: 1.0 });
+    expect(lopsided).toBeLessThan(balanced);
+  });
+});
+
+describe('dimension indices', () => {
+  it('life expectancy index uses UNDP goalposts', () => {
+    expect(lifeExpectancyIndex(85, UNDP_GOALPOSTS)).toBeCloseTo(1, 6);
+    expect(lifeExpectancyIndex(20, UNDP_GOALPOSTS)).toBeCloseTo(0, 6);
+    expect(lifeExpectancyIndex(79.0)).toBeCloseTo((79 - 20) / 65, 6);
+  });
+
+  it('income index is logarithmic', () => {
+    const lowStep = incomeIndex(2000) - incomeIndex(1000);
+    const highStep = incomeIndex(51000) - incomeIndex(50000);
+    expect(lowStep).toBeGreaterThan(highStep);
+  });
+
+  it('education index averages MYS and EYS components', () => {
+    expect(educationIndex(15, 18)).toBeCloseTo(1, 6);
+  });
+});
+
+describe('USALEEP/IHME reconciliation', () => {
+  it('preserves relative shape while resetting the level', () => {
+    const tracts = [
+      { geoId: 'A', usaleepLe: 70 },
+      { geoId: 'B', usaleepLe: 80 },
+      { geoId: 'C', usaleepLe: 90 },
+    ];
+    const out = rescaleTractLifeExpectancy(tracts, 82);
+
+    // Level: rescaled mean equals the IHME county level.
+    const mean = out.reduce((a, t) => a + t.estimatedLe, 0) / out.length;
+    expect(mean).toBeCloseTo(82, 6);
+
+    // Shape: ratios between tracts are unchanged.
+    expect(out[2].estimatedLe / out[0].estimatedLe).toBeCloseTo(90 / 70, 6);
+  });
+
+  it('throws rather than guessing when no tracts are supplied', () => {
+    expect(() => rescaleTractLifeExpectancy([], 82)).toThrow();
+  });
+});

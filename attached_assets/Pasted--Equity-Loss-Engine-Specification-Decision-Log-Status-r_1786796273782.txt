@@ -1,0 +1,234 @@
+# Equity-Loss Engine — Specification & Decision Log
+
+**Status:** requirements, pre-implementation
+**Scope:** domestic only (tract / city / county / state). International rows are static reference.
+**Companion files:** `001_equity_schema.sql`, `atkinson.ts`, `equity-loss-engine.ts`, `atkinson.test.ts`, `seed_ihdi_reference.sql`
+
+---
+
+## 0. Purpose in one sentence
+
+Compute, per US geography, the percentage of human development forfeited to inequality — using UNDP's Atkinson method — so a community sees the gap between what it could deliver and what it delivers to its actual residents.
+
+---
+
+## 1. Non-negotiable design rules
+
+These exist because a specific failure mode was identified for each. Do not "simplify" them away.
+
+| Rule | Failure it prevents |
+|---|---|
+| `rank_confidence` must be checked in the **query layer**, not the render layer | A display component written later renders a fabricated middle-of-list rank |
+| `peer_class` is separate from `geography_id` | A rural tract inside a metro county gets benchmarked against its metro county average |
+| Three distinct trust tiers, enumerated | A modeled number is presented with the same authority as a computed one |
+| Suppress rather than estimate | A high-growth tract with no reliable mortality denominator reports suspiciously excellent life expectancy |
+| Platform computes the loss; never ingests a pre-computed loss | The claim-grounding engine cannot certify a number it did not derive |
+| `race_ethnicity_stratum` is a row dimension, not a footnote | Stratification is flattened the first time someone writes a naive display component |
+
+---
+
+## 2. The formula
+
+UNDP IHDI, Atkinson inequality measure, inequality-aversion parameter ε = 1.
+
+For a dimension distribution `x = {x_1 … x_n}`:
+
+```
+A_x = 1 − (geometric_mean(x) / arithmetic_mean(x))
+```
+
+Adjusted dimension index: `I*_x = I_x × (1 − A_x)`
+
+IHDI: `IHDI = (I*_health × I*_education × I*_income)^(1/3)`
+
+Overall loss: `Loss = 1 − [(1 − A_health)(1 − A_education)(1 − A_income)]^(1/3)`
+
+**Property worth preserving deliberately:** the geometric mean is multiplicative. A geography cannot offset catastrophic inequality in one dimension with excellence in another. Do not substitute an arithmetic mean for "smoother" scores.
+
+### Dimension index goalposts (UNDP defaults, configurable)
+
+- Life expectancy index: `(LE − 20) / (85 − 20)`
+- Education index: `((MYS / 15) + (EYS / 18)) / 2`
+- Income index: `(ln(income) − ln(100)) / (ln(75000) − ln(100))`
+
+Goalposts are UNDP's international scale. At sub-national US resolution nearly every geography sits in the upper part of that range, which compresses variance. **Decision required before ship:** keep UNDP goalposts (comparable to the international reference rows, low contrast) or adopt US-specific goalposts (high contrast, not comparable to Iceland's 5.0%). Default in code: UNDP goalposts, because comparability to the proven floor is the point of the product. Flag `goalpost_scheme` on every row so this can be revisited without silent breakage.
+
+---
+
+## 3. Known deviation from UNDP method — MUST be labeled
+
+UNDP computes **inequality in life expectancy** from the distribution of ages at death in a population's abridged life table — inequality *within* a population.
+
+The sub-national adaptation instead uses **geographic dispersion of life expectancy across tracts within a parent geography**. These are different quantities. A county could have low geographic dispersion and high within-population dispersion, or the reverse.
+
+**Actions:**
+1. Verify the exact UNDP health-inequality definition against HDR25 Technical Note 2 before shipping. Do not take this spec's characterization as final.
+2. Carry `health_inequality_method = 'geographic_dispersion' | 'life_table_age_at_death'` on every computed row.
+3. Any row using `geographic_dispersion` is **at most** trust tier `derived_with_stated_assumption`, never `computed`.
+
+This deviation is the single largest methodological risk in the engine. It does not invalidate the approach — geographic dispersion is arguably the more policy-relevant quantity — but it means the sub-national number is **not** the same statistic as the UN's national number, and must not be presented as directly comparable without a stated caveat.
+
+---
+
+## 4. Data sources and their assigned jobs
+
+| Dimension | Source | Grain | Job |
+|---|---|---|---|
+| Income | ACS 5-year (B19001 household income distribution) | tract / place / county | distribution → A_income |
+| Education | ACS 5-year (B15003 attainment) → MYS/EYS conversion | tract / place / county | distribution → A_education |
+| Health — level | IHME US Health Map (county, annual) | county | current LE level |
+| Health — dispersion | USALEEP (tract, 2010–2015) | tract | within-county relative dispersion |
+| Peer classification | USDA ERS RUCA 2020 (tract) | tract | `peer_class` assignment |
+
+### Source reconciliation rule (do not blend)
+
+USALEEP and IHME are **not** averaged. They are decomposed:
+
+```
+county_LE_level      := IHME(county, most_recent_year)
+within_county_shape  := relative dispersion of USALEEP tract LE within that county
+estimated_tract_LE_t := county_LE_level × (usaleep_tract_LE_t / usaleep_county_mean_LE)
+```
+
+**Stated assumption, carried on every row produced this way:**
+> "Within-county lifespan dispersion is assumed stable between 2010–2015 and the current IHME year. COVID-19 mortality was not evenly distributed within counties; this assumption is plausible but unverified."
+
+Trust tier: `derived_with_stated_assumption`. Never `computed`.
+
+### Source coverage gaps — encode as flags, never as nulls
+
+- USALEEP excludes **Maine** and **Wisconsin** entirely (65,662 tracts = 88.7% of US tracts). Those two states get level-only, no within-county dispersion. `coverage_flag = 'usaleep_state_excluded'`.
+- USALEEP excluded tracts with 6-year population < 5,000, and 764 tracts with excessive standard error. `coverage_flag = 'usaleep_tract_suppressed'`.
+- Some USALEEP tract values are predicted rather than observed. Where the source distinguishes these, carry `value_basis = 'observed' | 'predicted' | 'mixed'`.
+- USALEEP has had **no update since the 2010–2015 period** and is archived. `source_vintage_years_stale` should be computed and surfaced, not hidden.
+
+---
+
+## 5. Peer classification
+
+`peer_class` answers "what should this unit be compared against," which is **not** its parent geography.
+
+Composite key:
+```
+peer_class = RUCA_primary × density_band × growth_band
+```
+
+- **RUCA primary (2020 vintage)** — USDA ERS, census-tract level, classifies metropolitan / micropolitan / small-town / rural cores and their commuting areas by largest commuting flow. Secondary codes available for finer splits. Source: https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes
+- **density_band** — quintile of population per land area (RUCA tract file ships population and land area)
+- **growth_band** — decadal population change, banded
+
+### The three simultaneous comparisons
+
+Every unit gets computed against all three, stored as separate rows:
+
+1. `vs_parent_county` — local inequity
+2. `vs_state` — state-context inequity
+3. `vs_national_peer_class` — categorical disadvantage
+
+**Divergence between (1) and (3) is itself the finding.** A rural tract may read as deprived against its metro county and advantaged against national rural peers. Both true; different policy responses. Surface the divergence, do not average it away.
+
+Motivating case (real, use as a fixture): **Williamson County, TX** contains northern Austin city limits, the Round Rock / Georgetown / Cedar Park / Leander suburban ring, and rural tracts. Meanwhile Austin itself spans Travis and Williamson counties. County-as-unit fails in both directions simultaneously. ERS names this exact scenario — "remote, rural communities in large metropolitan counties" — as RUCA's motivating problem.
+
+---
+
+## 6. Suppression rules — a visible gap beats a confident guess
+
+Emit `suppressed` with a reason code; do **not** emit a number with a wide band.
+
+| Condition | Reason code |
+|---|---|
+| tract population < 5,000 (USALEEP threshold) | `below_population_threshold` |
+| decadal population growth > 25% (mortality denominator unreliable; in-migrants skew young/healthy) | `high_growth_unreliable_denominator` |
+| USALEEP state excluded (ME, WI) and within-county dispersion requested | `source_coverage_gap` |
+| any dimension input missing | `incomplete_dimensions` |
+| ACS margin of error exceeds configured threshold on a dimension input | `moe_exceeds_threshold` |
+
+Rationale: the same discipline that left the state-ranking middles blank rather than fabricating them.
+
+---
+
+## 7. Trust tiers
+
+```
+computed                      -- every input from live data, method matches UNDP, no assumption applied
+derived_with_stated_assumption -- an assumption was applied; assumption_text is REQUIRED and non-empty
+ai_estimate                    -- not produced by this engine; listed only to make the boundary explicit
+```
+
+Enforcement: rows with tier `derived_with_stated_assumption` and empty `assumption_text` must fail a CHECK constraint at the DB level, not a code review.
+
+Any row using `health_inequality_method = 'geographic_dispersion'` OR the USALEEP/IHME hybrid is capped at tier 2. There is currently **no** path to tier 1 for the health dimension at sub-county grain. Say so in the UI rather than implying otherwise.
+
+---
+
+## 8. Acceptance tests
+
+### 8.1 Formula validation (clean)
+
+Reproduce UNDP's published US figures from UNDP's own published component inputs (HDR 2025 Statistical Annex Table 3, 2023 data):
+
+```
+HDI                 0.938
+IHDI                0.832
+Overall loss        11.3 %
+A_health             5.5 %
+A_education          2.7 %
+A_income            23.9 %
+```
+
+If `computeOverallLoss(0.055, 0.027, 0.239)` returns 11.3% ± 0.05, the Atkinson/geometric-mean implementation is correct.
+
+Additional fixtures (same table): Iceland 5.0 / Norway 6.3 / Denmark 5.5 / Czechia 5.2 / Slovenia 4.9 / OECD avg 11.4 / Very-high-HD group 10.2.
+
+### 8.2 Health input validation (not clean — acknowledge)
+
+8.1 validates the **formula only**. It says nothing about whether the county health input is right, because UNDP's national health inequality comes from a different pipeline than either USALEEP or IHME. There is no clean test for the health input. Do not let a green 8.1 be reported as end-to-end validation.
+
+### 8.3 Reference-row invariance
+
+Seeded international rows must never be mutated by any computation. Enforce with a DB-level `is_reference` boolean and a write guard.
+
+---
+
+## 9. Reference data — versioning
+
+UNDP revises retroactively; the 2025 report carries 2023 data, and component values get restated across editions. Key reference rows on `hdr_edition` (e.g. `'HDR25'`), **not** on data year alone. A join on year alone will silently mix editions.
+
+Reference rows are display-only comparison context — "the floor that's been proven achievable." They are never blended into a US geography's own computed score.
+
+---
+
+## 10. Build order
+
+1. Seed international/national reference rows (`seed_ihdi_reference.sql`) — static, no dependencies
+2. Implement Atkinson as a pure function (`atkinson.ts`) — testable in isolation
+3. Run acceptance test 8.1 — must pass before any county number is trusted
+4. Wire RUCA 2020 tract file → `peer_class` assignment
+5. Wire ACS income + education distributions (already fetched per county in `community-context.ts`; extend to tract/place)
+6. Wire IHME county life expectancy — **new pipeline**
+7. Wire USALEEP tract dispersion — **new pipeline**, archived source, treat as fixed historical asset
+8. Compose engine, register in orchestration registry
+9. Only then expose to the Navigator / claim-grounding engine
+
+Steps 1–3 are testable with no new data pipeline. Do them first.
+
+---
+
+## 11. Open decisions requiring a human
+
+1. Goalpost scheme (§2) — UNDP international vs. US-specific
+2. Verify UNDP health-inequality definition against Technical Note 2 (§3)
+3. City geometry: census tracts nest cleanly into counties but **not** into incorporated places. City rollup needs block-group-weighted crosswalk or areal apportionment. Pick one, quantify the error once, carry it as a field. ACS publishes income and education at place level directly, so only the health dimension needs the crosswalk — that is the narrow problem.
+4. High-growth suppression threshold (spec defaults to 25%; unvalidated)
+5. ACS MOE threshold for suppression
+
+---
+
+## 12. Sources
+
+- UNDP HDR 2025 Statistical Annex Table 3 — https://hdr.undp.org/sites/default/files/2025_HDR/HDR25_Statistical_Annex_I-HDI_Table.pdf
+- UNDP HDR 2025 Technical Notes — https://hdr.undp.org/sites/default/files/2025_HDR/HDR25_Technical_Notes.pdf
+- UNDP data center — https://hdr.undp.org/data-center
+- USDA ERS RUCA codes — https://www.ers.usda.gov/data-products/rural-urban-commuting-area-codes (errata 2025-12-09 affects 1990 tract population/land area; not the 2020 codes, but relevant to longitudinal use)
+- NCHS USALEEP — https://www.cdc.gov/nchs/nvss/usaleep/usaleep.html
+- IHME US Health Map (county life expectancy) — via healthdata.org
