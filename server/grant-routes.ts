@@ -159,6 +159,7 @@ const PLATFORM_CAPABILITIES = [
   { area: "AI for Good & Responsible Technology", features: ["AI Workforce Academy curricula", "Responsible AI literacy modules", "AI for nonprofit operations", "Agent-to-agent referral automation", "Bias auditing & evaluation harness"], grantKeywords: ["artificial intelligence", "ai for good", "ai for charitable", "responsible ai", "responsible artificial intelligence", "ai literacy", "machine learning", "trustworthy ai", "ai-ready", "ai readiness", "human-centered ai", "ai workforce", "ai adoption"] },
   { area: "Faith-Based & Community Partnerships", features: ["Abundant Life Church community-delivery partner", "Faith-community navigation hubs", "Congregational health programs", "Interfaith coalition coordination"], grantKeywords: ["faith-based", "faith based", "faith community", "congregation", "congregational", "interfaith", "religious organization", "houses of worship"] },
   { area: "Nonprofit Capacity & Backbone Services", features: ["IRS-determined 501(c)(3) under 170(b)(1)(A)(vi)", "SAM.gov Active (CAGE 209N1) — direct federal-award eligibility", "Backbone organization services", "Sub-recipient compliance and pass-through capability"], grantKeywords: ["intermediary organization", "capacity building", "nonprofit infrastructure", "501(c)(3)", "backbone organization", "subaward", "sub-award", "pass-through entity"] },
+  { area: "Platform Replication & Multi-Agency Technology", features: ["24-engine ACOS platform already running in production", "Proven multi-agency deployment pattern (ThriveUp Academy, LifeBridge 211, SafeReport, Whole-Person Health)", "White-label / shared-services technology transfer to partner agencies", "Civic Signal and Chainweb ecosystem interoperability for cross-org data exchange"], grantKeywords: ["technology transfer", "platform replication", "replicable model", "scale to other communities", "multi-site deployment", "multi-organization deployment", "shared technology infrastructure", "software as a service", "saas for nonprofits", "nonprofit technology", "technology adoption", "digital infrastructure for nonprofits", "capacity-building technology", "civic technology", "govtech", "shared services model", "cross-agency", "white-label"] },
 ];
 
 const COLLABORATOR_VALUE_PROPOSITIONS: Record<string, { theyGet: string[]; weGet: string[] }> = {
@@ -256,6 +257,14 @@ const TIER1_KEYWORDS: Record<string, number> = {
   "human-in-the-loop": 12, "human in the loop": 12, "hitl": 8,
   "longitudinal screening": 10, "validated screening": 8, "evidence-based screening": 8,
   "50-state": 6, "compliance-grade ai": 12,
+  // Platform replication / technology-for-agencies / multi-org deployment
+  "technology transfer": 14, "platform replication": 16, "replicable model": 12,
+  "scale to other communities": 14, "multi-site deployment": 12,
+  "multi-organization deployment": 14, "shared technology infrastructure": 14,
+  "software as a service": 10, "saas for nonprofits": 16, "nonprofit technology": 12,
+  "technology adoption": 10, "digital infrastructure for nonprofits": 14,
+  "capacity-building technology": 14, "civic technology": 10, "govtech": 8,
+  "shared services model": 10, "cross-agency": 10, "white-label": 10,
 };
 
 function computeFitScore(grant: { title?: string | null; description?: string | null; focusAreas?: string[] | null; eligibilityCriteria?: string | null }): FitResult {
@@ -1698,7 +1707,7 @@ Return ONLY JSON:
 
   app.get("/api/grants/:id", async (req, res, next) => {
     // Reserved subpaths handled by other routes; let Express continue to them.
-    const reserved = new Set(["this-week", "digest", "discovery", "stats", "alerts", "report", "platform", "section-drafts", "collaborator-value-map"]);
+    const reserved = new Set(["this-week", "digest", "discovery", "stats", "alerts", "report", "platform", "section-drafts", "collaborator-value-map", "for-agencies"]);
     if (reserved.has(getParamId(req))) return next();
     try {
       const [grant] = await db.select().from(grantOpportunities).where(eq(grantOpportunities.id, getParamId(req)));
@@ -4601,6 +4610,108 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
     } catch (error) {
       console.error("Aggregator run failed:", error);
       res.status(500).json({ error: "Aggregator run failed", details: String(error) });
+    }
+  });
+
+  // === For Other Agencies: funding available to deploy this platform elsewhere ===
+  // Public-facing digest for external agencies/organizations evaluating
+  // whether they could get funded to adopt this platform (or a similar
+  // multi-agency technology stack) for their own community. Matches on the
+  // "Platform Replication & Multi-Agency Technology" keyword set directly
+  // against title/description text so it works immediately, without waiting
+  // for a full re-scan of previously-ingested rows.
+  // Each category carries its own keyword set plus a templated proposal-angle
+  // tip. Reasoning shown to the user is built ONLY from keywords that
+  // actually matched a given grant's real title/description text — never
+  // AI-generated or fabricated — so "why this fits" is always traceable to
+  // the grant's own language.
+  const AGENCY_FUNDING_CATEGORIES: { key: string; label: string; keywords: string[]; angle: string }[] = [
+    {
+      key: "rural_agriculture", label: "Rural & Agriculture",
+      keywords: [
+        "rural", "agriculture", "agricultural", "farm ", "farmer", "farming",
+        "usda rural development", "cooperative extension", "rural broadband",
+        "rural health", "precision agriculture", "agtech", "farm to school",
+        "specialty crop", "value-added producer", "rural cooperative",
+        "rural community", "farmworker", "agribusiness", "food system",
+      ],
+      angle: "Lead with your rural/agricultural service area and geographic reach. USDA and rural-focused funders weight population density, broadband access gaps, and distance-to-services heavily — cite specific counties, rural designation (e.g. non-metro RUCC codes), and how many farms, producers, or rural households the platform would reach.",
+    },
+    {
+      key: "technology_platform", label: "Technology & Platform Infrastructure",
+      keywords: [
+        "technology transfer", "platform replication", "replicable model",
+        "scale to other communities", "multi-site deployment",
+        "multi-organization deployment", "shared technology infrastructure",
+        "software as a service", "saas for nonprofits", "nonprofit technology",
+        "technology adoption", "digital infrastructure for nonprofits",
+        "capacity-building technology", "civic technology", "govtech",
+        "shared services model", "white-label",
+      ],
+      angle: "Frame this as a shared technology investment, not a one-off tool. Emphasize that the platform is already running in production elsewhere, quantify cost-per-agency to replicate, and show a clear plan for other organizations to adopt it after your award — funders in this category want to see technology built once and reused, not rebuilt per grantee.",
+    },
+    {
+      key: "capacity_multi_agency", label: "Capacity Building & Multi-Agency Coordination",
+      keywords: [
+        "capacity building", "backbone organization", "intermediary organization",
+        "multi-agency", "collective impact", "systems integration", "cross-agency",
+      ],
+      angle: "Emphasize your role as a backbone or intermediary organization able to coordinate — and sub-award to — multiple partner agencies under one grant. Name the specific partner agencies you'd bring in and the referral/data-sharing workflow between them; this category funds coordination capacity, not just direct service.",
+    },
+    {
+      key: "ai_for_good", label: "AI for Good & Responsible Technology",
+      keywords: [
+        "artificial intelligence", "ai for good", "ai-ready", "ai readiness",
+        "responsible ai", "trustworthy ai", "ai literacy",
+      ],
+      angle: "Emphasize responsible-AI design: human-in-the-loop review, bias auditing, and measurable community outcomes rather than the technology itself. These funders are wary of AI-for-AI's-sake proposals — center the community problem the AI solves and how you'll prove it worked.",
+    },
+  ];
+
+  app.get("/api/grants/for-agencies", async (req, res) => {
+    try {
+      const allKeywords = AGENCY_FUNDING_CATEGORIES.flatMap(c => c.keywords);
+      const orConditions = allKeywords.map(k =>
+        or(ilike(grantOpportunities.title, `%${k}%`), ilike(grantOpportunities.description, `%${k}%`))
+      );
+      const rows = await db.select().from(grantOpportunities)
+        .where(and(
+          or(...orConditions),
+          notInArray(grantOpportunities.status, ["expired", "dismissed", "superseded_duplicate", "discontinued_invitation_only"]),
+          notInArray(grantOpportunities.source, ["usaspending"]), // award intelligence, not open opportunities
+        ))
+        .orderBy(desc(grantOpportunities.fitScore), desc(grantOpportunities.createdAt))
+        .limit(50);
+
+      const annotated = rows.map(g => {
+        const text = `${g.title || ""} ${g.description || ""}`.toLowerCase();
+        const matchedByCategory = AGENCY_FUNDING_CATEGORIES
+          .map(cat => ({ cat, hits: cat.keywords.filter(k => text.includes(k.toLowerCase())) }))
+          .filter(m => m.hits.length > 0);
+        matchedByCategory.sort((a, b) => b.hits.length - a.hits.length);
+        const primary = matchedByCategory[0];
+        const allHits = Array.from(new Set(matchedByCategory.flatMap(m => m.hits.map(h => h.trim()))));
+        return {
+          id: g.id, title: g.title, agency: g.agency, description: g.description,
+          fundingAmount: g.fundingAmount, deadline: g.deadline, fitScore: g.fitScore,
+          source: g.source, sourceUrl: g.sourceUrl, status: g.status,
+          matchedThemes: matchedByCategory.map(m => m.cat.label),
+          matchedKeywords: allHits,
+          fitReason: allHits.length > 0
+            ? `This opportunity's own language includes: "${allHits.slice(0, 5).join('", "')}"${allHits.length > 5 ? `, and ${allHits.length - 5} more` : ""}.`
+            : null,
+          proposalAngle: primary ? primary.cat.angle : null,
+        };
+      });
+
+      res.json({
+        note: "These are open funding opportunities whose language matches rural/agriculture, capacity-building, multi-agency coordination, technology infrastructure, or AI-for-good themes. They are not guaranteed grants for 'buying this exact platform' — most are broad enough to fund adopting similar technology (or a comparable rural/multi-agency initiative) for your own agency's mission. Read each grant's own eligibility rules before applying.",
+        total: annotated.length,
+        opportunities: annotated,
+      });
+    } catch (error) {
+      console.error("Error in GET /api/grants/for-agencies", error);
+      res.status(500).json({ error: "Failed to load agency funding digest" });
     }
   });
 

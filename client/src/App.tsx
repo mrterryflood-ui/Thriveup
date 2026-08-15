@@ -209,6 +209,7 @@ const ProgramLifecyclePage = lazy(() => import("@/pages/program-lifecycle"));
 const GrantPackagesPage = lazy(() => import("@/pages/grant-packages"));
 const GrantApplicationsPage = lazy(() => import("@/pages/grant-applications"));
 const GrantConduitPage = lazy(() => import("@/pages/grant-conduit-page"));
+const ForAgenciesPage = lazy(() => import("@/pages/for-agencies"));
 const CommunityStoryPackPage = lazy(() => import("@/pages/community-story-pack"));
 const WidgetInstallPage = lazy(() => import("@/pages/widget-install"));
 const AgencyConnectorPage = lazy(() => import("@/pages/agency-connector"));
@@ -880,6 +881,7 @@ function AppRouter() {
       <Route path="/corridor-intelligence" component={CorridorIntelligencePage} />
       <Route path="/gun-violence" component={GunViolenceIntelligencePage} />
       <Route path="/grant-conduit" component={GrantConduitPage} />
+      <Route path="/for-agencies" component={ForAgenciesPage} />
       <Route path="/community-story-pack" component={CommunityStoryPackPage} />
       <Route path="/community-story/:shareId" component={CommunityStoryPackPage} />
       <Route path="/widget-install" component={WidgetInstallPage} />
