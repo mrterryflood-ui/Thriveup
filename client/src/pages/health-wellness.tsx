@@ -557,6 +557,20 @@ export default function HealthWellnessPage() {
 
         <TabsContent value="overview">
           <div className="space-y-6">
+            <Card className="p-4 bg-muted/30" data-testid="section-related-tools">
+              <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Related tools</p>
+              <div className="flex flex-wrap gap-2">
+                <a href="/benefits-screener" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-background text-sm font-medium hover:bg-primary/5 hover:border-primary/40 transition-colors" data-testid="link-related-benefits-screener">
+                  Check what benefits you may qualify for →
+                </a>
+                <a href="/resources" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-background text-sm font-medium hover:bg-primary/5 hover:border-primary/40 transition-colors" data-testid="link-related-resource-finder">
+                  Find help near you →
+                </a>
+                <a href="/navigator" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-background text-sm font-medium hover:bg-primary/5 hover:border-primary/40 transition-colors" data-testid="link-related-navigator">
+                  Talk to the AI Navigator →
+                </a>
+              </div>
+            </Card>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="section-product-lines">
               {(productLines || []).map((pl) => {
                 const Icon = PRODUCT_LINE_ICONS[pl.id] || Heart;

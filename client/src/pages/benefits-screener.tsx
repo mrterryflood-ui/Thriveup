@@ -1121,6 +1121,23 @@ export default function BenefitsScreenerPage() {
               </Card>
             )}
 
+            <Card className="bg-muted/30" data-testid="section-related-tools">
+              <CardContent className="pt-4">
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">What else can help</p>
+                <div className="flex flex-wrap gap-2">
+                  <a href="/resources" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-background text-sm font-medium hover:bg-primary/5 hover:border-primary/40 transition-colors" data-testid="link-related-resource-finder">
+                    <MapPin className="h-3.5 w-3.5" /> Find local organizations near you →
+                  </a>
+                  <a href="/health-wellness" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-background text-sm font-medium hover:bg-primary/5 hover:border-primary/40 transition-colors" data-testid="link-related-health-wellness">
+                    <Heart className="h-3.5 w-3.5" /> Health & Wellness Hub →
+                  </a>
+                  <a href="/navigator" className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border bg-background text-sm font-medium hover:bg-primary/5 hover:border-primary/40 transition-colors" data-testid="link-related-navigator">
+                    <MessageCircle className="h-3.5 w-3.5" /> Talk to the AI Navigator →
+                  </a>
+                </div>
+              </CardContent>
+            </Card>
+
             {result.currentBenefits?.length > 0 && (
               <Card>
                 <CardHeader><CardTitle className="text-sm text-muted-foreground">Benefits You're Already Receiving</CardTitle></CardHeader>

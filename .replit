@@ -284,7 +284,7 @@ isValidation = true
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx scripts/verify-directory-links.ts && npx tsx scripts/verify-capacity-badges.ts && npx tsx scripts/verify-sidebar-routes.ts && npx tsx scripts/verify-external-links.ts && npx tsx scripts/verify-intake-contact-validation.ts && npx tsx scripts/verify-chw-dashboard-no-555.ts"
+args = "npx tsx scripts/verify-directory-links.ts && npx tsx scripts/verify-capacity-badges.ts && npx tsx scripts/verify-sidebar-routes.ts && npx tsx scripts/verify-external-links.ts && npx tsx scripts/verify-intake-contact-validation.ts && npx tsx scripts/verify-chw-dashboard-no-555.ts && npx tsx scripts/verify-tool-reachability.ts"
 
 [[workflows.workflow]]
 name = "referral-loop"
