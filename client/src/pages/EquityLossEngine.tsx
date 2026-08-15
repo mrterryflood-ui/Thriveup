@@ -6,6 +6,8 @@
 // Per the stakeholder red-team (docs/equity-loss-phase1-2-decisions.md),
 // suppression reasons, trust tiers, and stated assumptions are surfaced
 // inline next to every number — never hidden behind a tooltip or omitted.
+// Visual language matches EquityDashboard.tsx (dark, card-based, accent
+// colors keyed to meaning) so this reads as the same product family.
 
 import { useState } from "react";
 
@@ -57,43 +59,69 @@ const TIER_LABELS: Record<string, string> = {
   ai_estimate: "AI estimate — lowest confidence",
 };
 
+const PRESETS = [
+  { label: "Cook County, IL", state: "17", county: "031" },
+  { label: "Harris County, TX", state: "48", county: "201" },
+  { label: "Williamson County, TX", state: "48", county: "491" },
+  { label: "Kings County, NY", state: "36", county: "047" },
+  { label: "Aroostook County, ME", state: "23", county: "003" },
+];
+
+function card(): React.CSSProperties {
+  return {
+    background: "rgba(255,255,255,0.04)",
+    border: "1px solid rgba(255,255,255,0.08)",
+    borderRadius: 12,
+    padding: "20px 22px",
+  };
+}
+
 function FrameCard({ row }: { row: FrameRow }) {
+  const divergence = row.divergenceFromReferencePct;
+  const divergenceColor = divergence === null ? "#94a3b8" : divergence > 0 ? "#f87171" : "#34d399";
   return (
-    <div style={{ border: "1px solid #d8dee8", borderRadius: 10, padding: 18, background: "#fff" }}>
-      <div style={{ fontWeight: 700, fontSize: 15, color: "#1f2937" }}>{FRAME_LABELS[row.frame] ?? row.frame}</div>
+    <div style={card()}>
+      <span style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94a3b8" }}>
+        {FRAME_LABELS[row.frame] ?? row.frame}
+      </span>
+
       {row.suppressed ? (
-        <div style={{ marginTop: 10, color: "#92400e", background: "#fffbeb", padding: 10, borderRadius: 8, fontSize: 13 }}>
-          Suppressed — {row.suppressionReason?.replace(/_/g, " ")}. A visible gap is shown here instead of a guess.
+        <div style={{ marginTop: 12, color: "#fbbf24", background: "rgba(251,191,36,0.1)", padding: 12, borderRadius: 8, fontSize: 13, lineHeight: 1.5 }}>
+          Suppressed — {row.suppressionReason?.replace(/_/g, " ")}. A visible gap is shown instead of a guess.
         </div>
       ) : (
         <>
-          <div style={{ fontSize: 32, fontWeight: 800, marginTop: 8, color: "#0f172a" }}>
+          <div style={{ fontSize: 34, fontWeight: 700, marginTop: 8, color: "#f1f5f9", lineHeight: 1.1 }}>
             {row.overallLossPct?.toFixed(1)}%
           </div>
-          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 8 }}>overall loss to inequality (IHDI)</div>
-          {row.referenceLossPct !== null && (
-            <div style={{ fontSize: 13, color: "#334155" }}>
-              Reference: {row.referenceLossPct.toFixed(1)}% · Divergence:{" "}
-              <strong style={{ color: (row.divergenceFromReferencePct ?? 0) > 0 ? "#b91c1c" : "#15803d" }}>
-                {row.divergenceFromReferencePct !== null
-                  ? `${row.divergenceFromReferencePct > 0 ? "+" : ""}${row.divergenceFromReferencePct.toFixed(1)} pts`
-                  : "n/a"}
-              </strong>
+          <div style={{ fontSize: 12, color: "#64748b", marginBottom: 12 }}>overall loss to inequality (IHDI)</div>
+
+          {row.referenceLossPct !== null ? (
+            <div style={{ fontSize: 13, color: "#cbd5e1" }}>
+              Reference: <strong style={{ color: "#e2e8f0" }}>{row.referenceLossPct.toFixed(1)}%</strong>
+              <div style={{ marginTop: 4 }}>
+                Divergence:{" "}
+                <strong style={{ color: divergenceColor }}>
+                  {divergence !== null ? `${divergence > 0 ? "+" : ""}${divergence.toFixed(1)} pts` : "n/a"}
+                </strong>
+              </div>
             </div>
-          )}
-          {row.referenceLossPct === null && (
-            <div style={{ fontSize: 12, color: "#94a3b8" }}>Reference value not yet available for this frame.</div>
+          ) : (
+            <div style={{ fontSize: 12, color: "#64748b" }}>Reference value not yet available for this frame.</div>
           )}
         </>
       )}
-      <div style={{ marginTop: 12, fontSize: 12, color: "#475569" }}>
-        Trust tier: <strong>{TIER_LABELS[row.tier] ?? row.tier}</strong>
+
+      <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, color: "#94a3b8" }}>
+        Trust tier: <strong style={{ color: "#cbd5e1" }}>{TIER_LABELS[row.tier] ?? row.tier}</strong>
       </div>
       {row.assumptionText && (
-        <div style={{ marginTop: 6, fontSize: 12, color: "#7c2d12", fontStyle: "italic" }}>{row.assumptionText}</div>
+        <div style={{ marginTop: 6, fontSize: 12, color: "#fbbf24", fontStyle: "italic", lineHeight: 1.4 }}>
+          {row.assumptionText}
+        </div>
       )}
       {row.coverageFlags?.length > 0 && (
-        <div style={{ marginTop: 6, fontSize: 11, color: "#94a3b8" }}>
+        <div style={{ marginTop: 6, fontSize: 11, color: "#64748b" }}>
           Coverage notes: {row.coverageFlags.join(", ").replace(/_/g, " ")}
         </div>
       )}
@@ -102,18 +130,20 @@ function FrameCard({ row }: { row: FrameRow }) {
 }
 
 export default function EquityLossEnginePage() {
-  const [stateFips, setStateFips] = useState("48");
-  const [countyFips, setCountyFips] = useState("453");
+  const [stateFips, setStateFips] = useState(PRESETS[0].state);
+  const [countyFips, setCountyFips] = useState(PRESETS[0].county);
   const [data, setData] = useState<EquityLossResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function runLookup() {
+  async function runLookup(sf?: string, cf?: string) {
+    const s = sf ?? stateFips;
+    const c = cf ?? countyFips;
     setLoading(true);
     setError(null);
     setData(null);
     try {
-      const res = await fetch(`/api/equity-loss/county/${stateFips}/${countyFips}`);
+      const res = await fetch(`/api/equity-loss/county/${s}/${c}`);
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
       setData(json);
@@ -125,82 +155,117 @@ export default function EquityLossEnginePage() {
   }
 
   return (
-    <div style={{ maxWidth: 920, margin: "0 auto", padding: "32px 20px", fontFamily: "system-ui, sans-serif" }}>
-      <h1 style={{ fontSize: 26, fontWeight: 800, color: "#0f172a" }}>Equity-Loss Engine</h1>
-      <p style={{ color: "#475569", marginTop: 4, marginBottom: 20 }}>
-        County-grain human development loss to inequality (IHDI/Atkinson method), compared across three independent
-        frames. Domestic (US) scope only.
-      </p>
+    <div style={{ minHeight: "100vh", background: "#0b1120", color: "#e2e8f0", fontFamily: "system-ui, sans-serif" }}>
+      <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 20px 80px" }}>
+        <h1 style={{ fontSize: 28, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Equity-Loss Engine</h1>
+        <p style={{ color: "#94a3b8", marginTop: 8, marginBottom: 28, maxWidth: 640, lineHeight: 1.5 }}>
+          County-grain human development loss to inequality (IHDI/Atkinson method), compared across three
+          independent frames. Domestic (US) scope only.
+        </p>
 
-      <div style={{ display: "flex", gap: 10, alignItems: "center", marginBottom: 24 }}>
-        <label style={{ fontSize: 13, color: "#334155" }}>
-          State FIPS
-          <input
-            value={stateFips}
-            onChange={(e) => setStateFips(e.target.value)}
-            maxLength={2}
-            style={{ display: "block", width: 70, padding: 6, marginTop: 4, border: "1px solid #cbd5e1", borderRadius: 6 }}
-          />
-        </label>
-        <label style={{ fontSize: 13, color: "#334155" }}>
-          County FIPS
-          <input
-            value={countyFips}
-            onChange={(e) => setCountyFips(e.target.value)}
-            maxLength={3}
-            style={{ display: "block", width: 80, padding: 6, marginTop: 4, border: "1px solid #cbd5e1", borderRadius: 6 }}
-          />
-        </label>
-        <button
-          onClick={runLookup}
-          disabled={loading}
-          style={{
-            marginTop: 18, padding: "8px 18px", background: "#1d4ed8", color: "#fff",
-            border: "none", borderRadius: 8, fontWeight: 600, cursor: "pointer",
-          }}
-        >
-          {loading ? "Computing…" : "Compute"}
-        </button>
-      </div>
+        <div style={{ ...card(), marginBottom: 24 }}>
+          <div style={{ display: "flex", gap: 16, alignItems: "flex-end", flexWrap: "wrap" }}>
+            <label style={{ fontSize: 12, color: "#94a3b8" }}>
+              State FIPS
+              <input
+                value={stateFips}
+                onChange={(e) => setStateFips(e.target.value)}
+                maxLength={2}
+                style={{
+                  display: "block", width: 70, padding: "8px 10px", marginTop: 6,
+                  background: "#0f172a", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
+                }}
+              />
+            </label>
+            <label style={{ fontSize: 12, color: "#94a3b8" }}>
+              County FIPS
+              <input
+                value={countyFips}
+                onChange={(e) => setCountyFips(e.target.value)}
+                maxLength={3}
+                style={{
+                  display: "block", width: 80, padding: "8px 10px", marginTop: 6,
+                  background: "#0f172a", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8,
+                }}
+              />
+            </label>
+            <button
+              onClick={() => runLookup()}
+              disabled={loading}
+              style={{
+                padding: "9px 20px", background: "#2563eb", color: "#fff",
+                border: "none", borderRadius: 8, fontWeight: 600, cursor: loading ? "default" : "pointer",
+                opacity: loading ? 0.6 : 1,
+              }}
+            >
+              {loading ? "Computing…" : "Compute"}
+            </button>
+          </div>
 
-      {error && (
-        <div style={{ background: "#fef2f2", color: "#991b1b", padding: 14, borderRadius: 8, marginBottom: 20 }}>
-          {error}
+          <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 16 }}>
+            {PRESETS.map((p) => (
+              <button
+                key={p.label}
+                onClick={() => {
+                  setStateFips(p.state);
+                  setCountyFips(p.county);
+                  runLookup(p.state, p.county);
+                }}
+                style={{
+                  fontSize: 12, padding: "6px 12px", borderRadius: 999,
+                  background: "rgba(255,255,255,0.06)", color: "#cbd5e1",
+                  border: "1px solid rgba(255,255,255,0.1)", cursor: "pointer",
+                }}
+              >
+                {p.label}
+              </button>
+            ))}
+          </div>
         </div>
-      )}
 
-      {data && (
-        <>
-          <div style={{ marginBottom: 18, fontSize: 14, color: "#334155" }}>
-            <strong>{data.county.name}, {data.county.state}</strong> · RUCC {data.county.ruccCode} (
-            {data.county.ruralityBand.replace("_", " ")}) · {data.county.censusRegion} · growth: {data.county.growthBand}
+        {error && (
+          <div style={{ background: "rgba(239,68,68,0.1)", color: "#fca5a5", padding: 16, borderRadius: 10, marginBottom: 20, border: "1px solid rgba(239,68,68,0.25)" }}>
+            {error}
           </div>
+        )}
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
-            <FrameCard row={data.frames.vsParentCounty} />
-            <FrameCard row={data.frames.vsState} />
-            <FrameCard row={data.frames.vsNationalPeerClass} />
-          </div>
-
-          <div style={{ marginTop: 24, padding: 16, background: "#f8fafc", borderRadius: 10, fontSize: 13, color: "#334155" }}>
-            <strong>Divergence (state vs. peer class): </strong>
-            {data.frames.divergencePct !== null
-              ? `${data.frames.divergencePct.toFixed(1)} pts — ${data.frames.divergenceInterpretation.replace(/_/g, " ")}`
-              : "insufficient data"}
-            <div style={{ marginTop: 6, color: "#64748b" }}>
-              A county can read as deprived against its own state and advantaged against national peers of the same
-              type — both can be true, and they imply different policy responses. These frames are never averaged
-              together.
+        {data && (
+          <>
+            <div style={{ marginBottom: 20, fontSize: 14, color: "#cbd5e1" }}>
+              <strong style={{ color: "#f8fafc", fontSize: 17 }}>{data.county.name}, {data.county.state}</strong>
+              <div style={{ marginTop: 4, color: "#94a3b8" }}>
+                RUCC {data.county.ruccCode} ({data.county.ruralityBand.replace("_", " ")}) · {data.county.censusRegion} · growth: {data.county.growthBand}
+              </div>
             </div>
-          </div>
 
-          {data.peerClassAssumption && (
-            <div style={{ marginTop: 12, fontSize: 12, color: "#7c2d12", fontStyle: "italic" }}>
-              Peer-class methodology: {data.peerClassAssumption}
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: 16 }}>
+              <FrameCard row={data.frames.vsParentCounty} />
+              <FrameCard row={data.frames.vsState} />
+              <FrameCard row={data.frames.vsNationalPeerClass} />
             </div>
-          )}
-        </>
-      )}
+
+            <div style={{ ...card(), marginTop: 24 }}>
+              <strong style={{ color: "#f8fafc" }}>Divergence (state vs. peer class): </strong>
+              <span style={{ color: "#cbd5e1" }}>
+                {data.frames.divergencePct !== null
+                  ? `${data.frames.divergencePct.toFixed(1)} pts — ${data.frames.divergenceInterpretation.replace(/_/g, " ")}`
+                  : "insufficient data"}
+              </span>
+              <div style={{ marginTop: 8, color: "#64748b", fontSize: 13, lineHeight: 1.5 }}>
+                A county can read as deprived against its own state and advantaged against national peers of the
+                same type — both can be true, and they imply different policy responses. These frames are never
+                averaged together.
+              </div>
+            </div>
+
+            {data.peerClassAssumption && (
+              <div style={{ marginTop: 14, fontSize: 12, color: "#fbbf24", fontStyle: "italic", lineHeight: 1.5 }}>
+                Peer-class methodology: {data.peerClassAssumption}
+              </div>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

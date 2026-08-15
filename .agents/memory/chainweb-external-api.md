@@ -24,10 +24,11 @@ description: Architecture and status of the Chainweb Evidence API for external p
 - `JURISDICTION_DATA`: 10 records — TX (6), CA, IL, US failed policies (mandatory minimums, DARE)
 
 ### Civic Signal bidirectional connector (server/civic-signal-connector.ts)
-- `receiveCivicSignalLesson()` — live, receives lessons via webhook, stores in-memory (last 100), injects into RAG
+- `receiveCivicSignalLesson()` — live and confirmed working end-to-end (webhook tested 2026-08-15), stores in-memory (last 100), injects into RAG
 - `getCivicSignalRAGContext()` — formats lessons as RAG paragraph
-- `pushChainwebToCivicSignal()` — STUB, graceful no-op until `CIVIC_SIGNAL_BASE_URL` + `CIVIC_SIGNAL_API_KEY` secrets set
-- `fetchCivicSignalAdaptations()` — STUB, returns cached webhook lessons until live credentials configured
+- `pushChainwebToCivicSignal()` / `pushEquityLossToCivicSignal()` — code is live (not a stub) and `CIVIC_SIGNAL_BASE_URL`/`THRIVEUP_INBOUND_KEY` secrets ARE set, but live-tested 2026-08-15 and the actual power2thepeople.net endpoints reject every server-to-server call: the pull endpoint returns 401 "Invalid x-civic-signal-key", the ingest endpoint returns 403 "Cross-origin request blocked: missing origin" (their ingest route appears to require a browser Origin header, which a server-side fetch never sends). This is an external-platform-side issue, not a ThriveUp code defect — confirm with Civic Signal's team before assuming it's fixed.
+- `checkCivicSignalConnection()` — new; live reachability probe, surfaced honestly on the `/civic-signal` page (never fabricates a "connected" state)
+- UI: `/civic-signal` page shows real inbound lesson count + outbound status/detail string as returned by the probe
 
 ### Community Story tab (/chainweb page)
 - Tab 4 (between Results and Coefficient Library)

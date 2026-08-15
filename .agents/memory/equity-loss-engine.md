@@ -46,6 +46,17 @@ tract-aggregation infrastructure. If a future feature needs sub-county
 (tract-level) rurality, RUCA is the correct source; don't force RUCC down to
 tract level.
 
+## Non-ASCII secret values break fetch() with a confusing error
+A secret used as an HTTP header value (`THRIVEUP_INBOUND_KEY`, used by the Civic
+Signal connector) had a stray non-ASCII character appended. Node's `fetch()`
+rejects that with `Cannot convert argument to a ByteString because the
+character at index N has a value of NNNN which is greater than 255` — this
+reads like a network/fetch bug, not a header-value bug. Any code that puts a
+secret directly into a header should sanitize it first (trim + strip
+non-printable-ASCII) so a bad secret value fails as a clear auth error, not
+an opaque ByteString crash. See `outboundHeaders()` in
+`server/civic-signal-connector.ts` for the pattern.
+
 ## Census API now requires a key — a shipped assumption changed silently
 `api.census.gov` used to tolerate keyless requests for low-volume use. It now
 302-redirects every keyless request to `missing_key.html` (confirmed live,

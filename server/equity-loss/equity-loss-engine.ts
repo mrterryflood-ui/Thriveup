@@ -73,8 +73,18 @@ export const DEFAULT_SUPPRESSION: SuppressionConfig = {
   maxMoeRatio: 0.3,
 };
 
-/** States USALEEP excluded entirely. Coverage gap, not missing data. */
-export const USALEEP_EXCLUDED_STATES = new Set(['ME', 'WI']);
+/**
+ * Previously hardcoded as ['ME', 'WI'] based on an assumption about USALEEP
+ * state coverage that turned out to be stale — live verification this
+ * session found both states fully covered (tract-level data present).
+ * Rather than re-guess which states are excluded (that assumption already
+ * failed once), suppression now checks for an *empty* life-expectancy
+ * distribution directly, regardless of state — see checkSuppression below.
+ * Kept as an empty set (not deleted) so any future genuinely-confirmed
+ * exclusion has an obvious place to go, with the verification method noted
+ * inline at the point it's added.
+ */
+export const USALEEP_EXCLUDED_STATES = new Set<string>([]);
 
 export interface UnitInputs {
   geoId: string;
@@ -187,17 +197,24 @@ export function checkSuppression(
     return 'high_growth_unreliable_denominator';
   }
 
+  const hasIncome = (u.incomeDistribution?.length ?? 0) > 0;
+  const hasEducation = (u.educationDistribution?.length ?? 0) > 0;
+  const hasHealth = (u.lifeExpectancyDistribution?.length ?? 0) > 0;
+
+  // A missing health dimension specifically means the underlying source
+  // (USALEEP) has no tract-level data for this geography — surfaced with
+  // its own reason rather than the generic 'incomplete_dimensions', since
+  // it points a user/operator at a different fix (a genuine data gap, not
+  // a malformed request).
   if (
     u.healthInequalityMethod === 'geographic_dispersion' &&
-    USALEEP_EXCLUDED_STATES.has(u.state) &&
-    (u.lifeExpectancyDistribution?.length ?? 0) === 0
+    !hasHealth &&
+    hasIncome &&
+    hasEducation
   ) {
     return 'source_coverage_gap';
   }
 
-  const hasIncome = (u.incomeDistribution?.length ?? 0) > 0;
-  const hasEducation = (u.educationDistribution?.length ?? 0) > 0;
-  const hasHealth = (u.lifeExpectancyDistribution?.length ?? 0) > 0;
   if (!hasIncome || !hasEducation || !hasHealth) {
     return 'incomplete_dimensions';
   }

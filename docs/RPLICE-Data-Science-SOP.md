@@ -253,6 +253,32 @@ The census tracts with barrier indexes above 30 — concentrated in East Austin 
 
 ---
 
+## Alignment: Five-Phase Order of Operations (adopted 2026-08-15)
+
+This SOP's chain (Links 1-6, Three Realities, tract-over-county) already
+embodies pieces of the hub's Five-Phase Order of Operations doctrine
+(`.agents/skills/order-of-operations/SKILL.md`). This section makes that
+mapping explicit so a RPLICE-driven analysis and a hub-driven build follow
+the same sequencing standard, and is the artifact referenced in the
+`Adopt the Five-Phase Order of Operations Doctrine` directive pushed to
+RPLICE (`betterscience` platform id) via `POST /api/ecosystem/directives`.
+
+| Order of Operations phase | Where it already lives in this SOP |
+|---|---|
+| Phase 1.2 In-state, verified live | "All data pulled live from the U.S. Census Bureau ACS 5-Year Estimates. Every number is verifiable." |
+| Phase 1.4 Barriers & facilitators (CFIR-style) | The "Targeted Interventions — Break This Link" block under every chain link |
+| Phase 1.5 Differences within differences | The entire premise of this doc: "County averages are political tools. Tract-level data is the truth." — stratification down to the neighborhood is Step 1, not an afterthought |
+| Phase 2.4 Stakeholder red-team before build | The Three Realities Framework (Research / Political / Ground Truth) — each reality is effectively a distinct stakeholder seat on the same data |
+| Phase 5 Accuracy ledger | Not yet formalized here — **gap**: this SOP states "every number is verifiable" but does not yet keep a dated, falsifiable ledger of claims checked against live sources over time. Adopting one (mirroring `.agents/accuracy-ledger.md`) is the open action item from the directive pushed to RPLICE. |
+
+**What changes going forward:** Phase 1-2 output (vision, in-state sources,
+barriers/facilitators, stakeholder splits, backward plan, red-team pass) is
+written down *before* a new SDOH Impact Chain analysis or tool is built —
+not left implicit in the analyst's head — for any RPLICE work this
+ecosystem's hub commissions or consumes.
+
+---
+
 ## SOP Summary
 
 **Every time we tell the data story, we follow this chain:**

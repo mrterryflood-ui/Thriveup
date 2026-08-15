@@ -51,8 +51,16 @@ export interface CivicSignalLesson {
 }
 
 function outboundHeaders(): Record<string, string> {
-  const key = process.env.THRIVEUP_INBOUND_KEY;
-  if (!key) throw new Error("THRIVEUP_INBOUND_KEY secret not set");
+  const raw = process.env.THRIVEUP_INBOUND_KEY;
+  if (!raw) throw new Error("THRIVEUP_INBOUND_KEY secret not set");
+  // Defensive: HTTP header values must be ISO-8859-1/ASCII-range. Secret
+  // managers/copy-paste flows can silently append stray non-ASCII
+  // characters (e.g. a trailing em dash, U+2014) which fetch() rejects with
+  // an opaque "Cannot convert argument to a ByteString" error that looks
+  // like a network failure, not a value-formatting one. Strip anything
+  // outside the printable ASCII range rather than fail confusingly.
+  const key = raw.trim().replace(/[^\x20-\x7E]/g, "");
+  if (!key) throw new Error("THRIVEUP_INBOUND_KEY secret contains no valid ASCII characters after sanitization");
   return {
     "Content-Type": "application/json",
     "x-civic-signal-key": key,
@@ -166,6 +174,76 @@ export async function pushChainwebToCivicSignal(payload: {
     console.error("[CivicSignal] Push failed:", err.message);
     return { pushed: false, message: `Push failed: ${err.message}` };
   }
+}
+
+// ── OUTBOUND: Push an Equity-Loss Engine result TO Civic Signal ───────────
+// Reuses the same ingest endpoint/schema convention as the Chainweb ROI
+// push (Civic Signal ingests "evidence events" generically) — this is a
+// distinct function, not a call-through, so the equity-loss payload shape
+// can evolve independently of the ROI scenario shape.
+export async function pushEquityLossToCivicSignal(payload: {
+  countyFips: string;
+  countyName: string;
+  state: string;
+  frame: string;
+  overallLossPct: number;
+  referenceLossPct: number | null;
+  divergenceFromReferencePct: number | null;
+  tier: string;
+  assumptionText: string | null;
+}): Promise<{ pushed: boolean; message: string }> {
+  try {
+    const response = await fetch(CIVIC_SIGNAL_PUSH_URL, {
+      method: "POST",
+      headers: outboundHeaders(),
+      body: JSON.stringify({
+        source: "thriveup_equity_loss_engine",
+        sourceVersion: "0.1.0",
+        eventType: "equity_loss_result",
+        ...payload,
+        sentAt: new Date().toISOString(),
+      }),
+      signal: AbortSignal.timeout(15_000),
+    });
+
+    if (!response.ok) {
+      const text = await response.text().catch(() => "");
+      throw new Error(`HTTP ${response.status}: ${text}`);
+    }
+
+    const result = await response.json().catch(() => ({}));
+    console.log("[CivicSignal] Equity-loss push succeeded:", result);
+    return { pushed: true, message: "Equity-loss result pushed to Civic Signal" };
+  } catch (err: any) {
+    console.error("[CivicSignal] Equity-loss push failed:", err.message);
+    return { pushed: false, message: `Push failed: ${err.message}` };
+  }
+}
+
+// ── Live connection status check (does not mutate state; safe to poll) ───
+export async function checkCivicSignalConnection(): Promise<{
+  outboundReachable: boolean;
+  outboundDetail: string;
+  inboundLessonsStored: number;
+}> {
+  let outboundReachable = false;
+  let outboundDetail = "not checked";
+  try {
+    const params = new URLSearchParams({ topic: "_connection_probe" });
+    const response = await fetch(`${CIVIC_SIGNAL_PULL_URL}?${params}`, {
+      headers: outboundHeaders(),
+      signal: AbortSignal.timeout(8_000),
+    });
+    if (response.ok) {
+      outboundReachable = true;
+      outboundDetail = "reachable and authenticated";
+    } else {
+      outboundDetail = `HTTP ${response.status}: ${await response.text().catch(() => "")}`.slice(0, 300);
+    }
+  } catch (err: any) {
+    outboundDetail = err.message;
+  }
+  return { outboundReachable, outboundDetail, inboundLessonsStored: incomingLessons.length };
 }
 
 // ── OUTBOUND: Pull adaptation lessons FROM Civic Signal ───────────────────

@@ -147,6 +147,7 @@ const MOSTranslatorPage = lazy(() => import("@/pages/mos-translator"));
 const WIOAOutcomesPage = lazy(() => import("@/pages/wioa-outcomes"));
 const EquityDashboardPage = lazy(() => import("@/pages/EquityDashboard"));
 const EquityLossEnginePage = lazy(() => import("@/pages/EquityLossEngine"));
+const CivicSignalPage = lazy(() => import("@/pages/CivicSignal"));
 const HouseholdProfilePage = lazy(() => import("@/pages/HouseholdProfile"));
 const PolicyEnginePage = lazy(() => import("@/pages/PolicyEngine"));
 const WorkforceDashboardPage = lazy(() => import("@/pages/workforce-dashboard"));
@@ -564,6 +565,7 @@ function AppRouter() {
       <Route path="/mos-translator" component={MOSTranslatorPage} />
       <Route path="/equity-dashboard" component={EquityDashboardPage} />
       <Route path="/equity-loss" component={EquityLossEnginePage} />
+      <Route path="/civic-signal" component={CivicSignalPage} />
       <Route path="/household/:id" component={HouseholdProfilePage} />
       <Route path="/policy-engine" component={PolicyEnginePage} />
       <Route path="/wioa-outcomes">

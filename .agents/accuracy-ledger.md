@@ -100,3 +100,60 @@ declaring the step done, not by reading the code. That pattern (read-only
 review missing real-environment failures; live execution catching them) is
 now this cycle's dominant signal — worth checking for again next cycle
 before it's called a trend.
+
+---
+
+## 2026-08-15 — Follow-up cycle: peer-class gap fix, USALEEP exclusion fix,
+## Civic Signal wiring
+
+**Claim 7:** The batch script's remaining unbenchmarked peer class
+(rural/declining/South) has no usable representative county.
+**Verified by:** re-running the isolated county computation directly and
+reading the actual suppression reason returned.
+**Outcome:** Overturned. The representative county (Van Zandt, TX) trips
+the engine's own `high_growth_unreliable_denominator` rule — legitimate
+suppression, not a bug. Fixed by widening the picker to try the top 5
+candidates per class instead of only the single largest.
+**Class:** Design gap (a single-candidate picker had no fallback for a
+representative county that is itself legitimately suppressed).
+
+**Claim 8:** `USALEEP_EXCLUDED_STATES = ['ME', 'WI']` (hardcoded in the
+engine, described as a known coverage gap) is accurate.
+**Verified by:** live queries against the CDC USALEEP Socrata API for both
+states.
+**Outcome:** Overturned. Both states returned full tract-level coverage —
+ME: 55 tracts for one sampled county + a state aggregate row; WI: 225
+tracts for one sampled county + a state aggregate row. The original
+assumption was never re-verified against the live source before being
+encoded as a constant. Fixed by removing the hardcoded state list and
+deriving the "coverage gap" suppression reason directly from an empty
+returned distribution, for any state.
+**Class:** Unverified-assumption gap (a claim about an external dataset's
+coverage was encoded as fact without checking it against the live source).
+
+**Claim 9:** The Civic Signal outbound connector (`pushChainwebToCivicSignal`
+et al.) is functional now that its credentials (`CIVIC_SIGNAL_BASE_URL`,
+`THRIVEUP_INBOUND_KEY`) are present in the environment — memory from an
+earlier session described it as "STUB, awaiting credentials."
+**Verified by:** live calls against the actual power2thepeople.net
+endpoints (both direct curl and through the new `/api/civic-signal` routes).
+**Outcome:** Overturned twice. First, a stray non-ASCII character in the
+secret's value crashed `fetch()` with an opaque ByteString error before any
+network call happened. After sanitizing the header value, the real network
+calls still fail: the pull endpoint returns 401 (invalid key) and the
+ingest endpoint returns 403 (missing browser Origin header) — external,
+Civic-Signal-side issues, not fixable from this codebase. The inbound half
+(webhook receiving lessons) was independently live-tested and confirmed
+fully working.
+**Class:** Environment/external-dependency gap (stale memory said "stub
+pending credentials"; actual state was "credentials present, code live,
+external endpoints reject the calls" — a materially different and more
+specific failure mode that a superficial recheck would have missed).
+
+**Running tally (both cycles):** 3 confirmed, 8 overturned. Every single
+overturn across both cycles was caught by live execution, never by reading
+code or trusting a prior claim (including this session's own prior
+memory). The standing lesson: for this project, "verified by reading the
+code/docs" is not sufficient evidence for any claim about live data,
+external APIs, or prior-session memory — only an actual live call counts.
+

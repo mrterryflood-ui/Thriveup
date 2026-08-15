@@ -40,18 +40,28 @@ import {
 const REGIONS = ["Northeast", "Midwest", "South", "West"];
 const RURALITY_BANDS: RuralityBand[] = ["metro", "small_town", "rural"];
 
+interface CountyLossResult {
+  overallLossPct: number;
+  growthBand: string;
+}
+
+/**
+ * Returns the computed loss, or a disclosed reason it couldn't be computed
+ * (never throws for expected/legitimate suppression — only for genuine
+ * upstream failures, which the caller logs and moves past).
+ */
 async function computeCountyOwnLoss(
   countyFips: string,
   countyName: string,
   stateAbbrev: string,
-): Promise<{ overallLossPct: number; growthBand: string } | null> {
+): Promise<CountyLossResult | { suppressionReason: string } | null> {
   const stateFips = countyFips.slice(0, 2);
   const countyOnly = countyFips.slice(2);
   try {
     const acs = await fetchCountyAcs(stateFips, countyOnly);
     const tracts = await fetchUsaleepTractsForCounty(`${countyName}, ${stateAbbrev}`);
-    if (acs.population < DEFAULT_SUPPRESSION.minPopulation) return null;
-    if (tracts.length === 0) return null;
+    if (acs.population < DEFAULT_SUPPRESSION.minPopulation) return { suppressionReason: "below_min_population" };
+    if (tracts.length === 0) return { suppressionReason: "no_usaleep_tracts" };
 
     const inputs: UnitInputs = {
       geoId: countyFips,
@@ -71,12 +81,18 @@ async function computeCountyOwnLoss(
       healthValueBasis: "observed",
     };
     const row = computeEquityLoss(inputs, "vs_national_peer_class", null, UNDP_GOALPOSTS, DEFAULT_SUPPRESSION);
-    if (row.suppressed || row.overallLossPct === null) return null;
+    if (row.suppressed || row.overallLossPct === null) {
+      return { suppressionReason: row.suppressionReason ?? "unknown" };
+    }
     return { overallLossPct: row.overallLossPct, growthBand: growthBandFromPct(acs.decadalGrowthPct) };
   } catch (e) {
-    console.warn(`[peer-class-benchmarks] failed for ${countyName} (${countyFips}):`, (e as Error).message);
+    console.warn(`[peer-class-benchmarks] upstream fetch failed for ${countyName} (${countyFips}):`, (e as Error).message);
     return null;
   }
+}
+
+function isComputed(r: CountyLossResult | { suppressionReason: string } | null): r is CountyLossResult {
+  return r !== null && "overallLossPct" in r;
 }
 
 async function main() {
@@ -88,10 +104,15 @@ async function main() {
     for (const band of RURALITY_BANDS) {
       for (const region of REGIONS) {
         const ruccRange = band === "metro" ? [1, 3] : band === "small_town" ? [4, 6] : [7, 9];
+        // Fetch several candidates, not just the top one — the largest
+        // county in a class can legitimately trip the engine's own
+        // suppression rules (e.g. a volatile growth-rate denominator), in
+        // which case we fall back to the next-largest rather than leaving
+        // the whole class unbenchmarked.
         const { rows } = await client.query(
           `SELECT county_fips, county_name, state_abbrev FROM rucc_county_codes
            WHERE rucc_code BETWEEN $1 AND $2 AND census_region = $3
-           ORDER BY population_2020 DESC NULLS LAST LIMIT 1`,
+           ORDER BY population_2020 DESC NULLS LAST LIMIT 5`,
           [ruccRange[0], ruccRange[1], region],
         );
         if (rows.length === 0) {
@@ -99,13 +120,26 @@ async function main() {
           skipped++;
           continue;
         }
-        const { county_fips, county_name, state_abbrev } = rows[0];
-        const result = await computeCountyOwnLoss(county_fips, county_name, state_abbrev);
-        if (!result) {
-          console.warn(`[peer-class-benchmarks] could not compute for representative county ${county_name} (${county_fips})`);
+
+        let result: CountyLossResult | null = null;
+        let usedCounty: { county_name: string; state_abbrev: string; county_fips: string } | null = null;
+        for (const candidate of rows) {
+          const r = await computeCountyOwnLoss(candidate.county_fips, candidate.county_name, candidate.state_abbrev);
+          if (isComputed(r)) {
+            result = r;
+            usedCounty = candidate;
+            break;
+          }
+          const reason = r === null ? "upstream_fetch_failed" : r.suppressionReason;
+          console.warn(`[peer-class-benchmarks] ${candidate.county_name} (${candidate.county_fips}) not usable: ${reason} — trying next candidate`);
+        }
+
+        if (!result || !usedCounty) {
+          console.warn(`[peer-class-benchmarks] no usable representative county found for ${band}/${region} after ${rows.length} candidates`);
           skipped++;
           continue;
         }
+        const { county_fips, county_name, state_abbrev } = usedCounty;
         const key = peerClassKey(band, result.growthBand as any, region);
         const id = `equity_loss.peer_class.${key}`;
         const exists = await client.query("SELECT 1 FROM benchmark_metrics WHERE id = $1", [id]);
