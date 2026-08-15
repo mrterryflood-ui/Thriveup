@@ -99,6 +99,7 @@ const getFundedItems: NavItem[] = [
 // Resident Journey (demo) lives here — primary entry point for the Marcus story
 // and for anyone starting their own personal journey.
 const servePeopleItems: NavItem[] = [
+  { title: "Get Help Now (Quick Start)", url: "/get-help", icon: HandHeart },
   { title: "Resource Finder", url: "/resources", icon: MapPin },
   { title: "9-Benefit Screener", url: "/benefits-screener", icon: ClipboardList },
   { title: "Benefits Command Center", url: "/benefits", icon: HandHeart },
@@ -136,6 +137,9 @@ const fosterYouthItems: NavItem[] = [
 
 // HUB 2c — Justice & Reentry: reentry, probation/parole, justice system navigation.
 const justiceReentryItems: NavItem[] = [
+  { title: "Safe Passage (Reentry Toolkit)", url: "/safe-passage", icon: Route },
+  { title: "Reentry Intake", url: "/reentry/intake", icon: ClipboardCheck },
+  { title: "Streets Program", url: "/streets", icon: Route },
   { title: "Reentry Program", url: "/reentry-program", icon: Scale },
   { title: "Reentry Standards", url: "/reentry/standards", icon: Scale },
   { title: "Justice Partners", url: "/justice-partners", icon: Handshake },
@@ -151,6 +155,7 @@ const justiceReentryItems: NavItem[] = [
 
 // HUB 2d — Prevention & Health: behavioral health, prevention, veterans, CHW.
 const preventionHealthItems: NavItem[] = [
+  { title: "Gun Violence Intelligence", url: "/gun-violence", icon: Shield },
   { title: "Veterans Program", url: "/veterans", icon: Shield },
   { title: "Behavioral Health Program", url: "/behavioral-health", icon: Heart },
   { title: "Prevention Hub", url: "/prevention", icon: ShieldCheck },
@@ -168,6 +173,8 @@ const workforceTradesItems: NavItem[] = [
   // Journey order (2026): coordinated retraining pathway leads the hub —
   // Explore (hub) → Train (Trade Sims) → Prove it (certificates) → Next step.
   { title: "Workforce Pathways", url: "/workforce", icon: Compass },
+  { title: "Workforce Readiness", url: "/workforce-readiness", icon: ClipboardCheck },
+  { title: "Resume Builder", url: "/resume-builder", icon: FileText },
   { title: "Trade Sims (Try Free →)", url: "/academy/trade-sims", icon: Wrench },
   { title: "My Certificates", url: "/certificates", icon: ScrollText, authOnly: true },
   { title: "Career Explorer", url: "/academy/careers", icon: Briefcase },
@@ -227,6 +234,9 @@ const academyLearningItems: NavItem[] = [
 // HUB 5 — Partners & Coalitions: every coalition / community / ecosystem
 // surface. The "who are we working with" door.
 const partnersCoalitionsItems: NavItem[] = [
+  { title: "Join as a Partner", url: "/partners/join", icon: Handshake },
+  { title: "Coalition Portal", url: "/coalition-portal", icon: Handshake },
+  { title: "Engagement Hub", url: "/engagement-hub", icon: Activity },
   { title: "ALIGN — Connect. Grow. Serve. Thrive.", url: "/align", icon: Sparkles },
   { title: "Why ThriveUp? (Stakeholder Q&A)", url: "/why-thriveup", icon: FileText },
   { title: "My ALIGN Journey", url: "/align/my-journey", icon: Route },
@@ -256,6 +266,7 @@ const partnersCoalitionsItems: NavItem[] = [
 // HUB 6 — Where We Operate: national coverage, transparency, neighborhood
 // intel, impact dashboards. CTX-specific items live in the CTX hub above.
 const whereWeOperateItems: NavItem[] = [
+  { title: "Equity Loss Engine", url: "/equity-loss", icon: BarChart3 },
   { title: "Implementation & Evaluation", url: "/corridor-intelligence", icon: Route },
   { title: "Coverage Map", url: "/coverage", icon: Map },
   { title: "Bring TCAF to Your State", url: "/coverage#request", icon: HandHeart },
@@ -285,6 +296,8 @@ const whereWeOperateItems: NavItem[] = [
 // methodology lives here because it's part of "why we're credible."
 const aboutTrustItems: NavItem[] = [
   { title: "About / Our Structure", url: "/about", icon: Info },
+  { title: "Donors", url: "/donors", icon: HandHeart },
+  { title: "Public Standards", url: "/standards/public", icon: ClipboardCheck },
   { title: "Pricing & Services", url: "/pricing", icon: DollarSign },
   { title: "AI Consulting", url: "/ai-consulting", icon: Brain },
   { title: "Methodology", url: "/methodology", icon: Microscope },
@@ -331,6 +344,7 @@ const hubRuralAg: NavItem[] = [
 // childcare Voice project, and regional briefing into one door.
 const ctxHubItems: NavItem[] = [
   { title: "CTX Benefits Initiative", url: "/st-davids", icon: LayoutDashboard },
+  { title: "WAB2 Enrollment", url: "/wab2-enrollment", icon: LayoutDashboard },
   { title: "SNAP Navigator", url: "/benefits-screener", icon: ClipboardList },
   { title: "Benefits Navigator", url: "/benefits", icon: HandHeart },
   { title: "N. Wilco Childcare Coalition", url: "/north-wilco-childcare-coalition", icon: Baby },

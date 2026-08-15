@@ -31,6 +31,20 @@ const TOOLS: ToolCheck[] = [
   { name: "Health & Wellness Hub", route: "/health-wellness", reachableFrom: ["client/src/components/app-sidebar.tsx", "client/src/pages/benefits-screener.tsx"] },
   { name: "AI Navigator", route: "/navigator", reachableFrom: ["client/src/components/app-sidebar.tsx", "client/src/pages/health-wellness.tsx", "client/src/pages/benefits-screener.tsx"] },
   { name: "Resource Directory", route: "/resource-directory", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Get Help Now (Quick Start)", route: "/get-help", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Resume Builder", route: "/resume-builder", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Gun Violence Intelligence", route: "/gun-violence", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Safe Passage (Reentry Toolkit)", route: "/safe-passage", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Workforce Readiness", route: "/workforce-readiness", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Coalition Portal", route: "/coalition-portal", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Engagement Hub", route: "/engagement-hub", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Equity Loss Engine", route: "/equity-loss", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Donors", route: "/donors", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Join as a Partner", route: "/partners/join", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "WAB2 Enrollment", route: "/wab2-enrollment", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Public Standards", route: "/standards/public", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Streets Program", route: "/streets", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
+  { name: "Reentry Intake", route: "/reentry/intake", reachableFrom: ["client/src/components/app-sidebar.tsx"] },
 ];
 
 function fileHasLink(path: string, route: string): boolean {
