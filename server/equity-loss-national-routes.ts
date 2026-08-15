@@ -214,6 +214,66 @@ router.get("/state/:stateAbbrev", async (req, res) => {
 });
 
 // ---------------------------------------------------------------------------
+// GET /api/equity-loss/national/map
+// Lightweight un-paginated endpoint for the choropleth map view.
+// Returns ONLY the 5 small fields needed to color each county.
+// ~3,200 rows × 5 small fields ≈ well under 300 KB JSON.
+// Declared before "/" so Express doesn't shadow it with the catch-all.
+// ---------------------------------------------------------------------------
+router.get("/map", async (req, res) => {
+  const ip = req.ip || "unknown";
+  if (rateLimited(ip)) {
+    return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
+  }
+
+  const frame = String(req.query.frame ?? "vs_national_peer_class");
+  if (!VALID_FRAMES.has(frame)) {
+    return res.status(400).json({ error: `Invalid frame. Must be one of: ${[...VALID_FRAMES].join(", ")}` });
+  }
+
+  const client = await dbPool.connect();
+  try {
+    const batch = await getLatestCompletedBatch(client);
+    if (!batch) {
+      return res.json({
+        noDataYet: true,
+        message:
+          "No completed nationwide batch run found. Run scripts/compute-nationwide-equity-loss.ts to populate the snapshot.",
+        rows: [],
+      });
+    }
+
+    const { rows } = await client.query(
+      `SELECT county_fips, county_name, state_abbrev, state_fips, overall_loss_pct, suppressed
+       FROM equity_loss_national_snapshot
+       WHERE batch_run_id = $1 AND frame = $2
+       ORDER BY county_fips ASC`,
+      [batch.batch_run_id, frame],
+    );
+
+    return res.json({
+      noDataYet: false,
+      batchRunId: batch.batch_run_id,
+      dataAsOf: batch.completed_at.toISOString(),
+      frame,
+      rows: rows.map((r) => ({
+        county_fips: r.county_fips,
+        county_name: r.county_name,
+        state_abbrev: r.state_abbrev,
+        state_fips: r.state_fips,
+        overall_loss_pct: r.overall_loss_pct !== null ? parseFloat(r.overall_loss_pct) : null,
+        suppressed: r.suppressed,
+      })),
+    });
+  } catch (e) {
+    console.error("[equity-loss-national] map endpoint failed:", e);
+    return res.status(500).json({ error: "Failed to load map data." });
+  } finally {
+    client.release();
+  }
+});
+
+// ---------------------------------------------------------------------------
 // GET /api/equity-loss/national  (paginated list)
 // ---------------------------------------------------------------------------
 router.get("/", async (req, res) => {

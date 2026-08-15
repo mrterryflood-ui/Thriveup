@@ -182,14 +182,12 @@ export default function EquityLossEnginePage() {
           }}>
             Single-County Lookup
           </span>
-          <Link href="/equity-loss/national">
-            <a style={{
-              padding: "6px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
-              background: "rgba(255,255,255,0.04)", color: "#94a3b8",
-              border: "1px solid rgba(255,255,255,0.1)", textDecoration: "none", cursor: "pointer",
-            }}>
-              Nationwide Browse →
-            </a>
+          <Link href="/equity-loss/national" style={{
+            padding: "6px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
+            background: "rgba(255,255,255,0.04)", color: "#94a3b8",
+            border: "1px solid rgba(255,255,255,0.1)", textDecoration: "none", cursor: "pointer",
+          }}>
+            Nationwide Browse →
           </Link>
         </div>
 

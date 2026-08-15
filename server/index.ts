@@ -276,6 +276,15 @@ app.use((req, res, next) => {
     }, 3 * 60 * 1000);
   }
 
+  // Nationwide Equity-Loss snapshot monthly refresh scheduler.
+  // Runs in any environment (dev + prod) — checks the last completed run's age
+  // before doing anything, so hot-reloads within the same day are no-ops.
+  // Boot delay: 90 seconds. Re-check interval: 30 days.
+  {
+    const { scheduleEquityLossNationwideRefresh } = await import("./equity-loss-national-scheduler");
+    scheduleEquityLossNationwideRefresh();
+  }
+
   app.use((err: any, _req: Request, res: Response, next: NextFunction) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";

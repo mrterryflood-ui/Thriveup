@@ -12,8 +12,8 @@
 //   - an honest empty/loading/no-data-yet state is shown when the batch
 //     job hasn't completed
 
-import { useState, useEffect, useCallback } from "react";
-import { Link } from "wouter";
+import { useState, useEffect, useCallback, Fragment } from "react";
+import { Link, useLocation } from "wouter";
 import {
   Table,
   TableBody,
@@ -39,7 +39,8 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { AlertCircle, ArrowUpDown, Info, ExternalLink, ArrowLeft } from "lucide-react";
+import { AlertCircle, ArrowUpDown, Info, ExternalLink, ArrowLeft, Map, Table as TableIcon } from "lucide-react";
+import CountyChoroplethMap from "@/components/equity-loss/CountyChoroplethMap";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -289,6 +290,11 @@ function SortButton({ field, currentSort, currentDir, onClick }: {
 // ---------------------------------------------------------------------------
 
 export default function EquityLossNationalPage() {
+  const [, navigate] = useLocation();
+
+  // View toggle: "table" | "map"
+  const [view, setView] = useState<"table" | "map">("table");
+
   // Filter/sort state
   const [frame, setFrame] = useState<string>("vs_national_peer_class");
   const [stateFilter, setStateFilter] = useState<string>("all");
@@ -416,11 +422,10 @@ export default function EquityLossNationalPage() {
 
         {/* Header nav */}
         <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24, flexWrap: "wrap" }}>
-          <Link href="/equity-loss">
-            <a style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#94a3b8", textDecoration: "none" }}
-              className="hover:text-slate-200 transition-colors">
-              <ArrowLeft size={14} /> Single-County Lookup
-            </a>
+          <Link href="/equity-loss"
+            style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 13, color: "#94a3b8", textDecoration: "none" }}
+            className="hover:text-slate-200 transition-colors">
+            <ArrowLeft size={14} /> Single-County Lookup
           </Link>
           <span style={{ color: "#334155" }}>|</span>
           <span style={{ fontSize: 13, color: "#2563eb", fontWeight: 600 }}>Nationwide Browse</span>
@@ -454,17 +459,46 @@ export default function EquityLossNationalPage() {
             <div style={{ fontSize: 14, color: "#94a3b8", maxWidth: 480, margin: "0 auto", lineHeight: 1.6 }}>
               The batch computation job has not completed yet. Each batch processes ~3,100 counties
               against multiple external data sources. Check back soon. In the meantime, you can use the{" "}
-              <Link href="/equity-loss">
-                <a style={{ color: "#2563eb", textDecoration: "underline" }}>single-county lookup</a>
-              </Link>{" "}
+              <Link href="/equity-loss" style={{ color: "#2563eb", textDecoration: "underline" }}>single-county lookup</Link>{" "}
               for live on-demand results.
             </div>
           </div>
         )}
 
-        {/* Filters */}
+        {/* View toggle + Filters */}
         {!noDataYet && (
           <>
+            {/* Table / Map toggle */}
+            <div style={{ display: "flex", gap: 6, marginBottom: 20, alignItems: "center" }}>
+              <button
+                onClick={() => setView("table")}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                  background: view === "table" ? "rgba(37,99,235,0.18)" : "rgba(255,255,255,0.04)",
+                  color: view === "table" ? "#93c5fd" : "#94a3b8",
+                  border: view === "table" ? "1px solid rgba(37,99,235,0.35)" : "1px solid rgba(255,255,255,0.1)",
+                  transition: "all 0.15s",
+                }}
+              >
+                <TableIcon size={14} /> Table
+              </button>
+              <button
+                onClick={() => setView("map")}
+                style={{
+                  display: "flex", alignItems: "center", gap: 6,
+                  padding: "7px 16px", borderRadius: 8, fontSize: 13, fontWeight: 600, cursor: "pointer",
+                  background: view === "map" ? "rgba(37,99,235,0.18)" : "rgba(255,255,255,0.04)",
+                  color: view === "map" ? "#93c5fd" : "#94a3b8",
+                  border: view === "map" ? "1px solid rgba(37,99,235,0.35)" : "1px solid rgba(255,255,255,0.1)",
+                  transition: "all 0.15s",
+                }}
+              >
+                <Map size={14} /> Map
+              </button>
+            </div>
+
+            {/* Frame selector — shown in both views */}
             <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 16, alignItems: "flex-end" }}>
               {/* Frame selector */}
               <div style={{ minWidth: 200 }}>
@@ -483,60 +517,76 @@ export default function EquityLossNationalPage() {
                 </Select>
               </div>
 
-              {/* State filter */}
-              <div style={{ minWidth: 130 }}>
-                <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                  State
-                </div>
-                <Select value={stateFilter} onValueChange={handleStateChange}>
-                  <SelectTrigger style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.12)", color: "#e2e8f0", width: "100%" }}>
-                    <SelectValue placeholder="All states" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All states</SelectItem>
-                    {US_STATES.map((s) => (
-                      <SelectItem key={s} value={s}>{s}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Search */}
-              <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: 8, alignItems: "flex-end", flex: 1, minWidth: 200 }}>
-                <div style={{ flex: 1 }}>
+              {/* State filter — only shown in table view */}
+              {view === "table" && (
+                <div style={{ minWidth: 130 }}>
                   <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
-                    Search county name
+                    State
                   </div>
-                  <Input
-                    value={searchInput}
-                    onChange={(e) => setSearchInput(e.target.value)}
-                    placeholder="e.g. Cook"
-                    style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.12)", color: "#e2e8f0" }}
-                  />
+                  <Select value={stateFilter} onValueChange={handleStateChange}>
+                    <SelectTrigger style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.12)", color: "#e2e8f0", width: "100%" }}>
+                      <SelectValue placeholder="All states" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All states</SelectItem>
+                      {US_STATES.map((s) => (
+                        <SelectItem key={s} value={s}>{s}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Button type="submit" variant="secondary" style={{ padding: "8px 16px", height: 38 }}>
-                  Search
-                </Button>
-                {search && (
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    style={{ padding: "8px 12px", height: 38, color: "#64748b" }}
-                    onClick={() => { setSearch(""); setSearchInput(""); setPage(1); }}
-                  >
-                    Clear
+              )}
+
+              {/* Search — only shown in table view */}
+              {view === "table" && (
+                <form onSubmit={handleSearchSubmit} style={{ display: "flex", gap: 8, alignItems: "flex-end", flex: 1, minWidth: 200 }}>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 11, color: "#64748b", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.06em" }}>
+                      Search county name
+                    </div>
+                    <Input
+                      value={searchInput}
+                      onChange={(e) => setSearchInput(e.target.value)}
+                      placeholder="e.g. Cook"
+                      style={{ background: "#0f172a", border: "1px solid rgba(255,255,255,0.12)", color: "#e2e8f0" }}
+                    />
+                  </div>
+                  <Button type="submit" variant="secondary" style={{ padding: "8px 16px", height: 38 }}>
+                    Search
                   </Button>
-                )}
-              </form>
+                  {search && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      style={{ padding: "8px 12px", height: 38, color: "#64748b" }}
+                      onClick={() => { setSearch(""); setSearchInput(""); setPage(1); }}
+                    >
+                      Clear
+                    </Button>
+                  )}
+                </form>
+              )}
             </div>
 
-            {/* Error */}
-            {listError && (
+            {/* Map view */}
+            {view === "map" && (
+              <CountyChoroplethMap
+                frame={frame}
+                onCountyClick={(row) => {
+                  navigate(`/equity-loss?state=${row.state_fips}&county=${row.county_fips.slice(2)}`);
+                }}
+              />
+            )}
+
+            {/* Error (table view only) */}
+            {view === "table" && listError && (
               <div style={{ background: "rgba(239,68,68,0.1)", color: "#fca5a5", padding: 14, borderRadius: 10, marginBottom: 16, border: "1px solid rgba(239,68,68,0.25)", fontSize: 13 }}>
                 {listError}
               </div>
             )}
 
+            {/* Table view */}
+            {view === "table" && <>
             {/* Table — desktop */}
             <div className="hidden md:block">
               <div style={{ border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, overflow: "hidden" }}>
@@ -577,8 +627,7 @@ export default function EquityLossNationalPage() {
                               ))}
                             </TableRow>
                           ))
-                        : (listData?.rows ?? []).map((row) => (
-                            <>
+                        : (listData?.rows ?? []).map((row) => [
                               <TableRow
                                 key={row.county_fips}
                                 style={{
@@ -610,19 +659,15 @@ export default function EquityLossNationalPage() {
                                   <Link
                                     href={`/equity-loss?state=${row.state_fips}&county=${row.county_fips.slice(2)}`}
                                     onClick={(e) => e.stopPropagation()}
+                                    style={{ display: "flex", alignItems: "center", gap: 4, color: "#2563eb", fontSize: 12, textDecoration: "none" }}
                                   >
-                                    <a
-                                      style={{ display: "flex", alignItems: "center", gap: 4, color: "#2563eb", fontSize: 12, textDecoration: "none" }}
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      Live <ExternalLink size={11} />
-                                    </a>
+                                    Live <ExternalLink size={11} />
                                   </Link>
                                 </TableCell>
-                              </TableRow>
+                              </TableRow>,
 
-                              {/* Expanded detail row */}
-                              {expandedRow === row.county_fips && (
+                              /* Expanded detail row */
+                              expandedRow === row.county_fips && (
                                 <TableRow key={`${row.county_fips}-detail`} style={{ background: "rgba(37,99,235,0.05)" }}>
                                   <TableCell colSpan={7} style={{ padding: "12px 20px" }}>
                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px 24px", fontSize: 13 }}>
@@ -667,9 +712,8 @@ export default function EquityLossNationalPage() {
                                     </div>
                                   </TableCell>
                                 </TableRow>
-                              )}
-                            </>
-                          ))}
+                              ),
+                            ])}
                     </TableBody>
                   </Table>
                 </div>
@@ -711,13 +755,9 @@ export default function EquityLossNationalPage() {
                         <Link
                           href={`/equity-loss?state=${row.state_fips}&county=${row.county_fips.slice(2)}`}
                           onClick={(e) => e.stopPropagation()}
+                          style={{ display: "flex", alignItems: "center", gap: 4, color: "#2563eb", fontSize: 12 }}
                         >
-                          <a
-                            style={{ display: "flex", alignItems: "center", gap: 4, color: "#2563eb", fontSize: 12 }}
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Live detail <ExternalLink size={11} />
-                          </a>
+                          Live detail <ExternalLink size={11} />
                         </Link>
                       </div>
 
@@ -780,6 +820,7 @@ export default function EquityLossNationalPage() {
                 No counties matched your filters. Try adjusting the state or search term.
               </div>
             )}
+            </>}
           </>
         )}
 
@@ -803,7 +844,7 @@ export default function EquityLossNationalPage() {
           <p style={{ marginTop: 6 }}>
             Data freshness is shown in the header. All results reflect the most recently completed batch run only;
             rows from different runs are never mixed in a single response. For on-demand live computation,
-            use the <Link href="/equity-loss"><a style={{ color: "#2563eb" }}>single-county lookup</a></Link>.
+            use the <Link href="/equity-loss" style={{ color: "#2563eb" }}>single-county lookup</Link>.
           </p>
         </div>
       </div>
