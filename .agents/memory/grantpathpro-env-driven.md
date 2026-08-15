@@ -14,3 +14,24 @@ payload instead of failing.
 **How to apply:** To point the platform at a new GrantPathPro address, update the `GPP_API_URL` env var via
 `setEnvVars` (not a code edit, not a secret — it's a plain URL). UI copy that says "GrantPathPro" is just a
 product-name label; it never encodes the URL. Do not hand-edit source files hunting for a hardcoded domain.
+
+---
+
+## Current status (confirmed 2026-08-15)
+
+`GPP_API_URL` = `https://pursuitsfundingprofessionals.com`. Probe findings:
+- `/api/health` → 200 JSON (public, server is live)
+- `/api/inbound/entity`, `/api/inbound/proposal`, `/api/inbound/pursuit`, `/api/inbound/collaborative`
+  → all return **401 with Clerk auth headers** (`x-clerk-auth-status: signed-out`,
+  `x-clerk-auth-message: Invalid JWT form…`). The new GPP server uses Clerk JWT for all `/api/*`
+  routes. Our `THRIVE_GPP_API_KEY` is a plain API key string (not a Clerk JWT with 3 dot-parts).
+
+**pushToGpp() now detects the Clerk auth wall** — checks for `x-clerk-auth-status` response header on 401
+and returns `{ sent: false, authMismatch: true }` with a clear console.warn pointing to the resolution.
+
+**Verification script:** `scripts/verify-gpp-endpoint.ts` — probes all four endpoints and exits 1 with
+actionable guidance when the Clerk wall is detected.
+
+**Resolution needed from GPP (two options):**
+- A) They expose `/api/inbound/*` outside their Clerk middleware (accept plain Bearer API key).
+- B) They issue ThriveUp a Clerk machine token (a proper 3-part JWT) to use as `THRIVE_GPP_API_KEY`.

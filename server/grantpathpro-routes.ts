@@ -381,7 +381,7 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
   // If GPP_API_URL is not set, returns a preview of what would be sent.
   // ══════════════════════════════════════════════════════════════
 
-  async function pushToGpp(payload: Record<string, unknown>, endpoint: string): Promise<{ sent: boolean; preview?: unknown; response?: unknown; error?: string }> {
+  async function pushToGpp(payload: Record<string, unknown>, endpoint: string): Promise<{ sent: boolean; preview?: unknown; response?: unknown; error?: string; authMismatch?: boolean }> {
     const gppUrl = process.env.GPP_API_URL;
     const gppKey = process.env.THRIVE_GPP_API_KEY;
     if (!gppUrl) return { sent: false, preview: payload };
@@ -392,7 +392,35 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
         body: JSON.stringify(payload),
         signal: AbortSignal.timeout(15_000),
       });
-      const response = r.ok ? await r.json().catch(() => ({ status: r.status })) : { status: r.status, statusText: r.statusText };
+
+      // Detect Clerk JWT auth wall — the new GPP server (pursuitsfundingprofessionals.com)
+      // uses Clerk for all /api/* routes. A plain API key string is not a valid Clerk JWT
+      // (which must have three dot-separated parts). When this is detected we log a specific,
+      // actionable message rather than a generic "push failed" so operators know exactly what
+      // configuration change is needed on GPP's side.
+      if (r.status === 401) {
+        const clerkStatus = r.headers.get("x-clerk-auth-status");
+        const clerkMsg    = r.headers.get("x-clerk-auth-message");
+        if (clerkStatus) {
+          console.warn(
+            `[GrantPathPro] Push to ${gppUrl}${endpoint} blocked by Clerk auth wall ` +
+            `(x-clerk-auth-status=${clerkStatus}). ` +
+            `GPP must expose a service-to-service inbound endpoint (e.g. /api/inbound/*) ` +
+            `that accepts a plain Bearer API key, or provide a Clerk machine token. ` +
+            `Clerk message: ${clerkMsg ?? "none"}`
+          );
+          const body = await r.json().catch(() => ({ status: 401 }));
+          return { sent: false, authMismatch: true, response: { ...body, clerkAuthStatus: clerkStatus }, error: "GPP endpoint requires Clerk JWT — plain API key not accepted" };
+        }
+      }
+
+      if (!r.ok) {
+        const body = await r.json().catch(() => ({ status: r.status, statusText: r.statusText }));
+        console.warn(`[GrantPathPro] Push to ${gppUrl}${endpoint} returned HTTP ${r.status}:`, body);
+        return { sent: false, response: body, error: `HTTP ${r.status}` };
+      }
+
+      const response = await r.json().catch(() => ({ status: r.status }));
       return { sent: true, response };
     } catch (e: any) {
       return { sent: false, error: e.message, preview: payload };
