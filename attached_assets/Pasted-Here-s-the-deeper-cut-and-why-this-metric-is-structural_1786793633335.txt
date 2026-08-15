@@ -1,0 +1,37 @@
+Here's the deeper cut, and why this metric is structurally a differences-in-differences design already.
+
+**The method is doing what you're doing**
+
+The IHDI applies the Atkinson inequality measure (aversion parameter ε = 1) to the distributions of life expectancy, years of schooling, and disposable income. Each dimension index falls as dispersion rises, and the three adjusted indices are combined by geometric mean. The headline output is the percentage loss.
+
+The formula is: **Loss = 1 − [(1 − A_health)(1 − A_education)(1 − A_income)]^(1/3)**
+
+That's the key. It's multiplicative and geometric, not additive. **A country cannot compensate for catastrophic inequality in one dimension by excelling in another.** Geometric mean punishes imbalance. If health distribution collapses, no amount of educational access rescues the score. Your platform should adopt this property deliberately — it's what prevents a county from claiming health equity because it has good schools.
+
+**Why UNDP built it — and it's your exact thesis**
+
+The IHDI addresses a structural weakness of the original HDI: it reports only national averages and is blind to how achievements are distributed within a society. UNDP's own framing: the HDI is "an index of potential human development — the maximum IHDI that could be achieved if there were no inequality," while the IHDI is "the level of human development when inequality is accounted for."
+
+So the two numbers are literally **potential vs. actual**. The gap is forfeited human development. The US forfeits 11.3% of its own potential. Iceland forfeits 5.0%.
+
+**The DiD structure, made explicit**
+
+- **Unit:** country (later: state, county, precinct)
+- **Pre/post or treatment/control:** HDI (unadjusted) vs. IHDI (adjusted)
+- **First difference:** each country's own loss — internal, self-referential, immune to "but they're a small homogeneous country" objections
+- **Second difference:** US loss (11.3%) minus peer-group loss (Nordic bloc 5.0–6.3%)
+- **Estimate:** **~5 to 6.3 percentage points of human development the US forfeits that its peers do not**
+
+That second difference is the number. It isn't "America is worse than Norway." It's "America destroys roughly twice as much of its own capability through maldistribution as comparably wealthy nations do."
+
+**What makes it hard to dismiss**
+
+Each country is compared to itself first. Population size, homogeneity, geography, history — all differenced out at step one. The Nordic comparison isn't asking the US to be Norway; it's asking why two countries at similar capability convert that capability into lived outcomes at such different efficiency.
+
+**Two honest caveats before you build on it**
+
+UNDP states plainly that the IHDI does not capture overlapping inequalities — whether the same person experiences disadvantage in one dimension or several. For the US that's a serious understatement: your earlier findings showed the same populations absorbing school funding gaps, pollution exposure, maternal mortality, and incarceration simultaneously. **Compounded disadvantage is invisible to IHDI. Your sub-national version should measure it — that's a genuine methodological advance, not just a resolution increase.**
+
+Second: the IHDI requires household-survey microdata on distributions, so it's unavailable for some countries and lags the HDI. At county and precinct level you'll hit the same wall harder. ACS 5-year gives you income and education distributions; life expectancy at sub-county resolution is the binding constraint (USALEEP census-tract estimates are the standard workaround, but they're dated).
+
+I did not verify the US's component-level breakdown — health loss vs. education loss vs. income loss separately. That's in the HDR25 Statistical Annex Table 3, and it matters a lot for you: it tells you *which* dimension is doing the damage. Want me to pull that table?
