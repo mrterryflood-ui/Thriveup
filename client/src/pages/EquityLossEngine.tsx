@@ -9,7 +9,8 @@
 // Visual language matches EquityDashboard.tsx (dark, card-based, accent
 // colors keyed to meaning) so this reads as the same product family.
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Link } from "wouter";
 
 interface FrameRow {
   geoId: string;
@@ -130,11 +131,26 @@ function FrameCard({ row }: { row: FrameRow }) {
 }
 
 export default function EquityLossEnginePage() {
-  const [stateFips, setStateFips] = useState(PRESETS[0].state);
-  const [countyFips, setCountyFips] = useState(PRESETS[0].county);
+  // Support deep-link from the national view: /equity-loss?state=17&county=031
+  const urlParams = new URLSearchParams(typeof window !== "undefined" ? window.location.search : "");
+  const initState = urlParams.get("state") || PRESETS[0].state;
+  const initCounty = urlParams.get("county") || PRESETS[0].county;
+
+  const [stateFips, setStateFips] = useState(initState);
+  const [countyFips, setCountyFips] = useState(initCounty);
   const [data, setData] = useState<EquityLossResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Auto-run if deep-linked with FIPS params
+  useEffect(() => {
+    const s = urlParams.get("state");
+    const c = urlParams.get("county");
+    if (s && c) {
+      runLookup(s, c);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function runLookup(sf?: string, cf?: string) {
     const s = sf ?? stateFips;
@@ -157,6 +173,26 @@ export default function EquityLossEnginePage() {
   return (
     <div style={{ minHeight: "100vh", background: "#0b1120", color: "#e2e8f0", fontFamily: "system-ui, sans-serif" }}>
       <div style={{ maxWidth: 1000, margin: "0 auto", padding: "40px 20px 80px" }}>
+        {/* Nav tabs — single county vs nationwide */}
+        <div style={{ display: "flex", gap: 8, marginBottom: 24 }}>
+          <span style={{
+            padding: "6px 14px", borderRadius: 999, fontSize: 13, fontWeight: 600,
+            background: "rgba(37,99,235,0.18)", color: "#93c5fd",
+            border: "1px solid rgba(37,99,235,0.35)",
+          }}>
+            Single-County Lookup
+          </span>
+          <Link href="/equity-loss/national">
+            <a style={{
+              padding: "6px 14px", borderRadius: 999, fontSize: 13, fontWeight: 500,
+              background: "rgba(255,255,255,0.04)", color: "#94a3b8",
+              border: "1px solid rgba(255,255,255,0.1)", textDecoration: "none", cursor: "pointer",
+            }}>
+              Nationwide Browse →
+            </a>
+          </Link>
+        </div>
+
         <h1 style={{ fontSize: 28, fontWeight: 800, color: "#f8fafc", margin: 0 }}>Equity-Loss Engine</h1>
         <p style={{ color: "#94a3b8", marginTop: 8, marginBottom: 28, maxWidth: 640, lineHeight: 1.5 }}>
           County-grain human development loss to inequality (IHDI/Atkinson method), compared across three

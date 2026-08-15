@@ -196,7 +196,7 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx scripts/test-access-model-guards.ts && npx tsx scripts/verify-equity-loss-frames.ts"
+args = "npx tsx scripts/test-access-model-guards.ts && npx tsx scripts/verify-equity-loss-frames.ts && npx tsx scripts/verify-equity-loss-nationwide.ts && npx tsx scripts/verify-equity-loss-national-api.ts"
 
 [[workflows.workflow]]
 name = "auth-e2e"

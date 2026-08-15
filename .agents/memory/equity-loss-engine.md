@@ -1,69 +1,14 @@
 ---
-name: Equity-Loss Engine (IHDI/Atkinson)
-description: County-grain US equity-loss engine — three-frame comparison architecture, peer-class benchmark methodology, and the Census API key gotcha hit while building it.
+name: Equity-Loss Engine — nationwide extension
+description: How the county-grain IHDI/Atkinson equity-loss engine scales from a single manual lookup to all ~3,200 US counties.
 ---
 
-## What it is
-Domestic-only (US) county-grain human development loss-to-inequality engine
-(IHDI/Atkinson method). Live at `/equity-loss` (UI) and
-`GET /api/equity-loss/county/:stateFips/:countyFips` (API, public, rate-limited
-by IP). Mounted separately from the pre-existing unrelated `/api/equity`
-router — do not conflate the two.
+The live single-county lookup path (`server/equity-loss-routes.ts`) fans out to per-county Census ACS + CDC USALEEP calls — fine for one request, but ~3,143x too slow to run for every US county serially.
 
-## Three-frame architecture — the load-bearing pattern
-Every result is compared against three *independent, never-averaged*
-reference values: national (US), the county's own state, and a national
-"peer class" (rurality × growth × census-region). A county can read as
-deprived against its own state and advantaged against national peers of the
-same type — both can be true and imply different policy responses.
+**Why:** Census ACS5 supports `for=county:*&in=state:*`, returning every county nationwide in ONE call per variable set (3 calls total for income/education/growth) instead of one call per county. Socrata (USALEEP) supports the same trick via `$limit`/`$offset` pagination (2 calls covered ~73k tract rows). This turned a nationwide batch from a theoretical multi-hour crawl into a ~70-second job.
 
-**Why this matters for future changes:** the original implementation called
-the same loss-computation function three times with identical inputs, so all
-three frames were structurally guaranteed to be identical (divergence always
-0) — a bug that looked correct at every level except tracing actual data flow.
-Caught only by reading the function before building on top of it, not by
-running it. A regression guard now lives in `scripts/verify-equity-loss-frames.ts`
-(chained into the `access-model-guards` workflow) that fails loudly if all
-three frames' reference values are ever identical again — do not remove it
-without a repro of why the identical case is now legitimately expected.
+**How to apply:** A nationwide/batch feature built on a per-record live-lookup API should always check whether the underlying data source supports a bulk "all records" query shape before assuming a serial per-record loop is required — most government open-data APIs (Census, Socrata-based CDC/HUD datasets) do.
 
-## Peer-class benchmark methodology (disclosed assumption)
-Each of the 36 peer classes (3 rurality bands × 3 growth bands × 4 census
-regions) is benchmarked using ONE representative county (highest population
-in that class), not a true average across all counties — an exhaustive
-national average would require ~3,143 live per-county computations, not
-viable as a batch job. This is disclosed via `PEER_CLASS_ASSUMPTION_TEXT`,
-returned inline in every API response — never hide this the way UNDP-vs-
-geographic-dispersion health-methodology divergence is also disclosed.
-Rerun `scripts/compute-peer-class-benchmarks.ts` if RUCC codes or growth-band
-thresholds change; it's idempotent (skips existing `benchmark_metrics` ids).
+**Design pattern used:** kept the existing append-only per-request audit table (`equity_loss_results`) untouched, and added a separate current-snapshot table (`equity_loss_national_snapshot`, unique on county+frame, upserted per batch run, tagged with a `batch_run_id`) plus a `equity_loss_national_batch_runs` status table — so the API only ever serves rows from the most recent *completed* run, never a stale/failed partial mix. This separation (audit log vs. current-snapshot) is the right shape whenever a live single-record endpoint and a batch/nationwide endpoint need to coexist without one degrading the other.
 
-## RUCC over RUCA
-Peer classification uses USDA ERS **Rural-Urban Continuum Codes (RUCC) 2023**
-(county-level, static xlsx, ~3,143 counties), not tract-level RUCA — chosen
-because the shipped scope is county-grain and there's no existing
-tract-aggregation infrastructure. If a future feature needs sub-county
-(tract-level) rurality, RUCA is the correct source; don't force RUCC down to
-tract level.
-
-## Non-ASCII secret values break fetch() with a confusing error
-A secret used as an HTTP header value (`THRIVEUP_INBOUND_KEY`, used by the Civic
-Signal connector) had a stray non-ASCII character appended. Node's `fetch()`
-rejects that with `Cannot convert argument to a ByteString because the
-character at index N has a value of NNNN which is greater than 255` — this
-reads like a network/fetch bug, not a header-value bug. Any code that puts a
-secret directly into a header should sanitize it first (trim + strip
-non-printable-ASCII) so a bad secret value fails as a clear auth error, not
-an opaque ByteString crash. See `outboundHeaders()` in
-`server/civic-signal-connector.ts` for the pattern.
-
-## Census API now requires a key — a shipped assumption changed silently
-`api.census.gov` used to tolerate keyless requests for low-volume use. It now
-302-redirects every keyless request to `missing_key.html` (confirmed live,
-2026-08-15) instead of returning a clean error — a `fetch()` without
-`redirect: "manual"` will try to JSON-parse the redirect's HTML body and fail
-with a confusing "Unexpected token '<'" error that looks like a payload bug,
-not an auth bug. `CENSUS_API_KEY` is already provisioned in this environment
-and used by the pre-existing `community-api-routes.ts` / `benefits-routes.ts`
-call sites — reuse that same key for any new Census fetch code; don't assume
-keyless still works just because older code comments say so.
+Known disclosed gap (not a bug): only 12 of 36 peer-classification benchmark cells are populated in `benchmark_metrics`; counties in the other 24 classes get a null `vs_national_peer_class` reference rather than a fabricated one. Tracked as a follow-up, not fixed inline.

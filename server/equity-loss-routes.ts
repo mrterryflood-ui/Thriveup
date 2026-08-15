@@ -17,9 +17,13 @@ import { fetchCountyAcs } from "./equity-loss/acs-county-source";
 import { fetchUsaleepTractsForCounty } from "./equity-loss/usaleep-source";
 import { classifyCounty, growthBandFromPct, peerClassKey, PEER_CLASS_ASSUMPTION_TEXT } from "./equity-loss/peer-class";
 import { getNationalReference, getStateReference, getPeerClassReference } from "./equity-loss/reference-cache";
+import nationalRouter from "./equity-loss-national-routes";
 
 const router = Router();
 const dbPool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+
+// Mount the nationwide browsing sub-router at /national
+router.use("/national", nationalRouter);
 
 // Lightweight in-process rate limiter — this is a public, unauthenticated
 // endpoint that fans out to multiple external APIs per request.

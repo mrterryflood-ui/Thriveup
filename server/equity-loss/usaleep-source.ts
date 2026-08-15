@@ -63,6 +63,61 @@ export async function fetchUsaleepTractsForCounty(
 }
 
 /**
+ * Bulk-fetch ALL USALEEP tract rows in 2 paginated Socrata calls
+ * (73,121 total rows across 50k + 23k pages), then group them by
+ * county_name in memory. This turns ~3,143 sequential county lookups
+ * into 2 HTTP calls total.
+ *
+ * Strategy chosen: bulk-pull-then-group-locally.
+ * - The dataset is 73k rows, small enough to hold in memory.
+ * - Eliminates ~3,141 extra HTTP calls versus per-county fetches.
+ * - 2 large requests are significantly faster and kinder to the CDC
+ *   Socrata endpoint than a concurrent pool of 3,143 requests.
+ *
+ * Returns a Map<countyName, UsaleepTractRow[]> where countyName matches
+ * the USALEEP dataset's own county_name format (e.g. "Cook County, IL").
+ * State-aggregate rows (county_name === "(blank)") are excluded.
+ */
+export async function fetchAllUsaleepTracts(): Promise<Map<string, UsaleepTractRow[]>> {
+  const PAGE_SIZE = 50000;
+
+  async function fetchPage(offset: number): Promise<any[]> {
+    const url = `${USALEEP_URL}?$limit=${PAGE_SIZE}&$offset=${offset}&$select=full_ct_num,le,se_le,county_name`;
+    return fetchJson(url);
+  }
+
+  // Fetch both pages concurrently (safe since they're disjoint offsets)
+  const [page1, page2] = await Promise.all([
+    fetchPage(0),
+    fetchPage(PAGE_SIZE),
+  ]);
+
+  const allRows = [...page1, ...page2];
+
+  const byCounty = new Map<string, UsaleepTractRow[]>();
+  for (const r of allRows) {
+    const cname: string = r.county_name ?? "";
+    // Skip state-aggregate rows and any row without a county name
+    if (!cname || cname === "(blank)" || !r.full_ct_num || !r.le) continue;
+    const le = parseFloat(r.le);
+    if (!Number.isFinite(le)) continue;
+    const tract: UsaleepTractRow = {
+      tractFips: String(r.full_ct_num),
+      lifeExpectancy: le,
+      standardError: parseFloat(r.se_le ?? "0") || 0,
+    };
+    const existing = byCounty.get(cname);
+    if (existing) {
+      existing.push(tract);
+    } else {
+      byCounty.set(cname, [tract]);
+    }
+  }
+
+  return byCounty;
+}
+
+/**
  * Fetch the state-level aggregate life-expectancy row. USALEEP publishes
  * this directly (`county_name:"(blank)"`) rather than requiring the caller
  * to average county rows itself.

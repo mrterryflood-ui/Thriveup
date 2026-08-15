@@ -109,6 +109,159 @@ export async function fetchNationalAcs(): Promise<CountyAcsResult> {
   return fetchAcsForGeography(`us:1`, `us:1`);
 }
 
+/**
+ * Bulk-fetch ACS for ALL US counties in 3 Census API calls instead of
+ * ~3,143 sequential calls. Uses the wildcard `for=county:*&in=state:*`
+ * clause supported by ACS5. Returns a Map keyed by the 5-digit county FIPS
+ * (state+county, e.g. "17031" for Cook County IL).
+ *
+ * Note: Puerto Rico and island territories are returned by the Census API
+ * but are excluded from the map because USALEEP does not cover them and
+ * the rucc_county_codes DB table may contain them — they will naturally
+ * appear as suppressed rows (no USALEEP tracts → source_coverage_gap).
+ * The caller is responsible for handling missing entries gracefully.
+ */
+export async function fetchAllCountiesAcs(): Promise<Map<string, CountyAcsResult>> {
+  const incomeVars = INCOME_BRACKETS.map((b) => b.code).join(",");
+  const incomeMoeVars = INCOME_BRACKETS.map((b) => b.code.replace("E", "M")).join(",");
+  const eduVars = EDU_LEVELS.map((e) => e.code).join(",");
+  const eduMoeVars = EDU_LEVELS.map((e) => e.code.replace("E", "M")).join(",");
+
+  // Three bulk calls: income+population, education, and 2018 growth baseline.
+  // Each returns ~3,222 rows (50 states + DC + territories, all counties).
+  const incomeUrl = `${CENSUS_ACS_2022}?get=NAME,B01003_001E,${incomeVars},${incomeMoeVars}&for=county:*&in=state:*`;
+  const eduUrl = `${CENSUS_ACS_2022}?get=B15003_001E,${eduVars},${eduMoeVars}&for=county:*&in=state:*`;
+  const growthUrl2018 = `${CENSUS_ACS_2018}?get=B01003_001E&for=county:*&in=state:*`;
+
+  // Use a longer timeout for bulk calls (they return ~3,222 rows)
+  const bulkFetch = (url: string): Promise<any[]> => {
+    const key = process.env.CENSUS_API_KEY;
+    const finalUrl = key ? `${url}&key=${key}` : url;
+    const ctl = new AbortController();
+    const t = setTimeout(() => ctl.abort(), 60_000);
+    return fetch(finalUrl, { signal: ctl.signal, redirect: "manual" })
+      .then((res) => {
+        clearTimeout(t);
+        if (res.status >= 300 && res.status < 400) {
+          throw new Error(`Census ACS redirected (likely missing/invalid API key): ${res.headers.get("location")}`);
+        }
+        if (!res.ok) throw new Error(`Census bulk ACS HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((rows) => (Array.isArray(rows) ? rows : []))
+      .finally(() => clearTimeout(t));
+  };
+
+  const [incomeRows, eduRows, growthRows] = await Promise.all([
+    bulkFetch(incomeUrl),
+    bulkFetch(eduUrl),
+    bulkFetch(growthUrl2018).catch(() => [] as any[]),
+  ]);
+
+  if (incomeRows.length < 2 || eduRows.length < 2) {
+    throw new Error(`Census ACS bulk fetch returned no county data`);
+  }
+
+  // Parse headers from row[0]; data rows are row[1..N]
+  const incomeHeader: string[] = incomeRows[0];
+  const eduHeader: string[] = eduRows[0];
+  const growthHeader: string[] = growthRows.length > 1 ? growthRows[0] : [];
+
+  // Build lookup maps: countyFips5 -> row
+  // State FIPS is in the "state" column, county is in "county" column.
+  const stateIdx = incomeHeader.indexOf("state");
+  const countyIdx = incomeHeader.indexOf("county");
+
+  // Growth lookup: countyFips5 -> pop2018
+  const growthMap = new Map<string, number>();
+  if (growthHeader.length > 0) {
+    const gStateIdx = growthHeader.indexOf("state");
+    const gCountyIdx = growthHeader.indexOf("county");
+    const gPopIdx = growthHeader.indexOf("B01003_001E");
+    for (let i = 1; i < growthRows.length; i++) {
+      const row = growthRows[i];
+      const fips5 = `${row[gStateIdx]}${row[gCountyIdx]}`;
+      const pop = parseFloat(row[gPopIdx]) || 0;
+      if (pop > 0) growthMap.set(fips5, pop);
+    }
+  }
+
+  // Education lookup: countyFips5 -> row
+  const eduStateIdx = eduHeader.indexOf("state");
+  const eduCountyIdx = eduHeader.indexOf("county");
+  const eduDataMap = new Map<string, string[]>();
+  for (let i = 1; i < eduRows.length; i++) {
+    const row = eduRows[i];
+    const fips5 = `${row[eduStateIdx]}${row[eduCountyIdx]}`;
+    eduDataMap.set(fips5, row);
+  }
+
+  // Build result map
+  const result = new Map<string, CountyAcsResult>();
+
+  for (let i = 1; i < incomeRows.length; i++) {
+    const incomeRow = incomeRows[i];
+    const stateFips = incomeRow[stateIdx] as string;
+    const countyFips3 = incomeRow[countyIdx] as string;
+    const fips5 = `${stateFips}${countyFips3}`;
+
+    const iv = (code: string): number => {
+      const idx = incomeHeader.indexOf(code);
+      return idx >= 0 ? parseFloat(incomeRow[idx]) || 0 : 0;
+    };
+
+    const population = iv("B01003_001E");
+
+    const incomeDistribution = INCOME_BRACKETS.map((b) => ({
+      value: b.midpoint,
+      weight: iv(b.code),
+    })).filter((d) => d.weight > 0);
+    const incomeTotal = incomeDistribution.reduce((a, d) => a + d.weight, 0) || 1;
+    const incomeMoeSumSq = INCOME_BRACKETS.reduce((a, b) => a + iv(b.code.replace("E", "M")) ** 2, 0);
+    const incomeMoe = Math.sqrt(incomeMoeSumSq);
+    const incomeMoeRatio = incomeTotal > 0 ? incomeMoe / incomeTotal : 1;
+
+    // Education data
+    const eduRow = eduDataMap.get(fips5);
+    let educationDistribution: { mys: number; eys: number; weight: number }[] = [];
+    let educationMoeRatio = 1;
+    if (eduRow) {
+      const ev = (code: string): number => {
+        const idx = eduHeader.indexOf(code);
+        return idx >= 0 ? parseFloat(eduRow[idx]) || 0 : 0;
+      };
+      const eduTotal = ev("B15003_001E") || 1;
+      educationDistribution = EDU_LEVELS.map((lvl) => ({
+        mys: lvl.years,
+        eys: lvl.years,
+        weight: ev(lvl.code),
+      })).filter((d) => d.weight > 0);
+      const eduMoeSumSq = EDU_LEVELS.reduce((a, lvl) => a + ev(lvl.code.replace("E", "M")) ** 2, 0);
+      const eduMoe = Math.sqrt(eduMoeSumSq);
+      educationMoeRatio = eduTotal > 0 ? eduMoe / eduTotal : 1;
+    }
+
+    // Growth
+    let decadalGrowthPct = 0;
+    const pop2018 = growthMap.get(fips5);
+    if (pop2018 && pop2018 > 0 && population > 0) {
+      const rawGrowth = (population - pop2018) / pop2018;
+      decadalGrowthPct = (rawGrowth / 4) * 10 * 100;
+    }
+
+    result.set(fips5, {
+      incomeDistribution,
+      incomeMoeRatio,
+      educationDistribution,
+      educationMoeRatio,
+      decadalGrowthPct,
+      population,
+    });
+  }
+
+  return result;
+}
+
 async function fetchAcsForGeography(
   forClause: string,
   growthForClause: string,
