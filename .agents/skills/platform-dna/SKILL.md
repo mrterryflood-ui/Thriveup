@@ -52,3 +52,4 @@ Never guess when uncertain. Never act before loading current context. Never fail
 - Fable Standard (WHAT): `.agents/skills/fable-standard/SKILL.md` — 11 Iron Rules, Five-Lens thinking, anti-fabrication.
 - TCAF Identity: `.agents/skills/tcaf-identity/SKILL.md` — canonical stats, naming, framing.
 - Platform Engineering: `.agents/skills/platform-engineering/SKILL.md` — load-bearing gotchas.
+- **Order of Operations (PRE-BUILD, mandatory gate):** `.agents/skills/order-of-operations/SKILL.md` — Five-Phase doctrine. Phase 1 (environmental scan: vision, in-state, operating constraints, barriers/facilitators, stakeholder-differential effects) and Phase 2 (backward-planned, stakeholder-red-teamed plan) MUST precede Stage 2 BUILD whenever the subsystem/dataset is new or a methodological choice has more than one defensible answer. Phases 3–5 are Stage 2 BUILD → Stage 6 FILM REVIEW under this same pipeline, just named per this doctrine's sequencing.
