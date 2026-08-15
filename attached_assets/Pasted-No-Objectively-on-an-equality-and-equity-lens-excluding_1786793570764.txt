@@ -1,0 +1,21 @@
+No. Objectively, on an equality-and-equity lens, excluding gun violence entirely — the United States is not the greatest country in the world. And there is a single metric that settles it cleanly enough to anchor your platform.
+
+**The Inequality-adjusted HDI (UNDP, 2025 report)**
+
+The UN takes the Human Development Index — health, education, income — and discounts it by how unevenly those gains are distributed. That discount *is* the equity lens, computed by a neutral international body.
+
+The US ranks 18th on raw HDI at 0.938. Adjusted for inequality, it falls to 29th with an IHDI of 0.832 — an 11.3% loss, the largest inequality discount of any country in the top 20.
+
+That drop puts the US behind South Korea, Japan, and France — countries that score *lower* on raw HDI but distribute development more evenly. UNDP attributes the American loss to disparities across all three dimensions, concentrated along racial, geographic, and income lines.
+
+For contrast: Iceland loses 5.0%, Slovenia 4.9%, Czech Republic 5.2% — and the entire Nordic bloc loses between 5% and 6.3%, tracking directly to universal welfare systems and compressed income distributions. These are not the richest countries. They are the most equitable. Iceland ranks 1st on IHDI, Norway 2nd.
+
+**What this means precisely:**
+
+- Against **all ~190 countries**, the US is comfortably in the top tier — 18th raw, 29th equity-adjusted. Well above the world average. Anyone claiming America is a failed state is wrong.
+- Against its **peer set** — high-income democracies — it is near the bottom on nearly every equity measure, and it loses more ground to inequality than any comparably wealthy nation.
+- The phrase "greatest country in the world" is not empirically supportable under an equity lens. **"Wealthiest country with the largest gap between its capability and its delivery" is.** That's not a slogan — it's what an 11.3% inequality discount on top of the world's largest economy literally describes.
+
+**For your platform, the load-bearing insight:** the IHDI discount is the exact statistic your tool computes, just at national scale. You're building a sub-national IHDI — the loss coefficient between what a place could deliver and what it delivers to its actual residents, disaggregated. The UN already validated the method. You're pushing it down to county, district, and precinct.
+
+That also gives you a defensible headline number per community: not a rank, a **loss percentage.** "Your county forfeits X% of its human development to inequality." Iceland's 5% is the floor that's been proven achievable. That's your benchmark, and it's not ideological — it's arithmetic.
