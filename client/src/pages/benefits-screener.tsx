@@ -22,6 +22,7 @@ import {
   Send, Copy, ExternalLink, Briefcase, HardHat, Flame, KeyRound, GraduationCap,
   MessageCircle, ListChecks, Loader2 as Loader2Icon
 } from "lucide-react";
+import { Link } from "wouter";
 
 const STEPS = [
   { key: "welcome", label: "Welcome", icon: HandHeart },
@@ -69,57 +70,6 @@ const SITUATIONAL_PROGRAM_FLAGS: Record<string, keyof ScreenerData> = {
   UnemploymentInsurance: "isUnemployed",
   WorkersComp: "hadWorkplaceInjury",
 };
-
-// Generic stage timeline for "How to Apply" — most safety-net programs
-// follow this shape. A few programs (tax credits, VA disability) get a
-// tailored variant below since "interview" and "waitlist" don't apply to them.
-type ApplyStage = { title: string; detail: string };
-const DEFAULT_APPLY_STAGES: ApplyStage[] = [
-  { title: "Gather your documents", detail: "Collect the items in the checklist below before you start — having them ready avoids a stalled application." },
-  { title: "Submit your application", detail: "Apply online, by phone, or in person at your local office (links below). Save your confirmation number or screenshot." },
-  { title: "Verification / interview", detail: "The agency may call, mail a request, or schedule a short interview to confirm your information. Respond by the deadline in their letter — missing it is the #1 reason applications get denied." },
-  { title: "Decision", detail: "You'll get a written notice (mail, email, or portal message) approving, denying, or asking for more information. Federal law caps how long most agencies can take — see processing time below." },
-  { title: "If denied — appeal", detail: "You have the right to appeal almost any denial, usually within 30-90 days. Ask for the appeal in writing and keep a copy. A navigator or legal aid office can help for free." },
-];
-const APPLY_STAGE_OVERRIDES: Record<string, ApplyStage[]> = {
-  EITC: [
-    { title: "Gather your tax documents", detail: "W-2s/1099s, Social Security numbers for everyone on the return, and last year's return if you have it." },
-    { title: "File your tax return", detail: "EITC and CTC are claimed by filing a federal tax return — even if you don't owe taxes or aren't required to file. Free filing help (VITA) is available if your income is under the IRS threshold." },
-    { title: "IRS processes your return", detail: "By law, the IRS cannot issue EITC/CTC refunds before mid-February, even if you file in January." },
-    { title: "Refund arrives", detail: "Track it at irs.gov/refunds. Direct deposit is fastest." },
-  ],
-  CTC: [
-    { title: "Gather your tax documents", detail: "W-2s/1099s, Social Security numbers for each qualifying child, and last year's return if you have it." },
-    { title: "File your tax return", detail: "The Child Tax Credit is claimed on your federal tax return. Free filing help (VITA) is available if your income is under the IRS threshold." },
-    { title: "IRS processes your return", detail: "Processing typically takes a few weeks for e-filed returns with direct deposit." },
-    { title: "Refund/credit arrives", detail: "Track it at irs.gov/refunds." },
-  ],
-  VeteransBenefits: [
-    { title: "Gather your service & medical records", detail: "DD-214, any medical evidence connecting a condition to your service, and current treatment records." },
-    { title: "File your claim", detail: "Apply online at VA.gov, by mail, or with free help from a Veterans Service Officer (VSO) — VSOs are trained, free, and often get better outcomes." },
-    { title: "C&P exam", detail: "The VA may schedule a Compensation & Pension exam to evaluate your condition. Attend — missing it can result in denial." },
-    { title: "Decision", detail: "The VA issues a rating decision by mail/portal. Average time is well over 100 days — check status at VA.gov." },
-    { title: "If denied or rated too low — appeal", detail: "You can request a Higher-Level Review, file a Supplemental Claim, or appeal to the Board of Veterans' Appeals. A VSO can help for free." },
-  ],
-  UnemploymentInsurance: [
-    { title: "File your claim immediately", detail: "File the same week you become unemployed — payments are not retroactive before your filing date in most states." },
-    { title: "Weekly certification", detail: "Most states require you to certify weekly or bi-weekly that you're able, available, and actively searching for work — missing this pauses payment." },
-    { title: "Waiting period", detail: "Most states have one unpaid waiting week built into the process." },
-    { title: "Payments begin", detail: "Typically 2-3 weeks after a complete, verified claim." },
-    { title: "If denied — appeal", detail: "You can appeal a denial, usually within 10-30 days depending on your state. Keep records of your job search." },
-  ],
-  WorkersComp: [
-    { title: "Report the injury to your employer", detail: "Do this immediately, in writing if possible — many states have short deadlines (as little as a few days to 30 days)." },
-    { title: "Get medical treatment", detail: "See a doctor (sometimes your employer/insurer designates one) and make sure the injury is documented as work-related." },
-    { title: "Employer files the claim", detail: "Your employer or their insurance carrier files the claim with the state workers' comp agency. Follow up to confirm it was filed." },
-    { title: "Insurer decision", detail: "The insurer accepts, denies, or disputes the claim. Wage-replacement and medical benefits begin if accepted." },
-    { title: "If denied — appeal", detail: "You can request a hearing with your state's workers' comp board or use free legal aid — retaliation for a valid claim is illegal in every state." },
-  ],
-};
-function getApplyStages(programCode: string): ApplyStage[] {
-  return APPLY_STAGE_OVERRIDES[programCode] || DEFAULT_APPLY_STAGES;
-}
-
 interface ScreenerData {
   state: string;       // USPS code (e.g., "TX", "IL")
   county: string;      // 5-digit county FIPS (e.g., "48453") — never shown to the user
@@ -489,174 +439,6 @@ function SendReferralDialog({
     </Dialog>
   );
 }
-
-// "How to Apply" guided walkthrough: stage timeline + document checklist +
-// official links + a program-scoped AI coach chat. Opened from a result card.
-function ApplyGuideDialog({ programCode, guide, state, onClose }: {
-  programCode: string | null;
-  guide: any;
-  state: string;
-  onClose: () => void;
-}) {
-  const [chatMessages, setChatMessages] = useState<{ role: "user" | "assistant"; text: string }[]>([]);
-  const [chatInput, setChatInput] = useState("");
-  const info = programCode ? BENEFIT_INFO[programCode] : null;
-
-  useEffect(() => {
-    setChatMessages([]);
-    setChatInput("");
-  }, [programCode]);
-
-  const coachMutation = useMutation({
-    mutationFn: async (question: string) => {
-      // /api/navigator/chat streams Server-Sent Events (not plain JSON) — read
-      // and accumulate the "content" chunks the same way the main Navigator does.
-      const scoped = `[The user is asking specifically about how to apply for ${info?.name || programCode} in ${state || "their state"}. Answer only about this program's application process, documents, offices, deadlines, and appeals — keep it concrete and specific.] ${question}`;
-      const response = await fetch("/api/navigator/chat", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ message: scoped, responseMode: "brief" }),
-      });
-      if (!response.ok) throw new Error(`Request failed: ${response.status}`);
-      const reader = response.body?.getReader();
-      const decoder = new TextDecoder();
-      let fullText = "";
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read();
-          if (done) break;
-          const chunk = decoder.decode(value, { stream: true });
-          for (const line of chunk.split("\n")) {
-            if (!line.startsWith("data: ")) continue;
-            try {
-              const parsed = JSON.parse(line.slice(6));
-              if (parsed.error) throw new Error(parsed.error);
-              if (parsed.content) fullText += parsed.content;
-            } catch {
-              // ignore malformed/partial SSE fragments
-            }
-          }
-        }
-      }
-      return fullText || "I don't have a specific answer to that — try calling the hotline above.";
-    },
-    onSuccess: (text) => {
-      setChatMessages(prev => [...prev, { role: "assistant", text }]);
-    },
-    onError: () => {
-      setChatMessages(prev => [...prev, { role: "assistant", text: "Something went wrong reaching the AI coach. Please try again, or call the hotline below." }]);
-    },
-  });
-
-  const sendChat = () => {
-    const q = chatInput.trim();
-    if (!q || coachMutation.isPending) return;
-    setChatMessages(prev => [...prev, { role: "user", text: q }]);
-    setChatInput("");
-    coachMutation.mutate(q);
-  };
-
-  if (!programCode || !info) return null;
-  const Icon = info.icon;
-  const stages = getApplyStages(programCode);
-  const url = guide?.applicationUrl;
-  const officeFinder = guide?.officeFinder;
-  const hotline = guide?.hotline;
-  const days = guide?.processingDays;
-
-  return (
-    <Dialog open={!!programCode} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto" data-testid="dialog-apply-guide">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Icon className="h-5 w-5" style={{ color: info.color }} /> How to Apply: {info.name}
-          </DialogTitle>
-          <DialogDescription>Step-by-step, with real links and a place to ask questions.</DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-5">
-          {days && (
-            <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> Typical processing time: {days}</p>
-          )}
-
-          <div className="flex flex-wrap gap-2">
-            {url && (
-              <a href={url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold text-white rounded-md px-3 py-1.5" style={{ backgroundColor: info.color }} data-testid="guide-apply-link">
-                <ExternalLink className="h-3 w-3" /> Apply Online →
-              </a>
-            )}
-            {officeFinder && (
-              <a href={officeFinder} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 text-xs font-semibold border rounded-md px-3 py-1.5 hover:bg-muted transition-colors" data-testid="guide-office-finder">
-                <MapPin className="h-3 w-3" /> Find Local Office
-              </a>
-            )}
-            {hotline && (
-              <a href={`tel:${hotline.replace(/[^\d+]/g, "")}`} className="inline-flex items-center gap-1.5 text-xs font-semibold border rounded-md px-3 py-1.5 hover:bg-muted transition-colors" data-testid="guide-hotline">
-                <Phone className="h-3 w-3" /> Call {hotline}
-              </a>
-            )}
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><ListChecks className="h-4 w-4" /> What happens, step by step</p>
-            <ol className="space-y-3">
-              {stages.map((s, i) => (
-                <li key={s.title} className="flex gap-3">
-                  <div className="shrink-0 h-6 w-6 rounded-full bg-primary/10 text-primary text-xs font-bold flex items-center justify-center mt-0.5">{i + 1}</div>
-                  <div>
-                    <p className="text-sm font-medium">{s.title}</p>
-                    <p className="text-xs text-muted-foreground">{s.detail}</p>
-                  </div>
-                </li>
-              ))}
-            </ol>
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><FileText className="h-4 w-4" /> Documents you'll need</p>
-            <ul className="text-xs text-muted-foreground space-y-1">
-              {info.docs.map((d: string) => (
-                <li key={d} className="flex items-center gap-1.5"><CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green-600" /> {d}</li>
-              ))}
-            </ul>
-          </div>
-
-          <div className="border rounded-lg p-3 bg-muted/30">
-            <p className="text-sm font-semibold mb-2 flex items-center gap-1.5"><MessageCircle className="h-4 w-4" /> Ask the Apply Coach</p>
-            <p className="text-xs text-muted-foreground mb-2">Ask a specific question about applying for {info.name} — like "what if I don't have a birth certificate?"</p>
-            <div className="space-y-2 max-h-48 overflow-y-auto mb-2">
-              {chatMessages.map((m, i) => (
-                <div key={i} className={`text-xs rounded-md p-2 ${m.role === "user" ? "bg-primary/10 ml-6" : "bg-background border mr-6"}`}>
-                  {m.text}
-                </div>
-              ))}
-              {coachMutation.isPending && (
-                <div className="text-xs rounded-md p-2 bg-background border mr-6 flex items-center gap-1.5 text-muted-foreground">
-                  <Loader2Icon className="h-3 w-3 animate-spin" /> Thinking…
-                </div>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <Input
-                value={chatInput}
-                onChange={e => setChatInput(e.target.value)}
-                onKeyDown={e => { if (e.key === "Enter") sendChat(); }}
-                placeholder="Type your question…"
-                className="text-xs h-8"
-                data-testid="input-apply-coach"
-              />
-              <Button size="sm" className="h-8" onClick={sendChat} disabled={!chatInput.trim() || coachMutation.isPending} data-testid="button-apply-coach-send">
-                <Send className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
 export default function BenefitsScreenerPage() {
   const { toast } = useToast();
   const [step, setStep] = useState(0);
@@ -665,7 +447,6 @@ export default function BenefitsScreenerPage() {
   const [chwMode, setChwMode] = useState(false);
   const [referralTarget, setReferralTarget] = useState<SendReferralState | null>(null);
   const [screeningId, setScreeningId] = useState<number | null>(null);
-  const [applyGuideProgram, setApplyGuideProgram] = useState<string | null>(null);
 
   // Counties in the currently-selected state. Recomputed only when the state changes.
   const countiesInState = useMemo(
@@ -753,12 +534,6 @@ export default function BenefitsScreenerPage() {
         screeningId={screeningId}
         capacityOrgs={capacityOrgs}
         onClose={() => setReferralTarget(null)}
-      />
-      <ApplyGuideDialog
-        programCode={applyGuideProgram}
-        guide={applyGuideProgram ? result?.navigationGuides?.[applyGuideProgram] : null}
-        state={data.state}
-        onClose={() => setApplyGuideProgram(null)}
       />
       <div className="max-w-2xl mx-auto p-4 md:p-6">
         <div className="text-center mb-6">
@@ -1078,15 +853,16 @@ export default function BenefitsScreenerPage() {
                               </div>
                             );
                           })()}
-                          <Button
-                            size="sm"
-                            variant="default"
-                            className="mt-2 gap-1.5 text-xs"
-                            data-testid={`button-apply-guide-${b}`}
-                            onClick={() => setApplyGuideProgram(b)}
-                          >
-                            <ListChecks className="h-3.5 w-3.5" /> Walk Me Through It
-                          </Button>
+                          <Link href={`/benefits/how-to-apply/${b}?state=${data.state}`}>
+                            <Button
+                              size="sm"
+                              variant="default"
+                              className="mt-2 gap-1.5 text-xs"
+                              data-testid={`button-apply-guide-${b}`}
+                            >
+                              <ListChecks className="h-3.5 w-3.5" /> Walk Me Through It
+                            </Button>
+                          </Link>
                           {/* CHW Field Mode — Send Referral button */}
                           {chwMode && (() => {
                             // Pre-fill org from capacity data if an open org matches this program

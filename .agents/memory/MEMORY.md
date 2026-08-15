@@ -47,6 +47,7 @@
 - [AI-to-AI inbound verification pattern](inbound-verification-pattern.md) — shared verifyInboundPayload helper scrubs partner/AI payloads before use; reject-or-null + audit log + sender-facing corrections, never trust bidirectionally.
 - [Equity-Loss Engine](equity-loss-engine.md) — 3-frame divergence must never be structurally zero; peer-class = 1 representative county, disclosed; Census now hard-requires its API key (302, not clean error).
 - [Express route ID shadowing](express-route-id-shadowing.md) — `/api/grants/:id` in grant-routes.ts has a manual reserved-word allowlist; any new literal `/api/grants/<word>` route must be added to it or it gets swallowed.
+- [Benefits How-to-Apply walkthroughs](benefits-apply-walkthroughs.md) — server catalog + shared meta + screener cards must stay in lockstep; parity gate fails one-sided program adds.
 - [GrantPathPro address is env-driven](grantpathpro-env-driven.md) — no hardcoded GrantPathPro domain in code; outbound integration URL lives in `GPP_API_URL` env var, not a source-code string.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────

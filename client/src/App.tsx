@@ -253,6 +253,7 @@ const BusinessDocumentsPage = lazy(() => import("@/pages/business-documents"));
 const CommunityResourceDirectoryPage = lazy(() => import("@/pages/community-resource-directory"));
 const BenefitsCommandCenterPage = lazy(() => import("@/pages/benefits-command-center"));
 const BenefitsScreenerPage = lazy(() => import("@/pages/benefits-screener"));
+const BenefitsHowToApplyPage = lazy(() => import("@/pages/benefits-how-to-apply"));
 const CoalitionPortalPage = lazy(() => import("@/pages/coalition-portal"));
 const LOIWriterPage = lazy(() => import("@/pages/loi-writer"));
 const DonorsPage = lazy(() => import("@/pages/donors"));
@@ -786,6 +787,7 @@ function AppRouter() {
       </Route>
       <Route path="/benefits" component={BenefitsCommandCenterPage} />
       <Route path="/benefits-screener" component={BenefitsScreenerPage} />
+      <Route path="/benefits/how-to-apply/:program" component={BenefitsHowToApplyPage} />
       <Route path="/coalition-portal" component={CoalitionPortalPage} />
       <Route path="/loi-writer">
         <RequireAuth adminOnly reason="The LOI writer is restricted to TCAF admins.">

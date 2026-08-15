@@ -1,5 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { computeEligibility } from "./benefits-screener-fix";
+import { computeEligibility, BENEFIT_NAVIGATION } from "./benefits-screener-fix";
+import { getBenefitNav } from "./benefits-local-nav";
+import { APPLY_PROGRAM_META, getApplyStages } from "@shared/benefits-apply-guides";
 import { db } from "./storage";
 import {
   benefitsEnrollmentData, benefitsPartners, benefitsChwNetwork,
@@ -10,7 +12,7 @@ import {
   insertBenefitsApplicationSchema,
 } from "@shared/schema";
 import { eq, desc, and, count, sql, ne } from "drizzle-orm";
-import { generateAIResponse, generateAIJSON } from "./ai-provider";
+import { generateAIResponse, generateAIJSON, withEthicalPreamble } from "./ai-provider";
 import { collaborativeResponse, collaborativeJSON } from "./collaborative-ai";
 import {
   CATALOG, CATALOG_VERSION, ACCEPTED_EVENT_TYPES, BENEFIT_AREAS,
@@ -151,24 +153,49 @@ function requireAuth(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-const screenerRateBuckets = new Map<string, { count: number; windowStart: number }>();
-function publicScreenerRateLimit(req: Request, res: Response, next: NextFunction) {
-  if ((req as any).isAuthenticated?.() || (req as any).user) return next();
-  const ip = (req.headers["x-forwarded-for"]?.toString().split(",")[0].trim()) || req.socket.remoteAddress || "unknown";
-  const now = Date.now();
-  const windowMs = 60_000;
-  const maxPerWindow = 10;
-  const bucket = screenerRateBuckets.get(ip);
-  if (!bucket || now - bucket.windowStart > windowMs) {
-    screenerRateBuckets.set(ip, { count: 1, windowStart: now });
-    return next();
-  }
-  if (bucket.count >= maxPerWindow) {
-    return res.status(429).json({ error: "Too many screening submissions. Please try again in a minute." });
-  }
-  bucket.count++;
-  next();
+// Bounded, self-expiring per-IP rate limiter for public endpoints.
+// Keyed on req.ip — Express resolves it through the trusted-proxy config set
+// at boot (`app.set('trust proxy', 1)` in replitAuth.ts), so a caller cannot
+// mint fresh buckets by spoofing X-Forwarded-For. Never read that header raw.
+// Stale buckets are swept each call and the map is hard-capped so it cannot
+// grow without bound under sustained anonymous traffic.
+function makeIpRateLimiter(opts: { windowMs: number; maxPerWindow: number; message: string; skipAuthenticated?: boolean }) {
+  const buckets = new Map<string, { count: number; windowStart: number }>();
+  const MAX_BUCKETS = 10_000;
+  return function ipRateLimit(req: Request, res: Response, next: NextFunction) {
+    if (opts.skipAuthenticated && ((req as any).isAuthenticated?.() || (req as any).user)) return next();
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    const now = Date.now();
+    // Sweep expired buckets (cheap: map stays small because entries expire).
+    if (buckets.size > 512) {
+      for (const [k, v] of buckets) {
+        if (now - v.windowStart > opts.windowMs) buckets.delete(k);
+      }
+    }
+    const bucket = buckets.get(ip);
+    if (!bucket || now - bucket.windowStart > opts.windowMs) {
+      if (buckets.size >= MAX_BUCKETS) {
+        // Saturated even after sweeping — fail closed for new anonymous IPs
+        // rather than growing memory without bound.
+        return res.status(429).json({ error: opts.message });
+      }
+      buckets.set(ip, { count: 1, windowStart: now });
+      return next();
+    }
+    if (bucket.count >= opts.maxPerWindow) {
+      return res.status(429).json({ error: opts.message });
+    }
+    bucket.count++;
+    next();
+  };
 }
+
+const publicScreenerRateLimit = makeIpRateLimiter({
+  windowMs: 60_000,
+  maxPerWindow: 10,
+  message: "Too many screening submissions. Please try again in a minute.",
+  skipAuthenticated: true,
+});
 
 const CENSUS_ACS_URL = "https://api.census.gov/data/2022/acs/acs5";
 
@@ -429,7 +456,22 @@ async function ingestBenefitsDataForCounty(countyFips: string): Promise<number> 
   }
 }
 
+// Idempotent boot migration: the screener submits is_unemployed /
+// had_workplace_injury on every request, so a deployed database that predates
+// those columns would reject every public screening insert. ADD COLUMN IF NOT
+// EXISTS makes this safe to run on every boot (dev and production).
+export async function ensureBenefitsScreeningColumns(): Promise<void> {
+  await db.execute(sql`ALTER TABLE benefits_screenings ADD COLUMN IF NOT EXISTS is_unemployed boolean DEFAULT false`);
+  await db.execute(sql`ALTER TABLE benefits_screenings ADD COLUMN IF NOT EXISTS had_workplace_injury boolean DEFAULT false`);
+  await db.execute(sql`ALTER TABLE benefits_screenings ADD COLUMN IF NOT EXISTS navigation_guides jsonb`);
+}
+
 export function registerBenefitsRoutes(app: Express) {
+  // Fire-and-log: a migration failure must be loud (screenings would 500),
+  // but must not prevent the rest of the server from booting.
+  ensureBenefitsScreeningColumns().catch((err) => {
+    console.error("[benefits] FAILED to ensure benefits_screenings columns — public screener inserts may fail:", err?.message || err);
+  });
 
   app.get("/api/benefits/counties", async (_req, res) => {
     try {
@@ -710,6 +752,100 @@ export function registerBenefitsRoutes(app: Express) {
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to process screening" });
+    }
+  });
+
+  // ── Guided "How to Apply" walkthroughs ─────────────────────────────────────
+  // Public by design (the screener itself is public) — read-only program data.
+  app.get("/api/benefits/how-to-apply/:program", (req, res) => {
+    try {
+      const program = String(req.params.program);
+      const staticInfo = BENEFIT_NAVIGATION[program];
+      const meta = APPLY_PROGRAM_META[program];
+      if (!staticInfo || !meta) {
+        return res.status(404).json({ error: "Unknown program", program });
+      }
+      const state = typeof req.query.state === "string" && /^[A-Za-z]{2}$/.test(req.query.state)
+        ? req.query.state.toUpperCase()
+        : undefined;
+      const stateNav = getBenefitNav(state, program);
+      res.json({
+        program,
+        meta,
+        guide: { ...staticInfo, ...(stateNav || {}) },
+        stages: getApplyStages(program),
+        stateApplied: state || null,
+      });
+    } catch (error) {
+      console.error("Error in GET /api/benefits/how-to-apply/:program", error);
+      res.status(500).json({ error: "Failed to load program guide" });
+    }
+  });
+
+  // Program-scoped AI application companion. Public (screener flow is public),
+  // per-IP rate limited; system prompt is built entirely server-side and
+  // grounded to the specific program's catalog data. Not legal advice.
+  const applyChatRateLimit = makeIpRateLimiter({
+    windowMs: 60_000,
+    maxPerWindow: 10,
+    message: "Too many messages. Please wait a minute and try again.",
+  });
+  app.post("/api/benefits/how-to-apply/chat", applyChatRateLimit, async (req, res) => {
+    try {
+      const { program, message, state, history } = req.body || {};
+      const staticInfo = BENEFIT_NAVIGATION[String(program)];
+      const meta = APPLY_PROGRAM_META[String(program)];
+      if (!staticInfo || !meta) return res.status(400).json({ error: "Unknown program" });
+      if (!message || typeof message !== "string" || !message.trim()) {
+        return res.status(400).json({ error: "message is required" });
+      }
+      if (message.length > 2000) return res.status(400).json({ error: "Message too long (max 2000 characters)" });
+
+      const stateCode = typeof state === "string" && /^[A-Za-z]{2}$/.test(state) ? state.toUpperCase() : undefined;
+      const guide = { ...staticInfo, ...(getBenefitNav(stateCode, String(program)) || {}) };
+      const stages = getApplyStages(String(program));
+
+      // Prior turns are untrusted client text — capped and replayed as plain
+      // conversation turns, never as system instructions.
+      const safeHistory: Array<{ role: string; content: string }> = Array.isArray(history)
+        ? history.slice(-8).flatMap((h: any) =>
+            h && (h.role === "user" || h.role === "assistant") && typeof h.content === "string" && h.content.trim()
+              ? [{ role: h.role, content: h.content.slice(0, 2000) }]
+              : [],
+          )
+        : [];
+
+      const systemPrompt = withEthicalPreamble(
+        `You are a benefits application companion helping someone apply for ${meta.name} right now. They may be mid-application on the official government website and describing what they see.
+
+GROUNDING FACTS for ${meta.name}${stateCode ? ` (user's state: ${stateCode})` : ""} — treat these as the source of truth:
+- What it is: ${meta.description}
+- Official application: ${guide.applicationUrl}
+${(guide as any).officeFinder ? `- Local office finder: ${(guide as any).officeFinder}\n` : ""}${(guide as any).hotline ? `- Hotline: ${(guide as any).hotline}\n` : ""}- Documents usually needed: ${(guide.documentsRequired || meta.docs).join("; ")}
+- Enrollment: ${guide.enrollmentType}
+- Typical processing time: ${guide.processingDays}
+${guide.notes ? `- Notes: ${guide.notes}\n` : ""}${meta.stateVariance ? `- IMPORTANT STATE VARIANCE: ${meta.stateVariance}\n` : ""}- Application stages: ${stages.map((s, i) => `${i + 1}. ${s.title}: ${s.detail}`).join(" ")}
+
+RULES:
+1. Plain, warm, 6th-grade language. Short answers (under 200 words) unless asked for more.
+2. Stay scoped to ${meta.name}. If asked about a different program, say you can only help with this one here and point them back to the benefits screener.
+3. Never invent URLs, phone numbers, dollar amounts, or deadlines not in the grounding facts. If you don't know a state-specific detail, say so and point to the official link or hotline above.
+4. You are informational guidance only — not a caseworker, lawyer, or the deciding agency. Never promise approval or tell them to skip steps the agency requires. For legal questions (denials, retaliation, appeals strategy), suggest free legal aid or a navigator.
+5. Never ask for or repeat back Social Security numbers, full account numbers, or other sensitive identifiers — tell the user not to share them in chat.`,
+      );
+
+      const response = await generateAIResponse(
+        [
+          { role: "system", content: systemPrompt },
+          ...safeHistory,
+          { role: "user", content: message.trim() },
+        ],
+        700,
+      );
+      res.json({ response });
+    } catch (error) {
+      console.error("Error in POST /api/benefits/how-to-apply/chat", error);
+      res.status(502).json({ error: "The assistant is unavailable right now. Please try again in a moment." });
     }
   });
 

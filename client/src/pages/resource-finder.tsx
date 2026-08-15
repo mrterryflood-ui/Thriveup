@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { Link } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { PageHeader } from "@/components/page-header";
@@ -766,6 +767,36 @@ function WizardSteps({
   );
 }
 
+// Map a benefit-related resource entry to its program code so the card can
+// link into the guided /benefits/how-to-apply/:program walkthrough instead of
+// only offering a bare external link. Ordered: more specific patterns first.
+const BENEFIT_PROGRAM_PATTERNS: Array<{ code: string; pattern: RegExp }> = [
+  { code: "SNAP", pattern: /\bsnap\b|food stamps?/i },
+  { code: "WIC", pattern: /\bwic\b/i },
+  { code: "CHIP", pattern: /\bchip\b|children'?s health insurance/i },
+  { code: "Medicaid", pattern: /medicaid|medi-cal/i },
+  { code: "TANF", pattern: /\btanf\b|temporary assistance for needy/i },
+  { code: "Marketplace", pattern: /health insurance marketplace|healthcare\.gov|affordable care act|\baca\b/i },
+  { code: "EITC", pattern: /\beitc\b|earned income tax credit/i },
+  { code: "CTC", pattern: /child tax credit/i },
+  { code: "SSI", pattern: /\bssi\b|supplemental security income/i },
+  { code: "SSDI", pattern: /\bssdi\b|social security disability/i },
+  { code: "CCDF", pattern: /child ?care (assistance|subsidy|voucher)|\bccdf\b|\bccap\b/i },
+  { code: "LIHEAP", pattern: /\bliheap\b|energy assistance|utility assistance/i },
+  { code: "Section8", pattern: /section ?8|housing choice voucher/i },
+  { code: "VeteransBenefits", pattern: /\bva\b.*(disability|benefit)|veterans? (disability|benefit)/i },
+  { code: "UnemploymentInsurance", pattern: /unemployment (insurance|benefit|compensation)/i },
+  { code: "WorkersComp", pattern: /workers?'? comp/i },
+];
+
+function matchBenefitProgram(resource: ResourceResult): string | null {
+  const haystack = `${resource.name} ${resource.subcategory} ${resource.description} ${(resource.tags || []).join(" ")}`;
+  for (const { code, pattern } of BENEFIT_PROGRAM_PATTERNS) {
+    if (pattern.test(haystack)) return code;
+  }
+  return null;
+}
+
 function ResourceCard({
   resource, isSaved, onSave, onRemove, saving,
 }: {
@@ -777,6 +808,10 @@ function ResourceCard({
 }) {
   const IconComponent = CATEGORY_ICONS[resource.category] || Globe;
   const colorClass = CATEGORY_COLORS[resource.category] || "";
+  const benefitProgram = matchBenefitProgram(resource);
+  const applyHref = benefitProgram
+    ? `/benefits/how-to-apply/${benefitProgram}${resource.stateCode && resource.stateCode !== "US" ? `?state=${resource.stateCode}` : ""}`
+    : null;
 
   return (
     <Card className="hover:shadow-md transition-shadow" data-testid={`card-resource-${resource.name.replace(/\s+/g, '-').toLowerCase()}`}>
@@ -832,8 +867,15 @@ function ResourceCard({
           </div>
         )}
 
-        <div className="flex items-center gap-2 pt-1">
-          <Button variant="default" size="sm" className="flex-1" asChild data-testid={`button-visit-${resource.name.replace(/\s+/g, '-').toLowerCase()}`}>
+        <div className="flex items-center gap-2 pt-1 flex-wrap">
+          {applyHref && (
+            <Button variant="default" size="sm" className="flex-1" asChild data-testid={`button-how-to-apply-${resource.name.replace(/\s+/g, '-').toLowerCase()}`}>
+              <Link href={applyHref}>
+                <CheckCircle2 className="h-3 w-3 mr-1" /> How to Apply
+              </Link>
+            </Button>
+          )}
+          <Button variant={applyHref ? "outline" : "default"} size="sm" className="flex-1" asChild data-testid={`button-visit-${resource.name.replace(/\s+/g, '-').toLowerCase()}`}>
             <a href={resource.url} target="_blank" rel="noopener noreferrer">
               <ExternalLink className="h-3 w-3 mr-1" /> Visit Website
             </a>
