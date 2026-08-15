@@ -1,0 +1,224 @@
+# Is America "The Greatest Country"? A Data Baseline for a National / State / Local Equity Tool
+
+**Compiled:** August 2026
+**Purpose:** Source-anchored baseline for a differences-in-differences (DiD) policy tool that lets communities see their own deficits against national and international benchmarks.
+
+**Honest framing up front:** The verdict is *no, not across the board.* The United States leads on aggregate economic output, research universities, innovation capital, and military capacity. It trails — often finishing last among peer nations — on health, safety, mobility, and equity. The distinguishing feature is not that America is bad; it is that America has **first-world ceilings sitting on top of developing-nation floors**, and the floor/ceiling gap tracks race, geography, and access more reliably than it tracks effort or ability. That gap, not the national average, is the analytic object.
+
+---
+
+## PART 1 — INTERNATIONAL BENCHMARKS (the "outside mirror")
+
+| Domain | US Figure | Peer Benchmark | Verdict |
+|---|---|---|---|
+| Life expectancy | 79.0 yrs (2024) | 82.7 yrs peer OECD avg | **Last** among high-GDP nations, both sexes |
+| Health spending | ~2x peer per capita; 17.2% GDP | ~11.2% GDP peer avg | Highest spend, worst outcomes |
+| Universal coverage | None | All peer nations | **Only** large wealthy nation without it |
+| Medical bankruptcy | ~66.5% of all bankruptcies | ~0 in peer nations | Uniquely American |
+| Maternal mortality | ~18.6–26 per 100k | <5 in Germany, Japan, Australia | **Worst** in developed world |
+| Gun homicide | 25x peer rate; 49x for ages 15–24 | — | **Worst** among high-income >10M pop |
+| Firearms per capita | 121 per 100 residents | — | **Only** nation with more guns than people |
+| Incarceration | ~1.8M people; highest rate 2001–2022 | 5th globally today | Highest of any democracy |
+| Happiness / wellbeing | 23rd (6.816) | Finland 1st, 9 yrs running | Below UAE, Saudi Arabia, Costa Rica |
+| Adult literacy (PIAAC) | 14th of 31; down 12 pts since 2017 | — | Declining |
+| PISA math (2022) | 25 systems score higher | — | Below median of peers |
+| Economic mobility | 16th of 24 comparable nations | 2x higher odds in Canada | American Dream is statistically Canadian |
+| Absolute mobility | ~50% of 1980 cohort out-earn parents | 90%+ for 1940 cohort | Collapsed in two generations |
+| Income inequality | Gini 0.49 (2024), up from 0.43 (1990) | "Very high" per OECD | Peer group: Costa Rica, Mexico |
+| Press freedom | 64th of 180 (2026), lowest ever | 17th in 2002 | 6 straight years of decline |
+| Democracy index | "Flawed democracy" (EIU); "autocratizing" (V-Dem 2026) | — | Downgraded |
+| Infrastructure | Overall grade **C**; 9 of 18 categories in D range | — | Mediocre, improving |
+| Deaths of despair | 71.99 per 100k (2023), up from 28.6 (1999) | US unique in drug-death increase vs UK/Canada | Doubled in a generation |
+| Homelessness | 771,480 on a single night (2024) — record | — | Worst among wealthy nations |
+| Child wellbeing | Near bottom of rich nations | Child firearm death 9.5x Canada | Bottom tier |
+
+**Sources:** KFF/Peterson Health System Tracker; Commonwealth Fund; OECD; WHO; IHME/GBD; Everytown & Harvard Injury Control (Grinshteyn & Hemenway); World Prison Brief; Prison Policy Initiative; World Happiness Report 2026; NCES/PIAAC; Chetty et al.; Equitable Growth; Census Bureau; RSF; V-Dem; Freedom House; ASCE 2025 Report Card; HUD PIT count; UNICEF Innocenti.
+
+---
+
+## PART 2 — THE FIVE STRUCTURAL MECHANISMS (why the floor is low)
+
+These are the *causal levers* your DiD tool should treat as treatment variables. Each is a policy choice, not a natural condition.
+
+### 1. Health coverage is a state-level lottery
+- **10 states have never expanded Medicaid:** AL, FL, GA (partial "Pathways" only), KS, MS, SC, TN, TX, WI (partial), WY.
+- ~2.9M people fall in the resulting coverage gap — too poor for marketplace subsidies, too "rich" for state Medicaid.
+- Texas covers parents only to ~18% FPL. Florida ~41% FPL.
+- Federal match is 90/10 — non-expansion forfeits ~$9 of federal money for every $1 of state spend.
+- **Measured effect:** maternal death rates are **18–49% higher** in non-expansion states.
+- **2027 shock incoming:** work requirements (80 hrs/mo) begin Jan 1, 2027 under the 2025 reconciliation law; ~10M projected to lose coverage. *This is a natural experiment your DiD tool should be pre-positioned to capture.*
+
+### 2. School funding is tied to property values, which were set by segregation
+- Districts with the most students of color receive **$2,700 less per student** in state + local funding.
+- Only **18 states** give high-poverty districts even 10% more; **~1/3 give them less**.
+- Along the 100 most segregating district borders, the local-revenue gap averages **$4,119 per pupil**.
+- US public schools are among the **most inequitably funded of any industrialized nation**.
+- Compounding effect: high-need districts need *more* per pupil to reach the same outcome, so equal funding is still unequal.
+
+### 3. Environmental exposure tracks race independent of income
+- People of color face higher PM2.5 exposure from **nearly every major emission source**, across all states, urban and rural, **and at every income level**.
+- Higher-income Black Americans face greater pollution-related risk than lower-income white Americans.
+- Implication for your tool: **do not use income as a proxy for exposure.** Race and geography are independent predictors.
+
+### 4. Rural access collapse
+- **~35% of US counties are maternity care deserts**, affecting 2.4M women of reproductive age and ~149,000 births/year; **60% of desert counties are rural**.
+- Only **41% of rural hospitals** still offer labor & delivery; 116–139 rural L&D closures since end of 2020; 96 closures across 35 states Jan 2024–May 2026.
+- Another **127 rural L&D units (13%)** are flagged at risk of closing.
+- Rural patients travel 30–50+ minutes vs. <20 minutes urban.
+- **Workforce cascade:** a rural hospital closure is associated with an **8.3% drop in primary care physicians** and **4.8% drop in OB-GYNs** in that county afterward. Closure is not an endpoint — it's a workforce extraction event.
+- **53% of rural hospitals operate in the red in the 10 non-expansion states.**
+- Rural residents face **9% greater risk of severe maternal morbidity**.
+
+### 5. Criminal-legal system as a race-stratified institution
+- Black adults imprisoned at **1,218 per 100k** vs. white **231 per 100k** — **5.3x**.
+- AIAN adults: **1,045 per 100k** (4.5x white rate). Hispanic: 606 (2.6x).
+- Black Americans = 13% of population, **33% of sentenced prisoners**.
+- Black men born in 2001 still face **4x** the lifetime imprisonment likelihood of white peers.
+- Black youth: **4x+** as likely to be detained/committed as white peers.
+- Sentencing Project attributes disparity drivers to **extreme sentences for violent offenses and criminal-history-based sentencing** — both policy, both changeable.
+- **Every US state, if it were a country, has an extreme incarceration rate.** Massachusetts — the *lowest* — would rank ~30th in the world, above Iran, Colombia, and all founding NATO nations.
+- Cost: **~$445B/year**, up from $87B in 2015. 2.7M children have a parent incarcerated on any given day.
+
+---
+
+## PART 3 — STATE RANKINGS BY CATEGORY
+
+> **Methodology note:** Rankings below are drawn from named published indices (America's Health Rankings 2025; Commonwealth Fund 2025 Scorecard; U.S. News Best States 2025; Census Bureau; CDC; Pew/IHME). Where I show a full 50-state ordering, it is that publisher's ordering. Where I show only top/bottom bands, **that is deliberate — I am not inventing the middle of a list I did not verify.** Fill middles directly from the linked source files before publishing.
+
+### 3A. Overall Health (America's Health Rankings 2025 — 99 measures, 31 sources)
+
+**Healthiest:** 1. New Hampshire · 2. Massachusetts · 3. Vermont · 4. Connecticut · 5. Utah
+**Least healthy:** 50. Louisiana · 49. Arkansas · 48. Mississippi · 47. Alabama · 46. West Virginia
+
+Louisiana ranked **50th** in Social & Economic Factors, Behaviors, and Health Outcomes; 48th Physical Environment; 38th Clinical Care — *note that its clinical care rank is far better than its outcomes rank, which is the signature of an SDOH-driven deficit, not a medicine-quality deficit.*
+
+New Hampshire's listed **challenges** include high Black/white residential segregation and **low per capita public health funding** — proof that a #1 rank still conceals internal inequity. Your tool should surface this.
+
+### 3B. Overall State Performance (U.S. News Best States 2025 — 8 categories, 71 metrics)
+
+**Top 10:** Utah · New Hampshire · Idaho · Minnesota · Nebraska · Florida · Vermont · South Dakota · Massachusetts · Washington
+**Bottom 10 (50th first):** Louisiana · Alaska · Mississippi · New Mexico · West Virginia · Alabama · Arkansas · Michigan · Oklahoma · Pennsylvania
+
+Louisiana subscores: 50th crime & corrections, 50th economy, 49th natural environment, 48th infrastructure, 46th education, 46th fiscal stability, 46th opportunity, 44th health care.
+
+### 3C. Maternal Mortality (deaths per 100,000 live births, 2023 — Commonwealth Fund)
+
+| Rank | State | Rate | International equivalent |
+|---|---|---|---|
+| Worst | Louisiana | 41.9 | ≈ El Salvador (39) |
+| 2nd | Tennessee | 31.3 | ≈ Belize (31.6) |
+| 3rd | Arkansas | 31.2 | ≈ Azerbaijan (29.3) |
+| — | **US overall** | **18.6** | — |
+| Best | California | 9.5 | ≈ Canada (9.4) |
+| 2nd best | Washington | 9.7 | ≈ Canada |
+
+By race, nationally: Black **50.3** · AIAN **40.7** · white **19** · Hispanic **16.9** · Asian **13.2**.
+Neonatal: worst Arkansas 5.5, Puerto Rico 5.4; best New Hampshire 2.0 (among lowest **in the world**).
+
+**Policy alignment:** States defending abortion access saw a **21% decrease** in maternal mortality. Non-expansion states run **18–49% higher** maternal death. Chile cut maternal deaths **50% since 2000** by expanding midwifery — New Mexico is the US analog.
+
+### 3D. Firearm Deaths (age-adjusted, per 100,000)
+
+**Highest gun suicide (2024):** Wyoming 19.7 · Alaska 18.7 · Montana 16.9 · New Mexico 14.3 · Idaho 13.7
+**Lowest gun suicide:** DC 1.5 · Hawaii 1.9 · New Jersey 2.1 · Massachusetts 2.3 · New York 2.3
+**Lowest gun homicide:** New Hampshire 0.9 · Maine 1.2 · Rhode Island 1.2 · Idaho 1.3 · North Dakota 1.3
+**Highest overall firearm mortality:** Mississippi (22.9 per 100k, 2021), then New Mexico, Alaska, Alabama, Wyoming, Louisiana
+
+**Critical international framing:** Death rates from firearm violence in US states are **closer to rates in countries experiencing active armed conflict** than to peer nations. Nearly every US state has a higher firearm mortality rate than most other *countries* on earth.
+
+**Policy alignment:** High-gun states show firearm homicide victimization **36x** other high-income countries; low-gun states **13.5x**. Both are catastrophic — but the 2.7x spread between them is state policy. Background-check strengthening and permit-to-purchase laws are associated in JAMA-published research with reduced firearm homicide.
+
+### 3E. Drug Overdose (age-adjusted, per 100,000)
+
+**Highest (2021):** West Virginia 90.9 · DC 63.6
+**Lowest:** Nebraska 11.4 · South Dakota 12.6 · Iowa 15.3
+**National (2021 peak era):** 32.4 → **20.9 (12 mo ending Oct 2025)** — a genuine, large improvement.
+
+2024 saw a **~24–27% single-year national decline**, the largest ever measured, credited to naloxone access, harm reduction, safer prescribing, and prevention investment. **This is your strongest positive DiD case study in the entire dataset — a deliberate policy intervention with a measurable, rapid, attributable effect.**
+
+But the improvement was unequal: Black Americans' 2024 overdose rate remained **36.0 per 100k — 1.51x the national average** — even after posting the *largest* percentage decline of any group. AIAN rates also remained elevated. **Equity of improvement is a separate variable from improvement.**
+
+### 3F. Income Inequality (Gini, household income, 2024 — Census)
+
+**Most unequal:** DC and New York (~0.52) · **Most equal:** Utah (0.42) · **US overall:** 0.49
+
+### 3G. Incarceration
+Every state is an international outlier. **Massachusetts (lowest) would rank ~30th globally as a country.** Use the *international* baseline, not the national one, when showing a community its incarceration rate — the national average is a broken yardstick.
+
+### 3H. Rural Health Access
+Track by state: % of rural hospitals retaining L&D (national: 41%); count of maternity care deserts; # at-risk L&D units (national: 127); rural hospital operating margin (53% negative in non-expansion states). Chartis 2025 State of the State publishes this state-by-state.
+
+### 3I. Education Funding Equity
+Track by state: (a) does the state give high-poverty districts ≥10% more? (only 18 do); (b) per-pupil local revenue gap across the state's most segregating district borders; (c) state share vs. local property tax share of school revenue. **Ohio** gives high-poverty districts **14% more**; **Pennsylvania gives them 11% less** — same country, opposite policy, measurable outcome divergence. That pair is a ready-made DiD comparison.
+
+### 3J. Workforce & Labor Policy
+Paid family leave benefits currently available in: CA, CO, CT, DE, DC, ME, MA, MN, NJ, NY, OR, RI, WA. Maryland begins 2028; Virginia December 2028. **Everywhere else: nothing.** Absent state policy, only **27% of workers** have paid family leave through their jobs, and **low-wage workers are 10x less likely** to have access than the highest paid. The US is the only peer nation without guaranteed paid parental leave or postpartum home visits.
+
+---
+
+## PART 4 — HOW STATES GOT HERE, AND WHAT KEEPS THEM THERE
+
+Five self-reinforcing loops. Each is a candidate DiD specification.
+
+**Loop 1 — Coverage → Outcomes → Provider flight → Worse coverage.**
+Non-expansion → hospitals absorb uncompensated care → rural hospitals close L&D → physicians and OB-GYNs leave the county (−8.3% / −4.8%) → outcomes worsen → more closures. *Break point: expansion status. NC expanded Dec 2023 — a clean pre/post case.*
+
+**Loop 2 — Segregation → Property value → School funding → Earnings → Segregation.**
+Historic housing discrimination set district boundaries and property values → funding gaps of $2,700–$4,119/pupil → attainment gaps → earnings gaps → residential sorting reproduces the boundary. *Break point: state funding formula weighting. Compare OH vs. PA.*
+
+**Loop 3 — Criminal-legal contact → Employment/housing/voting exclusion → Concentrated disadvantage → More contact.**
+5.3x imprisonment disparity → collateral consequences → 2.7M children/day with an incarcerated parent → intergenerational transmission. *Break points: sentencing-length statutes, criminal-history enhancements, parole-grant equity.*
+
+**Loop 4 — Siting → Exposure → Chronic disease → Cost → Reduced political capacity.**
+Industrial/highway siting in communities of color → PM2.5 exposure at every income level → chronic disease burden → medical debt (66.5% of bankruptcies) → reduced wealth and civic bandwidth. *Break point: permitting and cumulative-impact review.*
+
+**Loop 5 — Aggregate wealth as political anesthesia.**
+High national GDP and elite institutions make the country legible as "greatest," which suppresses the urgency to fix the floor. The national average is the mechanism of concealment. **This is precisely what a community-facing tool defeats: it replaces the national average with the local reality.**
+
+---
+
+## PART 5 — TOOL DESIGN RECOMMENDATIONS
+
+**Core inversion:** Don't rank places. Rank *gaps*. A community's headline number should be its distance from the best achievable benchmark, not its rank among peers who are all failing.
+
+**Three-tier benchmark for every metric:**
+1. Local value
+2. National average
+3. **Best-performing peer nation** (the real target)
+
+New Hampshire's neonatal mortality of 2.0 proves the peer-nation benchmark is achievable *inside the US* — this is not utopian.
+
+**Treatment variables (policy on/off, with dates) to encode:**
+Medicaid expansion + date · Medicaid work requirements (2027) · abortion access status · paid family leave + start date · school funding weight for poverty · minimum wage · sentencing/criminal-history enhancements · permit-to-purchase and background check laws · midwifery scope of practice · rural hospital standby-capacity payment models
+
+**Equity stratification is mandatory, not optional.** Commonwealth Fund's 2025 Scorecard already stratifies all 25 indicators by race/ethnicity within state and demonstrates why: Hispanic residents in California score 45; Hispanic residents in Texas score 6; white residents in California score 87. **Three different countries inside one nation.** Any state-level number that isn't stratified is hiding the finding.
+
+**Natural experiments already available:**
+- North Carolina Medicaid expansion (Dec 2023) — pre/post
+- Medicaid work requirements (Jan 2027, 44 states) — the largest coverage shock in a decade
+- Nebraska work requirements (May 1, 2026) — first mover, early signal
+- 2024 overdose decline — a *successful* intervention worth reverse-engineering
+- 40 states' school finance reforms 1990–2022 (reduced income-based gaps ~$1,300/pupil — but research found some reforms **worsened racial inequality**; do not assume a funding reform is an equity reform)
+- Ohio vs. Pennsylvania school funding weights
+- Abortion-access vs. abortion-ban states, maternal mortality
+
+---
+
+## PART 6 — WHAT THE US GENUINELY LEADS
+
+Include these. A tool that only indicts is a tool people distrust.
+
+Total GDP and economic output · venture capital formation and startup density · concentration of top-ranked research universities · military capability and spending · specialty and tertiary medical care at the top of the system · **life expectancy at age 80 is comparable to peer nations** (the US disadvantage is concentrated in deaths *before* old age — injuries, overdoses, homicide, infant mortality) · a demonstrated capacity for rapid course correction, as the 2024 overdose decline shows.
+
+That last one matters most. The 27% overdose drop is proof the floor is not fixed. It moved because policy moved.
+
+---
+
+## VERIFICATION NOTES
+
+- Middle-of-list state rankings are intentionally left to source retrieval. Do not publish an ordering I did not verify.
+- Maternal mortality figures vary by measurement system (PMSS vs. NVSS vs. OECD); the US ratio ranges 17.2–26.4 depending on method and year. State comparisons must hold method constant.
+- Gun homicide international comparisons vary by source (7x–26x) depending on whether the comparison set is "high-income countries," "high-income >10M population," or all 204 GBD countries. Cite the comparison set explicitly every time.
+- IHME/GBD age-standardizes to the WHO World Standard Population; CDC does not by default. Do not mix.
+- Incarceration: US rank moved from 1st to ~5th globally not because US rates fell dramatically but because El Salvador, Cuba, Rwanda, and Turkmenistan rose. Rate: ~541 per 100k (2022 BJS data).
+- Homelessness counts across countries are not methodologically comparable; the HUD PIT count is a US-internal series.

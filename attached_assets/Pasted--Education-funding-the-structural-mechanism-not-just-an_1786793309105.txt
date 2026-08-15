@@ -1,0 +1,15 @@
+**Education funding — the structural mechanism, not just an outcome**
+- Public schools in the US are among the most inequitably funded of any industrialized nation — districts serving the highest proportions of students of color receive $2,700 less per student in state and local funding than districts with the fewest students of color, and only 18 states give high-poverty districts even 10% more funding; nearly a third give them less.
+- Along the 100 most segregating school-district borders by poverty rate, the average local-revenue gap is $4,119 per pupil — a direct product of property-tax-based financing tied to housing policy that was often explicitly designed to segregate.
+- Within most metro areas, the typical Black or Hispanic student's district receives less local property tax revenue than the typical white student's district — and districts serving more high-needs students actually require more spending to hit the same outcomes, compounding the gap rather than offsetting it.
+
+This is the mechanism behind the mobility numbers from earlier — a child's school funding is set largely by their zip code's property values, which is a direct pipeline from housing segregation → school funding → adult earnings.
+
+**Environmental exposure — race predicts exposure independent of income**
+- A landmark EPA-funded study found people of color are exposed to higher PM2.5 air pollution across nearly every major emission source (industry, vehicles, construction, agriculture) — the disparity holds across states, urban and rural areas, and all income levels.
+- Researchers concluded race, not income, is what actually drives the exposure disparity, since it persists even among higher earners.
+- Even higher-income Black Americans face greater pollution-related health risk than lower-income white Americans, pointing to compounding factors like chronic stress from discrimination.
+
+Put together with the earlier findings, the throughline is now airtight across five independent domains — health, safety, mobility, education financing, and environment — and it's the same mechanism every time: **outcome disparities track race and geography even when you control for income**, which is the empirical definition of structural inequity, not "some have more, some have less."
+
+Two threads left on the list: voting access/gerrymandering effects on representation, and a direct state-by-state "if it were its own country" ranking table (e.g., Mississippi's life expectancy vs. a specific developing nation) — which would give you ready-made talking points and dashboard categories. Want both, or should I prioritize one?
