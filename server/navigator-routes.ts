@@ -1,7 +1,8 @@
 import type { Express, Request } from "express";
 import { randomUUID } from "crypto";
 import { db } from "./storage";
-import { streamAIResponse, generateAIJSON, withEthicalPreamble } from "./ai-provider";
+import { streamAIResponse, generateAIJSON, withEthicalPreamble, perplexityResearch, isPerplexityAvailable } from "./ai-provider";
+import { fetchNonprofitProfile, formatNonprofitProfileBlock } from "./nonprofit-lookup";
 import { collaborativeStream } from "./collaborative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
@@ -1044,6 +1045,58 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
       }
     }
     // ── End Grant Hunt Intent ─────────────────────────────────────────────────
+
+    // ── Named-Organization Identity Lookup ──────────────────────────────────
+    // Fires when the user asks about a SPECIFIC named organization's legal/
+    // financial identity (501(c)(3) status, EIN, nonprofit status, past
+    // performance, funding/grant history, Form 990 financials) — exactly the
+    // class of question the Navigator used to have to decline. Pulls a real
+    // IRS record from ProPublica's Nonprofit Explorer (free, keyless) and,
+    // when configured, supplements with live web search for mission/website
+    // details an IRS record doesn't carry. Fails soft: if no candidate org
+    // name is found, or both lookups miss, the AI falls back to its normal
+    // (honest, non-fabricating) behavior.
+    const NONPROFIT_INTENT_RE = /\b(501\s?\(?c\)?\s?\(?3\)?|501c3|\bein\b|tax[- ]exempt|nonprofit status|is\s+[a-z][a-z\s]+\s+a\s+(?:real\s+)?(?:nonprofit|charity)|past performance|funding history|grant history|financials?|form\s?990|\b990\b)\b/i;
+    let orgInfoBlock = "";
+    if (NONPROFIT_INTENT_RE.test(message)) {
+      const capRuns = message.match(/\b[A-Z][a-zA-Z&'.-]*(?:\s+(?:of|for|the|and)?\s*[A-Z][a-zA-Z&'.-]*){0,5}\b/g) || [];
+      const STOPWORDS = new Set(["Tell", "What", "Who", "Is", "The", "Are", "Does", "Do", "I", "Can", "Will", "EIN", "Form"]);
+      const candidate = capRuns
+        .map((s) => s.trim())
+        .filter((s) => s.split(/\s+/).length >= 2 && !STOPWORDS.has(s.split(/\s+/)[0]))
+        .sort((a, b) => b.length - a.length)[0];
+
+      if (candidate) {
+        try {
+          const blocks: string[] = [];
+          const profile = await fetchNonprofitProfile(candidate);
+          if (profile) {
+            blocks.push(formatNonprofitProfileBlock(profile, candidate));
+          }
+          if (isPerplexityAvailable()) {
+            try {
+              const research = await perplexityResearch(
+                `What does the organization "${candidate}" do (mission, programs, who they serve)? Where are they located, and what is their official website? If you cannot find reliable current information, say so plainly rather than guessing.`,
+                "You are a careful researcher supporting a case worker. Cite your sources. Never invent a website, phone number, program detail, or funder you cannot verify."
+              );
+              blocks.push(`\n\n[LIVE WEB RESEARCH for "${candidate}"]\n${research.text}${research.citations.length ? `\nSources: ${research.citations.join(", ")}` : ""}`);
+            } catch (webErr) {
+              console.error("[Navigator] Nonprofit web research error:", webErr);
+            }
+          }
+          if (blocks.length > 0) {
+            orgInfoBlock = blocks.join("\n");
+            console.log(`[Navigator] Nonprofit identity lookup fired for "${candidate}" (ProPublica match: ${!!profile}, web research: ${isPerplexityAvailable()})`);
+          }
+        } catch (err) {
+          console.error("[Navigator] Nonprofit lookup error:", err);
+        }
+      }
+    }
+    if (orgInfoBlock) {
+      augmentedMessage = augmentedMessage + orgInfoBlock;
+    }
+    // ── End Named-Organization Identity Lookup ──────────────────────────────
 
     msgs.push({ role: "user", content: augmentedMessage });
 
