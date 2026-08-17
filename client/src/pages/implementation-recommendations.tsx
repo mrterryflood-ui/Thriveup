@@ -800,7 +800,7 @@ function AIFrameworkEvaluation() {
             </div>
             <div className="p-4 rounded-md bg-muted/50" data-testid="card-ai-model-upgrade">
               <p className="text-sm font-semibold mb-1">School-Managed</p>
-              <Badge variant="outline" className="mb-2">gpt-4o-mini or higher</Badge>
+              <Badge variant="outline" className="mb-2">gpt-5-mini or higher</Badge>
               <p className="text-xs text-muted-foreground">OpenAI models. School pays OpenAI directly. Set OPENAI_API_KEY to activate. No code changes required.</p>
             </div>
             <div className="p-4 rounded-md bg-muted/50" data-testid="card-ai-model-premium">

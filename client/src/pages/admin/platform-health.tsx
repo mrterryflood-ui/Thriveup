@@ -228,7 +228,7 @@ export default function PlatformHealthPage() {
           <div className="grid sm:grid-cols-2 gap-3">
             {[
               { name: "Claude (Anthropic)", model: "claude-haiku-4-5 / claude-3-5-sonnet", role: "Narrative, OCR, deep analysis" },
-              { name: "GPT (OpenAI)", model: "gpt-4o-mini", role: "Benefits intelligence, grant matching" },
+              { name: "GPT (OpenAI)", model: "gpt-5-mini", role: "Benefits intelligence, grant matching" },
               { name: "Gemini (Google)", model: "gemini-2.0-flash", role: "Coalition insights, multi-modal" },
               { name: "DeepSeek R1 (OpenRouter)", model: "deepseek-r1", role: "Deep reasoning, RFP compliance" },
             ].map((provider) => (
