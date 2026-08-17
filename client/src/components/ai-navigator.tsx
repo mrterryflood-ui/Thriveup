@@ -1112,16 +1112,26 @@ export function AINavigator({ mode = "bubble" }: { mode?: "bubble" | "page" } = 
                         {msg.role === "assistant" && msg.grantResults && msg.grantResults.length > 0 && (
                           <GrantResultCards grants={msg.grantResults} orgName={msg.grantOrgName || ""} totalFound={msg.totalFound || 0} isAuthenticated={isAuthenticated} />
                         )}
-                        {msg.role === "assistant" && msg.gunViolenceContext && (msg.gunViolenceContext.geography || msg.gunViolenceContext.state) && (
-                          <div className="ml-11 mt-1.5">
+                        {msg.role === "assistant" && msg.gunViolenceContext && (
+                          <div className="ml-11 mt-1.5 flex flex-wrap gap-2">
                             <a
-                              href={`/gun-violence-intelligence?tab=story${msg.gunViolenceContext.geography ? `&geo=${encodeURIComponent(msg.gunViolenceContext.geography)}` : ""}${msg.gunViolenceContext.state ? `&state=${encodeURIComponent(msg.gunViolenceContext.state)}` : ""}`}
-                              className="inline-flex items-center gap-1.5 text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg px-3 py-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
-                              data-testid={`link-continue-in-story-${idx}`}
+                              href="/gun-violence"
+                              className="inline-flex items-center gap-1.5 text-xs font-medium text-red-700 dark:text-red-300 bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800 rounded-lg px-3 py-1.5 hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors"
+                              data-testid={`link-gv-hub-${idx}`}
                             >
-                              <Sparkles className="h-3.5 w-3.5" />
-                              Continue in Tell-a-Story — see the full grounded report for this area
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              View full report — Gun Violence Intelligence Hub
                             </a>
+                            {(msg.gunViolenceContext.geography || msg.gunViolenceContext.state) && (
+                              <a
+                                href={`/gun-violence-intelligence?tab=story${msg.gunViolenceContext.geography ? `&geo=${encodeURIComponent(msg.gunViolenceContext.geography)}` : ""}${msg.gunViolenceContext.state ? `&state=${encodeURIComponent(msg.gunViolenceContext.state)}` : ""}`}
+                                className="inline-flex items-center gap-1.5 text-xs font-medium text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-950/30 border border-purple-200 dark:border-purple-800 rounded-lg px-3 py-1.5 hover:bg-purple-100 dark:hover:bg-purple-900/40 transition-colors"
+                                data-testid={`link-continue-in-story-${idx}`}
+                              >
+                                <Sparkles className="h-3.5 w-3.5" />
+                                Continue in Tell-a-Story — see the full grounded report for this area
+                              </a>
+                            )}
                           </div>
                         )}
                         {msg.role === "assistant" && msg.content && (

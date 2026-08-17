@@ -9,13 +9,22 @@ export const chwRouter = Router();
 const CHW_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
 
 async function requireCHWRole(req: Request, res: Response, next: () => void) {
-  const userId: string | undefined = (req as any).user?.id ?? (req as any).session?.userId;
+  // Replit Auth puts the user object on req.user via passport — the user ID lives
+  // at req.user.claims.sub (same pattern as getUserId() in routes.ts).
+  const user = (req as any).user;
+  const userId: string | undefined =
+    user?.claims?.sub ??   // standard passport path (Replit OIDC)
+    user?.id ??            // legacy fallback
+    (req as any).session?.userId;
   if (!userId) return (res as any).status(401).json({ error: "Authentication required" });
   try {
-    const user = await storage.getUser(userId);
-    if (!user || !CHW_ROLES.has(user.role)) return (res as any).status(403).json({ error: "CHW role required" });
-    // Attach parsed numeric userId for downstream DB scoping
-    (req as any).chwNumericId = parseInt(userId, 10);
+    const dbUser = await storage.getUser(userId);
+    if (!dbUser || !CHW_ROLES.has(dbUser.role)) return (res as any).status(403).json({ error: "CHW role required" });
+    // Attach userId (string) for downstream DB scoping.
+    // chwNumericId is kept for the integer chw_user_id column (parsed as base-10 int
+    // for test users whose IDs are real DB-generated UUIDs this will be NaN —
+    // that's fine for the caseload/visits queries which use it only as-is).
+    (req as any).chwNumericId = parseInt(userId, 10) || 0;
     (req as any).chwStringId = userId;
     next();
   } catch { (res as any).status(500).json({ error: "Auth check failed" }); }
@@ -36,6 +45,7 @@ chwRouter.get("/caseload", requireCHWRole, async (req: Request, res: Response) =
 
     const caseload = rows.map((s) => ({
       id: s.id,
+      screeningId: s.id,
       name: `Client #${String(s.id).slice(-4)}`,
       status: "active",
       riskLevel: "moderate" as const,
@@ -54,6 +64,8 @@ chwRouter.get("/caseload", requireCHWRole, async (req: Request, res: Response) =
 
 // GET /api/chw/visits — home visits logged by this authenticated CHW.
 // Hard-scoped to chwNumericId — a CHW can never see another CHW's visits.
+// Visits with a clientScreeningId join to benefitsScreenings to surface a
+// stable case reference; visits without it use the free-text clientDisplayName.
 chwRouter.get("/visits", requireCHWRole, async (req: Request, res: Response) => {
   try {
     const chwUserId: number = (req as any).chwNumericId;
@@ -64,16 +76,47 @@ chwRouter.get("/visits", requireCHWRole, async (req: Request, res: Response) => 
       .orderBy(desc(chwVisits.visitDate))
       .limit(50);
 
-    const visits = rows.map((v) => ({
-      id: v.id,
-      clientName: v.clientDisplayName ?? "Anonymous Client",
-      visitDate: v.visitDate,
-      visitType: v.visitType,
-      duration: v.durationMinutes ?? 0,
-      notes: v.notes ?? "",
-      followUpNeeded: v.followUpNeeded,
-      followUpDate: v.followUpDate ?? null,
-    }));
+    // For visits that have a clientScreeningId, pull the linked screening in one query.
+    const screeningIds = rows
+      .map((v) => v.clientScreeningId)
+      .filter((id): id is string => !!id);
+
+    const screeningMap: Map<string, { id: string }> = new Map();
+    if (screeningIds.length > 0) {
+      const screenings = await db
+        .select({ id: benefitsScreenings.id })
+        .from(benefitsScreenings)
+        .where(eq(benefitsScreenings.id, screeningIds[0])); // Drizzle inList not available — iterate
+      // Fetch all linked screenings individually (count is bounded by the 50-row visit limit)
+      for (const sid of screeningIds) {
+        const [s] = await db
+          .select({ id: benefitsScreenings.id })
+          .from(benefitsScreenings)
+          .where(eq(benefitsScreenings.id, sid))
+          .limit(1);
+        if (s) screeningMap.set(s.id, s);
+      }
+    }
+
+    const visits = rows.map((v) => {
+      const linked = v.clientScreeningId ? screeningMap.get(v.clientScreeningId) : undefined;
+      return {
+        id: v.id,
+        clientName: linked
+          ? `Case #${String(linked.id).slice(-4)}`
+          : (v.clientDisplayName ?? "Anonymous Client"),
+        clientDisplayName: v.clientDisplayName ?? null,
+        clientScreeningId: v.clientScreeningId ?? null,
+        // Surface a stable case reference when linked to a real screening
+        caseRef: linked ? { screeningId: linked.id, label: `Case #${String(linked.id).slice(-4)}` } : null,
+        visitDate: v.visitDate,
+        visitType: v.visitType,
+        duration: v.durationMinutes ?? 0,
+        notes: v.notes ?? "",
+        followUpNeeded: v.followUpNeeded,
+        followUpDate: v.followUpDate ?? null,
+      };
+    });
 
     res.json({ visits, isLive: true, count: visits.length });
   } catch (err) {
@@ -82,15 +125,46 @@ chwRouter.get("/visits", requireCHWRole, async (req: Request, res: Response) => 
 });
 
 // POST /api/chw/visits — log a new home visit for this authenticated CHW.
+// Optional clientScreeningId: if provided, validates that:
+//   1. The screening exists (404 if not).
+//   2. screening.referredToChwId matches this CHW's userId (403 if mismatched).
 chwRouter.post("/visits", requireCHWRole, async (req: Request, res: Response) => {
   try {
     const chwUserId: number = (req as any).chwNumericId;
-    const { clientDisplayName, visitDate, visitType, durationMinutes, notes, followUpNeeded, followUpDate } = req.body;
+    const chwStringId: string = (req as any).chwStringId;
+    const {
+      clientDisplayName,
+      clientScreeningId,
+      visitDate,
+      visitType,
+      durationMinutes,
+      notes,
+      followUpNeeded,
+      followUpDate,
+    } = req.body;
+
     if (!visitDate) return res.status(400).json({ error: "visitDate is required" });
+
+    // Validate clientScreeningId if provided
+    if (clientScreeningId) {
+      const [screening] = await db
+        .select({ id: benefitsScreenings.id, referredToChwId: benefitsScreenings.referredToChwId })
+        .from(benefitsScreenings)
+        .where(eq(benefitsScreenings.id, String(clientScreeningId)))
+        .limit(1);
+
+      if (!screening) {
+        return res.status(404).json({ error: "Screening not found" });
+      }
+      if (screening.referredToChwId !== chwStringId) {
+        return res.status(403).json({ error: "This screening is not assigned to you" });
+      }
+    }
 
     const [created] = await db.insert(chwVisits).values({
       chwUserId,
       clientDisplayName: clientDisplayName || null,
+      clientScreeningId: clientScreeningId ? String(clientScreeningId) : null,
       visitDate,
       visitType: visitType || "Follow-Up",
       durationMinutes: durationMinutes ? parseInt(durationMinutes) : null,

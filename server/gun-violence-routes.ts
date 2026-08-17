@@ -18,6 +18,7 @@ import { z } from "zod";
 import { enforceGroundedClaims, buildRoiRule, buildAnyOfRule, type ClaimRule } from "./ai-claim-grounding";
 import { recordClaimDecisions } from "./claim-chain";
 import { verifyInboundPayload, recordInboundVerification, type InboundSchema } from "./inbound-verification";
+import { sendEcosystemUpdate } from "./email-service";
 
 /**
  * Grounds the AI-generated gun violence story against the real data it was
@@ -195,6 +196,20 @@ export async function getGunViolenceIntelligenceData(): Promise<any> {
   const cleanCdcSummary = validateCdcSummary("getGunViolenceIntelligenceData", cdcSummary);
   const cleanAcesCorr = validateAcesCorrelations("getGunViolenceIntelligenceData", acesCorr);
 
+  // Staleness indicator: last successful scheduled sync (24h UI badge threshold)
+  const STALE_UI_MS = 24 * 60 * 60 * 1000;
+  const lastSyncRow = await db
+    .select({ importedAt: gunViolenceImports.importedAt })
+    .from(gunViolenceImports)
+    .where(eq(gunViolenceImports.dataSource, "gun-violence-registry"))
+    .orderBy(desc(gunViolenceImports.importedAt))
+    .limit(1)
+    .catch(() => []);
+  const lastSuccessfulSyncAt = lastSyncRow[0]?.importedAt?.toISOString() ?? null;
+  const isStale = lastSuccessfulSyncAt
+    ? Date.now() - new Date(lastSuccessfulSyncAt).getTime() > STALE_UI_MS
+    : true;
+
   const data = {
     meta: { generatedAt: new Date().toISOString(), source: "gun-violence-registry.replit.app" },
     headline: cleanCdcSummary,
@@ -204,6 +219,7 @@ export async function getGunViolenceIntelligenceData(): Promise<any> {
     policy: didPolicies?.catalog ?? didPolicies,
     rpliceFindings,
     localRegistry: localCounts,
+    syncStatus: { lastSuccessfulSyncAt, isStale },
   };
 
   _intelligenceCache = { data, cachedAt: Date.now() };
@@ -382,7 +398,93 @@ export async function runGunViolenceRegistrySync(): Promise<{ fetched: number; u
   });
 
   console.info(`[gv-sync] sync complete — fetched=${totalFetched} upserted=${totalUpserted} rejected=${totalRejected} elapsed=${elapsedMs}ms`);
+
+  // 48-hour staleness alert: check for any successful audit row in the last 48h.
+  // Runs after every sync attempt (success or failure) as a belt-and-suspenders
+  // guard; the scheduler in server/index.ts runs the same check independently.
+  await checkGunViolenceStaleness();
+
   return { fetched: totalFetched, upserted: totalUpserted, rejected: totalRejected, elapsedMs };
+}
+
+/**
+ * Checks whether the gun-violence-registry data source has a successful
+ * audit row in the last 48 hours. If not, logs a "[gv-sync] STALE" warning
+ * and sends an alert email via Resend. Non-fatal — errors are swallowed so
+ * this check never blocks or surfaces to callers.
+ */
+export async function checkGunViolenceStaleness(): Promise<void> {
+  const STALE_ALERT_MS = 48 * 60 * 60 * 1000;
+  try {
+    const cutoff = new Date(Date.now() - STALE_ALERT_MS);
+    const recent = await db
+      .select({ importedAt: gunViolenceImports.importedAt })
+      .from(gunViolenceImports)
+      .where(and(
+        eq(gunViolenceImports.dataSource, "gun-violence-registry"),
+        gte(gunViolenceImports.importedAt, cutoff),
+      ))
+      .orderBy(desc(gunViolenceImports.importedAt))
+      .limit(1);
+
+    if (recent.length === 0) {
+      console.warn("[gv-sync] STALE: no successful import in the last 48 hours — sending staff alert");
+      const subject = "[ALERT] Gun Violence Registry sync hasn't succeeded in over 48 hours";
+      const html = `
+        <div style="max-width:600px;font-family:Arial,sans-serif">
+          <div style="background:#c53030;color:white;padding:16px;border-radius:6px 6px 0 0">
+            <h2 style="margin:0;font-size:18px">Gun Violence Registry — Sync Stale</h2>
+            <p style="margin:6px 0 0;font-size:13px;opacity:.9">No successful sync in the last 48 hours</p>
+          </div>
+          <div style="padding:16px;border:1px solid #ddd;border-top:none;background:white">
+            <p style="color:#c53030;font-weight:bold">
+              ⚠ The gun violence registry sync has not written a successful audit row to
+              <code>gun_violence_imports</code> in the last 48 hours. Local incident data
+              may be stale and gun-violence summary/intelligence endpoints will serve
+              out-of-date counts.
+            </p>
+            <table style="width:100%;border-collapse:collapse;font-size:14px;margin:12px 0">
+              <tr>
+                <td style="padding:6px 10px;color:#666;white-space:nowrap">Staleness threshold:</td>
+                <td style="padding:6px 10px">48 hours</td>
+              </tr>
+              <tr style="background:#f5f5f5">
+                <td style="padding:6px 10px;color:#666">Detected at:</td>
+                <td style="padding:6px 10px">${new Date().toISOString()}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 10px;color:#666">Audit table:</td>
+                <td style="padding:6px 10px;font-family:monospace">gun_violence_imports</td>
+              </tr>
+              <tr style="background:#f5f5f5">
+                <td style="padding:6px 10px;color:#666">Registry source:</td>
+                <td style="padding:6px 10px">gun-violence-registry.replit.app</td>
+              </tr>
+            </table>
+            <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px;border-radius:4px;margin-top:12px">
+              <strong>Recommended actions:</strong>
+              <ol style="margin:8px 0 0;padding-left:18px;font-size:13px">
+                <li>Check server logs for <code>[gv-sync]</code> errors around the last expected sync</li>
+                <li>Verify <code>gun-violence-registry.replit.app</code> is reachable from this server</li>
+                <li>Trigger a manual sync via <code>POST /api/gun-violence/sync</code> (staff-gated)</li>
+                <li>Check <code>GET /api/gun-violence/imports</code> for the last successful audit row</li>
+              </ol>
+            </div>
+            <p style="font-size:12px;color:#888;margin-top:16px">
+              Generated by checkGunViolenceStaleness() in server/gun-violence-routes.ts.
+            </p>
+          </div>
+        </div>
+      `;
+      await sendEcosystemUpdate(subject, html).catch((emailErr: any) =>
+        console.error("[gv-sync] staleness alert email failed (non-fatal):", emailErr?.message ?? emailErr)
+      );
+    } else {
+      console.info(`[gv-sync] staleness check OK — last import at ${recent[0].importedAt?.toISOString()}`);
+    }
+  } catch (err: any) {
+    console.warn("[gv-sync] staleness check error (non-fatal):", err?.message ?? err);
+  }
 }
 
 export function registerGunViolenceRoutes(app: Express) {

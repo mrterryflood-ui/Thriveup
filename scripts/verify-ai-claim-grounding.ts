@@ -171,12 +171,64 @@ console.log("── static import check (pre-merge gate) ──");
     "server/conductor-routes.ts",
     "server/gun-violence-routes.ts",
     "server/rplice-tools.ts",
+    "server/navigator-routes.ts",
   ];
   for (const file of requiredImporters) {
     const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
     check(`${file} imports ai-claim-grounding`, /from ["']\.\/ai-claim-grounding["']/.test(content));
     check(`${file} records claim-chain decisions`, /recordClaimDecisions/.test(content));
   }
+}
+
+// ── 9. Navigator grounding enforcement: pre-client buffering is in place ────
+console.log("── navigator pre-client grounding static check ──");
+{
+  const navContent = fs.existsSync("server/navigator-routes.ts") ? fs.readFileSync("server/navigator-routes.ts", "utf8") : "";
+  // The onChunk handler must NOT write to res (SSE) directly — it should only accumulate fullResponse.
+  // The sentinel that confirms this: onChunk must NOT contain res.write for content.
+  // We check that the onChunk block accumulates without emitting, and that applyNavigatorGrounding exists.
+  check(
+    "navigator defines applyNavigatorGrounding helper",
+    navContent.includes("function applyNavigatorGrounding(")
+  );
+  check(
+    "navigator onChunk only buffers (no res.write in onChunk body)",
+    (() => {
+      // Extract the onChunk callback body heuristically
+      const onChunkIdx = navContent.indexOf("onChunk: (content) => {");
+      if (onChunkIdx === -1) return false;
+      const snippet = navContent.slice(onChunkIdx, onChunkIdx + 400);
+      // Must NOT have res.write in the onChunk body (only accumulation)
+      return !snippet.includes("res.write");
+    })()
+  );
+  check(
+    "navigator onDone calls applyNavigatorGrounding before emitting content",
+    (() => {
+      const onDoneIdx = navContent.indexOf("onDone: async (result) => {");
+      if (onDoneIdx === -1) return false;
+      const snippet = navContent.slice(onDoneIdx, onDoneIdx + 1200);
+      const groundingIdx = snippet.indexOf("applyNavigatorGrounding");
+      // Look for the content emit pattern — either JSON template or object literal
+      const contentEmitIdx = Math.min(
+        snippet.includes("content: groundedResponse") ? snippet.indexOf("content: groundedResponse") : Infinity,
+        snippet.includes("groundedResponse }") ? snippet.indexOf("groundedResponse }") : Infinity,
+      );
+      return groundingIdx !== -1 && contentEmitIdx !== Infinity && groundingIdx < contentEmitIdx;
+    })()
+  );
+  check(
+    "navigator applies GV death-count grounding rule when GV injected",
+    navContent.includes("nav-gv-death-count")
+  );
+  check(
+    "navigator applies grant-hunt-total grounding rule",
+    navContent.includes("nav-grant-hunt-total")
+  );
+  check(
+    "navigator GV totals captured from intel headline",
+    navContent.includes("gvTotals") && navContent.includes("totalDeaths") && navContent.includes("totalHomicides")
+  );
 }
 
 console.log(failures === 0 ? "\n✓ All AI claim-grounding checks passed." : `\n✗ ${failures} check(s) failed.`);

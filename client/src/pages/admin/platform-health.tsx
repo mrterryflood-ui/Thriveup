@@ -5,7 +5,7 @@ import { Separator } from "@/components/ui/separator";
 import {
   Activity, CheckCircle2, AlertCircle, AlertTriangle, RefreshCw,
   Database, Bot, Users, FileText, TrendingUp, Clock, Shield,
-  Server, Zap, Heart, BarChart3,
+  Server, Zap, Heart, BarChart3, Mail,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { queryClient } from "@/lib/queryClient";
@@ -24,6 +24,14 @@ interface HealthData {
   aiProviders: Array<{ name: string; model: string; status: "ok" | "degraded" | "unknown"; lastCallMs?: number }>;
   dataIntegrity: Array<{ table: string; count: number; hub: string; status: "ok" | "warn" | "empty" }>;
   generatedAt: string;
+}
+
+interface ProbeAlertFailure {
+  id: number;
+  alertType: string;
+  subject: string;
+  errorMessage: string;
+  attemptedAt: string;
 }
 
 const ITSM_SERVICES = [
@@ -63,6 +71,11 @@ export default function PlatformHealthPage() {
 
   const { data: health, isLoading: healthLoading } = useQuery<HealthData>({
     queryKey: ["/api/system/health"],
+    refetchInterval: 120000,
+  });
+
+  const { data: probeFailuresData } = useQuery<{ failures: ProbeAlertFailure[]; queriedAt: string }>({
+    queryKey: ["/api/system/probe-alert-failures"],
     refetchInterval: 120000,
   });
 
@@ -293,6 +306,61 @@ export default function PlatformHealthPage() {
             ))}
           </div>
         </section>
+
+        {/* Probe Alert Email Failures */}
+        {probeFailuresData && (
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <Mail className="h-5 w-5 text-amber-600" />
+              <h2 className="text-lg font-bold">Probe Alert Email Failures</h2>
+              <span className="text-xs text-muted-foreground ml-1">last 7 days</span>
+              {probeFailuresData.failures.length > 0 && (
+                <Badge variant="outline" className="text-xs text-amber-700 border-amber-400 bg-amber-50 dark:bg-amber-950/30">
+                  {probeFailuresData.failures.length} failed send{probeFailuresData.failures.length !== 1 ? "s" : ""}
+                </Badge>
+              )}
+            </div>
+            {probeFailuresData.failures.length === 0 ? (
+              <div className="flex items-center gap-2 px-4 py-3 rounded-xl border bg-card text-sm text-muted-foreground">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500 shrink-0" />
+                No probe alert email failures in the last 7 days.
+              </div>
+            ) : (
+              <>
+                <div className="mb-3 p-3 rounded-xl bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                    <p className="text-xs text-amber-800 dark:text-amber-200">
+                      <strong>{probeFailuresData.failures.length} alert email{probeFailuresData.failures.length !== 1 ? "s" : ""} failed to send in the last 7 days.</strong>{" "}
+                      Resend is in test/sandbox mode — the sending domain is not yet verified. DOWN and RECOVERY
+                      alerts are being logged here but are not reaching the inbox. To fix: verify a custom domain
+                      at <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded text-[10px]">resend.com/domains</code>.
+                    </p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {probeFailuresData.failures.map((f) => (
+                    <div key={f.id} className="flex items-start gap-3 px-4 py-3 rounded-xl border bg-card text-sm">
+                      <StatusDot status="red" />
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <Badge variant="outline" className={`text-[10px] shrink-0 ${f.alertType === "down" ? "text-red-600 border-red-300" : "text-blue-600 border-blue-300"}`}>
+                            {f.alertType === "down" ? "DOWN" : "RECOVERY"}
+                          </Badge>
+                          <p className="text-sm font-medium truncate">{f.subject}</p>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5 break-words">{f.errorMessage}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {new Date(f.attemptedAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </section>
+        )}
 
       </div>
     </div>

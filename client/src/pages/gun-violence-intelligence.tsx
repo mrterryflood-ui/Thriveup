@@ -56,6 +56,7 @@ interface IntelData {
   policy: { id: string; label: string; short_description: string; expected_direction: string; rand_url: string; literature_citations: string[] }[];
   rpliceFindings: { geography: string; timePeriod: string; payload: any }[];
   localRegistry: { total: number; victims: number; fatal: number; earliest: string; latest: string } | null;
+  syncStatus?: { lastSuccessfulSyncAt: string | null; isStale: boolean };
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -159,7 +160,7 @@ export default function GunViolenceIntelligence() {
           A longitudinal record of structural violence in America — grounded in CDC, FBI, NCVS, WISQARS,
           and RPLICE data, connected to your community's anchor agencies and CHW network.
         </p>
-        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+        <div className="flex items-center gap-3 text-xs text-muted-foreground flex-wrap">
           {data?.meta && <span>Updated {new Date(data.meta.generatedAt).toLocaleDateString()}</span>}
           <a href="https://gun-violence-registry.replit.app" target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1 hover:text-foreground transition-colors">
@@ -168,6 +169,15 @@ export default function GunViolenceIntelligence() {
           <Button variant="ghost" size="sm" className="h-6 px-2 text-xs" onClick={() => refetch()}>
             <RefreshCw className="h-3 w-3 mr-1" /> Refresh
           </Button>
+          {data?.syncStatus?.isStale && (
+            <Badge variant="outline" className="border-amber-400 text-amber-700 bg-amber-50 dark:bg-amber-950/20 dark:text-amber-300 gap-1">
+              <AlertTriangle className="h-3 w-3" />
+              Incident data may be stale
+              {data.syncStatus.lastSuccessfulSyncAt
+                ? ` — last sync ${new Date(data.syncStatus.lastSuccessfulSyncAt).toLocaleDateString()}`
+                : ""}
+            </Badge>
+          )}
         </div>
       </div>
 

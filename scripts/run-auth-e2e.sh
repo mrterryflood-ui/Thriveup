@@ -96,5 +96,13 @@ echo "[auth-e2e] running share-link e2e verification..."
 npx tsx scripts/verify-share-link-e2e.ts
 SHARE_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ] && [ $SHARE_EXIT -eq 0 ]
+# Gun violence sync audit: calls runGunViolenceRegistrySync() directly and confirms
+# it writes an audit row to gun_violence_imports with the correct dataSource label
+# and a fresh importedAt timestamp, and returns { fetched, upserted, rejected, elapsedMs }.
+echo ""
+echo "[auth-e2e] running gun-violence sync-audit verification..."
+npx tsx scripts/verify-gun-violence-sync-audit.ts
+GV_SYNC_AUDIT_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ] && [ $SHARE_EXIT -eq 0 ] && [ $GV_SYNC_AUDIT_EXIT -eq 0 ]
 exit $?

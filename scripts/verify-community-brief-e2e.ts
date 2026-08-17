@@ -195,6 +195,81 @@ async function run() {
     console.log(`  ✓ freshness: generatedAt=${genAt} is after this run's start — live Census + AI pipeline confirmed (${ageS}s old).`);
   }
 
+  // ── geography.state contract ──────────────────────────────────────────────
+  // A raw 5-digit ZIP community-brief must always resolve a non-empty state
+  // string. The assembleStoryPack helper in community-story-routes.ts reads
+  // brief.geography.state to build the grant-conduit call; an empty state
+  // silently drops ALL gun-violence data and state-scoped grants. This check
+  // catches the regression where stateName stays "" through the pipeline.
+  const resolvedState = brief.geography?.state;
+  if (typeof resolvedState !== "string" || resolvedState.trim() === "") {
+    fail(`brief.geography.state is empty or missing for ZIP ${ZIP} — assembleStoryPack will silently drop gun-violence data and state grants (regression guard).`);
+  }
+  console.log(`✓ PASS: brief.geography.state = "${resolvedState}" — non-empty string confirmed for ZIP ${ZIP}.`);
+
+  // ── community-story/pack with includeGrantData=true ───────────────────────
+  // Assert that POST /api/community-story/pack?includeGrantData=true returns
+  // a grant.gunViolence block (object, not null/undefined).
+  //
+  // DB note: The gun_violence_incidents table has 1,000 rows across TX, CA, NC,
+  // IL, FL and others (dates Jan–Mar 2026). The grant-conduit uses a 90-day
+  // rolling window, so those rows are currently outside the window. The block
+  // is ALWAYS returned (even with incidents=0) — asserting its PRESENCE is the
+  // structural contract. The incidents count is asserted separately when the DB
+  // has in-window data (verified via DB query before this gate runs).
+  console.log(`  Checking /api/community-story/pack (includeGrantData=true, ZIP ${ZIP})…`);
+  let packRes: Response;
+  let packText = "";
+  for (let attempt = 1; attempt <= 3; attempt++) {
+    try {
+      packRes = await fetch(`${BASE}/api/community-story/pack`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ location: ZIP, includeGrantData: true }),
+      });
+      packText = await packRes.text();
+    } catch (err) {
+      fail(`community-story/pack request error: ${err instanceof Error ? err.message : String(err)}`);
+    }
+    if (packRes!.status !== 429) break;
+    const wait = Math.min(parseInt(packRes!.headers.get("retry-after") ?? "60", 10) || 60, 120);
+    if (attempt < 3) {
+      console.warn(`  429 on story/pack (attempt ${attempt}/3); waiting ≈ ${wait}s…`);
+      await sleep(wait * 1000);
+    }
+  }
+
+  if (packRes!.status !== 200) {
+    fail(`/api/community-story/pack returned ${packRes!.status} (expected 200): ${packText.slice(0, 300)}`);
+  }
+
+  let pack: any;
+  try {
+    pack = JSON.parse(packText);
+  } catch {
+    fail(`/api/community-story/pack 200 but body is not valid JSON: ${packText.slice(0, 200)}`);
+  }
+
+  // brief.geography.state must be a non-empty string in the pack's brief too
+  const packBriefState = pack?.brief?.geography?.state;
+  if (typeof packBriefState !== "string" || packBriefState.trim() === "") {
+    fail(`community-story/pack brief.geography.state is empty or missing — assembleStoryPack cannot build state-scoped grant intelligence for ZIP ${ZIP}.`);
+  }
+  console.log(`  ✓ pack brief.geography.state = "${packBriefState}"`);
+
+  // grant block must be present (not null/undefined) when includeGrantData=true
+  if (pack.grant === undefined || pack.grant === null) {
+    fail(`community-story/pack with includeGrantData=true returned null/undefined grant block for ZIP ${ZIP} — grant conduit call failed silently.`);
+  }
+
+  // grant.gunViolence must be a present, non-null object — it is always
+  // returned by the grant conduit even when incidents=0, so its absence means
+  // the grant conduit call failed or the field was dropped in assembly.
+  if (!pack.grant?.gunViolence || typeof pack.grant.gunViolence !== "object") {
+    fail(`community-story/pack grant.gunViolence block is absent or non-object for ZIP ${ZIP} — state "${packBriefState}" should always produce a gunViolence block (even with 0 incidents in the 90-day window).`);
+  }
+  console.log(`✓ PASS: community-story/pack grant.gunViolence present (incidents=${pack.grant.gunViolence.incidents ?? "?"}, state=${packBriefState}).`);
+
   // ── Authed positive contract + public-share strip contract ────────────────
   // 1. An AUTHENTICATED analyst must receive the RPLICE block (the feature).
   // 2. Sharing that authed brief through the public share endpoint must strip

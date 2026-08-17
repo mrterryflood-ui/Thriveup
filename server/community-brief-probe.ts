@@ -39,6 +39,8 @@
  */
 
 import { sendEcosystemUpdate } from "./email-service";
+import { db } from "./storage";
+import { probeAlertFailures } from "@shared/schema";
 
 // ── Probe constants ──────────────────────────────────────────────────────────
 
@@ -243,6 +245,28 @@ async function runProbe(base: string, populationSize: number): Promise<ProbeOutc
   return evaluateProbeResponse(status, text, requestedAtMs, populationSize);
 }
 
+// ── Alert email failure persistence ───────────────────────────────────────────
+
+/**
+ * Write a row to probe_alert_failures so the admin UI can surface email send
+ * failures without requiring anyone to tail logs.  Swallows its own errors so
+ * a DB write failure never crashes the probe cycle.
+ */
+async function recordProbeAlertFailure(
+  alertType: "down" | "recovery",
+  subject: string,
+  err: unknown,
+): Promise<void> {
+  const errorMessage = (err as any)?.message
+    ? String((err as any).message).slice(0, 1000)
+    : String(err).slice(0, 1000);
+  try {
+    await db.insert(probeAlertFailures).values({ alertType, subject, errorMessage });
+  } catch (dbErr: any) {
+    console.error("[brief-probe] Could not persist alert failure to DB:", dbErr?.message || dbErr);
+  }
+}
+
 // ── Alert emails ──────────────────────────────────────────────────────────────
 
 async function sendDownAlert(base: string, detail: string, consecutive: number): Promise<void> {
@@ -302,6 +326,7 @@ async function sendDownAlert(base: string, detail: string, consecutive: number):
     await sendEcosystemUpdate(subject, html);
   } catch (err: any) {
     console.error("[brief-probe] Failed to send DOWN alert email:", err?.message || err);
+    await recordProbeAlertFailure("down", subject, err);
   }
 }
 
@@ -343,6 +368,7 @@ async function sendRecoveryAlert(base: string, detail: string): Promise<void> {
     await sendEcosystemUpdate(subject, html);
   } catch (err: any) {
     console.error("[brief-probe] Failed to send RECOVERY alert email:", err?.message || err);
+    await recordProbeAlertFailure("recovery", subject, err);
   }
 }
 

@@ -7674,6 +7674,9 @@ export const chwVisits = pgTable("chw_visits", {
   id: text("id").primaryKey().$defaultFn(() => nanoid(12)),
   chwUserId: integer("chw_user_id").notNull(),
   clientDisplayName: text("client_display_name"),
+  // Nullable FK to benefits_screenings.id — links visit to a formal case when available.
+  // Walk-in / informal visits leave this null and rely solely on clientDisplayName.
+  clientScreeningId: varchar("client_screening_id", { length: 100 }).references(() => benefitsScreenings.id),
   visitDate: date("visit_date").notNull(),
   visitType: varchar("visit_type", { length: 100 }).notNull().default("Follow-Up"),
   durationMinutes: integer("duration_minutes"),
@@ -7707,3 +7710,20 @@ export const gppEvents = pgTable("gpp_events", {
 ]);
 export type GppEventRow = typeof gppEvents.$inferSelect;
 export type InsertGppEvent = typeof gppEvents.$inferInsert;
+
+// ── Probe Alert Failures ────────────────────────────────────────────────────
+// Durable record of every failed DOWN or RECOVERY alert email attempt from the
+// community-brief production probe.  Written whenever sendEcosystemUpdate()
+// throws (e.g. Resend 403 in test/sandbox mode — sending domain not verified).
+// Surfaced in the Platform Health admin page so staff see the failure without
+// tailing logs.  Never updated or deleted in normal operation.
+export const probeAlertFailures = pgTable("probe_alert_failures", {
+  id: serial("id").primaryKey(),
+  /** "down" or "recovery" */
+  alertType: varchar("alert_type", { length: 20 }).notNull(),
+  subject: text("subject").notNull(),
+  errorMessage: text("error_message").notNull(),
+  attemptedAt: timestamp("attempted_at").defaultNow().notNull(),
+});
+export type ProbeAlertFailureRow = typeof probeAlertFailures.$inferSelect;
+export type InsertProbeAlertFailure = typeof probeAlertFailures.$inferInsert;

@@ -371,11 +371,19 @@ interface NavigatorCensusIndicators {
   uninsuredRate: number | null;
 }
 
-async function assembleContext(req: Request, userMessage: string): Promise<{ context: string; censusIndicators: NavigatorCensusIndicators | null }> {
+/** Gun-violence national totals captured from the intelligence engine, used for pre-client grounding. */
+interface NavigatorGvTotals {
+  totalDeaths: number | null;
+  totalHomicides: number | null;
+  totalSuicides: number | null;
+}
+
+async function assembleContext(req: Request, userMessage: string): Promise<{ context: string; censusIndicators: NavigatorCensusIndicators | null; gvTotals: NavigatorGvTotals | null }> {
   const contextParts: string[] = [];
   const userId = getUserId(req);
   const userName = getUserName(req);
   let censusIndicators: NavigatorCensusIndicators | null = null;
+  let gvTotals: NavigatorGvTotals | null = null;
 
   if (userName) {
     contextParts.push(`[User: ${userName}]`);
@@ -485,6 +493,16 @@ When discussing workforce, grants, or economic development — align TCAF progra
           .map((p: any) => `  • ${p.label}: ${p.short_description ?? ""}`)
           .join("\n");
         const topRplice = (intel.rpliceFindings ?? []).at(0);
+
+        // Capture national totals for downstream grounding (pre-client enforcement).
+        // ACE correlation scores are an AI judgment aggregate — they are NOT
+        // captured here because they represent a computed correlation, not a
+        // single count that can be mechanically verified against a scalar value.
+        gvTotals = {
+          totalDeaths:    typeof hl.totalDeaths    === "number" ? hl.totalDeaths    : null,
+          totalHomicides: typeof hl.totalHomicides === "number" ? hl.totalHomicides : null,
+          totalSuicides:  typeof hl.totalSuicides  === "number" ? hl.totalSuicides  : null,
+        };
 
         // Detect ZIP/state from the query for local enrichment
         let localContext = "";
@@ -699,7 +717,7 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
   }
 
   const context = contextParts.length > 0 ? "\n\n--- CONTEXT DATA ---\n" + contextParts.join("\n\n") + "\n--- END CONTEXT ---" : "";
-  return { context, censusIndicators };
+  return { context, censusIndicators, gvTotals };
 }
 
 function generateConversationTitle(message: string): string {
@@ -758,6 +776,106 @@ async function fetchUrlContent(url: string): Promise<string | null> {
   }
 }
 
+/**
+ * Applies all available Navigator grounding rules to a buffered AI response
+ * and returns the grounded text. This is the single point where pre-client
+ * enforcement happens for ALL Navigator response paths (primary collaborativeStream,
+ * OpenRouter fallback, and last-resort streamAIResponse). Decisions are
+ * recorded to the tamper-evident claim chain. Qualitative AI judgment calls
+ * (fit scores, correlation estimates, narrative framing) carry no ClaimRule
+ * and are left entirely alone by design.
+ */
+function applyNavigatorGrounding(
+  text: string,
+  censusIndicators: NavigatorCensusIndicators | null,
+  gvContext: ReturnType<typeof detectGunViolenceContext>,
+  gvTotals: NavigatorGvTotals | null,
+  grantHuntTotal: number | null,
+): string {
+  if (!text || text.length === 0) return text;
+  try {
+    const rules: ClaimRule[] = [];
+
+    // Census indicators
+    if (censusIndicators) {
+      const { povertyRate, unemploymentRate, uninsuredRate } = censusIndicators;
+      if (povertyRate != null && Number.isFinite(povertyRate)) {
+        rules.push(buildPercentRule("nav-poverty-rate", /poverty/i, povertyRate));
+      }
+      if (unemploymentRate != null && Number.isFinite(unemploymentRate)) {
+        rules.push(buildPercentRule("nav-unemployment-rate", /unemploy(?:ment|ed)/i, unemploymentRate));
+      }
+      if (uninsuredRate != null && Number.isFinite(uninsuredRate)) {
+        rules.push(buildPercentRule("nav-uninsured-rate", /uninsured/i, uninsuredRate));
+      }
+    }
+
+    // GV national death/homicide/suicide totals (only when GV dataset was injected)
+    if (gvContext.injected && gvTotals) {
+      const { totalDeaths, totalHomicides, totalSuicides } = gvTotals;
+      const countExtract = (sentence: string) => {
+        const claims: { value: number; kind: string }[] = [];
+        const re = /(\d[\d,]*(?:\.\d+)?)\s*(?:deaths?|killed|fatalities|homicides?|suicides?|firearm deaths?|gun deaths?)/gi;
+        let m: RegExpExecArray | null;
+        while ((m = re.exec(sentence))) {
+          const n = parseFloat(m[1].replace(/,/g, ""));
+          if (Number.isFinite(n)) claims.push({ value: n, kind: "count" });
+        }
+        return claims;
+      };
+      const allowedCounts = [totalDeaths, totalHomicides, totalSuicides].filter((n): n is number => n != null && Number.isFinite(n));
+      if (allowedCounts.length > 0) {
+        rules.push(buildAnyOfRule(
+          "nav-gv-death-count",
+          /\b(?:deaths?|killed|fatalities|homicides?|suicides?|firearm deaths?|gun deaths?)\b/i,
+          countExtract,
+          allowedCounts,
+          (v) => Math.max(5000, v * 0.07),
+        ));
+      }
+    }
+
+    // Grant hunt total (only when the hunt engine actually ran)
+    if (grantHuntTotal != null && Number.isFinite(grantHuntTotal)) {
+      rules.push(buildAnyOfRule(
+        "nav-grant-hunt-total",
+        /\b(?:found|identified|discovered|surfaced|returned|available)\s+(?:\d[\d,]*)\s+(?:grants?|opportunities?|results?)\b|\b(?:\d[\d,]*)\s+(?:grants?|opportunities?|results?)\s+(?:found|identified|available)/i,
+        (sentence) => {
+          const claims: { value: number; kind: string }[] = [];
+          const re = /\b(\d[\d,]*)\s+(?:grants?|opportunities?|funding\s+opportunities?|results?)\b/gi;
+          let m: RegExpExecArray | null;
+          while ((m = re.exec(sentence))) {
+            const n = parseInt(m[1].replace(/,/g, ""), 10);
+            if (Number.isFinite(n)) claims.push({ value: n, kind: "count" });
+          }
+          return claims;
+        },
+        [grantHuntTotal],
+        (v) => Math.max(2, v * 0.15),
+      ));
+    }
+
+    if (rules.length === 0) return text;
+
+    const result = enforceGroundedClaims(text, rules);
+    if (result.decisions.length > 0) {
+      const subject = censusIndicators
+        ? `ZIP ${censusIndicators.zip}`
+        : (gvContext.geography ?? "navigator");
+      recordClaimDecisions("navigator", subject, result.decisions).catch((err) =>
+        console.error("[Navigator] claim-chain record failed (non-fatal):", err)
+      );
+    }
+    if (result.droppedAny) {
+      console.warn(`[Navigator] grounding engine redacted ungrounded claim(s). Decisions:`, result.decisions.filter(d => d.verdict !== "kept").map(d => ({ rule: d.ruleId, verdict: d.verdict, sentence: d.sentence.slice(0, 100) })));
+    }
+    return result.text;
+  } catch (err) {
+    console.error("[Navigator] applyNavigatorGrounding error (non-fatal):", err);
+    return text;
+  }
+}
+
 export function registerNavigatorRoutes(app: Express) {
   app.post("/api/navigator/chat", async (req, res) => {
     const userId = getUserId(req);
@@ -789,11 +907,15 @@ export function registerNavigatorRoutes(app: Express) {
       return res.status(400).json({ error: `Message is too long (max ${MAX_MESSAGE_CHARS} characters). Please shorten it and try again.` });
     }
 
-    const { context: contextData, censusIndicators: navigatorCensusIndicators } = await assembleContext(req, message);
+    const { context: contextData, censusIndicators: navigatorCensusIndicators, gvTotals: navigatorGvTotals } = await assembleContext(req, message);
     // Recompute (cheap, regex-only) in this handler's scope so the "Continue
     // in Tell-a-Story" carry-over (#216) can reference it — assembleContext's
     // internal detection variables are local to that function.
     const gunViolenceContext = detectGunViolenceContext(message);
+
+    // Grant hunt total — populated below when the hunt engine fires.
+    // Initialized null; set to allHits.length after the hunt completes.
+    let navigatorGrantHuntTotal: number | null = null;
 
     // Inject response-depth instructions based on user's selected mode
     const RESPONSE_MODE_INSTRUCTIONS: Record<string, string> = {
@@ -1036,6 +1158,9 @@ ${scored.map((h, i) => [
 Do NOT just list grants. Tell the alignment story. Be specific. Use the org name throughout.`;
 
         augmentedMessage = message + huntBlock;
+        // Capture the real grant count for pre-client grounding (so the AI
+        // can't restate a different total than what the hunt actually found).
+        navigatorGrantHuntTotal = allHits.length;
         // Emit structured grant cards BEFORE the text stream — frontend renders them with "Add to Pipeline" buttons
         res.write(`data: ${JSON.stringify({ grantHuntResults: scored, grantOrgName: orgDesc, totalFound: allHits.length })}\n\n`);
         console.log(`[Navigator] Grant hunt complete: ${allHits.length} found, top ${scored.length} scored`);
@@ -1118,8 +1243,12 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         // framework injection that causes consulting-speak "MEASURE Phase" output.
         noFrameworkInjection: !hasAttachedDocuments,
         onChunk: (content) => {
+          // Buffer server-side — grounding must run before the response
+          // reaches the client. SSE content events are emitted all at once
+          // inside onDone after the grounded text has been produced.
+          // Meta/synthesisComplete/keepAlive events are NOT buffered (they
+          // carry no claimable content) so the client still sees early signals.
           fullResponse += content;
-          res.write(`data: ${JSON.stringify({ content })}\n\n`);
         },
         onMeta: (meta) => {
           res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
@@ -1150,61 +1279,44 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           }
         },
         onDone: async (result) => {
+          // ── Pre-client grounding enforcement ────────────────────────────────
+          // fullResponse is the full buffered AI output. Run it through the
+          // shared grounding helper BEFORE writing to SSE or the DB. Ungrounded
+          // sentences are redacted; all decisions go to the claim chain.
+          // AI judgment calls (fit scores, qualitative framing) carry no
+          // ClaimRule and are left entirely alone by design.
+          const groundedResponse = applyNavigatorGrounding(
+            fullResponse,
+            navigatorCensusIndicators,
+            gunViolenceContext,
+            navigatorGvTotals,
+            navigatorGrantHuntTotal,
+          );
+
+          // Emit the grounded response text to the client as a content SSE event.
+          // The response was buffered (not streamed live) so the client receives
+          // only the verified, grounded text.
+          if (groundedResponse.length > 0) {
+            res.write(`data: ${JSON.stringify({ content: groundedResponse })}\n\n`);
+          }
+
+          // Persist the grounded text (not the raw model output) so the DB and
+          // the user always see the same thing.
           try {
             await db.insert(navigatorMessages).values({
               conversationId: activeConversationId,
               role: "assistant",
-              content: fullResponse,
+              content: groundedResponse,
             });
 
-            if (fullResponse.length > 50) {
-              const summarySnippet = fullResponse.substring(0, 200).replace(/\n/g, " ");
+            if (groundedResponse.length > 50) {
+              const summarySnippet = groundedResponse.substring(0, 200).replace(/\n/g, " ");
               await db.update(navigatorConversations)
                 .set({ summary: summarySnippet })
                 .where(eq(navigatorConversations.id, activeConversationId));
             }
           } catch (err) {
             console.error("[Navigator] Error saving response:", err);
-          }
-
-          // ── AI claim grounding for Navigator Census figures (#255) ─────────
-          // When the context injected real Census figures (poverty rate, unemployment
-          // rate, uninsured rate) from buildCommunityAIContext, mechanically verify
-          // that any sentence in the streamed response that restates those stats
-          // matches the injected source values. The response has already been
-          // streamed token-by-token, so we can't redact it in-band; instead we
-          // record every grounding decision to the tamper-evident claim chain and
-          // emit a claimGrounding SSE event so the frontend can flag mismatched
-          // claims to the user in future. Leave free-form advice/judgment alone —
-          // only sentences that TRIGGER the numeric-claim regex are evaluated.
-          if (navigatorCensusIndicators && fullResponse.length > 0) {
-            try {
-              const navigatorRules: ClaimRule[] = [];
-              const { povertyRate, unemploymentRate, uninsuredRate, zip } = navigatorCensusIndicators;
-              if (povertyRate != null && Number.isFinite(povertyRate)) {
-                navigatorRules.push(buildPercentRule("nav-poverty-rate", /poverty/i, povertyRate));
-              }
-              if (unemploymentRate != null && Number.isFinite(unemploymentRate)) {
-                navigatorRules.push(buildPercentRule("nav-unemployment-rate", /unemploy(?:ment|ed)/i, unemploymentRate));
-              }
-              if (uninsuredRate != null && Number.isFinite(uninsuredRate)) {
-                navigatorRules.push(buildPercentRule("nav-uninsured-rate", /uninsured/i, uninsuredRate));
-              }
-              if (navigatorRules.length > 0) {
-                const groundingResult = enforceGroundedClaims(fullResponse, navigatorRules);
-                if (groundingResult.decisions.length > 0) {
-                  recordClaimDecisions("navigator", `ZIP ${zip}`, groundingResult.decisions).catch((err) =>
-                    console.error("[Navigator] claim-chain record failed (non-fatal):", err)
-                  );
-                  if (groundingResult.droppedAny) {
-                    console.warn(`[Navigator] response for ZIP ${zip} contained ungrounded Census claim(s) — recorded to chain but NOT redacted (streaming already complete).`);
-                  }
-                }
-              }
-            } catch (groundingErr) {
-              // Non-fatal — grounding is audit-only for the navigator
-              console.error("[Navigator] grounding check error (non-fatal):", groundingErr);
-            }
           }
 
           // Always send deepThinkJobId (per-request UUID) so both authenticated
@@ -1229,19 +1341,30 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 max_tokens: 2000,
                 stream: true,
               });
+              let fallbackResponse = "";
               for await (const chunk of orStream) {
                 const content = chunk.choices[0]?.delta?.content || "";
-                if (content) res.write(`data: ${JSON.stringify({ content })}\n\n`);
+                if (content) fallbackResponse += content;
+              }
+              // Apply grounding to fallback response before emitting
+              const fallbackGrounded = applyNavigatorGrounding(fallbackResponse, navigatorCensusIndicators, gunViolenceContext, navigatorGvTotals, navigatorGrantHuntTotal);
+              if (fallbackGrounded.length > 0) {
+                res.write(`data: ${JSON.stringify({ content: fallbackGrounded })}\n\n`);
               }
               res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
               res.write(`data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
               res.end();
             } else {
               // No OR key — last-resort waterfall (slow but better than nothing)
+              let lastResortResponse = "";
               await streamAIResponse({
                 messages: msgs,
-                onChunk: (content) => { res.write(`data: ${JSON.stringify({ content })}\n\n`); },
+                onChunk: (content) => { lastResortResponse += content; },
                 onDone: () => {
+                  const lastResortGrounded = applyNavigatorGrounding(lastResortResponse, navigatorCensusIndicators, gunViolenceContext, navigatorGvTotals, navigatorGrantHuntTotal);
+                  if (lastResortGrounded.length > 0) {
+                    res.write(`data: ${JSON.stringify({ content: lastResortGrounded })}\n\n`);
+                  }
                   res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
                   res.write(`data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
                   res.end();

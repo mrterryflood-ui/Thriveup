@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import { db } from "./storage";
-import { count, eq } from "drizzle-orm";
+import { count, eq, gte, desc } from "drizzle-orm";
 import {
   grantOpportunities,
   proposalPipeline,
@@ -14,6 +14,7 @@ import {
   benefitsApplications,
   certificates,
   studentProgress,
+  probeAlertFailures,
 } from "@shared/schema";
 
 async function safeCount(table: any, where?: any): Promise<number> {
@@ -156,6 +157,26 @@ export function registerSystemPulseRoutes(app: Express) {
     } catch (err) {
       console.error("system/pulse error:", err);
       res.status(500).json({ error: "pulse unavailable" });
+    }
+  });
+
+  // Returns probe alert email failures from the last 7 days.
+  // No auth required — same as /api/system/health (admin UI only fetches this
+  // from behind the requireAuth-gated admin page).
+  app.get("/api/system/probe-alert-failures", async (_req, res) => {
+    res.setHeader("Cache-Control", "no-store");
+    try {
+      const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const rows = await db
+        .select()
+        .from(probeAlertFailures)
+        .where(gte(probeAlertFailures.attemptedAt, sevenDaysAgo))
+        .orderBy(desc(probeAlertFailures.attemptedAt))
+        .limit(50);
+      res.json({ failures: rows, queriedAt: new Date().toISOString() });
+    } catch (err) {
+      console.error("system/probe-alert-failures error:", err);
+      res.status(500).json({ error: "unavailable" });
     }
   });
 }

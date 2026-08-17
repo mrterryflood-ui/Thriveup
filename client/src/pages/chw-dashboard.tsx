@@ -39,6 +39,9 @@ interface ScreeningReferral {
 interface HomeVisit {
   id: string;
   clientName: string;
+  clientDisplayName?: string | null;
+  clientScreeningId?: string | null;
+  caseRef?: { screeningId: string; label: string } | null;
   visitDate: string;
   visitType: string;
   duration: number;
@@ -190,6 +193,28 @@ export default function ChwDashboardPage() {
   const { data: liveVisitsData, isError: visitsError } = useQuery({ queryKey: ["/api/chw/visits"], enabled: isAuthenticated, retry: false });
   const { data: liveResources, isError: resourcesError } = useQuery({ queryKey: ["/api/chw/resources"], enabled: isAuthenticated, retry: false });
 
+  // ── Log Visit dialog state ────────────────────────────────────────────────
+  const [visitOpen, setVisitOpen] = useState(false);
+  const [visitClientDisplayName, setVisitClientDisplayName] = useState("");
+  const [visitClientScreeningId, setVisitClientScreeningId] = useState("");
+  const [visitDate, setVisitDate] = useState("");
+  const [visitType, setVisitType] = useState("Follow-Up");
+  const [visitDuration, setVisitDuration] = useState("");
+  const [visitNotes, setVisitNotes] = useState("");
+  const [visitFollowUpNeeded, setVisitFollowUpNeeded] = useState(false);
+  const [visitFollowUpDate, setVisitFollowUpDate] = useState("");
+
+  function resetVisitForm() {
+    setVisitClientDisplayName("");
+    setVisitClientScreeningId("");
+    setVisitDate("");
+    setVisitType("Follow-Up");
+    setVisitDuration("");
+    setVisitNotes("");
+    setVisitFollowUpNeeded(false);
+    setVisitFollowUpDate("");
+  }
+
   // ── New Referral dialog state ─────────────────────────────────────────────
   const [referralOpen, setReferralOpen] = useState(false);
   const [programCode, setProgramCode] = useState("");
@@ -338,6 +363,36 @@ export default function ChwDashboardPage() {
     setReferralNotes("");
     setWaitlistAcknowledged(false);
   }
+
+  const logVisit = useMutation({
+    mutationFn: async () => {
+      const body: Record<string, unknown> = {
+        visitDate: visitDate,
+        visitType: visitType,
+      };
+      if (visitClientDisplayName.trim()) body.clientDisplayName = visitClientDisplayName.trim();
+      if (visitClientScreeningId) body.clientScreeningId = visitClientScreeningId;
+      if (visitDuration) body.durationMinutes = visitDuration;
+      if (visitNotes.trim()) body.notes = visitNotes.trim();
+      body.followUpNeeded = visitFollowUpNeeded;
+      if (visitFollowUpNeeded && visitFollowUpDate) body.followUpDate = visitFollowUpDate;
+      const res = await apiRequest("POST", "/api/chw/visits", body);
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error((data as any).error ?? `HTTP ${res.status}`);
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/chw/visits"] });
+      resetVisitForm();
+      setVisitOpen(false);
+      toast({ title: "Visit logged", description: "Home visit recorded successfully." });
+    },
+    onError: (err: Error) => {
+      toast({ title: "Could not log visit", description: err.message, variant: "destructive" });
+    },
+  });
 
   const createReferral = useMutation({
     mutationFn: async () => {
@@ -1041,6 +1096,145 @@ export default function ChwDashboardPage() {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">Home Visit Log</h3>
+              {isAuthenticated && (
+                <Dialog open={visitOpen} onOpenChange={(o) => { setVisitOpen(o); if (!o) resetVisitForm(); }}>
+                  <DialogTrigger asChild>
+                    <Button size="sm" className="gap-2" data-testid="button-log-visit">
+                      <Plus className="h-4 w-4" /> Log Visit
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-md" data-testid="dialog-log-visit">
+                    <DialogHeader>
+                      <DialogTitle>Log Home Visit</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-1">
+                      {/* Client — pick from caseload OR free-type */}
+                      <div className="space-y-1.5">
+                        <Label>Client</Label>
+                        {caseload.length > 0 && (
+                          <Select
+                            value={visitClientScreeningId || undefined}
+                            onValueChange={(val) => {
+                              setVisitClientScreeningId(val);
+                              setVisitClientDisplayName("");
+                            }}
+                          >
+                            <SelectTrigger className="mb-2" data-testid="select-visit-caseload-client">
+                              <SelectValue placeholder="Pick from your caseload (optional)" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {caseload.map((c: any) => (
+                                <SelectItem key={c.screeningId ?? c.id} value={c.screeningId ?? c.id} data-testid={`option-visit-client-${c.id}`}>
+                                  {c.name}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+                        <Input
+                          placeholder="Or type client name (walk-in / informal visit)"
+                          value={visitClientDisplayName}
+                          onChange={(e) => {
+                            setVisitClientDisplayName(e.target.value);
+                            setVisitClientScreeningId("");
+                          }}
+                          data-testid="input-visit-client-name"
+                        />
+                        <p className="text-[11px] text-muted-foreground">
+                          Select from your caseload to link to a real case, or type freely for walk-in visits.
+                        </p>
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-3">
+                        <div className="space-y-1.5">
+                          <Label htmlFor="visit-date">Visit date <span className="text-red-500">*</span></Label>
+                          <Input
+                            id="visit-date"
+                            type="date"
+                            value={visitDate}
+                            onChange={(e) => setVisitDate(e.target.value)}
+                            data-testid="input-visit-date"
+                          />
+                        </div>
+                        <div className="space-y-1.5">
+                          <Label htmlFor="visit-type">Visit type</Label>
+                          <Select value={visitType} onValueChange={setVisitType}>
+                            <SelectTrigger id="visit-type" data-testid="select-visit-type">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {["Follow-Up", "Initial Assessment", "Crisis Response", "Health Education", "Referral Coordination", "Other"].map((t) => (
+                                <SelectItem key={t} value={t}>{t}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="visit-duration">Duration (minutes) <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                        <Input
+                          id="visit-duration"
+                          type="number"
+                          min="1"
+                          placeholder="e.g. 45"
+                          value={visitDuration}
+                          onChange={(e) => setVisitDuration(e.target.value)}
+                          data-testid="input-visit-duration"
+                        />
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <Label htmlFor="visit-notes">Notes <span className="text-muted-foreground font-normal">(optional)</span></Label>
+                        <Textarea
+                          id="visit-notes"
+                          placeholder="What happened during the visit…"
+                          value={visitNotes}
+                          onChange={(e) => setVisitNotes(e.target.value)}
+                          data-testid="input-visit-notes"
+                        />
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <input
+                          id="visit-followup"
+                          type="checkbox"
+                          checked={visitFollowUpNeeded}
+                          onChange={(e) => setVisitFollowUpNeeded(e.target.checked)}
+                          data-testid="checkbox-visit-followup"
+                        />
+                        <Label htmlFor="visit-followup" className="cursor-pointer">Follow-up needed</Label>
+                      </div>
+
+                      {visitFollowUpNeeded && (
+                        <div className="space-y-1.5">
+                          <Label htmlFor="visit-followup-date">Follow-up date</Label>
+                          <Input
+                            id="visit-followup-date"
+                            type="date"
+                            value={visitFollowUpDate}
+                            onChange={(e) => setVisitFollowUpDate(e.target.value)}
+                            data-testid="input-visit-followup-date"
+                          />
+                        </div>
+                      )}
+
+                      <Button
+                        className="w-full"
+                        disabled={!visitDate || logVisit.isPending}
+                        onClick={() => logVisit.mutate()}
+                        data-testid="button-submit-visit"
+                      >
+                        {logVisit.isPending ? (
+                          <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Saving…</>
+                        ) : (
+                          "Save Visit"
+                        )}
+                      </Button>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
             </div>
             {visitsError && (
               <div className="rounded-md border border-red-200 bg-red-50 dark:bg-red-950/20 p-4 text-sm text-red-700 dark:text-red-400" data-testid="notice-visits-error">
@@ -1051,7 +1245,7 @@ export default function ChwDashboardPage() {
               <div className="rounded-md border border-dashed p-8 text-center text-muted-foreground text-sm" data-testid="notice-visits-empty">
                 <Home className="h-8 w-8 mx-auto mb-2 opacity-40" />
                 <p className="font-medium">No home visits logged yet.</p>
-                <p className="text-xs mt-1">Use the Log Home Visit action to record your first visit.</p>
+                <p className="text-xs mt-1">Use the "Log Visit" button above to record your first visit.</p>
               </div>
             )}
             <div className="space-y-3" data-testid="section-visits">
@@ -1061,6 +1255,11 @@ export default function ChwDashboardPage() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <p className="text-sm font-semibold">{visit.clientName}</p>
+                        {visit.caseRef && (
+                          <Badge variant="outline" className="text-[10px] border-teal-400 text-teal-700 dark:text-teal-400" data-testid={`badge-case-ref-${visit.id}`}>
+                            Linked case
+                          </Badge>
+                        )}
                         <Badge variant="secondary" className="text-[10px]">{visit.visitType}</Badge>
                         <span className="text-xs text-muted-foreground">{visit.duration} min</span>
                       </div>

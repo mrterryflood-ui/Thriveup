@@ -186,7 +186,167 @@ async function runCases(): Promise<void> {
   }
 }
 
-runCases().then(() => {
+// ─────────────────────────────────────────────────────────────────────────────
+// Layer 2: city+state static-table fast path + parseCityState parse-only tests
+// ─────────────────────────────────────────────────────────────────────────────
+
+interface CityCase {
+  input: string;
+  expectedZip: string | undefined;   // undefined = not in static table (network path)
+  expectedState: string;
+  note: string;
+}
+
+const CITY_CASES: CityCase[] = [
+  // Cities IN the static table (no network call — returns immediately)
+  { input: "Austin, TX",      expectedZip: "78701", expectedState: "TX", note: "Austin TX — in static table" },
+  { input: "Chicago, IL",     expectedZip: "60601", expectedState: "IL", note: "Chicago IL — in static table" },
+  { input: "New York, NY",    expectedZip: "10001", expectedState: "NY", note: "New York NY — in static table" },
+  { input: "Houston, TX",     expectedZip: "77002", expectedState: "TX", note: "Houston TX — in static table" },
+  { input: "Phoenix, AZ",     expectedZip: "85004", expectedState: "AZ", note: "Phoenix AZ — in static table" },
+  { input: "Seattle, WA",     expectedZip: "98104", expectedState: "WA", note: "Seattle WA — in static table" },
+  { input: "Denver, CO",      expectedZip: "80202", expectedState: "CO", note: "Denver CO — in static table" },
+  { input: "Atlanta, GA",     expectedZip: "30303", expectedState: "GA", note: "Atlanta GA — in static table" },
+  // State name spelled out (tests STATE_NAME_TO_USPS path in parseCityState)
+  { input: "Austin, Texas",   expectedZip: "78701", expectedState: "TX", note: "Austin Texas — full state name resolves to TX" },
+  { input: "Chicago, Illinois", expectedZip: "60601", expectedState: "IL", note: "Chicago Illinois — full state name resolves to IL" },
+];
+
+// Cities NOT in the static table: test that parseCityState correctly extracts
+// stateAbbrev from the state-abbreviation portion of the input string, even
+// when the geocoder is unavailable. We stub globalThis.fetch to a fake
+// Census response containing a ZIP, so no real network call is made.
+interface CityNotInTableCase {
+  input: string;
+  fakeZip: string;   // ZIP the stubbed geocoder "returns"
+  expectedState: string;
+  note: string;
+}
+
+const CITY_NOT_IN_TABLE_CASES: CityNotInTableCase[] = [
+  // Small/obscure cities whose names are not in CITY_STATE_TO_ZIP
+  { input: "Pflugerville, TX", fakeZip: "78660", expectedState: "TX", note: "Pflugerville TX — not in table, stateAbbrev parsed from 'TX'" },
+  { input: "Evanston, IL",     fakeZip: "60201", expectedState: "IL", note: "Evanston IL — not in table, stateAbbrev parsed from 'IL'" },
+  { input: "Naperville, IL",   fakeZip: "60540", expectedState: "IL", note: "Naperville IL — not in table, stateAbbrev parsed from 'IL'" },
+];
+
+/** Build a fake Census geocoder response that looks like a successful city match. */
+function fakeCensusResponse(zip: string, state: string): Response {
+  const body = JSON.stringify({
+    result: {
+      addressMatches: [
+        {
+          matchedAddress: `SOMEWHERE, ${state} ${zip}`,
+          coordinates: { x: -97.0, y: 30.0 },
+        },
+      ],
+    },
+  });
+  return new Response(body, { status: 200, headers: { "Content-Type": "application/json" } });
+}
+
+async function runLayer2Cases(): Promise<void> {
+  // ── 2a. Static-table cities (no network needed) ──────────────────────────
+  console.log("\n=== resolveLocationToZip Layer 2a (city+state static table) ===\n");
+  for (const tc of CITY_CASES) {
+    const resolved = await resolveLocationToZip(tc.input);
+    if (!resolved) {
+      failed++;
+      const msg = `  ✗  "${tc.input}"  → resolveLocationToZip returned null  [${tc.note}]`;
+      console.log(msg);
+      failures.push(msg);
+      continue;
+    }
+
+    // Verify ZIP (only for in-table cases)
+    if (tc.expectedZip !== undefined) {
+      const zipOk = resolved.zip === tc.expectedZip;
+      if (zipOk) {
+        passed++;
+        console.log(`  ✓  "${tc.input}"  → zip=${resolved.zip}  [${tc.note}]`);
+      } else {
+        failed++;
+        const msg = `  ✗  "${tc.input}"  → zip=${resolved.zip}  expected ${tc.expectedZip}  [${tc.note}]`;
+        console.log(msg);
+        failures.push(msg);
+      }
+    }
+
+    // Verify stateAbbrev
+    const stateOk = resolved.stateAbbrev === tc.expectedState;
+    if (stateOk) {
+      passed++;
+      console.log(`  ✓  "${tc.input}"  → stateAbbrev=${resolved.stateAbbrev}  [${tc.note}]`);
+    } else {
+      failed++;
+      const msg = `  ✗  "${tc.input}"  → stateAbbrev=${resolved.stateAbbrev ?? "(none)"}  expected ${tc.expectedState}  [${tc.note}]`;
+      console.log(msg);
+      failures.push(msg);
+    }
+  }
+
+  // ── 2b. Cities NOT in static table — stub fetch to avoid real geocoder calls ──
+  console.log("\n=== resolveLocationToZip Layer 2b (parse-only: city not in static table) ===\n");
+  console.log("  (fetch is stubbed — no real network calls)\n");
+
+  const realFetch = globalThis.fetch;
+
+  for (const tc of CITY_NOT_IN_TABLE_CASES) {
+    // Install a stub that returns a fake Census geocoder response containing
+    // the fakeZip. This exercises the Layer 2b Census path without touching
+    // a real geocoder while still confirming stateAbbrev came from parseCityState.
+    let fetchCallCount = 0;
+    (globalThis as any).fetch = (_url: string, _opts?: RequestInit): Promise<Response> => {
+      fetchCallCount++;
+      return Promise.resolve(fakeCensusResponse(tc.fakeZip, tc.expectedState));
+    };
+
+    let resolved: Awaited<ReturnType<typeof resolveLocationToZip>>;
+    try {
+      resolved = await resolveLocationToZip(tc.input);
+    } finally {
+      (globalThis as any).fetch = realFetch;
+    }
+
+    if (!resolved) {
+      failed++;
+      const msg = `  ✗  "${tc.input}"  → resolveLocationToZip returned null (stubbed geocoder)  [${tc.note}]`;
+      console.log(msg);
+      failures.push(msg);
+      continue;
+    }
+
+    // The stateAbbrev must come from parseCityState (i.e. parsed from the input)
+    const stateOk = resolved.stateAbbrev === tc.expectedState;
+    if (stateOk) {
+      passed++;
+      console.log(`  ✓  "${tc.input}"  → stateAbbrev=${resolved.stateAbbrev}  (fetchCalls=${fetchCallCount})  [${tc.note}]`);
+    } else {
+      failed++;
+      const msg = `  ✗  "${tc.input}"  → stateAbbrev=${resolved.stateAbbrev ?? "(none)"}  expected ${tc.expectedState}  [${tc.note}]`;
+      console.log(msg);
+      failures.push(msg);
+    }
+
+    // Confirm stateAbbrev on result matches the raw abbreviation in the input string
+    const inputAbbrevMatch = tc.input.match(/,\s*([A-Z]{2})$/);
+    if (inputAbbrevMatch) {
+      const inputAbbrev = inputAbbrevMatch[1];
+      const abbrevMatchesInput = resolved.stateAbbrev === inputAbbrev;
+      if (abbrevMatchesInput) {
+        passed++;
+        console.log(`  ✓  "${tc.input}"  → stateAbbrev matches input abbreviation '${inputAbbrev}'  [${tc.note}]`);
+      } else {
+        failed++;
+        const msg = `  ✗  "${tc.input}"  → stateAbbrev=${resolved.stateAbbrev ?? "(none)"}  expected input abbreviation '${inputAbbrev}'  [${tc.note}]`;
+        console.log(msg);
+        failures.push(msg);
+      }
+    }
+  }
+}
+
+runCases().then(() => runLayer2Cases()).then(() => {
   console.log(`\n─────────────────────────────────────────────`);
   console.log(`Results: ${passed} passed, ${failed} failed`);
   if (failures.length > 0) {

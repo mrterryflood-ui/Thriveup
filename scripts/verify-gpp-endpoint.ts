@@ -58,8 +58,13 @@ async function probeEndpoint(path: string, type: string): Promise<ProbeResult> {
     const rawBody     = await r.text();
     const bodySnip    = rawBody.slice(0, 400);
 
-    // Clerk auth wall: 401 + Clerk response headers = API key is not a valid JWT
-    const authMismatch = r.status === 401 && clerkStatus !== null;
+    // Clerk auth wall: GPP's /api/inbound/* routes sit behind Clerk session/JWT
+    // middleware. Clerk sometimes attaches x-clerk-auth-status/-message headers,
+    // but not on every response shape (verified via manual curl against the
+    // live endpoint), so treat ANY 401 here as the known auth-wall condition —
+    // a plain API key can never satisfy Clerk's session middleware regardless
+    // of whether it echoes its diagnostic headers on a given request.
+    const authMismatch = r.status === 401;
 
     return {
       path,
