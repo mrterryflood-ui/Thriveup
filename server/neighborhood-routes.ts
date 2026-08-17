@@ -725,6 +725,36 @@ export async function resolveCountyInput(input: string): Promise<{
   };
 }
 
+// Shared ACS5 variable sets for county-grain (and county-subdivision-grain)
+// pulls. Kept as module-level consts so fetchCountyData and
+// fetchCountySubdivisions request/parse identically-shaped rows.
+const COUNTY_GRAIN_VARS_1 = [
+  "NAME", "B01003_001E", "B19013_001E",
+  "B17001_002E", "B17001_001E",
+  "B23025_005E", "B23025_003E",
+  "B15003_001E", "B15003_017E", "B15003_018E", "B15003_021E", "B15003_022E", "B15003_023E", "B15003_024E", "B15003_025E",
+  "B27001_001E", "B27001_005E", "B27001_008E", "B27001_011E", "B27001_033E", "B27001_036E", "B27001_039E",
+  "B11001_001E", "B11001_006E",
+  "B01001_020E", "B01001_021E", "B01001_022E", "B01001_023E", "B01001_024E", "B01001_025E",
+  "B01001_044E", "B01001_045E", "B01001_046E", "B01001_047E", "B01001_048E", "B01001_049E",
+  "B01001_003E", "B01001_004E", "B01001_005E", "B01001_006E",
+  "B01001_027E", "B01001_028E", "B01001_029E", "B01001_030E",
+];
+
+const COUNTY_GRAIN_VARS_2 = [
+  "NAME",
+  "B18101_001E", "B18101_004E", "B18101_007E", "B18101_010E", "B18101_013E", "B18101_016E", "B18101_019E",
+  "B18101_023E", "B18101_026E", "B18101_029E", "B18101_032E", "B18101_035E", "B18101_038E",
+  "B16004_001E", "B16004_025E", "B16004_047E",
+  "B03002_001E", "B03002_003E",
+  "B25024_001E", "B25024_007E", "B25024_008E", "B25024_009E", "B25024_010E",
+  "B25014_001E", "B25014_005E", "B25014_006E", "B25014_007E", "B25014_011E", "B25014_012E", "B25014_013E",
+  "B08141_001E", "B08141_002E",
+  "B26001_001E",
+  "B28002_001E", "B28002_013E",
+  "B22001_001E", "B22001_002E",
+];
+
 /**
  * Fetch Census ACS5 data at the county level.
  * Uses identical variable sets as fetchZctaData so processIndicators can consume it unchanged.
@@ -733,32 +763,8 @@ export async function fetchCountyData(stateFips: string, countyFips: string): Pr
   const censusKey = process.env.CENSUS_API_KEY || "";
   const keyParam = censusKey ? `&key=${censusKey}` : "";
 
-  const vars1 = [
-    "NAME", "B01003_001E", "B19013_001E",
-    "B17001_002E", "B17001_001E",
-    "B23025_005E", "B23025_003E",
-    "B15003_001E", "B15003_017E", "B15003_018E", "B15003_021E", "B15003_022E", "B15003_023E", "B15003_024E", "B15003_025E",
-    "B27001_001E", "B27001_005E", "B27001_008E", "B27001_011E", "B27001_033E", "B27001_036E", "B27001_039E",
-    "B11001_001E", "B11001_006E",
-    "B01001_020E", "B01001_021E", "B01001_022E", "B01001_023E", "B01001_024E", "B01001_025E",
-    "B01001_044E", "B01001_045E", "B01001_046E", "B01001_047E", "B01001_048E", "B01001_049E",
-    "B01001_003E", "B01001_004E", "B01001_005E", "B01001_006E",
-    "B01001_027E", "B01001_028E", "B01001_029E", "B01001_030E",
-  ].join(",");
-
-  const vars2 = [
-    "NAME",
-    "B18101_001E", "B18101_004E", "B18101_007E", "B18101_010E", "B18101_013E", "B18101_016E", "B18101_019E",
-    "B18101_023E", "B18101_026E", "B18101_029E", "B18101_032E", "B18101_035E", "B18101_038E",
-    "B16004_001E", "B16004_025E", "B16004_047E",
-    "B03002_001E", "B03002_003E",
-    "B25024_001E", "B25024_007E", "B25024_008E", "B25024_009E", "B25024_010E",
-    "B25014_001E", "B25014_005E", "B25014_006E", "B25014_007E", "B25014_011E", "B25014_012E", "B25014_013E",
-    "B08141_001E", "B08141_002E",
-    "B26001_001E",
-    "B28002_001E", "B28002_013E",
-    "B22001_001E", "B22001_002E",
-  ].join(",");
+  const vars1 = COUNTY_GRAIN_VARS_1.join(",");
+  const vars2 = COUNTY_GRAIN_VARS_2.join(",");
 
   const geoSuffix = `county:${countyFips}&in=state:${stateFips}`;
   const url1 = `${CENSUS_ACS_URL}?get=${vars1}&for=${geoSuffix}${keyParam}`;
@@ -796,6 +802,96 @@ export async function fetchCountyData(stateFips: string, countyFips: string): Pr
 
   const stateAbbrev = FIPS_TO_STATE[stateFips] || "";
   return processIndicators(v, v2, rawName, `${countyLabel}, ${stateAbbrev}`);
+}
+
+export interface CountySubdivisionRecord {
+  fips: string;
+  name: string;
+  displayName: string;
+  data: any; // same processIndicators shape as fetchCountyData / fetchZctaData
+}
+
+/**
+ * Macro-to-micro geography: given a county, fetch Census ACS5 data for every
+ * county subdivision (Census's native "one level below county" unit —
+ * townships/CCDs, commonly named after the city or community they cover)
+ * inside it, in a single batched Census API call per variable set.
+ *
+ * This is additive — it never replaces or reshapes the county-level result
+ * from fetchCountyData. Callers that only pulled county data keep getting
+ * exactly that; callers (including downstream/partner systems) that also
+ * want city/community-level rows can read this array for the same county.
+ *
+ * A subdivision with suppressed/incomplete ACS estimates (common for very
+ * small subdivisions) is skipped rather than failing the whole batch — this
+ * mirrors the fail-loud-per-unit, not fail-loud-for-everything, doctrine.
+ */
+export async function fetchCountySubdivisions(stateFips: string, countyFips: string): Promise<CountySubdivisionRecord[]> {
+  const censusKey = process.env.CENSUS_API_KEY || "";
+  const keyParam = censusKey ? `&key=${censusKey}` : "";
+
+  const vars1 = COUNTY_GRAIN_VARS_1.join(",");
+  const vars2 = COUNTY_GRAIN_VARS_2.join(",");
+
+  const geoSuffix = `county%20subdivision:*&in=state:${stateFips}+county:${countyFips}`;
+  const url1 = `${CENSUS_ACS_URL}?get=${vars1}&for=${geoSuffix}${keyParam}`;
+  const url2 = `${CENSUS_ACS_URL}?get=${vars2}&for=${geoSuffix}${keyParam}`;
+
+  const [data1, data2] = await Promise.all([
+    fetchJson(url1, 20000).catch(() => null),
+    fetchJson(url2, 20000).catch(() => null),
+  ]);
+
+  if (!data1 || !data2 || !Array.isArray(data1) || !Array.isArray(data2) || data1.length < 2 || data2.length < 2) return [];
+
+  const h1 = data1[0] as string[];
+  const h2 = data2[0] as string[];
+  const subdivCol1 = h1.indexOf("county subdivision");
+  const subdivCol2 = h2.indexOf("county subdivision");
+  if (subdivCol1 < 0 || subdivCol2 < 0) return [];
+
+  const rows2ByFips = new Map<string, string[]>();
+  for (const row of data2.slice(1) as string[][]) {
+    rows2ByFips.set(row[subdivCol2], row);
+  }
+
+  const parseRequired = (header: string[], row: string[], name: string): number | null => {
+    const idx = header.indexOf(name);
+    const raw = idx >= 0 ? row[idx] : undefined;
+    if (idx < 0 || typeof raw !== "string" || !/^-?\d+$/.test(raw)) return null;
+    const value = Number(raw);
+    return Number.isFinite(value) && value >= 0 ? value : null;
+  };
+  const required1 = vars1.split(",").filter((name) => name !== "NAME");
+  const required2 = vars2.split(",").filter((name) => name !== "NAME");
+  const stateAbbrev = FIPS_TO_STATE[stateFips] || "";
+
+  const results: CountySubdivisionRecord[] = [];
+  for (const r1 of data1.slice(1) as string[][]) {
+    const subFips = r1[subdivCol1];
+    const r2 = rows2ByFips.get(subFips);
+    if (!r2) continue;
+    if (required1.some((name) => parseRequired(h1, r1, name) == null)) continue;
+    if (required2.some((name) => parseRequired(h2, r2, name) == null)) continue;
+
+    const v  = (name: string) => parseRequired(h1, r1, name)!;
+    const v2 = (name: string) => parseRequired(h2, r2, name)!;
+    const rawName = r1[h1.indexOf("NAME")] || `Subdivision ${subFips}`;
+    const label = rawName.split(",")[0] || rawName;
+
+    try {
+      const data = processIndicators(v, v2, rawName, `${label}, ${stateAbbrev}`);
+      results.push({ fips: subFips, name: label, displayName: rawName, data });
+    } catch {
+      // A malformed subdivision row should not sink the whole batch.
+      continue;
+    }
+  }
+
+  // Largest-population first, so consumers who only want the top N cities in
+  // the county don't have to sort a raw Census response themselves.
+  results.sort((a, b) => (b.data?.population ?? 0) - (a.data?.population ?? 0));
+  return results;
 }
 
 /**

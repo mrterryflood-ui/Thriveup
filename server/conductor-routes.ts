@@ -16,6 +16,8 @@ import {
   resolveCountyInput,
   fetchCountyData,
   fetchMultiCountyData,
+  fetchCountySubdivisions,
+  type CountySubdivisionRecord,
   FIPS_TO_STATE as CONDUCTOR_FIPS_TO_STATE,
 } from "./neighborhood-routes";
 import {
@@ -235,6 +237,18 @@ interface ConductorBrief {
     state: string;
     countyName: string;
   };
+  // Macro-to-micro: populated only when the resolved geography is a county
+  // or multi-county — one entry per Census county subdivision (city/
+  // community) inside the requested county/counties, same data shape as the
+  // county-level `demographics`/indicators. Empty array for ZCTA (ZIP/city)
+  // requests, where there is no "smaller" Census unit to enumerate. Additive
+  // only: never changes what a caller who ignores this field receives.
+  microGeographies: Array<{
+    fips: string;
+    name: string;
+    displayName: string;
+    data: any;
+  }>;
   demographics: Record<string, number | string | null>;
   systemsScores: Record<string, DomainScore>;
   overallScore: number | null;
@@ -1288,6 +1302,12 @@ export function registerConductorRoutes(app: Express) {
       let zip         = "";
       let isCountyLevel = false;
       let evidenceGeography: CommunityEvidenceContract["geography"];
+      // Macro-to-micro: when the resolved geography is a county (or several),
+      // this holds Census data for every subdivision/city/community inside
+      // it. Purely additive — never substituted for the county-level rows
+      // above, and never required by any consumer that only wants county
+      // data. Populated below once the county/multi-county branch resolves.
+      let microGeographies: CountySubdivisionRecord[] = [];
 
       const rawInput = location.trim();
 
@@ -1312,6 +1332,17 @@ export function registerConductorRoutes(app: Express) {
           });
         }
         isCountyLevel = true;
+        // Macro-to-micro: pull every subdivision/city inside each requested
+        // county too. Best-effort — a subdivision fetch failure must never
+        // block or reshape the county-level brief itself.
+        try {
+          const perCounty = await Promise.all(
+            counties.map((c) => fetchCountySubdivisions(c.stateFips, c.countyFips).catch(() => [])),
+          );
+          microGeographies = perCounty.flat();
+        } catch (err) {
+          console.error("[Conductor] Multi-county subdivision fetch failed (non-fatal):", err);
+        }
         displayName = counties.map(c => c.displayName.split(",")[0]).join(" / ") + ", " + counties[0].stateAbbrev;
         countyName  = displayName;
         stateName   = counties[0].stateAbbrev;
@@ -1345,6 +1376,13 @@ export function registerConductorRoutes(app: Express) {
           countyName  = countyResolved.displayName;
           stateName   = countyResolved.stateAbbrev;
           stateFips   = countyResolved.stateFips;
+          // Macro-to-micro: pull every subdivision/city inside this county
+          // too. Best-effort — never blocks or reshapes the county brief.
+          try {
+            microGeographies = await fetchCountySubdivisions(countyResolved.stateFips, countyResolved.countyFips);
+          } catch (err) {
+            console.error("[Conductor] County subdivision fetch failed (non-fatal):", err);
+          }
           evidenceGeography = {
             requested: { input: rawInput, type: "county" },
             resolved: {
@@ -1690,6 +1728,7 @@ export function registerConductorRoutes(app: Express) {
         },
         evidence,
         generatedAt: retrievedAt,
+        microGeographies,
       };
 
       // Cache the aggregate, RPLICE-free brief (no PII, no internal data) so
