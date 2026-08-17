@@ -36,9 +36,9 @@
  * In test mode it rejects any "to" address that is not the account owner's
  * registered email (mr.terryflood@gmail.com).
  *
- * The real probe calls sendEcosystemUpdate() which hardcodes
- * to: "president@thecollaborativeadvocate.org" (ADMIN_EMAIL).
- * Resend rejects that with:
+ * The real probe calls sendEcosystemUpdate() which sends to ADMIN_EMAIL
+ * (see server/email-service.ts — currently Terryflood@thrivingcommunitiesforall.com).
+ * Resend rejects any non-owner recipient with:
  *   403 validation_error — "You can only send testing emails to your own
  *   email address (mr.terryflood@gmail.com)."
  *
@@ -46,10 +46,11 @@
  * the probe fires will be silently swallowed (sendDownAlert catches the error
  * and logs it, but no email reaches any inbox).
  *
- * Remediation: verify thrivingcommunitiesforall.com (or another owned domain)
- * at https://resend.com/domains and update from_email in the Resend connector
- * settings.  Once done, this script will pass using the real ADMIN_EMAIL
- * (set PROBE_ALERT_TEST_RECIPIENT=president@thecollaborativeadvocate.org).
+ * Remediation: verify thrivingcommunitiesforall.com at https://resend.com/domains
+ * and update from_email in the Resend connector settings to an address on that
+ * domain (e.g. alerts@thrivingcommunitiesforall.com). Once done, this script
+ * will pass using the real ADMIN_EMAIL
+ * (set PROBE_ALERT_TEST_RECIPIENT=Terryflood@thrivingcommunitiesforall.com).
  *
  * Until then, this script uses the account owner's address (the only address
  * Resend's test mode accepts) to prove the Resend wire itself is live.
@@ -58,7 +59,7 @@
  *   npx tsx scripts/verify-probe-alert-email-delivery.ts
  *
  *   After domain verification, override recipient:
- *   PROBE_ALERT_TEST_RECIPIENT=president@thecollaborativeadvocate.org \
+ *   PROBE_ALERT_TEST_RECIPIENT=Terryflood@thrivingcommunitiesforall.com \
  *     npx tsx scripts/verify-probe-alert-email-delivery.ts
  */
 
@@ -126,7 +127,7 @@ async function getResendClient(): Promise<{ client: Resend; fromEmail: string } 
  * address is accepted.  mr.terryflood@gmail.com is that address.
  *
  * Override with PROBE_ALERT_TEST_RECIPIENT once a custom domain is verified —
- * then you can prove that president@thecollaborativeadvocate.org (the real
+ * then you can prove that Terryflood@thrivingcommunitiesforall.com (the real
  * ADMIN_EMAIL the probe sends to) is also accepted.
  */
 const TEST_RECIPIENT =
@@ -178,11 +179,11 @@ function buildTestAlertHtml(ts: string, recipient: string): string {
         <div style="background:#fff3cd;border-left:4px solid #ffc107;padding:12px;border-radius:4px;margin-top:12px">
           <strong>⚠ Outstanding production gap:</strong>
           <p style="margin:8px 0 0;font-size:13px">
-            The real probe alert sends to <code>president@thecollaborativeadvocate.org</code>.
+            The real probe alert sends to <code>Terryflood@thrivingcommunitiesforall.com</code>.
             Resend test mode (no verified domain) rejects that address with a 403.
             Verify a custom domain at <a href="https://resend.com/domains">resend.com/domains</a>,
             then re-run this script with:<br/>
-            <code>PROBE_ALERT_TEST_RECIPIENT=president@thecollaborativeadvocate.org npx tsx scripts/verify-probe-alert-email-delivery.ts</code>
+            <code>PROBE_ALERT_TEST_RECIPIENT=Terryflood@thrivingcommunitiesforall.com npx tsx scripts/verify-probe-alert-email-delivery.ts</code>
           </p>
         </div>
         <p style="font-size:12px;color:#888;margin-top:16px">
@@ -228,7 +229,7 @@ async function main(): Promise<void> {
     console.error("\n  Interpretation:");
     if ((result.error as any).statusCode === 403) {
       console.error("    403 validation_error — Resend test mode: recipient must be the account owner's address.");
-      console.error(`    The probe's real ADMIN_EMAIL (president@thecollaborativeadvocate.org) will be rejected`);
+      console.error(`    The probe's real ADMIN_EMAIL (Terryflood@thrivingcommunitiesforall.com) will be rejected`);
       console.error("    until a custom domain is verified at resend.com/domains.");
       console.error(`    Re-run with: PROBE_ALERT_TEST_RECIPIENT=${TEST_RECIPIENT}`);
     } else {
