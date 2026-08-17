@@ -63,11 +63,22 @@ interface NavItem {
 // the grouping changes. Items marked authOnly:true are hidden when signed out.
 // =========================================================================
 
+// QUICK TASKS — plain-language "what did you come here to do?" links.
+// Rendered at the very top of the sidebar, always expanded, so the five
+// biggest public tools are one click away from anywhere.
+const quickTaskItems: NavItem[] = [
+  { title: "Apply for benefits", url: "/benefits-screener", icon: ClipboardList },
+  { title: "Find help near me", url: "/get-help", icon: HandHeart },
+  { title: "Talk to someone (AI Navigator)", url: "/navigator", icon: MessageCircle },
+  { title: "Health & wellness", url: "/health-wellness", icon: Activity },
+  { title: "Learn new skills", url: "/curriculum", icon: GraduationCap },
+];
+
 // HUB 1 — Get Funded: everything grant-pursuit related.
 const getFundedItems: NavItem[] = [
   { title: "This Week (Monday Brief)", url: "/this-week", icon: Calendar },
-  { title: "Live Grant Opportunities", url: "/grants", icon: Target },
-  { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy, authOnly: true },
+  { title: "Live Grant Opportunities", url: "/grants", icon: Target, authOnly: true, adminOnly: true },
+  { title: "My Grants & Win Rate", url: "/my-grants", icon: Trophy, authOnly: true, adminOnly: true },
   { title: "Application Tracker", url: "/grants/applications", icon: ClipboardCheck, authOnly: true, adminOnly: true },
   { title: "Community Story Pack", url: "/community-story-pack", icon: Globe },
   { title: "Embed Portal on Your Website", url: "/widget-install", icon: Smartphone },
@@ -76,12 +87,12 @@ const getFundedItems: NavItem[] = [
   { title: "For Nonprofits", url: "/for-nonprofits", icon: Handshake },
   { title: "For Other Agencies (Platform Funding)", url: "/for-agencies", icon: Building2 },
   { title: "Grant Intelligence Package", url: "/grant-conduit", icon: Sparkles },
-  { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true },
-  { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true },
-  { title: "LOI Writer", url: "/loi-writer", icon: PenLine, authOnly: true },
-  { title: "Grant Packages", url: "/grant-packages", icon: Package, authOnly: true },
-  { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy, authOnly: true },
-  { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users, authOnly: true },
+  { title: "RFP Fidelity Engine", url: "/rfp-fidelity", icon: ShieldCheck, authOnly: true, adminOnly: true },
+  { title: "RFP / Narrative Writer", url: "/grant-narrative", icon: FileText, authOnly: true, adminOnly: true },
+  { title: "LOI Writer", url: "/loi-writer", icon: PenLine, authOnly: true, adminOnly: true },
+  { title: "Grant Packages", url: "/grant-packages", icon: Package, authOnly: true, adminOnly: true },
+  { title: "Winning Proposals Library", url: "/won-proposals", icon: Trophy, authOnly: true, adminOnly: true },
+  { title: "Teaming Network & Capabilities", url: "/teaming-network", icon: Users, authOnly: true, adminOnly: true },
   { title: "Prior Award Research", url: "/grant-prior-awards", icon: Search, authOnly: true, adminOnly: true },
   { title: "Logic Model", url: "/logic-model", icon: Route, authOnly: true },
   { title: "Staffing Plan", url: "/staffing-plan", icon: Briefcase, authOnly: true },
@@ -89,9 +100,9 @@ const getFundedItems: NavItem[] = [
   { title: "E-Sign Center", url: "/esign", icon: PenTool, authOnly: true },
   { title: "TX Contractor Opportunities", url: "/contractor-opportunities", icon: Briefcase },
   { title: "Grants 101 — How It Works", url: "/grants-101", icon: GraduationCap },
-  { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark },
-  { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart, authOnly: true },
-  { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope, authOnly: true },
+  { title: "APEX Accelerators", url: "/apex-accelerators", icon: Landmark, authOnly: true, adminOnly: true },
+  { title: "Sedgwick Vitality (RFP 26-0028)", url: "/grants/sedgwick-vitality", icon: FileBarChart, authOnly: true, adminOnly: true },
+  { title: "Healthcare Grants Catalog", url: "/healthcare-grants", icon: Stethoscope, authOnly: true, adminOnly: true },
   { title: "CEDS Regional Alignment", url: "/ceds", icon: Map },
 ];
 
@@ -131,7 +142,7 @@ const fosterYouthItems: NavItem[] = [
   { title: "Policy Comparison (50 states)", url: "/foster-youth/policy-comparison", icon: Scale },
   { title: "Youth Voice (YHSI)", url: "/youth-voice", icon: Megaphone },
   { title: "Know Your Rights", url: "/youth-rights", icon: ClipboardList },
-  { title: "YHSI Operations", url: "/yhsi-ops", icon: ClipboardList, authOnly: true },
+  { title: "YHSI Operations", url: "/yhsi-ops", icon: ClipboardList, authOnly: true, adminOnly: true },
   { title: "YHSI System Improvement", url: "/yhsi-system", icon: ClipboardList, authOnly: true },
 ];
 
@@ -188,7 +199,7 @@ const workforceTradesItems: NavItem[] = [
   { title: "Life Lessons", url: "/academy/lessons", icon: Lightbulb },
   { title: "MOS Translator", url: "/mos-translator", icon: Shield },
   { title: "Workforce Pell Grant", url: "/workforce-pell", icon: DollarSign },
-  { title: "WIOA Outcomes", url: "/wioa-outcomes", icon: BarChart3, authOnly: true },
+  { title: "WIOA Outcomes", url: "/wioa-outcomes", icon: BarChart3, authOnly: true, adminOnly: true },
   { title: "Workforce Dashboard", url: "/workforce-dashboard", icon: BarChart3, authOnly: true, adminOnly: true },
   { title: "Workforce Assessment", url: "/workforce-assessment", icon: ClipboardCheck },
   { title: "Workforce Training", url: "/workforce-training", icon: GraduationCap },
@@ -350,7 +361,7 @@ const ctxHubItems: NavItem[] = [
   { title: "N. Wilco Childcare Coalition", url: "/north-wilco-childcare-coalition", icon: Baby },
   { title: "Our Approach", url: "/our-approach", icon: Layers },
   { title: "N. Wilco Childcare Voice", url: "/voice/north-wilco-childcare-gaps", icon: MessageCircle },
-  { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles },
+  { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles, authOnly: true, adminOnly: true },
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
   { title: "Manor Hub", url: "/manor", icon: MapPin },
   { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
@@ -575,7 +586,7 @@ export function AppSidebar() {
   // - My Organization only when signed in
   // - All Admin sub-sections only when admin (incl. teaching when teacher)
   const allItems = useMemo(() => {
-    const items: NavItem[] = [...hubCtx, ...hub1, ...hub2, ...hubFoster, ...hubJustice, ...hubPrevHealth, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7, ...hubChildCare, ...hubRural];
+    const items: NavItem[] = [...quickTaskItems, ...hubCtx, ...hub1, ...hub2, ...hubFoster, ...hubJustice, ...hubPrevHealth, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7, ...hubChildCare, ...hubRural];
     if (isAuthenticated) items.push(...myOrgItems);
     if (isAdmin) {
       items.push(
@@ -689,6 +700,30 @@ export function AppSidebar() {
                 </Link>
               </div>
             </div>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        {/* QUICK TASKS — always visible, task-first entry points. */}
+        <SidebarGroup>
+          <SidebarGroupLabel>I want to…</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {quickTaskItems.map((item) => (
+                <SidebarMenuItem key={item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    data-active={isItemActive(location, item.url)}
+                    className={isItemActive(location, item.url) ? "bg-sidebar-accent" : ""}
+                    data-testid={`link-quicktask-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                  >
+                    <Link href={item.url} aria-label={item.title}>
+                      <item.icon className="h-4 w-4" aria-hidden="true" />
+                      <span>{item.title}</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
 

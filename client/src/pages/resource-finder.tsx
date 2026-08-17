@@ -19,6 +19,7 @@ import {
   Star, Filter, X, RefreshCw, MessageCircle, Loader2, CheckCircle2,
 } from "lucide-react";
 import { ErrorRetry } from "@/components/error-retry";
+import { RelatedTools } from "@/components/related-tools";
 import { TrainingGuideButton } from "@/components/training-guide";
 import type { SavedResource } from "@shared/schema";
 
@@ -549,6 +550,8 @@ export default function ResourceFinderPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <RelatedTools current="resource-finder" />
     </div>
   );
 }

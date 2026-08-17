@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
+import { RelatedTools } from "@/components/related-tools";
 import {
   APPLY_PROGRAM_META, getApplyStages, type ApplyStage,
 } from "@shared/benefits-apply-guides";
@@ -349,6 +350,8 @@ export default function BenefitsHowToApplyPage() {
         </Card>
 
         <ChatPanel program={program} programName={meta.name} state={state} />
+
+        <RelatedTools current="how-to-apply" />
 
         <div className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/20 p-3 text-xs text-muted-foreground flex items-start gap-2 mb-8" data-testid="apply-disclaimer">
           <Shield className="h-4 w-4 text-blue-600 shrink-0 mt-0.5" />

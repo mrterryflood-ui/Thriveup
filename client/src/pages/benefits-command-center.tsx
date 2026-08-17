@@ -13,6 +13,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { RelatedTools } from "@/components/related-tools";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
@@ -1403,6 +1404,8 @@ export default function BenefitsCommandCenterPage() {
         <TabsContent value="metrics"><MetricsPanel /></TabsContent>
         <TabsContent value="outreach"><OutreachPanel /></TabsContent>
       </Tabs>
+
+      <RelatedTools exclude={["how-to-apply"]} />
     </div>
   );
 }

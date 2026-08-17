@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { DFCCrossNav } from "@/components/dfc-cross-nav";
+import { RelatedTools } from "@/components/related-tools";
 import {
   Home, Briefcase, Apple, Shield, AlertTriangle, Users, Scale,
   HeartPulse, Brain, GraduationCap, Globe, Phone, ExternalLink,
@@ -495,6 +496,8 @@ export default function GetHelpPage() {
           <p>HHSC Community Partner Program · thrivingcommunitiesforall.com</p>
           <p>Dr. Terry Flood, Founder · US Army Veteran (17 years) · president@thecollaborativeadvocate.org · 254-319-8460</p>
         </div>
+
+        <RelatedTools current="get-help" />
 
         <DFCCrossNav currentPage="get-help" />
       </div>
