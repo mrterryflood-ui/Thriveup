@@ -196,6 +196,7 @@ import { registerProposalAuthoringRoutes } from "./proposal-authoring-routes";
 import { registerEditorDraftsRoutes } from "./editor-drafts-routes";
 import { registerCedsRoutes } from "./ceds-routes";
 import { registerPartnerApiRoutes } from "./partner-api-routes";
+import { registerHealthFederationRoutes } from "./health-federation-routes";
 import { cohortRouter } from "./research-cohort-routes";
 import { researchReportRouter } from "./research-report-routes";
 import { grantConduitRouter } from "./grant-conduit-routes";
@@ -533,6 +534,7 @@ export async function registerRoutes(
   registerEditorDraftsRoutes(app);
   registerCedsRoutes(app);
   registerPartnerApiRoutes(app);
+  registerHealthFederationRoutes(app);
   registerEcosystemDataRoutes(app);
   registerStreetsRoutes(app);
   registerKnowledgeGraphRoutes(app);

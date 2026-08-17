@@ -49,6 +49,7 @@
 - [Express route ID shadowing](express-route-id-shadowing.md) — `/api/grants/:id` in grant-routes.ts has a manual reserved-word allowlist; any new literal `/api/grants/<word>` route must be added to it or it gets swallowed.
 - [Benefits How-to-Apply walkthroughs](benefits-apply-walkthroughs.md) — server catalog + shared meta + screener cards must stay in lockstep; parity gate fails one-sided program adds.
 - [Nav findability & two-click gate](nav-findability.md) — task-first nav; sidebar flags must match route gates (staffOnly ≠ adminOnly); auth-aware BFS gate guards two-click reachability.
+- [Health federation partner connectors](health-federation.md) — HerHealth/MaleHealth have public no-auth APIs; honest-offline gateway; Nia=/ai-navigator, Malik=/malik deep links.
 - [GrantPathPro address is env-driven](grantpathpro-env-driven.md) — no hardcoded GrantPathPro domain in code; outbound integration URL lives in `GPP_API_URL` env var, not a source-code string.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────

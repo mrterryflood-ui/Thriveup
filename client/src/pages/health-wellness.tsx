@@ -66,6 +66,160 @@ interface ProductLine {
   color: string;
 }
 
+interface FederatedPartner {
+  id: string;
+  name: string;
+  baseUrl: string;
+  tagline: string;
+  aiCompanion: { name: string; url: string; description: string };
+  tools: Array<{ label: string; url: string; description: string }>;
+}
+
+interface FederatedConditionItem {
+  slug: string;
+  name: string;
+  domain?: string;
+  summary?: string;
+  url: string;
+}
+
+type FederationResult =
+  | {
+      status: "ok";
+      fromCache: boolean;
+      content: {
+        partnerId: string;
+        partnerName: string;
+        sourceUrl: string;
+        attribution: string;
+        fetchedAt: string;
+        stats?: Record<string, string | number>;
+        conditions: FederatedConditionItem[];
+        conditionsTotal: number;
+      };
+    }
+  | { status: "offline"; partnerId: string; partnerName: string; sourceUrl: string; error: string; checkedAt: string };
+
+function FederatedPartnerCard({ partner }: { partner: FederatedPartner }) {
+  const { data: result, isLoading } = useQuery<FederationResult>({
+    queryKey: [`/api/health/federation/${partner.id}`],
+    staleTime: 5 * 60 * 1000,
+  });
+  const [showAll, setShowAll] = useState(false);
+
+  const accent = partner.id === "herhealth" ? "text-rose-500" : "text-sky-500";
+  const Icon = partner.id === "herhealth" ? Heart : Shield;
+
+  return (
+    <Card className="p-5" data-testid={`card-federated-${partner.id}`}>
+      <div className="flex items-start gap-3 mb-2">
+        <div className="rounded-md p-2 bg-muted shrink-0">
+          <Icon className={`h-5 w-5 ${accent}`} />
+        </div>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h3 className="font-semibold text-sm">{partner.name}</h3>
+            <Badge variant="outline" className="text-[10px] uppercase tracking-wide" data-testid={`badge-partner-source-${partner.id}`}>
+              Partner platform
+            </Badge>
+          </div>
+          <p className="text-xs text-muted-foreground mt-1">{partner.tagline}</p>
+        </div>
+      </div>
+
+      <div className="flex flex-wrap gap-2 my-3">
+        <a href={partner.aiCompanion.url} target="_blank" rel="noopener noreferrer">
+          <Button size="sm" data-testid={`button-talk-${partner.aiCompanion.name.toLowerCase()}`}>
+            <Sparkles className="h-3.5 w-3.5 mr-1" /> Talk to {partner.aiCompanion.name}
+          </Button>
+        </a>
+        {partner.tools.map((tool) => (
+          <a key={tool.url} href={tool.url} target="_blank" rel="noopener noreferrer">
+            <Button size="sm" variant="outline" data-testid={`button-tool-${partner.id}-${tool.label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}>
+              {tool.label} <ChevronRight className="h-3 w-3 ml-1" />
+            </Button>
+          </a>
+        ))}
+      </div>
+
+      {isLoading && <Skeleton className="h-24" data-testid={`skeleton-federated-${partner.id}`} />}
+
+      {result?.status === "offline" && (
+        <div className="rounded-md border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-900/20 p-3 flex items-start gap-2" data-testid={`alert-federated-offline-${partner.id}`}>
+          <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
+              {partner.name} is currently unreachable — live content unavailable.
+            </p>
+            <p className="text-xs text-amber-700 dark:text-amber-300 mt-0.5">
+              You can still visit the platform directly using the buttons above. The outage is logged and visible to staff on the federation status check.
+            </p>
+          </div>
+        </div>
+      )}
+
+      {result?.status === "ok" && (
+        <div className="space-y-3">
+          {result.content.stats && Object.keys(result.content.stats).length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {Object.entries(result.content.stats).map(([label, value]) => (
+                <Badge key={label} variant="secondary" className="text-xs">
+                  {typeof value === "number" ? value.toLocaleString() : value} {label.toLowerCase()}
+                </Badge>
+              ))}
+            </div>
+          )}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {(showAll ? result.content.conditions : result.content.conditions.slice(0, 6)).map((c) => (
+              <a
+                key={c.slug}
+                href={c.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-md border p-2.5 hover:bg-primary/5 hover:border-primary/40 transition-colors"
+                data-testid={`link-federated-condition-${partner.id}-${c.slug}`}
+              >
+                <p className="text-xs font-medium">{c.name}</p>
+                {c.domain && <p className="text-[10px] text-muted-foreground">{c.domain}</p>}
+                {c.summary && <p className="text-[10px] text-muted-foreground line-clamp-2 mt-0.5">{c.summary}</p>}
+              </a>
+            ))}
+          </div>
+          {result.content.conditions.length > 6 && (
+            <Button variant="ghost" size="sm" onClick={() => setShowAll(!showAll)} data-testid={`button-toggle-conditions-${partner.id}`}>
+              {showAll ? "Show fewer" : `Show all ${result.content.conditions.length} conditions`}
+            </Button>
+          )}
+          <p className="text-[10px] text-muted-foreground italic" data-testid={`text-attribution-${partner.id}`}>
+            {result.content.attribution} Updated {new Date(result.content.fetchedAt).toLocaleString()}.
+          </p>
+        </div>
+      )}
+    </Card>
+  );
+}
+
+function FederatedPartnersSection() {
+  const { data: partners, isLoading } = useQuery<FederatedPartner[]>({
+    queryKey: ["/api/health/federation/partners"],
+    staleTime: 60 * 60 * 1000,
+  });
+
+  if (isLoading) return <div className="space-y-4">{Array.from({ length: 2 }).map((_, i) => <Skeleton key={i} className="h-48" />)}</div>;
+  if (!partners?.length) return null;
+
+  return (
+    <div className="space-y-4" data-testid="section-federated-partners">
+      <p className="text-sm text-muted-foreground">
+        Live content from our sister health platforms. This content is created and maintained by the partner platform — links open the partner site in a new tab.
+      </p>
+      {partners.map((p) => (
+        <FederatedPartnerCard key={p.id} partner={p} />
+      ))}
+    </div>
+  );
+}
+
 const PRODUCT_LINE_ICONS: Record<string, typeof Heart> = {
   "mental-wellness": Brain,
   "herhealth": Heart,
@@ -553,6 +707,7 @@ export default function HealthWellnessPage() {
           <TabsTrigger value="assessments" data-testid="tab-assessments">Self-Assessments</TabsTrigger>
           <TabsTrigger value="library" data-testid="tab-library">Wellness Library</TabsTrigger>
           <TabsTrigger value="resources" data-testid="tab-resources">Health Resources</TabsTrigger>
+          <TabsTrigger value="partners" data-testid="tab-partners">Partner Platforms</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -733,6 +888,10 @@ export default function HealthWellnessPage() {
               </div>
             </Card>
           </div>
+        </TabsContent>
+
+        <TabsContent value="partners">
+          <FederatedPartnersSection />
         </TabsContent>
       </Tabs>
     </div>
