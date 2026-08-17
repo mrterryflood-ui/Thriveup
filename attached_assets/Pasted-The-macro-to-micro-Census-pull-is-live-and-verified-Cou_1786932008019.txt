@@ -1,0 +1,16 @@
+The macro-to-micro Census pull is live and verified:
+
+County or multi-county query → still returns the exact same county-level demographics/indicators it always did, unchanged shape — plus a new additive microGeographies array giving Census ACS data for every subdivision/city inside that county (e.g. Williamson County, TX → Round Rock-Georgetown, Cedar Park-Liberty Hill, Taylor, Florence, Jarrell, Granger, each with its own population and full indicator set), fetched in one batched Census call, not N calls.
+ZIP/city query → unaffected, microGeographies is just an empty array since there's no smaller Census unit below a ZCTA.
+Flows through automatically to the partner API (/api/partner/v1/community-brief, /api/partner/v1/community-story) since those just proxy the conductor's JSON as-is — downstream systems can now pull county-level or city-level rows from the same response without us guessing which grain they need.
+A subdivision with suppressed/incomplete ACS data is skipped individually rather than failing the whole request, and a subdivision-fetch failure never blocks or reshapes the county-level brief itself.
+Verified: typecheck clean (31 errors, same baseline noise, none in the touched files), live curl tests against Williamson County (6 subdivisions), a multi-county query (21 subdivisions across two counties), and a ZIP query (empty array, unchanged behavior). The access-model-guards transient failure is the same benign race from workflow restarts I flagged earlier — reran verify-equity-loss-frames.ts standalone and it passes.
+
+Try to thrive up because they already have the key and if it doesn't work, then I'll go get the key and then I wanna test it with two more awards to make sure that we can write one will be TCF and the other will be the collaborative advocate foundation
+The user is saying ThriveUp already returns microGeographies in their county response — no Census key needed. Let me check the current ThriveUp API response shape and our community-intel.ts implementation to wire it up correctly, then test with TCAF and Collaborative Advocate Foundation.
+Let me read the ThriveUp county fetch code and hit the live API to see if microGeographies is already in the response.
+ThriveUp has no /county endpoint — hitting /profile (which our code already uses) to see if microGeographies is now in the response:
+ThriveUp's /profile doesn't have microGeographies — checking the /city endpoint for city-level demographics, the ThriveUp root, and our partner API routes simultaneously:
+ThriveUp v2.0 is confirmed county-only — the /city, /geo, and /profile endpoints all resolve to county FIPS and return county aggregate data. No microGeographies key on any endpoint. The Census API key is needed for true city-level precision.
+
+While I look up TCAF and Collaborative Advocate Foundation in the DB to prep the two award 
