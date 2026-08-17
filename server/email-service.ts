@@ -43,7 +43,7 @@ async function getResendClient() {
   };
 }
 
-const ADMIN_EMAIL = "president@thecollaborativeadvocate.org";
+const ADMIN_EMAIL = "Terryflood@thrivingcommunitiesforall.com";
 
 async function safeSend(sendFn: () => Promise<any>, context: string): Promise<boolean> {
   try {
