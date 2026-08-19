@@ -310,12 +310,14 @@ async function main() {
   // === Session protocol (deterministic agent procedure) ===
   const sessionProtocol = {
     on_session_start: [
+      "Read .agents/skills/alpha-omega/SKILL.md — Alpha ground truth before action; Omega proof before claim.",
       "Read replit.md — project overview, stack, gotchas, user preferences.",
       "Read docs/active-commitments.md — running session memory, active grants, partner pipeline.",
       "GET /api/agent/knowledge — load this compiled index for deterministic facts.",
       "If grant work: read docs/grants/QUARTET-ONE-PAGER.md before drafting narratives.",
     ],
     on_session_end: [
+      "Complete .agents/sessions/alpha-omega-YYYY-MM-DD.md with Alpha evidence, Omega proofs, outcome, and residuals.",
       "Update docs/active-commitments.md with what changed (active grants, partner status, lessons).",
       "Run: tsx scripts/compile-agent-knowledge.ts to rebuild this index.",
       "Verify: GET /api/agent/knowledge returns updated compiledAt timestamp.",

@@ -49,6 +49,9 @@ Never guess when uncertain. Never act before loading current context. Never fail
 - **Every subagent dispatched here MUST receive this skill path in `relevantSkills` (or its Tier A content inline in the task) — compliance is per-agent, not just per-session.**
 
 ## Companion doctrine
+- **Alpha Omega (binding bridge):** `.agents/skills/alpha-omega/SKILL.md` —
+  verified intake at Alpha, independent proof and recorded learning at Omega;
+  its structural gate runs from `scripts/preflight.ts`.
 - Fable Standard (WHAT): `.agents/skills/fable-standard/SKILL.md` — 11 Iron Rules, Five-Lens thinking, anti-fabrication.
 - TCAF Identity: `.agents/skills/tcaf-identity/SKILL.md` — canonical stats, naming, framing.
 - Platform Engineering: `.agents/skills/platform-engineering/SKILL.md` — load-bearing gotchas.

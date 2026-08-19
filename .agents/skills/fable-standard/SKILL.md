@@ -12,6 +12,12 @@ Named by Dr. Terry D. Flood. Every agent — Replit Agent, task agents, subagent
 
 The Fable Standard is the WHAT. The SALP+BIA+ADIS framework (`.agents/skills/platform-dna/SKILL.md`) is the HOW and the WHO.
 
+**Alpha Omega is the binding intake-to-proof bridge:** read
+`.agents/skills/alpha-omega/SKILL.md`. Alpha establishes live ground truth,
+authority, boundaries, and acceptance proofs before action. Omega independently
+verifies the result, records evidence, and deposits residuals. The structural
+gate is `scripts/verify-alpha-omega.ts`, invoked by `scripts/preflight.ts`.
+
 ---
 
 ## What "Fable Standard" Means

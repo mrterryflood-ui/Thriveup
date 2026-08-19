@@ -109,7 +109,7 @@ check(
 );
 
 // ── 4. Partner API routes health ─────────────────────────────────────────────
-console.log("\n[4/4] Partner API gateway");
+console.log("\n[4/5] Partner API gateway");
 
 const partnerRouteFile = "server/partner-api-routes.ts";
 if (fs.existsSync(partnerRouteFile)) {
@@ -122,6 +122,15 @@ if (fs.existsSync(partnerRouteFile)) {
   check("Partner API: community:read scope", hasCommunityScope, "Add community data scope");
 } else {
   check("Partner API routes file", false, "server/partner-api-routes.ts not found");
+}
+
+// ── 5. Alpha Omega protocol ───────────────────────────────────────────────────
+console.log("\n[5/5] Alpha Omega protocol");
+try {
+  execSync("npx tsx scripts/verify-alpha-omega.ts", { stdio: "inherit", timeout: 10000 });
+  check("Alpha Omega", true, "Protocol surfaces and current session record are present");
+} catch {
+  check("Alpha Omega", false, "Run npx tsx scripts/verify-alpha-omega.ts for details");
 }
 
 // ── Summary ───────────────────────────────────────────────────────────────────
