@@ -1,5 +1,5 @@
-import type { Express } from "express";
-import { db } from "./storage";
+import type { Express, Request } from "express";
+import { db, storage } from "./storage";
 import { producerProfiles, producerDataConsents, producerDataSubmissions,
   insertProducerProfileSchema, insertProducerDataConsentSchema, insertProducerDataSubmissionSchema } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
@@ -140,9 +140,18 @@ Provide 3-4 specific, actionable insights in plain language covering: (1) profit
     }
   });
 
-  // Admin: list all producers (auth required)
+  // Admin: list all producers — staff role required (DB-resolved, not just any
+  // authenticated account). Keep in lockstep with server/reentry-routes.ts STAFF_ROLES.
+  const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+  function getUserId(req: Request): string | undefined {
+    const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+    return u?.claims?.sub || u?.id;
+  }
   app.get("/api/farm-cooperative/admin/producers", async (req, res) => {
     if (!req.isAuthenticated || !req.isAuthenticated()) return res.status(401).json({ error: "Auth required" });
+    const userId = getUserId(req);
+    const user = userId ? await storage.getUser(userId) : undefined;
+    if (!user || !STAFF_ROLES.has(user.role)) return res.status(403).json({ error: "Staff access required" });
     const profiles = await db.select({
       id: producerProfiles.id, farmName: producerProfiles.farmName,
       farmType: producerProfiles.farmType, countyName: producerProfiles.countyName,

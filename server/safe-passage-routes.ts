@@ -1,5 +1,26 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
+import { storage } from "./storage";
+
+// Canonical staff-role set — keep in lockstep with server/reentry-routes.ts /
+// server/yhsi-routes.ts STAFF_ROLES. Role is resolved server-side via
+// storage.getUser (req.user.role is never set on the session claims).
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+function getUserId(req: Request): string | undefined {
+  const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
+  return u?.claims?.sub || u?.id;
+}
+async function requireStaff(req: Request, res: Response, next: NextFunction) {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user && STAFF_ROLES.has(user.role)) return next();
+  } catch (err) {
+    console.error("[safe-passage] role lookup failed:", err);
+  }
+  return res.status(403).json({ error: "Staff access required" });
+}
 
 interface HousingListing {
   id: string; partnerOrgId: string; partnerOrgName: string;
@@ -172,9 +193,9 @@ export function registerSafePassageRoutes(app: Express) {
     } catch (e: any) { res.status(500).json({ error: e.message }); }
   });
 
-  app.get("/api/safe-passage/admin/partners", isAuthenticated, async (_req, res) => { res.json(partnerOrgs); });
+  app.get("/api/safe-passage/admin/partners", isAuthenticated, requireStaff, async (_req, res) => { res.json(partnerOrgs); });
 
-  app.patch("/api/safe-passage/admin/partners/:id/approve", isAuthenticated, async (req, res) => {
+  app.patch("/api/safe-passage/admin/partners/:id/approve", isAuthenticated, requireStaff, async (req, res) => {
     const idx = partnerOrgs.findIndex(o => o.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: "Not found" });
     partnerOrgs[idx].approved = true;
