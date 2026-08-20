@@ -35,7 +35,7 @@ check("Fable composes Alpha Omega", existsSync(join(root, ".agents/skills/fable-
   /alpha-omega/i.test(text(".agents/skills/fable-standard/SKILL.md")), "add the protocol pointer to Fable");
 check("Capability-independent standard is codified", existsSync(join(root, ".agents/skills/alpha-omega/SKILL.md")) &&
   /capability-independent standard/i.test(text(skillPath)) &&
-  /regardless of session mode/i.test(text("replit.md")), "add the locked execution standard");
+  /regardless\s+of\s+session\s+mode/i.test(text("replit.md")), "add the locked execution standard");
 check("Preflight invokes the structural gate", /verify-alpha-omega\.ts/.test(text("scripts/preflight.ts")),
   "invoke scripts/verify-alpha-omega.ts from preflight");
 check("Current session record exists", existsSync(join(root, sessionPath)), sessionPath);

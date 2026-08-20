@@ -40,3 +40,6 @@
   Rules; implement backend/UI/safety/edge-case scope; run direct proof; restart
   and inspect relevant workflows; fail closed; continue through obstacles; and
   distinguish verified results, residual risks, and user-blocked actions.
+- Omega correction: the first capability-standard verifier run exposed a
+  brittle multiline regex; it was corrected to tolerate markdown line wraps,
+  then the verifier and preflight were rerun successfully.
