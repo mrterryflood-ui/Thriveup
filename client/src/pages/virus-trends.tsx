@@ -17,6 +17,7 @@ type TrendData = {
   rplIceOutbreakFindings: { id: string; receivedAt: string; region: string | null; finding: string | null; evidenceLevel: string | null; citations: string[] }[];
   sources: { name: string; url: string; type: string }[];
   coverage: { virusObservation: string; rpliceOutbreaks: string };
+  rpliceApi: { available: boolean; source: string; note: string };
 };
 
 const fmt = (value: number | null | undefined, digits = 0) => value == null ? "Unavailable" : value.toLocaleString("en-US", { maximumFractionDigits: digits });
@@ -76,6 +77,10 @@ export default function VirusTrendsPage() {
             <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground uppercase">Reporting sites</p><p className="text-2xl font-bold">{fmt(new Set(data.observations.map((row) => row.city ?? row.county ?? row.state)).size)}</p><p className="text-xs text-muted-foreground mt-1">in returned coverage</p></CardContent></Card>
             <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground uppercase">RPLICE findings</p><p className="text-2xl font-bold">{fmt(data.rplIceOutbreakFindings.length)}</p><p className="text-xs text-muted-foreground mt-1">evidence events, not case counts</p></CardContent></Card>
             <Card><CardContent className="pt-5"><p className="text-xs text-muted-foreground uppercase">Geography</p><p className="text-2xl font-bold">{data.filters.state ?? "US"}</p><p className="text-xs text-muted-foreground mt-1">{data.filters.city ?? "all available sites"}</p></CardContent></Card>
+          </div>
+          <div className={`rounded-xl border p-4 text-sm ${data.rpliceApi.available ? "border-emerald-200 bg-emerald-50/60 dark:bg-emerald-950/20" : "border-amber-200 bg-amber-50/60 dark:bg-amber-950/20"}`} data-testid="rplice-api-status">
+            <strong>{data.rpliceApi.available ? "RPLICE surveillance connected" : "RPLICE surveillance unavailable"}</strong>
+            <span className="ml-2 text-muted-foreground">{data.rpliceApi.note}</span>
           </div>
 
           <div className="grid gap-6 lg:grid-cols-[1.4fr_1fr]">
