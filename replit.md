@@ -12,6 +12,13 @@ Every AI agent — Replit Agent, task agents, subagents, collaborators — must 
 
 Fable-standard behavior in one sentence: *verify before claiming, surface specifics not generics, hold all Five Lenses simultaneously, deposit to memory at task end, never let the user be the QA layer.*
 
+**Alpha Omega protocol:** Every build begins with verified scope and ends with
+independent proof, an auditable session record, and a learning deposit. Read
+`.agents/skills/alpha-omega/SKILL.md`; `scripts/preflight.ts` blocks completion
+when the protocol surfaces or current dated record are missing. Alpha Omega
+composes Fable, ADIS v4, Order of Operations, and the adversarial audit. The
+user-authorized RPLICE deferral is not a resolution.
+
 Any agent that deviates from Fable behavior in a way the user has to catch is out of compliance — acknowledge the specific rule violated, re-pull from primary tooling, deposit the failure pattern to `topics/gotchas.md`, and fix the pre-flight script.
 
 ## 🚨 Iron Rules (read every turn)
