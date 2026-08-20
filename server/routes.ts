@@ -113,6 +113,7 @@ import { registerMetricsRoutes } from "./metrics-routes";
 import { registerChainwebRoutes } from "./chainweb-routes";
 import { registerCommunityIntelligenceRoutes } from "./community-intelligence-routes";
 import { registerConductorRoutes } from "./conductor-routes";
+import { registerTimePlaceNeedConductorRoutes } from "./time-place-need-conductor";
 import { registerOrchestraRoutes } from "./orchestra-routes";
 import { registerGrantPathProRoutes } from "./grantpathpro-routes";
 import { registerRpliceInboundRoutes } from "./rplice-inbound-routes";
@@ -571,6 +572,7 @@ export async function registerRoutes(
   registerMetricsRoutes(app);
   registerChainwebRoutes(app);
   registerConductorRoutes(app);
+  registerTimePlaceNeedConductorRoutes(app);
   registerOrchestraRoutes(app);
   registerGrantPathProRoutes(app);
   registerRpliceInboundRoutes(app);

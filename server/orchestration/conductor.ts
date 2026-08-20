@@ -77,6 +77,8 @@ export interface GeographyRef {
   zip?: string;
   state?: string;
   countyName?: string;
+  /** Human-readable place label used for evidence retrieval when available. */
+  geographyLabel?: string;
 }
 
 export interface OrchestrationFact {
@@ -139,7 +141,7 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef, options: 
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: snapshot };
     }
     if (engine.id === "chainweb-engine") {
-      const context = await getChainwebRAGContext(undefined, geo.countyName || geo.state, undefined);
+      const context = await getChainwebRAGContext(undefined, geo.geographyLabel || geo.countyName || geo.state, undefined);
       return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: context };
     }
     if (engine.id === "gis-engine") {
