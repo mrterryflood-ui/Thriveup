@@ -1,4 +1,4 @@
-import { searchResources, type StateResource } from "./resource-engine";
+import { getStatesList, searchResources, type StateResource } from "./resource-engine";
 
 export type ResourceVerificationStatus = "source-listed" | "partner-verified" | "needs-verification";
 export type ResourceAvailabilityStatus = "unknown" | "accepting-referrals" | "not-accepting-referrals";
@@ -57,7 +57,7 @@ export interface CanonicalResourceGraph {
 }
 
 function stableResourceId(resource: StateResource): string {
-  const normalized = `${resource.stateCode}:${resource.category}:${resource.subcategory}:${resource.name}`
+  const normalized = `${resource.stateCode}:${resource.category}:${resource.subcategory}:${resource.name}:${resource.url}`
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
@@ -66,6 +66,9 @@ function stableResourceId(resource: StateResource): string {
 
 export function buildCanonicalResourceGraph(stateCode: string): CanonicalResourceGraph {
   const normalizedState = stateCode.toUpperCase();
+  if (!getStatesList().some((state) => state.code === normalizedState)) {
+    throw new Error("Known 2-letter state code required");
+  }
   const resources = searchResources({
     stateCode: normalizedState,
     categories: [],

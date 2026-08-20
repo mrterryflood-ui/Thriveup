@@ -250,7 +250,10 @@ function ComparisonView({ record1, record2 }: {
 
 function ResourcePanel({ stateCode }: { stateCode: string }) {
   type ResourceGraphData = {
+    contractVersion: "1.0";
     generatedAt: string;
+    geography: { id: string; stateCode: string | null };
+    geographies: Array<{ id: string; stateCode: string | null }>;
     resources: Array<{
       id: string;
       name: string;
@@ -266,9 +269,15 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
       coverageScope: "state" | "national";
       source: { label: string };
     }>;
+    edges: Array<{
+      resourceId: string;
+      geographyId: string;
+      relationship: "covers";
+      coverageConfidence: "catalog-state" | "catalog-national";
+    }>;
     disclosures: string[];
   };
-  const { data, isLoading, isError, error, refetch } = useQuery<ResourceGraphData>({
+  const { data, isLoading, isError, refetch } = useQuery<ResourceGraphData>({
     queryKey: ["/api/community-map/resource-graph", stateCode],
     enabled: !!stateCode,
     staleTime: 5 * 60 * 1000,
@@ -277,8 +286,27 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
     if (!value || typeof value !== "object") return false;
     const candidate = value as Partial<ResourceGraphData>;
     return typeof candidate.generatedAt === "string"
+      && candidate.contractVersion === "1.0"
+      && !!candidate.geography
+      && typeof candidate.geography.id === "string"
+      && Array.isArray(candidate.geographies)
+      && candidate.geographies.every((geography) =>
+        !!geography
+        && typeof geography.id === "string"
+        && (typeof geography.stateCode === "string" || geography.stateCode === null)
+      )
       && Array.isArray(candidate.resources)
+      && Array.isArray(candidate.edges)
       && Array.isArray(candidate.disclosures)
+      && candidate.edges.every((edge) =>
+        !!edge
+        && typeof edge.resourceId === "string"
+        && typeof edge.geographyId === "string"
+        && edge.relationship === "covers"
+        && (edge.coverageConfidence === "catalog-state" || edge.coverageConfidence === "catalog-national")
+        && candidate.resources.some((resource) => resource?.id === edge.resourceId)
+        && candidate.geographies.some((geography) => geography?.id === edge.geographyId)
+      )
       && candidate.resources.every((resource) =>
         !!resource
         && typeof resource.id === "string"
@@ -302,7 +330,7 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
     );
   }
 
-  if (isError || (data && !graph)) {
+  if (isError || !graph) {
     return (
       <Card className="border-destructive/50" data-testid="resource-graph-error">
         <CardContent className="p-4 space-y-3">
@@ -313,14 +341,22 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
           <Button variant="outline" size="sm" onClick={() => refetch()} data-testid="button-retry-resource-graph">
             Try again
           </Button>
-          {isError && error instanceof Error && <p className="text-[11px] text-muted-foreground">{error.message}</p>}
         </CardContent>
       </Card>
     );
   }
 
   if (!graph?.resources.length) {
-    return <p className="text-sm text-muted-foreground text-center py-4">No source-listed resources found for this state.</p>;
+    return (
+      <div className="space-y-3">
+        <p className="text-sm text-muted-foreground text-center py-4">No source-listed resources found for this state.</p>
+        {graph.disclosures.length > 0 && (
+          <ul className="rounded-lg bg-muted/40 p-3 text-[11px] text-muted-foreground list-disc pl-7 space-y-1" data-testid="resource-graph-empty-disclosures">
+            {graph.disclosures.slice(0, 4).map((disclosure) => <li key={disclosure}>{disclosure}</li>)}
+          </ul>
+        )}
+      </div>
+    );
   }
 
   return (
@@ -365,6 +401,7 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
               {graph.disclosures.slice(0, 4).map((disclosure) => <li key={disclosure}>{disclosure}</li>)}
             </ul>
             <p className="mt-2">Catalog response: {new Date(graph.generatedAt).toLocaleString()}</p>
+             <p className="mt-1">Showing up to 50 source-listed records for this state.</p>
           </div>
         )}
       </div>
@@ -556,12 +593,16 @@ export default function CommunityMapPage() {
 
   const handleLocationSearch = useCallback(() => {
     if (locationQuery.trim()) {
+      setSelectedRecord(null);
+      setCompareRecord(null);
       setSearchMode("location");
       setActiveSearch(locationQuery.trim());
     }
   }, [locationQuery]);
 
   const handleStateChange = useCallback((value: string) => {
+    setSelectedRecord(null);
+    setCompareRecord(null);
     setSelectedState(value);
     setSearchMode("state");
     setActiveSearch("");
@@ -610,6 +651,7 @@ export default function CommunityMapPage() {
                 size="icon"
                 onClick={handleLocationSearch}
                 disabled={!locationQuery.trim()}
+                aria-label="Search location"
                 data-testid="button-location-search"
               >
                 <Search className="h-4 w-4" />
@@ -650,7 +692,7 @@ export default function CommunityMapPage() {
         <div className="flex-1 flex flex-col min-w-0">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
             <div className="px-4 pt-2">
-              <TabsList data-testid="tabs-view-mode">
+              <TabsList className="max-w-full overflow-x-auto" data-testid="tabs-view-mode">
                 <TabsTrigger value="map" data-testid="tab-map"><MapPin className="h-4 w-4 mr-1" /> Map</TabsTrigger>
                 <TabsTrigger value="data" data-testid="tab-data"><BarChart3 className="h-4 w-4 mr-1" /> Data</TabsTrigger>
                 <TabsTrigger value="compare" data-testid="tab-compare"><ArrowLeftRight className="h-4 w-4 mr-1" /> Compare</TabsTrigger>
@@ -898,8 +940,9 @@ export default function CommunityMapPage() {
                   />
                 )}
                 <Separator />
-                <h3 className="font-semibold text-sm">Source-listed resources</h3>
-                <ResourcePanel stateCode={resourceStateCode} />
+                <p className="text-xs text-muted-foreground">
+                  Open the Resources tab to review source-listed records for {resourceStateCode}.
+                </p>
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-muted-foreground text-center">
