@@ -14,6 +14,7 @@ type TrendData = {
   filters: { state: string | null; city: string | null; days: number };
   observations: { state: string; county: string | null; city: string | null; date: string; detectionRate: number | null; percentile: number | null; populationServed: number | null; source: string; status: string }[];
   trend: { date: string; averageDetectionRate: number | null; reportingSites: number }[];
+  stateSummary: { state: string; observations: number; reportingSites: number; latestDate: string | null; averageDetectionRate: number | null }[];
   rplIceOutbreakFindings: { id: string; receivedAt: string; region: string | null; finding: string | null; evidenceLevel: string | null; citations: string[] }[];
   sources: { name: string; url: string; type: string }[];
   coverage: { virusObservation: string; rpliceOutbreaks: string };
@@ -101,6 +102,11 @@ export default function VirusTrendsPage() {
           <Card>
             <CardHeader><CardTitle className="text-base">Latest reporting observations</CardTitle><p className="text-sm text-muted-foreground">Rows are limited and aggregate. Detection values come directly from the CDC NWSS response.</p></CardHeader>
             <CardContent><div className="overflow-x-auto"><table className="w-full text-sm" data-testid="virus-observations-table"><thead><tr className="border-b text-left text-xs uppercase text-muted-foreground"><th className="py-2 pr-4">Date</th><th className="py-2 pr-4">State</th><th className="py-2 pr-4">Site / county</th><th className="py-2 pr-4">Detection</th><th className="py-2">Percentile</th></tr></thead><tbody>{data.observations.slice(0, 20).map((row, index) => <tr key={`${row.date}-${row.state}-${index}`} className="border-b last:border-0"><td className="py-2 pr-4 whitespace-nowrap">{row.date}</td><td className="py-2 pr-4">{row.state}</td><td className="py-2 pr-4">{row.city ?? row.county ?? "Unavailable"}</td><td className="py-2 pr-4">{row.detectionRate == null ? "Unavailable" : `${(row.detectionRate * 100).toFixed(1)}%`}</td><td className="py-2">{row.percentile == null ? "Unavailable" : `${(row.percentile * 100).toFixed(1)}%`}</td></tr>)}</tbody></table>{!data.observations.length && <p className="py-8 text-center text-sm text-muted-foreground">No observations returned for this filter.</p>}</div></CardContent>
+          </Card>
+
+          <Card data-testid="virus-national-state-rollup">
+            <CardHeader><CardTitle className="text-base">Nationwide state coverage</CardTitle><p className="text-sm text-muted-foreground">State rollup of CDC NWSS observations returned for the selected window. This ranks reporting coverage, not disease burden or case counts.</p></CardHeader>
+            <CardContent><div className="overflow-x-auto"><table className="w-full text-sm"><thead><tr className="border-b text-left text-xs uppercase text-muted-foreground"><th className="py-2 pr-4">State</th><th className="py-2 pr-4">Observations</th><th className="py-2 pr-4">Reporting sites</th><th className="py-2 pr-4">Latest report</th><th className="py-2">Avg. detection</th></tr></thead><tbody>{data.stateSummary.map((row) => <tr key={row.state} className="border-b last:border-0"><td className="py-2 pr-4 font-medium">{row.state}</td><td className="py-2 pr-4">{fmt(row.observations)}</td><td className="py-2 pr-4">{fmt(row.reportingSites)}</td><td className="py-2 pr-4">{row.latestDate ?? "Unavailable"}</td><td className="py-2">{row.averageDetectionRate == null ? "Unavailable" : `${(row.averageDetectionRate * 100).toFixed(1)}%`}</td></tr>)}</tbody></table>{!data.stateSummary.length && <p className="py-8 text-center text-sm text-muted-foreground">No state observations returned for this window.</p>}</div></CardContent>
           </Card>
 
           <Card className="bg-muted/30">
