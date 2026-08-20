@@ -45,12 +45,9 @@ Any agent that deviates from Fable behavior in a way the user has to catch is ou
 11. **Verify-then-claim. Be my own skeptic.** Every claim I make about *my own output* — page count, font, margins, deliverable count, §-to-§ consistency, that a lexical tripwire is gone, that an exclusion is handled, that a fix worked, that a UI renders correctly — must be **proven this turn by the tool the reviewer/user would use**, with the result pasted, **before** I declare it. No "looks good," no "should be fine," no relying on what was true two edits ago. **Reviewer-facing artifacts (proposals, PDFs, frontends, dashboards)** get an explicit **end-to-end self-review pass against the same gate the reviewer will apply**, *before* showing the user: PDFs → `pdfinfo` + per-page `pdftotext` + `pdffonts` + `rg` for tripwires; **frontends → `screenshot` the route + browser console scan + `runTest` for any interaction-bearing surface, on every change**, not just "if it feels risky." `code_review.architect` is mandatory on any external-facing artifact before "done." **Treat my own prior-turn statements as untrusted** — if challenged, re-pull from primary tooling, don't defend. **If the user catches a detail-level failure I should have caught (font, page count, label, layout, copy, off-by-one, stale claim), that is an Iron Rule #9 failure** — deposit the missed verification step to `topics/gotchas.md` and add the check to the relevant pre-flight script. Named by Dr. Flood 2026-05-26 after I claimed "3-page narrative" without verifying cover-vs-narrative, "Arial" without `pdffonts`, and "exclusion handled" without pulling the verbatim ARPA-H source. → P-L12
 
 ## Run & Operate
-- **Run** `npm run dev` · **DB push** `npm run db:push` · **Typecheck** `npm run typecheck` · **E2E** `npx playwright test`
-- **Memory health (before external work):** `npx tsx scripts/memory-health.ts` — must hit 0 FAIL.
-- **Congruence audit (before any funder meeting):** `npx tsx scripts/congruence-audit.ts` — must hit 0 FAIL.
-- **Recompile agent knowledge** after editing this file: `npx tsx scripts/compile-agent-knowledge.ts`
-- **Ecosystem alignment scan:** `scripts/ecosystem-alignment-scan.sh`
-- **Env vars:** `NETWORK_SECRET_BIBLESTUDY` · `NETWORK_SECRET_HERHEALTH` · `SENDGRID_API_KEY` · `THRIVEUP_SHARED_SECRET` · `TWILIO_ACCOUNT_SID` · `TWILIO_AUTH_TOKEN` · `TWILIO_PHONE_NUMBER`
+- Run: `npm run dev` · `npm run db:push` · `npx tsc --noEmit -p .` · `npx playwright test`
+- Gates: `npx tsx scripts/memory-health.ts` · `npx tsx scripts/preflight.ts` · `npx tsx scripts/congruence-audit.ts`
+- After editing this file, run `npx tsx scripts/compile-agent-knowledge.ts`.
 
 ## Memory pointers (facts live here, not in this file)
 - **INDEX (retrieval router):** `docs/agent-memory/INDEX.md`
@@ -59,13 +56,3 @@ Any agent that deviates from Fable behavior in a way the user has to catch is ou
 - **Topics:** `docs/agent-memory/topics/{grants,partners,gotchas,architecture,ecosystem,implementation}.md`
 - **Archive (cold storage):** `docs/memory-archive.md` (A1–A27+) · `docs/agent-memory/archive/resolved-gotchas.md`
 - **Active commitments / continuity:** `docs/active-commitments.md` (read start, update end)
-
-## User preferences (constitutional — won't move to topics)
-- **Title:** President, not CEO, for Dr. Flood on TCAF (for-profit/ISS-LLC only uses CEO).
-- **Institutional emails only:** `terryflood@thrivingcommunitiesforall.com` (Dr. Flood, all proposals) · `msisnett@thrivingcommunitiesforall.com` (Meredith, non-City only). No personal Gmail in copy or proposals.
-- Iterative development; explain major changes before implementation; clear, simple language for technical concepts.
-- Work in parallel; don't stop to chat when there's more work; keep building.
-- Speak plainly, not in jargon. Honest disclosure always.
-- No silent failures. Every change deposits to memory (Iron Rule #7).
-- Don't change `vite.config.ts`, `drizzle.config.ts`, `package.json` without explicit instruction.
-- **Five-lens thinking (constitutional — applies to all writing, proposals, and design).** Dr. Flood is an implementation scientist, psychologist, data engineer, community health worker, and user-centered designer. Every proposal, technical doc, and platform decision must hold all five lenses in mind simultaneously while still mirroring the RFP rubric (Iron Rule #5): (1) **Implementation science** — CFIR/RE-AIM/EPIS frame, fidelity, scalability, Title IV-E Clearinghouse-grade evaluation; (2) **Psychology / neuroscience** — developmental science, trauma-informed design, regulation skills front-loaded, no shame architecture; (3) **Data engineering** — primary-source verifiable, FHIR/CDS-Hooks interoperable, 0-PHI-egress, witness-logged, auditable; (4) **Community health worker** — trusted-messenger model, dialect-honoring, stipended shadow workers per ITI (Iron Rule #8), peer-mentor + promotora + neighbor + faith leader pathways real not aspirational; (5) **UX / user-centered design for all stakeholders** — parent, Circle member, clinician, CPS preventive worker, evaluator, funder, reviewer each have a coherent surface; consent default OFF; friction calibrated; no surprises. Win by holding all five simultaneously — never sacrifice one to optimize another.

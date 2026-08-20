@@ -3,6 +3,7 @@ import { searchResources, type StateResource } from "./resource-engine";
 export type ResourceVerificationStatus = "source-listed" | "partner-verified" | "needs-verification";
 export type ResourceAvailabilityStatus = "unknown" | "accepting-referrals" | "not-accepting-referrals";
 export type CoordinateQuality = "none" | "approximate-centroid";
+export type ResourceCoverageScope = "state" | "national";
 
 export interface CanonicalGeographyNode {
   id: string;
@@ -27,12 +28,13 @@ export interface CanonicalResourceNode {
   phone: string | null;
   eligibility: string | null;
   stateCode: string;
+  coverageScope: ResourceCoverageScope;
   verificationStatus: ResourceVerificationStatus;
   availabilityStatus: ResourceAvailabilityStatus;
   lastVerifiedAt: null;
   freshness: "unknown";
   source: {
-    type: "state-resource-catalog";
+    type: "state-resource-catalog" | "federal-resource-catalog";
     label: string;
   };
 }
@@ -41,13 +43,14 @@ export interface CanonicalResourceGeographyEdge {
   resourceId: string;
   geographyId: string;
   relationship: "covers";
-  coverageConfidence: "catalog-state";
+  coverageConfidence: "catalog-state" | "catalog-national";
 }
 
 export interface CanonicalResourceGraph {
   contractVersion: "1.0";
   generatedAt: string;
   geography: CanonicalGeographyNode;
+  geographies: CanonicalGeographyNode[];
   resources: CanonicalResourceNode[];
   edges: CanonicalResourceGeographyEdge[];
   disclosures: string[];
@@ -76,44 +79,60 @@ export function buildCanonicalResourceGraph(stateCode: string): CanonicalResourc
     url: resource.url,
     phone: resource.phone ?? null,
     eligibility: resource.eligibility ?? null,
-    stateCode: normalizedState,
+    stateCode: resource.stateCode === "US" ? "US" : normalizedState,
+    coverageScope: resource.stateCode === "US" ? "national" : "state",
     verificationStatus: "source-listed",
     availabilityStatus: "unknown",
     lastVerifiedAt: null,
     freshness: "unknown",
     source: {
-      type: "state-resource-catalog",
-      label: "State and federal resource catalog",
+      type: resource.stateCode === "US" ? "federal-resource-catalog" : "state-resource-catalog",
+      label: resource.stateCode === "US" ? "Federal resource catalog" : "State resource catalog",
     },
   }));
 
   const geographyId = `state:${normalizedState.toLowerCase()}`;
+  const stateGeography: CanonicalGeographyNode = {
+    id: geographyId,
+    type: "state",
+    label: normalizedState,
+    stateCode: normalizedState,
+    geometry: null,
+    geometryStatus: "not-loaded",
+    coordinateQuality: "none",
+    center: null,
+    source: "state-resource-catalog",
+    sourceYear: null,
+  };
+  const nationalGeography: CanonicalGeographyNode = {
+    id: "national:us",
+    type: "state",
+    label: "United States",
+    stateCode: "US",
+    geometry: null,
+    geometryStatus: "not-loaded",
+    coordinateQuality: "none",
+    center: null,
+    source: "federal-resource-catalog",
+    sourceYear: null,
+  };
+  const hasNationalResource = resources.some((resource) => resource.coverageScope === "national");
   return {
     contractVersion: "1.0",
     generatedAt: new Date().toISOString(),
-    geography: {
-      id: geographyId,
-      type: "state",
-      label: normalizedState,
-      stateCode: normalizedState,
-      geometry: null,
-      geometryStatus: "not-loaded",
-      coordinateQuality: "none",
-      center: null,
-      source: "state-resource-catalog",
-      sourceYear: null,
-    },
+    geography: stateGeography,
+    geographies: hasNationalResource ? [stateGeography, nationalGeography] : [stateGeography],
     resources,
     edges: resources.map((resource) => ({
       resourceId: resource.id,
-      geographyId,
+      geographyId: resource.coverageScope === "national" ? nationalGeography.id : geographyId,
       relationship: "covers",
-      coverageConfidence: "catalog-state",
+      coverageConfidence: resource.coverageScope === "national" ? "catalog-national" : "catalog-state",
     })),
     disclosures: [
       "Resources are source-listed records, not partner-confirmed referrals.",
       "Availability and capacity are unknown until a provider or authoritative feed confirms them.",
-      "State coverage is the only geography relationship represented in this contract.",
+      "National records retain national coverage; state records are linked only to the requested state.",
       "Boundary geometry is not loaded in this slice; no map hotspot or boundary claim is made.",
     ],
   };

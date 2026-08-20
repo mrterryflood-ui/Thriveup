@@ -249,24 +249,48 @@ function ComparisonView({ record1, record2 }: {
 }
 
 function ResourcePanel({ stateCode }: { stateCode: string }) {
-  const { data, isLoading } = useQuery<{
+  type ResourceGraphData = {
+    generatedAt: string;
     resources: Array<{
       id: string;
       name: string;
       category: string;
       subcategory: string;
+      description: string;
+      eligibility: string | null;
       url: string;
       phone: string | null;
       verificationStatus: string;
       availabilityStatus: string;
       freshness: string;
+      coverageScope: "state" | "national";
       source: { label: string };
     }>;
     disclosures: string[];
-  }>({
+  };
+  const { data, isLoading, isError, error, refetch } = useQuery<ResourceGraphData>({
     queryKey: ["/api/community-map/resource-graph", stateCode],
     enabled: !!stateCode,
+    staleTime: 5 * 60 * 1000,
   });
+  const isValidGraph = (value: unknown): value is ResourceGraphData => {
+    if (!value || typeof value !== "object") return false;
+    const candidate = value as Partial<ResourceGraphData>;
+    return typeof candidate.generatedAt === "string"
+      && Array.isArray(candidate.resources)
+      && Array.isArray(candidate.disclosures)
+      && candidate.resources.every((resource) =>
+        !!resource
+        && typeof resource.id === "string"
+        && typeof resource.name === "string"
+        && typeof resource.description === "string"
+        && typeof resource.url === "string"
+        && (resource.coverageScope === "state" || resource.coverageScope === "national")
+        && !!resource.source
+        && typeof resource.source.label === "string"
+      );
+  };
+  const graph = isValidGraph(data) ? data : null;
 
   if (isLoading) {
     return (
@@ -278,21 +302,39 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
     );
   }
 
-  if (!data?.resources?.length) {
-    return <p className="text-sm text-muted-foreground text-center py-4">No resources found for this state.</p>;
+  if (isError || (data && !graph)) {
+    return (
+      <Card className="border-destructive/50" data-testid="resource-graph-error">
+        <CardContent className="p-4 space-y-3">
+          <p className="text-sm font-medium">Resource data is temporarily unavailable.</p>
+          <p className="text-xs text-muted-foreground">
+            The map cannot confirm whether a catalog is empty until the source responds.
+          </p>
+          <Button variant="outline" size="sm" onClick={() => refetch()} data-testid="button-retry-resource-graph">
+            Try again
+          </Button>
+          {isError && error instanceof Error && <p className="text-[11px] text-muted-foreground">{error.message}</p>}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!graph?.resources.length) {
+    return <p className="text-sm text-muted-foreground text-center py-4">No source-listed resources found for this state.</p>;
   }
 
   return (
     <ScrollArea className="h-[400px]">
       <div className="space-y-2 pr-4">
-        {data.resources.map((resource, i) => (
-          <div key={resource.id} className="p-3 rounded-lg border hover:bg-muted/50 transition-colors" data-testid={`card-resource-${i}`}>
+        {graph.resources.map((resource) => (
+          <div key={resource.id} className="p-3 rounded-lg border hover:bg-muted/50 transition-colors" data-testid={`card-resource-${resource.id}`}>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{resource.name}</p>
                 <div className="flex flex-wrap gap-1 mt-1">
                   <Badge variant="secondary" className="text-xs">{resource.category}</Badge>
                   <Badge variant="outline" className="text-xs">{resource.verificationStatus}</Badge>
+                  <Badge variant="outline" className="text-xs">{resource.coverageScope}</Badge>
                 </div>
               </div>
               <a
@@ -300,11 +342,13 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-xs text-primary hover:underline flex-shrink-0"
-                data-testid={`link-resource-${i}`}
+                data-testid={`link-resource-${resource.id}`}
               >
                 Visit <ChevronRight className="h-3 w-3 inline" />
               </a>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">{resource.description}</p>
+            {resource.eligibility && <p className="text-xs text-muted-foreground mt-1">Eligibility: {resource.eligibility}</p>}
             {resource.phone && (
               <p className="text-xs text-muted-foreground mt-1">{resource.phone}</p>
             )}
@@ -314,12 +358,13 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
             <p className="text-[11px] text-muted-foreground mt-1">{resource.source.label}</p>
           </div>
         ))}
-        {data.disclosures?.length > 0 && (
+        {graph.disclosures.length > 0 && (
           <div className="rounded-lg bg-muted/40 p-3 text-[11px] text-muted-foreground" data-testid="resource-graph-disclosures">
             <p className="font-medium text-foreground mb-1">Data notes</p>
             <ul className="list-disc pl-4 space-y-1">
-              {data.disclosures.slice(0, 4).map((disclosure) => <li key={disclosure}>{disclosure}</li>)}
+              {graph.disclosures.slice(0, 4).map((disclosure) => <li key={disclosure}>{disclosure}</li>)}
             </ul>
+            <p className="mt-2">Catalog response: {new Date(graph.generatedAt).toLocaleString()}</p>
           </div>
         )}
       </div>
@@ -452,6 +497,9 @@ export default function CommunityMapPage() {
 
   const searchData = searchMode === "state" ? stateSearchQuery.data : locationSearchQuery.data;
   const searchLoading = searchMode === "state" ? stateSearchQuery.isLoading : locationSearchQuery.isLoading;
+  const searchError = searchMode === "state" ? stateSearchQuery.error : locationSearchQuery.error;
+  const retrySearch = searchMode === "state" ? stateSearchQuery.refetch : locationSearchQuery.refetch;
+  const resourceStateCode = selectedRecord?.stateCode || selectedState || searchData?.records?.[0]?.stateCode || "";
 
   const ingestMutation = useMutation({
     mutationFn: async (stateAbbr: string) => {
@@ -606,8 +654,17 @@ export default function CommunityMapPage() {
                 <TabsTrigger value="map" data-testid="tab-map"><MapPin className="h-4 w-4 mr-1" /> Map</TabsTrigger>
                 <TabsTrigger value="data" data-testid="tab-data"><BarChart3 className="h-4 w-4 mr-1" /> Data</TabsTrigger>
                 <TabsTrigger value="compare" data-testid="tab-compare"><ArrowLeftRight className="h-4 w-4 mr-1" /> Compare</TabsTrigger>
+                <TabsTrigger value="resources" data-testid="tab-resources"><Home className="h-4 w-4 mr-1" /> Resources</TabsTrigger>
               </TabsList>
             </div>
+            {searchError && (
+              <Card className="mx-4 mt-2 border-destructive/50" data-testid="community-map-search-error">
+                <CardContent className="p-3 flex items-center justify-between gap-3">
+                  <p className="text-sm">Community data could not be loaded. Try the search again.</p>
+                  <Button variant="outline" size="sm" onClick={() => retrySearch()} data-testid="button-retry-community-search">Retry</Button>
+                </CardContent>
+              </Card>
+            )}
 
             <TabsContent value="map" className="flex-1 m-0 p-4">
               <div className="flex gap-4 h-full">
@@ -729,6 +786,14 @@ export default function CommunityMapPage() {
                       key={record.id}
                       className="cursor-pointer"
                       onClick={() => handleRecordSelect(record)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault();
+                          handleRecordSelect(record);
+                        }
+                      }}
+                      role="button"
+                      tabIndex={0}
                       data-testid={`card-data-${record.geographyKey}`}
                     >
                       <Card className="hover:ring-2 ring-primary/50 transition-all">
@@ -793,6 +858,23 @@ export default function CommunityMapPage() {
                 )}
               </div>
             </TabsContent>
+
+            <TabsContent value="resources" className="flex-1 m-0 p-4 overflow-auto">
+              {!resourceStateCode ? (
+                <div className="flex flex-col items-center justify-center h-64 text-muted-foreground text-center">
+                  <Home className="h-12 w-12 mb-4" />
+                  <p className="text-lg font-medium">Choose a state or location first</p>
+                  <p className="text-sm max-w-md">
+                    Resource coverage will be shown with source, verification, availability, and freshness disclosures.
+                  </p>
+                </div>
+              ) : (
+                <div className="max-w-2xl">
+                  <h3 className="font-semibold mb-3">Source-listed resources for {resourceStateCode}</h3>
+                  <ResourcePanel stateCode={resourceStateCode} />
+                </div>
+              )}
+            </TabsContent>
           </Tabs>
         </div>
 
@@ -816,8 +898,8 @@ export default function CommunityMapPage() {
                   />
                 )}
                 <Separator />
-                <h3 className="font-semibold text-sm">Available Resources</h3>
-                <ResourcePanel stateCode={selectedRecord.stateCode || selectedState || ""} />
+                <h3 className="font-semibold text-sm">Source-listed resources</h3>
+                <ResourcePanel stateCode={resourceStateCode} />
               </>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-muted-foreground text-center">

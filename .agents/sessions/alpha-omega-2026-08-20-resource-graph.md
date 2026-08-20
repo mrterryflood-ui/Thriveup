@@ -12,8 +12,8 @@
 - Unknowns/deferred decisions: Authoritative boundary geometries, live housing inventory/capacity, partner verification workflow, referral acceptance/outcomes, hotspot methodology, PostGIS/vector tiles, and all RPLICE security/shared-secret work remain deferred.
 
 ## Omega
-- Diff scrimmage:
-- Proofs and gates:
-- Independent angle:
-- Outcome:
-- Residuals and reusable guard:
+- Diff scrimmage: Preserved national catalog scope instead of coercing federal records into the requested state; added explicit source type, coverage scope, national geography, visible API/malformed-response failure states, mobile Resources tab, stable resource test IDs, descriptions/eligibility, response timestamp, and keyboard selection.
+- Proofs and gates: `buildCanonicalResourceGraph("TX")` passed with 33 resources, 33 edges, 25 national records, `national:us` edges, and 8 state records; HTTP route probe returned 200 for TX and 400 for ZZ; mobile browser probe found the Resources tab, prompt, and no horizontal overflow at 375px; screenshot rendered `/community-map`; `tsc` remained at known baseline 31 errors with none in changed files; memory-health, preflight, and git diff checks passed.
+- Independent angle: The available independent audit stream identified three high-severity correctness issues and several medium issues; all actionable findings were fixed and re-probed. Code-review subagent execution was unavailable in this session, so direct verification is the substitute.
+- Outcome: PASS for this vertical slice. The public contract is source-listed and uncertainty-preserving, not a live referral/capacity system.
+- Residuals and reusable guard: Authoritative boundary geometry, lower-level geography coverage, live verification/capacity, warm referrals/outcomes, hotspot methodology, PostGIS/vector tiles, and RPLICE security/shared-secret work remain explicitly deferred. Never map a national record to a state edge merely because it appeared in a state query.
