@@ -250,10 +250,21 @@ function ComparisonView({ record1, record2 }: {
 
 function ResourcePanel({ stateCode }: { stateCode: string }) {
   const { data, isLoading } = useQuery<{
-    resources: Array<{ name: string; category: string; url: string; description: string; phone?: string }>;
-    categories: Array<{ id: string; name: string; icon: string }>;
+    resources: Array<{
+      id: string;
+      name: string;
+      category: string;
+      subcategory: string;
+      url: string;
+      phone: string | null;
+      verificationStatus: string;
+      availabilityStatus: string;
+      freshness: string;
+      source: { label: string };
+    }>;
+    disclosures: string[];
   }>({
-    queryKey: ["/api/community-map/resources", stateCode],
+    queryKey: ["/api/community-map/resource-graph", stateCode],
     enabled: !!stateCode,
   });
 
@@ -275,11 +286,14 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
     <ScrollArea className="h-[400px]">
       <div className="space-y-2 pr-4">
         {data.resources.map((resource, i) => (
-          <div key={i} className="p-3 rounded-lg border hover:bg-muted/50 transition-colors" data-testid={`card-resource-${i}`}>
+          <div key={resource.id} className="p-3 rounded-lg border hover:bg-muted/50 transition-colors" data-testid={`card-resource-${i}`}>
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <p className="text-sm font-medium truncate">{resource.name}</p>
-                <Badge variant="secondary" className="text-xs mt-1">{resource.category}</Badge>
+                <div className="flex flex-wrap gap-1 mt-1">
+                  <Badge variant="secondary" className="text-xs">{resource.category}</Badge>
+                  <Badge variant="outline" className="text-xs">{resource.verificationStatus}</Badge>
+                </div>
               </div>
               <a
                 href={resource.url}
@@ -294,8 +308,20 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
             {resource.phone && (
               <p className="text-xs text-muted-foreground mt-1">{resource.phone}</p>
             )}
+            <p className="text-xs text-muted-foreground mt-1">
+              Availability: {resource.availabilityStatus} · Freshness: {resource.freshness}
+            </p>
+            <p className="text-[11px] text-muted-foreground mt-1">{resource.source.label}</p>
           </div>
         ))}
+        {data.disclosures?.length > 0 && (
+          <div className="rounded-lg bg-muted/40 p-3 text-[11px] text-muted-foreground" data-testid="resource-graph-disclosures">
+            <p className="font-medium text-foreground mb-1">Data notes</p>
+            <ul className="list-disc pl-4 space-y-1">
+              {data.disclosures.slice(0, 4).map((disclosure) => <li key={disclosure}>{disclosure}</li>)}
+            </ul>
+          </div>
+        )}
       </div>
     </ScrollArea>
   );
