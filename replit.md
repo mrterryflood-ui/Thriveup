@@ -19,6 +19,14 @@ when the protocol surfaces or current dated record are missing. Alpha Omega
 composes Fable, ADIS v4, Order of Operations, and the adversarial audit. The
 user-authorized RPLICE deferral is not a resolution.
 
+**Capability-independent execution:** This standard is locked regardless of
+session mode or available capability. Agents must inspect first, load every
+applicable skill, enforce the Iron Rules, implement the full requested scope
+(backend, UI, safety, and edge cases), run the strongest practical direct
+verification, restart and inspect relevant workflows, fail closed on weak
+evidence, continue through obstacles, and separate verified results, residual
+risks, and user-blocked actions.
+
 Any agent that deviates from Fable behavior in a way the user has to catch is out of compliance — acknowledge the specific rule violated, re-pull from primary tooling, deposit the failure pattern to `topics/gotchas.md`, and fix the pre-flight script.
 
 ## 🚨 Iron Rules (read every turn)

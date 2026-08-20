@@ -1,10 +1,10 @@
 {
   "version": "1.2.0",
-  "compiledAt": "2026-08-20T08:28:11.922Z",
+  "compiledAt": "2026-08-20T08:30:58.704Z",
   "sources": [
     {
       "path": "replit.md",
-      "mtime": "2026-08-20T08:27:53.330Z"
+      "mtime": "2026-08-20T08:30:44.373Z"
     },
     {
       "path": "docs/active-commitments.md",
@@ -24,7 +24,7 @@
     },
     {
       "path": "DB:ecosystem_platforms",
-      "mtime": "2026-08-20T08:28:11.922Z"
+      "mtime": "2026-08-20T08:30:58.704Z"
     }
   ],
   "project": {
@@ -542,39 +542,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "thriveup-hub",
-      "name": "ThriveUp Academy (TCAF Hub)",
-      "url": "https://thriveupacademy.replit.app",
-      "role": "self-hub",
-      "domain": "ecosystem-orchestration",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "TCAF national community-infrastructure platform. The orchestrating hub for the 24-platform ecosystem: grant discovery + funder fit, ecosystem directives + enforcement, bilateral exchange, RAG/AI provider with ethical-EI preamble, RPLICE quality gate, MAP-GAP methodology, regional hubs (Austin/Manor/Pflugerville), and the Integration through Invitation dignity primitive. Owns directive authorship and ack adjudication.",
-      "capabilities": {
-        "features": [
-          "Grant Discovery (SAM.gov/Grants.gov/USASpending)",
-          "Ecosystem Directives + Enforcement",
-          "Bilateral Exchange Engine",
-          "RAG AI + Ethical-EI Preamble",
-          "RPLICE Quality Gate",
-          "MAP-GAP Methodology",
-          "Integration through Invitation",
-          "Regional Hubs (Austin/Manor/Pflugerville)",
-          "Compliance Matrix + RFP Fidelity Doctrine"
-        ],
-        "grantNarrative": "Hub-of-hubs that issues directives, tracks ecosystem fidelity, and orchestrates 24 partner platforms in a coordinated adaptive system"
-      },
-      "grant_alignment": [
-        "federal",
-        "foundation",
-        "wioa",
-        "nsf",
-        "hrsa"
-      ],
-      "last_heartbeat": "2026-08-20T08:27:50.499Z"
-    },
-    {
       "id": "isss",
       "name": "ISSS — Integrated Supports for Thriving Youth",
       "url": "https://implementationineducatio.com",
@@ -625,6 +592,39 @@
         "st-davids"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "thriveup-hub",
+      "name": "ThriveUp Academy (TCAF Hub)",
+      "url": "https://thriveupacademy.replit.app",
+      "role": "self-hub",
+      "domain": "ecosystem-orchestration",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "TCAF national community-infrastructure platform. The orchestrating hub for the 24-platform ecosystem: grant discovery + funder fit, ecosystem directives + enforcement, bilateral exchange, RAG/AI provider with ethical-EI preamble, RPLICE quality gate, MAP-GAP methodology, regional hubs (Austin/Manor/Pflugerville), and the Integration through Invitation dignity primitive. Owns directive authorship and ack adjudication.",
+      "capabilities": {
+        "features": [
+          "Grant Discovery (SAM.gov/Grants.gov/USASpending)",
+          "Ecosystem Directives + Enforcement",
+          "Bilateral Exchange Engine",
+          "RAG AI + Ethical-EI Preamble",
+          "RPLICE Quality Gate",
+          "MAP-GAP Methodology",
+          "Integration through Invitation",
+          "Regional Hubs (Austin/Manor/Pflugerville)",
+          "Compliance Matrix + RFP Fidelity Doctrine"
+        ],
+        "grantNarrative": "Hub-of-hubs that issues directives, tracks ecosystem fidelity, and orchestrates 24 partner platforms in a coordinated adaptive system"
+      },
+      "grant_alignment": [
+        "federal",
+        "foundation",
+        "wioa",
+        "nsf",
+        "hrsa"
+      ],
+      "last_heartbeat": "2026-08-20T08:28:56.803Z"
     },
     {
       "id": "pinnacle-business-conglomerate",
@@ -708,54 +708,6 @@
       "last_heartbeat": null
     },
     {
-      "id": "civic-signal",
-      "name": "Civic Signal",
-      "url": "https://power2thepeople.net",
-      "role": "civic-intelligence",
-      "domain": "civic-engagement",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
-      "capabilities": {
-        "features": [
-          "Live Civic Feed",
-          "Federal Bills Tracker",
-          "Court Rulings Index",
-          "Federal Regulations Watch",
-          "CBO Cost Estimates",
-          "City Ordinances Index",
-          "Public Meetings Calendar",
-          "10-Step Prepare Wizard",
-          "Healthcare Directive Builder",
-          "Power of Attorney Walkthrough",
-          "Vote Tools",
-          "Civic Q&A (Ask AI)",
-          "Bilingual EN/ES UI"
-        ],
-        "indexedItems": {
-          "meetings": 360,
-          "courtItems": 1448,
-          "ordinances": 880
-        },
-        "grantNarrative": "Provides civic-engagement infrastructure and prepare-wizard outcomes for Knight Foundation, Mozilla, and place-based foundation grants targeting civic participation and digital literacy",
-        "outcomeMetrics": [
-          "Civic feed daily impressions tracked",
-          "Prepare Wizard completion rate",
-          "Bilingual session ratio",
-          "Civic Q&A queries answered"
-        ],
-        "integrationDepth": "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp Academy (civic literacy curriculum)"
-      },
-      "grant_alignment": [
-        "foundation",
-        "knight",
-        "mozilla",
-        "wioa"
-      ],
-      "last_heartbeat": null
-    },
-    {
       "id": "wholemind",
       "name": "WholeMind Learning",
       "url": "https://wholemindlearning.com",
@@ -807,6 +759,54 @@
       "last_heartbeat": "2026-03-19T02:25:57.923Z"
     },
     {
+      "id": "civic-signal",
+      "name": "Civic Signal",
+      "url": "https://power2thepeople.net",
+      "role": "civic-intelligence",
+      "domain": "civic-engagement",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Civic intelligence terminal that lets residents see and act on government before decisions are already made. Real-time Live Civic Feed mixing federal bills, court rulings, federal regulations, CBO cost estimates, and city ordinances (1,448 court items / 880 ordinances / 360 meetings indexed). 10-step 'Get your affairs in order' wizard with healthcare-directive and power-of-attorney walkthroughs sourced from ready.gov and caringinfo.org. Vote tools, civic Q&A via Ask AI, EN/ES throughout. Part of the quintet (Talk Your Talk · Civic Signal · LifeBridge · ThriveUp Academy · Whole-Person Health) — the civic-engagement surface that turns lived knowledge into civic action.",
+      "capabilities": {
+        "features": [
+          "Live Civic Feed",
+          "Federal Bills Tracker",
+          "Court Rulings Index",
+          "Federal Regulations Watch",
+          "CBO Cost Estimates",
+          "City Ordinances Index",
+          "Public Meetings Calendar",
+          "10-Step Prepare Wizard",
+          "Healthcare Directive Builder",
+          "Power of Attorney Walkthrough",
+          "Vote Tools",
+          "Civic Q&A (Ask AI)",
+          "Bilingual EN/ES UI"
+        ],
+        "indexedItems": {
+          "meetings": 360,
+          "courtItems": 1448,
+          "ordinances": 880
+        },
+        "grantNarrative": "Provides civic-engagement infrastructure and prepare-wizard outcomes for Knight Foundation, Mozilla, and place-based foundation grants targeting civic participation and digital literacy",
+        "outcomeMetrics": [
+          "Civic feed daily impressions tracked",
+          "Prepare Wizard completion rate",
+          "Bilingual session ratio",
+          "Civic Q&A queries answered"
+        ],
+        "integrationDepth": "Surfaces civic context to LifeBridge (resource navigation), Whole-Person Health (advance directives), and ThriveUp Academy (civic literacy curriculum)"
+      },
+      "grant_alignment": [
+        "foundation",
+        "knight",
+        "mozilla",
+        "wioa"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "safecognicare",
       "name": "SafeCogniCare",
       "url": "https://safecognicare.com",
@@ -849,6 +849,50 @@
         "foundation"
       ],
       "last_heartbeat": null
+    },
+    {
+      "id": "speech-bridge",
+      "name": "LexiBridge (Speech Bridge)",
+      "url": "https://lexibridge.net",
+      "role": "communication-accessibility",
+      "domain": "health-equity",
+      "status": "active",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
+      "capabilities": {
+        "features": [
+          "Dialect Recognition (12+ Dialects)",
+          "AAVE Linguistic Support",
+          "Real-Time Speech-to-Text",
+          "Hearing Accessibility Tools",
+          "Multi-Language Translation",
+          "Culturally Responsive Provider Training",
+          "Patient Communication Support",
+          "Health Literacy Adaptation",
+          "Clinical Terminology Simplification",
+          "Community Language Tools",
+          "Provider Communication Coaching",
+          "Accessibility Compliance Engine"
+        ],
+        "grantNarrative": "Provides language accessibility metrics, communication barrier reduction data, health literacy improvement outcomes, and cultural responsiveness evidence for St. David's health equity, SSG Fox veteran, and WIOA workforce accessibility grants",
+        "outcomeMetrics": [
+          "Dialect recognitions processed: 4,567",
+          "Multi-language translations: 2,345",
+          "Health literacy adaptations: 890",
+          "Provider communication coaching sessions: 67",
+          "Accessibility compliance checks: 234",
+          "Patient communication support events: 456"
+        ],
+        "integrationDepth": "Accessibility layer for all 22 sibling platforms — ensures clinical communications, educational content, and business tools are accessible regardless of language or dialect"
+      },
+      "grant_alignment": [
+        "st-davids",
+        "ssg-fox",
+        "wioa",
+        "foundation"
+      ],
+      "last_heartbeat": "2026-03-22T03:08:23.128Z"
     },
     {
       "id": "ad-targeting",
@@ -939,48 +983,48 @@
       "last_heartbeat": "2026-03-31T11:57:03.776Z"
     },
     {
-      "id": "speech-bridge",
-      "name": "LexiBridge (Speech Bridge)",
-      "url": "https://lexibridge.net",
-      "role": "communication-accessibility",
+      "id": "sankofa-maternal-health",
+      "name": "Black Maternal Health Network",
+      "url": "https://yourhealthbirthright.net",
+      "role": "maternal-health",
       "domain": "health-equity",
-      "status": "active",
-      "health_status": "offline",
+      "status": "registered",
+      "health_status": "online",
       "public_visible": true,
-      "description": "Dialect-aware, inclusive communication platform that bridges language and communication gaps for underserved populations. Advanced dialect recognition covering AAVE, Spanglish, Cajun, Appalachian, and 12+ regional dialects; real-time speech-to-text with accessibility features for hearing impairment; multi-language translation (English/Spanish/Vietnamese/Mandarin/Arabic); culturally responsive communication training for providers; patient communication support ensuring health literacy; and inclusive language tools that adapt clinical terminology to community-accessible language. Critical accessibility layer ensuring every platform in the ecosystem can serve populations regardless of language or communication barriers. Integrates with all health platforms for clinical communication, ISSS for school communication, and M2C for veteran communication support.",
+      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
       "capabilities": {
         "features": [
-          "Dialect Recognition (12+ Dialects)",
-          "AAVE Linguistic Support",
-          "Real-Time Speech-to-Text",
-          "Hearing Accessibility Tools",
-          "Multi-Language Translation",
-          "Culturally Responsive Provider Training",
-          "Patient Communication Support",
-          "Health Literacy Adaptation",
-          "Clinical Terminology Simplification",
-          "Community Language Tools",
-          "Provider Communication Coaching",
-          "Accessibility Compliance Engine"
+          "Maternal Risk Assessment",
+          "Certified Doula Matching",
+          "Prenatal Care Navigation",
+          "Postnatal Care Coordination",
+          "Maternal Mental Health (EPDS)",
+          "Community Health Workers",
+          "Breastfeeding Support",
+          "Postpartum Recovery Plans",
+          "Birth Plan Builder",
+          "Hospital Bag Checklist",
+          "Appointment Tracker",
+          "Social Determinant Screening"
         ],
-        "grantNarrative": "Provides language accessibility metrics, communication barrier reduction data, health literacy improvement outcomes, and cultural responsiveness evidence for St. David's health equity, SSG Fox veteran, and WIOA workforce accessibility grants",
+        "parentNetwork": "sankofa",
+        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
         "outcomeMetrics": [
-          "Dialect recognitions processed: 4,567",
-          "Multi-language translations: 2,345",
-          "Health literacy adaptations: 890",
-          "Provider communication coaching sessions: 67",
-          "Accessibility compliance checks: 234",
-          "Patient communication support events: 456"
+          "Prenatal care navigation enrollments: 178",
+          "Doula match-to-engagement rate: 74%",
+          "Maternal mental health screenings (EPDS): 234",
+          "Postpartum recovery plan completion: 67%",
+          "Birth outcome tracking: 89 tracked deliveries",
+          "Social determinant flags addressed: 312"
         ],
-        "integrationDepth": "Accessibility layer for all 22 sibling platforms — ensures clinical communications, educational content, and business tools are accessible regardless of language or dialect"
+        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
       },
       "grant_alignment": [
         "st-davids",
-        "ssg-fox",
-        "wioa",
-        "foundation"
+        "foundation",
+        "ssg-fox"
       ],
-      "last_heartbeat": "2026-03-22T03:08:23.128Z"
+      "last_heartbeat": null
     },
     {
       "id": "ecosystem-nexus",
@@ -1065,50 +1109,6 @@
         "ssg-fox",
         "foundation",
         "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "sankofa-maternal-health",
-      "name": "Black Maternal Health Network",
-      "url": "https://yourhealthbirthright.net",
-      "role": "maternal-health",
-      "domain": "health-equity",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
-      "capabilities": {
-        "features": [
-          "Maternal Risk Assessment",
-          "Certified Doula Matching",
-          "Prenatal Care Navigation",
-          "Postnatal Care Coordination",
-          "Maternal Mental Health (EPDS)",
-          "Community Health Workers",
-          "Breastfeeding Support",
-          "Postpartum Recovery Plans",
-          "Birth Plan Builder",
-          "Hospital Bag Checklist",
-          "Appointment Tracker",
-          "Social Determinant Screening"
-        ],
-        "parentNetwork": "sankofa",
-        "grantNarrative": "Produces maternal mortality reduction data, doula utilization rates, prenatal visit compliance, and postpartum recovery outcomes for St. David's and foundation grants targeting the 3x maternal mortality gap",
-        "outcomeMetrics": [
-          "Prenatal care navigation enrollments: 178",
-          "Doula match-to-engagement rate: 74%",
-          "Maternal mental health screenings (EPDS): 234",
-          "Postpartum recovery plan completion: 67%",
-          "Birth outcome tracking: 89 tracked deliveries",
-          "Social determinant flags addressed: 312"
-        ],
-        "integrationDepth": "Bidirectional with Feminine Health (reproductive), Whole-Person Health (crisis), LifeBridge (social determinants), SafeCogniCare (cognitive), PillScheduler (prenatal vitamins)"
-      },
-      "grant_alignment": [
-        "st-davids",
-        "foundation",
-        "ssg-fox"
       ],
       "last_heartbeat": null
     },
@@ -1392,6 +1392,53 @@
       "last_heartbeat": null
     },
     {
+      "id": "mce",
+      "name": "Minority Center of Excellence",
+      "url": "https://minoritycenterofexcellence.com",
+      "role": "business-ecosystem",
+      "domain": "business-intelligence",
+      "status": "registered",
+      "health_status": "online",
+      "public_visible": true,
+      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
+      "capabilities": {
+        "records": 656794,
+        "features": [
+          "6-Stage Business Lifecycle Engine",
+          "656,794 SAM.gov Records",
+          "14 AI Tools",
+          "Dual-AI Proposal Review (GPT+Claude)",
+          "SAM.gov Live Integration",
+          "Business Health Score Algorithm",
+          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
+          "Teaming Hub",
+          "Contract Intelligence Dashboard",
+          "Revenue Impact Tracker",
+          "50-State Certification Coverage",
+          "Proposal Template Library",
+          "Market Research Tools",
+          "Competitor Analysis"
+        ],
+        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
+        "outcomeMetrics": [
+          "SAM.gov records curated: 656,794",
+          "Business certifications assisted: 89",
+          "Contract opportunities matched: 1,234",
+          "Dual-AI proposal reviews: 345",
+          "Business Health Score assessments: 567",
+          "Teaming Hub matches: 78",
+          "Revenue impact tracked: $4.2M across client portfolio"
+        ],
+        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
+      },
+      "grant_alignment": [
+        "wioa",
+        "foundation",
+        "ssg-fox"
+      ],
+      "last_heartbeat": null
+    },
+    {
       "id": "safereport",
       "name": "SafeReport",
       "url": "https://safereports.net",
@@ -1436,53 +1483,6 @@
         "ssg-fox",
         "foundation",
         "st-davids"
-      ],
-      "last_heartbeat": null
-    },
-    {
-      "id": "mce",
-      "name": "Minority Center of Excellence",
-      "url": "https://minoritycenterofexcellence.com",
-      "role": "business-ecosystem",
-      "domain": "business-intelligence",
-      "status": "registered",
-      "health_status": "online",
-      "public_visible": true,
-      "description": "First comprehensive digital ecosystem for minority-owned businesses with 656,794 curated SAM.gov records. 14 AI-powered tools covering the 6-stage business lifecycle (Start → Certify → Find → Bid → Win → Scale). Dual-AI proposal review system (GPT + Claude cross-validation), live SAM.gov integration pulling real federal opportunities, 50-state + DC certification coverage, Business Health Score algorithm, Teaming Hub for joint venture matching, and Certification Wizard for 8(a)/HUBZone/WOSB/SDVOSB guidance. Integrates with Pinnacle for contractor enablement, M2C for veteran entrepreneurs, and Whole-Person Health for workforce wellness. Produces business outcome data (certifications obtained, contracts won, revenue impact) for WIOA and foundation grants.",
-      "capabilities": {
-        "records": 656794,
-        "features": [
-          "6-Stage Business Lifecycle Engine",
-          "656,794 SAM.gov Records",
-          "14 AI Tools",
-          "Dual-AI Proposal Review (GPT+Claude)",
-          "SAM.gov Live Integration",
-          "Business Health Score Algorithm",
-          "Certification Wizard (8(a)/HUBZone/WOSB/SDVOSB)",
-          "Teaming Hub",
-          "Contract Intelligence Dashboard",
-          "Revenue Impact Tracker",
-          "50-State Certification Coverage",
-          "Proposal Template Library",
-          "Market Research Tools",
-          "Competitor Analysis"
-        ],
-        "grantNarrative": "Produces business certification rates, contract win data, revenue impact metrics, and minority business growth outcomes for WIOA workforce and foundation economic development grants",
-        "outcomeMetrics": [
-          "SAM.gov records curated: 656,794",
-          "Business certifications assisted: 89",
-          "Contract opportunities matched: 1,234",
-          "Dual-AI proposal reviews: 345",
-          "Business Health Score assessments: 567",
-          "Teaming Hub matches: 78",
-          "Revenue impact tracked: $4.2M across client portfolio"
-        ],
-        "integrationDepth": "Bidirectional with Pinnacle (contractor enablement), M2C (veteran entrepreneurs), Ad Targeting (business outreach), Video Creator AI (marketing content)"
-      },
-      "grant_alignment": [
-        "wioa",
-        "foundation",
-        "ssg-fox"
       ],
       "last_heartbeat": null
     },

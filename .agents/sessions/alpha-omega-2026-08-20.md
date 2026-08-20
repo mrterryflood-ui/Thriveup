@@ -31,3 +31,12 @@
 - Residuals and reusable guard: Future build sessions must create the dated
   Alpha Omega record before completion. The verifier prevents protocol drift
   but cannot prove the quality of the agent's analysis.
+
+## Capability-independent execution standard
+- Persisted in the user profile and project constitution: rigor, scope,
+  applicable-skill compliance, and verification depth do not vary by session
+  mode or available capability.
+- Required behaviors: inspect first; load every applicable skill; enforce Iron
+  Rules; implement backend/UI/safety/edge-case scope; run direct proof; restart
+  and inspect relevant workflows; fail closed; continue through obstacles; and
+  distinguish verified results, residual risks, and user-blocked actions.

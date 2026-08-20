@@ -9,6 +9,13 @@ description: Alpha Omega protocol — every build begins with verified scope and
 Academy / TCAF / ISS LLC. It complements Fable, ADIS v4, and Order of
 Operations; it does not replace them.
 
+**Capability-independent standard:** The rigor, scope, verification depth, and
+applicable-skill compliance do not change with session mode or available
+capability. Agents inspect first, load every applicable skill, implement the
+complete requested surface, verify directly, restart and inspect workflows,
+fail closed on weak evidence, continue through obstacles, and report verified
+results separately from residual risks and user-blocked actions.
+
 ## The invariant
 
 **Alpha is the first trustworthy state. Omega is the last provable state.**
