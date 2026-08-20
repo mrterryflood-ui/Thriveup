@@ -5,6 +5,7 @@ const CDC_DATASET = "2ew6-ywp6";
 const RPLICE_THRIVEUP_API = (process.env.RPLICE_THRIVEUP_API_URL || "https://www.bettersciencelab.com/api/v1/thriveup").replace(/\/$/, "");
 const CACHE_TTL_MS = 15 * 60 * 1000;
 const cache = new Map<string, { expiresAt: number; value: VirusTrendResponse }>();
+const requestCounts = new Map<string, { startedAt: number; count: number }>();
 
 type VirusObservation = {
   state: string;
@@ -23,6 +24,8 @@ type VirusTrendResponse = {
   filters: { state: string | null; city: string | null; days: number };
   observations: VirusObservation[];
   trend: { date: string; averageDetectionRate: number | null; reportingSites: number }[];
+  stateSummary: { state: string; observations: number; reportingSites: number; latestDate: string | null; averageDetectionRate: number | null }[];
+  latestObservedDate: string | null;
   rplIceOutbreakFindings: Array<{
     id: string;
     receivedAt: string;
@@ -30,7 +33,7 @@ type VirusTrendResponse = {
     finding: string | null;
     evidenceLevel: string | null;
     citations: string[];
-    source: "RPLICE inbound evidence feed";
+    source: "RPLICE inbound evidence feed" | "RPLICE ThriveUp surveillance API";
     status: "evidence";
   }>;
   rpliceApi: { available: boolean; source: string; note: string };
@@ -126,7 +129,7 @@ async function fetchRpliceSurveillance(state: string | null, city: string | null
   if (![summaryResponse, outbreakResponse, osintResponse].some((response) => response.ok)) {
     return { available: false, summary: null, outbreaks: [], osint: [] };
   }
-  const read = async (response: Response) => response.ok ? response.json() : null;
+  const read = async (response: globalThis.Response) => response.ok ? response.json() : null;
   const [summary, outbreaks, osint] = await Promise.all([read(summaryResponse), read(outbreakResponse), read(osintResponse)]);
   const asItems = (value: any): any[] => Array.isArray(value) ? value : Array.isArray(value?.data) ? value.data : Array.isArray(value?.items) ? value.items : Array.isArray(value?.results) ? value.results : [];
   return { available: true, summary, outbreaks: asItems(outbreaks), osint: asItems(osint) };
@@ -148,9 +151,19 @@ function normalizeRpliceFindings(feed: any[]) {
 export function registerVirusTrendRoutes(app: Express) {
   app.get("/api/public-health/virus-trends", async (req: Request, res: Response) => {
     try {
+      const ip = req.ip || "unknown";
+      const now = Date.now();
+      const window = requestCounts.get(ip);
+      if (!window || now - window.startedAt >= 60_000) {
+        requestCounts.set(ip, { startedAt: now, count: 1 });
+      } else if (window.count >= 30) {
+        return res.status(429).json({ error: "Too many requests. Limit: 30/min." });
+      } else {
+        window.count++;
+      }
       const state = textOrNull(req.query.state)?.toUpperCase() ?? null;
       const city = textOrNull(req.query.city);
-      const requestedDays = Number(req.query.days ?? 90);
+      const requestedDays = Number(req.query.days ?? 365);
       const days = Number.isFinite(requestedDays) ? Math.min(Math.max(Math.round(requestedDays), 30), 365) : 90;
       if (state && !/^[A-Z]{2}$/.test(state)) {
         return res.status(400).json({ error: "state must be a two-letter US state code" });
@@ -178,6 +191,22 @@ export function registerVirusTrendRoutes(app: Express) {
           reportingSites: rows.length,
         };
       });
+      const byState = new Map<string, VirusObservation[]>();
+      for (const observation of observations) {
+        const rows = byState.get(observation.state) ?? [];
+        rows.push(observation);
+        byState.set(observation.state, rows);
+      }
+      const stateSummary = [...byState.entries()].map(([stateCode, rows]) => {
+        const values = rows.map((row) => row.detectionRate).filter((value): value is number => value !== null);
+        return {
+          state: stateCode,
+          observations: rows.length,
+          reportingSites: new Set(rows.map((row) => row.city ?? row.county ?? row.state)).size,
+          latestDate: rows.map((row) => row.date).sort().at(-1) ?? null,
+          averageDetectionRate: values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : null,
+        };
+      }).sort((a, b) => b.observations - a.observations);
 
       const apiFindings = normalizeRpliceFindings([...rplice.outbreaks, ...rplice.osint]);
       const result: VirusTrendResponse = {
@@ -185,6 +214,8 @@ export function registerVirusTrendRoutes(app: Express) {
         filters: { state, city, days },
         observations: observations.slice(0, 250),
         trend,
+        stateSummary,
+        latestObservedDate: observations.map((row) => row.date).sort().at(-1) ?? null,
         rplIceOutbreakFindings: [...apiFindings, ...buildRplIceFindings()].slice(0, 25),
         rpliceApi: {
           available: rplice.available,

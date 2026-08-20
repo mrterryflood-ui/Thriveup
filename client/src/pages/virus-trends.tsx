@@ -15,6 +15,7 @@ type TrendData = {
   observations: { state: string; county: string | null; city: string | null; date: string; detectionRate: number | null; percentile: number | null; populationServed: number | null; source: string; status: string }[];
   trend: { date: string; averageDetectionRate: number | null; reportingSites: number }[];
   stateSummary: { state: string; observations: number; reportingSites: number; latestDate: string | null; averageDetectionRate: number | null }[];
+  latestObservedDate: string | null;
   rplIceOutbreakFindings: { id: string; receivedAt: string; region: string | null; finding: string | null; evidenceLevel: string | null; citations: string[] }[];
   sources: { name: string; url: string; type: string }[];
   coverage: { virusObservation: string; rpliceOutbreaks: string };
@@ -30,7 +31,7 @@ export default function VirusTrendsPage() {
   const query = useQuery<TrendData>({
     queryKey: ["/api/public-health/virus-trends", submitted],
     queryFn: async () => {
-      const params = new URLSearchParams({ days: "90" });
+      const params = new URLSearchParams({ days: "365" });
       if (submitted.state) params.set("state", submitted.state);
       if (submitted.city) params.set("city", submitted.city);
       const response = await apiRequest("GET", `/api/public-health/virus-trends?${params}`);
@@ -53,6 +54,7 @@ export default function VirusTrendsPage() {
         </p>
         <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
           <span>Observed ≠ modeled</span><span>•</span><span>Missing data ≠ zero activity</span>
+          {data?.latestObservedDate && <><span>•</span><span>Latest CDC observation {data.latestObservedDate}</span></>}
           {data?.generatedAt && <><span>•</span><span>Updated {new Date(data.generatedAt).toLocaleString()}</span></>}
         </div>
       </header>
