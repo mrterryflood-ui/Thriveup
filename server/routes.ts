@@ -188,6 +188,7 @@ import { seedTcafAdmins } from "./seed-tcaf-admins";
 import { seedOrgMemberships } from "./seed-org-memberships";
 import { registerWonProposalsRoutes } from "./won-proposals-routes";
 import { registerGunViolenceRoutes } from "./gun-violence-routes";
+import { registerVirusTrendRoutes } from "./virus-trend-routes";
 import { registerProviderDiscoveryRoutes } from "./provider-discovery-routes";
 import { registerActiveBidsRoutes } from "./active-bids-routes";
 import { registerRfpFidelityRoutes } from "./rfp-fidelity-routes";
@@ -593,6 +594,7 @@ export async function registerRoutes(
   registerNeighborhoodRoutes(app);
   registerCommunityIntelligenceRoutes(app);
   registerGunViolenceRoutes(app);
+  registerVirusTrendRoutes(app);
   registerProviderDiscoveryRoutes(app);
   registerExportPdfRoutes(app);
   registerCommunityStoryRoutes(app);

@@ -299,6 +299,7 @@ const CorridorEvidencePage = lazy(() => import("@/pages/corridor-evidence"));
 const CorridorDocsPage = lazy(() => import("@/pages/corridor-docs"));
 const CorridorDocsLivePage = lazy(() => import("@/pages/corridor-docs-live"));
 const GunViolenceIntelligencePage = lazy(() => import("@/pages/gun-violence-intelligence"));
+const VirusTrendsPage = lazy(() => import("@/pages/virus-trends"));
 const NetworkMembersPage = lazy(() => import("@/pages/network-members"));
 const ResidentJourneyPage = lazy(() => import("@/pages/resident-journey"));
 const CaseManagerViewPage = lazy(() => import("@/pages/case-manager-view"));
@@ -882,6 +883,7 @@ function AppRouter() {
       <Route path="/engagement-hub" component={EngagementHubPage} />
       <Route path="/corridor-intelligence" component={CorridorIntelligencePage} />
       <Route path="/gun-violence" component={GunViolenceIntelligencePage} />
+      <Route path="/virus-trends" component={VirusTrendsPage} />
       <Route path="/grant-conduit" component={GrantConduitPage} />
       <Route path="/for-agencies" component={ForAgenciesPage} />
       <Route path="/community-story-pack" component={CommunityStoryPackPage} />

@@ -167,6 +167,7 @@ const justiceReentryItems: NavItem[] = [
 // HUB 2d — Prevention & Health: behavioral health, prevention, veterans, CHW.
 const preventionHealthItems: NavItem[] = [
   { title: "Gun Violence Intelligence", url: "/gun-violence", icon: Shield },
+  { title: "Virus & Outbreak Trends", url: "/virus-trends", icon: Activity },
   { title: "Veterans Program", url: "/veterans", icon: Shield },
   { title: "Behavioral Health Program", url: "/behavioral-health", icon: Heart },
   { title: "Prevention Hub", url: "/prevention", icon: ShieldCheck },
