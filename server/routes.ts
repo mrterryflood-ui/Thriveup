@@ -4167,8 +4167,8 @@ export async function registerRoutes(
   app.get("/api/community-map/resource-graph/:stateCode", async (req, res) => {
     try {
       const stateCode = String(req.params.stateCode || "").toUpperCase();
-      if (!/^[A-Z]{2}$/.test(stateCode)) {
-        return res.status(400).json({ error: "Valid 2-letter state code required" });
+      if (!getStatesList().some((state) => state.code === stateCode)) {
+        return res.status(400).json({ error: "Known 2-letter state code required" });
       }
       res.json(buildCanonicalResourceGraph(stateCode));
     } catch (error) {
