@@ -830,7 +830,7 @@ export default function CommunityResourceDirectoryPage() {
                   <Link href="/ecosystem"><Layers className="w-3 h-3 mr-1" /> Ecosystem Connector</Link>
                 </Button>
                 <Button size="sm" variant="outline" className="text-xs" asChild>
-                  <Link href="/ecosystem-hub-legacy"><ArrowRight className="w-3 h-3 mr-1" /> Ecosystem Hub</Link>
+                  <Link href="/ecosystem"><ArrowRight className="w-3 h-3 mr-1" /> Ecosystem Hub</Link>
                 </Button>
                 <Button size="sm" variant="outline" className="text-xs" asChild>
                   <Link href="/justice-command-center"><Shield className="w-3 h-3 mr-1" /> Justice Command Center</Link>

@@ -116,23 +116,80 @@ async function fetchCdcObservations(state: string | null, city: string | null, d
   })).filter((row: VirusObservation) => row.date);
 }
 
+let discoveryCache: { checkedAt: number; advertised: Set<string> | null; discoveryOk: boolean } | null = null;
+const DISCOVERY_CACHE_TTL_MS = 15 * 60 * 1000;
+
+// Discovery-first: ask the upstream RPLICE ThriveUp API what it actually advertises
+// before assuming any surveillance endpoint exists. If discovery itself is
+// unavailable (e.g. not implemented at this host), we fall back to the
+// documented integration contract endpoints but disclose that the fallback
+// was NOT capability-verified, rather than silently pretending it was.
+async function getAdvertisedCapabilities(): Promise<{ advertised: Set<string> | null; discoveryOk: boolean }> {
+  if (discoveryCache && Date.now() - discoveryCache.checkedAt < DISCOVERY_CACHE_TTL_MS) {
+    return { advertised: discoveryCache.advertised, discoveryOk: discoveryCache.discoveryOk };
+  }
+  try {
+    const response = await fetch(`${RPLICE_THRIVEUP_API}/_discovery`, {
+      headers: { Accept: "application/json" },
+      signal: AbortSignal.timeout(6_000),
+    });
+    if (!response.ok) {
+      discoveryCache = { checkedAt: Date.now(), advertised: null, discoveryOk: false };
+      return { advertised: null, discoveryOk: false };
+    }
+    const body = await response.json();
+    const capabilities: unknown = body?.capabilities ?? body?.endpoints ?? body?.surfaces;
+    const advertised = new Set<string>(
+      Array.isArray(capabilities)
+        ? capabilities.filter((v): v is string => typeof v === "string")
+        : []
+    );
+    discoveryCache = { checkedAt: Date.now(), advertised, discoveryOk: true };
+    return { advertised, discoveryOk: true };
+  } catch {
+    discoveryCache = { checkedAt: Date.now(), advertised: null, discoveryOk: false };
+    return { advertised: null, discoveryOk: false };
+  }
+}
+
 async function fetchRpliceSurveillance(state: string | null, city: string | null) {
+  const { advertised, discoveryOk } = await getAdvertisedCapabilities();
+
+  const candidateEndpoints = ["surveillance/summary", "surveillance/outbreaks", "surveillance/osint-feed"];
+  // Only call an endpoint if discovery explicitly advertised it, OR discovery
+  // itself was unavailable (unknown, not confirmed-absent) — in which case we
+  // fall back to the documented contract but mark the result unverified.
+  const endpointsToTry = discoveryOk
+    ? candidateEndpoints.filter((ep) => advertised?.has(ep))
+    : candidateEndpoints;
+
+  if (discoveryOk && endpointsToTry.length === 0) {
+    return { available: false, verified: true, discoveryOk: true, summary: null, outbreaks: [], osint: [] };
+  }
+
   const params = new URLSearchParams();
   if (state) params.set("state", state);
   if (city) params.set("city", city);
   const suffix = params.toString() ? `?${params}` : "";
-  const [summaryResponse, outbreakResponse, osintResponse] = await Promise.all([
-    fetch(`${RPLICE_THRIVEUP_API}/surveillance/summary${suffix}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8_000) }),
-    fetch(`${RPLICE_THRIVEUP_API}/surveillance/outbreaks${suffix}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8_000) }),
-    fetch(`${RPLICE_THRIVEUP_API}/surveillance/osint-feed${suffix}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8_000) }),
-  ]);
-  if (![summaryResponse, outbreakResponse, osintResponse].some((response) => response.ok)) {
-    return { available: false, summary: null, outbreaks: [], osint: [] };
+
+  const responses = await Promise.all(
+    endpointsToTry.map((ep) =>
+      fetch(`${RPLICE_THRIVEUP_API}/${ep}${suffix}`, { headers: { Accept: "application/json" }, signal: AbortSignal.timeout(8_000) })
+        .catch(() => null)
+    )
+  );
+  if (!responses.some((response) => response && response.ok)) {
+    return { available: false, verified: discoveryOk, discoveryOk, summary: null, outbreaks: [], osint: [] };
   }
-  const read = async (response: globalThis.Response) => response.ok ? response.json() : null;
-  const [summary, outbreaks, osint] = await Promise.all([read(summaryResponse), read(outbreakResponse), read(osintResponse)]);
+  const read = async (response: globalThis.Response | null) => response && response.ok ? response.json() : null;
+  const byName = new Map(endpointsToTry.map((ep, i) => [ep, responses[i]] as const));
+  const [summary, outbreaks, osint] = await Promise.all([
+    read(byName.get("surveillance/summary") ?? null),
+    read(byName.get("surveillance/outbreaks") ?? null),
+    read(byName.get("surveillance/osint-feed") ?? null),
+  ]);
   const asItems = (value: any): any[] => Array.isArray(value) ? value : Array.isArray(value?.data) ? value.data : Array.isArray(value?.items) ? value.items : Array.isArray(value?.results) ? value.results : [];
-  return { available: true, summary, outbreaks: asItems(outbreaks), osint: asItems(osint) };
+  return { available: true, verified: discoveryOk, discoveryOk, summary, outbreaks: asItems(outbreaks), osint: asItems(osint) };
 }
 
 function normalizeRpliceFindings(feed: any[]) {

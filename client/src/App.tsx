@@ -187,7 +187,6 @@ const WonProposalsPage = lazy(() => import("@/pages/won-proposals"));
 const ConglomerateTeamPage = lazy(() => import("@/pages/conglomerate-team"));
 const AdvisoryBoardPage = lazy(() => import("@/pages/advisory-board"));
 const StaffingPlanPage = lazy(() => import("@/pages/staffing-plan"));
-const EcosystemHubPage = lazy(() => import("@/pages/ecosystem-hub"));
 const PreventionStrategiesPage = lazy(() => import("@/pages/prevention-strategies"));
 const FacilitatorHubPage = lazy(() => import("@/pages/facilitator-hub"));
 const PlatformMetricsPage = lazy(() => import("@/pages/platform-metrics"));
@@ -709,7 +708,7 @@ function AppRouter() {
       <Route path="/advisory-board" component={AdvisoryBoardPage} />
       <Route path="/staffing-plan" component={StaffingPlanPage} />
       <Route path="/ecosystem" component={EcosystemConnectorPage} />
-      <Route path="/ecosystem-hub-legacy" component={EcosystemHubPage} />
+      <Route path="/ecosystem-hub-legacy"><Redirect to="/ecosystem" /></Route>
       <Route path="/prevention-strategies" component={PreventionStrategiesPage} />
       <Route path="/facilitator-hub" component={FacilitatorHubPage} />
       <Route path="/platform-metrics" component={PlatformMetricsPage} />
