@@ -194,6 +194,23 @@ function TrustBar() {
           </p>
         </div>
 
+         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto mb-5">
+           <div className="rounded-lg border bg-card/80 p-4 text-left" data-testid="card-entity-tcaf">
+             <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">Community mission</p>
+             <h3 className="font-semibold">The Collaborative Advocate Foundation</h3>
+             <p className="text-sm text-muted-foreground mt-1">
+               The nonprofit lane for community navigation, mental health and wellness access, family support, education, workforce pathways, military transition support, and partner capacity.
+             </p>
+           </div>
+           <div className="rounded-lg border bg-card/80 p-4 text-left" data-testid="card-entity-iss">
+             <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">Delivery and contracting</p>
+             <h3 className="font-semibold">Integrated Services and Solutions LLC</h3>
+             <p className="text-sm text-muted-foreground mt-1">
+               The for-profit lane for consulting, HR solutions, workforce development, training, contract delivery, supplies, maintenance support, and assembled project teams.
+             </p>
+           </div>
+         </div>
+
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto" data-testid="grid-trust-credentials">
           <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-ein">
             <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">EIN</p>
@@ -380,28 +397,40 @@ function CommunitiesWeServe() {
 function WhatWeDeliver() {
   const programs = [
     {
-      icon: GraduationCap, title: "ThriveUp Workforce Readiness Certificate",
-      desc: "15-week AI-powered curriculum covering professional presence, workplace rights, safety (OSHA), time management, and work ethic. Mapped to all 20 TEKS §127.15 CTE standards. Completers earn a verifiable digital credential they own forever.",
+      icon: Heart, title: "Whole-person health and mental wellness",
+      desc: "Practical navigation, screening, prevention, and connection-to-care tools that recognize mental health alongside housing, work, family, safety, and other conditions that shape wellbeing.",
+      href: "/health-wellness",
+      action: "Explore health and wellness",
+    },
+    {
+      icon: Shield, title: "Military transition and veteran pathways",
+      desc: "Support for veterans, service members, and military families as they move between service and civilian life—including benefits navigation, skills translation, career preparation, and connections to community support.",
+      href: "/transition-plans",
+      action: "Explore transition support",
+    },
+    {
+      icon: GraduationCap, title: "Workforce development and training",
+      desc: "Career readiness, digital skills, skilled-trade learning, professional development, and practical training that help people and teams move from preparation to opportunity.",
       href: "/curriculum",
-      action: "Start Learning Free",
+      action: "Explore learning pathways",
     },
     {
-      icon: Building2, title: "Community Empowerment Infrastructure",
-      desc: "We don't parachute in and leave. We equip churches, nonprofits, schools, and local organizations with the tools to run their own programs, track their own outcomes, and sustain their own impact. Platform-agnostic. Community-led. Built to last beyond any single grant.",
-      href: "/coalition",
-      action: "Join the Coalition",
+      icon: Briefcase, title: "Consulting, HR, and organizational support",
+      desc: "We help organizations clarify needs, strengthen teams, improve operations, build workforce plans, and turn complex goals into practical work plans.",
+      href: "/contact",
+      action: "Talk with our team",
     },
     {
-      icon: BarChart3, title: "Transparent Outcome Accountability",
-      desc: "Employment at 30/90/180/365 days, credential attainment, recidivism reduction, wage gains, and housing stability — all transparent, all verifiable. Communities see their own data. Funders see proof.",
-      href: "/sdoh-explorer",
-      action: "See Community Data",
+      icon: Wrench, title: "Contract delivery, supplies, and maintenance support",
+      desc: "For eligible projects, ISS LLC can organize delivery across services, supplies, logistics, maintenance support, and the people needed to complete the work responsibly.",
+      href: "/contact",
+      action: "Discuss a project",
     },
     {
-      icon: Sparkles, title: "AI That Works for the Community",
-      desc: "Four AI engines that personalize learning paths, screen for benefits, map community needs, and evaluate what's working — putting the power of data science in the hands of the people it's supposed to help.",
-      href: "/benefits-screener",
-      action: "Try the AI Screener",
+      icon: Building2, title: "Community infrastructure and evidence",
+      desc: "We give nonprofits, schools, agencies, and community partners usable tools, local information, referrals, reporting, and planning support so good work can be coordinated and sustained.",
+      href: "/for-nonprofits",
+      action: "For organizations",
     },
   ];
 
@@ -409,9 +438,9 @@ function WhatWeDeliver() {
     <section className="py-12 px-4 sm:py-16 sm:px-6 bg-card" data-testid="section-what-we-deliver">
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-deliver-heading">What We Actually Build</h2>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-deliver-heading">What We Deliver</h2>
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            Not promises — infrastructure. Not handouts — credentials. Not rigid programs — agile systems that adapt to each community. We build through intentional collaboration and transparent communication, so every stakeholder sees the same truth.
+            We bring people, organizations, and delivery partners from need to next step: care, preparation, training, coordination, project delivery, and learning. The work is community-serving, practical, and built to be used.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
