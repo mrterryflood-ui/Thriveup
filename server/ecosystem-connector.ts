@@ -835,6 +835,24 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["st-davids", "ssg-fox", "foundation"],
   },
   {
+    id: "talk-your-talk",
+    name: "Talk Your Talk",
+    url: "https://talkyourtalk.net",
+    role: "language-access",
+    domain: "communication-access",
+    description: "Language and communication-access platform helping people communicate across spoken language, dialect, and accessibility needs. Owned and operated independently; ThriveUp links to it as a communication-access handoff for community health workers and Navigator users when language or dialect is a barrier to service connection.",
+    capabilities: {
+      features: ["Language Access", "Dialect-Aware Communication", "Translation Support", "Speech and Text Tools", "Culturally Responsive Communication"],
+      integrationDepth: "External link only — no data exchange contract established yet; ThriveUp does not consume or federate Talk Your Talk content.",
+      grantNarrative: "Referenced as a communication-access resource for language/dialect barriers encountered during service navigation.",
+    },
+    dataFlowConfig: {
+      sends: [],
+      receives: [],
+    },
+    grantAlignment: ["wioa", "hrsa"],
+  },
+  {
     id: "emergency-mgmt",
     name: "Emergency Management",
     url: "https://emergency-mgmt.replit.app",
