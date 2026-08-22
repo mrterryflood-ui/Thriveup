@@ -275,6 +275,26 @@ const partnersCoalitionsItems: NavItem[] = [
   { title: "Embed Our Tools", url: "/for-partners", icon: Globe },
 ];
 
+// Connected sites are intentionally kept in one discoverable directory rather
+// than competing with the homepage's focused featured pathways.
+const connectedSiteItems: NavItem[] = [
+  { title: "ThriveUp / TCAF", url: "/ecosystem", icon: Layers },
+  { title: "Whole-Person Health", url: "https://mentalwellnesssupport.net", icon: Heart },
+  { title: "Feminine Health", url: "https://herhealthmatters2.com", icon: Stethoscope },
+  { title: "Maternal Health", url: "https://yourhealthbirthright.net", icon: Baby },
+  { title: "Men's Health", url: "https://thehealthyblkman.com", icon: User },
+  { title: "Mission Transition", url: "https://vetmissiontransition.com", icon: Shield },
+  { title: "LifeBridge", url: "https://lifetransitionsaid.org", icon: Compass },
+  { title: "Talk Your Talk", url: "https://talkyourtalk.net", icon: MessageCircle },
+  { title: "WholeMind Learning", url: "https://wholemindlearning.com", icon: BookOpen },
+  { title: "Perfectly Different", url: "https://neurodifferentassistant.app", icon: Brain },
+  { title: "SafeReport", url: "https://safereports.net", icon: FileText },
+  { title: "SafeCogniCare", url: "https://safecognicare.com", icon: Activity },
+  { title: "Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", icon: GraduationCap },
+  { title: "Minority Center of Excellence", url: "https://minoritycenterofexcellence.com", icon: Briefcase },
+  { title: "RPLICE Research Hub", url: "https://www.bettersciencelab.com", icon: Microscope },
+];
+
 // HUB 6 — Where We Operate: national coverage, transparency, neighborhood
 // intel, impact dashboards. CTX-specific items live in the CTX hub above.
 const whereWeOperateItems: NavItem[] = [
@@ -702,6 +722,40 @@ export function AppSidebar() {
               </div>
             </div>
           </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <Collapsible defaultOpen={false} className="group/collapsible">
+            <SidebarGroupLabel asChild>
+              <CollapsibleTrigger className="w-full">
+                <Globe className="mr-2 h-4 w-4" />
+                Connected sites
+                <ChevronRight className="ml-auto transition-transform group-data-[state=open]/collapsible:rotate-90" />
+              </CollapsibleTrigger>
+            </SidebarGroupLabel>
+            <CollapsibleContent>
+              <SidebarGroupContent>
+                <SidebarMenu>
+                  {connectedSiteItems.map((item) => (
+                    <SidebarMenuItem key={item.url}>
+                      <SidebarMenuButton asChild>
+                        <a
+                          href={item.url}
+                          target={item.url.startsWith("https://") ? "_blank" : undefined}
+                          rel={item.url.startsWith("https://") ? "noopener noreferrer" : undefined}
+                          aria-label={item.title}
+                          data-testid={`link-connected-site-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                        >
+                          <item.icon className="h-4 w-4" aria-hidden="true" />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  ))}
+                </SidebarMenu>
+              </SidebarGroupContent>
+            </CollapsibleContent>
+          </Collapsible>
         </SidebarGroup>
 
         {/* QUICK TASKS — always visible, task-first entry points. */}

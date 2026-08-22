@@ -142,9 +142,8 @@ const PATHWAYS = [
   },
 ];
 
-// Public-facing portfolio copy deliberately stays at the capability level:
-// it explains what a person or partner can do without promising that an
-// external platform's live service, capacity, or data exchange is available.
+// The homepage keeps a small set of featured pathways. The complete connected
+// site directory lives in the sidebar so the landing story stays focused.
 const FEATURED_SERVICE_PLATFORMS = [
   {
     name: "Whole-Person Health",
@@ -154,22 +153,22 @@ const FEATURED_SERVICE_PLATFORMS = [
     theme: "text-rose-600 bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300",
   },
   {
-    name: "HerHealth Network",
+    name: "Female Health",
     description: "Culturally responsive feminine health support, preventive care education, reproductive wellness, and connection to appropriate care.",
     href: "https://herhealthmatters2.com",
     icon: Stethoscope,
     theme: "text-pink-600 bg-pink-100 dark:bg-pink-950/40 dark:text-pink-300",
   },
   {
-    name: "Black Maternal Health Network",
+    name: "Maternal Health",
     description: "Prenatal and postpartum support, maternal mental wellness, doula and community-health-worker navigation, and family-centered planning.",
     href: "https://yourhealthbirthright.net",
     icon: Baby,
     theme: "text-fuchsia-600 bg-fuchsia-100 dark:bg-fuchsia-950/40 dark:text-fuchsia-300",
   },
   {
-    name: "Black Men's Health Hub",
-    description: "Preventive health information, screening navigation, peer connection, and culturally responsive support for Black men and their families.",
+    name: "Men's Health",
+    description: "Preventive health information, screening navigation, peer connection, and practical support for men and their families.",
     href: "https://thehealthyblkman.com",
     icon: User,
     theme: "text-sky-600 bg-sky-100 dark:bg-sky-950/40 dark:text-sky-300",
@@ -180,77 +179,6 @@ const FEATURED_SERVICE_PLATFORMS = [
     href: "https://vetmissiontransition.com",
     icon: Shield,
     theme: "text-blue-600 bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300",
-  },
-  {
-    name: "LifeBridge",
-    description: "Resource navigation for life events and everyday barriers—from food and housing to healthcare, safety, employment, and family support.",
-    href: "https://lifetransitionsaid.org",
-    icon: Compass,
-    theme: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300",
-  },
-  {
-    name: "Talk Your Talk",
-    description: "Language, dialect, and communication-access support so a person can be understood before they are asked to navigate a system.",
-    href: "https://talkyourtalk.net",
-    icon: MessageSquare,
-    theme: "text-violet-600 bg-violet-100 dark:bg-violet-950/40 dark:text-violet-300",
-  },
-  {
-    name: "WholeMind Learning",
-    description: "Visual-first learning support for young people and families, with adaptive education, accessibility, and practical progress tools.",
-    href: "https://wholemindlearning.com",
-    icon: BookOpen,
-    theme: "text-amber-600 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300",
-  },
-  {
-    name: "Perfectly Different",
-    description: "Neurodiversity-affirming guidance, IEP/504 support, family resources, and practical tools for autistic and ADHD communities.",
-    href: "https://neurodifferentassistant.app",
-    icon: Brain,
-    theme: "text-purple-600 bg-purple-100 dark:bg-purple-950/40 dark:text-purple-300",
-  },
-  {
-    name: "SafeReport",
-    description: "Safety, clinical decision-support, and compliance tools that help community providers respond carefully and document responsibly.",
-    href: "https://safereports.net",
-    icon: FileText,
-    theme: "text-orange-600 bg-orange-100 dark:bg-orange-950/40 dark:text-orange-300",
-  },
-  {
-    name: "SafeCogniCare",
-    description: "Cognitive-health support for people and families navigating TBI, dementia, ADHD, care coordination, and safety planning.",
-    href: "https://safecognicare.com",
-    icon: Activity,
-    theme: "text-teal-600 bg-teal-100 dark:bg-teal-950/40 dark:text-teal-300",
-  },
-  {
-    name: "ThriveUp / TCAF",
-    description: "The coordinating community engine that brings navigation, referrals, community intelligence, learning, and connected service platforms into one accountable path forward.",
-    href: "/ecosystem",
-    external: false,
-    icon: Network,
-    theme: "text-cyan-600 bg-cyan-100 dark:bg-cyan-950/40 dark:text-cyan-300",
-  },
-  {
-    name: "Integrated Supports for Thriving Youth",
-    description: "Whole-child support infrastructure for schools and communities, connecting learning, early support, family engagement, and coordinated action.",
-    href: "https://implementationineducatio.com",
-    icon: GraduationCap,
-    theme: "text-indigo-600 bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300",
-  },
-  {
-    name: "Minority Center of Excellence",
-    description: "Business growth, certification, contracting, teaming, and entrepreneurship support for minority-owned and veteran-owned businesses.",
-    href: "https://minoritycenterofexcellence.com",
-    icon: Briefcase,
-    theme: "text-lime-700 bg-lime-100 dark:bg-lime-950/40 dark:text-lime-300",
-  },
-  {
-    name: "RPLICE",
-    description: "Research-to-practice tools that help organizations turn evidence, community context, implementation plans, and outcomes into action.",
-    href: "https://www.bettersciencelab.com",
-    icon: Microscope,
-    theme: "text-slate-600 bg-slate-100 dark:bg-slate-800 dark:text-slate-300",
   },
 ] as const;
 
@@ -298,7 +226,7 @@ function TrustBar() {
             The Collaborative Advocate Foundation
           </h2>
           <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-2" data-testid="text-trust-summary">
-            A veteran-founded, Black-led 501(c)(3) public charity headquartered in Pflugerville, Texas. Led by Dr. Terry Flood, DHA/DBA, President.
+            A veteran-founded, community-serving 501(c)(3) public charity headquartered in Pflugerville, Texas. Led by Dr. Terry Flood, DHA/DBA, President.
             Contributions are <strong>tax-deductible</strong> under IRS §170 to the fullest extent of the law.
           </p>
           <p className="text-xs text-muted-foreground/70 max-w-2xl mx-auto">
@@ -585,13 +513,13 @@ function PlatformPortfolio() {
       <div className="max-w-6xl mx-auto">
         <div className="max-w-3xl mb-10 sm:mb-12">
           <Badge variant="secondary" className="mb-3">
-            <Layers className="mr-1 h-3 w-3" /> A connected suite, not a one-size-fits-all program
+            <Layers className="mr-1 h-3 w-3" /> Featured pathways
           </Badge>
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4" data-testid="text-platform-portfolio-heading">
             One community engine. Deep support where people need it.
           </h2>
           <p className="text-base text-muted-foreground leading-relaxed">
-            TCAF delivers the ThriveUp community infrastructure: a holistic suite of connected platforms that helps nonprofits serve people across health, family life, education, work, safety, transition, and opportunity. Each platform goes deep in its area; together, they help a person or organization move forward without starting over at every door.
+            TCAF delivers the ThriveUp community infrastructure: connected tools and support for people, families, and the organizations that serve them. Explore these featured pathways below; the complete connected-site directory is available in the sidebar.
           </p>
         </div>
 
@@ -768,10 +696,10 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     color: "from-rose-500 to-pink-600",
     platforms: [
       { name: "Whole-Person Health Ecosystem", url: "https://mentalwellnesssupport.net", desc: "Clinical screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, crisis tools, 20,670+ resources across 2,091 community groups", icon: Heart },
-      { name: "Sankofa Health Network", url: "https://yourhealthbirthright.net", desc: "Health equity gateway orchestrating 5 sub-platforms for culturally responsive behavioral health in Black communities", icon: Stethoscope },
-      { name: "Holistic Black Feminine Health Hub", url: "https://yourfeminineneeds.com", desc: "Reproductive health, preventive screening, hormonal wellness, cervical/breast cancer awareness, culturally responsive provider matching", icon: Heart },
-      { name: "Black Maternal Health Network", url: "https://yourhealthbirthright.net", desc: "Prenatal/postnatal care navigation, certified doula matching, maternal mental health screening — addressing the 3x mortality gap", icon: Baby },
-      { name: "Black Men's Health Hub", url: "https://thehealthyblkman.com", desc: "Prostate cancer screening, cardiovascular risk assessment, mental health stigma reduction, peer mentoring for Black men", icon: User },
+      { name: "Sankofa Health Network", url: "https://yourhealthbirthright.net", desc: "Health equity gateway connecting culturally responsive behavioral health resources", icon: Stethoscope },
+      { name: "Female Health Hub", url: "https://yourfeminineneeds.com", desc: "Reproductive health, preventive screening, hormonal wellness, and culturally responsive provider matching", icon: Heart },
+      { name: "Maternal Health Network", url: "https://yourhealthbirthright.net", desc: "Prenatal and postpartum care navigation, doula matching, and maternal mental wellness support", icon: Baby },
+      { name: "Men's Health Hub", url: "https://thehealthyblkman.com", desc: "Preventive screening, cardiovascular wellness, mental health support, and peer mentoring for men", icon: User },
       { name: "SafeCogniCare", url: "https://safecognicare.com", desc: "TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, care coordination", icon: Brain },
     ],
   },
@@ -1951,7 +1879,7 @@ export default function LandingPage() {
               Built to reach every U.S. community
             </Link>
             {" "}— start in 15 seconds, no account required.
-            Veteran-founded. Black-led.
+            Veteran-founded. Community-serving.
           </p>
 
           <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
