@@ -8,8 +8,8 @@
 - Unknowns/deferred decisions: The task does not establish a new funding or partnership agreement; it explains the available existing platform paths only. Existing project-wide TypeScript failures are owned by downstream task #303 and must not be concealed.
 
 ## Omega
-- Diff scrimmage: Pending implementation.
-- Proofs and gates: Pending implementation.
-- Independent angle: Pending adversarial audit and architect review.
-- Outcome: Pending.
-- Residuals and reusable guard: Pending.
+- Diff scrimmage: Homepage-only diff. No server routes, partner-key behavior, schema, or workflow configuration changed. Removed the duplicate early audience block, redirected nonprofit entry to the existing Agency Connector, replaced unsupported/over-specific front-door copy, removed the rendered legacy testimonial and expandable directory from the homepage, and retained a direct `/ecosystem` directory link.
+- Proofs and gates: Desktop screenshot saved at `screenshots/homepage-desktop.jpg`; sidebar-route, two-click reachability, and tool-reachability checks passed; `git diff --check` passed; the app restarted and served on port 5000. Project TypeScript currently reports 33 errors, all outside the homepage change and below the historical gate threshold; zero-error cleanup remains downstream task #303. Mobile screenshot was attempted but unavailable because the workspace lacks the Playwright WebKit binary.
+- Independent angle: Six-domain adversarial and architect subagents were requested but the current workspace mode disables subagents/code review. This is a verification limitation, not a pass claim. Direct static and runtime checks were used instead.
+- Outcome: Homepage front door now presents four clear paths (resident, nonprofit, funder/evaluator, public/community partner), sends nonprofit leaders to `/agency-connector`, explains the partner-led/TCAF-backbone relationship, and offers `/ecosystem` without requiring sidebar discovery.
+- Residuals and reusable guard: Existing workflow residuals remain visible: the original Start application failure was an EADDRINUSE race with an E2E-owned server; access-model/auth/community-brief gates had environment/data-drift failures (27-vs-28 registry expectation and server availability). Re-run those gates serially after this session if release proof requires a clean full suite. Legacy homepage source still contains an unused `SuccessStories` function with fictional-looking sample names; it is not rendered, but should be removed or replaced in a later content-integrity pass.

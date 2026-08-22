@@ -60,7 +60,7 @@ const PATHWAYS = [
     color: "from-sky-500 to-blue-600",
     bgLight: "bg-sky-50 dark:bg-sky-950/20",
     borderColor: "border-sky-200 dark:border-sky-800",
-    urgency: "Free. 107 languages. No account needed.",
+    urgency: "Free to explore. 107 languages via AI translation.",
   },
   {
     id: "health",
@@ -86,7 +86,7 @@ const PATHWAYS = [
     color: "from-blue-500 to-indigo-600",
     bgLight: "bg-blue-50 dark:bg-blue-950/20",
     borderColor: "border-blue-200 dark:border-blue-800",
-    urgency: "Live Census data. Any U.S. neighborhood.",
+    urgency: "Census-based community context; geography varies.",
   },
   {
     id: "evaluate",
@@ -94,7 +94,7 @@ const PATHWAYS = [
     title: "I'm considering funding or supporting this work",
     subtitle: "Funder, reviewer, evaluator, or prospective partner",
     description: "We built this in the open so you can see exactly how it works. Impact data, methodology, outcome tracking — nothing behind a login wall. Judge us by the evidence.",
-    action: "See the Evidence",
+    action: "See the model",
     href: "/ecosystem-story",
     color: "from-violet-500 to-purple-600",
     bgLight: "bg-violet-50 dark:bg-violet-950/20",
@@ -106,13 +106,13 @@ const PATHWAYS = [
     icon: HandshakeIcon,
     title: "My organization wants to do more for our community",
     subtitle: "Church, nonprofit, employer, school, or agency",
-    description: "Get a live dashboard for your service area in 60 seconds — Census demographics, a benefits catalog, impact numbers, and a grant-ready PDF. Free. No developer needed.",
+    description: "Connect your organization to a guided workflow for service-area context, benefits information, planning support, and reporting.",
     action: "Get My Partner Dashboard",
     href: "/for-nonprofits",
     color: "from-emerald-500 to-teal-600",
     bgLight: "bg-emerald-50 dark:bg-emerald-950/20",
     borderColor: "border-emerald-200 dark:border-emerald-800",
-    urgency: "Free · No approval queue · Dashboard live in 60 seconds.",
+    urgency: "Guided setup · Partner access options explained.",
   },
   {
     id: "affiliate",
@@ -227,7 +227,7 @@ function TrustBar() {
           </h2>
           <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-2" data-testid="text-trust-summary">
             A veteran-founded, community-serving 501(c)(3) public charity headquartered in Pflugerville, Texas. Led by Dr. Terry Flood, DHA/DBA, President.
-            Contributions are <strong>tax-deductible</strong> under IRS §170 to the fullest extent of the law.
+            TCAF is a nonprofit backbone; support and eligibility questions are handled transparently.
           </p>
           <p className="text-xs text-muted-foreground/70 max-w-2xl mx-auto">
             IRS Determination Letter 947 · Effective January 14, 2026 · Public charity under §170(b)(1)(A)(vi) · Form 990 series filer · Fiscal year ends December 31.
@@ -275,16 +275,16 @@ function TrustBar() {
             <Shield className="mr-1 h-3 w-3" /> 501(c)(3) Determined
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-deductible">
-            <CheckCircle2 className="mr-1 h-3 w-3" /> Tax-Deductible
+            <CheckCircle2 className="mr-1 h-3 w-3" /> Nonprofit backbone
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-vosb">
             <Shield className="mr-1 h-3 w-3" /> Veteran-Founded
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-sam-active">
-            <CheckCircle2 className="mr-1 h-3 w-3" /> Federal Award Eligible
+            <CheckCircle2 className="mr-1 h-3 w-3" /> Grant-readiness framework
           </Badge>
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-coppa">
-            <Shield className="mr-1 h-3 w-3" /> COPPA Compliant
+            <Shield className="mr-1 h-3 w-3" /> Privacy and dignity by design
           </Badge>
         </div>
 
@@ -402,7 +402,7 @@ function CommunitiesWeServe() {
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-communities-heading">Who We Empower</h2>
           <p className="text-sm text-muted-foreground max-w-lg mx-auto">
-            We take a holistic approach — seeing the whole person, not just one problem. We're agnostic about where solutions come from and agile enough to adapt when communities tell us what they actually need. The result: infrastructure built through intentional collaboration, not assumptions.
+            We take a whole-person approach — seeing the person, family, and community context together. We listen first, then connect practical tools, trusted partners, and evidence to the work people say they need.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -519,7 +519,7 @@ function PlatformPortfolio() {
             One community engine. Deep support where people need it.
           </h2>
           <p className="text-base text-muted-foreground leading-relaxed">
-            TCAF delivers the ThriveUp community infrastructure: connected tools and support for people, families, and the organizations that serve them. Explore these featured pathways below; the complete connected-site directory is available in the sidebar.
+            TCAF delivers the ThriveUp community infrastructure: connected tools and support for people, families, and the organizations that serve them. Explore these featured pathways below, or view the complete connected-site directory when you are ready to go deeper.
           </p>
         </div>
 
@@ -559,11 +559,18 @@ function PlatformPortfolio() {
             <p className="font-semibold">For nonprofits: bring your mission, not a technical team.</p>
             <p className="text-sm text-muted-foreground mt-1">TCAF helps you connect the right tools, data, partnerships, training, and reporting to the work your community already leads.</p>
           </div>
-          <Link href="/for-nonprofits" className="shrink-0">
-            <Button className="gap-2" data-testid="button-platform-portfolio-nonprofits">
-              Explore nonprofit support <ArrowRight className="h-4 w-4" />
-            </Button>
-          </Link>
+           <div className="flex flex-wrap gap-2 shrink-0">
+             <Button asChild className="gap-2">
+               <Link href="/agency-connector" data-testid="button-platform-portfolio-connect">
+                 Connect your organization <ArrowRight className="h-4 w-4" />
+               </Link>
+             </Button>
+             <Button asChild variant="outline" className="gap-2">
+               <Link href="/ecosystem" data-testid="button-platform-portfolio-directory">
+                 Open ecosystem command center <Globe className="h-4 w-4" />
+               </Link>
+             </Button>
+           </div>
         </div>
       </div>
     </section>
@@ -582,7 +589,7 @@ function SuccessStories() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-8">
           <Badge variant="secondary" className="mb-3">
-            <Award className="mr-1 h-3 w-3" /> Real People, Real Outcomes
+             <Award className="mr-1 h-3 w-3" /> Pathways the platform supports
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-success-heading">Success Stories</h2>
         </div>
@@ -750,7 +757,7 @@ function EcosystemPlatformsSection() {
             <Globe className="mr-1 h-3 w-3" /> {totalPlatforms} Live Platforms
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-ecosystem-heading">
-            Our Ecosystem — Live & Connected
+            Our Ecosystem — Connected platform map
           </h2>
           <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
             Every platform is live, branded, and purpose-built. Click any link to see it yourself. This is not a roadmap — this is what's running right now.
@@ -849,7 +856,7 @@ function DeepDiveSection() {
               </Badge>
               <h2 className="text-2xl font-bold mb-2">15 Service Platforms, One Living System</h2>
               <p className="text-sm text-muted-foreground max-w-2xl mx-auto">
-                Holistic by design. Agile by necessity. Agnostic by principle. We build through intentional collaboration, transparent communication, and the conviction that every community already has what it takes — they just need the infrastructure to prove it.
+                 We build through intentional collaboration, transparent communication, and the conviction that every community has strengths to build on — with the infrastructure to make the work visible and useful.
               </p>
             </div>
 
@@ -1048,44 +1055,28 @@ function StartHere() {
       testId: "start-here-help",
     },
     {
-      icon: Briefcase,
-      label: "I work with communities",
-      sub: "Nonprofits · social workers · CHWs",
-      href: "/grants",
+      icon: Building2,
+      label: "I lead a nonprofit or community organization",
+      sub: "Connect tools · data · referrals · reporting",
+      href: "/agency-connector",
       color: "from-violet-500 to-purple-600",
       testId: "start-here-org",
     },
     {
-      icon: GraduationCap,
-      label: "I want to learn a trade or earn credentials",
-      sub: "Youth · workforce · career changers",
-      href: "/academy/careers",
+      icon: Target,
+      label: "I'm a funder or evaluator",
+      sub: "Inspect evidence · context · learning",
+      href: "/ecosystem-story",
       color: "from-amber-500 to-orange-600",
-      testId: "start-here-learn",
-    },
-    {
-      icon: Shield,
-      label: "I'm a veteran or returning citizen",
-      sub: "Transition · reentry · benefits navigation",
-      href: "/reentry",
-      color: "from-blue-500 to-indigo-600",
-      testId: "start-here-veteran",
-    },
-    {
-      icon: Building2,
-      label: "I'm a funder or partner considering a relationship",
-      sub: "Funders · government · employers",
-      href: "/business-plan",
-      color: "from-emerald-500 to-teal-600",
       testId: "start-here-funder",
     },
     {
-      icon: Target,
-      label: "I want to understand the research behind this",
-      sub: "Researchers · evaluators · policy leaders",
-      href: "/rplice-tools",
-      color: "from-cyan-500 to-sky-600",
-      testId: "start-here-research",
+      icon: Globe,
+      label: "I support a community or public system",
+      sub: "Local conditions · comparisons · action",
+      href: "/community-impact",
+      color: "from-emerald-500 to-teal-600",
+      testId: "start-here-community",
     },
   ];
 
@@ -1097,10 +1088,10 @@ function StartHere() {
             <ArrowRight className="mr-1 h-3 w-3" /> Start Here
           </Badge>
           <h2 className="text-xl sm:text-2xl font-bold mb-1" data-testid="text-start-here-heading">
-            Who are you? We'll point you the right direction.
+            Choose the path that matches your work.
           </h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            Every path through ThriveUp is different. Pick the one closest to you.
+            ThriveUp is the front door; TCAF is the nonprofit backbone behind the connected work.
           </p>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -1153,14 +1144,14 @@ function ServicePlatformSection() {
       title: "Nonprofits",
       sub: "Community organizations, social service agencies, faith-based orgs, CHW networks",
       bullets: [
-        "Census-verified community needs assessment for any U.S. ZIP",
-        "AI-generated grant narratives with funder-ready evidence chains",
-        "Compliance matrix builder for federal and state RFPs",
-        "Outcome tracking aligned to WIOA, OJJDP, SAMHSA, ACF standards",
-        "Send directly to Grant Path Pro for execution and monitoring",
+        "Map your mission, service area, and community priorities",
+        "Connect to local data, resource navigation, and referral pathways",
+        "Preview recommended tools before choosing what to adopt",
+        "Use reporting and evidence tools to show what your work is learning",
+        "Keep your organization in the lead; TCAF supplies backbone infrastructure",
       ],
-      cta: "Start Your Community Brief",
-      href: "/community-impact",
+      cta: "Connect your organization",
+      href: "/agency-connector",
     },
     {
       icon: Globe,
@@ -1176,7 +1167,7 @@ function ServicePlatformSection() {
         "Cost-of-inaction modeling to justify public investment",
         "Secure API integration with existing government data systems",
       ],
-      cta: "Request a Government Demo",
+      cta: "Explore community intelligence",
       href: "/community-compare",
     },
     {
@@ -1187,14 +1178,14 @@ function ServicePlatformSection() {
       title: "Funders & Evaluators",
       sub: "Foundations, CDFIs, health systems, impact investors, grant reviewers",
       bullets: [
-        "Standardized community impact scores for portfolio comparison",
-        "Historical ROI modeling — four Census vintages, 2013–2022",
-        "25-year forward cascade with intervention savings projections",
-        "One-page Community Invoice PDF — leave-behind in any room",
-        "Grantee-facing needs assessment that feeds your monitoring dashboard",
+        "See how local context becomes a planning question",
+        "Inspect the evidence and assumptions behind a community brief",
+        "Follow the path from partner adoption to service delivery",
+        "Separate observed outcomes, estimates, and open questions",
+        "Use the connected ecosystem story to evaluate the whole loop",
       ],
-      cta: "View a Sample Community Brief",
-      href: "/community-impact",
+      cta: "Follow the evidence loop",
+      href: "/ecosystem-story",
     },
   ];
 
@@ -1203,14 +1194,13 @@ function ServicePlatformSection() {
       <div className="max-w-5xl mx-auto">
         <div className="text-center mb-10">
           <Badge variant="secondary" className="mb-3 text-xs">
-            <Briefcase className="mr-1 h-3 w-3" /> B2C · B2G Service Platform
+            <Briefcase className="mr-1 h-3 w-3" /> Community infrastructure
           </Badge>
           <h2 className="text-2xl sm:text-3xl font-bold mb-3" data-testid="text-service-platform-heading">
             The infrastructure layer for organizations that serve communities.
           </h2>
           <p className="text-sm text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            ThriveUp is not just a community benefit — it's a professional-grade service platform for nonprofits and government organizations that need Census-verified data, funder-ready analysis, and direct integration with grant execution tools.
-            One platform. Any U.S. community. Real data you can defend.
+            TCAF equips nonprofits and community organizations with connected tools, local information, referrals, planning support, and reporting. The partner remains the mission lead and decides what to adopt; TCAF provides the backbone that helps the work move from context to action and learning.
           </p>
         </div>
 
@@ -1287,7 +1277,7 @@ function PricingTiersSection() {
         "AI grant narrative builder (WIOA · OJJDP · SAMHSA · ACF)",
         "RFP compliance matrix + gap analysis",
         "Community Invoice PDF — funder-ready leave-behind",
-        "Grant Hub — 721+ matched opportunities",
+        "Funding intelligence matched to partner profiles",
         "Outcome tracking dashboard",
         "Grant Path Pro integration — push needs assessment directly",
         "Email support + quarterly check-in",
@@ -1466,7 +1456,7 @@ function GrantPathProSection() {
                     "Community needs assessment (Census-verified)",
                     "Historical cost cascade (4 vintages, 2013–2022)",
                     "25-year forward projection + ROI",
-                    "Grant matching from 721+ opportunities",
+                    "Funding intelligence matched to partner profiles",
                     "AI narrative for any RFP section",
                     "Community Invoice PDF",
                   ].map((f) => (
@@ -1878,7 +1868,7 @@ export default function LandingPage() {
             <Link href="/coverage" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-coverage">
               Built to reach every U.S. community
             </Link>
-            {" "}— start in 15 seconds, no account required.
+            {" "}— begin with a guided next step; account requirements vary by tool.
             Veteran-founded. Community-serving.
           </p>
 
@@ -1894,14 +1884,14 @@ export default function LandingPage() {
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
                 style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}
                 data-testid="button-hero-community-brief">
-                Generate a Community Brief →
+                See community conditions →
               </button>
             </Link>
-            <Link href="/community-analysis">
+            <Link href="/ecosystem-story">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
                 style={{ background: "linear-gradient(135deg,#6366f1,#0ea5e9)", color: "#fff", boxShadow: "0 0 28px rgba(99,102,241,0.28)", border: "none", cursor: "pointer" }}
                 data-testid="button-hero-intervention">
-                Intervention Analysis →
+                See how the system connects →
               </button>
             </Link>
             <Link href="/benefits-screener">
@@ -1911,55 +1901,19 @@ export default function LandingPage() {
                 I Need Help for My Family →
               </button>
             </Link>
-            <Link href="/our-approach">
+            <Link href="/agency-connector">
               <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
                 style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
                 data-testid="button-hero-approach">
-                For Nonprofits &amp; Partners →
+                Connect your organization →
               </button>
             </Link>
-          </div>
-
-          {/* Who are you? — routing block */}
-          <div className="w-full max-w-xl mx-auto mb-8 rounded-2xl border px-5 py-4"
-            style={{ background: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.03)", borderColor: isDark ? "rgba(255,255,255,0.10)" : "rgba(0,0,0,0.10)", backdropFilter: "blur(8px)" }}
-            data-testid="section-who-are-you">
-            <p className="text-[10px] font-bold uppercase tracking-widest mb-3 text-center"
-              style={{ color: heroMuted }}>
-              First time here? Start where you are.
-            </p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-              {[
-                { label: "I'm an Individual", sub: "Track my ALIGN journey", href: "/align/my-journey", emoji: "🙋" },
-                { label: "I'm an Organization", sub: "Assess our capacity & programs", href: "/align/org-assessment", emoji: "🏢" },
-                { label: "I'm a Funder / Evaluator", sub: "See community data", href: "/align/community", emoji: "📊" },
-              ].map((opt) => (
-                <Link key={opt.label} href={opt.href}>
-                  <button className="w-full rounded-xl border py-3 px-3 text-left transition-all hover:scale-[1.02]"
-                    style={{ background: isDark ? "rgba(255,255,255,0.05)" : "rgba(255,255,255,0.7)", borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(0,0,0,0.10)", cursor: "pointer" }}
-                    data-testid={`button-who-${opt.label.toLowerCase().replace(/[^a-z]+/g,"-")}`}>
-                    <span className="text-base">{opt.emoji}</span>
-                    <p className="text-xs font-bold mt-1" style={{ color: heroText }}>{opt.label}</p>
-                    <p className="text-[10px]" style={{ color: heroMuted }}>{opt.sub}</p>
-                  </button>
-                </Link>
-              ))}
-            </div>
-            <p className="text-center mt-3">
-              <Link href="/why-thriveup">
-                <button className="text-[10px] font-semibold hover:underline"
-                  style={{ color: "#7c3aed", background: "none", border: "none", cursor: "pointer" }}
-                  data-testid="button-hero-why">
-                  Skeptical? Every hard question answered here →
-                </button>
-              </Link>
-            </p>
           </div>
 
           {/* Live stat strip */}
           <div className="flex flex-wrap items-center justify-center gap-8 sm:gap-12 pt-6"
             style={{ borderTop: `1px solid ${statBorder}` }}>
-            <HeroStatCounter target={15}  label="Platforms Online"           color="#0891b2" isDark={isDark} />
+            <HeroStatCounter target={15}  label="Service Platforms"           color="#0891b2" isDark={isDark} />
             <HeroStatCounter target={9}   label="Benefit Programs Per Screen" color="#059669" isDark={isDark} />
             <HeroStatCounter target={50}  label="States — One Architecture"  color="#7c3aed" isDark={isDark} />
           </div>
@@ -1968,7 +1922,7 @@ export default function LandingPage() {
 
       {/* "Meet people where they are": self-identify FIRST, before any
           B2B/funding pitch. This must stay directly under the hero. */}
-      <StartHere />
+       <StartHere />
 
       <ServicePlatformSection />
        <PlatformPortfolio />
@@ -2287,8 +2241,7 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <ImpactNumbers />
-      <StartHere />
+       <ImpactNumbers />
       <CommunitiesWeServe />
       <WhatWeDeliver />
       <HowItWorks />
@@ -2335,8 +2288,19 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <SuccessStories />
-      <EcosystemPlatformsSection />
+       <section className="py-8 px-4 sm:px-6 border-y bg-card" data-testid="section-ecosystem-directory-link">
+         <div className="max-w-3xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-center sm:text-left">
+           <div>
+             <p className="font-semibold">Ready to explore beyond the featured pathways?</p>
+             <p className="text-sm text-muted-foreground mt-1">Connected partners and staff can open the full operations directory.</p>
+           </div>
+           <Link href="/ecosystem" className="shrink-0">
+             <Button variant="outline" className="gap-2" data-testid="button-ecosystem-directory">
+               Open ecosystem command center <Globe className="h-4 w-4" />
+             </Button>
+           </Link>
+         </div>
+       </section>
       <DeepDiveSection />
 
       <section className="py-12 px-4 sm:py-16 sm:px-6 bg-gradient-to-br from-primary/5 via-background to-primary/10 border-t" data-testid="section-book-appointment">
