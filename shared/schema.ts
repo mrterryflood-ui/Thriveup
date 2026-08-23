@@ -5061,6 +5061,9 @@ export type HouseholdServiceReceived = typeof householdServicesReceived.$inferSe
 
 export const chatConversations = pgTable("chat_conversations", {
   id: serial("id").primaryKey(),
+  // Nullable for legacy rows only. New records are always assigned by the
+  // server from the authenticated session; ownerless legacy rows fail closed.
+  ownerUserId: varchar("owner_user_id", { length: 255 }),
   title: text("title").notNull().default("New Chat"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });

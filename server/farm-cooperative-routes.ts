@@ -3,14 +3,14 @@ import { db, storage } from "./storage";
 import { producerProfiles, producerDataConsents, producerDataSubmissions,
   insertProducerProfileSchema, insertProducerDataConsentSchema, insertProducerDataSubmissionSchema } from "@shared/schema";
 import { eq, and } from "drizzle-orm";
-import { timingSafeEqual } from "crypto";
+import { randomBytes, timingSafeEqual } from "crypto";
 import { generateAIJSON } from "./ai-provider";
 
 function generateToken(len = 40): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let t = "";
-  for (let i = 0; i < len; i++) t += chars[Math.floor(Math.random() * chars.length)];
-  return `prod_${t}`;
+  // The argument is retained for call compatibility; tokens are always 256-bit
+  // capabilities rather than pseudo-random, guessable identifiers.
+  void len;
+  return `prod_${randomBytes(32).toString("base64url")}`;
 }
 
 function safeTokenMatch(a: string, b: string): boolean {
@@ -38,7 +38,7 @@ export function registerFarmCooperativeRoutes(app: Express) {
 
   // Get producer profile + consents by token
   app.get("/api/farm-cooperative/profile", async (req, res) => {
-    const token = req.headers["x-producer-token"] as string || req.query.token as string;
+    const token = req.headers["x-producer-token"] as string;
     if (!token) return res.status(401).json({ error: "Producer token required" });
     const [profile] = await db.select().from(producerProfiles).where(eq(producerProfiles.accessToken, token));
     if (!profile) return res.status(404).json({ error: "Producer profile not found" });
@@ -83,29 +83,64 @@ export function registerFarmCooperativeRoutes(app: Express) {
   // Cooperative aggregate stats (de-identified, consent-filtered)
   app.get("/api/farm-cooperative/aggregate", async (req, res) => {
     const { stateFips, commodity } = req.query as Record<string, string>;
-    // Only aggregate data where producers consented to sharing with USDA
+    const SUPPRESSION_FLOOR = 5;
+    // Aggregate data is visible only when a producer explicitly chose research
+    // sharing. The query returns no profiles, contacts, notes, or submissions.
     const allProfiles = await db.select().from(producerProfiles)
       .where(stateFips ? eq(producerProfiles.stateFips, stateFips) : undefined);
-    const enrolledIds = allProfiles.map(p => p.id);
-    if (!enrolledIds.length) return res.json({ totalProducers: 0, stateFips, message: "No producers enrolled in this state yet." });
+    const allConsents = await db.select().from(producerDataConsents);
+    const consentedIds = new Set(allConsents
+      .filter(c => c.shareWithResearchers)
+      .map(c => c.producerId));
+    const enrolledIds = allProfiles.filter(p => consentedIds.has(p.id)).map(p => p.id);
+    const disclosure = {
+      source: "ThriveUp Producer Data Cooperative",
+      dataStatus: "self_reported" as const,
+      retrievedAt: new Date().toISOString(),
+      minimumCellSize: SUPPRESSION_FLOOR,
+      consentBasis: "Producer explicitly enabled research sharing.",
+    };
+    if (enrolledIds.length < SUPPRESSION_FLOOR) {
+      return res.json({
+        availability: "unavailable",
+        stateFips,
+        disclosure,
+        reason: "Aggregate is unavailable because fewer than the minimum cell size consented to research sharing. This does not mean there is no need or no producer activity.",
+      });
+    }
 
     const submissions = await db.select().from(producerDataSubmissions);
     const filtered = submissions.filter(s => enrolledIds.includes(s.producerId) && (!commodity || s.commodity?.toUpperCase() === commodity.toUpperCase()));
+    // A global/state-level cell may clear the floor while a requested commodity
+    // subgroup does not. The subgroup itself must clear suppression before any
+    // count or metric is disclosed.
+    const subgroupProducerIds = new Set(filtered.map(s => s.producerId));
+    if (subgroupProducerIds.size < SUPPRESSION_FLOOR) {
+      return res.json({
+        availability: "unavailable",
+        stateFips,
+        commodity: commodity || undefined,
+        disclosure,
+        reason: "The requested aggregate subgroup is unavailable because fewer than the minimum cell size contributed data. This does not mean there is no need, activity, or production.",
+      });
+    }
     const yieldRows = filtered.filter(s => s.dataType === "yield" && s.yieldPerAcre);
     const soilRows = filtered.filter(s => s.dataType === "soil" && s.soilPh);
     const costRows = filtered.filter(s => s.dataType === "input-cost" && s.totalInputCostPerAc);
 
-    const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;
+    const safeAverage = (arr: number[]) => arr.length >= SUPPRESSION_FLOOR
+      ? { status: "available" as const, value: arr.reduce((a, b) => a + b, 0) / arr.length }
+      : { status: "unavailable" as const, value: null };
 
     res.json({
-      totalProducers: allProfiles.length,
-      totalSubmissions: submissions.length,
+      availability: "available",
+      producerCount: subgroupProducerIds.size,
+      submissionCount: filtered.length,
       stateFips,
-      avgYieldPerAc: avg(yieldRows.map(r => r.yieldPerAcre!)),
-      avgSoilPh: avg(soilRows.map(r => r.soilPh!)),
-      avgInputCostPerAc: avg(costRows.map(r => r.totalInputCostPerAc!)),
-      dataDisclaimer: "Aggregated from producer-consented submissions only. Individual data never disclosed.",
-      source: "ThriveUp Producer Data Cooperative",
+      averageYieldPerAc: safeAverage(yieldRows.map(r => r.yieldPerAcre!)),
+      averageSoilPh: safeAverage(soilRows.map(r => r.soilPh!)),
+      averageInputCostPerAc: safeAverage(costRows.map(r => r.totalInputCostPerAc!)),
+      disclosure,
     });
   });
 

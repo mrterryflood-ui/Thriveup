@@ -3,6 +3,7 @@ import { db } from "./storage";
 import { farmworkerItiEnrollments, insertFarmworkerItiEnrollmentSchema } from "@shared/schema";
 import { eq } from "drizzle-orm";
 import { generateAIJSON } from "./ai-provider";
+import { randomBytes } from "crypto";
 
 // Worker type labels (English + Spanish)
 const WORKER_TYPES = [
@@ -92,10 +93,7 @@ const BENEFITS_PROGRAMS = [
 ];
 
 function generateToken(): string {
-  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  let t = "";
-  for (let i = 0; i < 40; i++) t += chars[Math.floor(Math.random() * chars.length)];
-  return `fw_${t}`;
+  return `fw_${randomBytes(32).toString("base64url")}`;
 }
 
 export function registerFarmworkerItiRoutes(app: Express) {

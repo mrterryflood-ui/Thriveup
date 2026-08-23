@@ -80,6 +80,24 @@ const PROBES: Probe[] = [
   { name: "POST   /api/consortium/proposals/:id/merge", method: "POST", path: "/api/consortium/proposals/00000000-0000-0000-0000-000000000000/merge", body: {} },
   { name: "POST   /api/thriveup/push-collaborative", method: "POST", path: "/api/thriveup/push-collaborative", body: { consortiumId: "00000000-0000-0000-0000-000000000000" } },
   { name: "POST   /api/thriveup/push-proposal", method: "POST", path: "/api/thriveup/push-proposal", body: { consortiumId: "00000000-0000-0000-0000-000000000000" } },
+  { name: "POST   /api/thriveup/push-entity (no session)", method: "POST", path: "/api/thriveup/push-entity", body: { entityId: "00000000-0000-0000-0000-000000000000" } },
+  { name: "POST   /api/thriveup/push-pursuit (no session)", method: "POST", path: "/api/thriveup/push-pursuit", body: { grantId: "00000000-0000-0000-0000-000000000000" } },
+
+  // ── Streets: clinical, housing, crisis, MAT, handoff, and HMIS records ─────
+  { name: "GET    /api/streets/sud-assessments (no session)", method: "GET", path: "/api/streets/sud-assessments" },
+  { name: "POST   /api/streets/sud-assessments (no session)", method: "POST", path: "/api/streets/sud-assessments", body: { clientName: "probe", assessmentType: "cage", responses: {} } },
+  { name: "GET    /api/streets/housing-intakes (no session)", method: "GET", path: "/api/streets/housing-intakes" },
+  { name: "GET    /api/streets/crisis-log (no session)", method: "GET", path: "/api/streets/crisis-log" },
+  { name: "GET    /api/streets/mat (no session)", method: "GET", path: "/api/streets/mat" },
+  { name: "GET    /api/streets/hmis-export (no session)", method: "GET", path: "/api/streets/hmis-export" },
+  { name: "GET    /api/streets/dashboard (no session)", method: "GET", path: "/api/streets/dashboard" },
+
+  // ── Chat: conversations are private to their authenticated owner ────────────
+  { name: "GET    /api/conversations (no session)", method: "GET", path: "/api/conversations" },
+  { name: "POST   /api/conversations (no session)", method: "POST", path: "/api/conversations", body: { title: "probe" } },
+  { name: "GET    /api/conversations/:id (no session)", method: "GET", path: "/api/conversations/1" },
+  { name: "DELETE /api/conversations/:id (no session)", method: "DELETE", path: "/api/conversations/1" },
+  { name: "POST   /api/conversations/:id/messages (no session)", method: "POST", path: "/api/conversations/1/messages", body: { content: "probe" } },
 
   // ── grantpathpro-routes.ts: inbound GPP event feed (grant pipeline activity) ─
   // Previously readable with NO auth ("internal use" comment, open door). Now

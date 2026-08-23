@@ -21,9 +21,10 @@
 
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
-import { organizations, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable } from "@shared/schema";
+import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
+import { timingSafeEqual } from "crypto";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -57,14 +58,51 @@ async function loadOwnedProposal(
     return null;
   }
   if (proposal.createdBy !== userId) {
-    const viewer = await storage.getUser(userId);
-    const isStaff = viewer?.role === "admin" || viewer?.role === "teacher" || viewer?.role === "facilitator";
-    if (!isStaff) {
+    if (!(await isVerifiedStaff(userId))) {
       res.status(403).json({ error: "You do not have access to this proposal" });
       return null;
     }
   }
   return proposal;
+}
+
+async function isVerifiedStaff(userId: string): Promise<boolean> {
+  const viewer = await storage.getUser(userId);
+  return !!viewer?.role && STAFF_ROLES.has(viewer.role);
+}
+
+/**
+ * Organization identity, EIN/UEI, and capability profile are organization-
+ * private. Never accept a client-supplied organization id as authority: the
+ * caller must own it, be an active member, or hold a DB-verified staff role.
+ */
+async function loadOwnedOrganization(
+  req: Request,
+  res: Response,
+  organizationIdRaw: string | string[],
+): Promise<typeof organizations.$inferSelect | null> {
+  const organizationId = Array.isArray(organizationIdRaw) ? organizationIdRaw[0] : organizationIdRaw;
+  const userId = getUserId(req);
+  if (!userId) {
+    res.status(401).json({ error: "Sign in required" });
+    return null;
+  }
+  const [organization] = await db.select().from(organizations).where(eq(organizations.id, organizationId));
+  if (!organization) {
+    res.status(404).json({ error: "Organization not found" });
+    return null;
+  }
+  if (await isVerifiedStaff(userId)) return organization;
+  if (organization.userId === userId) return organization;
+  const [membership] = await db.select().from(organizationMembers).where(and(
+    eq(organizationMembers.orgId, organization.id),
+    eq(organizationMembers.userId, userId),
+  ));
+  if (!membership) {
+    res.status(403).json({ error: "You do not have access to this organization" });
+    return null;
+  }
+  return organization;
 }
 
 // ─── GppEvent shape (mirrors the DB table columns) ───────────────────────────
@@ -88,6 +126,12 @@ function normalizeKey(s: string): string {
   return s.replace(/[\s\u0080-\uffff]+$/, "").replace(/^[\s\u0080-\uffff]+/, "");
 }
 
+function secretsMatch(expected: string, provided: string): boolean {
+  const expectedBytes = Buffer.from(expected);
+  const providedBytes = Buffer.from(provided);
+  return expectedBytes.length === providedBytes.length && timingSafeEqual(expectedBytes, providedBytes);
+}
+
 function requireGppInboundKey(req: Request, res: Response, next: NextFunction) {
   const raw = req.headers["x-api-key"];
   const rawExpected = process.env.THRIVEUP_INBOUND_KEY;
@@ -98,7 +142,7 @@ function requireGppInboundKey(req: Request, res: Response, next: NextFunction) {
   const expected = normalizeKey(rawExpected);
   const provided = typeof raw === "string" ? normalizeKey(raw) : null;
 
-  if (!provided || provided !== expected) {
+  if (!provided || !secretsMatch(expected, provided)) {
     return res.status(401).json({ error: "Invalid or missing x-api-key" });
   }
   next();
@@ -117,7 +161,7 @@ async function requireStaffOrInboundKey(req: Request, res: Response, next: NextF
   // (b) inbound key path
   const raw = req.headers["x-api-key"];
   const rawExpected = process.env.THRIVEUP_INBOUND_KEY;
-  if (typeof raw === "string" && rawExpected && normalizeKey(raw) === normalizeKey(rawExpected)) {
+  if (typeof raw === "string" && rawExpected && secretsMatch(normalizeKey(rawExpected), normalizeKey(raw))) {
     return next();
   }
   // (a) staff session path
@@ -465,17 +509,18 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
     const userId = getUserId(req);
     if (!userId) return res.status(401).json({ error: "Sign in required" });
     const { entityId, consortiumId } = req.body;
+    if (!entityId && !consortiumId) return res.status(400).json({ error: "entityId or consortiumId required" });
 
     let orgData: Record<string, unknown> = {};
     if (entityId) {
-      const [org] = await db.select().from(organizations).where(eq(organizations.id, entityId));
-      if (org) {
-        orgData = { name: org.name, ein: org.ein, uei: org.uei, cageCode: org.cageCode, state: org.state, is501c3: org.is501c3, focusAreas: org.focusAreas, populationsServed: org.populationsServed, naicsCodes: org.naicsCodes, samStatus: org.samStatus, missionText: org.missionText };
-      }
+      const org = await loadOwnedOrganization(req, res, entityId);
+      if (!org) return;
+      orgData = { name: org.name, ein: org.ein, uei: org.uei, cageCode: org.cageCode, state: org.state, is501c3: org.is501c3, focusAreas: org.focusAreas, populationsServed: org.populationsServed, naicsCodes: org.naicsCodes, samStatus: org.samStatus, missionText: org.missionText };
     }
     if (consortiumId) {
-      const [cp] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
-      if (cp) orgData = { ...orgData, consortiumPrimeOrg: cp.primeOrgName, consortiumPrimeUei: cp.primeUei, consortiumPrimeEin: cp.primeEin };
+      const cp = await loadOwnedProposal(req, res, consortiumId);
+      if (!cp) return;
+      orgData = { ...orgData, consortiumPrimeOrg: cp.primeOrgName, consortiumPrimeUei: cp.primeUei, consortiumPrimeEin: cp.primeEin };
     }
 
     const payload = { source: "thriveup", type: "entity_profile", entity: orgData, pushedAt: new Date().toISOString() };
@@ -489,6 +534,12 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
     if (!userId) return res.status(401).json({ error: "Sign in required" });
     const { grantId, consortiumId } = req.body;
     if (!grantId && !consortiumId) return res.status(400).json({ error: "grantId or consortiumId required" });
+    // Grant opportunities are a shared catalog with no per-grant owner. A
+    // grant-only export therefore has no ownership proof and is staff-only;
+    // organization-linked pursuit exports are authorized by their consortium.
+    if (grantId && !consortiumId && !(await isVerifiedStaff(userId))) {
+      return res.status(403).json({ error: "Staff access required for a grant-only export" });
+    }
 
     let grantData: Record<string, unknown> = {};
     let entityContext: Record<string, unknown> = {};
@@ -498,11 +549,10 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
       if (g) grantData = { title: g.title, agency: g.agency, nofo: g.samgovId, deadline: g.deadline, description: g.description, eligibility: g.eligibilityCriteria, fundingAmount: g.fundingAmount, awardCeiling: g.awardCeiling, cfda: g.cfda, sourceUrl: g.sourceUrl, focusAreas: g.focusAreas, fitScore: g.fitScore, fitAnalysis: g.fitAnalysis, aiAnalysis: g.aiAnalysis };
     }
     if (consortiumId) {
-      const [cp] = await db.select().from(consortiumProposals).where(eq(consortiumProposals.id, consortiumId));
-      if (cp) {
-        entityContext = { primeOrg: cp.primeOrgName, primeUei: cp.primeUei, projectTitle: cp.projectTitle, geography: cp.geography, awardAmount: cp.awardAmount };
-        if (!grantData.title) grantData = { title: cp.grantTitle, nofo: cp.grantNofo, deadline: cp.grantDeadline, fundingAmount: cp.awardAmount };
-      }
+      const cp = await loadOwnedProposal(req, res, consortiumId);
+      if (!cp) return;
+      entityContext = { primeOrg: cp.primeOrgName, primeUei: cp.primeUei, projectTitle: cp.projectTitle, geography: cp.geography, awardAmount: cp.awardAmount };
+      if (!grantData.title) grantData = { title: cp.grantTitle, nofo: cp.grantNofo, deadline: cp.grantDeadline, fundingAmount: cp.awardAmount };
     }
 
     const payload = { source: "thriveup", type: "pursuit_packet", grant: grantData, entityContext, pushedAt: new Date().toISOString() };
@@ -561,9 +611,13 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
       pushedAt: new Date().toISOString(),
     };
 
-    // Mark push timestamp
-    await db.update(consortiumProposals).set({ gppPushedAt: new Date() }).where(eq(consortiumProposals.id, consortiumId));
     const result = await pushToGpp(payload, "/api/inbound/proposal");
+    // Delivery, not an attempted request, is the only honest basis for a
+    // pushed timestamp. This also prevents an upstream 405/outage from being
+    // displayed as a successful partner handoff.
+    if (result.sent) {
+      await db.update(consortiumProposals).set({ gppPushedAt: new Date() }).where(eq(consortiumProposals.id, consortiumId));
+    }
     return res.json(result);
   });
 

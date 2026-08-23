@@ -2,6 +2,7 @@ import type { Express, Request, Response } from "express";
 import OpenAI from "openai";
 import { chatStorage } from "./storage";
 import { ETHICAL_EI_PREAMBLE } from "../../ai-provider";
+import { getUserId, requireAuth } from "../../tenant-middleware";
 
 const openai = new OpenAI({
   apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
@@ -10,9 +11,9 @@ const openai = new OpenAI({
 
 export function registerChatRoutes(app: Express): void {
   // Get all conversations
-  app.get("/api/conversations", async (req: Request, res: Response) => {
+  app.get("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
-      const conversations = await chatStorage.getAllConversations();
+      const conversations = await chatStorage.getAllConversations(getUserId(req)!);
       res.json(conversations);
     } catch (error) {
       console.error("Error fetching conversations:", error);
@@ -21,10 +22,11 @@ export function registerChatRoutes(app: Express): void {
   });
 
   // Get single conversation with messages
-  app.get("/api/conversations/:id", async (req: Request, res: Response) => {
+  app.get("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
-      const conversation = await chatStorage.getConversation(id);
+      if (!Number.isSafeInteger(id)) return res.status(400).json({ error: "Invalid conversation id" });
+      const conversation = await chatStorage.getConversation(id, getUserId(req)!);
       if (!conversation) {
         return res.status(404).json({ error: "Conversation not found" });
       }
@@ -37,10 +39,10 @@ export function registerChatRoutes(app: Express): void {
   });
 
   // Create new conversation
-  app.post("/api/conversations", async (req: Request, res: Response) => {
+  app.post("/api/conversations", requireAuth, async (req: Request, res: Response) => {
     try {
       const { title } = req.body;
-      const conversation = await chatStorage.createConversation(title || "New Chat");
+      const conversation = await chatStorage.createConversation(title || "New Chat", getUserId(req)!);
       res.status(201).json(conversation);
     } catch (error) {
       console.error("Error creating conversation:", error);
@@ -49,10 +51,13 @@ export function registerChatRoutes(app: Express): void {
   });
 
   // Delete conversation
-  app.delete("/api/conversations/:id", async (req: Request, res: Response) => {
+  app.delete("/api/conversations/:id", requireAuth, async (req: Request, res: Response) => {
     try {
       const id = parseInt(req.params.id as string);
-      await chatStorage.deleteConversation(id);
+      if (!Number.isSafeInteger(id)) return res.status(400).json({ error: "Invalid conversation id" });
+      const conversation = await chatStorage.getConversation(id, getUserId(req)!);
+      if (!conversation) return res.status(404).json({ error: "Conversation not found" });
+      await chatStorage.deleteConversation(id, getUserId(req)!);
       res.status(204).send();
     } catch (error) {
       console.error("Error deleting conversation:", error);
@@ -61,10 +66,16 @@ export function registerChatRoutes(app: Express): void {
   });
 
   // Send message and get AI response (streaming)
-  app.post("/api/conversations/:id/messages", async (req: Request, res: Response) => {
+  app.post("/api/conversations/:id/messages", requireAuth, async (req: Request, res: Response) => {
     try {
       const conversationId = parseInt(req.params.id as string);
       const { content } = req.body;
+      if (!Number.isSafeInteger(conversationId) || typeof content !== "string" || content.trim().length === 0) {
+        return res.status(400).json({ error: "Valid conversation id and message content are required" });
+      }
+      const conversation = await chatStorage.getConversation(conversationId, getUserId(req)!);
+      // Return 404 rather than 403 so callers cannot enumerate private chats.
+      if (!conversation) return res.status(404).json({ error: "Conversation not found" });
 
       // Save user message
       await chatStorage.createMessage(conversationId, "user", content);

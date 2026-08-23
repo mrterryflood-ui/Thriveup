@@ -1,5 +1,5 @@
-import type { Express } from "express";
-import { db } from "./storage";
+import type { Express, Request, Response, NextFunction } from "express";
+import { db, storage } from "./storage";
 import {
   sudAssessments, recoveryPlans, recoveryMilestones,
   housingFirstIntakes, warmHandoffs, peerRecoveryCoaches,
@@ -8,7 +8,39 @@ import {
 } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 
+const STREETS_STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+function getUserId(req: Request): string | undefined {
+  const user = (req as unknown as Record<string, unknown>).user as
+    | { claims?: { sub?: string }; id?: string; userId?: string; sub?: string }
+    | undefined;
+  return user?.claims?.sub || user?.id || user?.userId || user?.sub;
+}
+
+/**
+ * Streets contains clinical notes, crisis activity, housing history, MAT
+ * coordination, handoffs, and HMIS-identifying records. These legacy tables do
+ * not contain an organization/tenant key, so organization scoping cannot be
+ * truthfully inferred. Until a governed tenant migration exists, the only safe
+ * boundary is a DB-verified platform staff role.
+ */
+async function requireStreetsStaff(req: Request, res: Response, next: NextFunction) {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role && STREETS_STAFF_ROLES.has(user.role)) return next();
+    return res.status(403).json({ error: "Authorized Streets staff access required" });
+  } catch (error) {
+    console.error("[Streets] authorization check failed:", error);
+    return res.status(503).json({ error: "Unable to verify access" });
+  }
+}
+
 export function registerStreetsRoutes(app: Express) {
+  // Register before all Streets handlers so every case, crisis, recovery, and
+  // HMIS route inherits the same fail-closed boundary.
+  app.use("/api/streets", requireStreetsStaff);
 
   // ── SUD Assessments ────────────────────────────────────────────────────────
   app.get("/api/streets/sud-assessments", async (req, res) => {

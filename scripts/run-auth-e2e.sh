@@ -104,5 +104,12 @@ echo "[auth-e2e] running gun-violence sync-audit verification..."
 npx tsx scripts/verify-gun-violence-sync-audit.ts
 GV_SYNC_AUDIT_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ] && [ $SHARE_EXIT -eq 0 ] && [ $GV_SYNC_AUDIT_EXIT -eq 0 ]
+# Community intelligence foundation: authenticated two-user ownership,
+# organization membership, staff authority, and no-stamp-on-reject.
+echo ""
+echo "[auth-e2e] running community-intelligence security verification..."
+npx tsx scripts/verify-community-intelligence-security.ts
+COMMUNITY_INTELLIGENCE_SECURITY_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ] && [ $SHARE_EXIT -eq 0 ] && [ $GV_SYNC_AUDIT_EXIT -eq 0 ] && [ $COMMUNITY_INTELLIGENCE_SECURITY_EXIT -eq 0 ]
 exit $?
