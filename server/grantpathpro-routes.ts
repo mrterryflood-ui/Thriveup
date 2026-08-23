@@ -21,7 +21,7 @@
 
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
-import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable } from "@shared/schema";
+import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable, gppMirrorSnapshots } from "@shared/schema";
 import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 import { timingSafeEqual } from "crypto";
@@ -167,10 +167,10 @@ function secretsMatch(expected: string, provided: string): boolean {
 
 function requireGppInboundKey(req: Request, res: Response, next: NextFunction) {
   const raw = req.headers["x-api-key"];
-  const rawExpected = process.env.THRIVEUP_INBOUND_KEY;
+  const rawExpected = process.env.THRIVEUP_INGEST_KEY?.trim() || process.env.THRIVEUP_INBOUND_KEY?.trim();
 
   if (!rawExpected) {
-    return res.status(503).json({ error: "THRIVEUP_INBOUND_KEY not configured on this server" });
+    return res.status(503).json({ error: "THRIVEUP_INGEST_KEY not configured on this server" });
   }
   const expected = normalizeKey(rawExpected);
   const provided = typeof raw === "string" ? normalizeKey(raw) : null;
@@ -193,7 +193,7 @@ const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", 
 async function requireStaffOrInboundKey(req: Request, res: Response, next: NextFunction) {
   // (b) inbound key path
   const raw = req.headers["x-api-key"];
-  const rawExpected = process.env.THRIVEUP_INBOUND_KEY;
+  const rawExpected = process.env.THRIVEUP_INGEST_KEY?.trim() || process.env.THRIVEUP_INBOUND_KEY?.trim();
   if (typeof raw === "string" && rawExpected && secretsMatch(normalizeKey(rawExpected), normalizeKey(raw))) {
     return next();
   }
@@ -230,10 +230,10 @@ export function registerGrantPathProRoutes(app: Express) {
   app.get("/api/consortium/gpp-embed", async (req: Request, res: Response) => {
     try {
       if (!getUserId(req)) return res.status(401).json({ error: "Sign in required" });
-      const entityId = typeof req.query.entityId === "string" ? req.query.entityId.trim() : "";
+      const orgId = typeof req.query.orgId === "string" ? req.query.orgId.trim() : "";
       const mode = req.query.mode === "iframe" ? "iframe" : "redirect";
-      if (!entityId || entityId.length > 200) {
-        return res.status(400).json({ error: "A valid GrantPathPro entityId is required" });
+      if (!orgId || orgId.length > 200) {
+        return res.status(400).json({ error: "A valid GrantPathPro orgId is required" });
       }
 
       const config = getGrantPathProEmbedConfig();
@@ -242,7 +242,7 @@ export function registerGrantPathProRoutes(app: Express) {
       }
 
       const upstream = new URL(config.url);
-      upstream.searchParams.set("entityId", entityId);
+      upstream.searchParams.set("orgId", orgId);
       upstream.searchParams.set("mode", mode);
       const response = await fetch(upstream, {
         method: "GET",
@@ -272,10 +272,54 @@ export function registerGrantPathProRoutes(app: Express) {
       if (!embedUrl || !/^https?:\/\//i.test(embedUrl)) {
         return res.status(502).json({ error: "GrantPathPro returned no valid embed URL" });
       }
-      return res.json({ provider: "GrantPathPro", entityId, mode, url: embedUrl });
+      return res.json({ provider: "GrantPathPro", orgId, mode, url: embedUrl });
     } catch (err) {
       console.error("[GrantPathPro] Embed bridge failed:", err);
       return res.status(502).json({ error: "GrantPathPro embed request failed" });
+    }
+  });
+
+  // GPP Mirror push: exact partner contract, authenticated separately from
+  // outbound embed calls. The payload is stored verbatim for audit/provenance.
+  app.post("/api/inbound/grantpathpro/mirror", requireGppInboundKey, async (req: Request, res: Response) => {
+    const orgId = typeof req.body?.orgId === "string" ? req.body.orgId.trim() : "";
+    const snapshot = req.body?.snapshot;
+    if (!orgId || orgId.length > 200 || !snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) {
+      return res.status(400).json({ error: "orgId and an object snapshot are required" });
+    }
+    try {
+      const [row] = await db.insert(gppMirrorSnapshots).values({
+        orgId,
+        snapshot: snapshot as Record<string, unknown>,
+        source: "grantpathpro",
+      }).returning({ id: gppMirrorSnapshots.id, receivedAt: gppMirrorSnapshots.receivedAt });
+      return res.status(201).json({ ok: true, snapshotId: row.id, receivedAt: row.receivedAt });
+    } catch (err) {
+      console.error("[GrantPathPro] Mirror snapshot persistence failed:", err);
+      return res.status(500).json({ error: "Mirror snapshot could not be stored" });
+    }
+  });
+
+  // Latest snapshot for an organization profile. Access is tenant-scoped.
+  app.get("/api/organizations/:orgId/grantpathpro-mirror", async (req: Request, res: Response) => {
+    const organization = await loadOwnedOrganization(req, res, req.params.orgId);
+    if (!organization) return;
+    try {
+      const [latest] = await db.select().from(gppMirrorSnapshots)
+        .where(eq(gppMirrorSnapshots.orgId, organization.id))
+        .orderBy(desc(gppMirrorSnapshots.receivedAt))
+        .limit(1);
+      return res.json({
+        organizationId: organization.id,
+        organizationName: organization.name,
+        snapshot: latest?.snapshot ?? null,
+        receivedAt: latest?.receivedAt ?? null,
+        active: latest ? Date.now() - latest.receivedAt.getTime() < 7 * 24 * 60 * 60 * 1000 : false,
+        status: latest ? "received" : "not_received",
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Mirror snapshot read failed:", err);
+      return res.status(500).json({ error: "Mirror snapshot could not be loaded" });
     }
   });
 

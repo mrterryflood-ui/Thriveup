@@ -306,6 +306,7 @@ integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_wi
 SUPPORT_PORTAL_URL = "https://student-support-portal--mrterryflood.replit.app"
 CIVIC_SIGNAL_BASE_URL = "https://power2thepeople.net"
 GPP_API_URL = "https://pursuitsfundingprofessionals.com"
+GPP_EMBED_URL = "https://trustworthy-sheep-515.convex.site/thriveup/embed"
 
 [postMerge]
 path = "scripts/post-merge.sh"

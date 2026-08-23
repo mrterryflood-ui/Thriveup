@@ -7714,6 +7714,21 @@ export const gppEvents = pgTable("gpp_events", {
 export type GppEventRow = typeof gppEvents.$inferSelect;
 export type InsertGppEvent = typeof gppEvents.$inferInsert;
 
+// ── GrantPathPro Mirror snapshots ───────────────────────────────────────────
+// Raw partner payload is retained for provenance; the UI only projects the
+// latest snapshot after the caller's organization access is verified.
+export const gppMirrorSnapshots = pgTable("gpp_mirror_snapshots", {
+  id: text("id").primaryKey().$defaultFn(() => `gpp_mirror_${Date.now()}_${nanoid(8)}`),
+  orgId: text("org_id").notNull(),
+  receivedAt: timestamp("received_at").defaultNow().notNull(),
+  snapshot: jsonb("snapshot").$type<Record<string, unknown>>().notNull(),
+  source: varchar("source", { length: 80 }).notNull().default("grantpathpro"),
+}, (t) => [
+  index("gpp_mirror_snapshots_org_received_idx").on(t.orgId, t.receivedAt),
+]);
+export type GppMirrorSnapshot = typeof gppMirrorSnapshots.$inferSelect;
+export type InsertGppMirrorSnapshot = typeof gppMirrorSnapshots.$inferInsert;
+
 // ── Probe Alert Failures ────────────────────────────────────────────────────
 // Durable record of every failed DOWN or RECOVERY alert email attempt from the
 // community-brief production probe.  Written whenever sendEcosystemUpdate()

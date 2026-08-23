@@ -5,7 +5,7 @@
 const BASE = process.env.BASE_URL || "http://localhost:5000";
 
 const response = await fetch(
-  `${BASE}/api/consortium/gpp-embed?entityId=verification-entity&mode=iframe`,
+  `${BASE}/api/consortium/gpp-embed?orgId=verification-org&mode=iframe`,
 );
 if (response.status !== 401) {
   console.error(`  ✗ anonymous embed request returned HTTP ${response.status}, expected 401`);
