@@ -1,5 +1,5 @@
 import { useState, useEffect, lazy, Suspense } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
@@ -1112,6 +1112,23 @@ export default function CommunityImpactPage() {
   const [submitted, setSubmitted] = useState("");
   const [activeViz, setActiveViz] = useState<VizTab>("skyline");
 
+  const coverage = useQuery({
+    queryKey: ["/api/conductor/community-brief/coverage"],
+    queryFn: async () => {
+      const response = await fetch("/api/conductor/community-brief/coverage");
+      if (!response.ok) throw new Error("Coverage unavailable");
+      return response.json() as Promise<{
+        coverage: {
+          zctaCount: number;
+          statesAndDistrictCovered: number;
+          completeStateCoverage: boolean;
+        };
+        geography: { analyticalUnit: string; disclosure: string };
+      }>;
+    },
+    staleTime: 10 * 60 * 1000,
+  });
+
   const brief = useMutation({
     mutationFn: async (loc: string) => {
       try {
@@ -1177,6 +1194,20 @@ export default function CommunityImpactPage() {
           <p className="text-blue-100/80 text-lg mb-8 max-w-2xl">
             Enter any ZIP code, city, or county. See the real data — health, mental health, benefits, housing, education, justice, foster care — and the 25-year cascade of what happens when we invest, and when we don't.
           </p>
+          {coverage.data?.coverage.completeStateCoverage && (
+            <div
+              className="mb-6 max-w-2xl rounded-lg border border-blue-300/20 bg-white/10 px-4 py-3 text-sm text-blue-100"
+              data-testid="national-coverage-proof"
+              aria-label={`Nationwide coverage: ${coverage.data.coverage.zctaCount.toLocaleString()} Census ZCTAs across all 50 states and DC`}
+            >
+              <div className="font-semibold text-white">
+                Nationwide geography coverage: {coverage.data.coverage.zctaCount.toLocaleString()} Census ZCTAs
+              </div>
+              <div className="mt-1 text-blue-100/70">
+                {coverage.data.coverage.statesAndDistrictCovered} states and districts represented. {coverage.data.geography.disclosure}
+              </div>
+            </div>
+          )}
           <form onSubmit={handleSearch} className="flex gap-3 max-w-xl" data-testid="form-community-search">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
