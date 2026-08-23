@@ -2681,7 +2681,7 @@ Texas ranks 51st nationally in mental health workforce per capita. In Central Te
 OUR APPROACH:
 Using our 15-service-platform ACOS ecosystem, we provide:
 1. TRAINING: ThriveUp Academy (thrivingcommunitiesforall.com) delivers workforce training with AI-powered career pathway mapping, competency-based progression, and industry-recognized credential tracks for CHW, peer specialist, and navigator roles.
-2. CLINICAL TOOLS: Sankofa Health (yourhealthbirthright.net) provides culturally responsive PHQ-9/GAD-7 screening tools that nonclinical providers learn to administer — giving them real clinical support technology from Day 1.
+2. CLINICAL TOOLS: Sankofa Health (herhealthmatters2.com) provides responsive PHQ-9/GAD-7 screening tools that nonclinical providers learn to administer — giving them real clinical support technology from Day 1.
 3. SCHOOL INTEGRATION: Perfectly Different and ISSS provide K-12 mental health and wraparound support tools that connect school-based nonclinical staff to the broader care ecosystem.
 4. QUALITY ASSURANCE: RPLICE (bettersciencelab.com) tracks whether our training program produces competent providers using AI-powered implementation fidelity monitoring. Our 4-engine RAG architecture (GPT-5, Claude, 6 scholarly databases, ecosystem context) validates training effectiveness against published evidence — with anti-hallucination guardrails and APA citations on every assessment.
 5. COMMUNITY VOICE: Three Realities methodology ensures youth voice drives every program design decision. We ask young people what they experience (Lived Reality), map what institutions intend to deliver (Institutional Reality), and design interventions that bridge the gap (Gap Reality).
@@ -2863,7 +2863,7 @@ All outcomes assessed through RPLICE's 4-engine AI + RAG architecture. Scholarly
       { id: "rifpe-1", category: "Eligibility", item: "501(c)(3) determination letter", status: "verified" as const, notes: "TCAF EIN 41-3618003" },
       { id: "rifpe-2", category: "Alignment", item: "Nonclinical workforce pathway documented", status: "verified" as const, notes: "ThriveUp Academy career pathways" },
       { id: "rifpe-3", category: "Technology", item: "Training platform operational", status: "verified" as const, notes: "thrivingcommunitiesforall.com — live" },
-      { id: "rifpe-4", category: "Technology", item: "Mental health screening tools operational", status: "verified" as const, notes: "Sankofa Health — yourhealthbirthright.net" },
+      { id: "rifpe-4", category: "Technology", item: "Mental health screening tools operational", status: "verified" as const, notes: "Sankofa Health — herhealthmatters2.com" },
       { id: "rifpe-5", category: "Community", item: "Youth advisory board established", status: "action-needed" as const, notes: "Dr. Flood: recruit 12+ youth ages 16-24" },
     ],
     winStrategy: {
@@ -2909,7 +2909,7 @@ All outcomes assessed through RPLICE's 4-engine AI + RAG architecture. Scholarly
     referenceLabel: "Centene Foundation Grants",
     grantKnowledge: `Centene Foundation — Behavioral Health Community Innovation Grants — Up to $500,000.
 PURPOSE: Fund innovative behavioral health programs in underserved communities. Focuses on integrated care models, community health workers, technology-enabled access, and culturally responsive approaches.
-ALIGNMENT: TCAF's Whole-Person Health platform (mentalwellnesssupport.net) provides behavioral health screening and support. Sankofa Health (yourhealthbirthright.net) delivers culturally responsive health tools. RPLICE validates whether behavioral health interventions are delivered with fidelity.
+ALIGNMENT: TCAF's Whole-Person Health platform (mentalwellnesssupport.net) provides behavioral health screening and support. Sankofa Health (herhealthmatters2.com) delivers responsive health tools. RPLICE validates whether behavioral health interventions are delivered with fidelity.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
 DEADLINE: May 31, 2026.`,
     essentials: [
@@ -2924,7 +2924,7 @@ DEADLINE: May 31, 2026.`,
       "Sankofa Health delivers culturally responsive health tools for Black and Brown communities",
       "RPLICE tracks behavioral health intervention fidelity using AI + RAG architecture",
       "4-engine AI generates treatment recommendations grounded in 6 scholarly databases — with citations",
-      "HerHealth Network supports medication adherence and chronic-disease navigation — critical for behavioral health outcomes",
+      "HerHealth Matters supports medication adherence and chronic-disease navigation — critical for behavioral health outcomes",
       "SafeCogniCare addresses cognitive health needs often co-occurring with behavioral health conditions",
     ],
     serviceArea: {
@@ -2962,13 +2962,13 @@ In Travis County, 60% of adults with mental illness receive no treatment. For Bl
 OUR APPROACH:
 We deploy an AI-powered behavioral health ecosystem that reaches community members where they are:
 
-1. SCREENING & ASSESSMENT: Whole-Person Health (mentalwellnesssupport.net) provides PHQ-9 (depression), GAD-7 (anxiety), and Columbia Suicide Severity screening accessible via mobile device — no clinic visit required. Sankofa Health (yourhealthbirthright.net) provides culturally responsive versions designed for Black and Brown communities.
+1. SCREENING & ASSESSMENT: Whole-Person Health (mentalwellnesssupport.net) provides PHQ-9 (depression), GAD-7 (anxiety), and Columbia Suicide Severity screening accessible via mobile device — no clinic visit required. Sankofa Health (herhealthmatters2.com) provides responsive versions designed for diverse communities.
 
 2. AI-POWERED RECOMMENDATIONS: When a screening indicates need, our 4-engine RAG architecture (GPT-5, Claude, 6 scholarly databases, ecosystem context) generates evidence-based next steps — not generic advice, but recommendations grounded in published literature with APA citations and anti-hallucination guardrails.
 
 3. CARE COORDINATION: LifeBridge (lifetransitionsaid.org) connects individuals to wraparound services — housing, food, transportation — because behavioral health cannot improve when basic needs are unmet.
 
-4. MEDICATION SUPPORT: HerHealth Network (herhealthnetwork.com) coordinates medication adherence support for psychiatric and chronic-disease regimens — reminders, interaction guidance, refill tracking, warm handoffs to clinical partners.
+4. MEDICATION SUPPORT: HerHealth Matters (herhealthmatters2.com) coordinates medication adherence support for psychiatric and chronic-disease regimens — reminders, interaction guidance, refill tracking, warm handoffs to clinical partners.
 
 5. IMPLEMENTATION FIDELITY: RPLICE (bettersciencelab.com) tracks whether behavioral health interventions are delivered as designed using CFIR 2.0 and RE-AIM frameworks. The MAP-GAP cycle ensures continuous improvement — not annual reports.
 
@@ -2996,7 +2996,7 @@ TECHNOLOGY & AI OPERATIONS ($60,000 — 15%):
 - RPLICE AI engine operations (4-engine RAG pipeline for behavioral health assessments): $25,000
 - Whole-Person Health platform operations (PHQ-9/GAD-7 screening infrastructure): $15,000
 - Sankofa Health culturally responsive tool maintenance: $10,000
-- HerHealth Network medication adherence integration: $5,000
+- HerHealth Matters medication adherence integration: $5,000
 - Data security & HIPAA compliance infrastructure: $5,000
 
 COMMUNITY ENGAGEMENT ($60,000 — 15%):
@@ -3076,10 +3076,10 @@ Relevance: Implementation science expertise ensures behavioral health programs a
 TECHNOLOGY INFRASTRUCTURE:
 The 15-service-platform ACOS ecosystem includes multiple behavioral health-specific tools:
 - Whole-Person Health (mentalwellnesssupport.net): PHQ-9, GAD-7, Columbia Suicide Severity screening — live
-- Sankofa Health (yourhealthbirthright.net): Culturally responsive health tools for Black and Brown communities — live
-- HerHealth Network (herhealthnetwork.com): Medication adherence and chronic-disease navigation — live
+- Sankofa Health (herhealthmatters2.com): Responsive health tools for diverse communities — live
+- HerHealth Matters (herhealthmatters2.com): Medication adherence and chronic-disease navigation — live
 - SafeCogniCare (safecognicare.com): Cognitive health assessment — live
-- Black Men's Health Hub (blackmenshealthhub.com): Health equity focus — live
+- MaleHealth Matters (malehealthmatters2.com): Men's health navigation — live
 - RPLICE (bettersciencelab.com): AI-powered implementation fidelity tracking — live
 
 AI INFRASTRUCTURE:
@@ -3659,7 +3659,7 @@ WHY WE WIN: Veteran-founded (Dr. Terry Flood, U.S. Army veteran), Black-led, 501
 STATUS: 2025-2026 cycle is CLOSED/IN PROGRESS. 2027-2028 RFP expected to be released in 2026.
 FOCUS AREAS: Access to care, health literacy, food security/nutrition, behavioral health, social determinants of health (SDoH). Must drive transformative, measurable changes in health equity.
 APPROACH: Strategic, collaborative grants — they want multi-organization partnerships, not solo programs. Community-driven solutions with data-driven approaches.
-WHY WE FIT: Sankofa Health (culturally responsive screening), HerHealth Network (medication adherence + chronic disease navigation), Perfectly Different (mental health + neurodiversity), Whole-Person Health (behavioral health), Talk Your Talk (communication access — 89 spoken + 18 sign languages). 7+ health-focused platforms across the ecosystem. CHW workforce pipeline directly addresses access to care in underserved communities.
+WHY WE FIT: Sankofa Health (responsive screening), HerHealth Matters (medication adherence + chronic disease navigation), Perfectly Different (mental health + neurodiversity), Whole-Person Health (behavioral health), Talk Your Talk (communication access — 89 spoken + 18 sign languages). 7+ health-focused platforms across the ecosystem. CHW workforce pipeline directly addresses access to care in underserved communities.
 SUBMITTING ENTITY: The Collaborative Advocate Foundation — EIN 41-3618003, 501(c)(3).
 WATCH LIST: Sign up for email notifications at texashealth.org/community-health/community-impact to be notified when 2027-2028 RFP drops.`,
     essentials: [
@@ -3671,7 +3671,7 @@ WATCH LIST: Sign up for email notifications at texashealth.org/community-health/
       { label: "CHW Pipeline", detail: "Your CHW workforce pipeline addresses their access-to-care priority — trained CHWs expand healthcare reach in underserved communities" },
     ],
     competitiveEdge: [
-      "7+ health-focused platforms in the ecosystem — Sankofa, HerHealth Network, Whole-Person Health, Perfectly Different, Talk Your Talk, SafeCogniCare, Black Maternal Health Network, and more",
+      "7+ health-focused platforms in the ecosystem — Sankofa, HerHealth Matters, Whole-Person Health, Perfectly Different, Talk Your Talk, SafeCogniCare, Maternal Health Network, and more",
       "CHW workforce pipeline directly addresses healthcare access gaps — train and deploy CHWs in underserved communities",
       "Census tract health disparity data provides the evidence base Texas Health values",
       "Implementation science framework ensures program fidelity and measurable outcomes",
@@ -3729,7 +3729,7 @@ WATCH LIST: Sign up for email notifications at texashealth.org/community-health/
       { id: "txhr-pe2", category: "Compliance", item: "501(c)(3) status confirmed", status: "verified" as const, notes: "EIN 41-3618003", guidance: "TCAF's 501(c)(3) status is current." },
       { id: "txhr-pe3", category: "Partnerships", item: "Health system collaborative partners identified", status: "action-needed" as const, notes: "Need FQHC, hospital, or LMHA partner", guidance: "Texas Health wants collaborative applications. Identify and approach partners NOW, before the RFP drops." },
       { id: "txhr-pe4", category: "Data", item: "Health disparity data compiled for Central Texas", status: "pending" as const, notes: "", guidance: "Census tract health data for Travis County — the foundation expects data-driven applications." },
-      { id: "txhr-pe5", category: "Technology", item: "Health platform demos ready", status: "verified" as const, notes: "Sankofa Health, HerHealth Network, Whole-Person Health, SafeCogniCare, Black Maternal Health Network all operational", guidance: "All health platforms are live and can be demoed to Texas Health reviewers if needed." },
+      { id: "txhr-pe5", category: "Technology", item: "Health platform demos ready", status: "verified" as const, notes: "Sankofa Health, HerHealth Matters, Whole-Person Health, SafeCogniCare, Maternal Health Network all operational", guidance: "All health platforms are live and can be demoed to Texas Health reviewers if needed." },
     ],
     winStrategy: {
       differentiators: [

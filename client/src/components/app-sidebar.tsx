@@ -280,9 +280,9 @@ const partnersCoalitionsItems: NavItem[] = [
 const connectedSiteItems: NavItem[] = [
   { title: "ThriveUp / TCAF", url: "/ecosystem", icon: Layers },
   { title: "Whole-Person Health", url: "https://mentalwellnesssupport.net", icon: Heart },
-  { title: "Feminine Health", url: "https://herhealthmatters2.com", icon: Stethoscope },
-  { title: "Maternal Health", url: "https://yourhealthbirthright.net", icon: Baby },
-  { title: "Men's Health", url: "https://thehealthyblkman.com", icon: User },
+  { title: "HerHealth Matters", url: "https://herhealthmatters2.com", icon: Stethoscope },
+  { title: "Maternal Health Network", url: "https://herhealthmatters2.com", icon: Baby },
+  { title: "MaleHealth Matters", url: "https://malehealthmatters2.com", icon: User },
   { title: "Mission Transition", url: "https://vetmissiontransition.com", icon: Shield },
   { title: "LifeBridge", url: "https://lifetransitionsaid.org", icon: Compass },
   { title: "Talk Your Talk", url: "https://talkyourtalk.net", icon: MessageCircle },

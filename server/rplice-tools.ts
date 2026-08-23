@@ -833,8 +833,8 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
         "health-equity": {
           platforms: [
             { id: "whole-person-health", name: "Whole-Person Health Ecosystem", domain: "health-equity", url: "https://mentalwellnesssupport.net", interventions: ["Clinical screenings (C-SSRS, PHQ-9, GAD-7)", "Safety plan builder", "Crisis routing", "MAP-GAP assessment"] },
-            { id: "sankofa", name: "Sankofa Health Network", domain: "health-equity", url: "https://yourhealthbirthright.net", interventions: ["Health equity gateway", "Culturally responsive care", "GIS resource matching", "Population-specific health navigation"] },
-            { id: "sankofa-maternal-health", name: "Black Maternal Health Network", domain: "health-equity", url: "https://yourhealthbirthright.net", interventions: ["Maternal risk assessment", "Doula matching", "Prenatal care navigation", "Postpartum recovery"] },
+            { id: "sankofa", name: "Sankofa Health Network", domain: "health-equity", url: "https://herhealthmatters2.com", interventions: ["Health gateway", "Responsive care", "GIS resource matching", "Population-aware health navigation"] },
+            { id: "sankofa-maternal-health", name: "Maternal Health Network", domain: "health-equity", url: "https://herhealthmatters2.com", interventions: ["Maternal risk assessment", "Doula matching", "Prenatal care navigation", "Postpartum recovery"] },
             { id: "safecognicare", name: "SafeCogniCare", domain: "health-equity", url: "https://safecognicare.com", interventions: ["Cognitive health assessments (MoCA/MMSE)", "TBI screening", "Cognitive decline monitoring", "Care coordination"] },
           ],
         },
@@ -867,7 +867,7 @@ Be specific. Use actual numbers from the data. Reference specific tracts. This i
           platforms: [
             { id: "m2c", name: "Mission Transition (M2C)", domain: "veterans", url: "https://vetmissiontransition.com", interventions: ["MOS/AFSC career translation", "Benefits navigation", "Identity transition support", "Proactive outreach"] },
             { id: "collaborative-advocate", name: "The Collaborative Advocate", domain: "veteran-services", url: "https://thrivingcommunitiesforall.com", interventions: ["Veteran advocacy", "Peer support coordination", "SSG Fox grant execution"] },
-            { id: "sankofa-mens-health", name: "Black Men's Health Hub", domain: "health-equity", url: "https://thehealthyblkman.com", interventions: ["Veteran health pathways", "Mental health stigma reduction", "Peer mentor matching"] },
+            { id: "sankofa-mens-health", name: "MaleHealth Matters", domain: "health-equity", url: "https://malehealthmatters2.com", interventions: ["Veteran health pathways", "Behavioral-health engagement", "Peer mentor matching"] },
           ],
         },
         "research": {

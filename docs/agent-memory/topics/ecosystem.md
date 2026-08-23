@@ -13,9 +13,9 @@ The 15 public-facing platforms + caveats. Full DB-level catalog in `docs/ecosyst
 1. **Whole-Person Health (WPH)** — behavioral safety floor
 2. **Talk Your Talk (TYT)** — `talkyourtalk.net` (89 spoken + 18 sign = 107 languages/dialects)
 3. **Sankofa Network** — health/community
-4. **Black Maternal Health Network**
-5. **Black Men's Health Hub**
-6. **HerHealth Network** (Holistic Black Feminine Health Hub)
+4. **Maternal Health Network**
+5. **MaleHealth Matters** — `malehealthmatters2.com`
+6. **HerHealth Matters** — `herhealthmatters2.com`
 7. **SafeCogniCare** — cognitive/dementia
 8. **Perfectly Different** — disability/IDD
 9. **LifeBridge** — SDOH navigation

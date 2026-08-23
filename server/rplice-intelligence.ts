@@ -288,8 +288,8 @@ const PLATFORM_INTERVENTION_MAP: Record<string, {
   "health-equity": {
     platforms: [
       { id: "whole-person-health", name: "Whole-Person Health Ecosystem", url: "https://mentalwellnesssupport.net", interventions: ["C-SSRS, PHQ-9, GAD-7 clinical screenings", "Safety plan builder", "Crisis routing", "MAP-GAP assessment"] },
-      { id: "sankofa", name: "Sankofa Health Network", url: "https://yourhealthbirthright.net", interventions: ["Health equity gateway", "Culturally responsive care", "GIS resource matching", "Population-specific health navigation"] },
-      { id: "sankofa-maternal-health", name: "Black Maternal Health Network", url: "https://yourhealthbirthright.net", interventions: ["Maternal risk assessment", "Doula matching", "Prenatal care navigation", "Postpartum recovery"] },
+      { id: "sankofa", name: "Sankofa Health Network", url: "https://herhealthmatters2.com", interventions: ["Health gateway", "Responsive care", "GIS resource matching", "Population-aware health navigation"] },
+      { id: "sankofa-maternal-health", name: "Maternal Health Network", url: "https://herhealthmatters2.com", interventions: ["Maternal risk assessment", "Doula matching", "Prenatal care navigation", "Postpartum recovery"] },
       { id: "safecognicare", name: "SafeCogniCare", url: "https://safecognicare.com", interventions: ["MoCA/MMSE cognitive health assessments", "TBI screening", "Cognitive decline monitoring", "Care coordination"] },
     ],
   },
@@ -319,7 +319,7 @@ const PLATFORM_INTERVENTION_MAP: Record<string, {
   "veterans": {
     platforms: [
       { id: "m2c", name: "Mission Transition (M2C)", url: "https://vetmissiontransition.com", interventions: ["MOS/AFSC career translation", "VA benefits navigation", "Identity transition support", "Proactive outreach"] },
-      { id: "sankofa-mens-health", name: "Black Men's Health Hub", url: "https://thehealthyblkman.com", interventions: ["Veteran health pathways", "Mental health stigma reduction", "Peer mentor matching"] },
+      { id: "sankofa-mens-health", name: "MaleHealth Matters", url: "https://malehealthmatters2.com", interventions: ["Veteran health pathways", "Behavioral-health engagement", "Peer mentor matching"] },
     ],
   },
   "community": {

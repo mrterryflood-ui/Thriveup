@@ -182,7 +182,7 @@ const SEED_CROSSWALK = [
     standardTitle: "Gender-responsive programming",
     standardDescription: "Men benefit from attitudinal-change programs; women from practical-skills + life-skills.",
     coverageStatus: "partial", coveragePercent: 70,
-    tcafCapabilities: ["TheHealthyBlkMan", "HerHealth Network", "Whole-Person Health"],
+    tcafCapabilities: ["MaleHealth Matters", "HerHealth Matters", "Whole-Person Health"],
     evidenceUrl: "/ecosystem-hub", notes: "Gender-specific platforms exist; need gender-responsive routing in reentry intake." },
   { standardCode: "NRRC-EBP-05", standardBody: "NRRC", category: "ebp",
     standardTitle: "Incentives + graduated sanctions framework",

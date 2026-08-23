@@ -174,7 +174,7 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
   },
   {
     source: "platform", category: "platform", title: "Sankofa Health Network",
-    content: `Health equity gateway. Black maternal health, mental health rights, breast cancer awareness, men's health, feminine OB health, cognitive safety, pill management. Behavioral health assessments, GIS resource matching. URL: yourhealthbirthright.net. Grants: SAMHSA, St. David's, DFC, SSG Fox.`,
+    content: `Health and wellness gateway. Maternal health, mental health rights, breast health awareness, men's health, women's health, cognitive safety, and medication support. Behavioral health assessments and resource matching. URL: herhealthmatters2.com. Grants: SAMHSA, St. David's, DFC, SSG Fox.`,
     keywords: ["sankofa", "health equity", "maternal health", "mental health", "black health", "breast cancer"],
   },
   {
@@ -223,19 +223,19 @@ Three-layer architecture: Learn It (Academy) → Apply It (RPLICE/MCE/Ecosystem)
     keywords: ["pillscheduler", "medication", "pills", "dosage", "reminders", "prescriptions"],
   },
   {
-    source: "platform", category: "platform", title: "Black Maternal Health Network",
-    content: `Addresses Black maternal mortality crisis. Prenatal/postnatal care navigation, doula matching, risk assessment, community health worker coordination, maternal mental health. Black women are 3-4x more likely to die from pregnancy-related causes. URL: black-maternal-health-network.replit.app. Grants: SAMHSA, St. David's.`,
-    keywords: ["maternal health", "black maternal", "doula", "prenatal", "postnatal", "pregnancy", "birthright"],
+    source: "platform", category: "platform", title: "Maternal Health Network",
+    content: `Maternal and family-health pathway. Prenatal/postnatal care navigation, doula matching, risk assessment, community health worker coordination, and maternal mental health support. URL: herhealthmatters2.com. Grants: SAMHSA, St. David's.`,
+    keywords: ["maternal health", "doula", "prenatal", "postnatal", "pregnancy", "herhealth"],
   },
   {
-    source: "platform", category: "platform", title: "Black Men's Health Hub",
-    content: `Comprehensive health for Black men — prostate health, cardiovascular risk, mental health stigma reduction, preventive care, peer support networks. URL: black-men-health.replit.app. Grants: SAMHSA, St. David's, SSG Fox.`,
-    keywords: ["mens health", "black men", "prostate", "cardiovascular", "preventive care"],
+    source: "platform", category: "platform", title: "MaleHealth Matters",
+    content: `Comprehensive men's health — prostate health, cardiovascular risk, behavioral-health engagement, preventive care, and peer support networks. URL: malehealthmatters2.com. Grants: SAMHSA, St. David's, SSG Fox.`,
+    keywords: ["mens health", "prostate", "cardiovascular", "preventive care", "malehealth"],
   },
   {
-    source: "platform", category: "platform", title: "Holistic Black Feminine Health Hub",
-    content: `Holistic OB/GYN health for Black women — reproductive health, hormonal wellness, preventive screenings, community support, culturally responsive care navigation. URL: holistic-black-feminine-health-hub.replit.app. Grants: SAMHSA, St. David's.`,
-    keywords: ["feminine health", "ob/gyn", "reproductive", "hormonal", "women's health"],
+    source: "platform", category: "platform", title: "HerHealth Matters",
+    content: `Women's health — reproductive health, hormonal wellness, preventive screenings, community support, and responsive care navigation. URL: herhealthmatters2.com. Grants: SAMHSA, St. David's.`,
+    keywords: ["women's health", "ob/gyn", "reproductive", "hormonal", "herhealth"],
   },
   {
     source: "platform", category: "platform", title: "Ecosystem Nexus — Coordination Hub",
@@ -720,13 +720,13 @@ All accessible at /resource-directory. Education is the #1 protective factor.`,
     keywords: ["cdmrp", "prmrp", "prcrp", "bcrp", "tbiphrp", "military", "dod", "defense", "ebrap", "grants.gov", "cancer", "tbi", "ptsd", "suicide", "substance use", "veteran", "medical research"],
   },
   {
-    source: "grant-strategy", category: "grants", title: "HerHealth Network — 70 Conditions Across 7 Platforms for CDMRP Matching",
+    source: "grant-strategy", category: "grants", title: "HerHealth Matters — 70 Conditions Across 7 Platforms for CDMRP Matching",
     content: `HerHealth Network (herhealthmatters2.com) covers 70 women's health conditions across 7 specialized platforms (10 conditions each): (1) CANCER: Breast, TNBC, BRCA, IBC, Cervical, Ovarian, Endometrial, Colorectal, Lung, Thyroid. (2) CARDIOVASCULAR: Hypertension, Heart Disease, Stroke, Arrhythmia, Heart Failure, PAD, DVT, Pulmonary Embolism, Cardiomyopathy, Congenital Heart. (3) AUTOIMMUNE: Lupus, RA, MS, Sarcoidosis, Fibromyalgia, Sjögren's, Psoriasis, Hashimoto's, Celiac, Type 1 Diabetes. (4) MENTAL HEALTH: Depression, Anxiety, PTSD, Bipolar, Postpartum Depression, Grief, Racial Trauma, Eating Disorders, Substance Use, Sleep/Insomnia. (5) REPRODUCTIVE: Fibroids, Endometriosis, PCOS, Fertility, Menopause, Sexual Health, Urinary Incontinence, Pelvic Floor, Vulvodynia, Cervical Dysplasia. (6) METABOLIC: Type 2 Diabetes, Obesity, Thyroid Disorders, Metabolic Syndrome, Vitamin D Deficiency, Iron Deficiency, Osteoporosis, Insulin Resistance, Gestational Diabetes, Sickle Cell. (7) INFECTIOUS & OTHER: HIV, Hep B/C, HPV, STIs, Long COVID, Kidney Disease, Asthma, CFS/ME, Lyme Disease, Melanoma. Key assets: Nia AI Navigator, 5 Decision Wizards, 2,100+ resources, SDOH-first design, P2P mesh, B2B $50K-$500K/yr tiers. EIN 41-3618003. HerHealth directly matches 40+ of 52 PRMRP topics and 15+ of 20 PRCRP cancer topics.`,
     keywords: ["herhealth", "women's health", "cancer", "cardiovascular", "autoimmune", "mental health", "reproductive", "metabolic", "infectious", "nia", "herhealthmatters", "conditions", "cdmrp", "sankofa"],
   },
   {
-    source: "grant-strategy", category: "grants", title: "TheHealthyBlkMan — 15 Health Domains with Malik AI for CDMRP",
-    content: `TheHealthyBlkMan (thehealthyblkman.com) covers 15 health domains: (1) Heart & Cardiovascular, (2) Cancer & Oncology (prostate, colorectal, lung), (3) Diabetes & Metabolic, (4) Kidney & Urinary, (5) Mental Health & Emotional Wellness, (6) Sleep & Stress, (7) Brain & Neurology (TBI, Alzheimer's, stroke recovery), (8) Lung & Respiratory (asthma, COPD), (9) Digestive & Liver (hepatitis), (10) Sexual & Reproductive Health (HIV/PrEP), (11) Musculoskeletal & Pain, (12) Infectious Disease, (13) Substance Use & Recovery, (14) Violence/Trauma/Recovery, (15) Primary Care & Prevention. Key assets: Malik AI navigator, 5,200+ providers, MAP-GAP assessment, 8 actionable domains, barbershop outreach model, veteran health pathway. Black men 2x more likely to die from prostate cancer (largest racial disparity in any cancer).`,
+    source: "grant-strategy", category: "grants", title: "MaleHealth Matters — 15 Health Domains with Malik AI for CDMRP",
+    content: `MaleHealth Matters covers 15 health domains: (1) Heart & Cardiovascular, (2) Cancer & Oncology, (3) Diabetes & Metabolic, (4) Kidney & Urinary, (5) Mental Health & Emotional Wellness, (6) Sleep & Stress, (7) Brain & Neurology, (8) Lung & Respiratory, (9) Digestive & Liver, (10) Sexual & Reproductive Health, (11) Musculoskeletal & Pain, (12) Infectious Disease, (13) Substance Use & Recovery, (14) Violence/Trauma/Recovery, (15) Primary Care & Prevention. Key assets: Malik AI navigator, provider directory, MAP-GAP assessment, actionable domains, veteran health pathway.`,
     keywords: ["healthyblkman", "men's health", "prostate", "cardiovascular", "diabetes", "mental health", "substance use", "malik", "barbershop", "veteran", "black men"],
   },
   {

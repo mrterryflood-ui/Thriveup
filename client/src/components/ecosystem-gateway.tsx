@@ -26,8 +26,8 @@ const ALL_PLATFORMS: GatewayPlatform[] = [
   },
   {
     id: "sankofa",
-    name: "Sankofa Health",
-    tagline: "Black maternal health · behavioral health · community wellness",
+    name: "Sankofa Health Network",
+    tagline: "Maternal health · behavioral health · community wellness",
     emoji: "❤️",
     href: "/health-wellness",
     color: "border-rose-300 bg-rose-50 dark:bg-rose-950/30 dark:border-rose-800",

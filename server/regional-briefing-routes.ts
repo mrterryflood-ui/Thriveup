@@ -304,9 +304,9 @@ export async function loadLocationContext(loc: BriefingLocation, topic: string):
     "Talk Your Talk",
     "LexiBridge (Speech Bridge)", // legacy DB alias for Talk Your Talk — TYT connector overwrites on heartbeat
     "Sankofa Health Network",
-    "Black Maternal Health Network",
-    "Black Men's Health Hub",
-    "HerHealth Network (Holistic Black Feminine Health Hub)",
+    "Maternal Health Network",
+    "MaleHealth Matters",
+    "HerHealth Matters",
     "SafeCogniCare",
     "Perfectly Different",
     "LifeBridge",

@@ -93,7 +93,7 @@ const SERVICE_CATEGORIES: ServiceCategory[] = [
       { name: "Medicaid/CHIP Screener", description: "Check eligibility for Medicaid and Children's Health Insurance Program", internalLink: "/benefits-screener", platform: "Benefits Intel" },
       { name: "Whole-Person Health", description: "Health screenings (PHQ-9, GAD-7), safety planning, and resource routing", internalLink: "/ecosystem", platform: "Whole-Person Health" },
       { name: "Sankofa Health Network", description: "Cultural health equity — addressing health disparities in communities of color", internalLink: "/ecosystem", platform: "Sankofa" },
-      { name: "Black Maternal Health", description: "Prenatal, postpartum, and maternal care pathways for women of color", internalLink: "/ecosystem", platform: "Sankofa Maternal" },
+      { name: "Maternal Health Network", description: "Prenatal, postpartum, and maternal care pathways", internalLink: "/ecosystem", platform: "Sankofa Maternal" },
       { name: "HRSA Health Center Finder", description: "Find federally qualified health centers — sliding scale, no one turned away", externalLink: "https://findahealthcenter.hrsa.gov/" },
       { name: "Healthy Texas Women", description: "Family planning, preventive care, and birth control for eligible Texas women", externalLink: "https://healthytexaswomen.org/" },
     ],

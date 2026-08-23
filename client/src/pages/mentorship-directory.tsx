@@ -263,7 +263,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "Running September through July, the G.I.R.L. (Growing Into Remarkable Leaders) program features monthly 1-on-1 meetings — in-person, virtual, phone, email, or social media — plus job shadowing, service-learning projects, and casual social interactions. Mentors complete training and a background check.",
     programs: ["1-on-1 Monthly Mentoring", "Job Shadowing", "Service-Learning Projects", "Leadership Development"],
     badges: ["Black Women & Girls", "Year-Long Program", "Job Shadowing", "Leadership"],
-    ecosystemConnection: "HerHealth Network women's health navigation. Feminine Health Hub. Workforce pipeline via TWC grant.",
+    ecosystemConnection: "HerHealth Matters women's health navigation. Workforce pipeline via TWC grant.",
   },
   {
     id: "con-mi-madre",
@@ -298,7 +298,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     programs: ["Community Doula Support", "Respite Childcare", "Gap Fund (Financial Support)", "Birth Equity Advocacy", "Peer Mentorship for New Mothers"],
     badges: ["Birth Equity", "Doula Support", "Black & Brown Families", "Merck Grant Recipient"],
     impact: "76 families served with 2,900 hours of childcare. $25,000+ distributed through Gap Fund.",
-    ecosystemConnection: "Black Maternal Health Network clinical partner. HerHealth reproductive health. Whole-Person Health EPDS screening.",
+    ecosystemConnection: "Maternal Health Network clinical partner. HerHealth Matters reproductive health. Whole-Person Health EPDS screening.",
   },
   {
     id: "black-mamas",
@@ -316,7 +316,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     programs: ["Mamas Support Groups", "Doula Training", "Maternal Health Navigation", "Community Outreach"],
     badges: ["Black Maternal Health", "Doula Training", "18-Month Retention", "2.5x Disparity Focus"],
     impact: "Black mothers in Texas die at 2.5x the rate of white mothers. 21% of pregnancy-related deaths were Black mothers (2019-2020).",
-    ecosystemConnection: "Black Maternal Health Network direct partner. CDMRP PRMRP letter of support potential. HerHealth reproductive domain.",
+    ecosystemConnection: "Maternal Health Network direct partner. CDMRP PRMRP letter of support potential. HerHealth Matters reproductive domain.",
   },
   {
     id: "gals-doula",
@@ -333,7 +333,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "Provides free, on-call volunteer doula services to mothers including those in the Travis County Correctional Facility. Offers perinatal childcare for Black families and families of color during doctor's visits, mental health care, birth, and postpartum respite.",
     programs: ["Free Doula Services", "Incarcerated Mothers Doula Program", "Perinatal Childcare", "Postpartum Respite"],
     badges: ["Free Doulas", "Incarcerated Mothers", "Perinatal Support", "Volunteer-Based"],
-    ecosystemConnection: "Black Maternal Health Network. Reentry coordination for justice-involved mothers.",
+    ecosystemConnection: "Maternal Health Network. Reentry coordination for justice-involved mothers.",
   },
   {
     id: "safe-fatherhood",
@@ -505,7 +505,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "Since 1949, empowering adults with intellectual and developmental disabilities. Serves 1,000+ individuals annually across 17 counties. Art and education programs emphasize self-determination, social skills, and employment readiness. Campuses in Austin, Hutto, and Leander.",
     programs: ["Employment Services", "Art & Education Program", "Caregiver Resources", "Volunteer Mentorship", "Self-Determination Training"],
     badges: ["Since 1949", "1,000+ Served", "17 Counties", "IDD Focus"],
-    ecosystemConnection: "Perfectly Different neurodiversity pipeline. LifeBridge disability navigation. HerHealth Network medication adherence support.",
+    ecosystemConnection: "Perfectly Different neurodiversity pipeline. LifeBridge disability navigation. HerHealth Matters medication adherence support.",
   },
   {
     id: "age-central-tx",
@@ -522,7 +522,7 @@ const mentorshipPrograms: MentorshipProgram[] = [
     description: "35+ years improving lives of older adults and caregivers. Support groups for general caregiving (in-person, South Austin), dementia caregiving (virtual), and early-stage memory loss. Adult day health care, caregiver education, and intergenerational programs.",
     programs: ["Caregiver Support Groups", "Adult Day Health Care", "Dementia Caregiving Support", "Caregiver Education", "Intergenerational Programs"],
     badges: ["35+ Years", "Caregiver Support", "Dementia Focus", "South Austin"],
-    ecosystemConnection: "SafeCogniCare cognitive health. HerHealth Network medication adherence support. LifeBridge senior navigation.",
+    ecosystemConnection: "SafeCogniCare cognitive health. HerHealth Matters medication adherence support. LifeBridge senior navigation.",
   },
   {
     id: "latinitas",

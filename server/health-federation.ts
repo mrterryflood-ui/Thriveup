@@ -2,8 +2,8 @@
 // Health Federation Gateway — live partner platform connectors
 // Swaps the Sankofa gateway's placeholder-only federation for
 // real, live content from two sibling platforms:
-//   - HerHealth Network        https://herhealthmatters2.com
-//   - Male Health Matters      https://malehealthmatters2.com
+//   - HerHealth Matters        https://herhealthmatters2.com
+//   - MaleHealth Matters       https://malehealthmatters2.com
 // Honest-failure doctrine: a partner outage returns an explicit
 // offline status — never fabricated or stale-silently-served data.
 // All inbound partner JSON passes through verifyInboundPayload
@@ -30,7 +30,7 @@ export interface FederatedPartner {
 export const FEDERATED_PARTNERS: FederatedPartner[] = [
   {
     id: "herhealth",
-    name: "HerHealth Network",
+    name: "HerHealth Matters",
     baseUrl: "https://herhealthmatters2.com",
     tagline:
       "Women's health equity platform — condition library sourced from NIH, FDA, and ClinicalTrials.gov, with a 24,000+ resource directory.",
@@ -54,7 +54,7 @@ export const FEDERATED_PARTNERS: FederatedPartner[] = [
   },
   {
     id: "malehealth",
-    name: "Male Health Matters",
+    name: "MaleHealth Matters",
     baseUrl: "https://malehealthmatters2.com",
     tagline:
       "Men's health platform — condition library, MAP-GAP 8-domain health assessment, and provider directory.",
@@ -131,7 +131,7 @@ const HER_CONDITION_SCHEMA: InboundSchema = {
   summary: { type: "string", maxLength: 2000 },
 };
 
-// ---------- HerHealth Network connector ----------
+// ---------- HerHealth Matters connector ----------
 
 export interface FederatedConditionItem {
   slug: string;
@@ -218,9 +218,9 @@ async function loadHerHealthContent(): Promise<FederatedContent> {
 
   return {
     partnerId: "herhealth",
-    partnerName: "HerHealth Network",
+    partnerName: "HerHealth Matters",
     sourceUrl: base,
-    attribution: "Sourced live from HerHealth Network (herhealthmatters2.com) — content by our sister platform, not ThriveUp.",
+    attribution: "Sourced live from HerHealth Matters (herhealthmatters2.com) — content by our sister platform, not ThriveUp.",
     fetchedAt: new Date().toISOString(),
     stats,
     conditions,
@@ -228,13 +228,13 @@ async function loadHerHealthContent(): Promise<FederatedContent> {
   };
 }
 
-// ---------- Male Health Matters connector ----------
+// ---------- MaleHealth Matters connector ----------
 
 async function loadMaleHealthContent(): Promise<FederatedContent> {
   const base = "https://malehealthmatters2.com";
   const raw = (await fetchJson(`${base}/api/conditions`)) as Record<string, any>;
   if (!raw || raw.success !== true || !Array.isArray(raw.conditions)) {
-    throw new Error("Male Health Matters /api/conditions returned an unexpected shape");
+    throw new Error("MaleHealth Matters /api/conditions returned an unexpected shape");
   }
 
   const conditions: FederatedConditionItem[] = [];
@@ -257,14 +257,14 @@ async function loadMaleHealthContent(): Promise<FederatedContent> {
     await recordInboundVerification("malehealth-federation", "/api/conditions", allRejections);
   }
   if (conditions.length === 0) {
-    throw new Error("Male Health Matters returned no valid condition records");
+    throw new Error("MaleHealth Matters returned no valid condition records");
   }
 
   return {
     partnerId: "malehealth",
-    partnerName: "Male Health Matters",
+    partnerName: "MaleHealth Matters",
     sourceUrl: base,
-    attribution: "Sourced live from Male Health Matters (malehealthmatters2.com) — content by our sister platform, not ThriveUp.",
+    attribution: "Sourced live from MaleHealth Matters (malehealthmatters2.com) — content by our sister platform, not ThriveUp.",
     fetchedAt: new Date().toISOString(),
     conditions,
     conditionsTotal: typeof raw.totalConditions === "number" ? raw.totalConditions : conditions.length,
