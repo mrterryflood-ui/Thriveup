@@ -1,5 +1,5 @@
 // ============================================================
-// ThriveUp Ecosystem Connector — Black Maternal Health Network
+// ThriveUp Ecosystem Connector — Maternal Health Network
 // Generated: 2026-03-19T03:23:57.710Z
 // Platform ID: sankofa-maternal-health
 // Role: maternal-health
@@ -77,7 +77,7 @@ async function getIntegrationDoc() {
 
 setInterval(() => sendHeartbeat(), THRIVE_ECOSYSTEM_CONFIG.heartbeatIntervalMs);
 sendHeartbeat();
-console.log("[ThriveUp Ecosystem] Black Maternal Health Network connector initialized — ID: sankofa-maternal-health");
+console.log("[ThriveUp Ecosystem] Maternal Health Network connector initialized — ID: sankofa-maternal-health");
 
 if (typeof module !== "undefined") {
   module.exports = { sendHeartbeat, sendEcosystemEvent, getIntegrationDoc, THRIVE_ECOSYSTEM_CONFIG };

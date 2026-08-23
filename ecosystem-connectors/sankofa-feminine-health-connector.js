@@ -1,5 +1,5 @@
 // ============================================================
-// ThriveUp Ecosystem Connector — Holistic Black Feminine Health Hub
+// ThriveUp Ecosystem Connector — HerHealth Matters
 // Generated: 2026-03-19T03:23:57.707Z
 // Platform ID: sankofa-feminine-health
 // Role: feminine-health
@@ -76,7 +76,7 @@ async function getIntegrationDoc() {
 
 setInterval(() => sendHeartbeat(), THRIVE_ECOSYSTEM_CONFIG.heartbeatIntervalMs);
 sendHeartbeat();
-console.log("[ThriveUp Ecosystem] Holistic Black Feminine Health Hub connector initialized — ID: sankofa-feminine-health");
+console.log("[ThriveUp Ecosystem] HerHealth Matters connector initialized — ID: sankofa-feminine-health");
 
 if (typeof module !== "undefined") {
   module.exports = { sendHeartbeat, sendEcosystemEvent, getIntegrationDoc, THRIVE_ECOSYSTEM_CONFIG };

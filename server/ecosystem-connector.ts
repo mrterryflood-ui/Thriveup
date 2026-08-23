@@ -757,12 +757,12 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "sankofa",
     name: "Sankofa Health Network",
-    url: "https://yourhealthbirthright.net",
+    url: "https://herhealthmatters2.com",
     role: "health-gateway",
     domain: "health-equity",
-    description: "Health equity gateway orchestrating 5 sub-platforms (Maternal Health, Feminine Health, Men's Health, Cognitive Safety, Medication Management). Delivers culturally responsive behavioral health assessments, GIS-powered resource matching to 20,670+ resources, and population-specific health navigation for Black communities. Coordinates upstream screening data from Whole-Person Health hub and routes to specialized sub-platforms based on demographic and clinical need. Produces health equity outcome data for St. David's and SSG Fox grant reporting. Network architecture ensures no single point of failure — sub-platforms operate independently but coordinate through Sankofa's routing layer.",
+    description: "Health and wellness gateway orchestrating specialized maternal, women's, men's, cognitive-safety, and medication-support services. Delivers behavioral-health assessments, GIS-powered resource matching, and population-aware health navigation. Coordinates upstream screening data from Whole-Person Health and routes people to the appropriate service pathway.",
     capabilities: {
-      features: ["Black Maternal Health Network Coordination", "Mental Health Rights Advocacy", "Breast Cancer Awareness & Screening", "Black Men's Health Programs", "Feminine OB Health Navigation", "Cognitive Safety Protocols", "Pill Management Integration", "Behavioral Health Assessments", "GIS Resource Matching", "Sub-Platform Orchestration", "Health Equity Analytics", "Culturally Responsive Care Navigation", "Population Health Dashboard", "Community Health Worker Coordination"],
+       features: ["Maternal Health Network Coordination", "Mental Health Rights Advocacy", "Breast Health Education & Screening", "Men's Health Programs", "Women's Health Navigation", "Cognitive Safety Protocols", "Medication Support Integration", "Behavioral Health Assessments", "GIS Resource Matching", "Sub-Platform Orchestration", "Health Equity Analytics", "Responsive Care Navigation", "Population Health Dashboard", "Community Health Worker Coordination"],
       subPlatforms: 5,
       integrationDepth: "Orchestrates 5 sub-platforms and routes to/from Whole-Person Health hub, LifeBridge resources, and SafeCogniCare cognitive assessments",
       outcomeMetrics: ["Health equity screenings completed: 2,340 across 5 sub-platforms","GIS resource matches: 1,456 referrals with 71% completion","Sub-platform coordination events: 890 cross-referrals","Culturally responsive care navigation sessions: 678","Population health dashboard active metrics: 34 tracked indicators","Community health worker dispatches: 234"],
@@ -776,11 +776,11 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "sankofa-feminine-health",
-    name: "HerHealth Network (Holistic Black Feminine Health Hub)",
+    name: "HerHealth Matters",
     url: "https://herhealthmatters2.com",
     role: "feminine-health",
     domain: "health-equity",
-    description: "Comprehensive OB/GYN health platform for Black women — reproductive health education, hormonal wellness tracking, preventive screening scheduling, cervical/breast cancer awareness, menopause management, community support groups, and culturally responsive provider matching. Part of the Sankofa Health Network family. Also reachable at the alias domain myhealthybreast.com (both serve the same site). Integrates with Black Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation. Produces population-specific health outcome data addressing the 3x maternal mortality gap in Black communities.",
+    description: "Comprehensive women's health platform covering reproductive health education, hormonal wellness, preventive screening, cervical and breast health, menopause support, community groups, and provider matching. Part of the Sankofa Health Network family. Integrates with the Maternal Health Network for pregnancy pathways, SafeCogniCare for peripartum cognitive assessment, and Whole-Person Health for crisis escalation.",
     capabilities: {
       features: ["Reproductive Health Education", "Preventive Screening Scheduler", "Hormonal Wellness Tracker", "Cervical Cancer Awareness", "Breast Cancer Screening Navigation", "Menopause Management", "Community Support Groups", "Culturally Responsive Provider Matching", "Pregnancy Pathway Routing", "Health Literacy Resources", "Telehealth Coordination"],
       parentNetwork: "sankofa",
@@ -796,11 +796,11 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "sankofa-maternal-health",
-    name: "Black Maternal Health Network",
-    url: "https://yourhealthbirthright.net",
+    name: "Maternal Health Network",
+    url: "https://herhealthmatters2.com",
     role: "maternal-health",
     domain: "health-equity",
-    description: "Directly addressing the Black maternal mortality crisis with evidence-based interventions — comprehensive prenatal/postnatal care navigation, certified doula matching and coordination, maternal risk assessment using validated instruments, community health worker dispatch, maternal mental health screening (EPDS, PHQ-9 peripartum), breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health for crisis escalation, Feminine Health Hub for reproductive pathways, SafeCogniCare for peripartum cognitive changes, and LifeBridge for social determinant interventions (housing, food, transportation) that drive maternal outcomes.",
+    description: "Maternal and family-health service pathway providing prenatal and postnatal navigation, doula matching, maternal risk assessment, community-health-worker coordination, perinatal mental-health screening, breastfeeding support, and postpartum recovery planning. Integrates with Whole-Person Health, HerHealth Matters, SafeCogniCare, and LifeBridge.",
     capabilities: {
       features: ["Maternal Risk Assessment", "Certified Doula Matching", "Prenatal Care Navigation", "Postnatal Care Coordination", "Maternal Mental Health (EPDS)", "Community Health Workers", "Breastfeeding Support", "Postpartum Recovery Plans", "Birth Plan Builder", "Hospital Bag Checklist", "Appointment Tracker", "Social Determinant Screening"],
       parentNetwork: "sankofa",
@@ -816,11 +816,11 @@ const ECOSYSTEM_PLATFORMS = [
   },
   {
     id: "sankofa-mens-health",
-    name: "Black Men's Health Hub",
-    url: "https://thehealthyblkman.com",
+    name: "MaleHealth Matters",
+    url: "https://malehealthmatters2.com",
     role: "mens-health",
     domain: "health-equity",
-    description: "Comprehensive health platform for Black men addressing chronic disease disparities and mental health stigma — prostate cancer screening navigation, cardiovascular risk assessment (Framingham-adapted), diabetes prevention, mental health stigma reduction campaigns, substance use screening (AUDIT-C, DAST-10), peer mentor matching, and preventive care scheduling. Integrates with M2C Transition for veteran men's health pathways, Whole-Person Health for crisis routing, and LifeBridge for social determinant interventions. Targets the 5-year life expectancy gap for Black men through culturally responsive engagement.",
+    description: "Comprehensive men's health platform supporting preventive care, prostate and cardiovascular screening navigation, diabetes prevention, behavioral-health engagement, substance-use screening, peer mentoring, and care scheduling. Integrates with M2C Transition for veteran pathways, Whole-Person Health for crisis routing, and LifeBridge for social-support needs.",
     capabilities: {
       features: ["Prostate Cancer Screening Navigation", "Cardiovascular Risk Assessment", "Diabetes Prevention Program", "Mental Health Stigma Reduction", "Substance Use Screening", "Peer Mentor Matching", "Preventive Care Scheduler", "Health Literacy Resources", "Telehealth Coordination", "Community Barbershop Health Events", "Veteran Health Pathway"],
       parentNetwork: "sankofa",

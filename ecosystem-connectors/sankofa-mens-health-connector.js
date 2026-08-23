@@ -1,5 +1,5 @@
 // ============================================================
-// ThriveUp Ecosystem Connector — Black Men's Health Hub
+// ThriveUp Ecosystem Connector — MaleHealth Matters
 // Generated: 2026-03-19T03:23:57.712Z
 // Platform ID: sankofa-mens-health
 // Role: mens-health
@@ -76,7 +76,7 @@ async function getIntegrationDoc() {
 
 setInterval(() => sendHeartbeat(), THRIVE_ECOSYSTEM_CONFIG.heartbeatIntervalMs);
 sendHeartbeat();
-console.log("[ThriveUp Ecosystem] Black Men's Health Hub connector initialized — ID: sankofa-mens-health");
+console.log("[ThriveUp Ecosystem] MaleHealth Matters connector initialized — ID: sankofa-mens-health");
 
 if (typeof module !== "undefined") {
   module.exports = { sendHeartbeat, sendEcosystemEvent, getIntegrationDoc, THRIVE_ECOSYSTEM_CONFIG };
