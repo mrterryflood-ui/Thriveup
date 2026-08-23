@@ -992,7 +992,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "betterscience",
     name: "RPLICE — Research-to-Practice Lifecycle Implementation & Community Evidence",
-    url: "https://implementationineducatio.com",
+    url: "https://bettersciencelab.com",
     role: "research",
     domain: "education",
     description: "Free, AI-powered platform that helps researchers, practitioners, and planners close the gap between what science proves works and what actually gets implemented in communities. Search live evidence, assess projects against real community data, build implementation plans, and track outcomes -- all in one place. CFIR 2.0 (Consolidated Framework for Implementation Research), RE-AIM (Reach, Effectiveness, Adoption, Implementation, Maintenance), and EPIS (Exploration, Preparation, Implementation, Sustainment) frameworks applied to every platform's intervention design. Evidence-based practice registry with 500+ validated interventions, fidelity measurement instruments for each platform, research translation tools converting academic findings to community-actionable guides. Collaborative multi-AI review: multiple AI models independently analyze the same document, then a synthesis step builds consensus. API backend: salp-science--mrterryflood.replit.app (Research-Science-Collaborator on Replit). Provides the scientific backbone ensuring every platform's approach is evidence-based and measurable.",
