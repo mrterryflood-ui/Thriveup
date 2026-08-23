@@ -25,7 +25,7 @@ import { organizations, organizationMembers, grantOpportunities, consortiumPropo
 import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 import { timingSafeEqual } from "crypto";
-import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig } from "./grantpathpro-config";
+import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig, getGrantPathProEmbedConfig } from "./grantpathpro-config";
 import { recordInboundVerification, rejectionsToCorrectionNote, verifyInboundPayload } from "./inbound-verification";
 
 function getUserId(req: Request): string | undefined {
@@ -219,6 +219,64 @@ export function registerGrantPathProRoutes(app: Express) {
   app.get("/api/consortium/gpp-status", (_req: Request, res: Response) => {
     const config = getGrantPathProOutboundConfig();
     return res.json({ configured: config.configured, url: getGrantPathProDisplayOrigin(config.url) });
+  });
+
+  /**
+   * GET /api/consortium/gpp-embed
+   * ThriveUp-side bridge to GrantPathPro's /thriveup/embed endpoint.
+   * The partner credential stays on the server. The returned URL is intended
+   * for an authenticated nonprofit user whose entity was selected explicitly.
+   */
+  app.get("/api/consortium/gpp-embed", async (req: Request, res: Response) => {
+    try {
+      if (!getUserId(req)) return res.status(401).json({ error: "Sign in required" });
+      const entityId = typeof req.query.entityId === "string" ? req.query.entityId.trim() : "";
+      const mode = req.query.mode === "iframe" ? "iframe" : "redirect";
+      if (!entityId || entityId.length > 200) {
+        return res.status(400).json({ error: "A valid GrantPathPro entityId is required" });
+      }
+
+      const config = getGrantPathProEmbedConfig();
+      if (!config.configured || !config.url || !config.partnerKey) {
+        return res.status(503).json({ error: "GrantPathPro embed is not configured" });
+      }
+
+      const upstream = new URL(config.url);
+      upstream.searchParams.set("entityId", entityId);
+      upstream.searchParams.set("mode", mode);
+      const response = await fetch(upstream, {
+        method: "GET",
+        headers: { Accept: "application/json", "x-partner-key": config.partnerKey },
+        signal: AbortSignal.timeout(15_000),
+      });
+      const text = await response.text();
+      let payload: unknown;
+      try {
+        payload = JSON.parse(text);
+      } catch {
+        payload = null;
+      }
+      if (!response.ok) {
+        console.error(`[GrantPathPro] Embed upstream returned HTTP ${response.status}`);
+        return res.status(502).json({ error: "GrantPathPro embed endpoint is unavailable" });
+      }
+      if (!payload || typeof payload !== "object" || Array.isArray(payload)) {
+        return res.status(502).json({ error: "GrantPathPro returned an invalid embed response" });
+      }
+      const upstreamRecord = payload as Record<string, unknown>;
+      const embedUrl = typeof upstreamRecord.url === "string"
+        ? upstreamRecord.url
+        : typeof upstreamRecord.embedUrl === "string"
+          ? upstreamRecord.embedUrl
+          : null;
+      if (!embedUrl || !/^https?:\/\//i.test(embedUrl)) {
+        return res.status(502).json({ error: "GrantPathPro returned no valid embed URL" });
+      }
+      return res.json({ provider: "GrantPathPro", entityId, mode, url: embedUrl });
+    } catch (err) {
+      console.error("[GrantPathPro] Embed bridge failed:", err);
+      return res.status(502).json({ error: "GrantPathPro embed request failed" });
+    }
   });
 
   /**

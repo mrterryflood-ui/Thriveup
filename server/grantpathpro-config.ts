@@ -29,3 +29,20 @@ export function getGrantPathProDisplayOrigin(url: string | null): string | null 
     return null;
   }
 }
+
+/**
+ * The embed endpoint is a distinct GPP capability from grant event delivery.
+ * Prefer an explicit URL when the partner supplies one; otherwise derive it
+ * from the configured GPP origin without hardcoding a partner domain.
+ */
+export function getGrantPathProEmbedConfig(): {
+  url: string | null;
+  partnerKey: string | null;
+  configured: boolean;
+} {
+  const outbound = getGrantPathProOutboundConfig();
+  const explicitUrl = process.env.GPP_EMBED_URL?.trim();
+  const url = explicitUrl || (outbound.url ? `${new URL(outbound.url).origin}/thriveup/embed` : null);
+  const partnerKey = process.env.THRIVEUP_PARTNER_KEY?.trim() || outbound.apiKey;
+  return { url, partnerKey, configured: Boolean(url && partnerKey) };
+}
