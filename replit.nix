@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.psmisc
     pkgs.poppler_utils
     pkgs.freetype
     pkgs.fontconfig
