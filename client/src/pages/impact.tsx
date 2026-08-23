@@ -10,9 +10,9 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Users, GraduationCap, Briefcase, Award, BookOpen, Target,
   Heart, HandshakeIcon, TrendingUp, MapPin, Globe, ArrowRight,
-  CheckCircle2, Shield, Rocket, Building2, Share2, Printer, Link2,
+  CheckCircle2, Shield, Rocket, Building2, Share2, Printer, Link2, Linkedin,
 } from "lucide-react";
-import { SiLinkedin, SiX } from "react-icons/si";
+import { SiX } from "react-icons/si";
 import { BackToTop } from "@/components/back-to-top";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
@@ -150,7 +150,7 @@ export default function ImpactPage() {
             const url = encodeURIComponent(window.location.href);
             window.open(`https://www.linkedin.com/sharing/share-offsite/?url=${url}`, "_blank", "noopener,noreferrer");
           }} data-testid="button-share-linkedin" aria-label="Share on LinkedIn">
-            <SiLinkedin className="h-4 w-4 mr-1" />
+            <Linkedin className="h-4 w-4 mr-1" />
             LinkedIn
           </Button>
           <Button variant="outline" size="sm" onClick={() => {

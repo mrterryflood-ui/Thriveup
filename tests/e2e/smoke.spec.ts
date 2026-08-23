@@ -16,10 +16,10 @@ test.describe("smoke: public pages render", () => {
     await expect(page.getByTestId("page-grant-prior-awards")).not.toBeVisible();
   });
 
-  test("ecosystem orchestration page renders 27 platforms + 7 triads", async ({ page }) => {
+  test("ecosystem orchestration page renders 28 platforms + 7 triads", async ({ page }) => {
     await page.goto("/ecosystem-orchestration");
     await expect(page.getByTestId("page-ecosystem-orchestration")).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByTestId("text-stat-platforms")).toContainText("27");
+    await expect(page.getByTestId("text-stat-platforms")).toContainText("28");
     await expect(page.getByTestId("text-stat-triads")).toContainText("7");
     await page.getByTestId("tab-triads").click();
     await expect(page.getByTestId("card-triad-health-core-triad")).toBeVisible();
@@ -47,11 +47,11 @@ test.describe("smoke: API endpoints respond", () => {
     expect(body).toHaveProperty("summary.total");
   });
 
-  test("GET /api/ecosystem/registry returns 27 platforms + 7 triads", async ({ request }) => {
+  test("GET /api/ecosystem/registry returns 28 platforms + 7 triads", async ({ request }) => {
     const res = await request.get("/api/ecosystem/registry");
     expect(res.status()).toBe(200);
     const body = await res.json();
-    expect(body.platformCount).toBe(27);
+    expect(body.platformCount).toBe(28);
     expect(body.triadCount).toBe(7);
   });
 
