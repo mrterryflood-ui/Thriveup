@@ -16,6 +16,24 @@
 
 ---
 
+# Alpha Omega — 2026-08-23 — Nationwide Community Bridge foundation
+
+## Alpha
+- End-state: Make the Community Bridge explicitly nationwide in geography coverage, with every supported ZIP request resolved to a disclosed Census ZCTA and coverage measurable without spending AI budget.
+- In-state evidence: `zcta_county_map` is an existing persisted national crosswalk; the live Community Brief route still performs expensive Census/AI work per requested geography and had no public coverage contract.
+- Authority/boundaries: U.S. Census Bureau geography crosswalk is authoritative for the ZIP/ZCTA relationship. USPS ZIP delivery routes must not be represented as Census geographies. This build does not claim every indicator is available for every ZCTA.
+- Plan and acceptance proofs: Add a read-only coverage endpoint and a verifier that checks row count, all 50 states plus DC, source metadata, and explicit limitations.
+- Unknowns/deferred decisions: Full multi-indicator precomputation and refresh orchestration remain the next implementation layer; no synthetic data may be introduced to fill gaps.
+
+## Omega
+- Diff scrimmage: Coverage is read-only, cached, non-AI, fail-closed on database errors, and keeps geography coverage distinct from indicator availability.
+- Proofs and gates: Pending direct endpoint verification and typecheck after the implementation.
+- Independent angle: The verifier tests the public response contract rather than trusting the route implementation.
+- Outcome: In progress.
+- Residuals and reusable guard: Any future national indicator pipeline must report per-source/per-vintage coverage separately from the ZCTA universe and must preserve the ZIP-versus-ZCTA disclosure.
+
+---
+
 # Alpha Omega — 2026-08-23 — Community intelligence security foundation
 
 ## Alpha

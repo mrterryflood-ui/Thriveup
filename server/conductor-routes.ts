@@ -27,8 +27,8 @@ import {
 } from "./chainweb-coefficients";
 import { generateAIJSON } from "./ai-provider";
 import { db, storage } from "./storage";
-import { grantOpportunities } from "@shared/schema";
-import { desc, gte, and, isNotNull } from "drizzle-orm";
+import { grantOpportunities, zctaCountyMap } from "@shared/schema";
+import { desc, gte, and, isNotNull, sql } from "drizzle-orm";
 import { hasValidCommunityEvidence } from "./community-evidence";
 import { getGrantPathProOutboundConfig } from "./grantpathpro-config";
 
@@ -119,6 +119,7 @@ const CONDUCTOR_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2h — keeps stale-Census 
 const CONDUCTOR_CACHE_MAX = 300;
 const conductorBriefCache = new Map<string, { at: number; value: unknown }>();
 const conductorNeighborCache = new Map<string, { at: number; value: unknown }>();
+let nationalCoverageCache: { at: number; value: unknown } | null = null;
 
 function conductorCacheGet(key: string): unknown | undefined {
   const entry = conductorBriefCache.get(key);
@@ -1258,6 +1259,64 @@ Return JSON: { "narrative": "..." }`
 // ─── Main orchestrator ────────────────────────────────────────────────────────
 
 export function registerConductorRoutes(app: Express) {
+  // Public, non-AI coverage contract. This is intentionally separate from the
+  // expensive brief route: operators and community members need to see the
+  // actual national geography coverage without spending Census/AI budget.
+  app.get("/api/conductor/community-brief/coverage", async (_req: Request, res: Response) => {
+    try {
+      const now = Date.now();
+      if (nationalCoverageCache && now - nationalCoverageCache.at < 10 * 60 * 1000) {
+        return res.json(nationalCoverageCache.value);
+      }
+
+      const [total] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(zctaCountyMap);
+      const rows = await db
+        .select({
+          stateFips: zctaCountyMap.stateFips,
+          zctaCount: sql<number>`count(*)::int`,
+        })
+        .from(zctaCountyMap)
+        .groupBy(zctaCountyMap.stateFips)
+        .orderBy(zctaCountyMap.stateFips);
+
+      const stateBreakdown = Object.fromEntries(
+        rows.map((row) => [row.stateFips, Number(row.zctaCount)]),
+      );
+      const statesCovered = Object.keys(stateBreakdown).length;
+      const payload = {
+        geography: {
+          requestedUnit: "USPS ZIP / Census ZCTA lookup",
+          analyticalUnit: "Census ZCTA",
+          disclosure: "USPS ZIP Codes are delivery routes. Public Census measures are reported at the Census ZCTA that approximates the requested ZIP.",
+        },
+        coverage: {
+          zctaCount: Number(total?.count ?? 0),
+          statesAndDistrictCovered: statesCovered,
+          expectedStatesAndDistrict: 51,
+          completeStateCoverage: statesCovered >= 51,
+        },
+        source: {
+          publisher: "U.S. Census Bureau",
+          dataset: "ZCTA to County Relationship File",
+          sourceType: "geography crosswalk",
+          limitations: [
+            "This contract proves geography coverage, not that every upstream indicator is available for every ZCTA.",
+            "ZCTAs can cross county boundaries; county FIPS is a primary best-effort association for lookup support.",
+          ],
+        },
+        stateBreakdown,
+        generatedAt: new Date().toISOString(),
+      };
+      nationalCoverageCache = { at: now, value: payload };
+      return res.json(payload);
+    } catch (err) {
+      console.error("[Conductor] National coverage lookup failed:", err);
+      return res.status(503).json({ error: "Nationwide geography coverage is temporarily unavailable." });
+    }
+  });
+
   // POST /api/conductor/community-brief
   // DECISION: PUBLIC (anonymous OK). This is the flagship "no account required"
   // Community Impact analyzer. It returns ONLY aggregate public U.S. Census data
