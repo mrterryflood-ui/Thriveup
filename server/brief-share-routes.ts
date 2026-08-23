@@ -106,14 +106,21 @@ function projectPublicBrief(input: Record<string, unknown>): Record<string, unkn
           geographyGrain: publicString(source.geographyGrain, 80),
         };
       }) : [],
-      claims: Object.fromEntries(["observed", "tcafDerived", "tcafScenario", "historicalCascade", "aiSynthesis"].map((name) => {
-        const claim = asRecord(evidenceClaims[name]);
-        return [name, {
-          label: publicString(claim.label, 160),
-          status: publicString(claim.status, 32),
-          disclosure: publicString(claim.disclosure),
-        }];
-      })),
+      claims: Object.fromEntries(["observed", "tcafDerived", "tcafScenario", "historicalCascade", "aiSynthesis"]
+        // historicalCascade is optional (added after the v1 contract shipped).
+        // Only project it if it was actually present on the input — an empty
+        // placeholder object (all-undefined fields) is a *present-but-invalid*
+        // claim to hasValidCommunityEvidence, not an absent/optional one, and
+        // would wrongly fail the post-projection re-validation below.
+        .filter((name) => name !== "historicalCascade" || evidenceClaims[name] != null)
+        .map((name) => {
+          const claim = asRecord(evidenceClaims[name]);
+          return [name, {
+            label: publicString(claim.label, 160),
+            status: publicString(claim.status, 32),
+            disclosure: publicString(claim.disclosure),
+          }];
+        })),
       dataQuality: {
         status: publicString(evidenceQuality.status, 64),
         warnings: publicStrings(evidenceQuality.warnings, 20),
