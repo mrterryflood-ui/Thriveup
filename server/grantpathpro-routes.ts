@@ -25,6 +25,8 @@ import { organizations, organizationMembers, grantOpportunities, consortiumPropo
 import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 import { timingSafeEqual } from "crypto";
+import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig } from "./grantpathpro-config";
+import { recordInboundVerification, rejectionsToCorrectionNote, verifyInboundPayload } from "./inbound-verification";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -121,6 +123,37 @@ export interface GppEvent {
   meta?: Record<string, unknown>;
 }
 
+const MAX_GPP_EVENT_BATCH = 100;
+const GPP_EVENT_SCHEMA = {
+  eventType: { type: "string" as const, maxLength: 100 },
+  grantId: { type: "string" as const, maxLength: 200 },
+  grantTitle: { type: "string" as const, maxLength: 500 },
+  geography: { type: "string" as const, maxLength: 300 },
+  status: { type: "string" as const, maxLength: 100 },
+  milestone: { type: "string" as const, maxLength: 300 },
+  amount: { type: "number" as const, min: 0, max: 1_000_000_000 },
+  dueDate: { type: "string" as const, maxLength: 50 },
+  notes: { type: "string" as const, maxLength: 10_000 },
+};
+
+function isBoundedMeta(value: unknown, depth = 0): value is Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value) || depth > 4) return false;
+  if (Object.getPrototypeOf(value) !== Object.prototype && Object.getPrototypeOf(value) !== null) return false;
+  const entries = Object.entries(value);
+  if (entries.length > 50) return false;
+  return entries.every(([key, item]) => {
+    if (key.length > 100 || item === null || ["string", "number", "boolean"].includes(typeof item)) {
+      return key.length <= 100 && (typeof item !== "string" || item.length <= 2_000);
+    }
+    if (Array.isArray(item)) return item.length <= 25 && item.every(v => ["string", "number", "boolean"].includes(typeof v) && (typeof v !== "string" || v.length <= 500));
+    return isBoundedMeta(item, depth + 1);
+  });
+}
+
+function validDueDate(value: unknown): boolean {
+  return typeof value === "string" && !Number.isNaN(Date.parse(value));
+}
+
 /** Strip whitespace and non-ASCII trailing chars (e.g. accidental em-dash from copy-paste) */
 function normalizeKey(s: string): string {
   return s.replace(/[\s\u0080-\uffff]+$/, "").replace(/^[\s\u0080-\uffff]+/, "");
@@ -184,8 +217,8 @@ export function registerGrantPathProRoutes(app: Express) {
    * No auth required (config presence is not sensitive).
    */
   app.get("/api/consortium/gpp-status", (_req: Request, res: Response) => {
-    const configured = !!(process.env.GPP_API_URL && process.env.GPP_API_URL.trim());
-    return res.json({ configured, url: configured ? process.env.GPP_API_URL!.replace(/\/.*/, "") : null });
+    const config = getGrantPathProOutboundConfig();
+    return res.json({ configured: config.configured, url: getGrantPathProDisplayOrigin(config.url) });
   });
 
   /**
@@ -195,30 +228,58 @@ export function registerGrantPathProRoutes(app: Express) {
    */
   app.post("/api/inbound/grantpathpro", requireGppInboundKey, async (req: Request, res: Response) => {
     try {
-      const body = req.body as Partial<GppEvent> & { events?: Partial<GppEvent>[] };
-
-      const toInsert = (raw: Partial<GppEvent>) => ({
-        eventType: raw.eventType || "status_update",
-        grantId: raw.grantId ?? null,
-        grantTitle: raw.grantTitle ?? null,
-        geography: raw.geography ?? null,
-        status: raw.status ?? null,
-        milestone: raw.milestone ?? null,
-        amount: raw.amount ?? null,
-        dueDate: raw.dueDate ?? null,
-        notes: raw.notes ?? null,
-        meta: raw.meta ?? null,
-      });
-
-      if (Array.isArray(body.events)) {
-        const rows = await db.insert(gppEventsTable).values(body.events.map(toInsert)).returning({ id: gppEventsTable.id });
-        console.log(`[GrantPathPro] Received batch: ${rows.length} event(s)`);
-        return res.json({ received: true, count: rows.length, ids: rows.map(r => r.id) });
+      const body = req.body as Record<string, unknown>;
+      if (!body || typeof body !== "object" || Array.isArray(body)) {
+        return res.status(400).json({ error: "Inbound body must be an event object or an events batch" });
+      }
+      if ("events" in body && !Array.isArray(body.events)) {
+        return res.status(400).json({ error: "events must be an array" });
+      }
+      const rawEvents = Array.isArray(body.events) ? body.events : [body];
+      if (rawEvents.length === 0 || rawEvents.length > MAX_GPP_EVENT_BATCH) {
+        return res.status(400).json({ error: `events must contain 1 to ${MAX_GPP_EVENT_BATCH} events` });
       }
 
-      const [row] = await db.insert(gppEventsTable).values(toInsert(body)).returning({ id: gppEventsTable.id });
-      console.log(`[GrantPathPro] Received event: ${body.eventType || "status_update"} — ${body.grantTitle || body.grantId || "no title"}`);
-      return res.json({ received: true, id: row.id });
+      const corrections: Array<{ event: number; corrections: ReturnType<typeof rejectionsToCorrectionNote> }> = [];
+      const rowsToInsert = [];
+      for (const [index, raw] of rawEvents.entries()) {
+        if (!raw || typeof raw !== "object" || Array.isArray(raw)) {
+          corrections.push({ event: index, corrections: [{ field: "event", problem: "wrong type", expected: "an object" }] });
+          continue;
+        }
+        const { clean, rejections } = verifyInboundPayload<Partial<GppEvent>>(raw as Record<string, unknown>, GPP_EVENT_SCHEMA);
+        if ("dueDate" in clean && !validDueDate(clean.dueDate)) {
+          rejections.push({ field: "dueDate", reason: "wrong_type", receivedValue: clean.dueDate, expected: "a parseable date string", blocking: false });
+          delete clean.dueDate;
+        }
+        const rawMeta = (raw as Record<string, unknown>).meta;
+        if (rawMeta !== undefined && !isBoundedMeta(rawMeta)) {
+          rejections.push({ field: "meta", reason: "out_of_range", receivedValue: rawMeta, expected: "a plain object (max depth 5, 50 keys, bounded values)", blocking: false });
+        }
+        if (rejections.length) corrections.push({ event: index, corrections: rejectionsToCorrectionNote(rejections) });
+        await recordInboundVerification("grantpathpro", "/api/inbound/grantpathpro", rejections);
+        rowsToInsert.push({
+          eventType: clean.eventType || "status_update",
+          grantId: clean.grantId ?? null, grantTitle: clean.grantTitle ?? null,
+          geography: clean.geography ?? null, status: clean.status ?? null,
+          milestone: clean.milestone ?? null, amount: clean.amount ?? null,
+          dueDate: clean.dueDate ?? null, notes: clean.notes ?? null,
+          meta: rawMeta !== undefined && isBoundedMeta(rawMeta) ? rawMeta : null,
+        });
+      }
+      if (corrections.some(({ corrections: eventCorrections }) => eventCorrections.some(c => c.field === "event"))) {
+        return res.status(400).json({ error: "Each event must be an object", corrections });
+      }
+
+      if (Array.isArray(body.events)) {
+        const rows = await db.insert(gppEventsTable).values(rowsToInsert).returning({ id: gppEventsTable.id });
+        console.log(`[GrantPathPro] Received batch: ${rows.length} event(s)`);
+        return res.json({ received: true, count: rows.length, ids: rows.map(r => r.id), ...(corrections.length ? { corrections } : {}) });
+      }
+
+      const [row] = await db.insert(gppEventsTable).values(rowsToInsert[0]).returning({ id: gppEventsTable.id });
+      console.log(`[GrantPathPro] Received event: ${rowsToInsert[0].eventType} — ${rowsToInsert[0].grantTitle || rowsToInsert[0].grantId || "no title"}`);
+      return res.json({ received: true, id: row.id, ...(corrections.length ? { corrections } : {}) });
 
     } catch (err) {
       console.error("[GrantPathPro] Inbound error:", err);
@@ -325,8 +386,6 @@ export function registerGrantPathProRoutes(app: Express) {
       awardAmount, projectTitle, geography, primeOrgName,
       primeUei, primeEin, primeOrgId, indirectCostApproach: indirectCostApproach || "de_minimis_10",
     }).returning();
-    // Auto-push entity profile to GPP in background
-    pushToGpp({ source: "thriveup", type: "entity_profile", entity: { name: primeOrgName, uei: primeUei, ein: primeEin }, consortiumId: row.id, pushedAt: new Date().toISOString() }, "/api/inbound/entity").catch(() => {});
     return res.status(201).json(row);
   });
 
@@ -356,13 +415,6 @@ export function registerGrantPathProRoutes(app: Express) {
       consortiumId: reqId, orgName, contactName, contactEmail,
       role, assignedSections: assignedSections || [], notes,
     }).returning();
-    // Auto-push updated collaborative structure to GPP in background
-    db.select().from(consortiumProposals).where(eq(consortiumProposals.id, reqId)).then(([cp]) => {
-      if (!cp) return;
-      db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, cp.id)).then(members => {
-        pushToGpp({ source: "thriveup", type: "collaborative_structure", grant: { title: cp.grantTitle, nofo: cp.grantNofo }, projectTitle: cp.projectTitle, prime: { orgName: cp.primeOrgName, uei: cp.primeUei }, team: members.map(m => ({ orgName: m.orgName, role: m.role, assignedSections: m.assignedSections })), pushedAt: new Date().toISOString() }, "/api/inbound/collaborative").catch(() => {});
-      }).catch(() => {});
-    }).catch(() => {});
     return res.status(201).json(row);
   });
 
@@ -421,11 +473,6 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
         .set({ sectionContent: existing })
         .where(eq(consortiumTeamMembers.id, memberId));
 
-      // Auto-push updated proposal draft to GPP in background
-      db.select().from(consortiumTeamMembers).where(eq(consortiumTeamMembers.consortiumId, proposal.id)).then(allMembers => {
-        const sections = allMembers.flatMap(m => Object.entries((m.sectionContent as Record<string,string>) || {}).filter(([,t]) => t).map(([sec, text]) => ({ section: sec, content: text, author: m.orgName, role: m.role, wordCount: text.split(/\s+/).length })));
-        pushToGpp({ source: "thriveup", type: "proposal_draft", grant: { title: proposal.grantTitle, nofo: proposal.grantNofo }, projectTitle: proposal.projectTitle, prime: proposal.primeOrgName, sections, totalWords: sections.reduce((s,x) => s + x.wordCount, 0), pushedAt: new Date().toISOString() }, "/api/inbound/proposal").catch(() => {});
-      }).catch(() => {});
       return res.json({ section, content, memberId, memberOrg: member.orgName });
     } catch (e: any) {
       return res.status(500).json({ error: e.message || "Generation failed" });
@@ -447,8 +494,6 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
     }
     const merged = parts.join("\n");
     await db.update(consortiumProposals).set({ mergedNarrative: merged, updatedAt: new Date() }).where(eq(consortiumProposals.id, proposal.id));
-    // Auto-push full merged proposal to GPP in background
-    pushToGpp({ source: "thriveup", type: "proposal_merged", grant: { title: proposal.grantTitle, nofo: proposal.grantNofo }, projectTitle: proposal.projectTitle, prime: proposal.primeOrgName, mergedNarrative: merged, pushedAt: new Date().toISOString() }, "/api/inbound/proposal").catch(() => {});
     return res.json({ merged });
   });
 
@@ -459,9 +504,8 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
   // ══════════════════════════════════════════════════════════════
 
   async function pushToGpp(payload: Record<string, unknown>, endpoint: string): Promise<{ sent: boolean; preview?: unknown; response?: unknown; error?: string; authMismatch?: boolean }> {
-    const gppUrl = process.env.GPP_API_URL;
-    const gppKey = process.env.THRIVE_GPP_API_KEY;
-    if (!gppUrl) return { sent: false, preview: payload };
+    const { url: gppUrl, apiKey: gppKey, configured } = getGrantPathProOutboundConfig();
+    if (!configured || !gppUrl || !gppKey) return { sent: false, preview: payload, error: "GrantPathPro delivery is not configured" };
     try {
       const r = await fetch(`${gppUrl}${endpoint}`, {
         method: "POST",
@@ -500,7 +544,7 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
       const response = await r.json().catch(() => ({ status: r.status }));
       return { sent: true, response };
     } catch (e: any) {
-      return { sent: false, error: e.message, preview: payload };
+      return { sent: false, error: e.message || "Unable to reach GrantPathPro" };
     }
   }
 
@@ -640,7 +684,7 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
       note: "Contact ThriveUp for the actual key value — never transmitted in plain text",
       outboundCallback: {
         description: "ThriveUp will POST community briefs to Grant Path Pro",
-        requiredEnvVars: ["GPP_API_URL", "GPP_API_KEY"],
+        requiredEnvVars: ["GPP_API_URL", "THRIVE_GPP_API_KEY"],
         payloadFields: [
           "geography (zip, city, county, state)",
           "needsAssessment (domainScores, atRiskPopulations, povertyRate)",

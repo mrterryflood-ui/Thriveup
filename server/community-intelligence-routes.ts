@@ -4,10 +4,10 @@
  * Returns: geocoded center, multi-layer SVI data, community org markers,
  * Chainweb ripple links, and AI synthesis — all in one call.
  */
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { benefitsPartners, gisResourceOverlays, gunViolenceIncidents } from "@shared/schema";
-import { eq, sql, and, gte, lte } from "drizzle-orm";
+import { eq, sql, and, gte, lte, ilike, or } from "drizzle-orm";
 import { fetchZctaData, zipToGeography } from "./neighborhood-routes";
 import { generateAIJSON } from "./ai-provider";
 import { CHAINWEB_COEFFICIENTS, EVIDENCE_PROGRAMS } from "./chainweb-coefficients";
@@ -109,24 +109,29 @@ async function getOrgMarkers(_county: string) {
         name: benefitsPartners.name,
         type: benefitsPartners.organizationType,
         services: benefitsPartners.servicesOffered,
-        address: benefitsPartners.address,
         lat: benefitsPartners.latitude,
         lng: benefitsPartners.longitude,
-        phone: benefitsPartners.contactPhone,
         languages: benefitsPartners.languages,
         capacity: benefitsPartners.capacity,
-      }).from(benefitsPartners).where(eq(benefitsPartners.isActive, true)),
+      }).from(benefitsPartners).where(and(
+        eq(benefitsPartners.isActive, true),
+        ilike(benefitsPartners.county, `%${_county}%`),
+      )),
 
       // Fallback: GIS resource overlays (always have coordinates)
       db.select({
         id: gisResourceOverlays.id,
         name: gisResourceOverlays.name,
         category: gisResourceOverlays.category,
-        address: gisResourceOverlays.address,
         lat: gisResourceOverlays.latitude,
         lng: gisResourceOverlays.longitude,
-        contact: gisResourceOverlays.contactInfo,
-      }).from(gisResourceOverlays).where(eq(gisResourceOverlays.isActive, true)),
+      }).from(gisResourceOverlays).where(and(
+        eq(gisResourceOverlays.isActive, true),
+        or(
+          ilike(gisResourceOverlays.address, `%${_county}%`),
+          ilike(gisResourceOverlays.name, `%${_county}%`),
+        ),
+      )),
     ]);
 
     const fromPartners = partners.filter(p => p.lat && p.lng).map(p => ({
@@ -134,10 +139,8 @@ async function getOrgMarkers(_county: string) {
       name: p.name,
       type: p.type || "service",
       services: p.services || [],
-      address: p.address || "",
       lat: p.lat!,
       lng: p.lng!,
-      phone: p.phone || "",
       languages: p.languages || [],
       capacity: p.capacity || null,
     }));
@@ -147,10 +150,8 @@ async function getOrgMarkers(_county: string) {
       name: o.name,
       type: o.category || "resource",
       services: [o.category || "Community Resource"],
-      address: o.address || "",
       lat: o.lat!,
       lng: o.lng!,
-      phone: o.contact || "",
       languages: [],
       capacity: null,
     }));
@@ -162,6 +163,34 @@ async function getOrgMarkers(_county: string) {
   } catch {
     return [];
   }
+}
+
+const COMMUNITY_ANALYSIS_WINDOW_MS = 10 * 60 * 1000;
+const COMMUNITY_ANALYSIS_MAX = 5;
+const communityAnalysisHits = new Map<string, number[]>();
+const MAX_ANALYSIS_BODY_BYTES = 8_000;
+const MAX_ANALYSIS_PROMPT_LENGTH = 1_200;
+
+function communityClientIp(req: Request): string {
+  return (req.ip || req.socket?.remoteAddress || "unknown").trim();
+}
+
+function limitCommunityAnalysis(req: Request, res: Response, next: NextFunction) {
+  const serialized = JSON.stringify(req.body ?? "");
+  if (serialized.length > MAX_ANALYSIS_BODY_BYTES) {
+    return res.status(413).json({ error: "Request body is too large for public analysis." });
+  }
+  const now = Date.now();
+  const ip = communityClientIp(req);
+  const recent = (communityAnalysisHits.get(ip) ?? []).filter((at) => at > now - COMMUNITY_ANALYSIS_WINDOW_MS);
+  if (recent.length >= COMMUNITY_ANALYSIS_MAX) {
+    const retryAfter = Math.max(1, Math.ceil((recent[0] + COMMUNITY_ANALYSIS_WINDOW_MS - now) / 1000));
+    res.setHeader("Retry-After", String(retryAfter));
+    return res.status(429).json({ error: "Too many public analysis requests. Please try again later." });
+  }
+  recent.push(now);
+  communityAnalysisHits.set(ip, recent);
+  return next();
 }
 
 // ── Extract relevant Chainweb coefficients for high-vulnerability domains ───
@@ -326,7 +355,7 @@ function buildCFIRAdaptation(program: any, sourceSVI: any, targetSVI: any | null
 }
 
 // ── POST /api/community-intelligence/interventions ────────────────────────────
-async function handleInterventions(req: any, res: any) {
+async function handleInterventions(req: Request, res: Response) {
   try {
     const { zip, targetZip } = req.body;
     if (!zip || !/^\d{5}$/.test(String(zip))) {
@@ -432,13 +461,16 @@ What CFIR factors differ? What fidelity elements are at risk? How should the imp
 
 // ── Route registration ────────────────────────────────────────────────────────
 export function registerCommunityIntelligenceRoutes(app: Express) {
-  app.post("/api/community-intelligence/interventions", handleInterventions);
-  app.post("/api/community-intelligence/analyze", async (req, res) => {
+  app.post("/api/community-intelligence/interventions", limitCommunityAnalysis, handleInterventions);
+  app.post("/api/community-intelligence/analyze", limitCommunityAnalysis, async (req, res) => {
     try {
       const { prompt = "Analyze this community's SDOH profile and identify the highest-leverage intervention points.", zip } = req.body;
 
       if (!zip || !/^\d{5}$/.test(String(zip))) {
         return res.status(400).json({ error: "Valid 5-digit ZIP code required." });
+      }
+      if (typeof prompt !== "string" || prompt.trim().length === 0 || prompt.length > MAX_ANALYSIS_PROMPT_LENGTH) {
+        return res.status(400).json({ error: `Prompt must be a non-empty string of at most ${MAX_ANALYSIS_PROMPT_LENGTH} characters.` });
       }
 
       const zipStr = String(zip);

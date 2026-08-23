@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { farmworkerItiEnrollments, insertFarmworkerItiEnrollmentSchema } from "@shared/schema";
 import { eq } from "drizzle-orm";
@@ -96,6 +96,50 @@ function generateToken(): string {
   return `fw_${randomBytes(32).toString("base64url")}`;
 }
 
+// The client keeps this capability only in its 12-hour sessionStorage envelope.
+// Match that boundary on the server so a copied capability cannot remain valid
+// indefinitely after the browser-side envelope has expired.
+const FARMWORKER_TOKEN_TTL_MS = 12 * 60 * 60 * 1000;
+const INVALID_FARMWORKER_TOKEN_ERROR = "Farmworker access token is invalid, revoked, or expired. Enroll again to receive a new token.";
+
+function parseStrictBoolean(value: unknown): boolean | undefined {
+  return typeof value === "boolean" ? value : undefined;
+}
+
+function isExpired(enrolledAt: Date | null): boolean {
+  return !enrolledAt || Date.now() - enrolledAt.getTime() >= FARMWORKER_TOKEN_TTL_MS;
+}
+
+async function getActiveEnrollment(token: unknown) {
+  if (typeof token !== "string" || token.length === 0) return undefined;
+  const [enrollment] = await db.select().from(farmworkerItiEnrollments)
+    .where(eq(farmworkerItiEnrollments.accessToken, token));
+  return enrollment && !isExpired(enrollment.enrolledAt) ? enrollment : undefined;
+}
+
+type RateLimitBucket = { count: number; resetAt: number };
+const publicRateLimitBuckets = new Map<string, RateLimitBucket>();
+
+function limitPublicRoute(name: string, max: number, windowMs: number) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    const now = Date.now();
+    const ip = (req.ip || req.socket?.remoteAddress || "unknown").trim();
+    const key = `${name}:${ip}`;
+    const bucket = publicRateLimitBuckets.get(key);
+    if (!bucket || bucket.resetAt <= now) {
+      publicRateLimitBuckets.set(key, { count: 1, resetAt: now + windowMs });
+      return next();
+    }
+    if (bucket.count >= max) {
+      const retryAfterSec = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+      res.setHeader("Retry-After", String(retryAfterSec));
+      return res.status(429).json({ error: "Rate limit exceeded. Try again later.", retryAfterSec });
+    }
+    bucket.count += 1;
+    next();
+  };
+}
+
 export function registerFarmworkerItiRoutes(app: Express) {
 
   // Get worker type options + benefits overview (public, no auth)
@@ -114,7 +158,7 @@ export function registerFarmworkerItiRoutes(app: Express) {
   });
 
   // Enroll (Integration Through Invitation — no credential check, all consent OFF)
-  app.post("/api/farmworker-iti/enroll", async (req, res) => {
+  app.post("/api/farmworker-iti/enroll", limitPublicRoute("enroll", 10, 60 * 60 * 1000), async (req, res) => {
     try {
       const body = insertFarmworkerItiEnrollmentSchema.parse({ ...req.body, accessToken: generateToken() });
       const [enrollment] = await db.insert(farmworkerItiEnrollments).values(body).returning();
@@ -137,10 +181,8 @@ export function registerFarmworkerItiRoutes(app: Express) {
   // Get enrollment + benefits referrals by token
   app.get("/api/farmworker-iti/me", async (req, res) => {
     const token = req.headers["x-farmworker-token"] as string;
-    if (!token) return res.status(401).json({ error: "Farmworker access token required" });
-    const [enrollment] = await db.select().from(farmworkerItiEnrollments)
-      .where(eq(farmworkerItiEnrollments.accessToken, token));
-    if (!enrollment) return res.status(404).json({ error: "Enrollment not found" });
+    const enrollment = await getActiveEnrollment(token);
+    if (!enrollment) return res.status(401).json({ error: INVALID_FARMWORKER_TOKEN_ERROR });
     const { accessToken: _, ...safe } = enrollment;
     // Build personalized benefits list based on immigration status + consents
     const eligibleBenefits = BENEFITS_PROGRAMS.filter(b => {
@@ -153,23 +195,77 @@ export function registerFarmworkerItiRoutes(app: Express) {
   // Update consents
   app.patch("/api/farmworker-iti/consents", async (req, res) => {
     const token = req.headers["x-farmworker-token"] as string;
-    if (!token) return res.status(401).json({ error: "Token required" });
-    const [enrollment] = await db.select().from(farmworkerItiEnrollments)
-      .where(eq(farmworkerItiEnrollments.accessToken, token));
-    if (!enrollment) return res.status(404).json({ error: "Not found" });
+    const enrollment = await getActiveEnrollment(token);
+    if (!enrollment) return res.status(401).json({ error: INVALID_FARMWORKER_TOKEN_ERROR });
     const allowed = ["consentSnapBenefits","consentWic","consentMedicaid","consentHousing","consentLegalAid","consentWorkforce","consentStipendPathway","consentCredentialPathway"];
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({ error: "Consent updates must be a JSON object with boolean values." });
+    }
     const updates: Record<string, boolean> = {};
-    for (const key of allowed) if (key in req.body) updates[key] = Boolean(req.body[key]);
+    for (const key of allowed) {
+      if (!(key in req.body)) continue;
+      const value = parseStrictBoolean(req.body[key]);
+      if (value === undefined) return res.status(400).json({ error: `${key} must be a boolean.` });
+      updates[key] = value;
+    }
     const [updated] = await db.update(farmworkerItiEnrollments).set(updates)
       .where(eq(farmworkerItiEnrollments.accessToken, token)).returning();
     const { accessToken: _, ...safe } = updated;
     res.json({ success: true, enrollment: safe });
   });
 
-  // Get AI-powered benefits navigation (personalized to worker profile)
-  app.post("/api/farmworker-iti/benefits-navigator", async (req, res) => {
+  // Revocation preserves the enrollment and its private data, but makes the
+  // presented capability permanently unusable. The replacement is never
+  // returned, so it cannot grant a new session.
+  app.post("/api/farmworker-iti/revoke", async (req, res) => {
     const token = req.headers["x-farmworker-token"] as string;
-    const { workerType, isH2aWorker, isDacaRecipient, isPermanentResident, hasUsWorkAuth, countyName, lang } = req.body;
+    const enrollment = await getActiveEnrollment(token);
+    if (!enrollment) return res.status(401).json({ error: INVALID_FARMWORKER_TOKEN_ERROR });
+    const rotatedToken = generateToken();
+    const [revoked] = await db.update(farmworkerItiEnrollments)
+      .set({ accessToken: rotatedToken })
+      .where(eq(farmworkerItiEnrollments.accessToken, token))
+      .returning({ id: farmworkerItiEnrollments.id });
+    if (!revoked) return res.status(401).json({ error: INVALID_FARMWORKER_TOKEN_ERROR });
+    res.json({ success: true });
+  });
+
+  // Get AI-powered benefits navigation (personalized to worker profile)
+  app.post("/api/farmworker-iti/benefits-navigator", limitPublicRoute("benefits-navigator", 10, 60 * 60 * 1000), async (req, res) => {
+    if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+      return res.status(400).json({ error: "Benefits navigation input must be a JSON object." });
+    }
+    const body = req.body as Record<string, unknown>;
+    const allowedWorkerTypes = new Set(WORKER_TYPES.map((worker) => worker.id));
+    const workerType = body.workerType === undefined ? "farmworker" : body.workerType;
+    if (typeof workerType !== "string" || !allowedWorkerTypes.has(workerType)) {
+      return res.status(400).json({ error: "workerType must be a supported worker type." });
+    }
+    const booleanFields = ["isH2aWorker", "isDacaRecipient", "isPermanentResident", "hasUsWorkAuth"] as const;
+    const profile: Record<(typeof booleanFields)[number], boolean> = {
+      isH2aWorker: false,
+      isDacaRecipient: false,
+      isPermanentResident: false,
+      hasUsWorkAuth: false,
+    };
+    for (const field of booleanFields) {
+      if (body[field] === undefined) continue;
+      const value = parseStrictBoolean(body[field]);
+      if (value === undefined) return res.status(400).json({ error: `${field} must be a boolean.` });
+      profile[field] = value;
+    }
+    const lang = body.lang === undefined ? "en" : body.lang;
+    if (lang !== "en" && lang !== "es") {
+      return res.status(400).json({ error: "lang must be either \"en\" or \"es\"." });
+    }
+    const countyName = body.countyName === undefined ? undefined : body.countyName;
+    if (countyName !== undefined && (typeof countyName !== "string"
+      || countyName.trim().length > 100
+      || !/^[\p{L}\p{M} .,'-]+$/u.test(countyName.trim()))) {
+      return res.status(400).json({ error: "countyName must be a county name of at most 100 characters." });
+    }
+    const safeCountyName = countyName?.trim() || "unknown";
+    const { isH2aWorker, isDacaRecipient, isPermanentResident, hasUsWorkAuth } = profile;
 
     // Determine eligibility without requiring enrollment
     const isUndocumented = !hasUsWorkAuth && !isDacaRecipient && !isPermanentResident && !isH2aWorker;
@@ -181,7 +277,7 @@ export function registerFarmworkerItiRoutes(app: Express) {
 
     const prompt = `You are a bilingual (English/Spanish) community health worker helping an agricultural worker navigate benefits. You are compassionate, plain-spoken, and immigration-status aware.
 
-Worker profile: type=${workerType || "farmworker"}, H-2A=${isH2aWorker}, DACA=${isDacaRecipient}, permanent resident=${isPermanentResident}, work auth=${hasUsWorkAuth}, county=${countyName || "unknown"}, language preference=${lang || "en"}
+Worker profile: type=${workerType}, H-2A=${isH2aWorker}, DACA=${isDacaRecipient}, permanent resident=${isPermanentResident}, work auth=${hasUsWorkAuth}, county=${safeCountyName}, language preference=${lang}
 
 Eligible programs: ${eligible.map(b => (lang === "es" ? b.name.es : b.name.en)).join(", ")}
 

@@ -253,27 +253,29 @@ function generateInvoicePDF(data: any, locationQuery: string) {
 // ─── Verdict Hero ─────────────────────────────────────────────────────────────
 
 function useSendToGrantPathPro(data: any, locationQuery: string) {
-  const [gppState, setGppState] = useState<"idle" | "sending" | "sent" | "error">("idle");
+  const [gppState, setGppState] = useState<"idle" | "sending" | "delivered" | "preview" | "error" | "accessDenied">("idle");
 
   const sendToGPP = async () => {
-    if (gppState === "sending" || gppState === "sent") return;
+    if (gppState === "sending" || gppState === "delivered") return;
     setGppState("sending");
     try {
       const res = await apiRequest("POST", "/api/conductor/export-to-grantpathpro", {
         brief: data,
         geography: data.geography ?? { zip: locationQuery },
-        requestedBy: "community-impact-page",
       });
       const result = await res.json();
-      if (result.success) {
-        setGppState("sent");
+      if (result.success && result.mode === "live") {
+        setGppState("delivered");
+        setTimeout(() => setGppState("idle"), 6000);
+      } else if (result.success && result.mode === "preview") {
+        setGppState("preview");
         setTimeout(() => setGppState("idle"), 6000);
       } else {
         setGppState("error");
         setTimeout(() => setGppState("idle"), 4000);
       }
-    } catch {
-      setGppState("error");
+    } catch (err) {
+      setGppState(/^(401|403):/.test(err instanceof Error ? err.message : "") ? "accessDenied" : "error");
       setTimeout(() => setGppState("idle"), 4000);
     }
   };
@@ -308,13 +310,16 @@ function StripShareButton({ data }: { data: any }) {
   return (
     <Button variant="outline" size="sm" className="gap-1.5" onClick={() => shareBrief(data)} disabled={shareState === "sharing"} data-testid="button-share-brief-strip">
       {shareState === "sharing" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-      {shareState === "sharing" ? "Creating link…" : shareState === "done" ? "Link copied!" : shareState === "error" ? "Share failed" : "Share link"}
+      {shareState === "sharing" ? "Creating link…" : shareState === "done" ? "Link ready" : shareState === "error" ? "Share failed" : "Share link"}
     </Button>
   );
 }
 
-function GppExportButton({ data, submitted }: { data: any; submitted: string }) {
+function GppExportButton({ data, submitted, canRequestExport }: { data: any; submitted: string; canRequestExport: boolean }) {
   const { gppState, sendToGPP } = useSendToGrantPathPro(data, submitted);
+  if (!canRequestExport) {
+    return <span className="self-center text-xs text-muted-foreground">Staff sign-in is required to send a brief to GrantPathPro.</span>;
+  }
   return (
     <Button
       variant="outline"
@@ -322,8 +327,10 @@ function GppExportButton({ data, submitted }: { data: any; submitted: string }) 
       onClick={sendToGPP}
       disabled={gppState === "sending"}
       className={`gap-1.5 ${
-        gppState === "sent"
+        gppState === "delivered"
           ? "border-emerald-500 text-emerald-600 bg-emerald-50 dark:bg-emerald-950/20"
+          : gppState === "preview"
+          ? "border-amber-500 text-amber-700 bg-amber-50 dark:bg-amber-950/20"
           : gppState === "error"
           ? "border-red-400 text-red-600"
           : "border-amber-400 text-amber-700 hover:bg-amber-50 dark:hover:bg-amber-950/20"
@@ -331,10 +338,10 @@ function GppExportButton({ data, submitted }: { data: any; submitted: string }) 
       data-testid="button-export-grantpathpro"
     >
       {gppState === "sending" && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-      {gppState === "sent" && <CheckCircle2 className="w-3.5 h-3.5" />}
+      {gppState === "delivered" && <CheckCircle2 className="w-3.5 h-3.5" />}
       {gppState === "error" && <AlertTriangle className="w-3.5 h-3.5" />}
       {gppState === "idle" && <Send className="w-3.5 h-3.5" />}
-      {gppState === "sending" ? "Sending…" : gppState === "sent" ? "Sent to Grant Path Pro" : gppState === "error" ? "Retry GPP" : "Send to Grant Path Pro"}
+      {gppState === "sending" ? "Sending…" : gppState === "delivered" ? "Delivered to GrantPathPro" : gppState === "preview" ? "Preview only — not delivered" : gppState === "accessDenied" ? "Staff access required" : gppState === "error" ? "Retry GPP" : "Send to GrantPathPro"}
     </Button>
   );
 }
@@ -373,10 +380,16 @@ function useShareBrief() {
     try {
       const res = await apiRequest("POST", "/api/conductor/community-brief/share", brief);
       const { shareUrl } = await res.json() as { shareUrl: string };
-      await navigator.clipboard.writeText(shareUrl).catch(() => {});
+      let copied = false;
+      try {
+        await navigator.clipboard.writeText(shareUrl);
+        copied = true;
+      } catch {
+        // The link remains visible in the toast for manual copy in blocked contexts.
+      }
       toast({
-        title: "Share link copied!",
-        description: shareUrl,
+        title: copied ? "Share link copied" : "Share link ready",
+        description: copied ? shareUrl : `Copy this link: ${shareUrl}`,
         duration: 8000,
       });
       setShareState("done");
@@ -392,7 +405,7 @@ function useShareBrief() {
   return { shareState, shareBrief };
 }
 
-function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string }) {
+function VerdictHero({ data, locationQuery, canRequestExport }: { data: any; locationQuery: string; canRequestExport: boolean }) {
   const geo = data.geography ?? {};
   const hist = data.historicalCascade ?? {};
   const casc = data.cascade ?? {};
@@ -454,19 +467,21 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
             data-testid="button-share-brief"
           >
             {shareState === "sharing" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
-            {shareState === "sharing" ? "Creating link…" : shareState === "done" ? "Link copied!" : shareState === "error" ? "Share failed" : "Share link"}
+            {shareState === "sharing" ? "Creating link…" : shareState === "done" ? "Link ready" : shareState === "error" ? "Share failed" : "Share link"}
           </button>
           <a href={`/community-compare?a=${encodeURIComponent(locationQuery)}`}
             className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
             data-testid="link-compare-from-verdict">
             <ArrowRight className="w-3.5 h-3.5" />Compare
           </a>
-          <button
+          {canRequestExport ? <button
             onClick={sendToGPP}
             disabled={gppState === "sending"}
             className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg border transition-colors ${
-              gppState === "sent"
+              gppState === "delivered"
                 ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300"
+                : gppState === "preview"
+                ? "bg-amber-500/20 border-amber-500/40 text-amber-200"
                 : gppState === "error"
                 ? "bg-red-500/20 border-red-500/40 text-red-300"
                 : "bg-amber-500/20 hover:bg-amber-500/30 border-amber-500/40 text-amber-300"
@@ -474,11 +489,11 @@ function VerdictHero({ data, locationQuery }: { data: any; locationQuery: string
             data-testid="button-send-to-grantpathpro"
           >
             {gppState === "sending" && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-            {gppState === "sent" && <CheckCircle2 className="w-3.5 h-3.5" />}
+            {gppState === "delivered" && <CheckCircle2 className="w-3.5 h-3.5" />}
             {gppState === "error" && <AlertTriangle className="w-3.5 h-3.5" />}
             {gppState === "idle" && <Send className="w-3.5 h-3.5" />}
-            {gppState === "sending" ? "Sending…" : gppState === "sent" ? "Sent to GPP" : gppState === "error" ? "Retry" : "Send to Grant Path Pro"}
-          </button>
+            {gppState === "sending" ? "Sending…" : gppState === "delivered" ? "Delivered to GrantPathPro" : gppState === "preview" ? "Preview only — not delivered" : gppState === "accessDenied" ? "Staff access required" : gppState === "error" ? "Retry" : "Send to GrantPathPro"}
+          </button> : <span className="self-center text-xs text-amber-200">Staff sign-in required for GrantPathPro delivery.</span>}
         </div>
       </div>
       {histTotal == null && forwardCost == null && savings == null ? (
@@ -958,11 +973,11 @@ function ResearchIntelligenceSection({ rplice, isAuthenticated }: { rplice: any;
               live implementation-science studies, structured frameworks, matched grant profiles,
               active intervention assignments, and outcome baselines.
             </p>
-            <a href="/api/login">
-              <Button size="sm" className="gap-1.5 bg-violet-600 hover:bg-violet-500 text-white" data-testid="button-research-signin">
+            <Button asChild size="sm" className="gap-1.5 bg-violet-600 hover:bg-violet-500 text-white" data-testid="button-research-signin">
+              <a href="/api/login">
                 <Lock className="w-3.5 h-3.5" /> Sign in for research-grade detail
-              </Button>
-            </a>
+              </a>
+            </Button>
           </div>
         </div>
       </Card>
@@ -1122,6 +1137,16 @@ export default function CommunityImpactPage() {
 
   const data = brief.data;
 
+  useEffect(() => {
+    const queryLocation = new URLSearchParams(window.location.search).get("q")?.trim();
+    if (!queryLocation) return;
+    setLocation(queryLocation);
+    setSubmitted(queryLocation);
+    brief.mutate(queryLocation);
+  // The query string is read once when this route mounts.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Trigger neighbor-zips fetch when a brief comes back
   useEffect(() => {
     if (!data?.geography?.zip && !data?.geography?.displayName) return;
@@ -1202,7 +1227,7 @@ export default function CommunityImpactPage() {
         {data && !brief.isPending && (
           <div className="space-y-10">
             {/* Verdict Hero — the F-22 first look */}
-            <VerdictHero data={data} locationQuery={submitted} />
+            <VerdictHero data={data} locationQuery={submitted} canRequestExport={isAuthenticated} />
 
             <CommunityEvidencePanel evidence={data.evidence} />
 
@@ -1384,6 +1409,12 @@ export default function CommunityImpactPage() {
                           <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
                           <span className="text-sm">Fetching real Census data for neighboring ZIPs…</span>
                         </div>
+                      : neighborsMut.isError
+                      ? <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-300 gap-3 px-6 text-center">
+                          <AlertTriangle className="w-7 h-7 text-amber-400" />
+                          <span className="text-sm font-semibold">Neighbor map unavailable</span>
+                          <span className="text-xs text-slate-400">The selected community brief is still available. Please try the map again later.</span>
+                        </div>
                       : <SkylineMap
                           zips={neighborsMut.data?.zips ?? []}
                           centerLat={neighborsMut.data?.centerLat ?? 30.25}
@@ -1447,23 +1478,19 @@ export default function CommunityImpactPage() {
                 </div>
               </div>
               <div className="flex gap-2 flex-wrap">
-                <a href="/grant-hub" data-testid="link-export-grant-hub">
-                  <Button variant="outline" size="sm" className="gap-1.5"><Building2 className="w-3.5 h-3.5" />Grant Hub</Button>
-                </a>
-                <a href="/chainweb-builder" data-testid="link-export-chainweb">
-                  <Button variant="outline" size="sm" className="gap-1.5"><Target className="w-3.5 h-3.5" />Chainweb</Button>
-                </a>
+                <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/grant-hub" data-testid="link-export-grant-hub"><Building2 className="w-3.5 h-3.5" />Grant Hub</a></Button>
+                <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/chainweb-builder" data-testid="link-export-chainweb"><Target className="w-3.5 h-3.5" />Chainweb</a></Button>
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={() => generateInvoicePDF(data, submitted)} data-testid="button-download-invoice-strip">
                   <Download className="w-3.5 h-3.5" />Download Invoice
                 </Button>
                 <StripPdfButton data={data} submitted={submitted} />
                 <StripShareButton data={data} />
-                <a href={`/community-compare?a=${encodeURIComponent(submitted)}`}>
-                  <Button variant="outline" size="sm" className="gap-1.5" data-testid="link-compare-strip">
+                <Button asChild variant="outline" size="sm" className="gap-1.5" data-testid="link-compare-strip">
+                  <a href={`/community-compare?a=${encodeURIComponent(submitted)}`}>
                     <ArrowRight className="w-3.5 h-3.5" />Compare Communities
-                  </Button>
-                </a>
-                <GppExportButton data={data} submitted={submitted} />
+                  </a>
+                </Button>
+                <GppExportButton data={data} submitted={submitted} canRequestExport={isAuthenticated} />
               </div>
             </Card>
           </div>

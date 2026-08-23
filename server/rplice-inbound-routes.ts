@@ -21,13 +21,21 @@
  */
 
 import type { Express, Request, Response, NextFunction } from "express";
-import { db } from "./storage";
+import { timingSafeEqual } from "crypto";
+import { db, storage } from "./storage";
 import {
   ecosystemDirectives,
   ecosystemDirectiveAcks,
 } from "@shared/schema";
 import { eq, and, notInArray } from "drizzle-orm";
-import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, hasBlockingRejection, type InboundSchema } from "./inbound-verification";
+import {
+  verifyInboundPayload,
+  recordInboundVerification,
+  rejectionsToCorrectionNote,
+  hasBlockingRejection,
+  type FieldRejection,
+  type InboundSchema,
+} from "./inbound-verification";
 
 export interface RpliceInboundEvent {
   id: string;
@@ -56,6 +64,106 @@ export interface RpliceInboundEvent {
 }
 
 const rpliceEvents: RpliceInboundEvent[] = [];
+
+// These events are retained in process and are included in staff/API and AI
+// context. Keep a single authenticated request from monopolizing memory or
+// making the event mapping work unbounded.
+const MAX_RPLICE_BATCH_EVENTS = 100;
+
+// `meta` is intentionally flexible, but it is persisted in the in-memory feed
+// and returned to privileged readers. Restrict it to bounded JSON rather than
+// retaining arbitrary object graphs or large payloads supplied by a sender.
+const MAX_RPLICE_META_DEPTH = 5;
+const MAX_RPLICE_META_KEYS_PER_OBJECT = 50;
+const MAX_RPLICE_META_ITEMS_PER_ARRAY = 50;
+const MAX_RPLICE_META_NODES = 200;
+const MAX_RPLICE_META_KEY_LENGTH = 100;
+const MAX_RPLICE_META_STRING_LENGTH = 2_000;
+const MAX_RPLICE_META_JSON_BYTES = 16_000;
+
+type MetaValidation =
+  | { valid: true; meta: Record<string, unknown> | undefined }
+  | { valid: false; reason: string };
+
+function isPlainJsonObject(value: unknown): value is Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const prototype = Object.getPrototypeOf(value);
+  return prototype === Object.prototype || prototype === null;
+}
+
+/**
+ * Copies only JSON-compatible metadata within fixed structural and byte
+ * limits. The limits are checked while traversing, before JSON.stringify,
+ * so deeply nested or broad payloads cannot create unbounded work here.
+ */
+function validateRpliceMeta(value: unknown): MetaValidation {
+  if (value === undefined) return { valid: true, meta: undefined };
+  if (!isPlainJsonObject(value)) {
+    return { valid: false, reason: "meta must be a JSON object" };
+  }
+
+  const seen = new WeakSet<object>();
+  const state = { nodes: 0, estimatedBytes: 2 };
+  const addBytes = (bytes: number) => {
+    state.estimatedBytes += bytes;
+    return state.estimatedBytes <= MAX_RPLICE_META_JSON_BYTES;
+  };
+
+  const copy = (input: unknown, depth: number): unknown | undefined => {
+    if (depth > MAX_RPLICE_META_DEPTH) throw new Error("meta exceeds the maximum nesting depth");
+    state.nodes++;
+    if (state.nodes > MAX_RPLICE_META_NODES) throw new Error("meta contains too many values");
+
+    if (input === null || typeof input === "boolean") {
+      if (!addBytes(input === null ? 4 : 5)) throw new Error("meta exceeds the maximum JSON size");
+      return input;
+    }
+    if (typeof input === "number") {
+      if (!Number.isFinite(input)) throw new Error("meta contains a non-finite number");
+      if (!addBytes(String(input).length)) throw new Error("meta exceeds the maximum JSON size");
+      return input;
+    }
+    if (typeof input === "string") {
+      if (input.length > MAX_RPLICE_META_STRING_LENGTH) throw new Error("meta contains a string that is too long");
+      if (!addBytes(Buffer.byteLength(input, "utf8") + 2)) throw new Error("meta exceeds the maximum JSON size");
+      return input;
+    }
+    if (Array.isArray(input)) {
+      if (input.length > MAX_RPLICE_META_ITEMS_PER_ARRAY) throw new Error("meta contains an array with too many items");
+      if (seen.has(input)) throw new Error("meta must not contain circular or shared object references");
+      seen.add(input);
+      const result: unknown[] = [];
+      for (const item of input) result.push(copy(item, depth + 1));
+      return result;
+    }
+    if (isPlainJsonObject(input)) {
+      const entries = Object.entries(input);
+      if (entries.length > MAX_RPLICE_META_KEYS_PER_OBJECT) throw new Error("meta contains an object with too many keys");
+      if (seen.has(input)) throw new Error("meta must not contain circular or shared object references");
+      seen.add(input);
+      const result: Record<string, unknown> = {};
+      for (const [key, child] of entries) {
+        if (key.length > MAX_RPLICE_META_KEY_LENGTH) throw new Error("meta contains a key that is too long");
+        if (!addBytes(Buffer.byteLength(key, "utf8") + 3)) throw new Error("meta exceeds the maximum JSON size");
+        result[key] = copy(child, depth + 1);
+      }
+      return result;
+    }
+    throw new Error("meta must contain only JSON values");
+  };
+
+  try {
+    const meta = copy(value, 0) as Record<string, unknown>;
+    // This exact check covers JSON escaping overhead not represented by the
+    // incremental estimate above. It only runs after structural bounds hold.
+    if (Buffer.byteLength(JSON.stringify(meta), "utf8") > MAX_RPLICE_META_JSON_BYTES) {
+      return { valid: false, reason: "meta exceeds the maximum JSON size" };
+    }
+    return { valid: true, meta };
+  } catch (error) {
+    return { valid: false, reason: error instanceof Error ? error.message : "meta is invalid" };
+  }
+}
 
 // RPLICE is the platform's designated evidence/quality-gate authority — its
 // evidence/fidelity/outcome fields flow directly into community-brief and
@@ -95,10 +203,34 @@ function requireRpliceAuth(req: Request, res: Response, next: NextFunction) {
   }
   const expected = normalizeKey(rawExpected);
   const provided = typeof raw === "string" ? normalizeKey(raw) : null;
-  if (!provided || provided !== expected) {
+  const expectedBytes = Buffer.from(expected);
+  const providedBytes = provided ? Buffer.from(provided) : null;
+  if (!providedBytes || expectedBytes.length !== providedBytes.length || !timingSafeEqual(expectedBytes, providedBytes)) {
     return res.status(401).json({ error: "Invalid or missing x-shared-secret" });
   }
   next();
+}
+
+const RPLICE_STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+async function requireRpliceReadAccess(req: Request, res: Response, next: NextFunction) {
+  // A sibling service may read the feed with the same service credential used
+  // to submit verified evidence.
+  if (typeof req.headers["x-shared-secret"] === "string") {
+    return requireRpliceAuth(req, res, next);
+  }
+
+  const user = (req as any).user;
+  const userId = user?.claims?.sub || user?.id;
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const viewer = await storage.getUser(userId);
+    if (viewer?.role && RPLICE_STAFF_ROLES.has(viewer.role)) return next();
+  } catch (err) {
+    console.error("[RPLICE-Inbound] Staff authorization check failed:", err);
+    return res.status(503).json({ error: "Unable to verify staff access" });
+  }
+  return res.status(403).json({ error: "Staff or service access required" });
 }
 
 /**
@@ -240,9 +372,95 @@ export function registerRpliceInboundRoutes(app: Express) {
    */
   app.post("/api/inbound/rplice", requireRpliceAuth, async (req: Request, res: Response) => {
     try {
-      const body = req.body as Partial<RpliceInboundEvent> & { events?: Partial<RpliceInboundEvent>[] };
+      const body: unknown = req.body;
+      if (!isPlainJsonObject(body)) {
+        const rejections: FieldRejection[] = [{
+          field: "body",
+          reason: "wrong_type",
+          receivedValue: typeof body,
+          expected: "a JSON object containing one event or an events array",
+          blocking: true,
+        }];
+        await recordInboundVerification("rplice-inbound", "/api/inbound/rplice", rejections);
+        return res.status(400).json({
+          error: "Invalid RPLICE event payload",
+          corrections: rejectionsToCorrectionNote(rejections),
+        });
+      }
 
-      const verify = (raw: Partial<RpliceInboundEvent>) => {
+      const rawEvents = body.events;
+      if (rawEvents !== undefined && !Array.isArray(rawEvents)) {
+        const rejections: FieldRejection[] = [{
+          field: "events",
+          reason: "wrong_type",
+          receivedValue: typeof rawEvents,
+          expected: "an array of RPLICE event objects",
+          blocking: true,
+        }];
+        await recordInboundVerification("rplice-inbound", "/api/inbound/rplice", rejections);
+        return res.status(400).json({
+          error: "Invalid RPLICE event batch",
+          corrections: rejectionsToCorrectionNote(rejections),
+        });
+      }
+      if (Array.isArray(rawEvents) && rawEvents.length > MAX_RPLICE_BATCH_EVENTS) {
+        const rejections: FieldRejection[] = [{
+          field: "events",
+          reason: "too_long",
+          receivedValue: `${rawEvents.length} events`,
+          expected: `an array of at most ${MAX_RPLICE_BATCH_EVENTS} events`,
+          blocking: true,
+        }];
+        await recordInboundVerification("rplice-inbound", "/api/inbound/rplice (batch)", rejections);
+        return res.status(400).json({
+          error: `RPLICE event batches may contain at most ${MAX_RPLICE_BATCH_EVENTS} events`,
+          corrections: rejectionsToCorrectionNote(rejections),
+        });
+      }
+
+      // Validate every batch member's shape and metadata before mapping all
+      // events. This keeps even authenticated senders from converting a large
+      // batch or arbitrary `meta` graph into retained/privilegedly surfaced
+      // state.
+      const candidates: unknown[] = Array.isArray(rawEvents) ? rawEvents : [body];
+      const metadata: Array<Record<string, unknown> | undefined> = [];
+      const inputRejections: FieldRejection[] = [];
+      for (let index = 0; index < candidates.length; index++) {
+        const candidate = candidates[index];
+        const prefix = Array.isArray(rawEvents) ? `events.${index}` : "";
+        if (!isPlainJsonObject(candidate)) {
+          inputRejections.push({
+            field: prefix || "body",
+            reason: "wrong_type",
+            receivedValue: typeof candidate,
+            expected: "a JSON event object",
+            blocking: true,
+          });
+          continue;
+        }
+        const metaResult = validateRpliceMeta(candidate.meta);
+        if (!metaResult.valid) {
+          inputRejections.push({
+            field: prefix ? `${prefix}.meta` : "meta",
+            reason: "invalid_metadata",
+            receivedValue: "metadata omitted from audit log",
+            expected: `a JSON object up to ${MAX_RPLICE_META_JSON_BYTES} bytes (${metaResult.reason})`,
+            blocking: true,
+          });
+          continue;
+        }
+        metadata[index] = metaResult.meta;
+      }
+      if (inputRejections.length) {
+        const endpoint = Array.isArray(rawEvents) ? "/api/inbound/rplice (batch)" : "/api/inbound/rplice";
+        await recordInboundVerification("rplice-inbound", endpoint, inputRejections);
+        return res.status(400).json({
+          error: "Invalid RPLICE event input",
+          corrections: rejectionsToCorrectionNote(inputRejections),
+        });
+      }
+
+      const verify = (raw: Record<string, unknown>, meta: Record<string, unknown> | undefined) => {
         const { clean, rejections } = verifyInboundPayload<RpliceInboundEvent>(raw as any, RPLICE_EVENT_SCHEMA);
         return {
           event: {
@@ -258,14 +476,14 @@ export function registerRpliceInboundRoutes(app: Express) {
             actionRequired: clean.actionRequired,
             actionItems: clean.actionItems,
             citations: clean.citations,
-            meta: raw.meta,
+            meta,
           } as RpliceInboundEvent,
           rejections,
         };
       };
 
-      if (Array.isArray(body.events)) {
-        const verified = body.events.map(verify);
+      if (Array.isArray(rawEvents)) {
+        const verified = rawEvents.map((raw, index) => verify(raw as Record<string, unknown>, metadata[index]));
         const allRejections = verified.flatMap((v) => v.rejections);
         if (allRejections.length) await recordInboundVerification("rplice-inbound", "/api/inbound/rplice (batch)", allRejections);
 
@@ -281,7 +499,7 @@ export function registerRpliceInboundRoutes(app: Express) {
         });
       }
 
-      const { event, rejections } = verify(body);
+      const { event, rejections } = verify(body, metadata[0]);
       if (rejections.length) await recordInboundVerification("rplice-inbound", "/api/inbound/rplice", rejections);
 
       rpliceEvents.unshift(event);
@@ -306,7 +524,7 @@ export function registerRpliceInboundRoutes(app: Express) {
    * GET /api/inbound/rplice/events
    * Internal: returns recent RPLICE evidence events for conductor and AI context.
    */
-  app.get("/api/inbound/rplice/events", (req: Request, res: Response) => {
+  app.get("/api/inbound/rplice/events", requireRpliceReadAccess, (req: Request, res: Response) => {
     const limit = Math.min(parseInt((req.query.limit as string) || "50", 10), 200);
     const type = req.query.type as string | undefined;
     const filtered = type ? rpliceEvents.filter((e) => e.eventType === type) : rpliceEvents;
@@ -317,7 +535,7 @@ export function registerRpliceInboundRoutes(app: Express) {
    * GET /api/inbound/rplice/latest
    * Returns the most recent RPLICE evidence snapshot — used by conductor + AI.
    */
-  app.get("/api/inbound/rplice/latest", (_req: Request, res: Response) => {
+  app.get("/api/inbound/rplice/latest", requireRpliceReadAccess, (_req: Request, res: Response) => {
     return res.json({
       events: rpliceEvents.slice(0, 20),
       contextBlock: buildRpliceInboundContext(),
@@ -343,8 +561,7 @@ export function registerRpliceInboundRoutes(app: Express) {
       authHeader: "x-shared-secret",
       authKeyName: "THRIVEUP_SHARED_SECRET",
       note: "Contact Dr. Flood for the shared secret — never transmitted in plain text",
-      eventsEndpoint: `${host}/api/inbound/rplice/events`,
-      latestEndpoint: `${host}/api/inbound/rplice/latest`,
+      internalReadAccess: "Recent evidence feeds require an authorized staff session or x-shared-secret service credential.",
       supportedEventTypes: [
         "evidence_update — new peer-reviewed evidence on an intervention or population",
         "research_finding — RPLICE research output applicable to a region or program",

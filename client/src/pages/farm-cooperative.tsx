@@ -147,6 +147,19 @@ export default function FarmCooperativePage() {
     },
   });
 
+  const signOutProducer = async () => {
+    const tokenToRevoke = token;
+    try {
+      await apiRequest("POST", "/api/farm-cooperative/revoke", undefined, { "x-producer-token": tokenToRevoke });
+    } catch {
+      // Local removal still protects this device if the network is unavailable.
+    } finally {
+      try { localStorage.removeItem("prod_token"); } catch {}
+      setToken("");
+      setTab("enroll");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
@@ -162,7 +175,7 @@ export default function FarmCooperativePage() {
             <Button variant="outline" size="sm" onClick={() => setLang(l => l === "en" ? "es" : "en")}>
               {lang === "en" ? "🇪🇸 Español" : "🇺🇸 English"}
             </Button>
-            {token && <Button variant="ghost" size="sm" onClick={() => { try { localStorage.removeItem("prod_token"); } catch {} setToken(""); setTab("enroll"); }}>Sign out</Button>}
+            {token && <Button variant="ghost" size="sm" onClick={signOutProducer}>Sign out</Button>}
           </div>
         </div>
       </div>

@@ -165,6 +165,20 @@ export default function FarmworkerItiPage() {
     onError: (e: any) => toast({ title: "Error", description: e.message, variant: "destructive" }),
   });
 
+  const exitFarmworkerIti = async () => {
+    const tokenToRevoke = token;
+    try {
+      await apiRequest("POST", "/api/farmworker-iti/revoke", undefined, { "x-farmworker-token": tokenToRevoke });
+    } catch {
+      // Local removal still protects this device if the network is unavailable.
+    } finally {
+      safeRemove(FW_TOKEN_KEY, "session");
+      setToken("");
+      setNavResult(null);
+      setTab("welcome");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-slate-800 px-6 py-5">
@@ -186,7 +200,7 @@ export default function FarmworkerItiPage() {
             </Button>
             {token && (
               <Button variant="ghost" size="sm" data-testid="button-fw-exit"
-                onClick={() => { safeRemove(FW_TOKEN_KEY, "session"); setToken(""); setNavResult(null); setTab("welcome"); }}>
+                onClick={exitFarmworkerIti}>
                 {L("Exit", "Salir")}
               </Button>
             )}

@@ -12,7 +12,7 @@
  * against ENGINE_REGISTRY, not by trusting each call site to remember.
  */
 import { db } from "../storage";
-import { gisContextData, benefitsEnrollmentData, partnerOutcomeSubmissions, farmworkerItiEnrollments, reentryPlans, participantProfiles, zctaCountyMap, residentJourneyEvents, producerProfiles, farmProfitabilitySnapshots, fosterYouthAgencyCases, workforceAssessments, justiceReferrals, tradeSimsLessonProgress } from "@shared/schema";
+import { gisContextData, benefitsEnrollmentData, partnerOutcomeSubmissions, reentryPlans, participantProfiles, zctaCountyMap, residentJourneyEvents, producerProfiles, producerDataConsents, farmProfitabilitySnapshots, fosterYouthAgencyCases, workforceAssessments, justiceReferrals, tradeSimsLessonProgress } from "@shared/schema";
 import { clinicalScreenings } from "@shared/clinical-schema";
 import { eq, like, and, sql } from "drizzle-orm";
 import { getEngineById, getNonPIIEngines, type EngineDefinition } from "./engine-registry";
@@ -175,16 +175,11 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef, options: 
       if (!geo.countyFips || geo.countyFips.length !== 5) {
         return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for farmworker-iti aggregate lookup" };
       }
-      const stateFips = geo.countyFips.slice(0, 2);
-      const countyPart = geo.countyFips.slice(2);
-      // Aggregate-only: COUNT by workerType, never accessToken or any other individual-identifying column.
-      const rows = await db
-        .select({ workerType: farmworkerItiEnrollments.workerType, count: sql<number>`count(*)::int` })
-        .from(farmworkerItiEnrollments)
-        .where(and(eq(farmworkerItiEnrollments.stateFips, stateFips), eq(farmworkerItiEnrollments.countyFips, countyPart)))
-        .groupBy(farmworkerItiEnrollments.workerType);
-      const total = rows.reduce((sum, r) => sum + r.count, 0);
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalEnrollments: total, byWorkerType: rows } };
+      // This enrollment schema currently has no consent that authorizes
+      // research/aggregate publication. Benefits, stipend, and credential
+      // consents are purpose-specific and must not be repurposed for this
+      // aggregate. Fail closed until a dedicated consent is available.
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "Farmworker aggregate unavailable: no explicit research/aggregate consent category is configured. Purpose-specific benefits and pathway consents are not used for aggregate publication." };
     }
     if (engine.id === "reentry") {
       if (!geo.countyFips || geo.countyFips.length !== 5) {
@@ -275,14 +270,23 @@ async function callEngine(engine: EngineDefinition, geo: GeographyRef, options: 
       if (!geo.countyFips || geo.countyFips.length !== 5) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for farm-cooperative aggregate lookup" };
       const stateFips = geo.countyFips.slice(0, 2);
       const countyPart = geo.countyFips.slice(2);
-      // Aggregate-only: COUNT by farmType, never accessToken/firstName/lastName/email/phone.
+      // Research consent permits a participant count, not farm-type or
+      // commodity metadata. There is no separate consent for profile metadata,
+      // so do not turn research-only enrollment into a metadata disclosure.
       const rows = await db
-        .select({ farmType: producerProfiles.farmType, count: sql<number>`count(*)::int` })
+        .select({ count: sql<number>`count(*)::int` })
         .from(producerProfiles)
-        .where(and(eq(producerProfiles.stateFips, stateFips), eq(producerProfiles.countyFips, countyPart)))
-        .groupBy(producerProfiles.farmType);
+        .innerJoin(producerDataConsents, eq(producerProfiles.id, producerDataConsents.producerId))
+        .where(and(
+          eq(producerProfiles.stateFips, stateFips),
+          eq(producerProfiles.countyFips, countyPart),
+          eq(producerDataConsents.shareWithResearchers, true),
+        ));
       const total = rows.reduce((sum, r) => sum + r.count, 0);
-      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalProducers: total, byFarmType: rows } };
+      if (total < MIN_AGGREGATE_CELL) {
+        return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: `Farm-cooperative aggregate unavailable: fewer than ${MIN_AGGREGATE_CELL} producers explicitly consented to research sharing in this county.` };
+      }
+      return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: { totalResearchParticipants: total, minimumCellSize: MIN_AGGREGATE_CELL, consentBasis: "Producer explicitly enabled research sharing; profile metadata is excluded." } };
     }
     if (engine.id === "farm-profitability") {
       if (!geo.countyFips || geo.countyFips.length !== 5) return { engineId: engine.id, engineLabel: engine.label, sources: engine.sources, fetchedAt, data: null, error: "No 5-digit countyFips resolvable for farm-profitability aggregate lookup" };

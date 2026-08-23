@@ -253,8 +253,9 @@ function SectionGenerator({ proposal, member, onGenerated }: { proposal: Consort
             ))}
           </SelectContent>
         </Select>
-        <Button size="sm" onClick={generate} disabled={!selectedSection || generating}>
+        <Button size="sm" onClick={generate} disabled={!selectedSection || generating} aria-label={`Generate ${selectedSection || "proposal section"}`}>
           {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4" />}
+          <span className="sr-only">Generate {selectedSection || "proposal section"}</span>
         </Button>
       </div>
       {(preview || existingContent) && (
@@ -272,7 +273,7 @@ function ProposalWorkspace({ proposalId, onBack }: { proposalId: string; onBack:
   const [pushing, setPushing] = useState<string | null>(null);
   const [merging, setMerging] = useState(false);
 
-  const { data: proposal, isLoading } = useQuery<ConsortiumProposal>({
+  const { data: proposal, isLoading, isError, error, refetch } = useQuery<ConsortiumProposal>({
     queryKey: ["/api/consortium/proposals", proposalId],
     queryFn: () => apiRequest("GET", `/api/consortium/proposals/${proposalId}`).then(r => r.json()),
   });
@@ -285,7 +286,8 @@ function ProposalWorkspace({ proposalId, onBack }: { proposalId: string; onBack:
       const r = await apiRequest("POST", `/api/thriveup/push-${type}`, body);
       const data = await r.json();
       if (data.sent) toast({ title: `Pushed ${type} to GrantPathPro` });
-      else toast({ title: `Preview ready (GPP_API_URL not set)`, description: "Check the console for the payload." });
+      else if (data.preview) toast({ title: "Delivery is not configured", description: data.error || "No payload was sent. Configure both the GrantPathPro URL and credential, then try again.", variant: "destructive" });
+      else toast({ title: `GrantPathPro delivery failed`, description: data.error || "The configured delivery target did not accept the request.", variant: "destructive" });
       console.log(`[Push ${type}]`, data);
     } catch {
       toast({ title: `Push failed`, variant: "destructive" });
@@ -319,6 +321,7 @@ function ProposalWorkspace({ proposalId, onBack }: { proposalId: string; onBack:
   }
 
   if (isLoading) return <div className="flex items-center justify-center h-64"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>;
+  if (isError) return <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertDescription>Could not load this proposal: {error instanceof Error ? error.message : "request failed"}. <Button variant="ghost" className="h-auto p-0 underline" onClick={() => refetch()}>Retry</Button></AlertDescription></Alert>;
   if (!proposal) return <div className="text-center py-12 text-muted-foreground">Proposal not found.</div>;
 
   const deadline = proposal.grantDeadline ? new Date(proposal.grantDeadline) : null;
@@ -437,7 +440,7 @@ function ProposalWorkspace({ proposalId, onBack }: { proposalId: string; onBack:
 }
 
 function GppStatusBanner() {
-  const { data, isLoading } = useQuery<{ configured: boolean; url: string | null }>({
+  const { data, isLoading, isError, error, refetch } = useQuery<{ configured: boolean; url: string | null }>({
     queryKey: ["/api/consortium/gpp-status"],
     queryFn: () => apiRequest("GET", "/api/consortium/gpp-status").then(r => r.json()),
     staleTime: 60_000,
@@ -446,10 +449,10 @@ function GppStatusBanner() {
   if (isLoading || data?.configured) return null;
 
   return (
-    <Alert className="border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800">
+    <Alert className={isError ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800" : "border-amber-200 bg-amber-50 dark:bg-amber-950/20 dark:border-amber-800"}>
       <AlertTriangle className="h-4 w-4 text-amber-600" />
       <AlertDescription className="text-amber-800 dark:text-amber-200 text-sm">
-        <strong>GrantPathPro auto-push is not yet connected.</strong> Every write you make (create proposal, add partner, generate section, merge) is queued and will push automatically once <code className="bg-amber-100 dark:bg-amber-900 px-1 rounded text-xs font-mono">GPP_API_URL</code> is set in environment secrets. Your data is safe — no work is lost.
+        {isError ? <><strong>GrantPathPro connection status is unknown.</strong> {error instanceof Error ? error.message : "The status check failed."} <Button variant="ghost" className="h-auto p-0 underline" onClick={() => refetch()}>Retry</Button></> : <><strong>GrantPathPro delivery is not connected.</strong> You can continue building proposals in ThriveUp, but no changes are queued or sent automatically. Use the explicit push controls after a valid GrantPathPro URL and credential are configured.</>}
       </AlertDescription>
     </Alert>
   );
@@ -475,7 +478,7 @@ export default function ConsortiumProposalPage() {
   const qc = useQueryClient();
   const [selected, setSelected] = useState<string | null>(null);
 
-  const { data: proposals = [], isLoading } = useQuery<ConsortiumProposal[]>({
+  const { data: proposals = [], isLoading, isError, error, refetch } = useQuery<ConsortiumProposal[]>({
     queryKey: ["/api/consortium/proposals"],
     queryFn: () => apiRequest("GET", "/api/consortium/proposals").then(r => r.json()),
   });
@@ -502,6 +505,8 @@ export default function ConsortiumProposalPage() {
 
       {isLoading ? (
         <div className="flex justify-center py-16"><Loader2 className="h-8 w-8 animate-spin text-muted-foreground" /></div>
+      ) : isError ? (
+        <Alert variant="destructive"><AlertTriangle className="h-4 w-4" /><AlertDescription>Could not load consortium proposals: {error instanceof Error ? error.message : "request failed"}. <Button variant="ghost" className="h-auto p-0 underline" onClick={() => refetch()}>Retry</Button></AlertDescription></Alert>
       ) : proposals.length === 0 ? (
         <div className="border border-dashed rounded-xl p-16 text-center">
           <Users className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-40" />
@@ -515,7 +520,12 @@ export default function ConsortiumProposalPage() {
             const deadline = p.grantDeadline ? new Date(p.grantDeadline) : null;
             const daysLeft = deadline ? Math.ceil((deadline.getTime() - Date.now()) / 86400000) : null;
             return (
-              <Card key={p.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => setSelected(p.id)}>
+              <Card key={p.id} className="cursor-pointer hover:shadow-md transition-shadow" role="button" tabIndex={0} aria-label={`Open proposal: ${p.projectTitle}`} onClick={() => setSelected(p.id)} onKeyDown={event => {
+                if (event.key === "Enter" || event.key === " ") {
+                  event.preventDefault();
+                  setSelected(p.id);
+                }
+              }}>
                 <CardContent className="pt-4 flex items-center justify-between">
                   <div>
                     <p className="font-semibold">{p.projectTitle}</p>

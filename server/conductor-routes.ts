@@ -9,7 +9,7 @@
 
 import type { Express, NextFunction, Request, Response } from "express";
 import { buildRpliceIntelligencePackage } from "./rplice-intelligence";
-import { buildRpliceInboundContext } from "./rplice-inbound-routes";
+import { buildRpliceInboundContext, getLatestRpliceEvidence } from "./rplice-inbound-routes";
 import {
   resolveLocationToZip,
   fetchZctaData,
@@ -30,6 +30,7 @@ import { db, storage } from "./storage";
 import { grantOpportunities } from "@shared/schema";
 import { desc, gte, and, isNotNull } from "drizzle-orm";
 import { hasValidCommunityEvidence } from "./community-evidence";
+import { getGrantPathProOutboundConfig } from "./grantpathpro-config";
 
 // ── First-party session auth (mirrors requireAuth in server/routes.ts) ────────
 // Roles live in the users table, never on req.user — resolve via storage.getUser
@@ -44,6 +45,21 @@ function conductorRequireAuth(req: Request, res: Response, next: NextFunction) {
     return res.status(401).json({ error: "Authentication required" });
   }
   next();
+}
+
+const CONDUCTOR_STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+async function conductorRequireStaff(req: Request, res: Response, next: NextFunction) {
+  const userId = conductorGetUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role && CONDUCTOR_STAFF_ROLES.has(user.role)) return next();
+  } catch (err) {
+    console.error("[Conductor] Staff authorization check failed:", err);
+    return res.status(503).json({ error: "Unable to verify staff access" });
+  }
+  return res.status(403).json({ error: "Staff access required for external exports" });
 }
 
 // ── Anonymous abuse protection for the PUBLIC community analyzer ──────────────
@@ -102,6 +118,7 @@ function conductorRateLimit(ip: string): number | null {
 const CONDUCTOR_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2h — keeps stale-Census exposure window to ≤2h
 const CONDUCTOR_CACHE_MAX = 300;
 const conductorBriefCache = new Map<string, { at: number; value: unknown }>();
+const conductorNeighborCache = new Map<string, { at: number; value: unknown }>();
 
 function conductorCacheGet(key: string): unknown | undefined {
   const entry = conductorBriefCache.get(key);
@@ -130,6 +147,27 @@ function conductorCacheSet(key: string, value: unknown): void {
     const oldest = conductorBriefCache.keys().next().value;
     if (oldest === undefined) break;
     conductorBriefCache.delete(oldest);
+  }
+}
+
+function conductorNeighborCacheGet(key: string): unknown | undefined {
+  const entry = conductorNeighborCache.get(key);
+  if (!entry) return undefined;
+  if (Date.now() - entry.at > CONDUCTOR_CACHE_TTL_MS) {
+    conductorNeighborCache.delete(key);
+    return undefined;
+  }
+  conductorNeighborCache.delete(key);
+  conductorNeighborCache.set(key, entry);
+  return entry.value;
+}
+
+function conductorNeighborCacheSet(key: string, value: unknown): void {
+  conductorNeighborCache.set(key, { at: Date.now(), value });
+  while (conductorNeighborCache.size > CONDUCTOR_CACHE_MAX) {
+    const oldest = conductorNeighborCache.keys().next().value;
+    if (oldest === undefined) break;
+    conductorNeighborCache.delete(oldest);
   }
 }
 
@@ -1242,7 +1280,7 @@ export function registerConductorRoutes(app: Express) {
       const { location } = req.body || {};
       const populationSize = conductorClampInt(req.body?.populationSize, 10000, 100, 5_000_000);
       const timeHorizon = conductorClampInt(req.body?.timeHorizon, 25, 1, 50);
-      if (!location || typeof location !== "string") {
+      if (!location || typeof location !== "string" || location.trim().length > 160) {
         return res.status(400).json({ error: "location is required (ZIP code, city, or community name)" });
       }
 
@@ -1842,7 +1880,7 @@ export function registerConductorRoutes(app: Express) {
       // Cache first (keyed on the center ZIP + center display attributes), then
       // rate-limit only the expensive fan-out path.
       const nbrKey = `${zip}|${centerScore}|${centerGrade}|${centerUrgency}|${centerCost}`;
-      const nbrCached = conductorCacheGet(`nbr:${nbrKey}`);
+       const nbrCached = conductorNeighborCacheGet(nbrKey);
       if (nbrCached !== undefined) {
         return res.json(nbrCached);
       }
@@ -1940,7 +1978,7 @@ export function registerConductorRoutes(app: Express) {
       ];
 
       const nbrResult = { zips, centerLat, centerLng };
-      conductorCacheSet(`nbr:${nbrKey}`, nbrResult);
+       conductorNeighborCacheSet(nbrKey, nbrResult);
       return res.json(nbrResult);
     } catch (err) {
       console.error("neighbor-zips error:", err);
@@ -1953,16 +1991,16 @@ export function registerConductorRoutes(app: Express) {
    * Packages the community brief (needs assessment, cascade, domain scores) and
    * sends it to the Grant Path Pro API for grant execution and monitoring.
    *
-   * WIRING NOTE: Set GPP_API_URL and GPP_API_KEY environment variables when
+   * WIRING NOTE: Set GPP_API_URL and THRIVE_GPP_API_KEY environment variables when
    * the Grant Path Pro API endpoint and credentials are available.
    * Until then, the endpoint returns the payload so the frontend can show a preview.
+   * This is a staff-authorized external transfer. The exported package can
+   * contain internal operational intelligence, so an ordinary session is not
+   * sufficient authority.
    */
-  // DECISION: requireAuth. Exports a full intelligence package to an external
-  // partner system (Grant Path Pro) and can transmit with a server-held API key.
-  // This is a privileged outbound action, never anonymous.
-  app.post("/api/conductor/export-to-grantpathpro", conductorRequireAuth, async (req: Request, res: Response) => {
+  app.post("/api/conductor/export-to-grantpathpro", conductorRequireStaff, async (req: Request, res: Response) => {
     try {
-      const { brief, geography, requestedBy } = req.body;
+      const { brief, geography } = req.body;
 
       if (!brief || !geography) {
         return res.status(400).json({ error: "brief and geography are required" });
@@ -1980,17 +2018,26 @@ export function registerConductorRoutes(app: Express) {
             .map(([k]) => k)
         : [];
 
-      const [rpliceGppPackage, rpliceInboundEventsForGpp] = await Promise.all([
+      const [rpliceGppPackage] = await Promise.all([
         buildRpliceIntelligencePackage({
           crisisDomains: briefDomains,
           regionName: geography.city || geography.county || geography.zip || "community",
           stateFips: geography.stateFips || stateFipsFromZip(geography.zip) || stateFipsFromName(geography.state) || undefined,
           countyFips: geography.countyFips || undefined,
-        }).catch(() => null),
-        fetch(`http://localhost:5000/api/inbound/rplice/latest`)
-          .then((r) => r.json())
-          .catch(() => ({ events: [], contextBlock: "", total: 0 })),
+        }).catch((err) => {
+          console.error("[Conductor] RPLICE intelligence package unavailable for export:", err);
+          return null;
+        }),
       ]);
+      // Do not make an unauthenticated loopback HTTP call for internal evidence.
+      // The in-process accessor retains the same data boundary without creating
+      // a public read endpoint or forwarding a shared secret.
+      const rpliceEventsForGpp = getLatestRpliceEvidence();
+      const rpliceInboundEventsForGpp = {
+        events: rpliceEventsForGpp,
+        total: rpliceEventsForGpp.length,
+        lastReceivedAt: rpliceEventsForGpp[0]?.receivedAt ?? null,
+      };
 
       // Surface inbound event categories from the RPLICE evidence feed
       const qualityGateReviews = (rpliceInboundEventsForGpp.events || []).filter(
@@ -2012,7 +2059,7 @@ export function registerConductorRoutes(app: Express) {
       const gppPayload = {
         source: "ThriveUp Community Impact Conductor",
         exportedAt: new Date().toISOString(),
-        requestedBy: requestedBy || "anonymous",
+        requestedBy: conductorGetUserId(req) ?? "staff",
         geography: {
           zip: geography.zip,
           city: geography.city,
@@ -2021,27 +2068,30 @@ export function registerConductorRoutes(app: Express) {
         },
         needsAssessment: {
           overallScore: brief.overallScore,
-          grade: brief.grade,
-          population: brief.population,
-          povertyRate: brief.povertyRate,
-          unemploymentRate: brief.unemploymentRate,
-          medianIncome: brief.medianIncome,
-          domainScores: brief.domainScores,
+          grade: brief.overallGrade,
+          population: brief.demographics?.totalPopulation ?? brief.demographics?.population ?? null,
+          povertyRate: brief.demographics?.povertyRate ?? null,
+          unemploymentRate: brief.demographics?.unemploymentRate ?? null,
+          medianIncome: brief.demographics?.medianHouseholdIncome ?? brief.demographics?.medianIncome ?? null,
+          domainScores: brief.systemsScores ?? {},
           atRiskPopulations: brief.atRiskPopulations,
         },
         financialImpact: {
-          historicalCost: brief.historicalCost,
-          forwardProjection: brief.forwardProjection,
-          interventionSavings: brief.interventionSavings,
-          roi: brief.roi,
-          cascadeChains: brief.cascadeChains,
+          historicalCost: brief.historicalCascade?.totalAccumulatedCost ?? null,
+          historicalCascade: brief.historicalCascade ?? null,
+          forwardProjection: brief.cascade?.counterfactualCost ?? null,
+          interventionCost: brief.cascade?.interventionCost ?? null,
+          interventionSavings: brief.cascade?.netSavings ?? null,
+          roi: brief.cascade?.roi ?? null,
+          cascadeChains: brief.cascade?.keyChains ?? [],
+          timeline: brief.cascade?.timeline ?? [],
         },
         grantAlignment: {
-          matchedOpportunities: brief.matchedGrants ?? [],
-          evidencePrograms: brief.evidencePrograms ?? [],
-          recommendedInterventions: brief.recommendedInterventions ?? [],
+          matchedOpportunities: brief.solutions?.grants ?? [],
+          evidencePrograms: brief.solutions?.topInterventions ?? [],
+          recommendedInterventions: brief.solutions?.policyActions ?? [],
         },
-        narrative: brief.aiNarrative ?? null,
+        narrative: brief.narrative ?? null,
         /**
          * RPLICE Maximum Intelligence Package
          * ─────────────────────────────────────
@@ -2177,12 +2227,11 @@ export function registerConductorRoutes(app: Express) {
           `ZCTA: ${geography.zip}`,
         ],
         callback: {
-          description: "POST grant execution events back to ThriveUp using these credentials",
+          description: "GrantPathPro callback endpoints; credentials are provisioned out of band and never included in export payloads.",
           inboundEndpoint: `${host}/api/inbound/grantpathpro`,
           rpliceQualityGateEndpoint: `${host}/api/inbound/rplice`,
           statusEndpoint: `${host}/api/inbound/grantpathpro/status`,
           authHeader: "x-api-key",
-          authValue: process.env.THRIVEUP_INBOUND_KEY ?? "(contact ThriveUp for key)",
           rpliceAuthHeader: "x-shared-secret",
           eventTypes: [
             "status_update",
@@ -2201,10 +2250,9 @@ export function registerConductorRoutes(app: Express) {
         },
       };
 
-      const gppApiUrl = process.env.GPP_API_URL;
-      const gppApiKey = process.env.GRANTPATHPRO_WEBHOOK_API_KEY || process.env.GPP_API_KEY;
+      const { url: gppApiUrl, apiKey: gppApiKey, configured: gppConfigured } = getGrantPathProOutboundConfig();
 
-      if (gppApiUrl && gppApiKey) {
+      if (gppConfigured && gppApiUrl && gppApiKey) {
         const gppResponse = await fetch(gppApiUrl, {
           method: "POST",
           headers: {
@@ -2238,7 +2286,7 @@ export function registerConductorRoutes(app: Express) {
       return res.json({
         success: true,
         mode: "preview",
-        message: "Grant Path Pro API credentials not yet configured. Payload ready for transmission.",
+        message: "GrantPathPro delivery is not configured. This is a local preview only; no external transfer was attempted.",
         exportedPayload: gppPayload,
       });
 
