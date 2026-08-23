@@ -1,15 +1,15 @@
-# Alpha Omega — 2026-08-23 — Zero-error TypeScript build
+# Alpha Omega — 2026-08-23 — Validation gates repair
 
 ## Alpha
-- End-state: Reach a true zero-error TypeScript check without weakening compiler settings or changing package versions.
-- In-state evidence: The live non-incremental compiler reported 33 errors across TopoJSON, Three.js declarations, community graph narrowing, Express params, Drizzle predicates, and `pdf-parse`.
-- Authority/boundaries: Preserve map rendering, Three.js fail-soft behavior, graph validation, Agency Connector preview routing, member engagement routes, and Navigator PDF extraction.
-- Plan and acceptance proofs: Add explicit type boundaries and scalar normalization; run strict non-incremental typecheck, focused affected tests, preflight, app restart, and log inspection.
-- Unknowns/deferred decisions: Browser WebGL and production-only integration behavior remain covered by their existing focused gates, not by this compiler task.
+- End-state: Restore a trustworthy validation run without weakening gates, hiding external failures, or changing product behavior.
+- In-state evidence: The live validation matrix had one known external-contract failure (GrantPathPro returned HTML at `/api/health` and HTTP 405 on four expected inbound POST paths).
+- Authority/boundaries: Preserve fail-closed validation, strict zero-error TypeScript, serialized E2E lifecycles, and the distinction between application defects and external endpoint drift.
+- Plan and acceptance proofs: Recheck managed workflows, capture community/auth/security logs, run memory-health and preflight, and complete an independent six-domain audit.
+- Unknowns/deferred decisions: Broad product-security/congruence findings from the audit are outside validation-gate repair and are proposed as separate follow-up work.
 
 ## Omega
-- Diff scrimmage: Only the identified type-contract surfaces changed. No compiler settings, package versions, database schema, authorization behavior, or route shapes changed.
-- Proofs and gates: `npx tsc --noEmit --incremental false -p .` exits 0 with zero errors. Trade-simulation, community brief/evidence/claim-grounding/chain checks, `git diff --check`, and app restart completed. Preflight is rerun after the required dated record is present.
-- Independent angle: Focused runtime and invariant checks exercised the affected simulation, data-validation, and claim-grounding paths; fresh workflow logs show the application is running with no new browser console output.
-- Outcome: The project now passes the requested zero-error TypeScript build while retaining strict settings and runtime behavior.
-- Residuals and reusable guard: Several unrelated broad workflows remain environment/data-drift sensitive (for example remote endpoint responses and slow SSE probes). Keep third-party untyped dependencies behind one local declaration boundary and convert Express params to scalar strings before typed database predicates.
+- Diff scrimmage: No source code changes were made during the validation rerun. Managed auth and community-brief workflows finished green; security probes passed all local authorization/schema/location/grounding checks before failing closed on the external GrantPathPro contract.
+- Proofs and gates: TypeScript reports 0 errors; memory-health passes; preflight reports 9 PASS / 0 FAIL; community brief reports 2/2 Playwright tests and 41 probe checks; inbound verification reports 62/62; auth and access-model workflows are finished green.
+- Independent angle: Six read-only auditors found no validation-gate regression, while flagging separate actionable security and frontend/backend congruence risks for follow-up rather than relabeling them as fixed.
+- Outcome: Validation-gate repair is complete with one explicit external residual; the project is not represented as fully security-clean.
+- Residuals and reusable guard: GrantPathPro remains blocked until its real inbound POST contract is restored. Keep external failures visible, and do not close product-security findings merely because the validation harness itself is green.
