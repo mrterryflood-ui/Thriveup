@@ -37,6 +37,7 @@ import {
   Wifi, AlertTriangle, FolderLock,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import thriveupLogo from "../assets/thriveup-logo.png";
 import { getRankForLevel } from "@/lib/curriculum-data";
@@ -51,6 +52,42 @@ interface NavItem {
   icon: LucideIcon;
   authOnly?: boolean;
   adminOnly?: boolean;
+}
+
+const SIDEBAR_DESCRIPTIONS: Record<string, string> = {
+  "Equity Loss Engine": "Calculates the economic cost of inaction in a ZIP code across Census vintages. Use it to understand disparities and support funding requests.",
+  "SDOH Impact Chain": "Maps how social conditions connect to health, education, and economic outcomes. Use it to see where an intervention can break a cycle.",
+  "Policy Signal Engine": "Turns policy and community data into signals that help partners understand risks, opportunities, and timing.",
+  "RPLICE Toolkit": "Guides research-to-practice work using CFIR, RE-AIM, and EPIS. Use it to plan implementation and measure whether a program is working.",
+  "MAP-GAP Framework": "A structured method for mapping needs, analyzing gaps, and choosing accountable next steps with community partners.",
+  "HerHealth Matters": "Women's health education, prevention, navigation, and provider connections.",
+  "Maternal Health Network": "Prenatal, postpartum, doula, and maternal mental-health navigation.",
+  "MaleHealth Matters": "Men's health education, prevention, screening navigation, and peer connection.",
+  "RPLICE Research Hub": "Research-to-practice tools for evidence review, implementation planning, and evaluation.",
+};
+
+function SidebarInfo({ title }: { title: string }) {
+  const description = SIDEBAR_DESCRIPTIONS[title];
+  if (!description) return null;
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+          aria-label={`About ${title}`}
+          data-testid={`button-sidebar-info-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+        >
+          <Info className="h-3.5 w-3.5" aria-hidden="true" />
+        </Button>
+      </TooltipTrigger>
+      <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+        {description}
+      </TooltipContent>
+    </Tooltip>
+  );
 }
 
 // =========================================================================
@@ -526,17 +563,20 @@ function NavSection({
                     const isActive = isItemActive(location, item.url);
                     return (
                       <SidebarMenuSubItem key={item.title}>
-                        <SidebarMenuSubButton
-                          asChild
-                          data-active={isActive}
-                          className={isActive ? "bg-sidebar-accent" : ""}
-                          data-testid={`link-sidebar-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
-                        >
-                          <Link href={item.url} aria-label={item.title}>
-                            <item.icon className="h-4 w-4" aria-hidden="true" />
-                            <span>{item.title}</span>
-                          </Link>
-                        </SidebarMenuSubButton>
+                        <div className="flex items-center">
+                          <SidebarMenuSubButton
+                            asChild
+                            data-active={isActive}
+                            className={`min-w-0 flex-1 ${isActive ? "bg-sidebar-accent" : ""}`}
+                            data-testid={`link-sidebar-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+                          >
+                            <Link href={item.url} aria-label={item.title}>
+                              <item.icon className="h-4 w-4" aria-hidden="true" />
+                              <span className="truncate">{item.title}</span>
+                            </Link>
+                          </SidebarMenuSubButton>
+                          <SidebarInfo title={item.title} />
+                        </div>
                       </SidebarMenuSubItem>
                     );
                   })}
@@ -623,6 +663,7 @@ export function AppSidebar() {
   const search = useSidebarSearch(allItems);
 
   return (
+    <TooltipProvider delayDuration={250} skipDelayDuration={100}>
     <Sidebar aria-label="Main navigation">
       <SidebarHeader className="p-4">
         <Link href="/" aria-label="ThriveUp Academy home">
@@ -737,19 +778,22 @@ export function AppSidebar() {
               <SidebarGroupContent>
                 <SidebarMenu>
                   {connectedSiteItems.map((item) => (
-                    <SidebarMenuItem key={item.url}>
-                      <SidebarMenuButton asChild>
-                        <a
-                          href={item.url}
-                          target={item.url.startsWith("https://") ? "_blank" : undefined}
-                          rel={item.url.startsWith("https://") ? "noopener noreferrer" : undefined}
-                          aria-label={item.title}
-                          data-testid={`link-connected-site-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
-                        >
-                          <item.icon className="h-4 w-4" aria-hidden="true" />
-                          <span>{item.title}</span>
-                        </a>
-                      </SidebarMenuButton>
+                    <SidebarMenuItem key={`${item.title}-${item.url}`}>
+                      <div className="flex items-center">
+                        <SidebarMenuButton asChild className="min-w-0 flex-1">
+                          <a
+                            href={item.url}
+                            target={item.url.startsWith("https://") ? "_blank" : undefined}
+                            rel={item.url.startsWith("https://") ? "noopener noreferrer" : undefined}
+                            aria-label={item.title}
+                            data-testid={`link-connected-site-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                          >
+                            <item.icon className="h-4 w-4" aria-hidden="true" />
+                            <span className="truncate">{item.title}</span>
+                          </a>
+                        </SidebarMenuButton>
+                        <SidebarInfo title={item.title} />
+                      </div>
                     </SidebarMenuItem>
                   ))}
                 </SidebarMenu>
@@ -876,5 +920,6 @@ export function AppSidebar() {
         </div>
       </SidebarFooter>
     </Sidebar>
+    </TooltipProvider>
   );
 }
