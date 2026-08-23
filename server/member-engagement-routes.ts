@@ -397,18 +397,19 @@ memberEngagementRouter.post("/members/self-enroll", async (req: Request, res: Re
 memberEngagementRouter.get("/members/:id", async (req: Request, res: Response) => {
   if (!assertAuth(req, res)) return;
   try {
-    const [member] = await db.select().from(healthPlanMembers).where(eq(healthPlanMembers.id, req.params.id));
+    const memberId = String(req.params.id);
+    const [member] = await db.select().from(healthPlanMembers).where(eq(healthPlanMembers.id, memberId));
     if (!member) return res.status(404).json({ error: "Member not found" });
 
     const [gaps, benefits, engagements] = await Promise.all([
       db.select().from(memberCareGaps)
-        .where(eq(memberCareGaps.memberId, req.params.id))
+        .where(eq(memberCareGaps.memberId, memberId))
         .orderBy(memberCareGaps.priority, desc(memberCareGaps.createdAt)),
       db.select().from(memberBenefitUtilization)
-        .where(eq(memberBenefitUtilization.memberId, req.params.id))
+        .where(eq(memberBenefitUtilization.memberId, memberId))
         .orderBy(memberBenefitUtilization.planYear),
       db.select().from(memberCHWEngagements)
-        .where(eq(memberCHWEngagements.memberId, req.params.id))
+        .where(eq(memberCHWEngagements.memberId, memberId))
         .orderBy(desc(memberCHWEngagements.createdAt)).limit(5),
     ]);
 
@@ -429,7 +430,7 @@ memberEngagementRouter.patch("/members/:id", async (req: Request, res: Response)
       if (req.body[key] !== undefined) update[key] = req.body[key];
     }
     const [updated] = await db.update(healthPlanMembers).set(update as any)
-      .where(eq(healthPlanMembers.id, req.params.id)).returning();
+      .where(eq(healthPlanMembers.id, String(req.params.id))).returning();
     if (!updated) return res.status(404).json({ error: "Member not found" });
     return res.json(updated);
   } catch (err: any) {
@@ -447,7 +448,7 @@ memberEngagementRouter.get("/members/:id/care-gaps", async (req: Request, res: R
       measure: hedisMeasures,
     }).from(memberCareGaps)
       .innerJoin(hedisMeasures, eq(memberCareGaps.measureId, hedisMeasures.id))
-      .where(eq(memberCareGaps.memberId, req.params.id))
+      .where(eq(memberCareGaps.memberId, String(req.params.id)))
       .orderBy(memberCareGaps.priority, memberCareGaps.status);
     return res.json(gaps);
   } catch (err: any) {
@@ -474,7 +475,7 @@ memberEngagementRouter.post("/members/:id/care-gaps/assign", async (req: Request
       // skip if already open for this year
       const [existing] = await db.select({ id: memberCareGaps.id }).from(memberCareGaps)
         .where(and(
-          eq(memberCareGaps.memberId, req.params.id),
+          eq(memberCareGaps.memberId, String(req.params.id)),
           eq(memberCareGaps.measureId, m.id),
           eq(memberCareGaps.measurementYear, year),
           ne(memberCareGaps.status, "closed"),
@@ -483,7 +484,7 @@ memberEngagementRouter.post("/members/:id/care-gaps/assign", async (req: Request
 
       const [gap] = await db.insert(memberCareGaps).values({
         id: nanoid(10),
-        memberId: req.params.id,
+        memberId: String(req.params.id),
         measureId: m.id,
         measureCode: m.measureCode,
         measurementYear: year,
@@ -514,8 +515,8 @@ memberEngagementRouter.patch("/members/:id/care-gaps/:gapId/close", async (req: 
       notes,
       updatedAt: new Date(),
     }).where(and(
-      eq(memberCareGaps.id, req.params.gapId),
-      eq(memberCareGaps.memberId, req.params.id),
+      eq(memberCareGaps.id, String(req.params.gapId)),
+      eq(memberCareGaps.memberId, String(req.params.id)),
     )).returning();
     if (!updated) return res.status(404).json({ error: "Care gap not found" });
     return res.json(updated);
@@ -634,7 +635,7 @@ memberEngagementRouter.get("/campaigns/:id", async (req: Request, res: Response)
   if (!assertAuth(req, res)) return;
   try {
     const [campaign] = await db.select().from(memberOutreachCampaigns)
-      .where(eq(memberOutreachCampaigns.id, req.params.id));
+      .where(eq(memberOutreachCampaigns.id, String(req.params.id)));
     if (!campaign) return res.status(404).json({ error: "Campaign not found" });
 
     const touches = await db.select({
@@ -643,7 +644,7 @@ memberEngagementRouter.get("/campaigns/:id", async (req: Request, res: Response)
       opened:    sql<number>`count(*) filter (where opened_at is not null)`,
       responded: sql<number>`count(*) filter (where responded_at is not null)`,
       bounced:   sql<number>`count(*) filter (where bounced = true)`,
-    }).from(memberOutreachTouches).where(eq(memberOutreachTouches.campaignId, req.params.id));
+    }).from(memberOutreachTouches).where(eq(memberOutreachTouches.campaignId, String(req.params.id)));
 
     return res.json({ campaign, performance: touches[0] });
   } catch (err: any) {
@@ -656,7 +657,7 @@ memberEngagementRouter.post("/campaigns/:id/send", async (req: Request, res: Res
   if (!assertAuth(req, res)) return;
   try {
     const [campaign] = await db.select().from(memberOutreachCampaigns)
-      .where(eq(memberOutreachCampaigns.id, req.params.id));
+      .where(eq(memberOutreachCampaigns.id, String(req.params.id)));
     if (!campaign) return res.status(404).json({ error: "Campaign not found" });
     if (campaign.status !== "draft" && campaign.status !== "scheduled") {
       return res.status(409).json({ error: `Campaign is already ${campaign.status}` });
@@ -818,7 +819,7 @@ memberEngagementRouter.patch("/chw-queue/:id", async (req: Request, res: Respons
     if (assignedToUserId) update.assignedToUserId = assignedToUserId;
 
     const [updated] = await db.update(memberCHWEngagements).set(update as any)
-      .where(eq(memberCHWEngagements.id, req.params.id)).returning();
+      .where(eq(memberCHWEngagements.id, String(req.params.id))).returning();
     if (!updated) return res.status(404).json({ error: "Engagement not found" });
     return res.json(updated);
   } catch (err: any) {
@@ -832,7 +833,7 @@ memberEngagementRouter.get("/benefits/:memberId", async (req: Request, res: Resp
   if (!assertAuth(req, res)) return;
   try {
     const benefits = await db.select().from(memberBenefitUtilization)
-      .where(eq(memberBenefitUtilization.memberId, req.params.memberId))
+      .where(eq(memberBenefitUtilization.memberId, String(req.params.memberId)))
       .orderBy(memberBenefitUtilization.planYear, memberBenefitUtilization.benefitType);
     return res.json(benefits);
   } catch (err: any) {
@@ -852,7 +853,7 @@ memberEngagementRouter.patch("/benefits/:id", async (req: Request, res: Response
     if (notes !== undefined) update.notes = notes;
 
     const [updated] = await db.update(memberBenefitUtilization).set(update as any)
-      .where(eq(memberBenefitUtilization.id, req.params.id)).returning();
+      .where(eq(memberBenefitUtilization.id, String(req.params.id))).returning();
     if (!updated) return res.status(404).json({ error: "Benefit record not found" });
     return res.json(updated);
   } catch (err: any) {

@@ -285,17 +285,19 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
   const isValidGraph = (value: unknown): value is ResourceGraphData => {
     if (!value || typeof value !== "object") return false;
     const candidate = value as Partial<ResourceGraphData>;
+    const resources = candidate.resources;
+    const geographies = candidate.geographies;
     return typeof candidate.generatedAt === "string"
       && candidate.contractVersion === "1.0"
       && !!candidate.geography
       && typeof candidate.geography.id === "string"
-      && Array.isArray(candidate.geographies)
-      && candidate.geographies.every((geography) =>
+      && Array.isArray(geographies)
+      && geographies.every((geography) =>
         !!geography
         && typeof geography.id === "string"
         && (typeof geography.stateCode === "string" || geography.stateCode === null)
       )
-      && Array.isArray(candidate.resources)
+      && Array.isArray(resources)
       && Array.isArray(candidate.edges)
       && Array.isArray(candidate.disclosures)
       && candidate.edges.every((edge) =>
@@ -304,10 +306,10 @@ function ResourcePanel({ stateCode }: { stateCode: string }) {
         && typeof edge.geographyId === "string"
         && edge.relationship === "covers"
         && (edge.coverageConfidence === "catalog-state" || edge.coverageConfidence === "catalog-national")
-        && candidate.resources.some((resource) => resource?.id === edge.resourceId)
-        && candidate.geographies.some((geography) => geography?.id === edge.geographyId)
+        && resources.some((resource) => resource?.id === edge.resourceId)
+        && geographies.some((geography) => geography?.id === edge.geographyId)
       )
-      && candidate.resources.every((resource) =>
+      && resources.every((resource) =>
         !!resource
         && typeof resource.id === "string"
         && typeof resource.name === "string"

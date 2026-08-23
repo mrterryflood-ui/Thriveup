@@ -1563,7 +1563,13 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         // Step 2: pdf-parse Node.js fallback (no binary required)
         if (!text || text.trim().length < 50) {
           try {
-            const pdfParse = (await import("pdf-parse")).default;
+            const pdfParseModule = await import("pdf-parse");
+            const pdfParse = typeof pdfParseModule === "function"
+              ? pdfParseModule
+              : "default" in pdfParseModule && typeof pdfParseModule.default === "function"
+              ? pdfParseModule.default
+              : null;
+            if (!pdfParse) throw new Error("pdf-parse module has no callable export");
             const parsed = await pdfParse(buffer);
             if (parsed.text && parsed.text.trim().length >= 50) {
               text = parsed.text;

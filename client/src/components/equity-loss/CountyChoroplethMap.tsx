@@ -301,8 +301,8 @@ export default function CountyChoroplethMap({ frame, onCountyClick }: Props) {
   useEffect(() => {
     if (!topo) return;
 
-    const countyFeatures = topojson.feature(topo, topo.objects.counties);
-    const paths = (countyFeatures.features as any[]).map((f: any) => ({
+    const countyFeatures = topojson.feature(topo, topo.objects.counties) as unknown as { features: any[] };
+    const paths = countyFeatures.features.map((f: any) => ({
       fips: String(f.id),
       d: geoJsonToSvgPath(f.geometry),
     }));

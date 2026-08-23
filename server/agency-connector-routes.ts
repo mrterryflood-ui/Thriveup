@@ -464,7 +464,7 @@ export function registerAgencyConnectorRoutes(app: Express) {
 
   // GET /api/agency-connector/preview/:endpointId
   app.get("/api/agency-connector/preview/:endpointId", async (req: Request, res: Response) => {
-    const { endpointId } = req.params;
+    const endpointId = String(req.params.endpointId);
     const location = String(req.query.location || "28472");
     const ep = PARTNER_ENDPOINTS.find(e => e.id === endpointId);
     if (!ep) return res.status(404).json({ error: "Unknown endpoint ID" });
