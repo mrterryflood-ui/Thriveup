@@ -49,3 +49,19 @@
 - Independent angle: Six-domain read-only audit found no regression from this remediation; it separately flagged `brief-share.tsx` end-to-end re-verification against the new safe-projection shape and a minor AI-generation-abort-on-unmount item as residual, not blocking this task's scope.
 - Outcome: The community intelligence security foundation (Streets/HMIS staff gating, chat ownership, org/consortium export authorization, farm token expiry/revocation, consent-filtered suppressed cooperative aggregates) is implemented, typechecked, and verified through the full managed gate matrix, with one pre-existing external residual (GrantPathPro inbound contract) left visible rather than hidden.
 - Residuals and reusable guard: GrantPathPro inbound contract remains blocked externally (tracked, not a code defect). `brief-share.tsx` should get an independent end-to-end pass against the new safe-projection shape as follow-up. Never relabel an external-service failure as internal success; keep it visible in the validation run.
+
+---
+
+# Alpha Omega — 2026-08-23 — Community Opportunity Mirror
+## Alpha
+- End-state: Organization users can review a source-labeled opportunity package, explicitly authorize one v1 GrantPathPro handoff, and see delivery and tenant-private feedback without changing existing Embed or Mirror contracts.
+- In-state evidence: `server/grantpathpro-routes.ts` contains organization ownership checks, Embed, Mirror, legacy events, and outbound packages; `shared/schema.ts` previously held raw Mirror snapshots and unscoped legacy events only; `client/src/pages/entity-profile.tsx` renders the Mirror and Embed.
+- Authority/boundaries: Organization membership or DB-verified staff controls access. Authorization is required before a delivery attempt. Partner feedback is authenticated, schema-validated, append-only, tenant-scoped, and private by default. No eligibility, award, deadline, partner, or availability is inferred.
+- Plan and acceptance proofs: Add v1 contract docs and records; guarded package/handoff/feedback routes; entity-profile controls/history; a lifecycle guard plus typecheck, targeted gate, browser view, workflow restart/log review, adversarial audit, and independent review.
+- Unknowns/deferred decisions: GrantPathPro has not supplied an explicit service-to-service receiver for opportunity handoffs. Delivery remains unavailable until `GPP_OPPORTUNITY_HANDOFF_URL` is configured; the generic GPP API origin is never treated as authorization to send.
+## Omega
+- Diff scrimmage: Pending implementation.
+- Proofs and gates: Pending implementation.
+- Independent angle: Pending isolated review.
+- Outcome: Pending.
+- Residuals and reusable guard: Pending.

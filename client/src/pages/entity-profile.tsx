@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Building2, ExternalLink, Loader2, Radio, RefreshCw } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Building2, ExternalLink, FileCheck2, Loader2, Radio, RefreshCw, Send, ShieldCheck } from "lucide-react";
 
 interface MirrorResponse {
   organizationId: string;
@@ -15,6 +16,70 @@ interface MirrorResponse {
   receivedAt: string | null;
   active: boolean;
   status: "received" | "not_received";
+}
+
+type OpportunityLane = "grants" | "procurement_contracting" | "sponsorship_in_kind" | "research_technology_transfer" | "capacity_building" | "partnership";
+
+interface OpportunityPackageResponse {
+  organizationId: string;
+  package: {
+    contractVersion: "v1";
+    opportunityLanes: Array<{
+      lane: OpportunityLane;
+      evidenceStatus: string;
+      rationale: string;
+      verificationRequired: string;
+    }>;
+    readiness: { knownSignals: string[]; unknowns: string[] };
+    collaboration: { categories: string[]; status: string };
+    privacy: { organizationPrivateByDefault: boolean; crossOrganizationLearning: string };
+  };
+}
+
+interface OpportunityFeedback {
+  id: string;
+  status: string;
+  sourceLabel: string;
+  receivedAt: string;
+  decisionAt: string | null;
+  awardAmount: number | null;
+  amountDisclosure: string;
+  funderFeedback: string | null;
+  lesson: string | null;
+}
+
+interface OpportunityHandoff {
+  id: string;
+  deliveryState: "previewed" | "delivered" | "rejected" | "unavailable";
+  deliveryDetail: string | null;
+  authorizedAt: string;
+  externalPursuitId: string | null;
+  opportunityPackage: {
+    handoff?: {
+      selectedOpportunity?: { title?: string; lane?: string; sourceLabel?: string };
+    };
+  };
+  feedback: OpportunityFeedback[];
+}
+
+interface OpportunityHandoffHistoryResponse {
+  handoffs: OpportunityHandoff[];
+}
+
+const laneLabels: Record<OpportunityLane, string> = {
+  grants: "Grants",
+  procurement_contracting: "Procurement & contracting",
+  sponsorship_in_kind: "Sponsorship & in-kind support",
+  research_technology_transfer: "Research & technology transfer",
+  capacity_building: "Capacity building",
+  partnership: "Partnership paths",
+};
+
+function deliveryBadgeVariant(state: OpportunityHandoff["deliveryState"]): "default" | "secondary" | "destructive" | "outline" {
+  if (state === "delivered") return "default";
+  if (state === "rejected") return "destructive";
+  if (state === "unavailable") return "secondary";
+  return "outline";
 }
 
 function snapshotItems(snapshot: Record<string, unknown>, keys: string[]): string[] {
@@ -44,9 +109,27 @@ export default function EntityProfilePage() {
   const { id = "" } = useParams<{ id: string }>();
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [embedError, setEmbedError] = useState<string | null>(null);
+  const [selectedLane, setSelectedLane] = useState<OpportunityLane>("grants");
+  const [opportunityTitle, setOpportunityTitle] = useState("");
+  const [sourceLabel, setSourceLabel] = useState("");
+  const [sourceUrl, setSourceUrl] = useState("");
+  const [authorizationConfirmed, setAuthorizationConfirmed] = useState(false);
+  const [handoffError, setHandoffError] = useState<string | null>(null);
+  const [handoffNotice, setHandoffNotice] = useState<string | null>(null);
+  const [isSubmittingHandoff, setIsSubmittingHandoff] = useState(false);
   const mirror = useQuery<MirrorResponse>({
     queryKey: ["/api/organizations", id, "grantpathpro-mirror"],
     queryFn: () => apiRequest("GET", `/api/organizations/${encodeURIComponent(id)}/grantpathpro-mirror`).then(r => r.json()),
+    enabled: Boolean(id),
+  });
+  const opportunityPackage = useQuery<OpportunityPackageResponse>({
+    queryKey: ["/api/organizations", id, "opportunity-package"],
+    queryFn: () => apiRequest("GET", `/api/organizations/${encodeURIComponent(id)}/opportunity-package`).then(r => r.json()),
+    enabled: Boolean(id),
+  });
+  const handoffHistory = useQuery<OpportunityHandoffHistoryResponse>({
+    queryKey: ["/api/organizations", id, "opportunity-handoffs"],
+    queryFn: () => apiRequest("GET", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs`).then(r => r.json()),
     enabled: Boolean(id),
   });
 
@@ -60,6 +143,37 @@ export default function EntityProfilePage() {
       else setEmbedUrl(payload.deepLinkUrl);
     } catch (error) {
       setEmbedError(error instanceof Error ? error.message : "GrantPathPro is unavailable.");
+    }
+  }
+
+  async function authorizeOpportunityHandoff() {
+    setHandoffError(null);
+    setHandoffNotice(null);
+    if (!opportunityTitle.trim() || !sourceLabel.trim() || !authorizationConfirmed) {
+      setHandoffError("Name the opportunity, provide its source label, and explicitly confirm authorization before continuing.");
+      return;
+    }
+    setIsSubmittingHandoff(true);
+    try {
+      const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs`, {
+        contractVersion: "v1",
+        authorizationConfirmed: true,
+        selectedOpportunity: {
+          title: opportunityTitle.trim(),
+          lane: selectedLane,
+          sourceType: sourceUrl.trim() ? "primary_source" : "unverified_exploration",
+          sourceLabel: sourceLabel.trim(),
+          ...(sourceUrl.trim() ? { sourceUrl: sourceUrl.trim() } : {}),
+        },
+      });
+      const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
+      setHandoffNotice(`Handoff recorded: ${payload.deliveryState}. ${payload.deliveryDetail}`);
+      setAuthorizationConfirmed(false);
+      await handoffHistory.refetch();
+    } catch (error) {
+      setHandoffError(error instanceof Error ? error.message : "The handoff could not be recorded.");
+    } finally {
+      setIsSubmittingHandoff(false);
     }
   }
 
@@ -90,6 +204,8 @@ export default function EntityProfilePage() {
 
       {mirror.error && <Alert variant="destructive"><AlertDescription>{mirror.error instanceof Error ? mirror.error.message : "Could not load this entity."}</AlertDescription></Alert>}
       {embedError && <Alert variant="destructive"><AlertDescription>{embedError}</AlertDescription></Alert>}
+      {handoffError && <Alert variant="destructive"><AlertDescription>{handoffError}</AlertDescription></Alert>}
+      {handoffNotice && <Alert><AlertDescription>{handoffNotice}</AlertDescription></Alert>}
 
       <Card>
         <CardHeader className="flex-row items-center justify-between space-y-0">
@@ -119,6 +235,128 @@ export default function EntityProfilePage() {
               </pre>
             </div>
           ) : <p className="text-sm text-muted-foreground">No Mirror snapshot has been received for this organization yet.</p>}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><FileCheck2 className="h-5 w-5" /> Community Opportunity Mirror</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Explore adjacent paths from this organization’s documented profile. These are exploration lanes—not eligibility, availability, award, deadline, or partner-commitment findings.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          {opportunityPackage.isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : opportunityPackage.error ? (
+            <Alert variant="destructive"><AlertDescription>{opportunityPackage.error instanceof Error ? opportunityPackage.error.message : "Could not load the opportunity package."}</AlertDescription></Alert>
+          ) : opportunityPackage.data && (
+            <>
+              <div className="grid gap-3 md:grid-cols-2">
+                {opportunityPackage.data.package.opportunityLanes.map((lane) => (
+                  <div key={lane.lane} className="rounded-md border p-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <h3 className="font-semibold text-sm">{laneLabels[lane.lane]}</h3>
+                      <Badge variant="outline">{lane.evidenceStatus.replace(/_/g, " ")}</Badge>
+                    </div>
+                    <p className="mt-2 text-sm text-muted-foreground">{lane.rationale}</p>
+                    <p className="mt-2 text-xs text-muted-foreground"><strong>Before pursuing:</strong> {lane.verificationRequired}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
+                <strong>Known profile signals:</strong> {opportunityPackage.data.package.readiness.knownSignals.length ? opportunityPackage.data.package.readiness.knownSignals.join(", ") : "None recorded yet."}
+                <ul className="mt-2 list-disc space-y-1 pl-5">
+                  {opportunityPackage.data.package.readiness.unknowns.map((unknown) => <li key={unknown}>{unknown}</li>)}
+                </ul>
+              </div>
+              <div className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
+                <strong>Potential collaborator categories:</strong> {opportunityPackage.data.package.collaboration.categories.join(", ")}. {opportunityPackage.data.package.collaboration.status}
+              </div>
+            </>
+          )}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5" /> Authorize a GrantPathPro handoff</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Review the opportunity and source before authorizing. Opening GrantPathPro or viewing this package does not authorize a handoff.
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="space-y-1 text-sm font-medium">
+              Opportunity lane
+              <select
+                aria-label="Select opportunity lane"
+                data-testid="opportunity-handoff-lane"
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal"
+                value={selectedLane}
+                onChange={(event) => setSelectedLane(event.target.value as OpportunityLane)}
+              >
+                {Object.entries(laneLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </label>
+            <label className="space-y-1 text-sm font-medium">
+              Opportunity name
+              <input aria-label="Opportunity name" data-testid="opportunity-handoff-title" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={opportunityTitle} onChange={(event) => setOpportunityTitle(event.target.value)} placeholder="Name the source-backed opportunity or exploration target" />
+            </label>
+            <label className="space-y-1 text-sm font-medium">
+              Source label
+              <input aria-label="Opportunity source label" data-testid="opportunity-handoff-source-label" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceLabel} onChange={(event) => setSourceLabel(event.target.value)} placeholder="e.g., agency notice, partner conversation, organization research" />
+            </label>
+            <label className="space-y-1 text-sm font-medium">
+              Source URL <span className="font-normal text-muted-foreground">(optional)</span>
+              <input aria-label="Opportunity source URL" data-testid="opportunity-handoff-source-url" type="url" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" />
+            </label>
+          </div>
+          <div className="flex items-start gap-3 rounded-md border p-3">
+            <Checkbox id="authorize-handoff" aria-label="Confirm opportunity handoff authorization" data-testid="opportunity-handoff-authorize" checked={authorizationConfirmed} onCheckedChange={(checked) => setAuthorizationConfirmed(checked === true)} />
+            <label htmlFor="authorize-handoff" className="text-sm leading-5">
+              I authorize ThriveUp to send this specific v1 opportunity package to GrantPathPro. I understand this starts a pursuit-workflow handoff only; it does not submit an application, contact a funder, or guarantee any outcome.
+            </label>
+          </div>
+          <Button data-testid="opportunity-handoff-submit" aria-label="Authorize and send opportunity handoff" onClick={authorizeOpportunityHandoff} disabled={isSubmittingHandoff}>
+            {isSubmittingHandoff ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+            Authorize handoff
+          </Button>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader><CardTitle>Private handoff & outcome history</CardTitle></CardHeader>
+        <CardContent className="space-y-4">
+          {handoffHistory.isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : handoffHistory.error ? (
+            <Alert variant="destructive"><AlertDescription>{handoffHistory.error instanceof Error ? handoffHistory.error.message : "Could not load the handoff history."}</AlertDescription></Alert>
+          ) : handoffHistory.data?.handoffs.length ? handoffHistory.data.handoffs.map((handoff) => (
+            <div key={handoff.id} className="rounded-md border p-4 space-y-3">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <p className="font-medium">{handoff.opportunityPackage.handoff?.selectedOpportunity?.title || "Authorized opportunity package"}</p>
+                  <p className="text-xs text-muted-foreground">Authorized {new Date(handoff.authorizedAt).toLocaleString()} · {handoff.opportunityPackage.handoff?.selectedOpportunity?.sourceLabel || "source label not available"}</p>
+                </div>
+                <Badge variant={deliveryBadgeVariant(handoff.deliveryState)}>{handoff.deliveryState}</Badge>
+              </div>
+              {handoff.deliveryDetail && <p className="text-sm text-muted-foreground">{handoff.deliveryDetail}</p>}
+              {handoff.feedback.length > 0 ? (
+                <div className="space-y-2 border-t pt-3">
+                  <p className="text-sm font-semibold">GrantPathPro feedback</p>
+                  {handoff.feedback.map((feedback) => (
+                    <div key={feedback.id} className="rounded bg-muted p-3 text-sm">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Badge variant="outline">{feedback.status.replace(/_/g, " ")}</Badge>
+                        <span className="text-xs text-muted-foreground">{new Date(feedback.receivedAt).toLocaleString()}</span>
+                      </div>
+                      <p className="mt-2 text-xs text-muted-foreground">Source: {feedback.sourceLabel}</p>
+                      {feedback.amountDisclosure === "shared" && feedback.awardAmount !== null && <p className="mt-1">Reported award amount: ${feedback.awardAmount.toLocaleString()}</p>}
+                      {feedback.funderFeedback && <p className="mt-1"><strong>Feedback:</strong> {feedback.funderFeedback}</p>}
+                      {feedback.lesson && <p className="mt-1"><strong>Lesson:</strong> {feedback.lesson}</p>}
+                    </div>
+                  ))}
+                </div>
+              ) : <p className="text-sm text-muted-foreground">No partner feedback has been received for this handoff. Outcomes remain private to this organization.</p>}
+            </div>
+          )) : <p className="text-sm text-muted-foreground">No authorized handoffs yet. Packages remain private to this organization, and cross-organization learning is disabled by default.</p>}
         </CardContent>
       </Card>
 

@@ -49,10 +49,29 @@ export function getGrantPathProEmbedConfig(): {
 
 export function getGrantPathProMirrorConfig(): {
   url: string | null;
-  ingestKey: string | null;
+  outboundKey: string | null;
   configured: boolean;
 } {
   const url = process.env.GPP_MIRROR_URL?.trim() || null;
-  const ingestKey = process.env.THRIVEUP_INGEST_KEY?.trim() || null;
-  return { url, ingestKey, configured: Boolean(url && ingestKey) };
+  // Never send THRIVEUP_INGEST_KEY to a partner: it authenticates writes into
+  // ThriveUp. The receiver needs a distinct GPP-issued outbound credential.
+  const outbound = getGrantPathProOutboundConfig();
+  const outboundKey = process.env.GPP_MIRROR_OUTBOUND_KEY?.trim() || outbound.apiKey;
+  return { url, outboundKey, configured: Boolean(url && outboundKey) };
+}
+
+/**
+ * A v1 opportunity handoff requires its own explicit receiver. We do not
+ * derive a destination from GPP_API_URL: that URL's existing endpoints have
+ * different contracts, and guessing would turn a consequential handoff into
+ * an untraceable export.
+ */
+export function getGrantPathProOpportunityHandoffConfig(): {
+  url: string | null;
+  apiKey: string | null;
+  configured: boolean;
+} {
+  const url = process.env.GPP_OPPORTUNITY_HANDOFF_URL?.trim() || null;
+  const outbound = getGrantPathProOutboundConfig();
+  return { url, apiKey: outbound.apiKey, configured: Boolean(url && outbound.apiKey) };
 }

@@ -7729,6 +7729,57 @@ export const gppMirrorSnapshots = pgTable("gpp_mirror_snapshots", {
 export type GppMirrorSnapshot = typeof gppMirrorSnapshots.$inferSelect;
 export type InsertGppMirrorSnapshot = typeof gppMirrorSnapshots.$inferInsert;
 
+// ── Community Opportunity Mirror: authorized GPP handoffs ───────────────────
+// These records are deliberately separate from raw GPP Mirror snapshots. A
+// handoff is a consequential, organization-authorized act; its package and
+// delivery state must remain auditable even when partner snapshots refresh.
+export const gppOpportunityHandoffs = pgTable("gpp_opportunity_handoffs", {
+  id: text("id").primaryKey(),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  contractVersion: varchar("contract_version", { length: 16 }).notNull().default("v1"),
+  authorizedByUserId: varchar("authorized_by_user_id", { length: 255 }).notNull(),
+  authorizedAt: timestamp("authorized_at").notNull(),
+  deliveryState: varchar("delivery_state", { length: 32 }).notNull(),
+  deliveredAt: timestamp("delivered_at"),
+  externalPursuitId: varchar("external_pursuit_id", { length: 200 }),
+  deliveryDetail: text("delivery_detail"),
+  opportunityPackage: jsonb("opportunity_package").$type<Record<string, unknown>>().notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+}, (t) => [
+  index("gpp_opportunity_handoffs_org_created_idx").on(t.orgId, t.createdAt),
+  index("gpp_opportunity_handoffs_external_pursuit_idx").on(t.externalPursuitId),
+]);
+export type GppOpportunityHandoff = typeof gppOpportunityHandoffs.$inferSelect;
+export type InsertGppOpportunityHandoff = typeof gppOpportunityHandoffs.$inferInsert;
+
+// Partner feedback is append-only and always joined to the authorized handoff.
+// Cross-organization learning is intentionally not modeled here: this is an
+// organization-private operational record, not general AI or public evidence.
+export const gppPursuitFeedback = pgTable("gpp_pursuit_feedback", {
+  id: text("id").primaryKey().$defaultFn(() => `gpp_feedback_${Date.now()}_${nanoid(8)}`),
+  handoffId: text("handoff_id").notNull().references(() => gppOpportunityHandoffs.id),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  eventFingerprint: varchar("event_fingerprint", { length: 64 }).notNull(),
+  contractVersion: varchar("contract_version", { length: 16 }).notNull().default("v1"),
+  externalPursuitId: varchar("external_pursuit_id", { length: 200 }),
+  status: varchar("status", { length: 32 }).notNull(),
+  sourceTimestamp: timestamp("source_timestamp").notNull(),
+  decisionAt: timestamp("decision_at"),
+  awardAmount: integer("award_amount"),
+  amountDisclosure: varchar("amount_disclosure", { length: 32 }).notNull().default("not_shared"),
+  funderFeedback: text("funder_feedback"),
+  lesson: text("lesson"),
+  sourceLabel: varchar("source_label", { length: 500 }).notNull(),
+  sourceUrl: varchar("source_url", { length: 2000 }),
+  receivedAt: timestamp("received_at").defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("gpp_pursuit_feedback_fingerprint_unique").on(t.eventFingerprint),
+  index("gpp_pursuit_feedback_org_received_idx").on(t.orgId, t.receivedAt),
+  index("gpp_pursuit_feedback_handoff_received_idx").on(t.handoffId, t.receivedAt),
+]);
+export type GppPursuitFeedback = typeof gppPursuitFeedback.$inferSelect;
+export type InsertGppPursuitFeedback = typeof gppPursuitFeedback.$inferInsert;
+
 // ── Probe Alert Failures ────────────────────────────────────────────────────
 // Durable record of every failed DOWN or RECOVERY alert email attempt from the
 // community-brief production probe.  Written whenever sendEcosystemUpdate()

@@ -1,0 +1,168 @@
+/**
+ * Contract and authenticated lifecycle guard for Community Opportunity Mirror.
+ * It protects the high-risk boundaries that a UI-only or anonymous test cannot:
+ * organization isolation, literal authorization, truthful delivery state, and
+ * authenticated append-only partner feedback.
+ */
+import { randomUUID } from "node:crypto";
+import { readFileSync } from "node:fs";
+
+const routes = readFileSync("server/grantpathpro-routes.ts", "utf8");
+const schema = readFileSync("shared/schema.ts", "utf8");
+const config = readFileSync("server/grantpathpro-config.ts", "utf8");
+const profile = readFileSync("client/src/pages/entity-profile.tsx", "utf8");
+const contract = readFileSync("docs/grantpathpro-opportunity-handoff-contract.md", "utf8");
+
+let failures = 0;
+function expect(condition: boolean, message: string) {
+  if (condition) console.log(`✓ ${message}`);
+  else {
+    console.error(`✗ ${message}`);
+    failures += 1;
+  }
+}
+
+expect(schema.includes('pgTable("gpp_opportunity_handoffs"'), "authorized handoffs persist separately from Mirror snapshots");
+expect(schema.includes('pgTable("gpp_pursuit_feedback"'), "partner feedback persists separately from raw partner data");
+expect(routes.includes('authorizationConfirmed: z.literal(true)'), "handoff requires literal explicit authorization");
+expect(routes.includes('loadOwnedOrganization(req, res, req.params.orgId)'), "organization lifecycle routes use tenant ownership checks");
+expect(routes.includes('"/api/inbound/grantpathpro/opportunity-feedback", requireGppInboundKey'), "feedback receiver requires partner authentication");
+expect(routes.includes("hasBlockingRejection(rejections)"), "invalid required feedback fields fail closed");
+expect(routes.includes('handoff.orgId !== clean.orgId'), "feedback cannot be stored against another organization");
+expect(routes.includes("crossOrganizationLearning: \"disabled_pending_separate_consent_and_aggregation_policy\""), "cross-organization learning remains disabled");
+expect(config.includes("GPP_OPPORTUNITY_HANDOFF_URL"), "delivery uses an explicit receiver configuration");
+expect(!config.includes("GPP_API_URL?.trim() || `${"), "delivery receiver is not derived from the generic partner API origin");
+expect(profile.includes('data-testid="opportunity-handoff-authorize"'), "UI exposes deliberate authorization control");
+expect(profile.includes('data-testid="opportunity-handoff-submit"'), "UI exposes handoff action");
+expect(contract.includes("Embed and Mirror payloads are separate compatibility"), "contract preserves Embed and Mirror compatibility");
+expect(contract.includes("Cross-organization learning remains disabled"), "contract documents the private-by-default learning boundary");
+
+const BASE = process.env.BASE_URL || "http://localhost:5000";
+const RUN = randomUUID().slice(0, 8);
+const owner = { userId: `e2e-gpp-owner-${RUN}`, email: `e2e-gpp-owner-${RUN}@test.local` };
+const member = { userId: `e2e-gpp-member-${RUN}`, email: `e2e-gpp-member-${RUN}@test.local` };
+const stranger = { userId: `e2e-gpp-stranger-${RUN}`, email: `e2e-gpp-stranger-${RUN}@test.local` };
+const orgId = `e2e-gpp-org-${RUN}`;
+
+async function request(path: string, cookie: string, method = "GET", body?: unknown, headers: Record<string, string> = {}) {
+  return fetch(`${BASE}${path}`, {
+    method,
+    headers: { cookie, ...headers, ...(body ? { "content-type": "application/json" } : {}) },
+    ...(body ? { body: JSON.stringify(body) } : {}),
+  });
+}
+
+async function verifyLiveLifecycle() {
+  const { Client } = await import("pg");
+  const { ensureTestUser, forgeSession, cleanupTestUser, requireEnv } = await import("../tests/e2e/helpers/auth");
+  const db = new Client({ connectionString: requireEnv("DATABASE_URL") });
+  let handoffId: string | null = null;
+  await db.connect();
+  try {
+    await Promise.all([ensureTestUser(db, owner), ensureTestUser(db, member), ensureTestUser(db, stranger)]);
+    const ownerCookie = await forgeSession(db, owner);
+    const memberCookie = await forgeSession(db, member);
+    const strangerCookie = await forgeSession(db, stranger);
+    await db.query(
+      `INSERT INTO organizations (id, user_id, name, mission_text, focus_areas, populations_served, counties, naics_codes, psc_codes)
+       VALUES ($1, $2, $3, $4, ARRAY['community health'], ARRAY['residents'], ARRAY['Travis County'], ARRAY['624190'], '{}')`,
+      [orgId, owner.userId, `E2E Opportunity Mirror ${RUN}`, "Connect residents with evidence-backed services."],
+    );
+    await db.query(`INSERT INTO organization_members (org_id, user_id, role) VALUES ($1, $2, 'member')`, [orgId, member.userId]);
+
+    const packageResponse = await request(`/api/organizations/${orgId}/opportunity-package`, ownerCookie);
+    const packageBody = await packageResponse.json() as { package?: { opportunityLanes?: unknown[]; privacy?: { organizationPrivateByDefault?: boolean } } };
+    expect(packageResponse.status === 200 && packageBody.package?.opportunityLanes?.length === 6, "owner can read a six-lane opportunity package");
+    expect(packageBody.package?.privacy?.organizationPrivateByDefault === true, "package marks organization data private by default");
+    const memberPackage = await request(`/api/organizations/${orgId}/opportunity-package`, memberCookie);
+    expect(memberPackage.status === 200, "organization member can read the private package");
+    const strangerPackage = await request(`/api/organizations/${orgId}/opportunity-package`, strangerCookie);
+    expect(strangerPackage.status === 403, "unrelated user cannot read the organization package");
+
+    const missingAuthorization = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
+      contractVersion: "v1",
+      authorizationConfirmed: false,
+      selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "unverified_exploration", sourceLabel: "E2E source" },
+    });
+    expect(missingAuthorization.status === 400, "handoff rejects a non-literal authorization confirmation");
+
+    const created = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
+      contractVersion: "v1",
+      authorizationConfirmed: true,
+      selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "primary_source", sourceLabel: "E2E primary source", sourceUrl: "https://example.org/opportunity" },
+    });
+    const createdBody = await created.json() as { handoffId?: string; deliveryState?: string; package?: { handoff?: { authorization?: string } } };
+    handoffId = createdBody.handoffId ?? null;
+    expect(created.status === 201 && !!handoffId, "explicitly authorized handoff is durably created");
+    expect(createdBody.deliveryState === "unavailable" || createdBody.deliveryState === "delivered" || createdBody.deliveryState === "rejected", "handoff reports only a truthful terminal delivery state");
+    expect(createdBody.package?.handoff?.authorization === "explicit_organization_confirmation", "persisted package records the authorization basis");
+
+    const history = await request(`/api/organizations/${orgId}/opportunity-handoffs`, memberCookie);
+    const historyBody = await history.json() as { handoffs?: Array<{ id: string; feedback: unknown[] }> };
+    expect(history.status === 200 && historyBody.handoffs?.some((entry) => entry.id === handoffId), "member can read the organization's private handoff history");
+    const strangerHistory = await request(`/api/organizations/${orgId}/opportunity-handoffs`, strangerCookie);
+    expect(strangerHistory.status === 403, "unrelated user cannot read private handoff history");
+
+    const inboundKey = requireEnv("THRIVEUP_INGEST_KEY");
+    const invalidFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
+      contractVersion: "v1",
+      handoffId,
+      orgId,
+      status: "submitted",
+      sourceLabel: "E2E GrantPathPro",
+    }, { "x-api-key": inboundKey });
+    expect(invalidFeedback.status === 400, "feedback without a source timestamp fails closed");
+
+    const wrongTenantFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
+      contractVersion: "v1",
+      handoffId,
+      orgId: `${orgId}-other`,
+      status: "submitted",
+      sourceTimestamp: new Date().toISOString(),
+      sourceLabel: "E2E GrantPathPro",
+    }, { "x-api-key": inboundKey });
+    expect(wrongTenantFeedback.status === 404, "feedback cannot cross an organization boundary");
+
+    const acceptedFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
+      contractVersion: "v1",
+      handoffId,
+      orgId,
+      status: "submitted",
+      sourceTimestamp: new Date().toISOString(),
+      sourceLabel: "E2E GrantPathPro",
+      lesson: "Confirm requirements before submission.",
+    }, { "x-api-key": inboundKey });
+    const acceptedBody = await acceptedFeedback.json() as { received?: boolean; privacy?: string };
+    expect(acceptedFeedback.status === 201 && acceptedBody.received === true, "authenticated, valid partner feedback is appended");
+    expect(acceptedBody.privacy === "organization_private_by_default", "feedback response preserves the private-by-default boundary");
+
+    const historyWithFeedback = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie);
+    const historyWithFeedbackBody = await historyWithFeedback.json() as { handoffs?: Array<{ id: string; feedback: Array<{ lesson?: string }> }> };
+    expect(historyWithFeedbackBody.handoffs?.find((entry) => entry.id === handoffId)?.feedback.some((feedback) => feedback.lesson === "Confirm requirements before submission.") === true, "organization history returns only its appended feedback");
+  } finally {
+    if (handoffId) await db.query(`DELETE FROM gpp_pursuit_feedback WHERE handoff_id = $1`, [handoffId]).catch(() => {});
+    if (handoffId) await db.query(`DELETE FROM gpp_opportunity_handoffs WHERE id = $1`, [handoffId]).catch(() => {});
+    await db.query(`DELETE FROM organization_members WHERE org_id = $1`, [orgId]).catch(() => {});
+    await db.query(`DELETE FROM organizations WHERE id = $1`, [orgId]).catch(() => {});
+    await Promise.all([cleanupTestUser(db, owner.userId), cleanupTestUser(db, member.userId), cleanupTestUser(db, stranger.userId)]);
+    await db.end().catch(() => {});
+  }
+}
+
+async function main() {
+  if (failures) {
+    console.error(`\n${failures} Community Opportunity Mirror static contract check(s) failed.`);
+    process.exit(1);
+  }
+  await verifyLiveLifecycle();
+  if (failures) {
+    console.error(`\n${failures} Community Opportunity Mirror lifecycle check(s) failed.`);
+    process.exit(1);
+  }
+  console.log("\nCommunity Opportunity Mirror contract and lifecycle guard passed.");
+}
+
+main().catch((error) => {
+  console.error("Community Opportunity Mirror lifecycle guard crashed:", error);
+  process.exit(1);
+});

@@ -82,6 +82,10 @@ const PROBES: Probe[] = [
   { name: "POST   /api/thriveup/push-proposal", method: "POST", path: "/api/thriveup/push-proposal", body: { consortiumId: "00000000-0000-0000-0000-000000000000" } },
   { name: "POST   /api/thriveup/push-entity (no session)", method: "POST", path: "/api/thriveup/push-entity", body: { entityId: "00000000-0000-0000-0000-000000000000" } },
   { name: "POST   /api/thriveup/push-pursuit (no session)", method: "POST", path: "/api/thriveup/push-pursuit", body: { grantId: "00000000-0000-0000-0000-000000000000" } },
+  // ── Community Opportunity Mirror: an organization package/handoff is private ─
+  { name: "GET    /api/organizations/:id/opportunity-package (no session)", method: "GET", path: "/api/organizations/00000000-0000-0000-0000-000000000000/opportunity-package" },
+  { name: "GET    /api/organizations/:id/opportunity-handoffs (no session)", method: "GET", path: "/api/organizations/00000000-0000-0000-0000-000000000000/opportunity-handoffs" },
+  { name: "POST   /api/organizations/:id/opportunity-handoffs (no session)", method: "POST", path: "/api/organizations/00000000-0000-0000-0000-000000000000/opportunity-handoffs", body: { contractVersion: "v1", authorizationConfirmed: true, selectedOpportunity: { title: "probe", lane: "grants", sourceType: "unverified_exploration", sourceLabel: "probe" } } },
 
   // ── Streets: clinical, housing, crisis, MAT, handoff, and HMIS records ─────
   { name: "GET    /api/streets/sud-assessments (no session)", method: "GET", path: "/api/streets/sud-assessments" },

@@ -21,12 +21,13 @@
 
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
-import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable, gppMirrorSnapshots } from "@shared/schema";
-import { eq, desc, and } from "drizzle-orm";
+import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable, gppMirrorSnapshots, gppOpportunityHandoffs, gppPursuitFeedback } from "@shared/schema";
+import { eq, desc, and, inArray } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
-import { timingSafeEqual } from "crypto";
-import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig, getGrantPathProEmbedConfig, getGrantPathProMirrorConfig } from "./grantpathpro-config";
-import { recordInboundVerification, rejectionsToCorrectionNote, verifyInboundPayload } from "./inbound-verification";
+import { timingSafeEqual, randomUUID, createHash } from "crypto";
+import { z } from "zod";
+import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig, getGrantPathProEmbedConfig, getGrantPathProMirrorConfig, getGrantPathProOpportunityHandoffConfig } from "./grantpathpro-config";
+import { hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, verifyInboundPayload } from "./inbound-verification";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -107,6 +108,21 @@ async function loadOwnedOrganization(
   return organization;
 }
 
+/** A routine member may read private organization information, but only an
+ * owner or DB-verified staff member may authorize a consequential export. */
+async function canAuthorizeOrganizationHandoff(
+  userId: string,
+  organization: typeof organizations.$inferSelect,
+): Promise<boolean> {
+  if (await isVerifiedStaff(userId)) return true;
+  if (organization.userId === userId) return true;
+  const [membership] = await db.select({ role: organizationMembers.role }).from(organizationMembers).where(and(
+    eq(organizationMembers.orgId, organization.id),
+    eq(organizationMembers.userId, userId),
+  ));
+  return membership?.role === "owner";
+}
+
 // ─── GppEvent shape (mirrors the DB table columns) ───────────────────────────
 export interface GppEvent {
   id: string;
@@ -124,6 +140,120 @@ export interface GppEvent {
 }
 
 const MAX_GPP_EVENT_BATCH = 100;
+const OPPORTUNITY_LANES = [
+  "grants", "procurement_contracting", "sponsorship_in_kind",
+  "research_technology_transfer", "capacity_building", "partnership",
+] as const;
+const PURSUIT_STATUSES = [
+  "selected", "preparing", "submitted", "clarification", "declined",
+  "withdrawn", "awarded", "partially_awarded", "cancelled", "expired", "not_pursued",
+] as const;
+const opportunityHandoffSchema = z.object({
+  contractVersion: z.literal("v1"),
+  authorizationConfirmed: z.literal(true),
+  requestId: z.string().uuid(),
+  selectedOpportunity: z.object({
+    title: z.string().trim().min(1).max(500),
+    lane: z.enum(OPPORTUNITY_LANES),
+    sourceType: z.enum(["primary_source", "organization_provided", "unverified_exploration"]),
+    sourceLabel: z.string().trim().min(1).max(500),
+    sourceUrl: z.string().url().max(2000).refine((value) => new URL(value).protocol === "https:", "Source URL must use HTTPS").optional(),
+    sourceCheckedAt: z.string().datetime().optional(),
+  }),
+});
+
+const GPP_PURSUIT_FEEDBACK_SCHEMA = {
+  contractVersion: { type: "enum" as const, enum: ["v1"], required: true },
+  handoffId: { type: "string" as const, required: true, maxLength: 200 },
+  orgId: { type: "string" as const, required: true, maxLength: 100 },
+  status: { type: "enum" as const, enum: [...PURSUIT_STATUSES], required: true },
+  sourceTimestamp: { type: "string" as const, required: true, maxLength: 64 },
+  externalPursuitId: { type: "string" as const, maxLength: 200 },
+  decisionAt: { type: "string" as const, maxLength: 64 },
+  awardAmount: { type: "number" as const, min: 0, max: 1_000_000_000 },
+  amountDisclosure: { type: "enum" as const, enum: ["not_shared", "shared", "withheld"], maxLength: 32 },
+  funderFeedback: { type: "string" as const, maxLength: 10_000 },
+  lesson: { type: "string" as const, maxLength: 10_000 },
+  sourceLabel: { type: "string" as const, required: true, maxLength: 500 },
+  sourceUrl: { type: "url" as const, maxLength: 2000 },
+};
+
+function parseInboundTimestamp(value: string | undefined): Date | null {
+  if (!value || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return null;
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+function feedbackFingerprint(clean: Record<string, unknown>): string {
+  const canonical = JSON.stringify({
+    handoffId: clean.handoffId,
+    orgId: clean.orgId,
+    status: clean.status,
+    sourceTimestamp: clean.sourceTimestamp,
+    externalPursuitId: clean.externalPursuitId ?? null,
+    decisionAt: clean.decisionAt ?? null,
+    awardAmount: clean.awardAmount ?? null,
+    amountDisclosure: clean.amountDisclosure ?? "not_shared",
+    funderFeedback: clean.funderFeedback ?? null,
+    lesson: clean.lesson ?? null,
+    sourceLabel: clean.sourceLabel,
+    sourceUrl: clean.sourceUrl ?? null,
+  });
+  return createHash("sha256").update(canonical).digest("hex");
+}
+
+function buildOpportunityPackage(organization: typeof organizations.$inferSelect) {
+  const profileSignals = [
+    organization.missionText ? "mission" : null,
+    organization.capabilityStatementText ? "capability statement" : null,
+    organization.focusAreas.length ? "focus areas" : null,
+    organization.naicsCodes.length || organization.pscCodes.length ? "procurement codes" : null,
+    organization.state || organization.counties.length ? "geography" : null,
+  ].filter((item): item is string => Boolean(item));
+  const allLanes = OPPORTUNITY_LANES.map((lane) => ({
+    lane,
+    evidenceStatus: profileSignals.length ? "exploration_target" : "profile_incomplete",
+    rationale: profileSignals.length
+      ? `Explore this lane using the organization's documented ${profileSignals.join(", ")}. This is not an eligibility or availability finding.`
+      : "Add mission, capability, geography, or focus information before evaluating this lane. This is not a negative finding.",
+    verificationRequired: "Confirm a current primary source, requirements, timing, and partner availability before pursuit.",
+  }));
+  return {
+    contractVersion: "v1",
+    generatedAt: new Date().toISOString(),
+    organization: {
+      id: organization.id,
+      name: organization.name,
+      missionText: organization.missionText ?? null,
+      focusAreas: organization.focusAreas,
+      populationsServed: organization.populationsServed,
+      geography: { state: organization.state ?? null, counties: organization.counties },
+      capabilitySignals: {
+        capabilityStatementPresent: Boolean(organization.capabilityStatementText || organization.capabilityStatementUrl),
+        naicsCodes: organization.naicsCodes,
+        pscCodes: organization.pscCodes,
+      },
+      sourceLabel: "Organization-provided profile",
+      sourceStatus: "not independently verified",
+    },
+    opportunityLanes: allLanes,
+    readiness: {
+      knownSignals: profileSignals,
+      unknowns: [
+        "No eligibility, funding availability, deadline, award likelihood, or partner willingness is inferred from this package.",
+        "Current primary-source verification is required before any pursuit decision.",
+      ],
+    },
+    collaboration: {
+      categories: ["community partner", "implementation partner", "research partner", "procurement partner"],
+      status: "categories only; no collaborator availability or commitment is claimed",
+    },
+    privacy: {
+      organizationPrivateByDefault: true,
+      crossOrganizationLearning: "disabled_pending_separate_consent_and_aggregation_policy",
+    },
+  };
+}
 const GPP_EVENT_SCHEMA = {
   eventType: { type: "string" as const, maxLength: 100 },
   grantId: { type: "string" as const, maxLength: 200 },
@@ -209,6 +339,64 @@ async function requireStaffOrInboundKey(req: Request, res: Response, next: NextF
   return res.status(403).json({ error: "Staff access required" });
 }
 
+async function deliverOpportunityHandoff(
+  opportunityPackage: Record<string, unknown>,
+): Promise<{ state: "delivered" | "rejected" | "unavailable"; detail: string; externalPursuitId: string | null }> {
+  const config = getGrantPathProOpportunityHandoffConfig();
+  if (!config.configured || !config.url || !config.apiKey) {
+    return {
+      state: "unavailable",
+      detail: "GrantPathPro's v1 opportunity-handoff receiver is not configured. The authorized package was retained privately as a preview; no partner delivery was attempted.",
+      externalPursuitId: null,
+    };
+  }
+
+  try {
+    const response = await fetch(config.url, {
+      method: "POST",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${config.apiKey}`,
+        "Idempotency-Key": String((opportunityPackage.handoff as Record<string, unknown> | undefined)?.handoffId ?? ""),
+      },
+      body: JSON.stringify(opportunityPackage),
+      signal: AbortSignal.timeout(15_000),
+    });
+    const raw = await response.text();
+    let payload: Record<string, unknown> | null = null;
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) payload = parsed as Record<string, unknown>;
+    } catch {
+      payload = null;
+    }
+    if (!response.ok) {
+      console.warn(`[GrantPathPro] Opportunity handoff receiver returned HTTP ${response.status}`);
+      return {
+        state: "rejected",
+        detail: `GrantPathPro rejected this authorized handoff (HTTP ${response.status}). The package remains available for review.`,
+        externalPursuitId: null,
+      };
+    }
+    const externalPursuitId = typeof payload?.externalPursuitId === "string" && payload.externalPursuitId.length <= 200
+      ? payload.externalPursuitId
+      : null;
+    return {
+      state: "delivered",
+      detail: "GrantPathPro accepted the authorized handoff.",
+      externalPursuitId,
+    };
+  } catch (err) {
+    console.error("[GrantPathPro] Opportunity handoff delivery failed:", err);
+    return {
+      state: "unavailable",
+      detail: "GrantPathPro could not be reached. The package remains available for review and no delivery was recorded.",
+      externalPursuitId: null,
+    };
+  }
+}
+
 export function registerGrantPathProRoutes(app: Express) {
 
   /**
@@ -235,6 +423,8 @@ export function registerGrantPathProRoutes(app: Express) {
       if (!orgId || orgId.length > 200) {
         return res.status(400).json({ error: "A valid GrantPathPro orgId is required" });
       }
+      const organization = await loadOwnedOrganization(req, res, orgId);
+      if (!organization) return;
 
       const config = getGrantPathProEmbedConfig();
       if (!config.configured || !config.url || !config.partnerKey) {
@@ -242,7 +432,7 @@ export function registerGrantPathProRoutes(app: Express) {
       }
 
       const upstream = new URL(config.url);
-      upstream.searchParams.set("orgId", orgId);
+      upstream.searchParams.set("orgId", organization.id);
       upstream.searchParams.set("mode", mode);
       const response = await fetch(upstream, {
         method: "GET",
@@ -278,7 +468,7 @@ export function registerGrantPathProRoutes(app: Express) {
         deepLinkUrl,
         mode,
         entityLinked: upstreamRecord.entityLinked === true,
-        orgId,
+        orgId: organization.id,
       });
     } catch (err) {
       console.error("[GrantPathPro] Embed bridge failed:", err);
@@ -360,6 +550,186 @@ export function registerGrantPathProRoutes(app: Express) {
     } catch (err) {
       console.error("[GrantPathPro] Mirror snapshot read failed:", err);
       return res.status(500).json({ error: "Mirror snapshot could not be loaded" });
+    }
+  });
+
+  /**
+   * GET /api/organizations/:orgId/opportunity-package
+   * A source-labeled advisory package. It maps viable exploration lanes from
+   * the private organization profile without representing any lane as a live
+   * opportunity, eligibility determination, or partner commitment.
+   */
+  app.get("/api/organizations/:orgId/opportunity-package", async (req: Request, res: Response) => {
+    const organization = await loadOwnedOrganization(req, res, req.params.orgId);
+    if (!organization) return;
+    try {
+      return res.json({
+        organizationId: organization.id,
+        package: buildOpportunityPackage(organization),
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Opportunity package build failed:", err);
+      return res.status(500).json({ error: "Opportunity package could not be built" });
+    }
+  });
+
+  /**
+   * GET /api/organizations/:orgId/opportunity-handoffs
+   * Organization users see only their own private handoffs and feedback.
+   */
+  app.get("/api/organizations/:orgId/opportunity-handoffs", async (req: Request, res: Response) => {
+    const organization = await loadOwnedOrganization(req, res, req.params.orgId);
+    if (!organization) return;
+    try {
+      const handoffs = await db.select().from(gppOpportunityHandoffs)
+        .where(eq(gppOpportunityHandoffs.orgId, organization.id))
+        .orderBy(desc(gppOpportunityHandoffs.createdAt))
+        .limit(100);
+      const feedback = await db.select().from(gppPursuitFeedback)
+        .where(eq(gppPursuitFeedback.orgId, organization.id))
+        .orderBy(desc(gppPursuitFeedback.receivedAt))
+        .limit(200);
+      const feedbackByHandoff = new Map<string, typeof feedback>();
+      for (const entry of feedback) {
+        const entries = feedbackByHandoff.get(entry.handoffId) ?? [];
+        entries.push(entry);
+        feedbackByHandoff.set(entry.handoffId, entries);
+      }
+      return res.json({
+        handoffs: handoffs.map((handoff) => ({
+          ...handoff,
+          feedback: feedbackByHandoff.get(handoff.id) ?? [],
+        })),
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Opportunity handoff history read failed:", err);
+      return res.status(500).json({ error: "Opportunity handoff history could not be loaded" });
+    }
+  });
+
+  /**
+   * POST /api/organizations/:orgId/opportunity-handoffs
+   * The literal authorization confirmation is the consequence threshold. A
+   * view, an Embed launch, or a package preview never counts as authorization.
+   */
+  app.post("/api/organizations/:orgId/opportunity-handoffs", async (req: Request, res: Response) => {
+    const organization = await loadOwnedOrganization(req, res, req.params.orgId);
+    if (!organization) return;
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Sign in required" });
+    try {
+      const parsed = opportunityHandoffSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "A v1 opportunity, source label, and explicit authorization are required", details: parsed.error.flatten() });
+      }
+
+      const id = `gpp_handoff_${randomUUID()}`;
+      const authorizedAt = new Date();
+      const opportunityPackage = {
+        ...buildOpportunityPackage(organization),
+        handoff: {
+          handoffId: id,
+          contractVersion: "v1",
+          authorizedAt: authorizedAt.toISOString(),
+          selectedOpportunity: parsed.data.selectedOpportunity,
+          authorization: "explicit_organization_confirmation",
+          provenance: "ThriveUp generated this package from the organization profile and the source label supplied for the selected exploration target.",
+        },
+      };
+      await db.insert(gppOpportunityHandoffs).values({
+        id,
+        orgId: organization.id,
+        contractVersion: "v1",
+        authorizedByUserId: userId,
+        authorizedAt,
+        deliveryState: "previewed",
+        opportunityPackage,
+        deliveryDetail: "Authorized package created; partner delivery has not yet been evaluated.",
+      });
+
+      const delivery = await deliverOpportunityHandoff(opportunityPackage);
+      await db.update(gppOpportunityHandoffs).set({
+        deliveryState: delivery.state,
+        deliveryDetail: delivery.detail,
+        deliveredAt: delivery.state === "delivered" ? new Date() : null,
+        externalPursuitId: delivery.externalPursuitId,
+      }).where(eq(gppOpportunityHandoffs.id, id));
+
+      return res.status(201).json({
+        handoffId: id,
+        contractVersion: "v1",
+        deliveryState: delivery.state,
+        deliveryDetail: delivery.detail,
+        externalPursuitId: delivery.externalPursuitId,
+        package: opportunityPackage,
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Opportunity handoff creation failed:", err);
+      return res.status(500).json({ error: "Opportunity handoff could not be created" });
+    }
+  });
+
+  /**
+   * POST /api/inbound/grantpathpro/opportunity-feedback
+   * A separately versioned feedback loop. Required fields fail closed with
+   * sender-facing corrections; optional invalid fields are removed and logged.
+   */
+  app.post("/api/inbound/grantpathpro/opportunity-feedback", requireGppInboundKey, async (req: Request, res: Response) => {
+    try {
+      if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
+        return res.status(400).json({ error: "Feedback must be a JSON object" });
+      }
+      const { clean, rejections } = verifyInboundPayload<Record<string, any>>(req.body, GPP_PURSUIT_FEEDBACK_SCHEMA);
+      const sourceTimestamp = parseInboundTimestamp(clean.sourceTimestamp);
+      const decisionAt = parseInboundTimestamp(clean.decisionAt);
+      if (!sourceTimestamp) {
+        rejections.push({ field: "sourceTimestamp", reason: "wrong_type", receivedValue: clean.sourceTimestamp, expected: "a parseable ISO timestamp", blocking: true });
+      }
+      if (clean.decisionAt && !decisionAt) {
+        rejections.push({ field: "decisionAt", reason: "wrong_type", receivedValue: clean.decisionAt, expected: "a parseable ISO timestamp", blocking: false });
+        delete clean.decisionAt;
+      }
+      if (clean.awardAmount !== undefined && !Number.isSafeInteger(clean.awardAmount)) {
+        rejections.push({ field: "awardAmount", reason: "wrong_type", receivedValue: clean.awardAmount, expected: "a whole-number amount in USD", blocking: false });
+        delete clean.awardAmount;
+      }
+      await recordInboundVerification("grantpathpro", "/api/inbound/grantpathpro/opportunity-feedback", rejections);
+      if (hasBlockingRejection(rejections)) {
+        return res.status(400).json({ error: "Feedback did not meet the v1 contract", corrections: rejectionsToCorrectionNote(rejections) });
+      }
+
+      const [handoff] = await db.select().from(gppOpportunityHandoffs)
+        .where(eq(gppOpportunityHandoffs.id, String(clean.handoffId)))
+        .limit(1);
+      if (!handoff || handoff.orgId !== clean.orgId) {
+        return res.status(404).json({ error: "No matching authorized handoff was found for this organization" });
+      }
+
+      const [feedback] = await db.insert(gppPursuitFeedback).values({
+        handoffId: handoff.id,
+        orgId: handoff.orgId,
+        contractVersion: "v1",
+        externalPursuitId: typeof clean.externalPursuitId === "string" ? clean.externalPursuitId : null,
+        status: String(clean.status),
+        sourceTimestamp: sourceTimestamp!,
+        decisionAt: decisionAt,
+        awardAmount: typeof clean.awardAmount === "number" ? clean.awardAmount : null,
+        amountDisclosure: typeof clean.amountDisclosure === "string" ? clean.amountDisclosure : "not_shared",
+        funderFeedback: typeof clean.funderFeedback === "string" ? clean.funderFeedback : null,
+        lesson: typeof clean.lesson === "string" ? clean.lesson : null,
+        sourceLabel: String(clean.sourceLabel),
+        sourceUrl: typeof clean.sourceUrl === "string" ? clean.sourceUrl : null,
+      }).returning();
+      return res.status(201).json({
+        received: true,
+        feedbackId: feedback.id,
+        handoffId: handoff.id,
+        privacy: "organization_private_by_default",
+        ...(rejections.length ? { corrections: rejectionsToCorrectionNote(rejections) } : {}),
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Opportunity feedback processing failed:", err);
+      return res.status(500).json({ error: "Opportunity feedback could not be processed" });
     }
   });
 
