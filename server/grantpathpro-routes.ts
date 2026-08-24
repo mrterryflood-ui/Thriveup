@@ -311,6 +311,20 @@ function requireGppInboundKey(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
+function requireGppOpportunityFeedbackKey(req: Request, res: Response, next: NextFunction) {
+  const rawExpected = process.env.THRIVEUP_CALLBACK_API_KEY?.trim()
+    || process.env.THRIVEUP_INGEST_KEY?.trim()
+    || process.env.THRIVEUP_INBOUND_KEY?.trim();
+  if (!rawExpected) {
+    return res.status(503).json({ error: "THRIVEUP_CALLBACK_API_KEY not configured on this server" });
+  }
+  const supplied = req.header("x-api-key")?.trim();
+  if (!supplied || !timingSafeEqualText(supplied, rawExpected)) {
+    return res.status(401).json({ error: "Invalid GrantPathPro callback key" });
+  }
+  return next();
+}
+
 // Canonical staff-role set — keep in lockstep with server/grant-routes.ts,
 // server/reentry-routes.ts, server/yhsi-routes.ts, and the client RequireAuth
 // staffOnly gate. Role is resolved from the DB (req.user.role is never set).
@@ -771,7 +785,7 @@ export function registerGrantPathProRoutes(app: Express) {
    * A separately versioned feedback loop. Required fields fail closed with
    * sender-facing corrections; optional invalid fields are removed and logged.
    */
-  app.post("/api/inbound/grantpathpro/opportunity-feedback", requireGppInboundKey, async (req: Request, res: Response) => {
+  app.post("/api/inbound/grantpathpro/opportunity-feedback", requireGppOpportunityFeedbackKey, async (req: Request, res: Response) => {
     try {
       if (!req.body || typeof req.body !== "object" || Array.isArray(req.body)) {
         return res.status(400).json({ error: "Feedback must be a JSON object" });

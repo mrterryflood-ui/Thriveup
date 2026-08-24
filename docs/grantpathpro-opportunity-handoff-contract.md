@@ -77,14 +77,17 @@ GrantPathPro sends authenticated JSON to:
 
 Grant Path Pro should call the full ThriveUp callback URL:
 `<THRIVEUP_API_BASE_URL>/api/inbound/grantpathpro/opportunity-feedback`.
-The callback uses the provisioned `x-api-key` credential, must not receive a
-browser session cookie, and returns a correction response for invalid payloads.
+Unless ThriveUp confirms a different authentication method, the callback uses
+the provisioned `x-api-key` credential, must not receive a browser session
+cookie, and returns a correction response for invalid payloads.
 
 Authentication uses the `x-api-key` header provisioned out of band; the key
-value is never part of this document or a client payload. A future callback
-adapter may use a separately provisioned `THRIVEUP_API_BASE_URL` and
-`THRIVEUP_API_KEY`, but its callback path and payload contract must be agreed
-before enabling outbound callbacks.
+value is never part of this document or a client payload. The recommended
+Secrets-tab name for a dedicated callback credential is
+`THRIVEUP_CALLBACK_API_KEY`; when absent, the existing
+`THRIVEUP_INGEST_KEY` remains the compatibility key. If ThriveUp confirms
+Bearer or another scheme instead, update this middleware and contract before
+accepting that traffic.
 
 Required fields:
 

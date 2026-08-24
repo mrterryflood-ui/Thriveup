@@ -29,7 +29,8 @@ expect(routes.includes('authorizationConfirmed: z.literal(true)'), "handoff requ
 expect(routes.includes('loadOwnedOrganization(req, res, req.params.orgId)'), "organization lifecycle routes use tenant ownership checks");
 expect(routes.includes("opportunity-handoffs/:handoffId/reconcile"), "unknown delivery has an authenticated reconciliation route");
 expect(routes.includes("Idempotency-Key"), "partner delivery carries a stable idempotency key");
-expect(routes.includes('"/api/inbound/grantpathpro/opportunity-feedback", requireGppInboundKey'), "feedback receiver requires partner authentication");
+expect(routes.includes('"/api/inbound/grantpathpro/opportunity-feedback", requireGppOpportunityFeedbackKey'), "feedback receiver requires partner authentication");
+expect(routes.includes("THRIVEUP_CALLBACK_API_KEY"), "feedback callback supports a dedicated server-side key");
 expect(routes.includes("hasBlockingRejection(rejections)"), "invalid required feedback fields fail closed");
 expect(routes.includes('handoff.orgId !== clean.orgId'), "feedback cannot be stored against another organization");
 expect(routes.includes("crossOrganizationLearning: \"disabled_pending_separate_consent_and_aggregation_policy\""), "cross-organization learning remains disabled");
