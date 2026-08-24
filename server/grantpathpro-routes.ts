@@ -739,7 +739,7 @@ export function registerGrantPathProRoutes(app: Express) {
     }
     try {
       const [handoff] = await db.select().from(gppOpportunityHandoffs).where(and(
-        eq(gppOpportunityHandoffs.id, req.params.handoffId),
+        eq(gppOpportunityHandoffs.id, Array.isArray(req.params.handoffId) ? req.params.handoffId[0] : req.params.handoffId),
         eq(gppOpportunityHandoffs.orgId, organization.id),
       )).limit(1);
       if (!handoff) return res.status(404).json({ error: "Handoff not found" });

@@ -65,3 +65,8 @@
 - Independent angle: Six-domain adversarial audit was rerun. It confirmed the major boundary fixes and identified remaining recovery/UI polish items; these are not represented as clean or complete.
 - Outcome: The bilateral handoff receiver and embed URLs are explicitly configured from the supplied GrantPath Pro contract, with server-only credentials and no secret values exposed in source or chat.
 - Residuals and reusable guard: The real partner callback base URL, key, callback path, and payload remain unspecified and are not invented. Delivery-unknown reconciliation and full UI recovery/fallback remain visible follow-on work. Never execute a live lifecycle test against a receiver that creates partner records; use a stub or explicitly isolated test tenant.
+
+## Omega addendum
+- Reconciliation now retries the original idempotency key with owner/staff authorization; a local stub verifies Bearer authentication and duplicate suppression.
+- Final proof: zero TypeScript errors, 64 anonymous guarded endpoints rejected, local stub passed, and the workflow restarted successfully.
+- Important residual: the live lifecycle verifier was run while the real receiver was configured and may have created a proposed partner pursuit; future lifecycle runs must use the stub or isolated tenant.
