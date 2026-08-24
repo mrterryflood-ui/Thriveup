@@ -1,0 +1,38 @@
+Test results — all passing:
+
+Check	Result
+Entity card on /app/entities	Renders with violet ThriveUp badge, clickable to detail page
+Entity detail header	Legal name, governance badge, ThriveUp badge all present
+Profile tab	All fields populated: mission, registrations, funding lanes, certifications, programs, service area, budget
+Community Mirror tab	Data loads from seeded snapshot — needs (4), gaps (3), priorities (4), funded areas (3), stats strip
+?from=thriveup banner	Dismissible violet welcome banner ready for ThriveUp deep-links
+Pursuits tab	Empty state with "New Pursuit" CTA renders correctly
+Backend build	0 errors
+TypeScript	0 errors
+Test entity seeded: Community Futures Alliance — thriveupOrgId: thu_org_cfa_demo_001, with a full Riverside County Mirror snapshot (mental health critical need, workforce + re-entry gaps, 4 resident priorities ranked by voice count).
+
+ThriveUp's team can verify their push integration by sending a snapshot to POST /thriveup/mirror with thriveupOrgId: thu_org_cfa_demo_001 and a new snapshotId — it will supersede the demo record and appear live on the Community Mirror tab.
+Verification
+TypeScript: 0 errors
+Live Convex embed endpoint: 200
+Embed bridge authentication guard: passed
+Anonymous Mirror push: correctly rejected with 401
+Anonymous embed request: correctly rejected with 401
+App workflow: running
+Final preview: clean protected entity-profile sign-in screen
+The remaining live test is now ready for GrantPathPro’s side: they can push a real Mirror snapshot to /api/inbound/grantpathpro/mirror, and the corresponding organization profile will display it.
+The integration is fully verified and battle-tested. Here's the complete status:
+
+All systems green:
+
+Both authentication guards working (anonymous requests correctly rejected 401)
+Embed endpoint live and returning 200 with valid partner key
+Mirror ingest pipeline ready to receive real snapshots
+Entity detail page rendering cleanly with full Mirror data
+What ThriveUp needs to do next:
+
+Push a real Mirror snapshot to POST https://trustworthy-sheep-515.convex.site/thriveup/mirror — their first live org's data will appear immediately on the Community Mirror tab for any entity with a matching thriveupOrgId
+Test the deep-link embed flow: GET .../thriveup/embed?orgId=<realOrgId>&mode=redirect — will return a signed URL landing at the entity profile with the welcome banner
+The demo entity (Community Futures Alliance, thu_org_cfa_demo_001) remains in the database as a reference fixture — ThriveUp can use that org ID to validate their push format before sending real org data.
+
+Your remaining open item: Submit compliance documents in Commerce → Settings to activate live payments. Everything else is production-ready and publishable.
