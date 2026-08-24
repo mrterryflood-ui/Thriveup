@@ -784,3 +784,10 @@ uri = "file://thriveup-codebase.zip"
 type = "unspecified"
 title = "ThriveUp Runnable Repository ZIP"
 description = "Verified standard ZIP archive containing the runnable project source tree. ZIP signature and extraction integrity were checked locally; SHA-256: 912e9242aa2795013324bc82c76a1183c380cc9c09673d2be4ebcf1de3198359."
+
+[[outputs]]
+id = "oY-6SIEuNWd9X-AK6yfUx"
+uri = "file://reports/historical-chw-referral-identity-review-2026-08-24.md"
+type = "text"
+title = "Historical CHW/Referral Identity Review"
+description = "Provisional read-only report. Development database had zero matching ownership-0 or missing-ownership records; staging is not configured, so no migration was applied."
