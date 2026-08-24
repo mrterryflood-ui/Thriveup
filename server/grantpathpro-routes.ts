@@ -268,6 +268,8 @@ export function registerGrantPathProRoutes(app: Express) {
         ? upstreamRecord.url
         : typeof upstreamRecord.embedUrl === "string"
           ? upstreamRecord.embedUrl
+          : typeof upstreamRecord.deepLinkUrl === "string"
+            ? upstreamRecord.deepLinkUrl
           : null;
       if (!embedUrl || !/^https?:\/\//i.test(embedUrl)) {
         return res.status(502).json({ error: "GrantPathPro returned no valid embed URL" });

@@ -17,6 +17,29 @@ interface MirrorResponse {
   status: "received" | "not_received";
 }
 
+function snapshotItems(snapshot: Record<string, unknown>, keys: string[]): string[] {
+  for (const key of keys) {
+    const value = snapshot[key];
+    if (Array.isArray(value)) {
+      return value.filter((item): item is string => typeof item === "string" && item.trim().length > 0);
+    }
+    if (typeof value === "string" && value.trim()) return [value.trim()];
+  }
+  return [];
+}
+
+function MirrorList({ title, items }: { title: string; items: string[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <h3 className="font-semibold text-sm mb-2">{title}</h3>
+      <ul className="list-disc pl-5 space-y-1 text-sm text-muted-foreground">
+        {items.map((item, index) => <li key={`${item}-${index}`}>{item}</li>)}
+      </ul>
+    </div>
+  );
+}
+
 export default function EntityProfilePage() {
   const { id = "" } = useParams<{ id: string }>();
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
@@ -41,6 +64,9 @@ export default function EntityProfilePage() {
   }
 
   const snapshot = mirror.data?.snapshot;
+  const needs = snapshot ? snapshotItems(snapshot, ["needs", "communityNeeds", "identifiedNeeds"]) : [];
+  const gaps = snapshot ? snapshotItems(snapshot, ["gaps", "serviceGaps", "identifiedGaps"]) : [];
+  const priorities = snapshot ? snapshotItems(snapshot, ["residentPriorities", "priorities", "communityPriorities"]) : [];
   return (
     <div className="container max-w-5xl py-8 space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -81,6 +107,13 @@ export default function EntityProfilePage() {
                 Last received {mirror.data?.receivedAt ? new Date(mirror.data.receivedAt).toLocaleString() : "unknown"}.
                 This is partner-provided Mirror data, shown as received.
               </p>
+              {(needs.length > 0 || gaps.length > 0 || priorities.length > 0) && (
+                <div className="grid gap-4 md:grid-cols-3 border rounded-md p-4">
+                  <MirrorList title="Needs" items={needs} />
+                  <MirrorList title="Gaps" items={gaps} />
+                  <MirrorList title="Resident priorities" items={priorities} />
+                </div>
+              )}
               <pre className="max-h-[32rem] overflow-auto rounded-md bg-muted p-4 text-xs whitespace-pre-wrap">
                 {JSON.stringify(snapshot, null, 2)}
               </pre>
