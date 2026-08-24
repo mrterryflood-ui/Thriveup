@@ -319,7 +319,7 @@ function requireGppOpportunityFeedbackKey(req: Request, res: Response, next: Nex
     return res.status(503).json({ error: "THRIVEUP_CALLBACK_API_KEY not configured on this server" });
   }
   const supplied = req.header("x-api-key")?.trim();
-  if (!supplied || !timingSafeEqualText(supplied, rawExpected)) {
+  if (!supplied || !secretsMatch(normalizeKey(rawExpected), normalizeKey(supplied))) {
     return res.status(401).json({ error: "Invalid GrantPathPro callback key" });
   }
   return next();
