@@ -799,6 +799,7 @@ function AppRouter() {
       <Route path="/donor-receipt-demo" component={DonorReceiptDemoPage} />
       <Route path="/sdoh-chain" component={SDOHChainPage} />
       <Route path="/chainweb" component={ChainwebBuilderPage} />
+      <Route path="/chainweb-builder"><Redirect to="/chainweb" /></Route>
       <Route path="/community-impact" component={CommunityImpactPage} />
       <Route path="/brief/:shareId" component={BriefSharePage} />
       <Route path="/funder/:shareToken" component={FunderDashboard} />

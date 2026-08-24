@@ -139,7 +139,15 @@ export function SDOHImpactChain({ compact = false, stateCode, countyCodes }: { c
     );
   }
 
-  if (error || !data) return null;
+  if (error || !data) {
+    return (
+      <Card role="alert">
+        <CardContent className="p-6 text-sm text-muted-foreground">
+          Community context is unavailable right now. This does not mean there is no evidence; retry before drawing conclusions.
+        </CardContent>
+      </Card>
+    );
+  }
 
   const chain = data as any;
 

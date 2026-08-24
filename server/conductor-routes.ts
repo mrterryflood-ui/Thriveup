@@ -29,7 +29,7 @@ import { generateAIJSON } from "./ai-provider";
 import { db, storage } from "./storage";
 import { grantOpportunities, zctaCountyMap } from "@shared/schema";
 import { desc, gte, and, isNotNull, sql } from "drizzle-orm";
-import { hasValidCommunityEvidence } from "./community-evidence";
+import { hasValidCommunityEvidence, registerServerCommunityBrief } from "./community-evidence";
 import { getGrantPathProOutboundConfig } from "./grantpathpro-config";
 
 // ── First-party session auth (mirrors requireAuth in server/routes.ts) ────────
@@ -49,12 +49,19 @@ function conductorRequireAuth(req: Request, res: Response, next: NextFunction) {
 
 const CONDUCTOR_STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
 
+// Keep role resolution server-authoritative. This is shared by the external
+// transfer guard and the narrow capability response used to render its UI.
+// Do not expose the resolved role to callers.
+async function conductorCanRequestCommunityBriefExport(userId: string): Promise<boolean> {
+  const user = await storage.getUser(userId);
+  return Boolean(user?.role && CONDUCTOR_STAFF_ROLES.has(user.role));
+}
+
 async function conductorRequireStaff(req: Request, res: Response, next: NextFunction) {
   const userId = conductorGetUserId(req);
   if (!userId) return res.status(401).json({ error: "Authentication required" });
   try {
-    const user = await storage.getUser(userId);
-    if (user?.role && CONDUCTOR_STAFF_ROLES.has(user.role)) return next();
+    if (await conductorCanRequestCommunityBriefExport(userId)) return next();
   } catch (err) {
     console.error("[Conductor] Staff authorization check failed:", err);
     return res.status(503).json({ error: "Unable to verify staff access" });
@@ -115,7 +122,11 @@ function conductorRateLimit(ip: string): number | null {
 // full request shape (zip + populationSize + timeHorizon) so different cascade
 // parameters don't collide. Caches ONLY successful aggregate briefs — never
 // errors, never anything caller-specific.
-const CONDUCTOR_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // 2h — keeps stale-Census exposure window to ≤2h
+const CONDUCTOR_CACHE_TTL_MS = 2 * 60 * 60 * 1000; // Retention bound for unused entries.
+// A retained entry is not necessarily eligible to serve.  Revalidate frequently
+// enough that a Census/AI outage cannot be hidden behind the old two-hour
+// retention period.  The production probe independently exercises this path.
+const CONDUCTOR_CACHE_FRESHNESS_MS = 25 * 60 * 1000;
 const CONDUCTOR_CACHE_MAX = 300;
 const conductorBriefCache = new Map<string, { at: number; value: unknown }>();
 const conductorNeighborCache = new Map<string, { at: number; value: unknown }>();
@@ -124,7 +135,8 @@ let nationalCoverageCache: { at: number; value: unknown } | null = null;
 function conductorCacheGet(key: string): unknown | undefined {
   const entry = conductorBriefCache.get(key);
   if (!entry) return undefined;
-  if (Date.now() - entry.at > CONDUCTOR_CACHE_TTL_MS) {
+  const age = Date.now() - entry.at;
+  if (age > CONDUCTOR_CACHE_TTL_MS || age > CONDUCTOR_CACHE_FRESHNESS_MS) {
     conductorBriefCache.delete(key);
     return undefined;
   }
@@ -179,6 +191,11 @@ function conductorClampInt(raw: unknown, def: number, min: number, max: number):
   const n = typeof raw === "number" ? raw : parseInt(String(raw ?? ""), 10);
   if (!Number.isFinite(n)) return def;
   return Math.min(max, Math.max(min, Math.round(n)));
+}
+
+function conductorIsLoopbackRequest(req: Request): boolean {
+  const ip = conductorClientIp(req).replace(/^::ffff:/, "");
+  return ip === "127.0.0.1" || ip === "::1";
 }
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -1259,6 +1276,22 @@ Return JSON: { "narrative": "..." }`
 // ─── Main orchestrator ────────────────────────────────────────────────────────
 
 export function registerConductorRoutes(app: Express) {
+  // This intentionally returns only the one UI capability, never a raw role.
+  // The POST export route independently runs conductorRequireStaff; this
+  // response is informative for rendering and is not an authorization grant.
+  app.get("/api/conductor/capabilities", conductorRequireAuth, async (req: Request, res: Response) => {
+    const userId = conductorGetUserId(req);
+    if (!userId) return res.status(401).json({ error: "Authentication required" });
+    try {
+      return res.json({
+        canRequestCommunityBriefExport: await conductorCanRequestCommunityBriefExport(userId),
+      });
+    } catch (err) {
+      console.error("[Conductor] Capability resolution failed:", err);
+      return res.status(503).json({ error: "Unable to verify export capability" });
+    }
+  });
+
   // Public, non-AI coverage contract. This is intentionally separate from the
   // expensive brief route: operators and community members need to see the
   // actual national geography coverage without spending Census/AI budget.
@@ -1370,7 +1403,13 @@ export function registerConductorRoutes(app: Express) {
       // regardless of how many validation passes have run in the window.
       // skipCache is already gated on NODE_ENV !== "production" so this
       // exemption cannot be triggered by anonymous production traffic.
-      if (!skipCache) {
+      // The PDF endpoint has its own public 10/hour/IP limiter. Its
+      // loopback request must not also consume the public analyzer's much
+      // shorter window, or a permitted PDF cache miss is incorrectly rejected
+      // as an upstream/PDF failure. Header + loopback are both required; this
+      // is not an externally forgeable rate-limit bypass.
+      const trustedPdfRender = req.headers["x-conductor-pdf-render"] === "1" && conductorIsLoopbackRequest(req);
+      if (!skipCache && !trustedPdfRender) {
         const retryAfter = conductorRateLimit(conductorClientIp(req));
         if (retryAfter !== null) {
           res.setHeader("Retry-After", String(retryAfter));
@@ -1828,6 +1867,12 @@ export function registerConductorRoutes(app: Express) {
         microGeographies,
       };
 
+      // A public share may later reference this result, but it must be resolved
+      // back to this server-held output rather than trusting the browser's copy.
+      // Register only the RPLICE-free source record before any authenticated
+      // response decoration.
+      registerServerCommunityBrief(brief as unknown as Record<string, unknown>);
+
       // Cache the aggregate, RPLICE-free brief (no PII, no internal data) so
       // repeat lookups of the same ZIP/params are served free — safe to hand to
       // any caller, authed or anonymous.
@@ -1930,10 +1975,26 @@ export function registerConductorRoutes(app: Express) {
   // response cache (identical ZIP → cached neighbor set, no re-fanning-out).
   app.post("/api/conductor/neighbor-zips", async (req: Request, res: Response) => {
     try {
-      const { zip, centerScore = 50, centerGrade = "D", centerUrgency = "concern", centerCost = 100000 } = req.body;
+      const { zip, centerScore, centerGrade, centerUrgency, centerCost } = req.body ?? {};
       if (!zip) return res.status(400).json({ error: "zip required" });
       if (typeof zip !== "string" || !/^\d{5}$/.test(zip)) {
         return res.status(400).json({ error: "zip must be a 5-digit ZIP code" });
+      }
+      // These values are display inputs supplied by the browser for the center
+      // tile. Reject rather than coerce: coercion creates unbounded cache keys
+      // and can put fabricated financial values in an otherwise Census-backed
+      // visualization.
+      if (!Number.isInteger(centerScore) || centerScore < 0 || centerScore > 100) {
+        return res.status(400).json({ error: "centerScore must be an integer from 0 to 100" });
+      }
+      if (typeof centerGrade !== "string" || !["A", "B", "C", "D", "F"].includes(centerGrade)) {
+        return res.status(400).json({ error: "centerGrade must be A, B, C, D, or F" });
+      }
+      if (typeof centerUrgency !== "string" || !["stable", "watch", "concern", "crisis"].includes(centerUrgency)) {
+        return res.status(400).json({ error: "centerUrgency must be stable, watch, concern, or crisis" });
+      }
+      if (!Number.isSafeInteger(centerCost) || centerCost < 0 || centerCost > 1_000_000_000_000) {
+        return res.status(400).json({ error: "centerCost must be a whole dollar amount from 0 to 1,000,000,000,000" });
       }
 
       // Cache first (keyed on the center ZIP + center display attributes), then
@@ -2059,7 +2120,7 @@ export function registerConductorRoutes(app: Express) {
    */
   app.post("/api/conductor/export-to-grantpathpro", conductorRequireStaff, async (req: Request, res: Response) => {
     try {
-      const { brief, geography } = req.body;
+      const { brief, geography } = req.body ?? {};
 
       if (!brief || !geography) {
         return res.status(400).json({ error: "brief and geography are required" });
@@ -2068,6 +2129,30 @@ export function registerConductorRoutes(app: Express) {
       const host = process.env.REPLIT_DEV_DOMAIN
         ? `https://${process.env.REPLIT_DEV_DOMAIN}`
         : "https://thriveupacademy.com";
+
+      // Never use a caller's alternate geography for attribution.  The export
+      // is bound to the geography carried by the generated brief; countyName is
+      // the Community Brief contract, while county is retained as a compatibility
+      // alias for GrantPathPro consumers.
+      const briefGeography = brief.geography && typeof brief.geography === "object" ? brief.geography : {};
+      const briefResolved = brief.evidence?.geography?.resolved;
+      const canonicalCounty = typeof briefGeography.countyName === "string" && briefGeography.countyName.trim()
+        ? briefGeography.countyName.trim()
+        : typeof briefGeography.county === "string" && briefGeography.county.trim()
+          ? briefGeography.county.trim()
+          : "";
+      const canonicalZip = typeof briefGeography.zip === "string" && /^\d{5}$/.test(briefGeography.zip)
+        ? briefGeography.zip
+        : undefined;
+      const canonicalState = typeof briefGeography.state === "string" ? briefGeography.state.trim() : "";
+      const canonicalCountyFips = briefResolved?.type === "county" && typeof briefResolved.identifier === "string" &&
+        /^\d{5}$/.test(briefResolved.identifier)
+        ? briefResolved.identifier
+        : undefined;
+      const canonicalRegion = canonicalCounty ||
+        (typeof briefGeography.displayName === "string" && briefGeography.displayName.trim()) ||
+        canonicalZip ||
+        "community";
 
       // Pull full RPLICE intelligence for GPP export — live research library,
       // all DB assessments, grant profiles matched to the brief's domains, and platform map
@@ -2080,9 +2165,9 @@ export function registerConductorRoutes(app: Express) {
       const [rpliceGppPackage] = await Promise.all([
         buildRpliceIntelligencePackage({
           crisisDomains: briefDomains,
-          regionName: geography.city || geography.county || geography.zip || "community",
-          stateFips: geography.stateFips || stateFipsFromZip(geography.zip) || stateFipsFromName(geography.state) || undefined,
-          countyFips: geography.countyFips || undefined,
+          regionName: canonicalRegion,
+          stateFips: stateFipsFromZip(canonicalZip ?? "") || stateFipsFromName(canonicalState) || undefined,
+          countyFips: canonicalCountyFips,
         }).catch((err) => {
           console.error("[Conductor] RPLICE intelligence package unavailable for export:", err);
           return null;
@@ -2120,10 +2205,11 @@ export function registerConductorRoutes(app: Express) {
         exportedAt: new Date().toISOString(),
         requestedBy: conductorGetUserId(req) ?? "staff",
         geography: {
-          zip: geography.zip,
-          city: geography.city,
-          county: geography.county,
-          state: geography.state,
+          zip: canonicalZip,
+          city: typeof briefGeography.displayName === "string" ? briefGeography.displayName : undefined,
+          county: canonicalCounty || undefined,
+          countyName: canonicalCounty || undefined,
+          state: canonicalState || undefined,
         },
         needsAssessment: {
           overallScore: brief.overallScore,
@@ -2283,7 +2369,7 @@ export function registerConductorRoutes(app: Express) {
             },
         censusSources: [
           "U.S. Census Bureau ACS 5-Year Estimates (2013, 2015, 2019, 2022)",
-          `ZCTA: ${geography.zip}`,
+          canonicalZip ? `ZCTA: ${canonicalZip}` : `Geography: ${canonicalRegion}`,
         ],
         callback: {
           description: "GrantPathPro callback endpoints; credentials are provisioned out of band and never included in export payloads.",

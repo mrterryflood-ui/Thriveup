@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
 
 interface Vintage {
   year: number;
@@ -82,12 +83,23 @@ export default function HistoricalTimeline({
 
   useEffect(() => {
     const mount = mountRef.current;
-    if (!mount || !vintages || vintages.length === 0) return;
+    if (!mount) return;
+    mount.replaceChildren();
+    if (!vintages || vintages.length === 0) return;
 
     const W = mount.clientWidth || 800;
     const H = mount.clientHeight || 480;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = createRendererSafe({ antialias: true });
+    if (!renderer) {
+      const fallback = document.createElement("div");
+      fallback.dataset.testid = "historical-timeline-fallback";
+      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
+      fallback.setAttribute("role", "status");
+      fallback.textContent = "Interactive historical timeline is unavailable on this device.";
+      mount.appendChild(fallback);
+      return;
+    }
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x07101f);
@@ -273,7 +285,7 @@ export default function HistoricalTimeline({
       controls.update();
       renderer.render(scene, camera);
     };
-    requestAnimationFrame((ts) => { lastTs = ts; animate(ts); });
+    animId = requestAnimationFrame((ts) => { lastTs = ts; animate(ts); });
 
     const onResize = () => {
       const nW = mount.clientWidth; const nH = mount.clientHeight;

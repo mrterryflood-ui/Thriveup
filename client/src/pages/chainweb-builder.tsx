@@ -15,7 +15,7 @@ import {
   TrendingDown, TrendingUp, DollarSign, AlertTriangle, BookOpen,
   ArrowRight, Loader2, ChevronRight, ExternalLink, Copy, RefreshCw,
   Zap, Users, Baby, GraduationCap, Briefcase, Home, Heart, Scale, Building2,
-  Network, MapPin, Info
+  Network, MapPin, Info, Trash2
 } from "lucide-react";
 import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
 
@@ -103,11 +103,11 @@ export default function ChainwebBuilderPage() {
   });
 
   // ── Queries ───────────────────────────────────────────────────────────────
-  const { data: domains = [] } = useQuery<any[]>({
+  const { data: domains = [], isLoading: domainsLoading, isError: domainsError } = useQuery<any[]>({
     queryKey: ["/api/chainweb/domains"],
   });
 
-  const { data: templates = [] } = useQuery<any[]>({
+  const { data: templates = [], isLoading: templatesLoading, isError: templatesError } = useQuery<any[]>({
     queryKey: ["/api/chainweb/templates"],
   });
 
@@ -115,12 +115,12 @@ export default function ChainwebBuilderPage() {
     queryKey: ["/api/chainweb/scenarios"],
   });
 
-  const { data: scenarioDetail } = useQuery<any>({
+  const { data: scenarioDetail, isLoading: scenarioDetailLoading, isError: scenarioDetailError } = useQuery<any>({
     queryKey: ["/api/chainweb/scenarios", selectedScenario],
     enabled: selectedScenario !== null,
   });
 
-  const { data: coefficients = [] } = useQuery<any[]>({
+  const { data: coefficients = [], isLoading: coefficientsLoading, isError: coefficientsError } = useQuery<any[]>({
     queryKey: ["/api/chainweb/coefficients"],
   });
 
@@ -143,9 +143,10 @@ export default function ChainwebBuilderPage() {
 
   const calculateMutation = useMutation({
     mutationFn: (id: number) => apiRequest("POST", `/api/chainweb/scenarios/${id}/calculate`, {}),
-    onSuccess: async (res: any) => {
+    onSuccess: async (_res: any, id: number) => {
       queryClient.invalidateQueries({ queryKey: ["/api/chainweb/scenarios"] });
-      queryClient.invalidateQueries({ queryKey: ["/api/chainweb/scenarios", selectedScenario] });
+      queryClient.invalidateQueries({ queryKey: ["/api/chainweb/scenarios", id] });
+      setNarrative(null);
       setActiveTab("results");
       toast({ title: "ROI Calculated", description: "Causal chain built. Generating your results." });
     },
@@ -163,11 +164,24 @@ export default function ChainwebBuilderPage() {
     onSuccess: async (res: any) => {
       const data = await res.json();
       queryClient.invalidateQueries({ queryKey: ["/api/chainweb/scenarios"] });
+      setNarrative(null);
       setSelectedScenario(data.scenario.id);
       setActiveTab("results");
       toast({ title: "Template loaded & calculated" });
     },
     onError: () => toast({ title: "Template error", variant: "destructive" }),
+  });
+
+  const deleteScenarioMutation = useMutation({
+    mutationFn: (id: number) => apiRequest("DELETE", `/api/chainweb/scenarios/${id}`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/chainweb/scenarios"] });
+      setSelectedScenario(null);
+      setNarrative(null);
+      setActiveTab("build");
+      toast({ title: "Scenario deleted" });
+    },
+    onError: () => toast({ title: "Could not delete scenario", variant: "destructive" }),
   });
 
   const generateNarrativeMutation = async () => {
@@ -188,6 +202,12 @@ export default function ChainwebBuilderPage() {
   const handleFormChange = (key: string, value: string) => setForm(f => ({ ...f, [key]: value }));
 
   const calc = scenarioDetail?.calculation;
+  const persistedNarrative = scenarioDetail?.narratives?.find((item: any) => item.audienceType === audience && item.narrativeText);
+  const activeNarrative = narrative ?? (persistedNarrative ? {
+    ...persistedNarrative,
+    narrative: persistedNarrative.narrativeText,
+    citations: persistedNarrative.dataCitations,
+  } : null);
   const roiRatio = Number(calc?.roiRatio || 0);
   const netSavings = Number(calc?.netSavings || 0);
   const cfCost = Number(calc?.counterfactualTotalCost || 0);
@@ -241,6 +261,7 @@ export default function ChainwebBuilderPage() {
               {/* Quick-start from template */}
               <div className="lg:col-span-3">
                 <h2 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">Quick Start — Proven Scenarios</h2>
+                {templatesLoading && <p className="col-span-full text-sm text-slate-500">Loading scenario templates…</p>}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                   {templates.map((t) => (
                     <Card
@@ -248,6 +269,7 @@ export default function ChainwebBuilderPage() {
                       data-testid={`template-card-${t.id}`}
                       className="cursor-pointer hover:border-blue-400 hover:shadow-md transition-all group"
                       onClick={() => {
+                        if (fromTemplate.isPending) return;
                         if (form.geographyLabel) fromTemplate.mutate(t.id);
                         else toast({ title: "Set geography first", variant: "destructive" });
                       }}
@@ -275,6 +297,14 @@ export default function ChainwebBuilderPage() {
               <Separator className="lg:col-span-3" />
               <div className="lg:col-span-3">
                 <h2 className="text-sm font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wider mb-3">Custom Scenario</h2>
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                  Saved scenarios are visible to their creator and authorized reviewers. Do not enter names, case details, health information, or any other person-level data. These fields support aggregate planning only.
+                </div>
+                {(domainsError || templatesError || coefficientsError) && (
+                  <div role="alert" className="mt-3 rounded-lg border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+                    Some planning data is unavailable. Retry the page before treating an empty list as “no evidence.”
+                  </div>
+                )}
               </div>
 
               {/* Left: Geography + Population */}
@@ -295,7 +325,7 @@ export default function ChainwebBuilderPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="geo-fips" className="text-xs text-slate-500">FIPS Code (optional)</Label>
+                    <Label htmlFor="geo-fips" className="text-xs text-slate-500">County Census code (optional)</Label>
                     <Input
                       id="geo-fips"
                       data-testid="input-geo-fips"
@@ -456,7 +486,7 @@ export default function ChainwebBuilderPage() {
                             <button
                               key={s.id}
                               data-testid={`scenario-item-${s.id}`}
-                              onClick={() => { setSelectedScenario(s.id); setActiveTab("results"); }}
+                              onClick={() => { setNarrative(null); setSelectedScenario(s.id); setActiveTab("results"); }}
                               className="w-full text-left px-2 py-1.5 rounded hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                             >
                               <div className="flex items-center justify-between">
@@ -481,32 +511,91 @@ export default function ChainwebBuilderPage() {
 
           {/* ── RESULTS TAB ───────────────────────────────────────────────── */}
           <TabsContent value="results">
-            {!scenarioDetail && (
+            {scenarioDetailLoading && (
+              <div className="flex items-center justify-center gap-2 py-16 text-slate-500">
+                <Loader2 className="h-5 w-5 animate-spin" /> Loading scenario results…
+              </div>
+            )}
+            {!scenarioDetail && !scenarioDetailLoading && !scenarioDetailError && (
               <div className="text-center py-16 text-slate-400">
                 <Zap className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p>Select or build a scenario to see results.</p>
               </div>
             )}
+            {scenarioDetailError && (
+              <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700" data-testid="alert-scenario-detail-error">
+                This scenario could not be loaded. The absence of results is not a valid empty result; refresh or choose another scenario.
+              </div>
+            )}
             {scenarioDetail && (
               <div className="space-y-6">
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
                     <h2 className="text-xl font-bold text-slate-900 dark:text-white">{scenarioDetail.scenario.name}</h2>
                     <p className="text-sm text-slate-500 mt-0.5">
                       {scenarioDetail.scenario.geographyLabel} · {scenarioDetail.scenario.populationSize?.toLocaleString()} people · {scenarioDetail.scenario.timeHorizonYears}-year horizon
                     </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    data-testid="button-recalculate"
-                    onClick={() => calculateMutation.mutate(scenarioDetail.scenario.id)}
-                    disabled={calculateMutation.isPending}
-                  >
-                    <RefreshCw className={`h-3.5 w-3.5 mr-1 ${calculateMutation.isPending ? "animate-spin" : ""}`} />
-                    Recalculate
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      data-testid="button-recalculate"
+                      onClick={() => calculateMutation.mutate(scenarioDetail.scenario.id)}
+                      disabled={calculateMutation.isPending}
+                    >
+                      <RefreshCw className={`h-3.5 w-3.5 mr-1 ${calculateMutation.isPending ? "animate-spin" : ""}`} />
+                      Recalculate
+                    </Button>
+                    <Button variant="outline" size="sm" data-testid="button-delete-scenario"
+                      onClick={() => {
+                        if (window.confirm("Delete this scenario and its calculations and narratives?")) {
+                          deleteScenarioMutation.mutate(scenarioDetail.scenario.id);
+                        }
+                      }}
+                      disabled={deleteScenarioMutation.isPending}>
+                      <Trash2 className="h-3.5 w-3.5 mr-1" />Delete
+                    </Button>
+                  </div>
                 </div>
+
+                {scenarioDetail.impactChain && (
+                  <Card className="border-blue-200 dark:border-blue-900" data-testid="card-impact-chain-contract">
+                    <CardHeader className="pb-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <div>
+                          <CardTitle className="text-base">Evidence-to-action chain</CardTitle>
+                          <CardDescription>Every link shows whether it is observed, modeled, recommended, or not yet connected.</CardDescription>
+                        </div>
+                        <Badge variant={scenarioDetail.impactChain.complete ? "default" : "outline"}>
+                          {scenarioDetail.impactChain.complete ? "Connected loop" : `${scenarioDetail.impactChain.missingStages.length} links still open`}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2" aria-label="Impact chain stages">
+                        {scenarioDetail.impactChain.links.map((link: any) => (
+                          <div key={link.id} className={`rounded-lg border p-3 ${link.connected ? "bg-white dark:bg-slate-900" : "bg-slate-50 dark:bg-slate-900/50 border-dashed"}`}>
+                            <div className="flex items-center justify-between gap-2 mb-1">
+                              <span className="text-[10px] font-bold uppercase tracking-wide text-slate-500">{link.stage}</span>
+                              <span className={`text-[10px] rounded-full px-2 py-0.5 font-medium ${link.status === "observed" ? "bg-emerald-100 text-emerald-700" : link.status === "modeled" ? "bg-blue-100 text-blue-700" : link.status === "recommended" ? "bg-amber-100 text-amber-700" : "bg-slate-200 text-slate-600"}`}>{link.status.replace(/_/g, " ")}</span>
+                            </div>
+                            <p className="text-xs font-semibold leading-snug">{link.title}</p>
+                            {link.source && <p className="text-[10px] text-slate-500 mt-1">Source: {link.source}</p>}
+                            <p className="text-[10px] text-slate-500 mt-1">Privacy: {link.privacyBoundary} · Confidence: {link.confidence}</p>
+                            {!link.connected && link.nextAction && <p className="text-[10px] text-slate-500 mt-2">Next: {link.nextAction}</p>}
+                          </div>
+                        ))}
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-3">{scenarioDetail.impactChain.disclosure}</p>
+                    </CardContent>
+                  </Card>
+                )}
+                {!calc && (
+                  <div role="status" className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900">
+                    This scenario has no completed model calculation yet. Results are unavailable until an authorized calculation finishes.
+                  </div>
+                )}
 
                 {/* ROI Summary Cards */}
                 {calc && (
@@ -515,10 +604,10 @@ export default function ChainwebBuilderPage() {
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 text-red-600 mb-1">
                           <TrendingDown className="h-4 w-4" />
-                          <span className="text-xs font-semibold uppercase tracking-wide">Cost of Inaction</span>
+                          <span className="text-xs font-semibold uppercase tracking-wide">Modeled cost of inaction</span>
                         </div>
                         <div className="text-2xl font-bold text-red-700 dark:text-red-400" data-testid="stat-counterfactual">{fmt$(cfCost)}</div>
-                        <p className="text-xs text-red-500 mt-1">If we do nothing over {calc.timeHorizonYears} years</p>
+                          <p className="text-xs text-red-500 mt-1">Illustrative estimate over {calc.timeHorizonYears} years</p>
                       </CardContent>
                     </Card>
                     <Card className="bg-blue-50 border-blue-200 dark:bg-blue-950/30">
@@ -535,20 +624,20 @@ export default function ChainwebBuilderPage() {
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 text-green-600 mb-1">
                           <TrendingUp className="h-4 w-4" />
-                          <span className="text-xs font-semibold uppercase tracking-wide">Net Savings</span>
+                          <span className="text-xs font-semibold uppercase tracking-wide">Modeled net savings</span>
                         </div>
                         <div className="text-2xl font-bold text-green-700 dark:text-green-400" data-testid="stat-net-savings">{fmt$(netSavings)}</div>
-                        <p className="text-xs text-green-500 mt-1">Prevented downstream costs</p>
+                          <p className="text-xs text-green-500 mt-1">Assumption-based, not observed savings</p>
                       </CardContent>
                     </Card>
                     <Card className="bg-amber-50 border-amber-200 dark:bg-amber-950/30">
                       <CardContent className="p-4">
                         <div className="flex items-center gap-2 text-amber-600 mb-1">
                           <Zap className="h-4 w-4" />
-                          <span className="text-xs font-semibold uppercase tracking-wide">ROI Ratio</span>
+                          <span className="text-xs font-semibold uppercase tracking-wide">Modeled ROI ratio</span>
                         </div>
                         <div className="text-2xl font-bold text-amber-700 dark:text-amber-400" data-testid="stat-roi">${roiRatio.toFixed(2)}<span className="text-sm font-normal ml-1">per $1</span></div>
-                        <p className="text-xs text-amber-500 mt-1">Returned per dollar invested</p>
+                          <p className="text-xs text-amber-500 mt-1">Model estimate per dollar invested</p>
                       </CardContent>
                     </Card>
                   </div>
@@ -561,7 +650,7 @@ export default function ChainwebBuilderPage() {
                     <div>
                       <p className="text-sm font-semibold text-blue-800 dark:text-blue-300">Ounce of Prevention Principle</p>
                       <p className="text-sm text-blue-700 dark:text-blue-400 mt-0.5">
-                        For every <strong>{fmt$(intCost)}</strong> invested now, society avoids <strong>{fmt$(cfCost)}</strong> in downstream costs over {calc.timeHorizonYears} years — a <strong>${roiRatio.toFixed(1)}:$1 return</strong>. The question isn't whether we can afford to act. It's whether we can afford not to.
+                        Under this scenario’s assumptions, the model estimates <strong>{fmt$(cfCost)}</strong> in avoidable downstream costs over {calc.timeHorizonYears} years for <strong>{fmt$(intCost)}</strong> invested. This is not an observed outcome or a causal guarantee.
                       </p>
                     </div>
                   </div>
@@ -571,8 +660,8 @@ export default function ChainwebBuilderPage() {
                 {calc?.keyStatements && (calc.keyStatements as any[]).length > 0 && (
                   <Card className="bg-white dark:bg-slate-900 shadow-sm">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-semibold text-slate-700">Key Evidence Chain</CardTitle>
-                      <CardDescription className="text-xs">Primary-source citations underpinning this ROI calculation</CardDescription>
+                      <CardTitle className="text-sm font-semibold text-slate-700">Evidence inputs and model assumptions</CardTitle>
+                      <CardDescription className="text-xs">Citations support individual inputs; the combined ROI is a modeled estimate, not observed savings.</CardDescription>
                     </CardHeader>
                     <CardContent>
                       <div className="space-y-3">
@@ -620,8 +709,8 @@ export default function ChainwebBuilderPage() {
                 {calc && (
                   <Card className="bg-white dark:bg-slate-900 shadow-sm">
                     <CardHeader className="pb-3">
-                      <CardTitle className="text-sm font-semibold text-slate-700">Generate Stakeholder Narrative</CardTitle>
-                      <CardDescription className="text-xs">AI-drafted, citation-grounded output for your specific audience</CardDescription>
+                          <CardTitle className="text-sm font-semibold text-slate-700">Generate Stakeholder Narrative</CardTitle>
+                          <CardDescription className="text-xs">AI-drafted summary of modeled estimates. Review assumptions, citations, and limitations before sharing.</CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
@@ -651,30 +740,39 @@ export default function ChainwebBuilderPage() {
                         )}
                       </Button>
 
-                      {narrative && (
+                      {activeNarrative && (
                         <div className="mt-4 space-y-3">
                           <div className="flex items-start justify-between gap-3">
-                            <h3 className="text-base font-bold text-slate-900 dark:text-white" data-testid="narrative-headline">{narrative.headline}</h3>
+                            <h3 className="text-base font-bold text-slate-900 dark:text-white" data-testid="narrative-headline">{activeNarrative.headline}</h3>
                             <Button
                               variant="ghost"
                               size="sm"
                               data-testid="button-copy-narrative"
                               onClick={() => {
-                                navigator.clipboard.writeText(`${narrative.headline}\n\n${narrative.narrative}`);
-                                toast({ title: "Copied to clipboard" });
+                                const citations = activeNarrative.citations?.length ? activeNarrative.citations.join("\n- ") : "No citation list was returned.";
+                                navigator.clipboard.writeText([
+                                  `MODELED, AI-DRAFTED CHAINWEB SCENARIO — REVIEW BEFORE SHARING`,
+                                  `Scenario: ${scenarioDetail.scenario.name}`,
+                                  `Geography: ${scenarioDetail.scenario.geographyLabel}`,
+                                  `Horizon: ${calc.timeHorizonYears} years; Population: ${calc.populationSize}`,
+                                  `Assumption: results estimate costs and ROI; they are not observed outcomes or causal guarantees.`,
+                                  `\n${activeNarrative.headline}\n\n${activeNarrative.narrative}`,
+                                  `\nCitations:\n- ${citations}`,
+                                ].join("\n"));
+                                toast({ title: "Labeled narrative package copied" });
                               }}
                             >
                               <Copy className="h-3.5 w-3.5" />
                             </Button>
                           </div>
                           <div className="prose prose-sm dark:prose-invert max-w-none">
-                            {(narrative.narrative || "").split("\n\n").map((para: string, i: number) => (
+                            {(activeNarrative.narrative || "").split("\n\n").map((para: string, i: number) => (
                               <p key={i} className="text-sm text-slate-700 dark:text-slate-300 mb-3">{para}</p>
                             ))}
                           </div>
-                          {narrative.keyStats?.length > 0 && (
+                          {activeNarrative.keyStats?.length > 0 && (
                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
-                              {narrative.keyStats.slice(0, 3).map((s: any, i: number) => (
+                              {activeNarrative.keyStats.slice(0, 3).map((s: any, i: number) => (
                                 <div key={i} className="bg-slate-50 dark:bg-slate-800 border rounded-lg p-3">
                                   <div className="text-lg font-bold text-slate-900 dark:text-white">{s.value}</div>
                                   <div className="text-xs text-slate-600 dark:text-slate-400">{s.label}</div>
@@ -683,11 +781,11 @@ export default function ChainwebBuilderPage() {
                               ))}
                             </div>
                           )}
-                          {narrative.citations?.length > 0 && (
+                          {activeNarrative.citations?.length > 0 && (
                             <div className="mt-3 p-3 bg-slate-50 dark:bg-slate-800 rounded-lg">
                               <p className="text-xs font-semibold text-slate-500 mb-2">Citations</p>
                               <ul className="space-y-1">
-                                {narrative.citations.map((c: string, i: number) => (
+                                {activeNarrative.citations.map((c: string, i: number) => (
                                   <li key={i} className="text-xs text-slate-500 italic">{c}</li>
                                 ))}
                               </ul>
@@ -721,9 +819,9 @@ export default function ChainwebBuilderPage() {
                         SDOH Community Story — Break the Chain, Change the Outcome
                       </h2>
                       <p className="text-sm text-slate-500 mt-0.5 max-w-2xl">
-                        The causal story behind the numbers. Real Census + CDC + SVI data for{" "}
+                        A planning view using public aggregate Census, CDC, and SVI inputs for{" "}
                         <strong>{form.geographyLabel || "your geography"}</strong> — showing the three realities
-                        people face and the breaking points where intervention changes the trajectory.
+                        people face. Associations in this view do not establish individual causal chains or observed intervention outcomes.
                       </p>
                     </div>
                     {selectedScenario && (
@@ -747,12 +845,12 @@ export default function ChainwebBuilderPage() {
                       <strong>{form.geographyLabel || "Geography not set"}</strong>
                       {hasFips ? (
                         <span className="ml-2 text-slate-400">
-                          · FIPS {form.geographyFips} · State {stateCode}, County {countyCodes}
+                          · State Census code {stateCode}, County Census code {countyCodes}
                           · Live Census/CDC/SVI data
                         </span>
                       ) : (
                         <span className="ml-2 text-amber-500">
-                          · Enter a 5-digit FIPS code in Build Scenario to load live data for your geography
+                          · Enter a 5-digit county Census code in Build Scenario to load public aggregate data for your geography
                         </span>
                       )}
                     </span>
@@ -778,9 +876,7 @@ export default function ChainwebBuilderPage() {
                           This story is the human side of the ROI calculation you built.
                         </p>
                         <p className="text-sm text-blue-700 dark:text-blue-400 mt-0.5">
-                          The causal chain below maps the same poverty → school failure → incarceration cascade
-                          that the Chainweb coefficients quantify. Use this tab to explain <em>why</em> the numbers
-                          are what they are — to a council member, a funder, or a community.
+                          The model connects risk indicators and assumptions across domains. Use it to discuss planning hypotheses—not to claim that one community member’s experience causes another outcome.
                         </p>
                       </div>
                     </div>

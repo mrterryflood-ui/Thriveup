@@ -27,6 +27,7 @@ import {
 import { runFullIngestion, getContextForGeography, ingestCorridorRaceAge } from "./gis-engine";
 import { CHAIN_STEPS } from "./corridor-chainweb";
 import { z } from "zod";
+import { requireStaff } from "./yhsi-routes";
 
 /* ============================================================================
  * Corridor scope
@@ -814,8 +815,6 @@ export function registerCorridorRoutes(app: Express) {
   app.get("/api/corridor/story", async (_req: Request, res: Response) => {
     try {
       const story = await buildCorridorStory();
-      // Fire-and-forget peer broadcast — never block the response.
-      emitCorridorRpliceEvent(story).catch(() => {});
       res.json(story);
     } catch (err: any) {
       console.error("[corridor/story]", err);
@@ -833,16 +832,36 @@ export function registerCorridorRoutes(app: Express) {
           allowed.push(m.countyFips, m.focusZip, ...m.anchorZips, m.id);
         }
       }
+      if (metro !== "all" && allowed.length === 0) {
+        return res.status(400).json({ error: "Unknown corridor metro" });
+      }
+      const publicFields = {
+        id: communityEvidence.id,
+        geographyKey: communityEvidence.geographyKey,
+        geographyType: communityEvidence.geographyType,
+        metricKey: communityEvidence.metricKey,
+        metricLabel: communityEvidence.metricLabel,
+        value: communityEvidence.value,
+        unit: communityEvidence.unit,
+        asOfDate: communityEvidence.asOfDate,
+        sourceName: communityEvidence.sourceName,
+        sourceUrl: communityEvidence.sourceUrl,
+        documentTitle: communityEvidence.documentTitle,
+        pageReference: communityEvidence.pageReference,
+        methodology: communityEvidence.methodology,
+        confidence: communityEvidence.confidence,
+        updatedAt: communityEvidence.updatedAt,
+      };
       const rows = allowed.length
-        ? await db.select().from(communityEvidence).where(inArray(communityEvidence.geographyKey, allowed))
-        : await db.select().from(communityEvidence);
+        ? await db.select(publicFields).from(communityEvidence).where(inArray(communityEvidence.geographyKey, allowed))
+        : await db.select(publicFields).from(communityEvidence);
       res.json({ evidence: rows, metricCatalog: METRIC_CATALOG, geographyCatalog: geographyCatalog() });
     } catch (err: any) {
       res.status(500).json({ error: err.message });
     }
   });
 
-  app.post("/api/corridor/evidence", async (req: Request, res: Response) => {
+  app.post("/api/corridor/evidence", requireStaff, async (req: Request, res: Response) => {
     try {
       const parsed = insertCommunityEvidenceSchema.parse(req.body);
       const [row] = await db.insert(communityEvidence).values(parsed).returning();
@@ -853,7 +872,7 @@ export function registerCorridorRoutes(app: Express) {
     }
   });
 
-  app.delete("/api/corridor/evidence/:id", async (req: Request, res: Response) => {
+  app.delete("/api/corridor/evidence/:id", requireStaff, async (req: Request, res: Response) => {
     try {
       await db.delete(communityEvidence).where(eq(communityEvidence.id, req.params.id as string));
       res.json({ ok: true });
@@ -863,7 +882,7 @@ export function registerCorridorRoutes(app: Express) {
   });
 
   /* ----- Census ACS race+age fetch (verified Black population) --------- */
-  app.post("/api/corridor/refresh-race", async (_req: Request, res: Response) => {
+  app.post("/api/corridor/refresh-race", requireStaff, async (_req: Request, res: Response) => {
     try {
       const result = await ingestCorridorRaceAge(db, CORRIDOR.metros.map((m) => ({
         countyFips: m.countyFips,
@@ -898,7 +917,7 @@ export function registerCorridorRoutes(app: Express) {
     }
   });
 
-  app.post("/api/corridor/refresh", async (_req: Request, res: Response) => {
+  app.post("/api/corridor/refresh", requireStaff, async (_req: Request, res: Response) => {
     try {
       console.log("[corridor/refresh] starting TX ingestion …");
       const result = await runFullIngestion(db, "TX");

@@ -139,7 +139,7 @@ export function registerJusticeRoutes(app: Express) {
     }
   });
 
-  app.get("/api/external/justice/referrals/:id/progress", requireApiKey, async (req, res) => {
+  app.get("/api/external/justice/referrals/:id/progress", requireApiKey, requireAuth, requireAdmin, async (req, res) => {
     try {
       const id = req.params.id as string;
       const [referral] = await db.select().from(justiceReferrals).where(eq(justiceReferrals.id, id));
@@ -166,7 +166,7 @@ export function registerJusticeRoutes(app: Express) {
     }
   });
 
-  app.get("/api/external/justice/referrals/:id/report", requireApiKey, async (req, res) => {
+  app.get("/api/external/justice/referrals/:id/report", requireApiKey, requireAuth, requireAdmin, async (req, res) => {
     try {
       const id = req.params.id as string;
       const [referral] = await db.select().from(justiceReferrals).where(eq(justiceReferrals.id, id));
@@ -193,7 +193,7 @@ export function registerJusticeRoutes(app: Express) {
     }
   });
 
-  app.get("/api/justice/referrals", async (_req, res) => {
+  app.get("/api/justice/referrals", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const referrals = await db.select().from(justiceReferrals).orderBy(desc(justiceReferrals.createdAt));
       res.json(referrals);
@@ -209,7 +209,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to update referral" }); }
   });
 
-  app.get("/api/justice/compliance", async (_req, res) => {
+  app.get("/api/justice/compliance", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const records = await db.select().from(supervisionCompliance).orderBy(desc(supervisionCompliance.createdAt));
       res.json(records);
@@ -240,7 +240,7 @@ export function registerJusticeRoutes(app: Express) {
     res.json({ status: "ok", platform: "ThriveUp Academy - Justice Command Center", version: "2.0", timestamp: new Date().toISOString() });
   });
 
-  app.get("/api/justice/command-center/stats", async (_req, res) => {
+  app.get("/api/justice/command-center/stats", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const [refCount] = await db.select({ count: count() }).from(justiceReferrals);
       const [juvCount] = await db.select({ count: count() }).from(juvenileCases);
@@ -270,14 +270,14 @@ export function registerJusticeRoutes(app: Express) {
     }
   });
 
-  app.get("/api/justice/juvenile-cases", async (_req, res) => {
+  app.get("/api/justice/juvenile-cases", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const cases = await db.select().from(juvenileCases).orderBy(desc(juvenileCases.createdAt));
       res.json(cases);
     } catch (error) { res.status(500).json({ error: "Failed to fetch juvenile cases" }); }
   });
 
-  app.post("/api/justice/juvenile-cases", requireAuth, async (req, res) => {
+  app.post("/api/justice/juvenile-cases", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertJuvenileCaseSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -286,14 +286,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create juvenile case" }); }
   });
 
-  app.get("/api/justice/court-services", async (_req, res) => {
+  app.get("/api/justice/court-services", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const services = await db.select().from(courtServices).orderBy(desc(courtServices.createdAt));
       res.json(services);
     } catch (error) { res.status(500).json({ error: "Failed to fetch court services" }); }
   });
 
-  app.post("/api/justice/court-services", requireAuth, async (req, res) => {
+  app.post("/api/justice/court-services", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCourtServiceSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -302,14 +302,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create court service" }); }
   });
 
-  app.get("/api/justice/sel-programs", async (_req, res) => {
+  app.get("/api/justice/sel-programs", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const programs = await db.select().from(selPrograms).orderBy(desc(selPrograms.createdAt));
       res.json(programs);
     } catch (error) { res.status(500).json({ error: "Failed to fetch SEL programs" }); }
   });
 
-  app.post("/api/justice/sel-programs", requireAuth, async (req, res) => {
+  app.post("/api/justice/sel-programs", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertSelProgramSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -318,14 +318,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create SEL program" }); }
   });
 
-  app.get("/api/justice/prevention-programs", async (_req, res) => {
+  app.get("/api/justice/prevention-programs", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const programs = await db.select().from(preventionPrograms).orderBy(desc(preventionPrograms.createdAt));
       res.json(programs);
     } catch (error) { res.status(500).json({ error: "Failed to fetch prevention programs" }); }
   });
 
-  app.post("/api/justice/prevention-programs", requireAuth, async (req, res) => {
+  app.post("/api/justice/prevention-programs", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertPreventionProgramSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -334,14 +334,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create prevention program" }); }
   });
 
-  app.get("/api/justice/stakeholders", async (_req, res) => {
+  app.get("/api/justice/stakeholders", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const stakeholders = await db.select().from(justiceStakeholders).orderBy(desc(justiceStakeholders.createdAt));
       res.json(stakeholders);
     } catch (error) { res.status(500).json({ error: "Failed to fetch stakeholders" }); }
   });
 
-  app.post("/api/justice/stakeholders", requireAuth, async (req, res) => {
+  app.post("/api/justice/stakeholders", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertJusticeStakeholderSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -350,14 +350,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create stakeholder" }); }
   });
 
-  app.get("/api/justice/neighborhoods", async (_req, res) => {
+  app.get("/api/justice/neighborhoods", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const neighborhoods = await db.select().from(neighborhoodIntelligence).orderBy(desc(neighborhoodIntelligence.updatedAt));
       res.json(neighborhoods);
     } catch (error) { res.status(500).json({ error: "Failed to fetch neighborhoods" }); }
   });
 
-  app.post("/api/justice/neighborhoods", requireAuth, async (req, res) => {
+  app.post("/api/justice/neighborhoods", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertNeighborhoodIntelligenceSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -366,14 +366,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create neighborhood" }); }
   });
 
-  app.get("/api/justice/trend-alerts", async (_req, res) => {
+  app.get("/api/justice/trend-alerts", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const alerts = await db.select().from(trendAlerts).orderBy(desc(trendAlerts.createdAt));
       res.json(alerts);
     } catch (error) { res.status(500).json({ error: "Failed to fetch alerts" }); }
   });
 
-  app.post("/api/justice/trend-alerts", requireAuth, async (req, res) => {
+  app.post("/api/justice/trend-alerts", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertTrendAlertSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -382,14 +382,14 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create alert" }); }
   });
 
-  app.get("/api/justice/cycle-breaking-sessions", async (_req, res) => {
+  app.get("/api/justice/cycle-breaking-sessions", requireAuth, requireAdmin, async (_req, res) => {
     try {
       const sessions = await db.select().from(cycleBreakingSessions).orderBy(desc(cycleBreakingSessions.createdAt));
       res.json(sessions);
     } catch (error) { res.status(500).json({ error: "Failed to fetch sessions" }); }
   });
 
-  app.post("/api/justice/cycle-breaking-sessions", requireAuth, async (req, res) => {
+  app.post("/api/justice/cycle-breaking-sessions", requireAuth, requireAdmin, async (req, res) => {
     try {
       const parsed = insertCycleBreakingSessionSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Validation failed", details: parsed.error.flatten().fieldErrors });
@@ -398,7 +398,7 @@ export function registerJusticeRoutes(app: Express) {
     } catch (error) { res.status(500).json({ error: "Failed to create session" }); }
   });
 
-  app.patch("/api/justice/cycle-breaking-sessions/:id", requireAuth, async (req, res) => {
+  app.patch("/api/justice/cycle-breaking-sessions/:id", requireAuth, requireAdmin, async (req, res) => {
     try {
       const [updated] = await db.update(cycleBreakingSessions).set({ ...req.body, updatedAt: new Date() }).where(eq(cycleBreakingSessions.id, req.params.id as string)).returning();
       res.json(updated);

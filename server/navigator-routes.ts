@@ -1,17 +1,45 @@
 import type { Express, Request } from "express";
 import { randomUUID } from "crypto";
 import { db } from "./storage";
-import { streamAIResponse, generateAIJSON, withEthicalPreamble, perplexityResearch, isPerplexityAvailable } from "./ai-provider";
-import { fetchNonprofitProfile, formatNonprofitProfileBlock } from "./nonprofit-lookup";
+import {
+  streamAIResponse,
+  generateAIJSON,
+  withEthicalPreamble,
+  perplexityResearch,
+  isPerplexityAvailable,
+} from "./ai-provider";
+import {
+  fetchNonprofitProfile,
+  formatNonprofitProfileBlock,
+} from "./nonprofit-lookup";
 import { collaborativeStream } from "./collaborative-ai";
 import OpenAI from "openai";
 import Anthropic from "@anthropic-ai/sdk";
-import { searchByState, searchByLocation, generateCommunityNarrative } from "./gis-engine";
+import {
+  searchByState,
+  searchByLocation,
+  generateCommunityNarrative,
+} from "./gis-engine";
 import { buildCommunityAIContext } from "./rplice-intelligence";
 import { searchResources, getResourceCategories } from "./resource-engine";
-import { navigatorConversations, navigatorMessages, communityPartners, grantOpportunities, gisContextData, cedsRegions, cedsGoals, cedsAlignments, gunViolenceIncidents } from "@shared/schema";
+import {
+  navigatorConversations,
+  navigatorMessages,
+  communityPartners,
+  grantOpportunities,
+  gisContextData,
+  cedsRegions,
+  cedsGoals,
+  cedsAlignments,
+  gunViolenceIncidents,
+} from "@shared/schema";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
-import { enforceGroundedClaims, buildPercentRule, buildAnyOfRule, type ClaimRule } from "./ai-claim-grounding";
+import {
+  enforceGroundedClaims,
+  buildPercentRule,
+  buildAnyOfRule,
+  type ClaimRule,
+} from "./ai-claim-grounding";
 import { recordClaimDecisions } from "./claim-chain";
 import multer from "multer";
 import { spawnSync } from "child_process";
@@ -37,27 +65,37 @@ async function ocrPdfBuffer(buffer: Buffer, filename: string): Promise<string> {
     fs.writeFileSync(tmpPdf, buffer);
 
     // Render pages to PNG at 150 DPI (good OCR quality, manageable file size)
-    const render = spawnSync("pdftoppm", [
-      "-png", "-r", "150",
-      "-f", "1", "-l", String(MAX_OCR_PAGES),
-      tmpPdf,
-      path.join(tmpDir, "page"),
-    ], { encoding: "buffer", maxBuffer: 200 * 1024 * 1024 });
+    const render = spawnSync(
+      "pdftoppm",
+      [
+        "-png",
+        "-r",
+        "150",
+        "-f",
+        "1",
+        "-l",
+        String(MAX_OCR_PAGES),
+        tmpPdf,
+        path.join(tmpDir, "page"),
+      ],
+      { encoding: "buffer", maxBuffer: 200 * 1024 * 1024 },
+    );
 
     if (render.status !== 0) {
       throw new Error(`pdftoppm failed: ${render.stderr?.toString()}`);
     }
 
     // Collect generated PNG files (sorted)
-    const pngFiles = fs.readdirSync(tmpDir)
-      .filter(f => f.endsWith(".png"))
+    const pngFiles = fs
+      .readdirSync(tmpDir)
+      .filter((f) => f.endsWith(".png"))
       .sort()
-      .map(f => path.join(tmpDir, f));
+      .map((f) => path.join(tmpDir, f));
 
     if (pngFiles.length === 0) throw new Error("pdftoppm produced no images");
 
     // Build Claude vision request — one image per page
-    const imageContent: Anthropic.ImageBlockParam[] = pngFiles.map(f => ({
+    const imageContent: Anthropic.ImageBlockParam[] = pngFiles.map((f) => ({
       type: "image" as const,
       source: {
         type: "base64" as const,
@@ -67,54 +105,79 @@ async function ocrPdfBuffer(buffer: Buffer, filename: string): Promise<string> {
     }));
 
     // Always use Replit AI Integrations path — ANTHROPIC_API_KEY may have no credits
-    const anthropicKey = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+    const anthropicKey =
+      process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY ||
+      process.env.ANTHROPIC_API_KEY;
     const anthropicBase = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
-    const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
+    const client = new Anthropic({
+      apiKey: anthropicKey,
+      ...(anthropicBase ? { baseURL: anthropicBase } : {}),
+    });
 
     const response = await client.messages.create({
       model: "claude-haiku-4-5",
       max_tokens: 8000,
-      messages: [{
-        role: "user",
-        content: [
-          ...imageContent,
-          {
-            type: "text",
-            text: `These are pages from a scanned PDF document named "${filename}". Please transcribe all text exactly as it appears, preserving structure, headings, lists, and tables. Output only the transcribed text with no commentary.`,
-          },
-        ],
-      }],
+      messages: [
+        {
+          role: "user",
+          content: [
+            ...imageContent,
+            {
+              type: "text",
+              text: `These are pages from a scanned PDF document named "${filename}". Please transcribe all text exactly as it appears, preserving structure, headings, lists, and tables. Output only the transcribed text with no commentary.`,
+            },
+          ],
+        },
+      ],
     });
 
     const text = response.content
-      .filter(b => b.type === "text")
-      .map(b => (b as Anthropic.TextBlock).text)
+      .filter((b) => b.type === "text")
+      .map((b) => (b as Anthropic.TextBlock).text)
       .join("\n");
 
-    console.log(`[Navigator OCR] Extracted ${text.length} chars from ${pngFiles.length} page(s) of "${filename}"`);
+    console.log(
+      `[Navigator OCR] Extracted ${text.length} chars from ${pngFiles.length} page(s) of "${filename}"`,
+    );
     return text;
   } finally {
     // Clean up temp files
-    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch { /* ignore */ }
+    try {
+      fs.rmSync(tmpDir, { recursive: true, force: true });
+    } catch {
+      /* ignore */
+    }
   }
 }
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 },
+});
 
 // ── DeepSeek R1 background job store ─────────────────────────────────────────
 // The main SSE closes after Phase 1 (~20-25s). DeepSeek R1 continues in the
 // Node.js background and stores its result here. The client polls
 // GET /api/navigator/deep-think/:jobId every 4s to pick it up.
 // Entries expire after 10 minutes to prevent memory leaks.
-const deepThinkResultStore = new Map<string, {
-  text: string; engineId: string; timeMs: number; expiresAt: number;
-}>();
-setInterval(() => {
-  const now = Date.now();
-  for (const [k, v] of deepThinkResultStore.entries()) {
-    if (v.expiresAt < now) deepThinkResultStore.delete(k);
+const deepThinkResultStore = new Map<
+  string,
+  {
+    text: string;
+    engineId: string;
+    timeMs: number;
+    expiresAt: number;
   }
-}, 5 * 60 * 1000);
+>();
+setInterval(
+  () => {
+    const now = Date.now();
+    for (const [k, v] of deepThinkResultStore.entries()) {
+      if (v.expiresAt < now) deepThinkResultStore.delete(k);
+    }
+  },
+  5 * 60 * 1000,
+);
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -156,7 +219,9 @@ These rules override everything else. Violating them is a critical failure.
 === END TRUTH RULES ===
 `;
 
-const NAVIGATOR_SYSTEM_PROMPT = ANTI_FABRICATION_RULES + `You are the ThriveUp Navigator — an empathetic, knowledgeable AI that connects people to the resources, services, and opportunities they need based on their actual circumstances and location.
+const NAVIGATOR_SYSTEM_PROMPT =
+  ANTI_FABRICATION_RULES +
+  `You are the ThriveUp Navigator — an empathetic, knowledgeable AI that connects people to the resources, services, and opportunities they need based on their actual circumstances and location.
 
 CORE IDENTITY:
 You are not just an information tool. You are a trusted guide who genuinely understands the challenges people face — from returning citizens navigating reentry, to worried parents seeking help for their families, to community health workers addressing systemic disparities, to grant writers seeking funding, to law enforcement officers looking for diversion resources. You meet every person with empathy FIRST, then actionable help.
@@ -334,32 +399,67 @@ Your responses should feel like a conversation with a knowledgeable friend, not 
 
 If they haven't told you their city or state, ask — it makes your resource recommendations dramatically more useful. When they do share their location, acknowledge it and tailor everything to that geography. The [AVAILABLE RESOURCES] and [GIS DATA] blocks in your context contain locally-matched programs — reference them by name and explain what they do. For anything local you don't have data for, 211 (call or text, works in every state 24/7) and findhelp.org (search any ZIP) are the two universal bridges to local help.`;
 
-
 const GV_KEYWORDS = [
-  "gun", "shooting", "shot", "gunshot", "firearm", "weapon",
-  "homicide", "murder", "killed", "fatality", "fatal",
-  "violence", "violent crime", "mass shooting", "drive.by",
-  "community safety", "neighborhood safety", "public safety",
-  "ace", "adverse childhood", "trauma informed",
+  "gun",
+  "shooting",
+  "shot",
+  "gunshot",
+  "firearm",
+  "weapon",
+  "homicide",
+  "murder",
+  "killed",
+  "fatality",
+  "fatal",
+  "violence",
+  "violent crime",
+  "mass shooting",
+  "drive.by",
+  "community safety",
+  "neighborhood safety",
+  "public safety",
+  "ace",
+  "adverse childhood",
+  "trauma informed",
 ];
 
 // Cheap, regex-only detection reused both to decide whether to inject the
 // gun-violence dataset into the AI context (assembleContext) and, separately,
 // by the route handler to build the "Continue in Tell-a-Story" carry-over
 // link (#216) without needing assembleContext to leak its internals.
-function detectGunViolenceContext(userMessage: string): { injected: boolean; geography: string | null; state: string | null } {
+function detectGunViolenceContext(userMessage: string): {
+  injected: boolean;
+  geography: string | null;
+  state: string | null;
+} {
   const lowerMsg = userMessage.toLowerCase();
-  const injected = GV_KEYWORDS.some(kw => lowerMsg.includes(kw));
+  const injected = GV_KEYWORDS.some((kw) => lowerMsg.includes(kw));
   if (!injected) return { injected: false, geography: null, state: null };
 
-  const locationMatch = userMessage.match(/(?:zip\s*(?:code)?\s*|in\s+|near\s+|around\s+)(\d{5})/i)
-    || userMessage.match(/\b(\d{5})\b/);
-  const stateMatch = userMessage.match(/\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\s+Hampshire|New\s+Jersey|New\s+Mexico|New\s+York|North\s+Carolina|North\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\s+Island|South\s+Carolina|South\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\s+Virginia|Wisconsin|Wyoming)\b/i)
-    || userMessage.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/);
-  const cityMatch = userMessage.match(/\b(?:in|near|from|at|I(?:'m| am) in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/);
+  const locationMatch =
+    userMessage.match(
+      /(?:zip\s*(?:code)?\s*|in\s+|near\s+|around\s+)(\d{5})/i,
+    ) || userMessage.match(/\b(\d{5})\b/);
+  const stateMatch =
+    userMessage.match(
+      /\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\s+Hampshire|New\s+Jersey|New\s+Mexico|New\s+York|North\s+Carolina|North\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\s+Island|South\s+Carolina|South\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\s+Virginia|Wisconsin|Wyoming)\b/i,
+    ) ||
+    userMessage.match(
+      /\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/,
+    );
+  const cityMatch = userMessage.match(
+    /\b(?:in|near|from|at|I(?:'m| am) in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/,
+  );
   const detectedCity = cityMatch ? cityMatch[1] : null;
-  const geography = locationMatch?.[1] || [detectedCity, stateMatch?.[1]].filter(Boolean).join(", ") || null;
-  return { injected: true, geography: geography || null, state: stateMatch?.[1] || null };
+  const geography =
+    locationMatch?.[1] ||
+    [detectedCity, stateMatch?.[1]].filter(Boolean).join(", ") ||
+    null;
+  return {
+    injected: true,
+    geography: geography || null,
+    state: stateMatch?.[1] || null,
+  };
 }
 
 /** Census indicators captured during context assembly, used to build grounding rules for the response. */
@@ -377,7 +477,14 @@ interface NavigatorGvTotals {
   totalSuicides: number | null;
 }
 
-async function assembleContext(req: Request, userMessage: string): Promise<{ context: string; censusIndicators: NavigatorCensusIndicators | null; gvTotals: NavigatorGvTotals | null }> {
+async function assembleContext(
+  req: Request,
+  userMessage: string,
+): Promise<{
+  context: string;
+  censusIndicators: NavigatorCensusIndicators | null;
+  gvTotals: NavigatorGvTotals | null;
+}> {
   const contextParts: string[] = [];
   const userId = getUserId(req);
   const userName = getUserName(req);
@@ -388,12 +495,21 @@ async function assembleContext(req: Request, userMessage: string): Promise<{ con
     contextParts.push(`[User: ${userName}]`);
   }
 
-  const locationMatch = userMessage.match(/(?:zip\s*(?:code)?\s*|in\s+|near\s+|around\s+)(\d{5})/i)
-    || userMessage.match(/\b(\d{5})\b/);
-  const stateMatch = userMessage.match(/\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\s+Hampshire|New\s+Jersey|New\s+Mexico|New\s+York|North\s+Carolina|North\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\s+Island|South\s+Carolina|South\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\s+Virginia|Wisconsin|Wyoming)\b/i)
-    || userMessage.match(/\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/);
+  const locationMatch =
+    userMessage.match(
+      /(?:zip\s*(?:code)?\s*|in\s+|near\s+|around\s+)(\d{5})/i,
+    ) || userMessage.match(/\b(\d{5})\b/);
+  const stateMatch =
+    userMessage.match(
+      /\b(Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|Mississippi|Missouri|Montana|Nebraska|Nevada|New\s+Hampshire|New\s+Jersey|New\s+Mexico|New\s+York|North\s+Carolina|North\s+Dakota|Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\s+Island|South\s+Carolina|South\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|West\s+Virginia|Wisconsin|Wyoming)\b/i,
+    ) ||
+    userMessage.match(
+      /\b(AL|AK|AZ|AR|CA|CO|CT|DE|FL|GA|HI|ID|IL|IN|IA|KS|KY|LA|ME|MD|MA|MI|MN|MS|MO|MT|NE|NV|NH|NJ|NM|NY|NC|ND|OH|OK|OR|PA|RI|SC|SD|TN|TX|UT|VT|VA|WA|WV|WI|WY)\b/,
+    );
   // City detection — extract for context injection even when no ZIP is known
-  const cityMatch = userMessage.match(/\b(?:in|near|from|at|I(?:'m| am) in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/);
+  const cityMatch = userMessage.match(
+    /\b(?:in|near|from|at|I(?:'m| am) in)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b/,
+  );
   const detectedCity = cityMatch ? cityMatch[1] : null;
 
   try {
@@ -420,41 +536,67 @@ async function assembleContext(req: Request, userMessage: string): Promise<{ con
         const unins = communityCtx.match(/Uninsured:\s*([\d.]+)%/);
         censusIndicators = {
           zip: zipCode,
-          povertyRate:      pov  ? parseFloat(pov[1])  : null,
+          povertyRate: pov ? parseFloat(pov[1]) : null,
           unemploymentRate: unem ? parseFloat(unem[1]) : null,
-          uninsuredRate:    unins ? parseFloat(unins[1]) : null,
+          uninsuredRate: unins ? parseFloat(unins[1]) : null,
         };
       }
     } else if (stateMatch) {
       const stateQuery = stateMatch[1];
-      const records = await searchByState(db, stateQuery.length === 2 ? stateQuery : stateQuery);
+      const records = await searchByState(
+        db,
+        stateQuery.length === 2 ? stateQuery : stateQuery,
+      );
       if (records.length > 0) {
         const narrative = generateCommunityNarrative(records[0]);
         contextParts.push(`[GIS DATA for ${stateQuery}]: ${narrative}`);
       }
     }
     // Always inject detected city/state so the AI knows where to localize
-    const locationLabel = [detectedCity, stateMatch?.[1]].filter(Boolean).join(", ");
+    const locationLabel = [detectedCity, stateMatch?.[1]]
+      .filter(Boolean)
+      .join(", ");
     if (locationLabel) {
-      contextParts.push(`[DETECTED LOCATION]: ${locationLabel} — tailor all resources and 211 lookups to this area`);
+      contextParts.push(
+        `[DETECTED LOCATION]: ${locationLabel} — tailor all resources and 211 lookups to this area`,
+      );
     }
 
     // CEDS context: when state is known, surface EDA regional framework for grant/workforce alignment
     if (stateMatch) {
       try {
-        const stateAbbr = stateMatch[1].length === 2
-          ? stateMatch[1].toUpperCase()
-          : { texas: "TX", oklahoma: "OK", louisiana: "LA", "new mexico": "NM",
-              arkansas: "AR", mississippi: "MS", alabama: "AL" }[stateMatch[1].toLowerCase()] ?? "";
+        const stateAbbr =
+          stateMatch[1].length === 2
+            ? stateMatch[1].toUpperCase()
+            : ({
+                texas: "TX",
+                oklahoma: "OK",
+                louisiana: "LA",
+                "new mexico": "NM",
+                arkansas: "AR",
+                mississippi: "MS",
+                alabama: "AL",
+              }[stateMatch[1].toLowerCase()] ?? "");
         if (stateAbbr) {
-          const regions = await db.select().from(cedsRegions).where(eq(cedsRegions.state, stateAbbr));
+          const regions = await db
+            .select()
+            .from(cedsRegions)
+            .where(eq(cedsRegions.state, stateAbbr));
           if (regions.length > 0) {
-            const regionIds = regions.map(r => r.id);
-            const goals = await db.select().from(cedsGoals).where(inArray(cedsGoals.regionId, regionIds));
-            const regionSummaries = regions.slice(0, 6).map(r => {
-              const rGoals = goals.filter(g => g.regionId === r.id).map(g => g.goalTitle);
-              return `• ${r.eddAbbr} (${r.eddName}): ${r.strategicVision ?? "No vision on file"}${rGoals.length ? " | Goals: " + rGoals.slice(0,2).join("; ") : ""}`;
-            }).join("\n");
+            const regionIds = regions.map((r) => r.id);
+            const goals = await db
+              .select()
+              .from(cedsGoals)
+              .where(inArray(cedsGoals.regionId, regionIds));
+            const regionSummaries = regions
+              .slice(0, 6)
+              .map((r) => {
+                const rGoals = goals
+                  .filter((g) => g.regionId === r.id)
+                  .map((g) => g.goalTitle);
+                return `• ${r.eddAbbr} (${r.eddName}): ${r.strategicVision ?? "No vision on file"}${rGoals.length ? " | Goals: " + rGoals.slice(0, 2).join("; ") : ""}`;
+              })
+              .join("\n");
             contextParts.push(`[CEDS REGIONAL FRAMEWORK for ${stateAbbr}]:
 EDA's 5 mandatory performance measures for all CEDS-aligned proposals:
   PM1: Jobs Created | PM2: Jobs Retained | PM3: Private Investment Leveraged | PM4: Construction Jobs | PM5: Businesses Assisted
@@ -482,13 +624,18 @@ When discussing workforce, grants, or economic development — align TCAF progra
       if (intel) {
         const hl = intel.headline ?? {};
         const ace = intel.aces?.correlations?.aceFirearmR ?? null;
-        const topCauses = (intel.rootCauses ?? []).slice(0, 5)
-          .map((rc: any) => `  • ${rc.factor}: r=${rc.correlation} (${rc.direction}) — "${rc.description}"`)
+        const topCauses = (intel.rootCauses ?? [])
+          .slice(0, 5)
+          .map(
+            (rc: any) =>
+              `  • ${rc.factor}: r=${rc.correlation} (${rc.direction}) — "${rc.description}"`,
+          )
           .join("\n");
         const latestCDC = (intel.cdcTrend ?? []).at(-1);
         const latestFBI = (intel.fbiTrends ?? []).at(-1);
-        const local     = intel.localRegistry;
-        const topPolicy = (intel.policy ?? []).slice(0, 3)
+        const local = intel.localRegistry;
+        const topPolicy = (intel.policy ?? [])
+          .slice(0, 3)
           .map((p: any) => `  • ${p.label}: ${p.short_description ?? ""}`)
           .join("\n");
         const topRplice = (intel.rpliceFindings ?? []).at(0);
@@ -498,9 +645,12 @@ When discussing workforce, grants, or economic development — align TCAF progra
         // captured here because they represent a computed correlation, not a
         // single count that can be mechanically verified against a scalar value.
         gvTotals = {
-          totalDeaths:    typeof hl.totalDeaths    === "number" ? hl.totalDeaths    : null,
-          totalHomicides: typeof hl.totalHomicides === "number" ? hl.totalHomicides : null,
-          totalSuicides:  typeof hl.totalSuicides  === "number" ? hl.totalSuicides  : null,
+          totalDeaths:
+            typeof hl.totalDeaths === "number" ? hl.totalDeaths : null,
+          totalHomicides:
+            typeof hl.totalHomicides === "number" ? hl.totalHomicides : null,
+          totalSuicides:
+            typeof hl.totalSuicides === "number" ? hl.totalSuicides : null,
         };
 
         // Detect ZIP/state from the query for local enrichment
@@ -510,24 +660,30 @@ When discussing workforce, grants, or economic development — align TCAF progra
         if (locationMatch) {
           try {
             const detectedZip = locationMatch[1];
-            const zipCounts = await db.select({
-              total: sql<number>`count(*)::int`,
-              fatal: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}),0)::int`,
-            }).from(gunViolenceIncidents)
+            const zipCounts = await db
+              .select({
+                total: sql<number>`count(*)::int`,
+                fatal: sql<number>`coalesce(sum(${gunViolenceIncidents.fatalCount}),0)::int`,
+              })
+              .from(gunViolenceIncidents)
               .where(eq(gunViolenceIncidents.zip, detectedZip))
-              .then(r => r[0])
+              .then((r) => r[0])
               .catch(() => null);
             if (zipCounts && zipCounts.total > 0) {
               localContext += `\nZIP ${detectedZip} (local GVA registry): ${zipCounts.total} incidents tracked, ${zipCounts.fatal} fatalities.`;
             }
-          } catch (_) { /* non-fatal — ZIP registry lookup is additive */ }
+          } catch (_) {
+            /* non-fatal — ZIP registry lookup is additive */
+          }
         }
 
         // State-level CDC rates
         if (stateMatch) {
           const stateCode = stateMatch[1].toUpperCase().slice(0, 2);
-          const stateRow  = (intel.cdcStates ?? []).find((s: any) =>
-            s.stateCode?.toUpperCase() === stateCode || s.state?.toLowerCase() === stateMatch[1].toLowerCase()
+          const stateRow = (intel.cdcStates ?? []).find(
+            (s: any) =>
+              s.stateCode?.toUpperCase() === stateCode ||
+              s.state?.toLowerCase() === stateMatch[1].toLowerCase(),
           );
           if (stateRow) {
             localContext += `\nState-level (${stateRow.state ?? stateCode}): crude rate ${stateRow.crudeRate ?? "N/A"}/100k, age-adjusted rate ${stateRow.ageAdjustedRate ?? "N/A"}/100k (CDC WONDER).`;
@@ -535,8 +691,12 @@ When discussing workforce, grants, or economic development — align TCAF progra
         }
 
         // ACE evidence-based interventions from /api/aces/interventions
-        const topInterventions = (intel.aces?.interventions ?? []).slice(0, 3)
-          .map((iv: any) => `  • ${iv.name ?? iv.intervention ?? iv.label ?? JSON.stringify(iv).slice(0, 80)}`)
+        const topInterventions = (intel.aces?.interventions ?? [])
+          .slice(0, 3)
+          .map(
+            (iv: any) =>
+              `  • ${iv.name ?? iv.intervention ?? iv.label ?? JSON.stringify(iv).slice(0, 80)}`,
+          )
           .join("\n");
 
         contextParts.push(`[GUN VIOLENCE INTELLIGENCE — CDC · FBI · NCVS · WISQARS · RPLICE]:
@@ -562,42 +722,267 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
   }
 
   const needKeywords: Record<string, string[]> = {
-    housing: ["housing", "shelter", "homeless", "evict", "rent", "apartment", "place to stay", "unhoused", "couch surfing", "sleeping in my car", "nowhere to go"],
-    food: ["food", "hungry", "eat", "snap", "wic", "food bank", "groceries", "meals", "not eating", "can't afford food"],
-    healthcare: ["health", "doctor", "medical", "insurance", "medicaid", "mental health", "counseling", "therapy", "medication", "clinic", "uninsured"],
-    workforce: ["job", "work", "employment", "career", "resume", "interview", "hiring", "training", "workforce", "unemployed", "laid off"],
-    education: ["school", "education", "ged", "college", "scholarship", "degree", "classes", "learning", "diploma", "financial aid", "fafsa", "tuition"],
-    legal: ["legal", "lawyer", "attorney", "court", "charges", "record", "expungement", "probation", "parole", "warrant", "rights", "eviction notice"],
-    financial: ["money", "bills", "debt", "tax", "financial", "bank", "credit", "assistance", "broke", "can't pay", "utility shutoff", "emergency cash"],
-    transportation: ["transportation", "bus", "ride", "car", "commute", "transit", "no car", "no license"],
-    youth: ["child", "children", "youth", "teen", "kid", "after-school", "mentoring", "juvenile", "minors"],
-    foster: ["foster", "aging out", "age out", "aged out", "former foster", "foster care", "chafee", "independent living", "etv", "transitional living", "group home", "foster youth", "foster child", "foster alumni", "transitional housing youth"],
-    reentry: ["reentry", "re-entry", "coming home", "released", "got out", "prison", "jail", "incarcerated", "parole", "probation", "halfway house", "criminal record", "conviction", "felony", "background check"],
-    immigration: ["immigration", "immigrant", "undocumented", "daca", "visa", "asylum", "refugee", "citizenship", "deported", "naturalization"],
-    substance: ["substance", "addiction", "drug", "alcohol", "rehab", "recovery", "sober", "treatment", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "prescription misuse", "overdose", "naloxone"],
-    parenting: ["parent", "parenting", "family", "my child", "my kid", "my son", "my daughter", "my teen", "teenager", "adolescent", "co-parent", "custody", "discipline", "monitoring", "curfew", "peer pressure", "talking to my child", "family stress", "family conflict", "reunification", "incarcerated parent"],
-    research: ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity", "evaluation framework", "translation", "reaim"],
-    chw: ["community health worker", "chw", "home visit", "caseload", "screening referral", "health worker", "frontline"],
+    housing: [
+      "housing",
+      "shelter",
+      "homeless",
+      "evict",
+      "rent",
+      "apartment",
+      "place to stay",
+      "unhoused",
+      "couch surfing",
+      "sleeping in my car",
+      "nowhere to go",
+    ],
+    food: [
+      "food",
+      "hungry",
+      "eat",
+      "snap",
+      "wic",
+      "food bank",
+      "groceries",
+      "meals",
+      "not eating",
+      "can't afford food",
+    ],
+    healthcare: [
+      "health",
+      "doctor",
+      "medical",
+      "insurance",
+      "medicaid",
+      "mental health",
+      "counseling",
+      "therapy",
+      "medication",
+      "clinic",
+      "uninsured",
+    ],
+    workforce: [
+      "job",
+      "work",
+      "employment",
+      "career",
+      "resume",
+      "interview",
+      "hiring",
+      "training",
+      "workforce",
+      "unemployed",
+      "laid off",
+    ],
+    education: [
+      "school",
+      "education",
+      "ged",
+      "college",
+      "scholarship",
+      "degree",
+      "classes",
+      "learning",
+      "diploma",
+      "financial aid",
+      "fafsa",
+      "tuition",
+    ],
+    legal: [
+      "legal",
+      "lawyer",
+      "attorney",
+      "court",
+      "charges",
+      "record",
+      "expungement",
+      "probation",
+      "parole",
+      "warrant",
+      "rights",
+      "eviction notice",
+    ],
+    financial: [
+      "money",
+      "bills",
+      "debt",
+      "tax",
+      "financial",
+      "bank",
+      "credit",
+      "assistance",
+      "broke",
+      "can't pay",
+      "utility shutoff",
+      "emergency cash",
+    ],
+    transportation: [
+      "transportation",
+      "bus",
+      "ride",
+      "car",
+      "commute",
+      "transit",
+      "no car",
+      "no license",
+    ],
+    youth: [
+      "child",
+      "children",
+      "youth",
+      "teen",
+      "kid",
+      "after-school",
+      "mentoring",
+      "juvenile",
+      "minors",
+    ],
+    foster: [
+      "foster",
+      "aging out",
+      "age out",
+      "aged out",
+      "former foster",
+      "foster care",
+      "chafee",
+      "independent living",
+      "etv",
+      "transitional living",
+      "group home",
+      "foster youth",
+      "foster child",
+      "foster alumni",
+      "transitional housing youth",
+    ],
+    reentry: [
+      "reentry",
+      "re-entry",
+      "coming home",
+      "released",
+      "got out",
+      "prison",
+      "jail",
+      "incarcerated",
+      "parole",
+      "probation",
+      "halfway house",
+      "criminal record",
+      "conviction",
+      "felony",
+      "background check",
+    ],
+    immigration: [
+      "immigration",
+      "immigrant",
+      "undocumented",
+      "daca",
+      "visa",
+      "asylum",
+      "refugee",
+      "citizenship",
+      "deported",
+      "naturalization",
+    ],
+    substance: [
+      "substance",
+      "addiction",
+      "drug",
+      "alcohol",
+      "rehab",
+      "recovery",
+      "sober",
+      "treatment",
+      "vaping",
+      "vape",
+      "e-cigarette",
+      "fentanyl",
+      "opioid",
+      "cannabis",
+      "marijuana",
+      "prescription misuse",
+      "overdose",
+      "naloxone",
+    ],
+    parenting: [
+      "parent",
+      "parenting",
+      "family",
+      "my child",
+      "my kid",
+      "my son",
+      "my daughter",
+      "my teen",
+      "teenager",
+      "adolescent",
+      "co-parent",
+      "custody",
+      "discipline",
+      "monitoring",
+      "curfew",
+      "peer pressure",
+      "talking to my child",
+      "family stress",
+      "family conflict",
+      "reunification",
+      "incarcerated parent",
+    ],
+    research: [
+      "research",
+      "implementation science",
+      "re-aim",
+      "cfir",
+      "evidence-based",
+      "dissemination",
+      "fidelity",
+      "evaluation framework",
+      "translation",
+      "reaim",
+    ],
+    chw: [
+      "community health worker",
+      "chw",
+      "home visit",
+      "caseload",
+      "screening referral",
+      "health worker",
+      "frontline",
+    ],
   };
 
   const detectedNeeds: string[] = [];
   const lowerMessage = userMessage.toLowerCase();
   for (const [need, keywords] of Object.entries(needKeywords)) {
-    if (keywords.some(kw => lowerMessage.includes(kw))) {
+    if (keywords.some((kw) => lowerMessage.includes(kw))) {
       detectedNeeds.push(need);
     }
   }
 
   if (detectedNeeds.length > 0) {
-    const stateCode = stateMatch ? (stateMatch[1].length === 2 ? stateMatch[1].toUpperCase() : undefined) : undefined;
+    const stateCode = stateMatch
+      ? stateMatch[1].length === 2
+        ? stateMatch[1].toUpperCase()
+        : undefined
+      : undefined;
     const categoryMap: Record<string, string> = {
-      housing: "housing", food: "food", healthcare: "healthcare",
-      workforce: "workforce", education: "education", legal: "legal",
-      financial: "financial", transportation: "transportation", youth: "youth",
-      foster: "youth", reentry: "legal", immigration: "legal",
-      substance: "healthcare", parenting: "youth", research: "education", chw: "healthcare",
+      housing: "housing",
+      food: "food",
+      healthcare: "healthcare",
+      workforce: "workforce",
+      education: "education",
+      legal: "legal",
+      financial: "financial",
+      transportation: "transportation",
+      youth: "youth",
+      foster: "youth",
+      reentry: "legal",
+      immigration: "legal",
+      substance: "healthcare",
+      parenting: "youth",
+      research: "education",
+      chw: "healthcare",
     };
-    const searchCategories = Array.from(new Set(detectedNeeds.map(n => categoryMap[n]).filter(Boolean)));
+    const searchCategories = Array.from(
+      new Set(detectedNeeds.map((n) => categoryMap[n]).filter(Boolean)),
+    );
 
     try {
       const resources = searchResources({
@@ -606,14 +991,16 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
       });
       if (resources.length > 0) {
         const topResources = resources.slice(0, 8);
-        const resourceList = topResources.map(r => {
-          let info = `- ${r.name} (${r.category}/${r.subcategory})`;
-          if (r.description) info += `: ${r.description}`;
-          if (r.url) info += ` | URL: ${r.url}`;
-          if (r.phone) info += ` | Phone: ${r.phone}`;
-          if (r.eligibility) info += ` | Eligibility: ${r.eligibility}`;
-          return info;
-        }).join("\n");
+        const resourceList = topResources
+          .map((r) => {
+            let info = `- ${r.name} (${r.category}/${r.subcategory})`;
+            if (r.description) info += `: ${r.description}`;
+            if (r.url) info += ` | URL: ${r.url}`;
+            if (r.phone) info += ` | Phone: ${r.phone}`;
+            if (r.eligibility) info += ` | Eligibility: ${r.eligibility}`;
+            return info;
+          })
+          .join("\n");
         contextParts.push(`[AVAILABLE RESOURCES]:\n${resourceList}`);
       }
     } catch (err) {
@@ -621,19 +1008,24 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
     }
 
     try {
-      const partners = await db.select().from(communityPartners)
+      const partners = await db
+        .select()
+        .from(communityPartners)
         .where(eq(communityPartners.isActive, true))
         .limit(5);
       if (partners.length > 0) {
-        const partnerList = partners.map(p => {
-          let info = `- ${p.name} (${p.type})`;
-          if (p.description) info += `: ${p.description}`;
-          if (p.contactPhone) info += ` | Phone: ${p.contactPhone}`;
-          if (p.contactEmail) info += ` | Email: ${p.contactEmail}`;
-          if (p.website) info += ` | Website: ${p.website}`;
-          if (p.serviceCategories) info += ` | Services: ${p.serviceCategories.join(", ")}`;
-          return info;
-        }).join("\n");
+        const partnerList = partners
+          .map((p) => {
+            let info = `- ${p.name} (${p.type})`;
+            if (p.description) info += `: ${p.description}`;
+            if (p.contactPhone) info += ` | Phone: ${p.contactPhone}`;
+            if (p.contactEmail) info += ` | Email: ${p.contactEmail}`;
+            if (p.website) info += ` | Website: ${p.website}`;
+            if (p.serviceCategories)
+              info += ` | Services: ${p.serviceCategories.join(", ")}`;
+            return info;
+          })
+          .join("\n");
         contextParts.push(`[COMMUNITY PARTNERS]:\n${partnerList}`);
       }
     } catch (err) {
@@ -642,47 +1034,136 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
   }
 
   // Foster youth / aging out
-  const fosterKeywords = ["foster", "aging out", "age out", "aged out", "former foster", "foster care", "chafee", "independent living", "etv", "group home", "foster youth", "foster alumni"];
-  if (fosterKeywords.some(kw => lowerMessage.includes(kw))) {
-    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has foster care / aging-out needs. Key resources: (1) findhelp.org + 211 for local transitional housing in their state; (2) Chafee Foster Care Independence Program — every state has one, ask their state child welfare agency; (3) Education & Training Vouchers (ETVs) up to $5,000/year for college or vocational training; (4) Job Corps (jobcorps.gov, 800-733-5627) — free housing + job training ages 16-24; (5) National Foster Youth Institute (nfyi.org) state guides. Internally: /resources (LifeBridge) and /benefits-screener. If workforce/education needs: /academy/careers and /ai-tools.`);
+  const fosterKeywords = [
+    "foster",
+    "aging out",
+    "age out",
+    "aged out",
+    "former foster",
+    "foster care",
+    "chafee",
+    "independent living",
+    "etv",
+    "group home",
+    "foster youth",
+    "foster alumni",
+  ];
+  if (fosterKeywords.some((kw) => lowerMessage.includes(kw))) {
+    contextParts.push(
+      `[PLATFORM RECOMMENDATION]: This person has foster care / aging-out needs. Key resources: (1) findhelp.org + 211 for local transitional housing in their state; (2) Chafee Foster Care Independence Program — every state has one, ask their state child welfare agency; (3) Education & Training Vouchers (ETVs) up to $5,000/year for college or vocational training; (4) Job Corps (jobcorps.gov, 800-733-5627) — free housing + job training ages 16-24; (5) National Foster Youth Institute (nfyi.org) state guides. Internally: /resources (LifeBridge) and /benefits-screener. If workforce/education needs: /academy/careers and /ai-tools.`,
+    );
   }
 
   // Reentry / justice-involved
-  const reentryKeywords = ["reentry", "re-entry", "coming home", "released", "got out", "prison", "jail", "incarcerated", "halfway house", "criminal record", "felony", "background check", "expungement"];
-  if (reentryKeywords.some(kw => lowerMessage.includes(kw))) {
-    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has reentry / justice-involved needs. Direct them to /reentry on ThriveUp (case management, RNR assessment, milestone tracking, 11 database tables of gold-standard criminal justice frameworks). Also: LawHelp.org for free legal aid on record clearing in their state; American Job Centers (careeronestop.org) for employment with barriers; Goodwill Career Centers nationwide for job training; 211 for local halfway houses and transitional housing.`);
+  const reentryKeywords = [
+    "reentry",
+    "re-entry",
+    "coming home",
+    "released",
+    "got out",
+    "prison",
+    "jail",
+    "incarcerated",
+    "halfway house",
+    "criminal record",
+    "felony",
+    "background check",
+    "expungement",
+  ];
+  if (reentryKeywords.some((kw) => lowerMessage.includes(kw))) {
+    contextParts.push(
+      `[PLATFORM RECOMMENDATION]: This person has reentry / justice-involved needs. Direct them to /reentry on ThriveUp (case management, RNR assessment, milestone tracking, 11 database tables of gold-standard criminal justice frameworks). Also: LawHelp.org for free legal aid on record clearing in their state; American Job Centers (careeronestop.org) for employment with barriers; Goodwill Career Centers nationwide for job training; 211 for local halfway houses and transitional housing.`,
+    );
   }
 
   // Immigration
-  const immigrationKeywords = ["immigration", "immigrant", "undocumented", "daca", "visa", "asylum", "refugee", "citizenship", "deported"];
-  if (immigrationKeywords.some(kw => lowerMessage.includes(kw))) {
-    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has immigration-related needs. Key resources: LawHelp.org (free immigration legal aid by state); CLINIC (cliniclegal.org) — Catholic Legal Immigration Network; Vera Institute (vera.org) — free immigration legal services; local USCIS Field Office for citizenship; 211 for local immigrant services. Do NOT give legal advice — connect them to a qualified immigration attorney.`);
+  const immigrationKeywords = [
+    "immigration",
+    "immigrant",
+    "undocumented",
+    "daca",
+    "visa",
+    "asylum",
+    "refugee",
+    "citizenship",
+    "deported",
+  ];
+  if (immigrationKeywords.some((kw) => lowerMessage.includes(kw))) {
+    contextParts.push(
+      `[PLATFORM RECOMMENDATION]: This person has immigration-related needs. Key resources: LawHelp.org (free immigration legal aid by state); CLINIC (cliniclegal.org) — Catholic Legal Immigration Network; Vera Institute (vera.org) — free immigration legal services; local USCIS Field Office for citizenship; 211 for local immigrant services. Do NOT give legal advice — connect them to a qualified immigration attorney.`,
+    );
   }
 
-  const substanceKeywords = ["substance", "addiction", "drug", "alcohol", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "overdose", "naloxone", "prescription misuse"];
-  if (substanceKeywords.some(kw => lowerMessage.includes(kw))) {
-    contextParts.push(`[PLATFORM RECOMMENDATION]: Direct user to /prevention (Prevention Hub) for evidence-based prevention programs, risk/protective factor assessments, and youth surveys. Also suggest /parent-education for parent-specific substance prevention modules, family assessments, and AI conversation starters. Also suggest /research-hub for implementation science tools and /chw-dashboard for community health worker resources.`);
+  const substanceKeywords = [
+    "substance",
+    "addiction",
+    "drug",
+    "alcohol",
+    "vaping",
+    "vape",
+    "e-cigarette",
+    "fentanyl",
+    "opioid",
+    "cannabis",
+    "marijuana",
+    "overdose",
+    "naloxone",
+    "prescription misuse",
+  ];
+  if (substanceKeywords.some((kw) => lowerMessage.includes(kw))) {
+    contextParts.push(
+      `[PLATFORM RECOMMENDATION]: Direct user to /prevention (Prevention Hub) for evidence-based prevention programs, risk/protective factor assessments, and youth surveys. Also suggest /parent-education for parent-specific substance prevention modules, family assessments, and AI conversation starters. Also suggest /research-hub for implementation science tools and /chw-dashboard for community health worker resources.`,
+    );
   }
 
-  const parentingKeywords = ["parent", "parenting", "family", "my child", "my kid", "my son", "my daughter", "my teen", "teenager", "co-parent", "discipline", "talking to my child", "family stress", "family conflict", "reunification"];
-  if (parentingKeywords.some(kw => lowerMessage.includes(kw))) {
-    contextParts.push(`[PLATFORM RECOMMENDATION]: This person has family/parenting needs. PRIORITIZE directing them to /parent-education — Parent Education & Family Strengthening hub with 16 modules (7 substance prevention + 9 family strengthening including co-parenting, reunification, and conflict resolution), family risk & protective factors assessment, and AI-powered age-banded conversation starters (10-14 and 15-18). Also consider /parents for general family resources and workforce readiness. If substance prevention is relevant, also suggest /prevention.`);
+  const parentingKeywords = [
+    "parent",
+    "parenting",
+    "family",
+    "my child",
+    "my kid",
+    "my son",
+    "my daughter",
+    "my teen",
+    "teenager",
+    "co-parent",
+    "discipline",
+    "talking to my child",
+    "family stress",
+    "family conflict",
+    "reunification",
+  ];
+  if (parentingKeywords.some((kw) => lowerMessage.includes(kw))) {
+    contextParts.push(
+      `[PLATFORM RECOMMENDATION]: This person has family/parenting needs. PRIORITIZE directing them to /parent-education — Parent Education & Family Strengthening hub with 16 modules (7 substance prevention + 9 family strengthening including co-parenting, reunification, and conflict resolution), family risk & protective factors assessment, and AI-powered age-banded conversation starters (10-14 and 15-18). Also consider /parents for general family resources and workforce readiness. If substance prevention is relevant, also suggest /prevention.`,
+    );
   }
 
-  const grantKeywords = ["grant", "funding", "funder", "proposal", "recidivism", "prevention", "program funding"];
-  if (grantKeywords.some(kw => lowerMessage.includes(kw))) {
+  const grantKeywords = [
+    "grant",
+    "funding",
+    "funder",
+    "proposal",
+    "recidivism",
+    "prevention",
+    "program funding",
+  ];
+  if (grantKeywords.some((kw) => lowerMessage.includes(kw))) {
     try {
       const grants = await db.select().from(grantOpportunities).limit(5);
       if (grants.length > 0) {
-        const grantList = grants.map(g => {
-          let info = `- ${g.title}`;
-          if (g.agency) info += ` (${g.agency})`;
-          if (g.fundingAmount) info += ` | Amount: ${g.fundingAmount}`;
-          if (g.deadline) info += ` | Deadline: ${g.deadline.toLocaleDateString()}`;
-          if (g.description) info += ` | ${g.description.substring(0, 200)}`;
-          if (g.focusAreas) info += ` | Focus: ${g.focusAreas.join(", ")}`;
-          return info;
-        }).join("\n");
+        const grantList = grants
+          .map((g) => {
+            let info = `- ${g.title}`;
+            if (g.agency) info += ` (${g.agency})`;
+            if (g.fundingAmount) info += ` | Amount: ${g.fundingAmount}`;
+            if (g.deadline)
+              info += ` | Deadline: ${g.deadline.toLocaleDateString()}`;
+            if (g.description) info += ` | ${g.description.substring(0, 200)}`;
+            if (g.focusAreas) info += ` | Focus: ${g.focusAreas.join(", ")}`;
+            return info;
+          })
+          .join("\n");
         contextParts.push(`[GRANT OPPORTUNITIES]:\n${grantList}`);
       }
     } catch (err) {
@@ -692,20 +1173,27 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
 
   if (userId) {
     try {
-      const recentConvos = await db.select().from(navigatorConversations)
+      const recentConvos = await db
+        .select()
+        .from(navigatorConversations)
         .where(eq(navigatorConversations.userId, userId))
         .orderBy(desc(navigatorConversations.lastMessageAt))
         .limit(3);
 
       if (recentConvos.length > 0) {
         const summaries = recentConvos
-          .filter(c => c.summary || (c.identifiedNeeds && c.identifiedNeeds.length > 0))
-          .map(c => {
+          .filter(
+            (c) =>
+              c.summary || (c.identifiedNeeds && c.identifiedNeeds.length > 0),
+          )
+          .map((c) => {
             let info = `- Previous conversation: "${c.title}"`;
             if (c.summary) info += ` — ${c.summary}`;
-            if (c.identifiedNeeds && c.identifiedNeeds.length > 0) info += ` | Needs: ${c.identifiedNeeds.join(", ")}`;
+            if (c.identifiedNeeds && c.identifiedNeeds.length > 0)
+              info += ` | Needs: ${c.identifiedNeeds.join(", ")}`;
             return info;
-          }).join("\n");
+          })
+          .join("\n");
         if (summaries) {
           contextParts.push(`[PREVIOUS INTERACTIONS]:\n${summaries}`);
         }
@@ -715,7 +1203,12 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
     }
   }
 
-  const context = contextParts.length > 0 ? "\n\n--- CONTEXT DATA ---\n" + contextParts.join("\n\n") + "\n--- END CONTEXT ---" : "";
+  const context =
+    contextParts.length > 0
+      ? "\n\n--- CONTEXT DATA ---\n" +
+        contextParts.join("\n\n") +
+        "\n--- END CONTEXT ---"
+      : "";
   return { context, censusIndicators, gvTotals };
 }
 
@@ -729,51 +1222,67 @@ function detectNeeds(message: string): string[] {
   const needs: string[] = [];
   const lower = message.toLowerCase();
   const needMap: Record<string, string[]> = {
-    "housing": ["housing", "shelter", "homeless", "evict", "rent", "place to stay"],
-    "food": ["food", "hungry", "snap", "wic", "food bank"],
-    "healthcare": ["health", "doctor", "medical", "medicaid", "mental health"],
-    "employment": ["job", "work", "employment", "career", "hiring"],
-    "education": ["school", "education", "ged", "college"],
-    "legal": ["legal", "lawyer", "court", "expungement", "probation"],
-    "financial": ["money", "bills", "debt", "financial"],
-    "substance-abuse": ["substance", "addiction", "drug", "alcohol", "recovery", "vaping", "vape", "e-cigarette", "fentanyl", "opioid", "cannabis", "marijuana", "prescription misuse", "overdose", "naloxone"],
-    "childcare": ["childcare", "daycare", "child care"],
-    "transportation": ["transportation", "bus", "ride", "transit"],
-    "research": ["research", "implementation science", "re-aim", "cfir", "evidence-based", "dissemination", "fidelity"],
-    "chw": ["community health worker", "chw", "home visit", "caseload", "screening referral", "frontline health"],
+    housing: [
+      "housing",
+      "shelter",
+      "homeless",
+      "evict",
+      "rent",
+      "place to stay",
+    ],
+    food: ["food", "hungry", "snap", "wic", "food bank"],
+    healthcare: ["health", "doctor", "medical", "medicaid", "mental health"],
+    employment: ["job", "work", "employment", "career", "hiring"],
+    education: ["school", "education", "ged", "college"],
+    legal: ["legal", "lawyer", "court", "expungement", "probation"],
+    financial: ["money", "bills", "debt", "financial"],
+    "substance-abuse": [
+      "substance",
+      "addiction",
+      "drug",
+      "alcohol",
+      "recovery",
+      "vaping",
+      "vape",
+      "e-cigarette",
+      "fentanyl",
+      "opioid",
+      "cannabis",
+      "marijuana",
+      "prescription misuse",
+      "overdose",
+      "naloxone",
+    ],
+    childcare: ["childcare", "daycare", "child care"],
+    transportation: ["transportation", "bus", "ride", "transit"],
+    research: [
+      "research",
+      "implementation science",
+      "re-aim",
+      "cfir",
+      "evidence-based",
+      "dissemination",
+      "fidelity",
+    ],
+    chw: [
+      "community health worker",
+      "chw",
+      "home visit",
+      "caseload",
+      "screening referral",
+      "frontline health",
+    ],
   };
   for (const [need, keywords] of Object.entries(needMap)) {
-    if (keywords.some(kw => lower.includes(kw))) needs.push(need);
+    if (keywords.some((kw) => lower.includes(kw))) needs.push(need);
   }
   return needs;
 }
 
-const navigatorRateLimit = new Map<string, { count: number; resetAt: number }>();
-
-async function fetchUrlContent(url: string): Promise<string | null> {
-  try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 8000);
-    const res = await fetch(url, {
-      signal: controller.signal,
-      headers: { "User-Agent": "Mozilla/5.0 (compatible; ThriveUpNavigator/1.0)" },
-    });
-    clearTimeout(timer);
-    if (!res.ok) return null;
-    const html = await res.text();
-    const text = html
-      .replace(/<script[\s\S]*?<\/script>/gi, " ")
-      .replace(/<style[\s\S]*?<\/style>/gi, " ")
-      .replace(/<[^>]+>/g, " ")
-      .replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
-      .replace(/\s+/g, " ")
-      .trim()
-      .slice(0, 12000);
-    return text.length > 100 ? text : null;
-  } catch {
-    return null;
-  }
-}
+const navigatorRateLimit = new Map<
+  string,
+  { count: number; resetAt: number }
+>();
 
 /**
  * Applies all available Navigator grounding rules to a buffered AI response
@@ -799,13 +1308,23 @@ function applyNavigatorGrounding(
     if (censusIndicators) {
       const { povertyRate, unemploymentRate, uninsuredRate } = censusIndicators;
       if (povertyRate != null && Number.isFinite(povertyRate)) {
-        rules.push(buildPercentRule("nav-poverty-rate", /poverty/i, povertyRate));
+        rules.push(
+          buildPercentRule("nav-poverty-rate", /poverty/i, povertyRate),
+        );
       }
       if (unemploymentRate != null && Number.isFinite(unemploymentRate)) {
-        rules.push(buildPercentRule("nav-unemployment-rate", /unemploy(?:ment|ed)/i, unemploymentRate));
+        rules.push(
+          buildPercentRule(
+            "nav-unemployment-rate",
+            /unemploy(?:ment|ed)/i,
+            unemploymentRate,
+          ),
+        );
       }
       if (uninsuredRate != null && Number.isFinite(uninsuredRate)) {
-        rules.push(buildPercentRule("nav-uninsured-rate", /uninsured/i, uninsuredRate));
+        rules.push(
+          buildPercentRule("nav-uninsured-rate", /uninsured/i, uninsuredRate),
+        );
       }
     }
 
@@ -814,7 +1333,8 @@ function applyNavigatorGrounding(
       const { totalDeaths, totalHomicides, totalSuicides } = gvTotals;
       const countExtract = (sentence: string) => {
         const claims: { value: number; kind: string }[] = [];
-        const re = /(\d[\d,]*(?:\.\d+)?)\s*(?:deaths?|killed|fatalities|homicides?|suicides?|firearm deaths?|gun deaths?)/gi;
+        const re =
+          /(\d[\d,]*(?:\.\d+)?)\s*(?:deaths?|killed|fatalities|homicides?|suicides?|firearm deaths?|gun deaths?)/gi;
         let m: RegExpExecArray | null;
         while ((m = re.exec(sentence))) {
           const n = parseFloat(m[1].replace(/,/g, ""));
@@ -822,36 +1342,43 @@ function applyNavigatorGrounding(
         }
         return claims;
       };
-      const allowedCounts = [totalDeaths, totalHomicides, totalSuicides].filter((n): n is number => n != null && Number.isFinite(n));
+      const allowedCounts = [totalDeaths, totalHomicides, totalSuicides].filter(
+        (n): n is number => n != null && Number.isFinite(n),
+      );
       if (allowedCounts.length > 0) {
-        rules.push(buildAnyOfRule(
-          "nav-gv-death-count",
-          /\b(?:deaths?|killed|fatalities|homicides?|suicides?|firearm deaths?|gun deaths?)\b/i,
-          countExtract,
-          allowedCounts,
-          (v) => Math.max(5000, v * 0.07),
-        ));
+        rules.push(
+          buildAnyOfRule(
+            "nav-gv-death-count",
+            /\b(?:deaths?|killed|fatalities|homicides?|suicides?|firearm deaths?|gun deaths?)\b/i,
+            countExtract,
+            allowedCounts,
+            (v) => Math.max(5000, v * 0.07),
+          ),
+        );
       }
     }
 
     // Grant hunt total (only when the hunt engine actually ran)
     if (grantHuntTotal != null && Number.isFinite(grantHuntTotal)) {
-      rules.push(buildAnyOfRule(
-        "nav-grant-hunt-total",
-        /\b(?:found|identified|discovered|surfaced|returned|available)\s+(?:\d[\d,]*)\s+(?:grants?|opportunities?|results?)\b|\b(?:\d[\d,]*)\s+(?:grants?|opportunities?|results?)\s+(?:found|identified|available)/i,
-        (sentence) => {
-          const claims: { value: number; kind: string }[] = [];
-          const re = /\b(\d[\d,]*)\s+(?:grants?|opportunities?|funding\s+opportunities?|results?)\b/gi;
-          let m: RegExpExecArray | null;
-          while ((m = re.exec(sentence))) {
-            const n = parseInt(m[1].replace(/,/g, ""), 10);
-            if (Number.isFinite(n)) claims.push({ value: n, kind: "count" });
-          }
-          return claims;
-        },
-        [grantHuntTotal],
-        (v) => Math.max(2, v * 0.15),
-      ));
+      rules.push(
+        buildAnyOfRule(
+          "nav-grant-hunt-total",
+          /\b(?:found|identified|discovered|surfaced|returned|available)\s+(?:\d[\d,]*)\s+(?:grants?|opportunities?|results?)\b|\b(?:\d[\d,]*)\s+(?:grants?|opportunities?|results?)\s+(?:found|identified|available)/i,
+          (sentence) => {
+            const claims: { value: number; kind: string }[] = [];
+            const re =
+              /\b(\d[\d,]*)\s+(?:grants?|opportunities?|funding\s+opportunities?|results?)\b/gi;
+            let m: RegExpExecArray | null;
+            while ((m = re.exec(sentence))) {
+              const n = parseInt(m[1].replace(/,/g, ""), 10);
+              if (Number.isFinite(n)) claims.push({ value: n, kind: "count" });
+            }
+            return claims;
+          },
+          [grantHuntTotal],
+          (v) => Math.max(2, v * 0.15),
+        ),
+      );
     }
 
     if (rules.length === 0) return text;
@@ -861,16 +1388,32 @@ function applyNavigatorGrounding(
       const subject = censusIndicators
         ? `ZIP ${censusIndicators.zip}`
         : (gvContext.geography ?? "navigator");
-      recordClaimDecisions("navigator", subject, result.decisions).catch((err) =>
-        console.error("[Navigator] claim-chain record failed (non-fatal):", err)
+      recordClaimDecisions("navigator", subject, result.decisions).catch(
+        (err) =>
+          console.error(
+            "[Navigator] claim-chain record failed (non-fatal):",
+            err,
+          ),
       );
     }
     if (result.droppedAny) {
-      console.warn(`[Navigator] grounding engine redacted ungrounded claim(s). Decisions:`, result.decisions.filter(d => d.verdict !== "kept").map(d => ({ rule: d.ruleId, verdict: d.verdict, sentence: d.sentence.slice(0, 100) })));
+      console.warn(
+        `[Navigator] grounding engine redacted ungrounded claim(s). Decisions:`,
+        result.decisions
+          .filter((d) => d.verdict !== "kept")
+          .map((d) => ({
+            rule: d.ruleId,
+            verdict: d.verdict,
+            sentence: d.sentence.slice(0, 100),
+          })),
+      );
     }
     return result.text;
   } catch (err) {
-    console.error("[Navigator] applyNavigatorGrounding error (non-fatal):", err);
+    console.error(
+      "[Navigator] applyNavigatorGrounding error (non-fatal):",
+      err,
+    );
     return text;
   }
 }
@@ -886,7 +1429,10 @@ export function registerNavigatorRoutes(app: Express) {
     const maxMsgs = userId ? 20 : 8;
     if (userLimit && now < userLimit.resetAt) {
       if (userLimit.count >= maxMsgs) {
-        return res.status(429).json({ error: "Rate limit exceeded. Please wait before sending more messages." });
+        return res.status(429).json({
+          error:
+            "Rate limit exceeded. Please wait before sending more messages.",
+        });
       }
       userLimit.count++;
     } else {
@@ -903,10 +1449,16 @@ export function registerNavigatorRoutes(app: Express) {
     // Oversized input drives cost and can be an abuse/DoS vector.
     const MAX_MESSAGE_CHARS = 8000;
     if (message.length > MAX_MESSAGE_CHARS) {
-      return res.status(400).json({ error: `Message is too long (max ${MAX_MESSAGE_CHARS} characters). Please shorten it and try again.` });
+      return res.status(400).json({
+        error: `Message is too long (max ${MAX_MESSAGE_CHARS} characters). Please shorten it and try again.`,
+      });
     }
 
-    const { context: contextData, censusIndicators: navigatorCensusIndicators, gvTotals: navigatorGvTotals } = await assembleContext(req, message);
+    const {
+      context: contextData,
+      censusIndicators: navigatorCensusIndicators,
+      gvTotals: navigatorGvTotals,
+    } = await assembleContext(req, message);
     // Recompute (cheap, regex-only) in this handler's scope so the "Continue
     // in Tell-a-Story" carry-over (#216) can reference it — assembleContext's
     // internal detection variables are local to that function.
@@ -922,16 +1474,19 @@ export function registerNavigatorRoutes(app: Express) {
       detailed: `\n\n[RESPONSE MODE: DETAILED]\nGive a thorough, empathetic response. Cover the person's situation fully, provide 4-8 specific resources with a sentence explaining why each one fits their situation, link relevant platform tools naturally, and end with clear concrete next steps. This is the standard depth.`,
       report: `\n\n[RESPONSE MODE: FULL REPORT]\nThe user has specifically requested a comprehensive report. Write a deep, multi-section document — similar to a professional community briefing. Use **bold section headers**. Include ALL of the following sections (adapt names to fit the topic): (1) **Understanding Your Situation** — genuine acknowledgment of their full context and what makes their situation unique; (2) **Immediate Resources** — 6-10 specific organizations/programs with name, phone, website, hours, eligibility, and a sentence on why it fits them specifically; (3) **State & Federal Programs** — what they qualify for, how to apply, what to say when they call; (4) **Your Step-by-Step Action Plan** — numbered concrete steps, in the right order, with who to call first and what to say; (5) **Platform Tools That Apply** — specific ThriveUp pages that directly help, explained; (6) **What to Watch Out For** — common barriers, waitlists, deadlines, documentation they'll need; (7) **Longer-Term Path** — what success looks like 3-6 months out. Write as a woven narrative within each section — not bullet dumps. Aim for 800-2000+ words. This is a real document that should be useful on its own.`,
     };
-    const modeInstruction = RESPONSE_MODE_INSTRUCTIONS[responseMode] || RESPONSE_MODE_INSTRUCTIONS.detailed;
+    const modeInstruction =
+      RESPONSE_MODE_INSTRUCTIONS[responseMode] ||
+      RESPONSE_MODE_INSTRUCTIONS.detailed;
 
     // Youth Mode — calibrated for young people (14-24) navigating housing
     // instability (YHSI). Opt-in via request body; changes register, not rules.
     // Effective value may also be upgraded from the stored conversation flag
     // below, so re-opened Youth Mode threads stay youth-friendly.
     let effectiveYouthMode = req.body.youthMode === true;
-    const buildYouthModeInstruction = () => effectiveYouthMode
-      ? `\n\n[YOUTH MODE]\nYou are talking with a young person (likely 14-24) who may be experiencing housing instability. Adjust:\n- Language: plain, warm, zero bureaucratic jargon. Short sentences. Never condescending.\n- Safety first: if they describe being unsheltered, in danger, or fleeing, lead with immediate options (school McKinney-Vento liaison, local youth shelter, National Runaway Safeline 1-800-786-2929) before anything else.\n- Rights they often don't know: McKinney-Vento rights to stay enrolled in school without a permanent address, without a parent signature, with transportation; FAFSA independent-student status for unaccompanied homeless youth (no parent info needed — their school liaison or a shelter can verify).\n- Route housing-adjacent needs proactively: a question about a job or school almost always has a housing dimension — surface both.\n- Never require them to share legal name, immigration status, or family details to get help. Never suggest anything that would out them to an unsafe household.\n- Respect their agency: offer options, not directives.${YOUTH_MODE_KNOWLEDGE}`
-      : "";
+    const buildYouthModeInstruction = () =>
+      effectiveYouthMode
+        ? `\n\n[YOUTH MODE]\nYou are talking with a young person (likely 14-24) who may be experiencing housing instability. Adjust:\n- Language: plain, warm, zero bureaucratic jargon. Short sentences. Never condescending.\n- Safety first: if they describe being unsheltered, in danger, or fleeing, lead with immediate options (school McKinney-Vento liaison, local youth shelter, National Runaway Safeline 1-800-786-2929) before anything else.\n- Rights they often don't know: McKinney-Vento rights to stay enrolled in school without a permanent address, without a parent signature, with transportation; FAFSA independent-student status for unaccompanied homeless youth (no parent info needed — their school liaison or a shelter can verify).\n- Route housing-adjacent needs proactively: a question about a job or school almost always has a housing dimension — surface both.\n- Never require them to share legal name, immigration status, or family details to get help. Never suggest anything that would out them to an unsafe household.\n- Respect their agency: offer options, not directives.${YOUTH_MODE_KNOWLEDGE}`
+        : "";
 
     // Personal RAG — inject user-specific context when authenticated
     let personalContextBlock = "";
@@ -955,22 +1510,32 @@ export function registerNavigatorRoutes(app: Express) {
     if (userId) {
       try {
         if (!activeConversationId) {
-          const [newConvo] = await db.insert(navigatorConversations).values({
-            userId,
-            title: generateConversationTitle(message),
-            identifiedNeeds: detectNeeds(message),
-            youthMode: effectiveYouthMode,
-          }).returning();
+          const [newConvo] = await db
+            .insert(navigatorConversations)
+            .values({
+              userId,
+              title: generateConversationTitle(message),
+              identifiedNeeds: detectNeeds(message),
+              youthMode: effectiveYouthMode,
+            })
+            .returning();
           activeConversationId = newConvo.id;
         } else {
-          const [owned] = await db.select().from(navigatorConversations)
-            .where(and(
-              eq(navigatorConversations.id, activeConversationId),
-              eq(navigatorConversations.userId, userId)
-            )).limit(1);
+          const [owned] = await db
+            .select()
+            .from(navigatorConversations)
+            .where(
+              and(
+                eq(navigatorConversations.id, activeConversationId),
+                eq(navigatorConversations.userId, userId),
+              ),
+            )
+            .limit(1);
 
           if (!owned) {
-            return res.status(403).json({ error: "Conversation not found or access denied" });
+            return res
+              .status(403)
+              .json({ error: "Conversation not found or access denied" });
           }
 
           // Sticky Youth Mode: a thread that started in Youth Mode stays
@@ -978,19 +1543,24 @@ export function registerNavigatorRoutes(app: Express) {
           if (owned.youthMode === true) {
             effectiveYouthMode = true;
           } else if (effectiveYouthMode) {
-            await db.update(navigatorConversations)
+            await db
+              .update(navigatorConversations)
               .set({ youthMode: true })
               .where(eq(navigatorConversations.id, activeConversationId));
           }
 
           const newNeeds = detectNeeds(message);
           if (newNeeds.length > 0) {
-            const allNeeds = Array.from(new Set([...(owned.identifiedNeeds || []), ...newNeeds]));
-            await db.update(navigatorConversations)
+            const allNeeds = Array.from(
+              new Set([...(owned.identifiedNeeds || []), ...newNeeds]),
+            );
+            await db
+              .update(navigatorConversations)
               .set({ identifiedNeeds: allNeeds, lastMessageAt: new Date() })
               .where(eq(navigatorConversations.id, activeConversationId));
           } else {
-            await db.update(navigatorConversations)
+            await db
+              .update(navigatorConversations)
               .set({ lastMessageAt: new Date() })
               .where(eq(navigatorConversations.id, activeConversationId));
           }
@@ -1011,17 +1581,27 @@ export function registerNavigatorRoutes(app: Express) {
     res.setHeader("Connection", "keep-alive");
     res.setHeader("X-Conversation-Id", activeConversationId || "");
 
-    res.write(`data: ${JSON.stringify({ conversationId: activeConversationId })}\n\n`);
+    res.write(
+      `data: ${JSON.stringify({ conversationId: activeConversationId })}\n\n`,
+    );
 
-    const fullSystemPrompt = NAVIGATOR_SYSTEM_PROMPT + contextData + personalContextBlock + modeInstruction + buildYouthModeInstruction();
+    const fullSystemPrompt =
+      NAVIGATOR_SYSTEM_PROMPT +
+      contextData +
+      personalContextBlock +
+      modeInstruction +
+      buildYouthModeInstruction();
 
-    const msgs: Array<{ role: "system" | "user" | "assistant"; content: string }> = [
-      { role: "system", content: fullSystemPrompt },
-    ];
+    const msgs: Array<{
+      role: "system" | "user" | "assistant";
+      content: string;
+    }> = [{ role: "system", content: fullSystemPrompt }];
 
     if (activeConversationId) {
       try {
-        const dbHistory = await db.select().from(navigatorMessages)
+        const dbHistory = await db
+          .select()
+          .from(navigatorMessages)
           .where(eq(navigatorMessages.conversationId, activeConversationId))
           .orderBy(desc(navigatorMessages.createdAt))
           .limit(12);
@@ -1029,7 +1609,10 @@ export function registerNavigatorRoutes(app: Express) {
         const recentHistory = dbHistory.reverse().slice(0, -1);
         for (const msg of recentHistory) {
           if (msg.role === "user" || msg.role === "assistant") {
-            msgs.push({ role: msg.role as "user" | "assistant", content: msg.content });
+            msgs.push({
+              role: msg.role as "user" | "assistant",
+              content: msg.content,
+            });
           }
         }
       } catch (err) {
@@ -1037,20 +1620,20 @@ export function registerNavigatorRoutes(app: Express) {
       }
     }
 
-    // Fetch any URLs the user pasted so the AI can actually read the articles
+    // Arbitrary URL retrieval is intentionally disabled. A DNS pre-check followed
+    // by a hostname fetch can be rebound to a private address between the two
+    // operations; this route does not have a TLS hostname-validating transport
+    // pinned to the validated address. Fail closed rather than risk access to
+    // loopback, private, or link-local services.
     const urlMatches = message.match(/https?:\/\/[^\s\]]+/g);
     let augmentedMessage = message;
     if (urlMatches && urlMatches.length > 0) {
-      const fetchedParts = (await Promise.all(
-        urlMatches.slice(0, 3).map(async (url) => {
-          const content = await fetchUrlContent(url);
-          return content ? `[FETCHED ARTICLE from ${url}]:\n${content}` : null;
-        })
-      )).filter((x): x is string => x !== null);
-      if (fetchedParts.length > 0) {
-        augmentedMessage = `${message}\n\n${fetchedParts.join("\n\n")}`;
-        console.log(`[Navigator] Fetched ${fetchedParts.length} URL(s) for context`);
-      }
+      res.write(
+        `data: ${JSON.stringify({
+          urlFetchWarning:
+            "For safety, Navigator cannot retrieve pasted web links. Please paste the relevant text or attach a document instead.",
+        })}\n\n`,
+      );
     }
 
     // ── Grant Hunt Intent ─────────────────────────────────────────────────────
@@ -1058,33 +1641,57 @@ export function registerNavigatorRoutes(app: Express) {
     // Runs the full AI Hunt engine inline and injects ranked results + alignment framing
     // into the context so the AI tells the story, not just lists the grants.
     const grantHuntMatch =
-      /(?:find|search|hunt|look\s+for|get|show\s+me|discover|pull)\s+(?:a\s+)?grants?\s+for\s+(?:the\s+)?(.+?)(?:\s*[.?!]?\s*$)/i.exec(message.trim())
-      || /grants?\s+(?:available\s+)?for\s+(?:the\s+)?(.+?)(?:\s*[.?!]?\s*$)/i.exec(message.trim())
-      || /what\s+grants?\s+(?:can|could|would|should|does|do|is\s+available(?:\s+for)?)\s+(?:the\s+)?(.+?)\s+(?:apply|qualify|get|use)/i.exec(message.trim());
+      /(?:find|search|hunt|look\s+for|get|show\s+me|discover|pull)\s+(?:a\s+)?grants?\s+for\s+(?:the\s+)?(.+?)(?:\s*[.?!]?\s*$)/i.exec(
+        message.trim(),
+      ) ||
+      /grants?\s+(?:available\s+)?for\s+(?:the\s+)?(.+?)(?:\s*[.?!]?\s*$)/i.exec(
+        message.trim(),
+      ) ||
+      /what\s+grants?\s+(?:can|could|would|should|does|do|is\s+available(?:\s+for)?)\s+(?:the\s+)?(.+?)\s+(?:apply|qualify|get|use)/i.exec(
+        message.trim(),
+      );
 
     if (grantHuntMatch) {
       const orgDesc = grantHuntMatch[1].trim().replace(/['"]/g, "");
       try {
         console.log(`[Navigator] Grant hunt intent for: "${orgDesc}"`);
         // Immediately signal the frontend so the user sees activity, not a frozen spinner
-        res.write(`data: ${JSON.stringify({ grantHuntProgress: { org: orgDesc, step: "querying", message: `Hunting Grants.gov for "${orgDesc}"…` } })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({ grantHuntProgress: { org: orgDesc, step: "querying", message: `Hunting Grants.gov for "${orgDesc}"…` } })}\n\n`,
+        );
 
         // Step 1 — AI generates targeted queries
-        const queryPlan = await generateAIJSON<{ queries: string[]; orgType: string; primaryDomains: string[] }>(
+        const queryPlan = await generateAIJSON<{
+          queries: string[];
+          orgType: string;
+          primaryDomains: string[];
+        }>(
           `Generate 6 targeted Grants.gov keyword search queries for this organization: "${orgDesc}"\nReturn ONLY JSON: {"queries":["..."],"orgType":"nonprofit","primaryDomains":["..."]}\nRules: 2-5 words per query, federal grant terminology, mix broad + specific, no duplicates`,
-          withEthicalPreamble("You are a federal grant search specialist. Return only valid JSON, no markdown.")
+          withEthicalPreamble(
+            "You are a federal grant search specialist. Return only valid JSON, no markdown.",
+          ),
         );
         const queries = (queryPlan.queries || []).slice(0, 7);
 
         // Step 2 — Parallel Grants.gov fetch
         const fetched = await Promise.allSettled(
           queries.map(async (q) => {
-            const r = await fetch("https://apply07.grants.gov/grantsws/rest/opportunities/search", {
-              method: "POST",
-              headers: { "Content-Type": "application/json", Accept: "application/json" },
-              body: JSON.stringify({ keyword: q, oppStatuses: "posted", rows: 8 }),
-              signal: AbortSignal.timeout(10000),
-            });
+            const r = await fetch(
+              "https://apply07.grants.gov/grantsws/rest/opportunities/search",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                  Accept: "application/json",
+                },
+                body: JSON.stringify({
+                  keyword: q,
+                  oppStatuses: "posted",
+                  rows: 8,
+                }),
+                signal: AbortSignal.timeout(10000),
+              },
+            );
             if (!r.ok) return [];
             const d = await r.json();
             return (d.oppHits || []).map((h: any) => ({
@@ -1098,7 +1705,7 @@ export function registerNavigatorRoutes(app: Express) {
               sourceUrl: `https://www.grants.gov/search-results-detail/${h.id}`,
               matchedQuery: q,
             }));
-          })
+          }),
         );
 
         // Step 3 — Deduplicate
@@ -1107,7 +1714,10 @@ export function registerNavigatorRoutes(app: Express) {
         for (const r of fetched) {
           if (r.status === "fulfilled") {
             for (const h of r.value) {
-              if (!seen.has(h.id)) { seen.add(h.id); allHits.push(h); }
+              if (!seen.has(h.id)) {
+                seen.add(h.id);
+                allHits.push(h);
+              }
             }
           }
         }
@@ -1116,23 +1726,35 @@ export function registerNavigatorRoutes(app: Express) {
         let scored = allHits.slice(0, 20);
         if (scored.length > 0) {
           try {
-            const scoreResult = await generateAIJSON<{ scores: Array<{ index: number; score: number; reason: string }> }>(
+            const scoreResult = await generateAIJSON<{
+              scores: Array<{ index: number; score: number; reason: string }>;
+            }>(
               `Score each grant 0-100 fit for "${orgDesc}":\n${scored.map((h, i) => `${i}. ${h.title} | ${h.agency} | ${h.synopsis.slice(0, 120)}`).join("\n")}\nReturn ONLY JSON: {"scores":[{"index":0,"score":85,"reason":"2-sentence alignment rationale"},...]}`,
-              withEthicalPreamble("Grant fit analyst. Be specific and accurate. Return only valid JSON.")
+              withEthicalPreamble(
+                "Grant fit analyst. Be specific and accurate. Return only valid JSON.",
+              ),
             );
-            scored = scored.map((h, i) => {
-              const s = scoreResult.scores?.find(e => e.index === i);
-              // fitScore is an AI judgment call, not a verified/computed fact —
-              // there is no ground truth to check it against. Clamp it to a
-              // valid range so a malformed model response can't display a
-              // nonsensical number, and label it as an estimate everywhere it
-              // is surfaced (see huntBlock below) instead of presenting it as
-              // a certified figure.
-              const rawScore = typeof s?.score === "number" ? s.score : 50;
-              const fitScore = Math.max(0, Math.min(100, Math.round(rawScore)));
-              return { ...h, fitScore, reason: s?.reason ?? "" };
-            }).sort((a, b) => b.fitScore - a.fitScore).slice(0, 10);
-          } catch { scored = scored.slice(0, 10); }
+            scored = scored
+              .map((h, i) => {
+                const s = scoreResult.scores?.find((e) => e.index === i);
+                // fitScore is an AI judgment call, not a verified/computed fact —
+                // there is no ground truth to check it against. Clamp it to a
+                // valid range so a malformed model response can't display a
+                // nonsensical number, and label it as an estimate everywhere it
+                // is surfaced (see huntBlock below) instead of presenting it as
+                // a certified figure.
+                const rawScore = typeof s?.score === "number" ? s.score : 50;
+                const fitScore = Math.max(
+                  0,
+                  Math.min(100, Math.round(rawScore)),
+                );
+                return { ...h, fitScore, reason: s?.reason ?? "" };
+              })
+              .sort((a, b) => b.fitScore - a.fitScore)
+              .slice(0, 10);
+          } catch {
+            scored = scored.slice(0, 10);
+          }
         }
 
         // Step 5 — Inject as structured context block
@@ -1140,14 +1762,22 @@ export function registerNavigatorRoutes(app: Express) {
 Total found: ${allHits.length} | Showing top ${scored.length} ranked by AI fit score
 Queries fired: ${queries.join(" · ")}
 
-${scored.map((h, i) => [
-  `${i + 1}. ${h.fitScore ?? "?"}% AI-ESTIMATED FIT (not a certified score) — ${h.title}`,
-  `   Agency: ${h.agency}`,
-  h.closeDate ? `   Deadline: ${new Date(h.closeDate).toLocaleDateString()}` : `   Deadline: Open`,
-  h.cfdaList.length ? `   CFDA: ${h.cfdaList.join(", ")}` : "",
-  h.reason ? `   Alignment: ${h.reason}` : "",
-  `   Link: ${h.sourceUrl}`,
-].filter(Boolean).join("\n")).join("\n\n")}
+${scored
+  .map((h, i) =>
+    [
+      `${i + 1}. ${h.fitScore ?? "?"}% AI-ESTIMATED FIT (not a certified score) — ${h.title}`,
+      `   Agency: ${h.agency}`,
+      h.closeDate
+        ? `   Deadline: ${new Date(h.closeDate).toLocaleDateString()}`
+        : `   Deadline: Open`,
+      h.cfdaList.length ? `   CFDA: ${h.cfdaList.join(", ")}` : "",
+      h.reason ? `   Alignment: ${h.reason}` : "",
+      `   Link: ${h.sourceUrl}`,
+    ]
+      .filter(Boolean)
+      .join("\n"),
+  )
+  .join("\n\n")}
 
 [YOUR RESPONSE MUST]:
 1. Open by naming "${orgDesc}" and what makes them a competitive applicant for federal funding
@@ -1161,8 +1791,12 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         // can't restate a different total than what the hunt actually found).
         navigatorGrantHuntTotal = allHits.length;
         // Emit structured grant cards BEFORE the text stream — frontend renders them with "Add to Pipeline" buttons
-        res.write(`data: ${JSON.stringify({ grantHuntResults: scored, grantOrgName: orgDesc, totalFound: allHits.length })}\n\n`);
-        console.log(`[Navigator] Grant hunt complete: ${allHits.length} found, top ${scored.length} scored`);
+        res.write(
+          `data: ${JSON.stringify({ grantHuntResults: scored, grantOrgName: orgDesc, totalFound: allHits.length })}\n\n`,
+        );
+        console.log(
+          `[Navigator] Grant hunt complete: ${allHits.length} found, top ${scored.length} scored`,
+        );
       } catch (huntErr) {
         console.error("[Navigator] Grant hunt error:", huntErr);
         // Fall through — AI responds without hunt data (still helpful)
@@ -1180,14 +1814,35 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     // details an IRS record doesn't carry. Fails soft: if no candidate org
     // name is found, or both lookups miss, the AI falls back to its normal
     // (honest, non-fabricating) behavior.
-    const NONPROFIT_INTENT_RE = /\b(501\s?\(?c\)?\s?\(?3\)?|501c3|\bein\b|tax[- ]exempt|nonprofit status|is\s+[a-z][a-z\s]+\s+a\s+(?:real\s+)?(?:nonprofit|charity)|past performance|funding history|grant history|financials?|form\s?990|\b990\b)\b/i;
+    const NONPROFIT_INTENT_RE =
+      /\b(501\s?\(?c\)?\s?\(?3\)?|501c3|\bein\b|tax[- ]exempt|nonprofit status|is\s+[a-z][a-z\s]+\s+a\s+(?:real\s+)?(?:nonprofit|charity)|past performance|funding history|grant history|financials?|form\s?990|\b990\b)\b/i;
     let orgInfoBlock = "";
     if (NONPROFIT_INTENT_RE.test(message)) {
-      const capRuns = message.match(/\b[A-Z][a-zA-Z&'.-]*(?:\s+(?:of|for|the|and)?\s*[A-Z][a-zA-Z&'.-]*){0,5}\b/g) || [];
-      const STOPWORDS = new Set(["Tell", "What", "Who", "Is", "The", "Are", "Does", "Do", "I", "Can", "Will", "EIN", "Form"]);
+      const capRuns =
+        message.match(
+          /\b[A-Z][a-zA-Z&'.-]*(?:\s+(?:of|for|the|and)?\s*[A-Z][a-zA-Z&'.-]*){0,5}\b/g,
+        ) || [];
+      const STOPWORDS = new Set([
+        "Tell",
+        "What",
+        "Who",
+        "Is",
+        "The",
+        "Are",
+        "Does",
+        "Do",
+        "I",
+        "Can",
+        "Will",
+        "EIN",
+        "Form",
+      ]);
       const candidate = capRuns
         .map((s) => s.trim())
-        .filter((s) => s.split(/\s+/).length >= 2 && !STOPWORDS.has(s.split(/\s+/)[0]))
+        .filter(
+          (s) =>
+            s.split(/\s+/).length >= 2 && !STOPWORDS.has(s.split(/\s+/)[0]),
+        )
         .sort((a, b) => b.length - a.length)[0];
 
       if (candidate) {
@@ -1201,16 +1856,23 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
             try {
               const research = await perplexityResearch(
                 `What does the organization "${candidate}" do (mission, programs, who they serve)? Where are they located, and what is their official website? If you cannot find reliable current information, say so plainly rather than guessing.`,
-                "You are a careful researcher supporting a case worker. Cite your sources. Never invent a website, phone number, program detail, or funder you cannot verify."
+                "You are a careful researcher supporting a case worker. Cite your sources. Never invent a website, phone number, program detail, or funder you cannot verify.",
               );
-              blocks.push(`\n\n[LIVE WEB RESEARCH for "${candidate}"]\n${research.text}${research.citations.length ? `\nSources: ${research.citations.join(", ")}` : ""}`);
+              blocks.push(
+                `\n\n[LIVE WEB RESEARCH for "${candidate}"]\n${research.text}${research.citations.length ? `\nSources: ${research.citations.join(", ")}` : ""}`,
+              );
             } catch (webErr) {
-              console.error("[Navigator] Nonprofit web research error:", webErr);
+              console.error(
+                "[Navigator] Nonprofit web research error:",
+                webErr,
+              );
             }
           }
           if (blocks.length > 0) {
             orgInfoBlock = blocks.join("\n");
-            console.log(`[Navigator] Nonprofit identity lookup fired for "${candidate}" (ProPublica match: ${!!profile}, web research: ${isPerplexityAvailable()})`);
+            console.log(
+              `[Navigator] Nonprofit identity lookup fired for "${candidate}" (ProPublica match: ${!!profile}, web research: ${isPerplexityAvailable()})`,
+            );
           }
         } catch (err) {
           console.error("[Navigator] Nonprofit lookup error:", err);
@@ -1228,14 +1890,20 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
     // Detect whether the user attached documents — if so we skip RAG retrieval
     // (the document IS the relevant context) and route to Claude's 200K window.
-    const hasAttachedDocuments = augmentedMessage.includes("[ATTACHED DOCUMENT:");
+    const hasAttachedDocuments = augmentedMessage.includes(
+      "[ATTACHED DOCUMENT:",
+    );
 
     try {
-      const tokensByMode: Record<string, number> = { brief: 1500, detailed: 5000, report: 16000 };
+      const tokensByMode: Record<string, number> = {
+        brief: 1500,
+        detailed: 5000,
+        report: 16000,
+      };
       const modeTokens = tokensByMode[responseMode] || 5000;
       await collaborativeStream({
         prompt: augmentedMessage,
-        systemPrompt: msgs.find(m => m.role === "system")?.content,
+        systemPrompt: msgs.find((m) => m.role === "system")?.content,
         maxTokens: hasAttachedDocuments ? 8000 : modeTokens,
         skipRAG: hasAttachedDocuments,
         // Navigator has its own comprehensive system prompt — suppress RPLICE/MAP-GAP
@@ -1250,7 +1918,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           fullResponse += content;
         },
         onMeta: (meta) => {
-          res.write(`data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`);
+          res.write(
+            `data: ${JSON.stringify({ meta: { engines: meta.engines, ragSources: meta.ragSources.length, frameworks: meta.frameworks } })}\n\n`,
+          );
         },
         onSynthesisComplete: () => {
           res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
@@ -1264,9 +1934,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // Strip <think>...</think> tags then store for client polling.
           // Key by deepThinkJobId (not activeConversationId) so anonymous
           // users (who have no conversationId) still get their R1 results.
-          const cleaned = text
-            .replace(/<think>[\s\S]*?<\/think>/gi, "")
-            .trim();
+          const cleaned = text.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
           if (cleaned.length > 20) {
             deepThinkResultStore.set(deepThinkJobId, {
               text: cleaned,
@@ -1274,7 +1942,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
               timeMs,
               expiresAt: Date.now() + 10 * 60 * 1000,
             });
-            console.log(`[Navigator] R1 stored for poll — job: ${deepThinkJobId} (${timeMs}ms)`);
+            console.log(
+              `[Navigator] R1 stored for poll — job: ${deepThinkJobId} (${timeMs}ms)`,
+            );
           }
         },
         onDone: async (result) => {
@@ -1296,7 +1966,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           // The response was buffered (not streamed live) so the client receives
           // only the verified, grounded text.
           if (groundedResponse.length > 0) {
-            res.write(`data: ${JSON.stringify({ content: groundedResponse })}\n\n`);
+            res.write(
+              `data: ${JSON.stringify({ content: groundedResponse })}\n\n`,
+            );
           }
 
           // Persist the grounded text (not the raw model output) so the DB and
@@ -1309,8 +1981,11 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
             });
 
             if (groundedResponse.length > 50) {
-              const summarySnippet = groundedResponse.substring(0, 200).replace(/\n/g, " ");
-              await db.update(navigatorConversations)
+              const summarySnippet = groundedResponse
+                .substring(0, 200)
+                .replace(/\n/g, " ");
+              await db
+                .update(navigatorConversations)
                 .set({ summary: summarySnippet })
                 .where(eq(navigatorConversations.id, activeConversationId));
             }
@@ -1320,14 +1995,18 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
           // Always send deepThinkJobId (per-request UUID) so both authenticated
           // and anonymous users can poll for the DeepSeek R1 result.
-          res.write(`data: ${JSON.stringify({ done: true, deepThinkJobId, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter(e => !e.error).map(e => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`);
+          res.write(
+            `data: ${JSON.stringify({ done: true, deepThinkJobId, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: result.engines.filter((e) => !e.error).map((e) => e.engine), consensusMethod: result.consensusMethod, ragChunks: result.ragContext.chunkCount, timeMs: result.totalTimeMs } })}\n\n`,
+          );
           res.end();
         },
         onError: async (error) => {
           console.error("[Navigator] AI error:", error);
           // All collaborative engines failed — stream directly from OpenRouter
           // (fast, streaming, no multi-provider waterfall delay).
-          console.log("[Navigator] Falling back to OpenRouter direct stream...");
+          console.log(
+            "[Navigator] Falling back to OpenRouter direct stream...",
+          );
           const orKey = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
           const orBase = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
           try {
@@ -1346,35 +2025,65 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
                 if (content) fallbackResponse += content;
               }
               // Apply grounding to fallback response before emitting
-              const fallbackGrounded = applyNavigatorGrounding(fallbackResponse, navigatorCensusIndicators, gunViolenceContext, navigatorGvTotals, navigatorGrantHuntTotal);
+              const fallbackGrounded = applyNavigatorGrounding(
+                fallbackResponse,
+                navigatorCensusIndicators,
+                gunViolenceContext,
+                navigatorGvTotals,
+                navigatorGrantHuntTotal,
+              );
               if (fallbackGrounded.length > 0) {
-                res.write(`data: ${JSON.stringify({ content: fallbackGrounded })}\n\n`);
+                res.write(
+                  `data: ${JSON.stringify({ content: fallbackGrounded })}\n\n`,
+                );
               }
-              res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
-              res.write(`data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
+              res.write(
+                `data: ${JSON.stringify({ synthesisComplete: true })}\n\n`,
+              );
+              res.write(
+                `data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback-openrouter"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
+              );
               res.end();
             } else {
               // No OR key — last-resort waterfall (slow but better than nothing)
               let lastResortResponse = "";
               await streamAIResponse({
                 messages: msgs,
-                onChunk: (content) => { lastResortResponse += content; },
+                onChunk: (content) => {
+                  lastResortResponse += content;
+                },
                 onDone: () => {
-                  const lastResortGrounded = applyNavigatorGrounding(lastResortResponse, navigatorCensusIndicators, gunViolenceContext, navigatorGvTotals, navigatorGrantHuntTotal);
+                  const lastResortGrounded = applyNavigatorGrounding(
+                    lastResortResponse,
+                    navigatorCensusIndicators,
+                    gunViolenceContext,
+                    navigatorGvTotals,
+                    navigatorGrantHuntTotal,
+                  );
                   if (lastResortGrounded.length > 0) {
-                    res.write(`data: ${JSON.stringify({ content: lastResortGrounded })}\n\n`);
+                    res.write(
+                      `data: ${JSON.stringify({ content: lastResortGrounded })}\n\n`,
+                    );
                   }
-                  res.write(`data: ${JSON.stringify({ synthesisComplete: true })}\n\n`);
-                  res.write(`data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`);
+                  res.write(
+                    `data: ${JSON.stringify({ synthesisComplete: true })}\n\n`,
+                  );
+                  res.write(
+                    `data: ${JSON.stringify({ done: true, gunViolenceContext: gunViolenceContext.injected ? { geography: gunViolenceContext.geography, state: gunViolenceContext.state } : null, collaborative: { engines: ["fallback"], consensusMethod: "single-engine-fallback", ragChunks: 0, timeMs: 0 } })}\n\n`,
+                  );
                   res.end();
                 },
-                onError: (err) => { console.error("[navigator] stream error:", err); res.end();
+                onError: (err) => {
+                  console.error("[navigator] stream error:", err);
+                  res.end();
                 },
               });
             }
           } catch (fallbackErr) {
             console.error("[Navigator] Fallback also failed:", fallbackErr);
-            res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+            res.write(
+              `data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`,
+            );
             res.end();
           }
         },
@@ -1384,7 +2093,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
       if (!res.headersSent) {
         res.status(500).json({ error: "Failed to generate response" });
       } else {
-        res.write(`data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`);
+        res.write(
+          `data: ${JSON.stringify({ error: "Failed to generate response" })}\n\n`,
+        );
         res.end();
       }
     }
@@ -1401,7 +2112,12 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     const entry = deepThinkResultStore.get(jobId);
     if (entry && entry.expiresAt > Date.now()) {
       deepThinkResultStore.delete(jobId); // one-time delivery — consume on read
-      return res.json({ status: "complete", text: entry.text, engineId: entry.engineId, timeMs: entry.timeMs });
+      return res.json({
+        status: "complete",
+        text: entry.text,
+        engineId: entry.engineId,
+        timeMs: entry.timeMs,
+      });
     }
     res.json({ status: "pending" });
   });
@@ -1409,7 +2125,9 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
   app.get("/api/navigator/conversations", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
-      const conversations = await db.select().from(navigatorConversations)
+      const conversations = await db
+        .select()
+        .from(navigatorConversations)
         .where(eq(navigatorConversations.userId, userId))
         .orderBy(desc(navigatorConversations.lastMessageAt))
         .limit(50);
@@ -1420,102 +2138,180 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     }
   });
 
-  app.get("/api/navigator/conversations/:id/messages", requireAuth, async (req, res) => {
-    try {
-      const userId = getUserId(req)!;
-      const conversationId = req.params.id as string;
+  app.get(
+    "/api/navigator/conversations/:id/messages",
+    requireAuth,
+    async (req, res) => {
+      try {
+        const userId = getUserId(req)!;
+        const conversationId = req.params.id as string;
 
-      const [convo] = await db.select().from(navigatorConversations)
-        .where(and(
-          eq(navigatorConversations.id, conversationId),
-          eq(navigatorConversations.userId, userId)
-        )).limit(1);
+        const [convo] = await db
+          .select()
+          .from(navigatorConversations)
+          .where(
+            and(
+              eq(navigatorConversations.id, conversationId),
+              eq(navigatorConversations.userId, userId),
+            ),
+          )
+          .limit(1);
 
-      if (!convo) {
-        return res.status(404).json({ error: "Conversation not found" });
+        if (!convo) {
+          return res.status(404).json({ error: "Conversation not found" });
+        }
+
+        const messages = await db
+          .select()
+          .from(navigatorMessages)
+          .where(eq(navigatorMessages.conversationId, conversationId))
+          .orderBy(navigatorMessages.createdAt);
+
+        res.json({ messages, youthMode: convo.youthMode === true });
+      } catch (error) {
+        console.error("[Navigator] Error fetching messages:", error);
+        res.json([]);
       }
+    },
+  );
 
-      const messages = await db.select().from(navigatorMessages)
-        .where(eq(navigatorMessages.conversationId, conversationId))
-        .orderBy(navigatorMessages.createdAt);
+  app.delete(
+    "/api/navigator/conversations/:id",
+    requireAuth,
+    async (req, res) => {
+      try {
+        const userId = getUserId(req)!;
+        const conversationId = req.params.id as string;
 
-      res.json({ messages, youthMode: convo.youthMode === true });
-    } catch (error) {
-      console.error("[Navigator] Error fetching messages:", error);
-      res.json([]);
-    }
-  });
+        const [convo] = await db
+          .select()
+          .from(navigatorConversations)
+          .where(
+            and(
+              eq(navigatorConversations.id, conversationId),
+              eq(navigatorConversations.userId, userId),
+            ),
+          )
+          .limit(1);
 
-  app.delete("/api/navigator/conversations/:id", requireAuth, async (req, res) => {
-    try {
-      const userId = getUserId(req)!;
-      const conversationId = req.params.id as string;
+        if (!convo) {
+          return res.status(404).json({ error: "Conversation not found" });
+        }
 
-      const [convo] = await db.select().from(navigatorConversations)
-        .where(and(
-          eq(navigatorConversations.id, conversationId),
-          eq(navigatorConversations.userId, userId)
-        )).limit(1);
+        await db
+          .delete(navigatorMessages)
+          .where(eq(navigatorMessages.conversationId, conversationId));
+        await db
+          .delete(navigatorConversations)
+          .where(eq(navigatorConversations.id, conversationId));
 
-      if (!convo) {
-        return res.status(404).json({ error: "Conversation not found" });
+        res.json({ success: true });
+      } catch (error) {
+        console.error("[Navigator] Error deleting conversation:", error);
+        res.status(500).json({ error: "Failed to delete conversation" });
       }
-
-      await db.delete(navigatorMessages).where(eq(navigatorMessages.conversationId, conversationId));
-      await db.delete(navigatorConversations).where(eq(navigatorConversations.id, conversationId));
-
-      res.json({ success: true });
-    } catch (error) {
-      console.error("[Navigator] Error deleting conversation:", error);
-      res.status(500).json({ error: "Failed to delete conversation" });
-    }
-  });
+    },
+  );
 
   app.post("/api/navigator/export", requireAuth, async (req, res) => {
     try {
       const { content, title = "Navigator Response" } = req.body;
-      if (!content || typeof content !== "string") return res.status(400).json({ error: "content required" });
+      if (!content || typeof content !== "string")
+        return res.status(400).json({ error: "content required" });
 
-      const { Document, Paragraph, TextRun, HeadingLevel, Packer, AlignmentType } = await import("docx");
+      const {
+        Document,
+        Paragraph,
+        TextRun,
+        HeadingLevel,
+        Packer,
+        AlignmentType,
+      } = await import("docx");
 
       const children: InstanceType<typeof Paragraph>[] = [];
 
       // Title block
-      children.push(new Paragraph({
-        children: [new TextRun({ text: "ThriveUp Navigator", bold: true, size: 20, color: "0D9488" })],
-      }));
-      children.push(new Paragraph({
-        children: [new TextRun({ text: title, bold: true, size: 32 })],
-        heading: HeadingLevel.HEADING_1,
-      }));
-      children.push(new Paragraph({
-        children: [new TextRun({ text: `Generated: ${new Date().toLocaleString()}`, size: 18, color: "888888" })],
-      }));
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: "ThriveUp Navigator",
+              bold: true,
+              size: 20,
+              color: "0D9488",
+            }),
+          ],
+        }),
+      );
+      children.push(
+        new Paragraph({
+          children: [new TextRun({ text: title, bold: true, size: 32 })],
+          heading: HeadingLevel.HEADING_1,
+        }),
+      );
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({
+              text: `Generated: ${new Date().toLocaleString()}`,
+              size: 18,
+              color: "888888",
+            }),
+          ],
+        }),
+      );
       children.push(new Paragraph({ text: "" }));
 
       // Parse markdown lines into docx paragraphs
       for (const rawLine of content.split("\n")) {
         const line = rawLine.trimEnd();
         if (line.startsWith("### ")) {
-          children.push(new Paragraph({ text: line.slice(4), heading: HeadingLevel.HEADING_3 }));
+          children.push(
+            new Paragraph({
+              text: line.slice(4),
+              heading: HeadingLevel.HEADING_3,
+            }),
+          );
         } else if (line.startsWith("## ")) {
-          children.push(new Paragraph({ text: line.slice(3), heading: HeadingLevel.HEADING_2 }));
+          children.push(
+            new Paragraph({
+              text: line.slice(3),
+              heading: HeadingLevel.HEADING_2,
+            }),
+          );
         } else if (line.startsWith("# ")) {
-          children.push(new Paragraph({ text: line.slice(2), heading: HeadingLevel.HEADING_1 }));
+          children.push(
+            new Paragraph({
+              text: line.slice(2),
+              heading: HeadingLevel.HEADING_1,
+            }),
+          );
         } else if (line.startsWith("- ") || line.startsWith("* ")) {
           // Bullet — strip bold markers inline
           const bulletText = line.slice(2).replace(/\*\*(.*?)\*\*/g, "$1");
-          children.push(new Paragraph({ text: bulletText, bullet: { level: 0 } }));
+          children.push(
+            new Paragraph({ text: bulletText, bullet: { level: 0 } }),
+          );
         } else if (/^\d+\.\s/.test(line)) {
-          const numText = line.replace(/^\d+\.\s/, "").replace(/\*\*(.*?)\*\*/g, "$1");
-          children.push(new Paragraph({ text: numText, numbering: { reference: "default-numbering", level: 0 } }));
+          const numText = line
+            .replace(/^\d+\.\s/, "")
+            .replace(/\*\*(.*?)\*\*/g, "$1");
+          children.push(
+            new Paragraph({
+              text: numText,
+              numbering: { reference: "default-numbering", level: 0 },
+            }),
+          );
         } else if (line === "") {
           children.push(new Paragraph({ text: "" }));
         } else {
           // Inline bold: split on **...** markers
           const parts = line.split(/\*\*(.*?)\*\*/g);
-          const runs = parts.map((part, i) =>
-            new TextRun(i % 2 === 1 ? { text: part, bold: true } : { text: part })
+          const runs = parts.map(
+            (part, i) =>
+              new TextRun(
+                i % 2 === 1 ? { text: part, bold: true } : { text: part },
+              ),
           );
           children.push(new Paragraph({ children: runs }));
         }
@@ -1523,15 +2319,34 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
       const doc = new Document({
         numbering: {
-          config: [{ reference: "default-numbering", levels: [{ level: 0, format: "decimal", text: "%1.", alignment: AlignmentType.LEFT }] }],
+          config: [
+            {
+              reference: "default-numbering",
+              levels: [
+                {
+                  level: 0,
+                  format: "decimal",
+                  text: "%1.",
+                  alignment: AlignmentType.LEFT,
+                },
+              ],
+            },
+          ],
         },
         sections: [{ children }],
       });
 
       const buffer = await Packer.toBuffer(doc);
-      const slug = title.replace(/[^a-z0-9]/gi, "_").slice(0, 50) || "navigator_response";
-      res.setHeader("Content-Type", "application/vnd.openxmlformats-officedocument.wordprocessingml.document");
-      res.setHeader("Content-Disposition", `attachment; filename="${slug}.docx"`);
+      const slug =
+        title.replace(/[^a-z0-9]/gi, "_").slice(0, 50) || "navigator_response";
+      res.setHeader(
+        "Content-Type",
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+      );
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="${slug}.docx"`,
+      );
       res.send(buffer);
     } catch (err) {
       console.error("[Navigator] Export error:", err);
@@ -1539,65 +2354,99 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     }
   });
 
-  app.post("/api/navigator/extract-text", upload.single("file"), async (req, res) => {
-    try {
-      if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-      const { mimetype, originalname, buffer } = req.file;
+  app.post(
+    "/api/navigator/extract-text",
+    upload.single("file"),
+    async (req, res) => {
+      try {
+        if (!req.file)
+          return res.status(400).json({ error: "No file uploaded" });
+        const { mimetype, originalname, buffer } = req.file;
 
-      if (mimetype === "text/plain" || mimetype === "text/markdown" || originalname.match(/\.(txt|md)$/i)) {
-        return res.json({ text: buffer.toString("utf8"), name: originalname });
-      }
-
-      if (mimetype === "application/pdf" || originalname.match(/\.pdf$/i)) {
-        let text = "";
-        let ocrUsed = false;
-
-        // Step 1: pdftotext (fast, preserves layout)
-        try {
-          text = pdfBufferToText(buffer);
-        } catch (pdfErr) {
-          console.warn("[Navigator] pdftotext failed for", originalname, pdfErr instanceof Error ? pdfErr.message : pdfErr);
+        if (
+          mimetype === "text/plain" ||
+          mimetype === "text/markdown" ||
+          originalname.match(/\.(txt|md)$/i)
+        ) {
+          return res.json({
+            text: buffer.toString("utf8"),
+            name: originalname,
+          });
         }
 
-        // Step 2: pdf-parse Node.js fallback (no binary required)
-        if (!text || text.trim().length < 50) {
+        if (mimetype === "application/pdf" || originalname.match(/\.pdf$/i)) {
+          let text = "";
+          let ocrUsed = false;
+
+          // Step 1: pdftotext (fast, preserves layout)
           try {
-            const pdfParseModule = await import("pdf-parse");
-            const pdfParse = typeof pdfParseModule === "function"
-              ? pdfParseModule
-              : "default" in pdfParseModule && typeof pdfParseModule.default === "function"
-              ? pdfParseModule.default
-              : null;
-            if (!pdfParse) throw new Error("pdf-parse module has no callable export");
-            const parsed = await pdfParse(buffer);
-            if (parsed.text && parsed.text.trim().length >= 50) {
-              text = parsed.text;
-              console.log(`[Navigator] pdf-parse extracted ${text.length} chars from "${originalname}"`);
+            text = pdfBufferToText(buffer);
+          } catch (pdfErr) {
+            console.warn(
+              "[Navigator] pdftotext failed for",
+              originalname,
+              pdfErr instanceof Error ? pdfErr.message : pdfErr,
+            );
+          }
+
+          // Step 2: pdf-parse Node.js fallback (no binary required)
+          if (!text || text.trim().length < 50) {
+            try {
+              const pdfParseModule = await import("pdf-parse");
+              const pdfParse =
+                typeof pdfParseModule === "function"
+                  ? pdfParseModule
+                  : "default" in pdfParseModule &&
+                      typeof pdfParseModule.default === "function"
+                    ? pdfParseModule.default
+                    : null;
+              if (!pdfParse)
+                throw new Error("pdf-parse module has no callable export");
+              const parsed = await pdfParse(buffer);
+              if (parsed.text && parsed.text.trim().length >= 50) {
+                text = parsed.text;
+                console.log(
+                  `[Navigator] pdf-parse extracted ${text.length} chars from "${originalname}"`,
+                );
+              }
+            } catch (parseErr) {
+              console.warn(
+                "[Navigator] pdf-parse failed for",
+                originalname,
+                parseErr instanceof Error ? parseErr.message : parseErr,
+              );
             }
-          } catch (parseErr) {
-            console.warn("[Navigator] pdf-parse failed for", originalname, parseErr instanceof Error ? parseErr.message : parseErr);
           }
+
+          // Step 3: OCR via Claude vision (scanned/image-based PDFs)
+          if (!text || text.trim().length < 50) {
+            try {
+              console.log(
+                `[Navigator OCR] Both pdftotext and pdf-parse returned no text for "${originalname}", attempting vision OCR...`,
+              );
+              text = await ocrPdfBuffer(buffer, originalname);
+              ocrUsed = true;
+            } catch (ocrErr) {
+              console.error(
+                "[Navigator OCR] Vision OCR failed for",
+                originalname,
+                ocrErr instanceof Error ? ocrErr.message : ocrErr,
+              );
+              text = "";
+            }
+          }
+
+          return res.json({ text, name: originalname, ocrUsed });
         }
 
-        // Step 3: OCR via Claude vision (scanned/image-based PDFs)
-        if (!text || text.trim().length < 50) {
-          try {
-            console.log(`[Navigator OCR] Both pdftotext and pdf-parse returned no text for "${originalname}", attempting vision OCR...`);
-            text = await ocrPdfBuffer(buffer, originalname);
-            ocrUsed = true;
-          } catch (ocrErr) {
-            console.error("[Navigator OCR] Vision OCR failed for", originalname, ocrErr instanceof Error ? ocrErr.message : ocrErr);
-            text = "";
-          }
-        }
-
-        return res.json({ text, name: originalname, ocrUsed });
+        res.status(415).json({
+          error:
+            "Unsupported file type. Please upload a PDF or plain text file.",
+        });
+      } catch (err) {
+        console.error("[Navigator] Document extraction error:", err);
+        res.status(500).json({ error: "Failed to extract text from document" });
       }
-
-      res.status(415).json({ error: "Unsupported file type. Please upload a PDF or plain text file." });
-    } catch (err) {
-      console.error("[Navigator] Document extraction error:", err);
-      res.status(500).json({ error: "Failed to extract text from document" });
-    }
-  });
+    },
+  );
 }

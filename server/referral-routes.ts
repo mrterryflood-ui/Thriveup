@@ -197,7 +197,7 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
       clientDisplayName: clientDisplayName || null,
       clientPhone: clientPhone || null,
       screeningId: screeningId ? parseInt(screeningId) : null,
-      chwUserId: (() => { const uid = getUserId(req); const n = uid ? parseInt(uid) : NaN; return isNaN(n) ? null : n; })(),
+      chwUserId: getUserId(req)!,
       funderId: funderId || null,
       notes: notes || null,
     }).returning();
@@ -462,11 +462,9 @@ referralRouter.get("/my-sent", async (req, res) => {
   const rawUserId = getUserId(req);
   if (!rawUserId) return res.status(401).json({ error: "Authentication required" });
   try {
-    const chwUserId = parseInt(rawUserId);
-    // chwUserId is an integer FK mirroring Replit numeric user IDs.  If the
-    // parsed value is NaN (non-numeric sub — shouldn't happen in production)
-    // return an empty list rather than a DB error.
-    if (isNaN(chwUserId)) return res.json({ referrals: [] });
+    const chwUserId = rawUserId;
+    // CHW identities are opaque authenticated subjects; never coerce UUID-like
+    // values to numbers or collapse them to a shared sentinel.
     const sent = await db
       .select({
         id: referrals.id,

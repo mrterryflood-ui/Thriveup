@@ -447,7 +447,10 @@ export function registerExportPdfRoutes(app: Express) {
       // Internally call the community-brief endpoint to get real data.
       const briefRes = await fetch(`http://localhost:${process.env.PORT ?? 5000}/api/conductor/community-brief`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        // Accepted only from loopback by the conductor. The PDF route retains
+        // its own public limiter, so a permitted PDF cache miss is not double
+        // charged against the public brief endpoint.
+        headers: { "Content-Type": "application/json", "x-conductor-pdf-render": "1" },
         body: JSON.stringify({
           location: String(location).trim(),
           populationSize: populationSize ?? 10000,
@@ -459,7 +462,11 @@ export function registerExportPdfRoutes(app: Express) {
         const body = await briefRes.text().catch(() => "");
         let errMsg = "Community brief generation failed";
         try { errMsg = (JSON.parse(body) as { error?: string }).error ?? errMsg; } catch {}
-        return res.status(briefRes.status === 404 ? 404 : 502).json({ error: errMsg });
+        // Preserve caller/actionable 4xx responses. Only an actual upstream
+        // 5xx is represented as a gateway failure; do not label a rate-limit or
+        // validation response as a PDF-generation failure.
+        const status = briefRes.status >= 400 && briefRes.status < 500 ? briefRes.status : 502;
+        return res.status(status).json({ error: errMsg });
       }
 
       const brief = await briefRes.json() as Record<string, any>;

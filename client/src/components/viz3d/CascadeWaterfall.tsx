@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
 
 interface TimelineNode {
   age: string;
@@ -82,13 +83,25 @@ export default function CascadeWaterfall({ timeline, totalWithout, totalWith }: 
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
+    mount.replaceChildren();
     const nodes = (timeline || []).slice(0, 8);
     if (nodes.length === 0) return;
 
     const W = mount.clientWidth || 800;
     const H = mount.clientHeight || 480;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Replace any prior renderer or fallback before adding this view so a
+    // prop-driven re-render cannot leave both representations in the DOM.
+    const renderer = createRendererSafe({ antialias: true });
+    if (!renderer) {
+      const fallback = document.createElement("div");
+      fallback.dataset.testid = "cascade-waterfall-fallback";
+      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
+      fallback.setAttribute("role", "status");
+      fallback.textContent = "Interactive cascade visualization is unavailable on this device.";
+      mount.appendChild(fallback);
+      return;
+    }
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x0a0f1e);

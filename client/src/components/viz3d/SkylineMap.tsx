@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
 
 interface ZipPin {
   zip: string;
@@ -26,18 +27,57 @@ const URGENCY_COLOR: Record<string, number> = {
   crisis:  0xef4444,
 };
 
+function disposeMaterial(material: THREE.Material) {
+  for (const key of Object.keys(material)) {
+    const value = (material as unknown as Record<string, unknown>)[key];
+    if (value && (value as THREE.Texture).isTexture) {
+      (value as THREE.Texture).dispose();
+    }
+  }
+  material.dispose();
+}
+
+function disposeScene(scene: THREE.Scene) {
+  scene.traverse((obj: any) => {
+    const renderable = obj as THREE.Object3D & {
+      geometry?: THREE.BufferGeometry;
+      material?: THREE.Material | THREE.Material[];
+    };
+    renderable.geometry?.dispose();
+    if (Array.isArray(renderable.material)) {
+      renderable.material.forEach(disposeMaterial);
+    } else if (renderable.material) {
+      disposeMaterial(renderable.material);
+    }
+  });
+}
+
 export default function SkylineMap({ zips, centerLat, centerLng }: SkylineMapProps) {
   const mountRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const mount = mountRef.current;
-    if (!mount || !zips || zips.length === 0) return;
+    if (!mount) return;
+    mount.replaceChildren();
+    if (!zips || zips.length === 0) return;
 
     const W = mount.clientWidth || 800;
     const H = mount.clientHeight || 480;
 
-    // Renderer
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    // Renderer: WebGL is unavailable in some mobile webviews and headless
+    // browsers. This visualization must never take down the Community Impact
+    // page when it cannot obtain a context.
+    const renderer = createRendererSafe({ antialias: true });
+    if (!renderer) {
+      mount.replaceChildren();
+      const fallback = document.createElement("div");
+      fallback.dataset.testid = "skyline-map-fallback";
+      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
+      fallback.setAttribute("role", "status");
+      fallback.textContent = "Interactive map visualization is unavailable on this device.";
+      mount.appendChild(fallback);
+      return;
+    }
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
@@ -136,6 +176,7 @@ export default function SkylineMap({ zips, centerLat, centerLng }: SkylineMapPro
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
       controls.dispose();
+      disposeScene(scene);
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };

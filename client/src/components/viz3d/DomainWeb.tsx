@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
 
 interface DomainScore {
   score: number;
@@ -50,6 +51,31 @@ const EDGES: [string, string, number][] = [
   ["ruralAccess", "benefits", 0.52],
 ];
 
+function disposeMaterial(material: THREE.Material) {
+  for (const key of Object.keys(material)) {
+    const value = (material as unknown as Record<string, unknown>)[key];
+    if (value && (value as THREE.Texture).isTexture) {
+      (value as THREE.Texture).dispose();
+    }
+  }
+  material.dispose();
+}
+
+function disposeScene(scene: THREE.Scene) {
+  scene.traverse((obj: any) => {
+    const renderable = obj as THREE.Object3D & {
+      geometry?: THREE.BufferGeometry;
+      material?: THREE.Material | THREE.Material[];
+    };
+    renderable.geometry?.dispose();
+    if (Array.isArray(renderable.material)) {
+      renderable.material.forEach(disposeMaterial);
+    } else if (renderable.material) {
+      disposeMaterial(renderable.material);
+    }
+  });
+}
+
 function makeLabel(text: string, color: string): THREE.Sprite {
   const c = document.createElement("canvas");
   c.width = 256; c.height = 48;
@@ -70,12 +96,23 @@ export default function DomainWeb({ systemsScores }: DomainWebProps) {
 
   useEffect(() => {
     const mount = mountRef.current;
-    if (!mount || !systemsScores || Object.keys(systemsScores).length === 0) return;
+    if (!mount) return;
+    mount.replaceChildren();
+    if (!systemsScores || Object.keys(systemsScores).length === 0) return;
 
     const W = mount.clientWidth || 800;
     const H = mount.clientHeight || 480;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = createRendererSafe({ antialias: true });
+    if (!renderer) {
+      const fallback = document.createElement("div");
+      fallback.dataset.testid = "domain-web-fallback";
+      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
+      fallback.setAttribute("role", "status");
+      fallback.textContent = "Interactive domain visualization is unavailable on this device.";
+      mount.appendChild(fallback);
+      return;
+    }
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x0f2042);
@@ -170,6 +207,7 @@ export default function DomainWeb({ systemsScores }: DomainWebProps) {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
       controls.dispose();
+      disposeScene(scene);
       renderer.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };

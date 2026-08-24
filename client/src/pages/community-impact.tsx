@@ -935,6 +935,74 @@ const VIZ_TABS = [
 
 type VizTab = typeof VIZ_TABS[number]["id"];
 
+interface NeighborZipComparisonRow {
+  zip: string;
+  grade: string;
+  urgency: string;
+  costOfInaction: number;
+  isCenter?: boolean;
+}
+
+function NeighborZipComparison({
+  zips,
+  isLoading,
+  isError,
+}: {
+  zips?: NeighborZipComparisonRow[];
+  isLoading: boolean;
+  isError: boolean;
+}) {
+  if (isLoading) {
+    return <p className="px-1 pt-2 text-xs text-muted-foreground" role="status">Loading neighboring ZIP comparison data from Census…</p>;
+  }
+
+  if (isError) {
+    return <p className="px-1 pt-2 text-xs text-muted-foreground">Neighbor ZIP comparison data is unavailable. No comparison values were substituted.</p>;
+  }
+
+  if (!zips) {
+    return <p className="px-1 pt-2 text-xs text-muted-foreground">Neighbor ZIP comparison data has not been returned for this brief.</p>;
+  }
+
+  if (zips.length === 0) {
+    return <p className="px-1 pt-2 text-xs text-muted-foreground">No neighboring ZIP comparison values were returned for this brief.</p>;
+  }
+
+  return (
+    <details className="mt-2 rounded-lg border border-slate-200 px-3 py-2 text-xs dark:border-slate-700" data-testid="neighbor-zip-comparison">
+      <summary className="cursor-pointer font-medium text-foreground">
+        Neighbor ZIP comparison data ({zips.length} ZIPs)
+      </summary>
+      <p className="mt-1 text-muted-foreground">
+        ZIP, grade, urgency, and estimated cost of inaction. This is the same data represented by the Skyline Map.
+      </p>
+      <div className="mt-2 overflow-x-auto">
+        <table className="w-full text-left" aria-label="Neighbor ZIP comparison: ZIP, grade, urgency, and estimated cost of inaction">
+          <caption className="sr-only">Neighbor ZIP comparison data represented by the Skyline Map</caption>
+          <thead className="border-b border-slate-200 text-muted-foreground dark:border-slate-700">
+            <tr>
+              <th scope="col" className="pb-1 pr-3 font-medium">ZIP</th>
+              <th scope="col" className="pb-1 pr-3 font-medium">Grade</th>
+              <th scope="col" className="pb-1 pr-3 font-medium">Urgency</th>
+              <th scope="col" className="pb-1 text-right font-medium">Cost of inaction</th>
+            </tr>
+          </thead>
+          <tbody>
+            {zips.map((zip) => (
+              <tr key={zip.zip} className="border-b border-slate-100 last:border-0 dark:border-slate-800">
+                <th scope="row" className="py-1 pr-3 font-medium">{zip.zip}{zip.isCenter ? " (selected)" : ""}</th>
+                <td className="py-1 pr-3">{zip.grade}</td>
+                <td className="py-1 pr-3 capitalize">{zip.urgency}</td>
+                <td className="py-1 text-right tabular-nums">${zip.costOfInaction.toLocaleString("en-US")}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </details>
+  );
+}
+
 // apiRequest throws Error("<status>: <body>") on a non-2xx response, where body
 // is the server's JSON like {"error":"..."}. Surface the server's real message
 // (404 unknown location vs 429 rate limit vs 502 Census down) instead of one
@@ -1108,6 +1176,19 @@ function ResearchIntelligenceSection({ rplice, isAuthenticated }: { rplice: any;
 
 export default function CommunityImpactPage() {
   const { isAuthenticated } = useAuth();
+  // The session intentionally does not carry a role. Ask the server for only
+  // this narrow capability; the export POST still independently authorizes it.
+  const exportCapability = useQuery({
+    queryKey: ["/api/conductor/capabilities"],
+    enabled: isAuthenticated,
+    retry: false,
+    queryFn: async () => {
+      const response = await fetch("/api/conductor/capabilities", { credentials: "include" });
+      if (!response.ok) throw new Error("Export capability unavailable");
+      return response.json() as Promise<{ canRequestCommunityBriefExport: boolean }>;
+    },
+  });
+  const canRequestExport = exportCapability.data?.canRequestCommunityBriefExport === true;
   const [location, setLocation] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [activeViz, setActiveViz] = useState<VizTab>("skyline");
@@ -1152,6 +1233,21 @@ export default function CommunityImpactPage() {
     brief.mutate(location.trim());
   }
 
+  function handleVizTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, currentTab: VizTab) {
+    const currentIndex = VIZ_TABS.findIndex((tab) => tab.id === currentTab);
+    let nextIndex = currentIndex;
+    if (event.key === "ArrowRight") nextIndex = (currentIndex + 1) % VIZ_TABS.length;
+    else if (event.key === "ArrowLeft") nextIndex = (currentIndex - 1 + VIZ_TABS.length) % VIZ_TABS.length;
+    else if (event.key === "Home") nextIndex = 0;
+    else if (event.key === "End") nextIndex = VIZ_TABS.length - 1;
+    else return;
+
+    event.preventDefault();
+    const nextTab = VIZ_TABS[nextIndex];
+    setActiveViz(nextTab.id);
+    document.getElementById(`viz-tab-${nextTab.id}`)?.focus();
+  }
+
   const data = brief.data;
 
   useEffect(() => {
@@ -1169,12 +1265,23 @@ export default function CommunityImpactPage() {
     if (!data?.geography?.zip && !data?.geography?.displayName) return;
     const zip = data.geography.zip || data.geography.displayName?.match(/\d{5}/)?.[0];
     if (!zip) return;
+    const centerUrgency = ["crisis", "concern", "watch", "stable"].find((urgency) =>
+      Object.values(data.systemsScores || {}).some((score: any) => score.urgency === urgency)
+    );
+    // The selected ZIP is part of the comparison response. Do not invent its
+    // grade, urgency, score, or modeled cost when a brief omits an input.
+    if (
+      !Number.isFinite(data.overallScore) ||
+      !data.overallGrade ||
+      !centerUrgency ||
+      !Number.isFinite(data.cascade?.counterfactualCost)
+    ) return;
     neighborsMut.mutate({
       zip,
-      centerScore: data.overallScore ?? 50,
-      centerGrade: data.overallGrade ?? "D",
-      centerUrgency: Object.values(data.systemsScores || {}).some((s: any) => s.urgency === "crisis") ? "crisis" : "concern",
-      centerCost: data.cascade?.counterfactualCost ?? 100000,
+      centerScore: data.overallScore,
+      centerGrade: data.overallGrade,
+      centerUrgency,
+      centerCost: data.cascade.counterfactualCost,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data?.geography?.displayName]);
@@ -1212,6 +1319,7 @@ export default function CommunityImpactPage() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50" />
               <Input
+                aria-label="Location to analyze"
                 value={location}
                 onChange={(e) => setLocation(e.target.value)}
                 placeholder="78741, Austin TX, Waco TX, Williamson County..."
@@ -1240,7 +1348,7 @@ export default function CommunityImpactPage() {
         {brief.isPending && <LoadingSkeleton />}
 
         {brief.isError && (
-          <Card className="p-6 border-red-200 bg-red-50 dark:bg-red-950/30" data-testid="card-error">
+          <Card role="alert" className="p-6 border-red-200 bg-red-50 dark:bg-red-950/30" data-testid="card-error">
             <div className="flex gap-3 items-start">
               <AlertTriangle className="w-5 h-5 text-red-500 flex-none mt-0.5" />
               <div>
@@ -1258,7 +1366,7 @@ export default function CommunityImpactPage() {
         {data && !brief.isPending && (
           <div className="space-y-10">
             {/* Verdict Hero — the F-22 first look */}
-            <VerdictHero data={data} locationQuery={submitted} canRequestExport={isAuthenticated} />
+            <VerdictHero data={data} locationQuery={submitted} canRequestExport={canRequestExport} />
 
             <CommunityEvidencePanel evidence={data.evidence} />
 
@@ -1408,11 +1516,23 @@ export default function CommunityImpactPage() {
               </div>
 
               {/* Tab bar */}
-              <div className="flex gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 mb-0 overflow-x-auto" data-testid="viz-tab-bar">
+              <div
+                className="flex gap-1 bg-slate-100 dark:bg-slate-800/60 rounded-xl p-1 mb-0 overflow-x-auto"
+                data-testid="viz-tab-bar"
+                role="tablist"
+                aria-label="Community data visualizations"
+              >
                 {VIZ_TABS.map((tab) => (
                   <button
                     key={tab.id}
+                    id={`viz-tab-${tab.id}`}
+                    type="button"
+                    role="tab"
+                    aria-selected={activeViz === tab.id}
+                    aria-controls="viz-tab-panel"
+                    tabIndex={activeViz === tab.id ? 0 : -1}
                     onClick={() => setActiveViz(tab.id)}
+                    onKeyDown={(event) => handleVizTabKeyDown(event, tab.id)}
                     data-testid={`viz-tab-${tab.id}`}
                     className={`flex-shrink-0 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap ${
                       activeViz === tab.id
@@ -1426,13 +1546,20 @@ export default function CommunityImpactPage() {
               </div>
 
               {/* Viz description */}
-              <p className="text-xs text-muted-foreground px-1 pt-2 pb-3">
+              <p id="viz-tab-description" className="text-xs text-muted-foreground px-1 pt-2 pb-3">
                 {VIZ_TABS.find((t) => t.id === activeViz)?.desc}
                 {activeViz === "skyline" && neighborsMut.isPending && " · Loading neighboring ZIPs from Census…"}
               </p>
 
               {/* Canvas area */}
-              <Card className="overflow-hidden border-slate-200 dark:border-slate-700" style={{ height: 480 }}>
+              <Card
+                id="viz-tab-panel"
+                role="tabpanel"
+                aria-labelledby={`viz-tab-${activeViz}`}
+                aria-describedby="viz-tab-description"
+                className="overflow-hidden border-slate-200 dark:border-slate-700"
+                style={{ height: 480 }}
+              >
                 <Suspense fallback={<div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-400 text-sm">Loading 3D engine…</div>}>
                   {activeViz === "skyline" && (
                     neighborsMut.isPending
@@ -1498,6 +1625,11 @@ export default function CommunityImpactPage() {
               <p className="text-xs text-muted-foreground text-center pt-2">
                 Drag to rotate · scroll to zoom · all figures from U.S. Census ACS 5-Year Estimates
               </p>
+              <NeighborZipComparison
+                zips={neighborsMut.data?.zips}
+                isLoading={neighborsMut.isPending}
+                isError={neighborsMut.isError}
+              />
             </section>
 
             {/* Export strip */}
@@ -1510,7 +1642,7 @@ export default function CommunityImpactPage() {
               </div>
               <div className="flex gap-2 flex-wrap">
                 <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/grant-hub" data-testid="link-export-grant-hub"><Building2 className="w-3.5 h-3.5" />Grant Hub</a></Button>
-                <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/chainweb-builder" data-testid="link-export-chainweb"><Target className="w-3.5 h-3.5" />Chainweb</a></Button>
+                <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/chainweb" data-testid="link-export-chainweb"><Target className="w-3.5 h-3.5" />Chainweb</a></Button>
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={() => generateInvoicePDF(data, submitted)} data-testid="button-download-invoice-strip">
                   <Download className="w-3.5 h-3.5" />Download Invoice
                 </Button>
@@ -1521,7 +1653,7 @@ export default function CommunityImpactPage() {
                     <ArrowRight className="w-3.5 h-3.5" />Compare Communities
                   </a>
                 </Button>
-                <GppExportButton data={data} submitted={submitted} canRequestExport={isAuthenticated} />
+                <GppExportButton data={data} submitted={submitted} canRequestExport={canRequestExport} />
               </div>
             </Card>
           </div>

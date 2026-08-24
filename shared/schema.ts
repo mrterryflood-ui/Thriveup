@@ -4193,7 +4193,7 @@ export const benefitsScreenings = pgTable("benefits_screenings", {
   eligibleBenefits: text("eligible_benefits").array(),
   currentBenefits: text("current_benefits").array(),
   gapBenefits: text("gap_benefits").array(),
-  referredToChwId: varchar("referred_to_chw_id", { length: 100 }),
+  referredToChwId: varchar("referred_to_chw_id", { length: 255 }),
   referredToPartnerId: varchar("referred_to_partner_id", { length: 100 }),
   status: varchar("status", { length: 50 }).notNull().default("completed"),
   handoffType: varchar("handoff_type", { length: 50 }),
@@ -6336,14 +6336,16 @@ export const chainwebScenarios = pgTable("chainweb_scenarios", {
   createdBy: varchar("created_by", { length: 255 }),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
-});
+}, (t) => [
+  index("chainweb_scenarios_created_by_idx").on(t.createdBy),
+]);
 export const insertChainwebScenarioSchema = createInsertSchema(chainwebScenarios).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertChainwebScenario = z.infer<typeof insertChainwebScenarioSchema>;
 export type ChainwebScenario = typeof chainwebScenarios.$inferSelect;
 
 export const chainwebNodes = pgTable("chainweb_nodes", {
   id: serial("id").primaryKey(),
-  scenarioId: integer("scenario_id").notNull(),
+  scenarioId: integer("scenario_id").notNull().references(() => chainwebScenarios.id, { onDelete: "cascade" }),
   domain: varchar("domain", { length: 50 }).notNull(),
   label: text("label").notNull(),                                      // "3rd Grade Reading Proficiency"
   unit: varchar("unit", { length: 60 }),                               // "% proficient" | "$/year" | "per 1000"
@@ -6355,22 +6357,26 @@ export const chainwebNodes = pgTable("chainweb_nodes", {
   citation: text("citation"),
   year: integer("year"),
   isEntryNode: boolean("is_entry_node").default(false),
-});
+}, (t) => [
+  index("chainweb_nodes_scenario_idx").on(t.scenarioId),
+]);
 export const insertChainwebNodeSchema = createInsertSchema(chainwebNodes).omit({ id: true });
 export type InsertChainwebNode = z.infer<typeof insertChainwebNodeSchema>;
 export type ChainwebNode = typeof chainwebNodes.$inferSelect;
 
 export const chainwebEdges = pgTable("chainweb_edges", {
   id: serial("id").primaryKey(),
-  scenarioId: integer("scenario_id").notNull(),
-  fromNodeId: integer("from_node_id").notNull(),
-  toNodeId: integer("to_node_id").notNull(),
+  scenarioId: integer("scenario_id").notNull().references(() => chainwebScenarios.id, { onDelete: "cascade" }),
+  fromNodeId: integer("from_node_id").notNull().references(() => chainwebNodes.id, { onDelete: "cascade" }),
+  toNodeId: integer("to_node_id").notNull().references(() => chainwebNodes.id, { onDelete: "cascade" }),
   coefficient: decimal("coefficient", { precision: 8, scale: 4 }).notNull(), // effect size: 0.34 = 34% change
   lagYears: integer("lag_years").default(0),
   direction: varchar("direction", { length: 10 }).default("positive"),  // positive | negative
   evidenceCitation: text("evidence_citation"),
   confidenceLevel: varchar("confidence_level", { length: 20 }).default("moderate"), // strong | moderate | emerging
-});
+}, (t) => [
+  index("chainweb_edges_scenario_idx").on(t.scenarioId),
+]);
 export const insertChainwebEdgeSchema = createInsertSchema(chainwebEdges).omit({ id: true });
 export type InsertChainwebEdge = z.infer<typeof insertChainwebEdgeSchema>;
 export type ChainwebEdge = typeof chainwebEdges.$inferSelect;
@@ -6399,7 +6405,7 @@ export type ChainwebCoefficient = typeof chainwebCoefficients.$inferSelect;
 // Calculated ROI output per scenario
 export const chainwebCalculations = pgTable("chainweb_calculations", {
   id: serial("id").primaryKey(),
-  scenarioId: integer("scenario_id").notNull().unique(),
+  scenarioId: integer("scenario_id").notNull().unique().references(() => chainwebScenarios.id, { onDelete: "cascade" }),
   timeHorizonYears: integer("time_horizon_years").notNull(),
   populationSize: integer("population_size"),
   counterfactualTotalCost: decimal("counterfactual_total_cost", { precision: 16, scale: 2 }),
@@ -6417,14 +6423,16 @@ export type ChainwebCalculation = typeof chainwebCalculations.$inferSelect;
 // Stakeholder-specific narrative outputs
 export const chainwebNarratives = pgTable("chainweb_narratives", {
   id: serial("id").primaryKey(),
-  calculationId: integer("calculation_id").notNull(),
+  calculationId: integer("calculation_id").notNull().references(() => chainwebCalculations.id, { onDelete: "cascade" }),
   audienceType: varchar("audience_type", { length: 40 }).notNull(), // grant_writer | org_leader | researcher | council | funder
   headline: text("headline"),
   narrativeText: text("narrative_text"),
   keyStats: jsonb("key_stats"),
   dataCitations: jsonb("data_citations"),
   generatedAt: timestamp("generated_at").defaultNow(),
-});
+}, (t) => [
+  uniqueIndex("chainweb_narratives_calculation_audience_uq").on(t.calculationId, t.audienceType),
+]);
 export const insertChainwebNarrativeSchema = createInsertSchema(chainwebNarratives).omit({ id: true, generatedAt: true });
 export type InsertChainwebNarrative = z.infer<typeof insertChainwebNarrativeSchema>;
 export type ChainwebNarrative = typeof chainwebNarratives.$inferSelect;
@@ -7271,7 +7279,7 @@ export const referrals = pgTable("referrals", {
   orgId: text("org_id"),
   clientDisplayName: text("client_display_name"),
   clientPhone: text("client_phone"),
-  chwUserId: integer("chw_user_id"),
+  chwUserId: varchar("chw_user_id", { length: 255 }),
   statusToken: text("status_token").unique().$defaultFn(() => nanoid(16)),
   // Public capability token that lets an org confirm an enrollment outcome
   // WITHOUT a staff login. Same random-default pattern as statusToken.
@@ -7675,7 +7683,7 @@ export * from "./clinical-schema";
 // pattern (integer, no FK) to avoid schema coupling across subsystems.
 export const chwVisits = pgTable("chw_visits", {
   id: text("id").primaryKey().$defaultFn(() => nanoid(12)),
-  chwUserId: integer("chw_user_id").notNull(),
+  chwUserId: varchar("chw_user_id", { length: 255 }).notNull(),
   clientDisplayName: text("client_display_name"),
   // Nullable FK to benefits_screenings.id — links visit to a formal case when available.
   // Walk-in / informal visits leave this null and rely solely on clientDisplayName.

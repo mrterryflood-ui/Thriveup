@@ -14,7 +14,7 @@ import { useLocation } from "wouter";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from "@/components/page-header";
 
-const WEBSITE_URL = "https://55376bb2-2aea-463e-b6a9-2c1d5c123d53-00-5trt8miml0vw.janeway.replit.dev";
+const WEBSITE_URL = "https://thriveup.org";
 
 const VIDEO_SCRIPT = {
   title: "The Command Center Behind the Culture",

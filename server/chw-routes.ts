@@ -20,11 +20,7 @@ async function requireCHWRole(req: Request, res: Response, next: () => void) {
   try {
     const dbUser = await storage.getUser(userId);
     if (!dbUser || !CHW_ROLES.has(dbUser.role)) return (res as any).status(403).json({ error: "CHW role required" });
-    // Attach userId (string) for downstream DB scoping.
-    // chwNumericId is kept for the integer chw_user_id column (parsed as base-10 int
-    // for test users whose IDs are real DB-generated UUIDs this will be NaN —
-    // that's fine for the caseload/visits queries which use it only as-is).
-    (req as any).chwNumericId = parseInt(userId, 10) || 0;
+    // User identifiers are opaque auth subjects, not numeric database IDs.
     (req as any).chwStringId = userId;
     next();
   } catch { (res as any).status(500).json({ error: "Auth check failed" }); }
@@ -63,12 +59,12 @@ chwRouter.get("/caseload", requireCHWRole, async (req: Request, res: Response) =
 });
 
 // GET /api/chw/visits — home visits logged by this authenticated CHW.
-// Hard-scoped to chwNumericId — a CHW can never see another CHW's visits.
+// Hard-scoped to the authenticated CHW subject — a CHW can never see another CHW's visits.
 // Visits with a clientScreeningId join to benefitsScreenings to surface a
 // stable case reference; visits without it use the free-text clientDisplayName.
 chwRouter.get("/visits", requireCHWRole, async (req: Request, res: Response) => {
   try {
-    const chwUserId: number = (req as any).chwNumericId;
+    const chwUserId: string = (req as any).chwStringId;
     const rows = await db
       .select()
       .from(chwVisits)
@@ -130,7 +126,7 @@ chwRouter.get("/visits", requireCHWRole, async (req: Request, res: Response) => 
 //   2. screening.referredToChwId matches this CHW's userId (403 if mismatched).
 chwRouter.post("/visits", requireCHWRole, async (req: Request, res: Response) => {
   try {
-    const chwUserId: number = (req as any).chwNumericId;
+    const chwUserId: string = (req as any).chwStringId;
     const chwStringId: string = (req as any).chwStringId;
     const {
       clientDisplayName,

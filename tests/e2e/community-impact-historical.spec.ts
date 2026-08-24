@@ -34,6 +34,9 @@ test.describe("Community Impact — Historical Receipt (ZIP lookup)", () => {
         return orig.apply(this, [type, ...args] as any);
       };
     });
+    // The real API is intentionally rate-limited. In development, exercise the
+    // full pipeline without consuming the shared public rate-limit bucket.
+    await page.setExtraHTTPHeaders({ "X-Cache-Skip": "1" });
 
     await page.goto("/community-impact");
 
@@ -68,6 +71,31 @@ test.describe("Community Impact — Historical Receipt (ZIP lookup)", () => {
     // Must not be a dash placeholder
     expect(totalText).not.toBe("—");
     expect(totalText).not.toBe("$0");
+
+    // With WebGL explicitly disabled above, every visualization must fail soft
+    // rather than propagating a renderer exception to the route error boundary.
+    // Exercise every tab because these are lazy-loaded independent components.
+    const viz = page.getByTestId("section-3d-viz");
+    const unavailableFallbacks = [
+      ["skyline", "skyline-map-fallback", "No geographic data loaded"],
+      ["cascade", "cascade-waterfall-fallback", "No cascade data available"],
+      ["web", "domain-web-fallback"],
+      ["particles", "particle-flow-fallback"],
+      ["historical", "historical-timeline-fallback"],
+    ] as const;
+    const routeError = page.getByText(
+      "An unexpected error occurred. Please try refreshing the page or navigating back."
+    );
+
+    for (const [tab, fallback, unavailableMessage] of unavailableFallbacks) {
+      await page.getByTestId(`viz-tab-${tab}`).click();
+      const availableState = unavailableMessage
+        ? viz.getByTestId(fallback).or(viz.getByText(unavailableMessage))
+        : viz.getByTestId(fallback);
+      await expect(availableState).toBeVisible({ timeout: 20_000 });
+      await expect(viz.locator("canvas")).toHaveCount(0);
+      await expect(routeError).toHaveCount(0);
+    }
   });
 });
 
@@ -85,6 +113,8 @@ test.describe("Community Impact — County lookup disclosure", () => {
         return orig.apply(this, [type, ...args] as any);
       };
     });
+    // The server honors this only outside production; see the first test.
+    await page.setExtraHTTPHeaders({ "X-Cache-Skip": "1" });
 
     await page.goto("/community-impact");
     await page.keyboard.press("Escape");

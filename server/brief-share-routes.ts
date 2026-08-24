@@ -10,7 +10,11 @@ import { db } from "./storage";
 import { briefShares } from "@shared/schema";
 import { eq, lt } from "drizzle-orm";
 import { nanoid } from "nanoid";
-import { hasValidCommunityEvidence, canonicalizeGeographyFromEvidence } from "./community-evidence";
+import {
+  hasValidCommunityEvidence,
+  canonicalizeGeographyFromEvidence,
+  findServerCommunityBrief,
+} from "./community-evidence";
 
 // ── Per-IP rate limiter (5 shares / hour) ────────────────────────────────────
 const SHARE_WINDOW_MS = 60 * 60 * 1000; // 1 hour
@@ -207,7 +211,8 @@ function projectPublicBrief(input: Record<string, unknown>): Record<string, unkn
 export function registerBriefShareRoutes(app: Express) {
   /**
    * POST /api/conductor/community-brief/share
-   * Body: the full brief object the client already has.
+   * Body: a previously server-generated brief used only to identify the
+   * server-held source record.
    * Stores in brief_shares and returns {shareId, shareUrl}.
    * Public, rate-limited 5/hour/IP.
    */
@@ -232,20 +237,29 @@ export function registerBriefShareRoutes(app: Express) {
         });
       }
 
+      // Structural validation alone is not provenance. In particular, never
+      // accept caller-supplied scores, demographics, narrative, or source
+      // labels simply because the evidence block parses. The client payload is
+      // only a handle to an analyzer result retained by this server.
+      const serverBrief = findServerCommunityBrief(brief);
+      if (!serverBrief) {
+        return res.status(422).json({
+          error: "This brief cannot be shared because the server cannot verify it as a current Community Brief result. Generate a new brief from the analyzer and try sharing again.",
+        });
+      }
+
       // Share links cross a public trust boundary. Persist an explicit,
       // recursively bounded public projection rather than deleting a known
-      // sensitive key from an otherwise arbitrary client object.
-      const publicBrief = projectPublicBrief(brief as Record<string, unknown>);
+      // sensitive key from an otherwise arbitrary object. Crucially, this
+      // projection is made from the server-held result, not req.body.
+      const publicBrief = projectPublicBrief(serverBrief);
       if (!hasValidCommunityEvidence(publicBrief)) {
         return res.status(422).json({
           error: "This brief cannot be shared because its public projection lacks a complete community evidence contract.",
         });
       }
 
-      // The client supplies the whole brief object, including `geography`.
-      // A structurally-valid evidence block does not guarantee the displayed
-      // geography actually matches it — force the two to agree so a share
-      // link can never show a geography/claims mismatch to the public.
+      // Force rendered geography to agree with the verified evidence record.
       canonicalizeGeographyFromEvidence(publicBrief);
 
       const location = String(

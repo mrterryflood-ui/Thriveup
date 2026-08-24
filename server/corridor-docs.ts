@@ -20,6 +20,7 @@ import path from "path";
 import { db } from "./storage";
 import { communityEvidence, communityPartners, grantOpportunities } from "@shared/schema";
 import { inArray } from "drizzle-orm";
+import { requireStaff } from "./yhsi-routes";
 
 const ASSET_DIR = "attached_assets";
 const DECK_DIR = path.join(ASSET_DIR, "decks");
@@ -393,7 +394,7 @@ async function connectDoc(doc: DocRecord): Promise<ConnectionReport> {
 let _cachedDocs: DocRecord[] | null = null;
 
 export function registerCorridorDocRoutes(app: Express) {
-  app.get("/api/corridor/docs", async (_req: Request, res: Response) => {
+  app.get("/api/corridor/docs", requireStaff, async (_req: Request, res: Response) => {
     try {
       if (!_cachedDocs) _cachedDocs = await scanDocs();
       const reports = await Promise.all(_cachedDocs.map(connectDoc));
@@ -411,7 +412,7 @@ export function registerCorridorDocRoutes(app: Express) {
     }
   });
 
-  app.get("/api/corridor/docs/:id", async (req: Request, res: Response) => {
+  app.get("/api/corridor/docs/:id", requireStaff, async (req: Request, res: Response) => {
     try {
       if (!_cachedDocs) _cachedDocs = await scanDocs();
       const doc = _cachedDocs.find((d) => d.id === req.params.id);
@@ -423,7 +424,7 @@ export function registerCorridorDocRoutes(app: Express) {
     }
   });
 
-  app.post("/api/corridor/docs/rebuild", async (_req: Request, res: Response) => {
+  app.post("/api/corridor/docs/rebuild", requireStaff, async (_req: Request, res: Response) => {
     try {
       _cachedDocs = await scanDocs();
       res.json({ ok: true, scanned: _cachedDocs.length });
@@ -433,7 +434,7 @@ export function registerCorridorDocRoutes(app: Express) {
   });
 
   // Regenerate the PPTX/DOCX decks by running both build scripts against live data.
-  app.post("/api/corridor/docs/regenerate", async (_req: Request, res: Response) => {
+  app.post("/api/corridor/docs/regenerate", requireStaff, async (_req: Request, res: Response) => {
     const { spawn } = await import("child_process");
     const runOne = (script: string) => new Promise<{ script: string; ok: boolean; output: string }>((resolve) => {
       const p = spawn("node", [script], { env: { ...process.env, BASE_URL: `http://localhost:${process.env.PORT || 5000}` } });

@@ -27,20 +27,20 @@ const DOMAIN_BASELINES: Record<string, { label: string; annualCost: number; cita
 };
 
 // ── Build the ripple web for a scenario ─────────────────────────────────────
-export async function buildChainwebScenario(scenarioId: number) {
-  const [scenario] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, scenarioId));
+export async function buildChainwebScenario(scenarioId: number, executor: any = db) {
+  const [scenario] = await executor.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, scenarioId));
   if (!scenario) throw new Error(`Scenario ${scenarioId} not found`);
 
   const domainChain = getDomainChain(scenario.entryDomain);
 
   // Clear existing nodes/edges for this scenario
-  await db.delete(chainwebNodes).where(eq(chainwebNodes.scenarioId, scenarioId));
-  await db.delete(chainwebEdges).where(eq(chainwebEdges.scenarioId, scenarioId));
+  await executor.delete(chainwebEdges).where(eq(chainwebEdges.scenarioId, scenarioId));
+  await executor.delete(chainwebNodes).where(eq(chainwebNodes.scenarioId, scenarioId));
 
   const createdNodes: Record<string, number> = {};
 
   // Create entry node
-  const [entryNode] = await db.insert(chainwebNodes).values({
+  const [entryNode] = await executor.insert(chainwebNodes).values({
     scenarioId,
     domain: scenario.entryDomain,
     label: `${scenario.interventionName} — Entry Point`,
@@ -62,7 +62,7 @@ export async function buildChainwebScenario(scenarioId: number) {
     if (!relevant.length) continue;
 
     const domainMeta = CHAINWEB_DOMAINS.find(d => d.id === domain);
-    const [node] = await db.insert(chainwebNodes).values({
+    const [node] = await executor.insert(chainwebNodes).values({
       scenarioId,
       domain,
       label: domainMeta?.description || domain,
@@ -82,7 +82,7 @@ export async function buildChainwebScenario(scenarioId: number) {
     if (!fromId || !toId || fromId === toId) continue;
     if (!domainChain.includes(coeff.fromDomain) || !domainChain.includes(coeff.toDomain)) continue;
 
-    await db.insert(chainwebEdges).values({
+    await executor.insert(chainwebEdges).values({
       scenarioId,
       fromNodeId: fromId,
       toNodeId: toId,
@@ -98,8 +98,8 @@ export async function buildChainwebScenario(scenarioId: number) {
 }
 
 // ── Calculate ROI ────────────────────────────────────────────────────────────
-export async function calculateChainwebROI(scenarioId: number): Promise<ChainwebCalculation> {
-  const [scenario] = await db.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, scenarioId));
+export async function calculateChainwebROI(scenarioId: number, executor: any = db): Promise<ChainwebCalculation> {
+  const [scenario] = await executor.select().from(chainwebScenarios).where(eq(chainwebScenarios.id, scenarioId));
   if (!scenario) throw new Error(`Scenario ${scenarioId} not found`);
 
   const pop        = scenario.populationSize || 1000;
@@ -142,8 +142,6 @@ export async function calculateChainwebROI(scenarioId: number): Promise<Chainweb
   const keyStatements = buildKeyStatements(scenario, relevant, pop, horizon);
 
   // ── Upsert calculation ───────────────────────────────────────────────────
-  const existing = await db.select().from(chainwebCalculations).where(eq(chainwebCalculations.scenarioId, scenarioId));
-
   const calcData = {
     scenarioId,
     timeHorizonYears: horizon,
@@ -156,17 +154,12 @@ export async function calculateChainwebROI(scenarioId: number): Promise<Chainweb
     keyStatements,
   };
 
-  let calc: ChainwebCalculation;
-  if (existing.length > 0) {
-    const [updated] = await db.update(chainwebCalculations)
-      .set({ ...calcData, calculatedAt: new Date() })
-      .where(eq(chainwebCalculations.scenarioId, scenarioId))
-      .returning();
-    calc = updated;
-  } else {
-    const [created] = await db.insert(chainwebCalculations).values(calcData).returning();
-    calc = created;
-  }
+  const [calc] = await executor.insert(chainwebCalculations).values(calcData)
+    .onConflictDoUpdate({
+      target: chainwebCalculations.scenarioId,
+      set: { ...calcData, calculatedAt: new Date() },
+    })
+    .returning();
 
   return calc;
 }

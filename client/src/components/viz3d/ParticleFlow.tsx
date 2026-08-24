@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
+import { createRendererSafe } from "../trade-sims/diagrams/three-lib";
 
 interface ParticleFlowProps {
   costOfInaction: number;
@@ -12,6 +13,31 @@ const COUNT = 4000;
 
 const BAD_DESTS  = [[-5,-3,-1.5],[-6.5,-2,0.5],[-4,-4,1],[-7,-1,-0.5]] as const;
 const GOOD_DESTS = [[5,-2,-1],[6,-1,0.5],[4.5,-3,1],[5.5,-2.5,-0.5]] as const;
+
+function disposeMaterial(material: THREE.Material) {
+  for (const key of Object.keys(material)) {
+    const value = (material as unknown as Record<string, unknown>)[key];
+    if (value && (value as THREE.Texture).isTexture) {
+      (value as THREE.Texture).dispose();
+    }
+  }
+  material.dispose();
+}
+
+function disposeScene(scene: THREE.Scene) {
+  scene.traverse((obj: any) => {
+    const renderable = obj as THREE.Object3D & {
+      geometry?: THREE.BufferGeometry;
+      material?: THREE.Material | THREE.Material[];
+    };
+    renderable.geometry?.dispose();
+    if (Array.isArray(renderable.material)) {
+      renderable.material.forEach(disposeMaterial);
+    } else if (renderable.material) {
+      disposeMaterial(renderable.material);
+    }
+  });
+}
 
 function makeLabel(text: string, color: string, size = 20): THREE.Sprite {
   const c = document.createElement("canvas");
@@ -34,12 +60,22 @@ export default function ParticleFlow({ costOfInaction, netSavings, roi }: Partic
   useEffect(() => {
     const mount = mountRef.current;
     if (!mount) return;
+    mount.replaceChildren();
 
     const roiNum = typeof roi === "string" ? parseFloat(roi) : (roi || 0);
     const W = mount.clientWidth || 800;
     const H = mount.clientHeight || 480;
 
-    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    const renderer = createRendererSafe({ antialias: true });
+    if (!renderer) {
+      const fallback = document.createElement("div");
+      fallback.dataset.testid = "particle-flow-fallback";
+      fallback.className = "flex h-full items-center justify-center bg-slate-900 px-4 text-center text-sm text-slate-300";
+      fallback.setAttribute("role", "status");
+      fallback.textContent = "Interactive particle-flow visualization is unavailable on this device.";
+      mount.appendChild(fallback);
+      return;
+    }
     renderer.setSize(W, H);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.setClearColor(0x0a0f1e);
@@ -112,7 +148,7 @@ export default function ParticleFlow({ costOfInaction, netSavings, roi }: Partic
       posAttr.needsUpdate = true;
       renderer.render(scene, camera);
     };
-    requestAnimationFrame((ts) => { lastTs = ts; animate(ts); });
+    animId = requestAnimationFrame((ts) => { lastTs = ts; animate(ts); });
 
     const onResize = () => {
       const nW = mount.clientWidth; const nH = mount.clientHeight;
@@ -124,8 +160,8 @@ export default function ParticleFlow({ costOfInaction, netSavings, roi }: Partic
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("resize", onResize);
+      disposeScene(scene);
       renderer.dispose();
-      geo.dispose();
       if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement);
     };
   }, [roi]);

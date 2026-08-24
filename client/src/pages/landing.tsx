@@ -1045,74 +1045,99 @@ function DisciplineStrip() {
 }
 
 function StartHere() {
-  const audiences = [
-    {
-      icon: Heart,
-      label: "I need help for my family",
-      sub: "Benefits · housing · healthcare · jobs",
-      href: "/benefits-screener",
-      color: "from-rose-500 to-pink-600",
-      testId: "start-here-help",
-    },
-    {
-      icon: Building2,
-      label: "I lead a nonprofit or community organization",
-      sub: "Connect tools · data · referrals · reporting",
-      href: "/agency-connector",
-      color: "from-violet-500 to-purple-600",
-      testId: "start-here-org",
-    },
-    {
-      icon: Target,
-      label: "I'm a funder or evaluator",
-      sub: "Inspect evidence · context · learning",
-      href: "/ecosystem-story",
-      color: "from-amber-500 to-orange-600",
-      testId: "start-here-funder",
-    },
-    {
-      icon: Globe,
-      label: "I support a community or public system",
-      sub: "Local conditions · comparisons · action",
-      href: "/community-impact",
-      color: "from-emerald-500 to-teal-600",
-      testId: "start-here-community",
-    },
-  ];
+  const roles = [
+    ["resident", "Resident or family"], ["young-person", "Young person"], ["veteran", "Veteran or military family"],
+    ["student", "Student or learner"], ["nonprofit", "Nonprofit or community organization"], ["funder", "Funder or evaluator"],
+    ["researcher", "Researcher"], ["healthcare", "Healthcare or CHW professional"], ["social-worker", "Social worker or case manager"],
+    ["educator", "Educator"], ["policymaker", "Policymaker or public agency"], ["partner", "Technology or service partner"],
+  ] as const;
+  const goals = [
+    ["help", "Find help or resources"], ["benefits", "See what I qualify for"], ["community", "Understand my community"],
+    ["learn", "Learn or build skills"], ["coordinate", "Coordinate care or referrals"], ["program", "Build or improve a program"],
+    ["measure", "Measure results and learn"], ["funding", "Find funding support"], ["integrate", "Connect tools or data"],
+  ] as const;
+  const [role, setRole] = useState<string>("");
+  const [goal, setGoal] = useState<string>("");
+  const goalRoutes: Record<string, { href: string; title: string; next: string[] }> = {
+    help: { href: "/get-help", title: "Find trusted help near you", next: ["Search resources", "Choose a next step", "Track what happens"] },
+    benefits: { href: "/benefits-screener", title: "Screen for benefits in one place", next: ["Check eligibility", "Get application guidance", "Connect to support"] },
+    community: { href: "/community-impact", title: "Build a community evidence picture", next: ["Choose a place", "See contributing conditions", "Connect evidence to action"] },
+    learn: { href: "/curriculum", title: "Find a learning pathway", next: ["Choose a goal", "Build skills", "Move toward opportunity"] },
+    coordinate: { href: "/services", title: "Coordinate services and referrals", next: ["Understand the need", "Connect the right support", "Close the referral loop"] },
+    program: { href: "/program-designer", title: "Turn evidence into an implementable program", next: ["Define the need", "Prepare for implementation", "Improve with feedback"] },
+    measure: { href: "/outcomes", title: "Connect activity, outcomes, and learning", next: ["Select meaningful measures", "Separate observed from estimated", "Use results to improve"] },
+    funding: { href: "/for-nonprofits", title: "Connect readiness, evidence, and funding", next: ["Clarify capacity", "Align the opportunity", "Prepare the organization"] },
+    integrate: { href: "/agency-connector", title: "Connect ThriveUp to your existing work", next: ["Choose the tools you need", "Set privacy and governance boundaries", "Connect without replacing your systems"] },
+  };
+  const roleOverrides: Record<string, Partial<Record<string, string>>> = {
+    "young-person": { help: "/opportunity-youth", learn: "/academy", funding: "/fafsa-navigator" },
+    veteran: { help: "/veterans", benefits: "/veterans", learn: "/transition-plans" },
+    student: { learn: "/curriculum", funding: "/fafsa-navigator" },
+    funder: { community: "/ecosystem-story", measure: "/ecosystem-story", funding: "/impact" },
+    researcher: { community: "/research-hub", measure: "/research-hub", program: "/rplice-tools" },
+    healthcare: { help: "/health-wellness", coordinate: "/health-network", program: "/program-designer" },
+    "social-worker": { help: "/resource-directory", coordinate: "/services" },
+    educator: { learn: "/curriculum", program: "/program-designer", measure: "/outcomes" },
+    policymaker: { community: "/community-impact", measure: "/chainweb", program: "/implementation" },
+    nonprofit: { integrate: "/agency-connector", funding: "/for-nonprofits", program: "/program-designer" },
+    partner: { integrate: "/ecosystem", measure: "/partner-scorecard" },
+  };
+  const recommendation = goal ? goalRoutes[goal] : null;
+  const selectedRoleLabel = roles.find(([value]) => value === role)?.[1];
+  const recommendationHref = recommendation ? (roleOverrides[role]?.[goal] ?? recommendation.href) : "";
 
   return (
     <section className="py-10 px-4 sm:py-14 sm:px-6 bg-card border-y" data-testid="section-start-here">
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="text-center mb-6">
           <Badge variant="secondary" className="mb-3">
             <ArrowRight className="mr-1 h-3 w-3" /> Start Here
           </Badge>
           <h2 className="text-xl sm:text-2xl font-bold mb-1" data-testid="text-start-here-heading">
-            Choose the path that matches your work.
+            Tell us what brings you here. We will connect the path.
           </h2>
           <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            ThriveUp is the front door; TCAF is the nonprofit backbone behind the connected work.
+            Choose what you want to accomplish and the role or situation that best describes you. You can change either choice at any time.
           </p>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {audiences.map((a) => (
-            <Link key={a.testId} href={a.href}>
-              <Card
-                className="p-4 hover-elevate cursor-pointer border-2 border-transparent hover:border-primary/20 transition-all group h-full"
-                data-testid={`card-${a.testId}`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className={`rounded-md bg-gradient-to-br ${a.color} p-2 shrink-0`}>
-                    <a.icon className="h-4 w-4 text-white" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold leading-snug group-hover:text-primary transition-colors">{a.label}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{a.sub}</p>
-                  </div>
-                </div>
-              </Card>
-            </Link>
-          ))}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 items-start">
+          <Card className="p-5 border-2" data-testid="card-guided-front-door">
+            <fieldset>
+              <legend className="text-sm font-bold mb-3">1. What are you trying to do?</legend>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {goals.map(([value, label]) => (
+                  <button key={value} type="button" onClick={() => setGoal(value)}
+                    className={`min-h-11 rounded-lg border px-3 py-2 text-left text-sm transition-colors ${goal === value ? "border-primary bg-primary text-primary-foreground" : "bg-background hover:border-primary/50"}`}
+                    aria-pressed={goal === value} data-testid={`goal-${value}`}>{label}</button>
+                ))}
+              </div>
+            </fieldset>
+            <fieldset className="mt-5">
+              <legend className="text-sm font-bold mb-3">2. Which best describes you?</legend>
+              <select value={role} onChange={(event) => setRole(event.target.value)}
+                className="w-full min-h-11 rounded-lg border bg-background px-3 text-sm" data-testid="select-front-door-role">
+                <option value="">Choose a role or situation</option>
+                {roles.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+              </select>
+            </fieldset>
+          </Card>
+          <Card className="p-5 border-2 min-h-[260px] flex flex-col" data-testid="card-connected-recommendation">
+            {recommendation && role ? (
+              <>
+                <Badge className="w-fit mb-3">Your connected starting point</Badge>
+                <h3 className="text-xl font-bold mb-2" data-testid="text-recommendation-title">{recommendation.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Start here for “{goals.find(([value]) => value === goal)?.[1]}” as a {selectedRoleLabel?.toLowerCase()}.
+                </p>
+                <ol className="space-y-2 mb-5">
+                  {recommendation.next.map((step, index) => <li key={step} className="flex items-center gap-2 text-sm"><span className="w-6 h-6 rounded-full bg-primary/10 text-primary font-bold text-xs flex items-center justify-center">{index + 1}</span>{step}</li>)}
+                </ol>
+                <Button asChild className="w-full min-h-11 mt-auto" data-testid="button-open-connected-path"><Link href={recommendationHref}>Open my pathway <ArrowRight className="ml-2 h-4 w-4" /></Link></Button>
+              </>
+            ) : (
+              <div className="m-auto text-center max-w-sm"><Network className="h-10 w-10 text-primary/60 mx-auto mb-3" /><h3 className="font-bold mb-2">One front door. Many connected paths.</h3><p className="text-sm text-muted-foreground">Make both choices to receive a tailored starting point and see how the next actions connect.</p></div>
+            )}
+          </Card>
         </div>
       </div>
     </section>
