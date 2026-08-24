@@ -46,3 +46,13 @@ export function getGrantPathProEmbedConfig(): {
   const partnerKey = process.env.THRIVEUP_PARTNER_KEY?.trim() || outbound.apiKey;
   return { url, partnerKey, configured: Boolean(url && partnerKey) };
 }
+
+export function getGrantPathProMirrorConfig(): {
+  url: string | null;
+  ingestKey: string | null;
+  configured: boolean;
+} {
+  const url = process.env.GPP_MIRROR_URL?.trim() || null;
+  const ingestKey = process.env.THRIVEUP_INGEST_KEY?.trim() || null;
+  return { url, ingestKey, configured: Boolean(url && ingestKey) };
+}

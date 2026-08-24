@@ -307,6 +307,7 @@ SUPPORT_PORTAL_URL = "https://student-support-portal--mrterryflood.replit.app"
 CIVIC_SIGNAL_BASE_URL = "https://power2thepeople.net"
 GPP_API_URL = "https://pursuitsfundingprofessionals.com"
 GPP_EMBED_URL = "https://trustworthy-sheep-515.convex.site/thriveup/embed"
+GPP_MIRROR_URL = "https://trustworthy-sheep-515.convex.site/thriveup/mirror"
 
 [postMerge]
 path = "scripts/post-merge.sh"

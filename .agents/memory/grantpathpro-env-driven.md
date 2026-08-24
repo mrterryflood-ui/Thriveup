@@ -15,6 +15,20 @@ payload instead of failing.
 `setEnvVars` (not a code edit, not a secret — it's a plain URL). UI copy that says "GrantPathPro" is just a
 product-name label; it never encodes the URL. Do not hand-edit source files hunting for a hardcoded domain.
 
+## Mirror/embed contract (confirmed 2026-08-24)
+
+The current partner contract uses two purpose-specific credentials: `THRIVEUP_INGEST_KEY` authenticates
+GrantPathPro Mirror pushes into ThriveUp, while `THRIVEUP_PARTNER_KEY` authenticates ThriveUp's calls to the
+partner's `GET /thriveup/embed?orgId=<id>&mode=iframe` endpoint. The embed target is stored in the non-secret
+`GPP_EMBED_URL` environment variable rather than inferred from the older grant API base.
+
+**Why:** The partner's Convex embed host is separate from the legacy GPP grant API host; deriving one from the
+other silently sends authenticated requests to the wrong system.
+
+**How to apply:** Keep Mirror snapshots append-only and tenant-scoped. Expose only the latest snapshot to an
+authorized organization member/staff user, show its received time and freshness honestly, and never serialize
+either credential into client code or URLs.
+
 ---
 
 ## Current status (confirmed 2026-08-15)

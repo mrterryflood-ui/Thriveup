@@ -4,7 +4,7 @@
  *
  * INBOUND  (Grant Path Pro → ThriveUp)
  *   POST /api/inbound/grantpathpro
- *   Auth: x-api-key: process.env.THRIVEUP_INBOUND_KEY
+ *   Auth: x-api-key: process.env.THRIVEUP_INGEST_KEY
  *   GPP sends grant execution status, monitoring updates, milestone events.
  *
  * OUTBOUND (ThriveUp → Grant Path Pro)
@@ -14,7 +14,7 @@
  *   matched grants, AI narrative. Triggered from /api/conductor/export-to-grantpathpro.
  *
  * WIRING STATUS
- *   Inbound:  live — validates THRIVEUP_INBOUND_KEY, stores events in memory
+ *   Inbound:  live — validates THRIVEUP_INGEST_KEY, stores events durably
  *             (promote to DB when event volume warrants it)
  *   Outbound: stub returns preview payload until GPP_API_URL + GPP_API_KEY are set
  */
@@ -25,7 +25,7 @@ import { organizations, organizationMembers, grantOpportunities, consortiumPropo
 import { eq, desc, and } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 import { timingSafeEqual } from "crypto";
-import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig, getGrantPathProEmbedConfig } from "./grantpathpro-config";
+import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig, getGrantPathProEmbedConfig, getGrantPathProMirrorConfig } from "./grantpathpro-config";
 import { recordInboundVerification, rejectionsToCorrectionNote, verifyInboundPayload } from "./inbound-verification";
 
 function getUserId(req: Request): string | undefined {
@@ -300,6 +300,39 @@ export function registerGrantPathProRoutes(app: Express) {
     }
   });
 
+  // Push a verified organization's current Mirror snapshot to GPP's receiver.
+  app.post("/api/organizations/:orgId/grantpathpro-mirror/push", async (req: Request, res: Response) => {
+    const organization = await loadOwnedOrganization(req, res, req.params.orgId);
+    if (!organization) return;
+    const snapshot = req.body?.snapshot;
+    if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) {
+      return res.status(400).json({ error: "An object snapshot is required" });
+    }
+    const config = getGrantPathProMirrorConfig();
+    if (!config.configured || !config.url || !config.ingestKey) {
+      return res.status(503).json({ error: "GrantPathPro Mirror receiver is not configured" });
+    }
+    try {
+      const response = await fetch(config.url, {
+        method: "POST",
+        headers: { Accept: "application/json", "Content-Type": "application/json", "x-api-key": config.ingestKey },
+        body: JSON.stringify({ orgId: organization.id, snapshot }),
+        signal: AbortSignal.timeout(15_000),
+      });
+      if (!response.ok) {
+        console.error(`[GrantPathPro] Mirror receiver returned HTTP ${response.status}`);
+        return res.status(502).json({ error: "GrantPathPro Mirror receiver rejected the snapshot" });
+      }
+      const [row] = await db.insert(gppMirrorSnapshots).values({
+        orgId: organization.id, snapshot: snapshot as Record<string, unknown>, source: "thriveup",
+      }).returning({ id: gppMirrorSnapshots.id, receivedAt: gppMirrorSnapshots.receivedAt });
+      return res.status(201).json({ ok: true, snapshotId: row.id, receivedAt: row.receivedAt });
+    } catch (err) {
+      console.error("[GrantPathPro] Mirror push failed:", err);
+      return res.status(502).json({ error: "GrantPathPro Mirror push failed" });
+    }
+  });
+
   // Latest snapshot for an organization profile. Access is tenant-scoped.
   app.get("/api/organizations/:orgId/grantpathpro-mirror", async (req: Request, res: Response) => {
     const organization = await loadOwnedOrganization(req, res, req.params.orgId);
@@ -326,7 +359,7 @@ export function registerGrantPathProRoutes(app: Express) {
   /**
    * INBOUND — Grant Path Pro → ThriveUp
    * GPP POSTs grant execution events here.
-   * Auth: x-api-key: THRIVEUP_INBOUND_KEY
+   * Auth: x-api-key: THRIVEUP_INGEST_KEY
    */
   app.post("/api/inbound/grantpathpro", requireGppInboundKey, async (req: Request, res: Response) => {
     try {
@@ -782,7 +815,7 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
       inboundEndpoint: `${host}/api/inbound/grantpathpro`,
       statusEndpoint: `${host}/api/inbound/grantpathpro/status`,
       authHeader: "x-api-key",
-      authKeyName: "THRIVEUP_INBOUND_KEY",
+      authKeyName: "THRIVEUP_INGEST_KEY",
       note: "Contact ThriveUp for the actual key value — never transmitted in plain text",
       outboundCallback: {
         description: "ThriveUp will POST community briefs to Grant Path Pro",

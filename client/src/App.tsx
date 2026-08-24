@@ -836,7 +836,11 @@ function AppRouter() {
       <Route path="/proposal-command" component={ProposalCommandPage} />
       <Route path="/proposal-pipeline" component={ProposalPipelinePage} />
       <Route path="/consortium-proposals" component={ConsortiumProposalPage} />
-      <Route path="/app/entity/:id" component={EntityProfilePage} />
+      <Route path="/app/entity/:id">
+        <RequireAuth reason="Entity profiles include organization identity and partner-supplied Mirror data, so sign-in is required.">
+          <EntityProfilePage />
+        </RequireAuth>
+      </Route>
       <Route path="/apprenticeship-tracker" component={ApprenticeshipTrackerPage} />
       <Route path="/opportunity-youth" component={OpportunityYouthPage} />
       <Route path="/foster-youth" component={FosterYouthHubPage} />
