@@ -10,12 +10,11 @@
  * response in a truthful rejected state.
  */
 import { spawnSync } from "node:child_process";
+import { getGrantPathProOpportunityHandoffConfig } from "../server/grantpathpro-config";
 
 const genericApiUrl = process.env.GPP_API_URL?.trim() || null;
 const handoffUrl = process.env.GPP_OPPORTUNITY_HANDOFF_URL?.trim() || null;
-const handoffKey = process.env.GPP_OPPORTUNITY_HANDOFF_API_KEY?.trim()
-  || process.env.THRIVEUP_INGEST_KEY?.trim()
-  || null;
+const handoffKey = process.env.GPP_OPPORTUNITY_HANDOFF_API_KEY?.trim() || null;
 
 function fail(message: string): never {
   console.error(`[gpp-handoff-guard] FAIL — ${message}`);
@@ -41,10 +40,20 @@ function main() {
     fail("GPP_API_URL is configured without GPP_OPPORTUNITY_HANDOFF_URL. The generic API origin must never be guessed as a consequential handoff receiver.");
   }
   if (!handoffKey) {
-    fail("GPP_OPPORTUNITY_HANDOFF_URL is configured without a server-side handoff credential.");
+    const runtimeConfig = getGrantPathProOpportunityHandoffConfig();
+    if (runtimeConfig.configured) {
+      fail("Runtime reports a configured handoff receiver without the dedicated handoff credential expected by this guard.");
+    }
+    console.warn("[gpp-handoff-guard] Dedicated outbound credential is not configured — delivery is intentionally unavailable and no partner request can be sent.");
+    return;
   }
 
-  const parsed = parseSafeHttpsUrl(handoffUrl);
+  const runtimeConfig = getGrantPathProOpportunityHandoffConfig();
+  if (!runtimeConfig.configured || !runtimeConfig.url || !runtimeConfig.apiKey) {
+    fail("GPP_OPPORTUNITY_HANDOFF_URL does not satisfy the runtime partner URL allow-list or lacks a usable runtime credential.");
+  }
+
+  const parsed = parseSafeHttpsUrl(runtimeConfig.url);
   if (!parsed) {
     fail("GPP_OPPORTUNITY_HANDOFF_URL must be an absolute HTTPS URL without embedded credentials.");
   }

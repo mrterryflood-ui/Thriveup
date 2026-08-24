@@ -85,6 +85,19 @@ function deliveryBadgeVariant(state: OpportunityHandoff["deliveryState"]): "defa
   return "outline";
 }
 
+const deliveryStateLabels: Record<OpportunityHandoff["deliveryState"], string> = {
+  previewed: "Awaiting delivery check",
+  delivered: "GrantPathPro receipt confirmed",
+  rejected: "Partner did not accept",
+  unavailable: "Delivery not configured",
+  delivery_unknown: "Delivery needs reconciliation",
+};
+
+function handoffStatusNotice(state: string, detail: string) {
+  if (state === "delivered") return `GrantPathPro confirmed receipt of this handoff package. ${detail}`;
+  return `Authorization recorded; no partner handoff is complete. ${detail}`;
+}
+
 function snapshotItems(snapshot: Record<string, unknown>, keys: string[]): string[] {
   for (const key of keys) {
     const value = snapshot[key];
@@ -214,7 +227,7 @@ export default function EntityProfilePage() {
       });
       const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
       if (activeOrgIdRef.current !== id) return;
-      setHandoffNotice(`Handoff recorded: ${payload.deliveryState}. ${payload.deliveryDetail}`);
+      setHandoffNotice(handoffStatusNotice(payload.deliveryState, payload.deliveryDetail));
       setAuthorizationConfirmed(false);
       requestIdRef.current = "";
       await handoffHistory.refetch();
@@ -233,7 +246,7 @@ export default function EntityProfilePage() {
       const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs/${encodeURIComponent(handoffId)}/reconcile`);
       const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
       if (activeOrgIdRef.current !== id) return;
-      setHandoffNotice(`Reconciliation recorded: ${payload.deliveryState}. ${payload.deliveryDetail}`);
+      setHandoffNotice(handoffStatusNotice(payload.deliveryState, payload.deliveryDetail));
       await handoffHistory.refetch();
     } catch (error) {
       setHandoffError(error instanceof Error ? error.message : "The handoff could not be reconciled.");
@@ -391,7 +404,7 @@ export default function EntityProfilePage() {
           <div className="flex items-start gap-3 rounded-md border p-3">
             <Checkbox id="authorize-handoff" aria-describedby={authorizationDescriptionId} data-testid="opportunity-handoff-authorize" checked={authorizationConfirmed} onCheckedChange={(checked) => setAuthorizationConfirmed(checked === true)} />
             <label id={authorizationDescriptionId} htmlFor="authorize-handoff" className="text-sm leading-5">
-              I authorize ThriveUp to send this specific v1 opportunity package to GrantPathPro. I understand this starts a pursuit-workflow handoff only; it does not submit an application, contact a funder, or guarantee any outcome.
+              I authorize ThriveUp to send this specific v1 opportunity package to GrantPathPro for internal pursuit intake only. The package includes the organization profile, selected source-labeled opportunity, readiness signals, and stated unknowns. It does not authorize partner, funder, or collaborator outreach; submit an application; or guarantee any outcome.
             </label>
           </div>
           {opportunityPackage.data && !opportunityPackage.data.authorization.allowed && <p className="text-sm text-muted-foreground">{opportunityPackage.data.authorization.reason} Ask an organization owner to authorize this handoff.</p>}
@@ -414,16 +427,16 @@ export default function EntityProfilePage() {
                   <p className="font-medium">{handoff.opportunityPackage.handoff?.selectedOpportunity?.title || "Authorized opportunity package"}</p>
                   <p className="text-xs text-muted-foreground">Authorized {new Date(handoff.authorizedAt).toLocaleString()} · {handoff.opportunityPackage.handoff?.selectedOpportunity?.sourceLabel || "source label not available"}</p>
                 </div>
-                <Badge variant={deliveryBadgeVariant(handoff.deliveryState)}>{handoff.deliveryState}</Badge>
+                <Badge variant={deliveryBadgeVariant(handoff.deliveryState)}>{deliveryStateLabels[handoff.deliveryState]}</Badge>
               </div>
               {handoff.deliveryDetail && <p className="text-sm text-muted-foreground">{handoff.deliveryDetail}</p>}
-               {(handoff.deliveryState === "delivery_unknown" || handoff.deliveryState === "previewed") && (
+               {handoff.deliveryState !== "delivered" && (
                  <div className="flex flex-wrap items-center gap-2">
                    <Button variant="outline" size="sm" data-testid={`opportunity-handoff-reconcile-${handoff.id}`} onClick={() => reconcileHandoff(handoff.id)} disabled={reconcilingHandoffId === handoff.id}>
                      {reconcilingHandoffId === handoff.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                      Reconcile same handoff
                    </Button>
-                   <span className="text-xs text-muted-foreground">Retries the original idempotency key; it does not create a replacement pursuit.</span>
+                    <span className="text-xs text-muted-foreground">Retries the original idempotency key; it does not create a replacement pursuit or authorize outreach.</span>
                  </div>
                )}
               {handoff.feedback.length > 0 ? (

@@ -75,14 +75,23 @@ export function getGrantPathProOpportunityHandoffConfig(): {
   configured: boolean;
 } {
   const candidateUrl = process.env.GPP_OPPORTUNITY_HANDOFF_URL?.trim() || null;
-  const url = candidateUrl && isSafePartnerUrl(candidateUrl) ? candidateUrl : null;
-  // GrantPath Pro's supplied v1 receiver authenticates ThriveUp with the
-  // existing THRIVEUP_INGEST_KEY as a Bearer credential. An explicitly
-  // provisioned handoff key takes precedence when available.
-  const apiKey = process.env.GPP_OPPORTUNITY_HANDOFF_API_KEY?.trim()
-    || process.env.THRIVEUP_INGEST_KEY?.trim()
-    || null;
+  const url = candidateUrl && isSafeOpportunityHandoffUrl(candidateUrl) ? candidateUrl : null;
+  // A handoff credential is outbound-only. THRIVEUP_INGEST_KEY authenticates
+  // partner writes into ThriveUp and must never be replayed to a partner.
+  const apiKey = process.env.GPP_OPPORTUNITY_HANDOFF_API_KEY?.trim() || null;
   return { url, apiKey, configured: Boolean(url && apiKey) };
+}
+
+function isSafeOpportunityHandoffUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    return isSafePartnerUrl(value)
+      && parsed.pathname === "/thriveup/mirror"
+      && !parsed.search
+      && !parsed.hash;
+  } catch {
+    return false;
+  }
 }
 
 function isSafePartnerUrl(value: string): boolean {

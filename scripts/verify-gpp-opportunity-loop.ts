@@ -13,6 +13,7 @@ const config = readFileSync("server/grantpathpro-config.ts", "utf8");
 const profile = readFileSync("client/src/pages/entity-profile.tsx", "utf8");
 const contract = readFileSync("docs/grantpathpro-opportunity-handoff-contract.md", "utf8");
 const migration = readFileSync("migrations/20260824_gpp_opportunity_handoff.sql", "utf8");
+const endpointGuard = readFileSync("scripts/verify-gpp-endpoint.ts", "utf8");
 
 let failures = 0;
 function expect(condition: boolean, message: string) {
@@ -36,14 +37,23 @@ expect(routes.includes('handoff.orgId !== clean.orgId'), "feedback cannot be sto
 expect(routes.includes("crossOrganizationLearning: \"disabled_pending_separate_consent_and_aggregation_policy\""), "cross-organization learning remains disabled");
 expect(config.includes("GPP_OPPORTUNITY_HANDOFF_URL"), "delivery uses an explicit receiver configuration");
 expect(!config.includes("GPP_API_URL?.trim() || `${"), "delivery receiver is not derived from the generic partner API origin");
+expect(config.includes('const apiKey = process.env.GPP_OPPORTUNITY_HANDOFF_API_KEY?.trim() || null;'), "outbound handoff requires a dedicated credential");
+expect(routes.includes("payload?.accepted !== true"), "a receiver must explicitly acknowledge acceptance before delivery is recorded");
+expect(routes.includes('ne(gppOpportunityHandoffs.deliveryState, "delivered")'), "a confirmed delivery cannot be overwritten by a slower retry");
+expect(routes.includes('handoff.deliveryState !== "delivered"'), "feedback is blocked before verified delivery");
+expect(routes.includes("eventId: { type: \"string\" as const, required: true"), "feedback requires a stable partner event identity");
+expect(routes.includes("partnerContactAuthorization: false"), "handoff package explicitly forbids treating intake as outreach authorization");
 expect(profile.includes('data-testid="opportunity-handoff-authorize"'), "UI exposes deliberate authorization control");
 expect(profile.includes('data-testid="opportunity-handoff-submit"'), "UI exposes handoff action");
 expect(contract.includes("Embed and Mirror payloads are separate compatibility"), "contract preserves Embed and Mirror compatibility");
 expect(contract.includes("Cross-organization learning remains disabled"), "contract documents the private-by-default learning boundary");
+expect(contract.includes('"accepted": true'), "contract requires a receiver acceptance acknowledgement");
+expect(contract.includes("outbound-only credential"), "contract prohibits replaying the inbound callback key for delivery");
 expect(migration.includes("gpp_opportunity_handoffs") && migration.includes("gpp_pursuit_feedback"), "production migration creates lifecycle tables");
 expect(profile.includes('data-testid="opportunity-handoff-source-type"'), "UI supports each documented source type");
 expect(profile.includes("Reconcile same handoff"), "UI exposes safe same-handoff recovery");
 expect(readFileSync("scripts/verify-gpp-opportunity-stub.ts", "utf8").includes("local-stub-token"), "safe local receiver test never targets the live partner");
+expect(endpointGuard.includes("no live partner request"), "endpoint guard never creates a live partner-side probe");
 
 const BASE = process.env.BASE_URL || "http://localhost:5000";
 const RUN = randomUUID().slice(0, 8);
@@ -67,7 +77,9 @@ async function verifyLiveLifecycle() {
   let handoffId: string | null = null;
   await db.connect();
   try {
-    await Promise.all([ensureTestUser(db, owner), ensureTestUser(db, member), ensureTestUser(db, stranger)]);
+    await ensureTestUser(db, owner);
+    await ensureTestUser(db, member);
+    await ensureTestUser(db, stranger);
     const ownerCookie = await forgeSession(db, owner);
     const memberCookie = await forgeSession(db, member);
     const strangerCookie = await forgeSession(db, stranger);
@@ -122,10 +134,25 @@ async function verifyLiveLifecycle() {
     expect(strangerHistory.status === 403, "unrelated user cannot read private handoff history");
 
     const inboundKey = requireEnv("THRIVEUP_INGEST_KEY");
+    const prematureFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
+      contractVersion: "v1",
+      handoffId,
+      orgId,
+      eventId: `premature-${RUN}`,
+      status: "submitted",
+      sourceTimestamp: new Date().toISOString(),
+      sourceLabel: "E2E GrantPathPro",
+    }, { "x-api-key": inboundKey });
+    if (createdBody.deliveryState === "delivered") {
+      expect(prematureFeedback.status === 201, "feedback is accepted after an already verified delivery");
+    } else {
+      expect(prematureFeedback.status === 409, "feedback is blocked before a verified delivery acknowledgement");
+    }
     const invalidFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
       contractVersion: "v1",
       handoffId,
       orgId,
+      eventId: `invalid-${RUN}`,
       status: "submitted",
       sourceLabel: "E2E GrantPathPro",
     }, { "x-api-key": inboundKey });
@@ -135,21 +162,44 @@ async function verifyLiveLifecycle() {
       contractVersion: "v1",
       handoffId,
       orgId: `${orgId}-other`,
+      eventId: `wrong-tenant-${RUN}`,
       status: "submitted",
       sourceTimestamp: new Date().toISOString(),
       sourceLabel: "E2E GrantPathPro",
     }, { "x-api-key": inboundKey });
     expect(wrongTenantFeedback.status === 404, "feedback cannot cross an organization boundary");
 
+    const externalPursuitId = `e2e-pursuit-${RUN}`;
+    await db.query(
+      `UPDATE gpp_opportunity_handoffs
+       SET delivery_state = 'delivered', delivered_at = NOW(), external_pursuit_id = $1,
+           delivery_detail = 'E2E-controlled verified acceptance fixture'
+       WHERE id = $2`,
+      [externalPursuitId, handoffId],
+    );
+    const wrongPursuitFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
+      contractVersion: "v1",
+      handoffId,
+      orgId,
+      eventId: `wrong-pursuit-${RUN}`,
+      status: "submitted",
+      sourceTimestamp: new Date().toISOString(),
+      sourceLabel: "E2E GrantPathPro",
+      externalPursuitId: `${externalPursuitId}-mismatch`,
+    }, { "x-api-key": inboundKey });
+    expect(wrongPursuitFeedback.status === 409, "feedback cannot attach to a different external pursuit");
+
     const feedbackTimestamp = new Date().toISOString();
     const feedbackPayload = {
       contractVersion: "v1",
       handoffId,
       orgId,
+      eventId: `feedback-${RUN}`,
       status: "submitted",
       sourceTimestamp: feedbackTimestamp,
       sourceLabel: "E2E GrantPathPro",
       lesson: "Confirm requirements before submission.",
+      externalPursuitId,
     };
     const acceptedFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", feedbackPayload, { "x-api-key": inboundKey });
     const acceptedBody = await acceptedFeedback.json() as { received?: boolean; privacy?: string };
@@ -158,6 +208,11 @@ async function verifyLiveLifecycle() {
     const duplicateFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", feedbackPayload, { "x-api-key": inboundKey });
     const duplicateFeedbackBody = await duplicateFeedback.json() as { duplicate?: boolean };
     expect(duplicateFeedback.status === 200 && duplicateFeedbackBody.duplicate === true, "identical partner feedback retry is idempotent");
+    const conflictingFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
+      ...feedbackPayload,
+      status: "declined",
+    }, { "x-api-key": inboundKey });
+    expect(conflictingFeedback.status === 409, "reused partner event id with different content is rejected");
 
     const historyWithFeedback = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie);
     const historyWithFeedbackBody = await historyWithFeedback.json() as { handoffs?: Array<{ id: string; feedback: Array<{ lesson?: string }> }> };
@@ -167,7 +222,9 @@ async function verifyLiveLifecycle() {
     if (handoffId) await db.query(`DELETE FROM gpp_opportunity_handoffs WHERE id = $1`, [handoffId]).catch(() => {});
     await db.query(`DELETE FROM organization_members WHERE org_id = $1`, [orgId]).catch(() => {});
     await db.query(`DELETE FROM organizations WHERE id = $1`, [orgId]).catch(() => {});
-    await Promise.all([cleanupTestUser(db, owner.userId), cleanupTestUser(db, member.userId), cleanupTestUser(db, stranger.userId)]);
+    await cleanupTestUser(db, owner.userId);
+    await cleanupTestUser(db, member.userId);
+    await cleanupTestUser(db, stranger.userId);
     await db.end().catch(() => {});
   }
 }

@@ -7,13 +7,19 @@
  *   Auth: x-api-key: process.env.THRIVEUP_INGEST_KEY
  *   GPP sends grant execution status, monitoring updates, milestone events.
  *
- * OUTBOUND (ThriveUp → Grant Path Pro)
+ * LEGACY OUTBOUND EXPORTS (ThriveUp → GrantPathPro)
  *   POST <GPP_API_URL>
  *   Auth: Bearer <GPP_API_KEY>  (set as env vars when GPP provides them)
- *   ThriveUp sends community brief — needs assessment, cascade, domain scores,
+ *   These legacy routes send community brief — needs assessment, cascade, domain scores,
  *   matched grants, AI narrative. Triggered from /api/conductor/export-to-grantpathpro.
  *
- * WIRING STATUS
+ * COMMUNITY OPPORTUNITY HANDOFF (the consequential v1 flow)
+ *   POST <GPP_OPPORTUNITY_HANDOFF_URL>/thriveup/mirror
+ *   Auth: Bearer <GPP_OPPORTUNITY_HANDOFF_API_KEY>
+ *   Requires a receiver JSON acknowledgement of { accepted: true } before
+ *   ThriveUp records delivery. See grantpathpro-opportunity-handoff-contract.md.
+ *
+ * LEGACY WIRING STATUS
  *   Inbound:  live — validates THRIVEUP_INGEST_KEY, stores events durably
  *             (promote to DB when event volume warrants it)
  *   Outbound: stub returns preview payload until GPP_API_URL + GPP_API_KEY are set
@@ -22,7 +28,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
 import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable, gppMirrorSnapshots, gppOpportunityHandoffs, gppPursuitFeedback } from "@shared/schema";
-import { eq, desc, and, inArray } from "drizzle-orm";
+import { eq, desc, and, inArray, ne } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble } from "./ai-provider";
 import { timingSafeEqual, randomUUID, createHash } from "crypto";
 import { z } from "zod";
@@ -166,6 +172,7 @@ const GPP_PURSUIT_FEEDBACK_SCHEMA = {
   contractVersion: { type: "enum" as const, enum: ["v1"], required: true },
   handoffId: { type: "string" as const, required: true, maxLength: 200 },
   orgId: { type: "string" as const, required: true, maxLength: 100 },
+  eventId: { type: "string" as const, required: true, maxLength: 200 },
   status: { type: "enum" as const, enum: [...PURSUIT_STATUSES], required: true },
   sourceTimestamp: { type: "string" as const, required: true, maxLength: 64 },
   externalPursuitId: { type: "string" as const, maxLength: 200 },
@@ -188,16 +195,7 @@ function feedbackFingerprint(clean: Record<string, unknown>): string {
   const canonical = JSON.stringify({
     handoffId: clean.handoffId,
     orgId: clean.orgId,
-    status: clean.status,
-    sourceTimestamp: clean.sourceTimestamp,
-    externalPursuitId: clean.externalPursuitId ?? null,
-    decisionAt: clean.decisionAt ?? null,
-    awardAmount: clean.awardAmount ?? null,
-    amountDisclosure: clean.amountDisclosure ?? "not_shared",
-    funderFeedback: clean.funderFeedback ?? null,
-    lesson: clean.lesson ?? null,
-    sourceLabel: clean.sourceLabel,
-    sourceUrl: clean.sourceUrl ?? null,
+    eventId: clean.eventId,
   });
   return createHash("sha256").update(canonical).digest("hex");
 }
@@ -247,6 +245,8 @@ function buildOpportunityPackage(organization: typeof organizations.$inferSelect
     collaboration: {
       categories: ["community partner", "implementation partner", "research partner", "procurement partner"],
       status: "categories only; no collaborator availability or commitment is claimed",
+      partnerContactAuthorization: false,
+      receiverInstruction: "This package authorizes internal pursuit intake only. It does not authorize partner, funder, or collaborator outreach.",
     },
     privacy: {
       organizationPrivateByDefault: true,
@@ -393,6 +393,13 @@ async function deliverOpportunityHandoff(
         externalPursuitId: null,
       };
     }
+    if (payload?.accepted !== true) {
+      return {
+        state: "rejected",
+        detail: "GrantPathPro returned a success status without the required accepted:true acknowledgement. The package remains available for review.",
+        externalPursuitId: null,
+      };
+    }
     const externalPursuitId = typeof payload?.externalPursuitId === "string" && payload.externalPursuitId.length <= 200
       ? payload.externalPursuitId
       : typeof payload?.pursuitId === "string" && payload.pursuitId.length <= 200
@@ -413,16 +420,49 @@ async function deliverOpportunityHandoff(
   }
 }
 
+async function persistOpportunityHandoffDelivery(
+  handoffId: string,
+  delivery: Awaited<ReturnType<typeof deliverOpportunityHandoff>>,
+  detailPrefix = "",
+) {
+  const deliveryDetail = `${detailPrefix}${delivery.detail}`;
+  // A valid partner acknowledgement is the strongest known result. A slower
+  // timeout or rejection from a concurrent retry must never overwrite it.
+  await db.update(gppOpportunityHandoffs).set({
+    deliveryState: delivery.state,
+    deliveryDetail,
+    deliveredAt: delivery.state === "delivered" ? new Date() : null,
+    externalPursuitId: delivery.externalPursuitId,
+  }).where(and(
+    eq(gppOpportunityHandoffs.id, handoffId),
+    ne(gppOpportunityHandoffs.deliveryState, "delivered"),
+  ));
+  const [persisted] = await db.select().from(gppOpportunityHandoffs)
+    .where(eq(gppOpportunityHandoffs.id, handoffId))
+    .limit(1);
+  if (!persisted) throw new Error("Opportunity handoff disappeared during delivery persistence");
+  return persisted;
+}
+
 export function registerGrantPathProRoutes(app: Express) {
 
   /**
    * GET /api/consortium/gpp-status
-   * Returns whether GPP_API_URL is configured — used by the UI to show sync status.
+   * Returns separate configuration states for legacy exports and the v1
+   * opportunity handoff. Neither state is evidence of partner action.
    * No auth required (config presence is not sensitive).
    */
   app.get("/api/consortium/gpp-status", (_req: Request, res: Response) => {
-    const config = getGrantPathProOutboundConfig();
-    return res.json({ configured: config.configured, url: getGrantPathProDisplayOrigin(config.url) });
+    const legacy = getGrantPathProOutboundConfig();
+    const opportunityHandoff = getGrantPathProOpportunityHandoffConfig();
+    return res.json({
+      configured: legacy.configured,
+      url: getGrantPathProDisplayOrigin(legacy.url),
+      opportunityHandoff: {
+        configured: opportunityHandoff.configured,
+        url: getGrantPathProDisplayOrigin(opportunityHandoff.url),
+      },
+    });
   });
 
   /**
@@ -662,13 +702,16 @@ export function registerGrantPathProRoutes(app: Express) {
         if (existing.orgId !== organization.id || existing.authorizedByUserId !== userId) {
           return res.status(409).json({ error: "This authorization request id cannot be reused" });
         }
+        const persisted = ["previewed", "unavailable", "delivery_unknown"].includes(existing.deliveryState)
+          ? await persistOpportunityHandoffDelivery(existing.id, await deliverOpportunityHandoff(existing.opportunityPackage), "Safe same-handoff retry: ")
+          : existing;
         return res.status(200).json({
-          handoffId: existing.id,
-          contractVersion: existing.contractVersion,
-          deliveryState: existing.deliveryState,
-          deliveryDetail: existing.deliveryDetail,
-          externalPursuitId: existing.externalPursuitId,
-          package: existing.opportunityPackage,
+          handoffId: persisted.id,
+          contractVersion: persisted.contractVersion,
+          deliveryState: persisted.deliveryState,
+          deliveryDetail: persisted.deliveryDetail,
+          externalPursuitId: persisted.externalPursuitId,
+          package: persisted.opportunityPackage,
           duplicate: true,
         });
       }
@@ -717,20 +760,17 @@ export function registerGrantPathProRoutes(app: Express) {
         });
       }
 
-      const delivery = await deliverOpportunityHandoff(opportunityPackage);
-      await db.update(gppOpportunityHandoffs).set({
-        deliveryState: delivery.state,
-        deliveryDetail: delivery.detail,
-        deliveredAt: delivery.state === "delivered" ? new Date() : null,
-        externalPursuitId: delivery.externalPursuitId,
-      }).where(eq(gppOpportunityHandoffs.id, id));
+      const persisted = await persistOpportunityHandoffDelivery(
+        id,
+        await deliverOpportunityHandoff(opportunityPackage),
+      );
 
       return res.status(201).json({
         handoffId: id,
         contractVersion: "v1",
-        deliveryState: delivery.state,
-        deliveryDetail: delivery.detail,
-        externalPursuitId: delivery.externalPursuitId,
+        deliveryState: persisted.deliveryState,
+        deliveryDetail: persisted.deliveryDetail,
+        externalPursuitId: persisted.externalPursuitId,
         package: opportunityPackage,
       });
     } catch (err) {
@@ -757,21 +797,19 @@ export function registerGrantPathProRoutes(app: Express) {
         eq(gppOpportunityHandoffs.orgId, organization.id),
       )).limit(1);
       if (!handoff) return res.status(404).json({ error: "Handoff not found" });
-      if (handoff.deliveryState !== "delivery_unknown" && handoff.deliveryState !== "previewed") {
+      if (!["delivery_unknown", "previewed", "unavailable"].includes(handoff.deliveryState)) {
         return res.status(409).json({ error: "Only an unresolved handoff can be reconciled", deliveryState: handoff.deliveryState });
       }
-      const delivery = await deliverOpportunityHandoff(handoff.opportunityPackage);
-      await db.update(gppOpportunityHandoffs).set({
-        deliveryState: delivery.state,
-        deliveryDetail: `Reconciliation attempt: ${delivery.detail}`,
-        deliveredAt: delivery.state === "delivered" ? new Date() : handoff.deliveredAt,
-        externalPursuitId: delivery.externalPursuitId ?? handoff.externalPursuitId,
-      }).where(eq(gppOpportunityHandoffs.id, handoff.id));
+      const persisted = await persistOpportunityHandoffDelivery(
+        handoff.id,
+        await deliverOpportunityHandoff(handoff.opportunityPackage),
+        "Reconciliation attempt: ",
+      );
       return res.json({
-        handoffId: handoff.id,
-        deliveryState: delivery.state,
-        deliveryDetail: `Reconciliation attempt: ${delivery.detail}`,
-        externalPursuitId: delivery.externalPursuitId ?? handoff.externalPursuitId,
+        handoffId: persisted.id,
+        deliveryState: persisted.deliveryState,
+        deliveryDetail: persisted.deliveryDetail,
+        externalPursuitId: persisted.externalPursuitId,
         idempotencyKey: handoff.id,
       });
     } catch (err) {
@@ -815,9 +853,21 @@ export function registerGrantPathProRoutes(app: Express) {
       if (!handoff || handoff.orgId !== clean.orgId) {
         return res.status(404).json({ error: "No matching authorized handoff was found for this organization" });
       }
+      if (handoff.deliveryState !== "delivered") {
+        return res.status(409).json({
+          error: "Partner feedback cannot be attached until this handoff has a verified delivery acknowledgement",
+          deliveryState: handoff.deliveryState,
+        });
+      }
+      if (handoff.externalPursuitId && clean.externalPursuitId !== handoff.externalPursuitId) {
+        return res.status(409).json({ error: "Partner feedback external pursuit id does not match the verified handoff" });
+      }
+      if (!handoff.externalPursuitId && typeof clean.externalPursuitId === "string") {
+        return res.status(409).json({ error: "Partner feedback supplied an external pursuit id that was not part of the verified handoff" });
+      }
 
       const eventFingerprint = feedbackFingerprint(clean);
-      const [feedback] = await db.insert(gppPursuitFeedback).values({
+      const feedbackValues = {
         handoffId: handoff.id,
         orgId: handoff.orgId,
         eventFingerprint,
@@ -832,8 +882,29 @@ export function registerGrantPathProRoutes(app: Express) {
         lesson: typeof clean.lesson === "string" ? clean.lesson : null,
         sourceLabel: String(clean.sourceLabel),
         sourceUrl: typeof clean.sourceUrl === "string" ? clean.sourceUrl : null,
-      }).onConflictDoNothing({ target: gppPursuitFeedback.eventFingerprint }).returning();
+      };
+      const [feedback] = await db.insert(gppPursuitFeedback).values(feedbackValues)
+        .onConflictDoNothing({ target: gppPursuitFeedback.eventFingerprint }).returning();
       if (!feedback) {
+        const [existing] = await db.select().from(gppPursuitFeedback)
+          .where(eq(gppPursuitFeedback.eventFingerprint, eventFingerprint))
+          .limit(1);
+        const isExactRetry = existing
+          && existing.handoffId === feedbackValues.handoffId
+          && existing.orgId === feedbackValues.orgId
+          && existing.externalPursuitId === feedbackValues.externalPursuitId
+          && existing.status === feedbackValues.status
+          && existing.sourceTimestamp.getTime() === feedbackValues.sourceTimestamp.getTime()
+          && (existing.decisionAt?.getTime() ?? null) === (feedbackValues.decisionAt?.getTime() ?? null)
+          && existing.awardAmount === feedbackValues.awardAmount
+          && existing.amountDisclosure === feedbackValues.amountDisclosure
+          && existing.funderFeedback === feedbackValues.funderFeedback
+          && existing.lesson === feedbackValues.lesson
+          && existing.sourceLabel === feedbackValues.sourceLabel
+          && existing.sourceUrl === feedbackValues.sourceUrl;
+        if (!isExactRetry) {
+          return res.status(409).json({ error: "Partner feedback event id was reused with different content" });
+        }
         return res.status(200).json({
           received: true,
           duplicate: true,
@@ -1176,6 +1247,10 @@ Write 500-700 words in formal HUD grant language. Plain paragraphs, no markdown 
       }
 
       const response = await r.json().catch(() => ({ status: r.status }));
+      if (!response || typeof response !== "object" || (response as Record<string, unknown>).accepted !== true) {
+        console.warn(`[GrantPathPro] Push to ${gppUrl}${endpoint} returned HTTP ${r.status} without an acceptance acknowledgement.`);
+        return { sent: false, response, error: "GrantPathPro did not return the required accepted:true acknowledgement" };
+      }
       return { sent: true, response };
     } catch (e: any) {
       return { sent: false, error: e.message || "Unable to reach GrantPathPro" };

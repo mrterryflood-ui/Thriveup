@@ -13,7 +13,7 @@ npm install --prefer-offline 2>/dev/null || npm install
 for f in scripts/migrate-*.ts; do
   [ -e "$f" ] || continue
   echo "[post-merge] Running migration: $f"
-  npx tsx "$f" || echo "[post-merge] WARN: $f exited non-zero (may be expected if tables already exist)"
+  npx tsx "$f"
 done
 
 echo "[post-merge] Setup complete."

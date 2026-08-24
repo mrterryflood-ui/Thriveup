@@ -51,6 +51,7 @@
 - [Nav findability & two-click gate](nav-findability.md) — task-first nav; sidebar flags must match route gates (staffOnly ≠ adminOnly); auth-aware BFS gate guards two-click reachability.
 - [Health federation partner connectors](health-federation.md) — HerHealth/MaleHealth have public no-auth APIs; honest-offline gateway; Nia=/ai-navigator, Malik=/malik deep links.
 - [GrantPathPro address is env-driven](grantpathpro-env-driven.md) — no hardcoded GrantPathPro domain in code; outbound integration URL lives in `GPP_API_URL` env var, not a source-code string.
+- [GrantPathPro opportunity handoff](grantpathpro-opportunity-handoff.md) — v1 delivery is fail-closed: dedicated outbound credential, exact receiver, explicit receipt, and stable partner event identity.
 - [Nonprofit identity lookup (Navigator)](nonprofit-identity-lookup.md) — ProPublica Nonprofit Explorer (EIN/501c3/990) + Perplexity web search ground named-org questions; distinct from Census place-data; GPP blocked both directions by their Clerk wall.
 - [Census place-level query key requirement](census-place-key-requirement.md) — ACS5 batched queries at the **place** (city) level require `CENSUS_API_KEY`; county-subdivision (CCD) queries work keyless. Inconsistent by geography level — verified live both ways.
 

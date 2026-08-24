@@ -35,6 +35,7 @@ const server = createServer((req, res) => {
     const duplicate = received.has(handoffId);
     received.add(handoffId);
     res.writeHead(200, { "content-type": "application/json" }).end(JSON.stringify({
+      accepted: true,
       pursuitId: "local-stub-pursuit",
       duplicate,
     }));

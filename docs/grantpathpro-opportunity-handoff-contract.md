@@ -55,19 +55,25 @@ ThriveUp creates an immutable package containing:
 
 Delivery is attempted against GrantPath Pro's `/thriveup/mirror` receiver when
 `GPP_OPPORTUNITY_HANDOFF_URL` is explicitly configured, with
-`Authorization: Bearer <THRIVEUP_INGEST_KEY>` (or a separately provisioned
-`GPP_OPPORTUNITY_HANDOFF_API_KEY`). The generic GrantPathPro API URL is never
-inferred as a receiver. Delivery states are:
+`Authorization: Bearer <GPP_OPPORTUNITY_HANDOFF_API_KEY>`. This is a dedicated
+outbound-only credential; ThriveUp's inbound callback key is never replayed to
+a partner. The generic GrantPathPro API URL is never inferred as a receiver.
+The receiver must acknowledge successful acceptance with JSON containing
+`{ "accepted": true }`; an HTTP success status alone is not delivery evidence.
+Delivery states are:
 
 - `previewed` — persisted before a delivery evaluation;
-- `delivered` — the explicit receiver accepted the package;
-- `rejected` — the explicit receiver returned a non-success response;
-- `unavailable` — no receiver is configured.
+- `delivered` — the explicit receiver returned the required acceptance acknowledgement;
+- `rejected` — the explicit receiver returned a non-success response or no valid acceptance acknowledgement;
+- `unavailable` — no explicit receiver and dedicated outbound credential are configured.
 - `delivery_unknown` — the receiver may have received the package, but no
   acknowledgement was returned; the same handoff must be reconciled before a
   replacement is authorized.
 
 No state other than `delivered` represents a partner handoff.
+The receiver must treat the package as internal pursuit intake only. It does
+not authorize partner, funder, or collaborator outreach, commitments, or
+referrals.
 
 ## Inbound feedback
 
@@ -94,6 +100,7 @@ Required fields:
 - `contractVersion: "v1"`
 - `handoffId`
 - `orgId`
+- `eventId` — stable, receiver-generated identifier for this feedback event; retries of the same event must reuse it
 - `status`
 - `sourceTimestamp` (parseable ISO timestamp)
 - `sourceLabel`
@@ -104,15 +111,18 @@ Allowed `status` values:
 `withdrawn`, `awarded`, `partially_awarded`, `cancelled`, `expired`, and
 `not_pursued`.
 
-Optional request fields include `sourceUrl` and `sourceCheckedAt`; when present,
-`sourceCheckedAt` must be an ISO-8601 timestamp with an explicit UTC offset.
+The feedback callback may include `sourceUrl`; the selected opportunity's
+`sourceCheckedAt` remains part of the original immutable handoff package, not
+a feedback field.
 Optional feedback fields are `externalPursuitId`, `decisionAt`, whole-number
 `awardAmount`, `amountDisclosure`, `funderFeedback`, `lesson`, and
 `sourceUrl`. Invalid required fields reject the payload with a correction note.
 Invalid optional fields are removed, logged, and returned as corrections.
 
-The `handoffId` must resolve to an existing authorized handoff and its
-organization must match `orgId`; otherwise no feedback is stored.
+The `handoffId` must resolve to an existing, delivered handoff and its
+organization must match `orgId`; otherwise no feedback is stored. If ThriveUp
+recorded an `externalPursuitId`, the callback must supply the same identifier.
+If no pursuit identifier was acknowledged, the callback must not supply one.
 ThriveUp derives a stable event fingerprint from the validated feedback body:
 an identical partner retry returns success with `duplicate: true` and does not
 create another feedback record.
@@ -123,7 +133,8 @@ create another feedback record.
 an authenticated owner/staff recovery action. It retries the original package
 with the original `handoffId` as the idempotency key; it cannot create a
 replacement pursuit. A timeout remains `delivery_unknown` until the receiver
-acknowledges or rejects the same request.
+acknowledges or rejects the same request. An unavailable package can use this
+same recovery action after a dedicated outbound credential is configured.
 
 ## Privacy and learning
 
