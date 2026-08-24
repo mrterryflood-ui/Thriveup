@@ -770,3 +770,10 @@ uri = "file://docs/order-of-operations-doctrine.md"
 type = "text"
 title = "Five-Phase Order of Operations Doctrine"
 description = "Portable, agnostic doctrine: mandatory environmental-scan + backward-planning/stakeholder-red-team front end before any build, plus the Accuracy & Continuous-Learning Ledger for measuring whether outcomes actually improve over time. Ready to apply to other systems."
+
+[[outputs]]
+id = "cULQegnETvEwBhMxQ7LdY"
+uri = "file://thriveup-full-code-export.md"
+type = "text"
+title = "ThriveUp Full Code Export"
+description = "A single Markdown download containing readable project source, configuration, schema, migrations, scripts, documentation, and public assets. Secrets, dependencies, private files, binaries, logs, and build artifacts are excluded."
