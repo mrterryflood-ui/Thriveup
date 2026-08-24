@@ -71,7 +71,14 @@ export function getGrantPathProOpportunityHandoffConfig(): {
   apiKey: string | null;
   configured: boolean;
 } {
-  const url = process.env.GPP_OPPORTUNITY_HANDOFF_URL?.trim() || null;
+  const url = process.env.GPP_OPPORTUNITY_HANDOFF_URL?.trim()
+    || "https://trustworthy-sheep-515.convex.site/thriveup/mirror";
   const outbound = getGrantPathProOutboundConfig();
-  return { url, apiKey: outbound.apiKey, configured: Boolean(url && outbound.apiKey) };
+  // GrantPath Pro's supplied v1 receiver authenticates ThriveUp with the
+  // existing THRIVEUP_INGEST_KEY as a Bearer credential. An explicitly
+  // provisioned handoff key remains available for future key separation.
+  const apiKey = process.env.GPP_OPPORTUNITY_HANDOFF_API_KEY?.trim()
+    || process.env.THRIVEUP_INGEST_KEY?.trim()
+    || outbound.apiKey;
+  return { url, apiKey, configured: Boolean(url && apiKey) };
 }

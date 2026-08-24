@@ -40,6 +40,13 @@ CREATE TABLE IF NOT EXISTS gpp_pursuit_feedback (
   received_at timestamp NOT NULL DEFAULT now()
 );
 
+ALTER TABLE gpp_pursuit_feedback
+  ADD COLUMN IF NOT EXISTS event_fingerprint varchar(64);
+UPDATE gpp_pursuit_feedback
+  SET event_fingerprint = id
+  WHERE event_fingerprint IS NULL;
+ALTER TABLE gpp_pursuit_feedback
+  ALTER COLUMN event_fingerprint SET NOT NULL;
 CREATE UNIQUE INDEX IF NOT EXISTS gpp_pursuit_feedback_fingerprint_unique
   ON gpp_pursuit_feedback (event_fingerprint);
 CREATE INDEX IF NOT EXISTS gpp_pursuit_feedback_org_received_idx

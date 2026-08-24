@@ -16,12 +16,14 @@ interfaces and are not changed by this contract.
 
 ## Authorization
 
-A handoff can only be created by a signed-in user who owns the organization, is
-an active member, or has a DB-verified staff role. The browser must send:
+A handoff can only be created by the organization owner or DB-verified staff.
+Organization members may review the private package and its history but cannot
+authorize a consequential external delivery. The browser must send:
 
 ```json
 {
   "contractVersion": "v1",
+  "requestId": "UUID generated once per deliberate browser authorization attempt",
   "authorizationConfirmed": true,
   "selectedOpportunity": {
     "title": "string",
@@ -35,7 +37,8 @@ an active member, or has a DB-verified staff role. The browser must send:
 
 Viewing a package, opening the GrantPathPro workspace, or selecting a lane is
 not authorization. The authorization is recorded with the authorizing user,
-timestamp, exact package, and delivery result.
+timestamp, exact package, and delivery result. Reusing the same `requestId`
+returns the original handoff without sending it a second time.
 
 ## Outbound package
 
@@ -49,9 +52,10 @@ ThriveUp creates an immutable package containing:
 - collaborator categories only—not asserted collaborators;
 - the private-by-default, cross-organization-learning-disabled boundary.
 
-Delivery is attempted only if `GPP_OPPORTUNITY_HANDOFF_URL` and the existing
-outbound service credential are configured. The generic GrantPathPro API URL
-is never inferred as a receiver. Delivery states are:
+Delivery is attempted against GrantPath Pro's `/thriveup/mirror` receiver
+(`GPP_OPPORTUNITY_HANDOFF_URL`, defaulting to the partner URL supplied for this
+contract) with `Authorization: Bearer <THRIVEUP_INGEST_KEY>`. The generic
+GrantPathPro API URL is never inferred as a receiver. Delivery states are:
 
 - `previewed` — persisted before a delivery evaluation;
 - `delivered` — the explicit receiver accepted the package;
@@ -66,6 +70,12 @@ No state other than `delivered` represents a partner handoff.
 GrantPathPro sends authenticated JSON to:
 
 `POST /api/inbound/grantpathpro/opportunity-feedback`
+
+Authentication uses the `x-api-key` header provisioned out of band; the key
+value is never part of this document or a client payload. A future callback
+adapter may use a separately provisioned `THRIVEUP_API_BASE_URL` and
+`THRIVEUP_API_KEY`, but its callback path and payload contract must be agreed
+before enabling outbound callbacks.
 
 Required fields:
 
@@ -89,6 +99,9 @@ Invalid optional fields are removed, logged, and returned as corrections.
 
 The `handoffId` must resolve to an existing authorized handoff and its
 organization must match `orgId`; otherwise no feedback is stored.
+ThriveUp derives a stable event fingerprint from the validated feedback body:
+an identical partner retry returns success with `duplicate: true` and does not
+create another feedback record.
 
 ## Privacy and learning
 

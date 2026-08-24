@@ -12,6 +12,7 @@ const schema = readFileSync("shared/schema.ts", "utf8");
 const config = readFileSync("server/grantpathpro-config.ts", "utf8");
 const profile = readFileSync("client/src/pages/entity-profile.tsx", "utf8");
 const contract = readFileSync("docs/grantpathpro-opportunity-handoff-contract.md", "utf8");
+const migration = readFileSync("migrations/20260824_gpp_opportunity_handoff.sql", "utf8");
 
 let failures = 0;
 function expect(condition: boolean, message: string) {
@@ -36,6 +37,8 @@ expect(profile.includes('data-testid="opportunity-handoff-authorize"'), "UI expo
 expect(profile.includes('data-testid="opportunity-handoff-submit"'), "UI exposes handoff action");
 expect(contract.includes("Embed and Mirror payloads are separate compatibility"), "contract preserves Embed and Mirror compatibility");
 expect(contract.includes("Cross-organization learning remains disabled"), "contract documents the private-by-default learning boundary");
+expect(migration.includes("gpp_opportunity_handoffs") && migration.includes("gpp_pursuit_feedback"), "production migration creates lifecycle tables");
+expect(profile.includes('data-testid="opportunity-handoff-source-type"'), "UI supports each documented source type");
 
 const BASE = process.env.BASE_URL || "http://localhost:5000";
 const RUN = randomUUID().slice(0, 8);
@@ -81,6 +84,7 @@ async function verifyLiveLifecycle() {
 
     const missingAuthorization = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
       contractVersion: "v1",
+      requestId: randomUUID(),
       authorizationConfirmed: false,
       selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "unverified_exploration", sourceLabel: "E2E source" },
     });
@@ -88,6 +92,7 @@ async function verifyLiveLifecycle() {
 
     const created = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
       contractVersion: "v1",
+      requestId: randomUUID(),
       authorizationConfirmed: true,
       selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "primary_source", sourceLabel: "E2E primary source", sourceUrl: "https://example.org/opportunity" },
     });
@@ -96,6 +101,14 @@ async function verifyLiveLifecycle() {
     expect(created.status === 201 && !!handoffId, "explicitly authorized handoff is durably created");
     expect(createdBody.deliveryState === "unavailable" || createdBody.deliveryState === "delivered" || createdBody.deliveryState === "rejected", "handoff reports only a truthful terminal delivery state");
     expect(createdBody.package?.handoff?.authorization === "explicit_organization_confirmation", "persisted package records the authorization basis");
+    const duplicateHandoff = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
+      contractVersion: "v1",
+      requestId: createdBody.handoffId?.replace("gpp_handoff_", "") ?? "",
+      authorizationConfirmed: true,
+      selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "primary_source", sourceLabel: "E2E primary source", sourceUrl: "https://example.org/opportunity" },
+    });
+    const duplicateHandoffBody = await duplicateHandoff.json() as { duplicate?: boolean; handoffId?: string };
+    expect(duplicateHandoff.status === 200 && duplicateHandoffBody.duplicate === true && duplicateHandoffBody.handoffId === handoffId, "replayed browser request returns its original handoff without a second delivery");
 
     const history = await request(`/api/organizations/${orgId}/opportunity-handoffs`, memberCookie);
     const historyBody = await history.json() as { handoffs?: Array<{ id: string; feedback: unknown[] }> };
@@ -123,18 +136,23 @@ async function verifyLiveLifecycle() {
     }, { "x-api-key": inboundKey });
     expect(wrongTenantFeedback.status === 404, "feedback cannot cross an organization boundary");
 
-    const acceptedFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
+    const feedbackTimestamp = new Date().toISOString();
+    const feedbackPayload = {
       contractVersion: "v1",
       handoffId,
       orgId,
       status: "submitted",
-      sourceTimestamp: new Date().toISOString(),
+      sourceTimestamp: feedbackTimestamp,
       sourceLabel: "E2E GrantPathPro",
       lesson: "Confirm requirements before submission.",
-    }, { "x-api-key": inboundKey });
+    };
+    const acceptedFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", feedbackPayload, { "x-api-key": inboundKey });
     const acceptedBody = await acceptedFeedback.json() as { received?: boolean; privacy?: string };
     expect(acceptedFeedback.status === 201 && acceptedBody.received === true, "authenticated, valid partner feedback is appended");
     expect(acceptedBody.privacy === "organization_private_by_default", "feedback response preserves the private-by-default boundary");
+    const duplicateFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", feedbackPayload, { "x-api-key": inboundKey });
+    const duplicateFeedbackBody = await duplicateFeedback.json() as { duplicate?: boolean };
+    expect(duplicateFeedback.status === 200 && duplicateFeedbackBody.duplicate === true, "identical partner feedback retry is idempotent");
 
     const historyWithFeedback = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie);
     const historyWithFeedbackBody = await historyWithFeedback.json() as { handoffs?: Array<{ id: string; feedback: Array<{ lesson?: string }> }> };

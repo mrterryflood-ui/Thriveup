@@ -381,6 +381,8 @@ async function deliverOpportunityHandoff(
     }
     const externalPursuitId = typeof payload?.externalPursuitId === "string" && payload.externalPursuitId.length <= 200
       ? payload.externalPursuitId
+      : typeof payload?.pursuitId === "string" && payload.pursuitId.length <= 200
+        ? payload.pursuitId
       : null;
     return {
       state: "delivered",
@@ -477,14 +479,17 @@ export function registerGrantPathProRoutes(app: Express) {
   });
 
   // GPP Mirror push: exact partner contract, authenticated separately from
-  // outbound embed calls. The payload is stored verbatim for audit/provenance.
+  // outbound embed calls. Bound snapshots prevent unbounded partner JSON from
+  // becoming durable organization data.
   app.post("/api/inbound/grantpathpro/mirror", requireGppInboundKey, async (req: Request, res: Response) => {
     const orgId = typeof req.body?.orgId === "string" ? req.body.orgId.trim() : "";
     const snapshot = req.body?.snapshot;
-    if (!orgId || orgId.length > 200 || !snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) {
-      return res.status(400).json({ error: "orgId and an object snapshot are required" });
+    if (!orgId || orgId.length > 100 || !snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) || !isBoundedMeta(snapshot)) {
+      return res.status(400).json({ error: "A known orgId and bounded object snapshot are required" });
     }
     try {
+      const [organization] = await db.select({ id: organizations.id }).from(organizations).where(eq(organizations.id, orgId)).limit(1);
+      if (!organization) return res.status(404).json({ error: "Organization not found" });
       const [row] = await db.insert(gppMirrorSnapshots).values({
         orgId,
         snapshot: snapshot as Record<string, unknown>,
@@ -506,13 +511,13 @@ export function registerGrantPathProRoutes(app: Express) {
       return res.status(400).json({ error: "An object snapshot is required" });
     }
     const config = getGrantPathProMirrorConfig();
-    if (!config.configured || !config.url || !config.ingestKey) {
+    if (!config.configured || !config.url || !config.outboundKey) {
       return res.status(503).json({ error: "GrantPathPro Mirror receiver is not configured" });
     }
     try {
       const response = await fetch(config.url, {
         method: "POST",
-        headers: { Accept: "application/json", "Content-Type": "application/json", "x-api-key": config.ingestKey },
+        headers: { Accept: "application/json", "Content-Type": "application/json", "x-api-key": config.outboundKey },
         body: JSON.stringify({ orgId: organization.id, snapshot }),
         signal: AbortSignal.timeout(15_000),
       });
@@ -544,6 +549,7 @@ export function registerGrantPathProRoutes(app: Express) {
         organizationName: organization.name,
         snapshot: latest?.snapshot ?? null,
         receivedAt: latest?.receivedAt ?? null,
+        source: latest?.source ?? null,
         active: latest ? Date.now() - latest.receivedAt.getTime() < 7 * 24 * 60 * 60 * 1000 : false,
         status: latest ? "received" : "not_received",
       });
@@ -585,10 +591,12 @@ export function registerGrantPathProRoutes(app: Express) {
         .where(eq(gppOpportunityHandoffs.orgId, organization.id))
         .orderBy(desc(gppOpportunityHandoffs.createdAt))
         .limit(100);
-      const feedback = await db.select().from(gppPursuitFeedback)
-        .where(eq(gppPursuitFeedback.orgId, organization.id))
-        .orderBy(desc(gppPursuitFeedback.receivedAt))
-        .limit(200);
+      const handoffIds = handoffs.map((handoff) => handoff.id);
+      const feedback = handoffIds.length
+        ? await db.select().from(gppPursuitFeedback)
+          .where(and(eq(gppPursuitFeedback.orgId, organization.id), inArray(gppPursuitFeedback.handoffId, handoffIds)))
+          .orderBy(desc(gppPursuitFeedback.receivedAt))
+        : [];
       const feedbackByHandoff = new Map<string, typeof feedback>();
       for (const entry of feedback) {
         const entries = feedbackByHandoff.get(entry.handoffId) ?? [];
@@ -622,8 +630,26 @@ export function registerGrantPathProRoutes(app: Express) {
       if (!parsed.success) {
         return res.status(400).json({ error: "A v1 opportunity, source label, and explicit authorization are required", details: parsed.error.flatten() });
       }
+      if (!(await canAuthorizeOrganizationHandoff(userId, organization))) {
+        return res.status(403).json({ error: "Only an organization owner or verified staff member may authorize a partner handoff" });
+      }
 
-      const id = `gpp_handoff_${randomUUID()}`;
+      const id = `gpp_handoff_${parsed.data.requestId}`;
+      const [existing] = await db.select().from(gppOpportunityHandoffs).where(eq(gppOpportunityHandoffs.id, id)).limit(1);
+      if (existing) {
+        if (existing.orgId !== organization.id || existing.authorizedByUserId !== userId) {
+          return res.status(409).json({ error: "This authorization request id cannot be reused" });
+        }
+        return res.status(200).json({
+          handoffId: existing.id,
+          contractVersion: existing.contractVersion,
+          deliveryState: existing.deliveryState,
+          deliveryDetail: existing.deliveryDetail,
+          externalPursuitId: existing.externalPursuitId,
+          package: existing.opportunityPackage,
+          duplicate: true,
+        });
+      }
       const authorizedAt = new Date();
       const opportunityPackage = {
         ...buildOpportunityPackage(organization),
@@ -705,9 +731,11 @@ export function registerGrantPathProRoutes(app: Express) {
         return res.status(404).json({ error: "No matching authorized handoff was found for this organization" });
       }
 
+      const eventFingerprint = feedbackFingerprint(clean);
       const [feedback] = await db.insert(gppPursuitFeedback).values({
         handoffId: handoff.id,
         orgId: handoff.orgId,
+        eventFingerprint,
         contractVersion: "v1",
         externalPursuitId: typeof clean.externalPursuitId === "string" ? clean.externalPursuitId : null,
         status: String(clean.status),
@@ -719,7 +747,16 @@ export function registerGrantPathProRoutes(app: Express) {
         lesson: typeof clean.lesson === "string" ? clean.lesson : null,
         sourceLabel: String(clean.sourceLabel),
         sourceUrl: typeof clean.sourceUrl === "string" ? clean.sourceUrl : null,
-      }).returning();
+      }).onConflictDoNothing({ target: gppPursuitFeedback.eventFingerprint }).returning();
+      if (!feedback) {
+        return res.status(200).json({
+          received: true,
+          duplicate: true,
+          handoffId: handoff.id,
+          privacy: "organization_private_by_default",
+          ...(rejections.length ? { corrections: rejectionsToCorrectionNote(rejections) } : {}),
+        });
+      }
       return res.status(201).json({
         received: true,
         feedbackId: feedback.id,

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
@@ -16,6 +16,7 @@ interface MirrorResponse {
   receivedAt: string | null;
   active: boolean;
   status: "received" | "not_received";
+  source: "grantpathpro" | "thriveup" | null;
 }
 
 type OpportunityLane = "grants" | "procurement_contracting" | "sponsorship_in_kind" | "research_technology_transfer" | "capacity_building" | "partnership";
@@ -110,13 +111,18 @@ export default function EntityProfilePage() {
   const [embedUrl, setEmbedUrl] = useState<string | null>(null);
   const [embedError, setEmbedError] = useState<string | null>(null);
   const [selectedLane, setSelectedLane] = useState<OpportunityLane>("grants");
+  const [sourceType, setSourceType] = useState<"primary_source" | "organization_provided" | "unverified_exploration">("unverified_exploration");
+  const [sourceCheckedAt, setSourceCheckedAt] = useState("");
   const [opportunityTitle, setOpportunityTitle] = useState("");
   const [sourceLabel, setSourceLabel] = useState("");
   const [sourceUrl, setSourceUrl] = useState("");
   const [authorizationConfirmed, setAuthorizationConfirmed] = useState(false);
   const [handoffError, setHandoffError] = useState<string | null>(null);
   const [handoffNotice, setHandoffNotice] = useState<string | null>(null);
+  const [sourceUrlError, setSourceUrlError] = useState<string | null>(null);
   const [isSubmittingHandoff, setIsSubmittingHandoff] = useState(false);
+  const requestIdRef = useRef("");
+  const authorizationDescriptionId = useId();
   const mirror = useQuery<MirrorResponse>({
     queryKey: ["/api/organizations", id, "grantpathpro-mirror"],
     queryFn: () => apiRequest("GET", `/api/organizations/${encodeURIComponent(id)}/grantpathpro-mirror`).then(r => r.json()),
@@ -133,15 +139,38 @@ export default function EntityProfilePage() {
     enabled: Boolean(id),
   });
 
+  useEffect(() => {
+    setEmbedUrl(null);
+    setEmbedError(null);
+    setSelectedLane("grants");
+    setSourceType("unverified_exploration");
+    setSourceCheckedAt("");
+    setOpportunityTitle("");
+    setSourceLabel("");
+    setSourceUrl("");
+    setSourceUrlError(null);
+    setAuthorizationConfirmed(false);
+    setHandoffError(null);
+    setHandoffNotice(null);
+    setIsSubmittingHandoff(false);
+    requestIdRef.current = "";
+  }, [id]);
+
   async function openGrantPathPro(mode: "iframe" | "redirect") {
     setEmbedError(null);
+    const popup = mode === "redirect" ? window.open("", "_blank", "noopener,noreferrer") : null;
+    if (mode === "redirect" && !popup) {
+      setEmbedError("Your browser blocked the GrantPathPro window. Allow pop-ups for this site, then try again.");
+      return;
+    }
     try {
       const response = await apiRequest("GET", `/api/consortium/gpp-embed?orgId=${encodeURIComponent(id)}&mode=${mode}`);
       const payload = await response.json() as { deepLinkUrl?: string };
       if (!payload.deepLinkUrl) throw new Error("GrantPathPro did not return a launch URL.");
-      if (mode === "redirect") window.open(payload.deepLinkUrl, "_blank", "noopener,noreferrer");
+      if (mode === "redirect" && popup) popup.location.href = payload.deepLinkUrl;
       else setEmbedUrl(payload.deepLinkUrl);
     } catch (error) {
+      popup?.close();
       setEmbedError(error instanceof Error ? error.message : "GrantPathPro is unavailable.");
     }
   }
@@ -153,22 +182,35 @@ export default function EntityProfilePage() {
       setHandoffError("Name the opportunity, provide its source label, and explicitly confirm authorization before continuing.");
       return;
     }
+    if (sourceUrl.trim()) {
+      try {
+        if (new URL(sourceUrl.trim()).protocol !== "https:") throw new Error("invalid source URL");
+      } catch {
+        setSourceUrlError("Enter a valid HTTPS source URL or leave this field blank.");
+        return;
+      }
+    }
+    setSourceUrlError(null);
     setIsSubmittingHandoff(true);
     try {
+      if (!requestIdRef.current) requestIdRef.current = crypto.randomUUID();
       const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs`, {
         contractVersion: "v1",
         authorizationConfirmed: true,
+        requestId: requestIdRef.current,
         selectedOpportunity: {
           title: opportunityTitle.trim(),
           lane: selectedLane,
-          sourceType: sourceUrl.trim() ? "primary_source" : "unverified_exploration",
+          sourceType,
           sourceLabel: sourceLabel.trim(),
           ...(sourceUrl.trim() ? { sourceUrl: sourceUrl.trim() } : {}),
+          ...(sourceCheckedAt ? { sourceCheckedAt: new Date(sourceCheckedAt).toISOString() } : {}),
         },
       });
       const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
       setHandoffNotice(`Handoff recorded: ${payload.deliveryState}. ${payload.deliveryDetail}`);
       setAuthorizationConfirmed(false);
+      requestIdRef.current = "";
       await handoffHistory.refetch();
     } catch (error) {
       setHandoffError(error instanceof Error ? error.message : "The handoff could not be recorded.");
@@ -212,16 +254,16 @@ export default function EntityProfilePage() {
           <CardTitle>GrantPathPro Mirror</CardTitle>
           {mirror.data?.status === "received" ? (
             <Badge variant={mirror.data.active ? "default" : "secondary"}>
-              <Radio className="h-3 w-3 mr-1" /> {mirror.data.active ? "Stream active" : "Needs refresh"}
+              <Radio className="h-3 w-3 mr-1" /> {mirror.data.active ? "Recent snapshot" : "Snapshot older than 7 days"}
             </Badge>
           ) : <Badge variant="outline">No snapshot received</Badge>}
         </CardHeader>
         <CardContent>
-          {mirror.isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : snapshot ? (
+          {mirror.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading Mirror snapshot…</p> : snapshot ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
                 Last received {mirror.data?.receivedAt ? new Date(mirror.data.receivedAt).toLocaleString() : "unknown"}.
-                This is partner-provided Mirror data, shown as received.
+                Source: {mirror.data?.source === "grantpathpro" ? "GrantPathPro-provided snapshot" : "ThriveUp-pushed snapshot"}. Shown as received.
               </p>
               {(needs.length > 0 || gaps.length > 0 || priorities.length > 0) && (
                 <div className="grid gap-4 md:grid-cols-3 border rounded-md p-4">
@@ -246,7 +288,7 @@ export default function EntityProfilePage() {
           </p>
         </CardHeader>
         <CardContent className="space-y-5">
-          {opportunityPackage.isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : opportunityPackage.error ? (
+          {opportunityPackage.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading opportunity package…</p> : opportunityPackage.error ? (
             <Alert variant="destructive"><AlertDescription>{opportunityPackage.error instanceof Error ? opportunityPackage.error.message : "Could not load the opportunity package."}</AlertDescription></Alert>
           ) : opportunityPackage.data && (
             <>
@@ -302,21 +344,34 @@ export default function EntityProfilePage() {
               <input aria-label="Opportunity name" data-testid="opportunity-handoff-title" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={opportunityTitle} onChange={(event) => setOpportunityTitle(event.target.value)} placeholder="Name the source-backed opportunity or exploration target" />
             </label>
             <label className="space-y-1 text-sm font-medium">
+              Source type
+              <select aria-label="Opportunity source type" data-testid="opportunity-handoff-source-type" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceType} onChange={(event) => setSourceType(event.target.value as typeof sourceType)}>
+                <option value="primary_source">Current primary source</option>
+                <option value="organization_provided">Organization-provided context</option>
+                <option value="unverified_exploration">Unverified exploration target</option>
+              </select>
+            </label>
+            <label className="space-y-1 text-sm font-medium">
               Source label
               <input aria-label="Opportunity source label" data-testid="opportunity-handoff-source-label" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceLabel} onChange={(event) => setSourceLabel(event.target.value)} placeholder="e.g., agency notice, partner conversation, organization research" />
             </label>
             <label className="space-y-1 text-sm font-medium">
               Source URL <span className="font-normal text-muted-foreground">(optional)</span>
-              <input aria-label="Opportunity source URL" data-testid="opportunity-handoff-source-url" type="url" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" />
+              <input aria-label="Opportunity source URL" aria-invalid={Boolean(sourceUrlError)} aria-describedby={sourceUrlError ? "opportunity-source-url-error" : undefined} data-testid="opportunity-handoff-source-url" type="url" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" />
+              {sourceUrlError && <span id="opportunity-source-url-error" className="block text-xs font-normal text-destructive">{sourceUrlError}</span>}
+            </label>
+            <label className="space-y-1 text-sm font-medium">
+              Source checked at <span className="font-normal text-muted-foreground">(optional)</span>
+              <input aria-label="Opportunity source checked at" data-testid="opportunity-handoff-source-checked-at" type="datetime-local" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceCheckedAt} onChange={(event) => setSourceCheckedAt(event.target.value)} />
             </label>
           </div>
           <div className="flex items-start gap-3 rounded-md border p-3">
-            <Checkbox id="authorize-handoff" aria-label="Confirm opportunity handoff authorization" data-testid="opportunity-handoff-authorize" checked={authorizationConfirmed} onCheckedChange={(checked) => setAuthorizationConfirmed(checked === true)} />
-            <label htmlFor="authorize-handoff" className="text-sm leading-5">
+            <Checkbox id="authorize-handoff" aria-describedby={authorizationDescriptionId} data-testid="opportunity-handoff-authorize" checked={authorizationConfirmed} onCheckedChange={(checked) => setAuthorizationConfirmed(checked === true)} />
+            <label id={authorizationDescriptionId} htmlFor="authorize-handoff" className="text-sm leading-5">
               I authorize ThriveUp to send this specific v1 opportunity package to GrantPathPro. I understand this starts a pursuit-workflow handoff only; it does not submit an application, contact a funder, or guarantee any outcome.
             </label>
           </div>
-          <Button data-testid="opportunity-handoff-submit" aria-label="Authorize and send opportunity handoff" onClick={authorizeOpportunityHandoff} disabled={isSubmittingHandoff}>
+          <Button data-testid="opportunity-handoff-submit" aria-label="Authorize and send opportunity handoff" onClick={authorizeOpportunityHandoff} disabled={isSubmittingHandoff || opportunityPackage.isLoading || Boolean(opportunityPackage.error)}>
             {isSubmittingHandoff ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Authorize handoff
           </Button>
@@ -326,7 +381,7 @@ export default function EntityProfilePage() {
       <Card>
         <CardHeader><CardTitle>Private handoff & outcome history</CardTitle></CardHeader>
         <CardContent className="space-y-4">
-          {handoffHistory.isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : handoffHistory.error ? (
+          {handoffHistory.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading private handoff history…</p> : handoffHistory.error ? (
             <Alert variant="destructive"><AlertDescription>{handoffHistory.error instanceof Error ? handoffHistory.error.message : "Could not load the handoff history."}</AlertDescription></Alert>
           ) : handoffHistory.data?.handoffs.length ? handoffHistory.data.handoffs.map((handoff) => (
             <div key={handoff.id} className="rounded-md border p-4 space-y-3">
