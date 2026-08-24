@@ -369,6 +369,9 @@ async function runPublicContractProbes() {
     if (postRes.status === 429) {
       console.log(`  ✓ ${shareName} → 429 (share rate-limited this run; strip contract asserted by community-brief e2e gate)`);
       passes++;
+    } else if (postRes.status === 422) {
+      passes++;
+      console.log(`  ✓ ${shareName} → 422 (unproven client-supplied brief rejected; valid server-provenance path covered by community-brief e2e gate)`);
     } else if (!postRes.ok) {
       failures++;
       console.error(`  ✗ ${shareName} → share POST failed with ${postRes.status}`);
