@@ -75,6 +75,11 @@ GrantPathPro sends authenticated JSON to:
 
 `POST /api/inbound/grantpathpro/opportunity-feedback`
 
+Grant Path Pro should call the full ThriveUp callback URL:
+`<THRIVEUP_API_BASE_URL>/api/inbound/grantpathpro/opportunity-feedback`.
+The callback uses the provisioned `x-api-key` credential, must not receive a
+browser session cookie, and returns a correction response for invalid payloads.
+
 Authentication uses the `x-api-key` header provisioned out of band; the key
 value is never part of this document or a client payload. A future callback
 adapter may use a separately provisioned `THRIVEUP_API_BASE_URL` and
@@ -108,6 +113,14 @@ organization must match `orgId`; otherwise no feedback is stored.
 ThriveUp derives a stable event fingerprint from the validated feedback body:
 an identical partner retry returns success with `duplicate: true` and does not
 create another feedback record.
+
+## Reconciliation
+
+`POST /api/organizations/:orgId/opportunity-handoffs/:handoffId/reconcile` is
+an authenticated owner/staff recovery action. It retries the original package
+with the original `handoffId` as the idempotency key; it cannot create a
+replacement pursuit. A timeout remains `delivery_unknown` until the receiver
+acknowledges or rejects the same request.
 
 ## Privacy and learning
 

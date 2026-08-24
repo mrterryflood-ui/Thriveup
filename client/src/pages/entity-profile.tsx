@@ -123,6 +123,7 @@ export default function EntityProfilePage() {
   const [handoffNotice, setHandoffNotice] = useState<string | null>(null);
   const [sourceUrlError, setSourceUrlError] = useState<string | null>(null);
   const [isSubmittingHandoff, setIsSubmittingHandoff] = useState(false);
+  const [reconcilingHandoffId, setReconcilingHandoffId] = useState<string | null>(null);
   const requestIdRef = useRef("");
   const activeOrgIdRef = useRef(id);
   const authorizationDescriptionId = useId();
@@ -221,6 +222,23 @@ export default function EntityProfilePage() {
       setHandoffError(error instanceof Error ? error.message : "The handoff could not be recorded.");
     } finally {
       setIsSubmittingHandoff(false);
+    }
+  }
+
+  async function reconcileHandoff(handoffId: string) {
+    setHandoffError(null);
+    setHandoffNotice(null);
+    setReconcilingHandoffId(handoffId);
+    try {
+      const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs/${encodeURIComponent(handoffId)}/reconcile`);
+      const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
+      if (activeOrgIdRef.current !== id) return;
+      setHandoffNotice(`Reconciliation recorded: ${payload.deliveryState}. ${payload.deliveryDetail}`);
+      await handoffHistory.refetch();
+    } catch (error) {
+      setHandoffError(error instanceof Error ? error.message : "The handoff could not be reconciled.");
+    } finally {
+      if (activeOrgIdRef.current === id) setReconcilingHandoffId(null);
     }
   }
 
@@ -399,6 +417,15 @@ export default function EntityProfilePage() {
                 <Badge variant={deliveryBadgeVariant(handoff.deliveryState)}>{handoff.deliveryState}</Badge>
               </div>
               {handoff.deliveryDetail && <p className="text-sm text-muted-foreground">{handoff.deliveryDetail}</p>}
+               {(handoff.deliveryState === "delivery_unknown" || handoff.deliveryState === "previewed") && (
+                 <div className="flex flex-wrap items-center gap-2">
+                   <Button variant="outline" size="sm" data-testid={`opportunity-handoff-reconcile-${handoff.id}`} onClick={() => reconcileHandoff(handoff.id)} disabled={reconcilingHandoffId === handoff.id}>
+                     {reconcilingHandoffId === handoff.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                     Reconcile same handoff
+                   </Button>
+                   <span className="text-xs text-muted-foreground">Retries the original idempotency key; it does not create a replacement pursuit.</span>
+                 </div>
+               )}
               {handoff.feedback.length > 0 ? (
                 <div className="space-y-2 border-t pt-3">
                   <p className="text-sm font-semibold">GrantPathPro feedback</p>

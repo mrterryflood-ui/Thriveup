@@ -9,7 +9,8 @@
     "start": "NODE_ENV=production node dist/index.cjs",
     "check": "tsc",
     "db:push": "drizzle-kit push",
-    "verify:gpp-opportunity-loop": "npx tsx scripts/verify-gpp-opportunity-loop.ts"
+    "verify:gpp-opportunity-loop": "npx tsx scripts/verify-gpp-opportunity-loop.ts",
+    "verify:gpp-opportunity-stub": "npx tsx scripts/verify-gpp-opportunity-stub.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.96.0",

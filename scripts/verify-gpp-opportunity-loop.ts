@@ -27,6 +27,8 @@ expect(schema.includes('pgTable("gpp_opportunity_handoffs"'), "authorized handof
 expect(schema.includes('pgTable("gpp_pursuit_feedback"'), "partner feedback persists separately from raw partner data");
 expect(routes.includes('authorizationConfirmed: z.literal(true)'), "handoff requires literal explicit authorization");
 expect(routes.includes('loadOwnedOrganization(req, res, req.params.orgId)'), "organization lifecycle routes use tenant ownership checks");
+expect(routes.includes("opportunity-handoffs/:handoffId/reconcile"), "unknown delivery has an authenticated reconciliation route");
+expect(routes.includes("Idempotency-Key"), "partner delivery carries a stable idempotency key");
 expect(routes.includes('"/api/inbound/grantpathpro/opportunity-feedback", requireGppInboundKey'), "feedback receiver requires partner authentication");
 expect(routes.includes("hasBlockingRejection(rejections)"), "invalid required feedback fields fail closed");
 expect(routes.includes('handoff.orgId !== clean.orgId'), "feedback cannot be stored against another organization");
@@ -39,6 +41,8 @@ expect(contract.includes("Embed and Mirror payloads are separate compatibility")
 expect(contract.includes("Cross-organization learning remains disabled"), "contract documents the private-by-default learning boundary");
 expect(migration.includes("gpp_opportunity_handoffs") && migration.includes("gpp_pursuit_feedback"), "production migration creates lifecycle tables");
 expect(profile.includes('data-testid="opportunity-handoff-source-type"'), "UI supports each documented source type");
+expect(profile.includes("Reconcile same handoff"), "UI exposes safe same-handoff recovery");
+expect(readFileSync("scripts/verify-gpp-opportunity-stub.ts", "utf8").includes("local-stub-token"), "safe local receiver test never targets the live partner");
 
 const BASE = process.env.BASE_URL || "http://localhost:5000";
 const RUN = randomUUID().slice(0, 8);

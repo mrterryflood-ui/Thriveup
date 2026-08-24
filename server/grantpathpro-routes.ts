@@ -726,6 +726,47 @@ export function registerGrantPathProRoutes(app: Express) {
   });
 
   /**
+   * Reconcile a handoff without creating a new external pursuit. The receiver
+   * gets the original handoff id as its idempotency key, so a retry is safe
+   * after a lost acknowledgement.
+   */
+  app.post("/api/organizations/:orgId/opportunity-handoffs/:handoffId/reconcile", async (req: Request, res: Response) => {
+    const organization = await loadOwnedOrganization(req, res, req.params.orgId);
+    if (!organization) return;
+    const userId = getUserId(req);
+    if (!userId || !(await canAuthorizeOrganizationHandoff(userId, organization))) {
+      return res.status(403).json({ error: "Only an organization owner or verified staff member may reconcile a handoff" });
+    }
+    try {
+      const [handoff] = await db.select().from(gppOpportunityHandoffs).where(and(
+        eq(gppOpportunityHandoffs.id, req.params.handoffId),
+        eq(gppOpportunityHandoffs.orgId, organization.id),
+      )).limit(1);
+      if (!handoff) return res.status(404).json({ error: "Handoff not found" });
+      if (handoff.deliveryState !== "delivery_unknown" && handoff.deliveryState !== "previewed") {
+        return res.status(409).json({ error: "Only an unresolved handoff can be reconciled", deliveryState: handoff.deliveryState });
+      }
+      const delivery = await deliverOpportunityHandoff(handoff.opportunityPackage);
+      await db.update(gppOpportunityHandoffs).set({
+        deliveryState: delivery.state,
+        deliveryDetail: `Reconciliation attempt: ${delivery.detail}`,
+        deliveredAt: delivery.state === "delivered" ? new Date() : handoff.deliveredAt,
+        externalPursuitId: delivery.externalPursuitId ?? handoff.externalPursuitId,
+      }).where(eq(gppOpportunityHandoffs.id, handoff.id));
+      return res.json({
+        handoffId: handoff.id,
+        deliveryState: delivery.state,
+        deliveryDetail: `Reconciliation attempt: ${delivery.detail}`,
+        externalPursuitId: delivery.externalPursuitId ?? handoff.externalPursuitId,
+        idempotencyKey: handoff.id,
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Opportunity handoff reconciliation failed:", err);
+      return res.status(500).json({ error: "Opportunity handoff reconciliation could not be completed" });
+    }
+  });
+
+  /**
    * POST /api/inbound/grantpathpro/opportunity-feedback
    * A separately versioned feedback loop. Required fields fail closed with
    * sender-facing corrections; optional invalid fields are removed and logged.
