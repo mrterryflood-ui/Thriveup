@@ -777,3 +777,10 @@ uri = "file://thriveup-full-code-export.md"
 type = "text"
 title = "ThriveUp Full Code Export"
 description = "A single Markdown download containing readable project source, configuration, schema, migrations, scripts, documentation, and public assets. Secrets, dependencies, private files, binaries, logs, and build artifacts are excluded."
+
+[[outputs]]
+id = "td6kEnFU96vu2bsAWde4N"
+uri = "file://thriveup-codebase.zip"
+type = "unspecified"
+title = "ThriveUp Runnable Repository ZIP"
+description = "Verified standard ZIP archive containing the runnable project source tree. ZIP signature and extraction integrity were checked locally; SHA-256: 912e9242aa2795013324bc82c76a1183c380cc9c09673d2be4ebcf1de3198359."
