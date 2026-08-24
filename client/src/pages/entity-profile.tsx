@@ -54,10 +54,10 @@ export default function EntityProfilePage() {
     setEmbedError(null);
     try {
       const response = await apiRequest("GET", `/api/consortium/gpp-embed?orgId=${encodeURIComponent(id)}&mode=${mode}`);
-      const payload = await response.json() as { url?: string };
-      if (!payload.url) throw new Error("GrantPathPro did not return a launch URL.");
-      if (mode === "redirect") window.open(payload.url, "_blank", "noopener,noreferrer");
-      else setEmbedUrl(payload.url);
+      const payload = await response.json() as { deepLinkUrl?: string };
+      if (!payload.deepLinkUrl) throw new Error("GrantPathPro did not return a launch URL.");
+      if (mode === "redirect") window.open(payload.deepLinkUrl, "_blank", "noopener,noreferrer");
+      else setEmbedUrl(payload.deepLinkUrl);
     } catch (error) {
       setEmbedError(error instanceof Error ? error.message : "GrantPathPro is unavailable.");
     }

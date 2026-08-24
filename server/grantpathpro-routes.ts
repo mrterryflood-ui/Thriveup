@@ -264,17 +264,22 @@ export function registerGrantPathProRoutes(app: Express) {
         return res.status(502).json({ error: "GrantPathPro returned an invalid embed response" });
       }
       const upstreamRecord = payload as Record<string, unknown>;
-      const embedUrl = typeof upstreamRecord.url === "string"
+      const deepLinkUrl = typeof upstreamRecord.deepLinkUrl === "string"
+        ? upstreamRecord.deepLinkUrl
+        : typeof upstreamRecord.url === "string"
         ? upstreamRecord.url
         : typeof upstreamRecord.embedUrl === "string"
           ? upstreamRecord.embedUrl
-          : typeof upstreamRecord.deepLinkUrl === "string"
-            ? upstreamRecord.deepLinkUrl
           : null;
-      if (!embedUrl || !/^https?:\/\//i.test(embedUrl)) {
+      if (!deepLinkUrl || !/^https?:\/\//i.test(deepLinkUrl)) {
         return res.status(502).json({ error: "GrantPathPro returned no valid embed URL" });
       }
-      return res.json({ provider: "GrantPathPro", orgId, mode, url: embedUrl });
+      return res.json({
+        deepLinkUrl,
+        mode,
+        entityLinked: upstreamRecord.entityLinked === true,
+        orgId,
+      });
     } catch (err) {
       console.error("[GrantPathPro] Embed bridge failed:", err);
       return res.status(502).json({ error: "GrantPathPro embed request failed" });
