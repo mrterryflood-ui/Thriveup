@@ -341,7 +341,7 @@ async function requireStaffOrInboundKey(req: Request, res: Response, next: NextF
 
 async function deliverOpportunityHandoff(
   opportunityPackage: Record<string, unknown>,
-): Promise<{ state: "delivered" | "rejected" | "unavailable"; detail: string; externalPursuitId: string | null }> {
+): Promise<{ state: "delivered" | "rejected" | "unavailable" | "delivery_unknown"; detail: string; externalPursuitId: string | null }> {
   const config = getGrantPathProOpportunityHandoffConfig();
   if (!config.configured || !config.url || !config.apiKey) {
     return {
@@ -392,8 +392,8 @@ async function deliverOpportunityHandoff(
   } catch (err) {
     console.error("[GrantPathPro] Opportunity handoff delivery failed:", err);
     return {
-      state: "unavailable",
-      detail: "GrantPathPro could not be reached. The package remains available for review and no delivery was recorded.",
+      state: "delivery_unknown",
+      detail: "GrantPath Pro did not acknowledge this request before the connection ended. Delivery is unknown; do not create a replacement request until this handoff is reconciled.",
       externalPursuitId: null,
     };
   }
@@ -506,9 +506,13 @@ export function registerGrantPathProRoutes(app: Express) {
   app.post("/api/organizations/:orgId/grantpathpro-mirror/push", async (req: Request, res: Response) => {
     const organization = await loadOwnedOrganization(req, res, req.params.orgId);
     if (!organization) return;
+    const userId = getUserId(req);
+    if (!userId || !(await canAuthorizeOrganizationHandoff(userId, organization))) {
+      return res.status(403).json({ error: "Only an organization owner or verified staff member may export a Mirror snapshot" });
+    }
     const snapshot = req.body?.snapshot;
-    if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot)) {
-      return res.status(400).json({ error: "An object snapshot is required" });
+    if (!snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) || !isBoundedMeta(snapshot)) {
+      return res.status(400).json({ error: "A bounded object snapshot is required" });
     }
     const config = getGrantPathProMirrorConfig();
     if (!config.configured || !config.url || !config.outboundKey) {
@@ -572,6 +576,10 @@ export function registerGrantPathProRoutes(app: Express) {
       return res.json({
         organizationId: organization.id,
         package: buildOpportunityPackage(organization),
+        authorization: {
+          allowed: await canAuthorizeOrganizationHandoff(getUserId(req)!, organization),
+          reason: "Only the organization owner or verified staff may authorize external delivery.",
+        },
       });
     } catch (err) {
       console.error("[GrantPathPro] Opportunity package build failed:", err);
@@ -650,6 +658,13 @@ export function registerGrantPathProRoutes(app: Express) {
           duplicate: true,
         });
       }
+      const [unresolved] = await db.select({ id: gppOpportunityHandoffs.id }).from(gppOpportunityHandoffs).where(and(
+        eq(gppOpportunityHandoffs.orgId, organization.id),
+        eq(gppOpportunityHandoffs.deliveryState, "delivery_unknown"),
+      )).limit(1);
+      if (unresolved) {
+        return res.status(409).json({ error: "An earlier handoff has unknown delivery status; reconcile it before authorizing another export", handoffId: unresolved.id });
+      }
       const authorizedAt = new Date();
       const opportunityPackage = {
         ...buildOpportunityPackage(organization),
@@ -662,7 +677,7 @@ export function registerGrantPathProRoutes(app: Express) {
           provenance: "ThriveUp generated this package from the organization profile and the source label supplied for the selected exploration target.",
         },
       };
-      await db.insert(gppOpportunityHandoffs).values({
+      const [inserted] = await db.insert(gppOpportunityHandoffs).values({
         id,
         orgId: organization.id,
         contractVersion: "v1",
@@ -671,7 +686,22 @@ export function registerGrantPathProRoutes(app: Express) {
         deliveryState: "previewed",
         opportunityPackage,
         deliveryDetail: "Authorized package created; partner delivery has not yet been evaluated.",
-      });
+      }).onConflictDoNothing({ target: gppOpportunityHandoffs.id }).returning();
+      if (!inserted) {
+        const [raced] = await db.select().from(gppOpportunityHandoffs).where(eq(gppOpportunityHandoffs.id, id)).limit(1);
+        if (!raced || raced.orgId !== organization.id || raced.authorizedByUserId !== userId) {
+          return res.status(409).json({ error: "This authorization request id cannot be reused" });
+        }
+        return res.status(200).json({
+          handoffId: raced.id,
+          contractVersion: raced.contractVersion,
+          deliveryState: raced.deliveryState,
+          deliveryDetail: raced.deliveryDetail,
+          externalPursuitId: raced.externalPursuitId,
+          package: raced.opportunityPackage,
+          duplicate: true,
+        });
+      }
 
       const delivery = await deliverOpportunityHandoff(opportunityPackage);
       await db.update(gppOpportunityHandoffs).set({

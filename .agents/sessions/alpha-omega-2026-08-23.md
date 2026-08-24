@@ -60,8 +60,8 @@
 - Plan and acceptance proofs: Add v1 contract docs and records; guarded package/handoff/feedback routes; entity-profile controls/history; a lifecycle guard plus typecheck, targeted gate, browser view, workflow restart/log review, adversarial audit, and independent review.
 - Unknowns/deferred decisions: GrantPathPro has not supplied an explicit service-to-service receiver for opportunity handoffs. Delivery remains unavailable until `GPP_OPPORTUNITY_HANDOFF_URL` is configured; the generic GPP API origin is never treated as authorization to send.
 ## Omega
-- Diff scrimmage: Pending implementation.
-- Proofs and gates: Pending implementation.
-- Independent angle: Pending isolated review.
-- Outcome: Pending.
-- Residuals and reusable guard: Pending.
+- Diff scrimmage: Added owner/staff authorization for consequential handoffs and Mirror exports, bounded partner JSON, HTTPS/host validation, stable request-id and feedback fingerprints, explicit GrantPath Pro endpoint configuration, truthful unknown-delivery state, and stale-organization UI protection.
+- Proofs and gates: TypeScript and diff checks pass; the authenticated lifecycle guard passed before live receiver activation and the anonymous security suite passed with 63 guarded endpoints rejected. The app restarted and served on port 5000 with the migration applied. The lifecycle guard was not rerun after activating the real receiver because it creates an external proposed pursuit as a side effect.
+- Independent angle: Six-domain adversarial audit was rerun. It confirmed the major boundary fixes and identified remaining recovery/UI polish items; these are not represented as clean or complete.
+- Outcome: The bilateral handoff receiver and embed URLs are explicitly configured from the supplied GrantPath Pro contract, with server-only credentials and no secret values exposed in source or chat.
+- Residuals and reusable guard: The real partner callback base URL, key, callback path, and payload remain unspecified and are not invented. Delivery-unknown reconciliation and full UI recovery/fallback remain visible follow-on work. Never execute a live lifecycle test against a receiver that creates partner records; use a stub or explicitly isolated test tenant.

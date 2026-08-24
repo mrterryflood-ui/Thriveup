@@ -99,7 +99,7 @@ async function verifyLiveLifecycle() {
     const createdBody = await created.json() as { handoffId?: string; deliveryState?: string; package?: { handoff?: { authorization?: string } } };
     handoffId = createdBody.handoffId ?? null;
     expect(created.status === 201 && !!handoffId, "explicitly authorized handoff is durably created");
-    expect(createdBody.deliveryState === "unavailable" || createdBody.deliveryState === "delivered" || createdBody.deliveryState === "rejected", "handoff reports only a truthful terminal delivery state");
+    expect(["unavailable", "delivered", "rejected", "delivery_unknown"].includes(createdBody.deliveryState ?? ""), "handoff reports only a truthful terminal delivery state");
     expect(createdBody.package?.handoff?.authorization === "explicit_organization_confirmation", "persisted package records the authorization basis");
     const duplicateHandoff = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
       contractVersion: "v1",

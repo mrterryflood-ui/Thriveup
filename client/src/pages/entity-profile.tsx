@@ -35,6 +35,7 @@ interface OpportunityPackageResponse {
     collaboration: { categories: string[]; status: string };
     privacy: { organizationPrivateByDefault: boolean; crossOrganizationLearning: string };
   };
+  authorization: { allowed: boolean; reason: string };
 }
 
 interface OpportunityFeedback {
@@ -51,7 +52,7 @@ interface OpportunityFeedback {
 
 interface OpportunityHandoff {
   id: string;
-  deliveryState: "previewed" | "delivered" | "rejected" | "unavailable";
+  deliveryState: "previewed" | "delivered" | "rejected" | "unavailable" | "delivery_unknown";
   deliveryDetail: string | null;
   authorizedAt: string;
   externalPursuitId: string | null;
@@ -80,6 +81,7 @@ function deliveryBadgeVariant(state: OpportunityHandoff["deliveryState"]): "defa
   if (state === "delivered") return "default";
   if (state === "rejected") return "destructive";
   if (state === "unavailable") return "secondary";
+  if (state === "delivery_unknown") return "destructive";
   return "outline";
 }
 
@@ -122,6 +124,7 @@ export default function EntityProfilePage() {
   const [sourceUrlError, setSourceUrlError] = useState<string | null>(null);
   const [isSubmittingHandoff, setIsSubmittingHandoff] = useState(false);
   const requestIdRef = useRef("");
+  const activeOrgIdRef = useRef(id);
   const authorizationDescriptionId = useId();
   const mirror = useQuery<MirrorResponse>({
     queryKey: ["/api/organizations", id, "grantpathpro-mirror"],
@@ -140,6 +143,7 @@ export default function EntityProfilePage() {
   });
 
   useEffect(() => {
+    activeOrgIdRef.current = id;
     setEmbedUrl(null);
     setEmbedError(null);
     setSelectedLane("grants");
@@ -208,6 +212,7 @@ export default function EntityProfilePage() {
         },
       });
       const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
+      if (activeOrgIdRef.current !== id) return;
       setHandoffNotice(`Handoff recorded: ${payload.deliveryState}. ${payload.deliveryDetail}`);
       setAuthorizationConfirmed(false);
       requestIdRef.current = "";
@@ -371,7 +376,8 @@ export default function EntityProfilePage() {
               I authorize ThriveUp to send this specific v1 opportunity package to GrantPathPro. I understand this starts a pursuit-workflow handoff only; it does not submit an application, contact a funder, or guarantee any outcome.
             </label>
           </div>
-          <Button data-testid="opportunity-handoff-submit" aria-label="Authorize and send opportunity handoff" onClick={authorizeOpportunityHandoff} disabled={isSubmittingHandoff || opportunityPackage.isLoading || Boolean(opportunityPackage.error)}>
+          {opportunityPackage.data && !opportunityPackage.data.authorization.allowed && <p className="text-sm text-muted-foreground">{opportunityPackage.data.authorization.reason} Ask an organization owner to authorize this handoff.</p>}
+          <Button data-testid="opportunity-handoff-submit" aria-label="Authorize and send opportunity handoff" onClick={authorizeOpportunityHandoff} disabled={isSubmittingHandoff || opportunityPackage.isLoading || Boolean(opportunityPackage.error) || opportunityPackage.data?.authorization.allowed === false}>
             {isSubmittingHandoff ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Authorize handoff
           </Button>

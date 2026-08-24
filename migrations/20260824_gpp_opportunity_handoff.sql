@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS gpp_pursuit_feedback (
   lesson text,
   source_label varchar(500) NOT NULL,
   source_url varchar(2000),
-  received_at timestamp NOT NULL DEFAULT now()
+  received_at timestamptz NOT NULL DEFAULT now()
 );
 
 ALTER TABLE gpp_pursuit_feedback

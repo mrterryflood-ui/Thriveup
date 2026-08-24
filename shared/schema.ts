@@ -7696,7 +7696,7 @@ export type InsertChwVisit = typeof chwVisits.$inferInsert;
 // Ordered by receivedAt DESC; filtered by grantId when provided.
 export const gppEvents = pgTable("gpp_events", {
   id: text("id").primaryKey().$defaultFn(() => `gpp_${Date.now()}_${nanoid(6)}`),
-  receivedAt: timestamp("received_at").defaultNow().notNull(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).defaultNow().notNull(),
   eventType: varchar("event_type", { length: 100 }).notNull().default("status_update"),
   grantId: text("grant_id"),
   grantTitle: text("grant_title"),
@@ -7720,7 +7720,7 @@ export type InsertGppEvent = typeof gppEvents.$inferInsert;
 export const gppMirrorSnapshots = pgTable("gpp_mirror_snapshots", {
   id: text("id").primaryKey().$defaultFn(() => `gpp_mirror_${Date.now()}_${nanoid(8)}`),
   orgId: text("org_id").notNull(),
-  receivedAt: timestamp("received_at").defaultNow().notNull(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).defaultNow().notNull(),
   snapshot: jsonb("snapshot").$type<Record<string, unknown>>().notNull(),
   source: varchar("source", { length: 80 }).notNull().default("grantpathpro"),
 }, (t) => [

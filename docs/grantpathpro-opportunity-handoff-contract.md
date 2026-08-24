@@ -30,7 +30,8 @@ authorize a consequential external delivery. The browser must send:
     "lane": "grants | procurement_contracting | sponsorship_in_kind | research_technology_transfer | capacity_building | partnership",
     "sourceType": "primary_source | organization_provided | unverified_exploration",
     "sourceLabel": "string",
-    "sourceUrl": "https://optional.example/source"
+    "sourceUrl": "https://optional.example/source",
+    "sourceCheckedAt": "2026-08-23T12:00:00.000Z"
   }
 }
 ```
@@ -52,16 +53,19 @@ ThriveUp creates an immutable package containing:
 - collaborator categories only—not asserted collaborators;
 - the private-by-default, cross-organization-learning-disabled boundary.
 
-Delivery is attempted against GrantPath Pro's `/thriveup/mirror` receiver
-(`GPP_OPPORTUNITY_HANDOFF_URL`, defaulting to the partner URL supplied for this
-contract) with `Authorization: Bearer <THRIVEUP_INGEST_KEY>`. The generic
-GrantPathPro API URL is never inferred as a receiver. Delivery states are:
+Delivery is attempted against GrantPath Pro's `/thriveup/mirror` receiver when
+`GPP_OPPORTUNITY_HANDOFF_URL` is explicitly configured, with
+`Authorization: Bearer <THRIVEUP_INGEST_KEY>` (or a separately provisioned
+`GPP_OPPORTUNITY_HANDOFF_API_KEY`). The generic GrantPathPro API URL is never
+inferred as a receiver. Delivery states are:
 
 - `previewed` — persisted before a delivery evaluation;
 - `delivered` — the explicit receiver accepted the package;
 - `rejected` — the explicit receiver returned a non-success response;
-- `unavailable` — no receiver is configured or the receiver could not be
-  reached.
+- `unavailable` — no receiver is configured.
+- `delivery_unknown` — the receiver may have received the package, but no
+  acknowledgement was returned; the same handoff must be reconciled before a
+  replacement is authorized.
 
 No state other than `delivered` represents a partner handoff.
 
@@ -92,7 +96,9 @@ Allowed `status` values:
 `withdrawn`, `awarded`, `partially_awarded`, `cancelled`, `expired`, and
 `not_pursued`.
 
-Optional fields are `externalPursuitId`, `decisionAt`, whole-number
+Optional request fields include `sourceUrl` and `sourceCheckedAt`; when present,
+`sourceCheckedAt` must be an ISO-8601 timestamp with an explicit UTC offset.
+Optional feedback fields are `externalPursuitId`, `decisionAt`, whole-number
 `awardAmount`, `amountDisclosure`, `funderFeedback`, `lesson`, and
 `sourceUrl`. Invalid required fields reject the payload with a correction note.
 Invalid optional fields are removed, logged, and returned as corrections.

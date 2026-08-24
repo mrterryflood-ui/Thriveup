@@ -1,15 +1,16 @@
 /**
  * Canonical outbound GrantPathPro configuration.
  *
- * The inbound ThriveUp key is deliberately separate and must never be reused
- * for outbound delivery or serialized into a client-facing payload.
+ * Partner credentials are server-only and are never serialized into a
+ * client-facing payload.
  */
 export function getGrantPathProOutboundConfig(): {
   url: string | null;
   apiKey: string | null;
   configured: boolean;
 } {
-  const url = process.env.GPP_API_URL?.trim() || null;
+  const configuredUrl = process.env.GPP_API_URL?.trim() || null;
+  const url = configuredUrl && isSafePartnerUrl(configuredUrl) ? configuredUrl : null;
   // THRIVE_GPP_API_KEY is the canonical name. The two legacy names remain
   // accepted so existing deployments fail explicitly only when no usable
   // credential exists, rather than silently falling into preview mode.
@@ -42,7 +43,8 @@ export function getGrantPathProEmbedConfig(): {
 } {
   const outbound = getGrantPathProOutboundConfig();
   const explicitUrl = process.env.GPP_EMBED_URL?.trim();
-  const url = explicitUrl || (outbound.url ? `${new URL(outbound.url).origin}/thriveup/embed` : null);
+  const candidateUrl = explicitUrl || (outbound.url ? `${new URL(outbound.url).origin}/thriveup/embed` : null);
+  const url = candidateUrl && isSafePartnerUrl(candidateUrl) ? candidateUrl : null;
   const partnerKey = process.env.THRIVEUP_PARTNER_KEY?.trim() || outbound.apiKey;
   return { url, partnerKey, configured: Boolean(url && partnerKey) };
 }
@@ -52,7 +54,8 @@ export function getGrantPathProMirrorConfig(): {
   outboundKey: string | null;
   configured: boolean;
 } {
-  const url = process.env.GPP_MIRROR_URL?.trim() || null;
+  const candidateUrl = process.env.GPP_MIRROR_URL?.trim() || null;
+  const url = candidateUrl && isSafePartnerUrl(candidateUrl) ? candidateUrl : null;
   // Never send THRIVEUP_INGEST_KEY to a partner: it authenticates writes into
   // ThriveUp. The receiver needs a distinct GPP-issued outbound credential.
   const outbound = getGrantPathProOutboundConfig();
@@ -71,14 +74,25 @@ export function getGrantPathProOpportunityHandoffConfig(): {
   apiKey: string | null;
   configured: boolean;
 } {
-  const url = process.env.GPP_OPPORTUNITY_HANDOFF_URL?.trim()
-    || "https://trustworthy-sheep-515.convex.site/thriveup/mirror";
-  const outbound = getGrantPathProOutboundConfig();
+  const candidateUrl = process.env.GPP_OPPORTUNITY_HANDOFF_URL?.trim() || null;
+  const url = candidateUrl && isSafePartnerUrl(candidateUrl) ? candidateUrl : null;
   // GrantPath Pro's supplied v1 receiver authenticates ThriveUp with the
   // existing THRIVEUP_INGEST_KEY as a Bearer credential. An explicitly
-  // provisioned handoff key remains available for future key separation.
+  // provisioned handoff key takes precedence when available.
   const apiKey = process.env.GPP_OPPORTUNITY_HANDOFF_API_KEY?.trim()
     || process.env.THRIVEUP_INGEST_KEY?.trim()
-    || outbound.apiKey;
+    || null;
   return { url, apiKey, configured: Boolean(url && apiKey) };
+}
+
+function isSafePartnerUrl(value: string): boolean {
+  try {
+    const parsed = new URL(value);
+    if (parsed.protocol !== "https:" || parsed.username || parsed.password) return false;
+    const configuredHosts = (process.env.GPP_ALLOWED_HOSTS || "trustworthy-sheep-515.convex.site")
+      .split(",").map((host) => host.trim().toLowerCase()).filter(Boolean);
+    return configuredHosts.includes(parsed.hostname.toLowerCase());
+  } catch {
+    return false;
+  }
 }
