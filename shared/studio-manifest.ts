@@ -32,6 +32,9 @@ export const studioFieldSchema = z.object({
   if (/(name|email|phone|address|birth|ssn|dob|social|contact)/i.test(field.key)) {
     ctx.addIssue({ code: "custom", message: "PII-like field keys are not allowed", path: ["key"] });
   }
+  if (field.dataScope === "public" && (field.type === "text" || field.type === "textarea")) {
+    ctx.addIssue({ code: "custom", message: "Public fields cannot collect free text; use a declared select, checkbox, or non-identifying date.", path: ["type"] });
+  }
 });
 
 export const studioActionSchema = z.object({

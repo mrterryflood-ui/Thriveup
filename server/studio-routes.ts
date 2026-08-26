@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { and, desc, eq } from "drizzle-orm";
+import { and, desc, eq, gt, lte } from "drizzle-orm";
 import { z } from "zod";
-import { studioAuditEvents, studioModuleManifests, studioImportInventories, studioModuleRecords } from "@shared/schema";
+import { organizationMembers, studioAuditEvents, studioModuleManifests, studioImportInventories, studioModuleRecords } from "@shared/schema";
 import {
   studioDraftRequestSchema, studioManifestSchema, studioRouteSlugSchema,
   toPublicStudioManifest, type StudioManifest,
@@ -16,6 +16,8 @@ const recordBuckets = new Map<string, { count: number; resetAt: number }>();
 const ADMIN_ROLES = new Set(["admin"]);
 const maxDraftsPerMinute = 5;
 const maxRecordsPerMinute = 20;
+const MAX_INVENTORY_FILES = 500;
+const MAX_INVENTORY_BYTES = 5_000_000;
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -81,28 +83,102 @@ const publishSchema = z.object({
 const inventorySchema = z.object({
   sourceLabel: z.string().trim().min(1).max(120),
   files: z.array(z.object({
-    path: z.string().min(1).max(1000),
-    size: z.number().int().nonnegative().max(20_000_000),
+    path: z.string().min(1).max(500),
+    size: z.number().int().nonnegative().max(MAX_INVENTORY_BYTES),
     language: z.string().trim().max(80).optional(),
-  }).strict()).max(5000),
+  }).strict()).max(MAX_INVENTORY_FILES),
 }).strict();
-const recordInputSchema = z.object({ values: z.record(z.union([z.string(), z.boolean()])).refine((v) => Object.keys(v).length <= 30) }).strict();
-const PII_LIKE = /(name|email|phone|address|birth|ssn|social|contact|password|secret|credential|identifier|^id$)/i;
-function normalizeInventoryPath(input: string): { path: string; classification: string } {
-  const path = input.replaceAll("\\", "/").trim();
+const recordInputSchema = z.object({
+  values: z.record(z.union([z.string(), z.boolean()]))
+    .refine((value) => Object.keys(value).length > 0 && Object.keys(value).length <= 30)
+    .refine((value) => JSON.stringify(value).length <= 20_000),
+}).strict();
+const PII_LIKE_KEY = /(name|email|phone|address|birth|ssn|dob|social|contact|password|secret|credential|identifier|^id$)/i;
+const PII_LIKE_VALUE = /(?:\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)|(?:\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b)|(?:\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b)/i;
+const SENSITIVE_INVENTORY_PATH = /(^|\/)(?:\.git(?:\/|$)|\.env(?:\..*)?|\.npmrc|\.yarnrc|\.pypirc|credentials?(?:\.[^/]*)?|secrets?(?:\.[^/]*)?|id_rsa|authorized_keys|.*(?:private.?key|password).*$|.*\.(?:pem|key|p12|pfx))$/i;
+
+function safelyDecodePath(input: string) {
+  try { return decodeURIComponent(input); } catch { return input; }
+}
+function normalizeInventoryPath(input: string): { normalizedPath: string; path: string; classification: "blocked" | "review" | "unsupported"; reason?: string } {
+  const decoded = safelyDecodePath(input).normalize("NFKC");
+  const path = decoded.replaceAll("\\", "/").trim();
   const parts = path.split("/");
-  const sensitive = /(^|\/)(\.env(?:\..*)?|.*(?:secret|credential|private.?key|password|id_rsa|authorized_keys).*$|.*\.(?:pem|key|p12|pfx))$/i.test(path);
-  if (path.startsWith("/") || /^[a-zA-Z]:\//.test(path) || parts.some((p) => p === "..") || parts.some((p) => p === "" || p === ".")) {
-    return { path, classification: "blocked" };
+  const unsafePath = /[\u0000-\u001F\u007F]/.test(path)
+    || path.startsWith("/")
+    || /^[a-zA-Z]:\//.test(path)
+    || input.includes("%")
+    || parts.some((part) => part === ".." || part === "" || part === ".");
+  if (unsafePath) {
+    return { normalizedPath: path, path: "[blocked unsafe path]", classification: "blocked", reason: "unsafe-path" };
   }
-  if (sensitive) return { path, classification: "blocked" };
+  if (SENSITIVE_INVENTORY_PATH.test(path)) {
+    return { normalizedPath: path, path: "[blocked sensitive file]", classification: "blocked", reason: "sensitive-file" };
+  }
   const ext = path.includes(".") ? path.slice(path.lastIndexOf(".")).toLowerCase() : "";
-  return { path, classification: [".ts", ".tsx", ".js", ".jsx", ".json", ".md", ".css", ".html", ".sql", ".py", ".java", ".go", ".rs"].includes(ext) ? "review" : "unsupported" };
+  return {
+    normalizedPath: path,
+    path,
+    classification: [".ts", ".tsx", ".js", ".jsx", ".json", ".md", ".css", ".html", ".sql", ".py", ".java", ".go", ".rs"].includes(ext) ? "review" : "unsupported",
+    ...(ext ? {} : { reason: "extension-required" }),
+  };
 }
 function validDate(value: string) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const d = new Date(`${value}T00:00:00Z`);
   return d.toISOString().slice(0, 10) === value;
+}
+function containsPiiLikeValue(value: string) {
+  return PII_LIKE_VALUE.test(value);
+}
+function validateDeclaredValues(
+  fields: StudioManifest["fields"],
+  values: Record<string, string | boolean>,
+  allowedScopes: Array<"public" | "organization" | "aggregate">,
+) {
+  const allowed = new Map(fields.filter((field) => allowedScopes.includes(field.dataScope)).map((field) => [field.key, field]));
+  for (const [key, value] of Object.entries(values)) {
+    const field = allowed.get(key);
+    if (!field || PII_LIKE_KEY.test(key)) return "Record contains a disallowed field.";
+    if (typeof value === "string" && (value.length > 2_000 || containsPiiLikeValue(value))) return "Record contains a disallowed value.";
+    if (allowedScopes.includes("public") && (field.type === "text" || field.type === "textarea")) return "Public record fields cannot collect free text.";
+    if (field.type === "checkbox" && typeof value !== "boolean") return `Field must be a checkbox: ${key}`;
+    if (field.type !== "checkbox" && typeof value !== "string") return `Field must be text: ${key}`;
+    if (field.type === "date" && typeof value === "string" && !validDate(value)) return `Field must be a valid ISO date: ${key}`;
+    if (field.type === "select" && typeof value === "string" && !field.options?.includes(value)) return `Field contains an unsupported option: ${key}`;
+  }
+  for (const field of allowed.values()) {
+    if (field.required && !(field.key in values)) return `Required field missing: ${field.key}`;
+  }
+  return undefined;
+}
+async function purgeExpiredOrganizationRecords(moduleKey: string, orgId: string) {
+  await db.delete(studioModuleRecords).where(and(
+    eq(studioModuleRecords.moduleKey, moduleKey),
+    eq(studioModuleRecords.orgId, orgId),
+    lte(studioModuleRecords.retentionUntil, new Date()),
+  ));
+}
+async function purgeAllExpiredOrganizationRecords() {
+  await db.delete(studioModuleRecords).where(lte(studioModuleRecords.retentionUntil, new Date()));
+}
+async function requireExplicitStudioOrgSelection(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = getUserId(req);
+    if (!userId) return res.status(401).json({ error: "Authentication required" });
+    const memberships = await db.select({ orgId: organizationMembers.orgId }).from(organizationMembers).where(eq(organizationMembers.userId, userId));
+    const requestedOrgId = typeof req.headers["x-org-id"] === "string" ? req.headers["x-org-id"] : undefined;
+    if (memberships.length > 1 && !requestedOrgId) {
+      return res.status(400).json({ error: "Choose an organization before working with organization records.", code: "ORG_SELECTION_REQUIRED" });
+    }
+    if (requestedOrgId && memberships.length > 0 && !memberships.some((membership) => membership.orgId === requestedOrgId)) {
+      return res.status(403).json({ error: "The selected organization is not available to this account.", code: "ORG_SELECTION_FORBIDDEN" });
+    }
+    next();
+  } catch (error: any) {
+    console.error("[studio] organization selection error:", error);
+    return res.status(500).json({ error: "Unable to verify organization selection." });
+  }
 }
 async function auditImportAttempt(req: Request, _res: Response, next: NextFunction) {
   try {
@@ -119,17 +195,30 @@ Only moduleType "grant-workflow", field types text/textarea/select/checkbox/date
 Use truthful, bounded descriptions; do not fabricate facts, outcomes, statistics, sources, or provenance. Set provenance source to ai-assisted and reviewedByHuman false. The human must review before publishing.`;
 
 export function registerStudioRoutes(app: Express) {
-  app.post("/api/admin/studio/import-inventory", auditImportAttempt, requireStudioAuth, requireStudioAdmin, async (req, res) => {
+  // Retention must apply even if a tenant has no subsequent reads or writes.
+  purgeAllExpiredOrganizationRecords().catch((error) => console.error("[studio] initial retention sweep failed:", error));
+  const retentionSweep = setInterval(() => {
+    purgeAllExpiredOrganizationRecords().catch((error) => console.error("[studio] scheduled retention sweep failed:", error));
+  }, 24 * 60 * 60 * 1000);
+  retentionSweep.unref();
+
+  app.post("/api/admin/studio/import-inventory", requireStudioAuth, requireStudioAdmin, auditImportAttempt, async (req, res) => {
     const actor = getUserId(req);
     try {
       const input = inventorySchema.safeParse(req.body);
       const files = input.success ? input.data.files : [];
       const totalSize = files.reduce((sum, file) => sum + file.size, 0);
-      if (!input.success || totalSize > 20_000_000) {
+      if (!input.success || totalSize > MAX_INVENTORY_BYTES) {
         await audit("import-inventory", "import.inventory.rejected", actor, undefined, { reason: "invalid_request" });
-        return res.status(400).json({ error: "Invalid inventory. Provide strict JSON with at most 5,000 files and 20MB total." });
+        return res.status(400).json({ error: "Invalid inventory. Provide strict JSON with at most 500 files and 5MB total." });
       }
-      const items = files.map((file) => ({ ...file, ...normalizeInventoryPath(file.path) }));
+      const normalized = files.map((file) => ({ ...file, ...normalizeInventoryPath(file.path) }));
+      const seen = new Set<string>();
+      if (normalized.some((file) => seen.has(file.normalizedPath) || !seen.add(file.normalizedPath))) {
+        await audit("import-inventory", "import.inventory.rejected", actor, undefined, { reason: "duplicate_path" });
+        return res.status(400).json({ error: "Inventory cannot contain duplicate paths." });
+      }
+      const items = normalized.map(({ normalizedPath: _normalizedPath, ...item }) => item);
       const counts = items.reduce<Record<string, number>>((out, item) => { out[item.classification] = (out[item.classification] || 0) + 1; return out; }, {});
       const [saved] = await db.insert(studioImportInventories).values({ sourceLabel: input.data.sourceLabel, actorUserId: actor, items, counts }).returning({ id: studioImportInventories.id });
       await audit("import-inventory", "import.inventory.created", actor, undefined, { inventoryId: saved.id, counts });
@@ -141,7 +230,7 @@ export function registerStudioRoutes(app: Express) {
     }
   });
 
-  app.post("/api/studio/modules/:moduleKey/organization-records", requireAuth, loadCallerOrg, requireOrg, async (req, res) => {
+  app.post("/api/studio/modules/:moduleKey/organization-records", requireAuth, requireExplicitStudioOrgSelection, loadCallerOrg, requireOrg, async (req, res) => {
     try {
       const moduleKey = studioRouteSlugSchema.safeParse(String(req.params.moduleKey));
       if (!moduleKey.success) return res.status(400).json({ error: "Invalid module key." });
@@ -151,22 +240,15 @@ export function registerStudioRoutes(app: Express) {
       if (!org || !userId || !loaded) return res.status(404).json({ error: "Module not found." });
       const input = recordInputSchema.safeParse(req.body);
       if (!input.success) return res.status(400).json({ error: "Invalid organization record values." });
-      const fields = new Map(loaded.manifest.fields.map((field) => [field.key, field]));
-      for (const [key, value] of Object.entries(input.data.values)) {
-        const field = fields.get(key);
-        if (!field || !["organization", "aggregate"].includes(field.dataScope) || PII_LIKE.test(key)) return res.status(400).json({ error: "Record contains a disallowed field." });
-        if (typeof value === "string" && (value.length > 2000 || PII_LIKE.test(value))) return res.status(400).json({ error: "Record contains a disallowed value." });
-        if (field.type === "checkbox" && typeof value !== "boolean") return res.status(400).json({ error: `Field must be a checkbox: ${key}` });
-        if (field.type !== "checkbox" && typeof value !== "string") return res.status(400).json({ error: `Field must be text: ${key}` });
-        if (field.type === "date" && typeof value === "string" && !validDate(value)) return res.status(400).json({ error: `Field must be a valid ISO date: ${key}` });
-        if (field.type === "select" && typeof value === "string" && !field.options?.includes(value)) return res.status(400).json({ error: `Field contains an unsupported option: ${key}` });
-      }
-      for (const field of loaded.manifest.fields) if (field.required && field.dataScope !== "public" && !(field.key in input.data.values)) return res.status(400).json({ error: `Required field missing: ${field.key}` });
+      const recordError = validateDeclaredValues(loaded.manifest.fields, input.data.values, ["organization", "aggregate"]);
+      if (recordError) return res.status(400).json({ error: recordError });
+      await purgeExpiredOrganizationRecords(moduleKey.data, org.id);
       const retentionUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
       const [record] = await db.insert(studioModuleRecords).values({
         moduleKey: moduleKey.data, moduleVersion: loaded.version, orgId: org.id, actorUserId: userId,
         values: input.data.values, provenance: { source: "authenticated-organization-submission" }, retentionUntil,
       }).returning({ id: studioModuleRecords.id, moduleKey: studioModuleRecords.moduleKey, moduleVersion: studioModuleRecords.moduleVersion, values: studioModuleRecords.values, provenance: studioModuleRecords.provenance, retentionUntil: studioModuleRecords.retentionUntil, createdAt: studioModuleRecords.createdAt });
+      await audit(moduleKey.data, "organization-record.created", userId, loaded.version, { recordId: record.id, orgId: org.id, retentionUntil: retentionUntil.toISOString() });
       return res.status(201).json({ record });
     } catch (error: any) {
       console.error("[studio] organization record error:", error);
@@ -174,24 +256,28 @@ export function registerStudioRoutes(app: Express) {
     }
   });
 
-  app.get("/api/studio/modules/:moduleKey/organization-records", requireAuth, loadCallerOrg, requireOrg, async (req, res) => {
+  app.get("/api/studio/modules/:moduleKey/organization-records", requireAuth, requireExplicitStudioOrgSelection, loadCallerOrg, requireOrg, async (req, res) => {
     try {
       const moduleKey = studioRouteSlugSchema.safeParse(String(req.params.moduleKey));
       const org = getCallerOrg(req);
       if (!moduleKey.success || !org) return res.status(404).json({ error: "Module not found." });
-      const records = await db.select({ id: studioModuleRecords.id, moduleKey: studioModuleRecords.moduleKey, moduleVersion: studioModuleRecords.moduleVersion, values: studioModuleRecords.values, provenance: studioModuleRecords.provenance, retentionUntil: studioModuleRecords.retentionUntil, createdAt: studioModuleRecords.createdAt }).from(studioModuleRecords).where(and(eq(studioModuleRecords.moduleKey, moduleKey.data), eq(studioModuleRecords.orgId, org.id))).orderBy(desc(studioModuleRecords.createdAt));
+      await purgeExpiredOrganizationRecords(moduleKey.data, org.id);
+      const records = await db.select({ id: studioModuleRecords.id, moduleKey: studioModuleRecords.moduleKey, moduleVersion: studioModuleRecords.moduleVersion, values: studioModuleRecords.values, provenance: studioModuleRecords.provenance, retentionUntil: studioModuleRecords.retentionUntil, createdAt: studioModuleRecords.createdAt }).from(studioModuleRecords).where(and(eq(studioModuleRecords.moduleKey, moduleKey.data), eq(studioModuleRecords.orgId, org.id), gt(studioModuleRecords.retentionUntil, new Date()))).orderBy(desc(studioModuleRecords.createdAt));
       return res.json({ records });
     } catch (error: any) { console.error("[studio] organization records error:", error); return res.status(500).json({ error: "Failed to load organization records." }); }
   });
 
-  app.delete("/api/studio/modules/:moduleKey/organization-records/:recordId", requireAuth, loadCallerOrg, requireOrg, async (req, res) => {
+  app.delete("/api/studio/modules/:moduleKey/organization-records/:recordId", requireAuth, requireExplicitStudioOrgSelection, loadCallerOrg, requireOrg, async (req, res) => {
     try {
+      const moduleKey = studioRouteSlugSchema.safeParse(String(req.params.moduleKey));
       const org = getCallerOrg(req); const userId = getUserId(req);
-      if (!org || !userId) return res.status(404).json({ error: "Record not found." });
-      const [record] = await db.select().from(studioModuleRecords).where(and(eq(studioModuleRecords.id, String(req.params.recordId)), eq(studioModuleRecords.orgId, org.id))).limit(1);
+      if (!moduleKey.success || !org || !userId) return res.status(404).json({ error: "Record not found." });
+      await purgeExpiredOrganizationRecords(moduleKey.data, org.id);
+      const [record] = await db.select().from(studioModuleRecords).where(and(eq(studioModuleRecords.id, String(req.params.recordId)), eq(studioModuleRecords.moduleKey, moduleKey.data), eq(studioModuleRecords.orgId, org.id), gt(studioModuleRecords.retentionUntil, new Date()))).limit(1);
       const isOwner = getCallerOrgRole(req) === "owner";
       if (!record || (record.actorUserId !== userId && !isOwner)) return res.status(404).json({ error: "Record not found." });
       await db.delete(studioModuleRecords).where(eq(studioModuleRecords.id, record.id));
+      await audit(moduleKey.data, "organization-record.deleted", userId, record.moduleVersion, { recordId: record.id, orgId: org.id });
       return res.status(204).send();
     } catch (error: any) { console.error("[studio] organization record delete error:", error); return res.status(500).json({ error: "Failed to delete organization record." }); }
   });
@@ -327,27 +413,15 @@ export function registerStudioRoutes(app: Express) {
       if (!moduleKey.success) return res.status(404).json({ error: "Module not found." });
       const manifest = await getPublishedStudioManifest(moduleKey.data);
       if (!manifest) return res.status(404).json({ error: "Module not found." });
-      if (!manifest.actions.some((action) => action.type === "submit-record")) {
+      if (!manifest.actions.some((action) => action.type === "submit-record" && action.dataScope === "public")) {
         return res.status(403).json({ error: "This module does not accept record submissions." });
       }
-      const values = z.record(z.union([z.string().trim().max(2_000), z.boolean()])).safeParse(req.body?.values);
+      const values = recordInputSchema.safeParse({ values: req.body?.values });
       if (!values.success) return res.status(400).json({ error: "Invalid record values." });
-      const allowed = new Map(manifest.fields.map((field) => [field.key, field]));
-      for (const [key, value] of Object.entries(values.data)) {
-        const field = allowed.get(key);
-        if (!field || field.dataScope !== "public") return res.status(400).json({ error: "Record contains a disallowed field." });
-        if (field.type === "checkbox" && typeof value !== "boolean") return res.status(400).json({ error: `Field must be a checkbox: ${key}` });
-        if (field.type !== "checkbox" && typeof value !== "string") return res.status(400).json({ error: `Field must be text: ${key}` });
-        if (field.type === "date" && typeof value === "string" && !/^\d{4}-\d{2}-\d{2}$/.test(value)) {
-          return res.status(400).json({ error: `Field must be an ISO date: ${key}` });
-        }
-        if (field.type === "select" && typeof value === "string" && !field.options?.includes(value)) {
-          return res.status(400).json({ error: `Field contains an unsupported option: ${key}` });
-        }
-      }
-      for (const field of manifest.fields) if (field.required && !(field.key in values.data)) return res.status(400).json({ error: `Required field missing: ${field.key}` });
+      const recordError = validateDeclaredValues(manifest.fields, values.data.values, ["public"]);
+      if (recordError) return res.status(400).json({ error: recordError });
       // The foundation deliberately records only the schema keys, never submitted values or identity.
-      await audit(moduleKey.data, "record.submitted", undefined, undefined, { fieldKeys: Object.keys(values.data).sort(), dataScope: manifest.dataScope });
+      await audit(moduleKey.data, "record.submitted", undefined, undefined, { fieldKeys: Object.keys(values.data.values).sort(), dataScope: "public" });
       res.status(202).json({ accepted: true });
     } catch (error: any) {
       console.error("[studio] record error:", error);
