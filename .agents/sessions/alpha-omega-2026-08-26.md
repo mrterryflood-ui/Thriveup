@@ -60,3 +60,19 @@
 - Adversarial audit: A scope-limited six-domain documentation audit found stale wording in the older Austin research index that could have implied a presently permissible pilot path or an EBI label. The index now limits the next action to private evidence preparation and role-confirmation preparation, labels the bundle locally hypothesized rather than an EBI, and distinguishes the broader AACHD context from the evidence-screened candidate.
 - Proofs: `git diff --check` passed before and after the records were finalized. The live RPLICE catalog metadata confirmed the 49-record count and each cited title/DOI/abstract-level description.
 - Outcome and residuals: The role record names no current decision authority; all authorization routes remain absent. The evidence screen finds no direct library match for youth/resident co-design or cultural-continuity action sessions, and it retains the candidate bundle as locally hypothesized rather than an EBI. The next safe step is a reproducible targeted evidence search and approved baseline protocol, not public classification, recruitment, referral operations, application build, or external outreach on another organization’s behalf.
+
+---
+
+## Validation continuation — access-model guards
+
+### Alpha
+- End-state: Reproduce or clear the previously reported `access-model-guards` fetch failure without treating a historical failure as green.
+- In-state evidence: The prior report identified a fetch failure in the equity-loss frame check. The gate uses the running local application for its equity-loss frame and national API probes.
+- Authority/boundaries: Validation only; no data, schema, application behavior, credentials, or partner registration may be changed to make a check appear green.
+- Acceptance proof: Restart the configured validation workflow, obtain its completed output, verify the application responds locally, and distinguish a reproduced defect from a non-reproducing runtime failure.
+- Unknowns/deferred decisions: The original transient fetch failure could not be root-caused from a passing rerun alone; recurrence must be captured with its contemporaneous server/workflow logs before changing code.
+
+### Omega
+- Proofs and gates: The restarted `access-model-guards` workflow finished successfully: 35 access-model checks, 3 equity-loss-frame checks, 6 nationwide snapshot checks, and 47 nationwide API checks passed. A direct local application request returned HTTP 200.
+- Outcome: The previously failing gate is now demonstrably green. No code or configuration change was made because the fault did not reproduce.
+- Residuals: Deployment logs show a separate invalid ecosystem-key heartbeat response; it is unrelated to the passing access-model gate and must be diagnosed as a credential/registration integration issue rather than silently ignored.
