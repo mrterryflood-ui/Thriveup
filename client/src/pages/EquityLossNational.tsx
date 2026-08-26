@@ -83,19 +83,20 @@ interface NationalListResponse {
 
 interface SummaryResponse {
   noDataYet: boolean;
+  frame?: string;
   message?: string;
   batchRunId?: string;
   dataAsOf?: string;
-  frame?: string;
   totalCounties?: number;
   totalSuppressed?: number;
   minLossPct?: number | null;
   maxLossPct?: number | null;
   medianLossPct?: number | null;
-  batchCountiesSucceeded?: number;
-  batchCountiesSuppressed?: number;
-  distinctCountiesInSnapshot?: number;
-  stateBreakdown?: Record<string, number>;
+  stateBreakdown?: Record<string, {
+    countyCount: number;
+    succeededCount: number;
+    avgLoss: number | null;
+  }>;
 }
 
 // ---------------------------------------------------------------------------
@@ -120,14 +121,15 @@ const TIER_BADGE_VARIANT: Record<string, "default" | "secondary" | "destructive"
   ai_estimate: "destructive",
 };
 
-const US_STATES = [
+const STATE_CODES = [
   "AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA",
   "HI","ID","IL","IN","IA","KS","KY","LA","ME","MD",
   "MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ",
   "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
   "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY",
-  "DC",
 ];
+
+const TERRITORY_CODES = ["AS", "GU", "MP", "PR", "VI"];
 
 // ---------------------------------------------------------------------------
 // Small helpers
@@ -181,37 +183,71 @@ function SummaryBar({ summary }: { summary: SummaryResponse | null }) {
     );
   }
 
+  const jurisdictionEntries = Object.entries(summary.stateBreakdown ?? {});
+  const frameLabel = {
+    vs_national_peer_class: "national peer-class",
+    vs_state: "state",
+    vs_parent_county: "parent-county",
+  }[summary.frame ?? "vs_national_peer_class"] ?? "selected comparison";
+  const stateEntries = jurisdictionEntries.filter(([code]) => STATE_CODES.includes(code));
+  const usableStateEntries = stateEntries.filter(([, value]) => value.succeededCount > 0 && value.avgLoss !== null);
+  const districtOfColumbia = summary.stateBreakdown?.DC;
+  const districtHasUsableResult = Boolean(
+    districtOfColumbia && districtOfColumbia.succeededCount > 0 && districtOfColumbia.avgLoss !== null,
+  );
+  const unavailableTerritories = TERRITORY_CODES.filter((code) => {
+    const value = summary.stateBreakdown?.[code];
+    return value && !(value.succeededCount > 0 && value.avgLoss !== null);
+  });
+  const connecticutUnavailable = Boolean(
+    summary.stateBreakdown?.CT
+      && !(summary.stateBreakdown.CT.succeededCount > 0 && summary.stateBreakdown.CT.avgLoss !== null),
+  );
+
   return (
     <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px 20px", marginBottom: 20 }}>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "24px 40px", alignItems: "flex-start" }}>
         <div>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Counties covered</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>County entries in batch</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#f8fafc" }}>{summary.totalCounties?.toLocaleString()}</div>
         </div>
         <div>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Suppressed</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>{frameLabel} suppressed</div>
           <div style={{ fontSize: 24, fontWeight: 700, color: "#fbbf24" }}>{summary.totalSuppressed?.toLocaleString()}</div>
-          <div style={{ fontSize: 11, color: "#64748b" }}>shown as gap, never zero</div>
+          <div style={{ fontSize: 11, color: "#94a3b8" }}>shown as gap, never zero</div>
         </div>
         <div>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Loss range (IHDI)</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>Loss range ({frameLabel})</div>
           <div style={{ fontSize: 18, fontWeight: 600, color: "#f8fafc" }}>
             {fmtPct(summary.minLossPct)} – {fmtPct(summary.maxLossPct)}
           </div>
-          <div style={{ fontSize: 11, color: "#64748b" }}>median {fmtPct(summary.medianLossPct)}</div>
+          <div style={{ fontSize: 11, color: "#94a3b8" }}>median {fmtPct(summary.medianLossPct)}</div>
         </div>
         <div style={{ marginLeft: "auto", textAlign: "right", minWidth: 160 }}>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#64748b" }}>Data freshness</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>Data freshness</div>
           <div style={{ fontSize: 14, fontWeight: 600, color: "#cbd5e1" }}>as of {fmtDate(summary.dataAsOf)}</div>
-          <div style={{ fontSize: 11, color: "#64748b", marginTop: 2 }}>
+          <div style={{ fontSize: 11, color: "#94a3b8", marginTop: 2 }}>
             batch: {summary.batchRunId?.slice(0, 12)}…
           </div>
         </div>
       </div>
-      <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, color: "#64748b", lineHeight: 1.5 }}>
-        Loss % = IHDI / HDI — the human development a county loses to internal inequality (Atkinson method, UNDP goalposts).
+      <div style={{ marginTop: 12, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, color: "#94a3b8", lineHeight: 1.5 }}>
+        Loss % = (1 − IHDI / HDI) × 100 — the human development a county loses to internal inequality (Atkinson method, UNDP goalposts).
         Each county is compared against one reference frame at a time; frames are never averaged.
-        Suppressed counties had insufficient data for a reliable estimate — their absence is shown explicitly, not as zero.
+        The summary above is for the selected {frameLabel} comparison frame. Suppressed counties had insufficient data for
+        a reliable estimate — their absence is shown explicitly, not as zero.
+      </div>
+      <div style={{ marginTop: 10, fontSize: 12, color: "#cbd5e1", lineHeight: 1.5 }}>
+        <strong>Coverage status:</strong> {stateEntries.length} of 50 state entries are present in this completed batch;{" "}
+        {usableStateEntries.length} states have at least one usable {frameLabel} result
+        {districtHasUsableResult ? ", and D.C. has a usable result" : ""}.
+        {unavailableTerritories.length > 0
+          ? ` ${unavailableTerritories.join(", ")} are listed separately and currently unavailable or suppressed because source coverage differs by jurisdiction.`
+          : ""}
+        {connecticutUnavailable
+          ? ` Connecticut currently has no usable ${frameLabel} result in this snapshot.`
+          : ""}
+        {" "}This is a data-availability statement, not a service-deployment claim.
       </div>
     </div>
   );
@@ -267,8 +303,9 @@ function LossCell({ pct, suppressed, reason }: { pct: number | null; suppressed:
   );
 }
 
-function SortButton({ field, currentSort, currentDir, onClick }: {
+function SortButton({ field, label, currentSort, currentDir, onClick }: {
   field: string;
+  label: string;
   currentSort: string;
   currentDir: "asc" | "desc";
   onClick: () => void;
@@ -277,8 +314,9 @@ function SortButton({ field, currentSort, currentDir, onClick }: {
   return (
     <button
       onClick={onClick}
+      aria-label={`Sort by ${label}${active ? `, currently ${currentDir === "desc" ? "descending" : "ascending"}` : ""}`}
       className="flex items-center gap-1 hover:text-slate-200 transition-colors"
-      style={{ color: active ? "#e2e8f0" : "#64748b", fontSize: 12, fontWeight: active ? 700 : 400, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+      style={{ color: active ? "#e2e8f0" : "#94a3b8", fontSize: 12, fontWeight: active ? 700 : 400, background: "none", border: "none", cursor: "pointer", padding: 0 }}
     >
       {active ? (currentDir === "desc" ? "↓" : "↑") : <ArrowUpDown size={12} />}
     </button>
@@ -435,9 +473,10 @@ export default function EquityLossNationalPage() {
           Equity-Loss Engine — Nationwide View
         </h1>
         <p style={{ color: "#94a3b8", marginTop: 8, marginBottom: 24, maxWidth: 680, lineHeight: 1.5, fontSize: 14 }}>
-          County-grain human development loss to inequality (IHDI/Atkinson method) for all US counties in the most recent
-          completed batch run. Filter, sort, and click any row to see detail — or click the county link to open the live
-          single-county computation view.
+          County-grain human development loss to inequality (IHDI/Atkinson method) from the most recent completed batch.
+          Availability varies by jurisdiction and source; the coverage statement below distinguishes usable results from
+          suppressed or unavailable records. Filter, sort, and open a county detail—or use the county link for a live
+          single-county computation.
         </p>
 
         {/* Summary bar */}
@@ -529,7 +568,7 @@ export default function EquityLossNationalPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All states</SelectItem>
-                      {US_STATES.map((s) => (
+                      {[...STATE_CODES, "DC"].map((s) => (
                         <SelectItem key={s} value={s}>{s}</SelectItem>
                       ))}
                     </SelectContent>
@@ -597,20 +636,20 @@ export default function EquityLossNationalPage() {
                         <TableHead style={{ color: "#64748b", fontSize: 12 }}>
                           <div className="flex items-center gap-1">
                             County
-                            <SortButton field="county_name" currentSort={sortField} currentDir={sortDir} onClick={() => handleSort("county_name")} />
+                            <SortButton field="county_name" label="county name" currentSort={sortField} currentDir={sortDir} onClick={() => handleSort("county_name")} />
                           </div>
                         </TableHead>
                         <TableHead style={{ color: "#64748b", fontSize: 12 }}>
                           <div className="flex items-center gap-1">
                             State
-                            <SortButton field="state_abbrev" currentSort={sortField} currentDir={sortDir} onClick={() => handleSort("state_abbrev")} />
+                            <SortButton field="state_abbrev" label="state" currentSort={sortField} currentDir={sortDir} onClick={() => handleSort("state_abbrev")} />
                           </div>
                         </TableHead>
                         <TableHead style={{ color: "#64748b", fontSize: 12 }}>Peer Class</TableHead>
                         <TableHead style={{ color: "#64748b", fontSize: 12 }}>
                           <div className="flex items-center gap-1">
                             Loss % (IHDI)
-                            <SortButton field="overall_loss_pct" currentSort={sortField} currentDir={sortDir} onClick={() => handleSort("overall_loss_pct")} />
+                            <SortButton field="overall_loss_pct" label="loss percentage" currentSort={sortField} currentDir={sortDir} onClick={() => handleSort("overall_loss_pct")} />
                           </div>
                         </TableHead>
                         <TableHead style={{ color: "#64748b", fontSize: 12 }}>Divergence</TableHead>
@@ -632,10 +671,8 @@ export default function EquityLossNationalPage() {
                                 key={row.county_fips}
                                 style={{
                                   borderBottom: "1px solid rgba(255,255,255,0.05)",
-                                  cursor: "pointer",
                                   background: expandedRow === row.county_fips ? "rgba(37,99,235,0.08)" : undefined,
                                 }}
-                                onClick={() => handleRowExpand(row.county_fips)}
                               >
                                 <TableCell style={{ color: "#e2e8f0", fontWeight: 500, fontSize: 14 }}>
                                   {row.county_name}
@@ -656,19 +693,29 @@ export default function EquityLossNationalPage() {
                                   <TierCell tier={row.tier} assumptionText={row.assumption_text} />
                                 </TableCell>
                                 <TableCell>
-                                  <Link
-                                    href={`/equity-loss?state=${row.state_fips}&county=${row.county_fips.slice(2)}`}
-                                    onClick={(e) => e.stopPropagation()}
-                                    style={{ display: "flex", alignItems: "center", gap: 4, color: "#2563eb", fontSize: 12, textDecoration: "none" }}
-                                  >
-                                    Live <ExternalLink size={11} />
-                                  </Link>
+                                  <div className="flex items-center gap-3">
+                                    <button
+                                      type="button"
+                                      onClick={() => handleRowExpand(row.county_fips)}
+                                      aria-expanded={expandedRow === row.county_fips}
+                                      aria-controls={expandedRow === row.county_fips ? `county-detail-${row.county_fips}` : undefined}
+                                      style={{ color: "#93c5fd", fontSize: 12, background: "none", border: "none", cursor: "pointer", padding: 0 }}
+                                    >
+                                      {expandedRow === row.county_fips ? "Hide details" : "Details"}
+                                    </button>
+                                    <Link
+                                      href={`/equity-loss?state=${row.state_fips}&county=${row.county_fips.slice(2)}`}
+                                      style={{ display: "flex", alignItems: "center", gap: 4, color: "#2563eb", fontSize: 12, textDecoration: "none" }}
+                                    >
+                                      Live <ExternalLink size={11} />
+                                    </Link>
+                                  </div>
                                 </TableCell>
                               </TableRow>,
 
                               /* Expanded detail row */
                               expandedRow === row.county_fips && (
-                                <TableRow key={`${row.county_fips}-detail`} style={{ background: "rgba(37,99,235,0.05)" }}>
+                                <TableRow id={`county-detail-${row.county_fips}`} key={`${row.county_fips}-detail`} style={{ background: "rgba(37,99,235,0.05)" }}>
                                   <TableCell colSpan={7} style={{ padding: "12px 20px" }}>
                                     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))", gap: "12px 24px", fontSize: 13 }}>
                                       <div>

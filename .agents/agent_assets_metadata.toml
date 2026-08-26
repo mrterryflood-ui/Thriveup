@@ -798,3 +798,10 @@ uri = "file://research/notes.md"
 type = "text"
 title = "Research Notes: Austin Community Bridge Opportunity"
 description = "Research plan, evidence log, and open questions for the Austin stakeholder assessment."
+
+[[outputs]]
+id = "iQnQoFgHw1MkPy51vt7t0"
+uri = "file://docs/capability-statement/TCAF-Community-Bridge-Agency-One-Pager.md"
+type = "text"
+title = "TCAF Community Bridge — Agency & Entity One-Pager"
+description = "A concise, source-conscious brief covering the platform story, stakeholder value, safeguards, scope boundaries, and accurate 50-state / 52-jurisdiction language."

@@ -184,6 +184,7 @@ async function main() {
     if (body.noDataYet) {
       console.log("  ℹ Summary: no completed batch run yet — honest-empty-state confirmed");
       assert(typeof body.message === "string", "message present");
+      assert(body.frame === "vs_national_peer_class", "empty response echoes default summary frame");
     } else {
       console.log(`  ℹ Summary: ${body.totalCounties} counties, dataAsOf ${body.dataAsOf}`);
       assert(typeof body.totalCounties === "number", "totalCounties is a number");
@@ -192,31 +193,7 @@ async function main() {
       assert(typeof body.dataAsOf === "string", "dataAsOf present");
       assert(typeof body.batchRunId === "string", "batchRunId present");
       assert(typeof body.stateBreakdown === "object", "stateBreakdown present");
-
-      // Internal consistency: distinctCountiesInSnapshot should be ≥ totalCounties
-      // (there are 3 frames; the distinct county count counts across all frames)
-      if (typeof body.distinctCountiesInSnapshot === "number" && typeof body.totalCounties === "number") {
-        assert(
-          body.distinctCountiesInSnapshot >= body.totalCounties,
-          "distinctCountiesInSnapshot >= totalCounties (distinct across frames vs one-frame count)",
-          `distinct=${body.distinctCountiesInSnapshot}, totalForFrame=${body.totalCounties}`
-        );
-      }
-
-      // batchCountiesSucceeded from batch_runs row should be in a plausible range vs snapshot count
-      if (
-        typeof body.batchCountiesSucceeded === "number" &&
-        typeof body.distinctCountiesInSnapshot === "number" &&
-        body.batchCountiesSucceeded > 0
-      ) {
-        // distinctCountiesInSnapshot should be <= batchCountiesSucceeded
-        // (some succeeded counties may map to zero snapshot rows if all frames suppressed)
-        assert(
-          body.distinctCountiesInSnapshot <= body.batchCountiesSucceeded * 3 + 50,
-          "snapshot county count consistent with batch_runs record (within tolerance)",
-          `distinct=${body.distinctCountiesInSnapshot}, succeeded=${body.batchCountiesSucceeded}`
-        );
-      }
+      assert(body.frame === "vs_national_peer_class", "default summary frame is national peer class");
 
       // Min/max sanity
       if (body.minLossPct !== null && body.maxLossPct !== null) {
@@ -228,6 +205,20 @@ async function main() {
           "medianLossPct between min and max"
         );
       }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // 7b. /national/summary frame selection
+  // -------------------------------------------------------------------------
+  console.log("\n--- GET /api/equity-loss/national/summary?frame=vs_state ---");
+  {
+    const { status, body } = await getJson(`${BASE}/api/equity-loss/national/summary?frame=vs_state`);
+    assert(status === 200, "returns 200");
+    assert(body.frame === "vs_state", "echoes selected summary frame");
+    if (!body.noDataYet) {
+      assert(typeof body.totalSuppressed === "number", "returns selected-frame suppression count");
+      assert(typeof body.stateBreakdown === "object", "returns selected-frame jurisdiction breakdown");
     }
   }
 

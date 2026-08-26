@@ -76,3 +76,14 @@
 - Proofs and gates: The restarted `access-model-guards` workflow finished successfully: 35 access-model checks, 3 equity-loss-frame checks, 6 nationwide snapshot checks, and 47 nationwide API checks passed. A direct local application request returned HTTP 200.
 - Outcome: The previously failing gate is now demonstrably green. No code or configuration change was made because the fault did not reproduce.
 - Residuals: Deployment logs show a separate invalid ecosystem-key heartbeat response; it is unrelated to the passing access-model gate and must be diagnosed as a credential/registration integration issue rather than silently ignored.
+
+---
+
+## Coverage clarification and agency/entity one-pager
+
+### Alpha
+- End-state: Explain the reported “47 states” concern with direct development data and produce a concise, agency-ready Community Bridge / Community Impact one-pager that accurately distinguishes national architecture, data availability, jurisdiction terminology, legal entities, and unapproved activities.
+- In-state evidence: The live equity-loss summary returned a `stateBreakdown` object rather than an array. The latest completed development snapshot contained 3,233 county-equivalent records across 56 state/territory entries; all 50 state codes were present. Direct source queries and the CDC USALEEP response showed that Connecticut’s USDA 2023 planning-region names do not match USALEEP’s legacy county names, yielding an honest `source_coverage_gap` for all nine Connecticut entries.
+- Authority/boundaries: The user authorized investigation and a fact sheet, not a source-data correction, deployment, partner outreach, claims of current nationwide operation, grant claims, a public Austin launch, referral operations, or partner data access. “52 states” must not be used; any 52 count must be labeled as an explicitly defined jurisdiction frame.
+- Plan and acceptance proofs: Inspect the live API shape, database state codes, suppression reasons, and primary source geography. Draft the brief using TCAF canonical identity guidance; check the changed document/diff; obtain six independent audits plus an architect review; record any unresolved data-alignment work as a proposed follow-up rather than masking it.
+- Unknowns/deferred decisions: The original visual/source for the user’s “47” observation is not known. No production query was authorized. Repairing Connecticut requires an explicit stable FIPS/crosswalk design and regression guard; the selected territorial denominator for future reporting remains a policy decision.

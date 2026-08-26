@@ -69,28 +69,34 @@ router.get("/summary", async (req, res) => {
     return res.status(429).json({ error: "Rate limit exceeded. Try again in a minute." });
   }
 
+  const frame = String(req.query.frame ?? "vs_national_peer_class");
+  if (!VALID_FRAMES.has(frame)) {
+    return res.status(400).json({ error: `Invalid frame. Must be one of: ${[...VALID_FRAMES].join(", ")}` });
+  }
+
   const client = await dbPool.connect();
   try {
     const batch = await getLatestCompletedBatch(client);
     if (!batch) {
       return res.json({
         noDataYet: true,
+        frame,
         message:
           "No completed nationwide batch run found. Run scripts/compute-nationwide-equity-loss.ts to populate the snapshot.",
       });
     }
 
-    // Per-state breakdown: distinct county count (vs_parent_county = one row per county)
+    // Per-jurisdiction breakdown for the selected comparison frame.
     const { rows: stateRows } = await client.query(
       `SELECT state_abbrev,
               COUNT(DISTINCT county_fips) AS county_count,
               COUNT(DISTINCT county_fips) FILTER (WHERE suppressed = false) AS succeeded_count,
-              AVG(overall_loss_pct) FILTER (WHERE frame = 'vs_national_peer_class' AND suppressed = false) AS avg_loss
+              AVG(overall_loss_pct) FILTER (WHERE suppressed = false) AS avg_loss
        FROM equity_loss_national_snapshot
-       WHERE batch_run_id = $1
+       WHERE batch_run_id = $1 AND frame = $2
        GROUP BY state_abbrev
        ORDER BY state_abbrev`,
-      [batch.batch_run_id],
+      [batch.batch_run_id, frame],
     );
 
     const stateBreakdown: Record<string, { countyCount: number; succeededCount: number; avgLoss: number | null }> = {};
@@ -102,7 +108,7 @@ router.get("/summary", async (req, res) => {
       };
     }
 
-    // Aggregate stats for the vs_national_peer_class frame (most comparable cross-state)
+    // Aggregate stats for the selected comparison frame.
     const { rows: aggRows } = await client.query(
       `SELECT
          COUNT(DISTINCT county_fips) AS distinct_counties,
@@ -112,26 +118,18 @@ router.get("/summary", async (req, res) => {
          PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY overall_loss_pct)
            FILTER (WHERE suppressed = false AND overall_loss_pct IS NOT NULL) AS median_loss
        FROM equity_loss_national_snapshot
-       WHERE batch_run_id = $1 AND frame = 'vs_national_peer_class'`,
-      [batch.batch_run_id],
+       WHERE batch_run_id = $1 AND frame = $2`,
+      [batch.batch_run_id, frame],
     );
     const agg = aggRows[0];
 
-    // Also count distinct counties across ALL frames (for the consistency check in the verify script)
-    const { rows: distinctRows } = await client.query(
-      `SELECT COUNT(DISTINCT county_fips) AS cnt FROM equity_loss_national_snapshot WHERE batch_run_id = $1`,
-      [batch.batch_run_id],
-    );
-
     return res.json({
       noDataYet: false,
+      frame,
       batchRunId: batch.batch_run_id,
       dataAsOf: batch.completed_at.toISOString(),
       totalCounties: parseInt(agg.distinct_counties, 10),
       totalSuppressed: parseInt(agg.suppressed_counties, 10),
-      distinctCountiesInSnapshot: parseInt(distinctRows[0].cnt, 10),
-      batchCountiesSucceeded: batch.counties_succeeded,
-      batchCountiesAttempted: batch.counties_attempted,
       minLossPct: agg.min_loss !== null ? parseFloat(agg.min_loss) : null,
       maxLossPct: agg.max_loss !== null ? parseFloat(agg.max_loss) : null,
       medianLossPct: agg.median_loss !== null ? parseFloat(agg.median_loss) : null,

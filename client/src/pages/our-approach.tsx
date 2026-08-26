@@ -32,21 +32,21 @@ const FIVE_W = [
     color: "emerald" as const,
     icon: MapPin,
     headline: "Local first. Built for everywhere.",
-    body: "All issues are local — that's why IGN matters. Every tool we build works at the neighborhood level — any U.S. county, any community context. Our live pilot is Central Texas: Travis, Williamson, Hays, Bastrop, and Caldwell counties. The Hub Adoption Kit makes it replicable anywhere in the country.",
+    body: "All issues are local — that's why IGN matters. Every tool is designed for neighborhood-level use in any U.S. county and community context. Our documented operating context is Central Texas: Travis, Williamson, Hays, Bastrop, and Caldwell counties. The architecture is built for responsible replication, not a claim of active service everywhere.",
   },
   {
     w: "WHEN",
     color: "amber" as const,
     icon: Activity,
     headline: "Right now. Actively running.",
-    body: "15 platforms live. 107 languages supported. A funding intelligence engine aligning opportunities to the community partners we serve. Programs running in Central Texas today. This is not a roadmap or a vision — it is a running system built through intentional collaboration with the communities it serves.",
+    body: "15 service platforms. 107 languages supported. A funding intelligence engine aligns opportunities to the community partners we serve. Work is grounded in Central Texas, with delivery, partnerships, and claims remaining subject to documented scope and authorization.",
   },
   {
     w: "WHY",
     color: "rose" as const,
     icon: Heart,
     headline: "Plans made for people — without them — don't work",
-    body: "Coordination, communication, understanding, integration, empathy, and perspectives are not soft values — they are the infrastructure of lasting change. We deliver and prove impact so advocacy and passion turn into sustainable, meaningful solutions. We plan with people, not for them.",
+    body: "Coordination, communication, understanding, integration, empathy, and perspectives are not soft values — they are the infrastructure of lasting change. We help communities document implementation and learn from outcomes so advocacy and passion can become sustainable solutions. We plan with people, not for them.",
   },
   {
     w: "HOW",
@@ -203,7 +203,7 @@ export default function OurApproachPage() {
         </p>
 
         <p className="text-base text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-          We deliver and prove impact so advocacy and passion turn into sustainable, meaningful solutions —
+          We help communities document implementation and learn from outcomes so advocacy and passion can become sustainable, meaningful solutions —
           for residents, nonprofits, funders, and the policymakers who shape the systems they all depend on.
         </p>
 
@@ -295,6 +295,7 @@ export default function OurApproachPage() {
             const c = colorMap[s.color];
             const Icon = s.icon;
             const isOpen = stakeholderOpen === s.title;
+            const panelId = `stakeholder-panel-${s.title.toLowerCase().replace(/\s+/g, "-")}`;
             return (
               <div
                 key={s.title}
@@ -304,6 +305,8 @@ export default function OurApproachPage() {
                 <button
                   className="w-full text-left p-4 flex items-center justify-between gap-3"
                   onClick={() => setStakeholderOpen(isOpen ? null : s.title)}
+                  aria-expanded={isOpen}
+                  aria-controls={isOpen ? panelId : undefined}
                   data-testid={`toggle-stakeholder-${s.title.toLowerCase().replace(/\s+/g, '-')}`}
                 >
                   <div className="flex items-center gap-3">
@@ -316,7 +319,7 @@ export default function OurApproachPage() {
                 </button>
 
                 {isOpen && (
-                  <div className="px-4 pb-5 space-y-3 border-t border-inherit pt-3 animate-in fade-in duration-200">
+                  <div id={panelId} className="px-4 pb-5 space-y-3 border-t border-inherit pt-3 animate-in fade-in duration-200">
                     <p className="text-sm leading-relaxed">{s.why}</p>
                     <div>
                       <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Tools available to you</div>
@@ -353,7 +356,7 @@ export default function OurApproachPage() {
             { step: "01", label: "Meet you where you are", desc: "Your pace. Your language. Your readiness. No prerequisites." },
             { step: "02", label: "Guide with data", desc: "Evidence-based interventions, primary sources — not assumptions or opinions." },
             { step: "03", label: "Build with you", desc: "Plan with people, not for them. You execute — we equip and sustain." },
-            { step: "04", label: "Measure and redirect", desc: "Continuous assessment. Metrics catch drift early and prove impact over time." },
+            { step: "04", label: "Measure and redirect", desc: "Continuous assessment. Metrics catch drift early and document results over time." },
           ].map(item => (
             <div key={item.step} className="rounded-lg border p-3 space-y-1" data-testid={`card-ign-step-${item.step}`}>
               <div className="text-xs font-bold text-muted-foreground">{item.step}</div>
@@ -383,6 +386,8 @@ export default function OurApproachPage() {
         <button
           className="w-full text-left flex items-center justify-between gap-3 py-2 group"
           onClick={() => setPhilosophyOpen(!philosophyOpen)}
+          aria-expanded={philosophyOpen}
+          aria-controls={philosophyOpen ? "philosophy-details" : undefined}
           data-testid="toggle-philosophy"
         >
           <div className="flex items-center gap-2">
@@ -396,7 +401,7 @@ export default function OurApproachPage() {
         </button>
 
         {philosophyOpen && (
-          <div className="space-y-8 mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
+          <div id="philosophy-details" className="space-y-8 mt-6 animate-in fade-in slide-in-from-top-2 duration-300">
 
             {/* Community voice callout */}
             <div className="rounded-xl border-2 border-rose-200 dark:border-rose-800 bg-rose-50 dark:bg-rose-950/20 p-6 space-y-3">
@@ -486,6 +491,8 @@ export default function OurApproachPage() {
                       <button
                         className="w-full text-left p-4 flex items-center justify-between gap-3"
                         onClick={() => setFrameworkOpen(isOpen ? null : item.framework)}
+                        aria-expanded={isOpen}
+                        aria-controls={isOpen ? `framework-details-${item.step}` : undefined}
                         data-testid={`toggle-framework-${item.step}`}
                       >
                         <div className="flex items-center gap-3">
@@ -499,7 +506,7 @@ export default function OurApproachPage() {
                         <ArrowRight className={`h-4 w-4 text-muted-foreground shrink-0 transition-transform ${isOpen ? "rotate-90" : ""}`} />
                       </button>
                       {isOpen && (
-                        <div className="px-4 pb-5 space-y-4 border-t border-inherit pt-4">
+                        <div id={`framework-details-${item.step}`} className="px-4 pb-5 space-y-4 border-t border-inherit pt-4">
                           <p className="text-sm text-foreground leading-relaxed">{item.description}</p>
                           <div>
                             <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
