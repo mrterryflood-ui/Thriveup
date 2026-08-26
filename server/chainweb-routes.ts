@@ -41,8 +41,11 @@ async function cwExternalAuth(req: Request, res: Response, next: NextFunction) {
 
     if (platform.length > 0) return next();
 
-    // Secondary: env var overrides
+    // Secondary: direction-specific partner credentials and legacy env overrides.
+    // THRIVEUP_ISSUED_KEY is the credential ThriveUp issued to
+    // Power2thePeople for its Civic Signal webhook into this application.
     const envKeys = [
+      process.env.THRIVEUP_ISSUED_KEY,
       process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY,
       process.env.ECOSYSTEM_PARTNER_KEY_1,
       process.env.ECOSYSTEM_PARTNER_KEY_2,

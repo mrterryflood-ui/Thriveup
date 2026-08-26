@@ -10,7 +10,7 @@
  * OUTBOUND (ThriveUp → Civic Signal):
  *   PUSH: POST https://power2thepeople.net/api/thriveup/ingest
  *   PULL: GET  https://power2thepeople.net/api/thriveup/lessons
- *   Auth: x-civic-signal-key: process.env.THRIVEUP_INBOUND_KEY
+ *   Auth: x-civic-signal-key: process.env.POWER2PEOPLE_ISSUED_KEY
  * ----------------------------------------------------------------------------
  */
 
@@ -51,8 +51,8 @@ export interface CivicSignalLesson {
 }
 
 function outboundHeaders(): Record<string, string> {
-  const raw = process.env.THRIVEUP_INBOUND_KEY;
-  if (!raw) throw new Error("THRIVEUP_INBOUND_KEY secret not set");
+  const raw = process.env.POWER2PEOPLE_ISSUED_KEY;
+  if (!raw) throw new Error("POWER2PEOPLE_ISSUED_KEY secret not set");
   // Defensive: HTTP header values must be ISO-8859-1/ASCII-range. Secret
   // managers/copy-paste flows can silently append stray non-ASCII
   // characters (e.g. a trailing em dash, U+2014) which fetch() rejects with
@@ -60,7 +60,7 @@ function outboundHeaders(): Record<string, string> {
   // like a network failure, not a value-formatting one. Strip anything
   // outside the printable ASCII range rather than fail confusingly.
   const key = raw.trim().replace(/[^\x20-\x7E]/g, "");
-  if (!key) throw new Error("THRIVEUP_INBOUND_KEY secret contains no valid ASCII characters after sanitization");
+  if (!key) throw new Error("POWER2PEOPLE_ISSUED_KEY secret contains no valid ASCII characters after sanitization");
   return {
     "Content-Type": "application/json",
     "x-civic-signal-key": key,
@@ -225,6 +225,7 @@ export async function checkCivicSignalConnection(): Promise<{
   outboundReachable: boolean;
   outboundDetail: string;
   inboundLessonsStored: number;
+  inboundAuthenticationConfigured: boolean;
 }> {
   let outboundReachable = false;
   let outboundDetail = "not checked";
@@ -243,7 +244,12 @@ export async function checkCivicSignalConnection(): Promise<{
   } catch (err: any) {
     outboundDetail = err.message;
   }
-  return { outboundReachable, outboundDetail, inboundLessonsStored: incomingLessons.length };
+  return {
+    outboundReachable,
+    outboundDetail,
+    inboundLessonsStored: incomingLessons.length,
+    inboundAuthenticationConfigured: Boolean(process.env.THRIVEUP_ISSUED_KEY),
+  };
 }
 
 // ── OUTBOUND: Pull adaptation lessons FROM Civic Signal ───────────────────
