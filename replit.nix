@@ -1,5 +1,6 @@
 {pkgs}: {
   deps = [
+    pkgs.chromium
     pkgs.psmisc
     pkgs.poppler_utils
     pkgs.freetype
