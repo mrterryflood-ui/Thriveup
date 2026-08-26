@@ -3,7 +3,7 @@ import { z } from "zod";
 /** Declarative-only Studio contract. Nothing in this file is executable. */
 export const STUDIO_MODULE_TYPES = ["grant-workflow"] as const;
 export const STUDIO_FIELD_TYPES = ["text", "textarea", "select", "checkbox", "date"] as const;
-export const STUDIO_ACTION_TYPES = ["submit-record", "generate-draft"] as const;
+export const STUDIO_ACTION_TYPES = ["submit-record"] as const;
 export const STUDIO_LIFECYCLE_STAGES = ["draft", "published", "archived"] as const;
 export const STUDIO_DATA_SCOPES = ["public", "organization", "aggregate"] as const;
 export const STUDIO_RESERVED_ROUTE_SLUGS = new Set([
@@ -17,6 +17,7 @@ export const studioRouteSlugSchema = z.string().regex(
 
 const safeText = z.string().trim().min(1).max(240);
 const fieldKey = z.string().regex(/^[a-z][a-z0-9_]{1,62}$/);
+const piiLiteral = /(?:\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)|(?:\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b)|(?:\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b)/i;
 
 export const studioFieldSchema = z.object({
   key: fieldKey,
@@ -32,8 +33,11 @@ export const studioFieldSchema = z.object({
   if (/(name|email|phone|address|birth|ssn|dob|social|contact)/i.test(field.key)) {
     ctx.addIssue({ code: "custom", message: "PII-like field keys are not allowed", path: ["key"] });
   }
-  if (field.dataScope === "public" && (field.type === "text" || field.type === "textarea")) {
-    ctx.addIssue({ code: "custom", message: "Public fields cannot collect free text; use a declared select, checkbox, or non-identifying date.", path: ["type"] });
+  if (field.dataScope === "public" && field.type !== "select" && field.type !== "checkbox") {
+    ctx.addIssue({ code: "custom", message: "Public fields must be declared select or checkbox controls; free text and exact dates are not public-safe.", path: ["type"] });
+  }
+  if (field.dataScope === "public" && [field.label, field.helpText, ...(field.options ?? [])].some((text) => Boolean(text && piiLiteral.test(text)))) {
+    ctx.addIssue({ code: "custom", message: "Public field metadata cannot contain an email address, phone number, or government identifier.", path: ["label"] });
   }
 });
 
@@ -58,6 +62,7 @@ export const studioManifestSchema = z.object({
   lifecycleStage: z.enum(STUDIO_LIFECYCLE_STAGES).default("draft"),
   public: z.boolean().default(false),
   dataScope: z.enum(STUDIO_DATA_SCOPES),
+  retentionDays: z.number().int().min(1).max(365).default(365),
   fields: z.array(studioFieldSchema).min(1).max(30),
   actions: z.array(studioActionSchema).min(1).max(2),
   provenance: studioProvenanceSchema,
@@ -70,6 +75,12 @@ export const studioManifestSchema = z.object({
   }
   if (manifest.routeSlug !== manifest.moduleKey) {
     ctx.addIssue({ code: "custom", message: "routeSlug must match moduleKey so public URLs are canonical", path: ["routeSlug"] });
+  }
+  if (manifest.dataScope === "public" && [...manifest.fields, ...manifest.actions].some((entry) => entry.dataScope !== "public")) {
+    ctx.addIssue({ code: "custom", message: "A public module cannot declare organization or aggregate fields/actions.", path: ["dataScope"] });
+  }
+  if ([manifest.title, manifest.description, ...manifest.fields.filter((field) => field.dataScope === "public").flatMap((field) => [field.label, field.helpText, ...(field.options ?? [])]), ...manifest.actions.filter((action) => action.dataScope === "public").map((action) => action.label)].some((text) => Boolean(text && piiLiteral.test(text)))) {
+    ctx.addIssue({ code: "custom", message: "Public manifest content cannot contain an email address, phone number, or government identifier.", path: ["title"] });
   }
 });
 

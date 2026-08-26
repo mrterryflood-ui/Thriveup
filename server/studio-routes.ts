@@ -1,5 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
-import { and, desc, eq, gt, lte } from "drizzle-orm";
+import { and, count, desc, eq, gt, lte } from "drizzle-orm";
 import { z } from "zod";
 import { organizationMembers, studioAuditEvents, studioModuleManifests, studioImportInventories, studioModuleRecords } from "@shared/schema";
 import {
@@ -18,6 +18,8 @@ const maxDraftsPerMinute = 5;
 const maxRecordsPerMinute = 20;
 const MAX_INVENTORY_FILES = 500;
 const MAX_INVENTORY_BYTES = 5_000_000;
+const MAX_ORGANIZATION_RECORDS = 100;
+const MAX_ACTIVE_ORGANIZATION_RECORDS = 1_000;
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -64,6 +66,21 @@ function studioRecordRateLimit(req: Request, res: Response, next: NextFunction) 
   if (current.count >= maxRecordsPerMinute) {
     return res.status(429).json({ error: "Record submission rate limit exceeded. Try again shortly." });
   }
+  current.count += 1;
+  next();
+}
+function studioOrganizationRecordRateLimit(req: Request, res: Response, next: NextFunction) {
+  const userId = getUserId(req);
+  const orgId = getCallerOrg(req)?.id;
+  if (!userId || !orgId) return res.status(401).json({ error: "Authentication required" });
+  const key = `${userId}:${orgId}:${String(req.params.moduleKey || "unknown")}`;
+  const now = Date.now();
+  const current = recordBuckets.get(key);
+  if (!current || current.resetAt <= now) {
+    recordBuckets.set(key, { count: 1, resetAt: now + 60_000 });
+    return next();
+  }
+  if (current.count >= maxRecordsPerMinute) return res.status(429).json({ error: "Organization record rate limit exceeded. Try again shortly." });
   current.count += 1;
   next();
 }
@@ -141,8 +158,9 @@ function validateDeclaredValues(
     const field = allowed.get(key);
     if (!field || PII_LIKE_KEY.test(key)) return "Record contains a disallowed field.";
     if (typeof value === "string" && (value.length > 2_000 || containsPiiLikeValue(value))) return "Record contains a disallowed value.";
-    if (allowedScopes.includes("public") && (field.type === "text" || field.type === "textarea")) return "Public record fields cannot collect free text.";
+    if (allowedScopes.includes("public") && field.type !== "select" && field.type !== "checkbox") return "Public record fields must use select or checkbox controls.";
     if (field.type === "checkbox" && typeof value !== "boolean") return `Field must be a checkbox: ${key}`;
+    if (field.type === "checkbox" && field.required && value !== true) return `Required checkbox must be selected: ${key}`;
     if (field.type !== "checkbox" && typeof value !== "string") return `Field must be text: ${key}`;
     if (field.type === "date" && typeof value === "string" && !validDate(value)) return `Field must be a valid ISO date: ${key}`;
     if (field.type === "select" && typeof value === "string" && !field.options?.includes(value)) return `Field contains an unsupported option: ${key}`;
@@ -191,7 +209,7 @@ async function auditImportAttempt(req: Request, _res: Response, next: NextFuncti
 
 const STUDIO_DRAFT_SYSTEM_PROMPT = `You create only a declarative Studio module manifest JSON object matching the supplied schema.
 Return JSON only. Never include code, URLs, SQL, scripts, executable instructions, raw prompts, personal data fields, names, email, phone, addresses, birth dates, or identifiers.
-Only moduleType "grant-workflow", field types text/textarea/select/checkbox/date, and action types submit-record/generate-draft are permitted.
+Only moduleType "grant-workflow", field types text/textarea/select/checkbox/date, and action type submit-record are permitted.
 Use truthful, bounded descriptions; do not fabricate facts, outcomes, statistics, sources, or provenance. Set provenance source to ai-assisted and reviewedByHuman false. The human must review before publishing.`;
 
 export function registerStudioRoutes(app: Express) {
@@ -230,7 +248,7 @@ export function registerStudioRoutes(app: Express) {
     }
   });
 
-  app.post("/api/studio/modules/:moduleKey/organization-records", requireAuth, requireExplicitStudioOrgSelection, loadCallerOrg, requireOrg, async (req, res) => {
+  app.post("/api/studio/modules/:moduleKey/organization-records", requireAuth, requireExplicitStudioOrgSelection, loadCallerOrg, requireOrg, studioOrganizationRecordRateLimit, async (req, res) => {
     try {
       const moduleKey = studioRouteSlugSchema.safeParse(String(req.params.moduleKey));
       if (!moduleKey.success) return res.status(400).json({ error: "Invalid module key." });
@@ -240,10 +258,15 @@ export function registerStudioRoutes(app: Express) {
       if (!org || !userId || !loaded) return res.status(404).json({ error: "Module not found." });
       const input = recordInputSchema.safeParse(req.body);
       if (!input.success) return res.status(400).json({ error: "Invalid organization record values." });
+      if (!loaded.manifest.actions.some((action) => action.type === "submit-record" && (action.dataScope === "organization" || action.dataScope === "aggregate"))) {
+        return res.status(403).json({ error: "This module does not accept organization record submissions." });
+      }
       const recordError = validateDeclaredValues(loaded.manifest.fields, input.data.values, ["organization", "aggregate"]);
       if (recordError) return res.status(400).json({ error: recordError });
       await purgeExpiredOrganizationRecords(moduleKey.data, org.id);
-      const retentionUntil = new Date(Date.now() + 365 * 24 * 60 * 60 * 1000);
+      const [{ activeCount }] = await db.select({ activeCount: count() }).from(studioModuleRecords).where(and(eq(studioModuleRecords.moduleKey, moduleKey.data), eq(studioModuleRecords.orgId, org.id), gt(studioModuleRecords.retentionUntil, new Date())));
+      if (activeCount >= MAX_ACTIVE_ORGANIZATION_RECORDS) return res.status(429).json({ error: "This organization has reached the active record limit for this module." });
+      const retentionUntil = new Date(Date.now() + loaded.manifest.retentionDays * 24 * 60 * 60 * 1000);
       const [record] = await db.insert(studioModuleRecords).values({
         moduleKey: moduleKey.data, moduleVersion: loaded.version, orgId: org.id, actorUserId: userId,
         values: input.data.values, provenance: { source: "authenticated-organization-submission" }, retentionUntil,
@@ -261,9 +284,15 @@ export function registerStudioRoutes(app: Express) {
       const moduleKey = studioRouteSlugSchema.safeParse(String(req.params.moduleKey));
       const org = getCallerOrg(req);
       if (!moduleKey.success || !org) return res.status(404).json({ error: "Module not found." });
+      const loaded = await getPublishedStudioManifestForOrganization(moduleKey.data);
+      if (!loaded) return res.status(404).json({ error: "Module not found." });
+      if (!loaded.manifest.actions.some((action) => action.type === "submit-record" && (action.dataScope === "organization" || action.dataScope === "aggregate"))) return res.status(403).json({ error: "This module does not expose organization records." });
       await purgeExpiredOrganizationRecords(moduleKey.data, org.id);
-      const records = await db.select({ id: studioModuleRecords.id, moduleKey: studioModuleRecords.moduleKey, moduleVersion: studioModuleRecords.moduleVersion, values: studioModuleRecords.values, provenance: studioModuleRecords.provenance, retentionUntil: studioModuleRecords.retentionUntil, createdAt: studioModuleRecords.createdAt }).from(studioModuleRecords).where(and(eq(studioModuleRecords.moduleKey, moduleKey.data), eq(studioModuleRecords.orgId, org.id), gt(studioModuleRecords.retentionUntil, new Date()))).orderBy(desc(studioModuleRecords.createdAt));
-      return res.json({ records });
+      const userId = getUserId(req);
+      const isOwner = getCallerOrgRole(req) === "owner";
+      const records = await db.select({ id: studioModuleRecords.id, actorUserId: studioModuleRecords.actorUserId, moduleKey: studioModuleRecords.moduleKey, moduleVersion: studioModuleRecords.moduleVersion, values: studioModuleRecords.values, provenance: studioModuleRecords.provenance, retentionUntil: studioModuleRecords.retentionUntil, createdAt: studioModuleRecords.createdAt }).from(studioModuleRecords).where(and(eq(studioModuleRecords.moduleKey, moduleKey.data), eq(studioModuleRecords.orgId, org.id), gt(studioModuleRecords.retentionUntil, new Date()))).orderBy(desc(studioModuleRecords.createdAt)).limit(MAX_ORGANIZATION_RECORDS + 1);
+      res.set("Cache-Control", "private, no-store");
+      return res.json({ records: records.slice(0, MAX_ORGANIZATION_RECORDS).map(({ actorUserId, ...record }) => ({ ...record, canDelete: isOwner || actorUserId === userId })), truncated: records.length > MAX_ORGANIZATION_RECORDS });
     } catch (error: any) { console.error("[studio] organization records error:", error); return res.status(500).json({ error: "Failed to load organization records." }); }
   });
 
@@ -272,6 +301,9 @@ export function registerStudioRoutes(app: Express) {
       const moduleKey = studioRouteSlugSchema.safeParse(String(req.params.moduleKey));
       const org = getCallerOrg(req); const userId = getUserId(req);
       if (!moduleKey.success || !org || !userId) return res.status(404).json({ error: "Record not found." });
+      const loaded = await getPublishedStudioManifestForOrganization(moduleKey.data);
+      if (!loaded) return res.status(404).json({ error: "Record not found." });
+      if (!loaded.manifest.actions.some((action) => action.type === "submit-record" && (action.dataScope === "organization" || action.dataScope === "aggregate"))) return res.status(403).json({ error: "This module does not expose organization records." });
       await purgeExpiredOrganizationRecords(moduleKey.data, org.id);
       const [record] = await db.select().from(studioModuleRecords).where(and(eq(studioModuleRecords.id, String(req.params.recordId)), eq(studioModuleRecords.moduleKey, moduleKey.data), eq(studioModuleRecords.orgId, org.id), gt(studioModuleRecords.retentionUntil, new Date()))).limit(1);
       const isOwner = getCallerOrgRole(req) === "owner";
@@ -283,7 +315,7 @@ export function registerStudioRoutes(app: Express) {
   });
   app.get("/api/admin/studio/capability", requireStudioAuth, requireStudioAdmin, async (_req, res) => {
     try {
-      res.json({ moduleTypes: ["grant-workflow"], fieldTypes: ["text", "textarea", "select", "checkbox", "date"], actionTypes: ["submit-record", "generate-draft"], aiDrafting: true });
+      res.json({ moduleTypes: ["grant-workflow"], fieldTypes: ["text", "textarea", "select", "checkbox", "date"], actionTypes: ["submit-record"], aiDrafting: true });
     } catch (error: any) {
       console.error("[studio] capability error:", error);
       res.status(500).json({ error: "Failed to load Studio capability." });
@@ -315,7 +347,10 @@ export function registerStudioRoutes(app: Express) {
       }
       const [existingDraft] = await db.select({ id: studioModuleManifests.id }).from(studioModuleManifests)
         .where(and(eq(studioModuleManifests.moduleKey, manifest.moduleKey), eq(studioModuleManifests.version, 0))).limit(1);
-      if (existingDraft) return res.status(409).json({ error: "A draft already exists for this module key; submit it for publish as a new version." });
+       if (existingDraft) {
+         const [draft] = await db.select().from(studioModuleManifests).where(eq(studioModuleManifests.id, existingDraft.id)).limit(1);
+         return res.status(200).json({ manifest: draft?.manifest, source: "existing-draft", draft, message: "An existing private draft was reopened for review." });
+       }
       const userId = getUserId(req)!;
       const [created] = await db.insert(studioModuleManifests).values({
         moduleKey: manifest.moduleKey, version: 0, lifecycleStage: "draft", isPublic: false, manifest, createdByUserId: userId,
@@ -404,6 +439,20 @@ export function registerStudioRoutes(app: Express) {
     } catch (error: any) {
       console.error("[studio] runtime error:", error);
       res.status(500).json({ error: "Failed to load Studio module." });
+    }
+  });
+
+  app.get("/api/studio/modules/:moduleKey/organization", requireAuth, requireExplicitStudioOrgSelection, loadCallerOrg, requireOrg, async (req, res) => {
+    try {
+      const moduleKey = studioRouteSlugSchema.safeParse(String(req.params.moduleKey));
+      if (!moduleKey.success) return res.status(404).json({ error: "Module not found." });
+      const loaded = await getPublishedStudioManifestForOrganization(moduleKey.data);
+      if (!loaded) return res.status(404).json({ error: "Module not found." });
+      res.set("Cache-Control", "private, no-store");
+      res.json({ module: toPublicStudioManifest(loaded.manifest) });
+    } catch (error: any) {
+      console.error("[studio] organization runtime error:", error);
+      res.status(500).json({ error: "Failed to load organization Studio module." });
     }
   });
 

@@ -181,6 +181,10 @@ const PROBES: Probe[] = [
   { name: "GET    /api/admin/studio/modules (no session)", method: "GET", path: "/api/admin/studio/modules" },
   { name: "GET    /api/admin/studio/modules/probe-module/versions (no session)", method: "GET", path: "/api/admin/studio/modules/probe-module/versions" },
   { name: "POST   /api/admin/studio/modules/probe-module/publish (no session)", method: "POST", path: "/api/admin/studio/modules/probe-module/publish", body: { manifest: {}, makePublic: true } },
+  { name: "POST   /api/admin/studio/import-inventory (no session)", method: "POST", path: "/api/admin/studio/import-inventory", body: { sourceLabel: "probe", files: [] } },
+  { name: "GET    /api/studio/modules/probe-module/organization-records (no session)", method: "GET", path: "/api/studio/modules/probe-module/organization-records" },
+  { name: "POST   /api/studio/modules/probe-module/organization-records (no session)", method: "POST", path: "/api/studio/modules/probe-module/organization-records", body: { values: { readiness: "ready" } } },
+  { name: "DELETE /api/studio/modules/probe-module/organization-records/probe-record (no session)", method: "DELETE", path: "/api/studio/modules/probe-module/organization-records/probe-record" },
 ];
 
 // The partner student-detail route answers 410 Gone once authenticated; treat

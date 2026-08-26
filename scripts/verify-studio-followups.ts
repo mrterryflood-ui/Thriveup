@@ -43,8 +43,12 @@ assert.match(migration, /studio_import_inventories_append_only/);
 // Public records route must retain its explicit public-scope gate.
 assert.match(routes, /validateDeclaredValues\(manifest\.fields, values\.data\.values, \["public"\]\)/);
 assert.match(routes, /action\.type === "submit-record" && action\.dataScope === "public"/);
-assert.match(routes, /Public record fields cannot collect free text/);
-assert.match(manifest, /Public fields cannot collect free text/);
+assert.match(routes, /Public record fields must use select or checkbox controls/);
+assert.match(manifest, /Public fields must be declared select or checkbox controls/);
+assert.match(routes, /This module does not accept organization record submissions/);
+assert.match(routes, /MAX_ORGANIZATION_RECORDS = 100/);
+assert.match(manifest, /retentionDays/);
+assert.match(routes, /organization"\, requireAuth, requireExplicitStudioOrgSelection/);
 // The UI must keep public and organization values on separate API paths and
 // must use the server's retention response field rather than inventing one.
 assert.match(client, /studio-public-runtime-form/);

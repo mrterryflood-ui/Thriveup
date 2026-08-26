@@ -44,7 +44,10 @@ CREATE TRIGGER studio_audit_events_append_only
 CREATE OR REPLACE FUNCTION studio_prevent_published_manifest_mutation()
 RETURNS trigger AS $$
 BEGIN
-  RAISE EXCEPTION 'Studio manifest versions are append-only';
+  IF OLD.lifecycle_stage = 'published' THEN
+    RAISE EXCEPTION 'Published Studio manifest versions are append-only';
+  END IF;
+  RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 DROP TRIGGER IF EXISTS studio_published_manifest_immutable ON "studio_module_manifests";

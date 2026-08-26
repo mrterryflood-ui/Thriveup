@@ -4,9 +4,14 @@ import { sql } from "drizzle-orm";
 import { db } from "../server/storage";
 
 async function migrate() {
-  const migrationPath = resolve(process.cwd(), "migrations/20260829_studio_manifest_foundation.sql");
-  await db.execute(sql.raw(readFileSync(migrationPath, "utf8")));
-  console.log("✓ Studio manifest foundation migration applied");
+  const migrationPaths = [
+    "migrations/20260829_studio_manifest_foundation.sql",
+    "migrations/20260830_studio_import_and_org_records.sql",
+  ];
+  for (const migrationPath of migrationPaths) {
+    await db.execute(sql.raw(readFileSync(resolve(process.cwd(), migrationPath), "utf8")));
+  }
+  console.log("✓ Studio manifest and governed follow-up migrations applied");
 }
 
 migrate().catch((error) => {

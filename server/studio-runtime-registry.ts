@@ -4,17 +4,18 @@ import { studioManifestSchema, type StudioManifest } from "@shared/studio-manife
 import { db } from "./storage";
 
 const MAX_ENTRIES = 100;
-const cache = new Map<string, StudioManifest>();
+const CACHE_TTL_MS = 60_000;
+const cache = new Map<string, { manifest: StudioManifest; expiresAt: number }>();
 
 export async function getPublishedStudioManifest(moduleKey: string): Promise<StudioManifest | undefined> {
   const cached = cache.get(moduleKey);
-  if (cached) return cached;
+  if (cached && cached.expiresAt > Date.now()) return cached.manifest;
+  if (cached) cache.delete(moduleKey);
   const [row] = await db.select({ manifest: studioModuleManifests.manifest })
     .from(studioModuleManifests)
     .where(and(
       eq(studioModuleManifests.moduleKey, moduleKey),
-      eq(studioModuleManifests.lifecycleStage, "published"),
-      eq(studioModuleManifests.isPublic, true),
+       eq(studioModuleManifests.lifecycleStage, "published"),
     ))
     .orderBy(desc(studioModuleManifests.version))
     .limit(1);
@@ -22,7 +23,7 @@ export async function getPublishedStudioManifest(moduleKey: string): Promise<Stu
   const parsed = studioManifestSchema.safeParse(row.manifest);
   if (!parsed.success || parsed.data.lifecycleStage !== "published" || !parsed.data.public) return undefined;
   if (cache.size >= MAX_ENTRIES) cache.delete(cache.keys().next().value as string);
-  cache.set(moduleKey, parsed.data);
+  cache.set(moduleKey, { manifest: parsed.data, expiresAt: Date.now() + CACHE_TTL_MS });
   return parsed.data;
 }
 
