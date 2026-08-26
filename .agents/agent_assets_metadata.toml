@@ -791,3 +791,10 @@ uri = "file://reports/historical-chw-referral-identity-review-2026-08-24.md"
 type = "text"
 title = "Historical CHW/Referral Identity Review"
 description = "Provisional read-only report. Development database had zero matching ownership-0 or missing-ownership records; staging is not configured, so no migration was applied."
+
+[[outputs]]
+id = "4U12Kd0C4UpeOTeYDKAsz"
+uri = "file://research/notes.md"
+type = "text"
+title = "Research Notes: Austin Community Bridge Opportunity"
+description = "Research plan, evidence log, and open questions for the Austin stakeholder assessment."
