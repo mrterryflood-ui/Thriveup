@@ -1,6 +1,6 @@
 # Research Notes: Austin Community Bridge Opportunity
 
-**Status:** researching  
+**Status:** blueprint drafted; awaiting baseline/evidence packet
 **Depth:** Standard  
 
 ## Plan
@@ -80,6 +80,7 @@
 
 - Primary-source triangulation is sufficient for a go-to-discovery recommendation, but not for a public claim of endorsement or authorization.
 - No direct stakeholder interview, signed scope, consent language, baseline dataset, or Austin production integration has been supplied.
+- The planning blueprint is recorded in [Austin Community Bridge Resource & Pilot Blueprint](austin-community-bridge-blueprint.md). It establishes the candidate EBI and decision gates but deliberately does not select a priority geography before a reproducible baseline review.
 
 ## Sources
 

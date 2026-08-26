@@ -10,6 +10,28 @@ written from impression.
 
 ---
 
+## 2026-08-26 — Austin Community Bridge planning blueprint
+
+**Claim:** A planning-only blueprint can responsibly frame a candidate
+Austin intervention without identifying a priority area, implying an approved
+partnership, or treating a resource overlay as proof of a response gap.
+
+**Verified by:** direct review of the finished blueprint; repository
+whitespace check; and an independent document review focused on geographic
+validity, falsifiable classification rules, consent/safeguarding, claims
+authorization, and implementation-science boundaries.
+
+**Outcome:** Partially overturned, then corrected before release. The first
+draft correctly deferred implementation and public claims, but did not yet
+make the geography method, classification thresholds, response-gap evidence,
+youth safeguards, and claims-release record explicit enough. The final
+blueprint now makes those preconditions and stop conditions discoverable.
+
+**Class:** Methodology and stakeholder-governance gap caught during planning,
+before data analysis, recruitment, public release, or application build.
+
+---
+
 ## 2026-08-15 — Equity-Loss Engine build cycle
 
 **Claim 1:** The provided acceptance test (`atkinson.test`) should pass
