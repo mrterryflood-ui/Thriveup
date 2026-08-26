@@ -449,6 +449,28 @@ export function registerStudioRoutes(app: Express) {
     }
   });
 
+  app.post("/api/admin/studio/export", requireStudioAuth, requireStudioAdmin, requireStudioOperationalCapacity("audit"), async (req, res) => {
+    const actor = getUserId(req)!;
+    try {
+      const content = await exportStudioRegistryToSeedFile();
+      await audit("studio-registry", "registry.exported", actor, undefined, {
+        moduleCount: content.modules.length,
+        destination: "convex/seed_modules.json",
+      });
+      res.set("Cache-Control", "private, no-store");
+      return res.json({
+        filename: "seed_modules.json",
+        content,
+        destination: "convex/seed_modules.json",
+        message: "Studio registry exported. Downloaded JSON is ready to commit; Git commit and push remain human-controlled.",
+      });
+    } catch (error: any) {
+      console.error("[studio] registry export error:", error);
+      try { await audit("studio-registry", "registry.export.error", actor, undefined, { reason: "export_failed" }); } catch (auditError) { console.error("[studio] export audit error:", auditError); }
+      return res.status(503).json({ error: "Studio registry export failed; no download was created." });
+    }
+  });
+
   app.post("/api/admin/studio/draft", requireStudioAuth, requireStudioAdmin, studioDraftRateLimit, requireStudioOperationalCapacity("audit"), async (req, res) => {
     try {
       const input = studioDraftRequestSchema.safeParse(req.body);
@@ -652,7 +674,24 @@ export function registerStudioRoutes(app: Express) {
       }).returning();
       await audit(moduleKey.data, "manifest.published", userId, version, { lifecycleStage: "published" });
        await invalidateStudioManifest(moduleKey.data, version);
-      res.status(201).json({ module: created });
+       try {
+         await exportStudioRegistryToSeedFile();
+         await audit(moduleKey.data, "registry.auto-exported", userId, version, { destination: "convex/seed_modules.json" });
+          res.status(201).json({ module: created, export: { destination: "convex/seed_modules.json", status: "synchronized" } });
+       } catch (exportError) {
+         console.error("[studio] publish auto-export failed:", exportError);
+         try { await audit(moduleKey.data, "registry.auto-export.error", userId, version, { reason: "export_failed", destination: "convex/seed_modules.json" }); } catch (auditError) { console.error("[studio] auto-export audit error:", auditError); }
+          // Publication is already durable and live. Do not report it as a
+          // failed publish or invite a retry that would create another version.
+          return res.status(201).json({
+            module: created,
+            export: {
+              destination: "convex/seed_modules.json",
+              status: "failed",
+              message: "This version is live, but its Git-ready seed file could not be updated. Use Export to Git / Download Config to retry the export; do not republish this version.",
+            },
+          });
+       }
     } catch (error: any) {
       console.error("[studio] publish error:", error);
       res.status(500).json({ error: "Failed to publish Studio manifest." });

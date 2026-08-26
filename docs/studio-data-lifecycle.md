@@ -17,6 +17,24 @@ publication.
   manifest row is inserted, so another instance does not serve its stale local
   entry.
 
+## Version-controlled registry export
+
+- Every successful Studio publication writes the complete declarative registry to
+  `convex/seed_modules.json` using an atomic temporary-file rename. The file
+  contains module versions, schemas, safe system-prompt metadata, lifecycle,
+  scope, and configuration — never user submissions, audit records, actor
+  identities, credentials, code, commands, or external URLs.
+- Concurrent exports take a transaction-scoped database advisory lock across
+  the registry snapshot and file replacement, so a delayed older publish
+  cannot overwrite the newest complete export.
+- Administrators can use **Export to Git / Download Config** to regenerate that
+  file and download the exact same JSON. The application never commits, pushes,
+  or changes a remote repository; version-control actions remain deliberate,
+  human-controlled steps.
+- On startup, only an empty Studio registry is initialized from the seed file.
+  A populated database is never overwritten by a checked-in seed. Invalid seed
+  content fails visibly in server logs rather than being partially applied.
+
 ## Retention and capacity
 
 | Data | Retention | Active capacity | Handling |

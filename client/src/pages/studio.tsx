@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { apiRequest, getQueryFn, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrentOrgId } from "@/hooks/use-current-org";
-import { CheckCircle2, Code2, Eye, FileClock, Loader2, LockKeyhole, Send, ShieldCheck, Sparkles, Upload } from "lucide-react";
+import { CheckCircle2, Code2, Download, Eye, FileClock, Loader2, LockKeyhole, Send, ShieldCheck, Sparkles, Upload } from "lucide-react";
 
 type JsonRecord = Record<string, unknown>;
 interface StudioModule { moduleKey: string; key?: string; name?: string; title?: string; updatedAt?: string; publishedAt?: string; status?: string; manifest?: JsonRecord; version?: number; lifecycleStage?: string; }
@@ -22,6 +22,22 @@ interface StudioCapability { moduleTypes?: string[]; fieldTypes?: string[]; acti
 const asObject = (value: unknown): JsonRecord => value && typeof value === "object" && !Array.isArray(value) ? value as JsonRecord : {};
 const labelFor = (value: unknown, fallback: string) => typeof value === "string" && value.trim() ? value : fallback;
 const readableIssue = (issue: string | JsonRecord) => typeof issue === "string" ? issue : labelFor(issue.message ?? issue.error ?? issue.path, "Validation issue");
+const isStudioSeedFile = (value: unknown): value is { schemaVersion: 1; modules: JsonRecord[] } => {
+  const candidate = asObject(value);
+  return candidate.schemaVersion === 1
+    && Array.isArray(candidate.modules)
+    && candidate.modules.every((entry) => {
+      const module = asObject(entry);
+      const seedManifest = asObject(module.manifest);
+      return typeof module.moduleKey === "string"
+        && Number.isInteger(module.version)
+        && ["draft", "published", "archived"].includes(String(module.lifecycleStage))
+        && typeof module.public === "boolean"
+        && seedManifest.moduleKey === module.moduleKey
+        && seedManifest.lifecycleStage === module.lifecycleStage
+        && seedManifest.public === module.public;
+    });
+};
 
 function ManifestPreview({ manifest }: { manifest: JsonRecord }) {
   const title = labelFor(manifest.title ?? manifest.name, "Untitled module");
@@ -106,7 +122,7 @@ export default function StudioPage() {
   const [modifyStatus, setModifyStatus] = useState<string | null>(null);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [selectedKey, setSelectedKey] = useState("");
-  const [busy, setBusy] = useState<"generate" | "modify" | "validate" | "publish" | null>(null);
+  const [busy, setBusy] = useState<"generate" | "modify" | "validate" | "publish" | "export" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmPublish, setConfirmPublish] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState<string | null>(null);
@@ -208,18 +224,42 @@ export default function StudioPage() {
     try {
        const makePublic = [...(Array.isArray(parsedManifest.fields) ? parsedManifest.fields.map(asObject) : []), ...(Array.isArray(parsedManifest.actions) ? parsedManifest.actions.map(asObject) : [])].every((entry) => entry.dataScope === "public");
        const response = asObject(await (await apiRequest("POST", `/api/admin/studio/modules/${encodeURIComponent(selectedKey)}/publish`, { manifest: parsedManifest, makePublic })).json());
+       const exportResult = asObject(response.export);
+       const exportDestination = labelFor(exportResult.destination, "convex/seed_modules.json");
+       const exportSynchronized = exportResult.status === "synchronized";
       setConfirmPublish(false);
        await queryClient.invalidateQueries({ queryKey: ["/api/admin/studio/modules"] });
        await versionsQuery.refetch();
-       setPublishSuccess(`Published ${makePublic ? "public" : "organization"} version ${String(asObject(response.module).version ?? "") || "successfully"}. Runtime URL: /studio/${selectedKey}`);
+       setPublishSuccess(exportSynchronized
+         ? `Published ${makePublic ? "public" : "organization"} version ${String(asObject(response.module).version ?? "") || "successfully"}. Git-ready registry synchronized: ${exportDestination}. Runtime URL: /studio/${selectedKey}`
+         : `${labelFor(exportResult.message, "Published version is live, but its registry export needs attention.")} Destination: ${exportDestination}`);
       setError(null);
     } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Publish failed."); }
+    finally { setBusy(null); }
+  };
+  const exportRegistry = async () => {
+    setBusy("export"); setError(null);
+    try {
+      const result = asObject(await (await apiRequest("POST", "/api/admin/studio/export")).json());
+      const content = result.content;
+      if (!isStudioSeedFile(content)) throw new Error("The export response did not include a valid Studio registry.");
+      const blob = new Blob([`${JSON.stringify(content, null, 2)}\n`], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = labelFor(result.filename, "seed_modules.json");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(url), 1_000);
+      setPublishSuccess(`${labelFor(result.message, "Studio registry exported.")} Server copy: ${labelFor(result.destination, "convex/seed_modules.json")}`);
+    } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Studio registry export failed."); }
     finally { setBusy(null); }
   };
 
   return <main className="container max-w-7xl px-4 py-8 space-y-6" data-testid="studio-page">
     <header className="rounded-xl border bg-gradient-to-r from-primary/10 via-background to-background p-6">
-      <div className="flex items-start gap-4"><div className="rounded-lg bg-primary p-3 text-primary-foreground"><Sparkles /></div><div><p className="text-sm font-medium text-primary">Admin · Internal Tools</p><h1 className="text-3xl font-bold">Prompt-to-Publish Studio</h1><p className="mt-2 max-w-3xl text-muted-foreground">Turn a reviewed natural-language brief into a constrained module manifest. Drafts are not published. The runtime accepts safe fields and declared views only—never arbitrary code.</p></div></div>
+      <div className="flex items-start justify-between gap-4"><div className="flex items-start gap-4"><div className="rounded-lg bg-primary p-3 text-primary-foreground"><Sparkles /></div><div><p className="text-sm font-medium text-primary">Admin · Internal Tools</p><h1 className="text-3xl font-bold">Prompt-to-Publish Studio</h1><p className="mt-2 max-w-3xl text-muted-foreground">Turn a reviewed natural-language brief into a constrained module manifest. Drafts are not published. The runtime accepts safe fields and declared views only—never arbitrary code.</p><p className="mt-2 text-xs text-muted-foreground">Export downloads a Git-ready configuration and updates the server workspace copy at <code>convex/seed_modules.json</code>. It never commits or pushes Git changes.</p></div></div><Button type="button" variant="outline" onClick={exportRegistry} disabled={busy !== null} aria-label="Export Studio registry to Git-ready configuration" data-testid="studio-export-git-button">{busy === "export" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}Export to Git / Download Config</Button></div>
        <div className="mt-4 flex flex-wrap gap-2"><Badge variant="secondary" data-testid="studio-capability-status">Manifest-only capability</Badge><Badge variant="outline"><LockKeyhole className="mr-1 h-3 w-3" />No arbitrary code execution</Badge></div>
     </header>
     {(error || capabilityQuery.error || modulesQuery.error) && <Alert variant="destructive" data-testid="studio-error"><AlertTitle>Studio request failed</AlertTitle><AlertDescription>{error || (capabilityQuery.error instanceof Error ? capabilityQuery.error.message : modulesQuery.error instanceof Error ? modulesQuery.error.message : "Studio controls could not be loaded.")}</AlertDescription></Alert>}
