@@ -185,6 +185,11 @@ export default function AustinCommunityBridgeDeliverablePage() {
                 <Map className="h-4 w-4 mr-2" /> Open live mapping
               </Link>
             </Button>
+            <Button variant="outline" size="sm" asChild data-testid="button-east-austin-readiness">
+              <Link href="/austin-community-bridge/readiness">
+                <ShieldCheck className="h-4 w-4 mr-2" /> Approval readiness
+              </Link>
+            </Button>
           </div>
         }
       />

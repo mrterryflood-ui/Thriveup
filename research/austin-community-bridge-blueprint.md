@@ -348,6 +348,14 @@ The current authorization permits one authenticated staff-only review page that 
 | Action and learning page | Public summary + private operational detail | Show approved actions, owners, milestones, and disclosed learning | Present projections or unverified status as observed outcomes. |
 | Youth invitation / co-design surface | Voluntary participants | Enable an ITI-based voice, consent, recognition, and correction pathway | Collect stories or aggregate them without consent. |
 
+### Implemented approval-readiness workspace — staff-only
+
+The authorized private preview now has a dedicated authenticated staff workspace at `/austin-community-bridge/readiness`. It is an approval-readiness record, not a pilot-operations surface. It retains the provisional East Austin six-square description, six independently blocked gates, a bounded source/evidence register, a simulated planning-tabletop register, geography/baseline record fields, and an append-only staff decision history.
+
+The workspace composes existing private operating surfaces rather than recreating their data: Community Map for location context, Community Impact for evidence/intervention context, Resources for discovery, Navigator for neighborhood questions, Equity-Loss National for availability-aware comparison, and Policy Engine for policy context. These links do not establish an Austin baseline, partner authorization, local effectiveness, or a public priority-area designation.
+
+Planning entries are server-validated to reject person-level, case, referral, intake, and contact information. Source corrections create a new linked record rather than overwriting prior evidence. A gate must move through review before approval; an approval record requires a named approver, decision record, and review date, and expired records must return to review. No participant intake, partner-data import, recruitment, referrals, public mapping/classification, cultural-story collection, publication, or Power2thePeople data connection is enabled by this workspace.
+
 ---
 
 ## 11. Execution Sequence Before Any Build
@@ -474,3 +482,4 @@ Create a private **Austin Baseline and EBI Evidence Packet** containing:
 - This document does not claim that any organization has approved a role, data-sharing agreement, or public partnership statement.
 - This document does not claim that the candidate multicomponent intervention will change population outcomes.
 - This document authorizes only the authenticated staff-only private preview described in §10. It does not authorize public pages, production changes, partner data import, recruitment, referrals, or data collection.
+- The implemented readiness workspace does not authorize a Power2thePeople connection. Any future bidirectional connection requires separately documented authorization, API contract, permitted data dictionary, authentication, event/webhook behavior, and claims/publication controls.

@@ -152,6 +152,11 @@ export default function AustinHousingInitiativePage() {
                 <Shield className="h-4 w-4 mr-1" /> Staff review preview
               </Link>
             </Button>
+            <Button variant="outline" size="sm" asChild data-testid="button-east-austin-readiness">
+              <Link href="/austin-community-bridge/readiness">
+                <Shield className="h-4 w-4 mr-1" /> Approval readiness
+              </Link>
+            </Button>
           </div>
         }
       />

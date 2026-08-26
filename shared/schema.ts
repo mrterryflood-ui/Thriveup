@@ -7881,3 +7881,100 @@ export const probeAlertFailures = pgTable("probe_alert_failures", {
 });
 export type ProbeAlertFailureRow = typeof probeAlertFailures.$inferSelect;
 export type InsertProbeAlertFailure = typeof probeAlertFailures.$inferInsert;
+
+// ==================== EAST AUSTIN APPROVAL-READINESS ====================
+// Private planning records only. These tables intentionally contain no
+// participant, referral, case-management, or partner-operational data.
+export const eastAustinReadinessPackets = pgTable("east_austin_readiness_packets", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  territoryKey: varchar("territory_key", { length: 64 }).notNull().unique(),
+  title: varchar("title", { length: 160 }).notNull(),
+  planningState: varchar("planning_state", { length: 32 }).notNull().default("approval_readiness"),
+  boundaryStatus: varchar("boundary_status", { length: 32 }).notNull().default("provisional"),
+  boundaryLabel: text("boundary_label").notNull(),
+  boundarySource: text("boundary_source").notNull().default("Not yet recorded"),
+  boundaryMethod: text("boundary_method").notNull().default("Not yet recorded"),
+  boundaryRecordedAt: timestamp("boundary_recorded_at"),
+  baselineMethod: text("baseline_method").notNull().default("Not yet recorded"),
+  dataVintage: varchar("data_vintage", { length: 120 }).notNull().default("Not yet recorded"),
+  stakeholderCategories: jsonb("stakeholder_categories").$type<string[]>().notNull().default([]),
+  stakeholderSettings: jsonb("stakeholder_settings").$type<string[]>().notNull().default([]),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("east_austin_readiness_packets_state_idx").on(table.planningState, table.updatedAt),
+]);
+
+export const eastAustinReadinessGates = pgTable("east_austin_readiness_gates", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  packetId: varchar("packet_id", { length: 100 }).notNull(),
+  gateKey: varchar("gate_key", { length: 80 }).notNull(),
+  label: varchar("label", { length: 180 }).notNull(),
+  requiredDecision: text("required_decision").notNull(),
+  status: varchar("status", { length: 32 }).notNull().default("blocked"),
+  classification: varchar("classification", { length: 48 }).notNull().default("planning_only"),
+  namedApprover: varchar("named_approver", { length: 180 }),
+  decisionRecord: text("decision_record"),
+  reviewedAt: timestamp("reviewed_at"),
+  revalidateAt: timestamp("revalidate_at"),
+  notes: text("notes"),
+  updatedByUserId: varchar("updated_by_user_id", { length: 255 }),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  unique("east_austin_readiness_gates_packet_key_unique").on(table.packetId, table.gateKey),
+  index("east_austin_readiness_gates_packet_status_idx").on(table.packetId, table.status),
+]);
+
+export const eastAustinReadinessSources = pgTable("east_austin_readiness_sources", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  packetId: varchar("packet_id", { length: 100 }).notNull(),
+  sourceTitle: varchar("source_title", { length: 240 }).notNull(),
+  sourceType: varchar("source_type", { length: 48 }).notNull(),
+  geography: varchar("geography", { length: 180 }).notNull(),
+  vintage: varchar("vintage", { length: 120 }).notNull(),
+  permittedUse: text("permitted_use").notNull(),
+  applicability: varchar("applicability", { length: 48 }).notNull(),
+  limitations: text("limitations").notNull(),
+  sourceReference: text("source_reference").notNull(),
+  sourceUrl: text("source_url"),
+  // Corrections create a new, reviewable record; prior evidence is never
+  // overwritten or erased from the planning history.
+  correctsSourceId: varchar("corrects_source_id", { length: 100 }),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("east_austin_readiness_sources_packet_time_idx").on(table.packetId, table.createdAt),
+]);
+
+export const eastAustinReadinessTabletops = pgTable("east_austin_readiness_tabletops", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  packetId: varchar("packet_id", { length: 100 }).notNull(),
+  title: varchar("title", { length: 180 }).notNull(),
+  scenario: text("scenario").notNull(),
+  stakeholderSetting: varchar("stakeholder_setting", { length: 48 }).notNull(),
+  learningQuestion: text("learning_question").notNull(),
+  decisionOwnerCategory: varchar("decision_owner_category", { length: 120 }).notNull(),
+  actionLearningCadence: varchar("action_learning_cadence", { length: 160 }).notNull(),
+  isSimulated: boolean("is_simulated").notNull().default(true),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("east_austin_readiness_tabletops_packet_time_idx").on(table.packetId, table.createdAt),
+]);
+
+export const eastAustinReadinessAuditEvents = pgTable("east_austin_readiness_audit_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  packetId: varchar("packet_id", { length: 100 }).notNull(),
+  eventType: varchar("event_type", { length: 64 }).notNull(),
+  actorUserId: varchar("actor_user_id", { length: 255 }),
+  eventData: jsonb("event_data").$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("east_austin_readiness_audit_packet_time_idx").on(table.packetId, table.createdAt),
+]);
+
+export type EastAustinReadinessPacket = typeof eastAustinReadinessPackets.$inferSelect;
+export type EastAustinReadinessGate = typeof eastAustinReadinessGates.$inferSelect;
+export type EastAustinReadinessSource = typeof eastAustinReadinessSources.$inferSelect;
+export type EastAustinReadinessTabletop = typeof eastAustinReadinessTabletops.$inferSelect;
