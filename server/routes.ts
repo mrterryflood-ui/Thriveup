@@ -184,6 +184,7 @@ import { registerTradeSimsRoutes } from "./trade-sims-routes";
 import { registerTradeSimsCertRoutes } from "./trade-sims-cert-routes";
 import { registerTradeSimsTrialRoutes } from "./trade-sims-trial-routes";
 import { registerStudioRoutes } from "./studio-routes";
+import { seedStudioRegistryFromFile } from "./studio-registry-sync";
 import { seedVannDemo } from "./seed-vann-demo";
 import { seedTcafAdmins } from "./seed-tcaf-admins";
 import { seedOrgMemberships } from "./seed-org-memberships";
@@ -642,6 +643,12 @@ export async function registerRoutes(
   seedTcafAdmins().catch((e) => console.error("[seed] TCAF admins failed:", e));
   seedOrgMemberships().catch((e) => console.error("[seed] org memberships failed:", e));
   storage.seedData().catch(err => console.error("[Seed] Data seeding failed:", err));
+  // Studio is additive to the existing seed pipeline. An empty registry is
+  // bootstrapped from the version-controlled export; a populated registry is
+  // left untouched so database content remains authoritative at runtime.
+  seedStudioRegistryFromFile()
+    .then((r) => { if (r.seeded > 0) console.log(`[seed] Studio registry bootstrapped: ${r.seeded} version(s)`); })
+    .catch((e) => console.error("[seed] Studio registry bootstrap failed:", e));
 
   app.get("/api/ai-provider", (_req, res) => {
     try {

@@ -7,6 +7,7 @@ async function migrate() {
   const migrationPaths = [
     "migrations/20260829_studio_manifest_foundation.sql",
     "migrations/20260830_studio_import_and_org_records.sql",
+    "migrations/20260831_studio_builder_durability.sql",
   ];
   for (const migrationPath of migrationPaths) {
     await db.execute(sql.raw(readFileSync(resolve(process.cwd(), migrationPath), "utf8")));

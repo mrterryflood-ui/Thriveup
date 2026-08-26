@@ -48,9 +48,11 @@ export const studioAuditEvents = pgTable("studio_audit_events", {
   // Actor IDs remain server-only; public responses never query this table.
   actorUserId: varchar("actor_user_id", { length: 255 }),
   eventData: jsonb("event_data").$type<Record<string, unknown>>().notNull().default({}),
+  retentionUntil: timestamp("retention_until").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => [
   index("studio_audit_events_module_idx").on(table.moduleKey, table.createdAt),
+  index("studio_audit_events_retention_idx").on(table.retentionUntil),
 ]);
 
 export const studioImportInventories = pgTable("studio_import_inventories", {
@@ -59,10 +61,27 @@ export const studioImportInventories = pgTable("studio_import_inventories", {
   actorUserId: varchar("actor_user_id", { length: 255 }),
   items: jsonb("items").notNull(),
   counts: jsonb("counts").notNull(),
+  retentionUntil: timestamp("retention_until").notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 }, (table) => [
   index("studio_import_inventories_created_idx").on(table.createdAt),
+  index("studio_import_inventories_retention_idx").on(table.retentionUntil),
 ]);
+
+export const studioRateLimitWindows = pgTable("studio_rate_limit_windows", {
+  bucketKey: varchar("bucket_key", { length: 255 }).primaryKey(),
+  windowStartedAt: timestamp("window_started_at").notNull().defaultNow(),
+  attempts: integer("attempts").notNull().default(0),
+  expiresAt: timestamp("expires_at").notNull(),
+}, (table) => [
+  index("studio_rate_limit_windows_expires_idx").on(table.expiresAt),
+]);
+
+export const studioManifestCacheRevisions = pgTable("studio_manifest_cache_revisions", {
+  moduleKey: varchar("module_key", { length: 64 }).primaryKey(),
+  version: integer("version").notNull(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
 
 export const studioModuleRecords = pgTable("studio_module_records", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),

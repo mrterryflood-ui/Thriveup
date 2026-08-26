@@ -18,6 +18,11 @@ export const studioRouteSlugSchema = z.string().regex(
 const safeText = z.string().trim().min(1).max(240);
 const fieldKey = z.string().regex(/^[a-z][a-z0-9_]{1,62}$/);
 const piiLiteral = /(?:\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b)|(?:\b\d{3}[-.\s]?\d{2}[-.\s]?\d{4}\b)|(?:\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b)/i;
+const executableLiteral = /(?:\b(?:javascript|typescript|sql|shell|bash|powershell|docker|redis|pgvector|npm|yarn|pnpm|curl|fetch|function|class|import|export)\b|https?:\/\/|<script\b|```|ignore\s+(?:all\s+)?previous)/i;
+const safeMetadataText = z.string().trim().min(1).max(1_200).refine(
+  (value) => !piiLiteral.test(value) && !executableLiteral.test(value),
+  "Studio metadata cannot include personal data, executable instructions, URLs, or prompt-injection language.",
+);
 
 export const studioFieldSchema = z.object({
   key: fieldKey,
@@ -53,6 +58,31 @@ export const studioProvenanceSchema = z.object({
   sourceDescription: z.string().trim().min(1).max(500),
 }).strict();
 
+const stageKey = z.string().regex(/^[a-z][a-z0-9_]{1,62}$/);
+export const studioStageSchema = z.object({
+  key: stageKey,
+  label: safeText,
+  description: safeMetadataText,
+}).strict();
+
+export const studioInputContractSchema = z.object({
+  confirmation: safeMetadataText,
+  allowedFieldKeys: z.array(fieldKey).min(1).max(30),
+}).strict();
+
+export const studioSystemPromptMetadataSchema = z.object({
+  purpose: safeMetadataText,
+  safetyGuidance: z.array(safeMetadataText).min(1).max(8),
+}).strict();
+
+export const studioOutputFormatSchema = z.object({
+  format: z.enum(["structured-summary", "review-checklist", "status-update"]),
+  sections: z.array(z.object({
+    key: stageKey,
+    label: safeText,
+  }).strict()).min(1).max(8),
+}).strict();
+
 export const studioManifestSchema = z.object({
   moduleKey: studioRouteSlugSchema,
   moduleType: z.literal("grant-workflow"),
@@ -65,6 +95,10 @@ export const studioManifestSchema = z.object({
   retentionDays: z.number().int().min(1).max(365).default(365),
   fields: z.array(studioFieldSchema).min(1).max(30),
   actions: z.array(studioActionSchema).min(1).max(2),
+  stages: z.array(studioStageSchema).min(1).max(12).optional(),
+  inputContract: studioInputContractSchema.optional(),
+  systemPrompt: studioSystemPromptMetadataSchema.optional(),
+  outputFormat: studioOutputFormatSchema.optional(),
   provenance: studioProvenanceSchema,
 }).strict().superRefine((manifest, ctx) => {
   if (new Set(manifest.fields.map((field) => field.key)).size !== manifest.fields.length) {
@@ -82,12 +116,32 @@ export const studioManifestSchema = z.object({
   if ([manifest.title, manifest.description, ...manifest.fields.filter((field) => field.dataScope === "public").flatMap((field) => [field.label, field.helpText, ...(field.options ?? [])]), ...manifest.actions.filter((action) => action.dataScope === "public").map((action) => action.label)].some((text) => Boolean(text && piiLiteral.test(text)))) {
     ctx.addIssue({ code: "custom", message: "Public manifest content cannot contain an email address, phone number, or government identifier.", path: ["title"] });
   }
+  if (manifest.stages && new Set(manifest.stages.map((stage) => stage.key)).size !== manifest.stages.length) {
+    ctx.addIssue({ code: "custom", message: "Stage keys must be unique", path: ["stages"] });
+  }
+  if (manifest.inputContract) {
+    const expected = [...manifest.fields.map((field) => field.key)].sort().join("|");
+    const actual = [...manifest.inputContract.allowedFieldKeys].sort().join("|");
+    if (expected !== actual) ctx.addIssue({ code: "custom", message: "Input contract must confirm exactly the declared field keys", path: ["inputContract", "allowedFieldKeys"] });
+  }
 });
 
 export const studioDraftRequestSchema = z.object({
   prompt: z.string().trim().min(10).max(2_000),
   suppliedManifest: studioManifestSchema.optional(),
 }).strict();
+
+export const studioModifyRequestSchema = z.object({
+  instruction: z.string().trim().min(10).max(2_000),
+  manifest: studioManifestSchema,
+}).strict();
+
+/** Generated candidates must include the bounded metadata that legacy manifests did not require. */
+export const studioGeneratedManifestSchema = studioManifestSchema.superRefine((manifest, ctx) => {
+  for (const key of ["stages", "inputContract", "systemPrompt", "outputFormat"] as const) {
+    if (!manifest[key]) ctx.addIssue({ code: "custom", message: `Generated manifests require ${key} metadata`, path: [key] });
+  }
+});
 
 export type StudioManifest = z.infer<typeof studioManifestSchema>;
 export type StudioField = z.infer<typeof studioFieldSchema>;
@@ -106,5 +160,7 @@ export function toPublicStudioManifest(manifest: StudioManifest) {
       key, label, type, required, ...(helpText ? { helpText } : {}), ...(options ? { options } : {}), dataScope,
     })),
     actions: manifest.actions.map(({ type, label, dataScope }) => ({ type, label, dataScope })),
+    ...(manifest.stages ? { stages: manifest.stages.map(({ key, label, description }) => ({ key, label, description })) } : {}),
+    ...(manifest.outputFormat ? { outputFormat: manifest.outputFormat } : {}),
   };
 }

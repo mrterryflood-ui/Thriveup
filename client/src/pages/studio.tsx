@@ -28,11 +28,15 @@ function ManifestPreview({ manifest }: { manifest: JsonRecord }) {
   const description = labelFor(manifest.description ?? manifest.summary, "No description has been provided.");
   const fields = Array.isArray(manifest.fields) ? manifest.fields.map(asObject) : [];
   const actions = Array.isArray(manifest.actions) ? manifest.actions.map(asObject) : [];
+  const stages = Array.isArray(manifest.stages) ? manifest.stages.map(asObject) : [];
+  const outputFormat = asObject(manifest.outputFormat);
   return (
     <section aria-label="Rendered manifest preview" data-testid="studio-rendered-preview" className="space-y-4">
       <div><h3 className="font-semibold">{title}</h3><p className="text-sm text-muted-foreground">{description}</p></div>
       {fields.length > 0 && <div><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Fields</p><div className="flex flex-wrap gap-2">{fields.map((field, index) => <Badge variant="secondary" key={`${labelFor(field.key, "field")}-${index}`}>{labelFor(field.label ?? field.key, `Field ${index + 1}`)}</Badge>)}</div></div>}
        {actions.length > 0 && <div><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Allowed actions</p><div className="flex flex-wrap gap-2">{actions.map((action, index) => <Badge variant="outline" key={`${labelFor(action.type, "action")}-${index}`}>{labelFor(action.label ?? action.type, `Action ${index + 1}`)}</Badge>)}</div></div>}
+       {stages.length > 0 && <div><p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground mb-2">Stages</p><ol className="space-y-1 text-sm">{stages.map((stage, index) => <li key={`${labelFor(stage.key, "stage")}-${index}`}><span className="font-medium">{index + 1}. {labelFor(stage.label, `Stage ${index + 1}`)}</span>{typeof stage.description === "string" && <span className="text-muted-foreground"> — {stage.description}</span>}</li>)}</ol></div>}
+       {typeof outputFormat.format === "string" && <p className="text-xs text-muted-foreground">Output format: {outputFormat.format}</p>}
     </section>
   );
 }
@@ -97,9 +101,12 @@ export default function StudioPage() {
   const [prompt, setPrompt] = useState("");
   const [rawManifest, setRawManifest] = useState("");
   const [manifest, setManifest] = useState<JsonRecord | null>(null);
+  const [modifyInstruction, setModifyInstruction] = useState("");
+  const [suggestedManifest, setSuggestedManifest] = useState<JsonRecord | null>(null);
+  const [modifyStatus, setModifyStatus] = useState<string | null>(null);
   const [validation, setValidation] = useState<ValidationResult | null>(null);
   const [selectedKey, setSelectedKey] = useState("");
-  const [busy, setBusy] = useState<"draft" | "validate" | "publish" | null>(null);
+  const [busy, setBusy] = useState<"generate" | "modify" | "validate" | "publish" | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [confirmPublish, setConfirmPublish] = useState(false);
   const [publishSuccess, setPublishSuccess] = useState<string | null>(null);
@@ -126,23 +133,57 @@ export default function StudioPage() {
   });
   const versions = Array.isArray(versionsQuery.data?.versions) ? versionsQuery.data.versions.map(asObject) : [];
 
-  const generateDraft = async () => {
+  const generateTool = async () => {
     if (!prompt.trim()) return;
     const revision = editorRevision.current;
-    setBusy("draft"); setError(null); setValidation(null);
+    setBusy("generate"); setError(null); setValidation(null); setSuggestedManifest(null); setModifyStatus(null);
     try {
-      const result = asObject(await (await apiRequest("POST", "/api/admin/studio/draft", { prompt: prompt.trim() })).json());
+      const result = asObject(await (await apiRequest("POST", "/api/admin/studio/generate", { prompt: prompt.trim() })).json());
       const next = asObject(result.manifest ?? result.draft);
       if (!Object.keys(next).length) throw new Error("The draft response did not include a manifest.");
         if (editorRevision.current !== revision) {
-          setError("A draft was created, but the editor changed before it returned. Your edits were preserved; request the same module key to reopen the saved draft.");
+          setError("A tool draft was created, but the editor changed before it returned. Your edits were preserved; submit the same request to reopen the private draft.");
           return;
         }
         setManifest(next); setRawManifest(JSON.stringify(next, null, 2)); setValidatedRawManifest(null);
        setSelectedKey(labelFor(next.moduleKey, ""));
         await queryClient.invalidateQueries({ queryKey: ["/api/admin/studio/modules"] });
-    } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Draft generation failed."); }
+    } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "Tool generation failed."); }
     finally { setBusy(null); }
+  };
+  const askAiToModify = async () => {
+    if (!modifyInstruction.trim()) return;
+    if (!parsedManifest) { setError("Enter valid manifest JSON before requesting an AI modification."); return; }
+    const revision = editorRevision.current;
+    const currentManifest = parsedManifest;
+    setBusy("modify"); setError(null); setModifyStatus(null); setSuggestedManifest(null);
+    try {
+      const result = asObject(await (await apiRequest("POST", "/api/admin/studio/modify", {
+        instruction: modifyInstruction.trim(),
+        manifest: currentManifest,
+      })).json());
+      const next = asObject(result.manifest);
+      if (!Object.keys(next).length) throw new Error("The modification response did not include a manifest.");
+      if (editorRevision.current !== revision) {
+        setModifyStatus("The editor changed while AI was preparing a suggestion. Your edits were preserved; request the change again from the current manifest.");
+        return;
+      }
+      setSuggestedManifest(next);
+      setModifyStatus(labelFor(result.message, "Suggested changes are ready for review. The current manifest has not been changed."));
+    } catch (requestError) { setError(requestError instanceof Error ? requestError.message : "AI modification failed."); }
+    finally { setBusy(null); }
+  };
+  const applySuggestedManifest = () => {
+    if (!suggestedManifest || busy !== null) return;
+    editorRevision.current += 1;
+    const nextRaw = JSON.stringify(suggestedManifest, null, 2);
+    setRawManifest(nextRaw);
+    setManifest(suggestedManifest);
+    setSelectedKey(labelFor(suggestedManifest.moduleKey, selectedKey));
+    setValidation(null);
+    setValidatedRawManifest(null);
+    setSuggestedManifest(null);
+    setModifyStatus("AI suggestion applied to the editor. Validate this current draft before publishing.");
   };
   const validate = async () => {
     if (!parsedManifest) { setError("Raw manifest must be valid JSON before validation."); return; }
@@ -184,11 +225,13 @@ export default function StudioPage() {
     {(error || capabilityQuery.error || modulesQuery.error) && <Alert variant="destructive" data-testid="studio-error"><AlertTitle>Studio request failed</AlertTitle><AlertDescription>{error || (capabilityQuery.error instanceof Error ? capabilityQuery.error.message : modulesQuery.error instanceof Error ? modulesQuery.error.message : "Studio controls could not be loaded.")}</AlertDescription></Alert>}
     {publishSuccess && <Alert data-testid="studio-publish-success"><AlertTitle>Publishing complete</AlertTitle><AlertDescription>{publishSuccess}</AlertDescription></Alert>}
     <div className="grid gap-6 lg:grid-cols-2">
-        <Card><CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />Describe the module</CardTitle><CardDescription>Generation produces a reviewable draft only; it cannot make a public change.</CardDescription></CardHeader><CardContent className="space-y-3"><Label htmlFor="studio-prompt">Natural-language prompt</Label><Textarea id="studio-prompt" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Create an intake module for…" className="min-h-32" data-testid="studio-prompt-input" />{capabilityQuery.isLoading && <p role="status" className="text-sm text-muted-foreground">Loading Studio capability…</p>}<Button onClick={generateDraft} disabled={!prompt.trim() || busy !== null || capabilityQuery.isLoading || !capability?.aiDrafting} data-testid="studio-generate-button">{busy === "draft" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}Generate draft</Button></CardContent></Card>
+        <Card><CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5 text-primary" />Describe the tool or feature you want to build...</CardTitle><CardDescription>Generation produces a reviewable private draft with declared inputs, stages, and safe output metadata. It cannot make a public change.</CardDescription></CardHeader><CardContent className="space-y-3"><Label htmlFor="studio-prompt">Natural-language builder request</Label><Textarea id="studio-prompt" value={prompt} onChange={e => setPrompt(e.target.value)} placeholder="Create an organization grant-readiness tool with stages for context, evidence, and review…" className="min-h-32" data-testid="studio-builder-prompt-input" />{capabilityQuery.isLoading && <p role="status" className="text-sm text-muted-foreground">Loading Studio capability…</p>}<Button onClick={generateTool} disabled={!prompt.trim() || busy !== null || capabilityQuery.isLoading || !capability?.aiDrafting} data-testid="studio-generate-button">{busy === "generate" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}✨ Generate Tool</Button></CardContent></Card>
       <Card><CardHeader><CardTitle className="flex items-center gap-2"><ShieldCheck className="h-5 w-5 text-primary" />Security boundary</CardTitle></CardHeader><CardContent className="space-y-3 text-sm text-muted-foreground"><p>Studio manifests describe content, fields, and approved views. They do not accept scripts, external executable code, or custom runtime behavior.</p><p>Validation checks the current manifest. Publishing requires an explicit confirmation and is separate from drafting.</p></CardContent></Card>
     </div>
     <div className="grid gap-6 lg:grid-cols-2">
-       <Card><CardHeader><CardTitle className="flex gap-2"><Code2 className="h-5 w-5" />Raw manifest JSON</CardTitle><CardDescription>Edit the manifest directly, then validate it before publishing.</CardDescription></CardHeader><CardContent className="space-y-3"><Textarea aria-label="Raw manifest JSON" value={rawManifest} onChange={e => { editorRevision.current += 1; setRawManifest(e.target.value); setValidation(null); setValidatedRawManifest(null); }} placeholder={'{\n  "title": "…",\n  "fields": []\n}'} className="min-h-[360px] font-mono text-xs" data-testid="studio-manifest-json" /><Button variant="outline" onClick={validate} disabled={!rawManifest.trim() || busy !== null} data-testid="studio-validate-button">{busy === "validate" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Validate manifest</Button>
+        <Card><CardHeader><CardTitle className="flex gap-2"><Code2 className="h-5 w-5" />Raw manifest JSON</CardTitle><CardDescription>Edit the manifest directly, then validate it before publishing.</CardDescription></CardHeader><CardContent className="space-y-3"><Textarea aria-label="Raw manifest JSON" value={rawManifest} onChange={e => { editorRevision.current += 1; setRawManifest(e.target.value); setValidation(null); setValidatedRawManifest(null); setSuggestedManifest(null); }} placeholder={'{\n  "title": "…",\n  "fields": []\n}'} className="min-h-[360px] font-mono text-xs" data-testid="studio-manifest-json" />
+          <div className="rounded-md border bg-muted/30 p-3 space-y-3" data-testid="studio-modify-panel"><Label htmlFor="studio-modify-instruction">Ask AI to Modify</Label><Textarea id="studio-modify-instruction" value={modifyInstruction} onChange={e => setModifyInstruction(e.target.value)} placeholder="For example: Add a final review stage and a checklist output, without changing the organization scope." className="min-h-24" data-testid="studio-modify-prompt-input" /><Button type="button" variant="secondary" onClick={askAiToModify} disabled={!modifyInstruction.trim() || !parsedManifest || busy !== null} data-testid="studio-modify-button">{busy === "modify" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}Ask AI to Modify</Button>{modifyStatus && <p className="text-sm text-muted-foreground" data-testid="studio-modify-status">{modifyStatus}</p>}{suggestedManifest && <div className="rounded border bg-background p-3 space-y-2" data-testid="studio-modify-suggestion"><p className="text-sm font-medium">Suggested draft ready</p><p className="text-xs text-muted-foreground">The existing editor has not changed. Applying this suggestion still requires validation and explicit human publication.</p><Button type="button" size="sm" onClick={applySuggestedManifest} disabled={busy !== null} data-testid="studio-modify-apply">Apply suggested changes</Button></div>}</div>
+          <Button variant="outline" onClick={validate} disabled={!rawManifest.trim() || busy !== null} data-testid="studio-validate-button">{busy === "validate" ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <CheckCircle2 className="mr-2 h-4 w-4" />}Validate manifest</Button>
         {rawManifest && !parsedManifest && <p className="text-sm text-destructive" data-testid="studio-json-error">JSON is not valid yet.</p>}
          {validation && <Alert variant={validation.valid === false ? "destructive" : "default"} data-testid="studio-validation-results"><AlertTitle>{validation.valid === false ? "Validation needs attention" : "Validation complete"}</AlertTitle><AlertDescription className="space-y-1">{validation.message && <p>{validation.message}</p>}{validation.errors?.map((issue, i) => <p key={i}>Error: {readableIssue(issue)}</p>)}{validation.warnings?.map((issue, i) => <p key={i}>Warning: {readableIssue(issue)}</p>)}</AlertDescription></Alert>}</CardContent></Card>
       <Card><CardHeader><CardTitle className="flex gap-2"><Eye className="h-5 w-5" />Safe rendered preview</CardTitle><CardDescription>Preview uses text and declared fields only; it does not execute manifest content.</CardDescription></CardHeader><CardContent>{(parsedManifest || manifest) ? <ManifestPreview manifest={parsedManifest || manifest!} /> : <p className="text-sm text-muted-foreground" data-testid="studio-preview-empty">Generate or paste a manifest to preview it.</p>}</CardContent></Card>

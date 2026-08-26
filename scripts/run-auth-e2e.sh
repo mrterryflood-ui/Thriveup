@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Validation gate: sign-in, staff-access, and foster-youth journey e2e suites.
+# Validation gate: sign-in, staff-access, governed Studio, and foster-youth journey e2e suites.
 # Runs tests/e2e/smoke.spec.ts, tests/e2e/staff-role-access.spec.ts and
-# tests/e2e/foster-youth-journey.spec.ts against the dev server,
+# tests/e2e/studio-builder.spec.ts and tests/e2e/foster-youth-journey.spec.ts against the dev server,
 # starting one itself if nothing is listening on :5000.
 #
 # E2E gates share :5000 and Playwright artifact dirs, so all e2e gate
@@ -48,6 +48,7 @@ npx playwright test \
   tests/e2e/smoke.spec.ts \
   tests/e2e/hub-pages-smoke.spec.ts \
   tests/e2e/staff-role-access.spec.ts \
+  tests/e2e/studio-builder.spec.ts \
   tests/e2e/foster-youth-journey.spec.ts
 PLAYWRIGHT_EXIT=$?
 
