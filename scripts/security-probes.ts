@@ -171,6 +171,16 @@ const PROBES: Probe[] = [
   { name: "POST   /api/academy/stocks/simulate (no session)", method: "POST", path: "/api/academy/stocks/simulate", body: {} },
   { name: "GET    /api/academy/wallet (no session)", method: "GET", path: "/api/academy/wallet" },
   { name: "GET    /api/academy/transactions (no session)", method: "GET", path: "/api/academy/transactions" },
+
+  // ── studio-routes.ts: prompt-to-publish control plane is admin-only ───────
+  // Natural-language drafting can spend AI budget and publish controls change
+  // the live runtime, so every admin Studio endpoint must reject anonymous use.
+  { name: "GET    /api/admin/studio/capability (no session)", method: "GET", path: "/api/admin/studio/capability" },
+  { name: "POST   /api/admin/studio/draft (no session)", method: "POST", path: "/api/admin/studio/draft", body: { prompt: "Create a safe grant readiness module." } },
+  { name: "POST   /api/admin/studio/validate (no session)", method: "POST", path: "/api/admin/studio/validate", body: { manifest: {} } },
+  { name: "GET    /api/admin/studio/modules (no session)", method: "GET", path: "/api/admin/studio/modules" },
+  { name: "GET    /api/admin/studio/modules/probe-module/versions (no session)", method: "GET", path: "/api/admin/studio/modules/probe-module/versions" },
+  { name: "POST   /api/admin/studio/modules/probe-module/publish (no session)", method: "POST", path: "/api/admin/studio/modules/probe-module/publish", body: { manifest: {}, makePublic: true } },
 ];
 
 // The partner student-detail route answers 410 Gone once authenticated; treat
@@ -234,10 +244,9 @@ async function run() {
 
   if (failures > 0) {
     console.error("FAIL: at least one unauthenticated mutation succeeded, or a public endpoint regressed.");
-    process.exit(1);
+    throw new Error("Security probe failures detected.");
   }
   console.log("PASS: guarded endpoints rejected; public analyzer reachable with no PII.");
-  process.exit(0);
 }
 
 // Field names that would indicate PII leaking into an aggregate public response.
@@ -419,6 +428,7 @@ async function runInboundVerificationGate() {
 
 run()
   .then(() => runInboundVerificationGate())
+  .then(() => process.exit(0))
   .catch((err) => {
     console.error("Probe run crashed:", err);
     process.exit(1);

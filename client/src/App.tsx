@@ -72,6 +72,8 @@ const FunderAdminPage = lazy(() => import("@/pages/funder-admin"));
 const ReferralStatusPage = lazy(() => import("@/pages/referral-status"));
 const OrgConfirmPage = lazy(() => import("@/pages/org-confirm"));
 const TradeSimsSignupsAdminPage = lazy(() => import("@/pages/admin/trade-sims-signups"));
+const StudioPage = lazy(() => import("@/pages/studio"));
+const StudioRuntimePage = lazy(() => import("@/pages/studio").then(m => ({ default: m.StudioRuntimePage })));
 import { TradeSimsTrialGate } from "@/components/trade-sims-trial-gate";
 const AcademyVillagePage = lazy(() => import("@/pages/academy/village"));
 const AcademyAvatarPage = lazy(() => import("@/pages/academy/avatar"));
@@ -485,6 +487,12 @@ function AppRouter() {
         <TradeSimsTrialGate><TradeSimsTradeDetailPage /></TradeSimsTrialGate>
       </Route>
       <Route path="/admin/trade-sims-signups" component={TradeSimsSignupsAdminPage} />
+      <Route path="/admin/studio">
+        <RequireAuth adminOnly reason="Prompt-to-Publish Studio is restricted to TCAF admins because it manages published module manifests.">
+          <StudioPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/studio/:moduleKey" component={StudioRuntimePage} />
       <Route path="/academy/avatar" component={AcademyAvatarPage} />
       <Route path="/academy/stocks" component={AcademyStocksPage} />
       <Route path="/academy/wallet" component={AcademyWalletPage} />

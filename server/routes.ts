@@ -183,6 +183,7 @@ import { registerCommunityProgramRoutes } from "./community-program-routes";
 import { registerTradeSimsRoutes } from "./trade-sims-routes";
 import { registerTradeSimsCertRoutes } from "./trade-sims-cert-routes";
 import { registerTradeSimsTrialRoutes } from "./trade-sims-trial-routes";
+import { registerStudioRoutes } from "./studio-routes";
 import { seedVannDemo } from "./seed-vann-demo";
 import { seedTcafAdmins } from "./seed-tcaf-admins";
 import { seedOrgMemberships } from "./seed-org-memberships";
@@ -633,6 +634,7 @@ export async function registerRoutes(
   registerTradeSimsRoutes(app);
   registerTradeSimsCertRoutes(app);
   registerTradeSimsTrialRoutes(app);
+  registerStudioRoutes(app);
   // Idempotent demo seed for the Vann collaboration kit. Safe to call on every boot.
   seedVannDemo()
     .then((r) => { if (!r.skipped) console.log("[seed] Vann demo seeded:", r.orgs.join(", ")); })

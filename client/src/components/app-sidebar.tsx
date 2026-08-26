@@ -461,6 +461,7 @@ const adminProgramItems: NavItem[] = [
 ];
 
 const adminInternalItems: NavItem[] = [
+  { title: "Prompt-to-Publish Studio", url: "/admin/studio", icon: Sparkles },
   { title: "Transparency Matrix", url: "/transparency-matrix", icon: ClipboardCheck },
   { title: "Stakeholder Engagement Map", url: "/stakeholder-map", icon: Users },
   { title: "MAP-GAP CQI", url: "/cqi", icon: Target },

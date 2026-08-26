@@ -3,6 +3,7 @@ import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, re
 import { nanoid } from "nanoid";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import type { StudioManifest } from "./studio-manifest";
 
 // ZCTA (ZIP Code Tabulation Area) to county FIPS lookup, loaded once from the
 // U.S. Census Bureau's public ZCTA-to-County relationship file. When a ZCTA
@@ -20,6 +21,37 @@ export const zctaCountyMap = pgTable("zcta_county_map", {
 export const insertZctaCountyMapSchema = createInsertSchema(zctaCountyMap).omit({ loadedAt: true });
 export type InsertZctaCountyMap = z.infer<typeof insertZctaCountyMapSchema>;
 export type ZctaCountyMap = typeof zctaCountyMap.$inferSelect;
+
+// ==================== STUDIO DECLARATIVE MANIFESTS ====================
+// Published rows are immutable. The database migration adds a trigger as a
+// second line of defense; application code only inserts new versions.
+export const studioModuleManifests = pgTable("studio_module_manifests", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  moduleKey: varchar("module_key", { length: 64 }).notNull(),
+  version: integer("version").notNull(),
+  lifecycleStage: varchar("lifecycle_stage", { length: 16 }).notNull().default("draft"),
+  isPublic: boolean("is_public").notNull().default(false),
+  manifest: jsonb("manifest").$type<StudioManifest>().notNull(),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
+  publishedAt: timestamp("published_at"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  unique("studio_module_manifests_key_version_unique").on(table.moduleKey, table.version),
+  index("studio_module_manifests_public_idx").on(table.moduleKey, table.lifecycleStage, table.isPublic),
+]);
+
+export const studioAuditEvents = pgTable("studio_audit_events", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  moduleKey: varchar("module_key", { length: 64 }).notNull(),
+  manifestVersion: integer("manifest_version"),
+  eventType: varchar("event_type", { length: 48 }).notNull(),
+  // Actor IDs remain server-only; public responses never query this table.
+  actorUserId: varchar("actor_user_id", { length: 255 }),
+  eventData: jsonb("event_data").$type<Record<string, unknown>>().notNull().default({}),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("studio_audit_events_module_idx").on(table.moduleKey, table.createdAt),
+]);
 
 export const subjects = pgTable("subjects", {
   id: varchar("id", { length: 100 }).primaryKey(),
