@@ -32,6 +32,35 @@ before data analysis, recruitment, public release, or application build.
 
 ---
 
+## 2026-08-26 — Austin organization-fit, authority, and evidence-screen records
+
+**Claim:** Public mission/context statements and TCAF/ISS formation records can
+support a limited organization-fit matrix without treating a compatible mission
+as an accepted pilot role or an authorization to use data, cultural knowledge,
+youth participation, or public claims. A targeted screen of the live RPLICE
+catalog can expose evidence gaps without treating framework or setting-limited
+metadata as evidence that the Austin bundle is effective.
+
+**Verified by:** visual review of the attached Texas formation records; direct
+fetches of the AACHD/MEND, Six Square, E4 Youth, and City of Austin primary
+pages; direct retrieval of the 49-record public RPLICE catalog; an independent
+cold-read audit; and records that name every unsupported authority as
+unresolved.
+
+**Outcome:** Confirmed for private planning records only. The source review
+supports considering a cultural-steward contact for Six Square, youth
+co-design contact for E4 Youth, and a potential planning/evidence-backbone
+contribution for TCAF after authorization. The live-library screen finds
+framework/process support and limited adjacent sources, not direct evidence
+for the full candidate bundle. It does not support an assigned role, data
+ownership, youth recruitment, City mandate, partnership claim, MEND governance
+conclusion, EBI label, or outcome claim.
+
+**Class:** Stakeholder-authorization and source-quality boundary preserved
+before outreach, evidence classification, public release, or build work.
+
+---
+
 ## 2026-08-15 — Equity-Loss Engine build cycle
 
 **Claim 1:** The provided acceptance test (`atkinson.test`) should pass

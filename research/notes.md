@@ -1,14 +1,14 @@
 # Research Notes: Austin Community Bridge Opportunity
 
-**Status:** blueprint drafted; awaiting baseline/evidence packet
+**Status:** blueprint drafted; organization-fit matrix completed; awaiting baseline/evidence packet and role confirmation
 **Depth:** Standard  
 
 ## Plan
 
-- **Question:** Can the existing ThriveUp/TCAF platform responsibly support the Austin coalition described in the attached message, and how should the initiative be presented to stakeholders?
+- **Question:** Can the existing ThriveUp/TCAF platform responsibly support the Austin planning context described in the attached message, and what conditions would need to be satisfied before any initiative could be presented to stakeholders?
 - **Scope:** Austin coalition context; Six Square and E4 Youth signals; City of Austin priorities and public data; platform capabilities, readiness, gaps, and stakeholder framing.
 - **Audience:** Coalition conveners, City/community stakeholders, nonprofit partners, residents/youth, funders, and potential implementation partners.
-- **Deliverable:** Evidence-backed opportunity assessment, stakeholder presentation structure, minimum viable pilot, risks, and missing information.
+- **Deliverable:** Evidence-backed opportunity assessment, stakeholder presentation structure, conditional future-pilot framework, risks, and missing information.
 
 ## Focus Areas
 
@@ -27,7 +27,7 @@
 - [ ] What specific problem can the platform solve without claiming to replace existing coalition work?
 - [ ] Which platform capabilities are live and relevant, and which are only architectural or not Austin-validated?
 - [ ] What data, consent, governance, staffing, and evaluation prerequisites are missing?
-- [ ] What should each stakeholder hear, and what should the first pilot ask them to authorize?
+- [ ] What should each stakeholder hear, and what would a future pilot need them to authorize before it could begin?
 - [ ] What claims must be avoided until a local partner, baseline, or primary source verifies them?
 
 ## Findings Log
@@ -49,7 +49,7 @@
 
 - [1] MEND's official engagement site currently lists **Austin's African American Cultural Heritage District Strategic Plan** and describes its aim as honoring Black heritage, preventing displacement, and supporting a vibrant, resilient district. The page also lists other community-driven planning projects, but it does not verify the screenshot's claim that MEND is acting “on behalf of the city manager.”
 - [2] MEND's public site describes work at the intersection of harm and justice; this is a separate identity from the Austin planning/engagement site and should not be conflated without confirmation.
-- [3] The Austin-specific MEND engagement page is direct evidence of a current Austin project relationship, not evidence of a citywide mandate, data-sharing agreement, or endorsement of ThriveUp/TCAF.
+- [3] The Austin-specific MEND engagement page is direct evidence of current AACHD project-information context, not evidence of MEND’s defined legal/project authority, a citywide mandate, a data-sharing agreement, or endorsement of ThriveUp/TCAF.
 - [4] Six Square is presented by its official site as Austin's Black Cultural District; the City of Austin identifies cultural districts as an economic/cultural-development program and separately publishes an African-American Cultural Heritage District strategic-plan artifact.
 - [5] E4 Youth's official materials describe youth experiences through creative technology and workforce programs.
 - [6] KUT's May 8, 2025 reporting identifies Carl Settles Jr. and E4 Youth as an Austin nonprofit working with underserved youth on workforce development and storytelling about the city. This supports relevance to youth participation, but not a partnership with this platform.
@@ -62,8 +62,8 @@
 
 ### Assessment
 
-- [13] **Recommendation:** proceed to a partner-led discovery and bounded pilot, not a citywide launch. The platform is strongest as an evidence/provenance/action-learning layer that links structured resident signals, local evidence, accountable owners, referrals, and outcomes. It should not replace coalition facilitation, official planning, cultural stewardship, youth organizing, or case-management systems.
-- [13] **First pilot:** a youth-inclusive action loop tied to one confirmed Austin geography and one or two of the four themes, with youth co-design and paid/recognized participation, structured input, human review, explicit action owners, and suppression-first reporting.
+- [13] **Recommendation:** do not begin a pilot or citywide launch. Proceed only to private evidence preparation and role-confirmation preparation; this record does not authorize outreach or representation on another organization’s behalf. If all authorization, governance, privacy, safeguarding, capacity, baseline, evidence, and claims-release gates later pass, the platform could serve as an evidence/provenance/action-learning layer. It must not replace coalition facilitation, official planning, cultural stewardship, youth organizing, or case-management systems.
+- [13] **Conditional future-pilot concept:** the evidence-screened candidate is a youth-inclusive action loop focused on youth, housing, and cultural continuity—not yet an EBI. It would require one confirmed Austin geography, youth co-design and paid/recognized participation where authorized, structured input, human review, explicit action owners, and suppression-first reporting. The AACHD context’s broader themes (Housing, Business, Culture & History, Infrastructure) must not expand this candidate without targeted evidence review and authorization.
 - [13] **Readiness boundary:** existing platform capabilities are relevant and guarded, but Austin-specific authorization, partner data agreements, local data adapters, consent/assent language, and operational staffing are not yet verified.
 
 ## Conflicts & Open Questions
@@ -78,9 +78,11 @@
 
 ## Gaps
 
-- Primary-source triangulation is sufficient for a go-to-discovery recommendation, but not for a public claim of endorsement or authorization.
+- Primary-source triangulation is sufficient for a private role-confirmation and evidence-preparation posture, but not for outreach on another organization’s behalf, a public claim of endorsement or authorization, or pilot operation.
 - No direct stakeholder interview, signed scope, consent language, baseline dataset, or Austin production integration has been supplied.
-- The planning blueprint is recorded in [Austin Community Bridge Resource & Pilot Blueprint](austin-community-bridge-blueprint.md). It establishes the candidate EBI and decision gates but deliberately does not select a priority geography before a reproducible baseline review.
+- The planning blueprint is recorded in [Austin Community Bridge Resource & Pilot Blueprint](austin-community-bridge-blueprint.md). It establishes a locally hypothesized candidate multicomponent intervention and decision gates; it deliberately does not select a priority geography or confer an EBI label before reproducible baseline review, targeted evidence/applicability work, and authorization.
+- The private [Organization-Fit & Authority Matrix](austin-organization-fit-matrix.md) records the verified mission/context of TCAF, Six Square, E4 Youth, AACHD/MEND, and City cultural-district sources. It distinguishes potential fit from any operational, data, youth-safeguarding, or public-claims authority, all of which remain unresolved.
+- The private [RPLICE Preliminary Evidence Screen](austin-rplice-evidence-screen.md) screened the current 49-record public RPLICE library. It found no direct library match for youth/resident co-design or cultural-continuity action sessions and only setting-limited sources for mapping, navigation workflow, and action-learning; the candidate bundle remains locally hypothesized, not an EBI claim.
 
 ## Sources
 
