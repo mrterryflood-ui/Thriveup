@@ -1249,13 +1249,10 @@ function ServicePlatformSection() {
                   </li>
                 ))}
               </ul>
-              <Link href={a.href}>
-                <button
-                  className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${a.color} shadow-sm hover:opacity-90 transition-opacity`}
-                  data-testid={`button-service-cta-${a.title.toLowerCase().replace(/\s+/g, "-")}`}
-                >
+              <Link href={a.href}
+                className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${a.color} shadow-sm hover:opacity-90 transition-opacity text-center`}
+                data-testid={`button-service-cta-${a.title.toLowerCase().replace(/\s+/g, "-")}`}>
                   {a.cta} →
-                </button>
               </Link>
             </div>
           ))}
@@ -1384,22 +1381,16 @@ function PricingTiersSection() {
                 ))}
               </ul>
               {tier.href.startsWith("http") ? (
-                <a href={tier.href} target="_blank" rel="noopener noreferrer">
-                  <button
-                    className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${tier.color} shadow-sm hover:opacity-90 transition-opacity`}
-                    data-testid={`button-pricing-cta-${tier.name.toLowerCase()}`}
-                  >
+                <a href={tier.href} target="_blank" rel="noopener noreferrer"
+                  className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${tier.color} shadow-sm hover:opacity-90 transition-opacity text-center`}
+                  data-testid={`button-pricing-cta-${tier.name.toLowerCase()}`}>
                     {tier.cta} →
-                  </button>
                 </a>
               ) : (
-                <Link href={tier.href}>
-                  <button
-                    className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${tier.color} shadow-sm hover:opacity-90 transition-opacity`}
-                    data-testid={`button-pricing-cta-${tier.name.toLowerCase()}`}
-                  >
+                <Link href={tier.href}
+                  className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${tier.color} shadow-sm hover:opacity-90 transition-opacity text-center`}
+                  data-testid={`button-pricing-cta-${tier.name.toLowerCase()}`}>
                     {tier.cta} →
-                  </button>
                 </Link>
               )}
             </div>
@@ -1519,13 +1510,10 @@ function GrantPathProSection() {
 
             {/* CTA row */}
             <div className="flex flex-col sm:flex-row items-center gap-3">
-              <Link href="/community-impact">
-                <button
-                  className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 shadow-sm hover:opacity-90 transition-opacity"
-                  data-testid="button-gpp-generate-brief"
-                >
+              <Link href="/community-impact"
+                className="px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-gradient-to-r from-amber-500 to-orange-600 shadow-sm hover:opacity-90 transition-opacity"
+                data-testid="button-gpp-generate-brief">
                   Generate a Community Brief →
-                </button>
               </Link>
               <span className="text-xs text-muted-foreground">
                 Then send directly to Grant Path Pro with one click
@@ -1804,6 +1792,58 @@ function HeroStatCounter({ target, label, color, isDark }: { target: number; lab
   );
 }
 
+function HealthEquityFirstGlance({ isDark }: { isDark: boolean }) {
+  const steps = [
+    { label: "Map the place", detail: "Health, housing, access, and opportunity context at the geography the source actually supports.", href: "/community-map", icon: Map, color: "#0891b2" },
+    { label: "Tell the story", detail: "Source, vintage, limits, and lived knowledge stay visible instead of becoming a black-box score.", href: "/community-impact", icon: FileText, color: "#7c3aed" },
+    { label: "Choose the tool", detail: "Implementation-science methods match the setting, stakeholders, readiness, and decision in front of you.", href: "/our-approach", icon: Target, color: "#e11d48" },
+    { label: "Track learning", detail: "Actions, fidelity, corrections, and outcomes stay connected through the Chainweb loop.", href: "/impact", icon: Activity, color: "#059669" },
+  ] as const;
+
+  return (
+    <section className="px-4 py-10 sm:px-6" data-testid="section-health-equity-first-glance">
+      <div className="max-w-6xl mx-auto rounded-3xl border overflow-hidden" style={{ background: isDark ? "linear-gradient(135deg, rgba(8,47,73,0.75), rgba(30,27,75,0.8))" : "linear-gradient(135deg, #f0fdfa, #eef2ff)" }}>
+        <div className="p-6 sm:p-9">
+          <div className="max-w-3xl">
+            <p className="text-xs font-black uppercase tracking-[0.18em]" style={{ color: "#0891b2" }}>Health-equity mapping + data story</p>
+            <h2 className="mt-2 text-2xl sm:text-4xl font-black tracking-tight" style={{ color: isDark ? "#fff" : "#0f172a" }}>
+              See what is happening where an HBCU, nonprofit, or community partner serves.
+            </h2>
+            <p className="mt-3 text-sm sm:text-base leading-relaxed" style={{ color: isDark ? "rgba(248,250,252,0.78)" : "rgba(15,23,42,0.7)" }}>
+              One place-aware workflow connects health equity, housing, opportunity, evidence, action, implementation, outcomes, and learning — with provenance and honest unavailable states at every step.
+            </p>
+          </div>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mt-7">
+            {steps.map((step, index) => {
+              const Icon = step.icon;
+              return (
+                <Link key={step.href} href={step.href}>
+                  <div className="h-full rounded-2xl border p-4 transition-transform hover:-translate-y-1" style={{ background: isDark ? "rgba(15,23,42,0.62)" : "rgba(255,255,255,0.82)", borderColor: isDark ? "rgba(255,255,255,0.12)" : "rgba(15,23,42,0.1)" }} data-testid={`health-equity-step-${index + 1}`}>
+                    <div className="flex items-center justify-between">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl" style={{ background: `${step.color}1c`, color: step.color }}><Icon className="h-5 w-5" /></span>
+                      <ArrowRight className="h-4 w-4" style={{ color: step.color }} />
+                    </div>
+                    <h3 className="mt-4 font-bold" style={{ color: isDark ? "#fff" : "#0f172a" }}>{step.label}</h3>
+                    <p className="mt-1 text-xs leading-relaxed" style={{ color: isDark ? "rgba(248,250,252,0.62)" : "rgba(15,23,42,0.62)" }}>{step.detail}</p>
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-2 text-xs font-semibold" style={{ color: isDark ? "rgba(248,250,252,0.65)" : "rgba(15,23,42,0.62)" }}>
+            <span>50 states · one architecture</span>
+            <span>Place-level, not person-level risk scoring</span>
+            <span>Evidence-to-action, not data theater</span>
+            <Link href="/austin-community-bridge/deliverable" className="inline-flex items-center gap-1 hover:underline" data-testid="link-private-austin-preview">
+              <Lock className="h-3 w-3" /> Private Austin review · staff sign-in
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const { toast } = useToast();
   const searchString = useSearch();
@@ -1903,35 +1943,44 @@ export default function LandingPage() {
             Free for families. No prerequisites. No paperwork.
           </p>
 
+          <div className="w-full max-w-3xl mb-6 rounded-2xl px-4 py-3 text-left sm:text-center"
+            style={{ background: isDark ? "rgba(15,23,42,0.72)" : "rgba(255,255,255,0.7)", border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(15,23,42,0.12)"}`, backdropFilter: "blur(10px)" }}
+            data-testid="hero-health-equity-story">
+            <div className="text-[11px] font-black uppercase tracking-[0.16em] mb-1" style={{ color: "#0891b2" }}>
+              Health-equity mapping + data story
+            </div>
+            <div className="text-sm font-semibold" style={{ color: heroText }}>
+              Map the place <span className="mx-1" style={{ color: "#0891b2" }}>→</span>
+              tell the story <span className="mx-1" style={{ color: "#7c3aed" }}>→</span>
+              match the tool <span className="mx-1" style={{ color: "#e11d48" }}>→</span>
+              track learning
+            </div>
+            <div className="text-xs mt-1" style={{ color: heroMuted }}>
+              For the communities HBCUs, nonprofits, and trusted partners serve — with source, limits, and action ownership visible.
+            </div>
+          </div>
+
           {/* CTAs */}
           <div className="flex flex-wrap gap-4 justify-center mb-6">
-            <Link href="/community-impact">
-              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}
-                data-testid="button-hero-community-brief">
+            <Link href="/community-impact" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+              style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}
+              data-testid="button-hero-community-brief">
                 See community conditions →
-              </button>
             </Link>
-            <Link href="/ecosystem-story">
-              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ background: "linear-gradient(135deg,#6366f1,#0ea5e9)", color: "#fff", boxShadow: "0 0 28px rgba(99,102,241,0.28)", border: "none", cursor: "pointer" }}
-                data-testid="button-hero-intervention">
+            <Link href="/ecosystem-story" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+              style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
+              data-testid="button-hero-intervention">
                 See how the system connects →
-              </button>
             </Link>
-            <Link href="/benefits-screener">
-              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
-                data-testid="button-hero-benefits">
+            <Link href="/benefits-screener" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+              style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
+              data-testid="button-hero-benefits">
                 I Need Help for My Family →
-              </button>
             </Link>
-            <Link href="/agency-connector">
-              <button className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-                style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
-                data-testid="button-hero-approach">
+            <Link href="/agency-connector" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
+              style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
+              data-testid="button-hero-approach">
                 Connect your organization →
-              </button>
             </Link>
           </div>
 
@@ -1944,6 +1993,8 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <HealthEquityFirstGlance isDark={isDark} />
 
       {/* "Meet people where they are": self-identify FIRST, before any
           B2B/funding pitch. This must stay directly under the hero. */}

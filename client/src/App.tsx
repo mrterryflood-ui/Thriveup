@@ -225,6 +225,7 @@ const ESignPage = lazy(() => import("@/pages/esign"));
 const ESignInvitePage = lazy(() => import("@/pages/esign-invite"));
 const EcosystemConnectorPage = lazy(() => import("@/pages/ecosystem-connector"));
 const AustinHousingInitiativePage = lazy(() => import("@/pages/austin-housing-initiative"));
+const AustinCommunityBridgeDeliverablePage = lazy(() => import("@/pages/austin-community-bridge-deliverable"));
 const RokuAdsPage = lazy(() => import("@/pages/roku-ads"));
 const VoicesOfAustinPage = lazy(() => import("@/pages/voices-of-austin"));
 const ManorCommunityHubPage = lazy(() => import("@/pages/manor-community-hub"));
@@ -775,6 +776,11 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/austin" component={AustinHousingInitiativePage} />
+      <Route path="/austin-community-bridge/deliverable">
+        <RequireAuth staffOnly reason="The Austin Community Bridge deliverable is a private planning and review workspace for authorized TCAF staff.">
+          <AustinCommunityBridgeDeliverablePage />
+        </RequireAuth>
+      </Route>
       <Route path="/roku-ads" component={RokuAdsPage} />
       <Route path="/voices-of-austin" component={VoicesOfAustinPage} />
       <Route path="/manor" component={ManorCommunityHubPage} />

@@ -12,6 +12,7 @@
     "lint:frontend": "npm run lint",
     "architect": "node scripts/architect-review.mjs",
     "verify:browser": "npx playwright test tests/e2e/public-claims-print.spec.ts",
+    "verify:complete": "node scripts/verify-complete.mjs",
     "db:push": "drizzle-kit push",
     "verify:gpp-opportunity-loop": "npx tsx scripts/verify-gpp-opportunity-loop.ts",
     "verify:gpp-opportunity-stub": "npx tsx scripts/verify-gpp-opportunity-stub.ts"

@@ -1,6 +1,6 @@
 # Austin Community Bridge Resource & Pilot Blueprint
 
-**Status:** Planning and resource-refinement artifact — no application build, public launch, production change, partner data import, or stakeholder attribution is authorized by this document.
+**Status:** Planning and resource-refinement artifact with an authorized private internal preview — no public launch, production change, partner data import, or stakeholder attribution is authorized by this document.
 **Prepared:** August 26, 2026
 **Working purpose:** Use existing ThriveUp/TCAF community intelligence, RPLICE implementation-science resources, and partner-held local knowledge to identify **Priority Opportunity Areas** and co-design a bounded, youth-inclusive evidence-based intervention (EBI) for Austin.
 
@@ -335,13 +335,14 @@ Before a statement, partner name, map, resource status, evidence label, or outco
 
 No “human publication gate” is complete without this record.
 
-## 10. Proposed Information Architecture — Planning Only
+## 10. Proposed Information Architecture — Private Preview Only
 
-No page is approved for development until the data method and governance gates below are satisfied.
+The current authorization permits one authenticated staff-only review page that renders this blueprint as a correction-ready planning preview. It must not render private partner data, classify a public priority area, collect participant stories, operate referrals, or represent a partner role. No public or partner-facing page is approved until the data method and governance gates below are satisfied.
 
 | Surface | Audience | Purpose | Must not do |
 |---|---|---|---|
-| Austin Community Bridge landing page | Public | Explain purpose, themes, participation, safeguards, and verified partners only after authorization | Claim endorsement or show private data. |
+| Austin Community Bridge landing page | Public | Deferred; explain purpose only after public-claims authorization | Claim endorsement or show private data. |
+| Private Austin deliverable preview | Authorized TCAF staff | Review blueprint outputs, implementation measures, limits, and browser-local correction notes | Represent a pilot, partner authorization, public classification, or observed outcome. |
 | Priority Opportunity Areas page | Public or restricted depending on data decision | Show source-labeled, validated place-level priorities and method | Produce a stigma map, individual risk labels, or unsupported rankings. |
 | Partner working view | Authenticated authorized partners | Review burden/response evidence, RPLICE packet, actions, and data corrections | Expose one organization’s private data to another. |
 | Action and learning page | Public summary + private operational detail | Show approved actions, owners, milestones, and disclosed learning | Present projections or unverified status as observed outcomes. |
@@ -472,4 +473,4 @@ Create a private **Austin Baseline and EBI Evidence Packet** containing:
 - This document does not name a Priority Opportunity Area because no current, reproducible Austin batch analysis has been run and reviewed in this planning cycle.
 - This document does not claim that any organization has approved a role, data-sharing agreement, or public partnership statement.
 - This document does not claim that the candidate multicomponent intervention will change population outcomes.
-- This document does not authorize code, public pages, production changes, or data collection.
+- This document authorizes only the authenticated staff-only private preview described in §10. It does not authorize public pages, production changes, partner data import, recruitment, referrals, or data collection.

@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -145,6 +146,11 @@ export default function AustinHousingInitiativePage() {
             </Button>
             <Button variant="outline" size="sm" onClick={() => window.print()} data-testid="button-print">
               <Printer className="h-4 w-4 mr-1" /> Print
+            </Button>
+            <Button variant="outline" size="sm" asChild data-testid="button-private-austin-deliverable">
+              <Link href="/austin-community-bridge/deliverable">
+                <Shield className="h-4 w-4 mr-1" /> Staff review preview
+              </Link>
             </Button>
           </div>
         }
