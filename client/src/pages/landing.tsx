@@ -180,6 +180,13 @@ const FEATURED_SERVICE_PLATFORMS = [
     icon: Shield,
     theme: "text-blue-600 bg-blue-100 dark:bg-blue-950/40 dark:text-blue-300",
   },
+  {
+    name: "Power2thePeople",
+    description: "Explore Civic Signal for public civic information and community policy context. This link opens the Power2thePeople platform.",
+    href: "https://power2thepeople.net",
+    icon: Globe,
+    theme: "text-indigo-600 bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300",
+  },
 ] as const;
 
 function PathwayCard({ pathway }: { pathway: typeof PATHWAYS[0] }) {
