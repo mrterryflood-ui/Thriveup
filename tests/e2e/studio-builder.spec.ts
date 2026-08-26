@@ -1,4 +1,5 @@
 import { test, expect, request as pwRequest } from "@playwright/test";
+import { readFile } from "node:fs/promises";
 import { Client } from "pg";
 import {
   cleanupTestUser,
@@ -137,6 +138,10 @@ test.describe("Governed Studio builder", () => {
     expect((await admin.post(`/api/admin/studio/modules/${PUBLIC_KEY}/publish`, {
       data: { manifest: publicManifest, makePublic: true },
     })).status()).toBe(201);
+    const autoExportedFile = JSON.parse(await readFile("convex/seed_modules.json", "utf8"));
+    const autoExportedModule = autoExportedFile.modules.find((entry: any) => entry.moduleKey === PUBLIC_KEY && entry.public === true);
+    expect(autoExportedModule).toBeDefined();
+    expect(autoExportedModule.manifest.systemPrompt).toEqual(publicManifest.systemPrompt);
 
     const registryExport = await admin.post("/api/admin/studio/export");
     expect(registryExport.status()).toBe(200);

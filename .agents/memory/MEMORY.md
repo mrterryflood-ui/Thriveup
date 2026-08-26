@@ -63,3 +63,4 @@
 - [Adversarial Audit Skill](.agents/skills/adversarial-audit/SKILL.md) — 6-domain post-build audit; API contracts, JS runtime, UI/nav, offline, UX/performance, full-stack congruence.
 - [MAP-GAP Skill](.agents/skills/map-gap/SKILL.md) — Continuous improvement framework; systematic observation, gap prioritization, parallel execution, validation, lesson tracking.
 - [Benefits guided-apply architecture](benefits-guided-apply.md) — 3-file program catalog sync gotcha; navigator/chat is SSE not JSON.
+- [Studio registry synchronization](studio-registry-sync.md) — lock export/bootstrap, validate seed identity, and never misreport a live publication as failed.
