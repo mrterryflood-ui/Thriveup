@@ -53,6 +53,32 @@ export const studioAuditEvents = pgTable("studio_audit_events", {
   index("studio_audit_events_module_idx").on(table.moduleKey, table.createdAt),
 ]);
 
+export const studioImportInventories = pgTable("studio_import_inventories", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  sourceLabel: varchar("source_label", { length: 120 }).notNull(),
+  actorUserId: varchar("actor_user_id", { length: 255 }),
+  items: jsonb("items").notNull(),
+  counts: jsonb("counts").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("studio_import_inventories_created_idx").on(table.createdAt),
+]);
+
+export const studioModuleRecords = pgTable("studio_module_records", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  moduleKey: varchar("module_key", { length: 64 }).notNull(),
+  moduleVersion: integer("module_version").notNull(),
+  orgId: varchar("org_id", { length: 100 }).notNull(),
+  actorUserId: varchar("actor_user_id", { length: 255 }).notNull(),
+  values: jsonb("values").notNull(),
+  provenance: jsonb("provenance").notNull(),
+  retentionUntil: timestamp("retention_until").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("studio_module_records_module_org_time_idx").on(table.moduleKey, table.orgId, table.createdAt),
+  index("studio_module_records_org_time_idx").on(table.orgId, table.createdAt),
+]);
+
 export const subjects = pgTable("subjects", {
   id: varchar("id", { length: 100 }).primaryKey(),
   name: text("name").notNull(),

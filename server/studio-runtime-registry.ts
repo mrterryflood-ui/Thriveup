@@ -26,6 +26,18 @@ export async function getPublishedStudioManifest(moduleKey: string): Promise<Stu
   return parsed.data;
 }
 
+/** Latest published version for authenticated organization workspaces. */
+export async function getPublishedStudioManifestForOrganization(moduleKey: string): Promise<{ manifest: StudioManifest; version: number } | undefined> {
+  const [row] = await db.select({ manifest: studioModuleManifests.manifest, version: studioModuleManifests.version })
+    .from(studioModuleManifests)
+    .where(and(eq(studioModuleManifests.moduleKey, moduleKey), eq(studioModuleManifests.lifecycleStage, "published")))
+    .orderBy(desc(studioModuleManifests.version)).limit(1);
+  if (!row) return undefined;
+  const parsed = studioManifestSchema.safeParse(row.manifest);
+  return parsed.success && parsed.data.lifecycleStage === "published"
+    ? { manifest: parsed.data, version: row.version } : undefined;
+}
+
 export function invalidateStudioManifest(moduleKey: string) {
   cache.delete(moduleKey);
 }
