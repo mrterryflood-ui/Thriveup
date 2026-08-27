@@ -337,6 +337,7 @@ const connectedSiteItems: NavItem[] = [
 // intel, impact dashboards. CTX-specific items live in the CTX hub above.
 const whereWeOperateItems: NavItem[] = [
   { title: "Equity Loss Engine", url: "/equity-loss", icon: BarChart3 },
+  { title: "Nationwide Equity-Loss Browse", url: "/equity-loss/national", icon: BarChart3 },
   { title: "Implementation & Evaluation", url: "/corridor-intelligence", icon: Route },
   { title: "Coverage Map", url: "/coverage", icon: Map },
   { title: "Bring TCAF to Your State", url: "/coverage#request", icon: HandHeart },

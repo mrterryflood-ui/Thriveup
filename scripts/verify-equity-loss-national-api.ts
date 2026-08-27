@@ -193,7 +193,45 @@ async function main() {
       assert(typeof body.dataAsOf === "string", "dataAsOf present");
       assert(typeof body.batchRunId === "string", "batchRunId present");
       assert(typeof body.stateBreakdown === "object", "stateBreakdown present");
+       assert(typeof body.coverage === "object" && body.coverage !== null, "coverage contract present");
       assert(body.frame === "vs_national_peer_class", "default summary frame is national peer class");
+
+       if (body.coverage) {
+         const { jurisdictions, records } = body.coverage;
+         assert(
+           jurisdictions?.states?.expectedJurisdictions === 50,
+           "coverage separates 50 expected state jurisdictions",
+           JSON.stringify(jurisdictions?.states),
+         );
+         assert(
+           jurisdictions?.districtOfColumbia?.expectedJurisdictions === 1,
+           "coverage separates one expected District of Columbia",
+           JSON.stringify(jurisdictions?.districtOfColumbia),
+         );
+         assert(
+           jurisdictions?.territories?.expectedJurisdictions === 5,
+           "coverage separates five expected territories",
+           JSON.stringify(jurisdictions?.territories),
+         );
+         assert(
+           ["expected", "present", "usable", "sourceUnavailable", "otherSuppressed", "missing"]
+             .every((field) => typeof records?.[field] === "number"),
+           "record coverage exposes expected, present, usable, source-unavailable, other-suppressed, and missing counts",
+           JSON.stringify(records),
+         );
+         if (records) {
+           assert(
+             records.expected === records.present + records.missing,
+             "expected records reconcile to present + missing records",
+             JSON.stringify(records),
+           );
+           assert(
+             records.present === records.usable + records.sourceUnavailable + records.otherSuppressed,
+             "present records reconcile to usable + source-unavailable + other-suppressed records",
+             JSON.stringify(records),
+           );
+         }
+       }
 
       // Min/max sanity
       if (body.minLossPct !== null && body.maxLossPct !== null) {
@@ -219,6 +257,7 @@ async function main() {
     if (!body.noDataYet) {
       assert(typeof body.totalSuppressed === "number", "returns selected-frame suppression count");
       assert(typeof body.stateBreakdown === "object", "returns selected-frame jurisdiction breakdown");
+       assert(typeof body.coverage === "object" && body.coverage !== null, "returns selected-frame coverage contract");
     }
   }
 

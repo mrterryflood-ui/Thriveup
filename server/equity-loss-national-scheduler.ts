@@ -27,7 +27,10 @@
 import pg from "pg";
 import { computeAllFrames, type FrameReferences, type UnitInputs } from "./equity-loss/equity-loss-engine";
 import { fetchAllCountiesAcs } from "./equity-loss/acs-county-source";
-import { fetchAllUsaleepTracts } from "./equity-loss/usaleep-source";
+import {
+  fetchAllUsaleepTracts,
+  resolveUsaleepTractsForCounty,
+} from "./equity-loss/usaleep-source";
 import {
   ruralityBandFromRucc,
   growthBandFromPct,
@@ -124,7 +127,9 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
   let countiesSucceeded = 0;
   let countriesSuppressed = 0;
   let countriesFailed = 0;
+  let countiesWithoutPeerClassification = 0;
   const failureReasons: string[] = [];
+  let snapshotTransactionOpen = false;
 
   // Use a second client for the transactional snapshot writes
   const txClient = await pool.connect();
@@ -132,6 +137,7 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
   try {
     // Begin transaction — all upserts land atomically or roll back together
     await txClient.query("BEGIN");
+    snapshotTransactionOpen = true;
 
     // -----------------------------------------------------------------------
     // Step 1: Load county list
@@ -170,14 +176,22 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
     const usaleepStart = Date.now();
     const usaleepMap = await fetchAllUsaleepTracts();
     console.log(
-      `[equity-loss-scheduler] USALEEP bulk fetch done: ${usaleepMap.size} counties in ${Math.round((Date.now() - usaleepStart) / 1000)}s`,
+      `[equity-loss-scheduler] USALEEP bulk fetch done: ${usaleepMap.bySourceCountyName.size} source counties in ${Math.round((Date.now() - usaleepStart) / 1000)}s`,
     );
 
     // -----------------------------------------------------------------------
     // Step 4: Warm national reference
     // -----------------------------------------------------------------------
     console.log("[equity-loss-scheduler] Warming national reference...");
-    const nationalRef = await getNationalReference().catch(() => null);
+    let nationalRef: number | null = null;
+    try {
+      nationalRef = await getNationalReference();
+    } catch (error) {
+      console.error(
+        "[equity-loss-scheduler] National reference unavailable; its comparison frame will be unbenchmarked:",
+        error,
+      );
+    }
     console.log(`[equity-loss-scheduler] National reference: ${nationalRef}`);
 
     const stateRefCache = new Map<string, number | null>();
@@ -266,13 +280,25 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
 
       try {
         const acs = acsMap.get(county_fips);
-        const usaleepKey = `${county_name}, ${state_abbrev}`;
-        const tracts = usaleepMap.get(usaleepKey) ?? [];
+        const tracts = resolveUsaleepTractsForCounty(usaleepMap, {
+          countyFips: county_fips,
+          countyName: county_name,
+          stateAbbrev: state_abbrev,
+        });
 
         const ruralityBand = ruralityBandFromRucc(rucc_code);
-        const decadalGrowthPct = acs?.decadalGrowthPct ?? 0;
-        const growthBand = growthBandFromPct(decadalGrowthPct);
-        const peerKey = peerClassKey(ruralityBand, growthBand, census_region);
+        const decadalGrowthPct = acs?.decadalGrowthPct;
+        const peerKey =
+          typeof decadalGrowthPct === "number" && Number.isFinite(decadalGrowthPct)
+            ? peerClassKey(
+                ruralityBand,
+                growthBandFromPct(decadalGrowthPct),
+                census_region,
+              )
+            : null;
+        if (peerKey === null) {
+          countiesWithoutPeerClassification++;
+        }
 
         const inputs: UnitInputs = {
           geoId: county_fips,
@@ -294,16 +320,33 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
         };
 
         if (!stateRefCache.has(state_fips)) {
-          const ref = await getStateReference(state_fips, state_abbrev).catch(() => null);
-          stateRefCache.set(state_fips, ref);
+          try {
+            stateRefCache.set(
+              state_fips,
+              await getStateReference(state_fips, state_abbrev),
+            );
+          } catch (error) {
+            console.error(
+              `[equity-loss-scheduler] State reference unavailable for ${state_abbrev}; its comparison frame will be unbenchmarked:`,
+              error,
+            );
+            stateRefCache.set(state_fips, null);
+          }
         }
         const stateRef = stateRefCache.get(state_fips) ?? null;
 
-        if (!peerRefCache.has(peerKey)) {
-          const ref = await getPeerClassReference(peerKey).catch(() => null);
-          peerRefCache.set(peerKey, ref);
+        if (peerKey !== null && !peerRefCache.has(peerKey)) {
+          try {
+            peerRefCache.set(peerKey, await getPeerClassReference(peerKey));
+          } catch (error) {
+            console.error(
+              `[equity-loss-scheduler] Peer-class reference unavailable for ${peerKey}; its comparison frame will be unbenchmarked:`,
+              error,
+            );
+            peerRefCache.set(peerKey, null);
+          }
         }
-        const peerRef = peerRefCache.get(peerKey) ?? null;
+        const peerRef = peerKey === null ? null : peerRefCache.get(peerKey) ?? null;
 
         const references: FrameReferences = {
           vsParentCounty: nationalRef,
@@ -367,16 +410,20 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
     // Flush any remaining rows
     await flushBuffer();
 
-    // Commit the transaction — all snapshot rows land atomically
-    await txClient.query("COMMIT");
+    if (countriesFailed > 0) {
+      throw new Error(
+        `Refusing to publish a partial nationwide batch: ${countriesFailed} county computation(s) failed.`,
+      );
+    }
 
     const wallSeconds = Math.round((Date.now() - wallStart) / 1000);
     const computeSeconds = Math.round((Date.now() - computeStart) / 1000);
 
     // -----------------------------------------------------------------------
-    // Step 6: Mark batch run as completed (outside transaction, always visible)
+    // Step 6: Mark completion in the same transaction as the snapshot rows,
+    // so the public API cannot ever select a partial or uncommitted batch.
     // -----------------------------------------------------------------------
-    await auditClient.query(
+    await txClient.query(
       `UPDATE equity_loss_national_batch_runs SET
          completed_at = now(),
          counties_attempted = $1,
@@ -397,6 +444,8 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
         batchRunId,
       ],
     );
+    await txClient.query("COMMIT");
+    snapshotTransactionOpen = false;
 
     console.log("\n[equity-loss-scheduler] ====== BATCH COMPLETE ======");
     console.log(`  Batch run ID:        ${batchRunId}`);
@@ -404,6 +453,7 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
     console.log(`  Counties succeeded:  ${countiesSucceeded}`);
     console.log(`  Counties suppressed: ${countriesSuppressed}`);
     console.log(`  Counties failed:     ${countriesFailed}`);
+    console.log(`  No peer benchmark:   ${countiesWithoutPeerClassification} (missing decadal growth)`);
     console.log(`  Compute time:        ${computeSeconds}s`);
     console.log(`  Total wall time:     ${wallSeconds}s`);
     if (failureReasons.length > 0) {
@@ -411,7 +461,15 @@ async function runEquityLossNationwideBatch(pool: pg.Pool): Promise<void> {
     }
   } catch (fatalError) {
     // Roll back all snapshot upserts — previous completed run's data is preserved
-    await txClient.query("ROLLBACK").catch(() => {});
+    if (snapshotTransactionOpen) {
+      await txClient.query("ROLLBACK").catch((rollbackError) => {
+        console.error(
+          "[equity-loss-scheduler] Snapshot transaction rollback also failed:",
+          rollbackError,
+        );
+      });
+      snapshotTransactionOpen = false;
+    }
 
     console.error("[equity-loss-scheduler] FATAL ERROR — rolling back snapshot upserts:", fatalError);
     const wallSeconds = Math.round((Date.now() - wallStart) / 1000);

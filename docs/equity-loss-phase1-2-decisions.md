@@ -138,3 +138,22 @@ computation needs the engine fix done first. So LOE1 → LOE3 → LOE2 → LOE4.
    found for this exact ratio (searched Census methodology docs and ACS
    handbook this session). Kept as a disclosed assumption for the same
    reason as #4, not upgraded to "validated."
+
+## Connecticut geography-alignment amendment
+
+The original Phase 1 record correctly deferred a general tract/place
+crosswalk because no relationship infrastructure was then available in the
+application. That deferral does **not** apply to Connecticut's specific,
+published county-equivalent transition. Census now provides a bounded,
+authoritative three-file relationship chain from USALEEP's 2010 tract vintage
+through towns to the nine planning-region county-equivalent FIPS codes.
+
+The nationwide batch uses that identifier chain for Connecticut rather than
+display-name matching. A tract with exactly one modern planning-region target
+is included in that region's life-expectancy distribution. A tract with zero
+or more than one target is not allocated to any region. This preserves the
+existing geographic-dispersion methodology and its source-coverage suppression
+rule; it neither creates tract-level individual scores nor substitutes a
+statewide or legacy-county average. See
+`docs/equity-loss-geography-alignment.md` for the source path and no-fabrication
+boundary.

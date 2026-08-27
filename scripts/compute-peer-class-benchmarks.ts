@@ -61,7 +61,11 @@ async function computeCountyOwnLoss(
   const countyOnly = countyFips.slice(2);
   try {
     const acs = await fetchCountyAcs(stateFips, countyOnly);
-    const tracts = await fetchUsaleepTractsForCounty(`${countyName}, ${stateAbbrev}`);
+    const tracts = await fetchUsaleepTractsForCounty({
+      countyFips,
+      countyName,
+      stateAbbrev,
+    });
     if (acs.population < DEFAULT_SUPPRESSION.minPopulation) return { suppressionReason: "below_min_population" };
     if (tracts.length === 0) return { suppressionReason: "no_usaleep_tracts" };
 

@@ -12,7 +12,7 @@
 //   - an honest empty/loading/no-data-yet state is shown when the batch
 //     job hasn't completed
 
-import { useState, useEffect, useCallback, Fragment } from "react";
+import { useState, useEffect, useCallback, useRef, Fragment } from "react";
 import { Link, useLocation } from "wouter";
 import {
   Table,
@@ -93,10 +93,41 @@ interface SummaryResponse {
   maxLossPct?: number | null;
   medianLossPct?: number | null;
   stateBreakdown?: Record<string, {
-    countyCount: number;
-    succeededCount: number;
+    jurisdictionType: "state" | "district" | "territory";
+    expectedCountyCount: number;
+    presentCountyCount: number;
+    usableCountyCount: number;
+    sourceUnavailableCountyCount: number;
+    otherSuppressedCountyCount: number;
+    missingCountyCount: number;
     avgLoss: number | null;
   }>;
+  coverage?: {
+    jurisdictions: {
+      states: JurisdictionCoverage;
+      districtOfColumbia: JurisdictionCoverage;
+      territories: JurisdictionCoverage;
+    };
+    records: CoverageRecord;
+  };
+}
+
+interface JurisdictionCoverage {
+  expectedJurisdictions: number;
+  presentJurisdictions: number;
+  usableJurisdictions: number;
+  sourceUnavailableJurisdictions: number;
+  otherSuppressedJurisdictions: number;
+  missingJurisdictions: number;
+}
+
+interface CoverageRecord {
+  expected: number;
+  present: number;
+  usable: number;
+  sourceUnavailable: number;
+  otherSuppressed: number;
+  missing: number;
 }
 
 // ---------------------------------------------------------------------------
@@ -128,7 +159,6 @@ const STATE_CODES = [
   "NM","NY","NC","ND","OH","OK","OR","PA","RI","SC",
   "SD","TN","TX","UT","VT","VA","WA","WV","WI","WY",
 ];
-
 const TERRITORY_CODES = ["AS", "GU", "MP", "PR", "VI"];
 
 // ---------------------------------------------------------------------------
@@ -183,38 +213,34 @@ function SummaryBar({ summary }: { summary: SummaryResponse | null }) {
     );
   }
 
-  const jurisdictionEntries = Object.entries(summary.stateBreakdown ?? {});
   const frameLabel = {
     vs_national_peer_class: "national peer-class",
     vs_state: "state",
     vs_parent_county: "parent-county",
   }[summary.frame ?? "vs_national_peer_class"] ?? "selected comparison";
-  const stateEntries = jurisdictionEntries.filter(([code]) => STATE_CODES.includes(code));
-  const usableStateEntries = stateEntries.filter(([, value]) => value.succeededCount > 0 && value.avgLoss !== null);
-  const districtOfColumbia = summary.stateBreakdown?.DC;
-  const districtHasUsableResult = Boolean(
-    districtOfColumbia && districtOfColumbia.succeededCount > 0 && districtOfColumbia.avgLoss !== null,
-  );
-  const unavailableTerritories = TERRITORY_CODES.filter((code) => {
-    const value = summary.stateBreakdown?.[code];
-    return value && !(value.succeededCount > 0 && value.avgLoss !== null);
-  });
-  const connecticutUnavailable = Boolean(
-    summary.stateBreakdown?.CT
-      && !(summary.stateBreakdown.CT.succeededCount > 0 && summary.stateBreakdown.CT.avgLoss !== null),
-  );
+  const coverage = summary.coverage;
+  const records = coverage?.records;
+  const states = coverage?.jurisdictions.states;
+  const districtOfColumbia = coverage?.jurisdictions.districtOfColumbia;
+  const territories = coverage?.jurisdictions.territories;
 
   return (
     <div style={{ background: "rgba(255,255,255,0.04)", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, padding: "16px 20px", marginBottom: 20 }}>
       <div style={{ display: "flex", flexWrap: "wrap", gap: "24px 40px", alignItems: "flex-start" }}>
         <div>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>County entries in batch</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#f8fafc" }}>{summary.totalCounties?.toLocaleString()}</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>County-equivalent records present</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#f8fafc" }}>{records?.present.toLocaleString() ?? summary.totalCounties?.toLocaleString()}</div>
+          {records && <div style={{ fontSize: 11, color: "#94a3b8" }}>of {records.expected.toLocaleString()} expected</div>}
         </div>
         <div>
-          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>{frameLabel} suppressed</div>
-          <div style={{ fontSize: 24, fontWeight: 700, color: "#fbbf24" }}>{summary.totalSuppressed?.toLocaleString()}</div>
-          <div style={{ fontSize: 11, color: "#94a3b8" }}>shown as gap, never zero</div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>{frameLabel} usable</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#86efac" }}>{records?.usable.toLocaleString() ?? "—"}</div>
+          <div style={{ fontSize: 11, color: "#94a3b8" }}>computed records in this frame</div>
+        </div>
+        <div>
+          <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>Source-unavailable</div>
+          <div style={{ fontSize: 24, fontWeight: 700, color: "#fbbf24" }}>{records?.sourceUnavailable.toLocaleString() ?? "—"}</div>
+          <div style={{ fontSize: 11, color: "#94a3b8" }}>shown as a gap, never zero</div>
         </div>
         <div>
           <div style={{ fontSize: 11, textTransform: "uppercase", letterSpacing: "0.08em", color: "#94a3b8" }}>Loss range ({frameLabel})</div>
@@ -238,16 +264,19 @@ function SummaryBar({ summary }: { summary: SummaryResponse | null }) {
         a reliable estimate — their absence is shown explicitly, not as zero.
       </div>
       <div style={{ marginTop: 10, fontSize: 12, color: "#cbd5e1", lineHeight: 1.5 }}>
-        <strong>Coverage status:</strong> {stateEntries.length} of 50 state entries are present in this completed batch;{" "}
-        {usableStateEntries.length} states have at least one usable {frameLabel} result
-        {districtHasUsableResult ? ", and D.C. has a usable result" : ""}.
-        {unavailableTerritories.length > 0
-          ? ` ${unavailableTerritories.join(", ")} are listed separately and currently unavailable or suppressed because source coverage differs by jurisdiction.`
+        <strong>Analytical coverage — not service deployment:</strong>{" "}
+        {states
+          ? `States: ${states.expectedJurisdictions} expected, ${states.presentJurisdictions} present, ${states.usableJurisdictions} with a usable result, ${states.sourceUnavailableJurisdictions} entirely source-unavailable, and ${states.missingJurisdictions} missing or unattempted.`
+          : "State coverage is unavailable for this batch."}{" "}
+        {districtOfColumbia
+          ? `D.C.: ${districtOfColumbia.expectedJurisdictions} expected, ${districtOfColumbia.presentJurisdictions} present, ${districtOfColumbia.usableJurisdictions} usable, ${districtOfColumbia.sourceUnavailableJurisdictions} entirely source-unavailable, and ${districtOfColumbia.missingJurisdictions} missing or unattempted.`
+          : ""}{" "}
+        {territories
+          ? `Territories: ${territories.expectedJurisdictions} expected, ${territories.presentJurisdictions} present, ${territories.usableJurisdictions} usable, ${territories.sourceUnavailableJurisdictions} entirely source-unavailable, and ${territories.missingJurisdictions} missing or unattempted.`
+          : ""}{" "}
+        {records
+          ? `Across county-equivalent records: ${records.present.toLocaleString()} present of ${records.expected.toLocaleString()}, ${records.usable.toLocaleString()} usable, ${records.sourceUnavailable.toLocaleString()} source-unavailable, ${records.otherSuppressed.toLocaleString()} otherwise suppressed or incomplete, and ${records.missing.toLocaleString()} missing or unattempted.`
           : ""}
-        {connecticutUnavailable
-          ? ` Connecticut currently has no usable ${frameLabel} result in this snapshot.`
-          : ""}
-        {" "}This is a data-availability statement, not a service-deployment claim.
       </div>
     </div>
   );
@@ -350,6 +379,8 @@ export default function EquityLossNationalPage() {
   const [loadingSummary, setLoadingSummary] = useState(false);
   const [listError, setListError] = useState<string | null>(null);
   const [summaryError, setSummaryError] = useState<string | null>(null);
+  const summaryRequest = useRef<AbortController | null>(null);
+  const listRequest = useRef<AbortController | null>(null);
 
   // Expand row detail
   const [expandedRow, setExpandedRow] = useState<string | null>(null);
@@ -358,17 +389,29 @@ export default function EquityLossNationalPage() {
   // Fetch summary
   // ---------------------------------------------------------------------------
   const fetchSummary = useCallback(async (fr: string) => {
+    const priorRequest = summaryRequest.current;
+    summaryRequest.current = null;
+    priorRequest?.abort();
+    const controller = new AbortController();
+    summaryRequest.current = controller;
     setLoadingSummary(true);
     setSummaryError(null);
     try {
-      const res = await fetch(`/api/equity-loss/national/summary?frame=${encodeURIComponent(fr)}`);
+      const res = await fetch(`/api/equity-loss/national/summary?frame=${encodeURIComponent(fr)}`, {
+        signal: controller.signal,
+      });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      if (summaryRequest.current !== controller) return;
       setSummary(json);
     } catch (e) {
+      if (controller.signal.aborted || summaryRequest.current !== controller) return;
       setSummaryError((e as Error).message);
     } finally {
-      setLoadingSummary(false);
+      if (summaryRequest.current === controller) {
+        summaryRequest.current = null;
+        setLoadingSummary(false);
+      }
     }
   }, []);
 
@@ -383,6 +426,11 @@ export default function EquityLossNationalPage() {
     sortDir: string;
     page: number;
   }) => {
+    const priorRequest = listRequest.current;
+    listRequest.current = null;
+    priorRequest?.abort();
+    const controller = new AbortController();
+    listRequest.current = controller;
     setLoadingList(true);
     setListError(null);
     try {
@@ -395,24 +443,39 @@ export default function EquityLossNationalPage() {
       });
       if (params.state && params.state !== "all") qs.set("state", params.state);
       if (params.search) qs.set("search", params.search);
-      const res = await fetch(`/api/equity-loss/national?${qs}`);
+      const res = await fetch(`/api/equity-loss/national?${qs}`, { signal: controller.signal });
       const json = await res.json();
       if (!res.ok) throw new Error(json.error || `HTTP ${res.status}`);
+      if (listRequest.current !== controller) return;
       setListData(json);
     } catch (e) {
+      if (controller.signal.aborted || listRequest.current !== controller) return;
       setListError((e as Error).message);
     } finally {
-      setLoadingList(false);
+      if (listRequest.current === controller) {
+        listRequest.current = null;
+        setLoadingList(false);
+      }
     }
   }, [pageSize]);
 
   // Initial load and on filter changes
   useEffect(() => {
-    fetchSummary(frame);
+    void fetchSummary(frame);
+    return () => {
+      const activeRequest = summaryRequest.current;
+      summaryRequest.current = null;
+      activeRequest?.abort();
+    };
   }, [frame, fetchSummary]);
 
   useEffect(() => {
-    fetchList({ frame, state: stateFilter, search, sortField, sortDir, page });
+    void fetchList({ frame, state: stateFilter, search, sortField, sortDir, page });
+    return () => {
+      const activeRequest = listRequest.current;
+      listRequest.current = null;
+      activeRequest?.abort();
+    };
   }, [frame, stateFilter, search, sortField, sortDir, page, fetchList]);
 
   // ---------------------------------------------------------------------------
@@ -568,7 +631,7 @@ export default function EquityLossNationalPage() {
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="all">All states</SelectItem>
-                      {[...STATE_CODES, "DC"].map((s) => (
+                      {[...STATE_CODES, "DC", ...TERRITORY_CODES].map((s) => (
                         <SelectItem key={s} value={s}>{s}</SelectItem>
                       ))}
                     </SelectContent>

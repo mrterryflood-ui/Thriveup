@@ -68,7 +68,11 @@ router.post("/push-equity-loss/:stateFips/:countyFips", async (req, res) => {
 
     const [acs, tracts] = await Promise.all([
       fetchCountyAcs(stateFips, countyFipsShort),
-      fetchUsaleepTractsForCounty(`${classification.countyName}, ${classification.stateAbbrev}`),
+      fetchUsaleepTractsForCounty({
+        countyFips,
+        countyName: classification.countyName,
+        stateAbbrev: classification.stateAbbrev,
+      }),
     ]);
 
     const inputs: UnitInputs = {

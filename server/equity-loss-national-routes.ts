@@ -18,6 +18,7 @@
 
 import { Router } from "express";
 import pg from "pg";
+import { JURISDICTIONS, type Jurisdiction } from "../shared/nationwide/jurisdictions";
 
 const router = Router();
 const dbPool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
@@ -31,6 +32,72 @@ const VALID_SORT_COLS = new Set(["overall_loss_pct", "county_name", "state_abbre
 const VALID_DIRS = new Set(["asc", "desc"]);
 const MAX_PAGE_SIZE = 100;
 const DEFAULT_PAGE_SIZE = 50;
+
+export interface JurisdictionCoverage {
+  expectedJurisdictions: number;
+  presentJurisdictions: number;
+  usableJurisdictions: number;
+  sourceUnavailableJurisdictions: number;
+  otherSuppressedJurisdictions: number;
+  missingJurisdictions: number;
+}
+
+interface CoverageRecord {
+  expected: number;
+  present: number;
+  usable: number;
+  sourceUnavailable: number;
+  otherSuppressed: number;
+  missing: number;
+}
+
+export interface StateBreakdownEntry {
+  jurisdictionType: Jurisdiction["type"];
+  expectedCountyCount: number;
+  presentCountyCount: number;
+  usableCountyCount: number;
+  sourceUnavailableCountyCount: number;
+  otherSuppressedCountyCount: number;
+  missingCountyCount: number;
+  avgLoss: number | null;
+}
+
+function toCount(value: string | number | null | undefined): number {
+  return Number.parseInt(String(value ?? "0"), 10) || 0;
+}
+
+export function buildJurisdictionCoverage(
+  jurisdictions: Jurisdiction[],
+  stateBreakdown: Record<string, StateBreakdownEntry>,
+): JurisdictionCoverage {
+  const entries = jurisdictions.map((jurisdiction) => stateBreakdown[jurisdiction.code]);
+  const presentJurisdictions = entries.filter((entry) => entry.presentCountyCount > 0).length;
+  const usableJurisdictions = entries.filter((entry) => entry.usableCountyCount > 0).length;
+  const sourceUnavailableJurisdictions = entries.filter(
+    (entry) =>
+      entry.expectedCountyCount > 0 &&
+      entry.presentCountyCount > 0 &&
+      entry.presentCountyCount === entry.expectedCountyCount &&
+      entry.sourceUnavailableCountyCount === entry.presentCountyCount,
+  ).length;
+  const otherSuppressedJurisdictions = entries.filter(
+    (entry) =>
+      entry.expectedCountyCount > 0 &&
+      entry.presentCountyCount > 0 &&
+      entry.presentCountyCount === entry.expectedCountyCount &&
+      entry.usableCountyCount === 0 &&
+      entry.sourceUnavailableCountyCount !== entry.presentCountyCount,
+  ).length;
+
+  return {
+    expectedJurisdictions: jurisdictions.length,
+    presentJurisdictions,
+    usableJurisdictions,
+    sourceUnavailableJurisdictions,
+    otherSuppressedJurisdictions,
+    missingJurisdictions: jurisdictions.length - presentJurisdictions,
+  };
+}
 
 /** Return the most recently completed batch run, or null if none exists. */
 async function getLatestCompletedBatch(
@@ -86,11 +153,30 @@ router.get("/summary", async (req, res) => {
       });
     }
 
-    // Per-jurisdiction breakdown for the selected comparison frame.
+    // The authoritative expected universe comes from the canonical
+    // jurisdiction list plus RUCC's county-equivalent denominator, never
+    // from the (potentially partial) snapshot itself.
+    const { rows: expectedRows } = await client.query(
+      `SELECT state_abbrev, COUNT(DISTINCT county_fips) AS expected_count
+       FROM rucc_county_codes
+       GROUP BY state_abbrev`,
+    );
+    const expectedCountyCountByState = new Map(
+      expectedRows.map((row) => [row.state_abbrev as string, toCount(row.expected_count)]),
+    );
+
+    // Per-jurisdiction analytical coverage for the selected comparison frame.
     const { rows: stateRows } = await client.query(
       `SELECT state_abbrev,
-              COUNT(DISTINCT county_fips) AS county_count,
-              COUNT(DISTINCT county_fips) FILTER (WHERE suppressed = false) AS succeeded_count,
+              COUNT(DISTINCT county_fips) AS present_count,
+              COUNT(DISTINCT county_fips) FILTER (WHERE suppressed = false) AS usable_count,
+              COUNT(DISTINCT county_fips) FILTER (
+                WHERE suppressed = true AND suppression_reason = 'source_coverage_gap'
+              ) AS source_unavailable_count,
+              COUNT(DISTINCT county_fips) FILTER (
+                WHERE suppressed = true
+                  AND COALESCE(suppression_reason, '') <> 'source_coverage_gap'
+              ) AS other_suppressed_count,
               AVG(overall_loss_pct) FILTER (WHERE suppressed = false) AS avg_loss
        FROM equity_loss_national_snapshot
        WHERE batch_run_id = $1 AND frame = $2
@@ -99,12 +185,35 @@ router.get("/summary", async (req, res) => {
       [batch.batch_run_id, frame],
     );
 
-    const stateBreakdown: Record<string, { countyCount: number; succeededCount: number; avgLoss: number | null }> = {};
+    const observedStateCoverage = new Map<
+      string,
+      Omit<StateBreakdownEntry, "jurisdictionType" | "expectedCountyCount" | "missingCountyCount">
+    >();
     for (const r of stateRows) {
-      stateBreakdown[r.state_abbrev] = {
-        countyCount: parseInt(r.county_count, 10),
-        succeededCount: parseInt(r.succeeded_count, 10),
+      observedStateCoverage.set(r.state_abbrev, {
+        presentCountyCount: toCount(r.present_count),
+        usableCountyCount: toCount(r.usable_count),
+        sourceUnavailableCountyCount: toCount(r.source_unavailable_count),
+        otherSuppressedCountyCount: toCount(r.other_suppressed_count),
         avgLoss: r.avg_loss !== null ? parseFloat(r.avg_loss) : null,
+      });
+    }
+
+    const stateBreakdown: Record<string, StateBreakdownEntry> = {};
+    for (const jurisdiction of JURISDICTIONS) {
+      const expectedCountyCount = expectedCountyCountByState.get(jurisdiction.code) ?? 0;
+      const observed = observedStateCoverage.get(jurisdiction.code) ?? {
+        presentCountyCount: 0,
+        usableCountyCount: 0,
+        sourceUnavailableCountyCount: 0,
+        otherSuppressedCountyCount: 0,
+        avgLoss: null,
+      };
+      stateBreakdown[jurisdiction.code] = {
+        jurisdictionType: jurisdiction.type,
+        expectedCountyCount,
+        ...observed,
+        missingCountyCount: Math.max(0, expectedCountyCount - observed.presentCountyCount),
       };
     }
 
@@ -122,6 +231,20 @@ router.get("/summary", async (req, res) => {
       [batch.batch_run_id, frame],
     );
     const agg = aggRows[0];
+    const records: CoverageRecord = Object.values(stateBreakdown).reduce<CoverageRecord>(
+      (totals, entry) => ({
+        expected: totals.expected + entry.expectedCountyCount,
+        present: totals.present + entry.presentCountyCount,
+        usable: totals.usable + entry.usableCountyCount,
+        sourceUnavailable: totals.sourceUnavailable + entry.sourceUnavailableCountyCount,
+        otherSuppressed: totals.otherSuppressed + entry.otherSuppressedCountyCount,
+        missing: totals.missing + entry.missingCountyCount,
+      }),
+      { expected: 0, present: 0, usable: 0, sourceUnavailable: 0, otherSuppressed: 0, missing: 0 },
+    );
+    const stateJurisdictions = JURISDICTIONS.filter((jurisdiction) => jurisdiction.type === "state");
+    const districtJurisdictions = JURISDICTIONS.filter((jurisdiction) => jurisdiction.type === "district");
+    const territoryJurisdictions = JURISDICTIONS.filter((jurisdiction) => jurisdiction.type === "territory");
 
     return res.json({
       noDataYet: false,
@@ -134,6 +257,14 @@ router.get("/summary", async (req, res) => {
       maxLossPct: agg.max_loss !== null ? parseFloat(agg.max_loss) : null,
       medianLossPct: agg.median_loss !== null ? parseFloat(agg.median_loss) : null,
       stateBreakdown,
+      coverage: {
+        jurisdictions: {
+          states: buildJurisdictionCoverage(stateJurisdictions, stateBreakdown),
+          districtOfColumbia: buildJurisdictionCoverage(districtJurisdictions, stateBreakdown),
+          territories: buildJurisdictionCoverage(territoryJurisdictions, stateBreakdown),
+        },
+        records,
+      },
     });
   } catch (e) {
     console.error("[equity-loss-national] summary failed:", e);

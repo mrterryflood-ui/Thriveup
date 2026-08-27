@@ -68,7 +68,7 @@ TCAF is a 501(c)(3) public charity. Separately contracted technical or implement
 
 ### Equity-loss snapshot status
 
-In the latest completed **development** snapshot for the national peer-class comparison frame, 56 state/territory jurisdiction entries and all 50 state entries are present. Usable equity-loss results appear in 49 states and the District of Columbia. Connecticut is currently source-unavailable because USDA ERS 2023 planning-region names do not join CDC USALEEP legacy county names. Five territory entries are present but currently suppressed or unavailable because source coverage varies by jurisdiction. The batch has no state whitelist; an older display of fewer states should not be used as a current coverage statement. This is data availability—not service deployment or partner coverage.
+In the latest completed **development** snapshot for the national peer-class comparison frame, 56 state, district, and territory jurisdiction entries and 3,233 county-equivalent records are present. Connecticut’s nine Census planning regions resolve from CDC USALEEP’s legacy-tract data through published Census FIPS relationship files; eight source tracts that span more than one modern planning region are intentionally excluded rather than allocated or duplicated. Territory and other source limitations remain separately labeled where they occur. The batch has no state whitelist; analytical data availability is not service deployment or partner coverage.
 
 ### Entity clarity
 

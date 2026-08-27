@@ -208,3 +208,36 @@ memory). The standing lesson: for this project, "verified by reading the
 code/docs" is not sufficient evidence for any claim about live data,
 external APIs, or prior-session memory — only an actual live call counts.
 
+---
+
+## 2026-08-27 — Connecticut nationwide equity-loss geography alignment
+
+**Claim:** A nationwide source with legacy Connecticut county labels can be
+joined to the current Planning Region denominator without fabricating
+geography, and the report can accurately distinguish analytical record
+coverage from service deployment.
+
+**Verified by:** live CDC USALEEP and Census relationship-file resolution;
+the selected completed development batch; direct API/route checks; focused
+crosswalk, direct-lookup, and partial-jurisdiction tests; full
+access-model validation; direct visual capture; six independent adversarial
+audits; and an independent architecture review.
+
+**Outcome:** Confirmed after the original name-only join was overturned. The
+authoritative identifier chain uniquely resolved 775 of 783 live Connecticut
+source tracts across all nine Planning Regions and excluded eight
+boundary-spanning tracts rather than assigning them. The report now names its
+analytical coverage categories honestly, and both batch paths reject a partial
+result instead of publishing it as completed.
+
+**Class:** Geography-vintage and coverage-semantics gap caught and guarded
+before release. The development preview proxy separately returned HTTP 502
+despite a healthy local listener; that limits browser-interaction proof, not
+the source/batch/API evidence.
+
+**Validation note:** The first platform-wide completion run had two unrelated
+Youth Mode response waits time out under concurrent validation. Re-running the
+unchanged lock-protected suite immediately passed all five real flows. This is
+evidence of validation-environment contention, not grounds to claim a product
+regression is fixed or to weaken the gate.
+

@@ -29,7 +29,10 @@
 import pg from "pg";
 import { computeAllFrames, type FrameReferences, type UnitInputs } from "../server/equity-loss/equity-loss-engine";
 import { fetchAllCountiesAcs } from "../server/equity-loss/acs-county-source";
-import { fetchAllUsaleepTracts } from "../server/equity-loss/usaleep-source";
+import {
+  fetchAllUsaleepTracts,
+  resolveUsaleepTractsForCounty,
+} from "../server/equity-loss/usaleep-source";
 import {
   ruralityBandFromRucc,
   growthBandFromPct,
@@ -77,7 +80,9 @@ async function main() {
   let countiesSucceeded = 0;
   let countriesSuppressed = 0;
   let countriesFailed = 0;
+  let countiesWithoutPeerClassification = 0;
   const failureReasons: string[] = [];
+  let snapshotTransactionOpen = false;
 
   try {
     // -----------------------------------------------------------------------
@@ -117,7 +122,7 @@ async function main() {
     const usaleepStart = Date.now();
     const usaleepMap = await fetchAllUsaleepTracts();
     console.log(
-      `[nationwide] USALEEP bulk fetch done: ${usaleepMap.size} counties with tract data in ${Math.round((Date.now() - usaleepStart) / 1000)}s`,
+      `[nationwide] USALEEP bulk fetch done: ${usaleepMap.bySourceCountyName.size} source counties in ${Math.round((Date.now() - usaleepStart) / 1000)}s`,
     );
 
     // -----------------------------------------------------------------------
@@ -128,7 +133,12 @@ async function main() {
     // These are fetched lazily below but the national one is fetched once upfront.
     // -----------------------------------------------------------------------
     console.log("[nationwide] Warming national reference...");
-    const nationalRef = await getNationalReference().catch(() => null);
+    let nationalRef: number | null = null;
+    try {
+      nationalRef = await getNationalReference();
+    } catch (error) {
+      console.error("[nationwide] National reference unavailable; its comparison frame will be unbenchmarked:", error);
+    }
     console.log(`[nationwide] National reference: ${nationalRef}`);
 
     // Cache state references in memory to avoid redundant DB calls
@@ -141,6 +151,8 @@ async function main() {
     console.log("[nationwide] Starting per-county computation...");
     const computeStart = Date.now();
     const BATCH_SIZE = 100; // upsert in batches
+    await client.query("BEGIN");
+    snapshotTransactionOpen = true;
 
     let upsertBuffer: Array<{
       stateFips: string;
@@ -221,15 +233,29 @@ async function main() {
         // Look up ACS data
         const acs = acsMap.get(county_fips);
 
-        // Look up USALEEP: county_name in USALEEP format is "County Name, ST"
-        const usaleepKey = `${county_name}, ${state_abbrev}`;
-        const tracts = usaleepMap.get(usaleepKey) ?? [];
+        // FIPS alignment is required for changed county-equivalent geography
+        // (Connecticut Planning Regions); unchanged counties use CDC's exact
+        // source-native county label as a safe fallback.
+        const tracts = resolveUsaleepTractsForCounty(usaleepMap, {
+          countyFips: county_fips,
+          countyName: county_name,
+          stateAbbrev: state_abbrev,
+        });
 
         // Build UnitInputs
         const ruralityBand = ruralityBandFromRucc(rucc_code);
-        const decadalGrowthPct = acs?.decadalGrowthPct ?? 0;
-        const growthBand = growthBandFromPct(decadalGrowthPct);
-        const peerKey = peerClassKey(ruralityBand, growthBand, census_region);
+        const decadalGrowthPct = acs?.decadalGrowthPct;
+        const peerKey =
+          typeof decadalGrowthPct === "number" && Number.isFinite(decadalGrowthPct)
+            ? peerClassKey(
+                ruralityBand,
+                growthBandFromPct(decadalGrowthPct),
+                census_region,
+              )
+            : null;
+        if (peerKey === null) {
+          countiesWithoutPeerClassification++;
+        }
 
         const inputs: UnitInputs = {
           geoId: county_fips,
@@ -252,16 +278,33 @@ async function main() {
 
         // Fetch references (cached after first compute per state/peer class)
         if (!stateRefCache.has(state_fips)) {
-          const ref = await getStateReference(state_fips, state_abbrev).catch(() => null);
-          stateRefCache.set(state_fips, ref);
+          try {
+            stateRefCache.set(
+              state_fips,
+              await getStateReference(state_fips, state_abbrev),
+            );
+          } catch (error) {
+            console.error(
+              `[nationwide] State reference unavailable for ${state_abbrev}; its comparison frame will be unbenchmarked:`,
+              error,
+            );
+            stateRefCache.set(state_fips, null);
+          }
         }
         const stateRef = stateRefCache.get(state_fips) ?? null;
 
-        if (!peerRefCache.has(peerKey)) {
-          const ref = await getPeerClassReference(peerKey).catch(() => null);
-          peerRefCache.set(peerKey, ref);
+        if (peerKey !== null && !peerRefCache.has(peerKey)) {
+          try {
+            peerRefCache.set(peerKey, await getPeerClassReference(peerKey));
+          } catch (error) {
+            console.error(
+              `[nationwide] Peer-class reference unavailable for ${peerKey}; its comparison frame will be unbenchmarked:`,
+              error,
+            );
+            peerRefCache.set(peerKey, null);
+          }
         }
-        const peerRef = peerRefCache.get(peerKey) ?? null;
+        const peerRef = peerKey === null ? null : peerRefCache.get(peerKey) ?? null;
 
         const references: FrameReferences = {
           vsParentCounty: nationalRef,
@@ -328,6 +371,12 @@ async function main() {
     // Flush any remaining rows
     await flushBuffer();
 
+    if (countriesFailed > 0) {
+      throw new Error(
+        `Refusing to publish a partial nationwide batch: ${countriesFailed} county computation(s) failed.`,
+      );
+    }
+
     const wallSeconds = Math.round((Date.now() - wallStart) / 1000);
     const computeSeconds = Math.round((Date.now() - computeStart) / 1000);
 
@@ -355,6 +404,8 @@ async function main() {
         batchRunId,
       ],
     );
+    await client.query("COMMIT");
+    snapshotTransactionOpen = false;
 
     console.log("\n[nationwide] ====== BATCH COMPLETE ======");
     console.log(`  Batch run ID:       ${batchRunId}`);
@@ -362,6 +413,7 @@ async function main() {
     console.log(`  Counties succeeded: ${countiesSucceeded}`);
     console.log(`  Counties suppressed:${countriesSuppressed}`);
     console.log(`  Counties failed:    ${countriesFailed}`);
+    console.log(`  No peer benchmark:  ${countiesWithoutPeerClassification} (missing decadal growth)`);
     console.log(`  Compute time:       ${computeSeconds}s`);
     console.log(`  Total wall time:    ${wallSeconds}s`);
     if (failureReasons.length > 0) {
@@ -370,6 +422,12 @@ async function main() {
   } catch (fatalError) {
     console.error("[nationwide] FATAL ERROR:", fatalError);
     const wallSeconds = Math.round((Date.now() - wallStart) / 1000);
+    if (snapshotTransactionOpen) {
+      await client.query("ROLLBACK").catch((rollbackError) => {
+        console.error("[nationwide] Snapshot transaction rollback also failed:", rollbackError);
+      });
+      snapshotTransactionOpen = false;
+    }
     await client
       .query(
         `UPDATE equity_loss_national_batch_runs SET
@@ -390,7 +448,9 @@ async function main() {
           batchRunId,
         ],
       )
-      .catch(() => {});
+      .catch((auditError) => {
+        console.error("[nationwide] Failed to persist the failed-batch audit row:", auditError);
+      });
     console.log(`[nationwide] Failed after ${wallSeconds}s`);
     process.exit(1);
   } finally {
