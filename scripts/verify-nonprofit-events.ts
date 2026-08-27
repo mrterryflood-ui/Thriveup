@@ -7,6 +7,8 @@
  * record protection, small-cell suppression, and audit-content safety.
  */
 
+import { readFileSync } from "node:fs";
+
 const BASE = process.env.BASE_URL || "http://localhost:5000";
 const OWNER = { userId: "e2e-nonprofit-events-owner", email: "e2e-nonprofit-events-owner@test.local", firstName: "Events", lastName: "Owner", role: "case_manager" };
 const OTHER = { userId: "e2e-nonprofit-events-other", email: "e2e-nonprofit-events-other@test.local", firstName: "Events", lastName: "Other", role: "student" };
@@ -14,6 +16,16 @@ const MEMBER = { userId: "e2e-nonprofit-events-member", email: "e2e-nonprofit-ev
 const COLLABORATOR = { userId: "e2e-nonprofit-events-collaborator", email: "e2e-nonprofit-events-collaborator@test.local", firstName: "Events", lastName: "Collaborator", role: "case_manager" };
 const ORG_A = "e2e-nonprofit-events-org-a";
 const ORG_B = "e2e-nonprofit-events-org-b";
+
+function verifyMigrationSource() {
+  const migration = readFileSync(
+    new URL("../migrations/20260902_nonprofit_events_privacy_hardening.sql", import.meta.url),
+    "utf8",
+  );
+  if (/chk_nonprofit_event_stories_nonidentifying_attribution[\s\S]{0,500}NOT VALID/i.test(migration)) {
+    fail("nonprofit-event privacy migration must not create an inline NOT VALID check constraint");
+  }
+}
 
 function fail(message: string): never {
   throw new Error(message);
@@ -33,6 +45,7 @@ async function request(path: string, cookie: string, orgId: string, init: Reques
 }
 
 async function run() {
+  verifyMigrationSource();
   const { Client } = await import("pg");
   const { ensureTestUser, forgeSession, cleanupTestUser, requireEnv } = await import("../tests/e2e/helpers/auth");
   const db = new Client({ connectionString: requireEnv("DATABASE_URL") });
@@ -40,6 +53,15 @@ async function run() {
 
   await db.connect();
   try {
+    const privacyConstraint = await db.query<{ convalidated: boolean }>(
+      `SELECT convalidated
+         FROM pg_constraint
+        WHERE conname = 'chk_nonprofit_event_stories_nonidentifying_attribution'`,
+    );
+    if (privacyConstraint.rows.length !== 1 || !privacyConstraint.rows[0].convalidated) {
+      fail("nonprofit-event privacy check constraint is missing or unvalidated in development");
+    }
+
     await db.query(`DELETE FROM nonprofit_events WHERE org_id = ANY($1::varchar[])`, [[ORG_A, ORG_B]]);
     await db.query(`DELETE FROM organization_members WHERE org_id = ANY($1::varchar[])`, [[ORG_A, ORG_B]]);
     await db.query(`DELETE FROM organizations WHERE id = ANY($1::varchar[])`, [[ORG_A, ORG_B]]);

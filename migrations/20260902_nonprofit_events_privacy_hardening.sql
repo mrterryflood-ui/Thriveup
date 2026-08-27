@@ -9,6 +9,6 @@ BEGIN
   ) THEN
     ALTER TABLE nonprofit_event_stories
       ADD CONSTRAINT chk_nonprofit_event_stories_nonidentifying_attribution
-      CHECK (attribution_preference IN ('anonymous', 'organization')) NOT VALID;
+      CHECK (attribution_preference IN ('anonymous', 'organization'));
   END IF;
 END $$;
