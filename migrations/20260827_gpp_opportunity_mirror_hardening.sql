@@ -50,31 +50,31 @@ END $$;
 DO $$ BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gpp_opportunity_handoffs_delivery_state_check') THEN
     ALTER TABLE gpp_opportunity_handoffs ADD CONSTRAINT gpp_opportunity_handoffs_delivery_state_check
-      CHECK (delivery_state IN ('previewed','delivered','rejected','unavailable','delivery_unknown')) NOT VALID;
+      CHECK (delivery_state IN ('previewed','delivered','rejected','unavailable','delivery_unknown'));
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gpp_opportunity_handoff_attempts_outcome_check') THEN
     ALTER TABLE gpp_opportunity_handoff_attempts ADD CONSTRAINT gpp_opportunity_handoff_attempts_outcome_check
-      CHECK (outcome IN ('delivered','rejected','unavailable','delivery_unknown')) NOT VALID;
+      CHECK (outcome IN ('delivered','rejected','unavailable','delivery_unknown'));
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gpp_pursuit_feedback_amount_disclosure_check') THEN
     ALTER TABLE gpp_pursuit_feedback
       ADD CONSTRAINT gpp_pursuit_feedback_amount_disclosure_check
-      CHECK (award_amount IS NULL OR (amount_disclosure = 'shared' AND award_amount >= 0)) NOT VALID;
+      CHECK (award_amount IS NULL OR (amount_disclosure = 'shared' AND award_amount >= 0));
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gpp_pursuit_feedback_status_check') THEN
     ALTER TABLE gpp_pursuit_feedback
       ADD CONSTRAINT gpp_pursuit_feedback_status_check
-      CHECK (status IN ('selected','preparing','submitted','clarification','declined','withdrawn','awarded','partially_awarded','cancelled','expired','not_pursued')) NOT VALID;
+      CHECK (status IN ('selected','preparing','submitted','clarification','declined','withdrawn','awarded','partially_awarded','cancelled','expired','not_pursued'));
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gpp_pursuit_feedback_amount_nonnegative_check') THEN
     ALTER TABLE gpp_pursuit_feedback
       ADD CONSTRAINT gpp_pursuit_feedback_amount_nonnegative_check
-      CHECK (award_amount IS NULL OR award_amount >= 0) NOT VALID;
+      CHECK (award_amount IS NULL OR award_amount >= 0);
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'gpp_pursuit_feedback_source_https_check') THEN
     ALTER TABLE gpp_pursuit_feedback
       ADD CONSTRAINT gpp_pursuit_feedback_source_https_check
-      CHECK (source_url IS NULL OR source_url LIKE 'https://%') NOT VALID;
+      CHECK (source_url IS NULL OR source_url LIKE 'https://%');
   END IF;
 END $$;
 

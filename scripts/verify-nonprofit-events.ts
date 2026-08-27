@@ -81,6 +81,8 @@ async function run() {
     if (create.status !== 201) fail(`event create returned ${create.status}: ${JSON.stringify(await body(create))}`);
     eventId = (await body(create)).event?.id;
     if (!eventId) fail("event create response omitted event.id");
+    const ownerAccess = await request("/api/nonprofit-events/access", ownerCookie, ORG_A);
+    if (ownerAccess.status !== 200 || (await body(ownerAccess)).authorized !== true) fail("owner access-status did not report authorized access");
     ok("created a private, organization-scoped event");
 
     const crossOrg = await request(`/api/nonprofit-events/events/${eventId}/audit`, otherCookie, ORG_B);
@@ -92,6 +94,8 @@ async function run() {
     if (nonStaffReport.status !== 403) fail(`non-staff report access returned ${nonStaffReport.status}, expected 403`);
     const collaboratorWorkspace = await request("/api/nonprofit-events/workspace", collaboratorCookie, ORG_A);
     if (collaboratorWorkspace.status !== 403) fail(`collaborator workspace access returned ${collaboratorWorkspace.status}, expected 403`);
+    const collaboratorAccess = await request("/api/nonprofit-events/access", collaboratorCookie, ORG_A);
+    if (collaboratorAccess.status !== 200 || (await body(collaboratorAccess)).authorized !== false) fail("ungranted collaborator access-status did not report denied access");
     const crossOrgReport = await request(`/api/nonprofit-events/report?orgId=${ORG_A}`, otherCookie, ORG_B);
     if (crossOrgReport.status !== 403) fail(`cross-org report access returned ${crossOrgReport.status}, expected 403`);
     ok("limited workspace and reports to active-organization staff");
@@ -114,10 +118,14 @@ async function run() {
     if (duplicateGrant.status !== 200) fail(`duplicate event-workspace grant returned ${duplicateGrant.status}, expected 200`);
     const authorizedCollaboratorWorkspace = await request("/api/nonprofit-events/workspace", collaboratorCookie, ORG_A);
     if (authorizedCollaboratorWorkspace.status !== 200) fail(`authorized collaborator workspace access returned ${authorizedCollaboratorWorkspace.status}, expected 200`);
+    const authorizedCollaboratorAccess = await request("/api/nonprofit-events/access", collaboratorCookie, ORG_A);
+    if (authorizedCollaboratorAccess.status !== 200 || (await body(authorizedCollaboratorAccess)).authorized !== true) fail("granted collaborator access-status did not report authorized access");
     const revoke = await request(`/api/me/organization/event-workspace-access/${COLLABORATOR.userId}`, ownerCookie, ORG_A, { method: "DELETE" });
     if (revoke.status !== 200) fail(`event-workspace revoke returned ${revoke.status}: ${JSON.stringify(await body(revoke))}`);
     const revokedCollaboratorWorkspace = await request("/api/nonprofit-events/workspace", collaboratorCookie, ORG_A);
     if (revokedCollaboratorWorkspace.status !== 403) fail(`revoked collaborator workspace access returned ${revokedCollaboratorWorkspace.status}, expected 403`);
+    const revokedCollaboratorAccess = await request("/api/nonprofit-events/access", collaboratorCookie, ORG_A);
+    if (revokedCollaboratorAccess.status !== 200 || (await body(revokedCollaboratorAccess)).authorized !== false) fail("revoked collaborator access-status did not report denied access");
     const [{ count: accessAuditCount }] = (await db.query<{ count: string }>(
       `SELECT count(*)::text AS count FROM nonprofit_event_workspace_access_audit WHERE org_id = $1 AND target_user_id = $2`,
       [ORG_A, COLLABORATOR.userId],

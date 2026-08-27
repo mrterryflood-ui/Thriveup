@@ -55,6 +55,14 @@ expect(contract.includes("outbound-only credential"), "contract prohibits replay
 expect(migration.includes("gpp_opportunity_handoffs") && migration.includes("gpp_pursuit_feedback"), "production migration creates lifecycle tables");
 expect(hardeningMigration.includes("gpp_opportunity_handoff_attempts") && hardeningMigration.includes("request_hash"), "hardening migration preserves request hashes and delivery attempts");
 expect(runtimeMigration.includes("information_schema.columns") && runtimeMigration.includes("gpp_opportunity_handoff_attempts"), "runtime migration is rerun-safe and creates delivery attempts");
+expect(
+  !/gpp_(opportunity_handoffs_delivery_state|opportunity_handoff_attempts_outcome|pursuit_feedback_(amount_disclosure|status|amount_nonnegative|source_https))_check[\s\S]{0,500}NOT VALID/.test(hardeningMigration),
+  "hardening migration never creates GPP checks as NOT VALID, which publish cannot inline safely",
+);
+expect(
+  !/gpp_(opportunity_handoffs_delivery_state|opportunity_handoff_attempts_outcome|pursuit_feedback_(amount_disclosure|status|amount_nonnegative|source_https))_check[\s\S]{0,500}NOT VALID/.test(runtimeMigration),
+  "runtime migration never creates GPP checks as NOT VALID, which publish cannot inline safely",
+);
 expect(migrationRunner.includes("pg_advisory_lock"), "startup migration runner serializes concurrent application");
 expect(routes.includes("storedRequestFingerprint") && routes.includes("racedHash"), "request reuse is content-bound for legacy and concurrent rows");
 expect(!routes.includes("snapshot: latest?.snapshot"), "Mirror reads do not expose raw partner JSON");

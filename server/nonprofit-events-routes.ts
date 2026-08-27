@@ -263,6 +263,15 @@ function ensureShareable(story: {
 }
 
 export function registerNonprofitEventRoutes(app: Express) {
+  app.get("/api/nonprofit-events/access", requireAuth, loadCallerOrg, requireOrg, async (req: Request, res: Response) => {
+    try {
+      res.json({ authorized: await callerIsStaff(req) });
+    } catch (err) {
+      console.error("[nonprofit-events] access-status check failed:", err);
+      res.status(500).json({ error: "Unable to verify event workspace access." });
+    }
+  });
+
   app.get("/api/nonprofit-events/workspace", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const org = getCallerOrg(req)!;

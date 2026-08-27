@@ -9,11 +9,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest } from "@/lib/queryClient";
+import { useCurrentOrgId } from "@/hooks/use-current-org";
 import {
   CheckCircle2, Circle, ArrowRight, Building2, FileText, Users, Sparkles,
   Map, Compass, Network, TrendingUp, Heart, RotateCcw, Home, GraduationCap,
   Baby, Zap, Shield, Command, AlertCircle, ExternalLink, ChevronRight,
-  Clock, XCircle, CheckCircle, Plus, RefreshCw,
+  Clock, XCircle, CheckCircle, Plus, RefreshCw, CalendarCheck, LockKeyhole,
 } from "lucide-react";
 import { getToolsForOrg } from "@/lib/partner-tools";
 import type { PartnerTool } from "@/lib/partner-tools";
@@ -55,6 +57,14 @@ interface PortalData {
     focusAreas: string[];
     populationsServed: string[];
   } | null;
+}
+
+interface CurrentUserRole {
+  role: string;
+}
+
+interface EventWorkspaceAccessStatus {
+  authorized: boolean;
 }
 
 function ToolCard({ tool }: { tool: PartnerTool }) {
@@ -352,11 +362,28 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
 
 export default function PartnerPortalPage() {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { orgId } = useCurrentOrgId();
   const [, setLocation] = useLocation();
+  const { data: currentUserRole } = useQuery<CurrentUserRole>({
+    queryKey: ["/api/academy/avatar"],
+    enabled: isAuthenticated,
+  });
 
   const { data, isLoading, error } = useQuery<PortalData>({
     queryKey: ["/api/partner-portal/home"],
     enabled: isAuthenticated,
+  });
+  const eventWorkspaceAccess = useQuery<EventWorkspaceAccessStatus>({
+    queryKey: ["/api/nonprofit-events/access", orgId ?? "default"],
+    enabled: isAuthenticated && Boolean(currentUserRole),
+    queryFn: async () => {
+      try {
+        return (await apiRequest("GET", "/api/nonprofit-events/access")).json();
+      } catch (error) {
+        if (error instanceof Error && /^(403|404):/.test(error.message)) return { authorized: false };
+        throw error;
+      }
+    },
   });
 
   if (authLoading || isLoading) {
@@ -410,6 +437,7 @@ export default function PartnerPortalPage() {
   const tools = getToolsForOrg(stats?.focusAreas ?? []);
   const nextStep = onboarding.steps.find((s) => !s.done);
   const allDone = onboarding.pct === 100;
+  const canSeeEventWorkspaceSpotlight = eventWorkspaceAccess.data?.authorized === true;
 
   return (
     <div className="min-h-screen bg-background" data-testid="partner-portal-page">
@@ -494,6 +522,50 @@ export default function PartnerPortalPage() {
               <div className="text-xs text-muted-foreground mt-0.5">Setup complete</div>
             </Card>
           </div>
+        )}
+
+        {canSeeEventWorkspaceSpotlight && (
+          <Card className="overflow-hidden border-primary/30 bg-gradient-to-br from-primary/10 via-primary/5 to-background shadow-sm" data-testid="card-event-workspace-spotlight">
+            <CardContent className="p-5 sm:p-6">
+              <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm">
+                    <CalendarCheck className="h-6 w-6" aria-hidden="true" />
+                  </div>
+                  <div className="min-w-0 space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <Badge className="bg-primary text-primary-foreground" data-testid="badge-event-workspace-new">New</Badge>
+                      <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <LockKeyhole className="h-3.5 w-3.5" aria-hidden="true" />
+                        Private organization workspace
+                      </span>
+                    </div>
+                    <div>
+                      <h2 className="text-lg font-bold text-foreground">Community Events &amp; Impact</h2>
+                      <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+                        Plan community events, record aggregate attendance only, connect source-linked needs to accountable actions, and prepare small-count-suppressed internal reports. Consent-gated stories stay separate from those reports.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-col gap-2 sm:flex-row">
+                  <Link href="/organization/events">
+                    <Button data-testid="button-open-event-workspace">
+                      Open workspace <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                  </Link>
+                  <Link href="/settings/organization">
+                    <Button variant="outline" data-testid="button-manage-event-workspace-access">
+                      Manage access
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+              <p className="mt-4 border-t border-primary/15 pt-3 text-xs text-muted-foreground">
+                Access is limited to authorized organization staff. Organization owners manage access from Organization Profile without changing a person’s regular member or collaborator role.
+              </p>
+            </CardContent>
+          </Card>
         )}
 
         <div className="grid lg:grid-cols-3 gap-8">

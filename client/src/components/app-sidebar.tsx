@@ -434,6 +434,7 @@ const ctxHubItems: NavItem[] = [
 // AUTH-ONLY — My Organization. Hoisted out of grant tools so partners
 // don't scroll past 30+ items to find their own org profile.
 const myOrgItems: NavItem[] = [
+  { title: "Organization Dashboard", url: "/partner-portal", icon: LayoutDashboard },
   { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
   { title: "Community Events & Impact", url: "/organization/events", icon: CalendarCheck, staffOnly: true },
   { title: "Document Library", url: "/settings/documents", icon: FileText },

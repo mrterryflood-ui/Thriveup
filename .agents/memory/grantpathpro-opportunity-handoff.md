@@ -26,3 +26,16 @@ Before enabling live delivery, provision the dedicated credential and exact
 receiver through secure configuration, configure the authenticated callback,
 and verify their behavior in a non-production environment. Do not treat
 development or a local receiver stub as partner readiness evidence.
+
+For GPP tables that may be created during the publish-time schema diff, do not
+leave their check constraints `NOT VALID` in the development database. Verify
+that existing rows satisfy the check, then validate it; migration sources for
+new environments should create the check as valid.
+
+**Why:** The publish schema diff can serialize an unvalidated check as an
+inline `CREATE TABLE` constraint. PostgreSQL permits `NOT VALID` only with
+`ALTER TABLE ... ADD CONSTRAINT`, so that generated statement fails to parse.
+
+**How to apply:** Before publishing a new GPP table with hardening constraints,
+count violating rows first. If none exist, validate the constraint in
+development and keep the committed GPP migration source free of `NOT VALID`.
