@@ -217,6 +217,7 @@ const AgencyConnectorPage = lazy(() => import("@/pages/agency-connector"));
 const PartnerDashboardPage = lazy(() => import("@/pages/partner-dashboard"));
 const PartnerDashboardSharedPage = lazy(() => import("@/pages/partner-dashboard-shared"));
 const ForNonprofitsPage = lazy(() => import("@/pages/for-nonprofits"));
+const NonprofitEventsPage = lazy(() => import("@/pages/nonprofit-events"));
 const MemberHealthPage = lazy(() => import("@/pages/member-health-page"));
 const GrantPriorAwardsPage = lazy(() => import("@/pages/grant-prior-awards"));
 const EcosystemOrchestrationPage = lazy(() => import("@/pages/ecosystem-orchestration"));
@@ -694,6 +695,11 @@ function AppRouter() {
       <Route path="/settings/documents">
         <RequireAuth reason="Sign in to manage your document library.">
           <OrgDocumentsLibraryPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/organization/events">
+        <RequireAuth staffOnly reason="The Community Events & Impact workspace is restricted to authorized organization staff.">
+          <NonprofitEventsPage />
         </RequireAuth>
       </Route>
       <Route path="/my-grants">

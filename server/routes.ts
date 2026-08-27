@@ -143,6 +143,7 @@ import { registerChainWebRoutes } from "./corridor-chainweb";
 import { registerRegionalBriefingRoutes } from "./regional-briefing-routes";
 import { registerCorridorDocRoutes } from "./corridor-docs";
 import { registerOrgProfileRoutes } from "./org-profile-routes";
+import { registerNonprofitEventRoutes } from "./nonprofit-events-routes";
 import { registerOrgDocumentsRoutes } from "./org-documents-routes";
 import { registerGrantNarrativeRoutes } from "./grant-narrative-routes";
 import { householdRouter } from "./household-routes";
@@ -527,6 +528,7 @@ export async function registerRoutes(
   registerCrossPlatformRoutes(app);
   registerGrantRoutes(app);
   registerOrgProfileRoutes(app);
+  registerNonprofitEventRoutes(app);
   registerOrgDocumentsRoutes(app);
   registerGrantNarrativeRoutes(app);
   scheduleMonthlyResourceRefresh(); // non-blocking; staggered 2s/agency background refresh

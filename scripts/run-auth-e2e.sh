@@ -112,5 +112,10 @@ echo "[auth-e2e] running community-intelligence security verification..."
 npx tsx scripts/verify-community-intelligence-security.ts
 COMMUNITY_INTELLIGENCE_SECURITY_EXIT=$?
 
-[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ] && [ $SHARE_EXIT -eq 0 ] && [ $GV_SYNC_AUDIT_EXIT -eq 0 ] && [ $COMMUNITY_INTELLIGENCE_SECURITY_EXIT -eq 0 ]
+echo ""
+echo "[auth-e2e] running nonprofit community-event workspace verification..."
+npx tsx scripts/verify-nonprofit-events.ts
+NONPROFIT_EVENTS_EXIT=$?
+
+[ $PLAYWRIGHT_EXIT -eq 0 ] && [ $WEBHOOK_EXIT -eq 0 ] && [ $CAPACITY_EXIT -eq 0 ] && [ $LOOP_EXIT -eq 0 ] && [ $GV_EXIT -eq 0 ] && [ $PARTNER_KEY_EXIT -eq 0 ] && [ $SHARE_EXIT -eq 0 ] && [ $GV_SYNC_AUDIT_EXIT -eq 0 ] && [ $COMMUNITY_INTELLIGENCE_SECURITY_EXIT -eq 0 ] && [ $NONPROFIT_EVENTS_EXIT -eq 0 ]
 exit $?

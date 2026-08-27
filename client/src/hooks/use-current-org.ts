@@ -16,7 +16,10 @@ export function useCurrentOrgId() {
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => {
-      if (e.key === CURRENT_ORG_LS_KEY) setOrgIdState(e.newValue);
+      if (e.key === CURRENT_ORG_LS_KEY) {
+        setOrgIdState(e.newValue);
+        queryClient.clear();
+      }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);

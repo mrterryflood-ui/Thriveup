@@ -13,8 +13,8 @@ export function ErrorRetry({ message, onRetry }: ErrorRetryProps) {
   const { t } = useLanguage();
   return (
     <Card className="p-6 flex flex-col items-center justify-center gap-4 text-center" data-testid="error-retry-container">
-      <AlertCircle className="h-10 w-10 text-destructive" />
-      <p className="text-sm text-muted-foreground" data-testid="error-retry-message">
+      <AlertCircle className="h-10 w-10 text-destructive" aria-hidden="true" />
+      <p className="text-sm text-muted-foreground" data-testid="error-retry-message" role="alert">
         {message ?? t("state.error.default")}
       </p>
       <Button onClick={onRetry} aria-label={t("state.error.tryAgain")} data-testid="button-error-retry">

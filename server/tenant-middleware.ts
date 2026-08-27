@@ -44,6 +44,9 @@ export async function loadCallerOrg(req: Request, res: Response, next: NextFunct
     let role: string | undefined;
     if (memberships.length > 0) {
       const matched = requestedOrgId ? memberships.find((m) => m.orgId === requestedOrgId) : undefined;
+      if (requestedOrgId && !matched) {
+        return res.status(403).json({ error: "The selected organization is not one of your current memberships.", code: "ORG_ACCESS_DENIED" });
+      }
       const picked = matched ?? memberships.slice().sort((a, b) => a.joinedAt.getTime() - b.joinedAt.getTime())[0];
       chosenOrgId = picked.orgId;
       role = picked.role;
