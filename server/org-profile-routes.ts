@@ -1,10 +1,11 @@
 import type { Express, Request, Response } from "express";
 import { db } from "./storage";
-import { organizations, organizationMembers, grantOrgTracking, grantOpportunities, wonProposals, users, insertOrganizationSchema, insertGrantOrgTrackingSchema } from "@shared/schema";
+import { organizations, organizationMembers, grantOrgTracking, grantOpportunities, wonProposals, users, insertOrganizationSchema, insertGrantOrgTrackingSchema, nonprofitEventWorkspaceAccess, nonprofitEventWorkspaceAccessAudit } from "@shared/schema";
 import { classifyFunder } from "./foundation-intelligence";
 import { and, desc, eq, inArray, ne } from "drizzle-orm";
 import { requireAuth, getUserId, loadCallerOrg, requireOrg, getCallerOrg, getCallerOrgRole } from "./tenant-middleware";
 import { invalidateOrgScores } from "./org-scoring";
+import { isPlatformStaff } from "./event-workspace-auth";
 
 export function registerOrgProfileRoutes(app: Express) {
   // ── Current-org context ──────────────────────────────────────────────────
@@ -121,6 +122,106 @@ export function registerOrgProfileRoutes(app: Express) {
     } catch (e) {
       console.error("[org-profile] list members failed:", e);
       res.status(500).json({ error: "Failed to list members" });
+    }
+  });
+
+  // Event-workspace authorization is separate from membership: it lets an
+  // owner designate eligible platform staff without changing collaborator or
+  // member status.
+  app.get("/api/me/organization/event-workspace-access", requireAuth, loadCallerOrg, requireOrg, async (req: Request, res: Response) => {
+    const org = getCallerOrg(req)!;
+    if (getCallerOrgRole(req) !== "owner") return res.status(403).json({ error: "Only organization owners can view event-workspace access." });
+    try {
+      const memberships = await db.select().from(organizationMembers).where(eq(organizationMembers.orgId, org.id));
+      const userIds = memberships.map((member) => member.userId);
+      const [userRows, authorizations] = await Promise.all([
+        userIds.length > 0
+          ? db.select({ id: users.id, email: users.email, firstName: users.firstName, lastName: users.lastName }).from(users).where(inArray(users.id, userIds))
+          : Promise.resolve([]),
+        db.select().from(nonprofitEventWorkspaceAccess).where(eq(nonprofitEventWorkspaceAccess.orgId, org.id)),
+      ]);
+      const authorizedByUserId = new Set(authorizations.map((authorization) => authorization.userId));
+      const eligibilityByUserId = new Map(await Promise.all(userRows.map(async (user) => [user.id, await isPlatformStaff(user.id)] as const)));
+      res.json({
+        members: memberships.map((membership) => {
+          const user = userRows.find((row) => row.id === membership.userId);
+          return {
+            userId: membership.userId,
+            membershipRole: membership.role,
+            email: user?.email ?? null,
+            firstName: user?.firstName ?? null,
+            lastName: user?.lastName ?? null,
+            eligibleForEventWorkspace: eligibilityByUserId.get(membership.userId) === true,
+            eventWorkspaceAccess: membership.role === "owner" ? "owner" : authorizedByUserId.has(membership.userId) ? "authorized" : "not_authorized",
+          };
+        }),
+      });
+    } catch (error) {
+      console.error("[org-profile] list event-workspace access failed:", error);
+      res.status(500).json({ error: "Failed to load event-workspace access." });
+    }
+  });
+
+  app.post("/api/me/organization/event-workspace-access/:userId", requireAuth, loadCallerOrg, requireOrg, async (req: Request, res: Response) => {
+    const org = getCallerOrg(req)!;
+    const actorUserId = getUserId(req)!;
+    const targetUserId = String(req.params.userId);
+    if (getCallerOrgRole(req) !== "owner") return res.status(403).json({ error: "Only organization owners can authorize event-workspace staff." });
+    try {
+      const [membership] = await db.select().from(organizationMembers).where(and(
+        eq(organizationMembers.orgId, org.id),
+        eq(organizationMembers.userId, targetUserId),
+      ));
+      if (!membership) return res.status(404).json({ error: "That person is not a current member of this organization." });
+      if (membership.role === "owner") return res.status(409).json({ error: "Organization owners already have event-workspace access." });
+      if (!(await isPlatformStaff(targetUserId))) {
+        return res.status(422).json({ error: "This member is not eligible for event-workspace authorization. Authorization does not create platform staff access." });
+      }
+      const result = await db.transaction(async (tx) => {
+        const [authorization] = await tx.insert(nonprofitEventWorkspaceAccess).values({
+          orgId: org.id, userId: targetUserId, authorizedByUserId: actorUserId,
+        }).onConflictDoNothing().returning();
+        if (!authorization) return { authorization: null, alreadyAuthorized: true };
+        await tx.insert(nonprofitEventWorkspaceAccessAudit).values({
+          orgId: org.id, targetUserId, changedByUserId: actorUserId, action: "authorized",
+        });
+        return { authorization, alreadyAuthorized: false };
+      });
+      res.status(result.alreadyAuthorized ? 200 : 201).json(result);
+    } catch (error) {
+      console.error("[org-profile] grant event-workspace access failed:", error);
+      res.status(500).json({ error: "Failed to authorize event-workspace staff." });
+    }
+  });
+
+  app.delete("/api/me/organization/event-workspace-access/:userId", requireAuth, loadCallerOrg, requireOrg, async (req: Request, res: Response) => {
+    const org = getCallerOrg(req)!;
+    const actorUserId = getUserId(req)!;
+    const targetUserId = String(req.params.userId);
+    if (getCallerOrgRole(req) !== "owner") return res.status(403).json({ error: "Only organization owners can revoke event-workspace access." });
+    try {
+      const [membership] = await db.select().from(organizationMembers).where(and(
+        eq(organizationMembers.orgId, org.id),
+        eq(organizationMembers.userId, targetUserId),
+      ));
+      if (!membership) return res.status(404).json({ error: "That person is not a current member of this organization." });
+      if (membership.role === "owner") return res.status(409).json({ error: "Organization owners retain event-workspace access while they are owners." });
+      const result = await db.transaction(async (tx) => {
+        const [revoked] = await tx.delete(nonprofitEventWorkspaceAccess).where(and(
+          eq(nonprofitEventWorkspaceAccess.orgId, org.id),
+          eq(nonprofitEventWorkspaceAccess.userId, targetUserId),
+        )).returning();
+        if (!revoked) return false;
+        await tx.insert(nonprofitEventWorkspaceAccessAudit).values({
+          orgId: org.id, targetUserId, changedByUserId: actorUserId, action: "revoked",
+        });
+        return true;
+      });
+      if (!result) return res.status(404).json({ error: "This member does not currently have event-workspace access." });
+      res.json({ ok: true });
+    } catch (error) {
+      console.error("[org-profile] revoke event-workspace access failed:", error);
+      res.status(500).json({ error: "Failed to revoke event-workspace access." });
     }
   });
 

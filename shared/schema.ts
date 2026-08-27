@@ -1,5 +1,5 @@
 import { sql } from "drizzle-orm";
-import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex, unique, date } from "drizzle-orm/pg-core";
+import { pgTable, text, varchar, integer, boolean, timestamp, jsonb, decimal, real, serial, numeric, index, uniqueIndex, unique, date, foreignKey } from "drizzle-orm/pg-core";
 import { nanoid } from "nanoid";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
@@ -5586,6 +5586,36 @@ export const organizationMembers = pgTable("organization_members", {
 export const insertOrganizationMemberSchema = createInsertSchema(organizationMembers).omit({ id: true, joinedAt: true });
 export type InsertOrganizationMember = z.infer<typeof insertOrganizationMemberSchema>;
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
+
+// A deliberately narrow grant for the private Community Events & Impact
+// workspace. It supplements (never replaces) an organization membership and
+// a platform-level staff role, so normal collaborator status remains intact.
+export const nonprofitEventWorkspaceAccess = pgTable("nonprofit_event_workspace_access", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  authorizedByUserId: varchar("authorized_by_user_id", { length: 255 }).notNull(),
+  authorizedAt: timestamp("authorized_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  uniqueIndex("idx_nonprofit_event_workspace_access_unique").on(t.orgId, t.userId),
+  index("idx_nonprofit_event_workspace_access_user").on(t.userId),
+  foreignKey({
+    name: "nonprofit_event_workspace_access_active_member_fk",
+    columns: [t.orgId, t.userId],
+    foreignColumns: [organizationMembers.orgId, organizationMembers.userId],
+  }).onDelete("cascade"),
+]);
+
+export const nonprofitEventWorkspaceAccessAudit = pgTable("nonprofit_event_workspace_access_audit", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  targetUserId: varchar("target_user_id", { length: 255 }).notNull(),
+  changedByUserId: varchar("changed_by_user_id", { length: 255 }).notNull(),
+  action: varchar("action", { length: 32 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  index("idx_nonprofit_event_workspace_access_audit_org").on(t.orgId, t.createdAt),
+]);
 
 // ============================================================================
 // NONPROFIT COMMUNITY EVENTS & IMPACT

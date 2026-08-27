@@ -9,7 +9,7 @@
 
 const BASE = process.env.BASE_URL || "http://localhost:5000";
 const OWNER = { userId: "e2e-nonprofit-events-owner", email: "e2e-nonprofit-events-owner@test.local", firstName: "Events", lastName: "Owner", role: "case_manager" };
-const OTHER = { userId: "e2e-nonprofit-events-other", email: "e2e-nonprofit-events-other@test.local", firstName: "Events", lastName: "Other", role: "case_manager" };
+const OTHER = { userId: "e2e-nonprofit-events-other", email: "e2e-nonprofit-events-other@test.local", firstName: "Events", lastName: "Other", role: "student" };
 const MEMBER = { userId: "e2e-nonprofit-events-member", email: "e2e-nonprofit-events-member@test.local", firstName: "Events", lastName: "Member", role: "student" };
 const COLLABORATOR = { userId: "e2e-nonprofit-events-collaborator", email: "e2e-nonprofit-events-collaborator@test.local", firstName: "Events", lastName: "Collaborator", role: "case_manager" };
 const ORG_A = "e2e-nonprofit-events-org-a";
@@ -84,7 +84,7 @@ async function run() {
     ok("created a private, organization-scoped event");
 
     const crossOrg = await request(`/api/nonprofit-events/events/${eventId}/audit`, otherCookie, ORG_B);
-    if (crossOrg.status !== 404) fail(`cross-org audit access returned ${crossOrg.status}, expected 404`);
+    if (crossOrg.status !== 403) fail(`non-staff cross-org audit access returned ${crossOrg.status}, expected 403`);
     ok("rejected cross-organization event access");
     const nonStaffWorkspace = await request("/api/nonprofit-events/workspace", memberCookie, ORG_A);
     if (nonStaffWorkspace.status !== 403) fail(`non-staff workspace access returned ${nonStaffWorkspace.status}, expected 403`);
@@ -95,6 +95,46 @@ async function run() {
     const crossOrgReport = await request(`/api/nonprofit-events/report?orgId=${ORG_A}`, otherCookie, ORG_B);
     if (crossOrgReport.status !== 403) fail(`cross-org report access returned ${crossOrgReport.status}, expected 403`);
     ok("limited workspace and reports to active-organization staff");
+
+    const nonOwnerGrant = await request(`/api/me/organization/event-workspace-access/${COLLABORATOR.userId}`, memberCookie, ORG_A, { method: "POST" });
+    if (nonOwnerGrant.status !== 403) fail(`non-owner access grant returned ${nonOwnerGrant.status}, expected 403`);
+    const crossOrgGrant = await request(`/api/me/organization/event-workspace-access/${COLLABORATOR.userId}`, otherCookie, ORG_A, { method: "POST" });
+    if (crossOrgGrant.status !== 403) fail(`cross-org access grant returned ${crossOrgGrant.status}, expected 403`);
+    const ineligibleGrant = await request(`/api/me/organization/event-workspace-access/${MEMBER.userId}`, ownerCookie, ORG_A, { method: "POST" });
+    if (ineligibleGrant.status !== 422) fail(`ineligible access grant returned ${ineligibleGrant.status}, expected 422`);
+    const missingMemberGrant = await request(`/api/me/organization/event-workspace-access/${OTHER.userId}`, ownerCookie, ORG_A, { method: "POST" });
+    if (missingMemberGrant.status !== 404) fail(`non-member access grant returned ${missingMemberGrant.status}, expected 404`);
+    const ownerRevoke = await request(`/api/me/organization/event-workspace-access/${OWNER.userId}`, ownerCookie, ORG_A, { method: "DELETE" });
+    if (ownerRevoke.status !== 409) fail(`owner access revoke returned ${ownerRevoke.status}, expected 409`);
+    const nonStaffOwnerWorkspace = await request("/api/nonprofit-events/workspace", otherCookie, ORG_B);
+    if (nonStaffOwnerWorkspace.status !== 403) fail(`non-staff owner workspace access returned ${nonStaffOwnerWorkspace.status}, expected 403`);
+    const grant = await request(`/api/me/organization/event-workspace-access/${COLLABORATOR.userId}`, ownerCookie, ORG_A, { method: "POST" });
+    if (grant.status !== 201) fail(`event-workspace grant returned ${grant.status}: ${JSON.stringify(await body(grant))}`);
+    const duplicateGrant = await request(`/api/me/organization/event-workspace-access/${COLLABORATOR.userId}`, ownerCookie, ORG_A, { method: "POST" });
+    if (duplicateGrant.status !== 200) fail(`duplicate event-workspace grant returned ${duplicateGrant.status}, expected 200`);
+    const authorizedCollaboratorWorkspace = await request("/api/nonprofit-events/workspace", collaboratorCookie, ORG_A);
+    if (authorizedCollaboratorWorkspace.status !== 200) fail(`authorized collaborator workspace access returned ${authorizedCollaboratorWorkspace.status}, expected 200`);
+    const revoke = await request(`/api/me/organization/event-workspace-access/${COLLABORATOR.userId}`, ownerCookie, ORG_A, { method: "DELETE" });
+    if (revoke.status !== 200) fail(`event-workspace revoke returned ${revoke.status}: ${JSON.stringify(await body(revoke))}`);
+    const revokedCollaboratorWorkspace = await request("/api/nonprofit-events/workspace", collaboratorCookie, ORG_A);
+    if (revokedCollaboratorWorkspace.status !== 403) fail(`revoked collaborator workspace access returned ${revokedCollaboratorWorkspace.status}, expected 403`);
+    const [{ count: accessAuditCount }] = (await db.query<{ count: string }>(
+      `SELECT count(*)::text AS count FROM nonprofit_event_workspace_access_audit WHERE org_id = $1 AND target_user_id = $2`,
+      [ORG_A, COLLABORATOR.userId],
+    )).rows;
+    if (Number(accessAuditCount) !== 2) fail(`expected two event-workspace access audit records, found ${accessAuditCount}`);
+    const regrant = await request(`/api/me/organization/event-workspace-access/${COLLABORATOR.userId}`, ownerCookie, ORG_A, { method: "POST" });
+    if (regrant.status !== 201) fail(`event-workspace regrant returned ${regrant.status}, expected 201`);
+    await db.query(`DELETE FROM organization_members WHERE org_id = $1 AND user_id = $2`, [ORG_A, COLLABORATOR.userId]);
+    const [{ count: remainingAccessCount }] = (await db.query<{ count: string }>(
+      `SELECT count(*)::text AS count FROM nonprofit_event_workspace_access WHERE org_id = $1 AND user_id = $2`,
+      [ORG_A, COLLABORATOR.userId],
+    )).rows;
+    if (Number(remainingAccessCount) !== 0) fail("event-workspace access remained after the member left the organization");
+    await db.query(`INSERT INTO organization_members (org_id, user_id, role) VALUES ($1, $2, 'collaborator')`, [ORG_A, COLLABORATOR.userId]);
+    const rejoinedCollaboratorWorkspace = await request("/api/nonprofit-events/workspace", collaboratorCookie, ORG_A);
+    if (rejoinedCollaboratorWorkspace.status !== 403) fail(`rejoined collaborator regained stale event access (${rejoinedCollaboratorWorkspace.status}), expected 403`);
+    ok("made owner-managed event-workspace access grantable, revocable, and auditable");
 
     const incoherentAttendance = await request(`/api/nonprofit-events/events/${eventId}/attendance`, ownerCookie, ORG_A, {
       method: "PUT",

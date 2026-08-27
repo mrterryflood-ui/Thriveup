@@ -53,6 +53,7 @@ interface NavItem {
   icon: LucideIcon;
   authOnly?: boolean;
   adminOnly?: boolean;
+  staffOnly?: boolean;
 }
 
 const SIDEBAR_DESCRIPTIONS: Record<string, string> = {
@@ -515,9 +516,10 @@ function isItemActive(location: string, url: string): boolean {
   return false;
 }
 
-function filterAuth(items: NavItem[], isAuthenticated: boolean, isAdmin: boolean): NavItem[] {
+function filterAuth(items: NavItem[], isAuthenticated: boolean, isAdmin: boolean, isStaff = false): NavItem[] {
   return items.filter((i) => {
     if (i.adminOnly && !isAdmin) return false;
+    if (i.staffOnly && !isStaff) return false;
     if (i.authOnly && !isAuthenticated) return false;
     return true;
   });
@@ -624,6 +626,7 @@ export function AppSidebar() {
   const userRole = avatarData?.role || "student";
   const isAdmin = userRole === "admin";
   const isTeacher = userRole === "teacher" || isAdmin;
+  const isStaff = ["admin", "teacher", "case_manager", "facilitator", "staff"].includes(userRole);
 
   const rank = progress ? getRankForLevel(progress.currentLevel) : null;
   const RankIcon = rank ? (rankIcons[rank.icon] || Shield) : Shield;
@@ -654,6 +657,10 @@ export function AppSidebar() {
       icon: Compass,
     },
   ] : myOrgItems, [orgId]);
+  const visibleOrganizationNavItems = useMemo(
+    () => filterAuth(organizationNavItems, isAuthenticated, isAdmin, isStaff),
+    [organizationNavItems, isAuthenticated, isAdmin, isStaff],
+  );
 
   // Search corpus mirrors what's actually navigable for THIS viewer:
   // - CTX hub + 7 public hubs (already auth-filtered above)
@@ -661,7 +668,7 @@ export function AppSidebar() {
   // - All Admin sub-sections only when admin (incl. teaching when teacher)
   const allItems = useMemo(() => {
     const items: NavItem[] = [...quickTaskItems, ...hubCtx, ...hub1, ...hub2, ...hubFoster, ...hubJustice, ...hubPrevHealth, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7, ...hubChildCare, ...hubRural];
-    if (isAuthenticated) items.push(...organizationNavItems);
+    if (isAuthenticated) items.push(...visibleOrganizationNavItems);
     if (isAdmin) {
       items.push(
         ...adminOperationsItems,
@@ -672,7 +679,7 @@ export function AppSidebar() {
       if (isTeacher) items.push(...adminTeachingItems);
     }
     return items;
-  }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, hubChildCare, hubRural, isAuthenticated, isAdmin, isTeacher, organizationNavItems]);
+  }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, hubChildCare, hubRural, isAuthenticated, isAdmin, isTeacher, visibleOrganizationNavItems]);
   const search = useSidebarSearch(allItems);
 
   return (

@@ -32,6 +32,7 @@
 - [Validation workflow 10-slot limit](validation-workflow-limit.md) — configureWorkflow refuses adds past 10 workflows; use setValidationCommand and chain sibling test files into one gate.
 - [Lesson diagram verification](lesson-diagram-verification.md) — diagrams must reuse the lesson's own worked numbers/units; 3D canvases use touch-action pan-y; 375px gallery recipe.
 - [Referral loop invariants](referral-loop-invariants.md) — separate status vs org-confirm tokens; staff-gated creation; atomic resolved-at guard; default values need valueSource disclosure.
+- [Event-workspace authorization boundary](event-workspace-authorization.md) — owners manage a narrow entitlement; platform-staff eligibility remains a separate non-bypassable gate.
 - [Double Helix AI Verification Protocol](double-helix-verification.md) — BUILD + VERIFY subagent strands interleave every feature; zero-gap VERIFY pass required before mandatory Iron Rule 19 Architect review; trace written to .verification/.
 - [CHW dashboard state patterns](chw-dashboard-state.md) — submittedClientPhone captures phone before resetReferralForm() clears it; orgResourceOptions must include acceptingClients for capacity warning; phone numbers use 555-01xx NANP reserved range (never real).
 - [Funder impact report $0 fix](funder-impact-zero.md) — estimatedCount field distinguishes enrolled-with-estimate vs enrolled-without; narrative says "value not yet estimated" not "$0" when estimatedCount=0 and enrolled>0.

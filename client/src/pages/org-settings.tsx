@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
+import { useCurrentOrgId } from "@/hooks/use-current-org";
 
 const FOCUS_OPTIONS = ["Workforce Development","Behavioral Health","Health Equity","Reentry & Justice","Youth Development","Education","Housing","Food Security","Veterans","Disability Services","Maternal Health","Substance Use","Domestic Violence","Immigrant Services","Foster Care","Senior Services","Civic Engagement","Arts & Culture","Environment","Economic Development"];
 const POPULATION_OPTIONS = ["Black/African American","Latino/Hispanic","Indigenous","Asian/Pacific Islander","Immigrants & Refugees","Veterans & Military Families","Foster & Justice-Involved Youth","Justice-Involved Adults","LGBTQ+","People with Disabilities","Seniors (65+)","Low-Income Families","Rural Communities","Survivors of Violence","Unhoused Individuals"];
@@ -25,24 +26,46 @@ type Org = {
   naicsCodes?: string[]; pscCodes?: string[];
   uei?: string | null; cageCode?: string | null; samStatus?: string | null;
 };
+type OrgContext = { organization: Org | null; role: string | null };
+type EventWorkspaceMember = {
+  userId: string; membershipRole: string; email: string | null; firstName: string | null; lastName: string | null;
+  eligibleForEventWorkspace: boolean; eventWorkspaceAccess: "owner" | "authorized" | "not_authorized";
+};
+type EventWorkspaceAccess = { members: EventWorkspaceMember[] };
 
 export default function OrgSettingsPage() {
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { data, isLoading } = useQuery<{ organization: Org | null }>({ queryKey: ["/api/me/organization"] });
+  const { orgId } = useCurrentOrgId();
+  const { data, isLoading } = useQuery<OrgContext>({
+    queryKey: ["/api/me/organization", orgId ?? "default"],
+    queryFn: async () => (await apiRequest("GET", "/api/me/organization")).json(),
+  });
+  const eventWorkspaceAccess = useQuery<EventWorkspaceAccess>({
+    queryKey: ["/api/me/organization/event-workspace-access", orgId ?? "default"],
+    enabled: data?.role === "owner",
+    queryFn: async () => (await apiRequest("GET", "/api/me/organization/event-workspace-access")).json(),
+  });
   const [form, setForm] = useState<Org | null>(null);
   const [countiesInput, setCountiesInput] = useState("");
   const [naicsInput, setNaicsInput] = useState("");
   const [pscInput, setPscInput] = useState("");
 
   useEffect(() => {
-    if (data?.organization && !form) {
+    if (data?.organization && form?.id !== data.organization.id) {
       setForm(data.organization);
       setCountiesInput((data.organization.counties ?? []).join(", "));
       setNaicsInput((data.organization.naicsCodes ?? []).join(", "));
       setPscInput((data.organization.pscCodes ?? []).join(", "));
     }
-  }, [data, form]);
+  }, [data, form?.id]);
+
+  useEffect(() => {
+    setForm(null);
+    setCountiesInput("");
+    setNaicsInput("");
+    setPscInput("");
+  }, [orgId]);
 
   useEffect(() => {
     if (data && data.organization === null) setLocation("/onboarding/org");
@@ -66,6 +89,24 @@ export default function OrgSettingsPage() {
       toast({ title: "Profile updated", description: "Grant fit scores are being recomputed." });
     },
     onError: (e: Error) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
+  });
+
+  const refreshEventWorkspaceAccess = () => queryClient.invalidateQueries({ queryKey: ["/api/me/organization/event-workspace-access", orgId ?? "default"] });
+  const grantEventWorkspaceAccess = useMutation({
+    mutationFn: async (userId: string) => (await apiRequest("POST", `/api/me/organization/event-workspace-access/${encodeURIComponent(userId)}`)).json(),
+    onSuccess: () => {
+      void refreshEventWorkspaceAccess();
+      toast({ title: "Event workspace access granted", description: "This member can access Community Events & Impact while they remain eligible platform staff." });
+    },
+    onError: (error: Error) => toast({ title: "Access was not granted", description: error.message, variant: "destructive" }),
+  });
+  const revokeEventWorkspaceAccess = useMutation({
+    mutationFn: async (userId: string) => (await apiRequest("DELETE", `/api/me/organization/event-workspace-access/${encodeURIComponent(userId)}`)).json(),
+    onSuccess: () => {
+      void refreshEventWorkspaceAccess();
+      toast({ title: "Event workspace access revoked", description: "The member’s ordinary organization role is unchanged." });
+    },
+    onError: (error: Error) => toast({ title: "Access was not revoked", description: error.message, variant: "destructive" }),
   });
 
   if (isLoading || !form) return <div className="container max-w-3xl mx-auto py-10 px-4">Loading…</div>;
@@ -147,6 +188,59 @@ export default function OrgSettingsPage() {
           </div>
         </CardContent>
       </Card>
+
+      {data?.role === "owner" && (
+        <Card data-testid="card-event-workspace-access">
+          <CardHeader>
+            <CardTitle>Community Events & Impact access</CardTitle>
+            <CardDescription>
+              Designate current members who already have platform staff access. This does not change ownership, organization membership, or collaborator status.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {eventWorkspaceAccess.isLoading && <p className="text-sm text-muted-foreground">Loading member access…</p>}
+            {eventWorkspaceAccess.isError && <p className="text-sm text-destructive" role="alert">Member access could not be loaded. Please refresh the page.</p>}
+            {eventWorkspaceAccess.data?.members.map((member) => {
+              const name = [member.firstName, member.lastName].filter(Boolean).join(" ") || member.email || "Organization member";
+              const busy = grantEventWorkspaceAccess.isPending || revokeEventWorkspaceAccess.isPending;
+              return (
+                <div key={member.userId} className="flex flex-col gap-2 rounded-md border p-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="font-medium">{name}</p>
+                    <p className="text-xs text-muted-foreground">{member.email ?? "No email available"} · Organization role: {member.membershipRole}</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge variant={member.eventWorkspaceAccess === "not_authorized" ? "outline" : "default"}>
+                      {member.eventWorkspaceAccess === "owner"
+                        ? member.eligibleForEventWorkspace ? "Owner access" : "Owner — platform access needed"
+                        : member.eventWorkspaceAccess === "authorized"
+                          ? member.eligibleForEventWorkspace ? "Authorized" : "Authorized — platform access needed"
+                          : "Not authorized"}
+                    </Badge>
+                    {member.eventWorkspaceAccess === "authorized" ? (
+                      <Button variant="outline" size="sm" disabled={busy} onClick={() => {
+                        if (window.confirm(`Revoke ${name}'s access to Community Events & Impact? Their organization membership will not change.`)) {
+                          revokeEventWorkspaceAccess.mutate(member.userId);
+                        }
+                      }} data-testid={`button-revoke-event-workspace-${member.userId}`}>
+                        {revokeEventWorkspaceAccess.isPending ? "Revoking…" : "Revoke"}
+                      </Button>
+                    ) : member.eventWorkspaceAccess !== "owner" && (
+                      <Button size="sm" disabled={busy || !member.eligibleForEventWorkspace} onClick={() => grantEventWorkspaceAccess.mutate(member.userId)} data-testid={`button-grant-event-workspace-${member.userId}`}>
+                        {grantEventWorkspaceAccess.isPending ? "Granting…" : "Grant access"}
+                      </Button>
+                    )}
+                  </div>
+                  {!member.eligibleForEventWorkspace && (
+                    <p className="text-xs text-muted-foreground sm:col-span-2">Platform staff eligibility is required to enter Community Events & Impact. An organization designation alone does not create access.</p>
+                  )}
+                </div>
+              );
+            })}
+            {eventWorkspaceAccess.data?.members.length === 0 && <p className="text-sm text-muted-foreground">No organization members are available to authorize.</p>}
+          </CardContent>
+        </Card>
+      )}
 
       <Card>
         <CardHeader>

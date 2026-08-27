@@ -9,11 +9,10 @@ import {
   nonprofitEvents,
   nonprofitEventStories,
 } from "@shared/schema";
-import { db, storage } from "./storage";
-import { getCallerOrg, getCallerOrgRole, getUserId, loadCallerOrg, requireAuth, requireOrg } from "./tenant-middleware";
+import { db } from "./storage";
+import { canAccessEventWorkspace } from "./event-workspace-auth";
+import { getCallerOrg, getUserId, loadCallerOrg, requireAuth, requireOrg } from "./tenant-middleware";
 
-const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
-const WORKSPACE_ORG_ROLES = new Set(["owner", "admin", "manager", "staff"]);
 const eventStatuses = ["planned", "scheduled", "completed"] as const;
 const actionStatuses = ["planned", "in_progress", "blocked", "completed"] as const;
 const evidenceStatuses = ["observed", "derived", "self_reported", "partner_report", "needs_review"] as const;
@@ -133,9 +132,9 @@ function asNullableText(value: string | null | undefined): string | null {
 
 async function callerIsStaff(req: Request): Promise<boolean> {
   const userId = getUserId(req);
-  if (!userId) return false;
-  const user = await storage.getUser(userId);
-  return Boolean(user && STAFF_ROLES.has(user.role) && WORKSPACE_ORG_ROLES.has(getCallerOrgRole(req) ?? ""));
+  const org = getCallerOrg(req);
+  if (!userId || !org) return false;
+  return canAccessEventWorkspace(userId, org.id, (req as unknown as Record<string, unknown>).orgRole as string | undefined);
 }
 
 async function requireStaff(req: Request, res: Response, next: NextFunction) {

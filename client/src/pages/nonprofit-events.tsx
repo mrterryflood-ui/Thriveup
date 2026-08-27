@@ -15,7 +15,7 @@ import { useCurrentOrgId } from "@/hooks/use-current-org";
 
 type Attendance = {
   id: string; invitedCount: number | null; registeredCount: number | null; attendedCount: number | null; followUpCount: number | null;
-  valueSource: string; sourceNote: string | null; updatedAt: string;
+  valueSource: string; updatedAt: string;
 };
 type Need = { id: string; needArea: string; sourceName: string; sourceUrl: string | null; geography: string; evidenceStatus: string; responseExplanation: string };
 type Action = { id: string; title: string; ownerLabel: string; dueDate: string | null; status: string; completionEvidence: string | null; nextStep: string | null };
@@ -68,7 +68,7 @@ export default function NonprofitEventsPage() {
   const { orgId } = useCurrentOrgId();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [eventForm, setEventForm] = useState(emptyEvent);
-  const [attendanceForm, setAttendanceForm] = useState({ invitedCount: "", registeredCount: "", attendedCount: "", followUpCount: "", valueSource: "self_reported", sourceNote: "" });
+  const [attendanceForm, setAttendanceForm] = useState({ invitedCount: "", registeredCount: "", attendedCount: "", followUpCount: "", valueSource: "self_reported" });
   const [needForm, setNeedForm] = useState(emptyNeed);
   const [editingNeedId, setEditingNeedId] = useState<string | null>(null);
   const [actionForm, setActionForm] = useState(emptyAction);
@@ -95,8 +95,7 @@ export default function NonprofitEventsPage() {
       registeredCount: selected.attendance?.registeredCount?.toString() ?? "",
       attendedCount: selected.attendance?.attendedCount?.toString() ?? "",
       followUpCount: selected.attendance?.followUpCount?.toString() ?? "",
-      valueSource: selected.attendance?.valueSource ?? "self_reported",
-      sourceNote: selected.attendance?.sourceNote ?? "",
+       valueSource: selected.attendance?.valueSource ?? "self_reported",
     });
   }, [selected?.id, selected?.attendance?.id, selected?.attendance?.updatedAt]);
 
@@ -141,7 +140,7 @@ export default function NonprofitEventsPage() {
     const res = await apiRequest("PUT", `/api/nonprofit-events/events/${selected.id}/attendance`, {
       invitedCount: toCount(attendanceForm.invitedCount), registeredCount: toCount(attendanceForm.registeredCount),
       attendedCount: toCount(attendanceForm.attendedCount), followUpCount: toCount(attendanceForm.followUpCount),
-      valueSource: attendanceForm.valueSource, sourceNote: attendanceForm.sourceNote || null,
+       valueSource: attendanceForm.valueSource,
     });
     return res.json();
   }, "Aggregate attendance saved", refresh);
@@ -403,7 +402,7 @@ function EventDetail(props: {
     </Card>}
     <AuditHistory eventId={event.id} />
     {!archived && <div className="grid gap-6 lg:grid-cols-2">
-      <Card><CardHeader><CardTitle className="text-base">Aggregate attendance</CardTitle><p className="text-sm text-muted-foreground">Leave a count blank when it is unknown. Do not enter attendee identities.</p></CardHeader><CardContent><div className="grid grid-cols-2 gap-3">{(["invitedCount", "registeredCount", "attendedCount", "followUpCount"] as const).map((field) => <Field key={field} label={field.replace("Count", "").replace(/^./, (char) => char.toUpperCase())}><Input min="0" type="number" value={props.attendanceForm[field]} onChange={(input) => props.setAttendanceForm({ ...props.attendanceForm, [field]: input.target.value })} /></Field>)}</div><div className="mt-3 grid gap-3 md:grid-cols-2"><Field label="Value source"><select className="control" value={props.attendanceForm.valueSource} onChange={(input) => props.setAttendanceForm({ ...props.attendanceForm, valueSource: input.target.value })}><option value="self_reported">Self-reported</option><option value="observed">Observed aggregate</option><option value="partner_reported">Partner-reported</option><option value="unknown">Unknown</option></select></Field><Field label="Source note"><Input value={props.attendanceForm.sourceNote} onChange={(input) => props.setAttendanceForm({ ...props.attendanceForm, sourceNote: input.target.value })} /></Field></div><Button className="mt-4" onClick={props.onSaveAttendance} data-testid="button-save-aggregate-attendance">Save attendance</Button></CardContent></Card>
+      <Card><CardHeader><CardTitle className="text-base">Aggregate attendance</CardTitle><p className="text-sm text-muted-foreground">Leave a count blank when it is unknown. Do not enter attendee identities or free-text notes.</p></CardHeader><CardContent><div className="grid grid-cols-2 gap-3">{(["invitedCount", "registeredCount", "attendedCount", "followUpCount"] as const).map((field) => <Field key={field} label={field.replace("Count", "").replace(/^./, (char) => char.toUpperCase())}><Input min="0" type="number" value={props.attendanceForm[field]} onChange={(input) => props.setAttendanceForm({ ...props.attendanceForm, [field]: input.target.value })} /></Field>)}</div><div className="mt-3"><Field label="Value source"><select className="control" value={props.attendanceForm.valueSource} onChange={(input) => props.setAttendanceForm({ ...props.attendanceForm, valueSource: input.target.value })}><option value="self_reported">Self-reported</option><option value="observed">Observed aggregate</option><option value="partner_reported">Partner-reported</option><option value="unknown">Unknown</option></select></Field></div><Button className="mt-4" onClick={props.onSaveAttendance} data-testid="button-save-aggregate-attendance">Save attendance</Button></CardContent></Card>
       <Card><CardHeader><CardTitle className="text-base">Community needs & evidence</CardTitle></CardHeader><CardContent className="space-y-3"><div className="grid gap-3 sm:grid-cols-2"><Field label="Need area"><Input value={props.needForm.needArea} onChange={(input) => props.setNeedForm({ ...props.needForm, needArea: input.target.value })} /></Field><Field label="Geography"><Input value={props.needForm.geography} onChange={(input) => props.setNeedForm({ ...props.needForm, geography: input.target.value })} /></Field><Field label="Source"><Input value={props.needForm.sourceName} onChange={(input) => props.setNeedForm({ ...props.needForm, sourceName: input.target.value })} /></Field><Field label="Evidence status"><select className="control" value={props.needForm.evidenceStatus} onChange={(input) => props.setNeedForm({ ...props.needForm, evidenceStatus: input.target.value })}><option value="self_reported">Self-reported</option><option value="observed">Observed</option><option value="derived">Derived</option><option value="partner_report">Partner report</option><option value="needs_review">Needs review</option></select></Field></div><Field label="Source URL (optional)"><Input type="url" value={props.needForm.sourceUrl} onChange={(input) => props.setNeedForm({ ...props.needForm, sourceUrl: input.target.value })} /></Field><Field label="How this event responds"><Textarea value={props.needForm.responseExplanation} onChange={(input) => props.setNeedForm({ ...props.needForm, responseExplanation: input.target.value })} /></Field><div className="flex gap-2"><Button onClick={props.onAddNeed} data-testid="button-add-community-need">{props.editingNeedId ? "Update need" : "Link need"}</Button>{props.editingNeedId && <Button variant="outline" onClick={props.onCancelNeedEdit}>Cancel</Button>}</div>{event.needs.map((need) => <div className="rounded border p-3 text-sm" key={need.id}><div className="flex justify-between gap-2"><strong>{need.needArea}</strong><span><Button size="sm" variant="ghost" onClick={() => props.onEditNeed(need)}>Edit</Button><Button size="sm" variant="ghost" onClick={() => props.onRemoveNeed(need.id)}>Remove</Button></span></div><p className="text-muted-foreground">{need.geography} · {need.sourceName} · {need.evidenceStatus}</p><p className="mt-1">{need.responseExplanation}</p></div>)}</CardContent></Card>
     </div>}
     {!archived && <div className="grid gap-6 lg:grid-cols-2">
