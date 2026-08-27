@@ -1,4 +1,145 @@
 {
   "schemaVersion": 1,
-  "modules": []
+  "modules": [
+    {
+      "moduleKey": "e2e-studio-public-check",
+      "version": 0,
+      "lifecycleStage": "draft",
+      "public": false,
+      "manifest": {
+        "moduleKey": "e2e-studio-public-check",
+        "moduleType": "grant-workflow",
+        "title": "E2E public readiness check",
+        "description": "A deterministic, declarative manifest used only by the Studio access-control test.",
+        "routeSlug": "e2e-studio-public-check",
+        "lifecycleStage": "draft",
+        "public": false,
+        "dataScope": "public",
+        "retentionDays": 7,
+        "fields": [
+          {
+            "key": "readiness",
+            "label": "Readiness",
+            "type": "select",
+            "required": true,
+            "options": [
+              "ready",
+              "needs-review"
+            ],
+            "dataScope": "public"
+          }
+        ],
+        "actions": [
+          {
+            "type": "submit-record",
+            "label": "Save readiness",
+            "dataScope": "public"
+          }
+        ],
+        "stages": [
+          {
+            "key": "review",
+            "label": "Review",
+            "description": "Review the declared readiness selection."
+          }
+        ],
+        "inputContract": {
+          "confirmation": "Only the declared readiness selection is accepted.",
+          "allowedFieldKeys": [
+            "readiness"
+          ]
+        },
+        "systemPrompt": {
+          "purpose": "Present a bounded readiness workflow.",
+          "safetyGuidance": [
+            "Accept only declared options."
+          ]
+        },
+        "outputFormat": {
+          "format": "status-update",
+          "sections": [
+            {
+              "key": "review",
+              "label": "Review"
+            }
+          ]
+        },
+        "provenance": {
+          "source": "ai-assisted",
+          "reviewedByHuman": false,
+          "sourceDescription": "Generated through the governed Studio builder; human review is required before publication."
+        }
+      }
+    },
+    {
+      "moduleKey": "e2e-studio-public-check",
+      "version": 1,
+      "lifecycleStage": "published",
+      "public": true,
+      "manifest": {
+        "moduleKey": "e2e-studio-public-check",
+        "moduleType": "grant-workflow",
+        "title": "E2E public readiness check",
+        "description": "A deterministic, declarative manifest used only by the Studio access-control test.",
+        "routeSlug": "e2e-studio-public-check",
+        "lifecycleStage": "published",
+        "public": true,
+        "dataScope": "public",
+        "retentionDays": 7,
+        "fields": [
+          {
+            "key": "readiness",
+            "label": "Readiness",
+            "type": "select",
+            "required": true,
+            "options": [
+              "ready",
+              "needs-review"
+            ],
+            "dataScope": "public"
+          }
+        ],
+        "actions": [
+          {
+            "type": "submit-record",
+            "label": "Save readiness",
+            "dataScope": "public"
+          }
+        ],
+        "stages": [
+          {
+            "key": "review",
+            "label": "Review",
+            "description": "Review the declared readiness selection."
+          }
+        ],
+        "inputContract": {
+          "confirmation": "Only the declared readiness selection is accepted.",
+          "allowedFieldKeys": [
+            "readiness"
+          ]
+        },
+        "systemPrompt": {
+          "purpose": "Present a bounded readiness workflow.",
+          "safetyGuidance": [
+            "Accept only declared options."
+          ]
+        },
+        "outputFormat": {
+          "format": "status-update",
+          "sections": [
+            {
+              "key": "review",
+              "label": "Review"
+            }
+          ]
+        },
+        "provenance": {
+          "source": "ai-assisted",
+          "reviewedByHuman": true,
+          "sourceDescription": "Generated through the governed Studio builder; human review is required before publication."
+        }
+      }
+    }
+  ]
 }
