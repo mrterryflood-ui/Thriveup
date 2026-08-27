@@ -5639,10 +5639,11 @@ export const nonprofitEvents = pgTable("nonprofit_events", {
   communityNeedFocus: text("community_need_focus").array().notNull().default(sql`'{}'::text[]`),
   createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
   updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
-  archivedAt: timestamp("archived_at"),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  archivedAt: timestamp("archived_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
+  unique("nonprofit_events_id_org_unique").on(t.id, t.orgId),
   index("idx_nonprofit_events_org_date").on(t.orgId, t.eventDate),
   index("idx_nonprofit_events_org_status").on(t.orgId, t.status),
 ]);
@@ -5656,15 +5657,15 @@ export const nonprofitEventAttendance = pgTable("nonprofit_event_attendance", {
   followUpCount: integer("follow_up_count"),
   valueSource: varchar("value_source", { length: 32 }).notNull().default("self_reported"),
   recordedByUserId: varchar("recorded_by_user_id", { length: 255 }).notNull(),
-  recordedAt: timestamp("recorded_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  recordedAt: timestamp("recorded_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   uniqueIndex("idx_nonprofit_event_attendance_event").on(t.eventId),
 ]);
 
 export const nonprofitEventNeeds = pgTable("nonprofit_event_needs", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  eventId: varchar("event_id", { length: 100 }).notNull().references(() => nonprofitEvents.id, { onDelete: "cascade" }),
+  eventId: varchar("event_id", { length: 100 }).notNull(),
   orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
   needArea: varchar("need_area", { length: 160 }).notNull(),
   sourceName: varchar("source_name", { length: 240 }).notNull(),
@@ -5673,16 +5674,21 @@ export const nonprofitEventNeeds = pgTable("nonprofit_event_needs", {
   evidenceStatus: varchar("evidence_status", { length: 32 }).notNull().default("self_reported"),
   responseExplanation: text("response_explanation").notNull(),
   createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
+  foreignKey({
+    name: "fk_nonprofit_event_needs_event_org",
+    columns: [t.eventId, t.orgId],
+    foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
+  }).onDelete("cascade"),
   index("idx_nonprofit_event_needs_org_area").on(t.orgId, t.needArea),
   index("idx_nonprofit_event_needs_event").on(t.eventId),
 ]);
 
 export const nonprofitEventActions = pgTable("nonprofit_event_actions", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  eventId: varchar("event_id", { length: 100 }).notNull().references(() => nonprofitEvents.id, { onDelete: "cascade" }),
+  eventId: varchar("event_id", { length: 100 }).notNull(),
   orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 240 }).notNull(),
   ownerLabel: varchar("owner_label", { length: 160 }).notNull(),
@@ -5690,19 +5696,24 @@ export const nonprofitEventActions = pgTable("nonprofit_event_actions", {
   status: varchar("status", { length: 24 }).notNull().default("planned"),
   completionEvidence: text("completion_evidence"),
   nextStep: text("next_step"),
-  completedAt: timestamp("completed_at"),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
   createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
   updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
+  foreignKey({
+    name: "fk_nonprofit_event_actions_event_org",
+    columns: [t.eventId, t.orgId],
+    foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
+  }).onDelete("cascade"),
   index("idx_nonprofit_event_actions_org_status").on(t.orgId, t.status),
   index("idx_nonprofit_event_actions_event").on(t.eventId),
 ]);
 
 export const nonprofitEventStories = pgTable("nonprofit_event_stories", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  eventId: varchar("event_id", { length: 100 }).notNull().references(() => nonprofitEvents.id, { onDelete: "cascade" }),
+  eventId: varchar("event_id", { length: 100 }).notNull(),
   orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
   title: varchar("title", { length: 240 }).notNull(),
   storyText: text("story_text").notNull(),
@@ -5711,15 +5722,20 @@ export const nonprofitEventStories = pgTable("nonprofit_event_stories", {
   permittedUses: text("permitted_uses").array().notNull().default(sql`'{}'::text[]`),
   consentGranted: boolean("consent_granted").notNull().default(false),
   sharingState: varchar("sharing_state", { length: 24 }).notNull().default("draft"),
-  consentedAt: timestamp("consented_at"),
-  approvedAt: timestamp("approved_at"),
+  consentedAt: timestamp("consented_at", { withTimezone: true }),
+  approvedAt: timestamp("approved_at", { withTimezone: true }),
   approvedByUserId: varchar("approved_by_user_id", { length: 255 }),
-  withdrawnAt: timestamp("withdrawn_at"),
+  withdrawnAt: timestamp("withdrawn_at", { withTimezone: true }),
   createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
   updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
-  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
+  foreignKey({
+    name: "fk_nonprofit_event_stories_event_org",
+    columns: [t.eventId, t.orgId],
+    foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
+  }).onDelete("cascade"),
   index("idx_nonprofit_event_stories_org_state").on(t.orgId, t.sharingState),
   index("idx_nonprofit_event_stories_event").on(t.eventId),
 ]);
@@ -5729,14 +5745,19 @@ export const nonprofitEventStories = pgTable("nonprofit_event_stories", {
 export const nonprofitEventAuditLog = pgTable("nonprofit_event_audit_log", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  eventId: varchar("event_id", { length: 100 }).references(() => nonprofitEvents.id, { onDelete: "cascade" }),
+  eventId: varchar("event_id", { length: 100 }),
   entityType: varchar("entity_type", { length: 40 }).notNull(),
   entityId: varchar("entity_id", { length: 100 }).notNull(),
   action: varchar("action", { length: 80 }).notNull(),
   actorUserId: varchar("actor_user_id", { length: 255 }).notNull(),
   details: jsonb("details").$type<Record<string, unknown>>().notNull().default({}),
-  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
+  foreignKey({
+    name: "fk_nonprofit_event_audit_event_org",
+    columns: [t.eventId, t.orgId],
+    foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
+  }).onDelete("cascade"),
   index("idx_nonprofit_event_audit_org_created").on(t.orgId, t.createdAt),
   index("idx_nonprofit_event_audit_event_created").on(t.eventId, t.createdAt),
 ]);

@@ -62,6 +62,75 @@ async function run() {
       fail("nonprofit-event privacy check constraint is missing or unvalidated in development");
     }
 
+    const parentKey = await db.query<{ constraintdef: string }>(
+      `SELECT pg_get_constraintdef(oid) AS constraintdef
+         FROM pg_constraint
+        WHERE conrelid = 'nonprofit_events'::regclass
+          AND conname = 'nonprofit_events_id_org_unique'
+          AND contype = 'u'`,
+    );
+    if (
+      parentKey.rows.length !== 1 ||
+      !/\(id, org_id\)/.test(parentKey.rows[0].constraintdef)
+    ) {
+      fail("nonprofit-events parent key for composite child foreign keys is missing");
+    }
+
+    const eventForeignKeys = await db.query<{
+      conname: string;
+      childTable: string;
+      constraintdef: string;
+    }>(
+      `SELECT conname,
+              conrelid::regclass::text AS "childTable",
+              pg_get_constraintdef(oid) AS constraintdef
+         FROM pg_constraint
+        WHERE contype = 'f'
+          AND confrelid = 'nonprofit_events'::regclass
+          AND conrelid IN (
+            'nonprofit_event_needs'::regclass,
+            'nonprofit_event_actions'::regclass,
+            'nonprofit_event_stories'::regclass,
+            'nonprofit_event_audit_log'::regclass
+          )`,
+    );
+    const expectedCompositeForeignKeys = new Map([
+      ["fk_nonprofit_event_needs_event_org", "nonprofit_event_needs"],
+      ["fk_nonprofit_event_actions_event_org", "nonprofit_event_actions"],
+      ["fk_nonprofit_event_stories_event_org", "nonprofit_event_stories"],
+      ["fk_nonprofit_event_audit_event_org", "nonprofit_event_audit_log"],
+    ]);
+    if (
+      eventForeignKeys.rows.length !== expectedCompositeForeignKeys.size ||
+      eventForeignKeys.rows.some(
+        ({ conname, childTable, constraintdef }) =>
+          expectedCompositeForeignKeys.get(conname) !== childTable ||
+          !/FOREIGN KEY \(event_id, org_id\) REFERENCES nonprofit_events\(id, org_id\) ON DELETE CASCADE/.test(
+            constraintdef,
+          ),
+      )
+    ) {
+      fail("nonprofit-event tenant foreign keys are incomplete, extra, or miswired");
+    }
+
+    const legacyScalarForeignKeys = await db.query<{ count: string }>(
+      `SELECT COUNT(*)::text AS count
+         FROM pg_constraint
+        WHERE contype = 'f'
+          AND confrelid = 'nonprofit_events'::regclass
+          AND conrelid IN (
+            'nonprofit_event_needs'::regclass,
+            'nonprofit_event_actions'::regclass,
+            'nonprofit_event_stories'::regclass,
+            'nonprofit_event_audit_log'::regclass
+          )
+          AND pg_get_constraintdef(oid)
+              LIKE 'FOREIGN KEY (event_id) REFERENCES nonprofit_events(id)%'`,
+    );
+    if (legacyScalarForeignKeys.rows[0]?.count !== "0") {
+      fail("legacy scalar nonprofit-event foreign keys remain beside composite tenant keys");
+    }
+
     await db.query(`DELETE FROM nonprofit_events WHERE org_id = ANY($1::varchar[])`, [[ORG_A, ORG_B]]);
     await db.query(`DELETE FROM organization_members WHERE org_id = ANY($1::varchar[])`, [[ORG_A, ORG_B]]);
     await db.query(`DELETE FROM organizations WHERE id = ANY($1::varchar[])`, [[ORG_A, ORG_B]]);

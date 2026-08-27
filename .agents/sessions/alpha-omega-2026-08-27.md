@@ -12,6 +12,20 @@
 - Outcome: Connecticut's updated Planning Regions are resolved only by their authoritative Census relationship chain; boundary-spanning source tracts remain excluded rather than allocated. Manual, scheduled, direct public, Civic Signal, and peer-benchmark paths share the FIPS-aware resolver. The public report and API distinguish analytical jurisdiction/record coverage from service deployment, and permanent checks prevent a statewide Connecticut source gap or a partial-jurisdiction mislabel.
 - Residuals and reusable guard: The Replit development proxy returned HTTP 502 after three real-browser attempts even though port 5000 is bound to `0.0.0.0`, locally returns HTTP 200, and the configured mapping is 5000→5000. This blocks proxy-mediated interaction proof only; it is recorded as a monitored platform-routing residual and no production claim is made. The permanent guard runs the FIPS alignment/direct-lookup fixture and partial-jurisdiction coverage test through `access-model-guards`.
 
+# Alpha Omega — 2026-08-27 — Publish-time composite foreign-key repair
+## Alpha
+- End-state: Publishing must create the private nonprofit-event parent key before adding child composite tenant foreign keys, and already-migrated environments must receive the repair without replacing production data.
+- In-state evidence: The publish attempt failed on `fk_nonprofit_event_actions_event_org` because `nonprofit_events` had only a primary key on `id`; the prior development repair used a redundant unique index, and applied migrations are skipped by filename.
+- Authority/boundaries: Drizzle `shared/schema.ts` is the declarative source for the publish diff; committed SQL is the forward repair source for startup migration; production overwrite is explicitly outside this repair and no production mutation is authorized.
+- Plan and acceptance proofs: Model `UNIQUE (id, org_id)` as a real table constraint, declare all four composite child FKs, add a new forward migration for prior ledgers, verify constraint order and zero structural data loss, run focused and project gates, restart the application, and audit independently.
+- Unknowns/deferred decisions: Re-publish remains user-controlled; development proof is not production proof. Existing unrelated workflow failures and external provider warnings are not evidence against this migration repair.
+## Omega
+- Diff scrimmage: Converted the existing development index into the real parent constraint without changing rows, removed redundant scalar child FKs, scoped migration guards to their relations, aligned event timestamps and composite FKs in Drizzle, and added the new filename-based forward repair.
+- Proofs and gates: Startup logged application of `20260905_nonprofit_events_composite_key_repair.sql`; all four composite FKs and the parent UNIQUE are present; the generated diff places the parent constraint before every child FK and reports `structuralDataLoss: false`; event regression, zero-error TypeScript, preflight, memory-health, and git diff checks passed.
+- Independent angle: Six-domain audit rerun found no migration-introduced UI, runtime, offline, UX, or navigation blocker; the remaining upgrade-path finding was fixed with the new forward migration and then exercised through startup.
+- Outcome: The publish-time PostgreSQL failure is corrected in both fresh and previously migrated paths without using the destructive development-to-production overwrite option.
+- Residuals and reusable guard: No production schema or data was changed; retry Publish using the normal schema-diff path. The event verifier now guards the validated privacy constraint, real parent composite key, and all four child composite foreign keys.
+
 # Alpha Omega — 2026-08-27 — Owner-managed event-workspace access
 ## Alpha
 - End-state: An organization owner can explicitly grant or revoke a current member’s access to the private Community Events & Impact workspace. This authorization must not change organization ownership, ordinary collaboration status, or platform-wide staff authority.
