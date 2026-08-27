@@ -145,11 +145,13 @@ export function verifyInboundPayload<T = Record<string, unknown>>(
         break;
       }
       case "number": {
-        const n = typeof value === "number" ? value : (typeof value === "string" && value.trim() !== "" ? Number(value) : NaN);
-        if (typeof n !== "number" || !Number.isFinite(n)) { reject("wrong_type"); continue; }
-        if (fieldSchema.min != null && n < fieldSchema.min) { reject("out_of_range"); continue; }
-        if (fieldSchema.max != null && n > fieldSchema.max) { reject("out_of_range"); continue; }
-        clean[field] = n;
+        // Do not coerce partner strings into numbers. Coercion turns malformed
+        // values such as "1e3" into plausible facts and defeats the
+        // reject-or-correct contract at the trust boundary.
+        if (typeof value !== "number" || !Number.isFinite(value)) { reject("wrong_type"); continue; }
+        if (fieldSchema.min != null && value < fieldSchema.min) { reject("out_of_range"); continue; }
+        if (fieldSchema.max != null && value > fieldSchema.max) { reject("out_of_range"); continue; }
+        clean[field] = value;
         break;
       }
       case "boolean": {

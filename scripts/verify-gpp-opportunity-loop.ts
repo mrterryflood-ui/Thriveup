@@ -13,6 +13,9 @@ const config = readFileSync("server/grantpathpro-config.ts", "utf8");
 const profile = readFileSync("client/src/pages/entity-profile.tsx", "utf8");
 const contract = readFileSync("docs/grantpathpro-opportunity-handoff-contract.md", "utf8");
 const migration = readFileSync("migrations/20260824_gpp_opportunity_handoff.sql", "utf8");
+const hardeningMigration = readFileSync("migrations/20260827_gpp_opportunity_mirror_hardening.sql", "utf8");
+const runtimeMigration = readFileSync("scripts/migrate-gpp-opportunity-handoff.ts", "utf8");
+const migrationRunner = readFileSync("server/run-migrations.ts", "utf8");
 const endpointGuard = readFileSync("scripts/verify-gpp-endpoint.ts", "utf8");
 
 let failures = 0;
@@ -50,6 +53,11 @@ expect(contract.includes("Cross-organization learning remains disabled"), "contr
 expect(contract.includes('"accepted": true'), "contract requires a receiver acceptance acknowledgement");
 expect(contract.includes("outbound-only credential"), "contract prohibits replaying the inbound callback key for delivery");
 expect(migration.includes("gpp_opportunity_handoffs") && migration.includes("gpp_pursuit_feedback"), "production migration creates lifecycle tables");
+expect(hardeningMigration.includes("gpp_opportunity_handoff_attempts") && hardeningMigration.includes("request_hash"), "hardening migration preserves request hashes and delivery attempts");
+expect(runtimeMigration.includes("information_schema.columns") && runtimeMigration.includes("gpp_opportunity_handoff_attempts"), "runtime migration is rerun-safe and creates delivery attempts");
+expect(migrationRunner.includes("pg_advisory_lock"), "startup migration runner serializes concurrent application");
+expect(routes.includes("storedRequestFingerprint") && routes.includes("racedHash"), "request reuse is content-bound for legacy and concurrent rows");
+expect(!routes.includes("snapshot: latest?.snapshot"), "Mirror reads do not expose raw partner JSON");
 expect(profile.includes('data-testid="opportunity-handoff-source-type"'), "UI supports each documented source type");
 expect(profile.includes("Reconcile same handoff"), "UI exposes safe same-handoff recovery");
 expect(readFileSync("scripts/verify-gpp-opportunity-stub.ts", "utf8").includes("local-stub-token"), "safe local receiver test never targets the live partner");
@@ -94,6 +102,9 @@ async function verifyLiveLifecycle() {
     const packageBody = await packageResponse.json() as { package?: { opportunityLanes?: unknown[]; privacy?: { organizationPrivateByDefault?: boolean } } };
     expect(packageResponse.status === 200 && packageBody.package?.opportunityLanes?.length === 6, "owner can read a six-lane opportunity package");
     expect(packageBody.package?.privacy?.organizationPrivateByDefault === true, "package marks organization data private by default");
+    const mirrorResponse = await request(`/api/organizations/${orgId}/grantpathpro-mirror`, ownerCookie);
+    const mirrorBody = await mirrorResponse.json() as { snapshot?: unknown; projection?: unknown };
+    expect(mirrorResponse.status === 200 && mirrorBody.snapshot === undefined && mirrorBody.projection !== undefined, "Mirror read returns a bounded projection without raw partner JSON");
     const memberPackage = await request(`/api/organizations/${orgId}/opportunity-package`, memberCookie);
     expect(memberPackage.status === 200, "organization member can read the private package");
     const strangerPackage = await request(`/api/organizations/${orgId}/opportunity-package`, strangerCookie);
@@ -107,11 +118,13 @@ async function verifyLiveLifecycle() {
     });
     expect(missingAuthorization.status === 400, "handoff rejects a non-literal authorization confirmation");
 
+    const authorizationRequestId = randomUUID();
+    const opportunityCheckedAt = new Date().toISOString();
     const created = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
       contractVersion: "v1",
-      requestId: randomUUID(),
+      requestId: authorizationRequestId,
       authorizationConfirmed: true,
-      selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "primary_source", sourceLabel: "E2E primary source", sourceUrl: "https://example.org/opportunity" },
+      selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "primary_source", sourceLabel: "E2E primary source", sourceUrl: "https://example.org/opportunity", sourceCheckedAt: opportunityCheckedAt },
     });
     const createdBody = await created.json() as { handoffId?: string; deliveryState?: string; package?: { handoff?: { authorization?: string } } };
     handoffId = createdBody.handoffId ?? null;
@@ -120,12 +133,19 @@ async function verifyLiveLifecycle() {
     expect(createdBody.package?.handoff?.authorization === "explicit_organization_confirmation", "persisted package records the authorization basis");
     const duplicateHandoff = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
       contractVersion: "v1",
-      requestId: createdBody.handoffId?.replace("gpp_handoff_", "") ?? "",
+      requestId: authorizationRequestId,
       authorizationConfirmed: true,
-      selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "primary_source", sourceLabel: "E2E primary source", sourceUrl: "https://example.org/opportunity" },
+      selectedOpportunity: { title: "E2E target", lane: "grants", sourceType: "primary_source", sourceLabel: "E2E primary source", sourceUrl: "https://example.org/opportunity", sourceCheckedAt: opportunityCheckedAt },
     });
     const duplicateHandoffBody = await duplicateHandoff.json() as { duplicate?: boolean; handoffId?: string };
     expect(duplicateHandoff.status === 200 && duplicateHandoffBody.duplicate === true && duplicateHandoffBody.handoffId === handoffId, "replayed browser request returns its original handoff without a second delivery");
+    const conflictingHandoff = await request(`/api/organizations/${orgId}/opportunity-handoffs`, ownerCookie, "POST", {
+      contractVersion: "v1",
+      requestId: authorizationRequestId,
+      authorizationConfirmed: true,
+      selectedOpportunity: { title: "Different target", lane: "partnership", sourceType: "unverified_exploration", sourceLabel: "Different source" },
+    });
+    expect(conflictingHandoff.status === 409, "reused authorization request id with different content is rejected");
 
     const history = await request(`/api/organizations/${orgId}/opportunity-handoffs`, memberCookie);
     const historyBody = await history.json() as { handoffs?: Array<{ id: string; feedback: unknown[] }> };
@@ -219,6 +239,7 @@ async function verifyLiveLifecycle() {
     expect(historyWithFeedbackBody.handoffs?.find((entry) => entry.id === handoffId)?.feedback.some((feedback) => feedback.lesson === "Confirm requirements before submission.") === true, "organization history returns only its appended feedback");
   } finally {
     if (handoffId) await db.query(`DELETE FROM gpp_pursuit_feedback WHERE handoff_id = $1`, [handoffId]).catch(() => {});
+    if (handoffId) await db.query(`DELETE FROM gpp_opportunity_handoff_attempts WHERE handoff_id = $1`, [handoffId]).catch(() => {});
     if (handoffId) await db.query(`DELETE FROM gpp_opportunity_handoffs WHERE id = $1`, [handoffId]).catch(() => {});
     await db.query(`DELETE FROM organization_members WHERE org_id = $1`, [orgId]).catch(() => {});
     await db.query(`DELETE FROM organizations WHERE id = $1`, [orgId]).catch(() => {});

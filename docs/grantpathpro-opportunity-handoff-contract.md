@@ -39,7 +39,9 @@ authorize a consequential external delivery. The browser must send:
 Viewing a package, opening the GrantPathPro workspace, or selecting a lane is
 not authorization. The authorization is recorded with the authorizing user,
 timestamp, exact package, and delivery result. Reusing the same `requestId`
-returns the original handoff without sending it a second time.
+returns the original handoff without sending it a second time only when the
+canonical selected-opportunity content hash matches. Reusing a request ID with
+different content is rejected.
 
 ## Outbound package
 
@@ -49,7 +51,10 @@ ThriveUp creates an immutable package containing:
 - organization profile context with source status;
 - a selected, source-labeled opportunity or exploration target;
 - the six opportunity lanes and their required verification step;
-- known readiness signals and explicit unknowns;
+- the dated, bounded Mirror projection when available: documented needs,
+  service gaps, resident priorities, services, and known funding signals;
+- known readiness signals, readiness actions, scale-up/scale-out guidance, and
+  explicit unknowns;
 - collaborator categories only—not asserted collaborators;
 - the private-by-default, cross-organization-learning-disabled boundary.
 
@@ -71,6 +76,10 @@ Delivery states are:
   replacement is authorized.
 
 No state other than `delivered` represents a partner handoff.
+Every delivery evaluation is recorded as an immutable attempt with its
+idempotency key, outcome, HTTP status when available, acceptance flag,
+external pursuit identifier, and a hash of any receiver response. The raw
+receiver response is never stored as organization evidence.
 The receiver must treat the package as internal pursuit intake only. It does
 not authorize partner, funder, or collaborator outreach, commitments, or
 referrals.
@@ -118,6 +127,9 @@ Optional feedback fields are `externalPursuitId`, `decisionAt`, whole-number
 `awardAmount`, `amountDisclosure`, `funderFeedback`, `lesson`, and
 `sourceUrl`. Invalid required fields reject the payload with a correction note.
 Invalid optional fields are removed, logged, and returned as corrections.
+`sourceUrl`, when present, must use HTTPS. An `awardAmount` is retained only
+when `amountDisclosure` is `shared`; values marked `not_shared` or `withheld`
+are stored as null and are never shown in organization history.
 
 The `handoffId` must resolve to an existing, delivered handoff and its
 organization must match `orgId`; otherwise no feedback is stored. If ThriveUp
@@ -135,6 +147,11 @@ with the original `handoffId` as the idempotency key; it cannot create a
 replacement pursuit. A timeout remains `delivery_unknown` until the receiver
 acknowledges or rejects the same request. An unavailable package can use this
 same recovery action after a dedicated outbound credential is configured.
+
+Staff may inspect operational handoff metadata through the separate,
+staff-session-only `GET /api/staff/grantpathpro/opportunity-handoffs` route.
+It does not return the private organization package or feedback payloads and
+does not accept a partner API key.
 
 ## Privacy and learning
 

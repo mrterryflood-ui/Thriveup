@@ -85,6 +85,7 @@ const PROBES: Probe[] = [
   // ── Community Opportunity Mirror: an organization package/handoff is private ─
   { name: "GET    /api/organizations/:id/opportunity-package (no session)", method: "GET", path: "/api/organizations/00000000-0000-0000-0000-000000000000/opportunity-package" },
   { name: "GET    /api/organizations/:id/opportunity-handoffs (no session)", method: "GET", path: "/api/organizations/00000000-0000-0000-0000-000000000000/opportunity-handoffs" },
+  { name: "GET    /api/staff/grantpathpro/opportunity-handoffs (no session)", method: "GET", path: "/api/staff/grantpathpro/opportunity-handoffs" },
   { name: "POST   /api/organizations/:id/opportunity-handoffs (no session)", method: "POST", path: "/api/organizations/00000000-0000-0000-0000-000000000000/opportunity-handoffs", body: { contractVersion: "v1", authorizationConfirmed: true, selectedOpportunity: { title: "probe", lane: "grants", sourceType: "unverified_exploration", sourceLabel: "probe" } } },
   { name: "POST   /api/organizations/:id/opportunity-handoffs/:handoffId/reconcile (no session)", method: "POST", path: "/api/organizations/00000000-0000-0000-0000-000000000000/opportunity-handoffs/gpp_handoff_probe/reconcile" },
 

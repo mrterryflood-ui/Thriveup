@@ -7821,11 +7821,12 @@ export type InsertGppMirrorSnapshot = typeof gppMirrorSnapshots.$inferInsert;
 export const gppOpportunityHandoffs = pgTable("gpp_opportunity_handoffs", {
   id: text("id").primaryKey(),
   orgId: varchar("org_id", { length: 100 }).notNull(),
+  requestHash: varchar("request_hash", { length: 64 }),
   contractVersion: varchar("contract_version", { length: 16 }).notNull().default("v1"),
   authorizedByUserId: varchar("authorized_by_user_id", { length: 255 }).notNull(),
-  authorizedAt: timestamp("authorized_at").notNull(),
+  authorizedAt: timestamp("authorized_at", { withTimezone: true }).notNull(),
   deliveryState: varchar("delivery_state", { length: 32 }).notNull(),
-  deliveredAt: timestamp("delivered_at"),
+  deliveredAt: timestamp("delivered_at", { withTimezone: true }),
   externalPursuitId: varchar("external_pursuit_id", { length: 200 }),
   deliveryDetail: text("delivery_detail"),
   opportunityPackage: jsonb("opportunity_package").$type<Record<string, unknown>>().notNull(),
@@ -7836,6 +7837,24 @@ export const gppOpportunityHandoffs = pgTable("gpp_opportunity_handoffs", {
 ]);
 export type GppOpportunityHandoff = typeof gppOpportunityHandoffs.$inferSelect;
 export type InsertGppOpportunityHandoff = typeof gppOpportunityHandoffs.$inferInsert;
+
+export const gppOpportunityHandoffAttempts = pgTable("gpp_opportunity_handoff_attempts", {
+  id: text("id").primaryKey().$defaultFn(() => `gpp_attempt_${Date.now()}_${nanoid(8)}`),
+  handoffId: text("handoff_id").notNull().references(() => gppOpportunityHandoffs.id, { onDelete: "cascade" }),
+  startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+  finishedAt: timestamp("finished_at", { withTimezone: true }),
+  outcome: varchar("outcome", { length: 32 }).notNull(),
+  httpStatus: integer("http_status"),
+  accepted: boolean("accepted"),
+  externalPursuitId: varchar("external_pursuit_id", { length: 200 }),
+  idempotencyKey: varchar("idempotency_key", { length: 200 }).notNull(),
+  errorClass: varchar("error_class", { length: 64 }),
+  responseHash: varchar("response_hash", { length: 64 }),
+}, (t) => [
+  index("gpp_opportunity_handoff_attempts_handoff_started_idx").on(t.handoffId, t.startedAt),
+]);
+export type GppOpportunityHandoffAttempt = typeof gppOpportunityHandoffAttempts.$inferSelect;
+export type InsertGppOpportunityHandoffAttempt = typeof gppOpportunityHandoffAttempts.$inferInsert;
 
 // Partner feedback is append-only and always joined to the authorized handoff.
 // Cross-organization learning is intentionally not modeled here: this is an
@@ -7848,15 +7867,15 @@ export const gppPursuitFeedback = pgTable("gpp_pursuit_feedback", {
   contractVersion: varchar("contract_version", { length: 16 }).notNull().default("v1"),
   externalPursuitId: varchar("external_pursuit_id", { length: 200 }),
   status: varchar("status", { length: 32 }).notNull(),
-  sourceTimestamp: timestamp("source_timestamp").notNull(),
-  decisionAt: timestamp("decision_at"),
+  sourceTimestamp: timestamp("source_timestamp", { withTimezone: true }).notNull(),
+  decisionAt: timestamp("decision_at", { withTimezone: true }),
   awardAmount: integer("award_amount"),
   amountDisclosure: varchar("amount_disclosure", { length: 32 }).notNull().default("not_shared"),
   funderFeedback: text("funder_feedback"),
   lesson: text("lesson"),
   sourceLabel: varchar("source_label", { length: 500 }).notNull(),
   sourceUrl: varchar("source_url", { length: 2000 }),
-  receivedAt: timestamp("received_at").defaultNow().notNull(),
+  receivedAt: timestamp("received_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   uniqueIndex("gpp_pursuit_feedback_fingerprint_unique").on(t.eventFingerprint),
   index("gpp_pursuit_feedback_org_received_idx").on(t.orgId, t.receivedAt),

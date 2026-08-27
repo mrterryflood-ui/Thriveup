@@ -43,6 +43,7 @@ import thriveupLogo from "../assets/thriveup-logo.png";
 import { getRankForLevel } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
 import { OrgSwitcher } from "@/components/org-switcher";
+import { useCurrentOrgId } from "@/hooks/use-current-org";
 import type { StudentProgress, AcademyAvatar } from "@shared/schema";
 import type { LucideIcon } from "lucide-react";
 
@@ -608,6 +609,7 @@ function useSidebarSearch(allItems: NavItem[]) {
 export function AppSidebar() {
   const [location] = useLocation();
   const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { orgId } = useCurrentOrgId();
   const { data: progressData } = useQuery<StudentProgress>({
     queryKey: ["/api/progress"],
   });
@@ -642,6 +644,14 @@ export function AppSidebar() {
   const hub7 = useMemo(() => filterAuth(aboutTrustItems, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
   const hubChildCare = useMemo(() => filterAuth(hubChildCareWorkforce, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
   const hubRural = useMemo(() => filterAuth(hubRuralAg, isAuthenticated, isAdmin), [isAuthenticated, isAdmin]);
+  const organizationNavItems = useMemo<NavItem[]>(() => orgId ? [
+    ...myOrgItems,
+    {
+      title: "Community Opportunity Mirror",
+      url: `/app/entity/${encodeURIComponent(orgId)}`,
+      icon: Compass,
+    },
+  ] : myOrgItems, [orgId]);
 
   // Search corpus mirrors what's actually navigable for THIS viewer:
   // - CTX hub + 7 public hubs (already auth-filtered above)
@@ -649,7 +659,7 @@ export function AppSidebar() {
   // - All Admin sub-sections only when admin (incl. teaching when teacher)
   const allItems = useMemo(() => {
     const items: NavItem[] = [...quickTaskItems, ...hubCtx, ...hub1, ...hub2, ...hubFoster, ...hubJustice, ...hubPrevHealth, ...hub3, ...hub4, ...hub5, ...hub6, ...hub7, ...hubChildCare, ...hubRural];
-    if (isAuthenticated) items.push(...myOrgItems);
+    if (isAuthenticated) items.push(...organizationNavItems);
     if (isAdmin) {
       items.push(
         ...adminOperationsItems,
@@ -660,7 +670,7 @@ export function AppSidebar() {
       if (isTeacher) items.push(...adminTeachingItems);
     }
     return items;
-  }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, hubChildCare, hubRural, isAuthenticated, isAdmin, isTeacher]);
+  }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, hubChildCare, hubRural, isAuthenticated, isAdmin, isTeacher, organizationNavItems]);
   const search = useSidebarSearch(allItems);
 
   return (
@@ -843,7 +853,7 @@ export function AppSidebar() {
         <NavSection label="About & Trust" items={hub7} location={location} icon={Info} />
 
         {isAuthenticated && (
-          <NavSection label="My Organization" items={myOrgItems} location={location} icon={Building2} />
+          <NavSection label="My Organization" items={organizationNavItems} location={location} icon={Building2} />
         )}
 
         {/* Admin — collapsed under one parent, sub-sectioned within. */}

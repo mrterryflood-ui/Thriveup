@@ -26,7 +26,10 @@ export async function runMigrations(): Promise<void> {
 
   const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
   await client.connect();
+  let migrationLockHeld = false;
   try {
+    await client.query("SELECT pg_advisory_lock(hashtext($1))", ["thriveup:schema-migrations"]);
+    migrationLockHeld = true;
     await client.query(
       `CREATE TABLE IF NOT EXISTS schema_migrations (
          filename text PRIMARY KEY,
@@ -53,6 +56,9 @@ export async function runMigrations(): Promise<void> {
       }
     }
   } finally {
+    if (migrationLockHeld) {
+      await client.query("SELECT pg_advisory_unlock(hashtext($1))", ["thriveup:schema-migrations"]).catch(() => {});
+    }
     await client.end();
   }
 }

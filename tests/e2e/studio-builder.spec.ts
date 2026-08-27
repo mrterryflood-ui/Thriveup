@@ -1,5 +1,6 @@
 import { test, expect, request as pwRequest } from "@playwright/test";
 import { readFile } from "node:fs/promises";
+import { randomUUID } from "node:crypto";
 import { Client } from "pg";
 import {
   cleanupTestUser,
@@ -11,8 +12,9 @@ import {
 const BASE = process.env.E2E_BASE_URL || "http://localhost:5000";
 const ADMIN = { userId: "e2e-studio-admin", email: "e2e-studio-admin@test.local" };
 const MEMBER = { userId: "e2e-studio-member", email: "e2e-studio-member@test.local" };
-const PUBLIC_KEY = "e2e-studio-public-check";
-const ORG_KEY = "e2e-studio-org-check";
+const RUN = randomUUID().slice(0, 8);
+const PUBLIC_KEY = `e2e-studio-public-check-${RUN}`;
+const ORG_KEY = `e2e-studio-org-check-${RUN}`;
 const ORG_A = "e2e-studio-org-a";
 const ORG_B = "e2e-studio-org-b";
 

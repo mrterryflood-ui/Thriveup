@@ -7,16 +7,26 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
+import { IntegrationInvitation } from "@/components/integration-invitation";
 import { Building2, ExternalLink, FileCheck2, Loader2, Radio, RefreshCw, Send, ShieldCheck } from "lucide-react";
 
 interface MirrorResponse {
   organizationId: string;
   organizationName?: string;
-  snapshot: Record<string, unknown> | null;
   receivedAt: string | null;
   active: boolean;
   status: "received" | "not_received";
   source: "grantpathpro" | "thriveup" | null;
+  projection?: {
+    status: "received" | "unavailable";
+    disclosure: string;
+    source: { label: string; receivedAt: string; sourceType: string } | null;
+    needs: string[];
+    gaps: string[];
+    residentPriorities: string[];
+    services: string[];
+    knownFundingSignals: string[];
+  };
 }
 
 type OpportunityLane = "grants" | "procurement_contracting" | "sponsorship_in_kind" | "research_technology_transfer" | "capacity_building" | "partnership";
@@ -31,7 +41,23 @@ interface OpportunityPackageResponse {
       rationale: string;
       verificationRequired: string;
     }>;
-    readiness: { knownSignals: string[]; unknowns: string[] };
+    communityMirror: {
+      status: string;
+      disclosure: string;
+      needs: string[];
+      gaps: string[];
+      residentPriorities: string[];
+      services: string[];
+      knownFundingSignals: string[];
+    };
+    readiness: {
+      knownSignals: string[];
+      documentedNeeds: string[];
+      serviceGaps: string[];
+      scaleStrategy: { scaleUp: string; scaleOut: string; status: string };
+      actions: string[];
+      unknowns: string[];
+    };
     collaboration: { categories: string[]; status: string };
     privacy: { organizationPrivateByDefault: boolean; crossOrganizationLearning: string };
   };
@@ -77,7 +103,7 @@ const laneLabels: Record<OpportunityLane, string> = {
   partnership: "Partnership paths",
 };
 
-function deliveryBadgeVariant(state: OpportunityHandoff["deliveryState"]): "default" | "secondary" | "destructive" | "outline" {
+function deliveryBadgeVariant(state: string): "default" | "secondary" | "destructive" | "outline" {
   if (state === "delivered") return "default";
   if (state === "rejected") return "destructive";
   if (state === "unavailable") return "secondary";
@@ -93,9 +119,16 @@ const deliveryStateLabels: Record<OpportunityHandoff["deliveryState"], string> =
   delivery_unknown: "Delivery needs reconciliation",
 };
 
-function handoffStatusNotice(state: string, detail: string) {
-  if (state === "delivered") return `GrantPathPro confirmed receipt of this handoff package. ${detail}`;
-  return `Authorization recorded; no partner handoff is complete. ${detail}`;
+function handoffStatusNotice(state: string, detail: string | null | undefined) {
+  const safeDetail = detail || "No delivery detail was provided.";
+  if (state === "delivered") return `GrantPathPro confirmed receipt of this handoff package. ${safeDetail}`;
+  return `Authorization recorded; no partner handoff is complete. ${safeDetail}`;
+}
+
+function formatDate(value: string | null | undefined): string {
+  if (!value) return "time not available";
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "time not available" : date.toLocaleString();
 }
 
 function snapshotItems(snapshot: Record<string, unknown>, keys: string[]): string[] {
@@ -135,10 +168,13 @@ export default function EntityProfilePage() {
   const [handoffError, setHandoffError] = useState<string | null>(null);
   const [handoffNotice, setHandoffNotice] = useState<string | null>(null);
   const [sourceUrlError, setSourceUrlError] = useState<string | null>(null);
+  const [sourceCheckedAtError, setSourceCheckedAtError] = useState<string | null>(null);
   const [isSubmittingHandoff, setIsSubmittingHandoff] = useState(false);
   const [reconcilingHandoffId, setReconcilingHandoffId] = useState<string | null>(null);
   const requestIdRef = useRef("");
   const activeOrgIdRef = useRef(id);
+  const asyncGenerationRef = useRef(0);
+  const mutationGenerationRef = useRef(0);
   const authorizationDescriptionId = useId();
   const mirror = useQuery<MirrorResponse>({
     queryKey: ["/api/organizations", id, "grantpathpro-mirror"],
@@ -157,6 +193,8 @@ export default function EntityProfilePage() {
   });
 
   useEffect(() => {
+    asyncGenerationRef.current += 1;
+    mutationGenerationRef.current += 1;
     activeOrgIdRef.current = id;
     setEmbedUrl(null);
     setEmbedError(null);
@@ -167,14 +205,23 @@ export default function EntityProfilePage() {
     setSourceLabel("");
     setSourceUrl("");
     setSourceUrlError(null);
+    setSourceCheckedAtError(null);
     setAuthorizationConfirmed(false);
     setHandoffError(null);
     setHandoffNotice(null);
+    setSourceCheckedAtError(null);
     setIsSubmittingHandoff(false);
-    requestIdRef.current = "";
+    setReconcilingHandoffId(null);
+    try {
+      requestIdRef.current = window.sessionStorage.getItem(`gpp-opportunity-pending:${id}`) || "";
+    } catch {
+      requestIdRef.current = "";
+    }
   }, [id]);
 
   async function openGrantPathPro(mode: "iframe" | "redirect") {
+    const requestedOrgId = id;
+    const generation = asyncGenerationRef.current;
     setEmbedError(null);
     const popup = mode === "redirect" ? window.open("", "_blank", "noopener,noreferrer") : null;
     if (mode === "redirect" && !popup) {
@@ -185,19 +232,33 @@ export default function EntityProfilePage() {
       const response = await apiRequest("GET", `/api/consortium/gpp-embed?orgId=${encodeURIComponent(id)}&mode=${mode}`);
       const payload = await response.json() as { deepLinkUrl?: string };
       if (!payload.deepLinkUrl) throw new Error("GrantPathPro did not return a launch URL.");
+      if (activeOrgIdRef.current !== requestedOrgId || asyncGenerationRef.current !== generation) {
+        popup?.close();
+        return;
+      }
       if (mode === "redirect" && popup) popup.location.href = payload.deepLinkUrl;
       else setEmbedUrl(payload.deepLinkUrl);
     } catch (error) {
       popup?.close();
-      setEmbedError(error instanceof Error ? error.message : "GrantPathPro is unavailable.");
+      if (activeOrgIdRef.current === requestedOrgId && asyncGenerationRef.current === generation) {
+        setEmbedError(error instanceof Error ? error.message : "GrantPathPro is unavailable.");
+      }
     }
   }
 
   async function authorizeOpportunityHandoff() {
+    const requestedOrgId = id;
+    const generation = asyncGenerationRef.current;
+    const mutation = ++mutationGenerationRef.current;
     setHandoffError(null);
     setHandoffNotice(null);
     if (!opportunityTitle.trim() || !sourceLabel.trim() || !authorizationConfirmed) {
       setHandoffError("Name the opportunity, provide its source label, and explicitly confirm authorization before continuing.");
+      return;
+    }
+    if (sourceType === "primary_source" && (!sourceUrl.trim() || !sourceCheckedAt)) {
+      if (!sourceUrl.trim()) setSourceUrlError("A current primary source requires an HTTPS URL.");
+      if (!sourceCheckedAt) setSourceCheckedAtError("A current primary source requires the date it was checked.");
       return;
     }
     if (sourceUrl.trim()) {
@@ -211,7 +272,12 @@ export default function EntityProfilePage() {
     setSourceUrlError(null);
     setIsSubmittingHandoff(true);
     try {
-      if (!requestIdRef.current) requestIdRef.current = crypto.randomUUID();
+      if (!requestIdRef.current) {
+        requestIdRef.current = typeof crypto?.randomUUID === "function"
+          ? crypto.randomUUID()
+          : `browser-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      }
+      try { window.sessionStorage.setItem(`gpp-opportunity-pending:${requestedOrgId}`, requestIdRef.current); } catch { /* private storage may be unavailable */ }
       const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs`, {
         contractVersion: "v1",
         authorizationConfirmed: true,
@@ -225,40 +291,57 @@ export default function EntityProfilePage() {
           ...(sourceCheckedAt ? { sourceCheckedAt: new Date(sourceCheckedAt).toISOString() } : {}),
         },
       });
-      const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
-      if (activeOrgIdRef.current !== id) return;
+      const payload = await response.json() as { deliveryState: string; deliveryDetail?: string | null };
+      if (activeOrgIdRef.current !== requestedOrgId || asyncGenerationRef.current !== generation || mutationGenerationRef.current !== mutation) return;
       setHandoffNotice(handoffStatusNotice(payload.deliveryState, payload.deliveryDetail));
       setAuthorizationConfirmed(false);
-      requestIdRef.current = "";
-      await handoffHistory.refetch();
+      if (payload.deliveryState === "delivered" || payload.deliveryState === "rejected") {
+        try { window.sessionStorage.removeItem(`gpp-opportunity-pending:${requestedOrgId}`); } catch { /* private storage may be unavailable */ }
+        requestIdRef.current = "";
+      }
+      await handoffHistory.refetch().catch(() => undefined);
     } catch (error) {
-      setHandoffError(error instanceof Error ? error.message : "The handoff could not be recorded.");
+      if (activeOrgIdRef.current === requestedOrgId && asyncGenerationRef.current === generation && mutationGenerationRef.current === mutation) {
+        setHandoffError(error instanceof Error ? error.message : "The handoff could not be recorded.");
+      }
     } finally {
-      setIsSubmittingHandoff(false);
+      if (activeOrgIdRef.current === requestedOrgId && asyncGenerationRef.current === generation && mutationGenerationRef.current === mutation) {
+        setIsSubmittingHandoff(false);
+      }
     }
   }
 
   async function reconcileHandoff(handoffId: string) {
+    const requestedOrgId = id;
+    const generation = asyncGenerationRef.current;
+    const mutation = ++mutationGenerationRef.current;
     setHandoffError(null);
     setHandoffNotice(null);
     setReconcilingHandoffId(handoffId);
     try {
       const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs/${encodeURIComponent(handoffId)}/reconcile`);
-      const payload = await response.json() as { deliveryState: string; deliveryDetail: string };
-      if (activeOrgIdRef.current !== id) return;
+      const payload = await response.json() as { deliveryState: string; deliveryDetail?: string | null };
+      if (activeOrgIdRef.current !== requestedOrgId || asyncGenerationRef.current !== generation || mutationGenerationRef.current !== mutation) return;
       setHandoffNotice(handoffStatusNotice(payload.deliveryState, payload.deliveryDetail));
-      await handoffHistory.refetch();
+      await handoffHistory.refetch().catch(() => undefined);
     } catch (error) {
-      setHandoffError(error instanceof Error ? error.message : "The handoff could not be reconciled.");
+      if (activeOrgIdRef.current === requestedOrgId && asyncGenerationRef.current === generation && mutationGenerationRef.current === mutation) {
+        setHandoffError(error instanceof Error ? error.message : "The handoff could not be reconciled.");
+      }
     } finally {
-      if (activeOrgIdRef.current === id) setReconcilingHandoffId(null);
+      if (activeOrgIdRef.current === requestedOrgId && asyncGenerationRef.current === generation && mutationGenerationRef.current === mutation) setReconcilingHandoffId(null);
     }
   }
 
-  const snapshot = mirror.data?.snapshot;
-  const needs = snapshot ? snapshotItems(snapshot, ["needs", "communityNeeds", "identifiedNeeds"]) : [];
-  const gaps = snapshot ? snapshotItems(snapshot, ["gaps", "serviceGaps", "identifiedGaps"]) : [];
-  const priorities = snapshot ? snapshotItems(snapshot, ["residentPriorities", "priorities", "communityPriorities"]) : [];
+  const projection = mirror.data?.projection;
+  const needs = projection?.needs ?? [];
+  const gaps = projection?.gaps ?? [];
+  const priorities = projection?.residentPriorities ?? [];
+  const packageData = opportunityPackage.data?.package;
+  const lanes = Array.isArray(packageData?.opportunityLanes) ? packageData.opportunityLanes : [];
+  const communityMirror = packageData?.communityMirror;
+  const readiness = packageData?.readiness;
+  const collaboration = packageData?.collaboration;
   return (
     <div className="container max-w-5xl py-8 space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -295,12 +378,13 @@ export default function EntityProfilePage() {
           ) : <Badge variant="outline">No snapshot received</Badge>}
         </CardHeader>
         <CardContent>
-          {mirror.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading Mirror snapshot…</p> : snapshot ? (
+          {mirror.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading Mirror snapshot…</p> : projection?.status === "received" ? (
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Last received {mirror.data?.receivedAt ? new Date(mirror.data.receivedAt).toLocaleString() : "unknown"}.
-                Source: {mirror.data?.source === "grantpathpro" ? "GrantPathPro-provided snapshot" : "ThriveUp-pushed snapshot"}. Shown as received.
+                Last received {formatDate(mirror.data?.receivedAt)}.
+                Source: {projection.source?.label ?? "source not available"} · received {formatDate(projection.source?.receivedAt ?? mirror.data?.receivedAt)}. Shown as received, not independently verified.
               </p>
+              <p className="text-xs text-muted-foreground">{projection?.disclosure ?? "Snapshot fields are shown as received and are not independently verified."}</p>
               {(needs.length > 0 || gaps.length > 0 || priorities.length > 0) && (
                 <div className="grid gap-4 md:grid-cols-3 border rounded-md p-4">
                   <MirrorList title="Needs" items={needs} />
@@ -308,9 +392,9 @@ export default function EntityProfilePage() {
                   <MirrorList title="Resident priorities" items={priorities} />
                 </div>
               )}
-              <pre className="max-h-[32rem] overflow-auto rounded-md bg-muted p-4 text-xs whitespace-pre-wrap">
-                {JSON.stringify(snapshot, null, 2)}
-              </pre>
+              <MirrorList title="Services reported in the snapshot" items={projection?.services ?? []} />
+              <MirrorList title="Known funding signals" items={projection?.knownFundingSignals ?? []} />
+              <p className="text-xs text-muted-foreground">Raw partner payloads are retained server-side and are not rendered in the browser.</p>
             </div>
           ) : <p className="text-sm text-muted-foreground">No Mirror snapshot has been received for this organization yet.</p>}
         </CardContent>
@@ -326,31 +410,57 @@ export default function EntityProfilePage() {
         <CardContent className="space-y-5">
           {opportunityPackage.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading opportunity package…</p> : opportunityPackage.error ? (
             <Alert variant="destructive"><AlertDescription>{opportunityPackage.error instanceof Error ? opportunityPackage.error.message : "Could not load the opportunity package."}</AlertDescription></Alert>
-          ) : opportunityPackage.data && (
+          ) : packageData ? (
             <>
               <div className="grid gap-3 md:grid-cols-2">
-                {opportunityPackage.data.package.opportunityLanes.map((lane) => (
+                {lanes.map((lane) => (
                   <div key={lane.lane} className="rounded-md border p-3">
                     <div className="flex items-center justify-between gap-2">
                       <h3 className="font-semibold text-sm">{laneLabels[lane.lane]}</h3>
-                      <Badge variant="outline">{lane.evidenceStatus.replace(/_/g, " ")}</Badge>
+                      <Badge variant="outline">{(typeof lane.evidenceStatus === "string" ? lane.evidenceStatus.replace(/_/g, " ") : "") || "unknown evidence status"}</Badge>
                     </div>
-                    <p className="mt-2 text-sm text-muted-foreground">{lane.rationale}</p>
-                    <p className="mt-2 text-xs text-muted-foreground"><strong>Before pursuing:</strong> {lane.verificationRequired}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">{lane.rationale || "No rationale is available."}</p>
+                    <p className="mt-2 text-xs text-muted-foreground"><strong>Before pursuing:</strong> {lane.verificationRequired || "Confirm current requirements and fit."}</p>
                   </div>
                 ))}
               </div>
-              <div className="rounded-md border border-dashed p-3 text-sm text-muted-foreground">
-                <strong>Known profile signals:</strong> {opportunityPackage.data.package.readiness.knownSignals.length ? opportunityPackage.data.package.readiness.knownSignals.join(", ") : "None recorded yet."}
+              <div className="rounded-md border border-dashed p-3 text-sm text-muted-foreground space-y-3">
+                <p><strong>Community evidence status:</strong> {communityMirror?.status ?? "unknown"}. {communityMirror?.disclosure ?? "No community evidence status was returned."}</p>
+                <strong>Known profile signals:</strong> {readiness?.knownSignals?.length ? readiness.knownSignals.join(", ") : "None recorded yet."}
+                <MirrorList title="Documented community needs" items={readiness?.documentedNeeds ?? []} />
+                <MirrorList title="Service gaps" items={readiness?.serviceGaps ?? []} />
                 <ul className="mt-2 list-disc space-y-1 pl-5">
-                  {opportunityPackage.data.package.readiness.unknowns.map((unknown) => <li key={unknown}>{unknown}</li>)}
+                  {(readiness?.unknowns ?? []).map((unknown) => <li key={unknown}>{unknown}</li>)}
                 </ul>
               </div>
+              <div className="rounded-md border p-3 text-sm text-muted-foreground space-y-2">
+                <strong>Scale strategy (advisory)</strong>
+                <p><strong>Scale up:</strong> {readiness?.scaleStrategy?.scaleUp ?? "No scale-up guidance is available."}</p>
+                <p><strong>Scale out:</strong> {readiness?.scaleStrategy?.scaleOut ?? "No scale-out guidance is available."}</p>
+                <p className="text-xs">{readiness?.scaleStrategy?.status ?? "Advisory only; verify fit before acting."}</p>
+              </div>
               <div className="rounded-md bg-muted p-3 text-sm text-muted-foreground">
-                <strong>Potential collaborator categories:</strong> {opportunityPackage.data.package.collaboration.categories.join(", ")}. {opportunityPackage.data.package.collaboration.status}
+                <strong>Potential collaborator categories:</strong> {collaboration?.categories?.join(", ") || "None recorded."}. {collaboration?.status ?? "Potential only; partner willingness is unknown."}
               </div>
             </>
-          )}
+          ) : opportunityPackage.data ? <Alert variant="destructive"><AlertDescription>The opportunity package response was incomplete. Refresh and try again; no handoff was authorized.</AlertDescription></Alert> : null}
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Correct or add community knowledge</CardTitle>
+          <p className="text-sm text-muted-foreground">
+            Invite a community member or informal caregiver to describe what is happening in their own words. Participation and every sharing choice are voluntary; this does not alter the organization’s private handoff.
+          </p>
+        </CardHeader>
+        <CardContent>
+          <IntegrationInvitation
+            surface="direct"
+            surfaceContext={`organization:${id}`}
+            prompt="What should this organization understand about the community?"
+            description="Share only what you want to share. All consent choices start off, and you can withdraw them later."
+          />
         </CardContent>
       </Card>
 
@@ -392,13 +502,14 @@ export default function EntityProfilePage() {
               <input aria-label="Opportunity source label" data-testid="opportunity-handoff-source-label" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceLabel} onChange={(event) => setSourceLabel(event.target.value)} placeholder="e.g., agency notice, partner conversation, organization research" />
             </label>
             <label className="space-y-1 text-sm font-medium">
-              Source URL <span className="font-normal text-muted-foreground">(optional)</span>
+              Source URL <span className="font-normal text-muted-foreground">{sourceType === "primary_source" ? "(required for a primary source)" : "(optional)"}</span>
               <input aria-label="Opportunity source URL" aria-invalid={Boolean(sourceUrlError)} aria-describedby={sourceUrlError ? "opportunity-source-url-error" : undefined} data-testid="opportunity-handoff-source-url" type="url" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" />
               {sourceUrlError && <span id="opportunity-source-url-error" className="block text-xs font-normal text-destructive">{sourceUrlError}</span>}
             </label>
             <label className="space-y-1 text-sm font-medium">
-              Source checked at <span className="font-normal text-muted-foreground">(optional)</span>
-              <input aria-label="Opportunity source checked at" data-testid="opportunity-handoff-source-checked-at" type="datetime-local" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceCheckedAt} onChange={(event) => setSourceCheckedAt(event.target.value)} />
+              Source checked at <span className="font-normal text-muted-foreground">{sourceType === "primary_source" ? "(required for a primary source)" : "(optional)"}</span>
+              <input aria-label="Opportunity source checked at" aria-invalid={Boolean(sourceCheckedAtError)} aria-describedby={sourceCheckedAtError ? "opportunity-source-checked-at-error" : undefined} data-testid="opportunity-handoff-source-checked-at" type="datetime-local" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceCheckedAt} onChange={(event) => { setSourceCheckedAt(event.target.value); setSourceCheckedAtError(null); }} />
+              {sourceCheckedAtError && <span id="opportunity-source-checked-at-error" className="block text-xs font-normal text-destructive">{sourceCheckedAtError}</span>}
             </label>
           </div>
           <div className="flex items-start gap-3 rounded-md border p-3">
@@ -425,12 +536,12 @@ export default function EntityProfilePage() {
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div>
                   <p className="font-medium">{handoff.opportunityPackage.handoff?.selectedOpportunity?.title || "Authorized opportunity package"}</p>
-                  <p className="text-xs text-muted-foreground">Authorized {new Date(handoff.authorizedAt).toLocaleString()} · {handoff.opportunityPackage.handoff?.selectedOpportunity?.sourceLabel || "source label not available"}</p>
+                  <p className="text-xs text-muted-foreground">Authorized {formatDate(handoff.authorizedAt)} · {handoff.opportunityPackage.handoff?.selectedOpportunity?.sourceLabel || "source label not available"}</p>
                 </div>
-                <Badge variant={deliveryBadgeVariant(handoff.deliveryState)}>{deliveryStateLabels[handoff.deliveryState]}</Badge>
+                <Badge variant={deliveryBadgeVariant(handoff.deliveryState)}>{deliveryStateLabels[handoff.deliveryState] ?? "Unknown delivery state"}</Badge>
               </div>
               {handoff.deliveryDetail && <p className="text-sm text-muted-foreground">{handoff.deliveryDetail}</p>}
-               {handoff.deliveryState !== "delivered" && (
+               {["previewed", "unavailable", "delivery_unknown"].includes(handoff.deliveryState) && (
                  <div className="flex flex-wrap items-center gap-2">
                    <Button variant="outline" size="sm" data-testid={`opportunity-handoff-reconcile-${handoff.id}`} onClick={() => reconcileHandoff(handoff.id)} disabled={reconcilingHandoffId === handoff.id}>
                      {reconcilingHandoffId === handoff.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
@@ -445,11 +556,11 @@ export default function EntityProfilePage() {
                   {handoff.feedback.map((feedback) => (
                     <div key={feedback.id} className="rounded bg-muted p-3 text-sm">
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <Badge variant="outline">{feedback.status.replace(/_/g, " ")}</Badge>
-                        <span className="text-xs text-muted-foreground">{new Date(feedback.receivedAt).toLocaleString()}</span>
+                        <Badge variant="outline">{(typeof feedback.status === "string" ? feedback.status.replace(/_/g, " ") : "unknown status")}</Badge>
+                        <span className="text-xs text-muted-foreground">{formatDate(feedback.receivedAt)}</span>
                       </div>
                       <p className="mt-2 text-xs text-muted-foreground">Source: {feedback.sourceLabel}</p>
-                      {feedback.amountDisclosure === "shared" && feedback.awardAmount !== null && <p className="mt-1">Reported award amount: ${feedback.awardAmount.toLocaleString()}</p>}
+                      {feedback.amountDisclosure === "shared" && typeof feedback.awardAmount === "number" && Number.isFinite(feedback.awardAmount) && <p className="mt-1">Reported award amount: ${feedback.awardAmount.toLocaleString()}</p>}
                       {feedback.funderFeedback && <p className="mt-1"><strong>Feedback:</strong> {feedback.funderFeedback}</p>}
                       {feedback.lesson && <p className="mt-1"><strong>Lesson:</strong> {feedback.lesson}</p>}
                     </div>

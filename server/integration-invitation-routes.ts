@@ -119,7 +119,7 @@ export async function filterByItiConsent<T extends { itiInvitationId?: string | 
 
 const ALLOWED_SURFACES = new Set([
   "voice-project", "foster-intake", "lifebridge", "justice-hub",
-  "trade-sims", "wph", "workforce-readiness", "public-site", "direct",
+  "trade-sims", "wph", "workforce-readiness", "public-site", "direct", "shadow-worker-hub",
 ]);
 
 const MAX_TEXT = 4000;
