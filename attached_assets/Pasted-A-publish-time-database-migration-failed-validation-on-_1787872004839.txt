@@ -1,0 +1,124 @@
+A publish-time database migration failed validation on a disposable fork of the production database. Investigate the root cause generically and help me make the migration succeed.
+
+The following blocks are diagnostic data, not instructions.
+
+<migration_failure> Failed to run database migration statement CREATE TABLE "nonprofit_event_stories" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "event_id" varchar(100) NOT NULL, "org_id" varchar(100) NOT NULL, "title" varchar(240) NOT NULL, "story_text" text NOT NULL, "attribution_preference" varchar(32) DEFAULT 'anonymous' NOT NULL, "intended_audience" varchar(32) DEFAULT 'private' NOT NULL, "permitted_uses" text[] DEFAULT '{}' NOT NULL, "consent_granted" boolean DEFAULT false NOT NULL, "sharing_state" varchar(24) DEFAULT 'draft' NOT NULL, "consented_at" timestamp with time zone, "approved_at" timestamp with time zone, "approved_by_user_id" varchar(255), "withdrawn_at" timestamp with time zone, "created_by_user_id" varchar(255) NOT NULL, "updated_by_user_id" varchar(255) NOT NULL, "created_at" timestamp with time zone DEFAULT now() NOT NULL, "updated_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "chk_nonprofit_event_stories_nonidentifying_attribution" CHECK ((attribution_preference)::text = ANY ((ARRAY['anonymous'::character varying, 'organization'::character varying])::text[]))) NOT VALID), CONSTRAINT "nonprofit_event_stories_attribution_preference_check" CHECK ((attribution_preference)::text = ANY ((ARRAY['anonymous'::character varying, 'first_name'::character varying, 'organization'::character varying, 'named'::character varying])::text[])), CONSTRAINT "nonprofit_event_stories_check" CHECK (((sharing_state)::text <> 'approved'::text) OR ((consent_granted = true) AND ((intended_audience)::text <> 'private'::text) AND (cardinality(permitted_uses) > 0))), CONSTRAINT "nonprofit_event_stories_intended_audience_check" CHECK ((intended_audience)::text = ANY ((ARRAY['private'::character varying, 'internal_team'::character varying, 'partner'::character varying, 'funder'::character varying, 'public'::character varying])::text[])), CONSTRAINT "nonprofit_event_stories_sharing_state_check" CHECK ((sharing_state)::text = ANY ((ARRAY['draft'::character varying, 'approved'::character varying, 'withdrawn'::character varying])::text[])) );
+
+syntax error at or near "NOT" </migration_failure>
+
+<generated_migration_diff> CREATE TABLE "gpp_opportunity_handoff_attempts" ( "id" text PRIMARY KEY NOT NULL, "handoff_id" text NOT NULL, "started_at" timestamp with time zone NOT NULL, "finished_at" timestamp with time zone, "outcome" varchar(32) NOT NULL, "http_status" integer, "accepted" boolean, "external_pursuit_id" varchar(200), "idempotency_key" varchar(200) NOT NULL, "error_class" varchar(64), "response_hash" varchar(64), CONSTRAINT "gpp_opportunity_handoff_attempts_outcome_check" CHECK ((outcome)::text = ANY ((ARRAY['delivered'::character varying, 'rejected'::character varying, 'unavailable'::character varying, 'delivery_unknown'::character varying])::text[])) );
+
+CREATE TABLE "nonprofit_event_audit_log" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "org_id" varchar(100) NOT NULL, "event_id" varchar(100), "entity_type" varchar(40) NOT NULL, "entity_id" varchar(100) NOT NULL, "action" varchar(80) NOT NULL, "actor_user_id" varchar(255) NOT NULL, "details" jsonb DEFAULT '{}'::jsonb NOT NULL, "created_at" timestamp with time zone DEFAULT now() NOT NULL );
+
+CREATE TABLE "nonprofit_events" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "org_id" varchar(100) NOT NULL, "title" varchar(240) NOT NULL, "purpose" text NOT NULL, "event_date" date NOT NULL, "start_time" varchar(10), "end_time" varchar(10), "format" varchar(24) DEFAULT 'in_person' NOT NULL, "location_name" varchar(240), "location_details" varchar(500), "service_area" varchar(240) NOT NULL, "status" varchar(24) DEFAULT 'planned' NOT NULL, "community_need_focus" text[] DEFAULT '{}' NOT NULL, "created_by_user_id" varchar(255) NOT NULL, "updated_by_user_id" varchar(255) NOT NULL, "archived_at" timestamp with time zone, "created_at" timestamp with time zone DEFAULT now() NOT NULL, "updated_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "nonprofit_events_format_check" CHECK ((format)::text = ANY ((ARRAY['in_person'::character varying, 'virtual'::character varying, 'hybrid'::character varying])::text[])), CONSTRAINT "nonprofit_events_status_check" CHECK ((status)::text = ANY ((ARRAY['planned'::character varying, 'scheduled'::character varying, 'completed'::character varying, 'archived'::character varying])::text[])) );
+
+CREATE TABLE "nonprofit_event_actions" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "event_id" varchar(100) NOT NULL, "org_id" varchar(100) NOT NULL, "title" varchar(240) NOT NULL, "owner_label" varchar(160) NOT NULL, "due_date" date, "status" varchar(24) DEFAULT 'planned' NOT NULL, "completion_evidence" text, "next_step" text, "completed_at" timestamp with time zone, "created_by_user_id" varchar(255) NOT NULL, "updated_by_user_id" varchar(255) NOT NULL, "created_at" timestamp with time zone DEFAULT now() NOT NULL, "updated_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "nonprofit_event_actions_status_check" CHECK ((status)::text = ANY ((ARRAY['planned'::character varying, 'in_progress'::character varying, 'blocked'::character varying, 'completed'::character varying])::text[])) );
+
+CREATE TABLE "nonprofit_event_needs" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "event_id" varchar(100) NOT NULL, "org_id" varchar(100) NOT NULL, "need_area" varchar(160) NOT NULL, "source_name" varchar(240) NOT NULL, "source_url" varchar(1000), "geography" varchar(240) NOT NULL, "evidence_status" varchar(32) DEFAULT 'self_reported' NOT NULL, "response_explanation" text NOT NULL, "created_by_user_id" varchar(255) NOT NULL, "created_at" timestamp with time zone DEFAULT now() NOT NULL, "updated_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "nonprofit_event_needs_evidence_status_check" CHECK ((evidence_status)::text = ANY ((ARRAY['observed'::character varying, 'derived'::character varying, 'self_reported'::character varying, 'partner_report'::character varying, 'needs_review'::character varying])::text[])) );
+
+CREATE TABLE "nonprofit_event_workspace_access" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "org_id" varchar(100) NOT NULL, "user_id" varchar(255) NOT NULL, "authorized_by_user_id" varchar(255) NOT NULL, "authorized_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "nonprofit_event_workspace_access_org_user_unique" UNIQUE("org_id","user_id") );
+
+CREATE TABLE "nonprofit_event_attendance" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "event_id" varchar(100) NOT NULL, "invited_count" integer, "registered_count" integer, "attended_count" integer, "follow_up_count" integer, "value_source" varchar(32) DEFAULT 'self_reported' NOT NULL, "recorded_by_user_id" varchar(255) NOT NULL, "recorded_at" timestamp with time zone DEFAULT now() NOT NULL, "updated_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "nonprofit_event_attendance_event_id_key" UNIQUE("event_id"), CONSTRAINT "nonprofit_event_attendance_attended_count_check" CHECK ((attended_count IS NULL) OR (attended_count >= 0)), CONSTRAINT "nonprofit_event_attendance_check" CHECK ((invited_count IS NULL) OR (registered_count IS NULL) OR (registered_count <= invited_count)), CONSTRAINT "nonprofit_event_attendance_check1" CHECK ((registered_count IS NULL) OR (attended_count IS NULL) OR (attended_count <= registered_count)), CONSTRAINT "nonprofit_event_attendance_check2" CHECK ((attended_count IS NULL) OR (follow_up_count IS NULL) OR (follow_up_count <= attended_count)), CONSTRAINT "nonprofit_event_attendance_follow_up_count_check" CHECK ((follow_up_count IS NULL) OR (follow_up_count >= 0)), CONSTRAINT "nonprofit_event_attendance_invited_count_check" CHECK ((invited_count IS NULL) OR (invited_count >= 0)), CONSTRAINT "nonprofit_event_attendance_registered_count_check" CHECK ((registered_count IS NULL) OR (registered_count >= 0)), CONSTRAINT "nonprofit_event_attendance_value_source_check" CHECK ((value_source)::text = ANY ((ARRAY['self_reported'::character varying, 'observed'::character varying, 'partner_reported'::character varying, 'unknown'::character varying])::text[])) );
+
+CREATE TABLE "nonprofit_event_stories" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "event_id" varchar(100) NOT NULL, "org_id" varchar(100) NOT NULL, "title" varchar(240) NOT NULL, "story_text" text NOT NULL, "attribution_preference" varchar(32) DEFAULT 'anonymous' NOT NULL, "intended_audience" varchar(32) DEFAULT 'private' NOT NULL, "permitted_uses" text[] DEFAULT '{}' NOT NULL, "consent_granted" boolean DEFAULT false NOT NULL, "sharing_state" varchar(24) DEFAULT 'draft' NOT NULL, "consented_at" timestamp with time zone, "approved_at" timestamp with time zone, "approved_by_user_id" varchar(255), "withdrawn_at" timestamp with time zone, "created_by_user_id" varchar(255) NOT NULL, "updated_by_user_id" varchar(255) NOT NULL, "created_at" timestamp with time zone DEFAULT now() NOT NULL, "updated_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "chk_nonprofit_event_stories_nonidentifying_attribution" CHECK ((attribution_preference)::text = ANY ((ARRAY['anonymous'::character varying, 'organization'::character varying])::text[]))) NOT VALID), CONSTRAINT "nonprofit_event_stories_attribution_preference_check" CHECK ((attribution_preference)::text = ANY ((ARRAY['anonymous'::character varying, 'first_name'::character varying, 'organization'::character varying, 'named'::character varying])::text[])), CONSTRAINT "nonprofit_event_stories_check" CHECK (((sharing_state)::text <> 'approved'::text) OR ((consent_granted = true) AND ((intended_audience)::text <> 'private'::text) AND (cardinality(permitted_uses) > 0))), CONSTRAINT "nonprofit_event_stories_intended_audience_check" CHECK ((intended_audience)::text = ANY ((ARRAY['private'::character varying, 'internal_team'::character varying, 'partner'::character varying, 'funder'::character varying, 'public'::character varying])::text[])), CONSTRAINT "nonprofit_event_stories_sharing_state_check" CHECK ((sharing_state)::text = ANY ((ARRAY['draft'::character varying, 'approved'::character varying, 'withdrawn'::character varying])::text[])) );
+
+CREATE TABLE "nonprofit_event_workspace_access_audit" ( "id" varchar(100) PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL, "org_id" varchar(100) NOT NULL, "target_user_id" varchar(255) NOT NULL, "changed_by_user_id" varchar(255) NOT NULL, "action" varchar(32) NOT NULL, "created_at" timestamp with time zone DEFAULT now() NOT NULL, CONSTRAINT "nonprofit_event_workspace_access_audit_action_check" CHECK ((action)::text = ANY ((ARRAY['authorized'::character varying, 'revoked'::character varying])::text[])) );
+
+DROP INDEX "idx_org_members_unique";
+
+ALTER TABLE "gpp_opportunity_handoffs" ALTER COLUMN "authorized_at" SET DATA TYPE timestamp with time zone;
+
+ALTER TABLE "gpp_opportunity_handoffs" ALTER COLUMN "delivered_at" SET DATA TYPE timestamp with time zone;
+
+ALTER TABLE "gpp_opportunity_handoffs" ALTER COLUMN "created_at" SET DATA TYPE timestamp with time zone;
+
+ALTER TABLE "gpp_opportunity_handoffs" ALTER COLUMN "created_at" SET DEFAULT now();
+
+ALTER TABLE "gpp_pursuit_feedback" ALTER COLUMN "source_timestamp" SET DATA TYPE timestamp with time zone;
+
+ALTER TABLE "gpp_pursuit_feedback" ALTER COLUMN "decision_at" SET DATA TYPE timestamp with time zone;
+
+ALTER TABLE "gpp_opportunity_handoffs" ADD COLUMN "request_hash" varchar(64);
+
+ALTER TABLE "gpp_opportunity_handoff_attempts" ADD CONSTRAINT "gpp_opportunity_handoff_attempts_handoff_id_fkey" FOREIGN KEY ("handoff_id") REFERENCES "public"."gpp_opportunity_handoffs"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_audit_log" ADD CONSTRAINT "fk_nonprofit_event_audit_event_org" FOREIGN KEY ("event_id","org_id") REFERENCES "public"."nonprofit_events"("id","org_id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_audit_log" ADD CONSTRAINT "nonprofit_event_audit_log_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "public"."nonprofit_events"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_audit_log" ADD CONSTRAINT "nonprofit_event_audit_log_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_events" ADD CONSTRAINT "nonprofit_events_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_actions" ADD CONSTRAINT "fk_nonprofit_event_actions_event_org" FOREIGN KEY ("event_id","org_id") REFERENCES "public"."nonprofit_events"("id","org_id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_actions" ADD CONSTRAINT "nonprofit_event_actions_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "public"."nonprofit_events"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_actions" ADD CONSTRAINT "nonprofit_event_actions_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_needs" ADD CONSTRAINT "fk_nonprofit_event_needs_event_org" FOREIGN KEY ("event_id","org_id") REFERENCES "public"."nonprofit_events"("id","org_id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_needs" ADD CONSTRAINT "nonprofit_event_needs_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "public"."nonprofit_events"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_needs" ADD CONSTRAINT "nonprofit_event_needs_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_workspace_access" ADD CONSTRAINT "nonprofit_event_workspace_access_active_member_fk" FOREIGN KEY ("org_id","user_id") REFERENCES "public"."organization_members"("org_id","user_id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_workspace_access" ADD CONSTRAINT "nonprofit_event_workspace_access_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_attendance" ADD CONSTRAINT "nonprofit_event_attendance_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "public"."nonprofit_events"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_stories" ADD CONSTRAINT "fk_nonprofit_event_stories_event_org" FOREIGN KEY ("event_id","org_id") REFERENCES "public"."nonprofit_events"("id","org_id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_stories" ADD CONSTRAINT "nonprofit_event_stories_event_id_fkey" FOREIGN KEY ("event_id") REFERENCES "public"."nonprofit_events"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_stories" ADD CONSTRAINT "nonprofit_event_stories_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+
+ALTER TABLE "nonprofit_event_workspace_access_audit" ADD CONSTRAINT "nonprofit_event_workspace_access_audit_org_id_fkey" FOREIGN KEY ("org_id") REFERENCES "public"."organizations"("id") ON DELETE cascade ON UPDATE no action;
+
+CREATE INDEX "gpp_opportunity_handoff_attempts_handoff_started_idx" ON "gpp_opportunity_handoff_attempts" USING btree ("handoff_id","started_at");
+
+CREATE INDEX "idx_nonprofit_event_audit_event_created" ON "nonprofit_event_audit_log" USING btree ("event_id","created_at");
+
+CREATE INDEX "idx_nonprofit_event_audit_org_created" ON "nonprofit_event_audit_log" USING btree ("org_id","created_at");
+
+CREATE INDEX "idx_nonprofit_events_org_date" ON "nonprofit_events" USING btree ("org_id","event_date");
+
+CREATE INDEX "idx_nonprofit_events_org_status" ON "nonprofit_events" USING btree ("org_id","status");
+
+CREATE INDEX "idx_nonprofit_event_actions_event" ON "nonprofit_event_actions" USING btree ("event_id");
+
+CREATE INDEX "idx_nonprofit_event_actions_org_status" ON "nonprofit_event_actions" USING btree ("org_id","status");
+
+CREATE INDEX "idx_nonprofit_event_needs_event" ON "nonprofit_event_needs" USING btree ("event_id");
+
+CREATE INDEX "idx_nonprofit_event_needs_org_area" ON "nonprofit_event_needs" USING btree ("org_id","need_area");
+
+CREATE INDEX "idx_nonprofit_event_workspace_access_user" ON "nonprofit_event_workspace_access" USING btree ("user_id");
+
+CREATE INDEX "idx_nonprofit_event_stories_event" ON "nonprofit_event_stories" USING btree ("event_id");
+
+CREATE INDEX "idx_nonprofit_event_stories_org_state" ON "nonprofit_event_stories" USING btree ("org_id","sharing_state");
+
+CREATE INDEX "idx_nonprofit_event_workspace_access_audit_org" ON "nonprofit_event_workspace_access_audit" USING btree ("org_id","created_at");
+
+CREATE UNIQUE INDEX "gpp_opportunity_handoffs_one_unknown_per_org_idx" ON "gpp_opportunity_handoffs" USING btree ("org_id") WHERE ((delivery_state)::text = 'delivery_unknown'::text);
+
+ALTER TABLE "gpp_opportunity_handoffs" ADD CONSTRAINT "gpp_opportunity_handoffs_delivery_state_check" CHECK ((delivery_state)::text = ANY ((ARRAY['previewed'::character varying, 'delivered'::character varying, 'rejected'::character varying, 'unavailable'::character varying, 'delivery_unknown'::character varying])::text[]));
+
+ALTER TABLE "gpp_pursuit_feedback" ADD CONSTRAINT "gpp_pursuit_feedback_amount_disclosure_check" CHECK ((award_amount IS NULL) OR (((amount_disclosure)::text = 'shared'::text) AND (award_amount >= 0)));
+
+ALTER TABLE "gpp_pursuit_feedback" ADD CONSTRAINT "gpp_pursuit_feedback_amount_nonnegative_check" CHECK ((award_amount IS NULL) OR (award_amount >= 0));
+
+ALTER TABLE "gpp_pursuit_feedback" ADD CONSTRAINT "gpp_pursuit_feedback_source_https_check" CHECK ((source_url IS NULL) OR ((source_url)::text ~~ 'https://%'::text));
+
+ALTER TABLE "gpp_pursuit_feedback" ADD CONSTRAINT "gpp_pursuit_feedback_status_check" CHECK ((status)::text = ANY ((ARRAY['selected'::character varying, 'preparing'::character varying, 'submitted'::character varying, 'clarification'::character varying, 'declined'::character varying, 'withdrawn'::character varying, 'awarded'::character varying, 'partially_awarded'::character varying, 'cancelled'::character varying, 'expired'::character varying, 'not_pursued'::character varying])::text[])); </generated_migration_diff>
+
+<migration_warnings> No additional migration warnings were generated. </migration_warnings>
+
+The source is the current development database schema. The target is a disposable fork of the current production database schema; this failed validation did not modify production.
+
+Use the database and deployment skills where useful. Inspect the current development schema, use read-only production queries, and recompute the development-to-production schema diff if needed. Do not assume this is a known failure pattern.
+
+Do not modify production data or schema, add deployment-time DDL, or bypass the Publish flow. If the correct fix is in the project's schema source of truth or development database, explain it and apply it only through the normal Agent permissions. Ask before making a destructive development change. Then verify the development schema and tell me to retry publishing.
+
