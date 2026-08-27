@@ -2,7 +2,7 @@
 - [RequireAuth + wouter routing pattern](require-auth-routing.md) — Route must WRAP RequireAuth, not the other way around; outer-RequireAuth bleeds to all pages.
 - [El Buen Samaritano Collaboration](el-buen-collaboration.md) — active contract conversation with Isaac Pozos; disparity analysis on rental assistance data for Austin City Council advocacy; Dads Care 2 / fatherhood / Chainweb are the differentiated contribution.
 - [Navigator Personal RAG](navigator-personal-rag.md) — personal context injects live DB data when authenticated; audience-aware, never promotional.
-- [Chainweb External API](chainweb-external-api.md) — 3 authenticated endpoints + webhook; x-ecosystem-key auth; Civic Signal connector stub built; awaiting their URL+token to go live.
+- [Chainweb External API](chainweb-external-api.md) — Civic Signal authentication is directional; verify each leg with safe validation and a truthful receipt, never rotate keys on a one-way failure.
 - [TCAF Core Identity & IGN](tcaf-identity.md) — IGN=Initial Guidance & Navigation; multi-disciplinary lenses; 4-stakeholder model; full cycle not just needs assessment; bake into every surface.
 - [Canonical public-facing stats](canonical-stats.md) — no grant numbers ever; 15 service platforms externally; 107 languages; 4 AI engines; 50 states = architecture not deployment.
 - [Visual Circuit Canvas](visual-circuit-canvas.md) — SVG schematic editor; shouldShowCanvas() gates display; ENGINES_WITH_CANVAS still gates completion; onInteract fires onRun for concept-only.

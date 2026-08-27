@@ -23,12 +23,12 @@ description: Architecture and status of the Chainweb Evidence API for external p
 - `EVIDENCE_PROGRAMS`: 10 programs — NFP, Perry Preschool, Housing First, RNR/CBI, BBBS, MST, Dads Care 2, Benefits Navigation, CHW Model, TF-CBT
 - `JURISDICTION_DATA`: 10 records — TX (6), CA, IL, US failed policies (mandatory minimums, DARE)
 
-### Civic Signal bidirectional connector (server/civic-signal-connector.ts)
-- `receiveCivicSignalLesson()` — live and confirmed working end-to-end (webhook tested 2026-08-15), stores in-memory (last 100), injects into RAG
-- `getCivicSignalRAGContext()` — formats lessons as RAG paragraph
-- `pushChainwebToCivicSignal()` / `pushEquityLossToCivicSignal()` — code is live (not a stub) and `CIVIC_SIGNAL_BASE_URL`/`THRIVEUP_INBOUND_KEY` secrets ARE set, but live-tested 2026-08-15 and the actual power2thepeople.net endpoints reject every server-to-server call: the pull endpoint returns 401 "Invalid x-civic-signal-key", the ingest endpoint returns 403 "Cross-origin request blocked: missing origin" (their ingest route appears to require a browser Origin header, which a server-side fetch never sends). This is an external-platform-side issue, not a ThriveUp code defect — confirm with Civic Signal's team before assuming it's fixed.
-- `checkCivicSignalConnection()` — new; live reachability probe, surfaced honestly on the `/civic-signal` page (never fabricates a "connected" state)
-- UI: `/civic-signal` page shows real inbound lesson count + outbound status/detail string as returned by the probe
+### Civic Signal bidirectional connector
+- Each direction has its own authentication and lifecycle. Never infer that a failure in one direction invalidates the other direction's credential.
+- Civic Signal’s administrator attested that its earlier ThriveUp read failure was caused by its client selecting the wrong local secret variable, not by an invalid ThriveUp-issued credential. After its correction, its authenticated read probe returned HTTP 200.
+- The active Civic Signal-to-ThriveUp inbound credential is the registered Civic Signal ecosystem credential; ThriveUp's malformed-payload probe reached validation (HTTP 400), proving authentication passed without storing test data.
+- Civic Signal’s remote-write watchdog remains intentionally contained until its administrator-recovery process is recorded and a truthful, bounded lesson can be exchanged with an acceptance receipt. Do not fabricate a lesson or bypass that audit to make a status display green.
+- ThriveUp-to-Civic Signal health must be measured separately by its own live pull/push receipt. Do not tell either operator to rotate or re-register credentials from a one-direction 401 alone.
 
 ### Community Story tab (/chainweb page)
 - Tab 4 (between Results and Coefficient Library)
@@ -40,15 +40,13 @@ description: Architecture and status of the Chainweb Evidence API for external p
 ### API documentation
 - Written to `docs/civic-signal-api-guide.md` — ready to send to Civic Signal
 
-## What's pending
-**From Dr. Flood / Civic Signal:**
-1. Civic Signal base URL → set as `CIVIC_SIGNAL_BASE_URL` secret
-2. Auth header name + token → set as `CIVIC_SIGNAL_API_KEY` secret
-3. Endpoint path for receiving ROI evidence from ThriveUp
-4. Endpoint path for pulling adaptation lessons to ThriveUp
-5. Payload schema for both
-
-Once credentials arrive: replace TODO stubs in `server/civic-signal-connector.ts` lines `pushChainwebToCivicSignal()` and `fetchCivicSignalAdaptations()` with real endpoint calls. The connector is fully structured — it's a one-session wiring job.
+## Operating rule
+Treat live cross-platform verification as directional and receipt-based:
+1. authenticate a safe malformed request to prove the receiving auth boundary;
+2. verify it is rejected before storage;
+3. use only a truthful, bounded payload for a successful exchange;
+4. retain the receiving system's explicit acceptance receipt;
+5. keep participant, referral, intake, contact, and case information out of the exchange.
 
 **Why:**
-Civic Signal is a policy intelligence platform that adapts evidence to local context. ThriveUp pushes ROI calculations + SDOH community data; Civic Signal pushes back adaptation lessons about what's working in other jurisdictions. This bidirectional loop strengthens both platforms' AI engines.
+Civic Signal is a policy intelligence platform that adapts evidence to local context. Directional credentials and watchdog containment protect both systems, while a receipt-based proof prevents a green status from being mistaken for an unverified or fabricated data exchange.
