@@ -11,3 +11,17 @@
 - Independent angle: Fresh six-domain/architect subagent dispatch was attempted; Free mode reported that code review/automated testing subagents are unavailable. Read-only audit results that did return were used to fix concrete storage, API, runtime, UI, and congruence findings. Final direct diff/proof scrimmage completed in-session.
 - Outcome: Community Opportunity Mirror package, explicit authorization, tenant-scoped history/feedback, bounded sourced projection, truthful unavailable/unknown delivery states, reconciliation, staff operational view, and compatibility documentation are implemented and verified locally.
 - Residuals and reusable guard: The dedicated GrantPathPro opportunity receiver is not configured, so no live partner acceptance or feedback is claimed. The legacy inbound Mirror endpoint still uses the existing shared authenticated compatibility key and caller-supplied organization reference; per-tenant partner credential mapping remains an external integration prerequisite. Existing historical invalid rows remain covered by `NOT VALID` checks pending a governed cleanup/validation policy.
+
+# Alpha Omega — 2026-08-27 — Nonprofit events and community impact workspace
+## Alpha
+- End-state: An authorized nonprofit organization can plan events, record aggregate attendance, connect documented needs, track accountable execution actions, and keep human-entered stories private until explicit consent; staff can review truthful, suppressed aggregate reports.
+- In-state evidence: `.local/tasks/nonprofit-community-events-intelligence.md`; `server/tenant-middleware.ts` and `server/org-profile-routes.ts` provide organization membership resolution; `shared/schema.ts` has organizations, organizationMembers, and separate Academy/community-story models; `docs/api-contract.md` requires session auth, route try/catch, and registered route modules; the current working tree was clean before this task.
+- Authority/boundaries: Organization membership and DB role are the authorization source. Organization records are tenant-scoped. Attendance is aggregate-only; no attendee roster, contacts, surveillance, inferred demographics, or automatic service matching. Stories are private by default and shareable only after explicit consent, attribution, audience, permitted-use, and approved-state checks. Unknown and cells below five are disclosed/suppressed.
+- Plan and acceptance proofs: Add additive/idempotent tables and schemas; add organization-scoped CRUD/report APIs plus staff reporting; add a responsive organization workspace and navigation; verify cross-org denial, malformed counts, archive behavior, action visibility, consent withdrawal, suppression, API contracts, browser flow, TypeScript, workflow logs, and adversarial audit.
+- Unknowns/deferred decisions: No task-specific UI or schema implementation was present in the current tree. External calendar/CRM, individual attendance, AI story generation, public event pages, and deployment are out of scope.
+## Omega
+- Diff scrimmage:
+- Proofs and gates:
+- Independent angle:
+- Outcome:
+- Residuals and reusable guard:
