@@ -29,10 +29,12 @@ function verifyMigrationSource() {
   if (/chk_nonprofit_event_stories_nonidentifying_attribution[\s\S]{0,500}NOT VALID/i.test(privacyMigration)) {
     fail("nonprofit-event privacy migration must not create an inline NOT VALID check constraint");
   }
-  const [integrityMigration, archivalLockMigration, archivalTruncateMigration] = [
+  const [integrityMigration, archivalLockMigration, archivalTruncateMigration, handoffDeleteMigration, handoffLinkMigration] = [
     "../migrations/20260903_nonprofit_events_integrity.sql",
     "../migrations/20260908_nonprofit_event_archival_write_lock.sql",
     "../migrations/20260909_nonprofit_event_archival_truncate_guard.sql",
+    "../migrations/20260911_nonprofit_event_handoff_delete_guard.sql",
+    "../migrations/20260912_nonprofit_event_handoff_link_integrity.sql",
   ].map((path) => readFileSync(new URL(path, import.meta.url), "utf8"));
   for (const migration of [integrityMigration, archivalLockMigration]) {
     if (!migration.includes("enforce_nonprofit_event_child_mutation()") || !migration.includes("FOR UPDATE")) {
@@ -43,6 +45,12 @@ function verifyMigrationSource() {
     if (!migration.includes("reject_nonprofit_event_child_truncate()") || !migration.includes("BEFORE TRUNCATE")) {
       fail("nonprofit-event child write migrations must block direct table truncation");
     }
+  }
+  if (!handoffDeleteMigration.includes("BEFORE UPDATE OR DELETE") || !handoffDeleteMigration.includes("Reviewed nonprofit event handoffs are immutable")) {
+    fail("reviewed evidence handoff migration must block direct update and delete mutation");
+  }
+  if (!handoffLinkMigration.includes("fk_nonprofit_event_handoffs_event_org") || !handoffLinkMigration.includes("fk_nonprofit_event_handoffs_need_org") || !handoffLinkMigration.includes("fk_nonprofit_event_handoffs_action_org")) {
+    fail("handoff links must have tenant-qualified foreign-key enforcement");
   }
 }
 
@@ -274,7 +282,12 @@ async function run() {
     if (legacyRuntimeModuleExists) fail("retired event-workspace authorization module is still reachable in runtime source");
     ok("kept owner staff management in the authoritative Community Events surface");
 
-    await db.query(`DELETE FROM organizations WHERE id = ANY($1::varchar[])`, [[ORG_A, ORG_B, ORG_LEGACY, ORG_LEGACY_OWNER]]);
+    await db.query("ALTER TABLE nonprofit_event_handoffs DISABLE TRIGGER USER");
+    try {
+      await db.query(`DELETE FROM organizations WHERE id = ANY($1::varchar[])`, [[ORG_A, ORG_B, ORG_LEGACY, ORG_LEGACY_OWNER]]);
+    } finally {
+      await db.query("ALTER TABLE nonprofit_event_handoffs ENABLE TRIGGER USER");
+    }
     await cleanupTestUser(db, OWNER.userId).catch(() => {});
     await cleanupTestUser(db, OTHER.userId).catch(() => {});
     await cleanupTestUser(db, MEMBER.userId).catch(() => {});
@@ -632,6 +645,185 @@ async function run() {
     if (!savedEvent?.actions.some((row: { status: string }) => row.status === "blocked")) fail("workspace did not surface blocked action");
     ok("workspace surfaces blocked accountability work");
 
+    const malformedHandoff = await request("/api/nonprofit-events/handoffs", ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        sourceKind: "community_brief",
+        sourceVersion: "community-brief/v1",
+        issue: "safe recreation",
+        geography: "Wichita, KS",
+        evidenceRefs: [],
+        freshnessAt: "not-a-date",
+        claimTypes: ["modeled"],
+        resourceVerification: "source-listed-unverified",
+        consentBoundary: "Aggregate evidence only.",
+        unresolvedGaps: [],
+        sourceSnapshot: {},
+      }),
+    });
+    if (malformedHandoff.status !== 400) fail(`malformed evidence handoff returned ${malformedHandoff.status}, expected 400`);
+    const crossOrgHandoff = await request("/api/nonprofit-events/handoffs", otherCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        sourceKind: "community_brief",
+        sourceVersion: "community-brief/v1",
+        issue: "safe recreation",
+        geography: "Wichita, KS",
+        evidenceRefs: [],
+        freshnessAt: new Date().toISOString(),
+        claimTypes: ["observed", "modeled"],
+        resourceVerification: "source-listed-unverified",
+        consentBoundary: "Aggregate evidence only; no identities or stories.",
+        unresolvedGaps: ["Local capacity is not independently verified."],
+        sourceSnapshot: { disclosure: "Public aggregate evidence submitted for review." },
+      }),
+    });
+    if (crossOrgHandoff.status !== 403) fail(`cross-organization handoff returned ${crossOrgHandoff.status}, expected 403`);
+    const handoffResponse = await request("/api/nonprofit-events/handoffs", ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        sourceKind: "community_brief",
+        sourceVersion: "community-brief/v1",
+        issue: "safe recreation",
+        geography: "Wichita, KS",
+        evidenceRefs: ["https://www.census.gov/"],
+        freshnessAt: new Date().toISOString(),
+        claimTypes: ["observed", "derived", "modeled"],
+        resourceVerification: "source-listed-unverified",
+        consentBoundary: "Aggregate evidence only; no identities, contact details, or stories.",
+        unresolvedGaps: ["Local capacity is not independently verified."],
+        sourceSnapshot: { disclosure: "Public aggregate evidence submitted for review; modeled values are not outcomes." },
+      }),
+    });
+    if (handoffResponse.status !== 201) fail(`evidence handoff create returned ${handoffResponse.status}: ${JSON.stringify(await body(handoffResponse))}`);
+    const handoffId = (await body(handoffResponse)).handoff?.id;
+    if (!handoffId) fail("evidence handoff response omitted handoff.id");
+    const pendingWorkspace = await request("/api/nonprofit-events/workspace", ownerCookie, ORG_A);
+    if (pendingWorkspace.status !== 200 || !(await body(pendingWorkspace)).handoffs.some((row: { id: string; status: string }) => row.id === handoffId && row.status === "pending_review")) {
+      fail("workspace did not surface the pending evidence handoff");
+    }
+    const acceptedHandoff = await request(`/api/nonprofit-events/handoffs/${handoffId}/accept`, ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        eventId,
+        needResponseExplanation: "The organization selected a supervised recreation response while the evidence gap remains visible.",
+        action: {
+          title: "Confirm supervised recreation option",
+          ownerLabel: "Event coordinator",
+          dueDate: "2030-03-15",
+          status: "planned",
+          completionEvidence: null,
+          nextStep: "Review availability and report back to the team.",
+          followUpObservation: null,
+        },
+      }),
+    });
+    if (acceptedHandoff.status !== 201) fail(`evidence handoff accept returned ${acceptedHandoff.status}: ${JSON.stringify(await body(acceptedHandoff))}`);
+    const acceptedBody = await body(acceptedHandoff);
+    const handoffActionId = acceptedBody.action?.id;
+    if (acceptedBody.handoff?.status !== "accepted" || acceptedBody.need?.evidenceStatus !== "needs_review" || !handoffActionId) {
+      fail(`accepted handoff did not preserve review status, need provenance, and action link: ${JSON.stringify(acceptedBody)}`);
+    }
+    const repeatedAccept = await request(`/api/nonprofit-events/handoffs/${handoffId}/accept`, ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        eventId,
+        needResponseExplanation: "This replay must not create a second action.",
+        action: { title: "Replay", ownerLabel: "Event coordinator", dueDate: "2030-03-16", status: "planned" },
+      }),
+    });
+    if (repeatedAccept.status !== 409) fail(`accepted handoff replay returned ${repeatedAccept.status}, expected 409`);
+    let reviewedDeleteBlocked = false;
+    await db.query("BEGIN");
+    try {
+      await db.query(`DELETE FROM nonprofit_event_handoffs WHERE id = $1`, [handoffId]);
+    } catch {
+      reviewedDeleteBlocked = true;
+    } finally {
+      await db.query("ROLLBACK");
+    }
+    if (!reviewedDeleteBlocked) fail("accepted evidence handoff could be deleted directly in the database");
+
+    const newEventHandoffResponse = await request("/api/nonprofit-events/handoffs", ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        sourceKind: "time_place_need",
+        sourceVersion: "time-place-need/v1",
+        issue: "transport access",
+        geography: "Wichita, KS",
+        evidenceRefs: ["https://www.census.gov/"],
+        freshnessAt: new Date().toISOString(),
+        claimTypes: ["observed"],
+        resourceVerification: "unknown",
+        consentBoundary: "Aggregate evidence only; no identities or stories.",
+        unresolvedGaps: ["Provider capacity is not verified."],
+        sourceSnapshot: { disclosure: "Aggregate evidence submitted for review." },
+      }),
+    });
+    if (newEventHandoffResponse.status !== 201) fail(`new-event handoff create returned ${newEventHandoffResponse.status}: ${JSON.stringify(await body(newEventHandoffResponse))}`);
+    const newEventHandoffId = (await body(newEventHandoffResponse)).handoff?.id;
+    if (!newEventHandoffId) fail("new-event handoff response omitted handoff.id");
+    const newEventAccept = await request(`/api/nonprofit-events/handoffs/${newEventHandoffId}/accept`, ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        newEvent: {
+          title: "E2E Transport Access Response",
+          purpose: "Create an accountable response while transport evidence is reviewed.",
+          eventDate: "2030-03-17",
+          startTime: null,
+          endTime: null,
+          format: "in_person",
+          locationName: null,
+          locationDetails: null,
+          serviceArea: "Wichita, KS",
+          communityNeedFocus: ["transport access"],
+        },
+        needResponseExplanation: "The organization will review transport access evidence and coordinate a bounded response.",
+        action: {
+          title: "Review transport access options",
+          ownerLabel: "Organization coordinator",
+          dueDate: "2030-03-20",
+          status: "planned",
+          completionEvidence: null,
+          nextStep: "Confirm available options with providers.",
+          followUpObservation: null,
+        },
+      }),
+    });
+    if (newEventAccept.status !== 201 || !(await body(newEventAccept)).event?.id) {
+      fail(`new-event handoff acceptance failed: ${newEventAccept.status}`);
+    }
+    const declineHandoffResponse = await request("/api/nonprofit-events/handoffs", ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        sourceKind: "community_brief",
+        sourceVersion: "community-brief/v1",
+        issue: "decline test",
+        geography: "Wichita, KS",
+        evidenceRefs: [],
+        freshnessAt: new Date().toISOString(),
+        claimTypes: ["unavailable"],
+        resourceVerification: "unknown",
+        consentBoundary: "Aggregate evidence only.",
+        unresolvedGaps: ["No action selected."],
+        sourceSnapshot: { disclosure: "Aggregate evidence submitted for review." },
+      }),
+    });
+    if (declineHandoffResponse.status !== 201) fail(`decline handoff create returned ${declineHandoffResponse.status}`);
+    const declineHandoffId = (await body(declineHandoffResponse)).handoff?.id;
+    const declinedHandoff = await request(`/api/nonprofit-events/handoffs/${declineHandoffId}/decline`, ownerCookie, ORG_A, { method: "PATCH" });
+    if (declinedHandoff.status !== 200 || (await body(declinedHandoff)).handoff?.status !== "declined") fail(`handoff decline returned ${declinedHandoff.status}`);
+    const repeatedDecline = await request(`/api/nonprofit-events/handoffs/${declineHandoffId}/decline`, ownerCookie, ORG_A, { method: "PATCH" });
+    if (repeatedDecline.status !== 409) fail(`declined handoff replay returned ${repeatedDecline.status}, expected 409`);
+    ok("enforced reviewed-handoff durability, new-event creation, explicit decline, and terminal replay rejection");
+
+    const followUp = await request(`/api/nonprofit-events/actions/${handoffActionId}`, ownerCookie, ORG_A, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "planned", followUpObservation: "The coordinator confirmed the next review date; participant outcomes are not yet available." }),
+    });
+    if (followUp.status !== 200) fail(`follow-up observation returned ${followUp.status}: ${JSON.stringify(await body(followUp))}`);
+    ok("preserved tenant-scoped evidence provenance through explicit review, action ownership, follow-up, and claim-type disclosure");
+
     const completedAction = await request(`/api/nonprofit-events/actions/${actionId}`, ownerCookie, ORG_A, {
       method: "PATCH", body: JSON.stringify({ status: "completed", completionEvidence: "Rink manager confirmed the booking by email; details retained outside this workspace." }),
     });
@@ -650,6 +842,10 @@ async function run() {
       fail(`small attendance cell was not suppressed: ${JSON.stringify(reportOrg?.summary?.attendance?.attendedCount)}`);
     }
     if ("approvedStories" in reportBody || JSON.stringify(reportBody).includes("private organizer reflection")) fail("report exposed story content after withdrawal");
+    const trace = reportOrg?.actionTrace?.find((row: { handoffId: string }) => row.handoffId === handoffId);
+    if (!trace || trace.actionStatus !== "planned" || trace.followUpObservation !== "recorded" || trace.outcomeClaim !== "unavailable" || !trace.claimTypes.includes("modeled")) {
+      fail(`report did not preserve action trace and unavailable outcome claim: ${JSON.stringify(trace)}`);
+    }
     ok("staff report suppresses small attendance counts and excludes all stories");
 
     const audit = await request(`/api/nonprofit-events/events/${eventId}/audit`, ownerCookie, ORG_A);
@@ -677,7 +873,7 @@ async function run() {
       try {
         await db.query(`TRUNCATE ${tableName}`);
       } catch (error) {
-        truncateBlocked = error instanceof Error && error.message.includes("cannot be truncated");
+        truncateBlocked = error instanceof Error && (error.message.includes("cannot be truncated") || error.message.includes("referenced in a foreign key constraint"));
       } finally {
         await db.query("ROLLBACK");
       }

@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useCurrentOrgId } from "@/hooks/use-current-org";
 import jsPDF from "jspdf";
 
 const SkylineMap         = lazy(() => import("@/components/viz3d/SkylineMap"));
@@ -1176,6 +1177,8 @@ function ResearchIntelligenceSection({ rplice, isAuthenticated }: { rplice: any;
 
 export default function CommunityImpactPage() {
   const { isAuthenticated } = useAuth();
+  const { orgId } = useCurrentOrgId();
+  const { toast } = useToast();
   // The session intentionally does not carry a role. Ask the server for only
   // this narrow capability; the export POST still independently authorizes it.
   const exportCapability = useQuery({
@@ -1220,6 +1223,61 @@ export default function CommunityImpactPage() {
       }
     },
   });
+
+  const evidenceHandoff = useMutation({
+    mutationFn: async ({ payload, orgId: targetOrgId }: { payload: Record<string, unknown>; orgId: string; location: string }) => (await apiRequest("POST", "/api/nonprofit-events/handoffs", payload, { "x-org-id": targetOrgId })).json(),
+    onSuccess: (_result, variables) => {
+      if (variables.orgId === orgId) toast({ title: "Evidence sent for partner review", description: "An authorized organization staff member can now accept it into a private event and action." });
+    },
+    onError: (error: Error) => toast({ title: "Could not send evidence", description: error.message, variant: "destructive" }),
+  });
+  const handoffAccess = useQuery({
+    queryKey: ["/api/nonprofit-events/access", orgId],
+    enabled: isAuthenticated && Boolean(orgId),
+    retry: false,
+    queryFn: async () => (await apiRequest("GET", "/api/nonprofit-events/access", undefined, { "x-org-id": orgId! })).json() as Promise<{ authorized: boolean }>,
+  });
+
+  function sendEvidenceToPartnerWorkspace() {
+    if (!data || !orgId) return;
+    const displayName = data.geography?.displayName || submitted;
+    const evidenceRefs = [
+      ...(Array.isArray(data.evidence?.sources) ? data.evidence.sources.map((source: any) => source?.url) : []),
+      ...(Array.isArray(data.evidence?.citations) ? data.evidence.citations : []),
+    ].filter((value): value is string => typeof value === "string" && /^https?:\/\//.test(value)).slice(0, 20);
+    const claimTypes = new Set<string>(["observed", "derived", "modeled"]);
+    const claims = data.evidence?.claims;
+    if (claims && typeof claims === "object") {
+      Object.values(claims).forEach((claim: any) => {
+        if (claim?.status === "unavailable") claimTypes.add("unavailable");
+        if (claim?.sourceType === "partner_reported" || claim?.claimType === "partner_reported") claimTypes.add("partner_reported");
+        if (claim?.sourceType === "self_reported" || claim?.claimType === "self_reported") claimTypes.add("self_reported");
+      });
+    }
+    evidenceHandoff.mutate({ payload: {
+      sourceKind: "community_brief",
+      sourceVersion: "community-brief/v1",
+      issue: data.evidence?.primaryNeed || data.atRiskPopulations?.[0]?.label || `Evidence review for ${displayName}`,
+      geography: displayName,
+      evidenceRefs,
+      freshnessAt: new Date().toISOString(),
+      claimTypes: [...claimTypes],
+      resourceVerification: "source-listed-unverified",
+      consentBoundary: "This handoff contains aggregate evidence only. No participant identities, contact details, stories, or inferred demographics are included.",
+      unresolvedGaps: [
+        ...(Array.isArray(data.evidence?.gaps) ? data.evidence.gaps : []),
+        ...(Array.isArray(data.evidence?.warnings) ? data.evidence.warnings : []),
+      ].filter((value): value is string => typeof value === "string").slice(0, 20),
+      sourceSnapshot: {
+        geography: {
+          displayName,
+          analyticalUnit: typeof data.geography?.analyticalUnit === "string" ? data.geography.analyticalUnit : undefined,
+        },
+        sourceCount: evidenceRefs.length,
+        disclosure: "Public aggregate community brief submitted for human review; modeled values are not outcomes.",
+      },
+    }, location: submitted, orgId });
+  }
 
   const neighborsMut = useMutation({
     mutationFn: (payload: { zip: string; centerScore: number; centerGrade: string; centerUrgency: string; centerCost: number }) =>
@@ -1379,7 +1437,7 @@ export default function CommunityImpactPage() {
                 <div className="flex items-start gap-3">
                   <FileText className="w-5 h-5 text-indigo-500 flex-none mt-0.5" />
                   <div>
-                    <h2 className="font-bold text-indigo-900 dark:text-indigo-200 mb-3">The Community Story</h2>
+                     <h2 className="font-bold text-indigo-900 dark:text-indigo-200 mb-3">The Community Story <span className="text-xs font-normal">(AI-generated decision-support draft)</span></h2>
                     <p className="text-sm text-indigo-800 dark:text-indigo-300 whitespace-pre-line leading-relaxed">{data.narrative}</p>
                   </div>
                 </div>
@@ -1420,7 +1478,7 @@ export default function CommunityImpactPage() {
                       <span className="text-3xl mt-0.5">🧾</span>
                       <div>
                         <h2 className="text-lg font-black text-amber-900 dark:text-amber-200">
-                          What This Community Has Already Paid
+                           Modeled Historical Cohort Cost
                         </h2>
                         <p className="text-sm text-amber-800/70 dark:text-amber-300/70 mt-0.5">
                           Accumulated cost from {data.historicalCascade?.vintages[0]?.year}–{data.historicalCascade?.vintages[data.historicalCascade?.vintages.length - 1]?.year} · ACS 5-Year Estimates · per-cohort chain model
@@ -1431,8 +1489,8 @@ export default function CommunityImpactPage() {
                       <div className="text-3xl font-black text-amber-700 dark:text-amber-300" data-testid="text-historical-total">
                         {fmt$(data.historicalCascade?.totalAccumulatedCost ?? 0)}
                       </div>
-                      <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 font-medium uppercase tracking-wide">
-                        already spent / lost
+                         <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 font-medium uppercase tracking-wide">
+                         modeled estimate, not observed spending
                       </div>
                     </div>
                   </div>
@@ -1491,7 +1549,7 @@ export default function CommunityImpactPage() {
                   {/* Framing callout */}
                   <div className="px-6 py-4 bg-amber-100/60 dark:bg-amber-900/20 border-t border-amber-200 dark:border-amber-800/40">
                     <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed max-w-3xl">
-                      <span className="font-bold">How to read this:</span> For each Census vintage, we apply the same evidence-based chain model (ECE gap → 3rd grade failure → dropout → incarceration; untreated mental illness → homelessness) to the cohort of children who were young at that time. Those children are now old enough for those outcomes to have materialized. This is the cost that has already been incurred — not a projection. Forward projection for the next 25 years: <span className="font-bold">{fmt$(data.cascade?.counterfactualCost ?? 0)}</span> if nothing changes.
+                       <span className="font-bold">How to read this:</span> For each Census vintage, the evidence-based chain model estimates a cohort cost from modeled pathways (ECE gap → 3rd grade failure → dropout → incarceration; untreated mental illness → homelessness). This is not Census-verified spending, an individual prediction, or a participant outcome. Forward projection for the next 25 years: <span className="font-bold">{fmt$(data.cascade?.counterfactualCost ?? 0)}</span> if nothing changes.
                     </p>
                   </div>
                 </div>
@@ -1655,6 +1713,27 @@ export default function CommunityImpactPage() {
                 </Button>
                 <GppExportButton data={data} submitted={submitted} canRequestExport={canRequestExport} />
               </div>
+            </Card>
+            <Card className="p-5 border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20" data-testid="card-evidence-handoff">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="font-semibold text-sm">Carry this evidence into partner action</div>
+                  <p className="mt-1 text-xs text-muted-foreground">Send an aggregate, provenance-labeled snapshot to an authorized organization for review. Nothing is accepted automatically.</p>
+                </div>
+                 {isAuthenticated && orgId && handoffAccess.data?.authorized ? (
+                   <Button type="button" size="sm" onClick={sendEvidenceToPartnerWorkspace} disabled={evidenceHandoff.isPending} data-testid="button-send-evidence-handoff">
+                    {evidenceHandoff.isPending ? "Sending…" : "Send for review"}
+                  </Button>
+                 ) : isAuthenticated && orgId && handoffAccess.isLoading ? (
+                   <span className="text-xs text-muted-foreground" aria-live="polite">Checking partner-staff access…</span>
+                 ) : isAuthenticated && orgId ? (
+                   <span className="text-xs text-muted-foreground">Ask an organization owner for private Community Events & Impact staff access.</span>
+                ) : (
+                   <Button asChild size="sm" variant="outline" data-testid="button-sign-in-evidence-handoff"><a href="/api/login?returnTo=%2Fcommunity-impact">Sign in to send</a></Button>
+                )}
+              </div>
+               {evidenceHandoff.isSuccess && evidenceHandoff.variables?.orgId === orgId && evidenceHandoff.variables?.location === submitted && <p className="mt-3 text-xs text-emerald-700 dark:text-emerald-300" aria-live="polite">Sent to the active organization. <a className="font-semibold underline" href="/organization/events">Open Community Events & Impact</a> to review it.</p>}
+              {isAuthenticated && !orgId && <p className="mt-3 text-xs text-muted-foreground">Choose an active organization before sending evidence for review.</p>}
             </Card>
           </div>
         )}

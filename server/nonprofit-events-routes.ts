@@ -1,10 +1,11 @@
 import type { Express, NextFunction, Request, Response } from "express";
-import { and, desc, eq, gte, inArray, lte, ne } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lte, ne, sql } from "drizzle-orm";
 import { z } from "zod";
 import {
   nonprofitEventActions,
   nonprofitEventAttendance,
   nonprofitEventAuditLog,
+  nonprofitEventHandoffs,
   nonprofitEventNeeds,
   nonprofitEvents,
   nonprofitEventStories,
@@ -24,6 +25,7 @@ import {
 const eventStatuses = ["planned", "scheduled", "completed"] as const;
 const actionStatuses = ["planned", "in_progress", "blocked", "completed"] as const;
 const evidenceStatuses = ["observed", "derived", "self_reported", "partner_report", "needs_review"] as const;
+const handoffClaimTypes = ["observed", "derived", "modeled", "partner_reported", "self_reported", "unavailable"] as const;
 const attendanceSources = ["self_reported", "observed", "partner_reported", "unknown"] as const;
 const audiences = ["private", "internal_team", "partner", "funder", "public"] as const;
 const sharingStates = ["draft", "approved", "withdrawn"] as const;
@@ -111,6 +113,7 @@ const actionFieldsSchema = z.object({
   status: z.enum(actionStatuses),
   completionEvidence: z.string().trim().max(5000).nullable().optional(),
   nextStep: z.string().trim().max(5000).nullable().optional(),
+  followUpObservation: z.string().trim().max(5000).nullable().optional(),
 });
 const actionCreateSchema = actionFieldsSchema.extend({
   status: z.enum(actionStatuses).default("planned"),
@@ -120,6 +123,37 @@ const actionCreateSchema = actionFieldsSchema.extend({
   }
 });
 const actionUpdateSchema = actionFieldsSchema.partial().refine((value) => Object.keys(value).length > 0, "Provide at least one action field to update.");
+
+const handoffCreateSchema = z.object({
+  sourceKind: z.enum(["community_brief", "time_place_need"]),
+  sourceVersion: z.string().trim().regex(/^[a-z0-9][a-z0-9._/-]{0,63}$/, "Use a canonical lowercase source version."),
+  issue: z.string().trim().min(2).max(500),
+  geography: z.string().trim().min(2).max(240),
+  evidenceRefs: z.array(z.string().url().max(1000)).max(20),
+  freshnessAt: z.string().datetime({ offset: true }).refine((value) => new Date(value).getTime() <= Date.now() + 10 * 60 * 1000, "Freshness cannot be in the future."),
+  claimTypes: z.array(z.enum(handoffClaimTypes)).min(1).max(8),
+  resourceVerification: z.enum(["verified", "source-listed-unverified", "unknown"]),
+  consentBoundary: z.string().trim().min(2).max(1000),
+  unresolvedGaps: z.array(z.string().trim().min(1).max(500)).max(20),
+  sourceSnapshot: z.object({
+    geography: z.object({
+      displayName: z.string().trim().min(1).max(240).optional(),
+      analyticalUnit: z.string().trim().max(120).optional(),
+    }).strict().optional(),
+    sourceCount: z.number().int().min(0).max(20).optional(),
+    disclosure: z.string().trim().min(2).max(1000),
+  }).strict(),
+}).strict();
+
+const handoffAcceptSchema = z.object({
+  eventId: z.string().trim().min(1).max(100).optional(),
+  newEvent: eventCreateSchema.optional(),
+  needResponseExplanation: z.string().trim().min(5).max(5000),
+  action: actionCreateSchema,
+}).strict().superRefine((value, ctx) => {
+  if (!value.eventId && !value.newEvent) ctx.addIssue({ code: "custom", path: ["eventId"], message: "Choose an existing event or provide a new event." });
+  if (value.eventId && value.newEvent) ctx.addIssue({ code: "custom", path: ["eventId"], message: "Choose either an existing event or a new event, not both." });
+});
 
 const storyCreateSchema = z.object({
   title: z.string().trim().min(2).max(240),
@@ -216,9 +250,11 @@ async function lockWritableEvent(tx: EventTransaction, req: Request, eventId: st
 }
 
 function sendEventMutationError(res: Response, err: unknown, fallbackStatus: number, fallbackMessage: string) {
-  const status = err instanceof EventMutationError ? err.statusCode : fallbackStatus;
+  const status = err instanceof EventMutationError ? err.statusCode : err instanceof z.ZodError ? 400 : fallbackStatus;
   const message = err instanceof EventMutationError
     ? err.message
+    : err instanceof z.ZodError
+      ? err.message
     : err instanceof Error
       ? err.message
       : fallbackMessage;
@@ -231,7 +267,7 @@ function hasAllowedTransition(transitions: Record<string, readonly string[]>, fr
 
 async function recordAudit(
   tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
-  input: { orgId: string; eventId: string; entityType: string; entityId: string; action: string; actorUserId: string; details?: Record<string, unknown> },
+  input: { orgId: string; eventId: string | null; entityType: string; entityId: string; action: string; actorUserId: string; details?: Record<string, unknown> },
 ) {
   await tx.insert(nonprofitEventAuditLog).values({
     ...input,
@@ -267,7 +303,7 @@ function safeAttendance(rows: ReadonlyArray<typeof nonprofitEventAttendance.$inf
   };
 }
 
-function summarize(events: ReadonlyArray<typeof nonprofitEvents.$inferSelect>, attendance: ReadonlyArray<typeof nonprofitEventAttendance.$inferSelect>, needs: ReadonlyArray<typeof nonprofitEventNeeds.$inferSelect>, actions: ReadonlyArray<typeof nonprofitEventActions.$inferSelect>) {
+function summarize(events: ReadonlyArray<typeof nonprofitEvents.$inferSelect>, attendance: ReadonlyArray<typeof nonprofitEventAttendance.$inferSelect>, needs: ReadonlyArray<typeof nonprofitEventNeeds.$inferSelect>, actions: ReadonlyArray<typeof nonprofitEventActions.$inferSelect>, handoffs: ReadonlyArray<typeof nonprofitEventHandoffs.$inferSelect> = []) {
   const today = new Date().toISOString().slice(0, 10);
   return {
     eventCount: events.filter((event) => event.status !== "archived").length,
@@ -278,6 +314,13 @@ function summarize(events: ReadonlyArray<typeof nonprofitEvents.$inferSelect>, a
       completed: actions.filter((action) => action.status === "completed").length,
       blocked: actions.filter((action) => action.status === "blocked").length,
       overdue: actions.filter((action) => Boolean(action.dueDate) && action.dueDate! < today && action.status !== "completed").length,
+      withFollowUp: actions.filter((action) => Boolean(action.followUpObservation?.trim())).length,
+    },
+    handoffs: {
+      total: handoffs.length,
+      pendingReview: handoffs.filter((handoff) => handoff.status === "pending_review").length,
+      accepted: handoffs.filter((handoff) => handoff.status === "accepted").length,
+      declined: handoffs.filter((handoff) => handoff.status === "declined").length,
     },
     attendance: safeAttendance(attendance),
   };
@@ -288,13 +331,12 @@ async function buildWorkspace(orgId: string) {
     .where(eq(nonprofitEvents.orgId, orgId))
     .orderBy(desc(nonprofitEvents.eventDate), desc(nonprofitEvents.createdAt));
   const eventIds = events.map((event) => event.id);
-  const [attendance, needs, actions, stories] = eventIds.length === 0
-    ? [[], [], [], []] as const
-    : await Promise.all([
-      db.select().from(nonprofitEventAttendance).where(inArray(nonprofitEventAttendance.eventId, eventIds)),
-      db.select().from(nonprofitEventNeeds).where(inArray(nonprofitEventNeeds.eventId, eventIds)).orderBy(desc(nonprofitEventNeeds.createdAt)),
-      db.select().from(nonprofitEventActions).where(inArray(nonprofitEventActions.eventId, eventIds)).orderBy(desc(nonprofitEventActions.updatedAt)),
-      db.select().from(nonprofitEventStories).where(inArray(nonprofitEventStories.eventId, eventIds)).orderBy(desc(nonprofitEventStories.updatedAt)),
+  const [attendance, needs, actions, stories, handoffs] = await Promise.all([
+      eventIds.length ? db.select().from(nonprofitEventAttendance).where(inArray(nonprofitEventAttendance.eventId, eventIds)) : Promise.resolve([]),
+      eventIds.length ? db.select().from(nonprofitEventNeeds).where(inArray(nonprofitEventNeeds.eventId, eventIds)).orderBy(desc(nonprofitEventNeeds.createdAt)) : Promise.resolve([]),
+      eventIds.length ? db.select().from(nonprofitEventActions).where(inArray(nonprofitEventActions.eventId, eventIds)).orderBy(desc(nonprofitEventActions.updatedAt)) : Promise.resolve([]),
+      eventIds.length ? db.select().from(nonprofitEventStories).where(inArray(nonprofitEventStories.eventId, eventIds)).orderBy(desc(nonprofitEventStories.updatedAt)) : Promise.resolve([]),
+      db.select().from(nonprofitEventHandoffs).where(eq(nonprofitEventHandoffs.orgId, orgId)).orderBy(desc(nonprofitEventHandoffs.createdAt)),
     ]);
 
   return {
@@ -305,7 +347,8 @@ async function buildWorkspace(orgId: string) {
       actions: actions.filter((row) => row.eventId === event.id),
       stories: stories.filter((row) => row.eventId === event.id),
     })),
-    summary: summarize(events, attendance, needs, actions),
+    summary: summarize(events, attendance, needs, actions, handoffs),
+    handoffs,
   };
 }
 
@@ -340,6 +383,152 @@ export function registerNonprofitEventRoutes(app: Express) {
     } catch (err) {
       console.error("[nonprofit-events] workspace load failed:", err);
       res.status(500).json({ error: "Failed to load the organization event workspace." });
+    }
+  });
+
+  app.post("/api/nonprofit-events/handoffs", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
+    try {
+      const org = getCallerOrg(req)!;
+      const userId = getUserId(req)!;
+      const input = handoffCreateSchema.parse(req.body);
+      const [handoff] = await db.transaction(async (tx) => {
+        const [created] = await tx.insert(nonprofitEventHandoffs).values({
+          ...input,
+          freshnessAt: new Date(input.freshnessAt),
+          orgId: org.id,
+          status: "pending_review",
+          createdByUserId: userId,
+        }).returning();
+        await recordAudit(tx, {
+          orgId: org.id,
+          eventId: null,
+          entityType: "evidence_handoff",
+          entityId: created.id,
+          action: "created",
+          actorUserId: userId,
+          details: { sourceKind: created.sourceKind, sourceVersion: created.sourceVersion, status: created.status },
+        });
+        return [created];
+      });
+      res.status(201).json({ handoff });
+    } catch (err) {
+      console.error("[nonprofit-events] handoff create failed:", err);
+      res.status(err instanceof z.ZodError ? 400 : 500).json({ error: err instanceof z.ZodError ? err.message : "Evidence handoff could not be saved." });
+    }
+  });
+
+  app.patch("/api/nonprofit-events/handoffs/:handoffId/decline", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
+    try {
+      const org = getCallerOrg(req)!;
+      const userId = getUserId(req)!;
+      const [handoff] = await db.transaction(async (tx) => {
+        const [current] = await tx.select().from(nonprofitEventHandoffs)
+          .where(and(eq(nonprofitEventHandoffs.id, String(req.params.handoffId)), eq(nonprofitEventHandoffs.orgId, org.id)))
+          .for("update");
+        if (!current) throw new EventMutationError(404, "Evidence handoff not found.");
+        if (current.status !== "pending_review") throw new EventMutationError(409, "This evidence handoff has already been reviewed.");
+        const [updated] = await tx.update(nonprofitEventHandoffs).set({
+          status: "declined",
+          reviewedByUserId: userId,
+          reviewedAt: new Date(),
+          updatedAt: new Date(),
+          version: current.version + 1,
+        }).where(and(eq(nonprofitEventHandoffs.id, current.id), eq(nonprofitEventHandoffs.orgId, org.id), eq(nonprofitEventHandoffs.version, current.version))).returning();
+        await recordAudit(tx, { orgId: org.id, eventId: null, entityType: "evidence_handoff", entityId: current.id, action: "declined", actorUserId: userId, details: { sourceKind: current.sourceKind, issue: current.issue } });
+        return [updated];
+      });
+      res.json({ handoff });
+    } catch (err) {
+      console.error("[nonprofit-events] handoff decline failed:", err);
+      sendEventMutationError(res, err, 400, "Evidence handoff could not be declined.");
+    }
+  });
+
+  app.post("/api/nonprofit-events/handoffs/:handoffId/accept", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
+    try {
+      const org = getCallerOrg(req)!;
+      const userId = getUserId(req)!;
+      const input = handoffAcceptSchema.parse(req.body);
+      const result = await db.transaction(async (tx) => {
+        const [handoff] = await tx.select().from(nonprofitEventHandoffs)
+          .where(and(eq(nonprofitEventHandoffs.id, String(req.params.handoffId)), eq(nonprofitEventHandoffs.orgId, org.id)))
+          .for("update");
+        if (!handoff) throw new EventMutationError(404, "Evidence handoff not found.");
+        if (handoff.status !== "pending_review") throw new EventMutationError(409, "This evidence handoff has already been reviewed.");
+
+        let event: AccessibleEvent;
+        if (input.eventId) {
+          event = await lockWritableEvent(tx, req, input.eventId);
+        } else {
+          const [created] = await tx.insert(nonprofitEvents).values({
+            ...input.newEvent!,
+            startTime: asNullableText(input.newEvent!.startTime),
+            endTime: asNullableText(input.newEvent!.endTime),
+            locationName: asNullableText(input.newEvent!.locationName),
+            locationDetails: asNullableText(input.newEvent!.locationDetails),
+            orgId: org.id,
+            createdByUserId: userId,
+            updatedByUserId: userId,
+          }).returning();
+          event = created;
+          await recordAudit(tx, { orgId: org.id, eventId: event.id, entityType: "event", entityId: event.id, action: "created_from_evidence_handoff", actorUserId: userId, details: { handoffId: handoff.id } });
+        }
+
+        const evidenceStatus = handoff.claimTypes.includes("modeled")
+          ? "needs_review"
+          : handoff.claimTypes.includes("self_reported")
+          ? "self_reported"
+          : handoff.claimTypes.includes("partner_reported")
+            ? "partner_report"
+            : handoff.claimTypes.includes("observed")
+              ? "observed"
+              : handoff.claimTypes.includes("derived")
+                ? "derived"
+                : "needs_review";
+        const [need] = await tx.insert(nonprofitEventNeeds).values({
+          eventId: event.id,
+          orgId: org.id,
+          needArea: handoff.issue.slice(0, 160),
+          sourceName: `${handoff.sourceKind} evidence handoff`,
+          sourceUrl: handoff.evidenceRefs[0] ?? null,
+          geography: handoff.geography,
+          evidenceStatus,
+          responseExplanation: input.needResponseExplanation,
+          createdByUserId: userId,
+        }).returning();
+        const [action] = await tx.insert(nonprofitEventActions).values({
+          ...input.action,
+          dueDate: input.action.dueDate ?? null,
+          completionEvidence: asNullableText(input.action.completionEvidence),
+          nextStep: asNullableText(input.action.nextStep),
+          followUpObservation: asNullableText(input.action.followUpObservation),
+          completedAt: input.action.status === "completed" ? new Date() : null,
+          eventId: event.id,
+          orgId: org.id,
+          handoffId: handoff.id,
+          createdByUserId: userId,
+          updatedByUserId: userId,
+        }).returning();
+        const [accepted] = await tx.update(nonprofitEventHandoffs).set({
+          status: "accepted",
+          eventId: event.id,
+          needId: need.id,
+          actionId: action.id,
+          reviewedByUserId: userId,
+          reviewedAt: new Date(),
+          updatedAt: new Date(),
+          version: handoff.version + 1,
+        }).where(and(eq(nonprofitEventHandoffs.id, handoff.id), eq(nonprofitEventHandoffs.orgId, org.id), eq(nonprofitEventHandoffs.version, handoff.version))).returning();
+        if (!accepted) throw new EventMutationError(409, "This evidence handoff changed before it could be accepted.");
+        await recordAudit(tx, { orgId: org.id, eventId: event.id, entityType: "evidence_handoff", entityId: handoff.id, action: "accepted", actorUserId: userId, details: { claimTypes: handoff.claimTypes, resourceVerification: handoff.resourceVerification, unresolvedGapCount: handoff.unresolvedGaps.length, needId: need.id, actionId: action.id } });
+        await recordAudit(tx, { orgId: org.id, eventId: event.id, entityType: "need_link", entityId: need.id, action: "created_from_evidence_handoff", actorUserId: userId, details: { handoffId: handoff.id, evidenceStatus } });
+        await recordAudit(tx, { orgId: org.id, eventId: event.id, entityType: "action", entityId: action.id, action: "created_from_evidence_handoff", actorUserId: userId, details: { handoffId: handoff.id, status: action.status } });
+        return { handoff: accepted, event, need, action };
+      });
+      res.status(201).json(result);
+    } catch (err) {
+      console.error("[nonprofit-events] handoff accept failed:", err);
+      sendEventMutationError(res, err, 500, "Evidence handoff could not be accepted.");
     }
   });
 
@@ -520,7 +709,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const [action] = await db.transaction(async (tx) => {
         const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventActions).values({
-          ...input, dueDate: input.dueDate ?? null, completionEvidence: asNullableText(input.completionEvidence), nextStep: asNullableText(input.nextStep),
+          ...input, dueDate: input.dueDate ?? null, completionEvidence: asNullableText(input.completionEvidence), nextStep: asNullableText(input.nextStep), followUpObservation: asNullableText(input.followUpObservation),
           completedAt: input.status === "completed" ? new Date() : null, eventId: event.id, orgId: event.orgId, createdByUserId: userId, updatedByUserId: userId,
         }).returning();
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "action", entityId: row.id, action: "created", actorUserId: userId, details: { status: row.status } });
@@ -555,6 +744,7 @@ export function registerNonprofitEventRoutes(app: Express) {
           dueDate: input.dueDate === undefined ? undefined : input.dueDate,
           completionEvidence: input.completionEvidence === undefined ? undefined : asNullableText(input.completionEvidence),
           nextStep: input.nextStep === undefined ? undefined : asNullableText(input.nextStep),
+           followUpObservation: input.followUpObservation === undefined ? undefined : asNullableText(input.followUpObservation),
           completedAt: next.status === "completed" ? (action.completedAt ?? new Date()) : null,
           updatedByUserId: userId,
           updatedAt: new Date(),
@@ -672,6 +862,9 @@ export function registerNonprofitEventRoutes(app: Express) {
         startDate: dateText.optional(),
         endDate: dateText.optional(),
       }).parse(req.query);
+      if (filters.startDate && filters.endDate && filters.startDate > filters.endDate) {
+        return res.status(400).json({ error: "The report start date must be on or before the end date." });
+      }
       if (filters.orgId && filters.orgId !== org.id) {
         return res.status(403).json({ error: "Reports are limited to your active organization workspace." });
       }
@@ -679,21 +872,29 @@ export function registerNonprofitEventRoutes(app: Express) {
       if (filters.serviceArea) clauses.push(eq(nonprofitEvents.serviceArea, filters.serviceArea));
       if (filters.startDate) clauses.push(gte(nonprofitEvents.eventDate, filters.startDate));
       if (filters.endDate) clauses.push(lte(nonprofitEvents.eventDate, filters.endDate));
-      const loadedEvents = await db.select().from(nonprofitEvents).where(and(...clauses)).orderBy(desc(nonprofitEvents.eventDate));
-      const initialIds = loadedEvents.map((event) => event.id);
-      const needs = initialIds.length ? await db.select().from(nonprofitEventNeeds).where(inArray(nonprofitEventNeeds.eventId, initialIds)) : [];
-      const selectedIds = filters.needArea
-        ? new Set(needs.filter((need) => need.needArea.toLowerCase() === filters.needArea!.toLowerCase()).map((need) => need.eventId))
-        : new Set(initialIds);
-      const events = loadedEvents.filter((event) => selectedIds.has(event.id));
-      const eventIds = events.map((event) => event.id);
-      const [attendance, actions] = eventIds.length === 0
-        ? [[], []] as const
-        : await Promise.all([
-          db.select().from(nonprofitEventAttendance).where(inArray(nonprofitEventAttendance.eventId, eventIds)),
-          db.select().from(nonprofitEventActions).where(inArray(nonprofitEventActions.eventId, eventIds)),
-        ]);
-      const reportNeeds = needs.filter((need) => selectedIds.has(need.eventId));
+      const { events, attendance, actions, reportNeeds, reportHandoffs } = await db.transaction(async (tx) => {
+        await tx.execute(sql`SET TRANSACTION ISOLATION LEVEL REPEATABLE READ`);
+        const loadedEvents = await tx.select().from(nonprofitEvents).where(and(...clauses)).orderBy(desc(nonprofitEvents.eventDate));
+        const initialIds = loadedEvents.map((event) => event.id);
+        const needs = initialIds.length ? await tx.select().from(nonprofitEventNeeds).where(inArray(nonprofitEventNeeds.eventId, initialIds)) : [];
+        const selectedIds = filters.needArea
+          ? new Set(needs.filter((need) => need.needArea.toLowerCase() === filters.needArea!.toLowerCase()).map((need) => need.eventId))
+          : new Set(initialIds);
+        const events = loadedEvents.filter((event) => selectedIds.has(event.id));
+        const eventIds = events.map((event) => event.id);
+        const [attendance, actions] = eventIds.length === 0
+          ? [[], []] as const
+          : await Promise.all([
+            tx.select().from(nonprofitEventAttendance).where(inArray(nonprofitEventAttendance.eventId, eventIds)),
+            tx.select().from(nonprofitEventActions).where(inArray(nonprofitEventActions.eventId, eventIds)),
+          ]);
+        const reportNeeds = needs.filter((need) => selectedIds.has(need.eventId));
+        const reportHandoffs = eventIds.length
+          ? await tx.select().from(nonprofitEventHandoffs).where(and(eq(nonprofitEventHandoffs.orgId, org.id), inArray(nonprofitEventHandoffs.eventId, eventIds)))
+          : [];
+        return { events, attendance, actions, reportNeeds, reportHandoffs };
+      });
+      const actionById = new Map(actions.map((action) => [action.id, action]));
       res.json({
         filters,
         generatedAt: new Date().toISOString(),
@@ -701,12 +902,29 @@ export function registerNonprofitEventRoutes(app: Express) {
         organizations: [{
           organization: org.name ?? "Organization",
           orgId: org.id,
-          summary: summarize(events, attendance, reportNeeds, actions),
+           summary: summarize(events, attendance, reportNeeds, actions, reportHandoffs),
+           actionTrace: reportHandoffs.map((handoff) => {
+             const action = handoff.actionId ? actionById.get(handoff.actionId) : undefined;
+             return {
+               handoffId: handoff.id,
+               issue: handoff.issue,
+               geography: handoff.geography,
+               sourceKind: handoff.sourceKind,
+               claimTypes: handoff.claimTypes,
+               freshnessAt: handoff.freshnessAt,
+               resourceVerification: handoff.resourceVerification,
+               unresolvedGapCount: handoff.unresolvedGaps.length,
+               actionStatus: action?.status ?? "unavailable",
+               followUpObservation: action?.followUpObservation ? "recorded" : "unavailable",
+               outcomeClaim: "unavailable",
+               disclosure: "This trace records an organization-selected action and follow-up availability. It does not establish a participant outcome.",
+             };
+           }),
         }],
       });
     } catch (err) {
       console.error("[nonprofit-events] report failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Report could not be generated." });
+      res.status(err instanceof z.ZodError ? 400 : 500).json({ error: err instanceof z.ZodError ? err.message : "Report could not be generated." });
     }
   });
 }

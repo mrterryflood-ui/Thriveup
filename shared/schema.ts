@@ -5658,20 +5658,63 @@ export const nonprofitEventNeeds = pgTable("nonprofit_event_needs", {
     columns: [t.eventId, t.orgId],
     foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
   }).onDelete("cascade"),
+  unique("nonprofit_event_needs_id_org_unique").on(t.id, t.orgId),
   index("idx_nonprofit_event_needs_org_area").on(t.orgId, t.needArea),
   index("idx_nonprofit_event_needs_event").on(t.eventId),
+]);
+
+export const nonprofitEventHandoffs = pgTable("nonprofit_event_handoffs", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  sourceKind: varchar("source_kind", { length: 32 }).notNull(),
+  sourceVersion: varchar("source_version", { length: 64 }).notNull(),
+  issue: text("issue").notNull(),
+  geography: varchar("geography", { length: 240 }).notNull(),
+  evidenceRefs: text("evidence_refs").array().notNull().default(sql`'{}'::text[]`),
+  freshnessAt: timestamp("freshness_at", { withTimezone: true }).notNull(),
+  claimTypes: text("claim_types").array().notNull().default(sql`'{}'::text[]`),
+  resourceVerification: varchar("resource_verification", { length: 40 }).notNull(),
+  consentBoundary: text("consent_boundary").notNull(),
+  unresolvedGaps: text("unresolved_gaps").array().notNull().default(sql`'{}'::text[]`),
+  sourceSnapshot: jsonb("source_snapshot").$type<Record<string, unknown>>().notNull().default({}),
+  status: varchar("status", { length: 24 }).notNull().default("pending_review"),
+  eventId: varchar("event_id", { length: 100 }),
+  needId: varchar("need_id", { length: 100 }),
+  actionId: varchar("action_id", { length: 100 }),
+  reviewedByUserId: varchar("reviewed_by_user_id", { length: 255 }),
+  reviewedAt: timestamp("reviewed_at", { withTimezone: true }),
+  version: integer("version").notNull().default(1),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+}, (t) => [
+  unique("nonprofit_event_handoffs_id_org_unique").on(t.id, t.orgId),
+  foreignKey({
+    name: "fk_nonprofit_event_handoffs_event_org",
+    columns: [t.eventId, t.orgId],
+    foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
+  }),
+  foreignKey({
+    name: "fk_nonprofit_event_handoffs_need_org",
+    columns: [t.needId, t.orgId],
+    foreignColumns: [nonprofitEventNeeds.id, nonprofitEventNeeds.orgId],
+  }),
+  index("idx_nonprofit_event_handoffs_org_status").on(t.orgId, t.status),
+  index("idx_nonprofit_event_handoffs_event").on(t.eventId),
 ]);
 
 export const nonprofitEventActions = pgTable("nonprofit_event_actions", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   eventId: varchar("event_id", { length: 100 }).notNull(),
   orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
+  handoffId: varchar("handoff_id", { length: 100 }),
   title: varchar("title", { length: 240 }).notNull(),
   ownerLabel: varchar("owner_label", { length: 160 }).notNull(),
   dueDate: date("due_date", { mode: "string" }),
   status: varchar("status", { length: 24 }).notNull().default("planned"),
   completionEvidence: text("completion_evidence"),
   nextStep: text("next_step"),
+  followUpObservation: text("follow_up_observation"),
   completedAt: timestamp("completed_at", { withTimezone: true }),
   createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
   updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
@@ -5683,8 +5726,15 @@ export const nonprofitEventActions = pgTable("nonprofit_event_actions", {
     columns: [t.eventId, t.orgId],
     foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
   }).onDelete("cascade"),
+  unique("nonprofit_event_actions_id_org_unique").on(t.id, t.orgId),
+  foreignKey({
+    name: "fk_nonprofit_event_actions_handoff_org",
+    columns: [t.handoffId, t.orgId],
+    foreignColumns: [nonprofitEventHandoffs.id, nonprofitEventHandoffs.orgId],
+  }),
   index("idx_nonprofit_event_actions_org_status").on(t.orgId, t.status),
   index("idx_nonprofit_event_actions_event").on(t.eventId),
+  index("idx_nonprofit_event_actions_handoff").on(t.handoffId),
 ]);
 
 export const nonprofitEventStories = pgTable("nonprofit_event_stories", {
@@ -5750,6 +5800,9 @@ export const insertNonprofitEventNeedSchema = createInsertSchema(nonprofitEventN
 export const insertNonprofitEventActionSchema = createInsertSchema(nonprofitEventActions).omit({
   id: true, createdAt: true, updatedAt: true, completedAt: true,
 });
+export const insertNonprofitEventHandoffSchema = createInsertSchema(nonprofitEventHandoffs).omit({
+  id: true, createdAt: true, updatedAt: true, reviewedAt: true,
+});
 export const insertNonprofitEventStorySchema = createInsertSchema(nonprofitEventStories).omit({
   id: true, createdAt: true, updatedAt: true, consentedAt: true, approvedAt: true,
   approvedByUserId: true, withdrawnAt: true,
@@ -5759,6 +5812,7 @@ export type NonprofitEvent = typeof nonprofitEvents.$inferSelect;
 export type NonprofitEventAttendance = typeof nonprofitEventAttendance.$inferSelect;
 export type NonprofitEventNeed = typeof nonprofitEventNeeds.$inferSelect;
 export type NonprofitEventAction = typeof nonprofitEventActions.$inferSelect;
+export type NonprofitEventHandoff = typeof nonprofitEventHandoffs.$inferSelect;
 export type NonprofitEventStory = typeof nonprofitEventStories.$inferSelect;
 
 
