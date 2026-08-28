@@ -68,3 +68,4 @@
 - [Benefits guided-apply architecture](benefits-guided-apply.md) — 3-file program catalog sync gotcha; navigator/chat is SSE not JSON.
 - [Studio registry synchronization](studio-registry-sync.md) — lock export/bootstrap, validate seed identity, and never misreport a live publication as failed.
 - [Connecticut geography source alignment](connecticut-geography-source-alignment.md) — county-name joins fail after boundary redefinitions; match national sources with FIPS/crosswalks.
+- [Orchestration spine audit](orchestration-spine-audit.md) — coordinate existing organs through a disclosure-preserving handoff envelope, not a new super-engine.

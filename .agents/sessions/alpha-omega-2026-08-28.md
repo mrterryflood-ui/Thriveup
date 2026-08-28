@@ -15,3 +15,22 @@
 - Residuals and reusable guard: The pre-existing story-consent transition race and staff-authorization recheck concerns remain explicitly tracked in the shared residual ledger and were neither conflated with nor worsened by this archive-specific work. Reusable guard: parent-owned archival invariants require both transaction-scoped parent locking and database enforcement; concurrency tests must prove a real database wait graph, never infer a race from elapsed time.
 
 - Publish repair guard: The organization-members composite parent-key repair is also invoked through the post-merge migration hook, so a future merge cannot leave development with only a standalone unique index before Publish.
+
+## Platform orchestration audit
+
+- **Scope:** Read-only map of the existing stakeholder journeys and the
+  issue/place/evidence/resource/action/follow-up/reporting orchestration spine.
+- **Observed truth:** Community Impact, Time–Place–Need, Conductor/engine
+  registry, Chainweb/RAG/RPLICE paths, Partner Portal, and Community Events &
+  Impact are real but only partially joined. The current missing primitive is
+  a durable, reviewable handoff context rather than another specialist engine.
+- **Record:** Detailed Real / Partial / Stub-or-in-memory / Aspirational
+  classification and a five-workstream MAP-GAP bridge plan are in
+  `docs/remediation/platform-orchestration-audit-2026-08-28.md`.
+- **Boundary:** No implementation, broad navigation rewrite, production
+  migration, or publication claim was made. “Next best tool” remains a
+  transparent, human-selected recommendation; no automatic matching or
+  surveillance is proposed.
+- **Operational limit:** The application workflow's prior failure was an
+  `EADDRINUSE` port collision caused by concurrent checks; it is not treated
+  as a code-quality or production result.
