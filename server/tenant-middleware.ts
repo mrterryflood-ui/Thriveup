@@ -78,6 +78,9 @@ export async function loadCallerOrg(req: Request, res: Response, next: NextFunct
     } else {
       // Legacy fallback — pre-membership users
       const [org] = await db.select().from(organizations).where(eq(organizations.userId, userId));
+      if (requestedOrgId && (!org || org.id !== requestedOrgId)) {
+        return res.status(403).json({ error: "The selected organization is not one of your current memberships.", code: "ORG_ACCESS_DENIED" });
+      }
       if (org) {
         chosenOrgId = org.id;
         role = "owner";

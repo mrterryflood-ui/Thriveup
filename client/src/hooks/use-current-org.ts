@@ -13,6 +13,11 @@ function readStored(): string | null {
   try { return window.localStorage.getItem(CURRENT_ORG_LS_KEY); } catch { return null; }
 }
 
+export function clearCurrentOrgSelection() {
+  try { window.localStorage.removeItem(CURRENT_ORG_LS_KEY); } catch { /* localStorage disabled */ }
+  window.dispatchEvent(new CustomEvent(CURRENT_ORG_CHANGED_EVENT, { detail: null }));
+}
+
 export function useCurrentOrgId() {
   const [orgId, setOrgIdState] = useState<string | null>(() => readStored());
 

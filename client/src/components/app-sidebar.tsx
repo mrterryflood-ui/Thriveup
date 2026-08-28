@@ -44,6 +44,7 @@ import { getRankForLevel } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
 import { OrgSwitcher } from "@/components/org-switcher";
 import { useCurrentOrgId } from "@/hooks/use-current-org";
+import { clearCurrentOrgSelection } from "@/hooks/use-current-org";
 import type { StudentProgress, AcademyAvatar } from "@shared/schema";
 import type { LucideIcon } from "lucide-react";
 
@@ -351,6 +352,7 @@ const whereWeOperateItems: NavItem[] = [
   { title: "Opportunity Youth", url: "/opportunity-youth", icon: Users },
   { title: "Transparency Dashboard", url: "/transparency", icon: Activity },
   { title: "Impact Dashboard", url: "/impact", icon: TrendingUp },
+  { title: "Community Impact", url: "/community-impact", icon: Users },
   { title: "Platform Metrics", url: "/platform-metrics", icon: BarChart3, authOnly: true },
   { title: "Pilot Dashboard", url: "/pilot", icon: Users, authOnly: true },
   { title: "Dosage Report", url: "/dosage", icon: Activity, authOnly: true },
@@ -913,7 +915,7 @@ export function AppSidebar() {
         {!authLoading && (
           isAuthenticated ? (
             <Button asChild variant="ghost" size="sm" className="w-full justify-start" data-testid="button-logout">
-              <a href="/api/logout" aria-label="Sign out">
+              <a href="/api/logout" aria-label="Sign out" onClick={() => clearCurrentOrgSelection()}>
                 <LogOut className="mr-2 h-4 w-4" aria-hidden="true" /> Sign Out
               </a>
             </Button>

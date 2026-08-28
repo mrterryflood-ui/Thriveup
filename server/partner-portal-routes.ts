@@ -1,7 +1,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
 import { organizations, orgDocuments, organizationMembers, orgCapacity } from "@shared/schema";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import { validateContactPhone, validateContactUrl } from "@shared/intake-contact-validators";
 
 function requireAuth(req: Request, res: Response, next: NextFunction) {
@@ -15,8 +15,15 @@ export function registerPartnerPortalRoutes(app: Express) {
   app.get("/api/partner-portal/capacity", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const [org] = await db.select({ id: organizations.id, name: organizations.name })
-        .from(organizations).where(eq(organizations.userId, userId)).limit(1);
+      const requestedOrgId = typeof req.headers["x-org-id"] === "string" ? req.headers["x-org-id"] : null;
+      const [org] = requestedOrgId
+        ? await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.id, requestedOrgId)).limit(1)
+        : await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.userId, userId)).limit(1);
+      if (requestedOrgId && org && org.userId !== userId) {
+        const [membership] = await db.select({ userId: organizationMembers.userId }).from(organizationMembers)
+          .where(and(eq(organizationMembers.orgId, requestedOrgId), eq(organizationMembers.userId, userId))).limit(1);
+        if (!membership) return res.status(403).json({ error: "You are not authorized for this organization." });
+      }
 
       if (!org) return res.json({ entries: [], orgId: null });
 
@@ -41,10 +48,17 @@ export function registerPartnerPortalRoutes(app: Express) {
   app.patch("/api/partner-portal/capacity", requireAuth, async (req: any, res) => {
     try {
       const userId = req.user.claims.sub;
-      const [org] = await db.select({ id: organizations.id, name: organizations.name })
-        .from(organizations).where(eq(organizations.userId, userId)).limit(1);
+      const requestedOrgId = typeof req.headers["x-org-id"] === "string" ? req.headers["x-org-id"] : null;
+      const [org] = requestedOrgId
+        ? await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.id, requestedOrgId)).limit(1)
+        : await db.select({ id: organizations.id, name: organizations.name, userId: organizations.userId }).from(organizations).where(eq(organizations.userId, userId)).limit(1);
 
       if (!org) return res.status(400).json({ error: "No organization found for your account" });
+      if (requestedOrgId && org.userId !== userId) {
+        const [membership] = await db.select({ userId: organizationMembers.userId }).from(organizationMembers)
+          .where(and(eq(organizationMembers.orgId, requestedOrgId), eq(organizationMembers.userId, userId))).limit(1);
+        if (!membership) return res.status(403).json({ error: "You are not authorized for this organization." });
+      }
 
       const { programCode = "general", status = "open", waitWeeks, note, contactPhone, contactUrl, serviceZips } = req.body;
       if (!["open", "waitlist", "closed"].includes(status)) {

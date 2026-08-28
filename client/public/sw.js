@@ -65,6 +65,10 @@ self.addEventListener("fetch", (event) => {
   }
   if (url.origin !== self.location.origin) return;
 
+  // Cache only the explicit shell assets. Never cache arbitrary HTML routes or
+  // authenticated pages, which could otherwise be replayed to another user.
+  if (!STATIC_ASSETS.includes(url.pathname)) return;
+
   // Static assets: cache-first with background refresh, bounded.
   event.respondWith(
     caches.match(request).then((cached) => {

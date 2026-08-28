@@ -1,0 +1,4 @@
+DROP TRIGGER IF EXISTS trg_nonprofit_event_handoffs_no_truncate ON nonprofit_event_handoffs;
+CREATE TRIGGER trg_nonprofit_event_handoffs_no_truncate
+  BEFORE TRUNCATE ON nonprofit_event_handoffs
+  FOR EACH STATEMENT EXECUTE FUNCTION reject_nonprofit_event_child_truncate();

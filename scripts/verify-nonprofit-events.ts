@@ -16,10 +16,14 @@ const MEMBER = { userId: "e2e-nonprofit-events-member", email: "e2e-nonprofit-ev
 const COLLABORATOR = { userId: "e2e-nonprofit-events-collaborator", email: "e2e-nonprofit-events-collaborator@test.local", firstName: "Events", lastName: "Collaborator", role: "case_manager" };
 
 const ORG_ADMIN = { userId: "e2e-nonprofit-events-org-admin", email: "e2e-nonprofit-events-org-admin@test.local", firstName: "Events", lastName: "Org Admin", role: "case_manager" };
+const ORG_MANAGER = { userId: "e2e-nonprofit-events-org-manager", email: "e2e-nonprofit-events-org-manager@test.local", firstName: "Events", lastName: "Org Manager", role: "case_manager" };
+const LEGACY_MEMBER = { userId: "e2e-nonprofit-events-legacy-member", email: "e2e-nonprofit-events-legacy-member@test.local", firstName: "Events", lastName: "Legacy Member", role: "case_manager" };
+const LEGACY_OWNER = { userId: "e2e-nonprofit-events-legacy-owner", email: "e2e-nonprofit-events-legacy-owner@test.local", firstName: "Events", lastName: "Legacy Owner", role: "case_manager" };
 const ORG_A = "e2e-nonprofit-events-org-a";
 const ORG_B = "e2e-nonprofit-events-org-b";
 
 const ORG_LEGACY = "e2e-nonprofit-events-org-legacy";
+const ORG_LEGACY_OWNER = "e2e-nonprofit-events-org-legacy-owner";
 
 function verifyMigrationSource() {
   const privacyMigration = readFileSync(
@@ -29,19 +33,23 @@ function verifyMigrationSource() {
   if (/chk_nonprofit_event_stories_nonidentifying_attribution[\s\S]{0,500}NOT VALID/i.test(privacyMigration)) {
     fail("nonprofit-event privacy migration must not create an inline NOT VALID check constraint");
   }
-  const [integrityMigration, archivalLockMigration, archivalTruncateMigration, handoffDeleteMigration, handoffLinkMigration] = [
+  const [integrityMigration, archivalLockMigration, archivalTruncateMigration, handoffDeleteMigration, handoffLinkMigration, handoffProvenanceMigration, handoffTruncateMigration, retentionMigration, attendanceMigration] = [
     "../migrations/20260903_nonprofit_events_integrity.sql",
     "../migrations/20260908_nonprofit_event_archival_write_lock.sql",
     "../migrations/20260909_nonprofit_event_archival_truncate_guard.sql",
     "../migrations/20260911_nonprofit_event_handoff_delete_guard.sql",
     "../migrations/20260912_nonprofit_event_handoff_link_integrity.sql",
+    "../migrations/20260913_nonprofit_event_handoff_provenance_checks.sql",
+    "../migrations/20260914_nonprofit_event_handoff_truncate_guard.sql",
+    "../migrations/20260915_nonprofit_event_retention_guards.sql",
+    "../migrations/20260916_nonprofit_event_attendance_tenant_key.sql",
   ].map((path) => readFileSync(new URL(path, import.meta.url), "utf8"));
   for (const migration of [integrityMigration, archivalLockMigration]) {
     if (!migration.includes("enforce_nonprofit_event_child_mutation()") || !migration.includes("FOR UPDATE")) {
       fail("nonprofit-event child write migrations must lock and recheck the parent event");
     }
   }
-  for (const migration of [integrityMigration, archivalTruncateMigration]) {
+  for (const migration of [integrityMigration, archivalTruncateMigration, handoffTruncateMigration]) {
     if (!migration.includes("reject_nonprofit_event_child_truncate()") || !migration.includes("BEFORE TRUNCATE")) {
       fail("nonprofit-event child write migrations must block direct table truncation");
     }
@@ -51,6 +59,18 @@ function verifyMigrationSource() {
   }
   if (!handoffLinkMigration.includes("fk_nonprofit_event_handoffs_event_org") || !handoffLinkMigration.includes("fk_nonprofit_event_handoffs_need_org") || !handoffLinkMigration.includes("fk_nonprofit_event_handoffs_action_org")) {
     fail("handoff links must have tenant-qualified foreign-key enforcement");
+  }
+  if (!handoffProvenanceMigration.includes("chk_nonprofit_event_handoffs_claim_types_nonempty") || !handoffProvenanceMigration.includes("chk_nonprofit_event_handoffs_source_snapshot_shape")) {
+    fail("handoff provenance must have database-level shape and claim checks");
+  }
+  if (!handoffTruncateMigration.includes("BEFORE TRUNCATE") || !handoffTruncateMigration.includes("nonprofit_event_handoffs_no_truncate")) {
+    fail("handoff table must be protected from direct truncation");
+  }
+  if (!retentionMigration.includes("trg_nonprofit_event_no_delete")) {
+    fail("parent event deletion must be blocked for retained records");
+  }
+  if (!attendanceMigration.includes("org_id") || !attendanceMigration.includes("event_org_fk")) {
+    fail("attendance records must carry a tenant-qualified event relationship");
   }
 }
 
@@ -282,12 +302,21 @@ async function run() {
     if (legacyRuntimeModuleExists) fail("retired event-workspace authorization module is still reachable in runtime source");
     ok("kept owner staff management in the authoritative Community Events surface");
 
+    await db.query("ALTER TABLE organizations DISABLE TRIGGER USER");
     await db.query("ALTER TABLE nonprofit_event_handoffs DISABLE TRIGGER USER");
+    for (const table of ["nonprofit_events", "nonprofit_event_attendance", "nonprofit_event_needs", "nonprofit_event_actions", "nonprofit_event_stories", "nonprofit_event_audit_log"]) {
+      await db.query(`ALTER TABLE ${table} DISABLE TRIGGER USER`);
+    }
     try {
       await db.query(`DELETE FROM organizations WHERE id = ANY($1::varchar[])`, [[ORG_A, ORG_B, ORG_LEGACY, ORG_LEGACY_OWNER]]);
     } finally {
+      for (const table of ["nonprofit_events", "nonprofit_event_attendance", "nonprofit_event_needs", "nonprofit_event_actions", "nonprofit_event_stories", "nonprofit_event_audit_log"]) {
+        await db.query(`ALTER TABLE ${table} ENABLE TRIGGER USER`);
+      }
       await db.query("ALTER TABLE nonprofit_event_handoffs ENABLE TRIGGER USER");
+      await db.query("ALTER TABLE organizations ENABLE TRIGGER USER");
     }
+    await db.query(`DELETE FROM organization_members WHERE user_id = ANY($1::varchar[])`, [[OWNER.userId, OTHER.userId, MEMBER.userId, COLLABORATOR.userId, ORG_ADMIN.userId, ORG_MANAGER.userId, LEGACY_MEMBER.userId, LEGACY_OWNER.userId]]);
     await cleanupTestUser(db, OWNER.userId).catch(() => {});
     await cleanupTestUser(db, OTHER.userId).catch(() => {});
     await cleanupTestUser(db, MEMBER.userId).catch(() => {});
@@ -313,7 +342,7 @@ async function run() {
     await db.query(
       `INSERT INTO organizations (id, user_id, name, focus_areas, populations_served, counties)
        VALUES ($1, $2, $3, '{}', '{}', '{}')`,
-      [ORG_LEGACY_OWNER, LEGACY_OWNER.userId, "E2E Legacy Owner Without Membership"],
+       [ORG_LEGACY_OWNER, ORG_ADMIN.userId, "E2E Legacy Owner Without Membership"],
     );
     await db.query(
       `INSERT INTO organization_members (org_id, user_id, role) VALUES ($1, $2, 'owner'), ($3, $4, 'owner'), ($1, $5, 'member'), ($1, $6, 'collaborator'), ($7, $6, 'owner'), ($7, $8, 'member')
@@ -555,7 +584,7 @@ async function run() {
     const reopenEvent = await request(`/api/nonprofit-events/events/${eventId}`, ownerCookie, ORG_A, {
       method: "PATCH", body: JSON.stringify({ status: "planned" }),
     });
-    if (reopenEvent.status !== 400) fail(`event reopening returned ${reopenEvent.status}, expected 400`);
+    if (reopenEvent.status !== 409) fail(`event reopening returned ${reopenEvent.status}, expected 409`);
     ok("enforced real dates, valid schedules, and truthful event progression");
 
     const need = await request(`/api/nonprofit-events/events/${eventId}/needs`, ownerCookie, ORG_A, {
@@ -628,14 +657,14 @@ async function run() {
       method: "PATCH",
       body: JSON.stringify({ intendedAudience: "public", permittedUses: ["public webpage"], sharingState: "approved" }),
     });
-    if (consentRepurpose.status !== 400) fail(`consent repurposing returned ${consentRepurpose.status}, expected 400`);
+    if (consentRepurpose.status !== 409) fail(`consent repurposing returned ${consentRepurpose.status}, expected 409`);
     const withdrawn = await request(`/api/nonprofit-events/stories/${storyId}`, ownerCookie, ORG_A, { method: "PATCH", body: JSON.stringify({ sharingState: "withdrawn" }) });
     if (withdrawn.status !== 200) fail(`story withdrawal returned ${withdrawn.status}: ${JSON.stringify(await body(withdrawn))}`);
     const withdrawnReapproval = await request(`/api/nonprofit-events/stories/${storyId}`, ownerCookie, ORG_A, {
       method: "PATCH",
       body: JSON.stringify({ consentGranted: true, intendedAudience: "funder", permittedUses: ["funder packet"], sharingState: "approved" }),
     });
-    if (withdrawnReapproval.status !== 400) fail(`withdrawn-story reapproval returned ${withdrawnReapproval.status}, expected 400`);
+    if (withdrawnReapproval.status !== 409) fail(`withdrawn-story reapproval returned ${withdrawnReapproval.status}, expected 409`);
     ok("withdrew story consent and removed sharing approval");
 
     const workspace = await request("/api/nonprofit-events/workspace", ownerCookie, ORG_A);
@@ -831,7 +860,7 @@ async function run() {
     const reopenAction = await request(`/api/nonprofit-events/actions/${actionId}`, ownerCookie, ORG_A, {
       method: "PATCH", body: JSON.stringify({ status: "planned" }),
     });
-    if (reopenAction.status !== 400) fail(`completed action reopening returned ${reopenAction.status}, expected 400`);
+    if (reopenAction.status !== 409) fail(`completed action reopening returned ${reopenAction.status}, expected 409`);
     ok("kept completed accountability actions from reverting");
 
     const report = await request(`/api/nonprofit-events/report?orgId=${ORG_A}`, ownerCookie, ORG_A);
@@ -879,6 +908,16 @@ async function run() {
       }
       if (!truncateBlocked) fail(`direct truncation was not blocked for ${tableName}`);
     }
+    let auditLogTruncateBlocked = false;
+    await db.query("BEGIN");
+    try {
+      await db.query("TRUNCATE nonprofit_event_audit_log");
+    } catch (error) {
+      auditLogTruncateBlocked = error instanceof Error && error.message.includes("cannot be truncated");
+    } finally {
+      await db.query("ROLLBACK");
+    }
+    if (!auditLogTruncateBlocked) fail("direct truncation was not blocked for nonprofit_event_audit_log");
     ok("blocked direct child-table truncation from bypassing archive protections");
 
     const raceEventCreate = await request("/api/nonprofit-events/events", ownerCookie, ORG_A, {
@@ -1122,11 +1161,41 @@ async function run() {
       body: JSON.stringify({ invitedCount: 5, registeredCount: 5, attendedCount: 5, followUpCount: 5, valueSource: "self_reported" }),
     });
     if (afterArchiveWrite.status !== 409) fail(`archived attendance update returned ${afterArchiveWrite.status}, expected 409`);
+    let directEventDeleteBlocked = false;
+    try {
+      await db.query(`DELETE FROM nonprofit_events WHERE id = $1`, [eventId]);
+    } catch (err) {
+      directEventDeleteBlocked = /retained|cannot be deleted/i.test(String((err as Error).message));
+    }
+    if (!directEventDeleteBlocked) fail("direct parent event deletion was not blocked by the retention guard");
     ok("made archived events read-only while retaining their records");
 
     console.log("\n✅ Nonprofit community-event workspace verification passed.");
   } finally {
-    await db.query(`DELETE FROM organizations WHERE id = ANY($1::varchar[])`, [[ORG_A, ORG_B, ORG_LEGACY, ORG_LEGACY_OWNER]]).catch(() => {});
+    // These are disposable verifier fixtures. The production retention guards
+    // intentionally block the organization cascade, so suspend only user
+    // triggers for this teardown and restore them before returning.
+    const retentionFixtureTables = [
+      "organizations",
+      "nonprofit_events",
+      "nonprofit_event_attendance",
+      "nonprofit_event_needs",
+      "nonprofit_event_actions",
+      "nonprofit_event_stories",
+      "nonprofit_event_handoffs",
+    ];
+    try {
+      for (const tableName of retentionFixtureTables) {
+        await db.query(`ALTER TABLE ${tableName} DISABLE TRIGGER USER`);
+      }
+      await db.query(`DELETE FROM organizations WHERE id = ANY($1::varchar[])`, [[ORG_A, ORG_B, ORG_LEGACY, ORG_LEGACY_OWNER]]);
+    } catch {
+      // Preserve the original verifier result while making best-effort cleanup.
+    } finally {
+      for (const tableName of retentionFixtureTables) {
+        await db.query(`ALTER TABLE ${tableName} ENABLE TRIGGER USER`).catch(() => {});
+      }
+    }
     await cleanupTestUser(db, OWNER.userId).catch(() => {});
     await cleanupTestUser(db, OTHER.userId).catch(() => {});
     await cleanupTestUser(db, MEMBER.userId).catch(() => {});
@@ -1143,11 +1212,3 @@ run().catch((error) => {
   console.error("\n❌ Nonprofit community-event verification failed:", error);
   process.exit(1);
 });
-
-const ORG_MANAGER = { userId: "e2e-nonprofit-events-org-manager", email: "e2e-nonprofit-events-org-manager@test.local", firstName: "Events", lastName: "Org Manager", role: "case_manager" };
-
-const LEGACY_OWNER = { userId: "e2e-nonprofit-events-legacy-owner", email: "e2e-nonprofit-events-legacy-owner@test.local", firstName: "Legacy", lastName: "Owner", role: "case_manager" };
-
-const ORG_LEGACY_OWNER = "e2e-nonprofit-events-org-legacy-owner";
-
-const LEGACY_MEMBER = { userId: "e2e-nonprofit-events-legacy-member", email: "e2e-nonprofit-events-legacy-member@test.local", firstName: "Legacy", lastName: "Member", role: "case_manager" };

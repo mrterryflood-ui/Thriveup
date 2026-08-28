@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from "react";
+import { useState, useEffect, useMemo, useRef, lazy, Suspense } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -255,6 +255,14 @@ function generateInvoicePDF(data: any, locationQuery: string) {
 
 function useSendToGrantPathPro(data: any, locationQuery: string) {
   const [gppState, setGppState] = useState<"idle" | "sending" | "delivered" | "preview" | "error" | "accessDenied">("idle");
+  const resetTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current);
+  }, []);
+  const resetAfter = (delay: number) => {
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current);
+    resetTimer.current = window.setTimeout(() => setGppState("idle"), delay);
+  };
 
   const sendToGPP = async () => {
     if (gppState === "sending" || gppState === "delivered") return;
@@ -267,17 +275,17 @@ function useSendToGrantPathPro(data: any, locationQuery: string) {
       const result = await res.json();
       if (result.success && result.mode === "live") {
         setGppState("delivered");
-        setTimeout(() => setGppState("idle"), 6000);
+        resetAfter(6000);
       } else if (result.success && result.mode === "preview") {
         setGppState("preview");
-        setTimeout(() => setGppState("idle"), 6000);
+        resetAfter(6000);
       } else {
         setGppState("error");
-        setTimeout(() => setGppState("idle"), 4000);
+        resetAfter(4000);
       }
     } catch (err) {
       setGppState(/^(401|403):/.test(err instanceof Error ? err.message : "") ? "accessDenied" : "error");
-      setTimeout(() => setGppState("idle"), 4000);
+      resetAfter(4000);
     }
   };
 
@@ -286,20 +294,24 @@ function useSendToGrantPathPro(data: any, locationQuery: string) {
 
 function StripPdfButton({ data, submitted }: { data: any; submitted: string }) {
   const [pdfState, setPdfState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const resetTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current);
+  }, []);
   const handleClick = async () => {
     if (pdfState === "loading") return;
     setPdfState("loading");
     try {
       await downloadCommunityBriefPdf(submitted);
       setPdfState("done");
-      setTimeout(() => setPdfState("idle"), 4000);
+      resetTimer.current = window.setTimeout(() => setPdfState("idle"), 4000);
     } catch {
       setPdfState("error");
-      setTimeout(() => setPdfState("idle"), 4000);
+      resetTimer.current = window.setTimeout(() => setPdfState("idle"), 4000);
     }
   };
   return (
-    <Button variant="outline" size="sm" className="gap-1.5" onClick={handleClick} disabled={pdfState === "loading"} data-testid="button-download-brief-pdf-strip">
+    <Button variant="outline" size="sm" className="gap-1.5" onClick={handleClick} disabled={pdfState === "loading"} aria-live="polite" data-testid="button-download-brief-pdf-strip">
       {pdfState === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
       {pdfState === "loading" ? "Generating…" : pdfState === "done" ? "Downloaded!" : pdfState === "error" ? "PDF Error" : "Download PDF"}
     </Button>
@@ -374,6 +386,10 @@ async function downloadCommunityBriefPdf(locationQuery: string, orgName?: string
 function useShareBrief() {
   const { toast } = useToast();
   const [shareState, setShareState] = useState<"idle" | "sharing" | "done" | "error">("idle");
+  const resetTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current);
+  }, []);
 
   const shareBrief = async (brief: any) => {
     if (shareState === "sharing") return;
@@ -394,12 +410,12 @@ function useShareBrief() {
         duration: 8000,
       });
       setShareState("done");
-      setTimeout(() => setShareState("idle"), 6000);
+      resetTimer.current = window.setTimeout(() => setShareState("idle"), 6000);
     } catch (err) {
       const msg = err instanceof Error ? err.message : "Failed to create share link";
       toast({ title: "Share failed", description: msg, variant: "destructive" });
       setShareState("error");
-      setTimeout(() => setShareState("idle"), 4000);
+      resetTimer.current = window.setTimeout(() => setShareState("idle"), 4000);
     }
   };
 
@@ -420,7 +436,20 @@ function VerdictHero({ data, locationQuery, canRequestExport }: { data: any; loc
 
   const { gppState, sendToGPP } = useSendToGrantPathPro(data, locationQuery);
   const { shareState, shareBrief } = useShareBrief();
+  const { toast } = useToast();
   const [pdfState, setPdfState] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const resetTimer = useRef<number | null>(null);
+  useEffect(() => () => {
+    if (resetTimer.current !== null) window.clearTimeout(resetTimer.current);
+  }, []);
+  const handleDownloadModelSummary = () => {
+    try {
+      generateInvoicePDF(data, locationQuery);
+    } catch (error) {
+      console.error("[community-impact] model summary download failed", error);
+      toast({ title: "Download failed", description: "The model summary could not be generated. Please try again.", variant: "destructive" });
+    }
+  };
 
   const handleDownloadPdf = async () => {
     if (pdfState === "loading") return;
@@ -428,10 +457,10 @@ function VerdictHero({ data, locationQuery, canRequestExport }: { data: any; loc
     try {
       await downloadCommunityBriefPdf(locationQuery);
       setPdfState("done");
-      setTimeout(() => setPdfState("idle"), 4000);
+      resetTimer.current = window.setTimeout(() => setPdfState("idle"), 4000);
     } catch {
       setPdfState("error");
-      setTimeout(() => setPdfState("idle"), 4000);
+      resetTimer.current = window.setTimeout(() => setPdfState("idle"), 4000);
     }
   };
 
@@ -445,7 +474,7 @@ function VerdictHero({ data, locationQuery, canRequestExport }: { data: any; loc
         <div className="flex gap-2 flex-wrap">
           {(histTotal != null || forwardCost != null || savings != null) && (
             <button
-              onClick={() => generateInvoicePDF(data, locationQuery)}
+              onClick={handleDownloadModelSummary}
               className="flex items-center gap-1.5 bg-white/10 hover:bg-white/20 transition-colors text-white text-xs font-semibold px-3 py-2 rounded-lg border border-white/20"
               data-testid="button-download-invoice"
             >
@@ -459,7 +488,7 @@ function VerdictHero({ data, locationQuery, canRequestExport }: { data: any; loc
             data-testid="button-download-brief-pdf"
           >
             {pdfState === "loading" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <FileText className="w-3.5 h-3.5" />}
-            {pdfState === "loading" ? "Generating…" : pdfState === "done" ? "Downloaded!" : pdfState === "error" ? "PDF Error" : "Download PDF"}
+             {pdfState === "loading" ? "Generating…" : pdfState === "done" ? "Downloaded!" : pdfState === "error" ? "PDF generation failed — retry" : "Download PDF"}
           </button>
           <button
             onClick={() => shareBrief(data)}
@@ -1195,6 +1224,9 @@ export default function CommunityImpactPage() {
   const [location, setLocation] = useState("");
   const [submitted, setSubmitted] = useState("");
   const [activeViz, setActiveViz] = useState<VizTab>("skyline");
+  const latestBriefRequest = useRef(0);
+  const [searchState, setSearchState] = useState<{ pending: boolean; error: Error | null; data: any | null }>({ pending: false, error: null, data: null });
+  const lastNeighborPayload = useRef<{ zip: string; centerScore: number; centerGrade: string; centerUrgency: string; centerCost: number } | null>(null);
 
   const coverage = useQuery({
     queryKey: ["/api/conductor/community-brief/coverage"],
@@ -1280,15 +1312,39 @@ export default function CommunityImpactPage() {
   }
 
   const neighborsMut = useMutation({
-    mutationFn: (payload: { zip: string; centerScore: number; centerGrade: string; centerUrgency: string; centerCost: number }) =>
-      apiRequest("POST", "/api/conductor/neighbor-zips", payload).then((r) => r.json()),
+    mutationFn: async (payload: { zip: string; centerScore: number; centerGrade: string; centerUrgency: string; centerCost: number }) => ({
+      requestKey: JSON.stringify(payload),
+      result: await apiRequest("POST", "/api/conductor/neighbor-zips", payload).then((r) => r.json()),
+    }),
   });
+  const neighborResult = neighborsMut.data?.requestKey === JSON.stringify(lastNeighborPayload.current)
+    ? neighborsMut.data.result
+    : undefined;
+
+  function submitLocation(value: string) {
+    const nextLocation = value.trim();
+    if (!nextLocation) return;
+    const requestId = ++latestBriefRequest.current;
+    brief.reset();
+    neighborsMut.reset();
+    lastNeighborPayload.current = null;
+    setSearchState({ pending: true, error: null, data: null });
+    setSubmitted(nextLocation);
+    brief.mutate(nextLocation, {
+      onSuccess: (result) => {
+        if (requestId !== latestBriefRequest.current) return;
+        setSearchState({ pending: false, error: null, data: result });
+      },
+      onError: (error) => {
+        if (requestId !== latestBriefRequest.current) return;
+        setSearchState({ pending: false, error: error instanceof Error ? error : new Error("Could not analyze this location.") , data: null });
+      },
+    });
+  }
 
   function handleSearch(e?: React.FormEvent) {
     e?.preventDefault();
-    if (!location.trim()) return;
-    setSubmitted(location.trim());
-    brief.mutate(location.trim());
+    submitLocation(location);
   }
 
   function handleVizTabKeyDown(event: React.KeyboardEvent<HTMLButtonElement>, currentTab: VizTab) {
@@ -1306,20 +1362,44 @@ export default function CommunityImpactPage() {
     document.getElementById(`viz-tab-${nextTab.id}`)?.focus();
   }
 
-  const data = brief.data;
+  const data = useMemo(() => searchState.data ? {
+    ...searchState.data,
+    geography: searchState.data.geography ?? {},
+    evidence: {
+      ...(searchState.data.evidence ?? {}),
+      sources: Array.isArray(searchState.data.evidence?.sources) ? searchState.data.evidence.sources : [],
+      citations: Array.isArray(searchState.data.evidence?.citations) ? searchState.data.evidence.citations : [],
+      claims: searchState.data.evidence?.claims && typeof searchState.data.evidence.claims === "object" ? searchState.data.evidence.claims : {},
+      gaps: Array.isArray(searchState.data.evidence?.gaps) ? searchState.data.evidence.gaps : [],
+      warnings: Array.isArray(searchState.data.evidence?.warnings) ? searchState.data.evidence.warnings : [],
+    },
+    systemsScores: searchState.data.systemsScores && typeof searchState.data.systemsScores === "object" ? searchState.data.systemsScores : {},
+    atRiskPopulations: Array.isArray(searchState.data.atRiskPopulations) ? searchState.data.atRiskPopulations : [],
+    cascade: searchState.data.cascade ?? {},
+    historicalCascade: searchState.data.historicalCascade,
+    demographics: searchState.data.demographics ?? {},
+    solutions: {
+      ...(searchState.data.solutions ?? {}),
+      topInterventions: Array.isArray(searchState.data.solutions?.topInterventions) ? searchState.data.solutions.topInterventions : [],
+    },
+  } : null, [searchState.data]);
 
   useEffect(() => {
     const queryLocation = new URLSearchParams(window.location.search).get("q")?.trim();
     if (!queryLocation) return;
     setLocation(queryLocation);
-    setSubmitted(queryLocation);
-    brief.mutate(queryLocation);
+    submitLocation(queryLocation);
+    return () => {
+      latestBriefRequest.current += 1;
+    };
   // The query string is read once when this route mounts.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Trigger neighbor-zips fetch when a brief comes back
   useEffect(() => {
+    lastNeighborPayload.current = null;
+    neighborsMut.reset();
     if (!data?.geography?.zip && !data?.geography?.displayName) return;
     const zip = data.geography.zip || data.geography.displayName?.match(/\d{5}/)?.[0];
     if (!zip) return;
@@ -1334,15 +1414,17 @@ export default function CommunityImpactPage() {
       !centerUrgency ||
       !Number.isFinite(data.cascade?.counterfactualCost)
     ) return;
-    neighborsMut.mutate({
+    const neighborPayload = {
       zip,
       centerScore: data.overallScore,
       centerGrade: data.overallGrade,
       centerUrgency,
       centerCost: data.cascade.counterfactualCost,
-    });
+    };
+    lastNeighborPayload.current = neighborPayload;
+    neighborsMut.mutate(neighborPayload);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data?.geography?.displayName]);
+  }, [data, submitted]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -1385,14 +1467,15 @@ export default function CommunityImpactPage() {
                 data-testid="input-location"
               />
             </div>
-            <Button type="submit" disabled={brief.isPending || !location.trim()} className="bg-blue-500 hover:bg-blue-400 text-white px-6" data-testid="button-search">
-              {brief.isPending ? "Analyzing…" : "Analyze"}
+            <Button type="submit" disabled={searchState.pending || !location.trim()} className="bg-blue-500 hover:bg-blue-400 text-white px-6" data-testid="button-search">
+              {searchState.pending ? "Analyzing…" : "Analyze"}
             </Button>
           </form>
+          {coverage.isError && <p className="mb-6 max-w-2xl text-xs text-blue-100/80" role="status">Coverage details are temporarily unavailable; the brief can still be reviewed.</p>}
           {!submitted && (
             <div className="mt-4 flex flex-wrap gap-2">
               {["Austin, TX", "Waco, TX", "Williamson County, TX", "78741", "Rural Texas"].map((loc) => (
-                <button key={loc} onClick={() => { setLocation(loc); }} className="text-xs text-blue-200/60 hover:text-blue-200 transition-colors underline underline-offset-2" data-testid={`quick-${loc.replace(/,?\s+/g, "-").toLowerCase()}`}>
+                <button type="button" key={loc} onClick={() => { setLocation(loc); submitLocation(loc); }} className="text-xs text-blue-200/60 hover:text-blue-200 transition-colors underline underline-offset-2" data-testid={`quick-${loc.replace(/,?\s+/g, "-").toLowerCase()}`}>
                   {loc}
                 </button>
               ))}
@@ -1403,25 +1486,26 @@ export default function CommunityImpactPage() {
 
       {/* Results */}
       <div className="max-w-5xl mx-auto px-4 py-8">
-        {brief.isPending && <LoadingSkeleton />}
+        {searchState.pending && <LoadingSkeleton />}
 
-        {brief.isError && (
+        {searchState.error && (
           <Card role="alert" className="p-6 border-red-200 bg-red-50 dark:bg-red-950/30" data-testid="card-error">
             <div className="flex gap-3 items-start">
               <AlertTriangle className="w-5 h-5 text-red-500 flex-none mt-0.5" />
               <div>
                 <div className="font-semibold text-red-700">Could not analyze this location</div>
                 <div className="text-sm text-red-600 mt-1" data-testid="text-error-detail">
-                  {brief.error instanceof Error && brief.error.message
-                    ? brief.error.message
+                  {searchState.error.message
+                    ? searchState.error.message
                     : 'Try a specific ZIP code (e.g. 78741) or "City, State" format.'}
                 </div>
+                  <Button type="button" size="sm" variant="outline" className="mt-3" onClick={() => submitted && submitLocation(submitted)} disabled={!submitted || searchState.pending}>Try again</Button>
               </div>
             </div>
           </Card>
         )}
 
-        {data && !brief.isPending && (
+        {data && !searchState.pending && !searchState.error && (
           <div className="space-y-10">
             {/* Verdict Hero — the F-22 first look */}
             <VerdictHero data={data} locationQuery={submitted} canRequestExport={canRequestExport} />
@@ -1487,7 +1571,7 @@ export default function CommunityImpactPage() {
                     </div>
                     <div className="flex-shrink-0 text-right">
                       <div className="text-3xl font-black text-amber-700 dark:text-amber-300" data-testid="text-historical-total">
-                        {fmt$(data.historicalCascade?.totalAccumulatedCost ?? 0)}
+                        {fmt$(data.historicalCascade?.totalAccumulatedCost)}
                       </div>
                          <div className="text-xs text-amber-600 dark:text-amber-400 mt-0.5 font-medium uppercase tracking-wide">
                          modeled estimate, not observed spending
@@ -1540,7 +1624,7 @@ export default function CommunityImpactPage() {
                       <tfoot>
                         <tr className="border-t-2 border-amber-300 dark:border-amber-700">
                           <td colSpan={3} className="pt-2 pr-4 font-bold text-amber-900 dark:text-amber-200 text-sm">Total accumulated (documented cohorts)</td>
-                          <td className="pt-2 text-right font-black text-amber-700 dark:text-amber-300">{fmt$(data.historicalCascade?.totalAccumulatedCost ?? 0)}</td>
+                          <td className="pt-2 text-right font-black text-amber-700 dark:text-amber-300">{fmt$(data.historicalCascade?.totalAccumulatedCost)}</td>
                         </tr>
                       </tfoot>
                     </table>
@@ -1549,7 +1633,7 @@ export default function CommunityImpactPage() {
                   {/* Framing callout */}
                   <div className="px-6 py-4 bg-amber-100/60 dark:bg-amber-900/20 border-t border-amber-200 dark:border-amber-800/40">
                     <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed max-w-3xl">
-                       <span className="font-bold">How to read this:</span> For each Census vintage, the evidence-based chain model estimates a cohort cost from modeled pathways (ECE gap → 3rd grade failure → dropout → incarceration; untreated mental illness → homelessness). This is not Census-verified spending, an individual prediction, or a participant outcome. Forward projection for the next 25 years: <span className="font-bold">{fmt$(data.cascade?.counterfactualCost ?? 0)}</span> if nothing changes.
+                       <span className="font-bold">How to read this:</span> For each Census vintage, the evidence-based chain model estimates a cohort cost from modeled pathways (ECE gap → 3rd grade failure → dropout → incarceration; untreated mental illness → homelessness). This is not Census-verified spending, an individual prediction, or a participant outcome. Forward projection for the next 25 years: <span className="font-bold">{fmt$(data.cascade?.counterfactualCost)}</span> if nothing changes.
                     </p>
                   </div>
                 </div>
@@ -1629,45 +1713,64 @@ export default function CommunityImpactPage() {
                       ? <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-300 gap-3 px-6 text-center">
                           <AlertTriangle className="w-7 h-7 text-amber-400" />
                           <span className="text-sm font-semibold">Neighbor map unavailable</span>
-                          <span className="text-xs text-slate-400">The selected community brief is still available. Please try the map again later.</span>
+                           <span className="text-xs text-slate-400">The selected community brief is still available. Please try the map again later.</span>
+                           <Button type="button" size="sm" variant="outline" onClick={() => lastNeighborPayload.current && neighborsMut.mutate(lastNeighborPayload.current)} data-testid="button-retry-neighbor-map">Try map again</Button>
                         </div>
-                      : <SkylineMap
-                          zips={neighborsMut.data?.zips ?? []}
-                          centerLat={neighborsMut.data?.centerLat ?? 30.25}
-                          centerLng={neighborsMut.data?.centerLng ?? -97.75}
+                       : !neighborResult?.zips?.length ? <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-300 gap-3 px-6 text-center" data-testid="skyline-map-fallback">
+                           <span className="text-sm">Neighbor comparison is unavailable for this geography.</span>
+                           <Button
+                             type="button"
+                             size="sm"
+                             variant="outline"
+                             onClick={() => lastNeighborPayload.current ? neighborsMut.mutate(lastNeighborPayload.current) : submitted && submitLocation(submitted)}
+                             data-testid="button-retry-neighbor-map"
+                           >
+                             {lastNeighborPayload.current ? "Try map again" : "Re-run analysis"}
+                           </Button>
+                         </div> : <SkylineMap
+                          zips={neighborResult.zips ?? []}
+                           centerLat={neighborResult.centerLat}
+                           centerLng={neighborResult.centerLng}
                         />
                   )}
-                  {activeViz === "cascade" && (
-                    <CascadeWaterfall
-                      timeline={data.cascade?.timeline ?? []}
-                      totalWithout={data.cascade?.counterfactualCost ?? 0}
-                      totalWith={data.cascade?.interventionCost ?? 0}
-                      geography={data.geography?.displayName ?? submitted}
-                    />
-                  )}
+                   {activeViz === "cascade" && (
+                     data.cascade?.counterfactualCost != null && data.cascade?.interventionCost != null
+                       ? <CascadeWaterfall
+                           timeline={data.cascade?.timeline ?? []}
+                           totalWithout={data.cascade.counterfactualCost}
+                           totalWith={data.cascade.interventionCost}
+                           geography={data.geography?.displayName ?? submitted}
+                         />
+                        : <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-300 text-sm px-6 text-center" data-testid="cascade-waterfall-fallback">Scenario comparison is unavailable for this brief because the required values were not provided.</div>
+                   )}
                   {activeViz === "web" && (
                     <DomainWeb systemsScores={data.systemsScores ?? {}} />
                   )}
-                  {activeViz === "particles" && (
-                    <ParticleFlow
-                      costOfInaction={data.cascade?.counterfactualCost ?? 0}
-                      netSavings={data.cascade?.netSavings ?? 0}
-                      roi={data.cascade?.roi ?? "0"}
-                      populationSize={10000}
-                    />
-                  )}
+                   {activeViz === "particles" && (
+                     data.cascade?.counterfactualCost != null && data.cascade?.netSavings != null && data.cascade?.roi != null
+                       ? <ParticleFlow
+                           costOfInaction={data.cascade.counterfactualCost}
+                           netSavings={data.cascade.netSavings}
+                           roi={data.cascade.roi}
+                           populationSize={10000}
+                         />
+                        : <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-300 text-sm px-6 text-center" data-testid="particle-flow-fallback">Impact-flow visualization is unavailable for this brief because the required values were not provided.</div>
+                   )}
                   {activeViz === "historical" && (
-                    data.historicalCascade?.vintages?.length > 0 ? (
+                    data.historicalCascade?.vintages?.length > 0
+                    && data.historicalCascade.totalAccumulatedCost != null
+                    && data.cascade?.counterfactualCost != null
+                    && data.cascade?.interventionCost != null ? (
                       <HistoricalTimeline
                         vintages={data.historicalCascade.vintages}
-                        totalAccumulatedCost={data.historicalCascade.totalAccumulatedCost ?? 0}
+                        totalAccumulatedCost={data.historicalCascade.totalAccumulatedCost}
                         trendDirection={data.historicalCascade.trendDirection ?? "stagnant"}
-                        forwardCost={data.cascade?.counterfactualCost ?? 0}
-                        interventionCost={data.cascade?.interventionCost ?? 0}
+                        forwardCost={data.cascade?.counterfactualCost}
+                        interventionCost={data.cascade?.interventionCost}
                         geography={data.geography?.displayName ?? submitted}
                       />
                     ) : (
-                      <div className="flex flex-col items-center justify-center h-64 gap-3 text-center px-6" data-testid="historical-unavailable-disclosure">
+                       <div className="flex flex-col items-center justify-center h-64 gap-3 text-center px-6" data-testid="historical-timeline-fallback">
                         <span className="text-4xl">🧾</span>
                         <div className="text-base font-semibold text-muted-foreground">Historical receipt not available</div>
                         <p className="text-sm text-muted-foreground max-w-md">
@@ -1681,10 +1784,10 @@ export default function CommunityImpactPage() {
               </Card>
 
               <p className="text-xs text-muted-foreground text-center pt-2">
-                Drag to rotate · scroll to zoom · all figures from U.S. Census ACS 5-Year Estimates
+                Drag to rotate · scroll to zoom · observed values use U.S. Census ACS 5-Year Estimates; modeled values are labeled separately.
               </p>
               <NeighborZipComparison
-                zips={neighborsMut.data?.zips}
+                zips={neighborResult?.zips}
                 isLoading={neighborsMut.isPending}
                 isError={neighborsMut.isError}
               />
@@ -1701,7 +1804,14 @@ export default function CommunityImpactPage() {
               <div className="flex gap-2 flex-wrap">
                 <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/grant-hub" data-testid="link-export-grant-hub"><Building2 className="w-3.5 h-3.5" />Grant Hub</a></Button>
                 <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/chainweb" data-testid="link-export-chainweb"><Target className="w-3.5 h-3.5" />Chainweb</a></Button>
-                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => generateInvoicePDF(data, submitted)} data-testid="button-download-invoice-strip">
+                <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
+                  try {
+                    generateInvoicePDF(data, submitted);
+                  } catch (error) {
+                    console.error("[community-impact] model summary download failed", error);
+                    toast({ title: "Download failed", description: "The model summary could not be generated. Please try again.", variant: "destructive" });
+                  }
+                }} data-testid="button-download-invoice-strip">
                   <Download className="w-3.5 h-3.5" />Download Invoice
                 </Button>
                 <StripPdfButton data={data} submitted={submitted} />
@@ -1716,22 +1826,25 @@ export default function CommunityImpactPage() {
             </Card>
             <Card className="p-5 border-emerald-200 dark:border-emerald-800 bg-emerald-50/60 dark:bg-emerald-950/20" data-testid="card-evidence-handoff">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="font-semibold text-sm">Carry this evidence into partner action</div>
-                  <p className="mt-1 text-xs text-muted-foreground">Send an aggregate, provenance-labeled snapshot to an authorized organization for review. Nothing is accepted automatically.</p>
+                 <div>
+                   <div className="font-semibold text-sm">Carry this evidence into an organization action</div>
+                   <p className="mt-1 text-xs text-muted-foreground">Send an aggregate, provenance-labeled snapshot to an authorized organization for review. This creates no external referral or participant outcome automatically.</p>
                 </div>
                  {isAuthenticated && orgId && handoffAccess.data?.authorized ? (
                    <Button type="button" size="sm" onClick={sendEvidenceToPartnerWorkspace} disabled={evidenceHandoff.isPending} data-testid="button-send-evidence-handoff">
-                    {evidenceHandoff.isPending ? "Sending…" : "Send for review"}
+                     {evidenceHandoff.isPending ? "Sending…" : evidenceHandoff.isError ? "Retry send" : "Send for review"}
                   </Button>
                  ) : isAuthenticated && orgId && handoffAccess.isLoading ? (
                    <span className="text-xs text-muted-foreground" aria-live="polite">Checking partner-staff access…</span>
+                 ) : isAuthenticated && orgId && handoffAccess.isError ? (
+                   <span className="text-xs text-destructive" role="alert">Partner access could not be checked. <button type="button" className="font-semibold underline" onClick={() => void handoffAccess.refetch()}>Retry</button></span>
                  ) : isAuthenticated && orgId ? (
                    <span className="text-xs text-muted-foreground">Ask an organization owner for private Community Events & Impact staff access.</span>
                 ) : (
                    <Button asChild size="sm" variant="outline" data-testid="button-sign-in-evidence-handoff"><a href="/api/login?returnTo=%2Fcommunity-impact">Sign in to send</a></Button>
                 )}
               </div>
+               {evidenceHandoff.isError && evidenceHandoff.variables?.orgId === orgId && evidenceHandoff.variables?.location === submitted && <p className="mt-3 text-xs text-destructive" role="alert">The evidence snapshot was not sent. You can retry without creating a duplicate accepted action.</p>}
                {evidenceHandoff.isSuccess && evidenceHandoff.variables?.orgId === orgId && evidenceHandoff.variables?.location === submitted && <p className="mt-3 text-xs text-emerald-700 dark:text-emerald-300" aria-live="polite">Sent to the active organization. <a className="font-semibold underline" href="/organization/events">Open Community Events & Impact</a> to review it.</p>}
               {isAuthenticated && !orgId && <p className="mt-3 text-xs text-muted-foreground">Choose an active organization before sending evidence for review.</p>}
             </Card>
@@ -1739,7 +1852,7 @@ export default function CommunityImpactPage() {
         )}
 
         {/* Empty state */}
-        {!brief.isPending && !data && !brief.isError && (
+        {!searchState.pending && !data && !searchState.error && (
           <div className="text-center py-16 text-muted-foreground" data-testid="state-empty">
             <Globe className="w-12 h-12 mx-auto mb-4 opacity-30" />
             <p className="text-lg font-medium mb-2">Enter any community above</p>

@@ -34,3 +34,9 @@
 - **Operational limit:** The application workflow's prior failure was an
   `EADDRINUSE` port collision caused by concurrent checks; it is not treated
   as a code-quality or production result.
+
+## Omega — Community Events & Impact hardening
+
+- **Changed:** Completed the tenant-scoped handoff, event, attendance, need, action, story, audit, Partner Portal capacity, organization-selection, and public evidence-path hardening. Added the child-table delete guard migration, DTO projection for accepted handoffs, explicit conflict statuses, selected-organization fetch scoping, logout/session organization clearing, and an allowlisted service-worker shell cache.
+- **Proof:** The child-retention migration applied on startup. `verify-nonprofit-events.ts` passed all lifecycle, tenant, consent, provenance, audit, truncation, archive-lock, and archived-read-only checks. Strict TypeScript passed with zero errors; preflight passed 9/9; memory health and `git diff --check` passed. The `/community-impact` preview rendered; anonymous protected-resource 401s were expected and no browser crash was observed.
+- **Limits:** Development proof is not production proof. The remaining follow-up items are UI parity/feedback refinements: remove unsupported story attribution choices from the form, derive status options from transition rules, and add stronger download success feedback. No Publish success is claimed.

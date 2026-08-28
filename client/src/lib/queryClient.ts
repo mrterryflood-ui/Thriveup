@@ -133,6 +133,7 @@ export function handleSessionExpired() {
   if (!cachedUser && !wasAuthed) return;
 
   sessionExpiryHandled = true;
+  try { window.localStorage.removeItem(CURRENT_ORG_LS_KEY); } catch { /* private mode */ }
 
   toast({
     title: "Session expired",

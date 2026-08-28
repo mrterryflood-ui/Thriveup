@@ -10,6 +10,8 @@ import {
   nonprofitEvents,
   nonprofitEventStories,
   organizationMembers,
+  academyAvatars,
+  users,
 } from "@shared/schema";
 import { db, storage } from "./storage";
 import {
@@ -158,7 +160,7 @@ const handoffAcceptSchema = z.object({
 const storyCreateSchema = z.object({
   title: z.string().trim().min(2).max(240),
   storyText: z.string().trim().min(5).max(10000),
-  attributionPreference: z.enum(["anonymous", "first_name", "organization", "named"]).default("anonymous"),
+  attributionPreference: z.enum(["anonymous", "organization"]).default("anonymous"),
   intendedAudience: z.enum(audiences).default("private"),
   permittedUses: z.array(z.string().trim().min(1).max(120)).max(8).default([]),
   consentGranted: z.boolean().default(false),
@@ -171,7 +173,7 @@ type EventTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 
 class EventMutationError extends Error {
   constructor(
-    readonly statusCode: 404 | 409,
+    readonly statusCode: 400 | 403 | 404 | 409,
     message: string,
   ) {
     super(message);
@@ -201,6 +203,27 @@ async function callerIsStaff(req: Request): Promise<boolean> {
     && membership
     && isEventWorkspaceActiveMemberRole(membership.role),
   );
+}
+
+async function assertStaffWithinTransaction(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  req: Request,
+) {
+  const userId = getUserId(req);
+  const orgId = getCallerOrg(req)?.id;
+  if (!userId || !orgId) throw new EventMutationError(403, "Staff access required for the private organization event workspace.");
+  const [user] = await tx.select({ isTcafAdmin: users.isTcafAdmin })
+    .from(users).where(eq(users.id, userId)).for("update");
+  const [avatar] = await tx.select({ role: academyAvatars.role })
+    .from(academyAvatars).where(eq(academyAvatars.userId, userId)).for("update");
+  const [membership] = await tx.select({ role: organizationMembers.role })
+    .from(organizationMembers)
+    .where(and(eq(organizationMembers.userId, userId), eq(organizationMembers.orgId, orgId)))
+    .for("update");
+  const platformRole = user?.isTcafAdmin ? "admin" : avatar?.role;
+  if (!user || !isEventWorkspacePlatformStaffRole(platformRole) || !membership || !isEventWorkspaceActiveMemberRole(membership.role)) {
+    throw new EventMutationError(403, "Staff access required for the private organization event workspace.");
+  }
 }
 
 async function requireStaff(req: Request, res: Response, next: NextFunction) {
@@ -255,10 +278,74 @@ function sendEventMutationError(res: Response, err: unknown, fallbackStatus: num
     ? err.message
     : err instanceof z.ZodError
       ? err.message
-    : err instanceof Error
-      ? err.message
       : fallbackMessage;
+  if (!(err instanceof EventMutationError) && !(err instanceof z.ZodError)) {
+    console.error("[nonprofit-events] unexpected mutation failure:", err);
+  }
   res.status(status).json({ error: message });
+}
+
+function projectHandoff(handoff: typeof nonprofitEventHandoffs.$inferSelect) {
+  return {
+    id: handoff.id,
+    sourceKind: handoff.sourceKind,
+    sourceVersion: handoff.sourceVersion,
+    issue: handoff.issue,
+    geography: handoff.geography,
+    evidenceRefs: handoff.evidenceRefs,
+    freshnessAt: handoff.freshnessAt,
+    claimTypes: handoff.claimTypes,
+    resourceVerification: handoff.resourceVerification,
+    consentBoundary: handoff.consentBoundary,
+    unresolvedGaps: handoff.unresolvedGaps,
+    sourceSnapshot: handoff.sourceSnapshot,
+    status: handoff.status,
+    eventId: handoff.eventId,
+    version: handoff.version,
+    createdAt: handoff.createdAt,
+    updatedAt: handoff.updatedAt,
+  };
+}
+
+function projectEvent(event: AccessibleEvent) {
+  return {
+    id: event.id, title: event.title, purpose: event.purpose, eventDate: event.eventDate,
+    startTime: event.startTime, endTime: event.endTime, format: event.format,
+    locationName: event.locationName, locationDetails: event.locationDetails,
+    serviceArea: event.serviceArea, status: event.status, communityNeedFocus: event.communityNeedFocus,
+    updatedAt: event.updatedAt,
+  };
+}
+
+function projectAttendance(row: typeof nonprofitEventAttendance.$inferSelect) {
+  return {
+    id: row.id, eventId: row.eventId, invitedCount: row.invitedCount, registeredCount: row.registeredCount,
+    attendedCount: row.attendedCount, followUpCount: row.followUpCount, valueSource: row.valueSource, updatedAt: row.updatedAt,
+  };
+}
+
+function projectNeed(row: typeof nonprofitEventNeeds.$inferSelect) {
+  return {
+    id: row.id, eventId: row.eventId, needArea: row.needArea, sourceName: row.sourceName,
+    sourceUrl: row.sourceUrl, geography: row.geography, evidenceStatus: row.evidenceStatus,
+    responseExplanation: row.responseExplanation,
+  };
+}
+
+function projectAction(row: typeof nonprofitEventActions.$inferSelect) {
+  return {
+    id: row.id, eventId: row.eventId, handoffId: row.handoffId, title: row.title, ownerLabel: row.ownerLabel,
+    dueDate: row.dueDate, status: row.status, completionEvidence: row.completionEvidence,
+    nextStep: row.nextStep, followUpObservation: row.followUpObservation,
+  };
+}
+
+function projectStory(row: typeof nonprofitEventStories.$inferSelect) {
+  return {
+    id: row.id, eventId: row.eventId, title: row.title, storyText: row.storyText,
+    attributionPreference: row.attributionPreference, intendedAudience: row.intendedAudience,
+    permittedUses: row.permittedUses, consentGranted: row.consentGranted, sharingState: row.sharingState,
+  };
 }
 
 function hasAllowedTransition(transitions: Record<string, readonly string[]>, from: string, to: string) {
@@ -275,11 +362,11 @@ async function recordAudit(
   });
 }
 
-function safeAttendance(rows: ReadonlyArray<typeof nonprofitEventAttendance.$inferSelect>) {
+function safeAttendance(rows: ReadonlyArray<typeof nonprofitEventAttendance.$inferSelect>, emptyDisclosure = "Unknown or incomplete") {
   const fields = ["invitedCount", "registeredCount", "attendedCount", "followUpCount"] as const;
   if (rows.length === 0) {
     return {
-      ...Object.fromEntries(fields.map((field) => [field, { value: null, disclosure: "Unknown or incomplete" }])),
+       ...Object.fromEntries(fields.map((field) => [field, { value: null, disclosure: emptyDisclosure }])),
       attendanceRatePct: null,
       attendanceRateDisclosure: "Not shown when the underlying attendance data are unknown or suppressed.",
       sourceLabels: [] as string[],
@@ -303,7 +390,7 @@ function safeAttendance(rows: ReadonlyArray<typeof nonprofitEventAttendance.$inf
   };
 }
 
-function summarize(events: ReadonlyArray<typeof nonprofitEvents.$inferSelect>, attendance: ReadonlyArray<typeof nonprofitEventAttendance.$inferSelect>, needs: ReadonlyArray<typeof nonprofitEventNeeds.$inferSelect>, actions: ReadonlyArray<typeof nonprofitEventActions.$inferSelect>, handoffs: ReadonlyArray<typeof nonprofitEventHandoffs.$inferSelect> = []) {
+function summarize(events: ReadonlyArray<typeof nonprofitEvents.$inferSelect>, attendance: ReadonlyArray<typeof nonprofitEventAttendance.$inferSelect>, needs: ReadonlyArray<typeof nonprofitEventNeeds.$inferSelect>, actions: ReadonlyArray<typeof nonprofitEventActions.$inferSelect>, handoffs: ReadonlyArray<typeof nonprofitEventHandoffs.$inferSelect> = [], attendanceEmptyDisclosure?: string) {
   const today = new Date().toISOString().slice(0, 10);
   return {
     eventCount: events.filter((event) => event.status !== "archived").length,
@@ -322,7 +409,7 @@ function summarize(events: ReadonlyArray<typeof nonprofitEvents.$inferSelect>, a
       accepted: handoffs.filter((handoff) => handoff.status === "accepted").length,
       declined: handoffs.filter((handoff) => handoff.status === "declined").length,
     },
-    attendance: safeAttendance(attendance),
+     attendance: safeAttendance(attendance, attendanceEmptyDisclosure),
   };
 }
 
@@ -332,23 +419,74 @@ async function buildWorkspace(orgId: string) {
     .orderBy(desc(nonprofitEvents.eventDate), desc(nonprofitEvents.createdAt));
   const eventIds = events.map((event) => event.id);
   const [attendance, needs, actions, stories, handoffs] = await Promise.all([
-      eventIds.length ? db.select().from(nonprofitEventAttendance).where(inArray(nonprofitEventAttendance.eventId, eventIds)) : Promise.resolve([]),
-      eventIds.length ? db.select().from(nonprofitEventNeeds).where(inArray(nonprofitEventNeeds.eventId, eventIds)).orderBy(desc(nonprofitEventNeeds.createdAt)) : Promise.resolve([]),
-      eventIds.length ? db.select().from(nonprofitEventActions).where(inArray(nonprofitEventActions.eventId, eventIds)).orderBy(desc(nonprofitEventActions.updatedAt)) : Promise.resolve([]),
-      eventIds.length ? db.select().from(nonprofitEventStories).where(inArray(nonprofitEventStories.eventId, eventIds)).orderBy(desc(nonprofitEventStories.updatedAt)) : Promise.resolve([]),
+      eventIds.length ? db.select().from(nonprofitEventAttendance).where(and(eq(nonprofitEventAttendance.orgId, orgId), inArray(nonprofitEventAttendance.eventId, eventIds))) : Promise.resolve([]),
+      eventIds.length ? db.select().from(nonprofitEventNeeds).where(and(eq(nonprofitEventNeeds.orgId, orgId), inArray(nonprofitEventNeeds.eventId, eventIds))).orderBy(desc(nonprofitEventNeeds.createdAt)) : Promise.resolve([]),
+      eventIds.length ? db.select().from(nonprofitEventActions).where(and(eq(nonprofitEventActions.orgId, orgId), inArray(nonprofitEventActions.eventId, eventIds))).orderBy(desc(nonprofitEventActions.updatedAt)) : Promise.resolve([]),
+      eventIds.length ? db.select().from(nonprofitEventStories).where(and(eq(nonprofitEventStories.orgId, orgId), inArray(nonprofitEventStories.eventId, eventIds))).orderBy(desc(nonprofitEventStories.updatedAt)) : Promise.resolve([]),
       db.select().from(nonprofitEventHandoffs).where(eq(nonprofitEventHandoffs.orgId, orgId)).orderBy(desc(nonprofitEventHandoffs.createdAt)),
     ]);
 
   return {
     events: events.map((event) => ({
-      ...event,
-      attendance: attendance.find((row) => row.eventId === event.id) ?? null,
-      needs: needs.filter((row) => row.eventId === event.id),
-      actions: actions.filter((row) => row.eventId === event.id),
-      stories: stories.filter((row) => row.eventId === event.id),
+      id: event.id,
+      title: event.title,
+      purpose: event.purpose,
+      eventDate: event.eventDate,
+      startTime: event.startTime,
+      endTime: event.endTime,
+      format: event.format,
+      locationName: event.locationName,
+      locationDetails: event.locationDetails,
+      serviceArea: event.serviceArea,
+      status: event.status,
+      communityNeedFocus: event.communityNeedFocus,
+      updatedAt: event.updatedAt,
+      attendance: (() => {
+        const row = attendance.find((candidate) => candidate.eventId === event.id);
+        if (!row) return null;
+        return {
+          id: row.id,
+          invitedCount: row.invitedCount,
+          registeredCount: row.registeredCount,
+          attendedCount: row.attendedCount,
+          followUpCount: row.followUpCount,
+          valueSource: row.valueSource,
+          updatedAt: row.updatedAt,
+        };
+      })(),
+      needs: needs.filter((row) => row.eventId === event.id).map((row) => ({
+        id: row.id,
+        needArea: row.needArea,
+        sourceName: row.sourceName,
+        sourceUrl: row.sourceUrl,
+        geography: row.geography,
+        evidenceStatus: row.evidenceStatus,
+        responseExplanation: row.responseExplanation,
+      })),
+      actions: actions.filter((row) => row.eventId === event.id).map((row) => ({
+        id: row.id,
+        title: row.title,
+        ownerLabel: row.ownerLabel,
+        dueDate: row.dueDate,
+        status: row.status,
+        completionEvidence: row.completionEvidence,
+        nextStep: row.nextStep,
+        followUpObservation: row.followUpObservation,
+        handoffId: row.handoffId,
+      })),
+      stories: stories.filter((row) => row.eventId === event.id).map((row) => ({
+        id: row.id,
+        title: row.title,
+        storyText: row.storyText,
+        attributionPreference: row.attributionPreference,
+        intendedAudience: row.intendedAudience,
+        permittedUses: row.permittedUses,
+        consentGranted: row.consentGranted,
+        sharingState: row.sharingState,
+      })),
     })),
     summary: summarize(events, attendance, needs, actions, handoffs),
-    handoffs,
+    handoffs: handoffs.map(projectHandoff),
   };
 }
 
@@ -379,7 +517,12 @@ export function registerNonprofitEventRoutes(app: Express) {
     try {
       const org = getCallerOrg(req)!;
       const workspace = await buildWorkspace(org.id);
-      res.json({ organization: org, ...workspace, privacyNotice: "Attendance is aggregate-only. Draft stories remain private until explicitly approved." });
+      res.set("Cache-Control", "private, no-store");
+      res.json({
+        organization: { id: org.id, name: org.name },
+        ...workspace,
+        privacyNotice: "Authorized staff may see recorded operational attendance counts in this private workspace. Reports suppress small cells and remain aggregate-only. Draft stories remain private until explicitly approved.",
+      });
     } catch (err) {
       console.error("[nonprofit-events] workspace load failed:", err);
       res.status(500).json({ error: "Failed to load the organization event workspace." });
@@ -392,6 +535,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = handoffCreateSchema.parse(req.body);
       const [handoff] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const [created] = await tx.insert(nonprofitEventHandoffs).values({
           ...input,
           freshnessAt: new Date(input.freshnessAt),
@@ -410,10 +554,10 @@ export function registerNonprofitEventRoutes(app: Express) {
         });
         return [created];
       });
-      res.status(201).json({ handoff });
+      res.status(201).json({ handoff: projectHandoff(handoff) });
     } catch (err) {
       console.error("[nonprofit-events] handoff create failed:", err);
-      res.status(err instanceof z.ZodError ? 400 : 500).json({ error: err instanceof z.ZodError ? err.message : "Evidence handoff could not be saved." });
+      sendEventMutationError(res, err, 500, "Evidence handoff could not be saved.");
     }
   });
 
@@ -422,6 +566,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const org = getCallerOrg(req)!;
       const userId = getUserId(req)!;
       const [handoff] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const [current] = await tx.select().from(nonprofitEventHandoffs)
           .where(and(eq(nonprofitEventHandoffs.id, String(req.params.handoffId)), eq(nonprofitEventHandoffs.orgId, org.id)))
           .for("update");
@@ -437,7 +582,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: org.id, eventId: null, entityType: "evidence_handoff", entityId: current.id, action: "declined", actorUserId: userId, details: { sourceKind: current.sourceKind, issue: current.issue } });
         return [updated];
       });
-      res.json({ handoff });
+      res.json({ handoff: projectHandoff(handoff) });
     } catch (err) {
       console.error("[nonprofit-events] handoff decline failed:", err);
       sendEventMutationError(res, err, 400, "Evidence handoff could not be declined.");
@@ -450,6 +595,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = handoffAcceptSchema.parse(req.body);
       const result = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const [handoff] = await tx.select().from(nonprofitEventHandoffs)
           .where(and(eq(nonprofitEventHandoffs.id, String(req.params.handoffId)), eq(nonprofitEventHandoffs.orgId, org.id)))
           .for("update");
@@ -523,7 +669,12 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: org.id, eventId: event.id, entityType: "evidence_handoff", entityId: handoff.id, action: "accepted", actorUserId: userId, details: { claimTypes: handoff.claimTypes, resourceVerification: handoff.resourceVerification, unresolvedGapCount: handoff.unresolvedGaps.length, needId: need.id, actionId: action.id } });
         await recordAudit(tx, { orgId: org.id, eventId: event.id, entityType: "need_link", entityId: need.id, action: "created_from_evidence_handoff", actorUserId: userId, details: { handoffId: handoff.id, evidenceStatus } });
         await recordAudit(tx, { orgId: org.id, eventId: event.id, entityType: "action", entityId: action.id, action: "created_from_evidence_handoff", actorUserId: userId, details: { handoffId: handoff.id, status: action.status } });
-        return { handoff: accepted, event, need, action };
+         return {
+           handoff: projectHandoff(accepted),
+           event: projectEvent(event),
+           need: projectNeed(need),
+           action: projectAction(action),
+         };
       });
       res.status(201).json(result);
     } catch (err) {
@@ -538,6 +689,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = eventCreateSchema.parse(req.body);
       const [event] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const [created] = await tx.insert(nonprofitEvents).values({
           ...input,
           startTime: asNullableText(input.startTime),
@@ -551,10 +703,10 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: org.id, eventId: created.id, entityType: "event", entityId: created.id, action: "created", actorUserId: userId, details: { fields: Object.keys(input) } });
         return [created];
       });
-      res.status(201).json({ event });
+      res.status(201).json({ event: projectEvent(event) });
     } catch (err) {
       console.error("[nonprofit-events] event create failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Unable to create the event." });
+      sendEventMutationError(res, err, 500, "Unable to create the event.");
     }
   });
 
@@ -563,14 +715,15 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = eventUpdateSchema.parse(req.body);
       const [updated] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         if (input.status && !hasAllowedTransition(EVENT_TRANSITIONS, event.status, input.status)) {
-          throw new Error(`Cannot move an event from ${event.status} back to ${input.status}.`);
+           throw new EventMutationError(409, `Cannot move an event from ${event.status} back to ${input.status}.`);
         }
         const nextStart = input.startTime === undefined ? event.startTime : input.startTime;
         const nextEnd = input.endTime === undefined ? event.endTime : input.endTime;
         if (nextStart && nextEnd && nextEnd <= nextStart) {
-          throw new Error("End time must be after start time.");
+           throw new EventMutationError(400, "End time must be after start time.");
         }
         const [row] = await tx.update(nonprofitEvents).set({
           ...input,
@@ -587,7 +740,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "event", entityId: event.id, action: "updated", actorUserId: userId, details: { fields: Object.keys(input) } });
         return [row];
       });
-      res.json({ event: updated });
+      res.json({ event: projectEvent(updated) });
     } catch (err) {
       console.error("[nonprofit-events] event update failed:", err);
       sendEventMutationError(res, err, 400, "Unable to update the event.");
@@ -598,6 +751,7 @@ export function registerNonprofitEventRoutes(app: Express) {
     try {
       const userId = getUserId(req)!;
       const result = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const event = await lockEventForMutation(tx, req, String(req.params.eventId));
         if (event.status === "archived") return { event, alreadyArchived: true };
         const [row] = await tx.update(nonprofitEvents).set({
@@ -618,9 +772,10 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = attendanceSchema.parse(req.body);
       const [attendance] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const event = await lockWritableEvent(tx, req, String(req.params.eventId));
-        const [row] = await tx.insert(nonprofitEventAttendance).values({
-          ...input, eventId: event.id, recordedByUserId: userId,
+         const [row] = await tx.insert(nonprofitEventAttendance).values({
+           ...input, eventId: event.id, orgId: event.orgId, recordedByUserId: userId,
         }).onConflictDoUpdate({
           target: nonprofitEventAttendance.eventId,
           set: { ...input, recordedByUserId: userId, updatedAt: new Date() },
@@ -628,7 +783,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "attendance", entityId: row.id, action: "recorded", actorUserId: userId, details: { valueSource: input.valueSource } });
         return [row];
       });
-      res.json({ attendance });
+      res.json({ attendance: projectAttendance(attendance) });
     } catch (err) {
       console.error("[nonprofit-events] attendance update failed:", err);
       sendEventMutationError(res, err, 400, "Attendance counts could not be saved.");
@@ -640,12 +795,13 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = needCreateSchema.parse(req.body);
       const [need] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventNeeds).values({ ...input, sourceUrl: asNullableText(input.sourceUrl), eventId: event.id, orgId: event.orgId, createdByUserId: userId }).returning();
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "need_link", entityId: row.id, action: "created", actorUserId: userId, details: { needArea: row.needArea, evidenceStatus: row.evidenceStatus } });
         return [row];
       });
-      res.status(201).json({ need });
+      res.status(201).json({ need: projectNeed(need) });
     } catch (err) {
       console.error("[nonprofit-events] need create failed:", err);
       sendEventMutationError(res, err, 400, "Need link could not be created.");
@@ -657,6 +813,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = needUpdateSchema.parse(req.body);
       const [updated] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const [need] = await tx.select().from(nonprofitEventNeeds)
           .where(eq(nonprofitEventNeeds.id, String(req.params.needId)))
           .for("update");
@@ -672,7 +829,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "need_link", entityId: need.id, action: "updated", actorUserId: userId, details: { fields: Object.keys(input) } });
         return [row];
       });
-      res.json({ need: updated });
+      res.json({ need: projectNeed(updated) });
     } catch (err) {
       console.error("[nonprofit-events] need update failed:", err);
       sendEventMutationError(res, err, 400, "Need link could not be updated.");
@@ -681,24 +838,10 @@ export function registerNonprofitEventRoutes(app: Express) {
 
   app.delete("/api/nonprofit-events/needs/:needId", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
-      const userId = getUserId(req)!;
-      await db.transaction(async (tx) => {
-        const [need] = await tx.select().from(nonprofitEventNeeds)
-          .where(eq(nonprofitEventNeeds.id, String(req.params.needId)))
-          .for("update");
-        if (!need) throw new EventMutationError(404, "Need link not found.");
-        const event = await lockWritableEvent(tx, req, need.eventId);
-        await tx.delete(nonprofitEventNeeds).where(and(
-          eq(nonprofitEventNeeds.id, need.id),
-          eq(nonprofitEventNeeds.eventId, event.id),
-          eq(nonprofitEventNeeds.orgId, event.orgId),
-        ));
-        await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "need_link", entityId: need.id, action: "removed", actorUserId: userId, details: { needArea: need.needArea } });
-      });
-      res.json({ ok: true });
+      throw new EventMutationError(409, "Need links are retained. Edit the link or mark its evidence as needing review.");
     } catch (err) {
       console.error("[nonprofit-events] need delete failed:", err);
-      sendEventMutationError(res, err, 500, "Need link could not be removed.");
+      sendEventMutationError(res, err, 409, "Need link could not be removed.");
     }
   });
 
@@ -707,6 +850,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = actionCreateSchema.parse(req.body);
       const [action] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventActions).values({
           ...input, dueDate: input.dueDate ?? null, completionEvidence: asNullableText(input.completionEvidence), nextStep: asNullableText(input.nextStep), followUpObservation: asNullableText(input.followUpObservation),
@@ -715,7 +859,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "action", entityId: row.id, action: "created", actorUserId: userId, details: { status: row.status } });
         return [row];
       });
-      res.status(201).json({ action });
+      res.status(201).json({ action: projectAction(action) });
     } catch (err) {
       console.error("[nonprofit-events] action create failed:", err);
       sendEventMutationError(res, err, 400, "Action could not be created.");
@@ -727,6 +871,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = actionUpdateSchema.parse(req.body);
       const [updated] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const [action] = await tx.select().from(nonprofitEventActions)
           .where(eq(nonprofitEventActions.id, String(req.params.actionId)))
           .for("update");
@@ -734,10 +879,10 @@ export function registerNonprofitEventRoutes(app: Express) {
         const event = await lockWritableEvent(tx, req, action.eventId);
         const next = { ...action, ...input };
         if (input.status && !hasAllowedTransition(ACTION_TRANSITIONS, action.status, input.status)) {
-          throw new Error(`Cannot move an action from ${action.status} back to ${input.status}. Create a new action if prior work needs to be revisited.`);
+           throw new EventMutationError(409, `Cannot move an action from ${action.status} back to ${input.status}. Create a new action if prior work needs to be revisited.`);
         }
         if (next.status === "completed" && !next.completionEvidence) {
-          throw new Error("Completion evidence is required when an action is completed.");
+           throw new EventMutationError(400, "Completion evidence is required when an action is completed.");
         }
         const [row] = await tx.update(nonprofitEventActions).set({
           ...input,
@@ -756,7 +901,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "action", entityId: action.id, action: "updated", actorUserId: userId, details: { fields: Object.keys(input), status: row.status } });
         return [row];
       });
-      res.json({ action: updated });
+      res.json({ action: projectAction(updated) });
     } catch (err) {
       console.error("[nonprofit-events] action update failed:", err);
       sendEventMutationError(res, err, 400, "Action could not be updated.");
@@ -770,6 +915,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       ensureShareable(input);
       const now = new Date();
       const [story] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventStories).values({
           ...input, eventId: event.id, orgId: event.orgId, consentedAt: input.consentGranted ? now : null,
@@ -779,7 +925,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "story", entityId: row.id, action: input.sharingState === "approved" ? "approved" : "drafted", actorUserId: userId, details: { audience: row.intendedAudience, consentGranted: row.consentGranted, permittedUseCount: row.permittedUses.length } });
         return [row];
       });
-      res.status(201).json({ story });
+      res.status(201).json({ story: projectStory(story) });
     } catch (err) {
       console.error("[nonprofit-events] story create failed:", err);
       sendEventMutationError(res, err, 400, "Story could not be saved.");
@@ -791,6 +937,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       const userId = getUserId(req)!;
       const input = storyUpdateSchema.parse(req.body);
       const [updated] = await db.transaction(async (tx) => {
+        await assertStaffWithinTransaction(tx, req);
         const [story] = await tx.select().from(nonprofitEventStories)
           .where(eq(nonprofitEventStories.id, String(req.params.storyId)))
           .for("update");
@@ -800,15 +947,16 @@ export function registerNonprofitEventRoutes(app: Express) {
         const changedConsentTerms = ["title", "storyText", "attributionPreference", "intendedAudience", "permittedUses"].some((key) => key in input);
         const next = { ...story, ...input };
         if (input.sharingState && !hasAllowedTransition(STORY_TRANSITIONS, story.sharingState, input.sharingState)) {
-          throw new Error("A withdrawn story remains withdrawn. Create a new story only after new consent is recorded.");
+           throw new EventMutationError(409, "A withdrawn story remains withdrawn. Create a new story only after new consent is recorded.");
         }
         if (input.sharingState === "withdrawn") {
           next.consentGranted = false;
-        } else if (story.sharingState === "approved" && changedConsentTerms && input.sharingState === undefined) {
+        } else if (story.sharingState === "approved" && changedConsentTerms) {
+          if (input.sharingState === "approved") {
+             throw new EventMutationError(409, "Changing story content or sharing terms requires a new draft and a fresh approval.");
+          }
           next.sharingState = "draft";
           next.consentGranted = false;
-        } else if (story.sharingState === "approved" && changedConsent && input.sharingState === "approved") {
-          throw new Error("Changing consent or sharing terms requires a new draft and a fresh approval.");
         }
         ensureShareable(next);
         const now = new Date();
@@ -831,7 +979,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "story", entityId: story.id, action: transition, actorUserId: userId, details: { audience: next.intendedAudience, consentGranted: next.consentGranted, permittedUseCount: next.permittedUses.length } });
         return [row];
       });
-      res.json({ story: updated });
+      res.json({ story: projectStory(updated) });
     } catch (err) {
       console.error("[nonprofit-events] story update failed:", err);
       sendEventMutationError(res, err, 400, "Story could not be updated.");
@@ -843,9 +991,24 @@ export function registerNonprofitEventRoutes(app: Express) {
       const event = await getAccessibleEvent(req, res, String(req.params.eventId));
       if (!event) return;
       const audit = await db.select().from(nonprofitEventAuditLog)
-        .where(eq(nonprofitEventAuditLog.eventId, event.id))
+        .where(and(eq(nonprofitEventAuditLog.orgId, event.orgId), eq(nonprofitEventAuditLog.eventId, event.id)))
         .orderBy(desc(nonprofitEventAuditLog.createdAt));
-      res.json({ audit });
+      res.set("Cache-Control", "private, no-store");
+      res.json({
+        audit: audit.map((entry) => ({
+          id: entry.id,
+          entityType: entry.entityType,
+          action: entry.action,
+          createdAt: entry.createdAt,
+          details: Object.fromEntries(
+            Object.entries(entry.details ?? {}).filter(([key]) => [
+              "sourceKind", "sourceVersion", "status", "valueSource", "needArea",
+              "evidenceStatus", "audience", "consentGranted", "permittedUseCount",
+              "unresolvedGapCount", "fields",
+            ].includes(key)),
+          ),
+        })),
+      });
     } catch (err) {
       console.error("[nonprofit-events] audit load failed:", err);
       res.status(500).json({ error: "Audit history could not be loaded." });
@@ -869,6 +1032,9 @@ export function registerNonprofitEventRoutes(app: Express) {
         return res.status(403).json({ error: "Reports are limited to your active organization workspace." });
       }
       const clauses = [eq(nonprofitEvents.orgId, org.id), ne(nonprofitEvents.status, "archived")];
+      const filteredAttendanceDisclosure = filters.serviceArea || filters.needArea || filters.startDate || filters.endDate
+        ? "Not shown for filtered reports; use an approved aggregate review without subgroup differencing."
+        : undefined;
       if (filters.serviceArea) clauses.push(eq(nonprofitEvents.serviceArea, filters.serviceArea));
       if (filters.startDate) clauses.push(gte(nonprofitEvents.eventDate, filters.startDate));
       if (filters.endDate) clauses.push(lte(nonprofitEvents.eventDate, filters.endDate));
@@ -895,6 +1061,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         return { events, attendance, actions, reportNeeds, reportHandoffs };
       });
       const actionById = new Map(actions.map((action) => [action.id, action]));
+      res.set("Cache-Control", "private, no-store");
       res.json({
         filters,
         generatedAt: new Date().toISOString(),
@@ -902,7 +1069,7 @@ export function registerNonprofitEventRoutes(app: Express) {
         organizations: [{
           organization: org.name ?? "Organization",
           orgId: org.id,
-           summary: summarize(events, attendance, reportNeeds, actions, reportHandoffs),
+            summary: summarize(events, filteredAttendanceDisclosure ? [] : attendance, reportNeeds, actions, reportHandoffs, filteredAttendanceDisclosure),
            actionTrace: reportHandoffs.map((handoff) => {
              const action = handoff.actionId ? actionById.get(handoff.actionId) : undefined;
              return {

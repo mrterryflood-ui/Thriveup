@@ -5626,7 +5626,8 @@ export const nonprofitEvents = pgTable("nonprofit_events", {
 
 export const nonprofitEventAttendance = pgTable("nonprofit_event_attendance", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  eventId: varchar("event_id", { length: 100 }).notNull().references(() => nonprofitEvents.id, { onDelete: "cascade" }),
+  eventId: varchar("event_id", { length: 100 }).notNull(),
+  orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
   invitedCount: integer("invited_count"),
   registeredCount: integer("registered_count"),
   attendedCount: integer("attended_count"),
@@ -5637,6 +5638,12 @@ export const nonprofitEventAttendance = pgTable("nonprofit_event_attendance", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 }, (t) => [
   uniqueIndex("idx_nonprofit_event_attendance_event").on(t.eventId),
+  unique("nonprofit_event_attendance_id_org_unique").on(t.id, t.orgId),
+  foreignKey({
+    name: "fk_nonprofit_event_attendance_event_org",
+    columns: [t.eventId, t.orgId],
+    foreignColumns: [nonprofitEvents.id, nonprofitEvents.orgId],
+  }).onDelete("cascade"),
 ]);
 
 export const nonprofitEventNeeds = pgTable("nonprofit_event_needs", {

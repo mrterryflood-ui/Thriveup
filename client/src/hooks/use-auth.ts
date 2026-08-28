@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { User } from "@shared/models/auth";
 import { peekAnonSessionId, clearAnonSessionId } from "@/lib/trade-sims/anon-session";
 import { queryClient as globalQueryClient, WAS_AUTHED_LS_KEY } from "@/lib/queryClient";
+import { clearCurrentOrgSelection } from "@/hooks/use-current-org";
 
 // Merge anonymous trade-sims progress into the account once, right after auth
 // becomes available. Fires exactly once per page load per authenticated user.
@@ -43,6 +44,7 @@ async function fetchUser(): Promise<User | null> {
 }
 
 async function logout(): Promise<void> {
+  clearCurrentOrgSelection();
   window.location.href = "/api/logout";
 }
 

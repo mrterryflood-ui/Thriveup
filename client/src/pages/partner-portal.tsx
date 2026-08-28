@@ -70,11 +70,11 @@ interface EventWorkspaceAccessStatus {
 function ToolCard({ tool }: { tool: PartnerTool }) {
   const Icon = ICON_MAP[tool.icon] ?? Zap;
   return (
-    <Link href={tool.path}>
-      <a
-        data-testid={`card-tool-${tool.id}`}
-        className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer h-full"
-      >
+    <Link
+      href={tool.path}
+      data-testid={`card-tool-${tool.id}`}
+      className="group flex flex-col gap-2 rounded-xl border border-border bg-card p-4 hover:border-primary/40 hover:shadow-md transition-all cursor-pointer h-full"
+    >
         <div className="flex items-start justify-between gap-2">
           <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
             <Icon className="h-5 w-5 text-primary" />
@@ -94,7 +94,6 @@ function ToolCard({ tool }: { tool: PartnerTool }) {
             {tool.description}
           </p>
         </div>
-      </a>
     </Link>
   );
 }
@@ -133,11 +132,7 @@ function StepItem({ step, index }: { step: OnboardingStep; index: number }) {
   );
 
   if (!step.done && step.path) {
-    return (
-      <Link href={step.path}>
-        <a className="block">{content}</a>
-      </Link>
-    );
+    return <Link href={step.path} className="block">{content}</Link>;
   }
   return content;
 }
@@ -150,6 +145,7 @@ const PROGRAM_CODES = [
 function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
   const qc = useQueryClient();
   const { toast } = useToast();
+  const { orgId } = useCurrentOrgId();
   const [newProgram, setNewProgram] = useState("general");
   const [newStatus, setNewStatus] = useState("open");
   const [newWaitWeeks, setNewWaitWeeks] = useState("");
@@ -158,23 +154,23 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
   const [newUrl, setNewUrl] = useState("");
   const [showAdd, setShowAdd] = useState(false);
 
-  const { data, isLoading } = useQuery<{ entries: any[]; orgId: string; orgName: string }>({
-    queryKey: ["/api/partner-portal/capacity"],
-    enabled: isAuthenticated,
+  const { data, isLoading, error, refetch } = useQuery<{ entries: any[]; orgId: string; orgName: string }>({
+    queryKey: ["/api/partner-portal/capacity", orgId],
+    enabled: isAuthenticated && !!orgId,
   });
 
   const updateMutation = useMutation({
     mutationFn: async (payload: any) => {
       const res = await fetch("/api/partner-portal/capacity", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(orgId ? { "x-org-id": orgId } : {}) },
         body: JSON.stringify(payload),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Failed");
       return res.json();
     },
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["/api/partner-portal/capacity"] });
+      qc.invalidateQueries({ queryKey: ["/api/partner-portal/capacity", orgId] });
       setShowAdd(false);
       setNewProgram("general");
       setNewStatus("open");
@@ -216,8 +212,15 @@ function CapacityPanel({ isAuthenticated }: { isAuthenticated: boolean }) {
       </CardHeader>
       <CardContent className="space-y-2 pt-0">
         {isLoading && <p className="text-xs text-muted-foreground">Loading…</p>}
+        {error && (
+          <div className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-800 dark:border-red-800 dark:bg-red-950/20 dark:text-red-200" role="alert">
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <div className="flex-1"><span className="font-semibold block">Capacity status could not be loaded</span><span>Please retry before making an availability decision.</span></div>
+            <Button type="button" size="sm" variant="outline" onClick={() => void refetch()} data-testid="button-retry-capacity">Retry</Button>
+          </div>
+        )}
 
-        {!isLoading && (!data?.entries || data.entries.length === 0) && !showAdd && (
+        {!isLoading && !error && (!data?.entries || data.entries.length === 0) && !showAdd && (
           <div className="flex items-start gap-2 p-2 bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg text-xs text-amber-800 dark:text-amber-200">
             <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
             <div>
@@ -369,16 +372,17 @@ export default function PartnerPortalPage() {
     enabled: isAuthenticated,
   });
 
-  const { data, isLoading, error } = useQuery<PortalData>({
-    queryKey: ["/api/partner-portal/home"],
-    enabled: isAuthenticated,
+  const { data, isLoading, error, refetch: refetchPortal } = useQuery<PortalData>({
+    queryKey: ["/api/partner-portal/home", orgId ?? "default"],
+    enabled: isAuthenticated && !!orgId,
+    queryFn: async () => (await apiRequest("GET", "/api/partner-portal/home", undefined, orgId ? { "x-org-id": orgId } : undefined)).json(),
   });
   const eventWorkspaceAccess = useQuery<EventWorkspaceAccessStatus>({
     queryKey: ["/api/nonprofit-events/access", orgId ?? "default"],
     enabled: isAuthenticated && Boolean(currentUserRole),
     queryFn: async () => {
       try {
-        return (await apiRequest("GET", "/api/nonprofit-events/access")).json();
+        return (await apiRequest("GET", "/api/nonprofit-events/access", undefined, orgId ? { "x-org-id": orgId } : undefined)).json();
       } catch (error) {
         if (error instanceof Error && /^(403|404):/.test(error.message)) return { authorized: false };
         throw error;
@@ -409,6 +413,19 @@ export default function PartnerPortalPage() {
           <a href="/api/login?returnTo=/partner-portal">
             <Button className="w-full" data-testid="button-signin-portal">Sign in to continue</Button>
           </a>
+        </Card>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <Card className="max-w-md w-full p-8 space-y-4 text-center" data-testid="portal-error">
+          <AlertCircle className="h-10 w-10 text-destructive mx-auto" />
+          <h2 className="text-xl font-bold">Partner Portal unavailable</h2>
+          <p className="text-sm text-muted-foreground">Your organization data could not be loaded. No empty organization state was assumed.</p>
+          <Button type="button" onClick={() => void refetchPortal()} data-testid="button-retry-portal">Try again</Button>
         </Card>
       </div>
     );

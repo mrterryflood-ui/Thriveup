@@ -34,7 +34,8 @@ type Summary = {
 type Handoff = {
   id: string; sourceKind: string; sourceVersion: string; issue: string; geography: string; evidenceRefs: string[];
   freshnessAt: string; claimTypes: string[]; resourceVerification: string; consentBoundary: string;
-  unresolvedGaps: string[]; status: string; eventId: string | null; version: number;
+  unresolvedGaps: string[]; sourceSnapshot?: { disclosure?: string; geography?: { analyticalUnit?: string } };
+  status: string; eventId: string | null; version: number;
 };
 type Workspace = { organization: { id: string; name: string }; events: CommunityEvent[]; summary: Summary; privacyNotice: string; handoffs: Handoff[] };
 type ReportTrace = { handoffId: string; issue: string; geography: string; sourceKind: string; claimTypes: string[]; freshnessAt: string; resourceVerification: string; unresolvedGapCount: number; actionStatus: string; followUpObservation: string; outcomeClaim: string; disclosure: string };
@@ -102,7 +103,7 @@ function useWorkspaceMutation<T, V = void>(
   });
   return {
     isPending: mutation.isPending && mutation.variables?.orgId === activeOrgId,
-    mutate: (value: V, options?: { onSuccess?: (data: T) => void }) => {
+    mutate: (value: V, options?: { onSuccess?: (data: T) => void; onSettled?: () => void }) => {
       if (!activeOrgId) {
         toast({ title: "Organization context is still loading", description: "Please wait a moment and try again.", variant: "destructive" });
         return;
@@ -110,6 +111,9 @@ function useWorkspaceMutation<T, V = void>(
       mutation.mutate({ value, orgId: activeOrgId, queryOrgKey }, {
         onSuccess: (data, change) => {
           if (change.orgId === activeOrgRef.current) options?.onSuccess?.(data);
+        },
+        onSettled: (_data, _error, change) => {
+          if (change?.orgId === activeOrgRef.current) options?.onSettled?.();
         },
       });
     },
@@ -130,6 +134,7 @@ export default function NonprofitEventsPage() {
   const [reportState, setReportState] = useState<{ orgId: string | null; report: Report } | null>(null);
   const [reportFilters, setReportFilters] = useState(emptyReportFilters);
   const [pendingWorkspaceAccessChange, setPendingWorkspaceAccessChange] = useState<{ action: "grant" | "revoke"; userId: string; orgId: string | null } | null>(null);
+  const [pendingHandoffId, setPendingHandoffId] = useState<string | null>(null);
   const headerForQueryOrg = (targetQueryOrgKey: string) => (
     targetQueryOrgKey === "default" ? undefined : { "x-org-id": targetQueryOrgKey }
   );
@@ -208,7 +213,11 @@ export default function NonprofitEventsPage() {
   }, [selected?.id]);
 
   const refresh = async (targetQueryOrgKey: string) => {
-    await queryClient.invalidateQueries({ queryKey: ["/api/nonprofit-events/workspace", targetQueryOrgKey], exact: true });
+    await Promise.all([
+      queryClient.invalidateQueries({ queryKey: ["/api/nonprofit-events/workspace", targetQueryOrgKey], exact: true }),
+      queryClient.invalidateQueries({ queryKey: ["/api/nonprofit-events/events"], exact: false }),
+    ]);
+    setReportState((current) => current?.orgId === activeOrgIdRef.current ? null : current);
   };
   const workspaceMutationConfig: WorkspaceMutationConfig = {
     activeOrgId: activeWorkspaceOrgId,
@@ -311,7 +320,7 @@ export default function NonprofitEventsPage() {
     return res.json();
   }, "Action created", workspaceMutationConfig);
   const updateAction = useWorkspaceMutation<unknown, { id: string; status: string; completionEvidence?: string; followUpObservation?: string }>(async (input, targetOrgId) => {
-    const res = await workspaceApiRequest(targetOrgId, "PATCH", `/api/nonprofit-events/actions/${input.id}`, { status: input.status, completionEvidence: input.completionEvidence ?? null, ...(input.followUpObservation !== undefined ? { followUpObservation: input.followUpObservation || null } : {}) });
+    const res = await workspaceApiRequest(targetOrgId, "PATCH", `/api/nonprofit-events/actions/${input.id}`, { status: input.status, ...(input.completionEvidence !== undefined ? { completionEvidence: input.completionEvidence || null } : {}), ...(input.followUpObservation !== undefined ? { followUpObservation: input.followUpObservation || null } : {}) });
     return res.json();
   }, "Action updated", workspaceMutationConfig);
   const acceptHandoff = useWorkspaceMutation<unknown, { id: string; payload: Record<string, unknown> }>(async ({ id, payload }, targetOrgId) => {
@@ -324,6 +333,9 @@ export default function NonprofitEventsPage() {
   }, "Evidence handoff declined", workspaceMutationConfig);
   const saveStory = useWorkspaceMutation(async (_value, targetOrgId) => {
     if (!selected) throw new Error("Choose an event first.");
+    if (storyForm.attributionPreference !== "anonymous" && storyForm.attributionPreference !== "organization") {
+      throw new Error("Only anonymous or organization attribution is supported.");
+    }
     const payload = {
       title: storyForm.title,
       storyText: storyForm.storyText,
@@ -371,12 +383,20 @@ export default function NonprofitEventsPage() {
   const downloadReport = () => {
     if (!report) return;
     const text = [
-      ["Organization", "Events", "Invited", "Registered", "Attended", "Follow-up", "Attendance rate", "Needs linked", "Actions completed", "Blocked actions", "Overdue actions"],
+       ["Organization", "Events", "Invited", "Registered", "Attended", "Follow-up", "Attendance rate", "Needs linked", "Actions completed", "Blocked actions", "Overdue actions", "Report disclosure", "Reviewed action trace"],
       ...report.organizations.map((row) => [
         row.organization, String(row.summary.eventCount), countLabel(row.summary.attendance.invitedCount), countLabel(row.summary.attendance.registeredCount),
         countLabel(row.summary.attendance.attendedCount), countLabel(row.summary.attendance.followUpCount),
         row.summary.attendance.attendanceRatePct === null ? row.summary.attendance.attendanceRateDisclosure : `${row.summary.attendance.attendanceRatePct}%`,
-        String(row.summary.needsLinked), String(row.summary.actions.completed), String(row.summary.actions.blocked), String(row.summary.actions.overdue),
+         String(row.summary.needsLinked), String(row.summary.actions.completed), String(row.summary.actions.blocked), String(row.summary.actions.overdue),
+         report.disclosure,
+         row.actionTrace.map((trace) => [
+           `issue=${trace.issue}`, `geography=${trace.geography}`, `source=${trace.sourceKind}`,
+           `claims=${trace.claimTypes.join("|") || "unavailable"}`, `freshness=${trace.freshnessAt}`,
+           `resources=${trace.resourceVerification}`, `gaps=${trace.unresolvedGapCount}`,
+           `status=${trace.actionStatus}`, `follow-up=${trace.followUpObservation}`,
+           `outcome=${trace.outcomeClaim}`, `disclosure=${trace.disclosure}`,
+         ].join("; ")).join(" || ") || "No reviewed action trace",
       ]),
     ].map((line) => line.map((cell) => `"${cell.replaceAll("\"", "\"\"")}"`).join(",")).join("\n");
     const anchor = document.createElement("a");
@@ -474,11 +494,11 @@ export default function NonprofitEventsPage() {
         <SummaryCard icon={<ListTodo />} label="Actions" value={`${summary.actions.completed}/${summary.actions.total}`} detail={`${summary.actions.blocked} blocked · ${summary.actions.overdue} overdue`} />
       </section>
       <HandoffReviewPanel
-        handoffs={workspace.handoffs.filter((handoff) => handoff.status === "pending_review")}
+        handoffs={workspace.handoffs}
         events={events}
-        pending={acceptHandoff.isPending || declineHandoff.isPending}
-        onAccept={(id, payload) => acceptHandoff.mutate({ id, payload })}
-        onDecline={(id) => { if (window.confirm("Decline this evidence handoff? It will remain in the review history and will not create an event or action.")) declineHandoff.mutate(id); }}
+         pending={(id) => pendingHandoffId === id && (acceptHandoff.isPending || declineHandoff.isPending)}
+         onAccept={(id, payload) => { setPendingHandoffId(id); acceptHandoff.mutate({ id, payload }, { onSettled: () => setPendingHandoffId(null) }); }}
+         onDecline={(id) => { if (window.confirm("Decline this evidence handoff? It will remain in the review history and will not create an event or action.")) { setPendingHandoffId(id); declineHandoff.mutate(id, { onSettled: () => setPendingHandoffId(null) }); } }}
       />
 
       <section className="grid gap-6 xl:grid-cols-[360px_1fr]">
@@ -554,21 +574,21 @@ export default function NonprofitEventsPage() {
             onCancelNeedEdit={() => { setEditingNeedId(null); setNeedForm(emptyNeed); }}
             onRemoveNeed={(id) => { if (window.confirm("Remove this need link? Its audit history will remain.")) removeNeed.mutate(id); }}
              onAddAction={() => {
-               if (!actionForm.title.trim() || !actionForm.ownerLabel.trim()) {
-                 toast({ title: "Complete the action fields", description: "An action title and accountable owner are required.", variant: "destructive" });
+               if (!actionForm.title.trim() || !actionForm.ownerLabel.trim() || (actionForm.status === "completed" && !actionForm.completionEvidence.trim())) {
+                 toast({ title: "Complete the action fields", description: actionForm.status === "completed" ? "A completed action must include completion evidence." : "An action title and accountable owner are required.", variant: "destructive" });
                  return;
                }
                addAction.mutate(undefined, { onSuccess: () => setActionForm(emptyAction) });
              }}
              onUpdateAction={(input) => updateAction.mutate(input)}
              onSaveStory={() => {
-               if (!storyForm.title.trim() || !storyForm.storyText.trim() || (storyForm.readyToShare && !storyForm.permittedUses.trim())) {
-                 toast({ title: "Complete the story fields", description: storyForm.readyToShare ? "Title, story draft, and permitted uses are required for approval." : "Title and story draft are required.", variant: "destructive" });
+                if (!storyForm.title.trim() || !storyForm.storyText.trim() || (storyForm.readyToShare && (!storyForm.permittedUses.trim() || !storyForm.consentGranted || storyForm.intendedAudience === "private"))) {
+                  toast({ title: "Complete the story fields", description: storyForm.readyToShare ? "Title, story draft, permitted uses, explicit consent, and a non-private audience are required for approval." : "Title and story draft are required.", variant: "destructive" });
                  return;
                }
                saveStory.mutate(undefined, { onSuccess: () => { setStoryForm(emptyStory); setEditingStoryId(null); } });
              }}
-            onEditStory={(story) => { setEditingStoryId(story.id); setStoryForm({ title: story.title, storyText: story.storyText, attributionPreference: story.attributionPreference, intendedAudience: story.intendedAudience, permittedUses: story.permittedUses.join(", "), consentGranted: story.consentGranted, readyToShare: story.sharingState === "approved" }); }}
+             onEditStory={(story) => { setEditingStoryId(story.id); setStoryForm({ title: story.title, storyText: story.storyText, attributionPreference: story.attributionPreference, intendedAudience: story.intendedAudience, permittedUses: story.permittedUses.join(", "), consentGranted: false, readyToShare: false }); }}
             onClearStory={() => { setEditingStoryId(null); setStoryForm(emptyStory); }}
             onWithdrawStory={(id) => withdrawStory.mutate(id)}
             onArchive={() => { if (window.confirm("Archive this event? It will become read-only and cannot be unarchived.")) archiveEvent.mutate(); }}
@@ -589,17 +609,17 @@ export default function NonprofitEventsPage() {
         <CardContent className="space-y-4">
           <fieldset className="m-0 min-w-0 border-0 p-0" disabled={reportPendingForActiveOrg} aria-busy={reportPendingForActiveOrg}>
             <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-4">
-              <Field label="Service area"><Input value={reportFilters.serviceArea} onChange={(event) => setReportFilters({ ...reportFilters, serviceArea: event.target.value })} /></Field>
-              <Field label="Need area"><Input value={reportFilters.needArea} onChange={(event) => setReportFilters({ ...reportFilters, needArea: event.target.value })} /></Field>
-              <Field label="From"><Input type="date" value={reportFilters.startDate} onChange={(event) => setReportFilters({ ...reportFilters, startDate: event.target.value })} /></Field>
-              <Field label="To"><Input type="date" value={reportFilters.endDate} onChange={(event) => setReportFilters({ ...reportFilters, endDate: event.target.value })} /></Field>
+              <Field label="Service area"><Input value={reportFilters.serviceArea} onChange={(event) => { setReportFilters({ ...reportFilters, serviceArea: event.target.value }); setReportState(null); }} /></Field>
+              <Field label="Need area"><Input value={reportFilters.needArea} onChange={(event) => { setReportFilters({ ...reportFilters, needArea: event.target.value }); setReportState(null); }} /></Field>
+              <Field label="From"><Input type="date" value={reportFilters.startDate} onChange={(event) => { setReportFilters({ ...reportFilters, startDate: event.target.value }); setReportState(null); }} /></Field>
+              <Field label="To"><Input type="date" value={reportFilters.endDate} onChange={(event) => { setReportFilters({ ...reportFilters, endDate: event.target.value }); setReportState(null); }} /></Field>
             </div>
           </fieldset>
            {reportDateRangeInvalid && <p className="text-sm text-destructive" role="alert">The report start date must be on or before the end date.</p>}
            {runReport.isError && runReport.variables === activeWorkspaceOrgId && <p className="text-sm text-destructive" role="alert">The report could not be generated. Please correct the filters and try again.</p>}
           {report && <div className="space-y-3" aria-live="polite">
             <div className="flex flex-wrap items-center justify-between gap-3"><p className="text-sm text-muted-foreground">{report.disclosure}</p><Button type="button" size="sm" variant="outline" onClick={downloadReport} data-testid="button-download-nonprofit-report"><Download className="mr-2 h-4 w-4" />Download CSV</Button></div>
-            {report.organizations.length === 0 ? <p className="text-sm text-muted-foreground">No records matched these filters.</p> : report.organizations.map((row) => <div key={row.orgId} className="rounded-md border p-3 text-sm"><strong>{row.organization}</strong><p className="mt-1">{row.summary.eventCount} events · attended: {countLabel(row.summary.attendance.attendedCount)} · needs linked: {row.summary.needsLinked} · completed actions: {row.summary.actions.completed}</p></div>)}
+             {report.organizations.length === 0 ? <p className="text-sm text-muted-foreground">No records matched these filters.</p> : report.organizations.map((row) => <div key={row.orgId} className="rounded-md border p-3 text-sm"><strong>{row.organization}</strong><p className="mt-1">{row.summary.eventCount} events · attended: {countLabel(row.summary.attendance.attendedCount)} · needs linked: {row.summary.needsLinked} · completed actions: {row.summary.actions.completed}</p><p className="mt-2 text-xs text-muted-foreground">Reviewed action traces: {row.actionTrace.length}. Outcome claims remain unavailable; follow-up is shown only as recorded or unavailable.</p>{row.actionTrace.map((trace) => <div className="mt-2 border-t pt-2 text-xs" key={trace.handoffId}><strong>{trace.issue}</strong> · action {trace.actionStatus} · follow-up {trace.followUpObservation} · {trace.disclosure}</div>)}</div>)}
           </div>}
         </CardContent>
       </Card>
@@ -698,18 +718,18 @@ function HandoffReviewPanel({
 }: {
   handoffs: Handoff[];
   events: CommunityEvent[];
-  pending: boolean;
+  pending: (id: string) => boolean;
   onAccept: (id: string, payload: Record<string, unknown>) => void;
   onDecline: (id: string) => void;
 }) {
   if (handoffs.length === 0) return null;
   return <Card className="border-emerald-200 dark:border-emerald-800" data-testid="panel-evidence-handoff-review">
     <CardHeader>
-      <CardTitle className="text-base">Evidence awaiting partner review</CardTitle>
-      <p className="text-sm text-muted-foreground">Review the source, freshness, claim types, resource verification, and unresolved gaps before choosing an organization-owned action. Acceptance is always human-selected.</p>
+      <CardTitle className="text-base">Evidence handoffs & review history</CardTitle>
+      <p className="text-sm text-muted-foreground">Pending evidence requires human review before an organization-owned action is created. Accepted and declined handoffs remain visible as history.</p>
     </CardHeader>
     <CardContent className="space-y-4">
-      {handoffs.map((handoff) => <HandoffReviewCard key={handoff.id} handoff={handoff} events={events} pending={pending} onAccept={onAccept} onDecline={onDecline} />)}
+       {handoffs.map((handoff) => <HandoffReviewCard key={handoff.id} handoff={handoff} events={events} pending={pending(handoff.id)} onAccept={onAccept} onDecline={onDecline} />)}
     </CardContent>
   </Card>;
 }
@@ -792,8 +812,10 @@ function HandoffReviewCard({
       )}
     </div>
     <p className="mt-2 text-xs text-muted-foreground"><strong>Consent boundary:</strong> {handoff.consentBoundary}</p>
+    {handoff.sourceSnapshot?.disclosure && <p className="mt-2 text-xs text-muted-foreground"><strong>Snapshot disclosure:</strong> {handoff.sourceSnapshot.disclosure}</p>}
+    {handoff.sourceSnapshot?.geography?.analyticalUnit && <p className="mt-1 text-xs text-muted-foreground"><strong>Analytical unit:</strong> {handoff.sourceSnapshot.geography.analyticalUnit}</p>}
     {handoff.unresolvedGaps.length > 0 && <p className="mt-2 text-xs text-amber-700 dark:text-amber-300"><strong>Unresolved gaps:</strong> {handoff.unresolvedGaps.join(" · ")}</p>}
-    <form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={accept}>
+     {handoff.status === "pending_review" ? <form className="mt-4 grid gap-3 md:grid-cols-2" onSubmit={accept}>
       <Field label="Attach to an existing event (optional)"><select className="control" value={eventId} onChange={(input) => setEventId(input.target.value)}><option value="">Create a new private event</option>{events.filter((event) => event.status !== "archived").map((event) => <option key={event.id} value={event.id}>{event.title} · {event.eventDate}</option>)}</select></Field>
       {!eventId && <Field label="New event title"><Input required value={eventTitle} onChange={(input) => setEventTitle(input.target.value)} /></Field>}
       {!eventId && <Field label="Event date"><Input required type="date" value={eventDate} onChange={(input) => setEventDate(input.target.value)} /></Field>}
@@ -807,7 +829,7 @@ function HandoffReviewCard({
         <Button type="submit" disabled={pending} data-testid={`button-accept-evidence-handoff-${handoff.id}`}>{pending ? "Saving…" : "Accept: create/link event, need & action"}</Button>
         <Button type="button" variant="outline" disabled={pending} onClick={() => onDecline(handoff.id)} data-testid={`button-decline-evidence-handoff-${handoff.id}`}>Decline</Button>
       </div>
-    </form>
+     </form> : <div className="mt-4 rounded-md border bg-background/60 p-3 text-sm"><strong>Status:</strong> {handoff.status === "accepted" ? "Accepted and linked to organization work." : "Declined; no event or action was created."}{handoff.eventId && <span className="ml-1 text-muted-foreground">Linked event is retained in the event list.</span>}</div>}
   </div>;
 }
 
@@ -866,7 +888,7 @@ function EventDetail(props: {
       <Card><CardHeader><CardTitle className="text-base">Community needs & evidence</CardTitle></CardHeader><CardContent className="space-y-3"><div className="grid gap-3 sm:grid-cols-2"><Field label="Need area"><Input value={props.needForm.needArea} onChange={(input) => props.setNeedForm({ ...props.needForm, needArea: input.target.value })} /></Field><Field label="Geography"><Input value={props.needForm.geography} onChange={(input) => props.setNeedForm({ ...props.needForm, geography: input.target.value })} /></Field><Field label="Source"><Input value={props.needForm.sourceName} onChange={(input) => props.setNeedForm({ ...props.needForm, sourceName: input.target.value })} /></Field><Field label="Evidence status"><select className="control" value={props.needForm.evidenceStatus} onChange={(input) => props.setNeedForm({ ...props.needForm, evidenceStatus: input.target.value })}><option value="self_reported">Self-reported</option><option value="observed">Observed</option><option value="derived">Derived</option><option value="partner_report">Partner report</option><option value="needs_review">Needs review</option></select></Field></div><Field label="Source URL (optional)"><Input type="url" value={props.needForm.sourceUrl} onChange={(input) => props.setNeedForm({ ...props.needForm, sourceUrl: input.target.value })} /></Field><Field label="How this event responds"><Textarea value={props.needForm.responseExplanation} onChange={(input) => props.setNeedForm({ ...props.needForm, responseExplanation: input.target.value })} /></Field><div className="flex gap-2"><Button onClick={props.onAddNeed} data-testid="button-add-community-need">{props.editingNeedId ? "Update need" : "Link need"}</Button>{props.editingNeedId && <Button variant="outline" onClick={props.onCancelNeedEdit}>Cancel</Button>}</div>{event.needs.map((need) => <div className="rounded border p-3 text-sm" key={need.id}><div className="flex justify-between gap-2"><strong>{need.needArea}</strong><span><Button size="sm" variant="ghost" onClick={() => props.onEditNeed(need)}>Edit</Button><Button size="sm" variant="ghost" onClick={() => props.onRemoveNeed(need.id)}>Remove</Button></span></div><p className="text-muted-foreground">{need.geography} · {need.sourceName} · {need.evidenceStatus}</p><p className="mt-1">{need.responseExplanation}</p></div>)}</CardContent></Card>
     </div>}
     {!archived && <div className="grid gap-6 lg:grid-cols-2">
-      <Card><CardHeader><CardTitle className="text-base">Execution actions</CardTitle><p className="text-sm text-muted-foreground">Completion evidence records activity. Follow-up observations are separate and may remain unavailable.</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-3 sm:grid-cols-2"><Field label="Action"><Input value={props.actionForm.title} onChange={(input) => props.setActionForm({ ...props.actionForm, title: input.target.value })} /></Field><Field label="Owner"><Input value={props.actionForm.ownerLabel} onChange={(input) => props.setActionForm({ ...props.actionForm, ownerLabel: input.target.value })} /></Field><Field label="Due date"><Input type="date" value={props.actionForm.dueDate} onChange={(input) => props.setActionForm({ ...props.actionForm, dueDate: input.target.value })} /></Field><Field label="Status"><select className="control" value={props.actionForm.status} onChange={(input) => props.setActionForm({ ...props.actionForm, status: input.target.value })}><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select></Field></div><Field label="Completion evidence (required when completed)"><Textarea value={props.actionForm.completionEvidence} onChange={(input) => props.setActionForm({ ...props.actionForm, completionEvidence: input.target.value })} /></Field><Field label="Next step"><Input value={props.actionForm.nextStep} onChange={(input) => props.setActionForm({ ...props.actionForm, nextStep: input.target.value })} /></Field><Field label="Follow-up expectation"><Textarea value={props.actionForm.followUpObservation} onChange={(input) => props.setActionForm({ ...props.actionForm, followUpObservation: input.target.value })} /></Field><Button onClick={() => { props.onAddAction(); props.setActionForm(emptyAction); }} data-testid="button-add-event-action">Add action</Button>{event.actions.map((action) => <div className="rounded border p-3 text-sm" key={action.id}><div className="flex flex-wrap items-center justify-between gap-2"><strong>{action.title}</strong><span className="flex gap-2"><Badge variant={action.status === "blocked" || actionIsOverdue(action) ? "destructive" : action.status === "completed" ? "default" : "outline"}>{actionIsOverdue(action) ? "overdue" : action.status}</Badge>{action.status !== "completed" && <select aria-label={`Update status for ${action.title}`} className="control h-8 w-32" value={action.status} onChange={(input) => { if (input.target.value !== "completed") props.onUpdateAction({ id: action.id, status: input.target.value }); }}><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select>}</span></div><p className="mt-1 text-muted-foreground">Owner: {action.ownerLabel}{action.dueDate ? ` · Due ${action.dueDate}` : ""}</p>{action.nextStep && <p className="mt-1">Next: {action.nextStep}</p>}<div className="mt-3 space-y-2"><Textarea aria-label={`Follow-up observation for ${action.title}`} placeholder="Record a follow-up observation, or leave unavailable" value={actionFollowUp[action.id] ?? action.followUpObservation ?? ""} onChange={(input) => setActionFollowUp({ ...actionFollowUp, [action.id]: input.target.value })} /><Button size="sm" variant="outline" disabled={(actionFollowUp[action.id] ?? action.followUpObservation ?? "") === (action.followUpObservation ?? "")} onClick={() => props.onUpdateAction({ id: action.id, status: action.status, followUpObservation: (actionFollowUp[action.id] ?? "").trim() })}>Save follow-up</Button></div>{action.status !== "completed" && <div className="mt-3 flex flex-col gap-2 sm:flex-row"><Input aria-label={`Completion evidence for ${action.title}`} placeholder="Record completion evidence before marking complete" value={actionEvidence[action.id] ?? action.completionEvidence ?? ""} onChange={(input) => setActionEvidence({ ...actionEvidence, [action.id]: input.target.value })} /><Button size="sm" variant="outline" disabled={!(actionEvidence[action.id] ?? action.completionEvidence ?? "").trim()} onClick={() => props.onUpdateAction({ id: action.id, status: "completed", completionEvidence: (actionEvidence[action.id] ?? action.completionEvidence ?? "").trim() })}>Mark complete</Button></div>}</div>)}</CardContent></Card>
+      <Card><CardHeader><CardTitle className="text-base">Execution actions</CardTitle><p className="text-sm text-muted-foreground">Completion evidence records activity. Follow-up observations are separate and may remain unavailable.</p></CardHeader><CardContent className="space-y-3"><div className="grid gap-3 sm:grid-cols-2"><Field label="Action"><Input value={props.actionForm.title} onChange={(input) => props.setActionForm({ ...props.actionForm, title: input.target.value })} /></Field><Field label="Owner"><Input value={props.actionForm.ownerLabel} onChange={(input) => props.setActionForm({ ...props.actionForm, ownerLabel: input.target.value })} /></Field><Field label="Due date"><Input type="date" value={props.actionForm.dueDate} onChange={(input) => props.setActionForm({ ...props.actionForm, dueDate: input.target.value })} /></Field><Field label="Status"><select className="control" value={props.actionForm.status} onChange={(input) => props.setActionForm({ ...props.actionForm, status: input.target.value })}><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select></Field></div><Field label="Completion evidence (required when completed)"><Textarea value={props.actionForm.completionEvidence} onChange={(input) => props.setActionForm({ ...props.actionForm, completionEvidence: input.target.value })} /></Field><Field label="Next step"><Input value={props.actionForm.nextStep} onChange={(input) => props.setActionForm({ ...props.actionForm, nextStep: input.target.value })} /></Field><Field label="Follow-up expectation"><Textarea value={props.actionForm.followUpObservation} onChange={(input) => props.setActionForm({ ...props.actionForm, followUpObservation: input.target.value })} /></Field><Button onClick={props.onAddAction} data-testid="button-add-event-action">Add action</Button>{event.actions.map((action) => <div className="rounded border p-3 text-sm" key={action.id}><div className="flex flex-wrap items-center justify-between gap-2"><strong>{action.title}</strong><span className="flex gap-2"><Badge variant={action.status === "blocked" || actionIsOverdue(action) ? "destructive" : action.status === "completed" ? "default" : "outline"}>{actionIsOverdue(action) ? "overdue" : action.status}</Badge>{action.status !== "completed" && <select aria-label={`Update status for ${action.title}`} className="control h-8 w-32" value={action.status} onChange={(input) => { if (input.target.value !== "completed") props.onUpdateAction({ id: action.id, status: input.target.value }); }}><option value="planned">Planned</option><option value="in_progress">In progress</option><option value="blocked">Blocked</option><option value="completed">Completed</option></select>}</span></div><p className="mt-1 text-muted-foreground">Owner: {action.ownerLabel}{action.dueDate ? ` · Due ${action.dueDate}` : ""}</p>{action.nextStep && <p className="mt-1">Next: {action.nextStep}</p>}<div className="mt-3 space-y-2"><Textarea aria-label={`Follow-up observation for ${action.title}`} placeholder="Record a follow-up observation, or leave unavailable" value={actionFollowUp[action.id] ?? action.followUpObservation ?? ""} onChange={(input) => setActionFollowUp({ ...actionFollowUp, [action.id]: input.target.value })} /><Button size="sm" variant="outline" disabled={(actionFollowUp[action.id] ?? action.followUpObservation ?? "") === (action.followUpObservation ?? "")} onClick={() => props.onUpdateAction({ id: action.id, status: action.status, followUpObservation: (actionFollowUp[action.id] ?? "").trim() })}>Save follow-up</Button></div>{action.status !== "completed" && <div className="mt-3 flex flex-col gap-2 sm:flex-row"><Input aria-label={`Completion evidence for ${action.title}`} placeholder="Record completion evidence before marking complete" value={actionEvidence[action.id] ?? action.completionEvidence ?? ""} onChange={(input) => setActionEvidence({ ...actionEvidence, [action.id]: input.target.value })} /><Button size="sm" variant="outline" disabled={!(actionEvidence[action.id] ?? action.completionEvidence ?? "").trim()} onClick={() => props.onUpdateAction({ id: action.id, status: "completed", completionEvidence: (actionEvidence[action.id] ?? "").trim() })}>Mark complete</Button></div>}</div>)}</CardContent></Card>
       <Card><CardHeader><CardTitle className="text-base">Community stories</CardTitle><p className="text-sm text-muted-foreground">Human-entered only. A draft is private until all sharing requirements are recorded and approved.</p></CardHeader><CardContent className="space-y-3"><Field label="Story title"><Input value={props.storyForm.title} onChange={(input) => props.setStoryForm({ ...props.storyForm, title: input.target.value })} /></Field><Field label="Story draft"><Textarea value={props.storyForm.storyText} onChange={(input) => props.setStoryForm({ ...props.storyForm, storyText: input.target.value })} /></Field><div className="grid gap-3 sm:grid-cols-2"><Field label="Attribution preference"><select className="control" value={props.storyForm.attributionPreference} onChange={(input) => props.setStoryForm({ ...props.storyForm, attributionPreference: input.target.value })}><option value="anonymous">Anonymous</option><option value="first_name">First name</option><option value="organization">Organization</option><option value="named">Named</option></select></Field><Field label="Intended audience"><select className="control" value={props.storyForm.intendedAudience} onChange={(input) => props.setStoryForm({ ...props.storyForm, intendedAudience: input.target.value })}><option value="private">Private draft</option><option value="internal_team">Internal team</option><option value="partner">Partner</option><option value="funder">Funder</option><option value="public">Public</option></select></Field></div><Field label="Permitted uses"><Input placeholder="e.g., internal reporting, funder packet" value={props.storyForm.permittedUses} onChange={(input) => props.setStoryForm({ ...props.storyForm, permittedUses: input.target.value })} /></Field><label className="flex gap-2 text-sm"><input type="checkbox" checked={props.storyForm.consentGranted} onChange={(input) => props.setStoryForm({ ...props.storyForm, consentGranted: input.target.checked })} />Explicit consent to the selected use(s) has been recorded.</label><label className="flex gap-2 text-sm"><input type="checkbox" checked={props.storyForm.readyToShare} onChange={(input) => props.setStoryForm({ ...props.storyForm, readyToShare: input.target.checked })} />Approve this story for the selected, non-private audience.</label><div className="flex gap-2"><Button onClick={props.onSaveStory} data-testid="button-save-event-story">{props.editingStoryId ? "Update story" : "Save story"}</Button>{props.editingStoryId && <Button variant="outline" onClick={props.onClearStory}>New draft</Button>}</div>{event.stories.map((story) => <div key={story.id} className="rounded border p-3 text-sm"><div className="flex flex-wrap justify-between gap-2"><strong>{story.title}</strong><Badge variant={story.sharingState === "approved" ? "default" : story.sharingState === "withdrawn" ? "destructive" : "outline"}>{story.sharingState}</Badge></div><p className="mt-1 line-clamp-2">{story.storyText}</p><p className="mt-1 text-muted-foreground">{story.attributionPreference} · {story.intendedAudience}</p><div className="mt-2 flex gap-2"><Button size="sm" variant="outline" onClick={() => props.onEditStory(story)}>Edit</Button>{story.sharingState === "approved" && <Button size="sm" variant="destructive" onClick={() => props.onWithdrawStory(story.id)}>Withdraw consent</Button>}</div></div>)}</CardContent></Card>
     </div>}
   </fieldset>;
@@ -891,7 +913,7 @@ function AuditHistory({ eventId, orgId }: { eventId: string; orgId: string | nul
     </CardHeader>
     {visible && <CardContent aria-live="polite">
       {auditQuery.isLoading && <p className="text-sm text-muted-foreground">Loading activity history…</p>}
-      {auditQuery.isError && <p className="text-sm text-destructive" role="alert">Activity history could not be loaded.</p>}
+       {auditQuery.isError && <div className="flex items-center gap-2 text-sm text-destructive" role="alert"><span>Activity history could not be loaded.</span><Button type="button" size="sm" variant="outline" onClick={() => auditQuery.refetch()}>Try again</Button></div>}
       {auditQuery.data?.audit.length === 0 && <p className="text-sm text-muted-foreground">No activity recorded yet.</p>}
       {auditQuery.data?.audit.map((entry) => <div className="border-t py-2 text-sm" key={entry.id}>
         <span className="font-medium">{entry.entityType.replace("_", " ")} {entry.action}</span>
