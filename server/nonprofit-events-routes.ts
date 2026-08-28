@@ -133,6 +133,17 @@ const storyCreateSchema = z.object({
 const storyUpdateSchema = storyCreateSchema.partial().refine((value) => Object.keys(value).length > 0, "Provide at least one story field to update.");
 
 type AccessibleEvent = typeof nonprofitEvents.$inferSelect;
+type EventTransaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
+
+class EventMutationError extends Error {
+  constructor(
+    readonly statusCode: 404 | 409,
+    message: string,
+  ) {
+    super(message);
+    this.name = "EventMutationError";
+  }
+}
 
 function asNullableText(value: string | null | undefined): string | null {
   return value?.trim() ? value.trim() : null;
@@ -184,6 +195,34 @@ async function getAccessibleEvent(req: Request, res: Response, eventId: string, 
     return null;
   }
   return event;
+}
+
+async function lockEventForMutation(tx: EventTransaction, req: Request, eventId: string): Promise<AccessibleEvent> {
+  const orgId = getCallerOrg(req)?.id;
+  if (!orgId) throw new EventMutationError(404, "Event not found.");
+  const [event] = await tx.select().from(nonprofitEvents)
+    .where(and(eq(nonprofitEvents.id, eventId), eq(nonprofitEvents.orgId, orgId)))
+    .for("update");
+  if (!event) throw new EventMutationError(404, "Event not found.");
+  return event;
+}
+
+async function lockWritableEvent(tx: EventTransaction, req: Request, eventId: string): Promise<AccessibleEvent> {
+  const event = await lockEventForMutation(tx, req, eventId);
+  if (event.status === "archived") {
+    throw new EventMutationError(409, "Archived events are read-only.");
+  }
+  return event;
+}
+
+function sendEventMutationError(res: Response, err: unknown, fallbackStatus: number, fallbackMessage: string) {
+  const status = err instanceof EventMutationError ? err.statusCode : fallbackStatus;
+  const message = err instanceof EventMutationError
+    ? err.message
+    : err instanceof Error
+      ? err.message
+      : fallbackMessage;
+  res.status(status).json({ error: message });
 }
 
 function hasAllowedTransition(transitions: Record<string, readonly string[]>, from: string, to: string) {
@@ -333,18 +372,17 @@ export function registerNonprofitEventRoutes(app: Express) {
   app.patch("/api/nonprofit-events/events/:eventId", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const event = await getAccessibleEvent(req, res, String(req.params.eventId), true);
-      if (!event) return;
       const input = eventUpdateSchema.parse(req.body);
-      if (input.status && !hasAllowedTransition(EVENT_TRANSITIONS, event.status, input.status)) {
-        return res.status(400).json({ error: `Cannot move an event from ${event.status} back to ${input.status}.` });
-      }
-      const nextStart = input.startTime === undefined ? event.startTime : input.startTime;
-      const nextEnd = input.endTime === undefined ? event.endTime : input.endTime;
-      if (nextStart && nextEnd && nextEnd <= nextStart) {
-        return res.status(400).json({ error: "End time must be after start time." });
-      }
       const [updated] = await db.transaction(async (tx) => {
+        const event = await lockWritableEvent(tx, req, String(req.params.eventId));
+        if (input.status && !hasAllowedTransition(EVENT_TRANSITIONS, event.status, input.status)) {
+          throw new Error(`Cannot move an event from ${event.status} back to ${input.status}.`);
+        }
+        const nextStart = input.startTime === undefined ? event.startTime : input.startTime;
+        const nextEnd = input.endTime === undefined ? event.endTime : input.endTime;
+        if (nextStart && nextEnd && nextEnd <= nextStart) {
+          throw new Error("End time must be after start time.");
+        }
         const [row] = await tx.update(nonprofitEvents).set({
           ...input,
           startTime: input.startTime === undefined ? undefined : asNullableText(input.startTime),
@@ -360,37 +398,35 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.json({ event: updated });
     } catch (err) {
       console.error("[nonprofit-events] event update failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Unable to update the event." });
+      sendEventMutationError(res, err, 400, "Unable to update the event.");
     }
   });
 
   app.post("/api/nonprofit-events/events/:eventId/archive", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const event = await getAccessibleEvent(req, res, String(req.params.eventId));
-      if (!event) return;
-      if (event.status === "archived") return res.json({ event, alreadyArchived: true });
-      const [updated] = await db.transaction(async (tx) => {
+      const result = await db.transaction(async (tx) => {
+        const event = await lockEventForMutation(tx, req, String(req.params.eventId));
+        if (event.status === "archived") return { event, alreadyArchived: true };
         const [row] = await tx.update(nonprofitEvents).set({
           status: "archived", archivedAt: new Date(), updatedAt: new Date(), updatedByUserId: userId,
         }).where(eq(nonprofitEvents.id, event.id)).returning();
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "event", entityId: event.id, action: "archived", actorUserId: userId });
-        return [row];
+        return { event: row, alreadyArchived: false };
       });
-      res.json({ event: updated });
+      res.json(result);
     } catch (err) {
       console.error("[nonprofit-events] event archive failed:", err);
-      res.status(500).json({ error: "Unable to archive the event." });
+      sendEventMutationError(res, err, 500, "Unable to archive the event.");
     }
   });
 
   app.put("/api/nonprofit-events/events/:eventId/attendance", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const event = await getAccessibleEvent(req, res, String(req.params.eventId), true);
-      if (!event) return;
       const input = attendanceSchema.parse(req.body);
       const [attendance] = await db.transaction(async (tx) => {
+        const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventAttendance).values({
           ...input, eventId: event.id, recordedByUserId: userId,
         }).onConflictDoUpdate({
@@ -403,17 +439,16 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.json({ attendance });
     } catch (err) {
       console.error("[nonprofit-events] attendance update failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Attendance counts could not be saved." });
+      sendEventMutationError(res, err, 400, "Attendance counts could not be saved.");
     }
   });
 
   app.post("/api/nonprofit-events/events/:eventId/needs", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const event = await getAccessibleEvent(req, res, String(req.params.eventId), true);
-      if (!event) return;
       const input = needCreateSchema.parse(req.body);
       const [need] = await db.transaction(async (tx) => {
+        const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventNeeds).values({ ...input, sourceUrl: asNullableText(input.sourceUrl), eventId: event.id, orgId: event.orgId, createdByUserId: userId }).returning();
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "need_link", entityId: row.id, action: "created", actorUserId: userId, details: { needArea: row.needArea, evidenceStatus: row.evidenceStatus } });
         return [row];
@@ -421,19 +456,20 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.status(201).json({ need });
     } catch (err) {
       console.error("[nonprofit-events] need create failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Need link could not be created." });
+      sendEventMutationError(res, err, 400, "Need link could not be created.");
     }
   });
 
   app.patch("/api/nonprofit-events/needs/:needId", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const [need] = await db.select().from(nonprofitEventNeeds).where(eq(nonprofitEventNeeds.id, String(req.params.needId)));
-      if (!need) return res.status(404).json({ error: "Need link not found." });
-      const event = await getAccessibleEvent(req, res, need.eventId, true);
-      if (!event) return;
       const input = needUpdateSchema.parse(req.body);
       const [updated] = await db.transaction(async (tx) => {
+        const [need] = await tx.select().from(nonprofitEventNeeds)
+          .where(eq(nonprofitEventNeeds.id, String(req.params.needId)))
+          .for("update");
+        if (!need) throw new EventMutationError(404, "Need link not found.");
+        const event = await lockWritableEvent(tx, req, need.eventId);
         const [row] = await tx.update(nonprofitEventNeeds).set({
           ...input, sourceUrl: input.sourceUrl === undefined ? undefined : asNullableText(input.sourceUrl), updatedAt: new Date(),
         }).where(eq(nonprofitEventNeeds.id, need.id)).returning();
@@ -443,35 +479,35 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.json({ need: updated });
     } catch (err) {
       console.error("[nonprofit-events] need update failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Need link could not be updated." });
+      sendEventMutationError(res, err, 400, "Need link could not be updated.");
     }
   });
 
   app.delete("/api/nonprofit-events/needs/:needId", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const [need] = await db.select().from(nonprofitEventNeeds).where(eq(nonprofitEventNeeds.id, String(req.params.needId)));
-      if (!need) return res.status(404).json({ error: "Need link not found." });
-      const event = await getAccessibleEvent(req, res, need.eventId, true);
-      if (!event) return;
       await db.transaction(async (tx) => {
+        const [need] = await tx.select().from(nonprofitEventNeeds)
+          .where(eq(nonprofitEventNeeds.id, String(req.params.needId)))
+          .for("update");
+        if (!need) throw new EventMutationError(404, "Need link not found.");
+        const event = await lockWritableEvent(tx, req, need.eventId);
         await tx.delete(nonprofitEventNeeds).where(eq(nonprofitEventNeeds.id, need.id));
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "need_link", entityId: need.id, action: "removed", actorUserId: userId, details: { needArea: need.needArea } });
       });
       res.json({ ok: true });
     } catch (err) {
       console.error("[nonprofit-events] need delete failed:", err);
-      res.status(500).json({ error: "Need link could not be removed." });
+      sendEventMutationError(res, err, 500, "Need link could not be removed.");
     }
   });
 
   app.post("/api/nonprofit-events/events/:eventId/actions", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const event = await getAccessibleEvent(req, res, String(req.params.eventId), true);
-      if (!event) return;
       const input = actionCreateSchema.parse(req.body);
       const [action] = await db.transaction(async (tx) => {
+        const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventActions).values({
           ...input, dueDate: input.dueDate ?? null, completionEvidence: asNullableText(input.completionEvidence), nextStep: asNullableText(input.nextStep),
           completedAt: input.status === "completed" ? new Date() : null, eventId: event.id, orgId: event.orgId, createdByUserId: userId, updatedByUserId: userId,
@@ -482,26 +518,27 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.status(201).json({ action });
     } catch (err) {
       console.error("[nonprofit-events] action create failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Action could not be created." });
+      sendEventMutationError(res, err, 400, "Action could not be created.");
     }
   });
 
   app.patch("/api/nonprofit-events/actions/:actionId", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const [action] = await db.select().from(nonprofitEventActions).where(eq(nonprofitEventActions.id, String(req.params.actionId)));
-      if (!action) return res.status(404).json({ error: "Action not found." });
-      const event = await getAccessibleEvent(req, res, action.eventId, true);
-      if (!event) return;
       const input = actionUpdateSchema.parse(req.body);
-      const next = { ...action, ...input };
-      if (input.status && !hasAllowedTransition(ACTION_TRANSITIONS, action.status, input.status)) {
-        return res.status(400).json({ error: `Cannot move an action from ${action.status} back to ${input.status}. Create a new action if prior work needs to be revisited.` });
-      }
-      if (next.status === "completed" && !next.completionEvidence) {
-        return res.status(400).json({ error: "Completion evidence is required when an action is completed." });
-      }
       const [updated] = await db.transaction(async (tx) => {
+        const [action] = await tx.select().from(nonprofitEventActions)
+          .where(eq(nonprofitEventActions.id, String(req.params.actionId)))
+          .for("update");
+        if (!action) throw new EventMutationError(404, "Action not found.");
+        const event = await lockWritableEvent(tx, req, action.eventId);
+        const next = { ...action, ...input };
+        if (input.status && !hasAllowedTransition(ACTION_TRANSITIONS, action.status, input.status)) {
+          throw new Error(`Cannot move an action from ${action.status} back to ${input.status}. Create a new action if prior work needs to be revisited.`);
+        }
+        if (next.status === "completed" && !next.completionEvidence) {
+          throw new Error("Completion evidence is required when an action is completed.");
+        }
         const [row] = await tx.update(nonprofitEventActions).set({
           ...input,
           dueDate: input.dueDate === undefined ? undefined : input.dueDate,
@@ -517,19 +554,18 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.json({ action: updated });
     } catch (err) {
       console.error("[nonprofit-events] action update failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Action could not be updated." });
+      sendEventMutationError(res, err, 400, "Action could not be updated.");
     }
   });
 
   app.post("/api/nonprofit-events/events/:eventId/stories", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const event = await getAccessibleEvent(req, res, String(req.params.eventId), true);
-      if (!event) return;
       const input = storyCreateSchema.parse(req.body);
       ensureShareable(input);
       const now = new Date();
       const [story] = await db.transaction(async (tx) => {
+        const event = await lockWritableEvent(tx, req, String(req.params.eventId));
         const [row] = await tx.insert(nonprofitEventStories).values({
           ...input, eventId: event.id, orgId: event.orgId, consentedAt: input.consentGranted ? now : null,
           approvedAt: input.sharingState === "approved" ? now : null, approvedByUserId: input.sharingState === "approved" ? userId : null,
@@ -541,35 +577,36 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.status(201).json({ story });
     } catch (err) {
       console.error("[nonprofit-events] story create failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Story could not be saved." });
+      sendEventMutationError(res, err, 400, "Story could not be saved.");
     }
   });
 
   app.patch("/api/nonprofit-events/stories/:storyId", requireAuth, loadCallerOrg, requireOrg, requireStaff, async (req: Request, res: Response) => {
     try {
       const userId = getUserId(req)!;
-      const [story] = await db.select().from(nonprofitEventStories).where(eq(nonprofitEventStories.id, String(req.params.storyId)));
-      if (!story) return res.status(404).json({ error: "Story not found." });
-      const event = await getAccessibleEvent(req, res, story.eventId, true);
-      if (!event) return;
       const input = storyUpdateSchema.parse(req.body);
-      const changedConsent = ["attributionPreference", "intendedAudience", "permittedUses", "consentGranted"].some((key) => key in input);
-      const changedConsentTerms = ["title", "storyText", "attributionPreference", "intendedAudience", "permittedUses"].some((key) => key in input);
-      const next = { ...story, ...input };
-      if (input.sharingState && !hasAllowedTransition(STORY_TRANSITIONS, story.sharingState, input.sharingState)) {
-        return res.status(400).json({ error: "A withdrawn story remains withdrawn. Create a new story only after new consent is recorded." });
-      }
-      if (input.sharingState === "withdrawn") {
-        next.consentGranted = false;
-      } else if (story.sharingState === "approved" && changedConsentTerms && input.sharingState === undefined) {
-        next.sharingState = "draft";
-        next.consentGranted = false;
-      } else if (story.sharingState === "approved" && changedConsent && input.sharingState === "approved") {
-        return res.status(400).json({ error: "Changing consent or sharing terms requires a new draft and a fresh approval." });
-      }
-      ensureShareable(next);
-      const now = new Date();
       const [updated] = await db.transaction(async (tx) => {
+        const [story] = await tx.select().from(nonprofitEventStories)
+          .where(eq(nonprofitEventStories.id, String(req.params.storyId)))
+          .for("update");
+        if (!story) throw new EventMutationError(404, "Story not found.");
+        const event = await lockWritableEvent(tx, req, story.eventId);
+        const changedConsent = ["attributionPreference", "intendedAudience", "permittedUses", "consentGranted"].some((key) => key in input);
+        const changedConsentTerms = ["title", "storyText", "attributionPreference", "intendedAudience", "permittedUses"].some((key) => key in input);
+        const next = { ...story, ...input };
+        if (input.sharingState && !hasAllowedTransition(STORY_TRANSITIONS, story.sharingState, input.sharingState)) {
+          throw new Error("A withdrawn story remains withdrawn. Create a new story only after new consent is recorded.");
+        }
+        if (input.sharingState === "withdrawn") {
+          next.consentGranted = false;
+        } else if (story.sharingState === "approved" && changedConsentTerms && input.sharingState === undefined) {
+          next.sharingState = "draft";
+          next.consentGranted = false;
+        } else if (story.sharingState === "approved" && changedConsent && input.sharingState === "approved") {
+          throw new Error("Changing consent or sharing terms requires a new draft and a fresh approval.");
+        }
+        ensureShareable(next);
+        const now = new Date();
         const [row] = await tx.update(nonprofitEventStories).set({
           ...input,
           consentGranted: next.consentGranted,
@@ -588,7 +625,7 @@ export function registerNonprofitEventRoutes(app: Express) {
       res.json({ story: updated });
     } catch (err) {
       console.error("[nonprofit-events] story update failed:", err);
-      res.status(400).json({ error: err instanceof Error ? err.message : "Story could not be updated." });
+      sendEventMutationError(res, err, 400, "Story could not be updated.");
     }
   });
 

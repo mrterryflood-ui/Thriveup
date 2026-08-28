@@ -5579,7 +5579,7 @@ export const organizationMembers = pgTable("organization_members", {
   invitedByUserId: varchar("invited_by_user_id", { length: 255 }),
   joinedAt: timestamp("joined_at").defaultNow().notNull(),
 }, (t) => [
-  uniqueIndex("idx_org_members_unique").on(t.orgId, t.userId),
+  unique("organization_members_org_user_unique").on(t.orgId, t.userId),
   index("idx_org_members_user").on(t.userId),
   index("idx_org_members_org").on(t.orgId),
 ]);

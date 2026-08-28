@@ -41,11 +41,14 @@ async function body(response: Response) {
   const text = await response.text();
   try { return JSON.parse(text); } catch { return text; }
 }
-async function request(path: string, cookie: string, orgId: string, init: RequestInit = {}) {
-  return fetch(`${BASE}${path}`, {
+async function requestAt(baseUrl: string, path: string, cookie: string, orgId: string, init: RequestInit = {}) {
+  return fetch(`${baseUrl}${path}`, {
     ...init,
     headers: { "content-type": "application/json", cookie, "x-org-id": orgId, ...(init.headers ?? {}) },
   });
+}
+async function request(path: string, cookie: string, orgId: string, init: RequestInit = {}) {
+  return requestAt(BASE, path, cookie, orgId, init);
 }
 
 async function run() {
@@ -79,6 +82,20 @@ async function run() {
       !/\(id, org_id\)/.test(parentKey.rows[0].constraintdef)
     ) {
       fail("nonprofit-events parent key for composite child foreign keys is missing");
+    }
+
+    const organizationMemberKey = await db.query<{ constraintdef: string }>(
+      `SELECT pg_get_constraintdef(oid) AS constraintdef
+         FROM pg_constraint
+        WHERE conrelid = 'organization_members'::regclass
+          AND conname = 'organization_members_org_user_unique'
+          AND contype = 'u'`,
+    );
+    if (
+      organizationMemberKey.rows.length !== 1 ||
+      !/\(org_id, user_id\)/.test(organizationMemberKey.rows[0].constraintdef)
+    ) {
+      fail("organization-members parent key for event-workspace access is missing");
     }
 
     const eventForeignKeys = await db.query<{
@@ -553,6 +570,53 @@ async function run() {
     }
     if (!appendOnlyBlocked) fail("audit records could be modified directly in the database");
     ok("kept audit history append-only without private story text");
+
+    const raceCreate = await request("/api/nonprofit-events/events", ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        title: "E2E Community Skate Race",
+        purpose: "Exercise transactional archive ordering without attendee data.",
+        eventDate: "2030-03-16",
+        format: "in_person",
+        locationName: "Community rink",
+        serviceArea: "Wichita, KS",
+        communityNeedFocus: ["safe recreation"],
+      }),
+    });
+    if (raceCreate.status !== 201) fail(`race event create returned ${raceCreate.status}: ${JSON.stringify(await body(raceCreate))}`);
+    const raceEventId = (await body(raceCreate)).event?.id;
+    if (!raceEventId) fail("race event create response omitted event.id");
+
+    const lockClient = new Client({ connectionString: requireEnv("DATABASE_URL") });
+    const mutationClient = new Client({ connectionString: requireEnv("DATABASE_URL") });
+    await lockClient.connect();
+    await mutationClient.connect();
+    let holderCommitted = false;
+    try {
+      await lockClient.query("BEGIN");
+      await lockClient.query("SELECT id FROM nonprofit_events WHERE id = $1 FOR UPDATE", [raceEventId]);
+      await mutationClient.query("BEGIN");
+      const waitingMutation = mutationClient.query<{ status: string }>(
+        "SELECT status FROM nonprofit_events WHERE id = $1 FOR UPDATE",
+        [raceEventId],
+      );
+      await new Promise((resolve) => setTimeout(resolve, 100));
+      await lockClient.query(
+        "UPDATE nonprofit_events SET status = 'archived', archived_at = NOW(), updated_at = NOW() WHERE id = $1",
+        [raceEventId],
+      );
+      await lockClient.query("COMMIT");
+      holderCommitted = true;
+      const [lockedEvent] = (await waitingMutation).rows;
+      if (lockedEvent?.status !== "archived") fail(`waiting mutation observed ${lockedEvent?.status ?? "no row"}, expected archived`);
+      await mutationClient.query("ROLLBACK");
+      ok("serialized a waiting mutation behind an archive transition");
+    } finally {
+      if (!holderCommitted) await lockClient.query("ROLLBACK").catch(() => {});
+      await mutationClient.query("ROLLBACK").catch(() => {});
+      await lockClient.end().catch(() => {});
+      await mutationClient.end().catch(() => {});
+    }
 
     const archived = await request(`/api/nonprofit-events/events/${eventId}/archive`, ownerCookie, ORG_A, { method: "POST" });
     if (archived.status !== 200) fail(`event archive returned ${archived.status}: ${JSON.stringify(await body(archived))}`);

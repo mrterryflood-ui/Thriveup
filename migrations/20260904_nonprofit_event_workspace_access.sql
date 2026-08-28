@@ -3,6 +3,37 @@
 -- 20260905 transition migrates eligible member grants into organization members
 -- and freezes these tables as read-only provenance.
 
+-- A composite foreign key must point to a true parent UNIQUE constraint, not
+-- only a standalone unique index. The forward repair migration preserves this
+-- requirement for environments that already ran this historical file.
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+      FROM pg_constraint
+     WHERE conrelid = 'organization_members'::regclass
+       AND conname = 'organization_members_org_user_unique'
+       AND contype = 'u'
+  ) THEN
+    IF EXISTS (
+      SELECT 1
+        FROM pg_indexes
+       WHERE schemaname = 'public'
+         AND tablename = 'organization_members'
+         AND indexname = 'idx_org_members_unique'
+         AND indexdef LIKE '%(org_id, user_id)%'
+    ) THEN
+      ALTER TABLE organization_members
+        ADD CONSTRAINT organization_members_org_user_unique
+        UNIQUE USING INDEX idx_org_members_unique;
+    ELSE
+      ALTER TABLE organization_members
+        ADD CONSTRAINT organization_members_org_user_unique
+        UNIQUE (org_id, user_id);
+    END IF;
+  END IF;
+END $$;
+
 CREATE TABLE IF NOT EXISTS nonprofit_event_workspace_access (
   id varchar(100) PRIMARY KEY DEFAULT gen_random_uuid(),
   org_id varchar(100) NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,

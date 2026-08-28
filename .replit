@@ -317,4 +317,4 @@ GPP_OPPORTUNITY_HANDOFF_URL = "https://trustworthy-sheep-515.convex.site/thriveu
 
 [postMerge]
 path = "scripts/post-merge.sh"
-timeoutMs = 60000
+timeoutMs = 180000
