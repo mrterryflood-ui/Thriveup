@@ -698,7 +698,7 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/organization/events">
-        <RequireAuth staffOnly reason="The Community Events & Impact workspace is restricted to authorized organization staff.">
+        <RequireAuth reason="Sign in to manage or access your organization's Community Events & Impact workspace.">
           <NonprofitEventsPage />
         </RequireAuth>
       </Route>

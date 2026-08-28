@@ -25,6 +25,7 @@ const REQUIRES_ORG_PREFIXES = [
   "/proposal-pipeline",
   "/settings/organization",
   "/settings/documents",
+  "/organization/events",
 ];
 
 // Special-case: /grants/:grantId/compliance requires an org, but the bare

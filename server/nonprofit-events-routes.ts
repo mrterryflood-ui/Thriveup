@@ -8,10 +8,18 @@ import {
   nonprofitEventNeeds,
   nonprofitEvents,
   nonprofitEventStories,
+  organizationMembers,
 } from "@shared/schema";
-import { db } from "./storage";
-import { canAccessEventWorkspace } from "./event-workspace-auth";
-import { getCallerOrg, getUserId, loadCallerOrg, requireAuth, requireOrg } from "./tenant-middleware";
+import { db, storage } from "./storage";
+import {
+  getCallerOrg,
+  getUserId,
+  isEventWorkspaceActiveMemberRole,
+  isEventWorkspacePlatformStaffRole,
+  loadCallerOrg,
+  requireAuth,
+  requireOrg,
+} from "./tenant-middleware";
 
 const eventStatuses = ["planned", "scheduled", "completed"] as const;
 const actionStatuses = ["planned", "in_progress", "blocked", "completed"] as const;
@@ -116,7 +124,7 @@ const actionUpdateSchema = actionFieldsSchema.partial().refine((value) => Object
 const storyCreateSchema = z.object({
   title: z.string().trim().min(2).max(240),
   storyText: z.string().trim().min(5).max(10000),
-  attributionPreference: z.enum(["anonymous", "organization"]).default("anonymous"),
+  attributionPreference: z.enum(["anonymous", "first_name", "organization", "named"]).default("anonymous"),
   intendedAudience: z.enum(audiences).default("private"),
   permittedUses: z.array(z.string().trim().min(1).max(120)).max(8).default([]),
   consentGranted: z.boolean().default(false),
@@ -134,7 +142,20 @@ async function callerIsStaff(req: Request): Promise<boolean> {
   const userId = getUserId(req);
   const org = getCallerOrg(req);
   if (!userId || !org) return false;
-  return canAccessEventWorkspace(userId, org.id, (req as unknown as Record<string, unknown>).orgRole as string | undefined);
+  const [user, membership] = await Promise.all([
+    storage.getUser(userId),
+    db.select({ role: organizationMembers.role })
+      .from(organizationMembers)
+      .where(and(eq(organizationMembers.userId, userId), eq(organizationMembers.orgId, org.id)))
+      .limit(1)
+      .then((rows) => rows[0]),
+  ]);
+  return Boolean(
+    user
+    && isEventWorkspacePlatformStaffRole(user.role)
+    && membership
+    && isEventWorkspaceActiveMemberRole(membership.role),
+  );
 }
 
 async function requireStaff(req: Request, res: Response, next: NextFunction) {

@@ -1,5 +1,7 @@
--- Separate event-workspace access from ordinary organization membership roles.
--- A current membership is required through the composite foreign key below.
+-- Historical, retired event-workspace access model. The following migration
+-- creates the original tables for existing databases; the subsequent
+-- 20260905 transition migrates eligible member grants into organization members
+-- and freezes these tables as read-only provenance.
 
 CREATE TABLE IF NOT EXISTS nonprofit_event_workspace_access (
   id varchar(100) PRIMARY KEY DEFAULT gen_random_uuid(),

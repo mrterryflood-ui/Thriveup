@@ -436,7 +436,7 @@ const ctxHubItems: NavItem[] = [
 const myOrgItems: NavItem[] = [
   { title: "Organization Dashboard", url: "/partner-portal", icon: LayoutDashboard },
   { title: "Organization Profile", url: "/settings/organization", icon: Building2 },
-  { title: "Community Events & Impact", url: "/organization/events", icon: CalendarCheck, staffOnly: true },
+  { title: "Community Events & Impact", url: "/organization/events", icon: CalendarCheck },
   { title: "Document Library", url: "/settings/documents", icon: FileText },
 ];
 

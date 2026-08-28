@@ -5575,7 +5575,7 @@ export const organizationMembers = pgTable("organization_members", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   orgId: varchar("org_id", { length: 100 }).notNull(),
   userId: varchar("user_id", { length: 255 }).notNull(),
-  role: varchar("role", { length: 32 }).notNull().default("member"), // owner | member
+  role: varchar("role", { length: 32 }).notNull().default("member"), // owner | admin | manager | staff | member | collaborator
   invitedByUserId: varchar("invited_by_user_id", { length: 255 }),
   joinedAt: timestamp("joined_at").defaultNow().notNull(),
 }, (t) => [
@@ -5587,42 +5587,18 @@ export const insertOrganizationMemberSchema = createInsertSchema(organizationMem
 export type InsertOrganizationMember = z.infer<typeof insertOrganizationMemberSchema>;
 export type OrganizationMember = typeof organizationMembers.$inferSelect;
 
-// A deliberately narrow grant for the private Community Events & Impact
-// workspace. It supplements (never replaces) an organization membership and
-// a platform-level staff role, so normal collaborator status remains intact.
-export const nonprofitEventWorkspaceAccess = pgTable("nonprofit_event_workspace_access", {
+export const organizationEventWorkspaceAccessAudit = pgTable("organization_event_workspace_access_audit", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  userId: varchar("user_id", { length: 255 }).notNull(),
-  authorizedByUserId: varchar("authorized_by_user_id", { length: 255 }).notNull(),
-  authorizedAt: timestamp("authorized_at", { withTimezone: true }).defaultNow().notNull(),
+  subjectUserId: varchar("subject_user_id", { length: 255 }).notNull(),
+  actorUserId: varchar("actor_user_id", { length: 255 }).notNull(),
+  action: varchar("action", { length: 16 }).notNull(),
+  workspaceRole: varchar("workspace_role", { length: 32 }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
 }, (t) => [
-  uniqueIndex("idx_nonprofit_event_workspace_access_unique").on(t.orgId, t.userId),
-  index("idx_nonprofit_event_workspace_access_user").on(t.userId),
-  foreignKey({
-    name: "nonprofit_event_workspace_access_active_member_fk",
-    columns: [t.orgId, t.userId],
-    foreignColumns: [organizationMembers.orgId, organizationMembers.userId],
-  }).onDelete("cascade"),
+  index("idx_org_event_workspace_access_audit_org_created").on(t.orgId, t.createdAt),
+  index("idx_org_event_workspace_access_audit_subject_created").on(t.subjectUserId, t.createdAt),
 ]);
-
-export const nonprofitEventWorkspaceAccessAudit = pgTable("nonprofit_event_workspace_access_audit", {
-  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
-  orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
-  targetUserId: varchar("target_user_id", { length: 255 }).notNull(),
-  changedByUserId: varchar("changed_by_user_id", { length: 255 }).notNull(),
-  action: varchar("action", { length: 32 }).notNull(),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-}, (t) => [
-  index("idx_nonprofit_event_workspace_access_audit_org").on(t.orgId, t.createdAt),
-]);
-
-// ============================================================================
-// NONPROFIT COMMUNITY EVENTS & IMPACT
-// Private, organization-scoped planning and learning records. These are not
-// attendee rosters or case-management data: attendance is aggregate-only.
-// ============================================================================
-
 export const nonprofitEvents = pgTable("nonprofit_events", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   orgId: varchar("org_id", { length: 100 }).notNull().references(() => organizations.id, { onDelete: "cascade" }),
@@ -8195,3 +8171,5 @@ export type EastAustinReadinessPacket = typeof eastAustinReadinessPackets.$infer
 export type EastAustinReadinessGate = typeof eastAustinReadinessGates.$inferSelect;
 export type EastAustinReadinessSource = typeof eastAustinReadinessSources.$inferSelect;
 export type EastAustinReadinessTabletop = typeof eastAustinReadinessTabletops.$inferSelect;
+
+export type OrganizationEventWorkspaceAccessAudit = typeof organizationEventWorkspaceAccessAudit.$inferSelect;

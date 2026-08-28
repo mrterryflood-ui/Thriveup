@@ -3,6 +3,31 @@ import { db } from "./storage";
 import { users, organizations, organizationMembers } from "@shared/schema";
 import { and, eq } from "drizzle-orm";
 
+// The Community Events & Impact workspace is intentionally governed by two
+// independent persisted authorities: a platform staff role and an
+// organization-scoped membership role. Keep the predicates here so routes
+// that administer and enforce the workspace cannot drift apart.
+export const EVENT_WORKSPACE_PLATFORM_STAFF_ROLES = [
+  "admin",
+  "teacher",
+  "case_manager",
+  "facilitator",
+  "staff",
+] as const;
+export const EVENT_WORKSPACE_ACTIVE_MEMBER_ROLES = [
+  "owner",
+  "staff",
+] as const;
+export const EVENT_WORKSPACE_ASSIGNABLE_MEMBER_ROLE = "staff" as const;
+
+export function isEventWorkspacePlatformStaffRole(role: string | null | undefined): boolean {
+  return EVENT_WORKSPACE_PLATFORM_STAFF_ROLES.includes(role as typeof EVENT_WORKSPACE_PLATFORM_STAFF_ROLES[number]);
+}
+
+export function isEventWorkspaceActiveMemberRole(role: string | null | undefined): boolean {
+  return EVENT_WORKSPACE_ACTIVE_MEMBER_ROLES.includes(role as typeof EVENT_WORKSPACE_ACTIVE_MEMBER_ROLES[number]);
+}
+
 export function getUserId(req: Request): string | undefined {
   const u = (req as unknown as Record<string, unknown>).user as { claims?: { sub?: string }; id?: string } | undefined;
   return u?.claims?.sub || u?.id;

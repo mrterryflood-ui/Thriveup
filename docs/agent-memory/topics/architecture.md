@@ -63,6 +63,12 @@ Stack, codebase scale, where things live, key design decisions.
 ## Architecture decisions
 
 - **Collaborative AI:** 4-engine synthesis (Gemini · Claude · GPT-4o-mini · DeepSeek R1) + RAG + implementation science (CFIR · RE-AIM · RPLICE)
+- **Organization event-workspace access:** Private Community Events access
+  is always the conjunction of a persisted platform-staff role and an active
+  organization membership role. Organization owners can only make the narrow
+  same-organization `member` ↔ `staff` transition for an already eligible
+  member; management itself does not grant private event-data access. The
+  access history is dedicated, immutable, and content-free.
 
 ## 🚨 Cross-repo architecture (added 2026-05-27)
 
