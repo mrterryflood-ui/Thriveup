@@ -241,3 +241,33 @@ unchanged lock-protected suite immediately passed all five real flows. This is
 evidence of validation-environment contention, not grounds to claim a product
 regression is fixed or to weaken the gate.
 
+---
+
+## 2026-08-28 — Community Events archive/child-write concurrency
+
+**Claim:** An archived Community Event cannot receive a final concurrent child
+write after its archive transaction commits.
+
+**Verified by:** normal development startup applying forward migrations; a
+focused live server/database verifier; direct final-state queries; strict
+TypeScript plus the integrated-flow foundation check; memory health and formal
+preflight; local authenticated browser rendering; six independent adversarial
+audit domains; and an isolated architecture review.
+
+**Outcome:** Confirmed. The first concurrency test used a timer and could not
+prove that each competing write had reached the contested lock. Independent
+review overturned that proof method before completion. The revised test
+observes the actual PostgreSQL blocking chain from attendance, need, action,
+and story writers to the uncommitted archive transaction, then confirms each
+write is rejected and its stored baseline remains unchanged. The first
+all-project authentication-gate run then caught a verifier-only unhandled
+expected rejection; result handling was moved to query launch, and both the
+focused verifier and complete gate passed. Direct child-table truncation also
+fails closed. A subsequent main-branch rebase retained the incoming
+in-transaction lifecycle validation with the archival guards; the restarted
+application and focused, full-gate, TypeScript, preflight, and memory checks
+passed again on the merged source.
+
+**Class:** Concurrency-proof methodology gap caught during verification and
+converted into a deterministic database-level regression guard before release.
+

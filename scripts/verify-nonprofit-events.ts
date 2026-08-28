@@ -22,12 +22,27 @@ const ORG_B = "e2e-nonprofit-events-org-b";
 const ORG_LEGACY = "e2e-nonprofit-events-org-legacy";
 
 function verifyMigrationSource() {
-  const migration = readFileSync(
+  const privacyMigration = readFileSync(
     new URL("../migrations/20260902_nonprofit_events_privacy_hardening.sql", import.meta.url),
     "utf8",
   );
-  if (/chk_nonprofit_event_stories_nonidentifying_attribution[\s\S]{0,500}NOT VALID/i.test(migration)) {
+  if (/chk_nonprofit_event_stories_nonidentifying_attribution[\s\S]{0,500}NOT VALID/i.test(privacyMigration)) {
     fail("nonprofit-event privacy migration must not create an inline NOT VALID check constraint");
+  }
+  const [integrityMigration, archivalLockMigration, archivalTruncateMigration] = [
+    "../migrations/20260903_nonprofit_events_integrity.sql",
+    "../migrations/20260908_nonprofit_event_archival_write_lock.sql",
+    "../migrations/20260909_nonprofit_event_archival_truncate_guard.sql",
+  ].map((path) => readFileSync(new URL(path, import.meta.url), "utf8"));
+  for (const migration of [integrityMigration, archivalLockMigration]) {
+    if (!migration.includes("enforce_nonprofit_event_child_mutation()") || !migration.includes("FOR UPDATE")) {
+      fail("nonprofit-event child write migrations must lock and recheck the parent event");
+    }
+  }
+  for (const migration of [integrityMigration, archivalTruncateMigration]) {
+    if (!migration.includes("reject_nonprofit_event_child_truncate()") || !migration.includes("BEFORE TRUNCATE")) {
+      fail("nonprofit-event child write migrations must block direct table truncation");
+    }
   }
 }
 
@@ -41,14 +56,11 @@ async function body(response: Response) {
   const text = await response.text();
   try { return JSON.parse(text); } catch { return text; }
 }
-async function requestAt(baseUrl: string, path: string, cookie: string, orgId: string, init: RequestInit = {}) {
-  return fetch(`${baseUrl}${path}`, {
+async function request(path: string, cookie: string, orgId: string, init: RequestInit = {}) {
+  return fetch(`${BASE}${path}`, {
     ...init,
     headers: { "content-type": "application/json", cookie, "x-org-id": orgId, ...(init.headers ?? {}) },
   });
-}
-async function request(path: string, cookie: string, orgId: string, init: RequestInit = {}) {
-  return requestAt(BASE, path, cookie, orgId, init);
 }
 
 async function run() {
@@ -151,6 +163,89 @@ async function run() {
     );
     if (legacyScalarForeignKeys.rows[0]?.count !== "0") {
       fail("legacy scalar nonprofit-event foreign keys remain beside composite tenant keys");
+    }
+
+    const childWriteTriggers = await db.query<{
+      tableName: string;
+      triggerName: string;
+      triggerDefinition: string;
+    }>(
+      `SELECT c.relname AS "tableName",
+              t.tgname AS "triggerName",
+              pg_get_triggerdef(t.oid) AS "triggerDefinition"
+         FROM pg_trigger t
+         JOIN pg_class c ON c.oid = t.tgrelid
+        WHERE NOT t.tgisinternal
+          AND t.tgname IN (
+            'trg_nonprofit_event_attendance_active_parent',
+            'trg_nonprofit_event_needs_active_parent',
+            'trg_nonprofit_event_actions_active_parent',
+            'trg_nonprofit_event_stories_active_parent'
+          )
+        ORDER BY c.relname`,
+    );
+    const expectedChildWriteTriggers = new Map([
+      ["nonprofit_event_attendance", "trg_nonprofit_event_attendance_active_parent"],
+      ["nonprofit_event_needs", "trg_nonprofit_event_needs_active_parent"],
+      ["nonprofit_event_actions", "trg_nonprofit_event_actions_active_parent"],
+      ["nonprofit_event_stories", "trg_nonprofit_event_stories_active_parent"],
+    ]);
+    if (
+      childWriteTriggers.rows.length !== expectedChildWriteTriggers.size
+      || childWriteTriggers.rows.some(
+        ({ tableName, triggerName, triggerDefinition }) =>
+          expectedChildWriteTriggers.get(tableName) !== triggerName
+          || !/BEFORE INSERT OR DELETE OR UPDATE/.test(triggerDefinition)
+          || !/enforce_nonprofit_event_child_mutation/.test(triggerDefinition),
+      )
+    ) {
+      fail("every nonprofit-event child mutation must use the locked active-parent trigger");
+    }
+    const childWriteFunction = await db.query<{ definition: string }>(
+      `SELECT pg_get_functiondef('enforce_nonprofit_event_child_mutation'::regproc) AS definition`,
+    );
+    if (
+      childWriteFunction.rows.length !== 1
+      || !/FOR UPDATE/.test(childWriteFunction.rows[0].definition)
+      || !/Archived events are read-only/.test(childWriteFunction.rows[0].definition)
+    ) {
+      fail("nonprofit-event child write trigger does not lock and reject archived parents");
+    }
+    const childTruncateTriggers = await db.query<{
+      tableName: string;
+      triggerName: string;
+      triggerDefinition: string;
+    }>(
+      `SELECT c.relname AS "tableName",
+              t.tgname AS "triggerName",
+              pg_get_triggerdef(t.oid) AS "triggerDefinition"
+         FROM pg_trigger t
+         JOIN pg_class c ON c.oid = t.tgrelid
+        WHERE NOT t.tgisinternal
+          AND t.tgname IN (
+            'trg_nonprofit_event_attendance_no_truncate',
+            'trg_nonprofit_event_needs_no_truncate',
+            'trg_nonprofit_event_actions_no_truncate',
+            'trg_nonprofit_event_stories_no_truncate'
+          )
+        ORDER BY c.relname`,
+    );
+    const expectedChildTruncateTriggers = new Map([
+      ["nonprofit_event_attendance", "trg_nonprofit_event_attendance_no_truncate"],
+      ["nonprofit_event_needs", "trg_nonprofit_event_needs_no_truncate"],
+      ["nonprofit_event_actions", "trg_nonprofit_event_actions_no_truncate"],
+      ["nonprofit_event_stories", "trg_nonprofit_event_stories_no_truncate"],
+    ]);
+    if (
+      childTruncateTriggers.rows.length !== expectedChildTruncateTriggers.size
+      || childTruncateTriggers.rows.some(
+        ({ tableName, triggerName, triggerDefinition }) =>
+          expectedChildTruncateTriggers.get(tableName) !== triggerName
+          || !/BEFORE TRUNCATE/.test(triggerDefinition)
+          || !/reject_nonprofit_event_child_truncate/.test(triggerDefinition),
+      )
+    ) {
+      fail("every nonprofit-event child table must reject direct truncation");
     }
 
     const [eventsPageSource, orgSettingsSource, legacyMigrationSource] = await Promise.all([
@@ -571,11 +666,30 @@ async function run() {
     if (!appendOnlyBlocked) fail("audit records could be modified directly in the database");
     ok("kept audit history append-only without private story text");
 
-    const raceCreate = await request("/api/nonprofit-events/events", ownerCookie, ORG_A, {
+    for (const tableName of [
+      "nonprofit_event_attendance",
+      "nonprofit_event_needs",
+      "nonprofit_event_actions",
+      "nonprofit_event_stories",
+    ]) {
+      let truncateBlocked = false;
+      await db.query("BEGIN");
+      try {
+        await db.query(`TRUNCATE ${tableName}`);
+      } catch (error) {
+        truncateBlocked = error instanceof Error && error.message.includes("cannot be truncated");
+      } finally {
+        await db.query("ROLLBACK");
+      }
+      if (!truncateBlocked) fail(`direct truncation was not blocked for ${tableName}`);
+    }
+    ok("blocked direct child-table truncation from bypassing archive protections");
+
+    const raceEventCreate = await request("/api/nonprofit-events/events", ownerCookie, ORG_A, {
       method: "POST",
       body: JSON.stringify({
-        title: "E2E Community Skate Race",
-        purpose: "Exercise transactional archive ordering without attendee data.",
+        title: "E2E Archive Write Lock",
+        purpose: "Prove a concurrent aggregate attendance update cannot alter an archived event.",
         eventDate: "2030-03-16",
         format: "in_person",
         locationName: "Community rink",
@@ -583,39 +697,226 @@ async function run() {
         communityNeedFocus: ["safe recreation"],
       }),
     });
-    if (raceCreate.status !== 201) fail(`race event create returned ${raceCreate.status}: ${JSON.stringify(await body(raceCreate))}`);
-    const raceEventId = (await body(raceCreate)).event?.id;
+    if (raceEventCreate.status !== 201) fail(`race event create returned ${raceEventCreate.status}: ${JSON.stringify(await body(raceEventCreate))}`);
+    const raceEventId = (await body(raceEventCreate)).event?.id;
     if (!raceEventId) fail("race event create response omitted event.id");
+    const initialRaceAttendance = await request(`/api/nonprofit-events/events/${raceEventId}/attendance`, ownerCookie, ORG_A, {
+      method: "PUT",
+      body: JSON.stringify({ invitedCount: 4, registeredCount: 3, attendedCount: 2, followUpCount: 1, valueSource: "self_reported" }),
+    });
+    if (initialRaceAttendance.status !== 200) fail(`race attendance setup returned ${initialRaceAttendance.status}: ${JSON.stringify(await body(initialRaceAttendance))}`);
+    const raceNeedCreate = await request(`/api/nonprofit-events/events/${raceEventId}/needs`, ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        needArea: "safe recreation",
+        sourceName: "Archive race setup",
+        geography: "Wichita, KS",
+        evidenceStatus: "self_reported",
+        responseExplanation: "The event's initial response relationship remains intact after archival.",
+      }),
+    });
+    if (raceNeedCreate.status !== 201) fail(`race need setup returned ${raceNeedCreate.status}: ${JSON.stringify(await body(raceNeedCreate))}`);
+    const raceNeedId = (await body(raceNeedCreate)).need?.id;
+    if (!raceNeedId) fail("race need setup response omitted need.id");
+    const raceActionCreate = await request(`/api/nonprofit-events/events/${raceEventId}/actions`, ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        title: "Preserve archive race baseline",
+        ownerLabel: "Event coordinator",
+        dueDate: "2030-03-01",
+        status: "planned",
+        nextStep: "Keep the original action record unchanged after archival.",
+      }),
+    });
+    if (raceActionCreate.status !== 201) fail(`race action setup returned ${raceActionCreate.status}: ${JSON.stringify(await body(raceActionCreate))}`);
+    const raceActionId = (await body(raceActionCreate)).action?.id;
+    if (!raceActionId) fail("race action setup response omitted action.id");
+    const raceStoryCreate = await request(`/api/nonprofit-events/events/${raceEventId}/stories`, ownerCookie, ORG_A, {
+      method: "POST",
+      body: JSON.stringify({
+        title: "Archive race private reflection",
+        storyText: "A private anonymous reflection used only to prove archived records cannot change.",
+        attributionPreference: "anonymous",
+        intendedAudience: "private",
+        permittedUses: [],
+        consentGranted: false,
+        sharingState: "draft",
+      }),
+    });
+    if (raceStoryCreate.status !== 201) fail(`race story setup returned ${raceStoryCreate.status}: ${JSON.stringify(await body(raceStoryCreate))}`);
+    const raceStoryId = (await body(raceStoryCreate)).story?.id;
+    if (!raceStoryId) fail("race story setup response omitted story.id");
 
-    const lockClient = new Client({ connectionString: requireEnv("DATABASE_URL") });
-    const mutationClient = new Client({ connectionString: requireEnv("DATABASE_URL") });
-    await lockClient.connect();
-    await mutationClient.connect();
-    let holderCommitted = false;
+    const archiveWriter = new Client({ connectionString: requireEnv("DATABASE_URL") });
+    const childMutations = [
+      {
+        label: "attendance",
+        query: `UPDATE nonprofit_event_attendance
+                  SET invited_count = 9,
+                      registered_count = 9,
+                      attended_count = 9,
+                      follow_up_count = 9
+                WHERE event_id = $1`,
+        values: [raceEventId],
+      },
+      {
+        label: "need",
+        query: `UPDATE nonprofit_event_needs
+                  SET response_explanation = $4
+                WHERE id = $1
+                  AND event_id = $2
+                  AND org_id = $3`,
+        values: [raceNeedId, raceEventId, ORG_A, "This replacement need explanation must never be stored."],
+      },
+      {
+        label: "action",
+        query: `UPDATE nonprofit_event_actions
+                  SET next_step = $4
+                WHERE id = $1
+                  AND event_id = $2
+                  AND org_id = $3`,
+        values: [raceActionId, raceEventId, ORG_A, "This replacement action step must never be stored."],
+      },
+      {
+        label: "story",
+        query: `UPDATE nonprofit_event_stories
+                  SET story_text = $4
+                WHERE id = $1
+                  AND event_id = $2
+                  AND org_id = $3`,
+        values: [raceStoryId, raceEventId, ORG_A, "This replacement story text must never be stored."],
+      },
+    ];
+    const childWriters = childMutations.map(() => new Client({ connectionString: requireEnv("DATABASE_URL") }));
+    let archiveWriterInTransaction = false;
+    let childWritersInTransaction = false;
     try {
-      await lockClient.query("BEGIN");
-      await lockClient.query("SELECT id FROM nonprofit_events WHERE id = $1 FOR UPDATE", [raceEventId]);
-      await mutationClient.query("BEGIN");
-      const waitingMutation = mutationClient.query<{ status: string }>(
-        "SELECT status FROM nonprofit_events WHERE id = $1 FOR UPDATE",
-        [raceEventId],
+      await Promise.all([archiveWriter.connect(), ...childWriters.map((writer) => writer.connect())]);
+      const archivePid = Number((await archiveWriter.query<{ pid: number }>("SELECT pg_backend_pid() AS pid")).rows[0]?.pid);
+      const childPids = (await Promise.all(
+        childWriters.map(async (writer) => Number((await writer.query<{ pid: number }>("SELECT pg_backend_pid() AS pid")).rows[0]?.pid)),
+      ));
+      if (!Number.isInteger(archivePid) || childPids.some((pid) => !Number.isInteger(pid))) {
+        fail("race test could not identify the PostgreSQL sessions that must synchronize");
+      }
+      await archiveWriter.query("BEGIN");
+      archiveWriterInTransaction = true;
+      const archiveLock = await archiveWriter.query(
+        `UPDATE nonprofit_events
+            SET status = 'archived',
+                archived_at = now(),
+                updated_at = now()
+          WHERE id = $1
+            AND org_id = $2
+        RETURNING id`,
+        [raceEventId, ORG_A],
       );
-      await new Promise((resolve) => setTimeout(resolve, 100));
-      await lockClient.query(
-        "UPDATE nonprofit_events SET status = 'archived', archived_at = NOW(), updated_at = NOW() WHERE id = $1",
-        [raceEventId],
+      if (archiveLock.rowCount !== 1) fail("race archive transaction did not lock the expected event");
+
+      await Promise.all(childWriters.map((writer) => writer.query("BEGIN")));
+      childWritersInTransaction = true;
+      const blockedChildUpdates = childWriters.map((writer, index) =>
+        writer.query(childMutations[index].query, childMutations[index].values)
+          .then(() => undefined)
+          .catch((error: unknown) => error),
       );
-      await lockClient.query("COMMIT");
-      holderCommitted = true;
-      const [lockedEvent] = (await waitingMutation).rows;
-      if (lockedEvent?.status !== "archived") fail(`waiting mutation observed ${lockedEvent?.status ?? "no row"}, expected archived`);
-      await mutationClient.query("ROLLBACK");
-      ok("serialized a waiting mutation behind an archive transition");
+      const childLockWaitDeadline = Date.now() + 3_000;
+      let archiveBlockedChildPids = new Set<number>();
+      while (Date.now() < childLockWaitDeadline) {
+        const lockWaits = await db.query<{ pid: number }>(
+          `WITH RECURSIVE blocking_chain AS (
+             SELECT child.pid AS "childPid",
+                    child.pid AS "blockingPid",
+                    ARRAY[child.pid] AS visited
+               FROM unnest($2::int[]) AS child(pid)
+             UNION ALL
+             SELECT chain."childPid",
+                    blocker.pid AS "blockingPid",
+                    chain.visited || blocker.pid
+               FROM blocking_chain AS chain
+               CROSS JOIN LATERAL unnest(pg_blocking_pids(chain."blockingPid")) AS blocker(pid)
+              WHERE NOT blocker.pid = ANY(chain.visited)
+           )
+           SELECT DISTINCT "childPid" AS pid
+             FROM blocking_chain
+            WHERE "blockingPid" = $1`,
+          [archivePid, childPids],
+        );
+        archiveBlockedChildPids = new Set(lockWaits.rows.map(({ pid }) => Number(pid)));
+        if (childPids.every((pid) => archiveBlockedChildPids.has(pid))) break;
+        await new Promise((resolve) => setTimeout(resolve, 20));
+      }
+      if (!childPids.every((pid) => archiveBlockedChildPids.has(pid))) {
+        fail(`child writes did not reach a confirmed PostgreSQL lock chain behind archival: ${JSON.stringify([...archiveBlockedChildPids])}`);
+      }
+
+      await archiveWriter.query("COMMIT");
+      archiveWriterInTransaction = false;
+      const childErrors = await Promise.all(blockedChildUpdates);
+      for (const [index, childError] of childErrors.entries()) {
+        if (!(childError instanceof Error) || !childError.message.includes("Archived events are read-only")) {
+          fail(`${childMutations[index].label} update was not rejected after concurrent archival: ${String(childError)}`);
+        }
+      }
+      await Promise.all(childWriters.map((writer) => writer.query("ROLLBACK")));
+      childWritersInTransaction = false;
+
+      const raceState = await db.query<{
+        status: string;
+        invitedCount: number;
+        registeredCount: number;
+        attendedCount: number;
+        followUpCount: number;
+        needResponse: string;
+        actionNextStep: string;
+        storyText: string;
+      }>(
+        `SELECT event.status,
+                attendance.invited_count AS "invitedCount",
+                attendance.registered_count AS "registeredCount",
+                attendance.attended_count AS "attendedCount",
+                attendance.follow_up_count AS "followUpCount",
+                need.response_explanation AS "needResponse",
+                action.next_step AS "actionNextStep",
+                story.story_text AS "storyText"
+           FROM nonprofit_events AS event
+           JOIN nonprofit_event_attendance AS attendance
+             ON attendance.event_id = event.id
+           JOIN nonprofit_event_needs AS need
+             ON need.event_id = event.id
+            AND need.id = $3
+           JOIN nonprofit_event_actions AS action
+             ON action.event_id = event.id
+            AND action.id = $4
+           JOIN nonprofit_event_stories AS story
+             ON story.event_id = event.id
+            AND story.id = $5
+          WHERE event.id = $1
+            AND event.org_id = $2
+            AND need.org_id = event.org_id
+            AND action.org_id = event.org_id
+            AND story.org_id = event.org_id`,
+        [raceEventId, ORG_A, raceNeedId, raceActionId, raceStoryId],
+      );
+      const raceRow = raceState.rows[0];
+      if (
+        raceState.rows.length !== 1
+        || raceRow.status !== "archived"
+        || raceRow.invitedCount !== 4
+        || raceRow.registeredCount !== 3
+        || raceRow.attendedCount !== 2
+        || raceRow.followUpCount !== 1
+        || raceRow.needResponse !== "The event's initial response relationship remains intact after archival."
+        || raceRow.actionNextStep !== "Keep the original action record unchanged after archival."
+        || raceRow.storyText !== "A private anonymous reflection used only to prove archived records cannot change."
+      ) {
+        fail(`concurrent archive/update altered an archived event record: ${JSON.stringify(raceState.rows)}`);
+      }
+      ok("locked concurrent archive and all child updates so archived records remain unchanged");
     } finally {
-      if (!holderCommitted) await lockClient.query("ROLLBACK").catch(() => {});
-      await mutationClient.query("ROLLBACK").catch(() => {});
-      await lockClient.end().catch(() => {});
-      await mutationClient.end().catch(() => {});
+      if (archiveWriterInTransaction) await archiveWriter.query("ROLLBACK").catch(() => {});
+      if (childWritersInTransaction) await Promise.all(childWriters.map((writer) => writer.query("ROLLBACK").catch(() => {})));
+      await Promise.all([...childWriters.map((writer) => writer.end().catch(() => {})), archiveWriter.end().catch(() => {})]);
     }
 
     const archived = await request(`/api/nonprofit-events/events/${eventId}/archive`, ownerCookie, ORG_A, { method: "POST" });

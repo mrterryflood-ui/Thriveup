@@ -391,7 +391,10 @@ export function registerNonprofitEventRoutes(app: Express) {
           locationDetails: input.locationDetails === undefined ? undefined : asNullableText(input.locationDetails),
           updatedByUserId: userId,
           updatedAt: new Date(),
-        }).where(eq(nonprofitEvents.id, event.id)).returning();
+        }).where(and(
+          eq(nonprofitEvents.id, event.id),
+          eq(nonprofitEvents.orgId, event.orgId),
+        )).returning();
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "event", entityId: event.id, action: "updated", actorUserId: userId, details: { fields: Object.keys(input) } });
         return [row];
       });
@@ -472,7 +475,11 @@ export function registerNonprofitEventRoutes(app: Express) {
         const event = await lockWritableEvent(tx, req, need.eventId);
         const [row] = await tx.update(nonprofitEventNeeds).set({
           ...input, sourceUrl: input.sourceUrl === undefined ? undefined : asNullableText(input.sourceUrl), updatedAt: new Date(),
-        }).where(eq(nonprofitEventNeeds.id, need.id)).returning();
+        }).where(and(
+          eq(nonprofitEventNeeds.id, need.id),
+          eq(nonprofitEventNeeds.eventId, event.id),
+          eq(nonprofitEventNeeds.orgId, event.orgId),
+        )).returning();
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "need_link", entityId: need.id, action: "updated", actorUserId: userId, details: { fields: Object.keys(input) } });
         return [row];
       });
@@ -492,7 +499,11 @@ export function registerNonprofitEventRoutes(app: Express) {
           .for("update");
         if (!need) throw new EventMutationError(404, "Need link not found.");
         const event = await lockWritableEvent(tx, req, need.eventId);
-        await tx.delete(nonprofitEventNeeds).where(eq(nonprofitEventNeeds.id, need.id));
+        await tx.delete(nonprofitEventNeeds).where(and(
+          eq(nonprofitEventNeeds.id, need.id),
+          eq(nonprofitEventNeeds.eventId, event.id),
+          eq(nonprofitEventNeeds.orgId, event.orgId),
+        ));
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "need_link", entityId: need.id, action: "removed", actorUserId: userId, details: { needArea: need.needArea } });
       });
       res.json({ ok: true });
@@ -547,7 +558,11 @@ export function registerNonprofitEventRoutes(app: Express) {
           completedAt: next.status === "completed" ? (action.completedAt ?? new Date()) : null,
           updatedByUserId: userId,
           updatedAt: new Date(),
-        }).where(eq(nonprofitEventActions.id, action.id)).returning();
+        }).where(and(
+          eq(nonprofitEventActions.id, action.id),
+          eq(nonprofitEventActions.eventId, event.id),
+          eq(nonprofitEventActions.orgId, event.orgId),
+        )).returning();
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "action", entityId: action.id, action: "updated", actorUserId: userId, details: { fields: Object.keys(input), status: row.status } });
         return [row];
       });
@@ -617,7 +632,11 @@ export function registerNonprofitEventRoutes(app: Express) {
           withdrawnAt: input.sharingState === "withdrawn" ? now : story.withdrawnAt,
           updatedByUserId: userId,
           updatedAt: now,
-        }).where(eq(nonprofitEventStories.id, story.id)).returning();
+        }).where(and(
+          eq(nonprofitEventStories.id, story.id),
+          eq(nonprofitEventStories.eventId, event.id),
+          eq(nonprofitEventStories.orgId, event.orgId),
+        )).returning();
         const transition = input.sharingState === "withdrawn" ? "withdrawn" : next.sharingState === "approved" ? "approved" : "updated";
         await recordAudit(tx, { orgId: event.orgId, eventId: event.id, entityType: "story", entityId: story.id, action: transition, actorUserId: userId, details: { audience: next.intendedAudience, consentGranted: next.consentGranted, permittedUseCount: next.permittedUses.length } });
         return [row];

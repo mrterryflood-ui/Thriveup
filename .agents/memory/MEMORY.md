@@ -56,6 +56,7 @@
 - [Nonprofit identity lookup (Navigator)](nonprofit-identity-lookup.md) — ProPublica Nonprofit Explorer (EIN/501c3/990) + Perplexity web search ground named-org questions; distinct from Census place-data; GPP blocked both directions by their Clerk wall.
 - [Census place-level query key requirement](census-place-key-requirement.md) — ACS5 batched queries at the **place** (city) level require `CENSUS_API_KEY`; county-subdivision (CCD) queries work keyless. Inconsistent by geography level — verified live both ways.
 - [Owner-managed event-workspace access](event-workspace-owner-access.md) — owner grants are only narrow member↔staff transitions; preserve two persisted access authorities and immutable content-free history.
+- [Event archive write locks](event-archive-write-locks.md) — archive permanence needs parent-row locks, DB guards, and wait-graph—not timer—proof.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.
