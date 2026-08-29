@@ -525,7 +525,7 @@ const SIDEBAR_NAV_ITEMS: NavItem[] = [
   ...adminTeachingItems.map((item) => ({ ...item, adminOnly: true, authOnly: true })),
 ];
 
-export function getSidebarNavigationAccess(url: string): Pick<NavItem, "authOnly" | "adminOnly" | "staffOnly"> {
+export function getSidebarNavigationAccess(url: string): Pick<NavItem, "authOnly" | "adminOnly" | "staffOnly"> & { matched: boolean } {
   const path = url.split("?")[0];
   const match = SIDEBAR_NAV_ITEMS
     .filter((item) => {
@@ -537,6 +537,7 @@ export function getSidebarNavigationAccess(url: string): Pick<NavItem, "authOnly
     authOnly: match?.authOnly,
     adminOnly: match?.adminOnly,
     staffOnly: match?.staffOnly,
+    matched: Boolean(match),
   };
 }
 

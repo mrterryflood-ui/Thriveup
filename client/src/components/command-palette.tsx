@@ -28,7 +28,7 @@ export interface CommandItem {
   keywords?: string;
 }
 
-const ALL_ITEMS: CommandItem[] = [
+export const ALL_ITEMS: CommandItem[] = [
   { group: "Home", label: "Hub Home", path: "/hub", icon: Home, keywords: "home dashboard" },
   { group: "Home", label: "This Week (Monday Brief)", path: "/this-week", icon: Calendar, keywords: "weekly brief" },
   { group: "Home", label: "Neighborhood Intel", path: "/neighborhood", icon: MapPin },

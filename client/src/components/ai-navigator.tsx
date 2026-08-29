@@ -2053,7 +2053,7 @@ export function AINavigator({
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 group"
+        className="fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] sm:bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 rounded-full bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-700 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 group"
         data-testid="button-open-navigator"
         aria-label="Open AI Navigator"
       >
@@ -2074,7 +2074,7 @@ export function AINavigator({
 
   return (
     <div
-      className={`fixed bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 ${panelWidth} ${panelHeight} flex flex-col bg-background border rounded-2xl shadow-2xl overflow-hidden transition-all duration-200`}
+      className={`fixed bottom-[calc(4.5rem+env(safe-area-inset-bottom))] sm:bottom-6 left-4 right-4 sm:left-auto sm:right-6 z-50 ${panelWidth} ${panelHeight} flex flex-col bg-background border rounded-2xl shadow-2xl overflow-hidden transition-all duration-200`}
       data-testid="navigator-panel"
     >
       {/* Header */}
