@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useAuth } from "@/hooks/use-auth";
+import { getSidebarNavigationAccess } from "@/components/app-sidebar";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
@@ -25,32 +26,7 @@ export interface CommandItem {
   icon: React.ElementType;
   group: string;
   keywords?: string;
-  /** Visible only to signed-in users */
-  requiresAuth?: boolean;
-  /** Visible only to admin/staff users */
-  requiresAdmin?: boolean;
 }
-
-// Paths that require sign-in — derived from the sidebar's authOnly flag.
-const AUTH_REQUIRED_PATHS = new Set([
-  "/my-journey", "/my-household", "/my-documents", "/my-appointments",
-  "/my-grants", "/grants/applications",
-  "/rfp-fidelity", "/grant-narrative", "/loi-writer", "/grant-packages",
-  "/won-proposals", "/grants", "/apex-accelerators", "/ceds",
-  "/regional-briefing",
-  "/intake", "/resident-journey",
-  "/foster-youth/toolkit", "/foster-youth/wellbeing",
-  "/foster-youth/benefits", "/fafsa-navigator",
-  "/my-referrals",
-]);
-
-// Paths that require an admin or staff role — derived from the sidebar's adminOnly flag.
-const ADMIN_REQUIRED_PATHS = new Set([
-  "/grants", "/my-grants", "/grants/applications",
-  "/rfp-fidelity", "/grant-narrative", "/loi-writer", "/grant-packages",
-  "/won-proposals", "/apex-accelerators", "/ceds",
-  "/regional-briefing",
-]);
 
 const ALL_ITEMS: CommandItem[] = [
   { group: "Home", label: "Hub Home", path: "/hub", icon: Home, keywords: "home dashboard" },
@@ -179,17 +155,19 @@ export function CommandPalette() {
   const { isAuthenticated, user } = useAuth();
 
   const userRole = (user as any)?.role as string | undefined;
-  const isAdmin = !!(userRole && ["admin", "teacher", "case_manager", "facilitator", "staff"].includes(userRole)) || !!(user as any)?.isTcafAdmin;
+  const isAdmin = userRole === "admin" || !!(user as any)?.isTcafAdmin;
+  const isStaff = ["admin", "teacher", "case_manager", "facilitator", "staff"].includes(userRole || "");
 
   _openCommandPalette = () => setOpen(true);
 
-  // Filter items by auth state and role, matching the sidebar's authOnly/adminOnly behaviour.
+  // Filter items using the sidebar's own route metadata, before text search.
   const visibleItems = useMemo(() => ALL_ITEMS.filter((item) => {
-    const pathBase = item.path.split("?")[0];
-    if (ADMIN_REQUIRED_PATHS.has(pathBase)) return isAdmin;
-    if (AUTH_REQUIRED_PATHS.has(pathBase)) return isAuthenticated;
+    const access = getSidebarNavigationAccess(item.path);
+    if (access.adminOnly && !isAdmin) return false;
+    if (access.staffOnly && !isStaff) return false;
+    if (access.authOnly && !isAuthenticated) return false;
     return true;
-  }), [isAuthenticated, isAdmin]);
+  }), [isAuthenticated, isAdmin, isStaff]);
 
   const filtered = query.trim()
     ? visibleItems.filter((item) => {

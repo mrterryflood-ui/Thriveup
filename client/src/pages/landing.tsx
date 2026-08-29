@@ -1930,25 +1930,58 @@ export default function LandingPage() {
 
           {/* Subtitle */}
           <p className="mb-3 px-2" data-testid="text-hero-subtitle"
-            style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 580, lineHeight: 1.75 }}>
-            <strong>Free for families</strong> seeking a next step. <strong>Built for nonprofits</strong> that need connected tools to serve their communities. <strong>Useful to funders</strong> who want to understand, support, and measure what works.
+            style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 580, lineHeight: 1.65 }}>
+            Free for families seeking a next step. Built for the people and organizations that help communities move forward.
           </p>
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
-            style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.7 }}>
-            A national platform for people and the organizations that serve them.{" "}
+            style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.65 }}>
+            Start with a guided next step for your family, your work, or your community.{" "}
             <Link href="/coverage" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-coverage">
-              Built to reach every U.S. community
+              See where we operate
             </Link>
-            {" "}— begin with a guided next step; account requirements vary by tool.
-            Veteran-founded. Community-serving.
+            {" "}· account requirements vary by tool.
           </p>
 
-          <p className="text-xs mb-8 px-2" data-testid="text-hero-identity"
+          <p className="text-xs mb-5 px-2" data-testid="text-hero-identity"
             style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
             {IDENTITY_STRAP} · Built for every community in America.
             Free for families. No prerequisites. No paperwork.
           </p>
+
+          {/* The first decision is intentionally small and plain-language.
+              Deeper ecosystem and research paths remain below the hero. */}
+          <div className="w-full max-w-3xl mb-5" data-testid="hero-primary-actions">
+            <p className="text-[11px] font-black uppercase tracking-[0.16em] mb-3" style={{ color: heroMuted }}>
+              Choose your next step
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-left">
+              <Link href="/get-help"
+                className="min-h-12 rounded-xl px-4 py-3 flex items-center gap-2.5 font-semibold text-sm"
+                style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.28)" }}
+                data-testid="button-hero-get-help">
+                <Heart className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>I need help now</span>
+                <ArrowRight className="h-4 w-4 ml-auto shrink-0" aria-hidden="true" />
+              </Link>
+              <Link href="/benefits-screener"
+                className="min-h-12 rounded-xl px-4 py-3 flex items-center gap-2.5 font-semibold text-sm"
+                style={{ ...secondaryBtn, backdropFilter: "blur(8px)" }}
+                data-testid="button-hero-benefits">
+                <Shield className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>Check my benefits</span>
+                <ArrowRight className="h-4 w-4 ml-auto shrink-0" aria-hidden="true" />
+              </Link>
+              <Link href="/hub"
+                className="min-h-12 rounded-xl px-4 py-3 flex items-center gap-2.5 font-semibold text-sm"
+                style={{ ...secondaryBtn, backdropFilter: "blur(8px)" }}
+                data-testid="button-hero-serve">
+                <Users className="h-4 w-4 shrink-0" aria-hidden="true" />
+                <span>I serve people or an organization</span>
+                <ArrowRight className="h-4 w-4 ml-auto shrink-0" aria-hidden="true" />
+              </Link>
+            </div>
+          </div>
 
           <div className="w-full max-w-3xl mb-6 rounded-2xl px-4 py-3 text-left sm:text-center"
             style={{ background: isDark ? "rgba(15,23,42,0.72)" : "rgba(255,255,255,0.7)", border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(15,23,42,0.12)"}`, backdropFilter: "blur(10px)" }}
@@ -1965,30 +1998,6 @@ export default function LandingPage() {
             <div className="text-xs mt-1" style={{ color: heroMuted }}>
               For the communities HBCUs, nonprofits, and trusted partners serve — with source, limits, and action ownership visible.
             </div>
-          </div>
-
-          {/* CTAs */}
-          <div className="flex flex-wrap gap-4 justify-center mb-6">
-            <Link href="/community-impact" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-              style={{ background: "linear-gradient(135deg,#f59e0b,#e11d48)", color: "#fff", boxShadow: "0 0 28px rgba(245,158,11,0.32)", border: "none", cursor: "pointer" }}
-              data-testid="button-hero-community-brief">
-                See community conditions →
-            </Link>
-            <Link href="/ecosystem-story" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-              style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
-              data-testid="button-hero-intervention">
-                See how the system connects →
-            </Link>
-            <Link href="/benefits-screener" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-              style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
-              data-testid="button-hero-benefits">
-                I Need Help for My Family →
-            </Link>
-            <Link href="/agency-connector" className="px-7 py-3.5 rounded-lg font-semibold text-sm"
-              style={{ ...secondaryBtn, backdropFilter: "blur(8px)", cursor: "pointer" }}
-              data-testid="button-hero-approach">
-                Connect your organization →
-            </Link>
           </div>
 
           {/* Live stat strip */}

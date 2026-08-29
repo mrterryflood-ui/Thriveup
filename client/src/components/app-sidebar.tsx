@@ -48,7 +48,7 @@ import { clearCurrentOrgSelection } from "@/hooks/use-current-org";
 import type { StudentProgress, AcademyAvatar } from "@shared/schema";
 import type { LucideIcon } from "lucide-react";
 
-interface NavItem {
+export interface NavItem {
   title: string;
   url: string;
   icon: LucideIcon;
@@ -498,6 +498,48 @@ const adminTeachingItems: NavItem[] = [
   { title: "Social Media Literacy", url: "/social-media-literacy", icon: Smartphone },
 ];
 
+// The sidebar is the source of truth for destination visibility. The command
+// palette consumes this registry too, so adding or tightening a sidebar gate
+// cannot silently expose the same destination through search.
+const SIDEBAR_NAV_ITEMS: NavItem[] = [
+  ...quickTaskItems,
+  ...getFundedItems,
+  ...servePeopleItems,
+  ...fosterYouthItems,
+  ...justiceReentryItems,
+  ...preventionHealthItems,
+  ...workforceTradesItems,
+  ...academyLearningItems,
+  ...partnersCoalitionsItems,
+  ...connectedSiteItems,
+  ...whereWeOperateItems,
+  ...aboutTrustItems,
+  ...hubChildCareWorkforce,
+  ...hubRuralAg,
+  ...ctxHubItems,
+  ...myOrgItems.map((item) => ({ ...item, authOnly: true })),
+  ...adminOperationsItems.map((item) => ({ ...item, adminOnly: true, authOnly: true })),
+  ...adminProgramItems.map((item) => ({ ...item, adminOnly: true, authOnly: true })),
+  ...adminInternalItems.map((item) => ({ ...item, adminOnly: true, authOnly: true })),
+  ...adminAcademyItems.map((item) => ({ ...item, adminOnly: true, authOnly: true })),
+  ...adminTeachingItems.map((item) => ({ ...item, adminOnly: true, authOnly: true })),
+];
+
+export function getSidebarNavigationAccess(url: string): Pick<NavItem, "authOnly" | "adminOnly" | "staffOnly"> {
+  const path = url.split("?")[0];
+  const match = SIDEBAR_NAV_ITEMS
+    .filter((item) => {
+      const itemPath = item.url.split("?")[0];
+      return path === itemPath || path.startsWith(`${itemPath}/`);
+    })
+    .sort((a, b) => b.url.length - a.url.length)[0];
+  return {
+    authOnly: match?.authOnly,
+    adminOnly: match?.adminOnly,
+    staffOnly: match?.staffOnly,
+  };
+}
+
 const rankIcons: Record<string, typeof Shield> = {
   Shield, ShieldCheck, ShieldPlus, Swords, Medal,
 };
@@ -521,9 +563,10 @@ function isItemActive(location: string, url: string): boolean {
 
 function filterAuth(items: NavItem[], isAuthenticated: boolean, isAdmin: boolean, isStaff = false): NavItem[] {
   return items.filter((i) => {
-    if (i.adminOnly && !isAdmin) return false;
-    if (i.staffOnly && !isStaff) return false;
-    if (i.authOnly && !isAuthenticated) return false;
+    const access = getSidebarNavigationAccess(i.url);
+    if (access.adminOnly && !isAdmin) return false;
+    if (access.staffOnly && !isStaff) return false;
+    if (access.authOnly && !isAuthenticated) return false;
     return true;
   });
 }

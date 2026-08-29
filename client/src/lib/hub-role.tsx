@@ -182,20 +182,20 @@ export function HubOnramp({ onSelect, onDismiss }: HubOnrampProps) {
     <div
       ref={dialogRef}
       onKeyDown={handleKeyDown}
-      className="fixed inset-0 z-[200] bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3"
+      className="fixed inset-0 z-[200] bg-background/80 backdrop-blur-sm flex items-end sm:items-center justify-center p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:pb-3"
       role="dialog"
       aria-modal="true"
       aria-labelledby="hub-onramp-title"
       aria-describedby="hub-onramp-description"
     >
       <div
-        className="bg-card border border-border rounded-3xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="bg-card border border-border rounded-3xl shadow-2xl w-full max-w-lg max-h-[calc(100svh-1.5rem-env(safe-area-inset-bottom))] sm:max-h-[90vh] overflow-y-auto overscroll-contain"
         data-testid="modal-onramp"
       >
-        <div className="bg-gradient-to-br from-violet-600 to-indigo-700 rounded-t-3xl px-6 pt-6 pb-5 relative">
+        <div className="bg-gradient-to-br from-violet-600 to-indigo-700 rounded-t-3xl px-4 sm:px-6 pt-5 sm:pt-6 pb-5 relative">
           <button
             onClick={() => close(onDismiss)}
-            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors"
+            className="absolute top-3 right-3 sm:top-4 sm:right-4 w-11 h-11 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-colors touch-manipulation"
             data-testid="button-onramp-dismiss"
             aria-label="Skip for now"
           >
@@ -207,13 +207,13 @@ export function HubOnramp({ onSelect, onDismiss }: HubOnrampProps) {
           </p>
         </div>
 
-        <div className="p-3 space-y-2">
+        <div className="p-2 sm:p-3 space-y-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))]">
           {ROLE_OPTIONS.map(({ id, label, desc, Icon, gradient }) => (
             <button
               key={id}
               onClick={() => close(() => onSelect(id))}
               ref={id === ROLE_OPTIONS[0].id ? firstOptionRef : undefined}
-              className="w-full flex items-center gap-3 p-3.5 rounded-2xl border border-border hover:border-primary/40 hover:bg-muted/60 transition-all text-left active:scale-[0.98] group"
+              className="w-full flex items-center gap-3 p-3.5 min-h-[4.5rem] rounded-2xl border border-border hover:border-primary/40 hover:bg-muted/60 transition-all text-left active:scale-[0.98] group touch-manipulation"
               data-testid={`button-role-${id}`}
             >
               <div className={cn(
