@@ -34,6 +34,14 @@ function isNotReported(value: MetricValue | null | undefined): boolean {
   return value === NOT_YET_REPORTED;
 }
 
+/** For display: return the raw value when it is a sentinel string (not yet
+ * reported or suppressed "<5"), otherwise return the pre-coerced fallback. */
+function dispRaw(raw: MetricValue | null | undefined, fallback: number | string): MetricValue {
+  if (raw === null || raw === undefined) return fallback;
+  if (raw === NOT_YET_REPORTED || (typeof raw === "string" && raw.startsWith("<"))) return raw;
+  return fallback;
+}
+
 /** Display a metric value: numbers as-is, sentinel as "Not yet reported". */
 function displayValue(value: MetricValue | null | undefined, suffix = ""): string {
   if (value === null || value === undefined) return "Not yet reported";
@@ -390,13 +398,17 @@ function getStatusConfig(status: string) {
 function MetricCard({ label, value, unit, icon: Icon, color, subtext }: {
   label: string; value: number | string; unit?: string; icon: typeof Users; color: string; subtext?: string;
 }) {
+  const isSentinel = typeof value === "string" && (value === NOT_YET_REPORTED || value.startsWith("<"));
+  const displayText = unit === "$"
+    ? (isSentinel ? String(value) : `$${Number(value).toLocaleString()}`)
+    : value;
   return (
     <Card data-testid={`card-metric-${label.toLowerCase().replace(/\s+/g, '-')}`}>
       <CardContent className="p-4">
         <div className="flex items-center justify-between gap-2">
           <div>
             <p className="text-2xl font-bold">
-              {unit === "$" ? `$${Number(value).toLocaleString()}` : value}{unit && unit !== "$" ? unit : ""}
+              {displayText}{!isSentinel && unit && unit !== "$" ? unit : ""}
             </p>
             <p className="text-sm text-muted-foreground">{label}</p>
             {subtext && <p className="text-xs text-muted-foreground mt-0.5">{subtext}</p>}
@@ -555,22 +567,22 @@ function SmartGoalsTracker({ metrics, outcomes, dosage, impact }: {
   );
 }
 
-function FunderView({ metrics, outcomes, dosage, impact }: {
-  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
+function FunderView({ metrics, rawMetrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; rawMetrics: RawPlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
 }) {
   return (
     <div className="space-y-6" data-testid="view-funder">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Program Fidelity" value={metrics?.facilitator?.avgFidelity ?? 0} unit="/5" icon={Activity} color="text-violet-500" subtext="Avg across all programs" />
+        <MetricCard label="Program Fidelity" value={dispRaw(rawMetrics?.facilitator?.avgFidelity, metrics?.facilitator?.avgFidelity ?? 0)} unit="/5" icon={Activity} color="text-violet-500" subtext="Avg across all programs" />
         <MetricCard label="Outcome Measurements" value={outcomes?.totalOutcomes ?? 0} icon={BarChart3} color="text-emerald-500" subtext="Total tracked metrics" />
         <MetricCard label="Milestone Completion" value={`${outcomes?.milestoneCompletionRate ?? 0}%`} icon={CheckCircle2} color="text-blue-500" subtext="Across all active plans" />
-        <MetricCard label="Funding Secured" value={metrics?.grants?.totalFundingSecured ?? 0} unit="$" icon={Target} color="text-amber-500" subtext="Total awarded grants" />
+        <MetricCard label="Funding Secured" value={dispRaw(rawMetrics?.grants?.totalFundingSecured, metrics?.grants?.totalFundingSecured ?? 0)} unit="$" icon={Target} color="text-amber-500" subtext="Total awarded grants" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard label="Participants Served" value={impact?.youthServed ?? outcomes?.uniqueParticipants ?? 0} icon={Users} color="text-blue-600" />
-        <MetricCard label="Dosage Hours" value={dosage?.totalHours ?? metrics?.facilitator?.totalDosageHours ?? 0} unit=" hrs" icon={Clock} color="text-indigo-500" />
+        <MetricCard label="Dosage Hours" value={dosage?.totalHours ?? dispRaw(rawMetrics?.facilitator?.totalDosageHours, metrics?.facilitator?.totalDosageHours ?? 0)} unit=" hrs" icon={Clock} color="text-indigo-500" />
         <MetricCard label="Active Plans" value={outcomes?.totalActivePlans ?? 0} icon={FileBarChart} color="text-rose-500" />
-        <MetricCard label="Applications In Progress" value={metrics?.grants?.applicationsInProgress ?? 0} icon={Target} color="text-purple-500" />
+        <MetricCard label="Applications In Progress" value={dispRaw(rawMetrics?.grants?.applicationsInProgress, metrics?.grants?.applicationsInProgress ?? 0)} icon={Target} color="text-purple-500" />
       </div>
       <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
       <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
@@ -578,16 +590,16 @@ function FunderView({ metrics, outcomes, dosage, impact }: {
   );
 }
 
-function PartnerView({ metrics, outcomes, dosage, impact }: {
-  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
+function PartnerView({ metrics, rawMetrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; rawMetrics: RawPlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
 }) {
   return (
     <div className="space-y-6" data-testid="view-partner">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Partner Organizations" value={metrics?.coalition?.classroomsActive ?? 0} icon={Handshake} color="text-blue-500" subtext="Active collaborations" />
+        <MetricCard label="Partner Organizations" value={dispRaw(rawMetrics?.coalition?.classroomsActive, metrics?.coalition?.classroomsActive ?? 0)} icon={Handshake} color="text-blue-500" subtext="Active collaborations" />
         <MetricCard label="Referrals Coordinated" value={outcomes?.totalActivePlans ?? 0} icon={ArrowRight} color="text-emerald-500" subtext="Cross-agency referrals" />
         <MetricCard label="Shared Goal Progress" value={`${outcomes?.milestoneCompletionRate ?? 0}%`} icon={Target} color="text-violet-500" subtext="Coalition-wide milestones" />
-        <MetricCard label="Certificates Issued" value={metrics?.coalition?.certificatesIssued ?? 0} icon={Award} color="text-amber-500" subtext="Cross-partner trainings" />
+        <MetricCard label="Certificates Issued" value={dispRaw(rawMetrics?.coalition?.certificatesIssued, metrics?.coalition?.certificatesIssued ?? 0)} icon={Award} color="text-amber-500" subtext="Cross-partner trainings" />
       </div>
       <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
       <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
@@ -595,22 +607,22 @@ function PartnerView({ metrics, outcomes, dosage, impact }: {
   );
 }
 
-function SchoolView({ metrics, impact, outcomes, dosage }: {
-  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
+function SchoolView({ metrics, rawMetrics, impact, outcomes, dosage }: {
+  metrics: PlatformMetrics | null; rawMetrics: RawPlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
 }) {
   return (
     <div className="space-y-6" data-testid="view-school">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Students Engaged" value={impact?.youthServed ?? metrics?.prevention?.youthReached ?? 0} icon={GraduationCap} color="text-emerald-500" subtext="Active participants" />
-        <MetricCard label="Lessons Completed" value={impact?.lessonsCompleted ?? metrics?.engagement?.lessonsCompleted ?? 0} icon={BookOpen} color="text-blue-500" subtext="Curriculum progress" />
-        <MetricCard label="Prevention Modules" value={metrics?.prevention?.modulesCompleted ?? 0} icon={Shield} color="text-violet-500" subtext="SEL / prevention completion" />
+        <MetricCard label="Students Engaged" value={impact?.youthServed ?? dispRaw(rawMetrics?.prevention?.youthReached, metrics?.prevention?.youthReached ?? 0)} icon={GraduationCap} color="text-emerald-500" subtext="Active participants" />
+        <MetricCard label="Lessons Completed" value={impact?.lessonsCompleted ?? dispRaw(rawMetrics?.engagement?.lessonsCompleted, metrics?.engagement?.lessonsCompleted ?? 0)} icon={BookOpen} color="text-blue-500" subtext="Curriculum progress" />
+        <MetricCard label="Prevention Modules" value={dispRaw(rawMetrics?.prevention?.modulesCompleted, metrics?.prevention?.modulesCompleted ?? 0)} icon={Shield} color="text-violet-500" subtext="SEL / prevention completion" />
         <MetricCard label="Avg Score" value={`${metrics?.prevention?.avgScore ?? impact?.averageScore ?? 0}%`} icon={TrendingUp} color="text-amber-500" subtext="Assessment performance" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard label="Badges Earned" value={impact?.badgesEarned ?? 0} icon={Award} color="text-rose-500" />
         <MetricCard label="Certificates" value={impact?.certificatesIssued ?? metrics?.coalition?.certificatesIssued ?? 0} icon={Award} color="text-indigo-500" />
-        <MetricCard label="Classrooms Active" value={metrics?.coalition?.classroomsActive ?? 0} icon={School} color="text-emerald-600" />
-        <MetricCard label="Quizzes Completed" value={metrics?.engagement?.quizzesCompleted ?? 0} icon={ClipboardCheck} color="text-blue-600" />
+        <MetricCard label="Classrooms Active" value={dispRaw(rawMetrics?.coalition?.classroomsActive, metrics?.coalition?.classroomsActive ?? 0)} icon={School} color="text-emerald-600" />
+        <MetricCard label="Quizzes Completed" value={dispRaw(rawMetrics?.engagement?.quizzesCompleted, metrics?.engagement?.quizzesCompleted ?? 0)} icon={ClipboardCheck} color="text-blue-600" />
       </div>
       <SalpFidelityPanel metrics={metrics} outcomes={outcomes} dosage={dosage} />
       <SmartGoalsTracker metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
@@ -618,8 +630,8 @@ function SchoolView({ metrics, impact, outcomes, dosage }: {
   );
 }
 
-function JusticeView({ metrics, outcomes, dosage, impact }: {
-  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
+function JusticeView({ metrics, rawMetrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; rawMetrics: RawPlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
 }) {
   const totalParticipants = outcomes?.uniqueParticipants ?? 0;
   const activePlans = outcomes?.totalActivePlans ?? 0;
@@ -679,8 +691,8 @@ function JusticeView({ metrics, outcomes, dosage, impact }: {
   );
 }
 
-function ParentView({ metrics, impact, outcomes, dosage }: {
-  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
+function ParentView({ metrics, rawMetrics, impact, outcomes, dosage }: {
+  metrics: PlatformMetrics | null; rawMetrics: RawPlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null;
 }) {
   const totalParentModules = 6;
   const modulesCompleted = metrics?.parent?.modulesCompleted ?? 0;
@@ -697,7 +709,7 @@ function ParentView({ metrics, impact, outcomes, dosage }: {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <MetricCard label="Youth Engaged" value={impact?.youthServed ?? metrics?.prevention?.youthReached ?? 0} icon={Users} color="text-rose-500" subtext="Active in programs" />
         <MetricCard label="Parent Modules" value={`${modulesCompleted}/${totalParentModules}`} icon={BookOpen} color="text-blue-500" subtext={`${overallPct}% complete`} />
-        <MetricCard label="Family Assessments" value={metrics?.parent?.familyAssessments ?? 0} icon={ClipboardCheck} color="text-emerald-500" subtext="Completed screenings" />
+        <MetricCard label="Family Assessments" value={dispRaw(rawMetrics?.parent?.familyAssessments, metrics?.parent?.familyAssessments ?? 0)} icon={ClipboardCheck} color="text-emerald-500" subtext="Completed screenings" />
         <MetricCard label="Prevention Progress" value={`${metrics?.prevention?.avgScore ?? 0}%`} icon={Shield} color="text-violet-500" subtext="Youth prevention scores" />
       </div>
       <Card data-testid="card-parent-engagement">
@@ -741,19 +753,19 @@ function ParentView({ metrics, impact, outcomes, dosage }: {
   );
 }
 
-function StaffView({ metrics, outcomes, dosage, impact }: {
-  metrics: PlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
+function StaffView({ metrics, rawMetrics, outcomes, dosage, impact }: {
+  metrics: PlatformMetrics | null; rawMetrics: RawPlatformMetrics | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; impact: ImpactData | null;
 }) {
   return (
     <div className="space-y-6" data-testid="view-staff">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Active Users" value={metrics?.engagement?.activeUsers30d ?? 0} icon={Users} color="text-blue-500" subtext="30-day active" />
-        <MetricCard label="Dosage Hours" value={dosage?.totalHours ?? metrics?.facilitator?.totalDosageHours ?? 0} unit=" hrs" icon={Clock} color="text-indigo-500" subtext="Total delivered" />
-        <MetricCard label="Fidelity Score" value={metrics?.facilitator?.avgFidelity ?? 0} unit="/5" icon={Activity} color="text-emerald-500" subtext="Program adherence" />
-        <MetricCard label="Sessions Delivered" value={metrics?.facilitator?.sessionsDelivered ?? 0} icon={ClipboardCheck} color="text-violet-500" subtext="Total facilitated" />
+        <MetricCard label="Active Users" value={dispRaw(rawMetrics?.engagement?.activeUsers30d, metrics?.engagement?.activeUsers30d ?? 0)} icon={Users} color="text-blue-500" subtext="30-day active" />
+        <MetricCard label="Dosage Hours" value={dosage?.totalHours ?? dispRaw(rawMetrics?.facilitator?.totalDosageHours, metrics?.facilitator?.totalDosageHours ?? 0)} unit=" hrs" icon={Clock} color="text-indigo-500" subtext="Total delivered" />
+        <MetricCard label="Fidelity Score" value={dispRaw(rawMetrics?.facilitator?.avgFidelity, metrics?.facilitator?.avgFidelity ?? 0)} unit="/5" icon={Activity} color="text-emerald-500" subtext="Program adherence" />
+        <MetricCard label="Sessions Delivered" value={dispRaw(rawMetrics?.facilitator?.sessionsDelivered, metrics?.facilitator?.sessionsDelivered ?? 0)} icon={ClipboardCheck} color="text-violet-500" subtext="Total facilitated" />
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <MetricCard label="Facilitators" value={metrics?.facilitator?.totalFacilitators ?? 0} icon={Users} color="text-amber-500" />
+        <MetricCard label="Facilitators" value={dispRaw(rawMetrics?.facilitator?.totalFacilitators, metrics?.facilitator?.totalFacilitators ?? 0)} icon={Users} color="text-amber-500" />
         <MetricCard label="Outcome Measurements" value={outcomes?.totalOutcomes ?? 0} icon={BarChart3} color="text-rose-500" />
         <MetricCard label="Total Sessions" value={dosage?.totalSessions ?? 0} icon={Activity} color="text-teal-500" />
         <MetricCard label="Response Rate" value={`${metrics?.email?.responseRate ?? 0}%`} icon={TrendingUp} color="text-purple-500" />
@@ -764,8 +776,8 @@ function StaffView({ metrics, outcomes, dosage, impact }: {
   );
 }
 
-function ParticipantView({ metrics, impact, outcomes, dosage, progress }: {
-  metrics: PlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; progress: PersonalProgress | null;
+function ParticipantView({ metrics, rawMetrics, impact, outcomes, dosage, progress }: {
+  metrics: PlatformMetrics | null; rawMetrics: RawPlatformMetrics | null; impact: ImpactData | null; outcomes: OutcomeDashboard | null; dosage: DosageSummary | null; progress: PersonalProgress | null;
 }) {
   const personalLessons = progress?.lessonsCompleted ?? 0;
   const personalQuizzes = progress?.quizzesCompleted ?? 0;
@@ -997,25 +1009,25 @@ export default function TransparencyDashboardPage() {
 
             <div className="mt-6">
               <TabsContent value="funder">
-                <FunderView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
+                <FunderView metrics={metrics} rawMetrics={rawMetrics ?? null} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="partner">
-                <PartnerView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
+                <PartnerView metrics={metrics} rawMetrics={rawMetrics ?? null} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="school">
-                <SchoolView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} />
+                <SchoolView metrics={metrics} rawMetrics={rawMetrics ?? null} impact={impact} outcomes={outcomes} dosage={dosage} />
               </TabsContent>
               <TabsContent value="justice">
-                <JusticeView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
+                <JusticeView metrics={metrics} rawMetrics={rawMetrics ?? null} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="parent">
-                <ParentView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} />
+                <ParentView metrics={metrics} rawMetrics={rawMetrics ?? null} impact={impact} outcomes={outcomes} dosage={dosage} />
               </TabsContent>
               <TabsContent value="staff">
-                <StaffView metrics={metrics} outcomes={outcomes} dosage={dosage} impact={impact} />
+                <StaffView metrics={metrics} rawMetrics={rawMetrics ?? null} outcomes={outcomes} dosage={dosage} impact={impact} />
               </TabsContent>
               <TabsContent value="participant">
-                <ParticipantView metrics={metrics} impact={impact} outcomes={outcomes} dosage={dosage} progress={progress} />
+                <ParticipantView metrics={metrics} rawMetrics={rawMetrics ?? null} impact={impact} outcomes={outcomes} dosage={dosage} progress={progress} />
               </TabsContent>
             </div>
           </Tabs>

@@ -6,6 +6,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sparkles, Send, Bot, User, GraduationCap, Zap, Brain, Heart, Flame, Moon, Trash2, ShieldAlert } from "lucide-react";
 import { Link } from "wouter";
 
+/** 30-day TTL for persisted AI-companion conversations. */
+const SPARK_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
 interface Message {
   role: "user" | "assistant";
   content: string;
@@ -101,13 +104,24 @@ export default function AICompanion({ subject, lessonContext, className, languag
     setMessages([language === "es" ? WELCOME_ES : WELCOME_EN]);
   }, [language]);
 
-  // Restore conversation from localStorage on mount
+  // Restore conversation from localStorage on mount.
   useEffect(() => {
     const saved = localStorage.getItem(storageKey);
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) setMessages(parsed);
+        // Support both legacy bare-array format and the newer {messages, savedAt} envelope.
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setMessages(parsed);
+        } else if (parsed && typeof parsed === "object" && Array.isArray(parsed.messages)) {
+          const age = Date.now() - (parsed.savedAt ?? 0);
+          if (age < SPARK_TTL_MS && parsed.messages.length > 0) {
+            setMessages(parsed.messages);
+          } else {
+            // Expired — evict.
+            localStorage.removeItem(storageKey);
+          }
+        }
       } catch {}
     }
   }, [storageKey]);
@@ -115,11 +129,15 @@ export default function AICompanion({ subject, lessonContext, className, languag
   // Save conversation to localStorage after every exchange. Keep only the last
   // 100 messages per subject, and bound the TOTAL number of per-subject keys so
   // conversation storage can't grow unbounded across many subjects — prune the
-  // oldest subject keys (tracked via an index) when over the cap.
+  // oldest subject keys (tracked via an index) when over the cap. Uses a
+  // {messages, savedAt} envelope so expiry can be checked on next load.
   useEffect(() => {
     if (messages.length > 1) {
       pruneSparkKeys(storageKey);
-      try { localStorage.setItem(storageKey, JSON.stringify(messages.slice(-100))); } catch {}
+      try {
+        const envelope = { messages: messages.slice(-100), savedAt: Date.now() };
+        localStorage.setItem(storageKey, JSON.stringify(envelope));
+      } catch {}
     }
   }, [messages, storageKey]);
 

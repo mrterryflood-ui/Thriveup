@@ -71,6 +71,23 @@ self.addEventListener("fetch", (event) => {
   // otherwise be replayed to another user. Bundles are safe to cache because
   // they contain no user-specific response data.
   const isStaticAsset = STATIC_ASSETS.includes(url.pathname) || url.pathname.startsWith("/assets/");
+
+  // Navigation fallback: for same-origin HTML navigations that aren't a cached
+  // static asset, try the network first. If offline and the root shell is
+  // cached, return it so the SPA can hydrate rather than showing a browser
+  // network-error page. API routes are excluded above; this only reaches
+  // navigations to app routes like /hub, /grants, etc.
+  if (!isStaticAsset && request.mode === "navigate") {
+    event.respondWith(
+      fetch(request).catch(async () => {
+        const cache = await caches.open(CACHE_NAME);
+        const shell = await cache.match("/");
+        return shell || Response.error();
+      })
+    );
+    return;
+  }
+
   if (!isStaticAsset) return;
 
   // Static assets: cache-first with background refresh, bounded.
