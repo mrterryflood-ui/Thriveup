@@ -1,0 +1,66 @@
+~/workspace$ BEGIN;
+
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM public.organization_members
+    GROUP BY org_id, user_id
+    HAVING count(*) > 1
+  ) THEN
+    RAISE EXCEPTION
+      'Duplicate organization_members (org_id, user_id) pairs exist; nothing changed';
+  END IF;
+
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint
+    WHERE conrelid = 'public.organization_members'::regclass
+      AND conname = 'organization_members_org_user_unique'
+      AND contype = 'u'
+  ) THEN
+    ALTER TABLE public.organization_members
+      ADD CONSTRAINT organization_members_org_user_unique
+      UNIQUE USING INDEX idx_org_members_unique;
+  END IF;
+END
+$$;
+
+ALTER TABLE public.nonprofit_event_workspace_access
+  ADD CONSTRAINT nonprofit_event_workspace_access_active_member_fk
+  FOREIGN KEY (org_id, user_id)
+  REFERENCES public.organization_members (org_id, user_id)
+  ON DELETE CASCADE;
+
+COMMIT;
+bash: BEGIN: command not found
+bash: DO: command not found
+bash: BEGIN: command not found
+bash: syntax error near unexpected token `('
+bash: SELECT: command not found
+bash: FROM: command not found
+bash: GROUP: command not found
+bash: syntax error near unexpected token `('
+bash: syntax error near unexpected token `)'
+bash: RAISE: command not found
+bash: Duplicate organization_members (org_id, user_id) pairs exist; nothing changed: command not found
+bash: END: command not found
+bash: syntax error near unexpected token `('
+bash: SELECT: command not found
+bash: FROM: command not found
+bash: WHERE: command not found
+bash: AND: command not found
+bash: AND: command not found
+bash: syntax error near unexpected token `)'
+bash: ALTER: command not found
+bash: ADD: command not found
+bash: UNIQUE: command not found
+bash: END: command not found
+bash: END: command not found
+bash: 6890: command not found
+bash: ALTER: command not found
+bash: ADD: command not found
+bash: syntax error near unexpected token `('
+bash: syntax error near unexpected token `('
+bash: ON: command not found
+bash: COMMIT: command not found
