@@ -44,7 +44,7 @@ BEGIN
       AND conname = 'chk_nonprofit_event_handoffs_source_snapshot_shape'
   ) THEN
     ALTER TABLE nonprofit_event_handoffs
-      ADD CONSTRAINT chk_nonprofit_event_handoffs_source_snapshot_shape
+      ADD CONSTRAINT "chk_nonprofit_event_handoffs_source_snapshot_shape"
       CHECK (validate_nonprofit_event_handoff_snapshot(source_snapshot));
   END IF;
 END $$;
