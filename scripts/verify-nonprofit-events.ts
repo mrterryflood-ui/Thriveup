@@ -63,6 +63,9 @@ function verifyMigrationSource() {
   if (!handoffProvenanceMigration.includes("chk_nonprofit_event_handoffs_claim_types_nonempty") || !handoffProvenanceMigration.includes("chk_nonprofit_event_handoffs_source_snapshot_shape")) {
     fail("handoff provenance must have database-level shape and claim checks");
   }
+  if (/CHECK\s*\(\s*CHECK\b/i.test(handoffProvenanceMigration) || !/ADD CONSTRAINT\s+"chk_nonprofit_event_handoffs_source_snapshot_shape"\s+CHECK\s*\(\s*validate_nonprofit_event_handoff_snapshot\(source_snapshot\)\s*\)/is.test(handoffProvenanceMigration)) {
+    fail("source snapshot constraint must contain one balanced CHECK around validate_nonprofit_event_handoff_snapshot(source_snapshot)");
+  }
   if (!handoffTruncateMigration.includes("BEFORE TRUNCATE") || !handoffTruncateMigration.includes("nonprofit_event_handoffs_no_truncate")) {
     fail("handoff table must be protected from direct truncation");
   }
