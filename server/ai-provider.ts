@@ -7,13 +7,47 @@ import { getCurrentGraphContext } from "./knowledge-graph";
 type Provider = "gemini" | "claude" | "openrouter-claude" | "openai" | "replit-ai-integrations" | "deepseek-r1" | "perplexity";
 
 /**
- * Claude model fallback chain. claude-haiku-4-5 is the preferred model but
- * newer models can 404 before a key/plan has access — fall back to the
- * stable claude-3-5-haiku rather than losing the direct-Anthropic path
- * entirely. First model that succeeds is cached for the process lifetime.
+ * Direct Anthropic is a last-resort provider. Claude 3.x models are retired
+ * upstream and must not be probed during production requests.
  */
-const CLAUDE_MODEL_CHAIN = ["claude-haiku-4-5", "claude-3-5-haiku-20241022"];
+const CLAUDE_MODEL_CHAIN = ["claude-haiku-4-5"];
 let resolvedClaudeModel: string | null = null;
+
+function envTimeout(name: string, fallbackMs: number): number {
+  const value = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(value) && value > 0 ? value : fallbackMs;
+}
+
+const AI_PROVIDER_TIMEOUT_MS = envTimeout("AI_PROVIDER_TIMEOUT_MS", 20_000);
+const AI_REQUEST_DEADLINE_MS = envTimeout("AI_REQUEST_DEADLINE_MS", 30_000);
+
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, label: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${timeoutMs}ms`)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+async function withRequestDeadline<T>(
+  operation: (signal: AbortSignal) => Promise<T>,
+  label: string,
+): Promise<T> {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_REQUEST_DEADLINE_MS);
+  try {
+    return await withTimeout(operation(controller.signal), AI_REQUEST_DEADLINE_MS, label);
+  } finally {
+    clearTimeout(timer);
+    controller.abort();
+  }
+}
 
 function isModelNotFoundError(error: unknown): boolean {
   if (error && typeof error === "object") {
@@ -151,20 +185,29 @@ interface StreamAIResponseParams {
   // the fallback chain so it runs first. Never blocks — if the preferred
   // provider fails or is unavailable, the standard chain continues.
   preferredProvider?: string;
+  signal?: AbortSignal;
 }
 
 let geminiQuotaExhaustedUntil = 0;
 
-function getAvailableProviders(): Provider[] {
+export function getProviderOrder(environment: Record<string, string | undefined>): Provider[] {
   const providers: Provider[] = [];
-  if (process.env.ANTHROPIC_API_KEY || (process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY && process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) providers.push("claude");
   // openrouter-claude: uses OpenRouter to serve Claude — catches direct Anthropic failures
-  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("openrouter-claude");
-  if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
-  if (process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY && process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("deepseek-r1");
-  if (process.env.OPENAI_API_KEY) providers.push("openai");
-  if (process.env.GEMINI_API_KEY && Date.now() > geminiQuotaExhaustedUntil) providers.push("gemini");
+  if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("openrouter-claude");
+  if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("perplexity");
+  if (environment.AI_INTEGRATIONS_OPENROUTER_API_KEY && environment.AI_INTEGRATIONS_OPENROUTER_BASE_URL) providers.push("deepseek-r1");
+  if (environment.AI_INTEGRATIONS_OPENAI_API_KEY && environment.AI_INTEGRATIONS_OPENAI_BASE_URL) providers.push("replit-ai-integrations");
+  if (environment.OPENAI_API_KEY) providers.push("openai");
+  if (environment.GEMINI_API_KEY) providers.push("gemini");
+  // Direct Anthropic is deliberately last so exhausted credits never block a
+  // healthy OpenRouter/Perplexity/Gemini path.
+  if (environment.ANTHROPIC_API_KEY || (environment.AI_INTEGRATIONS_ANTHROPIC_API_KEY && environment.AI_INTEGRATIONS_ANTHROPIC_BASE_URL)) providers.push("claude");
   return providers;
+}
+
+function getAvailableProviders(): Provider[] {
+  const providers = getProviderOrder(process.env);
+  return providers.filter((provider) => provider !== "gemini" || Date.now() > geminiQuotaExhaustedUntil);
 }
 
 /** Perplexity (via OpenRouter) is available when OpenRouter creds exist. */
@@ -249,7 +292,10 @@ async function streamGemini(params: StreamAIResponseParams): Promise<void> {
     },
   });
 
-  const result = await model.generateContentStream({ contents });
+  const result = await model.generateContentStream(
+    { contents },
+    (params.signal ? { signal: params.signal } : undefined) as any,
+  );
 
   for await (const chunk of result.stream) {
     const text = chunk.text();
@@ -264,7 +310,11 @@ async function streamGemini(params: StreamAIResponseParams): Promise<void> {
 async function streamClaude(params: StreamAIResponseParams): Promise<void> {
   const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
   const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
-  const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
+  const client = new Anthropic({
+    apiKey: anthropicKey,
+    timeout: AI_PROVIDER_TIMEOUT_MS,
+    ...(anthropicBase ? { baseURL: anthropicBase } : {}),
+  });
 
   let systemPrompt: string | undefined;
   const chatMessages: Array<{ role: "user" | "assistant"; content: string }> = [];
@@ -304,7 +354,7 @@ async function streamClaude(params: StreamAIResponseParams): Promise<void> {
         ...(systemPrompt ? { system: systemPrompt } : {}),
         messages: chatMessages,
         ...(webSearchTool ? { tools: webSearchTool as any } : {}),
-      });
+      }, (params.signal ? { signal: params.signal } : undefined) as any);
 
       for await (const event of stream) {
         if (event.type === "content_block_delta") {
@@ -346,7 +396,7 @@ async function streamClaude(params: StreamAIResponseParams): Promise<void> {
  */
 async function claudeCreateWithFallback(
   client: Anthropic,
-  req: { max_tokens: number; system?: string; messages: Array<{ role: "user" | "assistant"; content: string }> },
+  req: { max_tokens: number; system?: string; messages: Array<{ role: "user" | "assistant"; content: string }>; signal?: AbortSignal },
 ): Promise<string> {
   const modelsToTry = resolvedClaudeModel ? [resolvedClaudeModel] : CLAUDE_MODEL_CHAIN;
   let lastError: unknown;
@@ -357,7 +407,7 @@ async function claudeCreateWithFallback(
         max_tokens: req.max_tokens,
         ...(req.system ? { system: req.system } : {}),
         messages: req.messages,
-      });
+      }, (req.signal ? { signal: req.signal } : undefined) as any);
       resolvedClaudeModel = model;
       const block = resp.content[0];
       return block.type === "text" ? block.text : "";
@@ -380,13 +430,14 @@ async function streamPerplexity(params: StreamAIResponseParams): Promise<void> {
   const client = new OpenAI({
     apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
     baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+    timeout: AI_PROVIDER_TIMEOUT_MS,
   });
   const stream = await client.chat.completions.create({
     model: "perplexity/sonar-pro",
     messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
     stream: true,
     max_tokens: params.maxTokens || 4000,
-  });
+  }, (params.signal ? { signal: params.signal } : undefined) as any);
   const seenUrls = new Set<string>();
   for await (const chunk of stream) {
     const choice: any = chunk.choices[0];
@@ -415,6 +466,22 @@ export async function perplexityResearch(
   prompt: string,
   systemPrompt?: string,
   maxTokens?: number,
+  signal?: AbortSignal,
+): Promise<{ text: string; citations: string[] }> {
+  if (!signal) {
+    return withRequestDeadline(
+      (requestSignal) => perplexityResearchWithSignal(prompt, systemPrompt, maxTokens, requestSignal),
+      "Perplexity request",
+    );
+  }
+  return perplexityResearchWithSignal(prompt, systemPrompt, maxTokens, signal);
+}
+
+async function perplexityResearchWithSignal(
+  prompt: string,
+  systemPrompt?: string,
+  maxTokens?: number,
+  signal?: AbortSignal,
 ): Promise<{ text: string; citations: string[] }> {
   if (!isPerplexityAvailable()) {
     throw new Error("Perplexity unavailable: OpenRouter credentials not configured");
@@ -422,6 +489,7 @@ export async function perplexityResearch(
   const client = new OpenAI({
     apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
     baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+    timeout: AI_PROVIDER_TIMEOUT_MS,
   });
   const resp = await client.chat.completions.create({
     model: "perplexity/sonar-pro",
@@ -431,7 +499,7 @@ export async function perplexityResearch(
     ],
     max_tokens: maxTokens || 1200,
     temperature: 0.2,
-  });
+  }, (signal ? { signal } : undefined) as any);
   const text = resp.choices[0]?.message?.content ?? "";
   const topLevel = resp as unknown as { citations?: string[]; search_results?: Array<{ url?: string }> };
   const annotations = (resp.choices[0]?.message as unknown as { annotations?: Array<{ type?: string; url_citation?: { url?: string } }> })?.annotations ?? [];
@@ -449,12 +517,13 @@ async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" |
   let model: string;
 
   if (provider === "openai") {
-    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+    client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY, timeout: AI_PROVIDER_TIMEOUT_MS });
     model = "gpt-5-mini";
   } else {
     client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
       baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
+      timeout: AI_PROVIDER_TIMEOUT_MS,
     });
     model = "gpt-5-nano";
   }
@@ -464,7 +533,7 @@ async function streamOpenAI(params: StreamAIResponseParams, provider: "openai" |
     messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
     stream: true,
     max_completion_tokens: params.maxTokens || 2000,
-  });
+  }, (params.signal ? { signal: params.signal } : undefined) as any);
 
   for await (const chunk of stream) {
     const content = chunk.choices[0]?.delta?.content || "";
@@ -480,6 +549,7 @@ async function streamDeepSeekR1(params: StreamAIResponseParams): Promise<void> {
   const client = new OpenAI({
     apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
     baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+    timeout: AI_PROVIDER_TIMEOUT_MS,
   });
 
   const stream = await client.chat.completions.create({
@@ -487,7 +557,7 @@ async function streamDeepSeekR1(params: StreamAIResponseParams): Promise<void> {
     messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
     stream: true,
     max_tokens: params.maxTokens || 4000,
-  });
+  }, (params.signal ? { signal: params.signal } : undefined) as any);
 
   for await (const chunk of stream) {
     const content = chunk.choices[0]?.delta?.content || "";
@@ -503,13 +573,14 @@ async function streamOpenRouterClaude(params: StreamAIResponseParams): Promise<v
   const client = new OpenAI({
     apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
     baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+    timeout: AI_PROVIDER_TIMEOUT_MS,
   });
   const stream = await client.chat.completions.create({
     model: "anthropic/claude-haiku-4-5",
     messages: params.messages as Array<{ role: "system" | "user" | "assistant"; content: string }>,
     stream: true,
     max_tokens: params.maxTokens || 8192,
-  });
+  }, (params.signal ? { signal: params.signal } : undefined) as any);
   for await (const chunk of stream) {
     const content = chunk.choices[0]?.delta?.content || "";
     if (content) params.onChunk(content);
@@ -540,10 +611,11 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
   // Persistent ethics/EI principle — wrap every JSON call's system prompt.
   systemPrompt = withEthicalPreamble(systemPrompt);
 
-  for (let i = 0; i < providers.length; i++) {
-    const provider = providers[i];
-    try {
-      let text = "";
+  return withRequestDeadline(async (signal) => {
+    for (let i = 0; i < providers.length; i++) {
+      const provider = providers[i];
+      try {
+        let text = "";
       if (provider === "gemini") {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
         const model = genAI.getGenerativeModel({
@@ -551,23 +623,33 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
           systemInstruction: systemPrompt,
           generationConfig: { maxOutputTokens: 4000, responseMimeType: "application/json" },
         });
-        const result = await model.generateContent(prompt);
+        const result = await withTimeout(
+          model.generateContent(prompt, { signal } as any),
+          AI_PROVIDER_TIMEOUT_MS,
+          "gemini JSON",
+        );
         text = result.response.text();
       } else if (provider === "claude") {
         const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
         const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
-        const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
+        const client = new Anthropic({
+          apiKey: anthropicKey,
+          timeout: AI_PROVIDER_TIMEOUT_MS,
+          ...(anthropicBase ? { baseURL: anthropicBase } : {}),
+        });
         const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
         chatMsgs.push({ role: "user", content: `${prompt}\n\nRespond with valid JSON only, no markdown.` });
-        text = (await claudeCreateWithFallback(client, {
+        text = await claudeCreateWithFallback(client, {
           max_tokens: 8192,
           system: systemPrompt,
           messages: chatMsgs,
-        })) || "{}";
+          signal,
+        });
       } else if (provider === "openrouter-claude") {
         const client = new OpenAI({
           apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
           baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+          timeout: AI_PROVIDER_TIMEOUT_MS,
         });
         const msgs: Array<{ role: "system" | "user"; content: string }> = [];
         if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
@@ -576,12 +658,13 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
           model: "anthropic/claude-haiku-4-5",
           messages: msgs,
           max_tokens: 4000,
-        });
-        text = resp.choices[0]?.message?.content || "{}";
+        }, { signal } as any);
+        text = resp.choices[0]?.message?.content || "";
       } else if (provider === "deepseek-r1") {
         const client = new OpenAI({
           apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
           baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+          timeout: AI_PROVIDER_TIMEOUT_MS,
         });
         const msgs: Array<{ role: "system" | "user"; content: string }> = [];
         if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
@@ -590,13 +673,14 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
           model: "deepseek/deepseek-r1",
           messages: msgs,
           max_tokens: 4000,
-        });
-        text = resp.choices[0]?.message?.content || "{}";
+        }, { signal } as any);
+        text = resp.choices[0]?.message?.content || "";
       } else {
         const isReplit = provider === "replit-ai-integrations";
         const client = new OpenAI({
           apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
           baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
+          timeout: AI_PROVIDER_TIMEOUT_MS,
         });
         const msgs: Array<{ role: "system" | "user"; content: string }> = [];
         if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
@@ -606,31 +690,32 @@ export async function generateAIJSON<T = unknown>(prompt: string, systemPrompt?:
           messages: msgs,
           max_completion_tokens: 4000,
           response_format: { type: "json_object" },
-        });
-        text = resp.choices[0]?.message?.content || "{}";
+        }, { signal } as any);
+        text = resp.choices[0]?.message?.content || "";
       }
-      const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
-      if (!cleaned || cleaned.length === 0) {
-        if (i < providers.length - 1) {
-          console.error(`[AI Provider] ${provider} returned empty JSON response, falling back to ${providers[i + 1]}`);
+        const cleaned = text.replace(/```json\n?/g, "").replace(/```\n?/g, "").replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+        if (!cleaned || cleaned.length === 0) {
+          if (i < providers.length - 1) {
+            console.error(`[AI Provider] ${provider} returned empty JSON response, falling back to ${providers[i + 1]}`);
+            continue;
+          }
+        }
+        return JSON.parse(cleaned) as T;
+      } catch (error) {
+        if (isRateLimitError(error) && provider === "gemini") {
+          geminiQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
+          console.error(`[AI Provider] Gemini quota exhausted — skipping for 30 minutes`);
+        }
+        if (i < providers.length - 1 && !signal.aborted) {
+          const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : (error instanceof SyntaxError ? "JSON parse failure" : "error");
+          console.error(`[AI Provider] ${provider} failed for JSON (${reason}), falling back to ${providers[i + 1]}`);
           continue;
         }
+        throw error;
       }
-      return JSON.parse(cleaned) as T;
-    } catch (error) {
-      if (isRateLimitError(error) && provider === "gemini") {
-        geminiQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
-        console.error(`[AI Provider] Gemini quota exhausted — skipping for 30 minutes`);
-      }
-      if (i < providers.length - 1) {
-        const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : (error instanceof SyntaxError ? "JSON parse failure" : "error");
-        console.error(`[AI Provider] ${provider} failed for JSON (${reason}), falling back to ${providers[i + 1]}`);
-        continue;
-      }
-      throw error;
     }
-  }
-  throw new Error("All AI providers failed");
+    throw new Error("All AI providers failed");
+  }, "AI JSON request");
 }
 
 export async function generateAIResponse(
@@ -652,7 +737,25 @@ export async function generateAIResponse(
   });
 }
 
-async function callProviderDirect(provider: Provider, prompt: string, systemPrompt?: string, maxTokens?: number): Promise<string> {
+async function callProviderDirect(
+  provider: Provider,
+  prompt: string,
+  systemPrompt?: string,
+  maxTokens?: number,
+): Promise<string> {
+  return withRequestDeadline(
+    (signal) => callProviderDirectWithSignal(provider, prompt, systemPrompt, maxTokens, signal),
+    "direct AI request",
+  );
+}
+
+async function callProviderDirectWithSignal(
+  provider: Provider,
+  prompt: string,
+  systemPrompt?: string,
+  maxTokens?: number,
+  signal?: AbortSignal,
+): Promise<string> {
   // Persistent ethics/EI principle — applied to every direct (non-streaming,
   // non-JSON) provider call as well.
   systemPrompt = withEthicalPreamble(systemPrompt);
@@ -663,26 +766,36 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
       systemInstruction: systemPrompt,
       generationConfig: { maxOutputTokens: maxTokens || 2000 },
     });
-    const result = await model.generateContent(prompt);
+    const result = await withTimeout(
+      model.generateContent(prompt, (signal ? { signal } : undefined) as any),
+      AI_PROVIDER_TIMEOUT_MS,
+      "gemini direct",
+    );
     return result.response.text();
   } else if (provider === "claude") {
     const anthropicKey = process.env.ANTHROPIC_API_KEY || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
     const anthropicBase = process.env.ANTHROPIC_API_KEY ? undefined : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
-    const client = new Anthropic({ apiKey: anthropicKey, ...(anthropicBase ? { baseURL: anthropicBase } : {}) });
+    const client = new Anthropic({
+      apiKey: anthropicKey,
+      timeout: AI_PROVIDER_TIMEOUT_MS,
+      ...(anthropicBase ? { baseURL: anthropicBase } : {}),
+    });
     const chatMsgs: Array<{ role: "user" | "assistant"; content: string }> = [];
     chatMsgs.push({ role: "user", content: prompt });
     return await claudeCreateWithFallback(client, {
       max_tokens: maxTokens || 8192,
       system: systemPrompt,
       messages: chatMsgs,
+      signal,
     });
   } else if (provider === "perplexity") {
-    const { text } = await perplexityResearch(prompt, systemPrompt, maxTokens);
+    const { text } = await perplexityResearch(prompt, systemPrompt, maxTokens, signal);
     return text;
   } else if (provider === "openrouter-claude") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
       baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+      timeout: AI_PROVIDER_TIMEOUT_MS,
     });
     const msgs: Array<{ role: "system" | "user"; content: string }> = [];
     if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
@@ -691,12 +804,13 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
       model: "anthropic/claude-haiku-4-5",
       messages: msgs,
       max_tokens: maxTokens || 8192,
-    });
+    }, (signal ? { signal } : undefined) as any);
     return resp.choices[0]?.message?.content || "";
   } else if (provider === "deepseek-r1") {
     const client = new OpenAI({
       apiKey: process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY,
       baseURL: process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL,
+      timeout: AI_PROVIDER_TIMEOUT_MS,
     });
     const msgs: Array<{ role: "system" | "user"; content: string }> = [];
     if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
@@ -705,7 +819,7 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
       model: "deepseek/deepseek-r1",
       messages: msgs,
       max_tokens: maxTokens || 4000,
-    });
+    }, (signal ? { signal } : undefined) as any);
     const raw = resp.choices[0]?.message?.content || "";
     return raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
   } else {
@@ -713,6 +827,7 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
     const client = new OpenAI({
       apiKey: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_API_KEY : process.env.OPENAI_API_KEY,
       baseURL: isReplit ? process.env.AI_INTEGRATIONS_OPENAI_BASE_URL : undefined,
+      timeout: AI_PROVIDER_TIMEOUT_MS,
     });
     const msgs: Array<{ role: "system" | "user"; content: string }> = [];
     if (systemPrompt) msgs.push({ role: "system", content: systemPrompt });
@@ -721,7 +836,7 @@ async function callProviderDirect(provider: Provider, prompt: string, systemProm
       model: isReplit ? "gpt-5-nano" : "gpt-5-mini",
       messages: msgs,
       max_completion_tokens: maxTokens || 2000,
-    });
+    }, (signal ? { signal } : undefined) as any);
     return resp.choices[0]?.message?.content || "";
   }
 }
@@ -797,6 +912,18 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
     params.onError(new Error("No AI provider configured"));
     return;
   }
+  const requestStartedAt = Date.now();
+  const requestController = new AbortController();
+  const requestTimer = setTimeout(() => requestController.abort(), AI_REQUEST_DEADLINE_MS);
+  let callerAbort: EventListener | undefined;
+  if (params.signal) {
+    callerAbort = () => requestController.abort(params.signal?.reason);
+    if (params.signal.aborted) {
+      requestController.abort(params.signal.reason);
+    } else {
+      params.signal.addEventListener("abort", callerAbort, { once: true });
+    }
+  }
 
   // Persistent ethics/EI principle — applied to every streaming call, no
   // matter which provider downstream serves it.
@@ -808,7 +935,7 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
   // standard non-retrieval fallbacks.
   let orderedProviders: Provider[] =
     params.enableWebSearch && isPerplexityAvailable()
-      ? ["perplexity", ...providers]
+      ? ["perplexity", ...providers.filter((provider) => provider !== "perplexity")]
       : providers;
 
   // User-selected engine preference — promote to front of chain when available.
@@ -824,71 +951,99 @@ export async function streamAIResponse(params: StreamAIResponseParams): Promise<
     }
   }
 
-  for (let i = 0; i < orderedProviders.length; i++) {
-    const provider = orderedProviders[i];
-    try {
-      const collectedChunks: string[] = [];
-
-      const wrappedParams: StreamAIResponseParams = {
-        ...params,
-        onChunk: (content: string) => {
-          collectedChunks.push(content);
-          params.onChunk(content);
-        },
-        onDone: () => {},
-        onError: () => {},
-      };
-
-      if (provider === "gemini") {
-        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but Gemini path has no web_search wired — answer will rely on training-cutoff knowledge.");
-        await streamGemini(wrappedParams);
-      } else if (provider === "claude") {
-        await streamClaude(wrappedParams);
-      } else if (provider === "perplexity") {
-        await streamPerplexity(wrappedParams);
-      } else if (provider === "deepseek-r1") {
-        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but DeepSeek path has no web_search wired — answer will rely on training-cutoff knowledge.");
-        await streamDeepSeekR1(wrappedParams);
-      } else if (provider === "openrouter-claude") {
-        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but OpenRouter-Claude path has no web_search wired — answer will rely on training-cutoff knowledge.");
-        await streamOpenRouterClaude(wrappedParams);
-      } else {
-        if (params.enableWebSearch) console.warn("[AI Provider] enableWebSearch requested but OpenAI-family path has no web_search wired — answer will rely on training-cutoff knowledge.");
-        await streamOpenAI(wrappedParams, provider);
+  try {
+    for (let i = 0; i < orderedProviders.length; i++) {
+      const provider = orderedProviders[i];
+      const remainingMs = AI_REQUEST_DEADLINE_MS - (Date.now() - requestStartedAt);
+      if (remainingMs <= 0 || requestController.signal.aborted) {
+        params.onError(new Error(`AI request deadline exhausted after ${AI_REQUEST_DEADLINE_MS}ms`));
+        return;
       }
+      let providerTimer: ReturnType<typeof setTimeout> | undefined;
+      let providerController: AbortController | undefined;
+      let abortProvider: EventListener | undefined;
+      let streamCommitted = false;
+      try {
+        const collectedChunks: string[] = [];
+        const STREAM_COMMIT_THRESHOLD = 512;
+        providerController = new AbortController();
+        abortProvider = () => providerController!.abort(requestController.signal.reason);
+        requestController.signal.addEventListener("abort", abortProvider, { once: true });
+        const providerBudget = Math.min(AI_PROVIDER_TIMEOUT_MS, Math.max(1, remainingMs));
+        providerTimer = setTimeout(() => providerController!.abort(), providerBudget);
 
-      const totalContent = collectedChunks.join("");
-      if (totalContent.trim().length === 0) {
+        const wrappedParams: StreamAIResponseParams = {
+          ...params,
+          signal: providerController.signal,
+          onChunk: (content: string) => {
+            collectedChunks.push(content);
+            if (streamCommitted) {
+              params.onChunk(content);
+              return;
+            }
+            const bufferedContent = collectedChunks.join("");
+            if (bufferedContent.length >= STREAM_COMMIT_THRESHOLD) {
+              streamCommitted = true;
+              for (const bufferedChunk of collectedChunks) {
+                params.onChunk(bufferedChunk);
+              }
+              collectedChunks.length = 0;
+            }
+          },
+          onDone: () => {},
+          onError: () => {},
+        };
+
+        await withTimeout(
+          tryProvider(provider, wrappedParams),
+          providerBudget,
+          provider,
+        );
+        const totalContent = collectedChunks.join("");
+        if (!streamCommitted && totalContent.trim().length === 0) {
+          throw new Error(`${provider} returned an empty response`);
+        }
+
+        if (!streamCommitted) {
+          for (const chunk of collectedChunks) {
+            params.onChunk(chunk);
+          }
+        }
+        params.onDone();
+        return;
+      } catch (error) {
         const isLast = i === orderedProviders.length - 1;
-        if (!isLast) {
+        if (streamCommitted) {
+          params.onError(error instanceof Error ? error : new Error(String(error)));
+          return;
+        }
+
+        if (isRateLimitError(error) && provider === "gemini") {
+          geminiQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
+          console.error(`[AI Provider] Gemini quota exhausted — skipping for 30 minutes`);
+        }
+
+        logProviderError(provider, error);
+        if (!isLast && !requestController.signal.aborted) {
+          const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : "provider error";
           const next = orderedProviders[i + 1];
-          console.error(`[AI Provider] ${provider} returned empty response, falling back to ${next}`);
+          console.error(`[AI Provider] ${provider} failed (${reason}), falling back to ${next}`);
           continue;
         }
+
+        params.onError(error instanceof Error ? error : new Error(String(error)));
+        return;
+      } finally {
+        if (providerTimer) clearTimeout(providerTimer);
+        const cleanupAbortProvider = abortProvider;
+        if (cleanupAbortProvider) requestController.signal.removeEventListener("abort", cleanupAbortProvider);
+        providerController?.abort();
       }
-
-      params.onDone();
-      return;
-    } catch (error) {
-      const isLast = i === orderedProviders.length - 1;
-
-      if (isRateLimitError(error) && provider === "gemini") {
-        geminiQuotaExhaustedUntil = Date.now() + 30 * 60 * 1000;
-        console.error(`[AI Provider] Gemini quota exhausted — skipping for 30 minutes`);
-      }
-
-      if (!isLast) {
-        const reason = isRateLimitError(error) ? "rate limit" : isTransientError(error) ? "transient error" : "provider error";
-        const next = orderedProviders[i + 1];
-        logProviderError(provider, error);
-        console.error(`[AI Provider] ${provider} failed (${reason}), falling back to ${next}`);
-        continue;
-      }
-
-      logProviderError(provider, error);
-      params.onError(error instanceof Error ? error : new Error(String(error)));
-      return;
     }
+  } finally {
+    clearTimeout(requestTimer);
+    if (callerAbort && params.signal) params.signal.removeEventListener("abort", callerAbort);
+    requestController.abort();
   }
 }
 

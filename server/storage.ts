@@ -94,10 +94,23 @@ import { eq, and, desc, sql, inArray, isNull, gte } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 
+function envTimeout(name: string, fallbackMs: number): number {
+  const value = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(value) && value > 0 ? value : fallbackMs;
+}
+
+const DB_CONNECTION_TIMEOUT_MS = envTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000);
+const DB_QUERY_TIMEOUT_MS = envTimeout("DB_QUERY_TIMEOUT_MS", 20_000);
+
 const pool = new pg.Pool({
   connectionString: process.env.DATABASE_URL,
+  max: 10,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 10000,
+  connectionTimeoutMillis: DB_CONNECTION_TIMEOUT_MS,
+  query_timeout: DB_QUERY_TIMEOUT_MS,
+  statement_timeout: DB_QUERY_TIMEOUT_MS,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 10_000,
 });
 
 // Neon Postgres auto-suspends after inactivity; the first query after wake-up
@@ -130,12 +143,12 @@ export const db = drizzle(pool);
 
 // Warm up the connection pool on startup so the first user request never hits
 // the Neon cold-start window.
-(async () => {
+void (async () => {
   try {
     await pool.query("SELECT 1");
     console.log("[DB] Connection pool warmed up.");
-  } catch {
-    console.warn("[DB] Warm-up query failed — will retry on first user request.");
+  } catch (error) {
+    console.warn("[DB] Warm-up query failed — continuing without blocking boot:", error instanceof Error ? error.message : String(error));
   }
 })();
 

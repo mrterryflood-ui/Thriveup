@@ -18,11 +18,26 @@ const getOidcConfig = memoize(
   { maxAge: 3600 * 1000 }
 );
 
+function positiveTimeout(name: string, fallbackMs: number): number {
+  const value = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(value) && value > 0 ? value : fallbackMs;
+}
+
 export function getSession() {
   const sessionTtl = 7 * 24 * 60 * 60 * 1000; // 1 week
+  const connectionTimeoutMs = positiveTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000);
+  const queryTimeoutMs = positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000);
   const pgStore = connectPg(session);
   const sessionStore = new pgStore({
-    conString: process.env.DATABASE_URL,
+    conObject: {
+      connectionString: process.env.DATABASE_URL,
+      max: 5,
+      connectionTimeoutMillis: connectionTimeoutMs,
+      query_timeout: queryTimeoutMs,
+      statement_timeout: queryTimeoutMs,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 10_000,
+    },
     createTableIfMissing: false,
     ttl: sessionTtl,
     tableName: "sessions",

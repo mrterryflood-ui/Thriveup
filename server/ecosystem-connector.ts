@@ -1617,6 +1617,11 @@ async function requireAdminAuth(req: Request, res: Response, next: Function) {
 }
 
 export function registerEcosystemConnectorRoutes(app: Express) {
+  // Monitoring must not wait for the (potentially slow) definition/directive
+  // synchronization below. Start the health loop independently so a sync
+  // stall cannot hide the first pinger cycle.
+  setTimeout(() => startPlatformPinger(), 10_000);
+
   (async () => {
     try {
       const validIds = ECOSYSTEM_PLATFORMS.map((p) => p.id);
@@ -1755,8 +1760,6 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       console.error("[Ecosystem] Auto-sync failed:", err);
     }
 
-    // Start the outbound platform pinger after a short delay
-    setTimeout(() => startPlatformPinger(), 10000);
     // Start periodic deliverable verification after 2 minutes
     setTimeout(() => startVerificationTimer(), 120000);
     // Start compliance enforcement engine after 3 minutes
@@ -1785,6 +1788,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   // ===================================================================
 
   let pingerInterval: ReturnType<typeof setInterval> | null = null;
+  let pingerCycleInFlight = false;
   let lastPingCycle: { startedAt: string; completedAt: string; results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> } | null = null;
 
   // Prune health logs older than 7 days — keeps the table from growing unbounded
@@ -1812,6 +1816,26 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       ? allPlatforms.filter(p => p.keepAlive && p.role !== "self-hub")
       : allPlatforms;
     const results: Array<{ id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string }> = [];
+    const recordPingerFailure = async (platform: typeof allPlatforms[number], failure: string) => {
+      const errorMessage = `Health check failed: ${failure}`;
+      try {
+        await db.update(ecosystemPlatforms)
+          .set({ healthStatus: "degraded", lastHealthCheck: new Date() })
+          .where(eq(ecosystemPlatforms.id, platform.id));
+        await db.insert(ecosystemHealthLogs).values({
+          platformId: platform.id,
+          status: "degraded",
+          responseTimeMs: 0,
+          statusCode: 0,
+          errorMessage,
+        });
+      } catch (persistenceError) {
+        console.error(
+          `[Pinger] Failed to persist degraded fallback for ${platform.name}:`,
+          persistenceError instanceof Error ? persistenceError.message : String(persistenceError),
+        );
+      }
+    };
 
     const REPLIT_DEPLOY_URLS: Record<string, string> = {
       "video-creator-ai": "https://video-creator-ai.replit.app",
@@ -1831,13 +1855,28 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       let responseMs = 0;
       let error: string | undefined;
       let wokenUp = false;
+      let persistenceFailed = false;
 
       // Skip pinging TCAF-self (role="self-hub") — pinging ourselves would create a loop.
       if (platform.role === "self-hub") {
-        await db.update(ecosystemPlatforms)
-          .set({ healthStatus: "online", lastHealthCheck: new Date(), lastHeartbeat: new Date() })
-          .where(eq(ecosystemPlatforms.id, platform.id));
-        return { id: platform.id, name: platform.name, url: platform.url, status: "online", responseMs: 0, wokenUp: false };
+        try {
+          await db.update(ecosystemPlatforms)
+            .set({ healthStatus: "online", lastHealthCheck: new Date(), lastHeartbeat: new Date() })
+            .where(eq(ecosystemPlatforms.id, platform.id));
+        } catch (err) {
+          persistenceFailed = true;
+          console.error(`[Pinger] Failed to update self-hub health state:`, err instanceof Error ? err.message : String(err));
+          await recordPingerFailure(platform, "self-hub health state persistence failed");
+        }
+        return {
+          id: platform.id,
+          name: platform.name,
+          url: platform.url,
+          status: persistenceFailed ? "degraded" : "online",
+          responseMs: 0,
+          wokenUp: false,
+          ...(persistenceFailed ? { error: "Health state persistence failed" } : {}),
+        };
       }
 
       const wasSleeping = platform.healthStatus === "offline" || platform.healthStatus === "unknown";
@@ -1852,21 +1891,24 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         try {
           const controller = new AbortController();
           const timeout = setTimeout(() => controller.abort(), 12000);
-          const response = await fetch(url, {
-            method: "GET",
-            signal: controller.signal,
-            redirect: "follow",
-            headers: { "User-Agent": "ThriveUp-Ecosystem-Hub/3.0 (Platform-Pinger)" },
-          });
-          clearTimeout(timeout);
-          responseMs = Date.now() - start;
+          try {
+            const response = await fetch(url, {
+              method: "GET",
+              signal: controller.signal,
+              redirect: "follow",
+              headers: { "User-Agent": "ThriveUp-Ecosystem-Hub/3.0 (Platform-Pinger)" },
+            });
+            responseMs = Date.now() - start;
 
-          if (response.status < 500) {
-            status = "online";
-            wokenUp = wasSleeping;
-            break;
-          } else {
-            status = "degraded";
+            if (response.status < 500) {
+              status = "online";
+              wokenUp = wasSleeping;
+              break;
+            } else {
+              status = "degraded";
+            }
+          } finally {
+            clearTimeout(timeout);
           }
         } catch (err: any) {
           responseMs = Date.now() - start;
@@ -1876,27 +1918,72 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       }
 
       // Update platform health in DB
-      await db.update(ecosystemPlatforms)
-        .set({ healthStatus: status, lastHealthCheck: new Date() })
-        .where(eq(ecosystemPlatforms.id, platform.id));
+      try {
+        await db.update(ecosystemPlatforms)
+          .set({ healthStatus: status, lastHealthCheck: new Date() })
+          .where(eq(ecosystemPlatforms.id, platform.id));
+      } catch (err) {
+        persistenceFailed = true;
+        status = "degraded";
+        error = error ? `${error}; health state persistence failed` : "Health state persistence failed";
+        console.error(`[Pinger] Failed to persist ${platform.name} health state:`, err instanceof Error ? err.message : String(err));
+      }
 
       // Log the health check
-      await db.insert(ecosystemHealthLogs).values({
-        platformId: platform.id,
-        status,
-        responseTimeMs: responseMs,
-        statusCode: status === "online" ? 200 : status === "degraded" ? 500 : 0,
-        errorMessage: error || null,
-      });
+      try {
+        await db.insert(ecosystemHealthLogs).values({
+          platformId: platform.id,
+          status,
+          responseTimeMs: responseMs,
+          statusCode: status === "online" ? 200 : status === "degraded" ? 500 : 0,
+          errorMessage: error || null,
+        });
+      } catch (err) {
+        persistenceFailed = true;
+        status = "degraded";
+        error = error ? `${error}; health log persistence failed` : "Health log persistence failed";
+        console.error(`[Pinger] Failed to persist ${platform.name} health log:`, err instanceof Error ? err.message : String(err));
+        try {
+          await db.update(ecosystemPlatforms)
+            .set({ healthStatus: "degraded", lastHealthCheck: new Date() })
+            .where(eq(ecosystemPlatforms.id, platform.id));
+        } catch (stateErr) {
+          console.error(`[Pinger] Failed to mark ${platform.name} degraded after health-log failure:`, stateErr instanceof Error ? stateErr.message : String(stateErr));
+        }
+      }
 
+      if (persistenceFailed) {
+        status = "degraded";
+        error = error ? `${error}; health state persistence failed` : "Health state persistence failed";
+      }
       const logPrefix = wokenUp ? "[Pinger] WOKE UP" : `[Pinger] ${status.toUpperCase()}`;
       console.log(`${logPrefix}: ${platform.name} (${responseMs}ms)${error ? " — " + error : ""}`);
 
       return { id: platform.id, name: platform.name, url: platform.url, status, responseMs, wokenUp, error };
     });
 
-    const allResults = await Promise.all(pingPromises);
-    results.push(...allResults);
+    const allResults = await Promise.allSettled(pingPromises);
+    for (const [index, result] of allResults.entries()) {
+      if (result.status === "fulfilled") {
+        results.push(result.value);
+      } else {
+        const platform = platforms[index];
+        const error = result.reason instanceof Error ? result.reason.message : String(result.reason);
+        console.error(`[Pinger] ${platform?.name || "Platform"} check failed without a result:`, error);
+        if (platform) {
+          await recordPingerFailure(platform, error);
+          results.push({
+            id: platform.id,
+            name: platform.name,
+            url: platform.url,
+            status: "degraded",
+            responseMs: 0,
+            wokenUp: false,
+            error: `Health check failed: ${error}`,
+          });
+        }
+      }
+    }
 
     const completedAt = new Date().toISOString();
     const online = results.filter(r => r.status === "online").length;
@@ -1918,17 +2005,46 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     pruneHealthLogs().catch(() => {});
     setInterval(() => pruneHealthLogs().catch(() => {}), 24 * 60 * 60 * 1000);
 
-    // Full health-check on startup (all platforms)
-    pingAllPlatforms(false).catch(err => console.error("[Pinger] Initial health-check failed:", err));
+    const runPingerCycle = async (keepAliveOnly: boolean, reason: string) => {
+      if (pingerCycleInFlight) {
+        console.warn(`[Pinger] Skipping ${reason} cycle because the previous cycle is still running`);
+        return;
+      }
+      pingerCycleInFlight = true;
+      try {
+        await pingAllPlatforms(keepAliveOnly);
+      } catch (err) {
+        console.error(`[Pinger] ${reason} cycle failed; health loop remains active:`, err instanceof Error ? err.message : String(err));
+      } finally {
+        pingerCycleInFlight = false;
+      }
+    };
+
+    // Full health-check on startup (all platforms). Retry while the async
+    // platform sync is still populating the table so an empty/partial first
+    // pass cannot suppress health checks until the hourly cycle.
+    void runPingerCycle(false, "initial health-check");
+    let initialRetryAttempts = 0;
+    const retryInitialHealthCheck = () => {
+      if (lastPingCycle && lastPingCycle.results.length >= ECOSYSTEM_PLATFORMS.length) return;
+      if (initialRetryAttempts >= 12) {
+        console.warn("[Pinger] Initial health-check retries exhausted before all platform definitions were available");
+        return;
+      }
+      initialRetryAttempts += 1;
+      void runPingerCycle(false, `initial health-check retry ${initialRetryAttempts}`);
+      setTimeout(retryInitialHealthCheck, 15_000);
+    };
+    setTimeout(retryInitialHealthCheck, 15_000);
 
     // Every 10 min: only ping platforms with keepAlive=true (keeps them from sleeping)
     pingerInterval = setInterval(() => {
-      pingAllPlatforms(true).catch(err => console.error("[Pinger] Keep-alive cycle failed:", err));
+      void runPingerCycle(true, "keep-alive");
     }, 10 * 60 * 1000);
 
     // Every 60 min: full health-check of all platforms
     setInterval(() => {
-      pingAllPlatforms(false).catch(err => console.error("[Pinger] Health-check cycle failed:", err));
+      void runPingerCycle(false, "health-check");
     }, 60 * 60 * 1000);
   }
 
@@ -2147,6 +2263,7 @@ export function registerEcosystemConnectorRoutes(app: Express) {
   // ===================================================================
 
   let verificationInterval: ReturnType<typeof setInterval> | null = null;
+  let verificationInFlight = false;
   let lastVerificationCycle: { startedAt: string; completedAt: string; checked: number; live: number; failed: number } | null = null;
 
   function startVerificationTimer() {
@@ -2154,6 +2271,11 @@ export function registerEcosystemConnectorRoutes(app: Express) {
     console.log("[Verifier] Starting deliverable verification timer — 30 minute cycle");
     const runCycle = async () => {
       const cycleStart = new Date().toISOString();
+    if (verificationInFlight) {
+      console.warn("[Verifier] Skipping cycle because the previous verification is still running");
+      return;
+    }
+    verificationInFlight = true;
       try {
         const results = await runDeliverableVerification();
         const live = results.filter(r => r.verified).length;
@@ -2162,6 +2284,8 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         console.log(`[Verifier] Cycle complete: ${results.length} checked, ${live} live, ${failed} failed`);
       } catch (err) {
         console.error("[Verifier] Cycle failed:", err);
+      } finally {
+        verificationInFlight = false;
       }
     };
     runCycle();

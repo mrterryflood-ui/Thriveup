@@ -30,20 +30,41 @@ BEGIN
   END IF;
 END $$;
 
-ALTER TABLE nonprofit_event_attendance
-  ADD CONSTRAINT nonprofit_event_attendance_event_org_fk
-  FOREIGN KEY (event_id, org_id)
-  REFERENCES nonprofit_events(id, org_id)
-  ON DELETE CASCADE;
+DO $$
+BEGIN
+  IF NOT EXISTS (
+    SELECT 1
+    FROM pg_constraint con
+    WHERE con.conrelid = 'public.nonprofit_event_attendance'::regclass
+      AND con.contype = 'f'
+      AND con.confrelid = 'public.nonprofit_events'::regclass
+      AND pg_get_constraintdef(con.oid) LIKE
+        'FOREIGN KEY (event_id, org_id) REFERENCES nonprofit_events(id, org_id)%'
+  ) THEN
+    ALTER TABLE nonprofit_event_attendance
+      ADD CONSTRAINT nonprofit_event_attendance_event_org_fk
+      FOREIGN KEY (event_id, org_id)
+      REFERENCES nonprofit_events(id, org_id)
+      ON DELETE CASCADE;
+  END IF;
+END $$;
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_nonprofit_event_handoffs_claim_types_allowed') THEN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.nonprofit_event_handoffs'::regclass
+      AND conname = 'chk_nonprofit_event_handoffs_claim_types_allowed'
+  ) THEN
     ALTER TABLE nonprofit_event_handoffs
       ADD CONSTRAINT chk_nonprofit_event_handoffs_claim_types_allowed
       CHECK (claim_types <@ ARRAY['observed','derived','modeled','partner_reported','self_reported','unavailable']::text[]);
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_nonprofit_event_handoffs_reviewed_consistency') THEN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'public.nonprofit_event_handoffs'::regclass
+      AND conname = 'chk_nonprofit_event_handoffs_reviewed_consistency'
+  ) THEN
     ALTER TABLE nonprofit_event_handoffs
       ADD CONSTRAINT chk_nonprofit_event_handoffs_reviewed_consistency
       CHECK (

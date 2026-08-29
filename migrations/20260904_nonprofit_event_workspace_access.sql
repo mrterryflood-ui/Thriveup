@@ -8,6 +8,15 @@
 -- requirement for environments that already ran this historical file.
 DO $$
 BEGIN
+  IF to_regclass('public.organizations') IS NULL
+     OR to_regclass('public.organization_members') IS NULL THEN
+    RAISE EXCEPTION
+      'Event workspace access migration requires the baseline organizations and organization_members tables';
+  END IF;
+END $$;
+
+DO $$
+BEGIN
   IF NOT EXISTS (
     SELECT 1
       FROM pg_constraint
@@ -21,7 +30,29 @@ BEGIN
        WHERE schemaname = 'public'
          AND tablename = 'organization_members'
          AND indexname = 'idx_org_members_unique'
-         AND indexdef LIKE '%(org_id, user_id)%'
+         AND EXISTS (
+           SELECT 1
+           FROM pg_index idx
+           JOIN pg_class index_class ON index_class.oid = idx.indexrelid
+           WHERE index_class.relname = pg_indexes.indexname
+             AND idx.indrelid = 'public.organization_members'::regclass
+             AND idx.indisunique
+             AND idx.indisvalid
+             AND idx.indpred IS NULL
+             AND idx.indexprs IS NULL
+             AND idx.indnatts = 2
+             AND (
+               SELECT array_agg(keys.attnum::integer ORDER BY keys.ordinality)
+               FROM unnest(idx.indkey) WITH ORDINALITY AS keys(attnum, ordinality)
+             ) = ARRAY[
+               (SELECT attnum::integer FROM pg_attribute
+                WHERE attrelid = 'public.organization_members'::regclass
+                  AND attname = 'org_id'),
+               (SELECT attnum::integer FROM pg_attribute
+                WHERE attrelid = 'public.organization_members'::regclass
+                  AND attname = 'user_id')
+             ]
+         )
     ) THEN
       ALTER TABLE organization_members
         ADD CONSTRAINT organization_members_org_user_unique

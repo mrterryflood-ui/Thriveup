@@ -15,6 +15,11 @@ import fs from "fs";
 import path from "path";
 import pg from "pg";
 
+function envTimeout(name: string, fallbackMs: number): number {
+  const value = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(value) && value > 0 ? value : fallbackMs;
+}
+
 export async function runMigrations(): Promise<void> {
   const dir = path.resolve(process.cwd(), "migrations");
   if (!fs.existsSync(dir)) return;
@@ -24,12 +29,43 @@ export async function runMigrations(): Promise<void> {
     .sort();
   if (files.length === 0) return;
 
-  const client = new pg.Client({ connectionString: process.env.DATABASE_URL });
-  await client.connect();
+  const connectionTimeoutMs = envTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000);
+  const queryTimeoutMs = envTimeout("DB_MIGRATION_QUERY_TIMEOUT_MS", 60_000);
+  const lockTimeoutMs = envTimeout("DB_MIGRATION_LOCK_TIMEOUT_MS", 120_000);
+  const client = new pg.Client({
+    connectionString: process.env.DATABASE_URL,
+    connectionTimeoutMillis: connectionTimeoutMs,
+    query_timeout: queryTimeoutMs,
+    statement_timeout: queryTimeoutMs,
+    keepAlive: true,
+    keepAliveInitialDelayMillis: 10_000,
+    application_name: "thriveup-startup-migrations",
+  });
   let migrationLockHeld = false;
   try {
-    await client.query("SELECT pg_advisory_lock(hashtext($1))", ["thriveup:schema-migrations"]);
-    migrationLockHeld = true;
+    await client.connect();
+    const baseline = await client.query<{ organizations: string | null; users: string | null }>(
+      "SELECT to_regclass('public.organizations') AS organizations, to_regclass('public.users') AS users",
+    );
+    if (!baseline.rows[0]?.organizations || !baseline.rows[0]?.users) {
+      throw new Error(
+        "[migrations] incomplete baseline application schema detected; provision both organizations and users before applying delta migrations",
+      );
+    }
+    const lockStartedAt = Date.now();
+    while (!migrationLockHeld) {
+      const lockResult = await client.query<{ acquired: boolean }>(
+        "SELECT pg_try_advisory_lock(hashtext($1)) AS acquired",
+        ["thriveup:schema-migrations"],
+      );
+      migrationLockHeld = lockResult.rows[0]?.acquired === true;
+      if (migrationLockHeld) break;
+      if (Date.now() - lockStartedAt >= lockTimeoutMs) {
+        throw new Error(`[migrations] timed out after ${lockTimeoutMs}ms waiting for the schema migration lock`);
+      }
+      const remainingMs = lockTimeoutMs - (Date.now() - lockStartedAt);
+      await new Promise((resolve) => setTimeout(resolve, Math.min(250, Math.max(1, remainingMs))));
+    }
     await client.query(
       `CREATE TABLE IF NOT EXISTS schema_migrations (
          filename text PRIMARY KEY,
@@ -57,8 +93,12 @@ export async function runMigrations(): Promise<void> {
     }
   } finally {
     if (migrationLockHeld) {
-      await client.query("SELECT pg_advisory_unlock(hashtext($1))", ["thriveup:schema-migrations"]).catch(() => {});
+      await client.query("SELECT pg_advisory_unlock(hashtext($1))", ["thriveup:schema-migrations"]).catch((err) => {
+        console.error("[migrations] advisory lock release failed:", err instanceof Error ? err.message : String(err));
+      });
     }
-    await client.end();
+    await client.end().catch((err) => {
+      console.error("[migrations] database connection close failed:", err instanceof Error ? err.message : String(err));
+    });
   }
 }

@@ -40,7 +40,9 @@ ALTER TABLE nonprofit_event_actions
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'fk_nonprofit_event_actions_handoff_org'
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'nonprofit_event_actions'::regclass
+      AND conname = 'fk_nonprofit_event_actions_handoff_org'
   ) THEN
     ALTER TABLE nonprofit_event_actions
       ADD CONSTRAINT fk_nonprofit_event_actions_handoff_org

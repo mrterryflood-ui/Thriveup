@@ -583,7 +583,16 @@ async function sendStalenessAlert(lastCompletedAt: Date | null): Promise<void> {
 // ---------------------------------------------------------------------------
 
 export function scheduleEquityLossNationwideRefresh(): void {
-  const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+  const positiveTimeout = (name: string, fallback: number): number => {
+    const parsed = Number.parseInt(process.env[name] ?? "", 10);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+  };
+  const pool = new pg.Pool({
+    connectionString: process.env.DATABASE_URL,
+    connectionTimeoutMillis: positiveTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000),
+    query_timeout: positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000),
+    statement_timeout: positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000),
+  });
 
   async function checkAndRun(): Promise<void> {
     const client = await pool.connect();

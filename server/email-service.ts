@@ -416,7 +416,7 @@ export async function sendAIEngineAlert(opts: {
     durationMs: number;
   };
   consecutiveFailures: number;
-}): Promise<void> {
+}): Promise<boolean> {
   try {
     const { client, fromEmail } = await getResendClient();
     const isDown = opts.type === "down";
@@ -425,8 +425,9 @@ export async function sendAIEngineAlert(opts: {
       : `[RESOLVED] ThriveUp Navigator recovered — ${opts.result.healthyCount}/${opts.result.totalConfigured} engines healthy`;
 
     const engineRows = opts.result.engines.map(e => {
-      const color = e.ok ? "#276749" : (e.error?.includes("not set") ? "#718096" : "#c53030");
-      const status = e.ok ? `✓ OK (${e.latencyMs}ms)` : (e.error?.includes("not set") ? "— not configured" : `✗ ${e.error || "failed"}`);
+      const notConfigured = /not (set|configured)/i.test(e.error || "");
+      const color = e.ok ? "#276749" : (notConfigured ? "#718096" : "#c53030");
+      const status = e.ok ? `✓ OK (${e.latencyMs}ms)` : (notConfigured ? "— not configured" : `✗ ${e.error || "failed"}`);
       return `<tr>
         <td style="padding:6px 10px;border-bottom:1px solid #eee;font-weight:bold">${e.engine}</td>
         <td style="padding:6px 10px;border-bottom:1px solid #eee;color:#718096;font-size:12px">${e.model}</td>
@@ -439,9 +440,9 @@ export async function sendAIEngineAlert(opts: {
       ? `Navigator DOWN — ${opts.consecutiveFailures} consecutive failures`
       : `Navigator RECOVERED — ${opts.result.healthyCount}/${opts.result.totalConfigured} engines OK`;
 
-    await safeSend(() => client.emails.send({
+    return await safeSend(() => client.emails.send({
       from: fromEmail,
-      to: "terryflood@thrivingcommunitiesforall.com",
+      to: process.env.AI_ALERT_RECIPIENT || ADMIN_EMAIL,
       subject,
       html: `
         <div style="max-width:600px;font-family:Arial,sans-serif">
@@ -469,6 +470,7 @@ export async function sendAIEngineAlert(opts: {
     } as any), `ai-engine-alert:${opts.type}`);
   } catch (err: any) {
     console.error("[Email] sendAIEngineAlert failed:", err?.message || err);
+    return false;
   }
 }
 

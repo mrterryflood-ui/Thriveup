@@ -29,12 +29,20 @@ END $$;
 
 DO $$
 BEGIN
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_nonprofit_event_handoffs_claim_types_nonempty') THEN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'nonprofit_event_handoffs'::regclass
+      AND conname = 'chk_nonprofit_event_handoffs_claim_types_nonempty'
+  ) THEN
     ALTER TABLE nonprofit_event_handoffs
       ADD CONSTRAINT chk_nonprofit_event_handoffs_claim_types_nonempty
       CHECK (cardinality(claim_types) > 0);
   END IF;
-  IF NOT EXISTS (SELECT 1 FROM pg_constraint WHERE conname = 'chk_nonprofit_event_handoffs_source_snapshot_shape') THEN
+  IF NOT EXISTS (
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'nonprofit_event_handoffs'::regclass
+      AND conname = 'chk_nonprofit_event_handoffs_source_snapshot_shape'
+  ) THEN
     ALTER TABLE nonprofit_event_handoffs
       ADD CONSTRAINT chk_nonprofit_event_handoffs_source_snapshot_shape
       CHECK (validate_nonprofit_event_handoff_snapshot(source_snapshot));

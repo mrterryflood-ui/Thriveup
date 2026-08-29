@@ -40,6 +40,14 @@ export interface SmokeTestResult {
   totalConfigured: number;
   engines: EngineProbeResult[];
   durationMs: number;
+  alertDelivery?: {
+    status: "sent" | "failed";
+    attemptedAt: string;
+  };
+}
+
+export function isConfiguredProbe(result: Pick<EngineProbeResult, "error">): boolean {
+  return !/not (set|configured)/i.test(result.error || "");
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -60,16 +68,22 @@ export function getLastSmokeResult(): SmokeTestResult | null {
 // ────────────────────────────────────────────────────────────────────────────
 
 const PROBE_TIMEOUT_MS = 10_000;
+const ALERT_TIMEOUT_MS = 5_000;
 const PROBE_PROMPT = "Reply with exactly one word: OK";
 const PROBE_MAX_TOKENS = 5;
 
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
-  return Promise.race([
-    promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(`Timeout after ${ms}ms`)), ms)
-    ),
-  ]);
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) =>
+        timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms)
+      ),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
 }
 
 async function probeGemini(): Promise<EngineProbeResult> {
@@ -82,7 +96,7 @@ async function probeGemini(): Promise<EngineProbeResult> {
   if (!orKey || !orBase) return { engine: "gemini", model, ok: false, latencyMs: 0, error: "OpenRouter not configured" };
 
   try {
-    const client = new OpenAI({ apiKey: orKey, baseURL: orBase });
+    const client = new OpenAI({ apiKey: orKey, baseURL: orBase, timeout: PROBE_TIMEOUT_MS });
     const resp = await withTimeout(
       client.chat.completions.create({
         model,
@@ -102,27 +116,53 @@ async function probeGemini(): Promise<EngineProbeResult> {
 
 async function probeClaude(): Promise<EngineProbeResult> {
   const start = Date.now();
-  const key = process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY;
-  const baseURL = process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
-  if (!key || !baseURL) return { engine: "claude", model: "claude-haiku-4-5", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_ANTHROPIC_* not set" };
+  // Probe the same OpenRouter-backed Claude route production prefers. Direct
+  // Anthropic is only tested when OpenRouter is unavailable, so exhausted
+  // direct credits cannot make a healthy Navigator look down.
+  const openRouterKey = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
+  const openRouterBase = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
+  const key = openRouterKey || process.env.AI_INTEGRATIONS_ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY;
+  const baseURL = openRouterKey ? openRouterBase : process.env.AI_INTEGRATIONS_ANTHROPIC_BASE_URL;
+  const viaOpenRouter = Boolean(openRouterKey && openRouterBase);
+  const model = viaOpenRouter ? "anthropic/claude-haiku-4-5" : "claude-haiku-4-5";
+  if (!key || (openRouterKey && !openRouterBase)) return { engine: "claude", model, ok: false, latencyMs: 0, error: "Claude provider not configured" };
 
   try {
-    const client = new Anthropic({ apiKey: key, baseURL });
-    const resp = await withTimeout(
-      client.messages.create({
-        model: "claude-haiku-4-5",
-        max_tokens: PROBE_MAX_TOKENS,
-        messages: [{ role: "user", content: PROBE_PROMPT }],
-      }),
-      PROBE_TIMEOUT_MS,
-      "claude"
-    );
-    const block = resp.content[0];
-    const text = block.type === "text" ? block.text : "";
+    let text = "";
+    if (viaOpenRouter) {
+      const client = new OpenAI({ apiKey: key, baseURL, timeout: PROBE_TIMEOUT_MS });
+      const resp = await withTimeout(
+        client.chat.completions.create({
+          model,
+          messages: [{ role: "user", content: PROBE_PROMPT }],
+          max_tokens: PROBE_MAX_TOKENS,
+        }),
+        PROBE_TIMEOUT_MS,
+        "claude-openrouter"
+      );
+      text = resp.choices[0]?.message?.content || "";
+    } else {
+      const client = new Anthropic({
+        apiKey: key,
+        ...(baseURL ? { baseURL } : {}),
+        timeout: PROBE_TIMEOUT_MS,
+      });
+      const resp = await withTimeout(
+        client.messages.create({
+          model,
+          max_tokens: PROBE_MAX_TOKENS,
+          messages: [{ role: "user", content: PROBE_PROMPT }],
+        }),
+        PROBE_TIMEOUT_MS,
+        "claude"
+      );
+      const block = resp.content[0];
+      text = block.type === "text" ? block.text : "";
+    }
     if (!text || text.trim().length === 0) throw new Error("Empty response");
-    return { engine: "claude", model: "claude-haiku-4-5", ok: true, latencyMs: Date.now() - start };
+    return { engine: "claude", model, ok: true, latencyMs: Date.now() - start };
   } catch (err: any) {
-    return { engine: "claude", model: "claude-haiku-4-5", ok: false, latencyMs: Date.now() - start, error: err.message };
+    return { engine: "claude", model, ok: false, latencyMs: Date.now() - start, error: err.message };
   }
 }
 
@@ -133,7 +173,7 @@ async function probeOpenAI(): Promise<EngineProbeResult> {
   if (!key || !baseURL) return { engine: "openai", model: "gpt-5-mini", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENAI_* not set" };
 
   try {
-    const client = new OpenAI({ apiKey: key, baseURL });
+    const client = new OpenAI({ apiKey: key, baseURL, timeout: PROBE_TIMEOUT_MS });
     const resp = await withTimeout(
       client.chat.completions.create({
         model: "gpt-5-mini",
@@ -158,7 +198,7 @@ async function probeDeepSeek(): Promise<EngineProbeResult> {
   if (!key || !baseURL) return { engine: "deepseek", model: "deepseek/deepseek-chat", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENROUTER_* not set" };
 
   try {
-    const client = new OpenAI({ apiKey: key, baseURL });
+    const client = new OpenAI({ apiKey: key, baseURL, timeout: PROBE_TIMEOUT_MS });
     const resp = await withTimeout(
       client.chat.completions.create({
         model: "deepseek/deepseek-chat",
@@ -176,6 +216,32 @@ async function probeDeepSeek(): Promise<EngineProbeResult> {
   }
 }
 
+async function probePerplexity(): Promise<EngineProbeResult> {
+  const start = Date.now();
+  const key = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
+  const baseURL = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
+  const model = "perplexity/sonar-pro";
+  if (!key || !baseURL) return { engine: "perplexity", model, ok: false, latencyMs: 0, error: "OpenRouter not configured" };
+
+  try {
+    const client = new OpenAI({ apiKey: key, baseURL, timeout: PROBE_TIMEOUT_MS });
+    const resp = await withTimeout(
+      client.chat.completions.create({
+        model,
+        messages: [{ role: "user", content: PROBE_PROMPT }],
+        max_tokens: PROBE_MAX_TOKENS,
+      }),
+      PROBE_TIMEOUT_MS,
+      "perplexity"
+    );
+    const text = resp.choices[0]?.message?.content || "";
+    if (!text || text.trim().length === 0) throw new Error("Empty response");
+    return { engine: "perplexity", model, ok: true, latencyMs: Date.now() - start };
+  } catch (err: any) {
+    return { engine: "perplexity", model, ok: false, latencyMs: Date.now() - start, error: err.message };
+  }
+}
+
 // ────────────────────────────────────────────────────────────────────────────
 // Main smoke test
 // ────────────────────────────────────────────────────────────────────────────
@@ -183,8 +249,8 @@ async function probeDeepSeek(): Promise<EngineProbeResult> {
 export async function runSmokeTest(): Promise<SmokeTestResult> {
   const start = Date.now();
 
-  const probes = await Promise.all([probeGemini(), probeClaude(), probeOpenAI(), probeDeepSeek()]);
-  const configured = probes.filter(p => !p.error?.includes("not set"));
+  const probes = await Promise.all([probeGemini(), probeClaude(), probeOpenAI(), probeDeepSeek(), probePerplexity()]);
+  const configured = probes.filter(isConfiguredProbe);
   const healthy = configured.filter(p => p.ok);
 
   const result: SmokeTestResult = {
@@ -225,29 +291,60 @@ async function runAndAlert(): Promise<void> {
   try {
     const result = await runSmokeTest();
 
+    if (result.totalConfigured === 0) {
+      console.warn("[SmokeTest] No AI providers are configured; skipping outage alert state");
+      consecutiveFullFailures = 0;
+      wasFullyDown = false;
+      return;
+    }
+
     if (!result.navigatorFunctional) {
       consecutiveFullFailures++;
       console.error(`[SmokeTest] ALERT: ${consecutiveFullFailures} consecutive full failure(s) — Navigator completely unreachable`);
 
       // Alert on 2nd consecutive failure to avoid transient single-check noise
-      if (consecutiveFullFailures >= 2) {
+      if (consecutiveFullFailures >= 2 && !wasFullyDown) {
         wasFullyDown = true;
-        await sendAIEngineAlert({
+        const delivered = await sendAlertSafely({
           type: "down",
           result,
           consecutiveFailures: consecutiveFullFailures,
         });
+        lastResult = {
+          ...result,
+          alertDelivery: {
+            status: delivered ? "sent" : "failed",
+            attemptedAt: new Date().toISOString(),
+          },
+        };
       }
     } else {
       if (wasFullyDown) {
         // Recovery alert
         wasFullyDown = false;
-        await sendAIEngineAlert({ type: "recovered", result, consecutiveFailures: 0 });
+        const delivered = await sendAlertSafely({ type: "recovered", result, consecutiveFailures: 0 });
+        lastResult = {
+          ...result,
+          alertDelivery: {
+            status: delivered ? "sent" : "failed",
+            attemptedAt: new Date().toISOString(),
+          },
+        };
       }
       consecutiveFullFailures = 0;
     }
   } catch (err: any) {
     console.error("[SmokeTest] Smoke test itself threw:", err.message || err);
+  }
+}
+
+async function sendAlertSafely(opts: Parameters<typeof sendAIEngineAlert>[0]): Promise<boolean> {
+  try {
+    return await withTimeout(sendAIEngineAlert(opts), ALERT_TIMEOUT_MS, "AI smoke alert");
+  } catch (err: any) {
+    // Alerting is observability, never a dependency of the health loop.
+    console.error("[SmokeTest] Alert delivery failed or timed out:", err?.message || err);
+    return false;
   }
 }
 
@@ -265,10 +362,35 @@ export function triggerImmediateSmokeAlert(context: string): void {
 
   console.error(`[SmokeTest] RUNTIME ALERT triggered: ${context}`);
 
-  // Fire-and-forget — don't block the stream
-  runAndAlert().catch((err) =>
-    console.error("[SmokeTest] Runtime alert follow-up failed:", err?.message || err)
-  );
+  // Fire-and-forget — don't block the stream. This path deliberately bypasses
+  // the scheduled probe's two-failure debounce because the live request has
+  // already observed every fast engine failing.
+  void (async () => {
+    try {
+      const result = await runSmokeTest();
+      if (result.totalConfigured === 0) return;
+      if (!result.navigatorFunctional) {
+        consecutiveFullFailures = Math.max(1, consecutiveFullFailures + 1);
+        wasFullyDown = true;
+        const delivered = await sendAlertSafely({
+          type: "down",
+          result,
+          consecutiveFailures: consecutiveFullFailures,
+        });
+        lastResult = {
+          ...result,
+          alertDelivery: {
+            status: delivered ? "sent" : "failed",
+            attemptedAt: new Date().toISOString(),
+          },
+        };
+      } else {
+        await runAndAlert();
+      }
+    } catch (err: any) {
+      console.error("[SmokeTest] Runtime alert follow-up failed:", err?.message || err);
+    }
+  })();
 }
 
 // ────────────────────────────────────────────────────────────────────────────

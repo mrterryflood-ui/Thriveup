@@ -20,7 +20,17 @@ import { getNationalReference, getStateReference, getPeerClassReference } from "
 import nationalRouter from "./equity-loss-national-routes";
 
 const router = Router();
-const dbPool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+function positiveTimeout(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const dbPool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  connectionTimeoutMillis: positiveTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000),
+  query_timeout: positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000),
+  statement_timeout: positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000),
+});
 
 // Mount the nationwide browsing sub-router at /national
 router.use("/national", nationalRouter);

@@ -21,7 +21,17 @@ import pg from "pg";
 import { JURISDICTIONS, type Jurisdiction } from "../shared/nationwide/jurisdictions";
 
 const router = Router();
-const dbPool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
+function positiveTimeout(name: string, fallback: number): number {
+  const parsed = Number.parseInt(process.env[name] ?? "", 10);
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : fallback;
+}
+
+const dbPool = new pg.Pool({
+  connectionString: process.env.DATABASE_URL,
+  connectionTimeoutMillis: positiveTimeout("DB_CONNECTION_TIMEOUT_MS", 5_000),
+  query_timeout: positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000),
+  statement_timeout: positiveTimeout("DB_QUERY_TIMEOUT_MS", 20_000),
+});
 
 // ---------------------------------------------------------------------------
 // Helpers

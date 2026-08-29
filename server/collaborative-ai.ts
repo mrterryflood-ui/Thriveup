@@ -118,6 +118,33 @@ const ENGINES_GLOBAL_DEADLINE_MS = 25_000;
 // as a "Deep Thinking Addendum" over the still-open SSE connection.
 // 45s keeps us safely inside deployment proxy timeouts (typically 60s).
 const DEEP_THINK_TIMEOUT_MS = 70_000;
+const COLLAB_ENGINE_TIMEOUT_MS = 20_000;
+const COLLAB_SYNTHESIS_TIMEOUT_MS = 20_000;
+
+async function callEngineWithDeadline(
+  engine: { id: EngineId; model: string },
+  prompt: string,
+  systemPrompt: string,
+  maxTokens: number,
+  timeoutMs: number,
+): Promise<EngineResult> {
+  const controller = new AbortController();
+  let timeoutTimer: ReturnType<typeof setTimeout> | undefined;
+  const timeoutPromise = new Promise<EngineResult>((_, reject) =>
+    timeoutTimer = setTimeout(() => reject(new Error(`Engine timed out after ${timeoutMs}ms`)), timeoutMs),
+  );
+  const abortTimer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await Promise.race([
+      callEngine(engine, prompt, systemPrompt, maxTokens, controller.signal),
+      timeoutPromise,
+    ]);
+  } finally {
+    if (timeoutTimer) clearTimeout(timeoutTimer);
+    clearTimeout(abortTimer);
+    controller.abort();
+  }
+}
 
 /**
  * Start all engines simultaneously. Proceed as soon as all respond OR the
@@ -135,7 +162,7 @@ async function collectEngineResults(
 
   // Each engine pushes its result into collected as soon as it finishes.
   const perEnginePromises = engines.map(engine =>
-    callEngine(engine, prompt, systemPrompt, maxTokens)
+    callEngineWithDeadline(engine, prompt, systemPrompt, maxTokens, COLLAB_ENGINE_TIMEOUT_MS)
       .then(result => { collected.push(result); })
       .catch(err => {
         // callEngine already catches internally; this is a belt-and-suspenders guard.
@@ -197,7 +224,13 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   return engines;
 }
 
-async function callEngine(engine: { id: EngineId; model: string }, prompt: string, systemPrompt: string, maxTokens: number): Promise<EngineResult> {
+async function callEngine(
+  engine: { id: EngineId; model: string },
+  prompt: string,
+  systemPrompt: string,
+  maxTokens: number,
+  signal?: AbortSignal,
+): Promise<EngineResult> {
   // Persistent ethics/EI principle — every engine in the 4-engine
   // collaborative synthesis carries the same operating values as the
   // single-provider path in ai-provider.ts.
@@ -218,7 +251,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
           model: engine.model,
           messages: [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }],
           max_tokens: maxTokens,
-        });
+        }, { signal } as any);
         response = resp.choices[0]?.message?.content || "";
       } else {
         const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY!);
@@ -227,7 +260,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
           systemInstruction: systemPrompt,
           generationConfig: { maxOutputTokens: maxTokens },
         });
-        const result = await model.generateContent(prompt);
+         const result = await model.generateContent(prompt, { signal } as any);
         response = result.response.text();
       }
 
@@ -242,7 +275,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
           model: engine.model,
           messages: [{ role: "system", content: systemPrompt }, { role: "user", content: prompt }],
           max_tokens: maxTokens,
-        });
+         }, { signal } as any);
         response = resp.choices[0]?.message?.content || "";
       } else {
         // Direct key or Replit integration proxy fallback
@@ -254,7 +287,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
           max_tokens: maxTokens,
           system: systemPrompt,
           messages: [{ role: "user", content: prompt }],
-        });
+       }, { signal } as any);
         const block = resp.content[0];
         response = block.type === "text" ? block.text : "";
       }
@@ -263,7 +296,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
       const client = new OpenAI({
         apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
         baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-      });
+        });
       const resp = await client.chat.completions.create({
         model: "gpt-5-mini",
         messages: [
@@ -271,7 +304,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
           { role: "user", content: prompt },
         ],
         max_completion_tokens: maxTokens,
-      });
+      }, { signal } as any);
       response = resp.choices[0]?.message?.content || "";
 
     } else if (engine.id === "deepseek-r1") {
@@ -286,7 +319,7 @@ async function callEngine(engine: { id: EngineId; model: string }, prompt: strin
           { role: "user", content: prompt },
         ],
         max_tokens: maxTokens,
-      });
+      }, { signal } as any);
       const raw = resp.choices[0]?.message?.content || "";
       // Strip chain-of-thought <think> blocks — only present in R1 reasoning models, no-op on V3
       response = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
@@ -370,7 +403,13 @@ ${synthesisInstruction}`;
     : "You are an expert synthesizer for the ThriveUp Academy ACOS. Produce cohesive, authoritative outputs. Do NOT truncate — always complete every section and produce the full depth of analysis needed.";
 
   try {
-    const result = await callEngine(synthesisEngine, synthesisPrompt, systemPrompt, 8000);
+    const result = await callEngineWithDeadline(
+      synthesisEngine,
+      synthesisPrompt,
+      systemPrompt,
+      8000,
+      COLLAB_SYNTHESIS_TIMEOUT_MS,
+    );
     if (result.response && result.response.length > 20) return result.response;
   } catch {}
 
@@ -580,7 +619,13 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   const deepThinkStart = Date.now();
   const deepThinkPromise: Promise<EngineResult | null> = deepThinkEngine
     ? Promise.race([
-        callEngine(deepThinkEngine, enrichedPrompt, baseSystem, params.maxTokens || 3000),
+        callEngineWithDeadline(
+          deepThinkEngine,
+          enrichedPrompt,
+          baseSystem,
+          params.maxTokens || 3000,
+          DEEP_THINK_TIMEOUT_MS,
+        ),
         new Promise<EngineResult>(resolve => setTimeout(() => resolve({
           engine: deepThinkEngine.id,
           model: deepThinkEngine.model,

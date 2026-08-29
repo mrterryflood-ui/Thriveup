@@ -22,7 +22,9 @@ END $$;
 DO $$
 BEGIN
   IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'fk_nonprofit_event_handoffs_event_org'
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'nonprofit_event_handoffs'::regclass
+      AND conname = 'fk_nonprofit_event_handoffs_event_org'
   ) THEN
     ALTER TABLE nonprofit_event_handoffs
       ADD CONSTRAINT fk_nonprofit_event_handoffs_event_org
@@ -30,7 +32,9 @@ BEGIN
       REFERENCES nonprofit_events(id, org_id);
   END IF;
   IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'fk_nonprofit_event_handoffs_need_org'
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'nonprofit_event_handoffs'::regclass
+      AND conname = 'fk_nonprofit_event_handoffs_need_org'
   ) THEN
     ALTER TABLE nonprofit_event_handoffs
       ADD CONSTRAINT fk_nonprofit_event_handoffs_need_org
@@ -38,7 +42,9 @@ BEGIN
       REFERENCES nonprofit_event_needs(id, org_id);
   END IF;
   IF NOT EXISTS (
-    SELECT 1 FROM pg_constraint WHERE conname = 'fk_nonprofit_event_handoffs_action_org'
+    SELECT 1 FROM pg_constraint
+    WHERE conrelid = 'nonprofit_event_handoffs'::regclass
+      AND conname = 'fk_nonprofit_event_handoffs_action_org'
   ) THEN
     ALTER TABLE nonprofit_event_handoffs
       ADD CONSTRAINT fk_nonprofit_event_handoffs_action_org
