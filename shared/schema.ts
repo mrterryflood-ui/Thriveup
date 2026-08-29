@@ -5580,6 +5580,10 @@ export const organizationMembers = pgTable("organization_members", {
   joinedAt: timestamp("joined_at").defaultNow().notNull(),
 }, (t) => [
   unique("organization_members_org_user_unique").on(t.orgId, t.userId),
+  // Keep an explicit parent key for workspace-access composite FKs. Some
+  // production databases have the equivalent unique index, which PostgreSQL
+  // cannot use as a referenced key and the publish diff can otherwise miss.
+  unique("organization_members_event_workspace_fk_key").on(t.orgId, t.userId),
   index("idx_org_members_user").on(t.userId),
   index("idx_org_members_org").on(t.orgId),
 ]);
