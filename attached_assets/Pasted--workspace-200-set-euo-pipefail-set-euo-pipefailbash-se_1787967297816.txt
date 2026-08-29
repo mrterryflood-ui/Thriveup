@@ -1,0 +1,78 @@
+/workspace$ ^[[200~set -euo pipefail
+set -euo pipefailbash: set: command not found
+~/workspace$ 
+~/workspace$ : "${PRODUCTION_DATABASE_URL:?Set PRODUCTION_DATABASE_URL to the production database URL}"
+bash: PRODUCTION_DATABASE_URL: Set PRODUCTION_DATABASE_URL to the production database URL
+~/workspace$ 
+~/workspace$ psql "$PRODUCTION_DATABASE_URL" -v ON_ERROR_STOP=1 <<'SQL'
+> BEGIN;
+> 
+> DO $$
+> BEGIN
+>   IF to_regclass('public.organization_members') IS NULL
+>      OR to_regclass('public.nonprofit_event_workspace_access') IS NULL THEN
+>     RAISE EXCEPTION 'Required production tables are missing';
+>   END IF;
+> 
+>   IF EXISTS (
+>     SELECT 1
+>     FROM public.organization_members
+>     GROUP BY org_id, user_id
+>     HAVING count(*) > 1
+>   ) THEN
+>     RAISE EXCEPTION 'Duplicate organization_members (org_id, user_id) pairs exist';
+>   END IF;
+> 
+>   IF NOT EXISTS (
+>     SELECT 1
+>     FROM pg_constraint
+>     WHERE conrelid = 'public.organization_members'::regclass
+>       AND contype = 'u'
+>       AND conname = 'organization_members_org_user_unique'
+>   ) THEN
+>     IF NOT EXISTS (
+>       SELECT 1
+>       FROM pg_indexes
+>       WHERE schemaname = 'public'
+>         AND tablename = 'organization_members'
+>         AND indexname = 'idx_org_members_unique'
+>     ) THEN
+>       RAISE EXCEPTION 'Expected idx_org_members_unique is missing';
+>     END IF;
+> 
+>     ALTER TABLE public.organization_members
+>       ADD CONSTRAINT organization_members_org_user_unique
+>       UNIQUE USING INDEX idx_org_members_unique;
+>   END IF;
+> 
+>   IF EXISTS (
+>     SELECT 1
+>     FROM public.nonprofit_event_workspace_access access
+>     WHERE NOT EXISTS (
+>       SELECT 1
+>       FROM public.organization_members members
+>       WHERE members.org_id = access.org_id
+>         AND members.user_id = access.user_id
+>     )
+>   ) THEN
+>     RAISE EXCEPTION 'Orphaned nonprofit_event_workspace_access rows exist';
+>   END IF;
+> 
+>   IF NOT EXISTS (
+>     SELECT 1
+>     FROM pg_constraint
+>     WHERE conrelid = 'public.nonprofit_event_workspace_access'::regclass
+>       AND conname = 'nonprofit_event_workspace_access_active_member_fk'
+>   ) THEN
+>     ALTER TABLE public.nonprofit_event_workspace_access
+>       ADD CONSTRAINT nonprofit_event_workspace_access_active_member_fk
+>       FOREIGN KEY (org_id, user_id)
+>       REFERENCES public.organization_members (org_id, user_id)
+>       ON DELETE CASCADE;
+>   END IF;
+> END
+> $$;
+> 
+> COMMIT;
+> SQL~
+> 
