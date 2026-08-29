@@ -453,12 +453,22 @@ export function AINavigator({
   // Prevents auto-resume from immediately reloading the last convo after user clicks New
   const userStartedNewRef = useRef(false);
 
-  const { data: conversations, refetch: refetchConversations } = useQuery<
+  const { data: conversations, isError: conversationsError, refetch: refetchConversations } = useQuery<
     NavigatorConversation[]
   >({
     queryKey: ["/api/navigator/conversations"],
-    enabled: isOpen || mode === "page",
+    enabled: isAuthenticated && !authLoading && (isOpen || mode === "page"),
   });
+
+  useEffect(() => {
+    if (conversationsError) {
+      toast({
+        title: "Conversation history unavailable",
+        description: "Your current chat is still available. Try refreshing history shortly.",
+        variant: "destructive",
+      });
+    }
+  }, [conversationsError, toast]);
 
   // ── Youth Mode persistence ──────────────────────────────────────────────────
   // Fetch the server-side preference for signed-in users
@@ -1887,7 +1897,7 @@ export function AINavigator({
                     <div className="mb-3 space-y-1.5">
                       {attachedDocs.map((doc, i) => (
                         <div
-                          key={doc.name}
+                          key={`${doc.name}-${i}`}
                           className="flex items-center gap-2 px-3 py-2 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg text-sm"
                         >
                           <FileText className="h-4 w-4 text-teal-600 shrink-0" />
@@ -2501,7 +2511,7 @@ export function AINavigator({
               <div className="mb-2 space-y-1">
                 {attachedDocs.map((doc, i) => (
                   <div
-                    key={doc.name}
+                    key={`${doc.name}-${i}`}
                     className="flex items-center gap-2 px-3 py-1.5 bg-teal-50 dark:bg-teal-950/30 border border-teal-200 dark:border-teal-800 rounded-lg text-xs"
                   >
                     <FileText className="h-3.5 w-3.5 text-teal-600 flex-shrink-0" />

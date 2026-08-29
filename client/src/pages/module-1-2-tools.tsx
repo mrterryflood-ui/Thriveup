@@ -27,7 +27,21 @@ interface ModuleProgress {
 function loadProgress(): ModuleProgress {
   try {
     const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) return JSON.parse(stored);
+    if (stored) {
+      const parsed = JSON.parse(stored) as Partial<ModuleProgress>;
+      if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        const score = (value: unknown, max: number) =>
+          typeof value === "number" && Number.isFinite(value)
+            ? Math.max(0, Math.min(max, value))
+            : 0;
+        return {
+          promptBuilderScore: score(parsed.promptBuilderScore, 100),
+          sortingGameScore: score(parsed.sortingGameScore, 10),
+          promptImproverUsed: parsed.promptImproverUsed === true,
+          politeQuizScore: score(parsed.politeQuizScore, 5),
+        };
+      }
+    }
   } catch {}
   return { promptBuilderScore: 0, sortingGameScore: 0, promptImproverUsed: false, politeQuizScore: 0 };
 }

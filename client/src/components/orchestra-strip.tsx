@@ -5,16 +5,23 @@ import { ArrowRight, Music2, Heart, Target, Rocket, Network, Loader2, AlertTrian
 type Hub = "serve" | "fund" | "grow" | "connect";
 
 interface PulseData {
-  serve:    { screenings: number; applications: number; justiceReferrals: number; reentryPlans: number };
-  fund:     { openOpportunities: number; inPipeline: number };
-  grow:     { certificates: number; enrollments: number };
-  connect:  { partners: number; referrals: number; mous: number };
-  crossHub: { outcomesTracked: number };
+  serve:    { screenings: number | null; applications: number | null; justiceReferrals: number | null; reentryPlans: number | null };
+  fund:     { openOpportunities: number | null; inPipeline: number | null };
+  grow:     { certificates: number | null; enrollments: number | null };
+  connect:  { partners: number | null; referrals: number | null; mous: number | null };
+  crossHub: { outcomesTracked: number | null };
 }
 
-function fmt(n: number): string {
+function fmt(n: number | null): string {
+  if (n === null || n === undefined) return "Unavailable";
   if (n >= 1000) return `${(n / 1000).toFixed(1)}k`;
   return String(n);
+}
+
+function addCounts(...values: Array<number | null>): number | null {
+  return values.some((value) => value === null || value === undefined)
+    ? null
+    : values.reduce<number>((sum, value) => sum + (value as number), 0);
 }
 
 interface HubMeta {
@@ -37,8 +44,8 @@ const HUB_META: Record<Hub, HubMeta> = {
     stripBg: "bg-emerald-50 dark:bg-emerald-950/20 border-emerald-200 dark:border-emerald-800",
     role: "Where community members receive services, screenings, and navigation — the frontline.",
     liveFeeds: (d) => [
-      { to: "Get Funded",  signal: `${fmt(d.serve.screenings + d.serve.applications)} people reached → documented outcomes available as proposal evidence` },
-      { to: "Grow",        signal: `${fmt(d.serve.reentryPlans)} reentry plans active → workforce readiness referrals` },
+      { to: "Get Funded",  signal: `${fmt(addCounts(d.serve.screenings, d.serve.applications))} service records → documented outcomes available as proposal evidence` },
+      { to: "Grow",        signal: `${fmt(d.serve.reentryPlans)} reentry plan records → workforce readiness referrals` },
       { to: "Connect",     signal: `${fmt(d.serve.justiceReferrals)} justice referrals → partner coordination` },
     ],
     liveReceives: (d) => [
@@ -59,8 +66,8 @@ const HUB_META: Record<Hub, HubMeta> = {
       { to: "Connect",     signal: `Coalition strength data available for organizational capacity narratives` },
     ],
     liveReceives: (d) => [
-      `Serve → ${fmt(d.serve.screenings + d.serve.applications)} people reached — documented evidence for next proposal`,
-      `Connect → ${fmt(d.connect.partners)} active partners — coalition capacity available to cite`,
+      `Serve → ${fmt(addCounts(d.serve.screenings, d.serve.applications))} service records — documented evidence for next proposal`,
+      `Connect → ${fmt(d.connect.partners)} partner records — coalition capacity available to cite`,
       `Grow → ${fmt(d.grow.certificates)} credentials issued — workforce ROI for WIOA/DOL funders`,
     ],
   },
@@ -76,7 +83,7 @@ const HUB_META: Record<Hub, HubMeta> = {
       { to: "Connect",     signal: `${fmt(d.grow.certificates)} credential holders → employer network and trade mentor pipeline` },
     ],
     liveReceives: (d) => [
-      `Serve → ${fmt(d.serve.reentryPlans)} reentry plans active — workforce readiness referrals incoming`,
+      `Serve → ${fmt(d.serve.reentryPlans)} reentry plan records — workforce readiness referrals incoming`,
       `Fund → ${fmt(d.fund.inPipeline)} proposals in pipeline — some fund training programs`,
       `Connect → ${fmt(d.connect.partners)} partner orgs — employer network and mentors`,
     ],
@@ -89,11 +96,11 @@ const HUB_META: Record<Hub, HubMeta> = {
     role: "The coordination layer — aligns partners, amplifies impact, and holds the coalition together.",
     liveFeeds: (d) => [
       { to: "Serve",       signal: `${fmt(d.connect.referrals)} coordinated referrals → shared service delivery` },
-      { to: "Get Funded",  signal: `${fmt(d.connect.partners)} active partners · ${fmt(d.connect.mous)} MOUs → organizational capacity for proposals` },
+      { to: "Get Funded",  signal: `${fmt(d.connect.partners)} partner records · ${fmt(d.connect.mous)} MOUs → organizational capacity for proposals` },
       { to: "Grow",        signal: `${fmt(d.connect.partners)} partner orgs → employer network and trade mentor connections` },
     ],
     liveReceives: (d) => [
-      `Serve → ${fmt(d.serve.screenings + d.serve.applications)} people reached — community outcomes for partner storytelling`,
+      `Serve → ${fmt(addCounts(d.serve.screenings, d.serve.applications))} service records — community outcomes for partner storytelling`,
       `Fund → ${fmt(d.fund.inPipeline)} proposals in pipeline — funded initiatives attract more partners`,
       `Grow → ${fmt(d.grow.certificates)} credentials — pathways to offer partner org members`,
     ],
@@ -115,7 +122,7 @@ export function OrchestraStrip({ hub }: OrchestraStripProps) {
   const meta = HUB_META[hub];
   const Icon = meta.icon;
 
-  const { data, isLoading, error, dataUpdatedAt } = useQuery<PulseData>({
+  const { data, isLoading, error, isFetching, refetch, dataUpdatedAt } = useQuery<PulseData>({
     queryKey: ["/api/system/pulse"],
     staleTime: 60_000,
     refetchInterval: 120_000,
@@ -189,6 +196,9 @@ export function OrchestraStrip({ hub }: OrchestraStripProps) {
         <div className="flex items-start gap-2 text-xs text-amber-700 dark:text-amber-400 py-2" data-testid={`orchestra-strip-error-${hub}`}>
           <AlertTriangle className="w-3.5 h-3.5 shrink-0 mt-0.5" />
           <span>Live cross-hub signals are temporarily unavailable — showing no live data rather than stale or fabricated figures.</span>
+          <button type="button" onClick={() => refetch()} disabled={isFetching} className="ml-auto min-h-11 shrink-0 rounded-md border px-3 py-2 font-semibold hover:bg-background disabled:opacity-50">
+            {isFetching ? "Retrying…" : "Retry"}
+          </button>
         </div>
       )}
 

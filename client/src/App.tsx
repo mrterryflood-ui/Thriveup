@@ -8,6 +8,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { RequireAuth } from "@/components/require-auth";
 import { OrgRedirectGuard } from "@/components/org-redirect-guard";
+import { useAuth } from "@/hooks/use-auth";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
@@ -1033,12 +1034,15 @@ function AppRouter() {
 }
 
 function useAttendanceLog() {
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const logged = useRef(false);
   useEffect(() => {
-    if (logged.current) return;
+    if (authLoading || !isAuthenticated || logged.current) return;
     logged.current = true;
-    apiRequest("POST", "/api/attendance/log", {}).catch(() => {});
-  }, []);
+    apiRequest("POST", "/api/attendance/log", {}).catch((error) => {
+      console.warn("[Attendance] Unable to log authenticated visit:", error);
+    });
+  }, [authLoading, isAuthenticated]);
 }
 
 function NavModeToggle() {
@@ -1065,7 +1069,7 @@ function AppLayoutInner() {
   if (isInIframe) {
     return (
       <SidebarProvider style={style as React.CSSProperties}>
-        <main className="w-full min-h-screen overflow-auto">
+        <main className="w-full min-h-screen overflow-auto" tabIndex={-1}>
           <ErrorBoundary>
             <Suspense fallback={<PageFallback />}>
               <AppRouter />
@@ -1080,7 +1084,7 @@ function AppLayoutInner() {
     <SidebarProvider defaultOpen={false} style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
         <AppSidebar />
-        <div className={cn("flex flex-col flex-1 min-w-0", mode === "hub" && "pb-[60px]")}>
+        <div className={cn("flex flex-col flex-1 min-w-0", mode === "hub" && "pb-[calc(60px+env(safe-area-inset-bottom))]")}>
           <a href="#main-content" className="skip-link bg-primary text-primary-foreground" data-testid="link-skip-nav">
             {t("shell.skipToContent")}
           </a>
@@ -1106,7 +1110,7 @@ function AppLayoutInner() {
               <HeaderControls />
             </div>
           </header>
-          <main id="main-content" className="flex-1 overflow-auto">
+          <main id="main-content" className="flex-1 overflow-auto" tabIndex={-1}>
             <ErrorBoundary>
               <Suspense fallback={<PageFallback />}>
                 <AppRouter />

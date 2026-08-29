@@ -854,8 +854,8 @@ function SolutionsLayer({ solutions, policyContext }: { solutions: any; policyCo
               </Card>
             ))}
           <div className="text-center pt-2">
-            <a href="/grant-hub" className="text-sm text-primary hover:underline flex items-center gap-1 justify-center" data-testid="link-grant-hub">
-              Find more grants in Grant Hub <ChevronRight className="w-3 h-3" />
+            <a href="/this-week" className="text-sm text-primary hover:underline flex items-center gap-1 justify-center" data-testid="link-grant-hub">
+              Find more grants in This Week <ChevronRight className="w-3 h-3" />
             </a>
           </div>
         </div>
@@ -1802,7 +1802,7 @@ export default function CommunityImpactPage() {
                 </div>
               </div>
               <div className="flex gap-2 flex-wrap">
-                <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/grant-hub" data-testid="link-export-grant-hub"><Building2 className="w-3.5 h-3.5" />Grant Hub</a></Button>
+                <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/this-week" data-testid="link-export-grant-hub"><Building2 className="w-3.5 h-3.5" />This Week grants</a></Button>
                 <Button asChild variant="outline" size="sm" className="gap-1.5"><a href="/chainweb" data-testid="link-export-chainweb"><Target className="w-3.5 h-3.5" />Chainweb</a></Button>
                 <Button variant="outline" size="sm" className="gap-1.5" onClick={() => {
                   try {

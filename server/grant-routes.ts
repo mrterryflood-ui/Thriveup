@@ -1074,6 +1074,14 @@ export function registerGrantRoutes(app: Express) {
         return res.status(400).json({ error: "Invalid request", details: parsedBody.error.flatten().fieldErrors });
       }
       const { saveToDb } = parsedBody.data;
+      if (saveToDb) {
+        const userId = getUserId(req);
+        if (!userId) return res.status(401).json({ error: "Authentication required to save grant results" });
+        const user = await storage.getUser(userId);
+        if (!user?.role || !STAFF_ROLES.has(user.role)) {
+          return res.status(403).json({ error: "Staff access required to save grant results" });
+        }
+      }
       let { orgDescription, focusAreas, state } = parsedBody.data;
 
       // Entity-aligned: if authenticated and no manual description, auto-load from org profile

@@ -33,13 +33,35 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
 
 const STORAGE_KEY = "txea-accessibility-settings";
 
+function parseStoredSettings(raw: string | null): AccessibilitySettings {
+  if (!raw) return DEFAULT_SETTINGS;
+  try {
+    const parsed = JSON.parse(raw) as Partial<AccessibilitySettings>;
+    if (!parsed || typeof parsed !== "object") return DEFAULT_SETTINGS;
+    return {
+      dyslexiaFont: typeof parsed.dyslexiaFont === "boolean" ? parsed.dyslexiaFont : DEFAULT_SETTINGS.dyslexiaFont,
+      highContrast: typeof parsed.highContrast === "boolean" ? parsed.highContrast : DEFAULT_SETTINGS.highContrast,
+      reducedMotion: typeof parsed.reducedMotion === "boolean" ? parsed.reducedMotion : DEFAULT_SETTINGS.reducedMotion,
+      focusMode: typeof parsed.focusMode === "boolean" ? parsed.focusMode : DEFAULT_SETTINGS.focusMode,
+      largeText: typeof parsed.largeText === "boolean" ? parsed.largeText : DEFAULT_SETTINGS.largeText,
+      lineSpacing: parsed.lineSpacing === "relaxed" || parsed.lineSpacing === "loose" ? parsed.lineSpacing : "normal",
+      colorOverlay: parsed.colorOverlay === "warm" || parsed.colorOverlay === "cool" || parsed.colorOverlay === "yellow"
+        ? parsed.colorOverlay
+        : "none",
+      simplifiedLayout: typeof parsed.simplifiedLayout === "boolean" ? parsed.simplifiedLayout : DEFAULT_SETTINGS.simplifiedLayout,
+      screenReaderOptimized: typeof parsed.screenReaderOptimized === "boolean" ? parsed.screenReaderOptimized : DEFAULT_SETTINGS.screenReaderOptimized,
+    };
+  } catch {
+    return DEFAULT_SETTINGS;
+  }
+}
+
 const AccessibilityContext = createContext<AccessibilityContextType | null>(null);
 
 export function AccessibilityProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<AccessibilitySettings>(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) return { ...DEFAULT_SETTINGS, ...JSON.parse(stored) };
+      return parseStoredSettings(localStorage.getItem(STORAGE_KEY));
     } catch {}
     return DEFAULT_SETTINGS;
   });
@@ -52,7 +74,6 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
 
   useEffect(() => {
     const root = document.documentElement;
-    const body = document.body;
 
     root.classList.toggle("dyslexia-font", settings.dyslexiaFont);
     root.classList.toggle("high-contrast", settings.highContrast);
@@ -76,11 +97,7 @@ export function AccessibilityProvider({ children }: { children: React.ReactNode 
       root.style.removeProperty("--animation-duration");
     }
 
-    if (settings.screenReaderOptimized) {
-      body.setAttribute("role", "application");
-    } else {
-      body.removeAttribute("role");
-    }
+    root.toggleAttribute("data-screen-reader-optimized", settings.screenReaderOptimized);
   }, [settings]);
 
   const updateSetting = useCallback(<K extends keyof AccessibilitySettings>(key: K, value: AccessibilitySettings[K]) => {

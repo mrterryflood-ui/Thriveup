@@ -9,8 +9,11 @@ const TABS = [
     labelKey: "shell.tab.home",
     icon: Home,
     href: "/hub",
-    prefixes: ["/hub"] as string[],
-    exact: ["/hub"] as string[],
+    // Home is a landing destination, not a parent for the other four tabs.
+    // Keeping it exact prevents Home + Serve/Fund/Grow/Connect from being
+    // announced as active at the same time on hub pages.
+    prefixes: [] as string[],
+    exact: ["/", "/hub"] as string[],
   },
   {
     label: "Serve",
@@ -61,6 +64,7 @@ const TABS = [
     prefixes: [
       "/hub/connect", "/hub/more", "/workbench", "/partners", "/coalition",
       "/ecosystem", "/coverage", "/about", "/community",
+      "/ecosystem-story", "/ecosystem-ops-center", "/community-impact", "/community-map",
       "/network", "/impact", "/transparency", "/sdoh",
       "/city-comparison", "/research-hub", "/methodology",
       "/case-studies", "/contact", "/privacy",
@@ -75,9 +79,11 @@ const TABS = [
 ] as const;
 
 function isTabActive(location: string, tab: (typeof TABS)[number]): boolean {
+  const path = location.split("?")[0];
+  if ("exact" in tab && tab.exact.includes(path)) return true;
   return tab.prefixes.some(p => {
-    if (p.endsWith("/") || p === location) return location === p || location.startsWith(p);
-    return location === p || location.startsWith(p + "/") || location.startsWith(p + "?");
+    if (p.endsWith("-") || p.endsWith("/")) return path.startsWith(p);
+    return path === p || path.startsWith(p + "/");
   });
 }
 
@@ -91,10 +97,12 @@ export function BottomTabBar() {
       // interactive row is never covered on notched iPhones. The tappable
       // links keep a 60px min-height for comfortable touch targets.
       className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border/60 flex items-stretch shadow-lg pb-[env(safe-area-inset-bottom)]"
+      aria-label="Primary navigation"
       data-testid="nav-bottom-tab-bar"
     >
       {TABS.map(tab => {
-        const active = isTabActive(location, tab);
+        const activeHref = TABS.find(candidate => isTabActive(location, candidate))?.href;
+        const active = activeHref === tab.href;
         const Icon = tab.icon;
         return (
           <Link

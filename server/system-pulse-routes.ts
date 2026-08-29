@@ -1,5 +1,5 @@
-import type { Express } from "express";
-import { db } from "./storage";
+import type { Express, Request, Response } from "express";
+import { db, storage } from "./storage";
 import { count, eq, gte, desc } from "drizzle-orm";
 import {
   grantOpportunities,
@@ -17,15 +17,41 @@ import {
   probeAlertFailures,
 } from "@shared/schema";
 
-async function safeCount(table: any, where?: any): Promise<number> {
+const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+
+function getUserId(req: Request): string | undefined {
+  const user = (req as unknown as Record<string, unknown>).user as
+    { claims?: { sub?: string }; id?: string } | undefined;
+  return user?.claims?.sub || user?.id;
+}
+
+function requireAuth(req: Request, res: Response, next: Function) {
+  if (!getUserId(req)) return res.status(401).json({ error: "Authentication required" });
+  next();
+}
+
+async function requireStaff(req: Request, res: Response, next: Function) {
+  const userId = getUserId(req);
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  try {
+    const user = await storage.getUser(userId);
+    if (user?.role && STAFF_ROLES.has(user.role)) return next();
+  } catch (error) {
+    console.error("[system-pulse] staff check failed:", error);
+  }
+  return res.status(403).json({ error: "Staff access required" });
+}
+
+async function countTable(table: any, where?: any): Promise<number | null> {
   try {
     const q = where
       ? db.select({ c: count() }).from(table).where(where)
       : db.select({ c: count() }).from(table);
     const [row] = await q;
     return Number(row?.c ?? 0);
-  } catch {
-    return 0;
+  } catch (err) {
+    console.error("[system-pulse] metric unavailable:", err);
+    return null;
   }
 }
 
@@ -45,51 +71,49 @@ export function registerSystemPulseRoutes(app: Express) {
         justiceRefs,
         reentryCount,
       ] = await Promise.all([
-        safeCount(grantOpportunities, eq(grantOpportunities.status, "identified")),
-        safeCount(proposalPipeline),
-        safeCount(communityPartners),
-        safeCount(mouDocuments),
-        safeCount(outcomeTracking),
-        safeCount(certificates),
-        safeCount(studentProgress),
-        safeCount(benefitsScreenings),
-        safeCount(justiceReferrals),
-        safeCount(reentryPlans),
+        countTable(grantOpportunities, eq(grantOpportunities.status, "identified")),
+        countTable(proposalPipeline),
+        countTable(communityPartners),
+        countTable(mouDocuments),
+        countTable(outcomeTracking),
+        countTable(certificates),
+        countTable(studentProgress),
+        countTable(benefitsScreenings),
+        countTable(justiceReferrals),
+        countTable(reentryPlans),
       ]);
 
       const services = [
-        { name: "Navigator AI", tier: 1, status: "operational" },
-        { name: "Benefits Screener", tier: 1, status: "operational" },
-        { name: "Grant Discovery", tier: 1, status: "operational" },
-        { name: "Trade Simulators", tier: 1, status: "operational" },
-        { name: "SPARK / SPARKY", tier: 1, status: "operational" },
-        { name: "Justice Reentry", tier: 2, status: "operational" },
-        { name: "Voice Collective", tier: 2, status: "operational" },
-        { name: "Ecosystem Connector", tier: 2, status: "operational" },
-        { name: "Partner API Hub", tier: 2, status: "operational" },
-        { name: "RAG Knowledge Base", tier: 2, status: "operational" },
-        { name: "MOU Pipeline", tier: 3, status: "operational" },
-        { name: "College Access AI", tier: 3, status: "operational" },
-        { name: "Regional Briefing", tier: 3, status: "operational" },
-        { name: "ITSM Monitor", tier: 3, status: "operational" },
-        { name: "Outcome Tracker", tier: 3, status: "operational" },
-      ];
+        "Navigator AI", "Benefits Screener", "Grant Discovery",
+        "Trade Simulators", "SPARK / SPARKY", "Justice Reentry",
+        "Voice Collective", "Ecosystem Connector", "Partner API Hub",
+        "RAG Knowledge Base", "MOU Pipeline", "College Access AI",
+        "Regional Briefing", "ITSM Monitor", "Outcome Tracker",
+      ].map((name, index) => ({
+        name,
+        tier: index < 5 ? 1 : index < 10 ? 2 : 3,
+        status: "unknown",
+        note: "Service-level probe not configured",
+      }));
+
+      const totals = {
+        openOpportunities,
+        inPipeline,
+        partners,
+        mous,
+        outcomes,
+        certificates: certs,
+        enrollments,
+        screenings,
+        justiceReferrals: justiceRefs,
+        reentryPlans: reentryCount,
+      };
+      const metricsAvailable = Object.values(totals).every((value) => value !== null);
 
       res.json({
-        status: "healthy",
+        status: metricsAvailable ? "metrics_available" : "degraded",
         services,
-        totals: {
-          openOpportunities,
-          inPipeline,
-          partners,
-          mous,
-          outcomes,
-          certificates: certs,
-          enrollments,
-          screenings,
-          justiceReferrals: justiceRefs,
-          reentryPlans: reentryCount,
-        },
+        totals,
         checkedAt: new Date().toISOString(),
       });
     } catch (err) {
@@ -115,21 +139,28 @@ export function registerSystemPulseRoutes(app: Express) {
         certs,
         enrollments,
       ] = await Promise.all([
-        safeCount(benefitsScreenings),
-        safeCount(benefitsApplications),
-        safeCount(justiceReferrals),
-        safeCount(reentryPlans),
-        safeCount(grantOpportunities, eq(grantOpportunities.status, "identified")),
-        safeCount(proposalPipeline),
-        safeCount(communityPartners),
-        safeCount(partnerReferrals),
-        safeCount(mouDocuments),
-        safeCount(outcomeTracking),
-        safeCount(certificates),
-        safeCount(studentProgress),
+        countTable(benefitsScreenings),
+        countTable(benefitsApplications),
+        countTable(justiceReferrals),
+        countTable(reentryPlans),
+        countTable(grantOpportunities, eq(grantOpportunities.status, "identified")),
+        countTable(proposalPipeline),
+        countTable(communityPartners),
+        countTable(partnerReferrals),
+        countTable(mouDocuments),
+        countTable(outcomeTracking),
+        countTable(certificates),
+        countTable(studentProgress),
       ]);
 
+      const metricsAvailable = [
+        screenings, applications, justiceRefs, reentryCount,
+        openOpportunities, inPipeline, partners, referrals, mous,
+        outcomes, certs, enrollments,
+      ].every((value) => value !== null);
+
       res.json({
+        status: metricsAvailable ? "available" : "degraded",
         serve: {
           screenings,
           applications,
@@ -160,10 +191,8 @@ export function registerSystemPulseRoutes(app: Express) {
     }
   });
 
-  // Returns probe alert email failures from the last 7 days.
-  // No auth required — same as /api/system/health (admin UI only fetches this
-  // from behind the requireAuth-gated admin page).
-  app.get("/api/system/probe-alert-failures", async (_req, res) => {
+  // Returns probe alert email failures from the last 7 days to authorized staff.
+  app.get("/api/system/probe-alert-failures", requireAuth, requireStaff, async (_req, res) => {
     res.setHeader("Cache-Control", "no-store");
     try {
       const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);

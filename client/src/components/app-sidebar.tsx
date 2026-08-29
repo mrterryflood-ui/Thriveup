@@ -79,7 +79,7 @@ function SidebarInfo({ title }: { title: string }) {
           type="button"
           variant="ghost"
           size="icon"
-          className="h-7 w-7 shrink-0 rounded-full text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
+           className="h-11 w-11 shrink-0 rounded-full text-muted-foreground hover:bg-sidebar-accent hover:text-foreground"
           aria-label={`About ${title}`}
           data-testid={`button-sidebar-info-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
         >
@@ -178,7 +178,7 @@ const fosterYouthItems: NavItem[] = [
   { title: "State Benefits (50 states)", url: "/foster-youth/benefits", icon: Landmark },
   { title: "FAFSA & ETV (foster)", url: "/fafsa-navigator?audience=foster", icon: GraduationCap },
   { title: "AI-assisted Intake (Foster)", url: "/foster-youth/intake", icon: Sparkles },
-  { title: "State-Agency Portal", url: "/foster-youth/state-portal", icon: Building2 },
+  { title: "State-Agency Portal", url: "/foster-youth/state-portal", icon: Building2, authOnly: true },
   { title: "Policy Comparison (50 states)", url: "/foster-youth/policy-comparison", icon: Scale },
   { title: "Youth Voice (YHSI)", url: "/youth-voice", icon: Megaphone },
   { title: "Know Your Rights", url: "/youth-rights", icon: ClipboardList },
@@ -503,19 +503,19 @@ const rankIcons: Record<string, typeof Shield> = {
 };
 
 function isItemActive(location: string, url: string): boolean {
-  // Strip query for matching but treat URLs with query as exact-only matches.
+  const locationPath = location.split("?")[0];
   const urlPath = url.split("?")[0];
   if (location === url) return true;
-  if (location === urlPath && !url.includes("?")) return true;
-  if (url === "/subjects" && location.startsWith("/subject")) return true;
-  if (url === "/curriculum" && location.startsWith("/curriculum/")) return true;
-  if (url === "/curriculum-documents" && location.startsWith("/curriculum-documents/")) return true;
-  if (url === "/classrooms" && location.startsWith("/classrooms/")) return true;
-  if (url === "/certificates" && location.startsWith("/certificates/")) return true;
-  if (url === "/implementation" && location.startsWith("/implementation")) return true;
-  if (url === "/foster-youth" && location.startsWith("/foster-youth/")) return true;
-  if (url === "/reentry" && location.startsWith("/reentry/")) return true;
-  if (urlPath !== "/parents" && urlPath !== "/academy" && !url.includes("?") && location.startsWith(urlPath + "/")) return true;
+  if (locationPath === urlPath && !url.includes("?")) return true;
+  if (url === "/subjects" && (locationPath === "/subjects" || locationPath.startsWith("/subjects/"))) return true;
+  if (url === "/curriculum" && locationPath.startsWith("/curriculum/")) return true;
+  if (url === "/curriculum-documents" && locationPath.startsWith("/curriculum-documents/")) return true;
+  if (url === "/classrooms" && locationPath.startsWith("/classrooms/")) return true;
+  if (url === "/certificates" && locationPath.startsWith("/certificates/")) return true;
+  if (url === "/implementation" && (locationPath === "/implementation" || locationPath.startsWith("/implementation/"))) return true;
+  if (url === "/foster-youth" && locationPath.startsWith("/foster-youth/")) return true;
+  if (url === "/reentry" && locationPath.startsWith("/reentry/")) return true;
+  if (urlPath !== "/parents" && urlPath !== "/academy" && !url.includes("?") && locationPath.startsWith(urlPath + "/")) return true;
   return false;
 }
 
@@ -537,12 +537,14 @@ function NavSection({
   items,
   location,
   icon: Icon,
+  currentUrl,
   defaultOpen = false,
 }: {
   label: string;
   items: NavItem[];
   location: string;
   icon?: LucideIcon;
+  currentUrl?: string;
   defaultOpen?: boolean;
 }) {
   const containsActive = groupContainsActive(location, items);
@@ -576,10 +578,10 @@ function NavSection({
                           <SidebarMenuSubButton
                             asChild
                             data-active={isActive}
-                            className={`min-w-0 flex-1 ${isActive ? "bg-sidebar-accent" : ""}`}
+                            className={`min-w-0 min-h-11 flex-1 ${isActive ? "bg-sidebar-accent" : ""}`}
                             data-testid={`link-sidebar-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                           >
-                            <Link href={item.url} aria-label={item.title}>
+                            <Link href={item.url} aria-label={item.title} aria-current={isActive && item.url === currentUrl ? "page" : undefined}>
                               <item.icon className="h-4 w-4" aria-hidden="true" />
                               <span className="truncate">{item.title}</span>
                             </Link>
@@ -619,6 +621,7 @@ export function AppSidebar() {
   const { orgId } = useCurrentOrgId();
   const { data: progressData } = useQuery<StudentProgress>({
     queryKey: ["/api/progress"],
+    enabled: isAuthenticated,
   });
   const progress = progressData ?? null;
 
@@ -627,7 +630,7 @@ export function AppSidebar() {
     enabled: isAuthenticated,
   });
   const userRole = avatarData?.role || "student";
-  const isAdmin = userRole === "admin";
+  const isAdmin = userRole === "admin" || user?.isTcafAdmin === true;
   const isTeacher = userRole === "teacher" || isAdmin;
   const isStaff = ["admin", "teacher", "case_manager", "facilitator", "staff"].includes(userRole);
 
@@ -683,11 +686,15 @@ export function AppSidebar() {
     }
     return items;
   }, [hub1, hub2, hub3, hub4, hub5, hub6, hub7, hubChildCare, hubRural, isAuthenticated, isAdmin, isTeacher, visibleOrganizationNavItems]);
+  const activeNavUrl = useMemo(
+    () => allItems.find((item) => isItemActive(location, item.url))?.url,
+    [allItems, location],
+  );
   const search = useSidebarSearch(allItems);
 
   return (
     <TooltipProvider delayDuration={250} skipDelayDuration={100}>
-    <Sidebar aria-label="Main navigation">
+    <Sidebar role="navigation" aria-label="Main navigation">
       <SidebarHeader className="p-4">
         <Link href="/" aria-label="ThriveUp Academy home">
           <div className="flex items-center gap-2.5 cursor-pointer" data-testid="link-home">
@@ -752,7 +759,7 @@ export function AppSidebar() {
                       key={item.url + item.title}
                       href={item.url}
                       onClick={() => search.setQuery("")}
-                      className="flex items-center gap-2 px-2.5 py-1.5 text-xs hover:bg-accent border-b last:border-b-0"
+                       className="flex min-h-11 items-center gap-2 px-2.5 py-1.5 text-xs hover:bg-accent border-b last:border-b-0"
                       data-testid={`link-search-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                     >
                       <item.icon className="h-3.5 w-3.5 shrink-0 text-muted-foreground" aria-hidden="true" />
@@ -771,16 +778,16 @@ export function AppSidebar() {
             <div className="px-3 pb-3">
               <p className="text-[10px] uppercase tracking-widest text-muted-foreground mb-2 font-semibold">Foundation Network</p>
               <div className="grid grid-cols-2 gap-1.5">
-                <Link href="/hub/serve" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors" data-testid="link-pillar-serve">
+                <Link href="/hub/serve" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 min-h-11 text-xs font-semibold bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors" data-testid="link-pillar-serve">
                   <Heart className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Serve
                 </Link>
-                <Link href="/hub/grow" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors" data-testid="link-pillar-grow">
+                <Link href="/hub/grow" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 min-h-11 text-xs font-semibold bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-colors" data-testid="link-pillar-grow">
                   <Rocket className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Grow
                 </Link>
-                <Link href="/hub/fund" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors" data-testid="link-pillar-fund">
+                <Link href="/hub/fund" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 min-h-11 text-xs font-semibold bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors" data-testid="link-pillar-fund">
                   <Target className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Fund
                 </Link>
-                <Link href="/hub/connect" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 text-xs font-semibold bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors" data-testid="link-pillar-connect">
+                <Link href="/hub/connect" className="flex items-center gap-1.5 rounded-md px-2.5 py-1.5 min-h-11 text-xs font-semibold bg-teal-50 dark:bg-teal-950/30 text-teal-700 dark:text-teal-400 hover:bg-teal-100 dark:hover:bg-teal-900/40 transition-colors" data-testid="link-pillar-connect">
                   <Compass className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /> Connect
                 </Link>
               </div>
@@ -790,7 +797,7 @@ export function AppSidebar() {
 
         <SidebarGroup>
           <Collapsible defaultOpen={false} className="group/collapsible">
-            <SidebarGroupLabel asChild>
+            <SidebarGroupLabel>
               <CollapsibleTrigger className="w-full">
                 <Globe className="mr-2 h-4 w-4" />
                 Connected sites
@@ -835,10 +842,10 @@ export function AppSidebar() {
                   <SidebarMenuButton
                     asChild
                     data-active={isItemActive(location, item.url)}
-                    className={isItemActive(location, item.url) ? "bg-sidebar-accent" : ""}
+                    className={`min-h-11 ${isItemActive(location, item.url) ? "bg-sidebar-accent" : ""}`}
                     data-testid={`link-quicktask-${item.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
                   >
-                    <Link href={item.url} aria-label={item.title}>
+                    <Link href={item.url} aria-label={item.title} aria-current={isItemActive(location, item.url) && item.url === activeNavUrl ? "page" : undefined}>
                       <item.icon className="h-4 w-4" aria-hidden="true" />
                       <span>{item.title}</span>
                     </Link>
@@ -850,22 +857,22 @@ export function AppSidebar() {
         </SidebarGroup>
 
         {/* EIGHT HUBS — seven thematic hubs plus Central Texas geographic front door. */}
-        <NavSection label="Central Texas" items={hubCtx} location={location} icon={MapPin} />
-        <NavSection label="Get Funded" items={hub1} location={location} icon={Trophy} />
-        <NavSection label="Benefits & Intake" items={hub2} location={location} icon={HandHeart} />
-        <NavSection label="Foster Youth" items={hubFoster} location={location} icon={Heart} />
-        <NavSection label="Justice & Reentry" items={hubJustice} location={location} icon={Scale} />
-        <NavSection label="Prevention & Health" items={hubPrevHealth} location={location} icon={ShieldCheck} />
-        <NavSection label="Child Care & Workforce" items={hubChildCare} location={location} icon={Baby} />
-        <NavSection label="Rural & Agriculture" items={hubRural} location={location} icon={Sprout} />
-        <NavSection label="Workforce & Trades" items={hub3} location={location} icon={Briefcase} />
-        <NavSection label="Academy & Learning" items={hub4} location={location} icon={GraduationCap} />
-        <NavSection label="Partners & Coalitions" items={hub5} location={location} icon={Handshake} />
-        <NavSection label="Where We Operate" items={hub6} location={location} icon={Compass} />
-        <NavSection label="About & Trust" items={hub7} location={location} icon={Info} />
+        <NavSection label="Central Texas" items={hubCtx} location={location} currentUrl={activeNavUrl} icon={MapPin} />
+        <NavSection label="Get Funded" items={hub1} location={location} currentUrl={activeNavUrl} icon={Trophy} />
+        <NavSection label="Benefits & Intake" items={hub2} location={location} currentUrl={activeNavUrl} icon={HandHeart} />
+        <NavSection label="Foster Youth" items={hubFoster} location={location} currentUrl={activeNavUrl} icon={Heart} />
+        <NavSection label="Justice & Reentry" items={hubJustice} location={location} currentUrl={activeNavUrl} icon={Scale} />
+        <NavSection label="Prevention & Health" items={hubPrevHealth} location={location} currentUrl={activeNavUrl} icon={ShieldCheck} />
+        <NavSection label="Child Care & Workforce" items={hubChildCare} location={location} currentUrl={activeNavUrl} icon={Baby} />
+        <NavSection label="Rural & Agriculture" items={hubRural} location={location} currentUrl={activeNavUrl} icon={Sprout} />
+        <NavSection label="Workforce & Trades" items={hub3} location={location} currentUrl={activeNavUrl} icon={Briefcase} />
+        <NavSection label="Academy & Learning" items={hub4} location={location} currentUrl={activeNavUrl} icon={GraduationCap} />
+        <NavSection label="Partners & Coalitions" items={hub5} location={location} currentUrl={activeNavUrl} icon={Handshake} />
+        <NavSection label="Where We Operate" items={hub6} location={location} currentUrl={activeNavUrl} icon={Compass} />
+        <NavSection label="About & Trust" items={hub7} location={location} currentUrl={activeNavUrl} icon={Info} />
 
         {isAuthenticated && (
-          <NavSection label="My Organization" items={organizationNavItems} location={location} icon={Building2} />
+          <NavSection label="My Organization" items={organizationNavItems} location={location} currentUrl={activeNavUrl} icon={Building2} />
         )}
 
         {/* Admin — collapsed under one parent, sub-sectioned within. */}
@@ -873,12 +880,12 @@ export function AppSidebar() {
           <SidebarGroup>
             <SidebarGroupLabel>Admin</SidebarGroupLabel>
             <SidebarGroupContent>
-              <NavSection label="Operations" items={adminOperationsItems} location={location} icon={Activity} />
-              <NavSection label="Programs & Lifecycle" items={adminProgramItems} location={location} icon={Zap} />
-              <NavSection label="Internal Tools" items={adminInternalItems} location={location} icon={ClipboardCheck} />
-              <NavSection label="Academy Admin" items={adminAcademyItems} location={location} icon={School} />
+              <NavSection label="Operations" items={adminOperationsItems} location={location} currentUrl={activeNavUrl} icon={Activity} />
+              <NavSection label="Programs & Lifecycle" items={adminProgramItems} location={location} currentUrl={activeNavUrl} icon={Zap} />
+              <NavSection label="Internal Tools" items={adminInternalItems} location={location} currentUrl={activeNavUrl} icon={ClipboardCheck} />
+              <NavSection label="Academy Admin" items={adminAcademyItems} location={location} currentUrl={activeNavUrl} icon={School} />
               {isTeacher && (
-                <NavSection label="Teaching & Staff" items={adminTeachingItems} location={location} icon={Users} />
+                <NavSection label="Teaching & Staff" items={adminTeachingItems} location={location} currentUrl={activeNavUrl} icon={Users} />
               )}
             </SidebarGroupContent>
           </SidebarGroup>

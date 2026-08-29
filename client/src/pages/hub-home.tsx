@@ -11,6 +11,7 @@ import { SystemPulse } from "@/components/system-pulse";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/use-auth";
 import { useHubRole, HubOnramp, ROLE_LABELS } from "@/lib/hub-role";
+import { useCurrentOrgId } from "@/hooks/use-current-org";
 
 const GATEWAY_CARDS = [
   {
@@ -47,7 +48,7 @@ const QUICK_TOOLS = [
   { label: "Sparky AI",     href: "/sparky",        icon: MessageCircle, color: "text-violet-600 bg-violet-100 dark:bg-violet-900/40" },
   { label: "This Week",     href: "/this-week",     icon: Calendar,      color: "text-amber-600 bg-amber-100 dark:bg-amber-900/40" },
   { label: "Navigator",     href: "/navigator",     icon: Compass,       color: "text-blue-600 bg-blue-100 dark:bg-blue-900/40" },
-  { label: "Live Grants",   href: "/grants",        icon: Target,        color: "text-orange-600 bg-orange-100 dark:bg-orange-900/40" },
+  { label: "Live Grants",   href: "/this-week",     icon: Target,        color: "text-orange-600 bg-orange-100 dark:bg-orange-900/40" },
   { label: "Impact",        href: "/impact",        icon: TrendingUp,    color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40" },
   { label: "Community",     href: "/community",     icon: Users,         color: "text-rose-600 bg-rose-100 dark:bg-rose-900/40" },
   { label: "Coverage Map",  href: "/coverage",      icon: Map,           color: "text-cyan-600 bg-cyan-100 dark:bg-cyan-900/40" },
@@ -61,9 +62,9 @@ function getGreeting() {
   return "Good evening";
 }
 
-function HubAlerts({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const { data: grants } = useQuery<any[]>({
-    queryKey: ["/api/grants", "deadline-soon"],
+function HubAlerts({ isAuthenticated, canOpenGrantHub }: { isAuthenticated: boolean; canOpenGrantHub: boolean }) {
+  const { data: grants, isError, refetch } = useQuery<any[]>({
+    queryKey: ["/api/grants"],
     enabled: isAuthenticated,
     staleTime: 5 * 60 * 1000,
     select: (data: any) => {
@@ -76,29 +77,45 @@ function HubAlerts({ isAuthenticated }: { isAuthenticated: boolean }) {
     },
   });
 
-  if (!isAuthenticated || !grants?.length) return null;
+  if (!isAuthenticated) return null;
+
+  if (isError) {
+    return (
+      <div className="rounded-xl border border-amber-200/70 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-800/40 dark:bg-amber-950/30 dark:text-amber-300" role="status">
+        <p className="font-semibold">Deadline reminders are temporarily unavailable.</p>
+        <button type="button" onClick={() => refetch()} className="mt-1 font-semibold underline">Try again</button>
+        {" · "}
+        <Link href={canOpenGrantHub ? "/grants" : "/this-week"} className="font-semibold underline">Open grants</Link>
+      </div>
+    );
+  }
+
+  if (!grants?.length) return null;
 
   return (
     <div>
       <div className="flex items-center gap-1.5 mb-2">
-        <AlertCircle className="w-3.5 h-3.5 text-amber-500" />
-        <p className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
+        <AlertCircle className="w-3.5 h-3.5 text-amber-500" aria-hidden="true" />
+        <h2 className="text-[11px] font-bold uppercase tracking-widest text-amber-600 dark:text-amber-400">
           Needs Attention
-        </p>
+        </h2>
       </div>
       <div className="space-y-2">
-        {grants.map((g: any) => {
+        {grants.map((g: any, index: number) => {
           const daysLeft = Math.ceil(
             (new Date(g.deadline).getTime() - Date.now()) / (1000 * 60 * 60 * 24)
           );
+          const grantId = g.id === undefined || g.id === null ? null : String(g.id);
+          const title = g.title ?? g.name ?? "Grant opportunity";
+          const href = canOpenGrantHub && grantId ? `/grants/${grantId}` : canOpenGrantHub ? "/grants" : "/this-week";
           return (
-            <Link key={g.id} href={`/grants/${g.id}`}>
+            <Link key={`deadline-${grantId ?? title}-${index}`} href={href}>
               <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200/70 dark:border-amber-800/40 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:border-amber-400/60 transition-all">
                 <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/50 flex items-center justify-center flex-shrink-0">
                   <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-semibold text-sm text-foreground leading-snug line-clamp-1">{g.title ?? g.name}</p>
+                   <p className="font-semibold text-sm text-foreground leading-snug line-clamp-1">{title}</p>
                   <p className="text-xs text-amber-600 dark:text-amber-400 mt-0.5">
                     Due in {daysLeft} day{daysLeft !== 1 ? "s" : ""}
                   </p>
@@ -113,19 +130,23 @@ function HubAlerts({ isAuthenticated }: { isAuthenticated: boolean }) {
   );
 }
 
-function MyWork({ isAuthenticated }: { isAuthenticated: boolean }) {
-  const { data: conversations } = useQuery<any[]>({
+function MyWork({ isAuthenticated, canOpenGrantHub }: { isAuthenticated: boolean; canOpenGrantHub: boolean }) {
+  const { orgId } = useCurrentOrgId();
+  const { data: conversations, isLoading: conversationsLoading, isError: conversationsError, refetch: refetchConversations } = useQuery<any[]>({
     queryKey: ["/api/navigator/conversations"],
     enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000,
     select: (data: any) => (Array.isArray(data) ? data : []).slice(0, 2),
   });
 
-  const { data: grants } = useQuery<any[]>({
-    queryKey: ["/api/my-grants"],
-    enabled: isAuthenticated,
+  const { data: grants, isLoading: grantsLoading, isError: grantsError, refetch: refetchGrants } = useQuery<any[]>({
+    queryKey: ["/api/me/grants/tracked"],
+    enabled: isAuthenticated && !!orgId,
     staleTime: 5 * 60 * 1000,
-    select: (data: any) => (Array.isArray(data) ? data : []).slice(0, 2),
+    select: (data: any) => (data?.tracked ?? []).map((row: any) => ({
+      ...row.grant,
+      status: row.tracking?.status,
+    })).slice(0, 2),
   });
 
   const hasWork = (conversations?.length ?? 0) > 0 || (grants?.length ?? 0) > 0;
@@ -147,16 +168,54 @@ function MyWork({ isAuthenticated }: { isAuthenticated: boolean }) {
     );
   }
 
-  if (!hasWork) return null;
+  if (conversationsLoading || grantsLoading) return null;
+
+  if (conversationsError || grantsError) {
+    return (
+      <section aria-labelledby="my-work-heading" className="rounded-2xl border border-amber-200/70 bg-amber-50 p-4 dark:border-amber-800/40 dark:bg-amber-950/30">
+        <h2 id="my-work-heading" className="text-[11px] font-bold uppercase tracking-widest text-amber-700 dark:text-amber-300">
+          My Work
+        </h2>
+        <p className="mt-2 text-sm text-amber-800 dark:text-amber-200">Some saved work is temporarily unavailable.</p>
+        <button
+          type="button"
+          onClick={() => {
+            if (conversationsError) void refetchConversations();
+            if (grantsError) void refetchGrants();
+          }}
+          className="mt-2 text-xs font-semibold text-amber-800 underline dark:text-amber-200"
+        >
+          Try again
+        </button>
+      </section>
+    );
+  }
+
+  if (!hasWork) {
+    return (
+      <section aria-labelledby="my-work-heading" className="rounded-2xl border border-border bg-card p-4">
+        <h2 id="my-work-heading" className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground">
+          My Work
+        </h2>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Saved Navigator sessions and tracked grants{orgId ? "" : " for a selected organization"} will appear here.
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2 text-xs font-semibold">
+          <Link href="/navigator" className="rounded-lg border border-border px-3 py-2 hover:bg-muted">Open Navigator</Link>
+          <Link href={canOpenGrantHub ? "/grants" : "/this-week"} className="rounded-lg border border-border px-3 py-2 hover:bg-muted">Browse grants</Link>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <div>
-      <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
+      <h2 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-2">
         My Work
-      </p>
+      </h2>
       <div className="space-y-2">
-        {(conversations ?? []).map((c: any) => (
-          <Link key={c.id} href="/navigator">
+         {(conversations ?? []).map((c: any, index: number) => (
+           <Link key={`conversation-${c.id == null ? "unknown" : c.id}-${index}`} href="/navigator">
             <div className="bg-card border border-border/60 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:border-primary/30 hover:shadow-sm transition-all">
               <div className="w-9 h-9 rounded-lg bg-violet-100 dark:bg-violet-900/40 text-violet-600 dark:text-violet-300 flex items-center justify-center flex-shrink-0">
                 <MessageCircle className="w-4 h-4" />
@@ -171,22 +230,26 @@ function MyWork({ isAuthenticated }: { isAuthenticated: boolean }) {
             </div>
           </Link>
         ))}
-        {(grants ?? []).map((g: any) => (
-          <Link key={g.id} href={`/grants/${g.id}`}>
+         {(grants ?? []).map((g: any, index: number) => {
+           const grantId = g.id === undefined || g.id === null ? null : String(g.id);
+           const title = g.title ?? g.name ?? "Grant";
+           const href = canOpenGrantHub && grantId ? `/grants/${grantId}` : canOpenGrantHub ? "/grants" : "/this-week";
+           return (
+           <Link key={`grant-${grantId ?? title}-${index}`} href={href}>
             <div className="bg-card border border-border/60 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:border-primary/30 hover:shadow-sm transition-all">
               <div className="w-9 h-9 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 flex items-center justify-center flex-shrink-0">
                 <Target className="w-4 h-4" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-sm text-foreground leading-snug line-clamp-1">
-                  {g.title ?? g.name ?? "Grant"}
+                   {title}
                 </p>
                 <p className="text-muted-foreground text-[11px] mt-0.5">{g.status ?? "In progress"}</p>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground/50 flex-shrink-0" />
             </div>
-          </Link>
-        ))}
+           </Link>
+         );})}
       </div>
     </div>
   );
@@ -195,7 +258,13 @@ function MyWork({ isAuthenticated }: { isAuthenticated: boolean }) {
 export default function HubHomePage() {
   const { user, isAuthenticated } = useAuth();
   const { role, onboarded, setRole, dismiss, clearRole } = useHubRole();
+  const canOpenGrantHub = isAuthenticated && (role === "admin" || user?.isTcafAdmin === true);
   const name = (user as any)?.firstName || (user as any)?.name?.split(" ")[0] || null;
+  const quickTools = QUICK_TOOLS.map((tool) =>
+    tool.label === "Live Grants"
+      ? { ...tool, href: canOpenGrantHub ? "/grants" : "/this-week" }
+      : tool
+  );
 
   return (
     <div className="min-h-full bg-muted/30 dark:bg-background">
@@ -229,17 +298,49 @@ export default function HubHomePage() {
       </div>
 
       <div className="px-4 py-5 pb-24 space-y-6">
-        <HubAlerts isAuthenticated={isAuthenticated} />
+         <HubAlerts isAuthenticated={isAuthenticated} canOpenGrantHub={canOpenGrantHub} />
 
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
-            Platform Hubs
+        <section aria-labelledby="start-here-heading" className="rounded-2xl border border-primary/15 bg-card p-4 shadow-sm">
+          <h2 id="start-here-heading" className="text-base font-bold text-foreground">
+            Start with what you need
+          </h2>
+          <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+            ThriveUp helps people and partners move from understanding to action. Start where you are, then carry what you learn into practical resources, learning, funding, and collaboration.
           </p>
+          <ol className="mt-4 grid gap-3 sm:grid-cols-3" aria-label="Three steps from insight to action">
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700 dark:bg-blue-950/50 dark:text-blue-300" aria-hidden="true">1</span>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Understand</h3>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">Ask a question or explore trusted community context.</p>
+              </div>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-xs font-bold text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300" aria-hidden="true">2</span>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Act</h3>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">Choose a resource, pathway, or partner next step.</p>
+              </div>
+            </li>
+            <li className="flex gap-3">
+              <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-bold text-violet-700 dark:bg-violet-950/50 dark:text-violet-300" aria-hidden="true">3</span>
+              <div>
+                <h3 className="text-sm font-semibold text-foreground">Sustain</h3>
+                <p className="mt-0.5 text-xs leading-relaxed text-muted-foreground">Keep follow-up, learning, and community work connected.</p>
+              </div>
+            </li>
+          </ol>
+        </section>
+
+        <section aria-labelledby="platform-hubs-heading">
+          <h2 id="platform-hubs-heading" className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+            Platform Hubs
+          </h2>
           <div className="grid grid-cols-2 gap-3">
             {GATEWAY_CARDS.map(card => {
               const Icon = card.icon;
               return (
-                <Link key={card.href} href={card.href}>
+                <Link key={card.href} href={card.href} aria-label={`${card.label}: ${card.desc}`}>
                   <div
                     className={cn(
                       "relative rounded-2xl p-4 h-[130px] flex flex-col justify-between cursor-pointer transition-all active:scale-[0.97] shadow-sm bg-gradient-to-br",
@@ -247,9 +348,9 @@ export default function HubHomePage() {
                     )}
                     data-testid={`gateway-card-${card.label.toLowerCase().replace(/\s+/g, "-")}`}
                   >
-                    <Icon className="w-8 h-8 text-white/90" />
+                    <Icon className="w-8 h-8 text-white/90" aria-hidden="true" />
                     <div>
-                      <p className="text-white font-bold text-sm leading-snug">{card.label}</p>
+                      <h3 className="text-white font-bold text-sm leading-snug">{card.label}</h3>
                       <p className="text-white/65 text-[11px] mt-0.5 leading-snug">{card.desc}</p>
                     </div>
                   </div>
@@ -257,19 +358,19 @@ export default function HubHomePage() {
               );
             })}
           </div>
-        </div>
+        </section>
 
         <SystemPulse />
 
-        <div>
-          <p className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+        <section aria-labelledby="quick-access-heading">
+          <h2 id="quick-access-heading" className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
             Quick Access
-          </p>
+          </h2>
           <div className="flex gap-3 overflow-x-auto pb-1" style={{ scrollbarWidth: "none" }}>
-            {QUICK_TOOLS.map(tool => {
+            {quickTools.map(tool => {
               const Icon = tool.icon;
               return (
-                <Link key={tool.href} href={tool.href}>
+                <Link key={tool.label} href={tool.href}>
                   <div
                     className="flex flex-col items-center gap-2 cursor-pointer w-16 flex-shrink-0"
                     data-testid={`quick-tool-${tool.label.toLowerCase().replace(/\s+/g, "-")}`}
@@ -285,9 +386,9 @@ export default function HubHomePage() {
               );
             })}
           </div>
-        </div>
+        </section>
 
-        <MyWork isAuthenticated={isAuthenticated} />
+         <MyWork isAuthenticated={isAuthenticated} canOpenGrantHub={canOpenGrantHub} />
       </div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 
 export type NavMode = "hub" | "classic";
 
@@ -25,6 +25,16 @@ export function NavModeProvider({ children }: { children: ReactNode }) {
       return "hub";
     }
   });
+
+  useEffect(() => {
+    const onStorage = (event: StorageEvent) => {
+      if (event.key === KEY) {
+        setModeRaw(event.newValue === "classic" ? "classic" : "hub");
+      }
+    };
+    window.addEventListener("storage", onStorage);
+    return () => window.removeEventListener("storage", onStorage);
+  }, []);
 
   const setMode = (m: NavMode) => {
     setModeRaw(m);

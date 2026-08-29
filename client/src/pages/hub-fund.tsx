@@ -17,10 +17,10 @@ import { Link } from "wouter";
 
 const CARDS: HubCardDef[] = [
   { icon: Calendar,      title: "This Week",              subtitle: "Monday Grant Brief",               href: "/this-week",              tag: "Opportunities", variant: "hero", color: "amber" },
-  { icon: Target,        title: "Live Grant Opportunities",subtitle: "Funding intelligence for your mission", href: "/grants",            tag: "Opportunities", variant: "hero", color: "orange" },
+  { icon: Target,        title: "Live Grant Opportunities",subtitle: "Funding intelligence for your mission", href: "/this-week",         tag: "Opportunities", variant: "hero", color: "orange" },
   { icon: FileText,      title: "RFP / Narrative Writer", subtitle: "AI-powered proposal writing",     href: "/grant-narrative",        tag: "Writing",       variant: "hero", color: "blue",    authOnly: true, roles: ["grant", "admin", "org"] },
-  { icon: ShieldCheck,   title: "RFP Fidelity Engine",    subtitle: "Rubric-first compliance check",   href: "/rfp-fidelity",           tag: "Writing",       variant: "hero", color: "indigo",  authOnly: true, roles: ["grant", "admin", "org"] },
-  { icon: Trophy,        title: "My Grants & Win Rate",   subtitle: "Track your grant pipeline",        href: "/my-grants",              tag: "Applications",  color: "amber",  authOnly: true, roles: ["grant", "admin", "org"] },
+  { icon: ShieldCheck,   title: "RFP Fidelity Engine",    subtitle: "Rubric-first compliance check",   href: "/rfp-fidelity",           tag: "Writing",       variant: "hero", color: "indigo",  authOnly: true, roles: ["admin"] },
+  { icon: Trophy,        title: "My Grants & Win Rate",   subtitle: "Track your grant pipeline",        href: "/my-grants",              tag: "Applications",  color: "amber",  authOnly: true, roles: ["admin"] },
   { icon: ClipboardCheck,title: "Application Tracker",    subtitle: "Status across all submissions",    href: "/grants/applications",    tag: "Applications",  color: "orange", authOnly: true, roles: ["grant", "admin", "org"] },
   { icon: PenLine,       title: "LOI Writer",             subtitle: "Letter of Intent drafting",        href: "/loi-writer",             tag: "Writing",       color: "blue",   authOnly: true, roles: ["grant", "admin", "org"] },
   { icon: Package,       title: "Grant Packages",         subtitle: "Submission packages library",      href: "/grant-packages",         tag: "Writing",       color: "teal",   authOnly: true, roles: ["grant", "admin", "org"] },
@@ -47,7 +47,7 @@ const SPOTLIGHT_GRANTS = [
     amount: "$485,000",
     deadline: "Aug 22, 2026",
     fit: 94,
-    href: "/grants",
+    href: "/this-week",
     badge: "High Fit",
     badgeColor: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
     desc: "Workforce infrastructure for child care provider pipeline in North Texas. Matches TCAF's CBI + CFIR capability stack.",
@@ -59,7 +59,7 @@ const SPOTLIGHT_GRANTS = [
     amount: "$1,000,000",
     deadline: "Sep 5, 2026",
     fit: 88,
-    href: "/grants",
+    href: "/this-week",
     badge: "High Fit",
     badgeColor: "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300",
     desc: "Reentry services for justice-involved adults. TCAF's NRRC model and RNR-aligned workforce pathways are a direct match.",
@@ -71,7 +71,7 @@ const SPOTLIGHT_GRANTS = [
     amount: "$750,000",
     deadline: "Oct 1, 2026",
     fit: 91,
-    href: "/grants",
+    href: "/this-week",
     badge: "Strong Match",
     badgeColor: "bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-300",
     desc: "CHW training and certification pathway funding. Directly funds the ITI shadow-worker-to-CHW pipeline.",
@@ -88,14 +88,16 @@ export default function HubFundPage() {
         <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
           <div className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-amber-500" aria-hidden="true" />
-            <h2 className="font-bold text-base" data-testid="text-spotlight-heading">Top 3 Grant Picks — July 2026</h2>
-            <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">AI-Ranked by Fit</Badge>
+            <h2 className="font-bold text-base" data-testid="text-spotlight-heading">Illustrative Grant Workflow Examples</h2>
+            <Badge variant="outline" className="text-[10px] border-amber-300 text-amber-700 dark:border-amber-700 dark:text-amber-400">Illustrative — not live recommendations</Badge>
           </div>
-          <Link href="/grant-command-center">
-            <span className="text-xs text-muted-foreground hover:text-foreground cursor-pointer flex items-center gap-1" data-testid="link-full-command-center">
-              Full Command Center <ExternalLink className="h-3 w-3" aria-hidden="true" />
-            </span>
-          </Link>
+          {isAuthenticated && role === "admin" && (
+            <Link href="/grant-command-center">
+              <span className="text-xs text-muted-foreground hover:text-foreground cursor-pointer flex items-center gap-1" data-testid="link-full-command-center">
+                Full Command Center <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              </span>
+            </Link>
+          )}
         </div>
         <div className="grid sm:grid-cols-3 gap-3 mb-6" data-testid="grid-grant-spotlight">
           {SPOTLIGHT_GRANTS.map(grant => (

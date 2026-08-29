@@ -89,7 +89,7 @@ export function HubShell({
 
   const visible = cards.filter(c => {
     if (c.authOnly && !isAuthenticated) return false;
-    if (c.roles && role && !c.roles.includes(role)) return false;
+    if (c.roles && (!role || !c.roles.includes(role))) return false;
     if (!activeChip || activeChip === chips[0]) return true;
     return c.tag === activeChip;
   });
@@ -108,7 +108,7 @@ export function HubShell({
               key={chip}
               onClick={() => setActiveChip(chip)}
               className={cn(
-                "flex-shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold transition-all",
+                "flex-shrink-0 min-h-11 px-4 py-1.5 rounded-full text-xs font-semibold transition-all",
                 activeChip === chip
                   ? "bg-white text-gray-900 shadow-sm"
                   : "bg-white/20 text-white hover:bg-white/30"
@@ -124,7 +124,7 @@ export function HubShell({
       <div className="px-4 py-4 pb-28 space-y-4">
         {heroes.length > 0 && (
           <div className="grid grid-cols-2 gap-3">
-            {heroes.map(card => <HeroCard key={card.href} card={card} />)}
+            {heroes.map(card => <HeroCard key={`${card.href}-${card.title}`} card={card} />)}
           </div>
         )}
 
@@ -136,8 +136,21 @@ export function HubShell({
               </p>
             )}
             <div className="grid grid-cols-2 gap-2">
-              {tools.map(card => <ToolCard key={card.href} card={card} />)}
+              {tools.map(card => <ToolCard key={`${card.href}-${card.title}`} card={card} />)}
             </div>
+          </div>
+        )}
+        {visible.length === 0 && (
+          <div className="rounded-xl border border-dashed bg-card px-5 py-8 text-center" data-testid="hub-empty-state">
+            <p className="font-semibold">No tools match this view yet.</p>
+            <p className="mt-1 text-sm text-muted-foreground">Try another filter or view all available tools.</p>
+            <button
+              type="button"
+              onClick={() => setActiveChip(chips[0] ?? "All")}
+              className="mt-4 min-h-11 rounded-lg border px-4 py-2 text-sm font-semibold hover:bg-muted"
+            >
+              Show all tools
+            </button>
           </div>
         )}
 

@@ -15,7 +15,7 @@ interface HealthPlatform {
 
 const healthPlatforms: HealthPlatform[] = [
   {
-    id: "herhealth",
+    id: "herhealth-womens",
     name: "HerHealth Matters",
     url: "https://herhealthmatters2.com",
     icon: <Ribbon className="w-8 h-8" />,

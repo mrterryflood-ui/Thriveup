@@ -19,6 +19,7 @@ import { PageHeader } from "@/components/page-header";
 import { TrainingGuideButton } from "@/components/training-guide";
 
 interface ImpactData {
+  dataAvailable?: boolean;
   youthServed: number;
   lessonsCompleted: number;
   badgesEarned: number;
@@ -88,6 +89,9 @@ export default function ImpactPage() {
   }
 
   if (error) return <div className="p-6"><ErrorRetry message="Failed to load impact data. Please try again." onRetry={refetch} /></div>;
+  if (impact?.dataAvailable === false) {
+    return <div className="p-6"><ErrorRetry message="Impact data is temporarily unavailable. No zero values are being shown for failed sources." onRetry={refetch} /></div>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-10">

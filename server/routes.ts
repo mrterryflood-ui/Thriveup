@@ -663,13 +663,16 @@ export async function registerRoutes(
   });
 
   app.get("/api/public/impact", async (_req, res) => {
-    res.setHeader("Cache-Control", "public, max-age=300");
+    res.setHeader("Cache-Control", "no-store");
     try {
+      let unavailable = false;
       const safeCount = async (table: any) => {
         try {
           const [result] = await db.select({ count: count() }).from(table);
           return result?.count ?? 0;
-        } catch {
+        } catch (error) {
+          unavailable = true;
+          console.error("[public/impact] metric unavailable:", error);
           return 0;
         }
       };
@@ -695,7 +698,10 @@ export async function registerRoutes(
           totalScore: studentProgress.totalPoints,
           level: studentProgress.currentLevel,
         }).from(studentProgress);
-      } catch { /* table may not exist */ }
+      } catch (error) {
+        unavailable = true;
+        console.error("[public/impact] progress metrics unavailable:", error);
+      }
 
       const avgScore = allProgress.length > 0
         ? Math.round(allProgress.reduce((sum, p) => sum + (p.totalScore || 0), 0) / allProgress.length)
@@ -709,6 +715,7 @@ export async function registerRoutes(
       }
 
       res.json({
+        dataAvailable: !unavailable,
         youthServed: studentsCount,
         lessonsCompleted: lessonsCount,
         badgesEarned: badgesCount,
@@ -736,6 +743,7 @@ export async function registerRoutes(
         launchLocation: "Austin, TX",
         scalingPlan: "National",
       });
+      if (!unavailable) res.setHeader("Cache-Control", "public, max-age=300");
     } catch (error) {
       console.error("Error fetching public impact data:", error);
       res.status(500).json({ error: "Failed to fetch impact data" });

@@ -1,8 +1,9 @@
 // Bump this on any deploy that must invalidate the static cache. The activate
-// handler deletes every cache whose name !== CACHE_NAME, so a version bump
-// alone evicts all prior caches.
+// handler deletes prior app caches, so a version bump alone evicts stale
+// ThriveUp assets without touching caches owned by another library.
 const CACHE_VERSION = "v2";
 const CACHE_NAME = `thriveup-benefits-${CACHE_VERSION}`;
+const CACHE_PREFIX = "thriveup-benefits-";
 
 const STATIC_ASSETS = [
   "/",
@@ -39,7 +40,7 @@ self.addEventListener("install", (event) => {
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE_NAME).map((k) => caches.delete(k)))
+      Promise.all(keys.filter((k) => k.startsWith(CACHE_PREFIX) && k !== CACHE_NAME).map((k) => caches.delete(k)))
     )
   );
   self.clients.claim();
@@ -65,13 +66,16 @@ self.addEventListener("fetch", (event) => {
   }
   if (url.origin !== self.location.origin) return;
 
-  // Cache only the explicit shell assets. Never cache arbitrary HTML routes or
-  // authenticated pages, which could otherwise be replayed to another user.
-  if (!STATIC_ASSETS.includes(url.pathname)) return;
+  // Cache the explicit shell plus production-generated static bundles. Never
+  // cache arbitrary HTML routes or API/authenticated pages, which could
+  // otherwise be replayed to another user. Bundles are safe to cache because
+  // they contain no user-specific response data.
+  const isStaticAsset = STATIC_ASSETS.includes(url.pathname) || url.pathname.startsWith("/assets/");
+  if (!isStaticAsset) return;
 
   // Static assets: cache-first with background refresh, bounded.
   event.respondWith(
-    caches.match(request).then((cached) => {
+    caches.open(CACHE_NAME).then((cache) => cache.match(request).then((cached) => {
       if (cached) {
         fetch(request).then((res) => {
           if (res && res.ok) {
@@ -93,6 +97,6 @@ self.addEventListener("fetch", (event) => {
         }
         return res;
       });
-    })
+    }))
   );
 });

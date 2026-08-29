@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { useAuth } from "@/hooks/use-auth";
 import {
   Eye, Users, GraduationCap, Shield, Briefcase, Heart, Target,
   TrendingUp, CheckCircle2, AlertTriangle, Clock, Activity,
@@ -142,6 +143,7 @@ interface DosageSummary {
 }
 
 interface ImpactData {
+  dataAvailable?: boolean;
   youthServed: number;
   lessonsCompleted: number;
   badgesEarned: number;
@@ -860,35 +862,40 @@ function ParticipantView({ metrics, impact, outcomes, dosage, progress }: {
 
 export default function TransparencyDashboardPage() {
   const [activeRole, setActiveRole] = useState<StakeholderRole>("funder");
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
 
   const refetchOpts = { refetchInterval: 60000, staleTime: 30000 };
 
   // Public read-only aggregate endpoints — no auth required. Sentinels
   // ("not yet reported") and suppressed counts ("<5") are normalized to numbers
   // for derived SALP/SMART computations; headline cards keep the raw display.
-  const { data: rawMetrics, isLoading: metricsLoading } = useQuery<RawPlatformMetrics>({ queryKey: ["/api/public/platform-metrics"], ...refetchOpts });
+  const { data: rawMetrics, isLoading: metricsLoading, isError: metricsError } = useQuery<RawPlatformMetrics>({ queryKey: ["/api/public/platform-metrics"], ...refetchOpts });
   const metrics = normalizeMetrics(rawMetrics ?? null);
 
-  const { data: rawOutcomes, isLoading: outcomesLoading } = useQuery<RawOutcomeDashboard>({ queryKey: ["/api/public/outcomes-summary"], ...refetchOpts });
+  const { data: rawOutcomes, isLoading: outcomesLoading, isError: outcomesError } = useQuery<RawOutcomeDashboard>({ queryKey: ["/api/public/outcomes-summary"], ...refetchOpts });
   const outcomes = normalizeOutcomes(rawOutcomes ?? null);
 
-  const { data: rawDosage, isLoading: dosageLoading } = useQuery<DosageSummary>({ queryKey: ["/api/public/dosage-summary"], ...refetchOpts });
+  const { data: rawDosage, isLoading: dosageLoading, isError: dosageError } = useQuery<DosageSummary>({ queryKey: ["/api/public/dosage-summary"], ...refetchOpts });
   const dosage = rawDosage ?? null;
 
-  const { data: rawImpact, isLoading: impactLoading } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"], ...refetchOpts });
+  const { data: rawImpact, isLoading: impactLoading, isError: impactError } = useQuery<ImpactData>({ queryKey: ["/api/public/impact"], ...refetchOpts });
   const impact = rawImpact ?? null;
 
-  const { data: rawProgress, isLoading: progressLoading } = useQuery<PersonalProgress>({ queryKey: ["/api/progress"], ...refetchOpts });
+  const { data: rawProgress, isLoading: progressLoading, isError: progressError } = useQuery<PersonalProgress>({
+    queryKey: ["/api/progress"],
+    enabled: isAuthenticated && !authLoading,
+    ...refetchOpts,
+  });
   const progress = rawProgress ?? null;
 
   const isLoading = metricsLoading || outcomesLoading || dosageLoading || impactLoading || progressLoading;
 
   const dataSourceStatus = {
-    metrics: rawMetrics != null,
-    outcomes: rawOutcomes != null,
-    dosage: rawDosage != null,
-    impact: rawImpact != null,
-    progress: rawProgress != null,
+    metrics: rawMetrics != null && !metricsError,
+    outcomes: rawOutcomes != null && !outcomesError,
+    dosage: rawDosage != null && !dosageError,
+    impact: rawImpact != null && rawImpact.dataAvailable !== false && !impactError,
+    progress: !isAuthenticated || (rawProgress != null && !progressError),
   };
   const allSourcesAvailable = Object.values(dataSourceStatus).every(Boolean);
 
@@ -905,8 +912,31 @@ export default function TransparencyDashboardPage() {
     );
   }
 
+  if (!allSourcesAvailable) {
+    return (
+      <div className="p-6 max-w-3xl mx-auto">
+        <Card className="border-amber-300 bg-amber-50/60 dark:bg-amber-950/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><AlertTriangle className="h-5 w-5 text-amber-600" /> Transparency data is temporarily unavailable</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <p className="text-sm text-muted-foreground">We will not show zeros when a source failed. Please try again when the aggregate sources are available.</p>
+            <Button type="button" variant="outline" onClick={() => window.location.reload()}>Try again</Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen">
+      {outcomes?.dataProvenance?.hasDemoData && (
+        <div className="mx-auto max-w-6xl px-4 pt-4 sm:px-6">
+          <Badge variant="outline" className="text-amber-600 border-amber-400 bg-amber-50 dark:bg-amber-950/30" data-testid="badge-demo-outcomes-global">
+            Some outcome records are illustrative examples, not measured program results.
+          </Badge>
+        </div>
+      )}
       <section className="py-8 px-4 sm:py-12 sm:px-6 bg-gradient-to-b from-primary/5 to-transparent" data-testid="section-transparency-hero">
         <div className="mx-auto max-w-6xl">
           <div className="flex items-start gap-4 mb-6">

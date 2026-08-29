@@ -411,6 +411,11 @@
   display: none !important;
 }
 
+html[data-screen-reader-optimized] :focus-visible {
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 3px;
+}
+
 .overlay-warm::after {
   content: "";
   position: fixed;

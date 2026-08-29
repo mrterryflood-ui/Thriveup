@@ -2134,7 +2134,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
       res.json(conversations);
     } catch (error) {
       console.error("[Navigator] Error fetching conversations:", error);
-      res.json([]);
+      res.status(500).json({ error: "Conversation history unavailable" });
     }
   });
 
@@ -2170,7 +2170,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         res.json({ messages, youthMode: convo.youthMode === true });
       } catch (error) {
         console.error("[Navigator] Error fetching messages:", error);
-        res.json([]);
+        res.status(500).json({ error: "Conversation messages unavailable" });
       }
     },
   );

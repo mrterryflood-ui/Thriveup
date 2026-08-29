@@ -20,10 +20,18 @@ const memFallback: Record<Store, Map<string, string>> = {
   session: new Map(),
 };
 
-function backing(store: Store): Storage | null {
+function readableBacking(store: Store): Storage | null {
   try {
-    const s = store === "local" ? window.localStorage : window.sessionStorage;
-    // Touch it to force a throw now (some browsers only throw on access).
+    return store === "local" ? window.localStorage : window.sessionStorage;
+  } catch {
+    return null;
+  }
+}
+
+function writableBacking(store: Store): Storage | null {
+  const s = readableBacking(store);
+  if (!s) return null;
+  try {
     const probe = "__ss_probe__";
     s.setItem(probe, "1");
     s.removeItem(probe);
@@ -35,10 +43,10 @@ function backing(store: Store): Storage | null {
 
 /** Raw string get — never throws. Falls back to in-memory. */
 export function safeGetRaw(key: string, store: Store = "local"): string | null {
-  const s = backing(store);
+  const s = readableBacking(store);
   if (!s) return memFallback[store].get(key) ?? null;
   try {
-    return s.getItem(key);
+    return memFallback[store].has(key) ? memFallback[store].get(key)! : s.getItem(key);
   } catch {
     return memFallback[store].get(key) ?? null;
   }
@@ -56,7 +64,7 @@ export function safeSetRaw(
   store: Store = "local",
   pruneKeys: string[] = [],
 ): boolean {
-  const s = backing(store);
+  const s = writableBacking(store);
   if (!s) {
     memFallback[store].set(key, value);
     return false; // did not truly persist
@@ -84,7 +92,7 @@ export function safeSetRaw(
 }
 
 export function safeRemove(key: string, store: Store = "local"): void {
-  const s = backing(store);
+  const s = readableBacking(store);
   memFallback[store].delete(key);
   if (!s) return;
   try { s.removeItem(key); } catch { /* ignore */ }
@@ -147,6 +155,10 @@ export function getVersioned<T>(
     return null;
   }
   const nowMs = Date.now();
+  if ("exp" in env && (typeof env.exp !== "number" || !Number.isFinite(env.exp))) {
+    safeRemove(key, store);
+    return null;
+  }
   if (typeof env.exp === "number" && env.exp <= nowMs) {
     safeRemove(key, store);
     return null;
