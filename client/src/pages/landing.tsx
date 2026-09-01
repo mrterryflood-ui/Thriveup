@@ -1883,6 +1883,120 @@ function HealthEquityFirstGlance({ isDark }: { isDark: boolean }) {
   );
 }
 
+function CommunityOperatingStory() {
+  const stages = [
+    {
+      number: "01",
+      title: "Observe the place",
+      detail: "Start with a ZIP, city, county, or community question. Census and public data are matched to the geography the source actually supports.",
+      icon: Map,
+      color: "#0891b2",
+    },
+    {
+      number: "02",
+      title: "Tell the story",
+      detail: "See the baseline, systems domains, comparisons, historical change, and possible future pathways — not just one isolated number.",
+      icon: FileText,
+      color: "#7c3aed",
+    },
+    {
+      number: "03",
+      title: "Connect evidence",
+      detail: "Chainweb is ThriveUp's evidence map: it connects conditions, research, timing, and possible intervention windows.",
+      icon: Network,
+      color: "#e11d48",
+    },
+    {
+      number: "04",
+      title: "Act and learn",
+      detail: "Nonprofits can choose a response, pursue funding, work with partners, track outcomes, and carry learning into the next cycle.",
+      icon: Activity,
+      color: "#059669",
+    },
+  ] as const;
+
+  const truthTypes = [
+    { label: "Observed", detail: "Published source data", color: "#0891b2" },
+    { label: "Derived", detail: "TCAF calculations", color: "#7c3aed" },
+    { label: "Modeled", detail: "Planning scenarios", color: "#d97706" },
+    { label: "Synthesized", detail: "AI-assisted narrative", color: "#059669" },
+  ] as const;
+
+  return (
+    <section className="px-4 py-10 sm:px-6 sm:py-16" data-testid="section-community-operating-story">
+      <div className="max-w-6xl mx-auto">
+        <div className="grid lg:grid-cols-[0.8fr_1.2fr] gap-8 lg:gap-12 items-start">
+          <div>
+            <Badge variant="secondary" className="mb-3">
+              <Layers className="mr-1 h-3 w-3" /> One community story
+            </Badge>
+            <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-3">
+              See the whole community story, then decide what to do next.
+            </h2>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed mb-5">
+              For people and organizations: ThriveUp keeps the story connected — what is happening, what may be connected, what evidence supports a response, and what changed after people acted. The community remains the protagonist; the platform is the backbone.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild size="sm">
+                <Link href="/community-impact" data-testid="button-story-community-impact">
+                  See community impact <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
+                </Link>
+              </Button>
+              <Button asChild size="sm" variant="outline">
+                <a href="/platform-overview.pdf" target="_blank" rel="noopener noreferrer" aria-label="Read the full platform briefing (opens in a new tab)" data-testid="button-story-platform-brief">
+                  Read the full briefing <span className="text-[10px] text-muted-foreground">(opens in new tab)</span> <FileText className="ml-1.5 h-3.5 w-3.5" aria-hidden="true" />
+                </a>
+              </Button>
+            </div>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-3">
+            {stages.map((stage) => {
+              const Icon = stage.icon;
+              return (
+                <Card key={stage.number} className="p-4 h-full" data-testid={`card-story-stage-${stage.number}`}>
+                  <div className="flex items-start gap-3">
+                    <span aria-hidden="true" className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black" style={{ color: stage.color, background: `${stage.color}18` }}>
+                      {stage.number}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-2">
+                        <Icon aria-hidden="true" className="h-4 w-4 shrink-0" style={{ color: stage.color }} />
+                        <h3 className="font-bold text-sm">{stage.title}</h3>
+                      </div>
+                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{stage.detail}</p>
+                    </div>
+                  </div>
+                </Card>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="mt-8 rounded-2xl border bg-slate-50/80 p-4 dark:bg-slate-900/50 sm:p-5" data-testid="story-truth-labels">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+            <div className="shrink-0">
+              <p className="text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Evidence stays labeled</p>
+              <p className="text-xs text-muted-foreground mt-1">No scenario or AI summary is presented as measured fact.</p>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
+              {truthTypes.map((truth) => (
+                <div key={truth.label} className="rounded-xl border bg-background/70 px-3 py-2" data-testid={`story-truth-${truth.label.toLowerCase()}`}>
+                  <div className="flex items-center gap-1.5">
+                    <span aria-hidden="true" className="h-2 w-2 rounded-full" style={{ background: truth.color }} />
+                    <span className="text-xs font-bold">{truth.label}</span>
+                  </div>
+                  <p className="text-[11px] text-muted-foreground mt-0.5">{truth.detail}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 export default function LandingPage() {
   const { toast } = useToast();
   const searchString = useSearch();
@@ -2047,6 +2161,7 @@ export default function LandingPage() {
       {/* "Meet people where they are": self-identify FIRST, before any
           B2B/funding pitch. This must stay directly under the hero. */}
        <StartHere />
+      <CommunityOperatingStory />
 
       <ServicePlatformSection />
        <PlatformPortfolio />

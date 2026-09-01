@@ -286,6 +286,193 @@
       line-height: 1.5;
     }
 
+    /* ── PLATFORM BRIEFING DETAIL ───────────────────────────── */
+    .callout {
+      border: 1px solid var(--rule);
+      border-radius: 9px;
+      padding: 16px 18px;
+      background: #f8fafc;
+    }
+    .callout.primary {
+      background: linear-gradient(135deg, #eff6ff, #f8fafc);
+      border-color: #bfdbfe;
+    }
+    .callout h2, .callout h3 {
+      font-size: 15px;
+      line-height: 1.3;
+      margin-bottom: 6px;
+    }
+    .callout p, .callout li {
+      font-size: 11.5px;
+      color: var(--mid);
+      line-height: 1.6;
+    }
+    .callout ul { padding-left: 17px; margin-top: 7px; }
+    .purpose-grid, .explain-grid, .story-grid, .measurement-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .explain-grid, .measurement-grid { grid-template-columns: repeat(4, 1fr); }
+    .explain-card, .story-card, .measurement-card {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 13px 14px;
+      background: #fff;
+    }
+    .explain-card { background: #f8fafc; }
+    .card-kicker {
+      color: var(--accent);
+      font-size: 9px;
+      font-weight: 800;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .explain-card h3, .story-card h3, .measurement-card h3 {
+      font-size: 12px;
+      line-height: 1.3;
+      margin-bottom: 4px;
+    }
+    .explain-card p, .story-card p, .measurement-card p {
+      color: var(--mid);
+      font-size: 10.8px;
+      line-height: 1.5;
+    }
+    .integration-flow {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 6px;
+      align-items: stretch;
+      margin: 10px 0;
+    }
+    .flow-step {
+      position: relative;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 10px 9px;
+      background: #fff;
+    }
+    .flow-step:not(:last-child)::after {
+      content: '→';
+      position: absolute;
+      right: -10px;
+      top: 30px;
+      color: var(--accent);
+      font-weight: 800;
+      z-index: 2;
+    }
+    .flow-num {
+      width: 21px;
+      height: 21px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: inline-flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 800;
+      font-size: 10px;
+      margin-bottom: 5px;
+    }
+    .flow-step strong {
+      display: block;
+      font-size: 10.5px;
+      line-height: 1.3;
+      margin-bottom: 3px;
+    }
+    .flow-step span {
+      display: block;
+      color: var(--mid);
+      font-size: 9.5px;
+      line-height: 1.4;
+    }
+    .story-card { border-top: 3px solid #1d4ed8; }
+    .story-card:nth-child(2) { border-top-color: #b45309; }
+    .story-card:nth-child(3) { border-top-color: #6d28d9; }
+    .story-card:nth-child(4) { border-top-color: #047857; }
+    .story-card:nth-child(5) { border-top-color: #be123c; }
+    .source-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 10.5px;
+    }
+    .source-table th {
+      text-align: left;
+      background: #eaf2ff;
+      color: #1e3a6e;
+      font-size: 9px;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      padding: 7px 9px;
+    }
+    .source-table td {
+      border-bottom: 1px solid var(--rule);
+      vertical-align: top;
+      padding: 8px 9px;
+      color: var(--mid);
+      line-height: 1.45;
+    }
+    .source-table td:first-child {
+      width: 22%;
+      color: var(--ink);
+      font-weight: 700;
+    }
+    .measurement-card { background: #f8fafc; }
+    .measurement-card .card-kicker { color: var(--mid); }
+    .boundary {
+      margin-top: 10px;
+      border-left: 3px solid #b45309;
+      padding: 10px 13px;
+      background: #fffbeb;
+      color: #78350f;
+      font-size: 10.8px;
+      line-height: 1.55;
+    }
+    .workflow-list {
+      counter-reset: nonprofit-step;
+      list-style: none;
+      padding: 0;
+      margin: 8px 0 0;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+    }
+    .workflow-list li {
+      counter-increment: nonprofit-step;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 10px 11px 10px 36px;
+      position: relative;
+      color: var(--mid);
+      font-size: 10.8px;
+      line-height: 1.5;
+    }
+    .workflow-list li::before {
+      content: counter(nonprofit-step);
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: #1d4ed8;
+      color: #fff;
+      text-align: center;
+      line-height: 19px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .workflow-list strong { color: var(--ink); display: block; margin-bottom: 2px; }
+    .keep-together { break-inside: avoid; page-break-inside: avoid; }
+
+    @media print {
+      .page { border-radius: 0; }
+      .flow-step:not(:last-child)::after { right: -9px; }
+    }
+
     /* ── FOOTER ─────────────────────────────────────────────── */
     footer {
       background: #0f172a;
@@ -359,11 +546,50 @@
   <!-- ── MISSION STRIP ─────────────────────────────────────── -->
   <div class="mission">
     <strong>IGN — Initial Guidance &amp; Navigation.</strong>
-    TCAF meets people and organizations where they are, at their own pace and level of readiness — using data-driven planning, AI, and evidence-based tools to guide them toward their destination and redirect when they drift off course. We don't stop at needs assessment. We do the whole cycle: Research → Planning → Preparation → Execution → Continuous Assessment → Implementation → Scale Up → Scale Out.
+    TCAF exists to help people and the organizations serving them move from fragmented need to coordinated action. We meet people where they are, at their own pace and level of readiness — using data, AI, research, and human judgment to guide the next step and redirect when conditions change. We do not stop at needs assessment. We support the whole cycle: Research → Planning → Preparation → Execution → Continuous Assessment → Implementation → Scale Up → Scale Out.
   </div>
 
   <!-- ── BODY ─────────────────────────────────────────────── -->
   <div class="body">
+
+    <!-- PURPOSE -->
+    <div class="section-label" style="break-before:page;page-break-before:always;">Purpose — What &amp; Why</div>
+    <div class="purpose-grid">
+      <div class="callout primary keep-together">
+        <h2>Infrastructure for communities that are usually asked to prove their need over and over.</h2>
+        <p>Families experience housing, health, education, safety, workforce, and benefit barriers as one connected reality. Nonprofits are often forced to collect the same information in separate systems, tell the story again to each funder, and measure only the part of the work that fits one grant.</p>
+        <p style="margin-top:7px;"><strong>ThriveUp and TCAF connect those pieces.</strong> The goal is not a bigger dashboard. The goal is a more truthful path from community voice and public evidence to a fundable plan, human action, measurable outcomes, and learning that improves the next cycle.</p>
+      </div>
+      <div class="callout keep-together">
+        <h3>Why the architecture is integrated</h3>
+        <ul>
+          <li><strong>One community story:</strong> a place is not reduced to one indicator or one program.</li>
+          <li><strong>Less administrative burden:</strong> a nonprofit can reuse a verified brief, evidence trail, implementation plan, and outcome baseline.</li>
+          <li><strong>Better decisions:</strong> evidence and lived context sit beside the model, with uncertainty and source limits visible.</li>
+          <li><strong>Continuity:</strong> research, funding, service delivery, and reporting do not disappear into separate silos after a grant is awarded.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- INTEGRATION -->
+    <div class="section-label" style="margin-top:36px;">How the Tools Integrate</div>
+    <p style="font-size:12px;color:var(--mid);line-height:1.65;">
+      Integration means a deliberate handoff between specialist tools — not copying everything everywhere and not asking one chatbot to pretend it can do every job. A request carries its geography, purpose, source provenance, data-quality status, and disclosure labels. A partner receives only the package the user or authorized organization chose to send.
+    </p>
+    <div class="integration-flow keep-together">
+      <div class="flow-step"><span class="flow-num">1</span><strong>Start with a place or goal</strong><span>ZIP, city, county, multi-county area, resident need, or nonprofit pursuit.</span></div>
+      <div class="flow-step"><span class="flow-num">2</span><strong>Resolve the context</strong><span>Map the request to the right Census geography and assemble current source slices.</span></div>
+      <div class="flow-step"><span class="flow-num">3</span><strong>Route to specialists</strong><span>The conductor calls the relevant benefits, health, housing, education, workforce, justice, research, and narrative engines.</span></div>
+      <div class="flow-step"><span class="flow-num">4</span><strong>Tell the story</strong><span>Turn indicators into a community brief, visual story, priorities, evidence, and clear model disclosures.</span></div>
+      <div class="flow-step"><span class="flow-num">5</span><strong>Fund and execute</strong><span>Match interventions to funding, then hand authorized context to GrantPathPro for grant writing and pursuit management.</span></div>
+      <div class="flow-step"><span class="flow-num">6</span><strong>Measure and learn</strong><span>Track reach, implementation, fidelity, outcomes, reporting, and lessons for the next cycle.</span></div>
+    </div>
+    <div class="explain-grid keep-together">
+      <div class="explain-card"><div class="card-kicker">Shared context</div><h3>Every tool sees the right slice</h3><p>Geography-aware context can be carried into AI and analysis, while personal records stay behind authorization boundaries. Aggregate community views do not require exposing individual names, contact details, or notes.</p></div>
+      <div class="explain-card"><div class="card-kicker">Specialists</div><h3>Each engine has a job</h3><p>Benefits navigation, clinical safety, research, grant intelligence, workforce pathways, and community storytelling remain distinct capabilities that can be composed without duplicating their logic.</p></div>
+      <div class="explain-card"><div class="card-kicker">Evidence trail</div><h3>Claims carry their origin</h3><p>Observed inputs, TCAF-derived scores, scenario outputs, and AI synthesis are labeled differently. Sources, vintages, geography grain, warnings, and retrieval context stay visible.</p></div>
+      <div class="explain-card"><div class="card-kicker">Human agency</div><h3>Recommendation is not authorization</h3><p>The platform can surface options, draft materials, and prepare a handoff. A person or organization authorizes consequential outreach, commitments, submissions, and execution.</p></div>
+    </div>
 
     <!-- PLATFORMS -->
     <div class="section-label">Service Platforms</div>
@@ -564,6 +790,117 @@
         </div>
 
       </div>
+    </div>
+
+    <!-- FUNDING -->
+    <div class="domain">
+      <div class="domain-header">
+        <div class="domain-dot dot-fin"></div>
+        <div class="domain-title">Funding &amp; Grant Execution</div>
+        <div class="domain-count">1 platform</div>
+      </div>
+      <div class="platform-grid">
+
+        <div class="platform-card">
+          <div class="platform-name">
+            GrantPathPro
+            <a href="https://pursuitsfundingprofessionals.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Funding intelligence and execution support for nonprofits and community-serving organizations — opportunity qualification, grant writing and proposal drafting, budget development, compliance review, submission tracking, funder relationship management, post-award reporting, and recompete planning.</div>
+          <div class="platform-url">pursuitsfundingprofessionals.com</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COMMUNITY DATA STORYTELLING -->
+    <div class="section-label" style="margin-top:36px;">Community Data Storytelling — From Numbers to a Usable Story</div>
+    <div class="callout primary keep-together">
+      <h2>A community is more than a percentage.</h2>
+      <p>The Community Impact Conductor turns a ZIP code, city, county, or multi-county request into a place-based brief that can be understood by a resident, used by a community health worker, acted on by a nonprofit, and reviewed by a funder. It connects observed conditions to possible intervention windows without presenting a model as if it were a measured fact.</p>
+      <p style="margin-top:7px;"><strong>The depth is intentional:</strong> ten systems domains, at-risk population pathways, policy context, evidence-backed interventions, a historical receipt, a 25-year scenario, side-by-side geography comparison, and a narrative that explains how the pieces relate.</p>
+    </div>
+    <div class="story-grid">
+      <div class="story-card keep-together">
+        <h3>Baseline: What is observed?</h3>
+        <p>Community conditions such as poverty, unemployment, insurance coverage, housing cost burden, educational attainment, family structure, language access, disability, age, and other disclosed indicators are anchored to the resolved Census geography.</p>
+      </div>
+      <div class="story-card keep-together">
+        <h3>Systems view: Where are the pressure points?</h3>
+        <p>Ten domain scores organize the baseline into Health Access, Mental Health, Benefits Access, Housing Stability, Early Childhood, Education, Justice &amp; Safety, Workforce, Foster &amp; Aging, and Rural &amp; Remote. Scores are decision-support signals, not a judgment of residents.</p>
+      </div>
+      <div class="story-card keep-together">
+        <h3>Story view: How do conditions connect?</h3>
+        <p>The Domain Web shows relationships across systems; the Skyline Map compares neighboring ZIPs; Particle Flow makes the difference between investing and not investing visible as a population pathway; the narrative explains the “why” behind the pattern.</p>
+      </div>
+      <div class="story-card keep-together">
+        <h3>Time view: What has happened and what could happen?</h3>
+        <p>The Historical Timeline uses multiple ACS vintages when available. The Cascade Waterfall shows a 25-year TCAF scenario with intervention windows. Historical outputs and forward scenarios are labeled separately from observed data.</p>
+      </div>
+      <div class="story-card keep-together">
+        <h3>Action view: What can a nonprofit do next?</h3>
+        <p>The brief points to evidence-based programs, policy actions, resource pathways, implementation questions, and possible funding alignment. It can become a shareable community brief, a planning conversation, or authorized context for a grant pursuit.</p>
+      </div>
+    </div>
+
+    <!-- CHAINWEB -->
+    <div class="section-label" style="margin-top:36px;">Chainweb — The Causal and Evidence Spine</div>
+    <div class="callout keep-together">
+      <h2>Why a connected model matters</h2>
+      <p>Most dashboards stop at “the rate is high.” Chainweb asks what is connected to that condition, what evidence supports the relationship, how long the relationship may take to show up, and where an intervention can change the path. It links domains such as early childhood → education → workforce → economic stability, and housing instability → health access, while preserving the evidence behind each relationship.</p>
+      <p style="margin-top:7px;">Each relationship in the coefficient library carries a direction, effect size, time lag, unit, population notes, confidence level, and an evidence citation. The engine then compares a modeled “without intervention” pathway with a modeled “with intervention” pathway. These are planning scenarios — not promises, invoices, or observed savings.</p>
+      <div class="explain-grid" style="margin-top:10px;">
+        <div class="explain-card"><div class="card-kicker">Evidence</div><h3>What supports the link?</h3><p>Peer-reviewed studies, named evidence programs, and policy intelligence are retained as the basis for the relationship.</p></div>
+        <div class="explain-card"><div class="card-kicker">Causality</div><h3>What connects?</h3><p>Domain-to-domain pathways make upstream conditions and downstream consequences visible instead of treating each program as isolated.</p></div>
+        <div class="explain-card"><div class="card-kicker">Timing</div><h3>When could change appear?</h3><p>Lag years and milestones keep the story realistic; prevention, implementation, and outcome windows are not collapsed into one date.</p></div>
+        <div class="explain-card"><div class="card-kicker">Decision support</div><h3>Where can action begin?</h3><p>Nonprofits can use the chain to prioritize a reachable intervention, identify partners, choose measures, and explain the logic to a funder.</p></div>
+      </div>
+    </div>
+
+    <!-- SOURCES -->
+    <div class="section-label" style="margin-top:36px;">Sources of Information — Traceable by Design</div>
+    <p style="font-size:12px;color:var(--mid);line-height:1.6;">
+      ThriveUp does not treat “AI said so” as a source. Different tools use different source classes, and the output identifies what was observed, what was derived by TCAF, what was modeled, and what was synthesized. Source coverage and freshness can vary by geography; the brief carries warnings instead of hiding a gap.
+    </p>
+    <table class="source-table keep-together">
+      <thead><tr><th>Source class</th><th>What it contributes</th><th>How it is used</th></tr></thead>
+      <tbody>
+        <tr><td>U.S. Census Bureau<br>ACS 5-Year Estimates</td><td>Observed community and household indicators at the resolved ZIP/ZCTA, county, or multi-county grain.</td><td>Baseline demographics, economic conditions, access barriers, multi-vintage historical comparison, and the disclosed geography in the community-evidence contract.</td></tr>
+        <tr><td>CDC PLACES and public health sources</td><td>County-level health and prevention indicators, including access, mental-health, chronic-condition, and food-insecurity signals where available.</td><td>Health-domain context and specialized health tools; the system keeps the source and geography limitation visible.</td></tr>
+        <tr><td>HRSA, USDA ERS, CMS and other public agency datasets</td><td>Provider access, rural health, telehealth, agriculture, workforce, and service-desert context for specialized engines.</td><td>Added when a tool’s question requires more than the ACS baseline; not silently substituted for Census data.</td></tr>
+        <tr><td>Funding intelligence sources</td><td>SAM.gov, Grants.gov, USAspending.gov, and curated state, foundation, and corporate sources.</td><td>Opportunity discovery, funder-fit analysis, proposal planning, budget context, and pursuit tracking — separate from community facts.</td></tr>
+        <tr><td>Better Science Lab / RPLICE</td><td>Live implementation-science research, framework libraries, evidence-based practices, research translation, and implementation planning.</td><td>CFIR, RE-AIM, EPIS, fidelity, action plans, outcome baselines, and research-backed intervention design.</td></tr>
+        <tr><td>Chainweb Evidence Library<br>and Civic Signal</td><td>Cited causal relationships, evidence programs, jurisdiction policy history, and authenticated partner lessons.</td><td>Connects evidence to community conditions and lets policy or implementation learning return to the system through a verified partner path.</td></tr>
+        <tr><td>Community and partner knowledge</td><td>Organization-entered context, service capacity, referrals, implementation experience, and community voice when intentionally provided.</td><td>Improves relevance and action planning. Personal or protected records are not exposed in aggregate public stories.</td></tr>
+      </tbody>
+    </table>
+
+    <!-- MEASUREMENT -->
+    <div class="section-label" style="margin-top:36px;">What We Measure — Four Different Kinds of Truth</div>
+    <div class="measurement-grid">
+      <div class="measurement-card keep-together"><div class="card-kicker">1 · Observed</div><h3>What is happening?</h3><p>Published indicators at a disclosed geography: poverty, unemployment, insurance coverage, housing burden, education, family structure, language access, disability, age, health context, and available service signals.</p></div>
+      <div class="measurement-card keep-together"><div class="card-kicker">2 · Derived</div><h3>What does the pattern suggest?</h3><p>Domain scores, grades, urgency levels, key gaps, at-risk population pathways, geography comparisons, intervention priorities, and policy strengths or gaps calculated from the observed inputs.</p></div>
+      <div class="measurement-card keep-together"><div class="card-kicker">3 · Modeled</div><h3>What might the future cost or change look like?</h3><p>Historical accumulation and forward counterfactual, intervention, net-savings, and ROI scenarios using Chainweb relationships and TCAF assumptions. These are explicitly not Census-verified expenditures or guaranteed savings.</p></div>
+      <div class="measurement-card keep-together"><div class="card-kicker">4 · Implemented</div><h3>Did the response reach people and work?</h3><p>Reach, effectiveness, adoption, implementation quality, maintenance, fidelity, milestones, outcome baselines and targets, referrals, enrollment, completion, and reporting measures — selected for the program rather than invented as one universal score.</p></div>
+    </div>
+    <div class="boundary keep-together"><strong>Honesty boundary:</strong> “not yet reported,” “unavailable,” and “&lt;5” remain meaningful results. Small cells are suppressed, modeled values are labeled as modeled, and an AI narrative is synthesis — not a replacement for the source, a participant, a clinician, a CHW, or a community’s own voice.</div>
+
+    <!-- NONPROFIT WORKFLOW -->
+    <div class="section-label" style="margin-top:36px;">How TCAF Helps Nonprofits — From Need to Funded, Measured Action</div>
+    <p style="font-size:12px;color:var(--mid);line-height:1.6;">
+      A nonprofit should not need a data department, a grant writer, an evaluator, and six disconnected subscriptions just to explain why its work matters. TCAF provides a shared operating backbone while leaving program decisions and community relationships with the people doing the work.
+    </p>
+    <ol class="workflow-list">
+      <li><strong>Locate the need.</strong> Start with a place, population, service gap, or community question. Generate a source-labeled baseline instead of beginning with a generic narrative.</li>
+      <li><strong>Make the story understandable.</strong> Use the community brief, maps, domain web, historical view, causal chain, comparison, and narrative to explain what the numbers mean for real people.</li>
+      <li><strong>Choose an intervention.</strong> Use RPLICE evidence, CFIR/RE-AIM questions, Chainweb relationships, local capacity, and community voice to select an approach that fits the setting.</li>
+      <li><strong>Build the pursuit.</strong> Match the plan to funding intelligence, funder language, required outcomes, budget logic, and compliance needs. GrantPathPro helps with grant writing, proposal drafting, budget development, compliance review, submission tracking, and funder relationship management.</li>
+      <li><strong>Execute with partners.</strong> Send only an explicitly authorized context package through the protected handoff. Coordinate referrals, service delivery, milestones, and responsibilities across the organizations involved.</li>
+      <li><strong>Measure and report.</strong> Establish baselines and targets, track implementation and outcomes, produce funder-ready evidence, learn what changed, and improve the next cycle rather than starting over.</li>
+    </ol>
+    <div class="callout primary keep-together" style="margin-top:10px;">
+      <h3>The nonprofit value proposition</h3>
+      <p><strong>TCAF is a backbone, not a gatekeeper.</strong> We help a small or growing organization see the full context, translate its work into a credible story, find the right funding lane, write and manage the pursuit, measure what matters, and keep community dignity at the center. The platform strengthens capacity; it does not claim to own the community story or guarantee an award.</p>
     </div>
 
     <!-- WHAT TCAF PROVIDES -->
