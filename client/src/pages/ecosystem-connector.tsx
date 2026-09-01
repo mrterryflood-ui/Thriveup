@@ -38,6 +38,7 @@ const PLATFORM_ICONS: Record<string, typeof Heart> = {
   "lifebridge": Phone,
   "mce": Factory,
   "betterscience": ClipboardList,
+  "grantpathpro": FileText,
   "safecognicare": Cpu,
   "pillscheduler": Pill,
 };
@@ -53,6 +54,7 @@ const PLATFORM_COLORS: Record<string, { bg: string; border: string; text: string
   "lifebridge": { bg: "bg-indigo-50 dark:bg-indigo-950/30", border: "border-indigo-200 dark:border-indigo-800", text: "text-indigo-600" },
   "mce": { bg: "bg-emerald-50 dark:bg-emerald-950/30", border: "border-emerald-200 dark:border-emerald-800", text: "text-emerald-600" },
   "betterscience": { bg: "bg-cyan-50 dark:bg-cyan-950/30", border: "border-cyan-200 dark:border-cyan-800", text: "text-cyan-600" },
+  "grantpathpro": { bg: "bg-amber-50 dark:bg-amber-950/30", border: "border-amber-200 dark:border-amber-800", text: "text-amber-600" },
   "safecognicare": { bg: "bg-slate-50 dark:bg-slate-950/30", border: "border-slate-200 dark:border-slate-800", text: "text-slate-600" },
   "pillscheduler": { bg: "bg-sky-50 dark:bg-sky-950/30", border: "border-sky-200 dark:border-sky-800", text: "text-sky-600" },
   "sankofa-feminine-health": { bg: "bg-pink-50 dark:bg-pink-950/30", border: "border-pink-200 dark:border-pink-800", text: "text-pink-600" },
@@ -75,6 +77,7 @@ const ROLE_LABELS: Record<string, string> = {
   "resource-hub": "Community Resources",
   "business-ecosystem": "Business Ecosystem",
   research: "Research & Implementation Science",
+  "grant-execution": "Grant Writing & Execution",
   "cognitive-health": "Cognitive Health",
   "medication-management": "Medication Management",
   "feminine-health": "Feminine Health",

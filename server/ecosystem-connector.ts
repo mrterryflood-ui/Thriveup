@@ -1010,6 +1010,24 @@ const ECOSYSTEM_PLATFORMS = [
     grantAlignment: ["ssg-fox", "foundation", "wioa", "st-davids"],
   },
   {
+    id: "grantpathpro",
+    name: "GrantPathPro",
+    url: "https://pursuitsfundingprofessionals.com",
+    role: "grant-execution",
+    domain: "grants-and-funding",
+    description: "Funding intelligence and grant-execution platform for federal, state, local, philanthropic, research, and international pursuits. GrantPathPro helps organizations qualify the right opportunities, write and strengthen grant proposals, build budgets, review compliance, track submissions and deadlines, manage funder relationships, and report outcomes after award. Receives ThriveUp community briefs, needs assessments, grant-fit signals, and evidence summaries so grant writing starts with community context rather than a blank page.",
+    capabilities: {
+      features: ["Opportunity Qualification", "Grant Writing & Proposal Drafting", "Narrative Review", "Budget Building", "Compliance Review", "Submission Tracking", "Deadline Alerts", "Funder Relationship Management", "Post-Award Reporting", "Pursuit Memory", "Competitive Intelligence", "Recompete Planning"],
+      integrationDepth: "Receives explicitly authorized community briefs and grant-intelligence handoffs from ThriveUp; returns pursuit status and outcome feedback through the protected GrantPathPro handoff contract.",
+      grantNarrative: "Turns community needs, evidence, and matched funding opportunities into stronger grant applications — from qualification and grant writing through submission, compliance, award management, and reporting.",
+    },
+    dataFlowConfig: {
+      sends: ["pursuit_status", "submission_updates", "compliance_alerts", "funder_feedback", "award_outcomes"],
+      receives: ["community_briefs", "needs_assessments", "grant_matches", "evidence_summaries", "proposal_context"],
+    },
+    grantAlignment: ["federal", "foundation", "wioa", "nsf", "hrsa"],
+  },
+  {
     id: "safecognicare",
     name: "SafeCogniCare",
     url: "https://safecognicare.com",

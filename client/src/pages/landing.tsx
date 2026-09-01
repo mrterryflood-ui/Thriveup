@@ -1439,8 +1439,8 @@ function GrantPathProSection() {
     { icon: Search,    label: "Enter any ZIP",          desc: "Type any U.S. community — city, county, or ZIP code" },
     { icon: BarChart3, label: "Get the analysis",       desc: "Census-verified needs assessment, cascade, ROI — 15 seconds" },
     { icon: FileText,  label: "Invoice + narrative",    desc: "Download the Community Invoice PDF or the AI grant narrative" },
-    { icon: Send,      label: "Push to Grant Path Pro", desc: "One click sends the full package — needs assessment, domain scores, matched grants" },
-    { icon: Zap,       label: "Execute & monitor",      desc: "Grant Path Pro handles submission tracking, compliance, and reporting" },
+    { icon: Send,      label: "Push to GrantPathPro",   desc: "One click sends the full package — needs assessment, domain scores, matched grants" },
+    { icon: Zap,       label: "Execute & monitor",      desc: "GrantPathPro handles grant writing, submission tracking, compliance, and reporting" },
   ];
 
   return (
@@ -1454,8 +1454,8 @@ function GrantPathProSection() {
               </div>
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <h2 className="text-xl sm:text-2xl font-bold" data-testid="text-gpp-heading">
-                    ThriveUp + Grant Path Pro
+                   <h2 className="text-xl sm:text-2xl font-bold" data-testid="text-gpp-heading">
+                     ThriveUp + GrantPathPro
                   </h2>
                   <Badge className="text-[10px] bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 border-amber-300">
                     Integrated
@@ -1463,8 +1463,17 @@ function GrantPathProSection() {
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                   Two complementary platforms. ThriveUp generates the intelligence — community needs, financial impact, grant alignment.
-                  Grant Path Pro executes and monitors. Together, you never switch platforms mid-grant.
-                </p>
+                   GrantPathPro helps you write, strengthen, execute, and monitor grants. Together, you never switch platforms mid-grant.
+                 </p>
+                 <a
+                   href="https://pursuitsfundingprofessionals.com"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:underline mt-2"
+                   data-testid="link-gpp-website"
+                 >
+                   Visit pursuitsfundingprofessionals.com <ExternalLink className="h-3 w-3" />
+                 </a>
               </div>
             </div>
 
@@ -1516,11 +1525,13 @@ function GrantPathProSection() {
                   <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center">
                     <Zap className="h-3 w-3 text-white" />
                   </div>
-                  <span className="text-xs font-bold">Grant Path Pro does</span>
+                   <span className="text-xs font-bold">GrantPathPro does</span>
                 </div>
                 <ul className="space-y-1">
                   {[
-                    "Grant execution workflow management",
+                     "Grant writing and proposal drafting",
+                     "Budget building and compliance review",
+                     "Grant execution workflow management",
                     "Submission tracking and deadline alerts",
                     "Compliance monitoring and reporting",
                     "Budget management and spend tracking",
@@ -1544,7 +1555,7 @@ function GrantPathProSection() {
                   Generate a Community Brief →
               </Link>
               <span className="text-xs text-muted-foreground">
-                Then send directly to Grant Path Pro with one click
+                 Then send directly to GrantPathPro with one click
               </span>
               <div className="flex items-center gap-1.5 ml-auto">
                 <Lock className="h-3 w-3 text-muted-foreground/60" />
