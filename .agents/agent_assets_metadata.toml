@@ -946,3 +946,17 @@ mtime_ms = 1788298601424
 storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/940b03d9-5bac-41e1-abab-40da3e27066c/18c38dbe-9212-43c0-aac9-094e1fffcf6d"
 storage_version_token = "1788298648743070"
 content_type = "text/html"
+
+[[outputs]]
+id = "bNCrn7TJ_NzQhRmE7wT2D"
+uri = "file://public/platform-overview.pdf"
+type = "pdf"
+title = "TCAF Platform Overview — PDF"
+description = "Readable, print-ready PDF overview of the TCAF/ISS LLC platform portfolio, including Better Science Lab and TradeSparkFinance."
+logical_id = "c18b70d5-98dd-46a4-99db-516d736f2a5b"
+content_hash = "sha256:7020524a53ee21a05cbf0d1f99e746a6cb15d93471f00c5d5c90938e3b0800dd"
+size = 99553
+mtime_ms = 1788298729380
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/c18b70d5-98dd-46a4-99db-516d736f2a5b/3970ca87-114e-4814-9aed-5e53a7e19ce8"
+storage_version_token = "1788298742708268"
+content_type = "application/pdf"
