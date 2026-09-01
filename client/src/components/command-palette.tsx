@@ -83,13 +83,11 @@ export const ALL_ITEMS: CommandItem[] = [
 
   { group: "Academy & Learning", label: "Panther Village", path: "/academy", icon: Rocket },
   { group: "Academy & Learning", label: "AI Curriculum (Youth)", path: "/curriculum", icon: Brain },
-  { group: "Academy & Learning", label: "Trade Simulations", path: "/academy/trade-sims", icon: Wrench },
   { group: "Academy & Learning", label: "STAAR Test Prep", path: "/academy/staar-prep", icon: GraduationCap },
   { group: "Academy & Learning", label: "Daily Check-In", path: "/academy/self-assessment", icon: ClipboardCheck },
   { group: "Academy & Learning", label: "Daily Quests", path: "/academy/quests", icon: Zap },
   { group: "Academy & Learning", label: "Achievements", path: "/achievements", icon: Award },
   { group: "Academy & Learning", label: "Financial Literacy", path: "/academy/financial-literacy", icon: DollarSign },
-  { group: "Academy & Learning", label: "FAFSA Navigator", path: "/fafsa-navigator", icon: GraduationCap },
   { group: "Academy & Learning", label: "AI Creation Studio", path: "/ai-tools", icon: Wand2 },
   { group: "Academy & Learning", label: "Sparky (AI Companion)", path: "/sparky", icon: MessageCircle },
   { group: "Academy & Learning", label: "Navigator (AI)", path: "/navigator", icon: Compass },

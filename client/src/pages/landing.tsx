@@ -187,6 +187,20 @@ const FEATURED_SERVICE_PLATFORMS = [
     icon: Globe,
     theme: "text-indigo-600 bg-indigo-100 dark:bg-indigo-950/40 dark:text-indigo-300",
   },
+  {
+    name: "Better Science Lab",
+    description: "Implementation science in action — CFIR, RE-AIM, and EPIS frameworks, an evidence-based practice registry, and research translation tools that turn studies into community programs.",
+    href: "https://www.bettersciencelab.com",
+    icon: Microscope,
+    theme: "text-emerald-600 bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300",
+  },
+  {
+    name: "TradeSparkFinance",
+    description: "Financial intelligence for community-serving traders and small investors — market access, education, and tools built for people who have historically been locked out of financial markets.",
+    href: "https://tradesparkfinance.com",
+    icon: TrendingUp,
+    theme: "text-amber-600 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300",
+  },
 ] as const;
 
 function PathwayCard({ pathway }: { pathway: typeof PATHWAYS[0] }) {
@@ -723,7 +737,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     platforms: [
       { name: "ISSS — Integrated Supports for Thriving Youth", url: "https://implementationineducatio.com", desc: "MTSS engine with Thrive Scores, early warning indicators, multi-stakeholder coordination for student support at scale", icon: School },
       { name: "Perfectly Different", url: "https://neurodifferentassistant.app", desc: "Neurodiversity-affirming support for autism, ADHD, AuDHD — IEP/504 plan builder, executive function coaching, sensory tools", icon: Sparkles },
-      { name: "Better Science Lab / RPLICE", url: "https://bettersciencelab.com", desc: "Implementation science engine — CFIR, RE-AIM, EPIS frameworks, evidence-based practice registry, research translation tools", icon: Microscope },
+      { name: "Better Science Lab / RPLICE", url: "https://www.bettersciencelab.com", desc: "Implementation science engine — CFIR, RE-AIM, EPIS frameworks, evidence-based practice registry, research translation tools", icon: Microscope },
     ],
   },
   {
@@ -748,6 +762,13 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     platforms: [
       { name: "LifeBridge", url: "https://lifetransitionsaid.org", desc: "Virtual 211 — 24/7 resource navigation for housing, food, healthcare, crisis support, 20,670+ resources, life event guides", icon: Heart },
       { name: "ThriveUp Academy", url: "https://thriveupacademy.com", desc: "The anchor platform — AI-powered workforce readiness curriculum, career pathways, 4-engine AI, community infrastructure", icon: GraduationCap },
+    ],
+  },
+  {
+    domain: "Finance & Commerce",
+    color: "from-amber-500 to-yellow-600",
+    platforms: [
+      { name: "TradeSparkFinance", url: "https://tradesparkfinance.com", desc: "Financial intelligence for community-serving traders and small investors — market access, education, and tools built for people historically locked out of financial markets", icon: TrendingUp },
     ],
   },
 ];

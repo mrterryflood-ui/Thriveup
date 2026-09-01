@@ -47,708 +47,826 @@ id = "mLSi3ve8jUxLf3ChTRdbX"
 uri = "file://AI_Mastery_Academy_Stakeholder_Deck.pptx"
 type = "slides"
 title = "AI Mastery Academy - Stakeholder Presentation (21 Slides)"
+logical_id = "221bfe78-1409-4d54-aaa7-ab5b9e168d7b"
 
 [[outputs]]
 id = "vtdm7VjsOhcPtg3u1WCGw"
 uri = "file://MAP-GAP-REPORT.md"
 type = "text"
 title = "ThriveUp Academy — MAP-GAP Strategic Report"
+logical_id = "95a2c179-abf8-4ec2-99e6-9f873044d296"
 
 [[outputs]]
 id = "TXqZDmJxZj2wWctY_8fD7"
 uri = "file://ThriveUp_Academy_Executive_Summary.md"
 type = "text"
 title = "The Collaborative Advocate — Full Ecosystem Executive Summary"
+logical_id = "6104e9f7-74dc-4d42-bb2d-dc8c71b050b4"
 
 [[outputs]]
 id = "iwDZ3nELzKNvYC--4ajmN"
 uri = "file://ecosystem-evaluation-report.md"
 type = "text"
 title = "ThriveUp Ecosystem Cross-Platform Evaluation Report"
+logical_id = "80987682-9b76-4b2b-bd56-1b693599f7c0"
 
 [[outputs]]
 id = "pOEd5SDELaBoH00vYNHw5"
 uri = "file://ecosystem-thematic-gap-assessment.md"
 type = "text"
 title = "ThriveUp Ecosystem — Thematic & Gap Assessment"
+logical_id = "f55805a8-8ea9-486e-a75b-ec0341cc837b"
 
 [[outputs]]
 id = "kJHy7oWoqmrAmrgg-1wCu"
 uri = "file://austin-housing-gap-assessment.md"
 type = "text"
 title = "Austin & Pflugerville Housing Gap Assessment — Presentation Ready"
+logical_id = "a8638c5d-4d9d-41a4-a8ae-c376b8d6726e"
 
 [[outputs]]
 id = "z-8ol6QjEqNeY4X4EX8ac"
 uri = "file://austin-pflugerville-opportunity-pipeline.md"
 type = "text"
 title = "Austin & Pflugerville Daily Opportunity Pipeline — 30+ Grants/Contracts"
+logical_id = "308349d4-c270-44e5-8c35-cc0d15589e06"
 
 [[outputs]]
 id = "lnQZnaheObUl3feEbkond"
 uri = "file://austin-grant-presentation.md"
 type = "text"
 title = "ThriveUp Academy — Built for Austin — Grant Presentation Package"
+logical_id = "b1ecaa98-ce7f-4748-8134-a9b66a10cff6"
 
 [[outputs]]
 id = "Lz7e9iNPTUJp24i_crF5h"
 uri = "file://ecosystem-connection-instructions.md"
 type = "text"
 title = "v4.0 — Clean Single Guide — All 20 Platforms"
+logical_id = "cf364194-8613-4cbf-90d4-676e4ee97099"
 
 [[outputs]]
 id = "l4lcxCUAsC4ai3HqlQ93t"
 uri = "file://.local/pinnacle-build-script.md"
 type = "text"
 title = "Pinnacle Business Conglomerate — Complete Build Script"
+logical_id = "e2a01c02-300a-4e56-8ccf-0ecf1b0cea3a"
 
 [[outputs]]
 id = "Ir2ZsTOsI6wn8z6sJN1D5"
 uri = "file://PBC_Ecosystem_Integration_Instructions.md"
 type = "text"
 title = "Pinnacle Business Conglomerate — Complete Integration Instructions"
+logical_id = "a8d9a484-7276-4867-b185-bb459d45b956"
 
 [[outputs]]
 id = "TP4_nprHxgeO00TLPVukp"
 uri = "file://PBC_MCE_BlueWave_Pipeline_Instructions.md"
 type = "text"
 title = "MCE + Pinnacle + Blue Wave — Minority Contractor Pipeline Integration"
+logical_id = "1184a751-e3d2-4096-8d24-328a7d0cdf66"
 
 [[outputs]]
 id = "rgyC2GYuGBIhq19Tu3Pcp"
 uri = "file://ACOS_NAICS_PSC_Codes_Master_Reference.md"
 type = "text"
 title = "ACOS Ecosystem — Master NAICS & PSC Code Reference (SAM.gov)"
+logical_id = "7fb32b9e-5997-405f-881f-8552af816311"
 
 [[outputs]]
 id = "OskZv1oH5arMbCZ0GemE0"
 uri = "file://docs/ECOSYSTEM-MASTER-DIRECTIVE.md"
 type = "text"
 title = "Ecosystem Master Directive v5.0 (with 4-Layer Congruence Rule)"
+logical_id = "2c5ed1aa-aad5-4895-aec4-5e59ad56e43a"
 
 [[outputs]]
 id = "RbuyestFlUL2TOga_hbib"
 uri = "file://attached_assets/ThriveUp_ACOS_PitchDeck_GrandFounders.pptx"
 type = "slides"
 title = "The Collaborative Advocate — Pitch Deck (Grand Founders Network-to-Capital)"
+logical_id = "3cce1417-c0cd-4005-90ca-df7b0e02aaf2"
 
 [[outputs]]
 id = "rW1GPMlhxM1M4MroFFUg2"
 uri = "file://CollaborativeAdvocate_PitchDeck.pptx"
 type = "slides"
 title = "The Collaborative Advocate — Grand Founders Pitch Deck (5 Slides + Speaker Notes)"
+logical_id = "722bbafe-7cf1-4286-8370-bf41c883d7da"
 
 [[outputs]]
 id = "UnJ3p4um53x89Ac5axalm"
 uri = "file://docs/ecosystem-cross-evaluation-2026-03-24.md"
 type = "text"
 title = "Ecosystem Cross-Evaluation Report — March 24, 2026"
+logical_id = "6b554d73-25c5-4e84-a59b-873ca2f8dd29"
 
 [[outputs]]
 id = "jcktLP3rQLRf_AEbRg_FC"
 uri = "file://attached_assets/ThriveUp_RPLICE_MEASURE_Improved.pptx"
 type = "slides"
 title = "ThriveUp + RPLICE Ecosystem Presentation (Rebalanced + Live Links)"
+logical_id = "20c1ca1c-fd2c-4df5-873d-810a870cd0e2"
 
 [[outputs]]
 id = "MqIxRAWTLFio_8eqpGl1g"
 uri = "file://ThriveUp_ACOS_Complete_Briefing.pptx"
 type = "slides"
 title = "ThriveUp ACOS Briefing — Updated with Funders & Collaborators Slide"
+logical_id = "f5abce09-2c92-4465-aa09-29d95d4baee1"
 
 [[outputs]]
 id = "S0owZIIKFKbIwfvptdRAZ"
 uri = "file://TCAF_Community_Presentation.pptx"
 type = "slides"
 title = "TCAF Community Presentation — Building Pflugerville's Future"
+logical_id = "43ebd406-cf69-46aa-887b-af1f282ca116"
 
 [[outputs]]
 id = "P6q1mSZKRt8qqc5d216VF"
 uri = "file://Dr_Terry_Flood_Resume_TNTP.pptx"
 type = "slides"
 title = "Dr. Terry Flood Resume — TNTP Partner, Education to Career"
+logical_id = "7ddacf28-3b03-475c-b122-dd314bc2aebb"
 
 [[outputs]]
 id = "OS-y0hmpRsxT_2WuhzVqq"
 uri = "file://Dr_Terry_Flood_TNTP_Application_Answers.md"
 type = "text"
 title = "TNTP Application Answers — Why TNTP & Qualifications"
+logical_id = "667290ad-112d-412f-8de1-f313c015d8e1"
 
 [[outputs]]
 id = "oTIREMYjxTMJFXhcsSyMr"
 uri = "file://TCAF_Federal_Health_Grants_April_2026.md"
 type = "text"
 title = "TCAF Federal Health Grant Opportunities — April 1, 2026"
+logical_id = "ba15bbf3-75e8-4b78-a794-65a0432294bc"
 
 [[outputs]]
 id = "PN9IqfR6KRSe2-RO9Vw0j"
 uri = "file://TCAF_RFPMart_Health_RFP_Analysis_April_2026.md"
 type = "text"
 title = "TCAF RFPMart Health RFP Deep Analysis — April 2026"
+logical_id = "00eb7e29-2d26-4bb3-90b5-b48473d8e5d9"
 
 [[outputs]]
 id = "jQZ9ndamv69PV43BPELKO"
 uri = "file://TCAF_Texas_RFP_Deep_Analysis_April_2026.md"
 type = "text"
 title = "TCAF Texas RFP Deep Analysis — 1,291 RFPs Screened, Source Documents Located"
+logical_id = "f21d2394-de30-4c4f-b707-a0e1ced7b813"
 
 [[outputs]]
 id = "FrQPadYHrD4aZ-mKwBby7"
 uri = "file://TCAF_Staffing_RFP_Opportunities_April_2026.md"
 type = "text"
 title = "TCAF + M&T Consulting — Staffing RFP Opportunities (25+ Low-Hanging Fruit)"
+logical_id = "01c170dc-b1f1-46fc-857b-e50308b49280"
 
 [[outputs]]
 id = "v3M7_g6rTuqJtb2u_pzzr"
 uri = "file://docs/grants/TCAF-Coalition-Partner-Presentation.md"
 type = "text"
 title = "Coalition Partner Presentation — We All Benefit 2.0"
+logical_id = "4cf8e949-3e92-4998-9ba6-78fd336e13f6"
 
 [[outputs]]
 id = "i701GtjlWXMprlIbtNO3j"
 uri = "file://docs/RPLICE-Data-Science-SOP.md"
 type = "text"
 title = "RPLICE Data Science SOP — How We Tell the #DATA Story"
+logical_id = "d94f7d4c-7b08-4971-aa2d-e18da7fcd8b6"
 
 [[outputs]]
 id = "IrA2CN-YXJRieK2h12waY"
 uri = "file://Fountain_of_Life_Ministries_Dads_Care_2_LOI.pdf"
 type = "pdf"
 title = "Eric Hargrave — Dads Care 2 LOI (Complete)"
+logical_id = "f6d08cdb-8e50-4162-be60-4663c70285ed"
 
 [[outputs]]
 id = "ePhpem3exywtuNjdD5GTf"
 uri = "file://RFQ_202-CW_Travis_County_Strategic_Planning_Retreat_Response.pdf"
 type = "pdf"
 title = "Travis County RFQ 202-CW — Complete Quote Response for Eric Hargrave"
+logical_id = "1e2d6c23-5b51-4ea2-9097-fcda11808656"
 
 [[outputs]]
 id = "Oei49FBDBiKbSkb88johM"
 uri = "file://RFQ_202-CW_HIS_Response.pdf"
 type = "pdf"
 title = "Travis County RFQ 202-CW — Hargrave Innovative Solutions Quote Response"
+logical_id = "1986af77-6c83-4e6b-884c-068640a79bb2"
 
 [[outputs]]
 id = "EdUAP577i7mSsE7ZwcEsP"
 uri = "file://docs/pitches/deel-the-pitch-3min-script.md"
 type = "text"
 title = "ThriveUp Pitch Script V2 — With Ecosystem WHY"
+logical_id = "36e76f99-c8f4-4fe3-910f-e9f2ed29b5c5"
 
 [[outputs]]
 id = "Hwee3A0Bi0SOgHe_SxLMi"
 uri = "file://docs/pitches/ThriveUp-The-Pitch-by-Deel-2026.pptx"
 type = "slides"
 title = "ThriveUp Pitch Deck V7 — Keisha: Pregnant During Cancer, Child Struggling"
+logical_id = "b0f06369-f7e0-49a0-a816-74319223af1c"
 
 [[outputs]]
 id = "Re3HbKctMBlYqWUT1Idt4"
 uri = "file://attached_assets/Agency_Fund_EOI_Collaborative_Advocate.md"
 type = "text"
 title = "Agency Fund EOI — The Collaborative Advocate Foundation"
+logical_id = "ac5510b8-a70d-4cd6-a18b-25f8e2f917cc"
 
 [[outputs]]
 id = "cA-V9NdbICdnON-Fhh8dK"
 uri = "file://attached_assets/TWC_PfISD_Curriculum_Summary.md"
 type = "text"
 title = "Curriculum Summary for PfISD (Send to Traci)"
+logical_id = "cfb2f57f-7eae-4712-a700-0f62abe1b70b"
 
 [[outputs]]
 id = "sH01WAxAmxJQn4Ftpd1pC"
 uri = "file://attached_assets/TWC_PfISD_Support_Letter_Draft.md"
 type = "text"
 title = "Draft Support Letter for Traci to Sign"
+logical_id = "679f7e58-4bdb-400c-993d-40a091c06a19"
 
 [[outputs]]
 id = "0L5MGPUMg-DfkiV3Q6mEo"
 uri = "file://docs/grants/TWC-RFA-32026-00162-NARRATIVE.md"
 type = "text"
 title = "Narrative Attachment (full application narrative)"
+logical_id = "5704ee4e-d40d-417c-a046-67182167abce"
 
 [[outputs]]
 id = "ucwoijIrUrJCK1DarrzAa"
 uri = "file://docs/grants/PFISD-PARTNER-LETTER-TEMPLATE.md"
 type = "text"
 title = "PfISD Partner Letter Template (Internal - Multi-Use)"
+logical_id = "138185ea-7429-45c7-9031-2c773ae6c092"
 
 [[outputs]]
 id = "WxpEZ7xBFQNRV2_qfalWX"
 uri = "file://docs/grants/RARE-IMPACT-FUND-LOI.md"
 type = "text"
 title = "Rare Impact Fund LOI — Pathways to Purpose (Due April 10, 2026)"
+logical_id = "2f840e87-5b76-4b5f-9bb6-2a7c70880710"
 
 [[outputs]]
 id = "2IxJyaiNxtfejEykA_lew"
 uri = "file://docs/grants/RPLICE-Platform-Overview.doc"
 type = "word_document"
 title = "RPLICE Platform Overview — Word Document"
+logical_id = "97e7f0b2-1c9f-4a7c-a6ed-458fc4529025"
 
 [[outputs]]
 id = "lj252nah1mojDodaoHWv7"
 uri = "file://docs/grants/TCAF-Organizational-Budget-FY2025-2026.doc"
 type = "word_document"
 title = "TCAF Organizational Budget FY2025-2026"
+logical_id = "aed17156-e0f9-4709-8b22-2123f7372a04"
 
 [[outputs]]
 id = "fLg4JnlYbEDwrtMx-6Lnl"
 uri = "file://docs/grants/TCAF-Leadership-Staff-Overview.doc"
 type = "word_document"
 title = "TCAF Leadership & Staff Overview — Updated with Meredith Sisnett"
+logical_id = "ab1ecfb1-84d6-4b0c-ad9a-ff2ed8727058"
 
 [[outputs]]
 id = "0KnKIF1tMgCyFxM8nIdYp"
 uri = "file://docs/grants/TCAF-Rare-Impact-Fund-LOI-Narrative.doc"
 type = "word_document"
 title = "TCAF Rare Impact Fund LOI Narrative — Final (Upload This)"
+logical_id = "a1d90d11-1602-45dd-ad1d-5f3a53198756"
 
 [[outputs]]
 id = "geYq5YbH8Lny5VGzzw8jR"
 uri = "file://docs/grants/GRANT-OPPORTUNITY-CRITERIA-MATRIX.md"
 type = "text"
 title = "Grant Opportunity Criteria Matrix — 17 New Grants with Full Criteria"
+logical_id = "2e179d77-1ec0-4646-8d31-bafa7e8e5b35"
 
 [[outputs]]
 id = "Ue33Y5KqdsrKtAK8yLCoi"
 uri = "file://docs/grants/TX-Reentry-Stipend-Pilot-Overview.doc"
 type = "word_document"
 title = "TX Reentry Stipend Pilot - Full Document"
+logical_id = "6e265773-2c35-496d-9583-642ceb372e3b"
 
 [[outputs]]
 id = "oBh8nyW3rdh34po39EJ8S"
 uri = "file://docs/grants/TX-Reentry-Stipend-Pilot-Presentation.pptx"
 type = "slides"
 title = "TX Reentry Stipend Pilot - PowerPoint Presentation"
+logical_id = "32252f60-a906-4dbc-b9bb-cb4f4dfde2fa"
 
 [[outputs]]
 id = "Be0rVtDMbdf-XB9StPTAY"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v4-FINAL.docx"
 type = "word_document"
 title = "WAB2 LOI v4 FINAL — TCAF Benefits Enrollment Collaborative"
+logical_id = "b8b0c041-1e96-402d-844e-a3117f75daf0"
 
 [[outputs]]
 id = "1kNxN_LOPkvEQOhjNhDAT"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v5-FINAL.docx"
 type = "word_document"
 title = "St. David's WAB2 LOI — Draft Request Summary (review & finalize)"
+logical_id = "b0137a70-d859-4839-a97f-43c0c1d01d40"
 
 [[outputs]]
 id = "EbwKSHSop0B0Q44IAc2nC"
 uri = "file://attached_assets/decks/Waco-Austin-Fatherhood-Gap-v1.pptx"
 type = "slides"
 title = "Waco & Austin Fatherhood Gap — PowerPoint"
+logical_id = "5164d8d4-006b-4d01-8f27-4b8d05b5c1bf"
 
 [[outputs]]
 id = "RF-aXJGjQEFoTVQfiTudZ"
 uri = "file://attached_assets/decks/Waco-Austin-Fatherhood-Gap-v1.docx"
 type = "word_document"
 title = "Waco & Austin Fatherhood Gap — Word Doc"
+logical_id = "2b13bdc0-6649-470c-8178-7b326ba94093"
 
 [[outputs]]
 id = "RDgeUySmowmNiN5vNMELK"
 uri = "file://attached_assets/decks/Corridor-Intelligence-Brief-v1.pptx"
 type = "slides"
 title = "Corridor Intelligence Brief v1 (verified base) — PowerPoint"
+logical_id = "6555b491-0ff0-49fd-9c9f-1094f43decf7"
 
 [[outputs]]
 id = "qUKB_k0dWKi2y6xPuxzUt"
 uri = "file://attached_assets/decks/Corridor-Intelligence-Brief-v1.docx"
 type = "word_document"
 title = "Corridor Intelligence Brief v1 (verified base) — Word"
+logical_id = "9f395bc1-be2c-451b-a9c3-48c7d07e4715"
 
 [[outputs]]
 id = "2yNrbYtk3chxNHl5mFaqv"
 uri = "file://attached_assets/decks/Austin-Housing-Gap-Assessment-v2.docx"
 type = "word_document"
 title = "Austin & Pflugerville Housing Gap Assessment (Word)"
+logical_id = "03e29f04-f4fb-43cc-ace4-1c5a563f537a"
 
 [[outputs]]
 id = "GcHfIF0xAvst8CQ9khWrR"
 uri = "file://attached_assets/decks/Austin-Grant-Presentation-v2.docx"
 type = "word_document"
 title = "ThriveUp Academy — Built for Austin (Grant Presentation, Word)"
+logical_id = "f314344c-5e6e-42b2-b8eb-fb05e617e977"
 
 [[outputs]]
 id = "nfvLCk3L-40fYt-V2n_0_"
 uri = "file://attached_assets/decks/Austin-Pflugerville-Opportunity-Pipeline-v2.docx"
 type = "word_document"
 title = "Austin & Pflugerville Daily Opportunity Pipeline (Word)"
+logical_id = "b73d27b3-3399-473b-83f6-f120b6efb9d9"
 
 [[outputs]]
 id = "6U3tcJN-2Qkc_90oS324Y"
 uri = "file://attached_assets/decks/I35-Corridor-Black-Youth-Assessment-v2.docx"
 type = "word_document"
 title = "I-35 Corridor — Waco ↔ Austin Black-Youth Fatherhood & Mentorship Gap Assessment"
+logical_id = "2146faa5-f675-4275-9c94-fe5dc85b066c"
 
 [[outputs]]
 id = "crBlntwO8vwFBiF8cPLbL"
 uri = "file://attached_assets/32026-00162_Form_A_Core_Application_(1)_1774465344261.docx"
 type = "word_document"
 title = "Form A — Blank Template (open in Word, fill using cheat sheet)"
+logical_id = "9adeb478-e172-4531-a1b7-38416be74ab2"
 
 [[outputs]]
 id = "QRPd-lfNlPsyEJ6GQ1O5F"
 uri = "file://attached_assets/32026-00162_Form_B_Budget_Workbook_1774465344261.xlsx"
 type = "table"
 title = "TWC Form B — Budget Workbook (Excel, formulas locked)"
+logical_id = "ac6010bb-3068-434d-a8c5-fc942eb24a45"
 
 [[outputs]]
 id = "Us2B8ZMe57fd8pnBtFxES"
 uri = "file://attached_assets/32026-00162_Form_C_General_Terms_and_Conditions_Exceptions_1774465344261.docx"
 type = "word_document"
 title = "TWC Form C — Terms & Conditions Exceptions"
+logical_id = "833e73da-ee43-4bbc-b0e9-8b392a700a76"
 
 [[outputs]]
 id = "YItpbV1jO0qcDOm5gtSGa"
 uri = "file://attached_assets/ThriveUp_LOS-13Apr2026_1776121339523.pdf"
 type = "pdf"
 title = "PfISD Letter of Support (DO NOT UPLOAD — keep for files only)"
+logical_id = "05fd85a6-c1ce-45d4-9b27-49cd24ff983e"
 
 [[outputs]]
 id = "VlTqfSqsCS4EgKdsY9NZJ"
 uri = "file://docs/grants/TWC-FORM-A-FILL-IN-SHEET.md"
 type = "text"
 title = "Form A — Fill-In Cheat Sheet (every field mapped)"
+logical_id = "f930f98e-c037-4869-ac94-31b36e7c6abf"
 
 [[outputs]]
 id = "fRS6XWKXt55Y7B1r_qyvU"
 uri = "file://docs/grants/TCAF_FormB_Budget_2026-04-21.xlsx"
 type = "table"
 title = "Form B — Pre-Filled Budget ($1,620,000)"
+logical_id = "83506273-d3ea-4e85-883f-da1324ef3547"
 
 [[outputs]]
 id = "qaleWh5tHZaKgGcoij_aZ"
 uri = "file://docs/grants/TWC-FORM-B-BUDGET-COMPLETE.md"
 type = "text"
 title = "Form B — Budget Reference (cell map + justifications)"
+logical_id = "fba71660-c74b-49c0-ba87-062fc6a473b9"
 
 [[outputs]]
 id = "ua8jE8RrJwnhpElhbgCsy"
 uri = "file://attached_assets/certificate_of_good_standing_collab_adv_1776787658287.pdf"
 type = "pdf"
 title = "Texas SOS Certificate of Good Standing (proof of nonprofit status)"
+logical_id = "ad847a8a-2fc0-4de9-ac49-6a870a0d79e9"
 
 [[outputs]]
 id = "OUXMLEX8eryuObulGph3s"
 uri = "file://docs/grants/SUBMISSION-WALKTHROUGH-TWC-RFA-32026-00162.md"
 type = "text"
 title = "Bonfire Submission Walkthrough (step-by-step)"
+logical_id = "4c60c026-c5c2-44d9-8672-7cb2f75261bc"
 
 [[outputs]]
 id = "5EtcfrMq3nFhE5DNEmjNd"
 uri = "file://docs/grants/SUBMISSION-WALKTHROUGH-StDavids-WAB2-LOI.md"
 type = "text"
 title = "St. David's WAB2 LOI — Submission Walkthrough"
+logical_id = "67c5c601-2122-4e67-bba4-4c08487bcb6e"
 
 [[outputs]]
 id = "CBoy7gsib3fSl4V7vXUf7"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.md"
 type = "text"
 title = "WAB2 LOI — v7 (1-page summary)"
+logical_id = "cb3c3056-3bfb-4e06-9f38-0fc68c74128b"
 
 [[outputs]]
 id = "1XB7hk_4GsECE5LbuTskO"
 uri = "file://attached_assets/NSF-26-508-LOI-TX-Hub-v1.md"
 type = "text"
 title = "NSF 26-508 — Texas Coordination Hub LOI v1"
+logical_id = "fb748599-4fdd-43ee-aa61-df1a0a4ce270"
 
 [[outputs]]
 id = "dGemnORRliJk_auXxh-Tp"
 uri = "file://attached_assets/NSF-26-508-LOI-TX-Hub-v2.md"
 type = "text"
 title = "NSF 26-508 — Texas Hub LOI v2 (live intel + 28 citations)"
+logical_id = "07735dbb-f579-402e-b7b9-b3046f611294"
 
 [[outputs]]
 id = "xVUZQkDSU4qL9hIyltM4g"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.docx"
 type = "word_document"
 title = "St. David's WAB2 LOI — Request Summary v7 FINAL (Word)"
+logical_id = "46cf2176-e519-4e8c-8933-e17e9222d0f5"
 
 [[outputs]]
 id = "rcbYxqXdd-BM8Fv9N2O-0"
 uri = "file://attached_assets/WAB2-LOI-RequestSummary-v7-FINAL.pdf"
 type = "pdf"
 title = "St. David's WAB2 LOI — Request Summary v7 FINAL (PDF)"
+logical_id = "bbe44a0e-924e-4d5a-94bf-c6e12de312ba"
 
 [[outputs]]
 id = "X6oQM4dC_dytQFeEaL6HD"
 uri = "file://attached_assets/wab2_loi_submission.txt"
 type = "text"
 title = "WAB2 LOI Submission Paste Sheet — Apr 27, 2026 5pm CT"
+logical_id = "d1a2ae3a-7cfe-4601-bbc7-0f552fbfb155"
 
 [[outputs]]
 id = "qaBCDcjvhhoEfiX-W3HZ8"
 uri = "file://dist/Foster-Youth-Leave-Behind.pptx"
 type = "slides"
 title = "Foster Youth Leave-Behind (PPTX, 17 slides)"
+logical_id = "17426ffd-1d6e-444a-9b27-6be7901a59c7"
 
 [[outputs]]
 id = "WUlfGhZJXaUDMctEQ3WQK"
 uri = "file://docs/grants/Foster-Youth-Executive-Briefing.md"
 type = "text"
 title = "Foster Youth Executive Briefing (5–10 pages)"
+logical_id = "32297c7f-11f4-4922-967a-892cb3d30493"
 
 [[outputs]]
 id = "xOO7z1DybMwpKa3CZZV-l"
 uri = "file://docs/grants/centene-foundation-2026/01-concept-paper.md"
 type = "text"
 title = "Centene Concept Paper (2-page)"
+logical_id = "0a49d689-5aa9-4d0b-83a8-5df180bb3d80"
 
 [[outputs]]
 id = "uXtQibah8G3Ux6RgopQJ0"
 uri = "file://docs/grants/centene-foundation-2026/02-budget.md"
 type = "text"
 title = "Centene Budget"
+logical_id = "1cbe2af2-62c5-4db1-ae50-170e5ab383ce"
 
 [[outputs]]
 id = "KZS-oWqKiBoENMkARJrLu"
 uri = "file://docs/grants/centene-foundation-2026/03-budget-narrative.md"
 type = "text"
 title = "Centene Budget Narrative"
+logical_id = "b01da965-0296-426f-a80a-4c38bd62f937"
 
 [[outputs]]
 id = "aHikhkH14QzUME6W4_AbD"
 uri = "file://docs/partners/investech/01-ThriveUp-One-Pager-Kevin-Packer.pdf"
 type = "pdf"
 title = "01 — ThriveUp One-Pager (Kevin Packer)"
+logical_id = "32cbc6f8-b107-4f4f-aeeb-fa41f00bbade"
 
 [[outputs]]
 id = "mUAOufyuq8XfPgs5HvomA"
 uri = "file://docs/partners/investech/02-Technical-Architecture-Overview.pdf"
 type = "pdf"
 title = "02 — Technical Architecture Overview"
+logical_id = "9c66cd52-9035-449c-935a-df9dc1004d57"
 
 [[outputs]]
 id = "eSiujwF4frh_4b_RSc8QL"
 uri = "file://docs/partners/investech/03-Opportunities-Currently-Tracking.pdf"
 type = "pdf"
 title = "03 — Opportunities Currently Tracking (updated post-call)"
+logical_id = "f253dee0-c17c-471d-8d2a-4edd879b614a"
 
 [[outputs]]
 id = "KDEiiYQHlUHU-bSkiP2X5"
 uri = "file://docs/grants/aisd-26rfp052/00-README-and-Submission-Checklist.pdf"
 type = "pdf"
 title = "✅ CHECKLIST — your 5-step morning sequence (do not upload, just for you)"
+logical_id = "8da541fd-9ca0-4315-98b4-0e123e8f022b"
 
 [[outputs]]
 id = "ygFXhKOCR5D47DVi2C_Aw"
 uri = "file://docs/grants/aisd-26rfp052/01-Proposal-Response-Form.pdf"
 type = "pdf"
 title = "📄 MAIN BID DOC — upload to Bonfire under PROPOSAL RESPONSE ATTACHMENTS"
+logical_id = "a894ba39-0e6b-4c14-b970-e1bcbb1db6e5"
 
 [[outputs]]
 id = "gh_0iWYu1KPIa9tRSxIcn"
 uri = "file://docs/grants/aisd-26rfp052/02-Sample-Unit-Plan-and-Lessons.pdf"
 type = "pdf"
 title = "📄 SAMPLE UNIT PLAN — upload to Bonfire under PROPOSAL RESPONSE ATTACHMENTS"
+logical_id = "fa2a9803-8094-4f57-a79c-a70236e3d32e"
 
 [[outputs]]
 id = "LVU9kDSWSvbV09e7XSTQ1"
 uri = "file://docs/grants/aisd-26rfp052/03-Required-Forms-Filled.pdf"
 type = "pdf"
 title = "✍️ REQUIRED FORMS — sign each section, then upload to Bonfire under REQUIRED FORMS"
+logical_id = "b49f5d7f-839a-4da7-88af-e6585389caec"
 
 [[outputs]]
 id = "fy1rnTju8MBwZclUB_RIR"
 uri = "file://docs/grants/MASTER-GRANTS-TRACKER-2026-05-19.md"
 type = "text"
 title = "TCAF Master Grants Tracker — FULL INVENTORY (2026-05-19)"
+logical_id = "800dd98e-1b77-4971-9e2d-24ee25d4a6d8"
 
 [[outputs]]
 id = "k8xVPvy3cllE9Yg25iRzv"
 uri = "file://docs/grants/rosendin-foundation-2026/01-concept-paper.md"
 type = "text"
 title = "Rosendin Foundation Concept Paper (DRAFT v0.1)"
+logical_id = "0c5d9a0d-cdf3-427b-8396-8032187ff734"
 
 [[outputs]]
 id = "rNleO72NFNsUaOKysMI9g"
 uri = "file://docs/grants/crump-foundation-2026/01-concept-paper.md"
 type = "text"
 title = "Joe & Jess Crump Foundation Concept Paper - RPLICE angle (DRAFT v0.1)"
+logical_id = "50672b9a-8973-4535-aa65-e7e82ef6bb61"
 
 [[outputs]]
 id = "_EC4aducMv77hgmpn7WsN"
 uri = "file://docs/capability-statement/TCAF-Capability-Statement.md"
 type = "text"
 title = "TCAF Capability Statement (v1.1 — live links)"
+logical_id = "f4dc2f33-cdb1-49b4-af52-48460e717e8f"
 
 [[outputs]]
 id = "hVyh7gjLU3NjsuXfim4va"
 uri = "file://docs/regional-briefings/north-wilco-childcare-infrastructure-2026-05-22.md"
 type = "text"
 title = "North Wilco Childcare Infrastructure Briefing — Implementation Analysis"
+logical_id = "71df58b9-f095-493f-8d5c-ada0e7a7aaac"
 
 [[outputs]]
 id = "obtFzQQo93BIbMtTS5w76"
 uri = "file://docs/his-leave-behind-walkthrough.md"
 type = "text"
 title = "ThriveUp / TCAF — HIS Leave-Behind Walkthrough"
+logical_id = "215dac50-70c1-4065-8892-b59341412942"
 
 [[outputs]]
 id = "D51VBoqXzUCEPsAdOYyNC"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v2.md"
 type = "text"
 title = "Sedgwick RFP #26-0028 — Vitality Weight Management Proposal v2 (rubric-mirrored, Section L compliant)"
+logical_id = "17a17093-e47c-4f2b-acfe-1ed7f983f562"
 
 [[outputs]]
 id = "BiumQ3ED8SQuE6qqNzgy0"
 uri = "file://docs/partner-onboarding-walkthrough.md"
 type = "text"
 title = "ThriveUp Partner Onboarding Walkthrough"
+logical_id = "1da1e720-4be2-44f1-b6b7-2385f157bdf2"
 
 [[outputs]]
 id = "iFD5Zi1pIOnonVEFKsJjg"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/vitality-proposal-v3.md"
 type = "text"
 title = "Vitality Proposal v3 — Sedgwick County RFP #26-0028 (Love Clinic Prime, glpwellness.fit)"
+logical_id = "e6736f57-b392-44b6-b03f-466352c4362f"
 
 [[outputs]]
 id = "bUtVIP2r5ynL93ndCdgHZ"
 uri = "file://docs/grants/arpa-h-no-longer-about-you/05-solution-summary.md"
 type = "text"
 title = "ARPA-H SOL-24-106 Solution Summary v3 (TCAF / M&T) — SDOH + DID added — 2026-05-26"
+logical_id = "735a7e2c-fafd-4f48-8ae3-550ae8094240"
 
 [[outputs]]
 id = "cUF6EzIwlHs5v1iQ8W002"
 uri = "file://docs/grants/arpa-h-no-longer-about-you/01-concept-paper.md"
 type = "text"
 title = "Concept Paper (§5.4–§5.8 Karlin/Shen-mirror rewrite)"
+logical_id = "ba9244e0-b73b-417d-b39c-301711f689c8"
 
 [[outputs]]
 id = "k9_7nOkBK7x5zUCSX4Y05"
 uri = "file://docs/grants/arpa-h-no-longer-about-you/06-reviewer-intelligence.md"
 type = "text"
 title = "Reviewer Intelligence — Shen, Jackson, Karlin"
+logical_id = "37f3c8b4-56e4-4d14-ab34-8bb9b9cf8bfd"
 
 [[outputs]]
 id = "PlKXD2iGIk4sROoBwj9xj"
 uri = "file://docs/grants/arpa-h-no-longer-about-you/dist/ARPA-H_SOL-24-106_Solution_Summary_TCAF-MT_2026-05-26.pdf"
 type = "pdf"
 title = "ARPA-H SOL-24-106 Solution Summary — TCAF/M&T (submission-ready)"
+logical_id = "a73bfc28-7ef3-4b92-8681-17510da20ab6"
 
 [[outputs]]
 id = "FZHrt2yI0RQmZ0AqEWfzC"
 uri = "file://docs/grants/arpa-h-no-longer-about-you/dist/PFCWindowSolutionSummaryTCAF20260526.pdf"
 type = "pdf"
 title = "PFCWindowSolutionSummaryTCAF20260526.pdf — corrected (Sissnet spelling)"
+logical_id = "b97374f7-e35c-45e4-bf75-872fb27e2c9b"
 
 [[outputs]]
 id = "SDZbeAIOJs6rlIGp4ejKZ"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/pre-submission-checklist.md"
 type = "text"
 title = "Pre-Submission Checklist — what's closed, what's still owed"
+logical_id = "84a046e8-8d9b-4909-9e81-fae305d95e73"
 
 [[outputs]]
 id = "_XTDfpfYUV_O7yIhxpgr7"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/compliance-crosswalk.md"
 type = "text"
 title = "Compliance Crosswalk — Section L / Section M scoring map"
+logical_id = "a5f49d9e-410b-45c0-ab9f-e21984b3159b"
 
 [[outputs]]
 id = "gme6GM5CHBKxpzRaIC6ff"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/docx-export/vitality-proposal-v3.docx"
 type = "word_document"
 title = "Vitality Proposal v3 — Sedgwick RFP #26-0028 (Word, updated)"
+logical_id = "3f4c1977-cdcb-4770-a8e4-08343bafbb13"
 
 [[outputs]]
 id = "xIQcoBPwNqjtPeB1VV9MZ"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/docx-export/compliance-crosswalk.docx"
 type = "word_document"
 title = "Compliance Crosswalk — Section L / M (Word, updated)"
+logical_id = "c41aa6df-6f35-4b83-8373-6ed47b157d1a"
 
 [[outputs]]
 id = "qbbN4HMeEzXxmtvpDzvfy"
 uri = "file://docs/grants/sedgwick-rfp-26-0028/docx-export/pre-submission-checklist.docx"
 type = "word_document"
 title = "Pre-Submission Checklist (Word)"
+logical_id = "c25251ea-3e1c-4bae-aebf-a4f944bc2b46"
 
 [[outputs]]
 id = "EpJ8dVlPUZ9i_WbSRtCKN"
 uri = "file://fork-contracting-app.tar.gz"
 type = "unspecified"
 title = "Contracting fork code bundle (76KB) — click to download"
+logical_id = "823a18ff-719c-4fa0-aafa-478ad659c6d8"
 
 [[outputs]]
 id = "jKVmIRU0Esrogw2Z0g_sz"
 uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/00-README-and-Submission-Checklist.pdf"
 type = "pdf"
 title = "00 — Submission Checklist + Timeline (Eric, Jamaica, Terry action items)"
+logical_id = "44647440-ec09-4a5a-9956-46565118c2b0"
 
 [[outputs]]
 id = "FvxklvIaY6fa3I15pfoEb"
 uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/01-Package-Attributes-Q1-Q8.pdf"
 type = "pdf"
 title = "01 — All 8 Q&A Responses (paste into Ion Wave — character-count verified)"
+logical_id = "1ee31695-2393-4dea-8faa-a5a0a6cbba2a"
 
 [[outputs]]
 id = "FIktqupxL5W2xaKbpATd1"
 uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/02-Pricing-Schedule-Document8.pdf"
 type = "pdf"
 title = "02 — Pricing Schedule / Document 8 (Terry: confirm rates by Thu EOD)"
+logical_id = "83949f34-c38b-47ee-9b12-7e47d179d006"
 
 [[outputs]]
 id = "kaVITV59QsKtz8_rc3cDZ"
 uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/03-Jamaica-Signature-Forms-Checklist.pdf"
 type = "pdf"
 title = "03 — Jamaica’s Signature Forms Checklist (return to Eric by Thu EOD)"
+logical_id = "a460e792-724b-482d-a398-228640938545"
 
 [[outputs]]
 id = "rW_boIT0GgnM15oNlg3Fc"
 uri = "file://docs/grants/mckinney-isd-rfp2026-04-650/04-Compliance-Matrix.pdf"
 type = "pdf"
 title = "04 — Compliance Matrix (Eric’s pre-submit gate checklist)"
+logical_id = "6cbb9c7c-aa75-4449-a809-bacc6ae29e78"
 
 [[outputs]]
 id = "yYjBBHHI-9Qu1nBXMfHeD"
 uri = "file://docs/grants/ssg-fox-spgp-fy2027/01-Complete-Application-Draft.md"
 type = "text"
 title = "SSG Fox SPGP FY2027 — Complete Application Draft ($400,000)"
+logical_id = "f808f473-3b3f-4032-8c02-656f9b34c34d"
 
 [[outputs]]
 id = "AR_9-tns6_hvM6tRaiJXU"
 uri = "file://docs/grants/TCAF-CAPABILITY-STATEMENT-2026-05-29.md"
 type = "text"
 title = "TCAF Comprehensive Capability Statement — May 29, 2026"
+logical_id = "9bad9e5a-cbe0-477d-a56b-23e0119f7c74"
 
 [[outputs]]
 id = "cBQ0ceZxmCgGwnPfzqyjb"
 uri = "file://attached_assets/TCAF-Deneece-Letter-June2026.pdf"
 type = "pdf"
 title = "TCAF → Deneece Ferrales — June 2026 Response Letter"
+logical_id = "872aa712-b663-43ed-a1d4-99cc27cad721"
 
 [[outputs]]
 id = "LS7f9CGc16dOpavBV0eol"
 uri = "file://docs/generated/TCAF-HIS-Letterhead.pdf"
 type = "pdf"
 title = "TCAF × HIS Combined Letterhead"
+logical_id = "3e4acba7-095d-4c31-ac3c-5ef61eadd2d6"
 
 [[outputs]]
 id = "pyU3srUuZ3ShfCDxOTkQ_"
 uri = "file://docs/generated/TCAF-HIS-Capability-Statement.pdf"
 type = "pdf"
 title = "TCAF × HIS Combined Capability Statement (updated)"
+logical_id = "5f90f976-41ac-4cbf-b82b-7d72a26fcaaa"
 
 [[outputs]]
 id = "6YvWlzYNDX2m9g2uJG54d"
 uri = "file://docs/generated/TCAF-Legislative-Meeting-Plan.pdf"
 type = "pdf"
 title = "TCAF × Cortney Jones — Legislative Meeting Plan (3-page)"
+logical_id = "42f31e33-ecbe-4f1b-a75c-ab2e4e72e9eb"
 
 [[outputs]]
 id = "5Vl_JxDPn_U0F4xsWO1Mt"
 uri = "file://attached_assets/TerryFlood_Partnership_Resume_ACCURATE.docx"
 type = "word_document"
 title = "Terry D. Flood — Partnership Resume (Accurate Platform Capabilities)"
+logical_id = "24c00c0e-33fe-43af-b6ab-e9176c301890"
 
 [[outputs]]
 id = "TjY3hXhQlnOaTvXcMB6PT"
 uri = "file://attached_assets/LifeTransitions-ALIGN-Prospectus.pdf"
 type = "pdf"
 title = "ThriveUp Academy | TCAF — Prospectus v4 (Investor-Grade)"
+logical_id = "57f8e518-9822-4ac3-b1c1-f13e60d9d793"
 
 [[outputs]]
 id = "fjteGnt682_6h-jrLn0j6"
 uri = "file://attached_assets/tcaf-hbcu-one-pager.pdf"
 type = "pdf"
 title = "ThriveUp Academy — HBCU One Pager"
+logical_id = "2854bb12-81cc-459d-add9-b0757a085212"
 
 [[outputs]]
 id = "_CBM5wWyjm_Ub77m0ahey"
@@ -756,6 +874,8 @@ uri = "file://ecs-thrive-briefing.html"
 type = "text"
 title = "ECS of NC — ThriveUp Platform Briefing"
 description = "Full capability briefing for Karen Flood and ECS of NC — every data feed, AI tool, and integration available for their five-county NC service area."
+logical_id = "da356ee6-2047-459c-8914-0bd31e50f831"
+content_type = "text/html"
 
 [[outputs]]
 id = "qy2fhlGREtY2xkzltcJyN"
@@ -763,6 +883,7 @@ uri = "file://attached_assets/Partner-Dashboard-Implementation-Bundle.txt"
 type = "text"
 title = "Partner Dashboard Implementation Bundle"
 description = "One upload-ready file containing the current dashboard source, public share view, landing page, server routes, schema/routing integration instructions, E2E check, and explicit security gaps to reconcile before ECS merges it."
+logical_id = "691c2c51-4fc2-4b47-9b26-29b188922555"
 
 [[outputs]]
 id = "UhiLS6rm1eUSuWtzBqFiy"
@@ -770,6 +891,7 @@ uri = "file://docs/order-of-operations-doctrine.md"
 type = "text"
 title = "Five-Phase Order of Operations Doctrine"
 description = "Portable, agnostic doctrine: mandatory environmental-scan + backward-planning/stakeholder-red-team front end before any build, plus the Accuracy & Continuous-Learning Ledger for measuring whether outcomes actually improve over time. Ready to apply to other systems."
+logical_id = "0b8d5063-0d32-4dee-8abe-2d102681e0cf"
 
 [[outputs]]
 id = "cULQegnETvEwBhMxQ7LdY"
@@ -777,6 +899,7 @@ uri = "file://thriveup-full-code-export.md"
 type = "text"
 title = "ThriveUp Full Code Export"
 description = "A single Markdown download containing readable project source, configuration, schema, migrations, scripts, documentation, and public assets. Secrets, dependencies, private files, binaries, logs, and build artifacts are excluded."
+logical_id = "2863a31e-da63-4295-b358-f30d522ce016"
 
 [[outputs]]
 id = "td6kEnFU96vu2bsAWde4N"
@@ -784,6 +907,7 @@ uri = "file://thriveup-codebase.zip"
 type = "unspecified"
 title = "ThriveUp Runnable Repository ZIP"
 description = "Verified standard ZIP archive containing the runnable project source tree. ZIP signature and extraction integrity were checked locally; SHA-256: 912e9242aa2795013324bc82c76a1183c380cc9c09673d2be4ebcf1de3198359."
+logical_id = "05ef7ee6-a276-4a05-bf28-6175f92668f2"
 
 [[outputs]]
 id = "oY-6SIEuNWd9X-AK6yfUx"
@@ -791,6 +915,7 @@ uri = "file://reports/historical-chw-referral-identity-review-2026-08-24.md"
 type = "text"
 title = "Historical CHW/Referral Identity Review"
 description = "Provisional read-only report. Development database had zero matching ownership-0 or missing-ownership records; staging is not configured, so no migration was applied."
+logical_id = "97d5def5-fc7f-4768-a301-7f651e69cbd0"
 
 [[outputs]]
 id = "4U12Kd0C4UpeOTeYDKAsz"
@@ -798,6 +923,7 @@ uri = "file://research/notes.md"
 type = "text"
 title = "Research Notes: Austin Community Bridge Opportunity"
 description = "Research plan, evidence log, and open questions for the Austin stakeholder assessment."
+logical_id = "cfc945d8-3dbb-453e-8dd1-7ee513c259f5"
 
 [[outputs]]
 id = "iQnQoFgHw1MkPy51vt7t0"
@@ -805,3 +931,18 @@ uri = "file://docs/capability-statement/TCAF-Community-Bridge-Agency-One-Pager.m
 type = "text"
 title = "TCAF Community Bridge — Agency & Entity One-Pager"
 description = "A concise, source-conscious brief covering the platform story, stakeholder value, safeguards, scope boundaries, and accurate 50-state / 52-jurisdiction language."
+logical_id = "a0fe4e1c-4d1a-475f-aa81-fd352c8cd20b"
+
+[[outputs]]
+id = "eH6ojj6JQASExcP-VW4uq"
+uri = "file://public/platform-overview.html"
+type = "text"
+title = "TCAF Platform Overview — One-Pager"
+description = "Thorough one-page overview of all TCAF/ISS LLC service platforms, AI stack, stakeholder model, and org identity. Print or Save as PDF using the button at the top."
+logical_id = "940b03d9-5bac-41e1-abab-40da3e27066c"
+content_hash = "sha256:d9d6d2e4877d109bea399d4541ebbc17843fbb865c1ac432e9f3daa75a1f232e"
+size = 27578
+mtime_ms = 1788298601424
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/940b03d9-5bac-41e1-abab-40da3e27066c/18c38dbe-9212-43c0-aac9-094e1fffcf6d"
+storage_version_token = "1788298648743070"
+content_type = "text/html"

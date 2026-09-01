@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TCAF / ISS LLC — Platform Overview</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink: #0f172a;
+      --mid: #475569;
+      --light: #94a3b8;
+      --rule: #e2e8f0;
+      --page: #ffffff;
+      --accent: #1d4ed8;
+      --accent-light: #eff6ff;
+
+      --health: #be123c;
+      --edu:    #b45309;
+      --vet:    #1d4ed8;
+      --safe:   #047857;
+      --comm:   #6d28d9;
+      --fin:    #b45309;
+    }
+
+    @media print {
+      body { font-size: 9pt; }
+      .no-print { display: none !important; }
+      .page { box-shadow: none !important; }
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 13px;
+      line-height: 1.55;
+      color: var(--ink);
+      background: #f1f5f9;
+      padding: 24px 16px;
+    }
+
+    .page {
+      max-width: 960px;
+      margin: 0 auto;
+      background: var(--page);
+      border-radius: 12px;
+      box-shadow: 0 4px 24px rgba(0,0,0,.10);
+      overflow: hidden;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a5f 55%, #1d4ed8 100%);
+      color: #fff;
+      padding: 44px 48px 36px;
+    }
+    header .org-line {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      opacity: .65;
+      margin-bottom: 8px;
+    }
+    header h1 {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -.4px;
+      line-height: 1.15;
+      margin-bottom: 10px;
+    }
+    header h1 span { color: #93c5fd; }
+    header .tagline {
+      font-size: 13.5px;
+      opacity: .82;
+      max-width: 620px;
+      line-height: 1.6;
+    }
+    .stat-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      margin-top: 28px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(255,255,255,.18);
+    }
+    .stat {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .stat-num {
+      font-size: 22px;
+      font-weight: 800;
+      color: #93c5fd;
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      opacity: .65;
+    }
+
+    /* ── MISSION STRIP ──────────────────────────────────────── */
+    .mission {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      padding: 18px 48px;
+      font-size: 12.5px;
+      color: #1e3a6e;
+      line-height: 1.65;
+    }
+    .mission strong { font-weight: 700; }
+
+    /* ── BODY ───────────────────────────────────────────────── */
+    .body { padding: 36px 48px 48px; }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 9.5px;
+      font-weight: 700;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      color: var(--light);
+      margin-bottom: 20px;
+    }
+    .section-label::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--rule);
+    }
+
+    /* ── DOMAIN GROUP ───────────────────────────────────────── */
+    .domain { margin-bottom: 30px; }
+    .domain-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    .domain-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .domain-title {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      color: var(--mid);
+    }
+    .domain-count {
+      font-size: 10px;
+      background: var(--rule);
+      color: var(--mid);
+      border-radius: 20px;
+      padding: 1px 8px;
+      font-weight: 600;
+    }
+
+    .platform-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 10px;
+    }
+    .platform-card {
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      transition: border-color .15s;
+    }
+    .platform-card:hover { border-color: var(--accent); }
+    .platform-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+    }
+    .platform-name a {
+      color: inherit;
+      text-decoration: none;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+    .platform-name a:hover { text-decoration: underline; }
+    .platform-desc {
+      font-size: 11.5px;
+      color: var(--mid);
+      line-height: 1.55;
+    }
+    .platform-url {
+      font-size: 10px;
+      color: var(--light);
+      font-family: monospace;
+      margin-top: 2px;
+    }
+
+    /* ── DOMAIN COLORS ─────────────────────────────────────── */
+    .dot-health { background: var(--health); }
+    .dot-edu    { background: var(--edu); }
+    .dot-vet    { background: var(--vet); }
+    .dot-safe   { background: var(--safe); }
+    .dot-comm   { background: var(--comm); }
+    .dot-fin    { background: var(--fin); }
+
+    /* ── WHAT TCAF PROVIDES ─────────────────────────────────── */
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .pillar {
+      background: #f8fafc;
+      border: 1px solid var(--rule);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+    .pillar-icon { font-size: 18px; margin-bottom: 6px; }
+    .pillar-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+    .pillar-desc {
+      font-size: 11px;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+
+    /* ── AI STACK ───────────────────────────────────────────── */
+    .ai-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .ai-chip {
+      background: #0f172a;
+      color: #93c5fd;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: monospace;
+    }
+
+    /* ── STAKEHOLDER GRID ───────────────────────────────────── */
+    .stakeholder-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .stakeholder {
+      border-left: 3px solid var(--accent);
+      padding: 10px 14px;
+      background: #f8fafc;
+      border-radius: 0 8px 8px 0;
+    }
+    .stakeholder-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+      margin-bottom: 3px;
+    }
+    .stakeholder-desc {
+      font-size: 11px;
+      color: var(--mid);
+      line-height: 1.5;
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────────── */
+    footer {
+      background: #0f172a;
+      color: rgba(255,255,255,.55);
+      padding: 24px 48px;
+      font-size: 11px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 40px;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer strong { color: rgba(255,255,255,.85); }
+    footer a { color: #93c5fd; text-decoration: none; }
+
+    .print-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 auto 20px;
+      padding: 8px 20px;
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      letter-spacing: .02em;
+    }
+    .print-btn:hover { background: #1e40af; }
+    .btn-row { text-align: center; }
+  </style>
+</head>
+<body>
+
+<div class="btn-row no-print">
+  <button class="print-btn" onclick="window.print()">⬇ Print / Save as PDF</button>
+</div>
+
+<div class="page">
+
+  <!-- ── HEADER ───────────────────────────────────────────── -->
+  <header>
+    <div class="org-line">The Collaborative Advocate Foundation (TCAF) · ISS LLC · EIN 41-3618003 · CAGE 9VKK3</div>
+    <h1>One infrastructure.<br><span>Fifteen platforms. Every community.</span></h1>
+    <p class="tagline">
+      TCAF is the nonprofit for nonprofits, residents, and communities to thrive.
+      We bring the tools, the data, and the funding knowledge — so organizations and families can execute and do the work.
+    </p>
+    <div class="stat-bar">
+      <div class="stat">
+        <span class="stat-num">15+</span>
+        <span class="stat-label">Service Platforms</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">107</span>
+        <span class="stat-label">Languages (89 spoken · 18 signed)</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">4</span>
+        <span class="stat-label">AI Engines</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">50</span>
+        <span class="stat-label">States — One Architecture</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── MISSION STRIP ─────────────────────────────────────── -->
+  <div class="mission">
+    <strong>IGN — Initial Guidance &amp; Navigation.</strong>
+    TCAF meets people and organizations where they are, at their own pace and level of readiness — using data-driven planning, AI, and evidence-based tools to guide them toward their destination and redirect when they drift off course. We don't stop at needs assessment. We do the whole cycle: Research → Planning → Preparation → Execution → Continuous Assessment → Implementation → Scale Up → Scale Out.
+  </div>
+
+  <!-- ── BODY ─────────────────────────────────────────────── -->
+  <div class="body">
+
+    <!-- PLATFORMS -->
+    <div class="section-label">Service Platforms</div>
+
+    <!-- HEALTH -->
+    <div class="domain">
+      <div class="domain-header">
+        <div class="domain-dot dot-health"></div>
+        <div class="domain-title">Health Equity &amp; Wellness</div>
+        <div class="domain-count">6 platforms</div>
+      </div>
+      <div class="platform-grid">
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Whole-Person Health Ecosystem
+            <a href="https://mentalwellnesssupport.net" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Clinical screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, crisis tools, and 20,670+ resources across 2,091 community groups. Mental wellness, safety planning, and practical support that recognizes health is connected to every part of life.</div>
+          <div class="platform-url">mentalwellnesssupport.net</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Sankofa Health Network
+            <a href="https://herhealthmatters2.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Health and wellness gateway connecting people to culturally responsive behavioral-health and community care resources. Rooted in African-centered healing principles and community continuity.</div>
+          <div class="platform-url">herhealthmatters2.com</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            HerHealth Matters
+            <a href="https://herhealthmatters2.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Culturally responsive feminine health education, preventive screening navigation, hormonal wellness, reproductive health, and connection to appropriate care providers.</div>
+          <div class="platform-url">herhealthmatters2.com</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Maternal Health Network
+            <a href="https://herhealthmatters2.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Prenatal and postpartum navigation, maternal mental wellness support, doula and CHW matching, and family-centered planning for expectant and new mothers.</div>
+          <div class="platform-url">herhealthmatters2.com</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            MaleHealth Matters
+            <a href="https://malehealthmatters2.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Preventive health information, cardiovascular wellness, screening navigation, behavioral-health support, and peer mentoring and connection for men and their families.</div>
+          <div class="platform-url">malehealthmatters2.com</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            SafeCogniCare
+            <a href="https://safecognicare.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, crisis decision trees, and longitudinal care coordination for individuals with cognitive complexity.</div>
+          <div class="platform-url">safecognicare.com</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- EDUCATION -->
+    <div class="domain">
+      <div class="domain-header">
+        <div class="domain-dot dot-edu"></div>
+        <div class="domain-title">Education &amp; Youth</div>
+        <div class="domain-count">3 platforms</div>
+      </div>
+      <div class="platform-grid">
+
+        <div class="platform-card">
+          <div class="platform-name">
+            ISSS — Integrated Supports for Thriving Youth
+            <a href="https://implementationineducatio.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">MTSS engine with Thrive Scores, early warning indicators, multi-stakeholder coordination, and data-driven student support at scale. Connects teachers, families, and service providers in one shared view.</div>
+          <div class="platform-url">implementationineducatio.com</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Perfectly Different
+            <a href="https://neurodifferentassistant.app" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Neurodiversity-affirming support for autism, ADHD, and AuDHD — IEP/504 plan builder, executive function coaching, sensory tools, and family navigation designed around the learner's strengths.</div>
+          <div class="platform-url">neurodifferentassistant.app</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Better Science Lab / RPLICE
+            <a href="https://www.bettersciencelab.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Implementation science in action — CFIR, RE-AIM, and EPIS frameworks, a curated evidence-based practice registry of 49+ studies, and research translation tools that turn peer-reviewed findings into community programs.</div>
+          <div class="platform-url">www.bettersciencelab.com</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- VETERANS -->
+    <div class="domain">
+      <div class="domain-header">
+        <div class="domain-dot dot-vet"></div>
+        <div class="domain-title">Veterans &amp; Workforce</div>
+        <div class="domain-count">2 platforms</div>
+      </div>
+      <div class="platform-grid">
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Mission Transition (M2C)
+            <a href="https://vetmissiontransition.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Military-to-civilian bridge for veterans and families — MOS translation, benefits navigation, identity support, transition planning, and community connection. Targets the critical first 12-month risk window post-separation.</div>
+          <div class="platform-url">vetmissiontransition.com</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Minority Center of Excellence
+            <a href="https://minoritycenterofexcellence.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">656,794 SAM.gov records, 14 AI-powered procurement tools, dual-AI proposal review, and a certification wizard for 8(a), HUBZone, WOSB, and SDVOSB designations. Built for minority-owned and disadvantaged businesses.</div>
+          <div class="platform-url">minoritycenterofexcellence.com</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SAFETY -->
+    <div class="domain">
+      <div class="domain-header">
+        <div class="domain-dot dot-safe"></div>
+        <div class="domain-title">Safety &amp; Compliance</div>
+        <div class="domain-count">2 platforms</div>
+      </div>
+      <div class="platform-grid">
+
+        <div class="platform-card">
+          <div class="platform-name">
+            SafeReport
+            <a href="https://safereports.net" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">50-state mandatory reporter system with a 7-stage incident lifecycle, tamper-evident audit trails, and court-admissible evidence packaging. Purpose-built for child welfare, elder care, and institutional safety compliance.</div>
+          <div class="platform-url">safereports.net</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            Talk Your Talk
+            <a href="https://talkyourtalk.net" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Dialect- and sign-aware communication platform supporting 89 spoken languages and 18 sign languages with real-time speech-to-text and culturally responsive translation. Ensures no one is excluded due to language.</div>
+          <div class="platform-url">talkyourtalk.net</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- COMMUNITY -->
+    <div class="domain">
+      <div class="domain-header">
+        <div class="domain-dot dot-comm"></div>
+        <div class="domain-title">Community &amp; Resources</div>
+        <div class="domain-count">2 platforms</div>
+      </div>
+      <div class="platform-grid">
+
+        <div class="platform-card">
+          <div class="platform-name">
+            LifeBridge
+            <a href="https://lifetransitionsaid.org" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Virtual 211 available 24/7 — resource navigation for housing, food, healthcare, crisis support, and life event guides. Draws from 20,670+ verified resources across all 50 states with plain-language guidance for every major life transition.</div>
+          <div class="platform-url">lifetransitionsaid.org</div>
+        </div>
+
+        <div class="platform-card">
+          <div class="platform-name">
+            ThriveUp Academy
+            <a href="https://thriveupacademy.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">The anchor platform — AI-powered workforce readiness curriculum, career pathways, trade simulations, 4-engine AI, community banking, and the full TCAF infrastructure for learning and community development.</div>
+          <div class="platform-url">thriveupacademy.com</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- FINANCE -->
+    <div class="domain">
+      <div class="domain-header">
+        <div class="domain-dot dot-fin"></div>
+        <div class="domain-title">Finance &amp; Commerce</div>
+        <div class="domain-count">1 platform</div>
+      </div>
+      <div class="platform-grid">
+
+        <div class="platform-card">
+          <div class="platform-name">
+            TradeSparkFinance
+            <a href="https://tradesparkfinance.com" target="_blank">↗ Visit</a>
+          </div>
+          <div class="platform-desc">Financial intelligence for community-serving traders and small investors — market access, financial education, and tools built for people who have historically been locked out of financial markets and wealth-building systems.</div>
+          <div class="platform-url">tradesparkfinance.com</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- WHAT TCAF PROVIDES -->
+    <div class="section-label" style="margin-top:36px;">What TCAF Provides</div>
+    <div class="pillars">
+      <div class="pillar">
+        <div class="pillar-icon">🛠</div>
+        <div class="pillar-title">Tools &amp; Technology</div>
+        <div class="pillar-desc">Ready-to-deploy platforms and the ability to build what doesn't yet exist for a community's specific need.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">📊</div>
+        <div class="pillar-title">Data → Information</div>
+        <div class="pillar-desc">Raw data transformed into actionable intelligence — Census, SDOH, grants, and real-time community signals — meeting people where they are.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">💰</div>
+        <div class="pillar-title">Funding Intelligence</div>
+        <div class="pillar-desc">Live funding opportunity engine, AI fit-scored to partner profiles — tracking opportunities nationwide and aligning them to the community partners we serve.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🔬</div>
+        <div class="pillar-title">Research &amp; Evidence</div>
+        <div class="pillar-desc">Implementation science applied at every level — CFIR, RE-AIM, EPIS — so every tool and intervention is grounded in what actually works.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">🎓</div>
+        <div class="pillar-title">Teaching to Fish</div>
+        <div class="pillar-desc">We give tools AND teach how to use them. Capacity-building, workforce readiness, and continuous education are built into every platform.</div>
+      </div>
+      <div class="pillar">
+        <div class="pillar-icon">📣</div>
+        <div class="pillar-title">Policy &amp; Advocacy</div>
+        <div class="pillar-desc">Informing and influencing policymakers and stakeholders with data-backed community impact reports, equity loss analysis, and systemic-change evidence.</div>
+      </div>
+    </div>
+
+    <!-- AI STACK -->
+    <div class="section-label" style="margin-top:36px;">AI Engine Stack</div>
+    <p style="font-size:12px;color:var(--mid);margin-bottom:12px;">Four production AI engines — routed intelligently by task, audience, and context — with ethical preamble applied to every call.</p>
+    <div class="ai-stack">
+      <div class="ai-chip">Claude (Anthropic)</div>
+      <div class="ai-chip">GPT-4o-mini (OpenAI)</div>
+      <div class="ai-chip">Gemini 2.5 Flash (Google)</div>
+      <div class="ai-chip">DeepSeek R1</div>
+    </div>
+    <p style="font-size:11px;color:var(--light);margin-top:10px;">Delivered via OpenRouter with automatic model rotation. All AI responses are wrapped in TCAF's Ethical-EI Preamble — 8 principles covering equity, honesty, anti-fabrication, trauma-informed language, IGN mindset, and writing-mode awareness.</p>
+
+    <!-- STAKEHOLDERS -->
+    <div class="section-label" style="margin-top:36px;">Who We Serve — All Four, All Equal</div>
+    <div class="stakeholder-grid">
+      <div class="stakeholder">
+        <div class="stakeholder-title">Community Members &amp; Residents</div>
+        <div class="stakeholder-desc">Tools, benefits navigation, safety planning, and readiness support — in 107 languages, at their own pace and level of comfort.</div>
+      </div>
+      <div class="stakeholder">
+        <div class="stakeholder-title">Nonprofits &amp; Community Organizations</div>
+        <div class="stakeholder-desc">TCAF is their backbone — providing infrastructure, capacity-building, funding intelligence, evaluation, and research translation so they can focus on mission.</div>
+      </div>
+      <div class="stakeholder">
+        <div class="stakeholder-title">Funders &amp; Grant Reviewers</div>
+        <div class="stakeholder-desc">Data, outcomes, evidence-based program design, and accountability systems that make evaluation straightforward and impact visible.</div>
+      </div>
+      <div class="stakeholder">
+        <div class="stakeholder-title">Policymakers &amp; Stakeholders</div>
+        <div class="stakeholder-desc">Research, advocacy data, equity-loss analysis, and systemic-change evidence that makes the cost of inaction impossible to ignore.</div>
+      </div>
+    </div>
+
+    <!-- IDENTITY -->
+    <div class="section-label" style="margin-top:36px;">Multi-Disciplinary Identity</div>
+    <p style="font-size:12px;color:var(--mid);line-height:1.7;">
+      TCAF holds all lenses simultaneously — none sacrificed:
+      <strong>Implementation science + behavioral science</strong> ·
+      <strong>Social work / CHW empathy model</strong> ·
+      <strong>HR &amp; policy expertise</strong> ·
+      <strong>Computer engineering</strong> ·
+      <strong>Pedagogy of an educator</strong> ·
+      <strong>Legal system &amp; criminal justice</strong> ·
+      <strong>Patience of a parent</strong> ·
+      <strong>MBA + community development innovation</strong> across urban, metro, and suburban contexts.
+    </p>
+
+  </div><!-- /body -->
+
+  <!-- ── FOOTER ─────────────────────────────────────────────── -->
+  <footer>
+    <div>
+      <strong>The Collaborative Advocate Foundation (TCAF)</strong><br>
+      EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · SAM active<br>
+      17912 Stefano Drive, Pflugerville, TX 78660
+    </div>
+    <div>
+      <strong>ISS LLC</strong> (SBIR/STTR/GSA)<br>
+      UEI C7YDV3P8EHL7 · CAGE 9VKK3 · SAM active<br>
+      SDVOSB eligible
+    </div>
+    <div>
+      <strong>Dr. Terry D. Flood, Sr.</strong> — President, TCAF<br>
+      DHA/DBA · Active US Secret Clearance · Medically retired veteran<br>
+      <a href="mailto:terryflood@thrivingcommunitiesforall.com">terryflood@thrivingcommunitiesforall.com</a>
+    </div>
+    <div style="font-size:10px;opacity:.45;align-self:flex-end;">
+      Generated September 2026 · For partner &amp; funder distribution
+    </div>
+  </footer>
+
+</div><!-- /page -->
+</body>
+</html>
