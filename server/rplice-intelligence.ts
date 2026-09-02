@@ -49,7 +49,8 @@ import {
 } from "@shared/schema";
 import { desc, eq } from "drizzle-orm";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
-import { fetchZctaData } from "./neighborhood-routes";
+import { fetchZctaData, stateAbbrevFromZip } from "./neighborhood-routes";
+import { getCivicSignalRAGContextAsync } from "./civic-signal-connector";
 
 const RPLICE_BASE = "https://www.bettersciencelab.com";
 
@@ -947,14 +948,30 @@ export async function buildCommunityAIContext(params: {
   const { zip, stateFips, countyFips, crisisDomains = [], regionName } = params;
 
   try {
-    const [rplicePkg, censusData] = await Promise.all([
+    const state = zip ? stateAbbrevFromZip(zip) : undefined;
+    const civicTopic = crisisDomains[0] || "general";
+    const [rplicePkg, censusData, civicSignalContext] = await Promise.all([
       buildRpliceIntelligencePackage({
         crisisDomains,
         regionName: regionName || zip || "community",
         stateFips,
         countyFips,
-      }).catch(() => null),
-      zip ? fetchZctaData(zip).catch(() => null) : Promise.resolve(null),
+      }).catch((err) => {
+        console.error("[CommunityContext] RPLICE package unavailable:", err instanceof Error ? err.message : String(err));
+        return null;
+      }),
+      zip ? fetchZctaData(zip).catch((err) => {
+        console.error("[CommunityContext] Census ZCTA data unavailable:", err instanceof Error ? err.message : String(err));
+        return null;
+      }) : Promise.resolve(null),
+      getCivicSignalRAGContextAsync({
+        topic: civicTopic,
+        state,
+        pullLive: Boolean(zip || stateFips || regionName),
+      }).catch((err) => {
+        console.error("[CommunityContext] Civic Signal context failed:", err instanceof Error ? err.message : String(err));
+        return "";
+      }),
     ]);
 
     const lines: string[] = [];
@@ -998,6 +1015,19 @@ export async function buildCommunityAIContext(params: {
     // ── RPLICE IS frameworks + grant profiles + implementation science ─────────
     if (rplicePkg?.aiContextBlock) {
       lines.push("\n" + rplicePkg.aiContextBlock);
+    }
+
+    // ── Community data-led story and action orchestra ─────────────────────────
+    lines.push(
+      "\n## COMMUNITY DATA-LED STORY + ACTION ORCHESTRA",
+      "Sequence the response as: place → lived experience → evidence → meaning → community-defined priority → next action → measure and learn.",
+      "Keep evidence classes distinct: Observed (source data), Derived (calculated interpretation), Modeled (scenario or forecast), Implemented (recorded action or outcome), and Partner lesson (Civic Signal).",
+      "Do not invent a resident voice, outcome, program capacity, or partner agreement. Say what is known, what is inferred, what is modeled, and what still needs community confirmation.",
+      "When the user is asking for a plan, return practical actions with an owner, timeframe, evidence basis, community safeguard, and success measure. The plan supports human decisions; it does not make them.",
+    );
+
+    if (civicSignalContext) {
+      lines.push("\n" + civicSignalContext);
     }
 
     return lines.join("\n");

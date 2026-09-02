@@ -9,7 +9,7 @@
  */
 import { Router } from "express";
 import {
-  getCivicSignalLessons,
+  getCivicSignalLessonsAsync,
   fetchCivicSignalAdaptations,
   pushEquityLossToCivicSignal,
   checkCivicSignalConnection,
@@ -33,11 +33,16 @@ router.get("/status", async (_req, res) => {
 });
 
 // GET /api/civic-signal/lessons — lessons already received via the webhook.
-router.get("/lessons", (req, res) => {
+router.get("/lessons", async (req, res) => {
   const topic = typeof req.query.topic === "string" ? req.query.topic : undefined;
   const state = typeof req.query.state === "string" ? req.query.state : undefined;
-  const lessons = getCivicSignalLessons({ topic, state, limit: 25 });
-  res.json({ lessons });
+  try {
+    const lessons = await getCivicSignalLessonsAsync({ topic, state, limit: 25 });
+    res.json({ lessons });
+  } catch (e) {
+    console.error("[civic-signal] durable lessons read failed:", e);
+    res.status(502).json({ error: "Civic Signal lessons are temporarily unavailable." });
+  }
 });
 
 // GET /api/civic-signal/adaptations?topic=&state= — live pull, falls back to cache on failure (never fabricates).

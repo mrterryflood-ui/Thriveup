@@ -72,7 +72,8 @@ export async function warmCommunityContext(zip: string): Promise<string> {
       inFlight.delete(zip);
       return ctx;
     })
-    .catch(() => {
+    .catch((err) => {
+      console.error("[CommunityContext] Context warm failed:", err instanceof Error ? err.message : String(err));
       inFlight.delete(zip);
       return "";
     });
@@ -129,10 +130,22 @@ export function communityContextMiddleware() {
       return;
     }
 
-    // Cold path: fire warm in background, don't block this request.
-    // The next request for the same ZIP will hit the cache.
-    warmCommunityContext(zip).catch(() => {});
-    next();
+    // Cold path: wait for the bounded source fan-in so the interaction that
+    // supplied the geography receives the same evidence-aware context as the
+    // next request. This is the consistency path; in-flight deduplication and
+    // the 30-minute cache keep subsequent interactions fast.
+    void warmCommunityContext(zip)
+      .then((context) => {
+        if (context) {
+          runWithCommunityContext(context, () => next());
+        } else {
+          next();
+        }
+      })
+      .catch((err) => {
+        console.error("[CommunityContext] Cold-path context unavailable:", err instanceof Error ? err.message : String(err));
+        next();
+      });
   };
 }
 

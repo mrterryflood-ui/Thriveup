@@ -14,6 +14,10 @@
  * ----------------------------------------------------------------------------
  */
 
+import { createHash, randomUUID } from "node:crypto";
+import { desc, eq } from "drizzle-orm";
+import { civicSignalLessons } from "@shared/schema";
+import { db } from "./storage";
 import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, hasBlockingRejection, type InboundSchema, type CorrectionNote } from "./inbound-verification";
 
 const CIVIC_SIGNAL_BASE_URL = process.env.CIVIC_SIGNAL_BASE_URL || "https://power2thepeople.net";
@@ -35,7 +39,7 @@ const CIVIC_SIGNAL_LESSON_SCHEMA: InboundSchema = {
   roiImplication: { type: "string", maxLength: 500 },
 };
 
-// ── In-memory store for incoming Civic Signal lessons ─────────────────────
+// ── Durable store plus bounded hot cache for incoming Civic Signal lessons ──
 const incomingLessons: CivicSignalLesson[] = [];
 
 export interface CivicSignalLesson {
@@ -48,6 +52,85 @@ export interface CivicSignalLesson {
   receivedAt: string;
   programIds?: string[];
   roiImplication?: string;
+  contentHash: string;
+}
+
+type VerifiedLessonFields = Omit<CivicSignalLesson, "id" | "receivedAt" | "contentHash">;
+
+function canonicalLessonFields(fields: VerifiedLessonFields): string {
+  return JSON.stringify({
+    lesson: fields.lesson,
+    topic: fields.topic,
+    state: fields.state,
+    source: fields.source,
+    confidence: fields.confidence,
+    programIds: fields.programIds ?? null,
+    roiImplication: fields.roiImplication ?? null,
+  });
+}
+
+function lessonContentHash(fields: VerifiedLessonFields): string {
+  return createHash("sha256").update(canonicalLessonFields(fields)).digest("hex");
+}
+
+function toLessonFields(payload: Partial<CivicSignalLesson>): VerifiedLessonFields {
+  return {
+    lesson: String(payload.lesson ?? ""),
+    topic: String(payload.topic || "general").trim().slice(0, 100) || "general",
+    state: String(payload.state || "US").trim().toUpperCase().slice(0, 2) || "US",
+    source: String(payload.source || "civic_signal").trim().slice(0, 100) || "civic_signal",
+    confidence: String(payload.confidence || "moderate"),
+    programIds: Array.isArray(payload.programIds) ? payload.programIds : undefined,
+    roiImplication: payload.roiImplication || undefined,
+  };
+}
+
+function rowToLesson(row: typeof civicSignalLessons.$inferSelect): CivicSignalLesson {
+  return {
+    id: row.id,
+    lesson: row.lesson,
+    topic: row.topic,
+    state: row.state,
+    source: row.source,
+    confidence: row.confidence,
+    receivedAt: (row.receivedAt ?? new Date()).toISOString(),
+    programIds: row.programIds ?? undefined,
+    roiImplication: row.roiImplication ?? undefined,
+    contentHash: row.contentHash,
+  };
+}
+
+function rememberLesson(lesson: CivicSignalLesson): void {
+  const existingIndex = incomingLessons.findIndex((item) => item.contentHash === lesson.contentHash);
+  if (existingIndex >= 0) incomingLessons.splice(existingIndex, 1);
+  incomingLessons.push(lesson);
+  if (incomingLessons.length > 100) incomingLessons.splice(0, incomingLessons.length - 100);
+}
+
+async function persistVerifiedLesson(fields: VerifiedLessonFields): Promise<{ lesson: CivicSignalLesson; inserted: boolean }> {
+  const contentHash = lessonContentHash(fields);
+  const insertedRows = await db.insert(civicSignalLessons).values({
+    id: randomUUID(),
+    ...fields,
+    contentHash,
+    receivedAt: new Date(),
+  }).onConflictDoNothing({ target: civicSignalLessons.contentHash }).returning();
+
+  if (insertedRows[0]) {
+    const lesson = rowToLesson(insertedRows[0]);
+    rememberLesson(lesson);
+    return { lesson, inserted: true };
+  }
+
+  const [existing] = await db.select().from(civicSignalLessons)
+    .where(eq(civicSignalLessons.contentHash, contentHash))
+    .limit(1);
+  if (!existing) {
+    throw new Error("Civic Signal lesson conflict did not return the existing row");
+  }
+  const lesson = rowToLesson(existing);
+  rememberLesson(lesson);
+  return { lesson, inserted: false };
 }
 
 function outboundHeaders(): Record<string, string> {
@@ -82,24 +165,11 @@ export async function receiveCivicSignalLesson(
     throw Object.assign(new Error("Payload rejected: " + corrections.map(c => `${c.field}: ${c.problem}`).join("; ")), { corrections });
   }
 
-  const lesson: CivicSignalLesson = {
-    id: `cs_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-    lesson: clean.lesson!,
-    topic: clean.topic || "general",
-    state: clean.state || "US",
-    source: clean.source || "civic_signal",
-    confidence: clean.confidence || "moderate",
-    receivedAt: new Date().toISOString(),
-    programIds: clean.programIds,
-    roiImplication: clean.roiImplication,
-  };
-
-  incomingLessons.push(lesson);
-  if (incomingLessons.length > 100) incomingLessons.splice(0, incomingLessons.length - 100);
+  const { lesson, inserted } = await persistVerifiedLesson(toLessonFields(clean));
 
   console.log(`[CivicSignal] Lesson received: topic=${lesson.topic} state=${lesson.state} confidence=${lesson.confidence}`);
   const corrections = rejectionsToCorrectionNote(rejections);
-  return { stored: true, lessonId: lesson.id, ...(corrections.length ? { corrections } : {}) };
+  return { stored: inserted, lessonId: lesson.id, ...(corrections.length ? { corrections } : {}) };
 }
 
 // ── Retrieve stored lessons ────────────────────────────────────────────────
@@ -121,12 +191,37 @@ export function getCivicSignalLessons(opts?: {
   return results.slice(0, opts?.limit || 10);
 }
 
+/** Durable source of truth for context and operator-facing lesson reads. */
+export async function getCivicSignalLessonsAsync(opts?: {
+  topic?: string;
+  state?: string;
+  limit?: number;
+}): Promise<CivicSignalLesson[]> {
+  const rows = await db.select().from(civicSignalLessons)
+    .orderBy(desc(civicSignalLessons.receivedAt))
+    .limit(100);
+  const topic = opts?.topic?.toLowerCase();
+  const state = opts?.state?.toUpperCase();
+  const lessons = rows.map(rowToLesson).filter((lesson) => {
+    const topicMatches = !topic || lesson.topic.toLowerCase().includes(topic);
+    const stateMatches = !state || lesson.state === "US" || lesson.state === state;
+    return topicMatches && stateMatches;
+  }).slice(0, opts?.limit || 10);
+  lessons.forEach(rememberLesson);
+  return lessons;
+}
+
 // ── Format lessons as RAG context paragraph ───────────────────────────────
-export function getCivicSignalRAGContext(topic?: string, state?: string): string {
-  const lessons = getCivicSignalLessons({ topic, state, limit: 5 });
+export function formatCivicSignalRAGContext(lessons: CivicSignalLesson[], sourceNote?: string): string {
   if (!lessons.length) return "";
 
-  const lines = ["## Civic Signal Policy Adaptation Intelligence\n"];
+  const lines = [
+    "## CIVIC SIGNAL — PARTNER POLICY ADAPTATION INTELLIGENCE",
+    "Evidence class: partner-supplied adaptation lesson. Do not restate as a local observed measure.",
+    sourceNote ? `Availability: ${sourceNote}` : "",
+    "Use these lessons to shape questions, options, and implementation choices; preserve the source and confidence label.",
+    "",
+  ];
   for (const l of lessons) {
     lines.push(`**${l.topic.toUpperCase()} (${l.state}) — ${l.confidence} confidence**`);
     lines.push(l.lesson);
@@ -135,6 +230,53 @@ export function getCivicSignalRAGContext(topic?: string, state?: string): string
     lines.push("");
   }
   return lines.join("\n");
+}
+
+export async function getCivicSignalRAGContextAsync(opts?: {
+  topic?: string;
+  state?: string;
+  pullLive?: boolean;
+}): Promise<string> {
+  let availability = "durable verified lessons";
+  if (opts?.pullLive && process.env.POWER2PEOPLE_ISSUED_KEY) {
+    const pulled = await fetchCivicSignalAdaptations({
+      topic: opts.topic || "general",
+      state: opts.state,
+    });
+    if (pulled.source === "civic_signal_live") {
+      availability = "live Civic Signal pull plus durable verified lessons";
+    } else if (pulled.source === "civic_signal_cached_fallback") {
+      availability = "durable cached lessons; live Civic Signal pull unavailable";
+    } else {
+      availability = "Civic Signal unavailable; no partner lesson was invented";
+    }
+  }
+
+  try {
+    const lessons = await getCivicSignalLessonsAsync({
+      topic: opts?.topic,
+      state: opts?.state,
+      limit: 5,
+    });
+    return formatCivicSignalRAGContext(lessons, availability);
+  } catch (err) {
+    console.error("[CivicSignal] Durable lesson read failed:", err instanceof Error ? err.message : String(err));
+    const cached = getCivicSignalLessons({ topic: opts?.topic, state: opts?.state, limit: 5 });
+    return formatCivicSignalRAGContext(
+      cached,
+      cached.length
+        ? "durable lesson store unavailable; using explicitly labeled process cache"
+        : "durable lesson store unavailable; no partner lesson was invented",
+    );
+  }
+}
+
+/** Compatibility helper for callers that only have synchronous cache access. */
+export function getCivicSignalRAGContext(topic?: string, state?: string): string {
+  return formatCivicSignalRAGContext(
+    getCivicSignalLessons({ topic, state, limit: 5 }),
+    "process cache only; use getCivicSignalRAGContextAsync for durable context",
+  );
 }
 
 // ── OUTBOUND: Push Chainweb ROI scenario TO Civic Signal ──────────────────
@@ -244,55 +386,99 @@ export async function checkCivicSignalConnection(): Promise<{
   } catch (err: any) {
     outboundDetail = err.message;
   }
+  const durableLessons = await getCivicSignalLessonsAsync({ limit: 100 });
   return {
     outboundReachable,
     outboundDetail,
-    inboundLessonsStored: incomingLessons.length,
+    inboundLessonsStored: durableLessons.length,
     inboundAuthenticationConfigured: Boolean(process.env.THRIVEUP_ISSUED_KEY),
   };
 }
 
 // ── OUTBOUND: Pull adaptation lessons FROM Civic Signal ───────────────────
+const LIVE_PULL_TTL_MS = 5 * 60 * 1000;
+const livePullCache = new Map<string, { expiresAt: number; result: { adaptations: any[]; source: string } }>();
+const livePullInFlight = new Map<string, Promise<{ adaptations: any[]; source: string }>>();
+
 export async function fetchCivicSignalAdaptations(opts: {
   topic: string;
   state?: string;
 }): Promise<{ adaptations: any[]; source: string }> {
-  try {
-    const params = new URLSearchParams({ topic: opts.topic });
-    if (opts.state) params.set("state", opts.state);
+  const key = `${opts.topic.toLowerCase()}:${(opts.state || "US").toUpperCase()}`;
+  const cachedLive = livePullCache.get(key);
+  if (cachedLive && cachedLive.expiresAt > Date.now()) return cachedLive.result;
+  const running = livePullInFlight.get(key);
+  if (running) return running;
 
-    const response = await fetch(`${CIVIC_SIGNAL_PULL_URL}?${params}`, {
-      headers: outboundHeaders(),
-      signal: AbortSignal.timeout(15_000),
-    });
+  const promise = (async () => {
+    try {
+      const params = new URLSearchParams({ topic: opts.topic });
+      if (opts.state) params.set("state", opts.state);
 
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const response = await fetch(`${CIVIC_SIGNAL_PULL_URL}?${params}`, {
+        headers: outboundHeaders(),
+        signal: AbortSignal.timeout(5_000),
+      });
 
-    const data = await response.json();
-    console.log("[CivicSignal] Pull succeeded");
-    const rawAdaptations: any[] = Array.isArray(data.adaptations || data.lessons || data)
-      ? (data.adaptations || data.lessons || data)
-      : [];
-    // Same schema as an inbound-pushed lesson — a pull response is just as
-    // untrusted as a webhook push, and these values feed the same RAG
-    // context downstream. Rows that fail validation are dropped (not
-    // stored/quoted), not coerced.
-    const validated = rawAdaptations.map((a) => {
-      const { clean, rejections } = verifyInboundPayload<any>(a, CIVIC_SIGNAL_LESSON_SCHEMA);
-      if (rejections.length) void recordInboundVerification("civic-signal-pull", "fetchCivicSignalAdaptations", rejections);
-      return { ok: !hasBlockingRejection(rejections), clean, original: a };
-    });
-    return {
-      adaptations: validated.filter((v) => v.ok).map((v) => ({ ...v.original, ...v.clean })),
-      source: "civic_signal_live",
-    };
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
 
-  } catch (err: any) {
-    console.error("[CivicSignal] Pull fell back to cached:", err.message);
-    const cached = getCivicSignalLessons({ topic: opts.topic, state: opts.state, limit: 5 });
-    return {
-      adaptations: cached.map(l => ({ lesson: l.lesson, confidence: l.confidence, receivedAt: l.receivedAt })),
-      source: "civic_signal_cached_fallback",
-    };
-  }
+      const data = await response.json();
+      console.log("[CivicSignal] Pull succeeded");
+      const rawAdaptations: any[] = Array.isArray(data.adaptations || data.lessons || data)
+        ? (data.adaptations || data.lessons || data)
+        : [];
+      // Same schema as an inbound-pushed lesson — a pull response is just as
+      // untrusted as a webhook push. Only validated and durably persisted
+      // lessons are allowed into the shared context.
+      const adaptations: any[] = [];
+      for (const original of rawAdaptations) {
+        const { clean, rejections } = verifyInboundPayload<any>(original, CIVIC_SIGNAL_LESSON_SCHEMA);
+        if (rejections.length) {
+          await recordInboundVerification("civic-signal-pull", "fetchCivicSignalAdaptations", rejections);
+        }
+        if (hasBlockingRejection(rejections)) continue;
+        try {
+          const { lesson } = await persistVerifiedLesson(toLessonFields(clean));
+          adaptations.push({
+            ...original,
+            ...clean,
+            id: lesson.id,
+            receivedAt: lesson.receivedAt,
+            contentHash: lesson.contentHash,
+          });
+        } catch (err) {
+          console.error("[CivicSignal] Validated pull could not be persisted:", err instanceof Error ? err.message : String(err));
+        }
+      }
+      const result = { adaptations, source: "civic_signal_live" };
+      livePullCache.set(key, { expiresAt: Date.now() + LIVE_PULL_TTL_MS, result });
+      return result;
+    } catch (err: any) {
+      console.error("[CivicSignal] Pull fell back to durable cache:", err.message);
+      const cached = await getCivicSignalLessonsAsync({ topic: opts.topic, state: opts.state, limit: 5 }).catch((readErr) => {
+        console.error("[CivicSignal] Durable fallback read failed:", readErr instanceof Error ? readErr.message : String(readErr));
+        return [];
+      });
+      const result = {
+        adaptations: cached.map((lesson) => ({
+          id: lesson.id,
+          lesson: lesson.lesson,
+          topic: lesson.topic,
+          state: lesson.state,
+          source: lesson.source,
+          confidence: lesson.confidence,
+          receivedAt: lesson.receivedAt,
+          contentHash: lesson.contentHash,
+          ...(lesson.roiImplication ? { roiImplication: lesson.roiImplication } : {}),
+        })),
+        source: "civic_signal_cached_fallback",
+      };
+      livePullCache.set(key, { expiresAt: Date.now() + LIVE_PULL_TTL_MS, result });
+      return result;
+    } finally {
+      livePullInFlight.delete(key);
+    }
+  })();
+  livePullInFlight.set(key, promise);
+  return promise;
 }

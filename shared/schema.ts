@@ -7988,6 +7988,27 @@ export const inboundVerificationLog = pgTable("inbound_verification_log", {
 export type InboundVerificationLogRow = typeof inboundVerificationLog.$inferSelect;
 export type InsertInboundVerificationLog = typeof inboundVerificationLog.$inferInsert;
 
+// Durable, provenance-preserving store for verified Civic Signal lessons.
+// These are partner-supplied adaptation signals, not observed community
+// measurements. The content hash makes webhook retries idempotent.
+export const civicSignalLessons = pgTable("civic_signal_lessons", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  lesson: text("lesson").notNull(),
+  topic: varchar("topic", { length: 100 }).notNull().default("general"),
+  state: varchar("state", { length: 2 }).notNull().default("US"),
+  source: varchar("source", { length: 100 }).notNull().default("civic_signal"),
+  confidence: varchar("confidence", { length: 20 }).notNull().default("moderate"),
+  programIds: jsonb("program_ids").$type<string[]>(),
+  roiImplication: text("roi_implication"),
+  contentHash: varchar("content_hash", { length: 64 }).notNull(),
+  receivedAt: timestamp("received_at").notNull().defaultNow(),
+}, (table) => [
+  uniqueIndex("civic_signal_lessons_content_hash_uq").on(table.contentHash),
+  index("civic_signal_lessons_topic_state_received_idx").on(table.topic, table.state, table.receivedAt),
+]);
+export type CivicSignalLessonRow = typeof civicSignalLessons.$inferSelect;
+export type InsertCivicSignalLesson = typeof civicSignalLessons.$inferInsert;
+
 export * from "./household-schema";
 export * from "./justice-schema";
 export * from "./clinical-schema";
