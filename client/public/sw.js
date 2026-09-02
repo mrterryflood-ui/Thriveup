@@ -1,7 +1,7 @@
 // Bump this on any deploy that must invalidate the static cache. The activate
 // handler deletes prior app caches, so a version bump alone evicts stale
 // ThriveUp assets without touching caches owned by another library.
-const CACHE_VERSION = "v2";
+const CACHE_VERSION = "v3";
 const CACHE_NAME = `thriveup-benefits-${CACHE_VERSION}`;
 const CACHE_PREFIX = "thriveup-benefits-";
 
@@ -9,30 +9,47 @@ const STATIC_ASSETS = [
   "/",
   "/benefits-screener",
   "/manifest.json",
+  "/platform-overview.pdf",
+  "/platform-overview.html",
 ];
 
 // Hard cap on how many entries the static cache may hold, so it can't grow
 // unbounded across a long-lived install.
 const MAX_STATIC_ENTRIES = 60;
 
+function cacheKey(request) {
+  const url = new URL(request.url);
+  url.search = "";
+  url.hash = "";
+  return new Request(url.toString(), { method: "GET" });
+}
+
 async function trimCache(cacheName, maxEntries) {
   try {
     const cache = await caches.open(cacheName);
     const keys = await cache.keys();
     if (keys.length <= maxEntries) return;
-    // Delete oldest-first (Cache API preserves insertion order).
-    const overflow = keys.length - maxEntries;
-    for (let i = 0; i < overflow; i++) {
-      await cache.delete(keys[i]);
+    // Keep the shell and standalone briefing assets pinned. Query-string
+    // variants are normalized by cacheKey(), so they cannot consume slots.
+    const pinned = new Set(STATIC_ASSETS);
+    const removable = keys.filter((key) => !pinned.has(new URL(key.url).pathname));
+    const overflow = Math.max(0, keys.length - maxEntries);
+    for (let i = 0; i < Math.min(overflow, removable.length); i++) {
+      await cache.delete(removable[i]);
     }
-  } catch {
-    /* best-effort */
+  } catch (error) {
+    console.warn("[ServiceWorker] Cache trim skipped:", error);
   }
 }
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .catch((error) => {
+        console.error("[ServiceWorker] Static asset install failed:", error);
+        throw error;
+      })
   );
   self.skipWaiting();
 });
@@ -91,13 +108,14 @@ self.addEventListener("fetch", (event) => {
   if (!isStaticAsset) return;
 
   // Static assets: cache-first with background refresh, bounded.
-  event.respondWith(
-    caches.open(CACHE_NAME).then((cache) => cache.match(request).then((cached) => {
+    const key = cacheKey(request);
+    event.respondWith(
+      caches.open(CACHE_NAME).then((cache) => cache.match(key).then((cached) => {
       if (cached) {
         fetch(request).then((res) => {
           if (res && res.ok) {
             caches.open(CACHE_NAME).then((cache) => {
-              cache.put(request, res.clone());
+              cache.put(key, res.clone());
               trimCache(CACHE_NAME, MAX_STATIC_ENTRIES);
             });
           }
@@ -108,7 +126,7 @@ self.addEventListener("fetch", (event) => {
         if (res && res.ok) {
           const clone = res.clone();
           caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, clone);
+            cache.put(key, clone);
             trimCache(CACHE_NAME, MAX_STATIC_ENTRIES);
           });
         }

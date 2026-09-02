@@ -1,4 +1,4 @@
-import { type Express } from "express";
+import express, { type Express } from "express";
 import { createServer as createViteServer, createLogger } from "vite";
 import { type Server } from "http";
 import viteConfig from "../vite.config";
@@ -14,7 +14,13 @@ export async function setupVite(server: Server, app: Express) {
   const serverOptions = {
     middlewareMode: true,
     hmr: { server, path: "/vite-hmr" },
-    allowedHosts: true as const,
+    allowedHosts: [
+      "localhost",
+      "127.0.0.1",
+      ...(process.env.REPLIT_DEV_DOMAIN ? [process.env.REPLIT_DEV_DOMAIN] : []),
+      ".replit.dev",
+      ".replit.app",
+    ],
   };
 
   const vite = await createViteServer({
@@ -32,6 +38,14 @@ export async function setupVite(server: Server, app: Express) {
   });
 
   app.use(vite.middlewares);
+
+  // Serve repository-level public deliverables in development too. Vite's
+  // root is client/, while platform briefs and other standalone assets live
+  // in the repository-level public/ directory.
+  const repositoryPublicPath = path.resolve(process.cwd(), "public");
+  if (fs.existsSync(repositoryPublicPath)) {
+    app.use(express.static(repositoryPublicPath));
+  }
 
   app.use("/{*path}", async (req, res, next) => {
     const url = req.originalUrl;

@@ -465,6 +465,26 @@
       font-size: 10px;
       font-weight: 800;
     }
+    @media (max-width: 700px) {
+      body { padding: 10px 8px; }
+      header, .mission, .body { padding-left: 16px; padding-right: 16px; }
+      header { padding-top: 28px; padding-bottom: 26px; }
+      .body { padding-top: 26px; padding-bottom: 32px; }
+      .platform-grid { grid-template-columns: minmax(0, 1fr); }
+      .purpose-grid, .explain-grid, .story-grid, .measurement-grid,
+      .integration-flow, .workflow-list {
+        grid-template-columns: 1fr;
+      }
+      .flow-step:not(:last-child)::after {
+        content: '↓';
+        right: auto;
+        top: auto;
+        bottom: -13px;
+        left: 50%;
+      }
+      .flow-step { padding: 11px 12px; }
+      .source-table { display: block; overflow-x: auto; }
+    }
     .workflow-list strong { color: var(--ink); display: block; margin-bottom: 2px; }
     .keep-together { break-inside: avoid; page-break-inside: avoid; }
 
@@ -517,15 +537,15 @@
 
   <!-- ── HEADER ───────────────────────────────────────────── -->
   <header>
-    <div class="org-line">The Collaborative Advocate Foundation (TCAF) · ISS LLC · EIN 41-3618003 · CAGE 9VKK3</div>
-    <h1>One infrastructure.<br><span>Fifteen platforms. Every community.</span></h1>
+    <div class="org-line">The Collaborative Advocate Foundation (TCAF) · EIN 41-3618003 · TCAF CAGE 209N1 · ISS LLC CAGE 9VKK3</div>
+    <h1>One infrastructure.<br><span>Fifteen platforms. A national architecture, locally grounded.</span></h1>
     <p class="tagline">
       TCAF is the nonprofit for nonprofits, residents, and communities to thrive.
       We bring the tools, the data, and the funding knowledge — so organizations and families can execute and do the work.
     </p>
     <div class="stat-bar">
       <div class="stat">
-        <span class="stat-num">15+</span>
+        <span class="stat-num">15</span>
         <span class="stat-label">Service Platforms</span>
       </div>
       <div class="stat">
@@ -606,7 +626,7 @@
         <div class="platform-card">
           <div class="platform-name">
             Whole-Person Health Ecosystem
-            <a href="https://mentalwellnesssupport.net" target="_blank">↗ Visit</a>
+            <a href="https://mentalwellnesssupport.net" target="_blank" rel="noopener noreferrer" aria-label="Visit Mental Wellness Support (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Clinical screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, crisis tools, and 20,670+ resources across 2,091 community groups. Mental wellness, safety planning, and practical support that recognizes health is connected to every part of life.</div>
           <div class="platform-url">mentalwellnesssupport.net</div>
@@ -615,7 +635,7 @@
         <div class="platform-card">
           <div class="platform-name">
             Sankofa Health Network — HerHealth Matters &amp; Maternal Health
-            <a href="https://herhealthmatters2.com" target="_blank">↗ Visit</a>
+            <a href="https://herhealthmatters2.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Sankofa Health Network (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Health and wellness gateway connecting people to culturally responsive behavioral-health and community care resources, with feminine-health and maternal-health pathways, preventive screening navigation, hormonal wellness, prenatal and postpartum support, doula and CHW matching, and family-centered planning.</div>
           <div class="platform-url">herhealthmatters2.com</div>
@@ -624,7 +644,7 @@
         <div class="platform-card">
           <div class="platform-name">
             MaleHealth Matters
-            <a href="https://malehealthmatters2.com" target="_blank">↗ Visit</a>
+            <a href="https://malehealthmatters2.com" target="_blank" rel="noopener noreferrer" aria-label="Visit MaleHealth Matters (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Preventive health information, cardiovascular wellness, screening navigation, behavioral-health support, and peer mentoring and connection for men and their families.</div>
           <div class="platform-url">malehealthmatters2.com</div>
@@ -633,7 +653,7 @@
         <div class="platform-card">
           <div class="platform-name">
             SafeCogniCare
-            <a href="https://safecognicare.com" target="_blank">↗ Visit</a>
+            <a href="https://safecognicare.com" target="_blank" rel="noopener noreferrer" aria-label="Visit SafeCogniCare (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, crisis decision trees, and longitudinal care coordination for individuals with cognitive complexity.</div>
           <div class="platform-url">safecognicare.com</div>
@@ -654,7 +674,7 @@
         <div class="platform-card">
           <div class="platform-name">
             ISSS — Integrated Supports for Thriving Youth
-            <a href="https://implementationineducatio.com" target="_blank">↗ Visit</a>
+            <a href="https://implementationineducatio.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Implementation in Education (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">MTSS engine with Thrive Scores, early warning indicators, multi-stakeholder coordination, and data-driven student support at scale. Connects teachers, families, and service providers in one shared view.</div>
           <div class="platform-url">implementationineducatio.com</div>
@@ -663,7 +683,7 @@
         <div class="platform-card">
           <div class="platform-name">
             Perfectly Different
-            <a href="https://neurodifferentassistant.app" target="_blank">↗ Visit</a>
+            <a href="https://neurodifferentassistant.app" target="_blank" rel="noopener noreferrer" aria-label="Visit NeuroDifferent Assistant (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Neurodiversity-affirming support for autism, ADHD, and AuDHD — IEP/504 plan builder, executive function coaching, sensory tools, and family navigation designed around the learner's strengths.</div>
           <div class="platform-url">neurodifferentassistant.app</div>
@@ -672,7 +692,7 @@
         <div class="platform-card">
           <div class="platform-name">
             Better Science Lab / RPLICE
-            <a href="https://www.bettersciencelab.com" target="_blank">↗ Visit</a>
+            <a href="https://www.bettersciencelab.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Better Science Lab (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Implementation science in action — CFIR, RE-AIM, and EPIS frameworks, a curated evidence-based practice registry of 49+ studies, and research translation tools that turn peer-reviewed findings into community programs.</div>
           <div class="platform-url">www.bettersciencelab.com</div>
@@ -693,7 +713,7 @@
         <div class="platform-card">
           <div class="platform-name">
             Mission Transition (M2C)
-            <a href="https://vetmissiontransition.com" target="_blank">↗ Visit</a>
+            <a href="https://vetmissiontransition.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Mission Transition (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Military-to-civilian bridge for veterans and families — MOS translation, benefits navigation, identity support, transition planning, and community connection. Targets the critical first 12-month risk window post-separation.</div>
           <div class="platform-url">vetmissiontransition.com</div>
@@ -702,7 +722,7 @@
         <div class="platform-card">
           <div class="platform-name">
             Minority Center of Excellence
-            <a href="https://minoritycenterofexcellence.com" target="_blank">↗ Visit</a>
+            <a href="https://minoritycenterofexcellence.com" target="_blank" rel="noopener noreferrer" aria-label="Visit Minority Center of Excellence (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">656,794 SAM.gov records, 14 AI-powered procurement tools, dual-AI proposal review, and a certification wizard for 8(a), HUBZone, WOSB, and SDVOSB designations. Built for minority-owned and disadvantaged businesses.</div>
           <div class="platform-url">minoritycenterofexcellence.com</div>
@@ -723,16 +743,16 @@
         <div class="platform-card">
           <div class="platform-name">
             SafeReport
-            <a href="https://safereports.net" target="_blank">↗ Visit</a>
+            <a href="https://safereports.net" target="_blank" rel="noopener noreferrer" aria-label="Visit SafeReport (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
-          <div class="platform-desc">50-state mandatory reporter system with a 7-stage incident lifecycle, tamper-evident audit trails, and court-admissible evidence packaging. Purpose-built for child welfare, elder care, and institutional safety compliance.</div>
+          <div class="platform-desc">Mandatory reporter system designed for 50-state policy coverage, with a 7-stage incident lifecycle, tamper-evident audit trails, and court-admissible evidence packaging. Purpose-built for child welfare, elder care, and institutional safety compliance.</div>
           <div class="platform-url">safereports.net</div>
         </div>
 
         <div class="platform-card">
           <div class="platform-name">
             Talk Your Talk
-            <a href="https://talkyourtalk.net" target="_blank">↗ Visit</a>
+            <a href="https://talkyourtalk.net" target="_blank" rel="noopener noreferrer" aria-label="Visit Talk Your Talk (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Dialect- and sign-aware communication platform supporting 89 spoken languages and 18 sign languages with real-time speech-to-text and culturally responsive translation. Ensures no one is excluded due to language.</div>
           <div class="platform-url">talkyourtalk.net</div>
@@ -753,16 +773,16 @@
         <div class="platform-card">
           <div class="platform-name">
             LifeBridge
-            <a href="https://lifetransitionsaid.org" target="_blank">↗ Visit</a>
+            <a href="https://lifetransitionsaid.org" target="_blank" rel="noopener noreferrer" aria-label="Visit LifeBridge (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
-          <div class="platform-desc">Virtual 211 available 24/7 — resource navigation for housing, food, healthcare, crisis support, and life event guides. Draws from 20,670+ verified resources across all 50 states with plain-language guidance for every major life transition.</div>
+          <div class="platform-desc">Virtual 211 available 24/7 — resource navigation for housing, food, healthcare, crisis support, and life event guides. Draws from 20,670+ verified resources, with coverage varying by location and a national architecture built for U.S. communities.</div>
           <div class="platform-url">lifetransitionsaid.org</div>
         </div>
 
         <div class="platform-card">
           <div class="platform-name">
             ThriveUp Academy
-            <a href="https://thriveupacademy.com" target="_blank">↗ Visit</a>
+            <a href="https://thriveupacademy.com" target="_blank" rel="noopener noreferrer" aria-label="Visit ThriveUp Academy (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">The anchor platform — AI-powered workforce readiness curriculum, career pathways, trade simulations, 4-engine AI, community banking, and the full TCAF infrastructure for learning and community development.</div>
           <div class="platform-url">thriveupacademy.com</div>
@@ -783,7 +803,7 @@
         <div class="platform-card">
           <div class="platform-name">
             TradeSparkFinance
-            <a href="https://tradesparkfinance.com" target="_blank">↗ Visit</a>
+            <a href="https://tradesparkfinance.com" target="_blank" rel="noopener noreferrer" aria-label="Visit TradeSparkFinance (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Financial intelligence for community-serving traders and small investors — market access, financial education, and tools built for people who have historically been locked out of financial markets and wealth-building systems.</div>
           <div class="platform-url">tradesparkfinance.com</div>
@@ -804,7 +824,7 @@
         <div class="platform-card">
           <div class="platform-name">
             GrantPathPro
-            <a href="https://pursuitsfundingprofessionals.com" target="_blank">↗ Visit</a>
+            <a href="https://pursuitsfundingprofessionals.com" target="_blank" rel="noopener noreferrer" aria-label="Visit GrantPathPro (opens in a new tab)">↗ Visit <span class="external-note">(opens in a new tab)</span></a>
           </div>
           <div class="platform-desc">Funding intelligence and execution support for nonprofits and community-serving organizations — opportunity qualification, grant writing and proposal drafting, budget development, compliance review, submission tracking, funder relationship management, post-award reporting, and recompete planning.</div>
           <div class="platform-url">pursuitsfundingprofessionals.com</div>

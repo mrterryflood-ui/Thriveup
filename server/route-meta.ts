@@ -44,7 +44,7 @@ const STATIC_META: Record<string, RouteMeta> = {
   "/partners": {
     title: "Community Partners | ThriveUp Academy",
     description:
-      "ThriveUp Academy's national network of community partners — nonprofits, workforce boards, health agencies, and faith communities — delivering coordinated services across 50 states.",
+      "ThriveUp Academy's national network of community partners — nonprofits, workforce boards, health agencies, and faith communities — connected through a 50-state architecture with local availability that varies.",
     ogTitle: "ThriveUp Academy Partner Network",
     ogDescription:
       "Discover how ThriveUp Academy partners with nonprofits, city agencies, and community organizations to deliver integrated workforce development and wraparound services.",
@@ -52,7 +52,7 @@ const STATIC_META: Record<string, RouteMeta> = {
   "/community-partners": {
     title: "Community Partners | ThriveUp Academy",
     description:
-      "ThriveUp Academy's national network of community partners — nonprofits, workforce boards, health agencies, and faith communities — delivering coordinated services across 50 states.",
+      "ThriveUp Academy's national network of community partners — nonprofits, workforce boards, health agencies, and faith communities — connected through a 50-state architecture with local availability that varies.",
     ogTitle: "ThriveUp Academy Partner Network",
     ogDescription:
       "Discover how ThriveUp Academy partners with nonprofits, city agencies, and community organizations to deliver integrated workforce development and wraparound services.",
@@ -175,7 +175,7 @@ const STATIC_META: Record<string, RouteMeta> = {
       "Reach ThriveUp Academy's team for partnership inquiries, program questions, grant collaboration, or media requests. Based in Austin, TX — serving communities nationwide.",
     ogTitle: "Contact ThriveUp Academy",
     ogDescription:
-      "Get in touch with ThriveUp Academy for partnership, program, or media inquiries. Based in Austin, TX — serving 50 states.",
+      "Get in touch with ThriveUp Academy for partnership, program, or media inquiries. Based in Austin, TX, with a 50-state architecture and location-dependent availability.",
   },
   "/veterans": {
     title: "Veterans Program | ThriveUp Academy",
@@ -338,6 +338,50 @@ const STATIC_META: Record<string, RouteMeta> = {
       "Weekly community updates: events, new resources, program news, and opportunities from the ThriveUp Academy network.",
   },
 };
+
+const landingRouteMeta = (label: string, description: string): RouteMeta => ({
+  title: `${label} | ThriveUp Academy`,
+  description,
+  ogTitle: label,
+  ogDescription: description,
+});
+
+Object.assign(STATIC_META, {
+  "/benefits-screener": landingRouteMeta("Benefits Screener", "Screen for public benefits and get plain-language next-step guidance from ThriveUp Academy."),
+  "/sdoh-explorer": landingRouteMeta("Community Data Explorer", "Explore source-labeled community conditions and social determinants of health to understand a place before choosing an intervention."),
+  "/ecosystem-story": landingRouteMeta("Ecosystem Story", "Connect community conditions, partner capacity, evidence, and action into a story that stays honest about what is known."),
+  "/for-nonprofits": landingRouteMeta("For Nonprofits", "TCAF helps nonprofits connect community evidence, program readiness, funding intelligence, implementation, and outcome reporting."),
+  "/partners/join": landingRouteMeta("Join the Partner Network", "Connect your organization to a community-serving network with clear roles, capacity, referrals, and evidence boundaries."),
+  "/curriculum": landingRouteMeta("Learning Pathways", "Build practical skills through guided learning pathways, workforce preparation, and community-serving technology."),
+  "/academy/careers": landingRouteMeta("Career Pathways", "Explore career pathways, skill-building opportunities, and next steps through ThriveUp Academy."),
+  "/youth-rights": landingRouteMeta("Youth Rights", "Find plain-language youth rights information, support pathways, and trusted next steps."),
+  "/reentry": landingRouteMeta("Reentry Support", "Coordinate reentry planning, milestones, benefits, housing, workforce, and community support around the whole person."),
+  "/coalition": landingRouteMeta("Coalition Portal", "Coordinate community partners, shared priorities, referrals, implementation, and outcome learning."),
+  "/transition-plans": landingRouteMeta("Transition Plans", "Build a practical transition plan that connects readiness, benefits, education, work, and community support."),
+  "/agency-connector": landingRouteMeta("Agency Connector", "Connect ThriveUp tools and data to an organization’s existing work while keeping privacy and governance boundaries visible."),
+  "/health-network": landingRouteMeta("Health Network", "Connect people and partners to whole-person health, wellness, behavioral-health, and community-care pathways."),
+  "/grants": landingRouteMeta("Grant Discovery", "Find funding opportunities and align them with community needs, organizational capacity, and funder requirements."),
+  "/rplice-tools": landingRouteMeta("Better Science Lab and RPLICE Tools", "Use implementation-science frameworks, evidence-based practices, research translation, and planning tools."),
+  "/mapgap-framework": landingRouteMeta("MAP-GAP Framework", "Move from mapping a community need to planning, action, measurement, adaptation, and learning."),
+  "/academy": landingRouteMeta("ThriveUp Academy", "Build skills, explore pathways, and connect learning to workforce and community opportunity."),
+  "/community-impact": landingRouteMeta("Community Impact", "Build a source-labeled community story: observe the place, connect evidence, choose an action, and learn from what changed."),
+  "/services": landingRouteMeta("Services and Referrals", "Coordinate service pathways and referrals so people and organizations can move to the next step without starting over."),
+  "/program-designer": landingRouteMeta("Program Designer", "Turn community evidence, implementation science, partner capacity, and lived context into an actionable program plan."),
+  "/outcomes": landingRouteMeta("Outcome Reporting", "Track reach, implementation, fidelity, outcomes, and learning with clear boundaries between observed and modeled values."),
+  "/community-compare": landingRouteMeta("Community Comparison", "Compare community conditions at the geography the source supports, with definitions, sources, and limitations visible."),
+  "/community-map": landingRouteMeta("Community Map", "Map community conditions and service context to understand the place before selecting a response."),
+  "/impact": landingRouteMeta("Impact and Learning", "Connect program activity, implementation, outcomes, and learning for stronger community-serving decisions."),
+  "/community-data": landingRouteMeta("Community Data", "Explore official community indicators and cited local-service information without presenting estimates as observed facts."),
+  "/grant-narrative": landingRouteMeta("Grant Narrative", "Prepare a funder-facing narrative grounded in community evidence, program design, outcomes, and disclosed assumptions."),
+  "/proposal-pipeline": landingRouteMeta("Proposal Pipeline", "Organize funding pursuits from opportunity fit through drafting, review, submission, and follow-up."),
+  "/coverage": landingRouteMeta("Coverage and Availability", "See how ThriveUp coverage varies by location and which pathways are available for a given community."),
+  "/community": landingRouteMeta("Community Pathways", "Start with community context, trusted support, and practical next steps for people and organizations."),
+  "/hub": landingRouteMeta("ThriveUp Hub", "Choose a family, community, nonprofit, funder, or partner pathway and move to the next useful step."),
+  "/workbench": landingRouteMeta("Community Workbench", "Bring evidence, planning, partner roles, and implementation steps together in one working surface."),
+  "/sparky": landingRouteMeta("Sparky", "Use guided assistance to find a practical next step while keeping sources, limits, and human judgment visible."),
+  "/ai-companion": landingRouteMeta("AI Companion", "Get bounded navigation support that helps you explore options without replacing eligibility, clinical, or community judgment."),
+  "/logic-model": landingRouteMeta("Logic Model Builder", "Connect activities, implementation measures, outcomes, and learning in a clear community-serving logic model."),
+});
 
 /** Prefix-based metadata for dynamic and nested routes. */
 const PREFIX_META: Array<{ prefix: string; meta: RouteMeta }> = [

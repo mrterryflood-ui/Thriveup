@@ -28,7 +28,8 @@ export function serveStatic(app: Express) {
       const pathname = req.originalUrl.split("?")[0];
       const page = injectRouteMeta(raw, pathname);
       res.status(status).set({ "Content-Type": "text/html" }).end(page);
-    } catch {
+    } catch (error) {
+      console.error("[Static] SPA fallback metadata injection failed:", error);
       res.status(status).sendFile(indexHtml);
     }
   });

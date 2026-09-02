@@ -4,7 +4,9 @@ import "./index.css";
 
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register("/sw.js").catch(() => {});
+    navigator.serviceWorker.register("/sw.js").catch((error) => {
+      console.warn("[ServiceWorker] Registration unavailable; offline support is disabled.", error);
+    });
   });
 }
 

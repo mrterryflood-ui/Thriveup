@@ -1,6 +1,6 @@
 import { build as esbuild } from "esbuild";
 import { build as viteBuild } from "vite";
-import { rm, readFile } from "fs/promises";
+import { cp, rm, readFile, writeFile } from "fs/promises";
 
 // server deps to bundle to reduce openat(2) syscalls
 // which helps cold start times
@@ -37,6 +37,18 @@ async function buildAll() {
 
   console.log("building client...");
   await viteBuild();
+  // The repository-level public directory contains standalone deliverables
+  // that are not part of Vite's client/public input. Copy them into the
+  // production static root so public links resolve to their actual assets.
+  await cp("public", "dist/public", { recursive: true, force: true });
+  const serviceWorkerPath = "dist/public/sw.js";
+  const serviceWorker = await readFile(serviceWorkerPath, "utf-8");
+  const deploymentId = (process.env.REPLIT_DEPLOYMENT_ID || `build-${Date.now()}`)
+    .replace(/[^a-zA-Z0-9_-]/g, "-");
+  await writeFile(
+    serviceWorkerPath,
+    serviceWorker.replace(/const CACHE_VERSION = "[^"]+";/, `const CACHE_VERSION = "${deploymentId}";`),
+  );
 
   console.log("building server...");
   const pkg = JSON.parse(await readFile("package.json", "utf-8"));

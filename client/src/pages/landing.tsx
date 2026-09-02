@@ -41,7 +41,7 @@ const PATHWAYS = [
     icon: MapPin,
     title: "Find help near me",
     subtitle: "Local organizations, hotlines, and programs",
-    description: "Search real government and community resources in all 50 states — food, housing, healthcare, jobs, legal aid — plus crisis lines you can call right now.",
+    description: "Search real government and community resources with coverage that varies by location — food, housing, healthcare, jobs, legal aid — plus crisis lines you can call right now.",
     action: "Find Help Near Me",
     href: "/get-help",
     color: "from-orange-500 to-red-500",
@@ -153,18 +153,11 @@ const FEATURED_SERVICE_PLATFORMS = [
     theme: "text-rose-600 bg-rose-100 dark:bg-rose-950/40 dark:text-rose-300",
   },
   {
-    name: "HerHealth Matters",
-    description: "Culturally responsive feminine health support, preventive care education, reproductive wellness, and connection to appropriate care.",
+    name: "Sankofa Health Network",
+    description: "A consolidated health gateway for responsive behavioral health, women's and maternal health, preventive care education, reproductive wellness, and connection to appropriate care.",
     href: "https://herhealthmatters2.com",
     icon: Stethoscope,
     theme: "text-pink-600 bg-pink-100 dark:bg-pink-950/40 dark:text-pink-300",
-  },
-  {
-    name: "Maternal Health Network",
-    description: "Prenatal and postpartum support, maternal mental wellness, doula and community-health-worker navigation, and family-centered planning.",
-    href: "https://herhealthmatters2.com",
-    icon: Baby,
-    theme: "text-fuchsia-600 bg-fuchsia-100 dark:bg-fuchsia-950/40 dark:text-fuchsia-300",
   },
   {
     name: "MaleHealth Matters",
@@ -315,6 +308,7 @@ function TrustBar() {
             href="https://apps.irs.gov/app/eos/"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="IRS Tax Exempt Organization Search (opens in a new tab)"
             className="underline hover:text-foreground"
             data-testid="link-irs-eos"
           >
@@ -325,6 +319,7 @@ function TrustBar() {
             href="https://sam.gov/entity-information"
             target="_blank"
             rel="noopener noreferrer"
+            aria-label="SAM.gov (opens in a new tab)"
             className="underline hover:text-foreground"
             data-testid="link-sam-gov"
           >
@@ -340,7 +335,7 @@ function ImpactNumbers() {
   const stats = [
     { value: "15",  label: "Service Platforms",   href: "/ecosystem" },
     { value: "4",   label: "AI Engines",           href: "/benefits-screener" },
-    { value: "107", label: "Languages Supported",  href: "/ecosystem" },
+    { value: "107", label: "Languages via AI Translation",  href: "/ecosystem" },
   ];
   return (
     <section className="py-10 px-4 bg-card" data-testid="section-impact-numbers">
@@ -380,7 +375,7 @@ function CommunitiesWeServe() {
     {
       icon: Heart, title: "Foster Youth & Youth in Transition",
       desc: "Backed by the full weight of federal law — McKinney-Vento school rights with citations they can show a principal, Chafee and ETV funding up to $5,000/yr for training, an anonymous eligibility checker, and a direct bridge into trades and childcare career paths.",
-      location: "Kansas pilot · built for all 50 states",
+      location: "Kansas pilot · national architecture",
       href: "/youth-rights",
       action: "Know Your Rights",
     },
@@ -554,6 +549,7 @@ function PlatformPortfolio() {
                 href={platform.href}
                 target={opensInsideThriveUp ? undefined : "_blank"}
                 rel={opensInsideThriveUp ? undefined : "noopener noreferrer"}
+                aria-label={opensInsideThriveUp ? platform.name : `${platform.name} (opens in a new tab)`}
                 className="group rounded-xl border bg-card p-5 min-h-[205px] flex flex-col transition-all hover:-translate-y-0.5 hover:shadow-lg hover:border-primary/30 no-underline"
                 data-testid={`card-platform-portfolio-${platform.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
               >
@@ -722,13 +718,11 @@ const ECOSYSTEM_PLATFORMS_DATA = [
   {
     domain: "Health Equity & Wellness",
     color: "from-rose-500 to-pink-600",
-    platforms: [
-      { name: "Whole-Person Health Ecosystem", url: "https://mentalwellnesssupport.net", desc: "Clinical screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, crisis tools, 20,670+ resources across 2,091 community groups", icon: Heart },
-       { name: "Sankofa Health Network", url: "https://herhealthmatters2.com", desc: "Health and wellness gateway connecting people to responsive behavioral-health and care resources", icon: Stethoscope },
-       { name: "HerHealth Matters", url: "https://herhealthmatters2.com", desc: "Women's health education, preventive screening, hormonal wellness, and provider matching", icon: Heart },
-       { name: "Maternal Health Network", url: "https://herhealthmatters2.com", desc: "Prenatal and postpartum navigation, doula matching, and maternal mental wellness support", icon: Baby },
-       { name: "MaleHealth Matters", url: "https://malehealthmatters2.com", desc: "Preventive screening, cardiovascular wellness, behavioral-health support, and peer mentoring", icon: User },
-      { name: "SafeCogniCare", url: "https://safecognicare.com", desc: "TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, care coordination", icon: Brain },
+      platforms: [
+        { name: "Whole-Person Health Ecosystem", url: "https://mentalwellnesssupport.net", desc: "Clinical screenings (C-SSRS, PHQ-9, GAD-7, PCL-5), safety plans, crisis tools, 20,670+ resources across 2,091 community groups", icon: Heart },
+        { name: "Sankofa Health Network", url: "https://herhealthmatters2.com", desc: "Consolidated health and wellness gateway for responsive behavioral health, women's and maternal health, preventive care, and family navigation", icon: Stethoscope },
+        { name: "MaleHealth Matters", url: "https://malehealthmatters2.com", desc: "Preventive screening, cardiovascular wellness, behavioral-health support, and peer mentoring", icon: User },
+        { name: "SafeCogniCare", url: "https://safecognicare.com", desc: "TBI, ADHD, dementia, and peripartum cognitive assessments (MoCA, MMSE), safety protocols, care coordination", icon: Brain },
     ],
   },
   {
@@ -752,7 +746,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     domain: "Safety & Compliance",
     color: "from-emerald-500 to-teal-600",
     platforms: [
-      { name: "SafeReport", url: "https://safereports.net", desc: "50-state mandatory reporter system — 7-stage incident lifecycle, tamper-evident audit trails, court-admissible evidence packaging", icon: Shield },
+      { name: "SafeReport", url: "https://safereports.net", desc: "Mandatory reporter system designed for 50-state policy coverage — 7-stage incident lifecycle, tamper-evident audit trails, court-admissible evidence packaging", icon: Shield },
       { name: "Talk Your Talk", url: "https://talkyourtalk.net", desc: "Dialect- and sign-aware communication — 89 spoken languages, 18 sign languages, real-time speech-to-text, culturally responsive translation", icon: MessageSquare },
     ],
   },
@@ -769,6 +763,13 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     color: "from-amber-500 to-yellow-600",
     platforms: [
       { name: "TradeSparkFinance", url: "https://tradesparkfinance.com", desc: "Financial intelligence for community-serving traders and small investors — market access, education, and tools built for people historically locked out of financial markets", icon: TrendingUp },
+    ],
+  },
+  {
+    domain: "Funding & Grant Execution",
+    color: "from-orange-500 to-amber-600",
+    platforms: [
+      { name: "GrantPathPro", url: "https://pursuitsfundingprofessionals.com", desc: "Grant writing and proposal drafting, budget development, compliance review, submission tracking, funder relationships, and post-award reporting", icon: FileText },
     ],
   },
 ];
@@ -822,6 +823,7 @@ function EcosystemPlatformsSection() {
                       href={platform.url}
                       target="_blank"
                       rel="noopener noreferrer"
+                      aria-label={`${platform.name} (opens in a new tab)`}
                       className="group block"
                       data-testid={`card-platform-${platform.name.toLowerCase().replace(/\s+/g, '-')}`}
                     >
@@ -921,7 +923,7 @@ function DeepDiveSection() {
                   { icon: Map, title: "Community Intelligence Engine", desc: "Maps needs, assets, and service gaps across zip codes. Live Census, CDC, and FBI data integration." },
                   { icon: Target, title: "Personal Navigation Engine", desc: "AI-powered case management that sees the whole person — not just one presenting need." },
                   { icon: Microscope, title: "Implementation Science Engine", desc: "Evaluates program effectiveness using CFIR 2.0 + RE-AIM frameworks via the RPLICE instrument." },
-                  { icon: TrendingUp, title: "Predictive Analytics Engine", desc: "Identifies emerging community needs before they become crises. Pattern detection across all six domains." },
+                  { icon: TrendingUp, title: "Predictive Analytics Engine", desc: "Surfaces patterns and planning signals across six domains; scenario limits and source quality remain visible." },
                 ].map((e) => (
                   <Card key={e.title} className="p-4" data-testid={`card-engine-${e.title.toLowerCase().replace(/\s/g, '-')}`}>
                     <div className="flex items-start gap-3">
@@ -962,31 +964,21 @@ function DeepDiveSection() {
             </div>
 
             <div className="flex flex-wrap justify-center gap-3">
-              <Link href="/health-network">
-                <Button variant="default" data-testid="button-deep-health-network">
-                  <Heart className="mr-2 h-4 w-4" /> Health Network
-                </Button>
-              </Link>
-              <Link href="/ecosystem">
-                <Button variant="outline" data-testid="button-deep-ecosystem">
-                  <Layers className="mr-2 h-4 w-4" /> Full Ecosystem Map
-                </Button>
-              </Link>
-              <Link href="/sdoh-explorer">
-                <Button variant="outline" data-testid="button-deep-sdoh">
-                  <BarChart3 className="mr-2 h-4 w-4" /> SDOH Explorer
-                </Button>
-              </Link>
-              <Link href="/grants">
-                <Button variant="outline" data-testid="button-deep-grants">
-                  <Search className="mr-2 h-4 w-4" /> Grant Hub
-                </Button>
-              </Link>
-              <Link href="/rplice-tools">
-                <Button variant="outline" data-testid="button-deep-rplice">
-                  <Microscope className="mr-2 h-4 w-4" /> Research Tools
-                </Button>
-              </Link>
+              <Button asChild variant="default" data-testid="button-deep-health-network">
+                <Link href="/health-network"><Heart className="mr-2 h-4 w-4" /> Health Network</Link>
+              </Button>
+              <Button asChild variant="outline" data-testid="button-deep-ecosystem">
+                <Link href="/ecosystem"><Layers className="mr-2 h-4 w-4" /> Full Ecosystem Map</Link>
+              </Button>
+              <Button asChild variant="outline" data-testid="button-deep-sdoh">
+                <Link href="/sdoh-explorer"><BarChart3 className="mr-2 h-4 w-4" /> SDOH Explorer</Link>
+              </Button>
+              <Button asChild variant="outline" data-testid="button-deep-grants">
+                <Link href="/grants"><Search className="mr-2 h-4 w-4" /> Grant Hub</Link>
+              </Button>
+              <Button asChild variant="outline" data-testid="button-deep-rplice">
+                <Link href="/rplice-tools"><Microscope className="mr-2 h-4 w-4" /> Research Tools</Link>
+              </Button>
             </div>
 
             <Card className="p-6 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 border-primary/20 border-2" data-testid="card-mapgap-summary">
@@ -1004,11 +996,9 @@ function DeepDiveSection() {
                 <span className="px-3 py-1.5 rounded-lg bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-300 font-medium text-xs">Community Impact</span>
               </div>
               <div className="text-center mt-4">
-                <Link href="/mapgap-framework">
-                  <Button variant="outline" size="sm" data-testid="button-mapgap-learn">
-                    <BookOpen className="mr-1.5 h-3.5 w-3.5" /> Learn More About MAP-GAP
-                  </Button>
-                </Link>
+                <Button asChild variant="outline" size="sm" data-testid="button-mapgap-learn">
+                  <Link href="/mapgap-framework"><BookOpen className="mr-1.5 h-3.5 w-3.5" /> Learn More About MAP-GAP</Link>
+                </Button>
               </div>
             </Card>
 
@@ -1142,7 +1132,8 @@ function StartHere() {
             </fieldset>
             <fieldset className="mt-5">
               <legend className="text-sm font-bold mb-3">2. Which best describes you?</legend>
-              <select value={role} onChange={(event) => setRole(event.target.value)}
+              <label htmlFor="front-door-role" className="sr-only">Which best describes you?</label>
+              <select id="front-door-role" value={role} onChange={(event) => setRole(event.target.value)}
                 className="w-full min-h-11 rounded-lg border bg-background px-3 text-sm" data-testid="select-front-door-role">
                 <option value="">Choose a role or situation</option>
                 {roles.map(([value, label]) => <option key={value} value={value}>{label}</option>)}
@@ -1410,6 +1401,7 @@ function PricingTiersSection() {
               </ul>
               {tier.href.startsWith("http") ? (
                 <a href={tier.href} target="_blank" rel="noopener noreferrer"
+                  aria-label={`${tier.cta} (opens in a new tab)`}
                   className={`w-full py-2.5 rounded-lg text-xs font-semibold text-white bg-gradient-to-r ${tier.color} shadow-sm hover:opacity-90 transition-opacity text-center`}
                   data-testid={`button-pricing-cta-${tier.name.toLowerCase()}`}>
                     {tier.cta} →
@@ -1437,9 +1429,9 @@ function PricingTiersSection() {
 function GrantPathProSection() {
   const flow = [
     { icon: Search,    label: "Enter any ZIP",          desc: "Type any U.S. community — city, county, or ZIP code" },
-    { icon: BarChart3, label: "Get the analysis",       desc: "Census-verified needs assessment, cascade, ROI — 15 seconds" },
-    { icon: FileText,  label: "Invoice + narrative",    desc: "Download the Community Invoice PDF or the AI grant narrative" },
-    { icon: Send,      label: "Push to GrantPathPro",   desc: "One click sends the full package — needs assessment, domain scores, matched grants" },
+    { icon: BarChart3, label: "Get the analysis",       desc: "Census-sourced indicators and a TCAF-derived needs assessment" },
+    { icon: FileText,  label: "Invoice + scenario",     desc: "Download the Community Invoice with modeled cascade and ROI clearly labeled" },
+    { icon: Send,      label: "Push to GrantPathPro",   desc: "With authorization, send the selected package — needs assessment, domain scores, matched grants" },
     { icon: Zap,       label: "Execute & monitor",      desc: "GrantPathPro handles grant writing, submission tracking, compliance, and reporting" },
   ];
 
@@ -1463,12 +1455,13 @@ function GrantPathProSection() {
                 </div>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                   Two complementary platforms. ThriveUp generates the intelligence — community needs, financial impact, grant alignment.
-                   GrantPathPro helps you write, strengthen, execute, and monitor grants. Together, you never switch platforms mid-grant.
+                   GrantPathPro helps you write, strengthen, execute, and monitor grants. With the partner organization’s authorization, the handoff keeps the pursuit connected across platforms.
                  </p>
                  <a
                    href="https://pursuitsfundingprofessionals.com"
                    target="_blank"
                    rel="noopener noreferrer"
+                    aria-label="Visit pursuitsfundingprofessionals.com (opens in a new tab)"
                    className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:underline mt-2"
                    data-testid="link-gpp-website"
                  >
@@ -1506,9 +1499,9 @@ function GrantPathProSection() {
                 </div>
                 <ul className="space-y-1">
                   {[
-                    "Community needs assessment (Census-verified)",
+                    "Census-sourced community indicators + derived needs assessment",
                     "Historical cost cascade (4 vintages, 2013–2022)",
-                    "25-year forward projection + ROI",
+                    "25-year forward projection + modeled ROI scenario (not guaranteed)",
                     "Funding intelligence matched to partner profiles",
                     "AI narrative for any RFP section",
                     "Community Invoice PDF",
@@ -1555,7 +1548,7 @@ function GrantPathProSection() {
                   Generate a Community Brief →
               </Link>
               <span className="text-xs text-muted-foreground">
-                 Then send directly to GrantPathPro with one click
+                 Then send the selected package to GrantPathPro with authorization
               </span>
               <div className="flex items-center gap-1.5 ml-auto">
                 <Lock className="h-3 w-3 text-muted-foreground/60" />
@@ -1603,11 +1596,9 @@ function FiveWTeaser() {
               We are stronger together.
             </h2>
           </div>
-          <Link href="/our-approach">
-            <Button variant="outline" size="sm" data-testid="link-our-approach-teaser">
-              How we work <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
-            </Button>
-          </Link>
+          <Button asChild variant="outline" size="sm" data-testid="link-our-approach-teaser">
+            <Link href="/our-approach">How we work <ArrowRight className="ml-1.5 h-3.5 w-3.5" /></Link>
+          </Button>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -1653,12 +1644,30 @@ function useIsDark() {
   return dark;
 }
 
+function usePrefersReducedMotion() {
+  const [reducedMotion, setReducedMotion] = useState(() =>
+    typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReducedMotion(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+
+  return reducedMotion;
+}
+
 function HeroBackground({ isDark }: { isDark: boolean }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const animRef = useRef(0);
   const blobRef = useRef<HTMLDivElement>(null);
+  const reducedMotion = usePrefersReducedMotion();
 
   useEffect(() => {
+    if (reducedMotion) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -1688,6 +1697,8 @@ function HeroBackground({ isDark }: { isDark: boolean }) {
 
     let tick = 0;
     function draw() {
+      animRef.current = 0;
+      if (document.hidden) return;
       tick++;
       ctx!.clearRect(0, 0, W, H);
 
@@ -1754,24 +1765,63 @@ function HeroBackground({ isDark }: { isDark: boolean }) {
           }
         }
       }
-      animRef.current = requestAnimationFrame(draw);
+      if (!document.hidden) animRef.current = requestAnimationFrame(draw);
     }
-    draw();
-    return () => cancelAnimationFrame(animRef.current);
-  }, [isDark]);
+
+    const schedule = () => {
+      if (!document.hidden && animRef.current === 0) {
+        animRef.current = requestAnimationFrame(draw);
+      }
+    };
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        if (animRef.current !== 0) {
+          cancelAnimationFrame(animRef.current);
+          animRef.current = 0;
+        }
+      } else {
+        schedule();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    schedule();
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (animRef.current !== 0) cancelAnimationFrame(animRef.current);
+      animRef.current = 0;
+    };
+  }, [isDark, reducedMotion]);
 
   useEffect(() => {
+    if (reducedMotion) return;
     let tick = 0;
-    const iv = setInterval(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const update = () => {
       tick += 0.005;
       if (!blobRef.current) return;
       blobRef.current.querySelectorAll<HTMLElement>("[data-hb]").forEach((b, i) => {
         const ph = tick + i * 1.4;
         b.style.transform = `translate(${Math.sin(ph * 0.5) * 28}px,${Math.cos(ph * 0.4) * 22}px) scale(${1 + Math.sin(ph * 0.7) * 0.07})`;
       });
-    }, 16);
-    return () => clearInterval(iv);
-  }, []);
+    };
+    const start = () => {
+      if (!document.hidden && intervalId === null) intervalId = setInterval(update, 16);
+    };
+    const stop = () => {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+    const handleVisibilityChange = () => document.hidden ? stop() : start();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    start();
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stop();
+    };
+  }, [reducedMotion]);
 
   if (isDark) {
     return (
@@ -1813,16 +1863,41 @@ function HeroBackground({ isDark }: { isDark: boolean }) {
 
 function HeroStatCounter({ target, label, color, isDark }: { target: number; label: string; color: string; isDark: boolean }) {
   const [val, setVal] = useState(0);
+  const reducedMotion = usePrefersReducedMotion();
   useEffect(() => {
+    if (reducedMotion) {
+      setVal(target);
+      return;
+    }
+    setVal(0);
     let cur = 0;
     const step = target / 90;
-    const t = setInterval(() => {
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    const update = () => {
       cur = Math.min(cur + step, target);
       setVal(Math.floor(cur));
-      if (cur >= target) clearInterval(t);
-    }, 18);
-    return () => clearInterval(t);
-  }, [target]);
+      if (cur >= target && intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+    const start = () => {
+      if (!document.hidden && cur < target && intervalId === null) intervalId = setInterval(update, 18);
+    };
+    const stop = () => {
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+    };
+    const handleVisibilityChange = () => document.hidden ? stop() : start();
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    start();
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      stop();
+    };
+  }, [target, reducedMotion]);
   return (
     <div className="text-center">
       <div className="text-2xl sm:text-3xl font-black tabular-nums" style={{ color }}>{val.toLocaleString()}</div>
@@ -1919,7 +1994,7 @@ function CommunityOperatingStory() {
     { label: "Observed", detail: "Published source data", color: "#0891b2" },
     { label: "Derived", detail: "TCAF calculations", color: "#7c3aed" },
     { label: "Modeled", detail: "Planning scenarios", color: "#d97706" },
-    { label: "Synthesized", detail: "AI-assisted narrative", color: "#059669" },
+    { label: "Implemented", detail: "Reach and outcomes", color: "#059669" },
   ] as const;
 
   return (
@@ -1977,7 +2052,7 @@ function CommunityOperatingStory() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
             <div className="shrink-0">
               <p className="text-xs font-black uppercase tracking-[0.16em] text-muted-foreground">Evidence stays labeled</p>
-              <p className="text-xs text-muted-foreground mt-1">No scenario or AI summary is presented as measured fact.</p>
+              <p className="text-xs text-muted-foreground mt-1">AI summaries are synthesis, not a fifth measurement.</p>
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 flex-1">
               {truthTypes.map((truth) => (
@@ -2030,14 +2105,15 @@ export default function LandingPage() {
       <JsonLd data={{
         "@context": "https://schema.org",
         "@type": "WebSite",
-        "name": "ThriveUp Academy",
+        "name": "ThriveUp Academy — a TCAF platform",
         "url": "https://ai-mastery-academy.replit.app/",
-        "description": "A national community-infrastructure platform connecting people to grant funding, aligning service delivery with workforce development, and producing measurable community impact across the United States.",
+        "description": "A national community-infrastructure platform connecting people to grant funding, aligning service delivery with workforce development, and supporting measurable community impact through a 50-state architecture with local availability that varies.",
         "publisher": {
           "@type": "Organization",
-          "name": "ThriveUp Academy",
-          "foundingLocation": { "@type": "Place", "name": "Austin, TX" },
-          "areaServed": "United States"
+          "name": "The Collaborative Advocate Foundation (TCAF)",
+          "description": "A nonprofit backbone for residents, nonprofits, and communities to thrive.",
+          "foundingLocation": { "@type": "Place", "name": "Pflugerville, TX" },
+          "areaServed": "United States — national architecture, Texas-piloted"
         }
       }} />
       <style>{`
@@ -2045,6 +2121,22 @@ export default function LandingPage() {
           0% { background-position: 0% 50%; }
           50% { background-position: 100% 50%; }
           100% { background-position: 0% 50%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-ping,
+          .animate-in {
+            animation: none !important;
+          }
+          *, *::before, *::after {
+            scroll-behavior: auto !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+        @media (min-width: 701px) {
+          [data-testid="landing-page"] > section:not([data-testid="section-hero"]) {
+            content-visibility: auto;
+            contain-intrinsic-size: 560px;
+          }
         }
       `}</style>
 
@@ -2077,7 +2169,7 @@ export default function LandingPage() {
           {/* Subtitle */}
           <p className="mb-3 px-2" data-testid="text-hero-subtitle"
             style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 580, lineHeight: 1.65 }}>
-            Free for families seeking a next step. Built for the people and organizations that help communities move forward.
+             Family pathways are free to try. Built for the people and organizations that help communities move forward.
           </p>
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
@@ -2091,8 +2183,7 @@ export default function LandingPage() {
 
           <p className="text-xs mb-5 px-2" data-testid="text-hero-identity"
             style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
-            {IDENTITY_STRAP} · Built for every community in America.
-            Free for families. No prerequisites. No paperwork.
+             {IDENTITY_STRAP} · National architecture; local availability varies.
           </p>
 
           {/* The first decision is intentionally small and plain-language.
@@ -2128,6 +2219,9 @@ export default function LandingPage() {
               </Link>
             </div>
           </div>
+          <p className="text-[11px] mt-3 px-2 max-w-2xl mx-auto" style={{ color: heroFaint }} data-testid="text-hero-safety-disclosure">
+            Information and navigation support only — not an eligibility determination or medical advice. If someone is in immediate danger, call 911; for a mental-health crisis, call or text 988.
+          </p>
 
           <div className="w-full max-w-3xl mb-6 rounded-2xl px-4 py-3 text-left sm:text-center"
             style={{ background: isDark ? "rgba(15,23,42,0.72)" : "rgba(255,255,255,0.7)", border: `1px solid ${isDark ? "rgba(255,255,255,0.14)" : "rgba(15,23,42,0.12)"}`, backdropFilter: "blur(10px)" }}
@@ -2260,7 +2354,7 @@ export default function LandingPage() {
                 { value: "15",  label: "Service Platforms",   color: "text-blue-600 dark:text-blue-400"     },
                 { value: "9",   label: "Benefits Per Screen", color: "text-emerald-600 dark:text-emerald-400"},
                 { value: "50",  label: "States — 1 Build",   color: "text-violet-600 dark:text-violet-400" },
-                { value: "107", label: "Languages",           color: "text-rose-600 dark:text-rose-400"     },
+                { value: "107", label: "Languages via AI translation", color: "text-rose-600 dark:text-rose-400" },
               ]).map(m => (
                 <div key={m.label} className="bg-card border border-border/60 rounded-xl p-3 text-center" data-testid={`metric-${m.label.toLowerCase().replace(/\s+/g, "-")}`}>
                   <p className={`text-xl font-black ${m.color}`}>{m.value}</p>
@@ -2356,7 +2450,7 @@ export default function LandingPage() {
             href="/community-data"
             className="group flex items-center gap-4 rounded-xl border bg-card p-4 sm:p-5 transition-all duration-300 hover:shadow-lg hover:border-primary/40 no-underline"
             data-testid="card-community-data"
-            aria-label="Look up official homelessness data for your community — every U.S. Continuum of Care, 2007 to present"
+              aria-label="Look up official homelessness data for your community — supported U.S. Continuums of Care, 2007 to present"
           >
             <div className="rounded-xl p-3 bg-gradient-to-br from-sky-500 to-blue-600 shrink-0 shadow-md">
               <BarChart3 className="h-5 w-5 text-white" />
@@ -2366,7 +2460,7 @@ export default function LandingPage() {
                 What does homelessness look like in your community?
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                Official HUD counts for every U.S. community, every published year since 2007 — plus live, cited answers about local services. Nothing estimated.
+                 Official HUD counts for supported U.S. Continuums of Care and published years since 2007 — plus live, cited answers about local services. Nothing estimated.
               </p>
             </div>
             <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-1 transition-transform shrink-0" />
@@ -2465,16 +2559,12 @@ export default function LandingPage() {
           <div className="mt-6 text-center">
             <p className="text-sm text-muted-foreground mb-3">Not sure where to start? That's okay.</p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
-              <Link href="/ai-companion">
-                <Button variant="outline" className="gap-2" data-testid="button-talk-to-navigator">
-                  <Sparkles className="h-4 w-4" /> Talk to Someone Who Can Help
-                </Button>
-              </Link>
-              <a href="mailto:president@thecollaborativeadvocate.org">
-                <Button variant="ghost" className="gap-2 text-muted-foreground" data-testid="button-email-us">
-                  <Mail className="h-4 w-4" /> Or email us directly
-                </Button>
-              </a>
+              <Button asChild variant="outline" className="gap-2" data-testid="button-talk-to-navigator">
+                <Link href="/ai-companion"><Sparkles className="h-4 w-4" /> Talk to Someone Who Can Help</Link>
+              </Button>
+              <Button asChild variant="ghost" className="gap-2 text-muted-foreground" data-testid="button-email-us">
+                <a href="mailto:president@thecollaborativeadvocate.org"><Mail className="h-4 w-4" /> Or email us directly</a>
+              </Button>
             </div>
           </div>
         </div>
@@ -2533,11 +2623,9 @@ export default function LandingPage() {
              <p className="font-semibold">Ready to explore beyond the featured pathways?</p>
              <p className="text-sm text-muted-foreground mt-1">Connected partners and staff can open the full operations directory.</p>
            </div>
-           <Link href="/ecosystem" className="shrink-0">
-             <Button variant="outline" className="gap-2" data-testid="button-ecosystem-directory">
-               Open ecosystem command center <Globe className="h-4 w-4" />
-             </Button>
-           </Link>
+            <Button asChild variant="outline" className="gap-2 shrink-0" data-testid="button-ecosystem-directory">
+              <Link href="/ecosystem">Open ecosystem command center <Globe className="h-4 w-4" /></Link>
+            </Button>
          </div>
        </section>
       <DeepDiveSection />
@@ -2556,18 +2644,20 @@ export default function LandingPage() {
           <p className="text-sm text-muted-foreground mb-6 max-w-2xl mx-auto">
             Book a 30-minute conversation directly on Dr. Flood's calendar — no forms, no gatekeepers.
           </p>
-          <Button
-            size="lg"
-            className="gap-2"
-            onClick={() => window.open('https://calendar.google.com/calendar/appointments/schedules/AcZssZ2O1JcnlDSXEidpWJKtc02RF37MRUytN66JNOkHDRxDParffIH6eSlbRe0DVXUbfpJwGFRp2bFG?gv=true', '_blank', 'noopener,noreferrer')}
-            data-testid="button-book-appointment"
-          >
-            <Calendar className="h-4 w-4" />
-            Book an Appointment
-            <ExternalLink className="h-3.5 w-3.5" />
-          </Button>
+           <Button asChild size="lg" className="gap-2" data-testid="button-book-appointment">
+             <a
+               href="https://calendar.google.com/calendar/appointments/schedules/AcZssZ2O1JcnlDSXEidpWJKtc02RF37MRUytN66JNOkHDRxDParffIH6eSlbRe0DVXUbfpJwGFRp2bFG?gv=true"
+               target="_blank"
+               rel="noopener noreferrer"
+               aria-label="Book an Appointment (opens in a new tab)"
+             >
+               <Calendar className="h-4 w-4" />
+               Book an Appointment
+               <ExternalLink className="h-3.5 w-3.5" />
+             </a>
+           </Button>
           <p className="text-xs text-muted-foreground/70 mt-4">
-            Opens in Google Calendar · Free · No commitment
+             Opens in Google Calendar in a new tab · Free · No commitment
           </p>
         </div>
       </section>
@@ -2584,7 +2674,7 @@ export default function LandingPage() {
                 Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure built to deploy in any U.S. county. Texas is our first deployment.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
-                The Collaborative Advocate Foundation · IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026) · SAM Active · CAGE 209N1
+                 The Collaborative Advocate Foundation (TCAF) · IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026) · SAM Active · TCAF CAGE 209N1 · ISS LLC CAGE 9VKK3
               </p>
             </div>
             <div data-testid="footer-column-platform">
