@@ -769,7 +769,7 @@ const ECOSYSTEM_PLATFORMS_DATA = [
     domain: "Funding & Grant Execution",
     color: "from-orange-500 to-amber-600",
     platforms: [
-      { name: "GrantPathPro", url: "https://pursuitsfundingprofessionals.com", desc: "Grant writing and proposal drafting, budget development, compliance review, submission tracking, funder relationships, and post-award reporting", icon: FileText },
+      { name: "GrantPathPro", url: "/for-agencies", desc: "Grant writing and proposal drafting, budget development, compliance review, submission tracking, funder relationships, and post-award reporting", icon: FileText },
     ],
   },
 ];
@@ -1458,14 +1458,14 @@ function GrantPathProSection() {
                    GrantPathPro helps you write, strengthen, execute, and monitor grants. With the partner organization’s authorization, the handoff keeps the pursuit connected across platforms.
                  </p>
                  <a
-                   href="https://pursuitsfundingprofessionals.com"
+                   href="/for-agencies"
                    target="_blank"
                    rel="noopener noreferrer"
-                    aria-label="Visit pursuitsfundingprofessionals.com (opens in a new tab)"
+                    aria-label="Learn about GrantPathPro funding opportunities (opens in a new tab)"
                    className="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 dark:text-amber-300 hover:underline mt-2"
                    data-testid="link-gpp-website"
                  >
-                   Visit pursuitsfundingprofessionals.com <ExternalLink className="h-3 w-3" />
+                   Explore GrantPathPro opportunities <ExternalLink className="h-3 w-3" />
                  </a>
               </div>
             </div>

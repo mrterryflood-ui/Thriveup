@@ -52,6 +52,16 @@ const US_STATE_NAMES: Record<string, string> = {
 };
 function stateName(abbr: string): string { return US_STATE_NAMES[abbr.toUpperCase()] || abbr; }
 
+function safeOpportunitySourceUrl(value: string | null | undefined): string | null {
+  if (!value) return null;
+  try {
+    const url = new URL(value);
+    return url.protocol === "https:" && !url.username && !url.password ? url.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 function getParamId(req: Request): string {
   const id = req.params.id as string;
   return Array.isArray(id) ? id[0] : String(id);
@@ -4702,7 +4712,7 @@ Be practical and specific. Dr. Flood is a busy executive — tell him exactly wh
         return {
           id: g.id, title: g.title, agency: g.agency, description: g.description,
           fundingAmount: g.fundingAmount, deadline: g.deadline, fitScore: g.fitScore,
-          source: g.source, sourceUrl: g.sourceUrl, status: g.status,
+          source: g.source, sourceUrl: safeOpportunitySourceUrl(g.sourceUrl), status: g.status,
           matchedThemes: matchedByCategory.map(m => m.cat.label),
           matchedKeywords: allHits,
           fitReason: allHits.length > 0

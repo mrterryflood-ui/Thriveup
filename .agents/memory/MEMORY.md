@@ -46,6 +46,7 @@
 - [AI claim grounding + tamper-evident chain](ai-claim-grounding-chain.md) — shared mechanical grounding engine (not NLP) for closed-form numeric AI claims; free-form chat is disclosed/labeled, not verified — a deliberate scope boundary.
 - [Seed data provenance disclosure](seed-provenance-disclosure.md) — isDemoData/dataSource labels legacy fabricated seed rows; allowlist-based audit script; check both insert AND update paths for a "sourced" field.
 - [AI-to-AI inbound verification pattern](inbound-verification-pattern.md) — shared verifyInboundPayload helper scrubs partner/AI payloads before use; reject-or-null + audit log + sender-facing corrections, never trust bidirectionally.
+- [Partner intelligence privacy boundary](partner-intelligence-privacy.md) — external partner keys do not identify an organization; default partner context to aggregate/public evidence only.
 - [Equity-Loss Engine](equity-loss-engine.md) — 3-frame divergence must never be structurally zero; peer-class = 1 representative county, disclosed; Census now hard-requires its API key (302, not clean error).
 - [Express route ID shadowing](express-route-id-shadowing.md) — `/api/grants/:id` in grant-routes.ts has a manual reserved-word allowlist; any new literal `/api/grants/<word>` route must be added to it or it gets swallowed.
 - [Benefits How-to-Apply walkthroughs](benefits-apply-walkthroughs.md) — server catalog + shared meta + screener cards must stay in lockstep; parity gate fails one-sided program adds.

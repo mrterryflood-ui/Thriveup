@@ -174,6 +174,12 @@ callback. The request must include `contractVersion: "v1"`, a caller-owned
 or `regionName`). It may also include `grantId`, `grantTitle`, `domains`,
 `stateFips`, and `countyFips`.
 
+`requestId` is an opaque caller-owned string, up to 200 characters. It is
+accepted once per caller for a short replay-protection window. The endpoint is
+also bounded to 12 accepted requests per caller per minute and two concurrent
+requests. A repeated request ID receives a `429` response rather than causing
+another paid research call.
+
 The response is a read-only orchestration envelope. When available, it combines:
 
 - aggregate Census ACS community context;
@@ -185,8 +191,16 @@ Each source remains labeled. Partner lessons are not converted into observed
 community measures or outcomes. Perplexity findings are research leads and must
 be checked against their cited primary sources before use in eligibility,
 submission, outreach, award, or compliance decisions. If live research fails,
-the response exposes a `partial` or unavailable state and does not fabricate
-replacement findings.
+the response uses a structured `partial` or unavailable state and does not
+fabricate replacement findings. A partial envelope remains machine-readable
+and includes `contractVersion`, `requestId`, `grantPathPro`, `orchestration`,
+and `nextSteps`. These usable partial states return HTTP `200`; transport or
+validation failures remain non-success HTTP responses.
+
+Live citations are returned only as HTTPS URLs. The community context includes
+a structured source index, but its text remains an attributed context bundle;
+consumers must not treat that bundle as a claim-level replacement for the
+underlying Census, RPLICE, or Civic Signal source records.
 
 This endpoint does not authorize external delivery, outreach, submission, an
 award decision, or a partner commitment. It is separate from the deliberate

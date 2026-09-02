@@ -38,10 +38,10 @@ function fmtDeadline(d: string | null) {
 }
 
 export default function ForAgenciesPage() {
-  const { data, isLoading, isError } = useQuery<{ note: string; total: number; opportunities: AgencyOpportunity[] }>({
+  const { data, isLoading, isError, refetch } = useQuery<{ note: string; total: number; opportunities: AgencyOpportunity[] }>({
     queryKey: ["/api/grants/for-agencies"],
   });
-  const { data: gppStatus } = useQuery<{ configured: boolean; url: string | null }>({
+  const { data: gppStatus, isLoading: isGppStatusLoading, isError: isGppStatusError, refetch: refetchGppStatus } = useQuery<{ configured: boolean; url: string | null }>({
     queryKey: ["/api/consortium/gpp-status"],
   });
   const grantPathProUrl = gppStatus?.url || null;
@@ -68,7 +68,10 @@ export default function ForAgenciesPage() {
       )}
 
       {isError && (
-        <p className="text-sm text-muted-foreground">Couldn't load current opportunities. Please try again shortly.</p>
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+          <p>Couldn't load current opportunities.</p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>Retry</Button>
+        </div>
       )}
 
       {data && (
@@ -119,6 +122,7 @@ export default function ForAgenciesPage() {
                     )}
                     {g.sourceUrl && (
                       <a href={g.sourceUrl} target="_blank" rel="noopener noreferrer"
+                        aria-label={`View source for ${g.title} (opens in a new tab)`}
                         className="text-xs text-primary flex items-center gap-1 hover:underline">
                         View opportunity <ExternalLink className="h-3 w-3" />
                       </a>
@@ -142,9 +146,22 @@ export default function ForAgenciesPage() {
             GrantPathPro helps you turn a matched opportunity into an actual, submittable application —
             proposal drafting, budget building, and compliance review.
           </p>
-          {grantPathProUrl ? (
+          {isGppStatusLoading ? (
+            <p className="text-sm text-muted-foreground" data-testid="grantpathpro-link-loading">
+              Checking the GrantPathPro destination…
+            </p>
+          ) : isGppStatusError ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <p className="text-sm text-muted-foreground" data-testid="grantpathpro-link-error">
+                The GrantPathPro destination could not be checked.
+              </p>
+              <Button type="button" variant="outline" size="sm" onClick={() => refetchGppStatus()}>
+                Retry
+              </Button>
+            </div>
+          ) : grantPathProUrl ? (
             <Button asChild data-testid="button-go-to-grantpathpro">
-              <a href={grantPathProUrl} target="_blank" rel="noopener noreferrer">
+              <a href={grantPathProUrl} target="_blank" rel="noopener noreferrer" aria-label="Go to GrantPathPro (opens in a new tab)">
                 Go to GrantPathPro <ArrowRight className="h-4 w-4 ml-2" />
               </a>
             </Button>

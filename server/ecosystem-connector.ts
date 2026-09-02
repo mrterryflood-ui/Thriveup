@@ -9,6 +9,7 @@ import { sendEcosystemUpdate } from "./email-service";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
 import { getAgentInbox, PLATFORM_CAPABILITIES } from "./agent-communication";
 import { verifyInboundPayload, recordInboundVerification, rejectionsToCorrectionNote, type InboundSchema } from "./inbound-verification";
+import { getGrantPathProOutboundConfig } from "./grantpathpro-config";
 
 // Sibling platforms self-report compliance work via heartbeat, and that
 // report drives real automated behavior — directive acks flip to
@@ -1012,7 +1013,7 @@ const ECOSYSTEM_PLATFORMS = [
   {
     id: "grantpathpro",
     name: "GrantPathPro",
-    url: "https://pursuitsfundingprofessionals.com",
+    url: getGrantPathProOutboundConfig().url || "/for-agencies",
     role: "grant-execution",
     domain: "grants-and-funding",
     description: "Funding intelligence and grant-execution platform for federal, state, local, philanthropic, research, and international pursuits. GrantPathPro helps organizations qualify the right opportunities, write and strengthen grant proposals, build budgets, review compliance, track submissions and deadlines, manage funder relationships, and report outcomes after award. Receives ThriveUp community briefs, needs assessments, grant-fit signals, and evidence summaries so grant writing starts with community context rather than a blank page.",

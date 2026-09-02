@@ -56,7 +56,9 @@ const RPLICE_BASE = "https://www.bettersciencelab.com";
 
 // Bearer key — set RPLICE_API_KEY secret to unlock all /api/v1/* authenticated endpoints.
 // Without it, public endpoints still work; auth-gated calls return null gracefully.
-const RPLICE_API_KEY = process.env.THRIVE_GPP_API_KEY || process.env.THRIVEUP_INBOUND_KEY || process.env.THRIVE_GPP_API || process.env.RPLICE_API_KEY || "";
+// RPLICE authentication is a separate outbound trust boundary. Never reuse an
+// inbound partner key or a GrantPathPro delivery key for this service.
+const RPLICE_API_KEY = process.env.RPLICE_API_KEY || "";
 
 /** Public GET — no auth needed (knowledge slices, /api/research, /api/frameworks/list) */
 async function fetchRpliceLive(path: string, timeout = 10000): Promise<any> {
@@ -423,8 +425,9 @@ export async function buildRpliceIntelligencePackage(params: {
   regionName?: string;
   stateFips?: string;
   countyFips?: string;
+  includePrivateData?: boolean;
 }): Promise<RpliceIntelligencePackage> {
-  const { crisisDomains = [], regionName = "community" } = params;
+  const { crisisDomains = [], regionName = "community", includePrivateData = true } = params;
 
   // Build search query from crisis domains
   const searchTerms = crisisDomains.map(d => {
@@ -507,9 +510,15 @@ export async function buildRpliceIntelligencePackage(params: {
       : Promise.resolve(null),
 
     // DB
-    db.select().from(rpliceAssessments).orderBy(desc(rpliceAssessments.createdAt)).limit(50),
-    db.select().from(rpliceActionPlans).where(eq(rpliceActionPlans.status, "active")).orderBy(desc(rpliceActionPlans.createdAt)).limit(20),
-    db.select().from(outcomeBaselines).where(eq(outcomeBaselines.status, "active")).orderBy(desc(outcomeBaselines.createdAt)).limit(20),
+    includePrivateData
+      ? db.select().from(rpliceAssessments).orderBy(desc(rpliceAssessments.createdAt)).limit(50)
+      : Promise.resolve([]),
+    includePrivateData
+      ? db.select().from(rpliceActionPlans).where(eq(rpliceActionPlans.status, "active")).orderBy(desc(rpliceActionPlans.createdAt)).limit(20)
+      : Promise.resolve([]),
+    includePrivateData
+      ? db.select().from(outcomeBaselines).where(eq(outcomeBaselines.status, "active")).orderBy(desc(outcomeBaselines.createdAt)).limit(20)
+      : Promise.resolve([]),
     generateRpliceHeartbeatIntelligence("thriveup").catch(() => null),
   ]);
 
@@ -956,6 +965,7 @@ export async function buildCommunityAIContext(params: {
         regionName: regionName || zip || "community",
         stateFips,
         countyFips,
+        includePrivateData: false,
       }).catch((err) => {
         console.error("[CommunityContext] RPLICE package unavailable:", err instanceof Error ? err.message : String(err));
         return null;
