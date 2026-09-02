@@ -98,9 +98,23 @@ function isSafePartnerUrl(value: string): boolean {
   try {
     const parsed = new URL(value);
     if (parsed.protocol !== "https:" || parsed.username || parsed.password) return false;
-    const configuredHosts = (process.env.GPP_ALLOWED_HOSTS || "trustworthy-sheep-515.convex.site")
+    const configuredHosts = (process.env.GPP_ALLOWED_HOSTS || "")
       .split(",").map((host) => host.trim().toLowerCase()).filter(Boolean);
-    return configuredHosts.includes(parsed.hostname.toLowerCase());
+    const configuredPartnerHosts = [
+      process.env.GPP_API_URL,
+      process.env.GPP_EMBED_URL,
+      process.env.GPP_MIRROR_URL,
+      process.env.GPP_OPPORTUNITY_HANDOFF_URL,
+    ].flatMap((candidate) => {
+      if (!candidate) return [];
+      try {
+        return [new URL(candidate).hostname.toLowerCase()];
+      } catch {
+        return [];
+      }
+    });
+    return [...new Set([...configuredHosts, ...configuredPartnerHosts])]
+      .includes(parsed.hostname.toLowerCase());
   } catch {
     return false;
   }

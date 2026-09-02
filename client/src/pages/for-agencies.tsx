@@ -13,8 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Building2, ExternalLink, Sparkles, Globe, ArrowRight } from "lucide-react";
 
-const GRANTPATHPRO_URL = "https://pursuitsfundingprofessionals.com";
-
 interface AgencyOpportunity {
   id: string;
   title: string;
@@ -43,6 +41,10 @@ export default function ForAgenciesPage() {
   const { data, isLoading, isError } = useQuery<{ note: string; total: number; opportunities: AgencyOpportunity[] }>({
     queryKey: ["/api/grants/for-agencies"],
   });
+  const { data: gppStatus } = useQuery<{ configured: boolean; url: string | null }>({
+    queryKey: ["/api/consortium/gpp-status"],
+  });
+  const grantPathProUrl = gppStatus?.url || null;
 
   return (
     <div className="container max-w-4xl py-8 px-4 space-y-8" data-testid="page-for-agencies">
@@ -140,11 +142,17 @@ export default function ForAgenciesPage() {
             GrantPathPro helps you turn a matched opportunity into an actual, submittable application —
             proposal drafting, budget building, and compliance review.
           </p>
-          <Button asChild data-testid="button-go-to-grantpathpro">
-            <a href={GRANTPATHPRO_URL} target="_blank" rel="noopener noreferrer">
-              Go to GrantPathPro <ArrowRight className="h-4 w-4 ml-2" />
-            </a>
-          </Button>
+          {grantPathProUrl ? (
+            <Button asChild data-testid="button-go-to-grantpathpro">
+              <a href={grantPathProUrl} target="_blank" rel="noopener noreferrer">
+                Go to GrantPathPro <ArrowRight className="h-4 w-4 ml-2" />
+              </a>
+            </Button>
+          ) : (
+            <p className="text-sm text-muted-foreground" data-testid="grantpathpro-link-unavailable">
+              The GrantPathPro destination is not configured on this deployment. No link is being guessed.
+            </p>
+          )}
         </CardContent>
       </Card>
     </div>

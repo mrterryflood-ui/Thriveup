@@ -160,3 +160,34 @@ Award amounts, funder feedback, and lessons are not public evidence and are not
 general AI context. Cross-organization learning remains disabled until a
 separate policy defines explicit organization consent, minimum aggregation
 thresholds, provenance, and human review.
+
+## Read-only pursuit intelligence
+
+When GrantPathPro needs current context while preparing or monitoring a pursuit,
+it may call:
+
+`POST /api/inbound/grantpathpro/intelligence`
+
+using the same provisioned `x-api-key` authentication as the execution-event
+callback. The request must include `contractVersion: "v1"`, a caller-owned
+`requestId`, a non-blank `question`, and an explicit geography (`zip`, `state`,
+or `regionName`). It may also include `grantId`, `grantTitle`, `domains`,
+`stateFips`, and `countyFips`.
+
+The response is a read-only orchestration envelope. When available, it combines:
+
+- aggregate Census ACS community context;
+- RPLICE implementation-science and community intelligence;
+- verified Civic Signal partner-supplied adaptation lessons; and
+- live Perplexity Sonar Pro research with returned citations.
+
+Each source remains labeled. Partner lessons are not converted into observed
+community measures or outcomes. Perplexity findings are research leads and must
+be checked against their cited primary sources before use in eligibility,
+submission, outreach, award, or compliance decisions. If live research fails,
+the response exposes a `partial` or unavailable state and does not fabricate
+replacement findings.
+
+This endpoint does not authorize external delivery, outreach, submission, an
+award decision, or a partner commitment. It is separate from the deliberate
+opportunity-handoff flow above.
