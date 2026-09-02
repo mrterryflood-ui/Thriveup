@@ -303,6 +303,34 @@ function buildGrantPathProResearchPrompt(request: {
   ].join("\n");
 }
 
+const intelligenceRequests = new Map<string, number>();
+const intelligenceWindows = new Map<string, { startedAt: number; count: number }>();
+const INTELLIGENCE_REQUEST_TTL_MS = 15 * 60 * 1000;
+const INTELLIGENCE_WINDOW_MS = 60 * 1000;
+const INTELLIGENCE_MAX_REQUESTS_PER_WINDOW = 12;
+
+function claimGrantPathProIntelligenceRequest(callerKey: string, requestId: string): { ok: true; release: () => void } | { ok: false; reason: string } {
+  const now = Date.now();
+  for (const [requestKey, expiresAt] of intelligenceRequests) {
+    if (expiresAt <= now) intelligenceRequests.delete(requestKey);
+  }
+  const priorWindow = intelligenceWindows.get(callerKey);
+  if (priorWindow && now - priorWindow.startedAt < INTELLIGENCE_WINDOW_MS && priorWindow.count >= INTELLIGENCE_MAX_REQUESTS_PER_WINDOW) {
+    return { ok: false, reason: "Too many intelligence requests from this caller. Retry after the rate window." };
+  }
+  if (!priorWindow || now - priorWindow.startedAt >= INTELLIGENCE_WINDOW_MS) {
+    intelligenceWindows.set(callerKey, { startedAt: now, count: 1 });
+  } else {
+    priorWindow.count += 1;
+  }
+  const requestKey = `request:${callerKey}:${requestId}`;
+  if (intelligenceRequests.has(requestKey)) {
+    return { ok: false, reason: "requestId was already accepted. Use a new requestId for a new read-only request." };
+  }
+  intelligenceRequests.set(requestKey, now + INTELLIGENCE_REQUEST_TTL_MS);
+  return { ok: true, release: () => undefined };
+}
+
 function parseInboundTimestamp(value: string | undefined): Date | null {
   if (!value || !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:\d{2})$/.test(value)) return null;
   const parsed = new Date(value);
@@ -1351,17 +1379,21 @@ export function registerGrantPathProRoutes(app: Express) {
           blocking: true,
         });
       }
-      const hasGeography = Boolean(clean.zip || clean.state || clean.regionName || clean.stateFips || clean.countyFips);
+      const hasGeography = Boolean(clean.zip || clean.state || clean.regionName);
       if (!hasGeography) {
         rejections.push({
           field: "geography",
           reason: "missing_required",
           receivedValue: null,
-          expected: "zip, state, regionName, stateFips, or countyFips",
+          expected: "zip, state, or regionName",
           blocking: true,
         });
       }
-      await recordInboundVerification("grantpathpro", "/api/inbound/grantpathpro/intelligence", rejections);
+      await recordInboundVerification(
+        "grantpathpro",
+        "/api/inbound/grantpathpro/intelligence",
+        rejections.map((rejection) => ({ ...rejection, receivedValue: "[redacted]" })),
+      );
       if (hasBlockingRejection(rejections)) {
         return res.status(400).json({
           error: "Intelligence request rejected",
@@ -1369,20 +1401,18 @@ export function registerGrantPathProRoutes(app: Express) {
         });
       }
 
-      const executionEvents = clean.grantId
-        ? await db.select({
-            id: gppEventsTable.id,
-            receivedAt: gppEventsTable.receivedAt,
-            eventType: gppEventsTable.eventType,
-            status: gppEventsTable.status,
-            milestone: gppEventsTable.milestone,
-            dueDate: gppEventsTable.dueDate,
-          })
-          .from(gppEventsTable)
-          .where(eq(gppEventsTable.grantId, clean.grantId))
-          .orderBy(desc(gppEventsTable.receivedAt))
-          .limit(20)
-        : [];
+      const requestClaim = claimGrantPathProIntelligenceRequest(
+        req.ip || "unknown",
+        clean.requestId as string,
+      );
+      if (!requestClaim.ok) {
+        return res.status(429).json({
+          error: requestClaim.reason,
+          contractVersion: "v1",
+          requestId: clean.requestId,
+          received: false,
+        });
+      }
 
       const communityContext = await buildCommunityAIContext({
         zip: clean.zip,
