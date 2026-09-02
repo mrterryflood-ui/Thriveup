@@ -29,6 +29,7 @@ description: Architecture and status of the Chainweb Evidence API for external p
 - The active Civic Signal-to-ThriveUp inbound credential is the registered Civic Signal ecosystem credential; ThriveUp's malformed-payload probe reached validation (HTTP 400), proving authentication passed without storing test data.
 - Civic Signal’s remote-write watchdog remains intentionally contained until its administrator-recovery process is recorded and a truthful, bounded lesson can be exchanged with an acceptance receipt. Do not fabricate a lesson or bypass that audit to make a status display green.
 - ThriveUp-to-Civic Signal health must be measured separately by its own live pull/push receipt. Do not tell either operator to rotate or re-register credentials from a one-direction 401 alone.
+- Civic Signal retired the key-only `/api/thriveup/*` routes in favor of `POST /api/partner-exchange/v1/thriveup-lessons[/query]`. The replacement currently rejects ThriveUp with partner authorization failure, so keep durable fallback explicit and do not claim the live leg is connected.
 
 ### Community Story tab (/chainweb page)
 - Tab 4 (between Results and Coefficient Library)

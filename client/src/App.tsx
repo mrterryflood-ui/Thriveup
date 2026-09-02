@@ -1027,7 +1027,6 @@ function AppRouter() {
       <Route path="/herhealth"><Redirect to="/health-network" /></Route>
       <Route path="/safereport"><Redirect to="/resources" /></Route>
       <Route path="/sankofa"><Redirect to="/health-network" /></Route>
-      <Route path="/civic-signal"><Redirect to="/community-map" /></Route>
       <Route component={NotFound} />
     </Switch>
   );

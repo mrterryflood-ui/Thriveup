@@ -15,7 +15,7 @@ The ThriveUp Chainweb Evidence API gives Civic Signal's adaptation engine access
 1. **Evidence-based program catalog** — 10 intervention programs with effect sizes, citations, what worked, what failed, and ROI per dollar
 2. **State/jurisdiction policy history** — 10 jurisdiction records across TX, CA, IL, US (including failed policies like mandatory minimums and DARE)
 3. **26 causal ripple coefficients** — the evidence-based coefficients powering the Chainweb ROI engine (already public via `/api/chainweb/coefficients`)
-4. **RAG context injection** — pre-formatted evidence paragraph ready for AI prompt injection (already public via `/api/chainweb/rag-context`)
+4. **RAG context injection** — pre-formatted evidence paragraph for authenticated first-party AI prompt injection (`/api/chainweb/rag-context`)
 
 In addition, ThriveUp accepts **incoming policy lessons** from Civic Signal via a webhook endpoint, enabling a bidirectional intelligence loop.
 
@@ -347,11 +347,11 @@ GET /api/chainweb/coefficients?fromDomain=early_childhood
 
 ---
 
-### 7. RAG Context (No Auth Required — Already Public)
+### 7. RAG Context (Authenticated First-Party Session Required)
 
 **`GET /api/chainweb/rag-context`**
 
-Pre-formatted evidence paragraph ready for AI prompt injection. No auth required.
+Pre-formatted evidence paragraph for internal AI prompt injection. This is not a partner API and requires an authenticated first-party session.
 
 ```
 GET /api/chainweb/rag-context?geography=Travis+County&domain=education&grantType=workforce

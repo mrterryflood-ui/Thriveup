@@ -14,6 +14,7 @@ interface ConnectionStatus {
   outboundReachable: boolean;
   outboundDetail: string;
   inboundLessonsStored: number;
+  inboundAuthenticationConfigured: boolean;
 }
 
 interface Lesson {
@@ -22,6 +23,8 @@ interface Lesson {
   topic: string;
   state: string;
   source: string;
+  sourceDate: string;
+  evidenceClass: string;
   confidence: string;
   receivedAt: string;
   roiImplication?: string;
@@ -57,10 +60,18 @@ export default function CivicSignalPage() {
   const [statusLoading, setStatusLoading] = useState(true);
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [lessonsLoading, setLessonsLoading] = useState(true);
+  const [lessonsError, setLessonsError] = useState<string | null>(null);
 
   const [pullTopic, setPullTopic] = useState("housing");
   const [pullState, setPullState] = useState("");
-  const [pullResult, setPullResult] = useState<{ adaptations: any[]; source: string; error?: string } | null>(null);
+  const [pullResult, setPullResult] = useState<{
+    adaptations: Lesson[];
+    source: string;
+    liveStatus?: "available" | "unavailable";
+    fallbackUsed?: boolean;
+    liveUnavailableReason?: string;
+    error?: string;
+  } | null>(null);
   const [pulling, setPulling] = useState(false);
 
   const [pushStateFips, setPushStateFips] = useState("17");
@@ -73,13 +84,20 @@ export default function CivicSignalPage() {
     fetch("/api/civic-signal/status")
       .then((r) => r.json())
       .then(setStatus)
-      .catch((e) => setStatus({ outboundReachable: false, outboundDetail: e.message, inboundLessonsStored: 0 }))
+      .catch((e) => setStatus({ outboundReachable: false, outboundDetail: e.message, inboundLessonsStored: 0, inboundAuthenticationConfigured: false }))
       .finally(() => setStatusLoading(false));
 
     fetch("/api/civic-signal/lessons")
-      .then((r) => r.json())
+      .then(async (r) => {
+        const body = await r.json();
+        if (!r.ok) throw new Error(body.error || `HTTP ${r.status}`);
+        return body;
+      })
       .then((d) => setLessons(d.lessons ?? []))
-      .catch(() => setLessons([]))
+      .catch((e) => {
+        setLessons([]);
+        setLessonsError(e instanceof Error ? e.message : "Lesson store unavailable");
+      })
       .finally(() => setLessonsLoading(false));
   }, []);
 
@@ -130,9 +148,16 @@ export default function CivicSignalPage() {
             <div style={{ fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "#94a3b8", marginBottom: 6 }}>
               Inbound (Civic Signal → ThriveUp)
             </div>
-            <StatusPill ok={true} label="Webhook live" />
+            <StatusPill
+              ok={!!status?.inboundAuthenticationConfigured}
+              label={status?.inboundAuthenticationConfigured ? "Credential configured" : "Not configured"}
+            />
             <span style={{ marginLeft: 8, fontSize: 13, color: "#cbd5e1" }}>
-              {statusLoading ? "…" : `${status?.inboundLessonsStored ?? 0} lessons received to date`}
+              {statusLoading
+                ? "Checking…"
+                : status?.inboundLessonsStored
+                  ? `${status.inboundLessonsStored} verified lessons received`
+                  : "No verified deliveries yet"}
             </span>
           </div>
           <div>
@@ -150,7 +175,7 @@ export default function CivicSignalPage() {
           </div>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(420px, 1fr))", gap: 20 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 420px), 1fr))", gap: 20 }}>
           {/* Incoming lessons */}
           <div style={card()}>
             <h2 style={{ fontSize: 16, fontWeight: 700, color: "#f8fafc", marginTop: 0 }}>Incoming Lessons</h2>
@@ -159,6 +184,10 @@ export default function CivicSignalPage() {
             </p>
             {lessonsLoading ? (
               <div style={{ color: "#94a3b8", fontSize: 13 }}>Loading…</div>
+            ) : lessonsError ? (
+              <div role="alert" style={{ color: "#fca5a5", fontSize: 13 }}>
+                Lesson store unavailable; no conclusion can be drawn about received lessons. {lessonsError}
+              </div>
             ) : lessons.length === 0 ? (
               <div style={{ color: "#94a3b8", fontSize: 13 }}>
                 No lessons received yet. This list fills in as Civic Signal pushes adaptation intelligence to the
@@ -169,9 +198,12 @@ export default function CivicSignalPage() {
                 {lessons.map((l) => (
                   <div key={l.id} style={{ borderLeft: "3px solid #2563eb", paddingLeft: 12 }}>
                     <div style={{ fontSize: 12, color: "#94a3b8" }}>
-                      {l.topic.toUpperCase()} · {l.state} · {l.confidence} confidence · {l.receivedAt.slice(0, 10)}
+                      Partner lesson — Civic Signal · {l.topic.toUpperCase()} · {l.state} · {l.confidence} confidence
                     </div>
                     <div style={{ fontSize: 13, color: "#e2e8f0", marginTop: 4, lineHeight: 1.4 }}>{l.lesson}</div>
+                    <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>
+                      Source: {l.source} · Source date: {l.sourceDate} · Received: {l.receivedAt.slice(0, 10)}
+                    </div>
                     {l.roiImplication && (
                       <div style={{ fontSize: 12, color: "#64748b", marginTop: 4 }}>ROI implication: {l.roiImplication}</div>
                     )}
@@ -184,41 +216,66 @@ export default function CivicSignalPage() {
               <div style={{ fontSize: 13, fontWeight: 600, color: "#cbd5e1", marginBottom: 8 }}>
                 Pull adaptations live
               </div>
-              <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "flex-end" }}>
+                <label htmlFor="civic-pull-topic" style={{ flex: 1, minWidth: 140, fontSize: 12, color: "#94a3b8" }}>
+                  Topic
                 <input
+                  id="civic-pull-topic"
                   value={pullTopic}
                   onChange={(e) => setPullTopic(e.target.value)}
                   placeholder="topic (e.g. housing)"
-                  style={{ flex: 1, minWidth: 140, padding: "7px 10px", background: "#0f172a", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 13 }}
+                  style={{ display: "block", width: "100%", marginTop: 4, padding: "7px 10px", background: "#0f172a", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 13 }}
                 />
+                </label>
+                <label htmlFor="civic-pull-state" style={{ fontSize: 12, color: "#94a3b8" }}>
+                  State (optional)
                 <input
+                  id="civic-pull-state"
+                  aria-describedby="civic-pull-state-help"
                   value={pullState}
                   onChange={(e) => setPullState(e.target.value)}
                   placeholder="state (optional)"
                   maxLength={2}
-                  style={{ width: 90, padding: "7px 10px", background: "#0f172a", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 13 }}
+                  style={{ display: "block", width: 90, marginTop: 4, padding: "7px 10px", background: "#0f172a", color: "#e2e8f0", border: "1px solid rgba(255,255,255,0.12)", borderRadius: 8, fontSize: 13 }}
                 />
+                  <span id="civic-pull-state-help" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>
+                    Two-letter state code
+                  </span>
+                </label>
                 <button
+                  type="button"
                   onClick={runPull}
                   disabled={pulling}
                   style={{ padding: "7px 16px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: "pointer", opacity: pulling ? 0.6 : 1 }}
                 >
-                  {pulling ? "…" : "Pull"}
+                  {pulling ? "Pulling adaptations…" : "Pull"}
                 </button>
               </div>
               {pullResult && (
-                <div style={{ marginTop: 10, fontSize: 12, color: "#94a3b8" }}>
+                <div aria-live="polite" style={{ marginTop: 10, fontSize: 12, color: "#94a3b8" }}>
                   Source: <strong style={{ color: "#cbd5e1" }}>{pullResult.source}</strong>
                   {pullResult.error && <span style={{ color: "#f87171" }}> — {pullResult.error}</span>}
                   {pullResult.adaptations?.length > 0 && (
                     <div style={{ marginTop: 8, display: "flex", flexDirection: "column", gap: 8 }}>
-                      {pullResult.adaptations.map((a: any, i: number) => (
-                        <div key={i} style={{ color: "#e2e8f0", fontSize: 13 }}>{a.lesson}</div>
+                      {pullResult.adaptations.map((a, i) => (
+                        <div key={a.id || i} style={{ color: "#e2e8f0", fontSize: 13 }}>
+                          <strong>Partner lesson — Civic Signal</strong>
+                          <div>{a.lesson}</div>
+                          <div style={{ color: "#94a3b8", marginTop: 3 }}>
+                            {a.state} · {a.confidence} confidence · {a.source} · {a.sourceDate}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   )}
-                  {pullResult.adaptations?.length === 0 && !pullResult.error && (
-                    <div style={{ marginTop: 6 }}>No adaptations returned for this topic/state.</div>
+                  {pullResult.liveStatus === "unavailable" && (
+                    <div style={{ marginTop: 6, color: "#fca5a5" }}>
+                      Live Civic Signal pull unavailable; {pullResult.adaptations.length} verified cached lessons.
+                      {pullResult.liveUnavailableReason ? ` ${pullResult.liveUnavailableReason}` : ""}
+                    </div>
+                  )}
+                  {pullResult.liveStatus === "available" && pullResult.adaptations?.length === 0 && !pullResult.error && (
+                    <div style={{ marginTop: 6 }}>The live query returned no validated adaptations for this topic/state.</div>
                   )}
                 </div>
               )}
@@ -230,7 +287,7 @@ export default function CivicSignalPage() {
             <h2 style={{ fontSize: 16, fontWeight: 700, color: "#f8fafc", marginTop: 0 }}>Push Equity-Loss Data Out</h2>
             <p style={{ fontSize: 12, color: "#64748b", marginTop: -8, marginBottom: 14 }}>
               Compute a county's Equity-Loss Engine result and push each non-suppressed frame to Civic Signal as an
-              evidence event.
+              evidence event. This write action requires an authenticated, authorized operator.
             </p>
             <div style={{ display: "flex", gap: 8, alignItems: "flex-end", flexWrap: "wrap" }}>
               <label style={{ fontSize: 12, color: "#94a3b8" }}>
@@ -252,6 +309,7 @@ export default function CivicSignalPage() {
                 />
               </label>
               <button
+                  type="button"
                 onClick={runPush}
                 disabled={pushing}
                 style={{ padding: "8px 18px", background: "#2563eb", color: "#fff", border: "none", borderRadius: 8, fontWeight: 600, fontSize: 13, cursor: "pointer", opacity: pushing ? 0.6 : 1 }}

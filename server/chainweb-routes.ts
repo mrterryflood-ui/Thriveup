@@ -39,7 +39,14 @@ async function cwExternalAuth(req: Request, res: Response, next: NextFunction) {
       .where(eq(ecosystemPlatforms.apiKey, key))
       .limit(1);
 
-    if (platform.length > 0) return next();
+    if (platform.length > 0) {
+      (req as any).cwExternalPartner = {
+        id: platform[0].id,
+        name: platform[0].name,
+        isCivicSignal: /civic.?signal|power.?2.?the.?people/i.test(`${platform[0].id} ${platform[0].name}`),
+      };
+      return next();
+    }
 
     // Secondary: direction-specific partner credentials and legacy env overrides.
     // THRIVEUP_ISSUED_KEY is the credential ThriveUp issued to
@@ -50,15 +57,39 @@ async function cwExternalAuth(req: Request, res: Response, next: NextFunction) {
       process.env.ECOSYSTEM_PARTNER_KEY_1,
       process.env.ECOSYSTEM_PARTNER_KEY_2,
     ].filter(Boolean);
-    if (envKeys.includes(key)) return next();
+    if (envKeys.includes(key)) {
+      const isCivicSignal = key === process.env.THRIVEUP_ISSUED_KEY
+        || key === process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY;
+      (req as any).cwExternalPartner = {
+        id: isCivicSignal ? "civic-signal" : "configured-ecosystem-partner",
+        name: isCivicSignal ? "Civic Signal" : "Configured ecosystem partner",
+        isCivicSignal,
+      };
+      return next();
+    }
 
     // Dev fallback
-    if (process.env.NODE_ENV !== "production" && key.startsWith("tveco_")) return next();
+    if (process.env.NODE_ENV !== "production" && key.startsWith("tveco_")) {
+      (req as any).cwExternalPartner = {
+        id: "development-ecosystem-partner",
+        name: "Development ecosystem partner",
+        isCivicSignal: key.startsWith("tveco_civic"),
+      };
+      return next();
+    }
 
     return res.status(403).json({ error: "Invalid x-ecosystem-key — register your platform at /api/ecosystem/register-key" });
   } catch (err) {
     return res.status(500).json({ error: "Auth check failed" });
   }
+}
+
+function cwRequireCivicSignal(req: Request, res: Response, next: NextFunction) {
+  const partner = (req as any).cwExternalPartner;
+  if (!partner?.isCivicSignal) {
+    return res.status(403).json({ error: "This webhook accepts only the Civic Signal partner credential." });
+  }
+  next();
 }
 
 // Daily counter bucket — enforces the 5000/day limit advertised in /api-info.
@@ -630,9 +661,10 @@ export function registerChainwebRoutes(app: Express) {
   // ── 4. Civic Signal Webhook — receive policy lessons ──────────────────────
   // POST /api/chainweb/webhook/civic-signal
   // Civic Signal pushes policy adaptation lessons back to ThriveUp
-  app.post("/api/chainweb/webhook/civic-signal", cwExternalAuth, cwExternalRateLimit, async (req: Request, res: Response) => {
+  app.post("/api/chainweb/webhook/civic-signal", cwExternalAuth, cwRequireCivicSignal, cwExternalRateLimit, async (req: Request, res: Response) => {
     try {
-      const result = await receiveCivicSignalLesson(req.body);
+      const partner = (req as any).cwExternalPartner;
+      const result = await receiveCivicSignalLesson(req.body, partner.id);
       res.json({ ok: true, received: result, ...(result.corrections?.length ? { corrections: result.corrections } : {}) });
     } catch (e: any) {
       // e.corrections is populated when receiveCivicSignalLesson rejected
@@ -687,14 +719,14 @@ export function registerChainwebRoutes(app: Express) {
         },
         {
           method: "GET", path: "/api/chainweb/rag-context",
-          description: "Pre-formatted evidence paragraph for AI injection (open, no auth required)",
+          description: "Pre-formatted evidence paragraph for authenticated first-party AI injection",
           params: ["geography (string)", "domain (string)", "grantType (string)"],
           example: "/api/chainweb/rag-context?geography=Travis+County&domain=education",
         },
         {
           method: "POST", path: "/api/chainweb/webhook/civic-signal",
           description: "Receive policy adaptation lessons from Civic Signal (bidirectional flow)",
-          body: "{ lesson: string, topic: string, state: string, source: string, confidence: string }",
+          body: "{ lesson: string, topic: string, state: string, source: string, sourceDate: YYYY-MM-DD, confidence: low|moderate|high }",
         },
       ],
       programCount: EVIDENCE_PROGRAMS.length,

@@ -7,7 +7,8 @@
  * Inbound webhook (POST /api/chainweb/webhook/civic-signal) already exists
  * in chainweb-routes.ts and is unaffected by this file.
  */
-import { Router } from "express";
+import { Router, type NextFunction, type Request, type Response } from "express";
+import { storage } from "./storage";
 import {
   getCivicSignalLessonsAsync,
   fetchCivicSignalAdaptations,
@@ -21,6 +22,24 @@ import { classifyCounty, growthBandFromPct, peerClassKey } from "./equity-loss/p
 import { getNationalReference, getStateReference, getPeerClassReference } from "./equity-loss/reference-cache";
 
 const router = Router();
+const CIVIC_OPERATOR_ROLES = new Set(["admin", "teacher", "super_admin", "program_director", "case_manager"]);
+const CIVIC_STATE_CODES = new Set([
+  "US", "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "DC", "FL", "GA", "HI",
+  "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS",
+  "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR",
+  "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY",
+  "AS", "GU", "MP", "PR", "VI",
+]);
+
+async function requireCivicSignalOperator(req: Request, res: Response, next: NextFunction) {
+  const userId = (req as any).user?.claims?.sub || (req as any).user?.id;
+  if (!userId) return res.status(401).json({ error: "Authentication required" });
+  const user = await storage.getUser(userId);
+  if (!user || !CIVIC_OPERATOR_ROLES.has(user.role)) {
+    return res.status(403).json({ error: "Authorized operator role required" });
+  }
+  next();
+}
 
 // GET /api/civic-signal/status — live reachability check, never fabricated.
 router.get("/status", async (_req, res) => {
@@ -49,6 +68,12 @@ router.get("/lessons", async (req, res) => {
 router.get("/adaptations", async (req, res) => {
   const topic = typeof req.query.topic === "string" ? req.query.topic : "general";
   const state = typeof req.query.state === "string" ? req.query.state : undefined;
+  if (!topic.trim() || topic.length > 100) {
+    return res.status(400).json({ adaptations: [], source: "validation_error", error: "topic must be 1-100 characters" });
+  }
+  if (state && !CIVIC_STATE_CODES.has(state.toUpperCase())) {
+    return res.status(400).json({ adaptations: [], source: "validation_error", error: "state must be US or a valid USPS state/territory code" });
+  }
   try {
     const result = await fetchCivicSignalAdaptations({ topic, state });
     res.json(result);
@@ -60,7 +85,10 @@ router.get("/adaptations", async (req, res) => {
 // POST /api/civic-signal/push-equity-loss/:stateFips/:countyFips
 // Computes fresh equity-loss frames for the county (same pipeline as
 // /api/equity-loss) and pushes each non-suppressed frame to Civic Signal.
-router.post("/push-equity-loss/:stateFips/:countyFips", async (req, res) => {
+router.post("/push-equity-loss/:stateFips/:countyFips", requireCivicSignalOperator, async (req, res) => {
+  if (!/^\d{1,2}$/.test(String(req.params.stateFips)) || !/^\d{1,3}$/.test(String(req.params.countyFips))) {
+    return res.status(400).json({ error: "State and county FIPS must contain only digits." });
+  }
   const stateFips = String(req.params.stateFips).padStart(2, "0");
   const countyFipsShort = String(req.params.countyFips).padStart(3, "0");
   const countyFips = `${stateFips}${countyFipsShort}`;
