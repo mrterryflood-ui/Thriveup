@@ -174,6 +174,14 @@ callback. The request must include `contractVersion: "v1"`, a caller-owned
 or `regionName`). It may also include `grantId`, `grantTitle`, `domains`,
 `stateFips`, and `countyFips`.
 
+Caller-provided question, title, identifier, and region text are treated as
+untrusted data. Before any external research call, ThriveUp normalizes control
+characters, removes obvious email, phone, and government-identifier patterns,
+and places the remaining question inside an explicit untrusted-data boundary.
+GrantPathPro must not send child, family, student, patient, or staff records in
+these fields; the privacy filter is a backstop, not authorization to transmit
+personal data.
+
 `requestId` is an opaque caller-owned string, up to 200 characters. It is
 accepted once per caller for a short replay-protection window. The endpoint is
 also bounded to 12 accepted requests per caller per minute and two concurrent
@@ -201,6 +209,12 @@ Live citations are returned only as HTTPS URLs. The community context includes
 a structured source index, but its text remains an attributed context bundle;
 consumers must not treat that bundle as a claim-level replacement for the
 underlying Census, RPLICE, or Civic Signal source records.
+
+The source index reports Census, RPLICE, Civic Signal, and live research
+availability independently. Boilerplate orchestration guidance does not make a
+source available. Both complete and usable partial responses expose
+`nextSteps` at the response root; successful responses also retain the nested
+copy for compatibility.
 
 This endpoint does not authorize external delivery, outreach, submission, an
 award decision, or a partner commitment. It is separate from the deliberate

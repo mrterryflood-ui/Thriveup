@@ -37,6 +37,8 @@ expect(routes.includes('"/api/inbound/grantpathpro/opportunity-feedback", requir
 expect(routes.includes('"/api/inbound/grantpathpro/intelligence", requireGppInboundKey'), "intelligence receiver requires partner authentication");
 expect(routes.includes("buildCommunityAIContext"), "intelligence receiver composes geography-aware community context");
 expect(routes.includes("perplexityResearch"), "intelligence receiver uses the shared live Perplexity research path");
+expect(routes.includes("sanitizeExternalResearchText") && routes.includes("[BEGIN CALLER QUESTION") && routes.includes("[BEGIN CALLER METADATA"), "caller text and metadata are privacy-filtered and isolated before external research");
+expect(routes.includes("buildCommunityAIContextWithStatus") && routes.includes("communityReport.sources.census"), "community sources report availability independently");
 expect(routes.includes("Civic Signal verified partner lessons"), "intelligence response preserves Civic Signal evidence disclosure");
 expect(routes.includes("read_only_pursuit_intelligence"), "intelligence response is explicitly read-only");
 expect(routes.includes("does not authorize delivery"), "intelligence boundary does not authorize consequential partner actions");
@@ -69,7 +71,7 @@ expect(
   !/gpp_(opportunity_handoffs_delivery_state|opportunity_handoff_attempts_outcome|pursuit_feedback_(amount_disclosure|status|amount_nonnegative|source_https))_check[\s\S]{0,500}NOT VALID/.test(runtimeMigration),
   "runtime migration never creates GPP checks as NOT VALID, which publish cannot inline safely",
 );
-expect(migrationRunner.includes("pg_advisory_lock"), "startup migration runner serializes concurrent application");
+expect(/pg_(?:try_)?advisory_lock/.test(migrationRunner), "startup migration runner serializes concurrent application");
 expect(routes.includes("storedRequestFingerprint") && routes.includes("racedHash"), "request reuse is content-bound for legacy and concurrent rows");
 expect(!routes.includes("snapshot: latest?.snapshot"), "Mirror reads do not expose raw partner JSON");
 expect(profile.includes('data-testid="opportunity-handoff-source-type"'), "UI supports each documented source type");

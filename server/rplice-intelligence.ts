@@ -947,18 +947,32 @@ export async function buildRpliceIntelligencePackage(params: {
  *
  * Runs Census + RPLICE in parallel — typical latency 800ms-2s.
  */
-export async function buildCommunityAIContext(params: {
+export type CommunityAIContextSourceStatus = "available" | "empty" | "not_requested" | "failed";
+
+export interface CommunityAIContextResult {
+  content: string;
+  sources: {
+    census: CommunityAIContextSourceStatus;
+    rplice: CommunityAIContextSourceStatus;
+    civicSignal: CommunityAIContextSourceStatus;
+  };
+}
+
+export async function buildCommunityAIContextWithStatus(params: {
   zip?: string;
   stateFips?: string;
   countyFips?: string;
   crisisDomains?: string[];
   regionName?: string;
-}): Promise<string> {
+}): Promise<CommunityAIContextResult> {
   const { zip, stateFips, countyFips, crisisDomains = [], regionName } = params;
 
   try {
     const state = zip ? stateAbbrevFromZip(zip) : undefined;
     const civicTopic = crisisDomains[0] || "general";
+    let rpliceFailed = false;
+    let censusFailed = false;
+    let civicSignalFailed = false;
     const [rplicePkg, censusData, civicSignalContext] = await Promise.all([
       buildRpliceIntelligencePackage({
         crisisDomains,
@@ -967,10 +981,12 @@ export async function buildCommunityAIContext(params: {
         countyFips,
         includePrivateData: false,
       }).catch((err) => {
+        rpliceFailed = true;
         console.error("[CommunityContext] RPLICE package unavailable:", err instanceof Error ? err.message : String(err));
         return null;
       }),
       zip ? fetchZctaData(zip).catch((err) => {
+        censusFailed = true;
         console.error("[CommunityContext] Census ZCTA data unavailable:", err instanceof Error ? err.message : String(err));
         return null;
       }) : Promise.resolve(null),
@@ -979,6 +995,7 @@ export async function buildCommunityAIContext(params: {
         state,
         pullLive: Boolean(zip || stateFips || regionName),
       }).catch((err) => {
+        civicSignalFailed = true;
         console.error("[CommunityContext] Civic Signal context failed:", err instanceof Error ? err.message : String(err));
         return "";
       }),
@@ -1040,8 +1057,32 @@ export async function buildCommunityAIContext(params: {
       lines.push("\n" + civicSignalContext);
     }
 
-    return lines.join("\n");
+    return {
+      content: lines.join("\n"),
+      sources: {
+        census: zip ? (censusFailed ? "failed" : censusData ? "available" : "empty") : "not_requested",
+        rplice: rpliceFailed ? "failed" : rplicePkg ? "available" : "empty",
+        civicSignal: civicSignalFailed ? "failed" : civicSignalContext ? "available" : "empty",
+      },
+    };
   } catch {
-    return "";
+    return {
+      content: "",
+      sources: {
+        census: params.zip ? "failed" : "not_requested",
+        rplice: "failed",
+        civicSignal: "failed",
+      },
+    };
   }
+}
+
+export async function buildCommunityAIContext(params: {
+  zip?: string;
+  stateFips?: string;
+  countyFips?: string;
+  crisisDomains?: string[];
+  regionName?: string;
+}): Promise<string> {
+  return (await buildCommunityAIContextWithStatus(params)).content;
 }
