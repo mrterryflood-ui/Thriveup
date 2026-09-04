@@ -644,7 +644,10 @@ async function lookupCountyFips(stateFips: string, partialName: string): Promise
     try {
       const censusKey = process.env.CENSUS_API_KEY || "";
       const kp = censusKey ? `&key=${censusKey}` : "";
-      const url = `${CENSUS_ACS_URL}?get=NAME,county&for=county:*&in=state:${stateFips}${kp}`;
+      // NOTE: `county` is a geography attribute, NOT a variable — requesting it
+      // in `get=` causes "unknown variable 'county'" from the ACS5 API.
+      // Omit it from get= and it arrives automatically as the last column.
+      const url = `${CENSUS_ACS_URL}?get=NAME&for=county:*&in=state:${stateFips}${kp}`;
       const data = await fetchJson(url, 15000);
       if (Array.isArray(data) && data.length > 1) {
         const h = data[0] as string[];
