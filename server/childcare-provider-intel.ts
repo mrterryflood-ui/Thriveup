@@ -42,20 +42,20 @@ export interface HhscProvider {
 
 export interface ProviderSummary {
   county: string;
-  totalProviders: number;
-  licensedProviders: number;
-  totalLicensedCapacity: number;
-  avgCapacityPerProvider: number;
+  totalProviders: number | null;
+  licensedProviders: number | null;
+  totalLicensedCapacity: number | null;
+  avgCapacityPerProvider: number | null;
   trsDistribution: Record<string, number>;
   operationTypes: Record<string, number>;
-  nonStandardHoursCount: number;
+  nonStandardHoursCount: number | null;
   dataSource: string;
   retrievedAt: string;
 }
 
 export interface SlotGapAnalysis {
   county: string;
-  licensedCapacity: number;
+  licensedCapacity: number | null;
   estimatedDemand: number | null;
   slotGap: number | null;
   coverageRate: number | null; // 0–1; null if demand unknown
@@ -92,23 +92,6 @@ const HHSC_API_BASE = "https://data.texas.gov/resource";
 const HHSC_PAGE_SIZE = 10_000;
 const CACHE_TTL_SECONDS = 24 * 60 * 60; // 24 hours
 
-/** Texas counties with approximate child-population estimates (ages 0–12, 2022 ACS).
- *  Used when live Census data is unavailable.  Values are illustrative and
- *  should be replaced with ACS B01001 queries in production.
- */
-const COUNTY_CHILD_POPULATION_ESTIMATE: Record<string, number> = {
-  "WILLIAMSON": 72_000,
-  "TRAVIS": 110_000,
-  "HAYS": 35_000,
-  "BASTROP": 18_000,
-  "CALDWELL": 9_500,
-  "LEE": 3_200,
-  "BURNET": 5_100,
-  "LLANO": 2_400,
-  "BLANCO": 1_800,
-  "MILAM": 4_100,
-};
-
 // ---------------------------------------------------------------------------
 // Lightweight in-process TTL cache (no external dependency)
 // ---------------------------------------------------------------------------
@@ -141,6 +124,7 @@ function cacheSet<T>(key: string, value: T, ttlSeconds: number): void {
 async function fetchHhscPage(
   county: string,
   offset: number,
+  deadline?: number,
 ): Promise<Record<string, unknown>[]> {
   const countyUpper = county.toUpperCase();
   const url = new URL(`${HHSC_API_BASE}/${HHSC_CCL_DATASET_ID}.json`);
@@ -150,7 +134,8 @@ async function fetchHhscPage(
   url.searchParams.set("$order", "operation_name ASC");
 
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15_000);
+  const remaining = deadline === undefined ? 15_000 : Math.max(1, deadline - Date.now());
+  const timer = setTimeout(() => controller.abort(), Math.min(15_000, remaining));
 
   try {
     const resp = await fetch(url.toString(), {
@@ -218,9 +203,14 @@ async function fetchAllProvidersForCounty(county: string): Promise<HhscProvider[
 
   const all: HhscProvider[] = [];
   let offset = 0;
+  let pages = 0;
+  const deadline = Date.now() + 30_000;
 
   while (true) {
-    const page = await fetchHhscPage(county, offset);
+    if (++pages > 100 || Date.now() >= deadline) {
+      throw new Error("HHSC county query exceeded its bounded pagination window");
+    }
+    const page = await fetchHhscPage(county, offset, deadline);
     if (page.length === 0) break;
     for (const raw of page) {
       all.push(parseProvider(raw));
@@ -237,27 +227,48 @@ async function fetchAllProvidersForCounty(county: string): Promise<HhscProvider[
 // Analytics
 // ---------------------------------------------------------------------------
 
-function buildSummary(county: string, providers: HhscProvider[]): ProviderSummary {
+function buildSummary(
+  county: string,
+  providers: HhscProvider[],
+  sourceAvailable = true,
+): ProviderSummary {
+  if (!sourceAvailable) {
+    return {
+      county: county.toUpperCase(),
+      totalProviders: null,
+      licensedProviders: null,
+      totalLicensedCapacity: null,
+      avgCapacityPerProvider: null,
+      trsDistribution: {},
+      operationTypes: {},
+      nonStandardHoursCount: null,
+      dataSource: `Texas HHSC CCL dataset (data.texas.gov/${HHSC_CCL_DATASET_ID})`,
+      retrievedAt: new Date().toISOString(),
+    };
+  }
   // Active = not Inactive and not blank.  After HHSC CCL field-mapping fix
   // (2026-09-04), license_status is "Full Permit" / "Partial Permit", NOT the
   // literal string "LICENSED" — the old includes("LICENSED") always returned 0.
   const active = providers.filter(
     (p) => p.license_status && p.license_status !== "Inactive",
   );
-  const totalCap = providers.reduce((sum, p) => sum + (p.licensed_capacity ?? 0), 0);
-  const providersWithCapacity = providers.filter((p) => (p.licensed_capacity ?? 0) > 0);
+  const totalCap = active.reduce((sum, p) => sum + (p.licensed_capacity ?? 0), 0);
+  const providersWithCapacity = active.filter((p) => (p.licensed_capacity ?? 0) > 0);
   const avgCap = providersWithCapacity.length > 0 ? totalCap / providersWithCapacity.length : 0;
 
-  // TRS distribution
+  // HHSC CCL does not currently publish a TRS field. Only report a
+  // distribution when an authoritative designation is actually present.
   const trsDist: Record<string, number> = {};
-  for (const p of providers) {
-    const tier = p.trs_designation?.trim() || "Not Rated";
-    trsDist[tier] = (trsDist[tier] ?? 0) + 1;
+  if (active.some((p) => p.trs_designation?.trim())) {
+    for (const p of active) {
+      const tier = p.trs_designation?.trim() || "Not Rated";
+      trsDist[tier] = (trsDist[tier] ?? 0) + 1;
+    }
   }
 
   // Operation types
   const opTypes: Record<string, number> = {};
-  for (const p of providers) {
+  for (const p of active) {
     const t = p.operation_type || "Unknown";
     opTypes[t] = (opTypes[t] ?? 0) + 1;
   }
@@ -265,7 +276,11 @@ function buildSummary(county: string, providers: HhscProvider[]): ProviderSummar
   // Non-standard hours heuristic: contains weekend, evening, night, 24-hour
   const nonStdHoursRx = /week\s*end|eveni|night|24.?hour|overnight|weekend/i;
   const nonStdCount = providers.filter(
-    (p) => p.hours_of_operation && nonStdHoursRx.test(p.hours_of_operation),
+    (p) =>
+      p.license_status &&
+      p.license_status !== "Inactive" &&
+      p.hours_of_operation &&
+      nonStdHoursRx.test(p.hours_of_operation),
   ).length;
 
   return {
@@ -282,10 +297,29 @@ function buildSummary(county: string, providers: HhscProvider[]): ProviderSummar
   };
 }
 
-function buildSlotGap(county: string, providers: HhscProvider[]): SlotGapAnalysis {
-  const capacity = providers.reduce((sum, p) => sum + (p.licensed_capacity ?? 0), 0);
+function buildSlotGap(
+  county: string,
+  providers: HhscProvider[],
+  estimatedDemand: number | null = null,
+  sourceAvailable = true,
+): SlotGapAnalysis {
+  if (!sourceAvailable) {
+    return {
+      county: county.toUpperCase(),
+      licensedCapacity: null,
+      estimatedDemand,
+      slotGap: null,
+      coverageRate: null,
+      methodology:
+        "Texas HHSC CCL was unavailable, so licensed capacity cannot be calculated. " +
+        "Demand is an ACS estimate when available.",
+      dataSource: `Texas HHSC CCL dataset (data.texas.gov/${HHSC_CCL_DATASET_ID})`,
+    };
+  }
+  const capacity = providers
+    .filter((p) => p.license_status && p.license_status !== "Inactive")
+    .reduce((sum, p) => sum + (p.licensed_capacity ?? 0), 0);
   const countyKey = county.toUpperCase();
-  const estimatedDemand = COUNTY_CHILD_POPULATION_ESTIMATE[countyKey] ?? null;
 
   const slotGap = estimatedDemand !== null ? estimatedDemand - capacity : null;
   const coverageRate = estimatedDemand !== null && estimatedDemand > 0
@@ -303,12 +337,28 @@ function buildSlotGap(county: string, providers: HhscProvider[]): SlotGapAnalysi
       "Does not account for informal/unlicensed care or occupancy rates. " +
       estimatedDemand === null
         ? "Demand estimate not available for this county."
-        : "Demand estimate is illustrative; contact TWC/WSRCA for contracted capacity.",
-    dataSource: `Texas HHSC CCL + ACS 2022 (estimated)`,
+        : "Demand is an ACS estimate; contact TWC/WSRCA for contracted capacity.",
+    dataSource: estimatedDemand === null
+      ? "Texas HHSC CCL; ACS demand estimate unavailable"
+      : "Texas HHSC CCL + ACS 2022 B01001",
   };
 }
 
 function buildTrsProfile(county: string, providers: HhscProvider[]): TrsQualityProfile {
+  if (!providers.some((p) => p.trs_designation?.trim())) {
+    return {
+      county: county.toUpperCase(),
+      totalRated: 0,
+      tier1Count: 0,
+      tier2Count: 0,
+      tier3Count: 0,
+      tier4Count: 0,
+      tier5Count: 0,
+      unratedCount: 0,
+      highQualityRate: null,
+    };
+  }
+
   let tier1 = 0, tier2 = 0, tier3 = 0, tier4 = 0, tier5 = 0, unrated = 0;
 
   for (const p of providers) {
@@ -351,26 +401,46 @@ function buildTrsProfile(county: string, providers: HhscProvider[]): TrsQualityP
 // Public API
 // ---------------------------------------------------------------------------
 
-export async function getChildcareIntel(county: string): Promise<ChildcareIntelResult> {
+export async function getChildcareIntel(
+  county: string,
+  estimatedDemand: number | null = null,
+): Promise<ChildcareIntelResult> {
   const warnings: string[] = [];
-
-  let providers: HhscProvider[];
-  try {
-    providers = await fetchAllProvidersForCounty(county);
-  } catch (err: any) {
-    warnings.push(`HHSC API unavailable: ${err?.message ?? "unknown error"}`);
-    providers = [];
+  const countyFips = Object.entries(TX_COUNTY_FIPS_TO_NAME)
+    .find(([, name]) => name === county.toUpperCase())?.[0];
+  const providerResult = fetchAllProvidersForCounty(county)
+    .then((providers) => ({ providers, error: null as Error | null }))
+    .catch((error: unknown) => ({
+      providers: [] as HhscProvider[],
+      error: error instanceof Error ? error : new Error("unknown error"),
+    }));
+  const demandResult = estimatedDemand !== null
+    ? Promise.resolve(estimatedDemand)
+    : (countyFips ? fetchAcsChildPop("48", countyFips) : Promise.resolve(null));
+  const [providerOutcome, resolvedDemand] = await Promise.all([
+    providerResult,
+    demandResult.catch(() => null),
+  ]);
+  const providers = providerOutcome.providers;
+  const hhscAvailable = providerOutcome.error === null;
+  if (providerOutcome.error) {
+    warnings.push(`HHSC API unavailable: ${providerOutcome.error.message}`);
   }
 
-  if (providers.length === 0) {
+  if (providers.length === 0 && hhscAvailable) {
     warnings.push(
       `No HHSC CCL providers found for county "${county}". ` +
         "Verify the county name matches Texas HHSC records (e.g. WILLIAMSON, not Williamson Co.).",
     );
   }
 
-  const summary = buildSummary(county, providers);
-  const slotGap = buildSlotGap(county, providers);
+  if (resolvedDemand === null) {
+    warnings.push(
+      "ACS child-population demand data is unavailable for this county; demand and slot-gap metrics are not calculated.",
+    );
+  }
+  const summary = buildSummary(county, providers, hhscAvailable);
+  const slotGap = buildSlotGap(county, providers, resolvedDemand, hhscAvailable);
   const trsQuality = buildTrsProfile(county, providers);
 
   return { summary, slotGap, trsQuality, providers, warnings };
@@ -386,13 +456,311 @@ export function clearChildcareCache(): void {
 
 const STATE_FIPS_TO_ABBR: Record<string, string> = {
   "01":"AL","02":"AK","04":"AZ","05":"AR","06":"CA","08":"CO","09":"CT",
-  "10":"DE","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN",
+  "10":"DE","11":"DC","12":"FL","13":"GA","15":"HI","16":"ID","17":"IL","18":"IN",
   "19":"IA","20":"KS","21":"KY","22":"LA","23":"ME","24":"MD","25":"MA",
   "26":"MI","27":"MN","28":"MS","29":"MO","30":"MT","31":"NE","32":"NV",
   "33":"NH","34":"NJ","35":"NM","36":"NY","37":"NC","38":"ND","39":"OH",
   "40":"OK","41":"OR","42":"PA","44":"RI","45":"SC","46":"SD","47":"TN",
   "48":"TX","49":"UT","50":"VT","51":"VA","53":"WA","54":"WV","55":"WI","56":"WY",
 };
+
+const CENSUS_CBP_STATE_URL =
+  "https://api.census.gov/data/2022/cbp?get=ESTAB,EMP&for=state:*&NAICS2017=6244";
+const CENSUS_ACS_STATE_URL =
+  "https://api.census.gov/data/2022/acs/acs5?get=NAME,B01001_003E,B01001_004E,B01001_005E,B01001_027E,B01001_028E,B01001_029E&for=state:*";
+const ALICE_OVERVIEW_URL = "https://www.unitedforalice.org/national-overview";
+
+export interface NationalChildcareStateRow {
+  stateFips: string;
+  state: string;
+  providerEstablishments: number | null;
+  childcareEmployees: number | null;
+  estimatedChildren0To12: number | null;
+  establishmentsPer1000Children: number | null;
+  cbpAvailable: boolean;
+  acsAvailable: boolean;
+  dataStatus: "complete" | "partial" | "unavailable";
+}
+
+export interface NationalChildcareOverview {
+  retrievedAt: string;
+  coverage: {
+    statesIncluded: number;
+    statesWithCompleteData: number;
+    providerDataVintage: "2022";
+    childPopulationVintage: "2022";
+  };
+  national: {
+    providerEstablishments: number | null;
+    childcareEmployees: number | null;
+    estimatedChildren0To12: number | null;
+    establishmentsPer1000Children: number | null;
+  };
+  states: NationalChildcareStateRow[];
+  economicContext: {
+    sourceName: "United for ALICE";
+    sourceUrl: string;
+    dataVintage: "2024";
+    reportPublished: "2026";
+    totalHouseholds: number;
+    povertyHouseholds: number;
+    aliceHouseholds: number;
+    belowAliceThresholdHouseholds: number;
+    belowAliceThresholdRate: number;
+    disclosure: string;
+  };
+  sources: Array<{ name: string; url: string; role: string; vintage: string }>;
+  warnings: string[];
+}
+
+interface NationalCbpRow {
+  stateFips: string;
+  establishments: number | null;
+  employees: number | null;
+}
+
+interface NationalAcsRow {
+  stateFips: string;
+  stateName: string;
+  children0To12: number | null;
+}
+
+async function fetchCensusTable(
+  baseUrl: string,
+  label: string,
+): Promise<string[][]> {
+  const url = new URL(baseUrl);
+  const key = process.env.CENSUS_API_KEY ?? "";
+  if (key) url.searchParams.set("key", key);
+
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 20_000);
+  try {
+    const resp = await fetch(url, { signal: ctrl.signal });
+    if (!resp.ok) {
+      throw new Error(`${label} returned HTTP ${resp.status}`);
+    }
+    const rows = await resp.json();
+    if (
+      !Array.isArray(rows) ||
+      rows.length < 2 ||
+      !Array.isArray(rows[0]) ||
+      !rows.slice(1).every((row: unknown) => Array.isArray(row))
+    ) {
+      throw new Error(`${label} returned an invalid table`);
+    }
+    return rows as string[][];
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function parseCensusCount(raw: string | undefined): number | null {
+  const value = raw?.trim() ?? "";
+  if (!/^\d+$/.test(value)) return null;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed >= 0 ? parsed : null;
+}
+
+async function fetchNationalCbp(): Promise<NationalCbpRow[]> {
+  const rows = await fetchCensusTable(CENSUS_CBP_STATE_URL, "Census CBP state query");
+  const headers = rows[0];
+  const stateIndex = headers.indexOf("state");
+  const estabIndex = headers.indexOf("ESTAB");
+  const employeeIndex = headers.indexOf("EMP");
+  if (stateIndex < 0 || estabIndex < 0 || employeeIndex < 0) {
+    throw new Error("Census CBP state query omitted the required fields");
+  }
+
+  return rows.slice(1).flatMap((row) => {
+    const stateFips = String(row[stateIndex] ?? "").padStart(2, "0");
+    if (!STATE_FIPS_TO_ABBR[stateFips]) return [];
+    return [{
+      stateFips,
+      establishments: parseCensusCount(row[estabIndex]),
+      employees: parseCensusCount(row[employeeIndex]),
+    }];
+  });
+}
+
+async function fetchNationalAcs(): Promise<NationalAcsRow[]> {
+  const rows = await fetchCensusTable(CENSUS_ACS_STATE_URL, "Census ACS state query");
+  const headers = rows[0];
+  const stateIndex = headers.indexOf("state");
+  const nameIndex = headers.indexOf("NAME");
+  const childVariables = [
+    "B01001_003E", "B01001_004E", "B01001_005E",
+    "B01001_027E", "B01001_028E", "B01001_029E",
+  ];
+  const childIndexes = childVariables.map((variable) => headers.indexOf(variable));
+  if (stateIndex < 0 || nameIndex < 0 || childIndexes.some((index) => index < 0)) {
+    throw new Error("Census ACS state query omitted the required fields");
+  }
+
+  return rows.slice(1).flatMap((row) => {
+    const stateFips = String(row[stateIndex] ?? "").padStart(2, "0");
+    if (!STATE_FIPS_TO_ABBR[stateFips]) return [];
+      const values = childIndexes.map((index) => parseCensusCount(row[index]));
+      const children0To12 = values.every((value): value is number => value !== null)
+        ? values.reduce(
+            (sum, value, position) =>
+              sum + (position === 2 || position === 5 ? Math.round(value * 0.6) : value),
+            0,
+          )
+        : null;
+    return [{
+      stateFips,
+      stateName: String(row[nameIndex] ?? STATE_FIPS_TO_ABBR[stateFips]),
+      children0To12,
+    }];
+  });
+}
+
+const ALICE_NATIONAL_BENCHMARK = {
+  sourceName: "United for ALICE" as const,
+  sourceUrl: ALICE_OVERVIEW_URL,
+  dataVintage: "2024" as const,
+  reportPublished: "2026" as const,
+  totalHouseholds: 131_939_401,
+  povertyHouseholds: 16_495_052,
+  aliceHouseholds: 38_027_832,
+  belowAliceThresholdHouseholds: 54_522_884,
+  belowAliceThresholdRate: 41,
+  disclosure:
+    "Economic-pressure context from United for ALICE's published national overview. " +
+    "It is not TCAF data and does not measure childcare supply, licensed capacity, or slots.",
+};
+
+/** Build the national childcare overview from two live Census state tables. */
+export async function getNationalChildcareOverview(): Promise<NationalChildcareOverview> {
+  const cacheKey = "childcare:national-overview";
+  const cached = cacheGet<NationalChildcareOverview>(cacheKey);
+  if (cached) return cached;
+
+  const [cbpResult, acsResult] = await Promise.all([
+    fetchNationalCbp()
+      .then((rows) => ({ rows, error: null as Error | null }))
+      .catch((error: unknown) => ({
+        rows: [] as NationalCbpRow[],
+        error: error instanceof Error ? error : new Error("CBP source failed"),
+      })),
+    fetchNationalAcs()
+      .then((rows) => ({ rows, error: null as Error | null }))
+      .catch((error: unknown) => ({
+        rows: [] as NationalAcsRow[],
+        error: error instanceof Error ? error : new Error("ACS source failed"),
+      })),
+  ]);
+  if (cbpResult.error && acsResult.error) {
+    throw new Error("Both Census childcare sources are unavailable");
+  }
+  const cbpRows = cbpResult.rows;
+  const acsRows = acsResult.rows;
+  const sourceWarnings: string[] = [];
+  if (cbpResult.error) {
+    sourceWarnings.push("Census CBP is unavailable; establishment and employee fields are shown as unavailable.");
+  } else if (cbpRows.length === 0) {
+    sourceWarnings.push("Census CBP returned no state rows; establishment and employee fields are shown as unavailable.");
+  }
+  if (acsResult.error) {
+    sourceWarnings.push("Census ACS is unavailable; estimated child-population fields are shown as unavailable.");
+  } else if (acsRows.length === 0) {
+    sourceWarnings.push("Census ACS returned no state rows; estimated child-population fields are shown as unavailable.");
+  }
+  const cbpByState = new Map(cbpRows.map((row) => [row.stateFips, row]));
+  const acsByState = new Map(acsRows.map((row) => [row.stateFips, row]));
+  const states = Array.from(new Set([...cbpByState.keys(), ...acsByState.keys()]))
+    .filter((stateFips) => Boolean(STATE_FIPS_TO_ABBR[stateFips]))
+    .sort()
+    .map((stateFips): NationalChildcareStateRow => {
+      const acs = acsByState.get(stateFips);
+      const cbp = cbpByState.get(stateFips);
+      const providerEstablishments = cbp?.establishments ?? null;
+      const estimatedChildren0To12 = acs?.children0To12 ?? null;
+      const establishmentsPer1000Children =
+        providerEstablishments !== null && estimatedChildren0To12
+          ? Math.round((providerEstablishments / estimatedChildren0To12) * 1000 * 10) / 10
+          : null;
+      return {
+        stateFips,
+        state: acs?.stateName ?? STATE_FIPS_TO_ABBR[stateFips],
+        providerEstablishments,
+        childcareEmployees: cbp?.employees ?? null,
+        estimatedChildren0To12,
+        establishmentsPer1000Children,
+        cbpAvailable: cbp !== undefined,
+        acsAvailable: acs !== undefined,
+        dataStatus: providerEstablishments !== null && estimatedChildren0To12 !== null && cbp?.employees !== null
+          ? "complete"
+          : providerEstablishments !== null || estimatedChildren0To12 !== null
+            ? "partial"
+            : "unavailable",
+      };
+    });
+
+  const completeStates = states.filter((row) => row.dataStatus === "complete");
+  const sumKnown = (field: "providerEstablishments" | "childcareEmployees" | "estimatedChildren0To12") => {
+    const known = completeStates.map((row) => row[field]).filter((value): value is number => value !== null);
+    return known.length > 0 ? known.reduce((sum, value) => sum + value, 0) : null;
+  };
+  const providerEstablishments = sumKnown("providerEstablishments");
+  const estimatedChildren0To12 = sumKnown("estimatedChildren0To12");
+  const warnings = [
+    ...sourceWarnings,
+    ...(completeStates.length < states.length
+      ? ["National totals and the density ratio include only states with complete CBP and ACS inputs."]
+      : []),
+    "Census CBP establishments are not licensed childcare slots, capacity, occupancy, or available openings.",
+    "The children 0–12 figure is an ACS estimate using all of the 10–14 age band at a 60% approximation; it is not a childcare enrollment count.",
+    "Texas county drill-downs can use HHSC licensed-capacity records; nationwide state rows do not have standardized federal capacity data.",
+    "A high or low establishment density is a screening signal, not a finding that a state has a confirmed childcare shortage.",
+  ];
+  const result: NationalChildcareOverview = {
+    retrievedAt: new Date().toISOString(),
+    coverage: {
+      statesIncluded: states.length,
+      statesWithCompleteData: states.filter((row) => row.dataStatus === "complete").length,
+      providerDataVintage: "2022",
+      childPopulationVintage: "2022",
+    },
+    national: {
+      providerEstablishments,
+      childcareEmployees: sumKnown("childcareEmployees"),
+      estimatedChildren0To12,
+      establishmentsPer1000Children:
+        providerEstablishments !== null && estimatedChildren0To12
+          ? Math.round((providerEstablishments / estimatedChildren0To12) * 1000 * 10) / 10
+          : null,
+    },
+    states,
+    economicContext: ALICE_NATIONAL_BENCHMARK,
+    sources: [
+      {
+        name: "U.S. Census County Business Patterns",
+        url: "https://api.census.gov/data/2022/cbp.html",
+        role: "State childcare establishment and employee counts, NAICS 6244",
+        vintage: "2022",
+      },
+      {
+        name: "U.S. Census American Community Survey",
+        url: "https://api.census.gov/data/2022/acs/acs5.html",
+        role: "Estimated children ages 0–12 from B01001",
+        vintage: "2022 ACS 5-year",
+      },
+      {
+        name: "United for ALICE",
+        url: ALICE_OVERVIEW_URL,
+        role: "External household economic-pressure context",
+        vintage: "2024 data shown in 2026 national report",
+      },
+    ],
+    warnings,
+  };
+  if (!cbpResult.error && !acsResult.error && cbpRows.length > 0 && acsRows.length > 0) {
+    cacheSet(cacheKey, result, CACHE_TTL_SECONDS);
+  }
+  return result;
+}
 
 /** Texas 3-digit county FIPS → uppercase county name (254 counties). */
 export const TX_COUNTY_FIPS_TO_NAME: Record<string, string> = {
@@ -453,9 +821,9 @@ export const TX_COUNTY_FIPS_TO_NAME: Record<string, string> = {
 async function fetchCbpEstab(
   stateFips: string,
   countyFips: string,
-): Promise<{ estab: number; emp: number } | null> {
+): Promise<{ estab: number | null; emp: number | null } | null> {
   const cacheKey = `cbp:6244:${stateFips}:${countyFips}`;
-  const cached = cacheGet<{ estab: number; emp: number }>(cacheKey);
+  const cached = cacheGet<{ estab: number | null; emp: number | null }>(cacheKey);
   if (cached) return cached;
 
   const key = process.env.CENSUS_API_KEY ?? "";
@@ -476,10 +844,10 @@ async function fetchCbpEstab(
     const ei = headers.indexOf("ESTAB");
     const mi = headers.indexOf("EMP");
     if (ei < 0) return null;
-    const result = {
-      estab: parseInt(data[ei] ?? "0", 10) || 0,
-      emp: mi >= 0 ? parseInt(data[mi] ?? "0", 10) || 0 : 0,
-    };
+    const estab = parseCensusCount(data[ei]);
+    const emp = mi >= 0 ? parseCensusCount(data[mi]) : null;
+    if (estab === null) return null;
+    const result = { estab, emp };
     cacheSet(cacheKey, result, CACHE_TTL_SECONDS);
     return result;
   } catch {
@@ -515,17 +883,68 @@ async function fetchAcsChildPop(
     const rows: string[][] = await resp.json();
     if (!Array.isArray(rows) || rows.length < 2) return null;
     const [headers, data] = rows;
-    const n = (v: string) => Math.max(0, parseInt(data[headers.indexOf(v)] ?? "0", 10) || 0);
+    const values = [
+      "B01001_003E", "B01001_027E",
+      "B01001_004E", "B01001_028E",
+      "B01001_005E", "B01001_029E",
+    ].map((variable) => parseCensusCount(data[headers.indexOf(variable)]));
+    if (!values.every((value): value is number => value !== null)) return null;
     // 0-12 ≈ (under5) + (5-9) + 60% of (10-14)
-    const childPop = n("B01001_003E") + n("B01001_027E")   // male+female under-5
-      + n("B01001_004E") + n("B01001_028E")                // male+female 5-9
-      + Math.round((n("B01001_005E") + n("B01001_029E")) * 0.6); // 60% of 10-14
+    const childPop = values[0] + values[1] // male+female under-5
+      + values[2] + values[3]              // male+female 5-9
+      + Math.round((values[4] + values[5]) * 0.6); // 60% of 10-14
     cacheSet(cacheKey, childPop, CACHE_TTL_SECONDS);
     return childPop;
   } catch {
     return null;
   } finally {
     clearTimeout(t);
+  }
+}
+
+/** Verify that a FIPS pair is a real Census county geography before querying childcare data. */
+export async function validateCountyFips(
+  stateFips: string,
+  countyFips: string,
+): Promise<"valid" | "invalid" | "unavailable"> {
+  if (stateFips === "48") {
+    return TX_COUNTY_FIPS_TO_NAME[countyFips] ? "valid" : "invalid";
+  }
+  const cacheKey = `census:county-exists:${stateFips}:${countyFips}`;
+  const cached = cacheGet<"valid" | "invalid" | "unavailable">(cacheKey);
+  if (cached) return cached;
+  const key = process.env.CENSUS_API_KEY ?? "";
+  const url =
+    `https://api.census.gov/data/2022/acs/acs5?get=NAME` +
+    `&for=county:${countyFips}&in=state:${stateFips}` +
+    (key ? `&key=${key}` : "");
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12_000);
+  try {
+    const response = await fetch(url, { signal: controller.signal });
+    if (!response.ok) {
+      cacheSet(cacheKey, "unavailable", 60);
+      return "unavailable";
+    }
+    const rows: unknown = await response.json();
+    const valid =
+      Array.isArray(rows) &&
+      rows.length >= 2 &&
+      Array.isArray(rows[0]) &&
+      Array.isArray(rows[1]) &&
+      rows[0].includes("NAME") &&
+      rows[0].includes("state") &&
+      rows[0].includes("county") &&
+      rows[1][rows[0].indexOf("state")] === stateFips &&
+      rows[1][rows[0].indexOf("county")] === countyFips;
+    const result = valid ? "valid" : "invalid";
+    cacheSet(cacheKey, result, CACHE_TTL_SECONDS);
+    return result;
+  } catch {
+    cacheSet(cacheKey, "unavailable", 60);
+    return "unavailable";
+  } finally {
+    clearTimeout(timer);
   }
 }
 
@@ -539,10 +958,16 @@ async function buildCbpChildcareIntel(
   const stateAbbr = STATE_FIPS_TO_ABBR[stateFips] ?? stateFips;
   const label = `${countyName || countyFips}, ${stateAbbr}`;
 
-  const [cbp, childPop] = await Promise.all([
-    fetchCbpEstab(stateFips, countyFips).catch(() => null),
-    fetchAcsChildPop(stateFips, countyFips).catch(() => null),
+  const [cbpResult, childPopResult] = await Promise.all([
+    fetchCbpEstab(stateFips, countyFips)
+      .then((value) => ({ value, failed: false }))
+      .catch(() => ({ value: null, failed: true })),
+    fetchAcsChildPop(stateFips, countyFips)
+      .then((value) => ({ value, failed: false }))
+      .catch(() => ({ value: null, failed: true })),
   ]);
+  const cbp = cbpResult.value;
+  const childPop = childPopResult.value;
 
   if (!cbp) {
     warnings.push(
@@ -550,21 +975,27 @@ async function buildCbpChildcareIntel(
       "Counts may be suppressed (cell < 3) or not yet published for 2022.",
     );
   }
+  if (childPop === null) {
+    warnings.push(
+      `Census ACS child-population data unavailable for ${label}. ` +
+      "The value may be suppressed, not published, or temporarily unreachable.",
+    );
+  }
 
-  const totalProviders = cbp?.estab ?? 0;
+  const totalProviders = cbp?.estab ?? null;
   const now = new Date().toISOString();
 
   const summary: ProviderSummary = {
     county: countyName.toUpperCase() || countyFips,
     totalProviders,
-    licensedProviders: 0,     // not derivable from CBP
-    totalLicensedCapacity: 0, // not derivable from CBP — requires state licensing API
-    avgCapacityPerProvider: 0,
+    licensedProviders: null,     // not derivable from CBP
+    totalLicensedCapacity: null, // not derivable from CBP — requires state licensing API
+    avgCapacityPerProvider: null,
     trsDistribution: {},
-    operationTypes: totalProviders > 0
+    operationTypes: totalProviders !== null && totalProviders > 0
       ? { "Child Day Care Services (NAICS 6244)": totalProviders }
       : {},
-    nonStandardHoursCount: 0,
+      nonStandardHoursCount: null,
     dataSource:
       `U.S. Census County Business Patterns (CBP) 2022, NAICS 6244 — ${label}. ` +
       "Capacity data requires state licensing records (not standardized federally).",
@@ -573,7 +1004,7 @@ async function buildCbpChildcareIntel(
 
   const slotGap: SlotGapAnalysis = {
     county: countyName.toUpperCase() || countyFips,
-    licensedCapacity: 0,
+    licensedCapacity: null,
     estimatedDemand: childPop,
     slotGap: null, // capacity unknown without state licensing data
     coverageRate: null,
@@ -591,7 +1022,7 @@ async function buildCbpChildcareIntel(
     county: countyName.toUpperCase() || countyFips,
     totalRated: 0,
     tier1Count: 0, tier2Count: 0, tier3Count: 0, tier4Count: 0, tier5Count: 0,
-    unratedCount: totalProviders,
+    unratedCount: 0,
     highQualityRate: null, // quality rating programs are state-specific
   };
 
@@ -621,13 +1052,13 @@ async function buildCbpChildcareIntel(
 export async function getChildcareIntelByFips(
   stateFips: string,
   countyFips: string,
-  countyName: string,
+  countyName = "",
 ): Promise<ChildcareIntelResult> {
   if (stateFips === "48") {
     // Texas: resolve county name from FIPS if not supplied, then use HHSC CCL
     const resolved =
-      countyName.replace(/\s+county$/i, "").trim().toUpperCase() ||
       TX_COUNTY_FIPS_TO_NAME[countyFips.padStart(3, "0")] ||
+      countyName.replace(/\s+county$/i, "").trim().toUpperCase() ||
       countyFips;
     return getChildcareIntel(resolved);
   }
@@ -646,7 +1077,7 @@ export async function getChildcareContextSummary(
   try {
     const intel = await getChildcareIntelByFips(stateFips, countyFips, countyName);
     const { summary, slotGap } = intel;
-    const cap = summary.totalLicensedCapacity > 0
+    const cap = summary.totalLicensedCapacity !== null && summary.totalLicensedCapacity > 0
       ? summary.totalLicensedCapacity.toLocaleString() + " licensed slots"
       : "capacity data unavailable (non-TX state)";
     const gap = slotGap.slotGap != null

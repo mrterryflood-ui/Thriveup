@@ -346,6 +346,7 @@ const InitiativeDetailPage = lazy(() => import("@/pages/initiative-detail"));
 
 // ─── Child Care & Workforce ────────────────────────────────────────────────────
 const ChildCarePage = lazy(() => import("@/pages/child-care"));
+const ChildCareNationalPage = lazy(() => import("@/pages/child-care-national"));
 const ChildCareWilcoPage = lazy(() => import("@/pages/child-care-wilco"));
 const ChildCareNorthTexasPage = lazy(() => import("@/pages/child-care-north-texas"));
 const ChildCareWorkforcePage = lazy(() => import("@/pages/child-care-workforce"));
@@ -953,6 +954,7 @@ function AppRouter() {
       <Route path="/initiatives" component={InitiativesPage} />
       <Route path="/initiatives/:slug" component={InitiativeDetailPage} />
       {/* ── Child Care & Workforce ── */}
+      <Route path="/child-care/national" component={ChildCareNationalPage} />
       <Route path="/child-care" component={ChildCarePage} />
       <Route path="/child-care-wilco" component={ChildCareWilcoPage} />
       <Route path="/child-care-north-texas" component={ChildCareNorthTexasPage} />

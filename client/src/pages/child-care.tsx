@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
-  Baby, AlertTriangle, TrendingUp, MapPin, Users, BarChart3,
+  Baby, AlertTriangle, TrendingUp, MapPin, Users, BarChart3, Globe2,
   ArrowRight, Building2, GraduationCap, Briefcase, ChevronRight,
   FileText, Target, DollarSign, Clock
 } from "lucide-react";
@@ -64,6 +64,13 @@ const STRUCTURAL_FAILURES = [
 ];
 
 const SECTION_LINKS = [
+  {
+    href: "/child-care/national",
+    title: "National Supply & Economic Context",
+    description: "Compare live Census childcare establishment data with child-population estimates and an attributed ALICE benchmark.",
+    icon: Globe2,
+    badge: "national",
+  },
   {
     href: "/child-care-wilco",
     title: "Williamson County Initiative",
@@ -202,7 +209,7 @@ export default function ChildCarePage() {
       {/* Section navigator */}
       <div>
         <h2 className="text-xl font-semibold mb-4">Explore by Region & Topic</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {SECTION_LINKS.map((link) => {
             const Icon = link.icon;
             return (

@@ -109,6 +109,8 @@ export const ALL_ITEMS: CommandItem[] = [
   { group: "Central Texas", label: "Pflugerville Hub", path: "/pflugerville", icon: MapPin },
 
   { group: "Child Care", label: "Child Care Overview", path: "/child-care", icon: Baby },
+  { group: "Child Care", label: "National Supply & Economic Context", path: "/child-care/national", icon: Baby },
+  { group: "Child Care", label: "North Texas Region", path: "/child-care-north-texas", icon: Baby },
   { group: "Child Care", label: "Williamson County Initiative", path: "/child-care-wilco", icon: MapPin },
   { group: "Child Care", label: "Workforce Connection & Policy", path: "/child-care-workforce", icon: TrendingUp },
 

@@ -390,6 +390,7 @@ const aboutTrustItems: NavItem[] = [
 // HUB 9 — Child Care & Workforce: subsidized child care system, TRS quality, workforce connection.
 const hubChildCareWorkforce: NavItem[] = [
   { title: "Child Care Overview", url: "/child-care", icon: Baby },
+  { title: "National Supply & Economic Context", url: "/child-care/national", icon: Globe },
   { title: "Williamson County Initiative", url: "/child-care-wilco", icon: MapPin },
   { title: "North Texas Region", url: "/child-care-north-texas", icon: BarChart3 },
   { title: "Workforce Connection & Policy", url: "/child-care-workforce", icon: TrendingUp },

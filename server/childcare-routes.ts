@@ -17,6 +17,8 @@ import { type Express, type Request, type Response } from "express";
 import {
   getChildcareIntel,
   getChildcareIntelByFips,
+  getNationalChildcareOverview,
+  validateCountyFips,
   TX_COUNTY_FIPS_TO_NAME,
   type HhscProvider,
 } from "./childcare-provider-intel";
@@ -29,23 +31,47 @@ import { resolveCountyInput } from "./neighborhood-routes";
 const childcareRateLimitMap = new Map<string, { count: number; resetAt: number }>();
 const RATE_LIMIT_MAX = 30;
 const RATE_LIMIT_WINDOW_MS = 60_000;
+const MAX_TRACKED_IPS = 10_000;
 
 function checkRateLimit(req: Request, res: Response): boolean {
   const ip = (req.ip ?? req.socket?.remoteAddress ?? "unknown").replace(/^::ffff:/, "");
   const now = Date.now();
+  for (const [key, value] of childcareRateLimitMap) {
+    if (now >= value.resetAt) childcareRateLimitMap.delete(key);
+  }
   const entry = childcareRateLimitMap.get(ip);
 
   if (!entry || now >= entry.resetAt) {
+    if (childcareRateLimitMap.size >= MAX_TRACKED_IPS) {
+      const oldestKey = childcareRateLimitMap.keys().next().value;
+      if (oldestKey) childcareRateLimitMap.delete(oldestKey);
+    }
     childcareRateLimitMap.set(ip, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS });
+    res.set({
+      "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+      "X-RateLimit-Remaining": String(RATE_LIMIT_MAX - 1),
+      "X-RateLimit-Reset": String(Math.ceil((now + RATE_LIMIT_WINDOW_MS) / 1000)),
+    });
     return true; // allowed
   }
   if (entry.count >= RATE_LIMIT_MAX) {
+    res.set({
+      "Retry-After": String(Math.max(1, Math.ceil((entry.resetAt - now) / 1000))),
+      "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+      "X-RateLimit-Remaining": "0",
+      "X-RateLimit-Reset": String(Math.ceil(entry.resetAt / 1000)),
+    });
     res
       .status(429)
       .json({ error: "Too many requests. Please wait a moment before retrying." });
     return false; // blocked
   }
   entry.count++;
+  res.set({
+    "X-RateLimit-Limit": String(RATE_LIMIT_MAX),
+    "X-RateLimit-Remaining": String(Math.max(0, RATE_LIMIT_MAX - entry.count)),
+    "X-RateLimit-Reset": String(Math.ceil(entry.resetAt / 1000)),
+  });
   return true; // allowed
 }
 
@@ -64,6 +90,10 @@ function badRequest(res: Response, msg: string) {
 function getCountyParam(req: Request): string {
   const raw = req.params["county"];
   return Array.isArray(raw) ? raw[0] : (raw ?? "");
+}
+
+function isKnownTexasCountyName(county: string): boolean {
+  return Object.values(TX_COUNTY_FIPS_TO_NAME).includes(county);
 }
 
 // ---------------------------------------------------------------------------
@@ -133,6 +163,22 @@ export function registerChildcareRoutes(app: Express): void {
   });
 
   // ------------------------------------------------------------------
+  // GET /api/childcare/national-overview — state comparison + economic context
+  // ------------------------------------------------------------------
+  app.get("/api/childcare/national-overview", async (req: Request, res: Response) => {
+    if (!checkRateLimit(req, res)) return;
+    try {
+      const overview = await getNationalChildcareOverview();
+      return res.json(overview);
+    } catch (err: any) {
+      console.error("[childcare] national overview error:", err?.message);
+      return res.status(502).json({
+        error: "National childcare data is temporarily unavailable. Please try again.",
+      });
+    }
+  });
+
+  // ------------------------------------------------------------------
   // GET /api/childcare/fips/:stateFips/:countyFips — nationwide by FIPS
   // ------------------------------------------------------------------
   app.get(
@@ -141,17 +187,25 @@ export function registerChildcareRoutes(app: Express): void {
       if (!checkRateLimit(req, res)) return;
       const stateFips = String(req.params["stateFips"] ?? "").trim().padStart(2, "0");
       const countyFips = String(req.params["countyFips"] ?? "").trim().padStart(3, "0");
-      if (!/^\d{2}$/.test(stateFips) || !/^\d{3}$/.test(countyFips)) {
+      const isKnownState = ["01","02","04","05","06","08","09","10","11","12","13","15","16","17","18","19","20","21","22","23","24","25","26","27","28","29","30","31","32","33","34","35","36","37","38","39","40","41","42","44","45","46","47","48","49","50","51","53","54","55","56"].includes(stateFips);
+      const isNonZeroCounty = /^\d{3}$/.test(countyFips) && countyFips !== "000";
+      const isKnownTexasCounty = stateFips !== "48" || Boolean(TX_COUNTY_FIPS_TO_NAME[countyFips]);
+      if (!/^\d{2}$/.test(stateFips) || !isKnownState || !isNonZeroCounty || !isKnownTexasCounty) {
         return res.status(400).json({
-          error: "stateFips must be 2 digits and countyFips must be 3 digits.",
+          error: "stateFips and countyFips must identify a known U.S. county.",
         });
+      }
+      const geography = await validateCountyFips(stateFips, countyFips);
+      if (geography === "unavailable") {
+        return res.status(503).json({ error: "County geography verification is temporarily unavailable." });
+      }
+      if (geography === "invalid") {
+        return res.status(404).json({ error: "The requested county FIPS is not a Census county geography." });
       }
       // Resolve county name for display and TX HHSC lookup
       const countyName =
         stateFips === "48"
           ? (TX_COUNTY_FIPS_TO_NAME[countyFips] ?? countyFips)
-          : req.query.countyName
-          ? String(req.query.countyName).toUpperCase()
           : countyFips;
       try {
         const intel = await getChildcareIntelByFips(stateFips, countyFips, countyName);
@@ -179,7 +233,7 @@ export function registerChildcareRoutes(app: Express): void {
   app.get("/api/childcare/search", async (req: Request, res: Response) => {
     if (!checkRateLimit(req, res)) return;
     const location = String(req.query["location"] ?? "").trim();
-    if (!location || location.length < 3) {
+    if (!location || location.length < 3 || location.length > 120) {
       return res.status(400).json({
         error: "location query param required (e.g. 'Williamson County, TX' or 'Cook County, IL').",
       });
@@ -220,6 +274,7 @@ export function registerChildcareRoutes(app: Express): void {
       if (!checkRateLimit(req, res)) return;
       const county = normalizeCounty(getCountyParam(req));
       if (!county || county.length < 2) return badRequest(res, "County name is required.");
+      if (!isKnownTexasCountyName(county)) return res.status(404).json({ error: "Texas county not found." });
 
       try {
         const intel = await getChildcareIntel(county);
@@ -249,9 +304,15 @@ export function registerChildcareRoutes(app: Express): void {
       if (!checkRateLimit(req, res)) return;
       const county = normalizeCounty(getCountyParam(req));
       if (!county || county.length < 2) return badRequest(res, "County name is required.");
+      if (!isKnownTexasCountyName(county)) return res.status(404).json({ error: "Texas county not found." });
 
-      const page = Math.max(1, parseInt(String(req.query["page"] ?? "1"), 10) || 1);
-      const limit = Math.min(200, Math.max(1, parseInt(String(req.query["limit"] ?? "50"), 10) || 50));
+      const rawPage = String(req.query["page"] ?? "1");
+      const rawLimit = String(req.query["limit"] ?? "50");
+      if (!/^\d+$/.test(rawPage) || !/^\d+$/.test(rawLimit) || Number(rawPage) < 1 || Number(rawLimit) < 1 || Number(rawLimit) > 200) {
+        return badRequest(res, "page must be a positive integer and limit must be an integer from 1 to 200.");
+      }
+      const page = Number(rawPage);
+      const limit = Number(rawLimit);
       const typeFilter = String(req.query["type"] ?? "").trim().toUpperCase() || null;
       const trsFilter = String(req.query["trs"] ?? "").trim().toUpperCase() || null;
       const statusFilter = String(req.query["status"] ?? "").trim().toUpperCase() || null;
@@ -307,6 +368,7 @@ export function registerChildcareRoutes(app: Express): void {
       if (!checkRateLimit(req, res)) return;
       const county = normalizeCounty(getCountyParam(req));
       if (!county || county.length < 2) return badRequest(res, "County name is required.");
+      if (!isKnownTexasCountyName(county)) return res.status(404).json({ error: "Texas county not found." });
 
       try {
         const intel = await getChildcareIntel(county);
@@ -322,7 +384,9 @@ export function registerChildcareRoutes(app: Express): void {
             nonStandardHoursProviders: summary.nonStandardHoursCount,
             totalProviders: summary.totalProviders,
             nonStandardHoursCoverage:
-              summary.totalProviders > 0
+              summary.totalProviders !== null &&
+              summary.totalProviders > 0 &&
+              summary.nonStandardHoursCount !== null
                 ? summary.nonStandardHoursCount / summary.totalProviders
                 : null,
             note: "Non-standard hours estimated from HHSC hours_of_operation field; may undercount.",
@@ -348,6 +412,7 @@ export function registerChildcareRoutes(app: Express): void {
       if (!checkRateLimit(req, res)) return;
       const county = normalizeCounty(getCountyParam(req));
       if (!county || county.length < 2) return badRequest(res, "County name is required.");
+      if (!isKnownTexasCountyName(county)) return res.status(404).json({ error: "Texas county not found." });
 
       try {
         const intel = await getChildcareIntel(county);
@@ -357,9 +422,8 @@ export function registerChildcareRoutes(app: Express): void {
           county,
           trsQuality,
           note:
-            "Texas Rising Star (TRS) designation from HHSC CCL dataset. " +
-            "Unrated providers may be new licensees, home-based providers, or non-participants. " +
-            "TRS participation is voluntary; unrated does not indicate poor quality.",
+            "Texas Rising Star (TRS) ratings are not included in the current HHSC CCL dataset. " +
+            "A separate state rating source would be required before quality tiers can be reported.",
           dataSource: summary.dataSource,
           warnings: intel.warnings,
         });

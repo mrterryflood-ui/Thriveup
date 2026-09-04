@@ -324,13 +324,13 @@ interface ConductorBrief {
   historicalCascade: HistoricalCascade | null;
   /** Childcare gap analysis — available for county-level briefs, null otherwise. */
   childcare: {
-    totalProviders: number;
-    licensedProviders: number;
-    totalLicensedCapacity: number;
+    totalProviders: number | null;
+    licensedProviders: number | null;
+    totalLicensedCapacity: number | null;
     estimatedDemand: number | null;
     slotGap: number | null;
     coverageRate: number | null;
-    nonStandardHoursCount: number;
+    nonStandardHoursCount: number | null;
     highQualityRate: number | null;
     dataSource: string;
     warnings: string[];

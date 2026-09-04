@@ -318,6 +318,7 @@ const STATIC_PATHS = new Set<string>([
   "/ecosystem-intel",
   "/initiatives",
   "/child-care",
+  "/child-care/national",
   "/child-care-wilco",
   "/child-care-north-texas",
   "/child-care-workforce",

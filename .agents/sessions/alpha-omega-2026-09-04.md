@@ -1,0 +1,15 @@
+# Alpha Omega — 2026-09-04 — National childcare and economic-pressure overview
+
+## Alpha
+- End-state: Add a native TCAF national childcare overview inspired by the United for ALICE national overview, while keeping childcare supply evidence distinct from household economic-pressure context.
+- In-state evidence: Existing `/child-care` is static; live childcare APIs are in `server/childcare-routes.ts`; Texas uses HHSC CCL and non-Texas county lookups use Census CBP 2022 NAICS 6244 plus ACS 2022 B01001; no ALICE ingestion or national childcare overview exists.
+- Authority/boundaries: Public read-only aggregate data; no child PII. ALICE is an attributed external benchmark and must not be represented as TCAF data. Census establishments are not childcare slots. Texas county capacity remains the only live licensed-capacity path.
+- Plan and acceptance proofs: Add a national endpoint with explicit source/vintage/method metadata, a routed UI under the existing Child Care & Workforce hub, state comparison/search, county drill-down links, and tests for the endpoint contract and honest limitation labels. Verify API, browser rendering, typecheck, focused childcare checks, workflow logs, and independent adversarial review.
+- Unknowns/deferred decisions: ALICE does not expose a stable public API in the inspected page; do not scrape or reproduce its interactive dataset. State-level ALICE percentages and nationwide state licensing capacity remain deferred until an authoritative machine-readable source is identified.
+
+## Omega
+- Diff scrimmage: Completed the audit-driven hardening pass across the national overview client, childcare API routes, Census geography validation, source caching, rate-limit responses, and focused verification script. `git diff --check` passed.
+- Proofs and gates: TypeScript passed with zero errors; `scripts/preflight.ts` passed 9/9; `scripts/memory-health.ts` passed; childcare contract verification passed 34/34; live national endpoint returned HTTP 200 with 51 states and 51 complete rows; Williamson County returned 541 providers and 45,032 active licensed slots; preview screenshot rendered successfully at 1280×720; workflow restarted cleanly.
+- Independent angle: A six-domain adversarial recheck found and drove fixes for missing 429 rate-limit headers, permissive provider pagination, contradictory HHSC outage warnings, unavailable non-standard-hours zeros, weak FIPS response validation, partial-source cache persistence, cancellation/timeout ambiguity, and unsafe external URL schemes.
+- Outcome: Delivered and locally verified. National overview remains aggregate-only and disclosure-preserving; ALICE remains attributed context, not TCAF-owned childcare data.
+- Residuals and reusable guard: Browser interaction automation remains unavailable because the local Chromium executable is missing. Existing unrelated workflow failures remain outside this feature. CHW dashboard childcare payloads and public API-only endpoint consumers remain separate follow-up scope; no production publication is claimed.

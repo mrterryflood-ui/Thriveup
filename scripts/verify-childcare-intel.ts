@@ -12,6 +12,7 @@
  *   (f) /api/childcare/county/WILLIAMSON/quality returns TRS distribution
  *   (g) Rate-limit header is present
  *   (h) Unknown county returns a graceful response (not 500)
+ *   (i) National overview returns a null-aware, source-disclosed state contract
  */
 
 const BASE_URL = process.env.APP_BASE_URL ?? "http://localhost:5000";
@@ -193,8 +194,7 @@ async function main(): Promise<void> {
   if (hasRateLimit) {
     pass("rate-limit headers present");
   } else {
-    // RateLimit header names vary by middleware version; soft pass
-    pass("rate-limit header check skipped (header name may vary by middleware)");
+    fail("rate-limit headers are missing");
   }
 
   // -------------------------------------------------------------------------
@@ -298,6 +298,17 @@ async function main(): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
+  // (j2) Invalid FIPS input — reject rather than return empty data
+  // -------------------------------------------------------------------------
+  console.log("\n(j2) Invalid FIPS input:");
+  const invalidFips = await get("/api/childcare/fips/99/000");
+  if (invalidFips.status === 400) pass("Invalid state/county FIPS returns HTTP 400");
+  else fail(`Invalid FIPS returned HTTP ${invalidFips.status}`);
+  const nonexistentCounty = await get("/api/childcare/fips/17/999");
+  if ([404, 503].includes(nonexistentCounty.status)) pass("Nonexistent non-Texas county is rejected or fails closed");
+  else fail(`Nonexistent non-Texas county returned HTTP ${nonexistentCounty.status}`);
+
+  // -------------------------------------------------------------------------
   // (l) Bad search input — 400 or graceful 404
   // -------------------------------------------------------------------------
   console.log("\n(l) Search with bad location:");
@@ -306,6 +317,86 @@ async function main(): Promise<void> {
     fail(`Bad search returned server error ${badSearch.status}`);
   } else {
     pass(`Bad search returns non-500 (${badSearch.status})`);
+  }
+
+  // -------------------------------------------------------------------------
+  // (m) National overview — contract and suppression semantics
+  // -------------------------------------------------------------------------
+  console.log("\n(m) National overview contract:");
+  const national = await get("/api/childcare/national-overview");
+  if (national.status !== 200) {
+    fail(`National overview returned HTTP ${national.status}`);
+  } else {
+    const body = national.body as Record<string, unknown>;
+    const states = Array.isArray(body.states) ? body.states : [];
+    const coverage = body.coverage as Record<string, unknown> | undefined;
+    const totals = body.national as Record<string, unknown> | undefined;
+    const economicContext = body.economicContext as Record<string, unknown> | undefined;
+    const sourceRows = Array.isArray(body.sources) ? body.sources : [];
+    const warnings = Array.isArray(body.warnings) ? body.warnings : [];
+    if (typeof body.retrievedAt === "string" && body.retrievedAt.length > 0) {
+      pass("National overview includes retrieval metadata");
+    } else {
+      fail("National overview is missing retrievedAt");
+    }
+    if (states.length === 0) fail("National overview returned no state rows");
+    else pass(`National overview returned ${states.length} state rows`);
+    if (
+      typeof coverage?.statesIncluded === "number" &&
+      typeof coverage?.statesWithCompleteData === "number" &&
+      coverage.statesIncluded === states.length
+    ) {
+      pass("National coverage metadata matches the returned state rows");
+    } else {
+      fail("National coverage metadata does not match the returned state rows");
+    }
+    if (
+      sourceRows.length >= 2 &&
+      sourceRows.every((source) => {
+        const row = source as Record<string, unknown>;
+        return ["name", "url", "role", "vintage"].every((field) => typeof row[field] === "string");
+      })
+    ) pass("National overview includes complete source metadata");
+    else fail("National overview is missing source metadata");
+    if (economicContext && typeof economicContext.sourceName === "string" && typeof economicContext.disclosure === "string") {
+      pass("National overview includes attributed economic context and disclosure");
+    } else {
+      fail("National overview is missing economic context disclosure");
+    }
+    if (warnings.every((warning) => typeof warning === "string")) pass("National overview warnings are strings");
+    else fail("National overview contains malformed warnings");
+    const invalidStatus = states.some((row) => {
+      const state = row as Record<string, unknown>;
+      return !["complete", "partial", "unavailable"].includes(String(state.dataStatus));
+    });
+    if (invalidStatus) fail("National overview contains an invalid dataStatus");
+    else pass("National overview uses explicit complete/partial/unavailable statuses");
+    if (
+      totals &&
+      ["providerEstablishments", "childcareEmployees", "estimatedChildren0To12"]
+        .every((field) => totals[field] === null || typeof totals[field] === "number") &&
+      (totals.establishmentsPer1000Children === null || typeof totals.establishmentsPer1000Children === "number")
+    ) {
+      pass("National totals preserve unavailable values as null");
+    } else {
+      fail("National totals contain a non-numeric non-null value");
+    }
+    const malformedState = states.some((row) => {
+      const state = row as Record<string, unknown>;
+      const nullableFields = ["providerEstablishments", "childcareEmployees", "estimatedChildren0To12", "establishmentsPer1000Children"];
+      return typeof state.stateFips !== "string" ||
+        typeof state.state !== "string" ||
+        nullableFields.some((field) => state[field] !== null && typeof state[field] !== "number");
+    });
+    if (malformedState) fail("National overview contains a malformed state row");
+    else pass("National state rows preserve numeric-or-null field contracts");
+    const inconsistentDensity = states.some((row) => {
+      const state = row as Record<string, unknown>;
+      const hasInputs = typeof state.providerEstablishments === "number" && typeof state.estimatedChildren0To12 === "number";
+      return !hasInputs && state.establishmentsPer1000Children !== null;
+    });
+    if (inconsistentDensity) fail("National density is non-null without both source inputs");
+    else pass("National density is null whenever either source input is unavailable");
   }
 
   // -------------------------------------------------------------------------
