@@ -667,14 +667,21 @@ export function scheduleEquityLossNationwideRefresh(): void {
       console.error("[equity-loss-scheduler] Unexpected error in boot check:", err?.message ?? err);
     }
 
-    // Re-check every 30 days
+    // Re-check on a 24-hour polling cycle; checkAndRun() skips when the batch
+    // is still within REFRESH_INTERVAL_MS (30 days), so extra ticks are cheap.
+    // NOTE: 30 * 24 * 60 * 60 * 1000 = 2 592 000 000 ms, which overflows the
+    // 32-bit signed integer that Node's timer subsystem uses internally.
+    // Values > 2 147 483 647 clamp to ~1 ms, causing thousands of rapid-fire
+    // log messages.  A 24-hour tick avoids the overflow while the existing
+    // staleness gate inside checkAndRun() still enforces the 30-day policy.
+    const CHECK_INTERVAL_MS = 24 * 60 * 60 * 1000; // 24 hours — safely under Int32 max
     setInterval(async () => {
       try {
         await checkAndRun();
       } catch (err: any) {
         console.error("[equity-loss-scheduler] Unexpected error in scheduled check:", err?.message ?? err);
       }
-    }, REFRESH_INTERVAL_MS);
+    }, CHECK_INTERVAL_MS);
   }, BOOT_DELAY_MS);
 
   console.log(

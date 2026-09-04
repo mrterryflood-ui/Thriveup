@@ -84,6 +84,7 @@ import {
   type ScoringRubric,
 } from "./sankofa-gateway";
 import { registerBenefitsRoutes } from "./benefits-routes";
+import { registerChildcareRoutes } from "./childcare-routes";
 import { registerResidentJourneyRoutes } from "./resident-journey";
 import { detectCrisisSignal, escalateCrisis, buildDeEscalationResponse } from "./safety-escalation";
 import { registerGrantRoutes } from "./grant-routes";
@@ -557,6 +558,7 @@ export async function registerRoutes(
   registerOutcomeRoutes(app);
   registerJusticeRoutes(app);
   registerBenefitsRoutes(app);
+  registerChildcareRoutes(app);
   registerResidentJourneyRoutes(app);
   const { registerDonorReceiptRoutes } = await import("./donor-receipts");
   registerDonorReceiptRoutes(app);

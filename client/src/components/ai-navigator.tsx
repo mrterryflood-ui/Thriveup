@@ -603,8 +603,12 @@ export function AINavigator({
       const sessionUserId = user?.id;
 
       youthModeDebounceRef.current = setTimeout(async () => {
-        // Bail if the auth user has changed since this toggle was queued
-        if (!sessionUserId) return;
+        // Bail if auth identity changed since toggle was queued.
+        // Note: sessionUserId may be undefined during initial auth load even when
+        // isAuthenticated is true — the useEffect above already cancels pending
+        // writes on identity change, so undefined here is safe to proceed.
+        // We only skip if sessionUserId was defined at toggle time and has since changed.
+        if (sessionUserId !== undefined && sessionUserId !== user?.id) return;
 
         const valueToSave = youthModeLatestRef.current; // final intent after all rapid toggles
         try {
