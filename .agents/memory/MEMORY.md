@@ -62,6 +62,7 @@
 - [Publish custom CHECK serializer quirk](publish-check-serializer.md) — Replit Publish may double-wrap database CHECK expressions; keep function-backed checks migration-owned, not dev-schema-owned.
 - [Equity-loss scheduler Int32 overflow](equity-loss-scheduler-int32.md) — setInterval(30days_ms) overflows Int32 and clamps to ~1ms; fixed to 24h polling cycle (checker inside is still 30-day gate); CT batch repaired via repair script.
 - [HHSC CCL API field mapping](hhsc-ccl-field-mapping.md) — bc5r-88dy uses total_capacity (not licensed_capacity), operation_status Y/N, phone_number, zipcode, website_address; no TRS field (separate dataset); no lat/lon (embedded JSON).
+- [Childcare nationwide intelligence](childcare-nationwide-intel.md) — TX→HHSC CCL (county name lookup); non-TX→Census CBP 2022 NAICS 6244 + ACS B01001 child pop; getChildcareIntelByFips is the unified entry point; zctaCountyMap uses .zip not .zcta; buildSummary bug fixed (license_status is "Full Permit" not "LICENSED").
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.

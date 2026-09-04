@@ -219,6 +219,96 @@ async function main(): Promise<void> {
   }
 
   // -------------------------------------------------------------------------
+  // (i) WSRCA overview — all 9 counties present
+  // -------------------------------------------------------------------------
+  console.log("\n(i) WSRCA 9-county overview:");
+  const wsrca = await get("/api/childcare/wsrca/overview");
+  if (wsrca.status !== 200) {
+    fail(`WSRCA overview returned HTTP ${wsrca.status}`);
+  } else {
+    const body = wsrca.body as Record<string, unknown>;
+    const counties = body.counties as unknown[];
+    if (!Array.isArray(counties)) {
+      fail("WSRCA response missing counties array");
+    } else {
+      if (counties.length === 9) {
+        pass(`WSRCA overview returns exactly 9 counties`);
+      } else {
+        fail(`WSRCA overview returned ${counties.length} counties, expected 9`);
+      }
+      const withCapacity = counties.filter(
+        (c: any) => typeof c.totalLicensedCapacity === "number" && c.totalLicensedCapacity > 0,
+      );
+      if (withCapacity.length > 0) {
+        pass(`${withCapacity.length}/9 WSRCA counties have numeric licensed capacity`);
+      } else {
+        fail("No WSRCA county has a positive totalLicensedCapacity — HHSC CCL may have failed");
+      }
+      const williamson = (counties as any[]).find((c) => c.county === "WILLIAMSON");
+      if (williamson && typeof williamson.totalProviders === "number" && williamson.totalProviders > 0) {
+        pass(`WILLIAMSON in WSRCA batch: ${williamson.totalProviders} providers, ${williamson.totalLicensedCapacity} slots`);
+      } else {
+        fail("WILLIAMSON county missing or zero in WSRCA batch");
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // (j) Nationwide FIPS endpoint — Williamson TX via FIPS
+  // -------------------------------------------------------------------------
+  console.log("\n(j) Nationwide FIPS endpoint (Williamson TX = 48/491):");
+  const fipsResult = await get("/api/childcare/fips/48/491");
+  if (fipsResult.status !== 200) {
+    fail(`FIPS endpoint returned HTTP ${fipsResult.status}`);
+  } else {
+    const body = fipsResult.body as Record<string, unknown>;
+    if (body.stateFips === "48" && body.countyFips === "491") {
+      pass("FIPS endpoint returns correct stateFips/countyFips echo");
+    } else {
+      fail(`FIPS endpoint FIPS mismatch: ${JSON.stringify({ stateFips: body.stateFips, countyFips: body.countyFips })}`);
+    }
+    const summary = body.summary as Record<string, unknown>;
+    if (typeof summary?.totalProviders === "number" && summary.totalProviders > 0) {
+      pass(`FIPS endpoint totalProviders: ${summary.totalProviders} (TX routes to HHSC CCL)`);
+    } else {
+      fail("FIPS endpoint totalProviders missing or zero for Williamson TX");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // (k) Nationwide search endpoint — county name resolution
+  // -------------------------------------------------------------------------
+  console.log("\n(k) Nationwide search endpoint:");
+  const searchResult = await get("/api/childcare/search?location=Williamson+County%2C+TX");
+  if (searchResult.status !== 200) {
+    fail(`Search endpoint returned HTTP ${searchResult.status}`);
+  } else {
+    const body = searchResult.body as Record<string, unknown>;
+    if (typeof body.stateFips === "string" && typeof body.countyFips === "string") {
+      pass(`Search resolved to stateFips=${body.stateFips}, countyFips=${body.countyFips}`);
+    } else {
+      fail("Search missing stateFips/countyFips");
+    }
+    const summary = body.summary as Record<string, unknown>;
+    if (typeof summary?.totalProviders === "number" && summary.totalProviders > 0) {
+      pass(`Search totalProviders: ${summary.totalProviders}`);
+    } else {
+      fail("Search totalProviders missing or zero");
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // (l) Bad search input — 400 or graceful 404
+  // -------------------------------------------------------------------------
+  console.log("\n(l) Search with bad location:");
+  const badSearch = await get("/api/childcare/search?location=ZZNOTAPLACE");
+  if (badSearch.status >= 500) {
+    fail(`Bad search returned server error ${badSearch.status}`);
+  } else {
+    pass(`Bad search returns non-500 (${badSearch.status})`);
+  }
+
+  // -------------------------------------------------------------------------
   // Summary
   // -------------------------------------------------------------------------
   console.log(`\n[verify-childcare-intel] ${passed} passed, ${failed} failed`);

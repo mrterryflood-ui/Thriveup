@@ -232,6 +232,40 @@ export default function ChwDashboardPage() {
   // Outcome filter for sent referrals (#197) — default "needs-follow-up"
   const [outcomeFilter, setOutcomeFilter] = useState<string>("needs-follow-up");
 
+  // Childcare gap intelligence — WSRCA footprint + nationwide search
+  const [childcareSearchInput, setChildcareSearchInput] = useState("");
+  const [childcareSearchQuery, setChildcareSearchQuery] = useState("");
+
+  // Childcare data — WSRCA 9-county footprint (loaded when tab is active)
+  const { data: wsrcaData, isFetching: wsrcaLoading } = useQuery<any>({
+    queryKey: ["/api/childcare/wsrca/overview"],
+    queryFn: async () => {
+      const res = await fetch("/api/childcare/wsrca/overview");
+      if (!res.ok) throw new Error("WSRCA data unavailable");
+      return res.json();
+    },
+    enabled: isAuthenticated && activeTab === "childcare",
+    staleTime: 30 * 60 * 1000,
+    retry: false,
+  });
+
+  // Childcare search — nationwide by county name + state string
+  const { data: childcareSearchData, isFetching: childcareSearchLoading, error: childcareSearchError } = useQuery<any>({
+    queryKey: ["/api/childcare/search", childcareSearchQuery],
+    queryFn: async () => {
+      if (!childcareSearchQuery) return null;
+      const res = await fetch(`/api/childcare/search?location=${encodeURIComponent(childcareSearchQuery)}`);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Not found" }));
+        throw new Error(err.error ?? "Search failed");
+      }
+      return res.json();
+    },
+    enabled: !!childcareSearchQuery,
+    staleTime: 30 * 60 * 1000,
+    retry: false,
+  });
+
   // Live capacity registry — used to block referrals to closed orgs and warn
   // about waitlists before submission (server enforces the same rules).
   const { data: capacityData } = useQuery<{ orgs: any[] }>({
@@ -843,6 +877,7 @@ export default function ChwDashboardPage() {
           <TabsTrigger value="caseload" data-testid="tab-caseload">Caseload</TabsTrigger>
           <TabsTrigger value="visits" data-testid="tab-visits">Home Visits</TabsTrigger>
           <TabsTrigger value="resources" data-testid="tab-resources">Resources</TabsTrigger>
+          <TabsTrigger value="childcare" data-testid="tab-childcare">Childcare</TabsTrigger>
           <TabsTrigger value="training" data-testid="tab-training">Training</TabsTrigger>
           <TabsTrigger value="supervisor" data-testid="tab-supervisor">Supervisor View</TabsTrigger>
         </TabsList>
@@ -1396,6 +1431,172 @@ export default function ChwDashboardPage() {
                 </Button>
               </a>
             </Card>
+          </div>
+        </TabsContent>
+
+        {/* ── Childcare Gap Intelligence ─────────────────────────────── */}
+        <TabsContent value="childcare">
+          <div className="space-y-6">
+            {/* WSRCA 9-county footprint */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <Building2 className="h-5 w-5 text-teal-500" />
+                <h3 className="font-semibold text-base">WSRCA Footprint — 9-County Central Texas</h3>
+              </div>
+              <p className="text-xs text-muted-foreground mb-4">
+                Live data from Texas HHSC CCL dataset (data.texas.gov bc5r-88dy). Capacity and
+                provider counts reflect active licensed operations. Slot gap = licensed capacity
+                minus estimated demand (children 0–12, ACS 2022).
+              </p>
+              {wsrcaLoading ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {Array.from({ length: 9 }).map((_, i) => (
+                    <Skeleton key={i} className="h-32 w-full rounded-lg" />
+                  ))}
+                </div>
+              ) : wsrcaData?.counties ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="wsrca-counties">
+                  {wsrcaData.counties.map((c: any) => {
+                    const coveragePct = c.coverageRate != null ? Math.round(c.coverageRate * 100) : null;
+                    const gapSign = (c.slotGap ?? 0) > 0;
+                    return (
+                      <Card key={c.county} className="p-4" data-testid={`wsrca-county-${c.county}`}>
+                        {c.error ? (
+                          <div className="text-xs text-destructive">{c.county}: {c.error}</div>
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="font-semibold text-sm">{c.county.replace(/_/g, " ")}</span>
+                              {coveragePct != null && (
+                                <Badge
+                                  variant={coveragePct >= 80 ? "default" : coveragePct >= 50 ? "secondary" : "destructive"}
+                                  className="text-xs"
+                                >
+                                  {coveragePct}% coverage
+                                </Badge>
+                              )}
+                            </div>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                              <span>Providers</span>
+                              <span className="font-medium text-foreground text-right">{c.totalProviders?.toLocaleString() ?? "—"}</span>
+                              <span>Licensed slots</span>
+                              <span className="font-medium text-foreground text-right">{c.totalLicensedCapacity?.toLocaleString() ?? "—"}</span>
+                              <span>Est. demand</span>
+                              <span className="font-medium text-foreground text-right">
+                                {c.estimatedDemand != null ? c.estimatedDemand.toLocaleString() : "—"}
+                              </span>
+                              <span>Slot gap</span>
+                              <span className={`font-medium text-right ${gapSign ? "text-destructive" : "text-emerald-600"}`}>
+                                {c.slotGap != null ? (gapSign ? `+${c.slotGap.toLocaleString()} needed` : "Covered") : "—"}
+                              </span>
+                            </div>
+                          </>
+                        )}
+                      </Card>
+                    );
+                  })}
+                </div>
+              ) : (
+                <Card className="p-4 text-center text-sm text-muted-foreground">
+                  WSRCA childcare data unavailable. HHSC CCL dataset may be temporarily unreachable.
+                </Card>
+              )}
+            </div>
+
+            {/* Nationwide county search */}
+            <div>
+              <div className="flex items-center gap-2 mb-3">
+                <MapPin className="h-5 w-5 text-teal-500" />
+                <h3 className="font-semibold text-base">Nationwide County Search</h3>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                Search any U.S. county. Texas counties use live HHSC CCL data; all other states use
+                Census County Business Patterns (CBP 2022, NAICS 6244) with ACS child population estimates.
+              </p>
+              <div className="flex gap-2 mb-4">
+                <Input
+                  value={childcareSearchInput}
+                  onChange={(e) => setChildcareSearchInput(e.target.value)}
+                  placeholder="e.g. Williamson County, TX or Cook County, IL"
+                  className="flex-1"
+                  data-testid="childcare-search-input"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && childcareSearchInput.trim()) {
+                      setChildcareSearchQuery(childcareSearchInput.trim());
+                    }
+                  }}
+                />
+                <Button
+                  size="sm"
+                  disabled={!childcareSearchInput.trim() || childcareSearchLoading}
+                  onClick={() => setChildcareSearchQuery(childcareSearchInput.trim())}
+                  data-testid="childcare-search-btn"
+                >
+                  {childcareSearchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
+                </Button>
+              </div>
+
+              {childcareSearchError && (
+                <div className="text-sm text-destructive mb-3 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 shrink-0" />
+                  {(childcareSearchError as Error).message}
+                </div>
+              )}
+
+              {childcareSearchData && (
+                <Card className="p-4" data-testid="childcare-search-result">
+                  <div className="flex items-center justify-between mb-3">
+                    <div>
+                      <span className="font-semibold">
+                        {childcareSearchData.county}
+                        {childcareSearchData.displayName?.includes(",")
+                          ? `, ${childcareSearchData.displayName.split(",").slice(1).join(",").trim()}`
+                          : ""}
+                      </span>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {childcareSearchData.summary?.dataSource}
+                      </p>
+                    </div>
+                    {childcareSearchData.slotGap?.coverageRate != null && (
+                      <Badge
+                        variant={
+                          childcareSearchData.slotGap.coverageRate >= 0.8
+                            ? "default"
+                            : childcareSearchData.slotGap.coverageRate >= 0.5
+                            ? "secondary"
+                            : "destructive"
+                        }
+                        className="text-xs"
+                      >
+                        {Math.round(childcareSearchData.slotGap.coverageRate * 100)}% coverage
+                      </Badge>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
+                    {[
+                      { label: "Total providers", value: childcareSearchData.summary?.totalProviders?.toLocaleString() ?? "—" },
+                      { label: "Licensed slots", value: childcareSearchData.summary?.totalLicensedCapacity > 0 ? childcareSearchData.summary.totalLicensedCapacity.toLocaleString() : "N/A (non-TX)" },
+                      { label: "Est. demand (0–12)", value: childcareSearchData.slotGap?.estimatedDemand != null ? childcareSearchData.slotGap.estimatedDemand.toLocaleString() : "—" },
+                      { label: "Slot gap", value: childcareSearchData.slotGap?.slotGap != null ? `${childcareSearchData.slotGap.slotGap > 0 ? "+" : ""}${childcareSearchData.slotGap.slotGap.toLocaleString()} needed` : "—" },
+                    ].map(({ label, value }) => (
+                      <div key={label}>
+                        <p className="text-xs text-muted-foreground">{label}</p>
+                        <p className="font-semibold text-sm">{value}</p>
+                      </div>
+                    ))}
+                  </div>
+                  {childcareSearchData.warnings?.length > 0 && (
+                    <div className="text-xs text-muted-foreground border-t pt-2 mt-2 space-y-1">
+                      {childcareSearchData.warnings.map((w: string, i: number) => (
+                        <p key={i} className="flex items-start gap-1">
+                          <AlertTriangle className="h-3 w-3 shrink-0 mt-0.5 text-amber-500" /> {w}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </Card>
+              )}
+            </div>
           </div>
         </TabsContent>
 

@@ -32,6 +32,7 @@ import {
   cedsGoals,
   cedsAlignments,
   gunViolenceIncidents,
+  zctaCountyMap,
 } from "@shared/schema";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
 import {
@@ -50,6 +51,7 @@ import { pdfBufferToText } from "./rfp-ingestion";
 import { getPersonalContext } from "./personal-context";
 import { YOUTH_MODE_KNOWLEDGE } from "./yhsi-program-knowledge";
 import { getGunViolenceIntelligenceData } from "./gun-violence-routes";
+import { getChildcareContextSummary } from "./childcare-provider-intel";
 
 /**
  * OCR a PDF buffer by rendering pages with pdftoppm then sending images to
@@ -718,6 +720,42 @@ SOURCE DISCIPLINE: Cite CDC WONDER, FBI UCR, NCVS, or WISQARS by name. Never fab
       }
     } catch (gvErr) {
       // Non-fatal — gun violence context is additive, not required
+    }
+  }
+
+  // ── Childcare gap intelligence injection ─────────────────────────────────
+  // When the query mentions childcare, daycare, or child care, look up the
+  // county for the detected ZIP and inject a compact, evidence-grounded
+  // provider/capacity/gap summary so the Navigator can answer specifically.
+  const childcareKeywords = ["childcare", "daycare", "day care", "child care",
+    "daycare provider", "childcare provider", "affordable childcare", "childcare cost",
+    "childcare subsidy", "ccdf", "childcare gap", "childcare slot", "childcare center",
+    "childcare desert", "after school care", "pre-k", "preschool"];
+  const wantsChildcare = childcareKeywords.some((kw) =>
+    userMessage.toLowerCase().includes(kw),
+  );
+  if (wantsChildcare && locationMatch) {
+    try {
+      const detectedZip = locationMatch[1];
+      const countyRow = await db
+        .select({
+          stateFips: zctaCountyMap.stateFips,
+          countyFips: zctaCountyMap.countyFips,
+        })
+        .from(zctaCountyMap)
+        .where(eq(zctaCountyMap.zip, detectedZip))
+        .limit(1);
+      if (countyRow.length > 0) {
+        const { stateFips: sf, countyFips: cf } = countyRow[0];
+        // County name is optional — getChildcareIntelByFips resolves it from
+        // the TX FIPS table for Texas; non-TX states use FIPS for labeling.
+        const childcareCtx = await getChildcareContextSummary(sf, cf, "").catch(() => null);
+        if (childcareCtx) {
+          contextParts.push(childcareCtx);
+        }
+      }
+    } catch {
+      // Non-fatal — childcare context is additive, not required
     }
   }
 

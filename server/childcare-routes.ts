@@ -14,7 +14,13 @@
  */
 
 import { type Express, type Request, type Response } from "express";
-import { getChildcareIntel, type HhscProvider } from "./childcare-provider-intel";
+import {
+  getChildcareIntel,
+  getChildcareIntelByFips,
+  TX_COUNTY_FIPS_TO_NAME,
+  type HhscProvider,
+} from "./childcare-provider-intel";
+import { resolveCountyInput } from "./neighborhood-routes";
 
 // ---------------------------------------------------------------------------
 // In-process rate limiter (30 req / 60 s per IP) — same pattern as chatRateLimit
@@ -64,7 +70,147 @@ function getCountyParam(req: Request): string {
 // Route registration
 // ---------------------------------------------------------------------------
 
+// ---------------------------------------------------------------------------
+// WSRCA 9-county footprint (Workforce Solutions Rural Capital Area, TX)
+// ---------------------------------------------------------------------------
+const WSRCA_COUNTIES = [
+  { name: "WILLIAMSON", stateFips: "48", countyFips: "491" },
+  { name: "HAYS",       stateFips: "48", countyFips: "209" },
+  { name: "BASTROP",    stateFips: "48", countyFips: "021" },
+  { name: "CALDWELL",   stateFips: "48", countyFips: "055" },
+  { name: "LEE",        stateFips: "48", countyFips: "287" },
+  { name: "BURNET",     stateFips: "48", countyFips: "053" },
+  { name: "LLANO",      stateFips: "48", countyFips: "299" },
+  { name: "BLANCO",     stateFips: "48", countyFips: "031" },
+  { name: "MILAM",      stateFips: "48", countyFips: "331" },
+];
+
 export function registerChildcareRoutes(app: Express): void {
+  // ------------------------------------------------------------------
+  // GET /api/childcare/wsrca/overview — all 9 WSRCA TX counties in one call
+  // ------------------------------------------------------------------
+  app.get("/api/childcare/wsrca/overview", async (req: Request, res: Response) => {
+    if (!checkRateLimit(req, res)) return;
+    try {
+      const results = await Promise.all(
+        WSRCA_COUNTIES.map(async ({ name, stateFips, countyFips }) => {
+          try {
+            const intel = await getChildcareIntelByFips(stateFips, countyFips, name);
+            return {
+              county: name,
+              stateFips,
+              countyFips,
+              totalProviders: intel.summary.totalProviders,
+              licensedProviders: intel.summary.licensedProviders,
+              totalLicensedCapacity: intel.summary.totalLicensedCapacity,
+              estimatedDemand: intel.slotGap.estimatedDemand,
+              slotGap: intel.slotGap.slotGap,
+              coverageRate: intel.slotGap.coverageRate,
+              nonStandardHoursCount: intel.summary.nonStandardHoursCount,
+              dataSource: intel.summary.dataSource,
+              retrievedAt: intel.summary.retrievedAt,
+              warnings: intel.warnings,
+            };
+          } catch (err: any) {
+            return {
+              county: name,
+              stateFips,
+              countyFips,
+              error: err?.message ?? "unavailable",
+            };
+          }
+        }),
+      );
+      return res.json({
+        footprint: "WSRCA — Workforce Solutions Rural Capital Area",
+        counties: results,
+        retrievedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      console.error("[childcare] wsrca overview error:", err?.message);
+      return res.status(502).json({ error: "WSRCA childcare data temporarily unavailable." });
+    }
+  });
+
+  // ------------------------------------------------------------------
+  // GET /api/childcare/fips/:stateFips/:countyFips — nationwide by FIPS
+  // ------------------------------------------------------------------
+  app.get(
+    "/api/childcare/fips/:stateFips/:countyFips",
+    async (req: Request, res: Response) => {
+      if (!checkRateLimit(req, res)) return;
+      const stateFips = String(req.params["stateFips"] ?? "").trim().padStart(2, "0");
+      const countyFips = String(req.params["countyFips"] ?? "").trim().padStart(3, "0");
+      if (!/^\d{2}$/.test(stateFips) || !/^\d{3}$/.test(countyFips)) {
+        return res.status(400).json({
+          error: "stateFips must be 2 digits and countyFips must be 3 digits.",
+        });
+      }
+      // Resolve county name for display and TX HHSC lookup
+      const countyName =
+        stateFips === "48"
+          ? (TX_COUNTY_FIPS_TO_NAME[countyFips] ?? countyFips)
+          : req.query.countyName
+          ? String(req.query.countyName).toUpperCase()
+          : countyFips;
+      try {
+        const intel = await getChildcareIntelByFips(stateFips, countyFips, countyName);
+        return res.json({
+          stateFips,
+          countyFips,
+          county: countyName,
+          summary: intel.summary,
+          slotGap: intel.slotGap,
+          trsQuality: intel.trsQuality,
+          warnings: intel.warnings,
+          providerCount: intel.providers.length,
+        });
+      } catch (err: any) {
+        console.error("[childcare] fips overview error:", err?.message);
+        return res.status(502).json({ error: "Childcare data temporarily unavailable." });
+      }
+    },
+  );
+
+  // ------------------------------------------------------------------
+  // GET /api/childcare/search?location=Williamson County, TX
+  // Resolves county by name/state string; works nationwide
+  // ------------------------------------------------------------------
+  app.get("/api/childcare/search", async (req: Request, res: Response) => {
+    if (!checkRateLimit(req, res)) return;
+    const location = String(req.query["location"] ?? "").trim();
+    if (!location || location.length < 3) {
+      return res.status(400).json({
+        error: "location query param required (e.g. 'Williamson County, TX' or 'Cook County, IL').",
+      });
+    }
+    try {
+      const resolved = await resolveCountyInput(location);
+      if (!resolved) {
+        return res.status(404).json({
+          error: `County not found: "${location}". Try "County Name, ST" format.`,
+        });
+      }
+      const { stateFips, countyFips, displayName } = resolved;
+      const countyName = displayName.split(",")[0].replace(/\s+County$/i, "").trim().toUpperCase();
+      const intel = await getChildcareIntelByFips(stateFips, countyFips, countyName);
+      return res.json({
+        stateFips,
+        countyFips,
+        county: countyName,
+        displayName,
+        summary: intel.summary,
+        slotGap: intel.slotGap,
+        trsQuality: intel.trsQuality,
+        warnings: intel.warnings,
+        providerCount: intel.providers.length,
+      });
+    } catch (err: any) {
+      console.error("[childcare] search error:", err?.message);
+      return res.status(502).json({ error: "Childcare search temporarily unavailable." });
+    }
+  });
+
   // ------------------------------------------------------------------
   // GET /api/childcare/county/:county/overview
   // ------------------------------------------------------------------

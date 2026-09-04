@@ -30,6 +30,7 @@ import { db, storage } from "./storage";
 import { grantOpportunities, zctaCountyMap } from "@shared/schema";
 import { desc, gte, and, isNotNull, sql } from "drizzle-orm";
 import { hasValidCommunityEvidence, registerServerCommunityBrief } from "./community-evidence";
+import { getChildcareIntelByFips } from "./childcare-provider-intel";
 import { getGrantPathProOutboundConfig } from "./grantpathpro-config";
 
 // ── First-party session auth (mirrors requireAuth in server/routes.ts) ────────
@@ -321,6 +322,19 @@ interface ConductorBrief {
     timeline: TimelineNode[];
   } | null;
   historicalCascade: HistoricalCascade | null;
+  /** Childcare gap analysis — available for county-level briefs, null otherwise. */
+  childcare: {
+    totalProviders: number;
+    licensedProviders: number;
+    totalLicensedCapacity: number;
+    estimatedDemand: number | null;
+    slotGap: number | null;
+    coverageRate: number | null;
+    nonStandardHoursCount: number;
+    highQualityRate: number | null;
+    dataSource: string;
+    warnings: string[];
+  } | null;
   solutions: {
     topInterventions: EvidenceProgram[];
     grants: any[];
@@ -1437,6 +1451,7 @@ export function registerConductorRoutes(app: Express) {
       let stateFips   = "";
       let zip         = "";
       let isCountyLevel = false;
+      let canonicalCountyFips = "";
       let evidenceGeography: CommunityEvidenceContract["geography"];
       // Macro-to-micro: when the resolved geography is a county (or several),
       // this holds Census data for every subdivision/city/community inside
@@ -1512,6 +1527,7 @@ export function registerConductorRoutes(app: Express) {
           countyName  = countyResolved.displayName;
           stateName   = countyResolved.stateAbbrev;
           stateFips   = countyResolved.stateFips;
+          canonicalCountyFips = countyResolved.countyFips;
           // Macro-to-micro: pull every subdivision/city inside this county
           // too. Best-effort — never blocks or reshapes the county brief.
           try {
@@ -1672,7 +1688,30 @@ export function registerConductorRoutes(app: Express) {
             })
           : Promise.resolve(null);
 
-      const [grants, narrative, rpliceIntelligence, historicalCascade] = await Promise.all([
+      // Childcare gap analysis — county-level only, best-effort (never blocks the brief)
+      const childcarePromise: Promise<ConductorBrief["childcare"]> =
+        isCountyLevel && stateFips && canonicalCountyFips
+          ? getChildcareIntelByFips(
+              stateFips,
+              canonicalCountyFips,
+              countyName.split(",")[0].replace(/\s+County$/i, "").trim().toUpperCase(),
+            )
+              .then((intel) => ({
+                totalProviders: intel.summary.totalProviders,
+                licensedProviders: intel.summary.licensedProviders,
+                totalLicensedCapacity: intel.summary.totalLicensedCapacity,
+                estimatedDemand: intel.slotGap.estimatedDemand,
+                slotGap: intel.slotGap.slotGap,
+                coverageRate: intel.slotGap.coverageRate,
+                nonStandardHoursCount: intel.summary.nonStandardHoursCount,
+                highQualityRate: intel.trsQuality.highQualityRate,
+                dataSource: intel.summary.dataSource,
+                warnings: intel.warnings,
+              }))
+              .catch(() => null)
+          : Promise.resolve(null);
+
+      const [grants, narrative, rpliceIntelligence, historicalCascade, childcare] = await Promise.all([
         findRelevantGrants(domainScores),
         generateCommunityNarrative(
           `${resolvedEvidenceGeography.resolved.label} (${resolvedEvidenceGeography.resolved.type.toUpperCase()} ${resolvedEvidenceGeography.resolved.identifier})`,
@@ -1693,6 +1732,7 @@ export function registerConductorRoutes(app: Express) {
             }).catch(() => null)
           : Promise.resolve(null),
         historicalCascadePromise,
+        childcarePromise,
       ]);
 
       // Step 5: Evidence programs (filter by crisis domains — already computed above)
@@ -1863,6 +1903,7 @@ export function registerConductorRoutes(app: Express) {
           nationalComparison,
         },
         evidence,
+        childcare: childcare ?? null,
         generatedAt: retrievedAt,
         microGeographies,
       };
