@@ -308,7 +308,16 @@ export function registerChildcareRoutes(app: Express): void {
 
       const rawPage = String(req.query["page"] ?? "1");
       const rawLimit = String(req.query["limit"] ?? "50");
-      if (!/^\d+$/.test(rawPage) || !/^\d+$/.test(rawLimit) || Number(rawPage) < 1 || Number(rawLimit) < 1 || Number(rawLimit) > 200) {
+      if (
+        !/^\d+$/.test(rawPage) ||
+        !/^\d+$/.test(rawLimit) ||
+        !Number.isSafeInteger(Number(rawPage)) ||
+        !Number.isSafeInteger(Number(rawLimit)) ||
+        Number(rawPage) < 1 ||
+        Number(rawLimit) < 1 ||
+        Number(rawLimit) > 200 ||
+        (Number(rawPage) - 1) * Number(rawLimit) > Number.MAX_SAFE_INTEGER
+      ) {
         return badRequest(res, "page must be a positive integer and limit must be an integer from 1 to 200.");
       }
       const page = Number(rawPage);

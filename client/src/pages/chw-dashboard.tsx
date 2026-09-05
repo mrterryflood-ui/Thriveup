@@ -99,6 +99,173 @@ interface CreateReferralResponse {
   orgConfirmUrl?: string;
 }
 
+type WsrcaCounty = {
+  county: string;
+  stateFips: string;
+  countyFips: string;
+  totalProviders: number | null;
+  licensedProviders: number | null;
+  totalLicensedCapacity: number | null;
+  estimatedDemand: number | null;
+  slotGap: number | null;
+  coverageRate: number | null;
+  dataSource?: string;
+  retrievedAt?: string;
+  warnings: string[];
+  error?: string;
+};
+
+type WsrcaOverview = {
+  footprint: string;
+  counties: WsrcaCounty[];
+  retrievedAt: string;
+};
+
+type ChildcareSearchData = {
+  stateFips: string;
+  countyFips: string;
+  county: string;
+  displayName: string;
+  summary: {
+    totalProviders: number | null;
+    totalLicensedCapacity: number | null;
+    dataSource: string;
+    retrievedAt: string;
+  };
+  slotGap: {
+    estimatedDemand: number | null;
+    slotGap: number | null;
+    coverageRate: number | null;
+    methodology: string;
+    dataSource: string;
+  };
+  warnings: string[];
+};
+
+function childcareNumber(value: unknown, field: string, allowMissing = false, allowNegative = false): number | null {
+  if (value === null || (allowMissing && value === undefined)) return null;
+  if (typeof value !== "number" || !Number.isFinite(value) || (!allowNegative && value < 0)) {
+    throw new Error(`Childcare response has an invalid ${field}.`);
+  }
+  return value;
+}
+
+function childcareCount(value: unknown, field: string, allowMissing = false, allowNegative = false): number | null {
+  const parsed = childcareNumber(value, field, allowMissing, allowNegative);
+  if (parsed !== null && !Number.isSafeInteger(parsed)) {
+    throw new Error(`Childcare response has an invalid ${field}.`);
+  }
+  return parsed;
+}
+
+function childcareRate(value: unknown, field: string, allowMissing = false): number | null {
+  const parsed = childcareNumber(value, field, allowMissing);
+  if (parsed !== null && (parsed < 0 || parsed > 1)) {
+    throw new Error(`Childcare response has an invalid ${field}.`);
+  }
+  return parsed;
+}
+
+function childcareFips(value: unknown, field: string, digits: 2 | 3): string {
+  const parsed = childcareText(value, field);
+  if (!new RegExp(`^\\d{${digits}}$`).test(parsed)) {
+    throw new Error(`Childcare response has an invalid ${field}.`);
+  }
+  return parsed;
+}
+
+function childcareText(value: unknown, field: string): string {
+  if (typeof value !== "string" || !value.trim()) {
+    throw new Error(`Childcare response has an invalid ${field}.`);
+  }
+  return value;
+}
+
+function childcareWarnings(value: unknown, field: string): string[] {
+  if (!Array.isArray(value)) throw new Error(`Childcare response has invalid ${field}.`);
+  return value.map((warning, index) => childcareText(warning, `${field} ${index + 1}`));
+}
+
+function normalizeWsrcaOverview(raw: unknown): WsrcaOverview {
+  if (!raw || typeof raw !== "object") throw new Error("WSRCA childcare response was not an object.");
+  const value = raw as Record<string, unknown>;
+  if (!Array.isArray(value.counties)) throw new Error("WSRCA childcare response is missing counties.");
+  const counties = value.counties.map((rawCounty, index): WsrcaCounty => {
+    if (!rawCounty || typeof rawCounty !== "object") throw new Error(`WSRCA county ${index + 1} is invalid.`);
+    const county = rawCounty as Record<string, unknown>;
+    const hasError = county.error !== undefined;
+    const metricFields = [
+      "totalProviders",
+      "licensedProviders",
+      "totalLicensedCapacity",
+      "estimatedDemand",
+      "slotGap",
+      "coverageRate",
+    ];
+    if (!hasError && metricFields.some((field) => county[field] === undefined)) {
+      throw new Error(`WSRCA county ${index + 1} is missing metric data.`);
+    }
+    const normalized: WsrcaCounty = {
+      county: childcareText(county.county, `WSRCA county ${index + 1} name`),
+      stateFips: childcareFips(county.stateFips, `WSRCA county ${index + 1} state FIPS`, 2),
+      countyFips: childcareFips(county.countyFips, `WSRCA county ${index + 1} county FIPS`, 3),
+      totalProviders: childcareCount(county.totalProviders, "total providers", hasError),
+      licensedProviders: childcareCount(county.licensedProviders, "licensed providers", hasError),
+      totalLicensedCapacity: childcareCount(county.totalLicensedCapacity, "licensed capacity", hasError),
+      estimatedDemand: childcareCount(county.estimatedDemand, "estimated demand", hasError),
+      slotGap: childcareCount(county.slotGap, "slot gap", hasError, true),
+      coverageRate: childcareRate(county.coverageRate, "coverage rate", hasError),
+      warnings: hasError && county.warnings === undefined
+        ? []
+        : childcareWarnings(county.warnings, `WSRCA county ${index + 1} warnings`),
+    };
+    if (!hasError) {
+      normalized.dataSource = childcareText(county.dataSource, "data source");
+      normalized.retrievedAt = childcareText(county.retrievedAt, "retrieval time");
+      if (!Number.isFinite(Date.parse(normalized.retrievedAt))) throw new Error(`WSRCA county ${index + 1} has an invalid retrieval time.`);
+    }
+    if (county.error !== undefined) normalized.error = childcareText(county.error, "county error");
+    return normalized;
+  });
+  return {
+    footprint: childcareText(value.footprint, "WSRCA footprint"),
+    counties,
+    retrievedAt: childcareText(value.retrievedAt, "WSRCA retrieval time"),
+  };
+}
+
+function normalizeChildcareSearch(raw: unknown): ChildcareSearchData {
+  if (!raw || typeof raw !== "object") throw new Error("Childcare search response was not an object.");
+  const value = raw as Record<string, unknown>;
+  const summary = value.summary;
+  const slotGap = value.slotGap;
+  if (!summary || typeof summary !== "object" || !slotGap || typeof slotGap !== "object") {
+    throw new Error("Childcare search response is missing summary data.");
+  }
+  const summaryValue = summary as Record<string, unknown>;
+  const slotGapValue = slotGap as Record<string, unknown>;
+  return {
+    stateFips: childcareFips(value.stateFips, "state FIPS", 2),
+    countyFips: childcareFips(value.countyFips, "county FIPS", 3),
+    county: childcareText(value.county, "county"),
+    displayName: childcareText(value.displayName, "display name"),
+    summary: {
+      totalProviders: childcareCount(summaryValue.totalProviders, "total providers"),
+      totalLicensedCapacity: childcareCount(summaryValue.totalLicensedCapacity, "licensed capacity"),
+      dataSource: childcareText(summaryValue.dataSource, "summary data source"),
+      retrievedAt: childcareText(summaryValue.retrievedAt, "retrieval time"),
+    },
+    slotGap: {
+      estimatedDemand: childcareCount(slotGapValue.estimatedDemand, "estimated demand"),
+      slotGap: childcareCount(slotGapValue.slotGap, "slot gap", false, true),
+      coverageRate: childcareRate(slotGapValue.coverageRate, "coverage rate"),
+      methodology: childcareText(slotGapValue.methodology, "slot-gap methodology"),
+      dataSource: childcareText(slotGapValue.dataSource, "slot-gap data source"),
+    },
+    warnings: childcareWarnings(value.warnings, "search warnings"),
+  };
+}
+
 
 // DEMO placeholder records — shown only when the live Partner API is not connected.
 // Phone numbers use the non-dialable 555-01xx range (NANP reserved) so a CHW
@@ -237,12 +404,12 @@ export default function ChwDashboardPage() {
   const [childcareSearchQuery, setChildcareSearchQuery] = useState("");
 
   // Childcare data — WSRCA 9-county footprint (loaded when tab is active)
-  const { data: wsrcaData, isFetching: wsrcaLoading } = useQuery<any>({
+  const { data: wsrcaData, isFetching: wsrcaLoading, error: wsrcaQueryError, refetch: refetchWsrca } = useQuery<WsrcaOverview, Error>({
     queryKey: ["/api/childcare/wsrca/overview"],
     queryFn: async () => {
       const res = await fetch("/api/childcare/wsrca/overview");
       if (!res.ok) throw new Error("WSRCA data unavailable");
-      return res.json();
+      return normalizeWsrcaOverview(await res.json());
     },
     enabled: isAuthenticated && activeTab === "childcare",
     staleTime: 30 * 60 * 1000,
@@ -250,16 +417,16 @@ export default function ChwDashboardPage() {
   });
 
   // Childcare search — nationwide by county name + state string
-  const { data: childcareSearchData, isFetching: childcareSearchLoading, error: childcareSearchError } = useQuery<any>({
+  const { data: childcareSearchData, isFetching: childcareSearchLoading, error: childcareSearchError, refetch: refetchChildcareSearch } = useQuery<ChildcareSearchData, Error>({
     queryKey: ["/api/childcare/search", childcareSearchQuery],
     queryFn: async () => {
-      if (!childcareSearchQuery) return null;
+      if (!childcareSearchQuery) throw new Error("Enter a county to search.");
       const res = await fetch(`/api/childcare/search?location=${encodeURIComponent(childcareSearchQuery)}`);
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Not found" }));
         throw new Error(err.error ?? "Search failed");
       }
-      return res.json();
+      return normalizeChildcareSearch(await res.json());
     },
     enabled: !!childcareSearchQuery,
     staleTime: 30 * 60 * 1000,
@@ -1445,24 +1612,54 @@ export default function ChwDashboardPage() {
               </div>
               <p className="text-xs text-muted-foreground mb-4">
                 Live data from Texas HHSC CCL dataset (data.texas.gov bc5r-88dy). Capacity and
-                provider counts reflect active licensed operations. Slot gap = licensed capacity
-                minus estimated demand (children 0–12, ACS 2022).
+                provider counts reflect active licensed operations. Slot gap = estimated demand
+                minus licensed capacity (children 0–12, ACS 2022); positive means modeled need.
               </p>
-              {wsrcaLoading ? (
+              {wsrcaLoading && !wsrcaData ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {Array.from({ length: 9 }).map((_, i) => (
                     <Skeleton key={i} className="h-32 w-full rounded-lg" />
                   ))}
                 </div>
-              ) : wsrcaData?.counties ? (
+              ) : wsrcaData ? (
+                <>
+                {wsrcaLoading && (
+                  <div className="mb-3 text-xs text-muted-foreground" role="status" data-testid="wsrca-refreshing">
+                    Refreshing live HHSC CCL data; showing the last successful county results.
+                  </div>
+                )}
+                {wsrcaQueryError && (
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="alert" data-testid="wsrca-stale-warning">
+                    <span>The latest WSRCA refresh failed. The county cards below are the last successful result.</span>
+                    <Button type="button" size="sm" variant="outline" onClick={() => refetchWsrca()} disabled={wsrcaLoading}>
+                      {wsrcaLoading ? "Retrying…" : "Try again"}
+                    </Button>
+                  </div>
+                )}
+                {wsrcaData.counties.some((county) => county.error) && (
+                  <div className="mb-3 flex flex-wrap items-center justify-between gap-2 rounded-md border border-amber-200 bg-amber-50 p-3 text-xs text-amber-900" role="alert" data-testid="wsrca-partial-warning">
+                    <span>Some WSRCA counties were unavailable from the live HHSC CCL source. Available county cards remain usable; this is not a zero-provider result.</span>
+                    <Button type="button" size="sm" variant="outline" onClick={() => refetchWsrca()} disabled={wsrcaLoading} data-testid="button-retry-wsrca">
+                      {wsrcaLoading ? "Retrying…" : "Retry WSRCA"}
+                    </Button>
+                  </div>
+                )}
+                {wsrcaData.counties.length === 0 ? (
+                  <Card className="p-4 text-center text-sm text-muted-foreground" data-testid="wsrca-empty">
+                    <div role="alert">The live HHSC CCL source returned no WSRCA county rows. This is not evidence of zero providers.</div>
+                    <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => refetchWsrca()} disabled={wsrcaLoading}>
+                      {wsrcaLoading ? "Retrying…" : "Retry WSRCA data"}
+                    </Button>
+                  </Card>
+                ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" data-testid="wsrca-counties">
-                  {wsrcaData.counties.map((c: any) => {
+                  {wsrcaData.counties.map((c) => {
                     const coveragePct = c.coverageRate != null ? Math.round(c.coverageRate * 100) : null;
                     const gapSign = (c.slotGap ?? 0) > 0;
                     return (
                       <Card key={c.county} className="p-4" data-testid={`wsrca-county-${c.county}`}>
                         {c.error ? (
-                          <div className="text-xs text-destructive">{c.county}: {c.error}</div>
+                          <div className="text-xs text-destructive" role="alert">{c.county}: {c.error}</div>
                         ) : (
                           <>
                             <div className="flex items-center justify-between mb-2">
@@ -1487,18 +1684,26 @@ export default function ChwDashboardPage() {
                               </span>
                               <span>Slot gap</span>
                               <span className={`font-medium text-right ${gapSign ? "text-destructive" : "text-emerald-600"}`}>
-                                {c.slotGap != null ? (gapSign ? `+${c.slotGap.toLocaleString()} needed` : "Covered") : "—"}
+                                {c.slotGap != null ? (gapSign ? `+${c.slotGap.toLocaleString()} needed` : `${Math.abs(c.slotGap).toLocaleString()} covered`) : "—"}
                               </span>
                             </div>
+                            <p className="mt-3 border-t pt-2 text-[11px] leading-relaxed text-muted-foreground">
+                              Slot gap is modeled demand versus active licensed capacity, not confirmed open vacancies. Source: {c.dataSource ?? "HHSC CCL"}{c.retrievedAt ? `; response timestamp ${new Date(c.retrievedAt).toLocaleDateString()}` : ""}.
+                            </p>
                           </>
                         )}
                       </Card>
                     );
                   })}
                 </div>
+                )}
+                </>
               ) : (
                 <Card className="p-4 text-center text-sm text-muted-foreground">
-                  WSRCA childcare data unavailable. HHSC CCL dataset may be temporarily unreachable.
+                  <div role="alert">{wsrcaQueryError instanceof Error ? wsrcaQueryError.message : "WSRCA childcare data unavailable. HHSC CCL dataset may be temporarily unreachable."}</div>
+                  <Button type="button" variant="outline" size="sm" className="mt-3" onClick={() => refetchWsrca()} disabled={wsrcaLoading} data-testid="button-retry-wsrca">
+                    {wsrcaLoading ? "Retrying…" : "Retry WSRCA data"}
+                  </Button>
                 </Card>
               )}
             </div>
@@ -1518,6 +1723,7 @@ export default function ChwDashboardPage() {
                   value={childcareSearchInput}
                   onChange={(e) => setChildcareSearchInput(e.target.value)}
                   placeholder="e.g. Williamson County, TX or Cook County, IL"
+                  aria-label="County and state for childcare search"
                   className="flex-1"
                   data-testid="childcare-search-input"
                   onKeyDown={(e) => {
@@ -1530,21 +1736,32 @@ export default function ChwDashboardPage() {
                   size="sm"
                   disabled={!childcareSearchInput.trim() || childcareSearchLoading}
                   onClick={() => setChildcareSearchQuery(childcareSearchInput.trim())}
+                  aria-busy={childcareSearchLoading}
+                  aria-label={childcareSearchLoading ? "Searching childcare data" : "Search childcare data"}
                   data-testid="childcare-search-btn"
                 >
-                  {childcareSearchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Search"}
+                  {childcareSearchLoading ? <><Loader2 className="h-4 w-4 animate-spin" /> <span>Searching…</span></> : "Search"}
                 </Button>
               </div>
 
               {childcareSearchError && (
-                <div className="text-sm text-destructive mb-3 flex items-center gap-2">
+                <div className="text-sm text-destructive mb-3 flex flex-wrap items-center gap-2" role="alert" data-testid="childcare-search-error">
                   <AlertTriangle className="h-4 w-4 shrink-0" />
-                  {(childcareSearchError as Error).message}
+                  <span>{childcareSearchError.message}</span>
+                  <Button type="button" size="sm" variant="outline" onClick={() => refetchChildcareSearch()} disabled={childcareSearchLoading}>
+                    Try again
+                  </Button>
                 </div>
               )}
 
+              {!childcareSearchData && !childcareSearchError && !childcareSearchLoading && (
+                <p className="text-sm text-muted-foreground" data-testid="childcare-search-empty">
+                  Enter a county and state above to load the latest available childcare intelligence.
+                </p>
+              )}
+
               {childcareSearchData && (
-                <Card className="p-4" data-testid="childcare-search-result">
+                <Card className="p-4" role="status" aria-live="polite" data-testid="childcare-search-result">
                   <div className="flex items-center justify-between mb-3">
                     <div>
                       <span className="font-semibold">
@@ -1554,13 +1771,13 @@ export default function ChwDashboardPage() {
                           : ""}
                       </span>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {childcareSearchData.summary?.dataSource}
+                         {childcareSearchData.summary.dataSource} · Response timestamp {new Date(childcareSearchData.summary.retrievedAt).toLocaleDateString()}
                       </p>
                     </div>
-                    {childcareSearchData.slotGap?.coverageRate != null && (
+                     {childcareSearchData.slotGap.coverageRate != null && (
                       <Badge
                         variant={
-                          childcareSearchData.slotGap.coverageRate >= 0.8
+                           childcareSearchData.slotGap.coverageRate >= 0.8
                             ? "default"
                             : childcareSearchData.slotGap.coverageRate >= 0.5
                             ? "secondary"
@@ -1568,16 +1785,16 @@ export default function ChwDashboardPage() {
                         }
                         className="text-xs"
                       >
-                        {Math.round(childcareSearchData.slotGap.coverageRate * 100)}% coverage
+                       {Math.round(childcareSearchData.slotGap.coverageRate * 100)}% coverage
                       </Badge>
                     )}
                   </div>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-3">
                     {[
-                      { label: "Total providers", value: childcareSearchData.summary?.totalProviders?.toLocaleString() ?? "—" },
-                      { label: "Licensed slots", value: childcareSearchData.summary?.totalLicensedCapacity > 0 ? childcareSearchData.summary.totalLicensedCapacity.toLocaleString() : "N/A (non-TX)" },
-                      { label: "Est. demand (0–12)", value: childcareSearchData.slotGap?.estimatedDemand != null ? childcareSearchData.slotGap.estimatedDemand.toLocaleString() : "—" },
-                      { label: "Slot gap", value: childcareSearchData.slotGap?.slotGap != null ? `${childcareSearchData.slotGap.slotGap > 0 ? "+" : ""}${childcareSearchData.slotGap.slotGap.toLocaleString()} needed` : "—" },
+                       { label: "Total providers", value: childcareSearchData.summary.totalProviders?.toLocaleString() ?? "—" },
+                       { label: "Licensed slots", value: childcareSearchData.summary.totalLicensedCapacity != null ? childcareSearchData.summary.totalLicensedCapacity.toLocaleString() : "Not standardized outside Texas" },
+                       { label: "Est. demand (0–12)", value: childcareSearchData.slotGap.estimatedDemand != null ? childcareSearchData.slotGap.estimatedDemand.toLocaleString() : "—" },
+                       { label: "Slot gap", value: childcareSearchData.slotGap.slotGap != null ? (childcareSearchData.slotGap.slotGap > 0 ? `+${childcareSearchData.slotGap.slotGap.toLocaleString()} needed` : `${Math.abs(childcareSearchData.slotGap.slotGap).toLocaleString()} covered`) : "—" },
                     ].map(({ label, value }) => (
                       <div key={label}>
                         <p className="text-xs text-muted-foreground">{label}</p>
@@ -1585,9 +1802,12 @@ export default function ChwDashboardPage() {
                       </div>
                     ))}
                   </div>
-                  {childcareSearchData.warnings?.length > 0 && (
+                  <p className="border-t pt-2 text-[11px] leading-relaxed text-muted-foreground">
+                    {childcareSearchData.slotGap.methodology} Source: {childcareSearchData.slotGap.dataSource}. Positive values mean modeled demand exceeds capacity; this is not a count of confirmed open vacancies or available slots.
+                  </p>
+                  {childcareSearchData.warnings.length > 0 && (
                     <div className="text-xs text-muted-foreground border-t pt-2 mt-2 space-y-1">
-                      {childcareSearchData.warnings.map((w: string, i: number) => (
+                      {childcareSearchData.warnings.map((w, i) => (
                         <p key={i} className="flex items-start gap-1">
                           <AlertTriangle className="h-3 w-3 shrink-0 mt-0.5 text-amber-500" /> {w}
                         </p>

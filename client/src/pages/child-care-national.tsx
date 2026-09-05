@@ -64,6 +64,8 @@ type NationalOverview = {
 };
 
 type CountyResult = {
+  stateFips: string;
+  countyFips: string;
   displayName: string;
   county: string;
   summary: {
@@ -94,13 +96,21 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function requiredString(value: unknown, field: string): string {
-  if (typeof value !== "string") throw new Error(`National childcare response has an invalid ${field}.`);
-  return value;
+  if (typeof value !== "string" || !value.trim()) throw new Error(`National childcare response has an invalid ${field}.`);
+  return value.trim();
 }
 
 function nullableNumber(value: unknown, field: string): number | null {
   if (value === null) return null;
-  if (typeof value !== "number" || !Number.isFinite(value)) {
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || !Number.isSafeInteger(value)) {
+    throw new Error(`National childcare response has an invalid ${field}.`);
+  }
+  return value;
+}
+
+function nullableRate(value: unknown, field: string, max: number): number | null {
+  if (value === null) return null;
+  if (typeof value !== "number" || !Number.isFinite(value) || value < 0 || value > max) {
     throw new Error(`National childcare response has an invalid ${field}.`);
   }
   return value;
@@ -150,9 +160,17 @@ function normalizeNationalOverview(raw: unknown): NationalOverview {
       providerEstablishments: nullableNumber(value.providerEstablishments, `state row ${index + 1} establishments`),
       childcareEmployees: nullableNumber(value.childcareEmployees, `state row ${index + 1} employees`),
       estimatedChildren0To12: nullableNumber(value.estimatedChildren0To12, `state row ${index + 1} children`),
-      establishmentsPer1000Children: nullableNumber(value.establishmentsPer1000Children, `state row ${index + 1} density`),
-      cbpAvailable: value.cbpAvailable === true,
-      acsAvailable: value.acsAvailable === true,
+       establishmentsPer1000Children: nullableRate(value.establishmentsPer1000Children, `state row ${index + 1} density`, Number.MAX_SAFE_INTEGER),
+       cbpAvailable: value.cbpAvailable === true
+         ? true
+         : value.cbpAvailable === false
+         ? false
+         : (() => { throw new Error(`National childcare state row ${index + 1} has an invalid CBP availability flag.`); })(),
+       acsAvailable: value.acsAvailable === true
+         ? true
+         : value.acsAvailable === false
+         ? false
+         : (() => { throw new Error(`National childcare state row ${index + 1} has an invalid ACS availability flag.`); })(),
       dataStatus: status,
     };
   });
@@ -180,7 +198,7 @@ function normalizeNationalOverview(raw: unknown): NationalOverview {
       providerEstablishments: nullableNumber(national.providerEstablishments, "national establishments"),
       childcareEmployees: nullableNumber(national.childcareEmployees, "national employees"),
       estimatedChildren0To12: nullableNumber(national.estimatedChildren0To12, "national children"),
-      establishmentsPer1000Children: nullableNumber(national.establishmentsPer1000Children, "national density"),
+       establishmentsPer1000Children: nullableRate(national.establishmentsPer1000Children, "national density", Number.MAX_SAFE_INTEGER),
     },
     states,
     economicContext: {
@@ -192,7 +210,11 @@ function normalizeNationalOverview(raw: unknown): NationalOverview {
       povertyHouseholds: requiredNumber(economicContext.povertyHouseholds, "poverty household count"),
       aliceHouseholds: requiredNumber(economicContext.aliceHouseholds, "ALICE household count"),
       belowAliceThresholdHouseholds: requiredNumber(economicContext.belowAliceThresholdHouseholds, "ALICE threshold count"),
-      belowAliceThresholdRate: requiredNumber(economicContext.belowAliceThresholdRate, "ALICE threshold rate"),
+       belowAliceThresholdRate: (() => {
+         const rate = nullableRate(economicContext.belowAliceThresholdRate, "ALICE threshold rate", 100);
+         if (rate === null) throw new Error("National childcare response is missing ALICE threshold rate.");
+         return rate;
+       })(),
       disclosure: requiredString(economicContext.disclosure, "economic disclosure"),
     },
     sources,
@@ -207,6 +229,10 @@ function normalizeCountyResult(raw: unknown): CountyResult {
     !raw.displayName.trim() ||
     typeof raw.county !== "string" ||
     !raw.county.trim() ||
+    typeof raw.stateFips !== "string" ||
+    !raw.stateFips.trim() ||
+    typeof raw.countyFips !== "string" ||
+    !raw.countyFips.trim() ||
     !isRecord(raw.summary) ||
     !isRecord(raw.slotGap) ||
     !Array.isArray(raw.warnings)
@@ -215,29 +241,45 @@ function normalizeCountyResult(raw: unknown): CountyResult {
   }
   const summary = raw.summary;
   const slotGap = raw.slotGap;
-  const numericOrNull = (value: unknown): number | null =>
-    typeof value === "number" && Number.isFinite(value) ? value : null;
+  const numericOrNull = (value: unknown, field: string, allowNegative = false, max = Number.MAX_SAFE_INTEGER, integer = true): number | null => {
+    if (value === null) return null;
+    if (
+      typeof value !== "number" ||
+      !Number.isFinite(value) ||
+      (!allowNegative && value < 0) ||
+      value > max ||
+      (integer && !Number.isSafeInteger(value))
+    ) {
+      throw new Error(`County lookup response has an invalid ${field}.`);
+    }
+    return value;
+  };
   if (
     typeof summary.dataSource !== "string" ||
+    !summary.dataSource.trim() ||
     typeof slotGap.methodology !== "string" ||
-    typeof slotGap.dataSource !== "string"
+    !slotGap.methodology.trim() ||
+    typeof slotGap.dataSource !== "string" ||
+    !slotGap.dataSource.trim()
   ) {
     throw new Error("County lookup response has invalid source metadata.");
   }
   return {
+    stateFips: raw.stateFips.trim(),
+    countyFips: raw.countyFips.trim(),
     displayName: raw.displayName,
     county: raw.county,
     summary: {
-      totalProviders: numericOrNull(summary.totalProviders),
-      totalLicensedCapacity: numericOrNull(summary.totalLicensedCapacity),
-      dataSource: summary.dataSource,
+      totalProviders: numericOrNull(summary.totalProviders, "total providers"),
+      totalLicensedCapacity: numericOrNull(summary.totalLicensedCapacity, "licensed capacity"),
+      dataSource: summary.dataSource.trim(),
     },
     slotGap: {
-      estimatedDemand: numericOrNull(slotGap.estimatedDemand),
-      slotGap: numericOrNull(slotGap.slotGap),
-      coverageRate: numericOrNull(slotGap.coverageRate),
-      methodology: slotGap.methodology,
-      dataSource: slotGap.dataSource,
+      estimatedDemand: numericOrNull(slotGap.estimatedDemand, "estimated demand"),
+      slotGap: numericOrNull(slotGap.slotGap, "slot gap", true),
+      coverageRate: numericOrNull(slotGap.coverageRate, "coverage rate", false, 1, false),
+      methodology: slotGap.methodology.trim(),
+      dataSource: slotGap.dataSource.trim(),
     },
     warnings: raw.warnings.map((warning, index) => {
       if (typeof warning !== "string") throw new Error(`County lookup warning ${index + 1} is invalid.`);
@@ -427,6 +469,7 @@ function CountyLookup({ stateHint }: { stateHint: string | null }) {
     onError: (_error, location) => {
       if (latestRequest.current === location) setResult(null);
     },
+    retry: false,
   });
 
   function submit(event: React.FormEvent) {
@@ -564,11 +607,12 @@ export default function ChildCareNationalPage() {
         signal?.removeEventListener("abort", abort);
       }
     },
+    retry: false,
   });
 
-  if (isLoading) return <LoadingState />;
+  if (isLoading && !data) return <LoadingState />;
 
-  if (isError || !data) {
+  if (!data) {
     return (
       <div className="max-w-3xl mx-auto px-4 py-16" data-testid="national-error">
         <Card className="border-red-200">
@@ -600,6 +644,16 @@ export default function ChildCareNationalPage() {
 
   return (
     <div className="min-h-screen bg-background" data-testid="page-child-care-national">
+      {isError && (
+        <div className="mx-auto max-w-6xl px-4 pt-4" role="alert" data-testid="national-stale-warning">
+          <div className="flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-200 bg-amber-50 p-3 text-sm text-amber-900">
+            <span>Showing the last successful national result. A refresh did not complete, so the data may be stale.</span>
+            <Button onClick={() => refetch()} disabled={isFetching} variant="outline" size="sm" className="gap-2">
+              <RefreshCw aria-hidden="true" className="h-4 w-4" /> {isFetching ? "Refreshing…" : "Try again"}
+            </Button>
+          </div>
+        </div>
+      )}
       <section className="bg-gradient-to-br from-slate-950 via-sky-950 to-indigo-950 text-white">
         <div className="max-w-6xl mx-auto px-4 py-12 md:py-16">
           <div className="flex flex-wrap items-center gap-2 mb-5">
@@ -640,8 +694,20 @@ export default function ChildCareNationalPage() {
             Refreshing live Census sources…
           </div>
         )}
+        {coverage.statesWithCompleteData < coverage.statesIncluded && !isFetching && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            className="gap-2"
+            data-testid="button-refresh-partial-national"
+          >
+            <RefreshCw aria-hidden="true" className="h-4 w-4" /> Refresh incomplete source data
+          </Button>
+        )}
         <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span data-testid="text-national-updated">Retrieved {lastUpdated}</span>
+          <span data-testid="text-national-updated">Response timestamp {lastUpdated}</span>
           <span>{coverage.statesWithCompleteData} of {coverage.statesIncluded} included states have both Census tables.</span>
         </div>
 

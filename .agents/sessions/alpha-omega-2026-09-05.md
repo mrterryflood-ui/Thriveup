@@ -8,8 +8,8 @@
 - Unknowns/deferred decisions: Browser availability may still block Playwright execution; if so, keep the test committed and report the environment blocker rather than weakening the test.
 
 ## Omega
-- Diff scrimmage:
-- Proofs and gates:
-- Independent angle:
-- Outcome:
-- Residuals and reusable guard:
+- Diff scrimmage: CHW childcare payloads now use explicit response types and fail-closed runtime normalization; signed slot gaps remain valid. WSRCA and search errors preserve stale data, expose retry/recovery controls, and disclose source/methodology. The national page preserves last-known data during failed refetches and exposes partial-Census refresh. HHSC capacity parsing, FIPS/rate/count validation, pagination bounds, and Navigator context wording are hardened. A deterministic Playwright spec covers render, partial recovery, state filtering/sorting, focus handoff, county lookup, and HTTPS source links.
+- Proofs and gates: `npx tsc --noEmit -p .` passed with zero errors; `git diff --check` passed; `scripts/verify-childcare-intel.ts` passed 34/34; national Playwright passed 1/1; final screenshot at 1280×720 rendered; workflow restarted and served cleanly. Preflight passed 9/9 and memory health passed all checks.
+- Independent angle: Review findings drove fixes for negative slot-gap rejection, malformed numeric coercion, impossible rates/FIPS, missing retry/error accessibility, missing CHW provenance, WSRCA partial/offline/empty states, unsafe pagination and HHSC parsing, Navigator terminology, and live-service coupling in browser coverage.
+- Outcome: Requested childcare follow-ups are implemented and verified in the development app. No production publication was performed or claimed.
+- Residuals and reusable guard: One unrelated browser 401 appeared during preview; existing unrelated workflow failures remain in access-model guards and auth-e2e. Static childcare claims and nested controls on separate legacy pages remain outside this follow-up. Keep slot-gap validation signed, never coerce malformed numerics to null, label cached response timestamps honestly, and keep browser interaction tests deterministic by stubbing external county data.

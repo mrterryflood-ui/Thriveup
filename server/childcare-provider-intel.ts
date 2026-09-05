@@ -162,7 +162,8 @@ function parseProvider(raw: Record<string, unknown>): HhscProvider {
   //   no separate lat/lon (location_address_geo has embedded JSON)
   //   no TRS designation field in this dataset (covered by separate TRS dataset)
   const capacityRaw = raw.total_capacity ?? raw.licensed_capacity;
-  const capacityNum = capacityRaw != null ? parseInt(String(capacityRaw), 10) : NaN;
+  const capacityText = capacityRaw == null ? "" : String(capacityRaw).trim();
+  const capacityNum = /^\d+$/.test(capacityText) ? Number(capacityText) : NaN;
 
   return {
     operation_number: String(raw.operation_number ?? raw.operation_id ?? ""),
@@ -176,7 +177,7 @@ function parseProvider(raw: Record<string, unknown>): HhscProvider {
     license_status: raw.operation_status === "Y"
       ? String(raw.type_of_issuance ?? "Licensed")
       : (raw.operation_status === "N" ? "Inactive" : String(raw.operation_status ?? "")),
-    licensed_capacity: Number.isFinite(capacityNum) ? capacityNum : null,
+    licensed_capacity: Number.isSafeInteger(capacityNum) && capacityNum >= 0 ? capacityNum : null,
     ages_served: (raw.licensed_to_serve_ages ?? raw.ages_served)
       ? String(raw.licensed_to_serve_ages ?? raw.ages_served)
       : null,
@@ -1086,12 +1087,16 @@ export async function getChildcareContextSummary(
         ? `${slotGap.estimatedDemand.toLocaleString()} children ages 0–12 in county`
         : "demand data unavailable";
     const src = summary.dataSource.split(".")[0];
+    const providerLabel = summary.licensedProviders !== null
+      ? `${summary.totalProviders ?? "unknown"} licensed providers`
+      : `${summary.totalProviders ?? "unknown"} provider establishments`;
     return (
       `[CHILDCARE DATA for ${summary.county}]: ` +
-      `${summary.totalProviders} licensed providers, ${cap}, ${gap}. ` +
+      `${providerLabel}, ${cap}, ${gap}. ` +
       `Source: ${src}.`
     );
   } catch {
-    return null;
+    console.warn("[childcare] context summary unavailable; AI consumers must not infer childcare capacity.");
+    return "[CHILDCARE DATA UNAVAILABLE]: Live childcare evidence could not be retrieved. Do not infer provider capacity, openings, or shortages.";
   }
 }
