@@ -12,3 +12,5 @@ Validation runs execute all gates concurrently. Multiple Playwright e2e gate scr
 **Also applies to non-Playwright gates:** any validation gate that forges a session or mutates shared DB state (e.g. the academy-economy verifier) must serialize on /tmp/e2e-gate.lock too — parallel gates that restart the server or clean sessions cause mid-run 401s and FK cleanup errors.
 
 **Preview boundary:** The default Run target must be the dedicated application workflow, not a parallel aggregate of validation workflows. Otherwise gates that self-start the dev server can race the preview on port 5000 and make the webview fail with `EADDRINUSE`.
+
+**Root routing:** The main app should own external port 80; the mockup sandbox can move to another external port without losing its `/__mockup/` path route, which the artifact router continues to serve.
