@@ -248,41 +248,34 @@ function TrustBar() {
           </p>
         </div>
 
-         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto mb-5">
-           <div className="rounded-lg border bg-card/80 p-4 text-left" data-testid="card-entity-tcaf">
-             <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">Community mission</p>
-             <h3 className="font-semibold">The Collaborative Advocate Foundation</h3>
-             <p className="text-sm text-muted-foreground mt-1">
-               The nonprofit lane for community navigation, mental health and wellness access, family support, education, workforce pathways, military transition support, and partner capacity.
-             </p>
-           </div>
-           <div className="rounded-lg border bg-card/80 p-4 text-left" data-testid="card-entity-iss">
-             <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">Delivery and contracting</p>
-             <h3 className="font-semibold">Integrated Services and Solutions LLC</h3>
-             <p className="text-sm text-muted-foreground mt-1">
-               The for-profit lane for consulting, HR solutions, workforce development, training, contract delivery, supplies, maintenance support, and assembled project teams.
-             </p>
-           </div>
-         </div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl mx-auto" data-testid="grid-trust-credentials">
-          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-ein">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">EIN</p>
-            <p className="text-sm font-mono font-semibold">41-3618003</p>
+           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-w-4xl mx-auto mb-5">
+            <div className="rounded-lg border-2 border-primary/30 bg-card/80 p-4 text-left" data-testid="card-entity-tcaf">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">Nonprofit programs and grants</p>
+              <h3 className="font-semibold">The Collaborative Advocate Foundation (TCAF)</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                The 501(c)(3) nonprofit lane for community navigation, mental health and wellness access, family support, education, workforce pathways, military transition support, and partner capacity.
+              </p>
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-2 mt-4 pt-3 border-t text-xs">
+                <div><dt className="text-muted-foreground">EIN</dt><dd className="font-mono font-semibold">41-3618003</dd></div>
+                <div><dt className="text-muted-foreground">SAM.gov UEI</dt><dd className="font-mono font-semibold">KDDVD1FGLW35</dd></div>
+                <div><dt className="text-muted-foreground">CAGE Code</dt><dd className="font-mono font-semibold">209N1</dd></div>
+                <div><dt className="text-muted-foreground">SAM.gov</dt><dd className="font-semibold text-emerald-600 dark:text-emerald-400">Active</dd></div>
+              </dl>
+            </div>
+            <div className="rounded-lg border bg-card/80 p-4 text-left" data-testid="card-entity-iss">
+              <p className="text-xs font-semibold uppercase tracking-wide text-primary mb-1">For-profit delivery and contracting</p>
+              <h3 className="font-semibold">Integrated Services and Solutions LLC (ISS LLC)</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                The for-profit lane for consulting, HR solutions, workforce development, training, contract delivery, supplies, maintenance support, and assembled project teams. It is not the 501(c)(3) applicant.
+              </p>
+              <dl className="grid grid-cols-2 gap-x-3 gap-y-2 mt-4 pt-3 border-t text-xs">
+                <div><dt className="text-muted-foreground">EIN</dt><dd className="font-mono font-semibold">87-2795417</dd></div>
+                <div><dt className="text-muted-foreground">SAM.gov UEI</dt><dd className="font-mono font-semibold">C7YDV3P8EHL7</dd></div>
+                <div><dt className="text-muted-foreground">CAGE Code</dt><dd className="font-mono font-semibold">9VKK3</dd></div>
+                <div><dt className="text-muted-foreground">SAM.gov</dt><dd className="font-semibold text-emerald-600 dark:text-emerald-400">Active</dd></div>
+              </dl>
+            </div>
           </div>
-          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-uei">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">SAM.gov UEI</p>
-            <p className="text-sm font-mono font-semibold">KDDVD1FGLW35</p>
-          </div>
-          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-cage">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">CAGE Code</p>
-            <p className="text-sm font-mono font-semibold">209N1</p>
-          </div>
-          <div className="rounded-md border bg-card px-3 py-2.5 text-center" data-testid="credential-sam-status">
-            <p className="text-[10px] uppercase tracking-wide text-muted-foreground mb-0.5">SAM.gov Status</p>
-            <p className="text-sm font-semibold text-emerald-600 dark:text-emerald-400">Active</p>
-          </div>
-        </div>
 
         <div className="flex flex-wrap items-center justify-center gap-2 mt-5">
           <Badge variant="outline" className="text-xs" data-testid="badge-trust-501c3">
@@ -2674,7 +2667,8 @@ export default function LandingPage() {
                 Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure built to deploy in any U.S. county. Texas is our first deployment.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
-                 The Collaborative Advocate Foundation (TCAF) · IRS-determined 501(c)(3) (Letter 947, eff. 01/14/2026) · SAM Active · TCAF CAGE 209N1 · ISS LLC CAGE 9VKK3
+                 <span className="font-medium text-foreground">TCAF:</span> EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · IRS-determined 501(c)(3) · SAM Active<br />
+                 <span className="font-medium text-foreground">ISS LLC:</span> EIN 87-2795417 · UEI C7YDV3P8EHL7 · CAGE 9VKK3 · for-profit contracting entity · SAM Active
               </p>
             </div>
             <div data-testid="footer-column-platform">
