@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { logJourneyEvent } from "@/lib/journey-log";
@@ -178,6 +180,17 @@ export default function ReentryDashboard() {
       {showForm && (
         <Card className="p-6 space-y-4" data-testid="card-plan-form">
           <h2 className="font-semibold text-lg">Create Reentry Plan</h2>
+           <ConsentDisclosure
+             compact
+             purpose="Create and coordinate an individualized reentry plan."
+             fields={[
+               { name: "Participant identity", why: "Links the plan to the correct participant.", required: true },
+               { name: "Risk level and notes", why: "Supports appropriate case planning.", sensitive: true },
+               { name: "Housing status, health information, and criminal history", why: "May be included in case notes to coordinate services.", sensitive: true },
+             ]}
+             sharing="Authorized TCAF reentry case-management staff who coordinate this participant's services."
+             withdrawal="Ask your case manager to review, correct, or withdraw information where permitted."
+           />
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-sm font-medium">Participant ID</label>
@@ -329,6 +342,18 @@ export default function ReentryDashboard() {
           )}
         </div>
       </div>
+      <EvidenceSummary
+        claims={[{
+          value: dashboard?.totalPlans ?? null,
+          unit: "reentry plans",
+          source: "TCAF Reentry Case Management System",
+          sourceId: "tcaf-reentry-cms",
+          asOfDate: null,
+          geographyKey: null,
+          confidence: "verified",
+          decisionCaption: "Use caseload and milestone data to prioritize case-management follow-up; it is restricted to authorized staff.",
+        }]}
+      />
     </div>
   );
 }

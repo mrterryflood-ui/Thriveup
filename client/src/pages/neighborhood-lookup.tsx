@@ -18,6 +18,7 @@ import {
   ExternalLink, DollarSign, Calendar, Building2, ChevronRight
 } from "lucide-react";
 import { Link } from "wouter";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 interface IndicatorData {
   povertyRate: number;
@@ -412,6 +413,18 @@ export default function NeighborhoodLookupPage() {
                     </CardContent>
                   </Card>
                 </div>
+                <EvidenceSummary
+                  claims={[{
+                    value: profile.population,
+                    unit: "residents",
+                    source: "U.S. Census Bureau ACS 5-Year 2022",
+                    sourceId: "census-acs5-2022",
+                    asOfDate: "2022",
+                    geographyKey: profile.tractFips,
+                    confidence: "estimated",
+                    decisionCaption: "Use neighborhood indicators to guide community planning, not to characterize individual residents.",
+                  }]}
+                />
 
                 <Card>
                   <CardHeader>

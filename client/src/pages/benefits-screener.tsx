@@ -23,6 +23,7 @@ import {
   MessageCircle, ListChecks, Loader2 as Loader2Icon
 } from "lucide-react";
 import { Link } from "wouter";
+import { ConsentDisclosure } from "@/components/consent-disclosure";;
 
 const STEPS = [
   { key: "welcome", label: "Welcome", icon: HandHeart },
@@ -608,6 +609,20 @@ export default function BenefitsScreenerPage() {
                   <Globe className="h-3 w-3" /> Available in English and Spanish
                 </p>
               </div>
+              {/* DIS Condition 2 — Consent disclosure before any data collection */}
+              <ConsentDisclosure
+                purpose="Screen for eligibility for federal and state benefit programs including SNAP, Medicaid, CHIP, EITC, WIC, Section 8, and more."
+                fields={[
+                  { name: "Household size", why: "Program eligibility depends on how many people share your household.", required: true },
+                  { name: "Annual household income", why: "Most programs have income limits that determine your eligibility.", required: true, sensitive: true },
+                  { name: "State and county", why: "Benefits programs and contact resources are state-specific.", required: true },
+                  { name: "Ages of household members", why: "Programs like CHIP and WIC are age-specific.", required: false },
+                  { name: "Immigration status", why: "Some programs are open to all immigration statuses; we label which ones apply to mixed-status families.", required: false, sensitive: true },
+                  { name: "Disability status", why: "Required to screen for SSI and SSDI eligibility.", required: false, sensitive: true },
+                ]}
+                sharing="Your answers are used only to estimate eligibility. Nothing is stored, shared with government agencies, or used for any other purpose."
+                withdrawal="You can stop at any time. No partial answers are saved or transmitted."
+              />
             </CardContent>
           </Card>
         )}

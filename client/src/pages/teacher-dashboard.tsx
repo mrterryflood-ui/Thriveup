@@ -8,6 +8,7 @@ import { School, Users, BarChart3, BookOpen, Award, TrendingUp } from "lucide-re
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
 import { useAuth } from "@/hooks/use-auth";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 interface ClassroomWithStats {
   id: string;
@@ -169,6 +170,7 @@ export default function TeacherDashboardPage() {
           <p className="text-2xl font-bold" data-testid="text-total-lessons">{totalLessons}</p>
         </Card>
       </div>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Platform Administrative Records", sourceId: "platform-program-enrollment", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Classroom analytics reflect platform activity records." }]} />
 
       <h2 className="text-xl font-semibold mb-4" data-testid="text-classrooms-section-heading">Your Classrooms</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

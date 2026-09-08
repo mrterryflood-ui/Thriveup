@@ -15,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { RelatedTools } from "@/components/related-tools";
 import { Separator } from "@/components/ui/separator";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { useToast } from "@/hooks/use-toast";
 import { MapContainer, TileLayer, CircleMarker, Popup, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -154,6 +155,18 @@ function CommandDashboard() {
           </div>
         </Card>
       </div>
+      <EvidenceSummary
+        claims={[{
+          value: stats.totals.totalEligible || 0,
+          unit: "eligible residents",
+          source: "TCAF Platform Administrative Records",
+          sourceId: "platform-program-enrollment",
+          asOfDate: null,
+          geographyKey: "Central Texas 5-county region",
+          confidence: "verified",
+          decisionCaption: "Use enrollment-gap totals to prioritize benefits outreach and renewal support.",
+        }]}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
         {counties.map((county: any) => (

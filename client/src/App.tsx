@@ -372,6 +372,8 @@ const RuralHealthPage = lazy(() => import("@/pages/rural-health"));
 const RuralConnectivityPage = lazy(() => import("@/pages/rural-connectivity"));
 const RuralHousingPage = lazy(() => import("@/pages/rural-housing"));
 const RuralWorkforcePage = lazy(() => import("@/pages/rural-workforce"));
+const HBCUOpportunitiesPage = lazy(() => import("@/pages/hbcu-opportunities"));
+const DataHubPage = lazy(() => import("@/pages/data-hub"));
 const StreetsProgramPage = lazy(() => import("@/pages/streets-program"));
 const AlignPage = lazy(() => import("@/pages/align"));
 const AlignJourneyPage = lazy(() => import("@/pages/align-journey"));
@@ -987,7 +989,10 @@ function AppRouter() {
       <Route path="/rural-health" component={RuralHealthPage} />
       <Route path="/rural-connectivity" component={RuralConnectivityPage} />
       <Route path="/rural-housing" component={RuralHousingPage} />
+      <Route path="/rural-workforce/:countyFips" component={RuralWorkforcePage} />
       <Route path="/rural-workforce" component={RuralWorkforcePage} />
+      <Route path="/hbcu-opportunities" component={HBCUOpportunitiesPage} />
+      <Route path="/data" component={DataHubPage} />
       {/* ── Redirect aliases (old / alternate paths → canonical routes) ── */}
       <Route path="/streets" component={StreetsProgramPage} />
       <Route path="/align" component={AlignPage} />

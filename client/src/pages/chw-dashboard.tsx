@@ -3,7 +3,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -16,6 +16,9 @@ import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { PageHeader } from "@/components/page-header";
 import { TrainingGuideButton } from "@/components/training-guide";
+// DIS Alignment Condition 2 + 3
+import { ConsentDisclosure } from "@/components/consent-disclosure";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import {
   Heart, Users, Shield, ClipboardCheck, MapPin, Phone,
   Calendar, Activity, ChevronRight, CheckCircle2, AlertTriangle,
@@ -98,6 +101,13 @@ interface CreateReferralResponse {
   statusUrl?: string;
   orgConfirmUrl?: string;
 }
+
+type ThreeRealitiesDiagnostic = {
+  researchReality?: { summary?: string; citations?: string[]; keyFindings?: string[] };
+  politicalReality?: { summary?: string; barriers?: string[]; funderAlignment?: string | null };
+  groundTruth?: { observationCount?: number; themes?: string[]; summary?: string };
+  gapDiagnosis?: { primaryGap?: string; cfirDomain?: string | null; ericStrategy?: string | null };
+};
 
 type WsrcaCounty = {
   county: string;
@@ -359,6 +369,18 @@ export default function ChwDashboardPage() {
   const { data: liveData, isError: caseloadError } = useQuery({ queryKey: ["/api/chw/caseload"], enabled: isAuthenticated, retry: false });
   const { data: liveVisitsData, isError: visitsError } = useQuery({ queryKey: ["/api/chw/visits"], enabled: isAuthenticated, retry: false });
   const { data: liveResources, isError: resourcesError } = useQuery({ queryKey: ["/api/chw/resources"], enabled: isAuthenticated, retry: false });
+  // The safety ZIP is the dashboard's current community geography selection.
+  const threeRealitiesGeographyKey = safetyZip;
+  const { data: threeRealities, isLoading: threeRealitiesLoading } = useQuery<ThreeRealitiesDiagnostic>({
+    queryKey: ["/api/three-realities", threeRealitiesGeographyKey],
+    queryFn: async () => {
+      const res = await fetch(`/api/three-realities/${encodeURIComponent(threeRealitiesGeographyKey)}`);
+      if (!res.ok) throw new Error("Failed to load Three Realities assessment");
+      return res.json();
+    },
+    enabled: activeTab === "three-realities" && !!threeRealitiesGeographyKey,
+    retry: false,
+  });
 
   // ── Log Visit dialog state ────────────────────────────────────────────────
   const [visitOpen, setVisitOpen] = useState(false);
@@ -689,6 +711,21 @@ export default function ChwDashboardPage() {
               <DialogHeader>
                 <DialogTitle>New Referral</DialogTitle>
               </DialogHeader>
+
+              {/* DIS Condition 2 — Consent disclosure before collecting client information */}
+              <ConsentDisclosure
+                purpose="Create a service referral on behalf of a client to connect them with a partner organization."
+                fields={[
+                  { name: "Client display name", why: "Helps the receiving organization identify the referral. No legal name required.", required: false },
+                  { name: "Client phone number", why: "Allows the receiving organization to follow up directly.", required: false, sensitive: true },
+                  { name: "Program code and organization", why: "Identifies which program and partner organization will receive this referral.", required: true },
+                  { name: "Funder attribution", why: "Credits the referral to the correct funding source for impact reporting.", required: false },
+                  { name: "Referral notes", why: "Provides the receiving organization with relevant context for this client.", required: false, sensitive: true },
+                ]}
+                sharing="This referral is visible to the receiving organization and logged in the platform. Client display name and phone are shared with the receiving org. Notes are shared with the receiving org."
+                withdrawal="You can cancel this dialog without submitting. Submitted referrals are immutable — contact a supervisor to void a submitted referral."
+                compact
+              />
 
               <div className="space-y-4 pt-1">
                 <div className="space-y-1.5">
@@ -1047,6 +1084,7 @@ export default function ChwDashboardPage() {
           <TabsTrigger value="childcare" data-testid="tab-childcare">Childcare</TabsTrigger>
           <TabsTrigger value="training" data-testid="tab-training">Training</TabsTrigger>
           <TabsTrigger value="supervisor" data-testid="tab-supervisor">Supervisor View</TabsTrigger>
+          <TabsTrigger value="three-realities" data-testid="tab-three-realities">Three Realities</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview">
@@ -1998,6 +2036,48 @@ export default function ChwDashboardPage() {
               </div>
             );
           })()}
+        </TabsContent>
+        <TabsContent value="three-realities" data-testid="tab-content-three-realities">
+          {!threeRealitiesGeographyKey ? (
+            <Card className="p-5">
+              <p className="text-sm text-muted-foreground">Enter a ZIP in the Community Safety section to view this community’s Three Realities diagnostic.</p>
+            </Card>
+          ) : threeRealitiesLoading ? (
+            <Card className="p-5"><p className="text-sm text-muted-foreground">Loading assessment…</p></Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader><CardTitle>Research Reality</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.researchReality?.summary ?? "No assessment yet"}</p>
+                  {(threeRealities?.researchReality?.citations ?? []).map((citation, index) => <p key={index} className="text-xs text-muted-foreground">{citation}</p>)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Political Reality</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.politicalReality?.summary ?? "No assessment yet"}</p>
+                  {(threeRealities?.politicalReality?.barriers ?? []).map((barrier, index) => <p key={index} className="text-xs text-muted-foreground">{barrier}</p>)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Ground Truth</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.groundTruth?.summary ?? "No assessment yet"}</p>
+                  <p className="text-muted-foreground">{threeRealities?.groundTruth?.observationCount ?? 0} observations</p>
+                  {(threeRealities?.groundTruth?.themes ?? []).map((theme, index) => <p key={index} className="text-xs text-muted-foreground">{theme}</p>)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Gap Diagnosis</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.gapDiagnosis?.primaryGap ?? "Insufficient data for diagnosis"}</p>
+                  <p className="text-muted-foreground">CFIR domain: {threeRealities?.gapDiagnosis?.cfirDomain ?? "Not identified"}</p>
+                  <p className="text-muted-foreground">ERIC strategy: {threeRealities?.gapDiagnosis?.ericStrategy ?? "Not identified"}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </TabsContent>
       </Tabs>
     </div>

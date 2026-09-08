@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { ErrorRetry } from "@/components/error-retry";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { Users, GitBranch, Megaphone, FileText, Download, Plus, TrendingUp, Landmark, HeartHandshake, AlarmClock } from "lucide-react";
 
 // Draft persistence: staff forms live inside tab panels that unmount on tab
@@ -89,6 +90,18 @@ export default function YhsiOpsPage() {
         <MetricCard label="Resolution rate" value={metrics?.referrals?.resolutionRate != null ? `${metrics.referrals.resolutionRate}%` : "—"} testId="metric-resolution" />
         <MetricCard label="Youth input incorporated" value={metrics?.youthVoice?.incorporated} testId="metric-voice" />
       </div>
+      <EvidenceSummary
+        claims={[{
+          value: metrics?.participants ?? null,
+          unit: "youth participants",
+          source: "YHSI Platform Records (floor-5 suppressed)",
+          sourceId: "yhsi-records",
+          asOfDate: null,
+          geographyKey: null,
+          confidence: "verified",
+          decisionCaption: "All youth counts follow floor-5 suppression; use aggregate data for service planning and never to identify a young person.",
+        }]}
+      />
 
       <Tabs defaultValue="referrals">
         <TabsList>

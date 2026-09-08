@@ -15,6 +15,7 @@ import { ErrorRetry } from "@/components/error-retry";
 import { LEVEL_COLORS } from "@/lib/curriculum-data";
 import { useAuth } from "@/hooks/use-auth";
 import type { Level, Module } from "@shared/schema";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 type ModuleProgress = Record<string, { total: number; completed: number }>;
 
@@ -106,6 +107,7 @@ export default function CurriculumPage() {
           );
         })}
       </div>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Curriculum Library", sourceId: "tcaf-curriculum", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Level and module information is drawn from the TCAF Curriculum Library." }]} />
     </div>
   );
 }

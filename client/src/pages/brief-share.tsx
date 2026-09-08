@@ -6,14 +6,15 @@
  * the community-impact view components with the cached data.
  */
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Globe, AlertTriangle, Loader2 } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // ── Urgency styling (mirrors community-impact.tsx) ────────────────────────────
 const URGENCY_CONFIG: Record<string, { bg: string; text: string; border: string; badge: string }> = {
@@ -33,6 +34,13 @@ function fmt$(n: number): string {
 function fmtPct(n: number): string {
   return `${Number(n).toFixed(1)}%`;
 }
+
+type ThreeRealitiesDiagnostic = {
+  researchReality?: { summary?: string; citations?: string[] };
+  politicalReality?: { summary?: string; barriers?: string[] };
+  groundTruth?: { observationCount?: number; themes?: string[]; summary?: string };
+  gapDiagnosis?: { primaryGap?: string; cfirDomain?: string | null; ericStrategy?: string | null };
+};
 
 // ── Demographics table ────────────────────────────────────────────────────────
 function DemographicsPanel({ demographics }: { demographics: Record<string, any> }) {
@@ -118,6 +126,7 @@ function CascadePanel({ cascade }: { cascade: Record<string, any> }) {
 // ── Main page ────────────────────────────────────────────────────────────────
 export default function BriefSharePage() {
   const { shareId } = useParams<{ shareId: string }>();
+  const [activeTab, setActiveTab] = useState("brief");
 
   const { data, isLoading, isError, error } = useQuery({
     queryKey: ["/api/conductor/community-brief/share", shareId],
@@ -131,6 +140,17 @@ export default function BriefSharePage() {
       return res.json();
     },
     enabled: !!shareId,
+    retry: false,
+  });
+  const threeRealitiesGeographyKey = data?.geography?.zip ?? data?.geography?.countyFips ?? data?.geography?.geographyKey ?? "";
+  const { data: threeRealities, isLoading: threeRealitiesLoading } = useQuery<ThreeRealitiesDiagnostic>({
+    queryKey: ["/api/three-realities", threeRealitiesGeographyKey],
+    queryFn: async () => {
+      const res = await fetch(`/api/three-realities/${encodeURIComponent(threeRealitiesGeographyKey)}`);
+      if (!res.ok) throw new Error("Failed to load Three Realities assessment");
+      return res.json();
+    },
+    enabled: !!threeRealitiesGeographyKey && activeTab === "three-realities",
     retry: false,
   });
 
@@ -196,6 +216,12 @@ export default function BriefSharePage() {
         </div>
       </div>
 
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="mb-6">
+          <TabsTrigger value="brief">Community Brief</TabsTrigger>
+          <TabsTrigger value="three-realities" data-testid="tab-brief-three-realities">Three Realities</TabsTrigger>
+        </TabsList>
+        <TabsContent value="brief" className="space-y-8">
       <CommunityEvidencePanel evidence={data.evidence} />
 
       {/* Narrative */}
@@ -252,6 +278,48 @@ export default function BriefSharePage() {
           <a href="/community-impact" className="text-primary hover:underline">Analyze your own community →</a>
         </p>
       </div>
+        </TabsContent>
+        <TabsContent value="three-realities" data-testid="tab-content-brief-three-realities">
+          {!threeRealitiesGeographyKey ? (
+            <Card className="p-5"><p className="text-sm text-muted-foreground">No geography is available for this shared brief.</p></Card>
+          ) : threeRealitiesLoading ? (
+            <Card className="p-5"><p className="text-sm text-muted-foreground">Loading assessment…</p></Card>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <Card>
+                <CardHeader><CardTitle>Research Reality</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.researchReality?.summary ?? "No assessment yet"}</p>
+                  {(threeRealities?.researchReality?.citations ?? []).map((citation, index) => <p key={index} className="text-xs text-muted-foreground">{citation}</p>)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Political Reality</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.politicalReality?.summary ?? "No assessment yet"}</p>
+                  {(threeRealities?.politicalReality?.barriers ?? []).map((barrier, index) => <p key={index} className="text-xs text-muted-foreground">{barrier}</p>)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Ground Truth</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.groundTruth?.summary ?? "No assessment yet"}</p>
+                  <p className="text-muted-foreground">{threeRealities?.groundTruth?.observationCount ?? 0} observations</p>
+                  {(threeRealities?.groundTruth?.themes ?? []).map((theme, index) => <p key={index} className="text-xs text-muted-foreground">{theme}</p>)}
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader><CardTitle>Gap Diagnosis</CardTitle></CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <p>{threeRealities?.gapDiagnosis?.primaryGap ?? "Insufficient data for diagnosis"}</p>
+                  <p className="text-muted-foreground">CFIR domain: {threeRealities?.gapDiagnosis?.cfirDomain ?? "Not identified"}</p>
+                  <p className="text-muted-foreground">ERIC strategy: {threeRealities?.gapDiagnosis?.ericStrategy ?? "Not identified"}</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

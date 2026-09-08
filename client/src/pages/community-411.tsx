@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { apiRequest } from "@/lib/queryClient";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import {
   Search, MapPin, Phone, ExternalLink, ChevronRight,
   MessageCircle, Briefcase, Home, Apple, Heart, Scale,
@@ -448,6 +449,16 @@ export default function Community411Page() {
                   )}
                   <div ref={chatEndRef} />
                 </div>
+                {messages.some((message) => message.role === "assistant") && (
+                  <AIAugmentationDisclosure
+                    compact
+                    drewFrom={["TCAF program and partner registry", "ZIP-level community context when provided"]}
+                    doesNotKnow={["Real-time program availability or waitlists", "Individual household circumstances not shared in the conversation"]}
+                    verifyWith="Contact the program directly to confirm eligibility, availability, and next steps."
+                    decisionBelongsTo="You and, if you have one, your navigator or CHW."
+                    modelLabel="TCAF Navigator"
+                  />
+                )}
 
                 {/* Input */}
                 <div className="flex gap-2">

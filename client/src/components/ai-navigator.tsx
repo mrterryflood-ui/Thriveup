@@ -38,6 +38,8 @@ import {
   Plus,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+// DIS Condition 3 — Navigator AI disclosure
+import { NavigatorDisclosure } from "@/components/ai-augmentation-disclosure";
 
 interface HuntGrant {
   id: string;
@@ -2270,6 +2272,12 @@ export function AINavigator({
       ) : (
         /* Chat view */
         <div className="flex-1 overflow-hidden flex flex-col">
+          {/* DIS Condition 3 — AI augmentation disclosure (compact strip) */}
+          <NavigatorDisclosure
+            hasPersonalContext={!!user}
+            hasResearchContext
+            className="px-3 pt-2"
+          />
           <ScrollArea className="flex-1">
             <div
               className="p-4 space-y-4"

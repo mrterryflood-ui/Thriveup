@@ -17,6 +17,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import {
   Heart, Brain, Shield, Home, Baby, GraduationCap, Scale, Briefcase,
   Users, MapPin, Globe, Search, AlertTriangle, TrendingDown, TrendingUp,
@@ -1507,6 +1509,11 @@ export default function CommunityImpactPage() {
 
         {data && !searchState.pending && !searchState.error && (
           <div className="space-y-10">
+            <EvidenceSummary claims={[{
+              value: data.outcomes?.total ?? null, unit: "recorded outcomes", source: "TCAF Outcome Measurement System",
+              sourceId: "tcaf-outcomes", asOfDate: null, geographyKey: null, confidence: "verified",
+              decisionCaption: "Use verified outcome records with local evidence when planning community investments.",
+            }]} />
             {/* Verdict Hero — the F-22 first look */}
             <VerdictHero data={data} locationQuery={submitted} canRequestExport={canRequestExport} />
 
@@ -1517,6 +1524,7 @@ export default function CommunityImpactPage() {
 
             {/* AI Narrative */}
             {data.narrative && (
+              <>
               <Card className="p-6 border-indigo-200 dark:border-indigo-800 bg-indigo-50 dark:bg-indigo-950/30" data-testid="card-narrative">
                 <div className="flex items-start gap-3">
                   <FileText className="w-5 h-5 text-indigo-500 flex-none mt-0.5" />
@@ -1526,6 +1534,13 @@ export default function CommunityImpactPage() {
                   </div>
                 </div>
               </Card>
+              <AIAugmentationDisclosure
+                compact
+                drewFrom={["Community impact indicators", "program outcome records", "local service context"]}
+                doesNotKnow={["future outcomes", "individual resident circumstances"]}
+                verifyWith="Current local data and community partners"
+              />
+              </>
             )}
 
             {/* Systems Vitals */}

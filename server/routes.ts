@@ -178,10 +178,16 @@ import { registerRuralWorkforceRoutes } from "./rural-workforce-routes";
 import { registerFosterYouthIntakeRoutes } from "./foster-youth-intake-routes";
 import { registerYhsiRoutes } from "./yhsi-routes";
 import { registerCommunityDataRoutes } from "./community-data-routes";
+// DIS Alignment Foundation — 2026-09-07
+import { setupLiveDataSearchRoutes } from "./live-data-search-routes";
+import { setupDataSourcesRoutes } from "./data-sources-routes";
+import { setupPlaceStoryRoutes } from "./place-story-engine";
+import { seedDataSources } from "./seed-data-sources";
 import { registerYhsiSystemRoutes } from "./yhsi-system-routes";
 import { registerVoiceRoutes } from "./voice-routes";
 import { registerFosterYouthAgencyRoutes } from "./foster-youth-agency-routes";
 import { registerCommunityProgramRoutes } from "./community-program-routes";
+import { registerThreeRealitiesRoutes } from "./three-realities-routes";
 import { registerTradeSimsRoutes } from "./trade-sims-routes";
 import { registerTradeSimsCertRoutes } from "./trade-sims-cert-routes";
 import { registerTradeSimsTrialRoutes } from "./trade-sims-trial-routes";
@@ -633,10 +639,15 @@ export async function registerRoutes(
   registerFosterYouthIntakeRoutes(app);
   registerYhsiRoutes(app);
   registerCommunityDataRoutes(app);
+  // DIS Alignment Foundation routes
+  setupLiveDataSearchRoutes(app);
+  setupDataSourcesRoutes(app);
+  setupPlaceStoryRoutes(app);
   registerYhsiSystemRoutes(app);
   registerVoiceRoutes(app);
   registerFosterYouthAgencyRoutes(app);
   registerCommunityProgramRoutes(app);
+  registerThreeRealitiesRoutes(app);
   registerTradeSimsRoutes(app);
   registerTradeSimsCertRoutes(app);
   registerTradeSimsTrialRoutes(app);
@@ -6793,6 +6804,7 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   runBjsIngestion().catch((e: Error) => console.error("[startup] BJS ingestion:", e.message));
   seedKnowledgeGraph().catch((e: Error) => console.error("[startup] Knowledge graph seed:", e.message));
   seedHedisMeasures().catch((e: Error) => console.error("[startup] HEDIS catalog seed:", e.message));
+  seedDataSources().catch((e: Error) => console.error("[startup] Data sources seed:", e.message));
 
   // ── Weekly stale-capacity email ───────────────────────────────────────────
   // Runs 7 days after boot and then every 7 days. Emails partner contacts whose

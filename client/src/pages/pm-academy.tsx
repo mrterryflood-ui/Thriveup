@@ -18,6 +18,7 @@ import {
   Presentation,
 } from "lucide-react";
 import { ModulePresenter, PresentButton } from "@/components/module-presenter";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 type Difficulty = "beginner" | "intermediate" | "advanced" | "expert";
 
@@ -814,6 +815,7 @@ export default function PMAcademyPage() {
           <div className="text-xs text-muted-foreground">Memory Aids</div>
         </Card>
       </div>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Curriculum Library", sourceId: "tcaf-curriculum", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Academy track, module, and certification information is drawn from the TCAF Curriculum Library." }]} />
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-4">

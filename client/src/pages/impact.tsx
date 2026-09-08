@@ -17,6 +17,7 @@ import { BackToTop } from "@/components/back-to-top";
 import { ErrorRetry } from "@/components/error-retry";
 import { PageHeader } from "@/components/page-header";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 interface ImpactData {
   dataAvailable?: boolean;
@@ -182,6 +183,20 @@ export default function ImpactPage() {
         <StatCard icon={HandshakeIcon} label="Mentor Connections" value={impact?.mentorConnections || 0} color="bg-orange-500" />
         <StatCard icon={TrendingUp} label="Average Score" value={impact?.averageScore || 0} color="bg-purple-500" />
       </div>
+
+      {/* DIS Condition 1 — Evidence label for all metrics above */}
+      <EvidenceSummary
+        claims={[{
+          value: null,
+          unit: "",
+          source: "TCAF Platform Administrative Records",
+          sourceId: "platform-program-enrollment",
+          asOfDate: null,
+          geographyKey: null,
+          confidence: "verified",
+          decisionCaption: "All metrics above reflect platform participants only — not the full community population. Aggregate cells below 5 individuals are suppressed (floor-5). These figures represent program activity, not population health outcomes.",
+        }]}
+      />
 
       <div className="grid md:grid-cols-3 gap-4">
         <Card data-testid="card-curriculum-summary">

@@ -19,6 +19,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 
 type StateRow = {
   stateFips: string;
@@ -489,6 +491,13 @@ function CountyLookup({ stateHint }: { stateHint: string | null }) {
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
+        <ConsentDisclosure
+          compact
+          purpose="Find county-level childcare supply information."
+          fields={[{ name: "County or location", why: "Used only to retrieve the requested county's public childcare data." }]}
+          sharing="Your search is sent to TCAF to retrieve public Census and childcare records; it is not shared with providers."
+          withdrawal="Clear the search field or leave this page at any time."
+        />
         <form onSubmit={submit} className="flex flex-col sm:flex-row gap-2">
           <Input
             value={input}
@@ -731,6 +740,18 @@ export default function ChildCareNationalPage() {
             );
           })}
         </section>
+        <EvidenceSummary
+          claims={[{
+            value: national.providerEstablishments,
+            unit: "childcare establishments",
+            source: "HHSC CCL (TX) + Census CBP 2022 NAICS 6244",
+            sourceId: "hhsc-ccl-childcare",
+            asOfDate: "2022",
+            geographyKey: "United States",
+            confidence: "verified",
+            decisionCaption: "Use establishment density as a screening signal, not as a count of available childcare slots.",
+          }]}
+        />
 
         <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-900">

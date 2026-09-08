@@ -41,6 +41,9 @@ import {
 } from "@/components/ui/tooltip";
 import { AlertCircle, ArrowUpDown, Info, ExternalLink, ArrowLeft, Map, Table as TableIcon } from "lucide-react";
 import CountyChoroplethMap from "@/components/equity-loss/CountyChoroplethMap";
+// DIS Alignment Condition 1 + 3
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -535,12 +538,45 @@ export default function EquityLossNationalPage() {
         <h1 style={{ fontSize: 26, fontWeight: 800, color: "#f8fafc", margin: 0 }}>
           Equity-Loss Engine — Nationwide View
         </h1>
-        <p style={{ color: "#94a3b8", marginTop: 8, marginBottom: 24, maxWidth: 680, lineHeight: 1.5, fontSize: 14 }}>
+        <p style={{ color: "#94a3b8", marginTop: 8, marginBottom: 16, maxWidth: 680, lineHeight: 1.5, fontSize: 14 }}>
           County-grain human development loss to inequality (IHDI/Atkinson method) from the most recent completed batch.
           Availability varies by jurisdiction and source; the coverage statement below distinguishes usable results from
           suppressed or unavailable records. Filter, sort, and open a county detail—or use the county link for a live
           single-county computation.
         </p>
+
+        {/* DIS Condition 1 + 3 — Evidence label + AI disclosure for modeled scores */}
+        <div style={{ marginBottom: 20 }}>
+          <EvidenceSummary
+            claims={[{
+              value: null,
+              unit: "",
+              source: "TCAF Equity-Loss Engine (IHDI/Atkinson + ACS 2022 + USALEEP 2010-2015)",
+              sourceId: "equity-loss-engine",
+              asOfDate: "2022-01-01",
+              geographyKey: null,
+              confidence: "modeled",
+              decisionCaption: "Scores are model outputs from three divergence frames (vs. national, state, peer class). Peer class is 1 representative county — not a full cohort. USALEEP base is 2010-2015 and does not reflect recent life-expectancy changes. Suppressed cells are never shown as zero.",
+            }]}
+          />
+          <div style={{ marginTop: 10 }}>
+            <AIAugmentationDisclosure
+              drewFrom={[
+                "Census ACS 5-Year 2022 (B17001, S1901, S2301 — poverty, income, employment)",
+                "USALEEP Life Expectancy at Birth by Census Tract 2010-2015",
+                "IHDI/Atkinson inequality decomposition method (Human Development Report methodology)",
+              ]}
+              doesNotKnow={[
+                "COVID-era and post-2019 life expectancy changes (USALEEP base is 2010-2015)",
+                "Current program availability or active community interventions in the county",
+                "Sub-county variation — FIPS-level scores mask neighborhood-level disparities",
+                "AI-estimate tier rows are lowest confidence — treat as directional only",
+              ]}
+              verifyWith="County Health Rankings (countyhealthrankings.org) and CDC PLACES for independent validation of health indicators."
+              decisionBelongsTo="Program staff and community stakeholders. These scores are diagnostic tools — not prescriptive judgments about communities."
+            />
+          </div>
+        </div>
 
         {/* Summary bar */}
         {summaryError ? (

@@ -15,6 +15,7 @@ import {
   MINUTES_PER_LESSON,
   type TradePathway,
 } from "@/lib/trade-sims/pathways";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 const ICONS: Record<TradePathway["iconKey"], typeof Zap> = {
   electrical: Zap,
@@ -265,6 +266,7 @@ export default function WorkforcePathwaysPage() {
             );
           })}
         </div>
+        <EvidenceSummary claims={[{ value: null, unit: "", source: "CareerOneStop Occupational Data (DOL)", sourceId: "careeronestop-occupational", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Career pathway information supports exploration, not an employment guarantee." }]} />
 
         <p className="text-center text-xs text-muted-foreground max-w-2xl mx-auto pt-2">
           Credential names and next-step programs shown above are drawn from each

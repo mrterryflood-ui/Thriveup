@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { CommunityEvidencePanel } from "@/components/community-evidence-panel";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import {
   LayoutDashboard, Key, Building2, MapPin, Users, TrendingUp,
   Shield, FileText, Download, Copy, RefreshCw, AlertTriangle,
@@ -436,6 +438,7 @@ function CommunityTab({ story }: { story: TabData }) {
 
       {/* Demographics narrative */}
       {narrativeText && (
+        <>
         <Card>
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
@@ -457,6 +460,13 @@ function CommunityTab({ story }: { story: TabData }) {
             <p className="text-sm text-gray-700 leading-relaxed">{narrativeText}</p>
           </CardContent>
         </Card>
+        <AIAugmentationDisclosure
+          compact
+          drewFrom={["Partner network administrative records", "community profile data"]}
+          doesNotKnow={["unreported local changes", "individual resident circumstances"]}
+          verifyWith="Local partners and current administrative records"
+        />
+        </>
       )}
 
       {/* Grant matches */}
@@ -1079,6 +1089,11 @@ export default function PartnerDashboardPage() {
 
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 py-6">
+        <EvidenceSummary claims={[{
+          value: null, unit: "partner network metrics", source: "TCAF Partner Network Administrative Records",
+          sourceId: "tcaf-partner-network", asOfDate: null, geographyKey: auth.location, confidence: "verified",
+          decisionCaption: "Use these administrative records to guide partner operations and collaboration.",
+        }]} />
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="bg-white border shadow-sm mb-6 flex flex-wrap h-auto gap-0.5 p-1">
             {[

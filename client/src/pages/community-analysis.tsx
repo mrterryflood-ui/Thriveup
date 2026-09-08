@@ -10,6 +10,8 @@ import { MapContainer, TileLayer, CircleMarker, Popup, Rectangle, useMap } from 
 import "leaflet/dist/leaflet.css";
 import { useMutation } from "@tanstack/react-query";
 import { apiRequest } from "@/lib/queryClient";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -355,6 +357,11 @@ export default function CommunityAnalysisPage() {
       {/* ── Main content ──────────────────────────────────────────────────── */}
       {result && (
         <div className="mx-auto max-w-7xl px-4 py-6 space-y-6">
+          <EvidenceSummary claims={[{
+            value: result.census.population ?? null, unit: "residents", source: "U.S. Census Bureau ACS 5-Year 2022",
+            sourceId: "census-acs5-2022", asOfDate: "2022-12-31", geographyKey: result.zip, confidence: "estimated",
+            decisionCaption: "Use Census estimates with local knowledge when assessing community needs.",
+          }]} />
 
           {/* AI headline */}
           <Card className="border-indigo-200 dark:border-indigo-900 bg-indigo-50 dark:bg-indigo-950/30">
@@ -375,6 +382,12 @@ export default function CommunityAnalysisPage() {
               </div>
             </CardContent>
           </Card>
+          <AIAugmentationDisclosure
+            compact
+            drewFrom={["Community Census estimates", "CDC/ATSDR social vulnerability indicators", "mapped service organizations"]}
+            doesNotKnow={["individual resident circumstances", "unreported local changes"]}
+            verifyWith="Local partners and current community data"
+          />
 
           {/* Map + analysis side by side */}
           <div className="grid lg:grid-cols-5 gap-6">

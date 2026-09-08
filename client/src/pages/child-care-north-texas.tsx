@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EvidenceSummary } from "@/components/evidence-label";
 import {
   BarChart3, Baby, MapPin, ArrowLeft, Users, Building2,
   TrendingUp, Target, AlertTriangle, ChevronRight, CheckCircle2, Clock
@@ -86,6 +87,18 @@ export default function ChildCareNorthTexasPage() {
           </div>
         ))}
       </div>
+      <EvidenceSummary
+        claims={[{
+          value: 1032,
+          unit: "children served daily",
+          source: "HHSC CCL (TX) + Census CBP 2022 NAICS 6244",
+          sourceId: "hhsc-ccl-childcare",
+          asOfDate: "2022",
+          geographyKey: "Workforce Solutions North Texas region",
+          confidence: "verified",
+          decisionCaption: "Use regional service volume and provider counts to plan childcare capacity growth.",
+        }]}
+      />
 
       {/* 11-county map table */}
       <div>

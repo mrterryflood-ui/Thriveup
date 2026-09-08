@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
 import { COUNTIES_BY_STATE } from "@shared/nationwide/counties";
 import {
@@ -133,6 +134,18 @@ export default function CoveragePage() {
             </CardContent>
           </Card>
         </div>
+        <EvidenceSummary
+          claims={[{
+            value: totalCounties,
+            unit: "U.S. counties analyzable",
+            source: "U.S. Census Bureau ACS 5-Year 2022",
+            sourceId: "census-acs5-2022",
+            asOfDate: "2022",
+            geographyKey: "United States",
+            confidence: "estimated",
+            decisionCaption: "Use county coverage to select a location for local needs analysis.",
+          }]}
+        />
 
         {/* ACTIVE DEPLOYMENT — TEXAS */}
         <section className="mb-12" data-testid="section-active-deployment">

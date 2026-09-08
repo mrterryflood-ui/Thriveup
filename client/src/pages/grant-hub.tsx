@@ -2,6 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation } from "wouter";
 import { Link as LinkIcon } from "lucide-react";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import { GrantCoach } from "@/components/grant-coach";
 import { EngineSelector, getPreferredEngine } from "@/components/engine-selector";
 import { PillarFlowNav } from "@/components/dfc-cross-nav";
@@ -229,6 +231,7 @@ function GrantDetailDialog({ grant }: { grant: GrantOpportunity }) {
           </Button>
 
           {ai && (
+            <>
             <Card className="p-4 bg-blue-50 dark:bg-blue-950 border-blue-200 dark:border-blue-800">
               <h4 className="text-sm font-semibold flex items-center gap-1 mb-2"><Brain className="h-4 w-4" /> AI Analysis</h4>
               <p className="text-sm mb-3">{ai.summary}</p>
@@ -247,6 +250,13 @@ function GrantDetailDialog({ grant }: { grant: GrantOpportunity }) {
                 </div>
               )}
             </Card>
+            <AIAugmentationDisclosure
+              compact
+              drewFrom={["Grant opportunity details", "organization-provided priorities"]}
+              doesNotKnow={["final funder decisions", "changes not yet reflected in source records"]}
+              verifyWith="The funder's current notice of funding opportunity"
+            />
+            </>
           )}
 
           {sg && (
@@ -705,6 +715,12 @@ export default function GrantHubPage() {
       </div>
 
       <PasteRfpUrlCard />
+
+      <EvidenceSummary claims={[{
+        value: null, unit: "grant opportunities", source: "SAM.gov Federal Awards + BidNet/RFPMart",
+        sourceId: "sam-gov-awards", asOfDate: null, geographyKey: null, confidence: "verified",
+        decisionCaption: "Use current opportunity details and eligibility requirements to prioritize your grant pipeline.",
+      }]} />
 
       {/* ── Grant Coach + Engine Selector ── */}
       <div className="flex flex-col sm:flex-row gap-3 items-start">

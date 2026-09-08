@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useParams } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -13,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { GraduationCap, TrendingUp, Award, Users, BookOpen, ChevronRight, ExternalLink, MapPin, Star } from "lucide-react";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 const US_STATES_WITH_FIPS = [
   { fips: "48", abbr: "TX" }, { fips: "19", abbr: "IA" }, { fips: "17", abbr: "IL" },
@@ -40,7 +42,62 @@ const pathwaySchema = z.object({
 
 const GOAL_OPTIONS = ["technical","conservation","management","government","health","finance","animal","energy","market"];
 
+interface PlaceStory {
+  displayName: string;
+  population: number | null;
+  povertyRate: number | null;
+  unemploymentRate: number | null;
+  medianIncome: number | null;
+  gapDiagnosis?: { primaryGap?: string };
+}
+
+function CountyWorkforceDetail({ countyFips }: { countyFips: string }) {
+  const { data: story, isLoading, error } = useQuery<PlaceStory>({
+    queryKey: ["/api/place-story", "48", countyFips],
+    queryFn: async () => {
+      const response = await apiRequest("GET", `/api/place-story/48/${countyFips}`);
+      return response.json();
+    },
+  });
+  const percent = (value: number | null | undefined) => value == null ? "Not available" : `${value.toFixed(1)}%`;
+  const currency = (value: number | null | undefined) => value == null ? "Not available" : new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(value);
+
+  if (isLoading) return <main className="container mx-auto max-w-5xl px-4 py-10">Loading county workforce context…</main>;
+  if (error || !story) return <main className="container mx-auto max-w-5xl px-4 py-10">Unable to load county workforce context.</main>;
+
+  const claims = [
+    { value: story.population, unit: "people", source: "ACS 5-Year 2022", sourceId: "census-acs5-2022", asOfDate: "2022-01-01", geographyKey: `48${countyFips}`, confidence: "verified" as const, decisionCaption: "County population informs workforce service scale." },
+    { value: story.povertyRate, unit: "%", source: "ACS 5-Year 2022", sourceId: "census-acs5-2022", asOfDate: "2022-01-01", geographyKey: `48${countyFips}`, confidence: "verified" as const, decisionCaption: "Poverty rate helps identify economic barriers to workforce participation." },
+    { value: story.unemploymentRate, unit: "%", source: "ACS 5-Year 2022", sourceId: "census-acs5-2022", asOfDate: "2022-01-01", geographyKey: `48${countyFips}`, confidence: "verified" as const, decisionCaption: "Unemployment rate provides local labor-market context." },
+  ];
+
+  return (
+    <main className="container mx-auto max-w-5xl space-y-6 px-4 py-10">
+      <div>
+        <p className="text-sm font-medium text-green-700">Texas county deep-dive</p>
+        <h1 className="text-3xl font-bold">{story.displayName}</h1>
+      </div>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {[["Population", story.population?.toLocaleString() ?? "Not available"], ["Poverty rate", percent(story.povertyRate)], ["Unemployment rate", percent(story.unemploymentRate)], ["Median income", currency(story.medianIncome)]].map(([label, value]) => (
+          <Card key={label}><CardContent className="pt-6"><p className="text-sm text-muted-foreground">{label}</p><p className="text-2xl font-semibold">{value}</p></CardContent></Card>
+        ))}
+      </div>
+      <EvidenceSummary claims={claims} />
+      <Card>
+        <CardHeader><CardTitle>Community Context</CardTitle></CardHeader>
+        <CardContent><p>{story.gapDiagnosis?.primaryGap ?? "No primary gap diagnosis is currently available for this county."}</p></CardContent>
+      </Card>
+      <Card>
+        <CardHeader><CardTitle>Workforce Resources</CardTitle></CardHeader>
+        <CardContent><a className="inline-flex items-center gap-1 text-blue-600 hover:underline" href={`https://www.careeronestop.org/LocalHelp/AmericanJobCenters/find-american-job-centers.aspx?location=${countyFips}`} target="_blank" rel="noreferrer">Find local workforce support through CareerOneStop <ExternalLink className="h-4 w-4" /></a></CardContent>
+      </Card>
+    </main>
+  );
+}
+
 export default function RuralWorkforcePage() {
+  const { countyFips } = useParams<{ countyFips?: string }>();
+  if (countyFips) return <CountyWorkforceDetail countyFips={countyFips} />;
   const [state, setState] = useState("TX");
   const [stateFips, setStateFips] = useState("48");
   const [selectedGoals, setSelectedGoals] = useState<string[]>([]);

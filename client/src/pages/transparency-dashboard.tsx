@@ -15,6 +15,8 @@ import {
   BarChart3, Award, ClipboardCheck, ArrowRight, Scale,
   School, Home, BookOpen, Handshake, FileBarChart,
 } from "lucide-react";
+// DIS Condition 1 — source disclosure for all public metrics
+import { EvidenceSummary } from "@/components/evidence-label";
 
 // Public aggregate values may arrive as a measured number, a suppressed count
 // like "<5", or the sentinel "not yet reported". Raw shapes carry these; the
@@ -979,6 +981,21 @@ export default function TransparencyDashboardPage() {
               </div>
             </div>
           </Card>
+
+          {/* DIS Condition 1 — Source disclosure for all public aggregate metrics */}
+          <EvidenceSummary
+            claims={[{
+              value: null,
+              unit: "",
+              source: "TCAF Platform Administrative Records (live aggregate endpoints)",
+              sourceId: "platform-program-enrollment",
+              asOfDate: null,
+              geographyKey: null,
+              confidence: "verified",
+              decisionCaption: "All metrics are live platform aggregates — not population-level estimates. Values below 5 individuals are suppressed (floor-5). Sentinel 'not yet reported' indicates the measure exists but has no data yet.",
+            }]}
+            className="mb-4"
+          />
 
           {!allSourcesAvailable && (
             <div className="mb-4 p-3 rounded-lg border border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-900/20 flex items-center gap-2 text-sm" data-testid="banner-partial-data">

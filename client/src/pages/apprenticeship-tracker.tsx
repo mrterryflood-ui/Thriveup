@@ -59,6 +59,9 @@ import {
   Shield,
   Map,
 } from "lucide-react";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 
 interface Apprentice {
   id: string;
@@ -582,6 +585,7 @@ function HolisticDashboard({ apprentices }: { apprentices: Apprentice[] }) {
           </Card>
         ))}
       </div>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "CareerOneStop Occupational Data (DOL)", sourceId: "careeronestop-occupational", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Apprenticeship competency and occupational context is presented for planning purposes." }]} />
 
       <Card className="p-6" data-testid="card-completion-funnel">
         <h2 className="font-semibold text-base mb-4 flex items-center gap-2">
@@ -758,6 +762,7 @@ function AICareerCoachPanel() {
       <p className="text-xs text-muted-foreground mb-4">
         Ask questions about apprenticeships, career pathways, or get a personalized competency gap analysis powered by 4-engine collaborative AI.
       </p>
+      <ConsentDisclosure compact purpose="Provide career-coaching support based on the information you choose to share." fields={[{ name: "Skills, target occupation, and question", why: "To tailor the AI career-coaching response." }]} sharing="Information is sent to the AI coaching service to generate your response." withdrawal="Do not submit information you do not want used for this coaching request." />
 
       <div className="space-y-3 mb-4">
         <div>
@@ -843,6 +848,7 @@ function AICareerCoachPanel() {
           </div>
 
           {showEngineDetails && (
+            <>
             <div className="space-y-2" data-testid="section-engine-details">
               <h5 className="text-xs font-semibold text-muted-foreground">Contributing AI Engines</h5>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -895,6 +901,8 @@ function AICareerCoachPanel() {
                 </div>
               )}
             </div>
+            <AIAugmentationDisclosure compact drewFrom={["Your question and the skills or occupation you provided", "Career and apprenticeship context available to the coach"]} doesNotKnow={["Whether a specific program will accept or hire you", "Current requirements not provided in its source material"]} verifyWith="Confirm requirements, eligibility, and openings directly with the apprenticeship sponsor." decisionBelongsTo="You and the relevant apprenticeship sponsor make career and enrollment decisions." />
+            </>
           )}
         </div>
       )}

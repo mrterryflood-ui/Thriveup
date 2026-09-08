@@ -31,6 +31,8 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ErrorRetry } from "@/components/error-retry";
 import type { Classroom, ClassroomMember } from "@shared/schema";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 
 const createClassroomSchema = z.object({
   name: z.string().min(1, "Classroom name is required"),
@@ -358,6 +360,7 @@ export default function ClassroomsPage() {
         </Link>
       </div>
 
+      <ConsentDisclosure compact purpose="Create or join a classroom." fields={[{ name: "Classroom name or invite code", why: "To create a classroom or connect you to an existing classroom.", required: true }]} sharing="Classroom details are shared with members and authorized educators in that classroom." withdrawal="Contact the classroom teacher or administrator to request removal." />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <CreateClassroomForm />
         <JoinClassroomForm />
@@ -514,6 +517,7 @@ export function ClassroomDetailPage({ params }: { params: { classroomId: string 
           <p className="text-2xl font-bold" data-testid="text-stat-avg-lessons">{stats.averageLessonsCompleted}</p>
         </Card>
       </div>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Platform Administrative Records", sourceId: "platform-program-enrollment", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Classroom progress metrics reflect platform activity records." }]} />
 
       <Card className="p-6" data-testid="card-student-table">
         <h2 className="font-semibold mb-4 flex items-center gap-2">

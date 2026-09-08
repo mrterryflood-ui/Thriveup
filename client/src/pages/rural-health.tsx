@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { Heart, Phone, MapPin, AlertTriangle, ExternalLink, Shield, Hospital, Baby, Stethoscope, ChevronRight } from "lucide-react";
 
 const US_STATES = ["AL","AR","AZ","CA","CO","FL","GA","IA","ID","IL","IN","KS","KY","LA","MI","MN","MO","MS","MT","NC","ND","NE","NM","NY","OH","OK","OR","PA","SC","SD","TN","TX","VA","WA","WI","WY"];
@@ -355,6 +356,18 @@ export default function RuralHealthPage() {
             ) : <div className="text-center py-12"><p className="text-slate-500">Loading health grant opportunities…</p></div>}
           </TabsContent>
         </Tabs>
+        <EvidenceSummary
+          claims={[{
+            value: snapshot?.hospitals?.hospitalsAtRisk ?? null,
+            unit: "rural hospitals at risk of closing",
+            source: "CDC PLACES + TCAF Health Network",
+            sourceId: "cdc-places",
+            asOfDate: null,
+            geographyKey: STATE_NAMES[state],
+            confidence: "estimated",
+            decisionCaption: "Use rural health indicators to identify communities for service and referral planning.",
+          }]}
+        />
       </div>
     </div>
   );

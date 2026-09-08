@@ -5,6 +5,7 @@
 // Route: /equity-dashboard (public, no auth)
 
 import { useState, useEffect } from "react";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -519,6 +520,18 @@ export default function EquityDashboard() {
               Export for briefing
             </button>
           </div>
+          <EvidenceSummary
+            claims={[{
+              value: summary?.totalPopulation ?? null,
+              unit: "people",
+              source: "CDC PLACES + U.S. Census Bureau ACS 5-Year 2022",
+              sourceId: "cdc-places",
+              asOfDate: "2022-01-01",
+              geographyKey: selected.fips,
+              confidence: "estimated",
+              decisionCaption: "Use tract and county estimates to prioritize equitable outreach; they are not individual eligibility determinations.",
+            }]}
+          />
         </div>
       )}
     </div>

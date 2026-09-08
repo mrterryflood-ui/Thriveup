@@ -11,6 +11,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { useCurrentOrgId } from "@/hooks/use-current-org";
+import { EvidenceSummary } from "@/components/evidence-label";
 import {
   CheckCircle2, Circle, ArrowRight, Building2, FileText, Users, Sparkles,
   Map, Compass, Network, TrendingUp, Heart, RotateCcw, Home, GraduationCap,
@@ -521,6 +522,7 @@ export default function PartnerPortalPage() {
 
         {/* Stats row */}
         {stats && (
+          <>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3" data-testid="stats-row">
             <Card className="p-4 text-center">
               <div className="text-2xl font-bold text-primary" data-testid="stat-docs">{stats.docCount}</div>
@@ -539,6 +541,13 @@ export default function PartnerPortalPage() {
               <div className="text-xs text-muted-foreground mt-0.5">Setup complete</div>
             </Card>
           </div>
+
+          <EvidenceSummary claims={[{
+            value: stats?.memberCount ?? null, unit: "partner members", source: "TCAF Partner Network Administrative Records",
+            sourceId: "tcaf-partner-network", asOfDate: null, geographyKey: org?.state ?? null, confidence: "verified",
+            decisionCaption: "Use your organization's verified administrative metrics to plan next steps.",
+          }]} />
+          </>
         )}
 
         {canSeeEventWorkspaceSpotlight && (

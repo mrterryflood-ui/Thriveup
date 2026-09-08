@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/page-header";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { Link } from "wouter";
 import {
   Users, TrendingUp, TrendingDown, Minus, BarChart3, Shield,
@@ -143,6 +144,12 @@ export default function PlatformMetricsPage() {
           </div>
         )}
       </div>
+
+      <EvidenceSummary claims={[{
+        value: m.engagement.totalUsers, unit: "platform users", source: "TCAF Partner Network Administrative Records",
+        sourceId: "tcaf-partner-network", asOfDate: null, geographyKey: null, confidence: "verified",
+        decisionCaption: "Use verified platform aggregates to guide operational decisions.",
+      }]} />
 
       <MetricSection title="Engagement" icon={Users} color="text-blue-500">
         <MetricCard label="Total Users" value={m.engagement.totalUsers} icon={Users} color="text-blue-500" href="/dashboard" />

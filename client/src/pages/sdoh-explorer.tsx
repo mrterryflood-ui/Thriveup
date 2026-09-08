@@ -12,6 +12,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SDOHImpactChain } from "@/components/sdoh-impact-chain";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { DFCCrossNav, PillarFlowNav } from "@/components/dfc-cross-nav";
 import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
 import { COUNTIES_BY_STATE } from "@shared/nationwide/counties";
@@ -1296,6 +1297,18 @@ export default function SDOHExplorerPage() {
         </Tabs>
 
         <PillarFlowNav currentStep="community-intelligence" />
+        <EvidenceSummary
+          claims={[{
+            value: null,
+            unit: "census-derived SDOH indicators",
+            source: "CDC PLACES + U.S. Census Bureau ACS 5-Year 2022",
+            sourceId: "cdc-places",
+            asOfDate: "2022-01-01",
+            geographyKey: null,
+            confidence: "estimated",
+            decisionCaption: "Use these area-level estimates to target community outreach, not to infer an individual resident's circumstances.",
+          }]}
+        />
         <DFCCrossNav currentPage="sdoh-chain" />
       </div>
     </div>

@@ -14,6 +14,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { PageHeader } from "@/components/page-header";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { EvidenceSummary } from "@/components/evidence-label";
 import {
   BookOpen, FlaskConical, Target, BarChart3, Users, Globe,
   CheckCircle2, ChevronRight, ExternalLink, Lightbulb, Brain,
@@ -619,6 +620,18 @@ export default function ResearchHubPage() {
           </div>
         </TabsContent>
       </Tabs>
+      <EvidenceSummary
+        claims={[{
+          value: filteredLibrary.length,
+          unit: "research resources",
+          source: "RPLICE Implementation Science Library",
+          sourceId: "rplice-research",
+          asOfDate: null,
+          geographyKey: null,
+          confidence: "community-reported",
+          decisionCaption: "Use these community-curated implementation resources alongside local evidence and stakeholder review.",
+        }]}
+      />
     </div>
   );
 }

@@ -35,6 +35,7 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 const PROGRAM_TYPES = [
   "All", "certification", "apprenticeship", "online-certification",
@@ -269,6 +270,7 @@ export default function WorkforceTrainingPage() {
           </Card>
         ))}
       </div>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Platform Administrative Records", sourceId: "platform-program-enrollment", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Training program and enrollment information is maintained in platform records." }]} />
 
       {filtered.length === 0 && !loadingPrograms && (
         <Card className="p-8 text-center" data-testid="card-no-programs">

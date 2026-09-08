@@ -45,6 +45,8 @@ import {
 } from "lucide-react";
 import { Link } from "wouter";
 import type { LucideIcon } from "lucide-react";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 
 interface DashboardData {
   totalAssessments: number;
@@ -343,6 +345,7 @@ export default function WorkforceDashboardPage() {
         <StatCard label="Job Placements" value={d.totalPlacements || 0} icon={Briefcase} color="bg-gradient-to-br from-emerald-500 to-emerald-600" testId="card-stat-placements" />
         <StatCard label="Employer Partners" value={d.totalEmployers || 0} icon={Building2} color="bg-gradient-to-br from-amber-500 to-amber-600" testId="card-stat-employers" />
       </div>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Platform Administrative Records", sourceId: "platform-program-enrollment", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Workforce dashboard metrics are drawn from platform administrative records." }]} />
 
       <div className="flex gap-3 mb-6 flex-wrap">
         <Button onClick={() => setShowPlacementForm(true)} data-testid="button-record-placement">
@@ -565,6 +568,7 @@ export default function WorkforceDashboardPage() {
           <DialogHeader>
             <DialogTitle>Record Job Placement</DialogTitle>
           </DialogHeader>
+          <ConsentDisclosure compact purpose="Record a participant's employment placement." fields={[{ name: "Participant and employment details", why: "To document placement outcomes and support follow-up.", required: true }]} sharing="Placement information is available to authorized workforce program staff." withdrawal="Contact program staff to request correction or removal where permitted." />
           <div className="space-y-4" data-testid="form-placement">
             <div className="grid grid-cols-2 gap-3">
               <div>
@@ -632,6 +636,7 @@ export default function WorkforceDashboardPage() {
           <DialogHeader>
             <DialogTitle>Record Retention Check-In</DialogTitle>
           </DialogHeader>
+          <ConsentDisclosure compact purpose="Record an employment retention check-in." fields={[{ name: "Employment status and follow-up details", why: "To document retention outcomes and identify needed support.", required: true }]} sharing="Retention information is available to authorized workforce program staff." withdrawal="Contact program staff to request correction or removal where permitted." />
           <div className="space-y-4" data-testid="form-retention">
             <div>
               <label className="text-xs font-medium text-muted-foreground">Placement</label>

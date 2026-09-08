@@ -11,6 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EvidenceSummary } from "@/components/evidence-label";
 import {
   Download,
   Printer,
@@ -184,6 +185,12 @@ export default function FunderDashboardPage() {
             </Button>
           </div>
         </div>
+
+        <EvidenceSummary claims={[{
+          value: metrics.enrolled, unit: "enrolled referrals", source: "TCAF Outcome Measurement System",
+          sourceId: "tcaf-outcomes", asOfDate: null, geographyKey: null, confidence: "verified",
+          decisionCaption: "Use verified outcome records to assess the reach of funded programs.",
+        }]} />
 
         {/* ── Date-range filter — hidden in print ───────────────────────── */}
         <Card className="mb-6 print:hidden border-blue-100 dark:border-blue-900">

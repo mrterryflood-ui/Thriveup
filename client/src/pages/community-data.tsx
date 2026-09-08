@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 import { Search, MapPin, TrendingUp, ExternalLink, Loader2, Globe } from "lucide-react";
 import {
   ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, CartesianGrid,
@@ -158,6 +160,13 @@ export default function CommunityDataPage() {
             </div>
           </CardHeader>
           <CardContent>
+            {trend.data && (
+              <EvidenceSummary claims={[{
+                value: trend.data.trend[trend.data.trend.length - 1]?.overallHomeless ?? null, unit: "people", source: "U.S. Census Bureau ACS 5-Year 2022",
+                sourceId: "census-acs5-2022", asOfDate: "2022-12-31", geographyKey: trend.data.cocNumber, confidence: "estimated",
+                decisionCaption: "Use local estimates alongside the published Point-in-Time trend to understand community conditions.",
+              }]} />
+            )}
             {trend.isLoading && <div className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /> Loading trend…</div>}
             {trend.isError && <Alert variant="destructive"><AlertDescription>{(trend.error as Error).message}</AlertDescription></Alert>}
             {trend.data && (
@@ -207,6 +216,7 @@ export default function CommunityDataPage() {
           </form>
           {research.isError && <Alert variant="destructive"><AlertDescription>{research.error.message}</AlertDescription></Alert>}
           {research.data && (
+            <>
             <div className="space-y-2" data-testid="text-research-answer">
               <p className="text-sm whitespace-pre-wrap">{research.data.answer}</p>
               {research.data.citations.length > 0 && (
@@ -220,6 +230,13 @@ export default function CommunityDataPage() {
                 </div>
               )}
             </div>
+            <AIAugmentationDisclosure
+              compact
+              drewFrom={research.data.citations}
+              doesNotKnow={["information not included in the cited sources", "individual circumstances"]}
+              verifyWith="The original cited source and local service providers"
+            />
+            </>
           )}
         </CardContent>
       </Card>

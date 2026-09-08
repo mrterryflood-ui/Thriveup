@@ -8262,3 +8262,158 @@ export type EastAustinReadinessSource = typeof eastAustinReadinessSources.$infer
 export type EastAustinReadinessTabletop = typeof eastAustinReadinessTabletops.$inferSelect;
 
 export type OrganizationEventWorkspaceAccessAudit = typeof organizationEventWorkspaceAccessAudit.$inferSelect;
+
+// ============================================================================
+// DIS ALIGNMENT FOUNDATION — added 2026-09-07
+// Source registry, consent toggles, community intelligence submissions
+// ============================================================================
+
+/**
+ * data_sources — canonical registry of all data sources used by the platform.
+ * Every Claim<T> must reference a registered source ID.
+ * DIS Alignment Condition 1.
+ */
+export const dataSources = pgTable("data_sources", {
+  id: varchar("id", { length: 100 }).primaryKey(),
+  name: varchar("name", { length: 200 }).notNull(),
+  owner: varchar("owner", { length: 200 }).notNull(),
+  collectionMethod: varchar("collection_method", { length: 300 }).notNull(),
+  evidenceClass: varchar("evidence_class", { length: 50 }).notNull(),
+  geographyLevel: varchar("geography_level", { length: 100 }).notNull(),
+  timePeriod: varchar("time_period", { length: 100 }).notNull(),
+  refreshCadence: varchar("refresh_cadence", { length: 100 }).notNull(),
+  coverage: text("coverage").notNull(),
+  knownLimitations: text("known_limitations"),
+  suppressionRules: text("suppression_rules"),
+  primarySourceUrl: text("primary_source_url"),
+  citationFormat: text("citation_format"),
+  steward: varchar("steward", { length: 200 }),
+  registeredAt: timestamp("registered_at").notNull().defaultNow(),
+  lastReviewedAt: timestamp("last_reviewed_at").notNull().defaultNow(),
+  isActive: boolean("is_active").notNull().default(true),
+}, (t) => [
+  index("data_sources_evidence_class_idx").on(t.evidenceClass),
+  index("data_sources_steward_idx").on(t.steward),
+]);
+
+export type DataSource = typeof dataSources.$inferSelect;
+export type InsertDataSource = typeof dataSources.$inferInsert;
+
+/**
+ * consent_toggles — per-user, per-scope consent state.
+ * All eight scopes default OFF — explicit consent required before inclusion.
+ * DIS Alignment Condition 2.
+ */
+export const consentToggles = pgTable("consent_toggles", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  userId: varchar("user_id", { length: 255 }).notNull(),
+  scope: varchar("scope", { length: 60 }).notNull(),
+  enabled: boolean("enabled").notNull().default(false),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [
+  uniqueIndex("consent_toggles_user_scope_uq").on(t.userId, t.scope),
+  index("consent_toggles_user_idx").on(t.userId),
+]);
+
+export type ConsentToggle = typeof consentToggles.$inferSelect;
+export type InsertConsentToggle = typeof consentToggles.$inferInsert;
+
+/**
+ * community_intelligence_submissions — ITI-consented community observations.
+ * The Ground Truth pillar of the Three Realities framework.
+ * DIS Alignment Condition 2 + community co-investigation.
+ */
+export const communityIntelligenceSubmissions = pgTable("community_intelligence_submissions", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  submittedByUserId: varchar("submitted_by_user_id", { length: 255 }).notNull(),
+  geographyKey: varchar("geography_key", { length: 20 }).notNull(), // ZIP or county FIPS
+  topic: varchar("topic", { length: 100 }).notNull(),
+  // observation types: condition | correction | resource | program | absence
+  observationType: varchar("observation_type", { length: 50 }).notNull(),
+  title: varchar("title", { length: 200 }).notNull(),
+  body: text("body").notNull(),
+  // FIPS or ZIP of the geography described
+  specificGeography: varchar("specific_geography", { length: 20 }),
+  // The claim this submission corrects or extends (if a correction)
+  correctsClaimSourceId: varchar("corrects_claim_source_id", { length: 100 }),
+  // Staff review
+  reviewStatus: varchar("review_status", { length: 30 }).notNull().default("pending"),
+  reviewedByUserId: varchar("reviewed_by_user_id", { length: 255 }),
+  reviewedAt: timestamp("reviewed_at"),
+  reviewNote: text("review_note"),
+  // Applied to the platform record?
+  appliedAt: timestamp("applied_at"),
+  // Suppression (floor-5 — never reveal individual identity)
+  suppressed: boolean("suppressed").notNull().default(false),
+  suppressionReason: varchar("suppression_reason", { length: 200 }),
+  submittedAt: timestamp("submitted_at").notNull().defaultNow(),
+}, (t) => [
+  index("community_intel_geography_idx").on(t.geographyKey),
+  index("community_intel_topic_idx").on(t.topic),
+  index("community_intel_status_idx").on(t.reviewStatus),
+  index("community_intel_submitted_idx").on(t.submittedAt),
+]);
+
+export type CommunityIntelligenceSubmission = typeof communityIntelligenceSubmissions.$inferSelect;
+export type InsertCommunityIntelligenceSubmission = typeof communityIntelligenceSubmissions.$inferInsert;
+
+/**
+ * three_realities_assessments — per-geography Three Realities diagnostic.
+ * Research Reality + Political Reality + Ground Truth = gap diagnosis.
+ */
+export const threeRealitiesAssessments = pgTable("three_realities_assessments", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  geographyKey: varchar("geography_key", { length: 20 }).notNull(),
+  product: varchar("product", { length: 30 }).notNull(), // rural | hbcu | data | general
+  // Research Reality
+  researchSummary: text("research_summary").notNull(),
+  rpliceSourceIds: jsonb("rplice_source_ids").$type<string[]>().notNull().default([]),
+  researchKeyFindings: jsonb("research_key_findings").$type<string[]>().notNull().default([]),
+  // Political Reality
+  activePolicySummary: text("active_policy_summary"),
+  funderAlignment: text("funder_alignment"),
+  programCapacityNote: text("program_capacity_note"),
+  // Ground Truth
+  communitySubmissionCount: integer("community_submission_count").notNull().default(0),
+  chwObservationCount: integer("chw_observation_count").notNull().default(0),
+  groundTruthSummary: text("ground_truth_summary"),
+  // Gap diagnosis
+  primaryGap: text("primary_gap").notNull(),
+  cfirBarrierDomain: varchar("cfir_barrier_domain", { length: 100 }),
+  ericStrategyRecommendation: text("eric_strategy_recommendation"),
+  adaptiveFidelityNote: text("adaptive_fidelity_note"),
+  assessedAt: timestamp("assessed_at").notNull().defaultNow(),
+  assessedByUserId: varchar("assessed_by_user_id", { length: 255 }),
+  nextReviewDue: timestamp("next_review_due"),
+}, (t) => [
+  index("three_realities_geography_product_idx").on(t.geographyKey, t.product),
+  index("three_realities_assessed_idx").on(t.assessedAt),
+]);
+
+export type ThreeRealitiesAssessment = typeof threeRealitiesAssessments.$inferSelect;
+export type InsertThreeRealitiesAssessment = typeof threeRealitiesAssessments.$inferInsert;
+
+/**
+ * learning_deposits — structured record of what each MAP-GAP cycle taught.
+ * The platform's scientific contribution to its own continuous improvement.
+ */
+export const learningDeposits = pgTable("learning_deposits", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  geographyKey: varchar("geography_key", { length: 20 }),
+  product: varchar("product", { length: 30 }).notNull(),
+  whatWeClaimed: text("what_we_claimed").notNull(),
+  howWeChecked: text("how_we_checked").notNull(),
+  outcome: varchar("outcome", { length: 30 }).notNull(), // confirmed | overturned | partially-overturned
+  classOfFinding: varchar("class_of_finding", { length: 60 }).notNull(),
+  whatChangesNext: text("what_changes_next").notNull(),
+  whoIsResponsible: varchar("who_is_responsible", { length: 200 }).notNull(),
+  whenItWillBeUpdated: timestamp("when_it_will_be_updated"),
+  depositedAt: timestamp("deposited_at").notNull().defaultNow(),
+  depositedByUserId: varchar("deposited_by_user_id", { length: 255 }),
+}, (t) => [
+  index("learning_deposits_product_idx").on(t.product),
+  index("learning_deposits_deposited_idx").on(t.depositedAt),
+]);
+
+export type LearningDeposit = typeof learningDeposits.$inferSelect;
+export type InsertLearningDeposit = typeof learningDeposits.$inferInsert;

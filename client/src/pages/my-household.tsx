@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/use-auth";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 import { Link } from "wouter";
 import {
   Users, Plus, ArrowRight, Heart, Shield, Baby, User,
@@ -95,6 +96,16 @@ function AddMemberDialog({ householdId, onSuccess }: { householdId: string; onSu
       </DialogTrigger>
       <DialogContent className="max-w-sm">
         <DialogHeader><DialogTitle>Add household member</DialogTitle></DialogHeader>
+          <ConsentDisclosure
+            compact
+            purpose="Add a person to your household so you can organize services and benefits."
+            fields={[
+              { name: "Name and relationship", why: "Identifies the household member and their connection to you.", required: true },
+              { name: "Date of birth and notes", why: "Optional details can help tailor service suggestions.", sensitive: true },
+            ]}
+            sharing="Your household information is private to you and is not shared without your explicit consent."
+            withdrawal="You can remove a household member and their optional details at any time."
+          />
         <Form {...form}>
           <form onSubmit={form.handleSubmit(d => mutation.mutate(d))} className="space-y-3">
             <div className="grid grid-cols-2 gap-3">

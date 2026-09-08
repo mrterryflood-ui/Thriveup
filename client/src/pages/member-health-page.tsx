@@ -34,6 +34,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { useToast } from "@/hooks/use-toast";
 import {
   HeartPulse, Users, ClipboardList, Bell, BookOpen,
@@ -146,6 +147,18 @@ function OverviewTab({ planOrgId }: { planOrgId: string }) {
         <KpiCard icon={Send} label="Campaigns Sent" value={data.campaigns?.sent ?? 0} color="green" />
         <KpiCard icon={Activity} label="Avg Response Rate" value={`${data.campaigns?.avgResponseRate ?? 0}%`} color="purple" />
       </div>
+      <EvidenceSummary
+        claims={[{
+          value: data.members?.total ?? 0,
+          unit: "members",
+          source: "TCAF Platform Administrative Records",
+          sourceId: "platform-program-enrollment",
+          asOfDate: null,
+          geographyKey: planOrgId || null,
+          confidence: "verified",
+          decisionCaption: "Use these administrative metrics to coordinate outreach and care-gap follow-up.",
+        }]}
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Top care gaps */}

@@ -29,6 +29,8 @@ import BiasDetective from "@/components/activities/bias-detective";
 import AiOrHuman from "@/components/activities/ai-or-human";
 import LessonComments from "@/components/lesson-comments";
 import { SparkAuto } from "@/components/SparkAuto";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { AIAugmentationDisclosure } from "@/components/ai-augmentation-disclosure";
 
 function parseActivityData(lesson: Lesson) {
   if (!lesson.activityData || !lesson.activityType) return null;
@@ -217,6 +219,7 @@ export default function LessonViewerPage() {
           })}
         </div>
       </Card>
+      <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Curriculum Library", sourceId: "tcaf-curriculum", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Lesson content is drawn from the TCAF Curriculum Library." }]} />
 
       {hasActivity && <ActivityRenderer lesson={lesson} />}
 
@@ -227,6 +230,7 @@ export default function LessonViewerPage() {
           lessonContent={lesson.content}
         />
       </div>
+      <AIAugmentationDisclosure compact drewFrom={["The lesson title and content in the TCAF Curriculum Library"]} doesNotKnow={["Your personal circumstances or learning needs unless you share them", "Whether an answer is appropriate for every context"]} verifyWith="Check important information with your instructor or a trusted source." decisionBelongsTo="You and your educator decide how to use the learning support." />
 
       <div className="mt-6">
         <LessonComments lessonId={lessonId} />

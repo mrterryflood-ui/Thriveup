@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 
 const RISK_QUESTIONS = [
   { id: "priorFelonies", label: "Has the participant had 2 or more prior felony convictions?" },
@@ -106,6 +108,18 @@ export default function ReentryIntakeEnhanced() {
             </div>
           ))}
         </div>
+        <ConsentDisclosure
+          className="mb-6"
+          purpose="Create a reentry participant profile and identify service needs for case-management follow-up."
+          fields={[
+            { name: "Name, date of birth, ZIP code, and dependents", why: "Creates and matches the participant profile.", required: true },
+            { name: "Criminal history and supervision history", why: "Supports the risk and needs screen.", sensitive: true },
+            { name: "Housing status and immediate needs", why: "Identifies stabilization services.", sensitive: true },
+            { name: "Substance use and mental health needs", why: "Identifies appropriate health and recovery referrals.", sensitive: true },
+          ]}
+          sharing="Authorized TCAF reentry case-management staff and service coordinators supporting this participant."
+          withdrawal="Ask a case manager to review, correct, or withdraw information where permitted."
+        />
 
         {step === "profile" && (
           <div className="bg-white rounded-xl border border-slate-200 p-7">
@@ -378,6 +392,18 @@ export default function ReentryIntakeEnhanced() {
               <br />
               Participant ID: <strong>{results.profile?.id}</strong>
             </div>
+            <EvidenceSummary
+              claims={[{
+                value: results.riskScreen?.score ?? null,
+                unit: "risk-screen score",
+                source: "TCAF Reentry Case Management System",
+                sourceId: "tcaf-reentry-cms",
+                asOfDate: null,
+                geographyKey: null,
+                confidence: "verified",
+                decisionCaption: "This screen supports triage and must be reviewed by a case manager; it is not a clinical or sentencing decision.",
+              }]}
+            />
 
             <button
               onClick={() => {

@@ -15,6 +15,7 @@ import {
   BarChart3, Bell, Archive, XCircle, Send, Sparkles, Mail, RefreshCw
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 interface ThisWeekResponse {
   windowDays: number;
@@ -3041,6 +3042,12 @@ export default function GrantCommandCenterPage() {
       </div>
 
       <PipelineStats grants={grants} />
+
+      <EvidenceSummary claims={[{
+        value: grants.length, unit: "tracked grants", source: "SAM.gov Federal Awards + BidNet/RFPMart",
+        sourceId: "sam-gov-awards", asOfDate: null, geographyKey: null, confidence: "verified",
+        decisionCaption: "Use verified opportunity records to manage the grants pipeline and upcoming deadlines.",
+      }]} />
 
       <Tabs defaultValue="this-week" className="space-y-4">
         <TabsList>

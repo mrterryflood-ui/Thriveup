@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { DFCCrossNav } from "@/components/dfc-cross-nav";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { EvidenceSummary } from "@/components/evidence-label";
 import type { PreventionModule, PreventionProgress as PreventionProgressType, RiskAssessment, YouthSurvey } from "@shared/schema";
 
 interface DashboardData {
@@ -865,6 +866,18 @@ export default function PreventionPage() {
           </div>
         </TabsContent>
       </Tabs>
+      <EvidenceSummary
+        claims={[{
+          value: dashboard?.totalSurveyResponses ?? null,
+          unit: "youth survey responses",
+          source: "YHSI Platform Records (floor-5 suppressed)",
+          sourceId: "yhsi-records",
+          asOfDate: null,
+          geographyKey: null,
+          confidence: "verified",
+          decisionCaption: "Youth data are floor-5 suppressed; use aggregate trends to improve prevention programming, not to identify participants.",
+        }]}
+      />
       <DFCCrossNav currentPage="prevention" />
     </div>
   );

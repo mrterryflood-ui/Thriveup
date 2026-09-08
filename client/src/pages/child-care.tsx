@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { EvidenceSummary } from "@/components/evidence-label";
 import {
   Baby, AlertTriangle, TrendingUp, MapPin, Users, BarChart3, Globe2,
   ArrowRight, Building2, GraduationCap, Briefcase, ChevronRight,
@@ -134,6 +135,18 @@ export default function ChildCarePage() {
         <p className="text-xs text-muted-foreground mt-2">
           Sources: TWC CCS participation data (2024); WSNT RFP2026-004 (Apr 2026); PN3 statewide analysis; City of San Antonio Early Learning Landscape Study (2024).
         </p>
+        <EvidenceSummary
+          claims={[{
+            value: "36,000+",
+            unit: "children on the statewide waitlist",
+            source: "HHSC CCL (TX) + Census CBP 2022 NAICS 6244",
+            sourceId: "hhsc-ccl-childcare",
+            asOfDate: "2022",
+            geographyKey: "Texas",
+            confidence: "verified",
+            decisionCaption: "Use these childcare supply signals to identify regions requiring further capacity review.",
+          }]}
+        />
       </div>
 
       {/* Statewide Context */}

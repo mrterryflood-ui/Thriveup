@@ -6,7 +6,7 @@
  */
 import type { Express, Request, Response, NextFunction } from "express";
 import { db } from "./storage";
-import { benefitsPartners, gisResourceOverlays, gunViolenceIncidents } from "@shared/schema";
+import { benefitsPartners, gisResourceOverlays, gunViolenceIncidents, communityIntelligenceSubmissions } from "@shared/schema";
 import { eq, sql, and, gte, lte, ilike, or } from "drizzle-orm";
 import { fetchZctaData, zipToGeography } from "./neighborhood-routes";
 import { generateAIJSON } from "./ai-provider";
@@ -461,6 +461,33 @@ What CFIR factors differ? What fidelity elements are at risk? How should the imp
 
 // ── Route registration ────────────────────────────────────────────────────────
 export function registerCommunityIntelligenceRoutes(app: Express) {
+  app.post("/api/community-intelligence", limitCommunityAnalysis, async (req, res) => {
+    const { geographyKey, category, observation } = req.body ?? {};
+    if (!/^\d{5}$/.test(String(geographyKey ?? ""))) {
+      return res.status(400).json({ error: "A valid 5-digit ZIP code is required." });
+    }
+    if (!["housing", "health", "education", "employment", "safety", "other"].includes(category)) {
+      return res.status(400).json({ error: "A valid observation category is required." });
+    }
+    if (typeof observation !== "string" || observation.trim().length === 0 || observation.length > 2000) {
+      return res.status(400).json({ error: "Observation must be between 1 and 2,000 characters." });
+    }
+    try {
+      const [submission] = await db.insert(communityIntelligenceSubmissions).values({
+        submittedByUserId: "anonymous-public-submission",
+        geographyKey: String(geographyKey),
+        topic: category,
+        observationType: "condition",
+        title: `${category} observation`,
+        body: observation.trim(),
+        specificGeography: String(geographyKey),
+      }).returning({ id: communityIntelligenceSubmissions.id });
+      return res.status(201).json({ id: submission.id, status: "pending" });
+    } catch (err) {
+      console.error("[community-intelligence] observation submission error:", err);
+      return res.status(500).json({ error: "Unable to submit observation." });
+    }
+  });
   app.post("/api/community-intelligence/interventions", limitCommunityAnalysis, handleInterventions);
   app.post("/api/community-intelligence/analyze", limitCommunityAnalysis, async (req, res) => {
     try {

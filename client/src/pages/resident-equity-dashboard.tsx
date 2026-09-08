@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 interface ActionItem {
   program: string;
@@ -293,6 +294,18 @@ export default function ResidentEquityDashboard() {
             </CardContent>
           </Card>
         )}
+        <EvidenceSummary
+          claims={[{
+            value: county?.population ?? null,
+            unit: "people",
+            source: "CDC PLACES + U.S. Census Bureau ACS 5-Year 2022",
+            sourceId: "cdc-places",
+            asOfDate: "2022-01-01",
+            geographyKey: county?.countyFips ?? null,
+            confidence: "estimated",
+            decisionCaption: "County estimates show where to focus outreach; they do not determine an individual's eligibility.",
+          }]}
+        />
       </div>
     </div>
   );

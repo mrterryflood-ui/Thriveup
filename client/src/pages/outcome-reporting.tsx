@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { TrainingGuideButton } from "@/components/training-guide";
+import { EvidenceSummary } from "@/components/evidence-label";
+import { ConsentDisclosure } from "@/components/consent-disclosure";
 import {
   BarChart3, Plus, Download, FileText, Target, Users,
   Briefcase, GraduationCap, Home, Heart, Shield, TrendingUp, CheckCircle2, Filter, Loader2,
@@ -241,10 +243,26 @@ export default function OutcomeReportingPage() {
               </div>
             </div>
           </Card>
+          <EvidenceSummary claims={[{
+            value: dashboard.totalOutcomes, unit: "outcome measurements", source: "TCAF Outcome Measurement System",
+            sourceId: "tcaf-outcomes", asOfDate: null, geographyKey: null, confidence: "verified",
+            decisionCaption: "Use verified outcome records to monitor program performance and reporting.",
+          }]} />
         </>
       )}
 
       {showForm && (
+        <>
+        <ConsentDisclosure
+          compact
+          purpose="Record a participant outcome measurement for program reporting."
+          fields={[
+            { name: "Participant ID", why: "Links the measurement to the correct participant record.", required: true, sensitive: true },
+            { name: "Outcome measurement and source", why: "Documents the reported result and its supporting source.", required: true },
+          ]}
+          sharing="Outcome data is used for authorized program measurement and reporting."
+          withdrawal="Contact your program administrator to correct or withdraw a submitted record when permitted."
+        />
         <Card className="p-6 space-y-4" data-testid="card-outcome-form">
           <h2 className="font-semibold text-lg">Record Outcome Measurement</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -282,6 +300,7 @@ export default function OutcomeReportingPage() {
             <Button variant="outline" onClick={() => setShowForm(false)} aria-label="Cancel" data-testid="button-cancel-outcome">Cancel</Button>
           </div>
         </Card>
+        </>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

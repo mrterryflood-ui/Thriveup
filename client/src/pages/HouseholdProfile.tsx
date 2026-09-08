@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRoute } from "wouter";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 const DOMAIN_COLORS: Record<string, string> = {
   housing: "#f87171",
@@ -151,6 +152,18 @@ export default function HouseholdProfilePage() {
                 </div>
               ))}
             </div>
+            <EvidenceSummary
+              claims={[{
+                value: aggregates.activeMembers,
+                unit: "active household members",
+                source: "TCAF Platform Administrative Records",
+                sourceId: "platform-program-enrollment",
+                asOfDate: null,
+                geographyKey: household.countyFips || null,
+                confidence: "verified",
+                decisionCaption: "Use household records to coordinate services with the household's consent.",
+              }]}
+            />
             {aggregates.highestBurdenDomains.length > 0 && (
               <div style={{ background: "rgba(251,146,60,0.06)", border: "1px solid rgba(251,146,60,0.15)", borderRadius: 12, padding: "20px 24px" }}>
                 <div style={{ fontSize: 13, fontWeight: 600, color: "#fb923c", marginBottom: 12 }}>Priority barriers for this household</div>

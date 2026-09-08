@@ -32,6 +32,7 @@ import {
   Lightbulb,
 } from "lucide-react";
 import { Link } from "wouter";
+import { EvidenceSummary } from "@/components/evidence-label";
 
 interface ModuleData {
   id: string;
@@ -201,6 +202,7 @@ export default function WorkforceReadinessPage() {
             </Card>
           ))}
         </div>
+        <EvidenceSummary claims={[{ value: null, unit: "", source: "TCAF Curriculum Library", sourceId: "tcaf-curriculum", asOfDate: null, geographyKey: null, confidence: "verified", decisionCaption: "Workforce readiness curriculum counts and content are drawn from the TCAF Curriculum Library." }]} />
 
         {/* Key Features */}
         <div className="grid md:grid-cols-3 gap-4">

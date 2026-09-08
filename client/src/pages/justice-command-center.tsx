@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import SectionTutorial from "@/components/section-tutorial";
 import { IntegrationInvitation } from "@/components/integration-invitation";
+import { EvidenceSummary } from "@/components/evidence-label";
 import { SECTION_TUTORIALS } from "@/lib/tutorial-content";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -3497,6 +3498,19 @@ export default function JusticeCommandCenter() {
         {activeTab === "ecosystem-builder" && <EcosystemBuilder />}
         {activeTab === "generational" && <GenerationalAI />}
         {activeTab === "data-story" && <DataStoryteller />}
+        <EvidenceSummary
+          claims={[{
+            value: null,
+            unit: "justice-system indicators",
+            source: "TCAF Reentry Case Management System",
+            sourceId: "tcaf-reentry-cms",
+            asOfDate: null,
+            geographyKey: null,
+            confidence: "verified",
+            decisionCaption: "Use sensitive justice indicators to guide authorized planning and service coordination, not to make decisions about an individual without review.",
+          }]}
+          className="mt-5"
+        />
       </div>
     </div>
   );
