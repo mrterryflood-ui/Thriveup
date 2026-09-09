@@ -47,6 +47,7 @@ description: Architecture and status of the Chainweb Evidence API for external p
 **Status endpoint:** `GET /api/civic-signal/status` reports all four states accurately.
 **Current state:** Inbound configured; outbound awaiting v1 credential issuance by Civic Signal admin.
 **Operational note:** If both read credentials are configured but the read probe returns HTTP 403 with `Partner operation is disabled.`, the credentials are present but Civic Signal's production Partner Exchange direction/operation is disabled; enable it in Civic Signal admin rather than rotating keys.
+**Lesson test evidence:** The authoritative disabled-state check is the signed Partner Exchange lesson pair: `POST /api/partner-exchange/v1/thriveup-lessons/query` with the read credential and `POST /api/partner-exchange/v1/thriveup-lessons` with the write credential. While disabled, both should return HTTP 403 `Partner operation is disabled.`; RAG endpoint 401s are unrelated.
 
 ### Community Story tab (/chainweb page)
 - Tab 4 (between Results and Coefficient Library)
