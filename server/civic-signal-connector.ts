@@ -14,7 +14,8 @@
  *   PUSH: POST https://power2thepeople.net/api/partner-exchange/v1/thriveup-lessons
  *   PULL: POST https://power2thepeople.net/api/partner-exchange/v1/thriveup-lessons/query
  *   Auth: Six signed headers — see buildV1OutboundRequest()
- *   Required env vars: CIVIC_SIGNAL_PARTNER_TOKEN, CIVIC_SIGNAL_PARTNER_KEY_ID
+ *   Required write env vars: CIVIC_SIGNAL_PARTNER_TOKEN, CIVIC_SIGNAL_PARTNER_KEY_ID
+ *   Required read env vars: CIVIC_SIGNAL_PARTNER_READ_TOKEN, CIVIC_SIGNAL_PARTNER_READ_KEY_ID
  *   POWER2PEOPLE_ISSUED_KEY: RETIRED — old key-only routes return 410; do not use.
  * ----------------------------------------------------------------------------
  */

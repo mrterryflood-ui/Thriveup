@@ -35,7 +35,8 @@ description: Architecture and status of the Chainweb Evidence API for external p
 **Outbound (ThriveUp → Civic Signal) — Partner Exchange v1:**
 - `POWER2PEOPLE_ISSUED_KEY` is permanently retired; old routes return 410
 - Requires new credential issued by Civic Signal admin via `POST /api/partner-exchange/v1/admin/credentials`
-- Two secrets needed: `CIVIC_SIGNAL_PARTNER_TOKEN` (bearer) and `CIVIC_SIGNAL_PARTNER_KEY_ID`
+- Write secrets: `CIVIC_SIGNAL_PARTNER_TOKEN` (bearer) and `CIVIC_SIGNAL_PARTNER_KEY_ID`
+- Read secrets are separate because Civic Signal does not allow read and write scopes on one credential: `CIVIC_SIGNAL_PARTNER_READ_TOKEN` and `CIVIC_SIGNAL_PARTNER_READ_KEY_ID`
 - Six signed headers: Authorization Bearer, X-Civic-Key-Id, X-Civic-Timestamp, X-Civic-Nonce, X-Civic-Partner-Origin, X-Civic-Signature
 - Body must include `contractVersion: "1.0"` and be stable-key-sorted before HMAC signing
 - HMAC: SHA-256 over `timestamp\nnonce\norigin\nMETHOD\npath\nbody-sha256-hex`, secret = bearer token
