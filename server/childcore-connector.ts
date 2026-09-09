@@ -5,8 +5,8 @@
  * Docs:      https://childcore.app/docs/partner-api
  * Service:   ChildCORE Partner API v1.0.0
  *
- * Authentication: Authorization: Bearer <THRIVEUP_PARTNER_KEY>
- * The THRIVEUP_PARTNER_KEY secret is the credential ChildCORE issued to ThriveUp.
+ * Authentication: Authorization: Bearer <CHILDCORE_API_KEY>
+ * CHILDCORE_API_KEY is the credential ChildCORE issued to ThriveUp.
  * /ping is the only unauthenticated endpoint.
  *
  * Data flows:
@@ -28,7 +28,7 @@ const CHILDCORE_BASE = "https://useful-viper-536.convex.site/api/v1";
 const TIMEOUT_MS = 8000;
 
 function getApiKey(): string {
-  return (process.env.THRIVEUP_PARTNER_KEY || "").trim();
+  return (process.env.CHILDCORE_API_KEY || "").trim();
 }
 
 export function isChildCOREConfigured(): boolean {
@@ -234,7 +234,7 @@ export async function pushToChildCORE(
   payload: ChildCOREPushPayload
 ): Promise<{ ok: boolean; response?: any; error?: string }> {
   if (!isChildCOREConfigured()) {
-    return { ok: false, error: "THRIVEUP_PARTNER_KEY not configured" };
+    return { ok: false, error: "CHILDCORE_API_KEY not configured" };
   }
   const fullPayload = {
     source: "thriveup",

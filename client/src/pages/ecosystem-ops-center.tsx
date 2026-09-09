@@ -1567,6 +1567,14 @@ function PartnerApiTab() {
     onError: () => toast({ title: "Error", description: "Failed to create key.", variant: "destructive" }),
   });
 
+  const prepareChildCOREKey = () => {
+    setNewPartnerName("ChildCORE");
+    setNewPartnerEmail("");
+    setNewNotes("THRIVEUP_API_KEY for ChildCORE bidirectional community intelligence");
+    setSelectedScopes(["community:read", "impact:read", "inbound:write"]);
+    setShowCreate(true);
+  };
+
   const revokeMutation = useMutation({
     mutationFn: async (id: string) => {
       const res = await apiRequest("PATCH", `/api/admin/partner-keys/${id}/revoke`, {});
@@ -1672,6 +1680,24 @@ function PartnerApiTab() {
           <Zap className="h-4 w-4 mr-1" /> New Partner Key
         </Button>
       </div>
+
+      <Card className="border-blue-200 bg-blue-50/60 dark:border-blue-900 dark:bg-blue-950/20" data-testid="card-childcore-key-setup">
+        <CardContent className="p-4 flex flex-col sm:flex-row sm:items-center gap-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <Link2 className="h-4 w-4 text-blue-600" />
+              <h3 className="font-semibold text-sm">ChildCORE bidirectional connection</h3>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              Generate the scoped ThriveUp key that ChildCORE stores as <code className="font-mono">THRIVEUP_API_KEY</code>.
+              The generated <code className="font-mono">tcaf_...</code> value is shown once and can be revoked here.
+            </p>
+          </div>
+          <Button variant="outline" onClick={prepareChildCOREKey} data-testid="button-setup-childcore-key">
+            <Zap className="h-4 w-4 mr-1" /> Generate ChildCORE Key
+          </Button>
+        </CardContent>
+      </Card>
 
       {revealedKey && (
         <Card className="border-emerald-400 bg-emerald-50 dark:bg-emerald-950/20" data-testid="card-revealed-key">

@@ -8,7 +8,7 @@ ChildCORE Partner API v1.0 — live at `https://useful-viper-536.convex.site/api
 Docs: https://childcore.app/docs/partner-api
 
 ## Authentication
-`Authorization: Bearer <THRIVEUP_PARTNER_KEY>` — key already in secrets.
+`Authorization: Bearer <CHILDCORE_API_KEY>` — this is the key ChildCORE issues to ThriveUp and it belongs in this site's Replit Secrets.
 `/ping` is the only unauthenticated endpoint.
 
 ## Endpoints
@@ -20,7 +20,7 @@ Docs: https://childcore.app/docs/partner-api
 - `POST /push` — push ThriveUp events to ChildCORE
 
 ## Integration points
-- `server/childcore-connector.ts` — connector (fetch helpers, community data pull, AI context builder, push function, status probe)
+- `server/childcore-connector.ts` — connector (fetch helpers, community data pull, AI context builder, push function, status probe); outbound auth reads `CHILDCORE_API_KEY`
 - `server/childcore-routes.ts` — Express routes registered at `/api/childcore/*`; GET routes require ThriveUp session auth; push requires admin role
 - `server/routes.ts` — routes registered via dynamic import after `/api/civic-signal`
 - `server/rplice-intelligence.ts` — `getChildCORECommunityData(zip)` added as 4th parallel call in `buildCommunityAIContextWithStatus`; `buildChildCOREContextBlock()` appended to community AI context; `CommunityAIContextResult.sources.childcore` field added
@@ -33,5 +33,5 @@ Docs: https://childcore.app/docs/partner-api
 Partner-reported. AI context label: "Source: ChildCORE Partner API (live, partner-reported)."
 Never represented as independently verified.
 
-**Why:** Dr. Flood connected ChildCORE at https://useful-viper-536.convex.site/api/v1/; THRIVEUP_PARTNER_KEY was already in secrets for this purpose.
-**How to apply:** Any new community-intelligence surface that pulls ChildCORE data should call `getChildCORECommunityData(zip)` and use `buildChildCOREContextBlock(data)` to produce the AI context block. Ping is unauthenticated and safe to call from the frontend.
+**Why:** Dr. Flood connected ChildCORE at https://useful-viper-536.convex.site/api/v1/ and requires separate credentials for outbound ChildCORE access versus inbound ThriveUp access.
+**How to apply:** Any new community-intelligence surface that pulls ChildCORE data should call `getChildCORECommunityData(zip)` and use `buildChildCOREContextBlock(data)` to produce the AI context block. Ping is unauthenticated and safe to call from the frontend. ChildCORE's inbound credential is created separately in Settings → Partner API and given to ChildCORE as its `THRIVEUP_API_KEY`.
