@@ -4,17 +4,22 @@
  * ThriveUp ↔ Civic Signal bidirectional data exchange.
  *
  * INBOUND (Civic Signal → ThriveUp):
- *   POST /api/chainweb/webhook/civic-signal
- *   Auth: x-ecosystem-key (validated against ecosystem_platforms DB registry)
+ *   Auth: x-ecosystem-key: <THRIVEUP_ISSUED_KEY>  ← ThriveUp-issued key Civic Signal holds
+ *   Probe: GET https://thrivingcommunitiesforall.com/api/chainweb/programs?topic=health&limit=1
+ *   Lesson push: POST https://thrivingcommunitiesforall.com/api/chainweb/webhook/civic-signal
+ *   RAG context: GET https://thrivingcommunitiesforall.com/api/chainweb/rag-context?...
+ *   (all three require x-ecosystem-key; chainweb-routes.ts validates against THRIVEUP_ISSUED_KEY)
  *
- * OUTBOUND (ThriveUp → Civic Signal):
+ * OUTBOUND (ThriveUp → Civic Signal) — Partner Exchange v1:
  *   PUSH: POST https://power2thepeople.net/api/partner-exchange/v1/thriveup-lessons
  *   PULL: POST https://power2thepeople.net/api/partner-exchange/v1/thriveup-lessons/query
- *   Auth: x-civic-signal-key: process.env.POWER2PEOPLE_ISSUED_KEY
+ *   Auth: Six signed headers — see buildV1OutboundRequest()
+ *   Required env vars: CIVIC_SIGNAL_PARTNER_TOKEN, CIVIC_SIGNAL_PARTNER_KEY_ID
+ *   POWER2PEOPLE_ISSUED_KEY: RETIRED — old key-only routes return 410; do not use.
  * ----------------------------------------------------------------------------
  */
 
-import { createHash, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
 import { count, desc, eq } from "drizzle-orm";
 import { civicSignalLessons } from "@shared/schema";
 import { db } from "./storage";
@@ -181,23 +186,140 @@ async function persistVerifiedLesson(fields: VerifiedLessonFields): Promise<{ le
   return { lesson, inserted: false };
 }
 
-function outboundHeaders(): Record<string, string> {
-  const raw = process.env.POWER2PEOPLE_ISSUED_KEY;
-  if (!raw) throw new Error("POWER2PEOPLE_ISSUED_KEY secret not set");
-  // Defensive: HTTP header values must be ISO-8859-1/ASCII-range. Secret
-  // managers/copy-paste flows can silently append stray non-ASCII
-  // characters (e.g. a trailing em dash, U+2014) which fetch() rejects with
-  // an opaque "Cannot convert argument to a ByteString" error that looks
-  // like a network failure, not a value-formatting one. Strip anything
-  // outside the printable ASCII range rather than fail confusingly.
-  const key = raw.trim();
-  if (!key || /[^\x20-\x7E]/.test(key)) {
-    throw new Error("POWER2PEOPLE_ISSUED_KEY secret contains invalid HTTP-header characters");
+// ── Partner Exchange v1 outbound signing ──────────────────────────────────
+// Every ThriveUp → Civic Signal request requires six headers. The HMAC signs
+// a newline-delimited canonical string so Civic Signal can verify that the
+// timestamp, nonce, method, path, and body hash were not tampered with in transit.
+//
+// ── Partner Exchange v1 env vars ─────────────────────────────────────────
+// CIVIC_SIGNAL_PARTNER_TOKEN   — Bearer token issued by Civic Signal admin
+// CIVIC_SIGNAL_PARTNER_KEY_ID  — Key ID (keyId from credential response)
+// CIVIC_SIGNAL_PARTNER_ORIGIN  — Override if origin ever changes (optional)
+//
+// Both are issued once via:
+//   POST /api/partner-exchange/v1/admin/credentials  (Clerk-authed Civic Signal admin)
+// The token is shown exactly once in the 201 response and must be stored immediately
+// in Replit Secrets. Civic Signal retains only its SHA-256 hash; losing it requires rotation.
+// POWER2PEOPLE_ISSUED_KEY is retired — do not use it; those routes return 410.
+
+const CIVIC_PARTNER_ORIGIN =
+  process.env.CIVIC_SIGNAL_PARTNER_ORIGIN?.trim() || "https://thrivingcommunitiesforall.com";
+
+/**
+ * Recursively sort object keys before JSON-serialising so the body hash is
+ * stable regardless of insertion order. Primitive values and arrays are
+ * passed through unchanged. Arrays preserve their element order.
+ * Civic Signal partner-exchange v1 requires this before HMAC-signing.
+ */
+function stableSortedJson(value: unknown): string {
+  if (value === null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) {
+    return "[" + value.map(stableSortedJson).join(",") + "]";
   }
+  const obj = value as Record<string, unknown>;
+  const pairs = Object.keys(obj)
+    .sort()
+    .map((k) => JSON.stringify(k) + ":" + stableSortedJson(obj[k]));
+  return "{" + pairs.join(",") + "}";
+}
+
+/**
+ * Build the six signed headers required by Civic Signal partner-exchange v1.
+ * @param method   Uppercase HTTP method (POST, GET, …)
+ * @param urlPath  Path portion of the URL only — no query string
+ * @param payload  Parsed JS object that will be sent as the request body.
+ *                 This function serialises it with stable key sorting and
+ *                 returns the serialised string alongside the headers so the
+ *                 caller can use it as the fetch body without re-serialising.
+ */
+function buildV1OutboundRequest(
+  method: string,
+  urlPath: string,
+  payload: Record<string, unknown>,
+): { headers: Record<string, string>; body: string } {
+  // Accept the canonical names OR the legacy name so we work with whatever
+  // secret names are already in Replit Secrets. Priority order:
+  //   CIVIC_SIGNAL_PARTNER_TOKEN  > POWER2PEOPLE_ISSUED_KEY  (bearer token)
+  //   CIVIC_SIGNAL_PARTNER_KEY_ID > CIVIC_SIGNAL_ECOSYSTEM_KEY (key id)
+  const bearerRaw = process.env.CIVIC_SIGNAL_PARTNER_TOKEN
+    || process.env.POWER2PEOPLE_ISSUED_KEY;
+  const keyIdRaw  = process.env.CIVIC_SIGNAL_PARTNER_KEY_ID
+    || process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY;
+
+  if (!bearerRaw || !keyIdRaw) {
+    throw new Error(
+      "Civic Signal v1 outbound credentials not found. Set CIVIC_SIGNAL_PARTNER_TOKEN " +
+      "(bearer token) and CIVIC_SIGNAL_PARTNER_KEY_ID (key ID) in Replit Secrets. " +
+      "Fallbacks: POWER2PEOPLE_ISSUED_KEY for bearer, CIVIC_SIGNAL_ECOSYSTEM_KEY for key ID.",
+    );
+  }
+
+  // Header values must be printable ASCII; catch copy-paste encoding issues early.
+  const bearer = bearerRaw.trim();
+  const keyId  = keyIdRaw.trim();
+  if (!bearer || /[^\x20-\x7E]/.test(bearer)) {
+    throw new Error("CIVIC_SIGNAL_PARTNER_TOKEN contains non-printable or non-ASCII characters");
+  }
+  if (!keyId || /[^\x20-\x7E]/.test(keyId)) {
+    throw new Error("CIVIC_SIGNAL_PARTNER_KEY_ID contains non-printable or non-ASCII characters");
+  }
+
+  // Stable-sorted body — required by Civic Signal for deterministic HMAC verification.
+  const body      = stableSortedJson(payload);
+  const bodyHash  = createHash("sha256").update(body).digest("hex");
+  const timestamp = new Date().toISOString();
+  const nonce     = randomUUID();   // Must be new per request.
+
+  // Canonical string: timestamp \n nonce \n origin \n METHOD \n path \n body-sha256-hex
+  const canonical = [timestamp, nonce, CIVIC_PARTNER_ORIGIN, method.toUpperCase(), urlPath, bodyHash].join("\n");
+  const signature = createHmac("sha256", bearer).update(canonical).digest("hex");
+
   return {
-    "Content-Type": "application/json",
-    "x-civic-signal-key": key,
+    body,
+    headers: {
+      "Content-Type":           "application/json",
+      "Accept":                 "application/json",
+      "Authorization":          `Bearer ${bearer}`,
+      "X-Civic-Key-Id":         keyId,
+      "X-Civic-Timestamp":      timestamp,
+      "X-Civic-Nonce":          nonce,
+      "X-Civic-Partner-Origin": CIVIC_PARTNER_ORIGIN,
+      "X-Civic-Signature":      signature,
+    },
   };
+}
+
+/** True when both the bearer token and key ID can be resolved from any configured secret name. */
+function hasV1Credentials(): boolean {
+  const bearer = process.env.CIVIC_SIGNAL_PARTNER_TOKEN || process.env.POWER2PEOPLE_ISSUED_KEY;
+  const keyId  = process.env.CIVIC_SIGNAL_PARTNER_KEY_ID || process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY;
+  return Boolean(bearer?.trim() && keyId?.trim());
+}
+
+/**
+ * Assert a Civic Signal partner-exchange v1 success response.
+ * Success requires HTTP 201, contractVersion "1.0", status "accepted", and a trace ID.
+ * Throws a descriptive error on any deviation so failures are never silently swallowed.
+ */
+async function assertV1Success(response: Response, context: string): Promise<Record<string, unknown>> {
+  const text = await response.text().catch(() => "");
+  if (response.status !== 201) {
+    throw new Error(`${context}: expected HTTP 201, got ${response.status}. Body: ${text.slice(0, 300)}`);
+  }
+  let parsed: Record<string, unknown>;
+  try { parsed = JSON.parse(text); } catch {
+    throw new Error(`${context}: HTTP 201 but response is not valid JSON. Body: ${text.slice(0, 300)}`);
+  }
+  if (parsed["contractVersion"] !== "1.0") {
+    throw new Error(`${context}: missing or wrong contractVersion (got ${parsed["contractVersion"]}); expected "1.0"`);
+  }
+  if (parsed["status"] !== "accepted") {
+    throw new Error(`${context}: expected status "accepted", got "${parsed["status"]}"`);
+  }
+  if (!parsed["traceId"] && !parsed["trace_id"]) {
+    throw new Error(`${context}: missing trace ID in response; cannot record durable receipt`);
+  }
+  return parsed;
 }
 
 // ── INBOUND: Receive a lesson pushed FROM Civic Signal ────────────────────
@@ -295,7 +417,7 @@ export async function getCivicSignalRAGContextAsync(opts?: {
   pullLive?: boolean;
 }): Promise<string> {
   let availability = "durable verified lessons";
-  if (opts?.pullLive && process.env.POWER2PEOPLE_ISSUED_KEY) {
+  if (opts?.pullLive && hasV1Credentials()) {
     const pulled = await fetchCivicSignalAdaptations({
       topic: opts.topic || "general",
       state: opts.state,
@@ -347,28 +469,27 @@ export async function pushChainwebToCivicSignal(payload: {
   counterfactualCost: number;
   keyStatements: Array<{ claim: string; citation: string }>;
 }): Promise<{ pushed: boolean; message: string }> {
+  if (!hasV1Credentials()) {
+    return { pushed: false, message: "Outbound Civic Signal v1 credentials not configured (CIVIC_SIGNAL_PARTNER_TOKEN / CIVIC_SIGNAL_PARTNER_KEY_ID)" };
+  }
   try {
+    const pushPath = new URL(CIVIC_SIGNAL_PUSH_URL).pathname;
+    const { headers, body } = buildV1OutboundRequest("POST", pushPath, {
+      contractVersion: "1.0",
+      source: "thriveup_chainweb",
+      sourceVersion: "1.0.0",
+      ...payload,
+      sentAt: new Date().toISOString(),
+    });
     const response = await fetch(CIVIC_SIGNAL_PUSH_URL, {
       method: "POST",
-      headers: outboundHeaders(),
-      body: JSON.stringify({
-        source: "thriveup_chainweb",
-        sourceVersion: "1.0.0",
-        ...payload,
-        sentAt: new Date().toISOString(),
-      }),
+      headers,
+      body,
       signal: AbortSignal.timeout(15_000),
     });
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      throw new Error(`HTTP ${response.status}: ${text}`);
-    }
-
-    const result = await response.json().catch(() => ({}));
-    console.log("[CivicSignal] Push succeeded:", result);
+    const result = await assertV1Success(response, "pushChainwebToCivicSignal");
+    console.log("[CivicSignal] Chainweb push accepted:", result["traceId"] ?? result["trace_id"]);
     return { pushed: true, message: "ROI scenario pushed to Civic Signal adaptation engine" };
-
   } catch (err: any) {
     console.error("[CivicSignal] Push failed:", err.message);
     return { pushed: false, message: `Push failed: ${err.message}` };
@@ -376,10 +497,8 @@ export async function pushChainwebToCivicSignal(payload: {
 }
 
 // ── OUTBOUND: Push an Equity-Loss Engine result TO Civic Signal ───────────
-// Reuses the same ingest endpoint/schema convention as the Chainweb ROI
-// push (Civic Signal ingests "evidence events" generically) — this is a
-// distinct function, not a call-through, so the equity-loss payload shape
-// can evolve independently of the ROI scenario shape.
+// Distinct function from pushChainwebToCivicSignal so the equity-loss payload
+// shape can evolve independently of the ROI scenario shape.
 export async function pushEquityLossToCivicSignal(payload: {
   countyFips: string;
   countyName: string;
@@ -391,27 +510,27 @@ export async function pushEquityLossToCivicSignal(payload: {
   tier: string;
   assumptionText: string | null;
 }): Promise<{ pushed: boolean; message: string }> {
+  if (!hasV1Credentials()) {
+    return { pushed: false, message: "Outbound Civic Signal v1 credentials not configured (CIVIC_SIGNAL_PARTNER_TOKEN / CIVIC_SIGNAL_PARTNER_KEY_ID)" };
+  }
   try {
+    const pushPath = new URL(CIVIC_SIGNAL_PUSH_URL).pathname;
+    const { headers, body } = buildV1OutboundRequest("POST", pushPath, {
+      contractVersion: "1.0",
+      source: "thriveup_equity_loss_engine",
+      sourceVersion: "0.1.0",
+      eventType: "equity_loss_result",
+      ...payload,
+      sentAt: new Date().toISOString(),
+    });
     const response = await fetch(CIVIC_SIGNAL_PUSH_URL, {
       method: "POST",
-      headers: outboundHeaders(),
-      body: JSON.stringify({
-        source: "thriveup_equity_loss_engine",
-        sourceVersion: "0.1.0",
-        eventType: "equity_loss_result",
-        ...payload,
-        sentAt: new Date().toISOString(),
-      }),
+      headers,
+      body,
       signal: AbortSignal.timeout(15_000),
     });
-
-    if (!response.ok) {
-      const text = await response.text().catch(() => "");
-      throw new Error(`HTTP ${response.status}: ${text}`);
-    }
-
-    const result = await response.json().catch(() => ({}));
-    console.log("[CivicSignal] Equity-loss push succeeded:", result);
+    const result = await assertV1Success(response, "pushEquityLossToCivicSignal");
+    console.log("[CivicSignal] Equity-loss push accepted:", result["traceId"] ?? result["trace_id"]);
     return { pushed: true, message: "Equity-loss result pushed to Civic Signal" };
   } catch (err: any) {
     console.error("[CivicSignal] Equity-loss push failed:", err.message);
@@ -423,37 +542,53 @@ export async function pushEquityLossToCivicSignal(payload: {
 export async function checkCivicSignalConnection(): Promise<{
   outboundReachable: boolean;
   outboundDetail: string;
+  outboundCredentialsConfigured: boolean;
   inboundLessonsStored: number;
   inboundAuthenticationConfigured: boolean;
 }> {
   let outboundReachable = false;
   let outboundDetail = "not checked";
-  try {
-    const response = await fetch(CIVIC_SIGNAL_PULL_URL, {
-      method: "POST",
-      headers: outboundHeaders(),
-      body: JSON.stringify({ topic: "_connection_probe" }),
-      signal: AbortSignal.timeout(8_000),
-    });
-    if (response.ok) {
-      outboundReachable = true;
-      outboundDetail = "reachable and authenticated";
-    } else if (response.status === 401 || response.status === 403) {
-      outboundDetail = `PARTNER_AUTHORIZATION_FAILED (HTTP ${response.status}) on partner-exchange v1`;
-    } else {
-      outboundDetail = `PARTNER_ENDPOINT_ERROR (HTTP ${response.status}) on partner-exchange v1`;
+  const outboundCredentialsConfigured = hasV1Credentials();
+
+  if (!outboundCredentialsConfigured) {
+    outboundDetail = "CIVIC_SIGNAL_PARTNER_TOKEN and CIVIC_SIGNAL_PARTNER_KEY_ID not yet configured — have a Civic Signal admin issue credentials via POST /api/partner-exchange/v1/admin/credentials, then enable the production inbound direction via PATCH /api/partner-exchange/v1/admin/directions";
+  } else {
+    try {
+      const pullPath = new URL(CIVIC_SIGNAL_PULL_URL).pathname;
+      const { headers, body } = buildV1OutboundRequest("POST", pullPath, {
+        contractVersion: "1.0",
+        topic: "_connection_probe",
+      });
+      const response = await fetch(CIVIC_SIGNAL_PULL_URL, {
+        method: "POST",
+        headers,
+        body,
+        signal: AbortSignal.timeout(8_000),
+      });
+      if (response.ok) {
+        outboundReachable = true;
+        outboundDetail = "reachable and authenticated (partner-exchange v1)";
+      } else if (response.status === 401 || response.status === 403) {
+        outboundDetail = `PARTNER_AUTHORIZATION_FAILED (HTTP ${response.status}) — verify CIVIC_SIGNAL_PARTNER_TOKEN and CIVIC_SIGNAL_PARTNER_KEY_ID match the issued credential and that the production direction is enabled`;
+      } else if (response.status === 410) {
+        outboundDetail = "RETIRED_ENDPOINT (HTTP 410) — partner-exchange v1 path is correct; check base URL configuration";
+      } else {
+        outboundDetail = `PARTNER_ENDPOINT_ERROR (HTTP ${response.status}) on partner-exchange v1`;
+      }
+    } catch (err: any) {
+      outboundDetail = err.message;
     }
-  } catch (err: any) {
-    outboundDetail = err.message;
   }
+
   const [storedCount] = await db.select({ value: count() }).from(civicSignalLessons);
   return {
     outboundReachable,
     outboundDetail,
+    outboundCredentialsConfigured,
     inboundLessonsStored: Number(storedCount?.value ?? 0),
-    inboundAuthenticationConfigured: Boolean(
-      process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY || process.env.THRIVEUP_ISSUED_KEY,
-    ),
+    // Inbound: Civic Signal calls ThriveUp using THRIVEUP_ISSUED_KEY in x-ecosystem-key.
+    // chainweb-routes.ts already validates that key — this confirms it is configured.
+    inboundAuthenticationConfigured: Boolean(process.env.THRIVEUP_ISSUED_KEY?.trim()),
   };
 }
 
@@ -483,14 +618,18 @@ export async function fetchCivicSignalAdaptations(opts: {
 
   const promise = (async () => {
     try {
+      if (!hasV1Credentials()) throw new Error("v1 credentials not configured");
+      const pullPath = new URL(CIVIC_SIGNAL_PULL_URL).pathname;
+      const { headers, body: pullBody } = buildV1OutboundRequest("POST", pullPath, {
+        contractVersion: "1.0",
+        topic: opts.topic,
+        ...(opts.state ? { state: opts.state.toUpperCase() } : {}),
+        limit: 25,
+      });
       const response = await fetch(CIVIC_SIGNAL_PULL_URL, {
         method: "POST",
-        headers: outboundHeaders(),
-        body: JSON.stringify({
-          topic: opts.topic,
-          ...(opts.state ? { state: opts.state.toUpperCase() } : {}),
-          limit: 25,
-        }),
+        headers,
+        body: pullBody,
         signal: AbortSignal.timeout(5_000),
       });
 

@@ -1,0 +1,107 @@
+Your signing implementation is the correct direction, with one important boundary:
+
+## Fix 1: ThriveUp → Civic Signal
+
+Update ThriveUp’s `outboundHeaders()` to generate the Partner Exchange v1 headers. Remove `POWER2PEOPLE_ISSUED_KEY` from this path.
+
+The ThriveUp secret slots should hold:
+
+```text
+CIVIC_SIGNAL_PARTNER_TOKEN
+CIVIC_SIGNAL_PARTNER_KEY_ID
+CIVIC_SIGNAL_PARTNER_ORIGIN=https://thrivingcommunitiesforall.com
+```
+
+The exact environment-variable names inside ThriveUp are your choice; the HTTP contract requires:
+
+```http
+Authorization: Bearer <token>
+X-Civic-Key-Id: <key-id>
+X-Civic-Timestamp: <current ISO-8601 UTC timestamp>
+X-Civic-Nonce: <new UUID>
+X-Civic-Partner-Origin: https://thrivingcommunitiesforall.com
+X-Civic-Signature: <lowercase HMAC-SHA256 hex>
+Content-Type: application/json
+```
+
+Use the bearer token as the HMAC secret. Sign the exact request body after stable recursive key sorting. Do not reuse a nonce.
+
+## Fix 2: Credential issuance
+
+The key ID and token do not already exist as retrievable configuration values. An authorized Civic Signal administrator must issue them through:
+
+```http
+POST /api/partner-exchange/v1/admin/credentials
+```
+
+Using an authenticated Clerk admin session and this configuration:
+
+```json
+{
+  "partnerId": "thriveup_chainweb",
+  "displayName": "ThriveUp production lesson ingestion",
+  "scopes": ["thriveup-lessons:write"],
+  "allowedOrigins": ["https://thrivingcommunitiesforall.com"],
+  "allowedSourceHosts": ["thrivingcommunitiesforall.com"],
+  "environment": "production",
+  "rateLimitPerMinute": 30,
+  "expiresAt": null
+}
+```
+
+The `201` response contains:
+
+```json
+{
+  "credential": {
+    "id": "...",
+    "keyId": "cshx_...",
+    "tokenPrefix": "...",
+    "scopes": ["thriveup-lessons:write"],
+    "environment": "production"
+  },
+  "token": "<shown exactly once>"
+}
+```
+
+The administrator must transfer `credential.keyId` and `token` directly into ThriveUp’s secret manager. The token must not be pasted into chat, logs, source code, or screenshots. Civic Signal retains only its SHA-256 hash, so the token cannot be retrieved later; losing it requires rotation.
+
+## Required activation step
+
+Issuing the credential does **not** enable traffic. The new capability begins disabled with unknown readiness states. After readiness evidence is recorded, the administrator must enable the production inbound direction using:
+
+```http
+PATCH /api/partner-exchange/v1/admin/directions
+```
+
+The resulting state must include:
+
+```json
+{
+  "partnerId": "thriveup_chainweb",
+  "direction": "inbound",
+  "environment": "production",
+  "enabled": true,
+  "writeEnabled": true,
+  "configurationStatus": "approved",
+  "consentStatus": "approved",
+  "serviceHealthStatus": "healthy",
+  "reason": "Approved ThriveUp production lesson ingestion after readiness verification."
+}
+```
+
+Then run the signed request against:
+
+```http
+POST https://power2thepeople.net/api/partner-exchange/v1/thriveup-lessons
+```
+
+Success is not merely HTTP `2xx`; require:
+
+- HTTP `201`
+- `contractVersion: "1.0"`
+- `status: "accepted"`
+- a trace ID
+- a corresponding durable Civic Signal receipt
+
+If ThriveUp also needs to query lessons, issue a **separate** credential with `thriveup-lessons:read`; read and write credentials cannot be combined because they belong to different directions.

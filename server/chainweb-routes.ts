@@ -457,9 +457,16 @@ export function registerChainwebRoutes(app: Express) {
     }
   });
 
-  // ── RAG context endpoint (internal use) ───────────────────────────────────
-  // Internal-only: require an authenticated first-party session.
-  app.get("/api/chainweb/rag-context", cwRequireAuth, async (req: Request, res: Response) => {
+  // ── RAG context endpoint ───────────────────────────────────────────────────
+  // Accepts either a first-party authenticated session OR a valid ecosystem key
+  // (e.g. Civic Signal calling with x-ecosystem-key: <THRIVEUP_ISSUED_KEY>).
+  async function cwRequireAuthOrEcosystemKey(req: Request, res: Response, next: NextFunction) {
+    // First-party session takes priority.
+    if (cwGetUserId(req)) return next();
+    // Fall through to ecosystem-key check.
+    return cwExternalAuth(req, res, next);
+  }
+  app.get("/api/chainweb/rag-context", cwRequireAuthOrEcosystemKey, async (req: Request, res: Response) => {
     try {
       const { grantType, geography, domain } = req.query as Record<string, string>;
       const context = await getChainwebRAGContext(grantType, geography, domain);

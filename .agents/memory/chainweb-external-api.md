@@ -23,13 +23,28 @@ description: Architecture and status of the Chainweb Evidence API for external p
 - `EVIDENCE_PROGRAMS`: 10 programs — NFP, Perry Preschool, Housing First, RNR/CBI, BBBS, MST, Dads Care 2, Benefits Navigation, CHW Model, TF-CBT
 - `JURISDICTION_DATA`: 10 records — TX (6), CA, IL, US failed policies (mandatory minimums, DARE)
 
-### Civic Signal bidirectional connector
-- Each direction has its own authentication and lifecycle. Never infer that a failure in one direction invalidates the other direction's credential.
-- Civic Signal’s administrator attested that its earlier ThriveUp read failure was caused by its client selecting the wrong local secret variable, not by an invalid ThriveUp-issued credential. After its correction, its authenticated read probe returned HTTP 200.
-- The active Civic Signal-to-ThriveUp inbound credential is the registered Civic Signal ecosystem credential; ThriveUp's malformed-payload probe reached validation (HTTP 400), proving authentication passed without storing test data.
-- Civic Signal’s remote-write watchdog remains intentionally contained until its administrator-recovery process is recorded and a truthful, bounded lesson can be exchanged with an acceptance receipt. Do not fabricate a lesson or bypass that audit to make a status display green.
-- ThriveUp-to-Civic Signal health must be measured separately by its own live pull/push receipt. Do not tell either operator to rotate or re-register credentials from a one-direction 401 alone.
-- Civic Signal retired the key-only `/api/thriveup/*` routes in favor of `POST /api/partner-exchange/v1/thriveup-lessons[/query]`. The replacement currently rejects ThriveUp with partner authorization failure, so keep durable fallback explicit and do not claim the live leg is connected.
+### Civic Signal bidirectional connector — updated credential contract
+
+**Inbound (Civic Signal → ThriveUp):**
+- Civic Signal uses `THRIVEUP_ISSUED_KEY` in `x-ecosystem-key` header
+- `chainweb-routes.ts` already validates this — inbound auth is configured and working
+- Civic Signal probes: `GET /api/chainweb/programs?topic=health&limit=1`
+- Civic Signal pushes lessons to: `POST /api/chainweb/webhook/civic-signal`
+- Civic Signal fetches RAG context from: `GET /api/chainweb/rag-context` (now accepts ecosystem key)
+
+**Outbound (ThriveUp → Civic Signal) — Partner Exchange v1:**
+- `POWER2PEOPLE_ISSUED_KEY` is permanently retired; old routes return 410
+- Requires new credential issued by Civic Signal admin via `POST /api/partner-exchange/v1/admin/credentials`
+- Two secrets needed: `CIVIC_SIGNAL_PARTNER_TOKEN` (bearer) and `CIVIC_SIGNAL_PARTNER_KEY_ID`
+- Six signed headers: Authorization Bearer, X-Civic-Key-Id, X-Civic-Timestamp, X-Civic-Nonce, X-Civic-Partner-Origin, X-Civic-Signature
+- Body must include `contractVersion: "1.0"` and be stable-key-sorted before HMAC signing
+- HMAC: SHA-256 over `timestamp\nnonce\norigin\nMETHOD\npath\nbody-sha256-hex`, secret = bearer token
+- After credential issuance, Civic Signal admin must enable production direction via `PATCH /api/partner-exchange/v1/admin/directions`
+- Success requires HTTP 201 + `contractVersion: "1.0"` + `status: "accepted"` + trace ID
+- Read (`thriveup-lessons:read`) and write (`thriveup-lessons:write`) require separate credentials
+
+**Status endpoint:** `GET /api/civic-signal/status` reports all four states accurately.
+**Current state:** Inbound configured; outbound awaiting v1 credential issuance by Civic Signal admin.
 
 ### Community Story tab (/chainweb page)
 - Tab 4 (between Results and Coefficient Library)
