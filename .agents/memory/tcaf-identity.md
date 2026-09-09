@@ -20,6 +20,13 @@ The public entry model is bidirectional and non-siloed: help people find relevan
 
 **How to apply:** Keep the public front doors connected to one shared context, consent, referral, evidence, and implementation backbone. Never imply that a sector-specific entry point represents a sector-specific silo.
 
+## Public Brand Architecture
+The universal homepage presents TCAF and ThriveUp equally. TCAF is the nonprofit, human implementation capacity, and community-serving institution; ThriveUp is the integrated platform and software infrastructure. ThriveUp Academy remains the education, youth, and workforce workspace within the broader platform rather than serving as the universal brand.
+
+**Why:** The whole system includes constituent navigation, organizational coordination, health, community, justice, government, funder, evidence, and implementation functions that are broader than Academy, while neither TCAF nor ThriveUp should appear subordinate on the shared front door.
+
+**How to apply:** Use a co-branded TCAF + ThriveUp identity on the universal homepage. Keep Academy branding on education/workforce pathways and avoid labeling the universal footer or root experience solely as ThriveUp Academy.
+
 ## IGN — Initial Guidance and Navigation
 Psychology term. TCAF helps people and organizations get to their destination in a safe, efficient manner at their own pace and level of readiness and comfort — using planning and metrics to guide them, redirecting if they go off course, using data and evidence-based interventions.
 

@@ -5,6 +5,7 @@
 - [Chainweb External API](chainweb-external-api.md) — Civic Signal authentication is directional; verify each leg with safe validation and a truthful receipt, never rotate keys on a one-way failure.
 - [TCAF Core Identity & IGN](tcaf-identity.md) — IGN=Initial Guidance & Navigation; multi-disciplinary lenses; 4-stakeholder model; full cycle not just needs assessment; bake into every surface.
 - [Free platform + funded implementation](tcaf-identity.md) — free cross-sector software and integrated front doors; TCAF human coordination/fidelity work is optional and separately funded.
+- [TCAF + ThriveUp brand architecture](tcaf-identity.md) — universal homepage is co-branded equally; ThriveUp Academy remains the education/youth/workforce workspace.
 - [Canonical public-facing stats](canonical-stats.md) — no grant numbers ever; 15 service platforms externally; 107 languages; 4 AI engines; 50 states = architecture not deployment.
 - [Visual Circuit Canvas](visual-circuit-canvas.md) — SVG schematic editor; shouldShowCanvas() gates display; ENGINES_WITH_CANVAS still gates completion; onInteract fires onRun for concept-only.
 - [AI Curriculum Interactive Activities](ai-curriculum-activities.md) — 5 new activity types; migration pattern via seed-ai-activity-migration.ts; lesson-lab endpoint open (no auth); activityData JSONB drives all content.
