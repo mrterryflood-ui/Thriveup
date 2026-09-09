@@ -196,6 +196,7 @@ export function registerPartnerApiRoutes(app: Express) {
         partnerEmail: string;
         scopes: string[];
         notes: string;
+        requireTcafPrefix?: boolean;
       }> = [
         {
           envVar: "THRIVEUP_PARTNER_KEY",
@@ -203,12 +204,24 @@ export function registerPartnerApiRoutes(app: Express) {
           partnerEmail: "terryflood@thrivingcommunitiesforall.com",
           scopes: ["community:read", "impact:read", "benefits:read", "inbound:write"],
           notes: "Pinned key — auto-provisioned from THRIVEUP_PARTNER_KEY secret",
+          requireTcafPrefix: true,
+        },
+        {
+          // This is the key ChildCORE sends when calling ThriveUp inbound.
+          // ThriveUp issues this key (or accepts whatever ChildCORE generates)
+          // and stores it here so ChildCORE can authenticate against the Partner API.
+          envVar: "THRIVEUP_API_KEY",
+          partnerName: "ChildCORE",
+          partnerEmail: "terryflood@thrivingcommunitiesforall.com",
+          scopes: ["community:read", "impact:read", "inbound:write"],
+          notes: "ChildCORE bidirectional key — auto-provisioned from THRIVEUP_API_KEY secret",
+          requireTcafPrefix: false,
         },
       ];
 
       for (const pin of PINNED) {
         const plaintext = process.env[pin.envVar];
-        if (!plaintext || !plaintext.startsWith("tcaf_")) continue;
+        if (!plaintext || (pin.requireTcafPrefix && !plaintext.startsWith("tcaf_"))) continue;
 
         const hash = hashKey(plaintext);
         const existing = await db.select({ id: partnerApiKeys.id })
