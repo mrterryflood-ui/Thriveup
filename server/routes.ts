@@ -6786,6 +6786,14 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
   app.use("/api/equity", equityRouter);
   app.use("/api/equity-loss", equityLossRouter);
   app.use("/api/civic-signal", civicSignalRouter);
+
+  // ── ChildCORE Partner API ────────────────────────────────────────────────────
+  {
+    const { registerChildCORERoutes } = await import("./childcore-routes");
+    const childcoreRouter = (await import("express")).Router();
+    registerChildCORERoutes(childcoreRouter);
+    app.use("/api", childcoreRouter);
+  }
   app.use("/api", scorecardRouter);
   app.use("/api/chw", chwRouter);
   app.use("/api/referrals", referralRouter);

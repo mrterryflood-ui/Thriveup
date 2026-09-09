@@ -1577,6 +1577,7 @@ export function registerGrantPathProRoutes(app: Express) {
             census: clean.zip ? "failed" : "not_requested",
             rplice: "failed",
             civicSignal: "failed",
+            childcore: clean.zip ? "failed" : "not_requested",
           },
         }), 25_000)),
       ]);

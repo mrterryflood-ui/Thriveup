@@ -1594,6 +1594,147 @@ function PricingTiersSection() {
   );
 }
 
+// ─── Live Partner Intelligence Network ───────────────────────────────────────
+// Shows live connection badges for each data partner. ChildCORE ping is the
+// only one fetched client-side (no auth required). Others are described
+// truthfully from configuration.
+
+const PARTNER_NETWORK = [
+  {
+    id: "childcore",
+    name: "ChildCORE",
+    tagline: "Community providers, schools, SDOH & impact data",
+    description: "Pulls live provider registries, school intelligence, social determinants data, and aggregate community impact by ZIP or geography. Two-way: ThriveUp also pushes community activity back.",
+    docsUrl: "https://childcore.app/docs/partner-api",
+    color: "from-blue-500 to-indigo-600",
+    bg: "bg-blue-50 dark:bg-blue-950/20",
+    border: "border-blue-200 dark:border-blue-800",
+    accent: "text-blue-700 dark:text-blue-400",
+    pingUrl: "/api/childcore/ping",
+    livePing: true,
+  },
+  {
+    id: "civic-signal",
+    name: "Civic Signal",
+    tagline: "Real-time implementation lessons across communities",
+    description: "Bidirectional exchange of community implementation lessons. ThriveUp pushes curriculum and practice lessons; Civic Signal returns partner intelligence on what's working in comparable communities.",
+    docsUrl: "https://power2thepeople.net",
+    color: "from-violet-500 to-purple-600",
+    bg: "bg-violet-50 dark:bg-violet-950/20",
+    border: "border-violet-200 dark:border-violet-800",
+    accent: "text-violet-700 dark:text-violet-400",
+    livePing: false,
+    configured: true,
+  },
+  {
+    id: "rplice",
+    name: "RPLICE · bettersciencelab.com",
+    tagline: "Implementation science frameworks, research & grant intelligence",
+    description: "49 curated implementation science studies, CFIR 2.0 / RE-AIM / EPIS / PRISM frameworks, grant-alignment scoring, and real-time community analysis. Powers the Navigator's evidence layer.",
+    docsUrl: "https://www.bettersciencelab.com",
+    color: "from-emerald-500 to-teal-600",
+    bg: "bg-emerald-50 dark:bg-emerald-950/20",
+    border: "border-emerald-200 dark:border-emerald-800",
+    accent: "text-emerald-700 dark:text-emerald-400",
+    livePing: false,
+    configured: true,
+  },
+  {
+    id: "census",
+    name: "U.S. Census ACS",
+    tagline: "Population, income, poverty, SNAP, health coverage by ZIP",
+    description: "Live ACS 5-year estimates for every ZIP code in the country — income, poverty, unemployment, SNAP, uninsured, education attainment, and Social Vulnerability Index. Informs every community intelligence request.",
+    docsUrl: "https://www.census.gov/data/developers/data-sets/acs-5year.html",
+    color: "from-amber-500 to-orange-600",
+    bg: "bg-amber-50 dark:bg-amber-950/20",
+    border: "border-amber-200 dark:border-amber-800",
+    accent: "text-amber-700 dark:text-amber-400",
+    livePing: false,
+    configured: true,
+  },
+];
+
+function PartnerNetworkSection() {
+  const [childcoreStatus, setChildcoreStatus] = useState<"checking" | "live" | "unavailable">("checking");
+
+  useEffect(() => {
+    fetch("/api/childcore/ping")
+      .then(r => r.json())
+      .then(d => setChildcoreStatus(d?.ok ? "live" : "unavailable"))
+      .catch(() => setChildcoreStatus("unavailable"));
+  }, []);
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6 bg-card border-y" data-testid="section-partner-network">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-8">
+          <Badge variant="secondary" className="mb-3">
+            <Plug className="mr-1 h-3 w-3" /> Live Data Partners
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-partner-network-heading">
+            Community intelligence from live, connected sources.
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Every community intelligence request draws from multiple live data partners simultaneously — Census, implementation science, community lessons, and local provider registries — and keeps the source class visible so the AI never blurs observed data with modeled inference.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {PARTNER_NETWORK.map((partner) => {
+            const status = partner.id === "childcore"
+              ? childcoreStatus
+              : partner.configured ? "live" : "unavailable";
+
+            return (
+              <div
+                key={partner.id}
+                className={`rounded-2xl border p-5 flex flex-col gap-3 ${partner.bg} ${partner.border}`}
+                data-testid={`card-partner-${partner.id}`}
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className={`inline-flex w-9 h-9 rounded-xl items-center justify-center bg-gradient-to-br ${partner.color} shrink-0`}>
+                    <Activity className="h-4 w-4 text-white" aria-hidden="true" />
+                  </div>
+                  {/* Live badge */}
+                  <span className={`inline-flex items-center gap-1.5 text-[11px] font-semibold px-2 py-1 rounded-full shrink-0 ${
+                    status === "live"
+                      ? "bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400"
+                      : status === "checking"
+                      ? "bg-muted text-muted-foreground"
+                      : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
+                  }`}>
+                    <span className={`w-1.5 h-1.5 rounded-full ${status === "live" ? "bg-green-500 animate-pulse" : status === "checking" ? "bg-muted-foreground" : "bg-amber-500"}`} />
+                    {status === "checking" ? "Checking…" : status === "live" ? "Live" : "Configured"}
+                  </span>
+                </div>
+                <div>
+                  <h3 className={`font-bold text-sm mb-0.5 ${partner.accent}`}>{partner.name}</h3>
+                  <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">{partner.tagline}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{partner.description}</p>
+                </div>
+                <a
+                  href={partner.docsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-1 text-[11px] font-semibold mt-auto hover:underline ${partner.accent}`}
+                  data-testid={`link-partner-${partner.id}-docs`}
+                >
+                  <ExternalLink className="h-3 w-3" />
+                  View platform docs
+                </a>
+              </div>
+            );
+          })}
+        </div>
+
+        <p className="text-center text-xs text-muted-foreground mt-6 max-w-lg mx-auto">
+          All partner data is verified on inbound, labeled by evidence class (observed / derived / modeled / partner-reported), and never silently blended with independently verified data. Partners receive only the data they are authorized to pull.
+        </p>
+      </div>
+    </section>
+  );
+}
+
 // ─── Grant Path Pro Integration Panel ────────────────────────────────────────
 function GrantPathProSection() {
   const flow = [
@@ -2435,6 +2576,9 @@ export default function LandingPage() {
 
       {/* Three implementation modes: self-service, guided, TCAF-managed */}
       <ImplementationModes />
+
+      {/* Live partner intelligence network — ChildCORE, Civic Signal, RPLICE, Census */}
+      <PartnerNetworkSection />
 
       <GrantPathProSection />
       <FiveWTeaser />

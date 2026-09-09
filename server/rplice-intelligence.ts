@@ -51,6 +51,7 @@ import { desc, eq } from "drizzle-orm";
 import { generateRpliceHeartbeatIntelligence } from "./ecosystem-rplice-bridge";
 import { fetchZctaData, stateAbbrevFromZip } from "./neighborhood-routes";
 import { getCivicSignalRAGContextAsync } from "./civic-signal-connector";
+import { getChildCORECommunityData, buildChildCOREContextBlock } from "./childcore-connector";
 
 const RPLICE_BASE = "https://www.bettersciencelab.com";
 
@@ -955,6 +956,7 @@ export interface CommunityAIContextResult {
     census: CommunityAIContextSourceStatus;
     rplice: CommunityAIContextSourceStatus;
     civicSignal: CommunityAIContextSourceStatus;
+    childcore: CommunityAIContextSourceStatus;
   };
 }
 
@@ -973,7 +975,8 @@ export async function buildCommunityAIContextWithStatus(params: {
     let rpliceFailed = false;
     let censusFailed = false;
     let civicSignalFailed = false;
-    const [rplicePkg, censusData, civicSignalContext] = await Promise.all([
+    let childcoreFailed = false;
+    const [rplicePkg, censusData, civicSignalContext, childcoreData] = await Promise.all([
       buildRpliceIntelligencePackage({
         crisisDomains,
         regionName: regionName || zip || "community",
@@ -999,6 +1002,11 @@ export async function buildCommunityAIContextWithStatus(params: {
         console.error("[CommunityContext] Civic Signal context failed:", err instanceof Error ? err.message : String(err));
         return "";
       }),
+      zip ? getChildCORECommunityData(zip).catch((err) => {
+        childcoreFailed = true;
+        console.error("[CommunityContext] ChildCORE data unavailable:", err instanceof Error ? err.message : String(err));
+        return null;
+      }) : Promise.resolve(null),
     ]);
 
     const lines: string[] = [];
@@ -1057,12 +1065,18 @@ export async function buildCommunityAIContextWithStatus(params: {
       lines.push("\n" + civicSignalContext);
     }
 
+    // ── ChildCORE partner data (providers, schools, SDOH, impact) ──────────────
+    if (childcoreData) {
+      lines.push("\n" + buildChildCOREContextBlock(childcoreData));
+    }
+
     return {
       content: lines.join("\n"),
       sources: {
         census: zip ? (censusFailed ? "failed" : censusData ? "available" : "empty") : "not_requested",
         rplice: rpliceFailed ? "failed" : rplicePkg ? "available" : "empty",
         civicSignal: civicSignalFailed ? "failed" : civicSignalContext ? "available" : "empty",
+        childcore: zip ? (childcoreFailed ? "failed" : childcoreData ? "available" : "empty") : "not_requested",
       },
     };
   } catch {
@@ -1072,6 +1086,7 @@ export async function buildCommunityAIContextWithStatus(params: {
         census: params.zip ? "failed" : "not_requested",
         rplice: "failed",
         civicSignal: "failed",
+        childcore: params.zip ? "failed" : "not_requested",
       },
     };
   }
