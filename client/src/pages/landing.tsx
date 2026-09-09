@@ -2146,7 +2146,7 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#f59e0b" }} />
               <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#f59e0b" }} />
             </span>
-            The Collaborative Advocate Foundation · Austin, TX → Nationwide
+            TCAF + ThriveUp · Austin, TX → Nationwide
           </div>
 
           {/* Headline */}
@@ -2162,12 +2162,12 @@ export default function LandingPage() {
           {/* Subtitle */}
           <p className="mb-3 px-2" data-testid="text-hero-subtitle"
             style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 580, lineHeight: 1.65 }}>
-             Family pathways are free to try. Built for the people and organizations that help communities move forward.
+             Free for people, organizations, and communities. Built to connect immediate needs to long-term implementation — across health, education, housing, workforce, justice, and community life.
           </p>
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
             style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.65 }}>
-            Start with a guided next step for your family, your work, or your community.{" "}
+            Start with a guided next step — for yourself, your family, your organization, or your community.{" "}
             <Link href="/coverage" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-coverage">
               See where we operate
             </Link>
@@ -2661,10 +2661,10 @@ export default function LandingPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Heart className="h-5 w-5 text-primary" />
-                <span className="font-semibold" data-testid="text-footer-brand">ThriveUp Academy</span>
+                <span className="font-semibold" data-testid="text-footer-brand">TCAF + ThriveUp</span>
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed mb-2" data-testid="text-footer-tagline">
-                Empowering youth, veterans, returning citizens, families, and the organizations that champion them — with AI-powered workforce development and community infrastructure built to deploy in any U.S. county. Texas is our first deployment.
+                Free, integrated community infrastructure for people, organizations, and the communities they serve. TCAF provides the mission, facilitation, and optional implementation workforce. ThriveUp provides the connected platform, tools, data, and coordination backbone — available in any U.S. county.
               </p>
               <p className="text-xs text-muted-foreground/70" data-testid="text-footer-foundation">
                  <span className="font-medium text-foreground">TCAF:</span> EIN 41-3618003 · UEI KDDVD1FGLW35 · CAGE 209N1 · IRS-determined 501(c)(3) · SAM Active<br />
@@ -2706,11 +2706,15 @@ export default function LandingPage() {
           </div>
           <div className="mt-6 pt-4 border-t text-center">
             <div className="flex flex-wrap items-center justify-center gap-4 text-xs text-muted-foreground">
-              <span>TEKS Aligned</span>
+              <span>Free Platform</span>
               <span aria-hidden="true">&middot;</span>
               <span>FERPA Ready</span>
               <span aria-hidden="true">&middot;</span>
+              <span>HIPAA-Aware Design</span>
+              <span aria-hidden="true">&middot;</span>
               <span>SOC 2 Framework</span>
+              <span aria-hidden="true">&middot;</span>
+              <span>50-State Architecture</span>
             </div>
           </div>
         </div>
