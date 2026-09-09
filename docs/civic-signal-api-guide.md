@@ -23,7 +23,11 @@ In addition, ThriveUp accepts **incoming policy lessons** from Civic Signal via 
 
 ## Authentication
 
-All external partner API calls require the `x-ecosystem-key` header:
+The two directions use separate authentication contracts.
+
+### Civic Signal → ThriveUp
+
+ThriveUp's Chainweb partner endpoints require the `x-ecosystem-key` header:
 
 ```
 x-ecosystem-key: tveco_civicsignal_[your-key]
@@ -32,6 +36,15 @@ x-ecosystem-key: tveco_civicsignal_[your-key]
 **To get a key:** Contact terryflood@thrivingcommunitiesforall.com with your platform name, use case, and expected request volume. Keys are issued in the format `tveco_[platformname]_[hash]`.
 
 **Development testing:** During testing, any key beginning with `tveco_` is accepted in the non-production environment.
+
+### ThriveUp → Civic Signal Partner Exchange v1
+
+ThriveUp sends lessons to Civic Signal using a separate production credential for each direction:
+
+- Write: `CIVIC_SIGNAL_PARTNER_TOKEN` and `CIVIC_SIGNAL_PARTNER_KEY_ID`
+- Read: `CIVIC_SIGNAL_PARTNER_READ_TOKEN` and `CIVIC_SIGNAL_PARTNER_READ_KEY_ID`
+
+Each request uses `Authorization: Bearer`, `X-Civic-Key-Id`, `X-Civic-Timestamp`, `X-Civic-Nonce`, `X-Civic-Partner-Origin`, and `X-Civic-Signature`. The signature is HMAC-SHA256 over the timestamp, nonce, exact origin, uppercase method, path, and SHA-256 hash of the recursively stable-sorted JSON body.
 
 ---
 
@@ -320,6 +333,36 @@ Content-Type: application/json
 | `confidence` | string | no | `high`, `moderate`, or `low` |
 | `programIds` | string[] | no | Array of matching program IDs from the evidence catalog |
 | `roiImplication` | string | no | What this lesson means for ROI calculations |
+
+---
+
+### 5. ThriveUp Partner Exchange — Send Lessons
+
+**`POST https://power2thepeople.net/api/partner-exchange/v1/thriveup-lessons`**
+
+The production write operation requires the separately issued `thriveup-lessons:write` credential. A successful request returns HTTP `201`, `contractVersion: "1.0"`, `status: "accepted"`, and a trace ID.
+
+**Accepted request body:**
+
+```json
+{
+  "contractVersion": "1.0",
+  "topic": "housing_navigation",
+  "state": "TX",
+  "lesson": "Public program navigation improved when eligibility steps were stated before referral.",
+  "confidence": "medium",
+  "programIds": ["community_health_worker"],
+  "roiImplication": "No verified ROI claim was supplied.",
+  "source": "thriveup_chainweb",
+  "observedAt": "2026-09-09T19:44:40.000Z"
+}
+```
+
+The outbound body must not include `eventType`, `sourceDate`, `sourceVersion`, `direction`, or `createdAt`. The read credential is separate and cannot be combined with the write credential.
+
+**`POST https://power2thepeople.net/api/partner-exchange/v1/thriveup-lessons/query`**
+
+The production read operation requires `thriveup-lessons:read`. A successful query returns HTTP `200`.
 
 ---
 

@@ -236,6 +236,36 @@ function stableSortedJson(value: unknown): string {
  *                 caller can use it as the fetch body without re-serialising.
  */
 type PartnerExchangeDirection = "write" | "read";
+type OutboundLessonConfidence = "low" | "medium" | "high";
+
+function normalizeOutboundState(value: string | undefined): string {
+  const candidate = value?.trim().toUpperCase() || "";
+  return /^[A-Z]{2}$/.test(candidate) ? candidate : "US";
+}
+
+function buildOutboundLessonPayload(input: {
+  topic: string;
+  state?: string;
+  lesson: string;
+  confidence?: OutboundLessonConfidence;
+  programIds?: string[];
+  roiImplication: string;
+}): Record<string, unknown> {
+  // Civic Signal's accepted Partner Exchange lesson schema is intentionally
+  // narrower than the internal Chainweb/equity-loss result shapes. Do not add
+  // eventType, sourceDate, sourceVersion, direction, createdAt, or sentAt.
+  return {
+    contractVersion: "1.0",
+    topic: input.topic.trim().slice(0, 100) || "general",
+    state: normalizeOutboundState(input.state),
+    lesson: input.lesson.trim().slice(0, 4000),
+    confidence: input.confidence ?? "medium",
+    programIds: input.programIds ?? [],
+    roiImplication: input.roiImplication.trim().slice(0, 500),
+    source: "thriveup_chainweb",
+    observedAt: new Date().toISOString(),
+  };
+}
 
 function buildV1OutboundRequest(
   method: string,
@@ -491,13 +521,20 @@ export async function pushChainwebToCivicSignal(payload: {
   }
   try {
     const pushPath = new URL(CIVIC_SIGNAL_PUSH_URL).pathname;
-    const { headers, body } = buildV1OutboundRequest("POST", pushPath, {
-      contractVersion: "1.0",
-      source: "thriveup_chainweb",
-      sourceVersion: "1.0.0",
-      ...payload,
-      sentAt: new Date().toISOString(),
-    }, "write");
+    const statementText = payload.keyStatements
+      .map((statement) => `${statement.claim} (citation: ${statement.citation})`)
+      .join(" ");
+    const lesson = [
+      `Chainweb scenario "${payload.scenarioName}" with intervention "${payload.interventionName}"`,
+      `for ${payload.geography} (${payload.domain}).`,
+      statementText,
+    ].join(" ").slice(0, 4000);
+    const { headers, body } = buildV1OutboundRequest("POST", pushPath, buildOutboundLessonPayload({
+      topic: payload.domain,
+      state: payload.geography,
+      lesson,
+      roiImplication: `ROI ratio ${payload.roiRatio}; net savings ${payload.netSavings}; counterfactual cost ${payload.counterfactualCost}.`,
+    }), "write");
     const response = await fetch(CIVIC_SIGNAL_PUSH_URL, {
       method: "POST",
       headers,
@@ -532,14 +569,18 @@ export async function pushEquityLossToCivicSignal(payload: {
   }
   try {
     const pushPath = new URL(CIVIC_SIGNAL_PUSH_URL).pathname;
-    const { headers, body } = buildV1OutboundRequest("POST", pushPath, {
-      contractVersion: "1.0",
-      source: "thriveup_equity_loss_engine",
-      sourceVersion: "0.1.0",
-      eventType: "equity_loss_result",
-      ...payload,
-      sentAt: new Date().toISOString(),
-    }, "write");
+    const referenceText = payload.referenceLossPct === null
+      ? "no reference loss was available"
+      : `reference loss ${payload.referenceLossPct}%`;
+    const divergenceText = payload.divergenceFromReferencePct === null
+      ? "no reference divergence was available"
+      : `divergence ${payload.divergenceFromReferencePct}%`;
+    const { headers, body } = buildV1OutboundRequest("POST", pushPath, buildOutboundLessonPayload({
+      topic: "equity_loss",
+      state: payload.state,
+      lesson: `Equity-loss engine result for ${payload.countyName}: ${payload.frame} frame, overall loss ${payload.overallLossPct}%, ${referenceText}, ${divergenceText}, tier ${payload.tier}.`,
+      roiImplication: payload.assumptionText || "No verified ROI claim was supplied.",
+    }), "write");
     const response = await fetch(CIVIC_SIGNAL_PUSH_URL, {
       method: "POST",
       headers,
