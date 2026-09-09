@@ -366,7 +366,7 @@ The production read operation requires `thriveup-lessons:read`. A successful que
 
 ---
 
-### 5. API Discovery (No Auth Required)
+### 6. API Discovery (No Auth Required)
 
 **`GET /api/chainweb/api-info`**
 
@@ -378,7 +378,7 @@ GET /api/chainweb/api-info
 
 ---
 
-### 6. Coefficient Library (No Auth Required — Already Public)
+### 7. Coefficient Library (No Auth Required — Already Public)
 
 **`GET /api/chainweb/coefficients`**
 
@@ -390,7 +390,7 @@ GET /api/chainweb/coefficients?fromDomain=early_childhood
 
 ---
 
-### 7. RAG Context (Authenticated First-Party Session Required)
+### 8. RAG Context (Authenticated First-Party Session Required)
 
 **`GET /api/chainweb/rag-context`**
 
