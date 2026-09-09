@@ -584,15 +584,16 @@ export async function checkCivicSignalConnection(): Promise<{
         body,
         signal: AbortSignal.timeout(8_000),
       });
+      const responseText = await response.text().catch(() => "");
       if (response.ok) {
         outboundReachable = true;
         outboundDetail = "reachable and authenticated (partner-exchange v1)";
       } else if (response.status === 401 || response.status === 403) {
-        outboundDetail = `PARTNER_AUTHORIZATION_FAILED (HTTP ${response.status}) — verify CIVIC_SIGNAL_PARTNER_TOKEN and CIVIC_SIGNAL_PARTNER_KEY_ID match the issued credential and that the production direction is enabled`;
+        outboundDetail = `PARTNER_READ_AUTHORIZATION_FAILED (HTTP ${response.status}) — Civic Signal response: ${responseText.slice(0, 300) || "no response body"}`;
       } else if (response.status === 410) {
         outboundDetail = "RETIRED_ENDPOINT (HTTP 410) — partner-exchange v1 path is correct; check base URL configuration";
       } else {
-        outboundDetail = `PARTNER_ENDPOINT_ERROR (HTTP ${response.status}) on partner-exchange v1`;
+        outboundDetail = `PARTNER_ENDPOINT_ERROR (HTTP ${response.status}) on partner-exchange v1: ${responseText.slice(0, 300)}`;
       }
     } catch (err: any) {
       outboundDetail = err.message;
