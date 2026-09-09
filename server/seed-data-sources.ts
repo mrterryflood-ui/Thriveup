@@ -373,7 +373,11 @@ export async function seedDataSources(): Promise<void> {
 }
 
 // CLI entry point
-if (process.argv[1] === new URL(import.meta.url).pathname) {
+// The production server is bundled as CommonJS, where import.meta.url is
+// undefined. Match the source entrypoint by filename instead so importing
+// this module during server startup cannot throw ERR_INVALID_URL.
+const isDirectSeedExecution = /(?:^|[\\/])seed-data-sources(?:\.ts|\.js)$/.test(process.argv[1] ?? "");
+if (isDirectSeedExecution) {
   seedDataSources()
     .then(() => process.exit(0))
     .catch((err) => {

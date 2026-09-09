@@ -10,6 +10,25 @@ written from impression.
 
 ---
 
+## 2026-09-09 — Production publish CommonJS startup
+
+**Claim:** The latest publish failure was caused by a production-bundle startup
+exception rather than a build compilation failure or database schema problem.
+
+**Verified by:** deployment build history and build logs; production runtime logs
+showing `TypeError: Invalid URL` with undefined input; source inspection of the
+seed module; a fresh `npm run build`; and a local launch of the exact
+`dist/index.cjs` artifact with `NODE_ENV=production`, which returned HTTP 200
+from `/` with zero invalid-URL matches.
+
+**Outcome:** Confirmed and corrected in the workspace. The published service
+still requires a user-initiated republish before this fix is live.
+
+**Class:** Production compatibility gap between a CommonJS bundle and an
+`import.meta.url` CLI guard.
+
+---
+
 ## 2026-08-26 — Austin Community Bridge planning blueprint
 
 **Claim:** A planning-only blueprint can responsibly frame a candidate
