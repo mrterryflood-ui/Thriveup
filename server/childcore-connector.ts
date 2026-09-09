@@ -84,6 +84,8 @@ async function corePost(path: string, body: Record<string, unknown>): Promise<an
 
 export async function probeChildCORE(): Promise<{
   ok: boolean;
+  reachable: boolean;
+  authenticated: boolean;
   latencyMs: number;
   service?: string;
   version?: string;
@@ -91,9 +93,16 @@ export async function probeChildCORE(): Promise<{
 }> {
   const configured = isChildCOREConfigured();
   const t0 = Date.now();
-  const data = await coreGet("/ping", false);
+  const [data, authenticatedProbe] = await Promise.all([
+    coreGet("/ping", false),
+    configured ? coreGet("/community/78701/providers") : Promise.resolve(null),
+  ]);
+  const reachable = data?.status === "ok";
+  const authenticated = authenticatedProbe !== null;
   return {
-    ok: data?.status === "ok",
+    ok: reachable && authenticated,
+    reachable,
+    authenticated,
     latencyMs: Date.now() - t0,
     service: data?.service,
     version: data?.version,
@@ -252,6 +261,8 @@ export async function pushToChildCORE(
 export async function getChildCOREConnectionStatus(): Promise<{
   configured: boolean;
   pingOk: boolean;
+  reachable: boolean;
+  authenticated: boolean;
   latencyMs: number;
   service?: string;
   version?: string;
@@ -262,6 +273,8 @@ export async function getChildCOREConnectionStatus(): Promise<{
   return {
     configured: probe.configured,
     pingOk: probe.ok,
+    reachable: probe.reachable,
+    authenticated: probe.authenticated,
     latencyMs: probe.latencyMs,
     service: probe.service,
     version: probe.version,

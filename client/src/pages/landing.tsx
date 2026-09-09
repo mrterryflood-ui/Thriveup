@@ -1704,7 +1704,7 @@ function PartnerNetworkSection() {
                       : "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400"
                   }`}>
                     <span className={`w-1.5 h-1.5 rounded-full ${status === "live" ? "bg-green-500 animate-pulse" : status === "checking" ? "bg-muted-foreground" : "bg-amber-500"}`} />
-                    {status === "checking" ? "Checking…" : status === "live" ? "Live" : "Configured"}
+                    {status === "checking" ? "Checking…" : status === "live" ? "Live" : "Unavailable"}
                   </span>
                 </div>
                 <div>
