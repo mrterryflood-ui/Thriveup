@@ -6,6 +6,20 @@ description: Who TCAF is, what IGN means, the multi-disciplinary identity, and t
 ## The One-Sentence Mission
 TCAF is the nonprofit for nonprofits, residents, and communities to thrive. We have the tools, the data, and the funding knowledge. They execute and do the work.
 
+## Free Platform + Funded Implementation Model
+The ThriveUp platform and core software are intended to remain free for constituents, nonprofits, community organizations, and government entities. TCAF's optional human implementation capacity—administration, coordination, training, fidelity support, evaluation, and managed delivery—is funded separately as a collaborative service line item chosen by the customer.
+
+**Why:** The platform must reduce access barriers while preserving the real labor required to implement cross-sector work well. TCAF should facilitate and strengthen an organization's work, not become a mandatory intermediary in every relationship.
+
+**How to apply:** Separate software access from implementation services in product, funding, and public language. Support self-service, guided implementation, and managed coordination. Free access does not imply free human labor or unlimited customization.
+
+## Cross-Sector Integrated Front Door
+The public entry model is bidirectional and non-siloed: help people find relevant organizations and resources, help organizations understand whom they are reaching or missing, and connect related needs across health, education, housing, workforce, community, justice, and other domains. Triage must distinguish immediate, intermediate, and long-term needs and expose wraparound pathways rather than treating one domain as the whole person or problem.
+
+**Why:** A healthcare need can also be an education, housing, workforce, family, or justice issue; local delivery needs a national architecture that can scale from one community to many.
+
+**How to apply:** Keep the public front doors connected to one shared context, consent, referral, evidence, and implementation backbone. Never imply that a sector-specific entry point represents a sector-specific silo.
+
 ## IGN — Initial Guidance and Navigation
 Psychology term. TCAF helps people and organizations get to their destination in a safe, efficient manner at their own pace and level of readiness and comfort — using planning and metrics to guide them, redirecting if they go off course, using data and evidence-based interventions.
 
