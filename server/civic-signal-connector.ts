@@ -237,20 +237,18 @@ function buildV1OutboundRequest(
   urlPath: string,
   payload: Record<string, unknown>,
 ): { headers: Record<string, string>; body: string } {
-  // Accept the canonical names OR the legacy name so we work with whatever
-  // secret names are already in Replit Secrets. Priority order:
-  //   CIVIC_SIGNAL_PARTNER_TOKEN  > POWER2PEOPLE_ISSUED_KEY  (bearer token)
-  //   CIVIC_SIGNAL_PARTNER_KEY_ID > CIVIC_SIGNAL_ECOSYSTEM_KEY (key id)
-  const bearerRaw = process.env.CIVIC_SIGNAL_PARTNER_TOKEN
-    || process.env.POWER2PEOPLE_ISSUED_KEY;
-  const keyIdRaw  = process.env.CIVIC_SIGNAL_PARTNER_KEY_ID
-    || process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY;
+  // These must be the separately issued Partner Exchange v1 credentials.
+  // Do not substitute the inbound ecosystem key, ThriveUp partner key, or
+  // retired POWER2PEOPLE_ISSUED_KEY: they belong to different trust
+  // directions and cannot authenticate this signed exchange.
+  const bearerRaw = process.env.CIVIC_SIGNAL_PARTNER_TOKEN;
+  const keyIdRaw  = process.env.CIVIC_SIGNAL_PARTNER_KEY_ID;
 
   if (!bearerRaw || !keyIdRaw) {
     throw new Error(
       "Civic Signal v1 outbound credentials not found. Set CIVIC_SIGNAL_PARTNER_TOKEN " +
       "(bearer token) and CIVIC_SIGNAL_PARTNER_KEY_ID (key ID) in Replit Secrets. " +
-      "Fallbacks: POWER2PEOPLE_ISSUED_KEY for bearer, CIVIC_SIGNAL_ECOSYSTEM_KEY for key ID.",
+      "These must be issued by a Civic Signal administrator for Partner Exchange v1.",
     );
   }
 
@@ -289,11 +287,12 @@ function buildV1OutboundRequest(
   };
 }
 
-/** True when both the bearer token and key ID can be resolved from any configured secret name. */
+/** True only when both Partner Exchange v1 credentials are configured. */
 function hasV1Credentials(): boolean {
-  const bearer = process.env.CIVIC_SIGNAL_PARTNER_TOKEN || process.env.POWER2PEOPLE_ISSUED_KEY;
-  const keyId  = process.env.CIVIC_SIGNAL_PARTNER_KEY_ID || process.env.CIVIC_SIGNAL_ECOSYSTEM_KEY;
-  return Boolean(bearer?.trim() && keyId?.trim());
+  return Boolean(
+    process.env.CIVIC_SIGNAL_PARTNER_TOKEN?.trim() &&
+    process.env.CIVIC_SIGNAL_PARTNER_KEY_ID?.trim(),
+  );
 }
 
 /**
