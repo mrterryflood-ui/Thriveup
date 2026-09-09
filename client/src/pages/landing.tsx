@@ -1156,6 +1156,182 @@ function StartHere() {
   );
 }
 
+// ─── Cross-Sector Organizational Front Doors ────────────────────────────────
+const SECTOR_DOORS = [
+  {
+    icon: Building2,
+    label: "Nonprofits & Community Organizations",
+    desc: "Infrastructure, referrals, grants, capacity building, outcome reporting, and coalition coordination.",
+    href: "/for-nonprofits",
+    color: "from-violet-500 to-purple-600",
+    bg: "bg-violet-50 dark:bg-violet-950/20",
+    border: "border-violet-200 dark:border-violet-800",
+    accent: "#7c3aed",
+  },
+  {
+    icon: School,
+    label: "Schools & Workforce Systems",
+    desc: "Student transitions, career pathways, workforce development, family engagement, and apprenticeships.",
+    href: "/academy",
+    color: "from-amber-500 to-orange-600",
+    bg: "bg-amber-50 dark:bg-amber-950/20",
+    border: "border-amber-200 dark:border-amber-800",
+    accent: "#d97706",
+  },
+  {
+    icon: Stethoscope,
+    label: "Healthcare & Community Care",
+    desc: "Clinical navigation, SDOH integration, care coordination, community health workers, and screeners.",
+    href: "/health-network",
+    color: "from-rose-500 to-pink-600",
+    bg: "bg-rose-50 dark:bg-rose-950/20",
+    border: "border-rose-200 dark:border-rose-800",
+    accent: "#e11d48",
+  },
+  {
+    icon: Globe,
+    label: "Cities, States & Public Agencies",
+    desc: "Population intelligence, equity analysis, program coordination, and system-level implementation.",
+    href: "/community-impact",
+    color: "from-blue-500 to-indigo-600",
+    bg: "bg-blue-50 dark:bg-blue-950/20",
+    border: "border-blue-200 dark:border-blue-800",
+    accent: "#2563eb",
+  },
+  {
+    icon: Shield,
+    label: "Justice & Community Safety",
+    desc: "Reentry, diversion, crisis response, victim services, and community violence prevention planning.",
+    href: "/justice",
+    color: "from-emerald-500 to-teal-600",
+    bg: "bg-emerald-50 dark:bg-emerald-950/20",
+    border: "border-emerald-200 dark:border-emerald-800",
+    accent: "#059669",
+  },
+  {
+    icon: Target,
+    label: "Funders & Evaluators",
+    desc: "Evidence, fidelity, outcome receipts, grant intelligence, and implementation accountability.",
+    href: "/funder-dashboard",
+    color: "from-orange-500 to-amber-600",
+    bg: "bg-orange-50 dark:bg-orange-950/20",
+    border: "border-orange-200 dark:border-orange-800",
+    accent: "#ea580c",
+  },
+];
+
+function CrossSectorDoors() {
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6 bg-card border-y" data-testid="section-cross-sector-doors">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-8">
+          <Badge variant="secondary" className="mb-3">
+            <Network className="mr-1 h-3 w-3" /> All Sectors
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-cross-sector-heading">
+            One platform. Every mission-driven sector.
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            Whether you lead a nonprofit, run a school, coordinate healthcare, work in government, or fund community work — start from where you are. The platform connects to the same evidence, resources, and coordination infrastructure underneath.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {SECTOR_DOORS.map((door) => (
+            <Link key={door.href} href={door.href} className="no-underline group" data-testid={`card-sector-door-${door.label.toLowerCase().replace(/[^a-z]+/g, '-')}`}>
+              <div className={`rounded-2xl border p-5 h-full flex flex-col transition-all duration-200 hover:shadow-md hover:scale-[1.01] cursor-pointer ${door.bg} ${door.border}`}>
+                <div className={`inline-flex w-10 h-10 rounded-xl items-center justify-center bg-gradient-to-br ${door.color} mb-3 shrink-0`}>
+                  <door.icon className="h-5 w-5 text-white" aria-hidden="true" />
+                </div>
+                <h3 className="font-bold text-sm mb-1.5 leading-snug" style={{ color: door.accent }}>{door.label}</h3>
+                <p className="text-xs text-muted-foreground leading-relaxed flex-1">{door.desc}</p>
+                <div className="flex items-center gap-1 text-xs font-semibold mt-3" style={{ color: door.accent }}>
+                  <span>Enter this door</span>
+                  <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </div>
+            </Link>
+          ))}
+        </div>
+        <p className="text-center text-xs text-muted-foreground mt-6 max-w-lg mx-auto">
+          Every door connects to the same community intelligence, evidence, referral, coordination, and implementation backbone. Issues that cross sectors — health and housing, education and workforce, justice and family — stay connected inside the platform.
+        </p>
+      </div>
+    </section>
+  );
+}
+
+// ─── Implementation Support Modes ────────────────────────────────────────────
+function ImplementationModes() {
+  const modes = [
+    {
+      icon: Cpu,
+      label: "Self-Service",
+      desc: "Access the full platform independently. Use the community intelligence tools, Navigator, benefits screener, resource directory, grant discovery, referral workflows, and outcome reporting on your own timeline.",
+      note: "Always free.",
+      color: "from-blue-500 to-indigo-600",
+      accent: "text-blue-600",
+      bg: "bg-blue-50 dark:bg-blue-950/20",
+    },
+    {
+      icon: Compass,
+      label: "Guided Implementation",
+      desc: "TCAF works alongside your team to configure your workspace, map your stakeholders and resources, translate research into practice, train staff, and establish workflows and outcome measures.",
+      note: "Funded as a service line item.",
+      color: "from-violet-500 to-purple-600",
+      accent: "text-violet-600",
+      bg: "bg-violet-50 dark:bg-violet-950/20",
+    },
+    {
+      icon: HandshakeIcon,
+      label: "TCAF-Managed Coordination",
+      desc: "Delegate specific responsibilities to TCAF: administration, partner coordination, constituent navigation, referral management, fidelity monitoring, reporting, and continuous improvement.",
+      note: "Customer-defined scope. Funded as a collaborative agreement.",
+      color: "from-emerald-500 to-teal-600",
+      accent: "text-emerald-600",
+      bg: "bg-emerald-50 dark:bg-emerald-950/20",
+    },
+  ];
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6" data-testid="section-implementation-modes">
+      <div className="max-w-5xl mx-auto">
+        <div className="text-center mb-8">
+          <Badge variant="secondary" className="mb-3">
+            <Layers className="mr-1 h-3 w-3" /> Three Ways to Work With Us
+          </Badge>
+          <h2 className="text-2xl sm:text-3xl font-bold mb-2" data-testid="text-impl-modes-heading">
+            Free software. Optional TCAF implementation support.
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-xl mx-auto">
+            The platform is free. The work of implementing it well — coordinating stakeholders, training teams, maintaining fidelity — requires skilled people. TCAF can provide that workforce when you need it.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+          {modes.map((mode) => (
+            <div key={mode.label} className={`rounded-2xl p-5 flex flex-col ${mode.bg}`} data-testid={`card-impl-mode-${mode.label.toLowerCase().replace(/\s+/g, '-')}`}>
+              <div className={`inline-flex w-10 h-10 rounded-xl items-center justify-center bg-gradient-to-br ${mode.color} mb-3 shrink-0`}>
+                <mode.icon className="h-5 w-5 text-white" aria-hidden="true" />
+              </div>
+              <h3 className={`font-bold text-sm mb-2 ${mode.accent}`}>{mode.label}</h3>
+              <p className="text-xs text-muted-foreground leading-relaxed flex-1">{mode.desc}</p>
+              <p className={`text-[11px] font-semibold mt-3 ${mode.accent}`}>{mode.note}</p>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 text-center">
+          <Link href="/for-nonprofits">
+            <Button variant="outline" className="gap-2" data-testid="button-impl-modes-cta">
+              <HandshakeIcon className="h-4 w-4" />
+              Learn how to work with TCAF
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </Link>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 const HERO_NODES = [
   { label: "Health",   angle: 0,   dist: 320, color: "#34d399" },
   { label: "Housing",  angle: 36,  dist: 350, color: "#60a5fa" },
@@ -2248,10 +2424,18 @@ export default function LandingPage() {
       {/* "Meet people where they are": self-identify FIRST, before any
           B2B/funding pitch. This must stay directly under the hero. */}
        <StartHere />
+
+      {/* Cross-sector organizational front doors — six sectors, one backbone */}
+      <CrossSectorDoors />
+
       <CommunityOperatingStory />
 
       <ServicePlatformSection />
        <PlatformPortfolio />
+
+      {/* Three implementation modes: self-service, guided, TCAF-managed */}
+      <ImplementationModes />
+
       <GrantPathProSection />
       <FiveWTeaser />
       <TrustBar />

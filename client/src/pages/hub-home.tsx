@@ -5,7 +5,8 @@ import {
   MessageCircle, Calendar, Compass, TrendingUp,
   Sparkles, Users, Map, Wrench,
   AlertCircle, Clock, ChevronRight, Pencil,
-  LayoutGrid,
+  LayoutGrid, School, Globe, Shield,
+  Building2, Stethoscope, HandshakeIcon, Cpu, ArrowRight,
 } from "lucide-react";
 import { SystemPulse } from "@/components/system-pulse";
 import { cn } from "@/lib/utils";
@@ -13,34 +14,78 @@ import { useAuth } from "@/hooks/use-auth";
 import { useHubRole, HubOnramp, ROLE_LABELS } from "@/lib/hub-role";
 import { useCurrentOrgId } from "@/hooks/use-current-org";
 
+// Seven cross-sector front doors — organizations enter through the lane that
+// matches their mission; the underlying coordination backbone is shared.
 const GATEWAY_CARDS = [
   {
-    label: "Serve People",
-    desc: "Benefits, Foster Youth, Justice, Health",
-    href: "/hub/serve",
-    icon: Heart,
-    bg: "from-emerald-500 to-teal-600",
+    label: "Nonprofits & CBOs",
+    desc: "Referrals, grants, capacity, outcome reporting",
+    href: "/for-nonprofits",
+    icon: Building2,
+    bg: "from-violet-500 to-purple-600",
   },
   {
-    label: "Get Funded",
-    desc: "Grants, RFP tools, Win-rate analytics",
-    href: "/hub/fund",
-    icon: Target,
+    label: "Schools & Workforce",
+    desc: "Transitions, pathways, apprenticeships, family",
+    href: "/academy",
+    icon: School,
     bg: "from-amber-500 to-orange-600",
   },
   {
-    label: "Grow",
-    desc: "Trade Sims, Workforce, Academy, AI",
-    href: "/hub/grow",
-    icon: Rocket,
+    label: "Healthcare & Care",
+    desc: "Navigation, CHW tools, SDOH, screeners",
+    href: "/health-network",
+    icon: Stethoscope,
+    bg: "from-rose-500 to-pink-600",
+  },
+  {
+    label: "Cities & Agencies",
+    desc: "Population data, equity, program coordination",
+    href: "/community-impact",
+    icon: Globe,
     bg: "from-blue-600 to-indigo-700",
   },
   {
-    label: "Connect",
-    desc: "Partners, Coalition, Impact, About",
+    label: "Justice & Safety",
+    desc: "Reentry, diversion, crisis, victim services",
+    href: "/justice",
+    icon: Shield,
+    bg: "from-emerald-500 to-teal-600",
+  },
+  {
+    label: "Funders & Evaluators",
+    desc: "Evidence, fidelity, grants, accountability",
+    href: "/funder-dashboard",
+    icon: Target,
+    bg: "from-orange-500 to-amber-600",
+  },
+  {
+    label: "Grow & Connect",
+    desc: "Coalition, impact, partners, ecosystem",
     href: "/hub/connect",
     icon: Network,
     bg: "from-teal-600 to-cyan-700",
+  },
+];
+
+const IMPLEMENTATION_MODES = [
+  {
+    icon: Cpu,
+    label: "Self-Service",
+    desc: "Use the full platform independently.",
+    color: "text-blue-600 bg-blue-100 dark:bg-blue-900/40",
+  },
+  {
+    icon: Compass,
+    label: "Guided",
+    desc: "TCAF configures and trains alongside you.",
+    color: "text-violet-600 bg-violet-100 dark:bg-violet-900/40",
+  },
+  {
+    icon: HandshakeIcon,
+    label: "TCAF-Managed",
+    desc: "Delegate coordination to TCAF's workforce.",
+    color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40",
   },
 ];
 
@@ -48,6 +93,7 @@ const QUICK_TOOLS = [
   { label: "Sparky AI",     href: "/sparky",        icon: MessageCircle, color: "text-violet-600 bg-violet-100 dark:bg-violet-900/40" },
   { label: "This Week",     href: "/this-week",     icon: Calendar,      color: "text-amber-600 bg-amber-100 dark:bg-amber-900/40" },
   { label: "Navigator",     href: "/navigator",     icon: Compass,       color: "text-blue-600 bg-blue-100 dark:bg-blue-900/40" },
+  { label: "Chainweb",      href: "/chainweb",      icon: Network,       color: "text-teal-600 bg-teal-100 dark:bg-teal-900/40" },
   { label: "Live Grants",   href: "/this-week",     icon: Target,        color: "text-orange-600 bg-orange-100 dark:bg-orange-900/40" },
   { label: "Impact",        href: "/impact",        icon: TrendingUp,    color: "text-emerald-600 bg-emerald-100 dark:bg-emerald-900/40" },
   { label: "Community",     href: "/community",     icon: Users,         color: "text-rose-600 bg-rose-100 dark:bg-rose-900/40" },
@@ -276,7 +322,7 @@ export default function HubHomePage() {
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-white/80" />
-            <span className="text-white/80 text-sm font-medium">ThriveUp Platform</span>
+            <span className="text-white/80 text-sm font-medium">TCAF + ThriveUp</span>
           </div>
           {role && (
             <button
@@ -294,7 +340,7 @@ export default function HubHomePage() {
         <h1 className="text-2xl font-bold text-white">
           {getGreeting()}{name ? `, ${name}` : ""}
         </h1>
-        <p className="text-white/70 text-sm mt-1">Central Texas · Powered by ThriveUp</p>
+        <p className="text-white/70 text-sm mt-1">Nationwide community coordination platform</p>
       </div>
 
       <div className="px-4 py-5 pb-24 space-y-6">
@@ -334,7 +380,7 @@ export default function HubHomePage() {
 
         <section aria-labelledby="platform-hubs-heading">
           <h2 id="platform-hubs-heading" className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
-            Platform Hubs
+            Enter by sector
           </h2>
           <div className="grid grid-cols-2 gap-3">
             {GATEWAY_CARDS.map(card => {
@@ -343,21 +389,47 @@ export default function HubHomePage() {
                 <Link key={card.href} href={card.href} aria-label={`${card.label}: ${card.desc}`}>
                   <div
                     className={cn(
-                      "relative rounded-2xl p-4 h-[130px] flex flex-col justify-between cursor-pointer transition-all active:scale-[0.97] shadow-sm bg-gradient-to-br",
+                      "relative rounded-2xl p-4 h-[120px] flex flex-col justify-between cursor-pointer transition-all active:scale-[0.97] shadow-sm bg-gradient-to-br",
                       card.bg
                     )}
                     data-testid={`gateway-card-${card.label.toLowerCase().replace(/\s+/g, "-")}`}
                   >
-                    <Icon className="w-8 h-8 text-white/90" aria-hidden="true" />
+                    <Icon className="w-7 h-7 text-white/90" aria-hidden="true" />
                     <div>
-                      <h3 className="text-white font-bold text-sm leading-snug">{card.label}</h3>
-                      <p className="text-white/65 text-[11px] mt-0.5 leading-snug">{card.desc}</p>
+                      <h3 className="text-white font-bold text-xs leading-snug">{card.label}</h3>
+                      <p className="text-white/65 text-[10px] mt-0.5 leading-snug">{card.desc}</p>
                     </div>
                   </div>
                 </Link>
               );
             })}
           </div>
+        </section>
+
+        {/* Three implementation modes — visible at the org hub level */}
+        <section aria-labelledby="impl-modes-heading" className="rounded-2xl border border-border bg-card p-4">
+          <h2 id="impl-modes-heading" className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground mb-3">
+            How TCAF can help
+          </h2>
+          <div className="space-y-2">
+            {IMPLEMENTATION_MODES.map(mode => {
+              const Icon = mode.icon;
+              return (
+                <div key={mode.label} className="flex items-start gap-3" data-testid={`impl-mode-${mode.label.toLowerCase()}`}>
+                  <div className={cn("w-8 h-8 rounded-lg flex items-center justify-center shrink-0", mode.color)}>
+                    <Icon className="w-4 h-4" aria-hidden="true" />
+                  </div>
+                  <div className="flex-1 min-w-0 pt-0.5">
+                    <p className="font-semibold text-sm text-foreground leading-snug">{mode.label}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{mode.desc}</p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <Link href="/for-nonprofits" className="inline-flex items-center gap-1 text-xs font-semibold text-primary mt-3 hover:underline">
+            Learn how to work with TCAF <ArrowRight className="w-3 h-3" />
+          </Link>
         </section>
 
         <SystemPulse />

@@ -36,6 +36,25 @@ app.get("/", (req, res, next) => {
   next();
 });
 
+// Hostname-based front-door routing.
+// easyailearning.com → /academy (ThriveUp Academy specialized front door).
+// Other domains serve the universal TCAF + ThriveUp homepage.
+// Only redirects the root "/" for GET page requests — API, assets, and embed paths pass through unchanged.
+app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+  const hostname = (req.hostname || req.headers.host?.split(":")[0] || "").toLowerCase();
+  const isAcademyDomain = hostname === "easyailearning.com";
+  const isRootPageRequest =
+    req.method === "GET" &&
+    req.path === "/" &&
+    !req.path.startsWith("/api") &&
+    !req.path.startsWith("/assets") &&
+    !req.path.startsWith("/embed");
+  if (isAcademyDomain && isRootPageRequest) {
+    return res.redirect(302, "/academy");
+  }
+  next();
+});
+
 app.use("/api/ecosystem/shadow", (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Headers", "Content-Type, x-shadow-key");
