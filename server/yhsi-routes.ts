@@ -26,6 +26,7 @@ import {
 } from "@shared/schema";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
+import { pushYHSIEventToChildCORE } from "./childcore-connector";
 import { randomUUID, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { z } from "zod";
 import { screenParticipantGaps } from "@shared/foster-eligibility";
@@ -431,6 +432,11 @@ export function registerYhsiRoutes(app: Express): void {
       const parsed = insertYhsiYouthParticipantSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
       const [row] = await db.insert(yhsiYouthParticipants).values({ ...parsed.data, id: randomUUID(), createdBy: getUserId(req) ?? null }).returning();
+      // Fire-and-forget: notify ChildCORE so it can check for younger siblings.
+      // A ChildCORE outage must never block enrollment — catch and log only.
+      pushYHSIEventToChildCORE("yhsi_enrollment", row).catch((err) => {
+        console.error("[YHSI→ChildCORE] enrollment push failed:", err);
+      });
       return res.status(201).json(row);
     } catch (err) {
       console.error("[YHSI] participant create failed:", err);

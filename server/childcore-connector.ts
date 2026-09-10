@@ -256,6 +256,57 @@ export async function pushToChildCORE(
     : { ok: false, error: "ChildCORE push returned no response" };
 }
 
+// ─── Typed YHSI event push ────────────────────────────────────────────────────
+
+/**
+ * Push a typed YHSI lifecycle event to ChildCORE.
+ * ChildCORE uses this to match younger siblings (McKinney-Vento family linkage).
+ *
+ * Privacy boundary — only the following fields are sent; NO name, DOB, SSN,
+ * phone, or address ever crosses the wire:
+ *   participantRef  — ThriveUp's opaque UUID (not a name or SSN)
+ *   ageRange        — bucketed age band (12-14 / 15-17 / 18-21 / 22-26)
+ *   schoolDistrict  — e.g. "USD 259" (no individual identifier)
+ *   mcKinneyVentoStatus — "identified" | "suspected" | "not_identified" | null
+ *   stateCode       — 2-letter state
+ *
+ * Failure is logged but never rethrows — a ChildCORE outage must not block enrollment.
+ */
+export async function pushYHSIEventToChildCORE(
+  eventType: "yhsi_enrollment" | "thrive_score_update" | "early_warning_trigger",
+  participant: {
+    id: string;
+    ageAtContact?: number | null;
+    stateCode?: string | null;
+    schoolDistrict?: string | null;
+    mckinneyVentoStatus?: string | null;
+  },
+): Promise<void> {
+  const age = participant.ageAtContact ?? null;
+  const ageRange = age == null ? null
+    : age <= 14 ? "12-14"
+    : age <= 17 ? "15-17"
+    : age <= 21 ? "18-21"
+    : "22-26";
+
+  const result = await pushToChildCORE({
+    event: eventType,
+    data: {
+      participantRef: participant.id,   // opaque UUID
+      ageRange,
+      schoolDistrict: participant.schoolDistrict ?? null,
+      mcKinneyVentoStatus: participant.mckinneyVentoStatus ?? null,
+      stateCode: participant.stateCode ?? null,
+    },
+  });
+
+  if (!result.ok) {
+    console.warn(`[ChildCORE] ${eventType} push failed:`, result.error);
+  } else {
+    console.info(`[ChildCORE] ${eventType} pushed — ref: ${participant.id.slice(0, 8)}...`);
+  }
+}
+
 // ─── Connection status summary ────────────────────────────────────────────────
 
 export async function getChildCOREConnectionStatus(): Promise<{

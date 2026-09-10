@@ -1,0 +1,29 @@
+What you tell ThriveUp:
+
+Grant the key in their system (whichever key they auto-provisioned for ChildCORE) access to these endpoints:
+
+Endpoint	Direction	Purpose
+GET /api/external/health	ChildCORE → ThriveUp	Already works
+POST /api/external/interventions/receive	ChildCORE → ThriveUp	Push county metrics
+GET /api/external/early-warnings	ChildCORE → ThriveUp	Pull early warning flags
+GET /api/external/students/overview	ChildCORE → ThriveUp	Pull community brief
+POST /api/chainweb/scenarios	ChildCORE → ThriveUp	Create ROI scenario
+POST /api/chainweb/scenarios/:id/calculate	ChildCORE → ThriveUp	Run calculation
+GET /api/chainweb/scenarios/:id	ChildCORE → ThriveUp	Fetch result
+POST /api/chainweb/calculations/:id/narratives	ChildCORE → ThriveUp	Generate narrative
+GET /api/chainweb/coefficients	ChildCORE → ThriveUp	Evidence library
+GET /api/chainweb/templates	ChildCORE → ThriveUp	Quick-start templates
+GET /api/yhsi/outcomes-summary	ChildCORE → ThriveUp	Longitudinal thread
+GET /api/yhsi/metrics	ChildCORE → ThriveUp	YHSI aggregate metrics
+Also tell them: ChildCORE's inbound webhook URL is https://useful-viper-536.convex.site/api/v1/push, auth header X-ChildCORE-Key: <key>. I'll generate that key and give it to you to hand them.
+
+What I build for ThriveUp:
+
+Generate a dedicated ThriveUp partner API key in ChildCORE's system — scoped to push:metrics and read:impact — so they can call back into ChildCORE without manual DB work
+Inbound webhook handler at /api/thriveup/inbound that receives:
+Thrive score updates (when a student's score changes, ChildCORE can flag that child's family)
+Early warning triggers (a YHSI youth flags → ChildCORE looks up if we have a sibling under 5)
+YHSI enrollment events (new participant ages 12-26 → ChildCORE checks if we tracked them at birth)
+The longitudinal match logic — when ThriveUp pushes a YHSI participant, ChildCORE checks the children table for a matching family (by school district + age range + McKinney-Vento status) and creates a soft link. No PII crosses — just a flag that says "there may be a younger sibling in our system."
+Want me to build all three now, or start with just the key generation + inbound webhook so you have something concrete to hand them?
+
