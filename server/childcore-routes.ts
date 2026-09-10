@@ -12,6 +12,7 @@
 
 import type { Router, Request, Response } from "express";
 import { desc, eq, sql } from "drizzle-orm";
+import { createHash } from "crypto";
 import {
   probeChildCORE,
   getChildCOREProviders,
@@ -26,6 +27,7 @@ import { buildCommunityAIContextWithStatus } from "./rplice-intelligence";
 import { db } from "./storage";
 import {
   partnerApiAuditLog,
+  partnerApiKeys,
   yhsiYouthParticipants,
   yhsiReferrals,
   yhsiOutcomeSnapshots,
@@ -49,6 +51,10 @@ function requireAdmin(req: Request, res: Response): boolean {
     return false;
   }
   return true;
+}
+
+function hashPartnerKey(plaintext: string): string {
+  return createHash("sha256").update(plaintext).digest("hex");
 }
 
 // ─── Route registration ───────────────────────────────────────────────────────
@@ -244,6 +250,103 @@ export function registerChildCORERoutes(router: Router): void {
       });
     } catch (err: any) {
       res.status(500).json({ error: "YHSI summary failed", detail: err?.message });
+    }
+  });
+
+  // ── Live partner capability status (admin only) ───────────────────────────
+  // The UI must not claim a scope is active from a hard-coded list. The
+  // partner middleware authorizes against the hashed THRIVEUP_API_KEY row at
+  // request time, so this endpoint reports that same row without exposing the
+  // key or any secret material.
+  router.get("/childcore/capabilities", async (req, res) => {
+    if (!requireAdmin(req, res)) return;
+
+    const expectedScopes = [
+      "community:read",
+      "impact:read",
+      "inbound:write",
+      "student:read",
+      "chainweb:read",
+      "yhsi:read",
+    ];
+    const rawKey = process.env.THRIVEUP_API_KEY?.trim();
+
+    if (!rawKey) {
+      return res.json({
+        keyConfigured: false,
+        keyFound: false,
+        keyActive: false,
+        partnerName: null,
+        scopes: Object.fromEntries(expectedScopes.map((scope) => [scope, "key_not_configured"])),
+        capabilities: {
+          roi: { status: "connecting", requiredScope: "chainweb:read" },
+          yhsi: { status: "connecting", requiredScope: "yhsi:read" },
+          student: { status: "connecting", requiredScope: "student:read" },
+        },
+        checkedAt: new Date().toISOString(),
+      });
+    }
+
+    try {
+      const [key] = await db
+        .select({
+          partnerName: partnerApiKeys.partnerName,
+          scopes: partnerApiKeys.scopes,
+          active: partnerApiKeys.active,
+          lastUsedAt: partnerApiKeys.lastUsedAt,
+        })
+        .from(partnerApiKeys)
+        .where(eq(partnerApiKeys.keyHash, hashPartnerKey(rawKey)));
+
+      const granted = new Set(Array.isArray(key?.scopes) ? key.scopes : []);
+      const stateFor = (scope: string): "active" | "not_granted" | "key_inactive" | "key_not_found" =>
+        !key ? "key_not_found" : !key.active ? "key_inactive" : granted.has(scope) ? "active" : "not_granted";
+      const scopes = Object.fromEntries(expectedScopes.map((scope) => [scope, stateFor(scope)]));
+      const capabilityStatus = (scope: string) => stateFor(scope) === "active" ? "available" : "connecting";
+
+      res.json({
+        keyConfigured: true,
+        keyFound: Boolean(key),
+        keyActive: key?.active ?? false,
+        partnerName: key?.partnerName ?? null,
+        scopes,
+        capabilities: {
+          roi: {
+            status: capabilityStatus("chainweb:read"),
+            requiredScope: "chainweb:read",
+            endpoints: [
+              "GET /api/partner/v1/chainweb/coefficients",
+              "GET /api/partner/v1/chainweb/templates",
+              "POST /api/partner/v1/chainweb/scenarios",
+              "POST /api/partner/v1/chainweb/scenarios/:id/calculate",
+              "POST /api/partner/v1/chainweb/calculations/:id/narratives",
+            ],
+          },
+          yhsi: {
+            status: capabilityStatus("yhsi:read"),
+            requiredScope: "yhsi:read",
+            endpoints: [
+              "GET /api/partner/v1/yhsi/metrics",
+              "GET /api/partner/v1/yhsi/outcomes-summary",
+            ],
+          },
+          student: {
+            status: capabilityStatus("student:read"),
+            requiredScope: "student:read",
+            endpoints: [
+              "GET /api/partner/v1/students/overview",
+              "GET /api/partner/v1/attendance/summary",
+              "GET /api/partner/v1/early-warnings",
+              "GET /api/partner/v1/pathways/overview",
+            ],
+          },
+        },
+        lastUsedAt: key?.lastUsedAt ?? null,
+        checkedAt: new Date().toISOString(),
+      });
+    } catch (err: any) {
+      console.error("[ChildCORE] capability status failed:", err);
+      res.status(500).json({ error: "Capability status query failed" });
     }
   });
 }

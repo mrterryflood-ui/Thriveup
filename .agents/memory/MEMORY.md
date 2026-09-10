@@ -68,6 +68,7 @@
 - [HHSC CCL API field mapping](hhsc-ccl-field-mapping.md) — bc5r-88dy uses total_capacity (not licensed_capacity), operation_status Y/N, phone_number, zipcode, website_address; no TRS field (separate dataset); no lat/lon (embedded JSON).
 - [Childcare nationwide intelligence](childcare-nationwide-intel.md) — TX→HHSC CCL (county name lookup); non-TX→Census CBP 2022 NAICS 6244 + ACS B01001 child pop; getChildcareIntelByFips is the unified entry point; zctaCountyMap uses .zip not .zcta; buildSummary bug fixed (license_status is "Full Permit" not "LICENSED").
 - [ChildCORE Partner API](childcore-partner-api.md) — outbound calls use CHILDCORE_API_KEY; inbound access uses a separate scoped tcaf_ key that ChildCORE stores as THRIVEUP_API_KEY.
+- [ChildCORE production contract drift](childcore-production-contract-drift.md) — source, public docs, and published routes can diverge; validate all three before calling a capability live.
 
 ## ── AGENT SKILLS (load these, not just memory files) ──────────────────────
 - [Platform DNA Skill](.agents/skills/platform-dna/SKILL.md) — ADIS v4 governing: Tier A constitution + Tier B pipeline + deployment map; full v4 spec + v3 archive in same dir; pass to EVERY subagent via relevantSkills.

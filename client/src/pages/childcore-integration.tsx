@@ -65,10 +65,14 @@ function ConnectionTab() {
   const { data: status, isLoading: statusLoading, refetch: refetchStatus } = useQuery<any>({
     queryKey: ["/api/childcore/status"],
   });
+  const { data: capabilities, isLoading: capabilitiesLoading, refetch: refetchCapabilities } = useQuery<any>({
+    queryKey: ["/api/childcore/capabilities"],
+  });
 
   const refresh = () => {
     void repingPublic();
     void refetchStatus();
+    void refetchCapabilities();
     void queryClient.invalidateQueries({ queryKey: ["/api/childcore/status"] });
   };
 
@@ -82,6 +86,17 @@ function ConnectionTab() {
     { scope: "chainweb:read",   desc: "ROI scenario creation, calculation, narratives" },
     { scope: "yhsi:read",       desc: "Aggregate YHSI metrics and outcome summaries" },
   ];
+  const scopeState = (scope: string) => capabilities?.scopes?.[scope];
+  const scopeLabel = (scope: string) => {
+    if (capabilitiesLoading) return "Checking…";
+    if (scopeState(scope) === "active") return "Active";
+    if (scopeState(scope) === "not_granted") return "Not granted";
+    if (scopeState(scope) === "key_inactive") return "Key inactive";
+    if (scopeState(scope) === "key_not_found") return "Key not provisioned";
+    if (scopeState(scope) === "key_not_configured") return "Key not configured";
+    return "Unknown";
+  };
+  const scopeIsActive = (scope: string) => scopeState(scope) === "active";
 
   return (
     <div className="space-y-4">
@@ -165,8 +180,9 @@ function ConnectionTab() {
             <Row label="Key provisioned" ok={true} />
             <Row label="Partner API health" ok={true}
                  note="Verified HTTP 200 · partner: ChildCORE" />
-            <Row label="Scopes active" ok={true}
-                 note={`${SCOPES.length} scopes`} />
+            <Row label="Scopes active" ok={capabilities?.keyActive}
+                 loading={capabilitiesLoading}
+                 note={capabilities?.keyActive ? `${SCOPES.filter(({ scope }) => scopeIsActive(scope)).length}/${SCOPES.length} scopes` : "Live key record is not active"} />
             <div className="pt-2 border-t text-xs text-muted-foreground">
               Auth header: <code className="font-mono">x-partner-key: &lt;THRIVEUP_API_KEY&gt;</code>
             </div>
@@ -190,10 +206,20 @@ function ConnectionTab() {
                   <code className="font-mono text-xs text-primary">{scope}</code>
                   <div className="text-xs text-muted-foreground">{desc}</div>
                 </div>
-                <Badge variant="secondary" className="text-[10px] shrink-0">Active</Badge>
+                <Badge
+                  variant={scopeIsActive(scope) ? "secondary" : "outline"}
+                  className={`text-[10px] shrink-0 ${scopeIsActive(scope) ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400"}`}
+                >
+                  {scopeLabel(scope)}
+                </Badge>
               </div>
             ))}
           </div>
+          {capabilities && !capabilities.keyActive && (
+            <p className="text-xs text-amber-600 mt-3">
+              The page is reading the live Partner API key record. It is not currently active, so protected ChildCORE calls will continue to return 401/403 until the key is reconciled or restored.
+            </p>
+          )}
         </CardContent>
       </Card>
 
@@ -586,11 +612,21 @@ function YhsiTab() {
   const { data, isLoading, refetch } = useQuery<any>({
     queryKey: ["/api/childcore/yhsi-summary"],
   });
+  const { data: capabilities, isLoading: capabilitiesLoading } = useQuery<any>({
+    queryKey: ["/api/childcore/capabilities"],
+  });
 
   const MILESTONES = ["at_contact", "day_30", "day_90", "day_180", "day_365", "month_6", "month_12", "exit"];
 
   return (
     <div className="space-y-4">
+      <CapabilityBanner
+        title="ChildCORE YHSI access"
+        status={capabilities?.capabilities?.yhsi?.status}
+        loading={capabilitiesLoading}
+        scope="yhsi:read"
+        description="ChildCORE receives aggregate, floor-5-suppressed YHSI outcomes only. Individual records never cross the partner boundary."
+      />
       <div className="flex items-center justify-between gap-3">
         <div>
           <h3 className="font-semibold text-sm">YHSI youth data — aggregate only</h3>
@@ -697,6 +733,91 @@ function YhsiTab() {
   );
 }
 
+// ─── 6. Chainweb ROI capability tab ───────────────────────────────────────────
+
+function CapabilityBanner({
+  title,
+  status,
+  loading,
+  scope,
+  description,
+}: {
+  title: string;
+  status?: "available" | "connecting";
+  loading?: boolean;
+  scope: string;
+  description: string;
+}) {
+  const available = status === "available";
+  return (
+    <Card className={available
+      ? "border-emerald-300 dark:border-emerald-800 bg-emerald-50/40 dark:bg-emerald-950/20"
+      : "border-amber-300 dark:border-amber-800 bg-amber-50/40 dark:bg-amber-950/20"}>
+      <CardContent className="py-4">
+        <div className="flex items-start gap-3">
+          {loading ? <RefreshCw className="h-5 w-5 text-muted-foreground animate-spin mt-0.5" />
+            : available ? <CheckCircle2 className="h-5 w-5 text-emerald-600 mt-0.5" />
+            : <Clock className="h-5 w-5 text-amber-600 mt-0.5" />}
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-sm">{title}</span>
+              <Badge variant={available ? "secondary" : "outline"} className={available ? "text-emerald-700 dark:text-emerald-400" : "text-amber-700 dark:text-amber-400"}>
+                {loading ? "Checking…" : available ? "Available" : "Connecting…"}
+              </Badge>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">{description}</p>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              Required scope: <code>{scope}</code>. The state is derived from the live ThriveUp Partner API key record and updates when this tab is refreshed.
+            </p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function RoiTab() {
+  const { data: capabilities, isLoading } = useQuery<any>({
+    queryKey: ["/api/childcore/capabilities"],
+  });
+  const roi = capabilities?.capabilities?.roi;
+
+  return (
+    <div className="space-y-4">
+      <CapabilityBanner
+        title="ChildCORE Chainweb ROI access"
+        status={roi?.status}
+        loading={isLoading}
+        scope="chainweb:read"
+        description="When active, ChildCORE can create, calculate, and narrate aggregate ROI scenarios through ThriveUp's Chainweb Partner API."
+      />
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="text-sm flex items-center gap-2"><BarChart3 className="h-4 w-4" />ROI endpoint contract</CardTitle>
+          <CardDescription className="text-xs">
+            These endpoints are available only after <code>chainweb:read</code> is active for the ChildCORE key.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {roi?.endpoints?.length ? (
+            <div className="space-y-2">
+              {roi.endpoints.map((endpoint: string) => (
+                <div key={endpoint} className="rounded-md bg-muted/40 px-3 py-2 font-mono text-[11px]">
+                  {endpoint}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-md border border-dashed p-5 text-center text-sm text-muted-foreground" data-testid="text-roi-connecting">
+              Connecting to the live scope record…
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
 // ─── Page shell ───────────────────────────────────────────────────────────────
 
 export default function ChildCOREIntegrationPage() {
@@ -737,14 +858,16 @@ export default function ChildCOREIntegrationPage() {
           <TabsTrigger value="data-preview" data-testid="tab-data-preview"><Database className="h-3.5 w-3.5 mr-1.5" />Data Preview</TabsTrigger>
           <TabsTrigger value="rag-context"  data-testid="tab-rag-context"><Code2 className="h-3.5 w-3.5 mr-1.5" />RAG Context</TabsTrigger>
           <TabsTrigger value="events"       data-testid="tab-events"><ScrollText className="h-3.5 w-3.5 mr-1.5" />Event Log</TabsTrigger>
-          <TabsTrigger value="yhsi"         data-testid="tab-yhsi"><Users className="h-3.5 w-3.5 mr-1.5" />YHSI</TabsTrigger>
+           <TabsTrigger value="roi"         data-testid="tab-roi"><BarChart3 className="h-3.5 w-3.5 mr-1.5" />ROI</TabsTrigger>
+           <TabsTrigger value="yhsi"         data-testid="tab-yhsi"><Users className="h-3.5 w-3.5 mr-1.5" />YHSI</TabsTrigger>
         </TabsList>
 
         <TabsContent value="connection">   <ConnectionTab />   </TabsContent>
         <TabsContent value="data-preview"> <DataPreviewTab />  </TabsContent>
         <TabsContent value="rag-context">  <RagContextTab />   </TabsContent>
         <TabsContent value="events">       <EventLogTab />     </TabsContent>
-        <TabsContent value="yhsi">         <YhsiTab />         </TabsContent>
+         <TabsContent value="roi">          <RoiTab />          </TabsContent>
+         <TabsContent value="yhsi">         <YhsiTab />         </TabsContent>
       </Tabs>
     </div>
   );
