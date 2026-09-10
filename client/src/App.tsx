@@ -395,6 +395,7 @@ const PartnerScorecardPage = lazy(() => import("@/pages/partner-scorecard"));
 const LearnerSettingsPage = lazy(() => import("@/pages/learner-settings"));
 const Community411Page = lazy(() => import("@/pages/community-411"));
 const CommunityAnalysisPage = lazy(() => import("@/pages/community-analysis"));
+const ChildCOREIntegrationPage = lazy(() => import("@/pages/childcore-integration"));
 
 function PageFallback() {
   return (
@@ -804,6 +805,11 @@ function AppRouter() {
       <Route path="/ops-center">
         <RequireAuth adminOnly reason="The Ecosystem Ops Center controls platform wake/keep-alive, deliverable verification, and partner API keys. Restricted to TCAF admins.">
           <EcosystemOpsCenterPage />
+        </RequireAuth>
+      </Route>
+      <Route path="/childcore-integration">
+        <RequireAuth adminOnly reason="The ChildCORE Integration workspace shows partner API health, community data previews, RAG context, and YHSI aggregate metrics. Restricted to TCAF admins.">
+          <ChildCOREIntegrationPage />
         </RequireAuth>
       </Route>
       <Route path="/presentations" component={PresentationsHubPage} />
