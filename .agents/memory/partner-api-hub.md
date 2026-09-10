@@ -27,6 +27,22 @@ A standardized, authenticated API layer so external partners (Black Praxis Labs,
 ## UI location
 Ops Center → Partner API tab (8th tab)
 
+## Publication guard
+
+The published Partner API must be checked without credentials before an external
+partner is told the integration is live. The guard compares the public docs'
+exact method/path/scope entries and probes protected routes without a body or
+auth header, requiring the request to reach `401`/`403` rather than a stale
+`404` or server error.
+
+**Why:** The workspace can advance ahead of the published build; a credentialed
+probe could hide missing public discovery or accidentally send partner data
+during a publication check.
+
+**How to apply:** Run `scripts/verify-published-partner-api-contract.ts` with
+`PUBLISHED_BASE_URL` after every Partner API publication and treat any nonzero
+exit as deployment drift.
+
 ## Files
 - `server/partner-api-routes.ts` — all logic
 - `shared/schema.ts` — `partnerApiKeys` + `partnerApiAuditLog` tables

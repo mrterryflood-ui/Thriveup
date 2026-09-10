@@ -49,9 +49,39 @@ All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
 | `benefits:read` | Public benefits program catalog |
 | `impact:read` | Community intervention impact scores and outcome data |
 | `student:read` | Student progress overview and thrive scores (education platforms) |
+| `chainweb:read` | Chainweb ROI coefficients, templates, scenarios, calculations, and narratives |
+| `yhsi:read` | Aggregate, floor-5-suppressed YHSI metrics and outcome summaries |
 | `inbound:write` | POST data into ThriveUp (referrals, events, metrics, alerts) |
+| `outcomes:read` | Read aggregated outcome data — trade sim completion counts and employer-ready metrics (no PII) |
+| `certs:read` | Verify and read certificate records |
 
 Scopes are assigned at key creation time in the admin panel (Ops Center → Partner API tab). A key can have multiple scopes.
+
+### ChildCORE publication contract
+
+Before telling ChildCORE that the integration is live, run the credential-free
+published contract check:
+
+```bash
+PUBLISHED_BASE_URL=https://<published-app-host> \
+  npx tsx scripts/verify-published-partner-api-contract.ts
+```
+
+The check is intentionally safe for a published environment. It:
+
+- confirms the public `/api/partner/v1/docs` response advertises
+  `chainweb:read` and `yhsi:read`, and lists the Chainweb, YHSI, and heartbeat
+  routes;
+- probes protected Chainweb, YHSI, and aggregate student routes without any
+  credentials and requires `401` or `403`, so a stale published app's `404` is
+  reported as deployment drift; and
+- sends a bodyless `POST /api/partner/v1/heartbeat` without partner data and
+  requires `401` or `403`, proving the route is present without writing a
+  heartbeat.
+
+The script never sends or prints a partner key, authorization header, or
+partner payload. Set `BASE_URL` instead of `PUBLISHED_BASE_URL` only for an
+explicit local/manual run.
 
 ---
 
