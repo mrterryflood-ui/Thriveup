@@ -194,6 +194,13 @@ const FEATURED_SERVICE_PLATFORMS = [
     icon: TrendingUp,
     theme: "text-amber-600 bg-amber-100 dark:bg-amber-950/40 dark:text-amber-300",
   },
+  {
+    name: "ChildCORE",
+    description: "Community intelligence for child and family services — provider availability, school intelligence, and social-determinants data integrated directly into ThriveUp navigation and referral pathways.",
+    href: "https://childcore.app",
+    icon: Baby,
+    theme: "text-violet-600 bg-violet-100 dark:bg-violet-950/40 dark:text-violet-300",
+  },
 ] as const;
 
 function PathwayCard({ pathway }: { pathway: typeof PATHWAYS[0] }) {
