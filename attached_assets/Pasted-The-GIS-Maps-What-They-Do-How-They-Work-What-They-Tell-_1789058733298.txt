@@ -1,0 +1,24 @@
+The GIS Maps — What They Do, How They Work, What They Tell
+What they are technically: Leaflet-powered interactive maps rendered in the Community Intelligence Portal (/explore/compare and /explore/workspace). They pull real data from NCES, Census ACS, NIEER, KFF, BLS, and Perplexity-sourced research, assembled in the backend comparison engine.
+
+What they show:
+
+Need-heat circles — every geography you add gets a circle. Size = overall need score (0–100 composite). Color = heat (red = high need, amber = moderate, green = low). One glance tells you which county is in crisis and which isn't.
+Correlation arcs — Polyline curves connecting geographies where a statistical relationship (Pearson r) exists between two metrics. If childcare desert % and child poverty rate are strongly correlated in your comparison, you see a visible arc between them. This is not decoration — it is a causal pathway signal.
+The comparison matrix — side-by-side metric table behind the map tab. Metrics across rows, geographies across columns. Leader/laggard arrows. Gap column. CSV export.
+The policy grid — state-level policy differences: PreK mandate type (universal, income-eligible, pilot, none), QRIS structure, subsidy FPL threshold, home visiting coverage.
+The correlation graph (D3 force-directed) — geo nodes and metric nodes. Pull them apart. See which metrics cluster together. See which geographies share structural problems.
+The data story — auto-generated narrative: need score ranking, biggest disparities, interstate policy gaps, strong correlations. Plain language. Exportable.
+The stories they tell:
+
+The desert story — Harris County TX shows a 68% childcare desert rate. Mecklenburg County NC shows 41%. The arc connecting desert rate to poverty rate is strong and red. The story writes itself: Harris County isn't just under-served, it's structurally trapped.
+The policy gap story — Texas has income-eligible PreK. North Carolina has a universal PreK mandate. That single policy difference explains half the enrollment gap. The policy grid makes that visible in one row.
+The investment ROI story — When ThriveUp's Chainweb scopes are granted, this gets dramatically more powerful: you can show the economic return on early childhood investment for each county, traced through to workforce outcomes at age 26.
+The advocacy story — A United Way officer walks into a county commissioner meeting with a PNG export showing their county in red (need score 74), compared to a peer county at 51, with a sourced data story explaining the three policy differences that account for the gap. That is a grant argument, a budget argument, and a legislative argument in one image.
+What it enables:
+
+Funders making geographic investment decisions without a research team
+State agencies identifying which districts need targeted intervention
+Advocates walking into legislative hearings with sourced, visual, exportable evidence
+Programs proving community need for new grant applications
+Anyone in America — no login, no cost — checking the early childhood health of any county or district

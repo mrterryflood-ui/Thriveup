@@ -11,6 +11,7 @@ const CascadeWaterfall   = lazy(() => import("@/components/viz3d/CascadeWaterfal
 const DomainWeb          = lazy(() => import("@/components/viz3d/DomainWeb"));
 const ParticleFlow       = lazy(() => import("@/components/viz3d/ParticleFlow"));
 const HistoricalTimeline = lazy(() => import("@/components/viz3d/HistoricalTimeline"));
+const GisNeedHeatMap     = lazy(() => import("@/components/gis/GisNeedHeatMap"));
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -959,6 +960,7 @@ function LoadingSkeleton() {
 
 const VIZ_TABS = [
   { id: "skyline",    label: "🏙 Skyline Map",        desc: "Real ZIP scores — height = cost of inaction" },
+  { id: "map",        label: "🗺 Geographic Map",      desc: "Need-heat circles by ZIP — size and color show where the crisis is concentrated" },
   { id: "cascade",    label: "🌊 Cascade Waterfall",   desc: "25-year cost chain by life stage" },
   { id: "web",        label: "🕸 Domain Web",           desc: "How the 10 systems pull on each other" },
   { id: "particles",  label: "✨ Particle Flow",        desc: "Community population: invest vs. don't" },
@@ -1771,6 +1773,25 @@ export default function CommunityImpactPage() {
                          />
                         : <div className="w-full h-full flex items-center justify-center bg-slate-900 text-slate-300 text-sm px-6 text-center" data-testid="particle-flow-fallback">Impact-flow visualization is unavailable for this brief because the required values were not provided.</div>
                    )}
+                  {activeViz === "map" && (() => {
+                      const geoPoints = (neighborResult?.zips ?? [])
+                        .filter((z: { lat?: number; lon?: number }) => z.lat != null && z.lon != null)
+                        .map((z: { zip: string; lat: number; lon: number; score: number }) => ({
+                          id: z.zip,
+                          label: `ZIP ${z.zip}`,
+                          lat: z.lat,
+                          lon: z.lon,
+                          needScore: z.score,
+                          metrics: { score: { value: z.score, label: "SDOH Need Score", unit: "/100" } },
+                        }));
+                      return geoPoints.length > 0
+                        ? <GisNeedHeatMap points={geoPoints} height="100%" />
+                        : <div className="w-full h-full flex flex-col items-center justify-center bg-slate-900 text-slate-300 gap-3 px-6 text-center">
+                            <span className="text-4xl">🗺</span>
+                            <div className="font-semibold">Run a community brief first</div>
+                            <p className="text-sm text-muted-foreground max-w-sm">The geographic map plots neighboring ZIPs by SDOH need score. Search a ZIP code above to load the data.</p>
+                          </div>;
+                    })()}
                   {activeViz === "historical" && (
                     data.historicalCascade?.vintages?.length > 0
                     && data.historicalCascade.totalAccumulatedCost != null

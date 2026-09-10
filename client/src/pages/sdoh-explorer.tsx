@@ -993,10 +993,10 @@ export default function SDOHExplorerPage() {
                                   <div className="font-medium">{countyLabel || `Tract ${tractLabel}`}</div>
                                   {countyLabel && <div className="text-muted-foreground">Tract {tractLabel}</div>}
                                   <div className="flex items-center gap-2 mt-0.5">
-                                    <a href={`https://www.google.com/maps/search/${mapsQuery}`}
+                                    <a href={`https://www.openstreetmap.org/search?query=${mapsQuery}`}
                                       target="_blank" rel="noopener noreferrer"
                                       className="inline-flex items-center gap-0.5 text-blue-600 dark:text-blue-400 hover:underline text-xs">
-                                      <MapPin className="h-2.5 w-2.5" /> Find on map
+                                      <MapPin className="h-2.5 w-2.5" /> View on map
                                     </a>
                                     {censusUrl && (
                                       <a href={censusUrl} target="_blank" rel="noopener noreferrer"

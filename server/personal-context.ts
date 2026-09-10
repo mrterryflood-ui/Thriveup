@@ -38,6 +38,7 @@ import {
   stakeholderCommitments,
   navigatorConversations,
   referrals,
+  userJourneys,
 } from "@shared/schema";
 import { eq, desc, ne } from "drizzle-orm";
 
@@ -202,6 +203,48 @@ export async function getPersonalContext(
       }
     } catch {
       // non-fatal
+    }
+  }
+
+  // ── User Journey Spine — the single shared record that all tools write to
+  // This is the source-of-truth for what the user has already told us.
+  // All tools write here; all tools read here. This breaks the silo.
+  if (userId) {
+    try {
+      const [journey] = await db
+        .select()
+        .from(userJourneys)
+        .where(eq(userJourneys.userId, userId))
+        .limit(1);
+
+      if (journey) {
+        const journeyParts: string[] = [];
+        if (journey.identifiedNeeds?.length) {
+          journeyParts.push(`Identified needs across all tools: ${journey.identifiedNeeds.join(", ")}`);
+        }
+        if (journey.lastKnownGeography) {
+          journeyParts.push(`Geography: ${journey.lastKnownGeography}`);
+        }
+        if (journey.yhsiStatus) {
+          journeyParts.push(`Youth housing status: ${journey.yhsiStatus}`);
+        }
+        if (journey.screenerFlags && Object.keys(journey.screenerFlags).length > 0) {
+          const flagged = Object.entries(journey.screenerFlags)
+            .filter(([, v]) => v === true)
+            .map(([k]) => k);
+          if (flagged.length > 0) {
+            journeyParts.push(`Benefits screener flags: ${flagged.join(", ")}`);
+          }
+        }
+        if (journey.activeReferralIds?.length) {
+          journeyParts.push(`Active referrals: ${journey.activeReferralIds.length} in progress`);
+        }
+        if (journeyParts.length > 0) {
+          parts.push(`Your journey record (consolidated across Navigator, screener, and referrals):\n${journeyParts.map(p => `  • ${p}`).join("\n")}`);
+        }
+      }
+    } catch {
+      // non-fatal — journey read failure does not break personal context
     }
   }
 

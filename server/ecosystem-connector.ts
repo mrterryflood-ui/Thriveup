@@ -1868,43 +1868,28 @@ export function registerEcosystemConnectorRoutes(app: Express) {
       "ad-targeting": "https://agent-target.replit.app",
     };
 
+    // ── Phase 1: Concurrent HTTP pings ────────────────────────────────────────
+    // DB writes are intentionally excluded here. Firing 25+ UPDATE + INSERT pairs
+    // concurrently inside the map exhausts the connection pool and causes cascading
+    // "Failed query" persistence failures. All DB writes happen sequentially in
+    // Phase 2 after every HTTP response is collected.
     const pingPromises = platforms.map(async (platform) => {
       const start = Date.now();
       let status = "offline";
       let responseMs = 0;
       let error: string | undefined;
       let wokenUp = false;
-      let persistenceFailed = false;
 
-      // Skip pinging TCAF-self (role="self-hub") — pinging ourselves would create a loop.
+      // Self-hub: no outbound fetch; mark online and defer DB update to Phase 2.
       if (platform.role === "self-hub") {
-        try {
-          await db.update(ecosystemPlatforms)
-            .set({ healthStatus: "online", lastHealthCheck: new Date(), lastHeartbeat: new Date() })
-            .where(eq(ecosystemPlatforms.id, platform.id));
-        } catch (err) {
-          persistenceFailed = true;
-          console.error(`[Pinger] Failed to update self-hub health state:`, err instanceof Error ? err.message : String(err));
-          await recordPingerFailure(platform, "self-hub health state persistence failed");
-        }
-        return {
-          id: platform.id,
-          name: platform.name,
-          url: platform.url,
-          status: persistenceFailed ? "degraded" : "online",
-          responseMs: 0,
-          wokenUp: false,
-          ...(persistenceFailed ? { error: "Health state persistence failed" } : {}),
-        };
+        return { id: platform.id, name: platform.name, url: platform.url, status: "online", responseMs: 0, wokenUp: false, isHub: true };
       }
 
       const wasSleeping = platform.healthStatus === "offline" || platform.healthStatus === "unknown";
 
       const urlsToTry = [platform.url];
       const replitUrl = REPLIT_DEPLOY_URLS[platform.id];
-      if (replitUrl && replitUrl !== platform.url) {
-        urlsToTry.push(replitUrl);
-      }
+      if (replitUrl && replitUrl !== platform.url) urlsToTry.push(replitUrl);
 
       for (const url of urlsToTry) {
         try {
@@ -1918,14 +1903,8 @@ export function registerEcosystemConnectorRoutes(app: Express) {
               headers: { "User-Agent": "ThriveUp-Ecosystem-Hub/3.0 (Platform-Pinger)" },
             });
             responseMs = Date.now() - start;
-
-            if (response.status < 500) {
-              status = "online";
-              wokenUp = wasSleeping;
-              break;
-            } else {
-              status = "degraded";
-            }
+            if (response.status < 500) { status = "online"; wokenUp = wasSleeping; break; }
+            else { status = "degraded"; }
           } finally {
             clearTimeout(timeout);
           }
@@ -1936,72 +1915,68 @@ export function registerEcosystemConnectorRoutes(app: Express) {
         }
       }
 
-      // Update platform health in DB
-      try {
-        await db.update(ecosystemPlatforms)
-          .set({ healthStatus: status, lastHealthCheck: new Date() })
-          .where(eq(ecosystemPlatforms.id, platform.id));
-      } catch (err) {
-        persistenceFailed = true;
-        status = "degraded";
-        error = error ? `${error}; health state persistence failed` : "Health state persistence failed";
-        console.error(`[Pinger] Failed to persist ${platform.name} health state:`, err instanceof Error ? err.message : String(err));
+      return { id: platform.id, name: platform.name, url: platform.url, status, responseMs, wokenUp, error, isHub: false };
+    });
+
+    const rawPingResults = await Promise.allSettled(pingPromises);
+
+    // ── Phase 2: Sequential DB writes ─────────────────────────────────────────
+    // One platform at a time. A single slow write cannot block others; a single
+    // failure is logged with the real Postgres error and does not cascade.
+    for (const [index, rawResult] of rawPingResults.entries()) {
+      const platform = platforms[index];
+      if (!platform) continue;
+
+      let pingResult: { id: string; name: string; url: string; status: string; responseMs: number; wokenUp: boolean; error?: string; isHub?: boolean };
+      if (rawResult.status === "fulfilled") {
+        pingResult = rawResult.value;
+      } else {
+        const errMsg = rawResult.reason instanceof Error ? rawResult.reason.message : String(rawResult.reason);
+        console.error(`[Pinger] ${platform.name} ping threw without a result:`, errMsg);
+        pingResult = { id: platform.id, name: platform.name, url: platform.url, status: "degraded", responseMs: 0, wokenUp: false, error: `Health check failed: ${errMsg}` };
       }
 
-      // Log the health check
+      let { status, error } = pingResult;
+      let persistenceFailed = false;
+
+      // Self-hub also gets lastHeartbeat refreshed.
+      const platformSet = pingResult.isHub
+        ? { healthStatus: status as string, lastHealthCheck: new Date(), lastHeartbeat: new Date() }
+        : { healthStatus: status as string, lastHealthCheck: new Date() };
+
+      try {
+        await db.update(ecosystemPlatforms).set(platformSet).where(eq(ecosystemPlatforms.id, platform.id));
+      } catch (err) {
+        persistenceFailed = true;
+        const detail = err instanceof Error
+          ? (err.cause ? `${err.message} — cause: ${err.cause}` : err.message)
+          : String(err);
+        error = error ? `${error}; health state persistence failed` : "Health state persistence failed";
+        console.error(`[Pinger] Failed to persist ${platform.name} health state:`, detail);
+      }
+
       try {
         await db.insert(ecosystemHealthLogs).values({
           platformId: platform.id,
-          status,
-          responseTimeMs: responseMs,
+          status: persistenceFailed ? "degraded" : status,
+          responseTimeMs: pingResult.responseMs,
           statusCode: status === "online" ? 200 : status === "degraded" ? 500 : 0,
           errorMessage: error || null,
         });
       } catch (err) {
         persistenceFailed = true;
-        status = "degraded";
+        const detail = err instanceof Error
+          ? (err.cause ? `${err.message} — cause: ${err.cause}` : err.message)
+          : String(err);
         error = error ? `${error}; health log persistence failed` : "Health log persistence failed";
-        console.error(`[Pinger] Failed to persist ${platform.name} health log:`, err instanceof Error ? err.message : String(err));
-        try {
-          await db.update(ecosystemPlatforms)
-            .set({ healthStatus: "degraded", lastHealthCheck: new Date() })
-            .where(eq(ecosystemPlatforms.id, platform.id));
-        } catch (stateErr) {
-          console.error(`[Pinger] Failed to mark ${platform.name} degraded after health-log failure:`, stateErr instanceof Error ? stateErr.message : String(stateErr));
-        }
+        console.error(`[Pinger] Failed to persist ${platform.name} health log:`, detail);
       }
 
-      if (persistenceFailed) {
-        status = "degraded";
-        error = error ? `${error}; health state persistence failed` : "Health state persistence failed";
-      }
-      const logPrefix = wokenUp ? "[Pinger] WOKE UP" : `[Pinger] ${status.toUpperCase()}`;
-      console.log(`${logPrefix}: ${platform.name} (${responseMs}ms)${error ? " — " + error : ""}`);
+      if (persistenceFailed) status = "degraded";
 
-      return { id: platform.id, name: platform.name, url: platform.url, status, responseMs, wokenUp, error };
-    });
-
-    const allResults = await Promise.allSettled(pingPromises);
-    for (const [index, result] of allResults.entries()) {
-      if (result.status === "fulfilled") {
-        results.push(result.value);
-      } else {
-        const platform = platforms[index];
-        const error = result.reason instanceof Error ? result.reason.message : String(result.reason);
-        console.error(`[Pinger] ${platform?.name || "Platform"} check failed without a result:`, error);
-        if (platform) {
-          await recordPingerFailure(platform, error);
-          results.push({
-            id: platform.id,
-            name: platform.name,
-            url: platform.url,
-            status: "degraded",
-            responseMs: 0,
-            wokenUp: false,
-            error: `Health check failed: ${error}`,
-          });
-        }
-      }
+      const logPrefix = pingResult.wokenUp ? "[Pinger] WOKE UP" : `[Pinger] ${status.toUpperCase()}`;
+      console.log(`${logPrefix}: ${platform.name} (${pingResult.responseMs}ms)${error ? " — " + error : ""}`);
+      results.push({ id: platform.id, name: platform.name, url: platform.url, status, responseMs: pingResult.responseMs, wokenUp: pingResult.wokenUp, error });
     }
 
     const completedAt = new Date().toISOString();

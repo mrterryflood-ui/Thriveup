@@ -292,7 +292,10 @@ app.use((req, res, next) => {
         }
         await checkGunViolenceStaleness();
       }, GV_SYNC_INTERVAL_MS);
-    }, 3 * 60 * 1000);
+    // 5 min delay so the GV sync doesn't overlap with the pinger's startup
+    // health-check cycle (which also fires at boot). Overlap exhausted the
+    // connection pool and caused both the pinger logs and GV inserts to fail.
+    }, 5 * 60 * 1000);
   }
 
   // Nationwide Equity-Loss snapshot monthly refresh scheduler.

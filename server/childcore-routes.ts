@@ -31,6 +31,7 @@ import {
   yhsiYouthParticipants,
   yhsiReferrals,
   yhsiOutcomeSnapshots,
+  childcoreCountyMetrics,
 } from "@shared/schema";
 
 // ─── Auth helpers ─────────────────────────────────────────────────────────────
@@ -55,6 +56,40 @@ function requireAdmin(req: Request, res: Response): boolean {
 
 function hashPartnerKey(plaintext: string): string {
   return createHash("sha256").update(plaintext).digest("hex");
+}
+
+// ── Partner-key auth for inbound pushes ────────────────────────────────────────
+// ChildCORE stores ThriveUp's THRIVEUP_API_KEY and sends it as
+// Authorization: Bearer <key> on inbound county-metrics pushes.
+// We validate it against the partnerApiKeys table (hashed).
+async function resolveInboundPartnerKey(
+  req: Request,
+  res: Response,
+): Promise<{ keyId: string; partnerName: string } | null> {
+  const authHeader = req.headers.authorization ?? "";
+  const raw = authHeader.startsWith("Bearer ")
+    ? authHeader.slice(7).trim()
+    : (req.headers["x-partner-key"] as string | undefined)?.trim() ?? "";
+  if (!raw) {
+    res.status(401).json({ error: "Authentication required. Include Authorization: Bearer <partner-key>" });
+    return null;
+  }
+  const hashed = hashPartnerKey(raw);
+  const [key] = await db
+    .select({
+      id: partnerApiKeys.id,
+      partnerName: partnerApiKeys.partnerName,
+      keyPrefix: partnerApiKeys.keyPrefix,
+      active: partnerApiKeys.active,
+    })
+    .from(partnerApiKeys)
+    .where(eq(partnerApiKeys.keyHash, hashed))
+    .limit(1);
+  if (!key || !key.active) {
+    res.status(403).json({ error: "Invalid or revoked partner key" });
+    return null;
+  }
+  return { keyId: key.id, partnerName: key.partnerName, keyPrefix: key.keyPrefix };
 }
 
 // ─── Route registration ───────────────────────────────────────────────────────
@@ -348,5 +383,84 @@ export function registerChildCORERoutes(router: Router): void {
       console.error("[ChildCORE] capability status failed:", err);
       res.status(500).json({ error: "Capability status query failed" });
     }
+  });
+
+  // ── Inbound: ChildCORE → ThriveUp county metrics push ───────────────────────
+  // ChildCORE calls POST /api/childcore/county-metrics/ingest every 30 minutes
+  // with county-level early-childhood intelligence. This feeds into the Navigator
+  // community context and Community Brief when a user's ZIP matches.
+  //
+  // Auth: Authorization: Bearer <tcaf_partner_key> (hashed in partner_api_keys)
+  // Scope required: none (inbound data ingestion is scope-free for registered partners)
+  router.post("/childcore/county-metrics/ingest", async (req, res) => {
+    const partner = await resolveInboundPartnerKey(req, res);
+    if (!partner) return;
+
+    const { records } = req.body as { records?: unknown[] };
+    if (!Array.isArray(records) || records.length === 0) {
+      return res.status(400).json({ error: "'records' must be a non-empty array" });
+    }
+    if (records.length > 500) {
+      return res.status(400).json({ error: "Batch limit is 500 records per push" });
+    }
+
+    const accepted: string[] = [];
+    const rejected: Array<{ index: number; reason: string }> = [];
+
+    for (let i = 0; i < records.length; i++) {
+      const raw = records[i] as Record<string, unknown>;
+      const fipsCode = String(raw.fipsCode ?? raw.fips_code ?? "").trim();
+      if (!fipsCode || !/^\d{5}$/.test(fipsCode)) {
+        rejected.push({ index: i, reason: "fipsCode must be a 5-digit string" });
+        continue;
+      }
+      try {
+        const row = {
+          fipsCode,
+          countyName: raw.countyName != null ? String(raw.countyName) : null,
+          stateFips: fipsCode.slice(0, 2),
+          desertRate: typeof raw.desertRate === "number" ? raw.desertRate : null,
+          prekEnrollmentRate: typeof raw.prekEnrollmentRate === "number" ? raw.prekEnrollmentRate : null,
+          kindergartenReadiness: typeof raw.kindergartenReadiness === "number" ? raw.kindergartenReadiness : null,
+          subsidyAccessRate: typeof raw.subsidyAccessRate === "number" ? raw.subsidyAccessRate : null,
+          childPovertyRate: typeof raw.childPovertyRate === "number" ? raw.childPovertyRate : null,
+          staffTurnoverRate: typeof raw.staffTurnoverRate === "number" ? raw.staffTurnoverRate : null,
+          rawMetrics: typeof raw.rawMetrics === "object" && raw.rawMetrics !== null
+            ? (raw.rawMetrics as Record<string, number>)
+            : null,
+          pushedBy: partner.partnerName ?? "childcore",
+        };
+        await db.insert(childcoreCountyMetrics).values(row);
+        accepted.push(fipsCode);
+      } catch (err: any) {
+        rejected.push({ index: i, reason: err.message ?? "DB insert failed" });
+      }
+    }
+
+    // Audit log
+    try {
+      await db.insert(partnerApiAuditLog).values({
+        keyId: partner.keyId,
+        keyPrefix: partner.keyPrefix,
+        partnerName: partner.partnerName,
+        endpoint: "POST /api/childcore/county-metrics/ingest",
+        method: "POST",
+        statusCode: rejected.length === records.length ? 400 : 202,
+        ip: (req.headers["x-forwarded-for"] as string | undefined) ?? req.ip ?? "",
+        userAgent: req.headers["user-agent"] ?? null,
+      });
+    } catch { /* audit failure is non-blocking */ }
+
+    res.status(202).json({
+      received: records.length,
+      accepted: accepted.length,
+      rejected: rejected.length,
+      rejections: rejected.slice(0, 20),
+      receipt: {
+        partner: partner.partnerName,
+        ingestedAt: new Date().toISOString(),
+        fipsCodes: accepted,
+      },
+    });
   });
 }

@@ -73,7 +73,7 @@ export function getLastSmokeResult(): SmokeTestResult | null {
 const PROBE_TIMEOUT_MS = 20_000;
 const ALERT_TIMEOUT_MS = 5_000;
 const PROBE_PROMPT = "Reply with exactly one word: OK";
-const PROBE_MAX_TOKENS = 5;
+const PROBE_MAX_TOKENS = 20;  // 5 was too few — some models return empty at that limit
 
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -226,8 +226,9 @@ async function probePerplexity(): Promise<EngineProbeResult> {
   const start = Date.now();
   const key = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
   const baseURL = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
-  // "sonar-pro" was retired on OpenRouter; the current canonical ID is "sonar".
-  const model = "perplexity/sonar";
+  // "sonar-pro" was retired on OpenRouter. Try "sonar-online" which is the stable
+  // search-enabled variant; fall back to plain "sonar" if that also retires.
+  const model = "perplexity/sonar-online";
   if (!key || !baseURL) return { engine: "perplexity", model, ok: false, latencyMs: 0, error: "OpenRouter not configured" };
 
   try {

@@ -8422,3 +8422,54 @@ export const learningDeposits = pgTable("learning_deposits", {
 
 export type LearningDeposit = typeof learningDeposits.$inferSelect;
 export type InsertLearningDeposit = typeof learningDeposits.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// User Journey Envelope
+// Shared spine that all tools (Navigator, Benefits Screener, CHW, YHSI, Community
+// Brief) read before generating a response and write after learning something new.
+// This is the structural fix for the silo architecture: one durable record per
+// person that every tool draws from instead of separate siloed data models.
+// ─────────────────────────────────────────────────────────────────────────────
+export const userJourneys = pgTable("user_journeys", {
+  userId: varchar("user_id", { length: 255 }).primaryKey().notNull(),
+  lastKnownGeography: varchar("last_known_geography", { length: 20 }),
+  identifiedNeeds: jsonb("identified_needs").$type<string[]>(),
+  screenerFlags: jsonb("screener_flags").$type<Record<string, boolean>>(),
+  activeReferralIds: jsonb("active_referral_ids").$type<string[]>(),
+  yhsiStatus: varchar("yhsi_status", { length: 50 }),
+  communityContextAt: timestamp("community_context_at"),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (t) => [
+  index("user_journeys_updated_idx").on(t.updatedAt),
+]);
+
+export type UserJourney = typeof userJourneys.$inferSelect;
+export type InsertUserJourney = typeof userJourneys.$inferInsert;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ChildCORE County Metrics
+// Receives county-level early childhood data pushed by ChildCORE every 30 min.
+// Fed into Navigator community context, Community Brief, and Conductor when a
+// user's geography matches, closing the 0–26 longitudinal arc.
+// ─────────────────────────────────────────────────────────────────────────────
+export const childcoreCountyMetrics = pgTable("childcore_county_metrics", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  fipsCode: varchar("fips_code", { length: 10 }).notNull(),
+  countyName: varchar("county_name", { length: 100 }),
+  stateFips: varchar("state_fips", { length: 2 }),
+  desertRate: real("desert_rate"),
+  prekEnrollmentRate: real("prek_enrollment_rate"),
+  kindergartenReadiness: real("kindergarten_readiness"),
+  subsidyAccessRate: real("subsidy_access_rate"),
+  childPovertyRate: real("child_poverty_rate"),
+  staffTurnoverRate: real("staff_turnover_rate"),
+  rawMetrics: jsonb("raw_metrics").$type<Record<string, number>>(),
+  receivedAt: timestamp("received_at").notNull().defaultNow(),
+  pushedBy: varchar("pushed_by", { length: 100 }).default("childcore"),
+}, (t) => [
+  index("childcore_county_metrics_fips_idx").on(t.fipsCode),
+  index("childcore_county_metrics_received_idx").on(t.receivedAt),
+]);
+
+export type ChildcoreCountyMetric = typeof childcoreCountyMetrics.$inferSelect;
+export type InsertChildcoreCountyMetric = typeof childcoreCountyMetrics.$inferInsert;

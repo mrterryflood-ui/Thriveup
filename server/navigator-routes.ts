@@ -33,6 +33,7 @@ import {
   cedsAlignments,
   gunViolenceIncidents,
   zctaCountyMap,
+  userJourneys,
 } from "@shared/schema";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
 import {
@@ -1602,6 +1603,35 @@ export function registerNavigatorRoutes(app: Express) {
               .set({ lastMessageAt: new Date() })
               .where(eq(navigatorConversations.id, activeConversationId));
           }
+        }
+
+        // ── Journey spine write — non-blocking, fire-and-forget ────────────────
+        // Every Navigator message that surfaces needs updates the shared journey
+        // envelope so the Benefits Screener, CHW referral form, and community
+        // brief can pre-populate without asking the user to repeat themselves.
+        if (activeConversationId) {
+          db.select({ identifiedNeeds: navigatorConversations.identifiedNeeds })
+            .from(navigatorConversations)
+            .where(eq(navigatorConversations.id, activeConversationId))
+            .limit(1)
+            .then(async ([convo]) => {
+              if (!convo?.identifiedNeeds?.length) return;
+              await db
+                .insert(userJourneys)
+                .values({ userId, identifiedNeeds: convo.identifiedNeeds, updatedAt: new Date() })
+                .onConflictDoUpdate({
+                  target: userJourneys.userId,
+                  set: { identifiedNeeds: sql`
+                    (SELECT jsonb_agg(DISTINCT elem ORDER BY elem)
+                     FROM jsonb_array_elements(
+                       COALESCE(user_journeys.identified_needs, '[]'::jsonb) ||
+                       EXCLUDED.identified_needs
+                     ) AS elem)`,
+                    updatedAt: new Date(),
+                  },
+                });
+            })
+            .catch(() => { /* journey write is non-blocking */ });
         }
 
         await db.insert(navigatorMessages).values({
