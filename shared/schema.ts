@@ -7607,6 +7607,11 @@ export const referrals = pgTable("referrals", {
   valueSource: varchar("value_source"),
   notes: text("notes"),
   funderId: text("funder_id"),
+  // Context bridge: CHW can link a referral to the Navigator conversation that
+  // identified the need, so the full journey is traceable and the org receives
+  // structured context alongside the warm referral.
+  navigatorConversationId: varchar("navigator_conversation_id", { length: 100 }),
+  navigatorContext: jsonb("navigator_context"), // {identifiedNeeds: string[], geography?: string}
   createdAt: timestamp("created_at").defaultNow(),
   resolvedAt: timestamp("resolved_at"),
 });

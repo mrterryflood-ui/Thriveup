@@ -67,7 +67,10 @@ export function getLastSmokeResult(): SmokeTestResult | null {
 // Per-engine probes — each uses max_tokens=5 and a 10-second timeout
 // ────────────────────────────────────────────────────────────────────────────
 
-const PROBE_TIMEOUT_MS = 10_000;
+// 20 s gives OpenRouter enough headroom on slow days without declaring a
+// false outage. The alert gate (2 consecutive failures) provides the second
+// layer of protection against transient noise.
+const PROBE_TIMEOUT_MS = 20_000;
 const ALERT_TIMEOUT_MS = 5_000;
 const PROBE_PROMPT = "Reply with exactly one word: OK";
 const PROBE_MAX_TOKENS = 5;
@@ -197,11 +200,14 @@ async function probeDeepSeek(): Promise<EngineProbeResult> {
   const baseURL = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
   if (!key || !baseURL) return { engine: "deepseek", model: "deepseek/deepseek-chat", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENROUTER_* not set" };
 
+  // Match the model used in collaborative-ai.ts so the probe tests the same
+  // code path that real Navigator requests hit.
+  const model = "deepseek/deepseek-r1-distill-llama-70b";
   try {
     const client = new OpenAI({ apiKey: key, baseURL, timeout: PROBE_TIMEOUT_MS });
     const resp = await withTimeout(
       client.chat.completions.create({
-        model: "deepseek/deepseek-chat",
+        model,
         messages: [{ role: "user", content: PROBE_PROMPT }],
         max_tokens: PROBE_MAX_TOKENS,
       }),
@@ -210,9 +216,9 @@ async function probeDeepSeek(): Promise<EngineProbeResult> {
     );
     const text = resp.choices[0]?.message?.content || "";
     if (!text || text.trim().length === 0) throw new Error("Empty response");
-    return { engine: "deepseek", model: "deepseek/deepseek-chat", ok: true, latencyMs: Date.now() - start };
+    return { engine: "deepseek", model, ok: true, latencyMs: Date.now() - start };
   } catch (err: any) {
-    return { engine: "deepseek", model: "deepseek/deepseek-chat", ok: false, latencyMs: Date.now() - start, error: err.message };
+    return { engine: "deepseek", model, ok: false, latencyMs: Date.now() - start, error: err.message };
   }
 }
 
@@ -220,7 +226,8 @@ async function probePerplexity(): Promise<EngineProbeResult> {
   const start = Date.now();
   const key = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
   const baseURL = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
-  const model = "perplexity/sonar-pro";
+  // "sonar-pro" was retired on OpenRouter; the current canonical ID is "sonar".
+  const model = "perplexity/sonar";
   if (!key || !baseURL) return { engine: "perplexity", model, ok: false, latencyMs: 0, error: "OpenRouter not configured" };
 
   try {

@@ -1,0 +1,145 @@
+Here is every stakeholder group, what they care about, and exactly how to explain ChildCORE to them.
+
+---
+
+## End Users
+
+### 1. Head Start / Early Head Start Directors
+**What keeps them up at night:** Federal monitoring visits. PIR reports. Compliance citations. Staff turnover. Proving impact to OHS.
+
+**How to explain ChildCORE:**
+> "ChildCORE knows 45 CFR Part 1302 the way your best compliance officer does — except it never leaves, never misses a deadline, and gets smarter every month. Your compliance calendar is pre-loaded. Your PIR data is collected through your normal workflow. When a federal rule changes, you see it before your monitor does. And when a program in Ohio figures out how to get kindergarten readiness to 94%, ChildCORE shows you exactly what they did and why it worked — with citations."
+
+---
+
+### 2. Licensed Childcare Center Directors and Networks
+**What keeps them up at night:** Subsidy billing errors. Licensing renewals. Staff turnover and credential gaps. Proving quality to QRIS raters.
+
+**How to explain ChildCORE:**
+> "Every state licensing requirement for your state is already in the system. Your QRIS evidence is built from data you're already entering. Your subsidy billing is tracked. Your staff credentials and renewal dates are flagged before they lapse. You stop managing five spreadsheets and start running your program."
+
+---
+
+### 3. Family Childcare Home Network Coordinators
+**What keeps them up at night:** Keeping home providers compliant, credentialed, and connected when they operate in isolation.
+
+**How to explain ChildCORE:**
+> "Every provider in your network gets their own dashboard. Compliance calendar, training hours, renewal dates, children's records — all in one place. You see the health of your whole network on one screen. When a provider is at risk, you know before they do."
+
+---
+
+### 4. School District PreK Coordinators
+**What keeps them up at night:** Kindergarten readiness data. Transition records from childcare. Title I accountability. Chronic absenteeism.
+
+**How to explain ChildCORE:**
+> "ChildCORE bridges the gap between the childcare system and your K-12 data. When a child transitions from a Head Start or licensed center into your PreK, their developmental record, attendance history, and IEP flags come with them. No more starting from zero in September."
+
+---
+
+### 5. Parents and Caregivers
+**What keeps them up at night:** Understanding their child's development. Navigating a confusing system. Not knowing what they qualify for.
+
+**How to explain ChildCORE:**
+> "You get a real-time window into your child's record — what they're working on developmentally, how their attendance looks, what programs they qualify for that they're not in yet, and a direct line to their teachers. No phone tag. No paper packets."
+
+---
+
+### 6. Home Visiting Program Coordinators (NFP, PAT, MIECHV)
+**What keeps them up at night:** Caseload management. Visit documentation. Demonstrating outcomes to MIECHV funders.
+
+**How to explain ChildCORE:**
+> "Your home visitors document visits once. The system tracks developmental progress, flags families who need additional support, and generates your MIECHV outcome reports automatically. Your visitors spend their time with families, not with paperwork."
+
+---
+
+### 7. Community Action Agency Directors
+**What keeps them up at night:** Coordinating multiple federal streams (Head Start, CSBG, LIHEAP, CCDBG) without dropping any child.
+
+**How to explain ChildCORE:**
+> "ChildCORE shows you every child across all your programs on one screen. Eligibility gaps, referral pathways, compliance calendars — all unified. When a family you serve in one program qualifies for another, the system tells you before anyone falls through the cracks."
+
+---
+
+### 8. State Agency Early Childhood Officers
+**What keeps them up at night:** Equity gaps in access. Geographic deserts. Proving ROI to legislatures. Data quality across hundreds of grantees.
+
+**How to explain ChildCORE:**
+> "ChildCORE gives you a live map of your state's early childhood ecosystem — desert rates, subsidy access gaps, kindergarten readiness by county, and how your state's policy compares to the top five performers nationally. Every grantee you fund is on one dashboard. You stop chasing data and start making policy decisions."
+
+---
+
+### 9. United Way Early Childhood Officers
+**What keeps them up at night:** Demonstrating collective impact. Aligning community partners. ALICE data. Born Learning outcomes.
+
+**How to explain ChildCORE:**
+> "ChildCORE is the intelligence layer your Success By 6 work has always needed. Your ALICE data, your 2-1-1 referral pipeline, your Born Learning outcomes — all connected to real program data from every childcare provider in your footprint. You can finally show funders not just what services were delivered, but what changed for children."
+
+---
+
+## Funders
+
+### 10. Federal Program Officers (ACF, OHS, Office of Child Care)
+**What they need to hear:**
+> "ChildCORE is the compliance and outcomes infrastructure that makes your federal investment legible at the program level. Grantees stop guessing about 45 CFR compliance. Monitoring prep happens continuously, not in the three weeks before a visit. Outcome data flows up to you in the format you need, from programs that actually collected it."
+
+---
+
+### 11. State Early Childhood Block Grant Administrators
+**What they need to hear:**
+> "Every dollar you put into state PreK, CCDBG, and early intervention can be tracked to program-level outcomes for the first time. ChildCORE normalizes data across all your grantees so you can see which programs are performing, which need support, and where geographic gaps need targeted investment — without a separate data collection initiative."
+
+---
+
+### 12. Foundation Program Officers (Early Childhood Focus)
+**What they need to hear:**
+> "You fund programs that are trying to move kindergarten readiness. ChildCORE gives those programs the intelligence infrastructure to actually do it — and gives you, the funder, a real-time view of progress across your entire portfolio. No more waiting for annual reports. No more trusting self-reported outcome data."
+
+---
+
+### 13. MIECHV / Home Visiting Funders
+**What they need to hear:**
+> "ChildCORE closes the reporting burden that drives away strong home visiting programs. Visit documentation is streamlined. Outcome measures (KIPS, PICCOLO, developmental screens) are embedded in the workflow. Your grantees spend less time on compliance and more time with families."
+
+---
+
+### 14. Corporate Funders (Workforce / Economic Mobility Frame)
+**What they need to hear:**
+> "The childcare crisis is your workforce crisis. When parents can't access quality care, they can't work. ChildCORE maps childcare deserts against your workforce footprint, shows which communities have the worst subsidy access gaps, and connects families to care they qualify for but aren't enrolled in. That is a direct return on your community investment."
+
+---
+
+## Nonprofits
+
+### 15. StriveTogether / Cradle to Career Backbone Organizations
+**What they need to hear:**
+> "ChildCORE is the data backbone your collective impact work has been missing. It connects the early childhood segment of your cradle-to-career continuum to real program-level data, community resource availability, and longitudinal outcomes through ThriveUp's YHSI system all the way to age 26. You finally have one continuous arc, not disconnected siloes."
+
+---
+
+### 16. Child Advocacy Organizations
+**What they need to hear:**
+> "When you go to a legislature to argue for PreK funding or childcare subsidy expansion, you need numbers. ChildCORE gives you real-time, county-level data on desert rates, waitlists, subsidy access gaps, and how your state's policy compares to the 10 highest-performing states — sourced, citable, and available to any advocate with a browser. No data team required."
+
+---
+
+### 17. Early Childhood Workforce Organizations (Unions, Advocacy, Training)
+**What they need to hear:**
+> "ChildCORE tracks wage benchmarks, credential gaps, and turnover rates at the program level. It surfaces when a program's ECE wages are below BLS state median — and what high-retention programs do differently. It is the first tool that makes the workforce crisis visible to the directors who can actually do something about it."
+
+---
+
+## The One-Sentence Version for Any Room
+
+> "ChildCORE is the operating system for early childhood — it connects every program, every family, every community resource, and every dollar of public investment into one continuous learning system, from birth to age 26, across all 50 states, so that no child is ever left without the program, resource, or intervention they need."
+
+---
+
+## The Three Questions That Open Every Conversation
+
+Regardless of which stakeholder you are talking to, start here:
+
+1. **"Right now, how do you know which children in your community are not getting the services they qualify for?"** — Nobody has a good answer. That is ChildCORE's entry point.
+
+2. **"When your best program closes or your best staff member leaves, where does that knowledge go?"** — The answer is nowhere. ChildCORE is the institutional memory.
+
+3. **"When your funder asks you to prove impact, how long does it take you to pull that data together?"** — If the answer is weeks, that is the problem ChildCORE solves today.

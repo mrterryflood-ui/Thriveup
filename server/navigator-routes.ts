@@ -2160,6 +2160,100 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
     res.json({ status: "pending" });
   });
 
+  // ─────────────────────────────────────────────────────────────────────────
+  // GET /api/navigator/context — returns the calling user's accumulated Navigator
+  // state so OTHER tools (benefits screener, CHW dashboard, referral form) can
+  // read it without asking the person to repeat themselves.
+  //
+  // This is the primary cross-tool handoff API that breaks the silo pattern.
+  // ─────────────────────────────────────────────────────────────────────────
+  app.get("/api/navigator/context", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const convos = await db
+        .select({
+          id: navigatorConversations.id,
+          title: navigatorConversations.title,
+          identifiedNeeds: navigatorConversations.identifiedNeeds,
+          lastMessageAt: navigatorConversations.lastMessageAt,
+          userContext: navigatorConversations.userContext,
+        })
+        .from(navigatorConversations)
+        .where(eq(navigatorConversations.userId, userId))
+        .orderBy(desc(navigatorConversations.lastMessageAt))
+        .limit(10);
+
+      const allNeeds = [...new Set(convos.flatMap(c => c.identifiedNeeds ?? []))];
+      const latest = convos[0] ?? null;
+
+      return res.json({
+        hasContext: convos.length > 0,
+        latestConversationId: latest?.id ?? null,
+        latestTitle: latest?.title ?? null,
+        latestAt: latest?.lastMessageAt ?? null,
+        identifiedNeeds: allNeeds,
+        geography: (latest?.userContext as Record<string, any> | null)?.geography ?? null,
+        conversationCount: convos.length,
+        conversations: convos.map(c => ({
+          id: c.id,
+          title: c.title,
+          identifiedNeeds: c.identifiedNeeds ?? [],
+          lastMessageAt: c.lastMessageAt,
+        })),
+      });
+    } catch (err) {
+      console.error("[Navigator] /context error:", err);
+      res.status(500).json({ error: "Navigator context unavailable" });
+    }
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // GET /api/navigator/prefill — structured data for tools that want to prefill
+  // their intake forms from the user's Navigator-identified needs.
+  // Returns boolean flags in screener-compatible shape so benefits-screener
+  // can call this and skip redundant questions.
+  // ─────────────────────────────────────────────────────────────────────────
+  app.get("/api/navigator/prefill", requireAuth, async (req, res) => {
+    try {
+      const userId = getUserId(req)!;
+      const [latest] = await db
+        .select({
+          id: navigatorConversations.id,
+          identifiedNeeds: navigatorConversations.identifiedNeeds,
+          userContext: navigatorConversations.userContext,
+        })
+        .from(navigatorConversations)
+        .where(eq(navigatorConversations.userId, userId))
+        .orderBy(desc(navigatorConversations.lastMessageAt))
+        .limit(1);
+
+      if (!latest) return res.json({ hasContext: false });
+
+      const needs = (latest.identifiedNeeds ?? []).map((n: string) => n.toLowerCase());
+      const geo = (latest.userContext as Record<string, any> | null)?.geography ?? null;
+
+      const prefill: Record<string, unknown> = {
+        hasContext: true,
+        conversationId: latest.id,
+        identifiedNeeds: latest.identifiedNeeds ?? [],
+        geography: geo,
+        // Boolean screener flags inferred from identified needs
+        hasChildren:      needs.some(n => ["children", "childcare", "family", "kids"].some(k => n.includes(k))),
+        isVeteran:        needs.some(n => ["veteran", "military", "va ", "service member"].some(k => n.includes(k))),
+        isDisabled:       needs.some(n => ["disability", "disabled", "ada"].some(k => n.includes(k))),
+        isUnemployed:     needs.some(n => ["unemployed", "job loss", "laid off", "employment", "work"].some(k => n.includes(k))),
+        isElderly:        needs.some(n => ["elderly", "senior", "aging", "65"].some(k => n.includes(k))),
+        isPregnant:       needs.some(n => ["pregnant", "pregnancy", "prenatal", "maternal"].some(k => n.includes(k))),
+        isSingleParent:   needs.some(n => ["single parent", "single mom", "single dad"].some(k => n.includes(k))),
+      };
+
+      return res.json(prefill);
+    } catch (err) {
+      console.error("[Navigator] /prefill error:", err);
+      res.status(500).json({ error: "Navigator prefill unavailable" });
+    }
+  });
+
   app.get("/api/navigator/conversations", requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;

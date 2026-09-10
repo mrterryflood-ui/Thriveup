@@ -36,8 +36,10 @@ import {
   communityPartnerOrgs,
   initiatives,
   stakeholderCommitments,
+  navigatorConversations,
+  referrals,
 } from "@shared/schema";
-import { eq, desc, and, ne } from "drizzle-orm";
+import { eq, desc, ne } from "drizzle-orm";
 
 // ─── Known external orgs / contacts ──────────────────────────────────────────
 const EXTERNAL_ORG_SIGNALS = [
@@ -197,6 +199,75 @@ export async function getPersonalContext(
           `  • "${i.title}"${i.summary ? ` — ${i.summary.slice(0, 100)}` : ""}`
         ).join("\n");
         parts.push(`Your saved initiatives (${userInitiatives.length}):\n${lines}`);
+      }
+    } catch {
+      // non-fatal
+    }
+  }
+
+  // ── Previous Navigator conversations — so returning users don't start from zero
+  // This is the primary bridge that breaks the silo: Navigator already identified
+  // needs and geography in prior sessions — surface those to every subsequent
+  // interaction so the user doesn't have to re-explain themselves.
+  if (userId) {
+    try {
+      const convos = await db
+        .select({
+          id: navigatorConversations.id,
+          title: navigatorConversations.title,
+          identifiedNeeds: navigatorConversations.identifiedNeeds,
+          lastMessageAt: navigatorConversations.lastMessageAt,
+          userContext: navigatorConversations.userContext,
+        })
+        .from(navigatorConversations)
+        .where(eq(navigatorConversations.userId, userId))
+        .orderBy(desc(navigatorConversations.lastMessageAt))
+        .limit(6);
+
+      if (convos.length > 0) {
+        const allNeeds = [...new Set(convos.flatMap(c => c.identifiedNeeds ?? []))];
+        const lines = convos.map(c => {
+          const needsStr = c.identifiedNeeds?.length
+            ? ` | needs: ${c.identifiedNeeds.join(", ")}`
+            : "";
+          const dateStr = c.lastMessageAt
+            ? new Date(c.lastMessageAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            : "";
+          return `  • "${c.title}"${dateStr ? ` (${dateStr})` : ""}${needsStr}`;
+        }).join("\n");
+        const summaryLine = allNeeds.length > 0
+          ? `\n  Combined needs identified across sessions: ${allNeeds.join(", ")}`
+          : "";
+        parts.push(`Your Navigator conversation history (${convos.length} sessions):\n${lines}${summaryLine}`);
+      }
+    } catch {
+      // non-fatal
+    }
+  }
+
+  // ── Recent referrals created by this CHW — know what handoffs are already in motion
+  if (userId && (audienceMode === "tcaf_internal" || audienceMode === "neutral" || audienceMode === "community_member")) {
+    try {
+      const recentReferrals = await db
+        .select({
+          programCode: referrals.programCode,
+          orgName: referrals.orgName,
+          status: referrals.status,
+          createdAt: referrals.createdAt,
+        })
+        .from(referrals)
+        .where(eq(referrals.chwUserId, userId))
+        .orderBy(desc(referrals.createdAt))
+        .limit(5);
+
+      if (recentReferrals.length > 0) {
+        const lines = recentReferrals.map(r => {
+          const dateStr = r.createdAt
+            ? new Date(r.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric" })
+            : "";
+          return `  • ${r.programCode} → ${r.orgName} (${r.status})${dateStr ? ` sent ${dateStr}` : ""}`;
+        }).join("\n");
+        parts.push(`Recent referrals you created (${recentReferrals.length}):\n${lines}`);
       }
     } catch {
       // non-fatal

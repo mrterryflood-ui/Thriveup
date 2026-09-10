@@ -165,7 +165,7 @@ async function lookupCapacity(
 // public dashboard and pump the outcome webhook. Rate-limited defense-in-depth.
 referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 * 1000), async (req, res) => {
   try {
-    const { programCode, orgName, orgId, clientDisplayName, clientPhone, screeningId, funderId, notes, waitlistAcknowledged } = req.body;
+    const { programCode, orgName, orgId, clientDisplayName, clientPhone, screeningId, funderId, notes, waitlistAcknowledged, navigatorConversationId, navigatorContext } = req.body;
     if (!programCode || !orgName) return res.status(400).json({ error: "programCode and orgName required" });
 
     // Capacity guard: block referrals to orgs whose intake is closed, and
@@ -200,6 +200,11 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
       chwUserId: getUserId(req)!,
       funderId: funderId || null,
       notes: notes || null,
+      navigatorConversationId: navigatorConversationId || null,
+      // Store only the structured context object; never raw conversation text
+      navigatorContext: navigatorContext && typeof navigatorContext === "object"
+        ? navigatorContext
+        : null,
     }).returning();
 
     // FEATURE 3: fire-and-forget referral.created. Never awaited; zero

@@ -1,0 +1,162 @@
+No dev machine needed for this. Here is the full picture.
+
+---
+
+## ChildCORE — Complete Platform Map
+
+### Who It Serves (Stakeholders)
+
+**Door 1 — Programs (org_staff)**
+Head Start / Early Head Start grantees, licensed childcare centers and networks, family childcare home networks, community action agencies, school district PreK programs, tribal programs (AIAN Head Start), and home visiting programs (Nurse-Family Partnership, Parents as Teachers, MIECHV-funded).
+
+**Door 2 — Families**
+Parents and caregivers of children birth through 5. They see their child's record, developmental milestones, attendance, health, resource referrals, and eligibility for programs they are not yet enrolled in.
+
+**Door 3 — In-Home Providers**
+Family childcare home operators. They have their own dashboard — enrollment, compliance calendar, and professional development — without the overhead of a full org account.
+
+**Door 4 — Community (public, no login)**
+Policy researchers, journalists, United Way officers, foundation program officers, government analysts, advocates. They access the public intelligence portal at `/explore` with no account required.
+
+**Upstream Partners (integrated, not just users)**
+ThriveUp / YHSI (ages 12–26 longitudinal continuity), GrantPathPro (funding intelligence), Perplexity AI (sourced research), Hercules AI Gateway (OpenAI/Anthropic for Oracle and NL), NCES, Census ACS, KFF, NIEER, BLS, state education agencies.
+
+---
+
+### Every Page and What It Does
+
+**`/` — Landing**
+Three sign-in doors + public community portal entry. Sets the architecture: Programs, Families, In-Home are distinct authenticated experiences. Community is always open.
+
+**`/onboarding`**
+New user audience selection. Sets userType (org_staff / family / provider). Determines which dashboard they land in forever after. Instant — no setup wizard, no week-long onboarding.
+
+---
+
+**ORG PORTAL (`/org/:orgId/...`)**
+
+| Page | What it solves |
+|---|---|
+| **Dashboard** | Single-screen health of the program: enrollment, attendance rate, compliance calendar, intelligence signals, overdue tasks |
+| **Children** | Full roster with developmental status, IEP/IFSP flags, attendance trends, next-action recommendations |
+| **Child profile** | Every data point on one child: milestones, health, attendance, family contact, eligibility gaps, Oracle recommendations, longitudinal trajectory |
+| **Families** | Family engagement tracking — contact log, home visits, resource referrals, communication history |
+| **Attendance** | Daily/weekly attendance entry and chronic absenteeism detection. Flags children at threshold before the monitor does |
+| **Health** | Health screenings, immunization status, nutrition, mental health flags, referral pipeline |
+| **Compliance** | Regulatory calendar pre-loaded per org type + state. TX 26 TAC, 45 CFR HSPPS, CCDBG, IDEA Part C/B — all built in. Alerts before deadlines, not after |
+| **Education / Curriculum** | Lesson planning, developmental domain tracking, school readiness indicators, K-12 bridge data |
+| **LMS / Training** | Staff professional development, credential tracking, training completion, workforce quality metrics |
+| **Tasks** | Action items assigned to staff with due dates, evidence upload, and completion tracking |
+| **Communications** | Family messaging, bulk notifications, announcement history |
+| **Intelligence / Oracle** | AI-powered recommendations sourced via Perplexity. Surfaces best practices from peer programs in similar states. Every answer has citations |
+| **Workforce** | Staff roster, qualifications, turnover risk, compensation benchmarks vs. BLS state data |
+| **Reports** | Funder-ready output: federal PIR, state grantee reports, QRIS evidence packets, United Way impact reports |
+| **Billing** | Program-level financial tracking, slot utilization, subsidy billing |
+| **Settings** | Org config, user roles, custom fields, module toggles, integrations |
+
+---
+
+**FAMILY PORTAL (`/family/...`)**
+
+| Page | What it solves |
+|---|---|
+| **Dashboard** | Parent's view: child's current program, upcoming events, attendance summary, messages from program |
+| **Child record** | Milestones they can see, health records, IEP/IFSP summaries they have access to |
+| **Resources** | Every program the child is eligible for but not enrolled in. Referrals to community services (food, housing, mental health, childcare subsidy) |
+| **Messages** | Two-way communication with the program |
+| **Documents** | Enrollment forms, consents, immunization records |
+
+---
+
+**IN-HOME PROVIDER PORTAL (`/provider/...`)**
+
+| Page | What it solves |
+|---|---|
+| **Dashboard** | Enrollment count, compliance status, upcoming renewals, earnings summary |
+| **Children** | Their enrolled children, individual records, developmental notes |
+| **Compliance calendar** | State licensing renewal dates, required training hours, inspection readiness |
+| **Professional development** | Credential progress, training catalog, LMS access |
+
+---
+
+**COMMUNITY INTELLIGENCE PORTAL (`/explore/...`)**
+
+| Page | What it solves |
+|---|---|
+| **`/explore`** — Community Intelligence Portal | Entry point. Search by ZIP / city / county / district / region / state. All 50 states. No login |
+| **`/explore/workspace`** — Community Intelligence Workspace | Full research environment for a geography. County-level data: childcare desert %, poverty rate, PreK enrollment, kindergarten readiness, chronic absenteeism, graduation rate. Federal program funding. State policy profile. Provider map. ThriveUp longitudinal continuity panel. Oracle Q&A with sourced citations. AAP Spine recorded for every query |
+| **`/explore/compare`** — District & Policy Comparison | Compare 2–5 geographies side-by-side. Natural language entry ("Compare Houston ISD and Dallas ISD on PreK access") or manual. 34 policy dimensions across 6 domains. GIS map (need heat + correlation arcs), Comparison Matrix, Policy Grid, Correlation Graph, Data Story. Pearson r correlation engine. Perplexity-sourced policy profiles per state. 24-hour cache |
+
+---
+
+### What We Integrate With
+
+| Integration | Direction | What it provides |
+|---|---|---|
+| **ThriveUp / YHSI** | Bidirectional | Ages 12–26 longitudinal continuity. ChildCORE pushes county metrics outbound; pulls YHSI outcomes, Chainweb ROI coefficients, community briefs, benefits data inbound. Auto-syncs every 30 minutes |
+| **GrantPathPro** | Outbound via `THRIVEUP_PARTNER_KEY` | Federal and state grant opportunity intelligence |
+| **Perplexity AI** | Outbound | Sourced research for every Oracle recommendation, community workspace Q&A, and policy profile assembly. Citations are not optional — every claim has provenance |
+| **Hercules AI Gateway** | Outbound | OpenAI GPT-5.6 and Anthropic Claude. Powers the Oracle, natural language comparison parsing, engagement analysis, community brief generation |
+| **NCES / Common Core of Data** | Outbound (workspace) | School district enrollment, demographics, Title I status, graduation rates |
+| **Census ACS** | Outbound (workspace) | Child poverty rate, household income, housing burden, food insecurity by county |
+| **KFF** | Outbound (workspace) | Medicaid/CHIP coverage, health access indicators |
+| **NIEER** | Outbound (workspace) | State PreK enrollment rates, per-child funding, quality standards |
+| **BLS** | Outbound (workspace) | ECE workforce wages, turnover rates by state |
+| **Hercules Auth** | Both | OIDC authentication. The only auth provider. Three separate doors map to three separate experiences |
+| **Convex** | Internal | Realtime reactive database + backend functions. Every query is live-subscribed, no polling |
+
+---
+
+### What Problems We Solve — Individually and Interdependently
+
+**Problem 1: Programs don't know what they don't know**
+A Head Start director doesn't have time to read the federal register, track state rule changes, or benchmark against programs in Ohio. ChildCORE embeds 45 CFR HSPPS, CCDBG, IDEA Part C/B, and all 50 states' licensing rules. When a rule changes, every affected program sees it automatically. The Oracle surfaces what a high-performing peer does differently — with citations, not opinions.
+
+**Problem 2: Children fall through eligibility gaps**
+A 3-year-old in a licensed center may be eligible for IDEA Part B services, a state PreK slot, CCDBG subsidy, and a MIECHV home visiting program simultaneously — and receive none of them because no one connected the dots. ChildCORE's program-to-child matching runs eligibility against every federal and state program for every child profile automatically.
+
+**Problem 3: Families are disconnected from their child's record**
+Parents get paper newsletters and phone calls. They don't know their child's developmental status, what services they qualify for, or how to navigate the system. The Family portal gives parents a real-time view of their child's record, milestones, attendance, and every resource they are eligible for within their ZIP code.
+
+**Problem 4: Staff are overwhelmed with compliance and reporting**
+A program director managing a 150-child center spends weeks per year preparing federal PIR reports, state licensing documentation, QRIS evidence packets, and funder reports — pulling data from three different systems by hand. ChildCORE collects the data through normal workflows and generates the reports. The compliance calendar is pre-loaded. Staff get one next action, not a 40-item checklist.
+
+**Problem 5: Workforce quality degrades silently**
+High ECE staff turnover (often 30%+ annually) destroys program quality and continuity. ChildCORE tracks credentials, training completion, compensation benchmarks, and turnover risk at the staff level — surfacing warning signals before a teacher walks out.
+
+**Problem 6: Geographic data deserts prevent policy decisions**
+A county commissioner, United Way director, or state agency officer cannot get a real-time picture of childcare desert rates, subsidy access gaps, and kindergarten readiness scores for their geography. `/explore/workspace` solves this for any of the 3,000+ counties in the US, publicly, with no login.
+
+**Problem 7: Policy comparison requires a research team**
+Comparing how Texas, Ohio, and North Carolina fund PreK, set QRIS standards, or structure subsidy access used to require a policy analyst, weeks of research, and a dense report nobody reads. `/explore/compare` does it in seconds — 34 dimensions, natural language entry, GIS map, correlation graph, and a sourced data story.
+
+**Problem 8: The birth-to-26 arc has no connective tissue**
+A child served by ChildCORE (birth–12) transitions to ThriveUp's YHSI system (12–26) with no handoff, no longitudinal record, no continuity. The ThriveUp integration closes this arc. ChildCORE pushes county-level metrics outbound so ThriveUp can contextualize outcomes; ThriveUp pushes YHSI longitudinal data back so ChildCORE can show where children are headed after age 12. When Chainweb ROI and Benefits scopes are granted by ThriveUp, the full economic return-on-investment case for every county's early childhood investment becomes visible in the community workspace automatically — no code change needed.
+
+**Problem 9: Every implementation is local, but no one learns across implementations**
+The Chainweb layer (via ThriveUp) and the Oracle's cross-state benchmarking engine mean that a program in rural Alabama can see what a demographically similar program in rural Tennessee does that produces better kindergarten readiness — and receive a sourced recommendation to close the gap. This is the continuous learning loop. It is what makes ChildCORE fundamentally different from every other tool in this space.
+
+**Problem 10: Governance of AI recommendations has no accountability structure**
+Every Oracle recommendation, workspace Q&A response, and comparison data story is governed by the DIS doctrine's AAP Spine — a tamper-evident evidence ledger that records what was proposed, what evidence justified it, what the expected effect was, and what actually happened. No silent failures. No fabricated citations. No recommendation without a named decision owner and a threshold for what happens when the threshold is crossed. This is built into the architecture, not bolted on.
+
+---
+
+### The Interdependencies
+
+These problems do not exist independently. They form a single causal chain:
+
+```
+Geographic data deserts (Problem 6)
+  → prevent policy decisions (Problem 7)
+  → which means state funding stays inequitable
+  → which deepens workforce degradation (Problem 5)
+  → which disconnects families from their child's record (Problem 3)
+  → which widens eligibility gaps (Problem 2)
+  → which means programs don't know what they don't know (Problem 1)
+  → which produces compliance failures and poor outcomes (Problem 4)
+  → which breaks the birth-to-26 arc (Problem 8)
+  → which means no one learns across implementations (Problem 9)
+  → all of it operating without accountability (Problem 10)
+```
+
+ChildCORE attacks every node in this chain simultaneously, from the ZIP-code level to the federal policy level, from birth to age 26, across all 50 states. That is what makes it a platform and not a tool.
