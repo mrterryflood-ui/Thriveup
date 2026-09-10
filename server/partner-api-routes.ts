@@ -320,6 +320,7 @@ export function registerPartnerApiRoutes(app: Express) {
         "GET  /api/partner/v1/export            — content export (content:read)",
         "GET  /api/partner/v1/community         — community service summary (community:read)",
         "GET  /api/partner/v1/community-brief   — on-demand community brief for any geography (community:read); query: location (required), populationSize?, timeHorizon?",
+        "GET  /api/partner/v1/community/brief — compatibility alias for community-brief (community:read); query: location (required), populationSize?, timeHorizon?",
         "GET  /api/partner/v1/community-story   — aggregate community story pack for a geography (community:read)",
         "POST /api/partner/v1/community-brief/subscribe — subscribe to scheduled community briefs (community:read); body: {location, webhookUrl, frequency: 'daily'|'weekly'|'on-change'}",
         "GET  /api/partner/v1/benefits          — benefits program catalog (benefits:read)",
@@ -1261,7 +1262,7 @@ export function registerPartnerApiRoutes(app: Express) {
     return true;
   }
 
-  app.get("/api/partner/v1/community-brief", requirePartnerAuth, requireScope("community:read"), async (req, res) => {
+  const handleCommunityBrief = async (req: Request, res: Response) => {
     try {
       const key: any = (req as any).partnerKey;
       const keyId: string = String(key.id ?? "");
@@ -1314,7 +1315,17 @@ export function registerPartnerApiRoutes(app: Express) {
       console.error("[PartnerAPI] community-brief failed:", err);
       res.status(500).json({ error: "Community brief request failed." });
     }
-  });
+  };
+
+  // `/community-brief` is the canonical route. Keep `/community/brief` as a
+  // compatibility alias because the ChildCORE integration contract uses the
+  // resource-style path in its flow diagram.
+  for (const path of [
+    "/api/partner/v1/community-brief",
+    "/api/partner/v1/community/brief",
+  ]) {
+    app.get(path, requirePartnerAuth, requireScope("community:read"), handleCommunityBrief);
+  }
 
   // ── Community story pack (community:read) — full packaged story ──────────
   // GET /api/partner/v1/community-story?location=28472&orgName=ECS

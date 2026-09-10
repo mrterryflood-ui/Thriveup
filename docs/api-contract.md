@@ -79,6 +79,11 @@ The check is intentionally safe for a published environment. It:
   requires `401` or `403`, proving the route is present without writing a
   heartbeat.
 
+The community brief is available at both `GET /api/partner/v1/community-brief`
+(canonical) and `GET /api/partner/v1/community/brief` (ChildCORE-compatible
+alias). Both require `community:read` and accept the same geography query
+parameters.
+
 The script never sends or prints a partner key, authorization header, or
 partner payload. Set `BASE_URL` instead of `PUBLISHED_BASE_URL` only for an
 explicit local/manual run.

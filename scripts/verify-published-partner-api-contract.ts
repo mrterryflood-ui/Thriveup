@@ -28,6 +28,7 @@ let failures = 0;
 
 const EXPECTED_PUBLIC_ENDPOINTS = [
   { method: "GET", path: "/api/partner/v1/chainweb/coefficients", scope: "chainweb:read" },
+  { method: "GET", path: "/api/partner/v1/community/brief", scope: "community:read" },
   { method: "GET", path: "/api/partner/v1/chainweb/templates", scope: "chainweb:read" },
   { method: "POST", path: "/api/partner/v1/chainweb/scenarios", scope: "chainweb:read" },
   { method: "GET", path: "/api/partner/v1/chainweb/scenarios/:id", scope: "chainweb:read" },
