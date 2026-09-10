@@ -1,0 +1,15 @@
+# Alpha Omega — 2026-09-10 — Scoped Partner API in-app documentation
+
+## Alpha
+- End-state: The in-app API documentation must describe the current `/api/partner/v1` contract, scoped partner authentication, Chainweb/YHSI/student aggregate/heartbeat routes, and the protected ChildCORE monitoring destination.
+- In-state evidence: `client/src/pages/api-docs.tsx` advertised `/api/external/students/overview`, `X-API-Key`, and generic auth language. `server/partner-api-routes.ts` and `docs/api-contract.md` define `x-partner-key` or Bearer `tcaf_...`, `chainweb:read`, `yhsi:read`, `student:read`, and scope-free heartbeat with an active partner key.
+- Authority/boundaries: The server route implementation and public `/api/partner/v1/docs` contract are authoritative. This task changes in-app documentation/navigation only; it does not alter Partner API authorization or publish the app.
+- Plan and acceptance proofs: Replace stale endpoint/auth copy with current route cards and scope labels; add links to the public machine-readable contract and protected ChildCORE page; add the protected page to admin navigation; run typecheck, static stale-copy/dead-link checks, and an independent review.
+- Unknowns/deferred decisions: Published deployment parity is outside this task because no deployment was requested.
+
+## Omega
+- Diff scrimmage: Replaced deprecated `/api/external/` and generic `X-API-Key` guidance; checked method/path/scope parity for all documented routes; moved API docs to the public sidebar registry to match its public App route; used SPA navigation for ChildCORE; added the protected ChildCORE path to the server route inventory.
+- Proofs and gates: TypeScript plus integrated-flow foundation passed; credential-free Partner API contract verifier passed all public-doc and authorization-boundary assertions; sidebar route verifier passed; directory-link gate passed; 25 in-app docs/navigation assertions passed; direct HTTP checks returned 200 for `/api-docs`, `/childcore-integration`, and `/api/partner/v1/docs`; final preview rendered the scoped auth/base-path/resources cards.
+- Independent angle: Live contract verification compared the implemented public Partner API docs and protected routes; automated audit findings independently caught the ecosystem-key heartbeat label, SPA-link behavior, test-ID sanitation, and missing server route inventory entry, all fixed and rechecked.
+- Outcome: The in-app page now documents `/api/partner/v1`, `x-partner-key` or Bearer `tcaf_...` authentication, current Chainweb/YHSI/student aggregate/heartbeat routes with scopes, and discoverable machine-readable and protected ChildCORE destinations without deprecated partner instructions.
+- Residuals and reusable guard: The browser preview still logs the existing anonymous `/api/auth/user` 401 while loading the public shell; this is expected and unrelated to the docs route. Future partner-doc changes should re-run the credential-free contract verifier and the in-app route/link assertions.

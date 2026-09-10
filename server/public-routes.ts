@@ -97,6 +97,7 @@ const STATIC_PATHS = new Set<string>([
   "/get-help",
   "/impact",
   "/api-docs",
+  "/childcore-integration",
   "/reentry",
   "/intake-wizard",
   "/transparency-dashboard",

@@ -27,7 +27,7 @@ import {
   Users, Globe, FileText, LogIn, LogOut, Flame, BarChart3, School, ScrollText, Wand2, Smartphone, Puzzle,
   Rocket, User, TrendingUp, Wallet, Building2, Trophy, Flag, Target, ShoppingBag,
   Zap, CalendarCheck, Lightbulb, Gamepad2, Map, Store, Briefcase, Route,
-  Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign,
+  Activity, ClipboardCheck, Handshake, ChevronRight, DollarSign, ArrowRightLeft,
   PenLine, Megaphone, Calendar, HelpCircle, ClipboardList, Printer, Link2,
   MessageCircle, MapPin, Presentation, Scale, FileBarChart, LayoutDashboard,
   Info, BookMarked,
@@ -287,6 +287,7 @@ const academyLearningItems: NavItem[] = [
 // surface. The "who are we working with" door.
 const partnersCoalitionsItems: NavItem[] = [
   { title: "Join as a Partner", url: "/partners/join", icon: Handshake },
+  { title: "API Documentation", url: "/api-docs", icon: Globe },
   { title: "Coalition Portal", url: "/coalition-portal", icon: Handshake },
   { title: "Engagement Hub", url: "/engagement-hub", icon: Activity },
   { title: "ALIGN — Connect. Grow. Serve. Thrive.", url: "/align", icon: Sparkles },
@@ -453,7 +454,7 @@ const adminOperationsItems: NavItem[] = [
   { title: "Business Card", url: "/business-card", icon: User },
   { title: "Directive Compliance", url: "/directive-compliance", icon: ClipboardCheck },
   { title: "Trade Sims Signups", url: "/admin/trade-sims-signups", icon: Users },
-  { title: "API Documentation", url: "/api-docs", icon: Globe },
+  { title: "ChildCORE Integration", url: "/childcore-integration", icon: ArrowRightLeft },
 ];
 
 const adminProgramItems: NavItem[] = [
