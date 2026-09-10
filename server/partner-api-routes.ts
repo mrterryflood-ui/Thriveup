@@ -235,7 +235,10 @@ export function registerPartnerApiRoutes(app: Express) {
         if (!plaintext || (pin.requireTcafPrefix && !plaintext.startsWith("tcaf_"))) continue;
 
         const hash = hashKey(plaintext);
-        const existing = await db.select({ id: partnerApiKeys.id })
+        const existing = await db.select({
+          id: partnerApiKeys.id,
+          scopes: partnerApiKeys.scopes,
+        })
           .from(partnerApiKeys)
           .where(eq(partnerApiKeys.keyHash, hash));
 
@@ -252,7 +255,22 @@ export function registerPartnerApiRoutes(app: Express) {
           });
           console.log(`[PartnerAPI] Auto-provisioned pinned key for ${pin.partnerName} (${prefix}...)`);
         } else {
-          console.log(`[PartnerAPI] Pinned key for ${pin.partnerName} already present — skipping.`);
+          const currentScopes = Array.isArray(existing[0].scopes) ? existing[0].scopes : [];
+          const scopesChanged =
+            currentScopes.length !== pin.scopes.length ||
+            pin.scopes.some((scope) => !currentScopes.includes(scope));
+          if (scopesChanged) {
+            await db.update(partnerApiKeys)
+              .set({
+                scopes: pin.scopes,
+                active: true,
+                notes: pin.notes,
+              })
+              .where(eq(partnerApiKeys.id, existing[0].id));
+            console.log(`[PartnerAPI] Reconciled scopes for pinned key ${pin.partnerName}`);
+          } else {
+            console.log(`[PartnerAPI] Pinned key for ${pin.partnerName} already present — skipping.`);
+          }
         }
       }
     } catch (err) {

@@ -43,7 +43,7 @@ description: Bidirectional partner connection between ThriveUp and ChildCORE. Tw
 
 ## Inbound auto-provisioning
 
-On every boot, if `THRIVEUP_API_KEY` is set and not already in `partner_api_keys`, the server inserts it as ChildCORE's inbound key. The `requireTcafPrefix: false` flag allows non-`tcaf_` formatted keys. Startup log: `[PartnerAPI] Auto-provisioned pinned key for ChildCORE (...)`.
+On every boot, if `THRIVEUP_API_KEY` is set and not already in `partner_api_keys`, the server inserts it as ChildCORE's inbound key. The pinned key may be partner-generated and non-`tcaf_` formatted; partner authentication therefore trusts an active exact hash match in `partner_api_keys`, not only the prefix. Startup log: `[PartnerAPI] Pinned key for ChildCORE already present — skipping.` or the auto-provisioning equivalent.
 
 ## Ops Center shortcut
 

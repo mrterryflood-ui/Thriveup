@@ -41,7 +41,10 @@ async function coreGet(path: string, requireAuth = true): Promise<any> {
   if (requireAuth && !isChildCOREConfigured()) return null;
   try {
     const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (requireAuth) headers["Authorization"] = `Bearer ${getApiKey()}`;
+    if (requireAuth) {
+      headers["Authorization"] = `Bearer ${getApiKey()}`;
+      headers["X-ChildCORE-Key"] = getApiKey();
+    }
     const resp = await fetch(`${CHILDCORE_BASE}${path}`, {
       headers,
       signal: AbortSignal.timeout(TIMEOUT_MS),
@@ -65,6 +68,7 @@ async function corePost(path: string, body: Record<string, unknown>): Promise<an
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${getApiKey()}`,
+        "X-ChildCORE-Key": getApiKey(),
       },
       body: JSON.stringify(body),
       signal: AbortSignal.timeout(TIMEOUT_MS),
