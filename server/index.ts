@@ -169,12 +169,16 @@ app.use((req, res, next) => {
     startCommunityBriefProbe();
   }
 
-  // NOTE: Trade Sims lesson content sync happens on EVERY boot (dev and
-  // production) via seedTradeSimsAll() inside seedComprehensive(), called
-  // from registerRoutes above. It re-upserts all trades' lessons from
-  // shared/data with no fast path, so deploying a content change updates the
-  // production DB automatically — no manual re-seed. Guarded by
-  // scripts/verify-trade-sims-content-sync.ts (drift-restore test).
+  // Partner API contract probe — runs once 90 s after production startup.
+  // Discovers the live production URL from REPLIT_DOMAINS (set to the
+  // .replit.app or custom-domain hostname in production containers) and probes
+  // the Partner API surface credential-free.  Results are logged to stdout so
+  // operators see them in the Deployments panel.  Failure does NOT crash the
+  // server; it prints a clear "do NOT confirm integration live" message.
+  if (process.env.NODE_ENV === "production") {
+    const { startPartnerApiContractProbe } = await import("./partner-api-contract-probe");
+    startPartnerApiContractProbe();
+  }
 
   // Trade Sims daily digest — fires once every 24 hours. The function itself
   // is a no-op when there are no new signups.
@@ -273,8 +277,8 @@ app.use((req, res, next) => {
     // Delay first auto-run by 3 minutes so startup load settles.
     setTimeout(async () => {
       try {
-        const { runGunViolenceRegistrySync } = await import("./gun-violence-routes");
-        const result = await runGunViolenceRegistrySync();
+          const { runGunViolenceRegistrySync } = await import("./gun-violence-routes");
+          const result = await runGunViolenceRegistrySync();
         console.info(`[gv-sync] scheduled sync complete — fetched=${result.fetched} upserted=${result.upserted} elapsed=${result.elapsedMs}ms`);
       } catch (err: any) {
         console.warn("[gv-sync] scheduled sync failed:", err?.message ?? err);

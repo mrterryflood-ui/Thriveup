@@ -57,36 +57,70 @@ All partner keys use `x-partner-key: tcaf_...` and are scoped. Available scopes:
 
 Scopes are assigned at key creation time in the admin panel (Ops Center → Partner API tab). A key can have multiple scopes.
 
-### ChildCORE publication contract
+### Post-publish contract gate (automatic + manual)
 
-Before telling ChildCORE that the integration is live, run the credential-free
-published contract check:
+After every publish, the Partner API contract is checked in two ways:
+
+#### Automatic — production server startup probe
+
+The server automatically probes its own contract 90 seconds after every
+production startup (i.e., after every publish).  Results appear in the Replit
+Deployments panel under Publishing → Logs:
+
+- `[partner-api-contract] ✅ PASSED` — the surface matches; integration-live
+  confirmation is cleared.
+- `[partner-api-contract] ❌ FAILED` — drift detected; **do NOT send a
+  ChildCORE or partner integration-live message** until the drift is fixed,
+  redeployed, and the next startup log shows `✅ PASSED`.
+
+The probe (`server/partner-api-contract-probe.ts`) discovers the production URL
+from the `REPLIT_DOMAINS` environment variable, which Replit sets to the live
+hostname (`.replit.app` or custom domain) in production containers.  It rejects
+`.replit.dev` URLs so the dev-workspace domain can never be certified.
+
+#### Manual — operator-run wrapper script
+
+Operators can also run the check explicitly at any time by copying the published
+URL from the Replit Deployments panel (Adjust settings → Published URL):
 
 ```bash
-PUBLISHED_BASE_URL=https://<published-app-host> \
-  npx tsx scripts/verify-published-partner-api-contract.ts
+PUBLISHED_BASE_URL=https://easyailearning.com \
+  npx tsx scripts/post-publish-partner-api-check.ts
 ```
 
-The check is intentionally safe for a published environment. It:
+Or invoke the `partner-api-contract` workflow from the Replit Workflows panel
+with `PUBLISHED_BASE_URL` set.  This is useful for confirming readiness before
+the 90-second startup probe has fired, or for re-checking after a rollback.
 
-- confirms the public `/api/partner/v1/docs` response advertises
-  `chainweb:read` and `yhsi:read`, and lists the Chainweb, YHSI, and heartbeat
-  routes;
-- probes protected Chainweb, YHSI, and aggregate student routes without any
-  credentials and requires `401` or `403`, so a stale published app's `404` is
-  reported as deployment drift; and
-- sends a bodyless `POST /api/partner/v1/heartbeat` without partner data and
-  requires `401` or `403`, proving the route is present without writing a
-  heartbeat.
+The wrapper (`scripts/post-publish-partner-api-check.ts`):
+
+- Requires an explicit HTTPS `PUBLISHED_BASE_URL`.  Rejects `.replit.dev`
+  URLs (dev-workspace domain) so a URL copied from the preview bar instead of
+  the Deployments panel fails fast with a clear message.
+- Distinguishes configuration errors (exit 2, check not run) from contract
+  drift (exit 1, check ran and found a problem).
+- Spawns `verify-published-partner-api-contract.ts`, which:
+  - confirms the public `/api/partner/v1/docs` response advertises
+    `chainweb:read` and `yhsi:read`, and lists the Chainweb, YHSI, and
+    heartbeat routes with correct scope labels;
+  - probes protected Chainweb, YHSI, and aggregate student routes without any
+    credentials and requires `401` or `403`, so a stale published app's `404`
+    is reported as deployment drift; and
+  - sends a bodyless `POST /api/partner/v1/heartbeat` without partner data and
+    requires `401` or `403`, proving the route is present without writing a
+    heartbeat.
 
 The community brief is available at both `GET /api/partner/v1/community-brief`
 (canonical) and `GET /api/partner/v1/community/brief` (ChildCORE-compatible
 alias). Both require `community:read` and accept the same geography query
 parameters.
 
-The script never sends or prints a partner key, authorization header, or
-partner payload. Set `BASE_URL` instead of `PUBLISHED_BASE_URL` only for an
-explicit local/manual run.
+Neither script sends or prints a partner key, authorization header, or partner
+payload.
+
+**Operator rule:** a deployment whose `partner-api-contract` check has not
+returned exit 0 since the last publish must NOT receive an integration-live
+confirmation.
 
 ---
 

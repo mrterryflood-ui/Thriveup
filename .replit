@@ -284,7 +284,7 @@ isValidation = true
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx scripts/verify-community-brief-e2e.ts && npx tsx scripts/verify-community-brief-probe-logic.ts && npx tsx scripts/verify-community-evidence-guards.ts && npx tsx scripts/verify-ai-claim-grounding.ts && npx tsx scripts/verify-claim-chain-integrity.ts && npx tsx scripts/verify-navigator-gv-grounding.ts && bash scripts/run-community-brief-playwright.sh"
+args = "bash scripts/run-community-brief-e2e.sh"
 
 [[workflows.workflow]]
 name = "directory-links"
@@ -295,7 +295,7 @@ isValidation = true
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npx tsx scripts/verify-directory-links.ts && npx tsx scripts/verify-capacity-badges.ts && npx tsx scripts/verify-sidebar-routes.ts && npx tsx scripts/verify-external-links.ts && npx tsx scripts/verify-intake-contact-validation.ts && npx tsx scripts/verify-chw-dashboard-no-555.ts && npx tsx scripts/verify-tool-reachability.ts && npx tsx scripts/verify-two-click-reachability.ts && npx tsx scripts/verify-how-to-apply.ts && npx tsx scripts/verify-apply-chat-ratelimit.ts && npx tsx scripts/verify-health-federation.ts && npx tsx scripts/verify-navigation-permission-sync.ts"
+args = "bash scripts/run-directory-links.sh"
 
 [[workflows.workflow]]
 name = "referral-loop"
@@ -307,6 +307,14 @@ isValidation = true
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "bash scripts/run-referral-loop-e2e.sh"
+
+[[workflows.workflow]]
+name = "partner-api-contract"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx tsx scripts/post-publish-partner-api-check.ts"
 
 [agent]
 integrations = ["javascript_openai_ai_integrations:2.0.0", "javascript_log_in_with_replit:2.0.0", "javascript_object_storage:2.0.0", "resend:1.0.0", "javascript_anthropic_ai_integrations:2.0.0", "javascript_openrouter_ai_integrations:2.0.0"]

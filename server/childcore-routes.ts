@@ -65,7 +65,7 @@ function hashPartnerKey(plaintext: string): string {
 async function resolveInboundPartnerKey(
   req: Request,
   res: Response,
-): Promise<{ keyId: string; partnerName: string } | null> {
+): Promise<{ keyId: string; partnerName: string; keyPrefix: string; scopes: string[] } | null> {
   const authHeader = req.headers.authorization ?? "";
   const raw = authHeader.startsWith("Bearer ")
     ? authHeader.slice(7).trim()
@@ -81,6 +81,7 @@ async function resolveInboundPartnerKey(
       partnerName: partnerApiKeys.partnerName,
       keyPrefix: partnerApiKeys.keyPrefix,
       active: partnerApiKeys.active,
+      scopes: partnerApiKeys.scopes,
     })
     .from(partnerApiKeys)
     .where(eq(partnerApiKeys.keyHash, hashed))
@@ -89,7 +90,12 @@ async function resolveInboundPartnerKey(
     res.status(403).json({ error: "Invalid or revoked partner key" });
     return null;
   }
-  return { keyId: key.id, partnerName: key.partnerName, keyPrefix: key.keyPrefix };
+  return {
+    keyId: key.id,
+    partnerName: key.partnerName,
+    keyPrefix: key.keyPrefix,
+    scopes: Array.isArray(key.scopes) ? key.scopes as string[] : [],
+  };
 }
 
 // ─── Route registration ───────────────────────────────────────────────────────
@@ -391,10 +397,15 @@ export function registerChildCORERoutes(router: Router): void {
   // community context and Community Brief when a user's ZIP matches.
   //
   // Auth: Authorization: Bearer <tcaf_partner_key> (hashed in partner_api_keys)
-  // Scope required: none (inbound data ingestion is scope-free for registered partners)
+  // Scope required: inbound:write — prevents read-only partner keys from injecting
+  // or poisoning county-level metrics data.
   router.post("/childcore/county-metrics/ingest", async (req, res) => {
     const partner = await resolveInboundPartnerKey(req, res);
     if (!partner) return;
+    if (!partner.scopes.includes("inbound:write")) {
+      res.status(403).json({ error: "inbound:write scope required for county metrics ingestion" });
+      return;
+    }
 
     const { records } = req.body as { records?: unknown[] };
     if (!Array.isArray(records) || records.length === 0) {
