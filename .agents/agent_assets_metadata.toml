@@ -960,3 +960,59 @@ mtime_ms = 1788298971832
 storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/c18b70d5-98dd-46a4-99db-516d736f2a5b/81e2b392-8f24-42e3-9e7a-b4814af4000f"
 storage_version_token = "1788298986454576"
 content_type = "application/pdf"
+
+[[outputs]]
+id = "oxYvGv4M12b87XKVJvHbt"
+uri = "file://docs/case-studies/williamson-county-childcare-case-study.html"
+type = "text"
+title = "Williamson County Childcare Infrastructure — Case Study"
+description = "Data-driven case for coalition investment: the 8% vs 29% gap, semiconductor corridor childcare desert, United Way / Williamson County coalition, gap analysis, TCAF capabilities, and the data story framework."
+logical_id = "9481536a-a5de-464e-9fb4-641b77b86a3a"
+content_hash = "sha256:6bae04417ba9037d7eac82c12a188deb423b31399f42ea9286ba92439b30f11e"
+size = 13222
+mtime_ms = 1789034756066
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/9481536a-a5de-464e-9fb4-641b77b86a3a/9d2d19f3-4001-4693-9d7b-1dcd1110fc35"
+storage_version_token = "1789034984165966"
+content_type = "text/html"
+
+[[outputs]]
+id = "j7b4Jm3RSCF3eFnMhvyi9"
+uri = "file://docs/case-studies/united-way-benefits-collaborative.html"
+type = "text"
+title = "United Way Benefits Enrollment Collaborative — 5-County Study"
+description = "Maria's story, the 5-county eligibility-to-enrollment gap ($24M+ captured value target), ChainWeb evidence engine, county-by-county profiles (Travis, Williamson, Hays, Bastrop, Caldwell), outcome metrics, and confirmed partners."
+logical_id = "5f8e4b07-7dad-463c-8ae8-729e34b6950a"
+content_hash = "sha256:f06bd3636d40eb0eea3e5c65c4c6d376d8bb5e94f5dade2718e8fd0cf96e383b"
+size = 12059
+mtime_ms = 1789034963497
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/5f8e4b07-7dad-463c-8ae8-729e34b6950a/1ea9fe7f-b32d-4aac-9d88-eaad1c6f2bd7"
+storage_version_token = "1789034984771437"
+content_type = "text/html"
+
+[[outputs]]
+id = "elz00xxQaWhVDdlZ0ZhaK"
+uri = "file://docs/case-studies/data-storytelling-platform-overview.html"
+type = "text"
+title = "ThriveUp — Turning Census Data into Compassionate Action"
+description = "Full platform overview for data storytelling training: Neighborhood Intelligence methodology, 4-engine AI consensus, federal data foundation, cost-effectiveness vs traditional approaches, theory of change, and the 3 storytelling rules."
+logical_id = "46bc49de-28aa-49ca-a283-aac9a7d9f542"
+content_hash = "sha256:7f7273a36409227760fc7850a687c19abe7303584e6739b3218d540a4ad1abbd"
+size = 12540
+mtime_ms = 1789034963821
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/46bc49de-28aa-49ca-a283-aac9a7d9f542/aaefbf4c-091f-4cbf-9c4c-1c661a2ef2c5"
+storage_version_token = "1789034985567627"
+content_type = "text/html"
+
+[[outputs]]
+id = "2XSNhOaNcbJ9RV9x2OFTm"
+uri = "file://docs/case-studies/thriveup-academy-curriculum-childcare-education.html"
+type = "text"
+title = "ThriveUp Academy Curriculum — Childcare & Education Document"
+description = "Complete TWC/PfISD curriculum: 5 modules, 20 lessons, student characters (Jaylen, Aaliyah, Marcus, Sofia, DeAndre), TEKS §127.15 alignment table, Real Talk sections, assessment/credentialing, and outcome targets."
+logical_id = "5db7a402-6f50-4ebc-bda6-535d2e16f1c1"
+content_hash = "sha256:000981d5fcef4385ffe4b7cc6ea9023bcf512d138b1ccab7fd6472f4088b560f"
+size = 13912
+mtime_ms = 1789034964153
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/5db7a402-6f50-4ebc-bda6-535d2e16f1c1/c14e7de0-f41b-4d9d-b143-b96b1b5f6ac7"
+storage_version_token = "1789034986210277"
+content_type = "text/html"

@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Williamson County Childcare Infrastructure — Case Study</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #1a1a2e; background: #fff; max-width: 860px; margin: 0 auto; padding: 48px 40px; line-height: 1.7; }
+  .cover { border-bottom: 4px solid #1e3a5f; padding-bottom: 36px; margin-bottom: 40px; }
+  .cover-tag { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #5b8fb9; margin-bottom: 16px; }
+  h1 { font-size: 34px; font-weight: 700; line-height: 1.2; color: #1e3a5f; margin-bottom: 12px; }
+  .subtitle { font-size: 17px; color: #4a4a6a; margin-bottom: 24px; }
+  .meta-row { display: flex; gap: 32px; flex-wrap: wrap; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #666; }
+  .meta-row span b { color: #1e3a5f; }
+  h2 { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 19px; font-weight: 700; color: #1e3a5f; margin: 36px 0 12px; border-left: 4px solid #5b8fb9; padding-left: 12px; }
+  h3 { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; font-weight: 700; color: #2c4a7f; margin: 22px 0 8px; }
+  p { margin-bottom: 14px; font-size: 15px; }
+  .stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 20px 0; }
+  .stat-box { border: 2px solid #e0e8f5; border-radius: 8px; padding: 16px 20px; }
+  .stat-box .num { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 28px; font-weight: 700; margin-bottom: 4px; }
+  .stat-box .lbl { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; color: #555; text-transform: uppercase; letter-spacing: 0.5px; }
+  .stat-box .note { font-size: 11px; color: #888; margin-top: 4px; }
+  .red { color: #c0392b; } .amber { color: #d4850a; } .blue { color: #1e6baf; } .purple { color: #6b3fa0; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0 24px; font-size: 13px; }
+  th { background: #1e3a5f; color: #fff; padding: 10px 12px; text-align: left; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; letter-spacing: 0.5px; }
+  td { padding: 9px 12px; border-bottom: 1px solid #e8ecf5; vertical-align: top; }
+  tr:nth-child(even) td { background: #f4f7fc; }
+  .gap-card { background: #fff4f4; border-left: 4px solid #c0392b; padding: 14px 18px; margin: 12px 0; border-radius: 0 6px 6px 0; }
+  .gap-card.medium { background: #fffbf0; border-color: #d4850a; }
+  .opp-list li { margin-bottom: 8px; font-size: 14px; padding-left: 8px; }
+  .opp-list { padding-left: 20px; }
+  .coalition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 16px 0; }
+  .coalition-card { border: 1px solid #d0daea; border-radius: 6px; padding: 12px 14px; }
+  .coalition-card .name { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 700; color: #1e3a5f; margin-bottom: 4px; }
+  .coalition-card .role { font-size: 11px; color: #666; margin-bottom: 4px; }
+  .badge { display: inline-block; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 10px; padding: 2px 8px; border-radius: 20px; font-weight: 600; }
+  .badge-active { background: #e6f4ea; color: #1e7e34; }
+  .callout { background: #f0f5ff; border: 1px solid #c0d0f5; border-radius: 8px; padding: 18px 22px; margin: 20px 0; }
+  .callout b { color: #1e3a5f; }
+  .footer { margin-top: 48px; padding-top: 20px; border-top: 2px solid #e0e8f5; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; color: #888; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-tag">TCAF Case Study · Williamson County, Texas</div>
+  <h1>North Williamson County<br>Childcare Infrastructure Gap</h1>
+  <div class="subtitle">A data-driven case for coalition investment in the fastest-growing county in Texas</div>
+  <div class="meta-row">
+    <span><b>Region:</b> Williamson County, TX (FIPS 48491)</span>
+    <span><b>Cities:</b> Round Rock · Georgetown · Hutto · Leander · Cedar Park · Liberty Hill · Taylor</span>
+    <span><b>Date:</b> May 2026</span>
+    <span><b>Prepared by:</b> The Collaborative Advocate Foundation (TCAF)</span>
+  </div>
+</div>
+
+<h2>The Core Problem</h2>
+<p>Williamson County is Texas's fastest-growing large county — population up 78% from 2010 to 2023. The infrastructure that grew with it was roads, warehouses, and semiconductor fabs (Samsung Taylor, Applied Materials Hutto). What did not grow: licensed infant care, subsidy-accepting childcare providers, or extended-hour care for shift workers.</p>
+<p>The result is a childcare desert that nobody mapped because the median household income looks fine on a county-wide chart. The crisis is real; it's just hidden inside averages.</p>
+
+<h2>By the Numbers</h2>
+<div class="stat-grid">
+  <div class="stat-box">
+    <div class="num red">~8%</div>
+    <div class="lbl">Eligible children served by TRS providers</div>
+    <div class="note">Williamson County, 2024 est. — Capital Area Workforce Board</div>
+  </div>
+  <div class="stat-box">
+    <div class="num amber">~29%</div>
+    <div class="lbl">Statewide comparison — Bexar County (San Antonio)</div>
+    <div class="note">With organized ECE infrastructure and United Way investment</div>
+  </div>
+  <div class="stat-box">
+    <div class="num blue">~22,000</div>
+    <div class="lbl">Children below 85% SMI in WilCo</div>
+    <div class="note">2023 ACS 5-year estimate — subsidy eligible</div>
+  </div>
+  <div class="stat-box">
+    <div class="num purple">+78%</div>
+    <div class="lbl">Population growth (2010–2023)</div>
+    <div class="note">Fastest-growing large county in Texas</div>
+  </div>
+</div>
+
+<div class="callout">
+  <p><b>What the 8% figure actually means:</b> The 8% reflects the share of income-eligible children (families at or below 85% State Median Income) actively enrolled in childcare with a Texas Rising Star-certified provider under a TWC subsidy. This is not a floor — it is a ceiling under current provider supply. The gap between 8% (WilCo today) and 29% (Bexar County) represents what intentional system-building can accomplish over time.</p>
+</div>
+
+<h2>Where the System Is Broken</h2>
+<div class="gap-card">
+  <h3 style="margin-top:0;">Provider Supply Has Not Kept Pace</h3>
+  <p style="margin-bottom:0; font-size:14px;">WilCo's population nearly doubled, but licensed childcare capacity — particularly at 2★+ TRS level — has not scaled. New employers (Samsung, Applied Materials) entering the Round Rock, Cedar Park, and Georgetown corridors face a workforce constrained by childcare access. Infant slots (newborn–18m) are the primary bottleneck.</p>
+</div>
+<div class="gap-card">
+  <h3 style="margin-top:0;">Shift-Worker Fit Is Broken</h3>
+  <p style="margin-bottom:0; font-size:14px;">Samsung Taylor and Applied Materials Hutto run 12-hour rotating DuPont schedules (2-2-3). Almost no licensed center operates outside 6:30am–6:30pm. Family childcare is the only option — and family childcare with infant care is rare. 26,000+ semiconductor jobs with no childcare solution is a workforce crisis.</p>
+</div>
+<div class="gap-card medium">
+  <h3 style="margin-top:0;">Subsidy Access Is Patchy</h3>
+  <p style="margin-bottom:0; font-size:14px;">Workforce Solutions Rural Capital Area runs the local CCS contract. Providers who accept subsidy concentrate in older Round Rock and Georgetown corridors. Subsidy-accepting capacity in Liberty Hill/Leander north of US-183A is thin. WilCo families in high-growth suburban ZIP codes face longer waits as the slot pool does not proportionally account for county-level population shifts.</p>
+</div>
+<div class="gap-card medium">
+  <h3 style="margin-top:0;">Language and Special-Needs Gaps</h3>
+  <p style="margin-bottom:0; font-size:14px;">Williamson County's Hispanic population share keeps growing; bilingual provider count has not. Texas Rising Star 4-star providers with staffing ratios for ECI-eligible infants concentrate in Cedar Park and central Round Rock — rural WilCo is underserved.</p>
+</div>
+
+<h2>The Coalition</h2>
+<div class="coalition-grid">
+  <div class="coalition-card">
+    <div class="name">United Way of Greater Austin</div>
+    <div class="role">Lead funder &amp; backbone coalition anchor — Success by Six (SX6)</div>
+    <p style="font-size:12px; margin:4px 0 6px;">Grant infrastructure, collective impact framework, community trust network</p>
+    <span class="badge badge-active">Active</span>
+  </div>
+  <div class="coalition-card">
+    <div class="name">Williamson County</div>
+    <div class="role">Municipal reach — libraries, parks, community centers</div>
+    <p style="font-size:12px; margin:4px 0 6px;">Physical access points, trusted government channels, zoning &amp; licensing pathways</p>
+    <span class="badge badge-active">Active</span>
+  </div>
+  <div class="coalition-card">
+    <div class="name">City of Taylor</div>
+    <div class="role">Samsung Taylor &amp; Applied Materials workforce gateway</div>
+    <p style="font-size:12px; margin:4px 0 6px;">Connects new semiconductor workforce families to childcare navigation</p>
+    <span class="badge badge-active">Active</span>
+  </div>
+  <div class="coalition-card">
+    <div class="name">Georgetown ISD &amp; Round Rock ISD</div>
+    <div class="role">Pre-K pipeline and family engagement</div>
+    <p style="font-size:12px; margin:4px 0 6px;">Campus-based screening, family navigator referrals, bilingual CHW embedding</p>
+    <span class="badge badge-active">Active</span>
+  </div>
+  <div class="coalition-card">
+    <div class="name">TCAF</div>
+    <div class="role">Technology &amp; evaluation backbone</div>
+    <p style="font-size:12px; margin:4px 0 6px;">Platform, CHW deployment, benefits screener, CFIR/RE-AIM evaluation, data infrastructure</p>
+    <span class="badge badge-active">Active</span>
+  </div>
+</div>
+
+<h2>Funding Opportunities</h2>
+<table>
+  <tr><th>Funder</th><th>Program</th><th>Amount</th><th>Fit</th></tr>
+  <tr><td>United Way of Greater Austin — SX6</td><td>Success by Six Coalition Grant</td><td>$150K–$400K</td><td>96%</td></tr>
+  <tr><td>Texas DECD</td><td>Childcare Infrastructure Development</td><td>$200K–$750K</td><td>91%</td></tr>
+  <tr><td>W.K. Kellogg Foundation</td><td>Community Engagement &amp; Civic Infrastructure</td><td>$300K–$1M</td><td>88%</td></tr>
+  <tr><td>Texas Workforce Commission</td><td>Child Care Services (CCS) Provider Capacity</td><td>Rolling</td><td>High</td></tr>
+  <tr><td>HRSA MIECHV sub-recipient</td><td>Maternal-Infant-Early-Childhood Home Visiting</td><td>$2M–$13M prime</td><td>92–100%</td></tr>
+</table>
+
+<h2>TCAF Platform Capabilities for This Initiative</h2>
+<ul class="opp-list">
+  <li><b>LifeBridge Benefits Navigation</b> — CCS/CCAAP enrollment, SNAP, Medicaid, WIC, Lifeline, energy assistance — one multilingual intake, zero staff overhead per application</li>
+  <li><b>Chainweb Evidence Engine</b> — Primary-source Census ACS, CDC PLACES, ATSDR SVI, FBI CDE pulls for Williamson County FIPS 48491 — every claim traceable to federal source</li>
+  <li><b>Talk Your Talk (89 languages + 18 sign)</b> — Bilingual/Spanish-language provider gap solved without requiring bilingual staff</li>
+  <li><b>Community Voice — north-wilco-childcare-gaps</b> — Resident PIN drop mapping, AI clustering, real-time signal routing to ecosystem platforms</li>
+  <li><b>SafeReport</b> — PHQ-9/GAD-7/ACEs screening inside childcare/pediatric settings, 0-PHI-egress</li>
+  <li><b>Shadow Workforce Credentialing</b> — CDA prep track, informal caregiver formalization (est. 4,200+ in WilCo)</li>
+  <li><b>Grant Discovery Engine</b> — 721+ opportunities scored, AI-matched, updated weekly</li>
+</ul>
+
+<h2>The Data Story — What Tells It</h2>
+<p>The most powerful number in this case is the gap between <b>8%</b> and <b>29%</b>. That 21-point gap is not a failure of families — it is a failure of infrastructure. Bexar County didn't get to 29% because San Antonio families tried harder. They got there because United Way, anchor institutions, and county government built a system over 15 years.</p>
+<p>North Williamson County has something Bexar didn't in 2010: 26,000 semiconductor jobs creating immediate, employer-driven pressure to solve this. Samsung and Applied Materials need their workers to show up. Workers can't show up if their infant has nowhere safe to go at 6:30am on a rotating shift. That is not a social services story. That is an economic development story — and it opens entirely different funding doors.</p>
+<p>The replication story: what we build in WilCo can replicate to every fast-growth suburban county in Texas (Hays, Denton, Collin, Fort Bend) that has the same semiconductor/logistics/healthcare employer base and the same invisible childcare desert.</p>
+
+<div class="footer">
+  The Collaborative Advocate Foundation (TCAF) · EIN 41-3618003 · Dr. Terry D. Flood, President<br>
+  thriveupacademy.com · terryflood@thrivingcommunitiesforall.com · Pflugerville, TX 78660
+</div>
+
+</body>
+</html>

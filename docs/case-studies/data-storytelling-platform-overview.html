@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ThriveUp — Turning Census Data into Compassionate Action</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: Georgia, 'Times New Roman', serif; color: #0d0d1a; background: #fff; max-width: 860px; margin: 0 auto; padding: 48px 40px; line-height: 1.7; }
+  .cover { background: linear-gradient(135deg, #0d1b2a 0%, #1e3a5f 60%, #2d6a9f 100%); color: #fff; padding: 48px 40px; border-radius: 12px; margin-bottom: 40px; }
+  .cover-tag { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; color: #7ec8e3; margin-bottom: 16px; }
+  .cover h1 { font-size: 36px; font-weight: 700; line-height: 1.2; color: #fff; margin-bottom: 12px; }
+  .cover .subtitle { font-size: 17px; color: #b0d4f1; margin-bottom: 24px; }
+  .cover .meta-row { display: flex; gap: 24px; flex-wrap: wrap; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; color: #7ec8e3; }
+  h2 { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 20px; font-weight: 700; color: #0d1b2a; margin: 36px 0 12px; border-bottom: 2px solid #7ec8e3; padding-bottom: 8px; }
+  h3 { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 15px; font-weight: 700; color: #1e3a5f; margin: 20px 0 8px; }
+  p { margin-bottom: 14px; font-size: 15px; }
+  .design-principle { background: #f0f7ff; border-left: 5px solid #2d6a9f; padding: 16px 20px; margin: 16px 0; border-radius: 0 8px 8px 0; font-size: 15px; font-style: italic; }
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 20px 0; }
+  .stat-box { text-align: center; background: #f4f8fd; border-radius: 8px; padding: 16px 8px; }
+  .stat-box .val { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 22px; font-weight: 700; color: #1e3a5f; margin-bottom: 4px; }
+  .stat-box .lbl { font-size: 11px; color: #666; }
+  .ai-table { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin: 16px 0; }
+  .ai-card { border: 1px solid #d0daea; border-radius: 8px; padding: 14px 16px; }
+  .ai-card .engine { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 12px; font-weight: 700; color: #2d6a9f; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 2px; }
+  .ai-card .model { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .ai-card .role { font-size: 12px; color: #666; }
+  .story-flow { counter-reset: step; margin: 20px 0; }
+  .story-step { display: flex; gap: 16px; margin-bottom: 14px; align-items: flex-start; }
+  .story-step::before { counter-increment: step; content: counter(step); font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; font-weight: 700; background: #1e3a5f; color: #fff; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 2px; }
+  .story-step p { margin: 0; font-size: 14px; }
+  .cost-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 13px; }
+  .cost-table th { background: #1e3a5f; color: #fff; padding: 10px 12px; text-align: left; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; }
+  .cost-table td { padding: 9px 12px; border-bottom: 1px solid #e0e8f5; }
+  .cost-table tr:nth-child(even) td { background: #f4f8fd; }
+  .theory { background: #0d1b2a; color: #b0d4f1; padding: 20px 24px; border-radius: 8px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.8; margin: 16px 0; white-space: pre-wrap; }
+  blockquote { border-left: 4px solid #7ec8e3; padding: 12px 20px; margin: 20px 0; font-size: 16px; font-style: italic; color: #333; background: #f8fbff; border-radius: 0 8px 8px 0; }
+  .footer { margin-top: 48px; padding-top: 20px; border-top: 2px solid #d0daea; font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 11px; color: #888; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <div class="cover-tag">ThriveUp Academy · Platform Overview · Data Storytelling</div>
+  <h1>Turning Census Data into<br>Compassionate Action</h1>
+  <div class="subtitle">An AI-Powered Community Agency Platform — How ThriveUp Converts Federal Data into Stories That Move People</div>
+  <div class="meta-row">
+    <span>24 platforms · 107 languages · 4 AI engines · 50-state architecture</span>
+    <span>EIN 41-3618003 · Dr. Terry D. Flood, President</span>
+  </div>
+</div>
+
+<h2>The Core Design Principle</h2>
+<div class="design-principle">"This is DATA, not characterization." Every report begins with a disclaimer that these are statistical characteristics of a geographic area, not judgments of its residents. Every neighborhood has strengths and challenges. The data is meant to inform compassionate action.</div>
+<p>Most data tools build dashboards for policymakers. ThriveUp is built so that a community health worker at a grocery store, a pastor after Sunday service, or a parent at a PTA meeting can pull up a compassionate neighborhood profile on their phone and walk through specific solutions — in under 5 seconds, without training, in their language.</p>
+
+<h2>The Neighborhood Intelligence Engine</h2>
+<p>The flagship tool transforms any location input — a ZIP code, a street name, a neighborhood name, even "East Austin" — into a compassionate, actionable data story. It:</p>
+<div class="story-flow">
+  <div class="story-step"><p>Pulls live data from the U.S. Census Bureau's American Community Survey across 15 social vulnerability indicators</p></div>
+  <div class="story-step"><p>Computes a Social Vulnerability Index score using CDC/ATSDR methodology across 4 themes (Socioeconomic, Household Composition, Minority Status, Housing &amp; Transportation)</p></div>
+  <div class="story-step"><p>Identifies what's going well — community strengths to celebrate, not just gaps to fix</p></div>
+  <div class="story-step"><p>Flags what needs attention — with specific, actionable solutions (not just data, but what to do about it)</p></div>
+  <div class="story-step"><p>Matches community needs against up to 20 live federal grant opportunities from SAM.gov</p></div>
+  <div class="story-step"><p>Generates a downloadable 10-page PDF action plan and a 15–20 slide scripted PowerPoint presentation ready for City Council meetings, church gatherings, or PTA meetings</p></div>
+  <div class="story-step"><p>"What If" Scenario Sandbox — adjust sliders for poverty, unemployment, graduation rates, insurance, transportation, and broadband, and see in real time how the vulnerability score changes</p></div>
+</div>
+
+<h2>The AI Architecture — 4 Engines, One Consensus</h2>
+<p>No single model's bias dominates. Every output is a consensus of all four engines:</p>
+<div class="ai-table">
+  <div class="ai-card"><div class="engine">Engine 1</div><div class="model">Google Gemini 2.0 Flash</div><div class="role">Rapid data synthesis and pattern recognition</div></div>
+  <div class="ai-card"><div class="engine">Engine 2</div><div class="model">Anthropic Claude Haiku 4.5</div><div class="role">Nuanced reasoning and ethical framing</div></div>
+  <div class="ai-card"><div class="engine">Engine 3</div><div class="model">OpenAI GPT-4o-mini</div><div class="role">Structured output and grant narrative generation</div></div>
+  <div class="ai-card"><div class="engine">Engine 4</div><div class="model">DeepSeek R1</div><div class="role">Deep analytical reasoning and cross-domain connection</div></div>
+</div>
+<p>All outputs are processed through implementation science frameworks (RPLICE, CFIR/RE-AIM) and augmented by a RAG knowledge base of 67+ curated knowledge chunks and live platform status feeds.</p>
+
+<h2>Scale and Cost-Effectiveness</h2>
+<div class="stat-row">
+  <div class="stat-box"><div class="val">$0.02</div><div class="lbl">Cost per community data story generated</div></div>
+  <div class="stat-box"><div class="val">$0</div><div class="lbl">Cost per PDF action plan or grant match</div></div>
+  <div class="stat-box"><div class="val">$50K</div><div class="lbl">Traditional neighborhood assessment cost</div></div>
+  <div class="stat-box"><div class="val">5 sec</div><div class="lbl">Time to full neighborhood intelligence report</div></div>
+</div>
+
+<table class="cost-table">
+  <tr><th>Comparison Point</th><th>Traditional Approach</th><th>ThriveUp</th></tr>
+  <tr><td>Neighborhood needs assessment</td><td>$15,000–$50,000 · 3–6 months</td><td>$0.02 · 5 seconds</td></tr>
+  <tr><td>Grant matching</td><td>Grant writer · $75–$150/hr</td><td>Automated · real-time</td></tr>
+  <tr><td>Benefits enrollment navigation</td><td>$200–$500 per person</td><td>$70/person at $350K/18mo scale</td></tr>
+  <tr><td>Multi-language support</td><td>Paid interpreter · days</td><td>107 languages · instant</td></tr>
+  <tr><td>Training required to use</td><td>Days to weeks</td><td>Zero — anyone can enter a ZIP</td></tr>
+</table>
+
+<h2>The Federal Data Foundation</h2>
+<p>ThriveUp integrates 8 federal data sources in real time, each traceable through ChainWeb — the citation-traceable evidence engine where every claim chains back to a primary federal URL:</p>
+<p>Census Bureau ACS (15 social vulnerability variables) · CDC PLACES (local health outcomes) · CDC/ATSDR SVI (4-theme vulnerability index) · FBI Crime Data API (community safety) · USDA Food Access Atlas (food desert identification) · HUD (housing affordability) · SAMHSA (behavioral health locator) · BLS (labor market and wages)</p>
+<p>955 live federal data connections across 67+ agencies. Adding new geographies requires zero code changes — the Census Bureau API serves all 50 states. Cost per additional geography approaches zero.</p>
+
+<h2>Theory of Change</h2>
+<div class="theory">INPUTS                    ACTIVITIES                  OUTPUTS                    OUTCOMES
+─────────                 ──────────                  ───────                    ────────
+Census ACS data      →    Neighborhood Intelligence   →  Data stories generated  →  Community awareness
+CDC/ATSDR SVI             tool + deployment               PDF action plans            of local conditions
+SAM.gov grants                                            PPTX presentations          and real options
+                     →    Community partner           →  Presentations delivered  →  Self-advocacy +
+4-engine AI system        network activation              Coalitions formed           organized action
+
+                     →    Scenario sandbox            →  "What if" analyses       →  Hope + agency:
+24-platform ecosystem     + community data walks          Policy evidence             communities see
+                                                          Advocacy tools              change is possible</div>
+
+<blockquote>"When people see accurate, compassionate data about their own community — and see specific, actionable solutions alongside it — they move from passive recipients of services to active agents of change. The 'what if' scenario sandbox is particularly important: it transforms data from a diagnosis into a possibility."</blockquote>
+
+<h2>What This Means for Data Storytelling Training</h2>
+<p>The platform's storytelling methodology follows three rules that should anchor any data storytelling training:</p>
+<p><b>1. Lead with the human, anchor with the data.</b> Maria's story opens every benefits conversation. The $8,400 figure follows. Not the other way around. Data without a face is abstract; a face without data is anecdote. You need both, in that order.</p>
+<p><b>2. Strengths before challenges.</b> Every Neighborhood Intelligence report surfaces what's going well before it flags what needs attention. This is not politeness — it is strategy. A community that hears only its deficits becomes defensive. A community that hears its strengths first opens up.</p>
+<p><b>3. Every number has a source chain.</b> ChainWeb exists because "trust me" fails in funder rooms, city council chambers, and community meetings. If you can't show the URL, don't say the number. This discipline also catches your own errors before they leave the room.</p>
+
+<div class="footer">
+  The Collaborative Advocate Foundation (TCAF) · EIN 41-3618003 · Dr. Terry D. Flood, President · thriveupacademy.com<br>
+  Prepared for data storytelling training — ChildCORE partnership
+</div>
+</body>
+</html>
