@@ -19,6 +19,10 @@
 
 type JsonObject = Record<string, unknown>;
 
+type BoundedResponse = {
+  response: Response;
+  finish: () => void;
+};
 const configuredBaseUrl = process.env.PUBLISHED_BASE_URL ?? process.env.BASE_URL;
 const isPublishedTarget = Boolean(process.env.PUBLISHED_BASE_URL);
 const REQUEST_TIMEOUT_MS = 10_000;
@@ -74,13 +78,41 @@ function endpoint(path: string): string {
   return `${baseOrigin}${path}`;
 }
 
-async function fetchWithoutCredentials(path: string, init?: RequestInit): Promise<Response | null> {
+async function fetchWithoutCredentials(path: string, init?: RequestInit): Promise<BoundedResponse | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(
+    () => controller.abort(new DOMException("request timed out", "TimeoutError")),
+    REQUEST_TIMEOUT_MS,
+  );
+  const headers = new Headers(init?.headers);
+  headers.set("Cache-Control", "no-cache, no-store");
+  headers.set("Pragma", "no-cache");
+
   try {
-    return await fetch(endpoint(path), {
+    const response = await fetch(endpoint(path), {
       ...init,
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      cache: "no-store",
+      headers,
+      redirect: "manual",
+      signal: controller.signal,
     });
+
+    if (new URL(response.url).origin !== baseOrigin) {
+      fail(
+        `${init?.method ?? "GET"} ${path} returned from an unexpected origin`,
+        `received ${response.url}`,
+      );
+      controller.abort();
+      clearTimeout(timeout);
+      return null;
+    }
+
+    return {
+      response,
+      finish: () => clearTimeout(timeout),
+    };
   } catch (error) {
+    clearTimeout(timeout);
     const kind = error instanceof DOMException && error.name === "TimeoutError"
       ? "request timed out"
       : "network or TLS failure";
@@ -133,69 +165,83 @@ async function readJson(response: Response): Promise<JsonObject | null> {
 }
 
 async function verifyDocs(): Promise<void> {
-  const response = await fetchWithoutCredentials("/api/partner/v1/docs");
-  if (!response) return;
+  const docsPath = `/api/partner/v1/docs?contract_check=${Date.now()}`;
+  const request = await fetchWithoutCredentials(docsPath);
+  if (!request) return;
+  const { response, finish } = request;
 
-  check(
-    "public Partner API docs are present",
-    response.status === 200,
-    `returned HTTP ${response.status}, expected 200`,
-  );
-  if (response.status !== 200) {
-    await response.body?.cancel();
-    return;
-  }
-
-  const docs = await readJson(response);
-  check(
-    "public Partner API docs return a JSON object",
-    docs !== null,
-    "published /docs returned an unexpected response shape",
-  );
-  if (!docs) return;
-
-  const scopes = Array.isArray(docs?.scopes) ? docs.scopes : [];
-  const scopeNames = new Set(
-    scopes
-      .filter((scope): scope is JsonObject => Boolean(scope) && typeof scope === "object")
-      .map((scope) => scope.scope)
-      .filter((scope): scope is string => typeof scope === "string"),
-  );
-
-  for (const scope of ["chainweb:read", "yhsi:read"]) {
+  try {
     check(
-      `public docs advertise ${scope}`,
-      scopeNames.has(scope),
-      `scope is missing from the published /docs response`,
+      "public Partner API docs are present",
+      response.status === 200,
+      `returned HTTP ${response.status}, expected 200`,
     );
-  }
+    if (response.status !== 200) {
+      await response.body?.cancel();
+      return;
+    }
 
-  const endpoints = Array.isArray(docs?.endpoints)
-    ? docs.endpoints.filter((value): value is string => typeof value === "string")
-    : [];
-  const documentedEndpoints = new Set(
-    endpoints.flatMap((description) => {
-      const match = /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\S+)/.exec(description.trim());
-      return match ? [`${match[1]} ${match[2]}|${description}`] : [];
-    }),
-  );
-  for (const expected of EXPECTED_PUBLIC_ENDPOINTS) {
-    const routeKey = `${expected.method} ${expected.path}`;
-    const matchingDescription = [...documentedEndpoints]
-      .find((entry) => entry.startsWith(`${routeKey}|`))
-      ?.slice(routeKey.length + 1);
+    const docs = await readJson(response);
     check(
-      `public docs list ${routeKey}`,
-      Boolean(matchingDescription),
-      "exact method/path entry is missing from the published /docs response",
+      "public Partner API docs return a JSON object",
+      docs !== null,
+      "published /docs returned an unexpected response shape",
     );
-    if (expected.scope) {
+    if (!docs) return;
+
+    const scopes = Array.isArray(docs?.scopes) ? docs.scopes : [];
+    const scopeNames = new Set(
+      scopes
+        .filter((scope): scope is JsonObject => Boolean(scope) && typeof scope === "object")
+        .map((scope) => scope.scope)
+        .filter((scope): scope is string => typeof scope === "string"),
+    );
+
+    for (const scope of ["chainweb:read", "yhsi:read"]) {
       check(
-        `public docs map ${routeKey} to ${expected.scope}`,
-        Boolean(matchingDescription?.includes(`(${expected.scope})`)),
-        "documented route is missing its expected scope label",
+        `public docs advertise ${scope}`,
+        scopeNames.has(scope),
+        `scope is missing from the published /docs response`,
       );
     }
+
+    const endpoints = Array.isArray(docs?.endpoints)
+      ? docs.endpoints.filter((value): value is string => typeof value === "string")
+      : [];
+    const documentedEndpoints = new Map<string, string[]>();
+    for (const description of endpoints) {
+      const match = /^(GET|POST|PUT|PATCH|DELETE|HEAD|OPTIONS)\s+(\S+)/.exec(description.trim());
+      if (!match) continue;
+      const routeKey = `${match[1]} ${match[2]}`;
+      documentedEndpoints.set(routeKey, [
+        ...(documentedEndpoints.get(routeKey) ?? []),
+        description,
+      ]);
+    }
+
+    for (const expected of EXPECTED_PUBLIC_ENDPOINTS) {
+      const routeKey = `${expected.method} ${expected.path}`;
+      const matchingDescriptions = documentedEndpoints.get(routeKey) ?? [];
+      check(
+        `public docs list ${routeKey}`,
+        matchingDescriptions.length > 0,
+        "exact method/path entry is missing from the published /docs response",
+      );
+      if (expected.scope) {
+        const hasExactScope = matchingDescriptions.some((description) => {
+          const scopeLabels = [...description.matchAll(/\(([^()]+)\)/g)]
+            .map((match) => match[1]);
+          return scopeLabels.includes(expected.scope);
+        });
+        check(
+          `public docs map ${routeKey} to ${expected.scope}`,
+          hasExactScope,
+          "documented route is missing its exact expected scope label",
+        );
+      }
+    }
+  } finally {
+    finish();
   }
 }
 
@@ -204,15 +250,20 @@ async function verifyProtectedRoute(
   method: "GET" | "POST",
   path: string,
 ): Promise<void> {
-  const response = await fetchWithoutCredentials(path, { method });
-  if (!response) return;
+  const request = await fetchWithoutCredentials(path, { method });
+  if (!request) return;
+  const { response, finish } = request;
 
-  check(
-    `${label} reaches its authorization guard without credentials`,
-    response.status === 401 || response.status === 403,
-    `returned HTTP ${response.status}; expected 401 or 403, not a stale 404`,
-  );
-  await response.body?.cancel();
+  try {
+    check(
+      `${label} reaches its authorization guard without credentials`,
+      response.status === 401 || response.status === 403,
+      `returned HTTP ${response.status}; expected 401 or 403, not a stale 404`,
+    );
+    await response.body?.cancel();
+  } finally {
+    finish();
+  }
 }
 
 async function run(): Promise<void> {
