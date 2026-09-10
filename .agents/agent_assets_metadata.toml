@@ -1016,3 +1016,17 @@ mtime_ms = 1789034964153
 storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/5db7a402-6f50-4ebc-bda6-535d2e16f1c1/c14e7de0-f41b-4d9d-b143-b96b1b5f6ac7"
 storage_version_token = "1789034986210277"
 content_type = "text/html"
+
+[[outputs]]
+id = "a1P98ZIHJ1A1E4FcM2Pgw"
+uri = "file://docs/grants/black-fund-central-texas-2026-application-draft.md"
+type = "text"
+title = "Black Fund of Central Texas — 2026 Application Draft"
+description = "Internal review draft for TCAF's $15,000 application. It includes the narrative, proposed budget, eligibility notes, measurement plan, and submission checklist."
+logical_id = "6edea4aa-8567-4265-8523-3118e4fd3f21"
+content_hash = "sha256:a1141006433f4e17f60df0d9d00981b7d9f5bb987f8107c9d0786a90f13d754a"
+size = 17573
+mtime_ms = 1789056052683
+storage_uri = "gcs://replit-rams-assets-riker/rams/assets/repl:55376bb2-2aea-463e-b6a9-2c1d5c123d53/6edea4aa-8567-4265-8523-3118e4fd3f21/bf3fbf45-950c-4876-b671-c809c8176ffa"
+storage_version_token = "1789056183459129"
+content_type = "text/markdown"
