@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import { IDENTITY_STRAP, LANGUAGES_SHORT_PHRASE } from "@shared/canonical-claims";
+import { CHILDCORE_INTEGRATION_CONFIG } from "@shared/childcore-config";
 
 const PATHWAYS = [
   {
@@ -1612,7 +1613,7 @@ const PARTNER_NETWORK = [
     name: "ChildCORE",
     tagline: "Community providers, schools, SDOH & impact data",
     description: "Pulls live provider registries, school intelligence, social determinants data, and aggregate community impact by ZIP or geography. Two-way: ThriveUp also pushes community activity back.",
-    docsUrl: "https://childcore.app/docs/partner-api",
+    docsUrl: CHILDCORE_INTEGRATION_CONFIG.docsUrl,
     color: "from-blue-500 to-indigo-600",
     bg: "bg-blue-50 dark:bg-blue-950/20",
     border: "border-blue-200 dark:border-blue-800",

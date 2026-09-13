@@ -54,6 +54,15 @@ function pct(n: number | null | undefined) {
   return n == null ? "—" : `${n}%`;
 }
 
+function getDisplayHost(value: unknown): string | null {
+  if (typeof value !== "string" || !value.trim()) return null;
+  try {
+    return new URL(value).host || null;
+  } catch {
+    return null;
+  }
+}
+
 // ─── 1. Connection tab ───────────────────────────────────────────────────────
 
 function ConnectionTab() {
@@ -151,17 +160,23 @@ function ConnectionTab() {
             <Row label="Authenticated" ok={ping?.authenticated} loading={pinging} />
             <Row label="Community data" ok={ping?.authenticated} loading={pinging}
                  note={!ping?.authenticated ? "403 — key needs community scope on ChildCORE admin side" : undefined} />
-            {status && (
-              <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
+            <div className="pt-2 border-t text-xs text-muted-foreground space-y-1">
+              {status?.baseUrl ? (
                 <div>Base URL: <code className="font-mono">{status.baseUrl}</code></div>
+              ) : (
+                <div data-testid="text-childcore-metadata-unavailable">Integration metadata unavailable.</div>
+              )}
+              {status?.docsUrl ? (
                 <div>
                   <a href={status.docsUrl} target="_blank" rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-primary hover:underline">
                     <ExternalLink className="h-3 w-3" /> ChildCORE API docs
                   </a>
                 </div>
-              </div>
-            )}
+              ) : (
+                <div data-testid="text-childcore-docs-unavailable">ChildCORE API docs unavailable.</div>
+              )}
+            </div>
           </CardContent>
         </Card>
 
@@ -825,8 +840,12 @@ export default function ChildCOREIntegrationPage() {
     queryKey: ["/api/childcore/ping"],
     refetchInterval: 60_000,
   });
+  const { data: status, isLoading: statusLoading } = useQuery<any>({
+    queryKey: ["/api/childcore/status"],
+  });
 
   const overallOk = ping?.ok;
+  const apiHost = getDisplayHost(status?.baseUrl);
   const overallBadge = overallOk
     ? <Badge className="bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400 border-0 gap-1.5"><StatusDot ok={true} /><span>Live</span></Badge>
     : ping?.reachable
@@ -842,12 +861,19 @@ export default function ChildCOREIntegrationPage() {
       />
 
       <div className="flex flex-wrap gap-3 text-xs text-muted-foreground pb-1">
-        <span className="flex items-center gap-1.5"><Wifi className="h-3.5 w-3.5" />API: useful-viper-536.convex.site</span>
+        <span className="flex items-center gap-1.5" data-testid="text-childcore-upstream">
+          <Wifi className="h-3.5 w-3.5" />
+          {statusLoading ? "API: checking…" : apiHost ? `API: ${apiHost}` : "API: unavailable"}
+        </span>
         <span>·</span>
-        <a href="https://childcore.app/docs/partner-api" target="_blank" rel="noopener noreferrer"
-          className="flex items-center gap-1 text-primary hover:underline">
-          <ExternalLink className="h-3 w-3" /> Partner API docs
-        </a>
+        {status?.docsUrl ? (
+          <a href={status.docsUrl} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 text-primary hover:underline">
+            <ExternalLink className="h-3 w-3" /> Partner API docs
+          </a>
+        ) : (
+          <span data-testid="text-childcore-header-docs-unavailable">Partner API docs unavailable</span>
+        )}
         <span>·</span>
         <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" />Admin only</span>
       </div>

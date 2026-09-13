@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Code2, Copy, Globe, Key, Shield, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Link } from "wouter";
+import { CHILDCORE_INTEGRATION_CONFIG } from "@shared/childcore-config";
 
 const PARTNER_API_BASE_PATH = "/api/partner/v1";
 
@@ -454,6 +455,15 @@ export default function APIDocsPage() {
               >
                 ChildCORE monitoring (admin)
               </Link>
+              <a
+                href={CHILDCORE_INTEGRATION_CONFIG.docsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-sm text-primary hover:underline"
+                data-testid="link-childcore-external-docs"
+              >
+                ChildCORE Partner API docs
+              </a>
             </div>
           </CardContent>
         </Card>

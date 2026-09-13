@@ -1,8 +1,6 @@
 /**
  * ChildCORE Partner API Connector
  *
- * Live API:  https://useful-viper-536.convex.site/api/v1/
- * Docs:      https://childcore.app/docs/partner-api
  * Service:   ChildCORE Partner API v1.0.0
  *
  * Authentication: Authorization: Bearer <CHILDCORE_API_KEY>
@@ -24,7 +22,9 @@
  * A ChildCORE outage degrades community context; it never crashes a route.
  */
 
-const CHILDCORE_BASE = "https://useful-viper-536.convex.site/api/v1";
+import { CHILDCORE_INTEGRATION_CONFIG } from "@shared/childcore-config";
+
+const CHILDCORE_BASE = CHILDCORE_INTEGRATION_CONFIG.baseUrl;
 const TIMEOUT_MS = 8000;
 
 function getApiKey(): string {
@@ -365,6 +365,6 @@ export async function getChildCOREConnectionStatus(): Promise<{
     service: probe.service,
     version: probe.version,
     baseUrl: CHILDCORE_BASE,
-    docsUrl: "https://childcore.app/docs/partner-api",
+    docsUrl: CHILDCORE_INTEGRATION_CONFIG.docsUrl,
   };
 }

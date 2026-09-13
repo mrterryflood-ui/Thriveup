@@ -118,8 +118,15 @@ export function registerChildCORERoutes(router: Router): void {
     try {
       const status = await getChildCOREConnectionStatus();
       res.json(status);
-    } catch {
-      res.status(503).json({ error: "Status probe failed" });
+    } catch (err) {
+      console.error("[ChildCORE] status metadata/probe failed:", err);
+      // Do not invent a destination when the integration status cannot be
+      // loaded. The protected dashboard renders an honest unavailable state.
+      res.status(503).json({
+        error: "Status probe failed",
+        baseUrl: null,
+        docsUrl: null,
+      });
     }
   });
 

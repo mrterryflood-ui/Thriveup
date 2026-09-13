@@ -1,0 +1,15 @@
+# Alpha Omega — 2026-09-13 — ChildCORE monitoring destination
+
+## Alpha
+- End-state: The protected ChildCORE monitoring page must display its current upstream host and external docs target from the existing integration configuration, show an honest unavailable state when status metadata cannot load, and have a focused docs-target check that cannot block page access.
+- In-state evidence: `server/childcore-connector.ts` owned the ChildCORE base/docs values and already returned them from the authenticated `/api/childcore/status` response. `client/src/pages/childcore-integration.tsx` duplicated both values in its page header. `client/src/pages/api-docs.tsx` had no ChildCORE external-docs link. The current docs host was not DNS-resolvable from this environment, so liveness must be warning-only for network failures.
+- Authority/boundaries: The connector/config is the integration destination authority; the protected status route remains authenticated; no secrets, deployment, upstream service, or authorization behavior may change.
+- Plan and acceptance proofs: centralize public metadata; have the connector/status route use it; make the protected page consume status metadata with null-safe unavailable copy; expose the same docs target from public API docs; add a standalone HTTPS/liveness check and chain it into the existing directory-links gate with network-failure skip behavior.
+- Unknowns/deferred decisions: The external ChildCORE docs host cannot be live-verified from this container because DNS currently fails. The focused check will flag HTTP errors while reporting network failures as warnings.
+
+## Omega
+- Diff scrimmage: Removed page-level upstream/docs literals; the connector and public API docs now use shared integration metadata; protected status failures return null destinations and the page renders unavailable copy instead of guessing. The focused docs check is separate from page rendering and only fails on a malformed/missing target or HTTP error.
+- Proofs and gates: Strict TypeScript with the configured 8 GB heap, frontend ESLint, `git diff --check`, preflight (9/9), memory health, focused ChildCORE docs check, workflow restart, startup log review, public API docs screenshot, protected-route screenshot, and direct stale-literal audit completed. External docs liveness was not available because the environment could not resolve `childcore.app`; the check reported a warning and exited successfully.
+- Independent angle: Direct preview and unauthenticated curl/browser probes confirmed `/childcore-integration` remains protected and the public `/api-docs` page renders the external docs resource. The architect subagent was unavailable in this session mode, so no external subagent review is claimed.
+- Outcome: Task scope is implemented and locally verified. No deployment or upstream configuration was changed.
+- Residuals and reusable guard: The external ChildCORE docs host needs a live DNS/HTTP check from a network-capable environment; HTTP failures will fail the focused gate, while transient DNS/timeouts remain non-blocking to operators.

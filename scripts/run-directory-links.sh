@@ -50,6 +50,7 @@ npx tsx scripts/verify-directory-links.ts || exit 1
 npx tsx scripts/verify-capacity-badges.ts || exit 1
 npx tsx scripts/verify-sidebar-routes.ts || exit 1
 npx tsx scripts/verify-external-links.ts || exit 1
+npx tsx scripts/verify-childcore-doc-target.ts || exit 1
 npx tsx scripts/verify-intake-contact-validation.ts || exit 1
 npx tsx scripts/verify-chw-dashboard-no-555.ts || exit 1
 npx tsx scripts/verify-tool-reachability.ts || exit 1
