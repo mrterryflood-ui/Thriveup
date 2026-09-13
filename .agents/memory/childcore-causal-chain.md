@@ -28,6 +28,22 @@ but preserve the architecture for scale-out across health, education, housing,
 workforce, rights, environment, and child/youth systems. Funders are possible
 application contexts, not the product definition.
 
+## Non-bolt-on acceptance rule
+
+International readiness, localization, adaptation, data sovereignty, low-
+connectivity access, community governance, safeguarding, and cross-domain
+causal reasoning are Phase 1 acceptance criteria—not later integrations.
+
+**Why:** Adding these after domestic features are complete would force country
+forks, duplicate journeys, and unsafe retrofits. The platform must be built so
+that local context changes configuration and implementation, not the core
+product's identity or safety model.
+
+**How to apply:** Any future feature is incomplete until its country/program
+configuration boundary, local ownership path, evidence/provenance behavior,
+accessibility/connectivity posture, and cross-domain handoff are explicitly
+defined or intentionally marked not applicable.
+
 **Why:** Each tool does real work in isolation but the causal chain never closes because there is no shared spine connecting them. A person who uses Navigator doesn't carry context to Benefits Screener; CHW referral doesn't know the community brief; Equity Loss findings don't reach Navigator.
 
 ## The ThriveUp causal chain
