@@ -9,6 +9,25 @@ ChildCORE's 10 problems form a causal chain — each causes the next. Their arch
 
 ThriveUp has the same pattern of problems and the same specialist organs, but they fire in isolation (the "swamp of silos" problem the user identified).
 
+## Global platform framing
+
+Treat international work as the platform's general operating model, not as a
+foundation-specific deployment or a separate international product. The core
+causal-chain and journey envelope should be reusable across countries and
+sectors; geography, language, service taxonomies, legal rules, safeguarding,
+connectivity, and local partner workflows are configuration/adaptation layers.
+
+**Why:** Community problems are interconnected and cross-border. Designing only
+for a single funder or linear program would recreate the silos the shared
+spine is meant to eliminate and would make every new country look like a
+separate rebuild.
+
+**How to apply:** Build country/program adapters around the common spine. Start
+with one locally led implementation context and one measurable causal chain,
+but preserve the architecture for scale-out across health, education, housing,
+workforce, rights, environment, and child/youth systems. Funders are possible
+application contexts, not the product definition.
+
 **Why:** Each tool does real work in isolation but the causal chain never closes because there is no shared spine connecting them. A person who uses Navigator doesn't carry context to Benefits Screener; CHW referral doesn't know the community brief; Equity Loss findings don't reach Navigator.
 
 ## The ThriveUp causal chain
