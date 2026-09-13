@@ -37,6 +37,16 @@ export type PartnerRouteEntry = {
   readonly probe?: boolean;
 };
 
+// These routes intentionally remain registered to return 410 Gone with a
+// privacy-preserving migration message. They are not part of the live public
+// contract and should not be reported as unexpected registration drift.
+const DEPRECATED_PARTNER_API_PATHS = new Set([
+  "/api/partner/v1/students/:userId/thrive",
+  "/api/partner/v1/students/:userId/assessments",
+  "/api/partner/v1/students/:userId/pathway",
+  "/api/partner/v1/students/reflections",
+]);
+
 export const PARTNER_API_CONTRACT: readonly PartnerRouteEntry[] = [
   // ── Public ────────────────────────────────────────────────────────────────
   {
@@ -363,6 +373,8 @@ export function auditRouteRegistration(app: {
   const extra: string[] = [];
   for (const key of Array.from(registered)) {
     if (!key.includes("/api/partner/v1/")) continue;
+    const path = key.replace(/^[A-Z]+ /, "");
+    if (DEPRECATED_PARTNER_API_PATHS.has(path)) continue;
     if (!Object.prototype.hasOwnProperty.call(expected, key)) extra.push(key);
   }
 

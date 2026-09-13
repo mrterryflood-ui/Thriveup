@@ -328,7 +328,7 @@ export function registerPartnerApiRoutes(app: Express) {
           description: "A WIB case manager verifies a learner's trade cert without logging in",
           request: "GET /api/partner/v1/certificates/verify/cert-uuid-here",
           headers: { "x-partner-key": "tcaf_..." },
-          response: { valid: true, certId: "...", holderName: "Jane Smith", trade: "trade-sim:electrical", issuedAt: "2024-01-15T10:00:00Z", verificationUrl: "/verify/cert-uuid-here" },
+          response: { valid: true, certId: "...", holderName: "Jane Smith", trade: "trade-sim:electrical", issuedAt: "2024-01-15T10:00:00Z", verificationUrl: "https://your-thriveup-host.example.com/api/trade-sims/verify/cert-uuid-here" },
         },
         tradeCompletions: {
           description: "A workforce board tracks regional trade training volume over the past 30 days",
@@ -361,6 +361,79 @@ export function registerPartnerApiRoutes(app: Express) {
             status: "REQUIRED — enrolled | ineligible | withdrew | accepted",
             benefitValueEstimate: "OPTIONAL number — estimated dollar value of benefit delivered; used in funder impact reports",
             notes: "OPTIONAL string — free-text notes visible to the referring CHW",
+          },
+        },
+      },
+      curlExamples: {
+        note: "Credential-free examples. Replace BASE_URL, PARTNER_KEY, and returned IDs locally; never commit a real partner key.",
+        setup: [
+          'BASE_URL="https://your-thriveup-host.example.com/api/partner/v1"',
+          'PARTNER_KEY="tcaf_replace_with_your_scoped_key"',
+        ],
+        authentication: {
+          scope: "any active partner key",
+          curl: 'curl --fail-with-body "$BASE_URL/health" -H "x-partner-key: $PARTNER_KEY"',
+          successStatus: 200,
+          errorStatuses: { "401": "Missing, invalid, or revoked key" },
+        },
+        studentAggregate: {
+          scope: "student:read",
+          curl: 'curl --fail-with-body "$BASE_URL/students/overview?grade=10" -H "x-partner-key: $PARTNER_KEY"',
+          successStatus: 200,
+          errorStatuses: {
+            "401": "Missing, invalid, or revoked key",
+            "403": "Key does not include student:read",
+          },
+        },
+        yhsiAggregate: {
+          scope: "yhsi:read",
+          curl: 'curl --fail-with-body "$BASE_URL/yhsi/metrics" -H "x-partner-key: $PARTNER_KEY"',
+          successStatus: 200,
+          errorStatuses: {
+            "401": "Missing, invalid, or revoked key",
+            "403": "Key does not include yhsi:read",
+          },
+        },
+        chainwebScenarioLifecycle: {
+          scope: "chainweb:read",
+          requires: ["curl", "jq"],
+          idExtraction: "SCENARIO_ID=$(printf '%s' \"$CREATE_RESPONSE\" | jq -r '.id // empty'); CALCULATION_ID=$(printf '%s' \"$CALCULATION_RESPONSE\" | jq -r '.id // empty')",
+          create: {
+            method: "POST",
+            path: "/chainweb/scenarios",
+            curl: `curl --fail-with-body "$BASE_URL/chainweb/scenarios" -X POST -H "x-partner-key: $PARTNER_KEY" -H "Content-Type: application/json" --data '{"name":"Austin youth reengagement","geographyType":"county","geographyLabel":"Travis County, TX","geographyFips":"48453","entryDomain":"education","interventionName":"Community-based mentoring","interventionCostPerPerson":"1500.00","populationSize":5000,"timeHorizonYears":10}'`,
+            successStatus: 200,
+            errorStatuses: { "400": "Invalid scenario body", "401": "Missing, invalid, or revoked key", "403": "Key does not include chainweb:read" },
+          },
+          read: {
+            method: "GET",
+            path: "/chainweb/scenarios/:scenarioId",
+            curl: 'curl --fail-with-body "$BASE_URL/chainweb/scenarios/$SCENARIO_ID" -H "x-partner-key: $PARTNER_KEY"',
+            successStatus: 200,
+            errorStatuses: { "400": "Invalid scenario ID", "401": "Missing, invalid, or revoked key", "403": "Scenario belongs to another key", "404": "Scenario not found" },
+          },
+          calculate: {
+            method: "POST",
+            path: "/chainweb/scenarios/:scenarioId/calculate",
+            curl: 'curl --fail-with-body "$BASE_URL/chainweb/scenarios/$SCENARIO_ID/calculate" -X POST -H "x-partner-key: $PARTNER_KEY"',
+            successStatus: 200,
+            errorStatuses: { "400": "Invalid scenario ID", "401": "Missing, invalid, or revoked key", "403": "Scenario belongs to another key", "404": "Scenario not found" },
+          },
+          narrative: {
+            method: "POST",
+            path: "/chainweb/calculations/:calculationId/narratives",
+            curl: `curl --fail-with-body "$BASE_URL/chainweb/calculations/$CALCULATION_ID/narratives" -X POST -H "x-partner-key: $PARTNER_KEY" -H "Content-Type: application/json" --data '{"audience":"grant_writer"}'`,
+            successStatus: 200,
+            errorStatuses: { "400": "Invalid calculation ID or audience", "401": "Missing, invalid, or revoked key", "403": "Calculation belongs to another key", "404": "Calculation not found" },
+          },
+        },
+        heartbeat: {
+          scope: "any active partner key",
+          curl: 'curl --fail-with-body "$BASE_URL/heartbeat" -X POST -H "x-partner-key: $PARTNER_KEY" -H "Content-Type: application/json" --data \'{"status":"ok","version":"2026.09"}\'',
+          successStatus: 200,
+          errorStatuses: {
+            "401": "Missing, invalid, or revoked key",
+            "422": "Accepted after correcting invalid optional fields",
           },
         },
       },
@@ -473,7 +546,7 @@ export function registerPartnerApiRoutes(app: Express) {
           "POST /api/external/interventions/receive"    : "POST /api/partner/v1/push with dataType=intervention (scope: inbound:write)",
         },
       },
-      rateLimit: "No hard rate limit currently. Please be respectful — bulk imports should be batched.",
+      rateLimit: "Community brief: 20 requests/hour per partner key. Community story: 10 requests/hour per partner key. Other routes have no hard rate limit currently; please be respectful and batch bulk imports.",
       contact: "terryflood@thrivingcommunitiesforall.com",
     });
   });
@@ -1463,7 +1536,7 @@ export function registerPartnerApiRoutes(app: Express) {
     }
   });
 
-  // ── Certificate verification (certs:read — also callable without auth for public verification) ─
+  // ── Certificate verification (certs:read — partner-authenticated) ─────────
 
   app.get("/api/partner/v1/certificates/verify/:certId", requirePartnerAuth, requireScope("certs:read"), async (req, res) => {
     try {
