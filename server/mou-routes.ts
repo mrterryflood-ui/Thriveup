@@ -10,9 +10,14 @@ import { isAuthenticated } from "./replit_integrations/auth/replitAuth";
 export function registerMouRoutes(app: Express): void {
   // ---- MOU pipeline ----
   app.get("/api/nsf/mous/:stateCode", isAuthenticated, async (req, res) => {
-    const code = String(req.params.stateCode || "").toUpperCase();
-    const rows = await db.select().from(hubMous).where(eq(hubMous.hubStateCode, code)).orderBy(hubMous.partnerOrg);
-    res.json({ stateCode: code, mous: rows });
+    try {
+      const code = String(req.params.stateCode || "").toUpperCase();
+      const rows = await db.select().from(hubMous).where(eq(hubMous.hubStateCode, code)).orderBy(hubMous.partnerOrg);
+      res.json({ stateCode: code, mous: rows });
+    } catch (err) {
+      console.error("[mou] list error:", err);
+      res.status(500).json({ error: "Failed to load MOUs" });
+    }
   });
 
   app.post("/api/nsf/mous", isAuthenticated, async (req, res) => {

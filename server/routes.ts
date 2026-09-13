@@ -2035,16 +2035,17 @@ export async function registerRoutes(
   });
 
   app.patch("/api/curriculum-documents/:id", requireAuth, async (req, res) => {
-    const existing = await storage.getCurriculumDocument(req.params.id as string);
-    if (!existing) return res.status(404).json({ error: "Document not found" });
-    const partial = insertCurriculumDocumentSchema.partial().safeParse(req.body);
-    if (!partial.success) {
-      return res.status(400).json({ error: "Invalid update data", details: partial.error.flatten() });
-    }
     try {
+      const existing = await storage.getCurriculumDocument(req.params.id as string);
+      if (!existing) return res.status(404).json({ error: "Document not found" });
+      const partial = insertCurriculumDocumentSchema.partial().safeParse(req.body);
+      if (!partial.success) {
+        return res.status(400).json({ error: "Invalid update data", details: partial.error.flatten() });
+      }
       const doc = await storage.updateCurriculumDocument(req.params.id as string, partial.data);
       res.json(doc);
     } catch (error) {
+      console.error("Error in PATCH /api/curriculum-documents/:id", error);
       res.status(500).json({ error: "Failed to update document" });
     }
   });

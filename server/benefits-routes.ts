@@ -14,6 +14,8 @@ import {
 import { eq, desc, and, count, sql, ne } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON, withEthicalPreamble } from "./ai-provider";
 import { collaborativeResponse, collaborativeJSON } from "./collaborative-ai";
+import { getUserId } from "./yhsi-routes";
+import { mergeJourneyScreenerFlags } from "./journey-spine";
 import {
   CATALOG, CATALOG_VERSION, ACCEPTED_EVENT_TYPES, BENEFIT_AREAS,
   FEDERAL_PROGRAMS, STATE_PROGRAMS, DEFAULT_GRANT_PARTNERS,
@@ -740,6 +742,22 @@ export function registerBenefitsRoutes(app: Express) {
         navigationGuides: navigationGuides as any,
         status: "completed",
       }).returning();
+
+      const journeyUserId = getUserId(req);
+      if (journeyUserId) {
+        const screenerFlags: Record<string, boolean> = {};
+        for (const benefit of eligible) screenerFlags[`eligible:${benefit}`] = true;
+        for (const benefit of gaps) screenerFlags[`gap:${benefit}`] = true;
+        const geography = data.zipCode
+          ? `zip:${data.zipCode}`
+          : data.countyFips
+            ? `county:${data.countyFips}`
+            : undefined;
+        void mergeJourneyScreenerFlags(journeyUserId, screenerFlags, geography)
+          .catch((err) => {
+            console.error("[Benefits] Journey spine write failed:", err instanceof Error ? err.message : String(err));
+          });
+      }
 
       res.json({
         screening: created,
@@ -3311,9 +3329,14 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
 
   // Nationwide ZIP resolver — client UX helper for the any-ZIP wizard.
   app.get("/api/benefits/resolve-zip/:zip", async (req, res) => {
-    const r = resolveZip(req.params.zip);
-    if (!r) return res.status(404).json({ error: "ZIP not recognized", zip: req.params.zip });
-    res.json({ zip: req.params.zip, ...r });
+    try {
+      const r = resolveZip(req.params.zip);
+      if (!r) return res.status(404).json({ error: "ZIP not recognized", zip: req.params.zip });
+      res.json({ zip: req.params.zip, ...r });
+    } catch (err) {
+      console.error("[benefits] ZIP resolver error:", err);
+      res.status(500).json({ error: "Failed to resolve ZIP" });
+    }
   });
 
   app.patch("/api/benefits/applications/:id", requireAuth, async (req, res) => {

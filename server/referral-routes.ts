@@ -9,6 +9,7 @@ import { PROGRAM_DEFAULT_ANNUAL_VALUE } from "./benefits-screener-fix";
 import { fireWebhook, fireWebhookForOrg } from "./webhook-dispatcher";
 import { sendReferralStatusSms } from "./sms-service";
 import { onReferralEnrolled } from "./grant-scoring-events";
+import { appendJourneyReferral } from "./journey-spine";
 
 // ── Combined auth: staff login OR partner key with inbound:write scope ────────
 // Used on PATCH /:id/outcome so receiving orgs can confirm enrollment using
@@ -243,6 +244,14 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
       sendReferralStatusSms(created.clientPhone, created.statusToken as string).catch(() => {
         // already logged inside sendReferralStatusSms; swallow here for safety
       });
+    }
+
+    const journeyUserId = getUserId(req);
+    if (journeyUserId) {
+      void appendJourneyReferral(journeyUserId, created.id)
+        .catch((err) => {
+          console.error("[referral] Journey spine write failed:", err instanceof Error ? err.message : String(err));
+        });
     }
 
     const statusUrl = `/status/${created.statusToken}`;

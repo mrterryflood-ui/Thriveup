@@ -39,8 +39,12 @@ import {
   navigatorConversations,
   referrals,
   userJourneys,
+  childcoreCountyMetrics,
 } from "@shared/schema";
 import { eq, desc, ne } from "drizzle-orm";
+import { resolveZipBestEffort } from "./geo/zip-county-resolver";
+import { markJourneyCommunityContextWarmed } from "./journey-spine";
+import { warmCommunityContext } from "./community-context";
 
 // ─── Known external orgs / contacts ──────────────────────────────────────────
 const EXTERNAL_ORG_SIGNALS = [
@@ -219,6 +223,33 @@ export async function getPersonalContext(
 
       if (journey) {
         const journeyParts: string[] = [];
+        const storedGeography = journey.lastKnownGeography?.trim() || "";
+        const storedZip = storedGeography.match(/^zip:(\d{5})$/)?.[1]
+          ?? (/^\d{5}$/.test(storedGeography) ? storedGeography : null);
+        const storedCountyFips = storedGeography.match(/^county:(\d{5})$/)?.[1] || null;
+        let countyFips = storedCountyFips;
+
+        if (storedZip) {
+          const resolved = await resolveZipBestEffort(storedZip);
+          countyFips = resolved.countyFips ?? null;
+        }
+
+        // Prime the shared community context cache without delaying the
+        // current Navigator response. The timestamp is only advanced after
+        // the warm succeeds, so an upstream outage remains visible.
+        const contextAgeMs = journey.communityContextAt
+          ? Date.now() - journey.communityContextAt.getTime()
+          : Number.POSITIVE_INFINITY;
+        if (storedZip && contextAgeMs > 30 * 60 * 1000) {
+          void warmCommunityContext(storedZip)
+            .then((context) => context
+              ? markJourneyCommunityContextWarmed(userId)
+              : undefined)
+            .catch((err) => {
+              console.error("[PersonalContext] Proactive context prime failed:", err instanceof Error ? err.message : String(err));
+            });
+        }
+
         if (journey.identifiedNeeds?.length) {
           journeyParts.push(`Identified needs across all tools: ${journey.identifiedNeeds.join(", ")}`);
         }
@@ -239,6 +270,45 @@ export async function getPersonalContext(
         if (journey.activeReferralIds?.length) {
           journeyParts.push(`Active referrals: ${journey.activeReferralIds.length} in progress`);
         }
+
+        if (countyFips) {
+          const [metric] = await db
+            .select({
+              countyName: childcoreCountyMetrics.countyName,
+              desertRate: childcoreCountyMetrics.desertRate,
+              prekEnrollmentRate: childcoreCountyMetrics.prekEnrollmentRate,
+              kindergartenReadiness: childcoreCountyMetrics.kindergartenReadiness,
+              subsidyAccessRate: childcoreCountyMetrics.subsidyAccessRate,
+              childPovertyRate: childcoreCountyMetrics.childPovertyRate,
+              staffTurnoverRate: childcoreCountyMetrics.staffTurnoverRate,
+              receivedAt: childcoreCountyMetrics.receivedAt,
+            })
+            .from(childcoreCountyMetrics)
+            .where(eq(childcoreCountyMetrics.fipsCode, countyFips))
+            .orderBy(desc(childcoreCountyMetrics.receivedAt))
+            .limit(1);
+
+          if (metric) {
+            const metricLines = [
+              metric.desertRate != null ? `childcare desert rate ${metric.desertRate}%` : null,
+              metric.prekEnrollmentRate != null ? `Pre-K enrollment ${metric.prekEnrollmentRate}%` : null,
+              metric.kindergartenReadiness != null ? `kindergarten readiness ${metric.kindergartenReadiness}%` : null,
+              metric.subsidyAccessRate != null ? `subsidy access ${metric.subsidyAccessRate}%` : null,
+              metric.childPovertyRate != null ? `child poverty ${metric.childPovertyRate}%` : null,
+              metric.staffTurnoverRate != null ? `staff turnover ${metric.staffTurnoverRate}%` : null,
+            ].filter((line): line is string => Boolean(line));
+            if (metricLines.length > 0) {
+              const label = metric.countyName ? ` for ${metric.countyName}` : "";
+              const received = metric.receivedAt
+                ? `; received ${metric.receivedAt.toISOString()}`
+                : "";
+              journeyParts.push(
+                `ChildCORE county context${label} (partner-reported, not independently verified${received}): ${metricLines.join("; ")}`,
+              );
+            }
+          }
+        }
+
         if (journeyParts.length > 0) {
           parts.push(`Your journey record (consolidated across Navigator, screener, and referrals):\n${journeyParts.map(p => `  • ${p}`).join("\n")}`);
         }

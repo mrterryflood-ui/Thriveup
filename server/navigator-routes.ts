@@ -33,9 +33,9 @@ import {
   cedsAlignments,
   gunViolenceIncidents,
   zctaCountyMap,
-  userJourneys,
 } from "@shared/schema";
 import { eq, desc, and, like, sql, inArray } from "drizzle-orm";
+import { mergeJourneyNeeds } from "./journey-spine";
 import {
   enforceGroundedClaims,
   buildPercentRule,
@@ -1616,22 +1616,16 @@ export function registerNavigatorRoutes(app: Express) {
             .limit(1)
             .then(async ([convo]) => {
               if (!convo?.identifiedNeeds?.length) return;
-              await db
-                .insert(userJourneys)
-                .values({ userId, identifiedNeeds: convo.identifiedNeeds, updatedAt: new Date() })
-                .onConflictDoUpdate({
-                  target: userJourneys.userId,
-                  set: { identifiedNeeds: sql`
-                    (SELECT jsonb_agg(DISTINCT elem ORDER BY elem)
-                     FROM jsonb_array_elements(
-                       COALESCE(user_journeys.identified_needs, '[]'::jsonb) ||
-                       EXCLUDED.identified_needs
-                     ) AS elem)`,
-                    updatedAt: new Date(),
-                  },
-                });
+              const geography = message.match(/\b\d{5}\b/)?.[0];
+              await mergeJourneyNeeds(
+                userId,
+                convo.identifiedNeeds,
+                geography ? `zip:${geography}` : undefined,
+              );
             })
-            .catch(() => { /* journey write is non-blocking */ });
+            .catch((err) => {
+              console.error("[Navigator] Journey spine write failed:", err instanceof Error ? err.message : String(err));
+            });
         }
 
         await db.insert(navigatorMessages).values({

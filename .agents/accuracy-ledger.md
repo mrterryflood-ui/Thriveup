@@ -290,3 +290,26 @@ passed again on the merged source.
 **Class:** Concurrency-proof methodology gap caught during verification and
 converted into a deterministic database-level regression guard before release.
 
+---
+
+## 2026-09-13 — Journey spine, ChildCORE, and AI smoke closeout
+
+**Claim:** The integrated journey and ChildCORE changes preserve authorization,
+privacy, suppression, and partner-disclosure boundaries, and the configured AI
+engines are live.
+
+**Verified by:** zero-error TypeScript/integrated-flow foundation validation;
+seed, memory, AI-preamble, YHSI, access-model, equity-loss, and security gates;
+direct five-engine chat probes; route-coverage inspection; live public/guarded
+HTTP probes; and a browser preview of the changed community surface.
+
+**Outcome:** Confirmed for the implemented server and data contracts. The
+five-engine smoke probe passed after replacing stale/incompatible model choices
+with directly verified models. The youth-mode browser gate completed 1/5;
+four tests failed on persistence/UI waits or a connection refusal, so it is not
+represented as passing. An uncaught background DeepSeek timeout was separately
+fixed and the app restarted cleanly afterward.
+
+**Class:** Environment/provider drift was caught by direct execution rather than
+startup logs; browser E2E contention remains an unresolved verification gap.
+

@@ -23,10 +23,12 @@ import {
   insertYhsiFidelityObservationSchema,
   insertYhsiMilestoneSchema,
   type YhsiVoiceEntry,
+  type YhsiYouthParticipant,
 } from "@shared/schema";
 import { and, desc, eq, gte, lte, sql } from "drizzle-orm";
 import { generateAIResponse } from "./ai-provider";
-import { pushYHSIEventToChildCORE } from "./childcore-connector";
+import { pushYHSIEventToChildCORE, pushYHSICountyOutcomeToChildCORE } from "./childcore-connector";
+import { setJourneyYhsiStatus } from "./journey-spine";
 import { randomUUID, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { z } from "zod";
 import { screenParticipantGaps } from "@shared/foster-eligibility";
@@ -46,6 +48,7 @@ const ENTITLEMENT_TYPES = z.enum(["chafee", "etv", "medicaid_former_foster", "fa
 const ENTITLEMENT_STATUSES = z.enum(["offered", "declined", "applied", "enrolled", "denied", "ineligible"]);
 const MILESTONE_TYPES = z.enum(["hud_biannual_report", "project_plan_update", "budget_report", "drawdown", "site_visit", "renewal_application", "other"]);
 const MILESTONE_STATUSES = z.enum(["upcoming", "submitted", "waived"]);
+const YHSI_SUPPRESSION_FLOOR = 5;
 
 const snapshotFieldConstraints = {
   snapshotType: SNAPSHOT_TYPES,
@@ -63,6 +66,47 @@ function sqlEnum<T extends [string, ...string[]]>(values: T) {
 }
 function optionalString(max: number) {
   return z.string().max(max).optional();
+}
+
+async function pushSuppressedYhsiCountyOutcome(countyFips: string): Promise<void> {
+  const [aggregate] = await db
+    .select({
+      participantCount: sql<number>`count(*)::int`,
+      stableHousingCount: sql<number>`count(*) filter (where ${yhsiYouthParticipants.livingSituation} in ('stable_permanent', 'stable_temporary'))::int`,
+      educationEngagedCount: sql<number>`count(*) filter (where ${yhsiYouthParticipants.educationStatus} in ('enrolled', 'graduated'))::int`,
+      employmentEngagedCount: sql<number>`count(*) filter (where ${yhsiYouthParticipants.employmentStatus} in ('employed_ft', 'employed_pt'))::int`,
+    })
+    .from(yhsiYouthParticipants)
+    .where(eq(yhsiYouthParticipants.countyFips, countyFips));
+
+  const countOrNull = (value: number): number | null =>
+    value >= YHSI_SUPPRESSION_FLOOR ? value : null;
+  const total = aggregate?.participantCount ?? 0;
+  await pushYHSICountyOutcomeToChildCORE(countyFips, {
+    participantCount: countOrNull(total),
+    stableHousingCount: countOrNull(aggregate?.stableHousingCount ?? 0),
+    educationEngagedCount: countOrNull(aggregate?.educationEngagedCount ?? 0),
+    employmentEngagedCount: countOrNull(aggregate?.employmentEngagedCount ?? 0),
+    suppressed: total < YHSI_SUPPRESSION_FLOOR,
+    suppressionFloor: YHSI_SUPPRESSION_FLOOR,
+  });
+}
+
+function syncYhsiParticipant(row: YhsiYouthParticipant, req: Request): void {
+  const journeyUserId = row.createdBy ?? getUserId(req);
+  if (journeyUserId) {
+    const journeyStatus = row.livingSituation ?? row.mckinneyVentoStatus ?? "participant_updated";
+    void setJourneyYhsiStatus(journeyUserId, journeyStatus)
+      .catch((err) => {
+        console.error("[YHSI] Journey spine write failed:", err instanceof Error ? err.message : String(err));
+      });
+  }
+  if (row.countyFips) {
+    void pushSuppressedYhsiCountyOutcome(row.countyFips)
+      .catch((err) => {
+        console.error("[YHSI→ChildCORE] county outcome push failed:", err instanceof Error ? err.message : String(err));
+      });
+  }
 }
 
 // Sentinel narrative used when AI drafting fails. A report carrying this text
@@ -437,6 +481,7 @@ export function registerYhsiRoutes(app: Express): void {
       pushYHSIEventToChildCORE("yhsi_enrollment", row).catch((err) => {
         console.error("[YHSI→ChildCORE] enrollment push failed:", err);
       });
+      syncYhsiParticipant(row, req);
       return res.status(201).json(row);
     } catch (err) {
       console.error("[YHSI] participant create failed:", err);
@@ -460,6 +505,7 @@ export function registerYhsiRoutes(app: Express): void {
       if (!parsed.success) return res.status(400).json({ error: "Invalid input", details: parsed.error.flatten() });
       const [row] = await db.update(yhsiYouthParticipants).set({ ...parsed.data, updatedAt: new Date() }).where(eq(yhsiYouthParticipants.id, String(req.params.id))).returning();
       if (!row) return res.status(404).json({ error: "Not found" });
+      syncYhsiParticipant(row, req);
       return res.json(row);
     } catch (err) {
       console.error("[YHSI] participant update failed:", err);

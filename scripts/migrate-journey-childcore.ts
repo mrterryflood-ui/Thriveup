@@ -41,6 +41,10 @@ async function migrate() {
   await db.execute(sql`
     CREATE INDEX IF NOT EXISTS childcore_county_metrics_received_idx ON childcore_county_metrics (received_at)
   `);
+  await db.execute(sql`
+    ALTER TABLE yhsi_youth_participants
+    ADD COLUMN IF NOT EXISTS county_fips VARCHAR(5)
+  `);
   console.log("[migrate] Done.");
 }
 

@@ -7276,6 +7276,7 @@ export const yhsiYouthParticipants = pgTable("yhsi_youth_participants", {
   fosterCareHistory: boolean("foster_care_history").default(false),
   justiceInvolvement: boolean("justice_involvement").default(false),
   isParenting: boolean("is_parenting").default(false),
+  countyFips: varchar("county_fips", { length: 5 }),
   // Education / employment at first contact
   educationStatus: varchar("education_status", { length: 60 }),          // enrolled | disengaged | graduated | ged_track | unknown
   employmentStatus: varchar("employment_status", { length: 60 }),        // employed_ft | employed_pt | seeking | not_seeking | unknown
@@ -7287,7 +7288,9 @@ export const yhsiYouthParticipants = pgTable("yhsi_youth_participants", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
-export const insertYhsiYouthParticipantSchema = createInsertSchema(yhsiYouthParticipants).omit({ id: true, createdAt: true, updatedAt: true });
+export const insertYhsiYouthParticipantSchema = createInsertSchema(yhsiYouthParticipants)
+  .omit({ id: true, createdAt: true, updatedAt: true })
+  .extend({ countyFips: z.string().regex(/^\d{5}$/).optional().nullable() });
 export type InsertYhsiYouthParticipant = z.infer<typeof insertYhsiYouthParticipantSchema>;
 export type YhsiYouthParticipant = typeof yhsiYouthParticipants.$inferSelect;
 

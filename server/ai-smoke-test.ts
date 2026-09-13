@@ -73,7 +73,7 @@ export function getLastSmokeResult(): SmokeTestResult | null {
 const PROBE_TIMEOUT_MS = 20_000;
 const ALERT_TIMEOUT_MS = 5_000;
 const PROBE_PROMPT = "Reply with exactly one word: OK";
-const PROBE_MAX_TOKENS = 20;  // 5 was too few — some models return empty at that limit
+const PROBE_MAX_TOKENS = 100; // gpt-5-nano can exhaust a short budget before emitting content
 
 async function withTimeout<T>(promise: Promise<T>, ms: number, label: string): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -173,13 +173,14 @@ async function probeOpenAI(): Promise<EngineProbeResult> {
   const start = Date.now();
   const key = process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
   const baseURL = process.env.AI_INTEGRATIONS_OPENAI_BASE_URL;
-  if (!key || !baseURL) return { engine: "openai", model: "gpt-5-mini", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENAI_* not set" };
+  const model = "gpt-4o-mini";
+  if (!key || !baseURL) return { engine: "openai", model, ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENAI_* not set" };
 
   try {
     const client = new OpenAI({ apiKey: key, baseURL, timeout: PROBE_TIMEOUT_MS });
     const resp = await withTimeout(
       client.chat.completions.create({
-        model: "gpt-5-mini",
+        model,
         messages: [{ role: "user", content: PROBE_PROMPT }],
         max_completion_tokens: PROBE_MAX_TOKENS,
       }),
@@ -188,9 +189,9 @@ async function probeOpenAI(): Promise<EngineProbeResult> {
     );
     const text = resp.choices[0]?.message?.content || "";
     if (!text || text.trim().length === 0) throw new Error("Empty response");
-    return { engine: "openai", model: "gpt-5-mini", ok: true, latencyMs: Date.now() - start };
+    return { engine: "openai", model, ok: true, latencyMs: Date.now() - start };
   } catch (err: any) {
-    return { engine: "openai", model: "gpt-5-mini", ok: false, latencyMs: Date.now() - start, error: err.message };
+    return { engine: "openai", model, ok: false, latencyMs: Date.now() - start, error: err.message };
   }
 }
 
@@ -198,11 +199,11 @@ async function probeDeepSeek(): Promise<EngineProbeResult> {
   const start = Date.now();
   const key = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
   const baseURL = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
-  if (!key || !baseURL) return { engine: "deepseek", model: "deepseek/deepseek-chat", ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENROUTER_* not set" };
+  const model = "deepseek/deepseek-chat";
+  if (!key || !baseURL) return { engine: "deepseek", model, ok: false, latencyMs: 0, error: "AI_INTEGRATIONS_OPENROUTER_* not set" };
 
   // Match the model used in collaborative-ai.ts so the probe tests the same
   // code path that real Navigator requests hit.
-  const model = "deepseek/deepseek-r1-distill-llama-70b";
   try {
     const client = new OpenAI({ apiKey: key, baseURL, timeout: PROBE_TIMEOUT_MS });
     const resp = await withTimeout(
@@ -226,9 +227,7 @@ async function probePerplexity(): Promise<EngineProbeResult> {
   const start = Date.now();
   const key = process.env.AI_INTEGRATIONS_OPENROUTER_API_KEY;
   const baseURL = process.env.AI_INTEGRATIONS_OPENROUTER_BASE_URL;
-  // "sonar-pro" was retired on OpenRouter. Try "sonar-online" which is the stable
-  // search-enabled variant; fall back to plain "sonar" if that also retires.
-  const model = "perplexity/sonar-online";
+  const model = "perplexity/sonar-pro";
   if (!key || !baseURL) return { engine: "perplexity", model, ok: false, latencyMs: 0, error: "OpenRouter not configured" };
 
   try {

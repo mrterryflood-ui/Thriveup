@@ -211,10 +211,12 @@ function getAvailableEngines(): Array<{ id: EngineId; model: string }> {
   else if (hasClaudeDirect) engines.push({ id: "claude", model: "claude-haiku-4-5" });
 
   // OpenAI via Replit integration
-  if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-5-mini" });
+  if (process.env.AI_INTEGRATIONS_OPENAI_API_KEY && process.env.AI_INTEGRATIONS_OPENAI_BASE_URL) engines.push({ id: "openai", model: "gpt-4o-mini" });
 
-  // DeepSeek R1 via OpenRouter — distilled 70B is fast enough to finish in <60s
-  if (hasOR) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-r1-distill-llama-70b" });
+  // DeepSeek chat via OpenRouter — use the content model for the bounded
+  // collaborative path; the reasoning model can exhaust a short response
+  // budget before emitting user-visible content.
+  if (hasOR) engines.push({ id: "deepseek-r1", model: "deepseek/deepseek-chat" });
 
   // Gemini: OpenRouter (bypasses free-tier quota issues) → direct API key
   const hasGeminiDirect = !!(process.env.GEMINI_API_KEY && Date.now() > geminiCollabQuotaExhaustedUntil);
@@ -298,7 +300,7 @@ async function callEngine(
         baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
         });
       const resp = await client.chat.completions.create({
-        model: "gpt-5-mini",
+        model: "gpt-4o-mini",
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: prompt },
@@ -633,7 +635,13 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
           responseTimeMs: DEEP_THINK_TIMEOUT_MS,
           error: `Deep think timeout after ${DEEP_THINK_TIMEOUT_MS}ms`,
         }), DEEP_THINK_TIMEOUT_MS))
-      ])
+      ]).catch(error => ({
+        engine: deepThinkEngine.id,
+        model: deepThinkEngine.model,
+        response: "",
+        responseTimeMs: Date.now() - deepThinkStart,
+        error: error?.message || "Deep think engine failed",
+      }))
     : Promise.resolve(null);
 
   // ── Phase 1: Fast engines → 25s global deadline → initial synthesis ──────

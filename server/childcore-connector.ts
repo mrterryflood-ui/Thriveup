@@ -311,6 +311,37 @@ export async function pushYHSIEventToChildCORE(
   }
 }
 
+/**
+ * Push aggregate YHSI outcomes for one county. Counts are already suppressed
+ * by the caller; this function only transports the aggregate envelope and
+ * never accepts participant-level records.
+ */
+export async function pushYHSICountyOutcomeToChildCORE(
+  countyFips: string,
+  data: {
+    participantCount: number | null;
+    stableHousingCount: number | null;
+    educationEngagedCount: number | null;
+    employmentEngagedCount: number | null;
+    suppressed: boolean;
+    suppressionFloor: number;
+  },
+): Promise<{ ok: boolean; error?: string }> {
+  const result = await pushToChildCORE({
+    event: "yhsi_county_outcomes",
+    data: {
+      countyFips,
+      ...data,
+      source: "thriveup_yhsi",
+      evidenceClass: "implemented",
+    },
+  });
+  if (!result.ok) {
+    console.warn("[ChildCORE] yhsi_county_outcomes push failed:", result.error);
+  }
+  return { ok: result.ok, error: result.error };
+}
+
 // ─── Connection status summary ────────────────────────────────────────────────
 
 export async function getChildCOREConnectionStatus(): Promise<{

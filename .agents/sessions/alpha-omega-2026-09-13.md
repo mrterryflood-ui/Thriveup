@@ -15,8 +15,8 @@
 - Unknowns/deferred decisions: the LinkedIn short link may redirect to an inaccessible or incomplete opportunity page; if eligibility terms cannot be verified from a primary source, the assessment will be labeled inconclusive rather than guessed.
 
 ## Omega
-- Diff scrimmage: pending implementation.
-- Proofs and gates: pending.
-- Independent angle: direct route probes, database/schema inspection, workflow logs, and an adversarial six-domain review.
-- Outcome: pending.
-- Residuals and reusable guard: pending.
+- Diff scrimmage: Reviewed the journey-spine, ChildCORE, YHSI geography, route hardening, and AI model changes; identity and staff-role derivation remain server-side, ChildCORE output remains labeled partner-reported, and YHSI outbound data remains aggregate-only with floor-5 suppression.
+- Proofs and gates: Direct TypeScript/integrated-flow foundation, seed idempotency/provenance, memory health, AI preamble, security probes, YHSI metrics/guard, access-model/equity-loss checks, and the direct five-engine smoke probe passed. The final preview rendered and reported no browser exception. The youth-mode E2E gate completed 1/5: four tests failed on learner-profile PUT waits, an anonymous toggle lookup, thread-resume waiting, and a connection refusal after the earlier app exit.
+- Independent angle: Live route probes showed 75 guarded endpoints rejected as expected and the public community analyzer remained reachable without PII. Direct provider calls established working models: gpt-4o-mini, deepseek/deepseek-chat, and perplexity/sonar-pro.
+- Outcome: Journey-spine and ChildCORE integration work is implemented and statically/live-validated. The AI smoke test is green at 5/5 configured engines, and a background DeepSeek timeout no longer exits the server. No publish, deploy, or destructive data action occurred.
+- Residuals and reusable guard: Youth Mode persistence remains open under follow-up task #395; the clean direct typecheck passed, while the workflow wrapper was killed by resource pressure. OpenRouter `/models` returns 405; validate model IDs with bounded `/chat/completions` probes instead. The linked LinkedIn opportunity remains deferred pending authoritative DIV/USAID verification.
