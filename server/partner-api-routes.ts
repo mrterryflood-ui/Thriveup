@@ -1,4 +1,5 @@
 import type { Express, Request, Response, NextFunction } from "express";
+import { PARTNER_API_CONTRACT, buildDocsEndpointLine, auditRouteRegistration } from "./partner-api-contract";
 import { getLastBriefProbeResult } from "./community-brief-probe";
 import { hasValidCommunityEvidence } from "./community-evidence";
 import { db, storage } from "./storage";
@@ -313,42 +314,9 @@ export function registerPartnerApiRoutes(app: Express) {
         { scope: "outcomes:read",   description: "Read aggregated outcome data — trade sim completion counts, employer-ready metrics (no PII, aggregate only)" },
         { scope: "certs:read",      description: "Verify and read certificate records — check whether a cert ID is valid and retrieve holder/trade/issued info" },
       ],
-      endpoints: [
-        "GET  /api/partner/v1/docs              — this schema (public)",
-        "GET  /api/partner/v1/health            — auth check + key info (any scope)",
-        "GET  /api/partner/v1/platforms         — live platform list (platforms:read)",
-        "GET  /api/partner/v1/export            — content export (content:read)",
-        "GET  /api/partner/v1/community         — community service summary (community:read)",
-        "GET  /api/partner/v1/community-brief   — on-demand community brief for any geography (community:read); query: location (required), populationSize?, timeHorizon?",
-        "GET  /api/partner/v1/community/brief — compatibility alias for community-brief (community:read); query: location (required), populationSize?, timeHorizon?",
-        "GET  /api/partner/v1/community-story   — aggregate community story pack for a geography (community:read)",
-        "POST /api/partner/v1/community-brief/subscribe — subscribe to scheduled community briefs (community:read); body: {location, webhookUrl, frequency: 'daily'|'weekly'|'on-change'}",
-        "GET  /api/partner/v1/benefits          — benefits program catalog (benefits:read)",
-        "GET  /api/partner/v1/impact            — community impact metrics (impact:read)",
-        "GET  /api/partner/v1/students/overview — AGGREGATE cohort metrics, suppression-floored (student:read)",
-        "GET  /api/partner/v1/attendance/summary      — AGGREGATE attendance metrics, suppression-floored (student:read)",
-        "GET  /api/partner/v1/early-warnings          — AGGREGATE early-warning counts, suppression-floored (student:read)",
-        "GET  /api/partner/v1/pathways/overview       — AGGREGATE pathway distribution, suppression-floored (student:read)",
-        "GET  /api/partner/v1/chainweb/coefficients   — evidence coefficients for ROI scenarios (chainweb:read)",
-        "GET  /api/partner/v1/chainweb/templates      — quick-start ROI scenario templates (chainweb:read)",
-        "POST /api/partner/v1/chainweb/scenarios      — create a partner-owned ROI scenario (chainweb:read)",
-        "GET  /api/partner/v1/chainweb/scenarios/:id  — read a partner-owned ROI scenario (chainweb:read)",
-        "POST /api/partner/v1/chainweb/scenarios/:id/calculate — calculate ROI scenario (chainweb:read)",
-        "POST /api/partner/v1/chainweb/calculations/:id/narratives — generate scenario narrative (chainweb:read)",
-        "GET  /api/partner/v1/yhsi/metrics            — aggregate YHSI metrics, floor-5 suppressed (yhsi:read)",
-        "GET  /api/partner/v1/yhsi/outcomes-summary   — aggregate YHSI outcome milestones (yhsi:read)",
-        "GET  /api/partner/v1/outcomes/trade-completions — AGGREGATE trade sim completion counts by trade slug, past 30/60/90 days (outcomes:read)",
-        "GET  /api/partner/v1/certificates/verify/:certId — verify a trade certificate by ID (certs:read)",
-        "POST /api/partner/v1/push              — push data to ThriveUp (inbound:write)",
-        "POST /api/partner/v1/heartbeat         — platform keepalive (any scope)",
-        "GET  /api/partner/v1/webhooks          — list your registered webhooks (any scope)",
-        "POST /api/partner/v1/webhooks          — register a webhook; secret shown ONCE (any scope)",
-        "DELETE /api/partner/v1/webhooks/:id    — deactivate a webhook (any scope)",
-        "GET  /api/partner/v1/subscriptions     — list brief subscriptions for your key (community:read)",
-        "DELETE /api/partner/v1/subscriptions/:id — deactivate a brief subscription (community:read)",
-        "POST /api/partner/v1/foster-youth/refer — create foster youth intake on behalf of a youth (inbound:write)",
-        "PATCH /api/referrals/:id/outcome — confirm enrollment for a referral your org received; requires inbound:write scope; org-name on key must match referral's target org",
-      ],
+      // Generated from the shared contract registry (server/partner-api-contract.ts).
+      // Add or remove routes there — this list stays in sync automatically.
+      endpoints: PARTNER_API_CONTRACT.map(buildDocsEndpointLine),
       exampleRequests: {
         communityBrief: {
           description: "A county health dept queries a community brief for their service area",
@@ -2059,4 +2027,26 @@ export function registerPartnerApiRoutes(app: Express) {
     }
     return res.json({ available: true, ...result });
   });
+
+  // ── Route-coverage audit (development guard) ──────────────────────────────
+  // Compares the Express router stack against the shared contract registry.
+  // Logs warnings for any drift so a developer who starts the server sees it
+  // immediately.  Does not throw — the server must be able to start even if
+  // there is a temporary registry discrepancy during a refactor.
+  const drift = auditRouteRegistration(app as any);
+  if (drift.missing.length > 0) {
+    console.warn(
+      "[partner-api-contract] ⚠ Routes in registry but NOT registered in Express:\n" +
+        drift.missing.map((r) => `  - ${r}`).join("\n"),
+    );
+  }
+  if (drift.extra.length > 0) {
+    console.warn(
+      "[partner-api-contract] ⚠ /api/partner/v1/* routes registered in Express but NOT in registry:\n" +
+        drift.extra.map((r) => `  + ${r}`).join("\n"),
+    );
+  }
+  if (drift.missing.length === 0 && drift.extra.length === 0) {
+    console.log("[partner-api-contract] ✓ Route registration matches contract registry.");
+  }
 }

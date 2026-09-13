@@ -15,7 +15,14 @@
  * BASE_URL is accepted as a local/manual-test alias. The check refuses to run
  * without one of these variables so an accidental default cannot certify the
  * wrong deployment.
+ *
+ * The set of routes to verify is driven by the shared contract registry at
+ * server/partner-api-contract.ts — entries with probe: true are the ones
+ * probed here.  Add a route there (with probe: true) and it is automatically
+ * included in this check on the next run.
  */
+
+import { getVerifierProbes } from "../server/partner-api-contract";
 
 type JsonObject = Record<string, unknown>;
 
@@ -30,22 +37,10 @@ const MAX_DOCS_BODY_BYTES = 1_000_000;
 let baseOrigin = "";
 let failures = 0;
 
-const EXPECTED_PUBLIC_ENDPOINTS = [
-  { method: "GET", path: "/api/partner/v1/chainweb/coefficients", scope: "chainweb:read" },
-  { method: "GET", path: "/api/partner/v1/community/brief", scope: "community:read" },
-  { method: "GET", path: "/api/partner/v1/chainweb/templates", scope: "chainweb:read" },
-  { method: "POST", path: "/api/partner/v1/chainweb/scenarios", scope: "chainweb:read" },
-  { method: "GET", path: "/api/partner/v1/chainweb/scenarios/:id", scope: "chainweb:read" },
-  { method: "POST", path: "/api/partner/v1/chainweb/scenarios/:id/calculate", scope: "chainweb:read" },
-  { method: "POST", path: "/api/partner/v1/chainweb/calculations/:id/narratives", scope: "chainweb:read" },
-  { method: "GET", path: "/api/partner/v1/yhsi/metrics", scope: "yhsi:read" },
-  { method: "GET", path: "/api/partner/v1/yhsi/outcomes-summary", scope: "yhsi:read" },
-  { method: "GET", path: "/api/partner/v1/students/overview", scope: "student:read" },
-  { method: "GET", path: "/api/partner/v1/attendance/summary", scope: "student:read" },
-  { method: "GET", path: "/api/partner/v1/early-warnings", scope: "student:read" },
-  { method: "GET", path: "/api/partner/v1/pathways/overview", scope: "student:read" },
-  { method: "POST", path: "/api/partner/v1/heartbeat", scope: null },
-] as const;
+// Probe targets come from the shared contract registry (server/partner-api-contract.ts).
+// Any route with probe: true is included here automatically — there is no
+// separate list to keep in sync.
+const EXPECTED_PUBLIC_ENDPOINTS = getVerifierProbes();
 
 function ok(label: string): void {
   console.log(`  ✓ ${label}`);
