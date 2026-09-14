@@ -87,3 +87,4 @@
 - [User Journey Spine](user-journey-spine.md) — user_journeys table breaks silo: Navigator writes identifiedNeeds fire-and-forget; personal-context reads first; Benefits Screener/CHW/YHSI write hooks not yet wired.
 - [ChildCORE Inbound County Metrics](childcore-inbound-metrics.md) — POST /api/childcore/county-metrics/ingest; partner-key auth; partnerApiKeys.active (not isActive); batch 500; feeds childcore_county_metrics table.
 - [International surface boundaries](international-surface-boundaries.md) — Community Voice, WPH, and LifeBridge stay domestic until country-specific local contracts and safeguards exist.
+- [Youth Mode persistence](youth-mode-persistence.md) — identity-scoped caches need explicit fixed-path fetchers; account changes cancel and clear all Navigator-owned state.

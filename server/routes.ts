@@ -6715,21 +6715,18 @@ Provide a comprehensive MAP-GAP intervention design with discipline recommendati
     try {
       const { learnerProfiles, insertLearnerProfileSchema } = await import("../shared/schema");
       const userId = getUserId(req)!;
-      const parsed = insertLearnerProfileSchema.partial().safeParse(req.body);
+      const { userId: _ignoredUserId, ...profileInput } = req.body ?? {};
+      const parsed = insertLearnerProfileSchema.partial().safeParse(profileInput);
       if (!parsed.success) return res.status(400).json({ error: parsed.error.flatten() });
 
-      const [existing] = await db.select().from(learnerProfiles).where(eq(learnerProfiles.userId, userId));
-      if (existing) {
-        const [updated] = await db.update(learnerProfiles)
-          .set({ ...parsed.data, updatedAt: new Date() })
-          .where(eq(learnerProfiles.userId, userId))
-          .returning();
-        return res.json(updated);
-      }
-      const [created] = await db.insert(learnerProfiles)
-        .values({ userId, ...parsed.data })
+      const [profile] = await db.insert(learnerProfiles)
+        .values({ ...parsed.data, userId })
+        .onConflictDoUpdate({
+          target: learnerProfiles.userId,
+          set: { ...parsed.data, updatedAt: new Date() },
+        })
         .returning();
-      res.json(created);
+      res.json(profile);
     } catch (err: any) {
       console.error("[learner-profile] PUT error:", err);
       res.status(500).json({ error: "Failed to update learner profile" });

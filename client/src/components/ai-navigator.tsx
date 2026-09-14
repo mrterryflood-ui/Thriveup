@@ -438,6 +438,9 @@ export function AINavigator({
       return false;
     }
   });
+  const [youthModeHydrating, setYouthModeHydrating] = useState(
+    Boolean(user?.id && !authLoading),
+  );
   // R1 background polling state
   const [deepThinkElapsed, setDeepThinkElapsed] = useState(0);
   const deepThinkPollingRef = useRef<DeepThinkPolling | null>(null);
@@ -454,11 +457,25 @@ export function AINavigator({
   const fileInputRef = useRef<HTMLInputElement>(null);
   // Prevents auto-resume from immediately reloading the last convo after user clicks New
   const userStartedNewRef = useRef(false);
+  const authUserIdRef = useRef<string | undefined>(user?.id);
+  const youthModeSaveAbortRef = useRef<AbortController | null>(null);
+  const conversationLoadRef = useRef<AbortController | null>(null);
+  const conversationLoadGenerationRef = useRef(0);
+  const resumeAttemptedRef = useRef(false);
 
   const { data: conversations, isError: conversationsError, refetch: refetchConversations } = useQuery<
     NavigatorConversation[]
   >({
-    queryKey: ["/api/navigator/conversations"],
+    queryKey: ["/api/navigator/conversations", user?.id],
+    queryFn: async () => {
+      const response = await fetch("/api/navigator/conversations", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to load conversations: ${response.status}`);
+      }
+      return response.json();
+    },
     enabled: isAuthenticated && !authLoading && (isOpen || mode === "page"),
   });
 
@@ -474,8 +491,20 @@ export function AINavigator({
 
   // ── Youth Mode persistence ──────────────────────────────────────────────────
   // Fetch the server-side preference for signed-in users
-  const { data: learnerProfile } = useQuery<{ youthMode?: boolean }>({
-    queryKey: ["/api/learner-profile"],
+  const { data: learnerProfile, isError: learnerProfileError } = useQuery<{ youthMode?: boolean }>({
+    queryKey: ["/api/learner-profile", user?.id],
+    // The second key segment scopes React Query's cache to the account, but
+    // this endpoint is not parameterized by URL. The shared default query
+    // function would incorrectly request /api/learner-profile/:userId.
+    queryFn: async () => {
+      const response = await fetch("/api/learner-profile", {
+        credentials: "include",
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to load learner profile: ${response.status}`);
+      }
+      return response.json();
+    },
     enabled: isAuthenticated && !authLoading,
     staleTime: 5 * 60 * 1000,
   });
@@ -510,6 +539,7 @@ export function AINavigator({
     const serverValue = learnerProfile.youthMode ?? false;
     setYouthMode(serverValue);
     youthModeLatestRef.current = serverValue;
+    setYouthModeHydrating(false);
     // Only the owning instance may passively write localStorage — a hidden
     // bubble must never stomp the value the /navigator page just restored.
     if (youthModeStorageOwner() === instanceIdRef.current) {
@@ -520,6 +550,17 @@ export function AINavigator({
       }
     }
   }, [isAuthenticated, learnerProfile]);
+
+  useEffect(() => {
+    if (!learnerProfileError) return;
+    setYouthModeHydrating(false);
+    toast({
+      title: "Youth Mode preference unavailable",
+      description:
+        "The account setting could not be loaded. You can still use this session.",
+      variant: "destructive",
+    });
+  }, [learnerProfileError, toast]);
 
   // Cancel any pending write on unmount (component removed from tree)
   useEffect(() => {
@@ -562,6 +603,8 @@ export function AINavigator({
       mountedRef.current = false;
       if (requestTimeoutRef.current) clearTimeout(requestTimeoutRef.current);
       requestAbortRef.current?.abort();
+      youthModeSaveAbortRef.current?.abort();
+      conversationLoadRef.current?.abort();
       stopDeepThinkPolling(undefined, false);
     };
   }, [stopDeepThinkPolling]);
@@ -569,10 +612,38 @@ export function AINavigator({
   // Cancel pending write and reset edit flag whenever auth identity changes
   // (sign-out, account switch) so a queued write can't bleed into a new session.
   useEffect(() => {
+    const previousUserId = authUserIdRef.current;
+    if (previousUserId === user?.id) return;
+
+    authUserIdRef.current = user?.id;
     if (youthModeDebounceRef.current)
       clearTimeout(youthModeDebounceRef.current);
+    youthModeSaveAbortRef.current?.abort();
+    youthModeSaveAbortRef.current = null;
+    conversationLoadRef.current?.abort();
+    conversationLoadRef.current = null;
+    conversationLoadGenerationRef.current += 1;
+    resumeAttemptedRef.current = false;
+    userStartedNewRef.current = false;
+    safeRemove("navigator_skip_resume", "session");
     youthModeUserEditedRef.current = false;
-  }, [user?.id]); // keyed on user identity, not just isAuthenticated boolean
+    setYouthModeHydrating(Boolean(user?.id));
+    setYouthMode(false);
+    youthModeLatestRef.current = false;
+    safeRemove("tcaf_youth_mode", "local");
+    if (requestTimeoutRef.current) {
+      clearTimeout(requestTimeoutRef.current);
+      requestTimeoutRef.current = null;
+    }
+    requestAbortRef.current?.abort();
+    requestAbortRef.current = null;
+    navigatorRequestIdRef.current += 1;
+    stopDeepThinkPolling(undefined, false);
+    setMessages([]);
+    setActiveConversationId(null);
+    setAttachedDocs([]);
+
+  }, [stopDeepThinkPolling, user?.id]); // keyed on user identity, not just isAuthenticated boolean
 
   // Toggle handler: instant UI + localStorage; debounced, session-bound server write
   const handleYouthModeToggle = useCallback(
@@ -592,7 +663,7 @@ export function AINavigator({
       if (!isAuthenticated) return;
 
       // 3. Optimistically update query cache
-      queryClient.setQueryData(["/api/learner-profile"], (old: any) => ({
+      queryClient.setQueryData(["/api/learner-profile", user?.id], (old: any) => ({
         ...old,
         youthMode: next,
       }));
@@ -606,23 +677,32 @@ export function AINavigator({
 
       youthModeDebounceRef.current = setTimeout(async () => {
         // Bail if auth identity changed since toggle was queued.
-        // Note: sessionUserId may be undefined during initial auth load even when
-        // isAuthenticated is true — the useEffect above already cancels pending
-        // writes on identity change, so undefined here is safe to proceed.
-        // We only skip if sessionUserId was defined at toggle time and has since changed.
-        if (sessionUserId !== undefined && sessionUserId !== user?.id) return;
+        if (
+          !sessionUserId ||
+          sessionUserId !== user?.id ||
+          authUserIdRef.current !== sessionUserId
+        ) return;
 
         const valueToSave = youthModeLatestRef.current; // final intent after all rapid toggles
+        const controller = new AbortController();
+        youthModeSaveAbortRef.current = controller;
         try {
           const res = await fetch("/api/learner-profile", {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             credentials: "include",
+            signal: controller.signal,
             body: JSON.stringify({ youthMode: valueToSave }),
           });
+          if (
+            controller.signal.aborted ||
+            authUserIdRef.current !== sessionUserId
+          ) {
+            return;
+          }
           if (res.ok) {
             // Confirm cache reflects exactly what was persisted
-            queryClient.setQueryData(["/api/learner-profile"], (old: any) => ({
+            queryClient.setQueryData(["/api/learner-profile", sessionUserId], (old: any) => ({
               ...old,
               youthMode: valueToSave,
             }));
@@ -635,7 +715,7 @@ export function AINavigator({
             );
             // Invalidate so the cache doesn't retain a stale optimistic value
             queryClient.invalidateQueries({
-              queryKey: ["/api/learner-profile"],
+              queryKey: ["/api/learner-profile", sessionUserId],
             });
             toast({
               title: "Youth Mode preference not saved",
@@ -645,14 +725,21 @@ export function AINavigator({
             });
           }
         } catch (err) {
+          if (controller.signal.aborted) return;
           console.error("[youth-mode] Network error saving preference:", err);
-          queryClient.invalidateQueries({ queryKey: ["/api/learner-profile"] });
+          queryClient.invalidateQueries({
+            queryKey: ["/api/learner-profile", sessionUserId],
+          });
           toast({
             title: "Youth Mode preference not saved",
             description:
               "Check your connection — the setting applies this session only.",
             variant: "destructive",
           });
+        } finally {
+          if (youthModeSaveAbortRef.current === controller) {
+            youthModeSaveAbortRef.current = null;
+          }
         }
       }, 600);
     },
@@ -664,7 +751,7 @@ export function AINavigator({
       apiRequest("DELETE", `/api/navigator/conversations/${id}`),
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ["/api/navigator/conversations"],
+        queryKey: ["/api/navigator/conversations", user?.id],
       });
       toast({
         title: "Conversation deleted",
@@ -685,13 +772,28 @@ export function AINavigator({
   }, [messages]);
 
   const loadConversation = useCallback(async (convoId: string) => {
+    const generation = ++conversationLoadGenerationRef.current;
+    conversationLoadRef.current?.abort();
+    const controller = new AbortController();
+    conversationLoadRef.current = controller;
+    const timeout = setTimeout(() => controller.abort(), 15_000);
+
     try {
       const res = await fetch(
         `/api/navigator/conversations/${convoId}/messages`,
-        { credentials: "include" },
+        { credentials: "include", signal: controller.signal },
       );
-      if (!res.ok) return;
+      if (!res.ok) {
+        throw new Error(`Conversation load failed: ${res.status}`);
+      }
       const payload = await res.json();
+      if (
+        controller.signal.aborted ||
+        generation !== conversationLoadGenerationRef.current ||
+        authUserIdRef.current !== user?.id
+      ) {
+        return;
+      }
       // Endpoint returns { messages, youthMode }; tolerate the old bare-array shape.
       const msgs = Array.isArray(payload) ? payload : (payload.messages ?? []);
       userStartedNewRef.current = false; // resume auto-behaviour after explicit load
@@ -705,14 +807,15 @@ export function AINavigator({
       );
       // Restore Youth Mode for threads that were started (or continued) in it,
       // so re-opened chats stay youth-friendly end to end.
-      if (!Array.isArray(payload) && payload.youthMode === true) {
-        setYouthMode(true);
-        youthModeLatestRef.current = true;
-        // Guard against the profile query resolving later and stomping the
-        // conversation-level restore (thread-on beats profile-off).
+      if (!Array.isArray(payload)) {
+        const threadYouthMode = payload.youthMode === true;
+        setYouthMode(threadYouthMode);
+        youthModeLatestRef.current = threadYouthMode;
+        // The conversation is the source of truth while this thread is open.
+        // This also handles restoring an off thread over an on profile.
         youthModeUserEditedRef.current = true;
         try {
-          localStorage.setItem("tcaf_youth_mode", "true");
+          localStorage.setItem("tcaf_youth_mode", String(threadYouthMode));
         } catch {
           /* storage blocked */
         }
@@ -720,20 +823,43 @@ export function AINavigator({
       setActiveConversationId(convoId);
       setView("chat");
     } catch (err) {
+      if (controller.signal.aborted) return;
       console.error("Failed to load conversation:", err);
+    } finally {
+      clearTimeout(timeout);
+      if (conversationLoadRef.current === controller) {
+        conversationLoadRef.current = null;
+      }
     }
-  }, []);
+  }, [user?.id]);
 
   const startNewConversation = useCallback(() => {
     userStartedNewRef.current = true;
+    youthModeUserEditedRef.current = false;
+    conversationLoadGenerationRef.current += 1;
+    conversationLoadRef.current?.abort();
+    conversationLoadRef.current = null;
     // Persist across hard-refresh within the same browser tab. Safe helper
     // never throws in private mode (falls back to in-memory for this tab).
     safeSetRaw("navigator_skip_resume", "1", "session");
     setMessages([]);
     setActiveConversationId(null);
     setAttachedDocs([]);
+    const profile = queryClient.getQueryData<{ youthMode?: boolean }>([
+      "/api/learner-profile",
+      user?.id,
+    ]);
+    if (profile?.youthMode !== undefined) {
+      setYouthMode(profile.youthMode);
+      youthModeLatestRef.current = profile.youthMode;
+      try {
+        localStorage.setItem("tcaf_youth_mode", String(profile.youthMode));
+      } catch {
+        /* storage blocked */
+      }
+    }
     setView("chat");
-  }, []);
+  }, [queryClient, user?.id]);
 
   // Once the user has actually started a real conversation, clear the skip flag
   // so a future hard-refresh auto-resumes their new conversation correctly.
@@ -759,9 +885,11 @@ export function AINavigator({
       conversations &&
       conversations.length > 0 &&
       !activeConversationId &&
-      messages.length === 0
+      messages.length === 0 &&
+      !resumeAttemptedRef.current
     ) {
-      loadConversation(conversations[0].id);
+      resumeAttemptedRef.current = true;
+      void loadConversation(conversations[0].id);
     }
   }, [
     isOpen,
@@ -1963,6 +2091,8 @@ export function AINavigator({
                       data-testid="button-youth-mode"
                       role="switch"
                       aria-checked={youthMode}
+                      aria-label="Youth Mode"
+                      disabled={isAuthenticated && youthModeHydrating}
                       title="Youth Mode: youth-friendly language, your rights info, and safety-first guidance"
                       className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-colors ${
                         youthMode
@@ -2578,6 +2708,8 @@ export function AINavigator({
                 data-testid="button-youth-mode-bubble"
                 role="switch"
                 aria-checked={youthMode}
+                aria-label="Youth Mode"
+                disabled={isAuthenticated && youthModeHydrating}
                 title="Youth Mode: youth-friendly language, your rights info, and safety-first guidance"
                 className={`flex-1 py-0.5 rounded text-[10px] font-medium border transition-colors ${
                   youthMode

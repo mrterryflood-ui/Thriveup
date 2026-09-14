@@ -15,28 +15,50 @@ BASE="${E2E_BASE_URL:-http://localhost:5000}"
 STARTED_PID=""
 
 server_up() {
-  curl -s -o /dev/null --max-time 3 "$BASE/"
+  curl --fail --silent --show-error -o /dev/null --max-time 3 "$BASE/"
 }
 
 cleanup() {
   if [ -n "$STARTED_PID" ]; then
-    kill "$STARTED_PID" 2>/dev/null
-    # npm run dev spawns children; kill the process group too
-    pkill -P "$STARTED_PID" 2>/dev/null
+    # setsid makes the npm/vite/tsx tree its own process group. Killing only
+    # npm's direct children leaves descendants on :5000 and poisons the next
+    # serialized gate.
+    kill -- -"$STARTED_PID" 2>/dev/null || true
+    for _ in $(seq 1 20); do
+      if ! kill -0 -- -"$STARTED_PID" 2>/dev/null; then break; fi
+      sleep 0.25
+    done
+    if kill -0 -- -"$STARTED_PID" 2>/dev/null; then
+      kill -KILL -- -"$STARTED_PID" 2>/dev/null || true
+    fi
     wait "$STARTED_PID" 2>/dev/null
   fi
+  STARTED_PID=""
 }
 trap cleanup EXIT
 
 if ! server_up; then
-  echo "[youth-mode-e2e] dev server not running; starting npm run dev..."
-  npm run dev >/tmp/youth-mode-e2e-server.log 2>&1 &
-  STARTED_PID=$!
-  for i in $(seq 1 60); do
-    if server_up; then break; fi
-    sleep 2
+  started=0
+  for attempt in 1 2 3; do
+    echo "[youth-mode-e2e] dev server not running; starting npm run dev (attempt $attempt)..."
+    setsid npm run dev >/tmp/youth-mode-e2e-server.log 2>&1 &
+    STARTED_PID=$!
+    for i in $(seq 1 60); do
+      if server_up; then
+        started=1
+        break
+      fi
+      if ! kill -0 "$STARTED_PID" 2>/dev/null; then
+        echo "[youth-mode-e2e] dev server exited during startup (attempt $attempt)"
+        break
+      fi
+      sleep 2
+    done
+    if [ "$started" = "1" ]; then break; fi
+    cleanup
+    sleep 1
   done
-  if ! server_up; then
+  if [ "$started" != "1" ]; then
     echo "[youth-mode-e2e] server failed to come up on $BASE (see /tmp/youth-mode-e2e-server.log)"
     exit 1
   fi

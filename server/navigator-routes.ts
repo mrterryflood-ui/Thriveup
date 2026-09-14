@@ -1521,6 +1521,7 @@ export function registerNavigatorRoutes(app: Express) {
     // instability (YHSI). Opt-in via request body; changes register, not rules.
     // Effective value may also be upgraded from the stored conversation flag
     // below, so re-opened Youth Mode threads stay youth-friendly.
+    const youthModeProvided = typeof req.body.youthMode === "boolean";
     let effectiveYouthMode = req.body.youthMode === true;
     const buildYouthModeInstruction = () =>
       effectiveYouthMode
@@ -1543,6 +1544,12 @@ export function registerNavigatorRoutes(app: Express) {
     // This is SEPARATE from activeConversationId — anonymous users get no DB
     // conversation but still need a key so R1 results can be polled.
     const deepThinkJobId = randomUUID();
+
+    if (!userId && conversationId) {
+      return res.status(403).json({
+        error: "Anonymous users cannot continue saved conversations",
+      });
+    }
 
     let activeConversationId = conversationId || null;
 
@@ -1577,14 +1584,15 @@ export function registerNavigatorRoutes(app: Express) {
               .json({ error: "Conversation not found or access denied" });
           }
 
-          // Sticky Youth Mode: a thread that started in Youth Mode stays
-          // youth-friendly, and toggling it on mid-thread persists it.
-          if (owned.youthMode === true) {
-            effectiveYouthMode = true;
-          } else if (effectiveYouthMode) {
+          // The active thread owns its Youth Mode value. Persist both
+          // transitions so turning the setting off on an existing thread is
+          // as durable as turning it on.
+          if (!youthModeProvided) {
+            effectiveYouthMode = owned.youthMode;
+          } else if (owned.youthMode !== effectiveYouthMode) {
             await db
               .update(navigatorConversations)
-              .set({ youthMode: true })
+              .set({ youthMode: effectiveYouthMode })
               .where(eq(navigatorConversations.id, activeConversationId));
           }
 
@@ -2035,24 +2043,26 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
           // Persist the grounded text (not the raw model output) so the DB and
           // the user always see the same thing.
-          try {
-            await db.insert(navigatorMessages).values({
-              conversationId: activeConversationId,
-              role: "assistant",
-              content: groundedResponse,
-            });
+          if (userId && activeConversationId) {
+            try {
+              await db.insert(navigatorMessages).values({
+                conversationId: activeConversationId,
+                role: "assistant",
+                content: groundedResponse,
+              });
 
-            if (groundedResponse.length > 50) {
-              const summarySnippet = groundedResponse
-                .substring(0, 200)
-                .replace(/\n/g, " ");
-              await db
-                .update(navigatorConversations)
-                .set({ summary: summarySnippet })
-                .where(eq(navigatorConversations.id, activeConversationId));
+              if (groundedResponse.length > 50) {
+                const summarySnippet = groundedResponse
+                  .substring(0, 200)
+                  .replace(/\n/g, " ");
+                await db
+                  .update(navigatorConversations)
+                  .set({ summary: summarySnippet })
+                  .where(eq(navigatorConversations.id, activeConversationId));
+              }
+            } catch (err) {
+              console.error("[Navigator] Error saving response:", err);
             }
-          } catch (err) {
-            console.error("[Navigator] Error saving response:", err);
           }
 
           // Always send deepThinkJobId (per-request UUID) so both authenticated

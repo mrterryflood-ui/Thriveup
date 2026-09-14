@@ -176,10 +176,15 @@ function HubAlerts({ isAuthenticated, canOpenGrantHub }: { isAuthenticated: bool
   );
 }
 
-function MyWork({ isAuthenticated, canOpenGrantHub }: { isAuthenticated: boolean; canOpenGrantHub: boolean }) {
+function MyWork({ isAuthenticated, canOpenGrantHub, userId }: { isAuthenticated: boolean; canOpenGrantHub: boolean; userId?: string }) {
   const { orgId } = useCurrentOrgId();
   const { data: conversations, isLoading: conversationsLoading, isError: conversationsError, refetch: refetchConversations } = useQuery<any[]>({
-    queryKey: ["/api/navigator/conversations"],
+    queryKey: ["/api/navigator/conversations", userId],
+    queryFn: async () => {
+      const response = await fetch("/api/navigator/conversations", { credentials: "include" });
+      if (!response.ok) throw new Error(`Failed to load conversations: ${response.status}`);
+      return response.json();
+    },
     enabled: isAuthenticated,
     staleTime: 2 * 60 * 1000,
     select: (data: any) => (Array.isArray(data) ? data : []).slice(0, 2),
@@ -460,7 +465,7 @@ export default function HubHomePage() {
           </div>
         </section>
 
-         <MyWork isAuthenticated={isAuthenticated} canOpenGrantHub={canOpenGrantHub} />
+         <MyWork isAuthenticated={isAuthenticated} canOpenGrantHub={canOpenGrantHub} userId={user?.id} />
       </div>
     </div>
   );

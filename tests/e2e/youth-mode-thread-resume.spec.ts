@@ -126,6 +126,11 @@ test.describe("Youth Mode thread resume", () => {
     expect(body.youthMode).toBe(true);
     expect(body.conversationId).toBe(convo.id);
     expect((await secondRes).status()).toBe(200);
+    await expect(page.getByTestId("textarea-navigator-input-page")).toBeEnabled({ timeout: 90_000 });
+
+    // Make the profile disagree with the saved thread so fresh-browser
+    // restoration is proven to come from navigator_conversations.youth_mode.
+    await db.query(`UPDATE learner_profiles SET youth_mode = false WHERE user_id = $1`, [USER_ON]);
     await ctx.close();
 
     // ── Fresh browser (no localStorage), profile is OFF: the conversation flag
@@ -152,6 +157,13 @@ test.describe("Youth Mode thread resume", () => {
   test("youth-off thread stays off when re-opened in a fresh browser", async ({ browser }) => {
     test.setTimeout(180_000);
 
+    await db.query(
+      `INSERT INTO learner_profiles (user_id, youth_mode)
+       VALUES ($1, true)
+       ON CONFLICT (user_id) DO UPDATE SET youth_mode = true`,
+      [USER_OFF],
+    );
+
     const ctx = await browser.newContext({
       extraHTTPHeaders: { Cookie: await forgeSession(db, { userId: USER_OFF, email: `${USER_OFF}@test.local` }) },
     });
@@ -159,7 +171,13 @@ test.describe("Youth Mode thread resume", () => {
     await page.goto(`${BASE}/navigator`);
 
     const toggle = page.getByTestId("button-youth-mode");
+    // Start with the profile on, then create an explicitly off thread. The
+    // fresh-browser assertion below catches one-way restore bugs.
+    await expect(toggle).toContainText("Youth Mode On");
+    const putOff = page.waitForResponse((r) => r.url().includes("/api/learner-profile") && r.request().method() === "PUT");
+    await toggle.click();
     await expect(toggle).toContainText("Youth Mode Off");
+    expect((await putOff).status()).toBe(200);
 
     await page.getByTestId("textarea-navigator-input-page").fill("What rental assistance programs exist in Austin?");
     const chat = page.waitForResponse((r) => r.url().includes("/api/navigator/chat") && r.request().method() === "POST");
@@ -168,6 +186,10 @@ test.describe("Youth Mode thread resume", () => {
 
     const convo = await latestConvo(db, USER_OFF);
     expect(convo.youth_mode).toBe(false);
+    await expect(page.getByTestId("textarea-navigator-input-page")).toBeEnabled({ timeout: 90_000 });
+
+    // Re-enable the account profile; the saved off-thread must still win.
+    await db.query(`UPDATE learner_profiles SET youth_mode = true WHERE user_id = $1`, [USER_OFF]);
     await ctx.close();
 
     // Fresh browser, auto-resume: toggle stays Off and next request stays youthMode: false

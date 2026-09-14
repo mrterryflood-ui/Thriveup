@@ -177,10 +177,17 @@ async function collectEngineResults(
   );
 
   // Race: finish when all complete, or drop stragglers at the global deadline.
-  await Promise.race([
-    Promise.all(perEnginePromises),
-    new Promise<void>(resolve => setTimeout(resolve, ENGINES_GLOBAL_DEADLINE_MS)),
-  ]);
+  let globalDeadlineTimer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      Promise.all(perEnginePromises),
+      new Promise<void>(resolve => {
+        globalDeadlineTimer = setTimeout(resolve, ENGINES_GLOBAL_DEADLINE_MS);
+      }),
+    ]);
+  } finally {
+    if (globalDeadlineTimer) clearTimeout(globalDeadlineTimer);
+  }
 
   // Any engine that hasn't pushed a result yet has been dropped by the deadline.
   const respondedIds = new Set(collected.map(r => r.engine));
@@ -619,6 +626,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
   // Start DeepSeek R1 immediately — it runs independently. We await it
   // AFTER the initial synthesis has been streamed, so it never delays users.
   const deepThinkStart = Date.now();
+  let deepThinkTimeout: ReturnType<typeof setTimeout> | undefined;
   const deepThinkPromise: Promise<EngineResult | null> = deepThinkEngine
     ? Promise.race([
         callEngineWithDeadline(
@@ -628,14 +636,18 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
           params.maxTokens || 3000,
           DEEP_THINK_TIMEOUT_MS,
         ),
-        new Promise<EngineResult>(resolve => setTimeout(() => resolve({
-          engine: deepThinkEngine.id,
-          model: deepThinkEngine.model,
-          response: "",
-          responseTimeMs: DEEP_THINK_TIMEOUT_MS,
-          error: `Deep think timeout after ${DEEP_THINK_TIMEOUT_MS}ms`,
-        }), DEEP_THINK_TIMEOUT_MS))
-      ]).catch(error => ({
+        new Promise<EngineResult>(resolve => {
+          deepThinkTimeout = setTimeout(() => resolve({
+            engine: deepThinkEngine.id,
+            model: deepThinkEngine.model,
+            response: "",
+            responseTimeMs: DEEP_THINK_TIMEOUT_MS,
+            error: `Deep think timeout after ${DEEP_THINK_TIMEOUT_MS}ms`,
+          }), DEEP_THINK_TIMEOUT_MS);
+        }),
+      ]).finally(() => {
+        if (deepThinkTimeout) clearTimeout(deepThinkTimeout);
+      }).catch(error => ({
         engine: deepThinkEngine.id,
         model: deepThinkEngine.model,
         response: "",
@@ -700,7 +712,7 @@ export async function collaborativeStream(params: CollaborativeStreamParams): Pr
 
   console.log(`[CollabAI-Stream] Phase 1 delivered in ${phase1TimeMs}ms — ${consensusMethod}. R1 running in background.`);
 
-  params.onDone({
+  await params.onDone({
     synthesis: "",
     engines: fastResults,
     ragContext: { chunkCount: ragChunkCount, sources: ragSources, liveData: true },
