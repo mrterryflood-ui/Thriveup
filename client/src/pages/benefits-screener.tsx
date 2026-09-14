@@ -91,6 +91,17 @@ interface ScreenerData {
   contactPhone: string;
 }
 
+type NavigatorPrefillData = {
+  hasContext?: boolean;
+  conversationTitle?: unknown;
+  geography?: unknown;
+  hasChildren?: boolean;
+  isDisabled?: boolean;
+  isElderly?: boolean;
+  isUnemployed?: boolean;
+  isPregnant?: boolean;
+};
+
 const INITIAL_DATA: ScreenerData = {
   state: "TX", county: "", zipCode: "", householdSize: "1", annualIncome: "",
   hasChildren: false, childrenUnder5: false, isPregnant: false,
@@ -98,6 +109,59 @@ const INITIAL_DATA: ScreenerData = {
   preferredLanguage: "English",
   currentBenefits: [], contactName: "", contactPhone: "",
 };
+
+function normalizeNavigatorGeography(value: unknown): Partial<Pick<ScreenerData, "state" | "county" | "zipCode">> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+
+  const geography = value as Record<string, unknown>;
+  const rawState = typeof geography.state === "string" ? geography.state.trim() : "";
+  const state = STATE_OPTIONS.find(
+    option =>
+      option.code.toLowerCase() === rawState.toLowerCase() ||
+      option.name.toLowerCase() === rawState.toLowerCase(),
+  )?.code;
+  const rawCounty = typeof geography.county === "string" && geography.county.trim()
+    ? geography.county.trim()
+    : typeof geography.countyFips === "string" && geography.countyFips.trim()
+      ? geography.countyFips.trim()
+      : "";
+  const rawZip = typeof geography.zip === "string" && geography.zip.trim()
+    ? geography.zip.trim()
+    : typeof geography.zipCode === "string" && geography.zipCode.trim()
+      ? geography.zipCode.trim()
+      : "";
+
+  let normalizedState = state;
+  let normalizedCounty: string | undefined;
+
+  if (/^\d{5}$/.test(rawCounty)) {
+    const countyStateFips = rawCounty.slice(0, 2);
+    const stateFromCounty = Object.entries(STATE_FIPS_BY_USPS).find(
+      ([code, fips]) => fips === countyStateFips && STATE_OPTIONS.some(option => option.code === code),
+    )?.[0];
+    normalizedState ??= stateFromCounty;
+    if (normalizedState && STATE_FIPS_BY_USPS[normalizedState] === countyStateFips) {
+      normalizedCounty = rawCounty.slice(2);
+    }
+  } else if (/^\d{3}$/.test(rawCounty) && normalizedState) {
+    normalizedCounty = rawCounty;
+  }
+
+  if (
+    normalizedState &&
+    normalizedCounty &&
+    !COUNTIES_BY_STATE[normalizedState]?.some(county => county.countyFips === normalizedCounty)
+  ) {
+    normalizedCounty = undefined;
+  }
+
+  const zipCode = /^\d{5}(?:-\d{4})?$/.test(rawZip) ? rawZip.slice(0, 5) : undefined;
+  return {
+    ...(normalizedState ? { state: normalizedState } : zipCode ? { state: "" } : {}),
+    ...(normalizedCounty ? { county: normalizedCounty } : {}),
+    ...(zipCode ? { zipCode } : {}),
+  };
+}
 
 // ── Capacity badge helpers ────────────────────────────────────────────────────
 // An org using programCode="general" is shown under every benefit ONLY when its
@@ -452,11 +516,14 @@ export default function BenefitsScreenerPage() {
   const [referralTarget, setReferralTarget] = useState<SendReferralState | null>(null);
   const [screeningId, setScreeningId] = useState<number | null>(null);
   const [navigatorBanner, setNavigatorBanner] = useState<{ title: string } | null>(null);
-  const prefillApplied = useRef(false);
+  const [hasNavigatorGeography, setHasNavigatorGeography] = useState(false);
+  const [hasNavigatorSituationPrefill, setHasNavigatorSituationPrefill] = useState(false);
+  const prefillAppliedForUser = useRef<string | null>(null);
+  const locationEdits = useRef(new Set<"state" | "county" | "zipCode">());
 
   // Fetch Navigator prefill data for authenticated users
-  const { data: prefillData } = useQuery<Record<string, any>>({
-    queryKey: ["/api/navigator/prefill"],
+  const { data: prefillData } = useQuery<NavigatorPrefillData>({
+    queryKey: ["/api/navigator/prefill", user?.id ?? null],
     queryFn: async () => {
       const res = await fetch("/api/navigator/prefill", { credentials: "include" });
       if (!res.ok) return { hasContext: false };
@@ -467,20 +534,58 @@ export default function BenefitsScreenerPage() {
     retry: false,
   });
 
-  // Apply Navigator prefill to screener state exactly once
   useEffect(() => {
-    if (prefillApplied.current) return;
+    locationEdits.current.clear();
+    prefillAppliedForUser.current = null;
+    setNavigatorBanner(null);
+    setHasNavigatorGeography(false);
+    setHasNavigatorSituationPrefill(false);
+    setData(INITIAL_DATA);
+    setStep(0);
+    setResult(null);
+    setScreeningId(null);
+    setReferralTarget(null);
+  }, [user?.id, isAuthenticated]);
+
+  // Apply Navigator prefill to screener state exactly once per authenticated user
+  useEffect(() => {
+    const userId = user?.id ?? null;
+    if (prefillAppliedForUser.current === userId) return;
+    if (!userId) return;
     if (!prefillData?.hasContext) return;
-    prefillApplied.current = true;
+    prefillAppliedForUser.current = userId;
+    const geographyPrefill = normalizeNavigatorGeography(prefillData.geography);
+    const editableGeographyPrefill = { ...geographyPrefill };
+    if (locationEdits.current.has("state")) {
+      delete editableGeographyPrefill.state;
+      delete editableGeographyPrefill.county;
+    } else if (locationEdits.current.has("county")) {
+      delete editableGeographyPrefill.county;
+    }
+    if (locationEdits.current.has("zipCode")) delete editableGeographyPrefill.zipCode;
+    setHasNavigatorGeography(Object.keys(geographyPrefill).length > 0);
+    setHasNavigatorSituationPrefill(
+      Boolean(
+        prefillData.hasChildren ||
+        prefillData.isDisabled ||
+        prefillData.isElderly ||
+        prefillData.isUnemployed ||
+        prefillData.isPregnant,
+      ),
+    );
     setData(prev => ({
       ...prev,
+      ...editableGeographyPrefill,
       hasChildren:  prefillData.hasChildren  ? true : prev.hasChildren,
       isDisabled:   prefillData.isDisabled   ? true : prev.isDisabled,
       isElderly:    prefillData.isElderly    ? true : prev.isElderly,
       isUnemployed: prefillData.isUnemployed ? true : prev.isUnemployed,
       isPregnant:   prefillData.isPregnant   ? true : prev.isPregnant,
     }));
-    setNavigatorBanner({ title: prefillData.conversationTitle ?? "Navigator Conversation" });
+    const title = typeof prefillData.conversationTitle === "string"
+      ? prefillData.conversationTitle
+      : "Navigator Conversation";
+    setNavigatorBanner({ title });
   }, [prefillData]);
 
   // Counties in the currently-selected state. Recomputed only when the state changes.
@@ -665,12 +770,31 @@ export default function BenefitsScreenerPage() {
           <Card data-testid="step-household">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Users className="h-5 w-5" /> About Your Household</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+              {navigatorBanner && hasNavigatorGeography && (
+                <div
+                  className="flex items-start gap-2 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30 px-3 py-2.5 text-sm text-blue-800 dark:text-blue-200"
+                  data-testid="banner-navigator-geography-prefill"
+                >
+                  <MessageCircle className="h-4 w-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                  <span>
+                    <strong className="font-semibold">Pre-filled from your Navigator conversation</strong>
+                    {navigatorBanner.title && navigatorBanner.title !== "New Conversation" && (
+                      <> — <span className="italic">{navigatorBanner.title}</span></>
+                    )}
+                    . You can adjust any answer below.
+                  </span>
+                </div>
+              )}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
                   <Label>What state do you live in?</Label>
                   <Select
                     value={data.state}
-                    onValueChange={v => setData({ ...data, state: v, county: "" })}
+                    onValueChange={v => {
+                      locationEdits.current.add("state");
+                      locationEdits.current.add("county");
+                      setData({ ...data, state: v, county: "" });
+                    }}
                   >
                     <SelectTrigger data-testid="select-state"><SelectValue placeholder="Select state" /></SelectTrigger>
                     <SelectContent className="max-h-72">
@@ -682,7 +806,14 @@ export default function BenefitsScreenerPage() {
                 </div>
                 <div>
                   <Label>What county do you live in?</Label>
-                  <Select value={data.county} onValueChange={v => setData({ ...data, county: v })} disabled={!data.state}>
+                  <Select
+                    value={data.county}
+                    onValueChange={v => {
+                      locationEdits.current.add("county");
+                      setData({ ...data, county: v });
+                    }}
+                    disabled={!data.state}
+                  >
                     <SelectTrigger data-testid="select-county">
                       <SelectValue placeholder={data.state ? "Select your county" : "Select a state first"} />
                     </SelectTrigger>
@@ -696,7 +827,15 @@ export default function BenefitsScreenerPage() {
               </div>
               <div>
                 <Label>Zip code (optional)</Label>
-                <Input value={data.zipCode} onChange={e => setData({...data, zipCode: e.target.value})} placeholder="e.g., 78660" data-testid="input-zip" />
+                <Input
+                  value={data.zipCode}
+                  onChange={e => {
+                    locationEdits.current.add("zipCode");
+                    setData({...data, zipCode: e.target.value});
+                  }}
+                  placeholder="e.g., 78660"
+                  data-testid="input-zip"
+                />
               </div>
               <div>
                 <Label>How many people live in your household? (including you)</Label>
@@ -735,7 +874,7 @@ export default function BenefitsScreenerPage() {
           <Card data-testid="step-situation">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Your Situation</CardTitle></CardHeader>
             <CardContent className="space-y-4">
-              {navigatorBanner && (
+              {navigatorBanner && hasNavigatorSituationPrefill && (
                 <div
                   className="flex items-start gap-2 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30 px-3 py-2.5 text-sm text-blue-800 dark:text-blue-200"
                   data-testid="banner-navigator-prefill"
@@ -1120,7 +1259,15 @@ export default function BenefitsScreenerPage() {
           )}
 
           {step === 5 && (
-            <Button variant="outline" onClick={() => { setStep(0); setData(INITIAL_DATA); setResult(null); }} className="ml-auto" data-testid="button-start-over">
+            <Button variant="outline" onClick={() => {
+              setStep(0);
+              setData(INITIAL_DATA);
+              setResult(null);
+              setNavigatorBanner(null);
+              setHasNavigatorGeography(false);
+              setHasNavigatorSituationPrefill(false);
+              locationEdits.current.clear();
+            }} className="ml-auto" data-testid="button-start-over">
               Screen Another Person
             </Button>
           )}

@@ -1,7 +1,10 @@
+import { JURISDICTIONS } from "@shared/nationwide/jurisdictions";
+
 export type NavigatorContextGeography = {
   zip?: string;
   city?: string;
   state?: string;
+  county?: string;
 };
 
 const STATE_NAMES =
@@ -29,13 +32,16 @@ export function sanitizeNavigatorContextGeography(
 
   const source = value as Record<string, unknown>;
   const geography: NavigatorContextGeography = {};
-  for (const key of ["zip", "city", "state"] as const) {
-    const field = source[key];
+  for (const key of ["zip", "city", "state", "county"] as const) {
+    const field = key === "county" ? source.county ?? source.countyFips : source[key];
     if (typeof field !== "string") continue;
     const normalized = field.trim();
     if (
       !normalized ||
-      normalized.length > (key === "zip" ? 10 : key === "state" ? 50 : 100) ||
+      normalized.length > (
+        key === "zip" ? 10 :
+        key === "state" || key === "county" ? 50 : 100
+      ) ||
       /[\u0000-\u001f\u007f]/.test(normalized)
     ) {
       continue;
@@ -43,7 +49,19 @@ export function sanitizeNavigatorContextGeography(
     if (key === "zip" && !/^\d{5}(?:-\d{4})?$/.test(normalized)) continue;
     if (key === "state" && !/^[\p{L}][\p{L} .'-]*$/u.test(normalized)) continue;
     if (key === "city" && !/^[\p{L}\p{N}][\p{L}\p{N} .,'’()/-]*$/u.test(normalized)) continue;
+    if (key === "county" && !/^(?:\d{3}|\d{5})$/.test(normalized)) continue;
     geography[key] = normalized;
+  }
+
+  if (geography.county && /^\d{5}$/.test(geography.county) && geography.state) {
+    const normalizedState = JURISDICTIONS.find(
+      jurisdiction =>
+        jurisdiction.code.toLowerCase() === geography.state!.toLowerCase() ||
+        jurisdiction.name.toLowerCase() === geography.state!.toLowerCase(),
+    );
+    if (normalizedState && !geography.county.startsWith(normalizedState.fips)) {
+      delete geography.county;
+    }
   }
 
   return Object.keys(geography).length > 0 ? geography : null;
@@ -79,6 +97,7 @@ export function detectNavigatorContextGeography(
   const explicitStateAbbreviationMatch = message.match(
     new RegExp(
       `\\b${STATE_LOCATION_PREFIX}\\s+(${STATE_ABBREVIATION_TOKEN})\\b`,
+      "i",
     ),
   );
   const stateValue = districtMatch

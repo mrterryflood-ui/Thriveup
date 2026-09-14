@@ -78,10 +78,33 @@ test("Navigator geography sanitization drops unsupported or unsafe fields", () =
       zip: "78753",
       city: "Austin",
       state: "TX",
-      county: "Travis",
+      county: "453",
       notes: "untrusted context",
       unsafe: "line\nbreak",
     }),
-    { zip: "78753", city: "Austin", state: "TX" },
+    { zip: "78753", city: "Austin", state: "TX", county: "453" },
+  );
+  assert.deepEqual(
+    sanitizeNavigatorContextGeography({
+      county: "Travis",
+      unsafe: "line\nbreak",
+    }),
+    null,
+  );
+  assert.deepEqual(
+    sanitizeNavigatorContextGeography({ state: "TX", county: "48453" }),
+    { state: "TX", county: "48453" },
+  );
+  assert.deepEqual(
+    sanitizeNavigatorContextGeography({ state: "TX", county: "06037" }),
+    { state: "TX" },
+  );
+  assert.deepEqual(
+    sanitizeNavigatorContextGeography({ state: "TX", county: "1234" }),
+    { state: "TX" },
+  );
+  assert.deepEqual(
+    sanitizeNavigatorContextGeography({ state: "TX", countyFips: "48453" }),
+    { state: "TX", county: "48453" },
   );
 });

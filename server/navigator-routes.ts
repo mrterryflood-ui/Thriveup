@@ -56,19 +56,16 @@ import { getChildcareContextSummary } from "./childcare-provider-intel";
 import {
   detectNavigatorContextGeography as detectNavigatorContextGeographyImpl,
   sanitizeNavigatorContextGeography as sanitizeNavigatorContextGeographyImpl,
+  type NavigatorContextGeography,
   updateNavigatorUserContext,
 } from "./navigator-context";
-
-type NavigatorContextGeography = {
-  zip?: string;
-  city?: string;
-  state?: string;
-};
+import { resolveZipBestEffort } from "./geo/zip-county-resolver";
 
 /**
  * Keep the cross-tool Navigator handoff limited to the geography fields the
- * CHW panel displays. Navigator context can gain additional internal fields
- * over time; those must not become referral-visible by pass-through.
+ * benefits screener and CHW panel display. Navigator context can gain
+ * additional internal fields over time; those must not become referral-visible
+ * by pass-through.
  */
 export function sanitizeNavigatorContextGeography(value: unknown): NavigatorContextGeography | null {
   return sanitizeNavigatorContextGeographyImpl(value);
@@ -2330,7 +2327,39 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         !Array.isArray(latest.userContext)
           ? (latest.userContext as Record<string, unknown>)
           : null;
-      const geo = sanitizeNavigatorContextGeography(latestUserContext?.geography);
+      let geo = sanitizeNavigatorContextGeography(latestUserContext?.geography);
+      if (geo?.zip) {
+        const resolved = await resolveZipBestEffort(geo.zip);
+        const resolvedGeo = sanitizeNavigatorContextGeography({
+          ...geo,
+          state: geo.state ?? resolved.state,
+          county: geo.county ?? resolved.countyFips,
+        });
+        const addedState = resolvedGeo?.state && resolvedGeo.state !== geo.state;
+        const addedCounty = resolvedGeo?.county && resolvedGeo.county !== geo.county;
+        if (resolvedGeo && (addedState || addedCounty)) {
+          geo = resolvedGeo;
+          try {
+            await db
+              .update(navigatorConversations)
+              .set({
+                userContext: {
+                  ...(latestUserContext ?? {}),
+                  geography: resolvedGeo,
+                },
+              })
+              .where(and(
+                eq(navigatorConversations.id, latest.id),
+                eq(navigatorConversations.userId, userId),
+              ));
+          } catch (persistError) {
+            console.warn(
+              "[Navigator] Could not persist ZIP-resolved geography; returning the validated result:",
+              persistError instanceof Error ? persistError.message : String(persistError),
+            );
+          }
+        }
+      }
 
       const prefill: Record<string, unknown> = {
         hasContext: true,

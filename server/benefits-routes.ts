@@ -717,7 +717,7 @@ export function registerBenefitsRoutes(app: Express) {
             enrollmentOutcome: null,
           };
       // Resolve USPS state code from the 2-digit stateFips sent by the client
-      const stateFips2 = ((data as any).stateFips || "").slice(0, 2);
+      const stateFips2 = ((data as any).stateFips || data.countyFips || "").slice(0, 2);
       const stateUsps = FIPS_STATE[stateFips2] || (data as any).stateUsps || "";
       const eligibility = computeEligibility({
         annualIncome: data.annualIncome || 0,
