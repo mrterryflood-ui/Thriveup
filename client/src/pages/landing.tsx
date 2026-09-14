@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 import { BackToTop } from "@/components/back-to-top";
 import { IDENTITY_STRAP, LANGUAGES_SHORT_PHRASE } from "@shared/canonical-claims";
-import { CHILDCORE_INTEGRATION_CONFIG } from "@shared/childcore-config";
 
 const PATHWAYS = [
   {
@@ -1613,7 +1612,7 @@ const PARTNER_NETWORK = [
     name: "ChildCORE",
     tagline: "Community providers, schools, SDOH & impact data",
     description: "Pulls live provider registries, school intelligence, social determinants data, and aggregate community impact by ZIP or geography. Two-way: ThriveUp also pushes community activity back.",
-    docsUrl: CHILDCORE_INTEGRATION_CONFIG.docsUrl,
+    docsUrl: null,
     color: "from-blue-500 to-indigo-600",
     bg: "bg-blue-50 dark:bg-blue-950/20",
     border: "border-blue-200 dark:border-blue-800",
@@ -1664,12 +1663,25 @@ const PARTNER_NETWORK = [
 
 function PartnerNetworkSection() {
   const [childcoreStatus, setChildcoreStatus] = useState<"checking" | "live" | "unavailable">("checking");
+  const [childcoreDocsUrl, setChildcoreDocsUrl] = useState<string | null>(null);
+  const [childcoreDocsLoading, setChildcoreDocsLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/childcore/ping")
+    fetch("/api/childcore/ping", { cache: "no-store" })
       .then(r => r.json())
-      .then(d => setChildcoreStatus(d?.ok ? "live" : "unavailable"))
-      .catch(() => setChildcoreStatus("unavailable"));
+      .then(ping => setChildcoreStatus(ping?.ok ? "live" : "unavailable"))
+      .catch((error) => {
+        console.warn("[Landing] ChildCORE liveness unavailable:", error);
+        setChildcoreStatus("unavailable");
+      });
+    fetch("/api/childcore/public-config")
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then(config => setChildcoreDocsUrl(config?.docsUrl ?? null))
+      .catch((error) => {
+        console.warn("[Landing] ChildCORE destination unavailable:", error);
+        setChildcoreDocsUrl(null);
+      })
+      .finally(() => setChildcoreDocsLoading(false));
   }, []);
 
   return (
@@ -1720,16 +1732,26 @@ function PartnerNetworkSection() {
                   <p className="text-[11px] font-semibold text-muted-foreground mb-1.5">{partner.tagline}</p>
                   <p className="text-xs text-muted-foreground leading-relaxed">{partner.description}</p>
                 </div>
-                <a
-                  href={partner.docsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={`inline-flex items-center gap-1 text-[11px] font-semibold mt-auto hover:underline ${partner.accent}`}
-                  data-testid={`link-partner-${partner.id}-docs`}
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  View platform docs
-                </a>
+                {partner.id === "childcore" && childcoreDocsLoading ? (
+                  <span className="text-[11px] text-muted-foreground mt-auto" data-testid="text-partner-childcore-docs-checking">
+                    Checking platform docs…
+                  </span>
+                ) : (partner.id === "childcore" ? childcoreDocsUrl : partner.docsUrl) ? (
+                  <a
+                    href={partner.id === "childcore" ? childcoreDocsUrl! : partner.docsUrl!}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`inline-flex items-center gap-1 text-[11px] font-semibold mt-auto hover:underline ${partner.accent}`}
+                    data-testid={`link-partner-${partner.id}-docs`}
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    View platform docs
+                  </a>
+                ) : (
+                  <span className="text-[11px] text-muted-foreground mt-auto" data-testid={`text-partner-${partner.id}-docs-unavailable`}>
+                    Platform docs unavailable
+                  </span>
+                )}
               </div>
             );
           })}

@@ -22,9 +22,8 @@
  * A ChildCORE outage degrades community context; it never crashes a route.
  */
 
-import { CHILDCORE_INTEGRATION_CONFIG } from "@shared/childcore-config";
-
-const CHILDCORE_BASE = CHILDCORE_INTEGRATION_CONFIG.baseUrl;
+import { getChildCOREIntegrationConfig } from "./childcore-config";
+import type { ChildCOREIntegrationConfig } from "@shared/childcore-config";
 const TIMEOUT_MS = 8000;
 
 function getApiKey(): string {
@@ -37,16 +36,22 @@ export function isChildCOREConfigured(): boolean {
 
 // ─── Transport helpers ────────────────────────────────────────────────────────
 
-async function coreGet(path: string, requireAuth = true): Promise<any> {
+async function coreGet(
+  path: string,
+  requireAuth = true,
+  config?: ChildCOREIntegrationConfig,
+): Promise<any> {
   if (requireAuth && !isChildCOREConfigured()) return null;
   try {
+    const resolvedConfig = config ?? await getChildCOREIntegrationConfig();
     const headers: Record<string, string> = { "Content-Type": "application/json" };
     if (requireAuth) {
       headers["Authorization"] = `Bearer ${getApiKey()}`;
       headers["X-ChildCORE-Key"] = getApiKey();
     }
-    const resp = await fetch(`${CHILDCORE_BASE}${path}`, {
+    const resp = await fetch(new URL(path.replace(/^\/+/, ""), `${resolvedConfig.baseUrl}/`), {
       headers,
+      redirect: "error",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!resp.ok) {
@@ -60,10 +65,15 @@ async function coreGet(path: string, requireAuth = true): Promise<any> {
   }
 }
 
-async function corePost(path: string, body: Record<string, unknown>): Promise<any> {
+async function corePost(
+  path: string,
+  body: Record<string, unknown>,
+  config?: ChildCOREIntegrationConfig,
+): Promise<any> {
   if (!isChildCOREConfigured()) return null;
   try {
-    const resp = await fetch(`${CHILDCORE_BASE}${path}`, {
+    const resolvedConfig = config ?? await getChildCOREIntegrationConfig();
+    const resp = await fetch(new URL(path.replace(/^\/+/, ""), `${resolvedConfig.baseUrl}/`), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -71,6 +81,7 @@ async function corePost(path: string, body: Record<string, unknown>): Promise<an
         "X-ChildCORE-Key": getApiKey(),
       },
       body: JSON.stringify(body),
+      redirect: "error",
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
     if (!resp.ok) {
@@ -86,7 +97,9 @@ async function corePost(path: string, body: Record<string, unknown>): Promise<an
 
 // ─── Health probe ─────────────────────────────────────────────────────────────
 
-export async function probeChildCORE(): Promise<{
+export async function probeChildCORE(
+  configOverride?: ChildCOREIntegrationConfig,
+): Promise<{
   ok: boolean;
   reachable: boolean;
   authenticated: boolean;
@@ -94,12 +107,27 @@ export async function probeChildCORE(): Promise<{
   service?: string;
   version?: string;
   configured: boolean;
+  configAvailable: boolean;
 }> {
   const configured = isChildCOREConfigured();
+  let config: ChildCOREIntegrationConfig;
+  try {
+    config = configOverride ?? await getChildCOREIntegrationConfig();
+  } catch (error) {
+    console.error("[ChildCORE] probe config unavailable:", error);
+    return {
+      ok: false,
+      reachable: false,
+      authenticated: false,
+      latencyMs: 0,
+      configured,
+      configAvailable: false,
+    };
+  }
   const t0 = Date.now();
   const [data, authenticatedProbe] = await Promise.all([
-    coreGet("/ping", false),
-    configured ? coreGet("/community/78701/providers") : Promise.resolve(null),
+    coreGet("/ping", false, config),
+    configured ? coreGet("/community/78701/providers", true, config) : Promise.resolve(null),
   ]);
   const reachable = data?.status === "ok";
   const authenticated = authenticatedProbe !== null;
@@ -111,6 +139,7 @@ export async function probeChildCORE(): Promise<{
     service: data?.service,
     version: data?.version,
     configured,
+    configAvailable: true,
   };
 }
 
@@ -148,12 +177,19 @@ export interface ChildCORECommunityData {
 
 export async function getChildCORECommunityData(zip: string): Promise<ChildCORECommunityData | null> {
   if (!zip || !isChildCOREConfigured()) return null;
+  let config: ChildCOREIntegrationConfig;
+  try {
+    config = await getChildCOREIntegrationConfig();
+  } catch (error) {
+    console.error("[ChildCORE] community config unavailable:", error);
+    return null;
+  }
 
   const [providers, schools, sdoh, impact] = await Promise.all([
-    getChildCOREProviders(zip).catch(() => null),
-    getChildCORESchools(zip).catch(() => null),
-    getChildCORESDOH(zip).catch(() => null),
-    getChildCOREImpact(zip).catch(() => null),
+    coreGet(`/community/${encodeURIComponent(zip)}/providers`, true, config).catch(() => null),
+    coreGet(`/community/${encodeURIComponent(zip)}/schools`, true, config).catch(() => null),
+    coreGet(`/community/${encodeURIComponent(zip)}/sdoh`, true, config).catch(() => null),
+    coreGet(`/community/${encodeURIComponent(zip)}/impact`, true, config).catch(() => null),
   ]);
 
   // Return null if every call failed — keeps AI context clean
@@ -355,7 +391,8 @@ export async function getChildCOREConnectionStatus(): Promise<{
   baseUrl: string;
   docsUrl: string;
 }> {
-  const probe = await probeChildCORE();
+  const config = await getChildCOREIntegrationConfig();
+  const probe = await probeChildCORE(config);
   return {
     configured: probe.configured,
     pingOk: probe.ok,
@@ -364,7 +401,7 @@ export async function getChildCOREConnectionStatus(): Promise<{
     latencyMs: probe.latencyMs,
     service: probe.service,
     version: probe.version,
-    baseUrl: CHILDCORE_BASE,
-    docsUrl: CHILDCORE_INTEGRATION_CONFIG.docsUrl,
+    baseUrl: config.baseUrl,
+    docsUrl: config.docsUrl,
   };
 }

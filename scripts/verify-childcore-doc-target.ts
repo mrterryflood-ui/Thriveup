@@ -6,9 +6,9 @@
  * authenticated operator from opening the dashboard and seeing its honest
  * unavailable state.
  */
-import { CHILDCORE_INTEGRATION_CONFIG } from "../shared/childcore-config";
+import { getChildCOREIntegrationConfig } from "../server/childcore-config";
 
-const docsUrl = CHILDCORE_INTEGRATION_CONFIG.docsUrl;
+const { docsUrl } = await getChildCOREIntegrationConfig();
 const timeoutMs = 6_000;
 
 function fail(message: string): never {
@@ -34,7 +34,7 @@ try {
   const timer = setTimeout(() => controller.abort(), timeoutMs);
   let response = await fetch(docsUrl, {
     method: "HEAD",
-    redirect: "follow",
+    redirect: "error",
     signal: controller.signal,
   });
 
@@ -42,7 +42,7 @@ try {
   if (response.status === 405) {
     response = await fetch(docsUrl, {
       method: "GET",
-      redirect: "follow",
+      redirect: "error",
       signal: controller.signal,
     });
   }

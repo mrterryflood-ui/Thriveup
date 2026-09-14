@@ -2,15 +2,15 @@
  * ChildCORE API Routes
  *
  * Transparent proxy + status surface for the ChildCORE Partner API integration.
- * All GET routes require a valid ThriveUp session (staff or admin) so community
+ * All protected GET routes require a valid ThriveUp administrator session so community
  * data never leaks to unauthenticated callers.
- * The /status and /ping routes are open to any authenticated session.
+ * The /ping and public destination metadata routes are credential-free.
  *
- * Push (POST /api/childcore/push) requires admin role.
- * Admin-only routes: /rag-preview, /events, /yhsi-summary
+ * Mutating and monitoring routes require the canonical platform-staff role
+ * set; the public ping and destination metadata remain credential-free.
  */
 
-import type { Router, Request, Response } from "express";
+import type { NextFunction, Router, Request, Response } from "express";
 import { desc, eq, sql } from "drizzle-orm";
 import { createHash } from "crypto";
 import {
@@ -23,8 +23,14 @@ import {
   pushToChildCORE,
   isChildCOREConfigured,
 } from "./childcore-connector";
+import {
+  getChildCOREIntegrationConfig,
+  isTrustedChildCOREApiBaseUrl,
+  updateChildCOREIntegrationConfig,
+} from "./childcore-config";
+import { childcoreIntegrationConfigSchema } from "@shared/childcore-config";
 import { buildCommunityAIContextWithStatus } from "./rplice-intelligence";
-import { db } from "./storage";
+import { db, storage } from "./storage";
 import {
   partnerApiAuditLog,
   partnerApiKeys,
@@ -36,22 +42,66 @@ import {
 
 // ─── Auth helpers ─────────────────────────────────────────────────────────────
 
-function requireAuth(req: Request, res: Response): boolean {
-  if (!req.isAuthenticated?.() || !req.user) {
-    res.status(401).json({ error: "Authentication required" });
-    return false;
-  }
-  return true;
+const publicConfigHits = new Map<string, { count: number; resetAt: number }>();
+const PUBLIC_CONFIG_WINDOW_MS = 60_000;
+const PUBLIC_CONFIG_MAX_REQUESTS = 60;
+let publicProbeCache: {
+  expiresAt: number;
+  result: Awaited<ReturnType<typeof probeChildCORE>>;
+} | null = null;
+const PUBLIC_PROBE_CACHE_MS = 15_000;
+
+function getUserId(req: Request): string | undefined {
+  const user = (req as unknown as { user?: { claims?: { sub?: string }; id?: string } }).user;
+  return user?.claims?.sub || user?.id;
 }
 
-function requireAdmin(req: Request, res: Response): boolean {
-  if (!requireAuth(req, res)) return false;
-  const role = (req.user as any)?.role;
-  if (role !== "admin" && role !== "platform_staff") {
-    res.status(403).json({ error: "Admin access required" });
-    return false;
+async function requireSettingsAdmin(req: Request, res: Response): Promise<string | null> {
+  if (!req.isAuthenticated?.() || !getUserId(req)) {
+    res.status(401).json({ error: "Authentication required" });
+    return null;
   }
-  return true;
+  try {
+    const userId = getUserId(req)!;
+    const user = await storage.getUser(userId);
+    if (!user || user.role !== "admin") {
+      res.status(403).json({ error: "Administrator access required to change ChildCORE destinations" });
+      return null;
+    }
+    return userId;
+  } catch (error) {
+    console.error("[ChildCORE] settings admin check failed:", error);
+    res.status(500).json({ error: "Could not verify administrator access" });
+    return null;
+  }
+}
+
+function rateLimitPublicConfig(req: Request, res: Response, next: NextFunction): void {
+  const now = Date.now();
+  if (publicConfigHits.size > 1000) {
+    for (const [key, entry] of publicConfigHits) {
+      if (entry.resetAt <= now) publicConfigHits.delete(key);
+    }
+    while (publicConfigHits.size > 10_000) {
+      const oldest = publicConfigHits.keys().next().value;
+      if (typeof oldest !== "string") break;
+      publicConfigHits.delete(oldest);
+    }
+  }
+  const ip = req.ip || req.socket?.remoteAddress || "unknown";
+  const current = publicConfigHits.get(ip);
+  if (!current || current.resetAt <= now) {
+    publicConfigHits.set(ip, { count: 1, resetAt: now + PUBLIC_CONFIG_WINDOW_MS });
+    next();
+    return;
+  }
+  if (current.count >= PUBLIC_CONFIG_MAX_REQUESTS) {
+    res.setHeader("Retry-After", String(Math.max(1, Math.ceil((current.resetAt - now) / 1000))));
+    res.status(429).json({ error: "Too many requests" });
+    return;
+  }
+  current.count += 1;
+  next();
 }
 
 function hashPartnerKey(plaintext: string): string {
@@ -104,17 +154,43 @@ export function registerChildCORERoutes(router: Router): void {
 
   // ── Health / status ─────────────────────────────────────────────────────────
   // Open to all (no auth) — used by the homepage live badge
-  router.get("/childcore/ping", async (_req, res) => {
+  router.get("/childcore/ping", rateLimitPublicConfig, async (_req, res) => {
     try {
+      const now = Date.now();
+      if (publicProbeCache && publicProbeCache.expiresAt > now) {
+        return res.json(publicProbeCache.result);
+      }
       const probe = await probeChildCORE();
+      if (!probe.configAvailable) {
+        return res.status(503).json({ ...probe, error: "ChildCORE destination configuration unavailable" });
+      }
+      publicProbeCache = { expiresAt: now + PUBLIC_PROBE_CACHE_MS, result: probe };
       res.json(probe);
     } catch {
-      res.status(503).json({ ok: false, latencyMs: 0, configured: isChildCOREConfigured() });
+      res.status(503).json({
+        ok: false,
+        latencyMs: 0,
+        configured: isChildCOREConfigured(),
+        configAvailable: false,
+      });
+    }
+  });
+
+  // Public pages may show the current external destination, but never receive
+  // credentials or protected monitoring metadata.
+  router.get("/childcore/public-config", rateLimitPublicConfig, async (_req, res) => {
+    try {
+      const config = await getChildCOREIntegrationConfig();
+      res.setHeader("Cache-Control", "no-store");
+      res.json({ docsUrl: config.docsUrl });
+    } catch (err) {
+      console.error("[ChildCORE] public config failed:", err);
+      res.status(503).json({ error: "ChildCORE destination unavailable", docsUrl: null });
     }
   });
 
   router.get("/childcore/status", async (req, res) => {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     try {
       const status = await getChildCOREConnectionStatus();
       res.json(status);
@@ -130,30 +206,68 @@ export function registerChildCORERoutes(router: Router): void {
     }
   });
 
+  // ── Operator-managed destinations ─────────────────────────────────────────
+  router.get("/childcore/settings", async (req, res) => {
+    if (!(await requireSettingsAdmin(req, res))) return;
+    try {
+      const config = await getChildCOREIntegrationConfig();
+      res.json(config);
+    } catch (err) {
+      console.error("[ChildCORE] settings read failed:", err);
+      res.status(503).json({ error: "ChildCORE destination settings are temporarily unavailable" });
+    }
+  });
+
+  router.patch("/childcore/settings", async (req, res) => {
+    const actorUserId = await requireSettingsAdmin(req, res);
+    if (!actorUserId) return;
+    try {
+      const parsed = childcoreIntegrationConfigSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: "Both destinations must be valid HTTPS URLs.",
+          details: parsed.error.flatten(),
+        });
+      }
+      if (!isTrustedChildCOREApiBaseUrl(parsed.data.baseUrl)) {
+        return res.status(400).json({
+          error: "The API base URL origin is not in the trusted ChildCORE origin allowlist.",
+          details: { fieldErrors: { baseUrl: ["Use an approved ChildCORE API origin."] } },
+        });
+      }
+      const config = await updateChildCOREIntegrationConfig(parsed.data, actorUserId);
+      publicProbeCache = null;
+      res.json({ ok: true, ...config });
+    } catch (err) {
+      console.error("[ChildCORE] settings update failed:", err);
+      res.status(500).json({ error: "Could not update ChildCORE settings" });
+    }
+  });
+
   // ── Community intelligence pull ──────────────────────────────────────────────
   router.get("/childcore/community/:geo/providers", async (req, res) => {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     const data = await getChildCOREProviders(req.params.geo);
     if (!data) return res.status(503).json({ error: "ChildCORE unavailable or not configured" });
     res.json(data);
   });
 
   router.get("/childcore/community/:geo/schools", async (req, res) => {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     const data = await getChildCORESchools(req.params.geo);
     if (!data) return res.status(503).json({ error: "ChildCORE unavailable or not configured" });
     res.json(data);
   });
 
   router.get("/childcore/community/:geo/sdoh", async (req, res) => {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     const data = await getChildCORESDOH(req.params.geo);
     if (!data) return res.status(503).json({ error: "ChildCORE unavailable or not configured" });
     res.json(data);
   });
 
   router.get("/childcore/community/:geo/impact", async (req, res) => {
-    if (!requireAuth(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     const data = await getChildCOREImpact(req.params.geo);
     if (!data) return res.status(503).json({ error: "ChildCORE unavailable or not configured" });
     res.json(data);
@@ -161,7 +275,7 @@ export function registerChildCORERoutes(router: Router): void {
 
   // ── Outbound push: ThriveUp → ChildCORE ─────────────────────────────────────
   router.post("/childcore/push", async (req, res) => {
-    if (!requireAdmin(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     const { event, zip, data } = req.body ?? {};
     if (!event || typeof event !== "string") {
       return res.status(400).json({ error: "event is required" });
@@ -180,7 +294,7 @@ export function registerChildCORERoutes(router: Router): void {
   // Returns the exact community-intelligence context string the AI would receive,
   // plus source-status for each data partner.
   router.get("/childcore/rag-preview", async (req, res) => {
-    if (!requireAdmin(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     const zip = (req.query.zip as string | undefined)?.trim();
     if (!zip || !/^\d{5}$/.test(zip)) {
       return res.status(400).json({ error: "zip query parameter must be a 5-digit ZIP code." });
@@ -203,7 +317,7 @@ export function registerChildCORERoutes(router: Router): void {
   // Covers both directions: ChildCORE → ThriveUp (logged by requirePartnerAuth)
   // and manual admin probes.
   router.get("/childcore/events", async (req, res) => {
-    if (!requireAdmin(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     try {
       const limit = Math.min(parseInt((req.query.limit as string) || "100", 10), 200);
       const rows = await db
@@ -234,7 +348,7 @@ export function registerChildCORERoutes(router: Router): void {
   function suppress(n: number): number | null { return n >= FLOOR ? n : null; }
 
   router.get("/childcore/yhsi-summary", async (req, res) => {
-    if (!requireAdmin(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
     try {
       const [pts] = await db.select({
         total:          sql<number>`count(*)::int`,
@@ -307,7 +421,7 @@ export function registerChildCORERoutes(router: Router): void {
   // request time, so this endpoint reports that same row without exposing the
   // key or any secret material.
   router.get("/childcore/capabilities", async (req, res) => {
-    if (!requireAdmin(req, res)) return;
+    if (!(await requireSettingsAdmin(req, res))) return;
 
     const expectedScopes = [
       "community:read",

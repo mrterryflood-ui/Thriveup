@@ -12,7 +12,7 @@
  *  5. YHSI         — aggregate youth metrics (suppression-floored)
  */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useToast } from "@/hooks/use-toast";
@@ -28,7 +28,7 @@ import {
   Activity, CheckCircle2, XCircle, AlertTriangle, Clock, RefreshCw,
   ExternalLink, Wifi, WifiOff, Database, Code2, Send, Users,
   BarChart3, Shield, Home, GraduationCap, Briefcase, ScrollText,
-  Eye, Server, Plug2, ArrowRightLeft,
+  Eye, Server, Plug2, ArrowRightLeft, Settings2,
 } from "lucide-react";
 
 // ─── Shared helpers ───────────────────────────────────────────────────────────
@@ -833,6 +833,159 @@ function RoiTab() {
   );
 }
 
+function SettingsTab() {
+  const { toast } = useToast();
+  const { data, isLoading, isError, error, refetch } = useQuery<{ baseUrl: string; docsUrl: string }>({
+    queryKey: ["/api/childcore/settings"],
+    retry: false,
+  });
+  const [baseUrl, setBaseUrl] = useState("");
+  const [docsUrl, setDocsUrl] = useState("");
+  const [validationErrors, setValidationErrors] = useState<{ baseUrl?: string; docsUrl?: string }>({});
+  const [dirty, setDirty] = useState(false);
+
+  useEffect(() => {
+    if (!data || dirty) return;
+    setBaseUrl(data.baseUrl);
+    setDocsUrl(data.docsUrl);
+  }, [data, dirty]);
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const response = await apiRequest("PATCH", "/api/childcore/settings", { baseUrl, docsUrl });
+      return response.json() as Promise<{ baseUrl: string; docsUrl: string }>;
+    },
+    onSuccess: (next) => {
+      setBaseUrl(next.baseUrl);
+      setDocsUrl(next.docsUrl);
+      setDirty(false);
+      void queryClient.invalidateQueries({ queryKey: ["/api/childcore/settings"] });
+      void queryClient.invalidateQueries({ queryKey: ["/api/childcore/status"] });
+      void queryClient.invalidateQueries({ queryKey: ["/api/childcore/ping"] });
+      void queryClient.invalidateQueries({
+        predicate: (query) => {
+          const key = query.queryKey[0];
+          return typeof key === "string"
+            && (key.startsWith("/api/childcore/community/") || key === "/api/childcore/rag-preview");
+        },
+      });
+      toast({
+        title: "ChildCORE destinations saved",
+        description: "The connector, monitoring page, and public links now use the new values.",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Could not save ChildCORE destinations",
+        description: error.message.includes("403")
+          ? "Only platform administrators can change ChildCORE destinations."
+          : error.message.includes("400")
+          ? "Use valid HTTPS destinations and an approved ChildCORE API origin."
+          : "The destinations could not be saved. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  if (isLoading) return <Skeleton className="h-64" />;
+  if (isError) {
+    const unauthorized = error instanceof Error && /401|403/.test(error.message);
+    return (
+      <Card>
+        <CardContent className="py-10 text-center text-sm text-muted-foreground space-y-3" data-testid="text-childcore-settings-unavailable">
+          <p>{unauthorized
+            ? "Destination settings are available to platform staff only."
+            : "ChildCORE destination settings are temporarily unavailable."}</p>
+          {!unauthorized && (
+            <Button variant="outline" size="sm" onClick={() => void refetch()} data-testid="button-retry-childcore-settings">
+              Retry
+            </Button>
+          )}
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="text-sm flex items-center gap-2">
+          <Settings2 className="h-4 w-4" />
+          ChildCORE destinations
+        </CardTitle>
+        <CardDescription className="text-xs">
+          Platform administrators can update the upstream API and external documentation addresses without releasing the app.
+          Both values must use HTTPS. Every change is recorded with the staff actor and previous values.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form
+          className="space-y-4"
+          onSubmit={(event) => {
+            event.preventDefault();
+            const nextErrors: { baseUrl?: string; docsUrl?: string } = {};
+            for (const [field, value] of [["baseUrl", baseUrl], ["docsUrl", docsUrl]] as const) {
+              try {
+                const parsed = new URL(value.trim());
+                if (parsed.protocol !== "https:") nextErrors[field] = "Use an HTTPS URL.";
+              } catch {
+                nextErrors[field] = "Enter a complete HTTPS URL.";
+              }
+            }
+            setValidationErrors(nextErrors);
+            if (Object.keys(nextErrors).length === 0) save.mutate();
+          }}
+          data-testid="form-childcore-settings"
+        >
+          <div className="space-y-2">
+            <Label htmlFor="childcore-base-url">ChildCORE API base URL</Label>
+            <Input
+              id="childcore-base-url"
+              value={baseUrl}
+              onChange={(event) => {
+                setBaseUrl(event.target.value);
+                setDirty(true);
+                setValidationErrors((current) => ({ ...current, baseUrl: undefined }));
+              }}
+              placeholder="https://example.childcore.org/api/v1"
+              type="url"
+              required
+              disabled={save.isPending}
+              aria-invalid={Boolean(validationErrors.baseUrl)}
+              aria-describedby={validationErrors.baseUrl ? "childcore-base-url-error" : undefined}
+              data-testid="input-childcore-base-url"
+            />
+            {validationErrors.baseUrl && <p id="childcore-base-url-error" className="text-xs text-destructive" role="alert">{validationErrors.baseUrl}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="childcore-docs-url">External documentation URL</Label>
+            <Input
+              id="childcore-docs-url"
+              value={docsUrl}
+              onChange={(event) => {
+                setDocsUrl(event.target.value);
+                setDirty(true);
+                setValidationErrors((current) => ({ ...current, docsUrl: undefined }));
+              }}
+              placeholder="https://example.childcore.org/docs/partner-api"
+              type="url"
+              required
+              disabled={save.isPending}
+              aria-invalid={Boolean(validationErrors.docsUrl)}
+              aria-describedby={validationErrors.docsUrl ? "childcore-docs-url-error" : undefined}
+              data-testid="input-childcore-docs-url"
+            />
+            {validationErrors.docsUrl && <p id="childcore-docs-url-error" className="text-xs text-destructive" role="alert">{validationErrors.docsUrl}</p>}
+          </div>
+          <Button type="submit" disabled={save.isPending} data-testid="button-save-childcore-settings">
+            {save.isPending ? "Saving…" : "Save destinations"}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 // ─── Page shell ───────────────────────────────────────────────────────────────
 
 export default function ChildCOREIntegrationPage() {
@@ -866,7 +1019,9 @@ export default function ChildCOREIntegrationPage() {
           {statusLoading ? "API: checking…" : apiHost ? `API: ${apiHost}` : "API: unavailable"}
         </span>
         <span>·</span>
-        {status?.docsUrl ? (
+        {statusLoading ? (
+          <span data-testid="text-childcore-header-docs-checking">Partner API docs: checking…</span>
+        ) : status?.docsUrl ? (
           <a href={status.docsUrl} target="_blank" rel="noopener noreferrer"
             className="flex items-center gap-1 text-primary hover:underline">
             <ExternalLink className="h-3 w-3" /> Partner API docs
@@ -875,7 +1030,7 @@ export default function ChildCOREIntegrationPage() {
           <span data-testid="text-childcore-header-docs-unavailable">Partner API docs unavailable</span>
         )}
         <span>·</span>
-        <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" />Admin only</span>
+        <span className="flex items-center gap-1.5"><Shield className="h-3.5 w-3.5" />Platform staff only</span>
       </div>
 
       <Tabs defaultValue="connection" data-testid="tabs-childcore">
@@ -886,6 +1041,7 @@ export default function ChildCOREIntegrationPage() {
           <TabsTrigger value="events"       data-testid="tab-events"><ScrollText className="h-3.5 w-3.5 mr-1.5" />Event Log</TabsTrigger>
            <TabsTrigger value="roi"         data-testid="tab-roi"><BarChart3 className="h-3.5 w-3.5 mr-1.5" />ROI</TabsTrigger>
            <TabsTrigger value="yhsi"         data-testid="tab-yhsi"><Users className="h-3.5 w-3.5 mr-1.5" />YHSI</TabsTrigger>
+           <TabsTrigger value="settings"    data-testid="tab-settings"><Settings2 className="h-3.5 w-3.5 mr-1.5" />Settings</TabsTrigger>
         </TabsList>
 
         <TabsContent value="connection">   <ConnectionTab />   </TabsContent>
@@ -894,6 +1050,7 @@ export default function ChildCOREIntegrationPage() {
         <TabsContent value="events">       <EventLogTab />     </TabsContent>
          <TabsContent value="roi">          <RoiTab />          </TabsContent>
          <TabsContent value="yhsi">         <YhsiTab />         </TabsContent>
+          <TabsContent value="settings">     <SettingsTab />     </TabsContent>
       </Tabs>
     </div>
   );

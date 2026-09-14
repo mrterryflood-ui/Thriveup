@@ -808,7 +808,7 @@ function AppRouter() {
         </RequireAuth>
       </Route>
       <Route path="/childcore-integration">
-        <RequireAuth adminOnly reason="The ChildCORE Integration workspace shows partner API health, community data previews, RAG context, and YHSI aggregate metrics. Restricted to TCAF admins.">
+        <RequireAuth adminOnly reason="The ChildCORE Integration workspace is restricted to TCAF administrators.">
           <ChildCOREIntegrationPage />
         </RequireAuth>
       </Route>

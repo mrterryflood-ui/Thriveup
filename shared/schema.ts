@@ -8459,6 +8459,37 @@ export type UserJourney = typeof userJourneys.$inferSelect;
 export type InsertUserJourney = typeof userJourneys.$inferInsert;
 
 // ─────────────────────────────────────────────────────────────────────────────
+// ChildCORE Integration Settings
+// Singleton runtime destinations are operator-managed; the audit table is
+// append-only so every change remains attributable to a platform staff user.
+// ─────────────────────────────────────────────────────────────────────────────
+export const childcoreIntegrationSettings = pgTable("childcore_integration_settings", {
+  id: varchar("id", { length: 32 }).primaryKey(),
+  baseUrl: text("base_url").notNull(),
+  docsUrl: text("docs_url").notNull(),
+  updatedByUserId: varchar("updated_by_user_id", { length: 255 }),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const childcoreIntegrationSettingsAudit = pgTable("childcore_integration_settings_audit", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  settingId: varchar("setting_id", { length: 32 }).notNull(),
+  actorUserId: varchar("actor_user_id", { length: 255 }).notNull(),
+  previousBaseUrl: text("previous_base_url"),
+  previousDocsUrl: text("previous_docs_url"),
+  nextBaseUrl: text("next_base_url").notNull(),
+  nextDocsUrl: text("next_docs_url").notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (t) => [
+  index("childcore_settings_audit_created_idx").on(t.createdAt),
+  index("childcore_settings_audit_actor_idx").on(t.actorUserId, t.createdAt),
+]);
+
+export type ChildcoreIntegrationSettings = typeof childcoreIntegrationSettings.$inferSelect;
+export type ChildcoreIntegrationSettingsAudit = typeof childcoreIntegrationSettingsAudit.$inferSelect;
+
+// ─────────────────────────────────────────────────────────────────────────────
 // ChildCORE County Metrics
 // Receives county-level early childhood data pushed by ChildCORE every 30 min.
 // Fed into Navigator community context, Community Brief, and Conductor when a

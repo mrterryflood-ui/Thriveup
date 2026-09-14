@@ -61,3 +61,45 @@
 - Independent angle: six-domain audit was run before remediation and identified the cache URL-shape, account-state, and true/false symmetry gaps that were fixed. A second isolated audit produced additional account-hydration, anonymous-thread, and persistence findings that were fixed; architect review was unavailable in Free mode.
 - Outcome: Task end-state is verified in development: authenticated and anonymous toggles persist, profile state survives a fresh browser, both on/off conversation states restore, and the serialized gate keeps a healthy app process.
 - Residuals and reusable guard: broader app-wide authenticated local-storage surfaces, non-YouthMode SSE routes, and cross-gate cleanup remain outside this task. Cache keys that add identity must use an explicit queryFn when the endpoint URL is not parameterized.
+
+---
+
+# Alpha Omega — 2026-09-14 — ChildCORE destination settings
+
+## Alpha
+
+- End-state: Platform staff can update the ChildCORE API base URL and external
+  documentation URL without a code release; all connector, monitoring, public
+  documentation, landing, and focused liveness consumers use the same persisted
+  values.
+- In-state evidence: `shared/childcore-config.ts` contains compile-time
+  destinations; `server/childcore-connector.ts` captures the base URL at module
+  load; `server/childcore-routes.ts` exposes protected status/ping routes;
+  `client/src/pages/api-docs.tsx` and `client/src/pages/landing.tsx` import the
+  shared constants; `scripts/verify-childcore-doc-target.ts` imports the docs
+  constant. Existing platform-staff authorization and Drizzle/Postgres
+  patterns are available in the inspected server routes/schema.
+- Authority/boundaries: authenticated platform staff are the only writers;
+  both values must be absolute HTTPS URLs; settings changes are append-only
+  audit events; public consumers may read destination metadata but no
+  credential or private operational data.
+- Plan and acceptance proofs:
+  1. Add shared defaults/HTTPS validation and persisted singleton settings plus
+     audit schema.
+  2. Add server settings accessors with a cache invalidation path, protected
+     GET/PATCH settings routes, and a public read-only destination route.
+  3. Make connector, monitoring status, API docs, landing card, and focused
+     liveness check consume the persisted configuration.
+  4. Add focused route/config verification, then run typecheck, preflight,
+     relevant liveness/security checks, and an independent adversarial review.
+- Unknowns/deferred decisions: no production publish or production migration is
+  part of this task; deployment verification remains an operator action after
+  the code and development schema are validated.
+
+## Omega
+
+- Diff scrimmage: Added validated persisted singleton destinations, append-only audit history with row/truncate guards, authoritative startup SQL plus idempotent helper migration, staff-only settings UI/routes, operation-scoped connector reads, public metadata/liveness protections, and all required consumer rewiring.
+- Proofs and gates: Development startup applied `20260928_childcore_integration_settings.sql`; migration helper reran safely; TypeScript and integrated-flow foundation passed; HTTPS validation cases passed; public-config returned the persisted docs URL; focused docs liveness remained warning-only on upstream network failure; workflow restarted cleanly.
+- Independent angle: Six-domain adversarial audits found and remediated first-read concurrency, stale config fallback, mixed probe snapshots, public probe load, audit truncation, role mismatch, stale public links, validation feedback, and in-flight form overwrite risks.
+- Outcome: Task 401 is complete in development. Platform staff can update both HTTPS destinations; connector, protected monitoring, public API docs, landing ChildCORE card, and focused liveness resolve the persisted configuration.
+- Residuals and reusable guard: No publish or production migration was performed. External ChildCORE documentation was unreachable during the focused check, so the check correctly reported a warning rather than claiming the upstream was live.

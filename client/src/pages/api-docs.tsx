@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { Check, Code2, Copy, Globe, Key, Shield, ArrowRight } from "lucide-react";
 import { PageHeader } from "@/components/page-header";
 import { Link } from "wouter";
-import { CHILDCORE_INTEGRATION_CONFIG } from "@shared/childcore-config";
 
 const PARTNER_API_BASE_PATH = "/api/partner/v1";
 
@@ -359,9 +358,16 @@ const METHOD_COLORS: Record<string, string> = {
 
 export default function APIDocsPage() {
   const [copiedExampleId, setCopiedExampleId] = useState<string | null>(null);
+  const [childcoreDocsUrl, setChildcoreDocsUrl] = useState<string | null>(null);
+  const [childcoreDocsLoading, setChildcoreDocsLoading] = useState(true);
 
   useEffect(() => {
     document.title = "API Documentation | ThriveUp Academy";
+    fetch("/api/childcore/public-config")
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error(`HTTP ${response.status}`)))
+      .then((data: { docsUrl?: string | null }) => setChildcoreDocsUrl(data.docsUrl ?? null))
+      .catch((error) => console.warn("[API Docs] ChildCORE destination unavailable:", error))
+      .finally(() => setChildcoreDocsLoading(false));
   }, []);
 
   const categories = Array.from(new Set(API_ENDPOINTS.map(e => e.category)));
@@ -455,15 +461,25 @@ export default function APIDocsPage() {
               >
                 ChildCORE monitoring (admin)
               </Link>
-              <a
-                href={CHILDCORE_INTEGRATION_CONFIG.docsUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block text-sm text-primary hover:underline"
-                data-testid="link-childcore-external-docs"
-              >
-                ChildCORE Partner API docs
-              </a>
+              {childcoreDocsLoading ? (
+                <span className="block text-sm text-muted-foreground" data-testid="text-childcore-external-docs-checking">
+                  Checking ChildCORE Partner API docs…
+                </span>
+              ) : childcoreDocsUrl ? (
+                <a
+                  href={childcoreDocsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block text-sm text-primary hover:underline"
+                  data-testid="link-childcore-external-docs"
+                >
+                  ChildCORE Partner API docs
+                </a>
+              ) : (
+                <span className="block text-sm text-muted-foreground" data-testid="text-childcore-external-docs-unavailable">
+                  ChildCORE Partner API docs unavailable
+                </span>
+              )}
             </div>
           </CardContent>
         </Card>
