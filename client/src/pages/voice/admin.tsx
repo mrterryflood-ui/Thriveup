@@ -138,19 +138,19 @@ export default function VoiceAdminPage() {
 
         <TabsContent value="crisis" className="space-y-3 mt-4">
           <Card>
-            <CardHeader className="pb-2"><CardTitle className="text-base">Pins routed to our safety net</CardTitle><CardDescription>These were automatically forwarded to Whole-Person Health and LifeBridge for outreach.</CardDescription></CardHeader>
+             <CardHeader className="pb-2"><CardTitle className="text-base">Pins flagged for safety review</CardTitle><CardDescription>These require review through the project’s local safety process. No external notification is sent automatically.</CardDescription></CardHeader>
             <CardContent>
               {flagged.length === 0 ? (
-                <p className="text-sm text-muted-foreground py-4 text-center">No crisis-routed pins. Quiet days are good days.</p>
+                 <p className="text-sm text-muted-foreground py-4 text-center">No safety-review flags. Quiet days are good days.</p>
               ) : (
                 <div className="space-y-3">
                   {flagged.map((p) => (
                     <div key={p.id} className="rounded-lg border bg-destructive/5 p-3" data-testid={`crisis-pin-${p.id}`}>
                       <div className="flex items-start justify-between gap-3 flex-wrap">
                         <div className="min-w-0">
-                          <Badge variant="destructive" className="mb-1"><ShieldAlert className="h-3 w-3 mr-1" />Routed</Badge>
+                           <Badge variant="destructive" className="mb-1"><ShieldAlert className="h-3 w-3 mr-1" />Flagged for review</Badge>
                           <p className="text-sm">{p.body}</p>
-                          <p className="text-xs text-muted-foreground mt-1">Routed to {p.crisisRoutedTo ?? "—"} · {new Date(p.createdAt).toLocaleString()}</p>
+                           <p className="text-xs text-muted-foreground mt-1">Review state: {p.crisisRoutedTo ?? "project_safety_review"} · {new Date(p.createdAt).toLocaleString()}</p>
                         </div>
                       </div>
                     </div>
@@ -194,7 +194,7 @@ export default function VoiceAdminPage() {
                 <Switch checked={publiclyVisible} onCheckedChange={setPubliclyVisible} data-testid="switch-public" />
               </div>
               <div className="flex items-center justify-between rounded-lg border p-3">
-                <div><div className="font-medium text-sm">Crisis routing</div><div className="text-xs text-muted-foreground">Forward unsafe pins silently to Whole-Person Health + LifeBridge.</div></div>
+                 <div><div className="font-medium text-sm">Safety review flag</div><div className="text-xs text-muted-foreground">Flag unsafe pins for this project’s local review process. No external notification is automatic.</div></div>
                 <Switch checked={crisisRoutingEnabled} onCheckedChange={setCrisis} data-testid="switch-crisis-admin" />
               </div>
               <Button onClick={() => saveSettings.mutate()} disabled={saveSettings.isPending} data-testid="button-save-settings">

@@ -356,3 +356,44 @@ Must exit 0. Checks:
 ---
 
 *Last updated: 2026-07-15. If you find a pattern in the codebase that contradicts this doc, update this doc and file a session note — do not silently continue the old pattern.*
+
+---
+
+## International community context and ITI provenance
+
+The shared `communityContext` envelope may describe a country, administrative
+level, broad region, locality/community label, service area, locale, source,
+confidence, and (only when explicitly U.S.) a Census FIPS code. International
+contexts must never be silently converted to U.S. geography.
+
+Public Integration through Invitation (ITI) create and invitee-update routes
+accept a participant's place report, but the server forcibly stores:
+
+```json
+{ "source": "self_reported", "confidence": "reported" }
+```
+
+Public callers may not self-assert `official`, `partner_reported`, or
+`verified`. Those values belong to trusted server or partner-controlled
+ingestion paths with their own evidence and authorization checks. Project/admin
+routes may validate trusted context supplied by an authorized operator, but
+must preserve the distinction between project context and an invitee's
+self-report.
+
+### Community Voice ITI link
+
+`POST /api/voice/projects/:slug/pins` may include an `itiInvitationId` only
+when the caller also sends the matching `x-iti-token` capability header. The
+server locks the invitation row, verifies the token and non-withdrawn status,
+and inserts the pin in the same transaction. Admin session access does not
+bypass this capability check.
+
+Pins linked to ITI are excluded from every generated Voice insight metric and
+AI corpus unless `aggregateMyData=true`. Public pin and chain responses redact
+`itiInvitationId` along with access tokens, IP hashes, and author email. They
+also redact the body unless `quoteMe=true` and redact the author name unless
+`nameMePublicly=true`. Admin service-routing requires
+`routeMyInfoToService=true`. A previously synced public insight is withheld
+when any of its persisted source pins no longer has aggregate consent.
+Insights created before source-pin provenance exists are withheld until
+regenerated.

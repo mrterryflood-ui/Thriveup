@@ -146,7 +146,7 @@ export default function VoiceInsightsPage() {
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <Card data-testid="card-stat-pins"><CardContent className="pt-5"><div className="text-3xl font-bold">{insight.pinCount}</div><div className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><MapPin className="h-3 w-3" />voices heard</div></CardContent></Card>
             <Card data-testid="card-stat-themes"><CardContent className="pt-5"><div className="text-3xl font-bold">{insight.themes.length}</div><div className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><BarChart3 className="h-3 w-3" />themes clustered</div></CardContent></Card>
-            <Card data-testid="card-stat-crisis"><CardContent className="pt-5"><div className="text-3xl font-bold">{totalSent?.crisis ?? 0}</div><div className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><ShieldAlert className="h-3 w-3" />routed to safety net</div></CardContent></Card>
+            <Card data-testid="card-stat-crisis"><CardContent className="pt-5"><div className="text-3xl font-bold">{totalSent?.crisis ?? 0}</div><div className="text-xs text-muted-foreground mt-1 flex items-center gap-1"><ShieldAlert className="h-3 w-3" />flagged for safety review</div></CardContent></Card>
             <Card data-testid="card-stat-model"><CardContent className="pt-5"><div className="text-sm font-medium font-mono">{insight.modelUsed}</div><div className="text-xs text-muted-foreground mt-1">{new Date(insight.generatedAt).toLocaleString()}</div></CardContent></Card>
           </div>
 

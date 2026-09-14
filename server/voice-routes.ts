@@ -1,6 +1,6 @@
 // Community Voice routes — Open Point / Social Point analog.
 // Map-pin community input collection with capability-token pattern (P-L08),
-// crisis-detection on every utterance, optional silent route to WPH/LifeBridge,
+// crisis-detection on every utterance, with local project safety-review flags,
 // per-IP rate limiting on public endpoints.
 
 import type { Express, Request, Response, NextFunction } from "express";
@@ -12,13 +12,16 @@ import {
   communityVoiceComments,
   communityVoiceInsights,
   communityVoiceRouting,
+  invitationConsents,
+  integrationInvitations,
   insertCommunityVoiceProjectSchema,
   type CommunityVoicePin,
   type CommunityVoiceProject,
 } from "@shared/schema";
-import { and, desc, eq, sql, inArray } from "drizzle-orm";
+import { and, asc, desc, eq, sql, inArray } from "drizzle-orm";
 import { randomUUID, randomBytes, timingSafeEqual, createHash } from "crypto";
 import { z } from "zod";
+import { communityContextSchema } from "@shared/community-context";
 import { generateAIJSON } from "./ai-provider";
 import { filterByItiConsent } from "./integration-invitation-routes";
 
@@ -159,6 +162,7 @@ const pinCreateSchema = z.object({
   authorName: z.string().max(128).optional().nullable(),
   anonymized: z.boolean().optional().default(true),
   photoUrls: z.array(z.string().url()).max(8).optional(),
+  itiInvitationId: z.string().uuid().optional().nullable(),
 });
 
 const reactionSchema = z.object({
@@ -174,8 +178,38 @@ const commentCreateSchema = z.object({
 
 // Strip server-controlled fields from pin responses for public callers.
 function publicizePin(pin: CommunityVoicePin) {
-  const { accessToken: _t, ipHash: _i, authorEmail: _e, ...safe } = pin as CommunityVoicePin & { accessToken?: string; ipHash?: string };
+  const { accessToken: _t, ipHash: _i, authorEmail: _e, itiInvitationId: _iti, ...safe } = pin as CommunityVoicePin & { accessToken?: string; ipHash?: string; itiInvitationId?: string | null };
   return safe;
+}
+
+async function publicizePins(pins: CommunityVoicePin[]) {
+  const invitationIds = Array.from(new Set(
+    pins.map((pin) => pin.itiInvitationId).filter((id): id is string => Boolean(id)),
+  ));
+  if (invitationIds.length === 0) return pins.map(publicizePin);
+
+  const [invitations, consents] = await Promise.all([
+    db.select({ id: integrationInvitations.id, status: integrationInvitations.status })
+      .from(integrationInvitations)
+      .where(inArray(integrationInvitations.id, invitationIds)),
+    db.select({
+      invitationId: invitationConsents.invitationId,
+      quoteMe: invitationConsents.quoteMe,
+      nameMePublicly: invitationConsents.nameMePublicly,
+    }).from(invitationConsents).where(inArray(invitationConsents.invitationId, invitationIds)),
+  ]);
+  const statusById = new Map(invitations.map((invitation) => [invitation.id, invitation.status]));
+  const consentById = new Map(consents.map((consent) => [consent.invitationId, consent]));
+
+  return pins.map((pin) => {
+    const safe = publicizePin(pin) as Omit<CommunityVoicePin, "accessToken" | "ipHash" | "authorEmail" | "itiInvitationId"> & { authorName?: string | null; body?: string };
+    if (!pin.itiInvitationId) return safe;
+    const consent = consentById.get(pin.itiInvitationId);
+    const active = statusById.get(pin.itiInvitationId) !== "withdrawn";
+    if (!active || !consent?.quoteMe) safe.body = "";
+    if (!active || !consent?.nameMePublicly) safe.authorName = null;
+    return safe;
+  });
 }
 
 // Look up a project by slug; throws 404 to caller.
@@ -242,7 +276,7 @@ export function registerVoiceRoutes(app: Express) {
         .where(and(eq(communityVoicePins.projectId, project.id), eq(communityVoicePins.status, "published")))
         .orderBy(desc(communityVoicePins.createdAt))
         .limit(500);
-      res.json({ pins: pins.map(publicizePin) });
+      res.json({ pins: await publicizePins(pins) });
     } catch (err) {
       console.error("[voice] list pins failed:", err);
       res.status(500).json({ error: "Failed to load pins" });
@@ -273,15 +307,29 @@ export function registerVoiceRoutes(app: Express) {
           return res.status(400).json({ error: "Invalid pin payload", details: parsed.error.flatten() });
         }
         const data = parsed.data;
-
         const accessToken = randomBytes(24).toString("base64url");
         const id = randomUUID();
         const crisisFlag = project.crisisRoutingEnabled && detectCrisis(data.body);
         const sentiment = detectSentiment(data.body);
 
-        const [row] = await db
-          .insert(communityVoicePins)
-          .values({
+        const result = await db.transaction(async (tx) => {
+          if (data.itiInvitationId) {
+            const [invitation] = await tx
+              .select({
+                id: integrationInvitations.id,
+                accessToken: integrationInvitations.accessToken,
+                status: integrationInvitations.status,
+              })
+              .from(integrationInvitations)
+              .where(eq(integrationInvitations.id, data.itiInvitationId))
+              .for("update");
+            const presented = (req.header("x-iti-token") || "").trim();
+            if (!invitation || invitation.status === "withdrawn" || !tokensMatch(invitation.accessToken, presented)) {
+              return { error: "invalid-invitation" as const };
+            }
+          }
+
+          const [created] = await tx.insert(communityVoicePins).values({
             id,
             projectId: project.id,
             accessToken,
@@ -295,22 +343,26 @@ export function registerVoiceRoutes(app: Express) {
             authorName: data.authorName ?? null,
             anonymized: data.anonymized ?? true,
             photoUrls: data.photoUrls ?? null,
+            itiInvitationId: data.itiInvitationId ?? null,
             sentiment,
             crisisFlag,
-            crisisRoutedTo: crisisFlag ? "wph+lifebridge" : null,
+            crisisRoutedTo: crisisFlag ? "project_safety_review" : null,
             status: "published",
             ipHash: ipHashOf(req),
-          } as typeof communityVoicePins.$inferInsert)
-          .returning();
+          } as typeof communityVoicePins.$inferInsert).returning();
+          return { row: created };
+        });
+        if ("error" in result) return res.status(403).json({ error: "The linked invitation is invalid or withdrawn." });
+        const row = result.row;
 
-        // Crisis routing side-effect — log a row in voice_comments-like trail so audit shows the routing happened.
+        // Crisis flag is recorded for project safety review. No external
+        // notification is claimed until an actual partner delivery contract exists.
         if (crisisFlag) {
-          console.warn(`[voice][CRISIS] project=${project.slug} pin=${row.id} routed=wph+lifebridge`);
-          // Phase 2: actual outbound call to WPH/LifeBridge intake endpoint.
+          console.warn(`[voice][CRISIS] project=${project.slug} pin=${row.id} flagged=project_safety_review`);
         }
 
-        const safe = publicizePin(row);
-        return res.json({ pin: safe, accessToken, crisisRouted: crisisFlag });
+       const [safe] = await publicizePins([row]);
+        return res.json({ pin: safe, accessToken, crisisDetected: crisisFlag, crisisRouted: false });
       } catch (err) {
         console.error("[voice] create pin failed:", err);
         return res.status(500).json({ error: "Failed to create pin" });
@@ -330,7 +382,10 @@ export function registerVoiceRoutes(app: Express) {
       for (const k of allowed) {
         if (k in (req.body ?? {})) patch[k] = (req.body as Record<string, unknown>)[k];
       }
-      if (!Object.keys(patch).length) return res.json({ pin: publicizePin(auth.pin) });
+       if (!Object.keys(patch).length) {
+         const [safe] = await publicizePins([auth.pin]);
+         return res.json({ pin: safe });
+       }
 
       if (typeof patch.body === "string") {
         patch.crisisFlag = detectCrisis(patch.body);
@@ -343,7 +398,8 @@ export function registerVoiceRoutes(app: Express) {
         .set(patch as Partial<typeof communityVoicePins.$inferInsert>)
         .where(eq(communityVoicePins.id, id))
         .returning();
-      res.json({ pin: publicizePin(row) });
+       const [safe] = await publicizePins([row]);
+       res.json({ pin: safe });
     } catch (err) {
       console.error("[voice] update pin failed:", err);
       res.status(500).json({ error: "Failed to update pin" });
@@ -437,10 +493,10 @@ export function registerVoiceRoutes(app: Express) {
           })
           .returning();
         if (crisisFlag) {
-          console.warn(`[voice][CRISIS-COMMENT] pin=${id} comment=${row.id} routed=wph+lifebridge`);
+          console.warn(`[voice][CRISIS-COMMENT] pin=${id} comment=${row.id} flagged=project_safety_review`);
         }
         const { ipHash: _h, ...safe } = row as typeof row & { ipHash?: string };
-        res.json({ comment: safe, crisisRouted: crisisFlag });
+        res.json({ comment: safe, crisisDetected: crisisFlag, crisisRouted: false });
       } catch (err) {
         console.error("[voice] comment failed:", err);
         res.status(500).json({ error: "Failed to add comment" });
@@ -470,8 +526,24 @@ export function registerVoiceRoutes(app: Express) {
     try {
       const parsed = insertCommunityVoiceProjectSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Invalid project payload", details: parsed.error.flatten() });
+      const contextResult = req.body?.communityContext == null
+        ? null
+        : communityContextSchema.safeParse(req.body.communityContext);
+      if (contextResult && !contextResult.success) {
+        return res.status(400).json({ error: "Invalid community context", details: contextResult.error.flatten() });
+      }
+      if (contextResult?.success && contextResult.data?.countryCode !== "US") {
+        return res.status(400).json({ error: "Community Voice is currently a domestic U.S. surface; use a country adapter for international projects." });
+      }
       const [row] = await db.insert(communityVoiceProjects).values({
         ...parsed.data,
+        ...(contextResult ? {
+          communityContext: {
+            ...contextResult.data,
+            source: "partner_reported" as const,
+            confidence: "reported" as const,
+          },
+        } : {}),
         createdBy: getUserId(req) ?? null,
       } as typeof communityVoiceProjects.$inferInsert).returning();
       res.json({ project: row });
@@ -487,6 +559,18 @@ export function registerVoiceRoutes(app: Express) {
       const allowed = ["name", "description", "accessMode", "crisisRoutingEnabled", "pinCategories", "status", "publiclyVisible", "centerLat", "centerLng", "defaultZoom"] as const;
       const patch: Record<string, unknown> = {};
       for (const k of allowed) if (k in (req.body ?? {})) patch[k] = (req.body as Record<string, unknown>)[k];
+      if ("communityContext" in (req.body ?? {})) {
+        if (req.body.communityContext == null) {
+          patch.communityContext = null;
+        } else {
+          const contextResult = communityContextSchema.safeParse(req.body.communityContext);
+          if (!contextResult.success) return res.status(400).json({ error: "Invalid community context", details: contextResult.error.flatten() });
+           if (contextResult.data.countryCode !== "US") {
+             return res.status(400).json({ error: "Community Voice is currently a domestic U.S. surface; use a country adapter for international projects." });
+           }
+          patch.communityContext = contextResult.data;
+        }
+      }
       (patch as { updatedAt: Date }).updatedAt = new Date();
       const [row] = await db
         .update(communityVoiceProjects)
@@ -548,10 +632,26 @@ export function registerVoiceRoutes(app: Express) {
     try {
       const parsed = insertCommunityVoiceProjectSchema.safeParse(req.body);
       if (!parsed.success) return res.status(400).json({ error: "Please fill in every step before launching.", details: parsed.error.flatten() });
+      const contextResult = req.body?.communityContext == null
+        ? null
+        : communityContextSchema.safeParse(req.body.communityContext);
+      if (contextResult && !contextResult.success) {
+        return res.status(400).json({ error: "Invalid community context", details: contextResult.error.flatten() });
+      }
+      if (contextResult?.success && contextResult.data?.countryCode !== "US") {
+        return res.status(400).json({ error: "Community Voice is currently a domestic U.S. surface; use a country adapter for international projects." });
+      }
       // Wizard always starts with publiclyVisible=true so the owner can share their project link immediately.
       // Admin can still moderate via the admin endpoints.
       const [row] = await db.insert(communityVoiceProjects).values({
         ...parsed.data,
+        ...(contextResult ? {
+          communityContext: {
+            ...contextResult.data,
+            source: "partner_reported" as const,
+            confidence: "reported" as const,
+          },
+        } : {}),
         publiclyVisible: parsed.data.publiclyVisible ?? true,
         status: parsed.data.status ?? "active",
         createdBy: getUserId(req) ?? null,
@@ -578,9 +678,15 @@ export function registerVoiceRoutes(app: Express) {
         .limit(500);
       if (pins.length === 0) return res.status(400).json({ error: "No pins yet. Drop a few first." });
 
-      // Sentiment timeline (per day)
+      // === ITI anti-extraction gate (Iron Rule #8) ===
+      // Filter before computing any derived metric, not only before the AI
+      // corpus. Otherwise a non-consenting pin could still affect counts.
+      const pinsForAI = await filterByItiConsent(pins, "aggregateMyData");
+      const itiFilteredOut = pins.length - pinsForAI.length;
+
+      // Sentiment timeline (per day), from consent-eligible pins only.
       const timelineMap: Record<string, { positive: number; neutral: number; negative: number; mixed: number; crisis: number }> = {};
-      for (const p of pins) {
+      for (const p of pinsForAI) {
         const d = new Date(p.createdAt as unknown as string).toISOString().slice(0, 10);
         timelineMap[d] ||= { positive: 0, neutral: 0, negative: 0, mixed: 0, crisis: 0 };
         const k = (p.sentiment ?? "neutral") as keyof (typeof timelineMap)[string];
@@ -591,14 +697,7 @@ export function registerVoiceRoutes(app: Express) {
 
       // Stakeholder breakdown
       const stakeholder: Record<string, number> = {};
-      for (const p of pins) stakeholder[p.authorType] = (stakeholder[p.authorType] ?? 0) + 1;
-
-      // === ITI anti-extraction gate (Iron Rule #8) ===
-      // Any pin linked to an ITI invitee is FILTERED OUT unless that invitee
-      // has explicitly toggled aggregateMyData=true. Non-ITI-linked pins pass
-      // through unchanged.
-      const pinsForAI = await filterByItiConsent(pins, "aggregateMyData");
-      const itiFilteredOut = pins.length - pinsForAI.length;
+      for (const p of pinsForAI) stakeholder[p.authorType] = (stakeholder[p.authorType] ?? 0) + 1;
 
       // AI cluster — routed through ai-provider.ts (ETHICAL_EI_PREAMBLE applied)
       let themes: Array<{ title: string; summary: string; sentiment: string; memberPinIds: string[]; recommendedPlatforms: string[]; confidence: number }> = [];
@@ -649,7 +748,7 @@ export function registerVoiceRoutes(app: Express) {
           const label = cat.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
           return {
             title: label,
-            summary: `${group.length} ${group.length === 1 ? "voice" : "voices"} in ${label}.${crisisCount > 0 ? ` ${crisisCount} routed to safety net.` : ""}`,
+            summary: `${group.length} ${group.length === 1 ? "voice" : "voices"} in ${label}.${crisisCount > 0 ? ` ${crisisCount} flagged for project safety review.` : ""}`,
             sentiment,
             memberPinIds: group.map((g) => g.id),
             recommendedPlatforms: PLATFORM_ROUTING[cat] ?? [],
@@ -658,17 +757,62 @@ export function registerVoiceRoutes(app: Express) {
         }).sort((a, b) => b.memberPinIds.length - a.memberPinIds.length);
       }
 
-      const [row] = await db.insert(communityVoiceInsights).values({
-        projectId: project.id,
-        generatedBy: getUserId(req) ?? null,
-        // pinCount reflects what was actually summarized after the ITI
-        // anti-extraction gate, not the unfiltered total.
-        pinCount: pinsForAI.length,
-        themes,
-        sentimentTimeline,
-        stakeholderBreakdown: stakeholder,
-        modelUsed,
-      } as typeof communityVoiceInsights.$inferInsert).returning();
+      // Consent may be withdrawn while the AI call is in flight. Recheck
+      // immediately before persistence so revoked pins cannot be published.
+      const latestPinsForAI = await filterByItiConsent(pins, "aggregateMyData");
+      const initialEligibleIds = new Set(pinsForAI.map((pin) => pin.id));
+      const latestEligibleIds = new Set(latestPinsForAI.map((pin) => pin.id));
+      const consentChanged = initialEligibleIds.size !== latestEligibleIds.size
+        || Array.from(initialEligibleIds).some((pinId) => !latestEligibleIds.has(pinId));
+      if (consentChanged) {
+        return res.status(409).json({ error: "Consent changed while the insight was being prepared. Nothing was published; please generate again." });
+      }
+
+      const insightResult = await db.transaction(async (tx) => {
+        // Withdrawal locks the invitation first, then resets its consent.
+        // Lock the same rows before checking consent and inserting the
+        // insight so withdrawal cannot commit between those two operations.
+        const invitationIds = Array.from(new Set(
+          pinsForAI.map((pin) => pin.itiInvitationId).filter((id): id is string => Boolean(id)),
+        )).sort();
+        if (invitationIds.length > 0) {
+          const invitations = await tx
+            .select({ id: integrationInvitations.id, status: integrationInvitations.status })
+            .from(integrationInvitations)
+            .where(inArray(integrationInvitations.id, invitationIds))
+            .orderBy(asc(integrationInvitations.id))
+            .for("update");
+          const consents = await tx
+            .select({ invitationId: invitationConsents.invitationId, aggregateMyData: invitationConsents.aggregateMyData })
+            .from(invitationConsents)
+            .where(inArray(invitationConsents.invitationId, invitationIds));
+          const consentByInvitation = new Map(consents.map((consent) => [consent.invitationId, consent.aggregateMyData]));
+          if (
+            invitations.length !== invitationIds.length
+            || invitations.some((invitation) => invitation.status === "withdrawn" || !consentByInvitation.get(invitation.id))
+          ) {
+            return { error: "consent-changed" as const };
+          }
+        }
+
+        const [created] = await tx.insert(communityVoiceInsights).values({
+          projectId: project.id,
+          generatedBy: getUserId(req) ?? null,
+          // pinCount reflects what was actually summarized after the ITI
+          // anti-extraction gate, not the unfiltered total.
+          pinCount: pinsForAI.length,
+          sourcePinIds: pinsForAI.map((pin) => pin.id),
+          themes,
+          sentimentTimeline,
+          stakeholderBreakdown: stakeholder,
+          modelUsed,
+        } as typeof communityVoiceInsights.$inferInsert).returning();
+        return { row: created };
+      });
+      if ("error" in insightResult) {
+        return res.status(409).json({ error: "Consent changed while the insight was being published. Nothing was published; please generate again." });
+      }
+      const row = insightResult.row;
       res.json({ insight: row });
     } catch (err) {
       console.error("[voice] generate insights failed:", err);
@@ -690,10 +834,25 @@ export function registerVoiceRoutes(app: Express) {
       const baseCond = admin
         ? eq(communityVoiceInsights.projectId, project.id)
         : and(eq(communityVoiceInsights.projectId, project.id), sql`${communityVoiceInsights.syncedToStoryAt} IS NOT NULL`);
-      const [row] = await db.select().from(communityVoiceInsights)
+       const [foundRow] = await db.select().from(communityVoiceInsights)
         .where(baseCond as ReturnType<typeof eq>)
         .orderBy(desc(communityVoiceInsights.generatedAt))
         .limit(1);
+       let row: typeof communityVoiceInsights.$inferSelect | undefined = foundRow;
+       if (row && !admin) {
+         const sourcePinIds = Array.isArray(row.sourcePinIds)
+           ? row.sourcePinIds.filter((id): id is string => typeof id === "string")
+           : [];
+         // Insights created before source provenance was persisted are not
+         // safe to expose after consent changes; regenerate them instead.
+         if (sourcePinIds.length === 0) {
+           row = undefined;
+         } else {
+           const referencedPins = await db.select().from(communityVoicePins).where(inArray(communityVoicePins.id, sourcePinIds));
+           const eligiblePins = await filterByItiConsent(referencedPins, "aggregateMyData");
+           if (eligiblePins.length !== sourcePinIds.length) row = undefined;
+         }
+       }
       res.json({ insight: row ?? null });
     } catch (err) {
       console.error("[voice] get latest insight failed:", err);
@@ -725,14 +884,40 @@ export function registerVoiceRoutes(app: Express) {
       const { targetPlatform, status = "queued", outcome } = (req.body ?? {}) as { targetPlatform?: string; status?: string; outcome?: string };
       if (!targetPlatform) return res.status(400).json({ error: "targetPlatform required" });
       if (!PLATFORM_LABELS[targetPlatform]) return res.status(400).json({ error: "Unknown platform" });
-      const [row] = await db.insert(communityVoiceRouting).values({
-        pinId: id,
-        targetPlatform,
-        status,
-        outcome: outcome ?? null,
-        recordedBy: getUserId(req) ?? null,
-      } as typeof communityVoiceRouting.$inferInsert).returning();
-      res.json({ routing: row });
+      const result = await db.transaction(async (tx) => {
+        const [pin] = await tx.select({ itiInvitationId: communityVoicePins.itiInvitationId })
+          .from(communityVoicePins)
+          .where(eq(communityVoicePins.id, id))
+          .limit(1);
+        if (!pin) return { error: "pin-not-found" as const };
+        if (pin.itiInvitationId) {
+          const [invitation] = await tx
+            .select({ id: integrationInvitations.id, status: integrationInvitations.status })
+            .from(integrationInvitations)
+            .where(eq(integrationInvitations.id, pin.itiInvitationId))
+            .for("update");
+          if (!invitation || invitation.status === "withdrawn") return { error: "consent-denied" as const };
+          const [consent] = await tx.select({ routeMyInfoToService: invitationConsents.routeMyInfoToService })
+            .from(invitationConsents)
+            .where(eq(invitationConsents.invitationId, pin.itiInvitationId))
+            .limit(1);
+          if (!consent?.routeMyInfoToService) return { error: "consent-denied" as const };
+        }
+        const [created] = await tx.insert(communityVoiceRouting).values({
+          pinId: id,
+          targetPlatform,
+          status,
+          outcome: outcome ?? null,
+          recordedBy: getUserId(req) ?? null,
+        } as typeof communityVoiceRouting.$inferInsert).returning();
+        return { row: created };
+      });
+      if ("error" in result) {
+        return res.status(result.error === "pin-not-found" ? 404 : 403).json({
+          error: result.error === "pin-not-found" ? "Pin not found" : "This contributor has not consented to service routing.",
+        });
+      }
+      res.json({ routing: result.row });
     } catch (err) {
       console.error("[voice] route pin failed:", err);
       res.status(500).json({ error: "Failed to route pin" });
@@ -777,7 +962,7 @@ export function registerVoiceRoutes(app: Express) {
       res.json({
         // Use the same sanitizer as the public pin list — strips accessToken,
         // ipHash, AND authorEmail so the public chain endpoint never leaks PII.
-        pins: pins.map(publicizePin),
+        pins: await publicizePins(pins),
         routings: byPin,
         platformLabels: PLATFORM_LABELS,
         platformMap: PLATFORM_ROUTING,
@@ -804,7 +989,7 @@ async function seedPflugervillePilot() {
       slug: "pflugerville-holistic-services",
       name: "Pflugerville Holistic Services & Assistance",
       description:
-        "Pilot map for residents and partners to pin where holistic services are working, where gaps remain, and where assistance is most needed. Every pin can route to the right TCAF platform — Whole-Person Health for behavioral, LifeBridge for SDOH, Trade Sims for workforce, Foster Youth for transition support. Crisis-routed silently to WPH safety floor.",
+        "Pilot map for residents and partners to pin where holistic services are working, where gaps remain, and where assistance is most needed. Every pin can route to the right TCAF platform — Whole-Person Health for behavioral, LifeBridge for SDOH, Trade Sims for workforce, Foster Youth for transition support. Crisis signals are flagged for project safety review.",
       centerLat: 30.4394, // Pflugerville TX
       centerLng: -97.6200,
       defaultZoom: 12,

@@ -154,7 +154,7 @@ export default function VoiceStoryPage() {
 
           <section data-testid="story-cta" className="text-center py-10 rounded-2xl border bg-primary/5">
             <h3 className="text-2xl font-semibold mb-2">Your voice belongs here too.</h3>
-            <p className="text-muted-foreground max-w-xl mx-auto mb-6">Every pin gets read. Crisis pins reach a real safety net. Service-working pins celebrate what's already good.</p>
+            <p className="text-muted-foreground max-w-xl mx-auto mb-6">Every pin gets read. Crisis pins are flagged for the project’s local safety review process. Service-working pins celebrate what's already good.</p>
             <Link href={`/voice/${slug}`}><Button size="lg" data-testid="button-add-yours"><MapPin className="h-4 w-4 mr-1" />Drop a pin</Button></Link>
           </section>
         </div>

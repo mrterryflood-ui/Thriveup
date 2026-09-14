@@ -89,11 +89,10 @@ User chose Posture B for the N. Williamson County childcare project: show the re
 
 ## Open work
 
-- **Week 2 — KNOWN HOLE (code-review-flagged 2026-05-24):** `server/voice-routes.ts` insights generator calls OpenAI SDK directly (bypasses `ai-provider.ts` ethical wrapper) AND does not yet gate by ITI `aggregateMyData`. **No current exposure** because Voice pins are not yet ITI-linked, but Week 2 must:
-  1. Route `voice-routes.ts` insights generation through `ai-provider.ts` (per Iron Rule #3)
-  2. Add `itiInvitationId` foreign-key to voice pins/stories (optional, nullable)
-  3. Call `assertItiConsent(invitationId, 'aggregateMyData')` before any ITI-linked text reaches the AI clusterer. Helper already exported from `server/integration-invitation-routes.ts` as of Week 1.
-  4. Same gate before grant-doc generators cite an invitee (`shareWithFunder`), before public-site `<SeenWork>` names an invitee (`nameMePublicly`), before reports quote an invitee (`quoteMe`).
+- **Week 2 — Voice consent boundary closed:** Voice insights use `ai-provider.ts`, filter every derived metric and AI corpus by `aggregateMyData`, persist source-pin provenance, and revalidate it before public Story exposure. Linked pin creation and service routing lock the invitation row through the consent check and insert.
+   1. Keep the optional, nullable `itiInvitationId` and insight `sourcePinIds` migrations in sync with the shared schema.
+   2. Preserve the `filterByItiConsent` gate before any ITI-linked text or derived metric reaches an AI or public-story path.
+   3. Keep `quoteMe`, `nameMePublicly`, `routeMyInfoToService`, and `shareWithFunder` checks separate; aggregate consent never implies the others.
 - **Week 2:** Wire ITI into Foster-Youth intake (informal kin caregivers), LifeBridge (promotoras), Justice Hub (peer mentors). Build the N. Wilco hypothesis-contest UI.
 - **Week 3:** Convening rail (named co-authorship workflow), stipend tracking with secure payout, credentialing referral pathways (CHW, family home daycare, peer-recovery, apprenticeship), `<SeenWork>` public-site primitive.
 - **Translation:** Wire Talk Your Talk into the ITI form (107 languages/dialects; AAVE/Spanglish honored). Currently `preferredLanguage` is captured but not yet routed to translation.

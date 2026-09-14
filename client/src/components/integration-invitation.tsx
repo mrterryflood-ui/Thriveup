@@ -19,6 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { HandHeart, Eye, CheckCircle2, Loader2, ShieldCheck } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/lib/i18n";
+import type { CommunityContext } from "@shared/community-context";
 
 export type ItiSurface =
   | "voice-project"
@@ -38,6 +40,8 @@ interface InvitationRow {
   workDescription: string;
   workRolesSelfIdentified: string[] | null;
   region: string | null;
+  preferredLanguage: string;
+  communityContext: CommunityContext | null;
   yearsDoingWork: string | null;
   surface: string;
   surfaceContext: string | null;
@@ -66,6 +70,10 @@ interface Props {
   /** Optional default placeholder list of role tags the person can opt into (they can also write their own). */
   suggestedRoleTags?: string[];
   className?: string;
+  /** Broad, non-address place context supplied by the hosting surface. */
+  communityContext?: CommunityContext;
+  /** Lets a host link later contributions to this invitee's consent record. */
+  onInvitationReady?: (link: { invitationId: string; token: string }) => void;
 }
 
 const DEFAULT_PROMPT = "Are you doing this work in your community?";
@@ -79,8 +87,20 @@ function idStorageKey(surface: string, ctx: string | undefined) {
   return `iti-id:${surface}:${ctx ?? "default"}`;
 }
 
-export function IntegrationInvitation({ surface, surfaceContext, prompt, description, suggestedRoleTags, className }: Props) {
+function formatCommunityContext(context?: CommunityContext | null) {
+  if (!context) return null;
+  return [
+    context.localLabel,
+    context.district,
+    context.region,
+    context.serviceArea,
+    context.countryCode,
+  ].filter(Boolean).join(", ");
+}
+
+export function IntegrationInvitation({ surface, surfaceContext, prompt, description, suggestedRoleTags, className, communityContext: defaultCommunityContext, onInvitationReady }: Props) {
   const { toast } = useToast();
+  const { language } = useLanguage();
   const [token, setToken] = useState<string | null>(null);
   const [invitationId, setInvitationId] = useState<string | null>(null);
   const [invitation, setInvitation] = useState<InvitationRow | null>(null);
@@ -94,6 +114,9 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [region, setRegion] = useState("");
+  const [countryCode, setCountryCode] = useState("");
+  const [administrativeLevel, setAdministrativeLevel] = useState<CommunityContext["administrativeLevel"]>("community");
+  const [locality, setLocality] = useState("");
   const [yearsDoingWork, setYearsDoingWork] = useState("");
   const [preferredContact, setPreferredContact] = useState("");
 
@@ -107,6 +130,7 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
   // Load record + recognition loop if we have a token
   useEffect(() => {
     if (!token || !invitationId) return;
+    onInvitationReady?.({ invitationId, token });
     (async () => {
       try {
         const res = await fetch(`/api/iti/invitations/${invitationId}`, { headers: { "x-iti-token": token } });
@@ -120,10 +144,27 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
         console.error("[ITI] load failed", err);
       }
     })();
-  }, [token, invitationId]);
+  }, [token, invitationId, onInvitationReady]);
 
   const createMutation = useMutation({
     mutationFn: async () => {
+      const submittedCommunityContext: CommunityContext = {
+        countryCode: countryCode.trim().toUpperCase() || undefined,
+        administrativeLevel,
+        region: region.trim() || undefined,
+        localLabel: locality.trim() || undefined,
+        locale: language,
+        source: "self_reported",
+        confidence: "reported",
+      };
+      const hasBroadPlace = Boolean(
+        submittedCommunityContext.countryCode ||
+        submittedCommunityContext.region ||
+        submittedCommunityContext.district ||
+        submittedCommunityContext.localLabel ||
+        submittedCommunityContext.serviceArea ||
+        submittedCommunityContext.usFips,
+      );
       const res = await apiRequest("POST", "/api/iti/invitations", {
         surface,
         surfaceContext,
@@ -131,6 +172,8 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
         workDescription,
         workRolesSelfIdentified: [...selectedTags, ...(customTag.trim() ? [customTag.trim()] : [])],
         region: region || undefined,
+        preferredLanguage: language,
+        communityContext: hasBroadPlace ? submittedCommunityContext : undefined,
         yearsDoingWork: yearsDoingWork || undefined,
         preferredContact: preferredContact || undefined,
       });
@@ -164,6 +207,31 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
     },
     onSuccess: (data) => { setConsents(data.consents); toast({ title: "Saved." }); },
     onError: (err) => { toast({ title: "Couldn't update", description: err instanceof Error ? err.message : "", variant: "destructive" }); },
+  });
+
+  const withdrawMutation = useMutation({
+    mutationFn: async () => {
+      if (!token || !invitationId) throw new Error("Not invited yet");
+      const res = await fetch(`/api/iti/invitations/${invitationId}/withdraw`, {
+        method: "POST",
+        headers: { "x-iti-token": token },
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Withdrawal failed");
+      const recordRes = await fetch(`/api/iti/invitations/${invitationId}`, { headers: { "x-iti-token": token } });
+      const record = await recordRes.json();
+      const recognitionRes = await fetch(`/api/iti/invitations/${invitationId}/recognition`, { headers: { "x-iti-token": token } });
+      const recognition = recognitionRes.ok ? await recognitionRes.json() : { events: [] };
+      return { invitation: record.invitation as InvitationRow, consents: record.consents as ConsentsRow, events: recognition.events as RecognitionEvent[] };
+    },
+    onSuccess: (data) => {
+      setInvitation(data.invitation);
+      setConsents(data.consents);
+      setEvents(data.events);
+      toast({ title: "Withdrawn.", description: "Your invitation is still visible to you, but all consents are now off." });
+    },
+    onError: (err) => {
+      toast({ title: "Couldn't withdraw right now", description: err instanceof Error ? err.message : "Please try again.", variant: "destructive" });
+    },
   });
 
   const toggleConsent = useCallback((key: keyof ConsentsRow) => {
@@ -200,6 +268,9 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
                 {invitation.workRolesSelfIdentified.map((r) => <Badge key={r} variant="secondary" className="text-xs">{r}</Badge>)}
               </div>
             )}
+            {formatCommunityContext(invitation.communityContext) && (
+              <p className="text-xs text-muted-foreground mt-2">Your reported place context: {formatCommunityContext(invitation.communityContext)}</p>
+            )}
           </div>
 
           <Separator />
@@ -208,14 +279,30 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
             <Label className="text-sm font-semibold">What we can do with what you shared</Label>
             <p className="text-xs text-muted-foreground mt-1 mb-3">Each one is your call. All start off. Switch any of them off at any time and we stop.</p>
             <div className="space-y-2.5">
-              <ConsentToggle label="Quote my words" hint="Use your exact words anywhere — reports, insights, public site." value={consents.quoteMe} onToggle={() => toggleConsent("quoteMe")} testId="iti-consent-quote" />
-              <ConsentToggle label="Include me in patterns" hint="Combine your input with others' to find themes. Your identity stays separate." value={consents.aggregateMyData} onToggle={() => toggleConsent("aggregateMyData")} testId="iti-consent-aggregate" />
-              <ConsentToggle label="Credit me by name" hint="Without this, your contribution shows up as anonymous." value={consents.nameMePublicly} onToggle={() => toggleConsent("nameMePublicly")} testId="iti-consent-name" />
-              <ConsentToggle label="Cite me in grant proposals" hint="Funders see what you said. Your name only appears if 'credit me by name' is also on." value={consents.shareWithFunder} onToggle={() => toggleConsent("shareWithFunder")} testId="iti-consent-funder" />
-              <ConsentToggle label="Invite me to the room" hint="When funders or partners meet about this work, you get a seat at the table." value={consents.inviteToConvening} onToggle={() => toggleConsent("inviteToConvening")} testId="iti-consent-convening" />
-              <ConsentToggle label="Pay me for my time" hint="If you say yes, we'll work out a stipend for what you contribute." value={consents.acceptStipend} onToggle={() => toggleConsent("acceptStipend")} testId="iti-consent-stipend" />
-              <ConsentToggle label="Route me toward credentialing" hint="If you want it: pathways to CHW, family home daycare license, peer-recovery cert, apprenticeship. Optional — your work counts either way." value={consents.routeToCredentialing} onToggle={() => toggleConsent("routeToCredentialing")} testId="iti-consent-credentialing" />
-              <ConsentToggle label="Connect me to services" hint="Route you to LifeBridge benefits, Whole-Person Health, or another support." value={consents.routeMyInfoToService} onToggle={() => toggleConsent("routeMyInfoToService")} testId="iti-consent-route" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Quote my words" hint="Use your exact words anywhere — reports, insights, public site." value={consents.quoteMe} onToggle={() => toggleConsent("quoteMe")} testId="iti-consent-quote" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Include me in patterns" hint="Combine your input with others' to find themes. Your identity stays separate." value={consents.aggregateMyData} onToggle={() => toggleConsent("aggregateMyData")} testId="iti-consent-aggregate" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Credit me by name" hint="Without this, your contribution shows up as anonymous." value={consents.nameMePublicly} onToggle={() => toggleConsent("nameMePublicly")} testId="iti-consent-name" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Cite me in grant proposals" hint="Funders see what you said. Your name only appears if 'credit me by name' is also on." value={consents.shareWithFunder} onToggle={() => toggleConsent("shareWithFunder")} testId="iti-consent-funder" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Invite me to the room" hint="When funders or partners meet about this work, you get a seat at the table." value={consents.inviteToConvening} onToggle={() => toggleConsent("inviteToConvening")} testId="iti-consent-convening" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Pay me for my time" hint="If you say yes, we'll work out a stipend for what you contribute." value={consents.acceptStipend} onToggle={() => toggleConsent("acceptStipend")} testId="iti-consent-stipend" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Route me toward credentialing" hint="If you want it: pathways to CHW, family home daycare license, peer-recovery cert, apprenticeship. Optional — your work counts either way." value={consents.routeToCredentialing} onToggle={() => toggleConsent("routeToCredentialing")} testId="iti-consent-credentialing" />
+              <ConsentToggle disabled={invitation.status === "withdrawn"} label="Connect me to services" hint="Route you to LifeBridge benefits, Whole-Person Health, or another support." value={consents.routeMyInfoToService} onToggle={() => toggleConsent("routeMyInfoToService")} testId="iti-consent-route" />
+            </div>
+            <div className="border-t pt-3 mt-3">
+              <Button
+                type="button"
+                variant="outline"
+                className="text-destructive"
+                disabled={invitation.status === "withdrawn" || withdrawMutation.isPending}
+                onClick={() => {
+                  if (window.confirm("Withdraw your invitation? Your record will remain visible to you, and every consent will be turned off.")) {
+                    withdrawMutation.mutate();
+                  }
+                }}
+                data-testid="button-iti-withdraw"
+              >
+                {invitation.status === "withdrawn" ? "Invitation withdrawn" : withdrawMutation.isPending ? "Withdrawing…" : "Withdraw my invitation"}
+              </Button>
             </div>
           </div>
 
@@ -231,7 +318,7 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
                   <li key={e.id} className="text-sm border-l-2 border-emerald-300 pl-3" data-testid={`iti-event-${e.id}`}>
                     <div className="flex items-center gap-2">
                       <Badge variant="outline" className="text-[10px] uppercase">{e.eventType}</Badge>
-                      <span className="text-xs text-muted-foreground">{new Date(e.createdAt).toLocaleString()}</span>
+                       <span className="text-xs text-muted-foreground">{new Intl.DateTimeFormat(language, { dateStyle: "medium", timeStyle: "short" }).format(new Date(e.createdAt))}</span>
                     </div>
                     <p className="mt-0.5">{e.description}</p>
                   </li>
@@ -279,15 +366,17 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
                 <Label className="text-sm">Does any of this fit? (Optional — pick none, some, or write your own below.)</Label>
                 <div className="flex flex-wrap gap-1.5 mt-2">
                   {suggestedRoleTags.map((t) => (
-                    <Badge
+                    <Button
                       key={t}
+                      type="button"
                       variant={selectedTags.includes(t) ? "default" : "outline"}
-                      className="cursor-pointer text-xs"
+                      size="sm"
+                      className="text-xs"
                       onClick={() => toggleTag(t)}
                       data-testid={`tag-iti-${t}`}
                     >
                       {t}
-                    </Badge>
+                    </Button>
                   ))}
                 </div>
                 <Input className="mt-2" placeholder="Or describe your role in your own words…" value={customTag} onChange={(e) => setCustomTag(e.target.value)} data-testid="input-iti-custom-tag" />
@@ -300,8 +389,36 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
                 <Input id="iti-name" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="First name, nickname, or leave blank" data-testid="input-iti-name" />
               </div>
               <div>
-                <Label htmlFor="iti-region">Where (neighborhood, town) — optional</Label>
-                <Input id="iti-region" value={region} onChange={(e) => setRegion(e.target.value)} placeholder="e.g. East Pflugerville, north Round Rock" data-testid="input-iti-region" />
+                <Label htmlFor="iti-region">Broad area (not an address) — optional</Label>
+                <Input id="iti-region" value={region} onChange={(e) => setRegion(e.target.value)} placeholder="e.g. district, town, neighborhood, or service area" data-testid="input-iti-region" />
+                {formatCommunityContext(defaultCommunityContext ?? null) && (
+                  <p className="text-xs text-muted-foreground mt-1">Project context: {formatCommunityContext(defaultCommunityContext ?? null)}. This is not added to your record unless you enter a place below.</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="iti-country">Country or territory code — optional</Label>
+                <Input id="iti-country" value={countryCode} onChange={(e) => setCountryCode(e.target.value.slice(0, 2).toUpperCase())} placeholder="e.g. US, MX, GH" maxLength={2} data-testid="input-iti-country" />
+              </div>
+              <div>
+                <Label htmlFor="iti-locality">Locality or community — optional</Label>
+                <Input id="iti-locality" value={locality} onChange={(e) => setLocality(e.target.value)} placeholder="Use the broadest safe name" data-testid="input-iti-locality" />
+              </div>
+              <div>
+                <Label htmlFor="iti-place-level">Place type</Label>
+                <select
+                  id="iti-place-level"
+                  value={administrativeLevel}
+                  onChange={(e) => setAdministrativeLevel(e.target.value as CommunityContext["administrativeLevel"])}
+                  className="mt-1 flex min-h-9 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  data-testid="select-iti-place-level"
+                >
+                  <option value="community">Community</option>
+                  <option value="locality">Locality or town</option>
+                  <option value="district">District</option>
+                  <option value="region">Region or province</option>
+                  <option value="service_area">Service area</option>
+                  <option value="country">Country</option>
+                </select>
               </div>
               <div>
                 <Label htmlFor="iti-years">How long? — optional</Label>
@@ -335,14 +452,14 @@ export function IntegrationInvitation({ surface, surfaceContext, prompt, descrip
   );
 }
 
-function ConsentToggle({ label, hint, value, onToggle, testId }: { label: string; hint: string; value: boolean; onToggle: () => void; testId: string }) {
+function ConsentToggle({ label, hint, value, onToggle, testId, disabled = false }: { label: string; hint: string; value: boolean; onToggle: () => void; testId: string; disabled?: boolean }) {
   return (
     <div className="flex items-start justify-between gap-3 py-1">
       <div className="flex-1 min-w-0">
-        <Label className="text-sm font-medium cursor-pointer" onClick={onToggle}>{label}</Label>
+        <Label htmlFor={`switch-${testId}`} className="text-sm font-medium cursor-pointer">{label}</Label>
         <p className="text-xs text-muted-foreground mt-0.5">{hint}</p>
       </div>
-      <Switch checked={value} onCheckedChange={onToggle} data-testid={`switch-${testId}`} />
+      <Switch id={`switch-${testId}`} checked={value} onCheckedChange={onToggle} disabled={disabled} data-testid={`switch-${testId}`} />
     </div>
   );
 }

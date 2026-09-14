@@ -2425,13 +2425,13 @@ export default function LandingPage() {
         "@type": "WebSite",
         "name": "ThriveUp Academy — a TCAF platform",
         "url": "https://ai-mastery-academy.replit.app/",
-        "description": "A national community-infrastructure platform connecting people to grant funding, aligning service delivery with workforce development, and supporting measurable community impact through a 50-state architecture with local availability that varies.",
+           "description": "A global-by-design, local-first community infrastructure platform connecting people, evidence, services, and implementation support while keeping local availability and source limits visible.",
         "publisher": {
           "@type": "Organization",
           "name": "The Collaborative Advocate Foundation (TCAF)",
           "description": "A nonprofit backbone for residents, nonprofits, and communities to thrive.",
           "foundingLocation": { "@type": "Place", "name": "Pflugerville, TX" },
-          "areaServed": "United States — national architecture, Texas-piloted"
+           "areaServed": "Global architecture; country-owned and locally adapted delivery"
         }
       }} />
       <style>{`
@@ -2471,7 +2471,7 @@ export default function LandingPage() {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: "#f59e0b" }} />
               <span className="relative inline-flex rounded-full h-2 w-2" style={{ background: "#f59e0b" }} />
             </span>
-            TCAF + ThriveUp · Austin, TX → Nationwide
+             TCAF + ThriveUp · Local first → global learning
           </div>
 
           {/* Headline */}
@@ -2487,12 +2487,12 @@ export default function LandingPage() {
           {/* Subtitle */}
           <p className="mb-3 px-2" data-testid="text-hero-subtitle"
             style={{ color: heroSub, fontSize: "1.05rem", maxWidth: 580, lineHeight: 1.65 }}>
-             Free for people, organizations, and communities. Built to connect immediate needs to long-term implementation — across health, education, housing, workforce, justice, and community life.
+             Free for people, organizations, and communities. Built to meet people where they are — in their place, language, and situation — then connect local action to shared learning across borders.
           </p>
 
           <p className="text-sm mb-3 px-2" data-testid="text-hero-geography"
             style={{ color: heroMuted, maxWidth: 520, lineHeight: 1.65 }}>
-            Start with a guided next step — for yourself, your family, your organization, or your community.{" "}
+             Start with a guided next step — for yourself, your family, your organization, or your community. Connected local availability varies by place.{" "}
             <Link href="/coverage" className="font-semibold hover:underline" style={{ color: "#d97706" }} data-testid="link-hero-coverage">
               See where we operate
             </Link>
@@ -2501,7 +2501,7 @@ export default function LandingPage() {
 
           <p className="text-xs mb-5 px-2" data-testid="text-hero-identity"
             style={{ color: heroFaint, maxWidth: 560, lineHeight: 1.65 }}>
-             {IDENTITY_STRAP} · National architecture; local availability varies.
+             {IDENTITY_STRAP} · Global architecture; local availability and evidence depth vary.
           </p>
 
           {/* The first decision is intentionally small and plain-language.
@@ -2569,6 +2569,8 @@ export default function LandingPage() {
       </section>
 
       <HealthEquityFirstGlance isDark={isDark} />
+
+      <GlobalLocalFrontDoor />
 
       {/* "Meet people where they are": self-identify FIRST, before any
           B2B/funding pitch. This must stay directly under the hero. */}
@@ -3058,5 +3060,77 @@ export default function LandingPage() {
 
       <BackToTop />
     </div>
+  );
+}
+
+function GlobalLocalFrontDoor() {
+  const doors = [
+    {
+      icon: Heart,
+      title: "For people and families",
+      body: "Start with a question, a need, or a place. Get plain-language navigation, local options, and a next step without needing to understand the whole system first.",
+      action: "Find help near you",
+      href: "/get-help",
+      tone: "from-rose-500 to-orange-500",
+    },
+    {
+      icon: Compass,
+      title: "For local implementers",
+      body: "Bring your community, language, service system, and priorities. Turn evidence into owned actions, referrals, measures, and learning without replacing local leadership.",
+      action: "Open the implementation path",
+      href: "/hub",
+      tone: "from-violet-500 to-indigo-600",
+    },
+    {
+      icon: Globe,
+      title: "For evidence, funding, and policy",
+      body: "Trace signals to sources, separate observed from derived and modeled information, diagnose implementation gaps, and see what changed before scaling.",
+      action: "Review the evidence model",
+      href: "/ecosystem-story",
+      tone: "from-teal-500 to-cyan-600",
+    },
+  ] as const;
+
+  return (
+    <section className="py-12 px-4 sm:py-16 sm:px-6 bg-slate-950 text-white" data-testid="section-global-local-front-door">
+      <div className="max-w-6xl mx-auto">
+        <div className="max-w-3xl mb-8">
+          <Badge className="mb-3 bg-white/10 text-cyan-200 border-white/20">
+            <Globe className="mr-1 h-3 w-3" /> Global by design · local by default
+          </Badge>
+          <h2 className="text-2xl sm:text-4xl font-black tracking-tight mb-3" data-testid="text-global-local-heading">
+            Everything is local and personal before it becomes global.
+          </h2>
+          <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+            ThriveUp is built to support the global effort without pretending to be a UN agency, an official SDG reporting system, or a replacement for country teams. RPLICE helps protect evidence integrity and implementation learning; local people and partners decide what action means where they are.
+          </p>
+          <p className="text-xs text-slate-400 mt-3">
+            Choose a door first. The selected flow then asks for only the local context, language, access needs, and consent information that it can honestly use.
+          </p>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {doors.map((door) => (
+            <Link key={door.href} href={door.href} className="group no-underline" data-testid={`card-global-door-${door.title.toLowerCase().replace(/[^a-z]+/g, "-")}`}>
+              <Card className="h-full bg-white/[0.06] border-white/15 text-white p-5 transition-all hover:bg-white/[0.1] hover:border-white/30">
+                <div className={`inline-flex w-10 h-10 rounded-xl items-center justify-center bg-gradient-to-br ${door.tone} mb-4`}>
+                  <door.icon className="h-5 w-5 text-white" aria-hidden="true" />
+                </div>
+                <h3 className="font-bold text-base mb-2">{door.title}</h3>
+                <p className="text-sm text-slate-300 leading-relaxed mb-4">{door.body}</p>
+                <span className="inline-flex items-center gap-1 text-xs font-semibold text-cyan-200">
+                  {door.action} <ArrowRight className="h-3 w-3 group-hover:translate-x-1 transition-transform" />
+                </span>
+              </Card>
+            </Link>
+          ))}
+        </div>
+        <div className="mt-7 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+          <span>Sense → Question → Understand → Diagnose → Decide → Act → Measure → Learn → Adapt</span>
+          <Link href="/coverage" className="text-cyan-200 font-semibold hover:underline" data-testid="link-global-coverage">
+            See coverage and availability <ArrowRight className="inline h-3 w-3" />
+          </Link>
+        </div>
+      </div>
+    </section>
   );
 }

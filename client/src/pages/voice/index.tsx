@@ -105,8 +105,8 @@ export default function VoiceIndexPage() {
       <section data-testid="section-pipeline">
         <h2 className="text-lg font-bold mb-1">What happens to your voice.</h2>
         <p className="text-sm text-muted-foreground mb-5">
-          Nothing is extracted. Nothing is shared without your consent. Every step of what happens
-          after you contribute is visible and reversible.
+           ITI-linked contributions are never used for aggregate insight without explicit consent.
+           Ordinary public pins are labeled community-submitted aggregate input. Every ITI step is visible and reversible.
         </p>
         <div className="grid sm:grid-cols-2 md:grid-cols-5 gap-3">
           {PIPELINE.map((step, i) => {
@@ -140,7 +140,7 @@ export default function VoiceIndexPage() {
               <div>
                 <p className="font-semibold text-sm">Safe by default</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Crisis signals route silently to Whole-Person Health and LifeBridge. You never have to ask for help — the platform notices.
+                   Crisis signals are flagged for project safety review. No external notification is sent automatically.
                 </p>
               </div>
             </div>
@@ -151,9 +151,9 @@ export default function VoiceIndexPage() {
             <div className="flex items-start gap-3">
               <Globe className="h-5 w-5 text-sky-600 shrink-0 mt-0.5" />
               <div>
-                <p className="font-semibold text-sm">89 languages</p>
+                <p className="font-semibold text-sm">Language-aware</p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  Type or speak in any language via Talk Your Talk. English mirror stored for analytics. Your dialect is not a barrier.
+                   Language support varies by selected locale. Translation and English mirrors are only available where the selected flow provides them.
                 </p>
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function VoiceIndexPage() {
                             {p.accessMode === "public" ? "Open to all" : p.accessMode === "email" ? "Email required" : "Hybrid"}
                           </Badge>
                           {p.crisisRoutingEnabled && (
-                            <Badge variant="outline" className="text-xs text-emerald-700 border-emerald-400">Crisis-routed</Badge>
+                            <Badge variant="outline" className="text-xs text-emerald-700 border-emerald-400">Crisis review flag</Badge>
                           )}
                           <Badge variant="outline" className="text-xs">
                             {(p.pinCategories ?? []).length} categories
@@ -264,7 +264,7 @@ export default function VoiceIndexPage() {
           </Button>
         </div>
         <p className="text-xs text-rose-700 dark:text-rose-400">
-          No account required · No license check · 89 languages · Crisis-routed · 8 layered consents, all default OFF
+          No account required · No license check · Language support varies by locale · Crisis review flag · 8 layered consents, all default OFF
         </p>
       </section>
 

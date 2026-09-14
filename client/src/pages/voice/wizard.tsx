@@ -19,11 +19,11 @@ const CATEGORY_OPTIONS: Array<{ value: string; label: string; hint: string }> = 
   { value: "service-working", label: "Something that's working", hint: "Lift up what's good." },
   { value: "gap-need", label: "A gap we need to fill", hint: "Honest unmet needs." },
   { value: "assistance-request", label: "Direct assistance request", hint: "Concrete asks from neighbors." },
-  { value: "safety-concern", label: "Safety concern", hint: "Routed silently to our safety net." },
+  { value: "safety-concern", label: "Safety concern", hint: "Flagged for project safety review." },
   { value: "transportation", label: "Transportation", hint: "Getting around." },
   { value: "housing", label: "Housing", hint: "Roofs and rent." },
   { value: "food-access", label: "Food access", hint: "Groceries, pantries, hot meals." },
-  { value: "mental-health", label: "Mental & emotional health", hint: "Routed to Whole-Person Health." },
+  { value: "mental-health", label: "Mental & emotional health", hint: "A domestic project category; follow-up depends on local capacity." },
   { value: "workforce-training", label: "Workforce & training", hint: "Routed to Trade Sims + Mission Transition." },
   { value: "youth-services", label: "Youth services", hint: "Routed to ISSS + Foster Youth wizard." },
   { value: "veteran-services", label: "Veteran services", hint: "Routed to Mission Transition." },
@@ -97,7 +97,7 @@ export default function VoiceWizardPage() {
         </div>
         <h1 className="text-3xl font-bold tracking-tight">Start a listening project</h1>
         <p className="text-muted-foreground mt-2">
-          Built for the community you serve. Every voice routes to real services. <span className="font-medium">Thank you for doing this work.</span>
+           Built for the community you serve. Every voice is reviewed through the project’s local process. <span className="font-medium">Thank you for doing this work.</span>
         </p>
         <Progress value={(step / 4) * 100} className="mt-6 h-2" data-testid="progress-wizard" />
         <p className="text-xs text-muted-foreground mt-2">Step {step} of 4</p>
@@ -200,7 +200,7 @@ export default function VoiceWizardPage() {
               <Switch checked={crisisRoutingEnabled} onCheckedChange={setCrisisRoutingEnabled} data-testid="switch-crisis" />
               <div>
                 <div className="font-medium text-sm">Crisis routing</div>
-                <p className="text-xs text-muted-foreground">When a pin mentions self-harm, abuse, or being unsafe, route it silently to Whole-Person Health + LifeBridge for outreach. <span className="font-medium">Recommended ON.</span></p>
+                 <p className="text-xs text-muted-foreground">When a pin mentions self-harm, abuse, or being unsafe, flag it for project safety review. No external notification is sent automatically. <span className="font-medium">Recommended ON.</span></p>
               </div>
             </div>
 

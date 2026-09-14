@@ -256,6 +256,19 @@ export async function getPersonalContext(
         if (journey.lastKnownGeography) {
           journeyParts.push(`Geography: ${journey.lastKnownGeography}`);
         }
+        if (journey.communityContext) {
+          const context = journey.communityContext;
+          const place = [
+            context.localLabel,
+            context.district,
+            context.region,
+            context.serviceArea,
+            context.countryCode,
+          ].filter(Boolean).join(", ");
+          if (place) {
+            journeyParts.push(`Community context (${context.source}, ${context.confidence}): ${place}`);
+          }
+        }
         if (journey.yhsiStatus) {
           journeyParts.push(`Youth housing status: ${journey.yhsiStatus}`);
         }

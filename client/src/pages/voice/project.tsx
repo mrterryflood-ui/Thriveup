@@ -96,6 +96,7 @@ export default function VoiceProjectPage() {
   const [anonymized, setAnonymized] = useState(true);
   const [lang, setLang] = useState("en");
   const [activeTab, setActiveTab] = useState<"map" | "list">("map");
+  const [itiLink, setItiLink] = useState<{ invitationId: string; token: string } | null>(null);
 
   const center = useMemo<[number, number]>(() => [project?.centerLat ?? 30.4394, project?.centerLng ?? -97.62], [project]);
   const zoom = project?.defaultZoom ?? 12;
@@ -103,18 +104,23 @@ export default function VoiceProjectPage() {
 
   const submitMutation = useMutation({
     mutationFn: async (payload: Record<string, unknown>) => {
-      const res = await apiRequest("POST", `/api/voice/projects/${slug}/pins`, payload);
+      const res = await apiRequest(
+        "POST",
+        `/api/voice/projects/${slug}/pins`,
+        payload,
+        itiLink ? { "x-iti-token": itiLink.token } : undefined,
+      );
       return await res.json();
     },
-    onSuccess: (resp: { pin: CommunityVoicePin; accessToken: string; crisisRouted: boolean }) => {
+    onSuccess: (resp: { pin: CommunityVoicePin; accessToken: string; crisisDetected: boolean }) => {
       setMyPinTokens((m) => ({ ...m, [resp.pin.id]: resp.accessToken }));
       queryClient.invalidateQueries({ queryKey: ["/api/voice/projects", slug, "pins"] });
       // Reset form
       setPicked(null); setCategory(""); setBody(""); setPickMode(false);
       toast({
-        title: resp.crisisRouted ? "Pin posted — and we're routing support" : "Pin posted",
-        description: resp.crisisRouted
-          ? "Your input mentioned something serious. Whole-Person Health and LifeBridge have been notified to reach out with help."
+        title: resp.crisisDetected ? "Pin posted — flagged for review" : "Pin posted",
+        description: resp.crisisDetected
+          ? "Your input mentioned something serious. The project safety review queue has been flagged; no external notification is sent automatically."
           : "Thanks for sharing. Your voice is part of the data now.",
       });
     },
@@ -142,8 +148,9 @@ export default function VoiceProjectPage() {
       originalLanguage: lang, anonymized,
       authorEmail: authorEmail || undefined,
       authorName: authorName || undefined,
+       itiInvitationId: itiLink?.invitationId ?? undefined,
     });
-  }, [picked, category, body, lang, anonymized, authorEmail, authorName, project, submitMutation, toast]);
+  }, [picked, category, body, lang, anonymized, authorEmail, authorName, itiLink, project, submitMutation, toast]);
 
   if (projectLoading) {
     return <div className="container mx-auto px-4 py-6"><Skeleton className="h-[600px] w-full" /></div>;
@@ -168,10 +175,10 @@ export default function VoiceProjectPage() {
         <Badge variant="outline" className="gap-1"><MapPin className="h-3 w-3" />{pins.length} pins</Badge>
         {project.crisisRoutingEnabled && (
           <Badge variant="outline" className="gap-1 text-emerald-700 dark:text-emerald-400 border-emerald-300">
-            <ShieldCheck className="h-3 w-3" /> Crisis-routed to WPH + LifeBridge
+             <ShieldCheck className="h-3 w-3" /> Crisis flagged for project safety review
           </Badge>
         )}
-        <Badge variant="outline" className="gap-1"><Languages className="h-3 w-3" /> 89 languages supported</Badge>
+        <Badge variant="outline" className="gap-1"><Languages className="h-3 w-3" /> Language support varies by selected locale</Badge>
       </div>
 
       <div className="flex flex-wrap gap-2 mb-5">
@@ -193,6 +200,7 @@ export default function VoiceProjectPage() {
       <IntegrationInvitation
         surface="voice-project"
         surfaceContext={slug}
+        communityContext={project.communityContext ?? undefined}
         prompt={slug === "north-wilco-childcare-gaps"
           ? "Are you already holding North Williamson County together?"
           : "Are you doing this work in your community?"}
@@ -203,6 +211,7 @@ export default function VoiceProjectPage() {
           ? ["informal caregiver", "family home daycare", "abuela / grandmother", "shift-work parent", "bilingual care", "infant care", "extended-hours care", "special-needs care"]
           : undefined}
         className="mb-5"
+         onInvitationReady={setItiLink}
       />
 
       {slug === "north-wilco-childcare-gaps" && (
@@ -246,7 +255,7 @@ export default function VoiceProjectPage() {
                           <div className="min-w-[200px]">
                             <div className="flex items-center gap-1 mb-1">
                               <Badge variant="outline" className="text-[10px]">{p.category}</Badge>
-                              {p.crisisFlag && <Badge variant="destructive" className="text-[10px] gap-1"><AlertTriangle className="h-3 w-3" />Crisis-routed</Badge>}
+                              {p.crisisFlag && <Badge variant="destructive" className="text-[10px] gap-1"><AlertTriangle className="h-3 w-3" />Crisis flagged</Badge>}
                             </div>
                             <p className="text-sm mb-2 whitespace-pre-wrap" data-testid={`text-pin-body-${p.id}`}>{p.body}</p>
                             <div className="flex items-center justify-between text-xs text-muted-foreground">
@@ -360,7 +369,7 @@ export default function VoiceProjectPage() {
                 {project.crisisRoutingEnabled && (
                   <p className="text-[10px] text-muted-foreground border-t pt-2">
                     <ShieldCheck className="h-3 w-3 inline mr-1" />
-                    If your message indicates a crisis, our Whole-Person Health team and LifeBridge will be notified to reach out with help. You're not alone.
+                     If your message indicates a crisis, it will be flagged for project safety review. No external notification is sent automatically.
                   </p>
                 )}
               </CardContent>
@@ -384,7 +393,7 @@ export default function VoiceProjectPage() {
                         <div className="flex flex-wrap items-center gap-1.5 mb-1">
                           <Badge variant="outline" className="text-[10px]">{p.category}</Badge>
                           {p.sentiment && <Badge variant="outline" className="text-[10px]">{p.sentiment}</Badge>}
-                          {p.crisisFlag && <Badge variant="destructive" className="text-[10px]">Crisis-routed</Badge>}
+                          {p.crisisFlag && <Badge variant="destructive" className="text-[10px]">Crisis flagged</Badge>}
                           <span className="text-[10px] text-muted-foreground">{new Date(p.createdAt as unknown as string).toLocaleString()}</span>
                         </div>
                         <p className="text-sm whitespace-pre-wrap" data-testid={`text-listpin-body-${p.id}`}>{p.body}</p>

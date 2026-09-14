@@ -4,15 +4,15 @@
 
 - **Wizard `/voice/new`** — 4-step launch flow (Name → Map location → Categories → Access/Safety). Any TCAF-authenticated user can launch a project; admin still owns moderation. Rate-limited 5 projects/hr/user. Endpoint: `POST /api/voice/projects/wizard`. Slug uniqueness returns 409 with friendly copy. publiclyVisible defaults TRUE so owners get a shareable link immediately.
 
-- **AI insights dashboard `/voice/:slug/insights`** (admin-gated) — `POST /api/voice/projects/:slug/insights/generate` runs OpenAI gpt-4o-mini cluster (3-7 specific themes, JSON-mode, temperature 0.4, 200-pin context cap, 280-char body trim). Rule-based fallback groups by category if AI fails. Each theme returns title/summary/sentiment/memberPinIds/recommendedPlatforms (derived deterministically from member-pin categories)/confidence. Dashboard shows: 4 stat cards (voices/themes/safety-net-routed/model+date), sentiment bar (positive/mixed/neutral/negative), theme grid with platform badges, stakeholder breakdown. Export JSON + Sync-to-Story buttons. Rate-limited 10 gens/10min.
+- **AI insights dashboard `/voice/:slug/insights`** (admin-gated) — `POST /api/voice/projects/:slug/insights/generate` runs the configured AI provider cluster (3-7 specific themes, JSON-mode, 200-pin context cap, 280-char body trim). Rule-based fallback groups by category if AI fails. Every derived metric and AI corpus excludes ITI-linked pins without `aggregateMyData=true`. Dashboard shows: 4 stat cards (voices/themes/safety-review-flags/model+date), sentiment bar (positive/mixed/neutral/negative), theme grid with platform badges, stakeholder breakdown. Export JSON + Sync-to-Story buttons. Rate-limited 10 gens/10min.
 
 - **Public #DATA story page `/voice/:slug/story`** — hero with voice count, themes section pulls anonymized 3 verbatims per theme + ecosystem-chain arrows (Theme → Platform A → Platform B), gentle drop-pin CTA back to map. Public only sees insights where `syncedToStoryAt IS NOT NULL` — owner controls the publish moment. Thanking copy throughout ("Thank you to every neighbor who shared their voice. This page is yours.").
 
-- **Admin workspace `/voice/:slug/admin`** (admin-gated) — 3 tabs: Pin moderation (archive/restore/anon-toggle per pin), Safety routing (read-only crisis-routed list with target+timestamp), Settings (name/desc/access/status/publiclyVisible/crisis toggle).
+- **Admin workspace `/voice/:slug/admin`** (admin-gated) — 3 tabs: Pin moderation (archive/restore/anon-toggle per pin), Safety review (read-only crisis-flagged list with state+timestamp), Settings (name/desc/access/status/publiclyVisible/crisis toggle).
 
 - **Chain web `GET /api/voice/projects/:slug/chain`** — returns pins + per-pin routings + platformLabels + platformMap. Public; respects publiclyVisible. Backs storytelling pages and (future) chain-viz.
 
-- **Deterministic platform routing map (PLATFORM_ROUTING in server/voice-routes.ts):** safety-concern→WPH+LifeBridge · mental-health→WPH+SafeCogniCare · food-access→LifeBridge+Sankofa · housing/transportation→LifeBridge · workforce-training→Trade Sims+M2C · youth-services→ISSS+Foster Youth · veteran-services→M2C · gap-need→LifeBridge+Civic Signal · story/service-working→narrative only.
+- **Deterministic domestic platform routing map (PLATFORM_ROUTING in server/voice-routes.ts):** safety-concern→WPH+LifeBridge · mental-health→WPH+SafeCogniCare · food-access→LifeBridge+Sankofa · housing/transportation→LifeBridge · workforce-training→Trade Sims+M2C · youth-services→ISSS+Foster Youth · veteran-services→M2C · gap-need→LifeBridge+Civic Signal · story/service-working→narrative only. This is not an international routing contract.
 
 - **Schema additions:** `community_voice_insights` + `community_voice_routing` (2 new tables, total = 6 voice tables · `npm run db:push` applied 2026-05-18).
 
@@ -42,7 +42,7 @@
 2. **Backend** (`server/voice-routes.ts`):
    - Capability-token auth (`x-voice-token` or `?token=`), `timingSafeEqual`
    - Per-IP rate limits in-memory (pins 8/5min, reactions 40/min, comments 20/5min)
-   - Regex crisis detection (10 patterns) — routes to WPH + LifeBridge silently when `crisisRoutingEnabled`
+    - Regex crisis detection (10 patterns) — flags project safety review when `crisisRoutingEnabled`; no external notification is automatic
    - Rule-based sentiment (positive/negative/neutral/mixed — Phase 2 upgrade to AI)
    - Full CRUD: GET/POST projects, GET/POST/PATCH/DELETE pins, reactions, comments + admin endpoints behind `requireAdmin`
    - Auto-seeds Pflugerville pilot on first start
@@ -61,7 +61,7 @@
 **Verified working:**
 - `GET /api/voice/projects` returns the pilot
 - POST positive pin ("community garden amazing") → sentiment=positive, crisisFlag=false
-- POST crisis pin ("not safe at home, nowhere to go") → **crisisFlag=true, crisisRoutedTo=wph+lifebridge**, console.warn fires
+   - POST crisis pin ("not safe at home, nowhere to go") → **crisisFlag=true, crisisRoutedTo=project_safety_review**, console.warn fires
 - Screenshot confirms map renders with both test pins visible at Pflugerville center
 
 **User answers from build interview:**

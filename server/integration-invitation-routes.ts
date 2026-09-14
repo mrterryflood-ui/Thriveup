@@ -12,6 +12,7 @@ import {
   recognitionEvents,
   type IntegrationInvitation,
 } from "@shared/schema";
+import { communityContextSchema } from "@shared/community-context";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { randomBytes, timingSafeEqual } from "crypto";
 
@@ -69,7 +70,7 @@ function rateLimit(name: string, max: number, windowMs: number) {
 
 // Header-only capability token. NO query-param fallback (avoids token leakage via
 // referrers, server logs, browser history). Iron Rule #8 hygiene.
-async function authorizeInvitation(req: Request, invitationId: string): Promise<{ invitation: IntegrationInvitation } | null> {
+export async function authorizeInvitation(req: Request, invitationId: string): Promise<{ invitation: IntegrationInvitation } | null> {
   const [invitation] = await db.select().from(integrationInvitations).where(eq(integrationInvitations.id, invitationId)).limit(1);
   if (!invitation) return null;
   if (isAdmin(req)) return { invitation };
@@ -110,7 +111,7 @@ export async function filterByItiConsent<T extends { itiInvitationId?: string | 
 ): Promise<T[]> {
   const result: T[] = [];
   for (const r of rows) {
-    if (!r.itiInvitationId) { result.push(r); continue; } // not ITI-linked, pass through
+    if (!r.itiInvitationId) { result.push(r); continue; } // ordinary public contribution; ITI-linked rows are checked below
     try { await assertItiConsent(r.itiInvitationId, consentKey); result.push(r); }
     catch (e) { if (!(e instanceof ItiConsentDeniedError)) throw e; /* drop */ }
   }
@@ -129,6 +130,19 @@ function clean(v: unknown, max = MAX_SHORT): string | null {
   const s = String(v).trim();
   if (!s) return null;
   return s.slice(0, max);
+}
+
+function parseInviteeCommunityContext(value: unknown) {
+  if (value == null) return { success: true as const, data: undefined };
+  const parsed = communityContextSchema.safeParse(value);
+  if (!parsed.success) return parsed;
+  // Public invitees can report a place, but cannot self-assert that it is
+  // official or verified. Those provenance levels belong to trusted server
+  // and partner-controlled write paths.
+  return {
+    success: true as const,
+    data: { ...parsed.data, source: "self_reported" as const, confidence: "reported" as const },
+  };
 }
 
 async function logRecognition(invitationId: string, eventType: string, description: string, opts?: { actorRole?: string; actorId?: string; surfaceRef?: string; payload?: Record<string, unknown> }) {
@@ -158,28 +172,37 @@ export function registerIntegrationInvitationRoutes(app: Express) {
       const workDescription = clean(body.workDescription, MAX_TEXT);
       if (!workDescription) return res.status(400).json({ error: "workDescription is required — tell us what work you do, in your own words" });
 
+      const communityContextResult = parseInviteeCommunityContext(body.communityContext);
+      if (!communityContextResult.success) {
+        return res.status(400).json({ error: "Invalid community context", details: communityContextResult.error.flatten() });
+      }
+
       const rolesRaw = Array.isArray(body.workRolesSelfIdentified) ? body.workRolesSelfIdentified : [];
       const workRolesSelfIdentified = rolesRaw.map((r) => clean(r, 100)).filter((r): r is string => !!r).slice(0, 10);
 
       const accessToken = randomBytes(24).toString("base64url");
 
-      const [row] = await db.insert(integrationInvitations).values({
-        accessToken,
-        displayName: clean(body.displayName, 200),
-        preferredContact: clean(body.preferredContact, 200),
-        preferredLanguage: (clean(body.preferredLanguage, 16) || "en"),
-        workDescription,
-        workRolesSelfIdentified,
-        yearsDoingWork: clean(body.yearsDoingWork, 200),
-        region: clean(body.region, 300),
-        zipCode: clean(body.zipCode, 12),
-        surface,
-        surfaceContext: clean(body.surfaceContext, 300),
-        status: "invited",
-      }).returning();
+      const row = await db.transaction(async (tx) => {
+        const [created] = await tx.insert(integrationInvitations).values({
+          accessToken,
+          displayName: clean(body.displayName, 200),
+          preferredContact: clean(body.preferredContact, 200),
+          preferredLanguage: (clean(body.preferredLanguage, 16) || "en"),
+          workDescription,
+          workRolesSelfIdentified,
+          yearsDoingWork: clean(body.yearsDoingWork, 200),
+          region: clean(body.region, 300),
+          zipCode: clean(body.zipCode, 12),
+          communityContext: communityContextResult.data ?? null,
+          surface,
+          surfaceContext: clean(body.surfaceContext, 300),
+          status: "invited",
+        }).returning();
 
-      // All consent toggles default false — anti-extraction posture
-      await db.insert(invitationConsents).values({ invitationId: row.id });
+        // All consent toggles default false — anti-extraction posture.
+        await tx.insert(invitationConsents).values({ invitationId: created.id });
+        return created;
+      });
 
       await logRecognition(row.id, "heard", "Self-identified through Integration through Invitation", { actorRole: "system", surfaceRef: surface });
 
@@ -216,6 +239,15 @@ export function registerIntegrationInvitationRoutes(app: Express) {
     if ("yearsDoingWork" in body) updates.yearsDoingWork = clean(body.yearsDoingWork, 200);
     if ("region" in body) updates.region = clean(body.region, 300);
     if ("zipCode" in body) updates.zipCode = clean(body.zipCode, 12);
+    if ("communityContext" in body) {
+      if (body.communityContext == null) {
+        updates.communityContext = null;
+      } else {
+        const parsedContext = parseInviteeCommunityContext(body.communityContext);
+        if (!parsedContext.success) return res.status(400).json({ error: "Invalid community context", details: parsedContext.error.flatten() });
+        updates.communityContext = parsedContext.data;
+      }
+    }
     updates.lastSeenAt = new Date();
     const [updated] = await db.update(integrationInvitations).set(updates).where(eq(integrationInvitations.id, auth.invitation.id)).returning();
     await logRecognition(auth.invitation.id, "corrected-record", "Profile updated by invitee", { actorRole: "invitee" });
@@ -227,24 +259,44 @@ export function registerIntegrationInvitationRoutes(app: Express) {
   app.patch("/api/iti/invitations/:id/consents", async (req, res) => {
     const auth = await authorizeInvitation(req, req.params.id);
     if (!auth) return res.status(404).json({ error: "Not found" });
+    if (auth.invitation.status === "withdrawn") {
+      return res.status(409).json({ error: "This invitation was withdrawn; all consents remain off." });
+    }
     const body = req.body as Record<string, unknown>;
     const fields = ["quoteMe", "aggregateMyData", "nameMePublicly", "routeMyInfoToService", "shareWithFunder", "inviteToConvening", "acceptStipend", "routeToCredentialing"] as const;
     const updates: Partial<typeof invitationConsents.$inferInsert> = { updatedAt: new Date() };
     const changedKeys: string[] = [];
     for (const f of fields) {
       if (f in body) {
-        const v = !!body[f];
+        if (typeof body[f] !== "boolean") {
+          return res.status(400).json({ error: `${f} must be a boolean` });
+        }
+        const v = body[f];
         (updates as Record<string, unknown>)[f] = v;
         changedKeys.push(`${f}=${v}`);
       }
     }
-    const [existing] = await db.select().from(invitationConsents).where(eq(invitationConsents.invitationId, auth.invitation.id)).limit(1);
-    let row;
-    if (existing) {
-      [row] = await db.update(invitationConsents).set(updates).where(eq(invitationConsents.invitationId, auth.invitation.id)).returning();
-    } else {
-      [row] = await db.insert(invitationConsents).values({ invitationId: auth.invitation.id, ...updates }).returning();
-    }
+    const row = await db.transaction(async (tx) => {
+      const [lockedInvitation] = await tx
+        .select({ id: integrationInvitations.id, status: integrationInvitations.status })
+        .from(integrationInvitations)
+        .where(eq(integrationInvitations.id, auth.invitation.id))
+        .for("update");
+      if (!lockedInvitation || lockedInvitation.status === "withdrawn") return null;
+
+      const [existing] = await tx
+        .select()
+        .from(invitationConsents)
+        .where(eq(invitationConsents.invitationId, auth.invitation.id))
+        .for("update");
+      if (existing) {
+        const [updated] = await tx.update(invitationConsents).set(updates).where(eq(invitationConsents.invitationId, auth.invitation.id)).returning();
+        return updated;
+      }
+      const [created] = await tx.insert(invitationConsents).values({ invitationId: auth.invitation.id, ...updates }).returning();
+      return created;
+    });
+    if (!row) return res.status(409).json({ error: "This invitation was withdrawn; all consents remain off." });
     await logRecognition(auth.invitation.id, "corrected-record", `Consent updated: ${changedKeys.join(", ")}`, { actorRole: "invitee" });
     res.json({ consents: row });
   });
@@ -253,13 +305,24 @@ export function registerIntegrationInvitationRoutes(app: Express) {
   app.post("/api/iti/invitations/:id/withdraw", async (req, res) => {
     const auth = await authorizeInvitation(req, req.params.id);
     if (!auth) return res.status(404).json({ error: "Not found" });
-    await db.update(integrationInvitations).set({ status: "withdrawn", withdrawnAt: new Date() }).where(eq(integrationInvitations.id, auth.invitation.id));
-    // Reset all consents to false on withdrawal
-    await db.update(invitationConsents).set({
-      quoteMe: false, aggregateMyData: false, nameMePublicly: false, routeMyInfoToService: false,
-      shareWithFunder: false, inviteToConvening: false, acceptStipend: false, routeToCredentialing: false,
-      updatedAt: new Date(),
-    }).where(eq(invitationConsents.invitationId, auth.invitation.id));
+    const withdrawn = await db.transaction(async (tx) => {
+      const [lockedInvitation] = await tx
+        .select({ id: integrationInvitations.id })
+        .from(integrationInvitations)
+        .where(eq(integrationInvitations.id, auth.invitation.id))
+        .for("update");
+      if (!lockedInvitation) return false;
+      // Reset all consents while holding the invitation row lock. The consent
+      // PATCH path takes the same lock, so withdrawal wins deterministically.
+      await tx.update(invitationConsents).set({
+        quoteMe: false, aggregateMyData: false, nameMePublicly: false, routeMyInfoToService: false,
+        shareWithFunder: false, inviteToConvening: false, acceptStipend: false, routeToCredentialing: false,
+        updatedAt: new Date(),
+      }).where(eq(invitationConsents.invitationId, auth.invitation.id));
+      await tx.update(integrationInvitations).set({ status: "withdrawn", withdrawnAt: new Date() }).where(eq(integrationInvitations.id, auth.invitation.id));
+      return true;
+    });
+    if (!withdrawn) return res.status(404).json({ error: "Not found" });
     await logRecognition(auth.invitation.id, "corrected-record", "Invitee withdrew. All consents revoked.", { actorRole: "invitee" });
     res.json({ ok: true });
   });

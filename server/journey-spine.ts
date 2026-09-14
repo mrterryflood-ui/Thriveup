@@ -1,5 +1,6 @@
 import { db } from "./storage";
 import { userJourneys, type InsertUserJourney } from "@shared/schema";
+import type { CommunityContext } from "@shared/community-context";
 import { sql } from "drizzle-orm";
 
 type JourneyFields = Omit<Partial<InsertUserJourney>, "userId" | "updatedAt">;
@@ -96,6 +97,10 @@ export async function appendJourneyReferral(userId: string, referralId: string):
 
 export async function setJourneyYhsiStatus(userId: string, status: string): Promise<void> {
   await upsertJourneyFields(userId, { yhsiStatus: status });
+}
+
+export async function mergeJourneyCommunityContext(userId: string, context: CommunityContext): Promise<void> {
+  await upsertJourneyFields(userId, { communityContext: context });
 }
 
 export async function markJourneyCommunityContextWarmed(userId: string): Promise<void> {

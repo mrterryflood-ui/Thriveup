@@ -165,6 +165,7 @@ export function registerItiWeek3Routes(app: Express) {
         roles: integrationInvitations.workRolesSelfIdentified,
         region: integrationInvitations.region,
         zipCode: integrationInvitations.zipCode,
+        communityContext: integrationInvitations.communityContext,
         workDescription: integrationInvitations.workDescription,
         createdAt: integrationInvitations.createdAt,
         nameMePublicly: invitationConsents.nameMePublicly,

@@ -4,6 +4,7 @@ import { nanoid } from "nanoid";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import type { StudioManifest } from "./studio-manifest";
+import type { CommunityContext } from "./community-context";
 
 // ZCTA (ZIP Code Tabulation Area) to county FIPS lookup, loaded once from the
 // U.S. Census Bureau's public ZCTA-to-County relationship file. When a ZCTA
@@ -5367,6 +5368,7 @@ export const communityVoiceProjects = pgTable("community_voice_projects", {
   status: varchar("status", { length: 16 }).default("active").notNull(),
   publiclyVisible: boolean("publicly_visible").default(true).notNull(),
   createdBy: varchar("created_by", { length: 64 }),
+  communityContext: jsonb("community_context").$type<CommunityContext | null>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
@@ -5456,6 +5458,7 @@ export const communityVoiceInsights = pgTable("community_voice_insights", {
   generatedAt: timestamp("generated_at").defaultNow().notNull(),
   generatedBy: varchar("generated_by", { length: 64 }),
   pinCount: integer("pin_count").notNull(),
+  sourcePinIds: jsonb("source_pin_ids"),
   themes: jsonb("themes").notNull(),
   sentimentTimeline: jsonb("sentiment_timeline"),
   stakeholderBreakdown: jsonb("stakeholder_breakdown"),
@@ -6161,6 +6164,7 @@ export const integrationInvitations = pgTable("integration_invitations", {
   // Where they're working
   region: text("region"),                                  // free text — "north Round Rock"
   zipCode: varchar("zip_code", { length: 12 }),            // optional
+  communityContext: jsonb("community_context").$type<CommunityContext | null>(),
 
   // How they came in (which surface invited them)
   surface: varchar("surface", { length: 64 }).notNull(),   // 'voice-project' | 'foster-intake' | 'lifebridge' | 'justice-hub' | 'trade-sims' | 'wph' | 'public-site' | 'direct'
@@ -8436,6 +8440,7 @@ export type InsertLearningDeposit = typeof learningDeposits.$inferInsert;
 export const userJourneys = pgTable("user_journeys", {
   userId: varchar("user_id", { length: 255 }).primaryKey().notNull(),
   lastKnownGeography: varchar("last_known_geography", { length: 20 }),
+  communityContext: jsonb("community_context").$type<CommunityContext | null>(),
   identifiedNeeds: jsonb("identified_needs").$type<string[]>(),
   screenerFlags: jsonb("screener_flags").$type<Record<string, boolean>>(),
   activeReferralIds: jsonb("active_referral_ids").$type<string[]>(),
