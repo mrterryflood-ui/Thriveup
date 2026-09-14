@@ -29,6 +29,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
 import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable, gppMirrorSnapshots, gppOpportunityHandoffs, gppOpportunityHandoffAttempts, gppPursuitFeedback } from "@shared/schema";
+import { users } from "@shared/models/auth";
 import { eq, desc, and, inArray, ne } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble, isPerplexityAvailable, perplexityResearch } from "./ai-provider";
 import { buildCommunityAIContextWithStatus } from "./rplice-intelligence";
@@ -36,6 +37,11 @@ import { timingSafeEqual, randomUUID, createHash } from "crypto";
 import { z } from "zod";
 import { getGrantPathProDisplayOrigin, getGrantPathProOutboundConfig, getGrantPathProEmbedConfig, getGrantPathProMirrorConfig, getGrantPathProOpportunityHandoffConfig } from "./grantpathpro-config";
 import { hasBlockingRejection, recordInboundVerification, rejectionsToCorrectionNote, verifyInboundPayload } from "./inbound-verification";
+import {
+  MANOR_FUNDING_PACKAGE_PROFILE_KEY,
+  buildManorFundingPackageBlock,
+  isManorOrganization,
+} from "@shared/grantpathpro-taxonomy";
 
 function getUserId(req: Request): string | undefined {
   const user = (req as any).user;
@@ -524,6 +530,9 @@ function buildOpportunityPackage(
       sourceLabel: "Organization-provided profile",
       sourceStatus: "not independently verified",
     },
+     fundingPackages: isManorOrganization(organization)
+       ? buildManorFundingPackageBlock()
+       : null,
     opportunityLanes: allLanes,
      communityMirror: projectMirrorSnapshot(latestMirror),
      readiness: {
@@ -799,6 +808,125 @@ async function persistOpportunityHandoffDelivery(
 }
 
 export function registerGrantPathProRoutes(app: Express) {
+
+  const manorBootstrapSchema = z.object({
+    ownerUserId: z.string().trim().min(1).max(255),
+  }).strict();
+
+  /**
+   * Provision the stable City of Manor organization identity once an
+   * authorized owner account is known. This is deliberately staff-only and
+   * idempotent: it never reassigns an existing organization or accepts a
+   * caller-supplied organization ID.
+   */
+  app.post("/api/staff/organizations/manor/bootstrap", requireStaffOnly, async (req: Request, res: Response) => {
+    const actorUserId = getUserId(req);
+    const parsed = manorBootstrapSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: "An authorized ownerUserId is required", details: parsed.error.flatten() });
+    }
+    try {
+      const result = await db.transaction(async (tx) => {
+        const [owner] = await tx.select({ id: users.id }).from(users).where(eq(users.id, parsed.data.ownerUserId)).limit(1);
+        if (!owner) return { kind: "owner_not_found" as const };
+
+        const [existing] = await tx.select().from(organizations)
+          .where(eq(organizations.externalKey, MANOR_FUNDING_PACKAGE_PROFILE_KEY))
+          .limit(1);
+        if (existing) {
+          if (!isManorOrganization(existing) || existing.userId !== parsed.data.ownerUserId) {
+            return {
+              kind: "identity_conflict" as const,
+              organizationId: existing.id,
+              ownerUserId: existing.userId,
+            };
+          }
+          await tx.insert(organizationMembers).values({
+            orgId: existing.id,
+            userId: parsed.data.ownerUserId,
+            role: "owner",
+          }).onConflictDoNothing();
+          return { kind: "existing" as const, organization: existing };
+        }
+        const [existingOwnerOrganization] = await tx.select({ id: organizations.id }).from(organizations)
+          .where(eq(organizations.userId, parsed.data.ownerUserId))
+          .limit(1);
+        if (existingOwnerOrganization) {
+          return { kind: "owner_already_has_organization" as const, organizationId: existingOwnerOrganization.id };
+        }
+
+        const [created] = await tx.insert(organizations).values({
+          externalKey: MANOR_FUNDING_PACKAGE_PROFILE_KEY,
+          userId: parsed.data.ownerUserId,
+          name: "City of Manor",
+          missionText: "Staff-created identity record for City of Manor, Texas. Additional profile evidence must be supplied by the organization owner.",
+          focusAreas: [],
+          populationsServed: [],
+          state: "TX",
+          counties: ["Travis"],
+          acceptsCollaborators: false,
+        }).onConflictDoNothing().returning();
+        if (!created) {
+          const [raced] = await tx.select().from(organizations)
+            .where(eq(organizations.externalKey, MANOR_FUNDING_PACKAGE_PROFILE_KEY))
+            .limit(1);
+          if (!raced) throw new Error("Manor organization provisioning conflict could not be reconciled");
+          if (raced.userId !== parsed.data.ownerUserId) {
+            return {
+              kind: "identity_conflict" as const,
+              organizationId: raced.id,
+              ownerUserId: raced.userId,
+            };
+          }
+          await tx.insert(organizationMembers).values({
+            orgId: raced.id,
+            userId: parsed.data.ownerUserId,
+            role: "owner",
+          }).onConflictDoNothing();
+          return { kind: "existing" as const, organization: raced };
+        }
+        await tx.insert(organizationMembers).values({
+          orgId: created.id,
+          userId: parsed.data.ownerUserId,
+          role: "owner",
+        }).onConflictDoNothing();
+        return { kind: "created" as const, organization: created };
+      });
+
+      if (result.kind === "owner_not_found") {
+        return res.status(404).json({ error: "The requested owner account was not found; no organization was created." });
+      }
+      if (result.kind === "identity_conflict") {
+        return res.status(409).json({
+          error: "The stable Manor organization key already belongs to a different organization or owner; no reassignment was performed.",
+          organizationId: result.organizationId,
+          ownerUserId: result.ownerUserId,
+        });
+      }
+      if (result.kind === "owner_already_has_organization") {
+        return res.status(409).json({
+          error: "The selected owner already owns an organization under the current one-owner organization rule; no second organization was created.",
+          organizationId: result.organizationId,
+          nextStep: "Choose an owner account without an existing organization or update the organization ownership model through a separate approved change.",
+        });
+      }
+      console.info("[GrantPathPro] Manor organization bootstrap", {
+        actorUserId,
+        ownerUserId: result.organization.userId,
+        organizationId: result.organization.id,
+        created: result.kind === "created",
+      });
+      return res.status(result.kind === "created" ? 201 : 200).json({
+        organization: result.organization,
+        created: result.kind === "created",
+        externalKey: MANOR_FUNDING_PACKAGE_PROFILE_KEY,
+        nextStep: "Use the returned organization.id for the verified Manor-specific GrantPathPro and Mirror calls.",
+      });
+    } catch (err) {
+      console.error("[GrantPathPro] Manor organization bootstrap failed:", err);
+      return res.status(500).json({ error: "Manor organization could not be provisioned" });
+    }
+  });
 
   /**
    * GET /api/consortium/gpp-status

@@ -53,6 +53,10 @@ ThriveUp creates an immutable package containing:
 - the six opportunity lanes and their required verification step;
 - the dated, bounded Mirror projection when available: documented needs,
   service gaps, resident priorities, services, and known funding signals;
+- the permanent Manor four-package taxonomy when the verified organization
+  profile is City of Manor, Texas: water and wastewater infrastructure; lake,
+  flood, and drought resilience; public recreation, parks, and sports access;
+  and affordable/missing-middle housing-enabling infrastructure;
 - known readiness signals, readiness actions, scale-up/scale-out guidance, and
   explicit unknowns;
 - collaborator categories only—not asserted collaborators;
@@ -160,6 +164,27 @@ Award amounts, funder feedback, and lessons are not public evidence and are not
 general AI context. Cross-organization learning remains disabled until a
 separate policy defines explicit organization consent, minimum aggregation
 thresholds, provenance, and human review.
+
+### Manor funding-package taxonomy
+
+The Manor taxonomy is a durable pursuit classification, not an eligibility
+decision. Each opportunity may have one primary package and secondary package
+tags. Uncertain items remain in cross-package review rather than being forced
+into a category. Package membership never establishes funding availability,
+deadline, award likelihood, public/private cost allowability, or authorization.
+The taxonomy is emitted only for the staff-provisioned organization identity
+with the stable external key `manor-tx-city`; matching editable name, state, and
+county text alone is not sufficient.
+
+Staff provisioning is an API-only administrative action:
+`POST /api/staff/organizations/manor/bootstrap` with an authorized
+`ownerUserId`. The route is idempotent, never accepts a caller-supplied
+organization ID, never reassigns an existing owner, and returns a conflict when
+the selected owner already owns an organization under the current one-owner
+legacy constraint. The route confirms that the selected account exists; the
+staff operator remains responsible for independently verifying the owner
+identity before calling it. No self-service or client-supplied owner authority
+is accepted.
 
 ## Read-only pursuit intelligence
 

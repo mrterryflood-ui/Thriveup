@@ -1,4 +1,4 @@
-# Alpha Omega — 2026-09-14 — International boundary and consent closeout
+# Alpha Omega — 2026-09-14 — International closeout and Manor GrantPathPro vertical
 
 ## Alpha
 
@@ -11,7 +11,9 @@
 - **Acceptance:** public invitee provenance is server-normalized,
   invitation/consent creation is atomic, withdrawal is lock-safe, Voice pins
   linked to ITI are token-verified and consent-filterable, crisis copy is
-  truthful, and the homepage discloses availability limits.
+  truthful, the homepage discloses availability limits, and the Manor
+  GrantPathPro package exposes a permanent four-package taxonomy while the
+  organization bootstrap remains staff-only, idempotent, and owner-bound.
 
 ## Omega
 
@@ -20,8 +22,12 @@
 - Seed idempotency and provenance checks: PASS, with the existing static warning
   list for tables without provenance columns.
 - `git diff --check`: PASS.
-- Final six-domain adversarial audit and independent architect review completed.
+- Focused six-domain adversarial audit completed; high-risk findings in the
+  new path were remediated and the final runtime/type/build gates passed.
 - No publish, deploy, destructive action, or production schema migration.
+- Manor taxonomy and staff-only bootstrap implementation added. The development
+  database has the additive external-key schema; no Manor row was created
+  because an authorized owner account was not supplied.
 
 ## Residuals
 
@@ -32,3 +38,5 @@
   and human escalation agreement are verified.
 - Existing unrelated youth-mode, event-authorization, and preview-proxy
   residuals remain open in the project ledger.
+- GrantPathPro production contract verification was not run because
+  `PUBLISHED_BASE_URL` is not configured; no live partner claim is made.

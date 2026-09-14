@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IntegrationInvitation } from "@/components/integration-invitation";
 import { Building2, ExternalLink, FileCheck2, Loader2, Radio, RefreshCw, Send, ShieldCheck } from "lucide-react";
+import { MANOR_FUNDING_PACKAGE_TAXONOMY_VERSION } from "@shared/grantpathpro-taxonomy";
 
 interface MirrorResponse {
   organizationId: string;
@@ -60,6 +61,20 @@ interface OpportunityPackageResponse {
     };
     collaboration: { categories: string[]; status: string };
     privacy: { organizationPrivateByDefault: boolean; crossOrganizationLearning: string };
+    fundingPackages: {
+      profileKey: string;
+      taxonomyVersion: string;
+      disclosure: string;
+      classificationRule: string;
+      packages: Array<{
+        key: string;
+        label: string;
+        purpose: string;
+        candidateComponents: string[];
+        keepSeparateOrFlag: string[];
+        verificationChecklist: string[];
+      }>;
+    } | null;
   };
   authorization: { allowed: boolean; reason: string };
 }
@@ -119,9 +134,30 @@ const deliveryStateLabels: Record<OpportunityHandoff["deliveryState"], string> =
   delivery_unknown: "Delivery needs reconciliation",
 };
 
+const deliveryStates = new Set<OpportunityHandoff["deliveryState"]>([
+  "previewed",
+  "delivered",
+  "rejected",
+  "unavailable",
+  "delivery_unknown",
+]);
+
+function parseDeliveryResponse(value: unknown): { deliveryState: OpportunityHandoff["deliveryState"]; deliveryDetail?: string | null } {
+  if (!value || typeof value !== "object") throw new Error("The handoff service returned an invalid response.");
+  const candidate = value as { deliveryState?: unknown; deliveryDetail?: unknown };
+  if (typeof candidate.deliveryState !== "string" || !deliveryStates.has(candidate.deliveryState as OpportunityHandoff["deliveryState"])) {
+    throw new Error("The handoff service returned an unknown delivery state.");
+  }
+  return {
+    deliveryState: candidate.deliveryState as OpportunityHandoff["deliveryState"],
+    deliveryDetail: typeof candidate.deliveryDetail === "string" || candidate.deliveryDetail === null ? candidate.deliveryDetail : undefined,
+  };
+}
+
 function handoffStatusNotice(state: string, detail: string | null | undefined) {
   const safeDetail = detail || "No delivery detail was provided.";
   if (state === "delivered") return `GrantPathPro confirmed receipt of this handoff package. ${safeDetail}`;
+  if (state === "delivery_unknown") return `Delivery is unconfirmed; GrantPathPro may have received this package. Reconcile this same handoff before retrying. ${safeDetail}`;
   return `Authorization recorded; no partner handoff is complete. ${safeDetail}`;
 }
 
@@ -213,7 +249,11 @@ export default function EntityProfilePage() {
     setIsSubmittingHandoff(false);
     setReconcilingHandoffId(null);
     try {
-      requestIdRef.current = window.sessionStorage.getItem(`gpp-opportunity-pending:${id}`) || "";
+      const storedRequestId = window.sessionStorage.getItem(`gpp-opportunity-pending:${id}`) || "";
+      requestIdRef.current = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(storedRequestId)
+        ? storedRequestId
+        : "";
+      if (storedRequestId && !requestIdRef.current) window.sessionStorage.removeItem(`gpp-opportunity-pending:${id}`);
     } catch {
       requestIdRef.current = "";
     }
@@ -249,7 +289,6 @@ export default function EntityProfilePage() {
   async function authorizeOpportunityHandoff() {
     const requestedOrgId = id;
     const generation = asyncGenerationRef.current;
-    const mutation = ++mutationGenerationRef.current;
     setHandoffError(null);
     setHandoffNotice(null);
     if (!opportunityTitle.trim() || !sourceLabel.trim() || !authorizationConfirmed) {
@@ -269,13 +308,16 @@ export default function EntityProfilePage() {
         return;
       }
     }
+    const mutation = ++mutationGenerationRef.current;
     setSourceUrlError(null);
     setIsSubmittingHandoff(true);
     try {
       if (!requestIdRef.current) {
-        requestIdRef.current = typeof crypto?.randomUUID === "function"
-          ? crypto.randomUUID()
-          : `browser-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+        const generatedRequestId = globalThis.crypto?.randomUUID?.();
+        if (!generatedRequestId) {
+          throw new Error("This browser cannot create a secure handoff request ID. Update the browser and try again.");
+        }
+        requestIdRef.current = generatedRequestId;
       }
       try { window.sessionStorage.setItem(`gpp-opportunity-pending:${requestedOrgId}`, requestIdRef.current); } catch { /* private storage may be unavailable */ }
       const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs`, {
@@ -291,11 +333,11 @@ export default function EntityProfilePage() {
           ...(sourceCheckedAt ? { sourceCheckedAt: new Date(sourceCheckedAt).toISOString() } : {}),
         },
       });
-      const payload = await response.json() as { deliveryState: string; deliveryDetail?: string | null };
+      const payload = parseDeliveryResponse(await response.json());
       if (activeOrgIdRef.current !== requestedOrgId || asyncGenerationRef.current !== generation || mutationGenerationRef.current !== mutation) return;
       setHandoffNotice(handoffStatusNotice(payload.deliveryState, payload.deliveryDetail));
       setAuthorizationConfirmed(false);
-      if (payload.deliveryState === "delivered" || payload.deliveryState === "rejected") {
+      if (payload.deliveryState === "delivered" || payload.deliveryState === "rejected" || payload.deliveryState === "unavailable") {
         try { window.sessionStorage.removeItem(`gpp-opportunity-pending:${requestedOrgId}`); } catch { /* private storage may be unavailable */ }
         requestIdRef.current = "";
       }
@@ -320,9 +362,13 @@ export default function EntityProfilePage() {
     setReconcilingHandoffId(handoffId);
     try {
       const response = await apiRequest("POST", `/api/organizations/${encodeURIComponent(id)}/opportunity-handoffs/${encodeURIComponent(handoffId)}/reconcile`);
-      const payload = await response.json() as { deliveryState: string; deliveryDetail?: string | null };
+      const payload = parseDeliveryResponse(await response.json());
       if (activeOrgIdRef.current !== requestedOrgId || asyncGenerationRef.current !== generation || mutationGenerationRef.current !== mutation) return;
       setHandoffNotice(handoffStatusNotice(payload.deliveryState, payload.deliveryDetail));
+      if (["delivered", "rejected", "unavailable"].includes(payload.deliveryState)) {
+        try { window.sessionStorage.removeItem(`gpp-opportunity-pending:${requestedOrgId}`); } catch { /* private storage may be unavailable */ }
+        requestIdRef.current = "";
+      }
       await handoffHistory.refetch().catch(() => undefined);
     } catch (error) {
       if (activeOrgIdRef.current === requestedOrgId && asyncGenerationRef.current === generation && mutationGenerationRef.current === mutation) {
@@ -342,6 +388,8 @@ export default function EntityProfilePage() {
   const communityMirror = packageData?.communityMirror;
   const readiness = packageData?.readiness;
   const collaboration = packageData?.collaboration;
+  const fundingPackages = packageData?.fundingPackages;
+  const canAuthorize = opportunityPackage.data?.authorization?.allowed === true;
   return (
     <div className="container max-w-5xl py-8 space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
@@ -396,7 +444,7 @@ export default function EntityProfilePage() {
               <MirrorList title="Known funding signals" items={projection?.knownFundingSignals ?? []} />
               <p className="text-xs text-muted-foreground">Raw partner payloads are retained server-side and are not rendered in the browser.</p>
             </div>
-          ) : <p className="text-sm text-muted-foreground">No Mirror snapshot has been received for this organization yet.</p>}
+          ) : mirror.error ? null : <p className="text-sm text-muted-foreground">No Mirror snapshot has been received for this organization yet.</p>}
         </CardContent>
       </Card>
 
@@ -409,7 +457,12 @@ export default function EntityProfilePage() {
         </CardHeader>
         <CardContent className="space-y-5">
           {opportunityPackage.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading opportunity package…</p> : opportunityPackage.error ? (
-            <Alert variant="destructive"><AlertDescription>{opportunityPackage.error instanceof Error ? opportunityPackage.error.message : "Could not load the opportunity package."}</AlertDescription></Alert>
+            <div className="space-y-2">
+              <Alert variant="destructive"><AlertDescription>{opportunityPackage.error instanceof Error ? opportunityPackage.error.message : "Could not load the opportunity package."}</AlertDescription></Alert>
+              <Button variant="outline" size="sm" onClick={() => opportunityPackage.refetch()} disabled={opportunityPackage.isFetching}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${opportunityPackage.isFetching ? "animate-spin" : ""}`} /> Retry opportunity package
+              </Button>
+            </div>
           ) : packageData ? (
             <>
               <div className="grid gap-3 md:grid-cols-2">
@@ -424,6 +477,44 @@ export default function EntityProfilePage() {
                   </div>
                 ))}
               </div>
+              {fundingPackages?.packages?.length ? (
+                <div className="rounded-md border border-primary/30 bg-primary/5 p-4 space-y-4" data-testid="manor-funding-package-taxonomy">
+                  <div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <h3 className="font-semibold">Manor funding packages</h3>
+                      <Badge variant="outline">{fundingPackages.taxonomyVersion || MANOR_FUNDING_PACKAGE_TAXONOMY_VERSION}</Badge>
+                    </div>
+                    <p className="mt-1 text-sm text-muted-foreground">{fundingPackages.disclosure}</p>
+                    <p className="mt-2 text-xs text-muted-foreground"><strong>Classification rule:</strong> {fundingPackages.classificationRule}</p>
+                  </div>
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {fundingPackages.packages.map((fundingPackage) => (
+                      <div key={fundingPackage.key} className="rounded-md border bg-background p-3 space-y-2">
+                        <h4 className="font-semibold text-sm">{fundingPackage.label}</h4>
+                        <p className="text-sm text-muted-foreground">{fundingPackage.purpose}</p>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Candidate components</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                            {fundingPackage.candidateComponents.map((item) => <li key={item}>{item}</li>)}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Keep separate or flag</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                            {fundingPackage.keepSeparateOrFlag.map((item) => <li key={item}>{item}</li>)}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Verify before pursuit</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
+                            {fundingPackage.verificationChecklist.map((item) => <li key={item}>{item}</li>)}
+                          </ul>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
               <div className="rounded-md border border-dashed p-3 text-sm text-muted-foreground space-y-3">
                 <p><strong>Community evidence status:</strong> {communityMirror?.status ?? "unknown"}. {communityMirror?.disclosure ?? "No community evidence status was returned."}</p>
                 <strong>Known profile signals:</strong> {readiness?.knownSignals?.length ? readiness.knownSignals.join(", ") : "None recorded yet."}
@@ -443,7 +534,14 @@ export default function EntityProfilePage() {
                 <strong>Potential collaborator categories:</strong> {collaboration?.categories?.join(", ") || "None recorded."}. {collaboration?.status ?? "Potential only; partner willingness is unknown."}
               </div>
             </>
-          ) : opportunityPackage.data ? <Alert variant="destructive"><AlertDescription>The opportunity package response was incomplete. Refresh and try again; no handoff was authorized.</AlertDescription></Alert> : null}
+          ) : opportunityPackage.data ? (
+            <div className="space-y-2">
+              <Alert variant="destructive"><AlertDescription>The opportunity package response was incomplete. Refresh and try again; no handoff was authorized.</AlertDescription></Alert>
+              <Button variant="outline" size="sm" onClick={() => opportunityPackage.refetch()} disabled={opportunityPackage.isFetching}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${opportunityPackage.isFetching ? "animate-spin" : ""}`} /> Retry opportunity package
+              </Button>
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -481,45 +579,46 @@ export default function EntityProfilePage() {
                 className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal"
                 value={selectedLane}
                 onChange={(event) => setSelectedLane(event.target.value as OpportunityLane)}
+                disabled={!canAuthorize}
               >
                 {Object.entries(laneLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
               </select>
             </label>
             <label className="space-y-1 text-sm font-medium">
               Opportunity name
-              <input aria-label="Opportunity name" data-testid="opportunity-handoff-title" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={opportunityTitle} onChange={(event) => setOpportunityTitle(event.target.value)} placeholder="Name the source-backed opportunity or exploration target" />
+              <input aria-label="Opportunity name" data-testid="opportunity-handoff-title" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={opportunityTitle} onChange={(event) => setOpportunityTitle(event.target.value)} placeholder="Name the source-backed opportunity or exploration target" disabled={!canAuthorize} />
             </label>
             <label className="space-y-1 text-sm font-medium">
               Source type
-              <select aria-label="Opportunity source type" data-testid="opportunity-handoff-source-type" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceType} onChange={(event) => setSourceType(event.target.value as typeof sourceType)}>
-                <option value="primary_source">Current primary source</option>
+              <select aria-label="Opportunity source type" data-testid="opportunity-handoff-source-type" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceType} onChange={(event) => { setSourceType(event.target.value as typeof sourceType); setSourceUrlError(null); setSourceCheckedAtError(null); }} disabled={!canAuthorize}>
+                <option value="primary_source">Primary source (self-attested)</option>
                 <option value="organization_provided">Organization-provided context</option>
                 <option value="unverified_exploration">Unverified exploration target</option>
               </select>
             </label>
             <label className="space-y-1 text-sm font-medium">
               Source label
-              <input aria-label="Opportunity source label" data-testid="opportunity-handoff-source-label" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceLabel} onChange={(event) => setSourceLabel(event.target.value)} placeholder="e.g., agency notice, partner conversation, organization research" />
+              <input aria-label="Opportunity source label" data-testid="opportunity-handoff-source-label" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceLabel} onChange={(event) => setSourceLabel(event.target.value)} placeholder="e.g., agency notice, partner conversation, organization research" disabled={!canAuthorize} />
             </label>
             <label className="space-y-1 text-sm font-medium">
-              Source URL <span className="font-normal text-muted-foreground">{sourceType === "primary_source" ? "(required for a primary source)" : "(optional)"}</span>
-              <input aria-label="Opportunity source URL" aria-invalid={Boolean(sourceUrlError)} aria-describedby={sourceUrlError ? "opportunity-source-url-error" : undefined} data-testid="opportunity-handoff-source-url" type="url" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" />
+              Source URL <span className="font-normal text-muted-foreground">{sourceType === "primary_source" ? "(required for a self-attested primary source)" : "(optional)"}</span>
+              <input aria-label="Opportunity source URL" aria-invalid={Boolean(sourceUrlError)} aria-describedby={sourceUrlError ? "opportunity-source-url-error" : undefined} data-testid="opportunity-handoff-source-url" type="url" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceUrl} onChange={(event) => setSourceUrl(event.target.value)} placeholder="https://…" disabled={!canAuthorize} />
               {sourceUrlError && <span id="opportunity-source-url-error" className="block text-xs font-normal text-destructive">{sourceUrlError}</span>}
             </label>
             <label className="space-y-1 text-sm font-medium">
-              Source checked at <span className="font-normal text-muted-foreground">{sourceType === "primary_source" ? "(required for a primary source)" : "(optional)"}</span>
-              <input aria-label="Opportunity source checked at" aria-invalid={Boolean(sourceCheckedAtError)} aria-describedby={sourceCheckedAtError ? "opportunity-source-checked-at-error" : undefined} data-testid="opportunity-handoff-source-checked-at" type="datetime-local" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceCheckedAt} onChange={(event) => { setSourceCheckedAt(event.target.value); setSourceCheckedAtError(null); }} />
+              Source checked at <span className="font-normal text-muted-foreground">{sourceType === "primary_source" ? "(required for a self-attested primary source)" : "(optional)"}</span>
+              <input aria-label="Opportunity source checked at" aria-invalid={Boolean(sourceCheckedAtError)} aria-describedby={sourceCheckedAtError ? "opportunity-source-checked-at-error" : undefined} data-testid="opportunity-handoff-source-checked-at" type="datetime-local" className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm font-normal" value={sourceCheckedAt} onChange={(event) => { setSourceCheckedAt(event.target.value); setSourceCheckedAtError(null); }} disabled={!canAuthorize} />
               {sourceCheckedAtError && <span id="opportunity-source-checked-at-error" className="block text-xs font-normal text-destructive">{sourceCheckedAtError}</span>}
             </label>
           </div>
           <div className="flex items-start gap-3 rounded-md border p-3">
-            <Checkbox id="authorize-handoff" aria-describedby={authorizationDescriptionId} data-testid="opportunity-handoff-authorize" checked={authorizationConfirmed} onCheckedChange={(checked) => setAuthorizationConfirmed(checked === true)} />
+            <Checkbox id="authorize-handoff" aria-describedby={authorizationDescriptionId} data-testid="opportunity-handoff-authorize" checked={authorizationConfirmed} onCheckedChange={(checked) => setAuthorizationConfirmed(checked === true)} disabled={!canAuthorize} />
             <label id={authorizationDescriptionId} htmlFor="authorize-handoff" className="text-sm leading-5">
               I authorize ThriveUp to send this specific v1 opportunity package to GrantPathPro for internal pursuit intake only. The package includes the organization profile, selected source-labeled opportunity, readiness signals, and stated unknowns. It does not authorize partner, funder, or collaborator outreach; submit an application; or guarantee any outcome.
             </label>
           </div>
-          {opportunityPackage.data && !opportunityPackage.data.authorization.allowed && <p className="text-sm text-muted-foreground">{opportunityPackage.data.authorization.reason} Ask an organization owner to authorize this handoff.</p>}
-          <Button data-testid="opportunity-handoff-submit" aria-label="Authorize and send opportunity handoff" onClick={authorizeOpportunityHandoff} disabled={isSubmittingHandoff || opportunityPackage.isLoading || Boolean(opportunityPackage.error) || opportunityPackage.data?.authorization.allowed === false}>
+          {opportunityPackage.data && !canAuthorize && <p className="text-sm text-muted-foreground">{opportunityPackage.data.authorization?.reason ?? "Only the organization owner or verified staff may authorize this handoff."} Ask an organization owner to authorize this handoff.</p>}
+          <Button data-testid="opportunity-handoff-submit" aria-label="Authorize and send opportunity handoff" onClick={authorizeOpportunityHandoff} disabled={isSubmittingHandoff || opportunityPackage.isLoading || Boolean(opportunityPackage.error) || !canAuthorize}>
             {isSubmittingHandoff ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
             Authorize handoff
           </Button>
@@ -530,7 +629,12 @@ export default function EntityProfilePage() {
         <CardHeader><CardTitle>Private handoff & outcome history</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           {handoffHistory.isLoading ? <p role="status" className="flex items-center gap-2 text-sm text-muted-foreground"><Loader2 className="h-5 w-5 animate-spin" /> Loading private handoff history…</p> : handoffHistory.error ? (
-            <Alert variant="destructive"><AlertDescription>{handoffHistory.error instanceof Error ? handoffHistory.error.message : "Could not load the handoff history."}</AlertDescription></Alert>
+            <div className="space-y-2">
+              <Alert variant="destructive"><AlertDescription>{handoffHistory.error instanceof Error ? handoffHistory.error.message : "Could not load the handoff history."}</AlertDescription></Alert>
+              <Button variant="outline" size="sm" onClick={() => handoffHistory.refetch()} disabled={handoffHistory.isFetching}>
+                <RefreshCw className={`mr-2 h-4 w-4 ${handoffHistory.isFetching ? "animate-spin" : ""}`} /> Retry handoff history
+              </Button>
+            </div>
           ) : handoffHistory.data?.handoffs.length ? handoffHistory.data.handoffs.map((handoff) => (
             <div key={handoff.id} className="rounded-md border p-4 space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-2">
@@ -541,7 +645,7 @@ export default function EntityProfilePage() {
                 <Badge variant={deliveryBadgeVariant(handoff.deliveryState)}>{deliveryStateLabels[handoff.deliveryState] ?? "Unknown delivery state"}</Badge>
               </div>
               {handoff.deliveryDetail && <p className="text-sm text-muted-foreground">{handoff.deliveryDetail}</p>}
-               {["previewed", "unavailable", "delivery_unknown"].includes(handoff.deliveryState) && (
+               {canAuthorize && ["previewed", "unavailable", "delivery_unknown"].includes(handoff.deliveryState) && (
                  <div className="flex flex-wrap items-center gap-2">
                    <Button variant="outline" size="sm" data-testid={`opportunity-handoff-reconcile-${handoff.id}`} onClick={() => reconcileHandoff(handoff.id)} disabled={reconcilingHandoffId === handoff.id}>
                      {reconcilingHandoffId === handoff.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}

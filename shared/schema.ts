@@ -5535,6 +5535,7 @@ export type BriefingWorkflow = typeof briefingWorkflows.$inferSelect;
 export const organizations = pgTable("organizations", {
   id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
   userId: varchar("user_id", { length: 255 }).notNull(),
+  externalKey: varchar("external_key", { length: 120 }),
   name: varchar("name", { length: 500 }).notNull(),
   ein: varchar("ein", { length: 32 }),
   missionText: text("mission_text"),
@@ -5561,10 +5562,12 @@ export const organizations = pgTable("organizations", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 }, (t) => [
   uniqueIndex("idx_orgs_user").on(t.userId),
+  uniqueIndex("idx_organizations_external_key").on(t.externalKey)
+    .where(sql`${t.externalKey} IS NOT NULL`),
 ]);
 
 export const insertOrganizationSchema = createInsertSchema(organizations).omit({
-  id: true, createdAt: true, updatedAt: true, isTcafOrg: true,
+  id: true, createdAt: true, updatedAt: true, isTcafOrg: true, externalKey: true,
 });
 export type InsertOrganization = z.infer<typeof insertOrganizationSchema>;
 export type Organization = typeof organizations.$inferSelect;

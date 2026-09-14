@@ -21,8 +21,13 @@ function envTimeout(name: string, fallbackMs: number): number {
 }
 
 export async function runMigrations(): Promise<void> {
-  const dir = path.resolve(process.cwd(), "migrations");
-  if (!fs.existsSync(dir)) return;
+  const candidateDirs = [
+    path.resolve(process.cwd(), "migrations"),
+    path.resolve(process.cwd(), "dist/migrations"),
+  ];
+  const dir = candidateDirs.find((candidate) => fs.existsSync(candidate)
+    && fs.readdirSync(candidate).some((file) => file.endsWith(".sql")));
+  if (!dir) return;
   const files = fs
     .readdirSync(dir)
     .filter((f) => f.endsWith(".sql"))

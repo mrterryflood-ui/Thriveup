@@ -41,6 +41,7 @@ async function buildAll() {
   // that are not part of Vite's client/public input. Copy them into the
   // production static root so public links resolve to their actual assets.
   await cp("public", "dist/public", { recursive: true, force: true });
+  await cp("migrations", "dist/migrations", { recursive: true, force: true });
   const serviceWorkerPath = "dist/public/sw.js";
   const serviceWorker = await readFile(serviceWorkerPath, "utf-8");
   const deploymentId = (process.env.REPLIT_DEPLOYMENT_ID || `build-${Date.now()}`)
