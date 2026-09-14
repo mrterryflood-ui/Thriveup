@@ -21,7 +21,7 @@ type OrgCategory = "civil-rights" | "legal-aid" | "chambers" | "faith" | "vetera
 interface Organization {
   name: string;
   description: string;
-  website: string;
+  website?: string;
   chapterFinder?: string;
   phone?: string;
   focus: string[];
@@ -93,7 +93,7 @@ const RESOURCE_CATEGORIES: CategoryData[] = [
     description: "Business networks, economic development, and entrepreneurship support. Chambers of commerce connect businesses with resources, advocacy, and opportunities — especially critical for minority-owned businesses breaking barriers.",
     organizations: [
       { name: "U.S. Chamber of Commerce", description: "The world's largest business organization representing over 3 million businesses. Local chambers in every state provide networking, advocacy, and business development resources.", website: "https://uschamber.com", chapterFinder: "https://www.uschamber.com/co/chambers", phone: "202-659-6000", focus: ["Business Advocacy", "Economic Policy", "Small Business", "Workforce Development"], national: true, stateCount: 50 },
-      { name: "National Black Chamber of Commerce (NBCC)", description: "Dedicated to the economic empowerment of Black-owned businesses. Over 190 affiliate chapters providing technical assistance, access to capital, and business development.", website: "https://nationalbcc.org", chapterFinder: "https://nationalbcc.org/", phone: "202-466-6888", focus: ["Black Business Development", "Access to Capital", "Technical Assistance", "Procurement"], national: true },
+      { name: "National Black Chamber of Commerce (NBCC)", description: "Dedicated to the economic empowerment of Black-owned businesses. Over 190 affiliate chapters providing technical assistance, access to capital, and business development.", phone: "202-466-6888", focus: ["Black Business Development", "Access to Capital", "Technical Assistance", "Procurement"], national: true },
       { name: "U.S. Hispanic Chamber of Commerce (USHCC)", description: "Promotes Hispanic-owned businesses. Represents 4.37 million Hispanic-owned businesses contributing over $800 billion to the economy annually.", website: "https://ushcc.com", chapterFinder: "https://ushcc.com", phone: "202-842-1212", focus: ["Hispanic Business Growth", "Government Contracting", "Corporate Partnerships", "Policy Advocacy"], national: true },
       { name: "Asian/Pacific Islander American Chamber of Commerce", description: "Advocates for Asian American and Pacific Islander business community. Provides access to capital, business education, and networking opportunities.", website: "https://national-apacc.org", focus: ["AAPI Business Development", "Capital Access", "Mentoring", "Trade Development"], national: true },
       { name: "National LGBT Chamber of Commerce (NGLCC)", description: "The exclusive certifying body for LGBTQ+-owned businesses. Provides certification, corporate partnerships, and business development resources.", website: "https://nglcc.org", chapterFinder: "https://nglcc.org/affiliate-chambers", phone: "202-234-9181", focus: ["LGBTQ+ Business Certification", "Corporate Supplier Diversity", "Business Development", "Advocacy"], national: true },
@@ -776,7 +776,7 @@ export default function CommunityResourceDirectoryPage() {
                             </div>
 
                             <div className="flex flex-wrap gap-2 pt-2">
-                              {isEcosystem ? (
+                              {org.website && (isEcosystem ? (
                                 <Button size="sm" variant="outline" className="text-xs" asChild>
                                   <Link href={org.website}>
                                     <ArrowRight className="w-3 h-3 mr-1" /> Go to Platform
@@ -788,7 +788,7 @@ export default function CommunityResourceDirectoryPage() {
                                     <Globe className="w-3 h-3 mr-1" /> Visit Website
                                   </a>
                                 </Button>
-                              )}
+                              ))}
                               {org.chapterFinder && (
                                 <Button size="sm" variant={selectedState ? "default" : "outline"} className={`text-xs ${selectedState ? "bg-green-600 hover:bg-green-700" : ""}`} asChild>
                                   <a href={org.chapterFinder} target="_blank" rel="noopener noreferrer">

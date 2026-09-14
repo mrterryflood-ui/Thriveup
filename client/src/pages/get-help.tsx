@@ -163,7 +163,7 @@ const SERVICE_CATEGORIES: ServiceCategory[] = [
       { name: "SafeReport", description: "Incident reporting and compliance — 7-stage lifecycle, 50-state regulation database", internalLink: "/ecosystem", platform: "SafeReport" },
       { name: "Justice Partners Hub", description: "Reentry resources, criminal justice reform, and community partnerships", internalLink: "/justice-partners", platform: "ThriveUp Hub" },
       { name: "Texas RioGrande Legal Aid", description: "Free civil legal services for low-income Texans", externalLink: "https://www.trla.org/" },
-      { name: "Lone Star Legal Aid", description: "Free legal help in Texas and Arkansas for those who can't afford an attorney", externalLink: "https://lonestarlegal.blog/" },
+      { name: "Lone Star Legal Aid", description: "Free legal help in Texas and Arkansas for those who can't afford an attorney", externalLink: "https://lonestarlegal.org/" },
       { name: "Texas Crime Victims Resources", description: "Victim services, compensation, and advocacy", externalLink: "https://www.texasattorneygeneral.gov/crime-victims" },
     ],
   },

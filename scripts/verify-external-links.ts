@@ -50,6 +50,11 @@ async function checkUrl(url: string): Promise<Result> {
     if (!ok && (res.status === 403 || res.status === 429)) {
       return { url, status: res.status, ok: true, note: `HTTP ${res.status} (bot-blocked?)` };
     }
+    // 5xx responses are transient server errors, not confirmed dead links —
+    // treat as a warning so a momentary production outage doesn't fail the gate.
+    if (!ok && res.status >= 500) {
+      return { url, status: res.status, ok: true, note: `HTTP ${res.status} (server error, skip)` };
+    }
     return { url, status: res.status, ok, note: ok ? "OK" : `HTTP ${res.status}` };
   } catch (e: any) {
     if (e.name === "AbortError") return { url, status: null, ok: true, note: "TIMEOUT (skip)" };

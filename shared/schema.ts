@@ -8485,3 +8485,25 @@ export const childcoreCountyMetrics = pgTable("childcore_county_metrics", {
 
 export type ChildcoreCountyMetric = typeof childcoreCountyMetrics.$inferSelect;
 export type InsertChildcoreCountyMetric = typeof childcoreCountyMetrics.$inferInsert;
+
+export const userCommunityBriefCache = pgTable("user_community_brief_cache", {
+  id: serial("id").primaryKey(),
+  userId: varchar("user_id", { length: 255 }).notNull().unique(),
+  locations: jsonb("locations")
+    .$type<Array<{ label: string; region: string; zip?: string; countyFips?: string }>>()
+    .notNull()
+    .default([]),
+  topic: varchar("topic", { length: 500 }),
+  /** Truncated briefing text (first ~1 500 chars) for Navigator injection. */
+  briefSummary: text("brief_summary"),
+  /** ISO timestamp of the brief — injected verbatim into the Navigator prompt. */
+  generatedAt: timestamp("generated_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  index("user_community_brief_cache_user_idx").on(t.userId),
+  index("user_community_brief_cache_generated_idx").on(t.generatedAt),
+]);
+
+export type UserCommunityBriefCache = typeof userCommunityBriefCache.$inferSelect;
+
+export type InsertUserCommunityBriefCache = typeof userCommunityBriefCache.$inferInsert;

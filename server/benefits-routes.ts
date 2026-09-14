@@ -10,6 +10,7 @@ import {
   insertBenefitsPartnerSchema, insertBenefitsChwSchema,
   insertBenefitsScreeningSchema, insertBenefitsRenewalSchema,
   insertBenefitsApplicationSchema,
+  userCommunityBriefCache,
 } from "@shared/schema";
 import { eq, desc, and, count, sql, ne } from "drizzle-orm";
 import { generateAIResponse, generateAIJSON, withEthicalPreamble } from "./ai-provider";
@@ -2357,18 +2358,63 @@ Write EXACTLY 500 words (±20). Do NOT include a title or headers — just flowi
       const totalEnrolled = allTracts.reduce((s, t) => s + t.enrolledPop, 0);
       const totalGap = totalEligible - totalEnrolled;
 
+      const sdohGapRate = totalEligible > 0 ? Math.round((totalGap / totalEligible) * 100) : 0;
+      const sdohUnclaimedBenefits = `$${((totalGap * 4800) / 1e9).toFixed(1)}B`;
+
+      // Fire-and-forget: cache the SDOH analysis for authenticated users so
+      // Navigator's personal-context layer can ground its answers in the
+      // geographic intelligence the user just reviewed.
+      const sdohUserId = getUserId(req);
+      if (sdohUserId && allTracts.length > 0) {
+        const countyNames = Object.values(countySummaries)
+          .map((c: any) => c.name)
+          .filter(Boolean);
+        const sdohLocations = countyNames.map((name: string) => ({ label: name, region: name }));
+        const sdohSummary =
+          `SDOH Analysis for ${countyNames.join(", ")}:\n` +
+          `  • Benefits gap rate: ${sdohGapRate}% (${sdohUnclaimedBenefits} unclaimed est.)\n` +
+          `  • Total population: ${allTracts.reduce((s: number, t: any) => s + t.totalPop, 0).toLocaleString()}\n` +
+          `  • Estimated eligible: ${totalEligible.toLocaleString()} | enrolled: ${totalEnrolled.toLocaleString()} | gap: ${totalGap.toLocaleString()}\n` +
+          `  • High-barrier tracts: ${allTracts.filter((t: any) => t.barrierIndex > 20).length} of ${allTracts.length}\n` +
+          `  • Top barrier factors by avg: poverty rate, limited English, no broadband, no vehicle, uninsured rate\n` +
+          `Source: U.S. Census ACS 5-Year Estimates (2018–2022). All values are model-derived estimates.`;
+        void db
+          .insert(userCommunityBriefCache)
+          .values({
+            userId: sdohUserId,
+            locations: sdohLocations,
+            topic: "SDOH / Benefits Gap Analysis",
+            briefSummary: sdohSummary.slice(0, 1500),
+            generatedAt: new Date(),
+            updatedAt: new Date(),
+          })
+          .onConflictDoUpdate({
+            target: userCommunityBriefCache.userId,
+            set: {
+              locations: sdohLocations,
+              topic: "SDOH / Benefits Gap Analysis",
+              briefSummary: sdohSummary.slice(0, 1500),
+              generatedAt: new Date(),
+              updatedAt: new Date(),
+            },
+          })
+          .catch((err: unknown) => {
+            console.warn("[sdoh-explorer] brief cache save failed (non-fatal):", err instanceof Error ? err.message : String(err));
+          });
+      }
+
       res.json({
         query: { state: stateCode, counties: countyCodeList },
         summary: {
           totalPopulation: allTracts.reduce((s, t) => s + t.totalPop, 0),
           totalEligible, totalEnrolled, totalGap,
-          gapRate: totalEligible > 0 ? Math.round((totalGap / totalEligible) * 100) : 0,
+          gapRate: sdohGapRate,
           totalTracts: allTracts.length,
           highPovertyTracts: allTracts.filter(t => t.povertyRate > 25).length,
           highBarrierTracts: allTracts.filter(t => t.barrierIndex > 20).length,
           noBroadbandTracts: allTracts.filter(t => t.noBroadbandPct > 10).length,
           noVehicleTracts: allTracts.filter(t => t.noVehiclePct > 10).length,
-          unclaimedBenefits: `$${((totalGap * 4800) / 1e9).toFixed(1)}B`,
+          unclaimedBenefits: sdohUnclaimedBenefits,
         },
         counties: countySummaries,
         topBarrierTracts: allTracts.sort((a, b) => b.barrierIndex - a.barrierIndex).slice(0, 20),

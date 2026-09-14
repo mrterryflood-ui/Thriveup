@@ -27,11 +27,52 @@ import {
   rpliceAssessments,
   rpliceActionPlans,
   outcomeBaselines,
+  userCommunityBriefCache,
 } from "@shared/schema";
 import { generateAIJSON, generateAIResponse, streamAIResponse } from "./ai-provider";
 
 const MAX_LEN = 2000;
 const MAX_LOCATIONS = 6;
+
+// ── Community brief cache persistence ────────────────────────────────────────
+// Saves the completed briefing for the authenticated user so Navigator's
+// personal-context layer can inject it on the next conversation.
+// Always awaited before the response completes so Navigator never reads stale
+// context. The function catches its own DB failures (non-fatal), so awaiting
+// it is safe even when the write fails.
+export async function saveBriefCacheForUser(
+  userId: string,
+  locations: Array<{ label: string; region: string; zip?: string; countyFips?: string }>,
+  topic: string,
+  briefText: string,
+): Promise<void> {
+  try {
+    const summary = briefText.slice(0, 1500);
+    await db
+      .insert(userCommunityBriefCache)
+      .values({
+        userId,
+        locations,
+        topic,
+        briefSummary: summary,
+        generatedAt: new Date(),
+        updatedAt: new Date(),
+      })
+      .onConflictDoUpdate({
+        target: userCommunityBriefCache.userId,
+        set: {
+          locations,
+          topic,
+          briefSummary: summary,
+          generatedAt: new Date(),
+          updatedAt: new Date(),
+        },
+      });
+  } catch (err) {
+    // Non-fatal — brief cache failure must never break the briefing response.
+    console.warn("[regional-briefing] brief cache save failed (non-fatal):", err instanceof Error ? err.message : String(err));
+  }
+}
 
 // ── Auth + rate-limit ────────────────────────────────────────────────────────
 function getUserId(req: Request): string | undefined {
@@ -916,6 +957,12 @@ export function registerRegionalBriefingRoutes(app: Express): void {
           16000,
           { enableWebSearch: true, webSearchMaxUses: 12 },
         );
+        // Await the cache write before responding — ensures Navigator reads
+        // fresh context when the client opens a follow-up conversation.
+        const queryUserId = getUserId(req);
+        if (queryUserId) {
+          await saveBriefCacheForUser(queryUserId, locations, topic, answer);
+        }
         res.json({
           locations,
           topic,
@@ -973,6 +1020,12 @@ export function registerRegionalBriefingRoutes(app: Express): void {
           })}\n\n`,
         );
 
+        // Accumulate streamed chunks so we can cache the completed brief.
+        // The save is awaited BEFORE writing {done:true} — the client only
+        // learns the brief is done after Navigator context is already fresh.
+        const streamUserId = getUserId(req);
+        let accumulatedBrief = "";
+        let streamFailed = false;
         await streamAIResponse({
           messages: [
             {
@@ -989,17 +1042,28 @@ export function registerRegionalBriefingRoutes(app: Express): void {
           enableWebSearch: true,
           webSearchMaxUses: 12,
           onChunk: (content: string) => {
+            accumulatedBrief += content;
             if (!clientDisconnected) res.write(`data: ${JSON.stringify({ content })}\n\n`);
           },
           onDone: () => {
-            if (!clientDisconnected) res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
-            res.end();
+            // Intentionally left empty: save + done signal handled below after
+            // streamAIResponse resolves, so the ordering is guaranteed.
           },
           onError: (error: Error) => {
+            streamFailed = true;
             if (!clientDisconnected) res.write(`data: ${JSON.stringify({ error: error.message })}\n\n`);
             res.end();
           },
         });
+        // Save BEFORE signaling done — client receives {done:true} only after
+        // the upsert completes, so a follow-up Navigator session is never early.
+        if (!streamFailed) {
+          if (streamUserId && accumulatedBrief.length > 0) {
+            await saveBriefCacheForUser(streamUserId, locations, topic, accumulatedBrief);
+          }
+          if (!clientDisconnected) res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+          res.end();
+        }
       } catch (err) {
         console.error("[regional-briefing] stream failed:", err);
         if (!res.headersSent) res.status(500).json({ error: "Failed to stream briefing" });
