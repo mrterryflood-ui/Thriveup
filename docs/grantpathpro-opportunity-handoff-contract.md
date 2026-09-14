@@ -177,14 +177,12 @@ with the stable external key `manor-tx-city`; matching editable name, state, and
 county text alone is not sufficient.
 
 Staff provisioning is an API-only administrative action:
-`POST /api/staff/organizations/manor/bootstrap` with an authorized
-`ownerUserId`. The route is idempotent, never accepts a caller-supplied
-organization ID, never reassigns an existing owner, and returns a conflict when
-the selected owner already owns an organization under the current one-owner
-legacy constraint. The route confirms that the selected account exists; the
-staff operator remains responsible for independently verifying the owner
-identity before calling it. No self-service or client-supplied owner authority
-is accepted.
+`POST /api/staff/organizations/manor/bootstrap` with no owner or organization
+identifier in the request body. The route is idempotent, never accepts a
+caller-supplied organization ID, and creates an integration-owned organization
+keyed by `manor-tx-city`. Normal user-owned organizations keep their existing
+owner and membership model; Manor is staff/API-scoped because the GrantPathPro
+connection is an integration identity, not a personal account.
 
 ## Read-only pursuit intelligence
 

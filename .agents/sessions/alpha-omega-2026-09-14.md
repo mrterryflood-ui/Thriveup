@@ -13,7 +13,8 @@
   linked to ITI are token-verified and consent-filterable, crisis copy is
   truthful, the homepage discloses availability limits, and the Manor
   GrantPathPro package exposes a permanent four-package taxonomy while the
-  organization bootstrap remains staff-only, idempotent, and owner-bound.
+   organization bootstrap remains staff-only, idempotent, and integration-owned;
+   it does not require a personal owner ID.
 
 ## Omega
 
@@ -26,8 +27,8 @@
   new path were remediated and the final runtime/type/build gates passed.
 - No publish, deploy, destructive action, or production schema migration.
 - Manor taxonomy and staff-only bootstrap implementation added. The development
-  database has the additive external-key schema; no Manor row was created
-  because an authorized owner account was not supplied.
+  database has the additive external-key and integration-owned schema; no Manor
+  row was created during verification.
 
 ## Residuals
 

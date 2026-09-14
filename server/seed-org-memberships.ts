@@ -9,12 +9,15 @@
 
 import { db } from "./storage";
 import { organizations, organizationMembers } from "@shared/schema";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, isNotNull } from "drizzle-orm";
 
 export async function seedOrgMemberships(): Promise<void> {
   try {
-    const orgs = await db.select({ id: organizations.id, userId: organizations.userId }).from(organizations);
+    const orgs = await db.select({ id: organizations.id, userId: organizations.userId })
+      .from(organizations)
+      .where(isNotNull(organizations.userId));
     for (const o of orgs) {
+      if (!o.userId) continue;
       const existing = await db.select({ id: organizationMembers.id }).from(organizationMembers)
         .where(and(eq(organizationMembers.orgId, o.id), eq(organizationMembers.userId, o.userId)));
       if (existing.length === 0) {
