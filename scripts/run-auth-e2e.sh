@@ -48,6 +48,7 @@ npx playwright test \
   tests/e2e/smoke.spec.ts \
   tests/e2e/hub-pages-smoke.spec.ts \
   tests/e2e/staff-role-access.spec.ts \
+  tests/e2e/childcore-integration.spec.ts \
   tests/e2e/studio-builder.spec.ts \
   tests/e2e/foster-youth-journey.spec.ts
 PLAYWRIGHT_EXIT=$?
