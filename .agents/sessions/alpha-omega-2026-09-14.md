@@ -30,6 +30,52 @@
   database has the additive external-key and integration-owned schema; no Manor
   row was created during verification.
 
+---
+
+# Alpha Omega — 2026-09-14 — CHW Navigator context regression coverage
+
+## Alpha
+
+- End-state: a forged CHW browser session proves the referral modal shows the
+  Navigator needs and geography only when `/api/navigator/context` reports an
+  existing session, and forwards the conversation id only in that case.
+- In-state evidence: `client/src/pages/chw-dashboard.tsx` fetches context when
+  the referral modal opens, conditionally renders `navigator-context-panel`,
+  and conditionally adds `navigatorConversationId` to `POST /api/referrals`.
+  Existing `tests/e2e/helpers/auth.ts` supplies signed sessions and
+  `academy_avatars.role` provisioning.
+- Authority/boundaries: test the user-visible interaction with Playwright;
+  mock the context and referral responses plus unrelated dashboard registry
+  data for determinism; create no referral row and make no production,
+  deployment, or schema changes.
+- Acceptance proofs: one `hasContext: true` case checks needs, geography, and
+  forwarded id; one `hasContext: false` case checks panel absence and omitted
+  id; `run-auth-e2e.sh` chains the spec.
+- Unknowns/deferred decisions: no implementation change is needed unless the
+  focused browser proof exposes a current contract mismatch.
+
+## Omega
+
+- Implementation: added `tests/e2e/chw-navigator-context.spec.ts` with forged
+  `case_manager` sessions and isolated positive/negative Navigator fixtures;
+  chained it into `scripts/run-auth-e2e.sh`. The test also keeps unrelated
+  resource and capacity data deterministic and uses the real referral response
+  shape.
+- Proofs: focused Playwright spec passed 2/2 after the final fixture changes;
+  TypeScript passed; preflight passed 9/9; memory health passed; `git
+  diff --check` passed; the application workflow remained healthy.
+- Independent audit: six-domain adversarial review found no critical or
+  high-severity defect in task 402. The invalid mock response shape and live
+  capacity dependency were corrected. Existing server-side structured-context
+  forwarding and conversation-ownership gaps remain outside this task.
+- Outcome: the requested panel visibility, needs/geography rendering,
+  conversation-id forwarding, and omission behavior are verified in the
+  authenticated CHW flow.
+- Follow-ups: proposed #421 for forwarding structured Navigator context and
+  #422 for rejecting cross-user Navigator conversation ids.
+- Residuals: no production, deployment, destructive database, or schema
+  migration work was performed.
+
 ## Residuals
 
 - International RPLICE exchange-contract fetching and journey-spine context
