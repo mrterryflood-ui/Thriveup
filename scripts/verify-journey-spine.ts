@@ -26,6 +26,7 @@ import { registerBenefitsRoutes } from "../server/benefits-routes";
 import { referralRouter } from "../server/referral-routes";
 import { registerYhsiRoutes } from "../server/yhsi-routes";
 import { getPersonalContext } from "../server/personal-context";
+import { mergeJourneyNeeds } from "../server/journey-spine";
 
 const PREFIX = "journey-spine-contract-";
 const RUN_ID = randomUUID().replace(/-/g, "").slice(0, 12);
@@ -303,6 +304,19 @@ async function main(): Promise<void> {
     );
     check("Personal context labels ChildCORE metrics as partner-reported",
       context.contextBlock.includes("partner-reported, not independently verified"),
+    );
+
+    const longNavigatorGeography = "New Orleans, Louisiana";
+    await mergeJourneyNeeds(USER_ID, ["childcare"], longNavigatorGeography);
+    const [longGeographyJourney] = await db
+      .select()
+      .from(userJourneys)
+      .where(eq(userJourneys.userId, USER_ID))
+      .limit(1);
+    check(
+      "Navigator city/state geography and needs persist beyond the legacy 20-character limit",
+      longGeographyJourney?.lastKnownGeography === longNavigatorGeography &&
+        longGeographyJourney.identifiedNeeds?.includes("childcare"),
     );
 
     const childcorePushesReady = await waitFor("YHSI sends both ChildCORE notifications", async () =>

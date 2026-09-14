@@ -8443,7 +8443,7 @@ export type InsertLearningDeposit = typeof learningDeposits.$inferInsert;
 // ─────────────────────────────────────────────────────────────────────────────
 export const userJourneys = pgTable("user_journeys", {
   userId: varchar("user_id", { length: 255 }).primaryKey().notNull(),
-  lastKnownGeography: varchar("last_known_geography", { length: 20 }),
+  lastKnownGeography: text("last_known_geography"),
   communityContext: jsonb("community_context").$type<CommunityContext | null>(),
   identifiedNeeds: jsonb("identified_needs").$type<string[]>(),
   screenerFlags: jsonb("screener_flags").$type<Record<string, boolean>>(),

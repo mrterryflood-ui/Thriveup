@@ -6,7 +6,7 @@ async function migrate() {
   await db.execute(sql`
     CREATE TABLE IF NOT EXISTS user_journeys (
       user_id VARCHAR(255) PRIMARY KEY NOT NULL,
-      last_known_geography VARCHAR(20),
+      last_known_geography TEXT,
       community_context JSONB,
       identified_needs JSONB,
       screener_flags JSONB,

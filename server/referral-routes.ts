@@ -1,6 +1,6 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import { db } from "./storage";
-import { referrals, orgCapacity } from "@shared/schema";
+import { navigatorConversations, referrals, orgCapacity } from "@shared/schema";
 import { eq, desc, isNull, and, gt, or, sql, inArray } from "drizzle-orm";
 // Canonical staff gate — same function used by YHSI, funder, and reentry routes.
 import { requireStaff, getUserId } from "./yhsi-routes";
@@ -168,6 +168,28 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
   try {
     const { programCode, orgName, orgId, clientDisplayName, clientPhone, screeningId, funderId, notes, waitlistAcknowledged, navigatorConversationId, navigatorContext } = req.body;
     if (!programCode || !orgName) return res.status(400).json({ error: "programCode and orgName required" });
+    if (navigatorContext !== undefined && navigatorContext !== null) {
+      return res.status(400).json({ error: "Navigator context is server-managed" });
+    }
+    const creatorId = getUserId(req)!;
+    let ownedNavigatorConversationId: string | null = null;
+    if (navigatorConversationId !== undefined && navigatorConversationId !== null) {
+      if (typeof navigatorConversationId !== "string" || !navigatorConversationId.trim()) {
+        return res.status(400).json({ error: "Invalid Navigator conversation" });
+      }
+      const [ownedConversation] = await db
+        .select({ id: navigatorConversations.id })
+        .from(navigatorConversations)
+        .where(and(
+          eq(navigatorConversations.id, navigatorConversationId.trim()),
+          eq(navigatorConversations.userId, creatorId),
+        ))
+        .limit(1);
+      if (!ownedConversation) {
+        return res.status(400).json({ error: "Navigator conversation not found" });
+      }
+      ownedNavigatorConversationId = ownedConversation.id;
+    }
 
     // Capacity guard: block referrals to orgs whose intake is closed, and
     // require explicit acknowledgement when the org is on a waitlist. The
@@ -201,11 +223,8 @@ referralRouter.post("/", requireStaff, rateLimit("referral-create", 60, 60 * 60 
       chwUserId: getUserId(req)!,
       funderId: funderId || null,
       notes: notes || null,
-      navigatorConversationId: navigatorConversationId || null,
-      // Store only the structured context object; never raw conversation text
-      navigatorContext: navigatorContext && typeof navigatorContext === "object"
-        ? navigatorContext
-        : null,
+      navigatorConversationId: ownedNavigatorConversationId,
+      navigatorContext: null,
     }).returning();
 
     // FEATURE 3: fire-and-forget referral.created. Never awaited; zero

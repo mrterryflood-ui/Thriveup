@@ -53,6 +53,30 @@ import { getPersonalContext } from "./personal-context";
 import { YOUTH_MODE_KNOWLEDGE } from "./yhsi-program-knowledge";
 import { getGunViolenceIntelligenceData } from "./gun-violence-routes";
 import { getChildcareContextSummary } from "./childcare-provider-intel";
+import {
+  detectNavigatorContextGeography as detectNavigatorContextGeographyImpl,
+  sanitizeNavigatorContextGeography as sanitizeNavigatorContextGeographyImpl,
+  updateNavigatorUserContext,
+} from "./navigator-context";
+
+type NavigatorContextGeography = {
+  zip?: string;
+  city?: string;
+  state?: string;
+};
+
+/**
+ * Keep the cross-tool Navigator handoff limited to the geography fields the
+ * CHW panel displays. Navigator context can gain additional internal fields
+ * over time; those must not become referral-visible by pass-through.
+ */
+export function sanitizeNavigatorContextGeography(value: unknown): NavigatorContextGeography | null {
+  return sanitizeNavigatorContextGeographyImpl(value);
+}
+
+export function detectNavigatorContextGeography(message: string): NavigatorContextGeography | null {
+  return detectNavigatorContextGeographyImpl(message);
+}
 
 /**
  * OCR a PDF buffer by rendering pages with pdftoppm then sending images to
@@ -1552,6 +1576,7 @@ export function registerNavigatorRoutes(app: Express) {
     }
 
     let activeConversationId = conversationId || null;
+    const detectedNavigatorGeography = detectNavigatorContextGeography(message);
 
     if (userId) {
       try {
@@ -1562,6 +1587,9 @@ export function registerNavigatorRoutes(app: Express) {
               userId,
               title: generateConversationTitle(message),
               identifiedNeeds: detectNeeds(message),
+              userContext: detectedNavigatorGeography
+                ? { geography: detectedNavigatorGeography }
+                : undefined,
               youthMode: effectiveYouthMode,
             })
             .returning();
@@ -1584,16 +1612,16 @@ export function registerNavigatorRoutes(app: Express) {
               .json({ error: "Conversation not found or access denied" });
           }
 
+          const nextUserContext = updateNavigatorUserContext(
+            owned.userContext,
+            detectedNavigatorGeography,
+          );
+
           // The active thread owns its Youth Mode value. Persist both
           // transitions so turning the setting off on an existing thread is
           // as durable as turning it on.
           if (!youthModeProvided) {
             effectiveYouthMode = owned.youthMode;
-          } else if (owned.youthMode !== effectiveYouthMode) {
-            await db
-              .update(navigatorConversations)
-              .set({ youthMode: effectiveYouthMode })
-              .where(eq(navigatorConversations.id, activeConversationId));
           }
 
           const newNeeds = detectNeeds(message);
@@ -1603,12 +1631,29 @@ export function registerNavigatorRoutes(app: Express) {
             );
             await db
               .update(navigatorConversations)
-              .set({ identifiedNeeds: allNeeds, lastMessageAt: new Date() })
+              .set({
+                identifiedNeeds: allNeeds,
+                lastMessageAt: new Date(),
+                ...(owned.youthMode !== effectiveYouthMode
+                  ? { youthMode: effectiveYouthMode }
+                  : {}),
+                ...(detectedNavigatorGeography
+                  ? { userContext: nextUserContext }
+                  : {}),
+              })
               .where(eq(navigatorConversations.id, activeConversationId));
           } else {
             await db
               .update(navigatorConversations)
-              .set({ lastMessageAt: new Date() })
+              .set({
+                lastMessageAt: new Date(),
+                ...(owned.youthMode !== effectiveYouthMode
+                  ? { youthMode: effectiveYouthMode }
+                  : {}),
+                ...(detectedNavigatorGeography
+                  ? { userContext: nextUserContext }
+                  : {}),
+              })
               .where(eq(navigatorConversations.id, activeConversationId));
           }
         }
@@ -1624,11 +1669,19 @@ export function registerNavigatorRoutes(app: Express) {
             .limit(1)
             .then(async ([convo]) => {
               if (!convo?.identifiedNeeds?.length) return;
-              const geography = message.match(/\b\d{5}\b/)?.[0];
+              const geography = detectedNavigatorGeography
+                ? [
+                    detectedNavigatorGeography.city,
+                    detectedNavigatorGeography.state,
+                    detectedNavigatorGeography.zip,
+                  ]
+                    .filter(Boolean)
+                    .join(", ")
+                : undefined;
               await mergeJourneyNeeds(
                 userId,
                 convo.identifiedNeeds,
-                geography ? `zip:${geography}` : undefined,
+                geography || undefined,
               );
             })
             .catch((err) => {
@@ -2219,6 +2272,12 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
       const allNeeds = [...new Set(convos.flatMap(c => c.identifiedNeeds ?? []))];
       const latest = convos[0] ?? null;
+      const latestUserContext =
+        latest?.userContext &&
+        typeof latest.userContext === "object" &&
+        !Array.isArray(latest.userContext)
+          ? (latest.userContext as Record<string, unknown>)
+          : null;
 
       return res.json({
         hasContext: convos.length > 0,
@@ -2226,7 +2285,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         latestTitle: latest?.title ?? null,
         latestAt: latest?.lastMessageAt ?? null,
         identifiedNeeds: allNeeds,
-        geography: (latest?.userContext as Record<string, any> | null)?.geography ?? null,
+        geography: sanitizeNavigatorContextGeography(latestUserContext?.geography),
         conversationCount: convos.length,
         conversations: convos.map(c => ({
           id: c.id,
@@ -2265,7 +2324,13 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
       if (!latest) return res.json({ hasContext: false });
 
       const needs = (latest.identifiedNeeds ?? []).map((n: string) => n.toLowerCase());
-      const geo = (latest.userContext as Record<string, any> | null)?.geography ?? null;
+      const latestUserContext =
+        latest.userContext &&
+        typeof latest.userContext === "object" &&
+        !Array.isArray(latest.userContext)
+          ? (latest.userContext as Record<string, unknown>)
+          : null;
+      const geo = sanitizeNavigatorContextGeography(latestUserContext?.geography);
 
       const prefill: Record<string, unknown> = {
         hasContext: true,

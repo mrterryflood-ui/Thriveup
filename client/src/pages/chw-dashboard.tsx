@@ -345,7 +345,7 @@ function getTrainingStatusBadge(status: string) {
 export default function ChwDashboardPage() {
   useEffect(() => { document.title = "CHW Dashboard | ThriveUp"; }, []);
   const { toast } = useToast();
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
   const [resourceFilter, setResourceFilter] = useState("all");
   const [trainingFilter, setTrainingFilter] = useState("all");
@@ -422,6 +422,7 @@ export default function ChwDashboardPage() {
   const [outcomeFilter, setOutcomeFilter] = useState<string>("needs-follow-up");
   // Navigator context panel — collapsible, open by default when context exists
   const [navPanelOpen, setNavPanelOpen] = useState(true);
+  const [navigatorLocationDismissed, setNavigatorLocationDismissed] = useState(false);
 
   // Childcare gap intelligence — WSRCA footprint + nationwide search
   const [childcareSearchInput, setChildcareSearchInput] = useState("");
@@ -491,7 +492,10 @@ export default function ChwDashboardPage() {
 
   // Navigator context — fetched when the referral modal opens so the CHW can
   // see what the client already told the AI before filling in the form.
-  const { data: navigatorCtx } = useQuery<{
+  const {
+    data: navigatorCtx,
+    isError: navigatorContextError,
+  } = useQuery<{
     hasContext: boolean;
     latestConversationId: string | null;
     latestTitle: string | null;
@@ -500,7 +504,7 @@ export default function ChwDashboardPage() {
     geography: { zip?: string; city?: string; state?: string } | null;
     conversationCount: number;
   }>({
-    queryKey: ["/api/navigator/context"],
+    queryKey: ["/api/navigator/context", user?.id ?? null],
     queryFn: async () => {
       const res = await fetch("/api/navigator/context");
       if (!res.ok) throw new Error("Navigator context unavailable");
@@ -510,6 +514,20 @@ export default function ChwDashboardPage() {
     staleTime: 2 * 60 * 1000,
     retry: false,
   });
+  // Do not retain one user's Navigator context when the authenticated account
+  // changes in the same SPA session.
+  useEffect(() => {
+    queryClient.removeQueries({ queryKey: ["/api/navigator/context"] });
+  }, [user?.id]);
+  const navigatorLocationLabel = navigatorCtx?.geography
+    ? [
+        navigatorCtx.geography.city,
+        navigatorCtx.geography.state,
+        navigatorCtx.geography.zip,
+      ]
+        .filter(Boolean)
+        .join(", ")
+    : "";
 
   // Funder list — same endpoint the staff funder admin page uses.
   const { data: fundersData } = useQuery<{ funders: FunderOption[] }>({
@@ -609,6 +627,23 @@ export default function ChwDashboardPage() {
     setFunderId("");
     setReferralNotes("");
     setWaitlistAcknowledged(false);
+    setNavigatorLocationDismissed(false);
+  }
+
+  function insertNavigatorLocation() {
+    if (!navigatorLocationLabel) return;
+    const locationNote = `Client-reported location: ${navigatorLocationLabel}`;
+    setReferralNotes((currentNotes) => {
+      if (currentNotes.includes(locationNote)) return currentNotes;
+      return currentNotes.trim()
+        ? `${currentNotes.trim()}\n${locationNote}`
+        : locationNote;
+    });
+    setNavigatorLocationDismissed(true);
+    toast({
+      title: "Location added to notes",
+      description: "Review the note before submitting the referral.",
+    });
   }
 
   const logVisit = useMutation({
@@ -724,7 +759,15 @@ export default function ChwDashboardPage() {
             open={referralOpen}
             onOpenChange={(o) => {
               setReferralOpen(o);
-              if (!o) setLastResult(null);
+              if (o) {
+                queryClient.removeQueries({ queryKey: ["/api/navigator/context"] });
+                setNavigatorLocationDismissed(false);
+                setNavPanelOpen(true);
+              }
+              if (!o) {
+                resetReferralForm();
+                setLastResult(null);
+              }
             }}
           >
             <DialogTrigger asChild>
@@ -752,6 +795,16 @@ export default function ChwDashboardPage() {
                 compact
               />
 
+              {navigatorContextError && (
+                <div
+                  className="rounded-md border border-amber-300 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-800 dark:bg-amber-950/30 dark:text-amber-200"
+                  data-testid="navigator-context-error"
+                  role="alert"
+                >
+                  Navigator context could not be loaded. No Navigator information was added to this referral.
+                </div>
+              )}
+
               {/* Navigator context panel — shown when the client has a Navigator session */}
               {navigatorCtx?.hasContext && (
                 <div className="rounded-md border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30" data-testid="navigator-context-panel">
@@ -761,6 +814,7 @@ export default function ChwDashboardPage() {
                     onClick={() => setNavPanelOpen((o) => !o)}
                     data-testid="btn-toggle-nav-panel"
                     aria-expanded={navPanelOpen}
+                    aria-controls="navigator-context-body"
                   >
                     <span className="flex items-center gap-1.5">
                       <Navigation className="h-3.5 w-3.5" />
@@ -775,8 +829,12 @@ export default function ChwDashboardPage() {
                       className={`h-3.5 w-3.5 transition-transform ${navPanelOpen ? "rotate-180" : ""}`}
                     />
                   </button>
-                  {navPanelOpen && (
-                    <div className="px-3 pb-3 space-y-2" data-testid="navigator-context-body">
+                  <div
+                    id="navigator-context-body"
+                    className="px-3 pb-3 space-y-2"
+                    data-testid="navigator-context-body"
+                    hidden={!navPanelOpen}
+                  >
                       {navigatorCtx.identifiedNeeds.length > 0 && (
                         <div>
                           <p className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-1">Identified needs</p>
@@ -790,22 +848,43 @@ export default function ChwDashboardPage() {
                           </ul>
                         </div>
                       )}
-                      {navigatorCtx.geography && (
+                      {navigatorLocationLabel && (
                         <div className="flex items-center gap-1.5 text-xs text-blue-700 dark:text-blue-300">
                           <MapPin className="h-3 w-3 shrink-0 text-blue-500" />
-                          {[navigatorCtx.geography.city, navigatorCtx.geography.state, navigatorCtx.geography.zip]
-                            .filter(Boolean)
-                            .join(", ")}
+                          <span>{navigatorLocationLabel}</span>
                         </div>
                       )}
-                      {navigatorCtx.identifiedNeeds.length === 0 && !navigatorCtx.geography && (
+                      {navigatorLocationLabel && !navigatorLocationDismissed && (
+                        <div className="flex flex-wrap items-center gap-2 pt-1">
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            className="h-8 border-blue-300 bg-white text-xs text-blue-700 hover:bg-blue-100 dark:border-blue-700 dark:bg-blue-950/40 dark:text-blue-200 dark:hover:bg-blue-900/60"
+                            onClick={insertNavigatorLocation}
+                            data-testid="button-insert-navigator-location"
+                          >
+                            Insert location into notes
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="ghost"
+                            className="h-8 text-xs text-blue-700 hover:bg-blue-100 dark:text-blue-200 dark:hover:bg-blue-900/60"
+                            onClick={() => setNavigatorLocationDismissed(true)}
+                            data-testid="button-dismiss-navigator-location"
+                          >
+                            Dismiss
+                          </Button>
+                        </div>
+                      )}
+                      {navigatorCtx.identifiedNeeds.length === 0 && !navigatorLocationLabel && (
                         <p className="text-xs text-blue-600 dark:text-blue-400">Navigator session found, but no specific needs or location were recorded yet.</p>
                       )}
                       <p className="text-[10px] text-blue-500 dark:text-blue-500 leading-tight">
-                        Shared by the client with the AI Navigator. This context will be linked to the referral.
+                        Shared by the client with the AI Navigator. The conversation will be linked to the referral; location is shared only if you insert it into notes.
                       </p>
-                    </div>
-                  )}
+                  </div>
                 </div>
               )}
 

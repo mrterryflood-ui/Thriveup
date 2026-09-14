@@ -171,6 +171,18 @@ test.describe("CHW referral Navigator context", () => {
     await expect(panelBody).toContainText("Housing stability");
     await expect(panelBody).toContainText("Food assistance");
     await expect(panelBody).toContainText("Austin, TX, 78753");
+    await expect(
+      dialog.getByTestId("button-insert-navigator-location"),
+    ).toBeVisible();
+
+    await page.getByTestId("input-referral-notes").fill("Prior context from CHW");
+    await page.getByTestId("button-insert-navigator-location").click();
+    await expect(page.getByTestId("input-referral-notes")).toHaveValue(
+      "Prior context from CHW\nClient-reported location: Austin, TX, 78753",
+    );
+    await expect(
+      dialog.getByTestId("button-insert-navigator-location"),
+    ).toHaveCount(0);
 
     await page.getByTestId("input-program-code").fill("HOUSING-E2E-402");
     await page.getByTestId("input-org-name").fill("E2E Housing Partner");
@@ -188,6 +200,9 @@ test.describe("CHW referral Navigator context", () => {
       orgName: "E2E Housing Partner",
       navigatorConversationId: CONTEXT_WITH_SESSION.latestConversationId,
     });
+    expect(referralBody?.notes).toBe(
+      "Prior context from CHW\nClient-reported location: Austin, TX, 78753",
+    );
     await context.close();
   });
 
@@ -236,5 +251,79 @@ test.describe("CHW referral Navigator context", () => {
     });
     expect(referralBody).not.toHaveProperty("navigatorConversationId");
     await context.close();
+  });
+
+  test("does not expose unrelated numbers as Navigator prefill geography", async ({
+    browser,
+  }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "CHW Navigator",
+    });
+    const conversationId = "e2e-chw-navigator-prefill-403";
+    await db.query("DELETE FROM navigator_conversations WHERE user_id = $1", [
+      TEST_USER_ID,
+    ]);
+    await db.query(
+      `INSERT INTO navigator_conversations
+        (id, user_id, title, identified_needs, user_context, last_message_at)
+       VALUES ($1, $2, $3, $4, $5::jsonb, NOW())`,
+      [
+        conversationId,
+        TEST_USER_ID,
+        "Income and case information",
+        [],
+        null,
+      ],
+    );
+
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+
+    try {
+      await page.goto("/");
+      const noLocation = await page.evaluate(async () => {
+        const response = await fetch("/api/navigator/prefill");
+        return { status: response.status, body: await response.json() };
+      });
+      expect(noLocation.status).toBe(200);
+      expect(noLocation.body).toMatchObject({
+        hasContext: true,
+        conversationId,
+        geography: null,
+      });
+
+      await db.query(
+        `UPDATE navigator_conversations
+         SET user_context = $1::jsonb
+         WHERE id = $2`,
+        [
+          JSON.stringify({
+            geography: {
+              zip: "5000",
+              notes: "must not cross the prefill boundary",
+            },
+          }),
+          conversationId,
+        ],
+      );
+      const malformedLocation = await page.evaluate(async () => {
+        const response = await fetch("/api/navigator/prefill");
+        return { status: response.status, body: await response.json() };
+      });
+      expect(malformedLocation.status).toBe(200);
+      expect(malformedLocation.body.geography).toBeNull();
+    } finally {
+      await context.close();
+      await db.query(
+        "DELETE FROM navigator_conversations WHERE id = $1",
+        [conversationId],
+      );
+    }
   });
 });
