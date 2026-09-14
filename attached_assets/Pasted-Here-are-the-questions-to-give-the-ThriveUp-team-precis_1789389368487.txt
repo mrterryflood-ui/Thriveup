@@ -1,0 +1,12 @@
+Here are the questions to give the ThriveUp team — precise enough that whatever they send back plugs directly into what we've built:
+What is the City of Manor, Texas's exact ThriveUp organization ID? (Not the name — the internal ID your system uses to key data.) This is the one hard blocker on our end.
+Is Manor already a ThriveUp organization, or does one need to be created first? If it needs creation, what's the process and who initiates it — us or Manor?
+What authentication method does your API currently require (API key, partner key, OAuth token, something else), and can you confirm the credentials we already hold for you are current and scoped to pull Manor's data once linked?
+What data does a "community mirror" pull actually return for a given org ID — demographics, service usage, program enrollment, outcomes data, something else? We need to know the real shape of the payload so we don't guess at what fields exist.
+Does ThriveUp have population-level or program-evidence data specific to the interventions in Manor's plan — affordable/missing-middle housing below 80% AMI, childcare and early education, parks/recreation access, drought and water-resilience programs? Which of these does ThriveUp actually cover today vs. not yet?
+How is data kept current — is it a one-time pull, a subscription/webhook, or do we need to re-pull on a schedule? What's the actual refresh cadence?
+What's the rate limit or usage cap for pulls on a single organization, so we don't build something that throttles itself?
+If a pull fails or returns no data for an org, what does that actually mean — org not found, no data collected yet for that geography, or a system error? We want to report the honest reason to Manor, not a generic failure message.
+Can ThriveUp return implementation-science evidence tied to a specific proposed intervention (e.g., "lake as drought resilience + recreation") rather than only pre-packaged program categories like Housing First — or is that a manual/human research step on their side?
+Who do we contact for ongoing integration support if the API changes or something breaks after Manor is live, so this isn't a one-off fix?
+I'll go ahead and add the permanent funding-package structure (water/infra, lake & flood-resilience, public recreation, housing-enabling infrastructure) as a milestone now, so it's tracked and doesn't get lost while you're talking to ThriveUp.
