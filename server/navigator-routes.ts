@@ -2243,6 +2243,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
       const [latest] = await db
         .select({
           id: navigatorConversations.id,
+          title: navigatorConversations.title,
           identifiedNeeds: navigatorConversations.identifiedNeeds,
           userContext: navigatorConversations.userContext,
         })
@@ -2259,6 +2260,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
       const prefill: Record<string, unknown> = {
         hasContext: true,
         conversationId: latest.id,
+        conversationTitle: latest.title ?? "Navigator Conversation",
         identifiedNeeds: latest.identifiedNeeds ?? [],
         geography: geo,
         // Boolean screener flags inferred from identified needs

@@ -1,7 +1,8 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { logJourneyEvent } from "@/lib/journey-log";
+import { useAuth } from "@/hooks/use-auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -442,12 +443,45 @@ function SendReferralDialog({
 }
 export default function BenefitsScreenerPage() {
   const { toast } = useToast();
+  const { user, isLoading: authLoading } = useAuth();
+  const isAuthenticated = !!user;
   const [step, setStep] = useState(0);
   const [data, setData] = useState<ScreenerData>(INITIAL_DATA);
   const [result, setResult] = useState<any>(null);
   const [chwMode, setChwMode] = useState(false);
   const [referralTarget, setReferralTarget] = useState<SendReferralState | null>(null);
   const [screeningId, setScreeningId] = useState<number | null>(null);
+  const [navigatorBanner, setNavigatorBanner] = useState<{ title: string } | null>(null);
+  const prefillApplied = useRef(false);
+
+  // Fetch Navigator prefill data for authenticated users
+  const { data: prefillData } = useQuery<Record<string, any>>({
+    queryKey: ["/api/navigator/prefill"],
+    queryFn: async () => {
+      const res = await fetch("/api/navigator/prefill", { credentials: "include" });
+      if (!res.ok) return { hasContext: false };
+      return res.json();
+    },
+    enabled: isAuthenticated && !authLoading,
+    staleTime: 5 * 60 * 1000,
+    retry: false,
+  });
+
+  // Apply Navigator prefill to screener state exactly once
+  useEffect(() => {
+    if (prefillApplied.current) return;
+    if (!prefillData?.hasContext) return;
+    prefillApplied.current = true;
+    setData(prev => ({
+      ...prev,
+      hasChildren:  prefillData.hasChildren  ? true : prev.hasChildren,
+      isDisabled:   prefillData.isDisabled   ? true : prev.isDisabled,
+      isElderly:    prefillData.isElderly    ? true : prev.isElderly,
+      isUnemployed: prefillData.isUnemployed ? true : prev.isUnemployed,
+      isPregnant:   prefillData.isPregnant   ? true : prev.isPregnant,
+    }));
+    setNavigatorBanner({ title: prefillData.conversationTitle ?? "Navigator Conversation" });
+  }, [prefillData]);
 
   // Counties in the currently-selected state. Recomputed only when the state changes.
   const countiesInState = useMemo(
@@ -701,6 +735,21 @@ export default function BenefitsScreenerPage() {
           <Card data-testid="step-situation">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Heart className="h-5 w-5" /> Your Situation</CardTitle></CardHeader>
             <CardContent className="space-y-4">
+              {navigatorBanner && (
+                <div
+                  className="flex items-start gap-2 rounded-lg border border-blue-300 dark:border-blue-700 bg-blue-50 dark:bg-blue-950/30 px-3 py-2.5 text-sm text-blue-800 dark:text-blue-200"
+                  data-testid="banner-navigator-prefill"
+                >
+                  <MessageCircle className="h-4 w-4 shrink-0 mt-0.5 text-blue-600 dark:text-blue-400" />
+                  <span>
+                    <strong className="font-semibold">Pre-filled from your Navigator conversation</strong>
+                    {navigatorBanner.title && navigatorBanner.title !== "New Conversation" && (
+                      <> — <span className="italic">{navigatorBanner.title}</span></>
+                    )}
+                    . You can adjust any answer below.
+                  </span>
+                </div>
+              )}
               <p className="text-sm text-muted-foreground">These help us check for additional programs you might qualify for.</p>
               {[
                 { key: "hasChildren", label: "Do you have children under 18 in your household?", icon: Baby },
