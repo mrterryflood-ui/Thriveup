@@ -22,7 +22,7 @@ export async function mergeJourneyNeeds(
   needs: string[],
   geography?: string,
 ): Promise<void> {
-  if (needs.length === 0 && !geography) return;
+  if (!userId.trim() || (needs.length === 0 && !geography)) return;
   const values: InsertUserJourney = {
     userId,
     identifiedNeeds: needs.length > 0 ? needs : null,
@@ -55,7 +55,7 @@ export async function mergeJourneyScreenerFlags(
   flags: Record<string, boolean>,
   geography?: string,
 ): Promise<void> {
-  if (Object.keys(flags).length === 0 && !geography) return;
+  if (!userId.trim() || (Object.keys(flags).length === 0 && !geography)) return;
   await db
     .insert(userJourneys)
     .values({
@@ -77,6 +77,7 @@ export async function mergeJourneyScreenerFlags(
 }
 
 export async function appendJourneyReferral(userId: string, referralId: string): Promise<void> {
+  if (!userId.trim() || !referralId.trim()) return;
   await db
     .insert(userJourneys)
     .values({ userId, activeReferralIds: [referralId], updatedAt: new Date() })
@@ -87,7 +88,7 @@ export async function appendJourneyReferral(userId: string, referralId: string):
           SELECT jsonb_agg(DISTINCT elem ORDER BY elem)
           FROM jsonb_array_elements(
             COALESCE(user_journeys.active_referral_ids, '[]'::jsonb) ||
-            jsonb_build_array(${referralId})
+            jsonb_build_array(CAST(${referralId} AS text))
           ) AS elem
         )`,
         updatedAt: new Date(),
