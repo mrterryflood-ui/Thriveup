@@ -25,7 +25,7 @@ import {
   Clock, Home, FileText, Star, GraduationCap, BookOpen,
   Stethoscope, Brain, ExternalLink, Plus, TrendingUp,
   ArrowRight, Sparkles, Building2, UserCheck, Clipboard, Lightbulb, Loader2,
-  Copy, Send, ShieldAlert,
+  Copy, Send, ShieldAlert, ChevronDown, Navigation,
 } from "lucide-react";
 
 interface ScreeningReferral {
@@ -420,6 +420,8 @@ export default function ChwDashboardPage() {
   const [waitlistAcknowledged, setWaitlistAcknowledged] = useState(false);
   // Outcome filter for sent referrals (#197) — default "needs-follow-up"
   const [outcomeFilter, setOutcomeFilter] = useState<string>("needs-follow-up");
+  // Navigator context panel — collapsible, open by default when context exists
+  const [navPanelOpen, setNavPanelOpen] = useState(true);
 
   // Childcare gap intelligence — WSRCA footprint + nationwide search
   const [childcareSearchInput, setChildcareSearchInput] = useState("");
@@ -486,6 +488,28 @@ export default function ChwDashboardPage() {
   })();
   const capacityClosed = capacityMatch?.status === "closed";
   const capacityWaitlist = capacityMatch?.status === "waitlist";
+
+  // Navigator context — fetched when the referral modal opens so the CHW can
+  // see what the client already told the AI before filling in the form.
+  const { data: navigatorCtx } = useQuery<{
+    hasContext: boolean;
+    latestConversationId: string | null;
+    latestTitle: string | null;
+    latestAt: string | null;
+    identifiedNeeds: string[];
+    geography: { zip?: string; city?: string; state?: string } | null;
+    conversationCount: number;
+  }>({
+    queryKey: ["/api/navigator/context"],
+    queryFn: async () => {
+      const res = await fetch("/api/navigator/context");
+      if (!res.ok) throw new Error("Navigator context unavailable");
+      return res.json();
+    },
+    enabled: isAuthenticated && referralOpen,
+    staleTime: 2 * 60 * 1000,
+    retry: false,
+  });
 
   // Funder list — same endpoint the staff funder admin page uses.
   const { data: fundersData } = useQuery<{ funders: FunderOption[] }>({
@@ -629,6 +653,7 @@ export default function ChwDashboardPage() {
       if (funderId) body.funderId = funderId;
       if (referralNotes.trim()) body.notes = referralNotes.trim();
       if (waitlistAcknowledged) body.waitlistAcknowledged = true;
+      if (navigatorCtx?.latestConversationId) body.navigatorConversationId = navigatorCtx.latestConversationId;
       const res = await apiRequest("POST", "/api/referrals", body);
       return (await res.json()) as CreateReferralResponse;
     },
@@ -726,6 +751,63 @@ export default function ChwDashboardPage() {
                 withdrawal="You can cancel this dialog without submitting. Submitted referrals are immutable — contact a supervisor to void a submitted referral."
                 compact
               />
+
+              {/* Navigator context panel — shown when the client has a Navigator session */}
+              {navigatorCtx?.hasContext && (
+                <div className="rounded-md border border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/30" data-testid="navigator-context-panel">
+                  <button
+                    type="button"
+                    className="flex w-full items-center justify-between px-3 py-2 text-sm font-medium text-blue-700 dark:text-blue-300"
+                    onClick={() => setNavPanelOpen((o) => !o)}
+                    data-testid="btn-toggle-nav-panel"
+                    aria-expanded={navPanelOpen}
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Navigation className="h-3.5 w-3.5" />
+                      From Navigator
+                      {navigatorCtx.latestTitle && (
+                        <span className="font-normal text-blue-600 dark:text-blue-400 truncate max-w-[180px]">
+                          — {navigatorCtx.latestTitle}
+                        </span>
+                      )}
+                    </span>
+                    <ChevronDown
+                      className={`h-3.5 w-3.5 transition-transform ${navPanelOpen ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {navPanelOpen && (
+                    <div className="px-3 pb-3 space-y-2" data-testid="navigator-context-body">
+                      {navigatorCtx.identifiedNeeds.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold text-blue-800 dark:text-blue-200 mb-1">Identified needs</p>
+                          <ul className="space-y-0.5">
+                            {navigatorCtx.identifiedNeeds.map((need, i) => (
+                              <li key={i} className="flex items-start gap-1.5 text-xs text-blue-700 dark:text-blue-300">
+                                <CheckCircle2 className="h-3 w-3 shrink-0 text-blue-500 mt-0.5" />
+                                {need}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      {navigatorCtx.geography && (
+                        <div className="flex items-center gap-1.5 text-xs text-blue-700 dark:text-blue-300">
+                          <MapPin className="h-3 w-3 shrink-0 text-blue-500" />
+                          {[navigatorCtx.geography.city, navigatorCtx.geography.state, navigatorCtx.geography.zip]
+                            .filter(Boolean)
+                            .join(", ")}
+                        </div>
+                      )}
+                      {navigatorCtx.identifiedNeeds.length === 0 && !navigatorCtx.geography && (
+                        <p className="text-xs text-blue-600 dark:text-blue-400">Navigator session found, but no specific needs or location were recorded yet.</p>
+                      )}
+                      <p className="text-[10px] text-blue-500 dark:text-blue-500 leading-tight">
+                        Shared by the client with the AI Navigator. This context will be linked to the referral.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="space-y-4 pt-1">
                 <div className="space-y-1.5">
