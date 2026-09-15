@@ -124,11 +124,23 @@ function isNavigatorPrefillData(value: unknown): value is NavigatorPrefillData {
     "isUnemployed",
     "isPregnant",
   ] as const;
+  const geography = payload?.geography;
+  const hasValidGeographyShape = geography === undefined ||
+    geography === null ||
+    (
+      typeof geography === "object" &&
+      !Array.isArray(geography) &&
+      ["state", "county", "countyFips", "zip", "zipCode"].every(field =>
+        (geography as Record<string, unknown>)[field] === undefined ||
+        typeof (geography as Record<string, unknown>)[field] === "string",
+      )
+    );
   return Boolean(
     value &&
     typeof value === "object" &&
     !Array.isArray(value) &&
     typeof payload?.hasContext === "boolean" &&
+    hasValidGeographyShape &&
     booleanFields.every(field => payload[field] === undefined || typeof payload[field] === "boolean"),
   );
 }
@@ -859,6 +871,21 @@ export default function BenefitsScreenerPage() {
           </div>
         </div>
 
+        {navigatorPrefillFetching && !navigatorPrefillUnavailable && !navigatorPrefillRetrying && isAuthenticated && !authLoading && (
+          <div
+            className="mb-6 flex items-start gap-2 rounded-lg border border-blue-300 bg-blue-50 px-3 py-2.5 text-sm text-blue-800 dark:border-blue-700 dark:bg-blue-950/30 dark:text-blue-200"
+            data-testid="notice-navigator-prefill-loading"
+            role="status"
+            aria-live="polite"
+          >
+            <Loader2 aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 animate-spin text-blue-600 dark:text-blue-400" />
+            <span>
+              <strong className="font-semibold">Checking for information from your Navigator conversation.</strong>{" "}
+              You can continue with the screening while we check.
+            </span>
+          </div>
+        )}
+
         {(navigatorPrefillUnavailable || navigatorPrefillRetrying) && isAuthenticated && !authLoading && (
           <div
             className="mb-6 flex flex-wrap items-start justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200"
@@ -866,14 +893,22 @@ export default function BenefitsScreenerPage() {
           >
             <div className="flex min-w-0 flex-1 items-start gap-2">
               <MessageCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" />
-              <div className="min-w-0" role="alert">
+              <div
+                className="min-w-0"
+                role={navigatorPrefillRetrying ? "status" : "alert"}
+                aria-live={navigatorPrefillRetrying ? "polite" : "assertive"}
+              >
                 <strong className="font-semibold">
-                  {navigatorPrefillAuthFailure
+                  {navigatorPrefillRetrying
+                    ? "Checking your Navigator connection again."
+                    : navigatorPrefillAuthFailure
                     ? "Your Navigator session needs attention."
                     : "Navigator information is temporarily unavailable."}
                 </strong>
                 <p>
-                  {navigatorPrefillAuthFailure
+                  {navigatorPrefillRetrying
+                    ? "You can continue with the screening while we check."
+                    : navigatorPrefillAuthFailure
                     ? "Sign in again or continue with the screening manually."
                     : "You can continue with the screening manually."}
                 </p>

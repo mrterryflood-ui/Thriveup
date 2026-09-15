@@ -117,6 +117,7 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
     await page.getByTestId("button-next").click();
     await expect(page.getByTestId("step-household")).toBeVisible();
+    await expect(page.getByTestId("notice-navigator-prefill-loading")).toBeVisible();
 
     await page.getByTestId("select-state").click();
     await page.getByRole("option", { name: "Illinois" }).click();
@@ -125,6 +126,7 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     await expect(page.getByTestId("select-state")).toContainText("Illinois");
     await expect(page.getByTestId("input-zip")).toHaveValue("60601");
 
+    await expect(page.getByTestId("notice-navigator-prefill-loading")).toBeHidden();
     await context.close();
   });
 
@@ -333,6 +335,38 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     await expect(page.getByTestId("link-retry-navigator-sign-in"))
       .toHaveAttribute("href", "/api/login?returnTo=%2Fbenefits-screener");
     await expect(page.getByTestId("button-retry-navigator-prefill")).toBeVisible();
+
+    await context.close();
+  });
+
+  test("shows an unavailable notice for a malformed prefill response", async ({ browser }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "Benefits Navigator",
+    });
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+
+    await page.route("**/api/navigator/prefill", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          hasContext: true,
+          geography: "not a geography object",
+        }),
+      });
+    });
+
+    await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("notice-navigator-prefill-unavailable")).toContainText(
+      "continue with the screening manually",
+    );
 
     await context.close();
   });
