@@ -127,4 +127,77 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
 
     await context.close();
   });
+
+  test("clears Navigator prefill before screening another person", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+
+    await expect(page.getByTestId("banner-navigator-geography-prefill")).toBeVisible();
+    const screeningRequests: Array<Record<string, unknown>> = [];
+    await page.route("**/api/benefits/screenings", async (route) => {
+      screeningRequests.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          screening: { id: "e2e-benefits-screening" },
+          gapBenefits: [],
+          gaps: [],
+          eligibleBenefits: [],
+          currentBenefits: [],
+          estimatedAnnualValue: 0,
+          navigationGuides: [],
+        }),
+      });
+    });
+
+    await page.getByTestId("select-household-size").click();
+    await page.getByRole("option", { name: "1 person" }).click();
+    await page.getByTestId("input-income").fill("25000");
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-situation")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-current")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-results")).toBeVisible();
+    await page.getByTestId("button-next-steps").click();
+    await expect(page.getByTestId("step-next")).toBeVisible();
+
+    await page.getByTestId("button-start-over").click();
+    await expect(page.getByTestId("step-welcome")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-household")).toBeVisible();
+    await expect(page.getByTestId("banner-navigator-geography-prefill")).toBeHidden();
+    await expect(page.getByTestId("select-state")).toContainText("Texas");
+    await expect(page.getByTestId("select-county")).toContainText("Select your county");
+    await expect(page.getByTestId("input-zip")).toHaveValue("");
+
+    await page.getByTestId("select-county").click();
+    await page.getByRole("option", { name: "Williamson County" }).click();
+    await page.getByTestId("input-zip").fill("78613");
+    await page.getByTestId("input-income").fill("30000");
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-situation")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-current")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-results")).toBeVisible();
+    expect(screeningRequests).toHaveLength(2);
+    expect(screeningRequests[1]).toMatchObject({
+      stateFips: "48",
+      countyFips: "48491",
+      zipCode: "78613",
+      householdSize: 1,
+      annualIncome: 30000,
+      hasChildren: false,
+      isPregnant: false,
+      isDisabled: false,
+      isElderly: false,
+      isUnemployed: false,
+      hadWorkplaceInjury: false,
+      currentBenefits: [],
+      preferredLanguage: "English",
+    });
+
+    await context.close();
+  });
 });

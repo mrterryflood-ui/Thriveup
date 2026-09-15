@@ -519,6 +519,7 @@ export default function BenefitsScreenerPage() {
   const [hasNavigatorGeography, setHasNavigatorGeography] = useState(false);
   const [hasNavigatorSituationPrefill, setHasNavigatorSituationPrefill] = useState(false);
   const prefillAppliedForUser = useRef<string | null>(null);
+  const navigatorPrefillDismissedForUser = useRef<string | null>(null);
   const locationEdits = useRef(new Set<"state" | "county" | "zipCode">());
 
   // Fetch Navigator prefill data for authenticated users
@@ -537,6 +538,7 @@ export default function BenefitsScreenerPage() {
   useEffect(() => {
     locationEdits.current.clear();
     prefillAppliedForUser.current = null;
+    navigatorPrefillDismissedForUser.current = null;
     setNavigatorBanner(null);
     setHasNavigatorGeography(false);
     setHasNavigatorSituationPrefill(false);
@@ -550,6 +552,7 @@ export default function BenefitsScreenerPage() {
   // Apply Navigator prefill to screener state exactly once per authenticated user
   useEffect(() => {
     const userId = user?.id ?? null;
+    if (navigatorPrefillDismissedForUser.current === userId) return;
     if (prefillAppliedForUser.current === userId) return;
     if (!userId) return;
     if (!prefillData?.hasContext) return;
@@ -1263,7 +1266,10 @@ export default function BenefitsScreenerPage() {
               setStep(0);
               setData(INITIAL_DATA);
               setResult(null);
+              setScreeningId(null);
               setNavigatorBanner(null);
+              prefillAppliedForUser.current = null;
+              navigatorPrefillDismissedForUser.current = user?.id ?? null;
               setHasNavigatorGeography(false);
               setHasNavigatorSituationPrefill(false);
               locationEdits.current.clear();

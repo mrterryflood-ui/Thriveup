@@ -149,3 +149,43 @@
 - Independent angle: Six-domain adversarial audits found and remediated first-read concurrency, stale config fallback, mixed probe snapshots, public probe load, audit truncation, role mismatch, stale public links, validation feedback, and in-flight form overwrite risks.
 - Outcome: Task 401 is complete in development. Platform staff can update both HTTPS destinations; connector, protected monitoring, public API docs, landing ChildCORE card, and focused liveness resolve the persisted configuration.
 - Residuals and reusable guard: No publish or production migration was performed. External ChildCORE documentation was unreachable during the focused check, so the check correctly reported a warning rather than claiming the upstream was live.
+
+---
+
+# Alpha Omega — 2026-09-14 — Benefits screener fresh-session reset
+
+## Alpha
+
+- End-state: “Screen Another Person” must clear Navigator-visible prefill state
+  and begin a fresh screener session without carrying the prior person’s
+  geography or screening linkage.
+- In-state evidence: the reset handler in
+  `client/src/pages/benefits-screener.tsx` already reset visible data and
+  banner state but did not reset the applied-prefill ref; the existing
+  Navigator prefill E2E suite had no start-over coverage.
+- Authority/boundaries: preserve the screener’s intentional Texas default;
+  do not change the Navigator or benefits API contract in this task; no
+  production, deployment, or schema changes.
+- Plan and acceptance proofs: reset the per-user prefill guard, dismiss stale
+  same-user refetches for the current in-page session, clear screening linkage,
+  and verify through the authenticated browser flow that a second submission
+  uses newly entered location data.
+- Unknowns/deferred decisions: the existing server/client screening-ID shape
+  mismatch is separate follow-up work and is not changed here.
+
+## Omega
+
+- Diff scrimmage: added symmetric prefill reset and same-user dismissal guard,
+  cleared the prior screening ID on start-over, and added a production-shaped
+  screening response fixture plus second-submission assertions.
+- Proofs and gates: focused start-over Playwright case passed; TypeScript
+  passed; `git diff --check` passed; application workflow restarted cleanly;
+  preflight and memory health passed before the final guard refinement.
+- Independent angle: six-domain adversarial review identified stale screening
+  linkage, a misleading mock response, and post-refresh prefill risk; the
+  task-local reset and test gaps were remediated. The unrelated production
+  screening-ID contract mismatch remains explicitly deferred.
+- Outcome: the requested fresh-screen reset is verified in development.
+- Residuals and reusable guard: no publish or production migration; broader
+  screening-ID response/referral alignment and situation-flag refresh coverage
+  remain follow-up candidates.
