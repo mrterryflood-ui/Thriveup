@@ -184,6 +184,43 @@ keyed by `manor-tx-city`. Normal user-owned organizations keep their existing
 owner and membership model; Manor is staff/API-scoped because the GrantPathPro
 connection is an integration identity, not a personal account.
 
+Run the bootstrap from an authenticated verified-staff browser session; it
+uses the staff session cookie, not the GrantPathPro `x-api-key`. For example,
+in that session:
+
+```js
+await fetch("/api/staff/organizations/manor/bootstrap", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: "{}",
+}).then(async (response) => ({
+  status: response.status,
+  body: await response.json(),
+}));
+```
+
+HTTP `201` means the production identity was created; HTTP `200` means the
+same stable identity already existed and was safely reconciled. In either
+success case, record the returned `organization.id` in the approved
+GrantPathPro integration configuration alongside `externalKey`, not in source
+code or a handoff record containing credentials. HTTP `409` means stop and
+have verified staff inspect the conflicting row; do not change, delete, or
+reassign it. Never put an inbound or outbound API key in the bootstrap request
+or its result record.
+
+The GrantPathPro Mirror callback is also integration-scoped:
+`POST /api/inbound/grantpathpro/mirror` requires the provisioned `x-api-key`
+plus `orgId`, `externalKey`, and a bounded `snapshot`. `orgId` must be the
+production organization ID returned by the Manor bootstrap, and `externalKey`
+must be exactly `manor-tx-city`. ThriveUp accepts the callback only when both
+identifiers resolve to the same integration-owned organization; a user-owned
+organization cannot be written through this partner callback. The callback
+does not accept the development organization ID as a substitute for the
+production ID.
+Identical retries of the same organization-scoped sanitized snapshot are
+idempotent: the first accepted request returns HTTP `201`, and a retry returns
+HTTP `200` with `duplicate: true` and the original `snapshotId`.
+
 ## Read-only pursuit intelligence
 
 When GrantPathPro needs current context while preparing or monitoring a pursuit,

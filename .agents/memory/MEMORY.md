@@ -90,3 +90,4 @@
 - [Youth Mode persistence](youth-mode-persistence.md) — identity-scoped caches need explicit fixed-path fetchers; account changes cancel and clear all Navigator-owned state.
 - [Journey spine JSONB parameters](journey-spine-jsonb-parameters.md) — cast interpolated scalar IDs explicitly inside JSONB array SQL expressions; PostgreSQL cannot infer them reliably.
 - [Navigator geography extraction](navigator-geography-extraction.md) — only explicit location phrasing may create geography; arbitrary numbers must never reach prefill or journey context.
+- [Mirror verifier safety](mirror-verifier-safety.md) — verify HTTP and database targets before fixture writes; surface cleanup failures; make retryable partner snapshots idempotent.

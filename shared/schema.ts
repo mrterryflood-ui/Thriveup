@@ -8079,16 +8079,20 @@ export type GppEventRow = typeof gppEvents.$inferSelect;
 export type InsertGppEvent = typeof gppEvents.$inferInsert;
 
 // ── GrantPathPro Mirror snapshots ───────────────────────────────────────────
-// Raw partner payload is retained for provenance; the UI only projects the
-// latest snapshot after the caller's organization access is verified.
+// Sanitized partner snapshots are retained for provenance; the UI only
+// projects the latest snapshot after the caller's organization access is verified.
 export const gppMirrorSnapshots = pgTable("gpp_mirror_snapshots", {
   id: text("id").primaryKey().$defaultFn(() => `gpp_mirror_${Date.now()}_${nanoid(8)}`),
   orgId: text("org_id").notNull(),
   receivedAt: timestamp("received_at", { withTimezone: true }).defaultNow().notNull(),
   snapshot: jsonb("snapshot").$type<Record<string, unknown>>().notNull(),
+  requestFingerprint: varchar("request_fingerprint", { length: 64 }),
   source: varchar("source", { length: 80 }).notNull().default("grantpathpro"),
 }, (t) => [
   index("gpp_mirror_snapshots_org_received_idx").on(t.orgId, t.receivedAt),
+  uniqueIndex("gpp_mirror_snapshots_org_fingerprint_uq")
+    .on(t.orgId, t.requestFingerprint)
+    .where(sql`${t.requestFingerprint} IS NOT NULL`),
 ]);
 export type GppMirrorSnapshot = typeof gppMirrorSnapshots.$inferSelect;
 export type InsertGppMirrorSnapshot = typeof gppMirrorSnapshots.$inferInsert;

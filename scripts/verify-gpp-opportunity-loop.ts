@@ -17,6 +17,7 @@ const hardeningMigration = readFileSync("migrations/20260827_gpp_opportunity_mir
 const runtimeMigration = readFileSync("scripts/migrate-gpp-opportunity-handoff.ts", "utf8");
 const migrationRunner = readFileSync("server/run-migrations.ts", "utf8");
 const endpointGuard = readFileSync("scripts/verify-gpp-endpoint.ts", "utf8");
+const mirrorIdempotencyMigration = readFileSync("migrations/20260915_gpp_mirror_idempotency.sql", "utf8");
 
 let failures = 0;
 function expect(condition: boolean, message: string) {
@@ -74,6 +75,39 @@ expect(
 expect(/pg_(?:try_)?advisory_lock/.test(migrationRunner), "startup migration runner serializes concurrent application");
 expect(routes.includes("storedRequestFingerprint") && routes.includes("racedHash"), "request reuse is content-bound for legacy and concurrent rows");
 expect(!routes.includes("snapshot: latest?.snapshot"), "Mirror reads do not expose raw partner JSON");
+expect(
+  routes.includes("externalKey !== MANOR_FUNDING_PACKAGE_PROFILE_KEY")
+    && routes.includes("eq(organizations.externalKey, MANOR_FUNDING_PACKAGE_PROFILE_KEY)")
+    && routes.includes("eq(organizations.isIntegrationOwned, true)")
+    && routes.includes("requiredBodyFields: [\"orgId\", \"externalKey\", \"snapshot\"]"),
+  "Mirror ingress is bound to the Manor stable key and integration-owned organization",
+);
+expect(
+  contract.includes("requires the provisioned `x-api-key`")
+    && contract.includes("plus `orgId`, `externalKey`, and a bounded `snapshot`")
+    && /user-owned\s+organization cannot be written/.test(contract),
+  "Mirror contract documents the integration identity boundary",
+);
+expect(
+  routes.includes("externalKey !== MANOR_FUNDING_PACKAGE_PROFILE_KEY")
+    && routes.includes("eq(organizations.externalKey, MANOR_FUNDING_PACKAGE_PROFILE_KEY)"),
+  "Mirror route enforces the exact Manor stable key",
+);
+expect(
+  routes.includes("isNull(organizations.userId)"),
+  "Mirror route enforces the null-owner integration invariant",
+);
+expect(
+  schema.includes("requestFingerprint: varchar(\"request_fingerprint\"")
+    && mirrorIdempotencyMigration.includes("gpp_mirror_snapshots_org_fingerprint_uq")
+    && mirrorIdempotencyMigration.includes("WHERE request_fingerprint IS NOT NULL"),
+  "Mirror retries have a publish-safe fingerprint uniqueness guard",
+);
+expect(
+  readFileSync("scripts/verify-gpp-opportunity-loop.ts", "utf8").includes("function assertDevelopmentTarget")
+    && readFileSync("scripts/verify-gpp-opportunity-loop.ts", "utf8").includes("cleanupFailures"),
+  "Live lifecycle verifier is development-only and reports cleanup failures",
+);
 expect(profile.includes('data-testid="opportunity-handoff-source-type"'), "UI supports each documented source type");
 expect(profile.includes("Reconcile same handoff"), "UI exposes safe same-handoff recovery");
 expect(readFileSync("scripts/verify-gpp-opportunity-stub.ts", "utf8").includes("local-stub-token"), "safe local receiver test never targets the live partner");
@@ -85,6 +119,20 @@ const owner = { userId: `e2e-gpp-owner-${RUN}`, email: `e2e-gpp-owner-${RUN}@tes
 const member = { userId: `e2e-gpp-member-${RUN}`, email: `e2e-gpp-member-${RUN}@test.local` };
 const stranger = { userId: `e2e-gpp-stranger-${RUN}`, email: `e2e-gpp-stranger-${RUN}@test.local` };
 const orgId = `e2e-gpp-org-${RUN}`;
+const manorExternalKey = "manor-tx-city";
+const developmentManorOrganizationId = "3aeda19b-9719-4157-8e27-6d6c78444672";
+let mirrorOrgId: string | null = null;
+let mirrorSnapshotId: string | null = null;
+
+function assertDevelopmentTarget() {
+  const base = new URL(BASE);
+  const devDomain = process.env.REPLIT_DEV_DOMAIN;
+  const localHost = ["localhost", "127.0.0.1", "::1"].includes(base.hostname);
+  const configuredDevHost = !!devDomain && base.hostname === devDomain;
+  if ((!localHost && !configuredDevHost) || process.env.NODE_ENV === "production" || process.env.REPLIT_DEPLOYMENT) {
+    throw new Error("Refusing live GrantPathPro lifecycle verification outside a development target");
+  }
+}
 
 async function request(path: string, cookie: string, method = "GET", body?: unknown, headers: Record<string, string> = {}) {
   return fetch(`${BASE}${path}`, {
@@ -99,8 +147,28 @@ async function verifyLiveLifecycle() {
   const { ensureTestUser, forgeSession, cleanupTestUser, requireEnv } = await import("../tests/e2e/helpers/auth");
   const db = new Client({ connectionString: requireEnv("DATABASE_URL") });
   let handoffId: string | null = null;
+  let cleanupFailures = 0;
+  const cleanupQuery = async (sql: string, values: unknown[] = []) => {
+    try {
+      await db.query(sql, values);
+    } catch (error) {
+      cleanupFailures += 1;
+      console.error("GrantPathPro lifecycle cleanup failed:", error);
+    }
+  };
   await db.connect();
   try {
+    const developmentManor = await db.query(
+      `SELECT id
+       FROM organizations
+       WHERE external_key = $1 AND is_integration_owned = TRUE AND user_id IS NULL
+       LIMIT 1`,
+      [manorExternalKey],
+    );
+    if (developmentManor.rowCount !== 1 || developmentManor.rows[0].id !== developmentManorOrganizationId) {
+      throw new Error("Refusing lifecycle verification: DATABASE_URL is not the known development database");
+    }
+    mirrorOrgId = developmentManor.rows[0].id as string;
     await ensureTestUser(db, owner);
     await ensureTestUser(db, member);
     await ensureTestUser(db, stranger);
@@ -170,6 +238,27 @@ async function verifyLiveLifecycle() {
     expect(strangerHistory.status === 403, "unrelated user cannot read private handoff history");
 
     const inboundKey = requireEnv("THRIVEUP_INGEST_KEY");
+    const acceptedMirror = await request("/api/inbound/grantpathpro/mirror", "", "POST", {
+      orgId: mirrorOrgId,
+      externalKey: manorExternalKey,
+      snapshot: { needs: ["e2e integration fixture"] },
+    }, { "x-api-key": inboundKey });
+    const acceptedMirrorBody = await acceptedMirror.json() as { snapshotId?: string };
+    mirrorSnapshotId = acceptedMirrorBody.snapshotId ?? null;
+    expect(acceptedMirror.status === 201 && !!mirrorSnapshotId, "partner Mirror write accepts the matching Manor identity");
+    const duplicateMirror = await request("/api/inbound/grantpathpro/mirror", "", "POST", {
+      orgId: mirrorOrgId,
+      externalKey: manorExternalKey,
+      snapshot: { needs: ["e2e integration fixture"] },
+    }, { "x-api-key": inboundKey });
+    const duplicateMirrorBody = await duplicateMirror.json() as { duplicate?: boolean; snapshotId?: string };
+    expect(duplicateMirror.status === 200 && duplicateMirrorBody.duplicate === true && duplicateMirrorBody.snapshotId === mirrorSnapshotId, "identical Mirror retry is idempotent");
+    const rejectedMirror = await request("/api/inbound/grantpathpro/mirror", "", "POST", {
+      orgId,
+      externalKey: manorExternalKey,
+      snapshot: { needs: ["must reject user-owned organization"] },
+    }, { "x-api-key": inboundKey });
+    expect(rejectedMirror.status === 404, "partner Mirror write rejects user-owned organizations");
     const prematureFeedback = await request("/api/inbound/grantpathpro/opportunity-feedback", "", "POST", {
       contractVersion: "v1",
       handoffId,
@@ -254,19 +343,32 @@ async function verifyLiveLifecycle() {
     const historyWithFeedbackBody = await historyWithFeedback.json() as { handoffs?: Array<{ id: string; feedback: Array<{ lesson?: string }> }> };
     expect(historyWithFeedbackBody.handoffs?.find((entry) => entry.id === handoffId)?.feedback.some((feedback) => feedback.lesson === "Confirm requirements before submission.") === true, "organization history returns only its appended feedback");
   } finally {
-    if (handoffId) await db.query(`DELETE FROM gpp_pursuit_feedback WHERE handoff_id = $1`, [handoffId]).catch(() => {});
-    if (handoffId) await db.query(`DELETE FROM gpp_opportunity_handoff_attempts WHERE handoff_id = $1`, [handoffId]).catch(() => {});
-    if (handoffId) await db.query(`DELETE FROM gpp_opportunity_handoffs WHERE id = $1`, [handoffId]).catch(() => {});
-    await db.query(`DELETE FROM organization_members WHERE org_id = $1`, [orgId]).catch(() => {});
-    await db.query(`DELETE FROM organizations WHERE id = $1`, [orgId]).catch(() => {});
-    await cleanupTestUser(db, owner.userId);
-    await cleanupTestUser(db, member.userId);
-    await cleanupTestUser(db, stranger.userId);
-    await db.end().catch(() => {});
+    if (mirrorSnapshotId) await cleanupQuery(`DELETE FROM gpp_mirror_snapshots WHERE id = $1`, [mirrorSnapshotId]);
+    if (handoffId) await cleanupQuery(`DELETE FROM gpp_pursuit_feedback WHERE handoff_id = $1`, [handoffId]);
+    if (handoffId) await cleanupQuery(`DELETE FROM gpp_opportunity_handoff_attempts WHERE handoff_id = $1`, [handoffId]);
+    if (handoffId) await cleanupQuery(`DELETE FROM gpp_opportunity_handoffs WHERE id = $1`, [handoffId]);
+    await cleanupQuery(`DELETE FROM organization_members WHERE org_id = $1`, [orgId]);
+    await cleanupQuery(`DELETE FROM organizations WHERE id = $1`, [orgId]);
+    for (const user of [owner, member, stranger]) {
+      try {
+        await cleanupTestUser(db, user.userId);
+      } catch (error) {
+        cleanupFailures += 1;
+        console.error("GrantPathPro lifecycle user cleanup failed:", error);
+      }
+    }
+    try {
+      await db.end();
+    } catch (error) {
+      cleanupFailures += 1;
+      console.error("GrantPathPro lifecycle database close failed:", error);
+    }
+    if (cleanupFailures) failures += cleanupFailures;
   }
 }
 
 async function main() {
+  assertDevelopmentTarget();
   if (failures) {
     console.error(`\n${failures} Community Opportunity Mirror static contract check(s) failed.`);
     process.exit(1);

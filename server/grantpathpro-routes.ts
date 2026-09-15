@@ -29,7 +29,7 @@
 import type { Express, Request, Response, NextFunction } from "express";
 import { db, storage } from "./storage";
 import { organizations, organizationMembers, grantOpportunities, consortiumProposals, consortiumTeamMembers, gppEvents as gppEventsTable, gppMirrorSnapshots, gppOpportunityHandoffs, gppOpportunityHandoffAttempts, gppPursuitFeedback } from "@shared/schema";
-import { eq, desc, and, inArray, ne } from "drizzle-orm";
+import { eq, desc, and, inArray, ne, isNull } from "drizzle-orm";
 import { generateAIResponse, withEthicalPreamble, isPerplexityAvailable, perplexityResearch } from "./ai-provider";
 import { buildCommunityAIContextWithStatus } from "./rplice-intelligence";
 import { timingSafeEqual, randomUUID, createHash } from "crypto";
@@ -463,6 +463,24 @@ function sanitizeMirrorSnapshot(snapshot: Record<string, unknown>): { clean: Rec
   return { clean, unknownFields };
 }
 
+function canonicalizeMirrorValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(canonicalizeMirrorValue);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>)
+        .sort(([left], [right]) => left.localeCompare(right))
+        .map(([key, entry]) => [key, canonicalizeMirrorValue(entry)]),
+    );
+  }
+  return value;
+}
+
+function mirrorRequestFingerprint(orgId: string, snapshot: Record<string, unknown>): string {
+  return createHash("sha256")
+    .update(JSON.stringify(canonicalizeMirrorValue({ orgId, snapshot })))
+    .digest("hex");
+}
+
 function projectMirrorSnapshot(
   latest: typeof gppMirrorSnapshots.$inferSelect | undefined,
 ): Record<string, unknown> {
@@ -874,6 +892,7 @@ export function registerGrantPathProRoutes(app: Express) {
         return res.status(409).json({
           error: "The stable Manor organization key already belongs to a different or user-owned organization; no reassignment was performed.",
           organizationId: result.organizationId,
+          nextStep: "Stop and have a verified staff administrator inspect the organization that owns manor-tx-city. Do not change, delete, or reassign that record.",
         });
       }
       console.info("[GrantPathPro] Manor organization bootstrap", {
@@ -886,7 +905,17 @@ export function registerGrantPathProRoutes(app: Express) {
         organization: result.organization,
         created: result.kind === "created",
         externalKey: MANOR_FUNDING_PACKAGE_PROFILE_KEY,
-        nextStep: "Use the returned organization.id for the staff/API-scoped Manor-specific GrantPathPro and Mirror calls.",
+        grantPathPro: {
+          externalKey: MANOR_FUNDING_PACKAGE_PROFILE_KEY,
+          organizationId: result.organization.id,
+          mirrorInbound: {
+            method: "POST",
+            path: "/api/inbound/grantpathpro/mirror",
+            requiredBodyFields: ["orgId", "externalKey", "snapshot"],
+            note: "Use this production organizationId and externalKey; never use a development organization ID.",
+          },
+        },
+        nextStep: "Use the returned organization.id and externalKey with the documented GrantPathPro Mirror callback; never use a development organization ID.",
       });
     } catch (err) {
       console.error("[GrantPathPro] Manor organization bootstrap failed:", err);
@@ -993,21 +1022,48 @@ export function registerGrantPathProRoutes(app: Express) {
   });
 
   // GPP Mirror push: exact partner contract, authenticated separately from
-  // outbound embed calls. Bound snapshots prevent unbounded partner JSON from
-  // becoming durable organization data.
+  // outbound embed calls. The partner key is an API credential, not a tenant
+  // grant, so the payload must identify an integration-owned organization by
+  // both its production id and its stable external key. User-owned
+  // organizations are never writable through this callback.
   app.post("/api/inbound/grantpathpro/mirror", requireGppInboundKey, async (req: Request, res: Response) => {
     const orgId = typeof req.body?.orgId === "string" ? req.body.orgId.trim() : "";
+    const externalKey = typeof req.body?.externalKey === "string" ? req.body.externalKey.trim() : "";
     const snapshot = req.body?.snapshot;
-    if (!orgId || orgId.length > 100 || !snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) || !isBoundedMeta(snapshot)) {
-      return res.status(400).json({ error: "A known orgId and bounded object snapshot are required" });
+    if (!orgId || orgId.length > 100 || !externalKey || externalKey.length > 100 || !snapshot || typeof snapshot !== "object" || Array.isArray(snapshot) || !isBoundedMeta(snapshot)) {
+      return res.status(400).json({ error: "An integration organization id, stable external key, and bounded object snapshot are required" });
     }
     const { clean: cleanSnapshot, unknownFields } = sanitizeMirrorSnapshot(snapshot as Record<string, unknown>);
     if (Object.keys(cleanSnapshot).length === 0) {
       return res.status(400).json({ error: "Snapshot contains no supported Mirror fields" });
     }
+    const requestFingerprint = mirrorRequestFingerprint(orgId, cleanSnapshot);
     try {
-      const [organization] = await db.select({ id: organizations.id }).from(organizations).where(eq(organizations.id, orgId)).limit(1);
-      if (!organization) return res.status(404).json({ error: "Organization not found" });
+      if (externalKey !== MANOR_FUNDING_PACKAGE_PROFILE_KEY) {
+        return res.status(404).json({ error: "Integration organization not found" });
+      }
+      const [organization] = await db.select({ id: organizations.id }).from(organizations).where(and(
+        eq(organizations.id, orgId),
+        eq(organizations.externalKey, MANOR_FUNDING_PACKAGE_PROFILE_KEY),
+        eq(organizations.isIntegrationOwned, true),
+        isNull(organizations.userId),
+      )).limit(1);
+      if (!organization) return res.status(404).json({ error: "Integration organization not found" });
+      const [existingSnapshot] = await db.select({
+        id: gppMirrorSnapshots.id,
+        receivedAt: gppMirrorSnapshots.receivedAt,
+      }).from(gppMirrorSnapshots).where(and(
+        eq(gppMirrorSnapshots.orgId, organization.id),
+        eq(gppMirrorSnapshots.requestFingerprint, requestFingerprint),
+      )).limit(1);
+      if (existingSnapshot) {
+        return res.status(200).json({
+          ok: true,
+          duplicate: true,
+          snapshotId: existingSnapshot.id,
+          receivedAt: existingSnapshot.receivedAt,
+        });
+      }
       await recordInboundVerification(
         "grantpathpro",
         "/api/inbound/grantpathpro/mirror",
@@ -1022,8 +1078,27 @@ export function registerGrantPathProRoutes(app: Express) {
       const [row] = await db.insert(gppMirrorSnapshots).values({
         orgId,
         snapshot: cleanSnapshot,
+        requestFingerprint,
         source: "grantpathpro",
-      }).returning({ id: gppMirrorSnapshots.id, receivedAt: gppMirrorSnapshots.receivedAt });
+      }).onConflictDoNothing().returning({ id: gppMirrorSnapshots.id, receivedAt: gppMirrorSnapshots.receivedAt });
+      if (!row) {
+        const [racedSnapshot] = await db.select({
+          id: gppMirrorSnapshots.id,
+          receivedAt: gppMirrorSnapshots.receivedAt,
+        }).from(gppMirrorSnapshots).where(and(
+          eq(gppMirrorSnapshots.orgId, organization.id),
+          eq(gppMirrorSnapshots.requestFingerprint, requestFingerprint),
+        )).limit(1);
+        if (!racedSnapshot) {
+          return res.status(503).json({ error: "Mirror snapshot retry could not be reconciled" });
+        }
+        return res.status(200).json({
+          ok: true,
+          duplicate: true,
+          snapshotId: racedSnapshot.id,
+          receivedAt: racedSnapshot.receivedAt,
+        });
+      }
       return res.status(201).json({
         ok: true,
         snapshotId: row.id,
