@@ -128,6 +128,124 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     await context.close();
   });
 
+  test("does not overwrite manual situation edits in the submitted screening after delayed prefill", async ({ browser }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "Benefits Navigator",
+    });
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+    let releasePrefill!: () => void;
+    let prefillGateReleased = false;
+    const prefillReleased = new Promise<void>(resolve => {
+      releasePrefill = resolve;
+    });
+    const releaseDelayedPrefill = () => {
+      if (prefillGateReleased) return;
+      prefillGateReleased = true;
+      releasePrefill();
+    };
+    const situationKeys = [
+      "hasChildren",
+      "isDisabled",
+      "isElderly",
+      "isUnemployed",
+      "isPregnant",
+      "hadWorkplaceInjury",
+    ] as const;
+    const screeningRequests: Array<Record<string, unknown>> = [];
+
+    await page.route("**/api/navigator/prefill", async (route) => {
+      await prefillReleased;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          hasContext: true,
+          conversationTitle: "Delayed Navigator situation context",
+          hasChildren: true,
+          isDisabled: true,
+          isElderly: true,
+          isUnemployed: true,
+          isPregnant: true,
+        }),
+      });
+    });
+    await page.route("**/api/benefits/screenings", async (route) => {
+      screeningRequests.push(route.request().postDataJSON() as Record<string, unknown>);
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          screening: { id: "e2e-benefits-situation-prefill" },
+          gapBenefits: [],
+          gaps: [],
+          eligibleBenefits: [],
+          currentBenefits: [],
+          estimatedAnnualValue: 0,
+          navigationGuides: [],
+        }),
+      });
+    });
+
+    try {
+      await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-household")).toBeVisible();
+      await page.getByTestId("select-county").click();
+      await page.getByRole("option", { name: "Travis County" }).click();
+      await page.getByTestId("select-household-size").click();
+      await page.getByRole("option", { name: "1 person" }).click();
+      await page.getByTestId("input-income").fill("25000");
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-situation")).toBeVisible();
+
+      for (const situationKey of situationKeys) {
+        const situationSwitch = page.getByTestId(`switch-${situationKey}`);
+        await situationSwitch.click();
+        await expect(situationSwitch).toBeChecked();
+        await situationSwitch.click();
+        await expect(situationSwitch).not.toBeChecked();
+      }
+
+      const prefillResponse = page.waitForResponse(response =>
+        response.url().includes("/api/navigator/prefill") && response.status() === 200,
+      );
+      releaseDelayedPrefill();
+      await prefillResponse;
+      for (const situationKey of situationKeys) {
+        await expect(page.getByTestId(`switch-${situationKey}`)).not.toBeChecked();
+      }
+
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-current")).toBeVisible();
+      await page.getByTestId("button-next").click();
+      await expect(page.getByTestId("step-results")).toBeVisible();
+
+      expect(screeningRequests).toHaveLength(1);
+      expect(screeningRequests[0]).toMatchObject({
+        stateFips: "48",
+        countyFips: "48453",
+        householdSize: 1,
+        annualIncome: 25000,
+        hasChildren: false,
+        isPregnant: false,
+        isDisabled: false,
+        isElderly: false,
+        isUnemployed: false,
+        hadWorkplaceInjury: false,
+      });
+    } finally {
+      releaseDelayedPrefill();
+      await context.close();
+    }
+  });
+
   test("shows an actionable notice when prefill is unavailable without blocking manual screening", async ({ browser }) => {
     const cookie = await forgeSession(db, {
       userId: TEST_USER_ID,
