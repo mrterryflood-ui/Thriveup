@@ -8222,7 +8222,7 @@ export const eastAustinReadinessGates = pgTable("east_austin_readiness_gates", {
   notes: text("notes"),
   updatedByUserId: varchar("updated_by_user_id", { length: 255 }),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow(),
 }, (table) => [
   unique("east_austin_readiness_gates_packet_key_unique").on(table.packetId, table.gateKey),
   index("east_austin_readiness_gates_packet_status_idx").on(table.packetId, table.status),
@@ -8304,7 +8304,7 @@ export const eastAustinEbiProtocols = pgTable("east_austin_ebi_protocols", {
   protocolStatus: varchar("protocol_status", { length: 32 }).notNull().default("draft"),
   updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow(),
 }, (table) => [
   index("east_austin_ebi_protocol_status_idx").on(table.protocolStatus, table.updatedAt),
 ]);
@@ -8360,7 +8360,7 @@ export const eastAustinEbiEvaluationContracts = pgTable("east_austin_ebi_evaluat
   stopRule: text("stop_rule").notNull(),
   updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow(),
 }, (table) => [
   index("east_austin_ebi_evaluation_updated_idx").on(table.updatedAt),
 ]);

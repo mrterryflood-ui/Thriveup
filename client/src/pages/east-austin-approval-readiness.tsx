@@ -245,7 +245,7 @@ export default function EastAustinApprovalReadinessPage() {
         <div><p className="text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground">Evidence-based intervention protocol</p><h2 id="protocol-heading" className="text-2xl font-bold">Define the city-aligned intervention before discussing readiness.</h2></div>
         <Card><CardHeader><div className="flex flex-wrap justify-between gap-2"><div><CardTitle>{data.protocol?.interventionName ?? "No protocol recorded"}</CardTitle><p className="mt-1 text-sm text-muted-foreground">{data.protocol ? `Version ${data.protocol.interventionVersion} · ${readable(data.protocol.protocolStatus)}` : "Unknown until staff record a versioned protocol."}</p></div>{data.protocol && <Badge className={statusTone(data.protocol.protocolStatus)}>{readable(data.protocol.protocolStatus)}</Badge>}</div></CardHeader>
           <CardContent><details open={!data.protocol} className="rounded-lg border p-4"><summary className="cursor-pointer font-semibold">{data.protocol ? "Edit protocol record" : "Create protocol record"}</summary>
-            <form onSubmit={submitProtocol} className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="form-east-austin-protocol">
+            <form key={data.protocol?.updatedAt ?? "new"} onSubmit={submitProtocol} className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="form-east-austin-protocol">
               <Field label="Intervention name" name="interventionName" value={data.protocol?.interventionName} /><Field label="Intervention version" name="interventionVersion" value={data.protocol?.interventionVersion} />
               <Field label="Evidence basis" name="evidenceBasis" value={data.protocol?.evidenceBasis} area /><Field label="Target population" name="targetPopulation" value={data.protocol?.targetPopulation} area />
               <Field label="Setting" name="setting" value={data.protocol?.setting} /><Field label="Delivery mode" name="deliveryMode" value={data.protocol?.deliveryMode} />
@@ -279,7 +279,7 @@ export default function EastAustinApprovalReadinessPage() {
 
       <section aria-labelledby="evaluation-heading" data-testid="east-austin-evaluation-contract">
         <Card><CardHeader><CardTitle id="evaluation-heading">Non-causal evaluation contract</CardTitle><p className="text-sm text-muted-foreground">Causal claims are structurally disabled. This contract describes learning and monitoring, not effectiveness or replication.</p></CardHeader><CardContent><details open={!data.evaluationContract} className="rounded-lg border p-4"><summary className="cursor-pointer font-semibold">{data.evaluationContract ? "Edit evaluation contract" : "Create evaluation contract"}</summary>
-          <form onSubmit={submitEvaluation} className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="form-east-austin-evaluation">
+          <form key={data.evaluationContract?.updatedAt ?? "new"} onSubmit={submitEvaluation} className="mt-4 grid gap-4 sm:grid-cols-2" data-testid="form-east-austin-evaluation">
             <Field label="Evaluation version" name="evaluationVersion" value={data.evaluationContract?.evaluationVersion} /><Field label="Design type" name="designType" value={data.evaluationContract?.designType} />
             <div className="rounded-md border border-rose-200 bg-rose-50 p-3 text-sm font-semibold text-rose-900 sm:col-span-2">Causal claim allowed: No. This value is fixed by the server.</div>
             <Field label="Non-causal statement" name="nonCausalStatement" value={data.evaluationContract?.nonCausalStatement} area /><Field label="Primary outcome" name="primaryOutcome" value={data.evaluationContract?.primaryOutcome} area />
@@ -311,7 +311,7 @@ export default function EastAustinApprovalReadinessPage() {
             <p className="text-muted-foreground">A geographic classification is blocked until a reproducible boundary, source, method, vintage, date, and approval are recorded.</p>
             <details className="rounded border p-3">
               <summary className="cursor-pointer font-semibold">Record geography and baseline method</summary>
-              <form className="mt-3 grid sm:grid-cols-2 gap-3" onSubmit={(event) => {
+              <form key={data.packet.updatedAt} className="mt-3 grid sm:grid-cols-2 gap-3" onSubmit={(event) => {
                 event.preventDefault();
                 const values = Object.fromEntries(new FormData(event.currentTarget).entries());
                 mutation.mutate({ method: "PATCH", path: "/geography", body: { ...values, boundaryRecordedAt: new Date(String(values.boundaryRecordedAt)).toISOString(), expectedUpdatedAt: data.packet.updatedAt } });

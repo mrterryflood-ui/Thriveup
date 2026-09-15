@@ -10,8 +10,8 @@
 
 ## Omega
 
-- Diff scrimmage:
-- Proofs and gates:
-- Independent angle:
-- Outcome:
-- Residuals and reusable guard:
+- Diff scrimmage: six-domain adversarial review found and drove repairs for clean-database migration drift, stale approvals after geography/evidence/adaptation changes, correction-lineage forks, restricted evidence satisfying readiness, role-incongruent controls, timestamp precision, stale editor state, causal-claim drift, and mutable audit history.
+- Proofs and gates: zero-error TypeScript; six focused EBI contract tests; integrated-flow foundation; Alpha-Omega structural gate; inbound-verification gate (62/62); security probes (75 guarded endpoints, zero auth holes); startup migration application through 20261002; anonymous API denial (401); private-route browser proof.
+- Independent angle: design implementation was delegated independently; six separate adversarial auditors reviewed API, runtime, UI/navigation, storage/offline, UX/performance, and full-stack symmetry. Findings were repaired and rechecked through compilation, contract tests, startup logs, and access probes.
+- Outcome: Austin now has a private, city-aligned EBI planning protocol with explicit core/adaptable/prohibited components, fidelity controls, structured adaptations, a non-causal evaluation contract, derived readiness, server-derived approvers, immutable audit history, and fail-closed implementation/release declarations.
+- Residuals and reusable guard: no EBI, geography, partner, implementation authority, or causal design was invented. The workspace remains planning-only. Production migration, publishing, resident integration, partner release, and effectiveness/replication claims remain unauthorized.
