@@ -81,7 +81,7 @@ export const studioRateLimitWindows = pgTable("studio_rate_limit_windows", {
 export const studioManifestCacheRevisions = pgTable("studio_manifest_cache_revisions", {
   moduleKey: varchar("module_key", { length: 64 }).primaryKey(),
   version: integer("version").notNull(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow(),
 });
 
 export const studioModuleRecords = pgTable("studio_module_records", {
@@ -8202,7 +8202,7 @@ export const eastAustinReadinessPackets = pgTable("east_austin_readiness_packets
   stakeholderCategories: jsonb("stakeholder_categories").$type<string[]>().notNull().default([]),
   stakeholderSettings: jsonb("stakeholder_settings").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { precision: 3 }).notNull().defaultNow(),
 }, (table) => [
   index("east_austin_readiness_packets_state_idx").on(table.planningState, table.updatedAt),
 ]);
@@ -8276,10 +8276,102 @@ export const eastAustinReadinessAuditEvents = pgTable("east_austin_readiness_aud
   index("east_austin_readiness_audit_packet_time_idx").on(table.packetId, table.createdAt),
 ]);
 
+// One versioned, city-aligned intervention protocol per readiness packet.
+// This remains planning-only and intentionally has no participant identifiers.
+export const eastAustinEbiProtocols = pgTable("east_austin_ebi_protocols", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  packetId: varchar("packet_id", { length: 100 }).notNull().unique(),
+  interventionName: varchar("intervention_name", { length: 240 }).notNull(),
+  interventionVersion: varchar("intervention_version", { length: 80 }).notNull(),
+  evidenceBasis: text("evidence_basis").notNull(),
+  targetPopulation: text("target_population").notNull(),
+  setting: text("setting").notNull(),
+  deliveryMode: text("delivery_mode").notNull(),
+  dosage: text("dosage").notNull(),
+  staffingRequirements: text("staffing_requirements").notNull(),
+  trainingRequirements: text("training_requirements").notNull(),
+  supervisionRequirements: text("supervision_requirements").notNull(),
+  contraindications: text("contraindications").notNull(),
+  theoryOfChange: text("theory_of_change").notNull(),
+  coreComponents: jsonb("core_components").$type<string[]>().notNull().default([]),
+  adaptableComponents: jsonb("adaptable_components").$type<string[]>().notNull().default([]),
+  prohibitedChanges: jsonb("prohibited_changes").$type<string[]>().notNull().default([]),
+  fidelityInstrument: text("fidelity_instrument").notNull(),
+  fidelityScoringMethod: text("fidelity_scoring_method").notNull(),
+  fidelityThreshold: integer("fidelity_threshold").notNull(),
+  observationCadence: varchar("observation_cadence", { length: 180 }).notNull(),
+  belowThresholdAction: text("below_threshold_action").notNull(),
+  protocolStatus: varchar("protocol_status", { length: 32 }).notNull().default("draft"),
+  updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("east_austin_ebi_protocol_status_idx").on(table.protocolStatus, table.updatedAt),
+]);
+
+export const eastAustinEbiAdaptations = pgTable("east_austin_ebi_adaptations", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  packetId: varchar("packet_id", { length: 100 }).notNull(),
+  protocolId: varchar("protocol_id", { length: 100 }).notNull(),
+  adaptationTitle: varchar("adaptation_title", { length: 240 }).notNull(),
+  proposedChange: text("proposed_change").notNull(),
+  rationale: text("rationale").notNull(),
+  localInput: text("local_input").notNull(),
+  componentClassification: varchar("component_classification", { length: 32 }).notNull(),
+  expectedFidelityEffect: text("expected_fidelity_effect").notNull(),
+  expectedEquityEffect: text("expected_equity_effect").notNull(),
+  decisionStatus: varchar("decision_status", { length: 32 }).notNull().default("proposed"),
+  decisionReason: text("decision_reason"),
+  decidedByUserId: varchar("decided_by_user_id", { length: 255 }),
+  decidedAt: timestamp("decided_at"),
+  reviewAt: timestamp("review_at"),
+  createdByUserId: varchar("created_by_user_id", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+}, (table) => [
+  index("east_austin_ebi_adaptation_packet_idx").on(table.packetId, table.createdAt),
+  index("east_austin_ebi_adaptation_protocol_idx").on(table.protocolId, table.createdAt),
+]);
+
+export const eastAustinEbiEvaluationContracts = pgTable("east_austin_ebi_evaluation_contracts", {
+  id: varchar("id", { length: 100 }).primaryKey().default(sql`gen_random_uuid()`),
+  packetId: varchar("packet_id", { length: 100 }).notNull().unique(),
+  evaluationVersion: varchar("evaluation_version", { length: 80 }).notNull(),
+  designType: varchar("design_type", { length: 120 }).notNull(),
+  causalClaimAllowed: boolean("causal_claim_allowed").notNull().default(false),
+  nonCausalStatement: text("non_causal_statement").notNull(),
+  primaryOutcome: text("primary_outcome").notNull(),
+  processOutcomes: jsonb("process_outcomes").$type<string[]>().notNull().default([]),
+  fidelityOutcomes: jsonb("fidelity_outcomes").$type<string[]>().notNull().default([]),
+  equityOutcomes: jsonb("equity_outcomes").$type<string[]>().notNull().default([]),
+  harmOutcomes: jsonb("harm_outcomes").$type<string[]>().notNull().default([]),
+  baselinePeriod: varchar("baseline_period", { length: 180 }).notNull(),
+  followupWindows: jsonb("followup_windows").$type<string[]>().notNull().default([]),
+  denominatorDefinition: text("denominator_definition").notNull(),
+  comparatorDescription: text("comparator_description").notNull(),
+  measurementInstruments: jsonb("measurement_instruments").$type<string[]>().notNull().default([]),
+  dataDictionaryReference: text("data_dictionary_reference").notNull(),
+  missingDataRules: text("missing_data_rules").notNull(),
+  attritionRules: text("attrition_rules").notNull(),
+  suppressionRules: text("suppression_rules").notNull(),
+  subgroupDimensions: jsonb("subgroup_dimensions").$type<string[]>().notNull().default([]),
+  continueRule: text("continue_rule").notNull(),
+  adaptRule: text("adapt_rule").notNull(),
+  pauseRule: text("pause_rule").notNull(),
+  stopRule: text("stop_rule").notNull(),
+  updatedByUserId: varchar("updated_by_user_id", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+}, (table) => [
+  index("east_austin_ebi_evaluation_updated_idx").on(table.updatedAt),
+]);
+
 export type EastAustinReadinessPacket = typeof eastAustinReadinessPackets.$inferSelect;
 export type EastAustinReadinessGate = typeof eastAustinReadinessGates.$inferSelect;
 export type EastAustinReadinessSource = typeof eastAustinReadinessSources.$inferSelect;
 export type EastAustinReadinessTabletop = typeof eastAustinReadinessTabletops.$inferSelect;
+export type EastAustinEbiProtocol = typeof eastAustinEbiProtocols.$inferSelect;
+export type EastAustinEbiAdaptation = typeof eastAustinEbiAdaptations.$inferSelect;
+export type EastAustinEbiEvaluationContract = typeof eastAustinEbiEvaluationContracts.$inferSelect;
 
 export type OrganizationEventWorkspaceAccessAudit = typeof organizationEventWorkspaceAccessAudit.$inferSelect;
 

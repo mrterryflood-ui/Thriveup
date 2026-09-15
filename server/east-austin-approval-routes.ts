@@ -3,6 +3,9 @@ import { Router } from "express";
 import { and, asc, desc, eq } from "drizzle-orm";
 import { z } from "zod";
 import {
+  eastAustinEbiAdaptations,
+  eastAustinEbiEvaluationContracts,
+  eastAustinEbiProtocols,
   eastAustinReadinessAuditEvents,
   eastAustinReadinessGates,
   eastAustinReadinessPackets,
@@ -13,6 +16,7 @@ import { db, storage } from "./storage";
 
 const TERRITORY_KEY = "east-austin-six-square";
 const STAFF_ROLES = new Set(["admin", "teacher", "case_manager", "facilitator", "staff"]);
+const APPROVER_ROLES = new Set(["admin"]);
 const APPLICABILITY = ["direct_match", "related_setting_limited", "process_support", "not_yet_mapped"] as const;
 const GATE_STATUSES = ["blocked", "ready_for_review", "approved", "expired"] as const;
 type GateStatus = (typeof GATE_STATUSES)[number];
@@ -94,6 +98,78 @@ function toDate(value: string | undefined) {
   return Number.isFinite(date.getTime()) ? date : null;
 }
 
+const boundedList = z.array(z.string().trim().min(3).max(500)).min(1).max(30);
+
+export const protocolSchema = z.object({
+  interventionName: z.string().trim().min(3).max(240),
+  interventionVersion: z.string().trim().min(1).max(80),
+  evidenceBasis: z.string().trim().min(10).max(4_000),
+  targetPopulation: z.string().trim().min(10).max(2_000),
+  setting: z.string().trim().min(3).max(1_000),
+  deliveryMode: z.string().trim().min(3).max(1_000),
+  dosage: z.string().trim().min(3).max(1_000),
+  staffingRequirements: z.string().trim().min(3).max(2_000),
+  trainingRequirements: z.string().trim().min(3).max(2_000),
+  supervisionRequirements: z.string().trim().min(3).max(2_000),
+  contraindications: z.string().trim().min(3).max(2_000),
+  theoryOfChange: z.string().trim().min(10).max(4_000),
+  coreComponents: boundedList,
+  adaptableComponents: boundedList,
+  prohibitedChanges: boundedList,
+  fidelityInstrument: z.string().trim().min(10).max(2_000),
+  fidelityScoringMethod: z.string().trim().min(10).max(2_000),
+  fidelityThreshold: z.number().int().min(1).max(100),
+  observationCadence: z.string().trim().min(3).max(180),
+  belowThresholdAction: z.string().trim().min(10).max(2_000),
+  protocolStatus: z.enum(["draft", "ready_for_review", "superseded"]),
+  expectedUpdatedAt: z.string().datetime().nullable(),
+}).strict();
+
+export const adaptationSchema = z.object({
+  protocolId: z.string().regex(/^[A-Za-z0-9-]{8,100}$/),
+  adaptationTitle: z.string().trim().min(3).max(240),
+  proposedChange: z.string().trim().min(10).max(2_000),
+  rationale: z.string().trim().min(10).max(2_000),
+  localInput: z.string().trim().min(10).max(2_000),
+  componentClassification: z.enum(["core", "adaptable", "prohibited"]),
+  expectedFidelityEffect: z.string().trim().min(10).max(2_000),
+  expectedEquityEffect: z.string().trim().min(10).max(2_000),
+  reviewAt: z.string().datetime().nullable().optional(),
+}).strict();
+
+const adaptationDecisionSchema = z.object({
+  decisionStatus: z.enum(["approved", "rejected", "withdrawn"]),
+  decisionReason: z.string().trim().min(10).max(2_000),
+  reviewAt: z.string().datetime().nullable().optional(),
+}).strict();
+
+export const evaluationSchema = z.object({
+  evaluationVersion: z.string().trim().min(1).max(80),
+  designType: z.string().trim().min(3).max(120),
+  causalClaimAllowed: z.literal(false),
+  nonCausalStatement: z.string().trim().min(10).max(2_000),
+  primaryOutcome: z.string().trim().min(10).max(2_000),
+  processOutcomes: boundedList,
+  fidelityOutcomes: boundedList,
+  equityOutcomes: boundedList,
+  harmOutcomes: boundedList,
+  baselinePeriod: z.string().trim().min(3).max(180),
+  followupWindows: boundedList,
+  denominatorDefinition: z.string().trim().min(10).max(2_000),
+  comparatorDescription: z.string().trim().min(10).max(2_000),
+  measurementInstruments: boundedList,
+  dataDictionaryReference: z.string().trim().min(3).max(2_000),
+  missingDataRules: z.string().trim().min(10).max(2_000),
+  attritionRules: z.string().trim().min(10).max(2_000),
+  suppressionRules: z.string().trim().min(10).max(2_000),
+  subgroupDimensions: boundedList,
+  continueRule: z.string().trim().min(10).max(2_000),
+  adaptRule: z.string().trim().min(10).max(2_000),
+  pauseRule: z.string().trim().min(10).max(2_000),
+  stopRule: z.string().trim().min(10).max(2_000),
+  expectedUpdatedAt: z.string().datetime().nullable(),
+}).strict();
+
 function effectiveGateStatus(gate: typeof eastAustinReadinessGates.$inferSelect): GateStatus {
   const decisionReady = Boolean(gate.namedApprover && gate.decisionRecord && gate.reviewedAt);
   const revalidationTime = gate.revalidateAt ? new Date(gate.revalidateAt).getTime() : Number.NaN;
@@ -165,9 +241,82 @@ const PROHIBITED_PLANNING_CONTENT = [
   /\b(?:case note|referral|intake|service record|medical record)\b/i,
 ];
 
-function containsProhibitedPlanningContent(record: Record<string, unknown>) {
-  const text = Object.values(record).filter((value) => typeof value === "string").join("\n");
+export function containsProhibitedPlanningContent(record: Record<string, unknown>) {
+  const flatten = (value: unknown): string[] => {
+    if (typeof value === "string") return [value];
+    if (Array.isArray(value)) return value.flatMap(flatten);
+    if (value && typeof value === "object") return Object.values(value).flatMap(flatten);
+    return [];
+  };
+  const text = Object.values(record).flatMap(flatten).join("\n");
   return PROHIBITED_PLANNING_CONTENT.some((pattern) => pattern.test(text));
+}
+
+export function deriveImplementationReadiness(
+  gates: Array<typeof eastAustinReadinessGates.$inferSelect>,
+  sources: Array<typeof eastAustinReadinessSources.$inferSelect>,
+  protocol: typeof eastAustinEbiProtocols.$inferSelect | undefined,
+  evaluation: typeof eastAustinEbiEvaluationContracts.$inferSelect | undefined,
+  packet?: typeof eastAustinReadinessPackets.$inferSelect,
+) {
+  const blockers: string[] = [];
+  const unapprovedGates = gates.filter((gate) => effectiveGateStatus(gate) !== "approved");
+  if (unapprovedGates.length) blockers.push(`${unapprovedGates.length} approval gate${unapprovedGates.length === 1 ? " is" : "s are"} not currently approved.`);
+  const correctedSourceIds = new Set(sources.map((source) => source.correctsSourceId).filter(Boolean));
+  if (!sources.some((source) =>
+    !correctedSourceIds.has(source.id)
+    && source.sourceType !== "restricted_pending"
+    && (source.applicability === "direct_match" || source.applicability === "related_setting_limited"))) {
+    blockers.push("No applicable evidence source is recorded.");
+  }
+  if (packet && (!packet.boundaryRecordedAt || /^not yet/i.test(packet.boundarySource) || /^not yet/i.test(packet.baselineMethod))) {
+    blockers.push("The Austin geography and baseline have not been recorded.");
+  }
+  if (!protocol) blockers.push("No versioned EBI protocol is recorded.");
+  else if (protocol.protocolStatus !== "ready_for_review") blockers.push("The EBI protocol is not ready for review.");
+  if (!evaluation) blockers.push("No pre-specified evaluation contract is recorded.");
+  else if (evaluation.causalClaimAllowed !== false) blockers.push("The evaluation contract does not enforce the non-causal planning boundary.");
+  return {
+    state: blockers.length === 0 ? "approved_for_planning" : "blocked",
+    blockers,
+    planningOnly: true,
+    implementationAuthorized: false,
+    effectivenessEstablished: false,
+    replicationEstablished: false,
+    residentDataAllowed: false,
+    partnerReleaseAllowed: false,
+  };
+}
+
+async function invalidateGate(
+  tx: Parameters<Parameters<typeof db.transaction>[0]>[0],
+  packetId: string,
+  gateKey: string,
+  actorUserId: string,
+  reason: string,
+) {
+  const [gate] = await tx.select().from(eastAustinReadinessGates)
+    .where(and(eq(eastAustinReadinessGates.packetId, packetId), eq(eastAustinReadinessGates.gateKey, gateKey))).limit(1);
+  if (!gate || effectiveGateStatus(gate) !== "approved") return;
+  const [changed] = await tx.update(eastAustinReadinessGates).set({
+    status: "ready_for_review",
+    classification: "planning_only",
+    namedApprover: null,
+    decisionRecord: null,
+    reviewedAt: null,
+    revalidateAt: null,
+    notes: reason,
+    updatedByUserId: actorUserId,
+    updatedAt: new Date(),
+  }).where(eq(eastAustinReadinessGates.id, gate.id)).returning();
+  if (changed) {
+    await tx.insert(eastAustinReadinessAuditEvents).values({
+      packetId,
+      eventType: "gate_invalidated",
+      actorUserId,
+      eventData: { gateKey, reason, before: gateAuditSnapshot(gate), after: gateAuditSnapshot(changed) },
+    });
+  }
 }
 
 function gateAuditSnapshot(gate: typeof eastAustinReadinessGates.$inferSelect) {
@@ -188,14 +337,17 @@ export function registerEastAustinApprovalRoutes(app: Express) {
   const router = Router();
   app.use("/api/east-austin/readiness", requireEastAustinStaff, router);
 
-  router.get("/", async (_req, res) => {
+  router.get("/", async (req, res) => {
     try {
       const packet = await getOrCreatePacket();
-      const [gates, sources, tabletops, auditEvents] = await Promise.all([
+      const [gates, sources, tabletops, auditEvents, protocols, adaptations, evaluations] = await Promise.all([
         db.select().from(eastAustinReadinessGates).where(eq(eastAustinReadinessGates.packetId, packet.id)).orderBy(asc(eastAustinReadinessGates.createdAt)),
         db.select().from(eastAustinReadinessSources).where(eq(eastAustinReadinessSources.packetId, packet.id)).orderBy(desc(eastAustinReadinessSources.createdAt)),
         db.select().from(eastAustinReadinessTabletops).where(eq(eastAustinReadinessTabletops.packetId, packet.id)).orderBy(desc(eastAustinReadinessTabletops.createdAt)),
         db.select().from(eastAustinReadinessAuditEvents).where(eq(eastAustinReadinessAuditEvents.packetId, packet.id)).orderBy(desc(eastAustinReadinessAuditEvents.createdAt)).limit(50),
+        db.select().from(eastAustinEbiProtocols).where(eq(eastAustinEbiProtocols.packetId, packet.id)).limit(1),
+        db.select().from(eastAustinEbiAdaptations).where(eq(eastAustinEbiAdaptations.packetId, packet.id)).orderBy(desc(eastAustinEbiAdaptations.createdAt)),
+        db.select().from(eastAustinEbiEvaluationContracts).where(eq(eastAustinEbiEvaluationContracts.packetId, packet.id)).limit(1),
       ]);
       res.set("Cache-Control", "private, no-store");
       res.json({
@@ -203,6 +355,11 @@ export function registerEastAustinApprovalRoutes(app: Express) {
         gates: gates.map((gate) => ({ ...gate, effectiveStatus: effectiveGateStatus(gate) })),
         sources,
         tabletops,
+        protocol: protocols[0] ?? null,
+        adaptations,
+        evaluationContract: evaluations[0] ?? null,
+        implementationReadiness: deriveImplementationReadiness(gates, sources, protocols[0], evaluations[0], packet),
+        viewer: { canApprove: APPROVER_ROLES.has((await storage.getUser(getUserId(req)!))?.role ?? "") },
         auditEvents,
         safeguards: {
           planningOnly: true,
@@ -234,11 +391,23 @@ export function registerEastAustinApprovalRoutes(app: Express) {
           .where(and(eq(eastAustinReadinessPackets.id, packet.id), eq(eastAustinReadinessPackets.updatedAt, toDate(parsed.data.expectedUpdatedAt)!)))
           .returning();
         if (!changed[0]) return null;
+        await invalidateGate(tx, packet.id, "geography-baseline", actorUserId!, "Austin geography or baseline changed and requires re-review.");
         await tx.insert(eastAustinReadinessAuditEvents).values({
           packetId: packet.id,
           eventType: "geography_updated",
           actorUserId,
-          eventData: { before: { boundaryLabel: current?.boundaryLabel, updatedAt: current?.updatedAt?.toISOString() }, after: { boundaryLabel: changed[0].boundaryLabel, boundaryRecordedAt: changed[0].boundaryRecordedAt?.toISOString(), dataVintage: changed[0].dataVintage, updatedAt: changed[0].updatedAt.toISOString() } },
+          eventData: {
+            before: current && {
+              boundaryLabel: current.boundaryLabel, boundarySource: current.boundarySource, boundaryMethod: current.boundaryMethod,
+              boundaryRecordedAt: current.boundaryRecordedAt?.toISOString(), baselineMethod: current.baselineMethod,
+              dataVintage: current.dataVintage, updatedAt: current.updatedAt.toISOString(),
+            },
+            after: {
+              boundaryLabel: changed[0].boundaryLabel, boundarySource: changed[0].boundarySource, boundaryMethod: changed[0].boundaryMethod,
+              boundaryRecordedAt: changed[0].boundaryRecordedAt?.toISOString(), baselineMethod: changed[0].baselineMethod,
+              dataVintage: changed[0].dataVintage, updatedAt: changed[0].updatedAt.toISOString(),
+            },
+          },
         });
         return changed[0];
       });
@@ -263,12 +432,20 @@ export function registerEastAustinApprovalRoutes(app: Express) {
         .where(and(eq(eastAustinReadinessGates.packetId, packet.id), eq(eastAustinReadinessGates.gateKey, gateKey))).limit(1);
       if (!current) return res.status(404).json({ error: "Readiness gate not found." });
       const data = parsed.data;
+      if (containsProhibitedPlanningContent(data)) {
+        return res.status(400).json({ error: "Gate records cannot contain person-level, case, referral, intake, or contact information." });
+      }
+      const actorUserId = getUserId(req)!;
+      const actor = await storage.getUser(actorUserId);
       const currentEffectiveStatus = effectiveGateStatus(current);
       if (!GATE_TRANSITIONS[currentEffectiveStatus].includes(data.status)) {
         return res.status(409).json({ error: `Invalid readiness transition: ${currentEffectiveStatus} to ${data.status}.` });
       }
-      if (data.status === "approved" && (!data.namedApprover || !data.decisionRecord || !data.reviewedAt)) {
-        return res.status(400).json({ error: "An approved gate requires a named approver, decision record, and review date." });
+      if (data.status === "approved" && (!data.decisionRecord || !data.reviewedAt)) {
+        return res.status(400).json({ error: "An approved gate requires a decision record and review date. Approver identity is derived from the authenticated account." });
+      }
+      if (data.status === "approved" && (!actor || !APPROVER_ROLES.has(actor.role))) {
+        return res.status(403).json({ error: "Administrator approval is required to approve a readiness gate." });
       }
       const reviewedAt = data.reviewedAt === undefined ? current.reviewedAt : toDate(data.reviewedAt ?? undefined);
       const revalidateAt = data.revalidateAt === undefined ? current.revalidateAt : toDate(data.revalidateAt ?? undefined);
@@ -281,7 +458,7 @@ export function registerEastAustinApprovalRoutes(app: Express) {
         const [changed] = await tx.update(eastAustinReadinessGates).set({
           status: data.status,
           classification: data.classification,
-          namedApprover: data.namedApprover ?? null,
+          namedApprover: data.status === "approved" ? actorUserId : data.namedApprover ?? null,
           decisionRecord: data.decisionRecord ?? null,
           reviewedAt,
           revalidateAt,
@@ -321,6 +498,9 @@ export function registerEastAustinApprovalRoutes(app: Express) {
         const [prior] = await db.select({ id: eastAustinReadinessSources.id }).from(eastAustinReadinessSources)
           .where(and(eq(eastAustinReadinessSources.id, parsed.data.correctsSourceId), eq(eastAustinReadinessSources.packetId, packet.id))).limit(1);
         if (!prior) return res.status(400).json({ error: "The source selected for correction is not in this readiness record." });
+        const [existingCorrection] = await db.select({ id: eastAustinReadinessSources.id }).from(eastAustinReadinessSources)
+          .where(and(eq(eastAustinReadinessSources.packetId, packet.id), eq(eastAustinReadinessSources.correctsSourceId, parsed.data.correctsSourceId))).limit(1);
+        if (existingCorrection) return res.status(409).json({ error: "This source already has a correction. Correct the newest record to preserve a single evidence lineage." });
       }
       const source = await db.transaction(async (tx) => {
         const [created] = await tx.insert(eastAustinReadinessSources).values({
@@ -330,9 +510,10 @@ export function registerEastAustinApprovalRoutes(app: Express) {
           packetId: packet.id,
           createdByUserId: getUserId(req)!,
         }).returning();
+        await invalidateGate(tx, packet.id, "evidence-applicability", getUserId(req)!, "Evidence sources changed and require applicability re-review.");
         await tx.insert(eastAustinReadinessAuditEvents).values({
           packetId: packet.id,
-          eventType: "source_added",
+          eventType: parsed.data.correctsSourceId ? "source_correction_added" : "source_added",
           actorUserId: getUserId(req),
           eventData: { sourceId: created.id, sourceType: created.sourceType, applicability: created.applicability, correctsSourceId: created.correctsSourceId },
         });
@@ -375,6 +556,208 @@ export function registerEastAustinApprovalRoutes(app: Express) {
     } catch (error: any) {
       console.error("[east-austin-readiness] POST tabletop error:", error);
       res.status(500).json({ error: "Failed to add simulated tabletop." });
+    }
+  });
+
+  router.put("/protocol", async (req, res) => {
+    try {
+      const parsed = protocolSchema.safeParse(req.body);
+      if (!parsed.success) {
+        sendValidationError(res, parsed);
+        return;
+      }
+      const packet = await getOrCreatePacket();
+      const actorUserId = getUserId(req)!;
+      const { expectedUpdatedAt, ...values } = parsed.data;
+      if (containsProhibitedPlanningContent(values)) {
+        return res.status(400).json({ error: "The EBI protocol cannot contain person-level, case, referral, intake, or contact information." });
+      }
+      const result = await db.transaction(async (tx) => {
+        const [current] = await tx.select().from(eastAustinEbiProtocols)
+          .where(eq(eastAustinEbiProtocols.packetId, packet.id)).limit(1);
+        let protocol: typeof eastAustinEbiProtocols.$inferSelect | undefined;
+        if (current) {
+          if (!expectedUpdatedAt) return null;
+          [protocol] = await tx.update(eastAustinEbiProtocols).set({
+            ...values,
+            updatedByUserId: actorUserId,
+            updatedAt: new Date(),
+          }).where(and(
+            eq(eastAustinEbiProtocols.id, current.id),
+            eq(eastAustinEbiProtocols.updatedAt, toDate(expectedUpdatedAt)!),
+          )).returning();
+        } else {
+          if (expectedUpdatedAt) return null;
+          [protocol] = await tx.insert(eastAustinEbiProtocols).values({
+            ...values,
+            packetId: packet.id,
+            updatedByUserId: actorUserId,
+          }).onConflictDoNothing().returning();
+        }
+        if (!protocol) return null;
+        await invalidateGate(tx, packet.id, "evidence-applicability", actorUserId, "EBI protocol changed and requires evidence re-review.");
+        await tx.insert(eastAustinReadinessAuditEvents).values({
+          packetId: packet.id,
+          eventType: current ? "ebi_protocol_updated" : "ebi_protocol_created",
+          actorUserId,
+          eventData: {
+            protocolId: protocol.id,
+            before: current ?? null,
+            after: protocol,
+          },
+        });
+        return protocol;
+      });
+      if (!result) return res.status(409).json({ error: "The EBI protocol changed while you were editing. Reload before saving." });
+      res.json({ protocol: result });
+    } catch (error: any) {
+      console.error("[east-austin-readiness] PUT protocol error:", error);
+      res.status(500).json({ error: "Failed to save the EBI protocol." });
+    }
+  });
+
+  router.post("/adaptations", async (req, res) => {
+    try {
+      const parsed = adaptationSchema.safeParse(req.body);
+      if (!parsed.success) {
+        sendValidationError(res, parsed);
+        return;
+      }
+      if (containsProhibitedPlanningContent(parsed.data)) {
+        return res.status(400).json({ error: "Adaptation records cannot contain person-level, case, referral, intake, or contact information." });
+      }
+      const packet = await getOrCreatePacket();
+      const actorUserId = getUserId(req)!;
+      const [protocol] = await db.select().from(eastAustinEbiProtocols)
+        .where(and(eq(eastAustinEbiProtocols.id, parsed.data.protocolId), eq(eastAustinEbiProtocols.packetId, packet.id))).limit(1);
+      if (!protocol) return res.status(400).json({ error: "The selected EBI protocol is not part of this Austin packet." });
+      const adaptation = await db.transaction(async (tx) => {
+        const [created] = await tx.insert(eastAustinEbiAdaptations).values({
+          ...parsed.data,
+          reviewAt: toDate(parsed.data.reviewAt ?? undefined),
+          packetId: packet.id,
+          decisionStatus: "proposed",
+          createdByUserId: actorUserId,
+        }).returning();
+        await invalidateGate(tx, packet.id, "evidence-applicability", actorUserId, "A new local adaptation requires fidelity and evidence re-review.");
+        await tx.insert(eastAustinReadinessAuditEvents).values({
+          packetId: packet.id,
+          eventType: "ebi_adaptation_proposed",
+          actorUserId,
+          eventData: { adaptationId: created.id, protocolId: created.protocolId, componentClassification: created.componentClassification },
+        });
+        return created;
+      });
+      res.status(201).json({ adaptation });
+    } catch (error: any) {
+      console.error("[east-austin-readiness] POST adaptation error:", error);
+      res.status(500).json({ error: "Failed to record the local adaptation." });
+    }
+  });
+
+  router.patch("/adaptations/:adaptationId/decision", async (req, res) => {
+    try {
+      const parsed = adaptationDecisionSchema.safeParse(req.body);
+      if (!parsed.success) {
+        sendValidationError(res, parsed);
+        return;
+      }
+      const actorUserId = getUserId(req)!;
+      const actor = await storage.getUser(actorUserId);
+      if (!actor || !APPROVER_ROLES.has(actor.role)) {
+        return res.status(403).json({ error: "Administrator approval is required for adaptation decisions." });
+      }
+      const packet = await getOrCreatePacket();
+      const adaptationId = String(req.params.adaptationId);
+      const [current] = await db.select().from(eastAustinEbiAdaptations)
+        .where(and(eq(eastAustinEbiAdaptations.id, adaptationId), eq(eastAustinEbiAdaptations.packetId, packet.id))).limit(1);
+      if (!current) return res.status(404).json({ error: "Adaptation record not found." });
+      if (current.decisionStatus !== "proposed") {
+        return res.status(409).json({ error: "This adaptation already has a decision. Record a new adaptation instead of overwriting history." });
+      }
+      if (parsed.data.decisionStatus === "approved" && current.componentClassification === "prohibited") {
+        return res.status(409).json({ error: "A prohibited change cannot be approved. Create a new intervention version if the core model must change." });
+      }
+      const adaptation = await db.transaction(async (tx) => {
+        const [changed] = await tx.update(eastAustinEbiAdaptations).set({
+          decisionStatus: parsed.data.decisionStatus,
+          decisionReason: parsed.data.decisionReason,
+          decidedByUserId: actorUserId,
+          decidedAt: new Date(),
+          reviewAt: toDate(parsed.data.reviewAt ?? undefined),
+        }).where(and(eq(eastAustinEbiAdaptations.id, current.id), eq(eastAustinEbiAdaptations.decisionStatus, "proposed"))).returning();
+        if (!changed) return null;
+        await invalidateGate(tx, packet.id, "evidence-applicability", actorUserId, "An adaptation decision changed and requires fidelity and evidence re-review.");
+        await tx.insert(eastAustinReadinessAuditEvents).values({
+          packetId: packet.id,
+          eventType: "ebi_adaptation_decided",
+          actorUserId,
+          eventData: { adaptationId: changed.id, decisionStatus: changed.decisionStatus, componentClassification: changed.componentClassification },
+        });
+        return changed;
+      });
+      if (!adaptation) return res.status(409).json({ error: "This adaptation was decided by another reviewer. Reload the record." });
+      res.json({ adaptation });
+    } catch (error: any) {
+      console.error("[east-austin-readiness] PATCH adaptation decision error:", error);
+      res.status(500).json({ error: "Failed to record the adaptation decision." });
+    }
+  });
+
+  router.put("/evaluation-contract", async (req, res) => {
+    try {
+      const parsed = evaluationSchema.safeParse(req.body);
+      if (!parsed.success) {
+        sendValidationError(res, parsed);
+        return;
+      }
+      const packet = await getOrCreatePacket();
+      const actorUserId = getUserId(req)!;
+      const { expectedUpdatedAt, ...values } = parsed.data;
+      if (containsProhibitedPlanningContent(values)) {
+        return res.status(400).json({ error: "The evaluation contract cannot contain person-level, case, referral, intake, or contact information." });
+      }
+      const result = await db.transaction(async (tx) => {
+        const [current] = await tx.select().from(eastAustinEbiEvaluationContracts)
+          .where(eq(eastAustinEbiEvaluationContracts.packetId, packet.id)).limit(1);
+        let evaluation: typeof eastAustinEbiEvaluationContracts.$inferSelect | undefined;
+        if (current) {
+          if (!expectedUpdatedAt) return null;
+          [evaluation] = await tx.update(eastAustinEbiEvaluationContracts).set({
+            ...values,
+            updatedByUserId: actorUserId,
+            updatedAt: new Date(),
+          }).where(and(
+            eq(eastAustinEbiEvaluationContracts.id, current.id),
+            eq(eastAustinEbiEvaluationContracts.updatedAt, toDate(expectedUpdatedAt)!),
+          )).returning();
+        } else {
+          if (expectedUpdatedAt) return null;
+          [evaluation] = await tx.insert(eastAustinEbiEvaluationContracts).values({
+            ...values,
+            packetId: packet.id,
+            updatedByUserId: actorUserId,
+          }).onConflictDoNothing().returning();
+        }
+        if (!evaluation) return null;
+        await invalidateGate(tx, packet.id, "partner-data-claims", actorUserId, "Evaluation design changed and requires claims-authority re-review.");
+        await tx.insert(eastAustinReadinessAuditEvents).values({
+          packetId: packet.id,
+          eventType: current ? "ebi_evaluation_updated" : "ebi_evaluation_created",
+          actorUserId,
+          eventData: {
+            evaluationId: evaluation.id,
+            before: current ?? null,
+            after: evaluation,
+          },
+        });
+        return evaluation;
+      });
+      if (!result) return res.status(409).json({ error: "The evaluation contract changed while you were editing. Reload before saving." });
+      res.json({ evaluationContract: result });
+    } catch (error: any) {
+      console.error("[east-austin-readiness] PUT evaluation contract error:", error);
+      res.status(500).json({ error: "Failed to save the evaluation contract." });
     }
   });
 }
