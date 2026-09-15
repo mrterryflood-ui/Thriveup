@@ -104,6 +104,67 @@ type NavigatorPrefillData = {
 
 type NavigatorPrefillError = Error & { status?: number };
 
+type CapacityStatus = "open" | "waitlist" | "closed";
+
+type CapacityOrganization = {
+  id: string;
+  orgId: string;
+  orgName: string;
+  programCode: string;
+  status: CapacityStatus;
+  serviceZips: string[] | null;
+  stale: boolean;
+  waitWeeks?: number | null;
+  note?: string | null;
+  contactPhone?: string | null;
+  contactUrl?: string | null;
+  updatedAt?: string | null;
+};
+
+type CapacityData = {
+  orgs: CapacityOrganization[];
+  count: number;
+};
+
+function isOptionalString(value: unknown): value is string | null | undefined {
+  return value === undefined || value === null || typeof value === "string";
+}
+
+function isCapacityOrganization(value: unknown): value is CapacityOrganization {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const org = value as Record<string, unknown>;
+  return (
+    typeof org.id === "string" &&
+    org.id.trim().length > 0 &&
+    typeof org.orgId === "string" &&
+    org.orgId.trim().length > 0 &&
+    typeof org.orgName === "string" &&
+    org.orgName.trim().length > 0 &&
+    typeof org.programCode === "string" &&
+    org.programCode.trim().length > 0 &&
+    (org.status === "open" || org.status === "waitlist" || org.status === "closed") &&
+    (org.serviceZips === null ||
+      (Array.isArray(org.serviceZips) && org.serviceZips.every(zip => typeof zip === "string"))) &&
+    typeof org.stale === "boolean" &&
+    (org.waitWeeks === undefined || org.waitWeeks === null || typeof org.waitWeeks === "number") &&
+    isOptionalString(org.note) &&
+    isOptionalString(org.contactPhone) &&
+    isOptionalString(org.contactUrl) &&
+    isOptionalString(org.updatedAt)
+  );
+}
+
+function isCapacityData(value: unknown): value is CapacityData {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const payload = value as { orgs?: unknown; count?: unknown };
+  return Array.isArray(payload.orgs) &&
+    typeof payload.count === "number" &&
+    Number.isInteger(payload.count) &&
+    payload.count >= 0 &&
+    payload.count === payload.orgs.length &&
+    payload.orgs.every(isCapacityOrganization);
+}
+
 type NavigatorSituationKey = "hasChildren" | "isDisabled" | "isElderly" | "isUnemployed" | "isPregnant";
 type NavigatorPrefillOwnedField = NavigatorSituationKey | "state" | "county" | "zipCode";
 type ScreeningRequest = {
@@ -243,7 +304,7 @@ function hasUsableNavigatorPrefill(prefillData: NavigatorPrefillData): boolean {
 // programCode match to avoid showing truly unrelated records.
 function CapacityBadge({ programCode, capacityOrgs, userZip }: {
   programCode: string;
-  capacityOrgs: any[];
+  capacityOrgs: CapacityOrganization[];
   userZip: string;
 }) {
   const matches = capacityOrgs.filter((o) => {
@@ -315,7 +376,7 @@ function CapacityBadge({ programCode, capacityOrgs, userZip }: {
         title="This capacity data is more than 7 days old. Verify with the organization before referring."
       >
         <Clock className="h-2.5 w-2.5 shrink-0" />
-        {label}
+        {label} — verify before referring
       </span>
     );
   };
@@ -326,7 +387,7 @@ function CapacityBadge({ programCode, capacityOrgs, userZip }: {
         <div key={o.id} className={`flex items-start gap-2 text-xs ${o.stale ? "text-green-600/70 dark:text-green-500/60" : "text-green-700 dark:text-green-400"}`}>
           <CheckCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
           <span className="flex flex-col">
-            <span><strong className="font-semibold">{o.orgName}</strong> — Open now{o.note ? `: ${o.note}` : ""}</span>
+            <span><strong className="font-semibold">{o.orgName}</strong> — {o.stale ? "Reported open" : "Open now"}{o.note ? `: ${o.note}` : ""}</span>
             <StaleNote o={o} />
             <ContactLinks o={o} />
           </span>
@@ -360,6 +421,89 @@ function CapacityBadge({ programCode, capacityOrgs, userZip }: {
   );
 }
 
+function CapacityLookupNotice({
+  zipStatus,
+  isLoading,
+  isError,
+  isEmpty,
+  onRetry,
+}: {
+  zipStatus: "missing" | "invalid" | null;
+  isLoading: boolean;
+  isError: boolean;
+  isEmpty: boolean;
+  onRetry: () => void;
+}) {
+  if (zipStatus) {
+    return (
+      <div
+        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-3 text-sm text-muted-foreground"
+        role="status"
+        data-testid="capacity-lookup-needs-zip"
+      >
+        {zipStatus === "missing"
+          ? "Add your ZIP code during screening to check local organization capacity."
+          : "Enter a valid 5-digit ZIP code during screening to check local organization capacity."}
+        {" "}You can still use any official application options shown on this page or find local organizations.
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div
+        className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/20 p-3 text-sm text-blue-800 dark:text-blue-200 flex items-center gap-2"
+        role="status"
+        data-testid="capacity-lookup-loading"
+      >
+        <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+        <span>Checking local organizations near you…</span>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div
+        className="rounded-lg border border-amber-300 dark:border-amber-700 bg-amber-50 dark:bg-amber-950/30 p-3 text-sm text-amber-900 dark:text-amber-100 flex items-start gap-3"
+        role="alert"
+        data-testid="capacity-lookup-error"
+      >
+        <MapPin className="h-4 w-4 shrink-0 mt-0.5" />
+        <div className="space-y-2">
+          <p>
+            We couldn’t check local organization capacity right now. This does not mean help is unavailable.
+            You can still use any official application options shown on this page or try the local lookup again.
+          </p>
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={onRetry}
+            data-testid="button-retry-capacity"
+          >
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (isEmpty) {
+    return (
+      <div
+        className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/40 p-3 text-sm text-muted-foreground"
+        role="status"
+        data-testid="capacity-lookup-empty"
+      >
+        No current local capacity listings were returned for this ZIP. This does not mean help is unavailable;
+        you can still use any official application options shown on this page or find local organizations.
+      </div>
+    );
+  }
+
+  return null;
+}
+
 // ── CHW Send-Referral dialog ──────────────────────────────────────────────────
 interface SendReferralState {
   programCode: string;
@@ -380,7 +524,7 @@ function SendReferralDialog({
   open: boolean;
   initial: SendReferralState | null;
   screeningId: number | null;
-  capacityOrgs: any[];
+  capacityOrgs: CapacityOrganization[];
   onClose: () => void;
 }) {
   const { toast } = useToast();
@@ -771,18 +915,39 @@ export default function BenefitsScreenerPage() {
   );
 
   // Fetch live capacity data when we have results (step 4)
-  const { data: capacityData } = useQuery<{ orgs: any[]; count: number }>({
-    queryKey: ["/api/directory/capacity", data.zipCode],
+  const rawCapacityZip = data.zipCode.trim();
+  const capacityZip = /^\d{5}(?:-\d{4})?$/.test(rawCapacityZip) ? rawCapacityZip.slice(0, 5) : "";
+  const capacityZipStatus: "missing" | "invalid" | null =
+    rawCapacityZip.length === 0 ? "missing" : capacityZip ? null : "invalid";
+  const capacityLookupEnabled = displayedStep === 4 && Boolean(capacityZip);
+  const capacityQuery = useQuery<CapacityData>({
+    queryKey: ["/api/directory/capacity", capacityZip],
     queryFn: async () => {
       const params = new URLSearchParams();
-      if (data.zipCode) params.set("zip", data.zipCode);
+      params.set("zip", capacityZip);
       const res = await fetch(`/api/directory/capacity?${params}`);
-      return res.json();
+      if (!res.ok) {
+        throw new Error(`Capacity lookup failed with status ${res.status}`);
+      }
+
+      let payload: unknown;
+      try {
+        payload = await res.json();
+      } catch {
+        throw new Error("Capacity lookup returned invalid JSON");
+      }
+      if (!isCapacityData(payload)) {
+        throw new Error("Capacity lookup returned an unexpected response");
+      }
+      return payload;
     },
-    enabled: displayedStep === 4,
+    enabled: capacityLookupEnabled,
     staleTime: 5 * 60 * 1000,
+    retry: false,
   });
-  const capacityOrgs = capacityData?.orgs ?? [];
+  const capacityIsLoading = capacityLookupEnabled && (capacityQuery.isPending || capacityQuery.isFetching);
+  const capacityLookupFailed = capacityLookupEnabled && capacityQuery.isError && !capacityQuery.isFetching;
+  const capacityOrgs = capacityLookupFailed || capacityIsLoading ? [] : (capacityQuery.data?.orgs ?? []);
 
   const screenMutation = useMutation({
     mutationFn: async ({ data: screeningData }: ScreeningRequest) => {
@@ -1260,6 +1425,14 @@ export default function BenefitsScreenerPage() {
                 <strong>This is an estimate, not a determination.</strong> These results show programs you <em>may</em> qualify for based on the information you entered. Final eligibility and benefit amounts are decided only by each program's official application. A navigator can help you apply.
               </span>
             </div>
+
+            <CapacityLookupNotice
+              zipStatus={capacityZipStatus}
+              isLoading={capacityIsLoading}
+              isError={capacityLookupFailed}
+              isEmpty={capacityLookupEnabled && capacityQuery.isSuccess && !capacityIsLoading && capacityOrgs.length === 0}
+              onRetry={() => { void capacityQuery.refetch(); }}
+            />
 
             {result.gapBenefits?.length > 0 && (
               <Card>

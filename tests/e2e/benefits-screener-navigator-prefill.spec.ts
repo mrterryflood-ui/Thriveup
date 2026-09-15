@@ -1,4 +1,4 @@
-import { test, expect, type Browser } from "@playwright/test";
+import { test, expect, type Browser, type Page } from "@playwright/test";
 import { Client } from "pg";
 import {
   cleanupTestUser,
@@ -66,6 +66,188 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     await expect(page.getByTestId("step-household")).toBeVisible();
     return { context, page };
   }
+
+  async function completeManualScreening(page: Page) {
+    await page.getByTestId("select-county").click();
+    await page.getByRole("option", { name: "Travis County" }).click();
+    await page.getByTestId("select-household-size").click();
+    await page.getByRole("option", { name: "1 person" }).click();
+    await page.getByTestId("input-income").fill("25000");
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-situation")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-current")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-results")).toBeVisible();
+  }
+
+  async function stubScreeningResult(page: Page) {
+    await page.route("**/api/benefits/screenings", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          screening: { id: "e2e-benefits-capacity" },
+          gapBenefits: ["SNAP"],
+          gaps: [],
+          eligibleBenefits: [],
+          currentBenefits: [],
+          estimatedAnnualValue: 3024,
+          navigationGuides: {},
+        }),
+      });
+    });
+  }
+
+  test("shows loading while local organization capacity is being checked", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    let releaseCapacity!: () => void;
+    const capacityReleased = new Promise<void>(resolve => {
+      releaseCapacity = resolve;
+    });
+
+    await stubScreeningResult(page);
+    await page.route("**/api/directory/capacity*", async (route) => {
+      await capacityReleased;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ orgs: [], count: 0 }),
+      });
+    });
+
+    try {
+      await completeManualScreening(page);
+      await expect(page.getByTestId("capacity-lookup-loading")).toBeVisible();
+      releaseCapacity();
+      await expect(page.getByTestId("capacity-lookup-empty")).toBeVisible();
+    } finally {
+      releaseCapacity();
+      await context.close();
+    }
+  });
+
+  test("shows local organization capacity when the lookup succeeds", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    await stubScreeningResult(page);
+    await page.route("**/api/directory/capacity*", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          orgs: [{
+            id: "e2e-capacity-org",
+            orgId: "org-austin-food-bank",
+            orgName: "Austin Community Food Bank",
+            programCode: "SNAP",
+            status: "open",
+            serviceZips: ["78660"],
+            stale: false,
+          }],
+          count: 1,
+        }),
+      });
+    });
+
+    await completeManualScreening(page);
+    await expect(page.getByTestId("capacity-SNAP")).toContainText("Austin Community Food Bank");
+    await expect(page.getByTestId("capacity-lookup-error")).toBeHidden();
+    await context.close();
+  });
+
+  test("explains when local organization capacity cannot be checked and offers retry", async ({ browser }) => {
+    const { context, page } = await openScreener(browser);
+    let capacityAttempts = 0;
+    let releaseRetry!: () => void;
+    const retryResponseReleased = new Promise<void>(resolve => {
+      releaseRetry = resolve;
+    });
+    await stubScreeningResult(page);
+    await page.route("**/api/directory/capacity*", async (route) => {
+      capacityAttempts += 1;
+      if (capacityAttempts === 1) {
+        await route.fulfill({
+          status: 503,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Capacity service unavailable" }),
+        });
+        return;
+      }
+      await retryResponseReleased;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          orgs: [{
+            id: "e2e-capacity-org-after-retry",
+            orgId: "org-austin-food-bank",
+            orgName: "Austin Community Food Bank",
+            programCode: "SNAP",
+            status: "open",
+            serviceZips: ["78660"],
+            stale: false,
+          }],
+          count: 1,
+        }),
+      });
+    });
+
+    try {
+      await completeManualScreening(page);
+      const errorNotice = page.getByTestId("capacity-lookup-error");
+      await expect(errorNotice).toBeVisible();
+      await expect(errorNotice).toContainText("This does not mean help is unavailable");
+      await expect(page.getByTestId("button-retry-capacity")).toBeVisible();
+      await expect(page.getByTestId("capacity-lookup-empty")).toBeHidden();
+      await page.getByTestId("button-retry-capacity").click();
+      await expect(page.getByTestId("capacity-lookup-loading")).toBeVisible();
+      releaseRetry();
+      await expect(page.getByTestId("capacity-SNAP")).toContainText("Austin Community Food Bank");
+    } finally {
+      releaseRetry();
+      await context.close();
+    }
+  });
+
+  test("does not query broad capacity data when no ZIP was provided", async ({ browser }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "Benefits Navigator",
+    });
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+    let capacityRequests = 0;
+
+    await page.route("**/api/navigator/prefill", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ hasContext: false }),
+      });
+    });
+    await stubScreeningResult(page);
+    await page.route("**/api/directory/capacity*", async (route) => {
+      capacityRequests += 1;
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ orgs: [], count: 0 }),
+      });
+    });
+
+    await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-household")).toBeVisible();
+    await completeManualScreening(page);
+    await expect(page.getByTestId("capacity-lookup-needs-zip")).toContainText("Add your ZIP code");
+    expect(capacityRequests).toBe(0);
+    await context.close();
+  });
 
   test("resolves Navigator ZIP context through prefill into state and county", async ({ browser }) => {
     const { context, page } = await openScreener(browser);
