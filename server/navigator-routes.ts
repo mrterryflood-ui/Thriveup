@@ -223,6 +223,11 @@ function requireAuth(req: Request, res: any, next: any) {
   next();
 }
 
+function setPrivateNoStore(_req: Request, res: any, next: any) {
+  res.setHeader("Cache-Control", "private, no-store");
+  next();
+}
+
 const ANTI_FABRICATION_RULES = `
 === NON-NEGOTIABLE TRUTH RULES — READ BEFORE GENERATING ANYTHING ===
 
@@ -2303,7 +2308,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
   // Returns boolean flags in screener-compatible shape so benefits-screener
   // can call this and skip redundant questions.
   // ─────────────────────────────────────────────────────────────────────────
-  app.get("/api/navigator/prefill", requireAuth, async (req, res) => {
+  app.get("/api/navigator/prefill", setPrivateNoStore, requireAuth, async (req, res) => {
     try {
       const userId = getUserId(req)!;
       const [latest] = await db
@@ -2320,7 +2325,14 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
       if (!latest) return res.json({ hasContext: false });
 
-      const needs = (latest.identifiedNeeds ?? []).map((n: string) => n.toLowerCase());
+      const needs = Array.isArray(latest.identifiedNeeds)
+        ? [...new Set(
+          latest.identifiedNeeds
+            .filter((n): n is string => typeof n === "string")
+            .map(n => n.trim().toLowerCase())
+            .filter(Boolean),
+        )]
+        : [];
       const latestUserContext =
         latest.userContext &&
         typeof latest.userContext === "object" &&
@@ -2355,7 +2367,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
           } catch (persistError) {
             console.warn(
               "[Navigator] Could not persist ZIP-resolved geography; returning the validated result:",
-              persistError instanceof Error ? persistError.message : String(persistError),
+              persistError instanceof Error ? persistError.name : "UnknownError",
             );
           }
         }
@@ -2365,7 +2377,7 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
         hasContext: true,
         conversationId: latest.id,
         conversationTitle: latest.title ?? "Navigator Conversation",
-        identifiedNeeds: latest.identifiedNeeds ?? [],
+        identifiedNeeds: needs,
         geography: geo,
         // Boolean screener flags inferred from identified needs
         hasChildren:      needs.some(n => ["children", "childcare", "family", "kids"].some(k => n.includes(k))),
@@ -2379,7 +2391,10 @@ Do NOT just list grants. Tell the alignment story. Be specific. Use the org name
 
       return res.json(prefill);
     } catch (err) {
-      console.error("[Navigator] /prefill error:", err);
+      console.error(
+        "[Navigator] /prefill error:",
+        err instanceof Error ? err.name : "UnknownError",
+      );
       res.status(500).json({ error: "Navigator prefill unavailable" });
     }
   });

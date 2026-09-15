@@ -128,6 +128,151 @@ test.describe("Benefits Screener Navigator geography prefill", () => {
     await context.close();
   });
 
+  test("shows an actionable notice when prefill is unavailable without blocking manual screening", async ({ browser }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "Benefits Navigator",
+    });
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+
+    await page.route("**/api/navigator/prefill", async (route) => {
+      await route.fulfill({
+        status: 503,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "Navigator prefill unavailable" }),
+      });
+    });
+    await page.route("**/api/benefits/screenings", async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          screening: { id: "e2e-benefits-unavailable-prefill" },
+          gapBenefits: [],
+          gaps: [],
+          eligibleBenefits: [],
+          currentBenefits: [],
+          estimatedAnnualValue: 0,
+          navigationGuides: [],
+        }),
+      });
+    });
+
+    await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("notice-navigator-prefill-unavailable")).toBeVisible();
+    await expect(page.getByTestId("notice-navigator-prefill-unavailable"))
+      .toContainText("continue with the screening manually");
+
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-household")).toBeVisible();
+    await page.getByTestId("select-county").click();
+    await page.getByRole("option", { name: "Travis County" }).click();
+    await page.getByTestId("select-household-size").click();
+    await page.getByRole("option", { name: "1 person" }).click();
+    await page.getByTestId("input-income").fill("25000");
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-situation")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-current")).toBeVisible();
+    await page.getByTestId("button-next").click();
+    await expect(page.getByTestId("step-results")).toBeVisible();
+
+    await context.close();
+  });
+
+  test("offers a sign-in path when prefill authentication fails", async ({ browser }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "Benefits Navigator",
+    });
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+
+    await page.route("**/api/navigator/prefill", async (route) => {
+      await route.fulfill({
+        status: 401,
+        contentType: "application/json",
+        body: JSON.stringify({ error: "Authentication required" }),
+      });
+    });
+
+    await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
+    await expect(page.getByTestId("notice-navigator-prefill-unavailable"))
+      .toContainText("Your Navigator session needs attention");
+    await expect(page.getByTestId("notice-navigator-prefill-unavailable"))
+      .toContainText("Sign in again or continue with the screening manually");
+    await expect(page.getByTestId("link-retry-navigator-sign-in"))
+      .toHaveAttribute("href", "/api/login?returnTo=%2Fbenefits-screener");
+    await expect(page.getByTestId("button-retry-navigator-prefill")).toBeVisible();
+
+    await context.close();
+  });
+
+  test("keeps a genuine no-context response quiet after retry", async ({ browser }) => {
+    const cookie = await forgeSession(db, {
+      userId: TEST_USER_ID,
+      email: TEST_EMAIL,
+      firstName: "E2E",
+      lastName: "Benefits Navigator",
+    });
+    const context = await browser.newContext({
+      baseURL: BASE,
+      extraHTTPHeaders: { Cookie: cookie },
+    });
+    const page = await context.newPage();
+    let prefillAttempts = 0;
+    let releaseRetry: (() => void) | undefined;
+    let resolveRetryStarted: (() => void) | undefined;
+    const retryStarted = new Promise<void>(resolve => {
+      resolveRetryStarted = resolve;
+    });
+
+    await page.route("**/api/navigator/prefill", async (route) => {
+      prefillAttempts += 1;
+      if (prefillAttempts === 1) {
+        await route.fulfill({
+          status: 500,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Navigator prefill unavailable" }),
+        });
+        return;
+      }
+      resolveRetryStarted?.();
+      await new Promise<void>(resolve => {
+        releaseRetry = resolve;
+      });
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ hasContext: false }),
+      });
+    });
+
+    await page.goto("/benefits-screener", { waitUntil: "domcontentloaded" });
+    const unavailableNotice = page.getByTestId("notice-navigator-prefill-unavailable");
+    await expect(unavailableNotice).toBeVisible();
+    await page.getByTestId("button-retry-navigator-prefill").click();
+    await retryStarted;
+    await expect.poll(() => prefillAttempts).toBe(2);
+    await expect(page.getByTestId("button-retry-navigator-prefill")).toBeDisabled();
+    await expect(page.getByTestId("button-retry-navigator-prefill")).toContainText("Retrying");
+    releaseRetry?.();
+    await expect(unavailableNotice).toBeHidden();
+
+    await context.close();
+  });
+
   test("clears Navigator prefill before screening another person", async ({ browser }) => {
     const { context, page } = await openScreener(browser);
 

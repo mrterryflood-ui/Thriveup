@@ -92,7 +92,7 @@ interface ScreenerData {
 }
 
 type NavigatorPrefillData = {
-  hasContext?: boolean;
+  hasContext: boolean;
   conversationTitle?: unknown;
   geography?: unknown;
   hasChildren?: boolean;
@@ -102,6 +102,37 @@ type NavigatorPrefillData = {
   isPregnant?: boolean;
 };
 
+type NavigatorPrefillError = Error & { status?: number };
+
+type NavigatorSituationKey = "hasChildren" | "isDisabled" | "isElderly" | "isUnemployed" | "isPregnant";
+type NavigatorPrefillOwnedField = NavigatorSituationKey | "state" | "county" | "zipCode";
+
+const NAVIGATOR_SITUATION_KEYS = new Set<NavigatorSituationKey>([
+  "hasChildren",
+  "isDisabled",
+  "isElderly",
+  "isUnemployed",
+  "isPregnant",
+]);
+
+function isNavigatorPrefillData(value: unknown): value is NavigatorPrefillData {
+  const payload = value as Record<string, unknown> | null;
+  const booleanFields = [
+    "hasChildren",
+    "isDisabled",
+    "isElderly",
+    "isUnemployed",
+    "isPregnant",
+  ] as const;
+  return Boolean(
+    value &&
+    typeof value === "object" &&
+    !Array.isArray(value) &&
+    typeof payload?.hasContext === "boolean" &&
+    booleanFields.every(field => payload[field] === undefined || typeof payload[field] === "boolean"),
+  );
+}
+
 const INITIAL_DATA: ScreenerData = {
   state: "TX", county: "", zipCode: "", householdSize: "1", annualIncome: "",
   hasChildren: false, childrenUnder5: false, isPregnant: false,
@@ -109,6 +140,24 @@ const INITIAL_DATA: ScreenerData = {
   preferredLanguage: "English",
   currentBenefits: [], contactName: "", contactPhone: "",
 };
+
+function clearNavigatorOwnedData(
+  current: ScreenerData,
+  ownedFields: Set<NavigatorPrefillOwnedField>,
+  locationEdits: Set<"state" | "county" | "zipCode">,
+  situationEdits: Set<NavigatorSituationKey>,
+): ScreenerData {
+  const next = { ...current };
+  if (ownedFields.has("state") && !locationEdits.has("state")) next.state = INITIAL_DATA.state;
+  if (ownedFields.has("county") && !locationEdits.has("county")) next.county = INITIAL_DATA.county;
+  if (ownedFields.has("zipCode") && !locationEdits.has("zipCode")) next.zipCode = INITIAL_DATA.zipCode;
+  if (ownedFields.has("hasChildren") && !situationEdits.has("hasChildren")) next.hasChildren = INITIAL_DATA.hasChildren;
+  if (ownedFields.has("isDisabled") && !situationEdits.has("isDisabled")) next.isDisabled = INITIAL_DATA.isDisabled;
+  if (ownedFields.has("isElderly") && !situationEdits.has("isElderly")) next.isElderly = INITIAL_DATA.isElderly;
+  if (ownedFields.has("isUnemployed") && !situationEdits.has("isUnemployed")) next.isUnemployed = INITIAL_DATA.isUnemployed;
+  if (ownedFields.has("isPregnant") && !situationEdits.has("isPregnant")) next.isPregnant = INITIAL_DATA.isPregnant;
+  return next;
+}
 
 function normalizeNavigatorGeography(value: unknown): Partial<Pick<ScreenerData, "state" | "county" | "zipCode">> {
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
@@ -161,6 +210,12 @@ function normalizeNavigatorGeography(value: unknown): Partial<Pick<ScreenerData,
     ...(normalizedCounty ? { county: normalizedCounty } : {}),
     ...(zipCode ? { zipCode } : {}),
   };
+}
+
+function hasUsableNavigatorPrefill(prefillData: NavigatorPrefillData): boolean {
+  if (!prefillData.hasContext) return false;
+  return Object.keys(normalizeNavigatorGeography(prefillData.geography)).length > 0 ||
+    [...NAVIGATOR_SITUATION_KEYS].some(field => prefillData[field] === true);
 }
 
 // ── Capacity badge helpers ────────────────────────────────────────────────────
@@ -518,25 +573,50 @@ export default function BenefitsScreenerPage() {
   const [navigatorBanner, setNavigatorBanner] = useState<{ title: string } | null>(null);
   const [hasNavigatorGeography, setHasNavigatorGeography] = useState(false);
   const [hasNavigatorSituationPrefill, setHasNavigatorSituationPrefill] = useState(false);
+  const [navigatorPrefillRetrying, setNavigatorPrefillRetrying] = useState(false);
   const prefillAppliedForUser = useRef<string | null>(null);
   const navigatorPrefillDismissedForUser = useRef<string | null>(null);
   const locationEdits = useRef(new Set<"state" | "county" | "zipCode">());
+  const situationEdits = useRef(new Set<NavigatorSituationKey>());
+  const navigatorPrefillOwnedFields = useRef(new Set<NavigatorPrefillOwnedField>());
 
   // Fetch Navigator prefill data for authenticated users
-  const { data: prefillData } = useQuery<NavigatorPrefillData>({
+  const {
+    data: prefillData,
+    error: navigatorPrefillError,
+    isError: navigatorPrefillUnavailable,
+    isFetching: navigatorPrefillFetching,
+    refetch: retryNavigatorPrefill,
+  } = useQuery<NavigatorPrefillData, NavigatorPrefillError>({
     queryKey: ["/api/navigator/prefill", user?.id ?? null],
     queryFn: async () => {
-      const res = await fetch("/api/navigator/prefill", { credentials: "include" });
-      if (!res.ok) return { hasContext: false };
-      return res.json();
+      const res = await fetch("/api/navigator/prefill", {
+        credentials: "include",
+        cache: "no-store",
+      });
+      if (!res.ok) {
+        const error = new Error("Navigator prefill unavailable") as NavigatorPrefillError;
+        error.status = res.status;
+        throw error;
+      }
+      const body: unknown = await res.json();
+      if (!isNavigatorPrefillData(body)) throw new Error("Navigator prefill unavailable");
+      return body;
     },
     enabled: isAuthenticated && !authLoading,
     staleTime: 5 * 60 * 1000,
     retry: false,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: false,
+    gcTime: 0,
   });
+  const navigatorPrefillAuthFailure = navigatorPrefillUnavailable &&
+    (navigatorPrefillError?.status === 401 || navigatorPrefillError?.status === 403);
 
   useEffect(() => {
     locationEdits.current.clear();
+    situationEdits.current.clear();
+    navigatorPrefillOwnedFields.current.clear();
     prefillAppliedForUser.current = null;
     navigatorPrefillDismissedForUser.current = null;
     setNavigatorBanner(null);
@@ -547,15 +627,34 @@ export default function BenefitsScreenerPage() {
     setResult(null);
     setScreeningId(null);
     setReferralTarget(null);
+    setNavigatorPrefillRetrying(false);
   }, [user?.id, isAuthenticated]);
 
   // Apply Navigator prefill to screener state exactly once per authenticated user
   useEffect(() => {
     const userId = user?.id ?? null;
+    if (!userId) return;
+    if (navigatorPrefillRetrying || navigatorPrefillUnavailable) return;
+    if (prefillData && !hasUsableNavigatorPrefill(prefillData)) {
+      prefillAppliedForUser.current = null;
+      const ownedFields = new Set(navigatorPrefillOwnedFields.current);
+      const editedLocations = new Set(locationEdits.current);
+      const editedSituation = new Set(situationEdits.current);
+      setData(prev => clearNavigatorOwnedData(
+        prev,
+        ownedFields,
+        editedLocations,
+        editedSituation,
+      ));
+      navigatorPrefillOwnedFields.current.clear();
+      setNavigatorBanner(null);
+      setHasNavigatorGeography(false);
+      setHasNavigatorSituationPrefill(false);
+      return;
+    }
     if (navigatorPrefillDismissedForUser.current === userId) return;
     if (prefillAppliedForUser.current === userId) return;
-    if (!userId) return;
-    if (!prefillData?.hasContext) return;
+    if (!prefillData || !hasUsableNavigatorPrefill(prefillData)) return;
     prefillAppliedForUser.current = userId;
     const geographyPrefill = normalizeNavigatorGeography(prefillData.geography);
     const editableGeographyPrefill = { ...geographyPrefill };
@@ -563,33 +662,67 @@ export default function BenefitsScreenerPage() {
       delete editableGeographyPrefill.state;
       delete editableGeographyPrefill.county;
     } else if (locationEdits.current.has("county")) {
+      delete editableGeographyPrefill.state;
       delete editableGeographyPrefill.county;
     }
     if (locationEdits.current.has("zipCode")) delete editableGeographyPrefill.zipCode;
-    setHasNavigatorGeography(Object.keys(geographyPrefill).length > 0);
+    for (const field of ["state", "county", "zipCode"] as const) {
+      if (editableGeographyPrefill[field] !== undefined) {
+        navigatorPrefillOwnedFields.current.add(field);
+      }
+    }
+    for (const field of NAVIGATOR_SITUATION_KEYS) {
+      if (prefillData[field] && !situationEdits.current.has(field)) {
+        navigatorPrefillOwnedFields.current.add(field);
+      }
+    }
+    setHasNavigatorGeography(Object.keys(editableGeographyPrefill).length > 0);
     setHasNavigatorSituationPrefill(
       Boolean(
-        prefillData.hasChildren ||
-        prefillData.isDisabled ||
-        prefillData.isElderly ||
-        prefillData.isUnemployed ||
-        prefillData.isPregnant,
+        (prefillData.hasChildren && !situationEdits.current.has("hasChildren")) ||
+        (prefillData.isDisabled && !situationEdits.current.has("isDisabled")) ||
+        (prefillData.isElderly && !situationEdits.current.has("isElderly")) ||
+        (prefillData.isUnemployed && !situationEdits.current.has("isUnemployed")) ||
+        (prefillData.isPregnant && !situationEdits.current.has("isPregnant")),
       ),
     );
     setData(prev => ({
       ...prev,
       ...editableGeographyPrefill,
-      hasChildren:  prefillData.hasChildren  ? true : prev.hasChildren,
-      isDisabled:   prefillData.isDisabled   ? true : prev.isDisabled,
-      isElderly:    prefillData.isElderly    ? true : prev.isElderly,
-      isUnemployed: prefillData.isUnemployed ? true : prev.isUnemployed,
-      isPregnant:   prefillData.isPregnant   ? true : prev.isPregnant,
+      hasChildren:  prefillData.hasChildren  && !situationEdits.current.has("hasChildren")  ? true : prev.hasChildren,
+      isDisabled:   prefillData.isDisabled   && !situationEdits.current.has("isDisabled")   ? true : prev.isDisabled,
+      isElderly:    prefillData.isElderly    && !situationEdits.current.has("isElderly")    ? true : prev.isElderly,
+      isUnemployed: prefillData.isUnemployed && !situationEdits.current.has("isUnemployed") ? true : prev.isUnemployed,
+      isPregnant:   prefillData.isPregnant   && !situationEdits.current.has("isPregnant")   ? true : prev.isPregnant,
     }));
     const title = typeof prefillData.conversationTitle === "string"
       ? prefillData.conversationTitle
       : "Navigator Conversation";
     setNavigatorBanner({ title });
-  }, [prefillData]);
+  }, [navigatorPrefillRetrying, navigatorPrefillUnavailable, prefillData, user?.id]);
+
+  const handleNavigatorPrefillRetry = async () => {
+    prefillAppliedForUser.current = null;
+    const ownedFields = new Set(navigatorPrefillOwnedFields.current);
+    const editedLocations = new Set(locationEdits.current);
+    const editedSituation = new Set(situationEdits.current);
+    setData(prev => clearNavigatorOwnedData(
+      prev,
+      ownedFields,
+      editedLocations,
+      editedSituation,
+    ));
+    navigatorPrefillOwnedFields.current.clear();
+    setNavigatorBanner(null);
+    setHasNavigatorGeography(false);
+    setHasNavigatorSituationPrefill(false);
+    setNavigatorPrefillRetrying(true);
+    try {
+      await retryNavigatorPrefill();
+    } finally {
+      setNavigatorPrefillRetrying(false);
+    }
+  };
 
   // Counties in the currently-selected state. Recomputed only when the state changes.
   const countiesInState = useMemo(
@@ -725,6 +858,54 @@ export default function BenefitsScreenerPage() {
             })}
           </div>
         </div>
+
+        {(navigatorPrefillUnavailable || navigatorPrefillRetrying) && isAuthenticated && !authLoading && (
+          <div
+            className="mb-6 flex flex-wrap items-start justify-between gap-3 rounded-lg border border-amber-300 bg-amber-50 px-3 py-2.5 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-200"
+            data-testid="notice-navigator-prefill-unavailable"
+          >
+            <div className="flex min-w-0 flex-1 items-start gap-2">
+              <MessageCircle aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-amber-700 dark:text-amber-300" />
+              <div className="min-w-0" role="alert">
+                <strong className="font-semibold">
+                  {navigatorPrefillAuthFailure
+                    ? "Your Navigator session needs attention."
+                    : "Navigator information is temporarily unavailable."}
+                </strong>
+                <p>
+                  {navigatorPrefillAuthFailure
+                    ? "Sign in again or continue with the screening manually."
+                    : "You can continue with the screening manually."}
+                </p>
+              </div>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              {navigatorPrefillAuthFailure && (
+                <a
+                  href={`/api/login?returnTo=${encodeURIComponent("/benefits-screener")}`}
+                  className="text-sm font-medium underline underline-offset-2"
+                  data-testid="link-retry-navigator-sign-in"
+                >
+                  Sign in again
+                </a>
+              )}
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => { void handleNavigatorPrefillRetry(); }}
+                disabled={navigatorPrefillFetching || navigatorPrefillRetrying}
+                data-testid="button-retry-navigator-prefill"
+              >
+                {navigatorPrefillFetching ? (
+                  <><Loader2 className="mr-1.5 h-4 w-4 animate-spin" /> Retrying…</>
+                ) : (
+                  "Try again"
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
 
         {step === 0 && (
           <Card data-testid="step-welcome">
@@ -911,7 +1092,13 @@ export default function BenefitsScreenerPage() {
                     </div>
                     <Switch
                       checked={(data as any)[item.key]}
-                      onCheckedChange={v => setData({...data, [item.key]: v})}
+                      onCheckedChange={v => {
+                        const situationKey = item.key as NavigatorSituationKey;
+                        if (NAVIGATOR_SITUATION_KEYS.has(situationKey)) {
+                          situationEdits.current.add(situationKey);
+                        }
+                        setData({...data, [item.key]: v});
+                      }}
                       data-testid={`switch-${item.key}`}
                     />
                   </div>
