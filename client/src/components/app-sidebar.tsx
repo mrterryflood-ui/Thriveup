@@ -67,6 +67,7 @@ const SIDEBAR_DESCRIPTIONS: Record<string, string> = {
   "Maternal Health Network": "Prenatal, postpartum, doula, and maternal mental-health navigation.",
   "MaleHealth Matters": "Men's health education, prevention, screening navigation, and peer connection.",
   "RPLICE Research Hub": "Research-to-practice tools for evidence review, implementation planning, and evaluation.",
+  "Austin EBI Planning": "Private staff workspace for documenting Austin's evidence-based intervention, local adaptations, fidelity controls, evaluation contract, and approval blockers.",
 };
 
 function SidebarInfo({ title }: { title: string }) {
@@ -428,6 +429,7 @@ const ctxHubItems: NavItem[] = [
   { title: "N. Wilco Childcare Voice", url: "/voice/north-wilco-childcare-gaps", icon: MessageCircle },
   { title: "Regional Briefing", url: "/regional-briefing", icon: Sparkles, authOnly: true, adminOnly: true },
   { title: "Austin Initiative", url: "/austin", icon: MapPin },
+  { title: "Austin EBI Planning", url: "/austin-community-bridge/readiness", icon: ShieldCheck, authOnly: true, staffOnly: true },
   { title: "Manor Hub", url: "/manor", icon: MapPin },
   { title: "Pflugerville Hub", url: "/pflugerville", icon: MapPin },
   { title: "Voices of Austin", url: "/voices-of-austin", icon: Megaphone },

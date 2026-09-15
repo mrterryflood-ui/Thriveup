@@ -187,6 +187,33 @@ export default function EastAustinApprovalReadinessPage() {
         </CardContent>
       </Card>
 
+      <section aria-labelledby="workflow-heading" data-testid="east-austin-staff-workflow">
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader className="pb-3">
+            <CardTitle id="workflow-heading">How staff use this workspace</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              This is the Austin implementation-planning record. Use it before any intervention launch, resident connection, partner release, or public claim.
+            </p>
+          </CardHeader>
+          <CardContent className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              ["1", "Document context", "Record the provisional geography, baseline, evidence sources, and what remains unknown."],
+              ["2", "Define the intervention", "Capture the versioned EBI, core mechanisms, adaptable delivery elements, prohibited changes, and fidelity threshold."],
+              ["3", "Review learning", "Log local adaptations and define the non-causal evaluation, equity, and unintended-harm monitoring contract."],
+              ["4", "Approve readiness", "Review the six gates. The server shows the blockers; approval here still authorizes planning only."],
+            ].map(([number, title, description]) => (
+              <div key={number} className="rounded-lg border bg-background p-4">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary text-sm font-bold text-primary-foreground">{number}</span>
+                  <strong>{title}</strong>
+                </div>
+                <p className="mt-2 text-sm text-muted-foreground">{description}</p>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      </section>
+
       {message && <div role="status" className="rounded-lg border bg-muted px-4 py-3 text-sm" data-testid="east-austin-readiness-message">{message}</div>}
 
       <section aria-labelledby="operating-surfaces-heading" data-testid="east-austin-operating-surfaces">
